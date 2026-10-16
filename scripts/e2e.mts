@@ -224,9 +224,10 @@ await test("Lens processes frames from a (fake) camera at > 0 fps", { "LN-01": "
   await resetDesktop();
   const dlg = await openModule(page, "lens", "Lens");
   await dlg.getByRole("button", { name: "Start camera" }).click();
-  await sleep(4000);
-  const txt = await dlg.getByText(/\d+ fps · \d+p/).first().innerText();
-  ok(Number(/^(\d+)/.exec(txt)![1]) > 0, `badge: ${txt}`);
+  // poll (TT16): on a loaded 2-CPU host the first frames can take > 4 s; the contract is still "> 0 fps"
+  let txt = "";
+  for (let i = 0; i < 24; i++) { await sleep(500); txt = await dlg.getByText(/\d+ fps · \d+p/).first().innerText(); if (Number(/^(\d+)/.exec(txt)![1]) > 0) break; }
+  ok(Number(/^(\d+)/.exec(txt)![1]) > 0, `badge after 12 s: ${txt}`);
   await dlg.getByRole("button", { name: "Stop camera" }).click();
 });
 

@@ -296,3 +296,71 @@ $T scripts/oracle-parity.mts        # LibreOffice fixture + PyPI formulas fixtur
 ORACLE_PY=/path/to/python-with-openpyxl $T scripts/oracle-xlsx.mts
 BASE=http://localhost:3999 $T scripts/e2e-office.mts   # real Chromium, 11 tests
 ```
+
+## TT16 — image editing (layers + PSD), vector studio v2, browser session hardening
+
+**Image (FF-30/31).** `src/lib/image/{doc,paint,history,psd,raster}.ts`, pure; UI in `ImageStudio.tsx`, with the classic quick editor kept as a tab.
+- **Compositor:** 12 separable W3C Compositing-1 modes, layer opacity, masks, offsets.
+- **PSD codec:** RLE/ZIP/raw channels, luni names plus MacRoman Pascal names, masks, merged composite.
+- **Oracles:**
+  - Chromium/Skia `globalCompositeOperation` with exact-representable inputs: |Δ| 0 for 9 modes, 1 for color-dodge/burn/soft-light on opaque backdrops, ≤2 on translucent ones.
+  - psd-tools 1.25 in both directions: layer pixels byte-exact; its compositor vs ours Δmax 1.
+- **Bugs found by the oracles and visual inspection:**
+  - blur dark fringe (straight-alpha box blur);
+  - Pascal names are MacRoman, not Latin-1;
+  - clipped tool labels;
+  - ellipse selection drawn as a rectangle.
+
+**Vector (FF-32).** `src/lib/vector/{xml,path,model}.ts`, pure; UI in `Vector.tsx`.
+- **Path engine:**
+  - full SVG 1.1 grammar with F.2 error recovery;
+  - normalised to absolute M/L/C/Z; Q/T are converted to cubics exactly;
+  - arcs follow F.6.5/F.6.6 (≤90° pieces, k = 4/3·tan(Δ/4));
+  - bounds from derivative roots; adaptive length; nonzero/evenodd containment; hit testing by the engine.
+- **SVG import** is an allowlist translator that reports everything it drops. It handles:
+  - style attribute and inheritance;
+  - `<use>`, with cycle and depth guards;
+  - gradients with `%` offsets (clamped, monotonic) and href inheritance;
+  - no DOCTYPE entity expansion.
+- **Canvas rendering:** the canvas renders our own export serialisation, so what you see is what gets exported.
+- **Two independent oracles:**
+
+| Check | svgelements 1.9.6 | Chromium |
+|---|---|---|
+| bbox (L/C/Q) | exact (1e-17) | ≤1e-5 (float32) |
+| bbox (arcs → cubics) | ≤1.6e-4 rel. | ≤1.5e-4 rel. |
+| length | ≤1.5e-4 rel. | ≤9e-5 rel. |
+| transform lists (13) | identical | identical (`transform.baseVal`) |
+| fill containment | — | 8,538 `isPointInFill` samples agree (edge points within 0.35 px skipped) |
+| rx=0 arc | reports length 0 (deviates from spec) | straight line (spec): **we follow the spec** |
+
+- **Render parity:** Chromium rasterises the original fixture and our import→export at 2×. 0.10% of pixels differ by more than 24/255, all along arcs. Each difference is one Skia 4× vertical-supersample coverage step: 205/4 ≈ 52 for that red on white. That is caused by ~0.01 px geometric deviation from the cubic arc approximation, as checked with the fill-only arc test.
+- **Gaps:**
+  - no boolean ops;
+  - no text to outlines (needs glyph data);
+  - text bounds estimated at 0.6 em/char;
+  - no markers, patterns, filters, masks or clipPaths;
+  - nested `<svg>` viewport clipping not reproduced;
+  - arcs are stored as cubics after import.
+
+**Browser (PR-07, competitor port).** `src/lib/browserSession.ts` adds:
+- URL guard: http(s) only, no userinfo, never the shell's own origin;
+- normalisation of untrusted saved sessions;
+- batch close (others / to the right / duplicates; pinned tabs kept);
+- pinning, groups and search;
+- sleep invariants (visible and pinned tabs never sleep);
+- per-host `allow=` delegation.
+
+It also fixes two defects:
+- **Security:** a restored session could put shell-origin content into a frame with `allow-scripts allow-same-origin`.
+- **Bug:** closing the active tab left a blank view.
+
+Six rows that the register claimed as "built" had no UI before TT16. They are now implemented and e2e-tested.
+
+**Competitor TT14 tree, final audit.**
+- `vector.ts` / `vectorGeometry.ts`: superseded. Our engine does true path geometry; theirs keeps path `d` as an opaque string with bbox-only hit testing, and their gradient offsets turn "50%" into NaN.
+- `browserState.ts`: pareto-superior parts ported (above).
+- `sandboxPolicy.ts`: only the explicit `allow` denials were superior (ported); its per-origin rule table hard-codes three demo hosts.
+- All pareto-superior elements found in the tree have now been ported or superseded.
+
+Competitor vector parity also added: arrow (line tool + Arrowhead → plain path, no `<marker>`) and parametric stars (point count / inner ratio re-editable after moves/rotations; `restar` keeps centre, radius, rotation). Suites added: `vector-engine` (18), `oracle-svg` (4), `e2e-vector` (11), `browser-session` (5), `e2e-browser` (6). Ledger after TT16: built 182 full / 65 partial / 22 blocked; tested 65 full / 73 partial / 131 untested; 228/228 tests. Screenshots: `docs/screenshots/tt16-vector-studio.png` and `tt16-vector-nodes.png`.

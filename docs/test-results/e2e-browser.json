@@ -1,0 +1,67 @@
+{
+  "suite": "e2e-browser",
+  "at": "2026-10-16T04:18:45.572Z",
+  "results": [
+    {
+      "suite": "e2e-browser",
+      "name": "hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
+      "covers": {
+        "PR-07": "full",
+        "PR-07r": "partial"
+      },
+      "pass": true,
+      "ms": 515
+    },
+    {
+      "suite": "e2e-browser",
+      "name": "address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https)",
+      "covers": {
+        "PR-07": "partial",
+        "PR-07a": "partial"
+      },
+      "pass": true,
+      "ms": 1665
+    },
+    {
+      "suite": "e2e-browser",
+      "name": "Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab",
+      "covers": {
+        "PR-07i": "full",
+        "PR-07f": "full",
+        "PR-07a": "full"
+      },
+      "pass": true,
+      "ms": 1630
+    },
+    {
+      "suite": "e2e-browser",
+      "name": "batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs",
+      "covers": {
+        "PR-07q": "full",
+        "PR-07c": "full",
+        "PR-07b": "full",
+        "PR-07g": "full"
+      },
+      "pass": true,
+      "ms": 31749
+    },
+    {
+      "suite": "e2e-browser",
+      "name": "site permissions panel writes the iframe delegation policy into the saved session",
+      "covers": {
+        "PR-07l": "full"
+      },
+      "pass": true,
+      "ms": 2191
+    },
+    {
+      "suite": "e2e-browser",
+      "name": "no page errors in the browser session",
+      "covers": {
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

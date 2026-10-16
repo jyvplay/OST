@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-16T03:13:29.770Z",
+ "generatedAt": "2026-10-16T04:21:57.248Z",
  "totals": {
   "built": {
-   "full": 178,
-   "partial": 66,
+   "full": 182,
+   "partial": 65,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 51,
-   "partial": 76,
-   "untested": 139
+   "full": 65,
+   "partial": 73,
+   "untested": 131
   },
   "tests": {
-   "total": 154,
-   "passed": 154
+   "total": 228,
+   "passed": 228
   }
  },
  "rows": {
@@ -534,22 +534,37 @@
    "tests": []
   },
   "PR-07": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused",
+    "browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first",
+    "e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
+    "e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https)",
+    "e2e-browser: no page errors in the browser session",
     "e2e: mount: browser"
    ]
   },
   "PR-07a": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: close: active tab hands focus to its neighbour (regression: view went blank); last tab replaced",
+    "e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https)",
+    "e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab"
+   ]
   },
   "PR-07b": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs"
+   ]
   },
   "PR-07c": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs"
+   ]
   },
   "PR-07d": {
    "tested": "untested",
@@ -560,20 +575,28 @@
    "tests": []
   },
   "PR-07f": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab"
+   ]
   },
   "PR-07g": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs"
+   ]
   },
   "PR-07h": {
    "tested": "untested",
    "tests": []
   },
   "PR-07i": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab"
+   ]
   },
   "PR-07j": {
    "tested": "untested",
@@ -584,8 +607,12 @@
    "tests": []
   },
   "PR-07l": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused",
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: site permissions panel writes the iframe delegation policy into the saved session"
+   ]
   },
   "PR-07m": {
    "tested": "untested",
@@ -604,12 +631,17 @@
    "tests": []
   },
   "PR-07q": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: batch actions: close others / to the right / duplicates keep pinned tabs and the anchor",
+    "e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs"
+   ]
   },
   "PR-07r": {
    "tested": "partial",
    "tests": [
+    "browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first",
+    "e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
     "e2e: mount: routines",
     "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted"
    ]
@@ -681,8 +713,10 @@
   "FF-04": {
    "tested": "full",
    "tests": [
+    "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
     "e2e: mount: vector",
-    "unit: SVG sanitiser strips script/handlers/foreignObject/javascript:"
+    "unit: SVG sanitiser strips script/handlers/foreignObject/javascript:",
+    "vector: v1 .fsvg migration and untrusted v2 validation"
    ]
   },
   "FF-05": {
@@ -795,14 +829,21 @@
    ]
   },
   "FF-24": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: mount: imageedit"
+    "e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection",
+    "e2e-image: Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes",
+    "e2e-image: classic Quick edit mode is still available (additive merge)",
+    "e2e: mount: imageedit",
+    "image: structural ops: rotate×4 = id, rotate matches raster.rotate90 of the composite, flips, crop keeps pixels",
+    "image: gradient endpoints/midpoint; eyedropper average; blur is premultiplied (no dark fringe)"
    ]
   },
   "FF-25": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
+    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size)",
     "e2e: mount: vector"
    ]
   },
@@ -821,6 +862,7 @@
   "MD-03": {
    "tested": "partial",
    "tests": [
+    "e2e-image: classic Quick edit mode is still available (additive merge)",
     "e2e: mount: imageedit"
    ]
   },
@@ -947,6 +989,7 @@
    "tested": "full",
    "tests": [
     "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+    "e2e: mount: sheet",
     "office: SEQUENCE(2,3) spills all six cells with correct values",
     "office: an obstruction blocks the WHOLE array with #SPILL!, and removing it recovers",
     "office: a formula referencing a spilled child sees the child value (fixed point)",
@@ -966,6 +1009,7 @@
   "FF-27": {
    "tested": "full",
    "tests": [
+    "e2e: mount: sheet",
     "office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP",
     "office: first-party verified semantics survive: SUM(1,\"x\",2) is still #VALUE!",
     "office: financial: PMT/NPV/IRR/FV match independent closed-form values",
@@ -989,6 +1033,7 @@
     "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
+    "e2e: mount: sheet",
     "office: shiftFormula: relative parts move, $-anchored parts stay, strings untouched, off-grid → #REF!",
     "office: adjustForStructure: insert/delete rows repair refs; deleted single ref → #REF!; ranges shrink; other sheets untouched",
     "office: insertDelete: physical move + workbook-wide repair + recalculated values",
@@ -1014,9 +1059,97 @@
    "tested": "full",
    "tests": [
     "e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source",
+    "e2e: mount: sheet",
     "office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data",
     "office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
     "office: workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads"
+   ]
+  },
+  "FF-30": {
+   "tested": "full",
+   "tests": [
+    "e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops",
+    "e2e-image: new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo",
+    "e2e-image: layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge",
+    "e2e-image: bucket tolerance/contiguity on real pixels; eyedropper sets the foreground; wand selection + Delete clears",
+    "e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection",
+    "e2e-image: layer mask: paint on mask hides, disable mask reveals; keyboard tool switching, [ ] size, X swap",
+    "e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels",
+    "e2e-image: Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes",
+    "e2e-image: no uncaught page errors during the image session",
+    "e2e: mount: imageedit",
+    "image: W3C separable blend functions: hand-computed pins",
+    "image: composite: source-over with opacity, blend over transparent backdrop, mask, off-canvas offsets",
+    "image: structural ops: rotate×4 = id, rotate matches raster.rotate90 of the composite, flips, crop keeps pixels",
+    "image: merge down / flatten preserve the composite; duplicate/reorder/remove; growLayerTo; validation",
+    "image: brush: AA profile, continuous evenly spaced stroke, erase, mask painting, selection clipping",
+    "image: flood fill: contiguity, tolerance boundary, selection; magic wand; clear/copy selection; ellipse area",
+    "image: gradient endpoints/midpoint; eyedropper average; blur is premultiplied (no dark fringe)",
+    "image: PSD write → read (raw / RLE / ZIP): names (Unicode), offsets incl. negative, opacity, blend, visibility, masks, exact pixels",
+    "image: history: undo/redo, state cap, unique-buffer byte budget",
+    "image: resizeImage 2× then ½ ≈ identity on smooth content; layer offsets scale",
+    "oracle-psd: A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools"
+   ]
+  },
+  "FF-31": {
+   "tested": "full",
+   "tests": [
+    "e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels",
+    "e2e: mount: imageedit",
+    "image: PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size",
+    "image: PSD write → read (raw / RLE / ZIP): names (Unicode), offsets incl. negative, opacity, blend, visibility, masks, exact pixels",
+    "image: PSD reader rejects PSB, 16-bit, CMYK, truncated/garbage input with explicit messages",
+    "oracle-psd: A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: C: layer-less RGB and Grayscale PSDs written by psd-tools open via the merged-image fallback"
+   ]
+  },
+  "FF-32": {
+   "tested": "full",
+   "tests": [
+    "e2e-vector: ORACLE Chromium SVG: getBBox + getTotalLength of the ORIGINAL d vs our normalised cubics (arcs included)",
+    "e2e-vector: ORACLE Chromium SVG: isPointInFill (nonzero + evenodd) vs our containment on a 31×31 grid per path; transform.baseVal",
+    "e2e-vector: ORACLE render parity: Chromium rasterises the original SVG and our import→export identically (≤0.5% pixels > 24/255)",
+    "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
+    "e2e-vector: UI: select, move by drag, resize from the se handle, rotate 90° with shift-snap, nudge 1/10",
+    "e2e-vector: UI: pen — corner clicks + close on first node; drag makes a smooth (cubic) node; node tool drags an anchor",
+    "e2e-vector: UI: marquee + shift-click multi-select, align left, distribute, group/ungroup, duplicate, z-order, delete (keyboard)",
+    "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
+    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size)",
+    "e2e-vector: UI: arrow (line tool + Arrowhead) exports as plain path; star stays parametric — point count / inner ratio editable after a move",
+    "e2e-vector: no page errors during the vector session",
+    "e2e: mount: vector",
+    "oracle-svg: svgelements: path bounds (exact for L/C/Q; arcs within 1e-3·r)",
+    "oracle-svg: svgelements: path length (rel. error ≤ 1e-6 exact segments, ≤ 5e-4 arcs)",
+    "oracle-svg: svgelements: end point of every path identical (relative-command bookkeeping)",
+    "oracle-svg: svgelements: transform lists → identical matrices (1e-12)",
+    "vector: path grammar: implicit repeats, '1.5.5', signs as separators, exponents, compact arc flags",
+    "vector: path errors (SVG F.2): render up to the last good segment and report",
+    "vector: Q/T → cubic elevation is exact; S/T reflect only after C/S resp. Q/T",
+    "vector: arcs (F.6.5/F.6.6): semicircle bounds/length, radius scaling, rx=0 line, zero-length arc omitted",
+    "vector: cubic bounds use derivative roots (not control hull); length of closed square includes Z",
+    "vector: fill rules: nonzero vs evenodd on nested same-direction squares; distance to outline",
+    "vector: transforms: list order, rotate(a cx cy), skew, inverse; serialise rounding",
+    "vector: XML reader: quoted '>' in attributes, entities, no DOCTYPE entity expansion, depth limit",
+    "vector: SVG import: style attr beats presentation attr, g inheritance, circle→ellipse, %-offset gradients, <use>",
+    "vector: SVG import security: scripts, handlers, foreignObject, external refs, CSS, filters reported and never exported",
+    "vector: export → import round trip is a fixed point (shapes, styles, bounds, gradients)",
+    "vector: ops: move/align/distribute/resize/rotate/flip keep exact geometry",
+    "vector: ops: group/ungroup preserve bounds through a rotated group; z-order; duplicate; delete; marquee",
+    "vector: toPath keeps exact bounds for rect(rx)/ellipse/polygon; text refuses (no glyph data)",
+    "vector: hit test: fill-rule holes, stroke tolerance, transformed shapes, topmost wins, hidden/locked skipped",
+    "vector: path node editing: anchors carry their handles; handles move alone",
+    "vector: v1 .fsvg migration and untrusted v2 validation",
+    "vector: parametric star survives move/rotate; arrow is plain path data (no <marker>)"
    ]
   },
   "CT-01": {

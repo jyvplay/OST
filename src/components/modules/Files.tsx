@@ -141,7 +141,7 @@ export default function FilesModule({ win }: ModuleProps) {
                 onDoubleClick={() => {
                   if (showTrash) return;
                   if (n.kind === "dir") go(n.path);
-                  else if (n.name.toLowerCase().endsWith(".svg")) shell.open("vector", { path: n.path, title: n.name });
+                  else if (n.name.toLowerCase().endsWith(".svg") || n.name.toLowerCase().endsWith(".fsvg")) shell.open("vector", { path: n.path, title: n.name });
                   else if (n.mime.startsWith("image/")) shell.open("imageedit", { path: n.path, title: n.name });
                   else if (n.name.toLowerCase().endsWith(".docx") || n.name.toLowerCase().endsWith(".fdoc")) shell.open("writer", { path: n.path, title: n.name });
                   else if (n.name.toLowerCase().endsWith(".pptx") || n.name.toLowerCase().endsWith(".fdeck")) shell.open("slides", { path: n.path, title: n.name });

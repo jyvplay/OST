@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-16T03:13:29.770Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-7 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-16T04:21:57.246Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+15 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **266** |
-| Fully built | 178 |
-| Partially built (partial 48 + probe 18) | 66 |
+| **Features in register** | **269** |
+| Fully built | 182 |
+| Partially built (partial 47 + probe 18) | 65 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **51** |
-| **Partially tested** (only `partial` tags) | **76** |
-| Untested | 139 |
-| Automated tests executed / passed | 154 / 154 |
+| **Fully tested** (≥1 passing test tagged `full`) | **65** |
+| **Partially tested** (only `partial` tags) | **73** |
+| Untested | 131 |
+| Automated tests executed / passed | 228 / 228 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 42 | 60 | 76 |
-| partially built | 3 | 14 | 49 |
+| fully built | 55 | 59 | 68 |
+| partially built | 4 | 12 | 49 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
 
@@ -33,13 +33,21 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| e2e-office | 11 | 11 | 0 | 2026-10-16T03:10:48.076Z |
-| e2e | 54 | 54 | 0 | 2026-10-16T03:12:52.525Z |
-| integration | 24 | 24 | 0 | 2026-10-16T03:13:29.658Z |
-| office | 35 | 35 | 0 | 2026-10-16T03:07:22.400Z |
-| oracle-xlsx | 3 | 3 | 0 | 2026-10-16T02:54:10.763Z |
-| oracle | 5 | 5 | 0 | 2026-10-16T03:07:22.744Z |
-| unit | 22 | 22 | 0 | 2026-10-16T03:11:12.115Z |
+| browser-session | 5 | 5 | 0 | 2026-10-16T04:18:05.281Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-16T04:18:45.572Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-16T03:58:09.347Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-16T03:58:29.829Z |
+| e2e-vector | 11 | 11 | 0 | 2026-10-16T04:14:45.349Z |
+| e2e | 54 | 54 | 0 | 2026-10-16T04:21:51.815Z |
+| image | 12 | 12 | 0 | 2026-10-16T04:18:01.268Z |
+| integration | 24 | 24 | 0 | 2026-10-16T04:18:07.142Z |
+| office | 35 | 35 | 0 | 2026-10-16T04:17:59.997Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-16T04:18:04.234Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-16T04:18:05.127Z |
+| oracle-xlsx | 3 | 3 | 0 | 2026-10-16T04:18:00.906Z |
+| oracle | 5 | 5 | 0 | 2026-10-16T04:17:59.601Z |
+| unit | 22 | 22 | 0 | 2026-10-16T04:17:59.239Z |
+| vector | 18 | 18 | 0 | 2026-10-16T04:18:04.461Z |
 
 ## Rows touched by failing tests
 
@@ -58,8 +66,8 @@ None.
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
-| PR | 32 | 21 | 10 | 1 | 4 | 7 | 21 |
-| FF | 26 | 15 | 11 | 0 | 15 | 6 | 5 |
+| PR | 32 | 21 | 10 | 1 | 13 | 6 | 13 |
+| FF | 29 | 19 | 10 | 0 | 20 | 4 | 5 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 9 | 7 | 1 | 1 | 1 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 2 | 4 | 0 |
@@ -178,25 +186,25 @@ None.
 | PR-04 | built | full | e2e: mount: planner; integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar; unit: ICS unfolding, escapes, parameters, VTODO status, round trip |
 | PR-05 | probe | untested |  |
 | PR-06 | partial | untested |  |
-| PR-07 | built | partial | e2e: mount: browser |
-| PR-07a | built | untested |  |
-| PR-07b | built | untested |  |
-| PR-07c | built | untested |  |
+| PR-07 | built | full | browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused; browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first; e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin (+3) |
+| PR-07a | built | full | browser-session: close: active tab hands focus to its neighbour (regression: view went blank); last tab replaced; e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https); e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab |
+| PR-07b | built | full | browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs |
+| PR-07c | built | full | browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs |
 | PR-07d | built | untested |  |
 | PR-07e | built | untested |  |
-| PR-07f | built | untested |  |
-| PR-07g | built | untested |  |
+| PR-07f | built | full | browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab |
+| PR-07g | built | full | browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs |
 | PR-07h | blocked | untested |  |
-| PR-07i | built | untested |  |
+| PR-07i | built | full | e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab |
 | PR-07j | built | untested |  |
 | PR-07k | partial | untested |  |
-| PR-07l | built | untested |  |
+| PR-07l | built | full | browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused; browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: site permissions panel writes the iframe delegation policy into the saved session |
 | PR-07m | partial | untested |  |
 | PR-07n | partial | untested |  |
 | PR-07o | probe | untested |  |
 | PR-07p | partial | untested |  |
-| PR-07q | built | untested |  |
-| PR-07r | built | partial | e2e: mount: routines; integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted |
+| PR-07q | built | full | browser-session: batch actions: close others / to the right / duplicates keep pinned tabs and the anchor; e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs |
+| PR-07r | built | partial | browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first; e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin; e2e: mount: routines (+1) |
 | PR-07s | partial | untested |  |
 | PR-08 | partial | untested |  |
 | PR-09 | built | full | e2e: mount: calculator; e2e: calculator evaluates typed input with the shared evaluator; unit: precedence, power associativity, rounding policy (+1) |
@@ -207,7 +215,7 @@ None.
 | FF-01 | built | partial | e2e: mount: peek; unit: loss report itemises drops; registry grades |
 | FF-02 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
 | FF-03 | partial | untested |  |
-| FF-04 | built | full | e2e: mount: vector; unit: SVG sanitiser strips script/handlers/foreignObject/javascript: |
+| FF-04 | partial | full | e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup; e2e: mount: vector; unit: SVG sanitiser strips script/handlers/foreignObject/javascript: (+1) |
 | FF-05 | built | untested |  |
 | FF-06 | probe | untested |  |
 | FF-07 | partial | untested |  |
@@ -224,11 +232,11 @@ None.
 | FF-21 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e: mount: sheet; oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block |
 | FF-22 | partial | partial | e2e: mount: writer |
 | FF-23 | partial | partial | e2e: mount: slides |
-| FF-24 | partial | partial | e2e: mount: imageedit |
-| FF-25 | partial | partial | e2e: mount: vector |
+| FF-24 | built | full | e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection; e2e-image: Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes; e2e-image: classic Quick edit mode is still available (additive merge) (+3) |
+| FF-25 | built | full | e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard; e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size); e2e: mount: vector |
 | MD-01 | built | partial | e2e: mount: capture |
 | MD-02 | built | partial | e2e: mount: media |
-| MD-03 | partial | partial | e2e: mount: imageedit |
+| MD-03 | partial | partial | e2e-image: classic Quick edit mode is still available (additive merge); e2e: mount: imageedit |
 | MD-04 | built | partial | e2e: mount: devices |
 | MD-05 | built | partial | e2e: mount: devices |
 | MD-06 | built | partial | e2e: mount: devices |
@@ -250,10 +258,13 @@ None.
 | BK-04 | built | full | unit: BK-04 capability diff reports lost/gained with degrade text |
 | BK-05 | built | partial | e2e: mount: backup; integration: BK-01 tampered backup bundle is refused before anything is written |
 | BK-06 | built | partial | unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
-| FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; office: SEQUENCE(2,3) spills all six cells with correct values; office: an obstruction blocks the WHOLE array with #SPILL!, and removing it recovers (+12) |
-| FF-27 | built | full | office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE!; office: financial: PMT/NPV/IRR/FV match independent closed-form values (+5) |
-| FF-28 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates; e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region (+26) |
-| FF-29 | partial | full | e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source; office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data; office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order (+1) |
+| FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: SEQUENCE(2,3) spills all six cells with correct values (+13) |
+| FF-27 | built | full | e2e: mount: sheet; office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+6) |
+| FF-28 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates; e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region (+27) |
+| FF-29 | partial | full | e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source; e2e: mount: sheet; office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data (+2) |
+| FF-30 | built | full | e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops; e2e-image: new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo; e2e-image: layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge (+23) |
+| FF-31 | built | full | e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels; e2e: mount: imageedit; image: PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size (+9) |
+| FF-32 | built | full | e2e-vector: ORACLE Chromium SVG: getBBox + getTotalLength of the ORIGINAL d vs our normalised cubics (arcs included); e2e-vector: ORACLE Chromium SVG: isPointInFill (nonzero + evenodd) vs our containment on a 31×31 grid per path; transform.baseVal; e2e-vector: ORACLE render parity: Chromium rasterises the original SVG and our import→export identically (≤0.5% pixels > 24/255) (+31) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
