@@ -172,6 +172,14 @@ await test("FF-08/FF-10/FF-02 Forge engines via the API, with grades", { "FF-08"
   await call("POST", "/api/fs", { op: "upload", path: `${DIR}/art.psd`, content: h.toString("base64") });
   const p = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/art.psd` });
   ok(p.json.grade === "E" && p.json.header.width === 20 && p.json.header.layers === 2, JSON.stringify(p.json.header));
+  // TT16: a complete layered PSD decodes fully on the server (grade B, layer list with blend + mask)
+  const { writePsd } = await import("../src/lib/image/psd.ts");
+  const { newDoc, makeLayer, addLayer } = await import("../src/lib/image/doc.ts");
+  const top = { ...makeLayer("Überzug", 8, 6, [0, 0, 255, 200]), x: 2, y: 1, blend: "screen" as const, mask: new Uint8ClampedArray(48).fill(255) };
+  const real = Buffer.from(await writePsd(addLayer(newDoc(16, 12), top)));
+  await call("POST", "/api/fs", { op: "upload", path: `${DIR}/layers.psd`, content: real.toString("base64") });
+  const q = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/layers.psd` });
+  ok(q.json.grade === "B" && q.json.layers.length === 2 && q.json.layers[1].name === "Überzug" && q.json.layers[1].blend === "screen" && q.json.layers[1].mask === true, JSON.stringify(q.json).slice(0, 300));
   const slip = zip([{ name: "../evil.txt", data: Buffer.from("x") }]);
   const s = await call("POST", "/api/forge", { op: "listZip", base64: slip.toString("base64") });
   ok(s.status === 400 && /zip-slip/.test(s.json.error), "zip-slip archive accepted by the server engine");

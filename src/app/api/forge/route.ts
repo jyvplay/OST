@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getNode } from "@/lib/server/vfs";
 import { extractEpub, extractOoxml, readCentralDirectory, readPsdHeader } from "@/lib/server/zip";
+import { readPsd } from "@/lib/image/psd";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,21 @@ export async function POST(req: NextRequest) {
     if (buf.length > 16 * 1024 * 1024) return NextResponse.json({ ok: false, error: "over 16 MB parse guard" }, { status: 413 });
 
     if (op === "psd" || name.toLowerCase().endsWith(".psd") || name.toLowerCase().endsWith(".psb")) {
-      const header = readPsdHeader(buf);
+      const header: ReturnType<typeof readPsdHeader> & { decodeError?: string } = readPsdHeader(buf);
+      // TT16: full first-party decode (layers, blend, masks) when the file is complete and supported.
+      try {
+        const { doc, warnings, info } = await readPsd(new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength));
+        const layers = doc.layers.map((l) => ({ name: l.name, x: l.x, y: l.y, w: l.w, h: l.h, opacity: Math.round(l.opacity * 100), blend: l.blend, visible: l.visible, mask: !!l.mask }));
+        return NextResponse.json({
+          ok: true, name, kind: "psd", grade: "B", engine: "first-party PSD codec (src/lib/image/psd.ts)",
+          boundary: "Pixel layers, offsets, opacity, visibility, 12 separable blend modes, masks and Unicode names are decoded and editable in the Image Editor. Effects, adjustment/type/smart layers render from stored pixels only.",
+          dropped: warnings,
+          text: [`${doc.width}×${doc.height}, mode ${info.mode}, ${layers.length} layer(s), compression ${info.compression.join("/")}`, ...layers.map((l) => `• ${l.name} — ${l.blend} ${l.opacity}%${l.visible ? "" : " (hidden)"}${l.mask ? " +mask" : ""} @${l.x},${l.y} ${l.w}×${l.h}`)].join("\n"),
+          parts: [], header, layers, editable: "imageedit",
+        });
+      } catch (e) {
+        header.decodeError = (e as Error).message;
+      }
       return NextResponse.json({
         ok: true, name, kind: "psd", grade: "E", engine: "first-party PSD header reader",
         boundary: "Header and section metadata only. Pixels and layers are not decoded or editable.",

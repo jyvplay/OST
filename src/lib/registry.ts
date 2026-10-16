@@ -44,7 +44,7 @@ export const MODULES: ModuleDef[] = [
   { id: "clipboard", title: "Clipboard", icon: "📋", group: "Core", summary: "In-app clipboard history with sensitive masking", rect: { w: 620, h: 480 }, implements: ["PR-12"] },
   { id: "storage", title: "Storage", icon: "💽", group: "System", summary: "Categories, duplicates by digest, quota, persistence", rect: { w: 760, h: 580 }, implements: ["FM-07"] },
   { id: "localdisk", title: "Local disk", icon: "🖴", group: "Core", summary: "Mount a real folder; sync with a conflict inbox", rect: { w: 760, h: 560 }, implements: ["FM-08", "BK-02"] },
-  { id: "imageedit", title: "Image Editor", icon: "🪄", group: "Create", summary: "Non-destructive crop, rotate, colour and export", rect: { w: 900, h: 620 }, implements: ["FF-24", "MD-03"] },
+  { id: "imageedit", title: "Image Editor", icon: "🪄", group: "Create", summary: "Layered raster editor: brushes, selections, masks, 12 blend modes, PSD read/write; classic quick edit", rect: { w: 1100, h: 720 }, implements: ["FF-24", "MD-03", "FF-30", "FF-31"] },
   { id: "vector", title: "Vector", icon: "✒", group: "Create", summary: "SVG primitives editor; sanitised import and clean export", rect: { w: 900, h: 620 }, implements: ["FF-25", "FF-04"] },
   { id: "writer", title: "Writer", icon: "📄", group: "Create", summary: "Structured Word document editor; DOCX import/export at grade C", rect: { w: 820, h: 620 }, implements: ["FF-22", "PR-11"] },
   { id: "slides", title: "Slides", icon: "🖼", group: "Create", summary: "Slide deck editor; PPTX import/export at grade C", rect: { w: 900, h: 640 }, implements: ["FF-23", "PR-11"] },

@@ -1,0 +1,82 @@
+{
+  "suite": "oracle-psd",
+  "at": "2026-10-16T03:27:04.839Z",
+  "results": [
+    {
+      "suite": "oracle-psd",
+      "name": "psd-tools available",
+      "covers": {},
+      "pass": true,
+      "ms": 223
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+      "covers": {
+        "FF-31": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 598
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+      "covers": {
+        "FF-31": "full",
+        "FF-30": "full"
+      },
+      "pass": true,
+      "ms": 669
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+      "covers": {
+        "FF-31": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 642
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+      "covers": {
+        "FF-31": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+      "covers": {
+        "FF-31": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+      "covers": {
+        "FF-31": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "C: layer-less RGB and Grayscale PSDs written by psd-tools open via the merged-image fallback",
+      "covers": {
+        "FF-31": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

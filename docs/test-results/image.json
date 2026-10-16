@@ -1,0 +1,117 @@
+{
+  "suite": "image",
+  "at": "2026-10-16T03:27:05.198Z",
+  "results": [
+    {
+      "suite": "image",
+      "name": "W3C separable blend functions: hand-computed pins",
+      "covers": {
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "image",
+      "name": "composite: source-over with opacity, blend over transparent backdrop, mask, off-canvas offsets",
+      "covers": {
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "image",
+      "name": "structural ops: rotate×4 = id, rotate matches raster.rotate90 of the composite, flips, crop keeps pixels",
+      "covers": {
+        "FF-30": "partial",
+        "FF-24": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "image",
+      "name": "merge down / flatten preserve the composite; duplicate/reorder/remove; growLayerTo; validation",
+      "covers": {
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "image",
+      "name": "brush: AA profile, continuous evenly spaced stroke, erase, mask painting, selection clipping",
+      "covers": {
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "image",
+      "name": "flood fill: contiguity, tolerance boundary, selection; magic wand; clear/copy selection; ellipse area",
+      "covers": {
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "image",
+      "name": "gradient endpoints/midpoint; eyedropper average; blur is premultiplied (no dark fringe)",
+      "covers": {
+        "FF-30": "partial",
+        "FF-24": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "image",
+      "name": "PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size",
+      "covers": {
+        "FF-31": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "image",
+      "name": "PSD write → read (raw / RLE / ZIP): names (Unicode), offsets incl. negative, opacity, blend, visibility, masks, exact pixels",
+      "covers": {
+        "FF-31": "partial",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 81
+    },
+    {
+      "suite": "image",
+      "name": "PSD reader rejects PSB, 16-bit, CMYK, truncated/garbage input with explicit messages",
+      "covers": {
+        "FF-31": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "image",
+      "name": "history: undo/redo, state cap, unique-buffer byte budget",
+      "covers": {
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "image",
+      "name": "resizeImage 2× then ½ ≈ identity on smooth content; layer offsets scale",
+      "covers": {
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    }
+  ]
+}
