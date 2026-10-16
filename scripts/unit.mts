@@ -230,4 +230,17 @@ await test("RG-06 memory policy: absence is not low memory", { "RG-06": "full" }
   assert.equal(memoryPolicy(Number.NaN).tier, "unknown");
 });
 
+await test("TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk", { "SH-08": "full", "WM-01": "partial" }, () => {
+  const s0 = reduce(initialDesktop(), { t: "viewport", w: 1000, h: 700 });
+  const same = reduce(s0, { t: "viewport", w: 1000.4, h: 700 });
+  assert.equal(same, s0, "same-size viewport must return the identical state object");
+  assert.ok(reduce(s0, { t: "viewport", w: 1001, h: 700 }).revision > s0.revision, "a real resize still bumps");
+  const small = reduce(initialDesktop(), { t: "viewport", w: 700, h: 500 });
+  for (const m of ["vector", "sheet", "writer", "calculator"]) {
+    const s1 = reduce(small, { t: "open", id: m, module: m, title: m });
+    const w = s1.windows.find((x) => x.id === m)!;
+    assert.ok(w.x >= 0 && w.y >= 0 && w.x + w.w <= 700 && w.y + w.h <= 500, `${m} overflows the desk: ${JSON.stringify([w.x, w.y, w.w, w.h])}`);
+  }
+});
+
 finish();

@@ -1,6 +1,6 @@
 {
   "suite": "names",
-  "at": "2026-10-16T06:33:56.836Z",
+  "at": "2026-10-16T09:52:23.155Z",
   "results": [
     {
       "suite": "names",
@@ -9,7 +9,7 @@
         "FF-36": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "names",
@@ -27,7 +27,7 @@
         "FF-36": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "names",
@@ -55,7 +55,7 @@
         "FF-21": "partial"
       },
       "pass": true,
-      "ms": 219
+      "ms": 207
     },
     {
       "suite": "names",
@@ -65,7 +65,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 2126
+      "ms": 2069
     }
   ]
 }

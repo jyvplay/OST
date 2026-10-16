@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
@@ -51,7 +52,7 @@ export default function PeekModule({ win }: ModuleProps) {
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        <strong style={{ fontSize: 12.5 }}>{node?.name ?? path}</strong>
+        <strong style={{ fontSize: fz(12.5) }}>{node?.name ?? path}</strong>
         {fmt ? <Badge tone={fmt.grade === "A" ? "ok" : fmt.grade === "X" ? "bad" : "info"}>{fmt.label} · grade {fmt.grade}</Badge> : <Badge>unknown format</Badge>}
         {node ? <Badge>{fmtBytes(node.size)}</Badge> : null}
         {node ? <Badge title={node.sha256}>sha {node.sha256.slice(0, 8)}</Badge> : null}
@@ -59,7 +60,7 @@ export default function PeekModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => shell.open("editor", { path, title: node?.name })}>Edit</Btn>
       </div>
 
-      {fmt ? <div className="fs-dim" style={{ fontSize: 11.5 }}>{GRADE_TEXT[fmt.grade]} — {fmt.boundary}</div> : null}
+      {fmt ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>{GRADE_TEXT[fmt.grade]} — {fmt.boundary}</div> : null}
       {err ? <Badge tone="bad">{err}</Badge> : null}
 
       {node && !err ? (
@@ -80,7 +81,7 @@ export default function PeekModule({ win }: ModuleProps) {
           ) : node.mime === "application/pdf" && dataUrl ? (
             <embed src={dataUrl} type="application/pdf" style={{ width: "100%", height: 420 }} />
           ) : node.mime === "text/csv" ? (
-            <table style={{ borderCollapse: "collapse", fontSize: 11.5 }}>
+            <table style={{ borderCollapse: "collapse", fontSize: fz(11.5) }}>
               <tbody>
                 {parseCsv(node.content).slice(0, 40).map((row, i) => (
                   <tr key={i}>{row.map((c, j) => <td key={j} style={{ border: "1px solid var(--fs-border)", padding: "2px 6px" }}>{c}</td>)}</tr>
@@ -90,11 +91,11 @@ export default function PeekModule({ win }: ModuleProps) {
           ) : node.mime === "text/html" ? (
             <iframe title="sandboxed preview" sandbox="" srcDoc={node.content} style={{ width: "100%", height: 320, border: 0, background: "#fff" }} />
           ) : node.encoding === "utf8" ? (
-            <pre className="fs-mono" style={{ margin: 0, fontSize: 11.5, whiteSpace: "pre-wrap", maxHeight: 340, overflow: "auto" }}>
+            <pre className="fs-mono" style={{ margin: 0, fontSize: fz(11.5), whiteSpace: "pre-wrap", maxHeight: 340, overflow: "auto" }}>
               {node.content.slice(0, 20000)}
             </pre>
           ) : (
-            <div className="fs-dim" style={{ fontSize: 12 }}>Binary payload — no first-party renderer for {node.mime}.</div>
+            <div className="fs-dim" style={{ fontSize: fz(12) }}>Binary payload — no first-party renderer for {node.mime}.</div>
           )}
         </div>
       ) : null}
@@ -108,9 +109,9 @@ export default function PeekModule({ win }: ModuleProps) {
                 <Badge tone={extract.grade === "D" ? "warn" : "ok"}>grade {extract.grade}</Badge>
                 <Badge>{extract.engine}</Badge>
               </div>
-              <div className="fs-dim" style={{ fontSize: 11.5 }}>{extract.boundary}</div>
-              {extract.dropped.length ? <div style={{ fontSize: 11.5 }}>Dropped: {extract.dropped.join(", ")}</div> : null}
-              <pre className="fs-mono" style={{ margin: 0, fontSize: 11.5, whiteSpace: "pre-wrap", maxHeight: 260, overflow: "auto" }}>{extract.text.slice(0, 20000)}</pre>
+              <div className="fs-dim" style={{ fontSize: fz(11.5) }}>{extract.boundary}</div>
+              {extract.dropped.length ? <div style={{ fontSize: fz(11.5) }}>Dropped: {extract.dropped.join(", ")}</div> : null}
+              <pre className="fs-mono" style={{ margin: 0, fontSize: fz(11.5), whiteSpace: "pre-wrap", maxHeight: 260, overflow: "auto" }}>{extract.text.slice(0, 20000)}</pre>
               <Btn variant="ghost" onClick={async () => {
                 const dst = `${path}.extracted.md`;
                 await post("/api/fs", { op: "write", path: dst, content: extract.text, reason: "forge-extract" });
@@ -119,7 +120,7 @@ export default function PeekModule({ win }: ModuleProps) {
               }}>Save extraction as Markdown</Btn>
             </>
           ) : (
-            <div className="fs-dim" style={{ fontSize: 11.5 }}>
+            <div className="fs-dim" style={{ fontSize: fz(11.5) }}>
               Office files are unzipped and parsed on the server with node:zlib. This engine extracts and converts;
               it cannot write Office documents back, and the UI will not offer a save path that pretends otherwise.
             </div>

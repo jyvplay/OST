@@ -1,14 +1,16 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { api } from "@/lib/api";
 import { evaluate } from "@/lib/calc";
 import { fuzzyScore } from "@/lib/fuzzy";
 import { MODULES } from "@/lib/registry";
 import { useShell } from "./shell-context";
 import { Badge } from "./ui";
+import { AppIcon, FileIcon } from "./AppIcon";
 
-interface Row { id: string; label: string; sub?: string; source: string; run: () => void; rank: number }
+interface Row { id: string; label: string; icon?: ReactNode; sub?: string; source: string; run: () => void; rank: number }
 
 /**
  * SR-01. Provenance is rendered on every row (local index, module registry,
@@ -45,7 +47,7 @@ export default function Palette({ onClose }: { onClose: () => void }) {
     if (scope === "all" || scope === "apps") {
       for (const m of MODULES) {
         if (!needle || m.title.toLowerCase().includes(needle) || m.summary.toLowerCase().includes(needle) || fuzzyScore(needle, m.title) !== null) {
-          out.push({ id: `m_${m.id}`, label: `${m.icon}  ${m.title}`, sub: m.summary, source: "module registry", rank: 100, run: () => { shell.open(m.id); onClose(); } });
+          out.push({ id: `m_${m.id}`, label: m.title, icon: <AppIcon id={m.id} size={18} />, sub: m.summary, source: "module registry", rank: 100, run: () => { shell.open(m.id); onClose(); } });
         }
       }
     }
@@ -53,7 +55,7 @@ export default function Palette({ onClose }: { onClose: () => void }) {
     if (needle && (scope === "all")) {
       for (const w of shell.state.windows) {
         if (w.title.toLowerCase().includes(needle)) {
-          out.push({ id: `w_${w.id}`, label: `🪟  ${w.title}`, sub: `window · ${w.module}`, source: "open windows", rank: 95, run: () => { shell.dispatch({ t: "restore", id: w.id }); onClose(); } });
+          out.push({ id: `w_${w.id}`, label: w.title, icon: <AppIcon id={w.module} size={18} />, sub: `window · ${w.module}`, source: "open windows", rank: 95, run: () => { shell.dispatch({ t: "restore", id: w.id }); onClose(); } });
         }
       }
     }
@@ -65,10 +67,10 @@ export default function Palette({ onClose }: { onClose: () => void }) {
     }
 
     for (const h of hits) {
-      const icon = h.source === "file" ? "📄" : h.source === "note" ? "🗒" : h.source === "spec" ? "📋" : "⚙️";
+      const icon = h.source === "file" ? <FileIcon name={h.title} size={18} /> : <AppIcon id={h.source === "note" ? "notes" : h.source === "spec" ? "spec" : "settings"} size={18} />;
       out.push({
         id: `${h.source}_${h.ref}`,
-        label: `${icon}  ${h.title}`,
+        label: h.title, icon,
         sub: h.snippet?.slice(0, 110),
         source: `index · ${h.source} · ${h.how}`,
         rank: h.how === "fts" ? 80 : 60,
@@ -88,7 +90,7 @@ export default function Palette({ onClose }: { onClose: () => void }) {
     const webTpl = shell.settings["search.webProvider"] ?? "";
     if (needle && (shell.settings["search.webResults"] ?? "off") === "on" && webTpl.includes("%s")) {
       out.push({
-        id: "web", label: `🌐  Search the web for “${q}”`, sub: webTpl.replace("%s", encodeURIComponent(q)),
+        id: "web", label: `Search the web for “${q}”`, icon: <AppIcon id="browser" size={18} />, sub: webTpl.replace("%s", encodeURIComponent(q)),
         source: "web (opt-in) · sent only on click", rank: -1,
         run: () => { shell.open("browser", { url: webTpl.replace("%s", encodeURIComponent(q)), title: `Web: ${q}` }); onClose(); },
       });
@@ -127,14 +129,15 @@ export default function Palette({ onClose }: { onClose: () => void }) {
             <button key={r.id} className="fs-list-item" data-selected={i === sel}
               style={{ width: "100%", textAlign: "left", background: i === sel ? "rgba(91,140,255,.22)" : undefined, border: 0, color: "inherit" }}
               onMouseEnter={() => setSel(i)} onClick={r.run}>
+              {r.icon ?? <span aria-hidden style={{ width: fz(18), flex: "0 0 auto", textAlign: "center", fontWeight: 800 }}>=</span>}
               <span style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12.5 }}>{r.label}</div>
-                {r.sub ? <div className="fs-dim" style={{ fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.sub}</div> : null}
+                <div style={{ fontSize: fz(12.5) }}>{r.label}</div>
+                {r.sub ? <div className="fs-dim" style={{ fontSize: fz(11), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.sub}</div> : null}
               </span>
               <Badge>{r.source}</Badge>
             </button>
           ))}
-          {q && rows.length === 0 ? <div className="fs-dim" style={{ padding: 12, fontSize: 12 }}>No local matches. Search diagnostics live in Find → Diagnostics.</div> : null}
+          {q && rows.length === 0 ? <div className="fs-dim" style={{ padding: 12, fontSize: fz(12) }}>No local matches. Search diagnostics live in Find → Diagnostics.</div> : null}
         </div>
       </div>
     </div>

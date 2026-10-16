@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, post } from "@/lib/api";
@@ -64,14 +65,14 @@ export default function SlidesModule({ win }: ModuleProps) {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <div className="fs-row" style={{ padding: 6, gap: 5, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <input className="fs-input" style={{ width: 210 }} aria-label="Deck title" value={deck.title} onChange={(e) => mutate((d) => ({ ...d, title: e.target.value }))} />
+        <input className="fs-input" style={{ width: fz(210) }} aria-label="Deck title" value={deck.title} onChange={(e) => mutate((d) => ({ ...d, title: e.target.value }))} />
         <Btn variant="primary" onClick={() => void save()}>Save .fdeck</Btn>
         <Btn variant="ghost" onClick={() => void exportPptx()}>Export .pptx</Btn>
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import .pptx<input type="file" accept=".pptx" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void importPptx(f).catch((x) => shell.toast(String((x as Error).message), "bad")); }} /></label>
         <Badge tone="warn">PPTX subset · grade C</Badge>
         {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
       </div>
-      {status ? <div className="fs-dim" style={{ padding: "4px 8px", fontSize: 11 }}>{status}</div> : null}
+      {status ? <div className="fs-dim" style={{ padding: "4px 8px", fontSize: fz(11) }}>{status}</div> : null}
       <div className="fs-row" style={{ padding: 5, gap: 4, overflowX: "auto", borderBottom: "1px solid var(--fs-border)" }}>
         {deck.slides.map((s, i) => <button key={i} className="fs-btn" data-variant={i === active ? "primary" : "ghost"} onClick={() => setActive(i)}>{i + 1}. {s.title || "Untitled"}</button>)}
         <Btn variant="ghost" onClick={() => { mutate((d) => ({ ...d, slides: [...d.slides, { title: "New slide", body: [""], notes: "" }] })); setActive(deck.slides.length); }}>+ Slide</Btn>
@@ -83,10 +84,10 @@ export default function SlidesModule({ win }: ModuleProps) {
         <div className="fs-scroll" style={{ flex: 1, minHeight: 0, display: "grid", placeItems: "center", padding: 14 }}>
           <div style={{ width: "min(720px, 96%)", aspectRatio: "16/9", background: "#fff", color: "#111827", borderRadius: 8, boxShadow: "0 12px 40px rgba(0,0,0,.35)", padding: "7%", display: "flex", flexDirection: "column", gap: 12 }}>
             <textarea aria-label="Slide title" value={slide.title} onChange={(e) => mutate((d) => ({ ...d, slides: d.slides.map((s, i) => i === active ? { ...s, title: e.target.value } : s) }))}
-              style={{ border: 0, outline: 0, resize: "none", fontSize: 26, fontWeight: 700, minHeight: 52 }} />
+              style={{ border: 0, outline: 0, resize: "none", fontSize: fz(26), fontWeight: 700, minHeight: 52 }} />
             <div style={{ display: "grid", gap: 4, flex: 1 }}>
-              {slide.body.map((line, i) => <div key={i} className="fs-row" style={{ alignItems: "flex-start" }}><span style={{ paddingTop: 7 }}>•</span><textarea aria-label={`Slide bullet ${i + 1}`} value={line} onChange={(e) => mutate((d) => ({ ...d, slides: d.slides.map((s, j) => j === active ? { ...s, body: s.body.map((x, k) => k === i ? e.target.value : x) } : s) }))} style={{ flex: 1, resize: "vertical", border: 0, outline: 0, fontSize: 16, minHeight: 32 }} /></div>)}
-              <Btn variant="ghost" onClick={() => mutate((d) => ({ ...d, slides: d.slides.map((s, i) => i === active ? { ...s, body: [...s.body, ""] } : s) }))}>+ Bullet</Btn>
+              {slide.body.map((line, i) => <div key={i} className="fs-row" style={{ alignItems: "flex-start" }}><span style={{ paddingTop: 7 }}>•</span><textarea aria-label={`Slide bullet ${i + 1}`} value={line} onChange={(e) => mutate((d) => ({ ...d, slides: d.slides.map((s, j) => j === active ? { ...s, body: s.body.map((x, k) => k === i ? e.target.value : x) } : s) }))} style={{ flex: 1, resize: "vertical", border: 0, outline: 0, fontSize: fz(16), minHeight: 32 }} /></div>)}
+              <Btn variant="ghost" style={{ color: "#1d4ed8", borderColor: "rgba(29,78,216,.45)", justifySelf: "start" }} onClick={() => mutate((d) => ({ ...d, slides: d.slides.map((s, i) => i === active ? { ...s, body: [...s.body, ""] } : s) }))}>+ Bullet</Btn>
             </div>
           </div>
           <textarea aria-label="Speaker notes" placeholder="Speaker notes (kept in .fdeck; not exported to PPTX in this subset)" value={slide.notes}
@@ -94,7 +95,7 @@ export default function SlidesModule({ win }: ModuleProps) {
             className="fs-textarea" style={{ maxWidth: 720, height: 80, marginTop: 10 }} />
         </div>
       ) : <Empty title="No slides" />}
-      <div className="fs-dim" style={{ padding: "4px 8px", borderTop: "1px solid var(--fs-border)", fontSize: 10.5 }}>
+      <div className="fs-dim" style={{ padding: "4px 8px", borderTop: "1px solid var(--fs-border)", fontSize: fz(10.5) }}>
         PPTX subset: slide order, title and bullet text shapes. Speaker notes persist in .fdeck but are not yet encoded as Notes Slide parts.
         Animations, transitions, media, charts, themes/master editing and arbitrary shape positioning are not claimed.
       </div>

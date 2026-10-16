@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-16T06:43:14.972Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-24 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-16T09:59:51.417Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+28 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **283** |
-| Fully built | 196 |
-| Partially built (partial 47 + probe 18) | 65 |
+| **Features in register** | **291** |
+| Fully built | 205 |
+| Partially built (partial 46 + probe 18) | 64 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **80** |
+| **Fully tested** (≥1 passing test tagged `full`) | **90** |
 | **Partially tested** (only `partial` tags) | **72** |
-| Untested | 131 |
-| Automated tests executed / passed | 305 / 305 |
+| Untested | 129 |
+| Automated tests executed / passed | 341 / 341 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 70 | 58 | 68 |
-| partially built | 4 | 12 | 49 |
+| fully built | 80 | 58 | 67 |
+| partially built | 4 | 12 | 48 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
 
@@ -33,30 +33,34 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| browser-session | 5 | 5 | 0 | 2026-10-16T06:34:02.363Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-16T06:37:53.359Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-16T06:36:52.585Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-16T06:36:16.669Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-16T06:43:08.221Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-16T06:38:43.654Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-16T06:37:13.711Z |
-| e2e | 55 | 55 | 0 | 2026-10-16T06:35:49.451Z |
-| image | 12 | 12 | 0 | 2026-10-16T06:33:57.224Z |
-| integration | 24 | 24 | 0 | 2026-10-16T06:33:51.635Z |
-| metaclean | 6 | 6 | 0 | 2026-10-16T06:34:09.826Z |
-| names | 7 | 7 | 0 | 2026-10-16T06:33:56.836Z |
-| office | 35 | 35 | 0 | 2026-10-16T06:33:52.035Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-16T06:34:00.289Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-16T06:34:02.198Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T06:33:53.750Z |
-| oracle | 5 | 5 | 0 | 2026-10-16T06:33:52.416Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-16T06:41:20.482Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-16T06:34:06.333Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-16T06:41:22.268Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-16T06:33:54.123Z |
-| unit | 22 | 22 | 0 | 2026-10-16T06:33:49.207Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-16T06:34:01.518Z |
-| vector | 18 | 18 | 0 | 2026-10-16T06:34:00.544Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-16T09:52:38.923Z |
+| browser-session | 5 | 5 | 0 | 2026-10-16T09:52:28.683Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-16T09:59:18.475Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-16T09:56:18.296Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-16T09:55:14.606Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-16T09:54:31.063Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-16T09:56:42.262Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-16T09:57:06.419Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-16T09:59:36.750Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-16T09:55:37.435Z |
+| e2e | 56 | 56 | 0 | 2026-10-16T09:54:07.598Z |
+| image | 12 | 12 | 0 | 2026-10-16T09:52:23.485Z |
+| integration | 24 | 24 | 0 | 2026-10-16T09:52:18.167Z |
+| metaclean | 6 | 6 | 0 | 2026-10-16T09:52:35.588Z |
+| names | 7 | 7 | 0 | 2026-10-16T09:52:23.155Z |
+| office | 35 | 35 | 0 | 2026-10-16T09:52:18.559Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-16T09:52:26.401Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-16T09:52:28.493Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T09:52:20.177Z |
+| oracle | 5 | 5 | 0 | 2026-10-16T09:52:18.935Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-16T09:52:38.706Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-16T09:52:32.701Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-16T09:52:34.217Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-16T09:52:20.540Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-16T09:52:39.131Z |
+| unit | 23 | 23 | 0 | 2026-10-16T09:52:15.381Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-16T09:52:27.727Z |
+| vector | 18 | 18 | 0 | 2026-10-16T09:52:26.663Z |
 
 ## Rows touched by failing tests
 
@@ -80,11 +84,12 @@ None.
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
+| AX | 11 | 10 | 1 | 0 | 5 | 4 | 2 |
+| TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
 | LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
 | MS | 4 | 0 | 2 | 2 | 0 | 2 | 2 |
-| AX | 8 | 6 | 2 | 0 | 0 | 4 | 4 |
 | AU | 4 | 2 | 2 | 0 | 1 | 1 | 2 |
 | RG | 7 | 6 | 1 | 0 | 1 | 2 | 4 |
 | HW | 11 | 2 | 9 | 0 | 0 | 1 | 10 |
@@ -103,14 +108,14 @@ None.
 | SH-05 | built | partial | e2e: SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive |
 | SH-06 | built | untested |  |
 | SH-07 | built | untested |  |
-| SH-08 | built | full | e2e: drag a window by its title bar; geometry is committed and persisted; integration: SH-08 stale revision cannot clobber newer desktop state (409); unit: command log replay reproduces the identical state hash |
+| SH-08 | built | full | e2e: drag a window by its title bar; geometry is committed and persisted; integration: SH-08 stale revision cannot clobber newer desktop state (409); unit: command log replay reproduces the identical state hash (+1) |
 | SH-09 | built | untested |  |
 | SH-10 | partial | partial | e2e: Overview (Meta+Q) and Blackout overlay toggle |
 | SH-11 | built | untested |  |
 | SH-12 | built | untested |  |
 | SH-13 | built | untested |  |
 | SH-14 | built | full | e2e: offline write is queued, then replayed through the journal when back online |
-| WM-01 | built | full | e2e: drag a window by its title bar; geometry is committed and persisted; unit: 10 000 random commands preserve every invariant |
+| WM-01 | built | full | e2e: drag a window by its title bar; geometry is committed and persisted; unit: 10 000 random commands preserve every invariant; unit: TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk |
 | WM-02 | built | full | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half; unit: 10 000 random commands preserve every invariant |
 | WM-03 | built | partial | unit: reducer is pure (input not mutated); workspaces filter without unmounting |
 | WM-04 | built | partial | e2e: Overview (Meta+Q) and Blackout overlay toggle |
@@ -269,7 +274,7 @@ None.
 | BK-06 | built | full | privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused; privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key; unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
 | FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: SEQUENCE(2,3) spills all six cells with correct values (+13) |
 | FF-27 | built | full | e2e: mount: sheet; office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+6) |
-| FF-28 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates; e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region (+28) |
+| FF-28 | built | full | e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen; e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates (+29) |
 | FF-29 | partial | full | e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source; e2e: mount: sheet; office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data (+2) |
 | FF-30 | built | full | e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops; e2e-image: new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo; e2e-image: layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge (+23) |
 | FF-31 | built | full | e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels; e2e: mount: imageedit; image: PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size (+9) |
@@ -288,6 +293,14 @@ None.
 | SC-16 | built | full | e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host; privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock; privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results |
 | SC-17 | built | full | e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext; privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported; privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected (+4) |
 | SC-18 | built | full | e2e-privacy: TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks; privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses |
+| AX-09 | built | full | a11y-unit: text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz(); a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; a11y-unit: settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour (+5) |
+| AX-10 | built | full | a11y-unit: icon contrast: every palette's glyph colour is ≥3:1 against its tile gradient across the whole glyph area (WCAG 1.4.11); a11y-unit: every registered module and every common file type has a real glyph; tile palettes exist; a11y-unit: no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font) (+2) |
+| AX-11 | built | full | a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each; a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink; e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused (+1) |
+| TB-01 | built | full | e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores; e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table; e2e: mount: tables (+5) |
+| TB-02 | built | full | e2e-tables: two-way link through the picker: linking Cy to a task shows on People (inverse field) and updates the Open hours rollup; e2e: mount: tables; tables-engine: two-way links: linking updates the inverse field, unlinking removes it, unknown ids are refused, deleting a record scrubs every reference (+1) |
+| TB-03 | built | full | e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs; e2e-tables: add a formula field: live validation disables Create on a bad formula; a good one adds a computed column; e2e: mount: tables (+2) |
+| TB-04 | built | full | e2e-tables: filter + sort: Status is Doing leaves 2 records; sorting Hours descending orders them; badges count the conditions; e2e-tables: kanban: columns by Status; moving a card with its Move select and by drag-and-drop updates the counts and the grid; e2e: mount: tables (+2) |
+| TB-05 | built | full | e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs; e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores; e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table (+2) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
@@ -328,14 +341,14 @@ None.
 | MS-02 | blocked | untested |  |
 | MS-03 | blocked | partial | e2e: mount: messages |
 | MS-04 | partial | untested |  |
-| AX-01 | built | partial | e2e: structural a11y: every window is a named dialog; no unnamed buttons |
+| AX-01 | built | partial | e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e: structural a11y: every window is a named dialog; no unnamed buttons |
 | AX-02 | built | partial | e2e: structural a11y: every window is a named dialog; no unnamed buttons |
-| AX-03 | built | untested |  |
+| AX-03 | built | full | e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens) |
 | AX-04 | built | untested |  |
 | AX-05 | built | partial | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half |
 | AX-06 | probe | untested |  |
 | AX-07 | built | partial | unit: SRT → WebVTT conversion |
-| AX-08 | partial | untested |  |
+| AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light theme, every style: axe colour-contrast finds no serious violations in the chrome, Files and Spreadsheet (+1) |
 | AU-01 | built | full | e2e: mount: routines; e2e: routines: dry-run lists actions without executing; Run opens the window; integration: AU-01 routine whitelist rejects commands outside the palette vocabulary (+1) |
 | AU-02 | built | partial | e2e: mount: routines; integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted |
 | AU-03 | partial | untested |  |

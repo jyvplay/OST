@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { capAvailable } from "@/lib/capabilities";
@@ -252,7 +253,7 @@ export default function LensModule(_: ModuleProps) {
 
       {err ? <Badge tone="bad">{err}</Badge> : null}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 220px", gap: 10 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `minmax(0, 1fr) min(${fz(220)}, 40%)`, gap: 10 }}>
         <div>
           <canvas ref={canvasRef} style={{ width: "100%", background: "#000", borderRadius: 10 }} />
           <video ref={videoRef} muted playsInline style={{ display: "none" }} />
@@ -263,17 +264,17 @@ export default function LensModule(_: ModuleProps) {
             ["contrast", 0.5, 1.8, 0.01], ["saturate", 0, 2, 0.01],
           ] as const).map(([k, min, max, step]) => (
             <label key={k} style={{ display: "grid", gap: 2 }}>
-              <span className="fs-dim" style={{ fontSize: 11 }}>{k} — {String(fx[k])}</span>
+              <span className="fs-dim" style={{ fontSize: fz(11) }}>{k} — {String(fx[k])}</span>
               <input type="range" min={min} max={max} step={step} value={fx[k] as number}
                 onChange={(e) => setFx({ ...fx, [k]: Number(e.target.value) })} />
             </label>
           ))}
           <label style={{ display: "grid", gap: 2 }}>
-            <span className="fs-dim" style={{ fontSize: 11 }}>key light (LN-06) — {fx.relight.toFixed(2)}</span>
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>key light (LN-06) — {fx.relight.toFixed(2)}</span>
             <input type="range" min={0} max={0.8} step={0.02} value={fx.relight} onChange={(e) => setFx({ ...fx, relight: Number(e.target.value) })} />
           </label>
           <label style={{ display: "grid", gap: 2 }}>
-            <span className="fs-dim" style={{ fontSize: 11 }}>voice gate threshold (LN-08) — {gate.toFixed(3)}</span>
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>voice gate threshold (LN-08) — {gate.toFixed(3)}</span>
             <input type="range" min={0} max={0.12} step={0.002} value={gate} onChange={(e) => {
               const v = Number(e.target.value); setGate(v);
               const p = gateRef.current?.parameters.get("threshold");
@@ -285,7 +286,7 @@ export default function LensModule(_: ModuleProps) {
           <Toggle label="Auto-frame (FaceDetector)" on={fx.autoframe} disabled={!capAvailable(shell.caps, "faceDetector")}
             reason="This browser has no FaceDetector" onChange={(v) => setFx({ ...fx, autoframe: v })} />
           <label style={{ display: "grid", gap: 2 }}>
-            <span className="fs-dim" style={{ fontSize: 11 }}>output height</span>
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>output height</span>
             <select className="fs-select" value={height} onChange={(e) => setHeight(Number(e.target.value))}>
               {[1080, 720, 540, 360].map((h) => <option key={h} value={h}>{h}p</option>)}
             </select>

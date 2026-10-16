@@ -1,0 +1,90 @@
+{
+  "suite": "e2e-a11y",
+  "at": "2026-10-16T09:59:18.475Z",
+  "results": [
+    {
+      "suite": "e2e-a11y",
+      "name": "axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
+      "covers": {
+        "AX-08": "full",
+        "AX-01": "partial"
+      },
+      "pass": true,
+      "ms": 80204
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "computed sizes: at the 125 % default nothing visible is below 12 px and body text is ≥16 px; in Large text mode (200 %) nothing is below 20 px",
+      "covers": {
+        "AX-09": "full"
+      },
+      "pass": true,
+      "ms": 19424
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type",
+      "covers": {
+        "AX-10": "full"
+      },
+      "pass": true,
+      "ms": 3213
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit",
+      "covers": {
+        "AX-09": "partial"
+      },
+      "pass": true,
+      "ms": 3285
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused",
+      "covers": {
+        "AX-09": "full"
+      },
+      "pass": true,
+      "ms": 6629
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
+      "covers": {
+        "AX-09": "partial",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 2141
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)",
+      "covers": {
+        "AX-03": "full"
+      },
+      "pass": true,
+      "ms": 2725
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
+      "covers": {
+        "AX-11": "full"
+      },
+      "pass": true,
+      "ms": 3667
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "light theme, every style: axe colour-contrast finds no serious violations in the chrome, Files and Spreadsheet",
+      "covers": {
+        "AX-11": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 8943
+    }
+  ]
+}

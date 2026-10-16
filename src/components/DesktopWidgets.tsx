@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { api, put } from "@/lib/api";
@@ -73,11 +74,11 @@ export default function DesktopWidgets() {
   }, []);
 
   return (
-    <div style={{ position: "absolute", top: 10, right: 10, width: 230, display: "grid", gap: 8, zIndex: 1 }}>
+    <div style={{ position: "absolute", top: 10, right: 10, width: `min(${fz(230)}, 42vw)`, display: "grid", gap: 8, zIndex: 1 }}>
       {enabled.includes("clock") ? (
         <div className="fs-panel" style={{ padding: 10, textAlign: "center" }}>
-          <div className="fs-mono" style={{ fontSize: 26 }} suppressHydrationWarning>{new Date(now).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
-          <div className="fs-dim" style={{ fontSize: 11 }} suppressHydrationWarning>{new Date(now).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
+          <div className="fs-mono" style={{ fontSize: fz(26) }} suppressHydrationWarning>{new Date(now).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+          <div className="fs-dim" style={{ fontSize: fz(11) }} suppressHydrationWarning>{new Date(now).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
         </div>
       ) : null}
 
@@ -92,9 +93,9 @@ export default function DesktopWidgets() {
 
       {enabled.includes("stickies") ? stickies.map((n) => (
         <div key={n.id} style={{ background: "#fff3a6", color: "#3b3200", borderRadius: 8, padding: 8, boxShadow: "0 6px 18px rgba(0,0,0,.35)" }}>
-          <div style={{ fontWeight: 700, fontSize: 12 }}>{n.title}</div>
+          <div style={{ fontWeight: 700, fontSize: fz(12) }}>{n.title}</div>
           <textarea defaultValue={n.body} aria-label={`Sticky note ${n.title}`}
-            style={{ width: "100%", background: "transparent", border: 0, color: "inherit", fontSize: 12, resize: "vertical", minHeight: 50, fontFamily: "inherit" }}
+            style={{ width: "100%", background: "transparent", border: 0, color: "inherit", fontSize: fz(12), resize: "vertical", minHeight: 50, fontFamily: "inherit" }}
             onChange={(e) => {
               const body = e.target.value;
               window.clearTimeout(saveTimers.current[n.id]);
@@ -111,7 +112,7 @@ export default function DesktopWidgets() {
         return (
           <div key={w.name} className="fs-panel" style={{ padding: 4, opacity: ok ? 1 : 0.45 }}>
             <div className="fs-row" style={{ justifyContent: "space-between", padding: "0 4px" }}>
-              <span className="fs-dim" style={{ fontSize: 10.5 }} title="Measured: a hung widget is isolated only when the browser runs full site isolation (desktop Chrome default). Elsewhere it can freeze the shell.">{w.name} ⚠</span>
+              <span className="fs-dim" style={{ fontSize: fz(10.5) }} title="Measured: a hung widget is isolated only when the browser runs full site isolation (desktop Chrome default). Elsewhere it can freeze the shell.">{w.name} ⚠</span>
               <Badge tone={ok ? "ok" : "bad"}>{ok ? "live" : "not responding"}</Badge>
             </div>
             <iframe title={w.name} sandbox="allow-scripts"
@@ -151,13 +152,13 @@ function WorkerWidgetCard({ name, code }: { name: string; code: string }) {
   return (
     <div className="fs-panel" style={{ padding: 10, textAlign: "center" }} title={`worker-isolated widget: ${name}`}>
       <div className="fs-row" style={{ justifyContent: "space-between" }}>
-        <span className="fs-dim" style={{ fontSize: 10 }}>{name}</span>
+        <span className="fs-dim" style={{ fontSize: fz(10) }}>{name}</span>
         <Badge tone={status === "live" || status === "starting" ? "ok" : status === "unresponsive" ? "bad" : "warn"}>
           {status === "live" ? "worker-isolated" : status}
         </Badge>
       </div>
-      <div style={{ fontSize: 24, color: tree?.color ?? "var(--fs-text)", background: tree?.bg }}>{tree?.text ?? "…"}</div>
-      {tree?.sub ? <div className="fs-dim" style={{ fontSize: 10.5 }}>{tree.sub}</div> : null}
+      <div style={{ fontSize: fz(24), color: tree?.color ?? "var(--fs-text)", background: tree?.bg }}>{tree?.text ?? "…"}</div>
+      {tree?.sub ? <div className="fs-dim" style={{ fontSize: fz(10.5) }}>{tree.sub}</div> : null}
     </div>
   );
 }

@@ -50,6 +50,7 @@ export const MODULES: ModuleDef[] = [
   { id: "writer", title: "Writer", icon: "📄", group: "Create", summary: "Structured Word document editor; DOCX import/export at grade C", rect: { w: 820, h: 620 }, implements: ["FF-22", "PR-11"] },
   { id: "slides", title: "Slides", icon: "🖼", group: "Create", summary: "Slide deck editor; PPTX import/export at grade C", rect: { w: 900, h: 640 }, implements: ["FF-23", "PR-11"] },
   { id: "sheet", title: "Spreadsheet", icon: "📊", group: "Create", summary: "Formula engine (2 oracles), dynamic arrays, formatting, merges, borders, validation, charts", rect: { w: 1000, h: 640 }, implements: ["FF-19", "FF-20", "FF-21", "FF-26", "FF-27", "FF-28", "FF-29", "FF-33", "FF-34", "FF-35", "PR-11"] },
+  { id: "tables", title: "Tables", icon: "▦", group: "Create", summary: "Relational database: typed fields, two-way links, lookups, rollups, formulas, grid and kanban views, CSV", rect: { w: 1040, h: 660 }, implements: ["TB-01", "TB-02", "TB-03", "TB-04", "TB-05"] },
   { id: "peek", title: "Peek", icon: "👁", group: "Core", summary: "Sandboxed previewer with watchdog and grades", rect: { w: 760, h: 560 }, implements: ["FM-04", "FF-01", "FF-11"] },
 ];
 

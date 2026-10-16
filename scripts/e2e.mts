@@ -101,10 +101,17 @@ await test("drag a window by its title bar; geometry is committed and persisted"
   await sleep(300);
   const b1 = (await dlg.boundingBox())!;
   ok(Math.abs(b1.x - b0.x - 150) <= 3 && Math.abs(b1.y - b0.y - 90) <= 3, `moved by ${b1.x - b0.x},${b1.y - b0.y}`);
-  await sleep(1500); // persistence debounce 600 ms
-  const st = await api("GET", "/api/state?id=default");
-  const win = st.json.row.state.windows.find((x: { module: string }) => x.module === "calculator");
-  ok(win && Math.abs(win.x - (b1.x - 0)) < 200, "geometry not persisted");
+  // persistence: 600 ms debounce, never deferred more than 1 s past the first unsaved change (TT21). Poll rather
+  // than sleep a fixed time — a busy CI box delays the first frames after load by seconds.
+  const tPoll = Date.now();
+  let st = await api("GET", "/api/state?id=default");
+  type W = { module: string; x: number; y: number };
+  // exact match (desk starts at x 0): a 200 px tolerance also matched the PRE-drag save (x 80 vs 230) that the 1 s
+  // max-wait now flushes mid-drag, so the poll took a stale snapshot (TT22 finding)
+  const found = () => (st.json.row.state.windows as W[]).find((x) => x.module === "calculator" && Math.abs(x.x - b1.x) < 3);
+  while (!found() && Date.now() - tPoll < 8000) { await sleep(250); st = await api("GET", "/api/state?id=default"); }
+  const win = (st.json.row.state.windows as W[]).find((x) => x.module === "calculator")!;
+  ok(win && Math.abs(win.x - b1.x) < 3, `geometry not persisted after ${Date.now() - tPoll} ms: screen x ${b1.x}, stored ${JSON.stringify(st.json.row.state.windows.map((w: { module: string; x: number; y: number }) => [w.module, w.x, w.y]))}`);
   const x1 = win.x;
   await page.reload({ waitUntil: "domcontentloaded" });
   const again = page.locator('[role=dialog][aria-label="Calculator"]').first();
@@ -177,7 +184,7 @@ await test("Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)"
   const dlg = await openModule(page, "files", "Files");
   const bytes = Buffer.alloc(1024 * 1024); for (let i = 0; i < bytes.length; i++) bytes[i] = (i * 2654435761) >>> 24;
   await dlg.locator('input[type=file]').setInputFiles({ name: `big-${RUN}.bin`, mimeType: "application/octet-stream", buffer: bytes });
-  await dlg.getByText(`big-${RUN}.bin`).waitFor({ timeout: 20_000 });
+  await dlg.getByText(`big-${RUN}.bin`, { exact: true }).waitFor({ timeout: 20_000 }); // exact: the transient "upload …" badge also contains the name
   const n = await api("GET", `/api/fs?op=stat&path=/big-${RUN}.bin`);
   ok(n.json.node?.size === 1024 * 1024, `size ${n.json.node?.size}`);
   await api("POST", "/api/fs", { op: "purge", path: `/big-${RUN}.bin` });

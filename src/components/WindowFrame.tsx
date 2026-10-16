@@ -1,11 +1,12 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { moduleById } from "@/lib/registry";
 import type { WindowState } from "@/lib/windowing/state";
 import { useShell } from "./shell-context";
 import ModuleHost from "./ModuleHost";
+import { AppIcon, UiGlyph, type UiGlyphName } from "./AppIcon";
 
 type Handle = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
 const HANDLES: Handle[] = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
@@ -22,7 +23,6 @@ export default function WindowFrame({ win }: { win: WindowState }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const drag = useRef<{ mode: "move" | Handle; x0: number; y0: number; rect: { x: number; y: number; w: number; h: number } } | null>(null);
   const [pipDoc, setPipDoc] = useState<Document | null>(null);
-  const mod = moduleById(win.module);
   const focused = shell.state.focus === win.id;
 
   // keep the DOM in sync when the reducer changes geometry (keyboard moves, tiling)
@@ -134,8 +134,8 @@ export default function WindowFrame({ win }: { win: WindowState }) {
     return (
       <>
         <div className="fs-window" ref={ref} style={{ zIndex: win.z, opacity: .55 }} aria-label={`${win.title} (in a separate window)`}>
-          <div className="fs-titlebar"><span>{mod?.icon}</span><strong style={{ fontSize: 12 }}>{win.title}</strong></div>
-          <div style={{ padding: 14, fontSize: 12, color: "var(--fs-muted)" }}>
+          <div className="fs-titlebar"><AppIcon id={win.module} size={16} /><strong style={{ fontSize: fz(12) }}>{win.title}</strong></div>
+          <div style={{ padding: 14, fontSize: fz(12), color: "var(--fs-muted)" }}>
             This window is running in a Document Picture-in-Picture window (always on top).
             Closing that window returns it here.
           </div>
@@ -169,21 +169,23 @@ export default function WindowFrame({ win }: { win: WindowState }) {
         onPointerUp={onPointerUp}
         onDoubleClick={() => shell.dispatch({ t: "toggleMax", id: win.id })}
       >
-        <span aria-hidden style={{ fontSize: 13 }}>{mod?.icon ?? "▫"}</span>
-        <strong style={{ fontSize: 12, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{win.title}</strong>
+        <AppIcon id={win.module} size={16} />
+        <strong style={{ fontSize: fz(12), flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{win.title}</strong>
         {/* window actions are real buttons so assistive tech can reach them (AX-01) */}
-        <button className="fs-btn" data-variant="ghost" title="Tile left (Meta+Left)" aria-label="Tile left"
-          onClick={() => shell.dispatch({ t: "tile", id: win.id, slot: "left" })} style={{ minHeight: 22, padding: "0 6px" }}>◧</button>
-        <button className="fs-btn" data-variant="ghost" title="Tile right (Meta+Right)" aria-label="Tile right"
-          onClick={() => shell.dispatch({ t: "tile", id: win.id, slot: "right" })} style={{ minHeight: 22, padding: "0 6px" }}>◨</button>
-        <button className="fs-btn" data-variant="ghost" title="Pop out (always on top)" aria-label="Pop out"
-          onClick={popOut} style={{ minHeight: 22, padding: "0 6px" }}>⧉</button>
-        <button className="fs-btn" data-variant="ghost" title="Minimise" aria-label="Minimise"
-          onClick={() => shell.dispatch({ t: "minimize", id: win.id })} style={{ minHeight: 22, padding: "0 6px" }}>—</button>
-        <button className="fs-btn" data-variant="ghost" title="Maximise / restore" aria-label="Maximise or restore"
-          onClick={() => shell.dispatch({ t: "toggleMax", id: win.id })} style={{ minHeight: 22, padding: "0 6px" }}>▢</button>
-        <button className="fs-btn" data-variant="ghost" title="Close" aria-label="Close window"
-          onClick={() => shell.dispatch({ t: "close", id: win.id })} style={{ minHeight: 22, padding: "0 8px", color: "#ff9b9b" }}>✕</button>
+        {([
+          ["Tile left (Meta+Left)", "Tile left", "tileLeft", () => shell.dispatch({ t: "tile", id: win.id, slot: "left" }), null],
+          ["Tile right (Meta+Right)", "Tile right", "tileRight", () => shell.dispatch({ t: "tile", id: win.id, slot: "right" }), null],
+          ["Pop out (always on top)", "Pop out", "popout", popOut, null],
+          ["Minimise", "Minimise", "minimize", () => shell.dispatch({ t: "minimize", id: win.id }), "var(--fs-win-min, #ffd34d)"],
+          ["Maximise / restore", "Maximise or restore", "maximize", () => shell.dispatch({ t: "toggleMax", id: win.id }), "var(--fs-win-max, #5ee39b)"],
+          ["Close", "Close window", "close", () => shell.dispatch({ t: "close", id: win.id }), "var(--fs-win-close, #ff7a7a)"],
+        ] as [string, string, UiGlyphName, () => void, string | null][]).map(([title, label, glyph, run, bubble]) => (
+          <button key={label} className="fs-btn fs-winbtn" data-variant="ghost" title={title} aria-label={label} onClick={run}
+            data-bubble={bubble ? "1" : undefined}
+            style={bubble ? { background: bubble, color: "#14213d", borderColor: "rgba(0,0,0,.25)" } : undefined}>
+            <UiGlyph name={glyph} size={bubble ? 11 : 13} />
+          </button>
+        ))}
       </div>
 
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>

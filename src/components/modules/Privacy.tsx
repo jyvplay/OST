@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { fmtBytes, post } from "@/lib/api";
@@ -83,7 +84,7 @@ export default function PrivacyModule(_: ModuleProps) {
       <input className="fs-input" type="password" placeholder="Passphrase or recovery key for this backup" value={bkPass} onChange={(e) => setBkPass(e.target.value)} data-testid="backup-pass" />
     </>
   );
-  const bkOut = bkReport ? <div className="fs-panel fs-mono" role="status" data-testid="backup-report" style={{ fontSize: 12, whiteSpace: "pre-wrap", padding: 8 }}>{bkReport}</div> : null;
+  const bkOut = bkReport ? <div className="fs-panel fs-mono" role="status" data-testid="backup-report" style={{ fontSize: fz(12), whiteSpace: "pre-wrap", padding: 8 }}>{bkReport}</div> : null;
   const storageTone = st.storage === "unlocked" ? "ok" : st.storage === "locked" ? "warn" : "default";
 
   return (
@@ -111,15 +112,15 @@ export default function PrivacyModule(_: ModuleProps) {
           {bkOut}
           {recovery ? (
             <Section title="Recovery key — shown once">
-              <div className="fs-mono" data-testid="recovery-key" style={{ fontSize: 15, userSelect: "all", wordBreak: "break-all" }}>{recovery}</div>
-              <div className="fs-dim" style={{ fontSize: 12 }}>Write it down. It unlocks the storage if you forget the passphrase; it is not stored anywhere in clear.</div>
+              <div className="fs-mono" data-testid="recovery-key" style={{ fontSize: fz(15), userSelect: "all", wordBreak: "break-all" }}>{recovery}</div>
+              <div className="fs-dim" style={{ fontSize: fz(12) }}>Write it down. It unlocks the storage if you forget the passphrase; it is not stored anywhere in clear.</div>
               <div className="fs-row"><Btn onClick={() => setRecovery(null)}>I have saved it</Btn></div>
             </Section>
           ) : null}
 
           {st.storage === "absent" ? (
             <Section title="Create encrypted Persistent Storage">
-              <div className="fs-dim" style={{ fontSize: 12 }}>
+              <div className="fs-dim" style={{ fontSize: fz(12) }}>
                 Files under <span className="fs-mono">{PRIVATE_ROOT}</span> are encrypted in this browser before upload — names, contents,
                 versions. Like Tails, use 5–7 random words. Unlocking costs ~1 s by design (Argon2id, 64 MiB).
               </div>
@@ -137,7 +138,7 @@ export default function PrivacyModule(_: ModuleProps) {
 
           {st.storage === "absent" ? (
             <Section title="Restore from an encrypted backup file">
-              <div className="fs-dim" style={{ fontSize: 12 }}>Everything is checked before anything is written; a damaged or tampered backup writes nothing.</div>
+              <div className="fs-dim" style={{ fontSize: fz(12) }}>Everything is checked before anything is written; a damaged or tampered backup writes nothing.</div>
               {backupPicker}
               <div className="fs-row"><Btn variant="primary" disabled={!!busy || !bk || !bkPass} data-testid="backup-restore" onClick={() => void doRestore()}>{busy === "restore" ? "Restoring…" : "Verify & restore"}</Btn></div>
             </Section>
@@ -162,7 +163,7 @@ export default function PrivacyModule(_: ModuleProps) {
                   <select className="fs-select" value={st.autoLockMin} onChange={(e) => privacy.setAutoLock(Number(e.target.value))} aria-label="Auto-lock minutes">
                     {[0, 5, 15, 30, 60, 240].map((m) => <option key={m} value={m}>{m === 0 ? "never" : `${m} min`}</option>)}
                   </select>} />
-                <table style={{ borderCollapse: "collapse", fontSize: 11.5, textAlign: "left" }}>
+                <table style={{ borderCollapse: "collapse", fontSize: fz(11.5), textAlign: "left" }}>
                   <thead><tr><th>Keyslot</th><th>Kind</th><th>KDF</th><th>Created</th></tr></thead>
                   <tbody>{st.slots.map((s) => <tr key={s.id}><td className="fs-mono">{s.id}</td><td>{s.kind}</td><td>{s.kdf}</td><td suppressHydrationWarning>{new Date(s.created).toLocaleDateString()}</td></tr>)}</tbody>
                 </table>
@@ -177,7 +178,7 @@ export default function PrivacyModule(_: ModuleProps) {
                 </div>
               </Section>
               <Section title="Backup — one encrypted file, no second USB stick, no admin password">
-                <div className="fs-dim" style={{ fontSize: 12 }}>
+                <div className="fs-dim" style={{ fontSize: fz(12) }}>
                   Downloads the stored ciphertext plus the keyslot header as one file; names, folder layout and sizes are sealed inside it.
                   It opens with the passphrase or recovery key valid when it was made. Verify any backup here without restoring it.
                   Not included: version history and trash.
@@ -196,7 +197,7 @@ export default function PrivacyModule(_: ModuleProps) {
       {tab === "amnesia" ? (
         <>
           <Section title="Session">
-            <div className="fs-dim" style={{ fontSize: 12 }}>
+            <div className="fs-dim" style={{ fontSize: fz(12) }}>
               An amnesic session writes nothing new to the host or this browser profile: file changes live in RAM, settings and notes are refused,
               local storage is shadowed in memory, and IndexedDB is blocked. Persistent Storage still works when unlocked. Close the tab or use
               Emergency shutdown and it is gone.
@@ -223,26 +224,26 @@ export default function PrivacyModule(_: ModuleProps) {
               <Btn variant="primary" data-testid="rescue-all" disabled={!!busy || st.storage !== "unlocked"} title={st.storage !== "unlocked" ? "Unlock Persistent Storage first" : "Move every RAM-only file to /Private/Rescued (encrypted)"}
                 onClick={() => void doRescue(ram.map((f) => f.path))}>Keep all in Persistent Storage</Btn>) : null}>
               {ram.length ? (
-                <ul className="fs-mono" data-testid="ram-files" style={{ margin: 0, paddingLeft: 16, fontSize: 11.5 }}>
+                <ul className="fs-mono" data-testid="ram-files" style={{ margin: 0, paddingLeft: 16, fontSize: fz(11.5) }}>
                   {ram.slice(0, 50).map((f) => (
                     <li key={f.path}>{f.path} · {fmtBytes(f.size)}{" "}
                       <Btn data-testid="rescue-one" disabled={!!busy || st.storage !== "unlocked"} onClick={() => void doRescue([f.path])}>Keep</Btn></li>))}
                 </ul>
-              ) : <div className="fs-dim" style={{ fontSize: 12 }}>No RAM-only files. Closing the tab now loses nothing you saved.</div>}
-              <div className="fs-dim" style={{ fontSize: 12 }}>While this list is not empty, closing or reloading the tab asks for confirmation (Emergency shutdown never asks).
+              ) : <div className="fs-dim" style={{ fontSize: fz(12) }}>No RAM-only files. Closing the tab now loses nothing you saved.</div>}
+              <div className="fs-dim" style={{ fontSize: fz(12) }}>While this list is not empty, closing or reloading the tab asks for confirmation (Emergency shutdown never asks).
                 {st.storage !== "unlocked" ? " Unlock Persistent Storage to keep files." : " Kept files go to /Private/Rescued, encrypted."}</div>
             </Section>
           ) : null}
           <Section title={`Blocked host writes (${st.blocked})`}>
-            {blocked.length ? <ul className="fs-mono" style={{ margin: 0, paddingLeft: 16, fontSize: 11.5 }} data-testid="blocked-log">{blocked.map((b, i) => <li key={i} suppressHydrationWarning>{new Date(b.at).toLocaleTimeString()} · {b.what}</li>)}</ul>
-              : <div className="fs-dim" style={{ fontSize: 12 }}>Nothing blocked yet.</div>}
+            {blocked.length ? <ul className="fs-mono" style={{ margin: 0, paddingLeft: 16, fontSize: fz(11.5) }} data-testid="blocked-log">{blocked.map((b, i) => <li key={i} suppressHydrationWarning>{new Date(b.at).toLocaleTimeString()} · {b.what}</li>)}</ul>
+              : <div className="fs-dim" style={{ fontSize: fz(12) }}>Nothing blocked yet.</div>}
           </Section>
         </>
       ) : null}
 
       {tab === "metadata" ? (
         <Section title="Remove metadata (in this browser — /Private files never reach the host in clear)">
-          <div className="fs-dim" style={{ fontSize: 12 }}>
+          <div className="fs-dim" style={{ fontSize: fz(12) }}>
             JPEG, PNG, WebP, GIF, SVG, DOCX, XLSX, PPTX. Pixels and text are not re-encoded; JPEG keeps only the rotation tag so photos still display
             upright. PDF is refused rather than half-cleaned.
           </div>
@@ -263,7 +264,7 @@ export default function PrivacyModule(_: ModuleProps) {
               if (k) for (const p of new Set([...a.plainNames, ...a.plainContent])) logical[p] = (await decryptPath(k, p)).path;
               setAudit({ ...a, logical });
             })}>Run audit</Btn>}>
-            <div className="fs-dim" style={{ fontSize: 12 }}>Reads exactly what the host stores under {PRIVATE_ROOT} and flags anything not encrypted (e.g. written by another client or a script).</div>
+            <div className="fs-dim" style={{ fontSize: fz(12) }}>Reads exactly what the host stores under {PRIVATE_ROOT} and flags anything not encrypted (e.g. written by another client or a script).</div>
             {audit ? (
               <div data-testid="audit-result" style={{ display: "grid", gap: 4 }}>
                 <KV k="Files / folders" v={`${audit.files} / ${audit.dirs}`} />
@@ -271,7 +272,7 @@ export default function PrivacyModule(_: ModuleProps) {
                 <KV k="Undecryptable (other key?)" v={audit.undecryptable.length} />
                 {[...new Set([...audit.plainNames, ...audit.plainContent])].map((p) => (
                   <div key={p} className="fs-row" style={{ gap: 8 }}>
-                    <span style={{ flex: "none" }}><Badge tone="bad">in clear</Badge></span><span className="fs-mono" style={{ fontSize: 12 }}>{audit.logical[p] ?? p}</span>
+                    <span style={{ flex: "none" }}><Badge tone="bad">in clear</Badge></span><span className="fs-mono" style={{ fontSize: fz(12) }}>{audit.logical[p] ?? p}</span>
                     <Btn onClick={() => run("seal", async () => {
                       const from = audit.logical[p]; if (!from) throw new Error("unlock first");
                       const to = from.replace(/\[clear\] /g, "");
@@ -292,7 +293,7 @@ export default function PrivacyModule(_: ModuleProps) {
                 <KV k="Decrypt" v={`${bench.decryptMBps} MB/s (${bench.decryptMs.toFixed(1)} ms per ${fmtBytes(bench.bytes)})`} />
                 <KV k="Largest file (8 MB VFS cap)" v={`≈ ${Math.ceil((8 / bench.encryptMBps) * 1000)} ms extra to save`} />
               </div>
-            ) : <div className="fs-dim" style={{ fontSize: 12 }}>Unlock cost is deliberate (Argon2id, or PBKDF2 ≥ {PBKDF2_FLOOR.toLocaleString()}); per-file cost is what this measures.</div>}
+            ) : <div className="fs-dim" style={{ fontSize: fz(12) }}>Unlock cost is deliberate (Argon2id, or PBKDF2 ≥ {PBKDF2_FLOOR.toLocaleString()}); per-file cost is what this measures.</div>}
           </Section>
         </>
       ) : null}
@@ -303,7 +304,7 @@ export default function PrivacyModule(_: ModuleProps) {
 function CleanReportView({ r }: { r: CleanFileResult }) {
   const rep = r.report;
   return (
-    <div data-testid="clean-report" style={{ display: "grid", gap: 4, fontSize: 12 }}>
+    <div data-testid="clean-report" style={{ display: "grid", gap: 4, fontSize: fz(12) }}>
       <div className="fs-row" style={{ gap: 6 }}>
         <Badge tone={!rep.supported ? "warn" : rep.removed.length ? "ok" : "default"}>{rep.kind}</Badge>
         <span>{!rep.supported ? "not supported — file unchanged" : rep.removed.length ? `${rep.removed.length} items removed → ${r.written}` : "nothing to remove"}</span>

@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
@@ -54,25 +55,25 @@ export default function StorageModule(_: ModuleProps) {
         {d?.duplicates.length ? d.duplicates.map((g) => (
           <div key={g.sha256} className="fs-panel" style={{ padding: 8, display: "grid", gap: 3 }}>
             <div className="fs-row" style={{ justifyContent: "space-between" }}>
-              <span className="fs-mono" style={{ fontSize: 11 }}>{g.sha256.slice(0, 12)} · {g.copies} copies</span>
+              <span className="fs-mono" style={{ fontSize: fz(11) }}>{g.sha256.slice(0, 12)} · {g.copies} copies</span>
               <Badge tone="warn">reclaim {fmtBytes(Number(g.reclaimable))}</Badge>
             </div>
             {g.paths.map((p, i) => (
               <div key={p} className="fs-row" style={{ justifyContent: "space-between" }}>
-                <span className="fs-mono" style={{ fontSize: 11 }}>{p}</span>
+                <span className="fs-mono" style={{ fontSize: fz(11) }}>{p}</span>
                 {i > 0 ? <Btn variant="ghost" onClick={async () => { await post("/api/fs", { op: "trash", path: p }); shell.bumpRefresh(); }}>Trash</Btn> : <Badge tone="ok">keep</Badge>}
               </div>
             ))}
           </div>
-        )) : <div className="fs-dim" style={{ fontSize: 11.5 }}>No duplicate content.</div>}
+        )) : <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No duplicate content.</div>}
       </Section>
 
       <Section title="Largest files">
         {d?.large.map((f) => (
           <div key={f.path} className="fs-row" style={{ justifyContent: "space-between" }}>
-            <button className="fs-mono" style={{ fontSize: 11, background: "none", border: 0, color: "inherit", cursor: "pointer", textAlign: "left" }}
+            <button className="fs-mono" style={{ fontSize: fz(11), background: "none", border: 0, color: "inherit", cursor: "pointer", textAlign: "left" }}
               onClick={() => shell.open("peek", { path: f.path, title: f.path })}>{f.path}</button>
-            <span className="fs-dim" style={{ fontSize: 11 }}>{fmtBytes(Number(f.size))}</span>
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>{fmtBytes(Number(f.size))}</span>
           </div>
         ))}
       </Section>

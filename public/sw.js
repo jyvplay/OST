@@ -9,8 +9,8 @@
  *  - No skipWaiting(): an update must never reload a window mid-edit. The page
  *    offers the update instead (AP-04).
  */
-const VERSION = "fusion-v3";
-const SHELL = ["/", "/manifest.webmanifest", "/icon.svg"];
+const VERSION = "fusion-v5"; // TT22: poolside icons + wallpapers
+const SHELL = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/wallpapers/poolside.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL).catch(() => undefined)));

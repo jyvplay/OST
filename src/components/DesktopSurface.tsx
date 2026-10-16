@@ -1,9 +1,12 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { formatFor } from "@/lib/forge";
 import { useShell } from "./shell-context";
+import { FileIcon } from "./AppIcon";
+import { DEFAULT_WALLPAPER, WALLPAPERS } from "@/lib/appearance";
 
 interface Item { path: string; name: string; kind: string }
 
@@ -44,16 +47,17 @@ export default function DesktopSurface({ onLauncher }: { onLauncher: () => void 
       onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }); }}
       onPointerDown={() => setMenu(null)}
     >
-      <div style={{ position: "absolute", top: 10, left: 10, display: "grid", gap: 2, width: 108 }}>
+      <div style={{ position: "absolute", top: 10, left: 10, display: "grid", gap: fz(3), width: fz(96) }}>
         {items.map((it) => {
           const fmt = formatFor(it.name);
           return (
-            <button key={it.path} className="fs-btn" data-variant="ghost"
+            <button key={it.path}
               onDoubleClick={() => shell.open(it.kind === "dir" ? "files" : "editor", { path: it.path, title: it.name })}
               title={`${it.path}${fmt ? ` · ${fmt.label} (grade ${fmt.grade})` : ""}`}
-              style={{ flexDirection: "column", height: 70, gap: 2, fontSize: 10.5, whiteSpace: "nowrap", overflow: "hidden" }}>
-              <span style={{ fontSize: 22 }}>{it.kind === "dir" ? "🗂" : fmt?.grade === "D" ? "📄" : "📃"}</span>
-              <span style={{ maxWidth: 92, overflow: "hidden", textOverflow: "ellipsis" }}>{it.name}</span>
+              className="fs-btn fs-desk-icon" data-variant="ghost"
+              style={{ flexDirection: "column", height: "auto", padding: `${fz(4)} 2px`, gap: fz(3), fontSize: fz(11), whiteSpace: "nowrap", overflow: "hidden" }}>
+              <FileIcon name={it.name} kind={it.kind === "dir" ? "dir" : "file"} size={34} />
+              <span className="fs-desk-label" style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis" }}>{it.name}</span>
             </button>
           );
         })}
@@ -74,8 +78,8 @@ export default function DesktopSurface({ onLauncher }: { onLauncher: () => void 
             { label: "Open Terminal here", run: () => shell.open("terminal", { cwd: "/Documents" }) },
             { label: "Overview", run: () => shell.dispatch({ t: "cascade" }) },
             { label: "Change wallpaper", run: () => {
-                const order = ["aurora", "grid", "slate"];
-                const cur = shell.settings["appearance.wallpaper"] ?? "aurora";
+                const order: string[] = WALLPAPERS.map((w) => w.id);
+                const cur = shell.settings["appearance.wallpaper"] ?? DEFAULT_WALLPAPER;
                 void shell.setSetting("appearance.wallpaper", order[(order.indexOf(cur) + 1) % order.length]);
               } },
             { label: "Spec register", run: () => shell.open("spec") },

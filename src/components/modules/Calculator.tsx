@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useState } from "react";
 import { evaluate } from "@/lib/calc";
@@ -27,13 +28,13 @@ export default function CalculatorModule(_: ModuleProps) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, padding: 10, gap: 8 }}>
-      <input className="fs-input fs-mono" style={{ fontSize: 16, padding: 10 }} value={expr} autoFocus
+      <input className="fs-input fs-mono" style={{ fontSize: fz(16), padding: 10 }} value={expr} autoFocus
         aria-label="Expression"
         onChange={(e) => setExpr(e.target.value)}
         onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
         placeholder="2+2*3   ·   sqrt(144)   ·   12 cm to in   ·   0xff" />
       <div className="fs-row" style={{ justifyContent: "space-between" }}>
-        <span className="fs-mono" style={{ fontSize: 18, color: result.ok ? "var(--fs-text)" : "#ff9b9b" }}>
+        <span className="fs-mono" style={{ fontSize: fz(18), color: result.ok ? "var(--fs-text)" : "var(--fs-bad-text, #ff9b9b)" }}>
           {expr ? (result.ok ? `= ${result.text}` : result.text) : "—"}
         </span>
         {result.detail ? <Badge tone="info">{result.detail}</Badge> : null}
@@ -54,13 +55,13 @@ export default function CalculatorModule(_: ModuleProps) {
         {history.map((h, i) => (
           <button key={i} className="fs-list-item" style={{ width: "100%", border: 0, background: "none", color: "inherit", textAlign: "left" }}
             onClick={() => setExpr(h.expr)}>
-            <span className="fs-dim fs-mono" style={{ flex: 1, fontSize: 11.5 }}>{h.expr}</span>
-            <span className="fs-mono" style={{ fontSize: 11.5 }}>= {h.text}</span>
+            <span className="fs-dim fs-mono" style={{ flex: 1, fontSize: fz(11.5) }}>{h.expr}</span>
+            <span className="fs-mono" style={{ fontSize: fz(11.5) }}>= {h.text}</span>
           </button>
         ))}
       </div>
 
-      <div className="fs-dim" style={{ fontSize: 10.5 }}>
+      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>
         Recursive-descent parser, no eval(). Rounding policy: 12 significant digits, trailing zeros trimmed —
         stated rather than implied, because the palette must agree with this window exactly.
       </div>

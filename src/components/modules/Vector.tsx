@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 /**
  * FF-32 / FF-25 / FF-04 Vector studio v2 (TT16). Engine: src/lib/vector (pure, oracle-tested).
@@ -69,7 +70,7 @@ function boxFromHandle(h: string, b: Box, x: number, y: number, keep: boolean): 
 function ToolIcon({ id }: { id: Tool }) {
   const p = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinejoin: "round" as const, strokeLinecap: "round" as const };
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style={{ width: fz(16), height: fz(16), display: "block", margin: "0 auto" }}>
       {id === "select" ? <path {...p} d="M4 2 L4 15 L7.5 11.5 L10 16 L12 15 L9.5 10.5 L14 10.5 Z" fill="currentColor" /> : null}
       {id === "node" ? <><path {...p} d="M3 14 C6 3 12 3 15 14" /><rect x="1.5" y="12.5" width="3" height="3" fill="currentColor" /><rect x="13.5" y="12.5" width="3" height="3" fill="currentColor" /><circle cx="9" cy="5.5" r="1.6" fill="currentColor" /></> : null}
       {id === "rect" ? <rect {...p} x="3" y="4.5" width="12" height="9" rx="1" /> : null}
@@ -336,7 +337,7 @@ export default function VectorModule({ win }: ModuleProps) {
     commit(d, `gradient ${id} applied`);
   };
   const numIn = (label: string, v: number, set: (n: number) => void, step = 1) => (
-    <label className="fs-row" style={{ justifyContent: "space-between", fontSize: 11, gap: 4 }}>{label}
+    <label className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11), gap: 4 }}>{label}
       <input aria-label={label} className="fs-input" type="number" step={step} value={r2(v)} onChange={(e) => { const n = Number(e.target.value); if (Number.isFinite(n)) set(n); }} style={{ width: 72 }} /></label>
   );
   const rotation = first ? r2(Math.atan2(first.transform[1], first.transform[0]) * 180 / Math.PI) : 0;
@@ -344,9 +345,9 @@ export default function VectorModule({ win }: ModuleProps) {
 
   return (
     <div ref={wrapRef} data-testid="vector-studio" data-shapes={view.shapes.length} data-selected={sel.join(",")} data-tool={tool} data-undo={hist.i}
-      tabIndex={0} onKeyDown={onKey} style={{ display: "grid", gridTemplateColumns: "56px 1fr 260px", gridTemplateRows: "auto 1fr auto", height: "100%", minHeight: 0, outline: "none" }}>
+      tabIndex={0} onKeyDown={onKey} style={{ display: "grid", gridTemplateColumns: `${fz(44)} minmax(0, 1fr) min(${fz(220)}, 34%)`, gridTemplateRows: "auto 1fr auto", height: "100%", minHeight: 0, outline: "none" }}>
       <div className="fs-row" style={{ gridColumn: "1 / 4", padding: 6, gap: 4, flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)" }}>
-        <input className="fs-input" style={{ width: 170 }} aria-label="Vector document title" value={doc.title} onChange={(e) => { setHist((h) => ({ ...h, stack: h.stack.map((d, i) => (i === h.i ? { ...d, title: e.target.value } : d)) })); setDirty(true); }} />
+        <input className="fs-input" style={{ width: fz(170) }} aria-label="Vector document title" value={doc.title} onChange={(e) => { setHist((h) => ({ ...h, stack: h.stack.map((d, i) => (i === h.i ? { ...d, title: e.target.value } : d)) })); setDirty(true); }} />
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input type="file" aria-label="Open SVG or fsvg" accept="image/svg+xml,.svg,.fsvg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void f.text().then((t) => { try { openText(t, f.name); } catch (err) { setStatus(`Could not open ${f.name}: ${(err as Error).message}`); } }); e.target.value = ""; }} /></label>
         <Btn variant="ghost" onClick={() => replaceDoc(blankDoc(), "new document")}>New</Btn>
         <Btn variant="primary" onClick={() => void saveNative()}>Save .fsvg</Btn>
@@ -354,7 +355,7 @@ export default function VectorModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => void exportPng()}>Export PNG</Btn>
         <Btn variant="ghost" onClick={undo} disabled={hist.i === 0}>Undo</Btn>
         <Btn variant="ghost" onClick={redo} disabled={hist.i >= hist.stack.length - 1}>Redo</Btn>
-        <select className="fs-input" aria-label="Zoom" value={String(zoom)} onChange={(e) => setZoom(e.target.value === "fit" ? "fit" : Number(e.target.value))} style={{ width: 76 }}>
+        <select className="fs-input" aria-label="Zoom" value={String(zoom)} onChange={(e) => setZoom(e.target.value === "fit" ? "fit" : Number(e.target.value))} style={{ width: fz(76) }}>
           {["fit", "0.5", "1", "2", "4"].map((z) => <option key={z} value={z}>{z === "fit" ? "Fit" : `${Number(z) * 100}%`}</option>)}
         </select>
         <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>
@@ -363,7 +364,7 @@ export default function VectorModule({ win }: ModuleProps) {
       <div style={{ borderRight: "1px solid var(--fs-border)", display: "grid", alignContent: "start", gap: 2, padding: 3 }}>
         {TOOLS.map((t) => (
           <button key={t.id} className="fs-list-item" data-selected={tool === t.id} aria-label={`${t.label} tool (${t.key.toUpperCase()})`} title={`${t.label} (${t.key.toUpperCase()})`}
-            onClick={() => { setTool(t.id); if (t.id !== "pen") setPen([]); }} style={{ flexDirection: "column", padding: "4px 0", fontSize: 10, gap: 0, alignItems: "center" }}>
+            onClick={() => { setTool(t.id); if (t.id !== "pen") setPen([]); }} style={{ flexDirection: "column", padding: "4px 0", fontSize: fz(10), gap: 0, alignItems: "center" }}>
             <ToolIcon id={t.id} />{t.label}
           </button>
         ))}
@@ -411,10 +412,10 @@ export default function VectorModule({ win }: ModuleProps) {
         </svg>
       </div>
 
-      <aside className="fs-scroll" style={{ gridRow: "2 / 4", gridColumn: 3, borderLeft: "1px solid var(--fs-border)", padding: 8, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignContent: "start", gap: 8, fontSize: 11, minWidth: 0, overflowX: "hidden" }}>
+      <aside className="fs-scroll" style={{ gridRow: "2 / 4", gridColumn: 3, borderLeft: "1px solid var(--fs-border)", padding: 8, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignContent: "start", gap: 8, fontSize: fz(11), minWidth: 0, overflowX: "hidden" }}>
         <div style={{ fontWeight: 600 }}>Properties {sel.length ? `(${sel.length} selected)` : "(new shapes)"}</div>
         <label className="fs-row" style={{ justifyContent: "space-between", gap: 4 }}>Fill
-          <select className="fs-input" aria-label="Fill type" value={fillMode} style={{ width: 92 }} onChange={(e) => { const v = e.target.value; if (v === "none") setStyle({ fill: "none" }); else if (v === "solid") setStyle({ fill: toHex(cur.fill, "#5b8cff") }); else if (v === "+") newGradient(); else setStyle({ fill: `url(#${v})` }); }}>
+          <select className="fs-input" aria-label="Fill type" value={fillMode} style={{ width: fz(92) }} onChange={(e) => { const v = e.target.value; if (v === "none") setStyle({ fill: "none" }); else if (v === "solid") setStyle({ fill: toHex(cur.fill, "#5b8cff") }); else if (v === "+") newGradient(); else setStyle({ fill: `url(#${v})` }); }}>
             <option value="none">None</option><option value="solid">Solid</option>
             {grads.map((g) => <option key={g.id} value={g.id}>{g.kind} {g.id}</option>)}
             <option value="+">+ New gradient</option>
@@ -423,7 +424,7 @@ export default function VectorModule({ win }: ModuleProps) {
         </label>
         {activeGrad ? <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
           {activeGrad.stops.map((s, i) => <input key={i} type="color" aria-label={`Gradient stop ${i + 1}`} value={toHex(s.color, "#000000")} onChange={(e) => setGrad({ ...activeGrad, stops: activeGrad.stops.map((q, j) => (j === i ? { ...q, color: e.target.value } : q)) })} />)}
-          {activeGrad.kind === "linear" ? <select className="fs-input" aria-label="Gradient angle" style={{ width: 70 }} value={String(Math.round(Math.atan2(activeGrad.y2 - activeGrad.y1, activeGrad.x2 - activeGrad.x1) * 180 / Math.PI))}
+          {activeGrad.kind === "linear" ? <select className="fs-input" aria-label="Gradient angle" style={{ width: fz(70) }} value={String(Math.round(Math.atan2(activeGrad.y2 - activeGrad.y1, activeGrad.x2 - activeGrad.x1) * 180 / Math.PI))}
             onChange={(e) => { const a = Number(e.target.value) * Math.PI / 180, c = Math.cos(a) / 2, s = Math.sin(a) / 2; setGrad({ ...activeGrad, units: "objectBoundingBox", x1: r2(0.5 - c), y1: r2(0.5 - s), x2: r2(0.5 + c), y2: r2(0.5 + s) }); }}>
             {[0, 45, 90, 135, 180, -45, -90, -135].map((a) => <option key={a} value={a}>{a}°</option>)}
           </select> : null}
@@ -436,11 +437,11 @@ export default function VectorModule({ win }: ModuleProps) {
         {numIn("Stroke width", fs.strokeWidth ?? 1, (n) => setStyle({ strokeWidth: Math.max(0, n) }), 0.5)}
         {numIn("Opacity %", (fs.opacity ?? 1) * 100, (n) => setStyle({ opacity: Math.max(0, Math.min(100, n)) / 100 }))}
         <label className="fs-row" style={{ justifyContent: "space-between", gap: 4 }}>Dash
-          <select className="fs-input" aria-label="Dash pattern" value={fs.dash ?? ""} style={{ width: 110 }} onChange={(e) => setStyle({ dash: e.target.value || undefined })}>
+          <select className="fs-input" aria-label="Dash pattern" value={fs.dash ?? ""} style={{ width: fz(110) }} onChange={(e) => setStyle({ dash: e.target.value || undefined })}>
             {[["", "solid"], ["6 4", "dashed"], ["2 3", "dotted"], ["12 6 2 6", "dash-dot"], ...(fs.dash && !["6 4", "2 3", "12 6 2 6"].includes(fs.dash) ? [[fs.dash, `custom ${fs.dash}`]] : [])].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select></label>
         <label className="fs-row" style={{ justifyContent: "space-between", gap: 4 }}>Fill rule
-          <select className="fs-input" aria-label="Fill rule" value={fs.fillRule ?? "nonzero"} style={{ width: 110 }} onChange={(e) => setStyle({ fillRule: e.target.value as Style["fillRule"] })}><option value="nonzero">nonzero</option><option value="evenodd">evenodd</option></select></label>
+          <select className="fs-input" aria-label="Fill rule" value={fs.fillRule ?? "nonzero"} style={{ width: fz(110) }} onChange={(e) => setStyle({ fillRule: e.target.value as Style["fillRule"] })}><option value="nonzero">nonzero</option><option value="evenodd">evenodd</option></select></label>
         {tool === "star" ? <>{numIn("Star points", star.sides, (n) => setStar((s) => ({ ...s, sides: Math.max(3, Math.min(64, Math.round(n))) })))}{numIn("Inner ratio (0 = polygon)", star.inner, (n) => setStar((s) => ({ ...s, inner: Math.max(0, Math.min(1, n)) })), 0.05)}</> : null}
         {tool === "line" ? <label className="fs-row" style={{ justifyContent: "space-between", gap: 4 }}>Arrowhead<input type="checkbox" aria-label="Arrowhead" checked={arrow} onChange={(e) => setArrow(e.target.checked)} /></label> : null}
         {first?.kind === "polygon" && first.star && sel.length === 1 ? <>
@@ -462,8 +463,8 @@ export default function VectorModule({ win }: ModuleProps) {
 
         <div style={{ fontWeight: 600 }}>Arrange</div>
         <div className="fs-row" style={{ flexWrap: "wrap", gap: 3 }}>
-          {([["left", "Left"], ["hcenter", "Centre"], ["right", "Right"], ["top", "Top"], ["vcenter", "Middle"], ["bottom", "Bottom"]] as const).map(([m, ic]) => <Btn key={m} variant="ghost" title={`Align ${m}`} aria-label={`Align ${m}`} onClick={() => run(m)}>{ic}</Btn>)}
-          <Btn variant="ghost" aria-label="Distribute horizontally" onClick={() => run("disth")}>Distribute H</Btn><Btn variant="ghost" aria-label="Distribute vertically" onClick={() => run("distv")}>Distribute V</Btn>
+          {([["left", "Left"], ["hcenter", "Centre"], ["right", "Right"], ["top", "Top"], ["vcenter", "Middle"], ["bottom", "Bottom"]] as const).map(([m, ic]) => <Btn key={m} variant="ghost" title={`Align ${m}`} aria-label={`Align ${m} · ${ic}`} onClick={() => run(m)}>{ic}</Btn>)}
+          <Btn variant="ghost" aria-label="Distribute horizontally · Distribute H" title="Distribute horizontally" onClick={() => run("disth")}>Distribute H</Btn><Btn variant="ghost" aria-label="Distribute vertically · Distribute V" title="Distribute vertically" onClick={() => run("distv")}>Distribute V</Btn>
         </div>
         <div className="fs-row" style={{ flexWrap: "wrap", gap: 3 }}>
           {([["front", "To front"], ["forward", "Forward"], ["backward", "Backward"], ["back", "To back"], ["group", "Group"], ["ungroup", "Ungroup"], ["duplicate", "Duplicate"], ["topath", "To path"], ["fliph", "Flip H"], ["flipv", "Flip V"]] as const).map(([c, l]) => <Btn key={c} variant="ghost" onClick={() => run(c)}>{l}</Btn>)}
@@ -494,10 +495,10 @@ export default function VectorModule({ win }: ModuleProps) {
           {report.dropped.map((d) => <div key={d} className="fs-dim">dropped: {d}</div>)}
           {report.warnings.map((w) => <div key={w} className="fs-dim">note: {w}</div>)}
         </div> : null}
-        <div className="fs-dim" style={{ fontSize: 10 }}>Import keeps rect/circle/ellipse/line/polyline/polygon/path/text/g/use + gradients; arcs become cubic Béziers (≤2.7·10⁻⁴·r error). Scripts, handlers, external refs, CSS sheets, filters, masks, clip paths, patterns, markers, images are reported and dropped. Text bounds are estimated (no font metrics). The source SVG is never overwritten.</div>
+        <div className="fs-dim" style={{ fontSize: fz(10) }}>Import keeps rect/circle/ellipse/line/polyline/polygon/path/text/g/use + gradients; arcs become cubic Béziers (≤2.7·10⁻⁴·r error). Scripts, handlers, external refs, CSS sheets, filters, masks, clip paths, patterns, markers, images are reported and dropped. Text bounds are estimated (no font metrics). The source SVG is never overwritten.</div>
       </aside>
 
-      <div data-testid="vector-message" className="fs-dim" style={{ gridColumn: "1 / 3", padding: "3px 8px", fontSize: 10.5, borderTop: "1px solid var(--fs-border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+      <div data-testid="vector-message" className="fs-dim" style={{ gridColumn: "1 / 3", padding: "3px 8px", fontSize: fz(10.5), borderTop: "1px solid var(--fs-border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
         {status || "Ready"} · {TOOLS.find((t) => t.id === tool)?.label} tool{bbox ? ` · ${r2(bbox.w)}×${r2(bbox.h)} at ${r2(bbox.x)},${r2(bbox.y)}` : ""}{tool === "pen" ? " · click = corner, drag = smooth, click first node = close, Enter = finish" : ""}
       </div>
     </div>

@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
@@ -110,22 +111,22 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
     <div className="fs-scroll" style={{ padding: 12, display: "grid", gap: 10, alignContent: "start" }}>
       <label className="fs-btn" data-variant="primary" style={{ width: "fit-content", cursor: "pointer" }}>Open image…<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadBlob(f, f.name).catch((x) => shell.toast(String((x as Error).message), "bad")); }} /></label>
       <Btn variant="ghost" onClick={() => { const p = prompt("VFS image path", "/Pictures/logo.svg"); if (p) setSourcePath(p); }}>Open from Files…</Btn>
-      <div className="fs-dim" style={{ fontSize: 11.5 }}>Raster: PNG/JPEG/WebP/GIF where the browser can decode it. HEIC decode is capability-probed. PSD remains metadata-only.</div>
+      <div className="fs-dim" style={{ fontSize: fz(11.5) }}>Raster: PNG/JPEG/WebP/GIF where the browser can decode it. HEIC decode is capability-probed. PSD remains metadata-only.</div>
     </div>
   );
 
   const range = (label: string, value: number, min: number, max: number, change: (n: number) => void) => (
-    <label style={{ display: "grid", gridTemplateColumns: "75px 1fr 42px", gap: 6, alignItems: "center", fontSize: 11 }}>{label}<input type="range" min={min} max={max} value={value} onChange={(e) => change(Number(e.target.value))}/><span className="fs-mono">{value}</span></label>
+    <label style={{ display: "grid", gridTemplateColumns: `${fz(75)} minmax(0, 1fr) ${fz(42)}`, gap: 6, alignItems: "center", fontSize: fz(11) }}>{label}<input type="range" min={min} max={max} value={value} onChange={(e) => change(Number(e.target.value))}/><span className="fs-mono">{value}</span></label>
   );
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 270px", height: "100%", minHeight: 0 }}>
+    <div style={{ display: "grid", gridTemplateColumns: `minmax(0, 1fr) min(${fz(230)}, 36%)`, height: "100%", minHeight: 0 }}>
       <div className="fs-scroll" style={{ padding: 10, display: "grid", placeItems: "center", background: "#060a14" }}>
         <canvas ref={canvasRef} aria-label={`Edited preview of ${sourceName}`} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", backgroundImage: "linear-gradient(45deg,#eee 25%,transparent 25%),linear-gradient(-45deg,#eee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eee 75%),linear-gradient(-45deg,transparent 75%,#eee 75%)", backgroundSize: "16px 16px", backgroundPosition: "0 0,0 8px,8px -8px,-8px 0" }} />
       </div>
       <aside className="fs-scroll" style={{ borderLeft: "1px solid var(--fs-border)", padding: 8, display: "grid", alignContent: "start", gap: 8 }}>
-        <div className="fs-row" style={{ justifyContent: "space-between" }}><strong style={{ fontSize: 12 }}>{sourceName}</strong><Badge tone="info">non-destructive</Badge></div>
-        <div className="fs-dim" style={{ fontSize: 10.5 }}>{status}</div>
+        <div className="fs-row" style={{ justifyContent: "space-between" }}><strong style={{ fontSize: fz(12) }}>{sourceName}</strong><Badge tone="info">non-destructive</Badge></div>
+        <div className="fs-dim" style={{ fontSize: fz(10.5) }}>{status}</div>
         <Section title="Crop (%)" dense>
           {range("left", crop.left, 0, Math.max(0, 100 - crop.width), (n) => setCrop((c) => ({ ...c, left: n })))}
           {range("top", crop.top, 0, Math.max(0, 100 - crop.height), (n) => setCrop((c) => ({ ...c, top: n })))}
@@ -151,7 +152,7 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
           <Btn variant="ghost" onClick={() => void saveRecipe()}>Save recipe</Btn>
           <Btn variant="ghost" onClick={() => { setCrop(DEFAULT_CROP); setFx(DEFAULT_FX); }}>Reset edits</Btn>
         </div>
-        <div className="fs-dim" style={{ fontSize: 10.5, lineHeight: 1.5 }}>Single raster layer; no PSD layers. Source is never overwritten. Export is capped at 32 MP and 8 MB VFS; larger files download instead.</div>
+        <div className="fs-dim" style={{ fontSize: fz(10.5), lineHeight: 1.5 }}>Single raster layer; no PSD layers. Source is never overwritten. Export is capped at 32 MP and 8 MB VFS; larger files download instead.</div>
       </aside>
     </div>
   );

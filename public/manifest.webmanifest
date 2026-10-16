@@ -6,40 +6,98 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "any",
-  "background_color": "#070b16",
-  "theme_color": "#070b16",
-  "categories": ["productivity", "utilities"],
-  "launch_handler": { "client_mode": "focus-existing" },
+  "background_color": "#062a33",
+  "theme_color": "#062a33",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
-    { "name": "Files", "url": "/?open=files" },
-    { "name": "Terminal", "url": "/?open=terminal" },
-    { "name": "Spec register", "url": "/?open=spec" },
-    { "name": "Second display", "url": "/display" }
+    {
+      "name": "Files",
+      "url": "/?open=files"
+    },
+    {
+      "name": "Terminal",
+      "url": "/?open=terminal"
+    },
+    {
+      "name": "Spec register",
+      "url": "/?open=spec"
+    },
+    {
+      "name": "Second display",
+      "url": "/display"
+    }
   ],
   "file_handlers": [
     {
       "action": "/",
       "accept": {
-        "text/markdown": [".md"],
-        "text/plain": [".txt", ".log"],
-        "text/csv": [".csv"],
-        "application/json": [".json"]
+        "text/markdown": [
+          ".md"
+        ],
+        "text/plain": [
+          ".txt",
+          ".log"
+        ],
+        "text/csv": [
+          ".csv"
+        ],
+        "application/json": [
+          ".json"
+        ]
       }
     }
   ],
   "protocol_handlers": [
-    { "protocol": "web+fusion", "url": "/?cmd=%s" }
+    {
+      "protocol": "web+fusion",
+      "url": "/?cmd=%s"
+    }
   ],
   "share_target": {
     "action": "/",
     "method": "GET",
-    "params": { "title": "title", "text": "text", "url": "url" }
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
   }
 }

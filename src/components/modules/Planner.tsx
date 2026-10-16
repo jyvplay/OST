@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, fmtTime, patch, post } from "@/lib/api";
@@ -24,10 +25,10 @@ export default function PlannerModule(_: ModuleProps) {
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        <input className="fs-input" style={{ flex: 1, minWidth: 160 }} placeholder="New task" value={title}
+        <input className="fs-input" style={{ flex: 1, minWidth: fz(160) }} placeholder="New task" value={title}
           onChange={(e) => setTitle(e.target.value)} aria-label="Task title"
           onKeyDown={(e) => { if (e.key === "Enter") (document.getElementById("planner-add") as HTMLButtonElement)?.click(); }} />
-        <input className="fs-input" type="datetime-local" style={{ width: 200 }} value={due} onChange={(e) => setDue(e.target.value)} aria-label="Due" />
+        <input className="fs-input" type="datetime-local" style={{ width: fz(200) }} value={due} onChange={(e) => setDue(e.target.value)} aria-label="Due" />
         <Btn id="planner-add" variant="primary" disabled={!title} onClick={async () => {
           await post("/api/tasks", { title, dueAt: due ? new Date(due).toISOString() : null });
           setTitle(""); setDue(""); await load();
@@ -58,7 +59,7 @@ export default function PlannerModule(_: ModuleProps) {
                   ? <input type="checkbox" checked={t.done} aria-label={`Done: ${t.title}`}
                       onChange={async () => { await patch("/api/tasks", { id: t.id, done: !t.done }); await load(); }} />
                   : <span>📅</span>}
-                <span style={{ flex: 1, textDecoration: t.done ? "line-through" : "none", fontSize: 12 }}>{t.title}</span>
+                <span style={{ flex: 1, textDecoration: t.done ? "line-through" : "none", fontSize: fz(12) }}>{t.title}</span>
                 {t.dueAt ? <Badge tone={overdue ? "bad" : "info"}>{fmtTime(t.dueAt)}</Badge> : null}
                 <Btn variant="ghost" onClick={async () => { await fetch(`/api/tasks?id=${t.id}`, { method: "DELETE" }); await load(); }}>✕</Btn>
               </div>
@@ -71,11 +72,11 @@ export default function PlannerModule(_: ModuleProps) {
             const items = rows.filter((t) => t.dueAt && new Date(t.dueAt).toDateString() === d.toDateString());
             return (
               <div key={d.toISOString()} className="fs-panel" style={{ padding: 6, minHeight: 120 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: d.toDateString() === new Date().toDateString() ? "var(--fs-accent)" : undefined }}>
+                <div style={{ fontSize: fz(11), fontWeight: 600, color: d.toDateString() === new Date().toDateString() ? "var(--fs-accent)" : undefined }}>
                   {d.toLocaleDateString([], { weekday: "short", day: "numeric" })}
                 </div>
                 {items.map((t) => (
-                  <div key={t.id} style={{ fontSize: 10.5, marginTop: 3, textDecoration: t.done ? "line-through" : "none" }}>
+                  <div key={t.id} style={{ fontSize: fz(10.5), marginTop: 3, textDecoration: t.done ? "line-through" : "none" }}>
                     {new Date(t.dueAt!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} {t.title}
                   </div>
                 ))}
@@ -86,7 +87,7 @@ export default function PlannerModule(_: ModuleProps) {
       )}
 
       <Section title="Boundaries">
-        <div className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           Reminders fire from the shell while it is open (the reminder loop runs in the shell, not this window, so
           closing Planner does not stop them). There is no web API for the system calendar provider, so calendars move
           in and out as .ics files; TZID times are read as local time — no timezone database is bundled.

@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, post } from "@/lib/api";
@@ -110,7 +111,7 @@ export default function VaultModule(_: ModuleProps) {
             {exists ? "Unlock" : "Create"}
           </Btn>
           {err ? <Badge tone="bad">{err}</Badge> : null}
-          <div className="fs-dim" style={{ fontSize: 11, lineHeight: 1.6 }}>
+          <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
             PBKDF2-HMAC-SHA256, 600 000 iterations → AES-GCM-256. The server receives ciphertext only; it never sees
             the passphrase or the key. There is no recovery path: if you lose the passphrase the data is gone, and we
             say so before you create it.
@@ -148,10 +149,10 @@ export default function VaultModule(_: ModuleProps) {
         {items.map((it) => (
           <div key={it.id} className="fs-list-item">
             <span style={{ flex: 1 }}>
-              <div style={{ fontSize: 12 }}>{it.title}</div>
-              <div className="fs-dim" style={{ fontSize: 11 }}>{it.username}</div>
+              <div style={{ fontSize: fz(12) }}>{it.title}</div>
+              <div className="fs-dim" style={{ fontSize: fz(11) }}>{it.username}</div>
             </span>
-            <span className="fs-mono" style={{ fontSize: 11.5 }}>{reveal === it.id ? it.secret : "••••••••"}</span>
+            <span className="fs-mono" style={{ fontSize: fz(11.5) }}>{reveal === it.id ? it.secret : "••••••••"}</span>
             <Btn variant="ghost" onClick={() => setReveal(reveal === it.id ? null : it.id)}>{reveal === it.id ? "Hide" : "Reveal"}</Btn>
             <Btn variant="ghost" onClick={() => void shell.copy(it.secret, "vault", true)}>Copy</Btn>
             <Btn variant="danger" onClick={async () => {
@@ -164,7 +165,7 @@ export default function VaultModule(_: ModuleProps) {
       </div>
 
       <Section title="Boundaries">
-        <ul className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.7, margin: 0, paddingLeft: 18 }}>
+        <ul className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.7, margin: 0, paddingLeft: 18 }}>
           <li>Autofill into embedded third-party pages is refused: we cannot verify the real origin inside a frame.</li>
           <li>WebCrypto keys are not hardware-backed; a platform passkey is the only hardware binding the web offers.</li>
           <li>The window auto-locks when the shell is hidden, because no web API can exclude a window from screen capture.</li>

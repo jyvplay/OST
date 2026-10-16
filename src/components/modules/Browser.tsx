@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
@@ -22,11 +23,11 @@ function RenderSnapshot({ url }: { url: string }) {
           onLoad={() => setState("ok")}
           onError={async () => { setState("error"); try { const r = await fetch(src); setErr((await r.json()).error ?? "render failed"); } catch { setErr("render failed"); } }} />
       ) : (
-        <div style={{ color: "#eee", padding: 20, maxWidth: 420, textAlign: "center", fontSize: 12.5 }}>
+        <div style={{ color: "#eee", padding: 20, maxWidth: 420, textAlign: "center", fontSize: fz(12.5) }}>
           Snapshot failed: {err}
         </div>
       )}
-      {state === "loading" ? <div style={{ color: "#aaa", fontSize: 12, position: "absolute" }}>Rendering out-of-process…</div> : null}
+      {state === "loading" ? <div style={{ color: "#aaa", fontSize: fz(12), position: "absolute" }}>Rendering out-of-process…</div> : null}
     </div>
   );
 }
@@ -130,7 +131,7 @@ export default function BrowserModule({ win }: ModuleProps) {
     if (tab.asleep) {
       return (
         <div key={key} style={{ display: "grid", placeItems: "center", gap: 8, height: "100%" }}>
-          <span className="fs-dim" style={{ fontSize: 12 }}>Tab is asleep — {tab.url}</span>
+          <span className="fs-dim" style={{ fontSize: fz(12) }}>Tab is asleep — {tab.url}</span>
           <Btn onClick={() => setTabs((ts) => ts.map((t) => (t.id === tab.id ? { ...t, asleep: false } : t)))}>Wake</Btn>
         </div>
       );
@@ -154,7 +155,7 @@ export default function BrowserModule({ win }: ModuleProps) {
               onClick={() => setTabs((ts) => ts.map((t) => (t.id === tab.id ? { ...t, mode: "snapshot" } : t)))}>Snapshot {renderCapable === null ? "(checking…)" : renderCapable === false ? "(unavailable here)" : ""}</Btn>
             <Btn variant="ghost" onClick={() => { probed.current.delete(tab.url); void probe(tab); }}>Re-probe</Btn>
           </div>
-          <div className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+          <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
             This is a platform rule, not an app bug: a page that sends
             <span className="fs-mono"> X-Frame-Options: DENY</span> or a restrictive
             <span className="fs-mono"> CSP frame-ancestors</span> cannot be displayed inside another origin by any
@@ -195,7 +196,7 @@ export default function BrowserModule({ win }: ModuleProps) {
         <Btn variant="ghost" title="Discard the frames of every tab that is not visible (pinned tabs stay awake)" onClick={() => { const r = sleepInactive(sess, splitPartner); setSess(r.session); setNotice(`${r.slept} tab(s) put to sleep`); }}>Sleep other tabs</Btn>
         <Btn variant="ghost" onClick={() => current && shell.open("browser", { url: current.url, title: current.title })}>Tear out</Btn>
         <Btn variant="ghost" aria-label={current?.pinned ? "Unpin tab" : "Pin tab"} onClick={() => current && setSess((s) => togglePin(s, current.id))}>{current?.pinned ? "Unpin" : "Pin"}</Btn>
-        <select className="fs-input" aria-label="Tab group" style={{ width: 120 }} value={current?.group ?? ""}
+        <select className="fs-input" aria-label="Tab group" style={{ width: fz(120) }} value={current?.group ?? ""}
           onChange={(e) => { if (!current) return; const v = e.target.value; setSess((s) => (v === "+" ? createGroup(s, current.id, `Group ${s.groups.length + 1}`) : setGroup(s, current.id, v))); }}>
           <option value="">No group</option>{sess.groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}<option value="+">+ New group</option>
         </select>
@@ -206,9 +207,9 @@ export default function BrowserModule({ win }: ModuleProps) {
         {current?.verdict ? <Badge tone={current.verdict === "embeddable" ? "ok" : "bad"} title={current.reason}>{current.verdict}</Badge> : <Badge>probing…</Badge>}
       </div>
 
-      {notice ? <div data-testid="browser-notice" className="fs-dim" style={{ fontSize: 11, padding: "3px 8px", borderBottom: "1px solid var(--fs-border)" }}>{notice}</div> : null}
+      {notice ? <div data-testid="browser-notice" className="fs-dim" style={{ fontSize: fz(11), padding: "3px 8px", borderBottom: "1px solid var(--fs-border)" }}>{notice}</div> : null}
       {showPerms && current ? (
-        <div data-testid="site-perms" className="fs-row" style={{ gap: 10, flexWrap: "wrap", padding: "4px 8px", fontSize: 11, borderBottom: "1px solid var(--fs-border)" }}>
+        <div data-testid="site-perms" className="fs-row" style={{ gap: 10, flexWrap: "wrap", padding: "4px 8px", fontSize: fz(11), borderBottom: "1px solid var(--fs-border)" }}>
           <b>{curHost}</b>
           {PERMISSION_FEATURES.map((f) => (
             <label key={f} className="fs-row" style={{ gap: 3 }}>
@@ -224,9 +225,9 @@ export default function BrowserModule({ win }: ModuleProps) {
           <div className="fs-scroll" style={{ borderRight: "1px solid var(--fs-border)", padding: 4 }}>
             <input className="fs-input" aria-label="Search tabs" placeholder="Search tabs" value={query} onChange={(e) => setQuery(e.target.value)} style={{ width: "100%", marginBottom: 4 }} />
             {sess.groups.map((g) => (
-              <div key={g.id} className="fs-row" style={{ gap: 4, fontSize: 11, padding: "2px 4px", borderLeft: `3px solid ${g.color}` }}>
+              <div key={g.id} className="fs-row" style={{ gap: 4, fontSize: fz(11), padding: "2px 4px", borderLeft: `3px solid ${g.color}` }}>
                 <button className="fs-btn" data-variant="ghost" aria-label={`${g.collapsed ? "Expand" : "Collapse"} ${g.name}`} onClick={() => setSess((s) => toggleCollapse(s, g.id))}>{g.collapsed ? "+" : "−"}</button>
-                <input className="fs-input" aria-label={`Group name ${g.id}`} value={g.name} style={{ flex: 1, minWidth: 0 }} onChange={(e) => setSess((s) => ({ ...s, groups: s.groups.map((x) => (x.id === g.id ? { ...x, name: e.target.value.slice(0, 60) } : x)) }))} />
+                <input className="fs-input" aria-label={`Group name ${g.id}`} value={g.name} style={{ flex: 1, minWidth: fz(0) }} onChange={(e) => setSess((s) => ({ ...s, groups: s.groups.map((x) => (x.id === g.id ? { ...x, name: e.target.value.slice(0, 60) } : x)) }))} />
                 <button className="fs-btn" data-variant="ghost" aria-label={`Ungroup ${g.name}`} onClick={() => setSess((s) => removeGroup(s, g.id))}>×</button>
               </div>
             ))}
@@ -234,7 +235,7 @@ export default function BrowserModule({ win }: ModuleProps) {
               <button key={t.id} className="fs-list-item" data-selected={t.id === active}
                 style={{ width: "100%", border: 0, borderLeft: `3px solid ${groupOf(t)?.color ?? "transparent"}`, background: t.id === active ? "rgba(91,140,255,.22)" : "none", color: "inherit", textAlign: "left" }}
                 onClick={() => setActive(t.id)}>
-                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 11.5 }}>
+                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: fz(11.5) }}>
                   {t.pinned ? <PinIcon /> : null}{t.title}
                 </span>
                 {t.asleep ? <SleepIcon /> : null}
@@ -271,7 +272,7 @@ export default function BrowserModule({ win }: ModuleProps) {
         </div>
       </div>
 
-      <div className="fs-dim" style={{ fontSize: 10.5, padding: "3px 8px", borderTop: "1px solid var(--fs-border)" }}>
+      <div className="fs-dim" style={{ fontSize: fz(10.5), padding: "3px 8px", borderTop: "1px solid var(--fs-border)" }}>
         Per-site policy is restrictive-only on the web: the sandbox and allow attributes can take permissions away
         from an embedded page, never grant them. Desktop user-agent override and find-in-page across origins are
         impossible here and are marked blocked in the Spec register.

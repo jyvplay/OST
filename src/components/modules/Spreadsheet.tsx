@@ -1,4 +1,5 @@
 "use client";
+import { fz, useUiUnit } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
@@ -17,10 +18,12 @@ import {
 } from "@/lib/formula/sheetlayout";
 import type { BorderLine, DataValidation, ValidationOp, ValidationType } from "@/lib/formula/engine";
 import { absoluteRef, referenceTarget, validateName } from "@/lib/formula/names";
+import { autoInk } from "@/lib/auto-ink";
 
 const COLS = 52;          // A..AZ
 const ROWS = 1000;
-const ROW_H = 22, HEAD_H = 22, ROWHDR_W = 44, DEFAULT_W = 88;
+/** Grid geometry in document pixels (TT20 sizes); the component multiplies by the text-size unit (TT21). */
+const BASE_ROW_H = 22, BASE_HEAD_H = 22, BASE_ROWHDR_W = 44, BASE_W = 88;
 const MAX_UNDO = 100;
 const SAMPLE: Record<string, string> = {
   A1: "Item", B1: "Qty", C1: "Price", D1: "Total",
@@ -47,6 +50,10 @@ type Drag = { mode: "select" } | { mode: "fill"; target: Range | null } | { mode
  * and is covered headless by scripts/office-engine*.mts.
  */
 export default function SpreadsheetModule({ win }: ModuleProps) {
+  // TT21: rows, headers and default columns grow with the text size. Stored column widths stay in document px
+  // (what xlsx export writes); the screen width is stored × k and a drag divides by k.
+  const k = useUiUnit();
+  const ROW_H = Math.round(BASE_ROW_H * k), HEAD_H = Math.round(BASE_HEAD_H * k), ROWHDR_W = Math.round(BASE_ROWHDR_W * k);
   const shell = useShell();
   const path = (win.props.path as string) ?? "";
   const [workbook, setWorkbook] = useState(() => new Workbook());
@@ -74,7 +81,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (el) {
       const m = mergeAt(sheet, sel.f.col, sel.f.row); const below = m ? m.r1 : sel.f.row;
       const n = ruleAt(sheet, sel.f.col, sel.f.row)?.type === "list" ? Math.min(8, listItems(workbook, active, ruleAt(sheet, sel.f.col, sel.f.row)!).length) : 8;
-      const menuH = Math.min(180, n * 21.5 + 8);
+      const menuH = Math.min(180 * k, n * 21.5 * k + 8);
       setListUp(HEAD_H + (below + 1) * ROW_H + menuH > el.scrollTop + el.clientHeight);
     }
     setListOpen((o) => (toggle ? !o : true));
@@ -96,7 +103,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   // Excel: a selection touching part of a merged area includes all of it.
   const selR = useMemo(() => expandToMerges(sheet, norm({ c0: sel.a.col, r0: sel.a.row, c1: sel.f.col, r1: sel.f.row })), [sel, sheet, rev]); // eslint-disable-line react-hooks/exhaustive-deps
   const fnNames = useMemo(() => [...new Set([...Object.keys(FUNCTIONS), ...Object.keys(EXT_FUNCTIONS)])].sort(), []);
-  const colW = useCallback((c: number) => sheet.colWidths[c] ?? DEFAULT_W, [sheet, rev]); // eslint-disable-line react-hooks/exhaustive-deps
+  const colW = useCallback((c: number) => Math.round((sheet.colWidths[c] ?? BASE_W) * k), [sheet, rev, k]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ------------------------------------------------------------ load */
   useEffect(() => {
@@ -404,7 +411,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     else if (d.mode === "point") setEditing(d.prefix + rangeA1({ c0: d.start.col, r0: d.start.row, c1: p.col, r1: p.row }));
   };
   useEffect(() => {
-    const move = (e: MouseEvent) => { const d = dragRef.current; if (d?.mode === "resize") { sheet.colWidths[d.col] = Math.max(24, Math.min(800, Math.round(d.w + e.clientX - d.x))); setRev((r) => r + 1); } };
+    const move = (e: MouseEvent) => { const d = dragRef.current; if (d?.mode === "resize") { sheet.colWidths[d.col] = Math.max(24, Math.min(800, Math.round((d.w + e.clientX - d.x) / k))); setRev((r) => r + 1); } };
     const up = () => {
       const d = dragRef.current; dragRef.current = null;
       if (d?.mode === "fill" && d.target) { const t = d.target; mutate((_wb, s) => autoFill(s, selR, t)); setSel({ a: { col: t.c0, row: t.r0 }, f: { col: t.c1, row: t.r1 } }); }
@@ -442,13 +449,13 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (!curRule || curRule.type !== "list" || !listOpen || editing !== null) return null;
     const m = mergeAt(sheet, sel.f.col, sel.f.row); const col = m ? m.c0 : sel.f.col, row = m ? m.r0 : sel.f.row, below = m ? m.r1 : sel.f.row;
     let left = ROWHDR_W; for (let c = 0; c < col; c++) left += colW(c);
-    return { col, row, left, top: listUp ? HEAD_H + row * ROW_H : HEAD_H + (below + 1) * ROW_H, transform: listUp ? "translateY(-100%)" : undefined, width: Math.max(colW(col), 120), items: listItems(workbook, active, curRule), cur: String(workbook.valueAt(active, col, row) ?? "") };
+    return { col, row, left, top: listUp ? HEAD_H + row * ROW_H : HEAD_H + (below + 1) * ROW_H, transform: listUp ? "translateY(-100%)" : undefined, width: Math.max(colW(col), 120 * k), items: listItems(workbook, active, curRule), cur: String(workbook.valueAt(active, col, row) ?? "") };
   })();
-  const totalW = useMemo(() => { let w = ROWHDR_W; for (let c = 0; c < COLS; c++) w += colW(c); return w; }, [colW]);
+  let totalW = ROWHDR_W; for (let c = 0; c < COLS; c++) totalW += colW(c); // 52 additions; cheaper than a memo
   const selInput = sheet.get(sel.f.col, sel.f.row)?.input ?? "";
   const cur = styleOf(sel.f);
 
-  if (!loaded) return <div style={{ padding: 16, fontSize: 12 }}>Loading…</div>;
+  if (!loaded) return <div style={{ padding: 16, fontSize: fz(12) }}>Loading…</div>;
 
   const renderCell = (col0: number, row0: number, segStart: number, segEnd: number) => {
     // Merged area: render once, at its top-left column and the first row of it visible in this segment.
@@ -482,7 +489,9 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           height: ROW_H, padding: "0 5px", overflow: editingHere ? "visible" : "hidden", textOverflow: "ellipsis", whiteSpace: st.wrap ? "normal" : "nowrap", cursor: "cell",
           borderTop: sp && row === sp.r0 ? edge : base, borderBottom: sp && row === sp.r1 ? edge : base, borderLeft: sp && col === sp.c0 ? edge : base, borderRight: sp && col === sp.c1 ? edge : base,
           fontWeight: st.bold || over?.bold ? 700 : undefined, fontStyle: st.italic ? "italic" : undefined, textDecoration: st.underline ? "underline" : undefined, textAlign: align,
-          color: err ? "#ff9b9b" : fmt.color ?? over?.color ?? st.color ?? (cell?.formula ? "#bcd4ff" : "var(--fs-text)"),
+          // TT22: theme tokens (light theme had pale-blue formula text), and "automatic" ink on filled cells with no
+          // explicit font colour — white or near-black by the fill's luminance (display only; the document is unchanged)
+          color: err ? "var(--fs-bad-text, #ff9b9b)" : fmt.color ?? over?.color ?? st.color ?? autoInk(over?.fill ?? st.fill) ?? (cell?.formula ? "var(--fs-cell-formula, #bcd4ff)" : "var(--fs-text)"),
           background: inFill ? "rgba(96,165,250,.18)" : inSel && !isCur ? `linear-gradient(rgba(91,140,255,.18),rgba(91,140,255,.18)),${over?.fill ?? st.fill ?? (stickyCol ? "var(--fs-bg, #0b1020)" : "transparent")}` : over?.fill ?? st.fill ?? (stickyCol ? "var(--fs-bg, #0b1020)" : "transparent"),
           outline: isCur ? "2px solid var(--fs-accent)" : undefined, outlineOffset: -2,
         }}>
@@ -507,7 +516,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     );
   };
   const renderAssist = () => (acList.length || call) ? (
-    <div className="fs-card" data-testid="formula-assist" style={{ position: "absolute", top: "100%", left: 0, zIndex: 20, minWidth: 220, padding: 4, fontSize: 11.5, background: "var(--fs-panel, #111827)", border: "1px solid var(--fs-border)", borderRadius: 6, boxShadow: "0 6px 20px rgba(0,0,0,.4)", textAlign: "left", whiteSpace: "nowrap" }}>
+    <div className="fs-card" data-testid="formula-assist" style={{ position: "absolute", top: "100%", left: 0, zIndex: 20, minWidth: 220, padding: 4, fontSize: fz(11.5), background: "var(--fs-panel, #111827)", border: "1px solid var(--fs-border)", borderRadius: 6, boxShadow: "0 6px 20px rgba(0,0,0,.4)", textAlign: "left", whiteSpace: "nowrap" }}>
       {acList.map((n, i) => (
         <div key={n} data-ac={n} onMouseDown={(e) => { e.preventDefault(); acceptCompletion(n); }} style={{ padding: "2px 6px", borderRadius: 4, cursor: "pointer", background: i === acIdx ? "rgba(91,140,255,.25)" : undefined }} className="fs-mono">
           {n}{SIGNATURES[n] ? <span className="fs-dim">({SIGNATURES[n].join(", ")})</span> : null}
@@ -515,15 +524,15 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       ))}
       {!acList.length && call ? <div className="fs-mono" data-testid="arg-hint">{call.name}(
         {(SIGNATURES[call.name] ?? ["…"]).map((a, i, arr) => <span key={i} style={{ fontWeight: i === Math.min(call.arg, arr.length - 1) ? 700 : 400, color: i === Math.min(call.arg, arr.length - 1) ? "#fff" : undefined }}>{a}{i < arr.length - 1 ? ", " : ""}</span>)})
-        {!SIGNATURES[call.name] && !fnNames.includes(call.name) ? <span style={{ color: "#ff9b9b" }}> unknown function</span> : null}</div> : null}
-      {acList.length ? <div className="fs-dim" style={{ fontSize: 10, padding: "2px 6px" }}>Tab to insert, Up/Down to choose</div> : null}
+        {!SIGNATURES[call.name] && !fnNames.includes(call.name) ? <span style={{ color: "var(--fs-bad-text, #ff9b9b)" }}> unknown function</span> : null}</div> : null}
+      {acList.length ? <div className="fs-dim" style={{ fontSize: fz(10), padding: "2px 6px" }}>Tab to insert, Up/Down to choose</div> : null}
     </div>
   ) : null;
 
   const row = (r: number, sticky = false, segStart = r, segEnd = r) => (
     <tr key={r} style={sticky ? { position: "sticky", top: HEAD_H, zIndex: 2, background: "var(--fs-bg, #0b1020)" } : undefined}>
       <td className="fs-dim" onMouseDown={() => { commit(null); setSel({ a: { col: 0, row: r }, f: { col: COLS - 1, row: r } }); gridRef.current?.focus(); }}
-        style={{ position: "sticky", left: 0, zIndex: 1, textAlign: "center", fontSize: 10.5, background: r >= selR.r0 && r <= selR.r1 ? "rgba(91,140,255,.22)" : "var(--fs-bg-2, #131a2b)", borderRight: "1px solid var(--fs-border)", borderBottom: sticky ? "2px solid #475569" : "1px solid var(--fs-border)", cursor: "e-resize" }}>{r + 1}</td>
+        style={{ position: "sticky", left: 0, zIndex: 1, textAlign: "center", fontSize: fz(10.5), background: r >= selR.r0 && r <= selR.r1 ? "rgba(91,140,255,.22)" : "var(--fs-bg-2, #131a2b)", borderRight: "1px solid var(--fs-border)", borderBottom: sticky ? "2px solid #475569" : "1px solid var(--fs-border)", cursor: "e-resize" }}>{r + 1}</td>
       {Array.from({ length: COLS }, (_, c) => renderCell(c, r, segStart, segEnd))}
     </tr>
   );
@@ -537,9 +546,9 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import .xlsx<input type="file" accept=".xlsx" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void importXlsx(f); }} /></label>
         <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>
         <Badge tone="info" title="First-party formula engine; see docs/OFFICE-ENGINE.md">from-scratch engine · {fnNames.length} functions</Badge>
-        {status ? <span className="fs-dim" data-testid="sheet-status" style={{ fontSize: 11 }}>{status}</span> : null}
+        {status ? <span className="fs-dim" data-testid="sheet-status" style={{ fontSize: fz(11) }}>{status}</span> : null}
       </div>
-      <div className="fs-row" data-testid="sheet-toolbar" style={{ padding: "4px 6px", gap: 3, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }}>
+      <div className="fs-row fs-toolbar" role="toolbar" aria-label="Formatting" data-testid="sheet-toolbar" style={{ padding: "4px 6px", gap: 3, borderBottom: "1px solid var(--fs-border)", alignItems: "center" }}>
         <TB label="Undo" onClick={undo} title={"Undo (Ctrl+Z)"} /><TB label="Redo" onClick={redo} title={"Redo (Ctrl+Y)"} />
         <span style={{ width: 6 }} />
         <TB label="B" onClick={() => toggle("bold")} active={!!cur.bold} title={"Bold (Ctrl+B)"} style={{ fontWeight: 700 }} />
@@ -549,28 +558,28 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <TB label="Center" onClick={() => applyStyle({ align: "center" })} active={cur.align === "center"} title={"Align center"} />
         <TB label="Right" onClick={() => applyStyle({ align: "right" })} active={cur.align === "right"} title={"Align right"} />
         <TB label="Wrap" onClick={() => toggle("wrap")} active={!!cur.wrap} title={"Wrap text"} />
-        <label className="fs-dim" title="Fill colour" style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 2 }}>Fill<input aria-label="Fill colour" type="color" value={cur.fill ?? "#000000"} onChange={(e) => applyStyle({ fill: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
-        <label className="fs-dim" title="Text colour" style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 2 }}>Text<input aria-label="Text colour" type="color" value={cur.color ?? "#e5e7eb"} onChange={(e) => applyStyle({ color: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
-        <select className="fs-input" aria-label="Number format" value={BUILTIN_FORMATS.some((f) => f.code === (cur.numFmt ?? "General")) ? cur.numFmt ?? "General" : "custom"} style={{ width: 150, fontSize: 11 }}
+        <label className="fs-dim" title="Fill colour" style={{ fontSize: fz(11), display: "flex", alignItems: "center", gap: 2 }}>Fill<input aria-label="Fill colour" type="color" value={cur.fill ?? "#000000"} onChange={(e) => applyStyle({ fill: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
+        <label className="fs-dim" title="Text colour" style={{ fontSize: fz(11), display: "flex", alignItems: "center", gap: 2 }}>Text<input aria-label="Text colour" type="color" value={cur.color ?? "#e5e7eb"} onChange={(e) => applyStyle({ color: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
+        <select className="fs-input" aria-label="Number format" value={BUILTIN_FORMATS.some((f) => f.code === (cur.numFmt ?? "General")) ? cur.numFmt ?? "General" : "custom"} style={{ width: 150, fontSize: fz(11) }}
           onChange={(e) => { const v = e.target.value; if (v === "custom") { const code = prompt("Custom number format (Excel syntax, e.g. #,##0.00;[Red]-#,##0.00)", cur.numFmt ?? "General"); if (code) applyStyle({ numFmt: code }); } else applyStyle({ numFmt: v === "General" ? undefined : v }); }}>
           {BUILTIN_FORMATS.map((f) => <option key={f.code} value={f.code}>{f.label} — {f.code}</option>)}
           <option value="custom">Custom…{cur.numFmt && !BUILTIN_FORMATS.some((f) => f.code === cur.numFmt) ? ` (${cur.numFmt})` : ""}</option>
         </select>
         <TB label="Clear fmt" onClick={() => applyStyle(null)} title={"Clear formatting"} />
         <span style={{ width: 6 }} />
-        <select className="fs-input" aria-label="Merge" value="" style={{ width: 92, fontSize: 11 }} onChange={(e) => { const v = e.target.value as "center" | "across" | "merge" | "unmerge"; if (v) doMerge(v); }}>
+        <select className="fs-input" aria-label="Merge" value="" style={{ width: fz(92), fontSize: fz(11) }} onChange={(e) => { const v = e.target.value as "center" | "across" | "merge" | "unmerge"; if (v) doMerge(v); }}>
           <option value="">Merge…</option><option value="center">Merge &amp; Center</option><option value="across">Merge Across</option><option value="merge">Merge Cells</option><option value="unmerge">Unmerge Cells</option>
         </select>
-        <select className="fs-input" aria-label="Borders" value="" style={{ width: 96, fontSize: 11 }} onChange={(e) => { const v = e.target.value as BorderPreset; if (v) doBorders(v); }}>
+        <select className="fs-input" aria-label="Borders" value="" style={{ width: fz(96), fontSize: fz(11) }} onChange={(e) => { const v = e.target.value as BorderPreset; if (v) doBorders(v); }}>
           <option value="">Borders…</option><option value="all">All Borders</option><option value="outside">Outside Borders</option><option value="thickOutside">Thick Outside Borders</option>
           <option value="inside">Inside Borders</option><option value="top">Top Border</option><option value="bottom">Bottom Border</option><option value="bottomDouble">Bottom Double Border</option>
           <option value="left">Left Border</option><option value="right">Right Border</option><option value="none">No Border</option>
         </select>
-        <select className="fs-input" aria-label="Border line style" value={borderLine} style={{ width: 70, fontSize: 11 }} onChange={(e) => setBorderLine(e.target.value as BorderLine)}>
+        <select className="fs-input" aria-label="Border line style" value={borderLine} style={{ width: fz(70), fontSize: fz(11) }} onChange={(e) => setBorderLine(e.target.value as BorderLine)}>
           {(["thin", "medium", "thick", "dashed", "dotted", "double", "hair"] as const).map((l) => <option key={l} value={l}>{l}</option>)}
         </select>
         <input aria-label="Border colour" title="Border colour" type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} style={{ width: 22, height: 20, border: 0, background: "none" }} />
-        <select className="fs-input" aria-label="Vertical alignment" value={cur.valign ?? ""} style={{ width: 70, fontSize: 11 }} onChange={(e) => applyStyle({ valign: (e.target.value || undefined) as CellStyle["valign"] })}>
+        <select className="fs-input" aria-label="Vertical alignment" value={cur.valign ?? ""} style={{ width: fz(86), fontSize: fz(11) }} onChange={(e) => applyStyle({ valign: (e.target.value || undefined) as CellStyle["valign"] })}>
           <option value="">V: bottom</option><option value="top">V: top</option><option value="center">V: middle</option><option value="bottom">V: bottom*</option>
         </select>
         <span style={{ width: 6 }} />
@@ -595,14 +604,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={newSheet}>+ Sheet</Btn>
         <Btn variant="ghost" onClick={() => renameSheet(active)}>Rename</Btn>
         <Btn variant="ghost" onClick={() => deleteSheet(active)}>Delete</Btn>
-        <span className="fs-dim" style={{ fontSize: 10.5, marginLeft: "auto" }}>{workbook.sheets.size} sheets · cross-sheet formulas (e.g. =TaxRate!B1)</span>
+        <span className="fs-dim" style={{ fontSize: fz(10.5), marginLeft: "auto" }}>{workbook.sheets.size} sheets · cross-sheet formulas (e.g. =TaxRate!B1)</span>
       </div>
       <div className="fs-row" style={{ padding: "4px 8px", gap: 6, borderBottom: "1px solid var(--fs-border)", position: "relative" }}>
         <input className="fs-input fs-mono" data-testid="name-box" aria-label="Name Box" title="Name Box: type a name to define it for the selection, or a name/reference to go there"
-          style={{ fontSize: 11.5, width: 130 }} value={nameBox ?? nameBoxDisplay} onFocus={(e) => { setNameBox(nameBoxDisplay); requestAnimationFrame(() => e.target.select()); }}
+          style={{ fontSize: fz(11.5), width: fz(92) }} value={nameBox ?? nameBoxDisplay} onFocus={(e) => { setNameBox(nameBoxDisplay); requestAnimationFrame(() => e.target.select()); }}
           onChange={(e) => setNameBox(e.target.value)} onBlur={() => setNameBox(null)}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submitNameBox(nameBox ?? ""); gridRef.current?.focus(); } else if (e.key === "Escape") { setNameBox(null); gridRef.current?.focus(); } }} />
-        <span className="fs-dim fs-mono" style={{ fontSize: 12 }}>ƒx</span>
+        <span className="fs-dim fs-mono" style={{ fontSize: fz(12) }}>ƒx</span>
         <div style={{ flex: 1, position: "relative" }}>
           <input className="fs-input fs-mono" style={{ width: "100%" }} aria-label="Formula bar"
             value={editing !== null ? editing : selInput} onChange={(e) => { if (editing === null) startEdit(e.target.value, "bar"); else setEditing(e.target.value); setAcIdx(0); }}
@@ -611,7 +620,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         </div>
       </div>
       {dvAlert ? (
-        <div role="alertdialog" aria-label={dvAlert.title} data-testid="dv-alert" data-style={dvAlert.style} className="fs-row" style={{ gap: 8, padding: "5px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: 12, alignItems: "center",
+        <div role="alertdialog" aria-label={dvAlert.title} data-testid="dv-alert" data-style={dvAlert.style} className="fs-row" style={{ gap: 8, padding: "5px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(12), alignItems: "center",
           background: dvAlert.style === "stop" ? "rgba(239,68,68,.16)" : dvAlert.style === "warning" ? "rgba(234,179,8,.16)" : "rgba(59,130,246,.16)" }}>
           <b>{dvAlert.title}</b><span>{dvAlert.message}</span><span className="fs-dim fs-mono">({dvAlert.text} → {a1(dvAlert.col, dvAlert.row)})</span>
           <span style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
@@ -622,7 +631,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         </div>
       ) : null}
       {panel === "dv" ? (
-        <div data-testid="dv-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: 11.5 }}>
+        <div data-testid="dv-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5) }}>
           <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
             <span>Allow in <b className="fs-mono">{rangeA1(selR)}</b></span>
             <select className="fs-input" aria-label="Validation type" value={dvForm.type} onChange={(e) => setDvForm({ ...dvForm, type: e.target.value as ValidationType })} style={{ width: 110 }}>
@@ -651,16 +660,16 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
               <button className="fs-btn" data-variant="ghost" onClick={() => mutate((_wb, s) => { s.validations = s.validations.filter((x) => x.id !== v.id); })}>remove</button>
             </div>
           ))}
-          <div className="fs-dim" style={{ fontSize: 10.5, marginTop: 3 }}>As in Excel: rules check typed entries only (paste replaces cells without checking; use Circle invalid to audit). Only Stop blocks. Typed lists are limited to 255 characters.</div>
+          <div className="fs-dim" style={{ fontSize: fz(10.5), marginTop: 3 }}>As in Excel: rules check typed entries only (paste replaces cells without checking; use Circle invalid to audit). Only Stop blocks. Typed lists are limited to 255 characters.</div>
         </div>
       ) : null}
       {panel === "names" ? (
-        <div data-testid="names-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: 11.5, display: "grid", gap: 4, maxHeight: 200, overflow: "auto" }}>
+        <div data-testid="names-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), display: "grid", gap: 4, maxHeight: 200, overflow: "auto" }}>
           <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
             <b>Name Manager</b>
             <input className="fs-input fs-mono" aria-label="New name" placeholder="Name" value={newName.name} onChange={(e) => setNewName({ ...newName, name: e.target.value })} style={{ width: 120 }} />
             <input className="fs-input fs-mono" aria-label="Refers to" placeholder={absoluteRef(active, selR.c0, selR.r0, selR.c1, selR.r1)} value={newName.ref} onChange={(e) => setNewName({ ...newName, ref: e.target.value })} style={{ width: 200 }} />
-            <select className="fs-select" aria-label="Scope" style={{ width: 130, flex: "0 0 auto" }} value={newName.scope} onChange={(e) => setNewName({ ...newName, scope: e.target.value })}>
+            <select className="fs-select" aria-label="Scope" style={{ width: fz(130), flex: "0 0 auto" }} value={newName.scope} onChange={(e) => setNewName({ ...newName, scope: e.target.value })}>
               <option value="">Workbook</option>{[...workbook.sheets.keys()].map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
             <Btn variant="primary" onClick={() => {
@@ -680,7 +689,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
                 return (
                   <tr key={`${n.scope}|${n.name}`} data-name={n.name}>
                     <td className="fs-mono"><button className="fs-btn" data-variant="ghost" onClick={() => t && goToTarget(t)} title="Go to">{n.name}</button></td>
-                    <td className="fs-mono" style={{ color: /#REF!/.test(n.ref) ? "#ff9b9b" : undefined }}>={n.ref}</td>
+                    <td className="fs-mono" style={{ color: /#REF!/.test(n.ref) ? "var(--fs-bad-text, #ff9b9b)" : undefined }}>={n.ref}</td>
                     <td className="fs-mono fs-dim">{t ? `${val === undefined ? "" : String(typeof val === "object" ? (val as { error: string }).error : val)}${t.c0 !== t.c1 || t.r0 !== t.r1 ? " …" : ""}` : ""}</td>
                     <td>{n.scope ?? "Workbook"}</td>
                     <td><Btn variant="ghost" onClick={() => mutate((wb) => { wb.deleteName(n.name, n.scope); })} title="Delete name">Delete</Btn></td>
@@ -690,7 +699,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         </div>
       ) : null}
       {panel === "find" ? (
-        <div className="fs-row" data-testid="find-panel" style={{ gap: 6, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: 11.5, flexWrap: "wrap" }}>
+        <div className="fs-row" data-testid="find-panel" style={{ gap: 6, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), flexWrap: "wrap" }}>
           <input className="fs-input" aria-label="Find" placeholder="Find" value={findQ} onChange={(e) => setFindQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") findNext(); }} style={{ width: 160 }} />
           <input className="fs-input" aria-label="Replace with" placeholder="Replace with" value={replQ} onChange={(e) => setReplQ(e.target.value)} style={{ width: 160 }} />
           <label><input type="checkbox" checked={matchCase} onChange={(e) => setMatchCase(e.target.checked)} /> match case</label>
@@ -700,7 +709,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         </div>
       ) : null}
       {panel === "cf" ? (
-        <div data-testid="cf-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: 11.5 }}>
+        <div data-testid="cf-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5) }}>
           <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
             <span>Apply to <b className="fs-mono">{rangeA1(selR)}</b> when</span>
             <select className="fs-input" aria-label="Rule type" value={cf.kind} onChange={(e) => setCf({ ...cf, kind: e.target.value as CondKind })} style={{ width: 150 }}>
@@ -724,14 +733,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       <div ref={gridRef} tabIndex={0} data-testid="sheet-grid" className="fs-scroll" style={{ flex: 1, minHeight: 0, outline: "none", position: "relative", userSelect: "none" }}
         onKeyDown={gridKeys} onCopy={(e) => onCopy(e)} onCut={(e) => onCopy(e, true)} onPaste={onPaste}
         onScroll={(e) => { const t = (e.target as HTMLDivElement).scrollTop; if (Math.abs(t - scroll.top) > ROW_H) setScroll((s) => ({ ...s, top: t })); }}>
-        <table style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: 11.5, tableLayout: "fixed", width: totalW }}>
+        <table style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: fz(11.5), tableLayout: "fixed", width: totalW }}>
           <colgroup><col style={{ width: ROWHDR_W }} />{Array.from({ length: COLS }, (_, c) => <col key={c} style={{ width: colW(c) }} />)}</colgroup>
           <thead>
             <tr style={{ position: "sticky", top: 0, zIndex: 3 }}>
               <th onMouseDown={() => setSel({ a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } })} style={{ position: "sticky", left: 0, zIndex: 4, height: HEAD_H, background: "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)" }} title="Select all" />
               {Array.from({ length: COLS }, (_, c) => (
                 <th key={c} onMouseDown={(e) => { if ((e.target as HTMLElement).dataset.resize) return; commit(null); setSel(e.shiftKey ? { a: { col: sel.a.col, row: 0 }, f: { col: c, row: ROWS - 1 } } : { a: { col: c, row: 0 }, f: { col: c, row: ROWS - 1 } }); gridRef.current?.focus(); }}
-                  style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, height: HEAD_H, fontWeight: 500, fontSize: 11, background: c >= selR.c0 && c <= selR.c1 ? "rgba(91,140,255,.22)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
+                  style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, height: HEAD_H, fontWeight: 500, fontSize: fz(11), background: c >= selR.c0 && c <= selR.c1 ? "rgba(91,140,255,.22)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
                   {colToLetters(c)}
                   <div data-resize="1" data-testid={`resize-${colToLetters(c)}`} onMouseDown={(e) => { e.stopPropagation(); pushUndo(); dragRef.current = { mode: "resize", col: c, x: e.clientX, w: colW(c) }; }}
                     onDoubleClick={() => mutate((_wb, s) => { delete s.colWidths[c]; })} style={{ position: "absolute", right: -3, top: 0, width: 6, height: "100%", cursor: "col-resize", zIndex: 2 }} />
@@ -748,7 +757,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         </table>
         {listMenu ? (
           <div role="listbox" aria-label="List values" data-testid="list-menu" onMouseDown={(e) => e.stopPropagation()}
-            data-placement={listUp ? "above" : "below"} style={{ position: "absolute", top: listMenu.top, transform: listMenu.transform, left: listMenu.left, minWidth: listMenu.width, maxHeight: 180, overflowY: "auto", zIndex: 30, background: "var(--fs-panel-solid, #111827)", border: "1px solid var(--fs-border)", borderRadius: 4, padding: 2, fontSize: 11.5, boxShadow: "0 6px 20px rgba(0,0,0,.4)" }}>
+            data-placement={listUp ? "above" : "below"} style={{ position: "absolute", top: listMenu.top, transform: listMenu.transform, left: listMenu.left, minWidth: listMenu.width, maxHeight: 180 * k, overflowY: "auto", zIndex: 30, background: "var(--fs-panel-solid, #111827)", border: "1px solid var(--fs-border)", borderRadius: 4, padding: 2, fontSize: fz(11.5), boxShadow: "0 6px 20px rgba(0,0,0,.4)" }}>
             {listMenu.items.map((it) => <div key={it} role="option" aria-selected={listMenu.cur === it} onMouseDown={(e) => { e.preventDefault(); pickListValue(listMenu.col, listMenu.row, it); }}
               style={{ padding: "2px 6px", cursor: "pointer", borderRadius: 3, background: listMenu.cur === it ? "rgba(91,140,255,.25)" : undefined }} className="fs-list-item">{it}</div>)}
           </div>
@@ -756,20 +765,20 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         {curRule && (curRule.prompt || curRule.promptTitle) && !listOpen && editing === null ? (() => {
           // Input message (Excel shows it beside the active cell); positioned in grid space, outside the cell's text.
           let left = ROWHDR_W + 8; for (let c = 0; c < sel.f.col; c++) left += colW(c);
-          return <div data-testid="input-prompt" role="note" className="fs-card" style={{ position: "absolute", top: HEAD_H + (sel.f.row + 1) * ROW_H + 2, left, zIndex: 25, padding: "4px 7px", fontSize: 11, maxWidth: 220, background: "#fef9c3", color: "#1f2937", border: "1px solid #a16207", borderRadius: 3, pointerEvents: "none" }}>
+          return <div data-testid="input-prompt" role="note" className="fs-card" style={{ position: "absolute", top: HEAD_H + (sel.f.row + 1) * ROW_H + 2, left, zIndex: 25, padding: "4px 7px", fontSize: fz(11), maxWidth: 220, background: "#fef9c3", color: "#1f2937", border: "1px solid #a16207", borderRadius: 3, pointerEvents: "none" }}>
             {curRule.promptTitle ? <b style={{ display: "block" }}>{curRule.promptTitle}</b> : null}{curRule.prompt}
           </div>;
         })() : null}
       </div>
       {panel === "charts" ? (
         <div data-testid="charts-panel" className="fs-scroll" style={{ display: "flex", gap: 10, padding: 8, borderTop: "1px solid var(--fs-border)", overflowX: "auto", height: 270, flexShrink: 0 }}>
-          {charts.length === 0 ? <span className="fs-dim" style={{ fontSize: 12 }}>No charts on this sheet. Select a range with labels in the first column and numbers to the right, then press “Chart”.</span> : null}
+          {charts.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(12) }}>No charts on this sheet. Select a range with labels in the first column and numbers to the right, then press “Chart”.</span> : null}
           {charts.map((c) => {
             let src = "", error = "";
             try { src = svgDataUri(buildChartSvg(c.kind, c.title, chartDataFromRange(workbook, c.sheet, c.range, c.headerRow), 420, 220)); } catch (e) { error = (e as Error).message; }
             return (
               <div key={c.id} data-chart={c.id} style={{ flexShrink: 0, width: 424, border: "1px solid var(--fs-border)", borderRadius: 6, padding: 4 }}>
-                <div className="fs-row" style={{ gap: 4, fontSize: 11, marginBottom: 2 }}>
+                <div className="fs-row" style={{ gap: 4, fontSize: fz(11), marginBottom: 2 }}>
                   <input className="fs-input" aria-label="Chart title" value={c.title} onChange={(e) => { c.title = e.target.value.slice(0, 120); setRev((r) => r + 1); setDirty(true); }} style={{ flex: 1 }} />
                   <select className="fs-input" aria-label="Chart type" value={c.kind} onChange={(e) => mutate(() => { c.kind = e.target.value as ChartKind; })} style={{ width: 80 }}>
                     <option value="bar">bar</option><option value="line">line</option><option value="pie">pie</option><option value="scatter">scatter</option>
@@ -777,13 +786,13 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
                   <span className="fs-mono fs-dim">{c.range}</span>
                   <button className="fs-btn" data-variant="ghost" onClick={() => mutate((wb) => { wb.charts = wb.charts.filter((x) => x.id !== c.id); })}>✕</button>
                 </div>
-                {error ? <div style={{ color: "#ff9b9b", fontSize: 11.5, padding: 8 }}>Chart unavailable: {error}</div> : <ChartImg alt={c.title || "chart"} src={src} />}
+                {error ? <div style={{ color: "var(--fs-bad-text, #ff9b9b)", fontSize: fz(11.5), padding: 8 }}>Chart unavailable: {error}</div> : <ChartImg alt={c.title || "chart"} src={src} />}
               </div>
             );
           })}
         </div>
       ) : null}
-      <div className="fs-row" data-testid="status-bar" style={{ gap: 14, padding: "3px 10px", borderTop: "1px solid var(--fs-border)", fontSize: 11 }}>
+      <div className="fs-row" data-testid="status-bar" style={{ gap: 14, padding: "3px 10px", borderTop: "1px solid var(--fs-border)", fontSize: fz(11) }}>
         <span className="fs-dim">{rangeA1(selR)}</span>
         {stats.numeric ? <><span>Sum: <b data-testid="stat-sum">{formatValue(stats.sum, cur.numFmt && !/[dmyhs]/i.test(cur.numFmt) ? cur.numFmt : "General").text}</b></span><span>Average: <b>{formatValue(stats.average!, "General").text}</b></span><span>Min: {formatValue(stats.min!, "General").text}</span><span>Max: {formatValue(stats.max!, "General").text}</span></> : null}
         <span>Count: <b data-testid="stat-count">{stats.count}</b></span>
@@ -826,7 +835,12 @@ function ChartImg({ alt, src }: { alt: string; src: string }) {
   return <img alt={alt} src={src} width={420} height={220} style={{ display: "block" }} />;
 }
 function TB({ label, onClick, active, title, style }: { label: string; onClick: () => void; active?: boolean; title?: string; style?: React.CSSProperties }) {
-  return <button type="button" className="fs-btn" data-variant={active ? "primary" : "ghost"} aria-label={title ?? label} title={title ?? label} onMouseDown={(e) => e.preventDefault()} onClick={onClick} style={{ padding: "2px 7px", minWidth: 26, ...style }}>{label}</button>;
+  return <button type="button" className="fs-btn" data-variant={active ? "primary" : "ghost"} aria-label={nameWithLabel(label, title)} title={title ?? label} onMouseDown={(e) => e.preventDefault()} onClick={onClick} style={{ padding: "2px 7px", minWidth: 26, ...style }}>{label}</button>;
+}
+/** WCAG 2.5.3 label-in-name: the accessible name must contain the visible text ("Clear fmt" → "Clear formatting · Clear fmt"; axe ignores parentheticals). */
+function nameWithLabel(label: string, title?: string): string {
+  if (!title) return label;
+  return title.toLowerCase().includes(label.toLowerCase()) || label.length <= 2 ? title : `${title} · ${label}`;
 }
 const clamp = (v: number, max: number, min = 0) => Math.max(min, Math.min(max, v));
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, fmtBytes, fmtTime, post } from "@/lib/api";
@@ -7,6 +8,7 @@ import { formatFor } from "@/lib/forge";
 import { fromB64, open, seal, toB64, type Envelope } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { FileIcon, UiGlyph } from "../AppIcon";
 
 interface Node {
   path: string; name: string; kind: string; mime: string; size: number; sha256: string;
@@ -90,16 +92,16 @@ export default function FilesModule({ win }: ModuleProps) {
       {/* toolbar */}
       <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
         <Btn variant="ghost" onClick={back} title="Back (mouse button 4 also works)">←</Btn>
-        <Btn variant="ghost" onClick={up} title="Up">↑</Btn>
-        <input className="fs-input fs-mono" style={{ flex: 1, minWidth: 160 }} value={cwd}
+        <Btn variant="ghost" onClick={up} title="Up" aria-label="Up one folder"><UiGlyph name="up" /></Btn>
+        <input className="fs-input fs-mono" style={{ flex: 1, minWidth: fz(160) }} value={cwd}
           onChange={(e) => setCwd(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") go(cwd); }} aria-label="Path" />
-        <input className="fs-input" style={{ width: 130 }} placeholder="Filter" value={filter}
+        <input className="fs-input" style={{ width: fz(130) }} placeholder="Filter" value={filter}
           onChange={(e) => setFilter(e.target.value)} aria-label="Quick filter" />
         {(["list", "grid", "column"] as View[]).map((v) => (
-          <Btn key={v} variant={view === v ? "primary" : "ghost"} onClick={() => setView(v)}>{v[0].toUpperCase()}</Btn>
+          <Btn key={v} variant={view === v ? "primary" : "ghost"} aria-pressed={view === v} title={`${v} view`} onClick={() => setView(v)}>{v === "list" ? "List" : v === "grid" ? "Grid" : "Columns"}</Btn>
         ))}
-        <Btn variant={showTrash ? "primary" : "ghost"} onClick={() => { setShowTrash((t) => !t); setSel([]); }}>🗑</Btn>
+        <Btn variant={showTrash ? "primary" : "ghost"} aria-pressed={showTrash} title="Show trash" onClick={() => { setShowTrash((t) => !t); setSel([]); }}>Trash</Btn>
       </div>
 
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
@@ -130,14 +132,14 @@ export default function FilesModule({ win }: ModuleProps) {
           hint={showTrash ? undefined : "Create a file, upload one, or run `write` in the terminal."} /> : null}
 
         <div style={view === "grid"
-          ? { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(118px,1fr))", gap: 6 }
+          ? { display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${fz(118)},1fr))`, gap: 6 }
           : { display: "grid", gap: 1 }}>
           {shown.map((n) => {
             const fmt = formatFor(n.name);
             const selected = sel.includes(n.path);
             return (
               <div key={n.path} className="fs-list-item" data-selected={selected}
-                style={view === "grid" ? { flexDirection: "column", height: 96, textAlign: "center" } : undefined}
+                style={view === "grid" ? { flexDirection: "column", minHeight: fz(96), textAlign: "center" } : undefined}
                 onClick={(e) => setSel(e.ctrlKey || e.metaKey ? (selected ? sel.filter((p) => p !== n.path) : [...sel, n.path]) : [n.path])}
                 onDoubleClick={() => {
                   if (showTrash) return;
@@ -145,6 +147,7 @@ export default function FilesModule({ win }: ModuleProps) {
                   else if (n.name.toLowerCase().endsWith(".svg") || n.name.toLowerCase().endsWith(".fsvg")) shell.open("vector", { path: n.path, title: n.name });
                   else if (n.mime.startsWith("image/")) shell.open("imageedit", { path: n.path, title: n.name });
                   else if (n.name.toLowerCase().endsWith(".docx") || n.name.toLowerCase().endsWith(".fdoc")) shell.open("writer", { path: n.path, title: n.name });
+                  else if (n.name.toLowerCase().endsWith(".ftable")) shell.open("tables", { path: n.path, title: n.name });
                   else if (n.name.toLowerCase().endsWith(".pptx") || n.name.toLowerCase().endsWith(".fdeck")) shell.open("slides", { path: n.path, title: n.name });
                   else if ([".fsheet", ".fworkbook", ".xlsx"].some((ext) => n.name.toLowerCase().endsWith(ext))) shell.open("sheet", { path: n.path, title: n.name });
                   else if (fmt && ["A"].includes(fmt.grade) && fmt.editable) shell.open("editor", { path: n.path, title: n.name });
@@ -152,14 +155,14 @@ export default function FilesModule({ win }: ModuleProps) {
                 }}
                 onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setSel([n.path]); setMenu({ x: e.clientX, y: e.clientY, node: n }); }}
               >
-                <span style={{ fontSize: view === "grid" ? 24 : 14 }}>{n.kind === "dir" ? "🗂" : "📄"}</span>
-                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12 }}>{n.name}</span>
+                <FileIcon name={n.name} kind={n.kind === "dir" ? "dir" : "file"} size={view === "grid" ? 34 : 18} />
+                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: fz(12) }}>{n.name}</span>
                 {view !== "grid" ? (
                   <>
                     {fmt ? <Badge tone={fmt.grade === "A" ? "ok" : fmt.grade === "X" ? "bad" : "info"} title={fmt.boundary}>grade {fmt.grade}</Badge> : null}
                     {n.tags ? <Badge>{n.tags}</Badge> : null}
-                    <span className="fs-dim" style={{ fontSize: 11, width: 70, textAlign: "right" }}>{n.kind === "dir" ? "—" : fmtBytes(n.size)}</span>
-                    <span className="fs-dim" style={{ fontSize: 11, width: 112, textAlign: "right" }}>{fmtTime(n.updatedAt)}</span>
+                    <span className="fs-dim" style={{ fontSize: fz(11), width: fz(70), textAlign: "right" }}>{n.kind === "dir" ? "—" : fmtBytes(n.size)}</span>
+                    <span className="fs-dim" style={{ fontSize: fz(11), width: fz(112), textAlign: "right" }}>{fmtTime(n.updatedAt)}</span>
                     <Badge title="Where the bytes live (DP-03)">server</Badge>
                   </>
                 ) : null}
@@ -171,14 +174,14 @@ export default function FilesModule({ win }: ModuleProps) {
 
       {/* journal strip — the same rows the ops engine writes (FM-03 / NC-05) */}
       <div className="fs-row" style={{ gap: 6, padding: "4px 8px", borderTop: "1px solid var(--fs-border)", overflowX: "auto" }}>
-        <span className="fs-dim" style={{ fontSize: 10.5 }}>journal:</span>
+        <span className="fs-dim" style={{ fontSize: fz(10.5) }}>journal:</span>
         {jobs.slice(0, 5).map((j) => (
           <Badge key={j.id} tone={j.state === "COMPLETE" ? "ok" : j.state === "FAILED" ? "bad" : "warn"}
             title={`${j.op} ${j.src} → ${j.dst} ${j.error}`}>
             {j.op} {j.state}
           </Badge>
         ))}
-        {jobs.length === 0 ? <span className="fs-dim" style={{ fontSize: 10.5 }}>no operations yet</span> : null}
+        {jobs.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(10.5) }}>no operations yet</span> : null}
       </div>
 
       {menu ? (

@@ -1,8 +1,10 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { useShell } from "./shell-context";
 import { Badge, Btn } from "./ui";
+import { FusionLogo, UiGlyph } from "./AppIcon";
 import { privacy, type PrivacyStatus } from "@/lib/privacy/session";
 
 /**
@@ -42,7 +44,7 @@ export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onB
       className="fs-row"
       role="banner"
       style={{
-        height: 34, padding: "0 8px", gap: 6, borderBottom: "1px solid var(--fs-border)",
+        height: fz(34), padding: "0 8px", gap: fz(5), borderBottom: "1px solid var(--fs-border)",
         background: "var(--fs-panel)", backdropFilter: "blur(14px)",
         WebkitAppRegion: wco ? "drag" : undefined,
         paddingLeft: wco ? "env(titlebar-area-x, 8px)" : 8,
@@ -50,16 +52,17 @@ export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onB
       } as React.CSSProperties}
     >
       <button className="fs-btn" data-variant="primary" onClick={onLauncher} title="Launcher (Meta+A)"
-        style={{ minHeight: 24, padding: "0 10px", ...( { WebkitAppRegion: "no-drag" } as React.CSSProperties) }}>
-        ◼ Fusion
+        data-testid="launcher-button" aria-label="Fusion launcher"
+        style={{ minHeight: fz(28), padding: `0 ${fz(8)} 0 ${fz(3)}`, gap: fz(5), borderRadius: 999, fontWeight: 800, letterSpacing: ".01em", background: "linear-gradient(180deg, var(--fs-pill-a, #ffe36e), var(--fs-pill-b, #ffb020))", color: "#14213d", ...( { WebkitAppRegion: "no-drag" } as React.CSSProperties) }}>
+        <FusionLogo size={22} label="" /> Fusion
       </button>
-      <Btn variant="ghost" onClick={onPalette} title="Command palette (Ctrl+Space)">🔎 Search</Btn>
-      <Btn variant="ghost" onClick={onOverview} title="Overview (Meta+Q)">🗂 Overview</Btn>
+      <Btn variant="ghost" onClick={onPalette} title="Command palette (Ctrl+Space)"><UiGlyph name="search" /> Search</Btn>
+      <Btn variant="ghost" onClick={onOverview} title="Overview (Meta+Q)"><UiGlyph name="overview" /> Overview</Btn>
 
       <div className="fs-row" style={{ gap: 4, marginLeft: 6 }}>
         {shell.state.workspaces.map((ws) => (
           <button key={ws.id} className="fs-btn" data-variant={ws.id === shell.state.activeWorkspace ? "primary" : "ghost"}
-            style={{ minHeight: 22, padding: "0 8px" }}
+            style={{ minHeight: fz(24), padding: `0 ${fz(8)}`, borderRadius: 999 }}
             onClick={() => shell.dispatch({ t: "switchWorkspace", workspace: ws.id })}
             title={`Workspace ${ws.name}`}>{ws.name}</button>
         ))}
@@ -81,15 +84,15 @@ export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onB
       {priv && priv.storage === "unlocked" ? (
         <button className="fs-btn" data-variant="ghost" data-testid="storage-badge" onClick={() => { privacy.lock(); shell.bumpRefresh(); }}
           title="Persistent Storage is unlocked — click to lock now">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "-1px", marginRight: 4 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true" style={{ width: fz(12), height: fz(12), display: "inline-block", verticalAlign: "-1px", marginRight: 4 }}>
             <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.5-2" />
           </svg>Private unlocked</button>
       ) : null}
       <Badge tone={tone} title={shell.gov.reason}>{shell.gov.state} · {shell.gov.fps} fps</Badge>
       {shell.state.focusMode ? <Badge tone="info">focus</Badge> : null}
-      <Btn variant="ghost" onClick={onBlackout} title="Blackout this screen (BlackTop)">◐</Btn>
-      <Btn variant="ghost" onClick={onQuick} title="Quick panel (Meta+I)">⚙</Btn>
-      <span className="fs-mono fs-dim" style={{ fontSize: 11.5, padding: "0 4px" }} suppressHydrationWarning>
+      <Btn variant="ghost" onClick={onBlackout} title="Blackout this screen (BlackTop)" aria-label="Blackout this screen"><UiGlyph name="contrast" /></Btn>
+      <Btn variant="ghost" onClick={onQuick} title="Quick panel (Meta+I)" aria-label="Quick panel"><UiGlyph name="sliders" /></Btn>
+      <span className="fs-mono fs-dim" style={{ fontSize: fz(11.5), padding: "0 4px" }} suppressHydrationWarning>
         {clock.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
       </span>
     </header>

@@ -164,11 +164,13 @@ await test("column resize by dragging the header edge; frozen header row stays v
   const after = (await cell("A2").boundingBox())!.width;
   ok(Math.abs(after - before - 60) <= 2, `width ${before} → ${after}`);
   const grid = dlg.locator('[data-testid="sheet-grid"]');
-  await grid.evaluate((g) => { g.scrollTop = 15000; g.dispatchEvent(new Event("scroll")); });
+  // TT21: rows grow with the text size, so scroll by measured rows (was a fixed 15000px = row ~680 at 22px rows)
+  const rowH = (await cell("A2").boundingBox())!.height;
+  await grid.evaluate((g, y) => { g.scrollTop = y; g.dispatchEvent(new Event("scroll")); }, Math.round(680 * rowH));
   await page.waitForTimeout(300);
   const gb = (await grid.boundingBox())!; const ab = (await cell("A1").boundingBox())!;
   ok(ab.y >= gb.y && ab.y < gb.y + 60, `frozen A1 visible (A1 y=${ab.y}, grid y=${gb.y})`);
-  ok(await cell("A700").count() === 1, "rows near scroll position are rendered");
+  ok(await cell("A682").count() === 1, "rows near scroll position are rendered");
   ok(await cell("A5").count() === 0, "rows far above are not in the DOM");
   ok(await dlg.locator("td[data-cell]").count() < 52 * 90, "bounded DOM size");
   await close();

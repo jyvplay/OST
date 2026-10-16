@@ -177,9 +177,15 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
         w: cmd.rect?.w ?? 760,
         h: cmd.rect?.h ?? 520,
       };
+      // TT21: larger default text makes default windows larger — keep a new window inside the desktop
+      // (shift it up/left first, shrink only if it is bigger than the desktop itself).
+      const vp = state.viewport;
+      const fitW = Math.min(base.w, Math.max(320, vp.w - 8)), fitH = Math.min(base.h, Math.max(240, vp.h - 8));
+      const wantX = cmd.rect?.x ?? base.x, wantY = cmd.rect?.y ?? base.y;
+      const fitX = Math.max(0, Math.min(wantX, vp.w - fitW - 4)), fitY = Math.max(0, Math.min(wantY, vp.h - fitH - 4));
       const win: WindowState = {
         id: cmd.id, module: cmd.module, title: cmd.title,
-        x: cmd.rect?.x ?? base.x, y: cmd.rect?.y ?? base.y, w: base.w, h: base.h,
+        x: fitX, y: fitY, w: fitW, h: fitH,
         z: state.nextZ + 1, minimized: false, maximized: false,
         workspace: state.activeWorkspace, host: cmd.host ?? "tab", props: cmd.props ?? {},
       };
@@ -257,8 +263,13 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
     case "addWorkspace":
       return bump({ ...state, workspaces: [...state.workspaces, { id: cmd.id, name: cmd.name }] });
 
-    case "viewport":
-      return bump({ ...state, viewport: { w: Math.max(320, Math.floor(cmd.w)), h: Math.max(240, Math.floor(cmd.h)) } });
+    case "viewport": {
+      const w = Math.max(320, Math.floor(cmd.w)), h = Math.max(240, Math.floor(cmd.h));
+      // TT21: a ResizeObserver tick with an unchanged size is a no-op. Bumping anyway re-armed the 600 ms
+      // persistence debounce on every top-bar reflow at 2x text, which delayed geometry saves past 1.8 s.
+      if (state.viewport.w === w && state.viewport.h === h) return state;
+      return bump({ ...state, viewport: { w, h } });
+    }
 
     case "cycle": {
       const visible = state.windows

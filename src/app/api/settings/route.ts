@@ -3,6 +3,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { settings, settingsHistory } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
+import { validateSetting } from "@/lib/settings-validate";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,8 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ ok: false, error: current.lockReason, locked: true }, { status: 423 });
   }
   const next = String(body.value ?? "");
+  const invalid = validateSetting(body.key, next);
+  if (invalid) return NextResponse.json({ ok: false, error: invalid, invalid: true }, { status: 422 });
   await db.insert(settingsHistory).values({ key: body.key, oldValue: current.value, newValue: next });
   await db.update(settings).set({ value: next, updatedAt: new Date() }).where(eq(settings.key, body.key));
   return NextResponse.json({ ok: true, key: body.key, value: next, undoFrom: current.value });

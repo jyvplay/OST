@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 /**
  * FF-30 / FF-31 Image Studio (TT16): layered raster editor over src/lib/image (pure, headless-tested engine).
@@ -462,7 +463,7 @@ export default function ImageStudio({ win }: ModuleProps) {
 
   return (
     <div data-testid="image-studio" data-doc-w={doc.width} data-doc-h={doc.height} data-layers={doc.layers.length} data-active={active.name} data-tool={tool} data-undo={hist.past.length} data-selection={sel ? `${sel.bounds.x},${sel.bounds.y},${sel.bounds.w},${sel.bounds.h}` : ""}
-      tabIndex={0} onKeyDown={onKey} style={{ display: "grid", gridTemplateColumns: "68px 1fr 270px", gridTemplateRows: "auto 1fr auto", height: "100%", minHeight: 0, outline: "none" }}>
+      tabIndex={0} onKeyDown={onKey} style={{ display: "grid", gridTemplateColumns: `${fz(46)} minmax(0, 1fr) min(${fz(230)}, 34%)`, gridTemplateRows: "auto 1fr auto", height: "100%", minHeight: 0, outline: "none" }}>
       {/* top bar */}
       <div className="fs-row" style={{ gridColumn: "1 / 4", gap: 4, padding: 6, flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)" }}>
         <Btn variant="ghost" onClick={image.newDoc}>New</Btn>
@@ -487,7 +488,7 @@ export default function ImageStudio({ win }: ModuleProps) {
       <div role="toolbar" aria-label="Tools" style={{ display: "grid", alignContent: "start", gap: 2, padding: 3, borderRight: "1px solid var(--fs-border)" }}>
         {TOOLS.map((t) => (
           <button key={t.id} className="fs-btn" data-variant={tool === t.id ? "primary" : "ghost"} aria-pressed={tool === t.id} title={`${t.label}${t.key ? ` (${t.key})` : ""}`} aria-label={t.label}
-            onClick={() => setTool(t.id)} style={{ padding: "4px 2px", fontSize: 10, lineHeight: 1.15, whiteSpace: "normal", textAlign: "center" }}>{t.label}</button>
+            onClick={() => setTool(t.id)} style={{ padding: "4px 2px", fontSize: fz(10), lineHeight: 1.15, whiteSpace: "normal", textAlign: "center" }}>{t.label}</button>
         ))}
         <div title="Foreground / background (X swaps, D resets)" style={{ display: "grid", gap: 2, marginTop: 6 }}>
           <input type="color" aria-label="Foreground colour" value={fg} onChange={(e) => setFg(e.target.value)} style={{ width: "100%", height: 26 }} />
@@ -516,7 +517,7 @@ export default function ImageStudio({ win }: ModuleProps) {
       </div>
 
       {/* right panel */}
-      <aside className="fs-scroll" style={{ borderLeft: "1px solid var(--fs-border)", padding: 6, display: "grid", alignContent: "start", gap: 8, fontSize: 11 }}>
+      <aside className="fs-scroll" style={{ borderLeft: "1px solid var(--fs-border)", padding: 6, display: "grid", alignContent: "start", gap: 8, fontSize: fz(11) }}>
         <Panel title={`${TOOLS.find((t) => t.id === tool)?.label} options`}>
           {(tool === "brush" || tool === "eraser") ? <>
             <Range label="Size" value={size} min={1} max={300} onChange={setSize} />
@@ -551,13 +552,16 @@ export default function ImageStudio({ win }: ModuleProps) {
             </select>
           </div>
           <Range label="Opacity" value={Math.round(active.opacity * 100)} min={0} max={100} onChange={(v) => L.patch({ opacity: v / 100 })} aria="Layer opacity" />
-          <div role="listbox" aria-label="Layers" style={{ display: "grid", gap: 2 }}>
+          <div role="group" aria-label="Layers" style={{ display: "grid", gap: 2 }}>
             {[...doc.layers].reverse().map((l) => (
-              <div key={l.id} data-testid="layer-row" data-name={l.name} role="option" aria-selected={l.id === active.id} onClick={() => setActiveId(l.id)}
+              <div key={l.id} data-testid="layer-row" data-name={l.name} data-active={l.id === active.id} onClick={() => setActiveId(l.id)}
                 className="fs-row" style={{ gap: 4, padding: "3px 4px", borderRadius: 4, cursor: "pointer", background: l.id === active.id ? "var(--fs-accent-soft, rgba(91,140,255,.25))" : "transparent" }}>
                 <input type="checkbox" checked={l.visible} aria-label={`Visible ${l.name}`} onClick={(e) => e.stopPropagation()} onChange={(e) => commit(patchLayer(doc, l.id, { visible: e.target.checked }))} />
                 <Thumb layer={l} doc={doc} />
-                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} onDoubleClick={() => { const n = prompt("Layer name", l.name); if (n) commit(patchLayer(doc, l.id, { name: n.slice(0, 255) })); }}>{l.name}</span>
+                <button type="button" aria-pressed={l.id === active.id} title="Select layer (double-click to rename)"
+                  onClick={(e) => { e.stopPropagation(); setActiveId(l.id); }}
+                  style={{ flex: 1, minWidth: 0, textAlign: "left", background: "none", border: 0, color: "inherit", font: "inherit", padding: 0, cursor: "pointer", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                  onDoubleClick={() => { const n = prompt("Layer name", l.name); if (n) commit(patchLayer(doc, l.id, { name: n.slice(0, 255) })); }}>{l.name}</button>
                 {l.mask ? <Badge tone={l.maskEnabled === false ? "default" : "info"}>mask</Badge> : null}
                 {l.locked ? <Badge tone="warn">lock</Badge> : null}
                 <span className="fs-dim">{l.blend === "normal" ? "" : l.blend.slice(0, 5)} {Math.round(l.opacity * 100)}%</span>
@@ -612,7 +616,7 @@ export default function ImageStudio({ win }: ModuleProps) {
       </aside>
 
       {/* status bar */}
-      <div data-testid="studio-status" className="fs-row fs-dim" style={{ gridColumn: "1 / 4", gap: 12, padding: "3px 8px", borderTop: "1px solid var(--fs-border)", fontSize: 10.5 }}>
+      <div data-testid="studio-status" className="fs-row fs-dim" style={{ gridColumn: "1 / 4", gap: 12, padding: "3px 8px", borderTop: "1px solid var(--fs-border)", fontSize: fz(10.5) }}>
         <span>{doc.width}×{doc.height}</span><span>{Math.round(scale * 100)}%</span>
         <span>{cursor ? `x ${cursor.x} y ${cursor.y} · rgba(${cursor.c.join(",")})` : "—"}</span>
         <span>{sel ? `selection ${sel.bounds.w}×${sel.bounds.h}${selShape === "region" ? " (region, outline shows bounds)" : ""}` : "no selection"}</span>
@@ -633,11 +637,11 @@ function layerMaskFromSelection(l: Layer, sel: Selection): Uint8ClampedArray {
 }
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section className="fs-panel" style={{ padding: 6, display: "grid", gap: 5 }}><strong style={{ fontSize: 11 }}>{title}</strong>{children}</section>;
+  return <section className="fs-panel" style={{ padding: 6, display: "grid", gap: 5 }}><strong style={{ fontSize: fz(11) }}>{title}</strong>{children}</section>;
 }
 function Range({ label, value, min, max, onChange, aria }: { label: string; value: number; min: number; max: number; onChange: (n: number) => void; aria?: string }) {
   return (
-    <label style={{ display: "grid", gridTemplateColumns: "62px 1fr 34px", gap: 4, alignItems: "center" }}>{label}
+    <label style={{ display: "grid", gridTemplateColumns: `${fz(62)} minmax(0, 1fr) ${fz(34)}`, gap: 4, alignItems: "center" }}>{label}
       <input type="range" aria-label={aria ?? label} min={min} max={max} value={value} onChange={(e) => onChange(Number(e.target.value))} />
       <span className="fs-mono">{value}</span>
     </label>

@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
@@ -51,7 +52,7 @@ export default function SpecModule({ win }: ModuleProps) {
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        <strong style={{ fontSize: 13 }}>Feature register</strong>
+        <strong style={{ fontSize: fz(13) }}>Feature register</strong>
         <Badge tone="info">{rows.length} rows</Badge>
         {Object.entries(counts).map(([k, v]) => (
           <button key={k} className="fs-btn" data-variant={status === k ? "primary" : "ghost"} style={{ minHeight: 22 }}
@@ -65,9 +66,9 @@ export default function SpecModule({ win }: ModuleProps) {
       </div>
 
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        <input className="fs-input" style={{ flex: 1, minWidth: 180 }} placeholder="Filter by code, name, mechanism or nuance"
+        <input className="fs-input" style={{ flex: 1, minWidth: fz(180) }} placeholder="Filter by code, name, mechanism or nuance"
           value={q} onChange={(e) => setQ(e.target.value)} aria-label="Filter the register" />
-        <select className="fs-select" style={{ width: 120 }} value={family} onChange={(e) => setFamily(e.target.value)} aria-label="Family">
+        <select className="fs-select" style={{ width: fz(120) }} value={family} onChange={(e) => setFamily(e.target.value)} aria-label="Family">
           <option value="">all families</option>
           {families.map((f) => <option key={f} value={f}>{f}</option>)}
         </select>
@@ -79,8 +80,8 @@ export default function SpecModule({ win }: ModuleProps) {
             <button className="fs-row" style={{ justifyContent: "space-between", gap: 8, background: "none", border: 0, color: "inherit", textAlign: "left", cursor: "pointer" }}
               onClick={() => setOpen(open === r.code ? null : r.code)}>
               <span className="fs-row" style={{ gap: 6, minWidth: 0 }}>
-                <span className="fs-mono" style={{ fontSize: 11, width: 62 }}>{r.code}</span>
-                <span style={{ fontSize: 12, overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</span>
+                <span className="fs-mono" style={{ fontSize: fz(11), width: 62 }}>{r.code}</span>
+                <span style={{ fontSize: fz(12), overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</span>
               </span>
               <span className="fs-row" style={{ gap: 5 }}>
                 <Badge>{r.tier}</Badge>
@@ -94,10 +95,10 @@ export default function SpecModule({ win }: ModuleProps) {
             </button>
             {open === r.code ? (
               <div style={{ display: "grid", gap: 4, paddingLeft: 68 }}>
-                <div style={{ fontSize: 11.5 }}><span className="fs-dim">mechanism: </span><span className="fs-mono">{r.route}</span></div>
-                {r.nuance ? <div style={{ fontSize: 11.5, lineHeight: 1.6 }}><span className="fs-dim">nuance: </span>{r.nuance}</div> : null}
-                {r.test ? <div style={{ fontSize: 11.5 }}><span className="fs-dim">falsification test: </span>{r.test}</div> : null}
-                {(cov?.rows[r.code]?.tests ?? []).length ? <div style={{ fontSize: 11 }}><span className="fs-dim">passing evidence: </span>{cov!.rows[r.code].tests.join(" · ")}</div> : null}
+                <div style={{ fontSize: fz(11.5) }}><span className="fs-dim">mechanism: </span><span className="fs-mono">{r.route}</span></div>
+                {r.nuance ? <div style={{ fontSize: fz(11.5), lineHeight: 1.6 }}><span className="fs-dim">nuance: </span>{r.nuance}</div> : null}
+                {r.test ? <div style={{ fontSize: fz(11.5) }}><span className="fs-dim">falsification test: </span>{r.test}</div> : null}
+                {(cov?.rows[r.code]?.tests ?? []).length ? <div style={{ fontSize: fz(11) }}><span className="fs-dim">passing evidence: </span>{cov!.rows[r.code].tests.join(" · ")}</div> : null}
               </div>
             ) : null}
           </div>
@@ -110,19 +111,19 @@ export default function SpecModule({ win }: ModuleProps) {
             <div key={s.code} className="fs-panel" style={{ padding: 8, display: "grid", gap: 3 }}>
               <div className="fs-row" style={{ justifyContent: "space-between" }}>
                 <span className="fs-row" style={{ gap: 6 }}>
-                  <span className="fs-mono" style={{ fontSize: 11 }}>{s.code}</span>
-                  <span style={{ fontSize: 12 }}>{s.question}</span>
+                  <span className="fs-mono" style={{ fontSize: fz(11) }}>{s.code}</span>
+                  <span style={{ fontSize: fz(12) }}>{s.question}</span>
                 </span>
                 <Badge tone={s.status === "passed" ? "ok" : s.status === "failed" ? "bad" : "warn"}>{s.status}</Badge>
               </div>
-              <div className="fs-dim" style={{ fontSize: 11 }}>pass: {s.pass} · fallback: {s.fallback}</div>
-              {s.result ? <div style={{ fontSize: 11 }}>{s.result}</div> : null}
+              <div className="fs-dim" style={{ fontSize: fz(11) }}>pass: {s.pass} · fallback: {s.fallback}</div>
+              {s.result ? <div style={{ fontSize: fz(11) }}>{s.result}</div> : null}
             </div>
           ))}
         </div>
       </Section>
 
-      <div className="fs-dim" style={{ fontSize: 11, lineHeight: 1.6 }}>
+      <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
         Status vocabulary: <strong>built</strong> runs end to end here · <strong>partial</strong> runs with a named
         degradation · <strong>probe</strong> ships as a runtime capability check plus honest degrade UI ·
         <strong> skeleton</strong> is a typed seam with no engine · <strong>blocked</strong> is provably impossible on

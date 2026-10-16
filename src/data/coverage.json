@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-16T06:43:14.974Z",
+ "generatedAt": "2026-10-16T09:59:51.418Z",
  "totals": {
   "built": {
-   "full": 196,
-   "partial": 65,
+   "full": 205,
+   "partial": 64,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 80,
+   "full": 90,
    "partial": 72,
-   "untested": 131
+   "untested": 129
   },
   "tests": {
-   "total": 305,
-   "passed": 305
+   "total": 341,
+   "passed": 341
   }
  },
  "rows": {
@@ -53,7 +53,8 @@
    "tests": [
     "e2e: drag a window by its title bar; geometry is committed and persisted",
     "integration: SH-08 stale revision cannot clobber newer desktop state (409)",
-    "unit: command log replay reproduces the identical state hash"
+    "unit: command log replay reproduces the identical state hash",
+    "unit: TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk"
    ]
   },
   "SH-09": {
@@ -88,7 +89,8 @@
    "tested": "full",
    "tests": [
     "e2e: drag a window by its title bar; geometry is committed and persisted",
-    "unit: 10 000 random commands preserve every invariant"
+    "unit: 10 000 random commands preserve every invariant",
+    "unit: TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk"
    ]
   },
   "WM-02": {
@@ -1034,6 +1036,7 @@
   "FF-28": {
    "tested": "full",
    "tests": [
+    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
     "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
     "e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates",
     "e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region",
@@ -1333,6 +1336,90 @@
     "privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses"
    ]
   },
+  "AX-09": {
+   "tested": "full",
+   "tests": [
+    "a11y-unit: text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz()",
+    "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
+    "a11y-unit: settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour",
+    "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
+    "e2e-a11y: computed sizes: at the 125 % default nothing visible is below 12 px and body text is ≥16 px; in Large text mode (200 %) nothing is below 20 px",
+    "e2e-a11y: reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit",
+    "e2e-a11y: text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused",
+    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen"
+   ]
+  },
+  "AX-10": {
+   "tested": "full",
+   "tests": [
+    "a11y-unit: icon contrast: every palette's glyph colour is ≥3:1 against its tile gradient across the whole glyph area (WCAG 1.4.11)",
+    "a11y-unit: every registered module and every common file type has a real glyph; tile palettes exist",
+    "a11y-unit: no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font)",
+    "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
+    "e2e-a11y: icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type"
+   ]
+  },
+  "AX-11": {
+   "tested": "full",
+   "tests": [
+    "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
+    "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
+    "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
+    "e2e-a11y: light theme, every style: axe colour-contrast finds no serious violations in the chrome, Files and Spreadsheet"
+   ]
+  },
+  "TB-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores",
+    "e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table",
+    "e2e: mount: tables",
+    "tables-engine: typed cells: coercion and refusals per field type (number precision, dates, email, url schemes, checkbox words, rating bounds)",
+    "tables-engine: select fields: unknown options are added once with a colour, matching is case-insensitive, multi-select de-duplicates",
+    "tables-engine: type conversion: number→text→number round-trips, text→select collects options, failures are counted and cleared (never mangled), links refuse",
+    "tables-engine: CSV: RFC 4180 parse (quotes, doubled quotes, CRLF, embedded newline), type inference, export guards formula injection and round-trips",
+    "tables-engine: integrity: deleting a table drops links into it, deleting a field strips it from views, the last table/view cannot be deleted, loadBase rejects junk"
+   ]
+  },
+  "TB-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: two-way link through the picker: linking Cy to a task shows on People (inverse field) and updates the Open hours rollup",
+    "e2e: mount: tables",
+    "tables-engine: two-way links: linking updates the inverse field, unlinking removes it, unknown ids are refused, deleting a record scrubs every reference",
+    "tables-engine: lookup / rollup / count follow the link and recompute; deleting the link field removes its inverse and breaks dependants visibly"
+   ]
+  },
+  "TB-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs",
+    "e2e-tables: add a formula field: live validation disables Create on a bad formula; a good one adds a computed column",
+    "e2e: mount: tables",
+    "tables-engine: lookup / rollup / count follow the link and recompute; deleting the link field removes its inverse and breaks dependants visibly",
+    "tables-engine: formulas: precedence, functions, field refs incl. lookups, text & dates, errors (div/0, unknown field/function) and #CYCLE"
+   ]
+  },
+  "TB-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: filter + sort: Status is Doing leaves 2 records; sorting Hours descending orders them; badges count the conditions",
+    "e2e-tables: kanban: columns by Status; moving a card with its Move select and by drag-and-drop updates the counts and the grid",
+    "e2e: mount: tables",
+    "tables-engine: views: AND/OR filters, multi-sort with empties last in both directions, select sorts by option order, grouping, search over visible fields",
+    "tables-engine: integrity: deleting a table drops links into it, deleting a field strips it from views, the last table/view cannot be deleted, loadBase rejects junk"
+   ]
+  },
+  "TB-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs",
+    "e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores",
+    "e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table",
+    "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
+    "e2e: mount: tables"
+   ]
+  },
   "CT-01": {
    "tested": "untested",
    "tests": []
@@ -1550,6 +1637,7 @@
   "AX-01": {
    "tested": "partial",
    "tests": [
+    "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
     "e2e: structural a11y: every window is a named dialog; no unnamed buttons"
    ]
   },
@@ -1560,8 +1648,10 @@
    ]
   },
   "AX-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)"
+   ]
   },
   "AX-04": {
    "tested": "untested",
@@ -1584,8 +1674,13 @@
    ]
   },
   "AX-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
+    "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
+    "e2e-a11y: light theme, every style: axe colour-contrast finds no serious violations in the chrome, Files and Spreadsheet",
+    "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations"
+   ]
   },
   "AU-01": {
    "tested": "full",

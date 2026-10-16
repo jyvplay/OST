@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <!-- Fusion Shell TT22 "Poolside" wallpaper — original vector art, CC0 for this project. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe9dc"/><stop offset=".55" stop-color="#c9f1ee"/><stop offset="1" stop-color="#9fe6e6"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5fe0dc"/><stop offset=".45" stop-color="#27b9cc"/><stop offset="1" stop-color="#0b6f8c"/>
+    </linearGradient>
+    <radialGradient id="sun" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#fff6c8"/><stop offset=".55" stop-color="#ffd877"/><stop offset="1" stop-color="#ffb37a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glare" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="tiles" width="34" height="34" patternUnits="userSpaceOnUse">
+      <rect width="34" height="34" fill="#7fd9e0"/><rect x="1.5" y="1.5" width="31" height="31" rx="3" fill="#a9ecee"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <circle cx="1230" cy="170" r="210" fill="url(#sun)"/>
+  <circle cx="1230" cy="170" r="74" fill="#fff1b8"/>
+  <!-- distant flamingo-pink deco hotel line -->
+  <g opacity=".9">
+    <rect x="80" y="300" width="360" height="110" rx="10" fill="#ffc7cf"/>
+    <rect x="440" y="270" width="220" height="140" rx="10" fill="#fde7c4"/>
+    <rect x="660" y="318" width="300" height="92" rx="10" fill="#c9eedf"/>
+    <g stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".85">
+      <path d="M110 330h300M110 356h300M110 382h300"/><path d="M470 300h160M470 330h160M470 360h160M470 386h160"/><path d="M690 345h240M690 375h240"/>
+    </g>
+  </g>
+  <!-- pool coping + tile band -->
+  <rect x="0" y="408" width="1600" height="26" fill="#fffaf0"/>
+  <rect x="0" y="434" width="1600" height="34" fill="url(#tiles)"/>
+  <!-- water -->
+  <rect x="0" y="468" width="1600" height="532" fill="url(#water)"/>
+  <ellipse cx="1230" cy="520" rx="230" ry="38" fill="url(#glare)"/>
+  <!-- caustics: soft light ribbons on the pool floor -->
+  <g fill="none" stroke="#e9fffd" stroke-linecap="round" opacity=".35">
+    <path stroke-width="5" d="M-20 540c90-28 160 30 250 4s150-40 240 0 170 30 260-2 160-36 250 0 170 28 260 0 160-30 260 6"/>
+    <path stroke-width="4" d="M-30 620c110-34 190 38 300 6s180-46 290 0 200 36 310-4 190-40 300 2 190 30 300-2"/>
+    <path stroke-width="6" d="M-40 720c130-40 220 44 350 6s210-52 340 0 230 40 360-4 220-46 350 2"/>
+    <path stroke-width="5" d="M-20 830c150-44 250 50 400 8s240-58 390 0 260 46 410-6 250-50 400 2"/>
+    <path stroke-width="7" d="M-60 950c170-50 280 56 450 8s270-64 440 0 290 52 460-6"/>
+  </g>
+  <g fill="#ffffff" opacity=".22">
+    <path d="M200 600c40-14 70 10 110 0-30 22-80 20-110 0z"/><path d="M820 690c50-16 90 12 140 0-40 26-100 24-140 0z"/>
+    <path d="M1240 780c50-18 90 14 140 0-40 26-100 24-140 0z"/><path d="M480 880c60-20 110 16 170 0-50 30-120 28-170 0z"/>
+  </g>
+  <!-- palm shadows falling across the corner -->
+  <g fill="#064e5e" opacity=".22">
+    <path d="M-40 1000C60 860 120 760 150 640l14 4C140 770 90 880 -10 1000z"/>
+    <path d="M150 640c-60-40-150-40-230 10 90-20 160-10 230-10z"/>
+    <path d="M152 640c-20-70-90-120-180-130 80 30 140 70 180 130z"/>
+    <path d="M154 640c40-70 120-100 210-90-90 10-160 40-210 90z"/>
+    <path d="M154 642c80-10 160 20 220 90-70-40-150-70-220-90z"/>
+    <path d="M152 644c30 60 30 130 0 200 10-70 6-140 0-200z"/>
+  </g>
+  <!-- a single flamingo-pink float, for fun -->
+  <g transform="translate(1080 640) rotate(-12)">
+    <ellipse cx="0" cy="8" rx="92" ry="34" fill="#0b6f8c" opacity=".25"/>
+    <ellipse cx="0" cy="0" rx="92" ry="34" fill="#ff9fb1"/>
+    <ellipse cx="0" cy="-2" rx="48" ry="15" fill="#2ab8cb"/>
+    <path d="M-80-8c30-20 130-22 160 0" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+  </g>
+</svg>

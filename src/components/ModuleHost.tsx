@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import type { WindowState } from "@/lib/windowing/state";
 import FilesModule from "./modules/Files";
@@ -32,6 +33,7 @@ import StorageModule from "./modules/Storage";
 import LocalDiskModule from "./modules/LocalDisk";
 import SpreadsheetModule from "./modules/Spreadsheet";
 import WriterModule from "./modules/Writer";
+import TablesModule from "./modules/Tables";
 import SlidesModule from "./modules/Slides";
 import ImageEditorModule from "./modules/ImageEditor";
 import VectorModule from "./modules/Vector";
@@ -71,10 +73,11 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "localdisk": return <LocalDiskModule win={win} />;
     case "sheet": return <SpreadsheetModule win={win} />;
     case "writer": return <WriterModule win={win} />;
+    case "tables": return <TablesModule win={win} />;
     case "slides": return <SlidesModule win={win} />;
     case "imageedit": return <ImageEditorModule win={win} />;
     case "vector": return <VectorModule win={win} />;
     default:
-      return <div style={{ padding: 16, fontSize: 12 }}>Unknown module: {win.module}</div>;
+      return <div style={{ padding: 16, fontSize: fz(12) }}>Unknown module: {win.module}</div>;
   }
 }

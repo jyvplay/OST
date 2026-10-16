@@ -139,9 +139,21 @@ async function openStudio(path?: string): Promise<Studio> {
   await root.waitFor({ timeout: 25_000 });
   const svg = root.locator('[data-testid="vector-canvas"]');
   const attr = (k: string) => root.getAttribute(`data-${k}`);
-  const at = (x: number, y: number) => svg.evaluate((s: SVGSVGElement, [x, y]) => { const p = new DOMPoint(x, y).matrixTransform(s.getScreenCTM()!); return { x: p.x, y: p.y }; }, [x, y]);
+  // TT21: at the 200% default text size the canvas viewport is smaller, so a doc point may sit outside the visible
+  // scroll area. Scroll it into view first (what a user does), then map doc -> screen.
+  const at = (x: number, y: number) => svg.evaluate((s: SVGSVGElement, [x, y]) => {
+    const map = () => new DOMPoint(x, y).matrixTransform(s.getScreenCTM()!);
+    let sc: HTMLElement | null = s.parentElement;
+    while (sc && !/(auto|scroll)/.test(getComputedStyle(sc).overflow + getComputedStyle(sc).overflowY)) sc = sc.parentElement;
+    if (sc) {
+      const r = sc.getBoundingClientRect(), p = map(), m = 24;
+      if (p.y < r.top + m || p.y > r.bottom - m) sc.scrollTop += p.y - (r.top + r.bottom) / 2;
+      if (p.x < r.left + m || p.x > r.right - m) sc.scrollLeft += p.x - (r.left + r.right) / 2;
+    }
+    const p = map(); return { x: p.x, y: p.y };
+  }, [x, y]);
   const withMods = async (mods: string[] | undefined, f: () => Promise<void>) => { for (const m of mods ?? []) await page.keyboard.down(m); await f(); for (const m of mods ?? []) await page.keyboard.up(m); };
-  const drag = (a: [number, number], b: [number, number], mods?: string[]) => withMods(mods, async () => { const p = await at(...a), q = await at(...b); await page.mouse.move(p.x, p.y); await page.mouse.down(); await page.mouse.move((p.x + q.x) / 2, (p.y + q.y) / 2, { steps: 4 }); await page.mouse.move(q.x, q.y, { steps: 6 }); await page.mouse.up(); });
+  const drag = (a: [number, number], b: [number, number], mods?: string[]) => withMods(mods, async () => { await at(...a); const q = await at(...b), p = await at(...a); await page.mouse.move(p.x, p.y); await page.mouse.down(); await page.mouse.move((p.x + q.x) / 2, (p.y + q.y) / 2, { steps: 4 }); await page.mouse.move(q.x, q.y, { steps: 6 }); await page.mouse.up(); });
   const click = (x: number, y: number, mods?: string[]) => withMods(mods, async () => { const p = await at(x, y); await page.mouse.click(p.x, p.y); });
   const tool = (n: string) => root.getByRole("button", { name: new RegExp(`^${n} tool`) }).click();
   const bbox = async () => { const l = root.locator('[data-testid="sel-bbox"]'); if (!(await l.count())) return null; return (await l.getAttribute("data-bbox"))!.split(",").map(Number); };
@@ -296,7 +308,7 @@ await test("UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable
 await test("UI: arrow (line tool + Arrowhead) exports as plain path; star stays parametric — point count / inner ratio editable after a move", { "FF-32": "full" }, async () => {
   const s = await openStudio();
   try {
-    await s.tool("Line"); await s.root.getByLabel("Arrowhead").check(); await s.drag([100, 600], [300, 600]);
+    await s.tool("Line"); await s.root.getByLabel("Arrowhead").check(); await s.drag([100, 580], [300, 580]); // y=600 is the doc edge: at the 200% default fit scale it lands on the last pixel row (TT21)
     const ar = await lastSid(s); const d = (await s.d(ar)) ?? "";
     ok(/^M[\d.]+ [\d.]+ L[\d.]+ [\d.]+ M/.test(d) && (d.match(/M/g) ?? []).length === 2, `arrow d: ${d}`);
     await s.tool("Star"); await s.drag([700, 300], [700, 240]);
