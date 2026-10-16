@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-16T06:16:56.026Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-23 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-16T06:43:14.972Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+24 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **281** |
-| Fully built | 194 |
+| **Features in register** | **283** |
+| Fully built | 196 |
 | Partially built (partial 47 + probe 18) | 65 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **78** |
+| **Fully tested** (≥1 passing test tagged `full`) | **80** |
 | **Partially tested** (only `partial` tags) | **72** |
 | Untested | 131 |
-| Automated tests executed / passed | 296 / 296 |
+| Automated tests executed / passed | 305 / 305 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 68 | 58 | 68 |
+| fully built | 70 | 58 | 68 |
 | partially built | 4 | 12 | 49 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,29 +33,30 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| browser-session | 5 | 5 | 0 | 2026-10-16T06:00:15.855Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-16T06:04:30.266Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-16T06:03:30.958Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-16T06:13:29.798Z |
-| e2e-privacy | 12 | 12 | 0 | 2026-10-16T06:16:51.266Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-16T06:13:04.141Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-16T06:08:07.345Z |
-| e2e | 55 | 55 | 0 | 2026-10-16T06:15:08.620Z |
-| image | 12 | 12 | 0 | 2026-10-16T06:00:10.840Z |
-| integration | 24 | 24 | 0 | 2026-10-16T06:00:05.287Z |
-| metaclean | 6 | 6 | 0 | 2026-10-16T06:00:22.835Z |
-| names | 7 | 7 | 0 | 2026-10-16T06:00:10.462Z |
-| office | 35 | 35 | 0 | 2026-10-16T06:00:05.689Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-16T06:00:13.837Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-16T06:00:15.692Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T06:00:07.388Z |
-| oracle | 5 | 5 | 0 | 2026-10-16T06:00:06.065Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-16T06:00:19.802Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-16T06:00:21.471Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-16T06:00:07.728Z |
-| unit | 22 | 22 | 0 | 2026-10-16T06:00:03.092Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-16T06:00:15.053Z |
-| vector | 18 | 18 | 0 | 2026-10-16T06:00:14.108Z |
+| browser-session | 5 | 5 | 0 | 2026-10-16T06:34:02.363Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-16T06:37:53.359Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-16T06:36:52.585Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-16T06:36:16.669Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-16T06:43:08.221Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-16T06:38:43.654Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-16T06:37:13.711Z |
+| e2e | 55 | 55 | 0 | 2026-10-16T06:35:49.451Z |
+| image | 12 | 12 | 0 | 2026-10-16T06:33:57.224Z |
+| integration | 24 | 24 | 0 | 2026-10-16T06:33:51.635Z |
+| metaclean | 6 | 6 | 0 | 2026-10-16T06:34:09.826Z |
+| names | 7 | 7 | 0 | 2026-10-16T06:33:56.836Z |
+| office | 35 | 35 | 0 | 2026-10-16T06:33:52.035Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-16T06:34:00.289Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-16T06:34:02.198Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T06:33:53.750Z |
+| oracle | 5 | 5 | 0 | 2026-10-16T06:33:52.416Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-16T06:41:20.482Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-16T06:34:06.333Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-16T06:41:22.268Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-16T06:33:54.123Z |
+| unit | 22 | 22 | 0 | 2026-10-16T06:33:49.207Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-16T06:34:01.518Z |
+| vector | 18 | 18 | 0 | 2026-10-16T06:34:00.544Z |
 
 ## Rows touched by failing tests
 
@@ -77,7 +78,7 @@ None.
 | PR | 32 | 21 | 10 | 1 | 13 | 6 | 13 |
 | FF | 34 | 24 | 10 | 0 | 25 | 4 | 5 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
-| SC | 16 | 14 | 1 | 1 | 8 | 3 | 5 |
+| SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
@@ -277,7 +278,7 @@ None.
 | FF-34 | built | full | e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+4) |
 | FF-35 | built | full | e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+5) |
 | SC-10 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path; e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists (+19) |
-| SC-11 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only); e2e: mount: privacy (+2) |
+| SC-11 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only); e2e: mount: privacy (+3) |
 | SC-12 | built | full | e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e: mount: privacy (+6) |
 | SC-13 | built | full | e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists; e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache; e2e: mount: privacy (+1) |
 | SC-14 | built | full | e2e-privacy: host audit in the UI: a plaintext file planted by another client is flagged and 'Encrypt it' seals it (name + content); e2e: mount: privacy; privacy-layer: audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught) |
@@ -285,6 +286,8 @@ None.
 | FF-36 | built | full | e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen; names: name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255; names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined (+5) |
 | FF-37 | built | full | e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo; vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back); vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995) (+4) |
 | SC-16 | built | full | e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host; privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock; privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results |
+| SC-17 | built | full | e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext; privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported; privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected (+4) |
+| SC-18 | built | full | e2e-privacy: TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks; privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

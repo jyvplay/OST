@@ -125,6 +125,8 @@ export interface LayerEvents { onBlocked?: (what: string) => void; onPrivateTouc
 export class PrivacyLayer {
   keys: VolumeKeys | null = null;
   amnesic = false;
+  /** TT20: called after every RAM-overlay mutation (drives the "unsaved work" list) */
+  onRamChange: (() => void) | null = null;
   ram = new RamOverlay();
   /** amnesic desktop state lives here, never on the host */
   ramState = new Map<string, { state: unknown; revision: number }>();
@@ -365,6 +367,7 @@ export class PrivacyLayer {
       }
       const n = await this.ram.write(p, content, encoding, mime, lowerVersion);
       this.ram.white.delete(p);
+      this.onRamChange?.();
       return { ok: true, path: p, size: n.size, sha256: n.sha256, opId: -1, amnesic: true };
     }
     return this.ensure(await this.rawPost({ op: "write", path: p, content, encoding, mime, reason }));
@@ -378,7 +381,7 @@ export class PrivacyLayer {
       const b = this.ensure(await this.rawPost({ op: "mkdir", path: await encryptPath(this.needKeys(), p) }));
       return { ...b, path: p };
     }
-    if (store === "ram") { this.ram.mkdir(p); this.ram.white.delete(p); return { ok: true, path: p, amnesic: true }; }
+    if (store === "ram") { this.ram.mkdir(p); this.ram.white.delete(p); this.onRamChange?.(); return { ok: true, path: p, amnesic: true }; }
     return this.ensure(await this.rawPost({ op: "mkdir", path: p }));
   }
 
@@ -394,6 +397,7 @@ export class PrivacyLayer {
     if (store === "ram") {
       if (op === "restore") { this.ram.white.delete(p); return { ok: true, amnesic: true }; }
       this.ram.remove(p);
+      this.onRamChange?.();
       return { ok: true, amnesic: true, note: "hidden for this amnesic session; the host copy is untouched" };
     }
     return this.ensure(await this.rawPost({ op, path: p }));
@@ -621,6 +625,30 @@ export class PrivacyLayer {
       return fail(423, `amnesic session: ${u.pathname} would be written to the host — nothing was saved`, { amnesic: true });
     }
     return this.raw(url, init);
+  }
+
+  /* ------------------------------------------- TT20 amnesic "unsaved work" rescue */
+  /**
+   * Tails pain point: files saved anywhere but the Persistent folder vanish at shutdown, and users only find out
+   * afterwards. In an amnesic session these are the files that exist ONLY in this tab's RAM.
+   */
+  ramFiles(): { path: string; size: number }[] {
+    return [...this.ram.nodes.values()].filter((n) => n.kind === "file").map((n) => ({ path: n.path, size: n.size })).sort((a, b) => a.path.localeCompare(b.path));
+  }
+  /** Move RAM-only files into Persistent Storage (encrypted), keeping their relative path under `root`. */
+  async rescue(paths: string[], root = `${PRIVATE_ROOT}/Rescued`): Promise<{ moved: { from: string; to: string }[]; failed: { path: string; error: string }[] }> {
+    this.needKeys();
+    if (!isPrivatePath(norm(root))) throw new HttpError(400, "rescue target must be inside /Private");
+    const out = { moved: [] as { from: string; to: string }[], failed: [] as { path: string; error: string }[] };
+    for (const p of paths) {
+      const from = norm(p);
+      const n = this.ram.nodes.get(from);
+      if (!n || n.kind !== "file") { out.failed.push({ path: from, error: "not a RAM-only file" }); continue; }
+      const to = norm(`${root}${from}`);
+      try { await this.fsTransfer(from, to, "move"); out.moved.push({ from, to }); }
+      catch (e) { out.failed.push({ path: from, error: (e as Error).message }); }
+    }
+    return out;
   }
 
   /* ----------------------------------------------------------- utilities */

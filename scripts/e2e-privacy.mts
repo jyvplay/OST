@@ -285,6 +285,98 @@ await test("host audit in the UI: a plaintext file planted by another client is 
   await page.screenshot({ path: "docs/screenshots/tt18-privacy.png" });
 });
 
+const unlockUi = async () => {
+  await tab("Persistent Storage").click();
+  await privacyRoot().locator('[data-testid="unlock-pass"]').fill(PASS);
+  await privacyRoot().locator('[data-testid="unlock"]').click();
+  await page.locator('[data-testid="storage-badge"]').waitFor({ timeout: 30_000 });
+  await privacyRoot().locator('[data-testid="backup-download"]').waitFor({ timeout: 10_000 });
+};
+const liveRows = async () => new Map((await rows("select path, content from vfs_nodes where path like '/Private/%' and trashed = false")).map((r) => [r.path as string, r.content as string | null]));
+
+await test("TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext", { "SC-17": "full" }, async () => {
+  await putDesktop([win("wp", "privacy")]);
+  await boot("/");
+  await unlockUi();
+  const [dl] = await Promise.all([page.waitForEvent("download"), privacyRoot().locator('[data-testid="backup-download"]').click()]);
+  const file = join(fx, "out", dl.suggestedFilename());
+  await dl.saveAs(file);
+  ok(/^fusion-private-backup-\d{4}-\d{2}-\d{2}\.json$/.test(dl.suggestedFilename()), dl.suggestedFilename());
+  const text = readFileSync(file, "utf8");
+  ok(JSON.parse(text).format === "fusion-private-backup-1", "format");
+  for (const leak of [SECRET, `kept-${RUN}`, `meta-${RUN}`, "Documents"]) ok(!text.includes(leak), `backup leaks ${leak}`);
+  await privacyRoot().locator('[data-testid="backup-report"]').getByText("Backup made").waitFor({ timeout: 10_000 });
+  await privacyRoot().locator('[data-testid="backup-file"]').first().setInputFiles(file);
+  await privacyRoot().locator('[data-testid="backup-verify"]').click();
+  const rep = privacyRoot().locator('[data-testid="backup-report"]');
+  await rep.getByText(/Backup OK/).waitFor({ timeout: 20_000 });
+  const before = await liveRows();
+  ok(before.size >= 3, `expected a populated volume, got ${before.size}`);
+  // simulate losing the host volume entirely
+  await db.query("delete from vfs_versions where path like '/Private/%'");
+  await db.query("delete from vfs_nodes where path like '/Private/%'");
+  await boot("/");
+  await privacyRoot().locator('[data-testid="backup-restore"]').waitFor({ timeout: 20_000 });
+  await privacyRoot().locator('[data-testid="backup-file"]').first().setInputFiles(file);
+  await privacyRoot().locator('[data-testid="backup-pass"]').first().fill(PASS);
+  await privacyRoot().locator('[data-testid="backup-restore"]').click();
+  await rep.getByText(/Restored: \d+ files written/).waitFor({ timeout: 30_000 });
+  const after = await liveRows();
+  for (const [p, c] of before) ok(after.get(p) === c, `row not restored identically: ${p.slice(0, 40)}`);
+  await page.locator('[data-testid="storage-badge"]').or(privacyRoot().locator('[data-testid="unlock-pass"]')).first().waitFor({ timeout: 10_000 });
+  await unlockUi();
+  const r = await pfetch("GET", `/api/fs?op=read&path=/Private/kept-${RUN}.txt`);
+  ok(r.status === 200 && r.json.node?.content === "persistent", `restored file reads back: ${r.status} ${JSON.stringify(r.json).slice(0, 80)}`);
+});
+
+await test("TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks", { "SC-18": "full" }, async () => {
+  await putDesktop([win("wp", "privacy")]);
+  // TT20 repair regression: in a normal session the boot toggle flips visibly and stores the pref; in a ?amnesia=1
+  // session it shows the SAVED preference (off), not "this session is amnesic"
+  await boot("/");
+  await tab("Amnesia").click();
+  const sw = privacyRoot().getByRole("switch", { name: "Always start amnesic on this device" });
+  ok((await sw.getAttribute("aria-checked")) === "false", "boot pref starts off");
+  await sw.click();
+  ok((await sw.getAttribute("aria-checked")) === "true", "toggle did not flip after click");
+  ok((await inPage(async () => localStorage.getItem("fusion.privacy.bootAmnesic"))) === "1", "pref not stored");
+  await sw.click();
+  ok((await sw.getAttribute("aria-checked")) === "false" && (await inPage(async () => localStorage.getItem("fusion.privacy.bootAmnesic"))) === null, "pref not cleared");
+  await boot("/?amnesia=1");
+  await tab("Amnesia").click();
+  ok((await sw.getAttribute("aria-checked")) === "false", "a one-off ?amnesia=1 session must not show 'always start amnesic' as on");
+  await unlockUi();
+  await pfetch("POST", "/api/fs", { op: "write", path: `/Documents/draft-${RUN}.txt`, content: `draft ${SECRET}` });
+  await tab("Amnesia").click();
+  const list = privacyRoot().locator('[data-testid="ram-files"]');
+  await list.getByText(`/Documents/draft-${RUN}.txt`).waitFor({ timeout: 10_000 });
+  const guard = () => page.evaluate(() => { const e = new Event("beforeunload", { cancelable: true }); window.dispatchEvent(e); return e.defaultPrevented; });
+  ok(await guard(), "leaving with RAM-only files must ask");
+  // a real reload with a real browser prompt: dismissing it keeps the page and the RAM file
+  page.removeAllListeners("dialog");
+  const seen: string[] = [];
+  page.on("dialog", (d) => { seen.push(d.type()); void (d.type() === "beforeunload" ? d.dismiss() : d.accept()); });
+  await page.evaluate(() => { location.reload(); }).catch(() => undefined);
+  await page.waitForTimeout(800);
+  ok(seen.includes("beforeunload"), `browser prompt not shown (dialogs: ${seen.join(",") || "none"})`);
+  await list.getByText(`/Documents/draft-${RUN}.txt`).waitFor({ timeout: 5_000 });
+  await privacyRoot().locator('[data-testid="rescue-all"]').click();
+  await privacyRoot().getByText("No RAM-only files").waitFor({ timeout: 15_000 });
+  ok(!(await guard()), "nothing left to lose — no prompt");
+  ok((await rows("select count(*)::int n from vfs_nodes where path like $1 or content like $2", [`%draft-${RUN}%`, `%${SECRET}%`]))[0].n === 0, "rescued file reached the host in clear");
+  const kept = await pfetch("GET", `/api/fs?op=read&path=/Private/Rescued/Documents/draft-${RUN}.txt`);
+  ok(kept.status === 200 && kept.json.node?.content === `draft ${SECRET}`, `rescued file ${kept.status}`);
+  // emergency shutdown with a NEW unsaved file: no beforeunload prompt may block it
+  await pfetch("POST", "/api/fs", { op: "write", path: `/Documents/panic2-${RUN}.txt`, content: "x" });
+  ok(await guard(), "guard armed again");
+  seen.length = 0;
+  await page.locator("body").click({ position: { x: 700, y: 880 } });
+  await page.keyboard.press("Control+Alt+Shift+Backspace");
+  await page.waitForURL("about:blank", { timeout: 10_000 });
+  ok(!seen.includes("beforeunload"), `emergency shutdown was blocked by a prompt: ${seen.join(",")}`);
+  page = await ctx.newPage(); page.on("dialog", (d) => void d.accept()); page.on("pageerror", (e) => errors.push(e.message));
+});
+
 await test("no page errors across the privacy flows", { "SC-10": "partial" }, () => {
   const real = errors.filter((e) => !/amnesic session|IndexedDB/.test(e));
   ok(real.length === 0, real.join(" | "));

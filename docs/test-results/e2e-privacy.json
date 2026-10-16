@@ -1,6 +1,6 @@
 {
   "suite": "e2e-privacy",
-  "at": "2026-10-16T06:16:51.266Z",
+  "at": "2026-10-16T06:43:08.221Z",
   "results": [
     {
       "suite": "e2e-privacy",
@@ -10,7 +10,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 2258
+      "ms": 2199
     },
     {
       "suite": "e2e-privacy",
@@ -19,7 +19,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 174
+      "ms": 230
     },
     {
       "suite": "e2e-privacy",
@@ -28,7 +28,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 1490
+      "ms": 1270
     },
     {
       "suite": "e2e-privacy",
@@ -37,7 +37,7 @@
         "SC-16": "full"
       },
       "pass": true,
-      "ms": 2091
+      "ms": 1846
     },
     {
       "suite": "e2e-privacy",
@@ -46,7 +46,7 @@
         "SC-12": "full"
       },
       "pass": true,
-      "ms": 327
+      "ms": 238
     },
     {
       "suite": "e2e-privacy",
@@ -56,7 +56,7 @@
         "FM-01": "partial"
       },
       "pass": true,
-      "ms": 1008
+      "ms": 782
     },
     {
       "suite": "e2e-privacy",
@@ -66,7 +66,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 2159
+      "ms": 2492
     },
     {
       "suite": "e2e-privacy",
@@ -75,7 +75,7 @@
         "SC-15": "full"
       },
       "pass": true,
-      "ms": 382
+      "ms": 376
     },
     {
       "suite": "e2e-privacy",
@@ -84,7 +84,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 21
+      "ms": 20
     },
     {
       "suite": "e2e-privacy",
@@ -93,7 +93,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 3649
+      "ms": 2792
     },
     {
       "suite": "e2e-privacy",
@@ -102,7 +102,25 @@
         "SC-14": "full"
       },
       "pass": true,
-      "ms": 1531
+      "ms": 1541
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext",
+      "covers": {
+        "SC-17": "full"
+      },
+      "pass": true,
+      "ms": 3960
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks",
+      "covers": {
+        "SC-18": "full"
+      },
+      "pass": true,
+      "ms": 3231
     },
     {
       "suite": "e2e-privacy",

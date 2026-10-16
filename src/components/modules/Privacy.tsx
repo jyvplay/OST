@@ -34,6 +34,9 @@ export default function PrivacyModule(_: ModuleProps) {
   const [cleanPath, setCleanPath] = useState(""); const [overwrite, setOverwrite] = useState(false);
   const [cleaned, setCleaned] = useState<CleanFileResult | null>(null);
   const [blocked, setBlocked] = useState<{ at: number; what: string }[]>([]);
+  const [bk, setBk] = useState<{ name: string; text: string } | null>(null); // backup file chosen for verify/restore
+  const [bkPass, setBkPass] = useState("");
+  const [bkReport, setBkReport] = useState<string | null>(null);
 
   useEffect(() => {
     const off = privacy.subscribe((s) => { setSt(s); setBlocked(privacy.blockedLog().slice(-40).reverse()); });
@@ -47,6 +50,40 @@ export default function PrivacyModule(_: ModuleProps) {
   };
 
   const doUnlock = () => run("unlock", async () => { const kind = await privacy.unlock(pass); setPass(""); shell.toast(`Unlocked with the ${kind} key`, "ok"); shell.bumpRefresh(); });
+  const readBackupFile = async (f: File | undefined) => { setBkReport(null); setBk(f ? { name: f.name, text: await f.text() } : null); };
+  const doBackup = () => run("backup", async () => {
+    const r = await privacy.backup();
+    const url = URL.createObjectURL(new Blob([r.text], { type: "application/json" }));
+    const a = document.createElement("a"); a.href = url; a.download = `fusion-private-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    setBkReport(`Backup made: ${r.files} files, ${r.dirs} folders, ${fmtBytes(r.text.length)} file. Nothing was decrypted to make it.${r.skipped.length ? ` Skipped ${r.skipped.length} host-cleartext entr${r.skipped.length === 1 ? "y" : "ies"} (seal them in Audit first): ${r.skipped.join(", ")}` : ""}`);
+  });
+  const doVerify = () => run("verify", async () => {
+    if (!bk) return;
+    const v = await privacy.verifyBackupText(bk.text, bkPass ? bkPass : undefined);
+    setBkReport(v.failures.length ? `Backup DAMAGED: ${v.failures.length} problem(s): ${v.failures.slice(0, 5).join("; ")}`
+      : `Backup OK (${v.created}): ${v.files} files and ${v.dirs} folders decrypt and authenticate, ${fmtBytes(v.plainBytes)} of content.`);
+  });
+  const doRestore = () => run("restore", async () => {
+    if (!bk) return;
+    const r = await privacy.restoreBackupText(bk.text, bkPass); setBkPass("");
+    setBkReport(`Restored: ${r.written} files written, ${r.kept} already present, ${r.dirs} folders${r.failures.length ? `, ${r.failures.length} failed` : ""}. Unlock with the passphrase that was valid when the backup was made.`);
+    shell.toast("Persistent Storage restored", "ok"); shell.bumpRefresh();
+  });
+  const ram = st.amnesic ? privacy.ramFiles() : [];
+  const doRescue = (paths: string[]) => run("rescue", async () => {
+    const r = await privacy.rescue(paths);
+    shell.toast(`${r.moved.length} file(s) kept in Persistent Storage${r.failed.length ? `, ${r.failed.length} failed` : ""}`, r.failed.length ? "warn" : "ok");
+    if (r.failed.length) setErr(`rescue: ${r.failed.map((f) => `${f.path}: ${f.error}`).join("; ")}`);
+    shell.bumpRefresh();
+  });
+  const backupPicker = (
+    <>
+      <input type="file" accept=".json,application/json" aria-label="Backup file" data-testid="backup-file" onChange={(e) => void readBackupFile(e.currentTarget.files?.[0])} />
+      <input className="fs-input" type="password" placeholder="Passphrase or recovery key for this backup" value={bkPass} onChange={(e) => setBkPass(e.target.value)} data-testid="backup-pass" />
+    </>
+  );
+  const bkOut = bkReport ? <div className="fs-panel fs-mono" role="status" data-testid="backup-report" style={{ fontSize: 12, whiteSpace: "pre-wrap", padding: 8 }}>{bkReport}</div> : null;
   const storageTone = st.storage === "unlocked" ? "ok" : st.storage === "locked" ? "warn" : "default";
 
   return (
@@ -71,6 +108,7 @@ export default function PrivacyModule(_: ModuleProps) {
 
       {tab === "storage" ? (
         <>
+          {bkOut}
           {recovery ? (
             <Section title="Recovery key — shown once">
               <div className="fs-mono" data-testid="recovery-key" style={{ fontSize: 15, userSelect: "all", wordBreak: "break-all" }}>{recovery}</div>
@@ -94,6 +132,14 @@ export default function PrivacyModule(_: ModuleProps) {
                   {busy === "create" ? "Deriving key…" : "Create"}
                 </Btn>
               </div>
+            </Section>
+          ) : null}
+
+          {st.storage === "absent" ? (
+            <Section title="Restore from an encrypted backup file">
+              <div className="fs-dim" style={{ fontSize: 12 }}>Everything is checked before anything is written; a damaged or tampered backup writes nothing.</div>
+              {backupPicker}
+              <div className="fs-row"><Btn variant="primary" disabled={!!busy || !bk || !bkPass} data-testid="backup-restore" onClick={() => void doRestore()}>{busy === "restore" ? "Restoring…" : "Verify & restore"}</Btn></div>
             </Section>
           ) : null}
 
@@ -130,6 +176,18 @@ export default function PrivacyModule(_: ModuleProps) {
                     onClick={() => run("rotate", async () => { setRecovery(await privacy.rotateRecovery(pass)); setPass(""); })}>New recovery key</Btn>
                 </div>
               </Section>
+              <Section title="Backup — one encrypted file, no second USB stick, no admin password">
+                <div className="fs-dim" style={{ fontSize: 12 }}>
+                  Downloads the stored ciphertext plus the keyslot header as one file; names, folder layout and sizes are sealed inside it.
+                  It opens with the passphrase or recovery key valid when it was made. Verify any backup here without restoring it.
+                  Not included: version history and trash.
+                </div>
+                <div className="fs-row" style={{ gap: 8 }}>
+                  <Btn variant="primary" disabled={!!busy} data-testid="backup-download" onClick={() => void doBackup()}>{busy === "backup" ? "Packing…" : "Download encrypted backup"}</Btn>
+                </div>
+                {backupPicker}
+                <div className="fs-row"><Btn disabled={!!busy || !bk} data-testid="backup-verify" title="Leave the passphrase empty to use the unlocked key" onClick={() => void doVerify()}>{busy === "verify" ? "Checking…" : "Verify backup file"}</Btn></div>
+                </Section>
             </>
           ) : null}
         </>
@@ -145,7 +203,7 @@ export default function PrivacyModule(_: ModuleProps) {
             </div>
             <div className="fs-row" style={{ gap: 8 }}>
               {st.amnesic
-                ? <Btn data-testid="restart-normal" onClick={() => { if (confirm("Restart normally? Everything in this amnesic session is wiped.")) privacy.restart(false); }}>Restart normally (wipe)</Btn>
+                ? <Btn data-testid="restart-normal" onClick={() => { if (confirm(ram.length ? `Restart normally? ${ram.length} file(s) exist only in RAM and will be lost — use "Keep" below first.` : "Restart normally? Everything in this amnesic session is wiped.")) privacy.restart(false); }}>Restart normally (wipe)</Btn>
                 : <Btn variant="primary" data-testid="restart-amnesic" onClick={() => privacy.restart(true)}>Restart amnesic</Btn>}
             </div>
             <Toggle on={st.bootAmnesic} label="Always start amnesic on this device" disabled={st.amnesic}
@@ -158,6 +216,21 @@ export default function PrivacyModule(_: ModuleProps) {
               <KV k="Folders" v={st.ram.dirs} />
               <KV k="Host files hidden (untouched on host)" v={st.ram.whiteouts} />
               <KV k="Shadowed local-storage keys" v={st.shadowKeys} />
+            </Section>
+          ) : null}
+          {st.amnesic ? (
+            <Section title={`Unsaved work — lost when this tab closes (${ram.length})`} right={ram.length ? (
+              <Btn variant="primary" data-testid="rescue-all" disabled={!!busy || st.storage !== "unlocked"} title={st.storage !== "unlocked" ? "Unlock Persistent Storage first" : "Move every RAM-only file to /Private/Rescued (encrypted)"}
+                onClick={() => void doRescue(ram.map((f) => f.path))}>Keep all in Persistent Storage</Btn>) : null}>
+              {ram.length ? (
+                <ul className="fs-mono" data-testid="ram-files" style={{ margin: 0, paddingLeft: 16, fontSize: 11.5 }}>
+                  {ram.slice(0, 50).map((f) => (
+                    <li key={f.path}>{f.path} · {fmtBytes(f.size)}{" "}
+                      <Btn data-testid="rescue-one" disabled={!!busy || st.storage !== "unlocked"} onClick={() => void doRescue([f.path])}>Keep</Btn></li>))}
+                </ul>
+              ) : <div className="fs-dim" style={{ fontSize: 12 }}>No RAM-only files. Closing the tab now loses nothing you saved.</div>}
+              <div className="fs-dim" style={{ fontSize: 12 }}>While this list is not empty, closing or reloading the tab asks for confirmation (Emergency shutdown never asks).
+                {st.storage !== "unlocked" ? " Unlock Persistent Storage to keep files." : " Kept files go to /Private/Rescued, encrypted."}</div>
             </Section>
           ) : null}
           <Section title={`Blocked host writes (${st.blocked})`}>

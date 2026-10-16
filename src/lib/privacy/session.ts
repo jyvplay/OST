@@ -11,6 +11,7 @@
  *     overlay and shadows, clear the page and leave via location.replace (not kept in history).
  */
 import { PrivacyLayer } from "./layer";
+import { createBackup, keysForBackup, parseBackup, restoreBackup, verifyBackup } from "./backup";
 import {
   ARGON2_DEFAULT, KEYSLOT_PATH, PRIVATE_ROOT, changePassphrase, createVolume, decryptContent, encryptContent,
   parseHeader, rotateRecoveryKey, unlockVolume, type KeyHeader, type KdfParams, type VolumeKeys,
@@ -53,9 +54,10 @@ class PrivacySession {
     const original = window.fetch.bind(window);
     this.rawFetch = original;
     this.layer = new PrivacyLayer((url, init) => original(url, init), { onBlocked: () => this.emit(), onPrivateTouch: () => this.touch() });
-    let amnesic = false;
-    try { amnesic = new URLSearchParams(window.location.search).get("amnesia") === "1" || window.localStorage.getItem(PREF_BOOT) === "1"; } catch { /* storage disabled */ }
-    this.bootAmnesic = amnesic;
+    let amnesic = false; let pref = false;
+    try { pref = window.localStorage.getItem(PREF_BOOT) === "1"; amnesic = pref || new URLSearchParams(window.location.search).get("amnesia") === "1"; } catch { /* storage disabled */ }
+    // the toggle shows the SAVED preference, not "this session happens to be amnesic" (TT20 fix: ?amnesia=1 showed it ON)
+    this.bootAmnesic = pref;
     if (amnesic) this.enterAmnesia();
     const self = this;
     const guarded: typeof fetch = function (input: RequestInfo | URL, init?: RequestInit) {
@@ -84,6 +86,13 @@ class PrivacySession {
   private enterAmnesia() {
     if (!this.layer) return;
     this.layer.amnesic = true;
+    this.layer.onRamChange = () => this.emit();
+    // Tails pain point: work saved outside Persistent Storage is silently lost at shutdown. Ask the browser to
+    // confirm leaving while RAM-only files exist (the browser shows its own generic prompt; text is not ours).
+    window.addEventListener("beforeunload", (e) => {
+      if (this.leaving || !this.layer || this.layer.ramFiles().length === 0) return;
+      e.preventDefault(); e.returnValue = "";
+    });
     // localStorage shadow: reads see real values overlaid by this session's writes; writes never land.
     const proto = Storage.prototype;
     const real = { get: proto.getItem, set: proto.setItem, remove: proto.removeItem, clear: proto.clear };
@@ -105,7 +114,7 @@ class PrivacySession {
   setBootAmnesic(on: boolean) {
     // the ONE deliberate trace of an amnesic user: a preference flag (stored only when outside amnesia)
     if (this.layer?.amnesic) { this.lastError = "change this preference from a normal session"; this.emit(); return; }
-    try { if (on) window.localStorage.setItem(PREF_BOOT, "1"); else window.localStorage.removeItem(PREF_BOOT); } catch { /* storage disabled */ }
+    try { if (on) window.localStorage.setItem(PREF_BOOT, "1"); else window.localStorage.removeItem(PREF_BOOT); this.bootAmnesic = on; } catch { /* storage disabled */ }
     this.emit();
   }
   restart(amnesic: boolean) {
@@ -114,6 +123,27 @@ class PrivacySession {
   }
 
   /* ----------------------------------------------------- persistent storage */
+  /** set when WE navigate away on purpose (emergency shutdown, restart) so the unsaved-work guard stays silent */
+  private leaving = false;
+  /* ---------------------------------------------------- TT20 backup / rescue */
+  async backup() { if (!this.layer?.keys) throw new Error("unlock Persistent Storage first"); return createBackup(this.raw(), this.layer.keys); }
+  /** Verify with the unlocked keys when they match, otherwise with a passphrase/recovery key for the backup. */
+  async verifyBackupText(text: string, secret?: string) {
+    const f = parseBackup(text);
+    const keys = this.layer?.keys && secret === undefined ? this.layer.keys : await keysForBackup(f, secret ?? "");
+    return verifyBackup(f, keys);
+  }
+  async restoreBackupText(text: string, secret: string) {
+    const f = parseBackup(text);
+    const keys = await keysForBackup(f, secret);
+    const r = await restoreBackup(this.raw(), f, keys);
+    await this.refreshHeader();
+    this.emit();
+    return r;
+  }
+  ramFiles() { return this.layer?.ramFiles() ?? []; }
+  async rescue(paths: string[]) { if (!this.layer) throw new Error("not installed"); const r = await this.layer.rescue(paths); this.emit(); return r; }
+
   private raw() { if (!this.rawFetch) throw new Error("privacy session not installed"); return this.rawFetch; }
   async refreshHeader() {
     try {
@@ -190,6 +220,7 @@ class PrivacySession {
     this.header = null;
   }
   async emergencyShutdown() {
+    this.leaving = true; // never block a panic exit with a "leave site?" prompt
     this.wipeMemory();
     try { document.title = ""; document.body.replaceChildren(); document.documentElement.style.background = "#000"; } catch { /* noop */ }
     try { window.sessionStorage.clear(); } catch { /* noop */ }

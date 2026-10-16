@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-16T06:16:56.027Z",
+ "generatedAt": "2026-10-16T06:43:14.974Z",
  "totals": {
   "built": {
-   "full": 194,
+   "full": 196,
    "partial": 65,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 78,
+   "full": 80,
    "partial": 72,
    "untested": 131
   },
   "tests": {
-   "total": 296,
-   "passed": 296
+   "total": 305,
+   "passed": 305
   }
  },
  "rows": {
@@ -1238,6 +1238,7 @@
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only)",
     "e2e: mount: privacy",
+    "privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses",
     "privacy-layer: amnesic: VFS writes live in RAM (no row), host files can be hidden but are untouched, moves copy into RAM; wipe forgets everything",
     "privacy-layer: amnesic deny-by-default: notes/settings/presets refused with nothing written; state kept in memory; compute endpoints still work; /Private still persists (Tails' Persistent folder)"
    ]
@@ -1311,6 +1312,25 @@
     "e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host",
     "privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock",
     "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
+   ]
+  },
+  "SC-17": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext",
+    "privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported",
+    "privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected",
+    "privacy-backup: restore onto a host with no volume recreates header + identical ciphertext rows; the layer reads the plaintext back",
+    "privacy-backup: restore into the SAME volume merges only what is missing; never overwrites newer files",
+    "privacy-backup: a DIFFERENT volume on the host is never touched; a backup with one corrupted entry writes nothing at all",
+    "privacy-backup: cost: backing up 24 × 256 KiB encrypted files and verifying them is bounded (no decryption on the backup path)"
+   ]
+  },
+  "SC-18": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks",
+    "privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses"
    ]
   },
   "CT-01": {

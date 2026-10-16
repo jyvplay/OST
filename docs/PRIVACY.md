@@ -56,6 +56,34 @@ private hits sort ahead of host `ts_rank` hits.
 **Repair found by its own test:** clearing `layer.keys` outside `session.lock()` used to leave the decrypted
 index alive until the next unlocked search. `handle()` now drops it whenever the live key object differs.
 
+## TT20 — backup (SC-17) and the unsaved-work guard (SC-18)
+
+Full Tails comparison: [TAILS-COMPARISON.md](TAILS-COMPARISON.md) (generated + validated by `scripts/tails-ledger.mjs`).
+
+**Backup file** (`fusion-private-backup-1`, one JSON file the browser downloads):
+`{ format, header: <keyslot header as stored>, manifest: base64(FEN1(JSON{volumeId, created(date), entries[{p: encrypted
+relative path, k: file|dir, c: stored FEN1 blob, m}], skipped})) }`. Built from what the host stores — **nothing is decrypted**
+to make it. The manifest is sealed with the volume content key, so the file shows no names, no tree shape, no per-file sizes;
+only the keyslot header (already public on the host) and the padded total.
+
+| Operation | Behaviour | Proved by |
+|---|---|---|
+| Verify | authenticates every name (SIV) and file (GCM) with the unlocked key, the passphrase or the recovery key; reports damage per entry | privacy-backup "verify …", "… corrupted entry …" |
+| Restore, empty host | verifies **everything first**; then header, folders by depth, byte-identical blobs | privacy-backup "restore onto a host with no volume", e2e-privacy "TT20 backup in the UI" |
+| Restore, same volume | adds only missing files; never overwrites newer ones; header untouched | privacy-backup "… SAME volume merges …" |
+| Restore, other volume | refused, nothing written | privacy-backup "… DIFFERENT volume …" |
+| Damaged/tampered backup | nothing written, not even the header | same |
+
+Limits: version history and trash are not included; ≤256 MiB (held in memory); `[clear]` host entries are skipped and named;
+a backup opens with the secrets valid **when it was made**; an older backup of the same volume is accepted (no rollback
+protection — a deliberate restore of an old file is indistinguishable from an attack without a trusted clock/counter).
+
+**Unsaved-work guard (amnesic sessions):** `PrivacyLayer.ramFiles()` lists files that exist only in RAM (the UI updates via
+`onRamChange`); "Keep" moves them to `/Private/Rescued/<original path>` with the browser-side cross-store move (encrypt → write
+→ drop the RAM copy). While the list is non-empty a `beforeunload` handler makes the browser ask before closing/reloading (the
+browser's own text; Chromium only asks after a user gesture on the page). Emergency shutdown sets a `leaving` flag and wipes
+RAM first, so it is never blocked (e2e-privacy proves no `beforeunload` dialog fires). A crash or killed browser gives no prompt.
+
 ## Performance ("no degradation" — measured, not asserted)
 Chromium on this 2-CPU sandbox, server + Postgres on the same host (`docs/privacy-bench.json`):
 - AES-GCM in the browser: **190–357 MB/s encrypt**, 345–494 MB/s decrypt across runs (4 MiB, median of 5).

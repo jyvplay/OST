@@ -13,11 +13,12 @@ import { tt16Features, UPDATES_TT16 } from "./seed-data/features-tt16";
 import { tt17Features, UPDATES_TT17 } from "./seed-data/features-tt17";
 import { tt18Features, UPDATES_TT18 } from "./seed-data/features-tt18";
 import { tt19Features, UPDATES_TT19 } from "./seed-data/features-tt19";
+import { tt20Features } from "./seed-data/features-tt20";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.7.0";
+export const SEED_VERSION = "3.8.0";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...platformFeatures]
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
   .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))
