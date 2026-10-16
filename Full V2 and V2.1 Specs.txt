@@ -1,0 +1,950 @@
+Full V2 and V2.1 Specs
+
+“claude-fable-5.1-search
+
+I'll run real searches on the AirPlay/casting open-source landscape before assembling the final document.# Runtime honesty (this turn)
+
+**Tools actually used:** one batch of **4 real web searches** (AirPlay sender/receiver libraries, pyatv, UxPlay/shairport licensing) executed through the sandbox `web_search` function; the second batch of 5 searches (Google Cast/Miracast/libraop licensing) **failed with "tool use limit exceeded"** and did not run. No code was compiled, no device was touched, no repo was cloned, no license file was read line-by-line. Claims are tagged: **[W]** confirmed from a search snippet this turn, **[W-prior]** confirmed in an earlier turn of this chat, **[K]** training knowledge (verify), **[U]** unverified/test first, **[J]** judgment. Nothing below is legal advice.
+
+**What this document is:** the single consolidated, bug-fixed, superseding specification (v2.0) merging Q1–Q4 (OS inventories → Optimal-OS UX spec → Fusion Shell v1.0 → Forge format layer v1.1 → device-broadening/desktop-gap/browser v1.2) plus the new casting/AirPlay, hardware-utilization, and paid-app layers. Where an earlier turn conflicts with this one, **this document wins**.
+
+---
+
+# FUSION SHELL — Android Desktop Environment
+## Master Build Specification v2.0 (authoritative, for an implementing AI)
+
+---
+
+## 0. Reading contract for the implementing AI
+
+1. **Source of truth = the feature tables in §8.** Regenerate `requirements.csv` from them (Appendix C.3). Every row has ID, Tier, Phase, route, and tests.
+2. **Never fake a capability.** If a probe says a feature is unavailable, show the degraded state (DP-10). No stub that pretends.
+3. **License gate is hard.** Main APK: Apache-2.0 / MIT / BSD / MPL-2.0 (isolated module) only. GPL/AGPL/LGPL-static code never enters the main APK (§16). Unknown license = blocked until verified.
+4. **Tag every uncertain API in code comments** with `// [U] verify on API 34/36/37` so the human can grep them.
+5. **Spikes before features.** Phase 0 spikes (§13.1) gate the milestones. Do not write feature code for a gated area before its spike has a recorded result.
+6. **Evidence tiers for budgets:** all latency/memory numbers are E0 (proposed) until measured on ≥2 reference devices.
+
+---
+
+## 1. Product definition
+
+**Fusion Shell** is a **paid Android app suite** that turns any Snapdragon-8-class (or equivalent) Android phone/tablet into a complete desktop environment — Windows/macOS-class in function — on the device screen and on an external monitor, with mouse/keyboard, using all available hardware (CPU cores, GPU, hardware codecs, NPU, DisplayPort Alt Mode, USB OTG, Bluetooth, Wi-Fi), **without root** and **without replacing the OS**.
+
+**It is:** a Home-role launcher (opt-in), an in-app window compositor, a first-party app suite (files, browser, editor, office/Forge, media, terminal, notes, capture, vault, backup), a service layer (index/search, file-ops, alerts, casting, continuity), and a hardware/performance governor.
+
+**It is not:** a kernel, ROM, driver, OS updater, keyguard, TalkBack replacement, or a way to run macOS apps. Windows-app compatibility is an optional later module.
+
+### 1.1 Personas (priority)
+| ID | Persona | Needs |
+|---|---|---|
+| PA | Dock-and-dev power user | terminal, files, palette, tiling, automation, backup, monitor+keyboard |
+| PB | Pocket-PC knowledge worker | browser (desktop-class), Office docs, notes, alerts triage, sharing |
+| PC | Creator / media / presenter | capture, media, **AirPlay/Cast to TV**, PSD/HEIC handling, sustained perf |
+| PD | Assistive-technology user | keyboard-only, screen reader, voice, large text — **release gate** |
+
+### 1.2 Go / no-go ledger (final)
+| Ask | Verdict |
+|---|---|
+| Full desktop experience like Windows/macOS in Android | **Yes** for first-party surfaces (H1 compositor); third-party apps window only where platform allows (broker) |
+| Use all hardware: cores, GPU, HW codecs, NPU, DP-out | **Yes** (§6.13 Hardware Utilization layer) |
+| Open/edit/save Word/Excel/PPT/PSD/AI/HEIC | **Yes, fidelity-graded** (Forge §6.12) |
+| Desktop-class browser (split tabs H/V, vertical tabs, groups, shortcuts) | **Yes** (PR-07a–p) |
+| AirPlay **audio** send to Apple TV/HomePod/AirPlay speakers | **Yes** — RAOP/AirPlay-2 audio sender; open permissive refs exist (pyatv MIT [W]) |
+| AirPlay **video-by-URL** send (play a file/stream on Apple TV) | **Yes** — HTTP `/play` path; pyatv supports `play_url` [W] |
+| AirPlay **screen mirroring** send (phone screen → Apple TV) | **Conditional (H∂)** — requires FairPlay client auth; open-source sender claims exist [W] but legality/licensing is unresolved → Pro flavor, legal-review gate (CA-04) |
+| AirPlay **receiver** (iPhone/Mac → our device as display/speaker) | **Yes, separate GPL APK or own clean-room** — existing Android receivers are GPLv3 (UxPlay-based) [W]; Shairport-Sync (audio) is MIT [K] |
+| Google Cast send (audio/video/mirror) | **Yes** — Cast SDK (free, Google terms, not OSS) or own castv2 protocol client (protocol is open, libs MIT [K]) |
+| "Android SharePlay" (synchronized co-watching) | **Yes, own protocol** ("Together", WebRTC BSD) — Android has no native SharePlay; Handoff API 37 for continue-on |
+| Miracast send | **Settings panel only** — no public sender API [K] (Tier C) |
+| DLNA/UPnP send | **Yes**, own minimal SSDP+AVTransport (permissive) |
+| Run Windows apps | Optional later module (Wine/Box64, separate APK) |
+| Run macOS apps / FaceTime | **No** |
+| Toggle Wi-Fi/BT/airplane | No (system panels) |
+| Full system image backup / disk encryption / OS updates | No (platform) |
+
+---
+
+## 2. Platform & device baseline
+
+### 2.1 Supported hardware floor (DEV-01, replaces any single-device framing)
+```
+SoC        : Qualcomm Snapdragon 8 Gen 1 or newer (8/8+ Gen 1, 8 Gen 2, 8 Gen 3,
+             8s Gen 3, 8 Elite and later) — or equivalent-class SoC
+             (Tensor G3+, Dimensity 9200+, Exynos 2400+) via capability probe
+RAM        : ≥ 8 GB   GPU: Adreno 730+ (or equivalent)   ABI: arm64-v8a only
+Android    : ≥ 14 (API 34)   compileSdk 37   targetSdk 36 → 37 at M7
+Display out: USB-C DisplayPort Alt Mode — supported capability, NOT a requirement
+             (silicon-level since SD835 [W-prior]; OEMs may disable → probe)
+Page size  : 4 KB and 16 KB both supported (native libs 16 KB-aligned)
+```
+Reference devices: A = SD 8 Gen 3 phone (e.g., ROG Phone 8 Pro, Android 16), B = Samsung Galaxy S24/S25 (One UI, DeX), C = Pixel 9/10 (Android 17, stock desktop windowing). Record `ro.build.fingerprint`, `ro.hardware.chipname`, RAM, DP-out, display modes before every measurement.
+
+### 2.2 Platform facts carried forward [W-prior]
+- Android 17 (API 37): removes app opt-out of resizability on ≥600 dp (incl. desktop mode); per-display desktop windowing; Handoff APIs; memory limiter (`am memory-limiter`); native libs passed to `System.load` must be read-only; `ACCESS_LOCAL_NETWORK` required for LAN at target 37; NPU needs `FEATURE_NEURAL_PROCESSING_UNIT`; contact picker; EyeDropper; AppFunctions alpha.
+- Android desktop mode (stock) is glitchy [W-prior]: mouse-back unmapped, oversized panels, no desktop pinning/widgets, phone screen stays on (burn-in), focus-stealing collapses session, settings shared between phone/desktop, no MDI, no drag across desktops. **Hence H1 (our compositor) is the mandatory primary host.**
+- Compose-first (Views in maintenance); Compose 1.11 adds trackpad/mouse support and focus rings.
+- Play: new apps/updates must target API ≥36; developer verification rolling out; ADB sideload exempt.
+
+### 2.3 SDK decision (BUG-03 fixed rationale)
+minSdk **34** because: Credential Provider API, predictive back, per-app language, foreground-service type declarations, photo-picker improvements. Lower minSdk is a recorded trade (reach vs. API loss).
+
+---
+
+## 3. Capability tiers (what an app can and cannot do)
+
+**A** ordinary app · **B** special access (all-files, notification listener, overlay, usage access, VPN, IME, Shizuku) / Play review · **C** needs privilege → probe/deep-link/approximation only · **X** not applicable.
+
+| # | Family | Route | Tier |
+|---|---|---|---|
+| 1 | Launcher/home/widgets | HOME role, LauncherApps, AppWidgetHost | A |
+| 2 | Multi-window for first-party modules | own compositor (H1) | A |
+| 3 | Freeform for other apps | platform freeform/desktop windowing where enabled; ActivityOptions bounds | B |
+| 4 | True Task View of other apps | no API; track shell-launched tasks | C |
+| 5 | External-monitor desktop | own secondary-display Home (H1) / system session (H2) | B |
+| 6 | Global hotkeys when unfocused | accessibility filter = Play-restricted → pro only | C |
+| 7 | Universal search (apps/contacts/calendar/media/files) | own index + permissions | A/B |
+| 8 | Search inside other apps' private data | AppSearch/AppFunctions opt-in only | C |
+| 9 | File manager full | all-files access / SAF | B |
+| 10 | Notification center | NotificationListenerService | B |
+| 11 | Radio toggles | system panels only | C |
+| 12 | Global clipboard history | own IME (optional) + in-app | B |
+| 13 | Screenshot/record | MediaProjection | A |
+| 14 | Task manager of all apps | usage stats approximation; Shizuku for more | C |
+| 15 | Per-app firewall | VpnService | B |
+| 16 | Password/passkey manager | Credential Provider + Autofill | A |
+| 17 | Versioned file backup | own engine | B |
+| 18 | System image backup, disk encryption, OS updates | — | X |
+| 19 | Terminal/PTY/Linux userland | JNI PTY; proot payload (read-only libs) | A/B |
+| 20 | Linux VM | AVF only where non-protected VM supported | C |
+| 21 | Windows apps | Wine/Box64 separate APK | B |
+| 22 | macOS apps | — | X |
+| 23 | **AirPlay audio/URL-video send** | own RAOP/AirPlay client (LAN) | A |
+| 24 | **AirPlay mirroring send** | FairPlay client auth; legal gate | B |
+| 25 | **AirPlay receive** | GPL APK or clean-room | B |
+| 26 | **Google Cast send** | Cast SDK or own castv2 | A |
+| 27 | **Miracast send** | settings panel only | C |
+| 28 | **DLNA send / receive** | own UPnP | A |
+| 29 | AI assistant | on-device LiteRT; cannot replace system assistant | A |
+| 30 | Print/scan | PrintManager; camera | A |
+
+---
+
+## 4. Design principles (DP) and UX rules (UX) — consolidated
+
+**DP-01** local-first, account-free · **DP-02** no ads/feeds/upsells anywhere · **DP-03** explicit data semantics (local/synced/online-only/backup/snapshot/archive labeled) · **DP-04** no silent state mutation · **DP-05** reversible by default (undo/trash/rollback) · **DP-06** keyboard-complete · **DP-07** accessibility is a release gate · **DP-08** measured performance, not claimed · **DP-09** isolation of untrusted parsing/terminal/web in separate processes · **DP-10** capability honesty (probe, degrade visibly) · **DP-11** least privilege, prompt-light · **DP-12** respect system defaults/pickers · **DP-13** progressive disclosure via density profiles, never hidden capability · **DP-14** every background job observable.
+
+**UX-01…UX-20** as in v1.0 (no silent mutation; destructive-action preview; Copy≠Move; sync≠backup; visible dismiss; app/window switcher modes named; context menus concise/full/custom + type-to-search; search provenance & local-first; one settings entry per behavior; keyboard alternative for every pointer op; no promotions; just-in-time permissions; progress at 250 ms, cancel ack ≤100 ms; hover/focus always visible; reduce-motion respected; plain-language errors; account-free first run; undoable settings; session restore after crash; shortcut conflict detector).
+**UX-21** system panels on external displays ≤400 dp wide and ≤70 % height. **UX-22** every document module supports tabbed AND windowed MDI. **UX-23 (new)** any cast/AirPlay session shows a persistent, one-click-stop indicator with target name, codec, latency, and what is being shared (screen / app audio / file).
+
+**Density profiles:** Compact (24 dp targets, 28 dp title bar; mouse+monitor), Balanced (32/36), Touch (48/48). Profiles change size, never capability.
+
+**Naming (trademark-safe):** Launcher, Shelf, Top bar, Files, Find, Overview, Workspaces, Tiles/Groups, Quick panel, Alerts, Peek, Timeline backup, Send, Vault, **Beam** (casting hub), **Together** (synchronized sessions), **Forge** (format engine).
+
+**Shortcut presets:** Hybrid (default), Windows-like, Mac-like — table unchanged from v1.0 §7.4; conflict detector mandatory; validated in S1.
+
+**Accessibility (WCAG 2.2 AA mapping):** keyboard (2.1.1), focus visible (2.4.7), focus not obscured by floating windows (2.4.11 — compositor raises/scrolls), drag alternatives (2.5.7), target size (2.5.8), accessible auth (3.3.8), reflow at 200 % (1.4.10), name/role/value (4.1.2). TalkBack, Switch Access, Voice Access pass lists are gates.
+
+---
+
+## 5. Architecture
+
+### 5.1 Layers
+```
+Modules (Compose)   Files · Find · Browser · Editor · Office(Forge) · Notes · Terminal ·
+                    Capture · Media · Photos · Vault · Backup · Beam · Together · Settings …
+Hosts               H1 InternalCompositor (mandatory) | H2 SystemWindows (probe-offer) |
+                    H3 ExternalAppBroker (S1 freeform / S2 split / S3 fullscreen+overlay / S4 PiP)
+Shell               Launcher · Shelf · Top bar · Palette · Overview · Alerts · Quick panel · Desktop
+Services            Index/Search · FileOps · Backup · Alert store · Routines · Vault ·
+                    Forge · Beam(cast) · Together · Continuity · Clipboard(IME)
+Platform adapters   CapabilityProbe · Roles/Permissions · Display/Input · Thermal/Perf(ADPF) ·
+                    HW codecs · NPU · Network(LAN permission)
+Android 14–17
+```
+
+### 5.2 Processes (E0 budgets; S8 measures against the API 37 memory limiter)
+| Process | Hosts | Budget |
+|---|---|---|
+| main | Home/Desktop activities, compositor, light modules | ≤200 MB idle PSS |
+| :svc | index, backup, alert store, routines, Beam discovery | ≤150 MB working |
+| :term | terminal/PTY/Linux | ≤120 MB + payload |
+| :web | browser tabs (WebView) | ≤250 MB per tab group; sleeping tabs |
+| :preview | isolatedProcess parsers/renderers (Peek) | ≤100 MB, 5 s watchdog |
+| :format | Forge engines (LibreOfficeKit/POI/PSD) isolated | ≤400 MB working, 10 s watchdog |
+| :vault | credential provider/autofill | ≤60 MB |
+| :cast | Beam streaming (encoder, RTSP/RTP, mDNS), foreground service | ≤150 MB |
+| :ime | Fusion keyboard/clipboard (optional) | ≤40 MB |
+
+### 5.3 Gradle modules
+`:app` (flavors `play`, `pro`) · `:core:{model,designsystem,windowing,commands,settings,capabilities,storage,index,fileops,security,perf,hw}` · `:feature:{launcher,find,files,alerts,quickpanel,terminal,editor,office,notes,browser,capture,media,photos,vault,backup,beam,together,settings,ime}` · `:format:{lok,poi,pdf,image,psd,archive,native}` · `:cast:{airplay,castv2,dlna,receiver-gpl(separate APK)}` · `:benchmark`, `:baselineprofile`, `:testing`.
+
+### 5.4 Window engine (pure Kotlin)
+Immutable `DesktopState`; reducer `(State, Command) → State` pure/deterministic; side effects emitted separately. **Invariants:** ≥48 dp of title bar always on-screen; min window size 240×180 dp (Compact) / 320×240 dp (Touch) [BUG-06]; z-order total; commands idempotent; state versioned/serializable. Rendering: one Composable per window; position/size via layout/graphicsLayer lambdas (no content recomposition on drag). Persistence debounced ≤1/500 ms to Room; restore after death/reboot. Semantics: each window a pane with title + custom actions (move/resize/tile/close). Tests: JVM property tests, screenshot tests, Macrobenchmark drag/resize. Data model in Appendix C.2.
+
+### 5.5 Capability Probe (run at start, display change, permission change, on demand)
+Outputs: sdk, fingerprint, freeform feature, desktopSessionActive (nullable), displays (+DP-out, modes/Hz), homeRoleHeld, overlay, notification listener, all-files, usage access, Shizuku, RAM class, thermal status, page size, NPU declared, non-protected VM, **HW codec list (AVC/HEVC/AV1/VP9 enc+dec, max res/fps)**, **AAudio low-latency flag**, **Vulkan version**, **local-network permission**, **cast targets discoverable (mDNS/SSDP allowed)**.
+Behaviors: desktop session → offer H2; freeform missing → broker S2/S3 labeled; all-files missing → SAF-only banner; listener missing → setup card; overlay missing → no return overlay; thermal severe → pause index/backup/cast-encode-quality-drop; low RAM → RG-07; no HW HEVC encoder → cast uses AVC; no DP-out → "desktop on phone screen" mode.
+
+### 5.6 Index & search
+Room FTS4 (platform) or FTS5 (bundled driver, if S4 passes); trigram fuzzy; sources: apps, settings registry, contacts/calendar (gated), MediaStore (generation numbers), files (scan+observers), notes, commands, **cast targets**; build only charging/idle, thermal-throttled; churn quarantine; health UI (coverage, last run, exclusions, errors, rebuild); index encrypted (Keystore-wrapped key); private folders excluded by default.
+
+### 5.7 File-operation engine (state machine)
+`REQUESTED → COPYING_TO_TEMP → DEST_VERIFIED → DEST_PUBLISHED → SOURCE_RETIRE → COMPLETE`. Cross-volume move = copy to temp → verify (size + optional hash) → fsync → atomic rename → retire source. Interrupt before publish: source authoritative; after publish: keep both, report "needs cleanup". Non-atomic SAF providers flagged before first move. Every transition journaled in Room; recovery at process start. Foreground service / user-initiated data-transfer job.
+
+### 5.8 Backup engine (S7 decides)
+A: packaged restic (BSD-2) executable from :svc (read-only libs, 16 KB) · B: Kotlin engine (content-defined chunking, Tink AEAD, documented repo format) · fallback B-lite (hash manifest + versioned copies). "Healthy" only after a verified sampled restore.
+
+### 5.9 Notification pipeline
+Listener → filter → store (Room, opt-in, 7-day TTL) → group/rank → UI. Never persist secret-visibility; clear on disconnect; rate-limit floods; PendingIntents stay inside the notification.
+
+### 5.10 Extension model (P4)
+Context-menu/preview/search extensions in isolated processes with time budgets.
+
+### 5.11 Build policy
+One version catalog; R8 full; Baseline Profiles + Macrobenchmark from M1; LeakCanary debug; Hilt, coroutines/Flow; no RxJava; no new Views; permissive licenses in main APK; SBOM in CI with license-diff gate; every export justified.
+
+### 5.12 Forge — format subsystem (v1.1, with BUG-04 applied)
+```
+FormatRouter(mime, op) →
+  office  : :format-lok (LibreOfficeKit, MPL-2.0, isolated)  — Grade A view/edit/save
+            :format-poi (Apache POI, Apache-2.0, shaded)     — Grade D headless/batch
+  pdf     : :format-pdf (androidx.pdf / PdfRenderer)         — Grade B; .ai routed here
+  image   : :format-image (platform ImageDecoder + HeifWriter) — HEIC/AVIF/JPG/PNG/WebP/GIF/TIFF
+            decode-only fallback (libheif+libde265, NO x265) if OEM gap
+  psd     : :format-psd (webtoon/psd MIT or chinedufn/psd MIT+Apache) — Grade C parse/composite/export
+  archive : Commons Compress / zip4j (RAR read-only)
+  native  : our code — txt/md/csv/rtf/svg/epub-lite
+```
+Fidelity grades are shown to the user on Save-As (FF-11). HEIC **encode only via platform HeifWriter (HW HEVC)**; never bundle x265 (GPL) [W-prior]. All parsing in isolated process with zip-bomb/size/time guards. PR-11 is Tier A/B, Phase P2 (BUG-04).
+
+### 5.13 Hardware Utilization layer (new, `:core:hw`) — "use all physical hardware"
+| ID | Mechanism | Implementation | Verification |
+|---|---|---|---|
+| HW-01 | **GPU-accelerated compositor** | Compose/Skia GPU pipeline; window content in `graphicsLayer` (texture-backed); blur/shadows via RenderEffect only when thermal ≤ moderate; optional Vulkan/GLES SurfaceView for wallpaper/desktop effects | S3 frame p95 ≤ 8.3 ms @120 Hz |
+| HW-02 | **ADPF performance hints** | `PerformanceHintManager` sessions for compositor + render threads; `ThermalHeadroom` polling | RG-02 |
+| HW-03 | **All cores** | Structured concurrency with sized dispatchers: UI (main), compute (`Default`, N = cores), IO (`IO`), native thread pools in C++ for index hashing/CDC chunking/thumbnailing; big-core affinity is not settable by apps → rely on scheduler [K] | CPU utilization trace in Perfetto |
+| HW-04 | **Hardware codecs** | `MediaCodec` HW AVC/HEVC/AV1 for capture, cast encode, media playback (Media3 ExoPlayer with HW decoders), HEIC via HeifWriter; codec capability probe selects best | S12, S17 |
+| HW-05 | **NPU/GPU inference** | LiteRT with NNAPI/GPU/Qualcomm delegates; `FEATURE_NEURAL_PROCESSING_UNIT` declared at target 37; OCR, semantic search embeddings, assistant — all opt-in | SR-03 |
+| HW-06 | **Low-latency audio** | Oboe/AAudio (Apache-2.0) for terminal bell, media, cast audio capture (`AudioPlaybackCapture` via MediaProjection) | latency test |
+| HW-07 | **Display output** | DisplayManager: DP Alt Mode external display, preferred mode/refresh selection, HDR flag passthrough for media; per-display density | S1 |
+| HW-08 | **USB/Bluetooth peripherals** | USB host (OTG) HID, mass storage via SAF, USB serial; Bluetooth HID; per-device profiles | CT-06 |
+| HW-09 | **Hardware crypto** | Keystore StrongBox/TEE-backed keys for vault/index/backup | SC-01 |
+| HW-10 | **Networking** | Wi-Fi 6/7 aware (link speed probe) for cast bitrate; multicast lock for mDNS/SSDP; `ACCESS_LOCAL_NETWORK` | CA-01 |
+| HW-11 | **Native SIMD** | C++/NEON libs for hashing, chunking, image ops (16 KB aligned, read-only) | S5 |
+| HW-12 | **Refresh-rate policy** | request max supported rate while interacting; drop at idle | RG-03 |
+
+### 5.14 Beam — casting & AirPlay subsystem (new, verified landscape)
+
+**Protocol facts (what exists in the open):**
+- **AirPlay sender, audio (RAOP / AirPlay 2 audio):** pyatv (MIT) implements audio streaming to Apple TV, HomePod, and AirPlay receivers, plus remote control and `play_url` [W]. rust-atv (pure Rust port of pyatv) exists [W]. ⇒ A permissive clean-room Kotlin/C++ port is feasible (CA-01).
+- **AirPlay sender, video-by-URL:** receivers play a URL supplied via the AirPlay HTTP `/play` interface; pyatv's `play_url` works on tvOS 15+ (MRP now tunneled over AirPlay 2) [W]. ⇒ Our media files/streams can be served from an in-app HTTP server to Apple TV (CA-02).
+- **AirPlay sender, screen mirroring:** needs sender-side FairPlay; an open project (open-airplay, Windows) claims this was "the piece open source had never cracked" and that only paid tools did it [W]. License/legal status of that code is **unverified [U]**; FairPlay is Apple's DRM → **do not vendor**; clean-room implementation must be legally reviewed (CA-04, Pro flavor, gated).
+- **AirPlay receiver on Android:** `android-airplay-server` = UxPlay-based (UxPlay is **GPLv3**) with MediaCodec/ALAC decoding, first open AirPlay 2 receiver for Android/Android TV [W]; PhairPlay = AirPlay 2 + Miracast + Google Cast receiver with FairPlay decryption via libplayfair [W] (license [U]); `shairport-android` = Shairport Sync (MIT [K]) + NQPTP (GPL [K]) cross-compiled, AirPlay 1 & 2 audio receiver [W]; `airplay-tv` = Kotlin AirPlay mirroring receiver for Android TV with RTSP/pairing/FairPlay core [W] (license [U]). ⇒ Receiver ships as a **separate GPL-licensed APK** (`Fusion Beam Receiver`) or as our own clean-room core (CA-06/CA-07).
+- **Google Cast sender:** Cast Application Framework SDK — free, Google terms, not OSS; Default Media Receiver needs no console registration; custom receiver requires a Cast Developer Console app ID (small one-time fee) [K]. Open protocol (castv2: protobuf over TLS :8009) has MIT implementations in other languages [K] → own Kotlin client possible (CA-08). Screen mirroring to Chromecast via Cast SDK is not available to third-party apps; alternative = our own web receiver + WebRTC (CA-09).
+- **Miracast sender:** no public API; open `Settings.ACTION_CAST_SETTINGS` (Tier C).
+- **DLNA/UPnP:** permissive own implementation (SSDP discovery, AVTransport SOAP, in-app HTTP server) — Cling/jUPnP are LGPL/CDDL → not in main APK (CA-10).
+- **"Android SharePlay":** does not exist natively; Google offers Meet live sharing (proprietary). Build **Together** on libwebrtc (BSD) + our signaling over LAN/relay (CA-11); use Android 17 Handoff for continue-on (CT-03).
+
+**Beam architecture**
+```
+BeamHub (UI: target list, what-to-share, indicator)
+ ├─ Discovery: mDNS (_airplay._tcp, _raop._tcp, _googlecast._tcp), SSDP (UPnP), BLE (future)
+ │   — NsdManager + own mDNS fallback (jmDNS is Apache-2.0 [K]); multicast lock; LAN permission
+ ├─ Sources: media file/URL · app audio (AudioPlaybackCapture) · screen (MediaProjection + HW encoder)
+ │           · mic · Fusion module window (render-to-surface)
+ ├─ Transports (:cast process, foreground service type mediaProjection/mediaPlayback)
+ │   ├─ airplay-audio  : RTSP ANNOUNCE/SETUP/RECORD, RAOP RTP, ALAC/AAC-ELD, NTP-style timing,
+ │   │                   HAP pairing for AirPlay 2 (HomePod) — clean-room Kotlin/C++
+ │   ├─ airplay-url    : HTTP /play, /scrub, /rate; in-app HTTP server (NanoHTTPD-class, BSD) serving
+ │   │                   media with Range; transcode to H.264/AAC if container unsupported
+ │   ├─ airplay-mirror : [Pro, legal-gated] RTSP + FairPlay fp-setup + H.264 stream + AAC audio
+ │   ├─ castv2         : TLS 8009, protobuf channels (connection/heartbeat/receiver/media) → Default
+ │   │                   Media Receiver for files/URLs; custom receiver for Together
+ │   ├─ dlna           : AVTransport SetAVTransportURI/Play; MediaRenderer optional
+ │   └─ webrtc         : screen/audio to our web receiver (Cast custom receiver) and Together peers
+ ├─ Encoder: MediaCodec HEVC/AVC surface input from MediaProjection VirtualDisplay; bitrate ladder
+ │           driven by link speed + thermal; 30/60 fps; B-frames off; low-latency flag
+ └─ Receiver (separate GPL APK or own core): AirPlay 1/2 audio+mirror, Cast(web receiver), DLNA renderer
+```
+
+---
+
+## 6. Permissions, roles, Play policy (both flavors)
+
+| Permission / role | Used by | Flavor | If missing |
+|---|---|---|---|
+| HOME role | SH-01, WM-07 | both | run as normal app |
+| `<queries>` MAIN/LAUNCHER (never QUERY_ALL_PACKAGES) | SH-01, SR-02 | both | — |
+| MANAGE_EXTERNAL_STORAGE | FM, SR, BK | pro; play after approval | SAF + MediaStore |
+| Photo picker / READ_MEDIA_* | MD, SR | both | picker |
+| Notification listener | NC, SH-02, NC-03 media | both | setup card |
+| POST_NOTIFICATIONS | NC-05 | both | silent |
+| SYSTEM_ALERT_WINDOW | WM-06 overlay, WM-14 | both | no overlay |
+| PACKAGE_USAGE_STATS | SH-02, FM-07, RG-04 | both | no inference |
+| WRITE_SETTINGS | NC-03 brightness | both | link |
+| ACCESS_NOTIFICATION_POLICY | NC-02 | both | off |
+| VpnService | SC-04 | pro first | off |
+| Accessibility service (global keys only) | — | pro only | none |
+| Foreground service types (dataSync, mediaProjection, mediaPlayback, connectedDevice) | FM-03, BK, MD-01, Beam | both | — |
+| ACCESS_LOCAL_NETWORK (target 37) + CHANGE_WIFI_MULTICAST_STATE | FM-08, CT, BK, **Beam** | both | pickers / no discovery |
+| NEARBY_WIFI_DEVICES | Beam discovery (API 33+) | both | manual IP entry |
+| REQUEST_INSTALL_PACKAGES | AP-03 | pro | none |
+| Contacts/Calendar | SR, PR-04/05 | both | picker |
+| Camera/Mic | MD, Beam mic | both | none |
+| Credential provider | SC-01 | both | autofill only |
+| RECORD_AUDIO + MediaProjection (AudioPlaybackCapture) | Beam app-audio | both | mic-only or none |
+| InputMethodService | PR-12 IME | both (optional) | in-module clipboard only |
+| BLUETOOTH_CONNECT/SCAN | CT-06 | both | none |
+| Billing | BL-01 | play | license key (pro) |
+
+Policy notes: Data safety form lists index, notifications, backups, cast endpoints; prominent disclosure for listener/all-files; first Play submission SAF-only; targetSdk 36 now, 37 at M7; register developer verification early; **play flavor never uses an accessibility service; AirPlay mirroring sender (CA-04) is pro-only until legal review passes.**
+
+---
+
+## 7. Feature register (source of truth)
+
+Columns: Tier (A, A/B, B, C, X) · Phase (P1 MVP, P2 v1.0, P3, P4, S = spike first). All v1.0–v1.2 rows retained with fixes; new rows marked ★.
+
+### 7.1 SH — Shell surfaces
+| ID | Feature | Route | Tier | Ph |
+|---|---|---|---|---|
+| SH-01 | Launcher: pinned, all-apps grid/list, folders, recents, search-first | HOME role, LauncherApps, queries | A | P1 |
+| SH-02 | Shelf: pinned+running, badges, previews of own windows, any edge | own bar; usage inference; badges from NC-01 | A/B | P1 |
+| SH-03 | Top bar: module menus (searchable), status, quick-panel entry, clock, **Beam indicator** | in-shell; immersive on phone | A | P1 |
+| SH-04 | Desktop surface: wallpaper, icons/shortcuts/folders/widgets, right-click menu, per-workspace layouts | Compose layer (promoted P1, GAP-02) | A | P1 |
+| SH-05 | Widgets host (per-widget suspend; crash-isolated) | AppWidgetHost | A | P2 |
+| SH-06 | Hot corners, edge triggers, mouse gestures | pointer input | A | P2 |
+| SH-07 | First-run: local profile, permission explainers, config import, **license activation** | wizard | A | P1 |
+| SH-08 | Session restore after death/reboot | Room + saved state | A | P1 |
+| SH-09 | Mouse nav: back/forward/side/middle buttons, configurable (GAP-01) | Compose pointer buttons | A | P1 |
+| SH-10 | External Focus: dim/repurpose phone screen during monitor session (burn-in) | screenBrightness, touchpad surface | A | P2 |
+| SH-11 ★ | Phone-as-touchpad/keyboard when External Focus active | own surface → pointer injection into compositor only | A | P2 |
+
+### 7.2 WM — Window management
+| ID | Feature | Route | Tier | Ph |
+|---|---|---|---|---|
+| WM-01 | Compositor: move/resize/min/max/close/z/focus/title bars/menus | WindowEngine | A | P1 |
+| WM-02 | Tiles: halves/thirds/quarters/custom grids, drag-to-edge, keyboard, named groups | engine | A | P1 |
+| WM-03 | Workspaces: named, reorderable, per-window | engine | A | P2 |
+| WM-04 | Overview: grid of windows/workspaces, search, live thumbnails (own windows) | Compose snapshots | A | P2 |
+| WM-05 | Switcher: app / window / workspace modes | hotkeys | A | P1 |
+| WM-06 | External-app broker S1–S4 (probe-chosen), launch display pinning (GAP-06) | ActivityOptions, overlay | B | P2 (S) |
+| WM-07 | Multi-display: per-display layouts, hotplug restore, open-where-acted | DisplayManager, SECONDARY_HOME | A/B | P2 |
+| WM-08 | Window rules per module/doc type; remembered geometry | engine | A | P2 |
+| WM-09 | Keyboard-only move/resize/tile | engine + semantics | A | P1 |
+| WM-10 | Focus mode (distraction-free) | engine | A | P2 |
+| WM-11 | Always-on-top mini windows | z-layer | A | P3 |
+| WM-12 | Per-app density override + "may not resize well" label (GAP-04) | broker [U] | B | P2 |
+| WM-13 | Drag window across workspaces (edge-hold, title submenu, Meta+Shift+←/→) | engine | A | P2 |
+| WM-14 | Key-to-touch mapper overlay for third-party apps/games | overlay | B | P4 |
+| WM-15 ★ | Window-to-cast: send any Fusion window as a video source to Beam | render-to-Surface | A | P3 |
+
+### 7.3 SR — Search / palette
+| ID | Feature | Tier | Ph |
+|---|---|---|---|
+| SR-01 | Command palette: apps/commands/windows/settings/files/contacts/events/notes/cast targets; scope toggles; provenance | A | P1 |
+| SR-02 | Local index + health UI + exclusions + rebuild + churn quarantine | A/B | P1 |
+| SR-03 | Exact+fuzzy (P1); semantic on-device embeddings (P3, NPU) | A | P1/P3 |
+| SR-04 | Web results opt-in, off by default, never outrank local | A | P1 |
+| SR-05 | In-folder scoped search | A | P1 |
+| SR-06 | Palette actions: calculate, convert, quick note, toggle focus, open setting, run routine, **cast to…** | A | P2 |
+| SR-07 | Other apps' content via AppSearch/AppFunctions (opt-in apps) | B | P4 |
+| SR-08 | Search diagnostics (coverage, why missing) | A | P2 |
+
+### 7.4 FM — Files
+| ID | Feature | Tier | Ph |
+|---|---|---|---|
+| FM-01 | Browser: tabs; list/grid/**column**/gallery; breadcrumbs + editable path; tree; favorites; tags; per-folder view (never auto-switch); F2 inline rename | B | P1 |
+| FM-02 | Dual-pane/split, optional terminal pane | A | P1 |
+| FM-03 | Ops engine (§5.7): copy/move/delete/rename/**batch rename (pattern/regex/sequence)**, journal, pause/resume, checksum, conflict preview, undo | B | P1 |
+| FM-04 | Peek: images/PDF/text/audio/video/archives/**Office/PSD/HEIC thumbnails via Forge** in isolated process | A | P1 |
+| FM-05 | Archives: browse without extract; zip/7z/tar read+write, rar read; encrypted zip; zip-slip/bomb guards | A | P2 |
+| FM-06 | Context menus concise/full/custom; "Open terminal here"; "Copy path"; "Cast to…" | A | P1 |
+| FM-07 | Storage overview/cleanup: categories, duplicates, large files | B | P3 |
+| FM-08 | Removable + network volumes: USB/SD, SMB, SFTP, WebDAV, FTP; reconnect diagnostics | A/B | P2 |
+| FM-09 | Cloud/placeholder state badges | A | P3 |
+| FM-10 | Files as DocumentsProvider (network/cloud/archive in other apps' pickers) | A | P2 |
+| FM-11 | Trash with origin/date/size/retention | B | P1 |
+| FM-12 | Android/data & obb access (Shizuku/ADB) | B | P4 |
+| FM-13 | New-file templates, right-click New | A | P1 |
+| FM-14 | Drag & drop between Fusion windows and third-party apps (ClipData + URI grants) | A | P2 |
+| FM-15 | Selection toolbar: count/size/batch actions | A | P1 |
+| FM-16 | Quick filter bar | A | P1 |
+| FM-17 | Folder size calculation (background, cached) | A | P2 |
+
+### 7.5 NC — Alerts & quick panel
+| ID | Feature | Tier | Ph |
+|---|---|---|---|
+| NC-01 | Alerts: grouping (app/conversation/priority), opt-in history, snooze, reply, per-app rules, pin, search, batch-dismiss | B | P1 |
+| NC-02 | Focus modes by workspace/time/app/display with visible reason | B | P2 |
+| NC-03 | Quick panel: volume, brightness, media, DND, flashlight, battery, **Beam targets**; system panels for radios; custom tiles | A/B | P1 |
+| NC-04 | Notification diagnostics | B | P2 |
+| NC-05 | Progress/live updates for own long ops (copy, backup, cast) | A | P1 |
+| NC-06 | On-screen display (volume/brightness/layout) | A | P2 |
+
+### 7.6 ST — Settings & integration
+| ID | Feature | Tier | Ph |
+|---|---|---|---|
+| ST-01 | Settings graph: IDs, aliases (Control-Panel/System-Preferences words), lock reasons, history, undo, export/import | A | P1 |
+| ST-02 | System-settings index: curated deep links per OEM [U] | A | P1 |
+| ST-03 | Default-apps guide | A | P2 |
+| ST-04 | About/diagnostics: capability report, fingerprint, thermal, memory-limiter, codec list, redacted export | A | P1 |
+| ST-05 | Appearance: theme, dynamic color, accent, density, motion, font scale | A | P1 |
+| ST-06 | Shortcut presets + conflict detector + per-device profiles | A | P2 |
+| ST-07 | UI scale independent of system on external displays | A | P2 |
+| ST-08 | Managed configuration (RestrictionsManager) | A | P4 |
+| ST-09 | Per-context profiles (phone vs desktop) auto-switch on display connect | A | P2 |
+
+### 7.7 AP — Apps & packages
+AP-01 App info hub (A, P1) · AP-02 Uninstall assistant for own data (A, P3) · AP-03 APK install manager (B, pro, P4) · AP-04 Update links/inventory (A, P4) · AP-05 Background/startup inventory (own; Shizuku for others) (B, P4).
+
+### 7.8 TD — Terminal & developer
+TD-01 Terminal emulator (Termux **libraries** Apache-2.0 only [BUG-10]; tabs, profiles, true color, mouse, search, safe paste) (A, P1) · TD-02 Local shell + PTY (toybox/mksh) (A, P1) · TD-03 SSH/SFTP/USB serial (A, P2) · TD-04 Linux userland proot payload (read-only libs, 16 KB) (B, P3) · TD-05 AVF VM where supported (C, P4) · TD-06 Wireless-debugging helper (B, pro, P4).
+
+### 7.9 PR — Productivity
+| ID | Feature | Tier | Ph |
+|---|---|---|---|
+| PR-01 | Text/Markdown editor: instant open, encodings, large files, autosave, diff, regex find | A | P1 |
+| PR-02 | Notes: local-first, Markdown, attachments, backlinks, OCR import, export | A | P2 |
+| PR-03 | Tasks/reminders (no exact alarms) | A | P3 |
+| PR-04 | Calendar (CalendarContract) | B | P3 |
+| PR-05 | Contacts (ContactsContract / API 37 picker) | A/B | P3 |
+| PR-06 | Mail: hand-off/triage P2; native IMAP P4 | A | P2 |
+| **PR-07** | **Fusion Browser (desktop-class)** — see sub-rows a–p | A | P2/P3 |
+| PR-07a | Visible horizontal tab strip (desktop density) | A | P2 |
+| PR-07b | Vertical tab sidebar (collapsible, drag-reorder, group headers, pinned section, search) | A | P2 |
+| PR-07c | Tab groups (named/colored/collapsible) | A | P2 |
+| PR-07d | Split tab view — horizontal (two WebViews, independent nav, draggable divider) | A | P3 |
+| PR-07e | Split tab view — vertical | A | P3 |
+| PR-07f | Pinned tabs | A | P2 |
+| PR-07g | Sleeping tabs (pause/destroy renderer after timeout; restore by URL) | A | P3 |
+| PR-07h | Desktop user-agent default on external display/keyboard; per-site override | A | P2 |
+| PR-07i | Full keyboard shortcuts (Ctrl+T/W/Tab/Shift+Tab/L/F/H/D/N, F5, Ctrl+1–9…) | A | P2 |
+| PR-07j | Tab drag-out to new compositor window; drag-in to merge | A | P3 |
+| PR-07k | Reader mode | A | P3 |
+| PR-07l | Per-site permissions (camera/mic/location/notifications/popups/JS) | A | P2 |
+| PR-07m | Download manager integrated with Files | A | P2 |
+| PR-07n | Find in page | A | P2 |
+| PR-07o | Browser profiles (separate data dirs) | A | P3 |
+| PR-07p | Content/ad/tracker filter (permissive list license; per-site disable) | A | P3 |
+| PR-07q ★ | Batch tab actions: close-to-right/others/duplicates, bookmark all, select-many → group/window/send | A | P2 |
+| PR-07r ★ | Session manager: named sessions, restore windows+tabs+groups+split layouts | A | P2 |
+| PR-07s ★ | Cast page media to Beam (video element URL → AirPlay/Cast/DLNA) | A | P3 |
+| PR-08 | PDF/image viewer: warm open <100 ms, annotate, sign | A | P2 |
+| PR-09 | Calculator: basic/scientific/programmer/units/history | A | P1 |
+| PR-10 | Clock/timers/alarms (inexact) | A | P3 |
+| PR-11 | Office docs native via Forge (FF-01/02); external open optional | A/B | P2 |
+| PR-12 | Clipboard: Fusion IME for global history (optional), in-module history always; sensitive flag; expiry; key remap | A/B | P2 |
+| PR-13 | Desktop sticky notes | A | P3 |
+
+### 7.10 FF — Formats (Forge)
+| ID | Feature | Library (license) | Grade | Tier | Ph |
+|---|---|---|---|---|---|
+| FF-01 | Office open/render/edit/save (docx/doc/xlsx/xls/pptx/ppt/odt/ods/odp/rtf) | LibreOfficeKit (MPL-2.0), isolated | A | B | P2 (S10) |
+| FF-02 | Headless Office read/write/convert/extract | Apache POI (Apache-2.0) | D | A | P2 (S11) |
+| FF-03 | PDF open/render/annotate/sign/export | androidx.pdf / PdfRenderer | B | A | P2 |
+| FF-04 | `.ai` open (PDF-compatible); non-PDF AI labeled limited | FF-03 route | B/C | A/B | P3 |
+| FF-05 | Raster open/edit/export (jpg/png/webp/gif/tiff/bmp) | platform + own editor UI | A/B | A | P1 |
+| FF-06 | HEIC/HEIF/AVIF decode | platform (API 29+ / NDK 30+); decode-only fallback w/o x265 | B | A/B | P1 (S12) |
+| FF-07 | HEIC encode/export | HeifWriter (HW HEVC) only | B | A | P2 |
+| FF-08 | PSD/PSB open, layers, composite, export | webtoon/psd (MIT) / chinedufn (MIT+Apache) | C | B | P3 (S13) |
+| FF-09 | SVG render/export; MD/CSV/TXT/RTF edit | own + permissive SVG lib | A | A | P2 |
+| FF-10 | EPUB reader | own/permissive | B | A | P4 |
+| FF-11 | Save-As/Export with explicit fidelity warning | FormatRouter | — | A | P2 |
+| FF-12 | Format sandbox: isolated, watchdog, bomb guards | §5.2 | — | A | P1 |
+| FF-13 | Thumbnail/metadata service (Tika Apache-2.0 + engines) | | — | A | P2 |
+
+### 7.11 MD — Media & capture
+MD-01 Capture Studio (screenshot/recording w/ audio via HW encoder, annotate, blur, redact, OCR; file committed before editor) (A, P2) · MD-02 Media player (Media3, HW decode, subtitles, PiP, gapless, **cast button → Beam**) (A, P2) · MD-03 Photos (MediaStore, non-destructive edits, HEIC) (A, P3) · MD-04 Voice recorder (A, P3) · MD-05 Camera/scan/QR hooks (A, P3) · MD-06 Audio devices panel (A, P3) · MD-07 Color picker (API 37) (A, P3) · MD-08 Video trim/export (Media3 Transformer, HW) (A, P4) · MD-09 Audio focus dashboard (own-module volume; third-party read-only) (A, P3).
+
+### 7.12 SC — Security & privacy
+SC-01 Vault: passwords/passkeys/TOTP/secure notes; credential provider + autofill; StrongBox; import/export (A/B, P2) · SC-02 App lock for modules (A, P2) · SC-03 Permission/special-access audit (A, P2) · SC-04 Per-app firewall/DNS filter via VPN (B, pro, P3) · SC-05 Privacy dashboard (A, P2) · SC-06 FLAG_SECURE per window (A, P2) · SC-07 Encrypted containers (Tink) (A, P3) · SC-08 Telemetry off by default; local logs; redacted export (A, P1) · SC-09 ★ Cast privacy: screen-share excludes Vault windows & FLAG_SECURE surfaces; red indicator; auto-stop on lock (A, P2).
+
+### 7.13 BK — Backup & sync
+BK-01 Timeline backup (encrypted, incremental, versioned; SAF/SMB/SFTP/WebDAV/S3; restore browser) (B, P2) · BK-02 Folder sync w/ conflict inbox (B, P3) · BK-03 Config export/import (A, P1) · BK-04 New-device checklist (A, P3) · BK-05 Health states + monthly restore drill (A, P2) · BK-06 Key custody, user-held recovery key, no cloud escrow by default (A, P2).
+
+### 7.14 CT — Continuity
+CT-01 Share sheet send/receive, Quick Share (A, P1) · CT-02 PC bridge, KDE-Connect-protocol-compatible (own code; GPL code never copied) (B, P3) · CT-03 Handoff/Continue-On (API 37) (A, P4) · CT-04 Cast & present → **superseded by Beam (CA-*)** · CT-05 Remote desktop client RDP/VNC/SSH (A, P3) · CT-06 Peripheral manager (A, P3).
+
+### 7.15 CA ★ — Beam: casting, AirPlay, Together (new)
+| ID | Feature | Route / library (license) | Tier | Ph |
+|---|---|---|---|---|
+| CA-01 | **AirPlay audio sender** (RAOP/AirPlay 1 to speakers/Apple TV; AirPlay 2 to HomePod with HAP pairing): system/app audio (AudioPlaybackCapture) and media files; ALAC/AAC; sync/latency control; volume/metadata/artwork | Clean-room Kotlin/C++ port of the protocol as implemented by pyatv (MIT) [W]; mDNS via NsdManager/jmDNS | A | P2 (S18) |
+| CA-02 | **AirPlay video-by-URL sender**: play local files/streams on Apple TV via `/play`, scrub/rate/stop; in-app HTTP server with Range; auto-transcode (HW) to H.264/AAC MP4/HLS when container unsupported | pyatv `play_url` behavior [W]; pairing (pin) flow for tvOS | A | P2 (S18) |
+| CA-03 | **AirPlay photo send** (`/photo`) and slideshow | AirPlay 1 HTTP | A | P3 |
+| CA-04 | **AirPlay screen mirroring sender** (phone/desktop → Apple TV/AirPlay 2 TVs): MediaProjection → HW H.264 → AirPlay mirror stream + AAC audio; FairPlay client handshake | **Pro only; legal-review gate**; clean-room only; no vendoring of FairPlay/playfair-derived code; fallback: mirror to third-party receivers that accept non-FairPlay sessions | B | P4 (S19) |
+| CA-05 | **Beam Hub UI**: discovery list (AirPlay/Cast/DLNA/Together), source picker (screen, window, app audio, file, URL), persistent indicator (UX-23), quality/latency controls, multi-room audio groups where protocol allows | Compose; :cast foreground service | A | P2 |
+| CA-06 | **AirPlay receiver — audio** (our device as AirPlay speaker, AirPlay 1 & 2) | Separate APK **"Fusion Beam Receiver"**: Shairport Sync (MIT [K]) + NQPTP (GPL [K]) ⇒ GPL APK; or own clean-room PTP + RAOP core later | B | P3 (S20) |
+| CA-07 | **AirPlay receiver — mirroring/video** (iPhone/Mac screen → our monitor via Fusion) | Separate GPL APK based on UxPlay-derived Android receiver (GPLv3) [W] with MediaCodec HW decode; integrates with Fusion via a permission-guarded intent/Surface handoff; FairPlay decryption legality flagged [U] | B | P3 (S20) |
+| CA-08 | **Google Cast sender**: files/URLs to Default Media Receiver; queue, scrub, volume | Option A: Cast SDK (free, Google terms, proprietary) in play flavor; Option B: own castv2 client (open protocol, protobuf/TLS; MIT refs [K]) for pro/F-Droid | A | P2 (S21) |
+| CA-09 | **Cast screen/window mirroring** to Chromecast/Android TV | Our custom web receiver (Cast Developer Console app id) + WebRTC (libwebrtc BSD) from MediaProjection HW encode; or Cast SDK remote display where available [U] | A/B | P3 |
+| CA-10 | **DLNA/UPnP sender + renderer**: SSDP, AVTransport/RenderingControl SOAP, in-app HTTP server; receive as MediaRenderer | Own minimal implementation (Cling/jUPnP are LGPL/CDDL → excluded) | A | P3 |
+| CA-11 | **Together (SharePlay analog)**: synchronized playback of local/remote media across Fusion devices & web peers; shared controls; chat; presence; join via QR/code/Handoff | libwebrtc (BSD), own signaling (LAN mDNS + optional self-hosted relay); clock sync; sub-100 ms drift target | A | P3 (S22) |
+| CA-12 | **Miracast**: open system cast settings; detect active Miracast session and adapt shelf | Settings intent | C | P2 |
+| CA-13 | Cast quality governor: bitrate/fps ladder by Wi-Fi link speed + thermal; HEVC when receiver supports, else AVC | HW-04, HW-10 | A | P2 |
+| CA-14 | Cast privacy & safety: exclusions (SC-09), auto-stop on lock/thermal critical, per-target trust memory, no cloud relay unless user-enabled | | A | P2 |
+
+**Beam protocol notes for the coder [K unless tagged]:**
+- RAOP: mDNS `_raop._tcp` TXT (`et`, `cn`, `tp`, `sf`, `pw`), RTSP OPTIONS/ANNOUNCE (SDP with ALAC fmtp, RSA-encrypted AES key for AirPlay 1 receivers that require it)/SETUP (ports: server, control, timing)/RECORD/SET_PARAMETER (volume, metadata, artwork)/FLUSH/TEARDOWN; RTP audio 352 frames/packet; NTP timing packets; sync packets each second. AirPlay 2 audio adds HAP pairing (SRP + Ed25519/X25519 + ChaCha20-Poly1305) and PTP timing — port pyatv's `raop` and `airplay` modules behavior [W]. 
+- AirPlay video URL: `_airplay._tcp`, HTTP `POST /play` with `Content-Location` + `Start-Position`, `/scrub`, `/rate`, `/stop`, `/playback-info` polling, `/reverse` event channel; tvOS pairing/`auth-setup` as needed.
+- Mirroring: RTSP over `_airplay._tcp` port 7000 with `/fp-setup`, `/pair-setup`, `/pair-verify`, SETUP streams (type 110 video, 96 audio), H.264 Annex-B in a length-prefixed framing on the mirror TCP stream, stream-encrypted with FairPlay-derived AES — **the FairPlay step is the legal/technical blocker** (CA-04).
+- castv2: TLS to :8009, `CastMessage` protobuf, namespaces `urn:x-cast:com.google.cast.tp.connection`, `.heartbeat`, `.receiver`, `.media`; `LAUNCH` receiver `CC1AD845` (Default Media Receiver); `LOAD` media with contentId/contentType/streamType.
+- DLNA: SSDP M-SEARCH `urn:schemas-upnp-org:device:MediaRenderer:1`, fetch device XML, `SetAVTransportURI` + `Play`.
+
+### 7.16 AX — Accessibility & input
+AX-01 Semantics everywhere; compositor panes; TalkBack/Switch/Voice validated — release gate (A, P1) · AX-02 Keyboard-complete shell (A, P1) · AX-03 Display adaptation (font scale, contrast, reduce motion) (A, P1) · AX-04 Pointer/touch/touchpad behaviors, focus rings (A, P1) · AX-05 Input remap (Caps→Ctrl, Cmd-style) via Fusion IME (A, P2) · AX-06 Voice: palette accepts speech (A, P3) · AX-07 Captions in player (A, P3) · AX-08 A11y test automation (A, P1).
+
+### 7.17 AU — Automation & AI
+AU-01 Routines (triggers/actions, dry-run, audit, per-action permissions) (A/B, P3) · AU-02 Workspace presets (A, P2) · AU-03 AppFunctions exposure (A, P4) · AU-04 Assistant opt-in, local-first (LiteRT/NPU), visible tool calls, memory view, no process when off (A/B, P4) · AU-05 Intent API for third-party automation (A, P3).
+
+### 7.18 RG — Performance, thermal, hardware
+RG-01 Thermal governor (index/anim/backup/cast throttling) (A, P1) · RG-02 ADPF hint sessions (A, P2) · RG-03 Refresh policy (A, P1) · RG-04 Resource monitor (own processes: PSS/CPU/wakeups/IO/net/exit reasons incl. memory limiter) (A/B, P1) · RG-05 OEM coexistence (game overlays, coolers) spike (C, P3) · RG-06 Battery/charging/metered-aware work (A, P2) · RG-07 Low-RAM mode (A, P2) · RG-08 ★ HW codec/NPU/Vulkan capability report & per-feature routing (ties HW-01…12) (A, P1).
+
+### 7.19 CM — Compatibility
+CM-01 Windows apps (Wine LGPL + Box64 MIT; separate APK; user-supplied installers) (B, P4) · CM-02 Web-app windows (A, P3) · CM-03 macOS apps (X).
+
+### 7.20 BL ★ — Paid-app commerce
+| ID | Feature | Route | Flavor | Ph |
+|---|---|---|---|---|
+| BL-01 | One-time purchase (+ optional "Pro pack" IAP for Beam-mirror/compat modules) | Play Billing Library (Apache-2.0 client, Google terms) | play | P1 |
+| BL-02 | Offline-tolerant entitlement cache (signed, Keystore-bound), grace period, no feature loss offline | own | both | P1 |
+| BL-03 | Pro flavor license keys (Ed25519-signed, device-bound-optional, transferable N devices) | own | pro | P1 |
+| BL-04 | Trial: full features 14 days, then read-only Files/Find + nag-free lock screen explaining state (DP-02 compliant) | own | both | P1 |
+| BL-05 | Refund-safe revocation; no remote wipe of user data ever | own | both | P1 |
+
+**Feature count:** 7.1–7.20 tables enumerate **172 rows** (v1.2's 143 + browser q–s, SH-11, WM-15, SC-09, RG-08, CA-01…14, BL-01…05) — the implementing AI must recount from the tables and treat the tables, not this number, as authoritative.
+
+---
+
+## 8. Performance, thermal, memory budgets (E0 until measured)
+
+| Metric | Target (p95) |
+|---|---|
+| Compositor frame, 6 windows dragging @120 Hz | ≤ 8.3 ms; jank ≤ 1 % (165 Hz stretch ≤ 6.0 ms if exposed) |
+| Cold start → interactive / warm resume | ≤ 1.5 s / ≤ 250 ms |
+| Palette open / first app result / file result (200 k index) | ≤ 80 ms / ≤ 75 ms / ≤ 150 ms |
+| Module first frame (light / Files, Browser) | ≤ 150 ms / ≤ 300 ms |
+| Context menu | ≤ 100 ms |
+| 10 k-entry folder first paint | ≤ 300 ms |
+| Office first render (LOKit, mid file) cold/warm | ≤ 3 s / ≤ 1 s |
+| 12 MP HEIC decode+display; PDF page | ≤ 300 ms each |
+| PSD 50 MB parse+composite | ≤ 5 s (watchdog 10 s) |
+| Split-WebView: 10 pairs | ≤ 500 MB :web; frame ≤ 8.3 ms |
+| **Beam screen mirror glass-to-glass (LAN, 1080p60 HEVC)** | ≤ 150 ms AirPlay-class / ≤ 250 ms WebRTC-Cast; audio sync ±40 ms |
+| **AirPlay audio start latency** | ≤ 2 s to first sound; drift-corrected |
+| **Together drift between peers** | ≤ 100 ms |
+| Idle PSS no windows / 6 windows all procs (no web) | ≤ 200 MB / ≤ 700 MB |
+| Memory-limiter exits (2 h soak @ 4/8/12 GB profiles) | 0 |
+| Background CPU idle | ≤ 1 % over 30 min |
+| Thermal, 60-min mixed desktop session | never severe; ≤ moderate 95 % of time |
+| Thermal, 30-min 1080p60 mirror session | never critical; bitrate ladder steps down before severe |
+| Battery: idle desktop session / full 200 k index build | ≤ +10 % over bare launcher / ≤ 2 % |
+
+Protocol: fixed firmware/brightness/temperature; control benchmark before/after; cooler on/off where available; missed budget → recorded decision (fix / relax with evidence / cut).
+
+---
+
+## 9. Security & privacy
+
+**Assets:** files, index, vault, notifications, backups/keys, clipboard, capture output, **cast streams**. **Adversaries:** malicious app, malicious file, malicious LAN peer (incl. rogue AirPlay/Cast receiver), physical access, compromised dependency, overlay/tapjacking.
+
+| Threat | Control | Test |
+|---|---|---|
+| Hostile file | isolated parsers; archive guards; watchdogs | A-01, A-02 |
+| Spoofed intents/URI grants | minimal exports; explicit grants; validation | A-03 |
+| Tapjacking | touch filtering, FLAG_SECURE on vault/permission screens | A-04 |
+| Clipboard leak | sensitive flag; expiry; never persist secrets | A-05 |
+| Notification exposure | no secret-visibility persistence; encrypted store; wipe on disconnect | A-10 |
+| Backup theft/tamper | AEAD, user key, authenticated manifests, verify-before-restore | A-07 |
+| Vault attack | StrongBox/TEE keys, biometric+password, lockout | A-08 |
+| LAN attack | TLS/SSH pinned; no cleartext except protocol-mandated (RAOP/DLNA on LAN only); LAN permission | A-06 |
+| **Rogue cast receiver** | receiver identity memory (mDNS name + key/cert fingerprint), first-connect confirmation, pin pairing for AirPlay 2/tvOS, never auto-connect to new targets | A-11 ★ |
+| **Screen-share over-exposure** | SC-09 exclusions, indicator, auto-stop on lock | A-12 ★ |
+| Supply chain | pinned versions, SBOM, license-diff CI, signed builds | A-09 |
+| Index privacy | encrypted, private folders hidden, work-profile respected | A-10 |
+| **License/entitlement tamper** | signed entitlement, Keystore binding; no DRM that breaks offline use | A-13 ★ |
+
+Privacy defaults: no telemetry; no network unless a feature needs it; Keystore key count small (API 37 cap 50 000); Data-safety form exact; play flavor never uses accessibility service; Beam never relays through cloud unless user-enabled.
+
+---
+
+## 10. Test & verification plan
+
+**Matrix:** Reference devices A/B/C; emulators API 37 (desktop/resizable AVDs, 4/8/12 GB), API 36, API 34, 16 KB image; an Apple TV (tvOS 17+), a HomePod/AirPlay speaker, a Chromecast/Google TV, a DLNA TV, an iPhone (for receiver tests), a Windows/Linux PC (PC bridge).
+
+**Layers:** JVM unit/property (reducer, journal, ranking, settings graph, command registry, **RTSP/RAOP/castv2 codecs & state machines against recorded fixtures**); instrumented (Room, DocumentsProvider, services, **Beam against real receivers**); Compose UI + a11y checks; screenshot; Macrobenchmark + Baseline Profiles; Gradle Managed Devices in CI; manual TalkBack/Switch/Voice, keyboard+mouse, hotplug.
+
+**Fault injection F-01…F-12** (v1.0) plus: **F-13** Wi-Fi drop mid-cast → clean stop, auto-resume offer; **F-14** receiver reboot mid-stream; **F-15** thermal spike during mirror → ladder down, never crash; **F-16** two Fusion devices in Together with 300 ms RTT → stays within drift budget or shows degraded state.
+
+**Adversarial A-01…A-13** as §9.
+
+**Usability (preregistered, formative 5–8/cohort; powered study only before any "better than" claim):** T1–T10 from v1.0 plus **T11** "cast a video to the TV and keep working on the monitor", **T12** "split two tabs vertically and drag one to a new window", **T13** "open a .pptx, edit a slide, save as PDF". Rejection rule: >10 % median time, >5 pt failure, any inaccessible core task, >1 extra irreversible error/100, >20 % cognitive load — reject the default.
+
+**Traceability:** `requirements.csv` (id, tier, phase, sources, tests, status); CI: every P1 has a test; every test names a requirement.
+
+---
+
+## 11. Roadmap, spikes, exit criteria
+
+### 11.1 Phase-0 spikes (all before feature code in their area)
+| Spike | Question | Pass | If fail |
+|---|---|---|---|
+| S1 | External display + shortcut conflicts on ≥2 SD-8 devices + Pixel | written matrix per device; H1/H2 decision | desktop on phone screen only |
+| S2 | Home-role coexistence (stock + One UI) | reversible, no stuck states | non-Home desktop app |
+| S3 | Compose compositor holds 120 Hz with 6 windows | p95 ≤ 8.3 ms, jank ≤ 1 % | caps/effects off; H2 on capable devices |
+| S4 | Index scale/latency/battery (FTS4 vs FTS5) | §8 palette targets; ≤2 % battery | narrow sources |
+| S5 | Packaged Linux payload under read-only/16 KB rules | 30-min shell, 3 children | pro-only/defer |
+| S6 | FileOps journal under F-01…F-05 | zero loss | copy-only; block non-atomic |
+| S7 | Backup engine A vs B | budgets + hash-verified restore | B-lite |
+| S8 | Memory under API 37 limiter | zero exits 2 h | split/lower caches |
+| S9 | Compositor accessibility | all ops pointer-free | H2 as accessible mode |
+| S10 | LibreOfficeKit payload/thermal | ≤ ~150 MB installed delta; no severe; open ≤ 3 s | POI + PDF view |
+| S11 | POI shaded on Android | builds; 10 MB xlsx in budget | streaming subset |
+| S12 | HEIC decode parity + HeifWriter encode on 3 OEMs | works | decode-only fallback; JPEG/AVIF encode |
+| S13 | PSD composite fidelity | within tolerance | flatten-preview only |
+| S14 | Split-WebView memory | ≤ 500 MB /10 pairs | cap to 3 pairs |
+| S15 | Mouse buttons in Compose across 3 mice/3 devices | events consumable | on-screen nav buttons |
+| S16 | Fusion IME clipboard capture | captured on paste | in-module only |
+| S17 ★ | HW encoder low-latency path (MediaProjection → MediaCodec HEVC/AVC surface, 1080p60) on 3 devices | glass-to-glass ≤ 150 ms local loopback; thermal ≤ moderate 30 min | AVC 30 fps ladder |
+| S18 ★ | Clean-room RAOP + AirPlay-URL sender vs real Apple TV (tvOS 17+), HomePod, third-party AirPlay speaker | audio plays, sync holds 30 min; URL video plays/scrubs | AirPlay-1-only speakers; URL-only |
+| S19 ★ | AirPlay mirror sender feasibility & legal review (pro) | legal sign-off + working stream to Apple TV | ship mirroring via Cast/WebRTC/DLNA only; AirPlay mirror to non-FairPlay receivers |
+| S20 ★ | GPL receiver APK integration (Surface handoff into a Fusion window; audio out) on Reference A | iPhone mirrors into a Fusion window; audio ≤ 2 s start | standalone receiver APK only |
+| S21 ★ | castv2 own client vs Cast SDK against Chromecast + Google TV | LOAD/play/scrub works | Cast SDK in play flavor only |
+| S22 ★ | Together drift with 2–4 peers on LAN | ≤ 100 ms | LAN-only, 2 peers |
+
+### 11.2 Milestones (one experienced developer; parallelizable by module)
+| M | Scope | Gates | Effort |
+|---|---|---|---|
+| M1 Shell skeleton | probe, launcher, compositor (+Calculator/Editor/Settings), desktop surface, mouse nav, session restore, a11y harness, benchmarks, **billing/entitlement** | S1–S3, S9, S15 | 6–8 wk |
+| M2 Find & Files | index/palette, Files (column view, batch rename, selection bar, filter), ops engine, Peek, trash, templates, image formats (FF-05/06) | S4, S6, S12 | 7–9 wk |
+| M3 Alerts & control | Alerts, quick panel, settings graph, per-context profiles, progress, resource monitor, thermal governor, HW capability report | measured budgets | 4–6 wk |
+| M4 Terminal & P1 exit | terminal/PTY, tiling/switcher, shelf/top bar, config export, a11y automation | every P1 test; AX-01 pass | 4–6 wk |
+| M5 Productivity & Forge | browser (a–c, f, h, i, l–n, q, r), PDF, notes, clipboard/IME, capture, media, vault, Office (FF-01/02/11), external focus | S10, S11, S14, S16; security review | 10–12 wk |
+| M6 Beam | Beam Hub, AirPlay audio+URL sender, Cast sender, DLNA, cast governor, privacy; receiver APK integration | S17, S18, S21, S20 | 8–10 wk |
+| M7 Safety net | timeline backup, health/keys, permission audit, privacy dashboard, workspaces/overview/multi-display/broker, split tabs, Together | S7, S22; usability round 2 | 8–10 wk |
+| M8 Target 37 & hardening | targetSdk 37, LAN permission, read-only libs, limiter soak, flavors, developer verification, legal (names, AirPlay mirror), beta | soak; pre-launch; threat review | 4–6 wk |
+Indicative total P1+P2: **51–67 weeks** solo.
+
+### 11.3 Kill/pivot
+S2 fails → non-Home app · S3 fails → effects/window caps; H2 primary on capable devices · S10 fails → POI+PDF view · S18 fails on Apple TV but passes on AirPlay-1 speakers → audio-only AirPlay · S19 fails legal → no AirPlay mirror; Cast/WebRTC/DLNA mirror only · Play rejects all-files/listener/VPN → SAF-only play; pro keeps · scope overrun → freeze P2, ship P1 power-user shell.
+
+---
+
+## 12. Risk register (consolidated)
+R-01 Home-role conflict (H×M) · R-02 reference devices lack DP-out/desktop windowing (M×H) · R-03 compositor misses 120 Hz (H×M) · R-04 Play rejects restricted access (H×M) · R-05 memory limiter kills shell (H×M) · R-06 platform churn (M×H) · R-07 test-device/API mismatch (M×H) · R-08 firmware regressions skew measurements (M×M) · R-09 thermal throttling (M×H) · R-10 scope explosion, now 172 rows (H×H) · R-11 legal/IP: names, trade dress, GPL contamination (H×M) · R-12 high-value target (H×M) · R-13 a11y regression in custom windowing (H×M) · R-14 Shizuku reliance (M×M) · R-15 read-only native libs block payloads (M×M) · R-16 LAN permission breaks NAS/bridge/cast (M×M) · R-17 developer verification (M×M) · R-18 platform convergence (M×M) · R-19 LOKit payload/thermal (H×M) · R-20 GPL creep via HEIC libs (H×M) · R-21 MPL attribution (M×L) · R-22 Office round-trip expectations (M×H) · R-23 PSD/AI edit expectations (M×M) · R-24 mouse-button API variance (M×M) · R-25 IME adoption friction (M×H) · **R-26 ★ AirPlay mirroring sender legal exposure (FairPlay/DMCA, trademark "AirPlay" in marketing) (H×M)** → pro-only, legal gate, describe as "works with AirPlay-compatible receivers" only after counsel · **R-27 ★ Apple/Google protocol changes break Beam (tvOS/Cast firmware) (M×H)** → protocol fixtures, fast-patch channel, graceful "receiver incompatible" state · **R-28 ★ GPL receiver APK confuses store/licensing (M×M)** → separate listing, separate source repo, clear notices · **R-29 ★ Piracy of paid app (M×H)** → signed entitlements, no user-hostile DRM, value in updates/support.
+
+---
+
+## 13. Build environment
+Android Studio (current stable; never release from Canary); SDK platforms 37/36/34; 64-bit emulator images incl. 16 KB and low-RAM; Compose BOM, Hilt, Room+KSP, DataStore, WorkManager, Media3, Coil, Tink, Oboe, LiteRT; `:benchmark`, `:baselineprofile`; R8 full; LeakCanary; flavors `play`/`pro` with distinct applicationId suffixes; StrictMode in debug (implicit URI grant detection); CI with Gradle Managed Devices + SBOM/license-diff. Reference-device bench per §2.1 commands (plus `adb shell dumpsys media.codec`-class codec listing and `adb shell cmd wifi status` for link rate).
+
+---
+
+## 14. Legal, licensing, distribution
+
+### 14.1 License register (verify each `LICENSE` file; all [K] unless [W])
+| Component | Use | License | Action |
+|---|---|---|---|
+| Compose, Media3, Room, WorkManager, androidx.pdf, Oboe, Tink, LiteRT | core | Apache-2.0 | OK |
+| Termux terminal-emulator/-view libs | terminal | Apache-2.0 (app is GPL — do not copy app code) | OK (libs only) |
+| sshj, smbj, zip4j, Commons Compress, Tika, POI, docx4j, jmDNS | protocols/formats/discovery | Apache-2.0 | OK |
+| jcifs-ng | SMB | LGPL-2.1 | keep out of main APK / dynamic boundary |
+| LibreOfficeKit / Collabora core | Office | MPL-2.0 (+secondary) [W-prior] | isolated module; notices; source offer |
+| webtoon/psd; chinedufn/psd | PSD | MIT; MIT+Apache [W-prior] | OK |
+| avif-coder (libheif+libde265+**libx265**) | HEIC | contains GPL [W-prior] | **blocked**; platform codecs; decode-only rebuild without x265 only after audit |
+| usb-serial-for-android | serial | MIT | OK |
+| restic / rclone | backup/sync | BSD-2 / MIT | separate executables |
+| Wine / Box64 | Windows compat | LGPL-2.1+ / MIT | separate APK |
+| KDE Connect | PC bridge | GPL | protocol only, independent code |
+| GeckoView | alt browser engine | MPL-2.0 | separate module, notices |
+| libwebrtc | Together, Cast mirror | BSD-3 | OK |
+| NanoHTTPD-class server | Beam HTTP | BSD-3 | OK |
+| **pyatv / rust-atv** | AirPlay sender reference | MIT [W] | reference for clean-room Kotlin/C++; may port under MIT with attribution |
+| **UxPlay, RPiPlay, android-airplay-server** | AirPlay receiver | GPLv3 [W] | **separate GPL APK only**; never in main APK |
+| **Shairport Sync** / **NQPTP** | AirPlay audio receiver | MIT / GPL [K] | Shairport OK; NQPTP → GPL APK or own PTP |
+| **PhairPlay, airplay-tv, open-airplay, libplayfair** | AirPlay receiver/sender refs | **unknown/[U]**; FairPlay-derived code is legally risky | **do not vendor**; reference-only after counsel |
+| Google Cast SDK; Play Billing | Cast send; purchase | Google terms (not OSS) | play flavor OK; pro uses own castv2 + license keys |
+| EasyList-class filter lists | PR-07p | GPL/CC-BY-SA variants | data not code; verify list license; allow user-provided lists |
+
+### 14.2 Marks & trade dress
+Original icons/fonts/sounds; no Windows/macOS visual identity; "AirPlay", "Chromecast/Google Cast", "DeX", "Windows", "macOS" are third-party marks — nominative use only ("works with …") after counsel; product name trademark search before release (D-10).
+
+### 14.3 Distribution
+play flavor (targetSdk ≥36; declarations; staged rollout; no accessibility service; Cast SDK; Billing) · pro flavor (own site/F-Droid-style repo; license keys; Shizuku helper; installer; Linux/Windows payloads; AirPlay mirror after legal) · **Fusion Beam Receiver** as a separately listed **GPLv3** app with public source · developer verification registered before wide distribution.
+
+---
+
+## 15. Negative space — final (≥15; the implementing AI must not ship these)
+1 stock desktop mode as the host · 2 Chrome/WebView default UI as "the browser" · 3 DeX-only assumptions · 4 bundling GPL AirPlay receiver code into the main APK · 5 vendoring FairPlay/playfair-derived code · 6 bundling x265 · 7 claiming byte-perfect Office round-trip · 8 "AirPlay mirroring works" without S19 legal + device pass · 9 Cast SDK in the pro/OSS build (terms) · 10 LGPL UPnP stacks statically linked · 11 cloud relay by default for Together · 12 accessibility service for clipboard/hotkeys in play flavor · 13 hard-requiring DP Alt Mode · 14 user-hostile DRM that breaks offline · 15 ads/feeds in any surface · 16 silent re-encoding of HEIC to JPEG · 17 split tabs that don't sleep (memory) · 18 "running apps" list that pretends to see unlaunched tasks.
+**Modal shortcut** ("delegate casting to the system Cast button / AirPlay to a third-party app"): fails the own-UI + hardware-utilization + paid-value contract; detector: `assert(castSession.owner == FusionBeam && encoder.isHardware && indicator.visible)`.
+
+---
+
+## 16. Decisions required from the owner
+D-01 Home role opt-in after S2 · D-02 sideload first, Play after M7 · D-03 personas PA+PB first, PC for Beam · D-04 minSdk 34 · D-05 Windows-compat after M8 · D-06 backup engine via S7 · D-07 WebView first, GeckoView if needed · D-08 permissive-only main APK; MPL isolated; GPL in separate APKs · D-09 team/schedule · D-10 product name trademark search · **D-11** Office default LOKit, POI fallback · **D-12 ★** Cast send: Cast SDK (play) + own castv2 (pro) · **D-13 ★** AirPlay mirror sender: pursue only with counsel sign-off (S19) · **D-14 ★** price model: one-time purchase + Pro pack IAP; 14-day trial · **D-15 ★** receiver APK: GPL derivative now, clean-room core later (budget decision).
+
+---
+
+## Appendix A — Verification status (this turn)
+| Claim | Status |
+|---|---|
+| Open AirPlay **receiver** implementations for Android exist, UxPlay-based, GPLv3, AirPlay 2, MediaCodec | **Verified [W]** |
+| Shairport Sync + NQPTP cross-compiled Android receiver exists | **Verified [W]** (licenses [K]) |
+| pyatv (MIT) supports AirPlay audio streaming to Apple TV/HomePod/receivers, remote control, `play_url` on tvOS 15+ | **Verified [W]** |
+| Sender-side FairPlay mirroring has an open-source claim (Windows) | **Verified claim exists [W]**; code license/legality **[U]** |
+| PhairPlay: AirPlay 2 + Miracast + Cast receiver with FairPlay decryption | **Verified exists [W]**; license [U] |
+| Google Cast SDK terms, castv2 OSS libs, Miracast API absence, DLNA lib licenses, libraop license | **Not re-verified this turn** (search budget exhausted) — [K], must verify |
+| All feature rows, budgets, spikes | Design (E0); nothing compiled or measured |
+
+## Appendix B — Remaining gap & next tests
+**Strongest artifact:** this v2.0 master spec (172 feature rows, 22 spikes, 8 milestones, hardware-utilization layer, Forge, Beam with AirPlay audio/URL/mirror/receiver + Cast + DLNA + Together, paid-app layer, consolidated bug fixes).
+**Exact gaps:** (1) nothing executed; (2) Cast/Miracast/DLNA/libraop license facts not re-verified this turn; (3) AirPlay mirroring sender legality unresolved; (4) no social-media crawl for Beam-specific complaints; (5) all budgets E0.
+**Next highest-information tests, in order:** **S18** (clean-room RAOP/AirPlay-URL against a real Apple TV + HomePod — decides whether Beam's headline AirPlay feature is Grade-A), **S17** (HW low-latency encode path — gates every mirroring transport), **S15/S1** (mouse buttons + display output on 3 devices), then **S19** legal review in parallel.
+
+## Appendix C — Skeletons (not compiled)
+C.1 Manifest fragments and C.2 `Capabilities`/`DesktopState`/`WindowCommand` data model: as in v1.0 Appendix C, with `Capabilities` extended by `hwCodecs: List<CodecInfo>`, `vulkanVersion: Int?`, `aaudioLowLatency: Boolean`, `displayOutSupported: Boolean?`, `localNetworkGranted: Boolean`.
+C.3 `requirements.csv` header: `id,tier,phase,sources,tests,status` — regenerate from §7.
+C.4 Beam sender skeleton:
+```kotlin
+// Not compiled. [U] verify APIs on API 34/36/37.
+sealed interface CastTarget { val name: String; val host: String
+  data class AirPlay(override val name: String, override val host: String, val port: Int,
+                     val features: Long, val requiresPairing: Boolean, val fairPlayRequired: Boolean): CastTarget
+  data class Cast(override val name: String, override val host: String, val port: Int = 8009): CastTarget
+  data class Dlna(override val name: String, override val host: String, val controlUrl: String): CastTarget }
+sealed interface CastSource { data class File(val uri: Uri): CastSource; data class Url(val url: String): CastSource
+  data object AppAudio: CastSource; data object Screen: CastSource; data class Window(val id: WindowId): CastSource }
+interface Transport { suspend fun connect(t: CastTarget); suspend fun start(s: CastSource, q: Quality)
+  suspend fun control(c: PlaybackControl); suspend fun stop(); val state: StateFlow<CastState> }
+class BeamService : Service() { /* foregroundServiceType mediaProjection|mediaPlayback; owns Transport,
+  MediaProjection VirtualDisplay → MediaCodec(HEVC/AVC, low-latency) surface, AudioPlaybackCapture → AAC;
+  QualityGovernor(linkSpeed, thermalHeadroom) adjusts bitrate/fps; emits UX-23 indicator state */ }
+“
+
+AND v2.1 Patch “
+
+I'll verify the three load-bearing unknowns before writing: whether an Android app can present a virtual camera to third-party apps, the licenses of the on-device segmentation/enhancement stacks, and the real state of iMessage/RCS access from Android.# Runtime honesty
+
+**Tools used this turn:** 5 real `web_search` calls (virtual-camera API gating, MediaPipe licensing, BlueBubbles licensing, RCS third-party access, OpenBubbles/rustpush status). Budget then exhausted. No code compiled, no device touched, no repo cloned, no license file read line-by-line. Tags: **[W]** confirmed from a snippet this turn · **[W-prior]** confirmed earlier in this chat · **[K]** training knowledge, verify · **[U]** unverified, spike first · **[J]** judgment. Not legal advice.
+
+**Unverified Opus claims I could not check:** CastBridge `airplay2-sender-cpp` being Apache-2.0 with a working AirPlay-2 HomePod sender; Syncplay/Synkplay license split; `ag-psd-rs`; "Airvia"/"AirSonic" references. These are imported as **[U] candidates**, not facts.
+
+---
+
+# PART 1 — Evaluation: Fable v2.0 as canonical, Opus deltas adopted
+
+## 1.1 Verdict
+
+**Fable v2.0 is the canonical document.** It is more complete (172 rows vs 148), has the stricter license discipline (x265 exclusion, MPL isolation, GPL receiver as separate APK, FairPlay legal gate), carries the Forge format router, the hardware-utilization layer, the paid-app layer, and the full browser sub-spec. Opus is less complete but contains **11 pareto-superior mechanisms** that Fable states only abstractly. They are adopted below as **v2.1 deltas** with Fable's IDs preserved and an ID crosswalk.
+
+## 1.2 Scorecard [J]
+
+| Dimension | Fable v2.0 | Opus | Winner |
+|---|---|---|---|
+| Completeness / traceability | 172 rows, spikes S1–S22, per-row license | 148 rows, S1–S20 | Fable |
+| License rigor | x265 blocked, MPL isolated, FairPlay gated, SSPL/AGPL excluded | claims CastBridge Apache-2.0 [U]; AirPlay mirror Tier A (over-optimistic) | Fable |
+| Display/session robustness | SH-10 "dim phone screen" (thin) | **BlackTop**: Presentation + blackout Activity + FGS + wake-lock + heartbeat + OEM-throttle detector | **Opus** |
+| Thermal/perf governance | RG-01/02 one-liners | **5-state governor + ADPF→sustained-perf→own-governor fallback chain + SystemHealthManager headroom** | **Opus** |
+| Mouse precision | SH-09 button mapping | **`Modifier.desktopMouse()` contract, raw scroll-notch mapping, "Learn my mouse"** | **Opus** |
+| Document lifecycle | Forge router + fidelity grades | **formats.yaml registry, open/dirty/save/recover/close contract, loss report, macros off, SAF safe-save** | **Opus** (merged into Forge) |
+| Casting UX | Beam Hub | **Unified route chooser incl. BT/wired, multi-receiver sync, per-device latency** | **Opus** |
+| Watch-party | Together (own protocol) | **Syncplay-wire-compatible so PC clients join; own-copy media model** | **Opus** |
+| Browser engine | WebView-first, Gecko optional | GeckoView-first (WebExtensions) | **Spike-decided** (see D-07′) |
+| Device floor | probe + degrade | hard block below floor | **Fable** (user rule: not a hard benchmark) |
+| Camera/conferencing | absent | absent | **New in v2.1** |
+| iMessage | absent | absent | **New in v2.1** |
+
+## 1.3 Adopted Opus deltas (binding edits to Fable v2.0)
+
+| Δ | Fable target | Adopted content |
+|---|---|---|
+| Δ1 | **SH-10 → "BlackTop" (P1, was P2)** | On `onDisplayAdded` with `FLAG_PRESENTATION`: start `DesktopSessionService` (FGS, user-visible), mount H1 compositor in a `Presentation` on the external display, switch phone to `PhoneBlackoutActivity` (`screenBrightness = 0f`, black Compose scrim, "Resume on phone" button with slow pixel-shift), partial wake-lock, heartbeat; migrate windows back on `onDisplayRemoved`. Add **SH-12 OEM-throttle detector**: startup micro-bench; if first-N frames degrade >20 %, show OEM-specific guidance; `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` with rationale (pro first; play after review). New spike **S23** = 60-min phone-black + monitor-active survival on One UI, HyperOS, ColorOS, ROG UI, Pixel. |
+| Δ2 | **RG-01/RG-02** | Governor states `COOL/WARM/HOT/THROTTLED/CRITICAL` with the Opus transition table; ADPF chain: `createHintSession` → `setSustainedPerformanceMode` → own governor; read `SystemHealthManager` CPU/GPU/thermal headroom every 5 s on API 36+; backup/index throttle at headroom <20 %; blur/shadow off at ≥MODERATE; `ApplicationExitInfo` diagnostic card on limiter/excessive-resource kills. |
+| Δ3 | **SH-09 → IN-01** | Adopt `Modifier.desktopMouse(onPrimary/onSecondary/onTertiary/onBack/onForward/onScroll, linesPerNotch=3, hoverTooltipDelayMs=500)`; consume Press+Release to kill long-press conversion; raw `scrollDelta` notch mapping; **"Learn my mouse"** per-device button-mask capture (A(Mouse) repair). Add IN-07 game-controller pointer mode, IN-08 external-keyboard IME switcher. |
+| Δ4 | **Forge (§5.12, FF-*)** | Add **FF-14** `formats.yaml` registry (format → engine → grade → boundary text); **FF-15** document lifecycle (open → dirty → Save/Save As → recovery → close-confirm); **FF-16** conversion/loss report before any lossy save; **FF-17** macros disabled by default; **FM-18** SAF safe-save contract (work on session copy → temp output → reopen-and-validate → atomic replace or "Save a Copy" when provider cannot replace; never silent overwrite). |
+| Δ5 | **CA-05** | Route chooser lists AirPlay / Cast / DLNA / Miracast(system) / **Bluetooth A2DP** / **wired USB-C DAC** / Together room; protocol icon + measured latency per row; checkbox multi-select. New **CA-15 multi-receiver synchronized cast** (shared clock, per-receiver pacing buffer, ≤40 ms drift target; spike **S24**). |
+| Δ6 | **CA-11 Together** | Add **Syncplay wire-protocol compatibility** (clean-room; PC Syncplay clients can join Fusion rooms), "each participant supplies own media" mode (no media streaming → no copyright/bandwidth exposure) alongside Fusion-hosted LAN/WebRTC media mode; self-hostable relay, never mandatory cloud. Syncplay's own license must be verified [K: Apache-2.0]; yuroyami/Synkplay is AGPL — **never linked**. |
+| Δ7 | **CA-01 S18** | Add CastBridge `airplay2-sender-cpp` as a **candidate** engine evaluated in S18 alongside the pyatv-derived clean-room port; admissible only if its LICENSE and all transitive libs (Mbed TLS Apache-2.0) verify permissive. Carry Opus's "event-channel key derivation" 30-s-drop fix as a test case (F-17: 60-min HomePod session, no drop). |
+| Δ8 | **D-07 → D-07′ browser engine** | GeckoView becomes **preferred** (WebExtensions = uBlock Origin / password managers / **our Lens content script**; immunity to OEM WebView lag; MPL-2.0 isolated) **contingent on S12 (Compose Z-order via `AndroidExternalSurface`/TextureView) and S13 (WebExtensions load)**. WebView remains the fallback and the Peek renderer. PR-07a–s requirements are engine-agnostic. |
+| Δ9 | **BL-01/D-14** | Default price **$19.99 one-time + $14.99 Pro pack**; Play 48-h refund honored; 14-day trial retained. |
+| Δ10 | **§2.1 floor (SoC gate)** | Use `Build.SOC_MODEL/SOC_MANUFACTURER` + micro-bench to classify **Studio (8 Gen 3 / 8 Elite / Tensor G4+ / D9300+), Standard (8 Gen 1–2, 8s Gen 3), Compat (below floor)**. **Below floor = warn + Compat profile, not a block** (user instruction). Refund-eligible warning shown once. |
+| Δ11 | **Adversary log** | Import A(E.2) long-press suppression, A(E.3) GeckoView surface punch-through, A(E.4) SAF non-atomic rename, A(FusionWatch injection) seek-bounds + creator revoke. |
+
+**Rejected Opus elements:** AirPlay mirroring sender as Tier A/P3 (FairPlay ≠ HAP transient pairing; Fable's CA-04 legal gate stands); hard device block; GeckoView unconditional; opus process budgets where larger than Fable's (keep Fable, revisit in S8).
+
+**ID crosswalk (Opus → Fable canonical):** SH-09 BlackTop→SH-10 · SH-10→SH-12 · IN-01→SH-09/IN-01 · WM-12 portrait-rescue→WM-12 · WM-13 cursor-confine→WM-16 (new) · FM-15 safe-save→FM-18 · DOC-01..09→FF-14..17 + FF-01 · IMG-*→FF-05..08 · VEC-01 SVG editor→FF-09 (P3 editor) · VEC-02→FF-04 · CT-07→CA-01 · CT-08→CA-04 · CT-09→CA-06/07 · CT-10→CA-08 · CT-11→CA-10 · CT-12→CA-12 · CT-13→CA-11 · CT-14→CA-15 · CT-15→CA-05 · RG-08/09→SH-12/§2.1 · SC-09 promise→DP-01/02.
+
+---
+
+# PART 2 — Fusion Lens: camera/mic prefilter + mobile presenting (new subsystem)
+
+## 2.1 Formal model (abridged)
+
+**Admissible objects:** a video/audio processing pipeline running on device, fed by the physical camera/mic (and screen via MediaProjection), producing a processed stream consumable by (a) a Fusion-owned conferencing client, (b) web conferencing pages inside Fusion Browser, (c) a PC companion as a webcam, (d) local record/RTMP. Only platform services + permissive OSS + our code.
+
+**Success (quantifier order):** For **each** output route R ∈ {own client, web page, PC companion, record}, **there exists** a path such that processed video ≥ 720p30 (Standard) / 1080p30–60 (Studio) reaches R with glass-to-glass ≤ 120 ms added latency, and screen-share/present is available on the same route. For native third-party Android apps the predicate is **declared unsatisfiable** (below) and the UI must say so.
+
+**Boundary that decides everything:** a normal app **cannot** register a virtual camera visible to other apps. Creating virtual devices requires `CREATE_VIRTUAL_DEVICE`, which is only available to system apps holding specific roles [W]; Android 17.2 exposes `isVirtualCameraSupported()` but behind the same system-level service [W]; system cameras are signature-protected and third-party public apps can't access them [W]; the only third-party route today is root/LSPosed-class injection (VCAM) [W], which is outside our product. **Hence H∂:** NVIDIA-Broadcast-class processing is fully achievable, but the *delivery* is per-route, never system-wide.
+
+**Adjacent problems not to substitute:** "beauty filter in our camera app" ≠ prefilter for conferencing; "works in Meet web" ≠ works in Zoom Android app; "background blur" ≠ generative scene; "eye-contact GAN" ≠ gaze-aware framing.
+
+## 2.2 Frontier (verified)
+
+- Segmentation/landmarks: MediaPipe is free (Apache 2.0) and works on Android (C++ or ML Kit), WebAssembly, and TensorFlow.js [W]; the Selfie Segmentation model is lightweight (~250 KB) and licensed Apache-2.0 for commercial use [W]; Qualcomm AI Hub ships the same model, license Apache-2.0 [W]. MediaPipe Face Landmarker gives 3D landmarks and blendshape scores in real time [W]. Browser-side, MediaPipe Image Segmenter on WebGPU composited through a WebRTC Insertable Stream is the standard 2026 web blur architecture [W] — directly reusable for route (b).
+- Phone-as-PC-webcam is an established pattern: the phone does Camera2 capture + OpenGL processing + RTSP; a PC-side Softcam DirectShow filter makes Zoom/Teams/OBS see it as a physical webcam [W].
+
+## 2.3 Architecture — `:feature:lens`, process `:lens`
+
+```
+Sources      Camera2/CameraX (front/back/UVC-OTG) · MediaProjection(screen/window) · Forge slide renderer (PPTX→texture)
+             mic (Oboe/AAudio) · app audio (AudioPlaybackCapture)
+GPU graph    SurfaceTexture → OES → FBO chain (GLES 3.2; Vulkan path P3)
+  Stage 1    ISP-fix: WB/exposure/denoise (temporal+spatial, shader) · lens-undistort
+  Stage 2    Inference (LiteRT GPU delegate; QNN delegate optional after license review):
+               Selfie multiclass seg (256²/512² Studio) · Face Landmarker (478 pts + blendshapes)
+               · Hand Landmarker (gestures) · optional depth-from-mono (MiDaS-small, MIT [K])
+  Stage 3    Effects: blur/replace/remove · edge-refine (guided filter) · relight (normals from landmarks)
+             · auto-frame (Kalman-smoothed crop, multi-person) · skin-smooth (bilateral) · LUT (.cube)
+             · low-light (CLAHE+tone) · upscale (FidelityFX FSR 1.0 shader, MIT [K]) · stabilization
+  Stage 4    Presenter compositor: person cutout + screen/slides/window layers, laser pointer, ink,
+             PiP presenter, lower-thirds, countdown · scene engine (procedural/parallax/user image/generative)
+Audio graph  Oboe → WebRTC APM (AEC3/AGC/NS, BSD) → RNNoise (BSD-3) → voice-isolation gate → encoder
+Encoder      MediaCodec HW AVC/HEVC/AV1 (low-latency), Opus audio
+Routes       R1 own client · R2 browser injection · R3 PC companion · R4 record/RTMP · R5 Beam (window-to-cast)
+Governor     ties RG-01 states: CRITICAL → disable Stage 2/3 except blur at 128²
+```
+
+### Effect catalog (NVIDIA Broadcast parity map)
+
+| Broadcast feature | Fusion Lens | Tier | Ph | Notes |
+|---|---|---|---|---|
+| Background blur/replace/remove | LN-01 | A | P2 | Selfie seg + guided-filter matte |
+| Auto-frame | LN-02 | A | P2 | landmarks → smoothed crop; multi-person union |
+| Eye contact | LN-03 | A | P4 | **not promised**; gaze-aware framing only; GAN gaze-redirect = research, model license gate |
+| Video noise removal / low-light | LN-04 | A | P2 | shaders; no ML dependency |
+| Super-resolution / upscale | LN-05 | A | P3 | FSR1 shader; Studio tier 4K out |
+| Virtual key light / relight | LN-06 | A | P3 | face-normal approx; Studio tier |
+| Noise removal (mic) | LN-07 | A | P2 | WebRTC APM + RNNoise |
+| Room echo removal | LN-08 | A | P2 | AEC3 |
+| Vignette/LUT/color | LN-09 | A | P2 | .cube import |
+| Gesture actions | LN-10 | A | P3 | hand landmarks → mute/raise-hand/next-slide |
+| **Scenes: procedural & parallax** | LN-11 | A | P2 | our shaders; 2.5D from user photo via depth |
+| **Scenes: generative (on-device)** | LN-12 | A/B | P4 | Studio ≥16 GB; model license gate (see 2.5) |
+| **Presenter mode** (person over slides/screen, pointer, ink) | LN-13 | A | P2 | uses Forge FF-01 PPTX render + MediaProjection |
+| Profiles/presets, hotkeys, per-app memory | LN-14 | A | P2 | |
+| Thermal/quality ladder | LN-15 | A | P2 | per RG-01 |
+
+### Output routes
+
+| Route | Mechanism | Tier | Ph | Verified basis |
+|---|---|---|---|---|
+| **R1 Fusion Meet** (LN-20) | Own WebRTC client (libwebrtc BSD) with processed tracks; interoperates with **LiveKit** (Apache-2.0 SDK/server), **Jitsi** (Apache-2.0 SDK), **MatrixRTC/Element Call** (Apache-2.0) [K]; screen-share track from MediaProjection; split desktop layout on monitor (participants + shared content + notes) | A | P2 | licenses [K], verify |
+| **R2 Web conferencing in Fusion Browser** (LN-21) | Content script (GeckoView WebExtension, or WebView JS injection fallback) overrides `navigator.mediaDevices.enumerateDevices/getUserMedia/getDisplayMedia` to expose **"Fusion Lens"** camera/mic and **"Fusion Screen"** display source; frames arrive via **local WebRTC loopback** (native PeerConnection → page PeerConnection, signaling over the JS bridge) or via in-page WebGPU MediaPipe pipeline on Insertable Streams [W] when native bridge unavailable; desktop UA (PR-07h) required for Teams/Zoom web | A | P2 (S25) | site behavior [U] |
+| **R3 PC companion webcam** (LN-22) | Phone streams processed video/audio over USB (ADB-free: AOA/USB tethering) or Wi-Fi (WebRTC/RTSP, LAN permission); PC side = separate open companion (Windows: Softcam-class DirectShow/MediaFoundation filter [W] [license verify]; Linux: v4l2loopback (GPL, user-installed); macOS: CoreMediaIO camera extension, ours). Companion repo can be GPL-separated. | A | P3 | DroidCam-class pattern [W] |
+| **R4 Record / RTMP** (LN-23) | Capture Studio MD-01 with Lens applied; RTMP/SRT out | A | P2 | |
+| **R5 Beam** | Window-to-cast WM-15 of the Lens output / presenter scene | A | P3 | |
+| **R6 Native third-party Android apps** (Zoom/Teams/WhatsApp apps) | **Not deliverable** without root; VirtualDeviceManager camera is system-only [W]. UI label: "Use Fusion Meet, the web version of your service, or your PC via Fusion Webcam." | X | — | |
+
+**Mobile screen-share/present (the gap the user named):** delivered on R1 (native `getDisplayMedia`-equivalent track), R2 (`getDisplayMedia` polyfill — Android browsers lack it; our loopback supplies it), R3 (PC sees screen as a second "camera"/or shares via its own app), and Presenter mode LN-13 (slides rendered by Forge, person cutout overlaid — works on *any* route because it is just video).
+
+## 2.4 Mechanism portfolio (Lens)
+
+| # | Mechanism | Proved | Unresolved | Cheapest falsification | Gap |
+|---|---|---|---|---|---|
+| L1 GLES/LiteRT pipeline on device | MediaPipe Apache-2.0, real-time on phones [W] | 60 fps @1080p on 8 Gen 1 | S26: measure seg+composite at 720p/1080p on Standard & Studio devices | local |
+| L2 WebRTC loopback into web pages | WebRTC in GeckoView/WebView [K] | getUserMedia override accepted by Meet/Teams/Zoom web | S25: join each service with injected device | local |
+| L3 In-page WebGPU MediaPipe (no native bridge) | production pattern [W] | WebGPU availability in GeckoView/WebView on Android [U] | S25b | local |
+| L4 Own client via LiveKit/Jitsi/Matrix | SDKs exist [K] | license verify; SFU interop | join public Jitsi with processed track | local |
+| L5 PC companion virtual cam | established [W] | Windows driver license; macOS extension signing | S27: Zoom on PC sees "Fusion Webcam" | local |
+| L6 UVC/USB gadget as webcam | Android 14 "device as webcam" is system feature [K] | no app API | probe only | equivalent-to-original (blocked) |
+| L7 Generative scenes on NPU/GPU | SD-class on 8 Gen 3 feasible [K] | model licenses; 8 GB RAM | S28 | local |
+
+## 2.5 Generative scenes — license truth
+
+"Generate scenes" is split: **LN-11** (procedural/parallax/user-image; ours; default) and **LN-12** (text-to-background diffusion). Candidate weights [K, verify]: FLUX.1-schnell (Apache-2.0, but ~12B params → only 16–24 GB devices with 4-bit quant [U]); Kandinsky 2.2/3 (Apache-2.0); Stable Diffusion 1.5/SDXL (CreativeML Open RAIL-M — commercial use allowed with use-restrictions; **not** unconditionally permissive → legal review gate); SD-Turbo/Sana (non-commercial → **blocked**). Decision rule D-16: ship LN-12 only with an Apache-2.0 model that fits the device RAM class; otherwise LN-11 only. Inference via LiteRT GPU delegate (Apache-2.0); Qualcomm QNN/GENIE delegates are vendor-licensed → pro flavor after review.
+
+## 2.6 Negative space (Lens, ≥15)
+
+1 "virtual camera for all apps" (impossible w/o root) · 2 Shizuku as a virtual-camera route (it isn't) · 3 LSPosed/VCAM bundling · 4 claiming eye-contact parity · 5 NVIDIA Maxine/Broadcast SDK (proprietary, NVIDIA-only) · 6 Banuba/Snap SDKs (commercial) · 7 SD-Turbo/Sana weights (non-commercial) · 8 CPU-only MediaPipe at 1080p (thermal) · 9 in-page override that still lists the real camera first (sites pick default) · 10 Zoom *mobile-UA* web client (feature-stripped) · 11 mic injection into third-party apps (no virtual mic) · 12 cloud processing (DP-01) · 13 ML Kit as the only path (Google terms) · 14 "4K60 everywhere" on 8 Gen 1 · 15 screen-share without `FLAG_SECURE` exclusion (SC-09) · 16 presenter slides via screenshots instead of Forge render (blurry, slow).
+**Modal shortcut:** "ship a beautified camera app and call it Broadcast." Detector: `assert(route ∈ {R1,R2,R3,R4} && processedTrack.reachesPeer)` in CI against a live Jitsi room.
+
+## 2.7 Adversary (Lens)
+
+| Candidate | Attacker | Mitigation / test |
+|---|---|---|
+| R2 override | Site fingerprints fake devices / blocks non-hardware labels | mimic real `MediaDeviceInfo` shape; S25 per-site; per-site disable |
+| R2 loopback | Added latency >120 ms, A/V drift | hardware-encoded loopback; audio through same PC; measure |
+| L1 thermal | 30-min call on 8 Gen 1 hits SEVERE | ladder: 512²→256²→128² seg, 60→30 fps, effects off; S26 soak |
+| Privacy | Lens frames leaked to disk/cloud | no persistence except explicit record; no network except chosen route; FLAG_SECURE exclusion |
+| GeckoView ext | Extension store policy / signing | self-signed ext loaded via GeckoView `WebExtensionController` [K]; S13 |
+| PC driver | Windows driver signing, AV false positives | signed build; OSS companion; documented |
+| Model licenses | OpenRAIL creep | SBOM lists weights; D-16 gate |
+
+## 2.8 New spikes / budgets
+
+S25 web-injection on Meet/Teams/Zoom/Webex web (pass: our device selectable, video+screen received by a second participant) · S26 Lens perf: 1080p30 blur+autoframe ≤ 12 ms/frame GPU on Standard, 1080p60 + relight ≤ 10 ms on Studio, thermal ≤ MODERATE 30 min · S27 PC companion seen as webcam in Zoom/Teams desktop · S28 generative model fit (≤ 6 GB resident, ≤ 8 s/image on Studio). Budgets E0.
+
+---
+
+# PART 3 — iMessage: what is permissible
+
+**Question:** can Fusion do iMessage under the "permissive OSS, commercially free" constraint?
+
+**Verified landscape:**
+- **BlueBubbles** (client Apache-2.0 [W]; server Apache-2.0 [W]) brings iMessage to Android by relaying through the user's own Mac; it requires a Mac and an Apple ID; a macOS VM can suffice [W]. Features include texts/media/location, tapbacks, read receipts, replies, group management; private-API features add typing indicators and reactions [W].
+- **OpenBubbles** (app fork Apache-2.0 [W]) runs iMessage on-phone via **rustpush**, but rustpush is **SSPL-1.0** [W] (not OSI-open, not permissive → **inadmissible**), building requires private Apple FairPlay certificates held by the maintainer; without them the app cannot register with Apple [W]; Apple requires hardware info from genuine Apple hardware, and a Mac cannot register your Android number [W]; accounts can be throttled or, rarely, blocked [W].
+- **RCS alternative:** on Android only Google Messages can access the RCS API [W]; as of 2026 it remains the only RCS client [W]; Google does not offer the RCS API to third-party developers [W].
+
+**Decision (H∂):**
+
+| Path | Admissible? | Spec disposition |
+|---|---|---|
+| **MS-01** Fusion Messages module acting as a **BlueBubbles-API-compatible client** (own Compose UI; Apache-2.0 protocol/client code may be reused with attribution) connected to the **user's own Mac** running BlueBubbles Server | **Yes** | Tier A/B, P3. Requires user-owned Mac + Apple ID; label honestly; no cloud relay by us. Also yields FaceTime-link handoff only (no native FaceTime). |
+| **MS-02** On-phone iMessage without a Mac (rustpush/pypush lineage) | **No** | SSPL license, private FairPlay certs, Apple ToS/ban risk → **X**. Document in negative space. |
+| **MS-03** Hosted relay sold by us | **No** | Apple-account impersonation risk; conflicts DP-01; legal exposure → X. |
+| **MS-04** RCS | **No (platform)** | No third-party API; Tier C: deep-link to Google Messages; shelf badges via notification listener. |
+| **MS-05** SMS/MMS native (SMS role) | **Yes** | Tier B, P3; desktop-class SMS/MMS in Fusion Messages. |
+| **MS-06** Open protocols: Matrix (Apache-2.0 SDKs), XMPP, Signal (AGPL → X), Telegram (API ok, clients GPL → own client) | **Yes (Matrix/XMPP)** | Tier A, P3/P4; Matrix also powers Together chat and Fusion Meet signaling. |
+
+**Honest product line:** "iMessage on your desktop — with your Mac." Not "iMessage without Apple hardware."
+
+---
+
+# PART 4 — Consolidated v2.1 delta register (append to Fable §7)
+
+| ID | Feature | Tier | Ph |
+|---|---|---|---|
+| SH-10′ | BlackTop display router (Presentation + blackout + FGS + heartbeat) | A | P1 |
+| SH-12 | OEM-throttle detector + guidance | A | P1 |
+| IN-01 | `desktopMouse` contract + "Learn my mouse" | A | P1 |
+| IN-07 / IN-08 | controller pointer mode / IME switcher | A | P3 / P2 |
+| WM-16 | Cursor confinement to external display | A | P2 |
+| FF-14…17 | formats registry, document lifecycle, loss report, macros off | A | P2 |
+| FM-18 | SAF safe-save contract | A | P1 |
+| CA-15 | Multi-receiver synchronized cast | A | P3 |
+| CA-11′ | Together: Syncplay-compatible + own-copy mode | A | P3 |
+| LN-01…15 | Fusion Lens effects (table 2.3) | A (LN-12 A/B) | P2–P4 |
+| LN-20…23 | Lens routes: Fusion Meet, browser injection, PC companion, record/RTMP | A | P2–P3 |
+| MS-01, MS-05, MS-06 | Messages: BlueBubbles-compatible iMessage (own Mac), SMS/MMS, Matrix/XMPP | A/B | P3 |
+| MS-02/03 | iMessage without Apple hardware; hosted relay | X | — |
+| MS-04 | RCS | C | — |
+
+New processes: `:lens` (≤ 250 MB during call, Studio ≤ 350 MB), `:meet` (WebRTC). New permissions: CAMERA, RECORD_AUDIO, FOREGROUND_SERVICE_CAMERA/MICROPHONE/MEDIA_PROJECTION, SMS role (MS-05). New spikes S23–S28. New risks: **R-30** site-side rejection of injected devices (M×H) → per-site profiles, Fusion Meet as guaranteed route; **R-31** Apple account throttling via BlueBubbles private API (M×M) → user warning, opt-in; **R-32** generative-model license drift (M×M) → D-16 gate; **R-33** PC driver signing/AV (M×M). New decisions: **D-07′** Gecko-preferred-by-spike; **D-16** generative model admission rule; **D-17** Messages scope = own-Mac iMessage + SMS + Matrix, never no-Mac iMessage.
+
+Feature total: 172 + 11 (Opus Δ) + 19 (Lens) + 6 (Messages) = **208 rows** — recount from tables; tables are authoritative.
+
+---
+
+# PART 5 — Verification status and next tests
+
+| Claim | Status |
+|---|---|
+| App-level virtual camera impossible without system privilege | **Verified [W]** |
+| MediaPipe + selfie-seg model Apache-2.0; web WebGPU/Insertable-Streams pattern | **Verified [W]** |
+| BlueBubbles client/server Apache-2.0, Mac required | **Verified [W]** |
+| rustpush SSPL; FairPlay certs private; Apple throttling | **Verified [W]** |
+| RCS closed to third parties in 2026 | **Verified [W]** |
+| CastBridge Apache-2.0 sender; Syncplay license; LiveKit/Jitsi/Matrix licenses; FSR1 MIT; Softcam license; generative weights' licenses | **[K]/[U] — verify before use** |
+| Any Lens/Meet/injection performance or site compatibility | **E0 — S25/S26 decide** |
+
+**Next highest-information tests, in order:** **S25** (inject "Fusion Lens" into Meet/Teams/Zoom web inside GeckoView and WebView — decides whether the browser route, the only path to mainstream services, is real), **S26** (Lens GPU budget on an 8 Gen 1 and an 8 Gen 3), **S23** (BlackTop survival across OEMs), then **S12/S13** (GeckoView Z-order + WebExtensions, which also gate S25's preferred mechanism).”
