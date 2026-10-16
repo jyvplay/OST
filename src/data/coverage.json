@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-16T09:59:51.418Z",
+ "generatedAt": "2026-10-16T22:41:51.050Z",
  "totals": {
   "built": {
-   "full": 205,
+   "full": 211,
    "partial": 64,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 90,
-   "partial": 72,
-   "untested": 129
+   "full": 96,
+   "partial": 73,
+   "untested": 128
   },
   "tests": {
-   "total": 341,
-   "passed": 341
+   "total": 359,
+   "passed": 359
   }
  },
  "rows": {
@@ -1365,7 +1365,7 @@
     "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
     "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
     "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
-    "e2e-a11y: light theme, every style: axe colour-contrast finds no serious violations in the chrome, Files and Spreadsheet"
+    "e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
    ]
   },
   "TB-01": {
@@ -1418,6 +1418,63 @@
     "e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table",
     "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
     "e2e: mount: tables"
+   ]
+  },
+  "AX-12": {
+   "tested": "full",
+   "tests": [
+    "e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
+   ]
+  },
+  "WB-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: hit testing, marquee and bind targets respect real shape outlines and z-order",
+    "whiteboard-engine: pen strokes: Ramer–Douglas–Peucker simplification and scaling",
+    "whiteboard-engine: limits and normalisation: boxes dragged up-left, the element cap, sticky colours readable"
+   ]
+  },
+  "WB-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher",
+    "e2e-whiteboard: connector follows: an arrow drawn from the rect to the ellipse binds both ends and stays on the rect's outline when the rect is dragged",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: boundary points: rect, ellipse and diamond exits along the ray from the centre",
+    "whiteboard-engine: bound connectors follow their shapes; moving a lone arrow detaches it where it was",
+    "whiteboard-engine: delete and duplicate keep connector integrity"
+   ]
+  },
+  "WB-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits",
+    "e2e-whiteboard: arrange: marquee selects only enclosed elements, Align Left lines them up, Group makes one selection",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: delete and duplicate keep connector integrity",
+    "whiteboard-engine: align, distribute, z-order and groups"
+   ]
+  },
+  "WB-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: files: Save .fboard, reopen it from its path, Export SVG (escaped, no script); a hostile .fboard is repaired and the count reported",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: SVG export is escaped and self-contained; .fboard round-trips; hostile files are refused or repaired",
+    "whiteboard-engine: limits and normalisation: boxes dragged up-left, the element cap, sticky colours readable"
+   ]
+  },
+  "WB-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher",
+    "e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text",
+    "e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits",
+    "e2e-whiteboard: axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: describe(): plain-language labels for the Layers list"
    ]
   },
   "CT-01": {
@@ -1678,8 +1735,9 @@
    "tests": [
     "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
-    "e2e-a11y: light theme, every style: axe colour-contrast finds no serious violations in the chrome, Files and Spreadsheet",
-    "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations"
+    "e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+    "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
+    "e2e-whiteboard: axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations"
    ]
   },
   "AU-01": {
@@ -1699,8 +1757,10 @@
    ]
   },
   "AU-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "integration: malformed JSON bodies get a 400, never an unhandled 500 (TT23 repair, src/proxy.ts)"
+   ]
   },
   "AU-04": {
    "tested": "untested",

@@ -25,7 +25,7 @@ const shot = async (name: string, vw: number, vh: number, prep: (p: import("play
   await page.waitForTimeout(1500);
   await prep(page);
   await page.waitForTimeout(600);
-  await page.screenshot({ path: `docs/screenshots/tt22-${name}.png` });
+  await page.screenshot({ path: name.startsWith("tt23-") ? `docs/screenshots/${name}.png` : `docs/screenshots/tt22-${name}.png` });
   await ctx.close();
 };
 
@@ -37,7 +37,27 @@ try {
     await desktop(two);
     await shot(`desktop-${s}`, 1440, 900);
   }
+  // TT23: the five reach-backed styles — dark desktop, light desktop, and the launcher grid (icons up close)
+  for (const s of ["liquidglass", "expressive", "fluent", "clouddancer", "teal"]) {
+    if (ONLY && !`tt23-style-${s}`.includes(ONLY)) continue;
+    await set("appearance.style", s);
+    await desktop(two);
+    await shot(`tt23-style-${s}-dark`, 1440, 900);
+    await set("appearance.theme", "light");
+    await shot(`tt23-style-${s}-light`, 1440, 900);
+    await set("appearance.theme", "dark");
+    await desktop([]);
+    await shot(`tt23-style-${s}-launcher`, 1440, 900, async (p) => { await p.getByTestId("launcher-button").click(); });
+  }
   await set("appearance.style", "poolside");
+  await desktop([win("w4", "settings", 100, 20, 980, 820, 11)]);
+  await shot("tt23-style-picker", 1440, 900);
+  // TT23 Whiteboard: default text and Large text mode (layout must hold at 200 %)
+  await desktop([win("w7", "whiteboard", 20, 10, 1380, 800, 11)]);
+  await shot("tt23-whiteboard", 1440, 900, async (p) => { await p.getByRole("button", { name: /^Ellipse: Next step/ }).click(); });
+  await set("appearance.textScale", "200");
+  await shot("tt23-whiteboard-large", 1440, 900);
+  await set("appearance.textScale", "125");
   await desktop([]);
   await shot("launcher", 1440, 900, async (p) => { await p.getByTestId("launcher-button").click(); });
   await shot("quick", 1440, 900, async (p) => { await p.getByRole("button", { name: /quick/i }).first().click().catch(async () => { await p.locator('[title*="Quick"]').first().click(); }); });

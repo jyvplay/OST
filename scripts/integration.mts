@@ -277,6 +277,14 @@ await test("deleting a note removes only its own index row", { "PR-02": "partial
 });
 
 // cleanup
+await test("malformed JSON bodies get a 400, never an unhandled 500 (TT23 repair, src/proxy.ts)", { "AU-03": "partial" }, async () => {
+  const send = (method: string, path: string, body: string, type = "application/json") => fetch(BASE + path, { method, headers: { "content-type": type }, body }).then((r) => r.status);
+  for (const [m, p] of [["PUT", "/api/state"], ["PUT", "/api/settings"], ["POST", "/api/fs"], ["POST", "/api/notes"], ["POST", "/api/alerts"], ["POST", "/api/backup"], ["POST", "/api/tasks"]] as const) {
+    for (const body of ["{oops", "[1,2", "\u0000", '{"a":1}}']) { const st = await send(m, p, body); ok(st === 400, `${m} ${p} ${JSON.stringify(body)} → ${st}`); }
+  }
+  ok((await send("PUT", "/api/settings", JSON.stringify({ key: "appearance.style", value: "poolside" }))) === 200, "valid JSON still reaches the route");
+});
+
 await call("POST", "/api/fs", { op: "purge", path: DIR });
 await call("POST", "/api/fs", { op: "purge", path: "/Sync" }).catch(() => undefined);
 

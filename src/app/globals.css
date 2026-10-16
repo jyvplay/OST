@@ -82,6 +82,11 @@ body {
 .fs-wallpaper-poolside { background: #2ab8cb url("/wallpapers/poolside.svg") center / cover no-repeat; }
 .fs-wallpaper-vice { background: #2a0a4a url("/wallpapers/vice.svg") center / cover no-repeat; }
 .fs-wallpaper-oceandrive { background: #2f4d6e url("/wallpapers/oceandrive.svg") center / cover no-repeat; }
+.fs-wallpaper-glass { background: #1d3f8f url("/wallpapers/glass.svg") center / cover no-repeat; }
+.fs-wallpaper-material { background: #e8def8 url("/wallpapers/material.svg") center / cover no-repeat; }
+.fs-wallpaper-fluent { background: #0b3d7a url("/wallpapers/fluent.svg") center / cover no-repeat; }
+.fs-wallpaper-clouddancer { background: #f0eee9 url("/wallpapers/clouddancer.svg") center / cover no-repeat; }
+.fs-wallpaper-teal { background: #1f4f50 url("/wallpapers/teal.svg") center / cover no-repeat; }
 /* TT21 default: a cheerful morning sky — cobalt overhead, a warm sun low on the left, floating bubbles */
 .fs-wallpaper-sunrise {
   background:

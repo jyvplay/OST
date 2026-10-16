@@ -18,6 +18,7 @@ import type { Browser, Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 import { MODULES } from "../src/lib/registry.ts";
+import { STYLE_IDS } from "../src/lib/style-core.ts";
 
 const BASE = process.env.BASE ?? "http://localhost:3999";
 const VERBOSE = process.env.AXE_VERBOSE === "1";
@@ -309,6 +310,25 @@ await test("style switch: the Settings and Quick panel pickers swap data-style, 
   ok(await qb.getAttribute("aria-pressed") === "true", "quick button pressed");
   s0 = await state();
   ok(s0.accent === "#e8b07a" && s0.wp.includes("fs-wallpaper-oceandrive"), `oceandrive ${s0.accent} ${s0.wp}`);
+  // TT23: the five reach-backed styles are selectable from both pickers and re-colour logo, wallpaper, accent, pill
+  await page.keyboard.press("Escape");
+  if (await page.getByTestId("quick-style-teal").isVisible()) await page.getByRole("button", { name: "Quick panel" }).click();
+  for (const [id, acc, wp, logoHex, pill] of [["liquidglass", "#0a84ff", "glass", "#ff375f", "#a9cdff"], ["expressive", "#d0bcff", "material", "#6750a4", "#d0bcff"], ["fluent", "#60cdff", "fluent", "#00b7c3", "#99ccf3"], ["clouddancer", "#f2b8a2", "clouddancer", "#6f9fcf", "#e6e2da"]] as const) {
+    await rg.getByTestId(`style-${id}`).click();
+    await page.waitForFunction((v) => document.documentElement.dataset.style === v, id);
+    s0 = await state();
+    ok(s0.accent === acc && s0.wp.includes(`fs-wallpaper-${wp}`) && s0.logo.toLowerCase().includes(logoHex) && s0.pill === pill, `${id} ${JSON.stringify({ ...s0, logo: s0.logo.slice(0, 60) })}`);
+    if (id === "expressive") ok(s0.logo.includes('d="M47.10 23.50'), "Material Expressive logo uses the 12-lobe cookie shape");
+  }
+  if (!(await page.getByTestId("quick-style-teal").isVisible())) await page.getByRole("button", { name: "Quick panel" }).click();
+  await page.getByTestId("quick-style-teal").click();
+  await page.waitForFunction(() => document.documentElement.dataset.style === "teal");
+  s0 = await state();
+  ok(s0.accent === "#5fd0c2" && s0.wp.includes("fs-wallpaper-teal"), `teal via quick panel ${s0.accent} ${s0.wp}`);
+  const img = await page.evaluate(async () => Promise.all(["glass", "material", "fluent", "clouddancer", "teal"].map(async (w) => { const r = await fetch(`/wallpapers/${w}.svg`); return `${w}:${r.status}:${(r.headers.get("content-type") ?? "").split(";")[0]}`; })));
+  ok(img.every((x) => x.endsWith(":200:image/svg+xml")), `wallpapers served ${img.join(" ")}`);
+  await page.getByTestId("quick-style-oceandrive").click();
+  await page.waitForFunction(() => document.documentElement.dataset.style === "oceandrive");
   // an explicit wallpaper and accent still beat the style's
   await setSetting("appearance.wallpaper", "slate");
   await page.reload(); await page.locator('[role="banner"]').waitFor({ timeout: 30_000 });
@@ -321,19 +341,19 @@ await test("style switch: the Settings and Quick panel pickers swap data-style, 
   await desktop([]);
 });
 
-/* -------------------------------------------------------- 8 light theme contrast, every style (TT22) */
-await test("light theme, every style: axe colour-contrast finds no serious violations in the chrome, Files and Spreadsheet", { "AX-11": "partial", "AX-08": "partial" }, async () => {
+/* -------------------------------------------------------- 8 light + dark contrast, every style (TT22; TT23: 9 styles × 2 themes) */
+await test("light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet", { "AX-11": "partial", "AX-08": "partial", "AX-12": "full" }, async () => {
   const bad: string[] = [];
-  await setSetting("appearance.theme", "light");
   try {
-    for (const st of ["poolside", "vice", "oceandrive", "bubbly"]) {
+    for (const [st, theme] of STYLE_IDS.flatMap((id) => [[id, "light"], [id, "dark"]] as const)) {
+      await setSetting("appearance.theme", theme);
       await setSetting("appearance.style", st);
       await desktop([win("lt_files", "files", 20, 20, 700, 500, 11), win("lt_sheet", "sheet", 420, 160, 1000, 560, 12)]);
       const { page, close } = await boot();
       await page.locator('td[data-cell="A2"]').waitFor({ timeout: 15_000 });
       const vs = (await axe(page)).filter((v) => v.impact === "serious" || v.impact === "critical");
-      for (const v of vs) bad.push(`${st}: ${v.id} ×${v.nodes.length} e.g. ${v.nodes[0]?.target.join(" ")} ${(v.nodes[0]?.failureSummary ?? "").split("\n").slice(1, 2).join(" ")}`);
-      console.log(`    ${st}/light: ${vs.length} serious rule(s)`);
+      for (const v of vs) bad.push(`${st}/${theme}: ${v.id} ×${v.nodes.length} e.g. ${v.nodes[0]?.target.join(" ")} ${(v.nodes[0]?.failureSummary ?? "").split("\n").slice(1, 2).join(" ")}`);
+      console.log(`    ${st}/${theme}: ${vs.length} serious rule(s)`);
       await close();
     }
   } finally {

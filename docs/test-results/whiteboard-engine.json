@@ -1,0 +1,89 @@
+{
+  "suite": "whiteboard-engine",
+  "at": "2026-10-16T22:31:40.342Z",
+  "results": [
+    {
+      "suite": "whiteboard-engine",
+      "name": "boundary points: rect, ellipse and diamond exits along the ray from the centre",
+      "covers": {
+        "WB-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "whiteboard-engine",
+      "name": "bound connectors follow their shapes; moving a lone arrow detaches it where it was",
+      "covers": {
+        "WB-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "whiteboard-engine",
+      "name": "delete and duplicate keep connector integrity",
+      "covers": {
+        "WB-02": "full",
+        "WB-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "whiteboard-engine",
+      "name": "hit testing, marquee and bind targets respect real shape outlines and z-order",
+      "covers": {
+        "WB-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "whiteboard-engine",
+      "name": "align, distribute, z-order and groups",
+      "covers": {
+        "WB-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "whiteboard-engine",
+      "name": "pen strokes: Ramer–Douglas–Peucker simplification and scaling",
+      "covers": {
+        "WB-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "whiteboard-engine",
+      "name": "SVG export is escaped and self-contained; .fboard round-trips; hostile files are refused or repaired",
+      "covers": {
+        "WB-04": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "whiteboard-engine",
+      "name": "limits and normalisation: boxes dragged up-left, the element cap, sticky colours readable",
+      "covers": {
+        "WB-01": "full",
+        "WB-04": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "whiteboard-engine",
+      "name": "describe(): plain-language labels for the Layers list",
+      "covers": {
+        "WB-05": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

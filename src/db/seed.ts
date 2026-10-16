@@ -16,11 +16,12 @@ import { tt19Features, UPDATES_TT19 } from "./seed-data/features-tt19";
 import { tt20Features } from "./seed-data/features-tt20";
 import { tt21Features, UPDATES_TT21 } from "./seed-data/features-tt21";
 import { tt22Features, UPDATES_TT22 } from "./seed-data/features-tt22";
+import { tt23Features, UPDATES_TT23 } from "./seed-data/features-tt23";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.10.2";
+export const SEED_VERSION = "3.11.1";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...platformFeatures]
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
   .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))
@@ -28,7 +29,8 @@ export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, 
   .map((f) => (UPDATES_TT18[f.code] ? { ...f, ...UPDATES_TT18[f.code] } : f))
   .map((f) => (UPDATES_TT19[f.code] ? { ...f, ...UPDATES_TT19[f.code] } : f))
   .map((f) => (UPDATES_TT21[f.code] ? { ...f, ...UPDATES_TT21[f.code] } : f))
-  .map((f) => (UPDATES_TT22[f.code] ? { ...f, ...UPDATES_TT22[f.code] } : f));
+  .map((f) => (UPDATES_TT22[f.code] ? { ...f, ...UPDATES_TT22[f.code] } : f))
+  .map((f) => (UPDATES_TT23[f.code] ? { ...f, ...UPDATES_TT23[f.code] } : f));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

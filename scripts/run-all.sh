@@ -8,10 +8,17 @@ export DATABASE_URL="${DATABASE_URL:-postgresql://postgres:postgres@127.0.0.1:54
 export AWS_EXECUTION_ENV="${AWS_EXECUTION_ENV:-AWS_Lambda_nodejs22.x}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-/tmp/al2023/lib:/tmp}"
 export BASE="${BASE:-http://localhost:3999}"
-ALL="unit integration office-engine oracle-parity oracle-xlsx sheet-layout names image-engine oracle-psd vector-engine vector-boolean oracle-svg browser-session privacy-crypto privacy-layer metaclean privacy-backup a11y-unit tables-engine e2e e2e-office e2e-image e2e-vector e2e-browser e2e-privacy e2e-sheet-layout e2e-a11y e2e-tables"
+ALL="unit integration office-engine oracle-parity oracle-xlsx sheet-layout names image-engine oracle-psd vector-engine vector-boolean oracle-svg browser-session privacy-crypto privacy-layer metaclean privacy-backup a11y-unit tables-engine whiteboard-engine e2e e2e-office e2e-image e2e-vector e2e-browser e2e-privacy e2e-sheet-layout e2e-a11y e2e-tables e2e-whiteboard"
+# TT23: a suite that crashes before printing its summary used to show only its "=== name" header and the run still
+# ended EXIT 0 (metaclean + e2e-privacy silently crashed on a missing python-docx). Now it is reported and counted.
+crashed=""
 for s in ${SUITES:-$ALL}; do
   echo "=== $s"
-  timeout 1200 node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs "scripts/$s.mts" 2>&1 \
-    | grep -E "✗|passed, |FAILED" -A3 | head -40
+  out=$(timeout 1200 node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs "scripts/$s.mts" 2>&1)
+  echo "$out" | grep -E "✗|passed, |FAILED" -A3 | head -40
+  if ! echo "$out" | grep -qE "[0-9]+ passed, [0-9]+ failed"; then
+    echo "CRASHED $s (no summary line) — last lines:"; echo "$out" | tail -6; crashed="$crashed $s"
+  fi
 done
+[ -n "$crashed" ] && echo "CRASHED SUITES:$crashed"
 echo ALLDONE

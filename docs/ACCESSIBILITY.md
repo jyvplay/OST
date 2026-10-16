@@ -45,7 +45,8 @@ Common practice is 16 px body text and relative (rem) units, so the user's own b
   - The Spreadsheet formatting toolbar is one row that scrolls sideways (`.fs-toolbar`, `role=toolbar`) instead of wrapping onto five rows and squeezing the grid to about 150 px.
 - **Names match visible labels (WCAG 2.5.3):** a short visible label such as "Clear fmt" gets the name "Clear formatting · Clear fmt". axe ignores parenthesised text, so `(Clear fmt)` did not count.
 - **Forced colours and `prefers-contrast: more`:** both are honoured. Register row AX-03 claimed this before TT21, but no CSS existed.
-- **Styles (TT22, AX-11):** Poolside (default), Vice, Ocean Drive and Bubbly.
+- **Styles (TT22, AX-11; TT23, AX-12):** Poolside (default), Vice, Ocean Drive, Bubbly, and the TT23 five: Liquid Glass, Material Expressive, Fluent, Cloud Dancer and Transformative Teal (see DESIGN-THEMES-TT23.md).
+  - TT23: translucent panel text is also checked composited over pure black and pure white.
   - Every style's tile/glyph pairs (≥3:1), chrome ink, accent buttons and dark/light text tokens (≥4.5:1) are checked numerically.
   - The high-contrast and forced-colours modes override every style.
 - **Light theme fixes (TT22):** inputs were dark grey with dark text, and status badges kept their pale dark-theme colours. Both now use theme tokens.
@@ -59,7 +60,8 @@ Common practice is 16 px body text and relative (rem) units, so the user's own b
 | WCAG 2.0/2.1/2.2 A+AA rules on all 34 module windows, plus the desktop, launcher, palette and quick panel | **axe-core 4.14** (Deque; external rules engine) in headless Chromium | `e2e-a11y.mts` |
 | At the 125 % default: no visible text below 12 px and body ≥16 px (8 modules). In Large text mode: nothing below 20 px (3 modules). Measured with `getComputedStyle` over every text node | Chromium | `e2e-a11y.mts` |
 | Style switch from Settings and the Quick panel (data-style, logo, wallpaper, accent, persistence, 422) | Chromium | `e2e-a11y.mts` |
-| axe serious/critical rules in the **light** theme for every style (chrome + Files + Spreadsheet) | axe-core in Chromium | `e2e-a11y.mts` |
+| axe serious/critical rules in the **light and dark** themes for all 9 styles (18 boots; chrome + Files + Spreadsheet) | axe-core in Chromium | `e2e-a11y.mts` |
+| Whiteboard (TT23): axe in three states, and a keyboard route to every element via the Layers list | axe-core + Playwright keyboard | `e2e-whiteboard.mts` |
 | 300 % text at 1280×800 and a 360×640 phone: no sideways page scroll, window content fits | Chromium | `e2e-a11y.mts` |
 | Icon glyph contrast, token contrast, no raw px font sizes left, no emoji in the chrome, validator | Node | `a11y-unit.mts` |
 | Forced colours + more contrast emulation | Chromium | `e2e-a11y.mts` |
@@ -72,7 +74,7 @@ Common practice is 16 px body text and relative (rem) units, so the user's own b
   - whether a screen-reader user can complete a task.
 
   No screen-reader run (NVDA/VoiceOver) has been done.
-- The full axe run covers each module in its **opening state** in the dark Poolside default. The light theme is scanned for every style, but only for the chrome, Files and Spreadsheet. Dialogs deeper inside modules are not scanned.
+- The full axe run covers each module in its **opening state** in the dark Poolside default. Both themes are scanned for every style (TT23), but only for the chrome, Files and Spreadsheet. The Whiteboard needs a pointer to draw *new* shapes. Dialogs deeper inside modules are not scanned.
 - Toolbars that scroll sideways hide their overflow until you scroll or Tab to it. Every control stays keyboard-reachable.
 - Symbols outside the bundled Nunito font (arrows, some math symbols in module toolbars) depend on the device's fallback fonts.
 - This is engineering evidence, not a legal opinion or a conformance certification.

@@ -34,6 +34,7 @@ import LocalDiskModule from "./modules/LocalDisk";
 import SpreadsheetModule from "./modules/Spreadsheet";
 import WriterModule from "./modules/Writer";
 import TablesModule from "./modules/Tables";
+import WhiteboardModule from "./modules/Whiteboard";
 import SlidesModule from "./modules/Slides";
 import ImageEditorModule from "./modules/ImageEditor";
 import VectorModule from "./modules/Vector";
@@ -74,6 +75,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "sheet": return <SpreadsheetModule win={win} />;
     case "writer": return <WriterModule win={win} />;
     case "tables": return <TablesModule win={win} />;
+    case "whiteboard": return <WhiteboardModule win={win} />;
     case "slides": return <SlidesModule win={win} />;
     case "imageedit": return <ImageEditorModule win={win} />;
     case "vector": return <VectorModule win={win} />;

@@ -1,0 +1,73 @@
+{
+  "suite": "e2e-whiteboard",
+  "at": "2026-10-16T22:41:40.495Z",
+  "results": [
+    {
+      "suite": "e2e-whiteboard",
+      "name": "starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher",
+      "covers": {
+        "WB-05": "partial",
+        "WB-02": "partial"
+      },
+      "pass": true,
+      "ms": 1265
+    },
+    {
+      "suite": "e2e-whiteboard",
+      "name": "draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text",
+      "covers": {
+        "WB-01": "full",
+        "WB-05": "partial"
+      },
+      "pass": true,
+      "ms": 6459
+    },
+    {
+      "suite": "e2e-whiteboard",
+      "name": "connector follows: an arrow drawn from the rect to the ellipse binds both ends and stays on the rect's outline when the rect is dragged",
+      "covers": {
+        "WB-02": "full"
+      },
+      "pass": true,
+      "ms": 3981
+    },
+    {
+      "suite": "e2e-whiteboard",
+      "name": "keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits",
+      "covers": {
+        "WB-05": "full",
+        "WB-03": "partial"
+      },
+      "pass": true,
+      "ms": 2033
+    },
+    {
+      "suite": "e2e-whiteboard",
+      "name": "arrange: marquee selects only enclosed elements, Align Left lines them up, Group makes one selection",
+      "covers": {
+        "WB-03": "full"
+      },
+      "pass": true,
+      "ms": 2468
+    },
+    {
+      "suite": "e2e-whiteboard",
+      "name": "files: Save .fboard, reopen it from its path, Export SVG (escaped, no script); a hostile .fboard is repaired and the count reported",
+      "covers": {
+        "WB-04": "full"
+      },
+      "pass": true,
+      "ms": 4594
+    },
+    {
+      "suite": "e2e-whiteboard",
+      "name": "axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations",
+      "covers": {
+        "WB-05": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 3505
+    }
+  ]
+}

@@ -56,6 +56,8 @@ export const GLYPHS: Record<GlyphName, Glyph> = {
   pen: (p) => <><path d="M24 9.5l8.8 11.8-4.7 13.2h-8.2l-4.7-13.2z" fill={p.fg} /><circle cx="24" cy="22.5" r="2.4" fill={p.detail} /><path d="M24 25v7" {...S} stroke={p.detail} strokeWidth="2" /><rect x="19.2" y="34.8" width="9.6" height="3.6" rx="1.4" fill={p.fg} /></>,
   doc: (p) => <><path d="M15 10h12.2l8.3 8.3V36a2.5 2.5 0 0 1-2.5 2.5H15a2.5 2.5 0 0 1-2.5-2.5V12.5A2.5 2.5 0 0 1 15 10z" fill={p.fg} /><path d="M27 10.4v6.4a1.6 1.6 0 0 0 1.6 1.6H35" {...S} stroke={p.detail} strokeWidth="2.4" /><path d="M17.5 24.5h13M17.5 29.5h13M17.5 34h7.5" {...S} stroke={p.detail} strokeWidth="2.6" /></>,
   easel: (p) => <><rect x="10" y="10.5" width="28" height="20" rx="3.6" fill={p.fg} /><path d="M19.5 37.5l3-7M28.5 37.5l-3-7" {...S} stroke={p.fg} strokeWidth="3.2" /><rect x="15" y="21" width="4.4" height="6" rx="1.2" fill={p.detail} /><rect x="21.8" y="17" width="4.4" height="10" rx="1.2" fill={p.detail} /><rect x="28.6" y="14" width="4.4" height="13" rx="1.2" fill={p.detail} /></>,
+  // TT23 Whiteboard: a sticky square bound to a circle by an arrow — the connector model in one picture
+  board: (p) => <><rect x="9" y="11" width="14" height="13" rx="3" fill={p.fg} /><circle cx="31.5" cy="31" r="7" fill={p.fg} /><path d="M21 22.5l5.6 4.6" {...S} stroke={p.fg} strokeWidth="2.8" /><path d="M28.6 29.6l-6.6-1.2 3.4-4.4z" fill={p.fg} /><path d="M12.5 15.5h7M12.5 19.5h4.5" stroke={p.detail} strokeWidth="2" strokeLinecap="round" /><circle cx="31.5" cy="31" r="2.6" fill={p.detail} /></>,
   // TT22 Tables: a record table — header band with a record dot, row rules, and a narrow first column
   table: (p) => <><rect x="9.5" y="11.5" width="29" height="25" rx="4.5" fill={p.fg} /><path d="M9.5 19h29M9.5 25.6h29M9.5 31.6h29M16.5 19v17.5" stroke={p.detail} strokeWidth="2.4" /><circle cx="13" cy="15.3" r="1.9" fill={p.detail} /><path d="M19.5 15.3h14" stroke={p.detail} strokeWidth="2.4" strokeLinecap="round" /></>,
   grid: (p) => <><rect x="10.5" y="11.5" width="27" height="25" rx="4.5" fill={p.fg} /><path d="M10.5 19.6h27M10.5 28h27M19.5 11.5v25M28.5 19.6v16.9" stroke={p.detail} strokeWidth="2.6" /></>,
@@ -72,6 +74,16 @@ export const GLYPHS: Record<GlyphName, Glyph> = {
  * Tile finishes (TT22): the palette *role* (sun, coral, …) is fixed per module; the active style maps it to colours
  * and picks the finish. Glyph contrast is checked per style by scripts/a11y-unit.mts over the exact data used here.
  */
+/** TT23 Material Expressive "cookie" (12-lobe) shape, generated: r(θ) = 21.6 + 1.5·cos 12θ around (24, 23.5). */
+const COOKIE = "M47.10 23.50L46.78 24.69L45.94 25.81L44.88 26.81L43.94 27.74L43.42 28.70L43.39 29.80L43.73 31.07L44.16 32.47L44.33 33.86L44.01 35.05L43.13 35.93L41.85 36.47L40.43 36.80L39.15 37.14L38.21 37.71L37.64 38.65L37.30 39.93L36.97 41.35L36.43 42.63L35.55 43.51L34.36 43.83L32.97 43.66L31.57 43.23L30.30 42.89L29.20 42.92L28.24 43.44L27.31 44.38L26.31 45.44L25.19 46.28L24.00 46.60L22.81 46.28L21.69 45.44L20.69 44.38L19.76 43.44L18.80 42.92L17.70 42.89L16.43 43.23L15.03 43.66L13.64 43.83L12.45 43.51L11.57 42.63L11.03 41.35L10.70 39.93L10.36 38.65L9.79 37.71L8.85 37.14L7.57 36.80L6.15 36.47L4.87 35.93L3.99 35.05L3.67 33.86L3.84 32.47L4.27 31.07L4.61 29.80L4.58 28.70L4.06 27.74L3.12 26.81L2.06 25.81L1.22 24.69L0.90 23.50L1.22 22.31L2.06 21.19L3.12 20.19L4.06 19.26L4.58 18.30L4.61 17.20L4.27 15.93L3.84 14.53L3.67 13.14L3.99 11.95L4.87 11.07L6.15 10.53L7.57 10.20L8.85 9.86L9.79 9.29L10.36 8.35L10.70 7.07L11.03 5.65L11.57 4.37L12.45 3.49L13.64 3.17L15.03 3.34L16.43 3.77L17.70 4.11L18.80 4.08L19.76 3.56L20.69 2.62L21.69 1.56L22.81 0.72L24.00 0.40L25.19 0.72L26.31 1.56L27.31 2.62L28.24 3.56L29.20 4.08L30.30 4.11L31.57 3.77L32.97 3.34L34.36 3.17L35.55 3.49L36.43 4.37L36.97 5.65L37.30 7.07L37.64 8.35L38.21 9.29L39.15 9.86L40.43 10.20L41.85 10.53L43.13 11.07L44.01 11.95L44.33 13.14L44.16 14.53L43.73 15.93L43.39 17.20L43.42 18.30L43.94 19.26L44.88 20.19L45.94 21.19L46.78 22.31Z";
+const tileRx = (f: Finish) => (f === "mica" ? 9 : 14);
+/** The tile body (or its drop shadow when dy > 0) in the style's shape. */
+function TileShape({ finish, fill, dy = 0, opacity }: { finish: Finish; fill: string; dy?: number; opacity?: number }) {
+  if (finish === "tonal") return <path d={COOKIE} fill={fill} opacity={opacity} transform={dy ? `translate(0 ${dy})` : undefined} />;
+  return <rect x="1.5" y={1 + dy} width="45" height="45" rx={tileRx(finish)} fill={fill} opacity={opacity} />;
+}
+const SHADOW: Record<Finish, number> = { gloss: .22, sheen: .16, neon: .35, deco: .16, glass: .24, tonal: .1, mica: .16, paper: .14, lacquer: .3 };
+
 function TileFinish({ finish, p, uid, trim }: { finish: Finish; p: Palette; uid: string; trim?: string }) {
   if (finish === "gloss") return <>
     <path d="M9 8.6C9 5.6 11.8 3.6 15.5 3.6h17c3.7 0 6.5 2 6.5 5 0 1.5-6.7 2.4-15 2.4S9 10.1 9 8.6z" fill={`url(#h${uid})`} />
@@ -84,6 +96,21 @@ function TileFinish({ finish, p, uid, trim }: { finish: Finish; p: Palette; uid:
   if (finish === "neon") return <>
     <rect x="1.5" y="1" width="45" height="45" rx="14" fill="none" stroke={p.fg} strokeOpacity=".22" strokeWidth="3.4" />
     <rect x="2.6" y="2.1" width="42.8" height="42.8" rx="12.9" fill="none" stroke={p.fg} strokeOpacity=".9" strokeWidth="1.3" />
+  </>;
+  if (finish === "glass") return <>
+    <path d="M8 9.2C8 5.6 11.4 3.4 15.5 3.4h17c4.1 0 7.5 2.2 7.5 5.8 0 1.6-7.2 1.8-16 1.8S8 10.8 8 9.2z" fill={`url(#h${uid})`} />
+    <rect x="2.1" y="1.6" width="43.8" height="43.8" rx="13.4" fill="none" stroke="#fff" strokeOpacity=".7" strokeWidth="1.2" />
+    <path d="M9 42.6q15 3.2 30 0" fill="none" stroke="#fff" strokeOpacity=".55" strokeWidth="1.4" strokeLinecap="round" />
+  </>;
+  if (finish === "tonal") return null;
+  if (finish === "mica") return <>
+    <path d="M10 1.9h28" stroke="#fff" strokeOpacity=".5" strokeWidth="1" strokeLinecap="round" />
+    <rect x="1.5" y="1" width="45" height="45" rx="9" fill="none" stroke="#000" strokeOpacity=".14" strokeWidth="1" />
+  </>;
+  if (finish === "paper") return <rect x="2" y="1.5" width="44" height="44" rx="13.5" fill="none" stroke={trim ?? "#cfc8ba"} strokeWidth="1" />;
+  if (finish === "lacquer") return <>
+    <path d="M6 9.5C10 4.5 17 2.6 26 2.6c7 0 12.5 1.6 16 4.6-9-1.2-22-.6-36 2.3z" fill="#fff" opacity=".2" />
+    <rect x="2.3" y="1.8" width="43.4" height="43.4" rx="13.2" fill="none" stroke={p.fg} strokeOpacity=".32" strokeWidth="1" />
   </>;
   return <>
     <rect x="4.6" y="4.1" width="38.8" height="38.8" rx="10.6" fill="none" stroke={trim ?? "#c9a24a"} strokeWidth="1.1" />
@@ -103,10 +130,10 @@ export function Tile({ palette, glyph, size = 20, label, style, styleId: forced 
       style={{ width: fz(size), height: fz(size), flex: "0 0 auto", display: "inline-block", verticalAlign: "middle", ...style }}>
       <defs>
         <linearGradient id={`g${uid}`} x1="0" y1="0" x2={spec.finish === "sheen" ? ".35" : "0"} y2="1"><stop offset="0" stopColor={p.top} /><stop offset="1" stopColor={p.bottom} /></linearGradient>
-        {spec.finish === "gloss" ? <linearGradient id={`h${uid}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".55" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient> : null}
+        {spec.finish === "gloss" || spec.finish === "glass" ? <linearGradient id={`h${uid}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".55" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient> : null}
       </defs>
-      <rect x="1.5" y="2.5" width="45" height="45" rx="14" fill="#000" opacity={spec.finish === "neon" ? ".35" : spec.finish === "gloss" ? ".22" : ".16"} />
-      <rect x="1.5" y="1" width="45" height="45" rx="14" fill={`url(#g${uid})`} />
+      <TileShape finish={spec.finish} fill="#000" dy={1.5} opacity={SHADOW[spec.finish]} />
+      <TileShape finish={spec.finish} fill={`url(#g${uid})`} />
       <TileFinish finish={spec.finish} p={p} uid={uid} trim={spec.trim} />
       <g transform="translate(0 .4)">{GLYPHS[glyph](p)}</g>
     </svg>
@@ -129,6 +156,9 @@ export function FileIcon({ name, kind = "file", size = 20 }: { name: string; kin
  *   vice     — neon pink + cyan on midnight with a lit rim and sunset stripes through the pink disc
  *   deco     — terracotta + sea-glass on deco navy inside a fine gold frame with a sunburst
  *   bubbly   — the TT21 glossy mark
+ *   TT23: glass — frosted lens + white specular rim; tonal — on the Material "cookie" shape; mica — small-radius tile
+ *   with a 1px top highlight; paper — Cloud Dancer stock with a hairline and a soft ripple; lacquer — deep teal with a
+ *   Green Glow rim and a pearl sheen.
  */
 export function FusionLogo({ size = 20, label = "Fusion", styleId: forced }: { size?: number; label?: string; styleId?: StyleId }) {
   const uid = useId().replace(/:/g, "");
@@ -147,8 +177,8 @@ export function FusionLogo({ size = 20, label = "Fusion", styleId: forced }: { s
         <clipPath id={`c${uid}`}><circle cx="29.5" cy="28.5" r="10" /></clipPath>
         <clipPath id={`a${uid}`}><circle cx="19.5" cy="21.5" r="10" /></clipPath>
       </defs>
-      <rect x="1.5" y="2.5" width="45" height="45" rx="14" fill="#000" opacity=".2" />
-      <rect x="1.5" y="1" width="45" height="45" rx="14" fill={`url(#t${uid})`} />
+      <TileShape finish={finish} fill="#000" dy={1.5} opacity={.2} />
+      <TileShape finish={finish} fill={`url(#t${uid})`} />
       {finish === "deco" ? <g stroke={L.ring} strokeWidth="1" opacity=".75">{[-50, -25, 0, 25, 50].map((a) => { const r = (a - 90) * Math.PI / 180; return <path key={a} d={`M24 30L${24 + Math.cos(r) * 19} ${30 + Math.sin(r) * 19}`} />; })}</g> : null}
       <circle cx="19.5" cy="21.5" r="10" fill={`url(#s${uid})`} />
       {finish === "neon" ? <g clipPath={`url(#a${uid})`} stroke={L.tileBottom} strokeWidth="1.6">{[24, 27.2, 30].map((y) => <path key={y} d={`M8 ${y}h24`} />)}</g> : null}
@@ -158,6 +188,10 @@ export function FusionLogo({ size = 20, label = "Fusion", styleId: forced }: { s
       {finish === "sheen" ? <><path d="M7 41.5q4.2-3 8.4 0t8.4 0 8.4 0 8.4 0" fill="none" stroke="#fff" strokeOpacity=".75" strokeWidth="1.8" strokeLinecap="round" /><circle cx="38.5" cy="10.5" r="2.4" fill="#fff" opacity=".85" /></> : null}
       {finish === "neon" ? <rect x="2.6" y="2.1" width="42.8" height="42.8" rx="12.9" fill="none" stroke={L.ring} strokeOpacity=".9" strokeWidth="1.3" /> : null}
       {finish === "deco" ? <rect x="4.6" y="4.1" width="38.8" height="38.8" rx="10.6" fill="none" stroke={L.ring} strokeWidth="1.1" /> : null}
+      {finish === "glass" ? <><path d="M8 9.2C8 5.6 11.4 3.4 15.5 3.4h17c4.1 0 7.5 2.2 7.5 5.8 0 1.6-7.2 1.8-16 1.8S8 10.8 8 9.2z" fill={`url(#h${uid})`} /><rect x="2.1" y="1.6" width="43.8" height="43.8" rx="13.4" fill="none" stroke={L.ring} strokeOpacity=".75" strokeWidth="1.2" /><circle cx="15.5" cy="17" r="2.2" fill="#fff" opacity=".85" /></> : null}
+      {finish === "mica" ? <><path d="M10 1.9h28" stroke="#fff" strokeOpacity=".55" strokeWidth="1" strokeLinecap="round" /><rect x="1.5" y="1" width="45" height="45" rx="9" fill="none" stroke="#000" strokeOpacity=".16" strokeWidth="1" /></> : null}
+      {finish === "paper" ? <><rect x="2" y="1.5" width="44" height="44" rx="13.5" fill="none" stroke={L.ring} strokeWidth="1" /><path d="M8 40.5c3-2.6 6.4-2.6 9 0s6 2.6 9 0 6-2.6 9 0" fill="none" stroke={L.ring} strokeWidth="1.2" strokeLinecap="round" /></> : null}
+      {finish === "lacquer" ? <><path d="M6 9.5C10 4.5 17 2.6 26 2.6c7 0 12.5 1.6 16 4.6-9-1.2-22-.6-36 2.3z" fill="#fff" opacity=".2" /><rect x="2.3" y="1.8" width="43.4" height="43.4" rx="13.2" fill="none" stroke={L.ring} strokeOpacity=".8" strokeWidth="1.1" /><circle cx="37.5" cy="11" r="2.1" fill={L.ring} /></> : null}
     </svg>
   );
 }

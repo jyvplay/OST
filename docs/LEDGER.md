@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-16T09:59:51.417Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-28 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-16T22:41:51.049Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+30 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **291** |
-| Fully built | 205 |
+| **Features in register** | **297** |
+| Fully built | 211 |
 | Partially built (partial 46 + probe 18) | 64 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **90** |
-| **Partially tested** (only `partial` tags) | **72** |
-| Untested | 129 |
-| Automated tests executed / passed | 341 / 341 |
+| **Fully tested** (≥1 passing test tagged `full`) | **96** |
+| **Partially tested** (only `partial` tags) | **73** |
+| Untested | 128 |
+| Automated tests executed / passed | 359 / 359 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 80 | 58 | 67 |
-| partially built | 4 | 12 | 48 |
+| fully built | 86 | 58 | 67 |
+| partially built | 4 | 13 | 47 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
 
@@ -33,34 +33,36 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-16T09:52:38.923Z |
-| browser-session | 5 | 5 | 0 | 2026-10-16T09:52:28.683Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-16T09:59:18.475Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-16T09:56:18.296Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-16T09:55:14.606Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-16T09:54:31.063Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-16T09:56:42.262Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-16T09:57:06.419Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-16T09:59:36.750Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-16T09:55:37.435Z |
-| e2e | 56 | 56 | 0 | 2026-10-16T09:54:07.598Z |
-| image | 12 | 12 | 0 | 2026-10-16T09:52:23.485Z |
-| integration | 24 | 24 | 0 | 2026-10-16T09:52:18.167Z |
-| metaclean | 6 | 6 | 0 | 2026-10-16T09:52:35.588Z |
-| names | 7 | 7 | 0 | 2026-10-16T09:52:23.155Z |
-| office | 35 | 35 | 0 | 2026-10-16T09:52:18.559Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-16T09:52:26.401Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-16T09:52:28.493Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T09:52:20.177Z |
-| oracle | 5 | 5 | 0 | 2026-10-16T09:52:18.935Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-16T09:52:38.706Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-16T09:52:32.701Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-16T09:52:34.217Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-16T09:52:20.540Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-16T09:52:39.131Z |
-| unit | 23 | 23 | 0 | 2026-10-16T09:52:15.381Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-16T09:52:27.727Z |
-| vector | 18 | 18 | 0 | 2026-10-16T09:52:26.663Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-16T22:31:39.900Z |
+| browser-session | 5 | 5 | 0 | 2026-10-16T22:31:28.410Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-16T22:40:50.258Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-16T22:36:01.832Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-16T22:34:49.459Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-16T22:33:53.195Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-16T22:36:34.847Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-16T22:37:13.505Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-16T22:41:15.425Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-16T22:35:19.135Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-16T22:41:40.495Z |
+| e2e | 57 | 57 | 0 | 2026-10-16T22:33:22.471Z |
+| image | 12 | 12 | 0 | 2026-10-16T22:31:22.869Z |
+| integration | 25 | 25 | 0 | 2026-10-16T22:31:16.876Z |
+| metaclean | 6 | 6 | 0 | 2026-10-16T22:31:36.237Z |
+| names | 7 | 7 | 0 | 2026-10-16T22:31:22.426Z |
+| office | 35 | 35 | 0 | 2026-10-16T22:31:17.254Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-16T22:31:26.202Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-16T22:31:28.219Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T22:31:18.978Z |
+| oracle | 5 | 5 | 0 | 2026-10-16T22:31:17.651Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-16T22:31:39.658Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-16T22:31:33.002Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-16T22:31:34.762Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-16T22:31:19.354Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-16T22:31:40.121Z |
+| unit | 23 | 23 | 0 | 2026-10-16T22:31:14.865Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-16T22:31:27.494Z |
+| vector | 18 | 18 | 0 | 2026-10-16T22:31:26.505Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-16T22:31:40.342Z |
 
 ## Rows touched by failing tests
 
@@ -84,13 +86,14 @@ None.
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
-| AX | 11 | 10 | 1 | 0 | 5 | 4 | 2 |
+| AX | 12 | 11 | 1 | 0 | 6 | 4 | 2 |
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
+| WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
 | LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
 | MS | 4 | 0 | 2 | 2 | 0 | 2 | 2 |
-| AU | 4 | 2 | 2 | 0 | 1 | 1 | 2 |
+| AU | 4 | 2 | 2 | 0 | 1 | 2 | 1 |
 | RG | 7 | 6 | 1 | 0 | 1 | 2 | 4 |
 | HW | 11 | 2 | 9 | 0 | 0 | 1 | 10 |
 | CM | 2 | 1 | 0 | 1 | 0 | 0 | 2 |
@@ -301,6 +304,12 @@ None.
 | TB-03 | built | full | e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs; e2e-tables: add a formula field: live validation disables Create on a bad formula; a good one adds a computed column; e2e: mount: tables (+2) |
 | TB-04 | built | full | e2e-tables: filter + sort: Status is Doing leaves 2 records; sorting Hours descending orders them; badges count the conditions; e2e-tables: kanban: columns by Status; moving a card with its Move select and by drag-and-drop updates the counts and the grid; e2e: mount: tables (+2) |
 | TB-05 | built | full | e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs; e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores; e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table (+2) |
+| AX-12 | built | full | e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet |
+| WB-01 | built | full | e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text; e2e: mount: whiteboard; whiteboard-engine: hit testing, marquee and bind targets respect real shape outlines and z-order (+2) |
+| WB-02 | built | full | e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher; e2e-whiteboard: connector follows: an arrow drawn from the rect to the ellipse binds both ends and stays on the rect's outline when the rect is dragged; e2e: mount: whiteboard (+3) |
+| WB-03 | built | full | e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits; e2e-whiteboard: arrange: marquee selects only enclosed elements, Align Left lines them up, Group makes one selection; e2e: mount: whiteboard (+2) |
+| WB-04 | built | full | e2e-whiteboard: files: Save .fboard, reopen it from its path, Export SVG (escaped, no script); a hostile .fboard is repaired and the count reported; e2e: mount: whiteboard; whiteboard-engine: SVG export is escaped and self-contained; .fboard round-trips; hostile files are refused or repaired (+1) |
+| WB-05 | built | full | e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher; e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text; e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits (+3) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
@@ -348,10 +357,10 @@ None.
 | AX-05 | built | partial | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half |
 | AX-06 | probe | untested |  |
 | AX-07 | built | partial | unit: SRT → WebVTT conversion |
-| AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light theme, every style: axe colour-contrast finds no serious violations in the chrome, Files and Spreadsheet (+1) |
+| AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+2) |
 | AU-01 | built | full | e2e: mount: routines; e2e: routines: dry-run lists actions without executing; Run opens the window; integration: AU-01 routine whitelist rejects commands outside the palette vocabulary (+1) |
 | AU-02 | built | partial | e2e: mount: routines; integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted |
-| AU-03 | partial | untested |  |
+| AU-03 | partial | partial | integration: malformed JSON bodies get a 400, never an unhandled 500 (TT23 repair, src/proxy.ts) |
 | AU-04 | probe | untested |  |
 | RG-01 | built | partial | e2e: mount: monitor; e2e: governor reacts to injected long tasks |
 | RG-02 | partial | untested |  |

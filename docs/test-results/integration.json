@@ -1,6 +1,6 @@
 {
   "suite": "integration",
-  "at": "2026-10-16T09:52:18.167Z",
+  "at": "2026-10-16T22:31:16.876Z",
   "results": [
     {
       "suite": "integration",
@@ -9,7 +9,7 @@
         "DP-10": "partial"
       },
       "pass": true,
-      "ms": 827
+      "ms": 56
     },
     {
       "suite": "integration",
@@ -18,7 +18,7 @@
         "DP-08": "partial"
       },
       "pass": true,
-      "ms": 24
+      "ms": 20
     },
     {
       "suite": "integration",
@@ -30,7 +30,7 @@
         "NC-05": "partial"
       },
       "pass": true,
-      "ms": 78
+      "ms": 77
     },
     {
       "suite": "integration",
@@ -39,7 +39,7 @@
         "FM-03": "full"
       },
       "pass": true,
-      "ms": 41
+      "ms": 43
     },
     {
       "suite": "integration",
@@ -50,7 +50,7 @@
         "BK-01": "partial"
       },
       "pass": true,
-      "ms": 31
+      "ms": 32
     },
     {
       "suite": "integration",
@@ -60,7 +60,7 @@
         "FM-07": "full"
       },
       "pass": true,
-      "ms": 69
+      "ms": 58
     },
     {
       "suite": "integration",
@@ -70,7 +70,7 @@
         "SR-02": "partial"
       },
       "pass": true,
-      "ms": 59
+      "ms": 44
     },
     {
       "suite": "integration",
@@ -89,7 +89,7 @@
         "PR-07r": "partial"
       },
       "pass": true,
-      "ms": 15
+      "ms": 22
     },
     {
       "suite": "integration",
@@ -98,7 +98,7 @@
         "AU-01": "partial"
       },
       "pass": true,
-      "ms": 14
+      "ms": 18
     },
     {
       "suite": "integration",
@@ -108,7 +108,7 @@
         "PR-03": "partial"
       },
       "pass": true,
-      "ms": 25
+      "ms": 28
     },
     {
       "suite": "integration",
@@ -118,7 +118,7 @@
         "CT-02": "partial"
       },
       "pass": true,
-      "ms": 30
+      "ms": 42
     },
     {
       "suite": "integration",
@@ -143,7 +143,7 @@
         "FM-04": "partial"
       },
       "pass": true,
-      "ms": 127
+      "ms": 140
     },
     {
       "suite": "integration",
@@ -154,7 +154,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 11
+      "ms": 10
     },
     {
       "suite": "integration",
@@ -165,7 +165,7 @@
         "BL-05": "partial"
       },
       "pass": true,
-      "ms": 20
+      "ms": 22
     },
     {
       "suite": "integration",
@@ -186,7 +186,7 @@
         "DP-05": "partial"
       },
       "pass": true,
-      "ms": 106
+      "ms": 90
     },
     {
       "suite": "integration",
@@ -196,7 +196,7 @@
         "SR-05": "full"
       },
       "pass": true,
-      "ms": 63
+      "ms": 49
     },
     {
       "suite": "integration",
@@ -205,7 +205,7 @@
         "SR-03": "full"
       },
       "pass": true,
-      "ms": 74
+      "ms": 57
     },
     {
       "suite": "integration",
@@ -214,7 +214,7 @@
         "FM-05": "full"
       },
       "pass": true,
-      "ms": 131
+      "ms": 75
     },
     {
       "suite": "integration",
@@ -224,7 +224,7 @@
         "FF-12": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 19
     },
     {
       "suite": "integration",
@@ -233,7 +233,7 @@
         "CA-11": "partial"
       },
       "pass": true,
-      "ms": 12
+      "ms": 11
     },
     {
       "suite": "integration",
@@ -243,7 +243,16 @@
         "SR-02": "partial"
       },
       "pass": true,
-      "ms": 62
+      "ms": 53
+    },
+    {
+      "suite": "integration",
+      "name": "malformed JSON bodies get a 400, never an unhandled 500 (TT23 repair, src/proxy.ts)",
+      "covers": {
+        "AU-03": "partial"
+      },
+      "pass": true,
+      "ms": 110
     }
   ]
 }

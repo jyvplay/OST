@@ -148,6 +148,7 @@ export default function FilesModule({ win }: ModuleProps) {
                   else if (n.mime.startsWith("image/")) shell.open("imageedit", { path: n.path, title: n.name });
                   else if (n.name.toLowerCase().endsWith(".docx") || n.name.toLowerCase().endsWith(".fdoc")) shell.open("writer", { path: n.path, title: n.name });
                   else if (n.name.toLowerCase().endsWith(".ftable")) shell.open("tables", { path: n.path, title: n.name });
+                  else if (n.name.toLowerCase().endsWith(".fboard")) shell.open("whiteboard", { path: n.path, title: n.name });
                   else if (n.name.toLowerCase().endsWith(".pptx") || n.name.toLowerCase().endsWith(".fdeck")) shell.open("slides", { path: n.path, title: n.name });
                   else if ([".fsheet", ".fworkbook", ".xlsx"].some((ext) => n.name.toLowerCase().endsWith(ext))) shell.open("sheet", { path: n.path, title: n.name });
                   else if (fmt && ["A"].includes(fmt.grade) && fmt.editable) shell.open("editor", { path: n.path, title: n.name });
