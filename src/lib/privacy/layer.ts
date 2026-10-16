@@ -29,7 +29,8 @@ import {
   CLEAR_PREFIX, ENC_MIME, KEYSLOT_FILE, KEYSLOT_PATH, PRIVATE_ROOT, decryptContent, decryptName, decryptPath, encryptContent,
   encryptName, encryptPath, fromB64, isEncName, isPrivatePath, looksEncryptedB64, toB64, type VolumeKeys,
 } from "./pcrypt";
-import { guessMime } from "../mime";
+import { guessMime, isTextual } from "../mime";
+import { PSEARCH_LIMITS, PrivateIndex, docBody, searchDocs, type PDoc, type PHit } from "./psearch";
 
 export type RawFetch = (url: string, init?: RequestInit) => Promise<Response>;
 type Json = Record<string, unknown>;
@@ -133,6 +134,93 @@ export class PrivacyLayer {
   constructor(raw: RawFetch, events: LayerEvents = {}) { this.raw = raw; this.events = events; }
 
   get active() { return this.amnesic || this.keys !== null; }
+
+  /* ------------------------------------------------- TT19 private search (in-tab, memory only) */
+  private pidx: PrivateIndex | null = null;
+  private pidxKeys: VolumeKeys | null = null;
+  private pidxBuilding: Promise<PrivateIndex> | null = null;
+  /** Drop the decrypted search index (lock, key change, emergency wipe). */
+  dropPrivateIndex() { this.pidx?.clear(); this.pidx = null; this.pidxKeys = null; this.pidxBuilding = null; }
+  /** The index only while the SAME unlocked key object is live; any lock/unlock/rekey invalidates it. */
+  private livePidx(): PrivateIndex | null {
+    if (this.pidx && this.keys && this.pidxKeys === this.keys) return this.pidx;
+    if (this.pidx) this.dropPrivateIndex();
+    return null;
+  }
+  async privateIndex(): Promise<PrivateIndex> {
+    const k = this.needKeys();
+    const live = this.livePidx(); if (live) return live;
+    if (this.pidxBuilding && this.pidxKeys === k) return this.pidxBuilding;
+    this.pidxKeys = k;
+    const build = (async () => {
+      const t0 = performance.now(); const idx = new PrivateIndex(k.fingerprint);
+      const walk = async (dir: string, depth: number): Promise<void> => {
+        if (depth > 32 || idx.docs.size >= PSEARCH_LIMITS.files || this.keys !== k) return;
+        const nodes = ((await this.fsList(dir)).nodes as Json[]) ?? [];
+        const files = nodes.filter((n) => n.kind === "file" && !n.undecryptable && !n.trashed);
+        for (let i = 0; i < files.length; i += 6) {
+          await Promise.all(files.slice(i, i + 6).map(async (n) => {
+            const path = String(n.path); const name = baseOf(path); const mime = guessMime(name);
+            let body = "";
+            if (isTextual(mime) && Number(n.size ?? 0) <= PSEARCH_LIMITS.bytesPerFile * 1.4) {
+              try { const r = (await this.fsRead(path)).node as Json; body = docBody(String(r.content ?? ""), String(r.encoding ?? "utf8"), mime); } catch { body = ""; }
+            }
+            idx.put(path, name, body);
+          }));
+        }
+        for (const d of nodes.filter((n) => n.kind === "dir" && !n.undecryptable)) await walk(String(d.path), depth + 1);
+      };
+      await walk(PRIVATE_ROOT, 0);
+      if (this.keys !== k) { idx.clear(); throw new HttpError(423, "Persistent Storage was locked while indexing"); }
+      idx.builtAt = Date.now(); idx.buildMs = Math.round(performance.now() - t0);
+      this.pidx = idx;
+      return idx;
+    })();
+    this.pidxBuilding = build;
+    try { return await build; } finally { if (this.pidxBuilding === build) this.pidxBuilding = null; }
+  }
+  /**
+   * GET /api/search interception. /Private hits come from the in-tab index; amnesic RAM files are searched in
+   * place; the host is asked only when the scope is NOT inside /Private (the host never sees /Private queries).
+   */
+  private async search(u: URL, url: string, init: RequestInit): Promise<Response | null> {
+    const q = (u.searchParams.get("q") ?? "").trim();
+    const rawScope = (u.searchParams.get("scope") ?? "").trim();
+    const scope = rawScope ? norm(rawScope) : "";
+    const source = u.searchParams.get("source") ?? "";
+    const privScope = !!scope && isPrivatePath(scope);
+    if (!q || (!this.active && !privScope)) return null;
+    const t0 = performance.now();
+    const wantFiles = !source || source === "file";
+    let priv: PHit[] = []; let pinfo: Json | null = null;
+    if (wantFiles && this.keys && (!scope || privScope || PRIVATE_ROOT.startsWith(`${scope}/`) || scope === "/")) {
+      const idx = await this.privateIndex();
+      priv = idx.search(q, privScope ? scope : "");
+      pinfo = { indexed: idx.docs.size, truncated: idx.truncated, buildMs: idx.buildMs, local: true };
+    } else if (privScope && !this.keys) {
+      return json({ ok: true, hits: [], coverage: [], tookMs: 0, locked: true, hostQueried: false, private: { indexed: 0, local: true } });
+    }
+    let ram: PHit[] = [];
+    if (wantFiles && this.amnesic && !privScope) {
+      const docs: PDoc[] = [...this.ram.nodes.values()].filter((n) => n.kind === "file").map((n) => {
+        const body = docBody(n.content, n.encoding, n.mime);
+        return { path: n.path, name: n.name, body, lower: `${n.name}\n${body}`.toLowerCase() };
+      });
+      ram = searchDocs(docs, q, scope === "/" ? "" : scope, 40, "amnesic-ram");
+    }
+    let host: Json = { ok: true, hits: [], coverage: [] };
+    if (!privScope) {
+      const r = await this.raw(url, init);
+      if (!r.ok) return r;
+      host = (await r.json()) as Json;
+    }
+    const hostHits = ((host.hits as PHit[] | undefined) ?? []).filter((h) => !(h.source === "file" && this.amnesic && (this.ram.lowerHidden(h.ref) || this.ram.nodes.has(h.ref))));
+    const seen = new Set<string>(); const hits: unknown[] = [];
+    for (const h of [...priv, ...ram, ...hostHits].sort((a, b) => Number(b.rank) - Number(a.rank))) {
+      const key = `${h.source}:${h.ref}`; if (seen.has(key)) continue; seen.add(key); hits.push(h);
+    }
+    return json({ ...host, ok: true, hits, tookMs: Math.round(performance.now() - t0), hostQueried: !privScope, private: pinfo, amnesicHits: ram.length });
+  }
   private note(what: string) { this.blocked.push({ at: Date.now(), what }); if (this.blocked.length > 200) this.blocked.shift(); this.events.onBlocked?.(what); }
 
   private storeOf(p: string): "private" | "ram" | "host" { return isPrivatePath(norm(p)) ? "private" : this.amnesic ? "ram" : "host"; }
@@ -266,6 +354,7 @@ export class PrivacyLayer {
       await this.refuseNewClear(p);
       const sealed = await this.sealBody(p, content, encoding, mime);
       const b = this.ensure(await this.rawPost({ op: "write", path: await encryptPath(this.keys!, p), content: sealed.content, encoding: "base64", mime: ENC_MIME, reason }));
+      this.livePidx()?.put(p, baseOf(p), docBody(content, encoding, mime ?? guessMime(baseOf(p))));
       return { ...b, path: p, size: sealed.plainSize, storedSize: b.size, encrypted: true };
     }
     if (store === "ram") {
@@ -298,7 +387,9 @@ export class PrivacyLayer {
     const store = this.storeOf(p);
     if (store === "private") {
       if (p === PRIVATE_ROOT || p === KEYSLOT_PATH) throw new HttpError(403, "the Persistent Storage root and header cannot be trashed here — use Privacy › Delete Persistent Storage");
-      return this.ensure(await this.rawPost({ op, path: await encryptPath(this.needKeys(), p) }));
+      const r = this.ensure(await this.rawPost({ op, path: await encryptPath(this.needKeys(), p) }));
+      if (op === "restore") this.dropPrivateIndex(); else this.livePidx()?.dropPrefix(p);
+      return r;
     }
     if (store === "ram") {
       if (op === "restore") { this.ram.white.delete(p); return { ok: true, amnesic: true }; }
@@ -323,6 +414,7 @@ export class PrivacyLayer {
       const k = this.needKeys();
       await this.refuseNewClear(to);
       const r = this.ensure(await this.rawPost({ op: mode, src: await encryptPath(k, from), dst: await encryptPath(k, to) }));
+      if (mode === "move") this.livePidx()?.movePrefix(from, to); else this.dropPrivateIndex();
       return { ...r, from, to };
     }
     // cross-store (or RAM): explicit read → write (→ trash) through this layer
@@ -503,6 +595,7 @@ export class PrivacyLayer {
 
   /* ---------------------------------------------------------------- entry */
   async handle(url: string, init: RequestInit = {}): Promise<Response> {
+    if (this.pidx && this.pidxKeys !== this.keys) this.dropPrivateIndex(); // keys gone/changed by any path → plaintext index gone
     const u = new URL(url, "http://fusion.invalid");
     const method = String(init.method ?? "GET").toUpperCase();
     let body: Json | null = null;
@@ -515,6 +608,10 @@ export class PrivacyLayer {
       return this.fs(method, u.searchParams, body);
     }
     if (u.pathname === "/api/state") return this.stateReq(method, u.searchParams, body, url, init);
+    if (u.pathname === "/api/search" && method === "GET") {
+      try { const r = await this.search(u, url, init); if (r) return r; }
+      catch (e) { if (e instanceof HttpError) return fail(e.status, e.message); throw e; }
+    }
     if (body && INLINE_READERS.has(u.pathname)) {
       const r = await this.reader(u.pathname, body, url, init);
       if (r) return r;

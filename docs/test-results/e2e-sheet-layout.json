@@ -1,6 +1,6 @@
 {
   "suite": "e2e-sheet-layout",
-  "at": "2026-10-16T05:36:04.141Z",
+  "at": "2026-10-16T06:13:04.141Z",
   "results": [
     {
       "suite": "e2e-sheet-layout",
@@ -9,7 +9,7 @@
         "FF-33": "full"
       },
       "pass": true,
-      "ms": 3723
+      "ms": 3776
     },
     {
       "suite": "e2e-sheet-layout",
@@ -18,7 +18,7 @@
         "FF-34": "full"
       },
       "pass": true,
-      "ms": 1454
+      "ms": 3904
     },
     {
       "suite": "e2e-sheet-layout",
@@ -27,7 +27,7 @@
         "FF-35": "full"
       },
       "pass": true,
-      "ms": 4105
+      "ms": 3744
     },
     {
       "suite": "e2e-sheet-layout",
@@ -37,7 +37,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 2542
+      "ms": 3072
     },
     {
       "suite": "e2e-sheet-layout",
@@ -50,7 +50,17 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 3630
+      "ms": 3908
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
+      "covers": {
+        "FF-36": "full",
+        "FF-20": "partial"
+      },
+      "pass": true,
+      "ms": 6287
     },
     {
       "suite": "e2e-sheet-layout",

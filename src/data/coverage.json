@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-16T05:39:11.327Z",
+ "generatedAt": "2026-10-16T06:16:56.027Z",
  "totals": {
   "built": {
-   "full": 191,
+   "full": 194,
    "partial": 65,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 75,
+   "full": 78,
    "partial": 72,
    "untested": 131
   },
   "tests": {
-   "total": 278,
-   "passed": 278
+   "total": 296,
+   "passed": 296
   }
  },
  "rows": {
@@ -804,7 +804,9 @@
    "tests": [
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
     "e2e: mount: sheet",
+    "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file",
     "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
     "oracle-xlsx: oracle available (openpyxl)",
     "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
@@ -818,6 +820,7 @@
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
+    "names: openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
     "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce"
    ]
@@ -1258,7 +1261,8 @@
    "tests": [
     "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
     "e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache",
-    "e2e: mount: privacy"
+    "e2e: mount: privacy",
+    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
    ]
   },
   "SC-14": {
@@ -1274,6 +1278,39 @@
    "tests": [
     "e2e-privacy: emergency shutdown chord: keys + RAM files gone, page blanked via location.replace (no history entry with the shell)",
     "e2e: mount: privacy"
+   ]
+  },
+  "FF-36": {
+   "tested": "full",
+   "tests": [
+    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
+    "names: name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255",
+    "names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined",
+    "names: scope: a sheet-level name shadows the workbook name on its sheet only; self-reference terminates with #NAME?",
+    "names: insert/delete rows and columns move names like cell formulas; deleting the whole range gives #REF!",
+    "names: workbook JSON round-trips names; hostile JSON names (invalid syntax, A1-like, oversized) are dropped",
+    "names: openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
+    "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file"
+   ]
+  },
+  "FF-37": {
+   "tested": "full",
+   "tests": [
+    "e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo",
+    "vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back)",
+    "vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995)",
+    "vector-boolean: three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain)",
+    "vector-boolean: fill rules: even-odd hole, nonzero opposite-direction hole, nonzero same-direction (no hole), group = union of leaves with its transform",
+    "vector-boolean: refusals: open paths, text, a single shape, locked shapes, Intersect of disjoint shapes; result survives SVG export → import",
+    "vector-boolean: performance: two 600-unit ellipses + a rotated rect, all modes < 400 ms each on this 2-CPU host"
+   ]
+  },
+  "SC-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host",
+    "privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock",
+    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
    ]
   },
   "CT-01": {

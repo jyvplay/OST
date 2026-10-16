@@ -167,7 +167,7 @@ class PrivacySession {
     this.emit();
   }
   lock(reason = "manual") {
-    if (this.layer) this.layer.keys = null;
+    if (this.layer) { this.layer.keys = null; this.layer.dropPrivateIndex(); }
     if (this.storage === "unlocked") this.storage = "locked";
     if (this.idleTimer) window.clearTimeout(this.idleTimer);
     this.lastError = reason === "manual" ? null : `locked (${reason})`;
@@ -185,7 +185,7 @@ class PrivacySession {
 
   /* -------------------------------------------------------------- emergency */
   private wipeMemory() {
-    if (this.layer) { this.layer.keys = null; this.layer.ram.wipe(); this.layer.ramState.clear(); this.layer.blocked.length = 0; }
+    if (this.layer) { this.layer.keys = null; this.layer.dropPrivateIndex(); this.layer.ram.wipe(); this.layer.ramState.clear(); this.layer.blocked.length = 0; }
     this.shadow.clear();
     this.header = null;
   }

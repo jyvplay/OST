@@ -18,7 +18,7 @@
  * do not block the re-spill.
  * TT17: borders (per-edge style+rgb), vertical alignment, <mergeCells>, <dataValidations> (list/whole/decimal/
  * textLength/date/custom, operators, error styles, prompts, inverted showDropDown), frozen columns (xSplit).
- * Unsupported (loss-report items): charts, pivot tables, defined names,
+ * Unsupported (loss-report items): charts, pivot tables, Excel built-in/hidden names (_xlnm.*),
  * conditional formatting, external links, data validation, drawings, macros,
  * 1904 date system, theme/indexed colours (read as unset), rich text
  * runs, Excel 365 XLDAPR dynamic-array metadata (array formulas open in Excel
@@ -156,6 +156,31 @@ function dvXml(v: DataValidation): string {
 }
 
 /** Real .xlsx / SpreadsheetML writer, supporting all sheets in a Workbook. */
+/** TT19: <definedNames> (ECMA-376 §18.2.5) — after <sheets>, before <calcPr>; sheet scope → localSheetId. */
+function definedNamesXml(wb: Workbook, order: string[]): string {
+  const list = wb.listNames().filter((d) => d.scope === null || order.includes(d.scope));
+  if (!list.length) return "";
+  return `<definedNames>${list.map((d) => {
+    const local = d.scope !== null ? ` localSheetId="${order.indexOf(d.scope)}"` : "";
+    const comment = d.comment ? ` comment="${esc(d.comment)}"` : "";
+    return `<definedName name="${esc(d.name)}"${local}${comment}>${esc(addFuturePrefixes(d.ref))}</definedName>`;
+  }).join("")}</definedNames>`;
+}
+
+/** Reads <definedNames>; Excel built-ins (_xlnm.Print_Area, _FilterDatabase…) are skipped and counted. */
+function readDefinedNames(workbookXml: string, wb: Workbook, order: string[]) {
+  const skipped: string[] = [];
+  for (const m of workbookXml.matchAll(/<definedName\b([^>]*)>([\s\S]*?)<\/definedName>/g)) {
+    const at = xmlAttrs(m[1]);
+    const name = at.name ? dec(at.name) : "";
+    if (!name || name.startsWith("_xlnm.") || at.hidden === "1" || at.hidden === "true") { skipped.push(name); continue; }
+    const scope = at.localSheetId !== undefined ? order[Number(at.localSheetId)] ?? null : null;
+    try { wb.defineName(name, stripFuturePrefixes(dec(m[2]).trim()), scope, at.comment ? dec(at.comment) : undefined); }
+    catch { skipped.push(name); }
+  }
+  return skipped;
+}
+
 export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook"): Buffer {
   const sheets = [...workbook.sheets.values()];
   if (!sheets.length) throw new Error("workbook must contain at least one sheet");
@@ -171,7 +196,7 @@ export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook"): Buffe
   const rels = sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`);
-  const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${names.map((n, i) => `<sheet name="${esc(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets><calcPr calcMode="auto" fullCalcOnLoad="1" forceFullCalc="1"/></workbook>`;
+  const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${names.map((n, i) => `<sheet name="${esc(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets>${definedNamesXml(workbook, sheets.map((x) => x.name))}<calcPr calcMode="auto" fullCalcOnLoad="1" forceFullCalc="1"/></workbook>`;
   const workbookRels = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels.join("")}</Relationships>`;
   const contentTypes = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="${CT}"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>${sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
   const sst = `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${strings.length}" uniqueCount="${strings.length}">${strings.map((s) => `<si><t xml:space="preserve">${esc(s)}</t></si>`).join("")}</sst>`;
@@ -328,6 +353,8 @@ export function readXlsxWorkbook(buf: Buffer): Workbook {
     if (xml) wb.sheets.set(name, readSheet(xml, name, sst, xfs));
   }
   if (!wb.sheets.size) throw new Error("invalid .xlsx: workbook has no readable sheets");
+  const order = [...workbookXml.matchAll(/<sheet\b([^>]*)\/?\s*>/g)].map((m) => xmlAttrs(m[1]).name ?? "");
+  readDefinedNames(workbookXml, wb, order);
   wb.recalculate();
   return wb;
 }

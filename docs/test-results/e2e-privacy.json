@@ -1,6 +1,6 @@
 {
   "suite": "e2e-privacy",
-  "at": "2026-10-16T05:39:56.862Z",
+  "at": "2026-10-16T06:16:51.266Z",
   "results": [
     {
       "suite": "e2e-privacy",
@@ -10,7 +10,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 1910
+      "ms": 2258
     },
     {
       "suite": "e2e-privacy",
@@ -19,7 +19,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 114
+      "ms": 174
     },
     {
       "suite": "e2e-privacy",
@@ -28,7 +28,16 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 1374
+      "ms": 1490
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host",
+      "covers": {
+        "SC-16": "full"
+      },
+      "pass": true,
+      "ms": 2091
     },
     {
       "suite": "e2e-privacy",
@@ -37,7 +46,7 @@
         "SC-12": "full"
       },
       "pass": true,
-      "ms": 361
+      "ms": 327
     },
     {
       "suite": "e2e-privacy",
@@ -47,7 +56,7 @@
         "FM-01": "partial"
       },
       "pass": true,
-      "ms": 1664
+      "ms": 1008
     },
     {
       "suite": "e2e-privacy",
@@ -57,7 +66,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 1808
+      "ms": 2159
     },
     {
       "suite": "e2e-privacy",
@@ -66,7 +75,7 @@
         "SC-15": "full"
       },
       "pass": true,
-      "ms": 308
+      "ms": 382
     },
     {
       "suite": "e2e-privacy",
@@ -75,7 +84,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 36
+      "ms": 21
     },
     {
       "suite": "e2e-privacy",
@@ -84,7 +93,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 2943
+      "ms": 3649
     },
     {
       "suite": "e2e-privacy",
@@ -93,7 +102,7 @@
         "SC-14": "full"
       },
       "pass": true,
-      "ms": 1707
+      "ms": 1531
     },
     {
       "suite": "e2e-privacy",

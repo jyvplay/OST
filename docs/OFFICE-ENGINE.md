@@ -422,3 +422,26 @@ together with the frozen row.
 - x14 `extLst` validations (cross-sheet list sources written by modern Excel) are ignored.
 - No conditional-formatting export, no diagonal borders, no centre-across-selection alignment.
 - Date rules take serial numbers, not date pickers.
+
+## TT19 — defined names (FF-36) and vector Pathfinder (FF-37)
+
+**Defined names.** `names.ts` implements Excel's name rules (web-checked): first character a letter or `_`,
+then letters/digits/`.`/`_`; no spaces; ≤255 characters; not A1-like within XFD1048576 and not R1C1-like; `C`/`R`
+reserved; case-insensitive, unique per scope. `Workbook.defineName(name, ref, scope?)` validates and syntax-checks
+the definition; evaluation substitutes names into the formula AST (`expandNames`) before `evalRaw`, so
+`ROW(Sales)`, `ROWS(Sales)` and ext functions see a real range. Sheet scope shadows workbook scope on that
+sheet; unknown names → `#NAME?`; cycles → `#NAME?` (depth 32); row/column insert/delete rewrites name refs via
+the same `adjustForStructure` used for cells. Persisted in workbook JSON and in xlsx `<definedNames>`
+(`localSheetId` for sheet scope; `_xlfn.` prefixes added/stripped; hidden and `_xlnm.*` built-ins skipped on
+import). UI: editable Name Box (define a new name for the selection, or type a name/reference to jump), a Names
+panel (Ctrl+F3) with refers-to, current value, scope and delete, plus formula autocomplete.
+Oracles: openpyxl-authored workbook → Python-computed values; our file → openpyxl names/destinations and the PyPI
+`formulas` engine's recalculation (it cannot resolve sheet-scoped names on any file — asserted symmetrically).
+Gaps: relative refs inside names are fixed, `Sheet1!Name` is not parsed, `\`-prefixed / non-ASCII names refused.
+
+**Pathfinder.** `src/lib/vector/boolean.ts`: Unite / Minus Front / Intersect / Exclude with Illustrator's paint
+and stacking rules (front paint, Minus Front keeps the back), via polygon-clipping 0.15.7 on operands
+flattened at 0.05 units in document space (transforms and groups honoured; even-odd exact, nonzero exact for
+same-direction or nested subpaths, crossing mixed-direction nonzero flagged as approximate). Oracle: GEOS
+(shapely 2.2) rebuilt from primitive parameters — exact for polygons, IoU ≥ 0.9995 with curves. Gap: results
+are polygonal, not Béziers; Divide/Trim/Merge/Crop/Outline/Minus Back are not implemented.

@@ -36,6 +36,26 @@ Ciphertext sizes (Padmé buckets), number of files and directory shape, write ti
 Deep links (`?open=…&path=/Private/…`) put plaintext paths in the *browser's* history (not the host's);
 `Referrer-Policy: no-referrer` keeps them from leaking to other sites.
 
+## TT19 — private search (SC-16)
+TT18 left /Private unsearchable (the host index deliberately never holds it) and every search query went to the
+host in clear. Now `GET /api/search` is intercepted by the privacy layer:
+
+| Query | Who searches | Does the host see the query text? |
+|---|---|---|
+| scope inside `/Private` | in-tab `PrivateIndex` only | **No** — zero `/api/search` requests (network spy, e2e) |
+| scope `/Private` while locked | nobody (`locked: true`, empty) | No |
+| unscoped, unlocked | in-tab index **and** host index, merged (`hostQueried: true`) | Yes (declared: needed to search host files) |
+| amnesic session | RAM overlay files searched in place, plus host | Yes, for the host part |
+
+The index is built lazily on the first search after unlock from decrypted reads (≤5 000 files, ≤2 MiB each,
+64 MiB total; non-text files by name only), updated incrementally on write/move/trash, and dropped on lock, on
+any key change (checked on every request) and on emergency wipe. It lives only in JS memory; strings cannot be
+zeroised (same declared limit as the RAM overlay). Ranking for private hits is substring-count based, so
+private hits sort ahead of host `ts_rank` hits.
+
+**Repair found by its own test:** clearing `layer.keys` outside `session.lock()` used to leave the decrypted
+index alive until the next unlocked search. `handle()` now drops it whenever the live key object differs.
+
 ## Performance ("no degradation" — measured, not asserted)
 Chromium on this 2-CPU sandbox, server + Postgres on the same host (`docs/privacy-bench.json`):
 - AES-GCM in the browser: **190–357 MB/s encrypt**, 345–494 MB/s decrypt across runs (4 MiB, median of 5).

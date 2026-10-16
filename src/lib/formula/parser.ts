@@ -138,7 +138,8 @@ class Parser {
         if (upper === "FALSE" && args.length === 0) return { t: "bool", v: false };
         return { t: "call", name: upper, args };
       }
-      throw new Error(`unknown name "${t.text}" (expected a function call or TRUE/FALSE)`);
+      // TT19: a bare identifier is a defined name; an unknown one evaluates to #NAME? (as in Excel)
+      return { t: "name", name: t.text };
     }
     throw new Error(`unexpected token "${t.text || "<end>"}" at ${t.pos}`);
   }

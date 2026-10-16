@@ -32,6 +32,7 @@
  */
 import type { ChartSpec, CondRule } from "./sheetmeta";
 import { parseFormula } from "./parser";
+import { validateName, type DefinedName } from "./names";
 import { colToLetters, isError, type CellAddr, type ErrorCode, type Node, type RangeAddr, type Scalar } from "./types";
 import { FUNCTIONS, toBool, toNumberStrict, toStr, type Arg } from "./functions";
 import { err } from "./types";
@@ -129,7 +130,84 @@ export class Workbook {
   /** Presentation metadata (TT15): charts and conditional-format rules, persisted in workbook JSON. */
   charts: ChartSpec[] = [];
   condFormats: CondRule[] = [];
+  /** TT19 defined names. Key: `${scope ?? ""}|${NAME_UPPER}`. */
+  names = new Map<string, DefinedName>();
+  private nameAst = new Map<string, Node | null>();
+  private expandCache = new WeakMap<Node, Map<string, Node>>();
+  private namesVersion = 0;
   constructor() { this.addSheet("Sheet1"); }
+
+  private nameKey(name: string, scope: string | null) { return `${scope ?? ""}|${name.toUpperCase()}`; }
+  /** Defines (or redefines) a name. Throws a user-facing message on invalid input. */
+  defineName(name: string, ref: string, scope: string | null = null, comment?: string) {
+    const bad = validateName(name);
+    if (bad) throw new Error(bad);
+    if (scope !== null && !this.sheets.has(scope)) throw new Error(`no such sheet: ${scope}`);
+    const body = ref.trim().replace(/^=/, "");
+    if (!body) throw new Error("a name must refer to something");
+    parseFormula(`=${body}`); // syntax check now, not at first use
+    const k = this.nameKey(name, scope);
+    this.names.set(k, { name, ref: body, scope, ...(comment ? { comment: comment.slice(0, 255) } : {}) });
+    this.nameAst.delete(k); this.namesVersion++; this.expandCache = new WeakMap();
+  }
+  deleteName(name: string, scope: string | null = null) {
+    const k = this.nameKey(name, scope);
+    const ok = this.names.delete(k);
+    this.nameAst.delete(k); this.namesVersion++; this.expandCache = new WeakMap();
+    return ok;
+  }
+  /** Sheet-scoped names shadow workbook names on their own sheet (Excel precedence). */
+  lookupName(name: string, sheet: string | null): DefinedName | undefined {
+    return (sheet !== null ? this.names.get(this.nameKey(name, sheet)) : undefined) ?? this.names.get(this.nameKey(name, null));
+  }
+  listNames(): DefinedName[] { return [...this.names.values()].sort((a, b) => a.name.localeCompare(b.name) || (a.scope ?? "").localeCompare(b.scope ?? "")); }
+  private defAst(d: DefinedName): Node | null {
+    const k = this.nameKey(d.name, d.scope);
+    if (!this.nameAst.has(k)) { try { this.nameAst.set(k, parseFormula(`=${d.ref}`)); } catch { this.nameAst.set(k, null); } }
+    return this.nameAst.get(k) ?? null;
+  }
+  /**
+   * Replaces name nodes with their definitions. Unqualified references inside a definition belong to the
+   * name's scope sheet (or, for workbook names, the sheet the formula lives on). Unknown → #NAME?;
+   * a name that (indirectly) refers to itself → #NAME? after 32 levels (declared; Excel also refuses).
+   */
+  expandNames(node: Node, sheet: string, depth = 0): Node {
+    if (this.names.size === 0) return node;
+    let perNode = this.expandCache.get(node);
+    const ck = `${sheet}|${depth}`;
+    const hit = perNode?.get(ck);
+    if (hit) return hit;
+    const out = this.expandUncached(node, sheet, depth);
+    if (!perNode) { perNode = new Map(); this.expandCache.set(node, perNode); }
+    perNode.set(ck, out);
+    return out;
+  }
+  private expandUncached(node: Node, sheet: string, depth: number): Node {
+    const qualify = (n: Node, home: string): Node => {
+      if (n.t === "ref") return n.v.sheet ? n : { t: "ref", v: { ...n.v, sheet: home } };
+      if (n.t === "range") return n.v.from.sheet ? n : { t: "range", v: { from: { ...n.v.from, sheet: home }, to: { ...n.v.to, sheet: n.v.to.sheet ?? home } } };
+      return n;
+    };
+    const walk = (n: Node, home: string, d: number): Node => {
+      switch (n.t) {
+        case "name": {
+          if (d > 32) return { t: "err", v: "#NAME?" };
+          const def = this.lookupName(n.name, home);
+          const ast = def ? this.defAst(def) : null;
+          if (!def || !ast) return { t: "err", v: "#NAME?" };
+          return walk(ast, def.scope ?? home, d + 1);
+        }
+        case "ref": case "range": return d > 0 ? qualify(n, home) : n;
+        case "call": return { ...n, args: n.args.map((a) => walk(a, home, d)) };
+        case "unary": return { ...n, arg: walk(n.arg, home, d) };
+        case "percent": return { ...n, arg: walk(n.arg, home, d) };
+        case "binary": return { ...n, left: walk(n.left, home, d), right: walk(n.right, home, d) };
+        case "array": return n;
+        default: return n;
+      }
+    };
+    return walk(node, sheet, depth);
+  }
   addSheet(name: string) { const s = new Sheet(name); this.sheets.set(name, s); return s; }
   sheet(name?: string | null) { const s = this.sheets.get(name ?? [...this.sheets.keys()][0]); if (!s) throw new Error(`no such sheet: ${name}`); return s; }
 
@@ -205,7 +283,7 @@ export class Workbook {
         cursor: { sheet: sheetName, col, row },
       };
       let value: Value;
-      try { value = evalRaw(cell.formula, ctx); }
+      try { value = evalRaw(this.names.size ? this.expandNames(cell.formula, sheetName) : cell.formula, ctx); }
       catch (e) { value = (e as { code?: Scalar }).code ?? err("#VALUE!"); }
       if (isGrid(value) && value.length === 1 && value[0].length === 1) value = value[0][0];
       if (isGrid(value) && value.length * (value[0]?.length ?? 0) > SPILL_CELL_LIMIT) value = err("#NUM!");
@@ -287,6 +365,7 @@ export function evalRaw(node: Node, ctx: EvalContext): Value {
     case "percent": return map1(evalRaw(node.arg, ctx), (x) => toNumberStrict(x) / 100);
     case "binary": return map2(evalRaw(node.left, ctx), evalRaw(node.right, ctx), (l, r) => evalBinary(node.op, l, r));
     case "call": return evalCall(node.name, node.args, ctx);
+    case "name": return err("#NAME?"); // only reached when no workbook expanded it (unknown name / no context)
   }
 }
 

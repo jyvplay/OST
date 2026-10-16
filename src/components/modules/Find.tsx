@@ -16,6 +16,7 @@ export default function FindModule(_: ModuleProps) {
   const [coverage, setCoverage] = useState<{ source: string; n: number }[]>([]);
   const [explain, setExplain] = useState<Record<string, unknown> | null>(null);
   const [took, setTook] = useState<number | null>(null);
+  const [privInfo, setPrivInfo] = useState<{ hostQueried: boolean; indexed: number | null; locked: boolean } | null>(null);
 
   const loadCoverage = () => api<{ coverage: { source: string; n: number }[] }>("/api/search")
     .then((r) => setCoverage(r.coverage ?? []))
@@ -24,9 +25,11 @@ export default function FindModule(_: ModuleProps) {
   useEffect(() => { void loadCoverage(); }, [shell.refreshTick]);
 
   const search = async () => {
-    const r = await api<{ hits: Hit[]; tookMs: number; explain?: Record<string, unknown> }>(
+    const r = await api<{ hits: Hit[]; tookMs: number; explain?: Record<string, unknown>; hostQueried?: boolean; locked?: boolean; private?: { indexed: number } | null }>(
       `/api/search?q=${encodeURIComponent(q)}&explain=1${scope ? `&scope=${encodeURIComponent(scope)}` : ""}`,
     );
+    // fields present only when the privacy layer answered (TT19): private index size, whether the host saw the query
+    setPrivInfo(r.hostQueried === undefined ? null : { hostQueried: r.hostQueried, indexed: r.private?.indexed ?? null, locked: !!r.locked });
     setHits(r.hits);
     setTook(r.tookMs);
     setExplain(r.explain ?? null);
@@ -39,6 +42,7 @@ export default function FindModule(_: ModuleProps) {
           onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void search(); }} />
         <input className="fs-input" style={{ width: 160 }} placeholder="Scope (path prefix)" value={scope}
           onChange={(e) => setScope(e.target.value)} aria-label="Scope" />
+        <Btn variant="ghost" style={{ whiteSpace: "nowrap" }} onClick={() => setScope(scope.startsWith("/Private") ? "" : "/Private")} title="Search only Persistent Storage, inside this tab — the query is not sent to the host">{scope.startsWith("/Private") ? "All" : "/Private only"}</Btn>
         <Btn variant="primary" onClick={() => void search()}>Search</Btn>
       </div>
 
@@ -56,7 +60,11 @@ export default function FindModule(_: ModuleProps) {
 
       {took !== null ? (
         <div className="fs-row" style={{ gap: 6 }}>
-          <Badge tone="ok">{hits.length} hits</Badge><Badge tone="info">{took} ms</Badge><Badge>local only</Badge>
+          <Badge tone="ok">{hits.length} hits</Badge><Badge tone="info">{took} ms</Badge><Badge>no cloud service</Badge>
+          {privInfo ? <span data-testid="private-search-info" style={{ display: "contents" }}>
+            {privInfo.locked ? <Badge tone="warn">Persistent Storage locked</Badge> : privInfo.indexed !== null ? <Badge tone="ok">/Private: {privInfo.indexed} files indexed in this tab</Badge> : null}
+            <Badge tone={privInfo.hostQueried ? "warn" : "ok"}>{privInfo.hostQueried ? "host saw the query text" : "query never left this tab"}</Badge>
+          </span> : null}
         </div>
       ) : null}
 
@@ -73,7 +81,7 @@ export default function FindModule(_: ModuleProps) {
               <div style={{ fontSize: 12.5 }}>{h.title}</div>
               <div className="fs-dim fs-mono" style={{ fontSize: 10.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.ref} — {h.snippet}</div>
             </span>
-            <Badge tone={h.how === "fts" ? "ok" : "warn"}>{h.source} · {h.how}</Badge>
+            <Badge tone={h.how === "fts" || h.how === "private-local" ? "ok" : "warn"}>{h.how === "private-local" ? "encrypted · " : ""}{h.source} · {h.how}</Badge>
           </button>
         ))}
         {q && hits.length === 0 && took !== null ? <Empty title="No matches" icon="🔎" /> : null}

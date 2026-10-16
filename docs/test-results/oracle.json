@@ -1,6 +1,6 @@
 {
   "suite": "oracle",
-  "at": "2026-10-16T05:33:22.448Z",
+  "at": "2026-10-16T06:00:06.065Z",
   "results": [
     {
       "suite": "oracle",
@@ -9,7 +9,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 11
+      "ms": 12
     },
     {
       "suite": "oracle",
@@ -27,7 +27,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "oracle",
@@ -45,7 +45,7 @@
         "FF-27": "full"
       },
       "pass": true,
-      "ms": 11
+      "ms": 10
     }
   ]
 }

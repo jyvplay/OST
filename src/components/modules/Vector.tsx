@@ -19,6 +19,7 @@ import {
   shapeToSvg, shapesInRect, toPath, ungroup, updateShape, arrowSegs, restar, IDENTITY,
   type AlignMode, type Gradient, type Shape, type Style, type VDoc, type ZMove,
 } from "@/lib/vector/model";
+import { BOOL_LABEL, booleanOp, type BoolOp } from "@/lib/vector/boolean";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 
@@ -286,6 +287,11 @@ export default function VectorModule({ win }: ModuleProps) {
       case "group": { const r = groupShapes(doc, sel); if (r.id) { commit(r.doc, `grouped ${sel.length}`); setSel([r.id]); } break; }
       case "ungroup": { let d = doc; const ids: string[] = []; let approx = false; for (const id of sel) { const r = ungroup(d, id); d = r.doc; ids.push(...r.ids); approx ||= r.approx; } if (ids.length) { commit(d, approx ? "ungrouped (group opacity distributed to children — overlaps may look different)" : "ungrouped"); setSel(ids); } break; }
       case "topath": try { commit({ ...doc, shapes: doc.shapes.map((s) => (sel.includes(s.id) ? toPath(s) : s)) }, "converted to path"); } catch (e) { setStatus((e as Error).message); } break;
+      case "unite": case "minusFront": case "intersect": case "exclude": {
+        try { const r = booleanOp(doc, sel, name as BoolOp); commit(r.doc, `${BOOL_LABEL[name as BoolOp]}: ${r.rings} ring(s), area ${Math.round(r.area)}${r.approx ? " — approximate (crossing nonzero subpaths)" : ""}`); setSel([r.id]); }
+        catch (e) { setStatus((e as Error).message); }
+        break;
+      }
       case "fliph": commit(flipShapes(doc, sel, "h")); break;
       case "flipv": commit(flipShapes(doc, sel, "v")); break;
       case "disth": commit(distributeShapes(doc, sel, "h")); break;
@@ -462,6 +468,14 @@ export default function VectorModule({ win }: ModuleProps) {
         <div className="fs-row" style={{ flexWrap: "wrap", gap: 3 }}>
           {([["front", "To front"], ["forward", "Forward"], ["backward", "Backward"], ["back", "To back"], ["group", "Group"], ["ungroup", "Ungroup"], ["duplicate", "Duplicate"], ["topath", "To path"], ["fliph", "Flip H"], ["flipv", "Flip V"]] as const).map(([c, l]) => <Btn key={c} variant="ghost" onClick={() => run(c)}>{l}</Btn>)}
           <Btn variant="danger" onClick={() => run("delete")}>Delete</Btn>
+        </div>
+        <div style={{ fontWeight: 600 }}>Pathfinder</div>
+        <div className="fs-row" data-testid="pathfinder" style={{ flexWrap: "wrap", gap: 3 }}>
+          {(["unite", "minusFront", "intersect", "exclude"] as const).map((op) => (
+            <Btn key={op} variant="ghost" aria-label={BOOL_LABEL[op]} disabled={sel.length < 2}
+              title={op === "minusFront" ? "Subtract the front shapes from the backmost (keeps the back paint)" : `${BOOL_LABEL[op]} the selected shapes (takes the front paint)`}
+              onClick={() => { run(op); wrapRef.current?.focus({ preventScroll: true }); /* the button disables itself (1 shape left) and would drop focus to <body>, killing Ctrl+Z */ }}>{BOOL_LABEL[op]}</Btn>
+          ))}
         </div>
 
         <div style={{ fontWeight: 600 }}>Layers ({view.shapes.length})</div>

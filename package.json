@@ -15,6 +15,7 @@
     "next": "16.2.6",
     "pg": "8.20.0",
     "playwright": "^1.49.1",
+    "polygon-clipping": "^0.15.7",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },

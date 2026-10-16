@@ -119,6 +119,40 @@ await test("lock from the top bar → 423; unlock with the RECOVERY key in the U
   await page.locator('[data-testid="storage-badge"]').waitFor({ timeout: 30_000 });
 });
 
+await test("TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host", { "SC-16": "full" }, async () => {
+  const sent: string[] = [];
+  const onReq = (r: { url: () => string }) => { if (r.url().includes("/api/search")) sent.push(r.url()); };
+  page.on("request", onReq);
+  try {
+    await page.keyboard.press("Control+Space");
+    const pal = page.locator('[role=dialog][aria-label="Command palette"]');
+    await pal.waitFor({ timeout: 5000 });
+    await page.keyboard.type(SECRET);
+    await pal.getByText("return.txt").first().waitFor({ timeout: 15_000 });
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("Control+Space"); await pal.waitFor({ timeout: 5000 });
+    await page.keyboard.type("Find");
+    await pal.getByText("Index search with provenance").first().click();
+    const find = page.locator('[role=dialog][aria-label="Find"]').first();
+    await find.waitFor({ timeout: 8000 });
+    await find.getByLabel("Search query").fill(SECRET);
+    await find.getByRole("button", { name: "/Private only" }).click();
+    sent.length = 0;
+    await find.getByRole("button", { name: "Search", exact: true }).click();
+    await find.getByText("return.txt").first().waitFor({ timeout: 15_000 });
+    const info = await find.locator('[data-testid="private-search-info"]').innerText();
+    ok(/query never left this tab/.test(info) && /files indexed in this tab/.test(info), `badges: ${info}`);
+    ok(await find.getByText(/encrypted · file · private-local/).first().isVisible(), "provenance badge");
+    ok(sent.length === 0, `search requests reached the network: ${sent.join(" ")}`);
+    const idx = await rows("select count(*)::int n from index_docs where body like $1", [`%${SECRET}%`]);
+    ok(idx[0].n === 0, "host index never received the secret");
+  } finally {
+    page.off("request", onReq);
+    const find = page.locator('[role=dialog][aria-label="Find"]').first();
+    if (await find.count()) await find.getByRole("button", { name: "Close window" }).click().catch(() => undefined);
+  }
+});
+
 await test("Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains", { "SC-12": "full" }, async () => {
   const up = await pfetch("POST", "/api/fs", { op: "write", path: `/Private/photo-${RUN}.jpg`, content: jpegB64, encoding: "base64", mime: "image/jpeg" });
   ok(up.status === 200, JSON.stringify(up.json));

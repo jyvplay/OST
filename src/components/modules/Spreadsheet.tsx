@@ -5,7 +5,7 @@ import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import {
-  Workbook, Sheet, a1, isError, colToLetters, FUNCTIONS, EXT_FUNCTIONS, workbookFromJson, workbookToJson, formatValue, BUILTIN_FORMATS,
+  Workbook, Sheet, a1, isError, colToLetters, FUNCTIONS, EXT_FUNCTIONS, workbookFromJson, workbookToJson, parseFormula, formatValue, BUILTIN_FORMATS,
   norm, rangeA1, toTsv, parseTsv, copyBlock, pasteBlock, clearRange, autoFill, sortRange, insertDelete, findAll, replaceAll, selectionStats, shiftFormula,
   chartDataFromRange, buildChartSvg, svgDataUri, evalCondFormats, parseRange, currentRegion, jump, fillTarget, looksLikeHeader,
   completionToken, completions, activeCall, SIGNATURES, hasValueIn,
@@ -16,6 +16,7 @@ import {
   ruleAt, sanitizeValidation, sortConflict, stepCell, unmergeCells, validateEntry, VALIDATION_OPS, type BorderPreset,
 } from "@/lib/formula/sheetlayout";
 import type { BorderLine, DataValidation, ValidationOp, ValidationType } from "@/lib/formula/engine";
+import { absoluteRef, referenceTarget, validateName } from "@/lib/formula/names";
 
 const COLS = 52;          // A..AZ
 const ROWS = 1000;
@@ -58,12 +59,26 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [loaded, setLoaded] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState("");
-  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv">(null);
+  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv" | "names">(null);
+  const [nameBox, setNameBox] = useState<string | null>(null);
+  const [newName, setNewName] = useState({ name: "", ref: "", scope: "" });
   const [borderLine, setBorderLine] = useState<BorderLine>("thin");
   const [borderColor, setBorderColor] = useState("#e5e7eb");
   const [dvForm, setDvForm] = useState<{ type: ValidationType; operator: ValidationOp; f1: string; f2: string; style: DataValidation["errorStyle"]; error: string; prompt: string; allowBlank: boolean; dropdown: boolean }>({ type: "list", operator: "between", f1: "Low,Medium,High", f2: "", style: "stop", error: "", prompt: "", allowBlank: true, dropdown: true });
   const [dvAlert, setDvAlert] = useState<null | { title: string; message: string; style: DataValidation["errorStyle"]; sheet: string; col: number; row: number; text: string }>(null);
   const [listOpen, setListOpen] = useState(false);
+  const [listUp, setListUp] = useState(false);
+  /** Open the in-cell list; flip it above the cell when the visible grid has no room below (as Excel does). */
+  const openList = (toggle: boolean, from: Element | null) => {
+    const el = from?.closest('[data-testid="sheet-grid"]') as HTMLElement | null;
+    if (el) {
+      const m = mergeAt(sheet, sel.f.col, sel.f.row); const below = m ? m.r1 : sel.f.row;
+      const n = ruleAt(sheet, sel.f.col, sel.f.row)?.type === "list" ? Math.min(8, listItems(workbook, active, ruleAt(sheet, sel.f.col, sel.f.row)!).length) : 8;
+      const menuH = Math.min(180, n * 21.5 + 8);
+      setListUp(HEAD_H + (below + 1) * ROW_H + menuH > el.scrollTop + el.clientHeight);
+    }
+    setListOpen((o) => (toggle ? !o : true));
+  };
   const [showInvalid, setShowInvalid] = useState(false);
   const [scroll, setScroll] = useState({ top: 0, h: 600 });
   const [findQ, setFindQ] = useState(""); const [replQ, setReplQ] = useState(""); const [matchCase, setMatchCase] = useState(false); const [findInfo, setFindInfo] = useState("");
@@ -196,9 +211,33 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     gridRef.current?.focus();
   };
   const token = editing !== null ? completionToken(editing) : null;
-  const acList = token ? completions(token, fnNames) : [];
+  const definedNames = workbook.listNames().filter((n) => n.scope === null || n.scope === active).map((n) => n.name);
+  const acList = token ? completions(token, [...fnNames, ...definedNames]) : [];
   const call = editing !== null && editing.startsWith("=") ? activeCall(editing) : null;
-  const acceptCompletion = (name: string) => { if (editing !== null && token) { setEditing(editing.slice(0, editing.length - token.length) + name + "("); setAcIdx(0); } };
+  const acceptCompletion = (name: string) => { if (editing !== null && token) { const isName = definedNames.some((n) => n.toUpperCase() === name.toUpperCase()) && !fnNames.includes(name); setEditing(editing.slice(0, editing.length - token.length) + name + (isName ? "" : "(")); setAcIdx(0); } };
+  /** Name Box (Excel): a defined name or reference → go there; a new valid name → define it for the selection. */
+  const nameBoxDisplay = (() => {
+    const hit = workbook.listNames().find((n) => { if (n.scope !== null && n.scope !== active) return false; const t = referenceTarget(n.ref, active); return !!t && t.sheet === active && t.c0 === selR.c0 && t.r0 === selR.r0 && t.c1 === selR.c1 && t.r1 === selR.r1; });
+    return hit ? hit.name : `${active}!${rangeA1(selR)}`;
+  })();
+  const goToTarget = (t: { sheet: string; c0: number; r0: number; c1: number; r1: number }) => {
+    if (!workbook.sheets.has(t.sheet)) { setStatus(`no sheet "${t.sheet}"`); return; }
+    commit(null); setActive(t.sheet);
+    setSel({ a: { col: t.c0, row: t.r0 }, f: { col: Math.min(t.c1, COLS - 1), row: Math.min(t.r1, ROWS - 1) } });
+    requestAnimationFrame(() => ensureVisible({ col: t.c0, row: t.r0 }));
+  };
+  const submitNameBox = (raw: string) => {
+    const text = raw.trim(); setNameBox(null); if (!text) return;
+    const def = workbook.lookupName(text, active);
+    if (def) { const t = referenceTarget(def.ref, def.scope ?? active); if (t) goToTarget(t); else setStatus(`${def.name} refers to ${def.ref} (not a range)`); return; }
+    const asRef = /^(?:[^!]+!)?\$?[A-Za-z]{1,3}\$?\d+(?::\$?[A-Za-z]{1,3}\$?\d+)?$/.test(text) ? referenceTarget(text, active) : null;
+    if (asRef) { goToTarget(asRef); return; }
+    const bad = validateName(text);
+    if (bad) { setStatus(`Name Box: ${bad}`); return; }
+    const ref = absoluteRef(active, selR.c0, selR.r0, selR.c1, selR.r1);
+    mutate((wb) => wb.defineName(text, ref));
+    setStatus(`defined ${text} = ${ref}`);
+  };
   const editKeys = (e: React.KeyboardEvent) => {
     if (acList.length && (e.key === "ArrowDown" || e.key === "ArrowUp")) { e.preventDefault(); setAcIdx((i) => (i + (e.key === "ArrowDown" ? 1 : -1) + acList.length) % acList.length); return; }
     if (acList.length && e.key === "Tab") { e.preventDefault(); acceptCompletion(acList[Math.min(acIdx, acList.length - 1)]); return; }
@@ -236,12 +275,13 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (mod && k === "r") { e.preventDefault(); fillDir("right"); return; }
     if (mod && k === "a") { e.preventDefault(); const r = currentRegion(has, sel.f.col, sel.f.row, COLS - 1, ROWS - 1); const whole = (r.c0 === selR.c0 && r.r0 === selR.r0 && r.c1 === selR.c1 && r.r1 === selR.r1) || !has(sel.f.col, sel.f.row); setSel(whole ? { a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } } : { a: { col: r.c0, row: r.r0 }, f: { col: r.c1, row: r.r1 } }); return; }
     if (mod && k === "f") { e.preventDefault(); setPanel("find"); return; }
+    if (mod && e.key === "F3") { e.preventDefault(); setPanel("names"); return; }
     if (mod && k === "home") { e.preventDefault(); moveTo({ col: 0, row: 0 }); return; }
     if (k === "home") { e.preventDefault(); moveTo({ col: 0, row: sel.f.row }, e.shiftKey); return; }
     if (k === "pagedown" || k === "pageup") { e.preventDefault(); const n = Math.max(1, Math.floor((gridRef.current?.clientHeight ?? 400) / ROW_H) - 2); moveTo({ col: sel.f.col, row: clamp(sel.f.row + (k === "pagedown" ? n : -n), ROWS - 1) }, e.shiftKey); return; }
     if (k === "enter") { e.preventDefault(); moveTo(stepCell(sheet, sel.f, 0, e.shiftKey ? -1 : 1, COLS - 1, ROWS - 1)); return; }
     if (k === "tab") { e.preventDefault(); moveTo(stepCell(sheet, sel.f, e.shiftKey ? -1 : 1, 0, COLS - 1, ROWS - 1)); return; }
-    if (e.altKey && k === "arrowdown") { e.preventDefault(); if (ruleAt(sheet, sel.f.col, sel.f.row)?.type === "list") setListOpen(true); return; }
+    if (e.altKey && k === "arrowdown") { e.preventDefault(); if (ruleAt(sheet, sel.f.col, sel.f.row)?.type === "list") openList(false, e.target as Element); return; }
     if (k === "delete" || k === "backspace") { e.preventDefault(); mutate((_wb, s) => clearRange(s, selR)); return; }
     if (k === "f2") { e.preventDefault(); startEdit(sheet.get(sel.f.col, sel.f.row)?.input ?? ""); return; }
     if (e.key.length === 1 && !mod && !e.altKey) { e.preventDefault(); startEdit(e.key); }
@@ -402,7 +442,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (!curRule || curRule.type !== "list" || !listOpen || editing !== null) return null;
     const m = mergeAt(sheet, sel.f.col, sel.f.row); const col = m ? m.c0 : sel.f.col, row = m ? m.r0 : sel.f.row, below = m ? m.r1 : sel.f.row;
     let left = ROWHDR_W; for (let c = 0; c < col; c++) left += colW(c);
-    return { col, row, left, top: HEAD_H + (below + 1) * ROW_H, width: Math.max(colW(col), 120), items: listItems(workbook, active, curRule), cur: String(workbook.valueAt(active, col, row) ?? "") };
+    return { col, row, left, top: listUp ? HEAD_H + row * ROW_H : HEAD_H + (below + 1) * ROW_H, transform: listUp ? "translateY(-100%)" : undefined, width: Math.max(colW(col), 120), items: listItems(workbook, active, curRule), cur: String(workbook.valueAt(active, col, row) ?? "") };
   })();
   const totalW = useMemo(() => { let w = ROWHDR_W; for (let c = 0; c < COLS; c++) w += colW(c); return w; }, [colW]);
   const selInput = sheet.get(sel.f.col, sel.f.row)?.input ?? "";
@@ -457,7 +497,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           style={{ position: "absolute", top: tEdge ? 0 : -1, left: lEdge ? 0 : -1, right: -1, bottom: -1, borderRight: borderCss(rEdge), borderBottom: borderCss(bEdge), borderTop: borderCss(tEdge), borderLeft: borderCss(lEdge), pointerEvents: "none", zIndex: 2 }} /> : null}
         {bad ? <div aria-hidden data-invalid="1" style={{ position: "absolute", inset: "1px 2px", border: "2px solid #ef4444", borderRadius: "50%", pointerEvents: "none", zIndex: 2 }} /> : null}
         {rule && rule.type === "list" && rule.inCellDropdown && !editingHere ? (
-          <button type="button" aria-label="Show list" data-testid="list-arrow" onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setListOpen((o) => !o); }}
+          <button type="button" aria-label="Show list" data-testid="list-arrow" onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); openList(true, e.currentTarget); }}
             style={{ position: "absolute", right: 1, top: 1, width: 16, height: ROW_H - 3, padding: 0, border: "1px solid var(--fs-border)", borderRadius: 3, background: "var(--fs-bg-2, #131a2b)", color: "inherit", cursor: "pointer", zIndex: 4 }}>
             <svg width="8" height="6" viewBox="0 0 8 6" style={{ display: "block", margin: "auto" }}><path d="M0 0h8L4 6z" fill="currentColor" /></svg>
           </button>) : null}
@@ -544,6 +584,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <TB label={`Charts${charts.length ? ` (${charts.length})` : ""}`} onClick={() => setPanel(panel === "charts" ? null : "charts")} active={panel === "charts"} title="Show charts" />
         <TB label="Cond. format" onClick={() => setPanel(panel === "cf" ? null : "cf")} active={panel === "cf"} title={"Conditional formatting rules"} />
         <TB label="Find" onClick={() => setPanel(panel === "find" ? null : "find")} active={panel === "find"} title={"Find & replace (Ctrl+F)"} />
+        <TB label={`Names${workbook.names.size ? ` (${workbook.names.size})` : ""}`} onClick={() => setPanel(panel === "names" ? null : "names")} active={panel === "names"} title={"Name Manager (Ctrl+F3)"} />
         <TB label={`Validation${sheet.validations.length ? ` (${sheet.validations.length})` : ""}`} onClick={() => setPanel(panel === "dv" ? null : "dv")} active={panel === "dv"} title={"Data validation"} />
         <TB label="Circle invalid" onClick={() => setShowInvalid((x) => !x)} active={showInvalid} title={"Circle invalid data"} />
       </div>
@@ -557,7 +598,10 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <span className="fs-dim" style={{ fontSize: 10.5, marginLeft: "auto" }}>{workbook.sheets.size} sheets · cross-sheet formulas (e.g. =TaxRate!B1)</span>
       </div>
       <div className="fs-row" style={{ padding: "4px 8px", gap: 6, borderBottom: "1px solid var(--fs-border)", position: "relative" }}>
-        <span className="fs-mono" data-testid="name-box" style={{ fontSize: 11.5, minWidth: 90 }}>{active}!{rangeA1(selR)}</span>
+        <input className="fs-input fs-mono" data-testid="name-box" aria-label="Name Box" title="Name Box: type a name to define it for the selection, or a name/reference to go there"
+          style={{ fontSize: 11.5, width: 130 }} value={nameBox ?? nameBoxDisplay} onFocus={(e) => { setNameBox(nameBoxDisplay); requestAnimationFrame(() => e.target.select()); }}
+          onChange={(e) => setNameBox(e.target.value)} onBlur={() => setNameBox(null)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submitNameBox(nameBox ?? ""); gridRef.current?.focus(); } else if (e.key === "Escape") { setNameBox(null); gridRef.current?.focus(); } }} />
         <span className="fs-dim fs-mono" style={{ fontSize: 12 }}>ƒx</span>
         <div style={{ flex: 1, position: "relative" }}>
           <input className="fs-input fs-mono" style={{ width: "100%" }} aria-label="Formula bar"
@@ -608,6 +652,41 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
             </div>
           ))}
           <div className="fs-dim" style={{ fontSize: 10.5, marginTop: 3 }}>As in Excel: rules check typed entries only (paste replaces cells without checking; use Circle invalid to audit). Only Stop blocks. Typed lists are limited to 255 characters.</div>
+        </div>
+      ) : null}
+      {panel === "names" ? (
+        <div data-testid="names-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: 11.5, display: "grid", gap: 4, maxHeight: 200, overflow: "auto" }}>
+          <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+            <b>Name Manager</b>
+            <input className="fs-input fs-mono" aria-label="New name" placeholder="Name" value={newName.name} onChange={(e) => setNewName({ ...newName, name: e.target.value })} style={{ width: 120 }} />
+            <input className="fs-input fs-mono" aria-label="Refers to" placeholder={absoluteRef(active, selR.c0, selR.r0, selR.c1, selR.r1)} value={newName.ref} onChange={(e) => setNewName({ ...newName, ref: e.target.value })} style={{ width: 200 }} />
+            <select className="fs-select" aria-label="Scope" style={{ width: 130, flex: "0 0 auto" }} value={newName.scope} onChange={(e) => setNewName({ ...newName, scope: e.target.value })}>
+              <option value="">Workbook</option>{[...workbook.sheets.keys()].map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+            <Btn variant="primary" onClick={() => {
+              const ref = newName.ref.trim() || absoluteRef(active, selR.c0, selR.r0, selR.c1, selR.r1);
+              const bad = validateName(newName.name.trim());
+              if (bad) { setStatus(`Name Manager: ${bad}`); return; }
+              try { parseFormula(`=${ref.replace(/^=/, "")}`); } catch (er) { setStatus(`Name Manager: ${(er as Error).message}`); return; }
+              mutate((wb) => wb.defineName(newName.name.trim(), ref, newName.scope || null)); setStatus(`defined ${newName.name.trim()}`); setNewName({ name: "", ref: "", scope: "" });
+            }}>Define</Btn>
+          </div>
+          {workbook.listNames().length === 0 ? <span className="fs-dim">No names yet. Select cells and type a name in the Name Box, or define one here.</span> : (
+            <table style={{ borderCollapse: "collapse", textAlign: "left" }}>
+              <thead><tr><th>Name</th><th>Refers to</th><th>Value</th><th>Scope</th><th /></tr></thead>
+              <tbody>{workbook.listNames().map((n) => {
+                const t = referenceTarget(n.ref, n.scope ?? active);
+                const val = t && workbook.sheets.has(t.sheet) ? workbook.valueAt(t.sheet, t.c0, t.r0) : undefined;
+                return (
+                  <tr key={`${n.scope}|${n.name}`} data-name={n.name}>
+                    <td className="fs-mono"><button className="fs-btn" data-variant="ghost" onClick={() => t && goToTarget(t)} title="Go to">{n.name}</button></td>
+                    <td className="fs-mono" style={{ color: /#REF!/.test(n.ref) ? "#ff9b9b" : undefined }}>={n.ref}</td>
+                    <td className="fs-mono fs-dim">{t ? `${val === undefined ? "" : String(typeof val === "object" ? (val as { error: string }).error : val)}${t.c0 !== t.c1 || t.r0 !== t.r1 ? " …" : ""}` : ""}</td>
+                    <td>{n.scope ?? "Workbook"}</td>
+                    <td><Btn variant="ghost" onClick={() => mutate((wb) => { wb.deleteName(n.name, n.scope); })} title="Delete name">Delete</Btn></td>
+                  </tr>);
+              })}</tbody>
+            </table>)}
         </div>
       ) : null}
       {panel === "find" ? (
@@ -669,7 +748,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         </table>
         {listMenu ? (
           <div role="listbox" aria-label="List values" data-testid="list-menu" onMouseDown={(e) => e.stopPropagation()}
-            style={{ position: "absolute", top: listMenu.top, left: listMenu.left, minWidth: listMenu.width, maxHeight: 180, overflowY: "auto", zIndex: 30, background: "var(--fs-panel-solid, #111827)", border: "1px solid var(--fs-border)", borderRadius: 4, padding: 2, fontSize: 11.5, boxShadow: "0 6px 20px rgba(0,0,0,.4)" }}>
+            data-placement={listUp ? "above" : "below"} style={{ position: "absolute", top: listMenu.top, transform: listMenu.transform, left: listMenu.left, minWidth: listMenu.width, maxHeight: 180, overflowY: "auto", zIndex: 30, background: "var(--fs-panel-solid, #111827)", border: "1px solid var(--fs-border)", borderRadius: 4, padding: 2, fontSize: 11.5, boxShadow: "0 6px 20px rgba(0,0,0,.4)" }}>
             {listMenu.items.map((it) => <div key={it} role="option" aria-selected={listMenu.cur === it} onMouseDown={(e) => { e.preventDefault(); pickListValue(listMenu.col, listMenu.row, it); }}
               style={{ padding: "2px 6px", cursor: "pointer", borderRadius: 3, background: listMenu.cur === it ? "rgba(91,140,255,.25)" : undefined }} className="fs-list-item">{it}</div>)}
           </div>

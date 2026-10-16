@@ -50,11 +50,11 @@ await test("Merge & Center: upper-left-most data kept after the Excel warning, o
     const m = s.cell("H10");
     eq(await m.getAttribute("colspan"), "3"); eq(await m.getAttribute("data-merge"), "H10:J10"); eq(await text(m), "kept", "upper-left most data moved to the anchor");
     eq(await s.cell("I10").count(), 0, "covered cells are not rendered"); eq(await m.evaluate((e) => getComputedStyle(e).textAlign), "center");
-    eq(await text(s.dlg.locator('[data-testid="name-box"]')), "Sheet1!H10:J10");
-    await s.page.keyboard.press("ArrowRight"); eq(await text(s.dlg.locator('[data-testid="name-box"]')), "Sheet1!K10", "leave from the far edge");
-    await s.page.keyboard.press("ArrowLeft"); eq(await text(s.dlg.locator('[data-testid="name-box"]')), "Sheet1!H10:J10", "re-enter lands on the merge");
+    eq((await s.dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!H10:J10");
+    await s.page.keyboard.press("ArrowRight"); eq((await s.dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!K10", "leave from the far edge");
+    await s.page.keyboard.press("ArrowLeft"); eq((await s.dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!H10:J10", "re-enter lands on the merge");
     await s.cell("G11").click(); await s.cell("I11").click({ modifiers: ["Shift"] });
-    await s.cell("I9").click({ modifiers: ["Shift"] }); eq(await text(s.dlg.locator('[data-testid="name-box"]')), "Sheet1!G9:J11", "selection grows to include the whole merge");
+    await s.cell("I9").click({ modifiers: ["Shift"] }); eq((await s.dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!G9:J11", "selection grows to include the whole merge");
     await s.cell("H10").click(); await s.dlg.getByLabel("Merge", { exact: true }).selectOption("unmerge");
     await waitFor(async () => (await s.cell("I10").count()) === 1, "unmerge did not restore I10");
     eq(await text(s.cell("I10")), "", "discarded value stays discarded"); eq(await text(s.cell("H10")), "kept");
@@ -157,6 +157,47 @@ await test("Full stack: merges + borders + validation + frozen panes survive Exp
     await r.cell("K10").click(); await r.dlg.locator('[data-testid="list-arrow"]').click();
     eq(await r.dlg.locator('[data-testid="list-menu"] [role=option]').allInnerTexts(), ["Yes", "No"]);
     eq(await r.cell("A3").evaluate((e) => getComputedStyle(e).position), "sticky", "frozen column lost");
+  } finally { await r.close(); }
+});
+
+await test("TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen", { "FF-36": "full", "FF-20": "partial" }, async () => {
+  const s = await openSheet();
+  let dest = "";
+  const box = () => s.dlg.getByLabel("Name Box", { exact: true });
+  const status = () => text(s.dlg.locator('[data-testid="sheet-status"]'));
+  try {
+    await typeIn(s, "B2", "5"); await typeIn(s, "B3", "7"); await typeIn(s, "B4", "9");
+    await s.cell("B2").click(); await s.cell("B4").click({ modifiers: ["Shift"] });
+    await box().click(); await box().fill("Tax Rate"); await box().press("Enter");
+    await waitFor(async () => /Name Box: .*space/i.test(await status()), `invalid name not refused: ${await status()}`);
+    await box().click(); await box().fill("Qty"); await box().press("Enter");
+    await waitFor(async () => /defined Qty = .*!\$B\$2:\$B\$4/.test(await status()), `define failed: ${await status()}`);
+    await waitFor(async () => (await box().inputValue()) === "Qty", "Name Box shows the name for a matching selection");
+    await typeIn(s, "D2", "=SUM(Qty)*2");
+    // the demo sheet formats column D as currency, so the displayed value may be "$42.00"
+    await waitFor(async () => /^\$?42(\.00)?$/.test(await text(s.cell("D2"))), `SUM(Qty)*2 gave ${await text(s.cell("D2"))}`);
+    await s.cell("D3").click(); await s.page.keyboard.type("=SUM(q");
+    await s.dlg.locator('[data-testid="formula-assist"] [data-ac="Qty"]').waitFor({ timeout: 5000 });
+    await s.page.keyboard.press("Escape");
+    await s.cell("A1").click(); await box().click(); await box().fill("qty"); await box().press("Enter");
+    await waitFor(async () => (await box().inputValue()) === "Qty", "typing a name (any case) selects its range");
+    await s.dlg.getByRole("button", { name: /^Name Manager/ }).click();
+    const row = s.dlg.locator('[data-testid="names-panel"] tr[data-name="Qty"]');
+    await row.waitFor({ timeout: 5000 });
+    eq(/\$B\$2:\$B\$4/.test(await row.innerText()), true, "Name Manager shows refers-to");
+    await s.dlg.getByRole("button", { name: "Export .xlsx" }).click();
+    await waitFor(async () => /exported .* → /.test(await status()), "export failed", 10_000);
+    dest = /→ (\S+\.xlsx)/.exec(await status())![1];
+  } finally { await s.close(); }
+  const r = await openSheet(dest);
+  try {
+    await waitFor(async () => /^\$?42(\.00)?$/.test(await text(r.cell("D2"))), `name-based formula lost in the .xlsx round trip: ${await text(r.cell("D2"))}`, 10_000);
+    const nb = r.dlg.getByRole("button", { name: /^Name Manager/ });
+    eq((await nb.innerText()).trim(), "Names (1)", "reopened workbook carries exactly one name");
+    await nb.click();
+    await r.dlg.locator('[data-testid="names-panel"] tr[data-name="Qty"]').waitFor({ timeout: 5000 });
+    await r.dlg.locator('[data-testid="names-panel"] tr[data-name="Qty"]').getByRole("button", { name: "Delete" }).click();
+    await waitFor(async () => (await text(r.cell("D2"))) === "#NAME?", "deleting the name gives #NAME?");
   } finally { await r.close(); }
 });
 

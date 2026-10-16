@@ -314,6 +314,28 @@ await test("UI: arrow (line tool + Arrowhead) exports as plain path; star stays 
   } finally { await s.close(); }
 });
 
+await test("TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo", { "FF-37": "full" }, async () => {
+  const s = await openStudio();
+  try {
+    await s.tool("Rect"); await s.drag([560, 320], [660, 420]);
+    await s.tool("Rect"); await s.drag([610, 370], [710, 470]);
+    const n = Number(await s.attr("shapes"));
+    await s.tool("Select"); await s.click(570, 330, ["Shift"]);
+    ok(((await s.attr("selected")) ?? "").split(",").length === 2, `two selected: ${await s.attr("selected")}`);
+    await s.root.getByRole("button", { name: "Unite", exact: true }).click();
+    await waitMsg(s, /Unite: 1 ring\(s\), area 17500/);
+    ok(Number(await s.attr("shapes")) === n - 1, "two operands replaced by one path");
+    boxIs(await s.bbox(), [560, 320, 150, 150], 0.01, "united bbox");
+    await s.key("Control+z"); ok(Number(await s.attr("shapes")) === n, "undo restores both");
+    await s.tool("Select"); await s.click(700, 460); await s.click(570, 330, ["Shift"]);
+    await s.root.getByRole("button", { name: "Minus Front", exact: true }).click();
+    await waitMsg(s, /Minus Front: 1 ring\(s\), area 7500/);
+    boxIs(await s.bbox(), [560, 320, 100, 100], 0.01, "back square minus the front one keeps the back square's bbox");
+    const d = (await s.d(await lastSid(s))) ?? "";
+    ok((d.match(/L/g) ?? []).length === 5, `L-shaped result has 6 corners: ${d}`);
+  } finally { await s.close(); }
+});
+
 await test("no page errors during the vector session", { "FF-32": "partial" }, () => { ok(errors.length === 0, errors.join(" | ")); });
 await browser.close();
 finish();

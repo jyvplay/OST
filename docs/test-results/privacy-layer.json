@@ -1,6 +1,6 @@
 {
   "suite": "privacy-layer",
-  "at": "2026-10-16T05:33:33.526Z",
+  "at": "2026-10-16T06:00:21.471Z",
   "results": [
     {
       "suite": "privacy-layer",
@@ -9,7 +9,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 143
+      "ms": 182
     },
     {
       "suite": "privacy-layer",
@@ -18,7 +18,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 103
+      "ms": 112
     },
     {
       "suite": "privacy-layer",
@@ -27,7 +27,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 5
     },
     {
       "suite": "privacy-layer",
@@ -36,7 +36,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 71
+      "ms": 74
     },
     {
       "suite": "privacy-layer",
@@ -46,7 +46,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 49
+      "ms": 48
     },
     {
       "suite": "privacy-layer",
@@ -55,7 +55,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 47
+      "ms": 43
     },
     {
       "suite": "privacy-layer",
@@ -64,7 +64,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 25
+      "ms": 19
     },
     {
       "suite": "privacy-layer",
@@ -83,7 +83,26 @@
         "SC-14": "partial"
       },
       "pass": true,
-      "ms": 270
+      "ms": 247
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock",
+      "covers": {
+        "SC-16": "full"
+      },
+      "pass": true,
+      "ms": 265
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results",
+      "covers": {
+        "SC-16": "partial",
+        "SC-13": "partial"
+      },
+      "pass": true,
+      "ms": 168
     }
   ]
 }

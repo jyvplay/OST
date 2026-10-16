@@ -36,7 +36,8 @@ export type Node =
   | { t: "unary"; op: "-" | "+"; arg: Node }
   | { t: "percent"; arg: Node }
   | { t: "binary"; op: BinOp; left: Node; right: Node }
-  | { t: "array"; rows: Node[][] };
+  | { t: "array"; rows: Node[][] }
+  | { t: "name"; name: string };
 
 export type BinOp = "+" | "-" | "*" | "/" | "^" | "&" | "=" | "<>" | "<" | ">" | "<=" | ">=";
 

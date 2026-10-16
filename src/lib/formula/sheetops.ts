@@ -123,6 +123,13 @@ export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: nu
     for (const [k, px] of Object.entries(sheet.colWidths)) { const c = Number(k); if (count > 0) w[c >= at ? c + count : c] = px; else if (c < at) w[c] = px; else if (c >= at - count) w[c + count] = px; }
     sheet.colWidths = w;
   }
+  // TT19: defined names move with their cells too (Excel adjusts Name Manager references); a fully deleted
+  // range becomes #REF! inside the name, exactly like a cell formula.
+  for (const d of wb.listNames()) {
+    const home = d.scope ?? [...wb.sheets.keys()][0];
+    const next = adjustForStructure(`=${d.ref}`, home, sheetName, axis, at, count);
+    if (next !== `=${d.ref}`) { try { wb.defineName(d.name, next, d.scope, d.comment); } catch { /* keep the old text if unparsable */ } }
+  }
   for (const s of wb.sheets.values()) {
     for (const [k, cell] of s.grid) {
       if (!cell.formula) continue;

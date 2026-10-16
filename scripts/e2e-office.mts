@@ -67,17 +67,17 @@ await test("autocomplete (Tab inserts NAME( ), point-mode click inserts a refere
   eq(await dlg.getByLabel("Cell editor").inputValue(), "=SUM(B2");
   await page.keyboard.type(":B4)"); await page.keyboard.press("Enter");
   eq(await text(cell("A10")), "10");
-  eq(await text(dlg.locator('[data-testid="name-box"]')), "Sheet1!A11");
+  eq((await dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!A11");
   await close();
 });
 
 await test("drag-select a range → status bar Sum/Count; Ctrl+A selects current region", { "FF-28": "full" }, async () => {
   const { page, dlg, cell, close } = await openSheet();
   await cell("B2").hover(); await page.mouse.down(); await cell("B4").hover(); await page.mouse.up();
-  eq(await text(dlg.locator('[data-testid="name-box"]')), "Sheet1!B2:B4");
+  eq((await dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!B2:B4");
   eq(await text(dlg.locator('[data-testid="stat-sum"]')), "10"); eq(await text(dlg.locator('[data-testid="stat-count"]')), "3");
   await cell("B3").click(); await page.keyboard.press("Control+a");
-  eq(await text(dlg.locator('[data-testid="name-box"]')), "Sheet1!A1:D5");
+  eq((await dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!A1:D5");
   await close();
 });
 
@@ -125,7 +125,7 @@ await test("clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style;
     grid.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
   });
   eq([await text(cell("H10")), await text(cell("I10")), await text(cell("H11")), await text(cell("I11"))], ["1", "2", "3", "3"]);
-  eq(await text(dlg.locator('[data-testid="name-box"]')), "Sheet1!H10:I11");
+  eq((await dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!H10:I11");
   await close();
 });
 
@@ -140,7 +140,7 @@ await test("sort by active column keeps header + moves row formulas; insert row 
   eq(await text(cell("A3")), ""); eq(await text(cell("D6")), "$79.00");
   await page.keyboard.press("Control+f");
   await dlg.getByLabel("Find", { exact: true }).fill("gadget"); await dlg.getByLabel("Find", { exact: true }).press("Enter");
-  eq(await text(dlg.locator('[data-testid="name-box"]')), "Sheet1!A5");
+  eq((await dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!A5");
   await close();
 });
 

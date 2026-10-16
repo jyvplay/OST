@@ -10,12 +10,13 @@ import { sanitizeCharts, sanitizeCondFormats } from "./sheetmeta";
 
 export interface CellJson { ref: string; input: string; style?: CellStyle }
 export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[] }
-export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[] }
+export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[] }
 
 export function workbookToJson(wb: Workbook): WorkbookJson {
   const extra: Partial<WorkbookJson> = {};
   if (wb.charts.length) extra.charts = wb.charts.map((c) => ({ ...c }));
   if (wb.condFormats.length) extra.condFormats = wb.condFormats.map((c) => ({ ...c }));
+  if (wb.names.size) extra.names = wb.listNames().map((n) => ({ ...n }));
   return {
     ...extra,
     sheets: [...wb.sheets.values()].map((s) => {
@@ -88,6 +89,12 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
   if (!wb.sheets.size) wb.addSheet("Sheet1");
   wb.charts = sanitizeCharts(data.charts);
   wb.condFormats = sanitizeCondFormats(data.condFormats);
+  // Untrusted names: each goes through defineName's validation; invalid ones are dropped (max 2000).
+  for (const raw of (Array.isArray(data.names) ? data.names : []).slice(0, 2000)) {
+    const n = raw as { name?: unknown; ref?: unknown; scope?: unknown; comment?: unknown };
+    if (typeof n?.name !== "string" || typeof n.ref !== "string" || n.ref.length > 8192) continue;
+    try { wb.defineName(n.name, n.ref, typeof n.scope === "string" ? n.scope : null, typeof n.comment === "string" ? n.comment : undefined); } catch { /* dropped */ }
+  }
   wb.recalculate();
   return wb;
 }

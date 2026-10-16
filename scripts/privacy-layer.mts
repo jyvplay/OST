@@ -224,6 +224,59 @@ await test("audit walks /Private on the host and flags anything stored in clear 
   assert.ok(!after.plainContent.some((p) => p.includes(`sealed`)) && !after.plainNames.some((p) => p.includes(`planted2-${RUN}`)), JSON.stringify(after));
 });
 
+await test("TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock", { "SC-16": "full" }, async () => {
+  const seen: string[] = [];
+  const spy = (url: string, init?: RequestInit) => { seen.push(url); return raw(url, init); };
+  const S = new PrivacyLayer(spy); S.keys = keys;
+  const TOK = `qq${RUN}needle`;
+  await post(S, { op: "write", path: `${DIR}/srch/ledger.md`, content: `alpha bravo ${TOK} charlie\n`.repeat(3), reason: "it" });
+  await post(S, { op: "write", path: `${DIR}/srch/${TOK}-photo.png`, content: "iVBORw0KGgo=", encoding: "base64", reason: "it" });
+  const q = (query: string, scope = "") => call(S, `/api/search?q=${encodeURIComponent(query)}${scope ? `&scope=${encodeURIComponent(scope)}` : ""}`);
+  seen.length = 0;
+  const a = await q(TOK, "/Private");
+  assert.equal(a.status, 200, JSON.stringify(a.body));
+  assert.equal(a.body.hostQueried, false);
+  assert.deepEqual(a.body.hits.map((h: any) => h.ref).sort(), [`${DIR}/srch/${TOK}-photo.png`, `${DIR}/srch/ledger.md`].sort(), "content hit + name-only hit for a binary");
+  assert.ok(a.body.hits.every((h: any) => h.how === "private-local" && h.source === "file"));
+  assert.match(a.body.hits.find((h: any) => h.ref.endsWith("ledger.md")).snippet, new RegExp(TOK));
+  assert.equal(seen.filter((u) => u.startsWith("/api/search")).length, 0, "the query text never went to the host");
+  assert.ok(a.body.private.indexed >= 2);
+  assert.equal((await q(`alpha ${TOK}`, "/Private")).body.hits.length, 1, "AND of tokens");
+  assert.equal((await q(`alpha zzznothere${RUN}`, "/Private")).body.hits.length, 0);
+  // unscoped: host files are still searched (the query text DOES reach the host — declared), private hits merged first
+  const u = await q(TOK);
+  assert.equal(u.body.hostQueried, true); assert.ok(seen.some((x) => x.startsWith("/api/search")));
+  assert.equal(u.body.hits.filter((h: any) => h.how === "private-local").length, 2);
+  assert.equal((await rows("select count(*)::int n from index_docs where body like $1 or title like $1 or ref like $1", [`%${TOK}%`]))[0].n, 0, "host index still has nothing");
+  // incremental: write / move / trash without a rebuild
+  const built = a.body.private.buildMs;
+  await post(S, { op: "write", path: `${DIR}/srch/new.txt`, content: `late ${TOK}2 entry`, reason: "it" });
+  const n1 = await q(`${TOK}2`, "/Private");
+  assert.deepEqual(n1.body.hits.map((h: any) => h.ref), [`${DIR}/srch/new.txt`]); assert.equal(n1.body.private.buildMs, built, "no rebuild");
+  await post(S, { op: "move", src: `${DIR}/srch/new.txt`, dst: `${DIR}/srch/moved.txt` });
+  assert.deepEqual((await q(`${TOK}2`, `${DIR}/srch`)).body.hits.map((h: any) => h.ref), [`${DIR}/srch/moved.txt`]);
+  await post(S, { op: "trash", path: `${DIR}/srch/moved.txt` });
+  assert.equal((await q(`${TOK}2`, "/Private")).body.hits.length, 0, "trashed files leave the index");
+  // lock: index dropped, scoped search answers locally with nothing, still no host request
+  S.keys = null; seen.length = 0;
+  const l = await q(TOK, "/Private");
+  assert.equal(l.body.locked, true); assert.equal(l.body.hits.length, 0); assert.equal(seen.length, 0);
+  assert.equal((S as any).pidx, null, "decrypted index discarded");
+  S.keys = keys; S.dropPrivateIndex();
+  assert.equal((await q(TOK, "/Private")).body.hits.length, 2, "rebuilt after unlock");
+});
+
+await test("TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results", { "SC-16": "partial", "SC-13": "partial" }, async () => {
+  const A = new PrivacyLayer(raw); A.amnesic = true;
+  const TOK = `rr${RUN}ramonly`;
+  await post(A, { op: "write", path: `/Documents/amn-${RUN}.txt`, content: `ram ${TOK}`, reason: "it" });
+  const r = await call(A, `/api/search?q=${TOK}`);
+  assert.deepEqual(r.body.hits.map((h: any) => [h.ref, h.how]), [[`/Documents/amn-${RUN}.txt`, "amnesic-ram"]]);
+  assert.equal((await rows("select count(*)::int n from index_docs where body like $1 or ref like $1", [`%${TOK}%`]))[0].n, 0);
+  A.ram.wipe();
+  assert.equal((await call(A, `/api/search?q=${TOK}`)).body.hits.length, 0, "wiped RAM is gone from search");
+});
+
 // cleanup: purge this run's encrypted subtree
 await raw("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "purge", path: await encryptPath(keys, DIR) }) });
 await db.end();
