@@ -30,6 +30,7 @@
  *    extended library (./ext) through an adapter; the first-party table always
  *    wins on name collisions.
  */
+import type { ChartSpec, CondRule } from "./sheetmeta";
 import { parseFormula } from "./parser";
 import { colToLetters, isError, type CellAddr, type ErrorCode, type Node, type RangeAddr, type Scalar } from "./types";
 import { FUNCTIONS, toBool, toNumberStrict, toStr, type Arg } from "./functions";
@@ -105,6 +106,9 @@ export class Workbook {
   spillOwner = new Map<string, SpillClaim>();
   /** Diagnostics of the last recalculation (exposed for tests and the UI status bar). */
   lastRecalc = { passes: 0, stable: true, spills: 0, blocked: 0 };
+  /** Presentation metadata (TT15): charts and conditional-format rules, persisted in workbook JSON. */
+  charts: ChartSpec[] = [];
+  condFormats: CondRule[] = [];
   constructor() { this.addSheet("Sheet1"); }
   addSheet(name: string) { const s = new Sheet(name); this.sheets.set(name, s); return s; }
   sheet(name?: string | null) { const s = this.sheets.get(name ?? [...this.sheets.keys()][0]); if (!s) throw new Error(`no such sheet: ${name}`); return s; }

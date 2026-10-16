@@ -15,6 +15,9 @@ import {
   sortRange, findAll, replaceAll, selectionStats, addFuturePrefixes, stripFuturePrefixes, parseA1Range, rangeA1,
 } from "../src/lib/formula/sheetops.ts";
 import { formatValue, formatGeneral } from "../src/lib/formula/numfmt.ts";
+import { currentRegion, jump, fillTarget, looksLikeHeader, completionToken, completions, activeCall, hasValueIn } from "../src/lib/formula/sheetui.ts";
+import { chartDataFromRange, buildChartSvg, niceTicks, evalCondFormats, sanitizeCharts, sanitizeCondFormats } from "../src/lib/formula/sheetmeta.ts";
+import { workbookToJson, workbookFromJson } from "../src/lib/formula/workbook-json.ts";
 
 type Covers = Record<string, "full" | "partial">;
 interface H {
@@ -183,6 +186,101 @@ export async function run({ test, book, errOf }: H) {
   await test("TEXT() uses the format engine end-to-end through the formula engine", { "FF-19": "partial", "FF-28": "partial" }, () => {
     const { get } = book({ A1: "45361.75", B1: '=TEXT(A1,"ddd mmm d, h AM/PM")', B2: '=TEXT(-1234.5,"$#,##0.00;($#,##0.00)")', B3: '=TEXT("12.5","0.0")', B4: '=TEXT(1234.5,"0.00")' });
     assert.equal(get("B1"), "Sun Mar 10, 6 PM"); assert.equal(get("B2"), "($1,234.50)"); assert.equal(get("B3"), "12.5"); assert.equal(get("B4"), "1234.50");
+  });
+
+  console.log("\nSpreadsheet UI logic (sheetui.ts) and metadata (sheetmeta.ts, workbook JSON v2)");
+  await test("currentRegion / Ctrl+Arrow jump / fill-handle geometry / header heuristic", { "FF-28": "full" }, () => {
+    const { wb } = book({ B2: "Name", C2: "Qty", B3: "a", C3: "1", B4: "b", C4: "2", E9: "x" });
+    const has = hasValueIn(wb, "Sheet1");
+    assert.deepEqual(currentRegion(has, 2, 3, 51, 999), { c0: 1, r0: 1, c1: 2, r1: 3 });
+    assert.deepEqual(currentRegion(has, 0, 0, 51, 999), { c0: 0, r0: 0, c1: 2, r1: 3 }); // diagonal neighbour B2 joins (Excel behaviour)
+    assert.deepEqual(jump(has, 1, 1, 0, 1, 51, 999), { col: 1, row: 3 });   // B2 → end of block B4
+    assert.deepEqual(jump(has, 1, 3, 0, 1, 51, 999), { col: 1, row: 999 }); // B4 → nothing below → sheet edge
+    assert.deepEqual(jump(has, 4, 0, 0, 1, 51, 999), { col: 4, row: 8 });   // E1 (blank) → next value E9
+    assert.deepEqual(jump(has, 0, 0, -1, 0, 51, 999), { col: 0, row: 0 });  // already at edge
+    const sel = { c0: 1, r0: 1, c1: 2, r1: 3 };
+    assert.deepEqual(fillTarget(sel, 2, 7), { c0: 1, r0: 1, c1: 2, r1: 7 });
+    assert.deepEqual(fillTarget(sel, 6, 4), { c0: 1, r0: 1, c1: 6, r1: 3 }); // right dominates (4 cols vs 1 row)
+    assert.equal(fillTarget(sel, 2, 2), null);
+    assert.equal(looksLikeHeader(wb, "Sheet1", sel), true);
+    assert.equal(looksLikeHeader(wb, "Sheet1", { c0: 1, r0: 2, c1: 2, r1: 3 }), false);
+  });
+  await test("formula autocomplete token, ranked completions, active-call argument index (strings/nesting aware)", { "FF-28": "full" }, () => {
+    assert.equal(completionToken("=SU"), "SU"); assert.equal(completionToken("=A1+VLO"), "VLO");
+    assert.equal(completionToken("=A1"), null); assert.equal(completionToken('="SU'), null); assert.equal(completionToken("SU"), null);
+    assert.equal(completionToken("=Sheet2!A"), null);
+    assert.deepEqual(completions("su", ["SUMIFS", "SUM", "SUBSTITUTE", "AVERAGE", "SUMIF"]).slice(0, 3), ["SUM", "SUMIF", "SUMIFS"]);
+    assert.deepEqual(activeCall("=IF(A1>0,SUM(B1,"), { name: "SUM", arg: 1 });
+    assert.deepEqual(activeCall("=IF(A1>0,SUM(B1,2),"), { name: "IF", arg: 2 });
+    assert.deepEqual(activeCall('=TEXTJOIN(",",'), { name: "TEXTJOIN", arg: 1 }); // comma inside a string is not a separator
+    assert.equal(activeCall("=SUM(1)"), null);
+  });
+  await test("charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data", { "FF-29": "full" }, () => {
+    const { wb } = book({ A1: "Month", B1: "Sales", C1: "<Cost>", A2: "Jan", B2: "10", C2: "4", A3: "Feb", B3: "n/a", C3: "6", A4: "Mar", B4: "=B2*3", C4: "5" });
+    const d = chartDataFromRange(wb, "Sheet1", "A1:C4", true);
+    assert.deepEqual(d.categories, ["Jan", "Feb", "Mar"]);
+    assert.deepEqual(d.series, [{ name: "Sales", values: [10, null, 30] }, { name: "<Cost>", values: [4, 6, 5] }]);
+    assert.deepEqual(niceTicks(0, 30), [0, 10, 20, 30]); assert.deepEqual(niceTicks(-3, 7), [-4, -2, 0, 2, 4, 6, 8]);
+    for (const kind of ["bar", "line", "pie", "scatter"] as const) {
+      const svg = buildChartSvg(kind, 'T & "q"', kind === "scatter" ? { categories: ["1", "2", "4"], series: d.series } : d);
+      assert.ok(svg.startsWith("<svg") && svg.endsWith("</svg>"), kind);
+      assert.ok(!/<script|on\w+=/i.test(svg), "no active content");
+      assert.ok(svg.includes("T &amp; &quot;q&quot;"), "title escaped");
+      if (kind !== "pie") assert.ok(svg.includes("&lt;Cost&gt;"), "legend escaped");
+    }
+    assert.equal((buildChartSvg("bar", "", d).match(/<rect /g) ?? []).length - 1 - 2, 5 - 0); // bg + 5 bars (one gap) + 2 legend swatches
+    assert.equal((buildChartSvg("line", "", d).match(/<polyline /g) ?? []).length, 1 + 3); // axis + Sales split by gap into 2 + Cost 1
+    assert.throws(() => buildChartSvg("bar", "", { categories: ["x"], series: [{ name: "s", values: [null] }] }), /numeric point/);
+    assert.throws(() => buildChartSvg("scatter", "", { categories: ["a"], series: [{ name: "s", values: [1] }] }), /numeric/);
+  });
+  await test("conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order", { "FF-29": "partial", "FF-28": "partial" }, () => {
+    const { wb } = book({ A1: "5", A2: "15", A3: "25", A4: "15", B1: "apple", B2: "Pineapple", B3: "kiwi" });
+    const m = evalCondFormats(wb, "Sheet1", [
+      { id: "r1", sheet: "Sheet1", range: "A1:A4", kind: "gt", a: "20", fill: "#ff0000" },
+      { id: "r2", sheet: "Sheet1", range: "A1:A4", kind: "between", a: "10", b: "30", fill: "#00ff00", bold: true },
+      { id: "r3", sheet: "Sheet1", range: "B1:B3", kind: "contains", a: "APPLE", color: "#0000ff" },
+      { id: "r4", sheet: "Sheet1", range: "A1:A4", kind: "duplicate", color: "#ffff00" },
+    ]);
+    assert.equal(m.get("0,2")?.fill, "#ff0000"); // r1 has priority over r2 for fill
+    assert.equal(m.get("0,2")?.bold, true);       // non-conflicting props from lower rules still apply
+    assert.equal(m.get("0,1")?.fill, "#00ff00"); assert.equal(m.get("0,0"), undefined);
+    assert.equal(m.get("1,0")?.color, "#0000ff"); assert.equal(m.get("1,1")?.color, "#0000ff"); assert.equal(m.get("1,2"), undefined);
+    assert.equal(m.get("0,1")?.color, "#ffff00"); assert.equal(m.get("0,3")?.color, "#ffff00");
+    const top = evalCondFormats(wb, "Sheet1", [{ id: "t", sheet: "Sheet1", range: "A1:A4", kind: "top", a: "1", fill: "#123456" }]);
+    assert.deepEqual([...top.keys()], ["0,2"]);
+    const sc = evalCondFormats(wb, "Sheet1", [{ id: "s", sheet: "Sheet1", range: "A1:A3", kind: "scale", scaleMin: "#000000", scaleMax: "#ffffff" }]);
+    assert.deepEqual([sc.get("0,0")?.fill, sc.get("0,1")?.fill, sc.get("0,2")?.fill], ["#000000", "#808080", "#ffffff"]);
+  });
+  await test("workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads", { "FF-28": "full", "FF-29": "partial" }, () => {
+    const { wb } = book({ A1: "x", B2: "=A1" });
+    const s = wb.sheet(); s.setStyle(0, 0, { bold: true, fill: "#112233", numFmt: "0.00" }); s.setStyle(3, 3, { italic: true }); s.colWidths[1] = 150; s.freezeRows = 1;
+    wb.charts = [{ id: "c1", sheet: "Sheet1", range: "A1:B2", kind: "line", title: "t", headerRow: true }];
+    wb.condFormats = [{ id: "r1", sheet: "Sheet1", range: "A1:A9", kind: "gt", a: "1", fill: "#ff0000" }];
+    const back = workbookFromJson(JSON.parse(JSON.stringify(workbookToJson(wb))));
+    const t = back.sheet();
+    assert.deepEqual(t.get(0, 0)?.style, { bold: true, fill: "#112233", numFmt: "0.00" }); assert.deepEqual(t.get(3, 3)?.style, { italic: true });
+    assert.equal(t.colWidths[1], 150); assert.equal(t.freezeRows, 1); assert.equal(back.valueAt("Sheet1", 1, 1), "x");
+    assert.deepEqual(back.charts, wb.charts); assert.equal(back.condFormats[0].fill, "#ff0000");
+    const evil = workbookFromJson({ sheets: [{ name: "S", cells: [{ ref: "A1", input: "1", style: { fill: "red;background:url(x)", color: "#abcdef", align: "evil" as never, bogus: 1 } as never }], colWidths: { "0": 1e9, x: 50 } as never }],
+      charts: [{ id: "<img>", sheet: "S", range: "A1:B2", kind: "bar" }, { id: "ok", sheet: "S", range: "A1:B2", kind: "donut" }, { id: "ok2", sheet: "S", range: "A1:B2", kind: "pie", title: 7 }],
+      condFormats: [{ id: "r", sheet: "S", range: "nope", kind: "gt" }, { id: "r2", sheet: "S", range: "A1:A2", kind: "gt", fill: "javascript:1" }] });
+    assert.deepEqual(evil.sheet("S").get(0, 0)?.style, { color: "#abcdef" });
+    assert.deepEqual(evil.sheet("S").colWidths, {});
+    assert.deepEqual(evil.charts.map((c) => [c.id, c.title]), [["ok2", ""]]);
+    assert.deepEqual(evil.condFormats.map((c) => [c.id, c.fill]), [["r2", undefined]]);
+    const v1 = workbookFromJson({ sheets: [{ name: "Old", cells: [{ ref: "A1", input: "2" }, { ref: "A2", input: "=A1*2" }] }] });
+    assert.equal(v1.valueAt("Old", 0, 1), 4);
+  });
+  await test("SORTBY (multi-key, mixed orders, size check) and SORT Excel ordering (case-insensitive, blanks last, by_col, index check)", { "FF-26": "full", "FF-27": "partial" }, () => {
+    const { get } = book({ A1: "b", A2: "A", A3: "c", B1: "2", B2: "2", B3: "1", B4: "5",
+      E1: "=SORTBY(A1:A3,B1:B3,1,A1:A3,-1)", F1: "=SORT(A1:B4,2,-1)", H1: "=SORTBY(A1:A3,B1:B2)", J1: "=SORT(A1:A3,3)",
+      K1: '=SORT({"b";"B";"a";10;TRUE})', A8: "x", B8: "TRUE", C8: "3", D8: "apple", A10: "=SORT(A8:D8,1,1,TRUE)", A12: "=SORTBY({1,2,3},{3,1,2})", A14: "=SORT(B1:B3,1,0)" });
+    assert.deepEqual(["E1", "E2", "E3"].map(get), ["c", "b", "A"]);
+    assert.deepEqual(["F1", "G1", "F2", "G2", "F4", "G4"].map(get), ["", 5, "b", 2, "c", 1]);
+    assert.equal(errOf(get("H1")), "#VALUE!"); assert.equal(errOf(get("J1")), "#VALUE!"); assert.equal(errOf(get("A14")), "#VALUE!");
+    assert.deepEqual(["K1", "K2", "K3", "K4", "K5"].map(get), [10, "a", "b", "B", true]);
+    assert.deepEqual(["A10", "B10", "C10", "D10"].map(get), [3, "apple", "x", true]);
+    assert.deepEqual(["A12", "B12", "C12"].map(get), [2, 3, 1]);
   });
   void at;
 }

@@ -128,7 +128,11 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         if (!cancelled) setSettings(Object.fromEntries(s.rows.map((r) => [r.key, r.value])));
         const st = await api<{ row: { state: DesktopState; revision: number } | null }>(`/api/state?id=${stateId}`);
         if (!cancelled && st.row?.state?.windows) {
-          dispatch({ t: "hydrate", state: { ...initialDesktop(), ...st.row.state } });
+          // Geometry is host-relative: keep the MEASURED desk size, not the viewport persisted by another screen
+          // (a state saved on a larger display otherwise produced oversized maximised windows — TT15 screenshot finding).
+          const desk = deskRef.current?.getBoundingClientRect();
+          const measured = desk && desk.width > 0 && desk.height > 0 ? { viewport: { w: Math.round(desk.width), h: Math.round(desk.height) } } : {};
+          dispatch({ t: "hydrate", state: { ...initialDesktop(), ...st.row.state, ...measured } });
         }
       } catch (err) {
         toast(`Offline or server error: ${String((err as Error).message)}. The shell runs read-only.`, "warn");
@@ -141,7 +145,9 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       try {
         const params = new URLSearchParams(window.location.search);
         const want = params.get("open") ?? params.get("cmd");
-        if (want && MODULES.some((m) => m.id === want)) open(want);
+        // TT15: optional file deep link (?open=sheet&path=/Documents/x.fworkbook) — VFS paths only
+        const wantPath = params.get("path");
+        if (want && MODULES.some((m) => m.id === want)) open(want, wantPath && wantPath.startsWith("/") && wantPath.length < 1024 ? { path: wantPath } : undefined);
         const shared = params.get("url") ?? params.get("text");
         if (shared) {
           open("browser", { url: shared, title: "Shared link" });
@@ -349,7 +355,9 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         <div
           ref={deskRef}
           className={`fs-wallpaper-${wallpaper}`}
-          style={{ position: "relative", flex: 1, minHeight: 0, overflow: "hidden" }}
+          // "clip", not "hidden": an overflow:hidden box can still be scrolled by focus()/scrollIntoView, which
+          // shifted the whole desktop up and hid window title bars when a module focused a low element (TT15, found by screenshot)
+          style={{ position: "relative", flex: 1, minHeight: 0, overflow: "clip" }}
           onContextMenu={(e) => e.preventDefault()}
         >
           <DesktopSurface onLauncher={() => setLauncher(true)} />

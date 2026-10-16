@@ -5,13 +5,18 @@
  */
 import { Workbook, Sheet, a1, type CellStyle } from "./engine";
 import { lettersToCol } from "./types";
+import { sanitizeCharts, sanitizeCondFormats } from "./sheetmeta";
 
 export interface CellJson { ref: string; input: string; style?: CellStyle }
 export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number }
 export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[] }
 
 export function workbookToJson(wb: Workbook): WorkbookJson {
+  const extra: Partial<WorkbookJson> = {};
+  if (wb.charts.length) extra.charts = wb.charts.map((c) => ({ ...c }));
+  if (wb.condFormats.length) extra.condFormats = wb.condFormats.map((c) => ({ ...c }));
   return {
+    ...extra,
     sheets: [...wb.sheets.values()].map((s) => {
       const out: SheetJson = {
         name: s.name,
@@ -60,6 +65,8 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
     wb.sheets.set(s.name, sheet);
   }
   if (!wb.sheets.size) wb.addSheet("Sheet1");
+  wb.charts = sanitizeCharts(data.charts);
+  wb.condFormats = sanitizeCondFormats(data.condFormats);
   wb.recalculate();
   return wb;
 }

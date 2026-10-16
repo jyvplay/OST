@@ -1,6 +1,6 @@
 {
   "suite": "office",
-  "at": "2026-10-16T02:54:19.821Z",
+  "at": "2026-10-16T03:07:22.400Z",
   "results": [
     {
       "suite": "office",
@@ -45,7 +45,7 @@
         "FF-26": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "office",
@@ -63,7 +63,7 @@
         "FF-26": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "office",
@@ -268,6 +268,63 @@
       },
       "pass": true,
       "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "currentRegion / Ctrl+Arrow jump / fill-handle geometry / header heuristic",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "formula autocomplete token, ranked completions, active-call argument index (strings/nesting aware)",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "office",
+      "name": "conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
+      "covers": {
+        "FF-29": "partial",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads",
+      "covers": {
+        "FF-28": "full",
+        "FF-29": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "office",
+      "name": "SORTBY (multi-key, mixed orders, size check) and SORT Excel ordering (case-insensitive, blanks last, by_col, index check)",
+      "covers": {
+        "FF-26": "full",
+        "FF-27": "partial"
+      },
+      "pass": true,
+      "ms": 1
     }
   ]
 }

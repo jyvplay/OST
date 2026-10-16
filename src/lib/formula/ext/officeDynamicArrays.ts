@@ -34,6 +34,37 @@ function normalizeIndex(idx: number, length: number): number {
   throw ERR("#VALUE!");
 }
 
+/** Excel sort ordering: numbers < text (case-insensitive) < logicals < errors; blanks always last. */
+function typeRank(v: CellValue): number {
+  if (v === null || v === undefined || v === "") return 9;
+  if (typeof v === "number") return 0;
+  if (typeof v === "boolean") return 2;
+  if (isErr(v)) return 3;
+  return 1;
+}
+export function excelCompare(x: CellValue, y: CellValue): number {
+  const rx = typeRank(x), ry = typeRank(y);
+  if (rx !== ry) return rx - ry;
+  if (rx === 0) return (x as number) - (y as number);
+  if (rx === 2) return Number(x) - Number(y);
+  if (rx === 1) return String(x).localeCompare(String(y), "en", { sensitivity: "base" });
+  return 0;
+}
+/** Indices 0..n-1 ordered by multi-key comparison; ties keep original order; blanks last regardless of direction. */
+function stableOrder(n: number, keyOf: (i: number) => CellValue[], orders: number[]): number[] {
+  const idx = Array.from({ length: n }, (_, i) => i);
+  return idx.sort((i, j) => {
+    const ki = keyOf(i), kj = keyOf(j);
+    for (let k = 0; k < orders.length; k++) {
+      const bi = typeRank(ki[k]) === 9, bj = typeRank(kj[k]) === 9;
+      if (bi !== bj) return bi ? 1 : -1;
+      const c = excelCompare(ki[k], kj[k]) * orders[k];
+      if (c) return c;
+    }
+    return i - j;
+  });
+}
+
 export const DYNAMIC_ARRAY_FUNCTIONS: Record<string, FnImpl> = {
   /* SEQUENCE(rows, [columns], [start], [step]) */
   SEQUENCE: (a) => {
@@ -306,45 +337,44 @@ export const DYNAMIC_ARRAY_FUNCTIONS: Record<string, FnImpl> = {
     return matched;
   },
 
-  /* SORT(array, [sort_index], [sort_order], [by_col]) */
+  /* SORT(array, [sort_index], [sort_order], [by_col]) — TT15: Excel ordering (numbers < text (case-insensitive) < logicals < errors, blanks last), index/order validation */
   SORT: (a) => {
     if (a.length < 1) throw ERR("#VALUE!");
     const g = extractGrid(a[0]);
     if (g.length === 0) return null;
-    const sortIndex = a[1] ? Math.floor(toNum(a[1].value())) - 1 : 0;
-    const sortOrder = a[2] ? toNum(a[2].value()) : 1; // 1 = Ascending, -1 = Descending
+    const sortIndex = a[1] ? Math.trunc(toNum(a[1].value())) : 1;
+    const sortOrder = a[2] ? toNum(a[2].value()) : 1;
     const byCol = a[3] ? toBool(a[3].value()) : false;
-
+    if (sortOrder !== 1 && sortOrder !== -1) throw ERR("#VALUE!");
     if (!byCol) {
-      const sorted = [...g].sort((rowA, rowB) => {
-        const valA = rowA[sortIndex] ?? "";
-        const valB = rowB[sortIndex] ?? "";
-        if (valA === valB) return 0;
-        if (typeof valA === "number" && typeof valB === "number") {
-          return sortOrder >= 0 ? valA - valB : valB - valA;
-        }
-        return sortOrder >= 0
-          ? String(valA).localeCompare(String(valB))
-          : String(valB).localeCompare(String(valA));
-      });
-      return sorted;
-    } else {
-      const numCols = g[0].length;
-      const colIndices = Array.from({ length: numCols }, (_, i) => i);
-      colIndices.sort((c1, c2) => {
-        const valA = g[sortIndex]?.[c1] ?? "";
-        const valB = g[sortIndex]?.[c2] ?? "";
-        if (valA === valB) return 0;
-        if (typeof valA === "number" && typeof valB === "number") {
-          return sortOrder >= 0 ? valA - valB : valB - valA;
-        }
-        return sortOrder >= 0
-          ? String(valA).localeCompare(String(valB))
-          : String(valB).localeCompare(String(valA));
-      });
-      const sorted = g.map((row) => colIndices.map((ci) => row[ci] ?? null));
-      return sorted;
+      if (sortIndex < 1 || sortIndex > g[0].length) throw ERR("#VALUE!");
+      return stableOrder(g.length, (i) => [g[i][sortIndex - 1]], [sortOrder]).map((i) => [...g[i]]);
     }
+    if (sortIndex < 1 || sortIndex > g.length) throw ERR("#VALUE!");
+    const order = stableOrder(g[0].length, (c) => [g[sortIndex - 1][c]], [sortOrder]);
+    return g.map((row) => order.map((c) => row[c] ?? null));
+  },
+
+  /* SORTBY(array, by_array1, [sort_order1], [by_array2, sort_order2], …) — TT15 (was documented but missing → #NAME?, found by e2e) */
+  SORTBY: (a) => {
+    if (a.length < 2) throw ERR("#VALUE!");
+    const g = extractGrid(a[0]);
+    if (g.length === 0) return null;
+    const keys: CellValue[][] = []; const orders: number[] = []; let byCol: boolean | null = null;
+    for (let i = 1; i < a.length; i += 2) {
+      const k = extractGrid(a[i]);
+      const order = a[i + 1] ? toNum(a[i + 1].value()) : 1;
+      if (order !== 1 && order !== -1) throw ERR("#VALUE!");
+      const isColVec = k[0].length === 1 && k.length === g.length;
+      const isRowVec = k.length === 1 && k[0].length === g[0].length;
+      const thisByCol: boolean | null = isColVec && !(isRowVec && byCol === true) ? false : isRowVec ? true : null;
+      if (thisByCol === null || (byCol !== null && thisByCol !== byCol)) throw ERR("#VALUE!");
+      byCol = thisByCol;
+      keys.push(byCol ? k[0] : k.map((r) => r[0])); orders.push(order);
+    }
+    if (!byCol) return stableOrder(g.length, (i) => keys.map((k) => k[i]), orders).map((i) => [...g[i]]);
+    const order = stableOrder(g[0].length, (c) => keys.map((k) => k[c]), orders);
+    return g.map((row) => order.map((c) => row[c] ?? null));
   },
 
   /* UNIQUE(array, [by_col], [exactly_once]) */
@@ -449,7 +479,7 @@ export const DYNAMIC_ARRAY_FUNCTIONS: Record<string, FnImpl> = {
 // Output-shape and arity gate; limits are part of the supported web contract, not Excel limits.
 const ARRAY_ARITY: Record<string, [number, number]> = {
  SEQUENCE:[1,4], RANDARRAY:[0,5], CHOOSEROWS:[2,255], CHOOSECOLS:[2,255], TAKE:[2,3], DROP:[2,3], EXPAND:[2,4],
- TOCOL:[1,3], TOROW:[1,3], WRAPROWS:[2,3], WRAPCOLS:[2,3], VSTACK:[1,255], HSTACK:[1,255], FILTER:[2,3], SORT:[1,4], UNIQUE:[1,3], TEXTSPLIT:[2,6], ARRAYTOTEXT:[1,2], VALUETOTEXT:[1,2],
+ TOCOL:[1,3], TOROW:[1,3], WRAPROWS:[2,3], WRAPCOLS:[2,3], VSTACK:[1,255], HSTACK:[1,255], FILTER:[2,3], SORT:[1,4], SORTBY:[2,255], UNIQUE:[1,3], TEXTSPLIT:[2,6], ARRAYTOTEXT:[1,2], VALUETOTEXT:[1,2],
 };
 for (const [name, [min, max]] of Object.entries(ARRAY_ARITY)) {
  const impl = DYNAMIC_ARRAY_FUNCTIONS[name];

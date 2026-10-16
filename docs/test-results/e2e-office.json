@@ -1,0 +1,109 @@
+{
+  "suite": "e2e-office",
+  "at": "2026-10-16T03:10:48.076Z",
+  "results": [
+    {
+      "suite": "e2e-office",
+      "name": "sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+      "covers": {
+        "FF-28": "full",
+        "FF-26": "partial",
+        "FF-19": "partial"
+      },
+      "pass": true,
+      "ms": 2713
+    },
+    {
+      "suite": "e2e-office",
+      "name": "autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1483
+    },
+    {
+      "suite": "e2e-office",
+      "name": "drag-select a range → status bar Sum/Count; Ctrl+A selects current region",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1690
+    },
+    {
+      "suite": "e2e-office",
+      "name": "fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 3117
+    },
+    {
+      "suite": "e2e-office",
+      "name": "Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1117
+    },
+    {
+      "suite": "e2e-office",
+      "name": "clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1837
+    },
+    {
+      "suite": "e2e-office",
+      "name": "sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1822
+    },
+    {
+      "suite": "e2e-office",
+      "name": "charts panel renders SVG chart images (bar → pie) from a dynamic-array source",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 1786
+    },
+    {
+      "suite": "e2e-office",
+      "name": "column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 2593
+    },
+    {
+      "suite": "e2e-office",
+      "name": "save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+      "covers": {
+        "FF-28": "full",
+        "FF-20": "partial",
+        "FF-21": "partial"
+      },
+      "pass": true,
+      "ms": 2702
+    },
+    {
+      "suite": "e2e-office",
+      "name": "no uncaught page errors during the spreadsheet session",
+      "covers": {
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}
