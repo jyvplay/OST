@@ -29,6 +29,7 @@ export const BINDINGS: Binding[] = [
   { id: "alerts", label: "Alerts", hybrid: "Meta+N", windows: "Meta+N", mac: "Meta+Shift+N", reservedBy: "Ctrl/Cmd+N opens a browser window" },
   { id: "quickPanel", label: "Quick panel", hybrid: "Meta+I", windows: "Meta+I", mac: "Meta+Alt+I" },
   { id: "focusMode", label: "Focus mode", hybrid: "Meta+Shift+F", windows: "Meta+Shift+F", mac: "Meta+Ctrl+F" },
+  { id: "emergency", label: "Emergency shutdown (privacy: drop keys, wipe RAM, leave)", hybrid: "Ctrl+Alt+Shift+Backspace", windows: "Ctrl+Alt+Shift+Backspace", mac: "Ctrl+Alt+Shift+Backspace" },
   { id: "cheatsheet", label: "Shortcut sheet", hybrid: "Shift+Slash", windows: "Shift+Slash", mac: "Shift+Slash" },
 ];
 

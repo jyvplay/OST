@@ -15,6 +15,7 @@ import BeamModule from "./modules/Beam";
 import TogetherModule from "./modules/Together";
 import MessagesModule from "./modules/Messages";
 import VaultModule from "./modules/Vault";
+import PrivacyModule from "./modules/Privacy";
 import BackupModule from "./modules/Backup";
 import AlertsModule from "./modules/Alerts";
 import MonitorModule from "./modules/Monitor";
@@ -53,6 +54,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "together": return <TogetherModule win={win} />;
     case "messages": return <MessagesModule win={win} />;
     case "vault": return <VaultModule win={win} />;
+    case "privacy": return <PrivacyModule win={win} />;
     case "backup": return <BackupModule win={win} />;
     case "alerts": return <AlertsModule win={win} />;
     case "monitor": return <MonitorModule win={win} />;

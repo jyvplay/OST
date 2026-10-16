@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-16T04:50:50.547Z",
+ "generatedAt": "2026-10-16T05:39:11.327Z",
  "totals": {
   "built": {
-   "full": 185,
+   "full": 191,
    "partial": 65,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 68,
-   "partial": 73,
+   "full": 75,
+   "partial": 72,
    "untested": 131
   },
   "tests": {
-   "total": 242,
-   "passed": 242
+   "total": 278,
+   "passed": 278
   }
  },
  "rows": {
@@ -269,6 +269,7 @@
   "FM-01": {
    "tested": "partial",
    "tests": [
+    "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
     "e2e: mount: files",
     "e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)"
    ]
@@ -807,7 +808,8 @@
     "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
     "oracle-xlsx: oracle available (openpyxl)",
     "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
-    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols"
+    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
+    "privacy-layer: office on encrypted files: Export .xlsx into /Private (rewritten to export + encrypted write), import from /Private inlined; the bare server refuses the blob"
    ]
   },
   "FF-21": {
@@ -984,8 +986,10 @@
    ]
   },
   "BK-06": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused",
+    "privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key",
     "unit: seal/open round trip; wrong passphrase and ciphertext tamper fail"
    ]
   },
@@ -1196,6 +1200,80 @@
     "sheet-layout: insert/delete rows & cols repair merges, validations and frozen panes",
     "sheet-layout: data validation: list (literal + range, case-insensitive), whole/decimal/date/textLength operators, custom (relative), blanks, rollback",
     "sheet-layout: validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON"
+   ]
+  },
+  "SC-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
+    "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
+    "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
+    "e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
+    "e2e-privacy: no page errors across the privacy flows",
+    "e2e: mount: privacy",
+    "privacy-crypto: Argon2id (hash-wasm) equals the reference C implementation (argon2-cffi), incl. the default 64 MiB/t=3 slot cost",
+    "privacy-crypto: Padmé equals the paper's pseudocode on 20 000 lengths; overhead ≤ 12%; hand-derived points",
+    "privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused",
+    "privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key",
+    "privacy-crypto: header attacks: KDF downgrade (still above floor) breaks the slot tag; below-floor refused before derivation; slot swap / truncation refused",
+    "privacy-crypto: oracle unwraps OUR keyslot (passphrase and recovery) to the DEK that decrypts OUR blob — end-to-end format conformance",
+    "privacy-crypto: content blobs: oracle ⇄ ours both directions; Padmé-sized; any bit flip, flag edit or foreign volume refused",
+    "privacy-crypto: names: deterministic SIV encryption byte-identical to the oracle; host-chosen nonce rejected; paths map both ways",
+    "privacy-crypto: base64 codec (perf path): byte-identical to Node Buffer on 6 000 random inputs 0–299 B, strict on malformed input, 264 KiB encode < 5 ms",
+    "privacy-layer: write through the layer: the host row has no plaintext name, content, size or index entry; read decrypts",
+    "privacy-layer: list decrypts and sorts names; a second write keeps an encrypted version that decrypts; rename/move stay encrypted server-side",
+    "privacy-layer: locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside",
+    "privacy-layer: cross-store moves happen in the browser: host file → /Private arrives encrypted (source trashed); /Private → host is an explicit decrypting copy",
+    "privacy-layer: office on encrypted files: Export .xlsx into /Private (rewritten to export + encrypted write), import from /Private inlined; the bare server refuses the blob",
+    "privacy-layer: desktop state: /Private paths are sealed before reaching the host and reopened when unlocked; locked seal never leaks",
+    "privacy-layer: audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught)"
+   ]
+  },
+  "SC-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
+    "e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only)",
+    "e2e: mount: privacy",
+    "privacy-layer: amnesic: VFS writes live in RAM (no row), host files can be hidden but are untouched, moves copy into RAM; wipe forgets everything",
+    "privacy-layer: amnesic deny-by-default: notes/settings/presets refused with nothing written; state kept in memory; compute endpoints still work; /Private still persists (Tails' Persistent folder)"
+   ]
+  },
+  "SC-12": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains",
+    "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
+    "e2e: mount: privacy",
+    "metaclean: JPEG: identical pixels (Pillow); camera, author, date, software, GPS, XMP, COM, IPTC gone; Orientation=6 kept alone",
+    "metaclean: PNG / WebP / GIF: identical decoded frames; text, eXIf, tIME, EXIF/XMP chunks, comments and XMP app-ext gone; GIF loop kept",
+    "metaclean: DOCX / XLSX / PPTX: text and values identical in python-docx/openpyxl/python-pptx; authors, rsids, custom props, absPath, revision GUID gone; zip normalised",
+    "metaclean: SVG: same shapes (svgelements); comments, <metadata>, RDF, sodipodi/inkscape elements+attributes, local path gone; <title> kept",
+    "metaclean: idempotent: cleaning a cleaned file changes nothing and reports nothing new to remove",
+    "metaclean: refusals and hostile input: PDF unchanged + explained; truncated JPEG/PNG and corrupt zip throw cleanly; zip bomb and ../ entries refused"
+   ]
+  },
+  "SC-13": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
+    "e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache",
+    "e2e: mount: privacy"
+   ]
+  },
+  "SC-14": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: host audit in the UI: a plaintext file planted by another client is flagged and 'Encrypt it' seals it (name + content)",
+    "e2e: mount: privacy",
+    "privacy-layer: audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught)"
+   ]
+  },
+  "SC-15": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: emergency shutdown chord: keys + RAM files gone, page blanked via location.replace (no history entry with the shell)",
+    "e2e: mount: privacy"
    ]
   },
   "CT-01": {

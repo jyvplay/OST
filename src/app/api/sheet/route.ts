@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { refuseEncrypted } from "@/lib/mime";
 import { getNode, writeFile } from "@/lib/server/vfs";
 import {
   Workbook, Sheet, writeXlsxWorkbook, readXlsxWorkbook, workbookFromJson, workbookToJson,
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
         else if (body.path) {
           const node = await getNode(body.path);
           if (!node) throw new Error("not found");
+          refuseEncrypted(node);
           buf = Buffer.from(node.content, node.encoding === "base64" ? "base64" : "utf8");
         } else throw new Error("path or base64 required");
         if (buf.length > 8 * 1024 * 1024) throw new Error("xlsx exceeds the 8 MB import guard");

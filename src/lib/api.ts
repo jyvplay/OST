@@ -1,4 +1,9 @@
 "use client";
+import { privacy } from "./privacy/session";
+import { isPrivatePath } from "./privacy/pcrypt";
+
+// TT18: the privacy layer must wrap fetch before any module issues a request.
+if (typeof window !== "undefined") privacy.install();
 
 const CLIENT_KEY = "fusion.clientId";
 
@@ -67,6 +72,12 @@ export const post = async <T = unknown>(path: string, body: unknown): Promise<T>
   } catch (e) {
     const status = (e as { status?: number }).status ?? 0;
     const offline = status === 503 || (typeof navigator !== "undefined" && !navigator.onLine) || e instanceof TypeError;
+    const b = (body ?? {}) as Record<string, unknown>;
+    const touchesPrivate = [b.path, b.src, b.dst].some((x) => typeof x === "string" && isPrivatePath(x));
+    if (offline && touchesPrivate) {
+      // never park Persistent Storage plaintext in the browser profile's offline queue
+      throw Object.assign(new Error("Offline — Persistent Storage writes are not queued on the host; retry when online."), { status });
+    }
     if (offline && QUEUEABLE.has(path) && typeof localStorage !== "undefined") {
       const q = readQueue(); q.push({ path, body, at: Date.now() }); writeQueue(q);
       throw Object.assign(new Error(`Offline — queued for replay (${q.length} pending). Nothing was lost.`), { queued: true, status });

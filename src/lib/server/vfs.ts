@@ -44,27 +44,9 @@ export const parentOf = (p: string) => {
 };
 export const baseName = (p: string) => normalize(p).split("/").filter(Boolean).pop() ?? "/";
 
-export function guessMime(name: string): string {
-  const ext = name.toLowerCase().split(".").pop() ?? "";
-  const map: Record<string, string> = {
-    txt: "text/plain", md: "text/markdown", csv: "text/csv", json: "application/json",
-    yml: "text/yaml", yaml: "text/yaml", log: "text/plain", ini: "text/plain",
-    html: "text/html", htm: "text/html", css: "text/css", js: "text/javascript", ts: "text/typescript",
-    svg: "image/svg+xml", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif",
-    webp: "image/webp", avif: "image/avif", heic: "image/heic", bmp: "image/bmp",
-    pdf: "application/pdf", zip: "application/zip",
-    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    psd: "image/vnd.adobe.photoshop", psb: "image/vnd.adobe.photoshop", epub: "application/epub+zip",
-    ics: "text/calendar", fsheet: "application/json", m4a: "audio/mp4", mp4: "video/mp4", webm: "video/webm",
-    mp3: "audio/mpeg", wav: "audio/wav", ogg: "audio/ogg", opus: "audio/ogg",
-  };
-  return map[ext] ?? "application/octet-stream";
-}
-
-export const isTextual = (mime: string) =>
-  mime.startsWith("text/") || ["application/json", "image/svg+xml", "text/typescript"].includes(mime);
+// guessMime/isTextual moved to the isomorphic src/lib/mime.ts (TT18: the browser privacy layer needs them too)
+export { guessMime, isTextual } from "@/lib/mime";
+import { guessMime, isTextual, isPrivateVfsPath } from "@/lib/mime";
 
 async function audit(action: string, detail: string) {
   await db.insert(auditLog).values({ actor: "user", action, detail });
@@ -72,6 +54,9 @@ async function audit(action: string, detail: string) {
 
 /** Index maintenance — one place, so search can never disagree with the VFS. */
 async function indexUpsert(path: string, name: string, body: string) {
+  // TT18: nothing under /Private is ever indexed, whichever op got it there (write, move, copy, restore,
+  // a raw client) — the choke point, not each caller, enforces it.
+  if (isPrivateVfsPath(path)) { await indexDrop(path); return; }
   await db
     .insert(indexDocs)
     .values({ source: "file", ref: path, title: name, body: body.slice(0, 50_000), updatedAt: new Date() })
@@ -178,7 +163,9 @@ export async function writeFile(args: WriteArgs) {
     });
     await step("DEST_PUBLISHED");
     await step("COMPLETE");
-    if (isTextual(mime) && encoding === "utf8") await indexUpsert(path, name, args.content);
+    // TT18: Persistent Storage (names + content are ciphertext) is never indexed on the host
+    if (isPrivateVfsPath(path)) await indexDrop(path);
+    else if (isTextual(mime) && encoding === "utf8") await indexUpsert(path, name, args.content);
     else await indexUpsert(path, name, "");
     await audit("fs.write", path);
     return { ok: true, path, size, sha256: digest, opId: op.id };
@@ -319,6 +306,19 @@ export async function folderSize(path: string) {
     .from(vfsNodes)
     .where(and(like(vfsNodes.path, descendantsOf(p)), eq(vfsNodes.trashed, false)));
   return { bytes: Number(rows[0]?.bytes ?? 0), files: Number(rows[0]?.files ?? 0) };
+}
+
+/**
+ * Forgets the stored history of ONE file (TT18 metadata cleaning: an overwrite would otherwise keep the
+ * original — EXIF, authors — as a previous version). Irreversible by design; the current node is kept.
+ */
+export async function dropVersions(path: string) {
+  const p = normalize(path);
+  const node = await getNode(p);
+  if (!node || node.kind !== "file") throw new Error(`not a file: ${p}`);
+  const gone = await db.delete(vfsVersions).where(eq(vfsVersions.path, p)).returning({ v: vfsVersions.version });
+  await audit("fs.dropVersions", isPrivateVfsPath(p) ? `/Private/… (${gone.length})` : `${p} (${gone.length})`);
+  return { ok: true, path: p, dropped: gone.length };
 }
 
 export async function versionsOf(path: string) {

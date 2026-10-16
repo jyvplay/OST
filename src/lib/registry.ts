@@ -30,6 +30,7 @@ export const MODULES: ModuleDef[] = [
   { id: "together", title: "Together", icon: "👥", group: "Connect", summary: "Synchronised playback with anchor-clock drift control", rect: { w: 780, h: 560 }, implements: ["CA-11", "CA-15"] },
   { id: "messages", title: "Messages", icon: "💬", group: "Connect", summary: "Bridge connector seam; iMessage/RCS limits stated", rect: { w: 720, h: 520 }, implements: ["MS-01", "MS-03"] },
   { id: "vault", title: "Vault", icon: "🔐", group: "System", summary: "Zero-knowledge secrets with WebCrypto", rect: { w: 700, h: 520 }, implements: ["SC-01", "SC-02"] },
+  { id: "privacy", title: "Privacy", icon: "🕶", group: "System", summary: "Encrypted Persistent Storage, amnesic sessions, metadata removal, emergency shutdown", rect: { w: 760, h: 620 }, implements: ["SC-10", "SC-11", "SC-12", "SC-13", "SC-14", "SC-15"] },
   { id: "backup", title: "Backup", icon: "🧰", group: "System", summary: "Verified export/restore with a digest manifest", rect: { w: 760, h: 540 }, implements: ["BK-01", "BK-03", "BK-05"] },
   { id: "alerts", title: "Alerts", icon: "🔔", group: "System", summary: "First-party alert centre with rules and history", rect: { w: 700, h: 540 }, implements: ["NC-01", "NC-04"] },
   { id: "monitor", title: "Monitor", icon: "📈", group: "System", summary: "Frame cost, governor state, memory, jobs", rect: { w: 820, h: 560 }, implements: ["RG-01", "RG-04", "DP-14"] },

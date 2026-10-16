@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { refuseEncrypted } from "@/lib/mime";
 import { getNode } from "@/lib/server/vfs";
 import { readDocx, writeDocx, type DocModel } from "@/lib/office/docx";
 import { readPptx, writePptx, type DeckModel } from "@/lib/office/pptx";
@@ -15,6 +16,7 @@ export async function POST(req: NextRequest) {
       else if (b.path) {
         const n = await getNode(b.path);
         if (!n) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+        refuseEncrypted(n);
         bytes = Buffer.from(n.content, n.encoding === "base64" ? "base64" : "utf8");
       } else throw new Error("path or base64 required");
       if (bytes.length > LIMIT) throw new Error("Office file exceeds the 8 MB parsing guard");

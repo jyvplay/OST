@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, fmtBytes, fmtTime, post } from "@/lib/api";
+import { cleanVfsFile } from "@/lib/privacy/cleanfile";
 import { formatFor } from "@/lib/forge";
 import { fromB64, open, seal, toB64, type Envelope } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -197,6 +198,11 @@ export default function FilesModule({ win }: ModuleProps) {
             ...(menu.node.name.toLowerCase().endsWith(".zip") ? [{ label: "Extract here", run: () => void run("extract", async () => {
                 const r = await post<{ written: number; dest: string }>("/api/fs", { op: "extract", path: menu.node.path });
                 shell.toast(`Extracted ${r.written} file(s) → ${r.dest} (CRC verified)`, "ok");
+              }) }] : []),
+            ...(menu.node.kind === "file" && /\.(jpe?g|png|webp|gif|svg|docx|xlsx|pptx)$/i.test(menu.node.name) ? [{ label: "Remove metadata (copy)", run: () => void run("metadata", async () => {
+                const r = await cleanVfsFile(menu.node.path);
+                if (!r.written) shell.toast(r.report.supported ? "No metadata found — nothing written" : "Not supported — file unchanged", "info");
+                else shell.toast(`Removed ${r.report.removed.length} items → ${r.written.split("/").pop()}`, "ok");
               }) }] : []),
             ...(menu.node.kind === "file" && !menu.node.name.endsWith(".fvault") ? [{ label: "Encrypt (SC-07)…", run: () => void run("encrypt", async () => {
                 const pass = prompt("Passphrase (≥ 8 chars). There is no recovery if you lose it.");

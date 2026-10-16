@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-16T04:50:50.546Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-17 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-16T05:39:11.327Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+21 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **272** |
-| Fully built | 185 |
+| **Features in register** | **278** |
+| Fully built | 191 |
 | Partially built (partial 47 + probe 18) | 65 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **68** |
-| **Partially tested** (only `partial` tags) | **73** |
+| **Fully tested** (≥1 passing test tagged `full`) | **75** |
+| **Partially tested** (only `partial` tags) | **72** |
 | Untested | 131 |
-| Automated tests executed / passed | 242 / 242 |
+| Automated tests executed / passed | 278 / 278 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 58 | 59 | 68 |
+| fully built | 65 | 58 | 68 |
 | partially built | 4 | 12 | 49 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,23 +33,27 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| browser-session | 5 | 5 | 0 | 2026-10-16T04:47:22.777Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-16T04:48:54.510Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-16T04:47:57.551Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-16T04:47:02.034Z |
-| e2e-sheet-layout | 6 | 6 | 0 | 2026-10-16T04:46:39.307Z |
-| e2e-vector | 11 | 11 | 0 | 2026-10-16T04:48:15.339Z |
-| e2e | 54 | 54 | 0 | 2026-10-16T04:50:27.425Z |
-| image | 12 | 12 | 0 | 2026-10-16T04:47:18.700Z |
-| integration | 24 | 24 | 0 | 2026-10-16T04:46:21.632Z |
-| office | 35 | 35 | 0 | 2026-10-16T04:46:16.635Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-16T04:47:21.662Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-16T04:47:22.597Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T04:46:19.114Z |
-| oracle | 5 | 5 | 0 | 2026-10-16T04:46:17.388Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-16T04:46:17.760Z |
-| unit | 22 | 22 | 0 | 2026-10-16T04:46:16.200Z |
-| vector | 18 | 18 | 0 | 2026-10-16T04:47:21.924Z |
+| browser-session | 5 | 5 | 0 | 2026-10-16T05:33:28.288Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-16T05:37:30.185Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-16T05:36:35.935Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-16T05:35:47.342Z |
+| e2e-privacy | 11 | 11 | 0 | 2026-10-16T05:33:52.957Z |
+| e2e-sheet-layout | 6 | 6 | 0 | 2026-10-16T05:36:04.141Z |
+| e2e-vector | 11 | 11 | 0 | 2026-10-16T05:36:52.341Z |
+| e2e | 55 | 55 | 0 | 2026-10-16T05:35:25.666Z |
+| image | 12 | 12 | 0 | 2026-10-16T05:33:24.380Z |
+| integration | 24 | 24 | 0 | 2026-10-16T05:33:21.682Z |
+| metaclean | 6 | 6 | 0 | 2026-10-16T05:33:35.055Z |
+| office | 35 | 35 | 0 | 2026-10-16T05:33:22.086Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-16T05:33:27.194Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-16T05:33:28.130Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T05:33:23.713Z |
+| oracle | 5 | 5 | 0 | 2026-10-16T05:33:22.448Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-16T05:33:32.336Z |
+| privacy-layer | 9 | 9 | 0 | 2026-10-16T05:33:33.526Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-16T05:33:24.054Z |
+| unit | 22 | 22 | 0 | 2026-10-16T05:33:19.735Z |
+| vector | 18 | 18 | 0 | 2026-10-16T05:33:27.444Z |
 
 ## Rows touched by failing tests
 
@@ -71,8 +75,8 @@ None.
 | PR | 32 | 21 | 10 | 1 | 13 | 6 | 13 |
 | FF | 32 | 22 | 10 | 0 | 23 | 4 | 5 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
-| SC | 9 | 7 | 1 | 1 | 1 | 3 | 5 |
-| BK | 6 | 5 | 1 | 0 | 2 | 4 | 0 |
+| SC | 15 | 13 | 1 | 1 | 7 | 3 | 5 |
+| BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
 | LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
@@ -138,7 +142,7 @@ None.
 | SR-06 | built | partial | e2e: mount: calculator; unit: precedence, power associativity, rounding policy |
 | SR-07 | blocked | untested |  |
 | SR-08 | built | partial | e2e: mount: find |
-| FM-01 | built | partial | e2e: mount: files; e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix) |
+| FM-01 | built | partial | e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e: mount: files; e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix) |
 | FM-02 | built | untested |  |
 | FM-03 | built | full | e2e: mount: files; e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix); integration: FM-03 journaled move: 6 states in order, digest preserved, source retired (+2) |
 | FM-04 | built | partial | e2e: mount: peek; integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades |
@@ -230,7 +234,7 @@ None.
 | FF-14 | built | full | unit: loss report itemises drops; registry grades |
 | FF-15 | built | partial | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists |
 | FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
-| FF-20 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+4) |
+| FF-20 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+5) |
 | FF-21 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+2) |
 | FF-22 | partial | partial | e2e: mount: writer |
 | FF-23 | partial | partial | e2e: mount: slides |
@@ -259,7 +263,7 @@ None.
 | BK-03 | built | partial | e2e: mount: backup; integration: BK-01 tampered backup bundle is refused before anything is written |
 | BK-04 | built | full | unit: BK-04 capability diff reports lost/gained with degrade text |
 | BK-05 | built | partial | e2e: mount: backup; integration: BK-01 tampered backup bundle is refused before anything is written |
-| BK-06 | built | partial | unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
+| BK-06 | built | full | privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused; privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key; unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
 | FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: SEQUENCE(2,3) spills all six cells with correct values (+13) |
 | FF-27 | built | full | e2e: mount: sheet; office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+6) |
 | FF-28 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates; e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region (+28) |
@@ -270,6 +274,12 @@ None.
 | FF-33 | built | full | e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells; e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader) (+8) |
 | FF-34 | built | full | e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+4) |
 | FF-35 | built | full | e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+5) |
+| SC-10 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path; e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists (+19) |
+| SC-11 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only); e2e: mount: privacy (+2) |
+| SC-12 | built | full | e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e: mount: privacy (+6) |
+| SC-13 | built | full | e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists; e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache; e2e: mount: privacy |
+| SC-14 | built | full | e2e-privacy: host audit in the UI: a plaintext file planted by another client is flagged and 'Encrypt it' seals it (name + content); e2e: mount: privacy; privacy-layer: audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught) |
+| SC-15 | built | full | e2e-privacy: emergency shutdown chord: keys + RAM files gone, page blanked via location.replace (no history entry with the shell); e2e: mount: privacy |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

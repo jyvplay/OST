@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { refuseEncrypted } from "@/lib/mime";
 import { getNode } from "@/lib/server/vfs";
 import { extractEpub, extractOoxml, readCentralDirectory, readPsdHeader } from "@/lib/server/zip";
 import { readPsd } from "@/lib/image/psd";
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
     } else if (body.path) {
       const node = await getNode(body.path);
       if (!node) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+      try { refuseEncrypted(node); } catch (e) { return NextResponse.json({ ok: false, error: String((e as Error).message) }, { status: 422 }); }
       name = node.name;
       buf = Buffer.from(node.content, node.encoding === "base64" ? "base64" : "utf8");
     }

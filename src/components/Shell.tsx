@@ -10,6 +10,7 @@ import { governor, type GovernorSnapshot } from "@/lib/governor";
 import { memoryPolicy } from "@/lib/policy";
 import { MODULES, moduleById } from "@/lib/registry";
 import { BINDINGS, comboFor, matchChord, type Preset } from "@/lib/shortcuts";
+import { privacy } from "@/lib/privacy/session";
 import {
   initialDesktop, reduce, type DesktopState, type Rect, type WindowCommand,
 } from "@/lib/windowing/state";
@@ -171,7 +172,9 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     if (saveTimer.current) window.clearTimeout(saveTimer.current);
     saveTimer.current = window.setTimeout(() => {
       void put("/api/state", { id: stateId, state, revision: state.revision }).catch(() => undefined);
-      try { localStorage.setItem(`fusion.state.${stateId}`, JSON.stringify(state)); } catch { /* quota */ }
+      // TT18: the browser-profile mirror gets the same /Private path sealing as the server copy
+      void (privacy.layer ? privacy.layer.sealState(state) : Promise.resolve(state))
+        .then((sealed) => { try { localStorage.setItem(`fusion.state.${stateId}`, JSON.stringify(sealed)); } catch { /* quota */ } });
     }, 600);
     return () => { if (saveTimer.current) window.clearTimeout(saveTimer.current); };
   }, [state, stateId]);

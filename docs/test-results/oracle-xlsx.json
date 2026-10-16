@@ -1,6 +1,6 @@
 {
   "suite": "oracle-xlsx",
-  "at": "2026-10-16T04:46:19.114Z",
+  "at": "2026-10-16T05:33:23.713Z",
   "results": [
     {
       "suite": "oracle-xlsx",
@@ -9,7 +9,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 186
+      "ms": 174
     },
     {
       "suite": "oracle-xlsx",
@@ -20,7 +20,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 220
+      "ms": 195
     },
     {
       "suite": "oracle-xlsx",
@@ -31,7 +31,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 211
+      "ms": 187
     },
     {
       "suite": "oracle-xlsx",
@@ -43,7 +43,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 197
+      "ms": 178
     },
     {
       "suite": "oracle-xlsx",
@@ -55,7 +55,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 194
+      "ms": 188
     }
   ]
 }

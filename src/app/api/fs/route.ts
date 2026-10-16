@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { vfsNodes } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
 import {
-  folderSize, getNode, listDir, mkdir, normalize, purgeNode, restoreNode,
+  folderSize, getNode, listDir, mkdir, normalize, purgeNode, dropVersions, restoreNode,
   transferNode, trashNode, versionsOf, writeFile, baseName, parentOf, MAX_BYTES,
 } from "@/lib/server/vfs";
 import { readCentralDirectory, readEntryVerified, writeZip } from "@/lib/server/zip";
@@ -81,6 +81,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(await restoreNode(String(body.path)));
       case "purge":
         return NextResponse.json(await purgeNode(String(body.path)));
+      case "dropVersions":
+        return NextResponse.json(await dropVersions(String(body.path)));
       case "batchRename": {
         // pattern tokens: {n} index, {name} original stem, {ext} extension
         const dir = normalize(String(body.path));

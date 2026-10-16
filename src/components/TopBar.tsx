@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useShell } from "./shell-context";
 import { Badge, Btn } from "./ui";
+import { privacy, type PrivacyStatus } from "@/lib/privacy/session";
 
 /**
  * SH-03. When the PWA is installed with display_override:["window-controls-overlay"]
@@ -15,6 +16,10 @@ export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onB
   const shell = useShell();
   const [clock, setClock] = useState(() => new Date());
   const [wco, setWco] = useState(false);
+  const [priv, setPriv] = useState<PrivacyStatus | null>(null);
+
+  // TT18: amnesic / Persistent Storage state is always visible (Tails shows it in the top bar too)
+  useEffect(() => privacy.subscribe((s) => setPriv(s)), []);
 
   useEffect(() => {
     const t = window.setInterval(() => setClock(new Date()), 10_000);
@@ -69,6 +74,17 @@ export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onB
         </button>
       ) : null}
 
+      {priv?.amnesic ? (
+        <button className="fs-btn" data-variant="primary" data-testid="amnesic-badge" onClick={() => shell.open("privacy")}
+          title={`Amnesic session: ${priv.ram.files} files in RAM, ${priv.blocked} host writes blocked — nothing new is written to this device`}>AMNESIC</button>
+      ) : null}
+      {priv && priv.storage === "unlocked" ? (
+        <button className="fs-btn" data-variant="ghost" data-testid="storage-badge" onClick={() => { privacy.lock(); shell.bumpRefresh(); }}
+          title="Persistent Storage is unlocked — click to lock now">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "-1px", marginRight: 4 }}>
+            <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.5-2" />
+          </svg>Private unlocked</button>
+      ) : null}
       <Badge tone={tone} title={shell.gov.reason}>{shell.gov.state} · {shell.gov.fps} fps</Badge>
       {shell.state.focusMode ? <Badge tone="info">focus</Badge> : null}
       <Btn variant="ghost" onClick={onBlackout} title="Blackout this screen (BlackTop)">◐</Btn>
