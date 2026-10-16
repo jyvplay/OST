@@ -48,7 +48,7 @@ export const MODULES: ModuleDef[] = [
   { id: "vector", title: "Vector", icon: "✒", group: "Create", summary: "SVG primitives editor; sanitised import and clean export", rect: { w: 900, h: 620 }, implements: ["FF-25", "FF-04"] },
   { id: "writer", title: "Writer", icon: "📄", group: "Create", summary: "Structured Word document editor; DOCX import/export at grade C", rect: { w: 820, h: 620 }, implements: ["FF-22", "PR-11"] },
   { id: "slides", title: "Slides", icon: "🖼", group: "Create", summary: "Slide deck editor; PPTX import/export at grade C", rect: { w: 900, h: 640 }, implements: ["FF-23", "PR-11"] },
-  { id: "sheet", title: "Spreadsheet", icon: "📊", group: "Create", summary: "Real formula engine, verified against real LibreOffice", rect: { w: 900, h: 600 }, implements: ["FF-19", "FF-20", "FF-21", "PR-11"] },
+  { id: "sheet", title: "Spreadsheet", icon: "📊", group: "Create", summary: "Formula engine (2 oracles), dynamic arrays, formatting, charts", rect: { w: 1000, h: 640 }, implements: ["FF-19", "FF-20", "FF-21", "FF-26", "FF-27", "FF-28", "FF-29", "PR-11"] },
   { id: "peek", title: "Peek", icon: "👁", group: "Core", summary: "Sandboxed previewer with watchdog and grades", rect: { w: 760, h: 560 }, implements: ["FM-04", "FF-01", "FF-11"] },
 ];
 

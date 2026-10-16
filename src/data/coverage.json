@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-15T05:33:29.524Z",
+ "generatedAt": "2026-10-16T03:13:29.770Z",
  "totals": {
   "built": {
-   "full": 171,
-   "partial": 59,
+   "full": 178,
+   "partial": 66,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 44,
-   "partial": 71,
-   "untested": 137
+   "full": 51,
+   "partial": 76,
+   "untested": 139
   },
   "tests": {
-   "total": 95,
-   "passed": 95
+   "total": 154,
+   "passed": 154
   }
  },
  "rows": {
@@ -162,6 +162,18 @@
    "tests": []
   },
   "WM-16": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-17": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-18": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-19": {
    "tested": "untested",
    "tests": []
   },
@@ -629,6 +641,9 @@
   "PR-11": {
    "tested": "partial",
    "tests": [
+    "e2e: mount: writer",
+    "e2e: mount: slides",
+    "e2e: mount: sheet",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
     "unit: docx extraction; EPUB spine order; PSD header"
    ]
@@ -666,6 +681,7 @@
   "FF-04": {
    "tested": "full",
    "tests": [
+    "e2e: mount: vector",
     "unit: SVG sanitiser strips script/handlers/foreignObject/javascript:"
    ]
   },
@@ -733,6 +749,63 @@
     "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists"
    ]
   },
+  "FF-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+    "e2e: mount: sheet",
+    "office: first-party verified semantics survive: SUM(1,\"x\",2) is still #VALUE!",
+    "office: numeric codes: 0.00, #,##0, $, %, scaling commas, ? alignment, # trailing, literals",
+    "office: dates and times: serial 45361 = Sun 2024-03-10; m = minutes after h; AM/PM; elapsed [h]",
+    "office: TEXT() uses the format engine end-to-end through the formula engine",
+    "oracle: oracle: 123 scalar vectors match LibreOffice 7.4.7.2",
+    "oracle: oracle: grid — 21 cells match",
+    "oracle: oracle: grid2 (range coercion) — 7 cells match",
+    "oracle: oracle: circular — 2 cells match"
+   ]
+  },
+  "FF-20": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e: mount: sheet",
+    "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
+    "oracle-xlsx: oracle available (openpyxl)",
+    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze"
+   ]
+  },
+  "FF-21": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e: mount: sheet",
+    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block"
+   ]
+  },
+  "FF-22": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: writer"
+   ]
+  },
+  "FF-23": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: slides"
+   ]
+  },
+  "FF-24": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: imageedit"
+   ]
+  },
+  "FF-25": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: vector"
+   ]
+  },
   "MD-01": {
    "tested": "partial",
    "tests": [
@@ -746,8 +819,10 @@
    ]
   },
   "MD-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: imageedit"
+   ]
   },
   "MD-04": {
    "tested": "partial",
@@ -866,6 +941,82 @@
    "tested": "partial",
    "tests": [
     "unit: seal/open round trip; wrong passphrase and ciphertext tamper fail"
+   ]
+  },
+  "FF-26": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+    "office: SEQUENCE(2,3) spills all six cells with correct values",
+    "office: an obstruction blocks the WHOLE array with #SPILL!, and removing it recovers",
+    "office: a formula referencing a spilled child sees the child value (fixed point)",
+    "office: two anchors competing for one cell: deterministic row-major winner, loser #SPILL!",
+    "office: self-dependent spill size terminates (no hang) with an error value",
+    "office: oversized generator is refused (#NUM!), not truncated",
+    "office: A1:A3*2 spills element-wise; range+range aligns; mismatch → #N/A outside overlap",
+    "office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP",
+    "office: IF over an array condition is element-wise; IFERROR over arrays replaces only errors",
+    "office: SUM over a computed array (SUMPRODUCT-style) and ROW() with no argument",
+    "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
+    "office: SORTBY (multi-key, mixed orders, size check) and SORT Excel ordering (case-insensitive, blanks last, by_col, index check)",
+    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
+    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block"
+   ]
+  },
+  "FF-27": {
+   "tested": "full",
+   "tests": [
+    "office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP",
+    "office: first-party verified semantics survive: SUM(1,\"x\",2) is still #VALUE!",
+    "office: financial: PMT/NPV/IRR/FV match independent closed-form values",
+    "office: text/lookup/stat breadth: TEXTJOIN, COUNTIFS, MAXIFS, LARGE, MEDIAN, STDEV.S, DEC2BIN, ROMAN",
+    "office: engineering conversions follow Excel: no default padding, two's complement negatives, #NUM! guards",
+    "office: unknown function is #NAME?; errors from ext functions map to engine errors",
+    "office: SORTBY (multi-key, mixed orders, size check) and SORT Excel ordering (case-insensitive, blanks last, by_col, index check)",
+    "oracle: oracle 2 (PyPI formulas 1.3.4): extended-library vectors agree with an independent Excel interpreter"
+   ]
+  },
+  "FF-28": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+    "e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates",
+    "e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region",
+    "e2e-office: fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs",
+    "e2e-office: Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
+    "e2e-office: clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
+    "e2e-office: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
+    "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-office: no uncaught page errors during the spreadsheet session",
+    "office: shiftFormula: relative parts move, $-anchored parts stay, strings untouched, off-grid → #REF!",
+    "office: adjustForStructure: insert/delete rows repair refs; deleted single ref → #REF!; ranges shrink; other sheets untouched",
+    "office: insertDelete: physical move + workbook-wide repair + recalculated values",
+    "office: TSV clipboard round-trip: tabs, newlines, quotes, CRLF, Excel-style quoting",
+    "office: copy/paste block shifts formulas and carries styles; clearRange contents vs all",
+    "office: autoFill: linear trend, text+number series, cyclic copy, formula shift, upward fill",
+    "office: sortRange: stable, numbers<text<bool, blanks last both directions, header kept, formulas move",
+    "office: find/replace and status-bar selection statistics",
+    "office: numeric codes: 0.00, #,##0, $, %, scaling commas, ? alignment, # trailing, literals",
+    "office: sections and colours: pos;neg;zero;text, [Red], auto minus only for 1 section",
+    "office: scientific and General",
+    "office: dates and times: serial 45361 = Sun 2024-03-10; m = minutes after h; AM/PM; elapsed [h]",
+    "office: TEXT() uses the format engine end-to-end through the formula engine",
+    "office: currentRegion / Ctrl+Arrow jump / fill-handle geometry / header heuristic",
+    "office: formula autocomplete token, ranked completions, active-call argument index (strings/nesting aware)",
+    "office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
+    "office: workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads",
+    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
+    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block"
+   ]
+  },
+  "FF-29": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source",
+    "office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data",
+    "office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
+    "office: workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads"
    ]
   },
   "CT-01": {

@@ -266,3 +266,33 @@ session) a real Microsoft Excel or Excel-compatible oracle and re-run
 `scripts/oracle-formula.mts`'s vector set against it, diffing against the LibreOffice-derived
 fixture — this would upgrade every "[oracle: LibreOffice]" tag to a cross-validated fact or
 surface the first genuine Excel/Calc divergence this project has found.
+
+## TT15 — spreadsheet v2, number formats, xlsx fidelity, charts
+
+**New modules** (all pure TypeScript, client-safe unless noted):
+
+| File | What | Verified by |
+|---|---|---|
+| `src/lib/formula/numfmt.ts` | Excel format codes: 4 sections, `[Color]`, literals/escapes, `0 # ?`, thousands + trailing-comma scaling, `%`, `E+/E-`, `@`, dates/times (`m` = minutes after `h`/before `s`), `AM/PM`, elapsed `[h] [m] [s]`, fractional seconds. `TEXT()` now uses it. | office-engine-2 (expected strings hand-derived from Microsoft's format-code guide). PyPI `formulas` TEXT() was probed and found wrong (e.g. `TEXT(45361,"mmm d")` → "Mar 1"), so it is **not** used as an oracle here. |
+| `src/lib/formula/sheetops.ts` | reference shifting (`$` anchors, off-grid `#REF!`), insert/delete with workbook-wide repair, TSV clipboard, copy/paste blocks, AutoFill (least-squares trend, text+number series, cyclic copy), stable sort (blanks last), find/replace, selection stats, `_xlfn.`/`_xlws.` prefixes | office-engine-2 |
+| `src/lib/formula/sheetui.ts` | current region, Ctrl+Arrow jumps, fill-handle geometry, header heuristic, autocomplete token, active-call argument index, signatures | office-engine-2 |
+| `src/lib/formula/sheetmeta.ts` | charts (bar/line/pie/scatter, multi-series; ported from the competitor TT14 `chart.ts` and extended) + conditional formatting rules + untrusted-JSON sanitisers | office-engine-2, e2e-office |
+| `src/lib/formula/xlsx.ts` (server) | styles both ways, widths, frozen rows, prefixes, array-formula spill export, shared-formula read | `scripts/oracle-xlsx.mts` (openpyxl 3.1, both directions) |
+
+**Bugs found this tier (and by what):**
+- Error literals (`=#REF!*10`) did not parse → `#NAME?` instead of `#REF!` (office-engine-2 insert/delete test).
+- xlsx reader: self-closing styled blank `<c …/>` swallowed the next cell's value (code review while adding styles; regression-covered by oracle-xlsx B).
+- xlsx writer: explicit date formats mapped onto locale-dependent built-in ids 14/22 → lossy (openpyxl oracle).
+- `SORTBY` documented but missing → `#NAME?`; `SORT` compared mixed types as strings, case-sensitively (real-browser e2e).
+- Shell: desktop `overflow:hidden` was scrolled by focus, hiding window title bars; boot hydrate used a persisted viewport from another screen (screenshot inspection).
+
+**Declared gaps:** grid bounded to A..AZ × 1000 rows; fixed row height (wrapped text clipped); no merged cells, borders, data validation, comments, pivot tables; cut-paste does not re-point formulas that reference moved cells; charts and conditional formats are not exported to xlsx; Excel 365 XLDAPR dynamic-array metadata not emitted (spills export as legacy `{=…}` array formulas with correct values); no Excel or LibreOffice in this sandbox, so Excel-specific open/save behaviour is unverified.
+
+**Run:**
+```
+T="node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs"
+$T scripts/office-engine.mts        # 35 tests (incl. office-engine-2)
+$T scripts/oracle-parity.mts        # LibreOffice fixture + PyPI formulas fixture
+ORACLE_PY=/path/to/python-with-openpyxl $T scripts/oracle-xlsx.mts
+BASE=http://localhost:3999 $T scripts/e2e-office.mts   # real Chromium, 11 tests
+```

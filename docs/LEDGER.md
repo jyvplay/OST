@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-15T05:33:29.523Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-3 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-16T03:13:29.770Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+7 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **252** |
-| Fully built | 171 |
-| Partially built (partial 42 + probe 17) | 59 |
+| **Features in register** | **266** |
+| Fully built | 178 |
+| Partially built (partial 48 + probe 18) | 66 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **44** |
-| **Partially tested** (only `partial` tags) | **71** |
-| Untested | 137 |
-| Automated tests executed / passed | 95 / 95 |
+| **Fully tested** (≥1 passing test tagged `full`) | **51** |
+| **Partially tested** (only `partial` tags) | **76** |
+| Untested | 139 |
+| Automated tests executed / passed | 154 / 154 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 38 | 59 | 74 |
-| partially built | 0 | 10 | 49 |
+| fully built | 42 | 60 | 76 |
+| partially built | 3 | 14 | 49 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
 
@@ -33,9 +33,13 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| e2e | 49 | 49 | 0 | 2026-10-15T05:33:15.030Z |
-| integration | 24 | 24 | 0 | 2026-10-15T05:32:10.184Z |
-| unit | 22 | 22 | 0 | 2026-10-15T05:32:08.452Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-16T03:10:48.076Z |
+| e2e | 54 | 54 | 0 | 2026-10-16T03:12:52.525Z |
+| integration | 24 | 24 | 0 | 2026-10-16T03:13:29.658Z |
+| office | 35 | 35 | 0 | 2026-10-16T03:07:22.400Z |
+| oracle-xlsx | 3 | 3 | 0 | 2026-10-16T02:54:10.763Z |
+| oracle | 5 | 5 | 0 | 2026-10-16T03:07:22.744Z |
+| unit | 22 | 22 | 0 | 2026-10-16T03:11:12.115Z |
 
 ## Rows touched by failing tests
 
@@ -45,8 +49,8 @@ None.
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| SH | 14 | 12 | 2 | 0 | 2 | 2 | 10 |
-| WM | 16 | 13 | 2 | 1 | 3 | 4 | 9 |
+| SH | 14 | 13 | 1 | 0 | 2 | 2 | 10 |
+| WM | 19 | 15 | 3 | 1 | 3 | 4 | 12 |
 | IN | 8 | 5 | 3 | 0 | 1 | 1 | 6 |
 | SR | 8 | 7 | 0 | 1 | 3 | 3 | 2 |
 | FM | 18 | 15 | 2 | 1 | 5 | 3 | 10 |
@@ -55,8 +59,8 @@ None.
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
 | PR | 32 | 21 | 10 | 1 | 4 | 7 | 21 |
-| FF | 15 | 11 | 4 | 0 | 8 | 2 | 5 |
-| MD | 9 | 6 | 3 | 0 | 0 | 6 | 3 |
+| FF | 26 | 15 | 11 | 0 | 15 | 6 | 5 |
+| MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 9 | 7 | 1 | 1 | 1 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 2 | 4 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
@@ -79,7 +83,7 @@ None.
 | SH-02 | built | untested |  |
 | SH-03 | built | untested |  |
 | SH-04 | built | untested |  |
-| SH-05 | partial | partial | e2e: SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive |
+| SH-05 | built | partial | e2e: SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive |
 | SH-06 | built | untested |  |
 | SH-07 | built | untested |  |
 | SH-08 | built | full | e2e: drag a window by its title bar; geometry is committed and persisted; integration: SH-08 stale revision cannot clobber newer desktop state (409); unit: command log replay reproduces the identical state hash |
@@ -105,6 +109,9 @@ None.
 | WM-14 | blocked | untested |  |
 | WM-15 | partial | untested |  |
 | WM-16 | built | untested |  |
+| WM-17 | built | untested |  |
+| WM-18 | built | untested |  |
+| WM-19 | probe | untested |  |
 | IN-01 | built | untested |  |
 | IN-02 | built | untested |  |
 | IN-03 | built | untested |  |
@@ -194,13 +201,13 @@ None.
 | PR-08 | partial | untested |  |
 | PR-09 | built | full | e2e: mount: calculator; e2e: calculator evaluates typed input with the shared evaluator; unit: precedence, power associativity, rounding policy (+1) |
 | PR-10 | built | partial | e2e: mount: clock; e2e: clock stopwatch advances from performance.now anchors |
-| PR-11 | partial | partial | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
+| PR-11 | partial | partial | e2e: mount: writer; e2e: mount: slides; e2e: mount: sheet (+2) |
 | PR-12 | built | partial | e2e: mount: clipboard |
 | PR-13 | built | full | e2e: desktop shows sticky note widget; seeded widget has no hang button |
 | FF-01 | built | partial | e2e: mount: peek; unit: loss report itemises drops; registry grades |
 | FF-02 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
 | FF-03 | partial | untested |  |
-| FF-04 | built | full | unit: SVG sanitiser strips script/handlers/foreignObject/javascript: |
+| FF-04 | built | full | e2e: mount: vector; unit: SVG sanitiser strips script/handlers/foreignObject/javascript: |
 | FF-05 | built | untested |  |
 | FF-06 | probe | untested |  |
 | FF-07 | partial | untested |  |
@@ -212,9 +219,16 @@ None.
 | FF-13 | partial | untested |  |
 | FF-14 | built | full | unit: loss report itemises drops; registry grades |
 | FF-15 | built | partial | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists |
+| FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
+| FF-20 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e: mount: sheet; office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe (+2) |
+| FF-21 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e: mount: sheet; oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block |
+| FF-22 | partial | partial | e2e: mount: writer |
+| FF-23 | partial | partial | e2e: mount: slides |
+| FF-24 | partial | partial | e2e: mount: imageedit |
+| FF-25 | partial | partial | e2e: mount: vector |
 | MD-01 | built | partial | e2e: mount: capture |
 | MD-02 | built | partial | e2e: mount: media |
-| MD-03 | partial | untested |  |
+| MD-03 | partial | partial | e2e: mount: imageedit |
 | MD-04 | built | partial | e2e: mount: devices |
 | MD-05 | built | partial | e2e: mount: devices |
 | MD-06 | built | partial | e2e: mount: devices |
@@ -236,6 +250,10 @@ None.
 | BK-04 | built | full | unit: BK-04 capability diff reports lost/gained with degrade text |
 | BK-05 | built | partial | e2e: mount: backup; integration: BK-01 tampered backup bundle is refused before anything is written |
 | BK-06 | built | partial | unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
+| FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; office: SEQUENCE(2,3) spills all six cells with correct values; office: an obstruction blocks the WHOLE array with #SPILL!, and removing it recovers (+12) |
+| FF-27 | built | full | office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE!; office: financial: PMT/NPV/IRR/FV match independent closed-form values (+5) |
+| FF-28 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates; e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region (+26) |
+| FF-29 | partial | full | e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source; office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data; office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order (+1) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
