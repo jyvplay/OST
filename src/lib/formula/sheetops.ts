@@ -14,6 +14,7 @@
  *  - AutoFill: least-squares linear trend for ≥2 numeric seeds (Excel's
  *    behaviour for a numeric selection), "text N" increments, otherwise cyclic copy.
  */
+import { adjustLayoutForStructure, sortConflict } from "./sheetlayout";
 import { tokenize } from "./lexer";
 import { colToLetters, lettersToCol } from "./types";
 import { Sheet, Workbook, type Cell, type CellStyle } from "./engine";
@@ -116,6 +117,7 @@ export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: nu
     moved.set(axis === "row" ? `${c},${nv}` : `${nv},${r}`, cell);
   }
   sheet.grid = moved;
+  adjustLayoutForStructure(sheet, axis, at, count);
   if (axis === "col") {
     const w: Record<number, number> = {};
     for (const [k, px] of Object.entries(sheet.colWidths)) { const c = Number(k); if (count > 0) w[c >= at ? c + count : c] = px; else if (c < at) w[c] = px; else if (c >= at - count) w[c + count] = px; }
@@ -226,6 +228,7 @@ function fillLine(seed: { input: string; style?: CellStyle; pos: number }[], pos
 /* ------------------------------------------------------------------ sort / find */
 export function sortRange(wb: Workbook, sheetName: string, r: Range, keyCol: number, ascending: boolean, hasHeader = false): void {
   const sheet = wb.sheet(sheetName); const n = norm(r);
+  const conflict = sortConflict(sheet, n); if (conflict) throw new Error(conflict);
   const start = hasHeader ? n.r0 + 1 : n.r0;
   const rows: { row: number; key: unknown; clip: Clip }[] = [];
   for (let row = start; row <= n.r1; row++) rows.push({ row, key: wb.valueAt(sheetName, keyCol, row) ?? "", clip: copyBlock(sheet, { c0: n.c0, r0: row, c1: n.c1, r1: row }) });

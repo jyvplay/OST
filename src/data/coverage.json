@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-16T04:21:57.248Z",
+ "generatedAt": "2026-10-16T04:50:50.547Z",
  "totals": {
   "built": {
-   "full": 182,
+   "full": 185,
    "partial": 65,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 65,
+   "full": 68,
    "partial": 73,
    "untested": 131
   },
   "tests": {
-   "total": 228,
-   "passed": 228
+   "total": 242,
+   "passed": 242
   }
  },
  "rows": {
@@ -802,18 +802,22 @@
    "tested": "full",
    "tests": [
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
     "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
     "oracle-xlsx: oracle available (openpyxl)",
-    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze"
+    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
+    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols"
    ]
   },
   "FF-21": {
    "tested": "full",
    "tests": [
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
-    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block"
+    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
+    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce"
    ]
   },
   "FF-22": {
@@ -1033,6 +1037,7 @@
     "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
+    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
     "e2e: mount: sheet",
     "office: shiftFormula: relative parts move, $-anchored parts stay, strings untouched, off-grid → #REF!",
     "office: adjustForStructure: insert/delete rows repair refs; deleted single ref → #REF!; ranges shrink; other sheets untouched",
@@ -1150,6 +1155,47 @@
     "vector: path node editing: anchors carry their handles; handles move alone",
     "vector: v1 .fsvg migration and untrusted v2 validation",
     "vector: parametric star survives move/rotate; arrow is plain path data (no <marker>)"
+   ]
+  },
+  "FF-33": {
+   "tested": "full",
+   "tests": [
+    "e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells",
+    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e-sheet-layout: no page errors during the layout session",
+    "e2e: mount: sheet",
+    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
+    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
+    "sheet-layout: merge keeps the upper-left most data (reading order), clears the rest, keeps covered formatting; unmerge leaves value top-left",
+    "sheet-layout: selection expands to whole merged areas (fixed point); arrow keys treat a merge as one cell; partial paste/sort refused",
+    "sheet-layout: insert/delete rows & cols repair merges, validations and frozen panes",
+    "sheet-layout: validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON"
+   ]
+  },
+  "FF-34": {
+   "tested": "full",
+   "tests": [
+    "e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e: mount: sheet",
+    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
+    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
+    "sheet-layout: borders: presets set the right edges; shared edge shows the heavier side; 'none' clears; per-cell storage",
+    "sheet-layout: validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON"
+   ]
+  },
+  "FF-35": {
+   "tested": "full",
+   "tests": [
+    "e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e: mount: sheet",
+    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
+    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
+    "sheet-layout: insert/delete rows & cols repair merges, validations and frozen panes",
+    "sheet-layout: data validation: list (literal + range, case-insensitive), whole/decimal/date/textLength operators, custom (relative), blanks, rollback",
+    "sheet-layout: validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON"
    ]
   },
   "CT-01": {

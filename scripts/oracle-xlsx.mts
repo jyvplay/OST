@@ -20,6 +20,7 @@ import { join } from "node:path";
 import { makeHarness } from "./harness.mts";
 import { Workbook, isError } from "../src/lib/formula/index.ts";
 import { writeXlsxWorkbook, readXlsxWorkbook } from "../src/lib/formula/xlsx.ts";
+import { applyBorders, mergeCells, sanitizeValidation, validateEntry } from "../src/lib/formula/sheetlayout.ts";
 
 const { test, finish } = makeHarness("oracle-xlsx");
 const PY = process.env.ORACLE_PY ?? "/home/user/tools/venv/bin/python";
@@ -80,6 +81,57 @@ await test("B. openpyxl-authored file → our reader: styles, widths, freeze, sh
   assert.deepEqual([val(6, 1), val(6, 2), val(6, 3)], [15, 22.5, 40]); // re-spilled, stale 999s ignored
   assert.ok(!isError(val(6, 1) as never));
   assert.equal(s.colWidths[0], 140); assert.equal(s.freezeRows, 1); // width 20 → px = trunc((256·20 + trunc(128/7))/256 · 7) = 140 (Excel column-width rule)
+});
+
+await test("C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols", { "FF-33": "full", "FF-34": "full", "FF-35": "full", "FF-20": "full" }, () => {
+  const wb = new Workbook(); const s = wb.sheet();
+  s.setCell(0, 0, "Title"); s.setCell(2, 0, "gone"); mergeCells(s, { c0: 0, r0: 0, c1: 3, r1: 0 }); mergeCells(s, { c0: 0, r0: 2, c1: 0, r1: 4 });
+  s.setStyle(0, 0, { align: "center", valign: "center" });
+  applyBorders(s, { c0: 1, r0: 2, c1: 2, r1: 3 }, "outside", { style: "medium", color: "#ff0000" });
+  applyBorders(s, { c0: 1, r0: 2, c1: 2, r1: 3 }, "inside", { style: "dotted" });
+  s.setStyle(4, 2, { border: { bottom: { style: "double" } } }); s.setStyle(5, 2, { border: { top: { style: "hair", color: "#00b050" } }, bold: true });
+  const mk = (o: object) => sanitizeValidation({ allowBlank: true, showError: true, errorStyle: "stop", ...o })!;
+  s.validations = [
+    mk({ id: "a", sqref: "B6:B20", type: "list", formula1: '"Low,Medium,High"' }),
+    mk({ id: "b", sqref: "C6:C20", type: "list", formula1: "$F$1:$F$3", inCellDropdown: false, allowBlank: false }),
+    mk({ id: "c", sqref: "D6:D20 E6", type: "whole", operator: "between", formula1: "1", formula2: "10", errorStyle: "warning", errorTitle: "Range", error: "1 to 10 <please> & thanks" }),
+    mk({ id: "d", sqref: "I6:I20", type: "custom", formula1: 'AND(I6>0,I6<"z")', promptTitle: "Even", prompt: "an even number" }),
+  ];
+  s.freezeRows = 1; s.freezeCols = 2;
+  const f = join(dir, "layout-ours.xlsx"); writeFileSync(f, writeXlsxWorkbook(wb));
+  const o = JSON.parse(execFileSync(PY, ["scripts/oracles/xlsx_openpyxl.py", "layout-read", f], { encoding: "utf8" })).sheets[0];
+  assert.deepEqual(o.merges, ["A1:D1", "A3:A5"]); assert.equal(o.freeze, "C2");
+  assert.deepEqual(o.valign, { A1: "center" });
+  assert.deepEqual(o.borders.B3, { left: { style: "medium", color: "#ff0000" }, top: { style: "medium", color: "#ff0000" }, right: { style: "dotted", color: "#000000" }, bottom: { style: "dotted", color: "#000000" } });
+  assert.deepEqual(o.borders.C4, { right: { style: "medium", color: "#ff0000" }, bottom: { style: "medium", color: "#ff0000" }, left: { style: "dotted", color: "#000000" }, top: { style: "dotted", color: "#000000" } });
+  assert.deepEqual(o.borders.E3, { bottom: { style: "double", color: "#000000" } }); assert.deepEqual(o.borders.F3, { top: { style: "hair", color: "#00b050" } });
+  const [a, b, c, d] = o.validations;
+  assert.deepEqual([a.type, a.sqref, a.formula1, a.allowBlank, a.showDropDown, a.showErrorMessage], ["list", "B6:B20", '"Low,Medium,High"', true, false, true]);
+  assert.deepEqual([b.formula1, b.allowBlank, b.showDropDown], ["$F$1:$F$3", false, true], "hidden arrow ⇒ showDropDown=1");
+  assert.deepEqual([c.type, c.operator, c.sqref, c.formula1, c.formula2, c.errorStyle, c.errorTitle, c.error], ["whole", "between", "D6:D20 E6", "1", "10", "warning", "Range", "1 to 10 <please> & thanks"]);
+  assert.deepEqual([d.type, d.formula1, d.promptTitle, d.prompt], ["custom", 'AND(I6>0,I6<"z")', "Even", "an even number"]);
+});
+
+await test("D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce", { "FF-33": "full", "FF-34": "full", "FF-35": "full", "FF-21": "full" }, () => {
+  const f = join(dir, "layout-theirs.xlsx"); execFileSync(PY, ["scripts/oracles/xlsx_openpyxl.py", "layout-write", f]);
+  const wb = readXlsxWorkbook(readFileSync(f)); const s = wb.sheet("Layout");
+  assert.deepEqual(s.merges, [{ c0: 0, r0: 0, c1: 3, r1: 0 }, { c0: 0, r0: 2, c1: 0, r1: 4 }]);
+  assert.equal(s.get(2, 0)?.input ?? "", "", "covered cell value not present");
+  assert.deepEqual(s.get(0, 0)?.style, { align: "center", valign: "center" });
+  assert.deepEqual(s.get(1, 2)?.style?.border, { left: { style: "thin", color: "#000000" }, right: { style: "medium", color: "#ff0000" }, top: { style: "dashed" }, bottom: { style: "double", color: "#00b050" } });
+  assert.deepEqual(s.get(2, 2)?.style?.border, { bottom: { style: "thick" } }, "theme colour read as unset");
+  assert.equal(s.get(3, 2)?.style?.border, undefined, "mediumDashed is outside our border set (declared)");
+  assert.equal(s.get(1, 3)?.style?.valign, "top");
+  assert.equal(s.freezeRows, 1); assert.equal(s.freezeCols, 1);
+  assert.deepEqual(s.validations.map((v) => [v.type, v.sqref, v.inCellDropdown, v.showError, v.errorStyle]), [
+    ["list", "B6:B20", true, true, "stop"], ["list", "C6:C20", false, true, "stop"], ["whole", "D6:D20 E6", true, false, "warning"],
+    ["decimal", "G6:G20", true, true, "stop"], ["textLength", "H6:H20", true, true, "stop"], ["custom", "I6:I20", true, true, "stop"]]);
+  assert.equal(s.validations[3].prompt, "positive");
+  const ok = (c: number, r: number, v: string) => validateEntry(wb, "Layout", c, r, v).ok;
+  assert.ok(ok(1, 5, "high") && !ok(1, 6, "Extreme")); assert.ok(ok(2, 5, "Green") && !ok(2, 6, "Pink"));
+  assert.ok(ok(3, 5, "50"), "showErrorMessage=0 in the file ⇒ no block (Excel shows no alert)");
+  assert.ok(ok(6, 5, "0.5") && !ok(6, 6, "-1")); assert.ok(ok(7, 5, "hello") && !ok(7, 6, "toolong"));
+  assert.ok(ok(8, 5, "4") && !ok(8, 6, "3"));
 });
 
 finish();

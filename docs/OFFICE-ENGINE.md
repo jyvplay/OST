@@ -364,3 +364,61 @@ Six rows that the register claimed as "built" had no UI before TT16. They are no
 - All pareto-superior elements found in the tree have now been ported or superseded.
 
 Competitor vector parity also added: arrow (line tool + Arrowhead → plain path, no `<marker>`) and parametric stars (point count / inner ratio re-editable after moves/rotations; `restar` keeps centre, radius, rotation). Suites added: `vector-engine` (18), `oracle-svg` (4), `e2e-vector` (11), `browser-session` (5), `e2e-browser` (6). Ledger after TT16: built 182 full / 65 partial / 22 blocked; tested 65 full / 73 partial / 131 untested; 228/228 tests. Screenshots: `docs/screenshots/tt16-vector-studio.png` and `tt16-vector-nodes.png`.
+
+## TT17 — spreadsheet v3: merged cells, borders, data validation, frozen column
+
+Engine module: `src/lib/formula/sheetlayout.ts` (pure, no DOM). Persisted by `workbook-json.ts`, which sanitises the data
+(drops malformed merges, overlapping merges and unknown rule types), and round-tripped by `xlsx.ts`.
+
+**Merged cells** (`Sheet.merges`, a list of A1 ranges)
+- The menu offers Merge & Center, Merge Across (one merge per row), Merge Cells and Unmerge.
+- Before discarding data the app shows Excel's own wording: "Merging cells only keeps the upper-left value and discards other values."
+- We keep the *first non-empty* value in reading order, moved to the anchor cell. Excel's documented behaviour is "upper-left";
+  we have not checked the case where the upper-left cell is empty against Excel. Declared unverified.
+- The rules are those Microsoft and trainers document:
+  - partially overlapping an existing merge is refused;
+  - sorting a range that intersects a merge is refused ("This operation requires the merged cells to be identically sized").
+    We refuse on *any* intersecting merge, which is stricter than Excel: Excel allows identically sized merges.
+- Selection expands to cover merges, and arrow keys and Tab step over them.
+- Inserting or deleting rows and columns shifts and shrinks merges; a merge deleted down to one cell is dropped.
+- xlsx: `<mergeCells>` both ways. Verified by openpyxl in both directions (oracle-xlsx test C).
+
+**Borders** (per edge: hair < dotted < dashed < thin < medium < double < thick, plus colour)
+- Ten presets: all, outside, inside, top, bottom, left, right, thick outside, top-and-bottom, none.
+- They are applied to the shared edge of *both* neighbouring cells. Display resolves a shared edge to the heavier side.
+- xlsx `<border>` reading and writing is verified by openpyxl, including colours and the vertical-alignment and `xSplit` fields.
+- Theme colours are read as "unset"; `mediumDashed` and diagonal borders are dropped (declared).
+- The old style key (`JSON.stringify(style, sortedTopKeys)`) silently dropped nested border sides. This was found and replaced
+  by a deep key.
+
+**Data validation** (`Sheet.validations`)
+- Rule types: list, whole, decimal, date (serial), textLength, custom, with the eight operators.
+- Error styles: stop, warning and information.
+- Rules check **typed entries only**:
+  - only Stop blocks an entry: Retry/Cancel;
+  - Warning offers Yes/No/Cancel;
+  - Information offers OK/Cancel.
+- Pasting replaces cells without checking, which is the documented Excel behaviour; "Circle invalid data" audits afterwards.
+- Typed list sources are capped at 255 characters (Excel strips longer ones on repair).
+- `showDropDown="1"` in OOXML means the arrow is *hidden*. This is inverted in both directions and verified by openpyxl.
+- Undeclared choices:
+  - list matching is case-insensitive;
+  - Ctrl+Enter fill skips validation.
+- The in-cell list menu and the input prompt render at *grid* level. Visual inspection showed the first version was clipped by
+  the cell's `overflow:hidden`. Playwright still "saw" the clipped menu, so `e2e-sheet-layout` now hit-tests every option with
+  `elementFromPoint`.
+
+**Frozen first column**: sticky positioning in the grid, and `xSplit` in the xlsx `<pane>`, which openpyxl reads back as "C2"
+together with the frozen row.
+
+**Tests**
+- `scripts/sheet-layout.mts` (6, engine)
+- `scripts/oracle-xlsx.mts` (5; tests C and D are new: openpyxl reads our merges, borders and DV, and we read openpyxl's)
+- `scripts/e2e-sheet-layout.mts` (6, real Chromium against the production build, including Export .xlsx → reopen from the VFS
+  with every TT17 feature intact)
+- Screenshot: `docs/screenshots/tt17-sheet-layout.png`.
+
+**Not done (declared)**
+- x14 `extLst` validations (cross-sheet list sources written by modern Excel) are ignored.
+- No conditional-formatting export, no diagonal borders, no centre-across-selection alignment.
+- Date rules take serial numbers, not date pickers.

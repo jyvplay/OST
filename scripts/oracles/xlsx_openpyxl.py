@@ -47,6 +47,67 @@ def read(path):
     print(json.dumps(out, default=str))
 
 
+def layout_read(path):
+    """Merges, borders, vertical alignment, data validations and panes as openpyxl sees them."""
+    wb = openpyxl.load_workbook(path)
+    out = {"sheets": []}
+    for ws in wb.worksheets:
+        borders = {}
+        valign = {}
+        for row in ws.iter_rows():
+            for c in row:
+                b = c.border
+                sides = {}
+                for k in ("left", "right", "top", "bottom"):
+                    sd = getattr(b, k)
+                    if sd is not None and sd.style:
+                        sides[k] = {"style": sd.style, "color": rgb(sd.color) if sd.color is not None else None}
+                if sides:
+                    borders[c.coordinate] = sides
+                if c.alignment.vertical:
+                    valign[c.coordinate] = c.alignment.vertical
+        dvs = []
+        for dv in ws.data_validations.dataValidation:
+            dvs.append({"type": dv.type, "operator": dv.operator, "sqref": str(dv.sqref), "formula1": dv.formula1, "formula2": dv.formula2,
+                        "allowBlank": bool(dv.allow_blank), "showDropDown": bool(dv.showDropDown), "showErrorMessage": bool(dv.showErrorMessage),
+                        "errorStyle": dv.errorStyle, "errorTitle": dv.errorTitle, "error": dv.error, "promptTitle": dv.promptTitle, "prompt": dv.prompt})
+        out["sheets"].append({"title": ws.title, "merges": sorted(str(r) for r in ws.merged_cells.ranges), "borders": borders, "valign": valign,
+                              "validations": dvs, "freeze": ws.freeze_panes})
+    print(json.dumps(out, default=str))
+
+
+def layout_write(path):
+    from openpyxl.styles import Border, Side
+    from openpyxl.styles.colors import Color
+    from openpyxl.worksheet.datavalidation import DataValidation
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Layout"
+    ws["A1"] = "Quarterly report"; ws["C1"] = "lost"  # merged A1:D1 — openpyxl turns C1 into a MergedCell (value dropped), like Excel
+    ws.merge_cells("A1:D1")
+    ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
+    ws.merge_cells("A3:A5")
+    thin = Side(style="thin", color="FF000000")
+    ws["B3"].border = Border(left=thin, right=Side(style="medium", color="FFFF0000"), top=Side(style="dashed"), bottom=Side(style="double", color="FF00B050"))
+    ws["C3"].border = Border(bottom=Side(style="thick", color=Color(theme=4)))  # theme colour: style kept, colour unset
+    ws["D3"].border = Border(left=Side(style="mediumDashed"))  # style outside our set: dropped (declared)
+    ws["B4"].alignment = Alignment(vertical="top")
+    ws["F1"] = "Red"; ws["F2"] = "Green"; ws["F3"] = "Blue"
+    dv1 = DataValidation(type="list", formula1='"Low,Medium,High"', allow_blank=True); dv1.add("B6:B20")
+    dv2 = DataValidation(type="list", formula1="$F$1:$F$3", allow_blank=False, showDropDown=True); dv2.add("C6:C20")  # showDropDown=True HIDES the arrow
+    dv3 = DataValidation(type="whole", operator="between", formula1="1", formula2="10", errorStyle="warning", errorTitle="Range", error="1 to 10 please"); dv3.add("D6:D20"); dv3.add("E6")
+    dv4 = DataValidation(type="decimal", operator="greaterThan", formula1="0", showErrorMessage=True, promptTitle="Price", prompt="positive"); dv4.add("G6:G20")
+    dv5 = DataValidation(type="textLength", operator="lessThanOrEqual", formula1="5", showErrorMessage=True); dv5.add("H6:H20")
+    dv6 = DataValidation(type="custom", formula1="MOD(I6,2)=0", showErrorMessage=True); dv6.add("I6:I20")
+    for dv in (dv1, dv2, dv3, dv4, dv5, dv6):
+        if dv not in (dv3,):
+            dv.showErrorMessage = True
+        ws.add_data_validation(dv)
+    ws.freeze_panes = "B2"
+    wb.save(path)
+    print(json.dumps({"ok": True}))
+
+
 def write(path):
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -85,4 +146,4 @@ def write(path):
 
 
 if __name__ == "__main__":
-    {"read": read, "write": write}[sys.argv[1]](sys.argv[2])
+    {"read": read, "write": write, "layout-read": layout_read, "layout-write": layout_write}[sys.argv[1]](sys.argv[2])

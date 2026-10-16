@@ -73,7 +73,7 @@ export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onB
       {shell.state.focusMode ? <Badge tone="info">focus</Badge> : null}
       <Btn variant="ghost" onClick={onBlackout} title="Blackout this screen (BlackTop)">◐</Btn>
       <Btn variant="ghost" onClick={onQuick} title="Quick panel (Meta+I)">⚙</Btn>
-      <span className="fs-mono fs-dim" style={{ fontSize: 11.5, padding: "0 4px" }}>
+      <span className="fs-mono fs-dim" style={{ fontSize: 11.5, padding: "0 4px" }} suppressHydrationWarning>
         {clock.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
       </span>
     </header>

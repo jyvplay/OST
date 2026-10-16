@@ -27,7 +27,7 @@ export default function DesktopWidgets() {
   const [userWidgets, setUserWidgets] = useState<{ name: string; html: string }[]>([]);
   const [workerWidgets, setWorkerWidgets] = useState<{ name: string; code: string }[]>([]);
   const [alive, setAlive] = useState<Record<string, number>>({});
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   const saveTimers = useRef<Record<number, number>>({});
 
   useEffect(() => {
@@ -76,8 +76,8 @@ export default function DesktopWidgets() {
     <div style={{ position: "absolute", top: 10, right: 10, width: 230, display: "grid", gap: 8, zIndex: 1 }}>
       {enabled.includes("clock") ? (
         <div className="fs-panel" style={{ padding: 10, textAlign: "center" }}>
-          <div className="fs-mono" style={{ fontSize: 26 }}>{new Date(now).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
-          <div className="fs-dim" style={{ fontSize: 11 }}>{new Date(now).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
+          <div className="fs-mono" style={{ fontSize: 26 }} suppressHydrationWarning>{new Date(now).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+          <div className="fs-dim" style={{ fontSize: 11 }} suppressHydrationWarning>{new Date(now).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
         </div>
       ) : null}
 

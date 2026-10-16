@@ -39,7 +39,21 @@ import { EXT_FUNCTIONS, isGridValue, type ArgAccessor, type ExtValue, type Resul
 
 export interface Cell { input: string; formula: Node | null; value: Scalar; error?: string; spill?: { rows: number; cols: number } | null; spillGrid?: Scalar[][] | null; style?: CellStyle }
 /** Presentation-only attributes. Never affect values (DP-04: no silent mutation of data). */
-export interface CellStyle { bold?: boolean; italic?: boolean; underline?: boolean; align?: "left" | "center" | "right"; fill?: string; color?: string; numFmt?: string; wrap?: boolean }
+export type BorderLine = "thin" | "medium" | "thick" | "dashed" | "dotted" | "double" | "hair";
+export interface BorderSide { style: BorderLine; color?: string }
+/** ECMA-376 §18.8.4 border: each cell stores its own four edges (adjacent cells are independent). */
+export interface CellBorder { top?: BorderSide; right?: BorderSide; bottom?: BorderSide; left?: BorderSide }
+export interface CellStyle { bold?: boolean; italic?: boolean; underline?: boolean; align?: "left" | "center" | "right"; valign?: "top" | "center" | "bottom"; fill?: string; color?: string; numFmt?: string; wrap?: boolean; border?: CellBorder }
+/** Merged area (0-based, inclusive). The value lives in the top-left cell; the others are blank. */
+export interface MergeRange { c0: number; r0: number; c1: number; r1: number }
+export type ValidationType = "list" | "whole" | "decimal" | "textLength" | "date" | "custom";
+export type ValidationOp = "between" | "notBetween" | "equal" | "notEqual" | "greaterThan" | "lessThan" | "greaterThanOrEqual" | "lessThanOrEqual";
+/** ECMA-376 §18.3.1.32 dataValidation. formula1/2 are stored WITHOUT a leading "=" (as in the file format). */
+export interface DataValidation {
+  id: string; sqref: string; type: ValidationType; operator?: ValidationOp; formula1: string; formula2?: string;
+  allowBlank: boolean; errorStyle: "stop" | "warning" | "information"; showError: boolean; inCellDropdown: boolean;
+  errorTitle?: string; error?: string; promptTitle?: string; prompt?: string;
+}
 export type SheetGrid = Map<string, Cell>;
 export type Value = Scalar | Scalar[][];
 
@@ -66,6 +80,12 @@ export class Sheet {
   colWidths: Record<number, number> = {};
   /** Frozen top rows (presentation only; exported as an xlsx pane). */
   freezeRows = 0;
+  /** Frozen left columns (TT17; exported as pane xSplit). */
+  freezeCols = 0;
+  /** Merged areas (TT17; <mergeCells>). Non-overlapping, each ≥ 2 cells. */
+  merges: MergeRange[] = [];
+  /** Data-validation rules (TT17; <dataValidations>). */
+  validations: DataValidation[] = [];
   constructor(name = "Sheet1") { this.name = name; }
 
   setCell(col: number, row: number, input: string) {

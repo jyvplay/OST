@@ -3,12 +3,13 @@
  * per-cell `style` and per-sheet `colWidths` / `freezeRows`; v1 documents
  * (cells with only ref+input) still load unchanged.
  */
-import { Workbook, Sheet, a1, type CellStyle } from "./engine";
+import { Workbook, Sheet, a1, type CellStyle, type CellBorder, type MergeRange } from "./engine";
+import { isBorderLine, parseRef, rangeRef, sanitizeValidation, intersects } from "./sheetlayout";
 import { lettersToCol } from "./types";
 import { sanitizeCharts, sanitizeCondFormats } from "./sheetmeta";
 
 export interface CellJson { ref: string; input: string; style?: CellStyle }
-export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number }
+export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[] }
 export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[] }
 
 export function workbookToJson(wb: Workbook): WorkbookJson {
@@ -29,12 +30,15 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
       };
       if (Object.keys(s.colWidths).length) out.colWidths = Object.fromEntries(Object.entries(s.colWidths).map(([k, v]) => [k, v]));
       if (s.freezeRows) out.freezeRows = s.freezeRows;
+      if (s.freezeCols) out.freezeCols = s.freezeCols;
+      if (s.merges.length) out.merges = s.merges.map(rangeRef);
+      if (s.validations.length) out.validations = s.validations.map((v) => ({ ...v }));
       return out;
     }),
   };
 }
 
-const STYLE_KEYS: (keyof CellStyle)[] = ["bold", "italic", "underline", "align", "fill", "color", "numFmt", "wrap"];
+const STYLE_KEYS: (keyof CellStyle)[] = ["bold", "italic", "underline", "align", "valign", "fill", "color", "numFmt", "wrap"];
 /** Untrusted JSON → only known style keys with primitive values survive. */
 function cleanStyle(raw: unknown): Partial<CellStyle> | null {
   if (!raw || typeof raw !== "object") return null;
@@ -45,6 +49,16 @@ function cleanStyle(raw: unknown): Partial<CellStyle> | null {
   }
   if (out.align !== undefined && !["left", "center", "right"].includes(out.align as string)) delete out.align;
   for (const k of ["fill", "color"]) if (out[k] !== undefined && !/^#[0-9a-f]{6}$/i.test(out[k] as string)) delete out[k];
+  if (out.valign !== undefined && !["top", "center", "bottom"].includes(out.valign as string)) delete out.valign;
+  const b = (raw as Record<string, unknown>).border;
+  if (b && typeof b === "object") {
+    const border: CellBorder = {};
+    for (const side of ["top", "right", "bottom", "left"] as const) {
+      const v = (b as Record<string, unknown>)[side] as { style?: unknown; color?: unknown } | undefined;
+      if (v && isBorderLine(v.style)) border[side] = typeof v.color === "string" && /^#[0-9a-f]{6}$/i.test(v.color) ? { style: v.style, color: v.color } : { style: v.style };
+    }
+    if (Object.keys(border).length) out.border = border;
+  }
   return Object.keys(out).length ? (out as Partial<CellStyle>) : null;
 }
 
@@ -62,6 +76,13 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
     }
     for (const [k, v] of Object.entries(s.colWidths ?? {})) if (Number.isInteger(Number(k)) && typeof v === "number" && v >= 16 && v <= 1200) sheet.colWidths[Number(k)] = Math.round(v);
     if (typeof s.freezeRows === "number" && s.freezeRows >= 0 && s.freezeRows <= 50) sheet.freezeRows = s.freezeRows;
+    if (typeof s.freezeCols === "number" && s.freezeCols >= 0 && s.freezeCols <= 26) sheet.freezeCols = Math.trunc(s.freezeCols);
+    // Untrusted merges: valid refs, ≥2 cells, non-overlapping (first wins).
+    for (const ref of (Array.isArray(s.merges) ? s.merges : []).slice(0, 5000)) {
+      const r = typeof ref === "string" ? parseRef(ref) : null;
+      if (r && !(r.c0 === r.c1 && r.r0 === r.r1) && !sheet.merges.some((m: MergeRange) => intersects(m, r))) sheet.merges.push(r);
+    }
+    sheet.validations = (Array.isArray(s.validations) ? s.validations : []).slice(0, 1000).map((v, i) => sanitizeValidation(v, `v${i + 1}`)).filter((v): v is NonNullable<typeof v> => !!v);
     wb.sheets.set(s.name, sheet);
   }
   if (!wb.sheets.size) wb.addSheet("Sheet1");

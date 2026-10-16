@@ -16,15 +16,18 @@
  * spill anchors exported as ECMA-376 array formulas (t="array" ref=…) with
  * cached child values, and array-formula child cells skipped on read so they
  * do not block the re-spill.
+ * TT17: borders (per-edge style+rgb), vertical alignment, <mergeCells>, <dataValidations> (list/whole/decimal/
+ * textLength/date/custom, operators, error styles, prompts, inverted showDropDown), frozen columns (xSplit).
  * Unsupported (loss-report items): charts, pivot tables, defined names,
  * conditional formatting, external links, data validation, drawings, macros,
- * 1904 date system, borders, theme/indexed colours (read as unset), rich text
+ * 1904 date system, theme/indexed colours (read as unset), rich text
  * runs, Excel 365 XLDAPR dynamic-array metadata (array formulas open in Excel
  * as legacy {=…} arrays with correct values). Not a claim of modern-suite parity.
  */
 import { posix } from "node:path";
 import { writeZip, readCentralDirectory, readEntryVerified } from "../server/zip";
-import { Sheet, Workbook, a1, type CellStyle } from "./engine";
+import { Sheet, Workbook, a1, type CellStyle, type CellBorder, type DataValidation } from "./engine";
+import { isBorderLine, parseRef, rangeRef, intersects, sanitizeValidation } from "./sheetlayout";
 import { colToLetters, lettersToCol, isError } from "./types";
 import { shiftFormula, addFuturePrefixes, stripFuturePrefixes } from "./sheetops";
 export { workbookToJson, workbookFromJson, type WorkbookJson } from "./workbook-json";
@@ -64,12 +67,15 @@ class StyleTable {
   fonts = ['<font><sz val="11"/><name val="Calibri"/><family val="2"/></font>'];
   fills = ['<fill><patternFill patternType="none"/></fill>', '<fill><patternFill patternType="gray125"/></fill>'];
   numFmts = new Map<string, number>();
+  borders = ["<border><left/><right/><top/><bottom/><diagonal/></border>"];
   xfs = ['<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'];
   private idx = new Map<string, number>();
   private intern(list: string[], xml: string) { let i = list.indexOf(xml); if (i < 0) { i = list.length; list.push(xml); } return i; }
   xf(style?: CellStyle): number {
     if (!style || !Object.keys(style).length) return 0;
-    const key = JSON.stringify(style, Object.keys(style).sort());
+    // Stable deep key (a JSON.stringify key-array replacer would also filter NESTED keys and drop border sides).
+    const stable = (v: unknown): string => v && typeof v === "object" ? `{${Object.keys(v).sort().map((k) => `${k}:${stable((v as Record<string, unknown>)[k])}`).join(",")}}` : JSON.stringify(v);
+    const key = stable(style);
     const hit = this.idx.get(key); if (hit !== undefined) return hit;
     const font = style.bold || style.italic || style.underline || style.color
       ? this.intern(this.fonts, `<font>${style.bold ? "<b/>" : ""}${style.italic ? "<i/>" : ""}${style.underline ? "<u/>" : ""}<sz val="11"/>${style.color ? `<color rgb="${argb(style.color)}"/>` : ""}<name val="Calibri"/><family val="2"/></font>`) : 0;
@@ -79,13 +85,14 @@ class StyleTable {
       numFmt = BUILTIN_BY_CODE.get(style.numFmt) ?? this.numFmts.get(style.numFmt) ?? 164 + this.numFmts.size;
       if (numFmt >= 164) this.numFmts.set(style.numFmt, numFmt);
     }
-    const align = style.align || style.wrap ? `<alignment${style.align ? ` horizontal="${style.align}"` : ""}${style.wrap ? ' wrapText="1"' : ""}/>` : "";
-    const xml = `<xf numFmtId="${numFmt}" fontId="${font}" fillId="${fill}" borderId="0" xfId="0"${numFmt ? ' applyNumberFormat="1"' : ""}${font ? ' applyFont="1"' : ""}${fill ? ' applyFill="1"' : ""}${align ? ' applyAlignment="1">' + align + "</xf>" : "/>"}`;
+    const align = style.align || style.wrap || style.valign ? `<alignment${style.align ? ` horizontal="${style.align}"` : ""}${style.valign ? ` vertical="${style.valign}"` : ""}${style.wrap ? ' wrapText="1"' : ""}/>` : "";
+    const bd = style.border && Object.keys(style.border).length ? this.intern(this.borders, `<border>${(["left", "right", "top", "bottom"] as const).map((k) => { const b = style.border![k]; return b ? `<${k} style="${b.style}"><color rgb="${argb(b.color ?? "#000000")}"/></${k}>` : `<${k}/>`; }).join("")}<diagonal/></border>`) : 0;
+    const xml = `<xf numFmtId="${numFmt}" fontId="${font}" fillId="${fill}" borderId="${bd}" xfId="0"${numFmt ? ' applyNumberFormat="1"' : ""}${font ? ' applyFont="1"' : ""}${fill ? ' applyFill="1"' : ""}${bd ? ' applyBorder="1"' : ""}${align ? ' applyAlignment="1">' + align + "</xf>" : "/>"}`;
     const i = this.xfs.length; this.xfs.push(xml); this.idx.set(key, i); return i;
   }
   toXml(): string {
     const nf = this.numFmts.size ? `<numFmts count="${this.numFmts.size}">${[...this.numFmts].map(([code, id]) => `<numFmt numFmtId="${id}" formatCode="${esc(code)}"/>`).join("")}</numFmts>` : "";
-    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${nf}<fonts count="${this.fonts.length}">${this.fonts.join("")}</fonts><fills count="${this.fills.length}">${this.fills.join("")}</fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${this.xfs.length}">${this.xfs.join("")}</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${nf}<fonts count="${this.fonts.length}">${this.fonts.join("")}</fonts><fills count="${this.fills.length}">${this.fills.join("")}</fills><borders count="${this.borders.length}">${this.borders.join("")}</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${this.xfs.length}">${this.xfs.join("")}</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
   }
 }
 /** Column width: Excel stores characters of the max digit width (7px for Calibri 11) incl. 5px padding. */
@@ -130,9 +137,22 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   const dim = maxRow < 0 ? "A1" : `A1:${colToLetters(maxCol)}${maxRow + 1}`;
   const widths = Object.entries(sheet.colWidths).map(([c, px]) => [Number(c), px] as const).filter(([c]) => c >= 0 && c <= 16383).sort((a, b) => a[0] - b[0]);
   const cols = widths.length ? `<cols>${widths.map(([c, px]) => `<col min="${c + 1}" max="${c + 1}" width="${pxToWidth(px)}" customWidth="1"/>`).join("")}</cols>` : "";
-  const fr = sheet.freezeRows;
-  const views = fr > 0 ? `<sheetViews><sheetView workbookViewId="0"><pane ySplit="${fr}" topLeftCell="A${fr + 1}" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft"/></sheetView></sheetViews>` : "";
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData></worksheet>`;
+  const fr = sheet.freezeRows, fc = sheet.freezeCols;
+  const pane = fr > 0 && fc > 0 ? "bottomRight" : fr > 0 ? "bottomLeft" : "topRight";
+  const views = fr > 0 || fc > 0 ? `<sheetViews><sheetView workbookViewId="0"><pane${fc ? ` xSplit="${fc}"` : ""}${fr ? ` ySplit="${fr}"` : ""} topLeftCell="${colToLetters(fc)}${fr + 1}" activePane="${pane}" state="frozen"/><selection pane="${pane}"/></sheetView></sheetViews>` : "";
+  // CT_Worksheet order: … sheetData, …, mergeCells, phoneticPr, conditionalFormatting, dataValidations, …
+  const merges = sheet.merges.length ? `<mergeCells count="${sheet.merges.length}">${sheet.merges.map((m) => `<mergeCell ref="${rangeRef(m)}"/>`).join("")}</mergeCells>` : "";
+  const dvs = sheet.validations.length ? `<dataValidations count="${sheet.validations.length}">${sheet.validations.map(dvXml).join("")}</dataValidations>` : "";
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${merges}${dvs}</worksheet>`;
+}
+
+/** ECMA-376 §18.3.1.32. NB showDropDown="1" HIDES the in-cell arrow. */
+function dvXml(v: DataValidation): string {
+  const at = [`type="${v.type}"`, v.operator && v.type !== "list" && v.type !== "custom" ? `operator="${v.operator}"` : "", v.allowBlank ? 'allowBlank="1"' : "",
+    v.type === "list" && !v.inCellDropdown ? 'showDropDown="1"' : "", v.prompt || v.promptTitle ? 'showInputMessage="1"' : "", v.showError ? 'showErrorMessage="1"' : "",
+    v.errorStyle !== "stop" ? `errorStyle="${v.errorStyle}"` : "", v.errorTitle ? `errorTitle="${esc(v.errorTitle)}"` : "", v.error ? `error="${esc(v.error)}"` : "",
+    v.promptTitle ? `promptTitle="${esc(v.promptTitle)}"` : "", v.prompt ? `prompt="${esc(v.prompt)}"` : "", `sqref="${esc(v.sqref)}"`].filter(Boolean).join(" ");
+  return `<dataValidation ${at}><formula1>${esc(v.formula1)}</formula1>${v.formula2 ? `<formula2>${esc(v.formula2)}</formula2>` : ""}</dataValidation>`;
 }
 
 /** Real .xlsx / SpreadsheetML writer, supporting all sheets in a Workbook. */
@@ -194,13 +214,24 @@ function readStyles(xml: string | null): (CellStyle | undefined)[] {
   const flag = (inner: string, tag: string) => { const m = new RegExp(`<${tag}(\\s[^>]*)?/?>`).exec(inner); return !!m && !/val="(0|false|none)"/.test(m[1] ?? ""); };
   const fonts = items(section("fonts"), "font").map(({ inner }) => ({ bold: flag(inner, "b"), italic: flag(inner, "i"), underline: flag(inner, "u"), color: rgb(inner, "color") }));
   const fills = items(section("fills"), "fill").map(({ inner }) => (/patternType="solid"/.test(inner) ? rgb(inner, "fgColor") : undefined));
+  const borders = items(section("borders"), "border").map(({ inner }) => {
+    const b: CellBorder = {};
+    for (const side of ["left", "right", "top", "bottom"] as const) {
+      const m = new RegExp(`<${side}\\b([^>]*?)(?:/>|>([\\s\\S]*?)</${side}>)`).exec(inner); if (!m) continue;
+      const style = xmlAttrs(m[1]).style; if (!isBorderLine(style)) continue; // none / unsupported styles (mediumDashed, slantDashDot…) dropped
+      const c = /<color\b[^>]*\brgb="([0-9A-Fa-f]{8})"/.exec(m[2] ?? "")?.[1];
+      b[side] = c ? { style, color: `#${c.slice(2).toLowerCase()}` } : { style };
+    }
+    return Object.keys(b).length ? b : undefined;
+  });
   return items(section("cellXfs"), "xf").map(({ attrs, inner }) => {
     const st: CellStyle = {};
     const f = fonts[Number(attrs.fontId ?? 0)];
     if (f && Number(attrs.fontId ?? 0) !== 0) { if (f.bold) st.bold = true; if (f.italic) st.italic = true; if (f.underline) st.underline = true; if (f.color && f.color !== "#000000") st.color = f.color; }
     const fill = fills[Number(attrs.fillId ?? 0)]; if (fill) st.fill = fill;
+    const border = borders[Number(attrs.borderId ?? 0)]; if (border) st.border = border;
     const nf = numFmts.get(Number(attrs.numFmtId ?? 0)); if (nf && nf !== "General") st.numFmt = nf;
-    const al = /<alignment\b([^>]*)\/?>/.exec(inner); if (al) { const a = xmlAttrs(al[1]); if (a.horizontal === "left" || a.horizontal === "center" || a.horizontal === "right") st.align = a.horizontal; if (a.wrapText === "1" || a.wrapText === "true") st.wrap = true; }
+    const al = /<alignment\b([^>]*)\/?>/.exec(inner); if (al) { const a = xmlAttrs(al[1]); if (a.horizontal === "left" || a.horizontal === "center" || a.horizontal === "right") st.align = a.horizontal; if (a.wrapText === "1" || a.wrapText === "true") st.wrap = true; if (a.vertical === "top" || a.vertical === "center" || a.vertical === "bottom") st.valign = a.vertical; }
     return Object.keys(st).length ? st : undefined;
   });
 }
@@ -251,7 +282,26 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
     for (let c = min; c <= max; c++) sheet.colWidths[c - 1] = Math.min(1200, Math.max(16, widthToPx(w)));
   }
   const pane = /<pane\b([^>]*)\/?>/.exec(xml);
-  if (pane) { const at = xmlAttrs(pane[1]); if ((at.state === "frozen" || at.state === "frozenSplit") && Number(at.ySplit) > 0) sheet.freezeRows = Math.min(50, Math.trunc(Number(at.ySplit))); }
+  if (pane) {
+    const at = xmlAttrs(pane[1]);
+    if (at.state === "frozen" || at.state === "frozenSplit") {
+      if (Number(at.ySplit) > 0) sheet.freezeRows = Math.min(50, Math.trunc(Number(at.ySplit)));
+      if (Number(at.xSplit) > 0) sheet.freezeCols = Math.min(26, Math.trunc(Number(at.xSplit)));
+    }
+  }
+  for (const m of xml.matchAll(/<mergeCell\b([^>]*)\/?>/g)) {
+    const r = parseRef(xmlAttrs(m[1]).ref ?? "");
+    if (r && !(r.c0 === r.c1 && r.r0 === r.r1) && !sheet.merges.some((x) => intersects(x, r)) && sheet.merges.length < 5000) sheet.merges.push(r);
+  }
+  let n = 0;
+  for (const m of xml.matchAll(/<dataValidation\b([^>]*?)(?:\/>|>([\s\S]*?)<\/dataValidation>)/g)) {
+    const at = xmlAttrs(m[1]); const inner = m[2] ?? "";
+    const f = (tag: string) => { const x = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`).exec(inner)?.[1]; return x === undefined ? undefined : dec(x); };
+    const v = sanitizeValidation({ id: `v${++n}`, sqref: at.sqref, type: at.type ?? "none", operator: at.operator ?? "between", formula1: f("formula1"), formula2: f("formula2"),
+      allowBlank: at.allowBlank === "1" || at.allowBlank === "true", errorStyle: at.errorStyle, showError: at.showErrorMessage === "1" || at.showErrorMessage === "true",
+      inCellDropdown: !(at.showDropDown === "1" || at.showDropDown === "true"), errorTitle: at.errorTitle, error: at.error, promptTitle: at.promptTitle, prompt: at.prompt }, `v${n}`);
+    if (v && sheet.validations.length < 1000) sheet.validations.push(v);
+  }
   return sheet;
 }
 

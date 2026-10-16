@@ -11,6 +11,11 @@ import {
   completionToken, completions, activeCall, SIGNATURES, hasValueIn,
   type WorkbookJson, type CellStyle, type Range, type Clip, type ChartKind, type CondKind, type Scalar,
 } from "@/lib/formula/client";
+import {
+  applyBorders, borderCss, edgeAt, expandToMerges, invalidCells, listFormula, listItems, mergeAcross, mergeAt, mergeCells, partialMergeConflict,
+  ruleAt, sanitizeValidation, sortConflict, stepCell, unmergeCells, validateEntry, VALIDATION_OPS, type BorderPreset,
+} from "@/lib/formula/sheetlayout";
+import type { BorderLine, DataValidation, ValidationOp, ValidationType } from "@/lib/formula/engine";
 
 const COLS = 52;          // A..AZ
 const ROWS = 1000;
@@ -53,7 +58,13 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [loaded, setLoaded] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState("");
-  const [panel, setPanel] = useState<null | "find" | "charts" | "cf">(null);
+  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv">(null);
+  const [borderLine, setBorderLine] = useState<BorderLine>("thin");
+  const [borderColor, setBorderColor] = useState("#e5e7eb");
+  const [dvForm, setDvForm] = useState<{ type: ValidationType; operator: ValidationOp; f1: string; f2: string; style: DataValidation["errorStyle"]; error: string; prompt: string; allowBlank: boolean; dropdown: boolean }>({ type: "list", operator: "between", f1: "Low,Medium,High", f2: "", style: "stop", error: "", prompt: "", allowBlank: true, dropdown: true });
+  const [dvAlert, setDvAlert] = useState<null | { title: string; message: string; style: DataValidation["errorStyle"]; sheet: string; col: number; row: number; text: string }>(null);
+  const [listOpen, setListOpen] = useState(false);
+  const [showInvalid, setShowInvalid] = useState(false);
   const [scroll, setScroll] = useState({ top: 0, h: 600 });
   const [findQ, setFindQ] = useState(""); const [replQ, setReplQ] = useState(""); const [matchCase, setMatchCase] = useState(false); const [findInfo, setFindInfo] = useState("");
   const [cf, setCf] = useState<{ kind: CondKind; a: string; b: string; fill: string; color: string }>({ kind: "gt", a: "10", b: "", fill: "#14532d", color: "#bbf7d0" });
@@ -67,7 +78,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [histN, setHistN] = useState({ undo: 0, redo: 0 });
   const [fillPreview, setFillPreview] = useState<Range | null>(null);
   const sheet = workbook.sheets.get(active) ?? workbook.sheet();
-  const selR = useMemo(() => norm({ c0: sel.a.col, r0: sel.a.row, c1: sel.f.col, r1: sel.f.row }), [sel]);
+  // Excel: a selection touching part of a merged area includes all of it.
+  const selR = useMemo(() => expandToMerges(sheet, norm({ c0: sel.a.col, r0: sel.a.row, c1: sel.f.col, r1: sel.f.row })), [sel, sheet, rev]); // eslint-disable-line react-hooks/exhaustive-deps
   const fnNames = useMemo(() => [...new Set([...Object.keys(FUNCTIONS), ...Object.keys(EXT_FUNCTIONS)])].sort(), []);
   const colW = useCallback((c: number) => sheet.colWidths[c] ?? DEFAULT_W, [sheet, rev]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -159,10 +171,29 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (editing !== null) {
       const { col, row } = editAt; const text = editing; const target = workbook.sheets.get(editSheet) ?? sheet;
       if (fillSelection && (selR.c0 !== selR.c1 || selR.r0 !== selR.r1)) mutate((_wb, s) => { for (let r = selR.r0; r <= selR.r1; r++) for (let c = selR.c0; c <= selR.c1; c++) s.setCell(c, r, shiftFormula(text, c - col, r - row)); });
-      else if ((target.get(col, row)?.input ?? "") !== text) mutate(() => target.setCell(col, row, text));
+      else if ((target.get(col, row)?.input ?? "") !== text) enter(editSheet, col, row, text);
     }
     setEditing(null);
-    if (move) moveTo({ col: clamp(editAt.col + move[0], COLS - 1), row: clamp(editAt.row + move[1], ROWS - 1) });
+    if (move) moveTo(stepCell(sheet, editAt, move[0], move[1], COLS - 1, ROWS - 1));
+  };
+  /** Typed entry with Excel data-validation semantics (Stop blocks; Warning/Information ask; showError=false never asks). */
+  const enter = (sheetName: string, col: number, row: number, text: string) => {
+    const target = workbook.sheets.get(sheetName); if (!target) return;
+    const rule = ruleAt(target, col, row);
+    if (!rule || !rule.showError) { mutate(() => target.setCell(col, row, text)); return; }
+    pushUndo();
+    const chk = validateEntry(workbook, sheetName, col, row, text);   // rolls back when invalid
+    setRev((r) => r + 1);
+    if (chk.ok) { setDirty(true); setDvAlert(null); return; }
+    undoRef.current.pop(); syncHist();
+    setDvAlert({ title: chk.title ?? "Invalid entry", message: chk.message ?? "", style: rule.errorStyle, sheet: sheetName, col, row, text });
+  };
+  const pickListValue = (col: number, row: number, value: string) => { setListOpen(false); enter(active, col, row, value); gridRef.current?.focus(); };
+  const resolveAlert = (keep: boolean, retry = false) => {
+    const a = dvAlert; if (!a) return; setDvAlert(null);
+    if (keep && a.style !== "stop") { mutate((wb) => wb.sheet(a.sheet).setCell(a.col, a.row, a.text)); setStatus(`kept ${a.text} in ${a1(a.col, a.row)} despite the ${a.style} rule`); }
+    else if (retry) { setActive(a.sheet); setSel({ a: { col: a.col, row: a.row }, f: { col: a.col, row: a.row } }); setEditAt({ col: a.col, row: a.row }); setEditSheet(a.sheet); setEditSrc("cell"); setEditing(a.text); }
+    gridRef.current?.focus();
   };
   const token = editing !== null ? completionToken(editing) : null;
   const acList = token ? completions(token, fnNames) : [];
@@ -186,7 +217,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (left < el.scrollLeft + ROWHDR_W) el.scrollLeft = left - ROWHDR_W;
     else if (left + colW(p.col) > el.scrollLeft + el.clientWidth) el.scrollLeft = left + colW(p.col) - el.clientWidth;
   };
-  const moveTo = (p: Pos, extend = false) => { setSel((s) => (extend ? { a: s.a, f: p } : { a: p, f: p })); requestAnimationFrame(() => ensureVisible(p)); };
+  const moveTo = (p: Pos, extend = false) => { setListOpen(false); setSel((s) => (extend ? { a: s.a, f: p } : { a: p, f: p })); requestAnimationFrame(() => ensureVisible(p)); };
   const has = hasValueIn(workbook, active);
 
   const gridKeys = (e: React.KeyboardEvent) => {
@@ -195,7 +226,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const arrows: Record<string, [number, number]> = { arrowup: [0, -1], arrowdown: [0, 1], arrowleft: [-1, 0], arrowright: [1, 0] };
     if (arrows[k]) {
       e.preventDefault(); const [dc, dr] = arrows[k];
-      const p = mod ? jump(has, sel.f.col, sel.f.row, dc, dr, COLS - 1, ROWS - 1) : { col: clamp(sel.f.col + dc, COLS - 1), row: clamp(sel.f.row + dr, ROWS - 1) };
+      const p = mod ? jump(has, sel.f.col, sel.f.row, dc, dr, COLS - 1, ROWS - 1) : stepCell(sheet, sel.f, dc, dr, COLS - 1, ROWS - 1);
       moveTo(p, e.shiftKey); return;
     }
     if (mod && k === "z") { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
@@ -208,8 +239,9 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (mod && k === "home") { e.preventDefault(); moveTo({ col: 0, row: 0 }); return; }
     if (k === "home") { e.preventDefault(); moveTo({ col: 0, row: sel.f.row }, e.shiftKey); return; }
     if (k === "pagedown" || k === "pageup") { e.preventDefault(); const n = Math.max(1, Math.floor((gridRef.current?.clientHeight ?? 400) / ROW_H) - 2); moveTo({ col: sel.f.col, row: clamp(sel.f.row + (k === "pagedown" ? n : -n), ROWS - 1) }, e.shiftKey); return; }
-    if (k === "enter") { e.preventDefault(); moveTo({ col: sel.f.col, row: clamp(sel.f.row + (e.shiftKey ? -1 : 1), ROWS - 1) }); return; }
-    if (k === "tab") { e.preventDefault(); moveTo({ col: clamp(sel.f.col + (e.shiftKey ? -1 : 1), COLS - 1), row: sel.f.row }); return; }
+    if (k === "enter") { e.preventDefault(); moveTo(stepCell(sheet, sel.f, 0, e.shiftKey ? -1 : 1, COLS - 1, ROWS - 1)); return; }
+    if (k === "tab") { e.preventDefault(); moveTo(stepCell(sheet, sel.f, e.shiftKey ? -1 : 1, 0, COLS - 1, ROWS - 1)); return; }
+    if (e.altKey && k === "arrowdown") { e.preventDefault(); if (ruleAt(sheet, sel.f.col, sel.f.row)?.type === "list") setListOpen(true); return; }
     if (k === "delete" || k === "backspace") { e.preventDefault(); mutate((_wb, s) => clearRange(s, selR)); return; }
     if (k === "f2") { e.preventDefault(); startEdit(sheet.get(sel.f.col, sel.f.row)?.input ?? ""); return; }
     if (e.key.length === 1 && !mod && !e.altKey) { e.preventDefault(); startEdit(e.key); }
@@ -230,6 +262,12 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     e.preventDefault();
     const text = e.clipboardData.getData("text/plain");
     const internal = clipRef.current && clipRef.current.tsv.replace(/\r\n/g, "\n") === text.replace(/\r\n/g, "\n").replace(/\n$/, "") ? clipRef.current : null;
+    {
+      const rows = internal ? internal.clip.inputs : parseTsv(text);
+      const h = Math.max(1, rows.length), w = Math.max(1, rows[0]?.length ?? 1);
+      const conflict = partialMergeConflict(sheet, { c0: selR.c0, r0: selR.r0, c1: Math.max(selR.c1, selR.c0 + w - 1), r1: Math.max(selR.r1, selR.r0 + h - 1) });
+      if (conflict) { shell.toast(conflict, "warn"); setStatus(conflict); return; }
+    }
     let out: Range = selR;
     mutate((wb, s) => {
       if (internal) {
@@ -258,12 +296,39 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const dataRange = (): Range => (selR.c0 === selR.c1 && selR.r0 === selR.r1 ? currentRegion(has, sel.f.col, sel.f.row, COLS - 1, ROWS - 1) : selR);
   const sort = (asc: boolean) => {
     const r = dataRange(); const header = looksLikeHeader(workbook, active, r);
+    const conflict = sortConflict(sheet, r); if (conflict) { shell.toast(conflict, "warn"); setStatus(conflict); return; }
     mutate((wb) => sortRange(wb, active, r, clamp(sel.f.col, r.c1, r.c0), asc, header));
     setStatus(`sorted ${rangeA1(r)} by ${colToLetters(clamp(sel.f.col, r.c1, r.c0))} ${asc ? "A→Z" : "Z→A"}${header ? " (header row kept)" : ""}`);
   };
   const structural = (axis: "row" | "col", insert: boolean) => {
     const at = axis === "row" ? selR.r0 : selR.c0; const n = axis === "row" ? selR.r1 - selR.r0 + 1 : selR.c1 - selR.c0 + 1;
     mutate((wb) => insertDelete(wb, active, axis, at, insert ? n : -n));
+  };
+  const doMerge = (mode: "center" | "across" | "merge" | "unmerge") => {
+    if (mode === "unmerge") { let n = 0; mutate((_wb, s) => { n = unmergeCells(s, selR); }); setStatus(n ? `unmerged ${n} area(s)` : "nothing to unmerge"); return; }
+    const filled = [...sheet.grid].filter(([k, c]) => { const [cc, rr] = k.split(",").map(Number); return c.input !== "" && cc >= selR.c0 && cc <= selR.c1 && rr >= selR.r0 && rr <= selR.r1; }).length;
+    if (mode !== "across" && filled > 1 && !confirm("Merging cells only keeps the upper-left value and discards other values.")) return;
+    let msg = "";
+    mutate((_wb, s) => {
+      if (mode === "across") { const r = mergeAcross(s, selR); msg = r.error ?? `merged ${r.merged} row(s)${r.discarded ? ` · ${r.discarded} value(s) discarded` : ""}`; }
+      else { const r = mergeCells(s, selR); msg = r.ok ? `merged ${rangeA1(selR)}${r.discarded ? ` · ${r.discarded} value(s) discarded` : ""}` : r.error; if (r.ok && mode === "center") s.setStyle(selR.c0, selR.r0, { align: "center" }); }
+    });
+    setStatus(msg); setSel({ a: { col: selR.c0, row: selR.r0 }, f: { col: selR.c0, row: selR.r0 } });
+  };
+  const doBorders = (preset: BorderPreset) => {
+    try { mutate((_wb, s) => applyBorders(s, selR, preset, { style: borderLine, color: borderColor })); setStatus(`borders: ${preset} on ${rangeA1(selR)}`); }
+    catch (e) { shell.toast((e as Error).message, "warn"); }
+  };
+  const addValidation = () => {
+    let formula1 = dvForm.f1.trim();
+    try {
+      if (dvForm.type === "list" && !/^=|^\$?[A-Z]{1,3}\$?\d/i.test(formula1)) formula1 = listFormula(formula1.split(","));
+    } catch (e) { shell.toast((e as Error).message, "warn"); return; }
+    const rule = sanitizeValidation({ id: nextId("dv", sheet.validations.map((v) => v.id)), sqref: rangeA1(selR), type: dvForm.type, operator: dvForm.operator, formula1, formula2: dvForm.f2,
+      allowBlank: dvForm.allowBlank, errorStyle: dvForm.style, showError: true, inCellDropdown: dvForm.dropdown, error: dvForm.error || undefined, prompt: dvForm.prompt || undefined, promptTitle: dvForm.prompt ? "Input" : undefined });
+    if (!rule) { shell.toast("That rule is incomplete (check the source / values).", "warn"); return; }
+    mutate((_wb, s) => { s.validations = [...s.validations.filter((v) => !(v.sqref === rule.sqref)), rule]; });
+    setStatus(`validation (${rule.type}) applied to ${rule.sqref}`);
   };
   const addChart = (kind: ChartKind) => {
     const r = dataRange();
@@ -288,7 +353,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const cellDown = (e: React.MouseEvent, p: Pos) => {
     if (e.button !== 0) return;
     if (editing !== null && editing.startsWith("=") && /[=(,+\-*/^&<>:;]$/.test(editing)) { e.preventDefault(); dragRef.current = { mode: "point", prefix: editing, start: p }; setEditing(editing + (active !== editSheet ? `${quoteSheet(active)}!` : "") + a1(p.col, p.row)); return; }
-    commit(null);
+    commit(null); setListOpen(false);
     if (e.shiftKey) setSel((s) => ({ a: s.a, f: p })); else setSel({ a: p, f: p });
     dragRef.current = { mode: "select" }; gridRef.current?.focus();
   };
@@ -329,19 +394,39 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   }, [sheet, rev]); // eslint-disable-line react-hooks/exhaustive-deps
   const stats = useMemo(() => selectionStats(workbook, active, selR), [workbook, active, selR, rev]); // eslint-disable-line react-hooks/exhaustive-deps
   const charts = workbook.charts.filter((c) => c.sheet === active);
+  const invalid = useMemo(() => (showInvalid ? new Set(invalidCells(workbook, active).map((p) => `${p.col},${p.row}`)) : null), [showInvalid, workbook, active, rev]); // eslint-disable-line react-hooks/exhaustive-deps
+  const curRule = ruleAt(sheet, sel.f.col, sel.f.row);
+  const fc = Math.min(sheet.freezeCols, 1);
+  // List menu lives in grid space: a cell has overflow:hidden, which clipped it (found by visual inspection, TT17).
+  const listMenu = (() => {
+    if (!curRule || curRule.type !== "list" || !listOpen || editing !== null) return null;
+    const m = mergeAt(sheet, sel.f.col, sel.f.row); const col = m ? m.c0 : sel.f.col, row = m ? m.r0 : sel.f.row, below = m ? m.r1 : sel.f.row;
+    let left = ROWHDR_W; for (let c = 0; c < col; c++) left += colW(c);
+    return { col, row, left, top: HEAD_H + (below + 1) * ROW_H, width: Math.max(colW(col), 120), items: listItems(workbook, active, curRule), cur: String(workbook.valueAt(active, col, row) ?? "") };
+  })();
   const totalW = useMemo(() => { let w = ROWHDR_W; for (let c = 0; c < COLS; c++) w += colW(c); return w; }, [colW]);
   const selInput = sheet.get(sel.f.col, sel.f.row)?.input ?? "";
   const cur = styleOf(sel.f);
 
   if (!loaded) return <div style={{ padding: 16, fontSize: 12 }}>Loading…</div>;
 
-  const renderCell = (col: number, row: number) => {
+  const renderCell = (col0: number, row0: number, segStart: number, segEnd: number) => {
+    // Merged area: render once, at its top-left column and the first row of it visible in this segment.
+    const m = mergeAt(sheet, col0, row0);
+    if (m && (col0 !== m.c0 || row0 !== Math.max(m.r0, segStart))) return null;
+    const col = m ? m.c0 : col0, row = m ? m.r0 : row0;
+    const span = m ? { colSpan: m.c1 - m.c0 + 1, rowSpan: Math.min(m.r1, segEnd) - row0 + 1 } : {};
     const cell = sheet.get(col, row); const st = cell?.style ?? {};
     const v: Scalar | undefined = workbook.valueAt(active, col, row);
     const fmt = formatValue(v, st.numFmt);
     const over = cfMap.get(`${col},${row}`);
     const inSel = col >= selR.c0 && col <= selR.c1 && row >= selR.r0 && row <= selR.r1;
-    const isCur = sel.f.col === col && sel.f.row === row;
+    const isCur = m ? sel.f.col >= m.c0 && sel.f.col <= m.c1 && sel.f.row >= m.r0 && sel.f.row <= m.r1 : sel.f.col === col && sel.f.row === row;
+    const rEdge = edgeAt(sheet, m ? m.c1 : col, row, "right"), bEdge = edgeAt(sheet, col, m ? m.r1 : row, "bottom");
+    const tEdge = row === 0 ? edgeAt(sheet, col, row, "top") : undefined, lEdge = col === 0 ? edgeAt(sheet, col, row, "left") : undefined;
+    const rule = isCur ? curRule : undefined;
+    const bad = invalid?.has(`${col},${row}`);
+    const stickyCol = fc > 0 && col === 0;
     const inFill = fillPreview && col >= fillPreview.c0 && col <= fillPreview.c1 && row >= fillPreview.r0 && row <= fillPreview.r1;
     const sp = spills.find((r) => col >= r.c0 && col <= r.c1 && row >= r.r0 && row <= r.r1);
     const edge = "1px dashed #60a5fa", base = "1px solid var(--fs-border)";
@@ -350,14 +435,15 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const editingHere = editing !== null && editSrc === "cell" && editAt.col === col && editAt.row === row && editSheet === active;
     const isFillCorner = !editing && col === selR.c1 && row === selR.r1;
     return (
-      <td key={col} data-cell={a1(col, row)} onMouseDown={(e) => cellDown(e, { col, row })} onMouseEnter={() => cellEnter({ col, row })}
+      <td key={col0} data-cell={a1(col, row)} {...span} data-merge={m ? `${a1(m.c0, m.r0)}:${a1(m.c1, m.r1)}` : undefined} onMouseDown={(e) => cellDown(e, { col, row })} onMouseEnter={() => cellEnter({ col, row })}
         onDoubleClick={() => startEdit(cell?.input ?? "")} title={cell?.error ?? (sp && !(sp.c0 === col && sp.r0 === row) ? `spilled from ${a1(sp.c0, sp.r0)}` : undefined)}
         style={{
-          position: "relative", height: ROW_H, padding: "0 5px", overflow: editingHere ? "visible" : "hidden", textOverflow: "ellipsis", whiteSpace: st.wrap ? "normal" : "nowrap", cursor: "cell",
+          position: stickyCol ? "sticky" : "relative", left: stickyCol ? ROWHDR_W : undefined, zIndex: stickyCol ? 1 : undefined, verticalAlign: m ? (st.valign === "top" ? "top" : st.valign === "center" ? "middle" : "bottom") : undefined,
+          height: ROW_H, padding: "0 5px", overflow: editingHere ? "visible" : "hidden", textOverflow: "ellipsis", whiteSpace: st.wrap ? "normal" : "nowrap", cursor: "cell",
           borderTop: sp && row === sp.r0 ? edge : base, borderBottom: sp && row === sp.r1 ? edge : base, borderLeft: sp && col === sp.c0 ? edge : base, borderRight: sp && col === sp.c1 ? edge : base,
           fontWeight: st.bold || over?.bold ? 700 : undefined, fontStyle: st.italic ? "italic" : undefined, textDecoration: st.underline ? "underline" : undefined, textAlign: align,
           color: err ? "#ff9b9b" : fmt.color ?? over?.color ?? st.color ?? (cell?.formula ? "#bcd4ff" : "var(--fs-text)"),
-          background: inFill ? "rgba(96,165,250,.18)" : inSel && !isCur ? `linear-gradient(rgba(91,140,255,.18),rgba(91,140,255,.18)),${over?.fill ?? st.fill ?? "transparent"}` : over?.fill ?? st.fill ?? "transparent",
+          background: inFill ? "rgba(96,165,250,.18)" : inSel && !isCur ? `linear-gradient(rgba(91,140,255,.18),rgba(91,140,255,.18)),${over?.fill ?? st.fill ?? (stickyCol ? "var(--fs-bg, #0b1020)" : "transparent")}` : over?.fill ?? st.fill ?? (stickyCol ? "var(--fs-bg, #0b1020)" : "transparent"),
           outline: isCur ? "2px solid var(--fs-accent)" : undefined, outlineOffset: -2,
         }}>
         {editingHere ? (
@@ -367,6 +453,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
             {renderAssist()}
           </>
         ) : fmt.text}
+        {rEdge || bEdge || tEdge || lEdge ? <div aria-hidden data-border={[tEdge && "t", rEdge && "r", bEdge && "b", lEdge && "l"].filter(Boolean).join("")}
+          style={{ position: "absolute", top: tEdge ? 0 : -1, left: lEdge ? 0 : -1, right: -1, bottom: -1, borderRight: borderCss(rEdge), borderBottom: borderCss(bEdge), borderTop: borderCss(tEdge), borderLeft: borderCss(lEdge), pointerEvents: "none", zIndex: 2 }} /> : null}
+        {bad ? <div aria-hidden data-invalid="1" style={{ position: "absolute", inset: "1px 2px", border: "2px solid #ef4444", borderRadius: "50%", pointerEvents: "none", zIndex: 2 }} /> : null}
+        {rule && rule.type === "list" && rule.inCellDropdown && !editingHere ? (
+          <button type="button" aria-label="Show list" data-testid="list-arrow" onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setListOpen((o) => !o); }}
+            style={{ position: "absolute", right: 1, top: 1, width: 16, height: ROW_H - 3, padding: 0, border: "1px solid var(--fs-border)", borderRadius: 3, background: "var(--fs-bg-2, #131a2b)", color: "inherit", cursor: "pointer", zIndex: 4 }}>
+            <svg width="8" height="6" viewBox="0 0 8 6" style={{ display: "block", margin: "auto" }}><path d="M0 0h8L4 6z" fill="currentColor" /></svg>
+          </button>) : null}
         {isFillCorner ? <div data-testid="fill-handle" onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); dragRef.current = { mode: "fill", target: null }; }}
           style={{ position: "absolute", right: -1, bottom: -1, width: 7, height: 7, background: "var(--fs-accent)", border: "1px solid #fff", cursor: "crosshair", zIndex: 3 }} /> : null}
       </td>
@@ -386,11 +480,11 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     </div>
   ) : null;
 
-  const row = (r: number, sticky = false) => (
+  const row = (r: number, sticky = false, segStart = r, segEnd = r) => (
     <tr key={r} style={sticky ? { position: "sticky", top: HEAD_H, zIndex: 2, background: "var(--fs-bg, #0b1020)" } : undefined}>
       <td className="fs-dim" onMouseDown={() => { commit(null); setSel({ a: { col: 0, row: r }, f: { col: COLS - 1, row: r } }); gridRef.current?.focus(); }}
         style={{ position: "sticky", left: 0, zIndex: 1, textAlign: "center", fontSize: 10.5, background: r >= selR.r0 && r <= selR.r1 ? "rgba(91,140,255,.22)" : "var(--fs-bg-2, #131a2b)", borderRight: "1px solid var(--fs-border)", borderBottom: sticky ? "2px solid #475569" : "1px solid var(--fs-border)", cursor: "e-resize" }}>{r + 1}</td>
-      {Array.from({ length: COLS }, (_, c) => renderCell(c, r))}
+      {Array.from({ length: COLS }, (_, c) => renderCell(c, r, segStart, segEnd))}
     </tr>
   );
 
@@ -424,15 +518,34 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         </select>
         <TB label="Clear fmt" onClick={() => applyStyle(null)} title={"Clear formatting"} />
         <span style={{ width: 6 }} />
+        <select className="fs-input" aria-label="Merge" value="" style={{ width: 92, fontSize: 11 }} onChange={(e) => { const v = e.target.value as "center" | "across" | "merge" | "unmerge"; if (v) doMerge(v); }}>
+          <option value="">Merge…</option><option value="center">Merge &amp; Center</option><option value="across">Merge Across</option><option value="merge">Merge Cells</option><option value="unmerge">Unmerge Cells</option>
+        </select>
+        <select className="fs-input" aria-label="Borders" value="" style={{ width: 96, fontSize: 11 }} onChange={(e) => { const v = e.target.value as BorderPreset; if (v) doBorders(v); }}>
+          <option value="">Borders…</option><option value="all">All Borders</option><option value="outside">Outside Borders</option><option value="thickOutside">Thick Outside Borders</option>
+          <option value="inside">Inside Borders</option><option value="top">Top Border</option><option value="bottom">Bottom Border</option><option value="bottomDouble">Bottom Double Border</option>
+          <option value="left">Left Border</option><option value="right">Right Border</option><option value="none">No Border</option>
+        </select>
+        <select className="fs-input" aria-label="Border line style" value={borderLine} style={{ width: 70, fontSize: 11 }} onChange={(e) => setBorderLine(e.target.value as BorderLine)}>
+          {(["thin", "medium", "thick", "dashed", "dotted", "double", "hair"] as const).map((l) => <option key={l} value={l}>{l}</option>)}
+        </select>
+        <input aria-label="Border colour" title="Border colour" type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} style={{ width: 22, height: 20, border: 0, background: "none" }} />
+        <select className="fs-input" aria-label="Vertical alignment" value={cur.valign ?? ""} style={{ width: 70, fontSize: 11 }} onChange={(e) => applyStyle({ valign: (e.target.value || undefined) as CellStyle["valign"] })}>
+          <option value="">V: bottom</option><option value="top">V: top</option><option value="center">V: middle</option><option value="bottom">V: bottom*</option>
+        </select>
+        <span style={{ width: 6 }} />
         <TB label="Sort A-Z" onClick={() => sort(true)} title={"Sort ascending by the active column"} /><TB label="Sort Z-A" onClick={() => sort(false)} title={"Sort descending by the active column"} />
         <TB label="+Row" onClick={() => structural("row", true)} title={"Insert rows above selection"} /><TB label="-Row" onClick={() => structural("row", false)} title={"Delete selected rows"} />
         <TB label="+Col" onClick={() => structural("col", true)} title={"Insert columns left of selection"} /><TB label="-Col" onClick={() => structural("col", false)} title={"Delete selected columns"} />
         <TB label="Freeze" onClick={() => mutate((_wb, s) => { s.freezeRows = s.freezeRows ? 0 : 1; })} active={sheet.freezeRows > 0} title={"Freeze top row"} />
+        <TB label="Freeze col" onClick={() => mutate((_wb, s) => { s.freezeCols = s.freezeCols ? 0 : 1; })} active={sheet.freezeCols > 0} title={"Freeze first column"} />
         <span style={{ width: 6 }} />
         <TB label="Chart" onClick={() => addChart("bar")} title={"Insert a chart from the selection (or current region)"} />
         <TB label={`Charts${charts.length ? ` (${charts.length})` : ""}`} onClick={() => setPanel(panel === "charts" ? null : "charts")} active={panel === "charts"} title="Show charts" />
         <TB label="Cond. format" onClick={() => setPanel(panel === "cf" ? null : "cf")} active={panel === "cf"} title={"Conditional formatting rules"} />
         <TB label="Find" onClick={() => setPanel(panel === "find" ? null : "find")} active={panel === "find"} title={"Find & replace (Ctrl+F)"} />
+        <TB label={`Validation${sheet.validations.length ? ` (${sheet.validations.length})` : ""}`} onClick={() => setPanel(panel === "dv" ? null : "dv")} active={panel === "dv"} title={"Data validation"} />
+        <TB label="Circle invalid" onClick={() => setShowInvalid((x) => !x)} active={showInvalid} title={"Circle invalid data"} />
       </div>
       <div className="fs-row" style={{ gap: 4, padding: "4px 6px", borderBottom: "1px solid var(--fs-border)", overflowX: "auto" }}>
         {[...workbook.sheets.keys()].map((name) => (
@@ -453,6 +566,50 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           {editing !== null && editSrc === "bar" ? renderAssist() : null}
         </div>
       </div>
+      {dvAlert ? (
+        <div role="alertdialog" aria-label={dvAlert.title} data-testid="dv-alert" data-style={dvAlert.style} className="fs-row" style={{ gap: 8, padding: "5px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: 12, alignItems: "center",
+          background: dvAlert.style === "stop" ? "rgba(239,68,68,.16)" : dvAlert.style === "warning" ? "rgba(234,179,8,.16)" : "rgba(59,130,246,.16)" }}>
+          <b>{dvAlert.title}</b><span>{dvAlert.message}</span><span className="fs-dim fs-mono">({dvAlert.text} → {a1(dvAlert.col, dvAlert.row)})</span>
+          <span style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
+            {dvAlert.style === "stop" ? <><Btn variant="primary" onClick={() => resolveAlert(false, true)}>Retry</Btn><Btn variant="ghost" onClick={() => resolveAlert(false)}>Cancel</Btn></>
+              : dvAlert.style === "warning" ? <><span>Continue?</span><Btn variant="primary" onClick={() => resolveAlert(true)}>Yes</Btn><Btn variant="ghost" onClick={() => resolveAlert(false, true)}>No</Btn><Btn variant="ghost" onClick={() => resolveAlert(false)}>Cancel</Btn></>
+                : <><Btn variant="primary" onClick={() => resolveAlert(true)}>OK</Btn><Btn variant="ghost" onClick={() => resolveAlert(false)}>Cancel</Btn></>}
+          </span>
+        </div>
+      ) : null}
+      {panel === "dv" ? (
+        <div data-testid="dv-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: 11.5 }}>
+          <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+            <span>Allow in <b className="fs-mono">{rangeA1(selR)}</b></span>
+            <select className="fs-input" aria-label="Validation type" value={dvForm.type} onChange={(e) => setDvForm({ ...dvForm, type: e.target.value as ValidationType })} style={{ width: 110 }}>
+              <option value="list">List</option><option value="whole">Whole number</option><option value="decimal">Decimal</option><option value="date">Date (serial)</option><option value="textLength">Text length</option><option value="custom">Custom formula</option>
+            </select>
+            {dvForm.type !== "list" && dvForm.type !== "custom" ? (
+              <select className="fs-input" aria-label="Validation operator" value={dvForm.operator} onChange={(e) => setDvForm({ ...dvForm, operator: e.target.value as ValidationOp })} style={{ width: 130 }}>
+                {VALIDATION_OPS.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>) : null}
+            <input className="fs-input" aria-label={dvForm.type === "list" ? "List source" : dvForm.type === "custom" ? "Formula" : "Minimum or value"} value={dvForm.f1} onChange={(e) => setDvForm({ ...dvForm, f1: e.target.value })} style={{ width: 170 }}
+              placeholder={dvForm.type === "list" ? "a,b,c or $F$1:$F$9" : dvForm.type === "custom" ? "MOD(A1,2)=0" : "value / =A1"} />
+            {dvForm.type !== "list" && dvForm.type !== "custom" && (dvForm.operator === "between" || dvForm.operator === "notBetween") ? <input className="fs-input" aria-label="Maximum" value={dvForm.f2} onChange={(e) => setDvForm({ ...dvForm, f2: e.target.value })} style={{ width: 80 }} /> : null}
+            <select className="fs-input" aria-label="Error style" value={dvForm.style} onChange={(e) => setDvForm({ ...dvForm, style: e.target.value as DataValidation["errorStyle"] })} style={{ width: 100 }}>
+              <option value="stop">Stop</option><option value="warning">Warning</option><option value="information">Information</option>
+            </select>
+            <input className="fs-input" aria-label="Error message" placeholder="error message" value={dvForm.error} onChange={(e) => setDvForm({ ...dvForm, error: e.target.value.slice(0, 255) })} style={{ width: 150 }} />
+            <input className="fs-input" aria-label="Input message" placeholder="input message" value={dvForm.prompt} onChange={(e) => setDvForm({ ...dvForm, prompt: e.target.value.slice(0, 255) })} style={{ width: 130 }} />
+            <label><input type="checkbox" checked={dvForm.allowBlank} onChange={(e) => setDvForm({ ...dvForm, allowBlank: e.target.checked })} /> ignore blank</label>
+            {dvForm.type === "list" ? <label><input type="checkbox" checked={dvForm.dropdown} onChange={(e) => setDvForm({ ...dvForm, dropdown: e.target.checked })} /> in-cell dropdown</label> : null}
+            <Btn variant="primary" onClick={addValidation}>Apply rule</Btn>
+            <Btn variant="ghost" onClick={() => mutate((_wb, s) => { s.validations = s.validations.filter((v) => !v.sqref.split(" ").some((p) => { const r = parseRange(p); return r && r.c0 <= selR.c1 && selR.c0 <= r.c1 && r.r0 <= selR.r1 && selR.r0 <= r.r1; })); })}>Clear rules here</Btn>
+          </div>
+          {sheet.validations.map((v) => (
+            <div key={v.id} className="fs-row" data-dv={v.id} style={{ gap: 6, marginTop: 3 }}>
+              <span className="fs-mono">{v.sqref}</span><span>{v.type}{v.operator && v.type !== "list" ? ` ${v.operator}` : ""} {v.formula1}{v.formula2 ? ` … ${v.formula2}` : ""}</span><span className="fs-dim">{v.errorStyle}{v.showError ? "" : " (no alert)"}</span>
+              <button className="fs-btn" data-variant="ghost" onClick={() => mutate((_wb, s) => { s.validations = s.validations.filter((x) => x.id !== v.id); })}>remove</button>
+            </div>
+          ))}
+          <div className="fs-dim" style={{ fontSize: 10.5, marginTop: 3 }}>As in Excel: rules check typed entries only (paste replaces cells without checking; use Circle invalid to audit). Only Stop blocks. Typed lists are limited to 255 characters.</div>
+        </div>
+      ) : null}
       {panel === "find" ? (
         <div className="fs-row" data-testid="find-panel" style={{ gap: 6, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: 11.5, flexWrap: "wrap" }}>
           <input className="fs-input" aria-label="Find" placeholder="Find" value={findQ} onChange={(e) => setFindQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") findNext(); }} style={{ width: 160 }} />
@@ -495,21 +652,35 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
               <th onMouseDown={() => setSel({ a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } })} style={{ position: "sticky", left: 0, zIndex: 4, height: HEAD_H, background: "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)" }} title="Select all" />
               {Array.from({ length: COLS }, (_, c) => (
                 <th key={c} onMouseDown={(e) => { if ((e.target as HTMLElement).dataset.resize) return; commit(null); setSel(e.shiftKey ? { a: { col: sel.a.col, row: 0 }, f: { col: c, row: ROWS - 1 } } : { a: { col: c, row: 0 }, f: { col: c, row: ROWS - 1 } }); gridRef.current?.focus(); }}
-                  style={{ position: "relative", height: HEAD_H, fontWeight: 500, fontSize: 11, background: c >= selR.c0 && c <= selR.c1 ? "rgba(91,140,255,.22)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
+                  style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, height: HEAD_H, fontWeight: 500, fontSize: 11, background: c >= selR.c0 && c <= selR.c1 ? "rgba(91,140,255,.22)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
                   {colToLetters(c)}
                   <div data-resize="1" data-testid={`resize-${colToLetters(c)}`} onMouseDown={(e) => { e.stopPropagation(); pushUndo(); dragRef.current = { mode: "resize", col: c, x: e.clientX, w: colW(c) }; }}
                     onDoubleClick={() => mutate((_wb, s) => { delete s.colWidths[c]; })} style={{ position: "absolute", right: -3, top: 0, width: 6, height: "100%", cursor: "col-resize", zIndex: 2 }} />
                 </th>
               ))}
             </tr>
-            {frozen ? row(0, true) : null}
+            {frozen ? row(0, true, 0, 0) : null}
           </thead>
           <tbody>
             <tr style={{ height: (first - frozen) * ROW_H }} />
-            {Array.from({ length: last - first + 1 }, (_, i) => row(first + i))}
+            {Array.from({ length: last - first + 1 }, (_, i) => row(first + i, false, first, last))}
             <tr style={{ height: (ROWS - 1 - last) * ROW_H }} />
           </tbody>
         </table>
+        {listMenu ? (
+          <div role="listbox" aria-label="List values" data-testid="list-menu" onMouseDown={(e) => e.stopPropagation()}
+            style={{ position: "absolute", top: listMenu.top, left: listMenu.left, minWidth: listMenu.width, maxHeight: 180, overflowY: "auto", zIndex: 30, background: "var(--fs-panel-solid, #111827)", border: "1px solid var(--fs-border)", borderRadius: 4, padding: 2, fontSize: 11.5, boxShadow: "0 6px 20px rgba(0,0,0,.4)" }}>
+            {listMenu.items.map((it) => <div key={it} role="option" aria-selected={listMenu.cur === it} onMouseDown={(e) => { e.preventDefault(); pickListValue(listMenu.col, listMenu.row, it); }}
+              style={{ padding: "2px 6px", cursor: "pointer", borderRadius: 3, background: listMenu.cur === it ? "rgba(91,140,255,.25)" : undefined }} className="fs-list-item">{it}</div>)}
+          </div>
+        ) : null}
+        {curRule && (curRule.prompt || curRule.promptTitle) && !listOpen && editing === null ? (() => {
+          // Input message (Excel shows it beside the active cell); positioned in grid space, outside the cell's text.
+          let left = ROWHDR_W + 8; for (let c = 0; c < sel.f.col; c++) left += colW(c);
+          return <div data-testid="input-prompt" role="note" className="fs-card" style={{ position: "absolute", top: HEAD_H + (sel.f.row + 1) * ROW_H + 2, left, zIndex: 25, padding: "4px 7px", fontSize: 11, maxWidth: 220, background: "#fef9c3", color: "#1f2937", border: "1px solid #a16207", borderRadius: 3, pointerEvents: "none" }}>
+            {curRule.promptTitle ? <b style={{ display: "block" }}>{curRule.promptTitle}</b> : null}{curRule.prompt}
+          </div>;
+        })() : null}
       </div>
       {panel === "charts" ? (
         <div data-testid="charts-panel" className="fs-scroll" style={{ display: "flex", gap: 10, padding: 8, borderTop: "1px solid var(--fs-border)", overflowX: "auto", height: 270, flexShrink: 0 }}>

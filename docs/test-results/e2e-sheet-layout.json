@@ -1,0 +1,65 @@
+{
+  "suite": "e2e-sheet-layout",
+  "at": "2026-10-16T04:46:39.307Z",
+  "results": [
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells",
+      "covers": {
+        "FF-33": "full"
+      },
+      "pass": true,
+      "ms": 3888
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears",
+      "covers": {
+        "FF-34": "full"
+      },
+      "pass": true,
+      "ms": 2407
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it",
+      "covers": {
+        "FF-35": "full"
+      },
+      "pass": true,
+      "ms": 3298
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
+      "covers": {
+        "FF-33": "full",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 2665
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+      "covers": {
+        "FF-33": "full",
+        "FF-34": "full",
+        "FF-35": "full",
+        "FF-20": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 4034
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "no page errors during the layout session",
+      "covers": {
+        "FF-33": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

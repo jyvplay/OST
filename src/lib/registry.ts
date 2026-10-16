@@ -48,7 +48,7 @@ export const MODULES: ModuleDef[] = [
   { id: "vector", title: "Vector", icon: "✒", group: "Create", summary: "Vector studio: pen/node/shape tools, transforms, gradients, groups; sanitised SVG import, SVG/PNG export", rect: { w: 1040, h: 680 }, implements: ["FF-25", "FF-04", "FF-32"] },
   { id: "writer", title: "Writer", icon: "📄", group: "Create", summary: "Structured Word document editor; DOCX import/export at grade C", rect: { w: 820, h: 620 }, implements: ["FF-22", "PR-11"] },
   { id: "slides", title: "Slides", icon: "🖼", group: "Create", summary: "Slide deck editor; PPTX import/export at grade C", rect: { w: 900, h: 640 }, implements: ["FF-23", "PR-11"] },
-  { id: "sheet", title: "Spreadsheet", icon: "📊", group: "Create", summary: "Formula engine (2 oracles), dynamic arrays, formatting, charts", rect: { w: 1000, h: 640 }, implements: ["FF-19", "FF-20", "FF-21", "FF-26", "FF-27", "FF-28", "FF-29", "PR-11"] },
+  { id: "sheet", title: "Spreadsheet", icon: "📊", group: "Create", summary: "Formula engine (2 oracles), dynamic arrays, formatting, merges, borders, validation, charts", rect: { w: 1000, h: 640 }, implements: ["FF-19", "FF-20", "FF-21", "FF-26", "FF-27", "FF-28", "FF-29", "FF-33", "FF-34", "FF-35", "PR-11"] },
   { id: "peek", title: "Peek", icon: "👁", group: "Core", summary: "Sandboxed previewer with watchdog and grades", rect: { w: 760, h: 560 }, implements: ["FM-04", "FF-01", "FF-11"] },
 ];
 

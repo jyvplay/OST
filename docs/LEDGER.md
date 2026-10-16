@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-16T04:21:57.246Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-15 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-16T04:50:50.546Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+17 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **269** |
-| Fully built | 182 |
+| **Features in register** | **272** |
+| Fully built | 185 |
 | Partially built (partial 47 + probe 18) | 65 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **65** |
+| **Fully tested** (≥1 passing test tagged `full`) | **68** |
 | **Partially tested** (only `partial` tags) | **73** |
 | Untested | 131 |
-| Automated tests executed / passed | 228 / 228 |
+| Automated tests executed / passed | 242 / 242 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 55 | 59 | 68 |
+| fully built | 58 | 59 | 68 |
 | partially built | 4 | 12 | 49 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,21 +33,23 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| browser-session | 5 | 5 | 0 | 2026-10-16T04:18:05.281Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-16T04:18:45.572Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-16T03:58:09.347Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-16T03:58:29.829Z |
-| e2e-vector | 11 | 11 | 0 | 2026-10-16T04:14:45.349Z |
-| e2e | 54 | 54 | 0 | 2026-10-16T04:21:51.815Z |
-| image | 12 | 12 | 0 | 2026-10-16T04:18:01.268Z |
-| integration | 24 | 24 | 0 | 2026-10-16T04:18:07.142Z |
-| office | 35 | 35 | 0 | 2026-10-16T04:17:59.997Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-16T04:18:04.234Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-16T04:18:05.127Z |
-| oracle-xlsx | 3 | 3 | 0 | 2026-10-16T04:18:00.906Z |
-| oracle | 5 | 5 | 0 | 2026-10-16T04:17:59.601Z |
-| unit | 22 | 22 | 0 | 2026-10-16T04:17:59.239Z |
-| vector | 18 | 18 | 0 | 2026-10-16T04:18:04.461Z |
+| browser-session | 5 | 5 | 0 | 2026-10-16T04:47:22.777Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-16T04:48:54.510Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-16T04:47:57.551Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-16T04:47:02.034Z |
+| e2e-sheet-layout | 6 | 6 | 0 | 2026-10-16T04:46:39.307Z |
+| e2e-vector | 11 | 11 | 0 | 2026-10-16T04:48:15.339Z |
+| e2e | 54 | 54 | 0 | 2026-10-16T04:50:27.425Z |
+| image | 12 | 12 | 0 | 2026-10-16T04:47:18.700Z |
+| integration | 24 | 24 | 0 | 2026-10-16T04:46:21.632Z |
+| office | 35 | 35 | 0 | 2026-10-16T04:46:16.635Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-16T04:47:21.662Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-16T04:47:22.597Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T04:46:19.114Z |
+| oracle | 5 | 5 | 0 | 2026-10-16T04:46:17.388Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-16T04:46:17.760Z |
+| unit | 22 | 22 | 0 | 2026-10-16T04:46:16.200Z |
+| vector | 18 | 18 | 0 | 2026-10-16T04:47:21.924Z |
 
 ## Rows touched by failing tests
 
@@ -67,7 +69,7 @@ None.
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
 | PR | 32 | 21 | 10 | 1 | 13 | 6 | 13 |
-| FF | 29 | 19 | 10 | 0 | 20 | 4 | 5 |
+| FF | 32 | 22 | 10 | 0 | 23 | 4 | 5 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 9 | 7 | 1 | 1 | 1 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 2 | 4 | 0 |
@@ -228,8 +230,8 @@ None.
 | FF-14 | built | full | unit: loss report itemises drops; registry grades |
 | FF-15 | built | partial | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists |
 | FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
-| FF-20 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e: mount: sheet; office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe (+2) |
-| FF-21 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e: mount: sheet; oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block |
+| FF-20 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+4) |
+| FF-21 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+2) |
 | FF-22 | partial | partial | e2e: mount: writer |
 | FF-23 | partial | partial | e2e: mount: slides |
 | FF-24 | built | full | e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection; e2e-image: Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes; e2e-image: classic Quick edit mode is still available (additive merge) (+3) |
@@ -260,11 +262,14 @@ None.
 | BK-06 | built | partial | unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
 | FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: SEQUENCE(2,3) spills all six cells with correct values (+13) |
 | FF-27 | built | full | e2e: mount: sheet; office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+6) |
-| FF-28 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates; e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region (+27) |
+| FF-28 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates; e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region (+28) |
 | FF-29 | partial | full | e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source; e2e: mount: sheet; office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data (+2) |
 | FF-30 | built | full | e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops; e2e-image: new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo; e2e-image: layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge (+23) |
 | FF-31 | built | full | e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels; e2e: mount: imageedit; image: PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size (+9) |
 | FF-32 | built | full | e2e-vector: ORACLE Chromium SVG: getBBox + getTotalLength of the ORIGINAL d vs our normalised cubics (arcs included); e2e-vector: ORACLE Chromium SVG: isPointInFill (nonzero + evenodd) vs our containment on a 31×31 grid per path; transform.baseVal; e2e-vector: ORACLE render parity: Chromium rasterises the original SVG and our import→export identically (≤0.5% pixels > 24/255) (+31) |
+| FF-33 | built | full | e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells; e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader) (+8) |
+| FF-34 | built | full | e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+4) |
+| FF-35 | built | full | e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+5) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
