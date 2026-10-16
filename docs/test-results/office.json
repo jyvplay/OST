@@ -1,6 +1,6 @@
 {
   "suite": "office",
-  "at": "2026-10-16T02:44:53.286Z",
+  "at": "2026-10-16T02:50:30.303Z",
   "results": [
     {
       "suite": "office",
@@ -119,7 +119,7 @@
         "FF-27": "partial"
       },
       "pass": true,
-      "ms": 8
+      "ms": 9
     },
     {
       "suite": "office",
@@ -135,6 +135,136 @@
       "name": "unknown function is #NAME?; errors from ext functions map to engine errors",
       "covers": {
         "FF-27": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "shiftFormula: relative parts move, $-anchored parts stay, strings untouched, off-grid → #REF!",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "adjustForStructure: insert/delete rows repair refs; deleted single ref → #REF!; ranges shrink; other sheets untouched",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "insertDelete: physical move + workbook-wide repair + recalculated values",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "TSV clipboard round-trip: tabs, newlines, quotes, CRLF, Excel-style quoting",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "copy/paste block shifts formulas and carries styles; clearRange contents vs all",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "autoFill: linear trend, text+number series, cyclic copy, formula shift, upward fill",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "sortRange: stable, numbers<text<bool, blanks last both directions, header kept, formulas move",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "find/replace and status-bar selection statistics",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
+      "covers": {
+        "FF-20": "partial",
+        "FF-26": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "numeric codes: 0.00, #,##0, $, %, scaling commas, ? alignment, # trailing, literals",
+      "covers": {
+        "FF-28": "full",
+        "FF-19": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "sections and colours: pos;neg;zero;text, [Red], auto minus only for 1 section",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "scientific and General",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "dates and times: serial 45361 = Sun 2024-03-10; m = minutes after h; AM/PM; elapsed [h]",
+      "covers": {
+        "FF-28": "full",
+        "FF-19": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "TEXT() uses the format engine end-to-end through the formula engine",
+      "covers": {
+        "FF-19": "partial",
+        "FF-28": "partial"
       },
       "pass": true,
       "ms": 0

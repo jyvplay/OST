@@ -20,7 +20,7 @@
  * function-argument and array-row separation (documented negative space).
  */
 import { tokenize, type Token } from "./lexer";
-import { lettersToCol, type BinOp, type CellAddr, type Node } from "./types";
+import { lettersToCol, type BinOp, type CellAddr, type ErrorCode, type Node } from "./types";
 
 function parseCellToken(text: string): CellAddr {
   const m = /^(?:('[^']+'|[A-Za-z_][A-Za-z0-9_ ]*)!)?(\$?)([A-Za-z]{1,3})(\$?)(\d+)$/.exec(text);
@@ -108,6 +108,7 @@ class Parser {
       return { t: "num", v: Number(t.text) };
     }
     if (t.kind === "str") { this.eat(); return { t: "str", v: t.text }; }
+    if (t.kind === "err") { this.eat(); return { t: "err", v: t.text as ErrorCode }; }
     if (t.kind === "lparen") { this.eat(); const inner = this.comparison(); this.eat("rparen"); return inner; }
     if (t.kind === "lbrace") return this.array();
     if (t.kind === "ref") {
@@ -160,6 +161,7 @@ class Parser {
     const t = this.peek();
     if (t.kind === "num") { this.eat(); return { t: "num", v: Number(t.text) }; }
     if (t.kind === "str") { this.eat(); return { t: "str", v: t.text }; }
+    if (t.kind === "err") { this.eat(); return { t: "err", v: t.text as ErrorCode }; }
     if (t.kind === "ident" && (t.text.toUpperCase() === "TRUE" || t.text.toUpperCase() === "FALSE")) {
       this.eat(); return { t: "bool", v: t.text.toUpperCase() === "TRUE" };
     }

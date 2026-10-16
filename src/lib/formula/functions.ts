@@ -12,6 +12,7 @@
  *   SUM(1,"x",2)        -> #VALUE!              (literal, strict)
  *   SUM(A1:A3) w/ "x" in range -> ignores it     (ranged, lenient)
  */
+import { formatValue } from "./numfmt";
 import { dateToSerial, nowSerial, serialToDate, todaySerial } from "./dates";
 import { err, isError, type FormulaError, type Scalar } from "./types";
 
@@ -199,7 +200,8 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   REPT: (a) => toStr(scalar(a[0])).repeat(Math.max(0, toNumberStrict(scalar(a[1])))),
   EXACT: (a) => toStr(scalar(a[0])) === toStr(scalar(a[1])),
   VALUE: (a) => { const n = Number(toStr(scalar(a[0])).trim()); return Number.isNaN(n) ? raise(err("#VALUE!")) : n; },
-  TEXT: (a) => formatNumber(toNumberStrict(scalar(a[0])), toStr(scalar(a[1]))),
+  // TT15: full Excel format-code language via numfmt.ts (sections, colours, dates, E+, scaling).
+  TEXT: (a) => { const v = scalar(a[0]); const f = toStr(scalar(a[1])); return formatValue(typeof v === "string" && v.trim() !== "" && !Number.isNaN(Number(v)) ? Number(v) : v, f).text; },
 
   // ---- date/time [oracle: DATE epoch anchors, YEAR/MONTH/DAY/WEEKDAY]
   DATE: (a) => dateToSerial(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1])), toNumberStrict(scalar(a[2]))),
@@ -277,18 +279,6 @@ function roundDir(n: number, digits: number, dir: "up" | "down"): number {
   const fn = dir === "up" ? (n >= 0 ? Math.ceil : Math.floor) : (n >= 0 ? Math.floor : Math.ceil);
   return fn(n * f) / f;
 }
-/** TEXT(): a bounded subset of number-format codes — 0/0.00/#,##0/#,##0.00/0%. [spec] */
-function formatNumber(n: number, fmt: string): string {
-  const neg = n < 0; const abs = Math.abs(n);
-  if (fmt.includes("%")) return `${roundHalfAwayFromZero(abs * 100, (fmt.split(".")[1] ?? "").replace("%", "").length)}%`;
-  const decMatch = /\.(0+)/.exec(fmt);
-  const decimals = decMatch ? decMatch[1].length : 0;
-  const rounded = roundHalfAwayFromZero(abs, decimals).toFixed(decimals);
-  const [intPart, fracPart] = rounded.split(".");
-  const grouped = fmt.includes(",") ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : intPart;
-  return (neg ? "-" : "") + grouped + (fracPart ? `.${fracPart}` : "");
-}
-
 function sumIf(a: Arg[]): Scalar {
   const range = matrixOf(a[0]).flat();
   const crit = makeCriteria(scalar(a[1]));
