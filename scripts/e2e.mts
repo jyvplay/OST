@@ -7,7 +7,8 @@
  * candidate obfuscation is disabled so two contexts can form a WebRTC link on
  * loopback without an mDNS responder.
  */
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
+import { type Browser, type BrowserContext, type Page } from "playwright";
+import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 import { MODULES } from "../src/lib/registry.ts";
 
@@ -49,12 +50,10 @@ async function openModule(page: Page, id: string, title: string) {
   return dlg;
 }
 
-const browser: Browser = await chromium.launch({
-  args: [
+const browser: Browser = await launchChromium([
     "--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream",
     "--disable-features=WebRtcHideLocalIpsWithMdns", "--autoplay-policy=no-user-gesture-required",
-  ],
-});
+]);
 const newCtx = async (): Promise<BrowserContext> => {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 960 } });
   await ctx.grantPermissions(["camera", "microphone", "clipboard-read", "clipboard-write", "notifications"], { origin: BASE });
@@ -206,10 +205,19 @@ await test("clock stopwatch advances from performance.now anchors", { "PR-10": "
   const dlg = page.locator('[role=dialog][aria-label="Clock"]').first();
   const sec = dlg.locator("section", { hasText: "Stopwatch" });
   await sec.getByRole("button", { name: "Start" }).click();
+  const t0 = Date.now();
   await sleep(1600);
-  const t = await sec.locator(".fs-mono").first().innerText();
-  const [mm, rest] = t.split(":"); const s = Number(mm) * 60 + Number(rest);
-  ok(s >= 1.3 && s < 3, `stopwatch read ${t}`);
+  // The display is rAF-driven; on a loaded 2-core runner a frame can lag the anchor.
+  // Contract: elapsed derives from performance.now anchors, so the reading must reach
+  // >= 1.3 s and never exceed real wall time elapsed since Start (+0.3 s slack).
+  let t = "", s = 0;
+  for (let i = 0; i < 20; i++) {
+    t = await sec.locator(".fs-mono").first().innerText();
+    const [mm, rest] = t.split(":"); s = Number(mm) * 60 + Number(rest);
+    if (s >= 1.3) break;
+    await sleep(150);
+  }
+  ok(s >= 1.3 && s <= (Date.now() - t0) / 1000 + 0.3, `stopwatch read ${t} after ${(Date.now() - t0) / 1000}s`);
 });
 
 await test("Lens processes frames from a (fake) camera at > 0 fps", { "LN-01": "full", "LN-13": "partial", "LN-15": "partial" }, async () => {
@@ -244,7 +252,9 @@ await test("Beam lists every transport and names the missing primitive on blocke
 await test("Spec module renders the full register", { "DP-08": "partial" }, async () => {
   await resetDesktop();
   const dlg = await openModule(page, "spec", "Spec");
-  await dlg.getByText("252 rows").waitFor({ timeout: 8000 });
+  const n = (await api("GET", "/api/features")).json.total;
+  ok(Number(n) > 250, `register size ${n}`);
+  await dlg.getByText(`${n} rows`).waitFor({ timeout: 8000 });
 });
 
 await test("Overview (Meta+Q) and Blackout overlay toggle", { "WM-04": "partial", "SH-10": "partial" }, async () => {
@@ -336,7 +346,7 @@ async function hangTest(b: Browser) {
   }
 }
 await test("SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive", { "SH-05": "partial" }, async () => {
-  const iso = await chromium.launch({ args: ["--site-per-process"] });
+  const iso = await launchChromium(["--site-per-process"]);
   try { const r = await hangTest(iso); ok(r.responsive && r.greyed, JSON.stringify(r)); } finally { await iso.close(); }
 });
 await test("characterisation: default headless config freezes the shell (documented limitation, not a pass claim)", {}, async () => {

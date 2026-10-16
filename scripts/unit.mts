@@ -115,7 +115,8 @@ await test("SVG sanitiser strips script/handlers/foreignObject/javascript:", { "
   assert.ok(!/script|onload|foreignObject|javascript:/i.test(r.svg)); assert.ok(r.svg.includes("<rect/>"));
 });
 await test("loss report itemises drops; registry grades", { "FF-11": "full", "FF-01": "partial", "FF-14": "full" }, () => {
-  assert.ok(lossReport("a.docx", "md").drops.includes("styles"));
+  const lr = lossReport("a.docx", "md"); // TT15: was asserting a "styles" drop that forge.ts no longer lists (stale test)
+  assert.ok(lr.drops.includes("pagination") && lr.drops.includes("comments/tracked changes") && lr.safe === false);
   assert.equal(formatFor("x.epub")?.grade, "C");
   assert.equal(formatFor("x.heic")?.grade, "X");
 });

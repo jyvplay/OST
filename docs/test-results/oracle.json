@@ -1,0 +1,51 @@
+{
+  "suite": "oracle",
+  "at": "2026-10-16T02:44:48.027Z",
+  "results": [
+    {
+      "suite": "oracle",
+      "name": "oracle: 123 scalar vectors match LibreOffice 7.4.7.2",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "oracle",
+      "name": "oracle: grid — 21 cells match",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "oracle",
+      "name": "oracle: grid2 (range coercion) — 7 cells match",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "oracle",
+      "name": "oracle: circular — 2 cells match",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "oracle",
+      "name": "oracle 2 (PyPI formulas 1.3.4): extended-library vectors agree with an independent Excel interpreter",
+      "covers": {
+        "FF-27": "full"
+      },
+      "pass": true,
+      "ms": 10
+    }
+  ]
+}

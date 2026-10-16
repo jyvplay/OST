@@ -57,6 +57,8 @@ export default function LensModule(_: ModuleProps) {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [fx, setFx] = useState<Fx>(DEFAULT_FX);
   const [fps, setFps] = useState(0);
+  const winStart = useRef(0);
+  const winFrames = useRef(0);
   const [height, setHeight] = useState(720);
   const [err, setErr] = useState("");
   const [screenLayer, setScreenLayer] = useState<MediaStream | null>(null);
@@ -188,10 +190,17 @@ export default function LensModule(_: ModuleProps) {
 
       const cost = performance.now() - t0;
       frameCost.current.push(cost);
-      if (frameCost.current.length > 30) {
-        const avg = frameCost.current.reduce((a, b) => a + b, 0) / frameCost.current.length;
-        setFps(Math.round(1000 / Math.max(avg, 1000 / 60)));
-        frameCost.current = [];
+      // TT15 FIX: report DELIVERED frames per wall-clock second over a ≥1 s window.
+      // v3.x waited for 31 frames and reported 1000/avg-cost ("capacity"), so on a slow
+      // software-rendered machine the badge sat at "0 fps" for seconds and, once shown,
+      // overstated the real rate. Delivered fps is what the viewer actually receives.
+      const now = performance.now();
+      if (!winStart.current) winStart.current = now;
+      winFrames.current++;
+      if (now - winStart.current >= 1000) {
+        setFps(Math.round((winFrames.current * 1000) / (now - winStart.current)));
+        winStart.current = now; winFrames.current = 0;
+        if (frameCost.current.length > 120) frameCost.current = frameCost.current.slice(-60);
       }
       shell.pulse(ts);
       rafRef.current = requestAnimationFrame(draw);

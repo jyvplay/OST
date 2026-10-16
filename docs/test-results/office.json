@@ -1,0 +1,143 @@
+{
+  "suite": "office",
+  "at": "2026-10-16T02:44:53.286Z",
+  "results": [
+    {
+      "suite": "office",
+      "name": "SEQUENCE(2,3) spills all six cells with correct values",
+      "covers": {
+        "FF-26": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "office",
+      "name": "an obstruction blocks the WHOLE array with #SPILL!, and removing it recovers",
+      "covers": {
+        "FF-26": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "a formula referencing a spilled child sees the child value (fixed point)",
+      "covers": {
+        "FF-26": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "two anchors competing for one cell: deterministic row-major winner, loser #SPILL!",
+      "covers": {
+        "FF-26": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "self-dependent spill size terminates (no hang) with an error value",
+      "covers": {
+        "FF-26": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "oversized generator is refused (#NUM!), not truncated",
+      "covers": {
+        "FF-26": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "A1:A3*2 spills element-wise; range+range aligns; mismatch → #N/A outside overlap",
+      "covers": {
+        "FF-26": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP",
+      "covers": {
+        "FF-26": "full",
+        "FF-27": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "IF over an array condition is element-wise; IFERROR over arrays replaces only errors",
+      "covers": {
+        "FF-26": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "SUM over a computed array (SUMPRODUCT-style) and ROW() with no argument",
+      "covers": {
+        "FF-26": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "first-party verified semantics survive: SUM(1,\"x\",2) is still #VALUE!",
+      "covers": {
+        "FF-27": "full",
+        "FF-19": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "office",
+      "name": "financial: PMT/NPV/IRR/FV match independent closed-form values",
+      "covers": {
+        "FF-27": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "text/lookup/stat breadth: TEXTJOIN, COUNTIFS, MAXIFS, LARGE, MEDIAN, STDEV.S, DEC2BIN, ROMAN",
+      "covers": {
+        "FF-27": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "office",
+      "name": "engineering conversions follow Excel: no default padding, two's complement negatives, #NUM! guards",
+      "covers": {
+        "FF-27": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "office",
+      "name": "unknown function is #NAME?; errors from ext functions map to engine errors",
+      "covers": {
+        "FF-27": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

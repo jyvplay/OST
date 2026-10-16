@@ -61,7 +61,7 @@ function renderSheet(sheet: Sheet, sharedIndex: (s: string) => number) {
     if (isError(v)) {
       // #CIRCULAR! is our internal diagnostic, not an OOXML cell error token.
       // Map it to spec-defined #VALUE! on export; internal engine retains #CIRCULAR!.
-      const code = v.error === "#CIRCULAR!" ? "#VALUE!" : v.error;
+      const code = v.error === "#CIRCULAR!" || v.error === "#SPILL!" || v.error === "#CALC!" ? "#VALUE!" : v.error;
       out = `<c r="${ref}" t="e">${formula}<v>${esc(code)}</v></c>`;
     } else if (typeof v === "boolean") out = `<c r="${ref}" t="b">${formula}<v>${v ? 1 : 0}</v></c>`;
     else if (typeof v === "number") out = `<c r="${ref}">${formula}<v>${v}</v></c>`;
