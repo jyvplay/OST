@@ -1,0 +1,37 @@
+{
+  "suite": "oracle-xlsx",
+  "at": "2026-10-16T02:54:10.763Z",
+  "results": [
+    {
+      "suite": "oracle-xlsx",
+      "name": "oracle available (openpyxl)",
+      "covers": {
+        "FF-20": "partial"
+      },
+      "pass": true,
+      "ms": 174
+    },
+    {
+      "suite": "oracle-xlsx",
+      "name": "A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
+      "covers": {
+        "FF-20": "full",
+        "FF-26": "partial",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 186
+    },
+    {
+      "suite": "oracle-xlsx",
+      "name": "B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
+      "covers": {
+        "FF-21": "full",
+        "FF-26": "partial",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 186
+    }
+  ]
+}

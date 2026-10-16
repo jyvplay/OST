@@ -63,6 +63,8 @@ export class Sheet {
   name: string;
   /** Column widths in px (presentation only). */
   colWidths: Record<number, number> = {};
+  /** Frozen top rows (presentation only; exported as an xlsx pane). */
+  freezeRows = 0;
   constructor(name = "Sheet1") { this.name = name; }
 
   setCell(col: number, row: number, input: string) {
