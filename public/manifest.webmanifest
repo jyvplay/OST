@@ -1,0 +1,45 @@
+{
+  "id": "/",
+  "name": "Fusion Shell Web",
+  "short_name": "Fusion",
+  "description": "A desktop environment in the browser: window compositor, journaled file system, search index, Beam casting, Lens camera pipeline — with capability honesty.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#070b16",
+  "theme_color": "#070b16",
+  "categories": ["productivity", "utilities"],
+  "launch_handler": { "client_mode": "focus-existing" },
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Files", "url": "/?open=files" },
+    { "name": "Terminal", "url": "/?open=terminal" },
+    { "name": "Spec register", "url": "/?open=spec" },
+    { "name": "Second display", "url": "/display" }
+  ],
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "text/markdown": [".md"],
+        "text/plain": [".txt", ".log"],
+        "text/csv": [".csv"],
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "protocol_handlers": [
+    { "protocol": "web+fusion", "url": "/?cmd=%s" }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": { "title": "title", "text": "text", "url": "url" }
+  }
+}

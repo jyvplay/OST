@@ -1,0 +1,820 @@
+{
+  "oracle": "LibreOffice 7.4.7.2 40(Build:2)",
+  "capturedAt": "2026-10-15T05:49:03.742Z",
+  "method": "soffice --headless --convert-to xlsx on a CSV of formulas; cell type+value read back from the produced OOXML. Used as a build-time/dev-time oracle only — NOT a runtime dependency.",
+  "scalar": [
+    {
+      "formula": "=1+2*3",
+      "type": "n",
+      "value": "7"
+    },
+    {
+      "formula": "=(1+2)*3",
+      "type": "n",
+      "value": "9"
+    },
+    {
+      "formula": "=2^3^2",
+      "type": "n",
+      "value": "64"
+    },
+    {
+      "formula": "=-2^2",
+      "type": "n",
+      "value": "4"
+    },
+    {
+      "formula": "=2^-2",
+      "type": "n",
+      "value": "0.25"
+    },
+    {
+      "formula": "=2-3-4",
+      "type": "n",
+      "value": "-5"
+    },
+    {
+      "formula": "=2^0.5",
+      "type": "n",
+      "value": "1.4142135623731"
+    },
+    {
+      "formula": "=10%",
+      "type": "n",
+      "value": "0.1"
+    },
+    {
+      "formula": "=50%*200",
+      "type": "n",
+      "value": "100"
+    },
+    {
+      "formula": "=-5%",
+      "type": "n",
+      "value": "-0.05"
+    },
+    {
+      "formula": "=2+3&\"x\"",
+      "type": "str",
+      "value": "5x"
+    },
+    {
+      "formula": "=\"a\"&\"b\"&\"c\"",
+      "type": "str",
+      "value": "abc"
+    },
+    {
+      "formula": "=1&2",
+      "type": "str",
+      "value": "12"
+    },
+    {
+      "formula": "=1=1",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=1<>2",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=\"A\"=\"a\"",
+      "type": "n",
+      "value": "0"
+    },
+    {
+      "formula": "=2>1",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=2>=2",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=1<2",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=1<=1",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=\"10\"+5",
+      "type": "n",
+      "value": "15"
+    },
+    {
+      "formula": "=TRUE()+1",
+      "type": "n",
+      "value": "2"
+    },
+    {
+      "formula": "=TRUE()+TRUE()",
+      "type": "n",
+      "value": "2"
+    },
+    {
+      "formula": "=FALSE()*5",
+      "type": "b",
+      "value": "0"
+    },
+    {
+      "formula": "=SUM(1,2,3)",
+      "type": "n",
+      "value": "6"
+    },
+    {
+      "formula": "=SUM(1,\"x\",2)",
+      "type": "e",
+      "value": "#VALUE!"
+    },
+    {
+      "formula": "=PRODUCT(2,3,4)",
+      "type": "n",
+      "value": "24"
+    },
+    {
+      "formula": "=ABS(-5)",
+      "type": "n",
+      "value": "5"
+    },
+    {
+      "formula": "=ROUND(2.345,2)",
+      "type": "n",
+      "value": "2.35"
+    },
+    {
+      "formula": "=ROUND(2.5,0)",
+      "type": "n",
+      "value": "3"
+    },
+    {
+      "formula": "=ROUNDUP(2.341,1)",
+      "type": "n",
+      "value": "2.4"
+    },
+    {
+      "formula": "=ROUNDDOWN(2.349,1)",
+      "type": "n",
+      "value": "2.3"
+    },
+    {
+      "formula": "=INT(-2.5)",
+      "type": "n",
+      "value": "-3"
+    },
+    {
+      "formula": "=INT(2.9)",
+      "type": "n",
+      "value": "2"
+    },
+    {
+      "formula": "=TRUNC(-2.7)",
+      "type": "n",
+      "value": "-2"
+    },
+    {
+      "formula": "=MOD(7,3)",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=MOD(-7,3)",
+      "type": "n",
+      "value": "2"
+    },
+    {
+      "formula": "=MOD(7,-3)",
+      "type": "n",
+      "value": "-2"
+    },
+    {
+      "formula": "=POWER(2,10)",
+      "type": "n",
+      "value": "1024"
+    },
+    {
+      "formula": "=SQRT(16)",
+      "type": "n",
+      "value": "4"
+    },
+    {
+      "formula": "=EXP(1)",
+      "type": "n",
+      "value": "2.71828182845905"
+    },
+    {
+      "formula": "=LN(EXP(1))",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=LOG10(100)",
+      "type": "n",
+      "value": "2"
+    },
+    {
+      "formula": "=LOG(8,2)",
+      "type": "n",
+      "value": "3"
+    },
+    {
+      "formula": "=SIGN(-4)",
+      "type": "n",
+      "value": "-1"
+    },
+    {
+      "formula": "=SIGN(0)",
+      "type": "n",
+      "value": "0"
+    },
+    {
+      "formula": "=SIGN(9)",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=AVERAGE(1,2,3)",
+      "type": "n",
+      "value": "2"
+    },
+    {
+      "formula": "=COUNT(1,\"x\",2,TRUE())",
+      "type": "n",
+      "value": "3"
+    },
+    {
+      "formula": "=COUNTA(1,\"\",2)",
+      "type": "n",
+      "value": "3"
+    },
+    {
+      "formula": "=MIN(3,1,2)",
+      "type": "n",
+      "value": "1"
+    },
+    {
+      "formula": "=MAX(3,1,2)",
+      "type": "n",
+      "value": "3"
+    },
+    {
+      "formula": "=MEDIAN(1,2,3,4)",
+      "type": "n",
+      "value": "2.5"
+    },
+    {
+      "formula": "=IF(1>0,\"pos\",\"neg\")",
+      "type": "str",
+      "value": "pos"
+    },
+    {
+      "formula": "=IF(1<0,\"pos\",\"neg\")",
+      "type": "str",
+      "value": "neg"
+    },
+    {
+      "formula": "=IFS(1=2,\"a\",1=1,\"b\")",
+      "type": "str",
+      "value": "b"
+    },
+    {
+      "formula": "=AND(1=1,2=2)",
+      "type": "b",
+      "value": "1"
+    },
+    {
+      "formula": "=AND(1=1,2=3)",
+      "type": "b",
+      "value": "0"
+    },
+    {
+      "formula": "=OR(1=2,2=2)",
+      "type": "b",
+      "value": "1"
+    },
+    {
+      "formula": "=OR(1=2,2=3)",
+      "type": "b",
+      "value": "0"
+    },
+    {
+      "formula": "=NOT(1=1)",
+      "type": "b",
+      "value": "0"
+    },
+    {
+      "formula": "=XOR(TRUE(),FALSE())",
+      "type": "b",
+      "value": "1"
+    },
+    {
+      "formula": "=XOR(TRUE(),TRUE())",
+      "type": "b",
+      "value": "0"
+    },
+    {
+      "formula": "=IFERROR(1/0,\"err\")",
+      "type": "str",
+      "value": "err"
+    },
+    {
+      "formula": "=IFERROR(5,\"err\")",
+      "type": "n",
+      "value": "5"
+    },
+    {
+      "formula": "=IFERROR(5+5,\"err\")",
+      "type": "n",
+      "value": "10"
+    },
+    {
+      "formula": "=CONCATENATE(\"a\",\"b\",\"c\")",
+      "type": "str",
+      "value": "abc"
+    },
+    {
+      "formula": "=LEFT(\"hello\",2)",
+      "type": "str",
+      "value": "he"
+    },
+    {
+      "formula": "=RIGHT(\"hello\",2)",
+      "type": "str",
+      "value": "lo"
+    },
+    {
+      "formula": "=MID(\"hello\",2,3)",
+      "type": "str",
+      "value": "ell"
+    },
+    {
+      "formula": "=LEN(\"hello\")",
+      "type": "n",
+      "value": "5"
+    },
+    {
+      "formula": "=UPPER(\"abc\")",
+      "type": "str",
+      "value": "ABC"
+    },
+    {
+      "formula": "=LOWER(\"ABC\")",
+      "type": "str",
+      "value": "abc"
+    },
+    {
+      "formula": "=PROPER(\"the quick fox\")",
+      "type": "str",
+      "value": "The Quick Fox"
+    },
+    {
+      "formula": "=TRIM(\"  a   b  \")",
+      "type": "str",
+      "value": "a b"
+    },
+    {
+      "formula": "=SUBSTITUTE(\"aXbXc\",\"X\",\"-\")",
+      "type": "str",
+      "value": "a-b-c"
+    },
+    {
+      "formula": "=SUBSTITUTE(\"aXbXc\",\"X\",\"-\",2)",
+      "type": "str",
+      "value": "aXb-c"
+    },
+    {
+      "formula": "=REPLACE(\"hello\",2,3,\"ELL\")",
+      "type": "str",
+      "value": "hELLo"
+    },
+    {
+      "formula": "=FIND(\"l\",\"hello\")",
+      "type": "n",
+      "value": "3"
+    },
+    {
+      "formula": "=FIND(\"l\",\"hello\",4)",
+      "type": "n",
+      "value": "4"
+    },
+    {
+      "formula": "=SEARCH(\"L\",\"hello\")",
+      "type": "n",
+      "value": "3"
+    },
+    {
+      "formula": "=REPT(\"ab\",3)",
+      "type": "str",
+      "value": "ababab"
+    },
+    {
+      "formula": "=EXACT(\"A\",\"a\")",
+      "type": "b",
+      "value": "0"
+    },
+    {
+      "formula": "=EXACT(\"A\",\"A\")",
+      "type": "b",
+      "value": "1"
+    },
+    {
+      "formula": "=VALUE(\"3.14\")",
+      "type": "n",
+      "value": "3.14"
+    },
+    {
+      "formula": "=TEXT(1234.5,\"0.00\")",
+      "type": "str",
+      "value": "1234.50"
+    },
+    {
+      "formula": "=TEXT(0.1+0.2,\"0.00\")",
+      "type": "str",
+      "value": "0.30"
+    },
+    {
+      "formula": "=DATE(2024,1,1)",
+      "type": "n",
+      "value": "45292"
+    },
+    {
+      "formula": "=DATE(1900,1,1)",
+      "type": "n",
+      "value": "2"
+    },
+    {
+      "formula": "=DATE(1900,2,28)",
+      "type": "n",
+      "value": "60"
+    },
+    {
+      "formula": "=DATE(1900,2,29)",
+      "type": "n",
+      "value": "61"
+    },
+    {
+      "formula": "=DATE(1900,3,1)",
+      "type": "n",
+      "value": "61"
+    },
+    {
+      "formula": "=YEAR(DATE(2024,5,6))",
+      "type": "n",
+      "value": "2024"
+    },
+    {
+      "formula": "=MONTH(DATE(2024,5,6))",
+      "type": "n",
+      "value": "5"
+    },
+    {
+      "formula": "=DAY(DATE(2024,5,6))",
+      "type": "n",
+      "value": "6"
+    },
+    {
+      "formula": "=WEEKDAY(DATE(2024,1,1))",
+      "type": "n",
+      "value": "2"
+    },
+    {
+      "formula": "=WEEKDAY(DATE(2024,1,6))",
+      "type": "n",
+      "value": "7"
+    },
+    {
+      "formula": "=EDATE(DATE(2024,1,31),1)",
+      "type": "n",
+      "value": "45351"
+    },
+    {
+      "formula": "=EOMONTH(DATE(2024,1,15),0)",
+      "type": "n",
+      "value": "45322"
+    },
+    {
+      "formula": "=EOMONTH(DATE(2024,1,15),1)",
+      "type": "n",
+      "value": "45351"
+    },
+    {
+      "formula": "=DATEDIF(DATE(2024,1,1),DATE(2024,3,15),\"d\")",
+      "type": "n",
+      "value": "74"
+    },
+    {
+      "formula": "=DAYS(DATE(2024,2,1),DATE(2024,1,1))",
+      "type": "n",
+      "value": "31"
+    },
+    {
+      "formula": "=VLOOKUP(2,{1,\"a\";2,\"b\";3,\"c\"},2,0)",
+      "type": "str",
+      "value": "b"
+    },
+    {
+      "formula": "=VLOOKUP(5,{1,\"a\";2,\"b\";3,\"c\"},2,0)",
+      "type": "e",
+      "value": "#N/A"
+    },
+    {
+      "formula": "=VLOOKUP(2,{1,\"a\";2,\"b\";3,\"c\"},2,1)",
+      "type": "str",
+      "value": "b"
+    },
+    {
+      "formula": "=HLOOKUP(2,{1,2,3;\"a\",\"b\",\"c\"},2,0)",
+      "type": "str",
+      "value": "b"
+    },
+    {
+      "formula": "=INDEX({1,2,3;4,5,6},2,3)",
+      "type": "n",
+      "value": "6"
+    },
+    {
+      "formula": "=INDEX({1,2,3;4,5,6},2,0)",
+      "type": "n",
+      "value": "4"
+    },
+    {
+      "formula": "=MATCH(3,{1,2,3,4},0)",
+      "type": "n",
+      "value": "3"
+    },
+    {
+      "formula": "=MATCH(30,{10,20,30,40},1)",
+      "type": "n",
+      "value": "3"
+    },
+    {
+      "formula": "=CHOOSE(2,\"a\",\"b\",\"c\")",
+      "type": "str",
+      "value": "b"
+    },
+    {
+      "formula": "=ISNUMBER(5)",
+      "type": "b",
+      "value": "1"
+    },
+    {
+      "formula": "=ISNUMBER(\"5\")",
+      "type": "b",
+      "value": "0"
+    },
+    {
+      "formula": "=ISTEXT(\"x\")",
+      "type": "b",
+      "value": "1"
+    },
+    {
+      "formula": "=ISERROR(1/0)",
+      "type": "b",
+      "value": "1"
+    },
+    {
+      "formula": "=ISERROR(5)",
+      "type": "b",
+      "value": "0"
+    },
+    {
+      "formula": "=ISNA(NA())",
+      "type": "b",
+      "value": "1"
+    },
+    {
+      "formula": "=ISLOGICAL(TRUE())",
+      "type": "b",
+      "value": "1"
+    },
+    {
+      "formula": "=1/0",
+      "type": "e",
+      "value": "#DIV/0!"
+    },
+    {
+      "formula": "=1/0+1",
+      "type": "e",
+      "value": "#DIV/0!"
+    },
+    {
+      "formula": "=SUM(1,1/0,2)",
+      "type": "e",
+      "value": "#DIV/0!"
+    },
+    {
+      "formula": "=NA()",
+      "type": "e",
+      "value": "#N/A"
+    },
+    {
+      "formula": "=UNDEFINEDFUNCTION(1)",
+      "type": "e",
+      "value": "#NAME?"
+    }
+  ],
+  "grid": {
+    "input": [
+      [
+        "1",
+        "=A1*2",
+        "=SUM(A1:A5)",
+        "=AVERAGE(A1:A5)",
+        "=A1+B1"
+      ],
+      [
+        "2",
+        "=A2*2",
+        "=COUNT(A1:A5)",
+        "=MAX(A1:A5)",
+        "=$A$1+A2"
+      ],
+      [
+        "3",
+        "=A3*2",
+        "=MIN(A1:A5)",
+        "=SUMIF(A1:A5,\">2\")",
+        "=SUM(A1:C1)"
+      ],
+      [
+        "4",
+        "=A4*2",
+        "=COUNTIF(A1:A5,\">2\")",
+        "=AVERAGEIF(A1:A5,\">2\")",
+        ""
+      ],
+      [
+        "5",
+        "=A5*2",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "cells": {
+      "A1": {
+        "type": "n",
+        "value": "1"
+      },
+      "B1": {
+        "type": "n",
+        "value": "2"
+      },
+      "C1": {
+        "type": "n",
+        "value": "15"
+      },
+      "D1": {
+        "type": "n",
+        "value": "3"
+      },
+      "E1": {
+        "type": "n",
+        "value": "3"
+      },
+      "A2": {
+        "type": "n",
+        "value": "2"
+      },
+      "B2": {
+        "type": "n",
+        "value": "4"
+      },
+      "C2": {
+        "type": "n",
+        "value": "5"
+      },
+      "D2": {
+        "type": "n",
+        "value": "5"
+      },
+      "E2": {
+        "type": "n",
+        "value": "3"
+      },
+      "A3": {
+        "type": "n",
+        "value": "3"
+      },
+      "B3": {
+        "type": "n",
+        "value": "6"
+      },
+      "C3": {
+        "type": "n",
+        "value": "1"
+      },
+      "D3": {
+        "type": "n",
+        "value": "12"
+      },
+      "E3": {
+        "type": "n",
+        "value": "18"
+      },
+      "A4": {
+        "type": "n",
+        "value": "4"
+      },
+      "B4": {
+        "type": "n",
+        "value": "8"
+      },
+      "C4": {
+        "type": "n",
+        "value": "3"
+      },
+      "D4": {
+        "type": "n",
+        "value": "4"
+      },
+      "A5": {
+        "type": "n",
+        "value": "5"
+      },
+      "B5": {
+        "type": "n",
+        "value": "10"
+      }
+    }
+  },
+  "circular": {
+    "input": [
+      [
+        "=B1+1",
+        "=A1+1"
+      ]
+    ],
+    "cells": {
+      "A1": {
+        "type": "e",
+        "value": "#VALUE!"
+      },
+      "B1": {
+        "type": "e",
+        "value": "#VALUE!"
+      }
+    }
+  },
+  "grid2": {
+    "input": [
+      [
+        "1",
+        "=SUM(A1:A3)",
+        "=COUNT(A1:A3)",
+        "=COUNTA(A1:A3)",
+        "=AVERAGE(A1:A3)"
+      ],
+      [
+        "x",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "3",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "cells": {
+      "A1": {
+        "type": "n",
+        "value": "1"
+      },
+      "B1": {
+        "type": "n",
+        "value": "4"
+      },
+      "C1": {
+        "type": "n",
+        "value": "2"
+      },
+      "D1": {
+        "type": "n",
+        "value": "3"
+      },
+      "E1": {
+        "type": "n",
+        "value": "2"
+      },
+      "A2": {
+        "type": "str",
+        "value": "x"
+      },
+      "A3": {
+        "type": "n",
+        "value": "3"
+      }
+    }
+  }
+}

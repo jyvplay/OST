@@ -1,0 +1,249 @@
+{
+  "suite": "integration",
+  "at": "2026-10-15T05:34:17.969Z",
+  "results": [
+    {
+      "suite": "integration",
+      "name": "health + bootstrap reconcile the register",
+      "covers": {
+        "DP-10": "partial"
+      },
+      "pass": true,
+      "ms": 198
+    },
+    {
+      "suite": "integration",
+      "name": "register has no audited row still over-claimed",
+      "covers": {
+        "DP-08": "partial"
+      },
+      "pass": true,
+      "ms": 33
+    },
+    {
+      "suite": "integration",
+      "name": "FM-03 journaled move: 6 states in order, digest preserved, source retired",
+      "covers": {
+        "FM-03": "full",
+        "DP-04": "partial",
+        "DP-14": "partial",
+        "NC-05": "partial"
+      },
+      "pass": true,
+      "ms": 125
+    },
+    {
+      "suite": "integration",
+      "name": "FM-03 adversarial moves are refused and journaled as FAILED",
+      "covers": {
+        "FM-03": "full"
+      },
+      "pass": true,
+      "ms": 86
+    },
+    {
+      "suite": "integration",
+      "name": "FM-18 overwrite snapshots the previous version",
+      "covers": {
+        "FM-18": "full",
+        "DP-05": "partial",
+        "BK-01": "partial"
+      },
+      "pass": true,
+      "ms": 60
+    },
+    {
+      "suite": "integration",
+      "name": "FM-11 trash → restore is exact; FM-07 finds duplicates by digest",
+      "covers": {
+        "FM-11": "full",
+        "FM-07": "full"
+      },
+      "pass": true,
+      "ms": 134
+    },
+    {
+      "suite": "integration",
+      "name": "SR-01 search finds new content with provenance",
+      "covers": {
+        "SR-01": "partial",
+        "SR-02": "partial"
+      },
+      "pass": true,
+      "ms": 61
+    },
+    {
+      "suite": "integration",
+      "name": "SH-08 stale revision cannot clobber newer desktop state (409)",
+      "covers": {
+        "SH-08": "full"
+      },
+      "pass": true,
+      "ms": 42
+    },
+    {
+      "suite": "integration",
+      "name": "AU-02 presets list and delete; non-prefixed rows cannot be deleted",
+      "covers": {
+        "AU-02": "partial",
+        "PR-07r": "partial"
+      },
+      "pass": true,
+      "ms": 53
+    },
+    {
+      "suite": "integration",
+      "name": "AU-01 routine whitelist rejects commands outside the palette vocabulary",
+      "covers": {
+        "AU-01": "partial"
+      },
+      "pass": true,
+      "ms": 39
+    },
+    {
+      "suite": "integration",
+      "name": "PR-04 ICS import is idempotent by UID; export is valid iCalendar",
+      "covers": {
+        "PR-04": "full",
+        "PR-03": "partial"
+      },
+      "pass": true,
+      "ms": 74
+    },
+    {
+      "suite": "integration",
+      "name": "CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap",
+      "covers": {
+        "CA-09": "partial",
+        "CT-02": "partial"
+      },
+      "pass": true,
+      "ms": 91
+    },
+    {
+      "suite": "integration",
+      "name": "CA-11 Together anchor clock advances while playing and freezes on pause",
+      "covers": {
+        "CA-11": "partial",
+        "CA-15": "partial",
+        "CA-02": "partial"
+      },
+      "pass": true,
+      "ms": 768
+    },
+    {
+      "suite": "integration",
+      "name": "FF-08/FF-10/FF-02 Forge engines via the API, with grades",
+      "covers": {
+        "FF-08": "full",
+        "FF-10": "full",
+        "FF-02": "full",
+        "FF-12": "full",
+        "PR-11": "partial",
+        "FM-04": "partial"
+      },
+      "pass": true,
+      "ms": 84
+    },
+    {
+      "suite": "integration",
+      "name": "BK-01 tampered backup bundle is refused before anything is written",
+      "covers": {
+        "BK-01": "full",
+        "BK-03": "partial",
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 27
+    },
+    {
+      "suite": "integration",
+      "name": "BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused",
+      "covers": {
+        "BL-01": "full",
+        "BL-02": "partial",
+        "BL-05": "partial"
+      },
+      "pass": true,
+      "ms": 56
+    },
+    {
+      "suite": "integration",
+      "name": "SR-04 / settings: locked settings refuse writes (423)",
+      "covers": {
+        "ST-01": "partial",
+        "SC-08": "partial"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "integration",
+      "name": "CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)",
+      "covers": {
+        "FM-03": "full",
+        "FM-11": "full",
+        "DP-05": "partial"
+      },
+      "pass": true,
+      "ms": 176
+    },
+    {
+      "suite": "integration",
+      "name": "search treats % and _ in queries literally",
+      "covers": {
+        "SR-01": "full",
+        "SR-05": "full"
+      },
+      "pass": true,
+      "ms": 83
+    },
+    {
+      "suite": "integration",
+      "name": "SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing",
+      "covers": {
+        "SR-03": "full"
+      },
+      "pass": true,
+      "ms": 58
+    },
+    {
+      "suite": "integration",
+      "name": "FM-05 compress → extract round trip preserves bytes (text and binary)",
+      "covers": {
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 129
+    },
+    {
+      "suite": "integration",
+      "name": "FM-05 extract refuses zip-slip and writes nothing",
+      "covers": {
+        "FM-05": "full",
+        "FF-12": "full"
+      },
+      "pass": true,
+      "ms": 44
+    },
+    {
+      "suite": "integration",
+      "name": "Together GET accepts lowercase room codes (casing fix)",
+      "covers": {
+        "CA-11": "partial"
+      },
+      "pass": true,
+      "ms": 30
+    },
+    {
+      "suite": "integration",
+      "name": "deleting a note removes only its own index row",
+      "covers": {
+        "PR-02": "partial",
+        "SR-02": "partial"
+      },
+      "pass": true,
+      "ms": 77
+    }
+  ]
+}

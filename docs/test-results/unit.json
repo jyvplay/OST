@@ -1,0 +1,220 @@
+{
+  "suite": "unit",
+  "at": "2026-10-15T21:42:46.256Z",
+  "results": [
+    {
+      "suite": "unit",
+      "name": "10 000 random commands preserve every invariant",
+      "covers": {
+        "WM-01": "full",
+        "WM-02": "partial",
+        "WM-09": "partial",
+        "WM-12": "partial"
+      },
+      "pass": true,
+      "ms": 3300
+    },
+    {
+      "suite": "unit",
+      "name": "command log replay reproduces the identical state hash",
+      "covers": {
+        "TD-06": "full",
+        "SH-08": "partial"
+      },
+      "pass": true,
+      "ms": 412
+    },
+    {
+      "suite": "unit",
+      "name": "reducer is pure (input not mutated); workspaces filter without unmounting",
+      "covers": {
+        "WM-03": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "precedence, power associativity, rounding policy",
+      "covers": {
+        "PR-09": "full",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "unit",
+      "name": "division by zero and code injection rejected",
+      "covers": {
+        "PR-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "CSV RFC-4180 round trip",
+      "covers": {
+        "FF-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "unit",
+      "name": "SVG sanitiser strips script/handlers/foreignObject/javascript:",
+      "covers": {
+        "FF-04": "full",
+        "DP-09": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "unit",
+      "name": "loss report itemises drops; registry grades",
+      "covers": {
+        "FF-11": "full",
+        "FF-01": "partial",
+        "FF-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "SRT → WebVTT conversion",
+      "covers": {
+        "AX-07": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "ICS unfolding, escapes, parameters, VTODO status, round trip",
+      "covers": {
+        "PR-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "unit",
+      "name": "routine whitelist",
+      "covers": {
+        "AU-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "shortcut presets have no internal conflicts; chord matcher",
+      "covers": {
+        "IN-05": "full",
+        "ST-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "zip-slip and bomb guards fire before allocation",
+      "covers": {
+        "FF-12": "full",
+        "FM-05": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "unit",
+      "name": "CRC-32 known-answer vector and writer → reader round trip",
+      "covers": {
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "unit",
+      "name": "corrupted archive is detected by CRC, never silently extracted",
+      "covers": {
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "docx extraction; EPUB spine order; PSD header",
+      "covers": {
+        "FF-02": "full",
+        "FF-10": "full",
+        "FF-08": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "unit",
+      "name": "OSA distance counts adjacent transposition as 1",
+      "covers": {
+        "SR-03": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "fuzzy scoring: typos match, short words exact only, junk rejected",
+      "covers": {
+        "SR-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "seal/open round trip; wrong passphrase and ciphertext tamper fail",
+      "covers": {
+        "SC-07": "full",
+        "SC-01": "partial",
+        "BK-01": "partial",
+        "BK-06": "partial"
+      },
+      "pass": true,
+      "ms": 86
+    },
+    {
+      "suite": "unit",
+      "name": "header downgrade (iterations) is detected via AAD; policy floor enforced",
+      "covers": {
+        "SC-07": "full"
+      },
+      "pass": true,
+      "ms": 80
+    },
+    {
+      "suite": "unit",
+      "name": "BK-04 capability diff reports lost/gained with degrade text",
+      "covers": {
+        "BK-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "unit",
+      "name": "RG-06 memory policy: absence is not low memory",
+      "covers": {
+        "RG-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

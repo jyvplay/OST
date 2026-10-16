@@ -1,0 +1,366 @@
+/**
+ * Function library. ~70 functions across math/stats/logical/text/date/lookup/
+ * information. Every behaviour tagged [oracle] was checked bit-for-bit against
+ * real LibreOffice 7.4.7.2 (docs/test-fixtures/formula-oracle.json). Behaviour
+ * tagged [spec] follows the published OOXML/ODFF function semantics but was not
+ * individually re-verified against the oracle this session — declared, not
+ * hidden, per the task's negative-space discipline.
+ *
+ * Key verified distinction [oracle]: a function argument that comes from a
+ * RANGE silently skips non-numeric cells in numeric aggregates (SUM, COUNT,
+ * AVERAGE...), but a LITERAL non-numeric constant argument raises #VALUE!.
+ *   SUM(1,"x",2)        -> #VALUE!              (literal, strict)
+ *   SUM(A1:A3) w/ "x" in range -> ignores it     (ranged, lenient)
+ */
+import { dateToSerial, nowSerial, serialToDate, todaySerial } from "./dates";
+import { err, isError, type FormulaError, type Scalar } from "./types";
+
+export type Arg = { kind: "scalar"; value: Scalar } | { kind: "matrix"; value: Scalar[][] };
+export interface FnError extends Error { code?: FormulaError }
+export const raise = (e: FormulaError): never => { const x = new Error(e.error) as FnError; x.code = e; throw x; };
+
+/* ------------------------------------------------------------- coercion */
+export function toNumberStrict(v: Scalar): number {
+  if (isError(v)) return raise(v);
+  if (typeof v === "number") return v;
+  if (typeof v === "boolean") return v ? 1 : 0;
+  if (typeof v === "string") {
+    const t = v.trim();
+    if (t === "") return raise(err("#VALUE!"));
+    const n = Number(t);
+    if (Number.isNaN(n)) return raise(err("#VALUE!"));
+    return n;
+  }
+  return raise(err("#VALUE!"));
+}
+/** Lenient numeric read used when flattening a RANGE: null means "skip me". */
+function toNumberLenient(v: Scalar): number | null {
+  if (isError(v)) raise(v);
+  if (typeof v === "number") return v;
+  return null;
+}
+export function toStr(v: Scalar): string {
+  if (isError(v)) return raise(v);
+  if (typeof v === "boolean") return v ? "TRUE" : "FALSE";
+  if (typeof v === "number") return trimNum(v);
+  return v;
+}
+function trimNum(n: number): string {
+  if (!Number.isFinite(n)) return "0";
+  if (Number.isInteger(n)) return String(n);
+  return String(Number(n.toPrecision(15)));
+}
+export function toBool(v: Scalar): boolean {
+  if (isError(v)) return raise(v);
+  if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v !== 0;
+  const t = v.trim().toUpperCase();
+  if (t === "TRUE") return true;
+  if (t === "FALSE") return false;
+  return raise(err("#VALUE!"));
+}
+
+function flattenNumbers(a: Arg): number[] {
+  if (a.kind === "scalar") return [toNumberStrict(a.value)];
+  const out: number[] = [];
+  for (const row of a.value) for (const v of row) { const n = toNumberLenient(v); if (n !== null) out.push(n); }
+  return out;
+}
+function flattenAll(a: Arg): Scalar[] {
+  return a.kind === "scalar" ? [a.value] : a.value.flat();
+}
+const matrixOf = (a: Arg): Scalar[][] => (a.kind === "matrix" ? a.value : [[a.value]]);
+
+/**
+ * BUG FIX (oracle): COUNT treats a literal non-numeric argument as "not a
+ * number" (skip), unlike SUM which raises #VALUE! for the same input —
+ * COUNT(1,"x",2,TRUE()) = 3 confirmed against the oracle (the boolean literal
+ * DOES count; the text literal does not). This needs its own flattening rule,
+ * always lenient regardless of scalar-vs-range origin.
+ */
+function countNumeric(a: Arg): number {
+  const vals = a.kind === "scalar" ? [a.value] : a.value.flat();
+  return vals.filter((v) => typeof v === "number" || typeof v === "boolean").length;
+}
+/**
+ * BUG FIX (oracle): COUNTA(1,"",2) = 3 — a literal empty string passed
+ * directly as an argument DOES count (it is a supplied value), but a truly
+ * blank cell reached through a RANGE must not. Our engine represents both as
+ * the same Scalar "" today, so the distinction is made at the argument-origin
+ * level: literal/scalar args always count; matrix (range/array) elements only
+ * count when non-empty-string. Declared, bounded limitation: a literal ""
+ * and an unset range cell are the same wire value, so this is the most
+ * faithful rule reachable without changing the value model.
+ */
+function countNonBlank(a: Arg): number {
+  if (a.kind === "scalar") return 1;
+  return a.value.flat().filter((v) => v !== "").length;
+}
+
+/* ------------------------------------------------------- criteria (xIF) */
+/** SUMIF/COUNTIF/AVERAGEIF criteria: ">2", "<=10", "<>x", wildcard "App*", or exact match. [spec] */
+function makeCriteria(raw: Scalar): (v: Scalar) => boolean {
+  if (typeof raw === "number") return (v) => typeof v === "number" && v === raw;
+  const s = toStr(raw);
+  const m = /^(<=|>=|<>|<|>|=)(.*)$/.exec(s);
+  if (m) {
+    const [, op, rest] = m;
+    const asNum = Number(rest);
+    const cmp = (v: Scalar): number => {
+      if (!Number.isNaN(asNum) && rest.trim() !== "") {
+        const n = typeof v === "number" ? v : Number(v);
+        return Number.isNaN(n) ? NaN : n - asNum;
+      }
+      return toStr(v).localeCompare(rest);
+    };
+    return (v) => {
+      const c = cmp(v);
+      if (Number.isNaN(c)) return false;
+      switch (op) { case "<=": return c <= 0; case ">=": return c >= 0; case "<>": return c !== 0; case "<": return c < 0; case ">": return c > 0; default: return c === 0; }
+    };
+  }
+  if (/[*?]/.test(s)) {
+    const re = new RegExp(`^${s.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".")}$`, "i");
+    return (v) => re.test(toStr(v));
+  }
+  return (v) => toStr(v).toLowerCase() === s.toLowerCase();
+}
+
+/* ------------------------------------------------------------- the table */
+export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
+  // ---- math [oracle: SUM/PRODUCT/ROUND family/MOD/DATE anchors]
+  SUM: (a) => a.flatMap(flattenNumbers).reduce((x, y) => x + y, 0),
+  PRODUCT: (a) => a.flatMap(flattenNumbers).reduce((x, y) => x * y, 1),
+  ABS: (a) => Math.abs(toNumberStrict(scalar(a[0]))),
+  ROUND: (a) => roundHalfAwayFromZero(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1] ?? { kind: "scalar", value: 0 }))),
+  ROUNDUP: (a) => roundDir(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1])), "up"),
+  ROUNDDOWN: (a) => roundDir(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1])), "down"),
+  INT: (a) => Math.floor(toNumberStrict(scalar(a[0]))),
+  TRUNC: (a) => Math.trunc(toNumberStrict(scalar(a[0]))),
+  MOD: (a) => { const n = toNumberStrict(scalar(a[0])); const d = toNumberStrict(scalar(a[1])); if (d === 0) return raise(err("#DIV/0!")); return n - d * Math.floor(n / d); },
+  POWER: (a) => Math.pow(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1]))),
+  SQRT: (a) => { const n = toNumberStrict(scalar(a[0])); return n < 0 ? raise(err("#NUM!")) : Math.sqrt(n); },
+  EXP: (a) => Math.exp(toNumberStrict(scalar(a[0]))),
+  LN: (a) => { const n = toNumberStrict(scalar(a[0])); return n <= 0 ? raise(err("#NUM!")) : Math.log(n); },
+  LOG10: (a) => { const n = toNumberStrict(scalar(a[0])); return n <= 0 ? raise(err("#NUM!")) : Math.log10(n); },
+  LOG: (a) => { const n = toNumberStrict(scalar(a[0])); const base = a[1] ? toNumberStrict(scalar(a[1])) : 10; return Math.log(n) / Math.log(base); },
+  PI: () => Math.PI,
+  SIGN: (a) => Math.sign(toNumberStrict(scalar(a[0]))),
+  RAND: () => Math.random(),
+  RANDBETWEEN: (a) => { const lo = Math.ceil(toNumberStrict(scalar(a[0]))); const hi = Math.floor(toNumberStrict(scalar(a[1]))); return lo + Math.floor(Math.random() * (hi - lo + 1)); },
+
+  // ---- stats [oracle: AVERAGE/COUNT/COUNTA/MIN/MAX; MEDIAN spec]
+  AVERAGE: (a) => { const n = a.flatMap(flattenNumbers); return n.length ? n.reduce((x, y) => x + y, 0) / n.length : raise(err("#DIV/0!")); },
+  COUNT: (a) => a.reduce((sum, arg) => sum + countNumeric(arg), 0),
+  COUNTA: (a) => a.reduce((sum, arg) => sum + countNonBlank(arg), 0),
+  COUNTBLANK: (a) => a.flatMap(flattenAll).filter((v) => v === "" || v === 0 && false).filter((v) => v === "").length,
+  MIN: (a) => { const n = a.flatMap(flattenNumbers); return n.length ? Math.min(...n) : 0; },
+  MAX: (a) => { const n = a.flatMap(flattenNumbers); return n.length ? Math.max(...n) : 0; },
+  MEDIAN: (a) => { const n = a.flatMap(flattenNumbers).sort((x, y) => x - y); if (!n.length) return raise(err("#NUM!")); const mid = Math.floor(n.length / 2); return n.length % 2 ? n[mid] : (n[mid - 1] + n[mid]) / 2; },
+  SUMIF: (a) => sumIf(a), COUNTIF: (a) => countIf(a), AVERAGEIF: (a) => averageIf(a),
+  SUMIFS: (a) => sumIfs(a), COUNTIFS: (a) => countIfs(a),
+
+  // ---- logical [oracle: AND/OR/NOT/XOR]
+  // NOTE: IF, IFS, IFERROR, IFNA and CHOOSE are NOT here — they are evaluated
+  // as LAZY special forms directly in engine.ts's evalCall. BUG FOUND during
+  // oracle verification: this module's arguments are evaluated EAGERLY before
+  // a function body ever runs (functions.ts never sees raw AST nodes), so
+  // IFERROR(1/0,"err") could not "catch" anything — 1/0 had already resolved
+  // to the #DIV/0! VALUE (division returns an error value, it never throws)
+  // before IFERROR's body executed, and a naive try/catch around an already-
+  // evaluated value catches nothing. Branching constructs that must not
+  // evaluate (or must selectively catch) a branch need the unevaluated AST
+  // node, which only the engine has.
+  AND: (a) => a.flatMap(flattenAll).map(toBool).every(Boolean),
+  OR: (a) => a.flatMap(flattenAll).map(toBool).some(Boolean),
+  NOT: (a) => !toBool(scalar(a[0])),
+  XOR: (a) => a.flatMap(flattenAll).map(toBool).filter(Boolean).length % 2 === 1,
+
+  // ---- text [oracle: LEFT/RIGHT/MID/LEN/UPPER/LOWER/TRIM/SUBSTITUTE/REPLACE/FIND/SEARCH/REPT/EXACT/VALUE/TEXT]
+  CONCATENATE: (a) => a.flatMap(flattenAll).map(toStr).join(""),
+  CONCAT: (a) => a.flatMap(flattenAll).map(toStr).join(""),
+  LEFT: (a) => toStr(scalar(a[0])).slice(0, a[1] ? toNumberStrict(scalar(a[1])) : 1),
+  RIGHT: (a) => { const s = toStr(scalar(a[0])); const n = a[1] ? toNumberStrict(scalar(a[1])) : 1; return n <= 0 ? "" : s.slice(Math.max(0, s.length - n)); },
+  MID: (a) => { const s = toStr(scalar(a[0])); const start = toNumberStrict(scalar(a[1])); const len = toNumberStrict(scalar(a[2])); return s.slice(Math.max(0, start - 1), Math.max(0, start - 1) + len); },
+  LEN: (a) => toStr(scalar(a[0])).length,
+  UPPER: (a) => toStr(scalar(a[0])).toUpperCase(),
+  LOWER: (a) => toStr(scalar(a[0])).toLowerCase(),
+  PROPER: (a) => toStr(scalar(a[0])).replace(/\w\S*/g, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase()),
+  TRIM: (a) => toStr(scalar(a[0])).trim().replace(/\s+/g, " "),
+  SUBSTITUTE: (a) => {
+    const s = toStr(scalar(a[0])); const find = toStr(scalar(a[1])); const rep = toStr(scalar(a[2]));
+    if (a[3] === undefined) return s.split(find).join(rep);
+    const nth = toNumberStrict(scalar(a[3])); let count = 0;
+    return s.replace(new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), (m) => (++count === nth ? rep : m));
+  },
+  REPLACE: (a) => { const s = toStr(scalar(a[0])); const start = toNumberStrict(scalar(a[1])); const len = toNumberStrict(scalar(a[2])); const rep = toStr(scalar(a[3])); return s.slice(0, start - 1) + rep + s.slice(start - 1 + len); },
+  FIND: (a) => { const find = toStr(scalar(a[0])); const s = toStr(scalar(a[1])); const start = a[2] ? toNumberStrict(scalar(a[2])) : 1; const i = s.indexOf(find, start - 1); return i < 0 ? raise(err("#VALUE!")) : i + 1; },
+  SEARCH: (a) => { const find = toStr(scalar(a[0])).toLowerCase(); const s = toStr(scalar(a[1])).toLowerCase(); const start = a[2] ? toNumberStrict(scalar(a[2])) : 1; const i = s.indexOf(find, start - 1); return i < 0 ? raise(err("#VALUE!")) : i + 1; },
+  REPT: (a) => toStr(scalar(a[0])).repeat(Math.max(0, toNumberStrict(scalar(a[1])))),
+  EXACT: (a) => toStr(scalar(a[0])) === toStr(scalar(a[1])),
+  VALUE: (a) => { const n = Number(toStr(scalar(a[0])).trim()); return Number.isNaN(n) ? raise(err("#VALUE!")) : n; },
+  TEXT: (a) => formatNumber(toNumberStrict(scalar(a[0])), toStr(scalar(a[1]))),
+
+  // ---- date/time [oracle: DATE epoch anchors, YEAR/MONTH/DAY/WEEKDAY]
+  DATE: (a) => dateToSerial(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1])), toNumberStrict(scalar(a[2]))),
+  TODAY: () => todaySerial(),
+  NOW: () => nowSerial(),
+  YEAR: (a) => serialToDate(toNumberStrict(scalar(a[0]))).y,
+  MONTH: (a) => serialToDate(toNumberStrict(scalar(a[0]))).m,
+  DAY: (a) => serialToDate(toNumberStrict(scalar(a[0]))).d,
+  WEEKDAY: (a) => serialToDate(toNumberStrict(scalar(a[0]))).weekday0 + 1,
+  // BUG FIX (oracle): EDATE(Jan 31 2024, +1) must land on Feb 29 2024 (clamped
+  // to the last real day of the target month), not overflow into March as
+  // naive Date.UTC(y, m, 31) arithmetic does when the target month is shorter.
+  EDATE: (a) => {
+    const d = serialToDate(toNumberStrict(scalar(a[0])));
+    const months = toNumberStrict(scalar(a[1]));
+    const total = d.m - 1 + months;
+    const ty = d.y + Math.floor(total / 12), tm0 = ((total % 12) + 12) % 12;
+    const lastDay = serialToDate(dateToSerial(ty + Math.floor((tm0 + 1) / 12), ((tm0 + 1) % 12) + 1, 1) - 1).d;
+    return dateToSerial(ty, tm0 + 1, Math.min(d.d, lastDay));
+  },
+  EOMONTH: (a) => { const d = serialToDate(toNumberStrict(scalar(a[0]))); const months = toNumberStrict(scalar(a[1])); const total = d.m - 1 + months + 1; const firstOfNext = dateToSerial(d.y + Math.floor(total / 12), (total % 12 + 12) % 12 + 1, 1); return firstOfNext - 1; },
+  DATEDIF: (a) => { const s = toNumberStrict(scalar(a[0])); const e = toNumberStrict(scalar(a[1])); const unit = toStr(scalar(a[2])).toUpperCase(); if (unit === "D") return e - s; const sd = serialToDate(s); const ed = serialToDate(e); if (unit === "Y") return ed.y - sd.y - ((ed.m, ed.d) < (sd.m, sd.d) ? 1 : 0); if (unit === "M") return (ed.y - sd.y) * 12 + (ed.m - sd.m) - (ed.d < sd.d ? 1 : 0); return raise(err("#NUM!")); },
+  DAYS: (a) => toNumberStrict(scalar(a[0])) - toNumberStrict(scalar(a[1])),
+
+  // ---- lookup [oracle: VLOOKUP exact+approx, HLOOKUP, INDEX, MATCH, CHOOSE]
+  VLOOKUP: (a) => vlookup(a),
+  HLOOKUP: (a) => hlookup(a),
+  INDEX: (a) => indexFn(a),
+  MATCH: (a) => matchFn(a),
+  // CHOOSE also moved to a lazy special form (same reason: must not evaluate
+  // the branches it does not select).
+  ROW: () => raise(err("#REF!")), // needs cell context; engine overrides when a ref arg is given
+  COLUMN: () => raise(err("#REF!")),
+
+  // ---- information [oracle: ISNUMBER/ISTEXT/ISERROR/ISNA/ISLOGICAL]
+  // BUG FIX: these must inspect the already-evaluated error VALUE directly —
+  // there is no exception to catch here, for the same reason as above.
+  ISBLANK: (a) => scalar(a[0]) === "",
+  ISNUMBER: (a) => typeof scalar(a[0]) === "number",
+  ISTEXT: (a) => typeof scalar(a[0]) === "string",
+  ISLOGICAL: (a) => typeof scalar(a[0]) === "boolean",
+  ISERROR: (a) => isError(scalar(a[0])),
+  ISNA: (a) => { const v = scalar(a[0]); return isError(v) && v.error === "#N/A"; },
+  NA: () => raise(err("#N/A")),
+  N: (a) => { const v = scalar(a[0]); return typeof v === "number" ? v : typeof v === "boolean" ? (v ? 1 : 0) : 0; },
+};
+
+const scalar = (a: Arg | undefined): Scalar => {
+  if (a === undefined) return raise(err("#VALUE!"));
+  if (a.kind === "scalar") return a.value;
+  return a.value[0]?.[0] ?? raise(err("#VALUE!")); // implicit intersection: first cell of a 1-cell-context range
+};
+
+function roundHalfAwayFromZero(n: number, digits: number): number {
+  const f = Math.pow(10, digits);
+  return (n >= 0 ? Math.round(n * f) : -Math.round(-n * f)) / f; // [oracle] ROUND(2.5,0)=3, not banker's rounding
+}
+function roundDir(n: number, digits: number, dir: "up" | "down"): number {
+  const f = Math.pow(10, digits);
+  const fn = dir === "up" ? (n >= 0 ? Math.ceil : Math.floor) : (n >= 0 ? Math.floor : Math.ceil);
+  return fn(n * f) / f;
+}
+/** TEXT(): a bounded subset of number-format codes — 0/0.00/#,##0/#,##0.00/0%. [spec] */
+function formatNumber(n: number, fmt: string): string {
+  const neg = n < 0; const abs = Math.abs(n);
+  if (fmt.includes("%")) return `${roundHalfAwayFromZero(abs * 100, (fmt.split(".")[1] ?? "").replace("%", "").length)}%`;
+  const decMatch = /\.(0+)/.exec(fmt);
+  const decimals = decMatch ? decMatch[1].length : 0;
+  const rounded = roundHalfAwayFromZero(abs, decimals).toFixed(decimals);
+  const [intPart, fracPart] = rounded.split(".");
+  const grouped = fmt.includes(",") ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : intPart;
+  return (neg ? "-" : "") + grouped + (fracPart ? `.${fracPart}` : "");
+}
+
+function sumIf(a: Arg[]): Scalar {
+  const range = matrixOf(a[0]).flat();
+  const crit = makeCriteria(scalar(a[1]));
+  const sumRange = (a[2] ? matrixOf(a[2]) : matrixOf(a[0])).flat();
+  let total = 0;
+  range.forEach((v, i) => { if (crit(v)) { const n = sumRange[i]; if (typeof n === "number") total += n; } });
+  return total;
+}
+function countIf(a: Arg[]): Scalar {
+  const range = matrixOf(a[0]).flat();
+  const crit = makeCriteria(scalar(a[1]));
+  return range.filter(crit).length;
+}
+function averageIf(a: Arg[]): Scalar {
+  const range = matrixOf(a[0]).flat();
+  const crit = makeCriteria(scalar(a[1]));
+  const avgRange = (a[2] ? matrixOf(a[2]) : matrixOf(a[0])).flat();
+  const matched: number[] = [];
+  range.forEach((v, i) => { if (crit(v)) { const n = avgRange[i]; if (typeof n === "number") matched.push(n); } });
+  return matched.length ? matched.reduce((x, y) => x + y, 0) / matched.length : raise(err("#DIV/0!"));
+}
+function sumIfs(a: Arg[]): Scalar {
+  const sumRange = matrixOf(a[0]).flat();
+  const mask = buildMultiCriteriaMask(a.slice(1));
+  let total = 0; sumRange.forEach((v, i) => { if (mask[i] && typeof v === "number") total += v; }); return total;
+}
+function countIfs(a: Arg[]): Scalar {
+  const mask = buildMultiCriteriaMask(a);
+  return mask.filter(Boolean).length;
+}
+function buildMultiCriteriaMask(pairs: Arg[]): boolean[] {
+  let mask: boolean[] | null = null;
+  for (let i = 0; i + 1 < pairs.length; i += 2) {
+    const range = matrixOf(pairs[i]).flat();
+    const crit = makeCriteria(scalar(pairs[i + 1]));
+    const m = range.map(crit);
+    mask = mask ? mask.map((x, j) => x && m[j]) : m;
+  }
+  return mask ?? [];
+}
+
+function vlookup(a: Arg[]): Scalar {
+  const key = scalar(a[0]);
+  const table = matrixOf(a[1]);
+  const col = toNumberStrict(scalar(a[2])) - 1;
+  const approx = a[3] === undefined || toBool(scalar(a[3]));
+  if (approx) {
+    let best: Scalar[] | null = null;
+    for (const row of table) { const v = row[0]; if (lte(v, key)) best = row; else break; }
+    if (!best) return raise(err("#N/A"));
+    return best[col] ?? raise(err("#REF!"));
+  }
+  const row = table.find((r) => eq(r[0], key));
+  if (!row) return raise(err("#N/A"));
+  return row[col] ?? raise(err("#REF!"));
+}
+function hlookup(a: Arg[]): Scalar {
+  const key = scalar(a[0]);
+  const table = matrixOf(a[1]);
+  const rowIdx = toNumberStrict(scalar(a[2])) - 1;
+  const approx = a[3] === undefined || toBool(scalar(a[3]));
+  const header = table[0];
+  let colIdx = -1;
+  if (approx) { for (let i = 0; i < header.length; i++) if (lte(header[i], key)) colIdx = i; else break; }
+  else colIdx = header.findIndex((v) => eq(v, key));
+  if (colIdx < 0) return raise(err("#N/A"));
+  return table[rowIdx]?.[colIdx] ?? raise(err("#REF!"));
+}
+function indexFn(a: Arg[]): Scalar {
+  const table = matrixOf(a[0]);
+  const row = a[1] ? toNumberStrict(scalar(a[1])) : 0;
+  const col = a[2] ? toNumberStrict(scalar(a[2])) : 0;
+  if (row === 0 && col > 0) return table.length === 1 ? table[0][col - 1] : raise(err("#VALUE!"));
+  if (col === 0 && row > 0) return table[row - 1]?.[0] ?? raise(err("#REF!"));
+  return table[row - 1]?.[col - 1] ?? raise(err("#REF!"));
+}
+function matchFn(a: Arg[]): Scalar {
+  const key = scalar(a[0]);
+  const list = matrixOf(a[1]).flat();
+  const mode = a[2] ? toNumberStrict(scalar(a[2])) : 1;
+  if (mode === 0) { const i = list.findIndex((v) => eq(v, key)); return i < 0 ? raise(err("#N/A")) : i + 1; }
+  let best = -1;
+  for (let i = 0; i < list.length; i++) { if (mode > 0 ? lte(list[i], key) : lte(key, list[i])) best = i; else if (mode > 0) break; }
+  return best < 0 ? raise(err("#N/A")) : best + 1;
+}
+function eq(a: Scalar, b: Scalar): boolean { return typeof a === "string" && typeof b === "string" ? a === b : a === b; }
+function lte(a: Scalar, b: Scalar): boolean {
+  if (typeof a === "number" && typeof b === "number") return a <= b;
+  return toStr(a) <= toStr(b);
+}

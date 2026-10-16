@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+/* Fusion Shell Web — design tokens.
+   Density is a token set, not a media query: Compact/Balanced/Touch change
+   sizes everywhere at once and never remove capability (DP-13). */
+:root {
+  --fs-accent: #5b8cff;
+  --fs-bg: #070b16;
+  --fs-bg-2: #0d1426;
+  --fs-panel: rgba(16, 23, 42, 0.86);
+  --fs-panel-solid: #111a2e;
+  --fs-border: rgba(130, 160, 255, 0.16);
+  --fs-text: #e8edfa;
+  --fs-muted: #93a1c4;
+  --fs-ok: #39d98a;
+  --fs-warn: #ffc453;
+  --fs-bad: #ff6b6b;
+  --fs-titlebar: 34px;
+  --fs-target: 32px;
+  --fs-radius: 12px;
+  --fs-font: 13px;
+  --fs-motion: 160ms;
+}
+:root[data-density="compact"] { --fs-titlebar: 28px; --fs-target: 24px; --fs-radius: 9px; --fs-font: 12px; }
+:root[data-density="touch"]   { --fs-titlebar: 44px; --fs-target: 48px; --fs-radius: 16px; --fs-font: 15px; }
+:root[data-motion="off"]      { --fs-motion: 0ms; }
+:root[data-theme="light"] {
+  --fs-bg: #e9eefb; --fs-bg-2: #f5f7ff; --fs-panel: rgba(255,255,255,0.9); --fs-panel-solid: #ffffff;
+  --fs-border: rgba(20, 40, 90, 0.14); --fs-text: #111a2e; --fs-muted: #4b5a7a;
+}
+
+@media (prefers-reduced-motion: reduce) { :root { --fs-motion: 0ms; } }
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--fs-bg);
+  color: var(--fs-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--fs-font);
+  overscroll-behavior: none;
+}
+* { scrollbar-width: thin; scrollbar-color: rgba(130,160,255,.3) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: rgba(130,160,255,.28); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+
+:focus-visible { outline: 2px solid var(--fs-accent); outline-offset: 2px; border-radius: 4px; }
+
+.fs-wallpaper-aurora {
+  background:
+    radial-gradient(1200px 700px at 12% 8%, rgba(91,140,255,.30), transparent 60%),
+    radial-gradient(900px 600px at 86% 20%, rgba(177,75,255,.22), transparent 60%),
+    radial-gradient(1000px 800px at 50% 110%, rgba(0,214,170,.16), transparent 60%),
+    linear-gradient(160deg, #070b16, #0b1226 60%, #070b16);
+}
+.fs-wallpaper-grid {
+  background-color: #070b16;
+  background-image: linear-gradient(rgba(91,140,255,.10) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(91,140,255,.10) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.fs-wallpaper-slate { background: linear-gradient(180deg, #0a1020, #131c33); }
+
+.fs-panel {
+  background: var(--fs-panel);
+  border: 1px solid var(--fs-border);
+  border-radius: var(--fs-radius);
+  backdrop-filter: blur(16px) saturate(130%);
+}
+.fs-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--fs-panel-solid);
+  border: 1px solid var(--fs-border);
+  border-radius: var(--fs-radius);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .55);
+  contain: layout paint style;
+  will-change: transform;
+}
+[data-effects="off"] .fs-window { box-shadow: 0 6px 18px rgba(0,0,0,.45); }
+[data-effects="off"] .fs-panel { backdrop-filter: none; background: var(--fs-panel-solid); }
+
+.fs-titlebar {
+  height: var(--fs-titlebar);
+  min-height: var(--fs-titlebar);
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 6px 0 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border-bottom: 1px solid var(--fs-border);
+  cursor: default;
+  user-select: none;
+  touch-action: none;
+}
+.fs-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--fs-target); padding: 0 10px;
+  border: 1px solid var(--fs-border); border-radius: 8px;
+  background: rgba(255,255,255,.04); color: var(--fs-text);
+  font-size: 12px; cursor: pointer;
+  transition: background var(--fs-motion) ease, border-color var(--fs-motion) ease;
+}
+.fs-btn:hover { background: rgba(91,140,255,.16); border-color: rgba(91,140,255,.4); }
+.fs-btn[data-variant="ghost"] { background: transparent; border-color: transparent; }
+.fs-btn[data-variant="primary"] { background: var(--fs-accent); border-color: transparent; color: #04102b; font-weight: 600; }
+.fs-btn[data-variant="danger"] { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.45); color: #ffb0b0; }
+.fs-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.fs-input, .fs-select, .fs-textarea {
+  width: 100%; background: rgba(6,10,22,.7); color: var(--fs-text);
+  border: 1px solid var(--fs-border); border-radius: 8px;
+  padding: 6px 9px; font-size: 12px; font-family: inherit;
+}
+.fs-textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; }
+.fs-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600;
+  border: 1px solid var(--fs-border); background: rgba(255,255,255,.05); color: var(--fs-muted);
+  white-space: nowrap;
+}
+.fs-badge[data-tone="ok"] { color: #8df0c0; border-color: rgba(57,217,138,.4); background: rgba(57,217,138,.12); }
+.fs-badge[data-tone="warn"] { color: #ffd98a; border-color: rgba(255,196,83,.4); background: rgba(255,196,83,.12); }
+.fs-badge[data-tone="bad"] { color: #ffb3b3; border-color: rgba(255,107,107,.4); background: rgba(255,107,107,.12); }
+.fs-badge[data-tone="info"] { color: #b9ccff; border-color: rgba(91,140,255,.4); background: rgba(91,140,255,.14); }
+
+.fs-row { display: flex; align-items: center; gap: 8px; }
+.fs-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.fs-dim { color: var(--fs-muted); }
+.fs-scroll { overflow: auto; }
+.fs-list-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 8px; cursor: default; }
+.fs-list-item:hover { background: rgba(255,255,255,.05); }
+.fs-list-item[data-selected="true"] { background: rgba(91,140,255,.22); }
+.fs-sep { height: 1px; background: var(--fs-border); margin: 6px 0; }
+.fs-kbd {
+  font-family: ui-monospace, monospace; font-size: 10.5px; padding: 1px 5px;
+  border: 1px solid var(--fs-border); border-bottom-width: 2px; border-radius: 5px; background: rgba(255,255,255,.05);
+}
+.fs-resizer { position: absolute; }
+.fs-blink { animation: fs-blink 1.05s steps(2, start) infinite; }
+@keyframes fs-blink { to { visibility: hidden; } }

@@ -1,0 +1,506 @@
+{
+  "suite": "e2e",
+  "at": "2026-10-15T05:33:15.030Z",
+  "results": [
+    {
+      "suite": "e2e",
+      "name": "mount: files",
+      "covers": {
+        "FM-01": "partial",
+        "FM-03": "partial",
+        "FM-11": "partial",
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "ms": 1251
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: editor",
+      "covers": {
+        "PR-01": "partial",
+        "FF-15": "partial"
+      },
+      "pass": true,
+      "ms": 1012
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: find",
+      "covers": {
+        "SR-01": "partial",
+        "SR-02": "partial",
+        "SR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1006
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: terminal",
+      "covers": {
+        "TD-01": "partial",
+        "TD-02": "partial"
+      },
+      "pass": true,
+      "ms": 989
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: notes",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 992
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: browser",
+      "covers": {
+        "PR-07": "partial",
+        "WM-06": "partial"
+      },
+      "pass": true,
+      "ms": 1002
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: media",
+      "covers": {
+        "MD-02": "partial",
+        "CA-01": "partial"
+      },
+      "pass": true,
+      "ms": 1016
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: capture",
+      "covers": {
+        "MD-01": "partial"
+      },
+      "pass": true,
+      "ms": 998
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: lens",
+      "covers": {
+        "LN-01": "partial",
+        "LN-13": "partial",
+        "LN-14": "partial"
+      },
+      "pass": true,
+      "ms": 996
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: beam",
+      "covers": {
+        "CA-05": "partial",
+        "CA-01": "partial",
+        "CA-02": "partial"
+      },
+      "pass": true,
+      "ms": 1013
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: together",
+      "covers": {
+        "CA-11": "partial",
+        "CA-15": "partial"
+      },
+      "pass": true,
+      "ms": 988
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: messages",
+      "covers": {
+        "MS-01": "partial",
+        "MS-03": "partial"
+      },
+      "pass": true,
+      "ms": 989
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: vault",
+      "covers": {
+        "SC-01": "partial",
+        "SC-02": "partial"
+      },
+      "pass": true,
+      "ms": 997
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: backup",
+      "covers": {
+        "BK-01": "partial",
+        "BK-03": "partial",
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 995
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: alerts",
+      "covers": {
+        "NC-01": "partial",
+        "NC-04": "partial"
+      },
+      "pass": true,
+      "ms": 991
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: monitor",
+      "covers": {
+        "RG-01": "partial",
+        "RG-04": "partial",
+        "DP-14": "partial"
+      },
+      "pass": true,
+      "ms": 992
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: calculator",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 991
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: settings",
+      "covers": {
+        "ST-01": "partial",
+        "ST-04": "partial",
+        "BL-01": "partial"
+      },
+      "pass": true,
+      "ms": 1005
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: spec",
+      "covers": {
+        "DP-10": "partial",
+        "DP-08": "partial"
+      },
+      "pass": true,
+      "ms": 1000
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: clock",
+      "covers": {
+        "PR-10": "partial"
+      },
+      "pass": true,
+      "ms": 989
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: planner",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1000
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: devices",
+      "covers": {
+        "MD-04": "partial",
+        "MD-05": "partial",
+        "MD-06": "partial",
+        "MD-07": "partial",
+        "TD-03": "partial",
+        "CT-06": "partial",
+        "IN-07": "partial"
+      },
+      "pass": true,
+      "ms": 989
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: share",
+      "covers": {
+        "CA-09": "partial",
+        "CT-02": "partial",
+        "CA-13": "partial"
+      },
+      "pass": true,
+      "ms": 1010
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: routines",
+      "covers": {
+        "AU-01": "partial",
+        "AU-02": "partial",
+        "PR-07r": "partial"
+      },
+      "pass": true,
+      "ms": 1005
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: clipboard",
+      "covers": {
+        "PR-12": "partial"
+      },
+      "pass": true,
+      "ms": 995
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: storage",
+      "covers": {
+        "FM-07": "partial"
+      },
+      "pass": true,
+      "ms": 998
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: localdisk",
+      "covers": {
+        "FM-08": "partial",
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 991
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: peek",
+      "covers": {
+        "FM-04": "partial",
+        "FF-01": "partial",
+        "FF-11": "partial"
+      },
+      "pass": true,
+      "ms": 990
+    },
+    {
+      "suite": "e2e",
+      "name": "no non-resource console errors across all module mounts",
+      "covers": {
+        "DP-07": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e",
+      "name": "drag a window by its title bar; geometry is committed and persisted",
+      "covers": {
+        "WM-01": "full",
+        "HW-01": "partial",
+        "SH-08": "full"
+      },
+      "pass": true,
+      "ms": 2828
+    },
+    {
+      "suite": "e2e",
+      "name": "keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half",
+      "covers": {
+        "WM-02": "full",
+        "WM-09": "full",
+        "AX-05": "partial"
+      },
+      "pass": true,
+      "ms": 619
+    },
+    {
+      "suite": "e2e",
+      "name": "calculator evaluates typed input with the shared evaluator",
+      "covers": {
+        "PR-09": "full"
+      },
+      "pass": true,
+      "ms": 14
+    },
+    {
+      "suite": "e2e",
+      "name": "palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
+      "covers": {
+        "SR-01": "full",
+        "SR-03": "full"
+      },
+      "pass": true,
+      "ms": 59
+    },
+    {
+      "suite": "e2e",
+      "name": "terminal: write + cat through the journal; mv shows journal op",
+      "covers": {
+        "TD-01": "full",
+        "TD-02": "full"
+      },
+      "pass": true,
+      "ms": 186
+    },
+    {
+      "suite": "e2e",
+      "name": "editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
+      "covers": {
+        "PR-01": "full",
+        "FM-18": "full",
+        "FF-15": "partial"
+      },
+      "pass": true,
+      "ms": 159
+    },
+    {
+      "suite": "e2e",
+      "name": "Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)",
+      "covers": {
+        "FM-01": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 382
+    },
+    {
+      "suite": "e2e",
+      "name": "routines: dry-run lists actions without executing; Run opens the window",
+      "covers": {
+        "AU-01": "full"
+      },
+      "pass": true,
+      "ms": 280
+    },
+    {
+      "suite": "e2e",
+      "name": "clock stopwatch advances from performance.now anchors",
+      "covers": {
+        "PR-10": "partial"
+      },
+      "pass": true,
+      "ms": 1669
+    },
+    {
+      "suite": "e2e",
+      "name": "Lens processes frames from a (fake) camera at > 0 fps",
+      "covers": {
+        "LN-01": "full",
+        "LN-13": "partial",
+        "LN-15": "partial"
+      },
+      "pass": true,
+      "ms": 5456
+    },
+    {
+      "suite": "e2e",
+      "name": "governor reacts to injected long tasks",
+      "covers": {
+        "RG-01": "partial",
+        "RG-04": "partial"
+      },
+      "pass": true,
+      "ms": 2661
+    },
+    {
+      "suite": "e2e",
+      "name": "Beam lists every transport and names the missing primitive on blocked ones",
+      "covers": {
+        "CA-05": "partial",
+        "DP-10": "full",
+        "CA-03": "full",
+        "CA-04": "full",
+        "CA-06": "full",
+        "CA-07": "full",
+        "CA-10": "full",
+        "CA-12": "full"
+      },
+      "pass": true,
+      "ms": 284
+    },
+    {
+      "suite": "e2e",
+      "name": "Spec module renders the full register",
+      "covers": {
+        "DP-08": "partial"
+      },
+      "pass": true,
+      "ms": 237
+    },
+    {
+      "suite": "e2e",
+      "name": "Overview (Meta+Q) and Blackout overlay toggle",
+      "covers": {
+        "WM-04": "partial",
+        "SH-10": "partial"
+      },
+      "pass": true,
+      "ms": 255
+    },
+    {
+      "suite": "e2e",
+      "name": "structural a11y: every window is a named dialog; no unnamed buttons",
+      "covers": {
+        "AX-01": "partial",
+        "AX-02": "partial"
+      },
+      "pass": true,
+      "ms": 1093
+    },
+    {
+      "suite": "e2e",
+      "name": "offline write is queued, then replayed through the journal when back online",
+      "covers": {
+        "SH-14": "full"
+      },
+      "pass": true,
+      "ms": 1118
+    },
+    {
+      "suite": "e2e",
+      "name": "WebRTC data channel between two contexts via Postgres signalling",
+      "covers": {
+        "CT-02": "full",
+        "CA-09": "partial"
+      },
+      "pass": true,
+      "ms": 2484
+    },
+    {
+      "suite": "e2e",
+      "name": "SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive",
+      "covers": {
+        "SH-05": "partial"
+      },
+      "pass": true,
+      "ms": 6164
+    },
+    {
+      "suite": "e2e",
+      "name": "characterisation: default headless config freezes the shell (documented limitation, not a pass claim)",
+      "covers": {},
+      "pass": true,
+      "ms": 10008
+    },
+    {
+      "suite": "e2e",
+      "name": "desktop shows sticky note widget; seeded widget has no hang button",
+      "covers": {
+        "PR-13": "full"
+      },
+      "pass": true,
+      "ms": 248
+    }
+  ]
+}

@@ -1,0 +1,1343 @@
+{
+ "generatedAt": "2026-10-15T05:33:29.524Z",
+ "totals": {
+  "built": {
+   "full": 171,
+   "partial": 59,
+   "blocked": 22,
+   "none": 0
+  },
+  "tested": {
+   "full": 44,
+   "partial": 71,
+   "untested": 137
+  },
+  "tests": {
+   "total": 95,
+   "passed": 95
+  }
+ },
+ "rows": {
+  "SH-01": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-05": {
+   "tested": "partial",
+   "tests": [
+    "e2e: SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive"
+   ]
+  },
+  "SH-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-07": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-08": {
+   "tested": "full",
+   "tests": [
+    "e2e: drag a window by its title bar; geometry is committed and persisted",
+    "integration: SH-08 stale revision cannot clobber newer desktop state (409)",
+    "unit: command log replay reproduces the identical state hash"
+   ]
+  },
+  "SH-09": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-10": {
+   "tested": "partial",
+   "tests": [
+    "e2e: Overview (Meta+Q) and Blackout overlay toggle"
+   ]
+  },
+  "SH-11": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-12": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-13": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SH-14": {
+   "tested": "full",
+   "tests": [
+    "e2e: offline write is queued, then replayed through the journal when back online"
+   ]
+  },
+  "WM-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: drag a window by its title bar; geometry is committed and persisted",
+    "unit: 10 000 random commands preserve every invariant"
+   ]
+  },
+  "WM-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half",
+    "unit: 10 000 random commands preserve every invariant"
+   ]
+  },
+  "WM-03": {
+   "tested": "partial",
+   "tests": [
+    "unit: reducer is pure (input not mutated); workspaces filter without unmounting"
+   ]
+  },
+  "WM-04": {
+   "tested": "partial",
+   "tests": [
+    "e2e: Overview (Meta+Q) and Blackout overlay toggle"
+   ]
+  },
+  "WM-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-06": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: browser"
+   ]
+  },
+  "WM-07": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-08": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-09": {
+   "tested": "full",
+   "tests": [
+    "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half",
+    "unit: 10 000 random commands preserve every invariant"
+   ]
+  },
+  "WM-10": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-11": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-12": {
+   "tested": "partial",
+   "tests": [
+    "unit: 10 000 random commands preserve every invariant"
+   ]
+  },
+  "WM-13": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-14": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-15": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-16": {
+   "tested": "untested",
+   "tests": []
+  },
+  "IN-01": {
+   "tested": "untested",
+   "tests": []
+  },
+  "IN-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "IN-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "IN-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "IN-05": {
+   "tested": "full",
+   "tests": [
+    "unit: shortcut presets have no internal conflicts; chord matcher"
+   ]
+  },
+  "IN-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "IN-07": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: devices"
+   ]
+  },
+  "IN-08": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SR-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: find",
+    "e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
+    "integration: SR-01 search finds new content with provenance",
+    "integration: search treats % and _ in queries literally"
+   ]
+  },
+  "SR-02": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: find",
+    "integration: SR-01 search finds new content with provenance",
+    "integration: deleting a note removes only its own index row"
+   ]
+  },
+  "SR-03": {
+   "tested": "full",
+   "tests": [
+    "e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
+    "integration: SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing",
+    "unit: OSA distance counts adjacent transposition as 1",
+    "unit: fuzzy scoring: typos match, short words exact only, junk rejected"
+   ]
+  },
+  "SR-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SR-05": {
+   "tested": "full",
+   "tests": [
+    "integration: search treats % and _ in queries literally"
+   ]
+  },
+  "SR-06": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: calculator",
+    "unit: precedence, power associativity, rounding policy"
+   ]
+  },
+  "SR-07": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SR-08": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: find"
+   ]
+  },
+  "FM-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: files",
+    "e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)"
+   ]
+  },
+  "FM-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-03": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: files",
+    "e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)",
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
+    "integration: FM-03 adversarial moves are refused and journaled as FAILED",
+    "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)"
+   ]
+  },
+  "FM-04": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: peek",
+    "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades"
+   ]
+  },
+  "FM-05": {
+   "tested": "full",
+   "tests": [
+    "integration: FM-05 compress → extract round trip preserves bytes (text and binary)",
+    "integration: FM-05 extract refuses zip-slip and writes nothing",
+    "unit: zip-slip and bomb guards fire before allocation",
+    "unit: CRC-32 known-answer vector and writer → reader round trip",
+    "unit: corrupted archive is detected by CRC, never silently extracted"
+   ]
+  },
+  "FM-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-07": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: storage",
+    "integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest"
+   ]
+  },
+  "FM-08": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: localdisk"
+   ]
+  },
+  "FM-09": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-10": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-11": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: files",
+    "integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest",
+    "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)"
+   ]
+  },
+  "FM-12": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-13": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-14": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-15": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-16": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-17": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FM-18": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: files",
+    "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
+    "integration: FM-18 overwrite snapshots the previous version"
+   ]
+  },
+  "NC-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: alerts"
+   ]
+  },
+  "NC-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "NC-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "NC-04": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: alerts"
+   ]
+  },
+  "NC-05": {
+   "tested": "partial",
+   "tests": [
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+   ]
+  },
+  "NC-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "ST-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: settings",
+    "integration: SR-04 / settings: locked settings refuse writes (423)"
+   ]
+  },
+  "ST-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "ST-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "ST-04": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: settings"
+   ]
+  },
+  "ST-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "ST-06": {
+   "tested": "partial",
+   "tests": [
+    "unit: shortcut presets have no internal conflicts; chord matcher"
+   ]
+  },
+  "ST-07": {
+   "tested": "untested",
+   "tests": []
+  },
+  "ST-08": {
+   "tested": "untested",
+   "tests": []
+  },
+  "ST-09": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AP-01": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AP-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AP-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AP-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AP-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "TD-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: terminal",
+    "e2e: terminal: write + cat through the journal; mv shows journal op"
+   ]
+  },
+  "TD-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: terminal",
+    "e2e: terminal: write + cat through the journal; mv shows journal op"
+   ]
+  },
+  "TD-03": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: devices"
+   ]
+  },
+  "TD-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "TD-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "TD-06": {
+   "tested": "full",
+   "tests": [
+    "unit: command log replay reproduces the identical state hash"
+   ]
+  },
+  "PR-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: editor",
+    "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists"
+   ]
+  },
+  "PR-02": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: notes",
+    "integration: deleting a note removes only its own index row"
+   ]
+  },
+  "PR-03": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: planner",
+    "integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar"
+   ]
+  },
+  "PR-04": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: planner",
+    "integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar",
+    "unit: ICS unfolding, escapes, parameters, VTODO status, round trip"
+   ]
+  },
+  "PR-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: browser"
+   ]
+  },
+  "PR-07a": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07b": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07c": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07d": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07e": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07f": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07g": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07h": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07i": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07j": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07k": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07l": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07m": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07n": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07o": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07p": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07q": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-07r": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: routines",
+    "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted"
+   ]
+  },
+  "PR-07s": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-08": {
+   "tested": "untested",
+   "tests": []
+  },
+  "PR-09": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: calculator",
+    "e2e: calculator evaluates typed input with the shared evaluator",
+    "unit: precedence, power associativity, rounding policy",
+    "unit: division by zero and code injection rejected"
+   ]
+  },
+  "PR-10": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: clock",
+    "e2e: clock stopwatch advances from performance.now anchors"
+   ]
+  },
+  "PR-11": {
+   "tested": "partial",
+   "tests": [
+    "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
+    "unit: docx extraction; EPUB spine order; PSD header"
+   ]
+  },
+  "PR-12": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: clipboard"
+   ]
+  },
+  "PR-13": {
+   "tested": "full",
+   "tests": [
+    "e2e: desktop shows sticky note widget; seeded widget has no hang button"
+   ]
+  },
+  "FF-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: peek",
+    "unit: loss report itemises drops; registry grades"
+   ]
+  },
+  "FF-02": {
+   "tested": "full",
+   "tests": [
+    "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
+    "unit: docx extraction; EPUB spine order; PSD header"
+   ]
+  },
+  "FF-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FF-04": {
+   "tested": "full",
+   "tests": [
+    "unit: SVG sanitiser strips script/handlers/foreignObject/javascript:"
+   ]
+  },
+  "FF-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FF-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FF-07": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FF-08": {
+   "tested": "full",
+   "tests": [
+    "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
+    "unit: docx extraction; EPUB spine order; PSD header"
+   ]
+  },
+  "FF-09": {
+   "tested": "full",
+   "tests": [
+    "unit: CSV RFC-4180 round trip"
+   ]
+  },
+  "FF-10": {
+   "tested": "full",
+   "tests": [
+    "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
+    "unit: docx extraction; EPUB spine order; PSD header"
+   ]
+  },
+  "FF-11": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: peek",
+    "unit: loss report itemises drops; registry grades"
+   ]
+  },
+  "FF-12": {
+   "tested": "full",
+   "tests": [
+    "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
+    "integration: FM-05 extract refuses zip-slip and writes nothing",
+    "unit: zip-slip and bomb guards fire before allocation"
+   ]
+  },
+  "FF-13": {
+   "tested": "untested",
+   "tests": []
+  },
+  "FF-14": {
+   "tested": "full",
+   "tests": [
+    "unit: loss report itemises drops; registry grades"
+   ]
+  },
+  "FF-15": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: editor",
+    "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists"
+   ]
+  },
+  "MD-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: capture"
+   ]
+  },
+  "MD-02": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: media"
+   ]
+  },
+  "MD-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "MD-04": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: devices"
+   ]
+  },
+  "MD-05": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: devices"
+   ]
+  },
+  "MD-06": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: devices"
+   ]
+  },
+  "MD-07": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: devices"
+   ]
+  },
+  "MD-08": {
+   "tested": "untested",
+   "tests": []
+  },
+  "MD-09": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SC-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: vault",
+    "unit: seal/open round trip; wrong passphrase and ciphertext tamper fail"
+   ]
+  },
+  "SC-02": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: vault"
+   ]
+  },
+  "SC-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SC-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SC-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SC-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "SC-07": {
+   "tested": "full",
+   "tests": [
+    "unit: seal/open round trip; wrong passphrase and ciphertext tamper fail",
+    "unit: header downgrade (iterations) is detected via AAD; policy floor enforced"
+   ]
+  },
+  "SC-08": {
+   "tested": "partial",
+   "tests": [
+    "integration: SR-04 / settings: locked settings refuse writes (423)"
+   ]
+  },
+  "SC-09": {
+   "tested": "untested",
+   "tests": []
+  },
+  "BK-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: backup",
+    "integration: FM-18 overwrite snapshots the previous version",
+    "integration: BK-01 tampered backup bundle is refused before anything is written",
+    "unit: seal/open round trip; wrong passphrase and ciphertext tamper fail"
+   ]
+  },
+  "BK-02": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: localdisk"
+   ]
+  },
+  "BK-03": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: backup",
+    "integration: BK-01 tampered backup bundle is refused before anything is written"
+   ]
+  },
+  "BK-04": {
+   "tested": "full",
+   "tests": [
+    "unit: BK-04 capability diff reports lost/gained with degrade text"
+   ]
+  },
+  "BK-05": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: backup",
+    "integration: BK-01 tampered backup bundle is refused before anything is written"
+   ]
+  },
+  "BK-06": {
+   "tested": "partial",
+   "tests": [
+    "unit: seal/open round trip; wrong passphrase and ciphertext tamper fail"
+   ]
+  },
+  "CT-01": {
+   "tested": "untested",
+   "tests": []
+  },
+  "CT-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: share",
+    "e2e: WebRTC data channel between two contexts via Postgres signalling",
+    "integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap"
+   ]
+  },
+  "CT-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "CT-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "CT-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "CT-06": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: devices"
+   ]
+  },
+  "CA-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: media",
+    "e2e: mount: beam"
+   ]
+  },
+  "CA-02": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: beam",
+    "integration: CA-11 Together anchor clock advances while playing and freezes on pause"
+   ]
+  },
+  "CA-03": {
+   "tested": "full",
+   "tests": [
+    "e2e: Beam lists every transport and names the missing primitive on blocked ones"
+   ]
+  },
+  "CA-04": {
+   "tested": "full",
+   "tests": [
+    "e2e: Beam lists every transport and names the missing primitive on blocked ones"
+   ]
+  },
+  "CA-05": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: beam",
+    "e2e: Beam lists every transport and names the missing primitive on blocked ones"
+   ]
+  },
+  "CA-06": {
+   "tested": "full",
+   "tests": [
+    "e2e: Beam lists every transport and names the missing primitive on blocked ones"
+   ]
+  },
+  "CA-07": {
+   "tested": "full",
+   "tests": [
+    "e2e: Beam lists every transport and names the missing primitive on blocked ones"
+   ]
+  },
+  "CA-08": {
+   "tested": "untested",
+   "tests": []
+  },
+  "CA-09": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: share",
+    "e2e: WebRTC data channel between two contexts via Postgres signalling",
+    "integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap"
+   ]
+  },
+  "CA-10": {
+   "tested": "full",
+   "tests": [
+    "e2e: Beam lists every transport and names the missing primitive on blocked ones"
+   ]
+  },
+  "CA-11": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: together",
+    "integration: CA-11 Together anchor clock advances while playing and freezes on pause",
+    "integration: Together GET accepts lowercase room codes (casing fix)"
+   ]
+  },
+  "CA-12": {
+   "tested": "full",
+   "tests": [
+    "e2e: Beam lists every transport and names the missing primitive on blocked ones"
+   ]
+  },
+  "CA-13": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: share"
+   ]
+  },
+  "CA-14": {
+   "tested": "untested",
+   "tests": []
+  },
+  "CA-15": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: together",
+    "integration: CA-11 Together anchor clock advances while playing and freezes on pause"
+   ]
+  },
+  "LN-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: lens",
+    "e2e: Lens processes frames from a (fake) camera at > 0 fps"
+   ]
+  },
+  "LN-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-07": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-08": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-09": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-10": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-11": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-12": {
+   "tested": "untested",
+   "tests": []
+  },
+  "LN-13": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: lens",
+    "e2e: Lens processes frames from a (fake) camera at > 0 fps"
+   ]
+  },
+  "LN-14": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: lens"
+   ]
+  },
+  "LN-15": {
+   "tested": "partial",
+   "tests": [
+    "e2e: Lens processes frames from a (fake) camera at > 0 fps"
+   ]
+  },
+  "MS-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: messages"
+   ]
+  },
+  "MS-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "MS-03": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: messages"
+   ]
+  },
+  "MS-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AX-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: structural a11y: every window is a named dialog; no unnamed buttons"
+   ]
+  },
+  "AX-02": {
+   "tested": "partial",
+   "tests": [
+    "e2e: structural a11y: every window is a named dialog; no unnamed buttons"
+   ]
+  },
+  "AX-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AX-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AX-05": {
+   "tested": "partial",
+   "tests": [
+    "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half"
+   ]
+  },
+  "AX-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AX-07": {
+   "tested": "partial",
+   "tests": [
+    "unit: SRT → WebVTT conversion"
+   ]
+  },
+  "AX-08": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AU-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: routines",
+    "e2e: routines: dry-run lists actions without executing; Run opens the window",
+    "integration: AU-01 routine whitelist rejects commands outside the palette vocabulary",
+    "unit: routine whitelist"
+   ]
+  },
+  "AU-02": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: routines",
+    "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted"
+   ]
+  },
+  "AU-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "AU-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RG-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: monitor",
+    "e2e: governor reacts to injected long tasks"
+   ]
+  },
+  "RG-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RG-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RG-04": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: monitor",
+    "e2e: governor reacts to injected long tasks"
+   ]
+  },
+  "RG-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RG-06": {
+   "tested": "full",
+   "tests": [
+    "unit: RG-06 memory policy: absence is not low memory"
+   ]
+  },
+  "RG-07": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e: drag a window by its title bar; geometry is committed and persisted"
+   ]
+  },
+  "HW-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-07": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-08": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-09": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-10": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-11": {
+   "tested": "untested",
+   "tests": []
+  },
+  "CM-01": {
+   "tested": "untested",
+   "tests": []
+  },
+  "CM-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "BL-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: settings",
+    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused"
+   ]
+  },
+  "BL-02": {
+   "tested": "partial",
+   "tests": [
+    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused"
+   ]
+  },
+  "BL-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "BL-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "BL-05": {
+   "tested": "partial",
+   "tests": [
+    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused"
+   ]
+  },
+  "DP-01": {
+   "tested": "untested",
+   "tests": []
+  },
+  "DP-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "DP-03": {
+   "tested": "untested",
+   "tests": []
+  },
+  "DP-04": {
+   "tested": "partial",
+   "tests": [
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+   ]
+  },
+  "DP-05": {
+   "tested": "partial",
+   "tests": [
+    "integration: FM-18 overwrite snapshots the previous version",
+    "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)"
+   ]
+  },
+  "DP-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "DP-07": {
+   "tested": "partial",
+   "tests": [
+    "e2e: no non-resource console errors across all module mounts"
+   ]
+  },
+  "DP-08": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: spec",
+    "e2e: Spec module renders the full register",
+    "integration: register has no audited row still over-claimed"
+   ]
+  },
+  "DP-09": {
+   "tested": "partial",
+   "tests": [
+    "unit: SVG sanitiser strips script/handlers/foreignObject/javascript:"
+   ]
+  },
+  "DP-10": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: spec",
+    "e2e: Beam lists every transport and names the missing primitive on blocked ones",
+    "integration: health + bootstrap reconcile the register"
+   ]
+  },
+  "DP-11": {
+   "tested": "untested",
+   "tests": []
+  },
+  "DP-12": {
+   "tested": "untested",
+   "tests": []
+  },
+  "DP-13": {
+   "tested": "untested",
+   "tests": []
+  },
+  "DP-14": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: monitor",
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+   ]
+  }
+ }
+}
