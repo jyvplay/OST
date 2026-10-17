@@ -209,3 +209,116 @@ export function fitSlant(w: number, h: number, beta = 38): SlantGeometry {
   }
   return slantGeometry(w, h, beta, 0.02, 24);
 }
+
+/* ---------------------------------------------------------------- legibility level of detail (TT29) */
+/**
+ * Why: under the slanted camera the side walls are slivers and the south wall is a lip a few dozen px tall. Rendering
+ * a wall's text and tiles there produced unreadable smears (found by TT29 screenshot review), and the slivers were too
+ * thin to hit reliably. Rule: a wall face shows DETAIL (text, tiles) only when every part of it renders at a linear
+ * scale ≥ MIN_LEGIBLE_SCALE (a 16 px label stays ≥ 9.6 px, about the smallest size still read reliably) AND its
+ * projected extent is ≥ MIN_DETAIL_EXTENT px (room for a heading plus one row). Otherwise it shows GLYPHS only
+ * (pinned items as shapes, no text), and a flat, unprojected wall tag at the face's on-screen centroid carries the
+ * name and counts and acts as the click target and the drop target for pinning.
+ *
+ * Scale is the minimum singular value of the face homography's Jacobian (local px → screen px), sampled at the four
+ * corners and the centre. For a homography, the Jacobian ∝ 1/w² · (affine part), with w affine in (u, v), so the
+ * extremes of the scale lie on the boundary; the corners plus the centre are a sampled bound, not a proof of the minimum
+ * for arbitrary shear (our wall frames have none).
+ */
+export const MIN_LEGIBLE_SCALE = 0.6;
+export const MIN_DETAIL_EXTENT = 96;
+export type WallLod = "detail" | "glyph";
+export type TagWall = Exclude<SlantFace, "floor">;
+export interface WallTag {
+  lod: WallLod;
+  /** minimum linear scale over the face (local px → screen px) */
+  scale: number;
+  /** smaller of the two projected mid-line lengths (px) */
+  extent: number;
+  /** on-screen centroid of the visible part of the face (root px) */
+  x: number; y: number;
+  /** the visible part is tall and thin → label it like a book spine */
+  vertical: boolean;
+  /** bounding box of the visible part (root px) */
+  box: { x: number; y: number; w: number; h: number };
+}
+
+/** Smallest singular value of a 2×2 matrix [[a, b], [c, d]]. */
+export function minSingular(a: number, b: number, c: number, d: number): number {
+  const f = a * a + b * b + c * c + d * d, det = a * d - b * c;
+  const disc = Math.sqrt(Math.max(0, f * f - 4 * det * det));
+  return Math.sqrt(Math.max(0, (f - disc) / 2));
+}
+
+/** Minimum linear scale of the map rect(w × h) → quad, sampled at the corners and the centre (analytic Jacobian). */
+export function faceScale(w: number, h: number, quad: readonly P2[]): number {
+  if (!(w > 0) || !(h > 0) || quad.length !== 4) return 0;
+  const H = homography([[0, 0], [w, 0], [w, h], [0, h]], quad);
+  let min = Infinity;
+  for (const [u, v] of [[0, 0], [w, 0], [w, h], [0, h], [w / 2, h / 2]] as P2[]) {
+    const X = H[0] * u + H[1] * v + H[2], Y = H[3] * u + H[4] * v + H[5], Wt = H[6] * u + H[7] * v + H[8];
+    if (!(Math.abs(Wt) > 1e-12)) return 0;
+    // d(X/W)/du = (H0·W − X·H6) / W², etc.
+    const w2 = Wt * Wt;
+    const a = (H[0] * Wt - X * H[6]) / w2, b = (H[1] * Wt - X * H[7]) / w2;
+    const c = (H[3] * Wt - Y * H[6]) / w2, d = (H[4] * Wt - Y * H[7]) / w2;
+    min = Math.min(min, minSingular(a, b, c, d));
+  }
+  return Number.isFinite(min) ? min : 0;
+}
+
+const polyArea = (p: readonly P2[]) => { let s = 0; for (let i = 0; i < p.length; i++) { const [x1, y1] = p[i], [x2, y2] = p[(i + 1) % p.length]; s += x1 * y2 - x2 * y1; } return s / 2; };
+/** Area centroid of a simple polygon (falls back to the vertex mean when degenerate). */
+export function centroid(p: readonly P2[]): P2 {
+  const A = polyArea(p);
+  if (p.length < 3 || Math.abs(A) < 1e-9) { const n = Math.max(1, p.length); return [p.reduce((s, q) => s + q[0], 0) / n, p.reduce((s, q) => s + q[1], 0) / n]; }
+  let cx = 0, cy = 0;
+  for (let i = 0; i < p.length; i++) { const [x1, y1] = p[i], [x2, y2] = p[(i + 1) % p.length]; const k = x1 * y2 - x2 * y1; cx += (x1 + x2) * k; cy += (y1 + y2) * k; }
+  return [cx / (6 * A), cy / (6 * A)];
+}
+
+/** Level of detail + tag placement for every wall of a slanted tray. */
+export function wallLegibility(g: SlantGeometry): Record<TagWall, WallTag> {
+  return legibilityOf(g.W, g.H, g.quads, g.faces);
+}
+
+/**
+ * The same rule for the straight-down box (TT26 camera): each wall is a strip `depth` deep hinged on a screen edge and
+ * meeting the floor, which projects centred at scale `s`. A plane under perspective maps to the screen by a
+ * homography, and these four corner correspondences determine it exactly (corner order = the face's own u/v axes,
+ * matching Tabletop's face boxes and hinge origins).
+ */
+export function boxQuads(W: number, H: number, depth: number, s: number): { quads: Record<TagWall, P2[]>; faces: Record<TagWall, { w: number; h: number }> } {
+  const cx = W / 2, cy = H / 2, l = cx - (W * s) / 2, r = cx + (W * s) / 2, t = cy - (H * s) / 2, b = cy + (H * s) / 2;
+  return {
+    quads: {
+      north: [[0, 0], [W, 0], [r, t], [l, t]],
+      south: [[l, b], [r, b], [W, H], [0, H]],
+      west: [[0, 0], [l, t], [l, b], [0, H]],
+      east: [[r, t], [W, 0], [W, H], [r, b]],
+    },
+    faces: { north: { w: W, h: depth }, south: { w: W, h: depth }, west: { w: depth, h: H }, east: { w: depth, h: H } },
+  };
+}
+export function boxLegibility(W: number, H: number, depth: number, s: number): Record<TagWall, WallTag> {
+  const { quads, faces } = boxQuads(W, H, depth, s);
+  return legibilityOf(W, H, quads, faces);
+}
+
+function legibilityOf(W: number, H: number, quads: Record<TagWall, readonly P2[]>, faces: Record<TagWall, { w: number; h: number }>): Record<TagWall, WallTag> {
+  const screen: P2[] = [[0, 0], [W, 0], [W, H], [0, H]];
+  const out = {} as Record<TagWall, WallTag>;
+  const mid = (a: P2, b: P2): P2 => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  const len = (a: P2, b: P2) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  for (const w of ["north", "south", "west", "east"] as TagWall[]) {
+    const q = quads[w], { w: fw, h: fh } = faces[w];
+    const scale = faceScale(fw, fh, q);
+    const extent = Math.min(len(mid(q[0], q[1]), mid(q[3], q[2])), len(mid(q[0], q[3]), mid(q[1], q[2])));
+    const vis = clipConvex(q, screen);
+    const xs = vis.map((p) => p[0]), ys = vis.map((p) => p[1]);
+    const box = vis.length >= 3 ? { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) } : { x: 0, y: 0, w: 0, h: 0 };
+    const [cx, cy] = vis.length >= 3 ? centroid(vis) : [W / 2, H / 2];
+    out[w] = { lod: scale >= MIN_LEGIBLE_SCALE && extent >= MIN_DETAIL_EXTENT ? "detail" : "glyph", scale, extent, x: cx, y: cy, vertical: box.h > box.w * 1.5, box };
+  }
+  return out;
+}

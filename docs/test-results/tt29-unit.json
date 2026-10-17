@@ -1,0 +1,42 @@
+{
+  "suite": "tt29-unit",
+  "at": "2026-10-17T18:29:25.014Z",
+  "results": [
+    {
+      "suite": "tt29-unit",
+      "name": "minSingular and faceScale match hand-computed cases: identity 1, ×0.5 → 0.5, a 90° rotation stays 1, a 1 × 0.25 squash → 0.25, and a perspective trapezoid's corner scale",
+      "covers": {
+        "LY-20": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt29-unit",
+      "name": "centroid: a square's centre, a right triangle's (a/3, b/3), and the vertex mean for a degenerate polygon",
+      "covers": {
+        "LY-20": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt29-unit",
+      "name": "slanted tray at 1 500 random frames: every tag inside the frame and inside its wall's visible polygon; sides are spines, north/south horizontal; the verdict follows the rule (scale ≥ 0.6 AND extent ≥ 96 px ⇔ detail)",
+      "covers": {
+        "LY-20": "full"
+      },
+      "pass": true,
+      "ms": 744
+    },
+    {
+      "suite": "tt29-unit",
+      "name": "straight-down box: wall quads + floor tile the frame exactly (area identity), share the floor's edges, and the projected scale at the hinge edge is 1 while the floor edge is s (so the face is foreshortened, never magnified)",
+      "covers": {
+        "LY-20": "full"
+      },
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}

@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-17T17:37:28.197Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-46 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-17T18:48:11.052Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+48 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **331** |
-| Fully built | 247 |
+| **Features in register** | **333** |
+| Fully built | 249 |
 | Partially built (partial 45 + probe 17) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **127** |
+| **Fully tested** (≥1 passing test tagged `full`) | **129** |
 | **Partially tested** (only `partial` tags) | **78** |
 | Untested | 126 |
-| Automated tests executed / passed | 485 / 485 |
+| Automated tests executed / passed | 494 / 494 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 118 | 62 | 67 |
+| fully built | 120 | 62 | 67 |
 | partially built | 3 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,52 +33,54 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-17T17:13:44.214Z |
-| ai-format | 5 | 5 | 0 | 2026-10-17T17:13:45.703Z |
-| browser-session | 5 | 5 | 0 | 2026-10-17T17:13:34.492Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-17T17:13:48.874Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-17T17:22:13.564Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-17T17:23:04.532Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-17T17:30:35.272Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-17T17:17:49.371Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-17T17:23:26.200Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-17T17:16:45.956Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-17T17:37:23.013Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-17T17:26:39.329Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-17T17:16:00.192Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-17T17:18:14.308Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T17:18:41.401Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-17T17:22:32.936Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T17:25:57.629Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T17:27:14.725Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-17T17:17:08.789Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T17:22:52.252Z |
-| e2e | 61 | 61 | 0 | 2026-10-17T17:15:34.458Z |
-| image | 12 | 12 | 0 | 2026-10-17T17:13:29.003Z |
-| integration | 25 | 25 | 0 | 2026-10-17T17:13:23.340Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-17T17:13:49.623Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-17T17:13:55.700Z |
-| metaclean | 6 | 6 | 0 | 2026-10-17T17:13:41.028Z |
-| names | 7 | 7 | 0 | 2026-10-17T17:13:28.635Z |
-| office | 35 | 35 | 0 | 2026-10-17T17:13:23.737Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-17T17:13:48.548Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-17T17:13:32.077Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-17T17:13:34.293Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-17T17:13:49.365Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T17:13:25.485Z |
-| oracle | 5 | 5 | 0 | 2026-10-17T17:13:24.114Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-17T17:13:43.962Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-17T17:13:38.321Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-17T17:13:39.753Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-17T17:13:25.850Z |
-| stream-unit | 6 | 6 | 0 | 2026-10-17T17:13:50.165Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-17T17:13:44.412Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-17T17:13:49.973Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-17T17:13:55.958Z |
-| unit | 23 | 23 | 0 | 2026-10-17T17:13:20.615Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-17T17:13:33.483Z |
-| vector | 18 | 18 | 0 | 2026-10-17T17:13:32.350Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T17:13:44.586Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-17T18:29:13.708Z |
+| ai-format | 5 | 5 | 0 | 2026-10-17T18:29:15.382Z |
+| browser-session | 5 | 5 | 0 | 2026-10-17T18:29:03.546Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-17T18:29:16.641Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-17T18:38:14.946Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-17T18:39:08.335Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-17T18:47:18.750Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-17T18:33:26.854Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-17T18:39:29.530Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-17T18:32:21.299Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-17T18:40:32.346Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-17T18:42:48.701Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-17T18:31:32.598Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-17T18:48:03.490Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T18:34:20.606Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-17T18:38:35.173Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T18:42:01.442Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T18:43:28.206Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-17T18:43:49.374Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-17T18:32:46.018Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T18:38:56.290Z |
+| e2e | 61 | 61 | 0 | 2026-10-17T18:31:06.728Z |
+| image | 12 | 12 | 0 | 2026-10-17T18:28:58.552Z |
+| integration | 25 | 25 | 0 | 2026-10-17T18:28:52.047Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-17T18:29:17.415Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-17T18:29:23.809Z |
+| metaclean | 6 | 6 | 0 | 2026-10-17T18:29:10.317Z |
+| names | 7 | 7 | 0 | 2026-10-17T18:28:58.183Z |
+| office | 35 | 35 | 0 | 2026-10-17T18:28:52.448Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-17T18:29:16.321Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-17T18:29:01.519Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-17T18:29:03.351Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-17T18:29:17.161Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T18:28:54.464Z |
+| oracle | 5 | 5 | 0 | 2026-10-17T18:28:52.820Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-17T18:29:13.428Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-17T18:29:07.471Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-17T18:29:08.942Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-17T18:28:54.852Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-17T18:29:17.944Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-17T18:29:13.923Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-17T18:29:17.742Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-17T18:29:24.057Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-17T18:29:25.014Z |
+| unit | 23 | 23 | 0 | 2026-10-17T18:28:49.121Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-17T18:29:02.709Z |
+| vector | 18 | 18 | 0 | 2026-10-17T18:29:01.764Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T18:29:14.122Z |
 
 ## Rows touched by failing tests
 
@@ -106,7 +108,7 @@ None.
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
-| LY | 19 | 19 | 0 | 0 | 19 | 0 | 0 |
+| LY | 21 | 21 | 0 | 0 | 21 | 0 | 0 |
 | SM | 4 | 4 | 0 | 0 | 1 | 3 | 0 |
 | MP | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
@@ -345,7 +347,7 @@ None.
 | LY-09 | built | full | e2e-tabletop: micro peek shows the real contents (Markdown heading + bullets, CSV grid with a quoted comma) and enlarges on hover / focus; tabletop-unit: micro peek: Markdown keeps headings/bullets, plain text and code, line cap, CSV with RFC 4180 quoting, JSON grid / pretty text, images, SVG, binary, sealed, empty |
 | LY-10 | built | full | e2e-beauty: the pipeline catches seeded violations in the live page (tiny crowded buttons, clipped text, an off-centre dock, an un-golden card); e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+3) |
 | LY-11 | built | full | e2e-tabletop: slanted camera is the default: floor ≥ 80 % of the Tabletop by hit-sampling 1440 points (desktop + phone), the near lip is a ≥ 24 px target, Camera toggles top ↔ slant and persists; tabletop-unit: slanted camera (default): floor ≥ 80 % of the frame across a viewport sweep, lip ≥ 24 px, β = 38°, walls share the rest; tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box |
-| LY-12 | built | full | e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it; e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload; tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box (+1) |
+| LY-12 | built | full | e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it; e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+2) |
 | LY-13 | built | full | e2e-tabletop: saved tabletop views: save (camera + face + pins), change everything, load restores it, survives reload, delete; tabletop-unit: saved tabletop views: save captures camera + face + every surface; same name updates in place; load restores (re-validated against today's files); rename / delete; cap |
 | LY-14 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; e2e-media27: layout ↔ style pairing: Art → Silver + light, Business → Daylight + light (from the Quick-panel/Settings switch), Fusion keeps the look; 'Match the look' off leaves the style alone; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
 | LY-15 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
@@ -355,7 +357,7 @@ None.
 | MP-01 | built | full | e2e-media27: Maps offline: the world draws with zero tile requests (≥ 230 countries, land pixels on the canvas); search 'France' flies there; hover names the country; coordinates search; Explore click selects a country; e2e-media27: Maps street tiles are opt-in: OSM tile requests start only after choosing them, carry an origin-only Referer (OSM tile policy), show the © OpenStreetMap attribution; bad custom templates are refused by the API; e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations (+2) |
 | MP-02 | built | full | e2e-media27: Maps offline: the world draws with zero tile requests (≥ 230 countries, land pixels on the canvas); search 'France' flies there; hover names the country; coordinates search; Explore click selects a country; e2e-media27: Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %); e2e: mount: maps (+2) |
 | MP-03 | built | full | e2e-media27: Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %); e2e: mount: maps; maps-unit: geodesy: haversine matches known distances (±0.5 %), bearings, path length, metric/imperial formatting |
-| SM-04 | built | partial | e2e-tt28: embed control (SM-04): YouTube handshake with origin + id, Play/Pause commands, progress clock, ended → auto-next by loadVideoById in the SAME player; spoofed 'ended' from our own window or a foreign-origin frame is ignored; Auto-next off stops; e2e-tt28: embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify is honestly uncontrolled; stream-unit: embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings |
+| SM-04 | built | partial | e2e-tt28: embed control (SM-04): YouTube handshake with origin + id, Play/Pause commands, progress clock, ended → auto-next by loadVideoById in the SAME player; spoofed 'ended' from our own window or a foreign-origin frame is ignored; Auto-next off stops; e2e-tt28: embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify (TT29): ready → ack, Play → confirmed toggle, clock, a near-end pause is NOT an end, paused-at-end → inferred end → next Spotify player asked to play; stream-unit: embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings (+1) |
 | MP-04 | built | full | e2e-tt28: offline gazetteer (MP-04/MP-05): API answers 'Paris, TX' and 'In Raleigh' with attribution; Maps search lists cities, flies there, 'Save as place' writes it; new places are named by the nearest city; hover says how far from which city; zero third-party requests; maps-unit: gazetteer (TT28): own TSV parser over GeoNames cities15000; folding (Zürich = Zurich, St. = Saint); exact > prefix > word-prefix ranked by population; qualifiers 'Paris, TX' / 'Paris, France' / 'Springfield, Illinois'; garbage-safe |
 | MP-05 | built | full | e2e-tt28: offline gazetteer (MP-04/MP-05): API answers 'Paris, TX' and 'In Raleigh' with attribution; Maps search lists cities, flies there, 'Save as place' writes it; new places are named by the nearest city; hover says how far from which city; zero third-party requests; maps-unit: gazetteer nearest (TT28): grid ring search is EXACT: 400 random points (incl. polar + antimeridian) agree with a brute-force scan; 'N km NE of …' labels; Raleigh downtown → In Raleigh |
 | SH-15 | built | full | e2e-tt28: in-app ask dialog (SH-15) replaces prompt(): focus lands in the field with the default selected; Tab is trapped; global shortcuts are blocked while it is open (modal); Enter creates, Escape cancels and focus returns to the opener; passphrases are masked, double-entered and validated in place; tt28-unit: ask store: FIFO queue; validation keeps the dialog open; each request settles exactly once; cancel-all; queue cap 8; values capped at 4 KiB |
@@ -364,6 +366,8 @@ None.
 | LY-18 | built | full | e2e-tt28: Art dock (LY-18/LY-19): auto-hide slides the dock off-screen and gives windows the space; the bottom edge reveals it; it stays ≥ 400 ms after leaving and hides by ~600 ms; keyboard focus reveals it; minimise plays the genie into the dock tile (clip-path funnel), and not at all under reduced motion |
 | LY-19 | built | full | e2e-tt28: Art dock (LY-18/LY-19): auto-hide slides the dock off-screen and gives windows the space; the bottom edge reveals it; it stays ≥ 400 ms after leaving and hides by ~600 ms; keyboard focus reveals it; minimise plays the genie into the dock tile (clip-path funnel), and not at all under reduced motion; tt28-unit: genie keyframes: every frame has the same 4-point clip polygon (so it interpolates), offsets 0 → .45 → 1, phase 1 pinches only the bottom edge over the tile, and the last frame lands exactly on the dock tile for 500 random window/tile pairs |
 | AX-13 | built | full | e2e-tt28: accessibility tree (AX-13): Playwright ariaSnapshot of the live page in Fusion, Business and Art: landmarks and names a screen reader would announce (dock / taskbar navigation, named window dialogs, no unnamed buttons or text fields); the ask dialog and the snap flyout expose their roles and names |
+| LY-20 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: wall tags (TT29): one per foreshortened wall, inside the frame, centred on the wall's VISIBLE area (hit-test finds that wall under the centre), ≥ 24 px targets, no overlaps with each other or the switcher; counts in the label; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+5) |
+| LY-21 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

@@ -66,11 +66,19 @@ const FIXTURES: Record<string, string> = {
     addEventListener("load",function(){fx.post({method:"ready",value:null})});
     fx.progress=function(ms,rel){fx.post({method:"playProgress",value:{currentPosition:ms,relativePosition:rel,loadedProgress:1}})};
     fx.end=function(){fx.post({method:"finish"})};`,
+  // Spotify embed side (TT29): OBJECT messages, speaks first with {type:"ready"}, answers {command:"toggle"}
+  spotify: `${FIX_COMMON}
+    fx.st={position:0,duration:30000,isPaused:true,isBuffering:false};
+    fx.post=function(o){parent.postMessage(o,"*")};
+    fx.upd=function(){fx.post({type:"playback_update",payload:{position:fx.st.position,duration:fx.st.duration,isPaused:fx.st.isPaused,isBuffering:false,playingURI:"spotify:track:fixture"}})};
+    fx.on=function(d){if(d&&d.command==="toggle"){fx.st.isPaused=!fx.st.isPaused;fx.upd()}};
+    addEventListener("load",function(){fx.post({type:"ready"})});
+    fx.progress=function(ms,paused){fx.st.position=ms;fx.st.isPaused=paused;fx.upd()};`,
   // a hostile frame on another origin that tries to fake an "ended" for every provider format
-  evil: `setTimeout(function(){parent.postMessage(JSON.stringify({event:"onStateChange",info:0,channel:"widget"}),"*");parent.postMessage(JSON.stringify({event:"ended"}),"*");parent.postMessage(JSON.stringify({method:"finish"}),"*")},50);`,
+  evil: `setTimeout(function(){parent.postMessage(JSON.stringify({event:"onStateChange",info:0,channel:"widget"}),"*");parent.postMessage(JSON.stringify({event:"ended"}),"*");parent.postMessage(JSON.stringify({method:"finish"}),"*");parent.postMessage({type:"playback_update",payload:{position:29900,duration:30000,isPaused:true}},"*")},50);`,
 };
 const fixtureFor = (host: string): string | null =>
-  /youtube(-nocookie)?\.com$/.test(host) ? "youtube" : host === "player.vimeo.com" ? "vimeo" : host === "w.soundcloud.com" ? "soundcloud" : host === "evil.example" ? "evil" : null;
+  /youtube(-nocookie)?\.com$/.test(host) ? "youtube" : host === "player.vimeo.com" ? "vimeo" : host === "w.soundcloud.com" ? "soundcloud" : host === "open.spotify.com" ? "spotify" : host === "evil.example" ? "evil" : null;
 
 const EXTERNAL = /(youtube|youtube-nocookie|ytimg|googlevideo|spotify|scdn|soundcloud|sndcdn|vimeo|dailymotion|twitch|openstreetmap|evil)\./i;
 const browser: Browser = await launchChromium();
@@ -147,10 +155,10 @@ try {
     } finally { await close(); }
   });
 
-  await test("embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify is honestly uncontrolled", { "SM-04": "partial" }, async () => {
+  await test("embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify (TT29): ready → ack, Play → confirmed toggle, clock, a near-end pause is NOT an end, paused-at-end → inferred end → next Spotify player asked to play", { "SM-04": "partial" }, async () => {
     await setSetting("media.embeds", "allow");
     await writeFile(LIB, lib([{ id: "v", url: "https://vimeo.com/76979871", title: "Vim" }, { id: "y", url: "https://youtu.be/ddddddddddd", title: "Tube" },
-      { id: "s1", url: "https://soundcloud.com/artist-a/track-one", title: "One" }, { id: "s2", url: "https://soundcloud.com/artist-b/track-two", title: "Two" }, { id: "sp", url: "https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT", title: "Spot" }]));
+      { id: "s1", url: "https://soundcloud.com/artist-a/track-one", title: "One" }, { id: "s2", url: "https://soundcloud.com/artist-b/track-two", title: "Two" }, { id: "sp", url: "https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT", title: "Spot" }, { id: "sp2", url: "https://open.spotify.com/track/1301WleyT98MSxVHPZCA6M", title: "Second spot" }]));
     const { page, close } = await boot([win("v1", "video", {}, { x: 10, y: 10, w: 900, h: 780 }), win("m1", "music", {}, { x: 920, y: 10, w: 500, h: 780 })]);
     try {
       // Vimeo
@@ -176,10 +184,28 @@ try {
       await fx(sf, "fx.end()");
       await poll(async () => (await page.locator("[data-testid=sa-lib] li[data-current]").textContent())?.includes("Two") ?? false, "sc finish → next");
       ok(new URL((await page.getByTestId("sa-frame").getAttribute("src"))!).searchParams.get("auto_play") === "true", "next track asks to autoplay");
-      // Spotify: no protocol → says so, no fake controls
-      await page.locator("[data-testid=sa-item-play]", { hasText: "Spot" }).click();
-      await poll(async () => (await page.getByTestId("sa-clock").getAttribute("data-status")) === "uncontrolled", "spotify honest");
-      ok(await page.getByTestId("sa-toggle").count() === 0, "no fake Play/Pause for Spotify");
+      // Spotify (TT29): object protocol — ready → ack; our Play sends the confirmed toggle; the clock follows
+      // playback_update; paused at the end → inferred 'ended' → auto-next into a NEW Spotify player that is asked to play
+      await page.locator("[data-testid=sa-item-play]", { has: page.locator(".fs-stream-item-title", { hasText: /^Spot$/ }) }).click();
+      await poll(async () => !!playerFrame(page, /open\.spotify\.com/), "spotify frame");
+      const pf = playerFrame(page, /open\.spotify\.com/)!;
+      await poll(async () => (await page.getByTestId("sa-clock").getAttribute("data-connected")) === "1", "spotify connected");
+      const acks = await fx<{ command?: string }[]>(pf, "fx.got");
+      ok(acks.length === 1 && typeof acks[0] === "object" && acks[0].command === "load_complete_ack", `ready → one ack object ${JSON.stringify(acks)}`);
+      ok(await fx<string>(pf, "fx.origin") === new URL(BASE).origin, "the embed sees our exact origin");
+      await page.getByTestId("sa-toggle").click();
+      await poll(async () => (await fx<{ command?: string }[]>(pf, "fx.got")).some((d) => d.command === "toggle"), "toggle command");
+      await poll(async () => (await page.getByTestId("sa-clock").getAttribute("data-status")) === "playing", "spotify playing");
+      ok((await page.getByTestId("sa-toggle").textContent())?.trim() === "Pause", "button now offers Pause");
+      await fx(pf, "fx.progress(12000, false)");
+      await poll(async () => (await page.getByTestId("sa-clock").textContent())?.includes("0:12 / 0:30") ?? false, "spotify clock");
+      await fx(pf, "fx.progress(28000, true)");   // a user pause 2 s before the end is a pause, not an end
+      await poll(async () => (await page.getByTestId("sa-clock").getAttribute("data-status")) === "paused", "near-end pause stays a pause");
+      await new Promise((r) => setTimeout(r, 300));
+      ok((await page.locator("[data-testid=sa-lib] li[data-current]").textContent())?.includes("Spot") && !(await page.locator("[data-testid=sa-lib] li[data-current]").textContent())?.includes("Second"), "no advance on a pause");
+      await fx(pf, "fx.progress(29800, true)");   // paused at the end → ended → auto-next
+      await poll(async () => (await page.locator("[data-testid=sa-lib] li[data-current]").textContent())?.includes("Second spot") ?? false, "spotify end → next");
+      await poll(async () => { const f2 = playerFrame(page, /open\.spotify\.com/); return !!f2 && f2 !== pf && (await fx<{ command?: string }[]>(f2, "fx.got").catch(() => [])).some((d) => d.command === "toggle"); }, "next Spotify player is asked to play (ack + toggle)");
     } finally { await close(); }
   });
   /* ---------------------------------------------------------------- gazetteer (MP-04 / MP-05) */

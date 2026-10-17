@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt28",
-  "at": "2026-10-17T17:27:14.725Z",
+  "at": "2026-10-17T18:43:28.206Z",
   "results": [
     {
       "suite": "e2e-tt28",
@@ -9,16 +9,16 @@
         "SM-04": "partial"
       },
       "pass": true,
-      "ms": 4881
+      "ms": 5650
     },
     {
       "suite": "e2e-tt28",
-      "name": "embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify is honestly uncontrolled",
+      "name": "embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify (TT29): ready → ack, Play → confirmed toggle, clock, a near-end pause is NOT an end, paused-at-end → inferred end → next Spotify player asked to play",
       "covers": {
         "SM-04": "partial"
       },
       "pass": true,
-      "ms": 2664
+      "ms": 4069
     },
     {
       "suite": "e2e-tt28",
@@ -28,7 +28,7 @@
         "MP-05": "full"
       },
       "pass": true,
-      "ms": 7092
+      "ms": 7395
     },
     {
       "suite": "e2e-tt28",
@@ -37,7 +37,7 @@
         "SH-15": "full"
       },
       "pass": true,
-      "ms": 2564
+      "ms": 3013
     },
     {
       "suite": "e2e-tt28",
@@ -47,7 +47,7 @@
         "LY-17": "full"
       },
       "pass": true,
-      "ms": 4486
+      "ms": 4468
     },
     {
       "suite": "e2e-tt28",
@@ -57,7 +57,7 @@
         "LY-19": "full"
       },
       "pass": true,
-      "ms": 6430
+      "ms": 6920
     },
     {
       "suite": "e2e-tt28",
@@ -66,7 +66,7 @@
         "AX-13": "full"
       },
       "pass": true,
-      "ms": 6224
+      "ms": 6735
     }
   ]
 }

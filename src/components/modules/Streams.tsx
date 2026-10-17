@@ -113,7 +113,7 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
     const auto = autoplayNext.current; autoplayNext.current = false;
     frameSeq.current += 1;
     setFrame({ key: frameSeq.current, src: c ? E.controlUrl(c, p.ref.embed, origin, auto) : p.ref.embed, ctl: c });
-    ctlRef.current = c ? E.initialState(c) : null; setCtl(ctlRef.current);
+    ctlRef.current = c ? E.initialState(c, auto) : null; setCtl(ctlRef.current);
     setCurrent({ ref: p.ref, itemId });
   };
   // a link handed over by another app (open-with / routine) starts in the player
@@ -168,7 +168,7 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
   const send = (c: E.Command) => {
     const st = ctlRef.current, fr = frameRef.current, f = frame;
     if (!st || !fr || !f?.ctl) return;
-    const msg = E.command(f.ctl, c), to = E.targetOrigin(f.ctl, f.src);
+    const msg = E.command(f.ctl, c, "fusion", st), to = E.targetOrigin(f.ctl, f.src);
     if (msg && to) fr.contentWindow?.postMessage(msg, to);
   };
   const ref = current?.ref ?? null;
@@ -234,9 +234,9 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
                     {ctl.connected ? `${STATUS_LABEL[ctl.status]} · ${E.formatClock(ctl.time, ctl.duration)}` : "Connecting to the player…"}
                   </span>
                 </>
-              ) : loaded && ref.provider === "spotify" ? <span className="fs-dim" data-testid={`${pfx}-clock`} data-status="uncontrolled">Spotify&apos;s player has no public control API — use its own buttons</span> : null}
+              ) : null}
               <span style={{ flex: 1 }} />
-              <Btn variant="ghost" onClick={next} disabled={!items.length} data-testid={`${pfx}-next`} title={ref.provider === "file" ? "Next in the library (also plays automatically at the end)" : "Next in the library (embedded players do not report when they end, so this is manual)"}>Next</Btn>
+              <Btn variant="ghost" onClick={next} disabled={!items.length} data-testid={`${pfx}-next`} title={ref.provider === "file" || ctl ? "Next in the library (Auto-next also moves on when this one ends)" : "Next in the library (this provider's player does not report when it ends, so Auto-next cannot follow it)"}>Next</Btn>
               <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={autoNext} onChange={(e) => setAutoNext(e.target.checked)} data-testid={`${pfx}-auto`} />Auto-next</label>
               <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} data-testid={`${pfx}-loop`} />Loop list</label>
               <a className="fs-btn" data-variant="ghost" href={ref.page} target="_blank" rel="noopener noreferrer">Open on site</a>

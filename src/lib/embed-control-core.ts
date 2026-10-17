@@ -22,11 +22,27 @@
  *              parent → widget: JSON string {"method":"addEventListener","value":<ev>} after ready, and commands
  *              {"method":"play"|"pause"|"seekTo","value":ms}. playProgress.value = {currentPosition (ms), relativePosition}.
  *
+ *   Spotify    (TT29) Embed → parent: OBJECT messages {type:"ready"} first, then {type:"playback_update",
+ *              payload:{position (ms), duration (ms), isPaused, isBuffering, playingURI}} roughly every second, and
+ *              {type:"error",payload}. The embed's own controller accepts a message only when event.source is the iframe.
+ *              Parent → embed: OBJECT {command:"toggle"} toggles play/pause — confirmed by two independent public
+ *              sources (Stack Overflow q/71979852 and a Spotify Community thread). The controller also acknowledges
+ *              "ready"; that command's string is NOT publicly confirmed, so it is sent best-effort (unknown commands are
+ *              ignored by the embed) and nothing depends on it. Play / pause are derived from toggle + the last known
+ *              isPaused; there is no seek (its message string is unconfirmed). Spotify emits no "ended" event: an end
+ *              is inferred from the stream (paused within 0.5 s of the end, or paused after the position fell back from
+ *              the last second) — see spotifyEnded().
+ *
  * Security: a message is only accepted when its origin is exactly the provider's player origin AND (checked by the
  * caller) event.source is our own iframe's window. Unknown shapes are ignored, never thrown.
  */
 
-export type Ctl = "youtube" | "vimeo" | "soundcloud";
+export type Ctl = "youtube" | "vimeo" | "soundcloud" | "spotify";
+/** A message to post: YouTube / Vimeo / SoundCloud take JSON strings; Spotify's embed reads plain objects. */
+export type Msg = string | Record<string, unknown>;
+/** Spotify embed commands. TOGGLE is publicly confirmed; ACK is best-effort (see header). */
+export const SPOTIFY_TOGGLE = { command: "toggle" } as const;
+export const SPOTIFY_ACK_UNCONFIRMED = { command: "load_complete_ack" } as const;
 export type Status = "loading" | "ready" | "playing" | "paused" | "buffering" | "ended" | "cued";
 
 export interface CtlState {
@@ -42,6 +58,10 @@ export interface CtlState {
   subscribed: boolean;
   /** how many 'ended' transitions have been seen (an ended→ended repeat is not a new end) */
   ends: number;
+  /** start playing as soon as the player is ready (auto-next into a provider that has no autoplay URL flag) */
+  wantPlay?: boolean;
+  /** this provider cannot seek through our controls */
+  noSeek?: boolean;
 }
 
 export type CtlEvent = { type: "ready" } | { type: "status"; status: Status } | { type: "progress"; time: number; duration: number } | { type: "ended" };
@@ -51,13 +71,26 @@ export const PLAYER_ORIGINS: Record<Ctl, readonly string[]> = {
   youtube: ["https://www.youtube-nocookie.com", "https://www.youtube.com"],
   vimeo: ["https://player.vimeo.com"],
   soundcloud: ["https://w.soundcloud.com"],
+  spotify: ["https://open.spotify.com"],
 };
 
-export const initialState = (ctl: Ctl): CtlState => ({ ctl, connected: false, status: "loading", time: 0, duration: 0, subscribed: false, ends: 0 });
+export const initialState = (ctl: Ctl, autoplay = false): CtlState => ({ ctl, connected: false, status: "loading", time: 0, duration: 0, subscribed: false, ends: 0,
+  ...(ctl === "spotify" ? { noSeek: true, wantPlay: autoplay } : {}) });
 
-/** Which providers this module can control. Spotify's embed has no published postMessage protocol → none. */
+/** Which providers this module can control (Dailymotion / Twitch / PeerTube: not implemented). */
 export function controllable(provider: string): Ctl | null {
-  return provider === "youtube" || provider === "vimeo" || provider === "soundcloud" ? provider : null;
+  return provider === "youtube" || provider === "vimeo" || provider === "soundcloud" || provider === "spotify" ? provider : null;
+}
+
+/**
+ * Spotify sends no "ended": infer it from two consecutive playback updates (seconds). An end is
+ *   (a) paused with the position within 0.5 s of the duration, or
+ *   (b) paused after the position fell back from within the last 1 s (the embed rewinds to 0 at the end).
+ * A user pause earlier than that is a pause; playlists that roll on to the next track never pause, so never "end".
+ */
+export function spotifyEnded(prevTime: number, time: number, duration: number, paused: boolean): boolean {
+  if (!paused || !(duration > 0)) return false;
+  return time >= duration - 0.5 || (prevTime >= duration - 1 && time < prevTime);
 }
 
 export function originAllowed(ctl: Ctl, origin: string): boolean {
@@ -92,9 +125,9 @@ export function controlUrl(ctl: Ctl, embed: string, parentOrigin: string, autopl
 }
 
 /** Messages to send right after the iframe loads (and again on a retry tick until `connected`). */
-export function handshake(ctl: Ctl, id: string): string[] {
+export function handshake(ctl: Ctl, id: string): Msg[] {
   if (ctl === "youtube") return [JSON.stringify({ event: "listening", id, channel: "widget" })];
-  return []; // Vimeo and SoundCloud speak first ("ready")
+  return []; // Vimeo, SoundCloud and Spotify speak first ("ready")
 }
 
 const VIMEO_EVENTS = ["ended", "finish", "play", "pause", "timeupdate", "playProgress"] as const;
@@ -114,13 +147,13 @@ const YT_STATE: Record<number, Status> = { [-1]: "ready", 0: "ended", 1: "playin
  * Feed one incoming message (already origin- and source-checked by the caller). Returns the next state, any messages
  * to send back (subscriptions), and the semantic events it produced. Total: garbage in → same state, nothing out.
  */
-export function receive(s: CtlState, data: unknown): { state: CtlState; send: string[]; events: CtlEvent[] } {
+export function receive(s: CtlState, data: unknown): { state: CtlState; send: Msg[]; events: CtlEvent[] } {
   const m = parse(data);
-  const out = { state: s, send: [] as string[], events: [] as CtlEvent[] };
+  const out = { state: s, send: [] as Msg[], events: [] as CtlEvent[] };
   if (!m) return out;
   let st = { ...s };
   const ev: CtlEvent[] = [];
-  const send: string[] = [];
+  const send: Msg[] = [];
   const setStatus = (next: Status) => {
     if (next === st.status) return;
     if (next === "ended") { st.ends += 1; ev.push({ type: "ended" }); }
@@ -161,6 +194,29 @@ export function receive(s: CtlState, data: unknown): { state: CtlState; send: st
     else if (e === "pause") { connect(); setStatus("paused"); }
     else if (e === "timeupdate" || e === "playProgress") { connect(); progress(num(data2.seconds), num(data2.duration)); if (st.status !== "playing" && st.status !== "paused") setStatus("playing"); }
     else return out;
+  } else if (s.ctl === "spotify") {
+    const t = m.type;
+    if (t === "ready") {
+      connect();
+      if (!st.subscribed) {
+        st.subscribed = true;
+        send.push({ ...SPOTIFY_ACK_UNCONFIRMED });
+        if (st.wantPlay) { st.wantPlay = false; send.push({ ...SPOTIFY_TOGGLE }); }
+      }
+    } else if (t === "playback_update") {
+      connect();
+      const p = (m.payload && typeof m.payload === "object" ? m.payload : {}) as Record<string, unknown>;
+      const pos = num(p.position), dur = num(p.duration);
+      if (pos === null && dur === null && typeof p.isPaused !== "boolean") return out;
+      const prev = st.time;
+      progress(pos !== null ? pos / 1000 : null, dur !== null ? dur / 1000 : null);
+      const paused = p.isPaused === true, buffering = p.isBuffering === true;
+      if (buffering && !paused) setStatus("buffering");
+      else if (!paused) setStatus("playing");
+      else if (st.status === "ended") { /* the rewound, paused player after an end stays "ended" */ }
+      else setStatus(spotifyEnded(prev, st.time, st.duration, true) ? "ended" : "paused");
+    } else if (t === "error") { connect(); }
+    else return out;
   } else {
     const e = typeof m.method === "string" ? m.method : null;
     if (!e) return out;
@@ -187,8 +243,17 @@ export function receive(s: CtlState, data: unknown): { state: CtlState; send: st
 
 export type Command = { op: "play" } | { op: "pause" } | { op: "seek"; seconds: number } | { op: "load"; id: string; start?: number };
 
-/** One command as the exact message string for the provider. `load` (same player, new item) only exists for YouTube. */
-export function command(ctl: Ctl, c: Command, id = "fusion"): string | null {
+/**
+ * One command as the exact message for the provider. `load` (same player, new item) only exists for YouTube. Spotify
+ * has only a confirmed toggle: play / pause send it unless `state` shows the player is already in that state.
+ */
+export function command(ctl: Ctl, c: Command, id = "fusion", state?: CtlState | null): Msg | null {
+  if (ctl === "spotify") {
+    const active = state?.status === "playing" || state?.status === "buffering";
+    if (c.op === "play") return state && active ? null : { ...SPOTIFY_TOGGLE };
+    if (c.op === "pause") return state && !active ? null : { ...SPOTIFY_TOGGLE };
+    return null;
+  }
   if (ctl === "youtube") {
     const call = (func: string, args: unknown[] = []) => JSON.stringify({ event: "command", func, args, id, channel: "widget" });
     if (c.op === "play") return call("playVideo");

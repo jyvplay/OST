@@ -1,6 +1,6 @@
 {
   "suite": "e2e-contacts",
-  "at": "2026-10-17T17:23:26.200Z",
+  "at": "2026-10-17T18:39:29.530Z",
   "results": [
     {
       "suite": "e2e-contacts",
@@ -10,7 +10,7 @@
         "PR-05": "partial"
       },
       "pass": true,
-      "ms": 3657
+      "ms": 3674
     },
     {
       "suite": "e2e-contacts",
@@ -19,7 +19,7 @@
         "CN-02": "full"
       },
       "pass": true,
-      "ms": 1623
+      "ms": 1730
     },
     {
       "suite": "e2e-contacts",
@@ -28,7 +28,7 @@
         "CN-02": "partial"
       },
       "pass": true,
-      "ms": 1606
+      "ms": 1718
     },
     {
       "suite": "e2e-contacts",
@@ -39,7 +39,7 @@
         "CN-01": "partial"
       },
       "pass": true,
-      "ms": 2296
+      "ms": 2018
     },
     {
       "suite": "e2e-contacts",
@@ -48,7 +48,7 @@
         "CN-02": "full"
       },
       "pass": true,
-      "ms": 2359
+      "ms": 2555
     },
     {
       "suite": "e2e-contacts",
@@ -57,7 +57,7 @@
         "CN-03": "full"
       },
       "pass": true,
-      "ms": 1867
+      "ms": 2086
     },
     {
       "suite": "e2e-contacts",
@@ -66,7 +66,7 @@
         "CN-04": "full"
       },
       "pass": true,
-      "ms": 1515
+      "ms": 1042
     },
     {
       "suite": "e2e-contacts",
@@ -77,7 +77,7 @@
         "FM-01": "partial"
       },
       "pass": true,
-      "ms": 1423
+      "ms": 1327
     },
     {
       "suite": "e2e-contacts",
@@ -87,7 +87,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 4525
+      "ms": 4262
     }
   ]
 }

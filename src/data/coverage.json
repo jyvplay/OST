@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-17T17:37:28.199Z",
+ "generatedAt": "2026-10-17T18:48:11.055Z",
  "totals": {
   "built": {
-   "full": 247,
+   "full": 249,
    "partial": 62,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 127,
+   "full": 129,
    "partial": 78,
    "untested": 126
   },
   "tests": {
-   "total": 485,
-   "passed": 485
+   "total": 494,
+   "passed": 494
   }
  },
  "rows": {
@@ -1676,6 +1676,7 @@
    "tests": [
     "e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it",
     "e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload",
+    "e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted)",
     "tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box",
     "tabletop-unit: walls as pinboards: pin a card / a whole pile to a wall, move between walls, back to the floor; walls-first wins on conflicts; v1 → v2 migration; free slots"
    ]
@@ -1762,8 +1763,9 @@
    "tested": "partial",
    "tests": [
     "e2e-tt28: embed control (SM-04): YouTube handshake with origin + id, Play/Pause commands, progress clock, ended → auto-next by loadVideoById in the SAME player; spoofed 'ended' from our own window or a foreign-origin frame is ignored; Auto-next off stops",
-    "e2e-tt28: embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify is honestly uncontrolled",
-    "stream-unit: embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings"
+    "e2e-tt28: embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify (TT29): ready → ack, Play → confirmed toggle, clock, a near-end pause is NOT an end, paused-at-end → inferred end → next Spotify player asked to play",
+    "stream-unit: embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings",
+    "stream-unit: Spotify embed control (TT29): object messages; ready → best-effort ack (+ toggle when auto-next asked to play); playback_update → clock/status; inferred end = paused at the end or rewound from the last second — a user pause near (not at) the end, a playlist rolling to its next track, and junk are NOT ends; play/pause map to the confirmed toggle only when needed; no seek"
    ]
   },
   "MP-04": {
@@ -1819,6 +1821,26 @@
    "tested": "full",
    "tests": [
     "e2e-tt28: accessibility tree (AX-13): Playwright ariaSnapshot of the live page in Fusion, Business and Art: landmarks and names a screen reader would announce (dock / taskbar navigation, named window dialogs, no unnamed buttons or text fields); the ask dialog and the snap flyout expose their roles and names"
+   ]
+  },
+  "LY-20": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only",
+    "e2e-tt29: wall tags (TT29): one per foreshortened wall, inside the frame, centred on the wall's VISIBLE area (hit-test finds that wall under the centre), ≥ 24 px targets, no overlaps with each other or the switcher; counts in the label",
+    "e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted)",
+    "e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px)",
+    "tt29-unit: minSingular and faceScale match hand-computed cases: identity 1, ×0.5 → 0.5, a 90° rotation stays 1, a 1 × 0.25 squash → 0.25, and a perspective trapezoid's corner scale",
+    "tt29-unit: centroid: a square's centre, a right triangle's (a/3, b/3), and the vertex mean for a degenerate polygon",
+    "tt29-unit: slanted tray at 1 500 random frames: every tag inside the frame and inside its wall's visible polygon; sides are spines, north/south horizontal; the verdict follows the rule (scale ≥ 0.6 AND extent ≥ 96 px ⇔ detail)",
+    "tt29-unit: straight-down box: wall quads + floor tile the frame exactly (area identity), share the floor's edges, and the projected scale at the hinge edge is 1 while the floor edge is s (so the face is foreshortened, never magnified)"
+   ]
+  },
+  "LY-21": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only",
+    "e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px)"
    ]
   },
   "CT-01": {

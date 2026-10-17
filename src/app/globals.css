@@ -571,3 +571,16 @@ input[type="color"] { min-width: calc(6px + 16 * var(--fs-u)); min-height: calc(
 .fs-dock-row-auto > * { pointer-events: auto; }
 @media (prefers-reduced-motion: no-preference) { .fs-dock-row-auto { transition: transform calc(var(--fs-motion) * .9) cubic-bezier(.2, .8, .2, 1); } }
 .fs-maps-dot-pin { background: transparent; border: 0; }
+/* TT29 tabletop legibility LOD: glyph walls + flat wall tags */
+.fs-tt-wall-glyphs { flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 10px; padding: 18px; }
+.fs-tt-glyph { width: 46px; height: 58px; border-radius: 6px; background: color-mix(in srgb, var(--fs-text) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fs-text) 18%, transparent); }
+.fs-tt-glyph-win { width: 96px; background: color-mix(in srgb, var(--fs-accent) 26%, transparent); }
+.fs-tt-walltag { position: absolute; z-index: 40; transform: translate(-50%, -50%); display: inline-flex; align-items: center; justify-content: center;
+  min-height: 28px; min-width: 28px; padding: 4px 12px; border-radius: 999px; white-space: nowrap; cursor: zoom-in; user-select: none;
+  font-size: calc(13 * var(--fs-u)); font-weight: 700; line-height: 1.2; letter-spacing: .01em;
+  color: var(--fs-text); background: color-mix(in srgb, var(--fs-panel-solid) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fs-text) 16%, transparent); box-shadow: 0 2px 10px rgb(0 0 0 / .18);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: background .15s, box-shadow .15s; }
+.fs-tt-walltag[data-vertical] { writing-mode: vertical-rl; padding: 12px 4px; max-height: 70%; overflow: hidden; text-overflow: ellipsis; }
+.fs-tt-walltag:hover { background: color-mix(in srgb, var(--fs-accent) 22%, var(--fs-panel-solid)); }
+.fs-tt-walltag[data-drop] { background: color-mix(in srgb, var(--fs-accent) 30%, var(--fs-panel-solid)); border-color: var(--fs-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--fs-accent) 35%, transparent); }

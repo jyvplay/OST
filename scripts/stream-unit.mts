@@ -12,6 +12,7 @@ import * as S from "../src/lib/stream-core.ts";
 import * as E from "../src/lib/embed-control-core.ts";
 
 const { test, finish } = makeHarness("stream-unit");
+const eq = (a: unknown, b: unknown, msg = "") => { if (a !== b) throw new Error(`${msg} expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`); };
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const ref = (u: string, host?: string) => { const p = S.parseStream(u, host); if (!p.ok) throw new Error(`${u}: ${p.error}`); return p.ref; };
 const bad = (u: string) => { const p = S.parseStream(u); ok(!p.ok, `${u} should be refused`); return (p as { error: string }).error; };
@@ -110,7 +111,7 @@ await test("library: add moves duplicates to the top, rename / move / remove / f
 
 await test("embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings", { "SM-04": "partial" }, () => {
   // YouTube
-  ok(E.controllable("youtube") === "youtube" && E.controllable("spotify") === null && E.controllable("file") === null, "controllable set");
+  ok(E.controllable("youtube") === "youtube" && E.controllable("dailymotion") === null && E.controllable("file") === null, "controllable set");
   const yu = new URL(E.controlUrl("youtube", "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0", "http://localhost:3999"));
   ok(yu.searchParams.get("enablejsapi") === "1" && yu.searchParams.get("origin") === "http://localhost:3999" && yu.searchParams.get("rel") === "0" && !yu.searchParams.has("autoplay"), `yt url ${yu}`);
   ok(new URL(E.controlUrl("youtube", "https://www.youtube-nocookie.com/embed/x", "javascript:alert(1)", true)).searchParams.get("origin") === null, "a non-http origin is never forwarded");
@@ -160,6 +161,55 @@ await test("embed control protocol (TT28): YouTube handshake + infoDelivery/onSt
   ok(E.originAllowed("youtube", "https://www.youtube-nocookie.com") && !E.originAllowed("youtube", "https://www.youtube-nocookie.com.evil.example") && !E.originAllowed("vimeo", "https://vimeo.com") && !E.originAllowed("soundcloud", "http://w.soundcloud.com"), "origins");
   ok(E.targetOrigin("youtube", "https://www.youtube-nocookie.com/embed/x") === "https://www.youtube-nocookie.com" && E.targetOrigin("youtube", "https://evil.example/embed") === null, "post target never *");
   ok(E.formatClock(65, 200) === "1:05 / 3:20" && E.formatClock(3725, 0) === "1:02:05" && E.formatClock(NaN, -1) === "0:00", "clock");
+});
+
+await test("Spotify embed control (TT29): object messages; ready → best-effort ack (+ toggle when auto-next asked to play); playback_update → clock/status; inferred end = paused at the end or rewound from the last second — a user pause near (not at) the end, a playlist rolling to its next track, and junk are NOT ends; play/pause map to the confirmed toggle only when needed; no seek", { "SM-04": "partial" }, () => {
+  const feed = (st: E.CtlState, ...msgs: unknown[]) => { let ends = 0; const sent: E.Msg[] = []; for (const m of msgs) { const r = E.receive(st, m); st = r.state; sent.push(...r.send); ends += r.events.filter((e) => e.type === "ended").length; } return { st, ends, sent }; };
+  const up = (pos: number, dur: number, isPaused: boolean, isBuffering = false) => ({ type: "playback_update", payload: { position: pos, duration: dur, isPaused, isBuffering, playingURI: "spotify:track:x" } });
+  eq(E.controllable("spotify"), "spotify");
+  ok(E.originAllowed("spotify", "https://open.spotify.com") && !E.originAllowed("spotify", "https://evil.spotify.com.example") && !E.originAllowed("spotify", "http://open.spotify.com"), "exact origin only");
+  eq(E.targetOrigin("spotify", "https://open.spotify.com/embed/track/abc"), "https://open.spotify.com");
+  eq(E.handshake("spotify", "x").length, 0, "Spotify speaks first");
+  // ready → ack (objects, not strings); auto-next asked to play → toggle too
+  let r = feed(E.initialState("spotify"), { type: "ready" });
+  ok(r.st.connected && r.sent.length === 1 && typeof r.sent[0] === "object" && (r.sent[0] as { command: string }).command === "load_complete_ack", `ready → ack ${JSON.stringify(r.sent)}`);
+  r = feed(E.initialState("spotify", true), { type: "ready" }, { type: "ready" });
+  ok(r.sent.length === 2 && JSON.stringify(r.sent[1]) === JSON.stringify({ command: "toggle" }), `autoplay → one toggle, once ${JSON.stringify(r.sent)}`);
+  // a 30 s preview plays to its end: paused at 29.8 s of 30 → ended once; the rewound paused update stays ended
+  r = feed(E.initialState("spotify"), { type: "ready" }, up(0, 30000, false), up(15000, 30000, false), up(29800, 30000, true), up(0, 30000, true));
+  ok(r.ends === 1 && r.st.status === "ended", `end at the end (${r.ends}, ${r.st.status})`);
+  eq(E.formatClock(r.st.time, r.st.duration), "0:00 / 0:30");
+  // rewound-from-the-last-second form: 29.3 s playing → 0 s paused → ended
+  r = feed(E.initialState("spotify"), { type: "ready" }, up(29300, 30000, false), up(0, 30000, true));
+  eq(r.ends, 1, "rewind after the last second is an end");
+  // user pause at 28.0 s of 30 (not the last 0.5 s, no rewind) → paused, NOT ended
+  r = feed(E.initialState("spotify"), { type: "ready" }, up(20000, 30000, false), up(28000, 30000, true));
+  ok(r.ends === 0 && r.st.status === "paused", `user pause near the end is a pause (${r.st.status})`);
+  // user seeks back while paused from 28 s to 3 s (no last-second position before) → still paused
+  r = feed(r.st, up(3000, 30000, true)); eq(r.ends, 0, "paused seek back is not an end");
+  // playlist rolls on: 199.6 s of 200 then 0 s of a NEW 180 s track, still playing → not an end
+  r = feed(E.initialState("spotify"), { type: "ready" }, up(199600, 200000, false), up(0, 180000, false));
+  ok(r.ends === 0 && r.st.status === "playing" && r.st.duration === 180, "playlist roll-over is not an end");
+  // play again after an end re-arms it: a second end counts
+  r = feed(E.initialState("spotify"), { type: "ready" }, up(29900, 30000, true), up(0, 30000, false), up(29900, 30000, true));
+  eq(r.ends, 2, "replay → second end");
+  // buffering, junk, wrong shapes
+  r = feed(E.initialState("spotify"), { type: "ready" }, up(1000, 30000, false, true));
+  eq(r.st.status, "buffering");
+  const junk = [null, 42, "nope", "{", [], { type: "playback_update" }, { type: "playback_update", payload: "x" }, { type: "playback_update", payload: { position: "1", duration: NaN } }, { type: "other" }, { method: "finish" }, { event: "onStateChange", info: 0 }];
+  r = feed(E.initialState("spotify"), { type: "ready" }, up(29900, 30000, false), ...junk);
+  ok(r.ends === 0 && r.st.status === "playing", `junk is ignored (${r.st.status})`);
+  // commands: only the confirmed toggle; skipped when already in the asked state; no seek / load
+  const playing = { ...E.initialState("spotify"), connected: true, status: "playing" as const };
+  const paused = { ...playing, status: "paused" as const };
+  eq(JSON.stringify(E.command("spotify", { op: "pause" }, "f", playing)), JSON.stringify({ command: "toggle" }));
+  eq(E.command("spotify", { op: "pause" }, "f", paused), null);
+  eq(JSON.stringify(E.command("spotify", { op: "play" }, "f", paused)), JSON.stringify({ command: "toggle" }));
+  eq(E.command("spotify", { op: "play" }, "f", playing), null);
+  eq(E.command("spotify", { op: "seek", seconds: 10 }, "f", playing), null);
+  ok(E.initialState("spotify").noSeek === true, "noSeek flag");
+  // the inference itself
+  ok(E.spotifyEnded(29, 29.6, 30, true) && E.spotifyEnded(29.2, 0, 30, true) && !E.spotifyEnded(28.9, 0, 30, true) && !E.spotifyEnded(29.9, 29.9, 30, false) && !E.spotifyEnded(0, 0, 0, true), "spotifyEnded truth table");
 });
 
 finish();

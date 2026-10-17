@@ -27,7 +27,7 @@ import {
   hitItem, loadView, moveItem, moveToSurface, normalizeTable, pileJitter, pileUp, renamePile, renameView, saveView, surfacePaths, takeFromPile,
   unstack, withBoard, type Board, type Camera, type Face, type FloorItem, type TableState, type Wall,
 } from "@/lib/tabletop-core";
-import { applyH, fitSlant, ident, mul, toCss, translate } from "@/lib/tabletop-slant";
+import { applyH, fitSlant, ident, mul, toCss, translate, wallLegibility, boxLegibility } from "@/lib/tabletop-slant";
 import { useShell } from "./shell-context";
 import { AppIcon, FileIcon } from "./AppIcon";
 import { askText } from "@/lib/ask";
@@ -136,6 +136,21 @@ export default function Tabletop() {
   // ------------------------------------------------------------------ geometry (both cameras)
   const geo = boxGeometry(size.w, size.h);
   const slant = fitSlant(size.w, size.h);
+  // TT29 legibility LOD: which walls are too foreshortened for text under the current camera (both cameras)
+  const lod = camera === "slant" ? wallLegibility(slant) : boxLegibility(size.w, size.h, geo.depth, geo.floorScale);
+  // the switcher floats over the south wall in the top-down box: measure it so a wall tag never lands under it
+  const navRef = useRef<HTMLElement>(null);
+  const [navBox, setNavBox] = useState<{ l: number; r: number; t: number; b: number } | null>(null);
+  useEffect(() => {
+    const el = navRef.current, rt = root.current;
+    if (!el || !rt) return;
+    const ro = new ResizeObserver(() => {
+      const r = el.getBoundingClientRect(), o = rt.getBoundingClientRect();
+      setNavBox({ l: r.left - o.left, r: r.right - o.left, t: r.top - o.top, b: r.bottom - o.top });
+    });
+    ro.observe(el); ro.observe(rt);
+    return () => ro.disconnect();
+  }, []);
   const s = geo.floorScale;
   const floorW = camera === "slant" ? slant.FW : Math.round(size.w * s);
   const floorH = camera === "slant" ? slant.FD : Math.round(size.h * s);
@@ -170,6 +185,8 @@ export default function Tabletop() {
   };
   const wallUnder = (x: number, y: number): Wall | null => {
     for (const el of document.elementsFromPoint(x, y)) {
+      const tag = (el as HTMLElement).closest?.("[data-wall-tag]")?.getAttribute("data-wall-tag");
+      if (tag) return tag as Wall; // a wall's flat tag is a drop target too (slivers are too thin to aim at)
       const face = (el as HTMLElement).closest?.("[data-face]")?.getAttribute("data-face");
       if (face && face !== "floor") return face as Wall;
       if (face === "floor") return null;
@@ -444,6 +461,16 @@ export default function Tabletop() {
       </>
     );
     const pinH2 = contentH(w);
+    if (compact && lod?.[w].lod === "glyph") {
+      // too foreshortened for text: pinned items as shapes only; the flat wall tag carries the words
+      const pins = surfacePaths(table, w, paths);
+      return (
+        <div className="fs-tt-wall-body fs-tt-wall-glyphs" data-lod="glyph" data-testid={`tt-glyphs-${w}`} aria-hidden="true" inert>
+          {w === "north" ? wins.slice(0, 12).map((x) => <span key={x.id} className="fs-tt-glyph fs-tt-glyph-win" />) : null}
+          {pins.slice(0, 60).map((p) => <span key={p} className="fs-tt-glyph" data-kind={(byPath.get(p)?.name ?? p).split(".").pop()?.toLowerCase().slice(0, 5)} />)}
+        </div>
+      );
+    }
     return (
       <div className="fs-tt-wall-body" data-compact={compact || undefined} data-beauty-skip={compact || undefined} inert={compact}>
         <div className="fs-tt-wall-head">
@@ -508,6 +535,25 @@ export default function Tabletop() {
         ))}
       </div>
 
+      {/* TT29 wall tags: flat, legible labels at each foreshortened wall's on-screen centroid — click target and drop
+          target. Pointer-only visuals (aria-hidden): keyboard and screen readers use the "Open the … wall" buttons. */}
+      {lod && main === "floor" ? WALLS.filter((w) => lod[w].lod === "glyph").map((w) => {
+        const t = lod[w], n = surfacePaths(table, w, paths).length;
+        const label = [WALL_INFO[w].title, w === "north" && wins.length ? `${wins.length} open` : "", n ? `${n} pinned` : ""].filter(Boolean).join(" · ");
+        const half = t.vertical ? 15 : 0;
+        let x = t.vertical ? Math.min(size.w - 2 - half, Math.max(2 + half, t.x)) : t.x; // flush to the frame edge when the sliver is thinner than the spine
+        // a horizontal tag in the switcher's band moves to the middle of the wider free stretch beside it
+        if (!t.vertical && navBox && t.y + 16 > navBox.t - 6 && t.y - 16 < navBox.b + 6 && t.x > navBox.l - 140 && t.x < navBox.r + 140)
+          x = navBox.l >= size.w - navBox.r ? navBox.l / 2 : (navBox.r + size.w) / 2;
+        return (
+          <div key={w} className="fs-tt-walltag" data-testid={`tt-tag-${w}`} data-wall-tag={w} data-vertical={t.vertical || undefined} data-drop={drag?.over === w || undefined}
+            aria-hidden="true" title={`Open the ${WALL_INFO[w].title} wall`} style={{ left: x, top: t.y }}
+            onClick={() => { if (!drag) setMain(w); }}>
+            {label}
+          </div>
+        );
+      }) : null}
+
       {/* enlarged micro peek (hover / focus) — flat overlay, never intercepts the pointer */}
       {zoom && zoomFile && !drag ? (
         <div className="fs-tt-zoom" data-testid="tt-zoom" aria-hidden="true"
@@ -555,7 +601,7 @@ export default function Tabletop() {
       <span id="tt-card-hint" hidden>Double-click or Enter opens the file. Drag it onto another card or a pile, or press Shift+F10, to make a pile or pin it to a wall. Alt+Arrow keys move it.</span>
       <span id="tt-pile-hint" hidden>Pile. Click or Enter fans it out, Esc gathers it. Drag it onto a card or pile to merge; Shift+F10 for Unstack, Rename and Pin to a wall.</span>
       {/* switcher: single-click / keyboard route to every face (double-click is never the only way) */}
-      <nav className="fs-tt-nav" aria-label="Tabletop views" data-testid="tt-nav">
+      <nav ref={navRef} className="fs-tt-nav" aria-label="Tabletop views" data-testid="tt-nav">
         {(["floor", "north", "west", "east", "south"] as Face[]).map((f) => (
           <button key={f} type="button" aria-pressed={main === f} data-testid={`tt-nav-${f}`} onClick={() => setMain(f)}>
             {f === "floor" ? "Table" : WALL_INFO[f as Wall].title}
