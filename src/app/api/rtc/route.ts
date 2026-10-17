@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { and, asc, eq, gt, lt, or } from "drizzle-orm";
 import { db } from "@/db";
 import { rtcSignals } from "@/db/schema";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const b = (await req.json()) as { room?: string; from?: string; to?: string; kind?: string; payload?: unknown };
+  const b = (await readJsonObject(req)) as ({ room?: string; from?: string; to?: string; kind?: string; payload?: unknown }) | Response;
+  if (b instanceof Response) return b;
   const room = (b.room ?? "").toUpperCase();
   if (!room || !b.from || !b.kind) return NextResponse.json({ ok: false, error: "room, from, kind required" }, { status: 400 });
   if (!["hello", "offer", "answer", "ice", "bye"].includes(b.kind)) {

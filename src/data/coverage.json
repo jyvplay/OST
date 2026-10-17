@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-16T22:41:51.050Z",
+ "generatedAt": "2026-10-17T01:04:33.662Z",
  "totals": {
   "built": {
-   "full": 211,
-   "partial": 64,
+   "full": 217,
+   "partial": 62,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 96,
-   "partial": 73,
-   "untested": 128
+   "full": 100,
+   "partial": 75,
+   "untested": 126
   },
   "tests": {
-   "total": 359,
-   "passed": 359
+   "total": 393,
+   "passed": 393
   }
  },
  "rows": {
@@ -271,6 +271,7 @@
   "FM-01": {
    "tested": "partial",
    "tests": [
+    "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
     "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
     "e2e: mount: files",
     "e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)"
@@ -293,6 +294,7 @@
   "FM-04": {
    "tested": "partial",
    "tests": [
+    "e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog",
     "e2e: mount: peek",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades"
    ]
@@ -529,8 +531,12 @@
    ]
   },
   "PR-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-contacts: create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right",
+    "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
+    "e2e: mount: contacts"
+   ]
   },
   "PR-06": {
    "tested": "untested",
@@ -710,14 +716,30 @@
    ]
   },
   "FF-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf"
+   ]
   },
   "FF-04": {
    "tested": "full",
    "tests": [
+    "ai-format: real Illustrator output: PDF export, DOS-EPS, Illustrator 88 EPS and FreeHand AI-dialect PostScript",
+    "ai-format: constructed .ai with and without PDF compatibility (the spec's open-vs-limited split)",
+    "ai-format: creator hidden in a compressed object stream, UTF-16BE strings, junk before the header",
+    "ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files",
+    "ai-format: version strings, PDF literal escapes, format registry and MIME",
+    "e2e-ai: PDF-compatible .ai (constructed, Illustrator 28.5 + /AIPrivateData1): kind ai-pdf, facts shown; PDF part framed only when the browser has a PDF viewer, else an explicit download link (never an automatic download); no CSP violation",
+    "e2e-ai: with a PDF viewer present (navigator.pdfViewerEnabled forced true): the artwork is framed on a blob: URL, never <embed>, and the CSP allows it",
+    "e2e-ai: real Illustrator-made PDF (file-type fixture): kind illustrator-pdf, version 24.1, renderable",
+    "e2e-ai: PostScript-era .ai (Apache Tika testAI_PS.ai) and an Illustrator EPS (file-type fixture): metadata only, no PDF view, 'limited' badge",
+    "e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog",
+    "e2e-ai: Files routing: double-clicking an .ai in Files opens Peek with the Illustrator panel",
     "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
     "e2e: mount: vector",
+    "oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf",
+    "oracle-ai: file-type 16.5.4 (independent rule) agrees on ai/pdf/eps for every real and constructed PDF/EPS input",
+    "oracle-ai: constructed fixtures are real PDFs to an independent parser (pypdf), so the edge cases are not malformed strawmen",
     "unit: SVG sanitiser strips script/handlers/foreignObject/javascript:",
     "vector: v1 .fsvg migration and untrusted v2 validation"
    ]
@@ -764,6 +786,7 @@
   "FF-12": {
    "tested": "full",
    "tests": [
+    "ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
     "integration: FM-05 extract refuses zip-slip and writes nothing",
     "unit: zip-slip and bomb guards fire before allocation"
@@ -776,6 +799,7 @@
   "FF-14": {
    "tested": "full",
    "tests": [
+    "ai-format: version strings, PDF literal escapes, format registry and MIME",
     "unit: loss report itemises drops; registry grades"
    ]
   },
@@ -1477,6 +1501,53 @@
     "whiteboard-engine: describe(): plain-language labels for the Layers list"
    ]
   },
+  "CN-01": {
+   "tested": "full",
+   "tests": [
+    "contacts-engine: RFC 6350 §8 author's vCard: unfolding, structured N/ADR, quoted TYPE lists, tel: URIs, unknown properties kept",
+    "contacts-engine: RFC 2426 §7 (vCard 3.0): TYPE=PREF, INTERNET dropped, VOICE dropped beside other types, mixed-case BEGIN",
+    "contacts-engine: vCard 2.1: QUOTED-PRINTABLE with soft breaks, CHARSET=ISO-8859-1, bare TYPE params, base64 PHOTO, missing FN",
+    "contacts-engine: round trip: parse → write 4.0 → parse is identical; lines ≤ 75 octets; UTF-8 never split; PID/ALTID kept",
+    "contacts-engine: RFC 6350 §4.3.1 dates: write basic format (YYYY-MM-DD is disallowed in 4.0), accept every listed form, Feb 29",
+    "contacts-engine: hostile input: nested AGENT vCard, missing END, junk lines, 25 MB input, 20 001 contacts, RFC 6868 param escapes",
+    "e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload",
+    "e2e: mount: contacts",
+    "oracle-vcard: A. vobject reads what we write: names, typed e-mails, phones, structured ADR, escaped multi-line UTF-8 note, ORG, categories",
+    "oracle-vcard: B. we read what vobject writes (3.0, its own folding and escaping)",
+    "oracle-vcard: A+B: 200 generated contacts survive ours → vobject → ours with identical modelled fields"
+   ]
+  },
+  "CN-02": {
+   "tested": "full",
+   "tests": [
+    "contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation",
+    "e2e-contacts: create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right",
+    "e2e-contacts: validation and cancel: no name + bad e-mail → two errors announced (role=alert), nothing saved; Esc closes the editor",
+    "e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload",
+    "e2e-contacts: keyboard edit, delete and undo: E opens the editor, Enter saves, Delete removes, Undo restores; unknown fields survive the edit",
+    "e2e-contacts: axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
+    "e2e: mount: contacts"
+   ]
+  },
+  "CN-03": {
+   "tested": "full",
+   "tests": [
+    "contacts-engine: RFC 6350 §4.3.1 dates: write basic format (YYYY-MM-DD is disallowed in 4.0), accept every listed form, Feb 29",
+    "contacts-engine: duplicates (e-mail case, phone formatting, folded name) and merge keep everything from both",
+    "e2e-contacts: duplicates and merge, birthdays: two cards sharing an e-mail (different case) are grouped and merged without losing a phone; a birthday in 3 days is listed",
+    "e2e: mount: contacts"
+   ]
+  },
+  "CN-04": {
+   "tested": "full",
+   "tests": [
+    "contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation",
+    "e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload",
+    "e2e-contacts: export: CSV to Files (injection-guarded) and as a download; .vcf download re-imports to the same contacts",
+    "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
+    "e2e: mount: contacts"
+   ]
+  },
   "CT-01": {
    "tested": "untested",
    "tests": []
@@ -1736,6 +1807,7 @@
     "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
     "e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+    "e2e-contacts: axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
     "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
     "e2e-whiteboard: axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations"
    ]
@@ -1759,7 +1831,7 @@
   "AU-03": {
    "tested": "partial",
    "tests": [
-    "integration: malformed JSON bodies get a 400, never an unhandled 500 (TT23 repair, src/proxy.ts)"
+    "integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)"
    ]
   },
   "AU-04": {

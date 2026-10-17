@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-16T22:41:51.049Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-30 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-17T01:04:33.661Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+36 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **297** |
-| Fully built | 211 |
-| Partially built (partial 46 + probe 18) | 64 |
+| **Features in register** | **301** |
+| Fully built | 217 |
+| Partially built (partial 45 + probe 17) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **96** |
-| **Partially tested** (only `partial` tags) | **73** |
-| Untested | 128 |
-| Automated tests executed / passed | 359 / 359 |
+| **Fully tested** (≥1 passing test tagged `full`) | **100** |
+| **Partially tested** (only `partial` tags) | **75** |
+| Untested | 126 |
+| Automated tests executed / passed | 393 / 393 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 86 | 58 | 67 |
-| partially built | 4 | 13 | 47 |
+| fully built | 91 | 59 | 67 |
+| partially built | 3 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
 
@@ -33,36 +33,42 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-16T22:31:39.900Z |
-| browser-session | 5 | 5 | 0 | 2026-10-16T22:31:28.410Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-16T22:40:50.258Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-16T22:36:01.832Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-16T22:34:49.459Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-16T22:33:53.195Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-16T22:36:34.847Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-16T22:37:13.505Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-16T22:41:15.425Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-16T22:35:19.135Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-16T22:41:40.495Z |
-| e2e | 57 | 57 | 0 | 2026-10-16T22:33:22.471Z |
-| image | 12 | 12 | 0 | 2026-10-16T22:31:22.869Z |
-| integration | 25 | 25 | 0 | 2026-10-16T22:31:16.876Z |
-| metaclean | 6 | 6 | 0 | 2026-10-16T22:31:36.237Z |
-| names | 7 | 7 | 0 | 2026-10-16T22:31:22.426Z |
-| office | 35 | 35 | 0 | 2026-10-16T22:31:17.254Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-16T22:31:26.202Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-16T22:31:28.219Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-16T22:31:18.978Z |
-| oracle | 5 | 5 | 0 | 2026-10-16T22:31:17.651Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-16T22:31:39.658Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-16T22:31:33.002Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-16T22:31:34.762Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-16T22:31:19.354Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-16T22:31:40.121Z |
-| unit | 23 | 23 | 0 | 2026-10-16T22:31:14.865Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-16T22:31:27.494Z |
-| vector | 18 | 18 | 0 | 2026-10-16T22:31:26.505Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-16T22:31:40.342Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-17T00:44:30.292Z |
+| ai-format | 5 | 5 | 0 | 2026-10-17T00:44:31.841Z |
+| browser-session | 5 | 5 | 0 | 2026-10-17T00:44:20.267Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-17T00:44:33.011Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-17T01:03:19.332Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-17T01:03:30.703Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-17T00:48:18.371Z |
+| e2e-contacts | 8 | 8 | 0 | 2026-10-17T01:03:50.272Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-17T00:47:15.378Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-17T00:46:31.852Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-17T01:04:27.537Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T00:49:12.759Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-17T00:52:31.895Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-17T00:47:38.311Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T00:52:51.423Z |
+| e2e | 58 | 58 | 0 | 2026-10-17T00:59:51.599Z |
+| image | 12 | 12 | 0 | 2026-10-17T00:44:15.594Z |
+| integration | 25 | 25 | 0 | 2026-10-17T00:44:10.297Z |
+| metaclean | 6 | 6 | 0 | 2026-10-17T00:44:26.893Z |
+| names | 7 | 7 | 0 | 2026-10-17T00:44:15.247Z |
+| office | 35 | 35 | 0 | 2026-10-17T00:44:10.649Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-17T00:44:32.727Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-17T00:44:18.331Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-17T00:44:20.112Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-17T00:44:33.469Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T00:44:12.228Z |
+| oracle | 5 | 5 | 0 | 2026-10-17T00:44:10.985Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-17T00:44:30.062Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-17T00:44:24.113Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-17T00:44:25.564Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-17T00:44:12.581Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-17T00:44:30.481Z |
+| unit | 23 | 23 | 0 | 2026-10-17T00:44:06.673Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-17T00:44:19.510Z |
+| vector | 18 | 18 | 0 | 2026-10-17T00:44:18.574Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T00:44:30.669Z |
 
 ## Rows touched by failing tests
 
@@ -81,14 +87,15 @@ None.
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
-| PR | 32 | 21 | 10 | 1 | 13 | 6 | 13 |
-| FF | 34 | 24 | 10 | 0 | 25 | 4 | 5 |
+| PR | 32 | 22 | 9 | 1 | 13 | 7 | 12 |
+| FF | 34 | 25 | 9 | 0 | 25 | 5 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
 | AX | 12 | 11 | 1 | 0 | 6 | 4 | 2 |
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
+| CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
 | LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
@@ -153,10 +160,10 @@ None.
 | SR-06 | built | partial | e2e: mount: calculator; unit: precedence, power associativity, rounding policy |
 | SR-07 | blocked | untested |  |
 | SR-08 | built | partial | e2e: mount: find |
-| FM-01 | built | partial | e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e: mount: files; e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix) |
+| FM-01 | built | partial | e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e: mount: files (+1) |
 | FM-02 | built | untested |  |
 | FM-03 | built | full | e2e: mount: files; e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix); integration: FM-03 journaled move: 6 states in order, digest preserved, source retired (+2) |
-| FM-04 | built | partial | e2e: mount: peek; integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades |
+| FM-04 | built | partial | e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog; e2e: mount: peek; integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades |
 | FM-05 | built | full | integration: FM-05 compress → extract round trip preserves bytes (text and binary); integration: FM-05 extract refuses zip-slip and writes nothing; unit: zip-slip and bomb guards fire before allocation (+2) |
 | FM-06 | built | untested |  |
 | FM-07 | built | full | e2e: mount: storage; integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest |
@@ -201,7 +208,7 @@ None.
 | PR-02 | built | partial | e2e: mount: notes; integration: deleting a note removes only its own index row |
 | PR-03 | built | partial | e2e: mount: planner; integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar |
 | PR-04 | built | full | e2e: mount: planner; integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar; unit: ICS unfolding, escapes, parameters, VTODO status, round trip |
-| PR-05 | probe | untested |  |
+| PR-05 | built | partial | e2e-contacts: create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right; e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher; e2e: mount: contacts |
 | PR-06 | partial | untested |  |
 | PR-07 | built | full | browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused; browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first; e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin (+3) |
 | PR-07a | built | full | browser-session: close: active tab hands focus to its neighbour (regression: view went blank); last tab replaced; e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https); e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab |
@@ -231,8 +238,8 @@ None.
 | PR-13 | built | full | e2e: desktop shows sticky note widget; seeded widget has no hang button |
 | FF-01 | built | partial | e2e: mount: peek; unit: loss report itemises drops; registry grades |
 | FF-02 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
-| FF-03 | partial | untested |  |
-| FF-04 | partial | full | e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup; e2e: mount: vector; unit: SVG sanitiser strips script/handlers/foreignObject/javascript: (+1) |
+| FF-03 | partial | partial | oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf |
+| FF-04 | built | full | ai-format: real Illustrator output: PDF export, DOS-EPS, Illustrator 88 EPS and FreeHand AI-dialect PostScript; ai-format: constructed .ai with and without PDF compatibility (the spec's open-vs-limited split); ai-format: creator hidden in a compressed object stream, UTF-16BE strings, junk before the header (+15) |
 | FF-05 | built | untested |  |
 | FF-06 | probe | untested |  |
 | FF-07 | partial | untested |  |
@@ -240,9 +247,9 @@ None.
 | FF-09 | built | full | unit: CSV RFC-4180 round trip |
 | FF-10 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
 | FF-11 | built | full | e2e: mount: peek; unit: loss report itemises drops; registry grades |
-| FF-12 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; integration: FM-05 extract refuses zip-slip and writes nothing; unit: zip-slip and bomb guards fire before allocation |
+| FF-12 | built | full | ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files; integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; integration: FM-05 extract refuses zip-slip and writes nothing (+1) |
 | FF-13 | partial | untested |  |
-| FF-14 | built | full | unit: loss report itemises drops; registry grades |
+| FF-14 | built | full | ai-format: version strings, PDF literal escapes, format registry and MIME; unit: loss report itemises drops; registry grades |
 | FF-15 | built | partial | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists |
 | FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
 | FF-20 | partial | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen (+7) |
@@ -310,6 +317,10 @@ None.
 | WB-03 | built | full | e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits; e2e-whiteboard: arrange: marquee selects only enclosed elements, Align Left lines them up, Group makes one selection; e2e: mount: whiteboard (+2) |
 | WB-04 | built | full | e2e-whiteboard: files: Save .fboard, reopen it from its path, Export SVG (escaped, no script); a hostile .fboard is repaired and the count reported; e2e: mount: whiteboard; whiteboard-engine: SVG export is escaped and self-contained; .fboard round-trips; hostile files are refused or repaired (+1) |
 | WB-05 | built | full | e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher; e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text; e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits (+3) |
+| CN-01 | built | full | contacts-engine: RFC 6350 §8 author's vCard: unfolding, structured N/ADR, quoted TYPE lists, tel: URIs, unknown properties kept; contacts-engine: RFC 2426 §7 (vCard 3.0): TYPE=PREF, INTERNET dropped, VOICE dropped beside other types, mixed-case BEGIN; contacts-engine: vCard 2.1: QUOTED-PRINTABLE with soft breaks, CHARSET=ISO-8859-1, bare TYPE params, base64 PHOTO, missing FN (+8) |
+| CN-02 | built | full | contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation; e2e-contacts: create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right; e2e-contacts: validation and cancel: no name + bad e-mail → two errors announced (role=alert), nothing saved; Esc closes the editor (+4) |
+| CN-03 | built | full | contacts-engine: RFC 6350 §4.3.1 dates: write basic format (YYYY-MM-DD is disallowed in 4.0), accept every listed form, Feb 29; contacts-engine: duplicates (e-mail case, phone formatting, folded name) and merge keep everything from both; e2e-contacts: duplicates and merge, birthdays: two cards sharing an e-mail (different case) are grouped and merged without losing a phone; a birthday in 3 days is listed (+1) |
+| CN-04 | built | full | contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation; e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload; e2e-contacts: export: CSV to Files (injection-guarded) and as a download; .vcf download re-imports to the same contacts (+2) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
@@ -357,10 +368,10 @@ None.
 | AX-05 | built | partial | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half |
 | AX-06 | probe | untested |  |
 | AX-07 | built | partial | unit: SRT → WebVTT conversion |
-| AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+2) |
+| AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+3) |
 | AU-01 | built | full | e2e: mount: routines; e2e: routines: dry-run lists actions without executing; Run opens the window; integration: AU-01 routine whitelist rejects commands outside the palette vocabulary (+1) |
 | AU-02 | built | partial | e2e: mount: routines; integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted |
-| AU-03 | partial | partial | integration: malformed JSON bodies get a 400, never an unhandled 500 (TT23 repair, src/proxy.ts) |
+| AU-03 | partial | partial | integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject) |
 | AU-04 | probe | untested |  |
 | RG-01 | built | partial | e2e: mount: monitor; e2e: governor reacts to injected long tasks |
 | RG-02 | partial | untested |  |

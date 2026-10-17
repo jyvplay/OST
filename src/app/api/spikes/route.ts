@@ -3,6 +3,7 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { spikes } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,8 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const b = (await req.json()) as { code?: string; status?: string; result?: string };
+  const b = (await readJsonObject(req)) as ({ code?: string; status?: string; result?: string }) | Response;
+  if (b instanceof Response) return b;
   if (!b.code) return NextResponse.json({ ok: false, error: "code required" }, { status: 400 });
   await db.update(spikes).set({
     ...(b.status ? { status: b.status } : {}),

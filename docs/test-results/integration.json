@@ -1,6 +1,6 @@
 {
   "suite": "integration",
-  "at": "2026-10-16T22:31:16.876Z",
+  "at": "2026-10-17T00:44:10.297Z",
   "results": [
     {
       "suite": "integration",
@@ -9,7 +9,7 @@
         "DP-10": "partial"
       },
       "pass": true,
-      "ms": 56
+      "ms": 830
     },
     {
       "suite": "integration",
@@ -18,7 +18,7 @@
         "DP-08": "partial"
       },
       "pass": true,
-      "ms": 20
+      "ms": 25
     },
     {
       "suite": "integration",
@@ -39,7 +39,7 @@
         "FM-03": "full"
       },
       "pass": true,
-      "ms": 43
+      "ms": 58
     },
     {
       "suite": "integration",
@@ -50,7 +50,7 @@
         "BK-01": "partial"
       },
       "pass": true,
-      "ms": 32
+      "ms": 38
     },
     {
       "suite": "integration",
@@ -60,7 +60,7 @@
         "FM-07": "full"
       },
       "pass": true,
-      "ms": 58
+      "ms": 66
     },
     {
       "suite": "integration",
@@ -70,7 +70,7 @@
         "SR-02": "partial"
       },
       "pass": true,
-      "ms": 44
+      "ms": 41
     },
     {
       "suite": "integration",
@@ -79,7 +79,7 @@
         "SH-08": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 19
     },
     {
       "suite": "integration",
@@ -89,7 +89,7 @@
         "PR-07r": "partial"
       },
       "pass": true,
-      "ms": 22
+      "ms": 19
     },
     {
       "suite": "integration",
@@ -98,7 +98,7 @@
         "AU-01": "partial"
       },
       "pass": true,
-      "ms": 18
+      "ms": 46
     },
     {
       "suite": "integration",
@@ -118,7 +118,7 @@
         "CT-02": "partial"
       },
       "pass": true,
-      "ms": 42
+      "ms": 41
     },
     {
       "suite": "integration",
@@ -129,7 +129,7 @@
         "CA-02": "partial"
       },
       "pass": true,
-      "ms": 735
+      "ms": 738
     },
     {
       "suite": "integration",
@@ -143,7 +143,7 @@
         "FM-04": "partial"
       },
       "pass": true,
-      "ms": 140
+      "ms": 145
     },
     {
       "suite": "integration",
@@ -165,7 +165,7 @@
         "BL-05": "partial"
       },
       "pass": true,
-      "ms": 22
+      "ms": 24
     },
     {
       "suite": "integration",
@@ -175,7 +175,7 @@
         "SC-08": "partial"
       },
       "pass": true,
-      "ms": 6
+      "ms": 7
     },
     {
       "suite": "integration",
@@ -186,7 +186,7 @@
         "DP-05": "partial"
       },
       "pass": true,
-      "ms": 90
+      "ms": 115
     },
     {
       "suite": "integration",
@@ -196,7 +196,7 @@
         "SR-05": "full"
       },
       "pass": true,
-      "ms": 49
+      "ms": 55
     },
     {
       "suite": "integration",
@@ -205,7 +205,7 @@
         "SR-03": "full"
       },
       "pass": true,
-      "ms": 57
+      "ms": 60
     },
     {
       "suite": "integration",
@@ -214,7 +214,7 @@
         "FM-05": "full"
       },
       "pass": true,
-      "ms": 75
+      "ms": 96
     },
     {
       "suite": "integration",
@@ -224,7 +224,7 @@
         "FF-12": "full"
       },
       "pass": true,
-      "ms": 19
+      "ms": 29
     },
     {
       "suite": "integration",
@@ -233,7 +233,7 @@
         "CA-11": "partial"
       },
       "pass": true,
-      "ms": 11
+      "ms": 16
     },
     {
       "suite": "integration",
@@ -243,16 +243,16 @@
         "SR-02": "partial"
       },
       "pass": true,
-      "ms": 53
+      "ms": 63
     },
     {
       "suite": "integration",
-      "name": "malformed JSON bodies get a 400, never an unhandled 500 (TT23 repair, src/proxy.ts)",
+      "name": "every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)",
       "covers": {
         "AU-03": "partial"
       },
       "pass": true,
-      "ms": 110
+      "ms": 817
     }
   ]
 }

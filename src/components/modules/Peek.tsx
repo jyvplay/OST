@@ -4,6 +4,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
 import { formatFor, GRADE_TEXT, parseCsv, sanitizeSvg } from "@/lib/forge";
+import { sniffAi, streamInflate, type AiSniff } from "@/lib/ai-format";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
 
@@ -23,6 +24,29 @@ export default function PeekModule({ win }: ModuleProps) {
   const [extract, setExtract] = useState<{ kind: string; grade: string; text: string; dropped: string[]; engine: string; boundary: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const fmt = formatFor(path);
+  const isAiFamily = !!fmt && ["ai", "eps", "ps"].some((x) => fmt.ext.includes(x));
+  const [ai, setAi] = useState<AiSniff | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  // HTML standard: false means a PDF in a frame would be DOWNLOADED, not shown, so we must not frame it (measured in
+  // the sandbox's headless Chromium, which has no PDF viewer: framing the blob fired a download).
+  const [pdfViewer] = useState(() => typeof navigator === "undefined" || (navigator as Navigator & { pdfViewerEnabled?: boolean }).pdfViewerEnabled !== false);
+
+  // FF-04: decide from the bytes, never from the extension, whether the browser PDF engine may render this file.
+  useEffect(() => {
+    if (!isAiFamily || !node || node.encoding !== "base64") return;
+    let live = true;
+    const bin = atob(node.content);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    // The PDF view is an <iframe> on a blob: URL. <embed>/<object> cannot be used: the app's CSP is object-src 'none'.
+    let url: string | null = null;
+    void sniffAi(bytes, streamInflate).then((r) => {
+      if (!live) return;
+      setAi(r);
+      if (r.renderable) { url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" })); setPdfUrl(url); }
+    });
+    return () => { live = false; if (url) URL.revokeObjectURL(url); };
+  }, [isAiFamily, node]);
 
   useEffect(() => {
     if (!path) return;
@@ -63,7 +87,36 @@ export default function PeekModule({ win }: ModuleProps) {
       {fmt ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>{GRADE_TEXT[fmt.grade]} — {fmt.boundary}</div> : null}
       {err ? <Badge tone="bad">{err}</Badge> : null}
 
-      {node && !err ? (
+      {node && !err && isAiFamily ? (
+        <div className="fs-panel" style={{ padding: 10, minHeight: 160, display: "grid", gap: 8 }} data-testid="peek-ai" data-kind={ai?.kind ?? "pending"}>
+          {!ai ? <div className="fs-dim">Reading the file signature…</div> : (
+            <>
+              <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+                <Badge tone={ai.renderable ? "ok" : "warn"}>{ai.renderable ? "opens as PDF" : "limited"}</Badge>
+                <span data-testid="peek-ai-label" style={{ fontSize: fz(12.5) }}>{ai.label}</span>
+              </div>
+              <dl data-testid="peek-ai-facts" style={{ display: "grid", gridTemplateColumns: "max-content minmax(0,1fr)", gap: "2px 12px", margin: 0, fontSize: fz(12) }}>
+                {([
+                  ["Creator", ai.creator], ["Illustrator version", ai.illustratorVersion], ["PDF version", ai.pdfVersion],
+                  ["AI file format", ai.aiFileFormat], ["Title", ai.title], ["Bounding box", ai.boundingBox ? `${ai.boundingBox.join(" ")} pt` : undefined],
+                ] as [string, string | undefined][]).filter(([, v]) => v).map(([k, v]) => (
+                  <div key={k} style={{ display: "contents" }}><dt className="fs-dim">{k}</dt><dd style={{ margin: 0, overflowWrap: "anywhere" }}>{v}</dd></div>
+                ))}
+              </dl>
+              {ai.notes.length ? <ul className="fs-dim" style={{ margin: 0, paddingLeft: 18, fontSize: fz(11.5) }}>{ai.notes.map((n) => <li key={n}>{n}</li>)}</ul> : null}
+              {ai.renderable && pdfUrl && !pdfViewer ? (
+                <div data-testid="peek-ai-nopdf" className="fs-row" style={{ gap: 8, flexWrap: "wrap" }}>
+                  <span className="fs-dim" style={{ fontSize: fz(12) }}>This browser has no built-in PDF viewer, so the artwork cannot be shown here.</span>
+                  <a className="fs-btn" href={pdfUrl} download={`${node.name.replace(/\.ai$/i, "")}.pdf`}>Download as PDF</a>
+                </div>
+              ) : null}
+              {ai.renderable && pdfUrl && pdfViewer ? (
+                <iframe data-testid="peek-ai-pdf" src={pdfUrl} title={`${node.name} (PDF view)`} style={{ width: "100%", height: 420, border: 0, borderRadius: 8, background: "#fff" }} />
+              ) : null}
+            </>
+          )}
+        </div>
+      ) : node && !err ? (
         <div className="fs-panel" style={{ padding: 10, minHeight: 160 }}>
           {node.mime.startsWith("image/") && node.mime !== "image/svg+xml" && dataUrl ? (
             // eslint-disable-next-line @next/next/no-img-element

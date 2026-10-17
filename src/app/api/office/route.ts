@@ -3,12 +3,14 @@ import { refuseEncrypted } from "@/lib/mime";
 import { getNode } from "@/lib/server/vfs";
 import { readDocx, writeDocx, type DocModel } from "@/lib/office/docx";
 import { readPptx, writePptx, type DeckModel } from "@/lib/office/pptx";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 const LIMIT = 8 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
-  const b = (await req.json()) as { op?: string; path?: string; base64?: string; document?: DocModel; deck?: DeckModel };
+  const b = (await readJsonObject(req)) as ({ op?: string; path?: string; base64?: string; document?: DocModel; deck?: DeckModel }) | Response;
+  if (b instanceof Response) return b;
   try {
     if (b.op === "importDocx" || b.op === "importPptx") {
       let bytes: Buffer;

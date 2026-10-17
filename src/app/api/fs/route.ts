@@ -8,6 +8,7 @@ import {
   transferNode, trashNode, versionsOf, writeFile, baseName, parentOf, MAX_BYTES,
 } from "@/lib/server/vfs";
 import { readCentralDirectory, readEntryVerified, writeZip } from "@/lib/server/zip";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   await bootstrap();
-  const body = (await req.json()) as Record<string, string | boolean | undefined>;
+  const body = (await readJsonObject(req)) as (Record<string, string | boolean | undefined>) | Response;
+  if (body instanceof Response) return body;
   const op = String(body.op ?? "");
   try {
     switch (op) {

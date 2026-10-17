@@ -35,6 +35,7 @@ import SpreadsheetModule from "./modules/Spreadsheet";
 import WriterModule from "./modules/Writer";
 import TablesModule from "./modules/Tables";
 import WhiteboardModule from "./modules/Whiteboard";
+import ContactsModule from "./modules/Contacts";
 import SlidesModule from "./modules/Slides";
 import ImageEditorModule from "./modules/ImageEditor";
 import VectorModule from "./modules/Vector";
@@ -76,6 +77,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "writer": return <WriterModule win={win} />;
     case "tables": return <TablesModule win={win} />;
     case "whiteboard": return <WhiteboardModule win={win} />;
+    case "contacts": return <ContactsModule win={win} />;
     case "slides": return <SlidesModule win={win} />;
     case "imageedit": return <ImageEditorModule win={win} />;
     case "vector": return <VectorModule win={win} />;

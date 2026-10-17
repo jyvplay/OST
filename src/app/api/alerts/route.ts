@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { alerts } from "@/db/schema";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const b = (await req.json()) as { app?: string; title?: string; body?: string; priority?: string; groupKey?: string };
+  const b = (await readJsonObject(req)) as ({ app?: string; title?: string; body?: string; priority?: string; groupKey?: string }) | Response;
+  if (b instanceof Response) return b;
   const [row] = await db.insert(alerts).values({
     app: b.app ?? "Fusion", title: b.title ?? "Alert", body: b.body ?? "",
     priority: b.priority ?? "normal", groupKey: b.groupKey ?? (b.app ?? "Fusion"),
@@ -25,7 +27,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const b = (await req.json()) as { ids?: number[]; read?: boolean; pinned?: boolean; snoozeMinutes?: number };
+  const b = (await readJsonObject(req)) as ({ ids?: number[]; read?: boolean; pinned?: boolean; snoozeMinutes?: number }) | Response;
+  if (b instanceof Response) return b;
   if (!b.ids?.length) return NextResponse.json({ ok: false, error: "ids required" }, { status: 400 });
   await db.update(alerts).set({
     ...(b.read !== undefined ? { read: b.read } : {}),

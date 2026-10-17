@@ -3,6 +3,7 @@ import { refuseEncrypted } from "@/lib/mime";
 import { getNode } from "@/lib/server/vfs";
 import { extractEpub, extractOoxml, readCentralDirectory, readPsdHeader } from "@/lib/server/zip";
 import { readPsd } from "@/lib/image/psd";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,8 @@ export const dynamic = "force-dynamic";
  * surface can display converted content without its fidelity grade.
  */
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as { op?: string; path?: string; base64?: string };
+  const body = (await readJsonObject(req)) as ({ op?: string; path?: string; base64?: string }) | Response;
+  if (body instanceof Response) return body;
   const op = body.op ?? "extract";
   try {
     let buf: Buffer | null = null;

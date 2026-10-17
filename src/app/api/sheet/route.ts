@@ -5,6 +5,7 @@ import {
   Workbook, Sheet, writeXlsxWorkbook, readXlsxWorkbook, workbookFromJson, workbookToJson,
   isError, type WorkbookJson,
 } from "@/lib/formula";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -33,11 +34,12 @@ function cellsOut(wb: Workbook) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as {
+  const body = (await readJsonObject(req)) as ({
     op?: "recalculate" | "exportXlsx" | "importXlsx" | "saveXlsxToVfs";
     workbook?: WorkbookJson; sheet?: { name: string; cells: { ref: string; input: string }[] };
     path?: string; dest?: string; base64?: string;
-  };
+  }) | Response;
+  if (body instanceof Response) return body;
   try {
     switch (body.op) {
       case "recalculate": {

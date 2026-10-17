@@ -277,12 +277,30 @@ await test("deleting a note removes only its own index row", { "PR-02": "partial
 });
 
 // cleanup
-await test("malformed JSON bodies get a 400, never an unhandled 500 (TT23 repair, src/proxy.ts)", { "AU-03": "partial" }, async () => {
-  const send = (method: string, path: string, body: string, type = "application/json") => fetch(BASE + path, { method, headers: { "content-type": type }, body }).then((r) => r.status);
-  for (const [m, p] of [["PUT", "/api/state"], ["PUT", "/api/settings"], ["POST", "/api/fs"], ["POST", "/api/notes"], ["POST", "/api/alerts"], ["POST", "/api/backup"], ["POST", "/api/tasks"]] as const) {
-    for (const body of ["{oops", "[1,2", "\u0000", '{"a":1}}']) { const st = await send(m, p, body); ok(st === 400, `${m} ${p} ${JSON.stringify(body)} → ${st}`); }
+await test("every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)", { "AU-03": "partial" }, async () => {
+  // Every handler that reads a JSON body, discovered from the source so a new route is covered automatically.
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const handlers: [string, string][] = [];
+  const walk = (dir: string) => { for (const e of readdirSync(dir, { withFileTypes: true })) { const p = `${dir}/${e.name}`; if (e.isDirectory()) walk(p); else if (e.name === "route.ts") {
+    const src = readFileSync(p, "utf8");
+    ok(!/\b(req|request)\.json\(\)/.test(src), `${p} still calls req.json() directly`);
+    for (const m of src.matchAll(/export async function (GET|POST|PUT|PATCH|DELETE)\b/g)) {
+      const rest = src.slice(m.index! + m[0].length); const end = rest.indexOf("export async function");
+      if ((end < 0 ? rest : rest.slice(0, end)).includes("readJsonObject(req)")) handlers.push([m[1], p.replace(/^src\/app/, "").replace(/\/route\.ts$/, "")]);
+    } } } };
+  walk("src/app/api");
+  ok(handlers.length >= 22, `found only ${handlers.length} JSON handlers`);
+  const count = async (path: string) => ((await call("GET", path)).json.rows as unknown[]).length;
+  const before = { notes: await count("/api/notes"), alerts: await count("/api/alerts") };
+  const send = (method: string, path: string, body: string, type?: string) =>
+    fetch(BASE + path, { method, headers: type ? { "content-type": type } : {}, body }).then((r) => r.status);
+  const bodies = ["", "   ", "null", "[]", "42", '"text"', "{oops", '{"a":1}}', "\u0000"];
+  for (const [m, p] of handlers) {
+    for (const body of bodies) { const st = await send(m, p, body, "application/json"); ok(st === 400, `${m} ${p} ${JSON.stringify(body)} → ${st}`); }
+    const st = await send(m, p, ""); ok(st === 400, `${m} ${p} empty body without content-type → ${st}`);
   }
-  ok((await send("PUT", "/api/settings", JSON.stringify({ key: "appearance.style", value: "poolside" }))) === 200, "valid JSON still reaches the route");
+  ok((await count("/api/notes")) === before.notes && (await count("/api/alerts")) === before.alerts, "a rejected body still wrote a record");
+  ok((await send("PUT", "/api/settings", JSON.stringify({ key: "appearance.style", value: "poolside" }), "application/json")) === 200, "valid JSON still reaches the route");
 });
 
 await call("POST", "/api/fs", { op: "purge", path: DIR });

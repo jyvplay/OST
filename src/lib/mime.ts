@@ -7,7 +7,7 @@ export function guessMime(name: string): string {
     html: "text/html", htm: "text/html", css: "text/css", js: "text/javascript", ts: "text/typescript",
     svg: "image/svg+xml", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif",
     webp: "image/webp", avif: "image/avif", heic: "image/heic", bmp: "image/bmp",
-    pdf: "application/pdf", zip: "application/zip",
+    pdf: "application/pdf", zip: "application/zip", ai: "application/illustrator", vcf: "text/vcard", vcard: "text/vcard", eps: "application/postscript", ps: "application/postscript",
     docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",

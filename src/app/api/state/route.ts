@@ -3,6 +3,7 @@ import { eq, like } from "drizzle-orm";
 import { db } from "@/db";
 import { desktopState } from "@/db/schema";
 import { escapeLike } from "@/lib/server/vfs";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const body = (await req.json()) as { id?: string; state?: unknown; revision?: number };
+  const body = (await readJsonObject(req)) as ({ id?: string; state?: unknown; revision?: number }) | Response;
+  if (body instanceof Response) return body;
   const id = body.id ?? "default";
   const revision = Number(body.revision ?? 1);
   // desktop_state.revision is int4: reject instead of letting Postgres throw a 500 that logs the whole state

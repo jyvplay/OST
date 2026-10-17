@@ -1,0 +1,33 @@
+{
+  "suite": "oracle-vcard",
+  "at": "2026-10-17T00:44:33.469Z",
+  "results": [
+    {
+      "suite": "oracle-vcard",
+      "name": "A. vobject reads what we write: names, typed e-mails, phones, structured ADR, escaped multi-line UTF-8 note, ORG, categories",
+      "covers": {
+        "CN-01": "full"
+      },
+      "pass": true,
+      "ms": 94
+    },
+    {
+      "suite": "oracle-vcard",
+      "name": "B. we read what vobject writes (3.0, its own folding and escaping)",
+      "covers": {
+        "CN-01": "full"
+      },
+      "pass": true,
+      "ms": 40
+    },
+    {
+      "suite": "oracle-vcard",
+      "name": "A+B: 200 generated contacts survive ours → vobject → ours with identical modelled fields",
+      "covers": {
+        "CN-01": "full"
+      },
+      "pass": true,
+      "ms": 141
+    }
+  ]
+}

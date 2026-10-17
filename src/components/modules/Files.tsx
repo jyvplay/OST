@@ -86,6 +86,22 @@ export default function FilesModule({ win }: ModuleProps) {
     }
   };
 
+  const openNode = (n: (typeof shown)[number]) => {
+    const fmt = formatFor(n.name);
+    if (showTrash) return;
+    if (n.kind === "dir") go(n.path);
+    else if (n.name.toLowerCase().endsWith(".svg") || n.name.toLowerCase().endsWith(".fsvg")) shell.open("vector", { path: n.path, title: n.name });
+    else if (n.mime.startsWith("image/")) shell.open("imageedit", { path: n.path, title: n.name });
+    else if (n.name.toLowerCase().endsWith(".docx") || n.name.toLowerCase().endsWith(".fdoc")) shell.open("writer", { path: n.path, title: n.name });
+    else if (n.name.toLowerCase().endsWith(".ftable")) shell.open("tables", { path: n.path, title: n.name });
+    else if (n.name.toLowerCase().endsWith(".fboard")) shell.open("whiteboard", { path: n.path, title: n.name });
+    else if (/\.(vcf|vcard)$/i.test(n.name)) shell.open("contacts", { path: n.path, title: n.name });
+    else if (n.name.toLowerCase().endsWith(".pptx") || n.name.toLowerCase().endsWith(".fdeck")) shell.open("slides", { path: n.path, title: n.name });
+    else if ([".fsheet", ".fworkbook", ".xlsx"].some((ext) => n.name.toLowerCase().endsWith(ext))) shell.open("sheet", { path: n.path, title: n.name });
+    else if (fmt && ["A"].includes(fmt.grade) && fmt.editable) shell.open("editor", { path: n.path, title: n.name });
+    else shell.open("peek", { path: n.path, title: n.name });
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}
       onClick={() => setMenu(null)}>
@@ -131,28 +147,34 @@ export default function FilesModule({ win }: ModuleProps) {
         {shown.length === 0 ? <Empty title={showTrash ? "Trash is empty" : "Empty folder"} icon="🗂"
           hint={showTrash ? undefined : "Create a file, upload one, or run `write` in the terminal."} /> : null}
 
-        <div style={view === "grid"
+        <div role="listbox" aria-label={`${showTrash ? "Trash" : cwd} — Enter opens, Space selects`} aria-multiselectable="true" style={view === "grid"
           ? { display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${fz(118)},1fr))`, gap: 6 }
           : { display: "grid", gap: 1 }}>
           {shown.map((n) => {
             const fmt = formatFor(n.name);
+            const focusPath = shown.find((x) => sel.includes(x.path))?.path ?? shown[0]?.path;
             const selected = sel.includes(n.path);
             return (
               <div key={n.path} className="fs-list-item" data-selected={selected}
+                role="option" aria-selected={selected} tabIndex={n.path === focusPath ? 0 : -1}
                 style={view === "grid" ? { flexDirection: "column", minHeight: fz(96), textAlign: "center" } : undefined}
                 onClick={(e) => setSel(e.ctrlKey || e.metaKey ? (selected ? sel.filter((p) => p !== n.path) : [...sel, n.path]) : [n.path])}
-                onDoubleClick={() => {
-                  if (showTrash) return;
-                  if (n.kind === "dir") go(n.path);
-                  else if (n.name.toLowerCase().endsWith(".svg") || n.name.toLowerCase().endsWith(".fsvg")) shell.open("vector", { path: n.path, title: n.name });
-                  else if (n.mime.startsWith("image/")) shell.open("imageedit", { path: n.path, title: n.name });
-                  else if (n.name.toLowerCase().endsWith(".docx") || n.name.toLowerCase().endsWith(".fdoc")) shell.open("writer", { path: n.path, title: n.name });
-                  else if (n.name.toLowerCase().endsWith(".ftable")) shell.open("tables", { path: n.path, title: n.name });
-                  else if (n.name.toLowerCase().endsWith(".fboard")) shell.open("whiteboard", { path: n.path, title: n.name });
-                  else if (n.name.toLowerCase().endsWith(".pptx") || n.name.toLowerCase().endsWith(".fdeck")) shell.open("slides", { path: n.path, title: n.name });
-                  else if ([".fsheet", ".fworkbook", ".xlsx"].some((ext) => n.name.toLowerCase().endsWith(ext))) shell.open("sheet", { path: n.path, title: n.name });
-                  else if (fmt && ["A"].includes(fmt.grade) && fmt.editable) shell.open("editor", { path: n.path, title: n.name });
-                  else shell.open("peek", { path: n.path, title: n.name });
+                onDoubleClick={() => openNode(n)}
+                onKeyDown={(e) => {
+                  // TT24 (WCAG 2.1.1): rows were mouse-only. Enter opens, Space selects (Ctrl+Space toggles),
+                  // arrows / Home / End move, and the Menu key or Shift+F10 opens the context menu at the row.
+                  const rows = [...(e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="option"]') ?? [])];
+                  const i = rows.indexOf(e.currentTarget);
+                  const to = (j: number) => { const r = rows[Math.max(0, Math.min(rows.length - 1, j))]; r?.focus(); };
+                  if (e.key === "Enter") { e.preventDefault(); openNode(n); }
+                  else if (e.key === " ") { e.preventDefault(); setSel(e.ctrlKey || e.metaKey ? (selected ? sel.filter((p) => p !== n.path) : [...sel, n.path]) : [n.path]); }
+                  else if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); to(i + 1); }
+                  else if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); to(i - 1); }
+                  else if (e.key === "Home") { e.preventDefault(); to(0); }
+                  else if (e.key === "End") { e.preventDefault(); to(rows.length - 1); }
+                  else if (e.key === "ContextMenu" || (e.key === "F10" && e.shiftKey)) {
+                    e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(); setSel([n.path]); setMenu({ x: r.left + 24, y: r.bottom, node: n });
+                  }
                 }}
                 onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setSel([n.path]); setMenu({ x: e.clientX, y: e.clientY, node: n }); }}
               >
