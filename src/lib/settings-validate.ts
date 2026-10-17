@@ -24,6 +24,11 @@ const ENUMS: Record<string, readonly string[]> = {
   "maps.tiles": ["off", "osm", "custom"],
   "appearance.dockSize": DOCK_SIZE_IDS,
   "appearance.desktopView": ["classic", "tabletop"],
+  // TT30 (AX-14): the built-in screen reader
+  "accessibility.narrator": ["on", "off"],
+  "accessibility.narratorRate": ["0.75", "1", "1.25", "1.5", "2"],
+  "accessibility.narratorCaptions": ["on", "off"],
+  "accessibility.narratorSpeech": ["on", "off"],
 };
 
 export function validateSetting(key: string, value: string): string | null {

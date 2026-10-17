@@ -23,11 +23,12 @@ import { tt26Features, UPDATES_TT26 } from "./seed-data/features-tt26";
 import { tt27Features, UPDATES_TT27 } from "./seed-data/features-tt27";
 import { tt28Features, UPDATES_TT28 } from "./seed-data/features-tt28";
 import { tt29Features, UPDATES_TT29 } from "./seed-data/features-tt29";
+import { tt30Features } from "./seed-data/features-tt30";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.18.0";
+export const SEED_VERSION = "3.19.0";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...platformFeatures]
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
   .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))
@@ -56,6 +57,10 @@ const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: s
   { key: "appearance.dockSize", value: "auto", category: "appearance", label: "Dock icon size (Art layout): Auto picks a pleasing size", aliases: "dock size,icon size,dock icons,small,medium,large" },
   { key: "appearance.desktopView", value: "classic", category: "appearance", label: "Desktop view (Classic or Tabletop 3D)", aliases: "tabletop,3d,desktop view,piles,box,walls,micro peek" },
   { key: "appearance.dockMagnify", value: "on", category: "appearance", label: "Dock magnification (Art layout)", aliases: "dock,magnify,zoom icons,mac" },
+  { key: "accessibility.narrator", value: "off", category: "accessibility", label: "Narrator: built-in screen reader that speaks what has focus", aliases: "screen reader,narrator,voiceover,speech,read aloud,blind" },
+  { key: "accessibility.narratorRate", value: "1", category: "accessibility", label: "Narrator speaking speed", aliases: "speech rate,narrator speed" },
+  { key: "accessibility.narratorCaptions", value: "on", category: "accessibility", label: "Show Narrator captions", aliases: "captions,narrator text" },
+  { key: "accessibility.narratorSpeech", value: "on", category: "accessibility", label: "Narrator speaks aloud (off = captions only)", aliases: "speech,mute narrator" },
   { key: "appearance.dockAutoHide", value: "off", category: "appearance", label: "Automatically hide and show the dock (Art layout)", aliases: "dock,auto hide,autohide,hide dock,mac" },
   { key: "appearance.density", value: "balanced", category: "appearance", label: "Density profile", aliases: "scale,compact,touch,ui size" },
   { key: "appearance.motion", value: "system", category: "appearance", label: "Motion", aliases: "animation,reduce motion" },

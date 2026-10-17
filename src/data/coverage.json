@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-17T18:48:11.055Z",
+ "generatedAt": "2026-10-17T19:52:49.751Z",
  "totals": {
   "built": {
-   "full": 249,
+   "full": 250,
    "partial": 62,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 129,
+   "full": 130,
    "partial": 78,
    "untested": 126
   },
   "tests": {
-   "total": 494,
-   "passed": 494
+   "total": 507,
+   "passed": 507
   }
  },
  "rows": {
@@ -1841,6 +1841,24 @@
    "tests": [
     "e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only",
     "e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px)"
+   ]
+  },
+  "AX-14": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt30: oracle: our accessible names and roles agree with Chromium's accessibility tree in all 40 modules × 3 layouts (thresholds declared up front: names ≥ 98 %, roles ≥ 99 %)",
+    "e2e-tt30: oracle sensitivity: three mutants of the narrator source are caught (aria-label ignored → names < 98 %; buttons as generic → roles < 99 %; CSS text-transform ignored → the uppercase headings differ)",
+    "e2e-tt30: behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed",
+    "e2e-tt30: behaviour: live regions — a polite status is queued without interrupting, an assertive alert interrupts (cancel before speak); aria-busy holds back; Ctrl alone stops speech",
+    "e2e-tt30: behaviour: Narrator key + H / Shift+H / Right move the cursor through the focused window (headings, items) without moving focus; W says where you are; = speeds up (saved, next utterance faster); F1 lists commands and Esc returns focus; captions-only mode stops speech but keeps captions",
+    "e2e-tt30: behaviour: the toggle chord turns Narrator off (says so, captions and cursor disappear, saved); the Mac preset uses Cmd+F5; the Settings checkbox reflects and drives the same setting",
+    "tt30-unit: accessible names follow the accname step order: aria-labelledby (incl. hidden targets and self-reference) > aria-label > native label/alt/caption > content > title; placeholder only as the last native fallback",
+    "tt30-unit: roles: explicit first valid token, presentation ignored on focusable elements, HTML-AAM implicit mapping incl. scoping of header/footer and named sections",
+    "tt30-unit: spoken output: name, role words, states, value, position, description — in that order",
+    "tt30-unit: live regions: nearest explicit aria-live wins; alert is assertive and atomic, status polite and atomic, log polite; busy suppresses; timer is off",
+    "tt30-unit: context on focus moves: entering a dialog and a named form announces both (outermost first); moving within announces nothing; unnamed groups are skipped",
+    "tt30-unit: reading order: landmarks announced on arrival, atomic items read whole, text runs under their element, hidden skipped; jumps by heading / landmark / field / link without wrapping",
+    "tt30-unit: commands: unique Narrator-key chords; the toggle chord conflicts with no shell binding in any preset and is not browser-reserved; Caps Lock / Insert are used by no shell chord; speed steps clamp"
    ]
   },
   "CT-01": {

@@ -6,3 +6,4 @@ verification/screenshots/*.tmp.png
 .env*
 scripts/tt28-shots/
 scripts/tt29-shots/
+scripts/tt30-shots/

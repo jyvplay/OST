@@ -34,6 +34,7 @@ import { isLayout, layoutOf, pairedSettings } from "@/lib/layout-core";
 import { Badge, Btn } from "./ui";
 import { AppIcon, FusionLogo, UiGlyph } from "./AppIcon";
 import { AskHost } from "./AskHost";
+import { NarratorHost } from "./NarratorHost";
 import { SnapHost, snapUi } from "./SnapHost";
 import { isAskOpen } from "@/lib/ask";
 
@@ -454,6 +455,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
 
           {overview ? <Overview onClose={() => setOverview(false)} /> : null}
           <AskHost />
+          {booted ? <NarratorHost /> : null}
           {palette ? <Palette onClose={() => setPalette(false)} /> : null}
           {quick ? <QuickPanel onClose={() => setQuick(false)} onBlackout={() => setBlackout(true)} anchor={layout === "business" ? "bottom" : "top"} /> : null}
 

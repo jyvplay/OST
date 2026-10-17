@@ -50,6 +50,9 @@ export default function QuickPanel({ onClose, onBlackout, anchor = "top" }: { on
             onClick={() => void shell.setSetting("appearance.textScale", String(stepTextScale(textScale, 1)))}>A+</Btn>
         </div>
 
+        <Toggle label="Narrator (screen reader)" on={shell.settings["accessibility.narrator"] === "on"}
+          onChange={(v) => void shell.setSetting("accessibility.narrator", v ? "on" : "off")} />
+
         <Toggle label="Large text mode" on={isLargeText(textScale)}
           onChange={(v) => void shell.setSetting("appearance.textScale", String(v ? LARGE_TEXT_SCALE : DEFAULT_TEXT_SCALE))} />
 

@@ -584,3 +584,17 @@ input[type="color"] { min-width: calc(6px + 16 * var(--fs-u)); min-height: calc(
 .fs-tt-walltag[data-vertical] { writing-mode: vertical-rl; padding: 12px 4px; max-height: 70%; overflow: hidden; text-overflow: ellipsis; }
 .fs-tt-walltag:hover { background: color-mix(in srgb, var(--fs-accent) 22%, var(--fs-panel-solid)); }
 .fs-tt-walltag[data-drop] { background: color-mix(in srgb, var(--fs-accent) 30%, var(--fs-panel-solid)); border-color: var(--fs-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--fs-accent) 35%, transparent); }
+/* TT30 Narrator (AX-14): caption panel, cursor box, command list */
+.fs-narrator-captions { position: fixed; left: 12px; bottom: 96px; z-index: 12000; max-width: min(560px, calc(100vw - 24px)); pointer-events: none;
+  display: grid; gap: 4px; padding: 10px 14px; border-radius: 14px; background: rgb(12 16 24 / .9); color: #f4f7fb;
+  box-shadow: 0 8px 28px rgb(0 0 0 / .35); font-size: calc(13 * var(--fs-u)); line-height: 1.45; }
+.fs-narrator-title { display: flex; align-items: center; gap: 8px; font-size: calc(11 * var(--fs-u)); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #b9c4d4; }
+.fs-narrator-dot { width: 8px; height: 8px; border-radius: 50%; background: #3ddc97; box-shadow: 0 0 0 3px rgb(61 220 151 / .25); }
+.fs-narrator-line { opacity: .72; }
+.fs-narrator-line:last-child { opacity: 1; font-weight: 700; }
+.fs-narrator-cursor { position: fixed; z-index: 11999; pointer-events: none; border-radius: 8px; outline: 3px solid #0a84ff; box-shadow: 0 0 0 2px #fff inset, 0 0 0 6px rgb(10 132 255 / .25);
+  transition: left .12s, top .12s, width .12s, height .12s; }
+.fs-narrator-help { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 12001; width: min(520px, calc(100vw - 24px)); max-height: calc(100vh - 48px); overflow: auto; padding: 18px; display: grid; gap: 10px; }
+.fs-narrator-help table { border-collapse: collapse; }
+.fs-narrator-help th, .fs-narrator-help td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--fs-border); }
+@media (prefers-reduced-motion: reduce) { .fs-narrator-cursor { transition: none !important; } }

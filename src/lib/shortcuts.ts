@@ -31,6 +31,8 @@ export const BINDINGS: Binding[] = [
   { id: "quickPanel", label: "Quick panel", hybrid: "Meta+I", windows: "Meta+I", mac: "Meta+Alt+I" },
   { id: "focusMode", label: "Focus mode", hybrid: "Meta+Shift+F", windows: "Meta+Shift+F", mac: "Meta+Ctrl+F" },
   { id: "emergency", label: "Emergency shutdown (privacy: drop keys, wipe RAM, leave)", hybrid: "Ctrl+Alt+Shift+Backspace", windows: "Ctrl+Alt+Shift+Backspace", mac: "Ctrl+Alt+Shift+Backspace" },
+  // TT30 (AX-14): built-in screen reader — Windows Narrator's Ctrl+Win+Enter; VoiceOver's Cmd+F5 on the Mac preset
+  { id: "narrator", label: "Narrator (screen reader) on / off", hybrid: "Ctrl+Meta+Enter", windows: "Ctrl+Meta+Enter", mac: "Meta+F5" },
   { id: "cheatsheet", label: "Shortcut sheet", hybrid: "Shift+Slash", windows: "Shift+Slash", mac: "Shift+Slash" },
 ];
 

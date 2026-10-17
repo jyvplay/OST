@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-17T18:48:11.052Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-48 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-17T19:52:49.748Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+50 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **333** |
-| Fully built | 249 |
+| **Features in register** | **334** |
+| Fully built | 250 |
 | Partially built (partial 45 + probe 17) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **129** |
+| **Fully tested** (≥1 passing test tagged `full`) | **130** |
 | **Partially tested** (only `partial` tags) | **78** |
 | Untested | 126 |
-| Automated tests executed / passed | 494 / 494 |
+| Automated tests executed / passed | 507 / 507 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 120 | 62 | 67 |
+| fully built | 121 | 62 | 67 |
 | partially built | 3 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,54 +33,56 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-17T18:29:13.708Z |
-| ai-format | 5 | 5 | 0 | 2026-10-17T18:29:15.382Z |
-| browser-session | 5 | 5 | 0 | 2026-10-17T18:29:03.546Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-17T18:29:16.641Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-17T18:38:14.946Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-17T18:39:08.335Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-17T18:47:18.750Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-17T18:33:26.854Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-17T18:39:29.530Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-17T18:32:21.299Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-17T18:40:32.346Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-17T18:42:48.701Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-17T18:31:32.598Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-17T18:48:03.490Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T18:34:20.606Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-17T18:38:35.173Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T18:42:01.442Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T18:43:28.206Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-17T18:43:49.374Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-17T18:32:46.018Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T18:38:56.290Z |
-| e2e | 61 | 61 | 0 | 2026-10-17T18:31:06.728Z |
-| image | 12 | 12 | 0 | 2026-10-17T18:28:58.552Z |
-| integration | 25 | 25 | 0 | 2026-10-17T18:28:52.047Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-17T18:29:17.415Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-17T18:29:23.809Z |
-| metaclean | 6 | 6 | 0 | 2026-10-17T18:29:10.317Z |
-| names | 7 | 7 | 0 | 2026-10-17T18:28:58.183Z |
-| office | 35 | 35 | 0 | 2026-10-17T18:28:52.448Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-17T18:29:16.321Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-17T18:29:01.519Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-17T18:29:03.351Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-17T18:29:17.161Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T18:28:54.464Z |
-| oracle | 5 | 5 | 0 | 2026-10-17T18:28:52.820Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-17T18:29:13.428Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-17T18:29:07.471Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-17T18:29:08.942Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-17T18:28:54.852Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-17T18:29:17.944Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-17T18:29:13.923Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-17T18:29:17.742Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-17T18:29:24.057Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-17T18:29:25.014Z |
-| unit | 23 | 23 | 0 | 2026-10-17T18:28:49.121Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-17T18:29:02.709Z |
-| vector | 18 | 18 | 0 | 2026-10-17T18:29:01.764Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T18:29:14.122Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-17T19:32:03.851Z |
+| ai-format | 5 | 5 | 0 | 2026-10-17T19:32:05.631Z |
+| browser-session | 5 | 5 | 0 | 2026-10-17T19:31:53.101Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-17T19:32:09.075Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-17T19:41:13.189Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-17T19:42:08.920Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-17T19:52:38.195Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-17T19:36:26.997Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-17T19:42:31.925Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-17T19:35:18.640Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-17T19:43:39.173Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-17T19:46:00.329Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-17T19:34:27.901Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-17T19:36:54.085Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T19:37:26.600Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-17T19:41:34.157Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T19:45:14.260Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T19:46:39.873Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-17T19:47:02.276Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-17T19:49:03.213Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-17T19:35:45.072Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T19:41:55.964Z |
+| e2e | 61 | 61 | 0 | 2026-10-17T19:34:01.057Z |
+| image | 12 | 12 | 0 | 2026-10-17T19:31:47.823Z |
+| integration | 25 | 25 | 0 | 2026-10-17T19:31:41.774Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-17T19:32:09.875Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-17T19:32:16.590Z |
+| metaclean | 6 | 6 | 0 | 2026-10-17T19:32:00.213Z |
+| names | 7 | 7 | 0 | 2026-10-17T19:31:47.430Z |
+| office | 35 | 35 | 0 | 2026-10-17T19:31:42.207Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-17T19:32:08.714Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-17T19:31:50.953Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-17T19:31:52.929Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-17T19:32:09.603Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T19:31:44.044Z |
+| oracle | 5 | 5 | 0 | 2026-10-17T19:31:42.614Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-17T19:32:03.556Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-17T19:31:57.249Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-17T19:31:58.817Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-17T19:31:44.425Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-17T19:32:10.437Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-17T19:32:04.073Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-17T19:32:10.234Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-17T19:32:16.887Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-17T19:32:17.693Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-17T19:47:02.500Z |
+| unit | 23 | 23 | 0 | 2026-10-17T19:31:38.829Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-17T19:31:52.176Z |
+| vector | 18 | 18 | 0 | 2026-10-17T19:31:51.219Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T19:32:04.284Z |
 
 ## Rows touched by failing tests
 
@@ -104,7 +106,7 @@ None.
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
-| AX | 13 | 12 | 1 | 0 | 7 | 4 | 2 |
+| AX | 14 | 13 | 1 | 0 | 8 | 4 | 2 |
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
@@ -368,6 +370,7 @@ None.
 | AX-13 | built | full | e2e-tt28: accessibility tree (AX-13): Playwright ariaSnapshot of the live page in Fusion, Business and Art: landmarks and names a screen reader would announce (dock / taskbar navigation, named window dialogs, no unnamed buttons or text fields); the ask dialog and the snap flyout expose their roles and names |
 | LY-20 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: wall tags (TT29): one per foreshortened wall, inside the frame, centred on the wall's VISIBLE area (hit-test finds that wall under the centre), ≥ 24 px targets, no overlaps with each other or the switcher; counts in the label; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+5) |
 | LY-21 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px) |
+| AX-14 | built | full | e2e-tt30: oracle: our accessible names and roles agree with Chromium's accessibility tree in all 40 modules × 3 layouts (thresholds declared up front: names ≥ 98 %, roles ≥ 99 %); e2e-tt30: oracle sensitivity: three mutants of the narrator source are caught (aria-label ignored → names < 98 %; buttons as generic → roles < 99 %; CSS text-transform ignored → the uppercase headings differ); e2e-tt30: behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed (+10) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

@@ -73,6 +73,34 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
           ) : null}
         </div>
 
+        {/* ------------------------------------------------------- narrator (TT30, AX-14) */}
+        <div style={{ display: "grid", gap: fz(5) }} data-testid="settings-narrator">
+          <strong style={{ fontSize: fz(13) }}>Narrator (screen reader)</strong>
+          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Speaks what has focus, announces dialogs, alerts and status messages, and reads the page with the Narrator key (hold Caps Lock or Insert; F1 lists the commands). Ctrl+Win+Enter turns it on or off anywhere. If you already use a screen reader (NVDA, JAWS, VoiceOver, Orca), leave this off — Fusion works with yours.</span>
+          <label className="fs-row" style={{ gap: 8 }}>
+            <input type="checkbox" data-testid="settings-narrator-on" checked={shell.settings["accessibility.narrator"] === "on"}
+              onChange={(e) => set("accessibility.narrator", e.target.checked ? "on" : "off")} />
+            Turn on Narrator
+          </label>
+          <label className="fs-row" style={{ gap: 8 }}>
+            Speaking speed
+            <select className="fs-input" data-testid="settings-narrator-rate" value={shell.settings["accessibility.narratorRate"] ?? "1"}
+              onChange={(e) => set("accessibility.narratorRate", e.target.value)} style={{ width: "auto" }}>
+              {["0.75", "1", "1.25", "1.5", "2"].map((r) => <option key={r} value={r}>{r === "1" ? "Normal (1×)" : `${r}×`}</option>)}
+            </select>
+          </label>
+          <label className="fs-row" style={{ gap: 8 }}>
+            <input type="checkbox" data-testid="settings-narrator-captions" checked={(shell.settings["accessibility.narratorCaptions"] ?? "on") !== "off"}
+              onChange={(e) => set("accessibility.narratorCaptions", e.target.checked ? "on" : "off")} />
+            Show captions of what Narrator says
+          </label>
+          <label className="fs-row" style={{ gap: 8 }}>
+            <input type="checkbox" data-testid="settings-narrator-speech" checked={(shell.settings["accessibility.narratorSpeech"] ?? "on") !== "off"}
+              onChange={(e) => set("accessibility.narratorSpeech", e.target.checked ? "on" : "off")} />
+            Speak aloud (off: captions only)
+          </label>
+        </div>
+
         {/* ------------------------------------------------------- desktop view (TT26) */}
         <div style={{ display: "grid", gap: fz(5) }}>
           <strong id="desktop-view-label" style={{ fontSize: fz(13) }}>Desktop view</strong>
