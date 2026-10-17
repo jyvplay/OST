@@ -87,6 +87,9 @@ body {
 .fs-wallpaper-fluent { background: #0b3d7a url("/wallpapers/fluent.svg") center / cover no-repeat; }
 .fs-wallpaper-clouddancer { background: #f0eee9 url("/wallpapers/clouddancer.svg") center / cover no-repeat; }
 .fs-wallpaper-teal { background: #1f4f50 url("/wallpapers/teal.svg") center / cover no-repeat; }
+/* TT25 professional wallpapers */
+.fs-wallpaper-enterprise { background: #1d4a78 url("/wallpapers/enterprise.svg") center / cover no-repeat; }
+.fs-wallpaper-graphite { background: #55585e url("/wallpapers/graphite.svg") center / cover no-repeat; }
 /* TT21 default: a cheerful morning sky — cobalt overhead, a warm sun low on the left, floating bubbles */
 .fs-wallpaper-sunrise {
   background:
@@ -208,3 +211,75 @@ input[type="color"] { min-width: calc(6px + 16 * var(--fs-u)); min-height: calc(
 .fs-winbtn[data-bubble="1"]:hover { filter: brightness(1.08) saturate(1.1); }
 .fs-blink { animation: fs-blink 1.05s steps(2, start) infinite; }
 @keyframes fs-blink { to { visibility: hidden; } }
+
+/* ------------------------------------------------------------------------------------------------------------------
+ * TT25 layouts: shared menu items, the layout switch, Business (taskbar, Start, caption buttons) and Art (menu bar,
+ * dock, Launchpad, traffic lights). Every animated property is gated on --fs-motion / reduced motion.
+ * ---------------------------------------------------------------------------------------------------------------- */
+.fs-visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.fs-menuitem { display: flex; align-items: center; gap: calc(6 * var(--fs-u)); width: 100%; min-height: calc(8px + 18 * var(--fs-u)); padding: 0 calc(8 * var(--fs-u));
+  border: 0; border-radius: 6px; background: transparent; color: var(--fs-text); font: inherit; cursor: pointer; text-align: left; }
+.fs-menuitem:hover, .fs-menuitem:focus-visible { background: var(--fs-accent); color: #04102b; outline: none; }
+.fs-menuitem:disabled { color: var(--fs-muted); cursor: default; background: transparent; }
+.fs-layout-opt { position: relative; border: 1px solid var(--fs-border); border-radius: 10px; cursor: pointer; color: var(--fs-text); background: var(--fs-bg-2); }
+.fs-layout-opt[data-checked="true"] { outline: 3px solid var(--fs-accent); outline-offset: 1px; }
+.fs-layout-opt:focus-within { box-shadow: 0 0 0 3px var(--fs-text); }
+.fs-visually-hidden-radio { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+
+/* Business — taskbar */
+.fs-tb-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: calc(10px + 30 * var(--fs-u)); height: calc(8px + 32 * var(--fs-u));
+  padding: 0 calc(4 * var(--fs-u)); border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--fs-text); font: inherit; cursor: pointer; }
+.fs-tb-btn:hover { background: color-mix(in srgb, var(--fs-text) 10%, transparent); }
+.fs-tb-btn[data-focused], .fs-tb-btn[aria-pressed="true"], .fs-tb-btn[data-active] { background: color-mix(in srgb, var(--fs-text) 14%, transparent); border-color: color-mix(in srgb, var(--fs-text) 12%, transparent); }
+.fs-tb-ind { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); height: 3px; border-radius: 3px; transition: width var(--fs-motion); }
+.fs-tb-search { display: inline-flex; align-items: center; gap: 8px; height: calc(6px + 26 * var(--fs-u)); min-width: calc(110 * var(--fs-u)); padding: 0 calc(12 * var(--fs-u));
+  border-radius: 999px; border: 1px solid var(--fs-border); background: var(--fs-bg-2); color: var(--fs-muted); font: inherit; cursor: text; margin: 0 4px; }
+.fs-tb-search:hover { border-color: var(--fs-accent); }
+.fs-tb-showdesk { align-self: stretch; width: 10px; margin-left: 4px; border: 0; border-left: 1px solid var(--fs-border); background: transparent; cursor: pointer; padding: 0; }
+.fs-tb-showdesk:hover, .fs-tb-showdesk:focus-visible { background: color-mix(in srgb, var(--fs-text) 14%, transparent); }
+.fs-start-tile { display: grid; justify-items: center; gap: 4px; padding: calc(6 * var(--fs-u)) 2px; border: 0; border-radius: 8px; background: transparent; color: var(--fs-text); font: inherit; font-size: calc(11.5 * var(--fs-u)); cursor: pointer; }
+.fs-start-tile:hover, .fs-start-tile:focus-visible { background: color-mix(in srgb, var(--fs-text) 10%, transparent); }
+.fs-start-tile span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Windows caption buttons */
+.fs-caption { display: inline-flex; align-self: stretch; margin: 0 -6px 0 4px; }
+.fs-cap { display: inline-flex; align-items: center; justify-content: center; width: calc(14px + 26 * var(--fs-u)); min-height: 24px; border: 0; background: transparent; color: var(--fs-text); cursor: pointer; }
+.fs-cap:hover { background: color-mix(in srgb, var(--fs-text) 12%, transparent); }
+.fs-cap-close:hover, .fs-cap-close:focus-visible { background: #c42b1c; color: #fff; }
+
+/* Art — traffic lights (24 px targets, 14 px lights; WCAG 2.5.8) */
+.fs-traffic { display: inline-flex; gap: 0; margin-right: 4px; }
+.fs-tl { width: 24px; height: 24px; display: inline-grid; place-items: center; border: 0; padding: 0; background: transparent; cursor: pointer; color: rgba(0,0,0,.6); position: relative; }
+.fs-tl::before { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; left: 5px; top: 5px; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.25); }
+.fs-tl svg { position: relative; opacity: 0; }
+.fs-traffic:hover .fs-tl svg, .fs-tl:focus-visible svg { opacity: 1; }
+.fs-tl-close::before { background: #ff5f57; } .fs-tl-minimize::before { background: #febc2e; } .fs-tl-maximize::before { background: #28c840; }
+.fs-window[data-focused="false"] .fs-traffic:not(:hover) .fs-tl::before { background: color-mix(in srgb, var(--fs-muted) 55%, transparent); }
+.fs-title-centre { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; padding-right: 24px; }
+
+/* Art — dock */
+.fs-dock { display: flex; align-items: flex-end; border-radius: 18px; border: 1px solid var(--fs-border);
+  background: color-mix(in srgb, var(--fs-panel-solid) 72%, transparent); backdrop-filter: blur(22px) saturate(1.5); box-shadow: 0 10px 30px rgba(0,0,0,.28); }
+.fs-dock-slot { position: relative; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 7px;
+  transition: width calc(var(--fs-motion) * .5) ease-out, flex-basis calc(var(--fs-motion) * .5) ease-out; }
+.fs-dock-item { display: block; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 22%; transform-origin: 50% 100%;
+  transition: width calc(var(--fs-motion) * .5) ease-out, height calc(var(--fs-motion) * .5) ease-out; }
+.fs-dock-item:focus-visible { outline: 3px solid var(--fs-accent); outline-offset: 2px; }
+.fs-dock-item svg { display: block !important; }
+.fs-dock-dot { position: absolute; bottom: -6px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--fs-text); }
+.fs-dock-sep { align-self: center; position: relative; margin-bottom: 0; }
+.fs-dock-sep::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--fs-border); }
+.fs-dock-label { position: absolute; left: 50%; transform: translateX(-50%); padding: 3px 10px; border-radius: 6px; white-space: nowrap; pointer-events: none;
+  background: var(--fs-panel-solid); color: var(--fs-text); border: 1px solid var(--fs-border); font-size: calc(12 * var(--fs-u)); box-shadow: 0 4px 14px rgba(0,0,0,.3); z-index: 2; }
+.fs-dock-min { display: grid; place-items: center; border-radius: 8px; background: color-mix(in srgb, var(--fs-text) 12%, transparent); border: 1px solid var(--fs-border); }
+@keyframes fs-dock-bounce { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-45%); } 50% { transform: translateY(0); } 70% { transform: translateY(-22%); } }
+.fs-dock-item[data-bounce] { animation: fs-dock-bounce .6s ease-in-out 2; }
+:root[data-motion="off"] .fs-dock-item[data-bounce] { animation: none; }
+@media (prefers-reduced-motion: reduce) { .fs-dock-item[data-bounce] { animation: none; } .fs-dock-slot, .fs-dock-item { transition: none; } }
+:root[data-motion="off"] .fs-dock-slot, :root[data-motion="off"] .fs-dock-item { transition: none; }
+
+/* Art — Launchpad */
+.fs-launchpad { position: absolute; inset: 0; z-index: 9200; overflow: auto; background: rgba(12, 14, 20, .55); backdrop-filter: blur(26px) saturate(1.2); padding-top: 4vh; }
+.fs-lp-item { display: grid; justify-items: center; gap: 6px; padding: 8px 2px; border: 0; border-radius: 14px; background: transparent; color: #fff; font: inherit; font-size: calc(12.5 * var(--fs-u)); cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.fs-lp-item:hover, .fs-lp-item:focus-visible { background: rgba(255,255,255,.14); outline: none; }
+.fs-lp-item span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (forced-colors: active) { .fs-tl::before { background: ButtonText !important; } .fs-dock { border-color: CanvasText; } }

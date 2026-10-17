@@ -1,6 +1,7 @@
 import { isWallpaper, WALLPAPERS } from "./appearance";
 import { TEXT_SCALE_MAX, TEXT_SCALE_MIN } from "./uiscale-core";
 import { STYLE_IDS } from "./style-core";
+import { LAYOUT_IDS } from "./layout-core";
 
 /**
  * TT21: value validation for settings whose bad values would break the shell for everyone on the host
@@ -13,6 +14,9 @@ const ENUMS: Record<string, readonly string[]> = {
   "appearance.motion": ["system", "on", "off"],
   "appearance.wallpaper": WALLPAPERS.map((w) => w.id),
   "appearance.style": STYLE_IDS,
+  // TT25: main-UI layout (fusion = original hybrid, business = Windows-style taskbar, art = Mac-style menu bar + dock)
+  "appearance.layout": LAYOUT_IDS,
+  "appearance.dockMagnify": ["on", "off"],
 };
 
 export function validateSetting(key: string, value: string): string | null {

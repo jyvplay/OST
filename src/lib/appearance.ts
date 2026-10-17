@@ -14,6 +14,8 @@ export const WALLPAPERS = [
   { id: "fluent", label: "Fluent bloom" },
   { id: "clouddancer", label: "Cloud Dancer" },
   { id: "teal", label: "Transformative Teal" },
+  { id: "enterprise", label: "Enterprise glass" },
+  { id: "graphite", label: "Graphite dunes" },
   { id: "sunrise", label: "Sunrise" },
   { id: "aurora", label: "Aurora" },
   { id: "grid", label: "Grid" },

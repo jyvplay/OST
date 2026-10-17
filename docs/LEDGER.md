@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-17T01:07:35.891Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-36 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-17T01:54:06.851Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+38 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **301** |
-| Fully built | 217 |
+| **Features in register** | **305** |
+| Fully built | 221 |
 | Partially built (partial 45 + probe 17) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **100** |
+| **Fully tested** (≥1 passing test tagged `full`) | **104** |
 | **Partially tested** (only `partial` tags) | **75** |
 | Untested | 126 |
-| Automated tests executed / passed | 394 / 394 |
+| Automated tests executed / passed | 413 / 413 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 91 | 59 | 67 |
+| fully built | 95 | 59 | 67 |
 | partially built | 3 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,42 +33,44 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-17T00:44:30.292Z |
-| ai-format | 5 | 5 | 0 | 2026-10-17T00:44:31.841Z |
-| browser-session | 5 | 5 | 0 | 2026-10-17T00:44:20.267Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-17T01:07:27.368Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-17T01:03:19.332Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-17T01:03:30.703Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-17T00:48:18.371Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-17T01:07:27.064Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-17T00:47:15.378Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-17T00:46:31.852Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-17T01:04:27.537Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T00:49:12.759Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-17T00:52:31.895Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-17T00:47:38.311Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T00:52:51.423Z |
-| e2e | 58 | 58 | 0 | 2026-10-17T00:59:51.599Z |
-| image | 12 | 12 | 0 | 2026-10-17T00:44:15.594Z |
-| integration | 25 | 25 | 0 | 2026-10-17T00:44:10.297Z |
-| metaclean | 6 | 6 | 0 | 2026-10-17T00:44:26.893Z |
-| names | 7 | 7 | 0 | 2026-10-17T00:44:15.247Z |
-| office | 35 | 35 | 0 | 2026-10-17T00:44:10.649Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-17T00:44:32.727Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-17T00:44:18.331Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-17T00:44:20.112Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-17T01:07:27.842Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T00:44:12.228Z |
-| oracle | 5 | 5 | 0 | 2026-10-17T00:44:10.985Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-17T00:44:30.062Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-17T00:44:24.113Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-17T00:44:25.564Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-17T00:44:12.581Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-17T00:44:30.481Z |
-| unit | 23 | 23 | 0 | 2026-10-17T00:44:06.673Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-17T00:44:19.510Z |
-| vector | 18 | 18 | 0 | 2026-10-17T00:44:18.574Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T00:44:30.669Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-17T01:43:34.648Z |
+| ai-format | 5 | 5 | 0 | 2026-10-17T01:43:36.217Z |
+| browser-session | 5 | 5 | 0 | 2026-10-17T01:43:24.726Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-17T01:43:37.421Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-17T01:51:37.336Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-17T01:52:26.055Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-17T01:47:27.039Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-17T01:52:46.703Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-17T01:46:23.517Z |
+| e2e-layout | 11 | 11 | 0 | 2026-10-17T01:53:32.001Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-17T01:45:39.140Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-17T01:54:02.507Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T01:48:19.183Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-17T01:51:55.163Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-17T01:46:46.747Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T01:52:14.452Z |
+| e2e | 58 | 58 | 0 | 2026-10-17T01:45:13.139Z |
+| image | 12 | 12 | 0 | 2026-10-17T01:43:19.973Z |
+| integration | 25 | 25 | 0 | 2026-10-17T01:43:14.907Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-17T01:43:38.188Z |
+| metaclean | 6 | 6 | 0 | 2026-10-17T01:43:31.411Z |
+| names | 7 | 7 | 0 | 2026-10-17T01:43:19.633Z |
+| office | 35 | 35 | 0 | 2026-10-17T01:43:15.271Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-17T01:43:37.095Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-17T01:43:22.778Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-17T01:43:24.573Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-17T01:43:37.957Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T01:43:16.835Z |
+| oracle | 5 | 5 | 0 | 2026-10-17T01:43:15.633Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-17T01:43:34.400Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-17T01:43:28.488Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-17T01:43:30.085Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-17T01:43:17.173Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-17T01:43:34.869Z |
+| unit | 23 | 23 | 0 | 2026-10-17T01:43:11.883Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-17T01:43:23.928Z |
+| vector | 18 | 18 | 0 | 2026-10-17T01:43:23.018Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T01:43:35.041Z |
 
 ## Rows touched by failing tests
 
@@ -96,6 +98,7 @@ None.
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
+| LY | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
 | LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
@@ -303,7 +306,7 @@ None.
 | SC-16 | built | full | e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host; privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock; privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results |
 | SC-17 | built | full | e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext; privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported; privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected (+4) |
 | SC-18 | built | full | e2e-privacy: TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks; privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses |
-| AX-09 | built | full | a11y-unit: text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz(); a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; a11y-unit: settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour (+5) |
+| AX-09 | built | full | a11y-unit: text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz(); a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; a11y-unit: settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour (+7) |
 | AX-10 | built | full | a11y-unit: icon contrast: every palette's glyph colour is ≥3:1 against its tile gradient across the whole glyph area (WCAG 1.4.11); a11y-unit: every registered module and every common file type has a real glyph; tile palettes exist; a11y-unit: no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font) (+2) |
 | AX-11 | built | full | a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each; a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink; e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused (+1) |
 | TB-01 | built | full | e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores; e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table; e2e: mount: tables (+5) |
@@ -311,7 +314,7 @@ None.
 | TB-03 | built | full | e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs; e2e-tables: add a formula field: live validation disables Create on a bad formula; a good one adds a computed column; e2e: mount: tables (+2) |
 | TB-04 | built | full | e2e-tables: filter + sort: Status is Doing leaves 2 records; sorting Hours descending orders them; badges count the conditions; e2e-tables: kanban: columns by Status; moving a card with its Move select and by drag-and-drop updates the counts and the grid; e2e: mount: tables (+2) |
 | TB-05 | built | full | e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs; e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores; e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table (+2) |
-| AX-12 | built | full | e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet |
+| AX-12 | built | full | e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet |
 | WB-01 | built | full | e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text; e2e: mount: whiteboard; whiteboard-engine: hit testing, marquee and bind targets respect real shape outlines and z-order (+2) |
 | WB-02 | built | full | e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher; e2e-whiteboard: connector follows: an arrow drawn from the rect to the ellipse binds both ends and stays on the rect's outline when the rect is dragged; e2e: mount: whiteboard (+3) |
 | WB-03 | built | full | e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits; e2e-whiteboard: arrange: marquee selects only enclosed elements, Align Left lines them up, Group makes one selection; e2e: mount: whiteboard (+2) |
@@ -321,6 +324,10 @@ None.
 | CN-02 | built | full | contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation; e2e-contacts: create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right; e2e-contacts: no lost edit: closing the window right after Save (inside the 0.5 s autosave delay) still writes the change (+5) |
 | CN-03 | built | full | contacts-engine: RFC 6350 §4.3.1 dates: write basic format (YYYY-MM-DD is disallowed in 4.0), accept every listed form, Feb 29; contacts-engine: duplicates (e-mail case, phone formatting, folded name) and merge keep everything from both; e2e-contacts: duplicates and merge, birthdays: two cards sharing an e-mail (different case) are grouped and merged without losing a phone; a birthday in 3 days is listed (+1) |
 | CN-04 | built | full | contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation; e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload; e2e-contacts: export: CSV to Files (injection-guarded) and as a download; .vcf download re-imports to the same contacts (+2) |
+| LY-01 | built | full | e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload; e2e-layout: Business taskbar: open → minimise → restore on click, Shift+click new window, jump list, Show desktop round trip, clock → Planner; e2e-layout: Business: Start menu opens above the taskbar at bottom-left, search + Enter launches; Quick settings and toasts sit bottom-right; Windows caption buttons (+4) |
+| LY-02 | built | full | e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar; e2e-layout: Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch; e2e-layout: Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit (+7) |
+| LY-03 | built | full | e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload; e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar; e2e-layout: API: unknown layout and dockMagnify values are refused (422); the setting is searchable by 'taskbar' and 'dock' (+1) |
+| LY-04 | built | full | e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet; e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations; layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
@@ -368,7 +375,7 @@ None.
 | AX-05 | built | partial | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half |
 | AX-06 | probe | untested |  |
 | AX-07 | built | partial | unit: SRT → WebVTT conversion |
-| AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+3) |
+| AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+4) |
 | AU-01 | built | full | e2e: mount: routines; e2e: routines: dry-run lists actions without executing; Run opens the window; integration: AU-01 routine whitelist rejects commands outside the palette vocabulary (+1) |
 | AU-02 | built | partial | e2e: mount: routines; integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted |
 | AU-03 | partial | partial | integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject) |

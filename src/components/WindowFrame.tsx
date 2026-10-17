@@ -7,6 +7,9 @@ import type { WindowState } from "@/lib/windowing/state";
 import { useShell } from "./shell-context";
 import ModuleHost from "./ModuleHost";
 import { AppIcon, UiGlyph, type UiGlyphName } from "./AppIcon";
+import { layoutOf } from "@/lib/layout-core";
+
+const ORDER_ART: UiGlyphName[] = ["close", "minimize", "maximize"];
 
 type Handle = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
 const HANDLES: Handle[] = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
@@ -147,6 +150,16 @@ export default function WindowFrame({ win }: { win: WindowState }) {
 
   if (win.minimized) return null;
 
+  const layout = layoutOf(shell.settings["appearance.layout"]);
+  const actions = ([
+    ["Tile left (Meta+Left)", "Tile left", "tileLeft", () => shell.dispatch({ t: "tile", id: win.id, slot: "left" }), null],
+    ["Tile right (Meta+Right)", "Tile right", "tileRight", () => shell.dispatch({ t: "tile", id: win.id, slot: "right" }), null],
+    ["Pop out (always on top)", "Pop out", "popout", popOut, null],
+    ["Minimise", "Minimise", "minimize", () => shell.dispatch({ t: "minimize", id: win.id }), "var(--fs-win-min, #ffd34d)"],
+    ["Maximise / restore", "Maximise or restore", "maximize", () => shell.dispatch({ t: "toggleMax", id: win.id }), "var(--fs-win-max, #5ee39b)"],
+    ["Close", "Close window", "close", () => shell.dispatch({ t: "close", id: win.id }), "var(--fs-win-close, #ff7a7a)"],
+  ] as [string, string, UiGlyphName, () => void, string | null][]);
+
   return (
     <div
       ref={ref}
@@ -169,23 +182,44 @@ export default function WindowFrame({ win }: { win: WindowState }) {
         onPointerUp={onPointerUp}
         onDoubleClick={() => shell.dispatch({ t: "toggleMax", id: win.id })}
       >
-        <AppIcon id={win.module} size={16} />
-        <strong style={{ fontSize: fz(12), flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{win.title}</strong>
+        {layout === "art" ? (
+          // TT25 Art: macOS traffic lights on the left in close / minimise / zoom order; grey when the window is inactive
+          <span className="fs-traffic" role="group" aria-label="Window controls">
+            {actions.filter((a) => a[4]).sort((a, b) => ORDER_ART.indexOf(a[2]) - ORDER_ART.indexOf(b[2])).map(([title, label, glyph, run]) => (
+              <button key={label} type="button" className={`fs-tl fs-tl-${glyph}`} title={title} aria-label={label} onClick={run} onPointerDown={(e) => e.stopPropagation()}>
+                <UiGlyph name={glyph} size={8} />
+              </button>
+            ))}
+          </span>
+        ) : null}
+        {layout === "art" ? (
+          <strong className="fs-title-centre" style={{ fontSize: fz(12.5) }}>
+            <AppIcon id={win.module} size={14} /> <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{win.title}</span>
+          </strong>
+        ) : (
+          <>
+            <AppIcon id={win.module} size={16} />
+            <strong style={{ fontSize: fz(12), flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{win.title}</strong>
+          </>
+        )}
         {/* window actions are real buttons so assistive tech can reach them (AX-01) */}
-        {([
-          ["Tile left (Meta+Left)", "Tile left", "tileLeft", () => shell.dispatch({ t: "tile", id: win.id, slot: "left" }), null],
-          ["Tile right (Meta+Right)", "Tile right", "tileRight", () => shell.dispatch({ t: "tile", id: win.id, slot: "right" }), null],
-          ["Pop out (always on top)", "Pop out", "popout", popOut, null],
-          ["Minimise", "Minimise", "minimize", () => shell.dispatch({ t: "minimize", id: win.id }), "var(--fs-win-min, #ffd34d)"],
-          ["Maximise / restore", "Maximise or restore", "maximize", () => shell.dispatch({ t: "toggleMax", id: win.id }), "var(--fs-win-max, #5ee39b)"],
-          ["Close", "Close window", "close", () => shell.dispatch({ t: "close", id: win.id }), "var(--fs-win-close, #ff7a7a)"],
-        ] as [string, string, UiGlyphName, () => void, string | null][]).map(([title, label, glyph, run, bubble]) => (
+        {actions.filter((a) => layout === "fusion" || !a[4]).map(([title, label, glyph, run, bubble]) => (
           <button key={label} className="fs-btn fs-winbtn" data-variant="ghost" title={title} aria-label={label} onClick={run}
             data-bubble={bubble ? "1" : undefined}
             style={bubble ? { background: bubble, color: "#14213d", borderColor: "rgba(0,0,0,.25)" } : undefined}>
             <UiGlyph name={glyph} size={bubble ? 11 : 13} />
           </button>
         ))}
+        {layout === "business" ? (
+          // TT25 Business: Windows caption buttons — flat, full title-bar height, red on hover for Close
+          <span className="fs-caption" role="group" aria-label="Window controls">
+            {actions.filter((a) => a[4]).map(([title, label, glyph, run]) => (
+              <button key={label} type="button" className={`fs-cap fs-cap-${glyph}`} title={title} aria-label={label} onClick={run} onPointerDown={(e) => e.stopPropagation()}>
+                <UiGlyph name={glyph} size={12} />
+              </button>
+            ))}
+          </span>
+        ) : null}
       </div>
 
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>

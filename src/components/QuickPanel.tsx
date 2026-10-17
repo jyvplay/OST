@@ -7,12 +7,13 @@ import { capAvailable } from "@/lib/capabilities";
 import { useShell } from "./shell-context";
 import { Badge, Btn, KV, Toggle } from "./ui";
 import { AppIcon, FusionLogo, UiGlyph } from "./AppIcon";
+import { LayoutSwitch } from "./chrome-bits";
 
 /**
  * NC-03. Tiles that the platform cannot provide (radios, brightness, system
  * volume) are ABSENT with a one-line reason rather than present and fake.
  */
-export default function QuickPanel({ onClose, onBlackout }: { onClose: () => void; onBlackout: () => void }) {
+export default function QuickPanel({ onClose, onBlackout, anchor = "top" }: { onClose: () => void; onBlackout: () => void; anchor?: "top" | "bottom" }) {
   const shell = useShell();
   const [notif, setNotif] = useState<string>("default");
   const [wake, setWake] = useState<WakeLockSentinel | null>(null);
@@ -31,7 +32,8 @@ export default function QuickPanel({ onClose, onBlackout }: { onClose: () => voi
   return (
     <div style={{ position: "absolute", inset: 0, zIndex: 9500 }} onClick={onClose}>
       <div className="fs-panel" role="dialog" aria-label="Quick panel"
-        style={{ position: "absolute", right: 10, top: 8, width: `min(${fz(330)}, calc(100vw - 20px))`, maxHeight: "calc(100% - 16px)", overflow: "auto", padding: 12, display: "grid", gap: 10 }}
+        data-anchor={anchor}
+        style={{ position: "absolute", right: 10, ...(anchor === "bottom" ? { bottom: 8 } : { top: 8 }), width: `min(${fz(330)}, calc(100vw - 20px))`, maxHeight: "calc(100% - 16px)", overflow: "auto", padding: 12, display: "grid", gap: 10 }}
         onClick={(e) => e.stopPropagation()}>
 
         <div className="fs-row" style={{ justifyContent: "space-between" }}>
@@ -50,6 +52,11 @@ export default function QuickPanel({ onClose, onBlackout }: { onClose: () => voi
 
         <Toggle label="Large text mode" on={isLargeText(textScale)}
           onChange={(v) => void shell.setSetting("appearance.textScale", String(v ? LARGE_TEXT_SCALE : DEFAULT_TEXT_SCALE))} />
+
+        <div style={{ display: "grid", gap: 4 }}>
+          <span style={{ fontWeight: 700 }}>Layout</span>
+          <LayoutSwitch prefix="quick" compact />
+        </div>
 
         <div className="fs-row" role="group" aria-label="Style" style={{ gap: 6, flexWrap: "wrap" }}>
           <span style={{ fontWeight: 700, flex: 1 }}>Style</span>

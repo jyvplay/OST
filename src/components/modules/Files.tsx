@@ -25,7 +25,7 @@ export default function FilesModule({ win }: ModuleProps) {
   const [sel, setSel] = useState<string[]>([]);
   const [filter, setFilter] = useState("");
   const [view, setView] = useState<View>("list");
-  const [showTrash, setShowTrash] = useState(false);
+  const [showTrash, setShowTrash] = useState(win.props.trash === true); // TT25: the Art dock's Trash opens Files on the trash view
   const [jobs, setJobs] = useState<Job[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>(["/"]);

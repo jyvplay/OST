@@ -22,7 +22,7 @@ export const PALETTES = {
 } satisfies Record<string, Palette>;
 export type PaletteName = keyof typeof PALETTES;
 
-export const GLYPH_NAMES = ["folder", "pencil", "search", "terminal", "note", "globe", "play", "record", "camera", "broadcast", "people", "chat", "lock", "shield", "cloud", "bell", "pulse", "keypad", "gear", "checklist", "clock", "calendar", "plug", "screenShare", "bolt", "clipboard", "pie", "drive", "picture", "pen", "doc", "easel", "grid", "table", "eye", "braces", "music", "box", "board", "contact", "blank"] as const;
+export const GLYPH_NAMES = ["folder", "pencil", "search", "terminal", "note", "globe", "play", "record", "camera", "broadcast", "people", "chat", "lock", "shield", "cloud", "bell", "pulse", "keypad", "gear", "checklist", "clock", "calendar", "plug", "screenShare", "bolt", "clipboard", "pie", "drive", "picture", "pen", "doc", "easel", "grid", "table", "eye", "braces", "music", "box", "board", "contact", "trash", "blank"] as const;
 export type GlyphName = (typeof GLYPH_NAMES)[number];
 
 export const MODULE_ICONS: Record<string, [PaletteName, GlyphName]> = {

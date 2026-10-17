@@ -25,6 +25,11 @@ import DesktopSurface from "./DesktopSurface";
 import Palette from "./Palette";
 import Overview from "./Overview";
 import QuickPanel from "./QuickPanel";
+import Taskbar from "./Taskbar";
+import Dock from "./Dock";
+import MenuBar from "./MenuBar";
+import { StartMenu, Launchpad } from "./LayoutLaunchers";
+import { isLayout, layoutOf } from "@/lib/layout-core";
 import { Badge, Btn } from "./ui";
 import { AppIcon, FusionLogo, UiGlyph } from "./AppIcon";
 
@@ -240,6 +245,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     const accent = settings["appearance.accent"];
     if (accent && accent !== "auto") root.style.setProperty("--fs-accent", accent); else root.style.removeProperty("--fs-accent");
     applyStyle(settings["appearance.style"]);
+    // TT25: main-UI layout (CSS hooks: window chrome, toasts, dock/taskbar styles)
+    root.dataset.layout = layoutOf(settings["appearance.layout"]);
     applyTextScale(Number(settings["appearance.textScale"] ?? DEFAULT_TEXT_SCALE));
   }, [settings, gov.effects]);
 
@@ -342,6 +349,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         case "theme": if (arg === "dark" || arg === "light") await setSetting("appearance.theme", arg); break;
         case "density": if (["compact", "balanced", "touch"].includes(arg)) await setSetting("appearance.density", arg); break;
         case "style": if (isStyle(arg)) await setSetting("appearance.style", arg); break;
+        case "layout": if (isLayout(arg)) await setSetting("appearance.layout", arg); else toast(`Routine: unknown layout "${arg}"`, "warn"); break;
         case "textsize": { const n = Number(arg); if (Number.isInteger(n) && n >= TEXT_SCALE_MIN && n <= TEXT_SCALE_MAX) await setSetting("appearance.textScale", String(n)); break; }
         case "alert": await post("/api/alerts", { app: "Routine", title: arg || "Routine alert" }).catch(() => undefined); break;
         case "closeAll": dispatch({ t: "closeAll" }); last = null; break;
@@ -371,24 +379,45 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const styleId = useStyleId();
   const visible = state.windows.filter((w) => w.workspace === state.activeWorkspace);
   const wallpaper = resolveWallpaper(settings["appearance.wallpaper"] ?? DEFAULT_WALLPAPER, styleId);
+  const layout = layoutOf(settings["appearance.layout"]);
+  const toastPos: React.CSSProperties = layout === "business"
+    ? { right: 12, bottom: `calc(${fz(48)} + 12px)` }
+    : layout === "art" ? { right: 12, top: `calc(${fz(30)} + 10px)` } : { bottom: 64, left: "50%", transform: "translateX(-50%)" };
 
   return (
     <ShellContext.Provider value={value}>
-      <div style={{ height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <TopBar
-          onLauncher={() => setLauncher((v) => !v)}
-          onPalette={() => setPalette(true)}
-          onOverview={() => setOverview((v) => !v)}
-          onQuick={() => setQuick((v) => !v)}
-          onBlackout={() => setBlackout(true)}
-        />
+      {/* TT25: in Business / Art the wallpaper sits behind the whole column so the translucent taskbar, menu bar and
+          floating dock show it through; Fusion keeps it on the desk exactly as before */}
+      <div className={layout === "fusion" ? undefined : `fs-wallpaper-${wallpaper}`} data-layout={layout}
+        style={{ height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        {layout === "fusion" ? (
+          <TopBar
+            onLauncher={() => setLauncher((v) => !v)}
+            onPalette={() => setPalette(true)}
+            onOverview={() => setOverview((v) => !v)}
+            onQuick={() => setQuick((v) => !v)}
+            onBlackout={() => setBlackout(true)}
+          />
+        ) : null}
+        {layout === "art" ? (
+          <MenuBar
+            onLaunchpad={() => setLauncher((v) => !v)}
+            onPalette={() => setPalette(true)}
+            onOverview={() => setOverview((v) => !v)}
+            onQuick={() => setQuick((v) => !v)}
+            onBlackout={() => setBlackout(true)}
+            onShortcuts={() => setSheet(true)}
+          />
+        ) : null}
 
         <div
           ref={deskRef}
-          className={`fs-wallpaper-${wallpaper}`}
+          className={layout === "fusion" ? `fs-wallpaper-${wallpaper}` : undefined}
           // "clip", not "hidden": an overflow:hidden box can still be scrolled by focus()/scrollIntoView, which
           // shifted the whole desktop up and hid window title bars when a module focused a low element (TT15, found by screenshot)
-          style={{ position: "relative", flex: 1, minHeight: 0, overflow: "clip" }}
+          // TT25: Business/Art isolate the desk so window z-indices (which only grow) can never paint over the taskbar,
+          // menu bar, dock, their menus or the magnified dock icons that overlap the desk
+          style={{ position: "relative", flex: 1, minHeight: 0, overflow: "clip", ...(layout === "fusion" ? {} : { zIndex: 0, isolation: "isolate" as const }) }}
           onContextMenu={(e) => e.preventDefault()}
         >
           <DesktopSurface onLauncher={() => setLauncher(true)} />
@@ -404,9 +433,11 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
 
           {overview ? <Overview onClose={() => setOverview(false)} /> : null}
           {palette ? <Palette onClose={() => setPalette(false)} /> : null}
-          {quick ? <QuickPanel onClose={() => setQuick(false)} onBlackout={() => setBlackout(true)} /> : null}
+          {quick ? <QuickPanel onClose={() => setQuick(false)} onBlackout={() => setBlackout(true)} anchor={layout === "business" ? "bottom" : "top"} /> : null}
 
-          {launcher ? (
+          {launcher && layout === "business" ? <StartMenu onClose={() => setLauncher(false)} /> : null}
+          {launcher && layout === "art" ? <Launchpad onClose={() => setLauncher(false)} /> : null}
+          {launcher && layout === "fusion" ? (
             <div className="fs-panel" role="dialog" aria-label="Launcher"
               style={{ position: "absolute", left: 12, bottom: 12, width: `min(${fz(560)}, calc(100% - 24px))`, maxHeight: "calc(100% - 24px)", overflow: "auto", padding: 12, zIndex: 9000 }}>
               <div className="fs-row" style={{ justifyContent: "space-between", marginBottom: 8 }}>
@@ -449,30 +480,36 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
             </div>
           ) : null}
 
-          {/* BlackTop source-screen blackout (SH-10/SH-11) */}
-          {blackout ? (
-            <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 99999, color: "#223", display: "grid", placeItems: "center" }}
-              onDoubleClick={() => setBlackout(false)}>
-              <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-                <div style={{ fontSize: fz(12), color: "#2b3550" }}>Blackout — this screen is a touchpad for the presenting window.</div>
-                <div
-                  style={{ width: 260, height: 150, border: "1px solid #1b2440", borderRadius: 10 }}
-                  onPointerMove={(e) => {
-                    if (e.buttons !== 1 || !state.focus) return;
-                    dispatch({ t: "nudge", id: state.focus, dx: e.movementX, dy: e.movementY });
-                  }}
-                />
-                <Btn variant="ghost" onClick={() => setBlackout(false)}>Resume on this screen</Btn>
-              </div>
-            </div>
-          ) : null}
         </div>
 
-        <Shelf />
+        {layout === "fusion" ? <Shelf /> : null}
+        {layout === "business" ? (
+          <Taskbar onStart={() => setLauncher((v) => !v)} startOpen={launcher} onPalette={() => setPalette(true)}
+            onOverview={() => setOverview((v) => !v)} onQuick={() => setQuick((v) => !v)} onBlackout={() => setBlackout(true)} />
+        ) : null}
+        {layout === "art" ? <Dock onLaunchpad={() => setLauncher((v) => !v)} launchpadOpen={launcher} /> : null}
       </div>
 
+      {/* BlackTop source-screen blackout (SH-10/SH-11) */}
+      {blackout ? (
+        <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 99999, color: "#223", display: "grid", placeItems: "center" }}
+          onDoubleClick={() => setBlackout(false)}>
+          <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
+            <div style={{ fontSize: fz(12), color: "#2b3550" }}>Blackout — this screen is a touchpad for the presenting window.</div>
+            <div
+              style={{ width: 260, height: 150, border: "1px solid #1b2440", borderRadius: 10 }}
+              onPointerMove={(e) => {
+                if (e.buttons !== 1 || !state.focus) return;
+                dispatch({ t: "nudge", id: state.focus, dx: e.movementX, dy: e.movementY });
+              }}
+            />
+            <Btn variant="ghost" onClick={() => setBlackout(false)}>Resume on this screen</Btn>
+          </div>
+        </div>
+      ) : null}
+
       {/* toasts */}
-      <div style={{ position: "fixed", bottom: 64, left: "50%", transform: "translateX(-50%)", display: "grid", gap: 6, zIndex: 99998 }} aria-live="polite">
+      <div data-testid="toasts" style={{ position: "fixed", ...toastPos, display: "grid", gap: 6, zIndex: 99998 }} aria-live="polite">
         {toasts.map((t) => (
           <div key={t.id} className="fs-panel" style={{ padding: "8px 12px", display: "flex", gap: 10, alignItems: "center", maxWidth: 560 }}>
             <Badge tone={t.tone === "info" ? "info" : t.tone}>{t.tone}</Badge>

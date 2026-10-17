@@ -1,6 +1,6 @@
 {
   "suite": "browser-session",
-  "at": "2026-10-17T00:44:20.267Z",
+  "at": "2026-10-17T01:43:24.726Z",
   "results": [
     {
       "suite": "browser-session",
@@ -10,7 +10,7 @@
         "PR-07l": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "browser-session",

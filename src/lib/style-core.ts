@@ -11,6 +11,9 @@
  *   liquidglass — after Apple Liquid Glass (iOS 26)        expressive — after Google Material 3 Expressive
  *   fluent      — after Microsoft Fluent / Mica (Win 11)   clouddancer — Pantone Colour of the Year 2026
  *   teal        — WGSN × Coloro Colour of the Year 2026 "Transformative Teal"
+ *   TT25 — two professional, open-office styles after the two most-used desktop systems (docs/DESIGN-THEMES-TT25.md):
+ *   enterprise  — after a managed Windows desktop: flat corporate tiles, neutral grey chrome, Windows-style blue
+ *   graphite    — after the macOS "Graphite" appearance: brushed-aluminium squircles, graphite ink, grey accent
  *
  * Each style re-colours: app/file icon tiles, the Fusion logo, the default wallpaper, the accent and the chrome
  * surface tokens (dark + light). Module → palette *roles* stay the same (icon-data MODULE_ICONS), so a style is
@@ -18,7 +21,7 @@
  */
 import { PALETTES as BUBBLY, type Palette, type PaletteName } from "./icon-data";
 
-export const STYLE_IDS = ["poolside", "vice", "oceandrive", "bubbly", "liquidglass", "expressive", "fluent", "clouddancer", "teal"] as const;
+export const STYLE_IDS = ["poolside", "vice", "oceandrive", "bubbly", "liquidglass", "expressive", "fluent", "clouddancer", "teal", "enterprise", "graphite"] as const;
 export type StyleId = (typeof STYLE_IDS)[number];
 export const DEFAULT_STYLE: StyleId = "poolside";
 export const isStyle = (v: unknown): v is StyleId => typeof v === "string" && (STYLE_IDS as readonly string[]).includes(v);
@@ -27,9 +30,10 @@ export const isStyle = (v: unknown): v is StyleId => typeof v === "string" && (S
  * How a tile is finished: gloss = TT21 bubble; sheen = soft glass; neon = dark tile + lit rim; deco = gold frame;
  * TT23: glass = frosted lens with a specular rim; tonal = flat tonal container on a rounder shape; mica = small-radius
  * square with a 1px top highlight; paper = one off-white stock with coloured ink glyphs; lacquer = deep teal with a
- * pearl sheen. Overlays stay above y = 11 (or on the rim) so the y 11–38 glyph-contrast sampling stays exact.
+ * pearl sheen. TT25: flat = solid single-colour square (rx 4) with no light effects, like a Windows Start tile;
+ * alu = brushed-aluminium squircle (rx 10.5) with a specular top edge and a dark lower bevel. Overlays stay above y = 11 (or on the rim) so the y 11–38 glyph-contrast sampling stays exact.
  */
-export type Finish = "gloss" | "sheen" | "neon" | "deco" | "glass" | "tonal" | "mica" | "paper" | "lacquer";
+export type Finish = "gloss" | "sheen" | "neon" | "deco" | "glass" | "tonal" | "mica" | "paper" | "lacquer" | "flat" | "alu";
 
 export interface ChromeTokens {
   bg: string; bg2: string; panel: string; panelSolid: string; border: string; text: string; muted: string;
@@ -191,6 +195,29 @@ const TEAL: Record<PaletteName, Palette> = {
   ember: lac("#48524c", "#ffa184"),
 };
 
+/* TT25 Enterprise: flat Start-tile squares in a desaturated corporate range (navy, steel, slate, teal, muted amber);
+ * white glyphs everywhere (each tile is dark enough for ≥ 3:1), detail strokes cut back to the tile colour. */
+const flat = (top: string, bottom: string): Palette => ({ top, bottom, fg: W, detail: bottom });
+const ENTERPRISE: Record<PaletteName, Palette> = {
+  sun: flat("#a86b08", "#9c6205"), orange: flat("#b4531c", "#a54916"), lime: flat("#56731a", "#4d6817"),
+  mint: flat("#137563", "#0f6a59"), sky: flat("#1f6fad", "#1a659f"), blue: flat("#1259a3", "#0e4f93"),
+  teal: flat("#0f6f75", "#0c646a"), green: flat("#2a7039", "#246532"), coral: flat("#a8345a", "#9a2c50"),
+  indigo: flat("#4f45a0", "#463d93"), slate: flat("#4f5d70", "#465365"), lagoon: flat("#17668a", "#135c7d"),
+  ember: flat("#ad3d2c", "#9f3424"),
+};
+
+/* TT25 Graphite: one aluminium stock (cool light grey → mid grey), module colour carried by a dark, desaturated ink
+ * (≥ 3:1 against the darkest point the glyph covers); detail strokes are the pale aluminium highlight. */
+const ALU_TOP = "#f7f8fa", ALU_BOTTOM = "#c3c7ce";
+const alu = (fg: string, detail: string): Palette => ({ top: ALU_TOP, bottom: ALU_BOTTOM, fg, detail });
+const GRAPHITE: Record<PaletteName, Palette> = {
+  sun: alu("#6e4c00", "#efe3c4"), orange: alu("#8a3c10", "#f0d9cb"), lime: alu("#3f5810", "#dfe7cc"),
+  mint: alu("#125846", "#d0e6de"), sky: alu("#174f86", "#d1e0ee"), blue: alu("#2443a0", "#d5dcf1"),
+  teal: alu("#0c5a5d", "#cfe4e4"), green: alu("#1f5f30", "#d3e5d7"), coral: alu("#8f2246", "#f0d3dc"),
+  indigo: alu("#4a3596", "#dcd5ef"), slate: alu("#33393f", "#e2e4e8"), lagoon: alu("#11566f", "#cfe2ea"),
+  ember: alu("#8f2c1b", "#f0d4cc"),
+};
+
 export const STYLES: Record<StyleId, StyleSpec> = {
   poolside: {
     id: "poolside", label: "Poolside", blurb: "Sun-bleached pastels on deep lagoon — aqua, flamingo, mint, lemon",
@@ -263,6 +290,22 @@ export const STYLES: Record<StyleId, StyleSpec> = {
     chrome: { pill: ["#d8f59a", "#8fe0d0"], win: ["#ffe27a", "#8ff0cf", "#ffadbb"], deskLabel: "rgba(12, 38, 39, 0.82)" },
     dark: { bg: "#0c2627", bg2: "#123334", panel: "rgba(16, 48, 49, 0.92)", panelSolid: "#113233", border: "rgba(127, 240, 230, 0.18)", text: "#eaf6f4", muted: "#a9cbc8" },
     light: { bg: "#edf4f2", bg2: "#f6faf9", panel: "rgba(255, 255, 255, 0.9)", panelSolid: "#ffffff", border: "rgba(15, 60, 60, 0.16)", text: "#0f2a2b", muted: "#3f5f5f" },
+  },
+  enterprise: {
+    id: "enterprise", label: "Enterprise", blurb: "Office-ready flat tiles, neutral greys and Windows blue — after a managed Windows desktop",
+    finish: "flat", accent: "#4ca0ec", wallpaper: "enterprise", palettes: ENTERPRISE,
+    logo: { tileTop: "#1f6fc4", tileBottom: "#0e4f93", a: ["#ffffff", "#d7e6f6"], b: ["#9fd0ff", "#4ca0ec"], lens: "#ffffff" },
+    chrome: { pill: ["#e8f1fb", "#bcd8f3"], win: ["#e3e5e8", "#e3e5e8", "#f08a93"], deskLabel: "rgba(27, 31, 36, 0.82)" },
+    dark: { bg: "#1b1f24", bg2: "#23282f", panel: "rgba(32, 37, 43, 0.95)", panelSolid: "#20252b", border: "rgba(255, 255, 255, 0.12)", text: "#f3f5f7", muted: "#b9c1ca" },
+    light: { bg: "#eef1f4", bg2: "#f7f8fa", panel: "rgba(255, 255, 255, 0.95)", panelSolid: "#ffffff", border: "rgba(16, 24, 32, 0.14)", text: "#1b1f24", muted: "#4f5a66" },
+  },
+  graphite: {
+    id: "graphite", label: "Graphite", blurb: "Brushed aluminium, graphite ink and a quiet grey accent — after the macOS Graphite appearance",
+    finish: "alu", accent: "#a3a9b2", trim: "#9aa0a8", wallpaper: "graphite", palettes: GRAPHITE,
+    logo: { tileTop: "#f7f8fa", tileBottom: "#b9bec6", a: ["#7d8590", "#3c4450"], b: ["#a9c4e8", "#4f78b8"], lens: "#ffffff", ring: "#9aa0a8" },
+    chrome: { pill: ["#f2f3f5", "#d3d6db"], win: ["#febc2e", "#28c840", "#ff5f57"], deskLabel: "rgba(30, 30, 32, 0.8)" },
+    dark: { bg: "#1e1e1e", bg2: "#2a2a2c", panel: "rgba(40, 40, 42, 0.92)", panelSolid: "#2a2a2c", border: "rgba(255, 255, 255, 0.14)", text: "#f5f5f7", muted: "#b8b8bd" },
+    light: { bg: "#ececec", bg2: "#f5f5f7", panel: "rgba(246, 246, 246, 0.94)", panelSolid: "#f6f6f6", border: "rgba(0, 0, 0, 0.13)", text: "#1d1d1f", muted: "#545458" },
   },
 };
 

@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-17T01:07:35.892Z",
+ "generatedAt": "2026-10-17T01:54:06.853Z",
  "totals": {
   "built": {
-   "full": 217,
+   "full": 221,
    "partial": 62,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 100,
+   "full": 104,
    "partial": 75,
    "untested": 126
   },
   "tests": {
-   "total": 394,
-   "passed": 394
+   "total": 413,
+   "passed": 413
   }
  },
  "rows": {
@@ -1370,7 +1370,9 @@
     "e2e-a11y: computed sizes: at the 125 % default nothing visible is below 12 px and body text is ≥16 px; in Large text mode (200 %) nothing is below 20 px",
     "e2e-a11y: reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit",
     "e2e-a11y: text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused",
-    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen"
+    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
+    "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
+    "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; the dock scrolls inside itself with magnification off (honest fallback)"
    ]
   },
   "AX-10": {
@@ -1389,7 +1391,7 @@
     "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
     "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
     "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
-    "e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
+    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
    ]
   },
   "TB-01": {
@@ -1447,7 +1449,7 @@
   "AX-12": {
    "tested": "full",
    "tests": [
-    "e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
+    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
    ]
   },
   "WB-01": {
@@ -1547,6 +1549,50 @@
     "e2e-contacts: export: CSV to Files (injection-guarded) and as a download; .vcf download re-imports to the same contacts",
     "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
     "e2e: mount: contacts"
+   ]
+  },
+  "LY-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload",
+    "e2e-layout: Business taskbar: open → minimise → restore on click, Shift+click new window, jump list, Show desktop round trip, clock → Planner",
+    "e2e-layout: Business: Start menu opens above the taskbar at bottom-left, search + Enter launches; Quick settings and toasts sit bottom-right; Windows caption buttons",
+    "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+    "layout-unit: taskbar click: open → focus → minimise the focused single window; several windows cycle; minimised comes back",
+    "layout-unit: Show desktop: minimises the visible windows of this workspace, a second press restores exactly those in z-order",
+    "layout-unit: Show desktop: opening or focusing a window in between forgets the restore set; viewport changes keep it"
+   ]
+  },
+  "LY-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar",
+    "e2e-layout: Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch",
+    "e2e-layout: Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit",
+    "e2e-layout: Art window chrome + menus: traffic lights left (close, minimise, zoom), centred title, Window menu tiles/zooms, zoomed window stops above the dock, Launchpad",
+    "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
+    "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; the dock scrolls inside itself with magnification off (honest fallback)",
+    "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+    "layout-unit: dock magnification: peak under the pointer, symmetric, monotone cosine falloff, exact reach, 1 elsewhere",
+    "layout-unit: dock magnification: no pointer / bad input → all 1; depends only on resting centres (no feedback)",
+    "layout-unit: dock fitting: base size fills the width when possible, clamps to [min,max], reports overflow honestly"
+   ]
+  },
+  "LY-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload",
+    "e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar",
+    "e2e-layout: API: unknown layout and dockMagnify values are refused (422); the setting is searchable by 'taskbar' and 'dock'",
+    "layout-unit: settings, routines and seed: layout values validated, default stays Fusion, rows registered"
+   ]
+  },
+  "LY-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+    "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+    "layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers"
    ]
   },
   "CT-01": {
@@ -1807,8 +1853,9 @@
    "tests": [
     "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
-    "e2e-a11y: light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
     "e2e-contacts: axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
+    "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
     "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
     "e2e-whiteboard: axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations"
    ]

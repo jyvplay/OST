@@ -18,11 +18,12 @@ import { tt21Features, UPDATES_TT21 } from "./seed-data/features-tt21";
 import { tt22Features, UPDATES_TT22 } from "./seed-data/features-tt22";
 import { tt23Features, UPDATES_TT23 } from "./seed-data/features-tt23";
 import { tt24Features, UPDATES_TT24 } from "./seed-data/features-tt24";
+import { tt25Features, UPDATES_TT25 } from "./seed-data/features-tt25";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.12.0";
+export const SEED_VERSION = "3.13.1";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...platformFeatures]
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
   .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))
@@ -32,12 +33,15 @@ export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, 
   .map((f) => (UPDATES_TT21[f.code] ? { ...f, ...UPDATES_TT21[f.code] } : f))
   .map((f) => (UPDATES_TT22[f.code] ? { ...f, ...UPDATES_TT22[f.code] } : f))
   .map((f) => (UPDATES_TT23[f.code] ? { ...f, ...UPDATES_TT23[f.code] } : f))
-  .map((f) => (UPDATES_TT24[f.code] ? { ...f, ...UPDATES_TT24[f.code] } : f));
+  .map((f) => (UPDATES_TT24[f.code] ? { ...f, ...UPDATES_TT24[f.code] } : f))
+  .map((f) => (UPDATES_TT25[f.code] ? { ...f, ...UPDATES_TT25[f.code] } : f));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },
   { key: "appearance.accent", value: "auto", category: "appearance", label: "Accent colour", aliases: "highlight,tint" },
-  { key: "appearance.style", value: "poolside", category: "appearance", label: "Style (colours, icons, logo)", aliases: "theme,palette,look,skin,miami,poolside,vice,neon,art deco,ocean drive,colours" },
+  { key: "appearance.style", value: "poolside", category: "appearance", label: "Style (colours, icons, logo)", aliases: "theme,palette,look,skin,miami,poolside,vice,neon,art deco,ocean drive,colours,enterprise,graphite,professional,office,corporate" },
+  { key: "appearance.layout", value: "fusion", category: "appearance", label: "Layout (Fusion, Business taskbar, Art dock)", aliases: "layout,taskbar,start menu,windows,dock,mac,macos,menu bar,business,art,desktop layout" },
+  { key: "appearance.dockMagnify", value: "on", category: "appearance", label: "Dock magnification (Art layout)", aliases: "dock,magnify,zoom icons,mac" },
   { key: "appearance.density", value: "balanced", category: "appearance", label: "Density profile", aliases: "scale,compact,touch,ui size" },
   { key: "appearance.motion", value: "system", category: "appearance", label: "Motion", aliases: "animation,reduce motion" },
   { key: "appearance.wallpaper", value: "auto", category: "appearance", label: "Wallpaper", aliases: "background,desktop picture" },

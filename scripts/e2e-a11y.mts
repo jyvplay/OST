@@ -64,6 +64,7 @@ await setSetting("appearance.accent", "auto");
 await setSetting("appearance.wallpaper", "auto");
 await setSetting("appearance.theme", "dark");
 await setSetting("appearance.density", "balanced");
+await setSetting("appearance.layout", "fusion"); // TT25: this suite measures the Fusion chrome (e2e-layout covers Business / Art)
 
 /* ------------------------------------------------------------------ 1 axe */
 const perModule: Record<string, Violation[]> = {};
@@ -342,7 +343,7 @@ await test("style switch: the Settings and Quick panel pickers swap data-style, 
 });
 
 /* -------------------------------------------------------- 8 light + dark contrast, every style (TT22; TT23: 9 styles × 2 themes) */
-await test("light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet", { "AX-11": "partial", "AX-08": "partial", "AX-12": "full" }, async () => {
+await test(`light + dark theme, all ${STYLE_IDS.length} styles: axe finds no serious violations in the chrome, Files and Spreadsheet`, { "AX-11": "partial", "AX-08": "partial", "AX-12": "full", "LY-04": "partial" }, async () => {
   const bad: string[] = [];
   try {
     for (const [st, theme] of STYLE_IDS.flatMap((id) => [[id, "light"], [id, "dark"]] as const)) {

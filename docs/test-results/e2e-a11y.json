@@ -1,6 +1,6 @@
 {
   "suite": "e2e-a11y",
-  "at": "2026-10-17T01:03:19.332Z",
+  "at": "2026-10-17T01:51:37.336Z",
   "results": [
     {
       "suite": "e2e-a11y",
@@ -10,7 +10,7 @@
         "AX-01": "partial"
       },
       "pass": true,
-      "ms": 88395
+      "ms": 89263
     },
     {
       "suite": "e2e-a11y",
@@ -19,7 +19,7 @@
         "AX-09": "full"
       },
       "pass": true,
-      "ms": 19918
+      "ms": 19631
     },
     {
       "suite": "e2e-a11y",
@@ -28,7 +28,7 @@
         "AX-10": "full"
       },
       "pass": true,
-      "ms": 3701
+      "ms": 3283
     },
     {
       "suite": "e2e-a11y",
@@ -37,7 +37,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 3559
+      "ms": 3578
     },
     {
       "suite": "e2e-a11y",
@@ -46,7 +46,7 @@
         "AX-09": "full"
       },
       "pass": true,
-      "ms": 7543
+      "ms": 10568
     },
     {
       "suite": "e2e-a11y",
@@ -56,7 +56,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 2219
+      "ms": 2291
     },
     {
       "suite": "e2e-a11y",
@@ -65,7 +65,7 @@
         "AX-03": "full"
       },
       "pass": true,
-      "ms": 2990
+      "ms": 2835
     },
     {
       "suite": "e2e-a11y",
@@ -74,18 +74,19 @@
         "AX-11": "full"
       },
       "pass": true,
-      "ms": 9070
+      "ms": 11105
     },
     {
       "suite": "e2e-a11y",
-      "name": "light + dark theme, all 9 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+      "name": "light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
       "covers": {
         "AX-11": "partial",
         "AX-08": "partial",
-        "AX-12": "full"
+        "AX-12": "full",
+        "LY-04": "partial"
       },
       "pass": true,
-      "ms": 44462
+      "ms": 54625
     }
   ]
 }

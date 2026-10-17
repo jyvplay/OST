@@ -5,6 +5,8 @@ import { STYLES, STYLE_IDS, DEFAULT_STYLE, isStyle, resolveWallpaper } from "@/l
 import { useShell } from "./shell-context";
 import { Badge, Btn, Section } from "./ui";
 import { AppIcon, FusionLogo } from "./AppIcon";
+import { LayoutSwitch } from "./chrome-bits";
+import { layoutOf } from "@/lib/layout-core";
 
 const PREVIEW_ICONS = ["files", "sheet", "writer", "imageedit", "browser", "messages"];
 
@@ -33,6 +35,20 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
   return (
     <Section title="Display & readability" right={<Badge tone={body >= 16 ? "ok" : "info"} title="Computed from the text size and your browser's default font size">body text {body}px</Badge>}>
       <div data-testid="display-settings" style={{ display: "grid", gap: fz(12) }}>
+        {/* ------------------------------------------------------------ layout (TT25) */}
+        <div style={{ display: "grid", gap: fz(5) }}>
+          <strong style={{ fontSize: fz(13) }}>Layout</strong>
+          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Business: a Windows-style taskbar with Start along the bottom. Art: a Mac-style menu bar and a centred dock of every app that magnifies under the pointer. Fusion: the original top bar and shelf.</span>
+          <LayoutSwitch prefix="settings" />
+          {layoutOf(shell.settings["appearance.layout"]) === "art" ? (
+            <label className="fs-row" style={{ gap: 8 }}>
+              <input type="checkbox" data-testid="settings-dock-magnify" checked={(shell.settings["appearance.dockMagnify"] ?? "on") !== "off"}
+                onChange={(e) => set("appearance.dockMagnify", e.target.checked ? "on" : "off")} />
+              Magnify dock icons under the pointer
+            </label>
+          ) : null}
+        </div>
+
         {/* ------------------------------------------------------------- style */}
         <div style={{ display: "grid", gap: fz(5) }}>
           <strong id="style-label" style={{ fontSize: fz(13) }}>Style</strong>
