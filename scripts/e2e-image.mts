@@ -246,8 +246,11 @@ await test("Export PNG → reopen the PNG from the VFS as a new document; Image 
   await waitMsg(t, /opened/);
   eq(await t.attr("doc-w"), "800");
   ok(near(await t.px(400, 300), mid, 0), `PNG round trip ${await t.px(400, 300)} vs ${mid}`);
-  t.page.once("dialog", (d) => d.accept("400x300"));
+  // TT28: Image size uses the in-app ask dialog (SH-15), not window.prompt
   await t.root.getByRole("button", { name: "Image size…" }).click();
+  await t.page.getByTestId("ask-dialog").waitFor({ timeout: 5000 });
+  await t.page.getByTestId("ask-input-value").fill("400x300");
+  await t.page.getByTestId("ask-ok").click();
   await waitAttr(t, "doc-w", "400");
   eq(await t.attr("doc-h"), "300");
   await t.close();

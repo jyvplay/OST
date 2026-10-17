@@ -200,12 +200,18 @@ try {
     // button — magnification follows both the pointer and focus, and widens the dock
     await page.mouse.move(720, 300);
     await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+    // "at rest" = no slot magnified (every slot ≤ the base size) AND the width is stable; two equal samples alone can
+    // both land before the blur re-render starts the shrink transition (seen in TT28's full run)
     let prevW = -1;
-    await poll(async () => { const w = (await box(page.getByTestId("dock"))).width; const same = Math.abs(w - prevW) < 0.5; prevW = w; return same; }, "dock at rest");
+    await poll(async () => {
+      const unmagnified = await page.evaluate(() => { const d = document.querySelector("[data-testid=dock]") as HTMLElement; const base = Number(d.dataset.base); return [...d.querySelectorAll(".fs-dock-slot")].every((c) => c.getBoundingClientRect().width <= base + 0.5); });
+      const w = (await box(page.getByTestId("dock"))).width; const same = Math.abs(w - prevW) < 0.5; prevW = w; return unmagnified && same;
+    }, "dock at rest");
     const d = await box(page.getByTestId("dock"));
     ok(Math.abs(d.x + d.width / 2 - 720) <= 2, `dock centred (${d.x + d.width / 2})`);
     ok(d.y + d.height <= 900 - 3 && d.x > 0 && d.x + d.width < 1440, `dock floats inside the screen ${JSON.stringify(d)}`);
-    ok(d.width <= 1440 * 0.9 + 1, `dock leaves breathing room (${d.width} ≤ 90%)`);
+    const kids = d.width <= 1440 * 0.9 + 1 ? "" : await page.evaluate(() => [...document.querySelector("[data-testid=dock]")!.children].map((c) => `${(c.querySelector("[data-testid]") as HTMLElement | null)?.dataset.testid ?? c.className}:${Math.round(c.getBoundingClientRect().width)}`).join(" "));
+    ok(d.width <= 1440 * 0.9 + 1, `dock leaves breathing room (${d.width} ≤ 90%) ${kids}`);
     const base = Number(await page.getByTestId("dock").getAttribute("data-base"));
     ok(base >= 44 && base <= 64 && base % 4 === 0, `aesthetic base icon size on the 4-px grid: ${base}`);
     ok(await getSetting("appearance.layout") === "art", "persisted");

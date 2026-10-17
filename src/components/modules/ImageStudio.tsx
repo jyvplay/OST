@@ -28,6 +28,7 @@ import { createHistory, pushHistory, redoHistory, undoHistory, uniqueBufferBytes
 import * as R from "@/lib/image/raster";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { askText } from "@/lib/ask";
 
 type Tool = "move" | "brush" | "eraser" | "fill" | "gradient" | "eyedropper" | "marquee" | "ellipse" | "wand";
 const TOOLS: { id: Tool; label: string; key: string }[] = [
@@ -408,18 +409,18 @@ export default function ImageStudio({ win }: ModuleProps) {
     crop: () => { if (!sel) { shell.toast("Select the area to keep first", "warn"); return; } commit(cropCanvas(doc, sel.bounds), `cropped to ${sel.bounds.w}×${sel.bounds.h}`); setSel(null); },
     rotate: (t: number) => { commit(rotateDoc(doc, t), `rotated ${t * 90}°`); setSel(null); },
     flip: (axis: "horizontal" | "vertical", layerOnly: boolean) => commit(flipDoc(doc, axis, layerOnly ? active.id : undefined), `flipped ${layerOnly ? "layer" : "image"} ${axis}`),
-    resize: () => {
-      const v = prompt("New image size (W×H), aspect not locked", `${doc.width}x${doc.height}`); if (!v) return;
+    resize: async () => {
+      const v = await askText("Image size (W×H)", `${doc.width}x${doc.height}`, { detail: "Resamples every layer. The aspect ratio is not locked.", okLabel: "Resize", validate: (s) => (/^\d+\s*[x×]\s*\d+$/.test(s.trim()) ? null : "Use width × height, for example 800x600") }); if (!v) return;
       const m = /^(\d+)\s*[x×]\s*(\d+)$/.exec(v.trim()); if (!m) return;
       try { commit(resizeImage(doc, Number(m[1]), Number(m[2])), `resized to ${m[1]}×${m[2]}`); setSel(null); } catch (e) { shell.toast((e as Error).message, "bad"); }
     },
-    canvas: () => {
-      const v = prompt("Canvas size (W×H), centred", `${doc.width}x${doc.height}`); if (!v) return;
+    canvas: async () => {
+      const v = await askText("Canvas size (W×H)", `${doc.width}x${doc.height}`, { detail: "The image stays centred; nothing is resampled.", okLabel: "Apply", validate: (s) => (/^\d+\s*[x×]\s*\d+$/.test(s.trim()) ? null : "Use width × height, for example 800x600") }); if (!v) return;
       const m = /^(\d+)\s*[x×]\s*(\d+)$/.exec(v.trim()); if (!m) return;
       try { commit(resizeCanvas(doc, Number(m[1]), Number(m[2])), `canvas ${m[1]}×${m[2]}`); setSel(null); } catch (e) { shell.toast((e as Error).message, "bad"); }
     },
-    newDoc: () => {
-      const v = prompt("New image (W×H)", "1024x768"); if (!v) return;
+    newDoc: async () => {
+      const v = await askText("New image (W×H)", "1024x768", { okLabel: "Create", validate: (s) => (/^\d+\s*[x×]\s*\d+$/.test(s.trim()) ? null : "Use width × height, for example 800x600") }); if (!v) return;
       const m = /^(\d+)\s*[x×]\s*(\d+)$/.exec(v.trim()); if (!m) return;
       try { replaceDoc(newDoc(Number(m[1]), Number(m[2])), `new ${m[1]}×${m[2]}`); setName("Untitled"); setPath(""); } catch (e) { shell.toast((e as Error).message, "bad"); }
     },
@@ -468,7 +469,7 @@ export default function ImageStudio({ win }: ModuleProps) {
       <div className="fs-row" style={{ gridColumn: "1 / 4", gap: 4, padding: 6, flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)" }}>
         <Btn variant="ghost" onClick={image.newDoc}>New</Btn>
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input aria-label="Open image or PSD" type="file" accept="image/*,.psd" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void f.arrayBuffer().then((b) => openBytes(new Uint8Array(b), f.name, f.type)); e.target.value = ""; }} /></label>
-        <Btn variant="ghost" onClick={() => { const p = prompt("VFS path (PNG/JPEG/WebP/GIF/PSD)", "/Pictures/"); if (p) setPath(p); }}>Open from Files…</Btn>
+        <Btn variant="ghost" onClick={async () => { const p = await askText("Open from Files (path)", "/Pictures/", { detail: "PNG, JPEG, WebP, GIF or PSD", okLabel: "Open" }); if (p) setPath(p); }}>Open from Files…</Btn>
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Place…<input aria-label="Place image as layer" type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void placeFile(f); e.target.value = ""; }} /></label>
         <Btn variant="primary" onClick={() => void savePsd()} disabled={!!busy}>Save PSD</Btn>
         <Btn variant="ghost" onClick={() => void exportFlat("image/png")} disabled={!!busy}>Export PNG</Btn>
@@ -561,7 +562,7 @@ export default function ImageStudio({ win }: ModuleProps) {
                 <button type="button" aria-pressed={l.id === active.id} title="Select layer (double-click to rename)"
                   onClick={(e) => { e.stopPropagation(); setActiveId(l.id); }}
                   style={{ flex: 1, minWidth: 0, textAlign: "left", background: "none", border: 0, color: "inherit", font: "inherit", padding: 0, cursor: "pointer", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                  onDoubleClick={() => { const n = prompt("Layer name", l.name); if (n) commit(patchLayer(doc, l.id, { name: n.slice(0, 255) })); }}>{l.name}</button>
+                  onDoubleClick={async () => { const n = await askText("Layer name", l.name, { okLabel: "Rename" }); if (n) commit(patchLayer(doc, l.id, { name: n.slice(0, 255) })); }}>{l.name}</button>
                 {l.mask ? <Badge tone={l.maskEnabled === false ? "default" : "info"}>mask</Badge> : null}
                 {l.locked ? <Badge tone="warn">lock</Badge> : null}
                 <span className="fs-dim">{l.blend === "normal" ? "" : l.blend.slice(0, 5)} {Math.round(l.opacity * 100)}%</span>

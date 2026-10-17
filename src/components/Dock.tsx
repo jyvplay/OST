@@ -44,6 +44,21 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
   const [bouncing, setBouncing] = useState<string[]>([]);
   const [menuFor, setMenuFor] = useState<{ id: string; label: string; x: number; lift: number } | null>(null);
   const magnifyOn = (shell.settings["appearance.dockMagnify"] ?? "on") !== "off";
+  // TT28 auto-hide (macOS "Automatically hide and show the Dock"): the dock leaves the layout so windows get the full
+  // height, slides away, and comes back when the pointer reaches the bottom edge or keyboard focus enters it.
+  const autoHide = shell.settings["appearance.dockAutoHide"] === "on";
+  const [shown, setShown] = useState(false);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reveal = () => { if (hideTimer.current) { clearTimeout(hideTimer.current); hideTimer.current = null; } setShown(true); };
+  const hideSoon = (ms = 600) => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => {
+      hideTimer.current = null;
+      if (footer.current?.contains(document.activeElement)) return; // keyboard users keep it while focused inside
+      setShown(false);
+    }, ms);
+  };
+  useEffect(() => () => { if (hideTimer.current) clearTimeout(hideTimer.current); }, []);
 
   useEffect(() => {
     const el = footer.current;
@@ -119,8 +134,17 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
   };
 
   let iconNo = -1;
+  const visibleNow = !autoHide || shown || !!stackFor || !!menuFor;
   return (
-    <div ref={footer} data-testid="dock-row" style={{ height: base + 2 * PAD + 10, flex: "0 0 auto", display: "flex", justifyContent: "center", alignItems: "flex-end", paddingBottom: 6, position: "relative", zIndex: 60 }}>
+    <>
+    {autoHide ? <div data-testid="dock-reveal" aria-hidden="true" className="fs-dock-reveal" onPointerEnter={reveal} onPointerMove={() => { if (!shown) reveal(); }} onPointerLeave={() => hideSoon()} /> : null}
+    <div ref={footer} data-testid="dock-row" data-autohide={autoHide ? "on" : "off"} data-shown={visibleNow ? "1" : "0"}
+      className={autoHide ? "fs-dock-row-auto" : undefined}
+      onPointerEnter={autoHide ? reveal : undefined} onPointerLeave={autoHide ? () => hideSoon() : undefined}
+      onFocusCapture={autoHide ? reveal : undefined}
+      onBlurCapture={autoHide ? (e) => { if (!footer.current?.contains(e.relatedTarget as Node | null)) hideSoon(200); } : undefined}
+      style={{ height: base + 2 * PAD + 10, flex: "0 0 auto", display: "flex", justifyContent: "center", alignItems: "flex-end", paddingBottom: 6, position: autoHide ? "fixed" : "relative", zIndex: 60,
+        ...(autoHide ? { left: 0, right: 0, bottom: 0, transform: visibleNow ? "none" : "translateY(calc(100% + 6px))" } : {}) }}>
       <nav aria-label="Dock" data-testid="dock" data-base={base} data-folded={plan.folded.join(",")} data-magnify={canMagnify ? "on" : "off"} className="fs-dock"
         onPointerMove={onMove} onPointerLeave={() => setPointer(null)}
         style={{ height: base + 2 * PAD, padding: `0 ${PAD}px`, gap: GAP, maxWidth: width, overflowX: fits ? "visible" : "auto", overflowY: fits ? "visible" : "hidden" }}>
@@ -197,6 +221,7 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
         </div>
       ) : null}
     </div>
+    </>
   );
 }
 

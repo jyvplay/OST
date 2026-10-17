@@ -1,0 +1,72 @@
+{
+  "suite": "e2e-tt28",
+  "at": "2026-10-17T17:27:14.725Z",
+  "results": [
+    {
+      "suite": "e2e-tt28",
+      "name": "embed control (SM-04): YouTube handshake with origin + id, Play/Pause commands, progress clock, ended → auto-next by loadVideoById in the SAME player; spoofed 'ended' from our own window or a foreign-origin frame is ignored; Auto-next off stops",
+      "covers": {
+        "SM-04": "partial"
+      },
+      "pass": true,
+      "ms": 4881
+    },
+    {
+      "suite": "e2e-tt28",
+      "name": "embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify is honestly uncontrolled",
+      "covers": {
+        "SM-04": "partial"
+      },
+      "pass": true,
+      "ms": 2664
+    },
+    {
+      "suite": "e2e-tt28",
+      "name": "offline gazetteer (MP-04/MP-05): API answers 'Paris, TX' and 'In Raleigh' with attribution; Maps search lists cities, flies there, 'Save as place' writes it; new places are named by the nearest city; hover says how far from which city; zero third-party requests",
+      "covers": {
+        "MP-04": "full",
+        "MP-05": "full"
+      },
+      "pass": true,
+      "ms": 7092
+    },
+    {
+      "suite": "e2e-tt28",
+      "name": "in-app ask dialog (SH-15) replaces prompt(): focus lands in the field with the default selected; Tab is trapped; global shortcuts are blocked while it is open (modal); Enter creates, Escape cancels and focus returns to the opener; passphrases are masked, double-entered and validated in place",
+      "covers": {
+        "SH-15": "full"
+      },
+      "pass": true,
+      "ms": 2564
+    },
+    {
+      "suite": "e2e-tt28",
+      "name": "Business Snap (LY-16/LY-17): hovering Maximise opens the layouts flyout; a quarter zone places the window exactly; Snap Assist offers the other windows for the remaining zones in order; a title-bar drag into a corner shows a live preview and snaps to that quarter; the Snap layouts chord opens the flyout with keyboard focus",
+      "covers": {
+        "LY-16": "full",
+        "LY-17": "full"
+      },
+      "pass": true,
+      "ms": 4486
+    },
+    {
+      "suite": "e2e-tt28",
+      "name": "Art dock (LY-18/LY-19): auto-hide slides the dock off-screen and gives windows the space; the bottom edge reveals it; it stays ≥ 400 ms after leaving and hides by ~600 ms; keyboard focus reveals it; minimise plays the genie into the dock tile (clip-path funnel), and not at all under reduced motion",
+      "covers": {
+        "LY-18": "full",
+        "LY-19": "full"
+      },
+      "pass": true,
+      "ms": 6430
+    },
+    {
+      "suite": "e2e-tt28",
+      "name": "accessibility tree (AX-13): Playwright ariaSnapshot of the live page in Fusion, Business and Art: landmarks and names a screen reader would announce (dock / taskbar navigation, named window dialogs, no unnamed buttons or text fields); the ask dialog and the snap flyout expose their roles and names",
+      "covers": {
+        "AX-13": "full"
+      },
+      "pass": true,
+      "ms": 6224
+    }
+  ]
+}

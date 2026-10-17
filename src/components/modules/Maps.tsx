@@ -5,6 +5,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import * as M from "@/lib/maps-core";
+import { GEONAMES_URL } from "@/lib/gazetteer-core";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 
@@ -18,6 +19,28 @@ import { Badge, Btn } from "../ui";
 export const PLACES_PATH = "/Documents/Places.geojson";
 type Mode = "pan" | "pin" | "measure";
 interface CountryHit { name: string; feature: M.Feature }
+/** One city from the offline gazetteer API (/api/places/search, GeoNames cities ≥ 15k people). */
+interface CityResult { id: number; name: string; label: string; lat: number; lng: number; population: number; timezone: string }
+interface NearResult { name: string; label: string; km: number; description: string }
+/**
+ * Point markers are DOM dots (divIcon), not canvas circleMarkers: during flyTo Leaflet CSS-scales the vector canvas
+ * until the flight ends, which blew a 9 px circle up to fill the whole map (found by TT28 screenshot review).
+ */
+function dot(L: typeof LT, ll: M.LatLng, o: { size: number; fill: string; ring?: number; cls?: string; title?: string }): LT.Marker {
+  const ring = o.ring ?? 2;
+  return L.marker(ll, {
+    keyboard: false, title: o.title ?? "",
+    icon: L.divIcon({ className: `fs-maps-dot-pin ${o.cls ?? ""}`, iconSize: [o.size, o.size], iconAnchor: [o.size / 2, o.size / 2],
+      html: `<span style="display:block;width:100%;height:100%;box-sizing:border-box;border-radius:50%;background:${o.fill};border:${ring}px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45)"></span>` }),
+  });
+}
+async function nearestCity(lat: number, lng: number, units: "metric" | "imperial"): Promise<NearResult | null> {
+  try {
+    const r = await fetch(`/api/places/near?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}&units=${units}`);
+    const j = await r.json() as { ok?: boolean; results?: NearResult[] };
+    return j.ok ? j.results?.[0] ?? null : null;
+  } catch { return null; }
+}
 
 export default function MapsModule({ win }: ModuleProps) {
   const shell = useShell();
@@ -25,7 +48,7 @@ export default function MapsModule({ win }: ModuleProps) {
   const mapRef = useRef<LT.Map | null>(null);
   const LRef = useRef<typeof LT | null>(null);
   const feats = useRef<{ f: M.Feature; bb: [M.LatLng, M.LatLng] | null }[]>([]);
-  const layers = useRef<{ countries?: LT.GeoJSON; places?: LT.LayerGroup; measure?: LT.LayerGroup; tiles?: LT.TileLayer; sel?: LT.GeoJSON; me?: LT.CircleMarker }>({});
+  const layers = useRef<{ countries?: LT.GeoJSON; places?: LT.LayerGroup; measure?: LT.LayerGroup; tiles?: LT.TileLayer; sel?: LT.GeoJSON; me?: LT.Marker; found?: LT.Marker }>({});
   const [ready, setReady] = useState(false);
   const [loadErr, setLoadErr] = useState("");
   const [mode, setMode] = useState<Mode>("pan");
@@ -42,6 +65,10 @@ export default function MapsModule({ win }: ModuleProps) {
   const [fmt, setFmt] = useState<"dd" | "dms">("dd");
   const [units, setUnits] = useState<"metric" | "imperial">("metric");
   const [status, setStatus] = useState("");
+  const [cities, setCities] = useState<{ q: string; items: CityResult[] }>({ q: "", items: [] });
+  const [found, setFound] = useState<CityResult | null>(null);
+  const [near, setNear] = useState<{ key: string; text: string } | null>(null);
+  const renamed = useRef(new Set<string>()); // places the user named by hand: never auto-renamed
   const [tileDraft, setTileDraft] = useState(shell.settings["maps.tileUrl"] ?? "");
   const tiles = shell.settings["maps.tiles"] ?? "off";
   const tileUrl = shell.settings["maps.tileUrl"] ?? "";
@@ -93,6 +120,16 @@ export default function MapsModule({ win }: ModuleProps) {
     const id = newId();
     change((p) => M.addPlace(p, { id, name: name ?? countryAt(lat, lng)?.name ?? "", lat, lng, note: "", added: new Date().toISOString() }));
     setSelPlace(id);
+    // Name it after the nearest city (offline gazetteer) when one is within 25 km, and note where it is — unless the
+    // user has typed a name or note in the meantime.
+    void nearestCity(lat, lng, units).then((h) => {
+      if (!h) return;
+      setStatus(`New place: ${h.description} (${h.label})`);
+      change((p) => {
+        const cur = p.places.find((x) => x.id === id); if (!cur || renamed.current.has(id)) return p;
+        return M.updatePlace(p, id, { ...(name === undefined && h.km <= 25 ? { name: h.name } : {}), ...(cur.note ? {} : { note: `${h.description} · ${h.label}` }) });
+      });
+    });
   };
   const addRef = useRef(addAt);
   useEffect(() => { addRef.current = addAt; });
@@ -131,7 +168,7 @@ export default function MapsModule({ win }: ModuleProps) {
         const map = L.map(host.current, { worldCopyJump: true, minZoom: 1, maxZoom: 18, zoomSnap: 0.5, preferCanvas: true, keyboard: true, attributionControl: true })
           .setView([30, 0], 2);
         map.attributionControl.setPrefix(false);
-        map.attributionControl.addAttribution("Borders: Natural Earth (public domain) · Leaflet");
+        map.attributionControl.addAttribution(`Borders: Natural Earth (public domain) · Places: <a href="${GEONAMES_URL}" target="_blank" rel="noopener noreferrer">GeoNames</a> (CC BY 4.0) · Leaflet`);
         layers.current.countries = L.geoJSON(drawn as never, { interactive: false }).addTo(map);
         layers.current.places = L.layerGroup().addTo(map);
         layers.current.measure = L.layerGroup().addTo(map);
@@ -196,7 +233,7 @@ export default function MapsModule({ win }: ModuleProps) {
     g.clearLayers();
     for (const p of places.places) {
       const sel = p.id === selPlace;
-      L.circleMarker([p.lat, p.lng], { radius: sel ? 10 : 7.5, color: "#ffffff", weight: sel ? 3 : 2, fillColor: p.color, fillOpacity: 1 })
+      dot(L, [p.lat, p.lng], { size: sel ? 22 : 16, fill: /^#[0-9a-f]{6}$/i.test(p.color) ? p.color : "#0a84ff", ring: sel ? 3 : 2, cls: "fs-maps-place-pin" })
         .bindTooltip(p.name, { direction: "top", offset: [0, -8] })
         .on("click", (e: LT.LeafletMouseEvent) => { L.DomEvent.stopPropagation(e); setSelPlace(p.id); })
         .addTo(g);
@@ -212,6 +249,34 @@ export default function MapsModule({ win }: ModuleProps) {
     measure.forEach((pt) => L.circleMarker(pt, { radius: 5, color: "#ffffff", weight: 2, fillColor: "#ff9f0a", fillOpacity: 1, interactive: false }).addTo(g));
   }, [ready, measure]);
 
+  // found-city marker
+  useEffect(() => {
+    const L = LRef.current, map = mapRef.current; if (!ready || !L || !map) return;
+    layers.current.found?.remove(); layers.current.found = undefined;
+    if (found) layers.current.found = dot(L, [found.lat, found.lng], { size: 22, fill: "#ff375f", ring: 3, cls: "fs-maps-found-pin" }).bindTooltip(found.label).addTo(map);
+  }, [ready, found]);
+
+  // "12 km NE of Raleigh" under the pointer, once it rests for 350 ms
+  useEffect(() => {
+    if (!cursor) return;
+    const key = `${cursor.lat.toFixed(3)},${cursor.lng.toFixed(3)}`; let live = true;
+    const t = setTimeout(() => { void nearestCity(cursor.lat, cursor.lng, units).then((h) => { if (live && h) setNear({ key, text: h.description }); }); }, 350);
+    return () => { live = false; clearTimeout(t); };
+  }, [cursor, units]);
+  const nearText = cursor && near && near.key === `${cursor.lat.toFixed(3)},${cursor.lng.toFixed(3)}` ? near.text : "";
+
+  // offline city search (debounced; results are only shown for the query they answer)
+  useEffect(() => {
+    const t = q.trim(); if (t.length < 2 || M.parseLatLng(t)) return;
+    const ctl = new AbortController();
+    const h = setTimeout(() => {
+      void fetch(`/api/places/search?q=${encodeURIComponent(t)}&limit=6`, { signal: ctl.signal })
+        .then((r) => r.json()).then((j: { ok?: boolean; results?: CityResult[] }) => { if (j.ok) setCities({ q: t, items: j.results ?? [] }); })
+        .catch(() => {});
+    }, 160);
+    return () => { clearTimeout(h); ctl.abort(); };
+  }, [q]);
+
   /* ------------------------------------------------------------------ search */
   const results = useMemo(() => {
     const out: { label: string; go: () => void; kind: "coord" | "country" | "place" }[] = [];
@@ -226,6 +291,8 @@ export default function MapsModule({ win }: ModuleProps) {
     }
     return out;
   }, [q, ready, places, fmt]);
+  const cityHits = q.trim().length >= 2 && cities.q === q.trim() ? cities.items : [];
+  const goCity = (c: CityResult) => { setFound(c); setSelPlace(null); setSelCountry(""); mapRef.current?.flyTo([c.lat, c.lng], tiles === "off" ? 7 : 11); }; // offline layer has only coastlines/borders: a regional zoom keeps context
 
   const centre = () => { const c = mapRef.current?.getCenter(); return c ? { lat: c.lat, lng: M.wrapLng(c.lng) } : null; };
   const locate = () => {
@@ -235,7 +302,7 @@ export default function MapsModule({ win }: ModuleProps) {
       const L = LRef.current, map = mapRef.current; if (!L || !map) return;
       const ll: M.LatLng = [pos.coords.latitude, pos.coords.longitude];
       layers.current.me?.remove();
-      layers.current.me = L.circleMarker(ll, { radius: 8, color: "#ffffff", weight: 3, fillColor: "#0a84ff", fillOpacity: 1 }).addTo(map);
+      layers.current.me = dot(L, ll, { size: 20, fill: "#0a84ff", ring: 3, title: "You are here" }).addTo(map);
       map.flyTo(ll, 13);
       setStatus(`You are here: ${M.formatLatLng(ll[0], ll[1], fmt)} (±${Math.round(pos.coords.accuracy)} m)`);
     }, (err) => setStatus(`Location unavailable: ${err.message || ["", "permission denied", "position unavailable", "timed out"][err.code]}`), { timeout: 10000, maximumAge: 60000 });
@@ -262,11 +329,12 @@ export default function MapsModule({ win }: ModuleProps) {
       <aside className="fs-maps-side" aria-label="Map tools">
         <div className="fs-maps-search">
           <input className="fs-input" data-testid="mp-search" value={q} onChange={(e) => setQ(e.target.value)} spellCheck={false}
-            onKeyDown={(e) => { if (e.key === "Enter" && results[0]) { e.preventDefault(); results[0].go(); } }}
-            placeholder="Country, place or coordinates" aria-label="Search countries, saved places or coordinates" />
-          {results.length ? (
+            onKeyDown={(e) => { if (e.key === "Enter" && (results[0] || cityHits[0])) { e.preventDefault(); if (results[0]) results[0].go(); else goCity(cityHits[0]); } }}
+            placeholder="City, country, place or coordinates" aria-label="Search cities, countries, saved places or coordinates" />
+          {results.length || cityHits.length ? (
             <ul className="fs-maps-results" data-testid="mp-results">
               {results.map((r, i) => <li key={`${r.kind}${i}`}><button type="button" className="fs-maps-result" data-testid="mp-result" data-kind={r.kind} onClick={r.go}>{r.label}<span className="fs-dim">{r.kind}</span></button></li>)}
+              {cityHits.map((c) => <li key={`city${c.id}`}><button type="button" className="fs-maps-result" data-testid="mp-result" data-kind="city" onClick={() => goCity(c)}>{c.label}<span className="fs-dim">city</span></button></li>)}
             </ul>
           ) : null}
         </div>
@@ -291,6 +359,17 @@ export default function MapsModule({ win }: ModuleProps) {
             </div>
           </div>
         ) : null}
+        {found ? (
+          <div className="fs-maps-card" data-testid="mp-found" data-city={found.name}>
+            <strong>{found.label}</strong>
+            <span className="fs-dim">Population {found.population.toLocaleString("en-US")} · {found.timezone.replace(/_/g, " ")} · {M.formatLatLng(found.lat, found.lng, fmt)}</span>
+            <div className="fs-row" style={{ gap: 6 }}>
+              <Btn onClick={() => { addAt(found.lat, found.lng, found.name); setFound(null); }} disabled={!places} data-testid="mp-found-save">Save as place</Btn>
+              <Btn variant="ghost" onClick={() => setFound(null)}>Close</Btn>
+            </div>
+            <span className="fs-dim" style={{ fontSize: fz(11.5) }}>City-level search, offline: cities of 15,000+ people from <a href={GEONAMES_URL} target="_blank" rel="noopener noreferrer">GeoNames</a> (CC BY 4.0). No street addresses.</span>
+          </div>
+        ) : null}
         {selCountry && mode === "pan" ? <div className="fs-maps-card" data-testid="mp-country"><strong>{selCountry}</strong><span className="fs-dim">Selected country (Natural Earth borders)</span></div> : null}
 
         <div className="fs-row" style={{ gap: 8 }}>
@@ -311,8 +390,8 @@ export default function MapsModule({ win }: ModuleProps) {
         </ul>
         {sel ? (
           <div className="fs-maps-card" data-testid="mp-place-edit">
-            <input className="fs-input" value={sel.name} aria-label="Place name" data-testid="mp-place-name" onChange={(e) => change((p) => M.updatePlace(p, sel.id, { name: e.target.value || " " }))} />
-            <textarea className="fs-input" value={sel.note} aria-label="Note" rows={2} placeholder="Note" onChange={(e) => change((p) => M.updatePlace(p, sel.id, { note: e.target.value }))} />
+            <input className="fs-input" value={sel.name} aria-label="Place name" data-testid="mp-place-name" onChange={(e) => { renamed.current.add(sel.id); change((p) => M.updatePlace(p, sel.id, { name: e.target.value || " " })); }} />
+            <textarea className="fs-input" value={sel.note} aria-label="Note" rows={2} placeholder="Note" onChange={(e) => { renamed.current.add(sel.id); change((p) => M.updatePlace(p, sel.id, { note: e.target.value })); }} />
             <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }} role="group" aria-label="Pin colour">
               {M.PLACE_COLORS.map((c) => <button key={c} type="button" className="fs-maps-swatch" style={{ background: c }} aria-label={`Colour ${c}`} aria-pressed={sel.color === c} onClick={() => change((p) => M.updatePlace(p, sel.id, { color: c }))} />)}
             </div>
@@ -353,7 +432,7 @@ export default function MapsModule({ win }: ModuleProps) {
           role="application" aria-label="Map — arrow keys pan, plus and minus zoom" tabIndex={0} />
         {loadErr ? <p className="fs-stream-err" role="alert" style={{ position: "absolute", inset: "auto 12px 12px" }}>{loadErr}</p> : null}
         <div className="fs-maps-coords" data-testid="mp-coords" aria-live="off">
-          {cursor ? <>{M.formatLatLng(cursor.lat, cursor.lng, fmt)}{cursor.country ? <> · <b data-testid="mp-hover-country">{cursor.country}</b></> : null}</> : "Move over the map"}
+          {cursor ? <>{M.formatLatLng(cursor.lat, cursor.lng, fmt)}{cursor.country ? <> · <b data-testid="mp-hover-country">{cursor.country}</b></> : null}{nearText ? <> · <span data-testid="mp-hover-near">{nearText}</span></> : null}</> : "Move over the map"}
         </div>
       </div>
     </div>

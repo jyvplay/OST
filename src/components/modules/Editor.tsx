@@ -6,6 +6,7 @@ import { api, fmtTime, post } from "@/lib/api";
 import { formatFor, lossReport, parseCsv, sanitizeSvg } from "@/lib/forge";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { askText } from "@/lib/ask";
 
 interface Version { id: number; version: number; size: number; sha256: string; createdAt: string; content: string }
 
@@ -84,7 +85,7 @@ export default function EditorModule({ win }: ModuleProps) {
       <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
         <Btn variant="primary" onClick={() => void save()} disabled={!dirty}>Save</Btn>
         <Btn variant="ghost" onClick={async () => {
-          const name = prompt("Save as (path)", path);
+          const name = await askText("Save a copy as (path)", path, { okLabel: "Save copy", validate: (v) => (v.trim().startsWith("/") ? null : "Use a full path that starts with /") });
           if (!name) return;
           const rep = lossReport(path, name.split(".").pop() ?? "");
           if (!rep.safe && !confirm(`Converting ${rep.from} → ${rep.to} drops:\n\n• ${rep.drops.join("\n• ")}\n\nContinue?`)) return;

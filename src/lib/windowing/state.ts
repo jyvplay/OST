@@ -87,6 +87,8 @@ export type WindowCommand =
   | { t: "restore"; id: string }
   | { t: "toggleMax"; id: string }
   | { t: "tile"; id: string; slot: TileSlot }
+  /** TT28 Snap layouts / Snap Assist: put a window into an arbitrary zone rect (clamped like every other rect). */
+  | { t: "place"; id: string; rect: Rect }
   | { t: "setTitle"; id: string; title: string }
   | { t: "setProps"; id: string; props: Record<string, unknown> }
   | { t: "setHost"; id: string; host: HostKind }
@@ -251,6 +253,13 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
       const r = tileRect(cmd.slot, state.viewport);
       return bump({ ...state, focus: cmd.id, nextZ: state.nextZ + 1,
         windows: map((w) => ({ ...w, ...r, maximized: cmd.slot === "full", minimized: false, z: state.nextZ + 1,
+          restore: w.restore ?? { x: w.x, y: w.y, w: w.w, h: w.h } }), cmd.id) });
+    }
+
+    case "place": {
+      if (![cmd.rect?.x, cmd.rect?.y, cmd.rect?.w, cmd.rect?.h].every((v) => typeof v === "number" && Number.isFinite(v))) return state;
+      return bump({ ...state, focus: cmd.id, nextZ: state.nextZ + 1,
+        windows: map((w) => ({ ...w, ...clampRect(cmd.rect, state.viewport, w.density ?? "balanced"), maximized: false, minimized: false, z: state.nextZ + 1,
           restore: w.restore ?? { x: w.x, y: w.y, w: w.w, h: w.h } }), cmd.id) });
     }
 

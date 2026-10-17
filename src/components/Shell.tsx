@@ -33,6 +33,9 @@ import { StartMenu, Launchpad } from "./LayoutLaunchers";
 import { isLayout, layoutOf, pairedSettings } from "@/lib/layout-core";
 import { Badge, Btn } from "./ui";
 import { AppIcon, FusionLogo, UiGlyph } from "./AppIcon";
+import { AskHost } from "./AskHost";
+import { SnapHost, snapUi } from "./SnapHost";
+import { isAskOpen } from "@/lib/ask";
 
 interface Toast { id: number; message: string; tone: "info" | "ok" | "warn" | "bad"; action?: { label: string; run: () => void } }
 
@@ -262,6 +265,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       return b ? comboFor(b, preset) : "";
     };
     const onKey = (e: KeyboardEvent) => {
+      // TT28: an open ask dialog is modal: no global shortcut (palette, close window, tiling…) may act behind it
+      if (isAskOpen()) return;
       const target = e.target as HTMLElement | null;
       const typing = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
       if (matchChord(e, chord("palette"))) { e.preventDefault(); setPalette((v) => !v); return; }
@@ -286,6 +291,11 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       if (matchChord(e, chord("tileLeft"))) return act(() => dispatch({ t: "tile", id: focus, slot: "left" }));
       if (matchChord(e, chord("tileRight"))) return act(() => dispatch({ t: "tile", id: focus, slot: "right" }));
       if (matchChord(e, chord("maximize"))) return act(() => dispatch({ t: "toggleMax", id: focus }));
+      if (matchChord(e, chord("snapLayouts"))) return act(() => {
+        // TT28: open the snap layouts flyout for the focused window, keyboard-first (focus moves into it)
+        const w = state.windows.find((x) => x.id === focus); if (!w) return;
+        snapUi.set({ flyout: { id: focus, x: Math.round(w.x + w.w - 300), y: Math.round(w.y + 40), viaKeyboard: true } });
+      });
       if (matchChord(e, chord("minimize"))) return act(() => dispatch({ t: "minimize", id: focus }));
       // keyboard move/resize (WM-09, AX-05): every pointer gesture has a key path
       if (e.metaKey && e.shiftKey && e.code.startsWith("Arrow")) {
@@ -434,6 +444,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           )}
           {booted ? <ShellDaemons /> : null}
           {visible.map((w) => <WindowFrame key={w.id} win={w} />)}
+          {booted ? <SnapHost /> : null}
 
           {!booted ? (
             <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "var(--fs-muted)" }}>
@@ -442,6 +453,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           ) : null}
 
           {overview ? <Overview onClose={() => setOverview(false)} /> : null}
+          <AskHost />
           {palette ? <Palette onClose={() => setPalette(false)} /> : null}
           {quick ? <QuickPanel onClose={() => setQuick(false)} onBlackout={() => setBlackout(true)} anchor={layout === "business" ? "bottom" : "top"} /> : null}
 

@@ -18,6 +18,7 @@ const ENUMS: Record<string, readonly string[]> = {
   // TT25: main-UI layout (fusion = original hybrid, business = Windows-style taskbar, art = Mac-style menu bar + dock)
   "appearance.layout": LAYOUT_IDS,
   "appearance.dockMagnify": ["on", "off"],
+  "appearance.dockAutoHide": ["on", "off"],
   "appearance.pairStyle": ["on", "off"],
   "media.embeds": ["ask", "allow"],
   "maps.tiles": ["off", "osm", "custom"],

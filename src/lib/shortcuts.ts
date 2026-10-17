@@ -20,6 +20,7 @@ export const BINDINGS: Binding[] = [
   { id: "tileLeft", label: "Tile left", hybrid: "Meta+ArrowLeft", windows: "Meta+ArrowLeft", mac: "Ctrl+Alt+ArrowLeft" },
   { id: "tileRight", label: "Tile right", hybrid: "Meta+ArrowRight", windows: "Meta+ArrowRight", mac: "Ctrl+Alt+ArrowRight" },
   { id: "maximize", label: "Maximise / restore", hybrid: "Meta+ArrowUp", windows: "Meta+ArrowUp", mac: "Ctrl+Alt+Enter" },
+  { id: "snapLayouts", label: "Snap layouts (choose a zone for the window)", hybrid: "Meta+Z", windows: "Meta+Z", mac: "Ctrl+Alt+Z" },
   { id: "minimize", label: "Minimise", hybrid: "Meta+ArrowDown", windows: "Meta+ArrowDown", mac: "Meta+M" },
   { id: "moveWindow", label: "Move window (16 px)", hybrid: "Meta+Shift+Arrows", windows: "Meta+Shift+Arrows", mac: "Ctrl+Shift+Arrows" },
   { id: "resizeWindow", label: "Resize window", hybrid: "Meta+Alt+Arrows", windows: "Meta+Alt+Arrows", mac: "Ctrl+Alt+Shift+Arrows" },

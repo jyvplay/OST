@@ -6,6 +6,7 @@ import { api, fmtTime, patch, post, put } from "@/lib/api";
 import { parseScript, ROUTINE_COMMANDS, type RoutineAction } from "@/lib/routines";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
+import { askText } from "@/lib/ask";
 
 interface Routine { id: number; name: string; trigger: string; triggerArg: string; actions: RoutineAction[]; enabled: boolean; lastRun: string | null }
 interface Preset { id: string; name: string; windows: number; updatedAt: string }
@@ -43,7 +44,7 @@ export default function RoutinesModule(_: ModuleProps) {
       <Section title="Workspace presets & sessions (AU-02 / PR-07r)">
         <div className="fs-row" style={{ gap: 6 }}>
           <Btn variant="primary" onClick={async () => {
-            const n = prompt("Preset name", "focus-layout");
+            const n = await askText("Preset name", "focus-layout", { okLabel: "Save preset" });
             if (!n) return;
             await put("/api/state", { id: `preset:${n}`, state: shell.state, revision: Date.now() });
             shell.toast(`Saved preset "${n}" with ${shell.state.windows.length} windows (layout + window props, incl. browser tabs).`, "ok");

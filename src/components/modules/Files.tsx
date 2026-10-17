@@ -10,6 +10,7 @@ import { fromB64, open, seal, toB64, type Envelope } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { FileIcon, UiGlyph } from "../AppIcon";
+import { askText, askForm } from "@/lib/ask";
 
 interface Node {
   path: string; name: string; kind: string; mime: string; size: number; sha256: string;
@@ -112,19 +113,19 @@ export default function FilesModule({ win }: ModuleProps) {
       </div>
 
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <Btn variant="ghost" onClick={() => {
-          const name = prompt("New folder name", "New folder");
+        <Btn variant="ghost" onClick={async () => {
+          const name = await askText("New folder name", "New folder", { okLabel: "Create" });
           if (name) void run("mkdir", () => post("/api/fs", { op: "mkdir", path: `${cwd === "/" ? "" : cwd}/${name}` }));
         }}>New folder</Btn>
-        <Btn variant="ghost" onClick={() => {
-          const name = prompt("New file name", "untitled.md");
+        <Btn variant="ghost" onClick={async () => {
+          const name = await askText("New file name", "untitled.md", { okLabel: "Create" });
           if (name) void run("write", () => post("/api/fs", { op: "write", path: `${cwd === "/" ? "" : cwd}/${name}`, content: "" }));
         }}>New file</Btn>
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>
           Upload<input type="file" multiple hidden onChange={(e) => void upload(e.target.files)} />
         </label>
-        <Btn variant="ghost" onClick={() => {
-          const pattern = prompt("Batch rename pattern — tokens {n} {name} {ext}", "{n}-{name}.{ext}");
+        <Btn variant="ghost" onClick={async () => {
+          const pattern = await askText("Batch rename pattern", "{n}-{name}.{ext}", { detail: "Tokens: {n} = running number, {name} = old name, {ext} = extension. Applies to every file in this folder.", okLabel: "Rename all" });
           if (pattern) void run("batchRename", () => post("/api/fs", { op: "batchRename", path: cwd, pattern, start: 1 }));
         }}>Batch rename</Btn>
         <Btn variant="ghost" onClick={() => shell.open("terminal", { cwd })}>Terminal here</Btn>
@@ -203,10 +204,10 @@ export default function FilesModule({ win }: ModuleProps) {
           {[
             { label: "Open", run: () => (menu.node.kind === "dir" ? go(menu.node.path) : shell.open("peek", { path: menu.node.path, title: menu.node.name })) },
             { label: "Edit", run: () => shell.open("editor", { path: menu.node.path, title: menu.node.name }) },
-            { label: "Rename…", run: () => { const name = prompt("New name", menu.node.name); if (name) void run("rename", () => post("/api/fs", { op: "rename", path: menu.node.path, name })); } },
+            { label: "Rename…", run: async () => { const name = await askText("Rename", menu.node.name, { okLabel: "Rename" }); if (name) void run("rename", () => post("/api/fs", { op: "rename", path: menu.node.path, name })); } },
             { label: "Duplicate", run: () => void run("copy", () => post("/api/fs", { op: "copy", src: menu.node.path, dst: `${menu.node.path}.copy` })) },
-            { label: "Move to…", run: () => { const dst = prompt("Destination path", menu.node.path); if (dst) void run("move", () => post("/api/fs", { op: "move", src: menu.node.path, dst })); } },
-            { label: "Tag…", run: () => { const tags = prompt("Tags (comma separated)", menu.node.tags); if (tags !== null) void run("tag", () => post("/api/fs", { op: "tag", path: menu.node.path, tags })); } },
+            { label: "Move to…", run: async () => { const dst = await askText("Move to (destination path)", menu.node.path, { okLabel: "Move" }); if (dst) void run("move", () => post("/api/fs", { op: "move", src: menu.node.path, dst })); } },
+            { label: "Tag…", run: async () => { const tags = await askText("Tags (comma separated)", menu.node.tags, { okLabel: "Save tags" }); if (tags !== null) void run("tag", () => post("/api/fs", { op: "tag", path: menu.node.path, tags })); } },
             { label: "Copy path", run: () => void shell.copy(menu.node.path, "files") },
             { label: "Compress to .zip", run: () => void run("compress", async () => {
                 const r = await post<{ entries: number; path: string }>("/api/fs", { op: "compress", path: menu.node.path });
@@ -222,8 +223,14 @@ export default function FilesModule({ win }: ModuleProps) {
                 else shell.toast(`Removed ${r.report.removed.length} items → ${r.written.split("/").pop()}`, "ok");
               }) }] : []),
             ...(menu.node.kind === "file" && !menu.node.name.endsWith(".fvault") ? [{ label: "Encrypt (SC-07)…", run: () => void run("encrypt", async () => {
-                const pass = prompt("Passphrase (≥ 8 chars). There is no recovery if you lose it.");
-                if (!pass || pass.length < 8) throw new Error("passphrase too short");
+                const r0 = await askForm({
+                  title: `Encrypt “${menu.node.name}”`, okLabel: "Encrypt",
+                  detail: "An encrypted copy (.fvault) is written next to the original. There is no recovery if you lose the passphrase.",
+                  fields: [{ name: "pass", label: "Passphrase (8+ characters)", secret: true }, { name: "again", label: "Repeat passphrase", secret: true }],
+                  validate: (v) => (v.pass.length < 8 ? "The passphrase needs at least 8 characters." : v.pass !== v.again ? "The two passphrases don't match." : null),
+                });
+                if (!r0) return;
+                const pass = r0.pass;
                 const r = await api<{ node: { content: string; encoding: string; mime: string } }>(`/api/fs?op=read&path=${encodeURIComponent(menu.node.path)}`);
                 const bytes = r.node.encoding === "base64" ? fromB64(r.node.content) : new TextEncoder().encode(r.node.content);
                 const env = await seal(bytes, pass);
@@ -231,7 +238,7 @@ export default function FilesModule({ win }: ModuleProps) {
                 shell.toast(`Encrypted copy written: ${menu.node.name}.fvault (original untouched)`, "ok");
               }) }] : []),
             ...(menu.node.name.endsWith(".fvault") ? [{ label: "Decrypt…", run: () => void run("decrypt", async () => {
-                const pass = prompt("Passphrase");
+                const pass = await askText("Passphrase", "", { secret: true, title: `Decrypt “${menu.node.name}”`, okLabel: "Decrypt" });
                 if (!pass) return;
                 const r = await api<{ node: { content: string } }>(`/api/fs?op=read&path=${encodeURIComponent(menu.node.path)}`);
                 const env = JSON.parse(r.node.content) as Envelope & { encoding?: string; mime?: string };

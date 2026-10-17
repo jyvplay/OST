@@ -30,7 +30,7 @@ const pick = <T,>(xs: T[]) => xs[Math.floor(rnd() * xs.length)];
 function randomCommand(s: DesktopState, n: number): WindowCommand {
   const ids = s.windows.map((w) => w.id);
   const id = ids.length ? pick(ids) : "none";
-  switch (Math.floor(rnd() * 14)) {
+  switch (Math.floor(rnd() * 15)) {
     case 0: case 1: return { t: "open", id: `w${n}`, module: "files", title: "t", rect: { x: rnd() * 3000 - 1000, y: rnd() * 2000 - 800, w: rnd() * 3000, h: rnd() * 2000 } };
     case 2: return { t: "close", id };
     case 3: return { t: "move", id, x: rnd() * 6000 - 3000, y: rnd() * 6000 - 3000 };
@@ -43,6 +43,7 @@ function randomCommand(s: DesktopState, n: number): WindowCommand {
     case 10: return { t: "viewport", w: 320 + rnd() * 3000, h: 240 + rnd() * 1800 };
     case 11: return { t: "cycle", dir: rnd() > 0.5 ? 1 : -1 };
     case 12: return { t: "setDensity", id, density: pick(["compact", "balanced", "touch"] as const) };
+    case 13: return { t: "place", id, rect: { x: rnd() * 6000 - 3000, y: rnd() * 6000 - 3000, w: rnd() * 5000 - 500, h: rnd() * 5000 - 500 } };
     default: return { t: "grow", id, dw: rnd() * 800 - 400, dh: rnd() * 800 - 400 };
   }
 }

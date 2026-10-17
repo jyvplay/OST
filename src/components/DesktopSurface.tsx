@@ -9,6 +9,7 @@ import { useShell } from "./shell-context";
 import { FileIcon } from "./AppIcon";
 import { DEFAULT_WALLPAPER, WALLPAPERS } from "@/lib/appearance";
 import { cellAt, cleanUp, layoutIcons, moveIcon, nudgeIcon, sortByName, type IconPos } from "@/lib/desk-icons-core";
+import { askText } from "@/lib/ask";
 
 interface Item { path: string; name: string; kind: string; mime?: string }
 
@@ -139,7 +140,7 @@ export default function DesktopSurface({ onLauncher }: { onLauncher: () => void 
           style={{ position: "absolute", left: menu.x, top: menu.y, padding: 4, zIndex: 9500, minWidth: 190 }}>
           {[
             { label: "New text file…", run: async () => {
-                const name = prompt("File name", "untitled.md");
+                const name = await askText("New text file name", "untitled.md", { okLabel: "Create", validate: (v) => (/[\\/]/.test(v) ? "A file name can't contain / or \\" : null) });
                 if (!name) return;
                 await api("/api/fs", { method: "POST", body: JSON.stringify({ op: "write", path: `/Documents/${name}`, content: "" }) });
                 shell.bumpRefresh();

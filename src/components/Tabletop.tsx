@@ -30,6 +30,7 @@ import {
 import { applyH, fitSlant, ident, mul, toCss, translate } from "@/lib/tabletop-slant";
 import { useShell } from "./shell-context";
 import { AppIcon, FileIcon } from "./AppIcon";
+import { askText } from "@/lib/ask";
 
 interface FileNode { path: string; name: string; kind: string; mime: string; version: number; size: number; updatedAt: string }
 type Fan = { pile: string; path: string };
@@ -374,7 +375,7 @@ export default function Tabletop() {
     return [
       { label: fanned === fk ? "Gather the pile" : "Fan out", run: () => setFanned(fanned === fk ? null : fk) },
       { label: "Unstack", run: () => { setFanned(null); put(unstack(board, pid)); } },
-      { label: "Rename…", run: () => { const n = prompt("Pile name", pile?.name ?? "Pile"); if (n) put(renamePile(board, pid, n)); } },
+      { label: "Rename…", run: () => { void askText("Pile name", pile?.name ?? "Pile", { okLabel: "Rename" }).then((n) => { if (n) put(renamePile(board, pid, n)); }); } },
       ...moves(key),
     ];
   };
@@ -537,7 +538,7 @@ export default function Tabletop() {
                   <span className="fs-tt-view-name">{v.name}</span>
                   <span className="fs-dim fs-tt-view-meta">{v.face === "floor" ? "Table" : WALL_INFO[v.face as Wall].title} · {v.camera === "slant" ? "Slanted" : "Top-down"}</span>
                 </button>
-                <button type="button" className="fs-btn" data-variant="ghost" aria-label={`Rename “${v.name}”`} onClick={() => { const n = prompt("View name", v.name); if (n) commit(renameView(table, v.id, n)); }}>Rename</button>
+                <button type="button" className="fs-btn" data-variant="ghost" aria-label={`Rename “${v.name}”`} onClick={async () => { const n = await askText("View name", v.name, { okLabel: "Rename" }); if (n) commit(renameView(table, v.id, n)); }}>Rename</button>
                 <button type="button" className="fs-btn" data-variant="ghost" aria-label={`Delete “${v.name}”`} data-testid={`tt-view-delete-${v.id}`} onClick={() => commit(deleteView(table, v.id))}>Delete</button>
               </li>
             ))}

@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-17T06:48:07.080Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-44 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-17T17:37:28.197Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+46 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **322** |
-| Fully built | 238 |
+| **Features in register** | **331** |
+| Fully built | 247 |
 | Partially built (partial 45 + probe 17) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **119** |
-| **Partially tested** (only `partial` tags) | **77** |
+| **Fully tested** (≥1 passing test tagged `full`) | **127** |
+| **Partially tested** (only `partial` tags) | **78** |
 | Untested | 126 |
-| Automated tests executed / passed | 470 / 470 |
+| Automated tests executed / passed | 485 / 485 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 110 | 61 | 67 |
+| fully built | 118 | 62 | 67 |
 | partially built | 3 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,50 +33,52 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-17T06:22:34.537Z |
-| ai-format | 5 | 5 | 0 | 2026-10-17T06:22:36.349Z |
-| browser-session | 5 | 5 | 0 | 2026-10-17T06:22:23.886Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-17T06:22:39.630Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-17T06:31:17.475Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-17T06:32:12.247Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-17T06:40:08.612Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-17T06:26:44.435Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-17T06:32:33.824Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-17T06:25:38.508Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-17T06:45:59.903Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-17T06:36:52.486Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-17T06:24:48.436Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-17T06:48:00.926Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T06:27:39.315Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-17T06:31:37.771Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T06:47:37.804Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-17T06:26:02.928Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T06:32:00.100Z |
-| e2e | 61 | 61 | 0 | 2026-10-17T06:24:22.102Z |
-| image | 12 | 12 | 0 | 2026-10-17T06:22:18.802Z |
-| integration | 25 | 25 | 0 | 2026-10-17T06:22:13.209Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-17T06:22:40.420Z |
-| maps-unit | 4 | 4 | 0 | 2026-10-17T06:22:41.210Z |
-| metaclean | 6 | 6 | 0 | 2026-10-17T06:22:30.992Z |
-| names | 7 | 7 | 0 | 2026-10-17T06:22:18.411Z |
-| office | 35 | 35 | 0 | 2026-10-17T06:22:13.589Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-17T06:22:39.288Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-17T06:22:21.765Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-17T06:22:23.712Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-17T06:22:40.165Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T06:22:15.334Z |
-| oracle | 5 | 5 | 0 | 2026-10-17T06:22:13.981Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-17T06:22:34.196Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-17T06:22:27.996Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-17T06:22:29.553Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-17T06:22:15.694Z |
-| stream-unit | 5 | 5 | 0 | 2026-10-17T06:22:40.927Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-17T06:22:34.766Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-17T06:22:40.750Z |
-| unit | 23 | 23 | 0 | 2026-10-17T06:22:10.462Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-17T06:22:23.023Z |
-| vector | 18 | 18 | 0 | 2026-10-17T06:22:22.030Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T06:22:34.963Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-17T17:13:44.214Z |
+| ai-format | 5 | 5 | 0 | 2026-10-17T17:13:45.703Z |
+| browser-session | 5 | 5 | 0 | 2026-10-17T17:13:34.492Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-17T17:13:48.874Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-17T17:22:13.564Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-17T17:23:04.532Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-17T17:30:35.272Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-17T17:17:49.371Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-17T17:23:26.200Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-17T17:16:45.956Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-17T17:37:23.013Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-17T17:26:39.329Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-17T17:16:00.192Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-17T17:18:14.308Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T17:18:41.401Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-17T17:22:32.936Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T17:25:57.629Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T17:27:14.725Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-17T17:17:08.789Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T17:22:52.252Z |
+| e2e | 61 | 61 | 0 | 2026-10-17T17:15:34.458Z |
+| image | 12 | 12 | 0 | 2026-10-17T17:13:29.003Z |
+| integration | 25 | 25 | 0 | 2026-10-17T17:13:23.340Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-17T17:13:49.623Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-17T17:13:55.700Z |
+| metaclean | 6 | 6 | 0 | 2026-10-17T17:13:41.028Z |
+| names | 7 | 7 | 0 | 2026-10-17T17:13:28.635Z |
+| office | 35 | 35 | 0 | 2026-10-17T17:13:23.737Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-17T17:13:48.548Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-17T17:13:32.077Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-17T17:13:34.293Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-17T17:13:49.365Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T17:13:25.485Z |
+| oracle | 5 | 5 | 0 | 2026-10-17T17:13:24.114Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-17T17:13:43.962Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-17T17:13:38.321Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-17T17:13:39.753Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-17T17:13:25.850Z |
+| stream-unit | 6 | 6 | 0 | 2026-10-17T17:13:50.165Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-17T17:13:44.412Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-17T17:13:49.973Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-17T17:13:55.958Z |
+| unit | 23 | 23 | 0 | 2026-10-17T17:13:20.615Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-17T17:13:33.483Z |
+| vector | 18 | 18 | 0 | 2026-10-17T17:13:32.350Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T17:13:44.586Z |
 
 ## Rows touched by failing tests
 
@@ -86,7 +88,7 @@ None.
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| SH | 14 | 13 | 1 | 0 | 2 | 2 | 10 |
+| SH | 15 | 14 | 1 | 0 | 3 | 2 | 10 |
 | WM | 19 | 15 | 3 | 1 | 3 | 4 | 12 |
 | IN | 8 | 5 | 3 | 0 | 1 | 1 | 6 |
 | SR | 8 | 7 | 0 | 1 | 3 | 3 | 2 |
@@ -100,13 +102,13 @@ None.
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
-| AX | 12 | 11 | 1 | 0 | 6 | 4 | 2 |
+| AX | 13 | 12 | 1 | 0 | 7 | 4 | 2 |
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
-| LY | 15 | 15 | 0 | 0 | 15 | 0 | 0 |
-| SM | 3 | 3 | 0 | 0 | 1 | 2 | 0 |
-| MP | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
+| LY | 19 | 19 | 0 | 0 | 19 | 0 | 0 |
+| SM | 4 | 4 | 0 | 0 | 1 | 3 | 0 |
+| MP | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
 | LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
@@ -353,6 +355,15 @@ None.
 | MP-01 | built | full | e2e-media27: Maps offline: the world draws with zero tile requests (≥ 230 countries, land pixels on the canvas); search 'France' flies there; hover names the country; coordinates search; Explore click selects a country; e2e-media27: Maps street tiles are opt-in: OSM tile requests start only after choosing them, carry an origin-only Referer (OSM tile policy), show the © OpenStreetMap attribution; bad custom templates are refused by the API; e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations (+2) |
 | MP-02 | built | full | e2e-media27: Maps offline: the world draws with zero tile requests (≥ 230 countries, land pixels on the canvas); search 'France' flies there; hover names the country; coordinates search; Explore click selects a country; e2e-media27: Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %); e2e: mount: maps (+2) |
 | MP-03 | built | full | e2e-media27: Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %); e2e: mount: maps; maps-unit: geodesy: haversine matches known distances (±0.5 %), bearings, path length, metric/imperial formatting |
+| SM-04 | built | partial | e2e-tt28: embed control (SM-04): YouTube handshake with origin + id, Play/Pause commands, progress clock, ended → auto-next by loadVideoById in the SAME player; spoofed 'ended' from our own window or a foreign-origin frame is ignored; Auto-next off stops; e2e-tt28: embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify is honestly uncontrolled; stream-unit: embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings |
+| MP-04 | built | full | e2e-tt28: offline gazetteer (MP-04/MP-05): API answers 'Paris, TX' and 'In Raleigh' with attribution; Maps search lists cities, flies there, 'Save as place' writes it; new places are named by the nearest city; hover says how far from which city; zero third-party requests; maps-unit: gazetteer (TT28): own TSV parser over GeoNames cities15000; folding (Zürich = Zurich, St. = Saint); exact > prefix > word-prefix ranked by population; qualifiers 'Paris, TX' / 'Paris, France' / 'Springfield, Illinois'; garbage-safe |
+| MP-05 | built | full | e2e-tt28: offline gazetteer (MP-04/MP-05): API answers 'Paris, TX' and 'In Raleigh' with attribution; Maps search lists cities, flies there, 'Save as place' writes it; new places are named by the nearest city; hover says how far from which city; zero third-party requests; maps-unit: gazetteer nearest (TT28): grid ring search is EXACT: 400 random points (incl. polar + antimeridian) agree with a brute-force scan; 'N km NE of …' labels; Raleigh downtown → In Raleigh |
+| SH-15 | built | full | e2e-tt28: in-app ask dialog (SH-15) replaces prompt(): focus lands in the field with the default selected; Tab is trapped; global shortcuts are blocked while it is open (modal); Enter creates, Escape cancels and focus returns to the opener; passphrases are masked, double-entered and validated in place; tt28-unit: ask store: FIFO queue; validation keeps the dialog open; each request settles exactly once; cancel-all; queue cap 8; values capped at 4 KiB |
+| LY-16 | built | full | e2e-tt28: Business Snap (LY-16/LY-17): hovering Maximise opens the layouts flyout; a quarter zone places the window exactly; Snap Assist offers the other windows for the remaining zones in order; a title-bar drag into a corner shows a live preview and snaps to that quarter; the Snap layouts chord opens the flyout with keyboard focus; tt28-unit: snap layouts tile the desk exactly: for 2 000 random desk sizes every layout's zones cover each pixel exactly once; thumbnails stay inside their box; tt28-unit: Snap Assist plan: remaining zones in reading order; nothing to offer → null; the reducer's 'place' clamps, rejects NaN, keeps the restore rect, raises z |
+| LY-17 | built | full | e2e-tt28: Business Snap (LY-16/LY-17): hovering Maximise opens the layouts flyout; a quarter zone places the window exactly; Snap Assist offers the other windows for the remaining zones in order; a title-bar drag into a corner shows a live preview and snaps to that quarter; the Snap layouts chord opens the flyout with keyboard focus; tt28-unit: drag targets: corners → quarters, sides → halves, top → maximise, bottom edge only in its corners, interior → none; degenerate input → none |
+| LY-18 | built | full | e2e-tt28: Art dock (LY-18/LY-19): auto-hide slides the dock off-screen and gives windows the space; the bottom edge reveals it; it stays ≥ 400 ms after leaving and hides by ~600 ms; keyboard focus reveals it; minimise plays the genie into the dock tile (clip-path funnel), and not at all under reduced motion |
+| LY-19 | built | full | e2e-tt28: Art dock (LY-18/LY-19): auto-hide slides the dock off-screen and gives windows the space; the bottom edge reveals it; it stays ≥ 400 ms after leaving and hides by ~600 ms; keyboard focus reveals it; minimise plays the genie into the dock tile (clip-path funnel), and not at all under reduced motion; tt28-unit: genie keyframes: every frame has the same 4-point clip polygon (so it interpolates), offsets 0 → .45 → 1, phase 1 pinches only the bottom edge over the tile, and the last frame lands exactly on the dock tile for 500 random window/tile pairs |
+| AX-13 | built | full | e2e-tt28: accessibility tree (AX-13): Playwright ariaSnapshot of the live page in Fusion, Business and Art: landmarks and names a screen reader would announce (dock / taskbar navigation, named window dialogs, no unnamed buttons or text fields); the ask dialog and the snap flyout expose their roles and names |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

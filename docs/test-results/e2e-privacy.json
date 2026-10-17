@@ -1,6 +1,6 @@
 {
   "suite": "e2e-privacy",
-  "at": "2026-10-17T06:48:00.926Z",
+  "at": "2026-10-17T17:18:14.308Z",
   "results": [
     {
       "suite": "e2e-privacy",
@@ -10,7 +10,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 1195
+      "ms": 1418
     },
     {
       "suite": "e2e-privacy",
@@ -28,7 +28,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 2302
+      "ms": 2683
     },
     {
       "suite": "e2e-privacy",
@@ -37,7 +37,7 @@
         "SC-16": "full"
       },
       "pass": true,
-      "ms": 1358
+      "ms": 1592
     },
     {
       "suite": "e2e-privacy",
@@ -46,7 +46,7 @@
         "SC-12": "full"
       },
       "pass": true,
-      "ms": 621
+      "ms": 557
     },
     {
       "suite": "e2e-privacy",
@@ -56,7 +56,7 @@
         "FM-01": "partial"
       },
       "pass": true,
-      "ms": 1459
+      "ms": 1655
     },
     {
       "suite": "e2e-privacy",
@@ -66,7 +66,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 1646
+      "ms": 1653
     },
     {
       "suite": "e2e-privacy",
@@ -75,7 +75,7 @@
         "SC-15": "full"
       },
       "pass": true,
-      "ms": 1092
+      "ms": 1304
     },
     {
       "suite": "e2e-privacy",
@@ -84,7 +84,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 23
+      "ms": 33
     },
     {
       "suite": "e2e-privacy",
@@ -93,7 +93,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 3104
+      "ms": 3253
     },
     {
       "suite": "e2e-privacy",
@@ -102,7 +102,7 @@
         "SC-14": "full"
       },
       "pass": true,
-      "ms": 1464
+      "ms": 1475
     },
     {
       "suite": "e2e-privacy",
@@ -111,7 +111,7 @@
         "SC-17": "full"
       },
       "pass": true,
-      "ms": 4157
+      "ms": 4439
     },
     {
       "suite": "e2e-privacy",
@@ -120,7 +120,7 @@
         "SC-18": "full"
       },
       "pass": true,
-      "ms": 3573
+      "ms": 3576
     },
     {
       "suite": "e2e-privacy",

@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-17T06:48:07.083Z",
+ "generatedAt": "2026-10-17T17:37:28.199Z",
  "totals": {
   "built": {
-   "full": 238,
+   "full": 247,
    "partial": 62,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 119,
-   "partial": 77,
+   "full": 127,
+   "partial": 78,
    "untested": 126
   },
   "tests": {
-   "total": 470,
-   "passed": 470
+   "total": 485,
+   "passed": 485
   }
  },
  "rows": {
@@ -1756,6 +1756,69 @@
     "e2e-media27: Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %)",
     "e2e: mount: maps",
     "maps-unit: geodesy: haversine matches known distances (±0.5 %), bearings, path length, metric/imperial formatting"
+   ]
+  },
+  "SM-04": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt28: embed control (SM-04): YouTube handshake with origin + id, Play/Pause commands, progress clock, ended → auto-next by loadVideoById in the SAME player; spoofed 'ended' from our own window or a foreign-origin frame is ignored; Auto-next off stops",
+    "e2e-tt28: embed control (SM-04): Vimeo ready → addEventListener subscriptions → ended advances to the next item (new player, autoplay requested); SoundCloud ready → subscriptions → playProgress clock → finish advances (auto_play=true); Spotify is honestly uncontrolled",
+    "stream-unit: embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings"
+   ]
+  },
+  "MP-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt28: offline gazetteer (MP-04/MP-05): API answers 'Paris, TX' and 'In Raleigh' with attribution; Maps search lists cities, flies there, 'Save as place' writes it; new places are named by the nearest city; hover says how far from which city; zero third-party requests",
+    "maps-unit: gazetteer (TT28): own TSV parser over GeoNames cities15000; folding (Zürich = Zurich, St. = Saint); exact > prefix > word-prefix ranked by population; qualifiers 'Paris, TX' / 'Paris, France' / 'Springfield, Illinois'; garbage-safe"
+   ]
+  },
+  "MP-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt28: offline gazetteer (MP-04/MP-05): API answers 'Paris, TX' and 'In Raleigh' with attribution; Maps search lists cities, flies there, 'Save as place' writes it; new places are named by the nearest city; hover says how far from which city; zero third-party requests",
+    "maps-unit: gazetteer nearest (TT28): grid ring search is EXACT: 400 random points (incl. polar + antimeridian) agree with a brute-force scan; 'N km NE of …' labels; Raleigh downtown → In Raleigh"
+   ]
+  },
+  "SH-15": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt28: in-app ask dialog (SH-15) replaces prompt(): focus lands in the field with the default selected; Tab is trapped; global shortcuts are blocked while it is open (modal); Enter creates, Escape cancels and focus returns to the opener; passphrases are masked, double-entered and validated in place",
+    "tt28-unit: ask store: FIFO queue; validation keeps the dialog open; each request settles exactly once; cancel-all; queue cap 8; values capped at 4 KiB"
+   ]
+  },
+  "LY-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt28: Business Snap (LY-16/LY-17): hovering Maximise opens the layouts flyout; a quarter zone places the window exactly; Snap Assist offers the other windows for the remaining zones in order; a title-bar drag into a corner shows a live preview and snaps to that quarter; the Snap layouts chord opens the flyout with keyboard focus",
+    "tt28-unit: snap layouts tile the desk exactly: for 2 000 random desk sizes every layout's zones cover each pixel exactly once; thumbnails stay inside their box",
+    "tt28-unit: Snap Assist plan: remaining zones in reading order; nothing to offer → null; the reducer's 'place' clamps, rejects NaN, keeps the restore rect, raises z"
+   ]
+  },
+  "LY-17": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt28: Business Snap (LY-16/LY-17): hovering Maximise opens the layouts flyout; a quarter zone places the window exactly; Snap Assist offers the other windows for the remaining zones in order; a title-bar drag into a corner shows a live preview and snaps to that quarter; the Snap layouts chord opens the flyout with keyboard focus",
+    "tt28-unit: drag targets: corners → quarters, sides → halves, top → maximise, bottom edge only in its corners, interior → none; degenerate input → none"
+   ]
+  },
+  "LY-18": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt28: Art dock (LY-18/LY-19): auto-hide slides the dock off-screen and gives windows the space; the bottom edge reveals it; it stays ≥ 400 ms after leaving and hides by ~600 ms; keyboard focus reveals it; minimise plays the genie into the dock tile (clip-path funnel), and not at all under reduced motion"
+   ]
+  },
+  "LY-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt28: Art dock (LY-18/LY-19): auto-hide slides the dock off-screen and gives windows the space; the bottom edge reveals it; it stays ≥ 400 ms after leaving and hides by ~600 ms; keyboard focus reveals it; minimise plays the genie into the dock tile (clip-path funnel), and not at all under reduced motion",
+    "tt28-unit: genie keyframes: every frame has the same 4-point clip polygon (so it interpolates), offsets 0 → .45 → 1, phase 1 pinches only the bottom edge over the tile, and the last frame lands exactly on the dock tile for 500 random window/tile pairs"
+   ]
+  },
+  "AX-13": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt28: accessibility tree (AX-13): Playwright ariaSnapshot of the live page in Fusion, Business and Art: landmarks and names a screen reader would announce (dock / taskbar navigation, named window dialogs, no unnamed buttons or text fields); the ask dialog and the snap flyout expose their roles and names"
    ]
   },
   "CT-01": {

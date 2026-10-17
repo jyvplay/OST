@@ -1,6 +1,6 @@
 {
   "suite": "stream-unit",
-  "at": "2026-10-17T06:22:40.927Z",
+  "at": "2026-10-17T17:13:50.165Z",
   "results": [
     {
       "suite": "stream-unit",
@@ -46,6 +46,15 @@
       },
       "pass": true,
       "ms": 5
+    },
+    {
+      "suite": "stream-unit",
+      "name": "embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings",
+      "covers": {
+        "SM-04": "partial"
+      },
+      "pass": true,
+      "ms": 2
     }
   ]
 }

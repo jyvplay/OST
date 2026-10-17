@@ -3,8 +3,10 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import * as S from "@/lib/stream-core";
+import * as E from "@/lib/embed-control-core";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { askText } from "@/lib/ask";
 
 /**
  * TT27 SM-01 / SM-02 / SM-03: the Video and Music players. Both are the providers' *official* embed players in an
@@ -22,6 +24,7 @@ const Ico = ({ d }: { d: string }) => (
 const PENCIL = "M3 13l1-3.5L11 2.5l2.5 2.5L6.5 12z", UP = "M8 13V3M3.5 7.5L8 3l4.5 4.5", CROSS = "M4 4l8 8M12 4l-8 8";
 
 export const LIBRARY_PATH = "/Documents/Streams.json";
+const STATUS_LABEL: Record<E.Status, string> = { loading: "Loading", ready: "Ready", cued: "Ready", playing: "Playing", paused: "Paused", buffering: "Buffering", ended: "Ended" };
 
 const EXAMPLES: Record<S.StreamKind, string[]> = {
   video: ["https://www.youtube.com/watch?v=…", "https://vimeo.com/…", "https://<peertube-instance>/w/…", "https://….mp4"],
@@ -40,6 +43,15 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
   const [consented, setConsented] = useState<Set<string>>(() => new Set());
   const [remember, setRemember] = useState(false);
   const [loop, setLoop] = useState(false);
+  // TT28 SM-04: two-way control of the embed (ended → auto-next, play/pause, progress) — see embed-control-core.ts
+  const [autoNext, setAutoNext] = useState(true);
+  const [ctl, setCtl] = useState<E.CtlState | null>(null);
+  const ctlRef = useRef<E.CtlState | null>(null);
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
+  /** the iframe's identity: a new key/src only when a NEW player is needed (a same-player load keeps the frame) */
+  const [frame, setFrame] = useState<{ key: number; src: string; ctl: E.Ctl | null } | null>(null);
+  const frameSeq = useRef(0);
+  const autoplayNext = useRef(false);
   const dirty = useRef(false);
   const libRef = useRef<S.Library | null>(null);
   const alwaysLoad = shell.settings["media.embeds"] === "allow";
@@ -82,7 +94,27 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
     const p = S.parseStream(raw, parentHost);
     if (!p.ok) { setError(p.error); return; }
     if (p.ref.kind !== kind) { setError(`That is a ${p.ref.kind === "audio" ? "music" : "video"} link — open it in ${p.ref.kind === "audio" ? "Music" : "Video"}.`); return; }
-    setError(""); setCurrent({ ref: p.ref, itemId });
+    setError("");
+    const c = E.controllable(p.ref.provider);
+    const origin = typeof window === "undefined" ? "" : window.location.origin;
+    // same YouTube player already connected → load the new video into it (keeps the browser's playback permission)
+    const live = ctlRef.current, cur = frame;
+    if (c === "youtube" && cur?.ctl === "youtube" && live?.connected && frameRef.current?.contentWindow && p.ref.sub !== "playlist") {
+      const msg = E.command("youtube", { op: "load", id: p.ref.id, start: p.ref.start ?? 0 });
+      const to = E.targetOrigin("youtube", cur.src);
+      if (msg && to) {
+        frameRef.current.contentWindow.postMessage(msg, to);
+        ctlRef.current = { ...live, status: "loading", time: 0, duration: 0 };
+        setCtl(ctlRef.current);
+        setCurrent({ ref: p.ref, itemId });
+        return;
+      }
+    }
+    const auto = autoplayNext.current; autoplayNext.current = false;
+    frameSeq.current += 1;
+    setFrame({ key: frameSeq.current, src: c ? E.controlUrl(c, p.ref.embed, origin, auto) : p.ref.embed, ctl: c });
+    ctlRef.current = c ? E.initialState(c) : null; setCtl(ctlRef.current);
+    setCurrent({ ref: p.ref, itemId });
   };
   // a link handed over by another app (open-with / routine) starts in the player
   const initial = useRef((win.props.url as string) ?? "");
@@ -99,6 +131,46 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
 
   const items = useMemo(() => (lib ? S.filterLibrary(lib, kind, q) : []), [lib, kind, q]);
   const next = () => { const n = S.nextIn(items, current?.itemId ?? null, loop); if (n) play(n.url, n.id); };
+  const nextRef = useRef(next);
+  const autoRef = useRef(autoNext);
+  useEffect(() => { nextRef.current = next; autoRef.current = autoNext; });
+
+  // messages from OUR iframe only (source + exact origin), fed through the protocol state machine
+  useEffect(() => {
+    const onMsg = (ev: MessageEvent) => {
+      const st = ctlRef.current, fr = frameRef.current;
+      if (!st || !fr || ev.source !== fr.contentWindow || !E.originAllowed(st.ctl, ev.origin)) return;
+      const r = E.receive(st, ev.data);
+      ctlRef.current = r.state;
+      for (const m of r.send) fr.contentWindow?.postMessage(m, ev.origin);
+      if (r.events.length) setCtl(r.state);
+      if (r.events.some((e) => e.type === "ended") && autoRef.current) { autoplayNext.current = true; nextRef.current(); }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+  // YouTube speaks only after a "listening" handshake: repeat it until the player answers (≤ 10 s)
+  const onFrameLoad = () => {
+    const st = ctlRef.current, fr = frameRef.current, f = frame;
+    if (!st || !fr || !f?.ctl) return;
+    const to = E.targetOrigin(f.ctl, f.src);
+    if (!to) return;
+    const msgs = E.handshake(f.ctl, `fusion-${f.key}`);
+    if (!msgs.length) return;
+    let n = 0;
+    const tick = () => {
+      if (ctlRef.current?.connected || frameRef.current !== fr || n++ > 40) return;
+      for (const m of msgs) fr.contentWindow?.postMessage(m, to);
+      setTimeout(tick, 250);
+    };
+    tick();
+  };
+  const send = (c: E.Command) => {
+    const st = ctlRef.current, fr = frameRef.current, f = frame;
+    if (!st || !fr || !f?.ctl) return;
+    const msg = E.command(f.ctl, c), to = E.targetOrigin(f.ctl, f.src);
+    if (msg && to) fr.contentWindow?.postMessage(msg, to);
+  };
   const ref = current?.ref ?? null;
   const loaded = !!ref && (ref.provider === "file" || alwaysLoad || consented.has(ref.host));
   const h = ref ? S.playerHeight(ref) : null;
@@ -140,10 +212,10 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
             </div>
           ) : ref.provider === "file" ? (
             ref.kind === "video"
-              ? <video key={ref.embed} className="fs-stream-video" src={ref.embed} controls playsInline data-testid={`${pfx}-media`} onEnded={next} />
-              : <audio key={ref.embed} className="fs-stream-audio" src={ref.embed} controls data-testid={`${pfx}-media`} onEnded={next} />
+              ? <video key={ref.embed} className="fs-stream-video" src={ref.embed} controls playsInline data-testid={`${pfx}-media`} onEnded={() => { if (autoNext) next(); }} />
+              : <audio key={ref.embed} className="fs-stream-audio" src={ref.embed} controls data-testid={`${pfx}-media`} onEnded={() => { if (autoNext) next(); }} />
           ) : (
-            <iframe key={ref.embed} className="fs-stream-frame" data-testid={`${pfx}-frame`} src={ref.embed}
+            <iframe key={frame?.key ?? ref.embed} ref={frameRef} onLoad={onFrameLoad} className="fs-stream-frame" data-testid={`${pfx}-frame`} src={frame?.src ?? ref.embed}
               title={`${S.PROVIDER_LABEL[ref.provider]} player`} allow={S.iframeAllow(ref)} allowFullScreen
               referrerPolicy="strict-origin-when-cross-origin" loading="lazy"
               sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
@@ -152,8 +224,20 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
           {ref ? (
             <div className="fs-stream-meta">
               <span className="fs-dim" data-testid={`${pfx}-now`}>{S.PROVIDER_LABEL[ref.provider]}{ref.start ? ` · from ${ref.start}s` : ""}</span>
+              {loaded && ctl ? (
+                <>
+                  <Btn variant="ghost" data-testid={`${pfx}-toggle`} disabled={!ctl.connected}
+                    onClick={() => send(ctl.status === "playing" || ctl.status === "buffering" ? { op: "pause" } : { op: "play" })}>
+                    {ctl.status === "playing" || ctl.status === "buffering" ? "Pause" : "Play"}
+                  </Btn>
+                  <span className="fs-dim fs-stream-clock" role="status" data-testid={`${pfx}-clock`} data-status={ctl.status} data-connected={ctl.connected ? "1" : "0"}>
+                    {ctl.connected ? `${STATUS_LABEL[ctl.status]} · ${E.formatClock(ctl.time, ctl.duration)}` : "Connecting to the player…"}
+                  </span>
+                </>
+              ) : loaded && ref.provider === "spotify" ? <span className="fs-dim" data-testid={`${pfx}-clock`} data-status="uncontrolled">Spotify&apos;s player has no public control API — use its own buttons</span> : null}
               <span style={{ flex: 1 }} />
               <Btn variant="ghost" onClick={next} disabled={!items.length} data-testid={`${pfx}-next`} title={ref.provider === "file" ? "Next in the library (also plays automatically at the end)" : "Next in the library (embedded players do not report when they end, so this is manual)"}>Next</Btn>
+              <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={autoNext} onChange={(e) => setAutoNext(e.target.checked)} data-testid={`${pfx}-auto`} />Auto-next</label>
               <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} data-testid={`${pfx}-loop`} />Loop list</label>
               <a className="fs-btn" data-variant="ghost" href={ref.page} target="_blank" rel="noopener noreferrer">Open on site</a>
             </div>
@@ -177,8 +261,8 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
                   <span className="fs-dim fs-stream-item-sub">{S.PROVIDER_LABEL[it.provider]}</span>
                 </button>
                 <div className="fs-stream-item-tools">
-                  <Btn variant="ghost" aria-label={`Rename ${it.title}`} title="Rename" data-testid={`${pfx}-item-rename`} onClick={() => {
-                    const t = window.prompt("Name", it.title); if (t !== null && lib) change(S.renameInLibrary(lib, it.id, t));
+                  <Btn variant="ghost" aria-label={`Rename ${it.title}`} title="Rename" data-testid={`${pfx}-item-rename`} onClick={async () => {
+                    const t = await askText("Rename", it.title, { okLabel: "Rename" }); if (t !== null && lib) change(S.renameInLibrary(lib, it.id, t));
                   }}><Ico d={PENCIL} /></Btn>
                   <Btn variant="ghost" aria-label={`Move ${it.title} up`} disabled={i === 0 || !!q} onClick={() => lib && change(S.moveInLibrary(lib, it.id, -1))}><Ico d={UP} /></Btn>
                   <Btn variant="ghost" aria-label={`Remove ${it.title}`} data-testid={`${pfx}-item-remove`} onClick={() => lib && change(S.removeFromLibrary(lib, it.id))}><Ico d={CROSS} /></Btn>

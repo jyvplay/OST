@@ -7,6 +7,7 @@ import { capAvailable } from "@/lib/capabilities";
 import { toB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Empty, Section } from "../ui";
+import { askText, askForm } from "@/lib/ask";
 
 interface Item { id: string; title: string; username: string; secret: string; note: string }
 
@@ -132,10 +133,13 @@ export default function VaultModule(_: ModuleProps) {
         <Badge tone="ok">unlocked</Badge>
         <Btn variant="ghost" onClick={() => { setKey(null); setItems([]); setReveal(null); }}>Lock</Btn>
         <Btn variant="primary" onClick={async () => {
-          const title = prompt("Title");
-          if (!title) return;
-          const username = prompt("Username") ?? "";
-          const secret = prompt("Secret") ?? "";
+          const f = await askForm({
+            title: "Add vault item", okLabel: "Add",
+            fields: [{ name: "title", label: "Title" }, { name: "username", label: "Username" }, { name: "secret", label: "Secret", secret: true }],
+            validate: (v) => (v.title.trim() ? null : "Give the item a title."),
+          });
+          if (!f) return;
+          const title = f.title.trim(), username = f.username, secret = f.secret;
           const next = [...items, { id: crypto.randomUUID(), title, username, secret, note: "" }];
           setItems(next);
           await persist(key, next);

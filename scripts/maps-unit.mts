@@ -9,6 +9,7 @@
 import { readFileSync } from "node:fs";
 import { makeHarness } from "./harness.mts";
 import * as M from "../src/lib/maps-core.ts";
+import * as G from "../src/lib/gazetteer-core.ts";
 import { feature } from "topojson-client";
 
 const { test, finish } = makeHarness("maps-unit");
@@ -99,6 +100,65 @@ await test("places: add / update / remove / cap, GeoJSON round trip in [lng, lat
   ok(big.places.length === M.PLACES_MAX, "cap");
   ok(M.validTileUrl(M.DEFAULT_TILE_URL) && M.validTileUrl("https://{s}.tile.example.org/{z}/{x}/{y}{r}.png"), "valid templates");
   ok(!M.validTileUrl("http://tile.example.org/{z}/{x}/{y}.png") && !M.validTileUrl("https://tile.example.org/{z}/{x}.png") && !M.validTileUrl("https://t.example/{z}/{x}/{y}?k={apikey}") && !M.validTileUrl("https://x/{z}/{x}/{y}\"onload"), "invalid templates");
+});
+
+await test("gazetteer (TT28): own TSV parser over GeoNames cities15000; folding (Zürich = Zurich, St. = Saint); exact > prefix > word-prefix ranked by population; qualifiers 'Paris, TX' / 'Paris, France' / 'Springfield, Illinois'; garbage-safe", { "MP-04": "full" }, () => {
+  const t0 = Date.now();
+  const g = G.parseGeoNames(readFileSync("node_modules/cities-15000-structured/dist/cities15000.txt", "utf8"));
+  const parseMs = Date.now() - t0;
+  ok(g.cities.length > 25000, `rows ${g.cities.length}`); ok(parseMs < 4000, `parse ${parseMs} ms`);
+  ok(G.fold("Zürich") === "zurich" && G.fold("St. Louis") === "saint louis" && G.fold("Kraków") === "krakow" && G.fold("Straße") === "strasse", "folding");
+  const top = (q: string) => G.searchCities(g, q, 5)[0]?.label ?? "(none)";
+  ok(top("Raleigh") === "Raleigh, NC, United States", `Raleigh → ${top("Raleigh")}`);
+  ok(top("paris") === "Paris, France", `paris → ${top("paris")}`);
+  ok(top("Paris, TX") === "Paris, TX, United States", `Paris, TX → ${top("Paris, TX")}`);
+  ok(top("Paris, Texas") === "Paris, TX, United States", `Paris, Texas → ${top("Paris, Texas")}`);
+  ok(top("Springfield, Illinois") === "Springfield, IL, United States", `Springfield, Illinois → ${top("Springfield, Illinois")}`);
+  ok(top("London, Canada") === "London, Canada", `London, Canada → ${top("London, Canada")}`);
+  ok(top("london") === "London, United Kingdom", `london → ${top("london")}`);
+  ok(top("zurich").startsWith("Zürich"), `zurich → ${top("zurich")}`);
+  ok(top("St Louis, MO").startsWith("St. Louis") || top("St Louis, MO").startsWith("Saint Louis"), `St Louis, MO → ${top("St Louis, MO")}`);
+  ok(top("Tokyo") === "Tokyo, Japan" && top("東京") === "Tokyo, Japan", `Tokyo / 東京 → ${top("Tokyo")} / ${top("東京")}`);
+  ok(top("Mumbai") === "Mumbai, India", `Mumbai → ${top("Mumbai")}`);
+  ok(top("Rale").startsWith("Raleigh"), `Rale → ${top("Rale")}`);
+  // a qualifier that matches nothing returns nothing; it is not silently ignored
+  ok(G.searchCities(g, "Paris, Atlantis").length === 0, "unknown qualifier");
+  ok(G.searchCities(g, "r").length === 0 && G.searchCities(g, "").length === 0, "too short");
+  ok(G.searchCities(g, "Qqzxqq").length === 0, "no match");
+  ok(G.searchCities(g, "a".repeat(5000)).length === 0, "long query");
+  ok(G.searchCities(g, "par", 3).length === 3 && G.searchCities(g, "par", 999).length === 50, "limit clamp");
+  const bad = G.parseGeoNames("garbage\n1\tX\tX\t\tnotanumber\t5\nexample\n#comment\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n");
+  ok(bad.cities.length === 0, "garbage rows skipped");
+  ok(G.countryName("FR") === "France" && G.countryName("xx") === "XX", "Intl country names");
+});
+
+await test("gazetteer nearest (TT28): grid ring search is EXACT: 400 random points (incl. polar + antimeridian) agree with a brute-force scan; 'N km NE of …' labels; Raleigh downtown → In Raleigh", { "MP-05": "full" }, () => {
+  const g = G.parseGeoNames(readFileSync("node_modules/cities-15000-structured/dist/cities15000.txt", "utf8"));
+  const brute = (lat: number, lng: number) => {
+    let bi = -1, bd = Infinity;
+    for (let i = 0; i < g.cities.length; i++) { const c = g.cities[i]; const d = M.haversine([lat, lng], [c.lat, c.lng]); if (d < bd) { bd = d; bi = i; } }
+    return { c: g.cities[bi], km: bd / 1000 };
+  };
+  let seed = 28; const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const pts: [number, number][] = [[89.9, 0], [-89.9, 120], [0, 179.99], [0, -179.99], [64.8, -147.7], [-54.8, -68.3], [78.2, 15.6], [-77.8, 166.7], [21.3, -157.8], [51.5, 179.5]];
+  while (pts.length < 400) pts.push([Math.asin(rnd() * 2 - 1) * 180 / Math.PI, rnd() * 360 - 180]);
+  let worst = 0; const t0 = Date.now();
+  for (const [lat, lng] of pts) {
+    const a = G.nearestCities(g, lat, lng, 1)[0]; const b = brute(lat, lng);
+    ok(!!a, `no answer at ${lat},${lng}`);
+    if (a.city.id !== b.c.id) ok(Math.abs(a.km - b.km) < 0.05, `at ${lat.toFixed(2)},${lng.toFixed(2)}: grid ${a.city.name} ${a.km} km vs brute ${b.c.name} ${b.km.toFixed(1)} km`);
+    worst = Math.max(worst, Math.abs(a.km - b.km));
+  }
+  const ms = Date.now() - t0;
+  const r = G.nearestCities(g, 35.7796, -78.6382, 3);
+  ok(r[0].city.name === "Raleigh" && G.describeNear(r[0]) === "In Raleigh", `downtown → ${G.describeNear(r[0])}`);
+  ok(r.length === 3 && r[0].km <= r[1].km && r[1].km <= r[2].km, "k=3 sorted");
+  const d = G.describeNear(G.nearestCities(g, 35.9, -79.3, 1)[0]);
+  ok(/^\d+ km (N|NE|E|SE|S|SW|W|NW) of /.test(d), `described: ${d}`);
+  ok(/ mi /.test(G.describeNear(G.nearestCities(g, 35.9, -79.3, 1)[0], "imperial")), "imperial");
+  ok(G.nearestCities(g, NaN, 0).length === 0 && G.nearestCities(g, 91, 0).length === 0, "invalid input");
+  ok(G.compass(0) === "N" && G.compass(44) === "NE" && G.compass(359) === "N" && G.compass(225) === "SW", "compass");
+  console.log(`      nearest: 400 points in ${ms} ms, max |grid − brute| ${worst.toFixed(3)} km`);
 });
 
 finish();

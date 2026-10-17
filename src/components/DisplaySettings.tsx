@@ -54,6 +54,13 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
           ) : null}
           {layoutOf(shell.settings["appearance.layout"]) === "art" ? (
             <label className="fs-row" style={{ gap: 8 }}>
+              <input type="checkbox" data-testid="settings-dock-autohide" checked={shell.settings["appearance.dockAutoHide"] === "on"}
+                onChange={(e) => set("appearance.dockAutoHide", e.target.checked ? "on" : "off")} />
+              Automatically hide and show the dock
+            </label>
+          ) : null}
+          {layoutOf(shell.settings["appearance.layout"]) === "art" ? (
+            <label className="fs-row" style={{ gap: 8 }}>
               Dock icon size
               <select className="fs-input" data-testid="settings-dock-size" value={shell.settings["appearance.dockSize"] ?? "auto"}
                 onChange={(e) => set("appearance.dockSize", e.target.value)} style={{ width: "auto" }}>

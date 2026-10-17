@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
+import { askText } from "@/lib/ask";
 
 interface Crop { left: number; top: number; width: number; height: number }
 interface Fx { rotate: 0 | 90 | 180 | 270; flipX: boolean; flipY: boolean; brightness: number; contrast: number; saturate: number; grayscale: number; sepia: number }
@@ -110,7 +111,7 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
   if (!bitmap) return (
     <div className="fs-scroll" style={{ padding: 12, display: "grid", gap: 10, alignContent: "start" }}>
       <label className="fs-btn" data-variant="primary" style={{ width: "fit-content", cursor: "pointer" }}>Open image…<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadBlob(f, f.name).catch((x) => shell.toast(String((x as Error).message), "bad")); }} /></label>
-      <Btn variant="ghost" onClick={() => { const p = prompt("VFS image path", "/Pictures/logo.svg"); if (p) setSourcePath(p); }}>Open from Files…</Btn>
+      <Btn variant="ghost" onClick={async () => { const p = await askText("Open image from Files (path)", "/Pictures/logo.svg", { okLabel: "Open" }); if (p) setSourcePath(p); }}>Open from Files…</Btn>
       <div className="fs-dim" style={{ fontSize: fz(11.5) }}>Raster: PNG/JPEG/WebP/GIF where the browser can decode it. HEIC decode is capability-probed. PSD remains metadata-only.</div>
     </div>
   );

@@ -1,6 +1,6 @@
 {
   "suite": "maps-unit",
-  "at": "2026-10-17T06:22:41.210Z",
+  "at": "2026-10-17T17:13:55.700Z",
   "results": [
     {
       "suite": "maps-unit",
@@ -27,7 +27,7 @@
         "MP-01": "full"
       },
       "pass": true,
-      "ms": 94
+      "ms": 87
     },
     {
       "suite": "maps-unit",
@@ -36,7 +36,25 @@
         "MP-02": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 8
+    },
+    {
+      "suite": "maps-unit",
+      "name": "gazetteer (TT28): own TSV parser over GeoNames cities15000; folding (Zürich = Zurich, St. = Saint); exact > prefix > word-prefix ranked by population; qualifiers 'Paris, TX' / 'Paris, France' / 'Springfield, Illinois'; garbage-safe",
+      "covers": {
+        "MP-04": "full"
+      },
+      "pass": true,
+      "ms": 1233
+    },
+    {
+      "suite": "maps-unit",
+      "name": "gazetteer nearest (TT28): grid ring search is EXACT: 400 random points (incl. polar + antimeridian) agree with a brute-force scan; 'N km NE of …' labels; Raleigh downtown → In Raleigh",
+      "covers": {
+        "MP-05": "full"
+      },
+      "pass": true,
+      "ms": 4022
     }
   ]
 }

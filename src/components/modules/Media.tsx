@@ -7,6 +7,7 @@ import { toVtt } from "@/lib/forge";
 import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
+import { askText } from "@/lib/ask";
 
 /**
  * MD-02 + CA-01. Remote Playback is media-element scoped: on the web you cast a
@@ -98,7 +99,7 @@ export default function MediaModule({ win }: ModuleProps) {
       <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
         <input className="fs-input" placeholder="Media URL (or open a file from Files)" value={src.startsWith("data:") ? "(file from the VFS)" : src}
           onChange={(e) => { setSrc(e.target.value); setPath(""); }} aria-label="Media URL" />
-        <Btn variant="ghost" onClick={() => { const p = prompt("VFS path", "/Documents/clip.mp4"); if (p) setPath(p); }}>Open VFS file</Btn>
+        <Btn variant="ghost" onClick={async () => { const p = await askText("Open media from Files (path)", "/Documents/clip.mp4", { okLabel: "Open" }); if (p) setPath(p); }}>Open VFS file</Btn>
       </div>
 
       <video ref={videoRef} src={src || undefined} controls playsInline
@@ -163,7 +164,7 @@ export default function MediaModule({ win }: ModuleProps) {
       <Section title="Captions (AX-07)">
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <Btn variant="ghost" onClick={async () => {
-            const p = prompt("Subtitle file in the VFS (.vtt or .srt)", "/Documents/subs.srt");
+            const p = await askText("Subtitle file in Files (.vtt or .srt)", "/Documents/subs.srt", { okLabel: "Load captions" });
             if (!p) return;
             try {
               const r = await api<{ node: { content: string } }>(`/api/fs?op=read&path=${encodeURIComponent(p)}`);

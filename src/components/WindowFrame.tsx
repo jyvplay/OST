@@ -8,8 +8,12 @@ import { useShell } from "./shell-context";
 import ModuleHost from "./ModuleHost";
 import { AppIcon, UiGlyph, type UiGlyphName } from "./AppIcon";
 import { layoutOf } from "@/lib/layout-core";
+import { assistPlan, dragTarget, type DragTarget } from "@/lib/snap-core";
+import { snapUi, startAssist } from "./SnapHost";
+import { runGenie } from "./genie";
 
 const ORDER_ART: UiGlyphName[] = ["close", "minimize", "maximize"];
+const clearSnapPreview = () => { if (snapUi.get().preview) snapUi.set({ preview: null }); };
 
 type Handle = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
 const HANDLES: Handle[] = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
@@ -24,9 +28,21 @@ const HANDLES: Handle[] = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
 export default function WindowFrame({ win }: { win: WindowState }) {
   const shell = useShell();
   const ref = useRef<HTMLDivElement | null>(null);
-  const drag = useRef<{ mode: "move" | Handle; x0: number; y0: number; rect: { x: number; y: number; w: number; h: number } } | null>(null);
+  const drag = useRef<{ mode: "move" | Handle; x0: number; y0: number; rect: { x: number; y: number; w: number; h: number }; snap?: DragTarget | null } | null>(null);
   const [pipDoc, setPipDoc] = useState<Document | null>(null);
   const focused = shell.state.focus === win.id;
+
+  // TT28 Art genie: remember the live element while the window is shown; when it gets minimised, React has already
+  // removed it, and the detached element is cloned and animated into its dock tile
+  const lastEl = useRef<{ el: HTMLElement; desk: HTMLElement } | null>(null);
+  const artLayout = layoutOf(shell.settings["appearance.layout"]) === "art";
+  useEffect(() => {
+    if (!win.minimized) { const el = ref.current, desk = el?.parentElement; if (el && desk) lastEl.current = { el, desk }; return; }
+    const last = lastEl.current; lastEl.current = null;
+    if (last && artLayout && win.host !== "pip") runGenie(last.el, last.desk, { x: win.x, y: win.y, w: win.w, h: win.h }, win.id);
+    // geometry deliberately read at the moment of minimising only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [win.minimized]);
 
   // keep the DOM in sync when the reducer changes geometry (keyboard moves, tiling)
   useEffect(() => {
@@ -55,7 +71,16 @@ export default function WindowFrame({ win }: { win: WindowState }) {
     const dx = e.clientX - d.x0;
     const dy = e.clientY - d.y0;
     let { x, y, w, h } = d.rect;
-    if (d.mode === "move") { x += dx; y += dy; }
+    if (d.mode === "move") {
+      x += dx; y += dy;
+      // TT28: live snap preview from the POINTER position (corners → quarters, sides → halves, top → maximise)
+      const desk = el.parentElement?.getBoundingClientRect();
+      if (desk) {
+        const t = dragTarget(e.clientX - desk.left, e.clientY - desk.top, shell.state.viewport);
+        if ((t?.key ?? null) !== (d.snap?.key ?? null)) snapUi.set({ preview: t ? { ...t.rect, key: t.key } : null });
+        d.snap = t;
+      }
+    }
     else {
       if (d.mode.includes("e")) w = d.rect.w + dx;
       if (d.mode.includes("s")) h = d.rect.h + dy;
@@ -84,7 +109,20 @@ export default function WindowFrame({ win }: { win: WindowState }) {
     if (d.mode === "move") {
       // drag-to-edge tiling (WM-02)
       const vp = shell.state.viewport;
-      if (y <= 2) shell.dispatch({ t: "tile", id: win.id, slot: "full" });
+      clearSnapPreview();
+      if (d.snap) {
+        const t = d.snap;
+        if (t.key === "full") shell.dispatch({ t: "tile", id: win.id, slot: "full" });
+        else {
+          shell.dispatch({ t: "place", id: win.id, rect: t.rect });
+          // Business: Snap Assist offers the other open windows for the zones left empty
+          if (layoutOf(shell.settings["appearance.layout"]) === "business") {
+            const others = shell.state.windows.filter((o) => o.id !== win.id && (o.workspace ?? 1) === shell.state.activeWorkspace && o.host !== "pip").length;
+            startAssist(assistPlan(t.layout, t.key, vp, others), win.id);
+          }
+        }
+      }
+      else if (y <= 2) shell.dispatch({ t: "tile", id: win.id, slot: "full" });
       else if (x <= 2) shell.dispatch({ t: "tile", id: win.id, slot: "left" });
       else if (x + w >= vp.w - 2) shell.dispatch({ t: "tile", id: win.id, slot: "right" });
       else shell.dispatch({ t: "move", id: win.id, x, y });
@@ -164,6 +202,7 @@ export default function WindowFrame({ win }: { win: WindowState }) {
     <div
       ref={ref}
       className="fs-window"
+      data-win-id={win.id}
       role="dialog"
       aria-label={win.title}
       aria-modal={false}
@@ -180,6 +219,7 @@ export default function WindowFrame({ win }: { win: WindowState }) {
         onPointerDown={(e) => onPointerDown(e, "move")}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
         onDoubleClick={() => shell.dispatch({ t: "toggleMax", id: win.id })}
       >
         {layout === "art" ? (
@@ -214,7 +254,14 @@ export default function WindowFrame({ win }: { win: WindowState }) {
           // TT25 Business: Windows caption buttons — flat, full title-bar height, red on hover for Close
           <span className="fs-caption" role="group" aria-label="Window controls">
             {actions.filter((a) => a[4]).map(([title, label, glyph, run]) => (
-              <button key={label} type="button" className={`fs-cap fs-cap-${glyph}`} title={title} aria-label={label} onClick={run} onPointerDown={(e) => e.stopPropagation()}>
+              <button key={label} type="button" className={`fs-cap fs-cap-${glyph}`} title={title} aria-label={label} onClick={() => { snapUi.set({ flyout: null }); run(); }} onPointerDown={(e) => e.stopPropagation()}
+                aria-haspopup={glyph === "maximize" ? "dialog" : undefined}
+                onPointerEnter={glyph === "maximize" ? (e) => {
+                  // TT28 Snap layouts: hovering Maximise opens the layout flyout under it (as on Windows 11)
+                  const b = e.currentTarget.getBoundingClientRect(), desk = ref.current?.parentElement?.getBoundingClientRect();
+                  if (desk) snapUi.hoverOpen(win.id, Math.round(b.right - desk.left - 300), Math.round(b.bottom - desk.top + 4));
+                } : undefined}
+                onPointerLeave={glyph === "maximize" ? () => snapUi.hoverLeave() : undefined}>
                 <UiGlyph name={glyph} size={12} />
               </button>
             ))}

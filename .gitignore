@@ -4,3 +4,4 @@ next-env.d.ts
 *.tsbuildinfo
 verification/screenshots/*.tmp.png
 .env*
+scripts/tt28-shots/

@@ -9,6 +9,7 @@
  */
 import { makeHarness } from "./harness.mts";
 import * as S from "../src/lib/stream-core.ts";
+import * as E from "../src/lib/embed-control-core.ts";
 
 const { test, finish } = makeHarness("stream-unit");
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
@@ -105,6 +106,60 @@ await test("library: add moves duplicates to the top, rename / move / remove / f
   ok(S.normalizeLibrary("garbage").items.length === 0 && S.normalizeLibrary(null).v === 1, "garbage → empty");
   const many = { items: Array.from({ length: 600 }, (_, i) => ({ id: `i${i}`, url: `https://cdn.example.com/${i}.mp3` })) };
   ok(S.normalizeLibrary(many).items.length === S.LIBRARY_MAX, "cap");
+});
+
+await test("embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings", { "SM-04": "partial" }, () => {
+  // YouTube
+  ok(E.controllable("youtube") === "youtube" && E.controllable("spotify") === null && E.controllable("file") === null, "controllable set");
+  const yu = new URL(E.controlUrl("youtube", "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0", "http://localhost:3999"));
+  ok(yu.searchParams.get("enablejsapi") === "1" && yu.searchParams.get("origin") === "http://localhost:3999" && yu.searchParams.get("rel") === "0" && !yu.searchParams.has("autoplay"), `yt url ${yu}`);
+  ok(new URL(E.controlUrl("youtube", "https://www.youtube-nocookie.com/embed/x", "javascript:alert(1)", true)).searchParams.get("origin") === null, "a non-http origin is never forwarded");
+  ok(new URL(E.controlUrl("soundcloud", "https://w.soundcloud.com/player/?url=x&auto_play=false", "http://a", true)).searchParams.get("auto_play") === "true", "sc autoplay");
+  ok(JSON.parse(E.handshake("youtube", "f1")[0]).event === "listening" && E.handshake("vimeo", "x").length === 0, "handshake");
+  let y = E.initialState("youtube");
+  let r = E.receive(y, JSON.stringify({ event: "initialDelivery", info: { playerState: 5, currentTime: 0, duration: 212.1 }, id: "f1", channel: "widget" }));
+  ok(r.state.connected && r.state.status === "cued" && r.state.duration === 212.1 && r.events.some((e) => e.type === "ready"), "initialDelivery connects");
+  y = r.state;
+  y = E.receive(y, JSON.stringify({ event: "infoDelivery", info: { playerState: 1 } })).state;
+  y = E.receive(y, JSON.stringify({ event: "infoDelivery", info: { currentTime: 211.9 } })).state;
+  ok(y.status === "playing" && y.time === 211.9 && y.duration === 212.1, "partial infoDelivery keeps the other fields");
+  r = E.receive(y, JSON.stringify({ event: "onStateChange", info: 0 }));
+  ok(r.events.filter((e) => e.type === "ended").length === 1 && r.state.status === "ended" && r.state.ends === 1, "ended once");
+  const r2 = E.receive(r.state, JSON.stringify({ event: "infoDelivery", info: { playerState: 0 } }));
+  ok(r2.events.every((e) => e.type !== "ended") && r2.state.ends === 1, "a repeated ended state is not a second end");
+  const r3 = E.receive(E.receive(r2.state, JSON.stringify({ event: "onStateChange", info: 1 })).state, JSON.stringify({ event: "onStateChange", info: 0 }));
+  ok(r3.state.ends === 2, "play again → ends again");
+  // garbage never throws and never changes state
+  for (const g of [null, 5, "nope", "{", "[]", JSON.stringify({ event: "infoDelivery", info: { playerState: 42 } }), { event: "command" }, "x".repeat(300_000)]) {
+    const q = E.receive(y, g);
+    ok(q.events.length === 0 && q.state.status === y.status && q.send.length === 0, `garbage ${String(g).slice(0, 20)}`);
+  }
+  const cmd = JSON.parse(E.command("youtube", { op: "seek", seconds: -5 })!);
+  ok(cmd.event === "command" && cmd.func === "seekTo" && cmd.args[0] === 0 && cmd.args[1] === true && cmd.channel === "widget", "seek clamps");
+  ok(JSON.parse(E.command("youtube", { op: "load", id: "dQw4w9WgXcQ", start: 30 })!).args.join() === "dQw4w9WgXcQ,30" && E.command("youtube", { op: "load", id: "../evil" }) === null, "load validates the id");
+  // Vimeo (string AND object messages)
+  let v = E.initialState("vimeo");
+  r = E.receive(v, { event: "ready", player_id: "x" });
+  const subs = r.send.map((m) => JSON.parse(m));
+  ok(r.state.connected && subs.every((m) => m.method === "addEventListener") && ["ended", "finish", "timeupdate"].every((e) => subs.some((m) => m.value === e)), "ready → subscriptions");
+  ok(E.receive(r.state, { event: "ready" }).send.length === 0, "subscribes once");
+  v = E.receive(r.state, JSON.stringify({ event: "timeupdate", data: { seconds: 10, duration: 60, percent: 0.16 } })).state;
+  ok(v.status === "playing" && v.time === 10 && v.duration === 60, "timeupdate");
+  ok(E.receive(v, JSON.stringify({ event: "ended", data: { seconds: 60, duration: 60 } })).events.some((e) => e.type === "ended"), "ended");
+  ok(E.receive(v, { event: "finish" }).state.status === "ended", "legacy finish");
+  ok(JSON.parse(E.command("vimeo", { op: "seek", seconds: 12 })!).method === "setCurrentTime" && E.command("vimeo", { op: "load", id: "1" }) === null, "vimeo commands");
+  // SoundCloud
+  let c = E.initialState("soundcloud");
+  r = E.receive(c, JSON.stringify({ method: "ready", value: null }));
+  ok(r.state.connected && r.send.map((m) => JSON.parse(m).value).sort().join() === "finish,pause,play,playProgress", `sc subs ${r.send}`);
+  c = E.receive(r.state, JSON.stringify({ method: "playProgress", value: { currentPosition: 30_000, relativePosition: 0.25, loadedProgress: 1 } })).state;
+  ok(c.status === "playing" && c.time === 30 && Math.abs(c.duration - 120) < 1e-9, "position + duration derived from the relative position");
+  ok(E.receive(c, JSON.stringify({ method: "finish" })).events.some((e) => e.type === "ended"), "finish → ended");
+  ok(JSON.parse(E.command("soundcloud", { op: "seek", seconds: 1.5 })!).value === 1500, "sc seek in ms");
+  // origins: exact match only
+  ok(E.originAllowed("youtube", "https://www.youtube-nocookie.com") && !E.originAllowed("youtube", "https://www.youtube-nocookie.com.evil.example") && !E.originAllowed("vimeo", "https://vimeo.com") && !E.originAllowed("soundcloud", "http://w.soundcloud.com"), "origins");
+  ok(E.targetOrigin("youtube", "https://www.youtube-nocookie.com/embed/x") === "https://www.youtube-nocookie.com" && E.targetOrigin("youtube", "https://evil.example/embed") === null, "post target never *");
+  ok(E.formatClock(65, 200) === "1:05 / 3:20" && E.formatClock(3725, 0) === "1:02:05" && E.formatClock(NaN, -1) === "0:00", "clock");
 });
 
 finish();

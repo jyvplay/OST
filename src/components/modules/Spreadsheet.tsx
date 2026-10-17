@@ -19,6 +19,7 @@ import {
 import type { BorderLine, DataValidation, ValidationOp, ValidationType } from "@/lib/formula/engine";
 import { absoluteRef, referenceTarget, validateName } from "@/lib/formula/names";
 import { autoInk } from "@/lib/auto-ink";
+import { askText } from "@/lib/ask";
 
 const COLS = 52;          // A..AZ
 const ROWS = 1000;
@@ -166,8 +167,11 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   /* ------------------------------------------------------------ sheets */
   const switchSheet = (name: string) => { commit(null); setActive(name); setSel({ a: { col: 0, row: 0 }, f: { col: 0, row: 0 } }); };
   const newSheet = () => { let n = workbook.sheets.size + 1; while (workbook.sheets.has(`Sheet${n}`)) n++; const name = `Sheet${n}`; mutate((wb) => { wb.addSheet(name); }); switchSheet(name); };
-  const renameSheet = (old: string) => {
-    const next = prompt("Sheet name (max 31 chars; no : \\ / ? * [ ])", old)?.trim();
+  const renameSheet = async (old: string) => {
+    const next = (await askText("Sheet name", old, {
+      detail: "Up to 31 characters; : \\ / ? * [ ] are not allowed.", okLabel: "Rename",
+      validate: (v) => { const t = v.trim(); return t.length > 31 || /[:\\/?*[\]]/.test(t) ? "Up to 31 characters, without : \\ / ? * [ ]" : t.toLowerCase() !== old.toLowerCase() && [...workbook.sheets.keys()].some((s) => s.toLowerCase() === t.toLowerCase()) ? "A sheet with that name already exists." : null; },
+    }))?.trim();
     if (!next || next === old) return;
     if (next.length > 31 || /[:\\/?*[\]]/.test(next)) { shell.toast("Invalid sheet name (max 31 chars; : \\ / ? * [ ] are forbidden)", "warn"); return; }
     if ([...workbook.sheets.keys()].some((s) => s.toLowerCase() === next.toLowerCase())) { shell.toast("A sheet with that name already exists.", "warn"); return; }
@@ -561,7 +565,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <label className="fs-dim" title="Fill colour" style={{ fontSize: fz(11), display: "flex", alignItems: "center", gap: 2 }}>Fill<input aria-label="Fill colour" type="color" value={cur.fill ?? "#000000"} onChange={(e) => applyStyle({ fill: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
         <label className="fs-dim" title="Text colour" style={{ fontSize: fz(11), display: "flex", alignItems: "center", gap: 2 }}>Text<input aria-label="Text colour" type="color" value={cur.color ?? "#e5e7eb"} onChange={(e) => applyStyle({ color: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
         <select className="fs-input" aria-label="Number format" value={BUILTIN_FORMATS.some((f) => f.code === (cur.numFmt ?? "General")) ? cur.numFmt ?? "General" : "custom"} style={{ width: 150, fontSize: fz(11) }}
-          onChange={(e) => { const v = e.target.value; if (v === "custom") { const code = prompt("Custom number format (Excel syntax, e.g. #,##0.00;[Red]-#,##0.00)", cur.numFmt ?? "General"); if (code) applyStyle({ numFmt: code }); } else applyStyle({ numFmt: v === "General" ? undefined : v }); }}>
+          onChange={async (e) => { const v = e.target.value; if (v === "custom") { const code = await askText("Custom number format", cur.numFmt ?? "General", { detail: "Excel syntax, for example #,##0.00;[Red]-#,##0.00", okLabel: "Apply" }); if (code) applyStyle({ numFmt: code }); } else applyStyle({ numFmt: v === "General" ? undefined : v }); }}>
           {BUILTIN_FORMATS.map((f) => <option key={f.code} value={f.code}>{f.label} — {f.code}</option>)}
           <option value="custom">Custom…{cur.numFmt && !BUILTIN_FORMATS.some((f) => f.code === cur.numFmt) ? ` (${cur.numFmt})` : ""}</option>
         </select>

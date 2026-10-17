@@ -93,7 +93,8 @@ try {
     const frame = page.getByTestId("sv-frame");
     await frame.waitFor();
     const attrs = await frame.evaluate((f: HTMLIFrameElement) => ({ src: f.src, rp: f.getAttribute("referrerpolicy"), allow: f.allow, sandbox: f.getAttribute("sandbox"), fs: f.allowFullscreen }));
-    ok(attrs.src === "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?start=42&rel=0", attrs.src);
+    // TT28 SM-04 adds the documented JS-API opt-in (enablejsapi + this page's origin) for two-way control
+    ok(attrs.src === `https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?start=42&rel=0&enablejsapi=1&origin=${encodeURIComponent(new URL(BASE).origin)}`, attrs.src);
     ok(attrs.rp === "strict-origin-when-cross-origin" && attrs.allow.includes("encrypted-media") && attrs.fs && !(attrs.sandbox ?? "").includes("allow-top-navigation"), JSON.stringify(attrs));
     await poll(async () => seen.some((s) => s.url.startsWith("https://www.youtube-nocookie.com/embed/")), "iframe request");
     const req = seen.find((s) => s.url.startsWith("https://www.youtube-nocookie.com/embed/"))!;
