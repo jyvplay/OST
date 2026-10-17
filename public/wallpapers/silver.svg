@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <!-- Fusion Shell TT27 "Silver" wallpaper — original vector art (layered silver ribbons in soft daylight; not Apple's artwork), CC0 for this project. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f6f9"/><stop offset=".6" stop-color="#dfe3e9"/><stop offset="1" stop-color="#c9ced6"/></linearGradient>
+    <radialGradient id="glow" cx=".72" cy=".2" r=".55"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="tint" cx=".18" cy=".85" r=".6"><stop offset="0" stop-color="#cfe2ff" stop-opacity=".55"/><stop offset="1" stop-color="#cfe2ff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="r1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#e3e7ed"/><stop offset="1" stop-color="#b9c0ca"/></linearGradient>
+    <linearGradient id="r2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7f9fc"/><stop offset=".55" stop-color="#cdd3dc"/><stop offset="1" stop-color="#a9b1bd"/></linearGradient>
+    <linearGradient id="r3" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#dfe9f8"/><stop offset=".6" stop-color="#f5f7fa"/><stop offset="1" stop-color="#c3cad4"/></linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <rect width="1600" height="1000" fill="url(#glow)"/>
+  <rect width="1600" height="1000" fill="url(#tint)"/>
+  <path d="M-40 640C240 520 520 470 820 560S1360 720 1660 560V1040H-40Z" fill="url(#r3)" opacity=".9"/>
+  <path d="M-40 760C300 600 640 610 900 700S1380 820 1660 660V1040H-40Z" fill="url(#r1)"/>
+  <path d="M-40 760C300 600 640 610 900 700S1380 820 1660 660" fill="none" stroke="url(#edge)" stroke-width="3"/>
+  <path d="M-40 880C340 760 700 790 980 850S1420 900 1660 800V1040H-40Z" fill="url(#r2)"/>
+  <path d="M-40 880C340 760 700 790 980 850S1420 900 1660 800" fill="none" stroke="url(#edge)" stroke-width="2.4"/>
+</svg>

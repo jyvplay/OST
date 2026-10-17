@@ -11,9 +11,13 @@
  */
 import { readFileSync } from "node:fs";
 import { makeHarness } from "./harness.mts";
+import * as CB from "../src/lib/colour-beauty-core.ts";
+import { STYLES as STY, STYLE_IDS as SIDS } from "../src/lib/style-core.ts";
+import { fitSlant, slantGeometry, applyH, apply, project, MIN_FLOOR_COVERAGE, type V3 } from "../src/lib/tabletop-slant.ts";
 import { idealDockIcon, planDock, DOCK_BAND, DOCK_FLOOR, DOCK_FILL, dockWidth, DOCK_GAP, DOCK_PAD, DOCK_SEP_W } from "../src/lib/layout-core.ts";
 import { layoutIcons, moveIcon, nudgeIcon, cleanUp, sortByName, cellAt } from "../src/lib/desk-icons-core.ts";
 import {
+  moveToSurface, saveView, loadView, deleteView, renameView, MAX_VIEWS, freeSlot, surfacePaths, surfaceOf, pinnedPaths, boardOf,
   PHI, CARD_W, CARD_H, normalizeTable, floorItems, hitItem, pileUp, takeFromPile, unstack, moveItem, renamePile, pileJitter, fanLayout, boxGeometry, faceTransform, emptyTable, fnv1a,
 } from "../src/lib/tabletop-core.ts";
 import { microPeek, parseDelimited, PEEK_LINES } from "../src/lib/micro-peek-core.ts";
@@ -197,6 +201,148 @@ await test("tabletop box geometry: floor scale = p/(p+depth) < 1, walls hinge on
   const zNorth = D * Math.sin(rad(-90)), zSouth = -D * Math.sin(rad(90)), zWest = -D * Math.sin(rad(90)), zEast = D * Math.sin(rad(-90));
   ok([zNorth, zSouth, zWest, zEast].every((z) => Math.abs(z + D) < 1e-9), `far edges at −depth ${[zNorth, zSouth, zWest, zEast]}`);
   ok(boxGeometry(NaN, 10).depth > 0, "total");
+});
+
+await test("slanted camera (default): floor ≥ 80 % of the frame across a viewport sweep, lip ≥ 24 px, β = 38°, walls share the rest", { "LY-11": "full" }, () => {
+  const vps = [[1440, 860], [1280, 760], [1920, 1020], [390, 700], [1024, 700], [3840, 2100], [800, 300], [360, 640], [2560, 1300], [768, 1000]];
+  const worst: string[] = [];
+  for (const [w, h] of vps) {
+    const g = fitSlant(w, h);
+    if (g.coverage < MIN_FLOOR_COVERAGE) worst.push(`${w}×${h}=${g.coverage.toFixed(3)}`);
+    ok(g.beta === 38 && g.P > 0 && g.FD > 0 && g.hw >= 48, `${w}×${h} params`);
+    const lipPx = g.H - Math.min(...g.quads.south.map((q) => q[1]));
+    ok(lipPx >= 23.5, `${w}×${h}: south lip shows ${lipPx.toFixed(1)} px (≥ 24 target)`);
+    const sum = g.coverage + g.wallShare.north + g.wallShare.south + g.wallShare.west + g.wallShare.east;
+    ok(sum > 0.95 && sum < 1.06, `${w}×${h}: floor + walls ≈ the whole frame (${sum.toFixed(3)})`);
+    ok(g.quads.floor[2][1] <= g.H + 0.5 && g.quads.floor[0][1] > 0, `${w}×${h}: floor inside the frame vertically`);
+  }
+  ok(worst.length === 0, `coverage < 0.8: ${worst.join(", ")}`);
+  ok(slantGeometry(1440, 860, 38, 0.2).coverage < MIN_FLOOR_COVERAGE, "the check can fail: very wide side walls drop below 80 %");
+  ok(fitSlant(NaN as unknown as number, -5).W >= 320, "junk sizes clamp");
+});
+
+await test("slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box", { "LY-11": "full", "LY-12": "partial" }, () => {
+  const g = fitSlant(1440, 860);
+  const ox = g.W / 2;
+  let maxFwd = 0, maxInv = 0;
+  for (let i = 0; i <= 10; i++) for (let j = 0; j <= 10; j++) {
+    const u = (g.FW * i) / 10, v = (g.FD * j) / 10;
+    const viaH = applyH(g.toScreen, [u, v]);
+    const via3d = project(apply(g.faces.floor.m, [u, v, 0]), g.P, ox, g.oy);
+    maxFwd = Math.max(maxFwd, Math.hypot(viaH[0] - via3d[0], viaH[1] - via3d[1]));
+    const back = applyH(g.toFloor, viaH);
+    maxInv = Math.max(maxInv, Math.hypot(back[0] - u, back[1] - v));
+  }
+  ok(maxFwd < 0.01, `homography vs projection ${maxFwd}`);
+  ok(maxInv < 0.01, `inverse round trip ${maxInv}`);
+  const P3 = (f: keyof typeof g.faces, u: number, v: number) => apply(g.faces[f].m, [u, v, 0]);
+  const same = (a: V3, b: V3) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) < 1e-6;
+  ok(same(P3("north", 0, g.hw), P3("floor", 0, 0)) && same(P3("north", g.FW, g.hw), P3("floor", g.FW, 0)), "north wall stands on the far edge");
+  ok(same(P3("south", 0, g.hs), P3("floor", 0, g.FD)), "south lip stands on the near edge");
+  ok(same(P3("west", 0, g.hw), P3("floor", 0, g.FD)) && same(P3("west", g.FD, g.hw), P3("floor", 0, 0)), "west wall on the left edge");
+  ok(same(P3("east", 0, g.hw), P3("floor", g.FW, 0)) && same(P3("east", g.FD, g.hw), P3("floor", g.FW, g.FD)), "east wall on the right edge");
+  const c = P3("floor", g.FW / 2, g.FD / 2), nf: V3 = [g.faces.floor.m[8], g.faces.floor.m[9], g.faces.floor.m[10]];
+  for (const f of ["north", "south", "west", "east"] as const) {
+    const m = g.faces[f].m, n: V3 = [m[8], m[9], m[10]];
+    const wc = P3(f, g.faces[f].w / 2, g.faces[f].h / 2);
+    ok(Math.abs(n[0] * nf[0] + n[1] * nf[1] + n[2] * nf[2]) < 1e-9, `${f} ⟂ floor`);
+    const into = n[0] * (c[0] - wc[0]) + n[1] * (c[1] - wc[1]) + n[2] * (c[2] - wc[2]);
+    // the three far walls show their inside; the south lip is the front rim, seen from outside (it faces the viewer)
+    ok(f === "south" ? into < 0 : into > 0, `${f} ${f === "south" ? "faces out toward the viewer" : "faces into the box"}`);
+  }
+  // no face is seen from behind (mirrored text): every projected outline winds the same way as the floor's
+  const wind = (q: readonly [number, number][]) => Math.sign(q.reduce((s, p, i) => { const r = q[(i + 1) % q.length]; return s + p[0] * r[1] - r[0] * p[1]; }, 0));
+  for (const f of ["north", "south", "west", "east"] as const) ok(wind(g.quads[f]) === wind(g.quads.floor), `${f} is seen from its front`);
+});
+
+await test("walls as pinboards: pin a card / a whole pile to a wall, move between walls, back to the floor; walls-first wins on conflicts; v1 → v2 migration; free slots", { "LY-12": "full" }, () => {
+  const files = ["/D/a.md", "/D/b.md", "/D/c.csv", "/D/d.txt", "/D/e.png"];
+  const v1 = normalizeTable({ v: 1, cards: { "/D/a.md": { x: 10, y: 20 } }, piles: [{ id: "p1", name: "Work", paths: ["/D/b.md", "/D/c.csv"], x: 300, y: 40 }] }, files);
+  ok(v1.v === 2 && v1.camera === "slant" && v1.cards["/D/a.md"].x === 10 && v1.piles[0].id === "p1" && JSON.stringify(v1.walls) === "{}" && v1.views!.length === 0, "v1 table migrates to v2 unchanged, slanted camera");
+  let t = moveToSurface(v1, "card:/D/a.md", "floor", "north", { x: 40, y: 50 }, files);
+  ok(t.walls!.north!.cards["/D/a.md"].x === 40 && !t.cards["/D/a.md"] && surfaceOf(t, "/D/a.md") === "north", "card pinned to north");
+  ok(!surfacePaths(t, "floor", files).includes("/D/a.md") && surfacePaths(t, "north", files).join() === "/D/a.md", "a pinned file leaves the floor");
+  t = moveToSurface(t, "pile:p1", "floor", "west", { x: 0, y: 0 }, files);
+  ok(t.walls!.west!.piles[0].paths.join() === "/D/b.md,/D/c.csv" && t.piles.length === 0 && pinnedPaths(t).size === 3, "whole pile pinned");
+  t = moveToSurface(t, "card:/D/a.md", "north", "east", { x: 5, y: 5 }, files);
+  ok(!t.walls!.north && t.walls!.east!.cards["/D/a.md"] && surfaceOf(t, "/D/a.md") === "east", "wall → wall; an emptied wall is dropped");
+  ok(moveToSurface(t, "card:/D/b.md", "west", "floor", { x: 0, y: 0 }, files) === t, "a pile member cannot leave as a loose card");
+  ok(moveToSurface(t, "card:/nope", "floor", "north", { x: 0, y: 0 }, files) === t && moveToSurface(t, "pile:zz", "west", "floor", { x: 0, y: 0 }, files) === t, "unknown keys are no-ops");
+  t = moveToSurface(t, "pile:p1", "west", "floor", { x: 70, y: 80 }, files);
+  ok(t.piles[0].x === 70 && !t.walls!.west, "pile back on the table");
+  const moved = moveToSurface(t, "card:/D/a.md", "east", "east", { x: 300, y: 99999 }, files);
+  ok(moved.walls!.east!.cards["/D/a.md"].x === 300 && moved.walls!.east!.cards["/D/a.md"].y === 20000, "motion on a wall (stored range clamped; the UI also clamps drops to the board)");
+  const conflict = normalizeTable({ v: 2, cards: { "/D/a.md": { x: 1, y: 1 } }, piles: [], walls: { south: { cards: { "/D/a.md": { x: 9, y: 9 } }, piles: [] }, north: { cards: { "/D/a.md": { x: 7, y: 7 }, "/D/zz": { x: 0, y: 0 } }, piles: [] } } }, files);
+  const owners = (["north", "south"] as const).filter((w) => conflict.walls?.[w]?.cards["/D/a.md"]);
+  ok(!conflict.cards["/D/a.md"] && owners.length === 1 && !conflict.walls?.north?.cards["/D/zz"], `walls-first, one owner (${owners.join()}), unknown dropped`);
+  const many = normalizeTable({ v: 2, cards: {}, piles: [], walls: { north: { cards: Object.fromEntries(files.map((f, i) => [f, { x: i * 10, y: 0 }])), piles: [] } } }, files);
+  ok(Object.keys(boardOf(many, "north").cards).length === files.length, "no cap on pins below the file count (infinite pinning = every file)");
+  const slot = freeSlot([{ x: 24, y: 24 }], 800);
+  ok(slot.x === 24 + CARD_W + 24 && slot.y === 24 && freeSlot([], 10).x === 24, `free slot ${JSON.stringify(slot)}`);
+});
+
+await test("saved tabletop views: save captures camera + face + every surface; same name updates in place; load restores (re-validated against today's files); rename / delete; cap", { "LY-13": "full" }, () => {
+  const files = ["/D/a.md", "/D/b.md", "/D/c.csv"];
+  let t = normalizeTable({ v: 2, cards: { "/D/a.md": { x: 10, y: 10 } }, piles: [], camera: "top" }, files);
+  t = moveToSurface(t, "card:/D/b.md", "floor", "north", { x: 30, y: 30 }, files);
+  t = saveView(t, "  Morning  ", "north", "2026-10-17T09:00:00Z");
+  const v = t.views![0];
+  ok(v.name === "Morning" && v.camera === "top" && v.face === "north" && v.floor.cards["/D/a.md"].x === 10 && v.walls.north!.cards["/D/b.md"].x === 30, "captured");
+  const live = moveToSurface({ ...t, camera: "slant" }, "card:/D/b.md", "north", "floor", { x: 0, y: 0 }, files);
+  ok(t.views![0].walls.north!.cards["/D/b.md"], "the saved view is a snapshot, not a live reference");
+  const r = loadView(live, v.id, files)!;
+  ok(r.face === "north" && r.table.camera === "top" && r.table.walls!.north!.cards["/D/b.md"] && !r.table.cards["/D/b.md"], "load restores camera, face and pins");
+  const gone = loadView(live, v.id, ["/D/a.md"])!;
+  ok(!gone.table.walls?.north && Object.keys(gone.table.cards).join() === "/D/a.md", "deleted files drop out on load");
+  ok(loadView(live, "nope", files) === null, "unknown id");
+  const upd = saveView(r.table, "morning", "floor", "later");
+  ok(upd.views!.length === 1 && upd.views![0].id === v.id && upd.views![0].face === "floor", "same name (any case) updates in place");
+  let full = upd;
+  for (let i = 0; i < MAX_VIEWS + 3; i++) full = saveView(full, `View ${i}`, "floor", `t${i}`);
+  ok(full.views!.length === MAX_VIEWS && saveView(full, "One more", "floor", "x") === full, `cap ${MAX_VIEWS}`);
+  ok(saveView(full, "   ", "floor", "x") === full, "blank name refused");
+  const ren = renameView(upd, v.id, "Focus");
+  ok(ren.views![0].name === "Focus" && renameView(full, full.views![1].id, "morning") === full, "rename; duplicate names refused");
+  ok(deleteView(ren, v.id).views!.length === 0, "delete");
+  const rt = normalizeTable(JSON.parse(JSON.stringify(full)), files);
+  ok(rt.views!.length === MAX_VIEWS && rt.views![0].walls.north!.cards["/D/b.md"], "views survive a JSON round trip through normalizeTable");
+  const junk = normalizeTable({ v: 2, cards: {}, piles: [], views: [{ id: "a", name: "X", face: "ceiling", camera: "drone", floor: { cards: { "/D/zz": { x: 1, y: 1 } } } }, { id: "a", name: "Y" }, { id: "b", name: "x" }, null] }, files);
+  ok(junk.views!.length === 1 && junk.views![0].face === "floor" && junk.views![0].camera === "slant" && !junk.views![0].floor.cards["/D/zz"], "junk views normalised (dup ids / names, bad faces)");
+});
+
+await test("colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light", { "LY-15": "full", "LY-14": "partial" }, () => {
+  const red = CB.oklch(CB.hex("#ff0000"));
+  ok(Math.abs(red.L - 0.628) < 0.002 && Math.abs(red.C - 0.2577) < 0.002 && Math.abs(red.h - 29.23) < 0.3, `red ${JSON.stringify(red)}`);
+  const w = CB.oklch(CB.hex("#fff"));
+  ok(Math.abs(w.L - 1) < 1e-3 && w.C < 1e-3, "white");
+  ok(Math.abs(CB.contrast(CB.hex("#000"), CB.hex("#fff")) - 21) < 1e-9 && Math.abs(CB.contrast(CB.hex("#777"), CB.hex("#fff")) - 4.48) < 0.01, "WCAG ratios");
+  const analog = CB.harmonyFit([{ c: CB.hex("#e5484d") }, { c: CB.hex("#f76b15") }, { c: CB.hex("#ffb224") }])!;
+  ok((analog.template === "V" || analog.template === "i") && analog.deviation === 0, `analogous → ${JSON.stringify(analog)}`);
+  const comp = CB.harmonyFit([{ c: CB.hex("#0a84ff") }, { c: CB.hex("#ff9f0a") }])!;
+  ok(comp.template === "I" && comp.deviation === 0, `complementary → ${JSON.stringify(comp)}`);
+  ok(CB.harmonyFit([{ c: CB.hex("#808080") }]) === null, "neutrals have no hue");
+  ok(CB.hueEntropy([{ c: CB.hex("#0a84ff") }, { c: CB.hex("#2f6fd0") }]) < 0.1, "one hue family ≈ 0");
+  const wheel = Array.from({ length: 12 }, (_, i) => { const a = (i * 30 + 15) * Math.PI / 180; return { c: [0.5 + 0.35 * Math.cos(a), 0.5 + 0.35 * Math.cos(a - 2.094), 0.5 + 0.35 * Math.cos(a + 2.094)] as CB.RGB }; });
+  ok(CB.hueEntropy(wheel) > 0.85, `rainbow ≈ 1 (${CB.hueEntropy(wheel)})`);
+  const px: number[] = [];
+  const put = (n: number, r: number, g: number, b: number) => { for (let i = 0; i < n; i++) px.push(r, g, b, 255); };
+  put(600, 255, 255, 255); put(300, 128, 128, 128); put(100, 10, 132, 255);
+  const st = CB.pixelStats(px);
+  ok(st.lightNeutral === 0.6 && st.light === 0.6 && st.top[0].share === 0.6 && st.top[2].share === 0.1 && st.sixtyThirtyTen === 0, `pixel stats ${JSON.stringify(st)}`);
+  ok(CB.pixelStats([0, 0, 0, 0]).sixtyThirtyTen === 100, "transparent only → empty stats");
+  for (const id of ["silver", "daylight"] as const) {
+    const t = STY[id].light;
+    for (const k of ["bg", "bg2", "panelSolid"] as const) {
+      const o = CB.oklch(CB.hex(t[k]));
+      ok(o.L >= 0.9 && o.C <= 0.02, `${id} light ${k} ${t[k]} is light + near-neutral (L ${o.L.toFixed(3)}, C ${o.C.toFixed(3)})`);
+    }
+    ok(CB.LIGHT_INTENT[id] >= 0.5, `${id} has a measured light-intent rule`);
+  }
+  // every style's chrome text tokens pass WCAG 1.4.3 under the colour core too (cross-check of a11y-unit with an independent implementation)
+  for (const id of SIDS) for (const th of ["dark", "light"] as const) {
+    const t = STY[id][th];
+    ok(CB.contrast(CB.hex(t.text), CB.hex(t.panelSolid)) >= 4.5 && CB.contrast(CB.hex(t.muted), CB.hex(t.bg)) >= 4.5, `${id}/${th} text tokens`);
+  }
 });
 
 await test("micro peek: Markdown keeps headings/bullets, plain text and code, line cap, CSV with RFC 4180 quoting, JSON grid / pretty text, images, SVG, binary, sealed, empty", { "LY-09": "full" }, () => {

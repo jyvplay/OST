@@ -1,5 +1,9 @@
 # TT26 design notes — aesthetic dock sizing, rearrangeable icons, the Tabletop 3D desktop, the beauty standard
 
+> **TT27 update:** the default camera is now a slanted desk view (floor ≥ 80 % of the frame, measured), every wall is a
+> pinboard with unlimited pins and piles, and Tabletop views can be saved and loaded. The top-down box described below
+> remains available through the **Camera** toggle. See `docs/DESIGN-TT27.md` §1–3.
+
 Status as of 2026-10-17. Everything below is implemented in this repository and exercised by the suites named in
 each section; limits are listed at the end of each section rather than hidden.
 

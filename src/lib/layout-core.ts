@@ -21,6 +21,20 @@ export const LAYOUTS: Record<LayoutId, { label: string; blurb: string }> = {
   art: { label: "Art", blurb: "Mac-style menu bar and a centred dock of every app that magnifies under the pointer" },
 };
 
+/**
+ * TT27: each OS-like layout has a matching look — Art → Silver (light macOS-like), Business → Daylight (Windows 11 light).
+ * Switching layout applies the pair (style + light theme) unless appearance.pairStyle is "off". Fusion keeps the current look.
+ */
+export const LAYOUT_STYLE_PAIR: Partial<Record<LayoutId, string>> = { art: "silver", business: "daylight" };
+export function pairedSettings(layout: LayoutId, settings: Record<string, string | undefined>): [string, string][] {
+  const style = LAYOUT_STYLE_PAIR[layout];
+  if (!style || settings["appearance.pairStyle"] === "off") return [];
+  const out: [string, string][] = [];
+  if (settings["appearance.style"] !== style) out.push(["appearance.style", style]);
+  if (settings["appearance.theme"] !== "light") out.push(["appearance.theme", "light"]);
+  return out;
+}
+
 /** Largest magnification (×) and how far it reaches, in base icon widths, from the pointer. */
 export const DOCK_MAX_SCALE = 1.75;
 export const DOCK_REACH = 2.5;

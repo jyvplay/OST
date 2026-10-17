@@ -132,8 +132,8 @@ await test("settings validation: text size must be an integer 100–300, wallpap
 });
 
 await test("style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each", { "AX-11": "full", "AX-10": "partial" }, () => {
-  ok(DEFAULT_STYLE === "poolside" && STYLE_IDS.length === 11 && isStyle("vice") && isStyle("liquidglass") && isStyle("teal") && !isStyle("neon"), "ids");
-  ok(new Set(STYLE_IDS.map((id) => STYLES[id].finish)).size === 11, "every style has its own tile finish");
+  ok(DEFAULT_STYLE === "poolside" && STYLE_IDS.length === 13 && isStyle("silver") && isStyle("daylight") && isStyle("vice") && isStyle("liquidglass") && isStyle("teal") && !isStyle("neon"), "ids");
+  ok(new Set(STYLE_IDS.map((id) => STYLES[id].finish)).size === 13, "every style has its own tile finish");
   const bad: string[] = [];
   const need = (name: string, a: string, b: RGB, min: number) => { const r = ratio(hex(a), b); if (r < min) bad.push(`${name} ${r.toFixed(2)}`); };
   const rgba = (s: string): [RGB, number] => { const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/.exec(s)!; return [[+m[1] / 255, +m[2] / 255, +m[3] / 255], m[4] ? +m[4] : 1]; };

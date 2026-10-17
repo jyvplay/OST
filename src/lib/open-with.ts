@@ -14,6 +14,7 @@ export function appForFile(name: string, mime: string, kind: string = "file"): s
   if (n.endsWith(".ftable")) return "tables";
   if (n.endsWith(".fboard")) return "whiteboard";
   if (/\.(vcf|vcard)$/i.test(n)) return "contacts";
+  if (/\.geojson$/i.test(n)) return "maps";
   if (n.endsWith(".pptx") || n.endsWith(".fdeck")) return "slides";
   if ([".fsheet", ".fworkbook", ".xlsx"].some((ext) => n.endsWith(ext))) return "sheet";
   if (fmt && fmt.grade === "A" && fmt.editable) return "editor";

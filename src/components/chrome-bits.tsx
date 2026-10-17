@@ -7,7 +7,7 @@
 import { fz } from "@/lib/uiscale";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { privacy, type PrivacyStatus } from "@/lib/privacy/session";
-import { LAYOUTS, LAYOUT_IDS, layoutOf, type LayoutId } from "@/lib/layout-core";
+import { LAYOUTS, LAYOUT_IDS, layoutOf, pairedSettings, type LayoutId } from "@/lib/layout-core";
 import { useShell } from "./shell-context";
 
 export function useClock(periodMs = 10_000): Date {
@@ -168,7 +168,7 @@ export function LayoutSwitch({ prefix, compact = false }: { prefix: string; comp
         <label key={id} className="fs-layout-opt" data-checked={layout === id} title={LAYOUTS[id].blurb}
           style={{ display: "grid", justifyItems: "center", gap: 3, padding: compact ? fz(4) : fz(6), minWidth: compact ? fz(80) : fz(96) }}>
           <input type="radio" name={`${prefix}-layout`} value={id} checked={layout === id} data-testid={`${prefix}-layout-${id}`}
-            onChange={() => void shell.setSetting("appearance.layout", id)} className="fs-visually-hidden-radio" />
+            onChange={() => void (async () => { await shell.setSetting("appearance.layout", id); for (const [k, v] of pairedSettings(id, shell.settings)) await shell.setSetting(k, v); })()} className="fs-visually-hidden-radio" />
           <LayoutPreview id={id} />
           <span style={{ fontWeight: 700, fontSize: fz(compact ? 11.5 : 12.5) }}>{LAYOUTS[id].label}</span>
         </label>

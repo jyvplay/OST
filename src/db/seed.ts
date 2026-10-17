@@ -20,11 +20,12 @@ import { tt23Features, UPDATES_TT23 } from "./seed-data/features-tt23";
 import { tt24Features, UPDATES_TT24 } from "./seed-data/features-tt24";
 import { tt25Features, UPDATES_TT25 } from "./seed-data/features-tt25";
 import { tt26Features, UPDATES_TT26 } from "./seed-data/features-tt26";
+import { tt27Features, UPDATES_TT27 } from "./seed-data/features-tt27";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.14.1";
+export const SEED_VERSION = "3.15.0";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...platformFeatures]
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
   .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))
@@ -36,13 +37,18 @@ export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, 
   .map((f) => (UPDATES_TT23[f.code] ? { ...f, ...UPDATES_TT23[f.code] } : f))
   .map((f) => (UPDATES_TT24[f.code] ? { ...f, ...UPDATES_TT24[f.code] } : f))
   .map((f) => (UPDATES_TT25[f.code] ? { ...f, ...UPDATES_TT25[f.code] } : f))
-  .map((f) => (UPDATES_TT26[f.code] ? { ...f, ...UPDATES_TT26[f.code] } : f));
+  .map((f) => (UPDATES_TT26[f.code] ? { ...f, ...UPDATES_TT26[f.code] } : f))
+  .map((f) => (UPDATES_TT27[f.code] ? { ...f, ...UPDATES_TT27[f.code] } : f));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },
   { key: "appearance.accent", value: "auto", category: "appearance", label: "Accent colour", aliases: "highlight,tint" },
-  { key: "appearance.style", value: "poolside", category: "appearance", label: "Style (colours, icons, logo)", aliases: "theme,palette,look,skin,miami,poolside,vice,neon,art deco,ocean drive,colours,enterprise,graphite,professional,office,corporate" },
+  { key: "appearance.style", value: "poolside", category: "appearance", label: "Style (colours, icons, logo)", aliases: "theme,palette,look,skin,miami,poolside,vice,neon,art deco,ocean drive,colours,enterprise,graphite,professional,office,corporate,silver,daylight,light,mac,windows 11" },
   { key: "appearance.layout", value: "fusion", category: "appearance", label: "Layout (Fusion, Business taskbar, Art dock)", aliases: "layout,taskbar,start menu,windows,dock,mac,macos,menu bar,business,art,desktop layout" },
+  { key: "appearance.pairStyle", value: "on", category: "appearance", label: "Pair style with layout (Art → Silver, Business → Daylight, light theme)", aliases: "pair,match style,silver,daylight,layout style" },
+  { key: "media.embeds", value: "ask", category: "media", label: "Embedded players (YouTube, Spotify, SoundCloud…): ask before loading, or always load", aliases: "youtube,spotify,soundcloud,embed,privacy,video,music,player" },
+  { key: "maps.tiles", value: "off", category: "maps", label: "Map street tiles: off (offline world), OpenStreetMap, or custom", aliases: "map,tiles,openstreetmap,osm,offline map,street map" },
+  { key: "maps.tileUrl", value: "", category: "maps", label: "Custom map tile URL template ({z}/{x}/{y})", aliases: "tile server,map provider" },
   { key: "appearance.dockSize", value: "auto", category: "appearance", label: "Dock icon size (Art layout): Auto picks a pleasing size", aliases: "dock size,icon size,dock icons,small,medium,large" },
   { key: "appearance.desktopView", value: "classic", category: "appearance", label: "Desktop view (Classic or Tabletop 3D)", aliases: "tabletop,3d,desktop view,piles,box,walls,micro peek" },
   { key: "appearance.dockMagnify", value: "on", category: "appearance", label: "Dock magnification (Art layout)", aliases: "dock,magnify,zoom icons,mac" },

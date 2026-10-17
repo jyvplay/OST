@@ -22,7 +22,7 @@ export const PALETTES = {
 } satisfies Record<string, Palette>;
 export type PaletteName = keyof typeof PALETTES;
 
-export const GLYPH_NAMES = ["folder", "pencil", "search", "terminal", "note", "globe", "play", "record", "camera", "broadcast", "people", "chat", "lock", "shield", "cloud", "bell", "pulse", "keypad", "gear", "checklist", "clock", "calendar", "plug", "screenShare", "bolt", "clipboard", "pie", "drive", "picture", "pen", "doc", "easel", "grid", "table", "eye", "braces", "music", "box", "board", "contact", "trash", "blank"] as const;
+export const GLYPH_NAMES = ["folder", "pencil", "search", "terminal", "note", "globe", "play", "record", "camera", "broadcast", "people", "chat", "lock", "shield", "cloud", "bell", "pulse", "keypad", "gear", "checklist", "clock", "calendar", "plug", "screenShare", "bolt", "clipboard", "pie", "drive", "picture", "pen", "doc", "easel", "grid", "table", "eye", "braces", "music", "box", "board", "contact", "trash", "blank", "film", "map"] as const;
 export type GlyphName = (typeof GLYPH_NAMES)[number];
 
 export const MODULE_ICONS: Record<string, [PaletteName, GlyphName]> = {
@@ -34,7 +34,7 @@ export const MODULE_ICONS: Record<string, [PaletteName, GlyphName]> = {
   clock: ["sky", "clock"], planner: ["coral", "calendar"], devices: ["teal", "plug"], share: ["blue", "screenShare"],
   routines: ["sun", "bolt"], clipboard: ["lime", "clipboard"], storage: ["indigo", "pie"], localdisk: ["slate", "drive"],
   imageedit: ["lagoon", "picture"], vector: ["orange", "pen"], writer: ["blue", "doc"], slides: ["ember", "easel"],
-  sheet: ["green", "grid"], tables: ["sky", "table"], whiteboard: ["indigo", "board"], contacts: ["green", "contact"], peek: ["teal", "eye"],
+  sheet: ["green", "grid"], tables: ["sky", "table"], whiteboard: ["indigo", "board"], contacts: ["green", "contact"], video: ["ember", "film"], music: ["coral", "music"], maps: ["mint", "map"], peek: ["teal", "eye"],
 };
 
 /** File extension → [palette, glyph] (folders use "dir"). */

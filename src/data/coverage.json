@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-17T05:03:32.713Z",
+ "generatedAt": "2026-10-17T06:48:07.083Z",
  "totals": {
   "built": {
-   "full": 227,
+   "full": 238,
    "partial": 62,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 110,
-   "partial": 75,
+   "full": 119,
+   "partial": 77,
    "untested": 126
   },
   "tests": {
-   "total": 441,
-   "passed": 441
+   "total": 470,
+   "passed": 470
   }
  },
  "rows": {
@@ -1392,7 +1392,7 @@
     "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
     "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
     "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
-    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
+    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
    ]
   },
   "TB-01": {
@@ -1450,7 +1450,7 @@
   "AX-12": {
    "tested": "full",
    "tests": [
-    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
+    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
    ]
   },
   "WB-01": {
@@ -1591,7 +1591,7 @@
   "LY-04": {
    "tested": "full",
    "tests": [
-    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
     "layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers"
    ]
@@ -1624,7 +1624,7 @@
    "tested": "full",
    "tests": [
     "e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back",
-    "e2e-tabletop: box geometry: floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)",
+    "e2e-tabletop: box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)",
     "e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too",
     "e2e-tabletop: walls work: Apps wall launches an app (and returns to the table), Windows wall lists and restores windows, Widgets shows the time, Recent opens a file",
     "e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card",
@@ -1661,6 +1661,101 @@
     "e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
     "e2e-beauty: 390×844: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
     "tabletop-unit: beauty rules: each hard rule catches a seeded violation and passes the clean layout"
+   ]
+  },
+  "LY-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tabletop: slanted camera is the default: floor ≥ 80 % of the Tabletop by hit-sampling 1440 points (desktop + phone), the near lip is a ≥ 24 px target, Camera toggles top ↔ slant and persists",
+    "tabletop-unit: slanted camera (default): floor ≥ 80 % of the frame across a viewport sweep, lip ≥ 24 px, β = 38°, walls share the rest",
+    "tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box"
+   ]
+  },
+  "LY-12": {
+   "tested": "full",
+   "tests": [
+    "e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it",
+    "e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload",
+    "tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box",
+    "tabletop-unit: walls as pinboards: pin a card / a whole pile to a wall, move between walls, back to the floor; walls-first wins on conflicts; v1 → v2 migration; free slots"
+   ]
+  },
+  "LY-13": {
+   "tested": "full",
+   "tests": [
+    "e2e-tabletop: saved tabletop views: save (camera + face + pins), change everything, load restores it, survives reload, delete",
+    "tabletop-unit: saved tabletop views: save captures camera + face + every surface; same name updates in place; load restores (re-validated against today's files); rename / delete; cap"
+   ]
+  },
+  "LY-14": {
+   "tested": "full",
+   "tests": [
+    "e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10",
+    "e2e-media27: layout ↔ style pairing: Art → Silver + light, Business → Daylight + light (from the Quick-panel/Settings switch), Fusion keeps the look; 'Match the look' off leaves the style alone",
+    "tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light"
+   ]
+  },
+  "LY-15": {
+   "tested": "full",
+   "tests": [
+    "e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10",
+    "tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light"
+   ]
+  },
+  "SM-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e-media27: Video: privacy gate (no provider request before consent), youtube-nocookie iframe with origin-only Referer + sandbox/allow, bad links explained, Save → Streams.json, reload keeps it, Next walks the library",
+    "e2e: mount: video",
+    "stream-unit: YouTube: watch / youtu.be / shorts / live / embed / music links → youtube-nocookie embed; start times; playlists",
+    "stream-unit: Vimeo, Dailymotion, Twitch (parent=host), PeerTube instances and direct media files",
+    "stream-unit: time parsing: seconds, h/m/s, clock forms, junk"
+   ]
+  },
+  "SM-02": {
+   "tested": "partial",
+   "tests": [
+    "e2e-media27: Music: Spotify (152 px track player, encrypted-media) and SoundCloud widget (166 px, documented params) behind the gate; 'Always load' persists and skips the gate; video links redirected",
+    "e2e: mount: music",
+    "stream-unit: Spotify + SoundCloud: official embed URLs, URI form, intl paths, content types, widget params, heights, allow lists"
+   ]
+  },
+  "SM-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-media27: Video: privacy gate (no provider request before consent), youtube-nocookie iframe with origin-only Referer + sandbox/allow, bad links explained, Save → Streams.json, reload keeps it, Next walks the library",
+    "e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations",
+    "e2e: mount: video",
+    "e2e: mount: music",
+    "stream-unit: library: add moves duplicates to the top, rename / move / remove / filter, queue order with loop, normalisation drops junk, cap"
+   ]
+  },
+  "MP-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-media27: Maps offline: the world draws with zero tile requests (≥ 230 countries, land pixels on the canvas); search 'France' flies there; hover names the country; coordinates search; Explore click selects a country",
+    "e2e-media27: Maps street tiles are opt-in: OSM tile requests start only after choosing them, carry an origin-only Referer (OSM tile policy), show the © OpenStreetMap attribution; bad custom templates are refused by the API",
+    "e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations",
+    "e2e: mount: maps",
+    "maps-unit: point-in-polygon (holes, multipolygons) and real country lookup + search over world-atlas countries-50m"
+   ]
+  },
+  "MP-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-media27: Maps offline: the world draws with zero tile requests (≥ 230 countries, land pixels on the canvas); search 'France' flies there; hover names the country; coordinates search; Explore click selects a country",
+    "e2e-media27: Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %)",
+    "e2e: mount: maps",
+    "maps-unit: coordinates: decimal, DMS, hemisphere suffixes, geo: URI, OSM + Google links; formatting round-trips",
+    "maps-unit: places: add / update / remove / cap, GeoJSON round trip in [lng, lat] order with marker-color, foreign GeoJSON import, tile URL rules"
+   ]
+  },
+  "MP-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-media27: Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %)",
+    "e2e: mount: maps",
+    "maps-unit: geodesy: haversine matches known distances (±0.5 %), bearings, path length, metric/imperial formatting"
    ]
   },
   "CT-01": {
@@ -1921,9 +2016,10 @@
    "tests": [
     "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
-    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
     "e2e-contacts: axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+    "e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations",
     "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
     "e2e-tabletop: axe-core: Tabletop floor (dark + light) and each wall as the main view — no serious or critical violations",
     "e2e-whiteboard: axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations"

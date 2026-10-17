@@ -1,0 +1,51 @@
+{
+  "suite": "stream-unit",
+  "at": "2026-10-17T06:22:40.927Z",
+  "results": [
+    {
+      "suite": "stream-unit",
+      "name": "YouTube: watch / youtu.be / shorts / live / embed / music links → youtube-nocookie embed; start times; playlists",
+      "covers": {
+        "SM-01": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "stream-unit",
+      "name": "Vimeo, Dailymotion, Twitch (parent=host), PeerTube instances and direct media files",
+      "covers": {
+        "SM-01": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "stream-unit",
+      "name": "Spotify + SoundCloud: official embed URLs, URI form, intl paths, content types, widget params, heights, allow lists",
+      "covers": {
+        "SM-02": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "stream-unit",
+      "name": "time parsing: seconds, h/m/s, clock forms, junk",
+      "covers": {
+        "SM-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "stream-unit",
+      "name": "library: add moves duplicates to the top, rename / move / remove / filter, queue order with loop, normalisation drops junk, cap",
+      "covers": {
+        "SM-03": "full"
+      },
+      "pass": true,
+      "ms": 5
+    }
+  ]
+}

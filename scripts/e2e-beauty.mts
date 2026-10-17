@@ -10,11 +10,13 @@
  * violation injected into the live page (a measurer that sees nothing would otherwise pass everything).
  * Run: BASE=http://localhost:3999 node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/e2e-beauty.mts
  */
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import type { Browser, Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 import * as B from "../src/lib/beauty-core.ts";
+import * as CB from "../src/lib/colour-beauty-core.ts";
+import { STYLES, STYLE_IDS } from "../src/lib/style-core.ts";
 
 const BASE = process.env.BASE ?? "http://localhost:3999";
 const { test, finish } = makeHarness("e2e-beauty");
@@ -30,6 +32,8 @@ async function desktop(windows: unknown[] = []) {
 }
 async function poll(fn: () => Promise<boolean>, what: string, ms = 8000) { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return; await new Promise((r) => setTimeout(r, 100)); } throw new Error(`timed out: ${what}`); }
 
+const AXE_SRC = readFileSync("node_modules/axe-core/axe.min.js", "utf8");
+const colour: (CB.PixelStats & { style: string; theme: string; layout: string; harmony: ReturnType<typeof CB.harmonyFit>; axeContrast: number | null })[] = [];
 const browser: Browser = await launchChromium();
 const retries: string[] = [];
 async function boot(vw: number, vh: number, layout = "fusion") {
@@ -110,6 +114,15 @@ async function measure(page: Page): Promise<Measured> {
       return clippedAway ? { x: 0, y: 0, w: 0, h: 0 } : { x: L, y: T, w: R - L, h: Bm - T };
     };
     const boxes: unknown[] = [], fonts: number[] = [], panels: unknown[] = [], icons: unknown[] = [], cards: unknown[] = [];
+    // 3D-projected faces (the Tabletop floor on the slant, folded walls): their bounding boxes are perspective
+    // projections, so SIZE rules use the element's own layout size (its design size before the camera) and POSITION
+    // rules use the part that is on screen (the Tabletop root crops the projection at the frame, like a camera)
+    const projected = (el: Element) => {
+      const face = el.closest("[data-face]") as HTMLElement | null, root = el.closest("[data-testid=tabletop]") as HTMLElement | null;
+      if (!face || !root || face.hasAttribute("data-main")) return false;
+      return !(face.dataset.face === "floor" && root.dataset.camera !== "slant");
+    };
+    const layoutBox = (el: Element) => { const cs = getComputedStyle(el), b = el.getBoundingClientRect(); return { x: b.x, y: b.y, w: parseFloat(cs.width) || b.width, h: parseFloat(cs.height) || b.height }; };
     const INTER = "button,a[href],input:not([type=hidden]),select,textarea,[role=button],[role=switch],[role=menuitem],[role=tab],[role=checkbox],[role=radio],[role=option]";
     for (const el of document.querySelectorAll(INTER)) {
       if (!vis(el)) continue;
@@ -118,7 +131,8 @@ async function measure(page: Page): Promise<Measured> {
       const inline = el.tagName === "A" && !!el.parentElement && ["P", "LI", "SPAN", "TD"].includes(el.parentElement.tagName) && (el.parentElement.textContent ?? "").trim().length > (el.textContent ?? "").trim().length + 8;
       const vb = visBox(el), sc = scrolled(el);
       if (vb.w < 1 && sc) continue; // scrolled out of view inside a scroller: reachable, not on screen now
-      boxes.push({ id: idOf(el), ...box(el), vis: vb, interactive: true, chrome: CHROME.some((s) => el.closest(s)), inline, region: regionOf(el), scrolled: sc });
+      const pj = projected(el);
+      boxes.push({ id: idOf(el), ...(pj ? { ...vb, w: Math.max(vb.w, 0), h: Math.max(vb.h, 0) } : box(el)), vis: vb, interactive: true, projected: pj || undefined, chrome: CHROME.some((s) => el.closest(s)), inline, region: regionOf(el), scrolled: sc });
     }
     // text: elements with their own text nodes
     for (const el of document.querySelectorAll("body *")) {
@@ -135,8 +149,8 @@ async function measure(page: Page): Promise<Measured> {
       boxes.push({ id: idOf(el), ...box(el), clipped: clipX || clipY, ellipsis: ellipsis && !clipY, fontSize: fs, lineHeight: lh, lines, region: regionOf(el) });
     }
     for (const el of document.querySelectorAll(".fs-panel,[role=dialog]")) if (vis(el)) panels.push({ id: idOf(el), ...box(el), scrolled: scrolled(el) });
-    for (const el of document.querySelectorAll("svg[data-icon][data-palette]")) if (vis(el, true)) icons.push({ id: idOf(el), ...box(el), icon: true });
-    for (const el of document.querySelectorAll("[data-testid=tt-card]")) if (vis(el) && !el.hasAttribute("data-lifted")) cards.push({ id: idOf(el), ...box(el) });
+    for (const el of document.querySelectorAll("svg[data-icon][data-palette]")) if (vis(el, true)) icons.push({ id: idOf(el), ...(projected(el) ? layoutBox(el) : box(el)), icon: true });
+    for (const el of document.querySelectorAll("[data-testid=tt-card]")) if (vis(el) && !el.hasAttribute("data-lifted")) cards.push({ id: idOf(el), ...(projected(el) ? layoutBox(el) : box(el)) });
     return { boxes, fonts, panels, icons, cards } as never;
   }, { CHROME, REGION });
 }
@@ -285,8 +299,15 @@ try {
         await s.page.waitForTimeout(900);
         note("tabletop floor", await judge(s.page, "tabletop floor", vw, vh, async () => {
           const nav = await rowOf(s.page, "[data-testid=tt-nav] > button");
+          const seps = await rowOf(s.page, "[data-testid=tt-nav] > .fs-tt-nav-sep");
           const rows = [...new Set(nav.map((b) => Math.round(b.y)))]; // the switcher may wrap to two rows on a phone
-          return rows.flatMap((y) => B.rhythm(nav.filter((b) => Math.round(b.y) === y), `tabletop switcher row ${y}`));
+          // the separator between the faces and Camera / Views is a deliberate group break (as in the dock): rhythm per group
+          return rows.flatMap((y) => {
+            const row = nav.filter((b) => Math.round(b.y) === y).sort((a, b) => a.x - b.x);
+            const groups: B.Box[][] = [[]];
+            row.forEach((b, i) => { const prev = row[i - 1]; if (prev && seps.some((sp) => Math.abs(sp.y + sp.h / 2 - (b.y + b.h / 2)) < b.h && sp.x >= prev.x + prev.w - 1 && sp.x + sp.w <= b.x + 1)) groups.push([]); groups.at(-1)!.push(b); });
+            return groups.flatMap((g, i) => B.rhythm(g, `tabletop switcher row ${y}, group ${i + 1}`));
+          });
         }));
         for (const w of ["north", "east", "south", "west"]) {
           await s.page.getByTestId(`tt-nav-${w}`).focus(); await s.page.keyboard.press("Enter");
@@ -306,9 +327,60 @@ try {
       ok(fails.length === 0, fails.join("\n"));
     });
   }
+  /* ------------------------------------------------------------------ TT27: colour schemes */
+  await test(`colour schemes: all ${STYLE_IDS.length} styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10`, { "LY-15": "full", "LY-14": "full" }, async () => {
+    const fails: string[] = [];
+    await setSetting("appearance.pairStyle", "off"); await setSetting("appearance.desktopView", "classic");
+    const files = { id: "cf1", module: "files", title: "Files", x: 380, y: 60, w: 760, h: 520, z: 11, minimized: false, maximized: false, workspace: 1, host: "tab", props: { path: "/Documents" } };
+    for (const id of STYLE_IDS) for (const theme of ["dark", "light"] as const) {
+      const layout = id === "silver" ? "art" : id === "daylight" ? "business" : "fusion";
+      await setSetting("appearance.layout", layout); await setSetting("appearance.style", id); await setSetting("appearance.theme", theme);
+      await desktop([files]);
+      const s = await boot(1440, 900, layout);
+      try {
+        await poll(async () => (await s.page.locator("html").getAttribute("data-style")) === id && (await s.page.locator("html").getAttribute("data-theme")) === theme, `${id}/${theme} applied`);
+        await s.page.waitForTimeout(500);
+        const png = await s.page.screenshot({ type: "png" });
+        const px = await s.page.evaluate(async (b64) => {
+          const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
+          const c = document.createElement("canvas"); c.width = 360; c.height = 225;
+          const g = c.getContext("2d")!; g.drawImage(img, 0, 0, 360, 225);
+          return Array.from(g.getImageData(0, 0, 360, 225).data);
+        }, png.toString("base64"));
+        const st = CB.pixelStats(px);
+        const pal = Object.values(STYLES[id].palettes).map((p) => ({ c: CB.hex(p.fg) }));
+        const harmony = CB.harmonyFit([...pal, { c: CB.hex(STYLES[id].accent), w: 3 }]);
+        if (!(await s.page.evaluate(() => "axe" in window))) await s.page.addScriptTag({ content: AXE_SRC });
+        const contrast = await s.page.evaluate(async () => {
+          const w = window as unknown as { axe?: { run: (c: unknown, o: unknown) => Promise<{ violations: { id: string; nodes: { target: string[] }[] }[] }> } };
+          if (!w.axe) return ["axe missing"];
+          const r = await w.axe.run(document, { runOnly: { type: "rule", values: ["color-contrast"] }, resultTypes: ["violations"] });
+          return r.violations.flatMap((v) => v.nodes.slice(0, 3).map((n) => n.target.join(" ")));
+        }).catch(() => ["axe failed"]);
+        const need = theme === "light" ? CB.LIGHT_INTENT[id] : undefined;
+        if (need !== undefined && st.lightNeutral < need) fails.push(`${id}/${theme}: only ${(st.lightNeutral * 100).toFixed(1)} % light-neutral pixels (needs ≥ ${need * 100} %)`);
+        if (contrast.length && contrast[0] !== "axe missing") fails.push(`${id}/${theme}: colour-contrast ${contrast.slice(0, 3).join(" | ")}`);
+        colour.push({ style: id, theme, layout, ...st, harmony, axeContrast: contrast[0] === "axe missing" ? null : contrast.length });
+      } finally { await s.close(); }
+    }
+    ok(colour.every((c) => c.axeContrast !== null), "axe ran on every screenshot");
+    ok(fails.length === 0, fails.join("\n"));
+  });
 } finally {
   await setSetting("appearance.layout", "fusion"); await setSetting("appearance.desktopView", "classic"); await desktop([]);
+  await setSetting("appearance.style", "poolside"); await setSetting("appearance.theme", "dark"); await setSetting("appearance.pairStyle", "on");
   await browser.close();
+  if (colour.length) {
+    writeFileSync("docs/colour-report.json", JSON.stringify({ generated: new Date().toISOString(), rules: "src/lib/colour-beauty-core.ts", schemes: colour }, null, 2) + "\n");
+    const pct = (v: number) => `${(v * 100).toFixed(1)} %`;
+    writeFileSync("docs/COLOUR-REPORT.md", [
+      "# Colour-scheme report (generated by scripts/e2e-beauty.mts)", "",
+      `Generated ${new Date().toISOString()} from live 1440×900 screenshots (a Files window open; Silver shown in the Art layout, Daylight in Business, the rest in Fusion), downsampled to 360×225 and measured in OKLCH by src/lib/colour-beauty-core.ts.`,
+      "HARD: axe-core colour-contrast (WCAG 2.2 1.4.3) clean; Silver and Daylight light themes ≥ 55 % light-neutral pixels (L ≥ 0.80, C ≤ 0.045). SOFT (descriptive — see the evidence notes in the core file): harmony template fit of the icon palette + accent, hue entropy (lower = simpler), distance of the top-3 colour areas from 60/30/10.", "",
+      "| Style | Theme | Layout | Light-neutral | Mean L | Top-3 areas | 60-30-10 off (pp) | Hue entropy | Palette template (dev °) | axe contrast |", "|---|---|---|---|---|---|---|---|---|---|",
+      ...colour.map((c) => `| ${c.style} | ${c.theme} | ${c.layout} | ${pct(c.lightNeutral)} | ${c.meanL} | ${c.top.map((t) => pct(t.share)).join(" / ")} | ${c.sixtyThirtyTen} | ${c.entropy} | ${c.harmony ? `${c.harmony.template} (${c.harmony.deviation})` : "—"} | ${c.axeContrast ?? "n/a"} |`), "",
+    ].join("\n"));
+  }
   if (results.length) {
     writeFileSync("docs/beauty-report.json", JSON.stringify({ generated: new Date().toISOString(), rules: "src/lib/beauty-core.ts", retries, views: results }, null, 2) + "\n");
     const softBy = new Map<string, number>();

@@ -40,6 +40,11 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
           <strong style={{ fontSize: fz(13) }}>Layout</strong>
           <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Business: a Windows-style taskbar with Start along the bottom. Art: a Mac-style menu bar and a centred dock of every app that magnifies under the pointer. Fusion: the original top bar and shelf.</span>
           <LayoutSwitch prefix="settings" />
+          <label className="fs-row" style={{ gap: 8 }}>
+            <input type="checkbox" data-testid="settings-pair-style" checked={(shell.settings["appearance.pairStyle"] ?? "on") !== "off"}
+              onChange={(e) => set("appearance.pairStyle", e.target.checked ? "on" : "off")} />
+            Match the look to the layout (Art → Silver, Business → Daylight, light theme)
+          </label>
           {layoutOf(shell.settings["appearance.layout"]) === "art" ? (
             <label className="fs-row" style={{ gap: 8 }}>
               <input type="checkbox" data-testid="settings-dock-magnify" checked={(shell.settings["appearance.dockMagnify"] ?? "on") !== "off"}

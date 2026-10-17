@@ -1,6 +1,6 @@
 {
   "suite": "vector-boolean",
-  "at": "2026-10-17T04:47:58.560Z",
+  "at": "2026-10-17T06:22:23.023Z",
   "results": [
     {
       "suite": "vector-boolean",
@@ -9,7 +9,7 @@
         "FF-37": "full"
       },
       "pass": true,
-      "ms": 111
+      "ms": 113
     },
     {
       "suite": "vector-boolean",
@@ -18,7 +18,7 @@
         "FF-37": "full"
       },
       "pass": true,
-      "ms": 133
+      "ms": 140
     },
     {
       "suite": "vector-boolean",
@@ -27,7 +27,7 @@
         "FF-37": "full"
       },
       "pass": true,
-      "ms": 162
+      "ms": 188
     },
     {
       "suite": "vector-boolean",
@@ -36,7 +36,7 @@
         "FF-37": "full"
       },
       "pass": true,
-      "ms": 183
+      "ms": 211
     },
     {
       "suite": "vector-boolean",
@@ -45,7 +45,7 @@
         "FF-37": "partial"
       },
       "pass": true,
-      "ms": 10
+      "ms": 12
     },
     {
       "suite": "vector-boolean",
@@ -54,7 +54,7 @@
         "FF-37": "partial"
       },
       "pass": true,
-      "ms": 27
+      "ms": 48
     }
   ]
 }

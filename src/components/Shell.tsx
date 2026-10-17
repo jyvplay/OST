@@ -30,7 +30,7 @@ import Taskbar from "./Taskbar";
 import Dock from "./Dock";
 import MenuBar from "./MenuBar";
 import { StartMenu, Launchpad } from "./LayoutLaunchers";
-import { isLayout, layoutOf } from "@/lib/layout-core";
+import { isLayout, layoutOf, pairedSettings } from "@/lib/layout-core";
 import { Badge, Btn } from "./ui";
 import { AppIcon, FusionLogo, UiGlyph } from "./AppIcon";
 
@@ -211,11 +211,14 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       if (!loaded.current) return;
       // keepalive fetch, not sendBeacon: the state endpoint is PUT with
       // optimistic concurrency, and sendBeacon can only issue POST.
+      // browsers reject keepalive bodies over 64 KiB (TT27: saved Tabletop views can push the state past that) —
+      // a big state still goes out as a normal request, which usually completes before the page is torn down
+      const body = JSON.stringify({ id: stateId, state, revision: state.revision });
       void fetch("/api/state", {
         method: "PUT",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id: stateId, state, revision: state.revision }),
-        keepalive: true,
+        body,
+        keepalive: body.length < 60_000,
       }).catch(() => undefined);
     };
     window.addEventListener("pagehide", flush);
@@ -351,7 +354,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         case "density": if (["compact", "balanced", "touch"].includes(arg)) await setSetting("appearance.density", arg); break;
         case "style": if (isStyle(arg)) await setSetting("appearance.style", arg); break;
         case "view": if (arg === "tabletop" || arg === "classic") await setSetting("appearance.desktopView", arg); else toast(`Routine: unknown desktop view "${arg}"`, "warn"); break;
-        case "layout": if (isLayout(arg)) await setSetting("appearance.layout", arg); else toast(`Routine: unknown layout "${arg}"`, "warn"); break;
+        case "layout": if (isLayout(arg)) { await setSetting("appearance.layout", arg); for (const [k, v] of pairedSettings(arg, settings)) await setSetting(k, v); } else toast(`Routine: unknown layout "${arg}"`, "warn"); break;
         case "textsize": { const n = Number(arg); if (Number.isInteger(n) && n >= TEXT_SCALE_MIN && n <= TEXT_SCALE_MAX) await setSetting("appearance.textScale", String(n)); break; }
         case "alert": await post("/api/alerts", { app: "Routine", title: arg || "Routine alert" }).catch(() => undefined); break;
         case "closeAll": dispatch({ t: "closeAll" }); last = null; break;

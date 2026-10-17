@@ -15,8 +15,20 @@ export const MAX_PILE = 64;
 
 export interface CardPos { x: number; y: number }
 export interface Pile { id: string; name: string; paths: string[]; x: number; y: number }
-export interface TableState { v: 1; cards: Record<string, CardPos>; piles: Pile[] }
-export const emptyTable = (): TableState => ({ v: 1, cards: {}, piles: [] });
+/** One surface's arrangement: loose cards with a saved spot + piles. The floor and every wall have one. */
+export interface Board { cards: Record<string, CardPos>; piles: Pile[] }
+/** TT27 camera: "slant" (default — a person looking down at a desk) or "top" (the TT26 straight-down box). */
+export type Camera = "slant" | "top";
+export const CAMERAS: readonly Camera[] = ["slant", "top"];
+/** TT27 saved view: a named snapshot of the camera, the main face and every surface's arrangement. */
+export interface SavedView { id: string; name: string; camera: Camera; face: Face; floor: Board; walls: Partial<Record<Wall, Board>>; savedAt: string }
+/**
+ * Saved Tabletop state. v1 (TT26) had the floor only; v2 adds `walls` (cards pinned to a wall, with piles — a file
+ * lives on exactly one surface), `camera` and `views`. v1 input normalizes to v2 with nothing lost.
+ */
+export interface TableState { v: 1 | 2; cards: Record<string, CardPos>; piles: Pile[]; walls?: Partial<Record<Wall, Board>>; camera?: Camera; views?: SavedView[] }
+export const emptyTable = (): TableState => ({ v: 2, cards: {}, piles: [], walls: {}, camera: "slant", views: [] });
+export const MAX_VIEWS = 12;
 
 export const WALLS = ["north", "east", "south", "west"] as const;
 export type Wall = (typeof WALLS)[number];
@@ -40,17 +52,15 @@ export function fnv1a(s: string): number {
 }
 
 /**
- * Validate an untrusted saved table against the files that actually exist (VFS is the truth, as SH-04 for icons):
- * unknown paths are dropped, a path belongs to at most one pile (first wins) and is then not also a loose card,
- * piles left with fewer than 2 cards dissolve (the survivor becomes a loose card at the pile's spot), numbers are
- * clamped, names trimmed. Total: any input → a valid TableState.
+ * Validate one untrusted board against the files that actually exist (VFS is the truth, as SH-04 for icons):
+ * unknown paths are dropped, a path belongs to at most one pile/surface (first wins — `used` is shared across the
+ * surfaces being normalized), piles left with fewer than 2 cards dissolve (the survivor becomes a loose card at the
+ * pile's spot), numbers are clamped, names trimmed. Total: any input → a valid Board.
  */
-export function normalizeTable(raw: unknown, existing: readonly string[]): TableState {
-  const out = emptyTable();
+export function normalizeBoard(raw: unknown, have: ReadonlySet<string>, used: Set<string>): Board {
+  const out: Board = { cards: {}, piles: [] };
   if (!raw || typeof raw !== "object") return out;
-  const t = raw as Partial<TableState>;
-  const have = new Set(existing);
-  const used = new Set<string>();
+  const t = raw as Partial<Board>;
   const ids = new Set<string>();
   for (const p of Array.isArray(t.piles) ? t.piles : []) {
     if (!p || typeof p !== "object" || typeof p.id !== "string" || !p.id || ids.has(p.id)) continue;
@@ -67,10 +77,143 @@ export function normalizeTable(raw: unknown, existing: readonly string[]): Table
   }
   const cards = t.cards && typeof t.cards === "object" ? t.cards : {};
   for (const [k, v] of Object.entries(cards)) {
-    if (!have.has(k) || out.piles.some((p) => p.paths.includes(k)) || out.cards[k]) continue;
-    if (v && typeof v === "object") out.cards[k] = { x: clampPos((v as CardPos).x), y: clampPos((v as CardPos).y) };
+    if (!have.has(k) || used.has(k)) continue;
+    if (v && typeof v === "object") { used.add(k); out.cards[k] = { x: clampPos((v as CardPos).x), y: clampPos((v as CardPos).y) }; }
   }
   return out;
+}
+
+const boardEmpty = (b: Board) => !Object.keys(b.cards).length && !b.piles.length;
+
+/** Walls first (pinning is a deliberate act, so a pin wins over a stale floor spot), then the floor. */
+function normalizeSurfaces(raw: Partial<Board> & { walls?: unknown }, have: ReadonlySet<string>): { floor: Board; walls: Partial<Record<Wall, Board>> } {
+  const used = new Set<string>();
+  const walls: Partial<Record<Wall, Board>> = {};
+  const rw = raw.walls && typeof raw.walls === "object" ? (raw.walls as Record<string, unknown>) : {};
+  for (const w of WALLS) { const b = normalizeBoard(rw[w], have, used); if (!boardEmpty(b)) walls[w] = b; }
+  return { floor: normalizeBoard(raw, have, used), walls };
+}
+
+/**
+ * Validate an untrusted saved table (v1 or v2) against the files that exist. Total: any input → a valid v2 state.
+ * Saved views keep their own arrangement (checked against the same files, independently of the live one).
+ */
+export function normalizeTable(raw: unknown, existing: readonly string[]): TableState {
+  const out = emptyTable();
+  if (!raw || typeof raw !== "object") return out;
+  const t = raw as Partial<TableState>;
+  const have = new Set(existing);
+  const { floor, walls } = normalizeSurfaces(t, have);
+  out.cards = floor.cards; out.piles = floor.piles; out.walls = walls;
+  out.camera = t.camera === "top" ? "top" : "slant";
+  const views: SavedView[] = [];
+  const vids = new Set<string>(), names = new Set<string>();
+  for (const v of Array.isArray(t.views) ? t.views : []) {
+    if (views.length >= MAX_VIEWS) break;
+    if (!v || typeof v !== "object" || typeof v.id !== "string" || !v.id || vids.has(v.id)) continue;
+    const name = (typeof v.name === "string" ? v.name.trim() : "").slice(0, 60);
+    if (!name || names.has(name.toLowerCase())) continue;
+    const s = normalizeSurfaces({ ...(v.floor && typeof v.floor === "object" ? v.floor : {}), walls: v.walls }, have);
+    vids.add(v.id); names.add(name.toLowerCase());
+    views.push({ id: v.id.slice(0, 40), name, camera: v.camera === "top" ? "top" : "slant", face: isFace(v.face) ? v.face : "floor",
+      floor: s.floor, walls: s.walls, savedAt: typeof v.savedAt === "string" ? v.savedAt.slice(0, 40) : "" });
+  }
+  out.views = views;
+  return out;
+}
+
+/* ---------------------------------------------------------------- surfaces (floor + 4 walls) */
+export const boardOf = (t: TableState, s: Face): Board =>
+  s === "floor" ? { cards: t.cards, piles: t.piles } : t.walls?.[s] ?? { cards: {}, piles: [] };
+export function withBoard(t: TableState, s: Face, b: Board): TableState {
+  if (s === "floor") return { ...t, cards: b.cards, piles: b.piles };
+  const walls = { ...(t.walls ?? {}) };
+  if (boardEmpty(b)) delete walls[s]; else walls[s] = { cards: b.cards, piles: b.piles };
+  return { ...t, walls };
+}
+/** Every path pinned to some wall (these are not on the floor). */
+export const pinnedPaths = (t: TableState): Set<string> =>
+  new Set(WALLS.flatMap((w) => { const b = t.walls?.[w]; return b ? [...Object.keys(b.cards), ...b.piles.flatMap((p) => p.paths)] : []; }));
+/** The paths that live on a surface: a wall's own pins, or — for the floor — every existing file not pinned. */
+export function surfacePaths(t: TableState, s: Face, existing: readonly string[]): string[] {
+  if (s === "floor") { const pin = pinnedPaths(t); return existing.filter((p) => !pin.has(p)); }
+  const b = boardOf(t, s);
+  return [...b.piles.flatMap((p) => p.paths), ...Object.keys(b.cards)];
+}
+export function surfaceOf(t: TableState, path: string): Face {
+  for (const w of WALLS) { const b = t.walls?.[w]; if (b && (b.cards[path] || b.piles.some((p) => p.paths.includes(path)))) return w; }
+  return "floor";
+}
+
+/** First free CARD_W×CARD_H grid slot (row-major) on a board `areaW` wide, given what is already on it. */
+export function freeSlot(items: readonly { x: number; y: number }[], areaW: number): CardPos {
+  const sw = CARD_W + CARD_GAP, sh = CARD_H + CARD_GAP;
+  const cols = Math.max(1, Math.floor((Math.max(sw, fin(areaW, 800)) - CARD_GAP) / sw));
+  for (let slot = 0; slot < 4000; slot++) {
+    const x = CARD_GAP + (slot % cols) * sw, y = CARD_GAP + Math.floor(slot / cols) * sh;
+    if (!items.some((o) => Math.abs(o.x - x) < CARD_W * 0.6 && Math.abs(o.y - y) < CARD_H * 0.6)) return { x, y };
+  }
+  return { x: CARD_GAP, y: CARD_GAP };
+}
+
+/**
+ * Move a card (`card:<path>`) or a whole pile (`pile:<id>`) from surface `from` to surface `to`, landing at `pos`
+ * (pin to a wall, put back on the table, or move between walls). Unknown keys / paths not on `from` → no-op.
+ * A pile keeps its id unless the target already has one with that id (then it gets a fresh deterministic id).
+ */
+export function moveToSurface(t: TableState, key: string, from: Face, to: Face, pos: CardPos, existing: readonly string[]): TableState {
+  const onFrom = new Set(surfacePaths(t, from, existing));
+  const p = { x: clampPos(pos.x), y: clampPos(pos.y) };
+  if (from === to) return withBoard(t, from, moveItem(boardOf(t, from), key, p));
+  const src = boardOf(t, from), dst = boardOf(t, to);
+  if (key.startsWith("card:")) {
+    const path = key.slice(5);
+    if (!onFrom.has(path) || src.piles.some((pl) => pl.paths.includes(path))) return t;
+    const cards = { ...src.cards }; delete cards[path];
+    return withBoard(withBoard(t, from, { ...src, cards }), to, { ...dst, cards: { ...dst.cards, [path]: p } });
+  }
+  if (key.startsWith("pile:")) {
+    const pile = src.piles.find((pl) => `pile:${pl.id}` === key);
+    if (!pile) return t;
+    const id = dst.piles.some((pl) => pl.id === pile.id) ? `p${fnv1a(`${to}\n${pile.paths.join("\n")}`).toString(36)}` : pile.id;
+    return withBoard(withBoard(t, from, { ...src, piles: src.piles.filter((pl) => pl.id !== pile.id) }), to, { ...dst, piles: [...dst.piles, { ...pile, id, ...p }] });
+  }
+  return t;
+}
+
+/* ---------------------------------------------------------------- saved views */
+const snapshot = (b: Board): Board => ({ cards: { ...b.cards }, piles: b.piles.map((p) => ({ ...p, paths: [...p.paths] })) });
+/**
+ * Save the current arrangement + camera + main face under `name`. Same name (case-insensitive) → that view is
+ * updated in place (keeps its id). A new name when MAX_VIEWS are saved → unchanged (caller says why).
+ */
+export function saveView(t: TableState, name: string, face: Face, now: string): TableState {
+  const n = name.trim().slice(0, 60);
+  if (!n) return t;
+  const views = [...(t.views ?? [])];
+  const at = views.findIndex((v) => v.name.toLowerCase() === n.toLowerCase());
+  if (at < 0 && views.length >= MAX_VIEWS) return t;
+  const walls: Partial<Record<Wall, Board>> = {};
+  for (const w of WALLS) if (t.walls?.[w]) walls[w] = snapshot(t.walls[w]!);
+  const view: SavedView = { id: at >= 0 ? views[at].id : `v${fnv1a(`${n}\n${now}`).toString(36)}`, name: n, camera: t.camera ?? "slant", face, floor: snapshot(t), walls, savedAt: now };
+  if (at >= 0) views[at] = view; else views.push(view);
+  return { ...t, v: 2, views };
+}
+/**
+ * Load a view: its arrangement replaces the live one (re-checked against the files that exist now — files saved
+ * since then land on the floor's free slots), its camera becomes the camera; returns the face to show.
+ */
+export function loadView(t: TableState, id: string, existing: readonly string[]): { table: TableState; face: Face } | null {
+  const v = (t.views ?? []).find((x) => x.id === id);
+  if (!v) return null;
+  const s = normalizeSurfaces({ ...v.floor, walls: v.walls }, new Set(existing));
+  return { table: { ...t, v: 2, cards: s.floor.cards, piles: s.floor.piles, walls: s.walls, camera: v.camera }, face: v.face };
+}
+export const deleteView = (t: TableState, id: string): TableState => ({ ...t, views: (t.views ?? []).filter((v) => v.id !== id) });
+export function renameView(t: TableState, id: string, name: string): TableState {
+  const n = name.trim().slice(0, 60);
+  if (!n || (t.views ?? []).some((v) => v.id !== id && v.name.toLowerCase() === n.toLowerCase())) return t;
+  return { ...t, views: (t.views ?? []).map((v) => (v.id === id ? { ...v, name: n } : v)) };
 }
 
 export type FloorItem = { kind: "card"; key: string; path: string; x: number; y: number } | { kind: "pile"; key: string; pile: Pile; x: number; y: number };
@@ -79,7 +222,7 @@ export type FloorItem = { kind: "card"; key: string; path: string; x: number; y:
  * Everything on the floor with a position: piles at their spot, loose cards at their saved spot, unsaved cards on a
  * grid of free CARD_W×CARD_H slots (row-major, reading order), skipping slots already covered by something.
  */
-export function floorItems(table: TableState, paths: readonly string[], areaW: number): FloorItem[] {
+export function floorItems(table: Board, paths: readonly string[], areaW: number): FloorItem[] {
   const out: FloorItem[] = table.piles.map((p) => ({ kind: "pile", key: `pile:${p.id}`, pile: p, x: p.x, y: p.y }));
   const inPile = new Set(table.piles.flatMap((p) => p.paths));
   const loose = paths.filter((p) => !inPile.has(p));
@@ -111,7 +254,7 @@ export function hitItem(items: readonly FloorItem[], x: number, y: number, excep
   return null;
 }
 
-const pathsOf = (table: TableState, key: string): string[] =>
+const pathsOf = (table: Board, key: string): string[] =>
   key.startsWith("pile:") ? table.piles.find((p) => `pile:${p.id}` === key)?.paths ?? [] : key.startsWith("card:") ? [key.slice(5)] : [];
 
 /**
@@ -119,7 +262,7 @@ const pathsOf = (table: TableState, key: string): string[] =>
  * target's cards underneath and the dragged cards on top (as when you drop a sheet on a stack of paper).
  * Dropping onto itself, or anything unknown (pass `existing` to check card paths against the VFS), is a no-op. Pile ids are deterministic (FNV-1a of the member paths).
  */
-export function pileUp(table: TableState, dragKey: string, targetKey: string, pos: CardPos, existing?: readonly string[]): TableState {
+export function pileUp<T extends Board>(table: T, dragKey: string, targetKey: string, pos: CardPos, existing?: readonly string[]): T {
   if (dragKey === targetKey) return table;
   const known = existing ? new Set(existing) : null;
   const keep = (ps: string[]) => (known ? ps.filter((p) => known.has(p)) : ps);
@@ -132,11 +275,11 @@ export function pileUp(table: TableState, dragKey: string, targetKey: string, po
   const name = target?.name ?? `Pile ${table.piles.length + 1}`;
   const cards = { ...table.cards };
   for (const p of paths) delete cards[p];
-  return { v: 1, cards, piles: [...piles, { id, name, paths, x: Math.round(pos.x), y: Math.round(pos.y) }] };
+  return { ...table, cards, piles: [...piles, { id, name, paths, x: Math.round(pos.x), y: Math.round(pos.y) }] };
 }
 
 /** Take one card out of a pile and put it at `pos`; a pile left with one card dissolves into a loose card. */
-export function takeFromPile(table: TableState, pileId: string, path: string, pos: CardPos): TableState {
+export function takeFromPile<T extends Board>(table: T, pileId: string, path: string, pos: CardPos): T {
   const pile = table.piles.find((p) => p.id === pileId);
   if (!pile || !pile.paths.includes(path)) return table;
   const rest = pile.paths.filter((p) => p !== path);
@@ -144,27 +287,27 @@ export function takeFromPile(table: TableState, pileId: string, path: string, po
   let piles = table.piles.filter((p) => p.id !== pileId);
   if (rest.length >= 2) piles = [...piles, { ...pile, paths: rest }];
   else if (rest.length === 1) cards[rest[0]] = { x: pile.x, y: pile.y };
-  return { v: 1, cards, piles };
+  return { ...table, cards, piles };
 }
 
 /** Spread a pile back out into loose cards on a small grid starting at the pile's spot. */
-export function unstack(table: TableState, pileId: string): TableState {
+export function unstack<T extends Board>(table: T, pileId: string): T {
   const pile = table.piles.find((p) => p.id === pileId);
   if (!pile) return table;
   const cards = { ...table.cards };
   const cols = Math.ceil(Math.sqrt(pile.paths.length));
   pile.paths.forEach((p, i) => { cards[p] = { x: pile.x + (i % cols) * (CARD_W + CARD_GAP), y: pile.y + Math.floor(i / cols) * (CARD_H + CARD_GAP) }; });
-  return { v: 1, cards, piles: table.piles.filter((p) => p.id !== pileId) };
+  return { ...table, cards, piles: table.piles.filter((p) => p.id !== pileId) };
 }
 
-export const moveItem = (table: TableState, key: string, pos: CardPos): TableState => {
+export const moveItem = <T extends Board>(table: T, key: string, pos: CardPos): T => {
   const x = Math.round(pos.x), y = Math.round(pos.y);
   if (key.startsWith("pile:")) return { ...table, piles: table.piles.map((p) => (`pile:${p.id}` === key ? { ...p, x, y } : p)) };
   if (key.startsWith("card:")) return { ...table, cards: { ...table.cards, [key.slice(5)]: { x, y } } };
   return table;
 };
 
-export const renamePile = (table: TableState, pileId: string, name: string): TableState =>
+export const renamePile = <T extends Board>(table: T, pileId: string, name: string): T =>
   ({ ...table, piles: table.piles.map((p) => (p.id === pileId ? { ...p, name: name.trim().slice(0, 60) || p.name } : p)) });
 
 /**

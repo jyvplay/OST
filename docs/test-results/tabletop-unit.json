@@ -1,6 +1,6 @@
 {
   "suite": "tabletop-unit",
-  "at": "2026-10-17T04:48:12.238Z",
+  "at": "2026-10-17T06:22:40.750Z",
   "results": [
     {
       "suite": "tabletop-unit",
@@ -54,7 +54,7 @@
         "LY-08": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tabletop-unit",
@@ -83,6 +83,53 @@
       },
       "pass": true,
       "ms": 0
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "slanted camera (default): floor ≥ 80 % of the frame across a viewport sweep, lip ≥ 24 px, β = 38°, walls share the rest",
+      "covers": {
+        "LY-11": "full"
+      },
+      "pass": true,
+      "ms": 17
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box",
+      "covers": {
+        "LY-11": "full",
+        "LY-12": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "walls as pinboards: pin a card / a whole pile to a wall, move between walls, back to the floor; walls-first wins on conflicts; v1 → v2 migration; free slots",
+      "covers": {
+        "LY-12": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "saved tabletop views: save captures camera + face + every surface; same name updates in place; load restores (re-validated against today's files); rename / delete; cap",
+      "covers": {
+        "LY-13": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light",
+      "covers": {
+        "LY-15": "full",
+        "LY-14": "partial"
+      },
+      "pass": true,
+      "ms": 11
     },
     {
       "suite": "tabletop-unit",

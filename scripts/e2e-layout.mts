@@ -196,6 +196,12 @@ try {
     }
     ok(missing.length === 0, `every module reachable from the dock; missing: ${missing.join(",")}`);
     ok(await page.getByTestId("dock-launchpad").count() === 1 && await page.getByTestId("dock-trash").count() === 1, "Launchpad + Trash");
+    // measure the dock at rest: the stack clicks above leave the pointer on it and (after Esc) keyboard focus on a stack
+    // button — magnification follows both the pointer and focus, and widens the dock
+    await page.mouse.move(720, 300);
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+    let prevW = -1;
+    await poll(async () => { const w = (await box(page.getByTestId("dock"))).width; const same = Math.abs(w - prevW) < 0.5; prevW = w; return same; }, "dock at rest");
     const d = await box(page.getByTestId("dock"));
     ok(Math.abs(d.x + d.width / 2 - 720) <= 2, `dock centred (${d.x + d.width / 2})`);
     ok(d.y + d.height <= 900 - 3 && d.x > 0 && d.x + d.width < 1440, `dock floats inside the screen ${JSON.stringify(d)}`);

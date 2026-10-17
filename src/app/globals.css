@@ -90,6 +90,8 @@ body {
 /* TT25 professional wallpapers */
 .fs-wallpaper-enterprise { background: #1d4a78 url("/wallpapers/enterprise.svg") center / cover no-repeat; }
 .fs-wallpaper-graphite { background: #55585e url("/wallpapers/graphite.svg") center / cover no-repeat; }
+.fs-wallpaper-silver { background: #d9dde4 url("/wallpapers/silver.svg") center / cover no-repeat; }
+.fs-wallpaper-daylight { background: #dfe9f6 url("/wallpapers/daylight.svg") center / cover no-repeat; }
 /* TT21 default: a cheerful morning sky — cobalt overhead, a warm sun low on the left, floating bubbles */
 .fs-wallpaper-sunrise {
   background:
@@ -392,6 +394,34 @@ input[type="color"] { min-width: calc(6px + 16 * var(--fs-u)); min-height: calc(
 .fs-tt-nav button:hover { background: color-mix(in srgb, var(--fs-text) 10%, transparent); }
 .fs-tt-nav button[aria-pressed="true"] { background: var(--fs-accent); color: #04102b; }
 .fs-tt-back { position: absolute; top: 16px; left: 16px; z-index: 30; min-height: 40px; }
+/* TT27: slanted camera — the switcher floats just above the south lip so the lip stays a visible target */
+.fs-tabletop[data-camera="slant"] .fs-tt-nav { bottom: calc(var(--tt-lip, 0px) + 10px); }
+.fs-tt-nav-sep { width: 1px; align-self: stretch; margin: 6px 2px; background: color-mix(in srgb, var(--fs-text) 18%, transparent); }
+/* TT27: every wall is a pinboard (cards + piles, like the floor) beside its built-in panel */
+.fs-tt-wall[data-main] .fs-tt-wall-body { overflow: hidden; }
+.fs-tt-wall-split { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 0.4fr) minmax(0, 0.6fr); gap: 24px; }
+.fs-tt-wall-panel { min-height: 0; overflow: auto; padding-right: 4px; }
+.fs-tt-pinboard { position: relative; min-height: 0; overflow: auto; border-radius: 18px; border: 1px dashed color-mix(in srgb, var(--fs-text) 22%, transparent);
+  background: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--fs-text) 14%, transparent) 1px, transparent 1.5px) 0 0 / 24px 24px,
+    color-mix(in srgb, var(--fs-text) 3%, transparent); }
+.fs-tt-pinboard-inner { position: relative; min-height: 100%; }
+.fs-tt-pincount { padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--fs-accent) 24%, transparent); font-weight: 700; font-size: calc(12 * var(--fs-u)); line-height: 1.6; }
+.fs-tt-pinchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fs-tt-pinchip { display: inline-flex; align-items: center; gap: 5px; max-width: 180px; padding: 3px 9px; border-radius: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background: color-mix(in srgb, var(--fs-panel-solid) 70%, #fff); color: var(--fs-text); font-size: calc(11.5 * var(--fs-u)); line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+.fs-tt-wall[data-drop] { box-shadow: inset 0 0 0 4px var(--fs-accent); }
+.fs-tt-wall[data-drop] .fs-tt-wall-open { background: color-mix(in srgb, var(--fs-accent) 22%, transparent); }
+/* TT27: saved views */
+.fs-tt-views { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--tt-lip, 0px) + 72px); z-index: 45; width: min(440px, calc(100% - 24px));
+  max-height: min(70%, 560px); overflow: auto; display: grid; gap: 10px; padding: 16px; border-radius: 18px; }
+.fs-tt-views-title { font-size: calc(16 * var(--fs-u)); line-height: 1.3; }
+.fs-tt-views-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.fs-tt-views-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px; align-items: stretch; }
+.fs-tt-views-list li > .fs-btn:first-child { display: grid; justify-items: start; gap: 0; min-height: 48px; text-align: left; }
+.fs-tt-view-name { font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-tt-view-meta { font-size: calc(11.5 * var(--fs-u)); }
+.fs-tt-views-save { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.fs-tt-views-msg { margin: 0; min-height: 1.4em; line-height: 1.4; }
 @media (forced-colors: active) { .fs-tt-card, .fs-tt-zoom { border-color: CanvasText; } .fs-tt-nav button[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; } }
 
 /* TT26 beauty pass (found by scripts/e2e-beauty.mts): Start's All-apps rows meet the 32 px chrome floor; on a
@@ -412,4 +442,86 @@ input[type="color"] { min-width: calc(6px + 16 * var(--fs-u)); min-height: calc(
   .fs-desk-widgets > * { min-width: 0; overflow-wrap: anywhere; }
   .fs-tt-nav { flex-wrap: wrap; justify-content: center; width: max-content; max-width: calc(100% - 16px); }
   .fs-tt-nav button { min-width: 0; padding: 0 10px; }
+  .fs-tt-wall-split { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 0.42fr) minmax(0, 0.58fr); gap: 14px; }
+  .fs-tt-views { bottom: calc(var(--tt-lip, 0px) + 120px); }
+}
+
+/* ------------------------------------------------------------------ TT27 Video / Music (SM-01..03) */
+/* flex column: the main area takes the remaining height whether or not the error row is present (a 3-row grid put
+   the main area in an auto row when there was no error, so the video stage never had a definite height) */
+.fs-stream { height: 100%; display: flex; flex-direction: column; gap: 12px; padding: 16px; min-height: 0; }
+.fs-stream > .fs-stream-bar, .fs-stream > .fs-stream-err { flex: 0 0 auto; }
+.fs-stream > .fs-stream-main { flex: 1 1 0; }
+.fs-stream-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; }
+.fs-stream-err { margin: 0; padding: 8px 12px; border-radius: 10px; background: color-mix(in srgb, #e5484d 16%, transparent); line-height: 1.45; }
+.fs-stream-main { display: grid; grid-template-columns: minmax(0, 1.618fr) minmax(220px, 1fr); gap: 16px; min-height: 0; }
+.fs-stream-stage { display: grid; align-content: start; gap: 10px; min-height: 0; overflow: auto; }
+.fs-stream-frame, .fs-stream-video { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 14px; background: #000; display: block; }
+.fs-stream[data-kind="audio"] .fs-stream-frame { aspect-ratio: auto; background: transparent; }
+.fs-stream-audio { width: 100%; }
+.fs-stream-empty, .fs-stream-facade { display: grid; gap: 10px; align-content: center; justify-items: start; padding: 24px; border-radius: 14px; aspect-ratio: 16 / 9;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--fs-accent) 16%, var(--fs-panel-solid)), var(--fs-panel-solid)); border: 1px solid var(--fs-border); line-height: 1.5; }
+.fs-stream[data-kind="audio"] .fs-stream-empty, .fs-stream[data-kind="audio"] .fs-stream-facade { aspect-ratio: auto; min-height: 220px; }
+.fs-stream-facade-title { font-size: calc(17 * var(--fs-u)); line-height: 1.3; }
+.fs-stream-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fs-stream-lib { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto; gap: 8px; min-height: 0; }
+.fs-stream-list { list-style: none; margin: 0; padding: 0; overflow: auto; display: grid; align-content: start; gap: 4px; min-height: 0; }
+.fs-stream-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px; border-radius: 10px; }
+.fs-stream-list li[data-current] { background: color-mix(in srgb, var(--fs-accent) 18%, transparent); }
+.fs-stream-item-play { display: grid; gap: 1px; text-align: left; min-height: 44px; padding: 6px 10px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; cursor: pointer; min-width: 0; }
+.fs-stream-item-play:hover { background: color-mix(in srgb, var(--fs-text) 7%, transparent); }
+.fs-stream-item-title { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-stream-item-sub { font-size: calc(11.5 * var(--fs-u)); }
+.fs-stream-item-tools { display: flex; gap: 2px; }
+.fs-stream-item-tools .fs-btn { min-width: 32px; min-height: 32px; padding: 0 6px; }
+/* the window, not the viewport, decides the layout (a 440 px Music window on a 1440 px screen must stack too) */
+.fs-stream { container-type: inline-size; container-name: stream; }
+/* wide video: the player fills the stage height — no dead band under it (the provider letterboxes inside its frame) */
+.fs-stream[data-kind="video"] .fs-stream-stage { grid-template-rows: minmax(0, 1fr) auto; align-content: stretch; overflow: hidden; }
+.fs-stream[data-kind="video"] :is(.fs-stream-frame, .fs-stream-video, .fs-stream-empty, .fs-stream-facade) { aspect-ratio: auto; height: 100%; min-height: 200px; }
+.fs-stream[data-kind="video"] .fs-stream-facade { overflow: auto; }
+@container stream (max-width: 600px) {
+  .fs-stream-main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(160px, 1fr); }
+  .fs-stream[data-kind="video"] .fs-stream-stage { grid-template-rows: auto auto; overflow: visible; }
+  .fs-stream[data-kind="video"] :is(.fs-stream-frame, .fs-stream-video) { height: auto; aspect-ratio: 16 / 9; }
+  /* the consent facade and the empty state hold text and buttons: they size to their content, never clip it */
+  .fs-stream[data-kind="video"] :is(.fs-stream-empty, .fs-stream-facade) { height: auto; aspect-ratio: auto; overflow: visible; }
+  .fs-stream-main { overflow: auto; }
+}
+
+/* ------------------------------------------------------------------ TT27 Maps (MP-01..03) */
+.fs-maps { height: 100%; display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); min-height: 0; }
+.fs-maps-side { display: flex; flex-direction: column; gap: 10px; padding: 14px; overflow: auto; min-height: 0; border-right: 1px solid var(--fs-border); }
+.fs-maps-search { position: relative; }
+.fs-maps-results { list-style: none; margin: 4px 0 0; padding: 4px; display: grid; gap: 2px; border-radius: 10px; background: var(--fs-panel-solid); border: 1px solid var(--fs-border); max-height: 260px; overflow: auto; }
+.fs-maps-result { width: 100%; display: flex; justify-content: space-between; gap: 8px; text-align: left; min-height: 36px; padding: 6px 10px; border: 0; border-radius: 8px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.fs-maps-result:hover, .fs-maps-result:focus-visible { background: color-mix(in srgb, var(--fs-accent) 18%, transparent); }
+.fs-maps-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.fs-maps-modes .fs-layout-opt, .fs-maps-import { position: relative; overflow: hidden; }
+.fs-maps-modes .fs-layout-opt { justify-content: center; text-align: center; min-height: 40px; display: grid; place-items: center; font-weight: 700; }
+.fs-maps-card { display: grid; gap: 8px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--fs-text) 5%, transparent); border: 1px solid var(--fs-border); line-height: 1.45; }
+.fs-maps-card summary { cursor: pointer; font-weight: 700; min-height: 28px; }
+.fs-maps-places { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.fs-maps-places li[data-current] { background: color-mix(in srgb, var(--fs-accent) 18%, transparent); border-radius: 10px; }
+.fs-maps-place { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: center; text-align: left; min-height: 44px; padding: 5px 8px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.fs-maps-place:hover { background: color-mix(in srgb, var(--fs-text) 7%, transparent); }
+.fs-maps-dot { grid-row: span 2; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 2px #fff; }
+.fs-maps-place-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-maps-place-ll { font-size: calc(11 * var(--fs-u)); }
+.fs-maps-swatch { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--fs-border); cursor: pointer; }
+.fs-maps-swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--fs-accent); }
+.fs-maps-stage { position: relative; min-height: 0; min-width: 0; }
+.fs-maps-map { position: absolute; inset: 0; background: #0e2233; outline-offset: -3px; }
+.fs-maps-map[data-theme="light"] { background: #cfe3f2; }
+.fs-maps-map[data-mode="pin"], .fs-maps-map[data-mode="measure"] { cursor: crosshair; }
+.fs-maps-map .leaflet-container { font: inherit; }
+.fs-maps-map .leaflet-control-attribution { font-size: calc(10.5 * var(--fs-u)); background: rgba(255, 255, 255, 0.85); color: #1d1d1f; }
+.fs-maps-map .leaflet-control-attribution a { color: #0b57b5; }
+.fs-maps-map.leaflet-container { background: #0e2233; }
+.fs-maps-map[data-theme="light"].leaflet-container { background: #cfe3f2; }
+.fs-maps-coords { position: absolute; left: 12px; top: 12px; z-index: 500; padding: 5px 10px; border-radius: 10px; background: var(--fs-panel); border: 1px solid var(--fs-border);
+  backdrop-filter: blur(12px); font-variant-numeric: tabular-nums; font-size: calc(12 * var(--fs-u)); pointer-events: none; margin-left: 44px; }
+@media (max-width: 720px) {
+  .fs-maps { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 0.9fr) minmax(0, 1fr); }
+  .fs-maps-side { order: 2; border-right: 0; border-top: 1px solid var(--fs-border); }
 }

@@ -46,7 +46,7 @@ export interface DesktopState {
   /** TT25 "Show desktop": ids minimised by the last showDesktop, restored by the next one (cleared by any focus/open). */
   peek?: string[];
   /** TT26 Tabletop floor: loose card positions + piles (validated against the VFS by tabletop-core normalizeTable). */
-  table?: { v: 1; cards: Record<string, { x: number; y: number }>; piles: { id: string; name: string; paths: string[]; x: number; y: number }[] };
+  table?: import("../tabletop-core").TableState;
 }
 
 export const MIN_W: Record<Density, number> = { compact: 240, balanced: 280, touch: 320 };

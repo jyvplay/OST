@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-17T05:03:32.711Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-41 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-17T06:48:07.080Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+44 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **311** |
-| Fully built | 227 |
+| **Features in register** | **322** |
+| Fully built | 238 |
 | Partially built (partial 45 + probe 17) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **110** |
-| **Partially tested** (only `partial` tags) | **75** |
+| **Fully tested** (≥1 passing test tagged `full`) | **119** |
+| **Partially tested** (only `partial` tags) | **77** |
 | Untested | 126 |
-| Automated tests executed / passed | 441 / 441 |
+| Automated tests executed / passed | 470 / 470 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 101 | 59 | 67 |
+| fully built | 110 | 61 | 67 |
 | partially built | 3 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,47 +33,50 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-17T04:48:08.619Z |
-| ai-format | 5 | 5 | 0 | 2026-10-17T04:48:10.131Z |
-| browser-session | 5 | 5 | 0 | 2026-10-17T04:47:59.267Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-17T04:48:11.274Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-17T04:56:27.335Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-17T04:57:16.135Z |
-| e2e-beauty | 5 | 5 | 0 | 2026-10-17T05:01:02.897Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-17T04:51:52.455Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-17T04:57:36.406Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-17T04:50:49.014Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-17T04:58:30.640Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-17T04:50:07.988Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-17T05:03:26.451Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T04:53:13.340Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-17T04:56:45.215Z |
-| e2e-tabletop | 10 | 10 | 0 | 2026-10-17T04:59:31.672Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-17T04:51:11.331Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T04:57:04.601Z |
-| e2e | 58 | 58 | 0 | 2026-10-17T04:49:45.183Z |
-| image | 12 | 12 | 0 | 2026-10-17T04:47:54.717Z |
-| integration | 25 | 25 | 0 | 2026-10-17T04:47:49.465Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-17T04:48:11.970Z |
-| metaclean | 6 | 6 | 0 | 2026-10-17T04:48:05.533Z |
-| names | 7 | 7 | 0 | 2026-10-17T04:47:54.370Z |
-| office | 35 | 35 | 0 | 2026-10-17T04:47:49.822Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-17T04:48:11.001Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-17T04:47:57.492Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-17T04:47:59.111Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-17T04:48:11.717Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T04:47:51.427Z |
-| oracle | 5 | 5 | 0 | 2026-10-17T04:47:50.135Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-17T04:48:08.398Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-17T04:48:02.949Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-17T05:01:23.756Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-17T04:47:51.779Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-17T04:48:08.808Z |
-| tabletop-unit | 12 | 12 | 0 | 2026-10-17T04:48:12.238Z |
-| unit | 23 | 23 | 0 | 2026-10-17T04:47:46.908Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-17T04:47:58.560Z |
-| vector | 18 | 18 | 0 | 2026-10-17T04:47:57.720Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T04:48:08.983Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-17T06:22:34.537Z |
+| ai-format | 5 | 5 | 0 | 2026-10-17T06:22:36.349Z |
+| browser-session | 5 | 5 | 0 | 2026-10-17T06:22:23.886Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-17T06:22:39.630Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-17T06:31:17.475Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-17T06:32:12.247Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-17T06:40:08.612Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-17T06:26:44.435Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-17T06:32:33.824Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-17T06:25:38.508Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-17T06:45:59.903Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-17T06:36:52.486Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-17T06:24:48.436Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-17T06:48:00.926Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T06:27:39.315Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-17T06:31:37.771Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T06:47:37.804Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-17T06:26:02.928Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T06:32:00.100Z |
+| e2e | 61 | 61 | 0 | 2026-10-17T06:24:22.102Z |
+| image | 12 | 12 | 0 | 2026-10-17T06:22:18.802Z |
+| integration | 25 | 25 | 0 | 2026-10-17T06:22:13.209Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-17T06:22:40.420Z |
+| maps-unit | 4 | 4 | 0 | 2026-10-17T06:22:41.210Z |
+| metaclean | 6 | 6 | 0 | 2026-10-17T06:22:30.992Z |
+| names | 7 | 7 | 0 | 2026-10-17T06:22:18.411Z |
+| office | 35 | 35 | 0 | 2026-10-17T06:22:13.589Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-17T06:22:39.288Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-17T06:22:21.765Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-17T06:22:23.712Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-17T06:22:40.165Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T06:22:15.334Z |
+| oracle | 5 | 5 | 0 | 2026-10-17T06:22:13.981Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-17T06:22:34.196Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-17T06:22:27.996Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-17T06:22:29.553Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-17T06:22:15.694Z |
+| stream-unit | 5 | 5 | 0 | 2026-10-17T06:22:40.927Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-17T06:22:34.766Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-17T06:22:40.750Z |
+| unit | 23 | 23 | 0 | 2026-10-17T06:22:10.462Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-17T06:22:23.023Z |
+| vector | 18 | 18 | 0 | 2026-10-17T06:22:22.030Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T06:22:34.963Z |
 
 ## Rows touched by failing tests
 
@@ -101,7 +104,9 @@ None.
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
-| LY | 10 | 10 | 0 | 0 | 10 | 0 | 0 |
+| LY | 15 | 15 | 0 | 0 | 15 | 0 | 0 |
+| SM | 3 | 3 | 0 | 0 | 1 | 2 | 0 |
+| MP | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
 | LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
@@ -317,7 +322,7 @@ None.
 | TB-03 | built | full | e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs; e2e-tables: add a formula field: live validation disables Create on a bad formula; a good one adds a computed column; e2e: mount: tables (+2) |
 | TB-04 | built | full | e2e-tables: filter + sort: Status is Doing leaves 2 records; sorting Hours descending orders them; badges count the conditions; e2e-tables: kanban: columns by Status; moving a card with its Move select and by drag-and-drop updates the counts and the grid; e2e: mount: tables (+2) |
 | TB-05 | built | full | e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs; e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores; e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table (+2) |
-| AX-12 | built | full | e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet |
+| AX-12 | built | full | e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet |
 | WB-01 | built | full | e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text; e2e: mount: whiteboard; whiteboard-engine: hit testing, marquee and bind targets respect real shape outlines and z-order (+2) |
 | WB-02 | built | full | e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher; e2e-whiteboard: connector follows: an arrow drawn from the rect to the ellipse binds both ends and stays on the rect's outline when the rect is dragged; e2e: mount: whiteboard (+3) |
 | WB-03 | built | full | e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits; e2e-whiteboard: arrange: marquee selects only enclosed elements, Align Left lines them up, Group makes one selection; e2e: mount: whiteboard (+2) |
@@ -330,13 +335,24 @@ None.
 | LY-01 | built | full | e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload; e2e-layout: Business taskbar: open → minimise → restore on click, Shift+click new window, jump list, Show desktop round trip, clock → Planner; e2e-layout: Business: Start menu opens above the taskbar at bottom-left, search + Enter launches; Quick settings and toasts sit bottom-right; Windows caption buttons (+4) |
 | LY-02 | built | full | e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar; e2e-layout: Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch; e2e-layout: Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit (+7) |
 | LY-03 | built | full | e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload; e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar; e2e-layout: API: unknown layout and dockMagnify values are refused (422); the setting is searchable by 'taskbar' and 'dock' (+1) |
-| LY-04 | built | full | e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet; e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations; layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers |
+| LY-04 | built | full | e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet; e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations; layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers |
 | LY-05 | built | full | e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+7) |
 | LY-06 | built | full | e2e-tabletop: desktop icons (classic): drag snaps to another grid cell and persists; Alt+Arrow moves; 'Sort icons by name' and 'Clean up icons' rearrange; tabletop-unit: desktop icons: column-major auto layout, saved cells win, contested/out-of-grid cells ignored, missing paths dropped (SH-04); tabletop-unit: desktop icons: drag moves to a cell and swaps with an occupant, nudge clamps at the edges, clean up closes gaps in reading order, sort by name is natural (+1) |
-| LY-07 | built | full | e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back; e2e-tabletop: box geometry: floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured); e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too (+7) |
+| LY-07 | built | full | e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back; e2e-tabletop: box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured); e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too (+7) |
 | LY-08 | built | full | e2e-tabletop: drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves; e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card; tabletop-unit: tabletop state: normalizeTable validates untrusted input against the files that exist (+2) |
 | LY-09 | built | full | e2e-tabletop: micro peek shows the real contents (Markdown heading + bullets, CSV grid with a quoted comma) and enlarges on hover / focus; tabletop-unit: micro peek: Markdown keeps headings/bullets, plain text and code, line cap, CSV with RFC 4180 quoting, JSON grid / pretty text, images, SVG, binary, sealed, empty |
 | LY-10 | built | full | e2e-beauty: the pipeline catches seeded violations in the live page (tiny crowded buttons, clipped text, an off-centre dock, an un-golden card); e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+3) |
+| LY-11 | built | full | e2e-tabletop: slanted camera is the default: floor ≥ 80 % of the Tabletop by hit-sampling 1440 points (desktop + phone), the near lip is a ≥ 24 px target, Camera toggles top ↔ slant and persists; tabletop-unit: slanted camera (default): floor ≥ 80 % of the frame across a viewport sweep, lip ≥ 24 px, β = 38°, walls share the rest; tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box |
+| LY-12 | built | full | e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it; e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload; tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box (+1) |
+| LY-13 | built | full | e2e-tabletop: saved tabletop views: save (camera + face + pins), change everything, load restores it, survives reload, delete; tabletop-unit: saved tabletop views: save captures camera + face + every surface; same name updates in place; load restores (re-validated against today's files); rename / delete; cap |
+| LY-14 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; e2e-media27: layout ↔ style pairing: Art → Silver + light, Business → Daylight + light (from the Quick-panel/Settings switch), Fusion keeps the look; 'Match the look' off leaves the style alone; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
+| LY-15 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
+| SM-01 | built | partial | e2e-media27: Video: privacy gate (no provider request before consent), youtube-nocookie iframe with origin-only Referer + sandbox/allow, bad links explained, Save → Streams.json, reload keeps it, Next walks the library; e2e: mount: video; stream-unit: YouTube: watch / youtu.be / shorts / live / embed / music links → youtube-nocookie embed; start times; playlists (+2) |
+| SM-02 | built | partial | e2e-media27: Music: Spotify (152 px track player, encrypted-media) and SoundCloud widget (166 px, documented params) behind the gate; 'Always load' persists and skips the gate; video links redirected; e2e: mount: music; stream-unit: Spotify + SoundCloud: official embed URLs, URI form, intl paths, content types, widget params, heights, allow lists |
+| SM-03 | built | full | e2e-media27: Video: privacy gate (no provider request before consent), youtube-nocookie iframe with origin-only Referer + sandbox/allow, bad links explained, Save → Streams.json, reload keeps it, Next walks the library; e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations; e2e: mount: video (+2) |
+| MP-01 | built | full | e2e-media27: Maps offline: the world draws with zero tile requests (≥ 230 countries, land pixels on the canvas); search 'France' flies there; hover names the country; coordinates search; Explore click selects a country; e2e-media27: Maps street tiles are opt-in: OSM tile requests start only after choosing them, carry an origin-only Referer (OSM tile policy), show the © OpenStreetMap attribution; bad custom templates are refused by the API; e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations (+2) |
+| MP-02 | built | full | e2e-media27: Maps offline: the world draws with zero tile requests (≥ 230 countries, land pixels on the canvas); search 'France' flies there; hover names the country; coordinates search; Explore click selects a country; e2e-media27: Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %); e2e: mount: maps (+2) |
+| MP-03 | built | full | e2e-media27: Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %); e2e: mount: maps; maps-unit: geodesy: haversine matches known distances (±0.5 %), bearings, path length, metric/imperial formatting |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
@@ -384,7 +400,7 @@ None.
 | AX-05 | built | partial | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half |
 | AX-06 | probe | untested |  |
 | AX-07 | built | partial | unit: SRT → WebVTT conversion |
-| AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+5) |
+| AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+6) |
 | AU-01 | built | full | e2e: mount: routines; e2e: routines: dry-run lists actions without executing; Run opens the window; integration: AU-01 routine whitelist rejects commands outside the palette vocabulary (+1) |
 | AU-02 | built | partial | e2e: mount: routines; integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted |
 | AU-03 | partial | partial | integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject) |

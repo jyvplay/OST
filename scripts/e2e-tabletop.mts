@@ -50,8 +50,30 @@ const box = async (l: Locator) => { const b = await l.boundingBox(); if (!b) thr
 const card = (page: Page, path: string) => page.locator(`[data-testid="tt-card"][data-path="${path}"]`);
 /** a visible point on a wall in box pose (avoids the switcher on the south wall) */
 async function wallPoint(page: Page, w: string) {
-  const b = await box(page.getByTestId(`tt-open-${w}`));
-  return w === "north" || w === "south" ? { x: b.x + b.width * 0.2, y: b.y + b.height / 2 } : { x: b.x + b.width / 2, y: b.y + b.height * 0.3 };
+  // the wall is a projected trapezoid: wait until its geometry stops moving (fold / camera transitions), then pick a
+  // grid point inside its bounding box whose TOPMOST face really is that wall (hit-tested, not assumed)
+  const loc = page.getByTestId(`tt-open-${w}`);
+  let prev = "", pt: { x: number; y: number } | null = null;
+  const t0 = Date.now();
+  while (Date.now() - t0 < 8000) {
+    const b = JSON.stringify(await box(loc));
+    if (b === prev) {
+      pt = await page.evaluate(([wall, bs]) => {
+        const r = JSON.parse(bs) as { x: number; y: number; width: number; height: number };
+        const order = wall === "north" || wall === "south" ? [[0.25, 0.5], [0.5, 0.5], [0.75, 0.5], [0.5, 0.3], [0.5, 0.7]] : [[0.5, 0.3], [0.5, 0.5], [0.3, 0.4], [0.7, 0.4], [0.5, 0.2], [0.5, 0.7]];
+        for (const [fx, fy] of order) {
+          const x = r.x + r.width * fx, y = r.y + r.height * fy;
+          const top = document.elementsFromPoint(x, y).map((el) => el.closest("[data-face]") as HTMLElement | null).find((f) => f);
+          if (top?.dataset.face === wall) return { x, y };
+        }
+        return null;
+      }, [w, b] as const);
+      if (pt) return pt;
+    }
+    prev = b;
+    await new Promise((r) => setTimeout(r, 120));
+  }
+  throw new Error(`no hit-testable point on the ${w} wall`);
 }
 async function drag(page: Page, from: Locator, to: { x: number; y: number }) {
   const a = await box(from);
@@ -97,9 +119,9 @@ try {
     await close();
   });
 
-  await test("box geometry: floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)", { "LY-07": "full" }, async () => {
+  await test("box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)", { "LY-07": "full" }, async () => {
     await setSetting("appearance.desktopView", "tabletop");
-    await desktop([]);
+    await desktop([], { table: { v: 2, cards: {}, piles: [], camera: "top" } });
     const { page, close } = await boot();
     const tt = await box(page.getByTestId("tabletop"));
     const g = boxGeometry(tt.width, tt.height);
@@ -129,7 +151,7 @@ try {
 
   await test("a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too", { "LY-07": "full" }, async () => {
     await setSetting("appearance.desktopView", "tabletop");
-    await desktop([]);
+    await desktop([], { table: { v: 2, cards: {}, piles: [], camera: "top" } }); // side walls are slivers on the slant; this test is about the unfold mechanics
     const { page, close } = await boot();
     const tt = await box(page.getByTestId("tabletop"));
     const p = await wallPoint(page, "north");
@@ -251,7 +273,10 @@ try {
     await page.waitForTimeout(500);
     const a0 = await box(A);
     await page.keyboard.press("Alt+ArrowDown");
-    await poll(async () => (await box(card(page, F.a))).y > a0.y + 20, "Alt+ArrowDown moved the card");
+    // 24 floor px; on the slanted floor that is foreshortened on screen (≈ 14 px near the far edge)
+    // the floor coordinate moves exactly 24 px (persisted); on screen it moves less (foreshortened near the far edge)
+    await poll(async () => ((await getState())?.table?.cards[F.a] as { y?: number } | undefined)?.y === 48, "Alt+ArrowDown moved the card 24 floor px");
+    await poll(async () => (await box(card(page, F.a))).y > a0.y + 2, "Alt+ArrowDown moved the card on screen");
     await card(page, F.a).focus();
     await page.keyboard.press("Shift+F10");
     const menu = page.getByTestId("tt-menu");
@@ -327,6 +352,148 @@ try {
       return cs.every((x) => want.has(x.c)) && readOrder(cs).join("|") === before.join("|");
     }, "clean up: gap-free column-major prefix, reading order kept");
     await close();
+  });
+
+  /** fraction of a grid of sample points over the Tabletop whose hit stack includes the floor face (measured, not computed) */
+  const floorShare = (page: Page) => page.evaluate(() => {
+    const r = document.querySelector("[data-testid=tabletop]")!.getBoundingClientRect();
+    let on = 0, n = 0;
+    for (let i = 0; i < 48; i++) for (let j = 0; j < 30; j++) {
+      const x = r.left + ((i + 0.5) / 48) * r.width, y = r.top + ((j + 0.5) / 30) * r.height; n++;
+      // the TOPMOST face at the point (overlays such as the switcher are not faces and are skipped; the floor hidden behind the lip does not count)
+      const top = document.elementsFromPoint(x, y).map((el) => el.closest("[data-face]") as HTMLElement | null).find((f) => f);
+      if (top?.dataset.face === "floor") on++;
+    }
+    return on / n;
+  });
+
+  await test("slanted camera is the default: floor ≥ 80 % of the Tabletop by hit-sampling 1440 points (desktop + phone), the near lip is a ≥ 24 px target, Camera toggles top ↔ slant and persists", { "LY-11": "full" }, async () => {
+    await setSetting("appearance.desktopView", "tabletop");
+    for (const [vw, vh] of [[1440, 900], [390, 844]]) {
+      await desktop([]);
+      const { page, close } = await boot(vw, vh);
+      const tt = page.getByTestId("tabletop");
+      ok(await tt.getAttribute("data-camera") === "slant", `default camera at ${vw}`);
+      const cov = Number(await tt.getAttribute("data-coverage"));
+      ok(cov >= 0.8, `computed coverage ${cov}`);
+      let share = 0;
+      await poll(async () => { share = await floorShare(page); return share >= 0.8 && Math.abs(share - cov) < 0.04; }, "floor share settled", 8000).catch(() => {});
+      ok(share >= 0.8 && Math.abs(share - cov) < 0.04, `${vw}×${vh}: measured floor share ${share.toFixed(3)} (computed ${cov})`);
+      const lip = await box(page.getByTestId("tt-open-south"));
+      ok(lip.height >= 23, `south lip target ${lip.height.toFixed(1)} px`);
+      const m = await page.getByTestId("tt-floor").evaluate((el) => getComputedStyle(el).transform);
+      ok(m.startsWith("matrix3d("), "floor is tilted in 3D");
+      // a card on the slanted floor is still a usable target (≥ 44 px on its short side)
+      const c = await box(page.getByTestId("tt-card").first());
+      ok(c.width >= 44 && c.height >= 44, `card on the slant ${c.width.toFixed(0)}×${c.height.toFixed(0)}`);
+      if (vw === 1440) {
+        await page.getByTestId("tt-camera").click();
+        await poll(async () => (await tt.getAttribute("data-camera")) === "top", "camera top");
+        await poll(async () => (await getState())?.table && (await getState() as { table: { camera?: string } }).table.camera === "top", "camera persisted");
+        await page.getByTestId("tt-camera").click();
+        await poll(async () => (await tt.getAttribute("data-camera")) === "slant", "camera back");
+        // the far (north) wall is a large target on the slant: double-click unfolds it, Esc folds it back
+        const nb = await wallPoint(page, "north");
+        await page.mouse.dblclick(nb.x, nb.y);
+        await poll(async () => (await tt.getAttribute("data-main")) === "north", "north main from the slant");
+        await page.keyboard.press("Escape");
+        await poll(async () => (await tt.getAttribute("data-main")) === "floor", "back to the floor");
+      }
+      await close();
+    }
+  });
+
+  await test("walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it", { "LY-12": "full" }, async () => {
+    await setSetting("appearance.desktopView", "tabletop");
+    await desktop([]);
+    const { page, close } = await boot();
+    const c = card(page, F.md);
+    await c.waitFor();
+    const north = await box(page.getByTestId("tt-open-north"));
+    await drag(page, c, { x: north.x + north.width * 0.3, y: north.y + north.height / 2 });
+    await poll(async () => { const t = (await getState())?.table as { walls?: { north?: { cards: Record<string, unknown> } } } | undefined; return !!t?.walls?.north?.cards[F.md]; }, "pinned in state");
+    ok(await page.locator(`[data-testid="tt-card"][data-path="${F.md}"][data-surface="floor"]`).count() === 0, "left the floor");
+    await page.getByTestId("tt-nav-north").click();
+    const pinned = page.locator(`[data-testid="tt-pinboard-north"] [data-testid="tt-card"][data-path="${F.md}"]`);
+    await pinned.waitFor({ timeout: 8000 });
+    ok((await page.getByTestId("tt-pincount-north").textContent())?.startsWith("1"), "count chip");
+    // wait for the unfold transition to finish (the card's box stops moving) before measuring and dragging
+    await poll(async () => (await page.getByTestId("tabletop").getAttribute("data-main")) === "north", "north is main");
+    let prev = "";
+    await poll(async () => { const b = JSON.stringify(await box(pinned)); const same = b === prev; prev = b; return same; }, "wall settled");
+    const before = await box(pinned);
+    await drag(page, pinned, { x: before.x + before.width / 2 + 160, y: before.y + before.height / 2 + 30 });
+    await poll(async () => { const t = (await getState())?.table as { walls?: { north?: { cards: Record<string, { x: number }> } } } | undefined; return (t?.walls?.north?.cards[F.md]?.x ?? 0) >= 120; }, "moved on the wall");
+    await pinned.focus(); await page.keyboard.press("Shift+F10");
+    await page.getByTestId("tt-menu").getByRole("menuitem", { name: "Put back on the table" }).click();
+    await poll(async () => { const t = (await getState())?.table as { walls?: { north?: unknown } } | undefined; return !t?.walls?.north; }, "back on the floor");
+    await close();
+  });
+
+  await test("wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload", { "LY-12": "full" }, async () => {
+    await setSetting("appearance.desktopView", "tabletop");
+    await desktop([]);
+    const { page, close } = await boot();
+    for (const f of [F.a, F.b]) {
+      const c = card(page, f); await c.waitFor(); await c.focus(); await page.keyboard.press("Shift+F10");
+      await page.getByTestId("tt-menu").getByRole("menuitem", { name: "Pin to the Apps wall" }).click();
+      await poll(async () => (await page.locator(`[data-testid="tt-card"][data-path="${f}"][data-surface="floor"]`).count()) === 0, `${f} pinned`);
+    }
+    await page.getByTestId("tt-nav-west").click();
+    const a = page.locator(`[data-testid="tt-pinboard-west"] [data-testid="tt-card"][data-path="${F.a}"]`);
+    await a.waitFor({ timeout: 8000 });
+    await a.focus(); await page.keyboard.press("Shift+F10");
+    await page.getByTestId("tt-menu").getByRole("menuitem", { name: /^Pile with/ }).click();
+    const pile = page.locator('[data-testid="tt-pinboard-west"] [data-testid="tt-pile"][data-surface="west"]');
+    await pile.waitFor({ timeout: 8000 });
+    ok(await pile.getAttribute("data-count") === "2", "wall pile of 2");
+    await pile.click();
+    await poll(async () => (await pile.getAttribute("data-fanned")) !== null, "wall pile fans");
+    const { page: p2, close: c2 } = await (async () => { await close(); return boot(); })();
+    await p2.getByTestId("tt-nav-west").click();
+    await p2.locator('[data-testid="tt-pinboard-west"] [data-testid="tt-pile"]').waitFor({ timeout: 8000 });
+    ok((await p2.getByTestId("tt-pincount-west").textContent())?.startsWith("2"), "2 pinned after reload");
+    await c2();
+  });
+
+  await test("saved tabletop views: save (camera + face + pins), change everything, load restores it, survives reload, delete", { "LY-13": "full" }, async () => {
+    await setSetting("appearance.desktopView", "tabletop");
+    await desktop([]);
+    const { page, close } = await boot();
+    const c = card(page, F.csv); await c.waitFor(); await c.focus(); await page.keyboard.press("Shift+F10");
+    await page.getByTestId("tt-menu").getByRole("menuitem", { name: "Pin to the Windows wall" }).click();
+    await poll(async () => (await page.locator(`[data-testid="tt-card"][data-path="${F.csv}"][data-surface="floor"]`).count()) === 0, "pinned");
+    await page.getByTestId("tt-nav-north").click();
+    await page.getByTestId("tt-views").click();
+    await page.getByTestId("tt-view-name").fill(`Focus ${RUN}`);
+    await page.getByTestId("tt-view-save").click();
+    await page.getByTestId("tt-view").first().waitFor();
+    ok(/saved/i.test((await page.getByTestId("tt-view-msg").textContent()) ?? ""), "status says saved");
+    // change everything: unpin, top camera, back to the floor
+    await page.getByTestId("tt-views").click();
+    await poll(async () => (await page.getByTestId("tt-views-panel").count()) === 0, "views panel closed");
+    ok(await page.getByTestId("tabletop").getAttribute("data-main") === "north", "still on the north wall");
+    const pinned = page.locator(`[data-testid="tt-pinboard-north"] [data-testid="tt-card"][data-path="${F.csv}"]`);
+    await pinned.focus(); await page.keyboard.press("Shift+F10");
+    await page.getByTestId("tt-menu").getByRole("menuitem", { name: "Put back on the table" }).click();
+    await page.getByTestId("tt-nav-floor").click();
+    await page.getByTestId("tt-camera").click();
+    await poll(async () => (await page.getByTestId("tabletop").getAttribute("data-camera")) === "top", "top");
+    await poll(async () => (((await getState())?.table as { camera?: string } | undefined)?.camera) === "top", "camera saved");
+    await close();
+    const { page: p2, close: c2 } = await boot();
+    ok(await p2.getByTestId("tabletop").getAttribute("data-camera") === "top", "camera persisted across reload");
+    await p2.getByTestId("tt-views").click();
+    const load = p2.locator('[data-testid^="tt-view-load-"]').first();
+    await load.click();
+    await poll(async () => (await p2.getByTestId("tabletop").getAttribute("data-camera")) === "slant" && (await p2.getByTestId("tabletop").getAttribute("data-main")) === "north", "camera + face restored");
+    await p2.locator(`[data-testid="tt-pinboard-north"] [data-testid="tt-card"][data-path="${F.csv}"]`).waitFor({ timeout: 8000 });
+    await p2.getByTestId("tt-views").click().catch(() => {});
+    if (!(await p2.getByTestId("tt-views-panel").count())) await p2.getByTestId("tt-views").click();
+    await p2.locator('[data-testid^="tt-view-delete-"]').first().click();
+    await poll(async () => (await p2.getByTestId("tt-view").count()) === 0, "deleted");
+    await poll(async () => (((await getState())?.table as { views?: unknown[] } | undefined)?.views?.length ?? 0) === 0, "deleted in state");
+    await c2();
   });
 
   await test("reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately", { "LY-07": "full", "AX-09": "partial" }, async () => {

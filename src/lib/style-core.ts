@@ -21,7 +21,7 @@
  */
 import { PALETTES as BUBBLY, type Palette, type PaletteName } from "./icon-data";
 
-export const STYLE_IDS = ["poolside", "vice", "oceandrive", "bubbly", "liquidglass", "expressive", "fluent", "clouddancer", "teal", "enterprise", "graphite"] as const;
+export const STYLE_IDS = ["poolside", "vice", "oceandrive", "bubbly", "liquidglass", "expressive", "fluent", "clouddancer", "teal", "enterprise", "graphite", "silver", "daylight"] as const;
 export type StyleId = (typeof STYLE_IDS)[number];
 export const DEFAULT_STYLE: StyleId = "poolside";
 export const isStyle = (v: unknown): v is StyleId => typeof v === "string" && (STYLE_IDS as readonly string[]).includes(v);
@@ -31,9 +31,12 @@ export const isStyle = (v: unknown): v is StyleId => typeof v === "string" && (S
  * TT23: glass = frosted lens with a specular rim; tonal = flat tonal container on a rounder shape; mica = small-radius
  * square with a 1px top highlight; paper = one off-white stock with coloured ink glyphs; lacquer = deep teal with a
  * pearl sheen. TT25: flat = solid single-colour square (rx 4) with no light effects, like a Windows Start tile;
- * alu = brushed-aluminium squircle (rx 10.5) with a specular top edge and a dark lower bevel. Overlays stay above y = 11 (or on the rim) so the y 11–38 glyph-contrast sampling stays exact.
+ * alu = brushed-aluminium squircle (rx 10.5) with a specular top edge and a dark lower bevel. TT27: satin = bright
+ * silver squircle (rx 11) with vivid full-colour glyphs, a white inner rim and a soft floor shadow (after macOS app
+ * icons on a light desktop); acrylic = near-white rounded square (rx 7.5) with a hairline frame and a 2px accent-tinted
+ * base line (after Windows 11 light-mode Start pins). Overlays stay above y = 11 (or on the rim) so the y 11–38 glyph-contrast sampling stays exact.
  */
-export type Finish = "gloss" | "sheen" | "neon" | "deco" | "glass" | "tonal" | "mica" | "paper" | "lacquer" | "flat" | "alu";
+export type Finish = "gloss" | "sheen" | "neon" | "deco" | "glass" | "tonal" | "mica" | "paper" | "lacquer" | "flat" | "alu" | "satin" | "acrylic";
 
 export interface ChromeTokens {
   bg: string; bg2: string; panel: string; panelSolid: string; border: string; text: string; muted: string;
@@ -218,6 +221,28 @@ const GRAPHITE: Record<PaletteName, Palette> = {
   ember: alu("#8f2c1b", "#f0d4cc"),
 };
 
+/* TT27 Silver (Art layout pairing): a bright silver stock (white → cool silver) carrying vivid, macOS-like glyph colours
+ * — each ≥ 3:1 against the darkest point the glyph covers (checked by a11y-unit). */
+const SILVER_TOP = "#ffffff", SILVER_BOTTOM = "#d9dce2";
+const sil = (fg: string, detail: string): Palette => ({ top: SILVER_TOP, bottom: SILVER_BOTTOM, fg, detail });
+const SILVER: Record<PaletteName, Palette> = {
+  sun: sil("#8a5800", "#ffe7a8"), orange: sil("#b04600", "#ffd9bf"), lime: sil("#476e00", "#e2f2c2"),
+  mint: sil("#00704f", "#c9f0e2"), sky: sil("#005fc2", "#cfe5ff"), blue: sil("#2f4fd0", "#dbe2ff"),
+  teal: sil("#006b75", "#c8eef0"), green: sil("#187a34", "#cdeed6"), coral: sil("#b8174f", "#ffd3e1"),
+  indigo: sil("#5a3cc9", "#e2dbff"), slate: sil("#454c57", "#e6e9ee"), lagoon: sil("#00628a", "#c9e9f6"),
+  ember: sil("#b8361a", "#ffd8cd"),
+};
+/* TT27 Daylight (Business layout pairing): a near-white stock with Windows-11-style colour glyphs. */
+const DAY_TOP = "#ffffff", DAY_BOTTOM = "#eceff4";
+const day = (fg: string, detail: string): Palette => ({ top: DAY_TOP, bottom: DAY_BOTTOM, fg, detail });
+const DAYLIGHT: Record<PaletteName, Palette> = {
+  sun: day("#935800", "#ffe9b5"), orange: day("#b84c00", "#ffdcc4"), lime: day("#4b7400", "#e3f3c6"),
+  mint: day("#007659", "#cbf1e4"), sky: day("#0063b8", "#cde6fb"), blue: day("#3550d4", "#dce3ff"),
+  teal: day("#00737a", "#c9eff1"), green: day("#107c10", "#d1efd1"), coral: day("#c42b1c", "#ffd9d4"),
+  indigo: day("#5b3ec6", "#e3dcff"), slate: day("#4a5260", "#e7eaef"), lagoon: day("#006a99", "#cbe9f7"),
+  ember: day("#bb3a1a", "#ffdace"),
+};
+
 export const STYLES: Record<StyleId, StyleSpec> = {
   poolside: {
     id: "poolside", label: "Poolside", blurb: "Sun-bleached pastels on deep lagoon — aqua, flamingo, mint, lemon",
@@ -306,6 +331,22 @@ export const STYLES: Record<StyleId, StyleSpec> = {
     chrome: { pill: ["#f2f3f5", "#d3d6db"], win: ["#febc2e", "#28c840", "#ff5f57"], deskLabel: "rgba(30, 30, 32, 0.8)" },
     dark: { bg: "#1e1e1e", bg2: "#2a2a2c", panel: "rgba(40, 40, 42, 0.92)", panelSolid: "#2a2a2c", border: "rgba(255, 255, 255, 0.14)", text: "#f5f5f7", muted: "#b8b8bd" },
     light: { bg: "#ececec", bg2: "#f5f5f7", panel: "rgba(246, 246, 246, 0.94)", panelSolid: "#f6f6f6", border: "rgba(0, 0, 0, 0.13)", text: "#1d1d1f", muted: "#545458" },
+  },
+  silver: {
+    id: "silver", label: "Silver", blurb: "Bright silver glass, vivid colour icons and system blue — after a light macOS desktop (pairs with Art)",
+    finish: "satin", accent: "#0a84ff", trim: "#b9bec7", wallpaper: "silver", palettes: SILVER,
+    logo: { tileTop: "#ffffff", tileBottom: "#cfd3da", a: ["#6cb4ff", "#0a6cff"], b: ["#ffd36b", "#ff9f0a"], lens: "#ffffff", ring: "#b9bec7" },
+    chrome: { pill: ["#f7f8fa", "#dcdfe4"], win: ["#febc2e", "#28c840", "#ff5f57"], deskLabel: "rgba(36, 38, 44, 0.78)" },
+    dark: { bg: "#2a2b30", bg2: "#34353b", panel: "rgba(52, 53, 59, 0.9)", panelSolid: "#36373d", border: "rgba(255, 255, 255, 0.15)", text: "#f5f5f7", muted: "#c4c6cc" },
+    light: { bg: "#e6e8ec", bg2: "#f2f3f6", panel: "rgba(244, 245, 248, 0.86)", panelSolid: "#f3f4f7", border: "rgba(20, 24, 32, 0.12)", text: "#1d1d1f", muted: "#55585f" },
+  },
+  daylight: {
+    id: "daylight", label: "Daylight", blurb: "Airy white Mica surfaces, colour icons and Windows blue — after Windows 11 light mode (pairs with Business)",
+    finish: "acrylic", accent: "#2f95e6", wallpaper: "daylight", palettes: DAYLIGHT,
+    logo: { tileTop: "#45a4f2", tileBottom: "#1166c4", a: ["#ffffff", "#dcebff"], b: ["#a5dbff", "#4cc2ff"], lens: "#ffffff" },
+    chrome: { pill: ["#ffffff", "#e2ebf6"], win: ["#eef0f3", "#eef0f3", "#f1707b"], deskLabel: "rgba(28, 30, 34, 0.78)" },
+    dark: { bg: "#1f1f1f", bg2: "#2a2a2a", panel: "rgba(44, 44, 44, 0.93)", panelSolid: "#2c2c2c", border: "rgba(255, 255, 255, 0.11)", text: "#ffffff", muted: "#c9c9c9" },
+    light: { bg: "#eef2f8", bg2: "#f7f9fc", panel: "rgba(251, 252, 254, 0.9)", panelSolid: "#fbfcfe", border: "rgba(0, 20, 60, 0.11)", text: "#1a1d23", muted: "#545b68" },
   },
 };
 

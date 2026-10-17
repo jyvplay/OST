@@ -1,0 +1,42 @@
+{
+  "suite": "maps-unit",
+  "at": "2026-10-17T06:22:41.210Z",
+  "results": [
+    {
+      "suite": "maps-unit",
+      "name": "geodesy: haversine matches known distances (±0.5 %), bearings, path length, metric/imperial formatting",
+      "covers": {
+        "MP-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "maps-unit",
+      "name": "coordinates: decimal, DMS, hemisphere suffixes, geo: URI, OSM + Google links; formatting round-trips",
+      "covers": {
+        "MP-02": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "maps-unit",
+      "name": "point-in-polygon (holes, multipolygons) and real country lookup + search over world-atlas countries-50m",
+      "covers": {
+        "MP-01": "full"
+      },
+      "pass": true,
+      "ms": 94
+    },
+    {
+      "suite": "maps-unit",
+      "name": "places: add / update / remove / cap, GeoJSON round trip in [lng, lat] order with marker-color, foreign GeoJSON import, tile URL rules",
+      "covers": {
+        "MP-02": "full"
+      },
+      "pass": true,
+      "ms": 9
+    }
+  ]
+}

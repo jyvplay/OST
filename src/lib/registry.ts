@@ -54,6 +54,9 @@ export const MODULES: ModuleDef[] = [
   { id: "tables", title: "Tables", icon: "▦", group: "Create", summary: "Relational database: typed fields, two-way links, lookups, rollups, formulas, grid and kanban views, CSV", rect: { w: 1040, h: 660 }, implements: ["TB-01", "TB-02", "TB-03", "TB-04", "TB-05"] },
   { id: "whiteboard", title: "Whiteboard", icon: "◇", group: "Create", summary: "Infinite canvas: shapes, sticky notes, text, freehand pen and connectors that stay attached; align, group, layers, SVG export", rect: { w: 1080, h: 680 }, implements: ["WB-01", "WB-02", "WB-03", "WB-04", "WB-05"] },
   { id: "peek", title: "Peek", icon: "👁", group: "Core", summary: "Sandboxed previewer with watchdog and grades", rect: { w: 760, h: 560 }, implements: ["FM-04", "FF-01", "FF-11"] },
+  { id: "video", title: "Video", icon: "▶", group: "Connect", summary: "Video player for YouTube, Vimeo, Dailymotion, Twitch, PeerTube and video links: official embed players behind a click-to-load privacy gate, a saved library and queue", rect: { w: 1000, h: 620 }, implements: ["SM-01", "SM-03"] },
+  { id: "music", title: "Music", icon: "♪", group: "Connect", summary: "Stream Spotify and SoundCloud through their official players, or play audio links; saved library with filter, reorder and queue", rect: { w: 900, h: 600 }, implements: ["SM-02", "SM-03"] },
+  { id: "maps", title: "Maps", icon: "◎", group: "Connect", summary: "Offline world map (Natural Earth) with optional OpenStreetMap street tiles: search countries and coordinates, saved places as GeoJSON, measure distances, locate me", rect: { w: 1100, h: 700 }, implements: ["MP-01", "MP-02", "MP-03"] },
 ];
 
 export const moduleById = (id: string) => MODULES.find((m) => m.id === id);

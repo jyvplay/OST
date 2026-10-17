@@ -16,6 +16,8 @@ export const WALLPAPERS = [
   { id: "teal", label: "Transformative Teal" },
   { id: "enterprise", label: "Enterprise glass" },
   { id: "graphite", label: "Graphite dunes" },
+  { id: "silver", label: "Silver ribbons" },
+  { id: "daylight", label: "Daylight bloom" },
   { id: "sunrise", label: "Sunrise" },
   { id: "aurora", label: "Aurora" },
   { id: "grid", label: "Grid" },

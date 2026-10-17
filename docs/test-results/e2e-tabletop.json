@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tabletop",
-  "at": "2026-10-17T04:59:31.672Z",
+  "at": "2026-10-17T06:47:37.804Z",
   "results": [
     {
       "suite": "e2e-tabletop",
@@ -9,16 +9,16 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 6911
+      "ms": 6973
     },
     {
       "suite": "e2e-tabletop",
-      "name": "box geometry: floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)",
+      "name": "box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)",
       "covers": {
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 2014
+      "ms": 2457
     },
     {
       "suite": "e2e-tabletop",
@@ -27,7 +27,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 5872
+      "ms": 7575
     },
     {
       "suite": "e2e-tabletop",
@@ -36,7 +36,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 3046
+      "ms": 3533
     },
     {
       "suite": "e2e-tabletop",
@@ -45,7 +45,7 @@
         "LY-09": "full"
       },
       "pass": true,
-      "ms": 4757
+      "ms": 3394
     },
     {
       "suite": "e2e-tabletop",
@@ -54,7 +54,7 @@
         "LY-08": "full"
       },
       "pass": true,
-      "ms": 9195
+      "ms": 10016
     },
     {
       "suite": "e2e-tabletop",
@@ -64,7 +64,7 @@
         "LY-07": "partial"
       },
       "pass": true,
-      "ms": 4227
+      "ms": 3916
     },
     {
       "suite": "e2e-tabletop",
@@ -73,7 +73,43 @@
         "LY-06": "full"
       },
       "pass": true,
-      "ms": 3654
+      "ms": 3945
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "slanted camera is the default: floor ≥ 80 % of the Tabletop by hit-sampling 1440 points (desktop + phone), the near lip is a ≥ 24 px target, Camera toggles top ↔ slant and persists",
+      "covers": {
+        "LY-11": "full"
+      },
+      "pass": true,
+      "ms": 6227
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it",
+      "covers": {
+        "LY-12": "full"
+      },
+      "pass": true,
+      "ms": 7223
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload",
+      "covers": {
+        "LY-12": "full"
+      },
+      "pass": true,
+      "ms": 5864
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "saved tabletop views: save (camera + face + pins), change everything, load restores it, survives reload, delete",
+      "covers": {
+        "LY-13": "full"
+      },
+      "pass": true,
+      "ms": 11369
     },
     {
       "suite": "e2e-tabletop",
@@ -83,7 +119,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 1705
+      "ms": 1439
     },
     {
       "suite": "e2e-tabletop",
@@ -93,7 +129,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 18073
+      "ms": 16627
     }
   ]
 }

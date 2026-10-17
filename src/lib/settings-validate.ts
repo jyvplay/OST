@@ -1,6 +1,7 @@
 import { isWallpaper, WALLPAPERS } from "./appearance";
 import { TEXT_SCALE_MAX, TEXT_SCALE_MIN } from "./uiscale-core";
 import { STYLE_IDS } from "./style-core";
+import { validTileUrl } from "./maps-core";
 import { LAYOUT_IDS, DOCK_SIZE_IDS } from "./layout-core";
 
 /**
@@ -17,6 +18,9 @@ const ENUMS: Record<string, readonly string[]> = {
   // TT25: main-UI layout (fusion = original hybrid, business = Windows-style taskbar, art = Mac-style menu bar + dock)
   "appearance.layout": LAYOUT_IDS,
   "appearance.dockMagnify": ["on", "off"],
+  "appearance.pairStyle": ["on", "off"],
+  "media.embeds": ["ask", "allow"],
+  "maps.tiles": ["off", "osm", "custom"],
   "appearance.dockSize": DOCK_SIZE_IDS,
   "appearance.desktopView": ["classic", "tabletop"],
 };
@@ -28,6 +32,7 @@ export function validateSetting(key: string, value: string): string | null {
     if (n < TEXT_SCALE_MIN || n > TEXT_SCALE_MAX) return `text size must be between ${TEXT_SCALE_MIN} and ${TEXT_SCALE_MAX} %`;
     return null;
   }
+  if (key === "maps.tileUrl" && value !== "" && !validTileUrl(value)) return "tile URL must be https:// and contain {z}, {x} and {y}";
   if (key === "appearance.wallpaper" && !isWallpaper(value)) return `wallpaper must be one of ${ENUMS[key].join(", ")}`;
   const allowed = ENUMS[key];
   if (allowed && !allowed.includes(value)) return `${key} must be one of ${allowed.join(", ")}`;
