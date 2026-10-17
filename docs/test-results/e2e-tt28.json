@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt28",
-  "at": "2026-10-17T19:46:39.873Z",
+  "at": "2026-10-17T21:27:22.455Z",
   "results": [
     {
       "suite": "e2e-tt28",
@@ -9,7 +9,7 @@
         "SM-04": "partial"
       },
       "pass": true,
-      "ms": 5126
+      "ms": 4618
     },
     {
       "suite": "e2e-tt28",
@@ -18,7 +18,7 @@
         "SM-04": "partial"
       },
       "pass": true,
-      "ms": 3894
+      "ms": 3486
     },
     {
       "suite": "e2e-tt28",
@@ -28,7 +28,7 @@
         "MP-05": "full"
       },
       "pass": true,
-      "ms": 7232
+      "ms": 6580
     },
     {
       "suite": "e2e-tt28",
@@ -37,7 +37,7 @@
         "SH-15": "full"
       },
       "pass": true,
-      "ms": 2795
+      "ms": 2477
     },
     {
       "suite": "e2e-tt28",
@@ -47,7 +47,7 @@
         "LY-17": "full"
       },
       "pass": true,
-      "ms": 5012
+      "ms": 4056
     },
     {
       "suite": "e2e-tt28",
@@ -57,7 +57,7 @@
         "LY-19": "full"
       },
       "pass": true,
-      "ms": 7170
+      "ms": 6253
     },
     {
       "suite": "e2e-tt28",
@@ -66,7 +66,7 @@
         "AX-13": "full"
       },
       "pass": true,
-      "ms": 6943
+      "ms": 5899
     }
   ]
 }

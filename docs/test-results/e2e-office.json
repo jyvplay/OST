@@ -1,6 +1,6 @@
 {
   "suite": "e2e-office",
-  "at": "2026-10-17T19:34:27.901Z",
+  "at": "2026-10-17T21:12:13.265Z",
   "results": [
     {
       "suite": "e2e-office",
@@ -11,7 +11,7 @@
         "FF-19": "partial"
       },
       "pass": true,
-      "ms": 1132
+      "ms": 1614
     },
     {
       "suite": "e2e-office",
@@ -20,7 +20,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 3312
+      "ms": 4003
     },
     {
       "suite": "e2e-office",
@@ -29,7 +29,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 2816
+      "ms": 3191
     },
     {
       "suite": "e2e-office",
@@ -38,7 +38,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 3756
+      "ms": 4617
     },
     {
       "suite": "e2e-office",
@@ -47,7 +47,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 2583
+      "ms": 3314
     },
     {
       "suite": "e2e-office",
@@ -56,7 +56,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 2031
+      "ms": 3855
     },
     {
       "suite": "e2e-office",
@@ -65,7 +65,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 2496
+      "ms": 4014
     },
     {
       "suite": "e2e-office",
@@ -74,7 +74,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 1300
+      "ms": 2472
     },
     {
       "suite": "e2e-office",
@@ -83,7 +83,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 2431
+      "ms": 3428
     },
     {
       "suite": "e2e-office",
@@ -94,7 +94,7 @@
         "FF-21": "partial"
       },
       "pass": true,
-      "ms": 3903
+      "ms": 6941
     },
     {
       "suite": "e2e-office",

@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-17T19:52:49.748Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-50 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-17T21:37:43.374Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+52 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **334** |
-| Fully built | 250 |
+| **Features in register** | **335** |
+| Fully built | 251 |
 | Partially built (partial 45 + probe 17) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **130** |
-| **Partially tested** (only `partial` tags) | **78** |
+| **Fully tested** (≥1 passing test tagged `full`) | **132** |
+| **Partially tested** (only `partial` tags) | **77** |
 | Untested | 126 |
-| Automated tests executed / passed | 507 / 507 |
+| Automated tests executed / passed | 523 / 523 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 121 | 62 | 67 |
+| fully built | 123 | 61 | 67 |
 | partially built | 3 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,56 +33,58 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-17T19:32:03.851Z |
-| ai-format | 5 | 5 | 0 | 2026-10-17T19:32:05.631Z |
-| browser-session | 5 | 5 | 0 | 2026-10-17T19:31:53.101Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-17T19:32:09.075Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-17T19:41:13.189Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-17T19:42:08.920Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-17T19:52:38.195Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-17T19:36:26.997Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-17T19:42:31.925Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-17T19:35:18.640Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-17T19:43:39.173Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-17T19:46:00.329Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-17T19:34:27.901Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-17T19:36:54.085Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T19:37:26.600Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-17T19:41:34.157Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T19:45:14.260Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T19:46:39.873Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-17T19:47:02.276Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-17T19:49:03.213Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-17T19:35:45.072Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T19:41:55.964Z |
-| e2e | 61 | 61 | 0 | 2026-10-17T19:34:01.057Z |
-| image | 12 | 12 | 0 | 2026-10-17T19:31:47.823Z |
-| integration | 25 | 25 | 0 | 2026-10-17T19:31:41.774Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-17T19:32:09.875Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-17T19:32:16.590Z |
-| metaclean | 6 | 6 | 0 | 2026-10-17T19:32:00.213Z |
-| names | 7 | 7 | 0 | 2026-10-17T19:31:47.430Z |
-| office | 35 | 35 | 0 | 2026-10-17T19:31:42.207Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-17T19:32:08.714Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-17T19:31:50.953Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-17T19:31:52.929Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-17T19:32:09.603Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T19:31:44.044Z |
-| oracle | 5 | 5 | 0 | 2026-10-17T19:31:42.614Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-17T19:32:03.556Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-17T19:31:57.249Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-17T19:31:58.817Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-17T19:31:44.425Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-17T19:32:10.437Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-17T19:32:04.073Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-17T19:32:10.234Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-17T19:32:16.887Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-17T19:32:17.693Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-17T19:47:02.500Z |
-| unit | 23 | 23 | 0 | 2026-10-17T19:31:38.829Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-17T19:31:52.176Z |
-| vector | 18 | 18 | 0 | 2026-10-17T19:31:51.219Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T19:32:04.284Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-17T21:08:53.364Z |
+| ai-format | 5 | 5 | 0 | 2026-10-17T21:08:55.002Z |
+| browser-session | 5 | 5 | 0 | 2026-10-17T21:08:43.015Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-17T21:08:56.219Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-17T21:21:45.438Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-17T21:22:55.945Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-17T21:34:02.601Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-17T21:14:36.377Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-17T21:23:24.365Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-17T21:13:13.918Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-17T21:24:41.009Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-17T21:26:48.017Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-17T21:12:13.265Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-17T21:36:45.137Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T21:16:45.445Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-17T21:22:14.535Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T21:26:06.985Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T21:27:22.455Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-17T21:27:43.124Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-17T21:29:35.834Z |
+| e2e-tt31 | 8 | 8 | 0 | 2026-10-17T21:30:40.265Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-17T21:13:54.369Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T21:22:42.858Z |
+| e2e | 61 | 61 | 0 | 2026-10-17T21:36:21.294Z |
+| image | 12 | 12 | 0 | 2026-10-17T21:08:38.150Z |
+| integration | 25 | 25 | 0 | 2026-10-17T21:08:31.683Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-17T21:08:56.969Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-17T21:09:02.998Z |
+| metaclean | 6 | 6 | 0 | 2026-10-17T21:08:49.972Z |
+| names | 7 | 7 | 0 | 2026-10-17T21:08:37.814Z |
+| office | 35 | 35 | 0 | 2026-10-17T21:08:32.051Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-17T21:08:55.916Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-17T21:08:41.020Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-17T21:08:42.849Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-17T21:08:56.712Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T21:08:34.029Z |
+| oracle | 5 | 5 | 0 | 2026-10-17T21:08:32.419Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-17T21:08:53.096Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-17T21:08:47.049Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-17T21:08:48.655Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-17T21:08:34.380Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-17T21:08:57.497Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-17T21:08:53.577Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-17T21:08:57.282Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-17T21:09:03.233Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-17T21:09:03.991Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-17T21:27:43.321Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-17T21:29:36.088Z |
+| unit | 23 | 23 | 0 | 2026-10-17T21:08:28.864Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-17T21:08:42.171Z |
+| vector | 18 | 18 | 0 | 2026-10-17T21:08:41.257Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T21:08:53.767Z |
 
 ## Rows touched by failing tests
 
@@ -106,11 +108,11 @@ None.
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
-| AX | 14 | 13 | 1 | 0 | 8 | 4 | 2 |
+| AX | 14 | 13 | 1 | 0 | 9 | 3 | 2 |
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
-| LY | 21 | 21 | 0 | 0 | 21 | 0 | 0 |
+| LY | 22 | 22 | 0 | 0 | 22 | 0 | 0 |
 | SM | 4 | 4 | 0 | 0 | 1 | 3 | 0 |
 | MP | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
@@ -345,11 +347,11 @@ None.
 | LY-05 | built | full | e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+7) |
 | LY-06 | built | full | e2e-tabletop: desktop icons (classic): drag snaps to another grid cell and persists; Alt+Arrow moves; 'Sort icons by name' and 'Clean up icons' rearrange; tabletop-unit: desktop icons: column-major auto layout, saved cells win, contested/out-of-grid cells ignored, missing paths dropped (SH-04); tabletop-unit: desktop icons: drag moves to a cell and swaps with an occupant, nudge clamps at the edges, clean up closes gaps in reading order, sort by name is natural (+1) |
 | LY-07 | built | full | e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back; e2e-tabletop: box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured); e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too (+7) |
-| LY-08 | built | full | e2e-tabletop: drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves; e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card; tabletop-unit: tabletop state: normalizeTable validates untrusted input against the files that exist (+2) |
+| LY-08 | built | full | e2e-tabletop: drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves; e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+3) |
 | LY-09 | built | full | e2e-tabletop: micro peek shows the real contents (Markdown heading + bullets, CSV grid with a quoted comma) and enlarges on hover / focus; tabletop-unit: micro peek: Markdown keeps headings/bullets, plain text and code, line cap, CSV with RFC 4180 quoting, JSON grid / pretty text, images, SVG, binary, sealed, empty |
 | LY-10 | built | full | e2e-beauty: the pipeline catches seeded violations in the live page (tiny crowded buttons, clipped text, an off-centre dock, an un-golden card); e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+3) |
 | LY-11 | built | full | e2e-tabletop: slanted camera is the default: floor ≥ 80 % of the Tabletop by hit-sampling 1440 points (desktop + phone), the near lip is a ≥ 24 px target, Camera toggles top ↔ slant and persists; tabletop-unit: slanted camera (default): floor ≥ 80 % of the frame across a viewport sweep, lip ≥ 24 px, β = 38°, walls share the rest; tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box |
-| LY-12 | built | full | e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it; e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+2) |
+| LY-12 | built | full | e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it; e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+3) |
 | LY-13 | built | full | e2e-tabletop: saved tabletop views: save (camera + face + pins), change everything, load restores it, survives reload, delete; tabletop-unit: saved tabletop views: save captures camera + face + every surface; same name updates in place; load restores (re-validated against today's files); rename / delete; cap |
 | LY-14 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; e2e-media27: layout ↔ style pairing: Art → Silver + light, Business → Daylight + light (from the Quick-panel/Settings switch), Fusion keeps the look; 'Match the look' off leaves the style alone; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
 | LY-15 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
@@ -369,8 +371,9 @@ None.
 | LY-19 | built | full | e2e-tt28: Art dock (LY-18/LY-19): auto-hide slides the dock off-screen and gives windows the space; the bottom edge reveals it; it stays ≥ 400 ms after leaving and hides by ~600 ms; keyboard focus reveals it; minimise plays the genie into the dock tile (clip-path funnel), and not at all under reduced motion; tt28-unit: genie keyframes: every frame has the same 4-point clip polygon (so it interpolates), offsets 0 → .45 → 1, phase 1 pinches only the bottom edge over the tile, and the last frame lands exactly on the dock tile for 500 random window/tile pairs |
 | AX-13 | built | full | e2e-tt28: accessibility tree (AX-13): Playwright ariaSnapshot of the live page in Fusion, Business and Art: landmarks and names a screen reader would announce (dock / taskbar navigation, named window dialogs, no unnamed buttons or text fields); the ask dialog and the snap flyout expose their roles and names |
 | LY-20 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: wall tags (TT29): one per foreshortened wall, inside the frame, centred on the wall's VISIBLE area (hit-test finds that wall under the centre), ≥ 24 px targets, no overlaps with each other or the switcher; counts in the label; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+5) |
-| LY-21 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px) |
+| LY-21 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px); e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %) (+1) |
 | AX-14 | built | full | e2e-tt30: oracle: our accessible names and roles agree with Chromium's accessibility tree in all 40 modules × 3 layouts (thresholds declared up front: names ≥ 98 %, roles ≥ 99 %); e2e-tt30: oracle sensitivity: three mutants of the narrator source are caught (aria-label ignored → names < 98 %; buttons as generic → roles < 99 %; CSS text-transform ignored → the uppercase headings differ); e2e-tt30: behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed (+10) |
+| LY-22 | built | full | e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %); e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+13) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
@@ -411,7 +414,7 @@ None.
 | MS-02 | blocked | untested |  |
 | MS-03 | blocked | partial | e2e: mount: messages |
 | MS-04 | partial | untested |  |
-| AX-01 | built | partial | e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e: structural a11y: every window is a named dialog; no unnamed buttons |
+| AX-01 | built | full | e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall; e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations (+1) |
 | AX-02 | built | partial | e2e: structural a11y: every window is a named dialog; no unnamed buttons |
 | AX-03 | built | full | e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens) |
 | AX-04 | built | untested |  |

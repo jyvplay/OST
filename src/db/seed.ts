@@ -24,11 +24,12 @@ import { tt27Features, UPDATES_TT27 } from "./seed-data/features-tt27";
 import { tt28Features, UPDATES_TT28 } from "./seed-data/features-tt28";
 import { tt29Features, UPDATES_TT29 } from "./seed-data/features-tt29";
 import { tt30Features } from "./seed-data/features-tt30";
+import { tt31Features } from "./seed-data/features-tt31";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.19.0";
+export const SEED_VERSION = "3.20.0";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...platformFeatures]
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
   .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))

@@ -155,6 +155,9 @@ try {
     await desktop({ v: 2, cards: {}, piles: [], camera: "top" });
     const { page, close } = await boot();
     ok(await page.getByTestId("tabletop").getAttribute("data-camera") === "top", "top camera");
+    // never measure mid-transition (TT31 finding, reproduced on the TT30 build too): the faces' size transition from the
+    // first-render default to the measured frame can still be running 1.4 s after boot
+    await poll(async () => page.evaluate(() => [...document.querySelectorAll("[data-face]")].every((e) => e.getAnimations().length === 0)), "faces at rest", 10_000);
     const tt = await box(page.getByTestId("tabletop"));
     const D = Number(await page.getByTestId("tabletop").getAttribute("data-depth")), s = Number(await page.getByTestId("tabletop").getAttribute("data-floor-scale"));
     const W = tt.width, H = tt.height, l = W / 2 - (W * s) / 2, r = W / 2 + (W * s) / 2, t = H / 2 - (H * s) / 2, b = H / 2 + (H * s) / 2;

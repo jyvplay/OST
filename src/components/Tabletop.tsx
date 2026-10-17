@@ -27,14 +27,30 @@ import {
   hitItem, loadView, moveItem, moveToSurface, normalizeTable, pileJitter, pileUp, renamePile, renameView, saveView, surfacePaths, takeFromPile,
   unstack, withBoard, type Board, type Camera, type Face, type FloorItem, type TableState, type Wall,
 } from "@/lib/tabletop-core";
-import { applyH, fitSlant, ident, mul, toCss, translate, wallLegibility, boxLegibility } from "@/lib/tabletop-slant";
+import { apply, applyH, boxQuads, fitSlant, ident, mul, toCss, translate, wallLegibility, boxLegibility, type H3, type Mat, type P2 } from "@/lib/tabletop-slant";
+import {
+  LIFT_HEAD, MIN_TARGET, PITCH, ROW_SEP, WALL_BOARD_W, boardToStrip, clampPan, dockRect, elementToScreenH, fanStrip, liftMatrix, liftQuad, panToShow,
+  inQuad, pinScreenSize, screenToElementH, screenToStrip, stripCss, stripFrame, stripRows, stripToBoard, surfaceAt, visibleS, type Dock, type HitVia, type StripFrame,
+} from "@/lib/wall-live-core";
 import { useShell } from "./shell-context";
 import { AppIcon, FileIcon } from "./AppIcon";
 import { askText } from "@/lib/ask";
 
 interface FileNode { path: string; name: string; kind: string; mime: string; version: number; size: number; updatedAt: string }
 type Fan = { pile: string; path: string };
-type Drag = { key: string; surface: Face; fan?: Fan; sx: number; sy: number; ox: number; oy: number; x: number; y: number; moved: boolean; over: Wall | null };
+/**
+ * A drag. x/y (and the grab offset ox/oy) are in the SOURCE surface's display space: board px for the floor and an
+ * unfolded wall, strip px (S along the wall, t across) for a wall in the overview. `target` is the surface under the
+ * pointer (paint order: lifted wall > wall tag > resting wall > floor); `tpos` the drop position (board px) on it.
+ */
+type Drag = {
+  key: string; surface: Face; fan?: Fan; sx: number; sy: number; ox: number; oy: number; x: number; y: number; moved: boolean; over: Wall | null;
+  space: "board" | "strip"; target: { face: Face; via: HitVia } | null; tpos: { x: number; y: number } | null; px: number; py: number;
+};
+/** a wall's live strip in the overview: its pose now (resting or lifted), the pointer maps of that pose, pan and rows */
+interface WallView { lifted: boolean; ew: number; eh: number; quad: P2[]; frame: StripFrame; liftFrame: StripFrame; pan: number; rows: number; toEl: H3; toSc: H3; dock: Dock; m: Mat }
+const NO_PANS: Record<Wall, number> = { north: 0, east: 0, south: 0, west: 0 };
+const LIFT_DELAY = 300, SETTLE_DELAY = 450, SPRING_DELAY = 350;
 
 /** /Documents files listed on the Tabletop (micro peeks are fetched one at a time and cached per version) */
 const MAX_FILES = 200;
@@ -63,6 +79,13 @@ export default function Tabletop() {
   const [now, setNow] = useState(() => new Date());
   const suppress = useRef(false);
   const hoverT = useRef(0);
+  // TT31 live walls: the one wall swung up to face you (overview only), each wall's pan along its strip, timers
+  const [lift, setLift] = useState<Wall | null>(null);
+  const [pans, setPans] = useState<Record<Wall, number>>(NO_PANS);
+  const liftT = useRef(0);
+  const settling = useRef(false);
+  const pendingLift = useRef<Wall | null>(null);
+  const spring = useRef<{ w: Wall | null; t: number }>({ w: null, t: 0 });
   const backBtn = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
@@ -114,14 +137,16 @@ export default function Tabletop() {
   }, [files, peeks]);
 
   useEffect(() => {
-    if (main === "floor" && !fanned && !zoom && !menu && !viewsOpen) return;
+    if (main === "floor" && !fanned && !zoom && !menu && !viewsOpen && !lift) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      if (menu) setMenu(null); else if (viewsOpen) setViewsOpen(false); else if (zoom) setZoom(null); else if (fanned) setFanned(null); else setMain("floor");
+      if (menu) setMenu(null); else if (viewsOpen) setViewsOpen(false); else if (zoom) setZoom(null); else if (fanned) setFanned(null);
+      else if (main === "floor" && lift) { window.clearTimeout(liftT.current); setLift(null); } else setMain("floor");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [main, fanned, zoom, menu, viewsOpen]);
+  }, [main, fanned, zoom, menu, viewsOpen, lift]);
+  useEffect(() => () => { window.clearTimeout(liftT.current); window.clearTimeout(spring.current.t); }, []);
 
   useEffect(() => { if (main !== "floor") backBtn.current?.focus({ preventScroll: true }); }, [main]);
 
@@ -155,7 +180,8 @@ export default function Tabletop() {
   const floorW = camera === "slant" ? slant.FW : Math.round(size.w * s);
   const floorH = camera === "slant" ? slant.FD : Math.round(size.h * s);
   const pinW = pinSize?.w ?? Math.round(size.w * 0.58), pinH = pinSize?.h ?? Math.max(200, size.h - 200);
-  const area = (f: Face) => (f === "floor" ? { w: floorW, h: floorH } : { w: pinW, h: pinH });
+  // a wall board is WALL_BOARD_W wide (6 cards a row) in every pose: rows unroll along the wall in the overview
+  const area = (f: Face) => (f === "floor" ? { w: floorW, h: floorH } : { w: WALL_BOARD_W, h: pinH });
   const surfaceItems = (f: Face, t: TableState = table) => floorItems(boardOf(t, f), surfacePaths(t, f, paths), area(f).w);
   const itemsOf: Record<Face, FloorItem[]> = { floor: surfaceItems("floor"), north: surfaceItems("north"), east: surfaceItems("east"), south: surfaceItems("south"), west: surfaceItems("west") };
   const contentH = (f: Face) => Math.max(area(f).h, ...itemsOf[f].map((it) => it.y + CARD_H + (f === "floor" ? 16 : 24)));
@@ -166,6 +192,86 @@ export default function Tabletop() {
     const maxY = f === "floor" ? contentH(f) - CARD_H - (camera === "slant" && !floorScrolls ? NAV_RESERVE : 0) : contentH(f);
     return { x: Math.max(0, Math.min(a.w - CARD_W, x)), y: Math.max(0, Math.min(Math.max(0, maxY), y)) };
   };
+
+  // ------------------------------------------------------------------ TT31 live walls: strips, lift pose, pointer maps
+  const lifted: Wall | null = main === "floor" ? lift : null;
+  const W0 = size.w, H0 = size.h;
+  const P3 = camera === "slant" ? slant.P : geo.perspective, OX = W0 / 2, OY = camera === "slant" ? slant.oy : H0 / 2;
+  const topQ = boxQuads(W0, H0, geo.depth, s);
+  const restQuad = (w: Wall): P2[] => (camera === "slant" ? slant.quads[w] : topQ.quads[w]);
+  const restDims = (w: Wall) => (camera === "slant" ? { w: slant.faces[w].w, h: slant.faces[w].h } : topQ.faces[w]);
+  const floorQuad: P2[] = camera === "slant" ? slant.quads.floor
+    : [[OX - (W0 * s) / 2, OY - (H0 * s) / 2], [OX + (W0 * s) / 2, OY - (H0 * s) / 2], [OX + (W0 * s) / 2, OY + (H0 * s) / 2], [OX - (W0 * s) / 2, OY + (H0 * s) / 2]];
+  // the lifted wall sits in front of every resting face (deepest z' toward the viewer + the 56 px card lift)
+  let zFront = 2;
+  if (camera === "slant") for (const f of ["floor", "north", "south", "west", "east"] as const) {
+    const { w: fw, h: fh, m } = slant.faces[f];
+    for (const [u, v] of [[0, 0], [fw, 0], [fw, fh], [0, fh]] as P2[]) zFront = Math.max(zFront, Math.ceil(apply(m, [u, v, 0])[2]) + 60);
+  }
+  const lipTop = camera === "slant" ? slant.quads.south[0][1] : H0;
+  const wv = {} as Record<Wall, WallView>;
+  for (const w of WALLS) {
+    const rd = restDims(w), rot = camera === "slant" || w === "north" || w === "south" ? 0 : w === "west" ? 90 : -90;
+    const dock = dockRect(w, { W: W0, H: H0, lipTop, nav: navBox });
+    const m = liftMatrix(dock, P3, OX, OY, zFront);
+    const liftFrame = stripFrame(dock.ew, dock.eh, 0, LIFT_HEAD);
+    const isLifted = lifted === w;
+    const quad = isLifted ? liftQuad(dock, m, P3, OX, OY) : restQuad(w);
+    const ew = isLifted ? dock.ew : rd.w, eh = isLifted ? dock.eh : rd.h;
+    const frame = isLifted ? liftFrame : stripFrame(rd.w, rd.h, rot as 0 | 90 | -90);
+    const rows = stripRows(itemsOf[w].map((it) => it.y));
+    wv[w] = { lifted: isLifted, ew, eh, quad, frame, liftFrame, rows, pan: clampPan(frame, rows, pans[w]), toEl: screenToElementH(quad, ew, eh), toSc: elementToScreenH(quad, ew, eh), dock, m };
+  }
+  const clearLiftTimer = () => { window.clearTimeout(liftT.current); settling.current = false; pendingLift.current = null; };
+  const liftNow = (w: Wall) => { clearLiftTimer(); if (main === "floor" && lift !== w) setLift(w); };
+  const hoverWall = (w: Wall) => { clearLiftTimer(); if (lift !== w) { pendingLift.current = w; liftT.current = window.setTimeout(() => { pendingLift.current = null; setLift(w); }, LIFT_DELAY); } };
+  /**
+   * Hover INTENT: only real pointer movement over a wall (or its tag) arms the lift — not the synthetic enter Chrome
+   * sends when the layout changes under a resting mouse (e.g. returning to the overview with the pointer parked on a
+   * tag used to swing that wall up unasked). Armed once per wall, so moving within it does not postpone the lift.
+   */
+  const intent = (w: Wall, e: React.PointerEvent) => {
+    if (drag || main !== "floor" || e.pointerType === "touch" || !(e.movementX || e.movementY)) return;
+    if (lift === w) { if (settling.current) clearLiftTimer(); return; }
+    if (pendingLift.current !== w) hoverWall(w);
+  };
+  const leaveWall = (w: Wall, ms = SETTLE_DELAY) => {
+    clearLiftTimer();
+    if (lift === w) { settling.current = true; liftT.current = window.setTimeout(() => { settling.current = false; setLift((cur) => (cur === w ? null : cur)); setFanned((fk) => (fk?.startsWith(`${w}:`) ? null : fk)); }, ms); }
+  };
+  /**
+   * Hover model (geometric, so the swing itself can never make the pointer "leave"): a lifted wall stays up while the
+   * pointer is over its lifted panel OR its resting outline, and settles SETTLE_DELAY after the pointer leaves both —
+   * unless keyboard focus is inside it. (A rest point at the frame edge outside the docked panel used to oscillate.)
+   */
+  const hoverTrack = (e: React.PointerEvent) => {
+    if (drag || main !== "floor" || !lift || e.pointerType === "touch") return;
+    const pt = rootPt(e.clientX, e.clientY);
+    if (inQuad(pt, wv[lift].quad) || inQuad(pt, restQuad(lift))) { if (settling.current) clearLiftTimer(); return; }
+    if (settling.current || root.current?.querySelector(`[data-testid=tt-wall-${lift}]`)?.contains(document.activeElement) || menu) return;
+    leaveWall(lift);
+  };
+  const cancelSpring = () => { window.clearTimeout(spring.current.t); spring.current = { w: null, t: 0 }; };
+  const springTo = (w: Wall | null) => {
+    if (spring.current.w === w) return;
+    cancelSpring();
+    if (w && w !== lift) spring.current = { w, t: window.setTimeout(() => { clearLiftTimer(); setLift(w); }, SPRING_DELAY) };
+  };
+  /** change the main face; any lifted wall and every pending lift / settle / spring timer goes with the overview */
+  const openFace = (f: Face) => { clearLiftTimer(); cancelSpring(); setLift(null); setMain(f); };
+  const setPan = (w: Wall, p: number) => setPans((cur) => ({ ...cur, [w]: clampPan(wv[w].frame, wv[w].rows, p) }));
+  const panLifted = (w: Wall, S: number) => setPans((cur) => ({ ...cur, [w]: panToShow(wv[w].liftFrame, wv[w].rows, cur[w], S) }));
+  const rootPt = (clientX: number, clientY: number): P2 => { const o = root.current!.getBoundingClientRect(); return [clientX - o.left, clientY - o.top]; };
+  const tagRects = () => {
+    const out: Partial<Record<Wall, { x: number; y: number; w: number; h: number }>> = {};
+    const o = root.current?.getBoundingClientRect();
+    if (o) root.current!.querySelectorAll<HTMLElement>("[data-wall-tag]").forEach((el) => { const b = el.getBoundingClientRect(); out[el.dataset.wallTag as Wall] = { x: b.left - o.left, y: b.top - o.top, w: b.width, h: b.height }; });
+    return out;
+  };
+  const hitSurface = (pt: P2) => surfaceAt(pt, { lifted, liftedQuad: lifted ? wv[lifted].quad : null, tags: tagRects(),
+    rest: { north: restQuad("north"), south: restQuad("south"), west: restQuad("west"), east: restQuad("east") }, floor: floorQuad });
+  /** is a resting pin big enough on screen to be a pointer target (WCAG 2.5.8)? Smaller ones lift the wall instead. */
+  const restTarget = (v: WallView, S: number, t: number) => { const z = pinScreenSize(v.toSc, v.frame, S, t, v.pan); return z.w >= MIN_TARGET && z.h >= MIN_TARGET; };
 
   // ------------------------------------------------------------------ pointer handling (drag / pile / fan / pin)
   const local = (f: Face, clientX: number, clientY: number) => {
@@ -183,49 +289,82 @@ export default function Tabletop() {
     const el = pinRef.current!, r = el.getBoundingClientRect();
     return { x: clientX - r.left + el.scrollLeft, y: clientY - r.top + el.scrollTop };
   };
-  const wallUnder = (x: number, y: number): Wall | null => {
-    for (const el of document.elementsFromPoint(x, y)) {
-      const tag = (el as HTMLElement).closest?.("[data-wall-tag]")?.getAttribute("data-wall-tag");
-      if (tag) return tag as Wall; // a wall's flat tag is a drop target too (slivers are too thin to aim at)
-      const face = (el as HTMLElement).closest?.("[data-face]")?.getAttribute("data-face");
-      if (face && face !== "floor") return face as Wall;
-      if (face === "floor") return null;
-    }
-    return null;
+  /** a pointer in a surface's display space: board px (floor, unfolded wall) or strip px (a wall in the overview) */
+  const pointerOn = (f: Face, clientX: number, clientY: number) => {
+    if (f === "floor" || main === f) return local(f, clientX, clientY);
+    const v = wv[f], st = screenToStrip(rootPt(clientX, clientY), v.toEl, v.frame, v.pan);
+    return { x: st.S, y: st.t };
+  };
+  /** where a card dropped at this point lands on another surface (board px, card centred on the pointer) */
+  const dropPos = (target: { face: Face; via: HitVia }, clientX: number, clientY: number) => {
+    if (target.via === "tag") return null; // a tag is a coarse target: next free slot
+    if (target.face === "floor") { const q = local("floor", clientX, clientY); return clampOn("floor")(q.x - CARD_W / 2, q.y - CARD_H / 2); }
+    const v = wv[target.face], st = screenToStrip(rootPt(clientX, clientY), v.toEl, v.frame, v.pan);
+    const b = stripToBoard(st.S - CARD_W / 2, st.t - CARD_H / 2);
+    return clampOn(target.face)(b.x, b.y);
   };
   const down = (e: React.PointerEvent, surface: Face, key: string, at: { x: number; y: number }, fan?: Fan) => {
     if (e.button !== 0) return;
     e.stopPropagation();
     suppress.current = false;
-    const p = local(surface, e.clientX, e.clientY);
-    setDrag({ key, surface, fan, sx: e.clientX, sy: e.clientY, ox: p.x - at.x, oy: p.y - at.y, x: at.x, y: at.y, moved: false, over: null });
+    const p = pointerOn(surface, e.clientX, e.clientY), [px, py] = rootPt(e.clientX, e.clientY);
+    setDrag({ key, surface, fan, sx: e.clientX, sy: e.clientY, ox: p.x - at.x, oy: p.y - at.y, x: at.x, y: at.y, moved: false, over: null,
+      space: surface !== "floor" && main !== surface ? "strip" : "board", target: null, tpos: null, px, py });
     e.currentTarget.setPointerCapture(e.pointerId);
     setZoom(null);
   };
   const move = (e: React.PointerEvent) => {
     if (!drag) return;
-    const p = local(drag.surface, e.clientX, e.clientY);
+    const p = pointerOn(drag.surface, e.clientX, e.clientY), pt = rootPt(e.clientX, e.clientY);
     const moved = drag.moved || Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4;
-    const over = drag.surface === "floor" && main === "floor" && moved ? wallUnder(e.clientX, e.clientY) : null;
-    setDrag({ ...drag, moved, over, x: p.x - drag.ox, y: p.y - drag.oy });
+    // in the overview every surface is a drop target; an unfolded wall or the floor behind it only takes its own cards
+    const target = !moved ? null : main === "floor" ? hitSurface(pt) : { face: drag.surface, via: "floor" as HitVia };
+    const over = target && target.face !== "floor" && target.face !== drag.surface ? (target.face as Wall) : null;
+    // spring-loading: hold a card over a resting wall (or its tag) and it swings up to take the drop
+    if (main === "floor") springTo(target && target.face !== "floor" && target.via !== "lifted" ? (target.face as Wall) : null);
+    // edge-pan: hold near either end of a lifted wall and it scrolls along
+    if (target && target.via === "lifted" && lifted) {
+      const v = wv[lifted], st = screenToStrip(pt, v.toEl, v.frame, v.pan), edge = 60 / v.frame.k, vis = visibleS(v.frame);
+      if (st.S - v.pan < edge && v.pan > 0) setPan(lifted, v.pan - 16 / v.frame.k);
+      else if (st.S - v.pan > vis - edge) setPan(lifted, v.pan + 16 / v.frame.k);
+    }
+    const tpos = target && target.face !== drag.surface ? dropPos(target, e.clientX, e.clientY) : null;
+    setDrag({ ...drag, moved, over, target, tpos, px: pt[0], py: pt[1], x: p.x - drag.ox, y: p.y - drag.oy });
   };
-  const pinPos = (t: TableState, w: Wall) => freeSlot(floorItems(boardOf(t, w), surfacePaths(t, w, paths), pinW), pinW);
+  const pinPos = (t: TableState, w: Wall) => freeSlot(floorItems(boardOf(t, w), surfacePaths(t, w, paths), WALL_BOARD_W), WALL_BOARD_W);
+  /** a card / pile / card out of a fan moved to ANOTHER surface; it piles up if it lands on something there */
+  const crossDrop = (d: Drag, to: Face, pos: { x: number; y: number } | null) => {
+    const f = d.surface;
+    let t = table, key = d.key;
+    if (d.fan) { t = withBoard(t, f, takeFromPile(boardOf(t, f), d.fan.pile, d.fan.path, { x: 0, y: 0 })); key = `card:${d.fan.path}`; if (!boardOf(t, f).piles.some((p) => p.id === d.fan!.pile)) setFanned(null); }
+    else if (fanned === `${f}:${d.key.slice(5)}`) setFanned(null);
+    const at = pos ?? (to === "floor" ? freeSlot(surfaceItems("floor", t), floorW) : pinPos(t, to as Wall));
+    const before = new Set(boardOf(t, to).piles.map((p) => p.id));
+    const moved = moveToSurface(t, key, f, to, at, paths);
+    if (moved === t) return;
+    t = moved;
+    let mk = key;
+    if (key.startsWith("pile:")) { const np = boardOf(t, to).piles.find((p) => !before.has(p.id)); if (np) mk = `pile:${np.id}`; }
+    if (pos) {
+      const here = surfacePaths(t, to, paths), hit = hitItem(floorItems(boardOf(t, to), here, area(to).w), at.x + CARD_W / 2, at.y + CARD_H / 2, mk);
+      if (hit) t = withBoard(t, to, pileUp(boardOf(t, to), mk, hit.key, { x: hit.x, y: hit.y }, here));
+    }
+    commit(t);
+  };
   const up = () => {
     if (!drag) return;
     const d = drag, f = d.surface;
     setDrag(null);
+    const sprung = spring.current.w !== null;
+    cancelSpring();
     if (!d.moved) return;
     suppress.current = true;
+    // a wall that swung up for this drop settles again unless the pointer is still on it
+    if (lifted && !(d.target?.via === "lifted") && !sprung) leaveWall(lifted);
+    if (d.target && d.target.face !== f) { crossDrop(d, d.target.face, d.tpos); return; }
     const board = boardOf(table, f), here = surfacePaths(table, f, paths);
-    // dropped on a wall (box view): pin it there
-    if (d.over && f === "floor") {
-      let t = table, key = d.key;
-      if (d.fan) { t = withBoard(t, f, takeFromPile(board, d.fan.pile, d.fan.path, { x: 0, y: 0 })); key = `card:${d.fan.path}`; if (!boardOf(t, f).piles.some((p) => p.id === d.fan!.pile)) setFanned(null); }
-      else if (fanned === `${f}:${d.key.slice(5)}`) setFanned(null);
-      commit(moveToSurface(t, key, f, d.over, pinPos(t, d.over), paths));
-      return;
-    }
-    const pos = clampOn(f)(d.x, d.y);
+    const raw = d.space === "strip" ? stripToBoard(d.x, d.y) : { x: d.x, y: d.y };
+    const pos = clampOn(f)(raw.x, raw.y);
     const cx = pos.x + CARD_W / 2, cy = pos.y + CARD_H / 2;
     if (d.fan) {
       const own = board.piles.find((p) => p.id === d.fan!.pile);
@@ -256,6 +395,8 @@ export default function Tabletop() {
   const facePose = (f: Face): React.CSSProperties => {
     const isMain = main === f;
     const W = size.w, H = size.h;
+    // TT31: the lifted wall lies flat in front of the scene, docked at its own edge (exact projection: wall-live-core)
+    if (f !== "floor" && lifted === f) { const v = wv[f]; return { left: 0, top: 0, width: v.dock.ew, height: v.dock.eh, transform: toCss(v.m), transformOrigin: "0 0", opacity: 1 }; }
     if (camera === "slant") {
       const sf = slant.faces[f];
       if (isMain && f !== "floor") return { left: 0, top: 0, width: W, height: H, transform: toCss(ident()), transformOrigin: "0 0", opacity: 1, zIndex: 3 };
@@ -277,11 +418,25 @@ export default function Tabletop() {
   };
   const wallProps = (w: Wall) => ({
     "data-testid": `tt-wall-${w}`, "data-face": w, "data-main": main === w || undefined, "data-drop": drag?.over === w || undefined,
+    "data-lifted": lifted === w || undefined,
     className: `fs-tt-face fs-tt-wall fs-tt-wall-${w}`,
     onDoubleClick: (e: React.MouseEvent) => {
-      if (main === "floor") { setMain(w); return; }
+      if (main === "floor") { if ((e.target as HTMLElement).closest("[data-testid=tt-pin], [data-testid=tt-wallpile], .fs-tt-strip-head button")) return; openFace(w); return; }
       if ((e.target as HTMLElement).closest("button, a, input")) return;
-      setMain("floor");
+      openFace("floor");
+    },
+    // TT31 live walls: hover (300 ms), focus (at once) or a wheel turn swings the wall up; leaving lets it settle
+    onPointerMove: (e: React.PointerEvent) => intent(w, e),
+    onPointerLeave: () => { if (!drag && main === "floor" && lift !== w) clearLiftTimer(); },
+    onPointerDown: (e: React.PointerEvent) => { if (main === "floor" && e.pointerType === "touch" && !(e.target as HTMLElement).closest("[data-testid=tt-pin], [data-testid=tt-wallpile]")) liftNow(w); },
+    onFocus: () => { if (main === "floor") liftNow(w); },
+    onBlur: (e: React.FocusEvent) => { if (main === "floor" && !e.currentTarget.contains(e.relatedTarget as Node | null) && menu?.surface !== w) leaveWall(w, 200); },
+    onWheel: (e: React.WheelEvent) => {
+      if (main !== "floor") return;
+      const v = wv[w], dl = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (!dl) return;
+      if (lift !== w) liftNow(w);
+      setPan(w, v.pan + dl / v.frame.k);
     },
   });
 
@@ -327,14 +482,16 @@ export default function Tabletop() {
   const boardItems = (surface: Face) => {
     const a = area(surface);
     return itemsOf[surface].flatMap((it: FloorItem) => {
-      const dragging = drag?.moved && drag.surface === surface && drag.key === it.key && !drag.fan;
+      const carried = drag?.moved && drag.surface === surface && drag.key === it.key && !drag.fan;
+      const elsewhere = !!(carried && drag!.target && drag!.target.face !== surface); // carried to another surface: the ghost shows it
+      const dragging = carried && !elsewhere;
       const at = dragging ? { x: drag!.x, y: drag!.y } : { x: it.x, y: it.y };
       if (it.kind === "card") return [card(surface, it.path, { key: `c:${it.path}`, x: at.x, y: at.y, interactive: true, dragging, z: 1 })];
       const pile = it.pile, fk = `${surface}:${pile.id}`, isFan = fanned === fk;
       const fanPos = isFan ? fanLayout(pile.paths.length, pile, a.w, Math.max(a.h, CARD_H * 2)) : [];
       return [
         ...pile.paths.map((p, i) => {
-          const fanDrag = drag?.moved && drag.surface === surface && drag.fan?.path === p;
+          const fanDrag = drag?.moved && drag.surface === surface && drag.fan?.path === p && !(drag.target && drag.target.face !== surface);
           if (isFan) {
             const fp = fanPos[i] ?? { x: at.x, y: at.y, rot: 0 };
             return card(surface, p, { key: `c:${p}`, x: fanDrag ? drag!.x : fp.x, y: fanDrag ? drag!.y : fp.y, rot: fanDrag ? 0 : fp.rot, z: 20 + i, interactive: true, fan: { pile: pile.id, path: p }, dragging: fanDrag, lifted: true });
@@ -408,11 +565,129 @@ export default function Tabletop() {
   const doLoad = (id: string) => {
     const r = loadView(table, id, paths);
     if (!r) return;
-    commit(r.table); setFanned(null); setZoom(null); setMain(r.face); setViewsOpen(false);
+    commit(r.table); setFanned(null); setZoom(null); openFace(r.face); setViewsOpen(false);
   };
   const setCamera = (c: Camera) => commit({ ...table, camera: c });
 
   const T = (f: Face) => ({ ...facePose(f) });
+  /** the TT29 "detail" body of a resting wall (only where the camera leaves it legible): built-in panel, inert */
+  const compactBody = (w: Wall, pinCount: number, builtin: React.ReactNode) => (
+    <div className="fs-tt-wall-body" data-compact data-beauty-skip inert>
+      <div className="fs-tt-wall-head"><strong>{WALL_INFO[w].title}</strong>{pinCount ? <span className="fs-tt-pincount">{pinCount} pinned</span> : null}</div>
+      {builtin}
+    </div>
+  );
+
+  // ------------------------------------------------------------------ TT31 live wall strip (overview)
+  const kindOf = (p: string) => (byPath.get(p)?.name ?? p).split(".").pop()?.toLowerCase().slice(0, 5);
+  const pinKeys = (w: Wall, path: string, menuKey: string, at: { S: number; t: number }, fan?: Fan) => (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") { e.preventDefault(); openFile(path); return; }
+    if (e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(), o = root.current!.getBoundingClientRect(); openMenu(menuKey, w, r.left - o.left + 20, r.top - o.top + 30); return; }
+    const a = arrow(e);
+    if (a && !fan) { e.preventDefault(); const b = stripToBoard(at.S, at.t); nudge(w, `card:${path}`, b, a[0], a[1]); }
+  };
+  /** one pinned card on a wall strip — the SAME element resting and lifted (focus survives the lift) */
+  const pin = (w: Wall, v: WallView, path: string, o: { S: number; t: number; z: number; rot?: number; fan?: Fan; dragging?: boolean; away?: boolean }) => {
+    const f = byPath.get(path);
+    if (!f) return null;
+    const big = v.lifted || restTarget(v, o.S, o.t);
+    const style = { left: o.S, top: o.t, zIndex: o.dragging ? 900 : o.z, ["--rot" as string]: `${o.rot ?? 0}deg` } as React.CSSProperties;
+    if (!big) return <span key={`c:${path}`} className="fs-tt-glyph fs-tt-pin" data-testid="tt-pin" data-path={path} data-surface={w} data-kind={kindOf(path)} aria-hidden="true" style={style} />;
+    const menuKey = o.fan ? `fan:${o.fan.pile}:${path}` : `card:${path}`;
+    return (
+      <button key={`c:${path}`} type="button" className={v.lifted ? "fs-tt-card fs-tt-pincard" : "fs-tt-glyph fs-tt-pin"} data-testid="tt-pin" data-path={path} data-surface={w}
+        data-kind={kindOf(path)} data-dragging={o.dragging || undefined} data-away={o.away || undefined} data-fan={o.fan ? o.fan.pile : undefined}
+        aria-label={v.lifted ? undefined : `${f.name}, pinned to the ${WALL_INFO[w].title} wall`} aria-describedby="tt-card-hint" style={style}
+        onPointerDown={(e) => down(e, w, `card:${path}`, { x: o.S, y: o.t }, o.fan)} onPointerMove={move} onPointerUp={up} onPointerCancel={() => { setDrag(null); cancelSpring(); }}
+        onDoubleClick={(e) => { e.stopPropagation(); if (!suppress.current) openFile(path); }}
+        onFocus={() => { liftNow(w); panLifted(w, o.S); }}
+        onKeyDown={pinKeys(w, path, menuKey, o, o.fan)}
+        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); const r = root.current!.getBoundingClientRect(); openMenu(menuKey, w, e.clientX - r.left, e.clientY - r.top); }}>
+        {v.lifted ? (
+          <>
+            <MicroPeek peek={peekOf(path)} name={f.name} />
+            <span className="fs-tt-card-name" style={{ fontSize: `max(calc(11px * var(--fs-u)), ${Math.ceil(10 / v.frame.k)}px)` }}><span>{f.name}<span className="fs-visually-hidden">, pinned to the {WALL_INFO[w].title} wall</span></span></span>
+          </>
+        ) : null}
+      </button>
+    );
+  };
+  const liveStrip = (w: Wall) => {
+    const v = wv[w], fr = v.frame, items = itemsOf[w], title = WALL_INFO[w].title;
+    const dragHere = (key: string) => drag?.moved && drag.surface === w && drag.key === key && !drag.fan;
+    const away = (key: string) => !!(dragHere(key) && drag!.target && drag!.target.face !== w);
+    const fannedHere = fanned?.startsWith(`${w}:`) ? fanned.slice(w.length + 1) : null;
+    const out: React.ReactNode[] = [];
+    for (const it of items) {
+      const home = boardToStrip(it.x, it.y), live = dragHere(it.key) && !away(it.key), at = live ? { S: drag!.x, t: drag!.y } : home;
+      if (it.kind === "card") { out.push(pin(w, v, it.path, { ...at, z: 1, dragging: live, away: away(it.key) })); continue; }
+      const pile = it.pile, fk = `${w}:${pile.id}`, n = pile.paths.length;
+      if (fannedHere === pile.id) {
+        fanStrip(n, home.S).forEach((fp, i) => {
+          const fd = drag?.moved && drag.surface === w && drag.fan?.path === pile.paths[i] && !(drag.target && drag.target.face !== w);
+          out.push(pin(w, v, pile.paths[i], { S: fd ? drag!.x : fp.S, t: fd ? drag!.y : fp.t, rot: fd ? 0 : fp.rot, z: 20 + i, fan: { pile: pile.id, path: pile.paths[i] }, dragging: fd }));
+        });
+        continue;
+      }
+      const big = v.lifted || restTarget(v, at.S, at.t), top = pile.paths[n - 1];
+      const style = { left: at.S, top: at.t, zIndex: live ? 901 : 10 } as React.CSSProperties;
+      if (!big) { out.push(<span key={it.key} className="fs-tt-glyph fs-tt-pin" data-testid="tt-wallpile" data-count={n} data-pile={pile.id} aria-hidden="true" style={style} />); continue; }
+      out.push(
+        <button key={it.key} type="button" className={v.lifted ? "fs-tt-wallpile" : "fs-tt-glyph fs-tt-pin"} data-testid="tt-wallpile" data-pile={pile.id} data-surface={w} data-count={n}
+          data-dragging={live || undefined} data-away={away(it.key) || undefined} aria-expanded={false} aria-describedby="tt-pile-hint"
+          aria-label={v.lifted ? undefined : `Pile “${pile.name}”, ${n} files, on the ${title} wall`} style={style}
+          onPointerDown={(e) => down(e, w, it.key, { x: at.S, y: at.t })} onPointerMove={move} onPointerCancel={() => { setDrag(null); cancelSpring(); }}
+          onPointerUp={() => { const was = drag?.moved; up(); if (!was) { liftNow(w); setFanned(fk); } }}
+          onFocus={() => { liftNow(w); panLifted(w, at.S); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFanned(fk); return; }
+            if (e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(), o = root.current!.getBoundingClientRect(); openMenu(it.key, w, r.left - o.left + 20, r.top - o.top + 30); return; }
+            const ar = arrow(e);
+            if (ar) { e.preventDefault(); nudge(w, it.key, { x: it.x, y: it.y }, ar[0], ar[1]); }
+          }}
+          onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); const o = root.current!.getBoundingClientRect(); openMenu(it.key, w, e.clientX - o.left, e.clientY - o.top); }}>
+          {v.lifted ? (
+            <>
+              <MicroPeek peek={peekOf(top)} name={byPath.get(top)?.name ?? top} />
+              <span className="fs-tt-pile-badge" style={{ fontSize: `max(calc(11px * var(--fs-u)), ${Math.ceil(10 / fr.k)}px)` }}>{pile.name} · {n}<span className="fs-visually-hidden"> files, on the {title} wall</span></span>
+            </>
+          ) : null}
+        </button>,
+      );
+    }
+    const vis = visibleS(fr), canBack = v.pan > 0.5, canOn = v.pan < Math.max(0, v.rows * PITCH - ROW_SEP - vis) - 0.5;
+    const n = surfacePaths(table, w, paths).length;
+    return (
+      <div className="fs-tt-strip" data-testid={`tt-glyphs-${w}`} data-lod={lod?.[w].lod} data-lifted={v.lifted || undefined} data-pan={Math.round(v.pan)} data-rows={v.rows}
+        data-k={fr.k.toFixed(4)} style={{ width: fr.L, height: fr.T, transform: stripCss(fr) }}>
+        {w === "north" && !v.lifted && wins.length ? (
+          <div className="fs-tt-winglyphs" aria-hidden="true">{wins.slice(0, 12).map((x) => <span key={x.id} className="fs-tt-glyph fs-tt-glyph-win" />)}</div>
+        ) : null}
+        {v.lifted ? (
+          <div className="fs-tt-strip-head" style={{ height: LIFT_HEAD }}>
+            <strong>{title} wall</strong>
+            <span className="fs-dim">{n ? `${n} pinned · drag along, onto a card to pile, or off to the table` : "Drop cards here"}</span>
+            {fannedHere ? <button type="button" className="fs-tt-strip-btn" data-testid={`tt-gather-${w}`} onClick={() => setFanned(null)}>Gather</button> : null}
+            <span className="fs-tt-strip-sp" />
+            <button type="button" className="fs-tt-strip-btn" data-testid={`tt-pan-back-${w}`} aria-label={`Scroll the ${title} wall back`} disabled={!canBack} onClick={() => setPan(w, v.pan - vis * 0.8)}>
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </button>
+            <button type="button" className="fs-tt-strip-btn" data-testid={`tt-pan-on-${w}`} aria-label={`Scroll the ${title} wall on`} disabled={!canOn} onClick={() => setPan(w, v.pan + vis * 0.8)}>
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </button>
+          </div>
+        ) : null}
+        <div className="fs-tt-strip-inner" style={{ transform: `translate(${fr.padU - v.pan * fr.k}px, ${fr.padV}px) scale(${fr.k})` }}>
+          {v.lifted ? Array.from({ length: v.rows - 1 }, (_, r) => (
+            <span key={`sep${r}`} className="fs-tt-rowsep" aria-hidden="true" style={{ left: (r + 1) * PITCH - ROW_SEP / 2 }}>
+              <span style={{ fontSize: Math.ceil(10 / fr.k) }}>{r + 2}</span>
+            </span>
+          )) : null}
+          {out}
+        </div>
+      </div>
+    );
+  };
   const wallContent = (w: Wall) => {
     const compact = main !== w;
     const pinCount = surfacePaths(table, w, paths).length;
@@ -423,7 +698,7 @@ export default function Tabletop() {
             {wins.length === 0 ? <p className="fs-dim fs-tt-empty">No windows are open on this workspace.</p> : null}
             {wins.map((win) => (
               <button key={win.id} type="button" className="fs-tt-tile" data-testid={`tt-win-${win.id}`}
-                onClick={() => { shell.dispatch({ t: win.minimized ? "restore" : "focus", id: win.id }); setMain("floor"); }}>
+                onClick={() => { shell.dispatch({ t: win.minimized ? "restore" : "focus", id: win.id }); openFace("floor"); }}>
                 <AppIcon id={win.module} size={10} style={{ width: 40, height: 40 }} />
                 <span className="fs-tt-tile-text"><strong>{win.title}</strong><span className="fs-dim">{moduleById(win.module)?.title ?? win.module}{win.minimized ? " · minimised" : ""}</span></span>
               </button>
@@ -437,7 +712,7 @@ export default function Tabletop() {
                 <h3>{g}</h3>
                 <div className="fs-tt-app-grid">
                   {MODULES.filter((m) => m.group === g).map((m) => (
-                    <button key={m.id} type="button" className="fs-tt-app" data-testid={`tt-app-${m.id}`} title={m.title} onClick={() => { shell.open(m.id); setMain("floor"); }}>
+                    <button key={m.id} type="button" className="fs-tt-app" data-testid={`tt-app-${m.id}`} title={m.title} onClick={() => { shell.open(m.id); openFace("floor"); }}>
                       <AppIcon id={m.id} size={10} style={{ width: 44, height: 44 }} />
                       <span>{m.title}</span>
                     </button>
@@ -461,6 +736,7 @@ export default function Tabletop() {
       </>
     );
     const pinH2 = contentH(w);
+    if (compact && main === "floor") return <>{lod?.[w].lod === "detail" && !wv[w].lifted ? compactBody(w, pinCount, builtin) : null}{liveStrip(w)}</>;
     if (compact && lod?.[w].lod === "glyph") {
       // too foreshortened for text: pinned items as shapes only; the flat wall tag carries the words
       const pins = surfacePaths(table, w, paths);
@@ -492,7 +768,7 @@ export default function Tabletop() {
             <div className="fs-tt-wall-panel">{builtin}</div>
             <section className="fs-tt-pinboard" data-testid={`tt-pinboard-${w}`} aria-label={`Pinned to the ${WALL_INFO[w].title} wall`} ref={pinRef}
               onPointerDown={(e) => { if (!(e.target as HTMLElement).closest("button")) { setFanned(null); setZoom(null); } }}>
-              <div className="fs-tt-pinboard-inner" style={{ height: pinH2 }}>
+              <div className="fs-tt-pinboard-inner" style={{ height: pinH2, minWidth: WALL_BOARD_W }}>
                 {pinCount === 0 ? <p className="fs-tt-empty fs-dim" style={{ position: "absolute", left: 24, top: 24, maxWidth: 360 }}>Nothing pinned yet. Drag a card from the table onto this wall, or press Shift+F10 on a card and choose “Pin to the {WALL_INFO[w].title} wall”.</p> : null}
                 {boardItems(w)}
               </div>
@@ -510,11 +786,12 @@ export default function Tabletop() {
       data-coverage={camera === "slant" ? slant.coverage.toFixed(4) : undefined} data-tilt={camera === "slant" ? slant.beta : undefined}
       style={{ position: "absolute", inset: 0, perspective: camera === "slant" ? slant.P : geo.perspective, perspectiveOrigin: camera === "slant" ? `50% ${slant.oy}px` : "50% 50%", overflow: "hidden",
         "--tt-w": `${size.w}px`, "--tt-h": `${size.h}px`, "--tt-lip": camera === "slant" ? `${Math.round(size.h - slant.quads.south[0][1])}px` : "0px" } as React.CSSProperties}
-      onPointerDown={() => setMenu(null)}>
+      onPointerDown={() => setMenu(null)} onPointerMove={hoverTrack}
+      onPointerLeave={() => { if (!drag && lifted && !root.current?.querySelector(`[data-testid=tt-wall-${lifted}]`)?.contains(document.activeElement)) leaveWall(lifted); }}>
       <div className="fs-tt-scene">
         {/* floor */}
         <div className="fs-tt-face fs-tt-floor" data-testid="tt-floor" data-face="floor" style={T("floor")}
-          onDoubleClick={(e) => { if (main !== "floor" && !(e.target as HTMLElement).closest("button")) setMain("floor"); }}
+          onDoubleClick={(e) => { if (main !== "floor" && !(e.target as HTMLElement).closest("button")) openFace("floor"); }}
           onPointerDown={(e) => { if (!(e.target as HTMLElement).closest("button")) { setFanned(null); setZoom(null); } }}>
           <div ref={floorInner} className="fs-tt-floor-inner" data-testid="tt-floor-inner" inert={main !== "floor"}
             data-scrolls={floorScrolls || undefined}
@@ -528,7 +805,7 @@ export default function Tabletop() {
             aria-hidden={(main !== "floor" && main !== w) || undefined} inert={main !== "floor" && main !== w}>
             {main === "floor" ? (
               <button type="button" className="fs-tt-wall-open" data-testid={`tt-open-${w}`} aria-label={`Open the ${WALL_INFO[w].title} wall`}
-                onClick={(e) => { if (e.detail === 0) setMain(w); }} onDoubleClick={() => setMain(w)} />
+                onClick={(e) => { if (e.detail === 0) openFace(w); }} onDoubleClick={() => openFace(w)} />
             ) : null}
             {wallContent(w)}
           </div>
@@ -537,7 +814,7 @@ export default function Tabletop() {
 
       {/* TT29 wall tags: flat, legible labels at each foreshortened wall's on-screen centroid — click target and drop
           target. Pointer-only visuals (aria-hidden): keyboard and screen readers use the "Open the … wall" buttons. */}
-      {lod && main === "floor" ? WALLS.filter((w) => lod[w].lod === "glyph").map((w) => {
+      {lod && main === "floor" ? WALLS.filter((w) => lod[w].lod === "glyph" && lifted !== w).map((w) => {
         const t = lod[w], n = surfacePaths(table, w, paths).length;
         const label = [WALL_INFO[w].title, w === "north" && wins.length ? `${wins.length} open` : "", n ? `${n} pinned` : ""].filter(Boolean).join(" · ");
         const half = t.vertical ? 15 : 0;
@@ -548,11 +825,25 @@ export default function Tabletop() {
         return (
           <div key={w} className="fs-tt-walltag" data-testid={`tt-tag-${w}`} data-wall-tag={w} data-vertical={t.vertical || undefined} data-drop={drag?.over === w || undefined}
             aria-hidden="true" title={`Open the ${WALL_INFO[w].title} wall`} style={{ left: x, top: t.y }}
-            onClick={() => { if (!drag) setMain(w); }}>
+            onClick={() => { if (!drag) openFace(w); }}
+            onPointerMove={(e) => intent(w, e)} onPointerLeave={() => { if (!drag && lift !== w) clearLiftTimer(); }}>
             {label}
           </div>
         );
       }) : null}
+
+      {/* TT31: a card carried to ANOTHER surface travels as a flat ghost under the pointer, at the target's scale */}
+      {drag?.moved && drag.target && drag.target.face !== drag.surface ? (() => {
+        const path = drag.fan ? drag.fan.path : drag.key.startsWith("card:") ? drag.key.slice(5) : (boardOf(table, drag.surface).piles.find((p) => `pile:${p.id}` === drag.key)?.paths.at(-1) ?? "");
+        const tf = drag.target.face, g = tf === "floor" ? 0.8 : wv[tf as Wall].lifted ? wv[tf as Wall].frame.k : 0.5;
+        const fl = byPath.get(path);
+        return (
+          <div className="fs-tt-ghost" data-testid="tt-ghost" data-target={tf} aria-hidden="true"
+            style={{ left: drag.px - (CARD_W * g) / 2, top: drag.py - (CARD_H * g) / 2, width: CARD_W, height: CARD_H, transform: `scale(${g})` }}>
+            {fl ? <MicroPeek peek={peekOf(path)} name={fl.name} /> : null}
+          </div>
+        );
+      })() : null}
 
       {/* enlarged micro peek (hover / focus) — flat overlay, never intercepts the pointer */}
       {zoom && zoomFile && !drag ? (
@@ -603,7 +894,7 @@ export default function Tabletop() {
       {/* switcher: single-click / keyboard route to every face (double-click is never the only way) */}
       <nav ref={navRef} className="fs-tt-nav" aria-label="Tabletop views" data-testid="tt-nav">
         {(["floor", "north", "west", "east", "south"] as Face[]).map((f) => (
-          <button key={f} type="button" aria-pressed={main === f} data-testid={`tt-nav-${f}`} onClick={() => setMain(f)}>
+          <button key={f} type="button" aria-pressed={main === f} data-testid={`tt-nav-${f}`} onClick={() => openFace(f)}>
             {f === "floor" ? "Table" : WALL_INFO[f as Wall].title}
           </button>
         ))}
@@ -614,7 +905,7 @@ export default function Tabletop() {
         <button type="button" data-testid="tt-classic" title="Back to the classic desktop" onClick={() => void shell.setSetting("appearance.desktopView", "classic")}>Classic</button>
       </nav>
       {main !== "floor" ? (
-        <button ref={backBtn} type="button" className="fs-btn fs-tt-back" data-testid="tt-back" onClick={() => setMain("floor")}>
+        <button ref={backBtn} type="button" className="fs-btn fs-tt-back" data-testid="tt-back" onClick={() => openFace("floor")}>
           <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
           Back to the table
         </button>

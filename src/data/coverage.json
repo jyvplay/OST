@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-17T19:52:49.751Z",
+ "generatedAt": "2026-10-17T21:37:43.377Z",
  "totals": {
   "built": {
-   "full": 250,
+   "full": 251,
    "partial": 62,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 130,
-   "partial": 78,
+   "full": 132,
+   "partial": 77,
    "untested": 126
   },
   "tests": {
-   "total": 507,
-   "passed": 507
+   "total": 523,
+   "passed": 523
   }
  },
  "rows": {
@@ -1640,6 +1640,7 @@
    "tests": [
     "e2e-tabletop: drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves",
     "e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card",
+    "e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor",
     "tabletop-unit: tabletop state: normalizeTable validates untrusted input against the files that exist",
     "tabletop-unit: tabletop piles: drop card on card → pile at the target, drop on a pile adds on top, pile on pile merges, take out / dissolve, unstack, rename, deterministic ids",
     "tabletop-unit: tabletop geometry: golden cards, jitter deterministic + bounded (top card straight), fan inside the floor, floor items never overlap their slots, hit test topmost"
@@ -1677,6 +1678,7 @@
     "e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it",
     "e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload",
     "e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted)",
+    "e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along",
     "tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box",
     "tabletop-unit: walls as pinboards: pin a card / a whole pile to a wall, move between walls, back to the floor; walls-first wins on conflicts; v1 → v2 migration; free slots"
    ]
@@ -1840,7 +1842,9 @@
    "tested": "full",
    "tests": [
     "e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only",
-    "e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px)"
+    "e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px)",
+    "e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %)",
+    "e2e-tt31: phone 390×760 and the straight-down camera: a focused wall lifts inside the frame with ≥ 24 px pins and no text under 9 px; nothing is text at rest"
    ]
   },
   "AX-14": {
@@ -1859,6 +1863,27 @@
     "tt30-unit: context on focus moves: entering a dialog and a named form announces both (outermost first); moving within announces nothing; unnamed groups are skipped",
     "tt30-unit: reading order: landmarks announced on arrival, atomic items read whole, text runs under their element, hidden skipped; jumps by heading / landmark / field / link without wrapping",
     "tt30-unit: commands: unique Narrator-key chords; the toggle chord conflicts with no shell binding in any preset and is not browser-reserved; Caps Lock / Insert are used by no shell chord; speed steps clamp"
+   ]
+  },
+  "LY-22": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %)",
+    "e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along",
+    "e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor",
+    "e2e-tt31: wall → wall: a pin dragged from the lifted north wall onto the west wall's spine spring-loads the west wall (lifts while still dragging) and lands on it",
+    "e2e-tt31: no pin limit: 40 pins on the Widgets wall — rows unroll along it, the pan buttons and the wheel reach the last pin, and there is always an empty row to drop into",
+    "e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall",
+    "e2e-tt31: phone 390×760 and the straight-down camera: a focused wall lifts inside the frame with ≥ 24 px pins and no text under 9 px; nothing is text at rest",
+    "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
+    "tt31-unit: row mapping (hand values): board (24,24) → strip (24,24); row 1 (y=229) → S = 912 + x; strip → board inverts every on-grid board point",
+    "tt31-unit: strip frames: element ↔ (u,v) are inverse rotations (det +1, no mirror) for rot 0 / 90 / −90 and the CSS matrix matches the math",
+    "tt31-unit: infinite pins: rows in use + one empty row; max pan reaches every pin and the empty row; panToShow brings any pin fully into view",
+    "tt31-unit: lifted pose (slant camera, 6 viewports × 4 walls): projects EXACTLY onto the dock rectangle, in front of every resting face, inside the frame, cards ≥ 24 px and names ≥ 9 px",
+    "tt31-unit: pointer mapping: screen → element through the face's quad inverts element → screen (rest quads of both cameras and lifted quads), and surfaceAt follows paint order",
+    "tt31-unit: resting pins: a pin is a pointer target only where its projected box is ≥ 24 px both ways — north band yes at 1440, side slivers no (they lift instead)",
+    "tt31-unit: fan along the strip: n cards, increasing S, no overlap beyond 14 %, centred on the pile, never before S = 0",
+    "tt31-unit: mutants: each seeded defect in the geometry is caught by the checks above"
    ]
   },
   "CT-01": {
@@ -2076,9 +2101,11 @@
    "tests": []
   },
   "AX-01": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
+    "e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall",
+    "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
     "e2e: structural a11y: every window is a named dialog; no unnamed buttons"
    ]
   },

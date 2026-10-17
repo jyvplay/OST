@@ -1,6 +1,6 @@
 {
   "suite": "e2e-beauty",
-  "at": "2026-10-17T19:52:38.195Z",
+  "at": "2026-10-17T21:34:02.601Z",
   "results": [
     {
       "suite": "e2e-beauty",
@@ -9,7 +9,7 @@
         "LY-10": "full"
       },
       "pass": true,
-      "ms": 1523
+      "ms": 1399
     },
     {
       "suite": "e2e-beauty",
@@ -19,7 +19,7 @@
         "LY-05": "full"
       },
       "pass": true,
-      "ms": 21114
+      "ms": 20214
     },
     {
       "suite": "e2e-beauty",
@@ -29,7 +29,7 @@
         "LY-05": "full"
       },
       "pass": true,
-      "ms": 19912
+      "ms": 17906
     },
     {
       "suite": "e2e-beauty",
@@ -39,7 +39,7 @@
         "LY-05": "full"
       },
       "pass": true,
-      "ms": 22658
+      "ms": 22012
     },
     {
       "suite": "e2e-beauty",
@@ -49,7 +49,7 @@
         "LY-05": "full"
       },
       "pass": true,
-      "ms": 19184
+      "ms": 18623
     },
     {
       "suite": "e2e-beauty",
@@ -59,7 +59,7 @@
         "LY-14": "full"
       },
       "pass": true,
-      "ms": 129681
+      "ms": 121397
     }
   ]
 }
