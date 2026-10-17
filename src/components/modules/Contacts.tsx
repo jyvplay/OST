@@ -1,6 +1,6 @@
 "use client";
 import { fz } from "@/lib/uiscale";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import * as C from "@/lib/contacts-core";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -61,16 +61,31 @@ export default function ContactsModule({ win }: ModuleProps) {
 
   // Autosave: each commit bumps `ver`; a write that finishes records the version it wrote, so a slow save can never
   // mark a newer edit as saved.
+  // `pending` holds the newest unsaved book so that closing the window or the tab inside the 0.5 s debounce still
+  // writes it (TT24 repair: the timer was simply cleared on unmount and the last edit was lost).
+  const pending = useRef<{ path: string; content: string } | null>(null);
   useEffect(() => {
     if (list === null || ver === 0 || ver === savedVer) return;
     const v = ver, content = C.serializeVcf(list);
+    pending.current = { path, content };
     const t = window.setTimeout(() => {
       post("/api/fs", { op: "write", path, content, mime: "text/vcard", reason: "contacts" })
-        .then(() => { setSavedVer((s) => Math.max(s, v)); setSaveErr(""); shell.bumpRefresh(); })
+        .then(() => { if (pending.current?.content === content) pending.current = null; setSavedVer((s) => Math.max(s, v)); setSaveErr(""); shell.bumpRefresh(); })
         .catch((e: Error) => setSaveErr(e.message));
     }, 500);
     return () => window.clearTimeout(t);
   }, [list, ver, savedVer, path, shell]);
+  useEffect(() => {
+    const flush = () => {
+      const p = pending.current; if (!p) return;
+      pending.current = null;
+      const body = JSON.stringify({ op: "write", path: p.path, content: p.content, mime: "text/vcard", reason: "contacts" });
+      // keepalive lets the request outlive a closing tab, but browsers cap keepalive bodies at 64 KiB
+      void fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body, keepalive: body.length < 60_000 }).catch(() => {});
+    };
+    window.addEventListener("pagehide", flush);
+    return () => { window.removeEventListener("pagehide", flush); flush(); };
+  }, []);
 
   const commit = (next: C.Contact[]) => {
     if (list) setUndo((u) => [...u.slice(-19), list]);

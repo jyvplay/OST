@@ -81,6 +81,20 @@ await test("create: empty book → New → fill name, e-mail, phone, birthday, t
   await close();
 });
 
+await test("no lost edit: closing the window right after Save (inside the 0.5 s autosave delay) still writes the change", { "CN-02": "full" }, async () => {
+  const P = bookPath(9);
+  await writeBook(P, RFC2426_7);
+  const { page, w, close } = await open(P);
+  await w.locator('[data-testid="ct-item"][data-uid="frank"]').click();
+  await w.getByTestId("ct-edit").click();
+  await fill(w, "title", "Closed-fast");
+  await w.getByTestId("ct-save").click();
+  await w.getByRole("button", { name: "Close window" }).click();      // immediately: the debounce has not fired yet
+  await poll(async () => (await page.locator('.fs-window[aria-label="Contacts"]').count()) === 0, "window closed");
+  await poll(async () => ((await readBook(P)) ?? "").includes("TITLE:Closed-fast"), "edit reached the file after close");
+  await close();
+});
+
 await test("validation and cancel: no name + bad e-mail → two errors announced (role=alert), nothing saved; Esc closes the editor", { "CN-02": "partial" }, async () => {
   const P = bookPath(2);
   const { w, close } = await open(P);

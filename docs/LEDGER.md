@@ -1,6 +1,6 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-17T01:04:33.661Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+Generated 2026-10-17T01:07:35.891Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
 36 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
@@ -15,7 +15,7 @@ Generated 2026-10-17T01:04:33.661Z by `scripts/ledger.mjs` from the live registe
 | **Fully tested** (≥1 passing test tagged `full`) | **100** |
 | **Partially tested** (only `partial` tags) | **75** |
 | Untested | 126 |
-| Automated tests executed / passed | 393 / 393 |
+| Automated tests executed / passed | 394 / 394 |
 
 ## Build × test matrix
 
@@ -36,11 +36,11 @@ verifies the honesty contract, not the (impossible) capability.
 | a11y-unit | 8 | 8 | 0 | 2026-10-17T00:44:30.292Z |
 | ai-format | 5 | 5 | 0 | 2026-10-17T00:44:31.841Z |
 | browser-session | 5 | 5 | 0 | 2026-10-17T00:44:20.267Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-17T00:44:33.011Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-17T01:07:27.368Z |
 | e2e-a11y | 9 | 9 | 0 | 2026-10-17T01:03:19.332Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-17T01:03:30.703Z |
 | e2e-browser | 6 | 6 | 0 | 2026-10-17T00:48:18.371Z |
-| e2e-contacts | 8 | 8 | 0 | 2026-10-17T01:03:50.272Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-17T01:07:27.064Z |
 | e2e-image | 10 | 10 | 0 | 2026-10-17T00:47:15.378Z |
 | e2e-office | 11 | 11 | 0 | 2026-10-17T00:46:31.852Z |
 | e2e-privacy | 14 | 14 | 0 | 2026-10-17T01:04:27.537Z |
@@ -57,7 +57,7 @@ verifies the honesty contract, not the (impossible) capability.
 | oracle-ai | 3 | 3 | 0 | 2026-10-17T00:44:32.727Z |
 | oracle-psd | 8 | 8 | 0 | 2026-10-17T00:44:18.331Z |
 | oracle-svg | 4 | 4 | 0 | 2026-10-17T00:44:20.112Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-17T00:44:33.469Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-17T01:07:27.842Z |
 | oracle-xlsx | 5 | 5 | 0 | 2026-10-17T00:44:12.228Z |
 | oracle | 5 | 5 | 0 | 2026-10-17T00:44:10.985Z |
 | privacy-backup | 7 | 7 | 0 | 2026-10-17T00:44:30.062Z |
@@ -318,7 +318,7 @@ None.
 | WB-04 | built | full | e2e-whiteboard: files: Save .fboard, reopen it from its path, Export SVG (escaped, no script); a hostile .fboard is repaired and the count reported; e2e: mount: whiteboard; whiteboard-engine: SVG export is escaped and self-contained; .fboard round-trips; hostile files are refused or repaired (+1) |
 | WB-05 | built | full | e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher; e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text; e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits (+3) |
 | CN-01 | built | full | contacts-engine: RFC 6350 §8 author's vCard: unfolding, structured N/ADR, quoted TYPE lists, tel: URIs, unknown properties kept; contacts-engine: RFC 2426 §7 (vCard 3.0): TYPE=PREF, INTERNET dropped, VOICE dropped beside other types, mixed-case BEGIN; contacts-engine: vCard 2.1: QUOTED-PRINTABLE with soft breaks, CHARSET=ISO-8859-1, bare TYPE params, base64 PHOTO, missing FN (+8) |
-| CN-02 | built | full | contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation; e2e-contacts: create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right; e2e-contacts: validation and cancel: no name + bad e-mail → two errors announced (role=alert), nothing saved; Esc closes the editor (+4) |
+| CN-02 | built | full | contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation; e2e-contacts: create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right; e2e-contacts: no lost edit: closing the window right after Save (inside the 0.5 s autosave delay) still writes the change (+5) |
 | CN-03 | built | full | contacts-engine: RFC 6350 §4.3.1 dates: write basic format (YYYY-MM-DD is disallowed in 4.0), accept every listed form, Feb 29; contacts-engine: duplicates (e-mail case, phone formatting, folded name) and merge keep everything from both; e2e-contacts: duplicates and merge, birthdays: two cards sharing an e-mail (different case) are grouped and merged without losing a phone; a birthday in 3 days is listed (+1) |
 | CN-04 | built | full | contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation; e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload; e2e-contacts: export: CSV to Files (injection-guarded) and as a download; .vcf download re-imports to the same contacts (+2) |
 | CT-01 | built | untested |  |

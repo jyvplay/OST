@@ -47,4 +47,8 @@ UI: `src/components/modules/Contacts.tsx`.
   (other KINDs are kept). N comma-lists become ", " text.
 - The editor shows the first address (others are kept unchanged) and one website.
 - The Contact Picker path was not run on a device here; only its mapping is unit-tested.
+- Two windows editing the same .vcf at once: the last save wins. There is no merge between windows and no revision check.
+- Closing the window inside the 0.5 s autosave delay still saves; there is an e2e test for this. Closing the whole tab
+  relies on a `keepalive` request, which browsers cap at 64 KiB. A larger book edited in the last 0.5 s before the tab
+  closes can lose that last edit.
 - Not screen-reader tested.
