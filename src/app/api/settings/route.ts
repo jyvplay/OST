@@ -3,6 +3,8 @@ import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { settings, settingsHistory } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
+import { validateSetting } from "@/lib/settings-validate";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +18,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const body = (await req.json()) as { key?: string; value?: string };
+  const body = (await readJsonObject(req)) as ({ key?: string; value?: string }) | Response;
+  if (body instanceof Response) return body;
   if (!body.key) return NextResponse.json({ ok: false, error: "key required" }, { status: 400 });
   const rows = await db.select().from(settings).where(eq(settings.key, body.key)).limit(1);
   const current = rows[0];
@@ -25,6 +28,8 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ ok: false, error: current.lockReason, locked: true }, { status: 423 });
   }
   const next = String(body.value ?? "");
+  const invalid = validateSetting(body.key, next);
+  if (invalid) return NextResponse.json({ ok: false, error: invalid, invalid: true }, { status: 422 });
   await db.insert(settingsHistory).values({ key: body.key, oldValue: current.value, newValue: next });
   await db.update(settings).set({ value: next, updatedAt: new Date() }).where(eq(settings.key, body.key));
   return NextResponse.json({ ok: true, key: body.key, value: next, undoFrom: current.value });

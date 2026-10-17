@@ -1,0 +1,60 @@
+{
+  "suite": "vector-boolean",
+  "at": "2026-10-17T01:43:23.928Z",
+  "results": [
+    {
+      "suite": "vector-boolean",
+      "name": "two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back)",
+      "covers": {
+        "FF-37": "full"
+      },
+      "pass": true,
+      "ms": 113
+    },
+    {
+      "suite": "vector-boolean",
+      "name": "rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995)",
+      "covers": {
+        "FF-37": "full"
+      },
+      "pass": true,
+      "ms": 139
+    },
+    {
+      "suite": "vector-boolean",
+      "name": "three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain)",
+      "covers": {
+        "FF-37": "full"
+      },
+      "pass": true,
+      "ms": 153
+    },
+    {
+      "suite": "vector-boolean",
+      "name": "fill rules: even-odd hole, nonzero opposite-direction hole, nonzero same-direction (no hole), group = union of leaves with its transform",
+      "covers": {
+        "FF-37": "full"
+      },
+      "pass": true,
+      "ms": 209
+    },
+    {
+      "suite": "vector-boolean",
+      "name": "refusals: open paths, text, a single shape, locked shapes, Intersect of disjoint shapes; result survives SVG export → import",
+      "covers": {
+        "FF-37": "partial"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "vector-boolean",
+      "name": "performance: two 600-unit ellipses + a rotated rect, all modes < 400 ms each on this 2-CPU host",
+      "covers": {
+        "FF-37": "partial"
+      },
+      "pass": true,
+      "ms": 37
+    }
+  ]
+}

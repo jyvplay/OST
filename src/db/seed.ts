@@ -8,19 +8,44 @@ import { appFeatures } from "./seed-data/features-apps";
 import { platformFeatures } from "./seed-data/features-platform";
 import { spikeRows } from "./seed-data/spikes";
 import { UPDATES_V31 } from "./seed-data/updates-v31";
+import { tt15Features, UPDATES_TT15 } from "./seed-data/features-tt15";
+import { tt16Features, UPDATES_TT16 } from "./seed-data/features-tt16";
+import { tt17Features, UPDATES_TT17 } from "./seed-data/features-tt17";
+import { tt18Features, UPDATES_TT18 } from "./seed-data/features-tt18";
+import { tt19Features, UPDATES_TT19 } from "./seed-data/features-tt19";
+import { tt20Features } from "./seed-data/features-tt20";
+import { tt21Features, UPDATES_TT21 } from "./seed-data/features-tt21";
+import { tt22Features, UPDATES_TT22 } from "./seed-data/features-tt22";
+import { tt23Features, UPDATES_TT23 } from "./seed-data/features-tt23";
+import { tt24Features, UPDATES_TT24 } from "./seed-data/features-tt24";
+import { tt25Features, UPDATES_TT25 } from "./seed-data/features-tt25";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.3.0";
+export const SEED_VERSION = "3.13.1";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...platformFeatures]
-  .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f));
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...platformFeatures]
+  .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
+  .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
+  .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))
+  .map((f) => (UPDATES_TT17[f.code] ? { ...f, ...UPDATES_TT17[f.code] } : f))
+  .map((f) => (UPDATES_TT18[f.code] ? { ...f, ...UPDATES_TT18[f.code] } : f))
+  .map((f) => (UPDATES_TT19[f.code] ? { ...f, ...UPDATES_TT19[f.code] } : f))
+  .map((f) => (UPDATES_TT21[f.code] ? { ...f, ...UPDATES_TT21[f.code] } : f))
+  .map((f) => (UPDATES_TT22[f.code] ? { ...f, ...UPDATES_TT22[f.code] } : f))
+  .map((f) => (UPDATES_TT23[f.code] ? { ...f, ...UPDATES_TT23[f.code] } : f))
+  .map((f) => (UPDATES_TT24[f.code] ? { ...f, ...UPDATES_TT24[f.code] } : f))
+  .map((f) => (UPDATES_TT25[f.code] ? { ...f, ...UPDATES_TT25[f.code] } : f));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },
-  { key: "appearance.accent", value: "#5b8cff", category: "appearance", label: "Accent colour", aliases: "highlight,tint" },
+  { key: "appearance.accent", value: "auto", category: "appearance", label: "Accent colour", aliases: "highlight,tint" },
+  { key: "appearance.style", value: "poolside", category: "appearance", label: "Style (colours, icons, logo)", aliases: "theme,palette,look,skin,miami,poolside,vice,neon,art deco,ocean drive,colours,enterprise,graphite,professional,office,corporate" },
+  { key: "appearance.layout", value: "fusion", category: "appearance", label: "Layout (Fusion, Business taskbar, Art dock)", aliases: "layout,taskbar,start menu,windows,dock,mac,macos,menu bar,business,art,desktop layout" },
+  { key: "appearance.dockMagnify", value: "on", category: "appearance", label: "Dock magnification (Art layout)", aliases: "dock,magnify,zoom icons,mac" },
   { key: "appearance.density", value: "balanced", category: "appearance", label: "Density profile", aliases: "scale,compact,touch,ui size" },
   { key: "appearance.motion", value: "system", category: "appearance", label: "Motion", aliases: "animation,reduce motion" },
-  { key: "appearance.wallpaper", value: "aurora", category: "appearance", label: "Wallpaper", aliases: "background,desktop picture" },
+  { key: "appearance.wallpaper", value: "auto", category: "appearance", label: "Wallpaper", aliases: "background,desktop picture" },
+  { key: "appearance.textScale", value: "125", category: "appearance", label: "Text size (%)", aliases: "font size,zoom,bigger text,large print,magnify,readability,accessibility" },
   { key: "shell.shelfEdge", value: "bottom", category: "shell", label: "Shelf edge", aliases: "taskbar,dock position" },
   { key: "shell.widgets", value: "clock,stickies,system", category: "shell", label: "Desktop widgets", aliases: "gadgets,sticky notes,desktop clock" },
   { key: "shell.hotCorners", value: "on", category: "shell", label: "Hot corners", aliases: "edge triggers" },
@@ -80,6 +105,7 @@ const SAMPLE_FILES: { path: string; body: string }[] = [
 export async function ensureSeeded(): Promise<{ seeded: boolean; features: number }> {
   const marker = await db.select().from(settings).where(sql`${settings.key} = 'system.seedVersion'`).limit(1);
   const already = marker[0]?.value === SEED_VERSION;
+  const previous = marker[0]?.value ?? "";
 
   // Feature + spike registers are always reconciled: the running app must never
   // show a stale copy of its own specification.
@@ -157,6 +183,25 @@ export async function ensureSeeded(): Promise<{ seeded: boolean; features: numbe
   await db.update(settings).set({ value: "clock,stickies,system" })
     .where(sql`${settings.key} = 'shell.widgets' and ${settings.value} = 'clock,stickies,system,user'`);
 
+  // v3.9 (TT21) migration: the cheerful 'sunrise' wallpaper becomes the default. Only when upgrading FROM a pre-3.9
+  // version and only if the wallpaper is still the old default — a user who later picks aurora keeps it.
+  if (previous && versionLess(previous, "3.9.0")) {
+    await db.update(settings).set({ value: "sunrise" })
+      .where(sql`${settings.key} = 'appearance.wallpaper' and ${settings.value} = 'aurora'`);
+  }
+
+  // v3.10 (TT22) migration, only when upgrading FROM a pre-3.10 version and only for values still at the old default:
+  //  - text size 200 % (the TT21 default) → 125 %: large text becomes an opt-in "Large text mode" (user decision)
+  //  - accent #5b8cff (old default) → "auto" (follow the style); wallpaper "sunrise" (TT21 default) → "auto"
+  if (previous && versionLess(previous, "3.10.0")) {
+    await db.update(settings).set({ value: "125" })
+      .where(sql`${settings.key} = 'appearance.textScale' and ${settings.value} = '200'`);
+    await db.update(settings).set({ value: "auto" })
+      .where(sql`${settings.key} = 'appearance.accent' and lower(${settings.value}) = '#5b8cff'`);
+    await db.update(settings).set({ value: "auto" })
+      .where(sql`${settings.key} = 'appearance.wallpaper' and ${settings.value} = 'sunrise'`);
+  }
+
   // notes are indexed every boot (cheap, keeps search truthful)
   const noteRows = await db.select().from(notes);
   for (const n of noteRows) {
@@ -169,4 +214,10 @@ export async function ensureSeeded(): Promise<{ seeded: boolean; features: numbe
   }
 
   return { seeded: !already, features: allFeatures.length };
+}
+
+function versionLess(a: string, b: string): boolean {
+  const pa = a.split(".").map(Number), pb = b.split(".").map(Number);
+  for (let i = 0; i < 3; i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d !== 0) return d < 0; }
+  return false;
 }

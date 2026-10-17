@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { api, fmtTime, post } from "@/lib/api";
@@ -127,7 +128,7 @@ export default function BeamModule(_: ModuleProps) {
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        <strong style={{ fontSize: 13 }}>Beam</strong>
+        <strong style={{ fontSize: fz(13) }}>Beam</strong>
         <Badge tone={remoteAvailable ? "ok" : "warn"}>
           receivers on this network: {remoteAvailable === null ? "cannot be detected by a web app" : remoteAvailable ? "at least one" : "none reported"}
         </Badge>
@@ -145,7 +146,7 @@ export default function BeamModule(_: ModuleProps) {
               <div className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
                 <span className="fs-row" style={{ gap: 6 }}>
                   <Badge tone={t.available ? "ok" : "bad"}>{t.available ? "available" : "blocked"}</Badge>
-                  <strong style={{ fontSize: 12 }}>{t.label}</strong>
+                  <strong style={{ fontSize: fz(12) }}>{t.label}</strong>
                 </span>
                 {t.available && t.run ? (
                   <Btn variant="primary" onClick={async () => {
@@ -154,26 +155,26 @@ export default function BeamModule(_: ModuleProps) {
                   }}>Start</Btn>
                 ) : null}
               </div>
-              <div className="fs-dim" style={{ fontSize: 11.5 }}>
+              <div className="fs-dim" style={{ fontSize: fz(11.5) }}>
                 {t.available ? t.how : <>Missing primitive: <span className="fs-mono">{t.blocked}</span></>}
               </div>
             </div>
           ))}
         </div>
-        {status ? <div className="fs-dim" style={{ fontSize: 11.5 }}>{status}</div> : null}
+        {status ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>{status}</div> : null}
       </Section>
 
       <Section title="Sources published in this session (LN-13 / WM-15)">
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           {[...shell.streams.keys()].map((k) => <Badge key={k} tone="info">{k}</Badge>)}
-          {shell.streams.size === 0 ? <span className="fs-dim" style={{ fontSize: 11.5 }}>None. Start Lens, Capture or Media to publish one.</span> : null}
+          {shell.streams.size === 0 ? <span className="fs-dim" style={{ fontSize: fz(11.5) }}>None. Start Lens, Capture or Media to publish one.</span> : null}
         </div>
       </Section>
 
       <Section title="Session history" right={<Btn variant="ghost" onClick={() => void load()}>↻</Btn>}>
         <div style={{ display: "grid", gap: 2 }}>
           {sessions.map((s) => (
-            <div key={s.id} className="fs-row" style={{ justifyContent: "space-between", fontSize: 11.5 }}>
+            <div key={s.id} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }}>
               <span>{s.transport} → {s.targetName}</span>
               <span className="fs-row" style={{ gap: 6 }}>
                 <Badge tone={s.state === "active" ? "warn" : "ok"}>{s.state}</Badge>
@@ -181,11 +182,11 @@ export default function BeamModule(_: ModuleProps) {
               </span>
             </div>
           ))}
-          {sessions.length === 0 ? <span className="fs-dim" style={{ fontSize: 11.5 }}>No sessions yet.</span> : null}
+          {sessions.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(11.5) }}>No sessions yet.</span> : null}
         </div>
       </Section>
 
-      <div className="fs-dim" style={{ fontSize: 11, lineHeight: 1.6 }}>
+      <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
         Privacy (CA-14 / SC-09): a session cannot run without the indicator in the top bar, unknown targets require
         confirmation on first use, and the session stops automatically when the shell is hidden
         (toggle in Settings → beam.autoStopOnHide).

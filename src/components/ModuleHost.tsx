@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import type { WindowState } from "@/lib/windowing/state";
 import FilesModule from "./modules/Files";
@@ -15,6 +16,7 @@ import BeamModule from "./modules/Beam";
 import TogetherModule from "./modules/Together";
 import MessagesModule from "./modules/Messages";
 import VaultModule from "./modules/Vault";
+import PrivacyModule from "./modules/Privacy";
 import BackupModule from "./modules/Backup";
 import AlertsModule from "./modules/Alerts";
 import MonitorModule from "./modules/Monitor";
@@ -31,6 +33,9 @@ import StorageModule from "./modules/Storage";
 import LocalDiskModule from "./modules/LocalDisk";
 import SpreadsheetModule from "./modules/Spreadsheet";
 import WriterModule from "./modules/Writer";
+import TablesModule from "./modules/Tables";
+import WhiteboardModule from "./modules/Whiteboard";
+import ContactsModule from "./modules/Contacts";
 import SlidesModule from "./modules/Slides";
 import ImageEditorModule from "./modules/ImageEditor";
 import VectorModule from "./modules/Vector";
@@ -53,6 +58,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "together": return <TogetherModule win={win} />;
     case "messages": return <MessagesModule win={win} />;
     case "vault": return <VaultModule win={win} />;
+    case "privacy": return <PrivacyModule win={win} />;
     case "backup": return <BackupModule win={win} />;
     case "alerts": return <AlertsModule win={win} />;
     case "monitor": return <MonitorModule win={win} />;
@@ -69,10 +75,13 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "localdisk": return <LocalDiskModule win={win} />;
     case "sheet": return <SpreadsheetModule win={win} />;
     case "writer": return <WriterModule win={win} />;
+    case "tables": return <TablesModule win={win} />;
+    case "whiteboard": return <WhiteboardModule win={win} />;
+    case "contacts": return <ContactsModule win={win} />;
     case "slides": return <SlidesModule win={win} />;
     case "imageedit": return <ImageEditorModule win={win} />;
     case "vector": return <VectorModule win={win} />;
     default:
-      return <div style={{ padding: 16, fontSize: 12 }}>Unknown module: {win.module}</div>;
+      return <div style={{ padding: 16, fontSize: fz(12) }}>Unknown module: {win.module}</div>;
   }
 }

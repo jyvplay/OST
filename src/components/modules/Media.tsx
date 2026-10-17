@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
@@ -145,8 +146,8 @@ export default function MediaModule({ win }: ModuleProps) {
         </Badge>
         {capAvailable(shell.caps, "setSinkId") ? (
           <label className="fs-row" style={{ gap: 4 }}>
-            <span className="fs-dim" style={{ fontSize: 11 }}>output</span>
-            <select className="fs-select" style={{ width: 200 }} aria-label="Audio output device"
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>output</span>
+            <select className="fs-select" style={{ width: fz(200) }} aria-label="Audio output device"
               onChange={async (e) => {
                 const v = videoRef.current as (HTMLVideoElement & { setSinkId?: (id: string) => Promise<void> }) | null;
                 try { await v?.setSinkId?.(e.target.value); setStatus(`Audio routed to ${e.target.selectedOptions[0].text}`); }
@@ -156,7 +157,7 @@ export default function MediaModule({ win }: ModuleProps) {
             </select>
           </label>
         ) : <Badge tone="warn">per-element audio routing unavailable</Badge>}
-        {status ? <span className="fs-dim" style={{ fontSize: 11 }}>{status}</span> : null}
+        {status ? <span className="fs-dim" style={{ fontSize: fz(11) }}>{status}</span> : null}
       </div>
 
       <Section title="Captions (AX-07)">
@@ -170,30 +171,30 @@ export default function MediaModule({ win }: ModuleProps) {
               setStatus(`Captions loaded from ${p}${p.endsWith(".srt") ? " (converted SRT → WebVTT)" : ""}`);
             } catch (e) { setStatus(String((e as Error).message)); }
           }}>Load subtitles…</Btn>
-          <label className="fs-row" style={{ gap: 4, fontSize: 11.5 }}>size
-            <select className="fs-select" style={{ width: 90 }} value={capSize} onChange={(e) => setCapSize(e.target.value)}>
+          <label className="fs-row" style={{ gap: 4, fontSize: fz(11.5) }}>size
+            <select className="fs-select" style={{ width: fz(90) }} value={capSize} onChange={(e) => setCapSize(e.target.value)}>
               {["80%", "100%", "130%", "170%"].map((s) => <option key={s}>{s}</option>)}
             </select>
           </label>
         </div>
         <style>{`video::cue { font-size: ${capSize}; background: rgba(0,0,0,.75); }`}</style>
-        <div className="fs-dim" style={{ fontSize: 11 }}>Browsers only render WebVTT; SRT is converted (comma → dot timestamps, WEBVTT header) instead of silently failing.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>Browsers only render WebVTT; SRT is converted (comma → dot timestamps, WEBVTT header) instead of silently failing.</div>
       </Section>
 
       <Section title="Trim / export (MD-08)">
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-          <input className="fs-input" type="number" step="0.1" style={{ width: 90 }} value={trim[0]} onChange={(e) => setTrim([Number(e.target.value), trim[1]])} aria-label="Start seconds" />
-          <input className="fs-input" type="number" step="0.1" style={{ width: 90 }} value={trim[1]} onChange={(e) => setTrim([trim[0], Number(e.target.value)])} aria-label="End seconds" />
+          <input className="fs-input" type="number" step="0.1" style={{ width: fz(90) }} value={trim[0]} onChange={(e) => setTrim([Number(e.target.value), trim[1]])} aria-label="Start seconds" />
+          <input className="fs-input" type="number" step="0.1" style={{ width: fz(90) }} value={trim[1]} onChange={(e) => setTrim([trim[0], Number(e.target.value)])} aria-label="End seconds" />
           <Btn variant="primary" disabled={!src || trimming || trim[1] <= trim[0]} onClick={() => void runTrim()}>{trimming ? "Exporting (real time)…" : "Export range"}</Btn>
         </div>
-        <div className="fs-dim" style={{ fontSize: 11 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>
           Honest path: the range is replayed and re-encoded by MediaRecorder at 1× speed (a 30 s clip takes 30 s). A
           lossless cut would need a container muxer in WASM, which is not bundled.
         </div>
       </Section>
 
       <Section title="What casting means here">
-        <div className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           The Remote Playback API hands this media element to the browser&apos;s own AirPlay/Cast picker; the receiver
           fetches the stream itself. A web app cannot speak RAOP, FairPlay or castv2 directly — those need raw UDP/TCP
           sockets and mDNS, which no browser exposes. Those rows are marked <strong>blocked</strong> in the Spec

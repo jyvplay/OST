@@ -1,0 +1,100 @@
+{
+  "suite": "e2e-image",
+  "at": "2026-10-17T01:46:23.517Z",
+  "results": [
+    {
+      "suite": "e2e-image",
+      "name": "ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops",
+      "covers": {
+        "FF-30": "full"
+      },
+      "pass": true,
+      "ms": 2372
+    },
+    {
+      "suite": "e2e-image",
+      "name": "new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo",
+      "covers": {
+        "FF-30": "full"
+      },
+      "pass": true,
+      "ms": 4815
+    },
+    {
+      "suite": "e2e-image",
+      "name": "layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge",
+      "covers": {
+        "FF-30": "full"
+      },
+      "pass": true,
+      "ms": 3484
+    },
+    {
+      "suite": "e2e-image",
+      "name": "bucket tolerance/contiguity on real pixels; eyedropper sets the foreground; wand selection + Delete clears",
+      "covers": {
+        "FF-30": "full"
+      },
+      "pass": true,
+      "ms": 7375
+    },
+    {
+      "suite": "e2e-image",
+      "name": "marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection",
+      "covers": {
+        "FF-30": "full",
+        "FF-24": "full"
+      },
+      "pass": true,
+      "ms": 3797
+    },
+    {
+      "suite": "e2e-image",
+      "name": "layer mask: paint on mask hides, disable mask reveals; keyboard tool switching, [ ] size, X swap",
+      "covers": {
+        "FF-30": "full"
+      },
+      "pass": true,
+      "ms": 4398
+    },
+    {
+      "suite": "e2e-image",
+      "name": "Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels",
+      "covers": {
+        "FF-31": "full",
+        "FF-30": "full"
+      },
+      "pass": true,
+      "ms": 6872
+    },
+    {
+      "suite": "e2e-image",
+      "name": "Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes",
+      "covers": {
+        "FF-30": "full",
+        "FF-24": "full"
+      },
+      "pass": true,
+      "ms": 8705
+    },
+    {
+      "suite": "e2e-image",
+      "name": "classic Quick edit mode is still available (additive merge)",
+      "covers": {
+        "FF-24": "partial",
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1599
+    },
+    {
+      "suite": "e2e-image",
+      "name": "no uncaught page errors during the image session",
+      "covers": {
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

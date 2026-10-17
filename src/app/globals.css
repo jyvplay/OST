@@ -4,27 +4,35 @@
    Density is a token set, not a media query: Compact/Balanced/Touch change
    sizes everywhere at once and never remove capability (DP-13). */
 :root {
-  --fs-accent: #5b8cff;
-  --fs-bg: #070b16;
-  --fs-bg-2: #0d1426;
-  --fs-panel: rgba(16, 23, 42, 0.86);
-  --fs-panel-solid: #111a2e;
+  /* TT22: the accent follows the active style (style-core.ts) unless the user picked one (inline --fs-accent) */
+  --fs-accent: var(--fs-style-accent, #4fd8d2);
+  --fs-bg: #0a1330;
+  --fs-bg-2: #11204a;
+  --fs-panel: rgba(17, 28, 58, 0.9);
+  --fs-panel-solid: #13214a;
   --fs-border: rgba(130, 160, 255, 0.16);
   --fs-text: #e8edfa;
-  --fs-muted: #93a1c4;
+  --fs-muted: #a9b6d6;
   --fs-ok: #39d98a;
   --fs-warn: #ffc453;
   --fs-bad: #ff6b6b;
-  --fs-titlebar: 34px;
-  --fs-target: 32px;
-  --fs-radius: 12px;
-  --fs-font: 13px;
+  /* Text size: --fs-ts is the user's text scale (TT22 default 1.25 = 125%; Large text mode = 2); --fs-u is one design pixel.
+     rem-based so the browser's own default-font-size preference still applies (WCAG 1.4.4, relative units). */
+  --fs-ts: 1.25;
+  --fs-u: calc(var(--fs-ts) * 1rem / 16);
+  --fs-titlebar: calc(18px + 16 * var(--fs-u));
+  --fs-target: calc(16px + 16 * var(--fs-u));
+  --fs-radius: calc(6px + 6 * var(--fs-u));
+  --fs-font: calc(13 * var(--fs-u));
   --fs-motion: 160ms;
 }
-:root[data-density="compact"] { --fs-titlebar: 28px; --fs-target: 24px; --fs-radius: 9px; --fs-font: 12px; }
-:root[data-density="touch"]   { --fs-titlebar: 44px; --fs-target: 48px; --fs-radius: 16px; --fs-font: 15px; }
+:root[data-density="compact"] { --fs-titlebar: calc(14px + 14 * var(--fs-u)); --fs-target: calc(12px + 12 * var(--fs-u)); --fs-radius: calc(4px + 5 * var(--fs-u)); --fs-font: calc(12 * var(--fs-u)); }
+:root[data-density="touch"]   { --fs-titlebar: calc(22px + 22 * var(--fs-u)); --fs-target: calc(24px + 24 * var(--fs-u)); --fs-radius: calc(8px + 8 * var(--fs-u)); --fs-font: calc(15 * var(--fs-u)); }
 :root[data-motion="off"]      { --fs-motion: 0ms; }
 :root[data-theme="light"] {
+  /* TT22: light-theme field + status text tokens (TT22 light-theme screenshot: dark-grey inputs, pale badge text) */
+  --fs-field: #ffffff; --fs-ok-text: #0a6638; --fs-warn-text: #7a4a00; --fs-bad-text: #a3141c; --fs-info-text: #1d3e9a;
+  --fs-cell-formula: #1d4ed8; --fs-cell-spill: #6d28d9;
   --fs-bg: #e9eefb; --fs-bg-2: #f5f7ff; --fs-panel: rgba(255,255,255,0.9); --fs-panel-solid: #ffffff;
   --fs-border: rgba(20, 40, 90, 0.14); --fs-text: #111a2e; --fs-muted: #4b5a7a;
 }
@@ -36,7 +44,8 @@ body {
   margin: 0;
   background: var(--fs-bg);
   color: var(--fs-text);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* TT21: Nunito (rounded, friendly, OFL-1.1, bundled — no font CDN request) */
+  font-family: "Nunito Variable", ui-rounded, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: var(--fs-font);
   overscroll-behavior: none;
 }
@@ -60,6 +69,41 @@ body {
   background-size: 32px 32px;
 }
 .fs-wallpaper-slate { background: linear-gradient(180deg, #0a1020, #131c33); }
+/* TT22 on/off switch (role="switch"): 44×26 design px track, knob slides; state also shown by colour + position */
+.fs-switch { position: relative; flex: 0 0 auto; width: calc(44 * var(--fs-u)); height: calc(26 * var(--fs-u)); min-width: 24px; min-height: 24px;
+  border-radius: 999px; border: 2px solid var(--fs-muted); background: transparent; cursor: pointer; padding: 0; transition: background var(--fs-motion); }
+.fs-switch::after { content: ""; position: absolute; top: 50%; left: calc(3 * var(--fs-u)); width: calc(16 * var(--fs-u)); height: calc(16 * var(--fs-u));
+  transform: translateY(-50%); border-radius: 50%; background: var(--fs-muted); transition: left var(--fs-motion); }
+.fs-switch[aria-checked="true"] { background: var(--fs-accent); border-color: var(--fs-accent); }
+.fs-switch[aria-checked="true"]::after { left: calc(100% - 19 * var(--fs-u)); background: #04102b; }
+.fs-switch:disabled { opacity: .5; cursor: not-allowed; }
+@media (forced-colors: active) { .fs-switch { border-color: ButtonText; } .fs-switch::after { background: ButtonText; } .fs-switch[aria-checked="true"] { background: Highlight; } .fs-switch[aria-checked="true"]::after { background: HighlightText; } }
+/* TT22 Miami wallpapers: original SVG art (public/wallpapers), solid fallbacks so the desk is never blank while loading */
+.fs-wallpaper-poolside { background: #2ab8cb url("/wallpapers/poolside.svg") center / cover no-repeat; }
+.fs-wallpaper-vice { background: #2a0a4a url("/wallpapers/vice.svg") center / cover no-repeat; }
+.fs-wallpaper-oceandrive { background: #2f4d6e url("/wallpapers/oceandrive.svg") center / cover no-repeat; }
+.fs-wallpaper-glass { background: #1d3f8f url("/wallpapers/glass.svg") center / cover no-repeat; }
+.fs-wallpaper-material { background: #e8def8 url("/wallpapers/material.svg") center / cover no-repeat; }
+.fs-wallpaper-fluent { background: #0b3d7a url("/wallpapers/fluent.svg") center / cover no-repeat; }
+.fs-wallpaper-clouddancer { background: #f0eee9 url("/wallpapers/clouddancer.svg") center / cover no-repeat; }
+.fs-wallpaper-teal { background: #1f4f50 url("/wallpapers/teal.svg") center / cover no-repeat; }
+/* TT25 professional wallpapers */
+.fs-wallpaper-enterprise { background: #1d4a78 url("/wallpapers/enterprise.svg") center / cover no-repeat; }
+.fs-wallpaper-graphite { background: #55585e url("/wallpapers/graphite.svg") center / cover no-repeat; }
+/* TT21 default: a cheerful morning sky — cobalt overhead, a warm sun low on the left, floating bubbles */
+.fs-wallpaper-sunrise {
+  background:
+    radial-gradient(circle at 18% 86%, rgba(255,214,90,.95) 0, rgba(255,170,60,.55) 9%, rgba(255,140,80,0) 34%),
+    radial-gradient(circle at 74% 30%, rgba(255,255,255,.16) 0 3.2%, rgba(255,255,255,.05) 3.3% 3.8%, transparent 3.9%),
+    radial-gradient(circle at 86% 62%, rgba(255,255,255,.13) 0 5.5%, rgba(255,255,255,.04) 5.6% 6.2%, transparent 6.3%),
+    radial-gradient(circle at 58% 76%, rgba(120,255,214,.16) 0 2.4%, transparent 2.5%),
+    radial-gradient(circle at 40% 18%, rgba(255,236,150,.14) 0 1.6%, transparent 1.7%),
+    radial-gradient(1100px 520px at 50% 108%, rgba(80,230,190,.38), transparent 70%),
+    linear-gradient(178deg, #1b3a9c 0%, #2f64d8 42%, #49a3f0 72%, #ffb978 100%);
+}
+/* desktop labels sit on a pill so they stay readable on any wallpaper (WCAG 1.4.3) */
+.fs-desk-label { background: var(--fs-desk-label, rgba(10,19,48,.78)); color: #fff; border-radius: 999px; padding: 0 calc(5 * var(--fs-u)); font-weight: 700; }
+.fs-desk-icon:hover .fs-desk-label { background: rgba(10,19,48,.95); }
 
 .fs-panel {
   background: var(--fs-panel);
@@ -94,35 +138,35 @@ body {
   touch-action: none;
 }
 .fs-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: var(--fs-target); padding: 0 10px;
-  border: 1px solid var(--fs-border); border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(2px + 2 * var(--fs-u));
+  min-height: var(--fs-target); padding: 0 calc(4px + 6 * var(--fs-u));
+  border: 1px solid var(--fs-border); border-radius: calc(5px + 4 * var(--fs-u));
   background: rgba(255,255,255,.04); color: var(--fs-text);
-  font-size: 12px; cursor: pointer;
+  font-size: calc(12 * var(--fs-u)); cursor: pointer; white-space: nowrap; font-weight: 600;
   transition: background var(--fs-motion) ease, border-color var(--fs-motion) ease;
 }
 .fs-btn:hover { background: rgba(91,140,255,.16); border-color: rgba(91,140,255,.4); }
 .fs-btn[data-variant="ghost"] { background: transparent; border-color: transparent; }
 .fs-btn[data-variant="primary"] { background: var(--fs-accent); border-color: transparent; color: #04102b; font-weight: 600; }
-.fs-btn[data-variant="danger"] { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.45); color: #ffb0b0; }
+.fs-btn[data-variant="danger"] { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.45); color: var(--fs-bad-text, #ffb0b0); }
 .fs-btn:disabled { opacity: .45; cursor: not-allowed; }
 
 .fs-input, .fs-select, .fs-textarea {
-  width: 100%; background: rgba(6,10,22,.7); color: var(--fs-text);
+  width: 100%; background: var(--fs-field, rgba(6,10,22,.7)); color: var(--fs-text);
   border: 1px solid var(--fs-border); border-radius: 8px;
-  padding: 6px 9px; font-size: 12px; font-family: inherit;
+  padding: calc(3px + 3 * var(--fs-u)) calc(4px + 5 * var(--fs-u)); font-size: calc(12 * var(--fs-u)); font-family: inherit;
 }
 .fs-textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; }
 .fs-badge {
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600;
+  padding: 1px calc(7 * var(--fs-u)); border-radius: 999px; font-size: calc(10.5 * var(--fs-u)); font-weight: 600;
   border: 1px solid var(--fs-border); background: rgba(255,255,255,.05); color: var(--fs-muted);
-  white-space: nowrap;
+  white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
 }
-.fs-badge[data-tone="ok"] { color: #8df0c0; border-color: rgba(57,217,138,.4); background: rgba(57,217,138,.12); }
-.fs-badge[data-tone="warn"] { color: #ffd98a; border-color: rgba(255,196,83,.4); background: rgba(255,196,83,.12); }
-.fs-badge[data-tone="bad"] { color: #ffb3b3; border-color: rgba(255,107,107,.4); background: rgba(255,107,107,.12); }
-.fs-badge[data-tone="info"] { color: #b9ccff; border-color: rgba(91,140,255,.4); background: rgba(91,140,255,.14); }
+.fs-badge[data-tone="ok"] { color: var(--fs-ok-text, #8df0c0); border-color: rgba(57,217,138,.4); background: rgba(57,217,138,.12); }
+.fs-badge[data-tone="warn"] { color: var(--fs-warn-text, #ffd98a); border-color: rgba(255,196,83,.4); background: rgba(255,196,83,.12); }
+.fs-badge[data-tone="bad"] { color: var(--fs-bad-text, #ffb3b3); border-color: rgba(255,107,107,.4); background: rgba(255,107,107,.12); }
+.fs-badge[data-tone="info"] { color: var(--fs-info-text, #b9ccff); border-color: rgba(91,140,255,.4); background: rgba(91,140,255,.14); }
 
 .fs-row { display: flex; align-items: center; gap: 8px; }
 .fs-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
@@ -133,9 +177,109 @@ body {
 .fs-list-item[data-selected="true"] { background: rgba(91,140,255,.22); }
 .fs-sep { height: 1px; background: var(--fs-border); margin: 6px 0; }
 .fs-kbd {
-  font-family: ui-monospace, monospace; font-size: 10.5px; padding: 1px 5px;
+  font-family: ui-monospace, monospace; font-size: calc(10.5 * var(--fs-u)); padding: 1px calc(5 * var(--fs-u));
   border: 1px solid var(--fs-border); border-bottom-width: 2px; border-radius: 5px; background: rgba(255,255,255,.05);
 }
 .fs-resizer { position: absolute; }
+/* TT21 reflow (WCAG 1.4.10): module roots are single-column grids/flex columns; without min-width:0 their auto track
+   grows to the widest no-wrap child and the window clips the right side at 2x text / phone widths. */
+.fs-window .fs-scroll > *, .fs-window .fs-scroll { min-width: 0; }
+/* form controls have an intrinsic width (~20 characters) that doubles with the text; let them shrink to their box */
+.fs-window input, .fs-window select, .fs-window textarea { max-width: 100%; min-width: 0; }
+.fs-window .fs-panel > * { min-width: 0; }
+.fs-window .fs-scroll > .fs-row, .fs-window .fs-scroll > div > .fs-row { flex-wrap: wrap; }
+/* TT21: dense toolbars stay ONE row and scroll sideways at large text, so the document area keeps its height */
+.fs-toolbar { flex-wrap: nowrap !important; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+.fs-toolbar > * { flex-shrink: 0; }
+/* TT21: colour wells grow with the text (inline widths are TT20 px; min-* wins) */
+input[type="color"] { min-width: calc(6px + 16 * var(--fs-u)); min-height: calc(6px + 14 * var(--fs-u)); cursor: pointer; }
+/* TT21: AX-03 — the queries the register always claimed */
+@media (forced-colors: active) {
+  .fs-btn, .fs-input, .fs-select, .fs-panel, .fs-window { border: 1px solid CanvasText; }
+  .fs-btn[data-variant="primary"], [aria-checked="true"].fs-btn, [aria-pressed="true"].fs-btn { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .fs-desk-label { background: Canvas; color: CanvasText; }
+  svg[data-icon] { forced-color-adjust: none; }
+}
+@media (prefers-contrast: more) {
+  :root { --fs-border: rgba(200, 215, 255, 0.55); --fs-muted: #c9d3ec; --fs-panel: #0d1733; }
+  :root[data-theme="light"] { --fs-border: rgba(10, 20, 50, 0.6); --fs-muted: #26324d; --fs-panel: #ffffff; }
+  .fs-btn { border-width: 2px; }
+}
+/* TT21: window controls — round "bubble" buttons; the coloured three always show their glyph (no hover-only meaning) */
+.fs-winbtn { min-height: calc(10px + 12 * var(--fs-u)); min-width: calc(10px + 12 * var(--fs-u)); padding: 0; border-radius: 999px; }
+.fs-winbtn[data-bubble="1"] { box-shadow: inset 0 calc(1 * var(--fs-u)) 0 rgba(255,255,255,.55), 0 1px 2px rgba(0,0,0,.35); }
+.fs-winbtn[data-bubble="1"]:hover { filter: brightness(1.08) saturate(1.1); }
 .fs-blink { animation: fs-blink 1.05s steps(2, start) infinite; }
 @keyframes fs-blink { to { visibility: hidden; } }
+
+/* ------------------------------------------------------------------------------------------------------------------
+ * TT25 layouts: shared menu items, the layout switch, Business (taskbar, Start, caption buttons) and Art (menu bar,
+ * dock, Launchpad, traffic lights). Every animated property is gated on --fs-motion / reduced motion.
+ * ---------------------------------------------------------------------------------------------------------------- */
+.fs-visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.fs-menuitem { display: flex; align-items: center; gap: calc(6 * var(--fs-u)); width: 100%; min-height: calc(8px + 18 * var(--fs-u)); padding: 0 calc(8 * var(--fs-u));
+  border: 0; border-radius: 6px; background: transparent; color: var(--fs-text); font: inherit; cursor: pointer; text-align: left; }
+.fs-menuitem:hover, .fs-menuitem:focus-visible { background: var(--fs-accent); color: #04102b; outline: none; }
+.fs-menuitem:disabled { color: var(--fs-muted); cursor: default; background: transparent; }
+.fs-layout-opt { position: relative; border: 1px solid var(--fs-border); border-radius: 10px; cursor: pointer; color: var(--fs-text); background: var(--fs-bg-2); }
+.fs-layout-opt[data-checked="true"] { outline: 3px solid var(--fs-accent); outline-offset: 1px; }
+.fs-layout-opt:focus-within { box-shadow: 0 0 0 3px var(--fs-text); }
+.fs-visually-hidden-radio { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+
+/* Business — taskbar */
+.fs-tb-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: calc(10px + 30 * var(--fs-u)); height: calc(8px + 32 * var(--fs-u));
+  padding: 0 calc(4 * var(--fs-u)); border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--fs-text); font: inherit; cursor: pointer; }
+.fs-tb-btn:hover { background: color-mix(in srgb, var(--fs-text) 10%, transparent); }
+.fs-tb-btn[data-focused], .fs-tb-btn[aria-pressed="true"], .fs-tb-btn[data-active] { background: color-mix(in srgb, var(--fs-text) 14%, transparent); border-color: color-mix(in srgb, var(--fs-text) 12%, transparent); }
+.fs-tb-ind { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); height: 3px; border-radius: 3px; transition: width var(--fs-motion); }
+.fs-tb-search { display: inline-flex; align-items: center; gap: 8px; height: calc(6px + 26 * var(--fs-u)); min-width: calc(110 * var(--fs-u)); padding: 0 calc(12 * var(--fs-u));
+  border-radius: 999px; border: 1px solid var(--fs-border); background: var(--fs-bg-2); color: var(--fs-muted); font: inherit; cursor: text; margin: 0 4px; }
+.fs-tb-search:hover { border-color: var(--fs-accent); }
+.fs-tb-showdesk { align-self: stretch; width: 10px; margin-left: 4px; border: 0; border-left: 1px solid var(--fs-border); background: transparent; cursor: pointer; padding: 0; }
+.fs-tb-showdesk:hover, .fs-tb-showdesk:focus-visible { background: color-mix(in srgb, var(--fs-text) 14%, transparent); }
+.fs-start-tile { display: grid; justify-items: center; gap: 4px; padding: calc(6 * var(--fs-u)) 2px; border: 0; border-radius: 8px; background: transparent; color: var(--fs-text); font: inherit; font-size: calc(11.5 * var(--fs-u)); cursor: pointer; }
+.fs-start-tile:hover, .fs-start-tile:focus-visible { background: color-mix(in srgb, var(--fs-text) 10%, transparent); }
+.fs-start-tile span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Windows caption buttons */
+.fs-caption { display: inline-flex; align-self: stretch; margin: 0 -6px 0 4px; }
+.fs-cap { display: inline-flex; align-items: center; justify-content: center; width: calc(14px + 26 * var(--fs-u)); min-height: 24px; border: 0; background: transparent; color: var(--fs-text); cursor: pointer; }
+.fs-cap:hover { background: color-mix(in srgb, var(--fs-text) 12%, transparent); }
+.fs-cap-close:hover, .fs-cap-close:focus-visible { background: #c42b1c; color: #fff; }
+
+/* Art — traffic lights (24 px targets, 14 px lights; WCAG 2.5.8) */
+.fs-traffic { display: inline-flex; gap: 0; margin-right: 4px; }
+.fs-tl { width: 24px; height: 24px; display: inline-grid; place-items: center; border: 0; padding: 0; background: transparent; cursor: pointer; color: rgba(0,0,0,.6); position: relative; }
+.fs-tl::before { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; left: 5px; top: 5px; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.25); }
+.fs-tl svg { position: relative; opacity: 0; }
+.fs-traffic:hover .fs-tl svg, .fs-tl:focus-visible svg { opacity: 1; }
+.fs-tl-close::before { background: #ff5f57; } .fs-tl-minimize::before { background: #febc2e; } .fs-tl-maximize::before { background: #28c840; }
+.fs-window[data-focused="false"] .fs-traffic:not(:hover) .fs-tl::before { background: color-mix(in srgb, var(--fs-muted) 55%, transparent); }
+.fs-title-centre { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; padding-right: 24px; }
+
+/* Art — dock */
+.fs-dock { display: flex; align-items: flex-end; border-radius: 18px; border: 1px solid var(--fs-border);
+  background: color-mix(in srgb, var(--fs-panel-solid) 72%, transparent); backdrop-filter: blur(22px) saturate(1.5); box-shadow: 0 10px 30px rgba(0,0,0,.28); }
+.fs-dock-slot { position: relative; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 7px;
+  transition: width calc(var(--fs-motion) * .5) ease-out, flex-basis calc(var(--fs-motion) * .5) ease-out; }
+.fs-dock-item { display: block; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 22%; transform-origin: 50% 100%;
+  transition: width calc(var(--fs-motion) * .5) ease-out, height calc(var(--fs-motion) * .5) ease-out; }
+.fs-dock-item:focus-visible { outline: 3px solid var(--fs-accent); outline-offset: 2px; }
+.fs-dock-item svg { display: block !important; }
+.fs-dock-dot { position: absolute; bottom: -6px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--fs-text); }
+.fs-dock-sep { align-self: center; position: relative; margin-bottom: 0; }
+.fs-dock-sep::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--fs-border); }
+.fs-dock-label { position: absolute; left: 50%; transform: translateX(-50%); padding: 3px 10px; border-radius: 6px; white-space: nowrap; pointer-events: none;
+  background: var(--fs-panel-solid); color: var(--fs-text); border: 1px solid var(--fs-border); font-size: calc(12 * var(--fs-u)); box-shadow: 0 4px 14px rgba(0,0,0,.3); z-index: 2; }
+.fs-dock-min { display: grid; place-items: center; border-radius: 8px; background: color-mix(in srgb, var(--fs-text) 12%, transparent); border: 1px solid var(--fs-border); }
+@keyframes fs-dock-bounce { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-45%); } 50% { transform: translateY(0); } 70% { transform: translateY(-22%); } }
+.fs-dock-item[data-bounce] { animation: fs-dock-bounce .6s ease-in-out 2; }
+:root[data-motion="off"] .fs-dock-item[data-bounce] { animation: none; }
+@media (prefers-reduced-motion: reduce) { .fs-dock-item[data-bounce] { animation: none; } .fs-dock-slot, .fs-dock-item { transition: none; } }
+:root[data-motion="off"] .fs-dock-slot, :root[data-motion="off"] .fs-dock-item { transition: none; }
+
+/* Art — Launchpad */
+.fs-launchpad { position: absolute; inset: 0; z-index: 9200; overflow: auto; background: rgba(12, 14, 20, .55); backdrop-filter: blur(26px) saturate(1.2); padding-top: 4vh; }
+.fs-lp-item { display: grid; justify-items: center; gap: 6px; padding: 8px 2px; border: 0; border-radius: 14px; background: transparent; color: #fff; font: inherit; font-size: calc(12.5 * var(--fs-u)); cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.fs-lp-item:hover, .fs-lp-item:focus-visible { background: rgba(255,255,255,.14); outline: none; }
+.fs-lp-item span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (forced-colors: active) { .fs-tl::before { background: ButtonText !important; } .fs-dock { border-color: CanvasText; } }

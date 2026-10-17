@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, clientId, post } from "@/lib/api";
@@ -90,7 +91,7 @@ export default function TogetherModule({ win }: ModuleProps) {
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        <input className="fs-input" style={{ width: 120 }} value={code} aria-label="Room code"
+        <input className="fs-input" style={{ width: fz(120) }} value={code} aria-label="Room code"
           onChange={(e) => setCode(e.target.value.toUpperCase())} />
         <input className="fs-input" placeholder="Media URL or VFS path" value={mediaRef} aria-label="Media reference"
           onChange={(e) => setMediaRef(e.target.value)} />
@@ -115,10 +116,10 @@ export default function TogetherModule({ win }: ModuleProps) {
       </div>
 
       <Section title="Room state">
-        <div className="fs-mono" style={{ fontSize: 11.5 }}>
+        <div className="fs-mono" style={{ fontSize: fz(11.5) }}>
           {room ? JSON.stringify({ code: room.code, playing: room.playing, positionMs: room.positionMs, leader: room.leaderClient === me ? "me" : room.leaderClient }, null, 1) : "not joined"}
         </div>
-        <div className="fs-dim" style={{ fontSize: 11, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
           Each participant plays their own copy of the media; only the clock is shared. That keeps bandwidth at zero
           and avoids re-transmitting content we have no right to relay. Drift is corrected by playbackRate nudges of
           ±5 %, with a seek reserved for gross desync above 2 s.
@@ -126,7 +127,7 @@ export default function TogetherModule({ win }: ModuleProps) {
       </Section>
 
       <Section title="Events">
-        <div className="fs-scroll fs-mono" style={{ maxHeight: 130, fontSize: 11 }}>
+        <div className="fs-scroll fs-mono" style={{ maxHeight: 130, fontSize: fz(11) }}>
           {events.map((e) => <div key={e.id}>#{e.id} {e.clientId === me ? "me" : e.clientId.slice(0, 6)} {e.kind}</div>)}
           {events.length === 0 ? <span className="fs-dim">no events yet</span> : null}
         </div>

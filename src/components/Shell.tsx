@@ -1,4 +1,7 @@
 "use client";
+import { fz, readUiUnit, applyTextScale, DEFAULT_TEXT_SCALE, TEXT_SCALE_MIN, TEXT_SCALE_MAX } from "@/lib/uiscale";
+import { DEFAULT_WALLPAPER } from "@/lib/appearance";
+import { applyStyle, isStyle, resolveWallpaper, useStyleId } from "@/lib/style";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, post, put } from "@/lib/api";
@@ -10,6 +13,7 @@ import { governor, type GovernorSnapshot } from "@/lib/governor";
 import { memoryPolicy } from "@/lib/policy";
 import { MODULES, moduleById } from "@/lib/registry";
 import { BINDINGS, comboFor, matchChord, type Preset } from "@/lib/shortcuts";
+import { privacy } from "@/lib/privacy/session";
 import {
   initialDesktop, reduce, type DesktopState, type Rect, type WindowCommand,
 } from "@/lib/windowing/state";
@@ -21,9 +25,25 @@ import DesktopSurface from "./DesktopSurface";
 import Palette from "./Palette";
 import Overview from "./Overview";
 import QuickPanel from "./QuickPanel";
+import Taskbar from "./Taskbar";
+import Dock from "./Dock";
+import MenuBar from "./MenuBar";
+import { StartMenu, Launchpad } from "./LayoutLaunchers";
+import { isLayout, layoutOf } from "@/lib/layout-core";
 import { Badge, Btn } from "./ui";
+import { AppIcon, FusionLogo, UiGlyph } from "./AppIcon";
 
 interface Toast { id: number; message: string; tone: "info" | "ok" | "warn" | "bad"; action?: { label: string; run: () => void } }
+
+/** TT21: default window sizes grow with the text scale (40% of the text growth), clamped to the desktop. */
+function scaledRect(r: Partial<Rect> | undefined, vp: { w: number; h: number } | undefined): Partial<Rect> {
+  if (!r) return {};
+  const f = Math.max(1, 1 + (readUiUnit() - 1) * 0.4);
+  const out: Partial<Rect> = { ...r };
+  if (r.w) out.w = Math.round(Math.min(r.w * f, vp ? Math.max(r.w, vp.w - 24) : r.w * f));
+  if (r.h) out.h = Math.round(Math.min(r.h * f, vp ? Math.max(r.h, vp.h - 24) : r.h * f));
+  return out;
+}
 
 export default function Shell({ stateId, hostKind }: { stateId: string; hostKind: "tab" | "pip" | "screen" }) {
   const [state, setState] = useState<DesktopState>(initialDesktop);
@@ -50,6 +70,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const counter = useRef(0);
   const loaded = useRef(false);
   const saveTimer = useRef<number | null>(null);
+  const dirtySince = useRef(0);
   const deskRef = useRef<HTMLDivElement | null>(null);
   const toastId = useRef(1);
 
@@ -80,7 +101,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     dispatch({
       t: "open", id, module: moduleId,
       title: (props?.title as string) ?? mod?.title ?? moduleId,
-      props: props ?? {}, rect: { ...(mod?.rect ?? {}), ...(rect ?? {}) }, host: "tab",
+      props: props ?? {}, rect: { ...scaledRect(mod?.rect, stateRefOpen.current.viewport), ...(rect ?? {}) }, host: "tab",
     });
     return id;
   }, [dispatch]);
@@ -128,7 +149,11 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         if (!cancelled) setSettings(Object.fromEntries(s.rows.map((r) => [r.key, r.value])));
         const st = await api<{ row: { state: DesktopState; revision: number } | null }>(`/api/state?id=${stateId}`);
         if (!cancelled && st.row?.state?.windows) {
-          dispatch({ t: "hydrate", state: { ...initialDesktop(), ...st.row.state } });
+          // Geometry is host-relative: keep the MEASURED desk size, not the viewport persisted by another screen
+          // (a state saved on a larger display otherwise produced oversized maximised windows — TT15 screenshot finding).
+          const desk = deskRef.current?.getBoundingClientRect();
+          const measured = desk && desk.width > 0 && desk.height > 0 ? { viewport: { w: Math.round(desk.width), h: Math.round(desk.height) } } : {};
+          dispatch({ t: "hydrate", state: { ...initialDesktop(), ...st.row.state, ...measured } });
         }
       } catch (err) {
         toast(`Offline or server error: ${String((err as Error).message)}. The shell runs read-only.`, "warn");
@@ -141,7 +166,9 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       try {
         const params = new URLSearchParams(window.location.search);
         const want = params.get("open") ?? params.get("cmd");
-        if (want && MODULES.some((m) => m.id === want)) open(want);
+        // TT15: optional file deep link (?open=sheet&path=/Documents/x.fworkbook) — VFS paths only
+        const wantPath = params.get("path");
+        if (want && MODULES.some((m) => m.id === want)) open(want, wantPath && wantPath.startsWith("/") && wantPath.length < 1024 ? { path: wantPath } : undefined);
         const shared = params.get("url") ?? params.get("text");
         if (shared) {
           open("browser", { url: shared, title: "Shared link" });
@@ -163,10 +190,18 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   useEffect(() => {
     if (!loaded.current) return;
     if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    // TT21: debounce 600 ms but never defer a save more than 1 s past the first unsaved change, so a stream of
+    // state updates (drag, resize, reflow) cannot starve persistence.
+    const now = Date.now();
+    if (!dirtySince.current) dirtySince.current = now;
+    const wait = Math.max(0, Math.min(600, dirtySince.current + 1000 - now));
     saveTimer.current = window.setTimeout(() => {
+      dirtySince.current = 0;
       void put("/api/state", { id: stateId, state, revision: state.revision }).catch(() => undefined);
-      try { localStorage.setItem(`fusion.state.${stateId}`, JSON.stringify(state)); } catch { /* quota */ }
-    }, 600);
+      // TT18: the browser-profile mirror gets the same /Private path sealing as the server copy
+      void (privacy.layer ? privacy.layer.sealState(state) : Promise.resolve(state))
+        .then((sealed) => { try { localStorage.setItem(`fusion.state.${stateId}`, JSON.stringify(sealed)); } catch { /* quota */ } });
+    }, wait);
     return () => { if (saveTimer.current) window.clearTimeout(saveTimer.current); };
   }, [state, stateId]);
 
@@ -206,7 +241,13 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     const motion = settings["appearance.motion"] ?? "system";
     root.dataset.motion = motion === "off" ? "off" : "";
     root.dataset.effects = gov.effects && (settings["perf.effects"] ?? "auto") !== "off" ? "on" : "off";
-    if (settings["appearance.accent"]) root.style.setProperty("--fs-accent", settings["appearance.accent"]);
+    // TT22: "auto" (default) = follow the style's accent (CSS var --fs-style-accent); a picked colour wins
+    const accent = settings["appearance.accent"];
+    if (accent && accent !== "auto") root.style.setProperty("--fs-accent", accent); else root.style.removeProperty("--fs-accent");
+    applyStyle(settings["appearance.style"]);
+    // TT25: main-UI layout (CSS hooks: window chrome, toasts, dock/taskbar styles)
+    root.dataset.layout = layoutOf(settings["appearance.layout"]);
+    applyTextScale(Number(settings["appearance.textScale"] ?? DEFAULT_TEXT_SCALE));
   }, [settings, gov.effects]);
 
   /* ------------------------------------------------------------ keyboard */
@@ -307,6 +348,9 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         case "focusMode": dispatch({ t: "focusMode", on: arg !== "off" }); break;
         case "theme": if (arg === "dark" || arg === "light") await setSetting("appearance.theme", arg); break;
         case "density": if (["compact", "balanced", "touch"].includes(arg)) await setSetting("appearance.density", arg); break;
+        case "style": if (isStyle(arg)) await setSetting("appearance.style", arg); break;
+        case "layout": if (isLayout(arg)) await setSetting("appearance.layout", arg); else toast(`Routine: unknown layout "${arg}"`, "warn"); break;
+        case "textsize": { const n = Number(arg); if (Number.isInteger(n) && n >= TEXT_SCALE_MIN && n <= TEXT_SCALE_MAX) await setSetting("appearance.textScale", String(n)); break; }
         case "alert": await post("/api/alerts", { app: "Routine", title: arg || "Routine alert" }).catch(() => undefined); break;
         case "closeAll": dispatch({ t: "closeAll" }); last = null; break;
         case "preset": {
@@ -332,24 +376,48 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   }), [state, dispatch, open, caps, gov, settings, setSetting, toast, streams, publishStream,
       streamVersion, clips, copy, beam, commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions]);
 
+  const styleId = useStyleId();
   const visible = state.windows.filter((w) => w.workspace === state.activeWorkspace);
-  const wallpaper = settings["appearance.wallpaper"] ?? "aurora";
+  const wallpaper = resolveWallpaper(settings["appearance.wallpaper"] ?? DEFAULT_WALLPAPER, styleId);
+  const layout = layoutOf(settings["appearance.layout"]);
+  const toastPos: React.CSSProperties = layout === "business"
+    ? { right: 12, bottom: `calc(${fz(48)} + 12px)` }
+    : layout === "art" ? { right: 12, top: `calc(${fz(30)} + 10px)` } : { bottom: 64, left: "50%", transform: "translateX(-50%)" };
 
   return (
     <ShellContext.Provider value={value}>
-      <div style={{ height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <TopBar
-          onLauncher={() => setLauncher((v) => !v)}
-          onPalette={() => setPalette(true)}
-          onOverview={() => setOverview((v) => !v)}
-          onQuick={() => setQuick((v) => !v)}
-          onBlackout={() => setBlackout(true)}
-        />
+      {/* TT25: in Business / Art the wallpaper sits behind the whole column so the translucent taskbar, menu bar and
+          floating dock show it through; Fusion keeps it on the desk exactly as before */}
+      <div className={layout === "fusion" ? undefined : `fs-wallpaper-${wallpaper}`} data-layout={layout}
+        style={{ height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        {layout === "fusion" ? (
+          <TopBar
+            onLauncher={() => setLauncher((v) => !v)}
+            onPalette={() => setPalette(true)}
+            onOverview={() => setOverview((v) => !v)}
+            onQuick={() => setQuick((v) => !v)}
+            onBlackout={() => setBlackout(true)}
+          />
+        ) : null}
+        {layout === "art" ? (
+          <MenuBar
+            onLaunchpad={() => setLauncher((v) => !v)}
+            onPalette={() => setPalette(true)}
+            onOverview={() => setOverview((v) => !v)}
+            onQuick={() => setQuick((v) => !v)}
+            onBlackout={() => setBlackout(true)}
+            onShortcuts={() => setSheet(true)}
+          />
+        ) : null}
 
         <div
           ref={deskRef}
-          className={`fs-wallpaper-${wallpaper}`}
-          style={{ position: "relative", flex: 1, minHeight: 0, overflow: "hidden" }}
+          className={layout === "fusion" ? `fs-wallpaper-${wallpaper}` : undefined}
+          // "clip", not "hidden": an overflow:hidden box can still be scrolled by focus()/scrollIntoView, which
+          // shifted the whole desktop up and hid window title bars when a module focused a low element (TT15, found by screenshot)
+          // TT25: Business/Art isolate the desk so window z-indices (which only grow) can never paint over the taskbar,
+          // menu bar, dock, their menus or the magnified dock icons that overlap the desk
+          style={{ position: "relative", flex: 1, minHeight: 0, overflow: "clip", ...(layout === "fusion" ? {} : { zIndex: 0, isolation: "isolate" as const }) }}
           onContextMenu={(e) => e.preventDefault()}
         >
           <DesktopSurface onLauncher={() => setLauncher(true)} />
@@ -365,23 +433,25 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
 
           {overview ? <Overview onClose={() => setOverview(false)} /> : null}
           {palette ? <Palette onClose={() => setPalette(false)} /> : null}
-          {quick ? <QuickPanel onClose={() => setQuick(false)} onBlackout={() => setBlackout(true)} /> : null}
+          {quick ? <QuickPanel onClose={() => setQuick(false)} onBlackout={() => setBlackout(true)} anchor={layout === "business" ? "bottom" : "top"} /> : null}
 
-          {launcher ? (
+          {launcher && layout === "business" ? <StartMenu onClose={() => setLauncher(false)} /> : null}
+          {launcher && layout === "art" ? <Launchpad onClose={() => setLauncher(false)} /> : null}
+          {launcher && layout === "fusion" ? (
             <div className="fs-panel" role="dialog" aria-label="Launcher"
-              style={{ position: "absolute", left: 12, bottom: 12, width: 520, maxHeight: "72%", overflow: "auto", padding: 12, zIndex: 9000 }}>
+              style={{ position: "absolute", left: 12, bottom: 12, width: `min(${fz(560)}, calc(100% - 24px))`, maxHeight: "calc(100% - 24px)", overflow: "auto", padding: 12, zIndex: 9000 }}>
               <div className="fs-row" style={{ justifyContent: "space-between", marginBottom: 8 }}>
-                <strong style={{ fontSize: 13 }}>All modules</strong>
-                <Btn variant="ghost" onClick={() => setLauncher(false)}>✕</Btn>
+                <span className="fs-row" style={{ gap: fz(6) }}><FusionLogo size={22} label="" /><strong style={{ fontSize: fz(14) }}>All modules</strong></span>
+                <Btn variant="ghost" onClick={() => setLauncher(false)} aria-label="Close launcher"><UiGlyph name="close" /></Btn>
               </div>
               {(["Core", "Create", "Connect", "System"] as const).map((group) => (
                 <div key={group} style={{ marginBottom: 10 }}>
-                  <div className="fs-dim" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 4 }}>{group}</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 6 }}>
+                  <div className="fs-dim" style={{ fontSize: fz(10.5), textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 4 }}>{group}</div>
+                  <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${fz(150)}, 1fr))`, gap: 6 }}>
                     {MODULES.filter((m) => m.group === group).map((m) => (
-                      <button key={m.id} className="fs-btn" style={{ justifyContent: "flex-start", height: 40 }}
+                      <button key={m.id} className="fs-btn" style={{ justifyContent: "flex-start", minHeight: fz(40), gap: fz(7), padding: `${fz(3)} ${fz(6)}` }}
                         onClick={() => { open(m.id); setLauncher(false); }} title={m.summary}>
-                        <span style={{ fontSize: 15 }}>{m.icon}</span>{m.title}
+                        <AppIcon id={m.id} size={26} /><span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.title}</span>
                       </button>
                     ))}
                   </div>
@@ -399,7 +469,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
               <div style={{ display: "grid", gap: 4, marginTop: 10 }}>
                 {BINDINGS.map((b) => (
                   <div key={b.id} className="fs-row" style={{ justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 12 }}>{b.label}</span>
+                    <span style={{ fontSize: fz(12) }}>{b.label}</span>
                     <span className="fs-row" style={{ gap: 6 }}>
                       {b.reservedBy ? <Badge tone="warn" title={b.reservedBy}>browser-reserved</Badge> : null}
                       <span className="fs-kbd">{comboFor(b, preset)}</span>
@@ -410,34 +480,40 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
             </div>
           ) : null}
 
-          {/* BlackTop source-screen blackout (SH-10/SH-11) */}
-          {blackout ? (
-            <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 99999, color: "#223", display: "grid", placeItems: "center" }}
-              onDoubleClick={() => setBlackout(false)}>
-              <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-                <div style={{ fontSize: 12, color: "#2b3550" }}>Blackout — this screen is a touchpad for the presenting window.</div>
-                <div
-                  style={{ width: 260, height: 150, border: "1px solid #1b2440", borderRadius: 10 }}
-                  onPointerMove={(e) => {
-                    if (e.buttons !== 1 || !state.focus) return;
-                    dispatch({ t: "nudge", id: state.focus, dx: e.movementX, dy: e.movementY });
-                  }}
-                />
-                <Btn variant="ghost" onClick={() => setBlackout(false)}>Resume on this screen</Btn>
-              </div>
-            </div>
-          ) : null}
         </div>
 
-        <Shelf />
+        {layout === "fusion" ? <Shelf /> : null}
+        {layout === "business" ? (
+          <Taskbar onStart={() => setLauncher((v) => !v)} startOpen={launcher} onPalette={() => setPalette(true)}
+            onOverview={() => setOverview((v) => !v)} onQuick={() => setQuick((v) => !v)} onBlackout={() => setBlackout(true)} />
+        ) : null}
+        {layout === "art" ? <Dock onLaunchpad={() => setLauncher((v) => !v)} launchpadOpen={launcher} /> : null}
       </div>
 
+      {/* BlackTop source-screen blackout (SH-10/SH-11) */}
+      {blackout ? (
+        <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 99999, color: "#223", display: "grid", placeItems: "center" }}
+          onDoubleClick={() => setBlackout(false)}>
+          <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
+            <div style={{ fontSize: fz(12), color: "#2b3550" }}>Blackout — this screen is a touchpad for the presenting window.</div>
+            <div
+              style={{ width: 260, height: 150, border: "1px solid #1b2440", borderRadius: 10 }}
+              onPointerMove={(e) => {
+                if (e.buttons !== 1 || !state.focus) return;
+                dispatch({ t: "nudge", id: state.focus, dx: e.movementX, dy: e.movementY });
+              }}
+            />
+            <Btn variant="ghost" onClick={() => setBlackout(false)}>Resume on this screen</Btn>
+          </div>
+        </div>
+      ) : null}
+
       {/* toasts */}
-      <div style={{ position: "fixed", bottom: 64, left: "50%", transform: "translateX(-50%)", display: "grid", gap: 6, zIndex: 99998 }} aria-live="polite">
+      <div data-testid="toasts" style={{ position: "fixed", ...toastPos, display: "grid", gap: 6, zIndex: 99998 }} aria-live="polite">
         {toasts.map((t) => (
           <div key={t.id} className="fs-panel" style={{ padding: "8px 12px", display: "flex", gap: 10, alignItems: "center", maxWidth: 560 }}>
             <Badge tone={t.tone === "info" ? "info" : t.tone}>{t.tone}</Badge>
-            <span style={{ fontSize: 12 }}>{t.message}</span>
+            <span style={{ fontSize: fz(12) }}>{t.message}</span>
             {t.action ? <Btn variant="ghost" onClick={() => { t.action?.run(); setToasts((x) => x.filter((y) => y.id !== t.id)); }}>{t.action.label}</Btn> : null}
           </div>
         ))}

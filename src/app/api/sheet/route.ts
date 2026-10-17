@@ -1,9 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { refuseEncrypted } from "@/lib/mime";
 import { getNode, writeFile } from "@/lib/server/vfs";
 import {
   Workbook, Sheet, writeXlsxWorkbook, readXlsxWorkbook, workbookFromJson, workbookToJson,
   isError, type WorkbookJson,
 } from "@/lib/formula";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -32,11 +34,12 @@ function cellsOut(wb: Workbook) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as {
+  const body = (await readJsonObject(req)) as ({
     op?: "recalculate" | "exportXlsx" | "importXlsx" | "saveXlsxToVfs";
     workbook?: WorkbookJson; sheet?: { name: string; cells: { ref: string; input: string }[] };
     path?: string; dest?: string; base64?: string;
-  };
+  }) | Response;
+  if (body instanceof Response) return body;
   try {
     switch (body.op) {
       case "recalculate": {
@@ -62,6 +65,7 @@ export async function POST(req: NextRequest) {
         else if (body.path) {
           const node = await getNode(body.path);
           if (!node) throw new Error("not found");
+          refuseEncrypted(node);
           buf = Buffer.from(node.content, node.encoding === "base64" ? "base64" : "utf8");
         } else throw new Error("path or base64 required");
         if (buf.length > 8 * 1024 * 1024) throw new Error("xlsx exceeds the 8 MB import guard");

@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -46,16 +47,16 @@ export default function PresentView() {
 
   return (
     <main style={{ height: "100dvh", background: "#000", color: "#dbe6ff", display: "grid", placeItems: "center", gap: 10 }}>
-      <div style={{ position: "fixed", top: 10, left: 12, fontSize: 12, opacity: .7, fontFamily: "ui-monospace, monospace" }}>
+      <div style={{ position: "fixed", top: 10, left: 12, fontSize: fz(12), opacity: .7, fontFamily: "ui-monospace, monospace" }}>
         Fusion receiver · room {room} · client {clientId().slice(0, 8)} · drift {drift} ms
       </div>
       {state?.mediaRef?.startsWith("http") ? (
         <video ref={videoRef} src={state.mediaRef} playsInline style={{ maxWidth: "100%", maxHeight: "100%" }} />
       ) : (
         <div style={{ textAlign: "center", display: "grid", gap: 8 }}>
-          <div style={{ fontSize: 42 }}>📡</div>
-          <div style={{ fontSize: 14 }}>Waiting for the sender to set media for room {room}</div>
-          <div style={{ fontSize: 12, opacity: .6, maxWidth: 520, lineHeight: 1.6 }}>
+          <div style={{ fontSize: fz(42) }}>📡</div>
+          <div style={{ fontSize: fz(14) }}>Waiting for the sender to set media for room {room}</div>
+          <div style={{ fontSize: fz(12), opacity: .6, maxWidth: 520, lineHeight: 1.6 }}>
             This receiver plays its own copy of the media and follows the room&apos;s anchor clock. Only timing is
             transmitted, which is why a browser can do this at all: it never needs raw sockets, mDNS or a codec
             pipeline it does not own.

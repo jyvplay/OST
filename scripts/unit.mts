@@ -115,7 +115,8 @@ await test("SVG sanitiser strips script/handlers/foreignObject/javascript:", { "
   assert.ok(!/script|onload|foreignObject|javascript:/i.test(r.svg)); assert.ok(r.svg.includes("<rect/>"));
 });
 await test("loss report itemises drops; registry grades", { "FF-11": "full", "FF-01": "partial", "FF-14": "full" }, () => {
-  assert.ok(lossReport("a.docx", "md").drops.includes("styles"));
+  const lr = lossReport("a.docx", "md"); // TT15: was asserting a "styles" drop that forge.ts no longer lists (stale test)
+  assert.ok(lr.drops.includes("pagination") && lr.drops.includes("comments/tracked changes") && lr.safe === false);
   assert.equal(formatFor("x.epub")?.grade, "C");
   assert.equal(formatFor("x.heic")?.grade, "X");
 });
@@ -227,6 +228,19 @@ await test("RG-06 memory policy: absence is not low memory", { "RG-06": "full" }
   assert.equal(memoryPolicy(1).maxWindows, 6); assert.equal(memoryPolicy(1).effects, false);
   assert.equal(memoryPolicy(4).maxWindows, 12); assert.equal(memoryPolicy(8).maxWindows, 24);
   assert.equal(memoryPolicy(Number.NaN).tier, "unknown");
+});
+
+await test("TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk", { "SH-08": "full", "WM-01": "partial" }, () => {
+  const s0 = reduce(initialDesktop(), { t: "viewport", w: 1000, h: 700 });
+  const same = reduce(s0, { t: "viewport", w: 1000.4, h: 700 });
+  assert.equal(same, s0, "same-size viewport must return the identical state object");
+  assert.ok(reduce(s0, { t: "viewport", w: 1001, h: 700 }).revision > s0.revision, "a real resize still bumps");
+  const small = reduce(initialDesktop(), { t: "viewport", w: 700, h: 500 });
+  for (const m of ["vector", "sheet", "writer", "calculator"]) {
+    const s1 = reduce(small, { t: "open", id: m, module: m, title: m });
+    const w = s1.windows.find((x) => x.id === m)!;
+    assert.ok(w.x >= 0 && w.y >= 0 && w.x + w.w <= 700 && w.y + w.h <= 500, `${m} overflows the desk: ${JSON.stringify([w.x, w.y, w.w, w.h])}`);
+  }
 });
 
 finish();

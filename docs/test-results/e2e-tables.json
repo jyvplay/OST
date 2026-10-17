@@ -1,0 +1,82 @@
+{
+  "suite": "e2e-tables",
+  "at": "2026-10-17T01:51:55.163Z",
+  "results": [
+    {
+      "suite": "e2e-tables",
+      "name": "sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs",
+      "covers": {
+        "TB-05": "partial",
+        "TB-03": "partial"
+      },
+      "pass": true,
+      "ms": 597
+    },
+    {
+      "suite": "e2e-tables",
+      "name": "editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores",
+      "covers": {
+        "TB-05": "full",
+        "TB-01": "partial"
+      },
+      "pass": true,
+      "ms": 3233
+    },
+    {
+      "suite": "e2e-tables",
+      "name": "add a formula field: live validation disables Create on a bad formula; a good one adds a computed column",
+      "covers": {
+        "TB-03": "full"
+      },
+      "pass": true,
+      "ms": 1459
+    },
+    {
+      "suite": "e2e-tables",
+      "name": "filter + sort: Status is Doing leaves 2 records; sorting Hours descending orders them; badges count the conditions",
+      "covers": {
+        "TB-04": "full"
+      },
+      "pass": true,
+      "ms": 1995
+    },
+    {
+      "suite": "e2e-tables",
+      "name": "two-way link through the picker: linking Cy to a task shows on People (inverse field) and updates the Open hours rollup",
+      "covers": {
+        "TB-02": "full"
+      },
+      "pass": true,
+      "ms": 1708
+    },
+    {
+      "suite": "e2e-tables",
+      "name": "kanban: columns by Status; moving a card with its Move select and by drag-and-drop updates the counts and the grid",
+      "covers": {
+        "TB-04": "full"
+      },
+      "pass": true,
+      "ms": 1895
+    },
+    {
+      "suite": "e2e-tables",
+      "name": "save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table",
+      "covers": {
+        "TB-05": "full",
+        "TB-01": "full"
+      },
+      "pass": true,
+      "ms": 2441
+    },
+    {
+      "suite": "e2e-tables",
+      "name": "axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
+      "covers": {
+        "TB-05": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 3906
+    }
+  ]
+}

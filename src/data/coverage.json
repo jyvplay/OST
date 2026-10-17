@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-15T05:33:29.524Z",
+ "generatedAt": "2026-10-17T01:54:06.853Z",
  "totals": {
   "built": {
-   "full": 171,
-   "partial": 59,
+   "full": 221,
+   "partial": 62,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 44,
-   "partial": 71,
-   "untested": 137
+   "full": 104,
+   "partial": 75,
+   "untested": 126
   },
   "tests": {
-   "total": 95,
-   "passed": 95
+   "total": 413,
+   "passed": 413
   }
  },
  "rows": {
@@ -53,7 +53,8 @@
    "tests": [
     "e2e: drag a window by its title bar; geometry is committed and persisted",
     "integration: SH-08 stale revision cannot clobber newer desktop state (409)",
-    "unit: command log replay reproduces the identical state hash"
+    "unit: command log replay reproduces the identical state hash",
+    "unit: TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk"
    ]
   },
   "SH-09": {
@@ -88,7 +89,8 @@
    "tested": "full",
    "tests": [
     "e2e: drag a window by its title bar; geometry is committed and persisted",
-    "unit: 10 000 random commands preserve every invariant"
+    "unit: 10 000 random commands preserve every invariant",
+    "unit: TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk"
    ]
   },
   "WM-02": {
@@ -162,6 +164,18 @@
    "tests": []
   },
   "WM-16": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-17": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-18": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-19": {
    "tested": "untested",
    "tests": []
   },
@@ -257,6 +271,8 @@
   "FM-01": {
    "tested": "partial",
    "tests": [
+    "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
+    "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
     "e2e: mount: files",
     "e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)"
    ]
@@ -278,6 +294,7 @@
   "FM-04": {
    "tested": "partial",
    "tests": [
+    "e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog",
     "e2e: mount: peek",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades"
    ]
@@ -514,30 +531,49 @@
    ]
   },
   "PR-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-contacts: create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right",
+    "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
+    "e2e: mount: contacts"
+   ]
   },
   "PR-06": {
    "tested": "untested",
    "tests": []
   },
   "PR-07": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused",
+    "browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first",
+    "e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
+    "e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https)",
+    "e2e-browser: no page errors in the browser session",
     "e2e: mount: browser"
    ]
   },
   "PR-07a": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: close: active tab hands focus to its neighbour (regression: view went blank); last tab replaced",
+    "e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https)",
+    "e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab"
+   ]
   },
   "PR-07b": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs"
+   ]
   },
   "PR-07c": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs"
+   ]
   },
   "PR-07d": {
    "tested": "untested",
@@ -548,20 +584,28 @@
    "tests": []
   },
   "PR-07f": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab"
+   ]
   },
   "PR-07g": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs"
+   ]
   },
   "PR-07h": {
    "tested": "untested",
    "tests": []
   },
   "PR-07i": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab"
+   ]
   },
   "PR-07j": {
    "tested": "untested",
@@ -572,8 +616,12 @@
    "tests": []
   },
   "PR-07l": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused",
+    "browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+    "e2e-browser: site permissions panel writes the iframe delegation policy into the saved session"
+   ]
   },
   "PR-07m": {
    "tested": "untested",
@@ -592,12 +640,17 @@
    "tests": []
   },
   "PR-07q": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "browser-session: batch actions: close others / to the right / duplicates keep pinned tabs and the anchor",
+    "e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs"
+   ]
   },
   "PR-07r": {
    "tested": "partial",
    "tests": [
+    "browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first",
+    "e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
     "e2e: mount: routines",
     "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted"
    ]
@@ -629,6 +682,9 @@
   "PR-11": {
    "tested": "partial",
    "tests": [
+    "e2e: mount: writer",
+    "e2e: mount: slides",
+    "e2e: mount: sheet",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
     "unit: docx extraction; EPUB spine order; PSD header"
    ]
@@ -660,13 +716,32 @@
    ]
   },
   "FF-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf"
+   ]
   },
   "FF-04": {
    "tested": "full",
    "tests": [
-    "unit: SVG sanitiser strips script/handlers/foreignObject/javascript:"
+    "ai-format: real Illustrator output: PDF export, DOS-EPS, Illustrator 88 EPS and FreeHand AI-dialect PostScript",
+    "ai-format: constructed .ai with and without PDF compatibility (the spec's open-vs-limited split)",
+    "ai-format: creator hidden in a compressed object stream, UTF-16BE strings, junk before the header",
+    "ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files",
+    "ai-format: version strings, PDF literal escapes, format registry and MIME",
+    "e2e-ai: PDF-compatible .ai (constructed, Illustrator 28.5 + /AIPrivateData1): kind ai-pdf, facts shown; PDF part framed only when the browser has a PDF viewer, else an explicit download link (never an automatic download); no CSP violation",
+    "e2e-ai: with a PDF viewer present (navigator.pdfViewerEnabled forced true): the artwork is framed on a blob: URL, never <embed>, and the CSP allows it",
+    "e2e-ai: real Illustrator-made PDF (file-type fixture): kind illustrator-pdf, version 24.1, renderable",
+    "e2e-ai: PostScript-era .ai (Apache Tika testAI_PS.ai) and an Illustrator EPS (file-type fixture): metadata only, no PDF view, 'limited' badge",
+    "e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog",
+    "e2e-ai: Files routing: double-clicking an .ai in Files opens Peek with the Illustrator panel",
+    "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
+    "e2e: mount: vector",
+    "oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf",
+    "oracle-ai: file-type 16.5.4 (independent rule) agrees on ai/pdf/eps for every real and constructed PDF/EPS input",
+    "oracle-ai: constructed fixtures are real PDFs to an independent parser (pypdf), so the edge cases are not malformed strawmen",
+    "unit: SVG sanitiser strips script/handlers/foreignObject/javascript:",
+    "vector: v1 .fsvg migration and untrusted v2 validation"
    ]
   },
   "FF-05": {
@@ -711,6 +786,7 @@
   "FF-12": {
    "tested": "full",
    "tests": [
+    "ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
     "integration: FM-05 extract refuses zip-slip and writes nothing",
     "unit: zip-slip and bomb guards fire before allocation"
@@ -723,6 +799,7 @@
   "FF-14": {
    "tested": "full",
    "tests": [
+    "ai-format: version strings, PDF literal escapes, format registry and MIME",
     "unit: loss report itemises drops; registry grades"
    ]
   },
@@ -731,6 +808,78 @@
    "tests": [
     "e2e: mount: editor",
     "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists"
+   ]
+  },
+  "FF-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+    "e2e: mount: sheet",
+    "office: first-party verified semantics survive: SUM(1,\"x\",2) is still #VALUE!",
+    "office: numeric codes: 0.00, #,##0, $, %, scaling commas, ? alignment, # trailing, literals",
+    "office: dates and times: serial 45361 = Sun 2024-03-10; m = minutes after h; AM/PM; elapsed [h]",
+    "office: TEXT() uses the format engine end-to-end through the formula engine",
+    "oracle: oracle: 123 scalar vectors match LibreOffice 7.4.7.2",
+    "oracle: oracle: grid — 21 cells match",
+    "oracle: oracle: grid2 (range coercion) — 7 cells match",
+    "oracle: oracle: circular — 2 cells match"
+   ]
+  },
+  "FF-20": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
+    "e2e: mount: sheet",
+    "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file",
+    "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
+    "oracle-xlsx: oracle available (openpyxl)",
+    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
+    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
+    "privacy-layer: office on encrypted files: Export .xlsx into /Private (rewritten to export + encrypted write), import from /Private inlined; the bare server refuses the blob"
+   ]
+  },
+  "FF-21": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e: mount: sheet",
+    "names: openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
+    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
+    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce"
+   ]
+  },
+  "FF-22": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: writer"
+   ]
+  },
+  "FF-23": {
+   "tested": "partial",
+   "tests": [
+    "e2e: mount: slides"
+   ]
+  },
+  "FF-24": {
+   "tested": "full",
+   "tests": [
+    "e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection",
+    "e2e-image: Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes",
+    "e2e-image: classic Quick edit mode is still available (additive merge)",
+    "e2e: mount: imageedit",
+    "image: structural ops: rotate×4 = id, rotate matches raster.rotate90 of the composite, flips, crop keeps pixels",
+    "image: gradient endpoints/midpoint; eyedropper average; blur is premultiplied (no dark fringe)"
+   ]
+  },
+  "FF-25": {
+   "tested": "full",
+   "tests": [
+    "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
+    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size)",
+    "e2e: mount: vector"
    ]
   },
   "MD-01": {
@@ -746,8 +895,11 @@
    ]
   },
   "MD-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-image: classic Quick edit mode is still available (additive merge)",
+    "e2e: mount: imageedit"
+   ]
   },
   "MD-04": {
    "tested": "partial",
@@ -863,9 +1015,584 @@
    ]
   },
   "BK-06": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused",
+    "privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key",
     "unit: seal/open round trip; wrong passphrase and ciphertext tamper fail"
+   ]
+  },
+  "FF-26": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+    "e2e: mount: sheet",
+    "office: SEQUENCE(2,3) spills all six cells with correct values",
+    "office: an obstruction blocks the WHOLE array with #SPILL!, and removing it recovers",
+    "office: a formula referencing a spilled child sees the child value (fixed point)",
+    "office: two anchors competing for one cell: deterministic row-major winner, loser #SPILL!",
+    "office: self-dependent spill size terminates (no hang) with an error value",
+    "office: oversized generator is refused (#NUM!), not truncated",
+    "office: A1:A3*2 spills element-wise; range+range aligns; mismatch → #N/A outside overlap",
+    "office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP",
+    "office: IF over an array condition is element-wise; IFERROR over arrays replaces only errors",
+    "office: SUM over a computed array (SUMPRODUCT-style) and ROW() with no argument",
+    "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
+    "office: SORTBY (multi-key, mixed orders, size check) and SORT Excel ordering (case-insensitive, blanks last, by_col, index check)",
+    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
+    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block"
+   ]
+  },
+  "FF-27": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: sheet",
+    "office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP",
+    "office: first-party verified semantics survive: SUM(1,\"x\",2) is still #VALUE!",
+    "office: financial: PMT/NPV/IRR/FV match independent closed-form values",
+    "office: text/lookup/stat breadth: TEXTJOIN, COUNTIFS, MAXIFS, LARGE, MEDIAN, STDEV.S, DEC2BIN, ROMAN",
+    "office: engineering conversions follow Excel: no default padding, two's complement negatives, #NUM! guards",
+    "office: unknown function is #NAME?; errors from ext functions map to engine errors",
+    "office: SORTBY (multi-key, mixed orders, size check) and SORT Excel ordering (case-insensitive, blanks last, by_col, index check)",
+    "oracle: oracle 2 (PyPI formulas 1.3.4): extended-library vectors agree with an independent Excel interpreter"
+   ]
+  },
+  "FF-28": {
+   "tested": "full",
+   "tests": [
+    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
+    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+    "e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates",
+    "e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region",
+    "e2e-office: fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs",
+    "e2e-office: Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
+    "e2e-office: clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
+    "e2e-office: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
+    "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-office: no uncaught page errors during the spreadsheet session",
+    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
+    "e2e: mount: sheet",
+    "office: shiftFormula: relative parts move, $-anchored parts stay, strings untouched, off-grid → #REF!",
+    "office: adjustForStructure: insert/delete rows repair refs; deleted single ref → #REF!; ranges shrink; other sheets untouched",
+    "office: insertDelete: physical move + workbook-wide repair + recalculated values",
+    "office: TSV clipboard round-trip: tabs, newlines, quotes, CRLF, Excel-style quoting",
+    "office: copy/paste block shifts formulas and carries styles; clearRange contents vs all",
+    "office: autoFill: linear trend, text+number series, cyclic copy, formula shift, upward fill",
+    "office: sortRange: stable, numbers<text<bool, blanks last both directions, header kept, formulas move",
+    "office: find/replace and status-bar selection statistics",
+    "office: numeric codes: 0.00, #,##0, $, %, scaling commas, ? alignment, # trailing, literals",
+    "office: sections and colours: pos;neg;zero;text, [Red], auto minus only for 1 section",
+    "office: scientific and General",
+    "office: dates and times: serial 45361 = Sun 2024-03-10; m = minutes after h; AM/PM; elapsed [h]",
+    "office: TEXT() uses the format engine end-to-end through the formula engine",
+    "office: currentRegion / Ctrl+Arrow jump / fill-handle geometry / header heuristic",
+    "office: formula autocomplete token, ranked completions, active-call argument index (strings/nesting aware)",
+    "office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
+    "office: workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads",
+    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
+    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block"
+   ]
+  },
+  "FF-29": {
+   "tested": "full",
+   "tests": [
+    "e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source",
+    "e2e: mount: sheet",
+    "office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data",
+    "office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
+    "office: workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads"
+   ]
+  },
+  "FF-30": {
+   "tested": "full",
+   "tests": [
+    "e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops",
+    "e2e-image: new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo",
+    "e2e-image: layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge",
+    "e2e-image: bucket tolerance/contiguity on real pixels; eyedropper sets the foreground; wand selection + Delete clears",
+    "e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection",
+    "e2e-image: layer mask: paint on mask hides, disable mask reveals; keyboard tool switching, [ ] size, X swap",
+    "e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels",
+    "e2e-image: Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes",
+    "e2e-image: no uncaught page errors during the image session",
+    "e2e: mount: imageedit",
+    "image: W3C separable blend functions: hand-computed pins",
+    "image: composite: source-over with opacity, blend over transparent backdrop, mask, off-canvas offsets",
+    "image: structural ops: rotate×4 = id, rotate matches raster.rotate90 of the composite, flips, crop keeps pixels",
+    "image: merge down / flatten preserve the composite; duplicate/reorder/remove; growLayerTo; validation",
+    "image: brush: AA profile, continuous evenly spaced stroke, erase, mask painting, selection clipping",
+    "image: flood fill: contiguity, tolerance boundary, selection; magic wand; clear/copy selection; ellipse area",
+    "image: gradient endpoints/midpoint; eyedropper average; blur is premultiplied (no dark fringe)",
+    "image: PSD write → read (raw / RLE / ZIP): names (Unicode), offsets incl. negative, opacity, blend, visibility, masks, exact pixels",
+    "image: history: undo/redo, state cap, unique-buffer byte budget",
+    "image: resizeImage 2× then ½ ≈ identity on smooth content; layer offsets scale",
+    "oracle-psd: A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools"
+   ]
+  },
+  "FF-31": {
+   "tested": "full",
+   "tests": [
+    "e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels",
+    "e2e: mount: imageedit",
+    "image: PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size",
+    "image: PSD write → read (raw / RLE / ZIP): names (Unicode), offsets incl. negative, opacity, blend, visibility, masks, exact pixels",
+    "image: PSD reader rejects PSB, 16-bit, CMYK, truncated/garbage input with explicit messages",
+    "oracle-psd: A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: C: layer-less RGB and Grayscale PSDs written by psd-tools open via the merged-image fallback"
+   ]
+  },
+  "FF-32": {
+   "tested": "full",
+   "tests": [
+    "e2e-vector: ORACLE Chromium SVG: getBBox + getTotalLength of the ORIGINAL d vs our normalised cubics (arcs included)",
+    "e2e-vector: ORACLE Chromium SVG: isPointInFill (nonzero + evenodd) vs our containment on a 31×31 grid per path; transform.baseVal",
+    "e2e-vector: ORACLE render parity: Chromium rasterises the original SVG and our import→export identically (≤0.5% pixels > 24/255)",
+    "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
+    "e2e-vector: UI: select, move by drag, resize from the se handle, rotate 90° with shift-snap, nudge 1/10",
+    "e2e-vector: UI: pen — corner clicks + close on first node; drag makes a smooth (cubic) node; node tool drags an anchor",
+    "e2e-vector: UI: marquee + shift-click multi-select, align left, distribute, group/ungroup, duplicate, z-order, delete (keyboard)",
+    "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
+    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size)",
+    "e2e-vector: UI: arrow (line tool + Arrowhead) exports as plain path; star stays parametric — point count / inner ratio editable after a move",
+    "e2e-vector: no page errors during the vector session",
+    "e2e: mount: vector",
+    "oracle-svg: svgelements: path bounds (exact for L/C/Q; arcs within 1e-3·r)",
+    "oracle-svg: svgelements: path length (rel. error ≤ 1e-6 exact segments, ≤ 5e-4 arcs)",
+    "oracle-svg: svgelements: end point of every path identical (relative-command bookkeeping)",
+    "oracle-svg: svgelements: transform lists → identical matrices (1e-12)",
+    "vector: path grammar: implicit repeats, '1.5.5', signs as separators, exponents, compact arc flags",
+    "vector: path errors (SVG F.2): render up to the last good segment and report",
+    "vector: Q/T → cubic elevation is exact; S/T reflect only after C/S resp. Q/T",
+    "vector: arcs (F.6.5/F.6.6): semicircle bounds/length, radius scaling, rx=0 line, zero-length arc omitted",
+    "vector: cubic bounds use derivative roots (not control hull); length of closed square includes Z",
+    "vector: fill rules: nonzero vs evenodd on nested same-direction squares; distance to outline",
+    "vector: transforms: list order, rotate(a cx cy), skew, inverse; serialise rounding",
+    "vector: XML reader: quoted '>' in attributes, entities, no DOCTYPE entity expansion, depth limit",
+    "vector: SVG import: style attr beats presentation attr, g inheritance, circle→ellipse, %-offset gradients, <use>",
+    "vector: SVG import security: scripts, handlers, foreignObject, external refs, CSS, filters reported and never exported",
+    "vector: export → import round trip is a fixed point (shapes, styles, bounds, gradients)",
+    "vector: ops: move/align/distribute/resize/rotate/flip keep exact geometry",
+    "vector: ops: group/ungroup preserve bounds through a rotated group; z-order; duplicate; delete; marquee",
+    "vector: toPath keeps exact bounds for rect(rx)/ellipse/polygon; text refuses (no glyph data)",
+    "vector: hit test: fill-rule holes, stroke tolerance, transformed shapes, topmost wins, hidden/locked skipped",
+    "vector: path node editing: anchors carry their handles; handles move alone",
+    "vector: v1 .fsvg migration and untrusted v2 validation",
+    "vector: parametric star survives move/rotate; arrow is plain path data (no <marker>)"
+   ]
+  },
+  "FF-33": {
+   "tested": "full",
+   "tests": [
+    "e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells",
+    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e-sheet-layout: no page errors during the layout session",
+    "e2e: mount: sheet",
+    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
+    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
+    "sheet-layout: merge keeps the upper-left most data (reading order), clears the rest, keeps covered formatting; unmerge leaves value top-left",
+    "sheet-layout: selection expands to whole merged areas (fixed point); arrow keys treat a merge as one cell; partial paste/sort refused",
+    "sheet-layout: insert/delete rows & cols repair merges, validations and frozen panes",
+    "sheet-layout: validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON"
+   ]
+  },
+  "FF-34": {
+   "tested": "full",
+   "tests": [
+    "e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e: mount: sheet",
+    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
+    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
+    "sheet-layout: borders: presets set the right edges; shared edge shows the heavier side; 'none' clears; per-cell storage",
+    "sheet-layout: validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON"
+   ]
+  },
+  "FF-35": {
+   "tested": "full",
+   "tests": [
+    "e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e: mount: sheet",
+    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
+    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
+    "sheet-layout: insert/delete rows & cols repair merges, validations and frozen panes",
+    "sheet-layout: data validation: list (literal + range, case-insensitive), whole/decimal/date/textLength operators, custom (relative), blanks, rollback",
+    "sheet-layout: validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON"
+   ]
+  },
+  "SC-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
+    "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
+    "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
+    "e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
+    "e2e-privacy: no page errors across the privacy flows",
+    "e2e: mount: privacy",
+    "privacy-crypto: Argon2id (hash-wasm) equals the reference C implementation (argon2-cffi), incl. the default 64 MiB/t=3 slot cost",
+    "privacy-crypto: Padmé equals the paper's pseudocode on 20 000 lengths; overhead ≤ 12%; hand-derived points",
+    "privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused",
+    "privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key",
+    "privacy-crypto: header attacks: KDF downgrade (still above floor) breaks the slot tag; below-floor refused before derivation; slot swap / truncation refused",
+    "privacy-crypto: oracle unwraps OUR keyslot (passphrase and recovery) to the DEK that decrypts OUR blob — end-to-end format conformance",
+    "privacy-crypto: content blobs: oracle ⇄ ours both directions; Padmé-sized; any bit flip, flag edit or foreign volume refused",
+    "privacy-crypto: names: deterministic SIV encryption byte-identical to the oracle; host-chosen nonce rejected; paths map both ways",
+    "privacy-crypto: base64 codec (perf path): byte-identical to Node Buffer on 6 000 random inputs 0–299 B, strict on malformed input, 264 KiB encode < 5 ms",
+    "privacy-layer: write through the layer: the host row has no plaintext name, content, size or index entry; read decrypts",
+    "privacy-layer: list decrypts and sorts names; a second write keeps an encrypted version that decrypts; rename/move stay encrypted server-side",
+    "privacy-layer: locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside",
+    "privacy-layer: cross-store moves happen in the browser: host file → /Private arrives encrypted (source trashed); /Private → host is an explicit decrypting copy",
+    "privacy-layer: office on encrypted files: Export .xlsx into /Private (rewritten to export + encrypted write), import from /Private inlined; the bare server refuses the blob",
+    "privacy-layer: desktop state: /Private paths are sealed before reaching the host and reopened when unlocked; locked seal never leaks",
+    "privacy-layer: audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught)"
+   ]
+  },
+  "SC-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
+    "e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only)",
+    "e2e: mount: privacy",
+    "privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses",
+    "privacy-layer: amnesic: VFS writes live in RAM (no row), host files can be hidden but are untouched, moves copy into RAM; wipe forgets everything",
+    "privacy-layer: amnesic deny-by-default: notes/settings/presets refused with nothing written; state kept in memory; compute endpoints still work; /Private still persists (Tails' Persistent folder)"
+   ]
+  },
+  "SC-12": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains",
+    "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
+    "e2e: mount: privacy",
+    "metaclean: JPEG: identical pixels (Pillow); camera, author, date, software, GPS, XMP, COM, IPTC gone; Orientation=6 kept alone",
+    "metaclean: PNG / WebP / GIF: identical decoded frames; text, eXIf, tIME, EXIF/XMP chunks, comments and XMP app-ext gone; GIF loop kept",
+    "metaclean: DOCX / XLSX / PPTX: text and values identical in python-docx/openpyxl/python-pptx; authors, rsids, custom props, absPath, revision GUID gone; zip normalised",
+    "metaclean: SVG: same shapes (svgelements); comments, <metadata>, RDF, sodipodi/inkscape elements+attributes, local path gone; <title> kept",
+    "metaclean: idempotent: cleaning a cleaned file changes nothing and reports nothing new to remove",
+    "metaclean: refusals and hostile input: PDF unchanged + explained; truncated JPEG/PNG and corrupt zip throw cleanly; zip bomb and ../ entries refused"
+   ]
+  },
+  "SC-13": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
+    "e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache",
+    "e2e: mount: privacy",
+    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
+   ]
+  },
+  "SC-14": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: host audit in the UI: a plaintext file planted by another client is flagged and 'Encrypt it' seals it (name + content)",
+    "e2e: mount: privacy",
+    "privacy-layer: audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught)"
+   ]
+  },
+  "SC-15": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: emergency shutdown chord: keys + RAM files gone, page blanked via location.replace (no history entry with the shell)",
+    "e2e: mount: privacy"
+   ]
+  },
+  "FF-36": {
+   "tested": "full",
+   "tests": [
+    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
+    "names: name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255",
+    "names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined",
+    "names: scope: a sheet-level name shadows the workbook name on its sheet only; self-reference terminates with #NAME?",
+    "names: insert/delete rows and columns move names like cell formulas; deleting the whole range gives #REF!",
+    "names: workbook JSON round-trips names; hostile JSON names (invalid syntax, A1-like, oversized) are dropped",
+    "names: openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
+    "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file"
+   ]
+  },
+  "FF-37": {
+   "tested": "full",
+   "tests": [
+    "e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo",
+    "vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back)",
+    "vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995)",
+    "vector-boolean: three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain)",
+    "vector-boolean: fill rules: even-odd hole, nonzero opposite-direction hole, nonzero same-direction (no hole), group = union of leaves with its transform",
+    "vector-boolean: refusals: open paths, text, a single shape, locked shapes, Intersect of disjoint shapes; result survives SVG export → import",
+    "vector-boolean: performance: two 600-unit ellipses + a rotated rect, all modes < 400 ms each on this 2-CPU host"
+   ]
+  },
+  "SC-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host",
+    "privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock",
+    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
+   ]
+  },
+  "SC-17": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext",
+    "privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported",
+    "privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected",
+    "privacy-backup: restore onto a host with no volume recreates header + identical ciphertext rows; the layer reads the plaintext back",
+    "privacy-backup: restore into the SAME volume merges only what is missing; never overwrites newer files",
+    "privacy-backup: a DIFFERENT volume on the host is never touched; a backup with one corrupted entry writes nothing at all",
+    "privacy-backup: cost: backing up 24 × 256 KiB encrypted files and verifying them is bounded (no decryption on the backup path)"
+   ]
+  },
+  "SC-18": {
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks",
+    "privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses"
+   ]
+  },
+  "AX-09": {
+   "tested": "full",
+   "tests": [
+    "a11y-unit: text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz()",
+    "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
+    "a11y-unit: settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour",
+    "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
+    "e2e-a11y: computed sizes: at the 125 % default nothing visible is below 12 px and body text is ≥16 px; in Large text mode (200 %) nothing is below 20 px",
+    "e2e-a11y: reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit",
+    "e2e-a11y: text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused",
+    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
+    "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
+    "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; the dock scrolls inside itself with magnification off (honest fallback)"
+   ]
+  },
+  "AX-10": {
+   "tested": "full",
+   "tests": [
+    "a11y-unit: icon contrast: every palette's glyph colour is ≥3:1 against its tile gradient across the whole glyph area (WCAG 1.4.11)",
+    "a11y-unit: every registered module and every common file type has a real glyph; tile palettes exist",
+    "a11y-unit: no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font)",
+    "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
+    "e2e-a11y: icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type"
+   ]
+  },
+  "AX-11": {
+   "tested": "full",
+   "tests": [
+    "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
+    "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
+    "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
+    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
+   ]
+  },
+  "TB-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores",
+    "e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table",
+    "e2e: mount: tables",
+    "tables-engine: typed cells: coercion and refusals per field type (number precision, dates, email, url schemes, checkbox words, rating bounds)",
+    "tables-engine: select fields: unknown options are added once with a colour, matching is case-insensitive, multi-select de-duplicates",
+    "tables-engine: type conversion: number→text→number round-trips, text→select collects options, failures are counted and cleared (never mangled), links refuse",
+    "tables-engine: CSV: RFC 4180 parse (quotes, doubled quotes, CRLF, embedded newline), type inference, export guards formula injection and round-trips",
+    "tables-engine: integrity: deleting a table drops links into it, deleting a field strips it from views, the last table/view cannot be deleted, loadBase rejects junk"
+   ]
+  },
+  "TB-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: two-way link through the picker: linking Cy to a task shows on People (inverse field) and updates the Open hours rollup",
+    "e2e: mount: tables",
+    "tables-engine: two-way links: linking updates the inverse field, unlinking removes it, unknown ids are refused, deleting a record scrubs every reference",
+    "tables-engine: lookup / rollup / count follow the link and recompute; deleting the link field removes its inverse and breaks dependants visibly"
+   ]
+  },
+  "TB-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs",
+    "e2e-tables: add a formula field: live validation disables Create on a bad formula; a good one adds a computed column",
+    "e2e: mount: tables",
+    "tables-engine: lookup / rollup / count follow the link and recompute; deleting the link field removes its inverse and breaks dependants visibly",
+    "tables-engine: formulas: precedence, functions, field refs incl. lookups, text & dates, errors (div/0, unknown field/function) and #CYCLE"
+   ]
+  },
+  "TB-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: filter + sort: Status is Doing leaves 2 records; sorting Hours descending orders them; badges count the conditions",
+    "e2e-tables: kanban: columns by Status; moving a card with its Move select and by drag-and-drop updates the counts and the grid",
+    "e2e: mount: tables",
+    "tables-engine: views: AND/OR filters, multi-sort with empties last in both directions, select sorts by option order, grouping, search over visible fields",
+    "tables-engine: integrity: deleting a table drops links into it, deleting a field strips it from views, the last table/view cannot be deleted, loadBase rejects junk"
+   ]
+  },
+  "TB-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tables: sample base renders: Tasks grid, lookup-driven formula (6.5 h × 65 = 422.5), footer sum, table tabs",
+    "e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores",
+    "e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table",
+    "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
+    "e2e: mount: tables"
+   ]
+  },
+  "AX-12": {
+   "tested": "full",
+   "tests": [
+    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
+   ]
+  },
+  "WB-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: hit testing, marquee and bind targets respect real shape outlines and z-order",
+    "whiteboard-engine: pen strokes: Ramer–Douglas–Peucker simplification and scaling",
+    "whiteboard-engine: limits and normalisation: boxes dragged up-left, the element cap, sticky colours readable"
+   ]
+  },
+  "WB-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher",
+    "e2e-whiteboard: connector follows: an arrow drawn from the rect to the ellipse binds both ends and stays on the rect's outline when the rect is dragged",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: boundary points: rect, ellipse and diamond exits along the ray from the centre",
+    "whiteboard-engine: bound connectors follow their shapes; moving a lone arrow detaches it where it was",
+    "whiteboard-engine: delete and duplicate keep connector integrity"
+   ]
+  },
+  "WB-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits",
+    "e2e-whiteboard: arrange: marquee selects only enclosed elements, Align Left lines them up, Group makes one selection",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: delete and duplicate keep connector integrity",
+    "whiteboard-engine: align, distribute, z-order and groups"
+   ]
+  },
+  "WB-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: files: Save .fboard, reopen it from its path, Export SVG (escaped, no script); a hostile .fboard is repaired and the count reported",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: SVG export is escaped and self-contained; .fboard round-trips; hostile files are refused or repaired",
+    "whiteboard-engine: limits and normalisation: boxes dragged up-left, the element cap, sticky colours readable"
+   ]
+  },
+  "WB-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-whiteboard: starter board: sticky + ellipse joined by a BOUND arrow, Layers list names them, module is in the launcher",
+    "e2e-whiteboard: draw shapes with the pointer: rect by drag (snapped), ellipse by click (default size), pen stroke, sticky note with two lines of text",
+    "e2e-whiteboard: keyboard: Layers list selects, arrows nudge (Shift = 10), Ctrl+D duplicates, Delete removes, Ctrl+Z undoes; the text field edits",
+    "e2e-whiteboard: axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations",
+    "e2e: mount: whiteboard",
+    "whiteboard-engine: describe(): plain-language labels for the Layers list"
+   ]
+  },
+  "CN-01": {
+   "tested": "full",
+   "tests": [
+    "contacts-engine: RFC 6350 §8 author's vCard: unfolding, structured N/ADR, quoted TYPE lists, tel: URIs, unknown properties kept",
+    "contacts-engine: RFC 2426 §7 (vCard 3.0): TYPE=PREF, INTERNET dropped, VOICE dropped beside other types, mixed-case BEGIN",
+    "contacts-engine: vCard 2.1: QUOTED-PRINTABLE with soft breaks, CHARSET=ISO-8859-1, bare TYPE params, base64 PHOTO, missing FN",
+    "contacts-engine: round trip: parse → write 4.0 → parse is identical; lines ≤ 75 octets; UTF-8 never split; PID/ALTID kept",
+    "contacts-engine: RFC 6350 §4.3.1 dates: write basic format (YYYY-MM-DD is disallowed in 4.0), accept every listed form, Feb 29",
+    "contacts-engine: hostile input: nested AGENT vCard, missing END, junk lines, 25 MB input, 20 001 contacts, RFC 6868 param escapes",
+    "e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload",
+    "e2e: mount: contacts",
+    "oracle-vcard: A. vobject reads what we write: names, typed e-mails, phones, structured ADR, escaped multi-line UTF-8 note, ORG, categories",
+    "oracle-vcard: B. we read what vobject writes (3.0, its own folding and escaping)",
+    "oracle-vcard: A+B: 200 generated contacts survive ours → vobject → ours with identical modelled fields"
+   ]
+  },
+  "CN-02": {
+   "tested": "full",
+   "tests": [
+    "contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation",
+    "e2e-contacts: create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right",
+    "e2e-contacts: no lost edit: closing the window right after Save (inside the 0.5 s autosave delay) still writes the change",
+    "e2e-contacts: validation and cancel: no name + bad e-mail → two errors announced (role=alert), nothing saved; Esc closes the editor",
+    "e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload",
+    "e2e-contacts: keyboard edit, delete and undo: E opens the editor, Enter saves, Delete removes, Undo restores; unknown fields survive the edit",
+    "e2e-contacts: axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
+    "e2e: mount: contacts"
+   ]
+  },
+  "CN-03": {
+   "tested": "full",
+   "tests": [
+    "contacts-engine: RFC 6350 §4.3.1 dates: write basic format (YYYY-MM-DD is disallowed in 4.0), accept every listed form, Feb 29",
+    "contacts-engine: duplicates (e-mail case, phone formatting, folded name) and merge keep everything from both",
+    "e2e-contacts: duplicates and merge, birthdays: two cards sharing an e-mail (different case) are grouped and merged without losing a phone; a birthday in 3 days is listed",
+    "e2e: mount: contacts"
+   ]
+  },
+  "CN-04": {
+   "tested": "full",
+   "tests": [
+    "contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation",
+    "e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload",
+    "e2e-contacts: export: CSV to Files (injection-guarded) and as a download; .vcf download re-imports to the same contacts",
+    "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
+    "e2e: mount: contacts"
+   ]
+  },
+  "LY-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload",
+    "e2e-layout: Business taskbar: open → minimise → restore on click, Shift+click new window, jump list, Show desktop round trip, clock → Planner",
+    "e2e-layout: Business: Start menu opens above the taskbar at bottom-left, search + Enter launches; Quick settings and toasts sit bottom-right; Windows caption buttons",
+    "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+    "layout-unit: taskbar click: open → focus → minimise the focused single window; several windows cycle; minimised comes back",
+    "layout-unit: Show desktop: minimises the visible windows of this workspace, a second press restores exactly those in z-order",
+    "layout-unit: Show desktop: opening or focusing a window in between forgets the restore set; viewport changes keep it"
+   ]
+  },
+  "LY-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar",
+    "e2e-layout: Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch",
+    "e2e-layout: Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit",
+    "e2e-layout: Art window chrome + menus: traffic lights left (close, minimise, zoom), centred title, Window menu tiles/zooms, zoomed window stops above the dock, Launchpad",
+    "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
+    "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; the dock scrolls inside itself with magnification off (honest fallback)",
+    "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+    "layout-unit: dock magnification: peak under the pointer, symmetric, monotone cosine falloff, exact reach, 1 elsewhere",
+    "layout-unit: dock magnification: no pointer / bad input → all 1; depends only on resting centres (no feedback)",
+    "layout-unit: dock fitting: base size fills the width when possible, clamps to [min,max], reports overflow honestly"
+   ]
+  },
+  "LY-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload",
+    "e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar",
+    "e2e-layout: API: unknown layout and dockMagnify values are refused (422); the setting is searchable by 'taskbar' and 'dock'",
+    "layout-unit: settings, routines and seed: layout values validated, default stays Fusion, rows registered"
+   ]
+  },
+  "LY-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+    "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+    "layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers"
    ]
   },
   "CT-01": {
@@ -1085,6 +1812,7 @@
   "AX-01": {
    "tested": "partial",
    "tests": [
+    "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
     "e2e: structural a11y: every window is a named dialog; no unnamed buttons"
    ]
   },
@@ -1095,8 +1823,10 @@
    ]
   },
   "AX-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)"
+   ]
   },
   "AX-04": {
    "tested": "untested",
@@ -1119,8 +1849,16 @@
    ]
   },
   "AX-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
+    "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
+    "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+    "e2e-contacts: axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
+    "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+    "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
+    "e2e-whiteboard: axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations"
+   ]
   },
   "AU-01": {
    "tested": "full",
@@ -1139,8 +1877,10 @@
    ]
   },
   "AU-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)"
+   ]
   },
   "AU-04": {
    "tested": "untested",

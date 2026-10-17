@@ -1,0 +1,89 @@
+{
+  "suite": "tables-engine",
+  "at": "2026-10-17T01:43:34.869Z",
+  "results": [
+    {
+      "suite": "tables-engine",
+      "name": "typed cells: coercion and refusals per field type (number precision, dates, email, url schemes, checkbox words, rating bounds)",
+      "covers": {
+        "TB-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tables-engine",
+      "name": "select fields: unknown options are added once with a colour, matching is case-insensitive, multi-select de-duplicates",
+      "covers": {
+        "TB-01": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tables-engine",
+      "name": "two-way links: linking updates the inverse field, unlinking removes it, unknown ids are refused, deleting a record scrubs every reference",
+      "covers": {
+        "TB-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tables-engine",
+      "name": "lookup / rollup / count follow the link and recompute; deleting the link field removes its inverse and breaks dependants visibly",
+      "covers": {
+        "TB-02": "full",
+        "TB-03": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tables-engine",
+      "name": "formulas: precedence, functions, field refs incl. lookups, text & dates, errors (div/0, unknown field/function) and #CYCLE",
+      "covers": {
+        "TB-03": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tables-engine",
+      "name": "type conversion: number→text→number round-trips, text→select collects options, failures are counted and cleared (never mangled), links refuse",
+      "covers": {
+        "TB-01": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tables-engine",
+      "name": "views: AND/OR filters, multi-sort with empties last in both directions, select sorts by option order, grouping, search over visible fields",
+      "covers": {
+        "TB-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tables-engine",
+      "name": "CSV: RFC 4180 parse (quotes, doubled quotes, CRLF, embedded newline), type inference, export guards formula injection and round-trips",
+      "covers": {
+        "TB-01": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tables-engine",
+      "name": "integrity: deleting a table drops links into it, deleting a field strips it from views, the last table/view cannot be deleted, loadBase rejects junk",
+      "covers": {
+        "TB-01": "partial",
+        "TB-04": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}

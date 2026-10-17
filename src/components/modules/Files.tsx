@@ -1,11 +1,14 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, fmtBytes, fmtTime, post } from "@/lib/api";
+import { cleanVfsFile } from "@/lib/privacy/cleanfile";
 import { formatFor } from "@/lib/forge";
 import { fromB64, open, seal, toB64, type Envelope } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { FileIcon, UiGlyph } from "../AppIcon";
 
 interface Node {
   path: string; name: string; kind: string; mime: string; size: number; sha256: string;
@@ -22,7 +25,7 @@ export default function FilesModule({ win }: ModuleProps) {
   const [sel, setSel] = useState<string[]>([]);
   const [filter, setFilter] = useState("");
   const [view, setView] = useState<View>("list");
-  const [showTrash, setShowTrash] = useState(false);
+  const [showTrash, setShowTrash] = useState(win.props.trash === true); // TT25: the Art dock's Trash opens Files on the trash view
   const [jobs, setJobs] = useState<Job[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>(["/"]);
@@ -83,22 +86,38 @@ export default function FilesModule({ win }: ModuleProps) {
     }
   };
 
+  const openNode = (n: (typeof shown)[number]) => {
+    const fmt = formatFor(n.name);
+    if (showTrash) return;
+    if (n.kind === "dir") go(n.path);
+    else if (n.name.toLowerCase().endsWith(".svg") || n.name.toLowerCase().endsWith(".fsvg")) shell.open("vector", { path: n.path, title: n.name });
+    else if (n.mime.startsWith("image/")) shell.open("imageedit", { path: n.path, title: n.name });
+    else if (n.name.toLowerCase().endsWith(".docx") || n.name.toLowerCase().endsWith(".fdoc")) shell.open("writer", { path: n.path, title: n.name });
+    else if (n.name.toLowerCase().endsWith(".ftable")) shell.open("tables", { path: n.path, title: n.name });
+    else if (n.name.toLowerCase().endsWith(".fboard")) shell.open("whiteboard", { path: n.path, title: n.name });
+    else if (/\.(vcf|vcard)$/i.test(n.name)) shell.open("contacts", { path: n.path, title: n.name });
+    else if (n.name.toLowerCase().endsWith(".pptx") || n.name.toLowerCase().endsWith(".fdeck")) shell.open("slides", { path: n.path, title: n.name });
+    else if ([".fsheet", ".fworkbook", ".xlsx"].some((ext) => n.name.toLowerCase().endsWith(ext))) shell.open("sheet", { path: n.path, title: n.name });
+    else if (fmt && ["A"].includes(fmt.grade) && fmt.editable) shell.open("editor", { path: n.path, title: n.name });
+    else shell.open("peek", { path: n.path, title: n.name });
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}
       onClick={() => setMenu(null)}>
       {/* toolbar */}
       <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
         <Btn variant="ghost" onClick={back} title="Back (mouse button 4 also works)">←</Btn>
-        <Btn variant="ghost" onClick={up} title="Up">↑</Btn>
-        <input className="fs-input fs-mono" style={{ flex: 1, minWidth: 160 }} value={cwd}
+        <Btn variant="ghost" onClick={up} title="Up" aria-label="Up one folder"><UiGlyph name="up" /></Btn>
+        <input className="fs-input fs-mono" style={{ flex: 1, minWidth: fz(160) }} value={cwd}
           onChange={(e) => setCwd(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") go(cwd); }} aria-label="Path" />
-        <input className="fs-input" style={{ width: 130 }} placeholder="Filter" value={filter}
+        <input className="fs-input" style={{ width: fz(130) }} placeholder="Filter" value={filter}
           onChange={(e) => setFilter(e.target.value)} aria-label="Quick filter" />
         {(["list", "grid", "column"] as View[]).map((v) => (
-          <Btn key={v} variant={view === v ? "primary" : "ghost"} onClick={() => setView(v)}>{v[0].toUpperCase()}</Btn>
+          <Btn key={v} variant={view === v ? "primary" : "ghost"} aria-pressed={view === v} title={`${v} view`} onClick={() => setView(v)}>{v === "list" ? "List" : v === "grid" ? "Grid" : "Columns"}</Btn>
         ))}
-        <Btn variant={showTrash ? "primary" : "ghost"} onClick={() => { setShowTrash((t) => !t); setSel([]); }}>🗑</Btn>
+        <Btn variant={showTrash ? "primary" : "ghost"} aria-pressed={showTrash} title="Show trash" onClick={() => { setShowTrash((t) => !t); setSel([]); }}>Trash</Btn>
       </div>
 
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
@@ -128,37 +147,45 @@ export default function FilesModule({ win }: ModuleProps) {
         {shown.length === 0 ? <Empty title={showTrash ? "Trash is empty" : "Empty folder"} icon="🗂"
           hint={showTrash ? undefined : "Create a file, upload one, or run `write` in the terminal."} /> : null}
 
-        <div style={view === "grid"
-          ? { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(118px,1fr))", gap: 6 }
+        <div role="listbox" aria-label={`${showTrash ? "Trash" : cwd} — Enter opens, Space selects`} aria-multiselectable="true" style={view === "grid"
+          ? { display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${fz(118)},1fr))`, gap: 6 }
           : { display: "grid", gap: 1 }}>
           {shown.map((n) => {
             const fmt = formatFor(n.name);
+            const focusPath = shown.find((x) => sel.includes(x.path))?.path ?? shown[0]?.path;
             const selected = sel.includes(n.path);
             return (
               <div key={n.path} className="fs-list-item" data-selected={selected}
-                style={view === "grid" ? { flexDirection: "column", height: 96, textAlign: "center" } : undefined}
+                role="option" aria-selected={selected} tabIndex={n.path === focusPath ? 0 : -1}
+                style={view === "grid" ? { flexDirection: "column", minHeight: fz(96), textAlign: "center" } : undefined}
                 onClick={(e) => setSel(e.ctrlKey || e.metaKey ? (selected ? sel.filter((p) => p !== n.path) : [...sel, n.path]) : [n.path])}
-                onDoubleClick={() => {
-                  if (showTrash) return;
-                  if (n.kind === "dir") go(n.path);
-                  else if (n.name.toLowerCase().endsWith(".svg")) shell.open("vector", { path: n.path, title: n.name });
-                  else if (n.mime.startsWith("image/")) shell.open("imageedit", { path: n.path, title: n.name });
-                  else if (n.name.toLowerCase().endsWith(".docx") || n.name.toLowerCase().endsWith(".fdoc")) shell.open("writer", { path: n.path, title: n.name });
-                  else if (n.name.toLowerCase().endsWith(".pptx") || n.name.toLowerCase().endsWith(".fdeck")) shell.open("slides", { path: n.path, title: n.name });
-                  else if ([".fsheet", ".fworkbook", ".xlsx"].some((ext) => n.name.toLowerCase().endsWith(ext))) shell.open("sheet", { path: n.path, title: n.name });
-                  else if (fmt && ["A"].includes(fmt.grade) && fmt.editable) shell.open("editor", { path: n.path, title: n.name });
-                  else shell.open("peek", { path: n.path, title: n.name });
+                onDoubleClick={() => openNode(n)}
+                onKeyDown={(e) => {
+                  // TT24 (WCAG 2.1.1): rows were mouse-only. Enter opens, Space selects (Ctrl+Space toggles),
+                  // arrows / Home / End move, and the Menu key or Shift+F10 opens the context menu at the row.
+                  const rows = [...(e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="option"]') ?? [])];
+                  const i = rows.indexOf(e.currentTarget);
+                  const to = (j: number) => { const r = rows[Math.max(0, Math.min(rows.length - 1, j))]; r?.focus(); };
+                  if (e.key === "Enter") { e.preventDefault(); openNode(n); }
+                  else if (e.key === " ") { e.preventDefault(); setSel(e.ctrlKey || e.metaKey ? (selected ? sel.filter((p) => p !== n.path) : [...sel, n.path]) : [n.path]); }
+                  else if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); to(i + 1); }
+                  else if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); to(i - 1); }
+                  else if (e.key === "Home") { e.preventDefault(); to(0); }
+                  else if (e.key === "End") { e.preventDefault(); to(rows.length - 1); }
+                  else if (e.key === "ContextMenu" || (e.key === "F10" && e.shiftKey)) {
+                    e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(); setSel([n.path]); setMenu({ x: r.left + 24, y: r.bottom, node: n });
+                  }
                 }}
                 onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setSel([n.path]); setMenu({ x: e.clientX, y: e.clientY, node: n }); }}
               >
-                <span style={{ fontSize: view === "grid" ? 24 : 14 }}>{n.kind === "dir" ? "🗂" : "📄"}</span>
-                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12 }}>{n.name}</span>
+                <FileIcon name={n.name} kind={n.kind === "dir" ? "dir" : "file"} size={view === "grid" ? 34 : 18} />
+                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: fz(12) }}>{n.name}</span>
                 {view !== "grid" ? (
                   <>
                     {fmt ? <Badge tone={fmt.grade === "A" ? "ok" : fmt.grade === "X" ? "bad" : "info"} title={fmt.boundary}>grade {fmt.grade}</Badge> : null}
                     {n.tags ? <Badge>{n.tags}</Badge> : null}
-                    <span className="fs-dim" style={{ fontSize: 11, width: 70, textAlign: "right" }}>{n.kind === "dir" ? "—" : fmtBytes(n.size)}</span>
-                    <span className="fs-dim" style={{ fontSize: 11, width: 112, textAlign: "right" }}>{fmtTime(n.updatedAt)}</span>
+                    <span className="fs-dim" style={{ fontSize: fz(11), width: fz(70), textAlign: "right" }}>{n.kind === "dir" ? "—" : fmtBytes(n.size)}</span>
+                    <span className="fs-dim" style={{ fontSize: fz(11), width: fz(112), textAlign: "right" }}>{fmtTime(n.updatedAt)}</span>
                     <Badge title="Where the bytes live (DP-03)">server</Badge>
                   </>
                 ) : null}
@@ -170,14 +197,14 @@ export default function FilesModule({ win }: ModuleProps) {
 
       {/* journal strip — the same rows the ops engine writes (FM-03 / NC-05) */}
       <div className="fs-row" style={{ gap: 6, padding: "4px 8px", borderTop: "1px solid var(--fs-border)", overflowX: "auto" }}>
-        <span className="fs-dim" style={{ fontSize: 10.5 }}>journal:</span>
+        <span className="fs-dim" style={{ fontSize: fz(10.5) }}>journal:</span>
         {jobs.slice(0, 5).map((j) => (
           <Badge key={j.id} tone={j.state === "COMPLETE" ? "ok" : j.state === "FAILED" ? "bad" : "warn"}
             title={`${j.op} ${j.src} → ${j.dst} ${j.error}`}>
             {j.op} {j.state}
           </Badge>
         ))}
-        {jobs.length === 0 ? <span className="fs-dim" style={{ fontSize: 10.5 }}>no operations yet</span> : null}
+        {jobs.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(10.5) }}>no operations yet</span> : null}
       </div>
 
       {menu ? (
@@ -197,6 +224,11 @@ export default function FilesModule({ win }: ModuleProps) {
             ...(menu.node.name.toLowerCase().endsWith(".zip") ? [{ label: "Extract here", run: () => void run("extract", async () => {
                 const r = await post<{ written: number; dest: string }>("/api/fs", { op: "extract", path: menu.node.path });
                 shell.toast(`Extracted ${r.written} file(s) → ${r.dest} (CRC verified)`, "ok");
+              }) }] : []),
+            ...(menu.node.kind === "file" && /\.(jpe?g|png|webp|gif|svg|docx|xlsx|pptx)$/i.test(menu.node.name) ? [{ label: "Remove metadata (copy)", run: () => void run("metadata", async () => {
+                const r = await cleanVfsFile(menu.node.path);
+                if (!r.written) shell.toast(r.report.supported ? "No metadata found — nothing written" : "Not supported — file unchanged", "info");
+                else shell.toast(`Removed ${r.report.removed.length} items → ${r.written.split("/").pop()}`, "ok");
               }) }] : []),
             ...(menu.node.kind === "file" && !menu.node.name.endsWith(".fvault") ? [{ label: "Encrypt (SC-07)…", run: () => void run("encrypt", async () => {
                 const pass = prompt("Passphrase (≥ 8 chars). There is no recovery if you lose it.");

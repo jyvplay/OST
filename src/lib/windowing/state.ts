@@ -43,6 +43,8 @@ export interface DesktopState {
   icons: { id: string; path: string; x: number; y: number }[];
   focusMode: boolean;
   revision: number;
+  /** TT25 "Show desktop": ids minimised by the last showDesktop, restored by the next one (cleared by any focus/open). */
+  peek?: string[];
 }
 
 export const MIN_W: Record<Density, number> = { compact: 240, balanced: 280, touch: 320 };
@@ -96,6 +98,7 @@ export type WindowCommand =
   | { t: "focusMode"; on: boolean }
   | { t: "cascade" }
   | { t: "closeAll" }
+  | { t: "showDesktop" }
   | { t: "icons"; icons: DesktopState["icons"] }
   | { t: "hydrate"; state: DesktopState };
 
@@ -155,7 +158,16 @@ function invariants(state: DesktopState): DesktopState {
   return { ...state, windows, focus };
 }
 
+/** Commands after which a pending "Show desktop" restore no longer makes sense (the user picked a window). */
+const ENDS_PEEK = new Set<WindowCommand["t"]>(["open", "focus", "restore", "switchWorkspace", "closeAll", "minimize", "cycle"]);
+
 export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
+  const next = reduceInner(state, cmd);
+  if (next !== state && next.peek && ENDS_PEEK.has(cmd.t)) { const { peek: _drop, ...rest } = next; void _drop; return rest; }
+  return next;
+}
+
+function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
   const bump = (s: DesktopState): DesktopState => invariants({ ...s, revision: s.revision + 1 });
   const map = (fn: (w: WindowState) => WindowState, id: string) =>
     state.windows.map((w) => (w.id === id ? fn(w) : w));
@@ -177,9 +189,15 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
         w: cmd.rect?.w ?? 760,
         h: cmd.rect?.h ?? 520,
       };
+      // TT21: larger default text makes default windows larger — keep a new window inside the desktop
+      // (shift it up/left first, shrink only if it is bigger than the desktop itself).
+      const vp = state.viewport;
+      const fitW = Math.min(base.w, Math.max(320, vp.w - 8)), fitH = Math.min(base.h, Math.max(240, vp.h - 8));
+      const wantX = cmd.rect?.x ?? base.x, wantY = cmd.rect?.y ?? base.y;
+      const fitX = Math.max(0, Math.min(wantX, vp.w - fitW - 4)), fitY = Math.max(0, Math.min(wantY, vp.h - fitH - 4));
       const win: WindowState = {
         id: cmd.id, module: cmd.module, title: cmd.title,
-        x: cmd.rect?.x ?? base.x, y: cmd.rect?.y ?? base.y, w: base.w, h: base.h,
+        x: fitX, y: fitY, w: fitW, h: fitH,
         z: state.nextZ + 1, minimized: false, maximized: false,
         workspace: state.activeWorkspace, host: cmd.host ?? "tab", props: cmd.props ?? {},
       };
@@ -257,8 +275,13 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
     case "addWorkspace":
       return bump({ ...state, workspaces: [...state.workspaces, { id: cmd.id, name: cmd.name }] });
 
-    case "viewport":
-      return bump({ ...state, viewport: { w: Math.max(320, Math.floor(cmd.w)), h: Math.max(240, Math.floor(cmd.h)) } });
+    case "viewport": {
+      const w = Math.max(320, Math.floor(cmd.w)), h = Math.max(240, Math.floor(cmd.h));
+      // TT21: a ResizeObserver tick with an unchanged size is a no-op. Bumping anyway re-armed the 600 ms
+      // persistence debounce on every top-bar reflow at 2x text, which delayed geometry saves past 1.8 s.
+      if (state.viewport.w === w && state.viewport.h === h) return state;
+      return bump({ ...state, viewport: { w, h } });
+    }
 
     case "cycle": {
       const visible = state.windows
@@ -272,6 +295,22 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
 
     case "focusMode":
       return bump({ ...state, focusMode: cmd.on });
+
+    case "showDesktop": {
+      // Windows "Show desktop": minimise every visible window on this workspace; pressing it again puts exactly
+      // those windows back (still in their z-order), unless the user has opened/focused something in between.
+      const back = (state.peek ?? []).filter((id) => state.windows.some((w) => w.id === id && w.minimized));
+      if (back.length) {
+        const set = new Set(back);
+        const top = state.windows.filter((w) => set.has(w.id)).sort((a, b) => b.z - a.z)[0];
+        const { peek: _p, ...rest } = state; void _p;
+        return bump({ ...rest, windows: state.windows.map((w) => (set.has(w.id) ? { ...w, minimized: false } : w)), focus: top?.id ?? null });
+      }
+      const ids = state.windows.filter((w) => !w.minimized && w.workspace === state.activeWorkspace).map((w) => w.id);
+      if (!ids.length) return state;
+      const set = new Set(ids);
+      return bump({ ...state, windows: state.windows.map((w) => (set.has(w.id) ? { ...w, minimized: true } : w)), focus: null, peek: ids });
+    }
 
     case "cascade":
       return bump({ ...state, windows: state.windows.map((w, i) => ({

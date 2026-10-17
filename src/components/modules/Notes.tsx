@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, fmtTime, post, put } from "@/lib/api";
@@ -32,7 +33,7 @@ export default function NotesModule({ win }: ModuleProps) {
   };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "230px 1fr", height: "100%", minHeight: 0 }}>
+    <div style={{ display: "grid", gridTemplateColumns: `min(${fz(200)}, 38%) minmax(0, 1fr)`, height: "100%", minHeight: 0 }}>
       <div style={{ borderRight: "1px solid var(--fs-border)", display: "flex", flexDirection: "column", minHeight: 0 }}>
         <div className="fs-row" style={{ padding: 6, gap: 4 }}>
           <Btn variant="primary" onClick={async () => {
@@ -48,8 +49,8 @@ export default function NotesModule({ win }: ModuleProps) {
               style={{ width: "100%", textAlign: "left", border: 0, background: n.id === sel ? "rgba(91,140,255,.22)" : "none", color: "inherit" }}
               onClick={() => setSel(n.id)}>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12 }}>{n.pinned ? "📌 " : ""}{n.title}</div>
-                <div className="fs-dim" style={{ fontSize: 10.5 }}>{fmtTime(n.updatedAt)}</div>
+                <div style={{ fontSize: fz(12) }}>{n.pinned ? "📌 " : ""}{n.title}</div>
+                <div className="fs-dim" style={{ fontSize: fz(10.5) }}>{fmtTime(n.updatedAt)}</div>
               </span>
             </button>
           ))}
@@ -59,10 +60,11 @@ export default function NotesModule({ win }: ModuleProps) {
 
       {draft ? (
         <div style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
-          <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)" }}>
-            <input className="fs-input" value={draft.title} aria-label="Note title"
+          {/* TT22: wraps on narrow windows — at phone width the two inputs had shrunk to slivers */}
+          <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
+            <input className="fs-input" style={{ flex: `1 1 ${fz(140)}`, minWidth: fz(110) }} value={draft.title} aria-label="Note title"
               onChange={(e) => { setDraft({ ...draft, title: e.target.value }); setDirty(true); }} />
-            <input className="fs-input" style={{ width: 150 }} placeholder="tags" value={draft.tags} aria-label="Tags"
+            <input className="fs-input" style={{ flex: `0 1 ${fz(150)}`, minWidth: fz(90) }} placeholder="tags" value={draft.tags} aria-label="Tags"
               onChange={(e) => { setDraft({ ...draft, tags: e.target.value }); setDirty(true); }} />
             <Btn variant="primary" disabled={!dirty} onClick={() => void save()}>Save</Btn>
             <Btn variant="ghost" onClick={() => void put("/api/notes", { id: draft.id, pinned: !draft.pinned }).then(load)}>

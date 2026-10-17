@@ -12,6 +12,7 @@
  *   SUM(1,"x",2)        -> #VALUE!              (literal, strict)
  *   SUM(A1:A3) w/ "x" in range -> ignores it     (ranged, lenient)
  */
+import { formatValue } from "./numfmt";
 import { dateToSerial, nowSerial, serialToDate, todaySerial } from "./dates";
 import { err, isError, type FormulaError, type Scalar } from "./types";
 
@@ -199,7 +200,8 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   REPT: (a) => toStr(scalar(a[0])).repeat(Math.max(0, toNumberStrict(scalar(a[1])))),
   EXACT: (a) => toStr(scalar(a[0])) === toStr(scalar(a[1])),
   VALUE: (a) => { const n = Number(toStr(scalar(a[0])).trim()); return Number.isNaN(n) ? raise(err("#VALUE!")) : n; },
-  TEXT: (a) => formatNumber(toNumberStrict(scalar(a[0])), toStr(scalar(a[1]))),
+  // TT15: full Excel format-code language via numfmt.ts (sections, colours, dates, E+, scaling).
+  TEXT: (a) => { const v = scalar(a[0]); const f = toStr(scalar(a[1])); return formatValue(typeof v === "string" && v.trim() !== "" && !Number.isNaN(Number(v)) ? Number(v) : v, f).text; },
 
   // ---- date/time [oracle: DATE epoch anchors, YEAR/MONTH/DAY/WEEKDAY]
   DATE: (a) => dateToSerial(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1])), toNumberStrict(scalar(a[2]))),
@@ -221,7 +223,22 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
     return dateToSerial(ty, tm0 + 1, Math.min(d.d, lastDay));
   },
   EOMONTH: (a) => { const d = serialToDate(toNumberStrict(scalar(a[0]))); const months = toNumberStrict(scalar(a[1])); const total = d.m - 1 + months + 1; const firstOfNext = dateToSerial(d.y + Math.floor(total / 12), (total % 12 + 12) % 12 + 1, 1); return firstOfNext - 1; },
-  DATEDIF: (a) => { const s = toNumberStrict(scalar(a[0])); const e = toNumberStrict(scalar(a[1])); const unit = toStr(scalar(a[2])).toUpperCase(); if (unit === "D") return e - s; const sd = serialToDate(s); const ed = serialToDate(e); if (unit === "Y") return ed.y - sd.y - ((ed.m, ed.d) < (sd.m, sd.d) ? 1 : 0); if (unit === "M") return (ed.y - sd.y) * 12 + (ed.m - sd.m) - (ed.d < sd.d ? 1 : 0); return raise(err("#NUM!")); },
+  // TT15 FIX: "Y" compared `(ed.m, ed.d) < (sd.m, sd.d)` — a Python tuple idiom that in JS is the comma
+  // operator, i.e. only `ed.d < sd.d`. DATEDIF(2020-01-15, 2024-03-10, "Y") returned 3 instead of 4
+  // (caught by the independent PyPI `formulas` oracle). Y/M now derive from one month count; YM/MD/YD added.
+  DATEDIF: (a) => {
+    const s = Math.floor(toNumberStrict(scalar(a[0]))); const e = Math.floor(toNumberStrict(scalar(a[1]))); const unit = toStr(scalar(a[2])).toUpperCase();
+    if (s > e) return raise(err("#NUM!"));
+    if (unit === "D") return e - s;
+    const sd = serialToDate(s); const ed = serialToDate(e);
+    const months = (ed.y - sd.y) * 12 + (ed.m - sd.m) - (ed.d < sd.d ? 1 : 0);
+    if (unit === "M") return months;
+    if (unit === "Y") return Math.floor(months / 12);
+    if (unit === "YM") return months % 12;
+    if (unit === "MD") { if (ed.d >= sd.d) return ed.d - sd.d; const pm = ed.m === 1 ? 12 : ed.m - 1, py = ed.m === 1 ? ed.y - 1 : ed.y; return new Date(Date.UTC(py, pm, 0)).getUTCDate() - sd.d + ed.d; }
+    if (unit === "YD") { let st = dateToSerial(ed.y, sd.m, sd.d); if (st > e) st = dateToSerial(ed.y - 1, sd.m, sd.d); return e - st; }
+    return raise(err("#NUM!"));
+  },
   DAYS: (a) => toNumberStrict(scalar(a[0])) - toNumberStrict(scalar(a[1])),
 
   // ---- lookup [oracle: VLOOKUP exact+approx, HLOOKUP, INDEX, MATCH, CHOOSE]
@@ -262,18 +279,6 @@ function roundDir(n: number, digits: number, dir: "up" | "down"): number {
   const fn = dir === "up" ? (n >= 0 ? Math.ceil : Math.floor) : (n >= 0 ? Math.floor : Math.ceil);
   return fn(n * f) / f;
 }
-/** TEXT(): a bounded subset of number-format codes — 0/0.00/#,##0/#,##0.00/0%. [spec] */
-function formatNumber(n: number, fmt: string): string {
-  const neg = n < 0; const abs = Math.abs(n);
-  if (fmt.includes("%")) return `${roundHalfAwayFromZero(abs * 100, (fmt.split(".")[1] ?? "").replace("%", "").length)}%`;
-  const decMatch = /\.(0+)/.exec(fmt);
-  const decimals = decMatch ? decMatch[1].length : 0;
-  const rounded = roundHalfAwayFromZero(abs, decimals).toFixed(decimals);
-  const [intPart, fracPart] = rounded.split(".");
-  const grouped = fmt.includes(",") ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : intPart;
-  return (neg ? "-" : "") + grouped + (fracPart ? `.${fracPart}` : "");
-}
-
 function sumIf(a: Arg[]): Scalar {
   const range = matrixOf(a[0]).flat();
   const crit = makeCriteria(scalar(a[1]));

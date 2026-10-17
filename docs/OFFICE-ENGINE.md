@@ -266,3 +266,182 @@ session) a real Microsoft Excel or Excel-compatible oracle and re-run
 `scripts/oracle-formula.mts`'s vector set against it, diffing against the LibreOffice-derived
 fixture — this would upgrade every "[oracle: LibreOffice]" tag to a cross-validated fact or
 surface the first genuine Excel/Calc divergence this project has found.
+
+## TT15 — spreadsheet v2, number formats, xlsx fidelity, charts
+
+**New modules** (all pure TypeScript, client-safe unless noted):
+
+| File | What | Verified by |
+|---|---|---|
+| `src/lib/formula/numfmt.ts` | Excel format codes: 4 sections, `[Color]`, literals/escapes, `0 # ?`, thousands + trailing-comma scaling, `%`, `E+/E-`, `@`, dates/times (`m` = minutes after `h`/before `s`), `AM/PM`, elapsed `[h] [m] [s]`, fractional seconds. `TEXT()` now uses it. | office-engine-2 (expected strings hand-derived from Microsoft's format-code guide). PyPI `formulas` TEXT() was probed and found wrong (e.g. `TEXT(45361,"mmm d")` → "Mar 1"), so it is **not** used as an oracle here. |
+| `src/lib/formula/sheetops.ts` | reference shifting (`$` anchors, off-grid `#REF!`), insert/delete with workbook-wide repair, TSV clipboard, copy/paste blocks, AutoFill (least-squares trend, text+number series, cyclic copy), stable sort (blanks last), find/replace, selection stats, `_xlfn.`/`_xlws.` prefixes | office-engine-2 |
+| `src/lib/formula/sheetui.ts` | current region, Ctrl+Arrow jumps, fill-handle geometry, header heuristic, autocomplete token, active-call argument index, signatures | office-engine-2 |
+| `src/lib/formula/sheetmeta.ts` | charts (bar/line/pie/scatter, multi-series; ported from the competitor TT14 `chart.ts` and extended) + conditional formatting rules + untrusted-JSON sanitisers | office-engine-2, e2e-office |
+| `src/lib/formula/xlsx.ts` (server) | styles both ways, widths, frozen rows, prefixes, array-formula spill export, shared-formula read | `scripts/oracle-xlsx.mts` (openpyxl 3.1, both directions) |
+
+**Bugs found this tier (and by what):**
+- Error literals (`=#REF!*10`) did not parse → `#NAME?` instead of `#REF!` (office-engine-2 insert/delete test).
+- xlsx reader: self-closing styled blank `<c …/>` swallowed the next cell's value (code review while adding styles; regression-covered by oracle-xlsx B).
+- xlsx writer: explicit date formats mapped onto locale-dependent built-in ids 14/22 → lossy (openpyxl oracle).
+- `SORTBY` documented but missing → `#NAME?`; `SORT` compared mixed types as strings, case-sensitively (real-browser e2e).
+- Shell: desktop `overflow:hidden` was scrolled by focus, hiding window title bars; boot hydrate used a persisted viewport from another screen (screenshot inspection).
+
+**Declared gaps:** grid bounded to A..AZ × 1000 rows; fixed row height (wrapped text clipped); no merged cells, borders, data validation, comments, pivot tables; cut-paste does not re-point formulas that reference moved cells; charts and conditional formats are not exported to xlsx; Excel 365 XLDAPR dynamic-array metadata not emitted (spills export as legacy `{=…}` array formulas with correct values); no Excel or LibreOffice in this sandbox, so Excel-specific open/save behaviour is unverified.
+
+**Run:**
+```
+T="node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs"
+$T scripts/office-engine.mts        # 35 tests (incl. office-engine-2)
+$T scripts/oracle-parity.mts        # LibreOffice fixture + PyPI formulas fixture
+ORACLE_PY=/path/to/python-with-openpyxl $T scripts/oracle-xlsx.mts
+BASE=http://localhost:3999 $T scripts/e2e-office.mts   # real Chromium, 11 tests
+```
+
+## TT16 — image editing (layers + PSD), vector studio v2, browser session hardening
+
+**Image (FF-30/31).** `src/lib/image/{doc,paint,history,psd,raster}.ts`, pure; UI in `ImageStudio.tsx`, with the classic quick editor kept as a tab.
+- **Compositor:** 12 separable W3C Compositing-1 modes, layer opacity, masks, offsets.
+- **PSD codec:** RLE/ZIP/raw channels, luni names plus MacRoman Pascal names, masks, merged composite.
+- **Oracles:**
+  - Chromium/Skia `globalCompositeOperation` with exact-representable inputs: |Δ| 0 for 9 modes, 1 for color-dodge/burn/soft-light on opaque backdrops, ≤2 on translucent ones.
+  - psd-tools 1.25 in both directions: layer pixels byte-exact; its compositor vs ours Δmax 1.
+- **Bugs found by the oracles and visual inspection:**
+  - blur dark fringe (straight-alpha box blur);
+  - Pascal names are MacRoman, not Latin-1;
+  - clipped tool labels;
+  - ellipse selection drawn as a rectangle.
+
+**Vector (FF-32).** `src/lib/vector/{xml,path,model}.ts`, pure; UI in `Vector.tsx`.
+- **Path engine:**
+  - full SVG 1.1 grammar with F.2 error recovery;
+  - normalised to absolute M/L/C/Z; Q/T are converted to cubics exactly;
+  - arcs follow F.6.5/F.6.6 (≤90° pieces, k = 4/3·tan(Δ/4));
+  - bounds from derivative roots; adaptive length; nonzero/evenodd containment; hit testing by the engine.
+- **SVG import** is an allowlist translator that reports everything it drops. It handles:
+  - style attribute and inheritance;
+  - `<use>`, with cycle and depth guards;
+  - gradients with `%` offsets (clamped, monotonic) and href inheritance;
+  - no DOCTYPE entity expansion.
+- **Canvas rendering:** the canvas renders our own export serialisation, so what you see is what gets exported.
+- **Two independent oracles:**
+
+| Check | svgelements 1.9.6 | Chromium |
+|---|---|---|
+| bbox (L/C/Q) | exact (1e-17) | ≤1e-5 (float32) |
+| bbox (arcs → cubics) | ≤1.6e-4 rel. | ≤1.5e-4 rel. |
+| length | ≤1.5e-4 rel. | ≤9e-5 rel. |
+| transform lists (13) | identical | identical (`transform.baseVal`) |
+| fill containment | — | 8,538 `isPointInFill` samples agree (edge points within 0.35 px skipped) |
+| rx=0 arc | reports length 0 (deviates from spec) | straight line (spec): **we follow the spec** |
+
+- **Render parity:** Chromium rasterises the original fixture and our import→export at 2×. 0.10% of pixels differ by more than 24/255, all along arcs. Each difference is one Skia 4× vertical-supersample coverage step: 205/4 ≈ 52 for that red on white. That is caused by ~0.01 px geometric deviation from the cubic arc approximation, as checked with the fill-only arc test.
+- **Gaps:**
+  - no boolean ops;
+  - no text to outlines (needs glyph data);
+  - text bounds estimated at 0.6 em/char;
+  - no markers, patterns, filters, masks or clipPaths;
+  - nested `<svg>` viewport clipping not reproduced;
+  - arcs are stored as cubics after import.
+
+**Browser (PR-07, competitor port).** `src/lib/browserSession.ts` adds:
+- URL guard: http(s) only, no userinfo, never the shell's own origin;
+- normalisation of untrusted saved sessions;
+- batch close (others / to the right / duplicates; pinned tabs kept);
+- pinning, groups and search;
+- sleep invariants (visible and pinned tabs never sleep);
+- per-host `allow=` delegation.
+
+It also fixes two defects:
+- **Security:** a restored session could put shell-origin content into a frame with `allow-scripts allow-same-origin`.
+- **Bug:** closing the active tab left a blank view.
+
+Six rows that the register claimed as "built" had no UI before TT16. They are now implemented and e2e-tested.
+
+**Competitor TT14 tree, final audit.**
+- `vector.ts` / `vectorGeometry.ts`: superseded. Our engine does true path geometry; theirs keeps path `d` as an opaque string with bbox-only hit testing, and their gradient offsets turn "50%" into NaN.
+- `browserState.ts`: pareto-superior parts ported (above).
+- `sandboxPolicy.ts`: only the explicit `allow` denials were superior (ported); its per-origin rule table hard-codes three demo hosts.
+- All pareto-superior elements found in the tree have now been ported or superseded.
+
+Competitor vector parity also added: arrow (line tool + Arrowhead → plain path, no `<marker>`) and parametric stars (point count / inner ratio re-editable after moves/rotations; `restar` keeps centre, radius, rotation). Suites added: `vector-engine` (18), `oracle-svg` (4), `e2e-vector` (11), `browser-session` (5), `e2e-browser` (6). Ledger after TT16: built 182 full / 65 partial / 22 blocked; tested 65 full / 73 partial / 131 untested; 228/228 tests. Screenshots: `docs/screenshots/tt16-vector-studio.png` and `tt16-vector-nodes.png`.
+
+## TT17 — spreadsheet v3: merged cells, borders, data validation, frozen column
+
+Engine module: `src/lib/formula/sheetlayout.ts` (pure, no DOM). Persisted by `workbook-json.ts`, which sanitises the data
+(drops malformed merges, overlapping merges and unknown rule types), and round-tripped by `xlsx.ts`.
+
+**Merged cells** (`Sheet.merges`, a list of A1 ranges)
+- The menu offers Merge & Center, Merge Across (one merge per row), Merge Cells and Unmerge.
+- Before discarding data the app shows Excel's own wording: "Merging cells only keeps the upper-left value and discards other values."
+- We keep the *first non-empty* value in reading order, moved to the anchor cell. Excel's documented behaviour is "upper-left";
+  we have not checked the case where the upper-left cell is empty against Excel. Declared unverified.
+- The rules are those Microsoft and trainers document:
+  - partially overlapping an existing merge is refused;
+  - sorting a range that intersects a merge is refused ("This operation requires the merged cells to be identically sized").
+    We refuse on *any* intersecting merge, which is stricter than Excel: Excel allows identically sized merges.
+- Selection expands to cover merges, and arrow keys and Tab step over them.
+- Inserting or deleting rows and columns shifts and shrinks merges; a merge deleted down to one cell is dropped.
+- xlsx: `<mergeCells>` both ways. Verified by openpyxl in both directions (oracle-xlsx test C).
+
+**Borders** (per edge: hair < dotted < dashed < thin < medium < double < thick, plus colour)
+- Ten presets: all, outside, inside, top, bottom, left, right, thick outside, top-and-bottom, none.
+- They are applied to the shared edge of *both* neighbouring cells. Display resolves a shared edge to the heavier side.
+- xlsx `<border>` reading and writing is verified by openpyxl, including colours and the vertical-alignment and `xSplit` fields.
+- Theme colours are read as "unset"; `mediumDashed` and diagonal borders are dropped (declared).
+- The old style key (`JSON.stringify(style, sortedTopKeys)`) silently dropped nested border sides. This was found and replaced
+  by a deep key.
+
+**Data validation** (`Sheet.validations`)
+- Rule types: list, whole, decimal, date (serial), textLength, custom, with the eight operators.
+- Error styles: stop, warning and information.
+- Rules check **typed entries only**:
+  - only Stop blocks an entry: Retry/Cancel;
+  - Warning offers Yes/No/Cancel;
+  - Information offers OK/Cancel.
+- Pasting replaces cells without checking, which is the documented Excel behaviour; "Circle invalid data" audits afterwards.
+- Typed list sources are capped at 255 characters (Excel strips longer ones on repair).
+- `showDropDown="1"` in OOXML means the arrow is *hidden*. This is inverted in both directions and verified by openpyxl.
+- Undeclared choices:
+  - list matching is case-insensitive;
+  - Ctrl+Enter fill skips validation.
+- The in-cell list menu and the input prompt render at *grid* level. Visual inspection showed the first version was clipped by
+  the cell's `overflow:hidden`. Playwright still "saw" the clipped menu, so `e2e-sheet-layout` now hit-tests every option with
+  `elementFromPoint`.
+
+**Frozen first column**: sticky positioning in the grid, and `xSplit` in the xlsx `<pane>`, which openpyxl reads back as "C2"
+together with the frozen row.
+
+**Tests**
+- `scripts/sheet-layout.mts` (6, engine)
+- `scripts/oracle-xlsx.mts` (5; tests C and D are new: openpyxl reads our merges, borders and DV, and we read openpyxl's)
+- `scripts/e2e-sheet-layout.mts` (6, real Chromium against the production build, including Export .xlsx → reopen from the VFS
+  with every TT17 feature intact)
+- Screenshot: `docs/screenshots/tt17-sheet-layout.png`.
+
+**Not done (declared)**
+- x14 `extLst` validations (cross-sheet list sources written by modern Excel) are ignored.
+- No conditional-formatting export, no diagonal borders, no centre-across-selection alignment.
+- Date rules take serial numbers, not date pickers.
+
+## TT19 — defined names (FF-36) and vector Pathfinder (FF-37)
+
+**Defined names.** `names.ts` implements Excel's name rules (web-checked): first character a letter or `_`,
+then letters/digits/`.`/`_`; no spaces; ≤255 characters; not A1-like within XFD1048576 and not R1C1-like; `C`/`R`
+reserved; case-insensitive, unique per scope. `Workbook.defineName(name, ref, scope?)` validates and syntax-checks
+the definition; evaluation substitutes names into the formula AST (`expandNames`) before `evalRaw`, so
+`ROW(Sales)`, `ROWS(Sales)` and ext functions see a real range. Sheet scope shadows workbook scope on that
+sheet; unknown names → `#NAME?`; cycles → `#NAME?` (depth 32); row/column insert/delete rewrites name refs via
+the same `adjustForStructure` used for cells. Persisted in workbook JSON and in xlsx `<definedNames>`
+(`localSheetId` for sheet scope; `_xlfn.` prefixes added/stripped; hidden and `_xlnm.*` built-ins skipped on
+import). UI: editable Name Box (define a new name for the selection, or type a name/reference to jump), a Names
+panel (Ctrl+F3) with refers-to, current value, scope and delete, plus formula autocomplete.
+Oracles: openpyxl-authored workbook → Python-computed values; our file → openpyxl names/destinations and the PyPI
+`formulas` engine's recalculation (it cannot resolve sheet-scoped names on any file — asserted symmetrically).
+Gaps: relative refs inside names are fixed, `Sheet1!Name` is not parsed, `\`-prefixed / non-ASCII names refused.
+
+**Pathfinder.** `src/lib/vector/boolean.ts`: Unite / Minus Front / Intersect / Exclude with Illustrator's paint
+and stacking rules (front paint, Minus Front keeps the back), via polygon-clipping 0.15.7 on operands
+flattened at 0.05 units in document space (transforms and groups honoured; even-odd exact, nonzero exact for
+same-direction or nested subpaths, crossing mixed-direction nonzero flagged as approximate). Oracle: GEOS
+(shapely 2.2) rebuilt from primitive parameters — exact for polygons, IoU ≥ 0.9995 with curves. Gap: results
+are polygonal, not Béziers; Divide/Trim/Merge/Crop/Outline/Minus Back are not implemented.

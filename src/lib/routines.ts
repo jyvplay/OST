@@ -1,5 +1,5 @@
 /** AU-01: the routine vocabulary is a strict subset of palette commands. */
-export const ROUTINE_COMMANDS = ["open", "tile", "workspace", "focusMode", "theme", "density", "alert", "preset", "closeAll"] as const;
+export const ROUTINE_COMMANDS = ["open", "tile", "workspace", "focusMode", "theme", "density", "alert", "preset", "closeAll", "textsize", "style", "layout"] as const;
 export type RoutineCommand = (typeof ROUTINE_COMMANDS)[number];
 export interface RoutineAction { cmd: string; arg?: string }
 

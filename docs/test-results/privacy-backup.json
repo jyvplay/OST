@@ -1,0 +1,70 @@
+{
+  "suite": "privacy-backup",
+  "at": "2026-10-17T01:43:34.400Z",
+  "results": [
+    {
+      "suite": "privacy-backup",
+      "name": "backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported",
+      "covers": {
+        "SC-17": "full"
+      },
+      "pass": true,
+      "ms": 59
+    },
+    {
+      "suite": "privacy-backup",
+      "name": "verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected",
+      "covers": {
+        "SC-17": "full"
+      },
+      "pass": true,
+      "ms": 274
+    },
+    {
+      "suite": "privacy-backup",
+      "name": "restore onto a host with no volume recreates header + identical ciphertext rows; the layer reads the plaintext back",
+      "covers": {
+        "SC-17": "full"
+      },
+      "pass": true,
+      "ms": 235
+    },
+    {
+      "suite": "privacy-backup",
+      "name": "restore into the SAME volume merges only what is missing; never overwrites newer files",
+      "covers": {
+        "SC-17": "full"
+      },
+      "pass": true,
+      "ms": 90
+    },
+    {
+      "suite": "privacy-backup",
+      "name": "a DIFFERENT volume on the host is never touched; a backup with one corrupted entry writes nothing at all",
+      "covers": {
+        "SC-17": "full"
+      },
+      "pass": true,
+      "ms": 128
+    },
+    {
+      "suite": "privacy-backup",
+      "name": "amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses",
+      "covers": {
+        "SC-18": "full",
+        "SC-11": "partial"
+      },
+      "pass": true,
+      "ms": 150
+    },
+    {
+      "suite": "privacy-backup",
+      "name": "cost: backing up 24 × 256 KiB encrypted files and verifying them is bounded (no decryption on the backup path)",
+      "covers": {
+        "SC-17": "partial"
+      },
+      "pass": true,
+      "ms": 1347
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
@@ -192,21 +193,21 @@ export default function TerminalModule({ win }: ModuleProps) {
   }, [cwd, resolve, shell]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, background: "#05080f" }}
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, background: "#05080f", color: "#e6edf7", colorScheme: "dark" }} /* TT22: the terminal is always a dark surface, so its ink is fixed too (light theme drew dark text on black) */
       onClick={() => inputRef.current?.focus()}>
-      <div className="fs-scroll fs-mono" style={{ flex: 1, minHeight: 0, padding: 10, fontSize: 12, lineHeight: 1.45 }}>
+      <div className="fs-scroll fs-mono" style={{ flex: 1, minHeight: 0, padding: 10, fontSize: fz(12), lineHeight: 1.45 }}>
         {lines.map((l, i) => (
           <pre key={i} style={{
             margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word",
-            color: l.tone === "err" ? "#ff9b9b" : l.tone === "cmd" ? "#8fb7ff" : l.tone === "info" ? "#8df0c0" : "var(--fs-text)",
+            color: l.tone === "err" ? "#ff9b9b" : l.tone === "cmd" ? "#8fb7ff" : l.tone === "info" ? "#8df0c0" : "inherit",
           }}>{l.text}</pre>
         ))}
         <div ref={endRef} />
       </div>
       <div className="fs-row fs-mono" style={{ padding: 8, gap: 6, borderTop: "1px solid var(--fs-border)" }}>
-        <span style={{ color: "#8fb7ff", fontSize: 12 }}>{cwd} $</span>
+        <span style={{ color: "#8fb7ff", fontSize: fz(12) }}>{cwd} $</span>
         <input ref={inputRef} className="fs-input fs-mono" value={input} spellCheck={false} aria-label="Terminal input"
-          style={{ border: 0, background: "transparent", flex: 1 }}
+          style={{ border: 0, background: "transparent", color: "inherit", flex: 1 }}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") { const v = input; setInput(""); setHist((h) => [v, ...h].slice(0, 100)); setHistIdx(-1); void exec(v); }

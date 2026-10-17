@@ -11,7 +11,7 @@
  * independent, from-scratch TypeScript implementation.
  */
 
-export const ERROR_CODES = ["#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A", "#CIRCULAR!"] as const;
+export const ERROR_CODES = ["#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A", "#CIRCULAR!", "#SPILL!", "#CALC!"] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 export interface FormulaError { error: ErrorCode }
 export const isError = (v: unknown): v is FormulaError => typeof v === "object" && v !== null && "error" in v;
@@ -36,7 +36,8 @@ export type Node =
   | { t: "unary"; op: "-" | "+"; arg: Node }
   | { t: "percent"; arg: Node }
   | { t: "binary"; op: BinOp; left: Node; right: Node }
-  | { t: "array"; rows: Node[][] };
+  | { t: "array"; rows: Node[][] }
+  | { t: "name"; name: string };
 
 export type BinOp = "+" | "-" | "*" | "/" | "^" | "&" | "=" | "<>" | "<" | ">" | "<=" | ">=";
 

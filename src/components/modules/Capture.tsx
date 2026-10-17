@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { fmtBytes, post } from "@/lib/api";
@@ -99,7 +100,7 @@ export default function CaptureModule(_: ModuleProps) {
         {recording
           ? <Btn variant="danger" onClick={stop}>⏹ Stop ({elapsed}s)</Btn>
           : <Btn variant="primary" onClick={() => void start()}>⏺ Capture screen / window / tab</Btn>}
-        <label className="fs-row" style={{ gap: 4, fontSize: 12 }}>
+        <label className="fs-row" style={{ gap: 4, fontSize: fz(12) }}>
           <input type="checkbox" checked={withAudio} onChange={(e) => setWithAudio(e.target.checked)} /> include audio
         </label>
         {recording ? <Badge tone="bad">recording</Badge> : null}
@@ -112,14 +113,14 @@ export default function CaptureModule(_: ModuleProps) {
       {saved ? (
         <div className="fs-row" style={{ gap: 6 }}>
           <Badge tone="ok">saved {fmtBytes(saved.bytes)}</Badge>
-          <span className="fs-mono" style={{ fontSize: 11.5 }}>{saved.path}</span>
+          <span className="fs-mono" style={{ fontSize: fz(11.5) }}>{saved.path}</span>
           <Btn variant="ghost" onClick={() => shell.open("media", { path: saved.path, title: "Capture" })}>Play</Btn>
           <Btn variant="ghost" onClick={() => shell.open("files", { path: "/Documents" })}>Reveal</Btn>
         </div>
       ) : null}
 
       <Section title="Honest boundaries">
-        <ul className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.7, margin: 0, paddingLeft: 18 }}>
+        <ul className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.7, margin: 0, paddingLeft: 18 }}>
           <li>The browser always shows its own sharing indicator; no web app can suppress it, and we do not claim to.</li>
           <li>There is no FLAG_SECURE equivalent: we cannot exclude a window from someone else&apos;s capture. The Vault instead auto-locks when the shell is hidden (SC-06, marked partial).</li>
           <li>Captures above 8 MB are downloaded instead of stored, because the VFS keeps bytes in Postgres and will not truncate silently.</li>

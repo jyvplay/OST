@@ -1,0 +1,60 @@
+{
+  "suite": "metaclean",
+  "at": "2026-10-17T01:43:31.411Z",
+  "results": [
+    {
+      "suite": "metaclean",
+      "name": "JPEG: identical pixels (Pillow); camera, author, date, software, GPS, XMP, COM, IPTC gone; Orientation=6 kept alone",
+      "covers": {
+        "SC-12": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "metaclean",
+      "name": "PNG / WebP / GIF: identical decoded frames; text, eXIf, tIME, EXIF/XMP chunks, comments and XMP app-ext gone; GIF loop kept",
+      "covers": {
+        "SC-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "metaclean",
+      "name": "DOCX / XLSX / PPTX: text and values identical in python-docx/openpyxl/python-pptx; authors, rsids, custom props, absPath, revision GUID gone; zip normalised",
+      "covers": {
+        "SC-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "metaclean",
+      "name": "SVG: same shapes (svgelements); comments, <metadata>, RDF, sodipodi/inkscape elements+attributes, local path gone; <title> kept",
+      "covers": {
+        "SC-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "metaclean",
+      "name": "idempotent: cleaning a cleaned file changes nothing and reports nothing new to remove",
+      "covers": {
+        "SC-12": "partial"
+      },
+      "pass": true,
+      "ms": 88
+    },
+    {
+      "suite": "metaclean",
+      "name": "refusals and hostile input: PDF unchanged + explained; truncated JPEG/PNG and corrupt zip throw cleanly; zip bomb and ../ entries refused",
+      "covers": {
+        "SC-12": "full"
+      },
+      "pass": true,
+      "ms": 162
+    }
+  ]
+}

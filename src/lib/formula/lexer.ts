@@ -9,7 +9,7 @@
  */
 export type TokKind =
   | "num" | "str" | "ref" | "ident" | "op" | "lparen" | "rparen" | "comma" | "semicolon"
-  | "lbrace" | "rbrace" | "colon" | "bang" | "eof";
+  | "lbrace" | "rbrace" | "colon" | "bang" | "err" | "eof";
 export interface Token { kind: TokKind; text: string; pos: number }
 
 const CELL_RE = /^(\$?)([A-Za-z]{1,3})(\$?)(\d+)/;
@@ -23,6 +23,11 @@ export function tokenize(src: string): Token[] {
   while (i < n) {
     const c = s[i];
     if (/\s/.test(c)) { i++; continue; }
+    // TT15: error literals (#REF! is what reference repair writes after a delete; Excel stores and propagates it)
+    if (c === "#") {
+      const m = /^(#NULL!|#DIV\/0!|#VALUE!|#REF!|#NAME\?|#NUM!|#N\/A|#SPILL!|#CALC!)/i.exec(s.slice(i));
+      if (m) { toks.push({ kind: "err", text: m[0].toUpperCase(), pos: i }); i += m[0].length; continue; }
+    }
     if (c === "(") { toks.push({ kind: "lparen", text: c, pos: i }); i++; continue; }
     if (c === ")") { toks.push({ kind: "rparen", text: c, pos: i }); i++; continue; }
     if (c === "{") { toks.push({ kind: "lbrace", text: c, pos: i }); i++; continue; }

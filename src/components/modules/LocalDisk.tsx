@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
@@ -143,7 +144,7 @@ export default function LocalDiskModule(_: ModuleProps) {
         <Section title={`Conflict inbox (${conflicts.length}) — nothing was overwritten`}>
           {conflicts.map((c) => (
             <div key={c.name} className="fs-row" style={{ justifyContent: "space-between" }}>
-              <span className="fs-mono" style={{ fontSize: 11.5 }}>{c.name} <span className="fs-dim">local {c.localSha.slice(0, 8)} ≠ vfs {c.vfsSha.slice(0, 8)}</span></span>
+              <span className="fs-mono" style={{ fontSize: fz(11.5) }}>{c.name} <span className="fs-dim">local {c.localSha.slice(0, 8)} ≠ vfs {c.vfsSha.slice(0, 8)}</span></span>
               <span className="fs-row" style={{ gap: 4 }}>
                 <Btn variant="ghost" onClick={() => void resolve(c, "local")}>Keep local</Btn>
                 <Btn variant="ghost" onClick={() => void resolve(c, "vfs")}>Keep Fusion copy</Btn>
@@ -157,9 +158,9 @@ export default function LocalDiskModule(_: ModuleProps) {
         <Section title={`Contents of ${handle?.name}`}>
           {entries.map((e) => (
             <div key={e.name} className="fs-row" style={{ justifyContent: "space-between" }}>
-              <span style={{ fontSize: 12 }}>{e.kind === "directory" ? "🗂" : "📄"} {e.name}</span>
+              <span style={{ fontSize: fz(12) }}>{e.kind === "directory" ? "🗂" : "📄"} {e.name}</span>
               <span className="fs-row" style={{ gap: 6 }}>
-                <span className="fs-dim" style={{ fontSize: 11 }}>{e.kind === "file" ? fmtBytes(e.size) : ""}</span>
+                <span className="fs-dim" style={{ fontSize: fz(11) }}>{e.kind === "file" ? fmtBytes(e.size) : ""}</span>
                 {e.kind === "file" ? <Btn variant="ghost" onClick={async () => {
                   const f: File = await (await handle.getFileHandle(e.name)).getFile();
                   if (f.size > 8 * 1024 * 1024) { shell.toast("Over the 8 MB VFS limit", "warn"); return; }
@@ -173,7 +174,7 @@ export default function LocalDiskModule(_: ModuleProps) {
         </Section>
       ) : null}
 
-      <div className="fs-dim" style={{ fontSize: 11, lineHeight: 1.6 }}>
+      <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
         The folder handle survives reloads (stored in IndexedDB); the permission does not — browsers require a fresh
         click each session, so the mount says “needs re-grant” instead of failing writes. Sync never auto-merges.
       </div>

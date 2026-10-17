@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -67,14 +68,14 @@ export default function ClockModule(_: ModuleProps) {
       <Section title="World clock">
         {zones.map((z) => (
           <div key={z} className="fs-row" style={{ justifyContent: "space-between" }}>
-            <span style={{ fontSize: 12 }}>{z.replace("_", " ")}</span>
+            <span style={{ fontSize: fz(12) }}>{z.replace("_", " ")}</span>
             <span className="fs-mono">{new Date().toLocaleTimeString([], { timeZone: z, hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
           </div>
         ))}
       </Section>
 
       <Section title="Stopwatch">
-        <div className="fs-mono" style={{ fontSize: 30 }}>{fmt(sw)}</div>
+        <div className="fs-mono" style={{ fontSize: fz(30) }}>{fmt(sw)}</div>
         <div className="fs-row" style={{ gap: 6 }}>
           {swStart === null
             ? <Btn variant="primary" onClick={() => setSwStart(performance.now())}>Start</Btn>
@@ -82,19 +83,19 @@ export default function ClockModule(_: ModuleProps) {
           <Btn variant="ghost" disabled={swStart === null} onClick={() => setLaps((l) => [sw, ...l])}>Lap</Btn>
           <Btn variant="ghost" onClick={() => { setSwStart(null); setSwAcc(0); setLaps([]); }}>Reset</Btn>
         </div>
-        {laps.map((l, i) => <div key={i} className="fs-mono fs-dim" style={{ fontSize: 11.5 }}>lap {laps.length - i}: {fmt(l)}</div>)}
+        {laps.map((l, i) => <div key={i} className="fs-mono fs-dim" style={{ fontSize: fz(11.5) }}>lap {laps.length - i}: {fmt(l)}</div>)}
       </Section>
 
       <Section title="Timer" right={remaining !== null ? <Badge tone="warn">running</Badge> : null}>
-        <div className="fs-mono" style={{ fontSize: 30 }}>{remaining !== null ? fmt(Math.max(0, remaining)) : fmt(timerMin * 60_000)}</div>
+        <div className="fs-mono" style={{ fontSize: fz(30) }}>{remaining !== null ? fmt(Math.max(0, remaining)) : fmt(timerMin * 60_000)}</div>
         <div className="fs-row" style={{ gap: 6 }}>
-          <input className="fs-input" type="number" min={1} max={600} style={{ width: 90 }} value={timerMin}
+          <input className="fs-input" type="number" min={1} max={600} style={{ width: fz(90) }} value={timerMin}
             onChange={(e) => setTimerMin(Number(e.target.value) || 1)} aria-label="Minutes" />
           {remaining === null
             ? <Btn variant="primary" onClick={() => { fired.current = false; setTimerEnd(performance.now() + timerMin * 60_000); }}>Start</Btn>
             : <Btn variant="danger" onClick={() => setTimerEnd(null)}>Cancel</Btn>}
         </div>
-        <div className="fs-dim" style={{ fontSize: 11 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>
           Fires while Fusion is open. A closed web app cannot schedule an exact alarm (Notification Triggers never
           shipped), so this is stated rather than implied.
         </div>

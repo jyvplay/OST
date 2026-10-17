@@ -1,0 +1,589 @@
+{
+ "about": "Side-by-side: every Tails feature (tails.net docs, 2026) vs Fusion Shell. status: full = equivalent protection implemented AND cited tests pass; partial = weaker/narrower analogue or untested equivalence; none = not built (reason given). Validated by scripts/tails-ledger.mjs against docs/test-results/*.json.",
+ "rows": [
+  {
+   "id": "T01",
+   "area": "Network",
+   "tails": "All traffic forced through Tor; non-Tor connections blocked by firewall",
+   "fusion": "No Tor. A web page cannot reroute the browser's or the host server's traffic; the host server fetches proxied pages itself and sees every URL.",
+   "status": "none",
+   "why": "platform: no network-stack control from a PWA (same root cause as blocked SC-04)"
+  },
+  {
+   "id": "T02",
+   "area": "Network",
+   "tails": "Tor Browser (uBlock Origin, NoScript security levels, letterboxing, first-party isolation)",
+   "fusion": "Fusion Browser = same-origin proxy + reader mode + server-side render snapshot; no anonymity network, no fingerprint resistance.",
+   "status": "partial",
+   "evidence": [
+    [
+     "e2e-browser",
+     ""
+    ]
+   ],
+   "why": "browsing works but gives none of Tor Browser's anonymity"
+  },
+  {
+   "id": "T03",
+   "area": "Network",
+   "tails": "Unsafe Browser for captive portals (clearnet, warned)",
+   "fusion": "Not needed: the host browser itself is the clearnet path.",
+   "status": "none",
+   "why": "no Tor mode exists to escape from"
+  },
+  {
+   "id": "T04",
+   "area": "Network",
+   "tails": "Tor Connection assistant, bridges (obfs4 default / requested / known), hide that Tor is used",
+   "fusion": "—",
+   "status": "none",
+   "why": "depends on T01"
+  },
+  {
+   "id": "T05",
+   "area": "Network",
+   "tails": "MAC address anonymization",
+   "fusion": "—",
+   "status": "none",
+   "why": "platform: browsers never expose or control the MAC"
+  },
+  {
+   "id": "T06",
+   "area": "Network",
+   "tails": "Offline mode (start with networking disabled)",
+   "fusion": "Offline app shell + queued writes; but no switch that guarantees zero network.",
+   "status": "partial",
+   "evidence": [
+    [
+     "e2e",
+     "offline write is queued"
+    ]
+   ],
+   "why": "the page can't disable the device's network"
+  },
+  {
+   "id": "T07",
+   "area": "Amnesia",
+   "tails": "Amnesic by default: everything outside Persistent Storage lives in RAM and is gone at shutdown",
+   "fusion": "Amnesic session (?amnesia=1 or boot preference): VFS writes in a RAM overlay, host writes denied by default, fresh desktop, localStorage shadowed, IndexedDB refused.",
+   "status": "full",
+   "evidence": [
+    [
+     "e2e-privacy",
+     "amnesic session: AMNESIC badge"
+    ],
+    [
+     "privacy-layer",
+     "amnesic deny-by-default"
+    ],
+    [
+     "privacy-layer",
+     "amnesic: VFS writes live in RAM"
+    ]
+   ]
+  },
+  {
+   "id": "T08",
+   "area": "Amnesia",
+   "tails": "Emergency shutdown (remove the USB stick / shutdown menu); immediate stop",
+   "fusion": "Ctrl+Alt+Shift+Backspace or button: keys dropped, RAM files wiped, page blanked, leaves via location.replace; never blocked by a leave prompt.",
+   "status": "full",
+   "evidence": [
+    [
+     "e2e-privacy",
+     "emergency shutdown chord"
+    ],
+    [
+     "e2e-privacy",
+     "TT20 amnesic unsaved-work guard"
+    ]
+   ]
+  },
+  {
+   "id": "T09",
+   "area": "Amnesia",
+   "tails": "RAM wiped at shutdown (memory erasure against cold-boot)",
+   "fusion": "Best effort only: buffers we own are zeroed and references dropped; JS strings and the browser's own memory cannot be wiped.",
+   "status": "partial",
+   "evidence": [
+    [
+     "e2e-privacy",
+     "emergency shutdown chord"
+    ]
+   ],
+   "why": "no control over the JS heap or OS memory"
+  },
+  {
+   "id": "T10",
+   "area": "Persistent Storage",
+   "tails": "Encrypted Persistent Storage (LUKS2, Argon2id since 5.14)",
+   "fusion": "/Private: names, contents, versions and desktop-state paths encrypted in the browser (AES-256-GCM, SIV names, Padmé sizes) under an Argon2id (64 MiB, t=3) keyslot; the host stores ciphertext only.",
+   "status": "full",
+   "evidence": [
+    [
+     "privacy-crypto",
+     "Argon2id (hash-wasm) equals the reference"
+    ],
+    [
+     "privacy-layer",
+     "write through the layer"
+    ],
+    [
+     "e2e-privacy",
+     "files written by the shell into /Private"
+    ]
+   ]
+  },
+  {
+   "id": "T11",
+   "area": "Persistent Storage",
+   "tails": "Unlock at the Welcome Screen; locked otherwise",
+   "fusion": "Unlock in Privacy (passphrase or recovery key); locked = 423 and opaque names; reload forgets the key; idle auto-lock.",
+   "status": "full",
+   "evidence": [
+    [
+     "e2e-privacy",
+     "lock from the top bar"
+    ],
+    [
+     "privacy-layer",
+     "locked: /Private lists opaque entries"
+    ]
+   ]
+  },
+  {
+   "id": "T12",
+   "area": "Persistent Storage",
+   "tails": "Change passphrase (re-wraps the LUKS key)",
+   "fusion": "Change passphrase re-wraps one keyslot; files are not re-encrypted.",
+   "status": "full",
+   "evidence": [
+    [
+     "privacy-crypto",
+     "change passphrase rewraps one slot only"
+    ]
+   ]
+  },
+  {
+   "id": "T13",
+   "area": "Persistent Storage",
+   "tails": "Forgotten passphrase = data lost (no recovery)",
+   "fusion": "BETTER: optional recovery key in a second keyslot (shown once), rotatable.",
+   "status": "full",
+   "evidence": [
+    [
+     "e2e-privacy",
+     "lock from the top bar"
+    ],
+    [
+     "privacy-crypto",
+     "volume life-cycle"
+    ]
+   ]
+  },
+  {
+   "id": "T14",
+   "area": "Persistent Storage",
+   "tails": "Delete Persistent Storage",
+   "fusion": "Purging /Private removes the volume; no guided Delete button with secure-erase semantics (flash/DB wear levelling makes erasure unverifiable anyway).",
+   "status": "partial",
+   "why": "no dedicated UI flow and untested as a feature"
+  },
+  {
+   "id": "T15",
+   "area": "Persistent Storage",
+   "tails": "Back up Persistent Storage (second Tails stick + admin password + rsync)",
+   "fusion": "BETTER: one encrypted backup file download; Verify without restoring; Restore onto an empty host or merge into the same volume; a damaged backup writes nothing.",
+   "status": "full",
+   "evidence": [
+    [
+     "privacy-backup",
+     "backup is one file holding only ciphertext"
+    ],
+    [
+     "privacy-backup",
+     "restore onto a host with no volume"
+    ],
+    [
+     "e2e-privacy",
+     "TT20 backup in the UI"
+    ]
+   ]
+  },
+  {
+   "id": "T17",
+   "area": "Persistent features",
+   "tails": "Persistent Folder",
+   "fusion": "/Private is the persistent folder; any module can save into it; cross-store moves encrypt in the browser.",
+   "status": "full",
+   "evidence": [
+    [
+     "privacy-layer",
+     "cross-store moves happen in the browser"
+    ]
+   ]
+  },
+  {
+   "id": "T18",
+   "area": "Persistent features",
+   "tails": "Welcome Screen settings (language, keyboard, admin password off by default)",
+   "fusion": "Boot preference 'always start amnesic'; other settings are refused in amnesia (persisting them would leave a trace).",
+   "status": "partial",
+   "evidence": [
+    [
+     "privacy-layer",
+     "amnesic deny-by-default"
+    ]
+   ],
+   "why": "no encrypted settings store yet"
+  },
+  {
+   "id": "T19",
+   "area": "Persistent features",
+   "tails": "Printers",
+   "fusion": "—",
+   "status": "none",
+   "why": "no print pipeline in the shell (the browser's own print works outside it)"
+  },
+  {
+   "id": "T20",
+   "area": "Persistent features",
+   "tails": "Network Connections (Wi-Fi passwords)",
+   "fusion": "—",
+   "status": "none",
+   "why": "platform: the device OS owns Wi-Fi"
+  },
+  {
+   "id": "T21",
+   "area": "Persistent features",
+   "tails": "Tor Bridge",
+   "fusion": "—",
+   "status": "none",
+   "why": "depends on T01"
+  },
+  {
+   "id": "T22",
+   "area": "Persistent features",
+   "tails": "Tor Browser Bookmarks",
+   "fusion": "Desktop bookmarks/icons persist in host desktop state (paths under /Private are sealed), not encrypted as a whole.",
+   "status": "partial",
+   "evidence": [
+    [
+     "privacy-layer",
+     "desktop state: /Private paths are sealed"
+    ]
+   ],
+   "why": "non-/Private bookmark URLs are host-visible"
+  },
+  {
+   "id": "T23",
+   "area": "Persistent features",
+   "tails": "Electrum Bitcoin wallet",
+   "fusion": "—",
+   "status": "none",
+   "why": "out of scope"
+  },
+  {
+   "id": "T24",
+   "area": "Persistent features",
+   "tails": "Thunderbird email (persistent profile)",
+   "fusion": "—",
+   "status": "none",
+   "why": "no mail client"
+  },
+  {
+   "id": "T25",
+   "area": "Persistent features",
+   "tails": "GnuPG keyring",
+   "fusion": "—",
+   "status": "none",
+   "why": "no OpenPGP implementation"
+  },
+  {
+   "id": "T26",
+   "area": "Persistent features",
+   "tails": "Pidgin (OTR)",
+   "fusion": "Messages module exists; no OTR/E2E chat.",
+   "status": "none",
+   "why": "no end-to-end messaging protocol"
+  },
+  {
+   "id": "T27",
+   "area": "Persistent features",
+   "tails": "SSH client keys",
+   "fusion": "—",
+   "status": "none",
+   "why": "no SSH (browsers have no raw TCP)"
+  },
+  {
+   "id": "T28",
+   "area": "Persistent features",
+   "tails": "Additional Software (apt packages reinstalled each boot)",
+   "fusion": "Modules are built in; nothing to install.",
+   "status": "none",
+   "why": "no package manager by design"
+  },
+  {
+   "id": "T29",
+   "area": "Persistent features",
+   "tails": "Dotfiles",
+   "fusion": "—",
+   "status": "none",
+   "why": "no per-app config files to symlink; see T18"
+  },
+  {
+   "id": "T30",
+   "area": "Applications",
+   "tails": "Metadata Cleaner (MAT2)",
+   "fusion": "Remove metadata in the browser: JPEG/PNG/WebP/GIF/SVG/DOCX/XLSX/PPTX without re-encoding; PDF refused rather than half-cleaned.",
+   "status": "full",
+   "evidence": [
+    [
+     "metaclean",
+     "JPEG: identical pixels"
+    ],
+    [
+     "metaclean",
+     "DOCX / XLSX / PPTX"
+    ],
+    [
+     "e2e-privacy",
+     "Remove metadata on an encrypted photo"
+    ]
+   ]
+  },
+  {
+   "id": "T31",
+   "area": "Applications",
+   "tails": "KeePassXC password manager",
+   "fusion": "Vault module (secrets, TOTP) + AES-GCM .fvault containers; mount-tested only, no KDBX import/export.",
+   "status": "partial",
+   "evidence": [
+    [
+     "e2e",
+     "mount: vault"
+    ]
+   ],
+   "why": "behavioural tests missing; no KDBX"
+  },
+  {
+   "id": "T32",
+   "area": "Applications",
+   "tails": "LibreOffice",
+   "fusion": "Writer, Spreadsheet (formula engine, xlsx), Slides — tested against openpyxl/python-docx oracles.",
+   "status": "partial",
+   "evidence": [
+    [
+     "e2e-office",
+     ""
+    ],
+    [
+     "oracle-xlsx",
+     ""
+    ]
+   ],
+   "why": "not LibreOffice-complete (no pivots, CF export, macros)"
+  },
+  {
+   "id": "T33",
+   "area": "Applications",
+   "tails": "OnionShare (share files over Tor)",
+   "fusion": "Share/Beam exist but go through the host or the LAN; no onion service.",
+   "status": "none",
+   "why": "depends on T01"
+  },
+  {
+   "id": "T34",
+   "area": "Applications",
+   "tails": "Kleopatra / OpenPGP text encryption",
+   "fusion": "—",
+   "status": "none",
+   "why": "see T25"
+  },
+  {
+   "id": "T35",
+   "area": "Applications",
+   "tails": "VeraCrypt volume unlocking",
+   "fusion": "—",
+   "status": "none",
+   "why": "no VeraCrypt header parser"
+  },
+  {
+   "id": "T36",
+   "area": "System",
+   "tails": "Screen locker",
+   "fusion": "Module lock (vault-gated) + Persistent Storage lock from the top bar; no whole-screen locker.",
+   "status": "partial",
+   "evidence": [
+    [
+     "e2e-privacy",
+     "lock from the top bar"
+    ]
+   ],
+   "why": "the rest of the desktop stays visible"
+  },
+  {
+   "id": "T37",
+   "area": "System",
+   "tails": "Administration password (disabled by default)",
+   "fusion": "No privileged mode exists at all.",
+   "status": "none",
+   "why": "nothing to elevate"
+  },
+  {
+   "id": "T38",
+   "area": "System",
+   "tails": "Automatic upgrades / signed images",
+   "fusion": "Served by the host; integrity rests on the host and TLS.",
+   "status": "none",
+   "why": "a web page cannot verify its own code (see DESIGN limit)"
+  },
+  {
+   "id": "T39",
+   "area": "System",
+   "tails": "Secure Boot / boots without touching the host OS",
+   "fusion": "Runs inside the host OS's browser: a compromised host OS or browser defeats every protection here.",
+   "status": "none",
+   "why": "fundamental: Tails replaces the OS, Fusion runs on it"
+  },
+  {
+   "id": "T40",
+   "area": "Host privacy",
+   "tails": "Leaves no trace on the computer used",
+   "fusion": "Amnesic session leaves no VFS/IndexedDB/localStorage trace; API bodies are no-store; no-referrer/no DNS prefetch headers. Browser history/HTTP logs on the host are outside our control.",
+   "status": "partial",
+   "evidence": [
+    [
+     "e2e-privacy",
+     "privacy headers"
+    ],
+    [
+     "e2e-privacy",
+     "amnesic session: AMNESIC badge"
+    ]
+   ],
+   "why": "browser history and server logs remain"
+  },
+  {
+   "id": "T41",
+   "area": "Beyond Tails",
+   "tails": "(no equivalent) search inside the encrypted volume without the host seeing queries",
+   "fusion": "Private search: in-tab index of /Private; scoped queries never reach the host.",
+   "status": "full",
+   "evidence": [
+    [
+     "privacy-layer",
+     "TT19 private search"
+    ],
+    [
+     "e2e-privacy",
+     "TT19 private search in the UI"
+    ]
+   ]
+  },
+  {
+   "id": "T42",
+   "area": "Beyond Tails",
+   "tails": "(no equivalent) host audit for anything stored in clear",
+   "fusion": "Audit walks what the host actually stores and seals plaintext entries in one click.",
+   "status": "full",
+   "evidence": [
+    [
+     "e2e-privacy",
+     "host audit in the UI"
+    ]
+   ]
+  },
+  {
+   "id": "T43",
+   "area": "Beyond Tails",
+   "tails": "(Tails: files outside Persistent are lost silently)",
+   "fusion": "Unsaved-work guard: RAM-only files listed, leave prompt, one-click Keep into /Private.",
+   "status": "full",
+   "evidence": [
+    [
+     "privacy-backup",
+     "amnesic rescue"
+    ],
+    [
+     "e2e-privacy",
+     "TT20 amnesic unsaved-work guard"
+    ]
+   ]
+  }
+ ],
+ "painPoints": [
+  {
+   "id": "P1",
+   "pain": "Backing up Persistent Storage needs a second Tails stick (≥ same size), an admin password and an rsync command; restore undocumented; errors confusing; 'test your backup' advice with no tool",
+   "sources": [
+    "https://tails.net/doc/persistent_storage/backup/",
+    "https://www2.tails.net/doc/persistent_storage/recover/",
+    "https://public-redmine-archive.tails.boum.org/code/issues/14605",
+    "https://www.reddit.com/r/tails/comments/11mcg9t/"
+   ],
+   "ours": "SC-17: one-file encrypted backup, in-place Verify, verify-before-write Restore",
+   "status": "full",
+   "rows": [
+    "T15"
+   ]
+  },
+  {
+   "id": "P2",
+   "pain": "Persistent features are separate toggles; users lose Wi-Fi/bookmarks because a feature wasn't enabled; Tor Browser prefs, desktop background, mouse settings cannot persist at all",
+   "sources": [
+    "https://www.reddit.com/r/tails/comments/1ao4hdr/",
+    "https://www2.tails.net/doc/persistent_storage/configure/"
+   ],
+   "ours": "Everything saved under /Private persists with no per-feature toggle. Settings are still refused in amnesia (no encrypted settings store yet).",
+   "status": "partial",
+   "rows": [
+    "T17",
+    "T18"
+   ]
+  },
+  {
+   "id": "P3",
+   "pain": "Files saved outside the Persistent folder (Downloads, Desktop) silently vanish at shutdown",
+   "sources": [
+    "https://www.reddit.com/r/tails/comments/1ao4hdr/",
+    "https://www.reddit.com/r/tails/comments/19dgbxt/"
+   ],
+   "ours": "SC-18: live list of RAM-only files, leave-page prompt, one-click Keep into /Private/Rescued (encrypted); emergency shutdown never prompts",
+   "status": "full",
+   "rows": [
+    "T43"
+   ]
+  },
+  {
+   "id": "P4",
+   "pain": "Persistent volume 'disappears' or persistence.conf corrupts and needs manual repair",
+   "sources": [
+    "https://www.reddit.com/r/tails/comments/23ai1r/",
+    "https://www.reddit.com/r/tails/comments/60xyef/"
+   ],
+   "ours": "No per-feature config file to corrupt; keyslot header is authenticated and carried inside every backup; Verify detects any damaged entry",
+   "status": "partial",
+   "rows": [
+    "T15"
+   ],
+   "why": "a damaged host header without a backup is still fatal (same as LUKS)"
+  },
+  {
+   "id": "P5",
+   "pain": "The USB stick is a single point of failure (flash wears out, goes read-only)",
+   "sources": [
+    "https://www.reddit.com/r/tails/comments/1hiyrl5/"
+   ],
+   "ours": "Storage lives on the host database; backups are ordinary files you can keep on any device or cloud because they are encrypted",
+   "status": "full",
+   "rows": [
+    "T15"
+   ]
+  }
+ ],
+ "sharedLimits": [
+  "Like Tails' LUKS volume, /Private is detectable: the keyslot header, ciphertext tree shape and Padmé size buckets are visible to the host (no plausible deniability).",
+  "A compromised host OS, browser or Fusion server code defeats everything here; Tails defends against the host OS by not running on it."
+ ]
+}

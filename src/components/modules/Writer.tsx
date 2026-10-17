@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, post } from "@/lib/api";
@@ -97,17 +98,17 @@ export default function WriterModule({ win }: ModuleProps) {
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}>
       <div className="fs-row" style={{ padding: 6, gap: 5, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <input className="fs-input" style={{ width: 210 }} aria-label="Document title" value={doc.title} onChange={(e) => update({ ...doc, title: e.target.value })} />
+        <input className="fs-input" style={{ width: fz(210) }} aria-label="Document title" value={doc.title} onChange={(e) => update({ ...doc, title: e.target.value })} />
         <Btn variant="primary" onClick={() => void saveNative()}>Save .fdoc</Btn>
         <Btn variant="ghost" onClick={() => void exportDocx()}>Export .docx</Btn>
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import .docx<input type="file" accept=".docx" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f).catch((x) => shell.toast(String((x as Error).message), "bad")); }} /></label>
         <Badge tone="warn">DOCX subset · grade C</Badge>
         {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
       </div>
-      {status ? <div className="fs-dim" style={{ padding: "4px 8px", fontSize: 11 }}>{status}</div> : null}
+      {status ? <div className="fs-dim" style={{ padding: "4px 8px", fontSize: fz(11) }}>{status}</div> : null}
       <div className="fs-row" style={{ padding: 6, gap: 5, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <span className="fs-dim" style={{ fontSize: 11 }}>Block style</span>
-        <select className="fs-select" style={{ width: 150 }} value={doc.blocks[selected]?.kind === "paragraph" ? doc.blocks[selected].style : "Normal"}
+        <span className="fs-dim" style={{ fontSize: fz(11) }}>Block style</span>
+        <select className="fs-select" aria-label="Paragraph style" style={{ width: fz(150) }} value={doc.blocks[selected]?.kind === "paragraph" ? doc.blocks[selected].style : "Normal"}
           onChange={(e) => updateParagraph(selected, { style: e.target.value as Style })}>
           {["Normal", "Title", "Subtitle", "Heading1", "Heading2", "Heading3", "Quote", "Code", "ListBullet"].map((x) => <option key={x}>{x}</option>)}
         </select>
@@ -121,7 +122,7 @@ export default function WriterModule({ win }: ModuleProps) {
           <div key={i} onClick={() => setSelected(i)} style={{ border: selected === i ? "1px solid rgba(91,140,255,.35)" : "1px solid transparent", borderRadius: 6, padding: 3 }}>
             {b.kind === "paragraph" ? (
               <textarea aria-label={`Document paragraph ${i + 1}`} value={textOf(b)} onChange={(e) => updateParagraph(i, { runs: [{ ...b.runs[0], text: e.target.value }] })}
-                style={{ width: "100%", minHeight: b.style.startsWith("Heading") || b.style === "Title" ? 42 : 62, resize: "vertical", border: 0, outline: 0, color: "var(--fs-text)", background: "transparent", fontFamily: b.style === "Code" ? "monospace" : "inherit", fontSize: b.style === "Title" ? 28 : b.style.startsWith("Heading") ? 20 : 14, fontWeight: b.style === "Title" || b.style.startsWith("Heading") || b.runs.some((r) => r.bold) ? 700 : 400, fontStyle: b.style === "Quote" || b.runs.some((r) => r.italic) ? "italic" : "normal" }} />
+                style={{ width: "100%", minHeight: fz(b.style.startsWith("Heading") || b.style === "Title" ? 42 : 62), resize: "vertical", border: 0, outline: 0, color: "var(--fs-text)", background: "transparent", fontFamily: b.style === "Code" ? "monospace" : "inherit", fontSize: fz(b.style === "Title" ? 28 : b.style.startsWith("Heading") ? 20 : 14), fontWeight: b.style === "Title" || b.style.startsWith("Heading") || b.runs.some((r) => r.bold) ? 700 : 400, fontStyle: b.style === "Quote" || b.runs.some((r) => r.italic) ? "italic" : "normal" }} />
             ) : (
               <table style={{ borderCollapse: "collapse", width: "100%" }}><tbody>{b.rows.map((row, ri) => <tr key={ri}>{row.map((v, ci) => <td key={ci} style={{ border: "1px solid var(--fs-border)", padding: 4 }}><input className="fs-input" aria-label={`Table ${i + 1} row ${ri + 1} cell ${ci + 1}`} value={v} onChange={(e) => { const blocks = [...doc.blocks]; const tbl = blocks[i] as TableBlock; const rows = tbl.rows.map((r) => [...r]); rows[ri][ci] = e.target.value; blocks[i] = { ...tbl, rows }; update({ ...doc, blocks }); }} /></td>)}</tr>)}</tbody></table>
             )}
@@ -129,7 +130,7 @@ export default function WriterModule({ win }: ModuleProps) {
         ))}
         {doc.blocks.length === 0 ? <Empty title="Empty document" /> : null}
       </div>
-      <div className="fs-dim" style={{ padding: "4px 8px", borderTop: "1px solid var(--fs-border)", fontSize: 10.5 }}>
+      <div className="fs-dim" style={{ padding: "4px 8px", borderTop: "1px solid var(--fs-border)", fontSize: fz(10.5) }}>
         Subset: paragraphs, heading styles, bold/italic/underline, simple tables. Export creates a new DOCX package.
         Pagination, images, headers/footers, tracked changes, comments and macros are not preserved.
       </div>

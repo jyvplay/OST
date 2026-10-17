@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtTime, post } from "@/lib/api";
@@ -96,7 +97,7 @@ export default function EditorModule({ win }: ModuleProps) {
         <div style={{ flex: 1 }} />
         {fmt ? <Badge tone={fmt.grade === "A" ? "ok" : "info"} title={fmt.boundary}>{fmt.label} · grade {fmt.grade}</Badge> : null}
         {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
-        <span className="fs-dim" style={{ fontSize: 11 }}>{status}</span>
+        <span className="fs-dim" style={{ fontSize: fz(11) }}>{status}</span>
       </div>
 
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: preview ? "1fr 1fr" : "1fr" }}>
@@ -105,14 +106,14 @@ export default function EditorModule({ win }: ModuleProps) {
           style={{ border: 0, borderRadius: 0, height: "100%", resize: "none", padding: 10 }}
           aria-label={`Editing ${path}`} />
         {preview ? (
-          <div className="fs-scroll" style={{ borderLeft: "1px solid var(--fs-border)", padding: 10, fontSize: 12.5, lineHeight: 1.6 }}>
+          <div className="fs-scroll" style={{ borderLeft: "1px solid var(--fs-border)", padding: 10, fontSize: fz(12.5), lineHeight: 1.6 }}>
             {svg ? (
               <>
                 {svg.removed.length ? <Badge tone="warn" title={svg.removed.join(", ")}>sanitised: {svg.removed.join(", ")}</Badge> : <Badge tone="ok">sanitised</Badge>}
                 <div dangerouslySetInnerHTML={{ __html: svg.svg }} />
               </>
             ) : csv ? (
-              <table style={{ borderCollapse: "collapse", fontSize: 11.5 }}>
+              <table style={{ borderCollapse: "collapse", fontSize: fz(11.5) }}>
                 <tbody>
                   {csv.map((row, i) => (
                     <tr key={i}>{row.map((cell, j) => (
@@ -129,18 +130,18 @@ export default function EditorModule({ win }: ModuleProps) {
       </div>
 
       <details style={{ borderTop: "1px solid var(--fs-border)", padding: "4px 8px" }}>
-        <summary style={{ fontSize: 11.5, cursor: "pointer" }}>History — {versions.length} version(s)</summary>
+        <summary style={{ fontSize: fz(11.5), cursor: "pointer" }}>History — {versions.length} version(s)</summary>
         <div className="fs-scroll" style={{ maxHeight: 140, display: "grid", gap: 2, paddingTop: 6 }}>
           {versions.map((v) => (
             <div key={v.id} className="fs-row" style={{ justifyContent: "space-between" }}>
-              <span className="fs-mono" style={{ fontSize: 11 }}>v{v.version} · {v.size} B · {v.sha256.slice(0, 10)}</span>
+              <span className="fs-mono" style={{ fontSize: fz(11) }}>v{v.version} · {v.size} B · {v.sha256.slice(0, 10)}</span>
               <span className="fs-row" style={{ gap: 4 }}>
-                <span className="fs-dim" style={{ fontSize: 11 }}>{fmtTime(v.createdAt)}</span>
+                <span className="fs-dim" style={{ fontSize: fz(11) }}>{fmtTime(v.createdAt)}</span>
                 <Btn variant="ghost" onClick={() => { setText(v.content); setDirty(true); shell.toast(`Loaded v${v.version} into the buffer — save to apply.`, "info"); }}>Load</Btn>
               </span>
             </div>
           ))}
-          {versions.length === 0 ? <span className="fs-dim" style={{ fontSize: 11 }}>No previous versions yet.</span> : null}
+          {versions.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(11) }}>No previous versions yet.</span> : null}
         </div>
       </details>
     </div>

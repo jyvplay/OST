@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useState } from "react";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -39,7 +40,7 @@ export default function MessagesModule(_: ModuleProps) {
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <Section title="Bridge connector (you host it)">
-        <div className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           Fusion can talk to a self-hosted message bridge over its REST API. It must run on your own hardware, be
           reachable over HTTPS, and send CORS headers that allow this origin. Nothing about your account is stored
           here; the endpoint and token live only in this browser session.
@@ -52,10 +53,10 @@ export default function MessagesModule(_: ModuleProps) {
           <Btn variant="primary" disabled={!endpoint || busy2} onClick={() => void check()}>{busy2 ? "Checking…" : "Check reachability"}</Btn>
           <Btn variant="ghost" onClick={() => { setEndpoint(""); setToken(""); setResult(""); }}>Clear</Btn>
         </div>
-        {result ? <div className="fs-mono" style={{ fontSize: 11.5 }}>{result}</div> : null}
+        {result ? <div className="fs-mono" style={{ fontSize: fz(11.5) }}>{result}</div> : null}
 
       <Section title="Message connector (MS-01 / MS-04)">
-        <div className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           Generic connector: GET/POST {homeserver || endpoint || "https://server"}/api/v1/rooms/{room}/messages with a bearer token.
           Works for any bridge that follows the shape (BlueBubbles-style or a self-hosted Matrix proxy). No SDK is
           bundled, so the contract is visible and auditable.
@@ -83,13 +84,13 @@ export default function MessagesModule(_: ModuleProps) {
             } catch (e) { setResult(String((e as Error).message)); }
           }}>Send</Btn>
         </div>
-        <div className="fs-scroll" style={{ maxHeight: 150, fontSize: 11.5 }}>
+        <div className="fs-scroll" style={{ maxHeight: 150, fontSize: fz(11.5) }}>
           {messages.map((m) => <div key={m.id}><span className="fs-dim">{new Date(m.ts).toLocaleTimeString()} </span>{m.from}: {m.text}</div>)}
         </div>
       </Section>
 
       <Section title="Lens upscale (LN-05) — interpolation, not a model">
-        <div className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           The Lens module's canvas output is bicubic-upsampled when the requested output height exceeds the captured
           height, and the governor's cast ceiling still applies. No super-resolution model is bundled; a real one would
           be a multi-GB download and the admissible-weights question from the native spec is unresolved.
@@ -114,7 +115,7 @@ export default function MessagesModule(_: ModuleProps) {
       </Section>
 
       <Section title="Open-protocol route (planned)">
-        <div className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           Matrix and XMPP are reachable from a browser over HTTPS/WebSocket, so they are the admissible messaging
           backends for a PWA. The seam above is deliberately generic: endpoint + token + reachability probe, which is
           the same shape any of those connectors needs.

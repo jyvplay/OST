@@ -7,7 +7,8 @@
  * candidate obfuscation is disabled so two contexts can form a WebRTC link on
  * loopback without an mDNS responder.
  */
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
+import { type Browser, type BrowserContext, type Page } from "playwright";
+import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 import { MODULES } from "../src/lib/registry.ts";
 
@@ -49,12 +50,10 @@ async function openModule(page: Page, id: string, title: string) {
   return dlg;
 }
 
-const browser: Browser = await chromium.launch({
-  args: [
+const browser: Browser = await launchChromium([
     "--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream",
     "--disable-features=WebRtcHideLocalIpsWithMdns", "--autoplay-policy=no-user-gesture-required",
-  ],
-});
+]);
 const newCtx = async (): Promise<BrowserContext> => {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 960 } });
   await ctx.grantPermissions(["camera", "microphone", "clipboard-read", "clipboard-write", "notifications"], { origin: BASE });
@@ -102,10 +101,17 @@ await test("drag a window by its title bar; geometry is committed and persisted"
   await sleep(300);
   const b1 = (await dlg.boundingBox())!;
   ok(Math.abs(b1.x - b0.x - 150) <= 3 && Math.abs(b1.y - b0.y - 90) <= 3, `moved by ${b1.x - b0.x},${b1.y - b0.y}`);
-  await sleep(1500); // persistence debounce 600 ms
-  const st = await api("GET", "/api/state?id=default");
-  const win = st.json.row.state.windows.find((x: { module: string }) => x.module === "calculator");
-  ok(win && Math.abs(win.x - (b1.x - 0)) < 200, "geometry not persisted");
+  // persistence: 600 ms debounce, never deferred more than 1 s past the first unsaved change (TT21). Poll rather
+  // than sleep a fixed time — a busy CI box delays the first frames after load by seconds.
+  const tPoll = Date.now();
+  let st = await api("GET", "/api/state?id=default");
+  type W = { module: string; x: number; y: number };
+  // exact match (desk starts at x 0): a 200 px tolerance also matched the PRE-drag save (x 80 vs 230) that the 1 s
+  // max-wait now flushes mid-drag, so the poll took a stale snapshot (TT22 finding)
+  const found = () => (st.json.row.state.windows as W[]).find((x) => x.module === "calculator" && Math.abs(x.x - b1.x) < 3);
+  while (!found() && Date.now() - tPoll < 8000) { await sleep(250); st = await api("GET", "/api/state?id=default"); }
+  const win = (st.json.row.state.windows as W[]).find((x) => x.module === "calculator")!;
+  ok(win && Math.abs(win.x - b1.x) < 3, `geometry not persisted after ${Date.now() - tPoll} ms: screen x ${b1.x}, stored ${JSON.stringify(st.json.row.state.windows.map((w: { module: string; x: number; y: number }) => [w.module, w.x, w.y]))}`);
   const x1 = win.x;
   await page.reload({ waitUntil: "domcontentloaded" });
   const again = page.locator('[role=dialog][aria-label="Calculator"]').first();
@@ -178,7 +184,7 @@ await test("Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)"
   const dlg = await openModule(page, "files", "Files");
   const bytes = Buffer.alloc(1024 * 1024); for (let i = 0; i < bytes.length; i++) bytes[i] = (i * 2654435761) >>> 24;
   await dlg.locator('input[type=file]').setInputFiles({ name: `big-${RUN}.bin`, mimeType: "application/octet-stream", buffer: bytes });
-  await dlg.getByText(`big-${RUN}.bin`).waitFor({ timeout: 20_000 });
+  await dlg.getByText(`big-${RUN}.bin`, { exact: true }).waitFor({ timeout: 20_000 }); // exact: the transient "upload …" badge also contains the name
   const n = await api("GET", `/api/fs?op=stat&path=/big-${RUN}.bin`);
   ok(n.json.node?.size === 1024 * 1024, `size ${n.json.node?.size}`);
   await api("POST", "/api/fs", { op: "purge", path: `/big-${RUN}.bin` });
@@ -206,19 +212,29 @@ await test("clock stopwatch advances from performance.now anchors", { "PR-10": "
   const dlg = page.locator('[role=dialog][aria-label="Clock"]').first();
   const sec = dlg.locator("section", { hasText: "Stopwatch" });
   await sec.getByRole("button", { name: "Start" }).click();
+  const t0 = Date.now();
   await sleep(1600);
-  const t = await sec.locator(".fs-mono").first().innerText();
-  const [mm, rest] = t.split(":"); const s = Number(mm) * 60 + Number(rest);
-  ok(s >= 1.3 && s < 3, `stopwatch read ${t}`);
+  // The display is rAF-driven; on a loaded 2-core runner a frame can lag the anchor.
+  // Contract: elapsed derives from performance.now anchors, so the reading must reach
+  // >= 1.3 s and never exceed real wall time elapsed since Start (+0.3 s slack).
+  let t = "", s = 0;
+  for (let i = 0; i < 20; i++) {
+    t = await sec.locator(".fs-mono").first().innerText();
+    const [mm, rest] = t.split(":"); s = Number(mm) * 60 + Number(rest);
+    if (s >= 1.3) break;
+    await sleep(150);
+  }
+  ok(s >= 1.3 && s <= (Date.now() - t0) / 1000 + 0.3, `stopwatch read ${t} after ${(Date.now() - t0) / 1000}s`);
 });
 
 await test("Lens processes frames from a (fake) camera at > 0 fps", { "LN-01": "full", "LN-13": "partial", "LN-15": "partial" }, async () => {
   await resetDesktop();
   const dlg = await openModule(page, "lens", "Lens");
   await dlg.getByRole("button", { name: "Start camera" }).click();
-  await sleep(4000);
-  const txt = await dlg.getByText(/\d+ fps · \d+p/).first().innerText();
-  ok(Number(/^(\d+)/.exec(txt)![1]) > 0, `badge: ${txt}`);
+  // poll (TT16): on a loaded 2-CPU host the first frames can take > 4 s; the contract is still "> 0 fps"
+  let txt = "";
+  for (let i = 0; i < 24; i++) { await sleep(500); txt = await dlg.getByText(/\d+ fps · \d+p/).first().innerText(); if (Number(/^(\d+)/.exec(txt)![1]) > 0) break; }
+  ok(Number(/^(\d+)/.exec(txt)![1]) > 0, `badge after 12 s: ${txt}`);
   await dlg.getByRole("button", { name: "Stop camera" }).click();
 });
 
@@ -244,7 +260,9 @@ await test("Beam lists every transport and names the missing primitive on blocke
 await test("Spec module renders the full register", { "DP-08": "partial" }, async () => {
   await resetDesktop();
   const dlg = await openModule(page, "spec", "Spec");
-  await dlg.getByText("252 rows").waitFor({ timeout: 8000 });
+  const n = (await api("GET", "/api/features")).json.total;
+  ok(Number(n) > 250, `register size ${n}`);
+  await dlg.getByText(`${n} rows`).waitFor({ timeout: 8000 });
 });
 
 await test("Overview (Meta+Q) and Blackout overlay toggle", { "WM-04": "partial", "SH-10": "partial" }, async () => {
@@ -336,7 +354,7 @@ async function hangTest(b: Browser) {
   }
 }
 await test("SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive", { "SH-05": "partial" }, async () => {
-  const iso = await chromium.launch({ args: ["--site-per-process"] });
+  const iso = await launchChromium(["--site-per-process"]);
   try { const r = await hangTest(iso); ok(r.responsive && r.greyed, JSON.stringify(r)); } finally { await iso.close(); }
 });
 await test("characterisation: default headless config freezes the shell (documented limitation, not a pass claim)", {}, async () => {

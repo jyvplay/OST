@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { fmtBytes, post } from "@/lib/api";
@@ -74,14 +75,14 @@ function Recorder() {
 
   return (
     <Section title="Voice recorder (MD-04)">
-      <label className="fs-row" style={{ gap: 6, fontSize: 12 }}>
+      <label className="fs-row" style={{ gap: 6, fontSize: fz(12) }}>
         <input type="checkbox" checked={ns} onChange={(e) => setNs(e.target.checked)} disabled={Boolean(rec)} />
         browser DSP: noise suppression + echo cancellation + AGC
       </label>
       <div className="fs-row" style={{ gap: 6 }}>
         {rec ? <Btn variant="danger" onClick={() => { rec.stop(); setRec(null); }}>⏹ Stop</Btn>
           : <Btn variant="primary" disabled={!capAvailable(shell.caps, "userMedia")} onClick={() => void start().catch((e) => shell.toast(String(e.message), "bad"))}>⏺ Record</Btn>}
-        <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,.08)", borderRadius: 4, overflow: "hidden" }} aria-label="Input level">
+        <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,.08)", borderRadius: 4, overflow: "hidden" }} role="meter" aria-label="Input level" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(Math.min(100, level * 140))}>
           <div style={{ width: `${Math.min(100, level * 140)}%`, height: "100%", background: level > .7 ? "var(--fs-bad)" : "var(--fs-ok)" }} />
         </div>
       </div>
@@ -123,7 +124,7 @@ function Scanner() {
       <video ref={video} muted playsInline style={{ width: "100%", maxHeight: 240, background: "#000", borderRadius: 8 }} />
       {result ? (
         <div className="fs-row" style={{ gap: 6 }}>
-          <span className="fs-mono" style={{ fontSize: 12, wordBreak: "break-all" }}>{result}</span>
+          <span className="fs-mono" style={{ fontSize: fz(12), wordBreak: "break-all" }}>{result}</span>
           <Btn variant="ghost" onClick={() => void shell.copy(result, "scanner")}>Copy</Btn>
           {/^https?:\/\//.test(result) ? <Btn variant="ghost" onClick={() => shell.open("browser", { url: result })}>Open</Btn> : null}
         </div>
@@ -180,11 +181,11 @@ function AudioDevices() {
     }}>Reveal labels</Btn>}>
       {devs.map((d) => (
         <div key={d.kind + d.deviceId} className="fs-row" style={{ justifyContent: "space-between" }}>
-          <span style={{ fontSize: 12 }}>{d.kind === "audiooutput" ? "🔊" : d.kind === "audioinput" ? "🎙" : "📷"} {d.label || "(label hidden until a permission is granted)"}</span>
+          <span style={{ fontSize: fz(12) }}>{d.kind === "audiooutput" ? "🔊" : d.kind === "audioinput" ? "🎙" : "📷"} {d.label || "(label hidden until a permission is granted)"}</span>
           {d.kind === "audiooutput" ? <Btn variant="ghost" onClick={() => void tone(d.deviceId)}>Test tone</Btn> : null}
         </div>
       ))}
-      <div className="fs-dim" style={{ fontSize: 11 }}>Labels are withheld by the browser until a media permission exists — a fingerprinting defence, not a bug.</div>
+      <div className="fs-dim" style={{ fontSize: fz(11) }}>Labels are withheld by the browser until a media permission exists — a fingerprinting defence, not a bug.</div>
     </Section>
   );
 }
@@ -220,17 +221,17 @@ function SerialConsole() {
   return (
     <Section title="Serial console (TD-03)">
       <div className="fs-row" style={{ gap: 6 }}>
-        <select className="fs-select" style={{ width: 120 }} value={baud} onChange={(e) => setBaud(Number(e.target.value))} disabled={Boolean(port)}>
+        <select className="fs-select" style={{ width: fz(120) }} value={baud} onChange={(e) => setBaud(Number(e.target.value))} disabled={Boolean(port)}>
           {[9600, 19200, 57600, 115200, 230400, 921600].map((b) => <option key={b} value={b}>{b} baud</option>)}
         </select>
         {port ? <Btn variant="danger" onClick={async () => { reading.current = false; writer.current?.releaseLock(); await port.close().catch(() => undefined); setPort(null); }}>Disconnect</Btn>
           : <Btn variant="primary" onClick={() => void connect().catch((e) => shell.toast(String(e.message), "bad"))}>Connect…</Btn>}
       </div>
-      <pre className="fs-mono" style={{ background: "#05080f", padding: 8, borderRadius: 8, height: 180, overflow: "auto", fontSize: 11.5, margin: 0 }}>{log || "(no data)"}</pre>
+      <pre className="fs-mono" style={{ background: "#05080f", padding: 8, borderRadius: 8, height: 180, overflow: "auto", fontSize: fz(11.5), margin: 0 }}>{log || "(no data)"}</pre>
       <input className="fs-input fs-mono" placeholder="send line (CRLF appended)" value={line} disabled={!port}
         onChange={(e) => setLine(e.target.value)}
         onKeyDown={async (e) => { if (e.key === "Enter" && writer.current) { await writer.current.write(new TextEncoder().encode(`${line}\r\n`)); setLine(""); } }} />
-      <div className="fs-dim" style={{ fontSize: 11 }}>SSH/SFTP remain blocked: browsers have no raw TCP. Serial is real because Web Serial is a user-granted device API.</div>
+      <div className="fs-dim" style={{ fontSize: fz(11) }}>SSH/SFTP remain blocked: browsers have no raw TCP. Serial is real because Web Serial is a user-granted device API.</div>
     </Section>
   );
 }
@@ -256,8 +257,8 @@ function Peripherals() {
         <Btn disabled={!nav.usb} onClick={() => void req(() => nav.usb.requestDevice({ filters: [] }))}>Grant USB…</Btn>
         <Btn disabled={!nav.bluetooth} onClick={() => void req(async () => { const d = await nav.bluetooth.requestDevice({ acceptAllDevices: true }); shell.toast(`Bluetooth: ${d.name ?? d.id}`, "ok"); })}>Pick Bluetooth…</Btn>
       </div>
-      {list.map((l) => <div key={l} style={{ fontSize: 12 }}>{l}</div>)}
-      {list.length === 0 ? <div className="fs-dim" style={{ fontSize: 11.5 }}>No devices granted to this origin yet.</div> : null}
+      {list.map((l) => <div key={l} style={{ fontSize: fz(12) }}>{l}</div>)}
+      {list.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No devices granted to this origin yet.</div> : null}
       <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
         {(["webhid", "webusb", "webserial", "bluetooth"] as const).map((c) => <Badge key={c} tone={capAvailable(shell.caps, c) ? "ok" : "bad"}>{c}</Badge>)}
       </div>
@@ -280,11 +281,11 @@ function Gamepads() {
   }, []);
   return (
     <Section title="Gamepad (IN-07)">
-      {pads.length === 0 ? <div className="fs-dim" style={{ fontSize: 11.5 }}>Connect a controller and press any button (browsers hide pads until first input).</div> : null}
+      {pads.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>Connect a controller and press any button (browsers hide pads until first input).</div> : null}
       {pads.map((p) => (
         <div key={p.id} style={{ display: "grid", gap: 4 }}>
-          <strong style={{ fontSize: 12 }}>{p.id}</strong>
-          <div className="fs-mono" style={{ fontSize: 11 }}>axes {p.axes.join("  ")}</div>
+          <strong style={{ fontSize: fz(12) }}>{p.id}</strong>
+          <div className="fs-mono" style={{ fontSize: fz(11) }}>axes {p.axes.join("  ")}</div>
           <div className="fs-row" style={{ gap: 3, flexWrap: "wrap" }}>
             {p.buttons.map((b, i) => <Badge key={i} tone={b > 0.5 ? "ok" : "default"}>{i}</Badge>)}
           </div>

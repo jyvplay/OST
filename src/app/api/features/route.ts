@@ -3,6 +3,7 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { features } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const body = (await req.json()) as { code?: string; status?: string };
+  const body = (await readJsonObject(req)) as ({ code?: string; status?: string }) | Response;
+  if (body instanceof Response) return body;
   if (!body.code || !body.status) return NextResponse.json({ ok: false, error: "code and status required" }, { status: 400 });
   await db.update(features).set({ status: body.status }).where(eq(features.code, body.code));
   return NextResponse.json({ ok: true });

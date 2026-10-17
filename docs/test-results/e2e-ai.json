@@ -1,0 +1,61 @@
+{
+  "suite": "e2e-ai",
+  "at": "2026-10-17T01:52:26.055Z",
+  "results": [
+    {
+      "suite": "e2e-ai",
+      "name": "PDF-compatible .ai (constructed, Illustrator 28.5 + /AIPrivateData1): kind ai-pdf, facts shown; PDF part framed only when the browser has a PDF viewer, else an explicit download link (never an automatic download); no CSP violation",
+      "covers": {
+        "FF-04": "full"
+      },
+      "pass": true,
+      "ms": 740
+    },
+    {
+      "suite": "e2e-ai",
+      "name": "with a PDF viewer present (navigator.pdfViewerEnabled forced true): the artwork is framed on a blob: URL, never <embed>, and the CSP allows it",
+      "covers": {
+        "FF-04": "partial"
+      },
+      "pass": true,
+      "ms": 1354
+    },
+    {
+      "suite": "e2e-ai",
+      "name": "real Illustrator-made PDF (file-type fixture): kind illustrator-pdf, version 24.1, renderable",
+      "covers": {
+        "FF-04": "full"
+      },
+      "pass": true,
+      "ms": 1345
+    },
+    {
+      "suite": "e2e-ai",
+      "name": "PostScript-era .ai (Apache Tika testAI_PS.ai) and an Illustrator EPS (file-type fixture): metadata only, no PDF view, 'limited' badge",
+      "covers": {
+        "FF-04": "full"
+      },
+      "pass": true,
+      "ms": 2325
+    },
+    {
+      "suite": "e2e-ai",
+      "name": "hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog",
+      "covers": {
+        "FF-04": "full",
+        "FM-04": "partial"
+      },
+      "pass": true,
+      "ms": 3382
+    },
+    {
+      "suite": "e2e-ai",
+      "name": "Files routing: double-clicking an .ai in Files opens Peek with the Illustrator panel",
+      "covers": {
+        "FF-04": "partial"
+      },
+      "pass": true,
+      "ms": 1498
+    }
+  ]
+}

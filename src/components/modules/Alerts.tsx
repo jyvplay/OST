@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, fmtTime, patch, post } from "@/lib/api";
@@ -52,8 +53,8 @@ export default function AlertsModule(_: ModuleProps) {
             {list.map((a) => (
               <div key={a.id} className="fs-list-item" style={{ opacity: a.read ? .6 : 1 }}>
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12 }}>{a.pinned ? "📌 " : ""}{a.title}</div>
-                  <div className="fs-dim" style={{ fontSize: 11 }}>{a.body} · {fmtTime(a.createdAt)}</div>
+                  <div style={{ fontSize: fz(12) }}>{a.pinned ? "📌 " : ""}{a.title}</div>
+                  <div className="fs-dim" style={{ fontSize: fz(11) }}>{a.body} · {fmtTime(a.createdAt)}</div>
                 </span>
                 <Badge tone={a.priority === "high" ? "bad" : a.priority === "low" ? "default" : "info"}>{a.priority}</Badge>
                 <Btn variant="ghost" onClick={async () => { await patch("/api/alerts", { ids: [a.id], snoozeMinutes: 15 }); await load(); }}>Snooze 15m</Btn>
@@ -68,8 +69,8 @@ export default function AlertsModule(_: ModuleProps) {
       <Blocked what="Reading other applications' notifications"
         missing="no NotificationListenerService analog exists for web content; origins are isolated"
         workaround="Fusion's own alerts, OS delivery through the Notification API, and app badging." />
-      {note ? <div className="fs-dim" style={{ fontSize: 11 }}>{note}</div> : null}
-      <div className="fs-dim" style={{ fontSize: 11 }}>
+      {note ? <div className="fs-dim" style={{ fontSize: fz(11) }}>{note}</div> : null}
+      <div className="fs-dim" style={{ fontSize: fz(11) }}>
         Diagnostics: permission <span className="fs-mono">{perm}</span> · badging{" "}
         <span className="fs-mono">{"setAppBadge" in navigator ? "available" : "unavailable"}</span> · alerts are stored
         in Postgres with a visible retention policy, never in a hidden cache.
