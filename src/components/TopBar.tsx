@@ -56,10 +56,10 @@ export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onB
         style={{ minHeight: fz(28), padding: `0 ${fz(8)} 0 ${fz(3)}`, gap: fz(5), borderRadius: 999, fontWeight: 800, letterSpacing: ".01em", background: "linear-gradient(180deg, var(--fs-pill-a, #ffe36e), var(--fs-pill-b, #ffb020))", color: "#14213d", ...( { WebkitAppRegion: "no-drag" } as React.CSSProperties) }}>
         <FusionLogo size={22} label="" /> Fusion
       </button>
-      <Btn variant="ghost" onClick={onPalette} title="Command palette (Ctrl+Space)"><UiGlyph name="search" /> Search</Btn>
-      <Btn variant="ghost" onClick={onOverview} title="Overview (Meta+Q)"><UiGlyph name="overview" /> Overview</Btn>
+      <Btn variant="ghost" onClick={onPalette} title="Command palette (Ctrl+Space)" aria-label="Search"><UiGlyph name="search" /><span className="fs-narrow-hide"> Search</span></Btn>
+      <Btn variant="ghost" onClick={onOverview} title="Overview (Meta+Q)" aria-label="Overview"><UiGlyph name="overview" /><span className="fs-narrow-hide"> Overview</span></Btn>
 
-      <div className="fs-row" style={{ gap: 4, marginLeft: 6 }}>
+      <div className="fs-row fs-narrow-hide" style={{ gap: 4, marginLeft: 6 }}>
         {shell.state.workspaces.map((ws) => (
           <button key={ws.id} className="fs-btn" data-variant={ws.id === shell.state.activeWorkspace ? "primary" : "ghost"}
             style={{ minHeight: fz(24), padding: `0 ${fz(8)}`, borderRadius: 999 }}
@@ -88,11 +88,11 @@ export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onB
             <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.5-2" />
           </svg>Private unlocked</button>
       ) : null}
-      <Badge tone={tone} title={shell.gov.reason}>{shell.gov.state} · {shell.gov.fps} fps</Badge>
+      <span className="fs-narrow-hide" style={{ display: "contents" }}><Badge tone={tone} title={shell.gov.reason}>{shell.gov.state} · {shell.gov.fps} fps</Badge></span>
       {shell.state.focusMode ? <Badge tone="info">focus</Badge> : null}
       <Btn variant="ghost" onClick={onBlackout} title="Blackout this screen (BlackTop)" aria-label="Blackout this screen"><UiGlyph name="contrast" /></Btn>
       <Btn variant="ghost" onClick={onQuick} title="Quick panel (Meta+I)" aria-label="Quick panel"><UiGlyph name="sliders" /></Btn>
-      <span className="fs-mono fs-dim" style={{ fontSize: fz(11.5), padding: "0 4px" }} suppressHydrationWarning>
+      <span className="fs-mono fs-dim" style={{ fontSize: fz(11.5), padding: "0 4px", whiteSpace: "nowrap" }} suppressHydrationWarning>
         {clock.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
       </span>
     </header>

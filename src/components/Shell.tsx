@@ -22,6 +22,7 @@ import WindowFrame from "./WindowFrame";
 import TopBar from "./TopBar";
 import Shelf from "./Shelf";
 import DesktopSurface from "./DesktopSurface";
+import Tabletop from "./Tabletop";
 import Palette from "./Palette";
 import Overview from "./Overview";
 import QuickPanel from "./QuickPanel";
@@ -349,6 +350,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         case "theme": if (arg === "dark" || arg === "light") await setSetting("appearance.theme", arg); break;
         case "density": if (["compact", "balanced", "touch"].includes(arg)) await setSetting("appearance.density", arg); break;
         case "style": if (isStyle(arg)) await setSetting("appearance.style", arg); break;
+        case "view": if (arg === "tabletop" || arg === "classic") await setSetting("appearance.desktopView", arg); else toast(`Routine: unknown desktop view "${arg}"`, "warn"); break;
         case "layout": if (isLayout(arg)) await setSetting("appearance.layout", arg); else toast(`Routine: unknown layout "${arg}"`, "warn"); break;
         case "textsize": { const n = Number(arg); if (Number.isInteger(n) && n >= TEXT_SCALE_MIN && n <= TEXT_SCALE_MAX) await setSetting("appearance.textScale", String(n)); break; }
         case "alert": await post("/api/alerts", { app: "Routine", title: arg || "Routine alert" }).catch(() => undefined); break;
@@ -380,6 +382,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const visible = state.windows.filter((w) => w.workspace === state.activeWorkspace);
   const wallpaper = resolveWallpaper(settings["appearance.wallpaper"] ?? DEFAULT_WALLPAPER, styleId);
   const layout = layoutOf(settings["appearance.layout"]);
+  const desktopView = settings["appearance.desktopView"] === "tabletop" ? "tabletop" : "classic";
   const toastPos: React.CSSProperties = layout === "business"
     ? { right: 12, bottom: `calc(${fz(48)} + 12px)` }
     : layout === "art" ? { right: 12, top: `calc(${fz(30)} + 10px)` } : { bottom: 64, left: "50%", transform: "translateX(-50%)" };
@@ -420,8 +423,12 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           style={{ position: "relative", flex: 1, minHeight: 0, overflow: "clip", ...(layout === "fusion" ? {} : { zIndex: 0, isolation: "isolate" as const }) }}
           onContextMenu={(e) => e.preventDefault()}
         >
-          <DesktopSurface onLauncher={() => setLauncher(true)} />
-          {booted ? <DesktopWidgets /> : null}
+          {desktopView === "tabletop" && booted ? <Tabletop /> : (
+            <>
+              <DesktopSurface onLauncher={() => setLauncher(true)} />
+              {booted ? <DesktopWidgets /> : null}
+            </>
+          )}
           {booted ? <ShellDaemons /> : null}
           {visible.map((w) => <WindowFrame key={w.id} win={w} />)}
 

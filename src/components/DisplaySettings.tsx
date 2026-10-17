@@ -47,6 +47,35 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
               Magnify dock icons under the pointer
             </label>
           ) : null}
+          {layoutOf(shell.settings["appearance.layout"]) === "art" ? (
+            <label className="fs-row" style={{ gap: 8 }}>
+              Dock icon size
+              <select className="fs-input" data-testid="settings-dock-size" value={shell.settings["appearance.dockSize"] ?? "auto"}
+                onChange={(e) => set("appearance.dockSize", e.target.value)} style={{ width: "auto" }}>
+                <option value="auto">Auto — a pleasing size for this screen</option>
+                <option value="small">Small (44 px)</option>
+                <option value="medium">Medium (52 px)</option>
+                <option value="large">Large (64 px)</option>
+              </select>
+            </label>
+          ) : null}
+        </div>
+
+        {/* ------------------------------------------------------- desktop view (TT26) */}
+        <div style={{ display: "grid", gap: fz(5) }}>
+          <strong id="desktop-view-label" style={{ fontSize: fz(13) }}>Desktop view</strong>
+          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Tabletop replaces the desktop with a 3D box: your files are cards on the table (pile them, peek at them) and the four walls hold windows, apps, widgets and recent files. Double-click a wall to bring it to the front.</span>
+          <div role="radiogroup" aria-labelledby="desktop-view-label" className="fs-row" style={{ gap: 12 }} data-testid="settings-desktop-view">
+            {(["classic", "tabletop"] as const).map((v) => (
+              <label key={v} className="fs-layout-opt" data-checked={(shell.settings["appearance.desktopView"] ?? "classic") === v}
+                style={{ position: "relative", display: "inline-flex", alignItems: "center", minHeight: 36, padding: `0 ${fz(12)}`, fontWeight: 700 }}>
+                {/* chip radio (as the Layout picker): the whole chip is the target, ≥ 36 px, native radio semantics and arrow keys */}
+                <input type="radio" name="desktop-view" value={v} data-testid={`settings-view-${v}`} checked={(shell.settings["appearance.desktopView"] ?? "classic") === v}
+                  onChange={() => set("appearance.desktopView", v)} className="fs-visually-hidden-radio" />
+                {v === "classic" ? "Classic" : "Tabletop (3D)"}
+              </label>
+            ))}
+          </div>
         </div>
 
         {/* ------------------------------------------------------------- style */}

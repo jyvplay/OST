@@ -74,7 +74,7 @@ export default function DesktopWidgets() {
   }, []);
 
   return (
-    <div style={{ position: "absolute", top: 10, right: 10, width: `min(${fz(230)}, 42vw)`, display: "grid", gap: 8, zIndex: 1 }}>
+    <div className="fs-desk-widgets" style={{ position: "absolute", top: 10, right: 10, width: `min(${fz(230)}, 42vw)`, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 8, zIndex: 1 }}>
       {enabled.includes("clock") ? (
         <div className="fs-panel" style={{ padding: 10, textAlign: "center" }}>
           <div className="fs-mono" style={{ fontSize: fz(26) }} suppressHydrationWarning>{new Date(now).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>

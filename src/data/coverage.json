@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-17T01:54:06.853Z",
+ "generatedAt": "2026-10-17T05:03:32.713Z",
  "totals": {
   "built": {
-   "full": 221,
+   "full": 227,
    "partial": 62,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 104,
+   "full": 110,
    "partial": 75,
    "untested": 126
   },
   "tests": {
-   "total": 413,
-   "passed": 413
+   "total": 441,
+   "passed": 441
   }
  },
  "rows": {
@@ -1372,7 +1372,8 @@
     "e2e-a11y: text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused",
     "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
     "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
-    "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; the dock scrolls inside itself with magnification off (honest fallback)"
+    "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
+    "e2e-tabletop: reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately"
    ]
   },
   "AX-10": {
@@ -1571,7 +1572,7 @@
     "e2e-layout: Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit",
     "e2e-layout: Art window chrome + menus: traffic lights left (close, minimise, zoom), centred title, Window menu tiles/zooms, zoomed window stops above the dock, Launchpad",
     "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
-    "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; the dock scrolls inside itself with magnification off (honest fallback)",
+    "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
     "layout-unit: dock magnification: peak under the pointer, symmetric, monotone cosine falloff, exact reach, 1 elsewhere",
     "layout-unit: dock magnification: no pointer / bad input → all 1; depends only on resting centres (no feedback)",
@@ -1593,6 +1594,73 @@
     "e2e-a11y: light + dark theme, all 11 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
     "layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers"
+   ]
+  },
+  "LY-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+    "e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+    "e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+    "e2e-beauty: 390×844: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+    "e2e-layout: Art dock: aesthetic size + stacks — size from the screen not the app count, groups fold into stacks (grid popover, arrows, Esc), a launched app from a folded group shows as its own running icon, size presets",
+    "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
+    "tabletop-unit: idealDockIcon: 44–64 px band on the 4-px grid, from the screen not the app count; presets; junk input",
+    "tabletop-unit: planDock: keeps the pleasing size and folds the biggest groups first; pinned + running stay out; every app reachable; never wider than the fill limit when it reports fits",
+    "tabletop-unit: planDock on a phone: all groups fold, pinned apps fold back before shrinking, ≥32 px; with many minimised windows it reports !fits (dock scrolls)",
+    "tabletop-unit: open-with routing shared by Files / desktop / Tabletop; settings, routine 'view', seed rows"
+   ]
+  },
+  "LY-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tabletop: desktop icons (classic): drag snaps to another grid cell and persists; Alt+Arrow moves; 'Sort icons by name' and 'Clean up icons' rearrange",
+    "tabletop-unit: desktop icons: column-major auto layout, saved cells win, contested/out-of-grid cells ignored, missing paths dropped (SH-04)",
+    "tabletop-unit: desktop icons: drag moves to a cell and swaps with an occupant, nudge clamps at the edges, clean up closes gaps in reading order, sort by name is natural",
+    "tabletop-unit: open-with routing shared by Files / desktop / Tabletop; settings, routine 'view', seed rows"
+   ]
+  },
+  "LY-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back",
+    "e2e-tabletop: box geometry: floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)",
+    "e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too",
+    "e2e-tabletop: walls work: Apps wall launches an app (and returns to the table), Windows wall lists and restores windows, Widgets shows the time, Recent opens a file",
+    "e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card",
+    "e2e-tabletop: reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately",
+    "e2e-tabletop: axe-core: Tabletop floor (dark + light) and each wall as the main view — no serious or critical violations",
+    "tabletop-unit: tabletop geometry: golden cards, jitter deterministic + bounded (top card straight), fan inside the floor, floor items never overlap their slots, hit test topmost",
+    "tabletop-unit: tabletop box geometry: floor scale = p/(p+depth) < 1, walls hinge on their screen edge and fold 90° inward",
+    "tabletop-unit: open-with routing shared by Files / desktop / Tabletop; settings, routine 'view', seed rows"
+   ]
+  },
+  "LY-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tabletop: drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves",
+    "e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card",
+    "tabletop-unit: tabletop state: normalizeTable validates untrusted input against the files that exist",
+    "tabletop-unit: tabletop piles: drop card on card → pile at the target, drop on a pile adds on top, pile on pile merges, take out / dissolve, unstack, rename, deterministic ids",
+    "tabletop-unit: tabletop geometry: golden cards, jitter deterministic + bounded (top card straight), fan inside the floor, floor items never overlap their slots, hit test topmost"
+   ]
+  },
+  "LY-09": {
+   "tested": "full",
+   "tests": [
+    "e2e-tabletop: micro peek shows the real contents (Markdown heading + bullets, CSV grid with a quoted comma) and enlarges on hover / focus",
+    "tabletop-unit: micro peek: Markdown keeps headings/bullets, plain text and code, line cap, CSV with RFC 4180 quoting, JSON grid / pretty text, images, SVG, binary, sealed, empty"
+   ]
+  },
+  "LY-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-beauty: the pipeline catches seeded violations in the live page (tiny crowded buttons, clipped text, an off-centre dock, an un-golden card)",
+    "e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+    "e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+    "e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+    "e2e-beauty: 390×844: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+    "tabletop-unit: beauty rules: each hard rule catches a seeded violation and passes the clean layout"
    ]
   },
   "CT-01": {
@@ -1857,6 +1925,7 @@
     "e2e-contacts: axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
     "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
+    "e2e-tabletop: axe-core: Tabletop floor (dark + light) and each wall as the main view — no serious or critical violations",
     "e2e-whiteboard: axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations"
    ]
   },

@@ -45,6 +45,8 @@ export interface DesktopState {
   revision: number;
   /** TT25 "Show desktop": ids minimised by the last showDesktop, restored by the next one (cleared by any focus/open). */
   peek?: string[];
+  /** TT26 Tabletop floor: loose card positions + piles (validated against the VFS by tabletop-core normalizeTable). */
+  table?: { v: 1; cards: Record<string, { x: number; y: number }>; piles: { id: string; name: string; paths: string[]; x: number; y: number }[] };
 }
 
 export const MIN_W: Record<Density, number> = { compact: 240, balanced: 280, touch: 320 };
@@ -100,6 +102,7 @@ export type WindowCommand =
   | { t: "closeAll" }
   | { t: "showDesktop" }
   | { t: "icons"; icons: DesktopState["icons"] }
+  | { t: "table"; table: NonNullable<DesktopState["table"]> }
   | { t: "hydrate"; state: DesktopState };
 
 // Round FIRST, clamp SECOND. (v3.0 clamped then rounded, which the property test
@@ -319,6 +322,8 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
 
     case "icons":
       return bump({ ...state, icons: cmd.icons });
+    case "table":
+      return bump({ ...state, table: cmd.table });
 
     default:
       return state;

@@ -66,27 +66,27 @@ export default function MenuBar({ onLaunchpad, onPalette, onOverview, onQuick, o
         <MenuButton label="Fusion menu" title="Fusion menu" items={fusionItems} testid="fusion-menu" buttonStyle={{ ...mb, padding: `0 ${fz(6)}` }}>
           <FusionLogo size={18} label="" />
         </MenuButton>
-        <strong data-testid="menubar-app" style={{ padding: `0 ${fz(8)}`, fontSize: fz(13), whiteSpace: "nowrap" }}>{appName}</strong>
+        <strong data-testid="menubar-app" style={{ padding: `0 ${fz(8)}`, fontSize: fz(13), whiteSpace: "nowrap", maxWidth: "28vw", overflow: "hidden", textOverflow: "ellipsis" }}>{appName}</strong>
         <MenuButton label="File" items={fileItems} buttonStyle={mb}>File</MenuButton>
         <MenuButton label="Window" items={windowItems} testid="menu-window" buttonStyle={mb}>Window</MenuButton>
-        <MenuButton label="Help" items={helpItems} buttonStyle={mb}>Help</MenuButton>
+        <span className="fs-narrow-hide" style={{ display: "contents" }}><MenuButton label="Help" items={helpItems} buttonStyle={mb}>Help</MenuButton></span>
       </nav>
       <div style={{ flex: 1 }} />
       <div className="fs-row" style={{ gap: 2, minWidth: 0 }}>
-        <StatusItems compact />
+        <span className="fs-narrow-hide" style={{ display: "contents" }}><StatusItems compact /></span>
         {state.focusMode ? <span className="fs-dim" style={{ fontSize: fz(11) }}>focus</span> : null}
-        <div className="fs-row" role="group" aria-label="Spaces" style={{ gap: 1 }}>
+        <div className="fs-row fs-narrow-hide" role="group" aria-label="Spaces" style={{ gap: 1 }}>
           {state.workspaces.map((ws, i) => (
             <button key={ws.id} type="button" className="fs-btn" data-variant="ghost" aria-pressed={ws.id === state.activeWorkspace}
               title={`Space: ${ws.name}`} aria-label={`Space ${i + 1}: ${ws.name}`} onClick={() => shell.dispatch({ t: "switchWorkspace", workspace: ws.id })}
               style={{ ...mb, padding: `0 ${fz(5)}`, fontWeight: ws.id === state.activeWorkspace ? 800 : 500, textDecoration: ws.id === state.activeWorkspace ? "underline" : "none" }}>{i + 1}</button>
           ))}
         </div>
-        <button type="button" className="fs-btn" data-variant="ghost" onClick={onOverview} aria-label="Mission Control" title="Mission Control (Meta+Q)" style={mb}><UiGlyph name="overview" /></button>
+        <button type="button" className="fs-btn fs-narrow-hide" data-variant="ghost" onClick={onOverview} aria-label="Mission Control" title="Mission Control (Meta+Q)" style={mb}><UiGlyph name="overview" /></button>
         <button type="button" className="fs-btn" data-variant="ghost" onClick={onPalette} aria-label="Spotlight search" title="Spotlight search (Ctrl+Space)" data-testid="menubar-search" style={mb}><UiGlyph name="search" /></button>
         <button type="button" className="fs-btn" data-variant="ghost" onClick={onQuick} aria-label="Control Centre" title="Control Centre (Meta+I)" data-testid="menubar-quick" style={mb}><UiGlyph name="sliders" /></button>
         <span data-testid="menubar-clock" style={{ fontSize: fz(12.5), padding: `0 ${fz(6)}`, whiteSpace: "nowrap", fontWeight: 600 }} suppressHydrationWarning>
-          {now.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}&nbsp;&nbsp;{now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          <span className="fs-narrow-hide" suppressHydrationWarning>{now.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}&nbsp;&nbsp;</span>{now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
         </span>
       </div>
     </header>

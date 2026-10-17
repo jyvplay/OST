@@ -58,6 +58,9 @@ export default function QuickPanel({ onClose, onBlackout, anchor = "top" }: { on
           <LayoutSwitch prefix="quick" compact />
         </div>
 
+        <Toggle label="Tabletop 3D desktop" on={shell.settings["appearance.desktopView"] === "tabletop"}
+          onChange={(v) => void shell.setSetting("appearance.desktopView", v ? "tabletop" : "classic")} />
+
         <div className="fs-row" role="group" aria-label="Style" style={{ gap: 6, flexWrap: "wrap" }}>
           <span style={{ fontWeight: 700, flex: 1 }}>Style</span>
           {STYLE_IDS.map((id) => (

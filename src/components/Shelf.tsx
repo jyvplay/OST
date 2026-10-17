@@ -10,6 +10,8 @@ export default function Shelf() {
   const shell = useShell();
   const wins = shell.state.windows.filter((w) => w.workspace === shell.state.activeWorkspace);
   const pinned = ["files", "editor", "terminal", "find", "browser", "beam", "lens", "spec", "settings"];
+  /** dropped from the shelf on a phone-width screen (still one tap away in the launcher) so the shelf never overflows */
+  const OPTIONAL = new Set(["find", "beam", "lens", "spec"]);
 
   return (
     <footer className="fs-row" role="toolbar" aria-label="Shelf"
@@ -18,7 +20,7 @@ export default function Shelf() {
         const m = moduleById(id);
         const running = wins.some((w) => w.module === id);
         return (
-          <button key={id} className="fs-btn" data-variant="ghost" title={`${m?.title} — ${m?.summary}`}
+          <button key={id} className={OPTIONAL.has(id) ? "fs-btn fs-shelf-opt" : "fs-btn"} data-variant="ghost" title={`${m?.title} — ${m?.summary}`}
             onClick={() => {
               const existing = wins.find((w) => w.module === id);
               if (existing) shell.dispatch({ t: existing.minimized ? "restore" : "focus", id: existing.id });

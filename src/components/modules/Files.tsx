@@ -4,6 +4,7 @@ import { fz } from "@/lib/uiscale";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, fmtBytes, fmtTime, post } from "@/lib/api";
 import { cleanVfsFile } from "@/lib/privacy/cleanfile";
+import { appForFile } from "@/lib/open-with";
 import { formatFor } from "@/lib/forge";
 import { fromB64, open, seal, toB64, type Envelope } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -87,19 +88,9 @@ export default function FilesModule({ win }: ModuleProps) {
   };
 
   const openNode = (n: (typeof shown)[number]) => {
-    const fmt = formatFor(n.name);
     if (showTrash) return;
     if (n.kind === "dir") go(n.path);
-    else if (n.name.toLowerCase().endsWith(".svg") || n.name.toLowerCase().endsWith(".fsvg")) shell.open("vector", { path: n.path, title: n.name });
-    else if (n.mime.startsWith("image/")) shell.open("imageedit", { path: n.path, title: n.name });
-    else if (n.name.toLowerCase().endsWith(".docx") || n.name.toLowerCase().endsWith(".fdoc")) shell.open("writer", { path: n.path, title: n.name });
-    else if (n.name.toLowerCase().endsWith(".ftable")) shell.open("tables", { path: n.path, title: n.name });
-    else if (n.name.toLowerCase().endsWith(".fboard")) shell.open("whiteboard", { path: n.path, title: n.name });
-    else if (/\.(vcf|vcard)$/i.test(n.name)) shell.open("contacts", { path: n.path, title: n.name });
-    else if (n.name.toLowerCase().endsWith(".pptx") || n.name.toLowerCase().endsWith(".fdeck")) shell.open("slides", { path: n.path, title: n.name });
-    else if ([".fsheet", ".fworkbook", ".xlsx"].some((ext) => n.name.toLowerCase().endsWith(ext))) shell.open("sheet", { path: n.path, title: n.name });
-    else if (fmt && ["A"].includes(fmt.grade) && fmt.editable) shell.open("editor", { path: n.path, title: n.name });
-    else shell.open("peek", { path: n.path, title: n.name });
+    else shell.open(appForFile(n.name, n.mime, n.kind), { path: n.path, title: n.name });
   };
 
   return (

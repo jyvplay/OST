@@ -184,17 +184,76 @@ try {
     await poll(async () => (await layoutOf(page)) === "art", "data-layout=art");
     await page.getByTestId("dock").waitFor();
     ok(await page.getByTestId("menubar").isVisible() && await page.getByTestId("taskbar").count() === 0 && await page.locator('[aria-label="Shelf"]').count() === 0, "menu bar, no taskbar/shelf");
+    // TT26: every app is reachable from the dock — as its own icon or inside its group's stack (no slot-maxing)
+    const folded = ((await page.getByTestId("dock").getAttribute("data-folded")) ?? "").split(",").filter(Boolean);
     const missing: string[] = [];
-    for (const m of MODULES) if ((await page.getByTestId(`dock-${m.id}`).count()) !== 1) missing.push(m.id);
-    ok(missing.length === 0, `every module in the dock; missing: ${missing.join(",")}`);
+    for (const m of MODULES) {
+      if ((await page.getByTestId(`dock-${m.id}`).count()) === 1) continue;
+      if (!folded.includes(m.group)) { missing.push(m.id); continue; }
+      await page.getByTestId(`dock-stack-${m.group}`).click();
+      if ((await page.getByTestId(`dock-stack-app-${m.id}`).count()) !== 1) missing.push(m.id);
+      await page.keyboard.press("Escape");
+    }
+    ok(missing.length === 0, `every module reachable from the dock; missing: ${missing.join(",")}`);
     ok(await page.getByTestId("dock-launchpad").count() === 1 && await page.getByTestId("dock-trash").count() === 1, "Launchpad + Trash");
     const d = await box(page.getByTestId("dock"));
     ok(Math.abs(d.x + d.width / 2 - 720) <= 2, `dock centred (${d.x + d.width / 2})`);
     ok(d.y + d.height <= 900 - 3 && d.x > 0 && d.x + d.width < 1440, `dock floats inside the screen ${JSON.stringify(d)}`);
+    ok(d.width <= 1440 * 0.9 + 1, `dock leaves breathing room (${d.width} ≤ 90%)`);
     const base = Number(await page.getByTestId("dock").getAttribute("data-base"));
-    ok(base >= 24 && base <= 56, `fitted base icon size ${base}`);
+    ok(base >= 44 && base <= 64 && base % 4 === 0, `aesthetic base icon size on the 4-px grid: ${base}`);
     ok(await getSetting("appearance.layout") === "art", "persisted");
     await close();
+  });
+
+  await test("Art dock: aesthetic size + stacks — size from the screen not the app count, groups fold into stacks (grid popover, arrows, Esc), a launched app from a folded group shows as its own running icon, size presets", { "LY-05": "full" }, async () => {
+    await setSetting("appearance.layout", "art"); await setSetting("appearance.dockSize", "auto");
+    await desktop([]);
+    const { page, close } = await boot();
+    const base = Number(await page.getByTestId("dock").getAttribute("data-base"));
+    ok(base === 48, `1440×900 → 48 px (got ${base})`);
+    const icons = page.locator(".fs-dock-item");
+    for (let i = 0; i < await icons.count(); i++) { const b = await box(icons.nth(i)); ok(Math.abs(b.width - base) <= 1 && Math.abs(b.height - base) <= 1, `icon ${i} square at rest ${b.width}×${b.height}`); }
+    const folded = ((await page.getByTestId("dock").getAttribute("data-folded")) ?? "").split(",");
+    ok(folded.includes("Create") && folded.includes("System") && !folded.includes("Core"), `folds the big groups first: ${folded}`);
+    ok(await page.getByTestId("dock-settings").count() === 1 && await page.getByTestId("dock-files").count() === 1, "pinned Settings + Files stay out");
+    const stack = page.getByTestId("dock-stack-Create");
+    ok(await stack.getAttribute("aria-haspopup") === "dialog" && await stack.getAttribute("aria-expanded") === "false", "stack is a dialog button");
+    await stack.click();
+    const pop = page.getByTestId("dock-stack-pop");
+    await pop.waitFor();
+    ok(await stack.getAttribute("aria-expanded") === "true", "expanded");
+    // the popover springs in (translateY + scale), so judge its resting position
+    let pb = await box(pop), db = await box(page.getByTestId("dock"));
+    await poll(async () => { pb = await box(pop); db = await box(page.getByTestId("dock")); return pb.y + pb.height <= db.y + 1; }, "popover settles above the dock", 4000).catch(() => {});
+    ok(pb.y + pb.height <= db.y + 1, `popover above the dock (${pb.y + pb.height} ≤ ${db.y})`);
+    ok(await page.getByTestId("dock").getAttribute("data-magnify") === "off", "dock frozen while a stack is open");
+    ok(await page.evaluate(() => document.activeElement?.getAttribute("data-testid")) === "dock-stack-app-editor", "focus moves to the first app");
+    await page.keyboard.press("ArrowRight");
+    ok(await page.evaluate(() => document.activeElement?.getAttribute("data-testid")) === "dock-stack-app-notes", "ArrowRight → next app");
+    await page.keyboard.press("Escape");
+    await poll(async () => (await pop.count()) === 0, "Esc closes");
+    ok(await page.evaluate(() => document.activeElement?.getAttribute("data-testid")) === "dock-stack-Create", "focus back on the stack tile");
+    await stack.click();
+    await page.getByTestId("dock-stack-app-notes").click();
+    await poll(async () => (await page.locator('.fs-window').count()) === 1, "Notes window opened from the stack");
+    await poll(async () => (await page.getByTestId("dock-notes").count()) === 1, "running app of a folded group appears as its own icon");
+    ok(await page.getByTestId("dock-notes").locator("xpath=..").locator(".fs-dock-dot").count() === 1, "with a running dot");
+    await setSetting("appearance.dockSize", "large");
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.getByTestId("dock").waitFor({ timeout: 30_000 });
+    await poll(async () => Number(await page.getByTestId("dock").getAttribute("data-base")) === 64, "Large preset → 64 px");
+    ok((await box(page.getByTestId("dock"))).width <= 1440 * 0.9 + 1, "still within 90% of the screen at 64 px");
+    await setSetting("appearance.dockSize", "auto");
+    ok((await setSetting("appearance.dockSize", "huge")).status === 422, "unknown size refused");
+    await close();
+    // a smaller screen keeps the same pleasing size and folds more instead of shrinking
+    await desktop([]);
+    const small = await boot(1024, 768);
+    const b2 = Number(await small.page.getByTestId("dock").getAttribute("data-base"));
+    const d2 = await box(small.page.getByTestId("dock"));
+    ok(b2 === 44 && d2.width <= 1024 * 0.9 + 1, `1024×768 → 44 px, dock ${d2.width}px`);
+    await small.close();
   });
 
   await test("Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch", { "LY-02": "full" }, async () => {
@@ -202,7 +261,7 @@ try {
     await desktop([]);
     const { page, close } = await boot();
     const base = Number(await page.getByTestId("dock").getAttribute("data-base"));
-    const ids = MODULES.filter((m) => m.group === "Create").map((m) => m.id);
+    const ids = MODULES.filter((m) => m.group === "Core").map((m) => m.id); // Core stays expanded at 1440 (TT26 stacks fold Create/System)
     const target = ids[4], left1 = ids[3], left4 = ids[0];
     const t0 = await box(page.getByTestId(`dock-${target}`));
     ok(Math.abs(t0.width - base) <= 1, `resting width ${t0.width} ≈ base ${base}`);
@@ -226,7 +285,7 @@ try {
     }
     // icons grow upward, the dock itself keeps its height
     const dockH = (await box(page.getByTestId("dock"))).height;
-    ok(Math.abs(dockH - (base + 14)) <= 2, `dock height unchanged (${dockH})`);
+    ok(Math.abs(dockH - (base + 16)) <= 2, `dock height unchanged (${dockH})`);
     await page.mouse.move(700, 300);
     await poll(async () => (await scaleOf(page, target)) === 1 && (await tip.count()) === 0, "leave → back to rest, bubble gone");
     // off switch in Settings
@@ -332,19 +391,31 @@ try {
     await close();
   });
 
-  await test("phone 360×640 in Art: the page never scrolls sideways; the dock scrolls inside itself with magnification off (honest fallback)", { "LY-02": "partial", "AX-09": "partial" }, async () => {
+  await test("phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)", { "LY-02": "partial", "LY-05": "partial", "AX-09": "partial" }, async () => {
     await setSetting("appearance.layout", "art");
     await desktop([]);
     const { page, close } = await boot(360, 640);
     const r = await page.evaluate(() => ({ sw: document.scrollingElement!.scrollWidth, iw: innerWidth }));
     ok(r.sw <= r.iw, `no page overflow ${JSON.stringify(r)}`);
     const d = page.getByTestId("dock");
-    ok(await d.getAttribute("data-magnify") === "off", "magnify off when the dock cannot fit");
-    const s = await d.evaluate((e) => ({ sw: e.scrollWidth, cw: e.clientWidth, ox: getComputedStyle(e).overflowX }));
-    ok(s.ox === "auto" && s.sw > s.cw, `dock scrolls ${JSON.stringify(s)}`);
+    ok(((await d.getAttribute("data-folded")) ?? "").split(",").length === 4, `all four groups folded: ${await d.getAttribute("data-folded")}`);
+    const base = Number(await d.getAttribute("data-base"));
+    ok(base >= 32, `icons stay ≥32 px (${base})`);
+    const s0 = await d.evaluate((e) => ({ sw: e.scrollWidth, cw: e.clientWidth }));
+    ok(s0.sw <= s0.cw + 1, `dock fits without scrolling ${JSON.stringify(s0)}`);
     const b = await box(d);
     ok(b.x >= 0 && b.x + b.width <= 360, "dock inside the screen");
     await close();
+    // many minimised windows: the honest fallback is an inner scroll, never page overflow
+    await desktop(Array.from({ length: 8 }, (_, i) => win(`m${i}`, "calculator", `Calc ${i}`, { minimized: true })));
+    const p2 = await boot(360, 640);
+    const d2 = p2.page.getByTestId("dock");
+    ok(await d2.getAttribute("data-magnify") === "off", "magnify off when the dock cannot fit");
+    const s = await d2.evaluate((e) => ({ sw: e.scrollWidth, cw: e.clientWidth, ox: getComputedStyle(e).overflowX }));
+    ok(s.ox === "auto" && s.sw > s.cw, `dock scrolls ${JSON.stringify(s)}`);
+    const r2 = await p2.page.evaluate(() => ({ sw: document.scrollingElement!.scrollWidth, iw: innerWidth }));
+    ok(r2.sw <= r2.iw, `still no page overflow ${JSON.stringify(r2)}`);
+    await p2.close();
   });
 
   await test("axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations", { "LY-04": "full", "LY-01": "partial", "LY-02": "partial", "AX-08": "partial" }, async () => {
@@ -382,7 +453,7 @@ try {
   });
 } finally {
   await setSetting("appearance.layout", "fusion"); await setSetting("appearance.style", "poolside"); await setSetting("appearance.theme", "dark");
-  await setSetting("appearance.dockMagnify", "on");
+  await setSetting("appearance.dockMagnify", "on"); await setSetting("appearance.dockSize", "auto");
   await desktop([]);
   await browser.close();
 }

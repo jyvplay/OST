@@ -1,0 +1,55 @@
+{
+  "suite": "e2e-beauty",
+  "at": "2026-10-17T05:01:02.897Z",
+  "results": [
+    {
+      "suite": "e2e-beauty",
+      "name": "the pipeline catches seeded violations in the live page (tiny crowded buttons, clipped text, an off-centre dock, an un-golden card)",
+      "covers": {
+        "LY-10": "full"
+      },
+      "pass": true,
+      "ms": 1391
+    },
+    {
+      "suite": "e2e-beauty",
+      "name": "1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+      "covers": {
+        "LY-10": "full",
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 24519
+    },
+    {
+      "suite": "e2e-beauty",
+      "name": "1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+      "covers": {
+        "LY-10": "full",
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 20210
+    },
+    {
+      "suite": "e2e-beauty",
+      "name": "1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+      "covers": {
+        "LY-10": "full",
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 24458
+    },
+    {
+      "suite": "e2e-beauty",
+      "name": "390×844: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+      "covers": {
+        "LY-10": "full",
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 19012
+    }
+  ]
+}

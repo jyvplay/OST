@@ -35,11 +35,11 @@ export function StartMenu({ onClose }: { onClose: () => void }) {
     <div className="fs-panel" role="dialog" aria-label="Start" data-testid="start-menu"
       style={{ position: "absolute", left: 8, bottom: 8, width: `min(${fz(600)}, calc(100% - 16px))`, maxHeight: "calc(100% - 16px)", overflow: "auto",
         padding: fz(16), zIndex: 9000, display: "grid", gap: fz(12), boxShadow: "0 18px 48px rgba(0,0,0,.4)" }}>
-      <label className="fs-row" style={{ gap: 8, padding: `${fz(6)} ${fz(10)}`, borderRadius: 999, border: "1px solid var(--fs-border)", background: "var(--fs-field, var(--fs-bg-2))" }}>
+      <label className="fs-row" style={{ gap: 8, padding: `${fz(1)} ${fz(10)}`, borderRadius: 999, border: "1px solid var(--fs-border)", background: "var(--fs-field, var(--fs-bg-2))" }}>
         <UiGlyph name="search" /><span className="fs-visually-hidden">Search apps</span>
         <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Type to search apps" data-testid="start-search"
           onKeyDown={(e) => { if (e.key === "Enter" && list[0]) launch(list[0].id); }}
-          style={{ flex: 1, border: 0, background: "transparent", color: "inherit", font: "inherit", outline: "none", minWidth: 0 }} />
+          style={{ flex: 1, minHeight: 34, border: 0, background: "transparent", color: "inherit", font: "inherit", outline: "none", minWidth: 0 }} />
       </label>
       {!q ? (
         <section aria-label="Pinned">
@@ -60,7 +60,7 @@ export function StartMenu({ onClose }: { onClose: () => void }) {
         <div style={{ fontWeight: 800, marginBottom: 6 }}>{q ? `Results (${list.length})` : "All apps"}</div>
         <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${fz(170)}, 1fr))`, gap: 2 }}>
           {list.map((m) => (
-            <button key={m.id} type="button" className="fs-menuitem" onClick={() => launch(m.id)} title={m.summary} data-testid={`start-all-${m.id}`}>
+            <button key={m.id} type="button" className="fs-menuitem fs-start-row" onClick={() => launch(m.id)} title={m.summary} data-testid={`start-all-${m.id}`}>
               <AppIcon id={m.id} size={20} /><span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.title}</span>
             </button>
           ))}
@@ -87,11 +87,11 @@ export function Launchpad({ onClose }: { onClose: () => void }) {
   return (
     <div role="dialog" aria-label="Launchpad" data-testid="launchpad" className="fs-launchpad" onClick={onClose}>
       <div style={{ width: "min(1100px, 100%)", margin: "0 auto", display: "grid", gap: fz(18), padding: fz(20) }} onClick={(e) => e.stopPropagation()}>
-        <label className="fs-row" style={{ justifySelf: "center", gap: 8, padding: `${fz(5)} ${fz(12)}`, borderRadius: 10, background: "rgba(255,255,255,.18)", color: "#fff", width: `min(${fz(300)}, 100%)` }}>
+        <label className="fs-row" style={{ justifySelf: "center", gap: 8, padding: `${fz(1)} ${fz(12)}`, borderRadius: 10, background: "rgba(255,255,255,.18)", color: "#fff", width: `min(${fz(300)}, 100%)` }}>
           <UiGlyph name="search" /><span className="fs-visually-hidden">Search apps</span>
           <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" data-testid="launchpad-search"
             onKeyDown={(e) => { if (e.key === "Enter" && list[0]) launch(list[0].id); }}
-            style={{ flex: 1, border: 0, background: "transparent", color: "inherit", font: "inherit", outline: "none", minWidth: 0 }} />
+            style={{ flex: 1, minHeight: 34, border: 0, background: "transparent", color: "inherit", font: "inherit", outline: "none", minWidth: 0 }} />
         </label>
         <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${fz(104)}, 1fr))`, gap: fz(14) }}>
           {list.map((m) => (

@@ -3,7 +3,9 @@
  * TT25 "Art" layout — a Mac-style dock, centred and floating at the bottom, holding EVERY app.
  *  • Launchpad first, then the apps grouped (Core | Create | Connect | System) with thin separators, then the
  *    minimised windows after a separator, then Trash (Files on its trash view) — the macOS order.
- *  • Base icon size is fitted to the available width (src/lib/layout-core.ts fitIconSize); hover magnification uses
+ *  • TT26: the resting icon size is chosen for looks (layout-core idealDockIcon: 44–64 px on the 4-px grid, or the
+ *    Small/Medium/Large preset) and the *content* is fitted to it (planDock): groups fold into stacks rather than the
+ *    icons shrinking to slot-maxing sizes. Hover magnification uses
  *    a cosine falloff over the *resting* geometry (dockScales), measured from the dock's fixed centre so the dock
  *    stays stable as it widens. Keyboard focus magnifies too. Touch input never magnifies (as on macOS).
  *  • Name bubble above the hovered / focused icon, a dot under running apps, a short bounce when an app launches
@@ -13,7 +15,8 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { MODULES, moduleById } from "@/lib/registry";
-import { dockScales, dockWidth, fitIconSize, DOCK_MAX_SCALE } from "@/lib/layout-core";
+import { dockScales, idealDockIcon, planDock, DOCK_MAX_SCALE, DOCK_GAP, DOCK_PAD, DOCK_SEP_W } from "@/lib/layout-core";
+import { fz } from "@/lib/uiscale";
 import { useShell } from "./shell-context";
 import { AppIcon, Tile } from "./AppIcon";
 import { AutoMenu, type MenuItem } from "./chrome-bits";
@@ -23,16 +26,19 @@ type Item =
   | { kind: "app"; key: string; id: string; label: string }
   | { kind: "min"; key: string; winId: string; module: string; label: string }
   | { kind: "trash"; key: string; label: string }
+  | { kind: "stack"; key: string; group: string; apps: string[]; label: string }
   | { kind: "sep"; key: string };
 
 const GROUPS = ["Core", "Create", "Connect", "System"] as const;
-const GAP = 4, PAD = 7, SEP_W = 9, MIN = 24, MAX = 56;
+const GAP = DOCK_GAP, PAD = DOCK_PAD, SEP_W = DOCK_SEP_W;
 
 export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () => void; launchpadOpen: boolean }) {
   const shell = useShell();
   const { state } = shell;
   const footer = useRef<HTMLDivElement | null>(null);
   const [avail, setAvail] = useState(1200);
+  const [vh, setVh] = useState(900);
+  const [stackFor, setStackFor] = useState<{ group: string; x: number; lift: number } | null>(null);
   const [pointer, setPointer] = useState<number | null>(null);
   const [focusKey, setFocusKey] = useState<string | null>(null);
   const [bouncing, setBouncing] = useState<string[]>([]);
@@ -42,7 +48,7 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
   useEffect(() => {
     const el = footer.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => setAvail(Math.round(el.getBoundingClientRect().width)));
+    const ro = new ResizeObserver(() => { setAvail(Math.round(el.getBoundingClientRect().width)); setVh(window.innerHeight); });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -50,11 +56,16 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
   const wins = state.windows.filter((w) => w.workspace === state.activeWorkspace);
   const minimised = wins.filter((w) => w.minimized).sort((a, b) => a.z - b.z);
 
+  const width = avail - 16;
+  const groupsIn = GROUPS.map((g) => ({ id: g, apps: MODULES.filter((x) => x.group === g).map((m) => m.id) }));
+  const plan = planDock(groupsIn, avail, idealDockIcon(avail, vh, shell.settings["appearance.dockSize"] ?? "auto"),
+    { lead: 1, tail: 1 + minimised.length, running: [...new Set(wins.map((w) => w.module))] });
   const items: Item[] = (() => {
     const out: Item[] = [{ kind: "launchpad", key: "launchpad", label: "Launchpad" }];
-    GROUPS.forEach((g, gi) => {
-      if (gi > 0) out.push({ kind: "sep", key: `sep-${g}` });
-      for (const m of MODULES.filter((x) => x.group === g)) out.push({ kind: "app", key: m.id, id: m.id, label: m.title });
+    groupsIn.forEach((g, gi) => {
+      if (gi > 0) out.push({ kind: "sep", key: `sep-${g.id}` });
+      if (plan.folded.includes(g.id)) out.push({ kind: "stack", key: `stack-${g.id}`, group: g.id, apps: g.apps, label: `${g.id} apps` });
+      for (const id of plan.visible[g.id] ?? []) out.push({ kind: "app", key: id, id, label: moduleById(id)?.title ?? id });
     });
     out.push({ kind: "sep", key: "sep-min" });
     for (const w of minimised) out.push({ kind: "min", key: `min-${w.id}`, winId: w.id, module: w.module, label: `${w.title} (minimised)` });
@@ -63,12 +74,11 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
   })();
 
   const icons = items.filter((i) => i.kind !== "sep");
-  const seps = items.length - icons.length;
-  const width = avail - 16;
-  const base = fitIconSize(icons.length, width, { gap: GAP, pad: PAD, separators: seps, sepWidth: SEP_W, min: MIN, max: MAX });
-  const rest = dockWidth(icons.length, base, { gap: GAP, pad: PAD, separators: seps, sepWidth: SEP_W });
+  const base = plan.size;
+  const rest = plan.width;
   const fits = rest <= width;
-  const canMagnify = magnifyOn && fits;
+  // macOS: an open stack freezes the dock (no magnification) so its grid sits cleanly above the resting row
+  const canMagnify = magnifyOn && fits && !stackFor;
 
   // resting centres (dock-local px), computed from the same constants the CSS uses
   const centers: number[] = [];
@@ -111,7 +121,7 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
   let iconNo = -1;
   return (
     <div ref={footer} data-testid="dock-row" style={{ height: base + 2 * PAD + 10, flex: "0 0 auto", display: "flex", justifyContent: "center", alignItems: "flex-end", paddingBottom: 6, position: "relative", zIndex: 60 }}>
-      <nav aria-label="Dock" data-testid="dock" data-base={base} data-magnify={canMagnify ? "on" : "off"} className="fs-dock"
+      <nav aria-label="Dock" data-testid="dock" data-base={base} data-folded={plan.folded.join(",")} data-magnify={canMagnify ? "on" : "off"} className="fs-dock"
         onPointerMove={onMove} onPointerLeave={() => setPointer(null)}
         style={{ height: base + 2 * PAD, padding: `0 ${PAD}px`, gap: GAP, maxWidth: width, overflowX: fits ? "visible" : "auto", overflowY: fits ? "visible" : "hidden" }}>
         {items.map((it) => {
@@ -122,16 +132,27 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
           const px = Math.round(base * s * 10) / 10;
           const running = it.kind === "app" && wins.some((w) => w.module === it.id);
           const nWin = it.kind === "app" ? wins.filter((w) => w.module === it.id).length : 0;
-          const label = it.kind === "app" ? `${it.label}${running ? `, running${nWin > 1 ? ` (${nWin} windows)` : ""}` : ""}` : it.label;
-          const testid = it.kind === "app" ? `dock-${it.id}` : it.kind === "min" ? `dock-min-${it.winId}` : `dock-${it.kind}`;
+          const label = it.kind === "app" ? `${it.label}${running ? `, running${nWin > 1 ? ` (${nWin} windows)` : ""}` : ""}` : it.kind === "stack" ? `${it.group} apps, stack of ${it.apps.length}` : it.label;
+          const testid = it.kind === "app" ? `dock-${it.id}` : it.kind === "min" ? `dock-min-${it.winId}` : it.kind === "stack" ? `dock-stack-${it.group}` : `dock-${it.kind}`;
+          const stackOpen = it.kind === "stack" && stackFor?.group === it.group;
           return (
             <div key={it.key} className="fs-dock-slot" style={{ width: px, flex: `0 0 ${px}px`, height: base }}>
               {i === labelIdx ? <span role="tooltip" className="fs-dock-label" style={{ bottom: px + 12 }}>{it.label}</span> : null}
               <button type="button" className="fs-dock-item" data-testid={testid} data-scale={s.toFixed(3)} aria-label={label}
                 {...(it.kind === "launchpad" ? { "aria-expanded": launchpadOpen, "aria-haspopup": "dialog" as const } : {})}
+                {...(it.kind === "stack" ? { "aria-expanded": stackOpen, "aria-haspopup": "dialog" as const } : {})}
                 data-bounce={bouncing.includes(it.kind === "app" ? it.id : it.key) || undefined}
                 onFocus={() => setFocusKey(it.key)} onBlur={() => setFocusKey((k) => (k === it.key ? null : k))}
-                onClick={() => {
+                onClick={(e) => {
+                  if (it.kind === "stack") {
+                    if (stackOpen) { setStackFor(null); return; }
+                    const row = footer.current!.getBoundingClientRect(), b = e.currentTarget.getBoundingClientRect();
+                    const dockTop = footer.current!.querySelector("nav")!.getBoundingClientRect().top;
+                    setMenuFor(null);
+                    setPointer(null);
+                    setStackFor({ group: it.group, x: b.left + b.width / 2 - row.left, lift: row.bottom - dockTop + 10 });
+                    return;
+                  }
                   if (it.kind === "launchpad") onLaunchpad();
                   else if (it.kind === "app") activate(it.id);
                   else if (it.kind === "min") shell.dispatch({ t: "restore", id: it.winId });
@@ -147,6 +168,11 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
                 style={{ width: px, height: px }}>
                 {it.kind === "launchpad" ? <Tile palette="slate" glyph="grid" size={10} style={{ width: px, height: px }} /> : null}
                 {it.kind === "app" ? <AppIcon id={it.id} size={10} style={{ width: px, height: px }} /> : null}
+                {it.kind === "stack" ? (
+                  <span className="fs-dock-stack" style={{ width: px, height: px, padding: px * 0.12, gap: px * 0.06 }}>
+                    {it.apps.slice(0, 4).map((a) => <AppIcon key={a} id={a} size={10} style={{ width: px * 0.35, height: px * 0.35 }} />)}
+                  </span>
+                ) : null}
                 {it.kind === "trash" ? <Tile palette="slate" glyph="trash" size={10} style={{ width: px, height: px }} /> : null}
                 {it.kind === "min" ? (
                   <span className="fs-dock-min" style={{ width: px, height: px }}>
@@ -159,11 +185,67 @@ export default function Dock({ onLaunchpad, launchpadOpen }: { onLaunchpad: () =
           );
         })}
       </nav>
+      {stackFor ? (
+        <DockStack group={stackFor.group} x={stackFor.x} lift={stackFor.lift} onClose={(refocus) => {
+          setStackFor(null);
+          if (refocus) footer.current?.querySelector<HTMLButtonElement>(`[data-testid="dock-stack-${stackFor.group}"]`)?.focus();
+        }} onLaunch={(id) => { setStackFor(null); activate(id); }} />
+      ) : null}
       {menuFor ? (
         <div style={{ position: "absolute", left: `clamp(8px, ${menuFor.x}px - 110px, calc(100% - 240px))`, bottom: menuFor.lift, zIndex: 9800 }}>
           <AutoMenu label={`${menuFor.label} menu`} items={menuItems(menuFor.id)} onClose={() => setMenuFor(null)} />
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * A folded group's "stack" (macOS Dock stack, grid view): a popover above the tile with every app of the group.
+ * Rendered at dock-row level (outside the possibly-scrolling dock so it is never clipped). Arrow keys move through
+ * the grid, Enter/Space launch, Esc closes and returns focus to the tile, a click outside closes.
+ */
+function DockStack({ group, x, lift, onClose, onLaunch }: { group: string; x: number; lift: number; onClose: (refocus: boolean) => void; onLaunch: (id: string) => void }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const closeRef = useRef(onClose);
+  useEffect(() => { closeRef.current = onClose; });
+  const apps = MODULES.filter((m) => m.group === group);
+  // columns: a pleasing near-φ block, but never wider than the screen (a phone gets 3, or 2 on a very narrow one)
+  const screenW = typeof window !== "undefined" ? window.innerWidth : 1440;
+  const cols = Math.max(1, Math.min(5, Math.ceil(Math.sqrt(apps.length * 1.6)), Math.floor((screenW - 16 - 26 + 4) / (92 + 4))));
+  const popW = cols * 92 + (cols - 1) * 4 + 26; // cells + gaps + padding + border
+  useEffect(() => {
+    ref.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    const away = (e: PointerEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (ref.current && t && !ref.current.contains(t) && !t.closest(`[data-testid="dock-stack-${group}"]`)) closeRef.current(false);
+    };
+    document.addEventListener("pointerdown", away, true);
+    return () => document.removeEventListener("pointerdown", away, true);
+  }, [group]);
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onClose(true); return; }
+    const btns = [...(ref.current?.querySelectorAll<HTMLButtonElement>("button") ?? [])];
+    const i = btns.indexOf(document.activeElement as HTMLButtonElement);
+    const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : e.key === "ArrowDown" ? cols : e.key === "ArrowUp" ? -cols : 0;
+    if (d && i >= 0) { e.preventDefault(); btns[Math.max(0, Math.min(btns.length - 1, i + d))]?.focus(); }
+  };
+  const cell = 92;
+  return (
+    <div ref={ref} role="dialog" aria-label={`${group} apps`} data-testid="dock-stack-pop" className="fs-panel fs-dock-stack-pop" onKeyDown={onKey}
+      style={{ position: "absolute", left: `clamp(8px, ${x}px - ${popW / 2}px, calc(100% - ${popW + 8}px))`, width: popW, boxSizing: "border-box", bottom: lift, zIndex: 9800,
+        padding: 12, display: "grid", gap: 8 }}>
+      <strong style={{ fontSize: fz(13), paddingInline: 4 }}>{group}</strong>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, ${cell}px)`, gap: 4 }}>
+        {apps.map((m) => (
+          <button key={m.id} type="button" className="fs-btn fs-dock-stack-app" data-variant="ghost" data-testid={`dock-stack-app-${m.id}`}
+            title={m.title} onClick={() => onLaunch(m.id)}
+            style={{ flexDirection: "column", height: "auto", minHeight: 88, padding: "8px 4px", gap: 6, whiteSpace: "normal" }}>
+            <AppIcon id={m.id} size={10} style={{ width: 48, height: 48 }} />
+            <span style={{ fontSize: fz(11), lineHeight: 1.25, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.title}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

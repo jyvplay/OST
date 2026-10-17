@@ -1,0 +1,99 @@
+{
+  "suite": "e2e-tabletop",
+  "at": "2026-10-17T04:59:31.672Z",
+  "results": [
+    {
+      "suite": "e2e-tabletop",
+      "name": "toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back",
+      "covers": {
+        "LY-07": "full"
+      },
+      "pass": true,
+      "ms": 6911
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "box geometry: floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)",
+      "covers": {
+        "LY-07": "full"
+      },
+      "pass": true,
+      "ms": 2014
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too",
+      "covers": {
+        "LY-07": "full"
+      },
+      "pass": true,
+      "ms": 5872
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "walls work: Apps wall launches an app (and returns to the table), Windows wall lists and restores windows, Widgets shows the time, Recent opens a file",
+      "covers": {
+        "LY-07": "full"
+      },
+      "pass": true,
+      "ms": 3046
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "micro peek shows the real contents (Markdown heading + bullets, CSV grid with a quoted comma) and enlarges on hover / focus",
+      "covers": {
+        "LY-09": "full"
+      },
+      "pass": true,
+      "ms": 4757
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves",
+      "covers": {
+        "LY-08": "full"
+      },
+      "pass": true,
+      "ms": 9195
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card",
+      "covers": {
+        "LY-08": "full",
+        "LY-07": "partial"
+      },
+      "pass": true,
+      "ms": 4227
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "desktop icons (classic): drag snaps to another grid cell and persists; Alt+Arrow moves; 'Sort icons by name' and 'Clean up icons' rearrange",
+      "covers": {
+        "LY-06": "full"
+      },
+      "pass": true,
+      "ms": 3654
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately",
+      "covers": {
+        "LY-07": "full",
+        "AX-09": "partial"
+      },
+      "pass": true,
+      "ms": 1705
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "axe-core: Tabletop floor (dark + light) and each wall as the main view — no serious or critical violations",
+      "covers": {
+        "LY-07": "full",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 18073
+    }
+  ]
+}

@@ -57,7 +57,7 @@ export default function Taskbar({ onStart, startOpen, onPalette, onOverview, onQ
       style={{ height: fz(48), display: "grid", gridTemplateColumns: "minmax(0,1fr) auto minmax(0,1fr)", alignItems: "center",
         borderTop: "1px solid var(--fs-border)", background: "var(--fs-panel)", backdropFilter: "blur(18px)", position: "relative", zIndex: 50 }}>
       {/* left: virtual desktops (Windows keeps these in Task view; a compact switcher saves a click) */}
-      <div className="fs-row" role="group" aria-label="Desktops" style={{ gap: 3, paddingLeft: 8, minWidth: 0, overflow: "hidden" }}>
+      <div className="fs-row fs-tb-desktops" role="group" aria-label="Desktops" style={{ gap: 3, paddingLeft: 8, minWidth: 0, overflow: "hidden" }}>
         {state.workspaces.map((ws) => (
           <button key={ws.id} type="button" className="fs-tb-btn" aria-pressed={ws.id === state.activeWorkspace}
             onClick={() => shell.dispatch({ t: "switchWorkspace", workspace: ws.id })} title={`Desktop: ${ws.name}`}
@@ -66,12 +66,12 @@ export default function Taskbar({ onStart, startOpen, onPalette, onOverview, onQ
       </div>
 
       {/* centre: Start, search, Task view, apps */}
-      <div className="fs-row" style={{ gap: 3, justifyContent: "center", minWidth: 0 }}>
+      <div className="fs-row fs-tb-centre" style={{ gap: 3, justifyContent: "center", minWidth: 0 }}>
         <button type="button" className="fs-tb-btn" data-testid="launcher-button" aria-label="Start" aria-expanded={startOpen} aria-haspopup="dialog"
           title="Start (Meta+A)" onClick={onStart} data-active={startOpen || undefined}>
           <FusionLogo size={26} label="" />
         </button>
-        <button type="button" className="fs-tb-search" onClick={onPalette} data-testid="taskbar-search" title="Search apps, files and settings (Ctrl+Space)">
+        <button type="button" className="fs-tb-search" onClick={onPalette} data-testid="taskbar-search" aria-label="Search" title="Search apps, files and settings (Ctrl+Space)">
           <UiGlyph name="search" size={15} /><span>Search</span>
         </button>
         <button type="button" className="fs-tb-btn" onClick={onOverview} aria-label="Task view" title="Task view (Meta+Q)" data-testid="taskbar-taskview">
@@ -111,9 +111,9 @@ export default function Taskbar({ onStart, startOpen, onPalette, onOverview, onQ
       <div className="fs-row" style={{ gap: 3, justifyContent: "flex-end", minWidth: 0 }}>
         <StatusItems compact />
         {state.focusMode ? <span className="fs-dim" style={{ fontSize: fz(11) }}>focus</span> : null}
-        <span role="img" aria-label={`Performance ${shell.gov.state}, ${shell.gov.fps} fps`} title={`${shell.gov.state} · ${shell.gov.fps} fps — ${shell.gov.reason}`}
+        <span className="fs-tb-opt" role="img" aria-label={`Performance ${shell.gov.state}, ${shell.gov.fps} fps`} title={`${shell.gov.state} · ${shell.gov.fps} fps — ${shell.gov.reason}`}
           style={{ width: fz(9), height: fz(9), borderRadius: 99, background: tone, display: "inline-block", margin: `0 ${fz(4)}` }} />
-        <button type="button" className="fs-tb-btn" onClick={onBlackout} aria-label="Blackout this screen" title="Blackout this screen (BlackTop)"><UiGlyph name="contrast" size={17} /></button>
+        <button type="button" className="fs-tb-btn fs-tb-opt" onClick={onBlackout} aria-label="Blackout this screen" title="Blackout this screen (BlackTop)"><UiGlyph name="contrast" size={17} /></button>
         <button type="button" className="fs-tb-btn" onClick={onQuick} aria-label="Quick settings" title="Quick settings (Meta+I)" data-testid="taskbar-quick"><UiGlyph name="sliders" size={17} /></button>
         <button type="button" className="fs-tb-btn" data-testid="taskbar-clock" onClick={() => shell.open("planner")}
           title={`${now.toLocaleDateString([], { weekday: "long", year: "numeric", month: "long", day: "numeric" })} — open Planner`}
