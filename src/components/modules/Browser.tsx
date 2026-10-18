@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Blocked } from "../ui";
+import ProxyFrame from "./ProxyFrame";
 import {
   PERMISSION_FEATURES, activate, allowAttribute, batchClose, closeTab, createGroup, hostOf, makeTab, normalizeSession, removeGroup,
   safeBrowserUrl, setGroup, sleepInactive, toggleCollapse, togglePin, visibleTabs, type Session, type Tab,
@@ -53,7 +54,7 @@ export default function BrowserModule({ win }: ModuleProps) {
   useEffect(() => { api<{ capable: boolean }>("/api/render?probe=1").then((r) => setRenderCapable(r.capable)).catch(() => setRenderCapable(false)); }, []);
   // PR-07r / SH-08: tabs, groups, split and sidebar live in win.props, i.e. in the
   // serialised desktop state — so crash restore, presets and sessions bring them back.
-  const saved = win.props as { tabs?: Tab[]; active?: string; vertical?: boolean; split?: "off" | "h" | "v"; url?: string; groups?: unknown; perms?: unknown };
+  const saved = win.props as { tabs?: Tab[]; active?: string; vertical?: boolean; split?: "off" | "h" | "v"; url?: string; groups?: unknown; perms?: unknown; proxyAll?: boolean };
   // Saved sessions are untrusted input (presets, imported bundles): normalised + URL-guarded on restore (TT16).
   const [boot] = useState(() => normalizeSession(saved, typeof window === "undefined" ? undefined : window.location.origin, saved.url));
   const [sess, setSess] = useState<Session>(() => ({ tabs: boot.tabs, active: boot.active, groups: boot.groups, perms: boot.perms }));
@@ -65,17 +66,27 @@ export default function BrowserModule({ win }: ModuleProps) {
   const setActive = (id: string) => setSess((s) => activate(s, id));
   const [vertical, setVertical] = useState(Boolean(saved.vertical));
   const [split, setSplit] = useState<"off" | "h" | "v">(saved.split ?? "off");
+  // TT35 (WP-05): proxied tabs. Session ids live in RAM per tab (never saved with the desktop); "all tabs" routes every
+  // tab through the private proxy, so no site ever sees the user's address and trackers are blocked everywhere.
+  const [proxyAll, setProxyAll] = useState(Boolean(saved.proxyAll));
+  const [proxySessions] = useState(() => new Map<string, string>());
+  const tabIds = tabs.map((t) => t.id).join(",");
+  useEffect(() => {
+    const live = new Set(tabIds.split(","));
+    for (const [tid, sid] of proxySessions) if (!live.has(tid)) { proxySessions.delete(tid); void fetch(`/api/wp-session?sid=${encodeURIComponent(sid)}`, { method: "DELETE" }).catch(() => {}); }
+  }, [tabIds, proxySessions]);
+  useEffect(() => () => { for (const sid of proxySessions.values()) void fetch(`/api/wp-session?sid=${encodeURIComponent(sid)}`, { method: "DELETE", keepalive: true }).catch(() => {}); proxySessions.clear(); }, [proxySessions]);
 
   useEffect(() => {
     const t = window.setTimeout(() => {
       shell.dispatch({
         t: "setProps", id: win.id,
-        props: { tabs: tabs.map(({ verdict: _v, reason: _r, host: _h, ...rest }) => rest), active, vertical, split, groups: sess.groups, perms: sess.perms },
+        props: { tabs: tabs.map(({ verdict: _v, reason: _r, host: _h, ...rest }) => rest), active, vertical, split, groups: sess.groups, perms: sess.perms, proxyAll },
       });
     }, 500);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tabs, active, vertical, split, sess.groups, sess.perms, win.id]);
+  }, [tabs, active, vertical, split, sess.groups, sess.perms, win.id, proxyAll]);
   // The omnibox opens new tabs (existing behaviour) but, like a desktop browser, shows the active tab's URL.
   const [address, setAddress] = useState(() => tabs.find((t) => t.id === active)?.url ?? "https://example.com");
   const [addressFor, setAddressFor] = useState(active);
@@ -126,6 +137,10 @@ export default function BrowserModule({ win }: ModuleProps) {
     else if (/^[1-9]$/.test(k)) { const list = visibleTabs(sess); const t = k === "9" ? list[list.length - 1] : list[Number(k) - 1]; if (t) { e.preventDefault(); setActive(t.id); } }
   };
 
+  const proxied = (tab: Tab, key: string) => (
+    <ProxyFrame key={`${key}:${tab.id}`} tabId={tab.id} url={tab.url} sessions={proxySessions}
+      onNav={(u, t) => { setTabs((ts) => ts.map((x) => (x.id === tab.id ? { ...x, url: u, title: t || new URL(u).host } : x))); if (tab.id === active) setAddress(u); }} />
+  );
   const renderFrame = (tab: Tab | null, key: string) => {
     if (!tab) return null;
     if (tab.asleep) {
@@ -136,8 +151,9 @@ export default function BrowserModule({ win }: ModuleProps) {
         </div>
       );
     }
+    if (proxyAll && !tab.asleep) return proxied(tab, key);
     if (tab.verdict && tab.verdict !== "embeddable") {
-      if (tab.mode === "proxy") return <iframe key={key} src={`/api/webproxy?mode=raw&url=${encodeURIComponent(tab.url)}`} title={tab.title} allow={allowAttribute({}, tab.url)} sandbox="allow-scripts allow-forms allow-popups" style={{ width: "100%", height: "100%", border: 0, background: "#fff" }} />;
+      if (tab.mode === "proxy") return proxied(tab, key);
       if (tab.mode === "reader") return <iframe key={key} src={`/api/webproxy?mode=reader&url=${encodeURIComponent(tab.url)}`} title={tab.title} sandbox="" style={{ width: "100%", height: "100%", border: 0, background: "#fff" }} />;
       if (tab.mode === "snapshot") return <RenderSnapshot key={key} url={tab.url} />;
       return (
@@ -204,6 +220,7 @@ export default function BrowserModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => runBatch("right")}>Close to the right</Btn>
         <Btn variant="ghost" onClick={() => runBatch("duplicates")}>Close duplicates</Btn>
         <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)}>Site permissions</Btn>
+        <Btn variant="ghost" data-testid="br-proxy-all" aria-pressed={proxyAll} title="Route every tab through Fusion's private proxy: sites never see your address, trackers are blocked, cookies stay in memory per tab, and find in page / desktop-or-mobile identity / Save to Files work on every site" onClick={() => setProxyAll((v) => !v)}>Private proxy: {proxyAll ? "all tabs" : "off"}</Btn>
         {current?.verdict ? <Badge tone={current.verdict === "embeddable" ? "ok" : "bad"} title={current.reason}>{current.verdict}</Badge> : <Badge>probing…</Badge>}
       </div>
 
@@ -274,8 +291,8 @@ export default function BrowserModule({ win }: ModuleProps) {
 
       <div className="fs-dim" style={{ fontSize: fz(10.5), padding: "3px 8px", borderTop: "1px solid var(--fs-border)" }}>
         Per-site policy is restrictive-only on the web: the sandbox and allow attributes can take permissions away
-        from an embedded page, never grant them. Desktop user-agent override and find-in-page across origins are
-        impossible here and are marked blocked in the Spec register.
+        from an embedded page, never grant them. For a directly embedded page, user-agent override and find in page
+        are impossible; in a private-proxy tab both work, because the page then runs inside Fusion&apos;s own sandbox.
       </div>
     </div>
   );

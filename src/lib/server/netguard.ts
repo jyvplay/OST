@@ -55,7 +55,10 @@ export function parsePublicWebUrl(raw: string): URL {
   return url;
 }
 
-export async function resolvePinnedPublicHost(host: string): Promise<PinnedAddress[]> {
+export async function resolvePinnedPublicHost(rawHost: string): Promise<PinnedAddress[]> {
+  // TT35 fix: URL.hostname keeps the brackets of an IPv6 literal ("[::1]"); unbracketed, it is checked as an
+  // ADDRESS (refused if private) instead of falling through to a DNS lookup that happened to fail.
+  const host = rawHost.replace(/^\[|\]$/g, "");
   const family = isIP(host);
   if (family) {
     if (isPrivateAddress(host)) throw new Error(`refusing private/reserved address ${host}`);

@@ -14,9 +14,12 @@ const privacyHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // TT35: the proxy keeps target paths exactly — "/search/" and "/search" are different pages on many sites
+  skipTrailingSlashRedirect: true,
   async headers() {
     return [
-      { source: "/:path*", headers: privacyHeaders },
+      // TT35: the web proxy (/api/wp/s/…) sets its own complete header set (CSP sandbox etc.), so it is excluded here
+      { source: "/:path((?!api/wp/s/).*)", headers: privacyHeaders },
       // API bodies (file contents, notes, state) must not be kept in the browser's HTTP disk cache —
       // in an amnesic session that cache would be a trace on the device.
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }] },

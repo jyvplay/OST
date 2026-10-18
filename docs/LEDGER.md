@@ -1,29 +1,29 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-18T02:34:51.110Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-58 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-18T04:02:46.841Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+60 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **346** |
-| Fully built | 261 |
-| Partially built (partial 46 + probe 17) | 63 |
-| Not buildable on this platform (blocked, reason rendered in UI) | 22 |
+| **Features in register** | **352** |
+| Fully built | 267 |
+| Partially built (partial 48 + probe 16) | 64 |
+| Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **143** |
-| **Partially tested** (only `partial` tags) | **77** |
-| Untested | 126 |
-| Automated tests executed / passed | 566 / 566 |
+| **Fully tested** (≥1 passing test tagged `full`) | **149** |
+| **Partially tested** (only `partial` tags) | **81** |
+| Untested | 122 |
+| Automated tests executed / passed | 586 / 586 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 133 | 61 | 67 |
-| partially built | 4 | 14 | 45 |
-| blocked | 6 | 2 | 14 |
+| fully built | 139 | 61 | 67 |
+| partially built | 4 | 18 | 42 |
+| blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
 
 "Blocked + fully tested" means a test asserts that the UI renders the platform-impossibility reason — it
@@ -35,12 +35,12 @@ verifies the honesty contract, not the (impossible) capability.
 |---|---:|---:|---:|---|
 | a11y-unit | 8 | 8 | 0 | 2026-10-18T01:58:24.008Z |
 | ai-format | 5 | 5 | 0 | 2026-10-18T01:58:25.971Z |
-| browser-session | 5 | 5 | 0 | 2026-10-18T01:58:12.888Z |
+| browser-session | 5 | 5 | 0 | 2026-10-18T03:50:01.392Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-18T01:58:27.312Z |
 | e2e-a11y | 9 | 9 | 0 | 2026-10-18T02:12:17.959Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-18T02:13:42.838Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-18T02:30:12.219Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-18T02:05:31.051Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-18T03:55:10.836Z |
 | e2e-contacts | 9 | 9 | 0 | 2026-10-18T02:14:13.962Z |
 | e2e-image | 10 | 10 | 0 | 2026-10-18T02:03:53.807Z |
 | e2e-layout | 12 | 12 | 0 | 2026-10-18T02:33:42.093Z |
@@ -52,11 +52,12 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tabletop | 14 | 14 | 0 | 2026-10-18T02:17:03.730Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-18T02:18:31.666Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-18T02:18:57.106Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T02:20:59.194Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T04:01:08.717Z |
 | e2e-tt31 | 10 | 10 | 0 | 2026-10-18T02:22:20.906Z |
 | e2e-tt32 | 6 | 6 | 0 | 2026-10-18T02:25:05.135Z |
 | e2e-tt33 | 4 | 4 | 0 | 2026-10-18T02:25:19.862Z |
 | e2e-tt34 | 5 | 5 | 0 | 2026-10-18T02:26:23.426Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T04:02:41.479Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-18T02:04:44.566Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T02:13:27.378Z |
 | e2e | 61 | 61 | 0 | 2026-10-18T02:32:32.103Z |
@@ -87,7 +88,8 @@ verifies the honesty contract, not the (impossible) capability.
 | tt32-voice | 7 | 7 | 0 | 2026-10-18T02:22:37.081Z |
 | tt33-unit | 7 | 7 | 0 | 2026-10-18T02:25:05.374Z |
 | tt34-unit | 12 | 12 | 0 | 2026-10-18T02:25:24.562Z |
-| unit | 23 | 23 | 0 | 2026-10-18T01:57:58.624Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-18T03:47:09.542Z |
+| unit | 23 | 23 | 0 | 2026-10-18T03:50:06.064Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-18T01:58:11.907Z |
 | vector | 18 | 18 | 0 | 2026-10-18T01:58:10.918Z |
 | whiteboard-engine | 9 | 9 | 0 | 2026-10-18T01:58:24.477Z |
@@ -109,7 +111,7 @@ None.
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
-| PR | 32 | 22 | 9 | 1 | 13 | 7 | 12 |
+| PR | 38 | 28 | 10 | 0 | 19 | 11 | 8 |
 | FF | 34 | 25 | 9 | 0 | 25 | 5 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
@@ -243,14 +245,14 @@ None.
 | PR-07e | built | untested |  |
 | PR-07f | built | full | browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab |
 | PR-07g | built | full | browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs |
-| PR-07h | blocked | untested |  |
+| PR-07h | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads |
 | PR-07i | built | full | e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab |
 | PR-07j | built | untested |  |
 | PR-07k | partial | untested |  |
 | PR-07l | built | full | browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused; browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: site permissions panel writes the iframe delegation policy into the saved session |
-| PR-07m | partial | untested |  |
-| PR-07n | partial | untested |  |
-| PR-07o | probe | untested |  |
+| PR-07m | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413) |
+| PR-07n | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads |
+| PR-07o | partial | partial | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server |
 | PR-07p | partial | untested |  |
 | PR-07q | built | full | browser-session: batch actions: close others / to the right / duplicates keep pinned tabs and the anchor; e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs |
 | PR-07r | built | partial | browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first; e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin; e2e: mount: routines (+1) |
@@ -391,6 +393,12 @@ None.
 | SM-09 | built | full | e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing; e2e-tt34: transport honesty (SM-09): Vimeo with speed disabled by its owner — setPlaybackRate is sent but the speed shown stays unreported 1×; volume uses 0–1 and follows volumechange; seek slider → setCurrentTime. SoundCloud: seek + playlist next, no volume control at all; e2e-tt34: native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them (+2) |
 | SM-10 | built | full | e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing; tt34-unit: keyboard (SM-10): Space/K, J/L, arrows, M, Shift+N/P, < >, digits; nothing while typing or with modifiers; sliders keep their arrows; Space on a button stays the button's; speed stepping |
 | SM-11 | built | full | e2e-tt34: native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them; tt34-unit: library order (SM-11): Previous wraps only with Loop; Shuffle never repeats within a round, never plays the same item twice in a row across rounds, is uniform (χ², 6 items × 6 000 draws) |
+| WP-01 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted; tt35-unit: URL codec (WP-01): path-preserving encode → decode round-trips 2 000 generated URLs exactly (ports, IPv6, trailing slashes, queries, unicode); refuses credentials, non-http schemes, bad session ids and smuggled hosts (+4) |
+| WP-02 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413) (+7) |
+| WP-03 | built | full | e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted; tt35-unit: privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream requests carry no cookie / referer / origin / client hints / forwarding headers of the user, one UA and language for everyone, Sec-GPC and an origin-only Referer of the target; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised |
+| WP-04 | built | full | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server; tt35-unit: cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix refusal, domain mismatch, default-path and path matching (/docs vs /docsx), Secure only over https, Max-Age over Expires, deletion, HttpOnly hidden from (and unwritable by) scripts, __Secure- / __Host- prefixes, ordering by path length, per-domain cap; tt35-unit: sessions (WP-04): 128-bit url-safe capability ids, unique; idle sessions expire after 30 min; the store never exceeds its cap (least recently used goes first); dropping forgets the cookie jar |
+| WP-05 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads |
+| WP-06 | built | full | e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

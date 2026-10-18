@@ -84,6 +84,8 @@ function oneRequest(
     const req = transport.request(requestOptions, (res) => {
       const status = res.statusCode ?? 502;
       const headers = res.headers;
+      // every exit path keeps an error listener: a reset while a body drains must not become an uncaught exception
+      res.on("error", () => undefined);
       if (REDIRECTS.has(status) && headers.location) {
         res.resume();
         resolve({ status, headers, body: Buffer.alloc(0) });

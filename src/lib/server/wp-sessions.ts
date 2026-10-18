@@ -1,0 +1,50 @@
+import { randomBytes } from "node:crypto";
+import { CookieJar, type UaKind } from "../wp-core";
+
+/**
+ * TT35 proxy sessions — RAM only (amnesic: nothing is written to disk or the database). A session is a capability:
+ * its id is 128 random bits, and every proxied request must carry it, so another website cannot use this server as
+ * an open relay through the user's browser. Each session has its own cookie jar, so two tabs (or two profiles)
+ * never share site state — the isolation PR-07o asks for, by construction.
+ */
+export interface WpSession {
+  sid: string; ua: UaKind; profile: string; jar: CookieJar; created: number; lastUsed: number;
+  stats: { requests: number; blocked: number; bytesIn: number; errors: number; blockedHosts: Record<string, number>; failedHosts: Record<string, string> };
+}
+export const WP_IDLE_MS = 30 * 60_000;
+export const WP_MAX_SESSIONS = 64;
+
+type Store = Map<string, WpSession>;
+// one store per server process, shared by every route bundle that imports this module
+const g = globalThis as unknown as { __fusionWpSessions?: Store };
+const store: Store = (g.__fusionWpSessions ??= new Map());
+
+function sweep(now: number) {
+  for (const [k, s] of store) if (now - s.lastUsed > WP_IDLE_MS) store.delete(k);
+  while (store.size >= WP_MAX_SESSIONS) {
+    let oldest: WpSession | null = null;
+    for (const s of store.values()) if (!oldest || s.lastUsed < oldest.lastUsed) oldest = s;
+    if (!oldest) break;
+    store.delete(oldest.sid);
+  }
+}
+
+export function createSession(ua: UaKind = "desktop", profile = "default", now = Date.now()): WpSession {
+  sweep(now);
+  const sid = randomBytes(16).toString("base64url");
+  const s: WpSession = { sid, ua, profile: profile.slice(0, 40), jar: new CookieJar(), created: now, lastUsed: now, stats: { requests: 0, blocked: 0, bytesIn: 0, errors: 0, blockedHosts: {}, failedHosts: {} } };
+  store.set(sid, s);
+  return s;
+}
+export function getSession(sid: string, now = Date.now()): WpSession | null {
+  const s = store.get(sid);
+  if (!s) return null;
+  if (now - s.lastUsed > WP_IDLE_MS) { store.delete(sid); return null; }
+  s.lastUsed = now;
+  return s;
+}
+export function dropSession(sid: string): boolean { return store.delete(sid); }
+export function sessionCount(): number { return store.size; }
+export function publicStats(s: WpSession) {
+  return { sid: s.sid, ua: s.ua, profile: s.profile, cookies: s.jar.size, cookieDomains: s.jar.domains(), ...s.stats, blockedHosts: s.stats.blockedHosts };
+}

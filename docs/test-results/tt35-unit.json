@@ -1,0 +1,125 @@
+{
+  "suite": "tt35-unit",
+  "at": "2026-10-18T03:47:09.542Z",
+  "results": [
+    {
+      "suite": "tt35-unit",
+      "name": "URL codec (WP-01): path-preserving encode → decode round-trips 2 000 generated URLs exactly (ports, IPv6, trailing slashes, queries, unicode); refuses credentials, non-http schemes, bad session ids and smuggled hosts",
+      "covers": {
+        "WP-01": "full"
+      },
+      "pass": true,
+      "ms": 38
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "runtime parity (WP-01): the in-page runtime public/wp-shim.js, run in a VM with a proxied location, encodes a 400-URL corpus (relative, root-relative, protocol-relative, absolute, already-proxied, location-built, data:/blob:/javascript:/#) exactly like the server's rewriteUrl",
+      "covers": {
+        "WP-01": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "HTML rewriting (WP-01): adversarial vectors — unquoted / single-quoted / uppercase attributes, entities in queries, <base>, srcset with commas inside URLs, inline style url(), meta refresh, CSP / XFO meta removed, integrity + ping dropped, use-credentials → anonymous, _top → _self, script / textarea / comment content untouched, runtime injected first in <head>",
+      "covers": {
+        "WP-01": "full",
+        "WP-02": "partial"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "CSS + srcset rewriting (WP-01): url() quoted / unquoted / escaped / uppercase, @import string, comments and unrelated strings untouched, data: kept; srcset descriptors (w / x), URLs with commas, empty candidates",
+      "covers": {
+        "WP-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "real pages + independent parser (WP-01, WP-02): 4 pages fetched live (github.com, pypi.org) are rewritten, then walked by Python's html.parser — zero URL-bearing attributes may still point outside the proxy, and the start-tag sequence must survive except the injected runtime and removed CSP metas",
+      "covers": {
+        "WP-01": "full",
+        "WP-02": "full"
+      },
+      "pass": true,
+      "ms": 381
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix refusal, domain mismatch, default-path and path matching (/docs vs /docsx), Secure only over https, Max-Age over Expires, deletion, HttpOnly hidden from (and unwritable by) scripts, __Secure- / __Host- prefixes, ordering by path length, per-domain cap",
+      "covers": {
+        "WP-04": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream requests carry no cookie / referer / origin / client hints / forwarding headers of the user, one UA and language for everyone, Sec-GPC and an origin-only Referer of the target; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised",
+      "covers": {
+        "WP-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked",
+      "covers": {
+        "WP-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "sessions (WP-04): 128-bit url-safe capability ids, unique; idle sessions expire after 30 min; the store never exceeds its cap (least recently used goes first); dropping forgets the cookie jar",
+      "covers": {
+        "WP-04": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "network failures are named, from REAL attempts (WP-02): loopback, private, link-local metadata and localhost names are refused before any connection (SSRF); yahoo.com and soundcloud.com are attempted for real and classified — in this sandbox the egress filter cuts the TLS handshake, reported as a network block, not a broken site",
+      "covers": {
+        "WP-02": "full"
+      },
+      "pass": true,
+      "ms": 88
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "decompression bomb (WP-02): 64 MB of zeros gzipped to a few dozen KB is decoded through the same gunzip → byte-cap chain the proxy uses, and stops at the 8 MB cap with a size error instead of inflating",
+      "covers": {
+        "WP-02": "full"
+      },
+      "pass": true,
+      "ms": 225
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "upstream resets and cancelled consumers (WP-02): against a real local socket — a reset mid-body (plain and gzip) rejects the reader with no uncaught exception; a consumer that cancels tears down the upstream socket; the pre-repair .pipe() plumbing fails (hangs / leaks; run here as the mutant)",
+      "covers": {
+        "WP-02": "full"
+      },
+      "pass": true,
+      "ms": 6930
+    },
+    {
+      "suite": "tt35-unit",
+      "name": "Response streaming (WP-02): the web stream is pull-based (a waiting reader stops the source after its bounded buffer), a cancelled reader destroys the source with nothing thrown even when data arrives late, an upstream failure mid-body errors the reader instead of ending cleanly; buffered reads stop at their limit",
+      "covers": {
+        "WP-02": "full"
+      },
+      "pass": true,
+      "ms": 405
+    }
+  ]
+}
