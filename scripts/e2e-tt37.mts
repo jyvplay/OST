@@ -136,7 +136,7 @@ try {
       ok(evil.status === 403, `cross-site PUT → ${evil.status}`);
       ok((await api("GET", "/api/wp-route")).json.route.label === "HTTP proxy 127.0.0.1:18280", "route unchanged by the refused PUT");
       const bad = await api("PUT", "/api/wp-route", { spec: "ftp://x:1" });
-      ok(bad.status === 400 && /only socks5/.test(bad.json.error), "invalid spec → 400");
+      ok(bad.status === 400 && /supported proxies are socks5:\/\//.test(bad.json.error), `invalid spec → 400 (${bad.status} ${bad.json.error})`); // TT40: wording lists the new SOCKS4 / HTTPS kinds
     } finally { await direct(); }
   });
 

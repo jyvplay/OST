@@ -74,7 +74,7 @@ await test("route parsing (WP-07): direct / socks5 / socks5h / http with optiona
   const s = route("socks5://alice:p%40ss@127.0.0.1:9050");
   eq([s.mode, s.host, s.port, s.username, s.password], ["socks5", "127.0.0.1", 9050, "alice", "p@ss"]);
   eq(route("socks5h://tor.lan:9150").mode, "socks5"); eq(route("http://[::1]:3128").host, "::1"); eq(route("socks5://h").port, 1080); eq(route("http://h").port, 8080);
-  for (const bad of ["ftp://h:1", "socks4://h:1", "http://h:0", "http://h:70000", "socks5://h:1/path", "not a url", `socks5://${"u".repeat(256)}:p@h:1`]) {
+  for (const bad of ["ftp://h:1", "socks6://h:1", /* TT40: socks4:// became a supported route (WP-14) */ "http://h:0", "http://h:70000", "socks5://h:1/path", "not a url", `socks5://${"u".repeat(256)}:p@h:1`]) {
     let threw = false; try { route(bad); } catch { threw = true; } ok(threw, `accepted ${bad}`);
   }
   const d = describeRoute(s);

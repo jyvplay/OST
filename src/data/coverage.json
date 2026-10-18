@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-18T18:53:14.013Z",
+ "generatedAt": "2026-10-18T20:05:06.858Z",
  "totals": {
   "built": {
-   "full": 276,
+   "full": 279,
    "partial": 62,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 158,
+   "full": 161,
    "partial": 80,
    "untested": 121
   },
   "tests": {
-   "total": 658,
-   "passed": 657
+   "total": 682,
+   "passed": 682
   }
  },
  "rows": {
@@ -1900,6 +1900,7 @@
     "e2e-tt31: phone 390×760 and the straight-down camera: a focused wall lifts inside the frame with ≥ 24 px pins and no text under 9 px; nothing is text at rest",
     "e2e-tt31: touch (390×760, hasTouch): tapping a wall lifts it, a finger drag moves a pin along the lifted wall (persisted), tapping the floor settles it",
     "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
+    "e2e-tt34: tabletop double-click guard (LY-22): a double-click on a RESTING wall whose 300 ms hover-lift deadline passes between the clicks still makes it the main view (×3 walls, optional TT_CPU load); plain hover still lifts a wall",
     "tt31-unit: row mapping (hand values): board (24,24) → strip (24,24); row 1 (y=229) → S = 912 + x; strip → board inverts every on-grid board point",
     "tt31-unit: strip frames: element ↔ (u,v) are inverse rotations (det +1, no mirror) for rot 0 / 90 / −90 and the CSS matrix matches the math",
     "tt31-unit: infinite pins: rows in use + one empty row; max pan reaches every pin and the empty row; panToShow brings any pin fully into view",
@@ -2143,18 +2144,6 @@
     "tt39-unit: cookie storage, readable headers (WP-10): a script request stores Set-Cookie only if it could send cookies, cross-site only SameSite=None; same-origin reads every header, cross-origin only exposed ones (ACEH * only without credentials); a script response never carries headers that would act on Fusion's own origin (Set-Cookie, Clear-Site-Data, WWW-Authenticate, CSP, HSTS, Link, Refresh, Service-Worker-Allowed, ACAO from the site)"
    ]
   },
-  "CT-01": {
-   "tested": "untested",
-   "tests": []
-  },
-  "CT-02": {
-   "tested": "full",
-   "tests": [
-    "e2e: mount: share",
-    "e2e: WebRTC data channel between two contexts via Postgres signalling",
-    "integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap"
-   ]
-  },
   "WP-11": {
    "tested": "full",
    "tests": [
@@ -2170,13 +2159,9 @@
     "tt39-pac: differential vs PyPAC 0.19 (Apache-2.0, Duktape engine) at the same pinned instant: 3 realistic PAC files (corporate split routing with isInNet/shExpMatch/dnsDomainIs/localHostOrDomainIs, a working-hours schedule, a helper probe) × 14 hosts × http/https = 84 decisions must be IDENTICAL; 6 cases where PyPAC departs from the Netscape text (one-argument weekdayRange is always false, ranges never wrap, localHostOrDomainIs is a bare prefix test, a failed dnsResolve gives \"\" — Chrome gives null) are predicted beforehand and must differ exactly as predicted",
     "tt39-pac: hostile PAC files (each in its own process; D: 14 shapes): reaching the host through constructors (3 ways), an endless loop at load and in FindProxyForURL, a real Error with an endless message getter thrown at load, an endless PROMISE JOB (would run after the time limit without microtaskMode), a thrown object with an endless getter, a thrown Proxy, a result whose toString never returns, a DNS flood, a >1 MiB script, a syntax error, no FindProxyForURL — every one ends within its time limit with an error or a harmless string, and the process stays alive",
     "tt39-pac: OS proxy settings parsers (documented output formats — sample text written for the tests, NOT captured from real Windows/macOS/GNOME machines): Windows reg query (one server for all, per-protocol 'http=…;https=…;socks=…', disabled manual + AutoConfigURL), macOS scutil --proxy (scoped per-interface dictionaries ignored), GNOME gsettings (manual / auto / none); 8 malformed inputs give nothing; the exception lists (<local>, globs, .suffix, CIDR incl. macOS '169.254/16'); OS settings → the route per URL",
-    "tt39-pac: PAC live (WP-12): a fresh server process with FUSION_WP_PAC_URL fetches the PAC file ONCE over HTTP from the local network and follows it per request — https://pypi.org/ through the PROXY it names (an independent proxy, pproxy, logs the name), github.com DIRECT even though its PATH contains the PAC's trigger word (https paths are hidden from the script), a host whose entries are all unusable (HTTPS-to-proxy, SOCKS4) is REFUSED, never sent direct; an unreachable PAC file → DIRECT with the error reported; https_proxy in the environment takes precedence over the PAC file",
+    "tt39-pac: PAC live (WP-12): a fresh server process with FUSION_WP_PAC_URL fetches the PAC file ONCE over HTTP from the local network and follows it per request — https://pypi.org/ through the PROXY it names (an independent proxy, pproxy, logs the name), github.com DIRECT even though its PATH contains the PAC's trigger word (https paths are hidden from the script), a host whose entries are all unusable (QUIC; HTTPS / SOCKS4 became usable in TT40) is REFUSED, never sent direct; an unreachable PAC file → DIRECT with the error reported; https_proxy in the environment takes precedence over the PAC file",
     "tt39-pac: OS settings live (WP-12): a fresh server process with NO proxy variables reads the system proxy page through the platform tool — here a stand-in `gsettings` executable on PATH that prints GNOME's documented output (this sandbox has no GNOME) naming pproxy as the HTTPS proxy and 127.0.0.0/8 as an exception — and https://pypi.org/ is carried by pproxy while FUSION_WP_OS_PROXY=0 turns the reading off"
    ]
-  },
-  "CT-03": {
-   "tested": "untested",
-   "tests": []
   },
   "WP-13": {
    "tested": "full",
@@ -2188,6 +2173,61 @@
     "tt39-unit: permessage-deflate hostile servers: a decompression bomb (64 MiB of zeros compressed to ~64 KiB) stops at the 1 MiB cap → close 1009 without inflating it all; corrupt compressed data → 1007; RSV1 on a ping, on a continuation frame, or without negotiation → 1002; RSV2 → 1002",
     "tt39-unit: permessage-deflate ordering and fragments: one write carrying [1 MiB compressed text][a small uncompressed text][a compressed message in 3 fragments][close 1000] is delivered strictly in that order (nothing overtakes an inflate, not even the close); a context-takeover back-reference into the previous message decodes; a server window of 8 bits (client_max_window_bits=8) makes the client send UNCOMPRESSED"
    ]
+  },
+  "WP-14": {
+   "tested": "full",
+   "tests": [
+    "tt40-proxy: SOCKS4 + HTTPS proxy live (WP-14): https://pypi.org/ through pproxy's SOCKS4 server (it logs an IPv4 address — the NAME never reached the proxy, it was resolved here through the guard) and through pproxy as an HTTPS proxy (TLS to the proxy verified against a CA in NODE_EXTRA_CA_CERTS, pypi.org named only inside that TLS); without that CA the proxy is refused at TLS and never learns the destination",
+    "tt40-proxy: PAC failover live (WP-14): \"PROXY <dead>; SOCKS <pproxy>; DIRECT\" — pypi.org is carried by the SECOND entry (SOCKS = v4, Chrome's reading), the failover is recorded, and a repeat request goes straight to the healthy proxy (the dead one is remembered for 5 min, no second failover); a POST of 70 KB of mixed UTF-8 / binary-safe text fails over byte-exact (echo site's SHA-256) and the dead proxy received only the proxy handshake, never a byte of the body; a proxy that ANSWERS 403 for the destination is not failed over — no DIRECT leak",
+    "tt40-unit: route parsing (WP-14): socks4:// socks4a:// https:// are routes now, with Chrome's default ports (1080 / 443) and labels; still refused: unknown schemes, bad ports, paths",
+    "tt40-unit: SOCKS4 / SOCKS4a request bytes (WP-14): byte-identical to an independent client (npm `socks` 2.8.10) for IPv4 / name targets, with and without a user id, ports 1 and 65535; IPv6, a name over plain SOCKS4, a NUL in the user id and a 256-byte name are refused before any byte is sent",
+    "tt40-unit: SOCKS4 hostile servers (WP-14): a SOCKS5 answer, a refusal (91), a 3-byte reply then close, silence past the deadline — each a classified ProxyRouteError (proxy-down only where the proxy itself is broken); VN=4 echo is accepted and bytes that arrive WITH the grant are not lost",
+    "tt40-unit: HTTPS proxy, negative (WP-14): a proxy whose certificate no trusted CA signed is refused at the TLS step (never sends CONNECT in the clear), classified proxy-down; a proxy that is plain HTTP on a https:// route fails the same way",
+    "tt40-unit: PAC entries → routes (WP-14): DIRECT, PROXY / HTTP → http, HTTPS → https (default 443), SOCKS and SOCKS4 → socks4 (Chrome's reading), SOCKS5 → socks5; QUIC → none; an unparsable host → none",
+    "tt40-unit: bad-proxy memory (WP-14): a failed proxy is moved BEHIND the healthy candidates (incl. DIRECT) for exactly 5 minutes, then restored to its place; when every candidate is bad they are all still tried, in their order",
+    "tt40-unit: failover classification (WP-14): over REAL connections — an unreachable proxy (refused port) and a broken one (not SOCKS) fail over and are marked bad; a proxy that ANSWERED (SOCKS4 91, HTTP 403 to CONNECT, 407) does not fail over (Chrome ≥ M67); a non-proxy error and a DIRECT failure never fail over; all-down throws the last error"
+   ]
+  },
+  "WP-15": {
+   "tested": "full",
+   "tests": [
+    "tt40-proxy: KDE live (WP-15): a fresh process in a KDE session (XDG_CURRENT_DESKTOP=KDE), with no proxy variables and no gsettings, reads ~/.config/kioslaverc (here via XDG_CONFIG_HOME) written in KDE 5's \"http://host port\" form and sends https://pypi.org/ through the proxy it names (pproxy logs it); ProxyType=0 means direct",
+    "tt40-proxy: WPAD live (WP-15): the machine's REAL resolver — \"search eng.corp.fusion-test.example\" in /etc/resolv.conf, wpad.corp.fusion-test.example in /etc/hosts, the PAC file on port 80 — GNOME \"auto\" with an empty URL (stand-in gsettings) and KDE ProxyType=3 each DISCOVER it by devolution (wpad → wpad.eng.… fail, wpad.corp.… answers; wpad.fusion-test.example is never needed) and pypi.org goes through the SOCKS proxy it names; with nothing to discover, auto-detect falls back to DIRECT with the tried list reported",
+    "tt40-unit: Windows (WP-15): the AutoDetect bit (0x08) of DefaultConnectionSettings byte 8 is read from the Connections key; other bits do not set it; an absent / short value is no flag; socks= is SOCKS v4 unless written socks5:// (Chrome's ProxyRules); auto-detect alone is a usable setting",
+    "tt40-unit: macOS + GNOME (WP-15): ProxyAutoDiscoveryEnable : 1 sets auto-detect; GNOME mode 'auto' with an EMPTY autoconfig-url means WPAD (with a URL it means that URL); a configured script URL wins over auto-detect",
+    "tt40-unit: KDE kioslaverc (WP-15): ProxyType 0 none · 1 manual (\"http://h:p\" and KDE 5's \"http://h p\") · 2 script URL · 3 WPAD · 4 environment-variable NAMES; NoProxyFor lists; KDE's [$e] markers; keys outside [Proxy Settings] ignored; comments; SOCKS is v5",
+    "tt40-unit: desktop selection (WP-15): a KDE session reads kioslaverc first; GNOME reads gsettings; without gsettings (ENOENT) kioslaverc is the fallback; Windows reads BOTH registry keys; XDG_CONFIG_HOME is honoured",
+    "tt40-unit: WPAD candidates (WP-15): wpad first, then devolution of each search domain DOWN TO the registrable domain and never above it — squatting negatives: co.uk, com.mx, ac.jp, a public suffix as the search domain, single labels, numeric TLDs, bad labels; duplicates merged; at most 8",
+    "tt40-unit: search domains (WP-15): resolv.conf search + domain (comments ignored), scutil --dns search domain[n] / domain, the Tcpip registry SearchList / Domain / NV Domain / DhcpDomain; an FQDN hostname adds its domain; .local mDNS names dropped",
+    "tt40-unit: discovery (WP-15): candidates tried strictly in order; a 2xx that is not a PAC file (an HTML page on a host that happens to be called wpad) is skipped; the first real script wins and later names are never contacted; the overall budget stops the walk; total failure lists what was tried"
+   ]
+  },
+  "WP-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt40: WP-16 oracle: the cookies, Sec-Fetch-Site and Referer that sites A, A′ and B saw for 7 markup subresources of one page (a same-origin, a same-site and a cross-site image, a cross-site stylesheet AND the image that stylesheet loads, a cross-site script, and — created by page SCRIPT, tagged by the shim — a cross-site image that sets cookies) are IDENTICAL natively in Chromium and through the proxy; so is what that cross-site image could store (SameSite=Lax refused, SameSite=None kept)",
+    "e2e-tt40: WP-16 oracle is not vacuous: cross-site subresources carried ONLY b=1 (not bl / bs / bd); same-site ones carried the Strict cookie too; the stylesheet's own image counted the PAGE as its initiator; Sec-Fetch-Site took all three values; nx (Lax from a cross-site response) was refused, ny kept; the page's markup really carries the subresource tag on img / link / script and NOT on navigations",
+    "e2e-tt40: WP-16 adversary: a FORGED document id on a subresource gets only SameSite=None cookies (never more than a cross-site load); an \"r\" tag on a script fetch() is re-tagged by the shim and follows the script rules (no cookies with credentials same-origin cross-site); an \"r\" tag on a NAVIGATION is ignored (a top-level-in-frame load keeps its cookies)",
+    "tt40-unit: subresource segment (WP-16): \"<sid>:<doc>:r\" parses as a markup subresource of that document; malformed doc ids and unknown codes still refuse; decodeTarget carries the flag",
+    "tt40-unit: subresource policy (WP-16): same-site (incl. a sibling subdomain) gets every cookie, cross-site only SameSite=None, schemeful (http vs https = cross-site); Sec-Fetch-Site same-origin / same-site / cross-site from the DOCUMENT; Referer = the document's origin, none https→http; an unknown document = cross-site with no Referer; cross-site Set-Cookie keeps only SameSite=None",
+    "tt40-unit: markup tagging (WP-16): img / script / link / source / track / audio / video / input[type=image] / poster / background / srcset / style attribute / <style> get the subresource segment; a / area / form / iframe / frame / object / embed / base / meta refresh keep the plain one (a new page must never inherit this document's id); without resSid nothing changes"
+   ]
+  },
+  "CT-01": {
+   "tested": "untested",
+   "tests": []
+  },
+  "CT-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: share",
+    "e2e: WebRTC data channel between two contexts via Postgres signalling",
+    "integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap"
+   ]
+  },
+  "CT-03": {
+   "tested": "untested",
+   "tests": []
   },
   "CT-04": {
    "tested": "untested",

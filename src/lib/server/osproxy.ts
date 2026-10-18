@@ -7,14 +7,24 @@
  *            ProxyAutoConfigEnable / ProxyAutoConfigURLString)
  *   GNOME    `gsettings list-recursively org.gnome.system.proxy` (mode none|manual|auto, autoconfig-url,
  *            ignore-hosts, http/https/socks host+port)
- * Read-only: nothing is ever written to the system settings. Not covered (disclosed): WPAD auto-discovery
- * ("Automatically detect settings" / mode auto without a URL), KDE's kioslaverc, per-network-service settings on
- * macOS other than the active one scutil reports, proxy credentials stored in OS keychains.
+ * Read-only: nothing is ever written to the system settings.
+ * TT40: + "Automatically detect settings" on every platform (→ WPAD discovery in wpad.ts): Windows' AutoDetect bit in the
+ *   DefaultConnectionSettings blob (Connections key), macOS ProxyAutoDiscoveryEnable, GNOME mode 'auto' with an empty
+ *   URL, KDE ProxyType=3; + KDE's ~/.config/kioslaverc ([Proxy Settings]); + Windows "socks=" read as SOCKS v4, as
+ *   Chrome's ProxyRules does. Not covered (disclosed): DHCP option 252, macOS services other than the one scutil
+ *   reports, proxy credentials in OS keychains, KDE's ReversedException (treated as "proxy everything").
  */
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
 export interface OsProxy {
-  source: "windows-registry" | "macos-scutil" | "gnome-gsettings";
+  source: "windows-registry" | "macos-scutil" | "gnome-gsettings" | "kde-kioslaverc";
+  /** TT40: the user ticked "Automatically detect settings" (WPAD). */
+  autoDetect?: boolean;
+  /** TT40: SOCKS protocol version of `socks` (Windows' socks= means v4 unless written socks5://). */
+  socksVersion?: 4 | 5;
   pacUrl: string | null;
   http: string | null;   // "host:port"
   https: string | null;
@@ -35,7 +45,14 @@ const hpString = (s: string): string | null => {
 };
 
 /** Windows: the text `reg query` prints for the Internet Settings key. */
-export function parseRegQuery(text: string): OsProxy | null {
+/** TT40: the flags byte of the DefaultConnectionSettings REG_BINARY blob (offset 8): 0x01 direct, 0x02 manual proxy,
+ *  0x04 auto-config URL, 0x08 automatically detect settings. Returns null when the value is absent or too short. */
+export function connectionFlags(regConnections: string): number | null {
+  const m = /^\s+DefaultConnectionSettings\s+REG_BINARY\s+([0-9A-Fa-f]+)\s*$/m.exec(regConnections);
+  if (!m || m[1].length < 18 || m[1].length % 2) return null;
+  return parseInt(m[1].slice(16, 18), 16);
+}
+export function parseRegQuery(text: string, regConnections = ""): OsProxy | null {
   const v: Record<string, string> = {};
   for (const line of text.split(/\r?\n/)) {
     const m = /^\s+(\S(?:.*?\S)?)\s{2,}(REG_[A-Z_]+)(?:\s{2,}(.*?))?\s*$/.exec(line);
@@ -51,14 +68,16 @@ export function parseRegQuery(text: string): OsProxy | null {
         if (!val) continue;
         if (/^http$/i.test(k)) out.http = hpString(val);
         else if (/^https$/i.test(k)) out.https = hpString(val);
-        else if (/^socks$/i.test(k)) out.socks = hpString(val);
+        else if (/^socks$/i.test(k)) { out.socks = hpString(val); out.socksVersion = /^socks5h?:\/\//i.test(val) ? 5 : 4; }
       }
     } else { out.http = out.https = hpString(ps); } // one server for every protocol
     for (const e of (v.proxyoverride ?? "").split(";").map((x) => x.trim()).filter(Boolean)) {
       if (e.toLowerCase() === "<local>") out.bypassSimple = true; else out.bypass.push(e);
     }
   }
-  return out.pacUrl || out.http || out.https || out.socks ? out : null;
+  const flags = connectionFlags(regConnections);
+  if (flags !== null && flags & 0x08) out.autoDetect = true;
+  return out.pacUrl || out.http || out.https || out.socks || out.autoDetect ? out : null;
 }
 
 /** macOS: the text `scutil --proxy` prints. */
@@ -86,8 +105,9 @@ export function parseScutil(text: string): OsProxy | null {
     socks: on("SOCKS") ? hostPort(v.SOCKSProxy, v.SOCKSPort) : null,
     bypass: arrays.ExceptionsList ?? [],
     bypassSimple: v.ExcludeSimpleHostnames === "1",
+    autoDetect: v.ProxyAutoDiscoveryEnable === "1",
   };
-  return out.pacUrl || out.http || out.https || out.socks ? out : null;
+  return out.pacUrl || out.http || out.https || out.socks || out.autoDetect ? out : null;
 }
 
 /** A GVariant text value as gsettings prints it: 'str', 123, true, ['a', 'b'], @as []. */
@@ -115,14 +135,52 @@ export function parseGsettings(text: string): OsProxy | null {
   }
   const mode = String(v.mode ?? "none");
   const out: OsProxy = { source: "gnome-gsettings", pacUrl: null, http: null, https: null, socks: null, bypass: [], bypassSimple: false };
-  if (mode === "auto") out.pacUrl = String(v["autoconfig-url"] ?? "").trim() || null;
+  if (mode === "auto") { out.pacUrl = String(v["autoconfig-url"] ?? "").trim() || null; out.autoDetect = !out.pacUrl; } // empty URL = WPAD (GNOME docs)
   else if (mode === "manual") {
     out.http = hostPort(v["http.host"] as string, v["http.port"] as number);
     out.https = hostPort(v["https.host"] as string, v["https.port"] as number);
     out.socks = hostPort(v["socks.host"] as string, v["socks.port"] as number);
     out.bypass = Array.isArray(v["ignore-hosts"]) ? v["ignore-hosts"] : [];
   }
-  return out.pacUrl || out.http || out.https || out.socks ? out : null;
+  return out.pacUrl || out.http || out.https || out.socks || out.autoDetect ? out : null;
+}
+
+/**
+ * TT40: KDE Plasma — the [Proxy Settings] group of ~/.config/kioslaverc as System Settings writes it.
+ *   ProxyType   0 none · 1 manual · 2 "Proxy Config Script" URL · 3 automatic detection (WPAD) · 4 from environment
+ *   httpProxy / httpsProxy / socksProxy   "http://host:port" or KDE 5's "http://host port"; with ProxyType=4 they
+ *               hold the NAMES of environment variables (e.g. "HTTP_PROXY")
+ *   NoProxyFor  comma-separated (spaces tolerated)  ·  ReversedException  true = proxy only those (not representable)
+ */
+export function parseKioslaverc(text: string, env: Record<string, string | undefined> = process.env): OsProxy | null {
+  const v: Record<string, string> = {};
+  let inGroup = false;
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#") || line.startsWith(";")) continue;
+    const g = /^\[(.*)\]$/.exec(line);
+    if (g) { inGroup = g[1] === "Proxy Settings"; continue; }
+    if (!inGroup) continue;
+    const m = /^([^=\[]+?)(?:\[\$[a-z]+\])?\s*=\s*(.*)$/.exec(line); // KDE's "[$e]" (expand) / "[$i]" (immutable) markers
+    if (m) v[m[1].trim()] = m[2].trim();
+  }
+  const type = Number(v.ProxyType ?? 0);
+  const out: OsProxy = { source: "kde-kioslaverc", pacUrl: null, http: null, https: null, socks: null, bypass: [], bypassSimple: false, socksVersion: 5 };
+  const kdeHp = (val: string | undefined): string | null => {
+    if (!val) return null;
+    let t = val.trim();
+    if (type === 4) { t = (env[t] ?? env[t.toUpperCase()] ?? env[t.toLowerCase()] ?? "").trim(); if (!t) return null; }
+    const sp = /^(\S+)\s+(\d{1,5})$/.exec(t); // "http://proxy 8080"
+    if (sp) t = `${sp[1].replace(/\/+$/, "")}:${sp[2]}`;
+    return hpString(t);
+  };
+  if (type === 1 || type === 4) {
+    out.http = kdeHp(v.httpProxy); out.https = kdeHp(v.httpsProxy); out.socks = kdeHp(v.socksProxy);
+    const list = type === 4 ? (env[v.NoProxyFor ?? ""] ?? env.no_proxy ?? env.NO_PROXY ?? "") : (v.NoProxyFor ?? "");
+    out.bypass = list.split(/[,\s]+/).map((x) => x.trim()).filter(Boolean);
+  } else if (type === 2) out.pacUrl = (v["Proxy Config Script"] ?? "").trim() || null;
+  else if (type === 3) out.autoDetect = true;
+  return out.pacUrl || out.http || out.https || out.socks || out.autoDetect ? out : null;
 }
 
 function v4(s: string): number | null {
@@ -164,11 +222,30 @@ export type Exec = (cmd: string, args: string[]) => string;
 const realExec: Exec = (cmd, args) => execFileSync(cmd, args, { encoding: "utf8", timeout: 3000, stdio: ["ignore", "pipe", "ignore"], windowsHide: true });
 
 /** Read this computer's proxy settings (null when none are set or the platform tool is missing). */
-export function readOsProxy(platform: string = process.platform, exec: Exec = realExec): { proxy: OsProxy | null; error: string | null } {
+export type ReadText = (path: string) => string | null;
+const realRead: ReadText = (p) => { try { return readFileSync(p, "utf8"); } catch { return null; } };
+export function kioslavercPath(env: Record<string, string | undefined> = process.env): string {
+  return join(env.XDG_CONFIG_HOME || join(env.HOME || homedir(), ".config"), "kioslaverc");
+}
+export function readOsProxy(platform: string = process.platform, exec: Exec = realExec, read: ReadText = realRead, env: Record<string, string | undefined> = process.env): { proxy: OsProxy | null; error: string | null } {
   try {
-    if (platform === "win32") return { proxy: parseRegQuery(exec("reg", ["query", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"])), error: null };
+    if (platform === "win32") {
+      const ie = exec("reg", ["query", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"]);
+      let conn = "";
+      try { conn = exec("reg", ["query", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections", "/v", "DefaultConnectionSettings"]); } catch { /* value absent: no auto-detect bit */ }
+      return { proxy: parseRegQuery(ie, conn), error: null };
+    }
     if (platform === "darwin") return { proxy: parseScutil(exec("scutil", ["--proxy"])), error: null };
-    if (platform === "linux" || platform === "freebsd" || platform === "openbsd") return { proxy: parseGsettings(exec("gsettings", ["list-recursively", "org.gnome.system.proxy"])), error: null };
+    if (platform === "linux" || platform === "freebsd" || platform === "openbsd") {
+      // KDE sessions use kioslaverc (as Chrome's KDE path does); others GNOME's gsettings, with kioslaverc as fallback
+      const kde = /KDE/i.test(env.XDG_CURRENT_DESKTOP ?? "") || env.KDE_FULL_SESSION === "true";
+      const kfile = () => { const t = read(kioslavercPath(env)); return t === null ? null : parseKioslaverc(t, env); };
+      if (kde) { const k = kfile(); if (k) return { proxy: k, error: null }; }
+      let gnome: OsProxy | null = null;
+      try { gnome = parseGsettings(exec("gsettings", ["list-recursively", "org.gnome.system.proxy"])); }
+      catch (e) { if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e; }
+      return { proxy: gnome ?? (kde ? null : kfile()), error: null };
+    }
     return { proxy: null, error: null };
   } catch (e) {
     const code = (e as NodeJS.ErrnoException).code;

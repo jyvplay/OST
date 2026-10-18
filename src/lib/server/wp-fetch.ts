@@ -2,9 +2,9 @@ import * as http from "node:http";
 import * as zlib from "node:zlib";
 import { isIP } from "node:net";
 import { pipeline, Readable, Transform } from "node:stream";
-import { isPrivateAddress, parsePublicWebUrl } from "./netguard";
+import { isPrivateAddress, parsePublicWebUrl, testLoopbackAllowed } from "./netguard";
 import { describeRoute, tunnelHostVerdict, type UpstreamRoute } from "./wp-tunnel";
-import { routeForAsync } from "./wp-route";
+import { routesForAsync, withFailover } from "./wp-route";
 import { agentFor } from "./wp-connect";
 
 /**
@@ -20,14 +20,20 @@ export interface Upstream { status: number; headers: http.IncomingHttpHeaders; b
 
 export const WP_TIMEOUT_MS = 15_000;
 
-export async function upstreamRequest(raw: string, o: { method: string; headers: Record<string, string>; body?: Buffer; maxBytes: number; timeoutMs?: number; session?: { sid: string; circuit: number }; route?: UpstreamRoute }): Promise<Upstream> {
+type UpstreamOpts = { method: string; headers: Record<string, string>; body?: Buffer; maxBytes: number; timeoutMs?: number; session?: { sid: string; circuit: number }; route?: UpstreamRoute };
+/** TT40: with no explicit route, every candidate the system settings / PAC file give is tried in order (failover). */
+export async function upstreamRequest(raw: string, o: UpstreamOpts): Promise<Upstream> {
+  if (o.route) return upstreamVia(raw, o.route, o);
   const url = parsePublicWebUrl(raw);
-  const route = o.route ?? await routeForAsync(url);
+  return withFailover(url, await routesForAsync(url), (r) => upstreamVia(raw, r, o));
+}
+async function upstreamVia(raw: string, route: UpstreamRoute, o: UpstreamOpts): Promise<Upstream> {
+  const url = parsePublicWebUrl(raw);
   const hostname = url.hostname.replace(/^\[|\]$/g, "");
   // refusals that need no connection come first, with the same messages as before TT38
   if (route.mode === "direct" && /\.onion\.?$/i.test(hostname)) throw new Error("onion addresses need the Tor (SOCKS5) route");
   if (route.mode !== "direct") {
-    if (isIP(hostname) && isPrivateAddress(hostname)) throw new Error(`refusing private/reserved address ${hostname}`);
+    if (isIP(hostname) && isPrivateAddress(hostname) && !testLoopbackAllowed(hostname, Number(url.port || (url.protocol === "https:" ? 443 : 80)))) throw new Error(`refusing private/reserved address ${hostname}`);
     const verdict = tunnelHostVerdict(route, hostname);
     if (verdict) throw new Error(verdict);
   }

@@ -1,6 +1,6 @@
 {
   "suite": "tt39-pac",
-  "at": "2026-10-18T18:28:32.121Z",
+  "at": "2026-10-18T20:04:58.586Z",
   "results": [
     {
       "suite": "tt39-pac",
@@ -9,7 +9,7 @@
         "WP-12": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 7
     },
     {
       "suite": "tt39-pac",
@@ -36,7 +36,7 @@
         "WP-12": "full"
       },
       "pass": true,
-      "ms": 519
+      "ms": 433
     },
     {
       "suite": "tt39-pac",
@@ -45,7 +45,7 @@
         "WP-12": "full"
       },
       "pass": true,
-      "ms": 8848
+      "ms": 8779
     },
     {
       "suite": "tt39-pac",
@@ -54,16 +54,16 @@
         "WP-12": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 8
     },
     {
       "suite": "tt39-pac",
-      "name": "PAC live (WP-12): a fresh server process with FUSION_WP_PAC_URL fetches the PAC file ONCE over HTTP from the local network and follows it per request — https://pypi.org/ through the PROXY it names (an independent proxy, pproxy, logs the name), github.com DIRECT even though its PATH contains the PAC's trigger word (https paths are hidden from the script), a host whose entries are all unusable (HTTPS-to-proxy, SOCKS4) is REFUSED, never sent direct; an unreachable PAC file → DIRECT with the error reported; https_proxy in the environment takes precedence over the PAC file",
+      "name": "PAC live (WP-12): a fresh server process with FUSION_WP_PAC_URL fetches the PAC file ONCE over HTTP from the local network and follows it per request — https://pypi.org/ through the PROXY it names (an independent proxy, pproxy, logs the name), github.com DIRECT even though its PATH contains the PAC's trigger word (https paths are hidden from the script), a host whose entries are all unusable (QUIC; HTTPS / SOCKS4 became usable in TT40) is REFUSED, never sent direct; an unreachable PAC file → DIRECT with the error reported; https_proxy in the environment takes precedence over the PAC file",
       "covers": {
         "WP-12": "full"
       },
       "pass": true,
-      "ms": 2306
+      "ms": 2367
     },
     {
       "suite": "tt39-pac",
@@ -72,7 +72,7 @@
         "WP-12": "partial"
       },
       "pass": true,
-      "ms": 1895
+      "ms": 1919
     }
   ]
 }

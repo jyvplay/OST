@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt36",
-  "at": "2026-10-18T18:24:35.912Z",
+  "at": "2026-10-18T19:59:14.677Z",
   "results": [
     {
       "suite": "e2e-tt36",
@@ -10,7 +10,7 @@
         "WP-05": "full"
       },
       "pass": true,
-      "ms": 4923
+      "ms": 4487
     },
     {
       "suite": "e2e-tt36",
@@ -19,7 +19,7 @@
         "PR-07k": "partial"
       },
       "pass": true,
-      "ms": 575
+      "ms": 600
     },
     {
       "suite": "e2e-tt36",
@@ -28,7 +28,7 @@
         "PR-07o": "partial"
       },
       "pass": true,
-      "ms": 5907
+      "ms": 5939
     }
   ]
 }

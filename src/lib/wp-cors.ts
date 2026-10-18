@@ -17,12 +17,45 @@ export type Cred = "include" | "same-origin" | "omit";
 const CRED_CODE: Record<string, Cred> = { i: "include", s: "same-origin", o: "omit" };
 export function credCode(c: Cred): string { return c === "include" ? "i" : c === "omit" ? "o" : "s"; }
 
-/** "<sid>" or "<sid>:<doc>:<cred>" (the session segment of a proxied path). */
-export function parseSidSegment(seg: string): { sid: string; doc?: string; cred?: Cred } | null {
+/** "<sid>" or "<sid>:<doc>:<cred>" (the session segment of a proxied path); TT40: "<sid>:<doc>:r" = a markup
+ *  SUBRESOURCE (img / script / stylesheet / media …) of that document — no-cors, credentials "include", SameSite. */
+export function parseSidSegment(seg: string): { sid: string; doc?: string; cred?: Cred; resource?: true } | null {
   const parts = seg.split(":");
   if (parts.length === 1) return { sid: seg };
-  if (parts.length !== 3 || !/^[A-Za-z0-9_-]{8,32}$/.test(parts[1]) || !CRED_CODE[parts[2]]) return null;
+  if (parts.length !== 3 || !/^[A-Za-z0-9_-]{8,32}$/.test(parts[1])) return null;
+  if (parts[2] === "r") return { sid: parts[0], doc: parts[1], resource: true };
+  if (!CRED_CODE[parts[2]]) return null;
   return { sid: parts[0], doc: parts[1], cred: CRED_CODE[parts[2]] };
+}
+
+/**
+ * TT40 (WP-16): a markup subresource's request, as a browser makes it (RFC 6265bis §5.2 "same-site" for subresources,
+ * Fetch Metadata, Referrer Policy default strict-origin-when-cross-origin). The document is known from the tag; an
+ * unknown / expired / forged document id counts as cross-site (fewer cookies, never more).
+ *   cookies       all of the site's cookies when same-site; only SameSite=None ones when cross-site
+ *   Set-Cookie    stored as for script requests: cross-site responses may store only SameSite=None cookies
+ *   Sec-Fetch-Site / Referer   from the document's origin (the browser's own say "same-origin" for every proxied URL)
+ */
+export function resourcePolicy(o: { initiator: string | null; target: URL; siteOf: SiteOf; referrerUrl?: string | null }): { crossSite: boolean; secFetchSite: "same-origin" | "same-site" | "cross-site"; referer: string | null } {
+  const init = o.initiator ? new URL(o.initiator) : null;
+  const sameOrigin = !!init && init.origin === o.target.origin;
+  const sameSite = !!init && init.protocol === o.target.protocol && o.siteOf(init.hostname) === o.siteOf(o.target.hostname);
+  return {
+    crossSite: !sameSite,
+    secFetchSite: sameOrigin ? "same-origin" : sameSite ? "same-site" : "cross-site",
+    referer: init ? strictOriginWhenCrossOrigin(o.referrerUrl ? new URL(o.referrerUrl) : init, o.target) : null,
+  };
+}
+/** Referrer Policy "strict-origin-when-cross-origin" (the default): the full URL (no fragment, no credentials) to the
+ *  same origin, only the origin elsewhere, nothing on an https → http downgrade. */
+export function strictOriginWhenCrossOrigin(ref: URL, target: URL): string | null {
+  if (ref.protocol === "https:" && target.protocol === "http:") return null;
+  if (ref.origin !== target.origin) return `${ref.origin}/`;
+  const u = new URL(ref.href); u.hash = ""; u.username = ""; u.password = "";
+  return u.href;
+}
+export function storableForResource(crossSite: boolean, lines: string[]): string[] {
+  return crossSite ? lines.filter((l) => /;\s*samesite\s*=\s*none\b/i.test(l)) : lines;
 }
 
 /** Registrable domain (passed in so this file stays free of the suffix list): "site" for SameSite decisions. */

@@ -2,7 +2,7 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { connectWebSocket, closeCodeAllowedOnWire, type WsClient } from "./ws-client";
 import { openUpstream } from "./wp-connect";
 import { parsePublicWebUrl } from "./netguard";
-import { routeForAsync } from "./wp-route";
+import { routesForAsync, withFailover } from "./wp-route";
 import { UA, sameSite } from "../wp-core";
 import { onSessionEnd, type WpSession } from "./wp-sessions";
 
@@ -141,7 +141,7 @@ export function openBridge(s: WpSession, o: { url: string; protocols: string[]; 
       if (cookie) headers.cookie = cookie;
       connectWebSocket({
         url: wsUrl, protocols: o.protocols, origin, headers, maxMessage: WS_MAX_MESSAGE, timeoutMs: o.timeoutMs ?? 15_000,
-        open: async (host, port, secure) => (await openUpstream(host, port, { secure, route: await routeForAsync(target), session: { sid: s.sid, circuit: s.circuit }, timeoutMs: o.timeoutMs ?? 15_000 })).socket,
+        open: async (host, port, secure) => (await withFailover(target, await routesForAsync(target), (route) => openUpstream(host, port, { secure, route, session: { sid: s.sid, circuit: s.circuit }, timeoutMs: o.timeoutMs ?? 15_000 }))).socket,
       }).then((r) => {
         // a cross-site handshake may only set SameSite=None cookies (Chrome blocks Lax / Strict from cross-site responses)
         for (const line of r.setCookies) if (!crossSite || /;\s*samesite\s*=\s*none\b/i.test(line)) s.jar.set(line, target);

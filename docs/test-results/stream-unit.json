@@ -1,6 +1,6 @@
 {
   "suite": "stream-unit",
-  "at": "2026-10-18T18:29:16.077Z",
+  "at": "2026-10-18T19:38:41.567Z",
   "results": [
     {
       "suite": "stream-unit",
@@ -9,7 +9,7 @@
         "SM-01": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "stream-unit",
@@ -18,7 +18,7 @@
         "SM-01": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "stream-unit",

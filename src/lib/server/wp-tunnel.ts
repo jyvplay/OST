@@ -12,19 +12,25 @@ import { createHash, randomBytes } from "node:crypto";
  *   - HTTP CONNECT, RFC 9110 §9.3.6, with Basic proxy credentials (RFC 7617).
  * Every read is bounded (sizes and a deadline), so a hostile or broken proxy cannot hang or flood the server.
  */
-export type RouteMode = "direct" | "socks5" | "http";
+export type RouteMode = "direct" | "socks5" | "http" | "https" | "socks4" | "socks4a";
+/** TT40: SOCKS4 carries IPv4 only (the caller resolves names through the public-address guard, as curl / Chrome do
+ *  for SOCKS4); SOCKS4a hands the NAME to the proxy; "https" is an HTTP proxy reached over TLS (Chrome's PAC "HTTPS"). */
+export const isSocks4 = (m: RouteMode) => m === "socks4" || m === "socks4a";
 export interface UpstreamRoute { mode: RouteMode; host: string; port: number; username?: string; password?: string; isolate: boolean }
 export const DIRECT: UpstreamRoute = { mode: "direct", host: "", port: 0, isolate: true };
 
-/** Parse "direct", "socks5://[user:pass@]host:port", "socks5h://…" (same: names always go to the proxy), "http://[user:pass@]host:port". */
+/** Parse "direct", "socks5://[user:pass@]host:port", "socks5h://…" (same: names always go to the proxy), "http://[user:pass@]host:port",
+ *  TT40: "https://[user:pass@]host:port" (TLS to the proxy), "socks4://[userid@]host:port", "socks4a://[userid@]host:port". */
 export function parseRoute(spec: string | undefined | null, isolate = true): UpstreamRoute {
   const s = String(spec ?? "").trim();
   if (!s || s === "direct") return { ...DIRECT, isolate };
   let u: URL;
   try { u = new URL(s); } catch { throw new Error(`upstream route: not a proxy address: ${s.slice(0, 80)}`); }
-  const mode: RouteMode | null = u.protocol === "socks5:" || u.protocol === "socks5h:" ? "socks5" : u.protocol === "http:" ? "http" : null;
-  if (!mode) throw new Error("upstream route: only socks5:// and http:// proxies are supported");
-  const port = Number(u.port || (mode === "http" ? 8080 : 1080));
+  const MODES: Record<string, RouteMode> = { "socks5:": "socks5", "socks5h:": "socks5", "http:": "http", "https:": "https", "socks4:": "socks4", "socks4a:": "socks4a" };
+  const mode: RouteMode | null = MODES[u.protocol] ?? null;
+  if (!mode) throw new Error("upstream route: supported proxies are socks5://, socks4://, socks4a://, http:// and https://");
+  // URL drops a scheme's default port (https:443) — so the default here must match it
+  const port = Number(u.port || (mode === "http" ? 8080 : mode === "https" ? 443 : 1080));
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("upstream route: bad port");
   const host = u.hostname.replace(/^\[|\]$/g, "");
   if (!host) throw new Error("upstream route: missing host");
@@ -37,7 +43,8 @@ export function parseRoute(spec: string | undefined | null, isolate = true): Ups
 
 /** The route as shown to the user / API: never the password. */
 export function describeRoute(r: UpstreamRoute): { mode: RouteMode; host: string; port: number; auth: boolean; isolate: boolean; label: string } {
-  const label = r.mode === "direct" ? "Direct" : `${r.mode === "socks5" ? "SOCKS5" : "HTTP proxy"} ${r.host.includes(":") ? `[${r.host}]` : r.host}:${r.port}`;
+  const kind: Record<RouteMode, string> = { direct: "Direct", socks5: "SOCKS5", socks4: "SOCKS4", socks4a: "SOCKS4a", http: "HTTP proxy", https: "HTTPS proxy" };
+  const label = r.mode === "direct" ? "Direct" : `${kind[r.mode]} ${r.host.includes(":") ? `[${r.host}]` : r.host}:${r.port}`;
   return { mode: r.mode, host: r.host, port: r.port, auth: !!r.username, isolate: r.isolate, label };
 }
 
@@ -114,7 +121,10 @@ const SOCKS_REPLY: Record<number, string> = {
 
 export class ProxyRouteError extends Error {
   readonly reply?: number;
-  constructor(message: string, reply?: number) { super(message); this.name = "ProxyRouteError"; this.reply = reply; }
+  /** TT40: the PROXY itself failed (unreachable, silent, broken handshake, its TLS) — the next PAC entry may be tried.
+   *  False when the proxy answered that the DESTINATION failed, or wants credentials: another proxy would not help. */
+  proxyDown: boolean;
+  constructor(message: string, reply?: number, proxyDown = true) { super(message); this.name = "ProxyRouteError"; this.reply = reply; this.proxyDown = proxyDown; }
 }
 
 function connectTcp(host: string, port: number, deadline: number): Promise<net.Socket> {
@@ -134,7 +144,7 @@ export function socksConnectRequest(host: string, port: number): Buffer {
   else if (fam === 6) addr = Buffer.concat([Buffer.from([0x04]), ipv6Bytes(host)]);
   else {
     const name = Buffer.from(host, "ascii"); // hostnames reach here already IDNA-encoded by URL parsing
-    if (name.length < 1 || name.length > 255) throw new ProxyRouteError("host name too long for SOCKS5");
+    if (name.length < 1 || name.length > 255) throw new ProxyRouteError("host name too long for SOCKS5", undefined, false);
     addr = Buffer.concat([Buffer.from([0x03, name.length]), name]);
   }
   return Buffer.concat([Buffer.from([0x05, 0x01, 0x00]), addr, Buffer.from([port >> 8, port & 0xff])]);
@@ -156,18 +166,18 @@ async function socks5Handshake(sock: net.Socket, host: string, port: number, cre
     sock.write(cred ? Buffer.from([0x05, 0x02, 0x00, 0x02]) : Buffer.from([0x05, 0x01, 0x00]));
     const [ver, method] = await rd.take(2);
     if (ver !== 0x05) throw new ProxyRouteError("upstream proxy is not a SOCKS5 server");
-    if (method === 0xff) throw new ProxyRouteError("SOCKS5 proxy accepted none of our authentication methods (it may need a username and password)");
+    if (method === 0xff) throw new ProxyRouteError("SOCKS5 proxy accepted none of our authentication methods (it may need a username and password)", undefined, false);
     if (method === 0x02) {
-      if (!cred) throw new ProxyRouteError("SOCKS5 proxy asked for a password that was never offered");
+      if (!cred) throw new ProxyRouteError("SOCKS5 proxy asked for a password that was never offered", undefined, false);
       const u = Buffer.from(cred.username), p = Buffer.from(cred.password);
       sock.write(Buffer.concat([Buffer.from([0x01, u.length]), u, Buffer.from([p.length]), p]));
       const [aver, status] = await rd.take(2);
-      if (aver !== 0x01 || status !== 0x00) throw new ProxyRouteError("SOCKS5 proxy rejected the username / password");
+      if (aver !== 0x01 || status !== 0x00) throw new ProxyRouteError("SOCKS5 proxy rejected the username / password", undefined, false);
     } else if (method !== 0x00) throw new ProxyRouteError(`SOCKS5 proxy chose an unsupported method (${method})`);
     sock.write(socksConnectRequest(host, port));
     const [rver, rep, , atyp] = await rd.take(4);
     if (rver !== 0x05) throw new ProxyRouteError("malformed SOCKS5 reply");
-    if (rep !== 0x00) throw new ProxyRouteError(`SOCKS5 proxy: ${SOCKS_REPLY[rep] ?? `error ${rep}`}`, rep);
+    if (rep !== 0x00) throw new ProxyRouteError(`SOCKS5 proxy: ${SOCKS_REPLY[rep] ?? `error ${rep}`}`, rep, false); // the proxy ANSWERED (Chrome ≥ M67: tunnel refusals are not fallback-eligible)
     const alen = atyp === 0x01 ? 4 : atyp === 0x04 ? 16 : atyp === 0x03 ? (await rd.take(1))[0] : -1;
     if (alen < 0) throw new ProxyRouteError("malformed SOCKS5 reply (address type)");
     await rd.take(alen + 2);
@@ -189,13 +199,54 @@ async function httpConnectHandshake(sock: net.Socket, host: string, port: number
     const m = /^HTTP\/1\.[01] (\d{3})/.exec(head);
     if (!m) throw new ProxyRouteError("upstream HTTP proxy sent a malformed reply");
     const code = Number(m[1]);
-    if (code === 407) throw new ProxyRouteError("HTTP proxy needs credentials (407)");
-    if (code < 200 || code > 299) throw new ProxyRouteError(`HTTP proxy refused the tunnel (${code})`);
+    if (code === 407) throw new ProxyRouteError("HTTP proxy needs credentials (407)", undefined, false);
+    // 502 / 504 / 403 …: the proxy is up and answered about the destination or its own policy — not a reason to fail over
+    if (code < 200 || code > 299) throw new ProxyRouteError(`HTTP proxy refused the tunnel (${code})`, code, false);
     ok = true;
   } finally {
     const rest = rd.release();
     if (ok && rest.length) sock.unshift(rest); // bytes after the handshake belong to the tunnelled stream
   }
+}
+
+/** SOCKS4 / SOCKS4a CONNECT bytes (the 1990s NEC protocol; 4a = Ying-Da Lee's extension). Exported for the tests. */
+export function socks4ConnectRequest(host: string, port: number, userid: string, a: boolean): Buffer {
+  const uid = Buffer.from(userid, "utf8");
+  if (uid.includes(0) || uid.length > 255) throw new ProxyRouteError("SOCKS4 user id must be ≤ 255 bytes without NUL", undefined, false);
+  const head = (ip: number[]) => Buffer.from([0x04, 0x01, port >> 8, port & 0xff, ...ip]);
+  const fam = net.isIP(host);
+  if (fam === 6) throw new ProxyRouteError("SOCKS4 cannot carry an IPv6 address", undefined, false);
+  if (fam === 4) return Buffer.concat([head(host.split(".").map(Number)), uid, Buffer.from([0])]);
+  if (!a) throw new ProxyRouteError("SOCKS4 needs an IPv4 address (names go through SOCKS4a)", undefined, false);
+  const name = Buffer.from(host, "ascii");
+  if (name.length < 1 || name.length > 255 || name.includes(0)) throw new ProxyRouteError("host name unusable for SOCKS4a", undefined, false);
+  return Buffer.concat([head([0, 0, 0, 1]), uid, Buffer.from([0]), name, Buffer.from([0])]); // 0.0.0.x: "the name follows"
+}
+const SOCKS4_REPLY: Record<number, string> = { 91: "request rejected or failed", 92: "the proxy could not reach our identd", 93: "identd user id mismatch" };
+async function socks4Handshake(sock: net.Socket, host: string, port: number, userid: string, a: boolean): Promise<void> {
+  const rd = new Reader(sock);
+  let ok = false;
+  try {
+    sock.write(socks4ConnectRequest(host, port, userid, a));
+    const r = await rd.take(8);
+    // VN is 0 in the specification; some servers echo 4 — both are seen in the wild and accepted by curl
+    if (r[0] !== 0x00 && r[0] !== 0x04) throw new ProxyRouteError("upstream proxy is not a SOCKS4 server");
+    if (r[1] !== 90) throw new ProxyRouteError(`SOCKS4 proxy: ${SOCKS4_REPLY[r[1]] ?? `error ${r[1]}`}`, r[1], false);
+    ok = true;
+  } finally {
+    const rest = rd.release();
+    if (ok && rest.length) sock.unshift(rest);
+  }
+}
+
+/** TLS to an HTTPS proxy, verified against the PROXY's own name (or IP literal), with the system CA store. */
+function tlsToProxy(sock: net.Socket, proxyHost: string, deadline: number): Promise<tls.TLSSocket> {
+  return new Promise((resolve, reject) => {
+    const s = tls.connect({ socket: sock, host: proxyHost, servername: net.isIP(proxyHost) ? undefined : proxyHost, ALPNProtocols: ["http/1.1"] });
+    const t = setTimeout(() => s.destroy(Object.assign(new ProxyRouteError("HTTPS proxy TLS handshake timed out"), { code: "ETIMEDOUT" })), Math.max(1, deadline - Date.now()));
+    s.once("secureConnect", () => { clearTimeout(t); resolve(s); });
+    s.once("error", (e: NodeJS.ErrnoException) => { clearTimeout(t); reject(e instanceof ProxyRouteError ? e : new ProxyRouteError(`HTTPS proxy ${proxyHost}: TLS failed (${e.code ?? e.message})`)); });
+  });
 }
 
 /**
@@ -205,11 +256,14 @@ async function httpConnectHandshake(sock: net.Socket, host: string, port: number
 export async function openTunnel(route: UpstreamRoute, host: string, port: number, o: { secure: boolean; servername?: string; cred?: { username: string; password: string }; timeoutMs: number }): Promise<net.Socket> {
   if (route.mode === "direct") throw new Error("openTunnel needs a proxy route");
   const deadline = Date.now() + o.timeoutMs;
-  const sock = await connectTcp(route.host, route.port, deadline);
+  const tcp = await connectTcp(route.host, route.port, deadline);
+  let sock: net.Socket = tcp;
   const t = setTimeout(() => sock.destroy(Object.assign(new ProxyRouteError("upstream proxy handshake timed out"), { code: "ETIMEDOUT" })), Math.max(1, deadline - Date.now()));
   try {
     try {
       if (route.mode === "socks5") await socks5Handshake(sock, host, port, o.cred);
+      else if (isSocks4(route.mode)) await socks4Handshake(sock, host, port, o.cred?.username ?? route.username ?? "", route.mode === "socks4a");
+      else if (route.mode === "https") { sock = await tlsToProxy(tcp, route.host, deadline); await httpConnectHandshake(sock, host, port, o.cred); }
       else await httpConnectHandshake(sock, host, port, o.cred);
     } catch (e) {
       // during the handshake only the proxy is involved: whatever went wrong is the route's failure, not the site's
@@ -223,7 +277,7 @@ export async function openTunnel(route: UpstreamRoute, host: string, port: numbe
       s.once("error", reject);
     });
   } catch (e) {
-    sock.destroy();
+    sock.destroy(); tcp.destroy();
     throw e;
   } finally {
     clearTimeout(t);
@@ -240,6 +294,6 @@ export function tunnelHostVerdict(route: UpstreamRoute, host: string): string | 
   if (net.isIP(h)) return null;
   if (!h.includes(".")) return "local/internal host names are refused (SSRF guard): single-label name";
   if (/\.(local|localhost|internal|intranet|lan|home|corp|home\.arpa|localdomain)$/.test(h)) return "local/internal host names are refused (SSRF guard)";
-  if (h.endsWith(".onion") && route.mode !== "socks5") return "onion addresses need the Tor (SOCKS5) route";
+  if (h.endsWith(".onion") && route.mode !== "socks5" && route.mode !== "socks4a") return "onion addresses need the Tor (SOCKS5) route";
   return null;
 }

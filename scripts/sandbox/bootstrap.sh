@@ -25,6 +25,10 @@ venv/bin/python -c "import argon2, cryptography, docx, formulas, numpy, openpyxl
 # reference), pproxy (MIT, an independent SOCKS5 / HTTP CONNECT server for the network-route tests), websockets (BSD-3, an independent RFC 6455 server for the WebSocket tests), geographiclib (MIT) and gpxpy (Apache-2.0) — the TT34 geodesy / GPX oracles, missing from this list until TT38; pypac (Apache-2.0, runs PAC files in Duktape via dukpy, MIT) — the TT39 PAC differential oracle. None ships in Fusion.
 # pocketsphinx (CMU BSD-style licence, wheel bundles the en-us acoustic model + CMUdict) is the TEST-ONLY speech-recognition oracle for
 # Fusion Voice (scripts/oracle/asr.py, scripts/tt32-voice.mts, scripts/e2e-tt32.mts). Nothing from it ships in Fusion.
+# TT40 test-only oracle: the npm `socks` client (MIT) — its SOCKS4 / SOCKS4a request bytes are the differential
+# reference for wp-tunnel's own (pproxy's SOCKS4 server has no 4a). Installed outside the repo; never imported by Fusion.
+mkdir -p "$TOOLS/oracle-npm" && ( cd "$TOOLS/oracle-npm" && { test -f package.json || echo '{"name":"oracle","private":true}' > package.json; } && \
+  { test -f node_modules/socks/package.json || npm install --no-audit --no-fund socks@2.8.10 >/dev/null; } )
 node "$REPO/scripts/sandbox/pg-start.mjs"
 cd "$REPO"
 export DATABASE_URL="${DATABASE_URL:-postgresql://postgres:postgres@127.0.0.1:5432/app_db}"

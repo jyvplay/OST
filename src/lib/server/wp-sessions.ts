@@ -13,7 +13,7 @@ export interface WpSession {
   /** TT37: bumped by "New circuit" — changes the session's SOCKS isolation credentials (a fresh Tor circuit). */
   circuit: number;
   /** TT39 (WP-10): document id → that document's origin (issued at navigation; LRU) and the CORS-preflight cache */
-  docs?: Map<string, string>;
+  docs?: Map<string, string | { origin: string; url: string }>;
   preflights?: PreflightCache;
   stats: { requests: number; blocked: number; bytesIn: number; errors: number; blockedHosts: Record<string, number>; failedHosts: Record<string, string> };
 }
@@ -67,17 +67,20 @@ export function publicStats(s: WpSession) {
 
 /** TT39 (WP-10): register a navigated document; its id rides on that document's script requests. */
 export const WP_MAX_DOCS = 1024;
-export function newDoc(s: WpSession, origin: string): string {
+export function newDoc(s: WpSession, origin: string, url?: string): string {
   const id = randomBytes(12).toString("base64url");
   const m = (s.docs ??= new Map());
-  m.set(id, origin);
+  // TT40 (WP-16): + the URL that acts as REFERRER for this document's subresources (the page, or a stylesheet —
+  // a stylesheet's images name the stylesheet as Referer while SameSite / Sec-Fetch-Site still follow the page)
+  m.set(id, url ? { origin, url } : origin);
   while (m.size > WP_MAX_DOCS) m.delete(m.keys().next().value as string);
   return id;
 }
 /** The registered origin of a document id, or null when unknown (forged, from another session, or evicted). */
-export function docOrigin(s: WpSession, id: string): string | null {
+export function docOrigin(s: WpSession, id: string): string | null { return docInfo(s, id)?.origin ?? null; }
+export function docInfo(s: WpSession, id: string): { origin: string; url: string | null } | null {
   const m = s.docs, o = m?.get(id);
   if (!m || o === undefined) return null;
   m.delete(id); m.set(id, o); // least-recently-used eviction
-  return o;
+  return typeof o === "string" ? { origin: o, url: null } : { origin: o.origin, url: o.url };
 }

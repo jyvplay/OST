@@ -101,11 +101,20 @@ export interface Opened { socket: Duplex; remote: string; attempts?: Attempt[] }
 export async function openUpstream(host: string, port: number, o: { secure: boolean; route: UpstreamRoute; session?: { sid: string; circuit: number }; timeoutMs: number }): Promise<Opened> {
   const h = host.replace(/^\[|\]$/g, "");
   if (o.route.mode !== "direct") {
-    if (net.isIP(h) && isPrivateAddress(h)) throw new Error(`refusing private/reserved address ${h}`);
+    // (the TEST-ONLY loopback allowance applies through a proxy exactly as it does Direct — listed ports only)
+    if (net.isIP(h) && isPrivateAddress(h) && !testLoopbackAllowed(h, port)) throw new Error(`refusing private/reserved address ${h}`);
     const verdict = tunnelHostVerdict(o.route, h);
     if (verdict) throw new Error(verdict);
     const cred = isolationCredentials(o.route, o.session?.sid ?? "", o.session?.circuit ?? 0);
-    const socket = await openTunnel(o.route, h, port, { secure: o.secure, servername: h, cred, timeoutMs: o.timeoutMs });
+    // TT40: SOCKS4 carries an IPv4 address, so the NAME is resolved here — through the same public-address guard as
+    // Direct (a private answer refuses the name), first public IPv4 pinned; TLS is still verified against the name
+    let dest = h;
+    if (o.route.mode === "socks4" && !net.isIP(h)) {
+      const v4 = (testLoopbackAllowed(h, port) ? [{ address: h, family: 4 }] : await resolvePinnedPublicHost(h)).find((a) => a.family === 4 || net.isIPv4(a.address));
+      if (!v4) throw new Error(`${h} has no IPv4 address, which SOCKS4 needs (use SOCKS4a or SOCKS5)`);
+      dest = v4.address;
+    }
+    const socket = await openTunnel(o.route, dest, port, { secure: o.secure, servername: h, cred, timeoutMs: o.timeoutMs });
     return { socket, remote: `via ${describeRoute(o.route).label}` };
   }
   if (/\.onion\.?$/i.test(h)) throw new Error("onion addresses need the Tor (SOCKS5) route");

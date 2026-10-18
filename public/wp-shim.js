@@ -65,14 +65,33 @@
   function tag(p, cred) {
     if (!DOC || typeof p !== "string") return p;
     var c = cred === "include" ? "i" : cred === "omit" ? "o" : "s", head = PREFIX + SID + "/", seg = PREFIX + SID + ":" + DOC + ":" + c + "/";
+    // TT40: a URL that already carries a tag (e.g. an <img>'s "<sid>:<doc>:r" src read back by script) is re-tagged
+    // as THIS script request — a fetch() is never treated as a markup subresource
+    var at = p.indexOf(HERE) === 0 ? HERE.length : 0;
+    if (p.indexOf(PREFIX + SID + ":", at) === at) {
+      var slash = p.indexOf("/", at + PREFIX.length);
+      if (slash > 0 && /^[A-Za-z0-9_-]+:[A-Za-z0-9_-]{8,32}:[isor]$/.test(p.slice(at + PREFIX.length, slash))) p = p.slice(0, at) + head + p.slice(slash + 1);
+    }
     if (p.indexOf(head) === 0) return seg + p.slice(head.length);
     if (p.indexOf(HERE + head) === 0) return HERE + seg + p.slice(HERE.length + head.length);
     return p;
   }
+  // TT40 (WP-16): URLs set on elements that LOAD a subresource carry "<sid>:<doc>:r" — the server then sends cookies
+  // with SameSite rules for this document, as for markup the server rewrote; navigations (a, form, iframe, object,
+  // embed …) stay untagged so a new page never inherits this document's id
+  function rtag(p) {
+    if (!DOC || typeof p !== "string") return p;
+    var head = PREFIX + SID + "/", i = p.indexOf(head);
+    if (i < 0 || (i > 0 && p.slice(0, i) !== ABS && p.slice(0, i) !== HERE)) return p;
+    return p.slice(0, i) + PREFIX + SID + ":" + DOC + ":r/" + p.slice(i + head.length);
+  }
+  var RES = { IMG: { src: 1, srcset: 1 }, SCRIPT: { src: 1 }, LINK: { href: 1, imagesrcset: 1 }, SOURCE: { src: 1, srcset: 1 }, TRACK: { src: 1 },
+    AUDIO: { src: 1 }, VIDEO: { src: 1, poster: 1 }, INPUT: { src: 1 }, BODY: { background: 1 }, TABLE: { background: 1 }, TD: { background: 1 }, TH: { background: 1 } };
+  function isRes(el, k) { var t = RES[el && el.tagName]; return !!(t && t[k]); }
   function encSrcset(v) {
     return String(v).split(/,(?=\s)|,$/).map(function (c) {
       var m = /^(\s*)(\S+)(.*)$/.exec(c);
-      return m ? m[1] + enc(m[2]) + m[3] : c;
+      return m ? m[1] + rtag(enc(m[2])) + m[3] : c;
     }).join(",");
   }
   W.__fusionWp = { enc: enc, decode: decode, encSrcset: encSrcset, target: currentTarget, tag: tag };
@@ -253,7 +272,7 @@
       Object.defineProperty(C.prototype, p[1], {
         configurable: true, enumerable: d.enumerable,
         get: function () { var v = d.get.call(this); return decode(v) || v; }, // the page reads back the address it set
-        set: function (v) { d.set.call(this, enc(v)); },
+        set: function (v) { var e = enc(v); d.set.call(this, isRes(this, p[1].toLowerCase()) ? rtag(e) : e); },
       });
     });
   });
@@ -267,7 +286,7 @@
   var _setAttr = W.Element.prototype.setAttribute;
   function fixAttr(el, name, value) {
     var k = String(name).toLowerCase();
-    if (ATTR[k] || (k === "data" && el.tagName === "OBJECT")) return enc(value);
+    if (ATTR[k] || (k === "data" && el.tagName === "OBJECT")) { var e = enc(value); return isRes(el, k) ? rtag(e) : e; }
     if (k === "srcset" || k === "imagesrcset") return encSrcset(value);
     return value;
   }

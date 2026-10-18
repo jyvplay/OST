@@ -322,19 +322,20 @@ await test("OS proxy settings parsers (documented output formats — sample text
   eq(OS.readOsProxy("win32", fake(REG_SINGLE)).proxy?.http, "proxy.corp.example:8080");
   eq(OS.readOsProxy("darwin", fake(SCUTIL)).proxy?.https, "proxy.example.com:3129");
   eq(OS.readOsProxy("linux", fake(GSET_AUTO)).proxy?.pacUrl, "http://pac.lan/wpad.dat");
-  eq(calls, ["reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", "scutil --proxy", "gsettings list-recursively org.gnome.system.proxy"]);
+  // TT40 (WP-15): Windows also reads the "Automatically detect settings" flag from DefaultConnectionSettings
+  eq(calls, ["reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", "reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections /v DefaultConnectionSettings", "scutil --proxy", "gsettings list-recursively org.gnome.system.proxy"]);
   eq(OS.readOsProxy("linux", () => { throw Object.assign(new Error("spawn gsettings ENOENT"), { code: "ENOENT" }); }), { proxy: null, error: null });
   const real = OS.readOsProxy();
   console.log(`     this computer (${process.platform}): ${JSON.stringify(real)}`);
 });
 
 // ===================================================================================== live
-await test("PAC live (WP-12): a fresh server process with FUSION_WP_PAC_URL fetches the PAC file ONCE over HTTP from the local network and follows it per request — https://pypi.org/ through the PROXY it names (an independent proxy, pproxy, logs the name), github.com DIRECT even though its PATH contains the PAC's trigger word (https paths are hidden from the script), a host whose entries are all unusable (HTTPS-to-proxy, SOCKS4) is REFUSED, never sent direct; an unreachable PAC file → DIRECT with the error reported; https_proxy in the environment takes precedence over the PAC file", { "WP-12": "full" }, async () => {
+await test("PAC live (WP-12): a fresh server process with FUSION_WP_PAC_URL fetches the PAC file ONCE over HTTP from the local network and follows it per request — https://pypi.org/ through the PROXY it names (an independent proxy, pproxy, logs the name), github.com DIRECT even though its PATH contains the PAC's trigger word (https paths are hidden from the script), a host whose entries are all unusable (QUIC; HTTPS / SOCKS4 became usable in TT40) is REFUSED, never sent direct; an unreachable PAC file → DIRECT with the error reported; https_proxy in the environment takes precedence over the PAC file", { "WP-12": "full" }, async () => {
   const PPROXY = process.env.FUSION_PPROXY ?? "/home/user/tools/venv/bin/pproxy";
   const pacSrc = `function FindProxyForURL(url, host) {
     if (url.indexOf("trigger") >= 0) return "PROXY 127.0.0.1:1";
     if (host == "pypi.org") return "PROXY 127.0.0.1:18391; DIRECT";
-    if (dnsDomainIs(host, "pythonhosted.org")) return "HTTPS 127.0.0.1:1; SOCKS4 127.0.0.1:2";
+    if (dnsDomainIs(host, "pythonhosted.org")) return "QUIC 127.0.0.1:1; QUIC 127.0.0.1:2"; /* TT40: HTTPS / SOCKS4 entries are spoken now (tt40-proxy); QUIC stays unusable */
     return "DIRECT"; }`;
   let pacHits = 0;
   const pacServer = http.createServer((req, res) => { pacHits++; res.writeHead(200, { "content-type": "application/x-ns-proxy-autoconfig" }); res.end(pacSrc); });

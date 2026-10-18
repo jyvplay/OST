@@ -440,8 +440,24 @@ export default function Tabletop() {
     // TT31 live walls: hover (300 ms), focus (at once) or a wheel turn swings the wall up; leaving lets it settle
     onPointerMove: (e: React.PointerEvent) => intent(w, e),
     onPointerLeave: () => { if (!drag && main === "floor" && lift !== w) clearLiftTimer(); },
-    onPointerDown: (e: React.PointerEvent) => { if (main === "floor" && e.pointerType === "touch" && !(e.target as HTMLElement).closest("[data-testid=tt-pin], [data-testid=tt-wallpile]")) liftNow(w); },
-    onFocus: () => { if (main === "floor") liftNow(w); },
+    onPointerDown: (e: React.PointerEvent) => {
+      if (main !== "floor") return;
+      if (e.pointerType === "touch") { if (!(e.target as HTMLElement).closest("[data-testid=tt-pin], [data-testid=tt-wallpile]")) liftNow(w); return; }
+      // TT40 (LY-22 race, root cause): a press is CLICK intent, not hover intent — a pending hover-lift must not swing
+      // the wall away between the two clicks of a double-click (the second click then missed the wall's open button,
+      // so the double-click was lost whenever the 300 ms deadline fell between the clicks). Movement re-arms it.
+      if (pendingLift.current === w) clearLiftTimer();
+    },
+    // TT40 (LY-22 root cause, measured: the wall lifted 11 ms after the first press, so the second click of a
+    // double-click hit the background): focus from a POINTER press must not lift — that is click intent. Keyboard focus
+    // still lifts at once. :focus-visible is the platform's own keyboard-vs-pointer focus heuristic; a browser without
+    // it keeps the old behaviour (lift on any focus).
+    onFocus: (e: React.FocusEvent) => {
+      if (main !== "floor") return;
+      let keyboard = true;
+      try { keyboard = (e.target as HTMLElement).matches(":focus-visible"); } catch { /* no :focus-visible support */ }
+      if (keyboard) liftNow(w);
+    },
     onBlur: (e: React.FocusEvent) => { if (main === "floor" && !e.currentTarget.contains(e.relatedTarget as Node | null) && menu?.surface !== w) leaveWall(w, 200); },
     onWheel: (e: React.WheelEvent) => {
       if (main !== "floor") return;

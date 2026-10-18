@@ -28,7 +28,7 @@ export function encodeTarget(abs: string | URL, sid: string): string | null {
 }
 
 /** Proxied pathname + search → { sid, target }. Throws a plain-language Error on anything malformed. */
-export function decodeTarget(pathname: string, search = ""): { sid: string; target: URL; rest: string; doc?: string; cred?: Cred } {
+export function decodeTarget(pathname: string, search = ""): { sid: string; target: URL; rest: string; doc?: string; cred?: Cred; resource?: true } {
   if (!pathname.startsWith(WP_PREFIX)) throw new Error("not a proxy path");
   const tail = pathname.slice(WP_PREFIX.length);
   const s1 = tail.indexOf("/");
@@ -36,7 +36,7 @@ export function decodeTarget(pathname: string, search = ""): { sid: string; targ
   // TT39 (WP-10): script requests carry "<sid>:<document id>:<credentials mode>" — see src/lib/wp-cors.ts
   const seg = parseSidSegment(tail.slice(0, s1));
   if (!seg || !isSid(seg.sid)) throw new Error("bad session id");
-  const { sid, doc, cred } = seg;
+  const { sid, doc, cred, resource } = seg;
   const rest = tail.slice(s1 + 1);
   if (rest.startsWith("__")) return { sid, target: new URL("about:blank"), rest }; // control endpoints (__cookie)
   const s2 = rest.indexOf("/");
@@ -49,6 +49,7 @@ export function decodeTarget(pathname: string, search = ""): { sid: string; targ
   if (!host || /[@\s\\]/.test(host)) throw new Error("bad host");
   const target = new URL(`${scheme}://${host}${path}${search}`);
   if (target.host.toLowerCase() !== host.toLowerCase().replace(/:(80|443)$/, (m) => ((scheme === "http" && m === ":80") || (scheme === "https" && m === ":443") ? "" : m))) throw new Error("bad host");
+  if (doc && resource) return { sid, target, rest, doc, resource };
   return doc ? { sid, target, rest, doc, cred } : { sid, target, rest };
 }
 
@@ -130,10 +131,19 @@ const URL_ATTRS: Record<string, string[]> = {
   "xlink:href": ["*"], manifest: ["html"], icon: ["command"],
 };
 const SRCSET_ATTRS = new Set(["srcset", "imagesrcset"]);
+/** TT40: attributes that LOAD a subresource into this document (never a navigation). */
+const RESOURCE_ATTR: Record<string, Set<string>> = {
+  src: new Set(["img", "script", "source", "track", "audio", "video", "input"]), href: new Set(["link"]), poster: new Set(["video"]),
+  background: new Set(["body", "table", "td", "th"]),
+};
+export function isResourceAttr(tag: string, attr: string): boolean { return RESOURCE_ATTR[attr]?.has(tag) ?? false; }
 const RAW_TEXT = new Set(["script", "style", "textarea", "title", "xmp", "iframe", "noembed", "noframes", "plaintext"]);
 
 export interface HtmlRewriteOptions {
   sid: string;
+  /** TT40 (WP-16): the segment for SUBRESOURCE attributes ("<sid>:<doc>:r"); navigations (a, area, form, iframe,
+   *  frame, object, embed, base, meta refresh) keep `sid` so a new page never inherits this document's id */
+  resSid?: string;
   /** the target URL of this document */
   url: string;
   /** markup injected first thing in <head> (the runtime + its data) */
@@ -148,6 +158,7 @@ export interface HtmlRewriteReport { rewritten: number; removed: string[]; base:
  * re-encoded after, so "&amp;" in a query survives.
  */
 export function rewriteHtml(html: string, o: HtmlRewriteOptions): { html: string; report: HtmlRewriteReport } {
+  const res = o.resSid ?? o.sid;
   let base = o.url;
   const report: HtmlRewriteReport = { rewritten: 0, removed: [], base };
   let out = "";
@@ -207,9 +218,9 @@ export function rewriteHtml(html: string, o: HtmlRewriteOptions): { html: string
       if (a.value === null) { parts.push(a.raw); continue; }
       const val = decodeEntities(a.value);
       let nv: string | null = val;
-      if ((URL_ATTRS[an] && (URL_ATTRS[an].includes(name) || URL_ATTRS[an].includes("*")))) nv = rewriteUrl(val, base, o.sid);
-      else if (SRCSET_ATTRS.has(an)) nv = rewriteSrcset(val, base, o.sid);
-      else if (an === "style") nv = rewriteCss(val, base, o.sid);
+      if ((URL_ATTRS[an] && (URL_ATTRS[an].includes(name) || URL_ATTRS[an].includes("*")))) nv = rewriteUrl(val, base, isResourceAttr(name, an) ? res : o.sid);
+      else if (SRCSET_ATTRS.has(an)) nv = rewriteSrcset(val, base, res);
+      else if (an === "style") nv = rewriteCss(val, base, res);
       else if (an === "integrity" || an === "ping") { nv = null; report.removed.push(`${name}[${an}]`); }
       else if (an === "crossorigin" && lower(val) === "use-credentials") nv = "anonymous"; // credentials never cross the proxy
       else if (an === "target" && /^_(top|parent)$/i.test(val)) nv = "_self"; // inside the frame, not over the whole desktop
@@ -226,7 +237,7 @@ export function rewriteHtml(html: string, o: HtmlRewriteOptions): { html: string
       const rel = html.slice(i).search(close);
       const end = rel < 0 ? n : i + rel;
       const body = html.slice(i, end);
-      if (name === "style") { const r = rewriteCss(body, base, o.sid); if (r !== body) report.rewritten++; out += r; }
+      if (name === "style") { const r = rewriteCss(body, base, res); if (r !== body) report.rewritten++; out += r; }
       else out += body;
       i = end;
     }
@@ -272,6 +283,8 @@ export function siteOf(host: string): string {
   return labels.slice(-2).join(".");
 }
 export function sameSite(a: string, b: string): boolean { return siteOf(a) === siteOf(b); }
+/** TT40: the host IS a known public suffix (github.io, co.uk …) — nobody's registrable domain. */
+export function isPublicSuffix(host: string): boolean { return PUBLIC_SUFFIXES.has(host.replace(/\.$/, "").toLowerCase()); }
 
 export function domainMatch(host: string, domain: string): boolean { return host === domain || (host.endsWith("." + domain) && !/^\d+\.\d+\.\d+\.\d+$/.test(host)); }
 

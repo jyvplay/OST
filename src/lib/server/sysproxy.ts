@@ -1,3 +1,4 @@
+import { WPAD_URL } from "./wpad";
 import { osBypassMatch, type OsProxy } from "./osproxy";
 import { isIP } from "node:net";
 import { parseRoute, type UpstreamRoute } from "./wp-tunnel";
@@ -108,12 +109,13 @@ export function systemRouteFor(sp: SystemProxy, target: URL): UpstreamRoute | "d
 export function systemProxyFromOs(o: OsProxy): SystemProxy {
   const errors: string[] = [];
   const r = (name: string, hp: string | null, scheme: string) => (hp ? routeOf(name, `${scheme}://${hp}`, errors) : null);
-  const socks = r(`${o.source} socks`, o.socks, "socks5");
+  const socks = r(`${o.source} socks`, o.socks, o.socksVersion === 4 ? "socks4" : "socks5");
   return {
     https: r(`${o.source} https`, o.https, "http") ?? socks,
     http: r(`${o.source} http`, o.http, "http") ?? socks,
     noProxy: "", source: [o.source], errors,
     bypass: o.bypass.length || o.bypassSimple ? (host) => osBypassMatch(o, host) : undefined,
-    pacUrl: o.pacUrl,
+    // TT40: "automatically detect" with no script URL → WPAD discovery (wpad.ts); manual proxies stay the fallback
+    pacUrl: o.pacUrl ?? (o.autoDetect ? WPAD_URL : null),
   };
 }
