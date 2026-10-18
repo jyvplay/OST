@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-18T01:01:52.031Z",
+ "generatedAt": "2026-10-18T02:34:51.115Z",
  "totals": {
   "built": {
-   "full": 255,
+   "full": 261,
    "partial": 63,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 137,
+   "full": 143,
    "partial": 77,
    "untested": 126
   },
   "tests": {
-   "total": 549,
-   "passed": 549
+   "total": 566,
+   "passed": 566
   }
  },
  "rows": {
@@ -1880,6 +1880,7 @@
     "e2e-tt31: phone 390×760 and the straight-down camera: a focused wall lifts inside the frame with ≥ 24 px pins and no text under 9 px; nothing is text at rest",
     "e2e-tt31: touch (390×760, hasTouch): tapping a wall lifts it, a finger drag moves a pin along the lifted wall (persisted), tapping the floor settles it",
     "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
+    "e2e-tt34: tabletop double-click guard (LY-22): a double-click on a RESTING wall whose 300 ms hover-lift deadline passes between the clicks still makes it the main view (×3 walls, optional TT_CPU load); plain hover still lifts a wall",
     "tt31-unit: row mapping (hand values): board (24,24) → strip (24,24); row 1 (y=229) → S = 912 + x; strip → board inverts every on-grid board point",
     "tt31-unit: strip frames: element ↔ (u,v) are inverse rotations (det +1, no mirror) for rot 0 / 90 / −90 and the CSS matrix matches the math",
     "tt31-unit: infinite pins: rows in use + one empty row; max pan reaches every pin and the empty row; panToShow brings any pin fully into view",
@@ -1945,6 +1946,56 @@
     "e2e-tt33: library + modal shortcut (SM-08): TIDAL / Qobuz / Amazon links saved show their provider; Next walks them; the Rename dialog traps Escape (closes the dialog only — title unchanged, window open) and Enter renames",
     "tt33-unit: ≥ 15 refused shapes, each with a reason (negative space)",
     "tt33-unit: embed codes (SM-08): any provider's <iframe> snippet → its src only (data-src ignored, protocol-relative ok); SoundCloud api widget"
+   ]
+  },
+  "MP-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track",
+    "tt34-unit: geodesy (MP-06): inverse on WGS84 vs GeographicLib — 20 000 random pairs and 2 000 near-antipodal pairs (Vincenty's failure region, solved by shooting), all ≤ 1 mm",
+    "tt34-unit: geodesy (MP-06): direct problem (10 000 cases, up to 19 000 km) lands ≤ 1 mm from GeographicLib; poles, equator, antimeridian, coincident points; the sphere was up to ~0.5 % off",
+    "tt34-unit: geodesy (MP-06): polygon area on the ellipsoid vs GeographicLib — 400 random polygons from 1 m² to continents ≤ 1e-6 relative; perimeter ≤ 1 mm; a polar cap and an antimeridian square; formatting"
+   ]
+  },
+  "MP-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track",
+    "tt34-unit: Plus Codes (MP-07): every official Open Location Code vector — encoding (302, incl. degrees → integers), decoding (420), validity (25), shorten / recover (19)",
+    "tt34-unit: Plus Codes (MP-07): refusals and search parsing — bad lengths, padded shortening, invalid codes; codes found in free text with a locality; recovery across the antimeridian"
+   ]
+  },
+  "MP-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track",
+    "tt34-unit: GPX / KML export (MP-08): gpxpy and xml.etree read Fusion's files back exactly — 60 waypoints with hostile names (& < \" ' ]]> emoji, tabs, spaces), a 50-point track, a route with elevations, a KML polygon",
+    "tt34-unit: GPX / KML import (MP-08): Fusion reads GPX 1.0 and 1.1 written by gpxpy, its own GPX/KML, namespaced and real-world shapes (multi-segment tracks, MultiGeometry, Folder nesting, CDATA, gx: extensions)",
+    "tt34-unit: GPX / KML hostile input (MP-08): entity declarations refused (billion laughs / external entity), mismatched or unclosed tags, two roots, wrong root, out-of-range coordinates skipped with a warning, > 20 MB refused"
+   ]
+  },
+  "SM-09": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing",
+    "e2e-tt34: transport honesty (SM-09): Vimeo with speed disabled by its owner — setPlaybackRate is sent but the speed shown stays unreported 1×; volume uses 0–1 and follows volumechange; seek slider → setCurrentTime. SoundCloud: seek + playlist next, no volume control at all",
+    "e2e-tt34: native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them",
+    "tt34-unit: transport protocol (SM-09): exact volume / mute / speed / playlist / seek messages per provider; SoundCloud volume, Spotify and TIDAL extras never sent; capability matrix",
+    "tt34-unit: transport reports (SM-09): volume / mute / speed / rates / playlist come only from the player — YouTube infoDelivery, Vimeo volumechange + playbackratechange (subscribed), SoundCloud getSounds; junk ignored"
+   ]
+  },
+  "SM-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing",
+    "tt34-unit: keyboard (SM-10): Space/K, J/L, arrows, M, Shift+N/P, < >, digits; nothing while typing or with modifiers; sliders keep their arrows; Space on a button stays the button's; speed stepping"
+   ]
+  },
+  "SM-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt34: native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them",
+    "tt34-unit: library order (SM-11): Previous wraps only with Loop; Shuffle never repeats within a round, never plays the same item twice in a row across rounds, is uniform (χ², 6 items × 6 000 draws)"
    ]
   },
   "CT-01": {

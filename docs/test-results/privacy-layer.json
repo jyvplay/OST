@@ -1,6 +1,6 @@
 {
   "suite": "privacy-layer",
-  "at": "2026-10-18T00:31:59.578Z",
+  "at": "2026-10-18T01:58:18.995Z",
   "results": [
     {
       "suite": "privacy-layer",
@@ -9,7 +9,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 124
+      "ms": 137
     },
     {
       "suite": "privacy-layer",
@@ -18,7 +18,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 119
+      "ms": 118
     },
     {
       "suite": "privacy-layer",
@@ -27,7 +27,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 6
     },
     {
       "suite": "privacy-layer",
@@ -46,7 +46,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 50
+      "ms": 47
     },
     {
       "suite": "privacy-layer",
@@ -55,7 +55,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 60
+      "ms": 42
     },
     {
       "suite": "privacy-layer",
@@ -64,7 +64,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 24
+      "ms": 19
     },
     {
       "suite": "privacy-layer",
@@ -73,7 +73,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 16
+      "ms": 17
     },
     {
       "suite": "privacy-layer",
@@ -83,7 +83,7 @@
         "SC-14": "partial"
       },
       "pass": true,
-      "ms": 255
+      "ms": 219
     },
     {
       "suite": "privacy-layer",
@@ -92,7 +92,7 @@
         "SC-16": "full"
       },
       "pass": true,
-      "ms": 296
+      "ms": 214
     },
     {
       "suite": "privacy-layer",
@@ -102,7 +102,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 97
+      "ms": 105
     }
   ]
 }

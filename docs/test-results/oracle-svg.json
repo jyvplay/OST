@@ -1,6 +1,6 @@
 {
   "suite": "oracle-svg",
-  "at": "2026-10-18T00:31:52.890Z",
+  "at": "2026-10-18T01:58:12.692Z",
   "results": [
     {
       "suite": "oracle-svg",
@@ -27,7 +27,7 @@
         "FF-32": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "oracle-svg",

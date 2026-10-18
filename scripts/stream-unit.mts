@@ -152,7 +152,7 @@ await test("embed control protocol (TT28): YouTube handshake + infoDelivery/onSt
   // SoundCloud
   let c = E.initialState("soundcloud");
   r = E.receive(c, JSON.stringify({ method: "ready", value: null }));
-  ok(r.state.connected && r.send.map((m) => JSON.parse(m).value).sort().join() === "finish,pause,play,playProgress", `sc subs ${r.send}`);
+  ok(r.state.connected && r.send.map((m) => JSON.parse(m).value ?? JSON.parse(m).method).sort().join() === "finish,getSounds,pause,play,playProgress", `sc subs ${r.send}`); // TT34: + getSounds (the playlist, for Prev / Next)
   c = E.receive(r.state, JSON.stringify({ method: "playProgress", value: { currentPosition: 30_000, relativePosition: 0.25, loadedProgress: 1 } })).state;
   ok(c.status === "playing" && c.time === 30 && Math.abs(c.duration - 120) < 1e-9, "position + duration derived from the relative position");
   ok(E.receive(c, JSON.stringify({ method: "finish" })).events.some((e) => e.type === "ended"), "finish → ended");

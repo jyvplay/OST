@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-18T01:01:52.028Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-56 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-18T02:34:51.110Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+58 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **340** |
-| Fully built | 255 |
+| **Features in register** | **346** |
+| Fully built | 261 |
 | Partially built (partial 46 + probe 17) | 63 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **137** |
+| **Fully tested** (≥1 passing test tagged `full`) | **143** |
 | **Partially tested** (only `partial` tags) | **77** |
 | Untested | 126 |
-| Automated tests executed / passed | 549 / 549 |
+| Automated tests executed / passed | 566 / 566 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 127 | 61 | 67 |
+| fully built | 133 | 61 | 67 |
 | partially built | 4 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,62 +33,64 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-18T00:32:04.606Z |
-| ai-format | 5 | 5 | 0 | 2026-10-18T00:32:06.384Z |
-| browser-session | 5 | 5 | 0 | 2026-10-18T00:31:53.056Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-18T00:32:07.702Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-18T00:41:44.828Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-18T00:42:43.447Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-18T00:57:57.744Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-18T00:36:41.564Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-18T00:43:07.529Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-18T00:35:29.630Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-18T00:44:19.104Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-18T00:46:47.589Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-18T00:34:32.521Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-18T00:37:10.744Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T00:37:45.488Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-18T00:42:06.665Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T01:01:30.433Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T00:47:26.873Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T00:47:48.764Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T00:49:52.409Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T00:51:14.052Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T00:53:56.444Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T00:54:11.253Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-18T00:35:59.118Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T00:42:29.944Z |
-| e2e | 61 | 61 | 0 | 2026-10-18T00:34:02.198Z |
-| image | 12 | 12 | 0 | 2026-10-18T00:31:47.809Z |
-| integration | 25 | 25 | 0 | 2026-10-18T00:31:41.643Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-18T00:32:08.463Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-18T00:32:15.153Z |
-| metaclean | 6 | 6 | 0 | 2026-10-18T00:32:01.093Z |
-| names | 7 | 7 | 0 | 2026-10-18T00:31:47.433Z |
-| office | 35 | 35 | 0 | 2026-10-18T00:31:42.142Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-18T00:32:07.361Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-18T00:31:50.979Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-18T00:31:52.890Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-18T00:32:08.210Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T00:31:44.110Z |
-| oracle | 5 | 5 | 0 | 2026-10-18T00:31:42.536Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-18T00:32:04.302Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-18T00:31:57.868Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-18T00:31:59.578Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-18T00:31:44.475Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-18T00:32:08.988Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-18T00:32:04.845Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-18T00:32:08.783Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-18T00:32:15.460Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-18T00:32:16.261Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-18T00:47:48.974Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-18T00:49:52.695Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-18T00:51:30.352Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-18T00:53:56.679Z |
-| unit | 23 | 23 | 0 | 2026-10-18T00:31:38.970Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-18T00:31:52.209Z |
-| vector | 18 | 18 | 0 | 2026-10-18T00:31:51.240Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T00:32:05.077Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-18T01:58:24.008Z |
+| ai-format | 5 | 5 | 0 | 2026-10-18T01:58:25.971Z |
+| browser-session | 5 | 5 | 0 | 2026-10-18T01:58:12.888Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-18T01:58:27.312Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-18T02:12:17.959Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-18T02:13:42.838Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-18T02:30:12.219Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-18T02:05:31.051Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-18T02:14:13.962Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-18T02:03:53.807Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-18T02:33:42.093Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-18T02:17:51.761Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-18T02:02:38.315Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-18T02:34:47.894Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T02:06:57.906Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-18T02:12:52.694Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T02:17:03.730Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T02:18:31.666Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T02:18:57.106Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T02:20:59.194Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T02:22:20.906Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T02:25:05.135Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T02:25:19.862Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T02:26:23.426Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-18T02:04:44.566Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T02:13:27.378Z |
+| e2e | 61 | 61 | 0 | 2026-10-18T02:32:32.103Z |
+| image | 12 | 12 | 0 | 2026-10-18T01:58:07.510Z |
+| integration | 25 | 25 | 0 | 2026-10-18T01:58:01.539Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-18T01:58:28.152Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-18T01:58:35.097Z |
+| metaclean | 6 | 6 | 0 | 2026-10-18T01:58:20.357Z |
+| names | 7 | 7 | 0 | 2026-10-18T01:58:07.147Z |
+| office | 35 | 35 | 0 | 2026-10-18T01:58:01.937Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-18T01:58:26.954Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-18T01:58:10.646Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-18T01:58:12.692Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-18T01:58:27.873Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T01:58:03.729Z |
+| oracle | 5 | 5 | 0 | 2026-10-18T01:58:02.308Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-18T01:58:23.709Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-18T01:58:17.486Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-18T01:58:18.995Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-18T01:58:04.103Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-18T02:30:43.547Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-18T01:58:24.270Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-18T01:58:28.527Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-18T01:58:35.370Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-18T01:58:36.195Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-18T02:18:57.340Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-18T02:20:59.509Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-18T02:22:37.081Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-18T02:25:05.374Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-18T02:25:24.562Z |
+| unit | 23 | 23 | 0 | 2026-10-18T01:57:58.624Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-18T01:58:11.907Z |
+| vector | 18 | 18 | 0 | 2026-10-18T01:58:10.918Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T01:58:24.477Z |
 
 ## Rows touched by failing tests
 
@@ -117,8 +119,8 @@ None.
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
 | LY | 22 | 22 | 0 | 0 | 22 | 0 | 0 |
-| SM | 8 | 7 | 1 | 0 | 5 | 3 | 0 |
-| MP | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
+| SM | 11 | 10 | 1 | 0 | 8 | 3 | 0 |
+| MP | 8 | 8 | 0 | 0 | 8 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
 | LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
@@ -377,12 +379,18 @@ None.
 | LY-20 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: wall tags (TT29): one per foreshortened wall, inside the frame, centred on the wall's VISIBLE area (hit-test finds that wall under the centre), ≥ 24 px targets, no overlaps with each other or the switcher; counts in the label; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+5) |
 | LY-21 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px); e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %) (+1) |
 | AX-14 | built | full | e2e-tt30: oracle: our accessible names and roles agree with Chromium's accessibility tree in all 40 modules × 3 layouts (thresholds declared up front: names ≥ 98 %, roles ≥ 99 %); e2e-tt30: oracle sensitivity: three mutants of the narrator source are caught (aria-label ignored → names < 98 %; buttons as generic → roles < 99 %; CSS text-transform ignored → the uppercase headings differ); e2e-tt30: behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed (+12) |
-| LY-22 | built | full | e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %); e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+14) |
+| LY-22 | built | full | e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %); e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+15) |
 | AX-15 | built | full | e2e-tt32: environment + engine choice: this Chromium has 0 system voices; Narrator (Automatic) speaks through Fusion Voice — the caption bar says so, Web Audio receives non-silent 16 kHz speech for the start-up announcement, and speechSynthesis.speak is never called; e2e-tt32: intelligibility in the browser (declared gate ≥ 75 %): focus announcements captured from Web Audio on the real page, forced choice among all captured announcements by PocketSphinx; e2e-tt32: control: Ctrl stops Fusion Voice mid-sentence (queued buffers are stopped, nothing new starts) (+10) |
 | SM-05 | built | full | e2e-tt33: TIDAL (SM-05): click-to-load gate names embed.tidal.com + the 30-second/sign-in note and sends nothing before consent; against TIDAL's real bridge: Play → 'Started', Pause → 'Pause sent' (flagged assumed), a start inside the player → 'Started'; spoofed starts (our own window, a foreign pid) ignored; e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video; tt33-unit: TIDAL link grammar (SM-05): tidal.com / browse / listen.tidal.com / album…track / embed.tidal.com → embed.tidal.com/<types>/<id>; kinds, heights, allow (+3) |
 | SM-06 | built | full | e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; tt33-unit: Qobuz link grammar (SM-06): widget / open / play / store pages → widget.qobuz.com with zone; track compact; heights; tt33-unit: ≥ 15 refused shapes, each with a reason (negative space) (+1) |
 | SM-07 | partial | full | e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; tt33-unit: Amazon Music grammar (SM-07): Share → Embed code kept as issued (tracking params dropped); page links → embed shape flagged unverified; 12 storefronts; tt33-unit: ≥ 15 refused shapes, each with a reason (negative space) (+1) |
 | SM-08 | built | full | e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video; e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; e2e-tt33: library + modal shortcut (SM-08): TIDAL / Qobuz / Amazon links saved show their provider; Next walks them; the Rename dialog traps Escape (closes the dialog only — title unchanged, window open) and Enter renames (+2) |
+| MP-06 | built | full | e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track; tt34-unit: geodesy (MP-06): inverse on WGS84 vs GeographicLib — 20 000 random pairs and 2 000 near-antipodal pairs (Vincenty's failure region, solved by shooting), all ≤ 1 mm; tt34-unit: geodesy (MP-06): direct problem (10 000 cases, up to 19 000 km) lands ≤ 1 mm from GeographicLib; poles, equator, antimeridian, coincident points; the sphere was up to ~0.5 % off (+1) |
+| MP-07 | built | full | e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track; tt34-unit: Plus Codes (MP-07): every official Open Location Code vector — encoding (302, incl. degrees → integers), decoding (420), validity (25), shorten / recover (19); tt34-unit: Plus Codes (MP-07): refusals and search parsing — bad lengths, padded shortening, invalid codes; codes found in free text with a locality; recovery across the antimeridian |
+| MP-08 | built | full | e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track; tt34-unit: GPX / KML export (MP-08): gpxpy and xml.etree read Fusion's files back exactly — 60 waypoints with hostile names (& < " ' ]]> emoji, tabs, spaces), a 50-point track, a route with elevations, a KML polygon; tt34-unit: GPX / KML import (MP-08): Fusion reads GPX 1.0 and 1.1 written by gpxpy, its own GPX/KML, namespaced and real-world shapes (multi-segment tracks, MultiGeometry, Folder nesting, CDATA, gx: extensions) (+1) |
+| SM-09 | built | full | e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing; e2e-tt34: transport honesty (SM-09): Vimeo with speed disabled by its owner — setPlaybackRate is sent but the speed shown stays unreported 1×; volume uses 0–1 and follows volumechange; seek slider → setCurrentTime. SoundCloud: seek + playlist next, no volume control at all; e2e-tt34: native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them (+2) |
+| SM-10 | built | full | e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing; tt34-unit: keyboard (SM-10): Space/K, J/L, arrows, M, Shift+N/P, < >, digits; nothing while typing or with modifiers; sliders keep their arrows; Space on a button stays the button's; speed stepping |
+| SM-11 | built | full | e2e-tt34: native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them; tt34-unit: library order (SM-11): Previous wraps only with Loop; Shuffle never repeats within a round, never plays the same item twice in a row across rounds, is uniform (χ², 6 items × 6 000 draws) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
