@@ -188,7 +188,8 @@ await test("hostile servers (WP-08, D: 17 negative shapes): wrong accept, 200 in
     ["200 not 101", (s) => s.end("HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nhi"), (r) => r.stage === "handshake"],
     ["no Upgrade header", (s, k) => s.write(`HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${WC.acceptFor(k)}\r\n\r\n`), (r) => r.stage === "handshake"],
     ["unoffered subprotocol", (s, k) => s.write(ok101(k, "Sec-WebSocket-Protocol: evil\r\n")), (r) => r.stage === "handshake", { protocols: ["chat"] }],
-    ["unoffered extension", (s, k) => s.write(ok101(k, "Sec-WebSocket-Extensions: permessage-deflate\r\n")), (r) => r.stage === "handshake"],
+    // TT39: permessage-deflate IS offered now (and its answer validated: scripts/tt39-unit.mts) — an extension we never offer
+    ["unoffered extension", (s, k) => s.write(ok101(k, "Sec-WebSocket-Extensions: x-webkit-deflate-frame\r\n")), (r) => r.stage === "handshake"],
     ["header flood", (s) => { s.write("HTTP/1.1 101 Switching Protocols\r\n"); for (let i = 0; i < 40; i++) s.write(`X-Pad-${i}: ${"a".repeat(1000)}\r\n`); }, (r) => r.stage === "handshake"],
     ["silence", () => {}, (r) => r.stage === "handshake" && r.ms < 2600, { timeoutMs: 500 }],
     ["masked server frame", (s, k) => s.write(Buffer.concat([Buffer.from(ok101(k)), Buffer.from("818537fa213d7f9f4d5158", "hex")])), (r) => r.close?.code === 1002],

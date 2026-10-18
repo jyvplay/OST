@@ -11,6 +11,8 @@
  * correctly by itself; only root-relative ("/static/a.css") and absolute URLs need rewriting.
  */
 
+import { parseSidSegment, type Cred } from "./wp-cors";
+
 export const WP_PREFIX = "/api/wp/s/";
 const SID_RE = /^[A-Za-z0-9_-]{16,64}$/;
 
@@ -26,13 +28,15 @@ export function encodeTarget(abs: string | URL, sid: string): string | null {
 }
 
 /** Proxied pathname + search → { sid, target }. Throws a plain-language Error on anything malformed. */
-export function decodeTarget(pathname: string, search = ""): { sid: string; target: URL; rest: string } {
+export function decodeTarget(pathname: string, search = ""): { sid: string; target: URL; rest: string; doc?: string; cred?: Cred } {
   if (!pathname.startsWith(WP_PREFIX)) throw new Error("not a proxy path");
   const tail = pathname.slice(WP_PREFIX.length);
   const s1 = tail.indexOf("/");
   if (s1 < 0) throw new Error("missing target");
-  const sid = tail.slice(0, s1);
-  if (!isSid(sid)) throw new Error("bad session id");
+  // TT39 (WP-10): script requests carry "<sid>:<document id>:<credentials mode>" — see src/lib/wp-cors.ts
+  const seg = parseSidSegment(tail.slice(0, s1));
+  if (!seg || !isSid(seg.sid)) throw new Error("bad session id");
+  const { sid, doc, cred } = seg;
   const rest = tail.slice(s1 + 1);
   if (rest.startsWith("__")) return { sid, target: new URL("about:blank"), rest }; // control endpoints (__cookie)
   const s2 = rest.indexOf("/");
@@ -45,7 +49,7 @@ export function decodeTarget(pathname: string, search = ""): { sid: string; targ
   if (!host || /[@\s\\]/.test(host)) throw new Error("bad host");
   const target = new URL(`${scheme}://${host}${path}${search}`);
   if (target.host.toLowerCase() !== host.toLowerCase().replace(/:(80|443)$/, (m) => ((scheme === "http" && m === ":80") || (scheme === "https" && m === ":443") ? "" : m))) throw new Error("bad host");
-  return { sid, target, rest };
+  return doc ? { sid, target, rest, doc, cred } : { sid, target, rest };
 }
 
 const PASS_SCHEMES = /^(data|blob|javascript|mailto|tel|sms|about|ftp|ws|wss|intent|geo|magnet|chrome|file):/i;

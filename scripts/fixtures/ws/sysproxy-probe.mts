@@ -10,5 +10,6 @@ for (const u of (process.env.PROBE_URLS ?? "").split(" ").filter(Boolean)) {
     out[u] = { status: up.status, via: up.pinned, bytes: body.length };
   } catch (e) { out[u] = { error: (e as Error).message }; }
 }
+out.systemAfter = systemRouteInfo(); // TT39: includes the PAC file's last decision
 console.log(JSON.stringify(out));
 process.exit(0);

@@ -1,8 +1,9 @@
 import { type NextRequest } from "next/server";
 import {
-  classifyError, decodeTarget, documentCsp, readerCsp, WP_PREFIX, downstreamHeaders, encodeAttr, encodeTarget, escapeHtml, isTracker, rewriteCss, rewriteHtml, upstreamHeaders,
+  classifyError, decodeTarget, documentCsp, readerCsp, WP_PREFIX, downstreamHeaders, encodeAttr, encodeTarget, escapeHtml, isTracker, rewriteCss, rewriteHtml, siteOf, upstreamHeaders,
 } from "@/lib/wp-core";
-import { getSession, type WpSession } from "@/lib/server/wp-sessions";
+import { docOrigin, getSession, newDoc, type WpSession } from "@/lib/server/wp-sessions";
+import { corsCheck, credCode, exposeHeaders, policyFor, PreflightCache, preflightCheck, scriptResponseHeaders, storableSetCookies, type Policy } from "@/lib/wp-cors";
 import { readable, readerDocument } from "@/lib/reader-core";
 import { decodeText, readAll, toWebStream, upstreamRequest } from "@/lib/server/wp-fetch";
 import { openBridge, originToken, sendToBridge, WsOpenError, WS_MAX_MESSAGE } from "@/lib/server/wp-ws";
@@ -53,6 +54,36 @@ main{max-width:560px;padding:28px;background:#fff;border:1px solid #d0d7de;borde
   return new Response(html, { status, headers: { ...CORS, "content-type": "text/html; charset=utf-8", "content-security-policy": "sandbox; default-src 'none'; style-src 'unsafe-inline'" } });
 }
 
+/**
+ * TT39 (WP-10): a script request the page may not make or read. Leaving out Access-Control-Allow-Origin makes the
+ * BROWSER fail it exactly as it fails a native cross-origin request (TypeError, no status, no body); the reason is in
+ * a header only a non-browser client (a test) can see.
+ */
+function corsRefused(reason: string): Response {
+  return new Response(null, { status: 403, headers: { "x-fusion-wp-cors": reason.replace(/[^\x20-\x7e]/g, "?").slice(0, 300), "cache-control": "no-store" } });
+}
+
+/** The site's own CORS preflight (OPTIONS), made by the proxy the way a browser would, cached per Fetch §4.9. */
+async function preflight(s: WpSession, pol: Policy, target: URL, method: string): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const cache = (s.preflights ??= new PreflightCache());
+  if (!cache.needs(pol, target.href, method)) return { ok: true };
+  const h: Record<string, string> = {
+    accept: "*/*", "access-control-request-method": method, origin: pol.origin ?? pol.initiator ?? "null",
+    "user-agent": upstreamHeaders([], target, { ua: s.ua, cookie: "", method: "GET" })["user-agent"], "accept-language": "en-US,en;q=0.9",
+    "sec-fetch-mode": "cors", "sec-fetch-site": pol.secFetchSite, "sec-fetch-dest": "empty",
+  };
+  if (pol.unsafeHeaders.length) h["access-control-request-headers"] = pol.unsafeHeaders.join(",");
+  if (pol.referer) h.referer = pol.referer;
+  let r;
+  try { r = await upstreamRequest(target.href, { method: "OPTIONS", maxBytes: 1 << 20, session: { sid: s.sid, circuit: s.circuit }, headers: h }); }
+  catch (e) { return { ok: false, reason: `preflight failed: ${classifyError(e).message}` }; }
+  r.body.resume();
+  const c = preflightCheck(pol, method, r.status, r.headers as Record<string, string | string[] | undefined>);
+  if (!c.ok) return c;
+  cache.store(pol, target.href, c);
+  return { ok: true };
+}
+
 async function handle(req: NextRequest): Promise<Response> {
   const raw = new URL(req.url);
   let d: ReturnType<typeof decodeTarget>;
@@ -76,11 +107,31 @@ async function handle(req: NextRequest): Promise<Response> {
     body = Buffer.from(await req.arrayBuffer());
     if (body.length > BODY_MAX) return errorPage(req, target.href, 413, "Upload too large", "The proxy forwards request bodies up to 8 MB.");
   }
+  // TT39 (WP-10): requests made by page SCRIPT — tagged by the shim with the document that made them, or marked by
+  // the browser itself (Sec-Fetch-Dest: empty, which script cannot change) — follow the Fetch standard's rules for
+  // that document's origin. An untagged or forged-tag script request has no verified origin: it is treated like one
+  // from an opaque origin ("null") and carries no cookies. Browsers without Fetch Metadata keep the TT35 behaviour for
+  // untagged requests.
+  const fdest = req.headers.get("sec-fetch-dest"), fmode = req.headers.get("sec-fetch-mode");
+  const pol: Policy | null = d.doc !== undefined || fdest === "empty"
+    ? policyFor({ initiator: d.doc ? docOrigin(s, d.doc) : null, target, cred: d.cred ?? "same-origin", method, headers: req.headers.entries(), siteOf })
+    : null;
+  const noCors = fmode === "no-cors"; // the response is opaque to the page anyway; the browser limits method and headers
+  if (pol && pol.needsPreflight && !noCors) {
+    const pf = await preflight(s, pol, target, method);
+    if (!pf.ok) return corsRefused(pf.reason);
+  }
+  const uh = upstreamHeaders(req.headers.entries(), target, { ua: s.ua, cookie: pol ? (pol.sendCookies ? s.jar.header(target, Date.now(), false, pol.crossSite) : "") : s.jar.header(target), method });
+  if (pol) {
+    if (pol.origin) uh.origin = pol.origin; else delete uh.origin;
+    if (pol.referer) uh.referer = pol.referer; else delete uh.referer;
+    uh["sec-fetch-site"] = pol.secFetchSite; uh["sec-fetch-mode"] = noCors ? "no-cors" : "cors"; uh["sec-fetch-dest"] = "empty";
+  }
   let up;
   try {
     up = await upstreamRequest(target.href, {
       method, body, maxBytes: STREAM_MAX, session: { sid: s.sid, circuit: s.circuit },
-      headers: upstreamHeaders(req.headers.entries(), target, { ua: s.ua, cookie: s.jar.header(target), method }),
+      headers: uh,
     });
   } catch (e) {
     s.stats.errors++;
@@ -89,16 +140,28 @@ async function handle(req: NextRequest): Promise<Response> {
     if (Object.keys(s.stats.failedHosts).length < 50 || s.stats.failedHosts[target.hostname]) s.stats.failedHosts[target.hostname] = c.kind;
     return errorPage(req, target.href, c.kind === "private" || c.kind === "scheme" ? 403 : 502, `Could not reach ${target.hostname}`, c.message);
   }
-  // cookies stay in this session's jar; the page never sees Set-Cookie
+  const uph = up.headers as Record<string, string | string[] | undefined>;
+  // TT39: the CORS check runs on every response of a cross-origin script request, redirects included
+  if (pol && !pol.sameOrigin && !noCors) {
+    const c = corsCheck(pol, uph);
+    if (!c.ok) { up.body.resume(); return corsRefused(c.reason); }
+  }
+  // cookies stay in this session's jar; the page never sees Set-Cookie. TT39: a script request stores cookies only if
+  // it was allowed to send them, and a cross-site one only SameSite=None cookies.
   const sc = up.headers["set-cookie"];
-  for (const line of Array.isArray(sc) ? sc : sc ? [sc] : []) s.jar.set(line, target);
+  const scLines = Array.isArray(sc) ? sc : sc ? [sc] : [];
+  for (const line of pol ? storableSetCookies(pol, scLines) : scLines) s.jar.set(line, target);
 
-  const headers: Record<string, string> = { ...CORS, ...downstreamHeaders(up.headers as Record<string, string | string[] | undefined>), "x-fusion-wp-target": target.href };
+  const headers: Record<string, string> = pol
+    ? { ...CORS, ...scriptResponseHeaders(uph), ...downstreamHeaders(uph), "access-control-expose-headers": exposeHeaders(pol, uph), "x-fusion-wp-target": target.href }
+    : { ...CORS, ...downstreamHeaders(uph), "x-fusion-wp-target": target.href };
   const loc = up.headers.location;
   if (up.status >= 300 && up.status < 400 && loc) {
     up.body.resume();
     let next: string | null = null;
-    try { next = encodeTarget(new URL(loc, target), s.sid); } catch { /* bad Location */ }
+    // a script request's redirect keeps its document and credentials tag
+    const seg = d.doc ? `${s.sid}:${d.doc}:${credCode(d.cred ?? "same-origin")}` : s.sid;
+    try { next = encodeTarget(new URL(loc, target), seg); } catch { /* bad Location */ }
     if (!next) return errorPage(req, target.href, 502, "Unsupported redirect", `The site redirected to an address the proxy will not follow: ${String(loc).slice(0, 200)}`);
     return new Response(null, { status: up.status, headers: { ...headers, location: next } });
   }
@@ -117,7 +180,7 @@ async function handle(req: NextRequest): Promise<Response> {
     // site's HTML through the proxy (Sec-Fetch-Dest: empty — a header page script cannot set) gets neither that site's
     // script cookies nor its WebSocket origin token, so it cannot read them or open a socket in that site's name.
     const nav = isNavigation(req);
-    const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(target.href)}" data-ua="${s.ua}" data-cookies="${nav ? encodeAttr(s.jar.header(target, Date.now(), true)) : ""}" data-wst="${nav ? originToken(s.sid, target.origin) : ""}"></script>`;
+    const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(target.href)}" data-ua="${s.ua}" data-cookies="${nav ? encodeAttr(s.jar.header(target, Date.now(), true)) : ""}" data-wst="${nav ? originToken(s.sid, target.origin) : ""}" data-doc="${nav ? newDoc(s, target.origin) : ""}"></script>`;
     const { html } = rewriteHtml(text, { sid: s.sid, url: target.href, inject });
     return new Response(html, {
       status: up.status,

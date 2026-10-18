@@ -1,3 +1,4 @@
+import { osBypassMatch, type OsProxy } from "./osproxy";
 import { isIP } from "node:net";
 import { parseRoute, type UpstreamRoute } from "./wp-tunnel";
 
@@ -14,7 +15,13 @@ import { parseRoute, type UpstreamRoute } from "./wp-tunnel";
  * Proxy schemes: http://, socks5://, socks5h:// (an https:// proxy — TLS to the proxy itself — is reported as
  * unsupported rather than silently used in clear).
  */
-export interface SystemProxy { https: UpstreamRoute | null; http: UpstreamRoute | null; noProxy: string; source: string[]; errors: string[] }
+export interface SystemProxy {
+  https: UpstreamRoute | null; http: UpstreamRoute | null; noProxy: string; source: string[]; errors: string[];
+  /** TT39: OS exception list (Windows ProxyOverride, macOS ExceptionsList, GNOME ignore-hosts) */
+  bypass?: (host: string, port: number) => boolean;
+  /** TT39: a proxy auto-config file decides per URL (OS setting or FUSION_WP_PAC_URL) */
+  pacUrl?: string | null;
+}
 
 type Env = Record<string, string | undefined>;
 const pick = (env: Env, ...names: string[]): [string, string] | null => {
@@ -89,5 +96,24 @@ export function systemRouteFor(sp: SystemProxy, target: URL): UpstreamRoute | "d
   const secure = target.protocol === "https:" || target.protocol === "wss:";
   const port = target.port ? Number(target.port) : secure ? 443 : 80;
   if (sp.noProxy && noProxyMatch(sp.noProxy, target.hostname, port)) return "direct";
+  if (sp.bypass?.(target.hostname, port)) return "direct";
   return (secure ? sp.https : sp.http) ?? "direct";
+}
+
+/**
+ * TT39: the OS settings (src/lib/server/osproxy.ts) as a SystemProxy. Like Chrome's manual rules, a protocol with no
+ * proxy of its own uses the SOCKS proxy when one is set. A SOCKS entry is spoken as SOCKS5 (the only SOCKS version
+ * Fusion's tunnel implements — Windows' "socks=" historically means SOCKS4; servers like Tor or `ssh -D` speak both).
+ */
+export function systemProxyFromOs(o: OsProxy): SystemProxy {
+  const errors: string[] = [];
+  const r = (name: string, hp: string | null, scheme: string) => (hp ? routeOf(name, `${scheme}://${hp}`, errors) : null);
+  const socks = r(`${o.source} socks`, o.socks, "socks5");
+  return {
+    https: r(`${o.source} https`, o.https, "http") ?? socks,
+    http: r(`${o.source} http`, o.http, "http") ?? socks,
+    noProxy: "", source: [o.source], errors,
+    bypass: o.bypass.length || o.bypassSimple ? (host) => osBypassMatch(o, host) : undefined,
+    pacUrl: o.pacUrl,
+  };
 }

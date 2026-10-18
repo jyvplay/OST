@@ -218,7 +218,7 @@ export async function openTunnel(route: UpstreamRoute, host: string, port: numbe
     }
     if (!o.secure) return sock;
     return await new Promise<net.Socket>((resolve, reject) => {
-      const s = tls.connect({ socket: sock, servername: o.servername && !net.isIP(o.servername) ? o.servername : undefined, ALPNProtocols: ["http/1.1"] });
+      const s = tls.connect({ socket: sock, host: o.servername, servername: o.servername && !net.isIP(o.servername) ? o.servername : undefined, ALPNProtocols: ["http/1.1"] });
       s.once("secureConnect", () => resolve(s));
       s.once("error", reject);
     });

@@ -44,7 +44,7 @@ export function isPrivateAddress(addr: string): boolean {
 /**
  * TT38 TEST-ONLY allowance: FUSION_WP_TEST_LOOPBACK_PORTS="18601,18602" lets the Private proxy reach 127.0.0.1 on
  * exactly those ports, so the test suites can run real local servers (WebSocket, SSE, slow / hostile peers) through
- * the full proxy path. Unset (the default, and every real deployment) it does nothing. Only the literal 127.0.0.1 is
+ * the full proxy path. Unset (the default, and every real deployment) it does nothing. Only 127.x literals are
  * allowed — no names, no other loopback or private address — and a server that has it set says so on stderr.
  */
 let testPorts: Set<number> | null = null;
@@ -56,7 +56,9 @@ function loopbackTestPorts(): Set<number> {
   return testPorts;
 }
 export function testLoopbackAllowed(host: string, port: number): boolean {
-  return host.replace(/^\[|\]$/g, "") === "127.0.0.1" && loopbackTestPorts().has(port);
+  // TT39: any 127.x.y.z literal (127.0.0.2 is a different SITE from 127.0.0.1 — the cross-site isolation tests need
+  // two); still no names, no ::1, no other private range, and only the listed ports
+  return /^127\.(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)$/.test(host.replace(/^\[|\]$/g, "")) && loopbackTestPorts().has(port);
 }
 
 export function parsePublicWebUrl(raw: string): URL {

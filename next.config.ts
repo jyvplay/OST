@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
       // API bodies (file contents, notes, state) must not be kept in the browser's HTTP disk cache —
       // in an amnesic session that cache would be a trace on the device.
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }] },
+      // TT39 (WP-11): proxied MODULE workers import the in-page runtime with a CORS request from an opaque origin; the
+      // file is public and carries no credentials, so any origin may load it
+      { source: "/wp-shim.js", headers: [{ key: "Access-Control-Allow-Origin", value: "*" }] },
+      { source: "/wp-mw-ready.js", headers: [{ key: "Access-Control-Allow-Origin", value: "*" }] },
     ];
   },
 };

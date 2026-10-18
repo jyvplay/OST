@@ -83,7 +83,9 @@ export function connectPinned(addrs: PinnedAddress[], port: number, o: { timeout
 /** TLS over an established socket; the certificate is verified against `servername` (rejectUnauthorized stays on). */
 export function tlsOver(sock: net.Socket, servername: string, timeoutMs: number): Promise<tls.TLSSocket> {
   return new Promise((resolve, reject) => {
-    const t = tls.connect({ socket: sock, servername: net.isIP(servername) ? undefined : servername, ALPNProtocols: ["http/1.1"] });
+    // TT39 fix: \`host\` is what the certificate is checked against — without it an IP-literal site was checked against
+    // Node's default "localhost" (SNI itself may not carry an IP, so servername stays unset for those)
+    const t = tls.connect({ socket: sock, host: servername, servername: net.isIP(servername) ? undefined : servername, ALPNProtocols: ["http/1.1"] });
     const timer = setTimeout(() => { t.destroy(); reject(Object.assign(new Error(`TLS handshake timed out after ${timeoutMs} ms`), { code: "ETIMEDOUT" })); }, timeoutMs);
     t.once("secureConnect", () => { clearTimeout(timer); t.removeAllListeners("error"); resolve(t); });
     t.once("error", (e) => { clearTimeout(timer); sock.destroy(); reject(e); });
@@ -107,7 +109,7 @@ export async function openUpstream(host: string, port: number, o: { secure: bool
     return { socket, remote: `via ${describeRoute(o.route).label}` };
   }
   if (/\.onion\.?$/i.test(h)) throw new Error("onion addresses need the Tor (SOCKS5) route");
-  const addrs: PinnedAddress[] = testLoopbackAllowed(h, port) ? [{ address: "127.0.0.1", family: 4 }] : await resolvePinnedPublicHost(h);
+  const addrs: PinnedAddress[] = testLoopbackAllowed(h, port) ? [{ address: h, family: 4 }] : await resolvePinnedPublicHost(h);
   const t0 = Date.now();
   const { socket, address, attempts } = await connectPinned(addrs, port, { timeoutMs: o.timeoutMs });
   if (!o.secure) return { socket, remote: address, attempts };

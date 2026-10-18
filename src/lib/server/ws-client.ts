@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
+import { DEFLATE_OFFER, DeflateError, parseDeflateResponse, PerMessageDeflate, type DeflateParams } from "./ws-deflate";
 import { EventEmitter } from "node:events";
 import type { Duplex } from "node:stream";
 
@@ -9,7 +10,8 @@ import type { Duplex } from "node:stream";
  * the same network route and the same per-session isolation as its HTTP requests.
  *
  * Receive-side rules enforced (each failure closes with the code RFC 6455 §7.4.1 assigns):
- *  - server frames must not be masked; RSV1-3 must be 0 (we never offer an extension)          → 1002
+ *  - server frames must not be masked; RSV2-3 must be 0, RSV1 only on the first frame of a      → 1002
+ *    data message and only when permessage-deflate was negotiated (TT39, ws-deflate.ts)
  *  - only opcodes 0, 1, 2, 8, 9, 10; continuation only inside a fragmented message, and a new
  *    data frame never inside one                                                                → 1002
  *  - control frames: payload ≤ 125 bytes and never fragmented                                   → 1002
@@ -18,7 +20,8 @@ import type { Duplex } from "node:stream";
  *  - text messages and close reasons must be valid UTF-8                                        → 1007
  *  - a message larger than the configured cap                                                   → 1009
  * Handshake (§4.1): status 101, `Upgrade: websocket`, `Connection: upgrade`, Sec-WebSocket-Accept =
- * base64(SHA-1(key + GUID)), no extension we did not offer, no subprotocol we did not offer.
+ * base64(SHA-1(key + GUID)), no extension we did not offer (TT39: permessage-deflate is offered and its answer
+ * validated strictly), no subprotocol we did not offer.
  */
 
 export const WS_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -41,12 +44,12 @@ const utf8 = new TextDecoder("utf-8", { fatal: true });
 function strictUtf8(b: Buffer): string | null { try { return utf8.decode(b); } catch { return null; } }
 
 /** One frame. Client frames are masked (mask key from crypto unless given, for test vectors). */
-export function encodeFrame(opcode: number, payload: Buffer, o: { fin?: boolean; mask?: boolean; maskKey?: Buffer } = {}): Buffer {
+export function encodeFrame(opcode: number, payload: Buffer, o: { fin?: boolean; mask?: boolean; maskKey?: Buffer; rsv1?: boolean } = {}): Buffer {
   const fin = o.fin ?? true, mask = o.mask ?? true;
   const n = payload.length;
   const lenBytes = n < 126 ? 0 : n < 65536 ? 2 : 8;
   const head = Buffer.alloc(2 + lenBytes + (mask ? 4 : 0));
-  head[0] = (fin ? 0x80 : 0) | (opcode & 0x0f);
+  head[0] = (fin ? 0x80 : 0) | (o.rsv1 ? 0x40 : 0) | (opcode & 0x0f);
   head[1] = (mask ? 0x80 : 0) | (n < 126 ? n : n < 65536 ? 126 : 127);
   if (lenBytes === 2) head.writeUInt16BE(n, 2);
   else if (lenBytes === 8) head.writeBigUInt64BE(BigInt(n), 2);
@@ -99,19 +102,20 @@ export class FrameParser {
   }
 }
 
-export interface HandshakeResult { protocol: string; extensions: string; setCookies: string[]; leftover: Buffer }
+export interface HandshakeResult { protocol: string; extensions: string; setCookies: string[]; leftover: Buffer; deflate?: DeflateParams }
 
 /** The opening handshake request (§4.1). `path` includes the query. */
-export function handshakeRequest(o: { host: string; path: string; key: string; protocols: string[]; origin?: string; headers?: Record<string, string> }): string {
+export function handshakeRequest(o: { host: string; path: string; key: string; protocols: string[]; origin?: string; headers?: Record<string, string>; deflate?: boolean }): string {
   const lines = [`GET ${o.path} HTTP/1.1`, `Host: ${o.host}`, "Upgrade: websocket", "Connection: Upgrade", `Sec-WebSocket-Key: ${o.key}`, "Sec-WebSocket-Version: 13"];
   if (o.origin) lines.push(`Origin: ${o.origin}`);
   if (o.protocols.length) lines.push(`Sec-WebSocket-Protocol: ${o.protocols.join(", ")}`);
+  if (o.deflate) lines.push(`Sec-WebSocket-Extensions: ${DEFLATE_OFFER}`);
   for (const [k, v] of Object.entries(o.headers ?? {})) if (!/[\r\n]/.test(k + v)) lines.push(`${k}: ${v}`);
   return lines.join("\r\n") + "\r\n\r\n";
 }
 
 /** Validate the server's reply head (everything before the blank line). Throws with a plain reason on any violation. */
-export function verifyHandshake(head: string, key: string, offered: string[]): Omit<HandshakeResult, "leftover"> {
+export function verifyHandshake(head: string, key: string, offered: string[], offeredDeflate = false): Omit<HandshakeResult, "leftover"> {
   const lines = head.split("\r\n");
   const m = /^HTTP\/1\.1 (\d{3})/.exec(lines[0] ?? "");
   if (!m) throw new Error(`not an HTTP/1.1 response: ${JSON.stringify((lines[0] ?? "").slice(0, 60))}`);
@@ -126,13 +130,18 @@ export function verifyHandshake(head: string, key: string, offered: string[]): O
   if (one("upgrade").toLowerCase() !== "websocket") throw new Error("missing 'Upgrade: websocket'");
   if (!one("connection").toLowerCase().split(/\s*,\s*/).includes("upgrade")) throw new Error("missing 'Connection: Upgrade'");
   if ((h.get("sec-websocket-accept") ?? []).length !== 1 || one("sec-websocket-accept") !== acceptFor(key)) throw new Error("wrong Sec-WebSocket-Accept");
-  if (one("sec-websocket-extensions")) throw new Error(`the server chose an extension that was not offered (${one("sec-websocket-extensions").slice(0, 60)})`);
+  const ext = one("sec-websocket-extensions");
+  let deflate: DeflateParams | undefined;
+  if (ext) {
+    if (!offeredDeflate) throw new Error(`the server chose an extension that was not offered (${ext.slice(0, 60)})`);
+    deflate = parseDeflateResponse(ext);
+  }
   const proto = one("sec-websocket-protocol");
   if (proto && (!offered.includes(proto) || (h.get("sec-websocket-protocol") ?? []).length !== 1)) throw new Error(`the server chose a subprotocol that was not offered (${proto.slice(0, 60)})`);
-  return { protocol: proto, extensions: "", setCookies: h.get("set-cookie") ?? [] };
+  return deflate ? { protocol: proto, extensions: ext, setCookies: h.get("set-cookie") ?? [], deflate } : { protocol: proto, extensions: "", setCookies: h.get("set-cookie") ?? [] };
 }
 
-export interface WsClientOptions { maxMessage?: number; closeTimeoutMs?: number }
+export interface WsClientOptions { maxMessage?: number; closeTimeoutMs?: number; /** TT39: offer permessage-deflate (default true, as browsers do) */ deflate?: boolean }
 
 /**
  * An open connection. Events: 'message' (data: string | Buffer, binary: boolean), 'close' (code, reason, wasClean),
@@ -149,9 +158,16 @@ export class WsClient extends EventEmitter {
   private closeTimer: NodeJS.Timeout | null = null;
   private readonly closeTimeoutMs: number;
   private readonly sock: Duplex;
-  constructor(sock: Duplex, o: WsClientOptions = {}, leftover?: Buffer) {
+  // TT39: permessage-deflate state; with it, frames are handled through a serial chain (inflate is asynchronous, and
+  // a message must never be overtaken by a later frame — a close included), and sends through another
+  private readonly pmd: PerMessageDeflate | null;
+  private inChain: Promise<void> = Promise.resolve();
+  private outChain: Promise<void> = Promise.resolve();
+  private compressed = false;
+  constructor(sock: Duplex, o: WsClientOptions = {}, leftover?: Buffer, deflate?: DeflateParams) {
     super();
     this.sock = sock;
+    this.pmd = deflate ? new PerMessageDeflate(deflate, o.maxMessage ?? 16 * 1024 * 1024) : null;
     this.maxMessage = o.maxMessage ?? 16 * 1024 * 1024;
     this.closeTimeoutMs = o.closeTimeoutMs ?? 5000;
     this.parser = new FrameParser(this.maxMessage);
@@ -164,6 +180,8 @@ export class WsClient extends EventEmitter {
     setImmediate(() => { if (leftover && leftover.length) this.onData(leftover); if (!this.done) sock.resume(); });
   }
   get closed(): boolean { return this.done; }
+  /** TT39: the negotiated permessage-deflate parameters, or null */
+  get deflate(): DeflateParams | null { return this.pmd ? this.pmd.params : null; }
   get closing(): boolean { return this.sentClose || !!this.gotClose; }
   /** Pause / resume reading from the server (backpressure from a slow downstream reader). */
   pause(): void { this.sock.pause(); }
@@ -172,7 +190,19 @@ export class WsClient extends EventEmitter {
   send(data: string | Buffer, binary = typeof data !== "string"): void {
     if (this.sentClose || this.done) return;
     const payload = typeof data === "string" ? Buffer.from(data, "utf8") : data;
-    this.sock.write(encodeFrame(binary ? OP.BINARY : OP.TEXT, payload));
+    const op = binary ? OP.BINARY : OP.TEXT;
+    const pmd = this.pmd;
+    if (!pmd || !pmd.canCompress || payload.length < pmd.threshold) {
+      // still in order behind any message being compressed
+      this.outChain = this.outChain.then(() => { if (!this.done) this.sock.write(encodeFrame(op, payload)); });
+      return;
+    }
+    this.outChain = this.outChain.then(async () => {
+      if (this.done) return;
+      let z: Buffer;
+      try { z = await pmd.deflate(payload); } catch { if (!this.done) this.sock.write(encodeFrame(op, payload)); return; } // uncompressed is always allowed
+      if (!this.done) this.sock.write(encodeFrame(op, z, { rsv1: true }));
+    });
   }
   ping(payload: Buffer = Buffer.alloc(0)): void { if (!this.sentClose && !this.done && payload.length <= 125) this.sock.write(encodeFrame(OP.PING, payload)); }
 
@@ -180,6 +210,12 @@ export class WsClient extends EventEmitter {
   close(code?: number, reason = ""): void {
     if (this.sentClose || this.done) return;
     this.sentClose = true;
+    // the close frame goes after every message already accepted by send()
+    if (this.pmd) { this.outChain = this.outChain.then(() => this.writeClose(code, reason)); return; }
+    this.writeClose(code, reason);
+  }
+  private writeClose(code: number | undefined, reason: string): void {
+    if (this.done) return;
     let payload = Buffer.alloc(0);
     if (code !== undefined) {
       let r = Buffer.from(reason, "utf8");
@@ -212,6 +248,7 @@ export class WsClient extends EventEmitter {
   private finish(code: number, reason: string, wasClean: boolean) {
     if (this.done) return;
     this.done = true;
+    this.pmd?.close();
     if (this.closeTimer) clearTimeout(this.closeTimer);
     this.emit("close", code, reason, wasClean);
   }
@@ -219,11 +256,17 @@ export class WsClient extends EventEmitter {
     if (this.done) return;
     let frames: WsFrame[];
     try { frames = this.parser.push(chunk); } catch (e) { const pe = e as WsProtocolError; this.fail(pe.code ?? 1002, pe.message); return; }
+    if (this.pmd) { for (const f of frames) this.inChain = this.inChain.then(() => (this.done ? undefined : this.onFrame(f))); return; }
     for (const f of frames) { if (this.done) return; this.onFrame(f); }
   }
-  private onFrame(f: WsFrame) {
+  private onFrame(f: WsFrame): void | Promise<void> {
     if (f.masked) return this.fail(1002, "the server masked a frame");
-    if (f.rsv) return this.fail(1002, "reserved bits set without a negotiated extension");
+    if (f.rsv & 0x3) return this.fail(1002, "reserved bits RSV2/RSV3 set");
+    if (f.rsv & 0x4) {
+      if (!this.pmd) return this.fail(1002, "reserved bits set without a negotiated extension");
+      if (f.opcode >= 8) return this.fail(1002, "RSV1 on a control frame");
+      if (f.opcode === OP.CONT) return this.fail(1002, "RSV1 on a continuation frame");
+    }
     const control = f.opcode >= 8;
     if (control) {
       if (f.opcode !== OP.CLOSE && f.opcode !== OP.PING && f.opcode !== OP.PONG) return this.fail(1002, `unknown control opcode ${f.opcode}`);
@@ -252,15 +295,24 @@ export class WsClient extends EventEmitter {
       this.frag.size += f.payload.length;
       if (this.frag.size > this.maxMessage) return this.fail(1009, `message exceeds the ${this.maxMessage}-byte cap`);
       this.frag.parts.push(f.payload);
-      if (f.fin) { const { opcode, parts } = this.frag; this.frag = null; this.deliver(opcode, Buffer.concat(parts)); }
+      if (f.fin) { const { opcode, parts } = this.frag; this.frag = null; return this.deliver(opcode, Buffer.concat(parts)); }
       return;
     }
     if (f.opcode !== OP.TEXT && f.opcode !== OP.BINARY) return this.fail(1002, `unknown data opcode ${f.opcode}`);
     if (this.frag) return this.fail(1002, "new message started inside a fragmented one");
+    this.compressed = (f.rsv & 0x4) !== 0;
     if (!f.fin) { this.frag = { opcode: f.opcode, parts: [f.payload], size: f.payload.length }; return; }
-    this.deliver(f.opcode, f.payload);
+    return this.deliver(f.opcode, f.payload);
   }
-  private deliver(opcode: number, data: Buffer) {
+  private deliver(opcode: number, data: Buffer): void | Promise<void> {
+    if (this.compressed && this.pmd) {
+      this.compressed = false;
+      return this.pmd.inflate(data).then((plain) => { if (!this.done) this.emitMessage(opcode, plain); },
+        (e) => { if (!this.done) this.fail(e instanceof DeflateError ? e.code : 1007, (e as Error).message); });
+    }
+    this.emitMessage(opcode, data);
+  }
+  private emitMessage(opcode: number, data: Buffer) {
     if (opcode === OP.TEXT) {
       const s = strictUtf8(data);
       if (s === null) return this.fail(1007, "text message is not valid UTF-8");
@@ -304,6 +356,7 @@ export async function connectWebSocket(o: ConnectOptions): Promise<{ ws: WsClien
   const timeoutMs = o.timeoutMs ?? 15_000, maxHeader = o.maxHeaderBytes ?? 16 * 1024;
   const sock = await o.open(u.hostname.replace(/^\[|\]$/g, ""), port, secure);
   const key = randomBytes(16).toString("base64");
+  const offerDeflate = o.deflate !== false;
   return new Promise((resolve, reject) => {
     let head = Buffer.alloc(0), settled = false;
     const done = (e: Error | null, r?: HandshakeResult) => {
@@ -311,14 +364,14 @@ export async function connectWebSocket(o: ConnectOptions): Promise<{ ws: WsClien
       clearTimeout(timer); sock.off("data", onData); sock.off("error", onErr); sock.off("close", onClose);
       if (e) { sock.destroy(); reject(e); return; }
       sock.pause();
-      resolve({ ws: new WsClient(sock, o, r!.leftover), ...r! });
+      resolve({ ws: new WsClient(sock, o, r!.leftover, r!.deflate), ...r! });
     };
     const onData = (c: Buffer) => {
       head = Buffer.concat([head, c]);
       const end = head.indexOf("\r\n\r\n");
       if (end < 0) { if (head.length > maxHeader) done(new Error(`handshake reply header exceeds ${maxHeader} bytes`)); return; }
       try {
-        const r = verifyHandshake(head.subarray(0, end).toString("latin1"), key, protocols);
+        const r = verifyHandshake(head.subarray(0, end).toString("latin1"), key, protocols, offerDeflate);
         done(null, { ...r, leftover: head.subarray(end + 4) });
       } catch (e) { done(e as Error); }
     };
@@ -327,7 +380,7 @@ export async function connectWebSocket(o: ConnectOptions): Promise<{ ws: WsClien
     const timer = setTimeout(() => done(new Error(`WebSocket handshake timed out after ${timeoutMs} ms`)), timeoutMs);
     sock.on("data", onData); sock.on("error", onErr); sock.on("close", onClose);
     const host = u.port ? `${u.hostname}:${u.port}` : u.hostname;
-    sock.write(handshakeRequest({ host, path: `${u.pathname || "/"}${u.search}`, key, protocols, origin: o.origin, headers: o.headers }));
+    sock.write(handshakeRequest({ host, path: `${u.pathname || "/"}${u.search}`, key, protocols, origin: o.origin, headers: o.headers, deflate: offerDeflate }));
     sock.resume();
   });
 }

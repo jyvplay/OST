@@ -8,49 +8,66 @@
  *
  * Declared limits: scripts that read window.location see the proxy address (location cannot be redefined);
  * storage is per page and in memory only. WebSockets (TT38) go through a same-origin bridge (fetch streams) and
- * EventSource through the proxy; Web Workers' own sockets are not covered (workers do not run this runtime).
+ * EventSource through the proxy; Web Workers (TT39) run this runtime too, from a blob bootstrap.
  */
 (function (W) {
   "use strict";
   var D = W.document;
   var me = D && D.currentScript;
+  // TT39 (WP-11): inside a Web Worker started through this runtime, the configuration comes from the worker's
+  // bootstrap (self.__fusionWpCfg) instead of the <script> tag, and only the network patches apply
+  var CFG = !D && W.__fusionWpCfg && typeof W.__fusionWpCfg === "object" ? W.__fusionWpCfg : null;
+  if (CFG) me = { dataset: { fusionWp: "1", sid: String(CFG.sid), url: String(CFG.url), ua: String(CFG.ua), doc: String(CFG.doc || ""), wst: String(CFG.wst || ""), cookies: "" }, getAttribute: function () { return null; } };
   if (!me || !me.dataset || !me.dataset.fusionWp) return;
   var PREFIX = "/api/wp/s/";
   var SID = me.dataset.sid;
   var TARGET = me.dataset.url;
   var UA_KIND = me.dataset.ua === "mobile" ? "mobile" : "desktop";
   var L = W.location;
-  var HERE = L.protocol + "//" + L.host; // location keeps the URL's origin even in an opaque-origin document
+  var HERE = CFG ? String(CFG.here) : L.protocol + "//" + L.host; // location keeps the URL's origin even in an opaque-origin document
+  // a worker's own location is a blob: URL — nothing resolves against it, so worker-side URLs are absolute
+  var HOME = new URL(HERE + "/"), HOST = HOME.host, PROTO = HOME.protocol, ABS = CFG ? HERE : "";
   var PASS = /^(data|blob|javascript|mailto|tel|sms|about|ftp|ws|wss|intent|geo|magnet|chrome|file):/i;
   var beacons = 0;
 
   /** our URL (absolute or path) → the target URL it stands for, or null */
   function decode(u) {
     var x;
-    try { x = new URL(String(u), L.href); } catch (e) { return null; }
-    if (x.host !== L.host || x.pathname.indexOf(PREFIX) !== 0) return null;
+    try { x = new URL(String(u), CFG ? HOME.href : L.href); } catch (e) { return null; }
+    if (x.host !== HOST || x.pathname.indexOf(PREFIX) !== 0) return null;
     var p = x.pathname.slice(PREFIX.length).split("/");
     if (p.length < 3 || (p[1] !== "http" && p[1] !== "https")) return null;
     return p[1] + "://" + p[2] + "/" + p.slice(3).join("/") + x.search + x.hash;
   }
-  function currentTarget() { return decode(L.href) || TARGET; }
-  function targetBase() { return decode(D.baseURI) || currentTarget(); }
+  function currentTarget() { return CFG ? TARGET : decode(L.href) || TARGET; }
+  function targetBase() { return CFG ? TARGET : decode(D.baseURI) || currentTarget(); }
 
   /** any URL a page uses → the proxied path (mirror of encodeTarget / rewriteUrl in src/lib/wp-core.ts) */
   function enc(u) {
     if (u === null || u === undefined) return u;
     var s = String(u), t = s.trim();
     if (!t || t.charAt(0) === "#" || PASS.test(t)) return s;
-    if (t.indexOf(PREFIX) === 0 || t.indexOf(HERE + PREFIX) === 0) return s; // already ours
+    if (t.indexOf(PREFIX) === 0) return ABS + s; // already ours
+    if (t.indexOf(HERE + PREFIX) === 0) return s;
     var abs;
     try { abs = new URL(t, targetBase()); } catch (e) { return s; }
-    if (abs.host === L.host && abs.protocol === L.protocol) {
-      if (abs.pathname.indexOf(PREFIX) === 0) return abs.pathname + abs.search + abs.hash;
+    if (abs.host === HOST && abs.protocol === PROTO) {
+      if (abs.pathname.indexOf(PREFIX) === 0) return ABS + abs.pathname + abs.search + abs.hash;
       // a URL built from location.origin / location.host: it meant the target site's root
       abs = new URL(abs.pathname + abs.search + abs.hash, new URL(currentTarget()).origin);
     }
     if ((abs.protocol !== "http:" && abs.protocol !== "https:") || abs.username || abs.password) return s;
-    return PREFIX + SID + "/" + abs.protocol.slice(0, -1) + "/" + abs.host + abs.pathname + abs.search + abs.hash;
+    return ABS + PREFIX + SID + "/" + abs.protocol.slice(0, -1) + "/" + abs.host + abs.pathname + abs.search + abs.hash;
+  }
+  // TT39 (WP-10): script requests name the document that made them and its credentials mode, in the session segment
+  // ("<sid>:<doc>:<i|s|o>") — the server applies the Fetch standard's rules for that document's real origin.
+  var DOC = me.dataset.doc || "";
+  function tag(p, cred) {
+    if (!DOC || typeof p !== "string") return p;
+    var c = cred === "include" ? "i" : cred === "omit" ? "o" : "s", head = PREFIX + SID + "/", seg = PREFIX + SID + ":" + DOC + ":" + c + "/";
+    if (p.indexOf(head) === 0) return seg + p.slice(head.length);
+    if (p.indexOf(HERE + head) === 0) return HERE + seg + p.slice(HERE.length + head.length);
+    return p;
   }
   function encSrcset(v) {
     return String(v).split(/,(?=\s)|,$/).map(function (c) {
@@ -58,8 +75,8 @@
       return m ? m[1] + enc(m[2]) + m[3] : c;
     }).join(",");
   }
-  W.__fusionWp = { enc: enc, decode: decode, encSrcset: encSrcset, target: currentTarget };
-  if (typeof W.HTMLElement === "undefined") return; // not a browser (unit tests load this file for the codec)
+  W.__fusionWp = { enc: enc, decode: decode, encSrcset: encSrcset, target: currentTarget, tag: tag };
+  if (!CFG && typeof W.HTMLElement === "undefined") return; // not a browser (unit tests load this file for the codec)
 
   function guard(f) { try { f(); } catch (e) { /* one failed patch must not stop the others */ } }
 
@@ -67,10 +84,12 @@
   guard(function () {
     var _fetch = W.fetch;
     W.fetch = function (input, init) {
-      var i = input, o = Object.assign({}, init || {}, { credentials: "omit" }); // credentials never cross the proxy
+      // the page's credentials mode travels in the URL tag; our own request to the proxy never carries credentials
+      var cred = (init && init.credentials) || (input && typeof input === "object" && input.credentials) || "same-origin";
+      var i = input, o = Object.assign({}, init || {}, { credentials: "omit" });
       var mode = o.mode || (i && typeof i === "object" && i.mode) || "", proxied;
-      if (typeof i === "string" || (W.URL && i instanceof URL)) i = proxied = enc(String(i));
-      else if (i && i.url) i = new Request(proxied = enc(i.url), i); // method, headers and body come along; o.mode overrides below
+      if (typeof i === "string" || (W.URL && i instanceof URL)) i = proxied = tag(enc(String(i)), cred);
+      else if (i && i.url) i = new Request(proxied = tag(enc(i.url), cred), i); // method, headers and body come along; o.mode overrides below
       // "same-origin" can never be met from the page's opaque origin. A request the SITE would have made to ITSELF goes
       // as "cors" (the proxy answers with ACAO *); a request to another site keeps "same-origin" and fails, as natively.
       if (mode === "same-origin") {
@@ -82,18 +101,145 @@
     W.__fusionWp.rawFetch = _fetch;
   });
   guard(function () {
-    var X = W.XMLHttpRequest.prototype, _open = X.open;
-    X.open = function (m, u) { var a = Array.prototype.slice.call(arguments); a[1] = enc(u); return _open.apply(this, a); };
-    Object.defineProperty(X, "withCredentials", { configurable: true, get: function () { return false; }, set: function () {} });
+    // TT39: withCredentials is real — "include" vs "same-origin" in the tag. Set after open() (allowed natively until
+    // send()), it re-opens the request with the new tag at send() and replays the request headers already set.
+    var X = W.XMLHttpRequest.prototype, _open = X.open, _send = X.send, _srh = X.setRequestHeader;
+    function st(x) { return x.__fw || (x.__fw = { args: null, hdrs: [], cred: false, sent: false }); }
+    X.open = function (m, u) {
+      var a = Array.prototype.slice.call(arguments), f = st(this);
+      f.args = a.slice(); f.hdrs = []; f.sent = f.cred;
+      a[1] = tag(enc(u), f.cred ? "include" : "same-origin");
+      return _open.apply(this, a);
+    };
+    X.setRequestHeader = function (k, v) { st(this).hdrs.push([k, v]); return _srh.call(this, k, v); };
+    X.send = function () {
+      var f = st(this), self = this;
+      if (f.args && f.sent !== f.cred && this.readyState === 1) {
+        var a = f.args.slice(), hdrs = f.hdrs.slice();
+        a[1] = tag(enc(a[1]), f.cred ? "include" : "same-origin"); f.sent = f.cred;
+        _open.apply(this, a);
+        hdrs.forEach(function (h) { _srh.call(self, h[0], h[1]); });
+        f.hdrs = hdrs;
+      }
+      return _send.apply(this, arguments);
+    };
+    Object.defineProperty(X, "withCredentials", {
+      configurable: true,
+      get: function () { return !!(this.__fw && this.__fw.cred); },
+      set: function (v) {
+        if (this.readyState > 1) throw new DOMException("Failed to set the 'withCredentials' property on 'XMLHttpRequest': The value may only be set if the object's state is UNSENT or OPENED.", "InvalidStateError");
+        st(this).cred = !!v;
+      },
+    });
   });
   guard(function () { W.navigator.sendBeacon = function () { beacons++; return true; }; }); // tracking beacons go nowhere
-  guard(function () { var _open = W.open; W.open = function (u, n, f) { return _open.call(W, u === undefined ? u : enc(u), n, f); }; });
+  if (!CFG) guard(function () { var _open = W.open; W.open = function (u, n, f) { return _open.call(W, u === undefined ? u : enc(u), n, f); }; });
   guard(function () {
     ["pushState", "replaceState"].forEach(function (k) {
       var f = W.history[k];
       W.history[k] = function (st, title, u) { var r = f.call(this, st, title, u === undefined || u === null ? u : enc(u)); report(); return r; };
     });
   });
+
+  // ---- TT39 (WP-11): Web Workers run this runtime too. A worker is started from a small blob bootstrap that sets the
+  // worker's configuration, loads this file, then loads the site's worker script through the proxy — so the worker's
+  // fetch / XHR / WebSocket / EventSource / importScripts / nested workers are routed and policed like the page's.
+  guard(function () {
+    var NW = W.Worker;
+    if (typeof NW !== "function" || typeof W.Blob !== "function" || !W.URL || !URL.createObjectURL) return;
+    var SHIM = HERE + "/wp-shim.js";
+    function domErr3(msg, name) { try { return new DOMException(msg, name); } catch (e) { var x = new Error(msg); x.name = name; return x; } }
+    function bootstrap(scriptUrl, isModule, shared, target) {
+      var cfg = JSON.stringify({ sid: SID, doc: DOC, url: target, ua: UA_KIND, here: HERE, wst: me.dataset.wst || "", module: !!isModule });
+      var J = JSON.stringify;
+      // SharedWorker emulation: the page's MessagePort arrives as a message; after the script has run it is handed to
+      // the script as a "connect" event (self.onconnect / addEventListener("connect"))
+      var sh = shared ? "var __fwReady=false,__fwQ=[];function __fwConnect(p){var e=new MessageEvent('connect',{data:'',ports:[p]});self.dispatchEvent(e);if(typeof self.onconnect==='function')self.onconnect(e);}" +
+        "self.addEventListener('message',function(e){if(e.data&&e.data.__fusionWpConnect===1){e.stopImmediatePropagation();if(__fwReady)__fwConnect(e.ports[0]);else __fwQ.push(e.ports[0]);}});" : "";
+      var done = shared ? "__fwReady=true;__fwQ.splice(0).forEach(__fwConnect);" : "";
+      // Chromium cannot start a MODULE worker from an opaque-origin page at all (verified: a one-line blob module
+      // worker fails before running; a classic one runs). So a module worker runs as a classic worker that loads the
+      // module graph with dynamic import() — import.meta.url, static imports and top-level await all work. Messages
+      // that arrive before the module has been evaluated are held and re-delivered, so none are lost.
+      var src = isModule
+        ? "self.__fusionWpCfg=" + cfg + ";" + sh + "importScripts(" + J(SHIM) + ");var __fwHold=true,__fwM=[];" +
+          "self.addEventListener('message',function(e){if(__fwHold&&!(e.data&&e.data.__fusionWpConnect===1)){e.stopImmediatePropagation();__fwM.push(e);}});" +
+          // released when the module graph starts evaluating (wp-mw-ready.js runs first); delivered in a later task,
+          // after the module's synchronous part — as a native module worker does
+          "self.__fwRelease=function(){self.__fwRelease=null;setTimeout(function(){__fwHold=false;__fwM.splice(0).forEach(function(e){self.dispatchEvent(new MessageEvent('message',{data:e.data,ports:e.ports}));});" + done + "},0);};" +
+          "import('data:text/javascript,'+encodeURIComponent('import '+" + J(J(HERE + "/wp-mw-ready.js")) + "+';import '+" + J(J(scriptUrl)) + "+';'))" +
+          ".catch(function(err){setTimeout(function(){throw err;});});"
+        : "self.__fusionWpCfg=" + cfg + ";" + sh + "importScripts(" + J(SHIM) + ");importScripts(" + J(scriptUrl) + ");" + done;
+      var b = URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
+      setTimeout(function () { URL.revokeObjectURL(b); }, 60000);
+      return b;
+    }
+    /** what a Worker / SharedWorker constructor is given → the bootstrap to start, or null to start it unchanged */
+    function plan(url, opts, shared, kind) {
+      var s = String(url), t = s.trim(), isModule = !!(opts && typeof opts === "object" && opts.type === "module");
+      if (/^data:/i.test(t)) return null; // a data: worker has an opaque origin of its own, natively too
+      if (/^blob:/i.test(t)) return bootstrap(t, isModule, shared, currentTarget()); // made by the page: same origin as the page
+      var abs;
+      try { abs = new URL(t, targetBase()); } catch (e) { throw domErr3("Failed to construct '" + kind + "': The URL '" + s + "' is invalid.", "SyntaxError"); }
+      var here = new URL(currentTarget());
+      // natively a worker script must be same-origin with its creator
+      if (abs.origin !== here.origin) throw domErr3("Failed to construct '" + kind + "': Script at '" + abs.href + "' cannot be accessed from origin '" + here.origin + "'.", "SecurityError");
+      var p = enc(abs.href);
+      return bootstrap(p.indexOf("/") === 0 ? HERE + p : p, isModule, shared, abs.href);
+    }
+    function FusionWorker(url, opts) {
+      if (!new.target) throw new TypeError("Failed to construct 'Worker': Please use the 'new' operator, this DOM object constructor cannot be called as a function.");
+      if (arguments.length < 1) throw new TypeError("Failed to construct 'Worker': 1 argument required, but only 0 present.");
+      var b = plan(url, opts, false, "Worker");
+      // the bootstrap itself is always a classic script (see bootstrap())
+      return Reflect.construct(NW, b ? [b, Object.assign({}, opts && typeof opts === "object" ? opts : {}, { type: "classic" })] : [url, opts], new.target);
+    }
+    FusionWorker.prototype = NW.prototype;
+    Object.setPrototypeOf(FusionWorker, NW);
+    Object.defineProperty(FusionWorker, "name", { value: "Worker" });
+    W.Worker = FusionWorker;
+
+    // An opaque-origin page may not use SharedWorker at all (Chromium: "Access to shared workers is denied to origin
+    // 'null'"). Stand-in: one dedicated worker per (script URL, name) in this page, connected through MessageChannels,
+    // with the SharedWorker API (port, onerror, the worker's connect event).
+    if (typeof W.MessageChannel === "function" && typeof W.EventTarget === "function" && D) {
+      var pool = {};
+      class FusionSharedWorker extends EventTarget {
+        constructor(url, opts) {
+          super();
+          if (arguments.length < 1) throw new TypeError("Failed to construct 'SharedWorker': 1 argument required, but only 0 present.");
+          var o = typeof opts === "string" ? { name: opts } : opts || {};
+          var key = String(url) + "\u0000" + (o.name || "") + "\u0000" + (o.type || "classic"), w = pool[key], self = this;
+          if (!w) { var b = plan(url, o, true, "SharedWorker"); w = pool[key] = new NW(b || url, { name: o.name || "", type: b ? "classic" : o.type === "module" ? "module" : "classic" }); }
+          var mc = new MessageChannel();
+          this.port = mc.port1;
+          this._onerror = null;
+          w.addEventListener("error", function (e) { var ev = new Event("error"); self.dispatchEvent(ev); if (typeof self._onerror === "function") self._onerror.call(self, ev); e.preventDefault(); });
+          w.postMessage({ __fusionWpConnect: 1 }, [mc.port2]);
+        }
+        get onerror() { return this._onerror; }
+        set onerror(f) { this._onerror = typeof f === "function" ? f : null; }
+      }
+      Object.defineProperty(FusionSharedWorker, "name", { value: "SharedWorker" });
+      W.SharedWorker = FusionSharedWorker;
+    }
+  });
+  if (CFG) guard(function () {
+    // worker scope: importScripts and new Request() resolve against the SITE's script URL, not the blob: bootstrap
+    var _is = W.importScripts;
+    if (CFG.module) W.importScripts = function () { throw new TypeError("Failed to execute 'importScripts' on 'WorkerGlobalScope': Module scripts don't support importScripts()."); };
+    else if (typeof _is === "function") W.importScripts = function () { return _is.apply(W, Array.prototype.map.call(arguments, function (u) { return enc(String(u)); })); };
+    var NR = W.Request;
+    if (typeof NR === "function") {
+      var FR = function Request(input, init) {
+        if (typeof input === "string" || (W.URL && input instanceof URL)) { try { input = new URL(String(input), TARGET).href; } catch (e) { /* the native error */ } }
+        return Reflect.construct(NR, init === undefined ? [input] : [input, init], new.target || FR);
+      };
+      FR.prototype = NR.prototype; Object.setPrototypeOf(FR, NR);
+      W.Request = FR;
+    }
+  });
+  if (CFG) { netExtras(); return; } // a worker has no DOM: the rest of this file is for documents
 
   // ---- DOM properties and attributes that load or navigate
   var PROPS = [["HTMLImageElement", "src"], ["HTMLScriptElement", "src"], ["HTMLLinkElement", "href"], ["HTMLIFrameElement", "src"], ["HTMLFrameElement", "src"],
@@ -274,9 +420,12 @@
     else if (m.fusionWp === "ping") report();
     else if (m.fusionWp === "text") W.parent.postMessage({ fusionWp: "text", title: D.title || "", text: D.body ? D.body.innerText.slice(0, 200000) : "" }, "*");
   });
+  netExtras();
   // ---- TT38 (WP-08): WebSocket through the same-origin bridge (src/lib/server/wp-ws.ts), EventSource through the proxy.
   // The page's CSP refuses native sockets to the internet; this class keeps the WebSocket API (readyState, events in
   // order, binaryType, bufferedAmount, close codes, the constructor's errors) and carries the frames over fetch.
+  // TT39: a function, so Web Workers (which return before the DOM part) install the same classes.
+  function netExtras() {
   guard(function () {
     var raw = W.__fusionWp.rawFetch;
     if (!raw || typeof W.EventTarget !== "function" || typeof W.ReadableStream !== "function" || typeof W.TextEncoder !== "function") return;
@@ -317,7 +466,7 @@
         this._abort = typeof AbortController === "function" ? new AbortController() : null;
         this._handlers = {};
         var self = this;
-        raw.call(W, PREFIX + SID + "/__ws/open", {
+        raw.call(W, ABS + PREFIX + SID + "/__ws/open", {
           method: "POST", credentials: "omit", cache: "no-store", headers: { "content-type": "text/plain" },
           body: JSON.stringify({ url: this._url, protocols: list, origin: pageOrigin(), token: me.dataset.wst || "" }), signal: this._abort ? this._abort.signal : undefined,
         }).then(function (res) {
@@ -423,7 +572,7 @@
           var it = this._queue.shift(); batch.push(it); var f = pack(it.t, it.b); bytes.push(f); total += f.length; sent += it.n;
         }
         this._sending = true;
-        raw.call(W, PREFIX + SID + "/__ws/" + this._id, { method: "POST", credentials: "omit", cache: "no-store", headers: { "content-type": "text/plain" }, body: concat(bytes, total) })
+        raw.call(W, ABS + PREFIX + SID + "/__ws/" + this._id, { method: "POST", credentials: "omit", cache: "no-store", headers: { "content-type": "text/plain" }, body: concat(bytes, total) })
           .then(function () { /* a 410 means the socket is gone: its close frame arrives on the stream */ }, function () { /* network: same */ })
           .then(function () { self._buffered -= sent; self._sending = false; self._pump(); });
       }
@@ -459,7 +608,7 @@
         if (arguments.length < 1) throw new TypeError("Failed to construct 'EventSource': 1 argument required, but only 0 present.");
         var abs;
         try { abs = new URL(String(url), targetBase()).href; } catch (e) { throw domErr2("Failed to construct 'EventSource': Cannot open an EventSource to '" + url + "'. The URL is invalid.", "SyntaxError"); }
-        super(enc(abs), { withCredentials: false });
+        super(tag(enc(abs), init && init.withCredentials ? "include" : "same-origin"), { withCredentials: false });
         this._fusionUrl = abs;
         this._fusionCred = !!(init && init.withCredentials);
       }
@@ -470,6 +619,7 @@
     Object.defineProperty(FusionEventSource, "name", { value: "EventSource" });
     W.EventSource = FusionEventSource;
   });
+  }
   D.addEventListener("DOMContentLoaded", report);
   W.addEventListener("load", report);
   W.addEventListener("popstate", report);

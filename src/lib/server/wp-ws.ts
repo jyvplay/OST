@@ -2,7 +2,7 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { connectWebSocket, closeCodeAllowedOnWire, type WsClient } from "./ws-client";
 import { openUpstream } from "./wp-connect";
 import { parsePublicWebUrl } from "./netguard";
-import { routeFor } from "./wp-route";
+import { routeForAsync } from "./wp-route";
 import { UA, sameSite } from "../wp-core";
 import { onSessionEnd, type WpSession } from "./wp-sessions";
 
@@ -116,7 +116,6 @@ export function openBridge(s: WpSession, o: { url: string; protocols: string[]; 
   // SameSite, as browsers apply it to the handshake: a cross-site (or unverified) page gets SameSite=None cookies only
   const crossSite = !verified || !sameSite(new URL(verified).hostname, target.hostname);
   const id = randomBytes(16).toString("hex");
-  const route = routeFor(target);
   let ctrl!: ReadableStreamDefaultController<Uint8Array>;
   let finished = false, keep: NodeJS.Timeout | null = null;
   const b: Bridge = { id, sid: s.sid, url: target.href, ws: null, end: () => {} };
@@ -142,7 +141,7 @@ export function openBridge(s: WpSession, o: { url: string; protocols: string[]; 
       if (cookie) headers.cookie = cookie;
       connectWebSocket({
         url: wsUrl, protocols: o.protocols, origin, headers, maxMessage: WS_MAX_MESSAGE, timeoutMs: o.timeoutMs ?? 15_000,
-        open: async (host, port, secure) => (await openUpstream(host, port, { secure, route, session: { sid: s.sid, circuit: s.circuit }, timeoutMs: o.timeoutMs ?? 15_000 })).socket,
+        open: async (host, port, secure) => (await openUpstream(host, port, { secure, route: await routeForAsync(target), session: { sid: s.sid, circuit: s.circuit }, timeoutMs: o.timeoutMs ?? 15_000 })).socket,
       }).then((r) => {
         // a cross-site handshake may only set SameSite=None cookies (Chrome blocks Lax / Strict from cross-site responses)
         for (const line of r.setCookies) if (!crossSite || /;\s*samesite\s*=\s*none\b/i.test(line)) s.jar.set(line, target);

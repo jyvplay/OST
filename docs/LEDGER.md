@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-18T08:32:40.029Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-66 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-18T18:53:14.011Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+69 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **355** |
-| Fully built | 272 |
+| **Features in register** | **359** |
+| Fully built | 276 |
 | Partially built (partial 46 + probe 16) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **154** |
+| **Fully tested** (≥1 passing test tagged `full`) | **158** |
 | **Partially tested** (only `partial` tags) | **80** |
 | Untested | 121 |
-| Automated tests executed / passed | 630 / 630 |
+| Automated tests executed / passed | 658 / 657 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 143 | 62 | 67 |
+| fully built | 147 | 62 | 67 |
 | partially built | 5 | 16 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
@@ -33,76 +33,79 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-18T08:01:24.422Z |
-| ai-format | 5 | 5 | 0 | 2026-10-18T08:01:26.326Z |
-| browser-session | 5 | 5 | 0 | 2026-10-18T08:01:12.110Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-18T08:01:29.813Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-18T08:11:21.566Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-18T08:12:28.089Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-18T08:30:56.520Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-18T08:06:07.664Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-18T08:12:53.526Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-18T08:04:56.161Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-18T08:14:12.977Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-18T08:16:46.413Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-18T08:04:00.473Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-18T08:06:40.733Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T08:07:15.086Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-18T08:11:47.423Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T08:15:55.602Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T08:17:30.385Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T08:17:54.557Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T08:20:01.834Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T08:21:27.409Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T08:24:10.035Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T08:24:25.459Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T08:32:31.882Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T08:26:03.036Z |
-| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T08:26:19.641Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-18T08:26:48.779Z |
-| e2e-tt38 | 7 | 7 | 0 | 2026-10-18T08:31:04.496Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-18T08:05:25.169Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T08:12:12.505Z |
-| e2e | 61 | 61 | 0 | 2026-10-18T08:03:29.960Z |
-| image | 12 | 12 | 0 | 2026-10-18T08:01:06.706Z |
-| integration | 25 | 25 | 0 | 2026-10-18T08:00:59.781Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-18T08:01:30.590Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-18T08:01:38.211Z |
-| metaclean | 6 | 6 | 0 | 2026-10-18T08:01:20.658Z |
-| names | 7 | 7 | 0 | 2026-10-18T08:01:06.289Z |
-| office | 35 | 35 | 0 | 2026-10-18T08:01:00.332Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-18T08:01:29.414Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-18T08:01:09.900Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-18T08:01:11.919Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-18T08:01:30.335Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T08:01:02.736Z |
-| oracle | 5 | 5 | 0 | 2026-10-18T08:01:00.806Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-18T08:01:24.099Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-18T08:01:17.365Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-18T08:01:19.138Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-18T08:01:03.162Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-18T08:01:31.229Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-18T08:01:24.662Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-18T08:01:30.988Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-18T08:01:38.479Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-18T08:01:39.298Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-18T08:17:54.820Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-18T08:20:02.125Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-18T08:21:43.487Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-18T08:24:10.312Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-18T08:31:32.860Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-18T08:25:35.542Z |
-| tt36-unit | 5 | 5 | 0 | 2026-10-18T08:26:06.335Z |
-| tt37-unit | 9 | 9 | 0 | 2026-10-18T08:26:23.899Z |
-| tt38-unit | 15 | 15 | 0 | 2026-10-18T08:31:01.108Z |
-| unit | 23 | 23 | 0 | 2026-10-18T08:00:55.815Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-18T08:01:11.213Z |
-| vector | 18 | 18 | 0 | 2026-10-18T08:01:10.181Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T08:01:24.891Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-18T18:29:12.392Z |
+| ai-format | 5 | 5 | 0 | 2026-10-18T18:29:13.888Z |
+| browser-session | 5 | 5 | 0 | 2026-10-18T18:29:03.400Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-18T18:29:14.952Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-18T18:37:06.764Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-18T18:37:53.373Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-18T18:28:09.504Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-18T18:32:58.733Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-18T18:38:12.918Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-18T18:31:57.929Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-18T18:39:08.409Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-18T18:41:12.912Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-18T18:31:18.230Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-18T18:33:21.888Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T18:33:44.869Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-18T18:37:23.974Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T18:45:31.804Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T18:41:44.830Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T18:42:03.538Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T18:19:04.830Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T18:20:14.914Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T18:22:35.990Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T18:22:48.549Z |
+| e2e-tt34 | 5 | 4 | 1 | 2026-10-18T18:51:19.122Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T18:24:20.570Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T18:24:35.912Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-18T18:25:00.746Z |
+| e2e-tt38 | 7 | 7 | 0 | 2026-10-18T18:28:16.874Z |
+| e2e-tt39 | 7 | 7 | 0 | 2026-10-18T18:28:35.033Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-18T18:32:18.762Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T18:37:42.234Z |
+| e2e | 61 | 61 | 0 | 2026-10-18T18:30:55.636Z |
+| image | 12 | 12 | 0 | 2026-10-18T18:28:59.088Z |
+| integration | 25 | 25 | 0 | 2026-10-18T18:28:54.029Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-18T18:29:15.624Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-18T18:29:20.896Z |
+| metaclean | 6 | 6 | 0 | 2026-10-18T18:29:09.392Z |
+| names | 7 | 7 | 0 | 2026-10-18T18:28:58.758Z |
+| office | 35 | 35 | 0 | 2026-10-18T18:28:54.372Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-18T18:29:14.671Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-18T18:29:01.591Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-18T18:29:03.257Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-18T18:29:15.390Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T18:28:55.829Z |
+| oracle | 5 | 5 | 0 | 2026-10-18T18:28:54.707Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-18T18:29:12.152Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-18T18:29:06.900Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-18T18:29:08.221Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-18T18:28:56.150Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-18T18:29:16.077Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-18T18:29:12.562Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-18T18:29:15.881Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-18T18:29:21.112Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-18T18:29:21.778Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-18T18:42:03.720Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-18T18:19:05.144Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-18T18:20:28.539Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-18T18:22:36.219Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-18T18:22:52.273Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-18T18:23:58.619Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-18T18:24:23.786Z |
+| tt37-unit | 9 | 9 | 0 | 2026-10-18T18:24:40.917Z |
+| tt38-unit | 15 | 15 | 0 | 2026-10-18T18:28:13.880Z |
+| tt39-pac | 8 | 8 | 0 | 2026-10-18T18:28:32.121Z |
+| tt39-unit | 13 | 13 | 0 | 2026-10-18T18:53:11.330Z |
+| unit | 23 | 23 | 0 | 2026-10-18T18:28:51.480Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-18T18:29:02.704Z |
+| vector | 18 | 18 | 0 | 2026-10-18T18:29:01.854Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T18:29:12.730Z |
 
-## Rows touched by failing tests
+## Rows touched by FAILING tests (not counted as tested)
 
-None.
+- LY-22: e2e-tt34: tabletop double-click guard (LY-22): a double-click on a RESTING wall whose 300 ms hover-lift deadline passes between the clicks still makes it the main view (×3 walls, optional TT_CPU load); plain hover still lifts a wall
 
 ## By family
 
@@ -117,7 +120,7 @@ None.
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
-| PR | 41 | 32 | 9 | 0 | 24 | 10 | 7 |
+| PR | 45 | 36 | 9 | 0 | 28 | 10 | 7 |
 | FF | 34 | 25 | 9 | 0 | 25 | 5 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
@@ -387,7 +390,7 @@ None.
 | LY-20 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: wall tags (TT29): one per foreshortened wall, inside the frame, centred on the wall's VISIBLE area (hit-test finds that wall under the centre), ≥ 24 px targets, no overlaps with each other or the switcher; counts in the label; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+5) |
 | LY-21 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px); e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %) (+1) |
 | AX-14 | built | full | e2e-tt30: oracle: our accessible names and roles agree with Chromium's accessibility tree in all 40 modules × 3 layouts (thresholds declared up front: names ≥ 98 %, roles ≥ 99 %); e2e-tt30: oracle sensitivity: three mutants of the narrator source are caught (aria-label ignored → names < 98 %; buttons as generic → roles < 99 %; CSS text-transform ignored → the uppercase headings differ); e2e-tt30: behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed (+12) |
-| LY-22 | built | full | e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %); e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+15) |
+| LY-22 | built | full | e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %); e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+14) |
 | AX-15 | built | full | e2e-tt32: environment + engine choice: this Chromium has 0 system voices; Narrator (Automatic) speaks through Fusion Voice — the caption bar says so, Web Audio receives non-silent 16 kHz speech for the start-up announcement, and speechSynthesis.speak is never called; e2e-tt32: intelligibility in the browser (declared gate ≥ 75 %): focus announcements captured from Web Audio on the real page, forced choice among all captured announcements by PocketSphinx; e2e-tt32: control: Ctrl stops Fusion Voice mid-sentence (queued buffers are stopped, nothing new starts) (+10) |
 | SM-05 | built | full | e2e-tt33: TIDAL (SM-05): click-to-load gate names embed.tidal.com + the 30-second/sign-in note and sends nothing before consent; against TIDAL's real bridge: Play → 'Started', Pause → 'Pause sent' (flagged assumed), a start inside the player → 'Started'; spoofed starts (our own window, a foreign pid) ignored; e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video; tt33-unit: TIDAL link grammar (SM-05): tidal.com / browse / listen.tidal.com / album…track / embed.tidal.com → embed.tidal.com/<types>/<id>; kinds, heights, allow (+3) |
 | SM-06 | built | full | e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; tt33-unit: Qobuz link grammar (SM-06): widget / open / play / store pages → widget.qobuz.com with zone; track compact; heights; tt33-unit: ≥ 15 refused shapes, each with a reason (negative space) (+1) |
@@ -407,10 +410,14 @@ None.
 | WP-06 | built | full | e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked |
 | WP-07 | built | full | e2e-tt37: Network route panel (WP-07): test a candidate SOCKS5 route on a real page, apply it — toolbar and status line follow, the Private proxy tab loads pypi.org through it (seen in the independent proxy's own log), 'New circuit' rotates the tab's isolation and reloads, the browser itself still contacts only Fusion; the Tor check result is printed as it is; e2e-tt37: a dead route is named, not blamed on the site (WP-07): with the route pointing at a port where nothing listens, the Private proxy tab shows 'The network route failed' and how to fix it; back on Direct the page loads again; e2e-tt37: everything follows the route; pages cannot change it (WP-07): with an HTTP proxy route the legacy reader for direct tabs goes through it (the proxy's log), a .onion address is refused with the reason (Tor route needed), and a cross-site PUT to /api/wp-route is refused by the CSRF guard (+8) |
 | WP-08 | built | full | e2e-tt38: WebSocket in a proxied page (WP-08): the page's own `new WebSocket` reaches the site through Fusion — readyState CONNECTING→OPEN→CLOSING→CLOSED, subprotocol chat.v2, string / ArrayBuffer / Blob / typed-array sends echoed in order with binaryType 'arraybuffer', bufferedAmount counts queued bytes and drains to 0, handler and listener fire in registration order, MessageEvent.origin is the socket's origin, close(4001, 'bye ✓') ends clean; 200 server messages arrive in order; e2e-tt38: WebSocket errors exactly where a browser raises them (WP-08): SyntaxError for a non-ws scheme, a fragment, duplicate or invalid subprotocols; TypeError with no argument; InvalidStateError for send() while CONNECTING; InvalidAccessError for close(1001); SyntaxError for a 124-byte reason; an unreachable server → 'error' then close 1006 (not clean); close() while connecting → error + close 1006 and never 'open'; constants and name match the platform; e2e-tt38: what the site sees (WP-08): the WebSocket handshake carries the session's User-Agent (not the real browser's) and the PAGE's origin (the site's own, not Fusion's), and the site's own cookie from the session jar (+13) |
-| WP-09 | built | full | e2e-tt38: keep-alive through the real server (WP-09): the page and its 8 images and event stream are carried over a few reused connections to the site (counted at the site), not one connection per request; tt38-unit: Happy Eyeballs (WP-09, RFC 8305): families interleave from the resolver's first choice; a refused address hands over AT ONCE (no 250 ms wait) to a live one on real sockets; a blackholed first address loses to the second, started 250 ms later; every loser is destroyed; all refused → one error listing every address with the first code; nothing answering → ETIMEDOUT at the deadline; tt38-unit: TLS stays verified on the new path (WP-09): github.com:443 over connectPinned + tlsOver negotiates http/1.1 with a valid chain; a self-signed local server is refused (rejectUnauthorized never turned off) (+5) |
+| WP-09 | built | full | e2e-tt38: keep-alive through the real server (WP-09): the page and its 8 images and event stream are carried over a few reused connections to the site (counted at the site), not one connection per request; e2e-tt39: TLS identity for IP-literal sites (TT39 fix): https://127.0.0.2 with a valid certificate FOR 127.0.0.2 loads through the proxy; a certificate from the same trusted CA but for "localhost" is refused for 127.0.0.2 (before the fix Node checked IP sites against "localhost" and would have accepted it); tt38-unit: Happy Eyeballs (WP-09, RFC 8305): families interleave from the resolver's first choice; a refused address hands over AT ONCE (no 250 ms wait) to a live one on real sockets; a blackholed first address loses to the second, started 250 ms later; every loser is destroyed; all refused → one error listing every address with the first code; nothing answering → ETIMEDOUT at the deadline (+7) |
+| WP-10 | built | full | e2e-tt39: WP-10 oracle: the same 27-request matrix (fetch + XHR; credentials include / same-origin / omit; ACAO * vs echoed; ACAC; preflights that pass, are reused from the cache (incl. `*` entries), deny a method, deny `*` with credentials, Authorization under `*`; a JSON body; a redirect; withCredentials before and after open(); cross-site Set-Cookie; Set-Cookie with omit) gives IDENTICAL results natively in Chromium and through the proxy — failures, cookies and Origin the sites saw, Sec-Fetch-Site/Mode, readable response headers; e2e-tt39: WP-10 oracle is not vacuous: the matrix exercises both outcomes — the cross-site request with credentials carries ONLY the SameSite=None cookie (b=1, not the Lax bl=1); same-origin reads the private header, cross-origin reads only exposed ones; ACAO * with credentials, a JSON body without a preflight answer and a denied method all FAIL; the cached preflight was not repeated; e2e-tt39: WP-10 adversary inside the page: an UNTAGGED raw request (the shim's own rawFetch, bypassing tagging) and a FORGED document id both reach B with Origin "null" and no cookies; a script-fetched copy of another site's page carries no document id (+8) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
+| WP-11 | built | full | e2e-tt39: WP-11 oracle: Web Workers in a proxied page behave as natively — a classic worker (importScripts, relative fetch, new Request, XHR, a cross-origin fetch with the PAGE's origin, a WebSocket, a nested worker), a module worker (static import, top-level await, import.meta.url, awaiting its first message at top level, importScripts → TypeError; a module SharedWorker), a page-made blob: worker, SharedWorker (two connections share one instance; another name gets its own) and the SecurityError for a cross-origin script: results IDENTICAL natively and through the proxy |
+| WP-12 | built | full | tt39-pac: PAC helpers vs the Netscape specification's own examples: isPlainHostName, dnsDomainIs, localHostOrDomainIs, dnsDomainLevels, shExpMatch, isInNet (incl. a name resolved through DNS), dnsResolve, isResolvable, myIpAddress, convert_addr, the …Ex IPv6-extension functions; shell classes [ab] / [a-z] / [!a]; tt39-pac: PAC date/time helpers at a fixed clock (Sunday 18 Oct 2026 14:30:15 UTC): weekdayRange incl. wrap past Saturday, dateRange in all 9 Netscape forms incl. ranges across the year end, timeRange in its 4 forms incl. wrap past midnight and second-exact bounds, 'GMT' as the last argument; tt39-pac: PAC results and plumbing: 'PROXY a:1; SOCKS5 [::1]:2; DIRECT' parses (default ports, IPv6, case-insensitive types); 9 malformed entries are skipped; https:// URLs reach the script as scheme://host:port/ only (no path, no query — as Chrome); FindProxyForURLEx is preferred when both exist; DNS answers come back through re-runs (one lookup per name, cached), DNS off answers null with NO lookup; 40 concurrent decisions each get their own answer (+5) |
 | CT-03 | partial | untested |  |
+| WP-13 | built | full | tt39-unit: permessage-deflate negotiation (RFC 7692 §7): the client offers 'permessage-deflate; client_max_window_bits'; valid answers parse (defaults 15/15, both no_context_takeover flags, quoted "10"); 12 hostile answers fail the handshake (another extension, two elements, unknown parameter, duplicate, value on a flag, bits 7 / 16 / 08 / missing value, unterminated quote, garbage); tt39-unit: permessage-deflate interop, defaults (Python websockets 13.1 server): negotiated; text and binary messages from 0 B to 1 MiB round-trip intact; a 1 MiB repetitive text message crosses the wire COMPRESSED in both directions (bytes counted on the socket); 50 similar messages in a row (context takeover) all decode; tt39-unit: permessage-deflate interop, non-default parameters (server_no_context_takeover, client_no_context_takeover, server_max_window_bits=10, client_max_window_bits=9 — the server requires our offer of client_max_window_bits): negotiated as such; repeated identical messages (back-references across messages would break the server's fresh-context inflater) and a message repeating a 600-byte random block (a distance a 9-bit window may not use) all round-trip (+3) |
 | CT-04 | built | untested |  |
 | CT-05 | blocked | untested |  |
 | CT-06 | built | partial | e2e: mount: devices |

@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { CookieJar, type UaKind } from "../wp-core";
+import type { PreflightCache } from "../wp-cors";
 
 /**
  * TT35 proxy sessions — RAM only (amnesic: nothing is written to disk or the database). A session is a capability:
@@ -11,6 +12,9 @@ export interface WpSession {
   sid: string; ua: UaKind; profile: string; jar: CookieJar; created: number; lastUsed: number;
   /** TT37: bumped by "New circuit" — changes the session's SOCKS isolation credentials (a fresh Tor circuit). */
   circuit: number;
+  /** TT39 (WP-10): document id → that document's origin (issued at navigation; LRU) and the CORS-preflight cache */
+  docs?: Map<string, string>;
+  preflights?: PreflightCache;
   stats: { requests: number; blocked: number; bytesIn: number; errors: number; blockedHosts: Record<string, number>; failedHosts: Record<string, string> };
 }
 export const WP_IDLE_MS = 30 * 60_000;
@@ -59,4 +63,21 @@ export function dropSession(sid: string): boolean { return end(sid); }
 export function sessionCount(): number { return store.size; }
 export function publicStats(s: WpSession) {
   return { sid: s.sid, ua: s.ua, profile: s.profile, circuit: s.circuit, cookies: s.jar.size, cookieDomains: s.jar.domains(), ...s.stats, blockedHosts: s.stats.blockedHosts };
+}
+
+/** TT39 (WP-10): register a navigated document; its id rides on that document's script requests. */
+export const WP_MAX_DOCS = 1024;
+export function newDoc(s: WpSession, origin: string): string {
+  const id = randomBytes(12).toString("base64url");
+  const m = (s.docs ??= new Map());
+  m.set(id, origin);
+  while (m.size > WP_MAX_DOCS) m.delete(m.keys().next().value as string);
+  return id;
+}
+/** The registered origin of a document id, or null when unknown (forged, from another session, or evicted). */
+export function docOrigin(s: WpSession, id: string): string | null {
+  const m = s.docs, o = m?.get(id);
+  if (!m || o === undefined) return null;
+  m.delete(id); m.set(id, o); // least-recently-used eviction
+  return o;
 }

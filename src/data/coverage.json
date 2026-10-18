@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-18T08:32:40.031Z",
+ "generatedAt": "2026-10-18T18:53:14.013Z",
  "totals": {
   "built": {
-   "full": 272,
+   "full": 276,
    "partial": 62,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 154,
+   "full": 158,
    "partial": 80,
    "untested": 121
   },
   "tests": {
-   "total": 630,
-   "passed": 630
+   "total": 658,
+   "passed": 657
   }
  },
  "rows": {
@@ -1900,7 +1900,6 @@
     "e2e-tt31: phone 390×760 and the straight-down camera: a focused wall lifts inside the frame with ≥ 24 px pins and no text under 9 px; nothing is text at rest",
     "e2e-tt31: touch (390×760, hasTouch): tapping a wall lifts it, a finger drag moves a pin along the lifted wall (persisted), tapping the floor settles it",
     "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
-    "e2e-tt34: tabletop double-click guard (LY-22): a double-click on a RESTING wall whose 300 ms hover-lift deadline passes between the clicks still makes it the main view (×3 walls, optional TT_CPU load); plain hover still lifts a wall",
     "tt31-unit: row mapping (hand values): board (24,24) → strip (24,24); row 1 (y=229) → S = 912 + x; strip → board inverts every on-grid board point",
     "tt31-unit: strip frames: element ↔ (u,v) are inverse rotations (det +1, no mirror) for rot 0 / 90 / −90 and the CSS matrix matches the math",
     "tt31-unit: infinite pins: rows in use + one empty row; max pan reaches every pin and the empty row; panToShow brings any pin fully into view",
@@ -2117,13 +2116,31 @@
    "tested": "full",
    "tests": [
     "e2e-tt38: keep-alive through the real server (WP-09): the page and its 8 images and event stream are carried over a few reused connections to the site (counted at the site), not one connection per request",
+    "e2e-tt39: TLS identity for IP-literal sites (TT39 fix): https://127.0.0.2 with a valid certificate FOR 127.0.0.2 loads through the proxy; a certificate from the same trusted CA but for \"localhost\" is refused for 127.0.0.2 (before the fix Node checked IP sites against \"localhost\" and would have accepted it)",
     "tt38-unit: Happy Eyeballs (WP-09, RFC 8305): families interleave from the resolver's first choice; a refused address hands over AT ONCE (no 250 ms wait) to a live one on real sockets; a blackholed first address loses to the second, started 250 ms later; every loser is destroyed; all refused → one error listing every address with the first code; nothing answering → ETIMEDOUT at the deadline",
     "tt38-unit: TLS stays verified on the new path (WP-09): github.com:443 over connectPinned + tlsOver negotiates http/1.1 with a valid chain; a self-signed local server is refused (rejectUnauthorized never turned off)",
     "tt38-unit: keep-alive pools (WP-09): a session's sequential requests reuse ONE connection (the old code opened one per request); another session never shares it; a new circuit gets a fresh one; 12 parallel requests use at most 6; a connection the server dropped while idle is retried for GET but never for POST",
     "tt38-unit: one connection layer (WP-09): the legacy fetcher (reader of direct tabs, embed probe) goes through the same pools and reports the address it used; redirects stay bounded and re-checked",
     "tt38-unit: system proxy (WP-09): for 22 environment × URL cases our route decision equals curl 7.88's — https_proxy / HTTPS_PROXY, http_proxy lowercase only (curl ignores HTTP_PROXY), ALL_PROXY fallback, no_proxy '*', suffix with and without the leading dot, exact IP, CIDR, :port, case; malformed proxy values are reported, never used",
     "tt38-unit: system proxy, live (WP-09): a fresh server process whose environment has https_proxy (an independent proxy, pproxy) and no_proxy=127.0.0.1 uses the system route by itself — https://pypi.org/ is carried by the proxy (pproxy logs the NAME; no local DNS) while the no_proxy site goes direct; a WebSocket runs over a SOCKS5 tunnel (the Tor route) intact",
-    "tt38-unit: modal shortcuts fail (D): the obvious implementations are measurably wrong — a stock http.Agent with maxSockets 6 and an asynchronous createConnection opens one socket per parallel request; slicing a close reason at 123 bytes yields invalid UTF-8 (a conforming server answers 1007); our versions hold"
+    "tt38-unit: modal shortcuts fail (D): the obvious implementations are measurably wrong — a stock http.Agent with maxSockets 6 and an asynchronous createConnection opens one socket per parallel request; slicing a close reason at 123 bytes yields invalid UTF-8 (a conforming server answers 1007); our versions hold",
+    "tt39-unit: TLS identity for IP-literal sites — why the TT39 fix is needed: Node's tls.connect over an existing socket WITHOUT `host` checks the certificate against \"localhost\" (a localhost-only certificate is ACCEPTED for 127.0.0.2); WITH host 127.0.0.2 (what wp-connect / wp-tunnel now pass) the same certificate is refused (ERR_TLS_CERT_ALTNAME_INVALID)"
+   ]
+  },
+  "WP-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt39: WP-10 oracle: the same 27-request matrix (fetch + XHR; credentials include / same-origin / omit; ACAO * vs echoed; ACAC; preflights that pass, are reused from the cache (incl. `*` entries), deny a method, deny `*` with credentials, Authorization under `*`; a JSON body; a redirect; withCredentials before and after open(); cross-site Set-Cookie; Set-Cookie with omit) gives IDENTICAL results natively in Chromium and through the proxy — failures, cookies and Origin the sites saw, Sec-Fetch-Site/Mode, readable response headers",
+    "e2e-tt39: WP-10 oracle is not vacuous: the matrix exercises both outcomes — the cross-site request with credentials carries ONLY the SameSite=None cookie (b=1, not the Lax bl=1); same-origin reads the private header, cross-origin reads only exposed ones; ACAO * with credentials, a JSON body without a preflight answer and a denied method all FAIL; the cached preflight was not repeated",
+    "e2e-tt39: WP-10 adversary inside the page: an UNTAGGED raw request (the shim's own rawFetch, bypassing tagging) and a FORGED document id both reach B with Origin \"null\" and no cookies; a script-fetched copy of another site's page carries no document id",
+    "e2e-tt39: WP-10 adversary outside the browser: a direct client using a REAL document id cannot bypass the read check (ACAO * with credentials → 403 and no Access-Control-Allow-Origin, reason given); a failed preflight never sends the actual request",
+    "e2e-tt39: modal shortcut fails (D): the TT35–TT38 approach — every proxied response readable by any page via ACAO * — is exactly what a native browser refuses: in the native run, B's credentialed read under ACAO * failed and Lax cookies never went cross-site; the proxy now matches it",
+    "tt39-unit: session segment codec (WP-10): '<sid>' and '<sid>:<doc>:<i|s|o>' decode; 9 malformed shapes are refused (extra colon, empty doc, short doc, bad doc chars, unknown credentials code, upper-case code, missing code, bad sid, colon in the target part is just path)",
+    "tt39-unit: CORS-safelisted request headers (Fetch §2.2.2 vectors): text/plain;charset=UTF-8, multipart with boundary and form-urlencoded are safe; application/json, a '(' in Accept, a value over 128 bytes, 'bytes=5-1' and multi-range are not; forbidden / browser-added names never count; >1024 bytes of safelisted values makes them all unsafe",
+    "tt39-unit: policy (WP-10): same-origin GET sends cookies but no Origin; same-origin POST sends Origin; cross-origin same-site and cross-site send Origin, origin-only Referer and the right Sec-Fetch-Site; credentials only for include (or same-origin mode on the same origin); http↔https is cross-site (schemeful); https→http drops Referer; an unknown initiator is 'null' with no cookies",
+    "tt39-unit: CORS check (WP-10, Fetch §4.10): ACAO * passes without credentials and fails with them; an echoed origin passes; a different origin, 'null' for a real origin, a missing header and a comma list fail; with credentials ACAC must be exactly 'true'; an unknown initiator matches only 'null' or *",
+    "tt39-unit: preflight check + cache (WP-10, Fetch §4.8/§4.9): methods compare case-sensitively; `*` covers methods and headers only without credentials; Authorization under `*` follows deployed browsers by default and the spec text in strict mode; default Max-Age 5 s, capped at 7200 s; cache entries match per method / header name, `*` entries without credentials only, and expire",
+    "tt39-unit: cookie storage, readable headers (WP-10): a script request stores Set-Cookie only if it could send cookies, cross-site only SameSite=None; same-origin reads every header, cross-origin only exposed ones (ACEH * only without credentials); a script response never carries headers that would act on Fusion's own origin (Set-Cookie, Clear-Site-Data, WWW-Authenticate, CSP, HSTS, Link, Refresh, Service-Worker-Allowed, ACAO from the site)"
    ]
   },
   "CT-01": {
@@ -2138,9 +2155,39 @@
     "integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap"
    ]
   },
+  "WP-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt39: WP-11 oracle: Web Workers in a proxied page behave as natively — a classic worker (importScripts, relative fetch, new Request, XHR, a cross-origin fetch with the PAGE's origin, a WebSocket, a nested worker), a module worker (static import, top-level await, import.meta.url, awaiting its first message at top level, importScripts → TypeError; a module SharedWorker), a page-made blob: worker, SharedWorker (two connections share one instance; another name gets its own) and the SecurityError for a cross-origin script: results IDENTICAL natively and through the proxy"
+   ]
+  },
+  "WP-12": {
+   "tested": "full",
+   "tests": [
+    "tt39-pac: PAC helpers vs the Netscape specification's own examples: isPlainHostName, dnsDomainIs, localHostOrDomainIs, dnsDomainLevels, shExpMatch, isInNet (incl. a name resolved through DNS), dnsResolve, isResolvable, myIpAddress, convert_addr, the …Ex IPv6-extension functions; shell classes [ab] / [a-z] / [!a]",
+    "tt39-pac: PAC date/time helpers at a fixed clock (Sunday 18 Oct 2026 14:30:15 UTC): weekdayRange incl. wrap past Saturday, dateRange in all 9 Netscape forms incl. ranges across the year end, timeRange in its 4 forms incl. wrap past midnight and second-exact bounds, 'GMT' as the last argument",
+    "tt39-pac: PAC results and plumbing: 'PROXY a:1; SOCKS5 [::1]:2; DIRECT' parses (default ports, IPv6, case-insensitive types); 9 malformed entries are skipped; https:// URLs reach the script as scheme://host:port/ only (no path, no query — as Chrome); FindProxyForURLEx is preferred when both exist; DNS answers come back through re-runs (one lookup per name, cached), DNS off answers null with NO lookup; 40 concurrent decisions each get their own answer",
+    "tt39-pac: differential vs PyPAC 0.19 (Apache-2.0, Duktape engine) at the same pinned instant: 3 realistic PAC files (corporate split routing with isInNet/shExpMatch/dnsDomainIs/localHostOrDomainIs, a working-hours schedule, a helper probe) × 14 hosts × http/https = 84 decisions must be IDENTICAL; 6 cases where PyPAC departs from the Netscape text (one-argument weekdayRange is always false, ranges never wrap, localHostOrDomainIs is a bare prefix test, a failed dnsResolve gives \"\" — Chrome gives null) are predicted beforehand and must differ exactly as predicted",
+    "tt39-pac: hostile PAC files (each in its own process; D: 14 shapes): reaching the host through constructors (3 ways), an endless loop at load and in FindProxyForURL, a real Error with an endless message getter thrown at load, an endless PROMISE JOB (would run after the time limit without microtaskMode), a thrown object with an endless getter, a thrown Proxy, a result whose toString never returns, a DNS flood, a >1 MiB script, a syntax error, no FindProxyForURL — every one ends within its time limit with an error or a harmless string, and the process stays alive",
+    "tt39-pac: OS proxy settings parsers (documented output formats — sample text written for the tests, NOT captured from real Windows/macOS/GNOME machines): Windows reg query (one server for all, per-protocol 'http=…;https=…;socks=…', disabled manual + AutoConfigURL), macOS scutil --proxy (scoped per-interface dictionaries ignored), GNOME gsettings (manual / auto / none); 8 malformed inputs give nothing; the exception lists (<local>, globs, .suffix, CIDR incl. macOS '169.254/16'); OS settings → the route per URL",
+    "tt39-pac: PAC live (WP-12): a fresh server process with FUSION_WP_PAC_URL fetches the PAC file ONCE over HTTP from the local network and follows it per request — https://pypi.org/ through the PROXY it names (an independent proxy, pproxy, logs the name), github.com DIRECT even though its PATH contains the PAC's trigger word (https paths are hidden from the script), a host whose entries are all unusable (HTTPS-to-proxy, SOCKS4) is REFUSED, never sent direct; an unreachable PAC file → DIRECT with the error reported; https_proxy in the environment takes precedence over the PAC file",
+    "tt39-pac: OS settings live (WP-12): a fresh server process with NO proxy variables reads the system proxy page through the platform tool — here a stand-in `gsettings` executable on PATH that prints GNOME's documented output (this sandbox has no GNOME) naming pproxy as the HTTPS proxy and 127.0.0.0/8 as an exception — and https://pypi.org/ is carried by pproxy while FUSION_WP_OS_PROXY=0 turns the reading off"
+   ]
+  },
   "CT-03": {
    "tested": "untested",
    "tests": []
+  },
+  "WP-13": {
+   "tested": "full",
+   "tests": [
+    "tt39-unit: permessage-deflate negotiation (RFC 7692 §7): the client offers 'permessage-deflate; client_max_window_bits'; valid answers parse (defaults 15/15, both no_context_takeover flags, quoted \"10\"); 12 hostile answers fail the handshake (another extension, two elements, unknown parameter, duplicate, value on a flag, bits 7 / 16 / 08 / missing value, unterminated quote, garbage)",
+    "tt39-unit: permessage-deflate interop, defaults (Python websockets 13.1 server): negotiated; text and binary messages from 0 B to 1 MiB round-trip intact; a 1 MiB repetitive text message crosses the wire COMPRESSED in both directions (bytes counted on the socket); 50 similar messages in a row (context takeover) all decode",
+    "tt39-unit: permessage-deflate interop, non-default parameters (server_no_context_takeover, client_no_context_takeover, server_max_window_bits=10, client_max_window_bits=9 — the server requires our offer of client_max_window_bits): negotiated as such; repeated identical messages (back-references across messages would break the server's fresh-context inflater) and a message repeating a 600-byte random block (a distance a 9-bit window may not use) all round-trip",
+    "tt39-unit: permessage-deflate off when the server does not compress: no extension is negotiated against a server with compression disabled, and messages go uncompressed (wire bytes ≥ payload)",
+    "tt39-unit: permessage-deflate hostile servers: a decompression bomb (64 MiB of zeros compressed to ~64 KiB) stops at the 1 MiB cap → close 1009 without inflating it all; corrupt compressed data → 1007; RSV1 on a ping, on a continuation frame, or without negotiation → 1002; RSV2 → 1002",
+    "tt39-unit: permessage-deflate ordering and fragments: one write carrying [1 MiB compressed text][a small uncompressed text][a compressed message in 3 fragments][close 1000] is delivered strictly in that order (nothing overtakes an inflate, not even the close); a context-takeover back-reference into the previous message decodes; a server window of 8 bits (client_max_window_bits=8) makes the client send UNCOMPRESSED"
+   ]
   },
   "CT-04": {
    "tested": "untested",

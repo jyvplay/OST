@@ -10,6 +10,7 @@ Paths:  /echo        echoes every message (text stays text, binary stays binary)
         /headers     sends JSON of the handshake's User-Agent, Origin, Cookie; the 101 reply sets a cookie
         /hold        sends "hi" and keeps the socket open; prints "CLOSED <code>" when the client closes
         /count       sends 1..200 as text as fast as it can, then closes 1000
+Usage: ws_server.py PORT [small|plain]   (TT39: compression variants, see main())
 """
 import asyncio, json, sys
 from urllib.parse import urlparse, parse_qs
@@ -69,7 +70,16 @@ async def handler(ws):
 
 async def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    async with serve(handler, "127.0.0.1", port, select_subprotocol=select, process_response=on_response, max_size=32 * 1024 * 1024, ping_interval=None) as server:
+    # TT39: "small" = permessage-deflate with non-default parameters (no context takeover either way, 10-bit server
+    # window, 9-bit client window, and the client MUST have offered client_max_window_bits). Default: websockets'
+    # own default compression (permessage-deflate with context takeover).
+    extra = {}
+    if len(sys.argv) > 2 and sys.argv[2] == "small":
+        from websockets.extensions.permessage_deflate import ServerPerMessageDeflateFactory
+        extra = dict(compression=None, extensions=[ServerPerMessageDeflateFactory(server_no_context_takeover=True, client_no_context_takeover=True, server_max_window_bits=10, client_max_window_bits=9, require_client_max_window_bits=True)])
+    elif len(sys.argv) > 2 and sys.argv[2] == "plain":
+        extra = dict(compression=None)
+    async with serve(handler, "127.0.0.1", port, select_subprotocol=select, process_response=on_response, max_size=32 * 1024 * 1024, ping_interval=None, **extra) as server:
         print("READY", server.sockets[0].getsockname()[1], flush=True)
         await asyncio.get_running_loop().create_future()
 
