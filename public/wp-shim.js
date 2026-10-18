@@ -62,15 +62,18 @@
   // TT39 (WP-10): script requests name the document that made them and its credentials mode, in the session segment
   // ("<sid>:<doc>:<i|s|o>") — the server applies the Fetch standard's rules for that document's real origin.
   var DOC = me.dataset.doc || "";
-  function tag(p, cred) {
+  function tag(p, cred, sameOriginMode) {
     if (!DOC || typeof p !== "string") return p;
-    var c = cred === "include" ? "i" : cred === "omit" ? "o" : "s", head = PREFIX + SID + "/", seg = PREFIX + SID + ":" + DOC + ":" + c + "/";
+    // TT41: "m" = the page asked for mode "same-origin" (the server refuses a redirect that leaves the origin)
+    // a data: worker's origin is opaque: Origin "null", never same-origin, cross-site, no Referer ("txyn") — the
+    // chain flags the server already applies to tainted redirects (wp-cors ChainFlags)
+    var c = (cred === "include" ? "i" : cred === "omit" ? "o" : "s") + (sameOriginMode ? "m" : "") + (CFG && CFG.opaque ? "txyn" : ""), head = PREFIX + SID + "/", seg = PREFIX + SID + ":" + DOC + ":" + c + "/";
     // TT40: a URL that already carries a tag (e.g. an <img>'s "<sid>:<doc>:r" src read back by script) is re-tagged
     // as THIS script request — a fetch() is never treated as a markup subresource
     var at = p.indexOf(HERE) === 0 ? HERE.length : 0;
     if (p.indexOf(PREFIX + SID + ":", at) === at) {
       var slash = p.indexOf("/", at + PREFIX.length);
-      if (slash > 0 && /^[A-Za-z0-9_-]+:[A-Za-z0-9_-]{8,32}:[isor]$/.test(p.slice(at + PREFIX.length, slash))) p = p.slice(0, at) + head + p.slice(slash + 1);
+      if (slash > 0 && /^[A-Za-z0-9_-]+:[A-Za-z0-9_-]{8,32}:(r|f|[iso]m?t?x?y?n?)$/.test(p.slice(at + PREFIX.length, slash))) p = p.slice(0, at) + head + p.slice(slash + 1);
     }
     if (p.indexOf(head) === 0) return seg + p.slice(head.length);
     if (p.indexOf(HERE + head) === 0) return HERE + seg + p.slice(HERE.length + head.length);
@@ -88,6 +91,11 @@
   var RES = { IMG: { src: 1, srcset: 1 }, SCRIPT: { src: 1 }, LINK: { href: 1, imagesrcset: 1 }, SOURCE: { src: 1, srcset: 1 }, TRACK: { src: 1 },
     AUDIO: { src: 1 }, VIDEO: { src: 1, poster: 1 }, INPUT: { src: 1 }, BODY: { background: 1 }, TABLE: { background: 1 }, TD: { background: 1 }, TH: { background: 1 } };
   function isRes(el, k) { var t = RES[el && el.tagName]; return !!(t && t[k]); }
+  // TT41 (WP-19): an iframe / frame of this document carries "<sid>:<doc>:f" — the server then judges SameSite for it
+  // through this document's own ancestors
+  function isFrameSrc(el, k) { return k === "src" && !!el && (el.tagName === "IFRAME" || el.tagName === "FRAME"); }
+  function ftag(p) { var r = rtag(p); return typeof r === "string" && r !== p ? r.replace(PREFIX + SID + ":" + DOC + ":r/", PREFIX + SID + ":" + DOC + ":f/") : p; }
+  function encFor(el, k, v) { var e = enc(v); return isRes(el, k) ? rtag(e) : isFrameSrc(el, k) ? ftag(e) : e; }
   function encSrcset(v) {
     return String(v).split(/,(?=\s)|,$/).map(function (c) {
       var m = /^(\s*)(\S+)(.*)$/.exec(c);
@@ -106,9 +114,9 @@
       // the page's credentials mode travels in the URL tag; our own request to the proxy never carries credentials
       var cred = (init && init.credentials) || (input && typeof input === "object" && input.credentials) || "same-origin";
       var i = input, o = Object.assign({}, init || {}, { credentials: "omit" });
-      var mode = o.mode || (i && typeof i === "object" && i.mode) || "", proxied;
-      if (typeof i === "string" || (W.URL && i instanceof URL)) i = proxied = tag(enc(String(i)), cred);
-      else if (i && i.url) i = new Request(proxied = tag(enc(i.url), cred), i); // method, headers and body come along; o.mode overrides below
+      var mode = o.mode || (i && typeof i === "object" && i.mode) || "", proxied, som = mode === "same-origin";
+      if (typeof i === "string" || (W.URL && i instanceof URL)) i = proxied = tag(enc(String(i)), cred, som);
+      else if (i && i.url) i = new Request(proxied = tag(enc(i.url), cred, som), i); // method, headers and body come along; o.mode overrides below
       // "same-origin" can never be met from the page's opaque origin. A request the SITE would have made to ITSELF goes
       // as "cors" (the proxy answers with ACAO *); a request to another site keeps "same-origin" and fails, as natively.
       if (mode === "same-origin") {
@@ -151,6 +159,32 @@
       },
     });
   });
+  // TT41: what the page reads back is the REAL address — Response.url (after redirects: the final one),
+  // XMLHttpRequest.responseURL and Request.url show the target site's URL, not the proxy's
+  guard(function () {
+    // (a Request keeps its fragment, a response never has one — as natively)
+    [[W.Response, "url", true], [W.XMLHttpRequest, "responseURL", true], [W.Request, "url", false]].forEach(function (p) {
+      var C = p[0], d = C && Object.getOwnPropertyDescriptor(C.prototype, p[1]);
+      if (!d || !d.get) return;
+      Object.defineProperty(C.prototype, p[1], { configurable: true, enumerable: d.enumerable, get: function () { var v = d.get.call(this); var t = v ? decode(v) : null; return t ? (p[2] ? t.replace(/#.*$/, "") : t) : v; } });
+    });
+    // Response.type: the opaque sandbox makes every proxied response "cors"; a response the server judged
+    // same-origin all along (no cross-origin hop) is "basic", as it is natively
+    var dt = W.Response && Object.getOwnPropertyDescriptor(W.Response.prototype, "type");
+    if (dt && dt.get) Object.defineProperty(W.Response.prototype, "type", { configurable: true, enumerable: dt.enumerable, get: function () { var v = dt.get.call(this); try { if (v === "cors" && this.headers.get("x-fusion-wp-tainting") === "basic") return "basic"; } catch (e) { /* native value */ } return v; } });
+  });
+  // TT41: new Request("/x") in a DOCUMENT resolves against the page's real base URL (it used to resolve against
+  // the proxy origin — fetch(new Request("/api/…")) reached Fusion's own API path); workers do the same in netExtras
+  if (!CFG) guard(function () {
+    var NR = W.Request;
+    if (typeof NR !== "function") return;
+    var FR = function Request(input, init) {
+      if (typeof input === "string" || (W.URL && input instanceof URL)) { try { var s = String(input); input = decode(new URL(s, D.baseURI).href) ? new URL(s, D.baseURI).href : new URL(s, targetBase()).href; } catch (e) { /* the native error */ } }
+      return Reflect.construct(NR, init === undefined ? [input] : [input, init], new.target || FR);
+    };
+    FR.prototype = NR.prototype; Object.setPrototypeOf(FR, NR);
+    W.Request = FR;
+  });
   guard(function () { W.navigator.sendBeacon = function () { beacons++; return true; }; }); // tracking beacons go nowhere
   if (!CFG) guard(function () { var _open = W.open; W.open = function (u, n, f) { return _open.call(W, u === undefined ? u : enc(u), n, f); }; });
   guard(function () {
@@ -168,8 +202,10 @@
     if (typeof NW !== "function" || typeof W.Blob !== "function" || !W.URL || !URL.createObjectURL) return;
     var SHIM = HERE + "/wp-shim.js";
     function domErr3(msg, name) { try { return new DOMException(msg, name); } catch (e) { var x = new Error(msg); x.name = name; return x; } }
-    function bootstrap(scriptUrl, isModule, shared, target) {
-      var cfg = JSON.stringify({ sid: SID, doc: DOC, url: target, ua: UA_KIND, here: HERE, wst: me.dataset.wst || "", module: !!isModule });
+    function bootstrap(scriptUrl, isModule, shared, target, shown, doc) {
+      // TT41: "loc" = what self.location shows (the worker script's real URL; blob:<site origin>/… for a blob worker;
+      // the data: URL itself for a data: worker, whose origin is opaque — "null")
+      var cfg = JSON.stringify({ sid: SID, doc: DOC, url: target, ua: UA_KIND, here: HERE, wst: me.dataset.wst || "", module: !!isModule, loc: shown || target, opaque: !!doc });
       var J = JSON.stringify;
       // SharedWorker emulation: the page's MessagePort arrives as a message; after the script has run it is handed to
       // the script as a "connect" event (self.onconnect / addEventListener("connect"))
@@ -196,15 +232,38 @@
     /** what a Worker / SharedWorker constructor is given → the bootstrap to start, or null to start it unchanged */
     function plan(url, opts, shared, kind) {
       var s = String(url), t = s.trim(), isModule = !!(opts && typeof opts === "object" && opts.type === "module");
-      if (/^data:/i.test(t)) return null; // a data: worker has an opaque origin of its own, natively too
-      if (/^blob:/i.test(t)) return bootstrap(t, isModule, shared, currentTarget()); // made by the page: same origin as the page
+      // TT41: a data: worker runs through the proxy too (it used to run unpatched — straight to the network). Natively
+      // its origin is opaque: Origin "null", no same-origin cookies, SameSite=None cookies only with "include" — its
+      // requests carry the page's document id plus the opaque-origin flags (see tag())
+      if (/^data:/i.test(t)) {
+        var body = dataUrlText(t);
+        if (body === null) return null;
+        var bu = URL.createObjectURL(new Blob([body], { type: "text/javascript" }));
+        setTimeout(function () { URL.revokeObjectURL(bu); }, 60000);
+        return bootstrap(bu, isModule, shared, t, t, true);
+      }
+      if (/^blob:/i.test(t)) { // made by the page: same origin as the page; shown as blob:<site origin>/<uuid>
+        var uuid = t.slice(t.lastIndexOf("/") + 1);
+        return bootstrap(t, isModule, shared, currentTarget(), "blob:" + new URL(currentTarget()).origin + "/" + uuid);
+      }
       var abs;
       try { abs = new URL(t, targetBase()); } catch (e) { throw domErr3("Failed to construct '" + kind + "': The URL '" + s + "' is invalid.", "SyntaxError"); }
       var here = new URL(currentTarget());
       // natively a worker script must be same-origin with its creator
       if (abs.origin !== here.origin) throw domErr3("Failed to construct '" + kind + "': Script at '" + abs.href + "' cannot be accessed from origin '" + here.origin + "'.", "SecurityError");
-      var p = enc(abs.href);
+      // TT41: the worker script is a request of this document (credentials "same-origin"), so it is tagged
+      var p = tag(enc(abs.href), "same-origin");
       return bootstrap(p.indexOf("/") === 0 ? HERE + p : p, isModule, shared, abs.href);
+    }
+    /** the text of a data: URL (base64 or percent-encoded, decoded as UTF-8), or null when it is malformed */
+    function dataUrlText(u) {
+      var comma = u.indexOf(","); if (comma < 0) return null;
+      var meta = u.slice(5, comma), data = u.slice(comma + 1), bytes;
+      try {
+        if (/;base64$/i.test(meta)) { var bin = atob(decodeURIComponent(data).replace(/\s+/g, "")); bytes = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i); }
+        else { var out = []; for (var j = 0; j < data.length; j++) { var ch = data.charCodeAt(j); if (data[j] === "%" && /^[0-9a-fA-F]{2}$/.test(data.substr(j + 1, 2))) { out.push(parseInt(data.substr(j + 1, 2), 16)); j += 2; } else if (ch < 128) out.push(ch); else { var e = unescape(encodeURIComponent(data[j])); for (var k = 0; k < e.length; k++) out.push(e.charCodeAt(k)); } } bytes = new Uint8Array(out); }
+        return new TextDecoder("utf-8").decode(bytes);
+      } catch (e) { return null; }
     }
     function FusionWorker(url, opts) {
       if (!new.target) throw new TypeError("Failed to construct 'Worker': Please use the 'new' operator, this DOM object constructor cannot be called as a function.");
@@ -247,7 +306,21 @@
     // worker scope: importScripts and new Request() resolve against the SITE's script URL, not the blob: bootstrap
     var _is = W.importScripts;
     if (CFG.module) W.importScripts = function () { throw new TypeError("Failed to execute 'importScripts' on 'WorkerGlobalScope': Module scripts don't support importScripts()."); };
-    else if (typeof _is === "function") W.importScripts = function () { return _is.apply(W, Array.prototype.map.call(arguments, function (u) { return enc(String(u)); })); };
+    // TT41: imported scripts are the worker's SUBRESOURCES (no-cors, SameSite cookies for the page): tagged "r"
+    else if (typeof _is === "function") W.importScripts = function () { return _is.apply(W, Array.prototype.map.call(arguments, function (u) { return rtag(enc(String(u))); })); };
+    // TT41: self.location is a WorkerLocation for the worker script's REAL URL (it was the blob: bootstrap's), and
+    // self.origin the site's origin ("null" for a data: worker) — own properties shadowing the prototype's
+    var LOCS = String(CFG.loc || CFG.url), lu = null;
+    try { lu = new URL(LOCS); } catch (e) { lu = null; }
+    if (lu) {
+      var WL = W.WorkerLocation, fake = Object.create(WL ? WL.prototype : Object.prototype);
+      var opaque = /^data:/i.test(LOCS);
+      var vals = { href: lu.href, origin: opaque ? "null" : lu.protocol === "blob:" ? new URL(lu.pathname).origin : lu.origin, protocol: lu.protocol, host: lu.host, hostname: lu.hostname, port: lu.port, pathname: lu.pathname, search: lu.search, hash: lu.hash };
+      Object.keys(vals).forEach(function (k) { Object.defineProperty(fake, k, { configurable: true, enumerable: false, get: function () { return vals[k]; } }); });
+      Object.defineProperty(fake, "toString", { configurable: true, enumerable: false, writable: true, value: function toString() { return vals.href; } });
+      Object.defineProperty(W, "location", { configurable: true, enumerable: true, get: function () { return fake; } });
+      Object.defineProperty(W, "origin", { configurable: true, enumerable: true, writable: true, value: vals.origin });
+    }
     var NR = W.Request;
     if (typeof NR === "function") {
       var FR = function Request(input, init) {
@@ -272,7 +345,7 @@
       Object.defineProperty(C.prototype, p[1], {
         configurable: true, enumerable: d.enumerable,
         get: function () { var v = d.get.call(this); return decode(v) || v; }, // the page reads back the address it set
-        set: function (v) { var e = enc(v); d.set.call(this, isRes(this, p[1].toLowerCase()) ? rtag(e) : e); },
+        set: function (v) { d.set.call(this, encFor(this, p[1].toLowerCase(), v)); },
       });
     });
   });
@@ -286,7 +359,7 @@
   var _setAttr = W.Element.prototype.setAttribute;
   function fixAttr(el, name, value) {
     var k = String(name).toLowerCase();
-    if (ATTR[k] || (k === "data" && el.tagName === "OBJECT")) { var e = enc(value); return isRes(el, k) ? rtag(e) : e; }
+    if (ATTR[k] || (k === "data" && el.tagName === "OBJECT")) return encFor(el, k, value);
     if (k === "srcset" || k === "imagesrcset") return encSrcset(value);
     return value;
   }

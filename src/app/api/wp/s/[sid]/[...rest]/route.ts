@@ -1,9 +1,9 @@
 import { type NextRequest } from "next/server";
 import {
-  classifyError, decodeTarget, documentCsp, readerCsp, WP_PREFIX, downstreamHeaders, encodeAttr, encodeTarget, escapeHtml, isTracker, rewriteCss, rewriteHtml, siteOf, upstreamHeaders,
+  classifyError, decodeTarget, documentCsp, readerCsp, WP_PREFIX, downstreamHeaders, encodeAttr, encodeTarget, escapeHtml, isTracker, rewriteCss, rewriteHtml, rewriteModuleSource, siteOf, upstreamHeaders,
 } from "@/lib/wp-core";
 import { docInfo, docOrigin, getSession, newDoc, type WpSession } from "@/lib/server/wp-sessions";
-import { corsCheck, credCode, exposeHeaders, policyFor, PreflightCache, preflightCheck, scriptResponseHeaders, storableSetCookies, type Policy, resourcePolicy, storableForResource } from "@/lib/wp-cors";
+import { corsCheck, credCode, exposeHeaders, flagString, nextChainFlags, policyFor, PreflightCache, preflightCheck, scriptResponseHeaders, storableSetCookies, type Policy, resourcePolicy, storableForResource } from "@/lib/wp-cors";
 import { readable, readerDocument } from "@/lib/reader-core";
 import { decodeText, readAll, toWebStream, upstreamRequest } from "@/lib/server/wp-fetch";
 import { openBridge, originToken, sendToBridge, WsOpenError, WS_MAX_MESSAGE } from "@/lib/server/wp-ws";
@@ -115,19 +115,37 @@ async function handle(req: NextRequest): Promise<Response> {
   const fdest = req.headers.get("sec-fetch-dest"), fmode = req.headers.get("sec-fetch-mode");
   // TT40 (WP-16): a markup subresource ("<sid>:<doc>:r") — honoured only for what the BROWSER says is a subresource
   // load (not a navigation, not script: Sec-Fetch-Dest empty → the script rules below with "same-origin")
-  const resTag = !!(d.resource && d.doc) && fdest !== "empty" && !isNavigation(req);
-  const di = resTag ? docInfo(s, d.doc!) : null;
-  const rp = resTag ? resourcePolicy({ initiator: di?.origin ?? null, target, siteOf, referrerUrl: di?.url }) : null;
+  const resTag0 = !!(d.resource && d.doc) && fdest !== "empty" && !isNavigation(req);
+  // TT41: a subresource the BROWSER fetches in CORS mode (a module script or crossorigin element whose URL was set by
+  // script, so it carries "r") is a credentials-"same-origin" CORS request of its document, not a no-cors load
+  const corsRes = resTag0 && fmode === "cors";
+  const resTag = resTag0 && !corsRes;
+  const di = d.doc ? docInfo(s, d.doc) : null;
+  const rp = resTag ? resourcePolicy({ initiator: di?.origin ?? null, target, siteOf, referrerUrl: di?.url, ancestorsCrossSite: di?.xs }) : null;
+  // TT41 (WP-19): an iframe / frame of a proxied document ("<sid>:<doc>:f", honoured only when the browser says it is
+  // loading a frame). Its navigation is cross-site for SameSite unless the frame is same-site with its parent AND the
+  // parent's own ancestors are (Chromium's "site for cookies"): then only SameSite=None cookies go, only those may be
+  // set, and the frame's document — and everything it loads — stays cross-site. An unknown parent counts as cross-site.
+  const frameTag = !!(d.frame && d.doc) && /^(iframe|frame)$/.test(fdest ?? "");
+  const fp = frameTag ? resourcePolicy({ initiator: di?.origin ?? null, target, siteOf, referrerUrl: di?.url, ancestorsCrossSite: di?.xs }) : null;
+  const frameXs = !!fp && (!di || fp.crossSite);
   // (an "r" tag on anything the browser calls a navigation is ignored: it is an untagged navigation, as before)
-  const pol: Policy | null = !resTag && ((d.doc !== undefined && !d.resource) || fdest === "empty")
-    ? policyFor({ initiator: d.doc ? docOrigin(s, d.doc) : null, target, cred: d.cred ?? "same-origin", method, headers: req.headers.entries(), siteOf })
+  // (an "f" tag on a frame navigation is handled by fp; on any other navigation it is ignored like "r"; on anything
+  // else — an image, a fetch — it gets the script rules below, never the untagged full jar)
+  const pol: Policy | null = !resTag && !frameTag && (corsRes || (d.doc !== undefined && !d.resource && !(d.frame && isNavigation(req))) || fdest === "empty")
+    ? policyFor({ initiator: d.doc ? docOrigin(s, d.doc) : null, target, cred: corsRes ? "same-origin" : d.cred ?? "same-origin", method, headers: req.headers.entries(), siteOf, referrerUrl: di?.url ?? null, chain: d.flags, ancestorsCrossSite: di?.xs })
     : null;
   const noCors = fmode === "no-cors"; // the response is opaque to the page anyway; the browser limits method and headers
+  if (pol?.refused && !noCors) return corsRefused(pol.refused);
   if (pol && pol.needsPreflight && !noCors) {
     const pf = await preflight(s, pol, target, method);
     if (!pf.ok) return corsRefused(pf.reason);
   }
-  const uh = upstreamHeaders(req.headers.entries(), target, { ua: s.ua, cookie: rp ? s.jar.header(target, Date.now(), false, rp.crossSite) : pol ? (pol.sendCookies ? s.jar.header(target, Date.now(), false, pol.crossSite) : "") : s.jar.header(target), method });
+  const uh = upstreamHeaders(req.headers.entries(), target, { ua: s.ua, cookie: rp ? s.jar.header(target, Date.now(), false, rp.crossSite) : pol ? (pol.sendCookies ? s.jar.header(target, Date.now(), false, pol.crossSite) : "") : fp ? s.jar.header(target, Date.now(), false, frameXs) : s.jar.header(target), method });
+  if (fp) {
+    uh["sec-fetch-site"] = fp.secFetchSite; uh["sec-fetch-mode"] = "navigate"; uh["sec-fetch-dest"] = fdest!;
+    if (fp.referer) uh.referer = fp.referer; else delete uh.referer;
+  }
   if (rp) {
     uh["sec-fetch-site"] = rp.secFetchSite;
     if (rp.referer) uh.referer = rp.referer; else delete uh.referer;
@@ -136,7 +154,9 @@ async function handle(req: NextRequest): Promise<Response> {
   if (pol) {
     if (pol.origin) uh.origin = pol.origin; else delete uh.origin;
     if (pol.referer) uh.referer = pol.referer; else delete uh.referer;
-    uh["sec-fetch-site"] = pol.secFetchSite; uh["sec-fetch-mode"] = noCors ? "no-cors" : "cors"; uh["sec-fetch-dest"] = "empty";
+    // TT41: the destination the browser named (script, style, image, worker … for CORS-mode loads), "empty" for fetch()
+    uh["sec-fetch-site"] = pol.secFetchSite; uh["sec-fetch-mode"] = noCors ? "no-cors" : "cors";
+    uh["sec-fetch-dest"] = fdest && /^(script|style|image|font|audio|video|track|worker|sharedworker|manifest|json)$/.test(fdest) ? fdest : "empty";
   }
   let up;
   try {
@@ -161,18 +181,25 @@ async function handle(req: NextRequest): Promise<Response> {
   // it was allowed to send them, and a cross-site one only SameSite=None cookies.
   const sc = up.headers["set-cookie"];
   const scLines = Array.isArray(sc) ? sc : sc ? [sc] : [];
-  for (const line of rp ? storableForResource(rp.crossSite, scLines) : pol ? storableSetCookies(pol, scLines) : scLines) s.jar.set(line, target);
+  for (const line of rp ? storableForResource(rp.crossSite, scLines) : pol ? storableSetCookies(pol, scLines) : fp ? storableForResource(frameXs, scLines) : scLines) s.jar.set(line, target);
 
   const headers: Record<string, string> = pol
-    ? { ...CORS, ...scriptResponseHeaders(uph), ...downstreamHeaders(uph), "access-control-expose-headers": exposeHeaders(pol, uph), "x-fusion-wp-target": target.href }
+    ? { ...CORS, ...scriptResponseHeaders(uph), ...downstreamHeaders(uph), "access-control-expose-headers": exposeHeaders(pol, uph), "x-fusion-wp-target": target.href,
+        // TT41 (WP-18): through the sandbox every response is "cors"; the shim reports "basic" for these, as natively
+        ...(pol.sameOrigin ? { "x-fusion-wp-tainting": "basic" } : {}) }
     : { ...CORS, ...downstreamHeaders(uph), "x-fusion-wp-target": target.href };
   const loc = up.headers.location;
   if (up.status >= 300 && up.status < 400 && loc) {
     up.body.resume();
     let next: string | null = null;
-    // a script request's redirect keeps its document and credentials tag
-    const seg = d.doc ? `${s.sid}:${d.doc}:${d.resource ? "r" : credCode(d.cred ?? "same-origin")}` : s.sid;
-    try { next = encodeTarget(new URL(loc, target), seg); } catch { /* bad Location */ }
+    // a script request's redirect keeps its document and credentials tag; TT41: plus what the chain has done so far
+    // (tainted origin, cross-origin / cross-site hops, referrer cut) — see wp-cors ChainFlags
+    let nextUrl: URL | null = null;
+    try { nextUrl = new URL(loc, target); } catch { /* bad Location */ }
+    const seg = !d.doc ? s.sid
+      : pol && nextUrl ? `${s.sid}:${d.doc}:${credCode(pol.cred)}${flagString(nextChainFlags(pol, target, nextUrl))}`
+      : `${s.sid}:${d.doc}:${d.frame ? "f" : d.resource ? "r" : credCode(d.cred ?? "same-origin")}`;
+    if (nextUrl) next = encodeTarget(nextUrl, seg);
     if (!next) return errorPage(req, target.href, 502, "Unsupported redirect", `The site redirected to an address the proxy will not follow: ${String(loc).slice(0, 200)}`);
     return new Response(null, { status: up.status, headers: { ...headers, location: next } });
   }
@@ -188,18 +215,46 @@ async function handle(req: NextRequest): Promise<Response> {
     const text = decodeText(buf, type);
     // a stylesheet loaded as a document's subresource passes that document on to its url() / @import loads
     // (with a child id: SameSite / Sec-Fetch-Site stay the PAGE's, the Referer becomes the stylesheet's URL)
-    if (isCss) return new Response(rewriteCss(text, target, resTag ? `${s.sid}:${di ? newDoc(s, di.origin, target.href) : d.doc}:r` : s.sid), { status: up.status, headers: { ...headers, "content-type": "text/css; charset=utf-8" } });
+    if (isCss) return new Response(rewriteCss(text, target, resTag ? `${s.sid}:${di ? newDoc(s, di.origin, target.href, di.xs) : d.doc}:r` : s.sid), { status: up.status, headers: { ...headers, "content-type": "text/css; charset=utf-8" } });
     // TT38 (G/I): page secrets go only into documents the BROWSER is navigating to. A page's own fetch() of another
     // site's HTML through the proxy (Sec-Fetch-Dest: empty — a header page script cannot set) gets neither that site's
     // script cookies nor its WebSocket origin token, so it cannot read them or open a socket in that site's name.
     const nav = isNavigation(req);
-    const docId = nav ? newDoc(s, target.origin, target.href) : "";
+    const docId = nav ? newDoc(s, target.origin, target.href, frameXs) : "";
     const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(target.href)}" data-ua="${s.ua}" data-cookies="${nav ? encodeAttr(s.jar.header(target, Date.now(), true)) : ""}" data-wst="${nav ? originToken(s.sid, target.origin) : ""}" data-doc="${docId}"></script>`;
     const { html } = rewriteHtml(text, { sid: s.sid, url: target.href, inject, resSid: docId ? `${s.sid}:${docId}:r` : undefined });
     return new Response(html, {
       status: up.status,
-      headers: { ...headers, "content-type": "text/html; charset=utf-8", "content-security-policy": documentCsp(selfOrigins(req)) },
+      headers: { ...headers, "content-type": "text/html; charset=utf-8", "content-security-policy": documentCsp(selfOrigins(req), { nestedFrame: frameTag && !!di }) },
     });
+  }
+  // TT41 (WP-17): JavaScript the browser loads as a SCRIPT (module graph, classic script, worker, import()) has its
+  // module specifiers proxied — inside the frame its base URL is the proxy's, so "/x.js", "../x.js" and absolute URLs
+  // would otherwise go to Fusion's own host, past the proxy prefix, or straight to the network — and its
+  // import.meta.url reads become the module's real address. Not for fetch() (Sec-Fetch-Dest: empty): a page reading
+  // a script as text gets it byte for byte. Larger than the rewrite budget, or not lexable → served unchanged.
+  const isJs = /^(text|application)\/(x-)?(javascript|ecmascript)\b|^text\/jscript\b/.test(type);
+  if (isJs && up.status >= 200 && up.status < 300 && fdest && /^(script|worker|sharedworker)$/.test(fdest)) {
+    const clen = Number(up.headers["content-length"] ?? 0);
+    if (!(clen > TEXT_MAX) && !up.headers["content-encoding"]) {
+      const chunks: Buffer[] = []; let size = 0, over = false;
+      for await (const c of up.body as AsyncIterable<Buffer>) { chunks.push(c); size += c.length; if (size > TEXT_MAX) { over = true; break; } }
+      s.stats.bytesIn += size;
+      if (!over) {
+        const text = decodeText(Buffer.concat(chunks, size), type);
+        const seg = d.doc ? `${s.sid}:${d.doc}:s` : s.sid;
+        const meta = new URL(target.href); meta.hash = "";
+        const r = rewriteModuleSource(text, { base: target, seg, metaUrl: meta.href });
+        const h: Record<string, string> = { ...headers, "content-type": "text/javascript; charset=utf-8", "x-fusion-wp-js": r.error ? `unchanged (${r.error.replace(/[^\x20-\x7e]/g, "?").slice(0, 80)})` : `${r.rewritten} specifiers, ${r.metaUrls} import.meta.url` };
+        delete h["content-length"];
+        return new Response(r.code, { status: up.status, headers: h });
+      }
+      // over budget: replay what was read, then the rest, unchanged
+      const { Readable } = await import("node:stream");
+      const rest = up.body as AsyncIterable<Buffer>;
+      const replay = Readable.from((async function* () { for (const c of chunks) yield c; for await (const c of rest) yield c; })());
+      return new Response(toWebStream(replay, (n) => { s.stats.bytesIn += n; }), { status: up.status, headers });
+    }
   }
   // everything else streams straight through (images, scripts, fonts, media with Range → 206)
   // TT38: Server-Sent Events (EventSource) must arrive event by event — never buffered or compressed on the way

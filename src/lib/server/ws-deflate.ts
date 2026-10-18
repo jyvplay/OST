@@ -10,12 +10,25 @@
  * Receiving: a message whose first frame has RSV1 set is compressed. Its payload + 00 00 FF FF is inflated with a
  * context kept across messages (windowBits 15 accepts any server window). The decompressed size is capped while it
  * is produced (a "zip bomb" stops at the cap → 1009); corrupt data → 1007.
- * Sending: deflate with a sync flush and strip the trailing 00 00 FF FF (§7.2.1). A server limiting our window to 8
- * bits gets uncompressed messages (zlib cannot produce a raw 256-byte window; sending uncompressed is always allowed).
+ * Sending: deflate with a sync flush and strip the trailing 00 00 FF FF (§7.2.1).
+ *
+ * TT41 — a server limiting our window to 8 bits (client_max_window_bits=8) now gets COMPRESSED messages. zlib has no
+ * raw 256-byte window (deflateInit2 turns raw windowBits 8 into 9, "until 256-byte window bug fixed"), but zlib never
+ * emits a distance above MAX_DIST = w_size − MIN_LOOKAHEAD = 2^w − (258 + 3 + 1): every distance it tallies comes
+ * from longest_match (chain walk limited by MAX_DIST) after a hash_head ≤ MAX_DIST check, or is 1 (deflate_rle).
+ * For w = 9 that is 512 − 262 = 250 ≤ 256, so a 9-bit stream IS a valid 8-bit stream (checked in Node's bundled
+ * deps/zlib/deflate.c of v22.22.3: lines 1448–1449, 1969, 2093, 2231; deflate.h 312/317). Verified on the wire by
+ * an independent DEFLATE decoder that records every distance (scripts/oracle/deflate-audit.mts): 108 level / memLevel
+ * / strategy combinations with context takeover → max distance 240. Guarded: only on the classic zlib lineage the
+ * argument was checked on (a zlib-ng build would fall back to uncompressed messages for 8 bits).
  */
 import * as zlib from "node:zlib";
 
 export const DEFLATE_OFFER = "permessage-deflate; client_max_window_bits";
+/** the zlib whose MAX_DIST bound was checked (madler / Chromium 1.x lineage, not zlib-ng) */
+export const ZLIB_MAX_DIST_CHECKED = /^1\.\d/.test(process.versions.zlib ?? "") && !/ng/i.test(process.versions.zlib ?? "");
+/** the raw windowBits zlib is given for a negotiated window: 8 → 9, whose distances stay ≤ 250 (see above) */
+export function deflateWindowBits(negotiated: number): number { return Math.max(9, negotiated); }
 export interface DeflateParams { serverNoContextTakeover: boolean; clientNoContextTakeover: boolean; serverMaxWindowBits: number; clientMaxWindowBits: number }
 
 /** Split a header value into extension elements → [name, params[]], honouring quoted strings. */
@@ -83,7 +96,7 @@ export class PerMessageDeflate {
   /** messages shorter than this go uncompressed (the header overhead would outweigh the saving) */
   readonly threshold: number;
   constructor(params: DeflateParams, maxMessage: number, threshold = 64) { this.params = params; this.maxMessage = maxMessage; this.threshold = threshold; }
-  get canCompress(): boolean { return this.params.clientMaxWindowBits >= 9; }
+  get canCompress(): boolean { return this.params.clientMaxWindowBits >= 9 || ZLIB_MAX_DIST_CHECKED; }
 
   /** Inflate one compressed message (the concatenated frame payloads). */
   inflate(data: Buffer): Promise<Buffer> {
@@ -111,7 +124,7 @@ export class PerMessageDeflate {
 
   /** Deflate one outgoing message → the frame payload to send with RSV1. */
   deflate(data: Buffer): Promise<Buffer> {
-    if (!this.deflater) this.deflater = zlib.createDeflateRaw({ windowBits: this.params.clientMaxWindowBits, memLevel: 8 });
+    if (!this.deflater) this.deflater = zlib.createDeflateRaw({ windowBits: deflateWindowBits(this.params.clientMaxWindowBits), memLevel: 8 });
     const def = this.deflater;
     return new Promise((resolve, reject) => {
       const parts: Buffer[] = [];

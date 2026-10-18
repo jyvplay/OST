@@ -1,6 +1,6 @@
 {
   "suite": "tt39-unit",
-  "at": "2026-10-18T20:04:44.558Z",
+  "at": "2026-10-18T22:22:15.475Z",
   "results": [
     {
       "suite": "tt39-unit",
@@ -63,7 +63,7 @@
         "WP-09": "partial"
       },
       "pass": true,
-      "ms": 19
+      "ms": 24
     },
     {
       "suite": "tt39-unit",
@@ -81,7 +81,7 @@
         "WP-13": "full"
       },
       "pass": true,
-      "ms": 79
+      "ms": 76
     },
     {
       "suite": "tt39-unit",
@@ -90,7 +90,7 @@
         "WP-13": "full"
       },
       "pass": true,
-      "ms": 33
+      "ms": 21
     },
     {
       "suite": "tt39-unit",
@@ -99,7 +99,7 @@
         "WP-13": "partial"
       },
       "pass": true,
-      "ms": 101
+      "ms": 97
     },
     {
       "suite": "tt39-unit",
@@ -108,16 +108,16 @@
         "WP-13": "full"
       },
       "pass": true,
-      "ms": 213
+      "ms": 215
     },
     {
       "suite": "tt39-unit",
-      "name": "permessage-deflate ordering and fragments: one write carrying [1 MiB compressed text][a small uncompressed text][a compressed message in 3 fragments][close 1000] is delivered strictly in that order (nothing overtakes an inflate, not even the close); a context-takeover back-reference into the previous message decodes; a server window of 8 bits (client_max_window_bits=8) makes the client send UNCOMPRESSED",
+      "name": "permessage-deflate ordering and fragments: one write carrying [1 MiB compressed text][a small uncompressed text][a compressed message in 3 fragments][close 1000] is delivered strictly in that order (nothing overtakes an inflate, not even the close); a context-takeover back-reference into the previous message decodes; a server window of 8 bits (client_max_window_bits=8) gets COMPRESSED messages whose every distance fits a 256-byte window (TT41; was: uncompressed)",
       "covers": {
         "WP-13": "full"
       },
       "pass": true,
-      "ms": 39
+      "ms": 77
     }
   ]
 }

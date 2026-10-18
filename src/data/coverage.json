@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-18T20:05:06.858Z",
+ "generatedAt": "2026-10-18T22:24:36.086Z",
  "totals": {
   "built": {
-   "full": 279,
+   "full": 282,
    "partial": 62,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 161,
+   "full": 164,
    "partial": 80,
    "untested": 121
   },
   "tests": {
-   "total": 682,
-   "passed": 682
+   "total": 695,
+   "passed": 695
   }
  },
  "rows": {
@@ -2171,7 +2171,7 @@
     "tt39-unit: permessage-deflate interop, non-default parameters (server_no_context_takeover, client_no_context_takeover, server_max_window_bits=10, client_max_window_bits=9 — the server requires our offer of client_max_window_bits): negotiated as such; repeated identical messages (back-references across messages would break the server's fresh-context inflater) and a message repeating a 600-byte random block (a distance a 9-bit window may not use) all round-trip",
     "tt39-unit: permessage-deflate off when the server does not compress: no extension is negotiated against a server with compression disabled, and messages go uncompressed (wire bytes ≥ payload)",
     "tt39-unit: permessage-deflate hostile servers: a decompression bomb (64 MiB of zeros compressed to ~64 KiB) stops at the 1 MiB cap → close 1009 without inflating it all; corrupt compressed data → 1007; RSV1 on a ping, on a continuation frame, or without negotiation → 1002; RSV2 → 1002",
-    "tt39-unit: permessage-deflate ordering and fragments: one write carrying [1 MiB compressed text][a small uncompressed text][a compressed message in 3 fragments][close 1000] is delivered strictly in that order (nothing overtakes an inflate, not even the close); a context-takeover back-reference into the previous message decodes; a server window of 8 bits (client_max_window_bits=8) makes the client send UNCOMPRESSED"
+    "tt39-unit: permessage-deflate ordering and fragments: one write carrying [1 MiB compressed text][a small uncompressed text][a compressed message in 3 fragments][close 1000] is delivered strictly in that order (nothing overtakes an inflate, not even the close); a context-takeover back-reference into the previous message decodes; a server window of 8 bits (client_max_window_bits=8) gets COMPRESSED messages whose every distance fits a 256-byte window (TT41; was: uncompressed)"
    ]
   },
   "WP-14": {
@@ -2211,6 +2211,36 @@
     "tt40-unit: subresource segment (WP-16): \"<sid>:<doc>:r\" parses as a markup subresource of that document; malformed doc ids and unknown codes still refuse; decodeTarget carries the flag",
     "tt40-unit: subresource policy (WP-16): same-site (incl. a sibling subdomain) gets every cookie, cross-site only SameSite=None, schemeful (http vs https = cross-site); Sec-Fetch-Site same-origin / same-site / cross-site from the DOCUMENT; Referer = the document's origin, none https→http; an unknown document = cross-site with no Referer; cross-site Set-Cookie keeps only SameSite=None",
     "tt40-unit: markup tagging (WP-16): img / script / link / source / track / audio / video / input[type=image] / poster / background / srcset / style attribute / <style> get the subresource segment; a / area / form / iframe / frame / object / embed / base / meta refresh keep the plain one (a new page must never inherit this document's id); without resSid nothing changes"
+   ]
+  },
+  "WP-17": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt41: WP-17 oracle: an ES-module page — root-relative, parent-relative, absolute cross-origin imports; an import map with a bare prefix AND a URL-like key; export-from; dynamic import() of a literal AND of a root-relative path computed at run time; import.meta.url and import.meta.resolve; a module worker created with new Worker(new URL(\"./w.js\", import.meta.url)) that itself imports root-relative and reports self.location / self.origin; an inline module — yields IDENTICAL values natively and through the proxy",
+    "e2e-tt41: WP-17/18/19 adversary: page fetch() of a module gets its bytes UNCHANGED (only script / worker destinations are rewritten); a module the lexer cannot tokenise (an unterminated template) is served unchanged and labelled; an \"f\" (frame) tag on an image is not honoured as a frame (no frame-tree cookies, the script rules apply: none cross-site); chain flags only ever REMOVE — a tag without them is what the shim emits, so a page cannot claim more",
+    "tt41-unit: WP-17 lexer oracle: 28 edge cases module lexers are known to get wrong (strings / comments / templates / regexes containing import, member and method named import, regex after while / export default / of / return / typeof / a newline, division vs regex, hashbang, import attributes, \\u escapes, export * as, string-named imports, dynamic import with options and plain templates) — the specifier ranges are IDENTICAL to acorn's",
+    "tt41-unit: WP-17 lexer fail-safe: on the residual ambiguity (a function EXPRESSION followed by `/`, which needs a parser) the lexer either agrees with acorn or reports an error — and an error means the source is served UNCHANGED, never mis-rewritten",
+    "tt41-unit: WP-17 import.meta: every READ of import.meta.url becomes the module's real URL and import.meta.resolve is wrapped; an assignment target, import.meta.urlx and a string are left alone; the wrapper decodes a proxied URL back and passes any other through",
+    "tt41-unit: WP-17 specifiers and import maps: root-relative, relative, absolute and protocol-relative http(s) specifiers are proxied with the module-graph segment; bare, data:, blob: and already-proxied ones are not; an import map's URL-like KEYS and every address are proxied the same way (so a rewritten specifier still prefix-matches a rewritten key), bare keys stay, scopes are mapped, \"integrity\" is dropped, malformed JSON is untouched",
+    "tt41-unit: WP-17 / WP-19 HTML wiring: an inline module's specifiers and import.meta.url are rewritten (a classic inline script's dynamic import too, without import.meta), an inline import map is rewritten, a body the HTML parser split at a \"</script>\" inside a string is left unchanged, crossorigin elements / module scripts / modulepreload carry the CORS segment (\":i\" for use-credentials), and an iframe names its parent document (\":f\") while links and forms stay plain navigations",
+    "tt41-unit: WP-17 root import map: a document with an id gets an import map routing run-time ROOT-RELATIVE module URLs (\"/\" → the site's root through the proxy, \"/api/wp/s/\" → itself so proxied URLs are untouched), injected right after the runtime when the page has none, MERGED into the page's own first map when it has one (one map per document, the page's own \"/\" key wins), using the final <base> origin; documents without an id get none"
+   ]
+  },
+  "WP-18": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt41: WP-18 oracle: Response.url / redirected / type after redirects, XHR responseURL, Request.url (fragment kept), redirect TAINT (A→B→C: C sees Origin \"null\" and must allow \"null\"; A→B→A: no same-origin cookies, needs CORS), mode \"same-origin\" leaving the origin fails, the full page URL as same-origin Referer, a classic worker's importScripts + Response.url, and a data: worker's opaque origin — the page's view AND what A / B / C saw are IDENTICAL natively and through the proxy",
+    "tt41-unit: WP-18 segments: every legal flag combination round-trips through parseSidSegment / flagString / decodeTarget in canonical order; out-of-order, repeated or unknown flags, a flag on \"r\" / \"f\", and a short document id are all rejected",
+    "tt41-unit: WP-18 redirect chains (Fetch §4.4 / §4.1): A→B→C taints the origin (Origin \"null\") and marks the chain cross-origin and cross-site; A→B→A taints too and keeps the request non-same-origin (no same-origin cookies, origin-only Referer, Sec-Fetch-Site cross-site); A→A stays clean; flags are sticky (never cleared by a later hop); mode same-origin refuses the cross-origin hop"
+   ]
+  },
+  "WP-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt41: WP-19 oracle: a CROSS-SITE iframe (B in A) — its navigation, its own image and its same-origin fetch get only SameSite=None cookies, and its Set-Cookie may store only SameSite=None; a SAME-SITE iframe (A′ in A) keeps every cookie and may store Lax — identical natively and through the proxy, including Sec-Fetch-Site and Referer",
+    "e2e-tt41: WP-17/18/19 adversary: page fetch() of a module gets its bytes UNCHANGED (only script / worker destinations are rewritten); a module the lexer cannot tokenise (an unterminated template) is served unchanged and labelled; an \"f\" (frame) tag on an image is not honoured as a frame (no frame-tree cookies, the script rules apply: none cross-site); chain flags only ever REMOVE — a tag without them is what the shim emits, so a page cannot claim more",
+    "tt41-unit: WP-17 / WP-19 HTML wiring: an inline module's specifiers and import.meta.url are rewritten (a classic inline script's dynamic import too, without import.meta), an inline import map is rewritten, a body the HTML parser split at a \"</script>\" inside a string is left unchanged, crossorigin elements / module scripts / modulepreload carry the CORS segment (\":i\" for use-credentials), and an iframe names its parent document (\":f\") while links and forms stay plain navigations",
+    "tt41-unit: WP-19 frame tree: a document registered with cross-site ancestors (xs) keeps that through the LRU; its subresources and script requests are cross-site for SameSite even to its OWN origin, while Sec-Fetch-Site and Origin still follow the document's origin; documentCsp drops frame-ancestors only for a validated nested frame"
    ]
   },
   "CT-01": {

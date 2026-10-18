@@ -1,6 +1,6 @@
 {
   "suite": "tt40-proxy",
-  "at": "2026-10-18T20:03:44.481Z",
+  "at": "2026-10-18T22:22:43.199Z",
   "results": [
     {
       "suite": "tt40-proxy",
@@ -9,7 +9,7 @@
         "WP-14": "full"
       },
       "pass": true,
-      "ms": 1036
+      "ms": 1064
     },
     {
       "suite": "tt40-proxy",
@@ -18,7 +18,7 @@
         "WP-14": "full"
       },
       "pass": true,
-      "ms": 1067
+      "ms": 1045
     },
     {
       "suite": "tt40-proxy",
@@ -27,7 +27,7 @@
         "WP-15": "full"
       },
       "pass": true,
-      "ms": 729
+      "ms": 793
     },
     {
       "suite": "tt40-proxy",
@@ -36,7 +36,7 @@
         "WP-15": "full"
       },
       "pass": true,
-      "ms": 3054
+      "ms": 3042
     }
   ]
 }

@@ -331,7 +331,7 @@ await test("permessage-deflate hostile servers: a decompression bomb (64 MiB of 
   ok(g.protocolError?.[0] === 1002 && /RSV2/.test(g.protocolError[1]), `rsv2 ${JSON.stringify(g.protocolError)}`);
 });
 
-await test("permessage-deflate ordering and fragments: one write carrying [1 MiB compressed text][a small uncompressed text][a compressed message in 3 fragments][close 1000] is delivered strictly in that order (nothing overtakes an inflate, not even the close); a context-takeover back-reference into the previous message decodes; a server window of 8 bits (client_max_window_bits=8) makes the client send UNCOMPRESSED", { "WP-13": "full" }, async () => {
+await test("permessage-deflate ordering and fragments: one write carrying [1 MiB compressed text][a small uncompressed text][a compressed message in 3 fragments][close 1000] is delivered strictly in that order (nothing overtakes an inflate, not even the close); a context-takeover back-reference into the previous message decodes; a server window of 8 bits (client_max_window_bits=8) gets COMPRESSED messages whose every distance fits a 256-byte window (TT41; was: uncompressed)", { "WP-13": "full" }, async () => {
   const big = Buffer.from("ordering ".repeat(120000).slice(0, 1 << 20));
   const frag = deflateMsg(Buffer.from("fragmented and compressed ✓"));
   const third = Math.ceil(frag.length / 3);
@@ -349,15 +349,50 @@ await test("permessage-deflate ordering and fragments: one write carrying [1 MiB
   ok(m2.length < 12, `second message should be a back-reference (${m2.length} bytes)`);
   g = await against(41842, "permessage-deflate", (s) => s.write(Buffer.concat([frame(1, m1, { rsv1: true }), frame(1, m2, { rsv1: true }), frame(8, closeP)])));
   eq(g.msgs, ["context takeover: a sentence that will be repeated", "context takeover: a sentence that will be repeated"], "takeover");
-  // client window 8 → our messages go uncompressed (RSV1 clear, payload verbatim)
+  // TT41: client window 8 → compressed (RSV1 set), and an auditing decoder limited to a 256-byte window inflates it
   let seen: Buffer = Buffer.alloc(0);
   const srv = await rawServer(41843, "permessage-deflate; client_max_window_bits=8", (s) => { s.on("data", (c: Buffer) => { seen = Buffer.concat([seen, c]); }); });
   try {
     const c = await WC.connectWebSocket({ url: "ws://127.0.0.1:41843/", open: (h, p) => new Promise((res, rej) => { const s = net.connect(p, h, () => res(s)); s.once("error", rej); }) });
     eq(c.deflate?.clientMaxWindowBits, 8);
-    c.ws.send("z".repeat(500));
-    await until(() => seen.length >= 500 + 8, 5000, "frame at server");
-    ok((seen[0] & 0x40) === 0 && (seen[0] & 0x0f) === 1, `RSV1 must be clear (byte0 ${seen[0].toString(16)})`);
+    const text = Array.from({ length: 60 }, (_, i) => `row ${i % 7} ${"abcdefghij".repeat(30).slice(i % 10, 280 + (i % 10))}`).join("|");
+    c.ws.send(text);
+    await until(() => seen.length >= 2 && seen.length >= 2 + ((seen[1] & 0x7f) === 126 ? 2 : 0) + 4 + ((seen[1] & 0x7f) === 126 ? seen.readUInt16BE(2) : seen[1] & 0x7f), 5000, "frame at server");
+    ok((seen[0] & 0x40) !== 0 && (seen[0] & 0x0f) === 1, `RSV1 must be SET (byte0 ${seen[0].toString(16)})`);
+    const ext = (seen[1] & 0x7f) === 126, len = ext ? seen.readUInt16BE(2) : seen[1] & 0x7f, at = ext ? 4 : 2;
+    const key = seen.subarray(at, at + 4), pay = Buffer.from(seen.subarray(at + 4, at + 4 + len)).map((b, i) => b ^ key[i % 4]);
+    const { DeflateAuditor } = await import("./oracle/deflate-audit.mts");
+    const aud = new DeflateAuditor(256);
+    eq(aud.message(pay).toString(), text, "inflated by a 256-byte-window decoder");
+    ok(len < text.length / 3, `compressed ${text.length} → ${len} B`);
+    // second, EXTERNAL oracle — zlib itself (Python's binding), raw inflate with windowBits 8, forced to emit one byte
+    // per call so every back-reference must come from its real 256-byte window (a large output buffer lets zlib's
+    // fast path read further back, hiding a too-far distance). Negative control: a stream that reaches 600 bytes back
+    // MUST be refused, proving the check is live.
+    const blk = randomBytes(300).toString("hex"); // 600 random-looking chars
+    const control = zlib.deflateRawSync(Buffer.from(`${blk}----${blk}`), { windowBits: 15 });
+    const py = `import sys, zlib
+def strict(data):
+    d = zlib.decompressobj(-8); out = b""; buf = data
+    try:
+        while buf:
+            out += d.decompress(buf, 1); buf = d.unconsumed_tail
+        while True:
+            more = d.decompress(b"", 1)
+            if not more: break
+            out += more
+    except zlib.error as e:
+        return "ERR " + str(e)
+    return "OK " + out.decode("latin-1")
+a, b = sys.stdin.read().split()
+print(strict(bytes.fromhex(a) + b"\\x00\\x00\\xff\\xff")[:3] + str(len(strict(bytes.fromhex(a) + b"\\x00\\x00\\xff\\xff"))))
+print(strict(bytes.fromhex(a) + b"\\x00\\x00\\xff\\xff")[3:] == ${JSON.stringify(text)})
+print(strict(bytes.fromhex(b))[:90])
+`;
+    const pyOut = execFileSync(PY, ["-c", py], { input: `${pay.toString("hex")} ${control.toString("hex")}` }).toString().trim().split("\n");
+    ok(pyOut[0].startsWith("OK ") && pyOut[1] === "True", `zlib strict 8-bit inflate of our message: ${pyOut.slice(0, 2).join(" | ")}`);
+    ok(pyOut[2].startsWith("ERR ") && /too far back/.test(pyOut[2]), `negative control must be refused: ${pyOut[2]}`);
+    console.log(`     8-bit window: ${text.length} B → ${len} B, max distance ${aud.stats.maxDistance}; zlib (windowBits 8, 1 byte/call) inflates it; control (distance 604): "${pyOut[2].slice(4)}"`);
     c.ws.terminate();
   } finally { srv.close(); }
 });

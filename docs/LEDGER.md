@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-18T20:05:06.855Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-72 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-18T22:24:36.085Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+74 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **362** |
-| Fully built | 279 |
+| **Features in register** | **365** |
+| Fully built | 282 |
 | Partially built (partial 46 + probe 16) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **161** |
+| **Fully tested** (≥1 passing test tagged `full`) | **164** |
 | **Partially tested** (only `partial` tags) | **80** |
 | Untested | 121 |
-| Automated tests executed / passed | 682 / 682 |
+| Automated tests executed / passed | 695 / 695 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 150 | 62 | 67 |
+| fully built | 153 | 62 | 67 |
 | partially built | 5 | 16 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
@@ -33,78 +33,80 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-18T19:38:37.704Z |
-| ai-format | 5 | 5 | 0 | 2026-10-18T19:38:39.222Z |
-| browser-session | 5 | 5 | 0 | 2026-10-18T19:38:28.074Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-18T19:38:40.401Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-18T19:46:49.284Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-18T19:47:37.172Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-18T20:02:53.904Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-18T19:42:30.532Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-18T19:47:57.768Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-18T19:41:28.426Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-18T19:48:54.652Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-18T19:50:52.813Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-18T19:40:45.807Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-18T19:42:55.472Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T19:43:21.065Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-18T19:47:07.284Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T19:50:13.998Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T19:51:26.745Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T19:51:45.421Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T19:53:42.405Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T19:54:51.535Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T19:57:16.406Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T19:57:28.980Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T19:58:28.405Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T19:58:59.920Z |
-| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T19:59:14.677Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-18T20:04:39.232Z |
-| e2e-tt38 | 7 | 7 | 0 | 2026-10-18T20:03:01.528Z |
-| e2e-tt39 | 7 | 7 | 0 | 2026-10-18T20:03:35.074Z |
-| e2e-tt40 | 3 | 3 | 0 | 2026-10-18T20:03:47.553Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-18T19:41:50.892Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T19:47:25.940Z |
-| e2e | 61 | 61 | 0 | 2026-10-18T19:40:21.872Z |
-| image | 12 | 12 | 0 | 2026-10-18T19:38:23.382Z |
-| integration | 25 | 25 | 0 | 2026-10-18T19:38:17.521Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-18T19:38:41.078Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-18T19:38:46.110Z |
-| metaclean | 6 | 6 | 0 | 2026-10-18T19:38:34.529Z |
-| names | 7 | 7 | 0 | 2026-10-18T19:38:23.044Z |
-| office | 35 | 35 | 0 | 2026-10-18T19:38:17.881Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-18T19:38:40.109Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-18T19:38:26.172Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-18T19:38:27.923Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-18T19:38:40.850Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T19:38:19.662Z |
-| oracle | 5 | 5 | 0 | 2026-10-18T19:38:18.193Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-18T19:38:37.450Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-18T19:38:31.851Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-18T19:38:33.333Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-18T19:38:19.991Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-18T19:38:41.567Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-18T19:38:37.878Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-18T19:38:41.384Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-18T19:38:46.313Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-18T19:38:47.040Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-18T19:51:45.595Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-18T19:53:42.664Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-18T19:55:04.929Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-18T19:57:16.634Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-18T19:57:32.463Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-18T19:58:37.698Z |
-| tt36-unit | 5 | 5 | 0 | 2026-10-18T19:59:02.943Z |
-| tt37-unit | 9 | 9 | 0 | 2026-10-18T19:59:18.969Z |
-| tt38-unit | 15 | 15 | 0 | 2026-10-18T20:02:58.421Z |
-| tt39-pac | 8 | 8 | 0 | 2026-10-18T20:04:58.586Z |
-| tt39-unit | 13 | 13 | 0 | 2026-10-18T20:04:44.558Z |
-| tt40-proxy | 4 | 4 | 0 | 2026-10-18T20:03:44.481Z |
-| tt40-unit | 17 | 17 | 0 | 2026-10-18T20:03:36.906Z |
-| unit | 23 | 23 | 0 | 2026-10-18T19:38:14.473Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-18T19:38:27.286Z |
-| vector | 18 | 18 | 0 | 2026-10-18T19:38:26.408Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T19:38:38.045Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-18T21:56:32.293Z |
+| ai-format | 5 | 5 | 0 | 2026-10-18T21:56:33.780Z |
+| browser-session | 5 | 5 | 0 | 2026-10-18T21:56:23.394Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-18T21:56:36.808Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-18T22:05:00.146Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-18T22:05:50.574Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-18T22:22:05.962Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-18T22:00:29.719Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-18T22:06:12.127Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-18T21:59:27.042Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-18T22:07:13.386Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-18T22:09:30.798Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-18T21:58:44.643Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-18T22:00:53.890Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T22:01:22.526Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-18T22:05:18.802Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T22:24:28.735Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T22:10:07.258Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T22:10:29.082Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T22:12:26.319Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T22:13:41.178Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T22:16:09.222Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T22:16:22.754Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T22:17:25.364Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T22:17:58.799Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T22:18:14.455Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-18T22:18:41.228Z |
+| e2e-tt38 | 7 | 7 | 0 | 2026-10-18T22:22:13.979Z |
+| e2e-tt39 | 7 | 7 | 0 | 2026-10-18T22:22:33.553Z |
+| e2e-tt40 | 3 | 3 | 0 | 2026-10-18T22:22:46.243Z |
+| e2e-tt41 | 4 | 4 | 0 | 2026-10-18T22:22:49.858Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-18T21:59:49.970Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T22:05:39.201Z |
+| e2e | 61 | 61 | 0 | 2026-10-18T21:58:21.044Z |
+| image | 12 | 12 | 0 | 2026-10-18T21:56:18.664Z |
+| integration | 25 | 25 | 0 | 2026-10-18T21:56:13.260Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-18T21:56:37.468Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-18T21:56:42.932Z |
+| metaclean | 6 | 6 | 0 | 2026-10-18T21:56:29.403Z |
+| names | 7 | 7 | 0 | 2026-10-18T21:56:18.292Z |
+| office | 35 | 35 | 0 | 2026-10-18T21:56:13.617Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-18T21:56:36.500Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-18T21:56:21.463Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-18T21:56:23.249Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-18T21:56:37.242Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T21:56:15.256Z |
+| oracle | 5 | 5 | 0 | 2026-10-18T21:56:13.958Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-18T21:56:32.061Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-18T21:56:26.842Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-18T21:56:28.205Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-18T21:56:15.639Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-18T21:56:37.993Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-18T21:56:32.470Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-18T21:56:37.770Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-18T21:56:43.163Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-18T21:56:43.862Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-18T22:10:29.258Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-18T22:12:26.563Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-18T22:13:54.986Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-18T22:16:09.435Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-18T22:16:26.841Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-18T22:17:34.816Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-18T22:18:02.175Z |
+| tt37-unit | 9 | 9 | 0 | 2026-10-18T22:18:18.790Z |
+| tt38-unit | 15 | 15 | 0 | 2026-10-18T22:22:10.693Z |
+| tt39-pac | 8 | 8 | 0 | 2026-10-18T22:22:30.065Z |
+| tt39-unit | 13 | 13 | 0 | 2026-10-18T22:22:15.475Z |
+| tt40-proxy | 4 | 4 | 0 | 2026-10-18T22:22:43.199Z |
+| tt40-unit | 17 | 17 | 0 | 2026-10-18T22:22:35.417Z |
+| tt41-unit | 9 | 9 | 0 | 2026-10-18T22:22:46.537Z |
+| unit | 23 | 23 | 0 | 2026-10-18T21:56:10.324Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-18T21:56:22.610Z |
+| vector | 18 | 18 | 0 | 2026-10-18T21:56:21.713Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T21:56:32.650Z |
 
 ## Rows touched by failing tests
 
@@ -123,7 +125,7 @@ None.
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
-| PR | 48 | 39 | 9 | 0 | 31 | 10 | 7 |
+| PR | 51 | 42 | 9 | 0 | 34 | 10 | 7 |
 | FF | 34 | 25 | 9 | 0 | 25 | 5 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
@@ -421,6 +423,9 @@ None.
 | WP-14 | built | full | tt40-proxy: SOCKS4 + HTTPS proxy live (WP-14): https://pypi.org/ through pproxy's SOCKS4 server (it logs an IPv4 address — the NAME never reached the proxy, it was resolved here through the guard) and through pproxy as an HTTPS proxy (TLS to the proxy verified against a CA in NODE_EXTRA_CA_CERTS, pypi.org named only inside that TLS); without that CA the proxy is refused at TLS and never learns the destination; tt40-proxy: PAC failover live (WP-14): "PROXY <dead>; SOCKS <pproxy>; DIRECT" — pypi.org is carried by the SECOND entry (SOCKS = v4, Chrome's reading), the failover is recorded, and a repeat request goes straight to the healthy proxy (the dead one is remembered for 5 min, no second failover); a POST of 70 KB of mixed UTF-8 / binary-safe text fails over byte-exact (echo site's SHA-256) and the dead proxy received only the proxy handshake, never a byte of the body; a proxy that ANSWERS 403 for the destination is not failed over — no DIRECT leak; tt40-unit: route parsing (WP-14): socks4:// socks4a:// https:// are routes now, with Chrome's default ports (1080 / 443) and labels; still refused: unknown schemes, bad ports, paths (+6) |
 | WP-15 | built | full | tt40-proxy: KDE live (WP-15): a fresh process in a KDE session (XDG_CURRENT_DESKTOP=KDE), with no proxy variables and no gsettings, reads ~/.config/kioslaverc (here via XDG_CONFIG_HOME) written in KDE 5's "http://host port" form and sends https://pypi.org/ through the proxy it names (pproxy logs it); ProxyType=0 means direct; tt40-proxy: WPAD live (WP-15): the machine's REAL resolver — "search eng.corp.fusion-test.example" in /etc/resolv.conf, wpad.corp.fusion-test.example in /etc/hosts, the PAC file on port 80 — GNOME "auto" with an empty URL (stand-in gsettings) and KDE ProxyType=3 each DISCOVER it by devolution (wpad → wpad.eng.… fail, wpad.corp.… answers; wpad.fusion-test.example is never needed) and pypi.org goes through the SOCKS proxy it names; with nothing to discover, auto-detect falls back to DIRECT with the tried list reported; tt40-unit: Windows (WP-15): the AutoDetect bit (0x08) of DefaultConnectionSettings byte 8 is read from the Connections key; other bits do not set it; an absent / short value is no flag; socks= is SOCKS v4 unless written socks5:// (Chrome's ProxyRules); auto-detect alone is a usable setting (+6) |
 | WP-16 | built | full | e2e-tt40: WP-16 oracle: the cookies, Sec-Fetch-Site and Referer that sites A, A′ and B saw for 7 markup subresources of one page (a same-origin, a same-site and a cross-site image, a cross-site stylesheet AND the image that stylesheet loads, a cross-site script, and — created by page SCRIPT, tagged by the shim — a cross-site image that sets cookies) are IDENTICAL natively in Chromium and through the proxy; so is what that cross-site image could store (SameSite=Lax refused, SameSite=None kept); e2e-tt40: WP-16 oracle is not vacuous: cross-site subresources carried ONLY b=1 (not bl / bs / bd); same-site ones carried the Strict cookie too; the stylesheet's own image counted the PAGE as its initiator; Sec-Fetch-Site took all three values; nx (Lax from a cross-site response) was refused, ny kept; the page's markup really carries the subresource tag on img / link / script and NOT on navigations; e2e-tt40: WP-16 adversary: a FORGED document id on a subresource gets only SameSite=None cookies (never more than a cross-site load); an "r" tag on a script fetch() is re-tagged by the shim and follows the script rules (no cookies with credentials same-origin cross-site); an "r" tag on a NAVIGATION is ignored (a top-level-in-frame load keeps its cookies) (+3) |
+| WP-17 | built | full | e2e-tt41: WP-17 oracle: an ES-module page — root-relative, parent-relative, absolute cross-origin imports; an import map with a bare prefix AND a URL-like key; export-from; dynamic import() of a literal AND of a root-relative path computed at run time; import.meta.url and import.meta.resolve; a module worker created with new Worker(new URL("./w.js", import.meta.url)) that itself imports root-relative and reports self.location / self.origin; an inline module — yields IDENTICAL values natively and through the proxy; e2e-tt41: WP-17/18/19 adversary: page fetch() of a module gets its bytes UNCHANGED (only script / worker destinations are rewritten); a module the lexer cannot tokenise (an unterminated template) is served unchanged and labelled; an "f" (frame) tag on an image is not honoured as a frame (no frame-tree cookies, the script rules apply: none cross-site); chain flags only ever REMOVE — a tag without them is what the shim emits, so a page cannot claim more; tt41-unit: WP-17 lexer oracle: 28 edge cases module lexers are known to get wrong (strings / comments / templates / regexes containing import, member and method named import, regex after while / export default / of / return / typeof / a newline, division vs regex, hashbang, import attributes, \u escapes, export * as, string-named imports, dynamic import with options and plain templates) — the specifier ranges are IDENTICAL to acorn's (+5) |
+| WP-18 | built | full | e2e-tt41: WP-18 oracle: Response.url / redirected / type after redirects, XHR responseURL, Request.url (fragment kept), redirect TAINT (A→B→C: C sees Origin "null" and must allow "null"; A→B→A: no same-origin cookies, needs CORS), mode "same-origin" leaving the origin fails, the full page URL as same-origin Referer, a classic worker's importScripts + Response.url, and a data: worker's opaque origin — the page's view AND what A / B / C saw are IDENTICAL natively and through the proxy; tt41-unit: WP-18 segments: every legal flag combination round-trips through parseSidSegment / flagString / decodeTarget in canonical order; out-of-order, repeated or unknown flags, a flag on "r" / "f", and a short document id are all rejected; tt41-unit: WP-18 redirect chains (Fetch §4.4 / §4.1): A→B→C taints the origin (Origin "null") and marks the chain cross-origin and cross-site; A→B→A taints too and keeps the request non-same-origin (no same-origin cookies, origin-only Referer, Sec-Fetch-Site cross-site); A→A stays clean; flags are sticky (never cleared by a later hop); mode same-origin refuses the cross-origin hop |
+| WP-19 | built | full | e2e-tt41: WP-19 oracle: a CROSS-SITE iframe (B in A) — its navigation, its own image and its same-origin fetch get only SameSite=None cookies, and its Set-Cookie may store only SameSite=None; a SAME-SITE iframe (A′ in A) keeps every cookie and may store Lax — identical natively and through the proxy, including Sec-Fetch-Site and Referer; e2e-tt41: WP-17/18/19 adversary: page fetch() of a module gets its bytes UNCHANGED (only script / worker destinations are rewritten); a module the lexer cannot tokenise (an unterminated template) is served unchanged and labelled; an "f" (frame) tag on an image is not honoured as a frame (no frame-tree cookies, the script rules apply: none cross-site); chain flags only ever REMOVE — a tag without them is what the shim emits, so a page cannot claim more; tt41-unit: WP-17 / WP-19 HTML wiring: an inline module's specifiers and import.meta.url are rewritten (a classic inline script's dynamic import too, without import.meta), an inline import map is rewritten, a body the HTML parser split at a "</script>" inside a string is left unchanged, crossorigin elements / module scripts / modulepreload carry the CORS segment (":i" for use-credentials), and an iframe names its parent document (":f") while links and forms stay plain navigations (+1) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

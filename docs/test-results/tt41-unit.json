@@ -1,0 +1,88 @@
+{
+  "suite": "tt41-unit",
+  "at": "2026-10-18T22:22:46.537Z",
+  "results": [
+    {
+      "suite": "tt41-unit",
+      "name": "WP-17 lexer oracle: 28 edge cases module lexers are known to get wrong (strings / comments / templates / regexes containing import, member and method named import, regex after while / export default / of / return / typeof / a newline, division vs regex, hashbang, import attributes, \\u escapes, export * as, string-named imports, dynamic import with options and plain templates) — the specifier ranges are IDENTICAL to acorn's",
+      "covers": {
+        "WP-17": "full"
+      },
+      "pass": true,
+      "ms": 17
+    },
+    {
+      "suite": "tt41-unit",
+      "name": "WP-17 lexer fail-safe: on the residual ambiguity (a function EXPRESSION followed by `/`, which needs a parser) the lexer either agrees with acorn or reports an error — and an error means the source is served UNCHANGED, never mis-rewritten",
+      "covers": {
+        "WP-17": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt41-unit",
+      "name": "WP-17 import.meta: every READ of import.meta.url becomes the module's real URL and import.meta.resolve is wrapped; an assignment target, import.meta.urlx and a string are left alone; the wrapper decodes a proxied URL back and passes any other through",
+      "covers": {
+        "WP-17": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt41-unit",
+      "name": "WP-17 specifiers and import maps: root-relative, relative, absolute and protocol-relative http(s) specifiers are proxied with the module-graph segment; bare, data:, blob: and already-proxied ones are not; an import map's URL-like KEYS and every address are proxied the same way (so a rewritten specifier still prefix-matches a rewritten key), bare keys stay, scopes are mapped, \"integrity\" is dropped, malformed JSON is untouched",
+      "covers": {
+        "WP-17": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt41-unit",
+      "name": "WP-17 / WP-19 HTML wiring: an inline module's specifiers and import.meta.url are rewritten (a classic inline script's dynamic import too, without import.meta), an inline import map is rewritten, a body the HTML parser split at a \"</script>\" inside a string is left unchanged, crossorigin elements / module scripts / modulepreload carry the CORS segment (\":i\" for use-credentials), and an iframe names its parent document (\":f\") while links and forms stay plain navigations",
+      "covers": {
+        "WP-17": "full",
+        "WP-19": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt41-unit",
+      "name": "WP-17 root import map: a document with an id gets an import map routing run-time ROOT-RELATIVE module URLs (\"/\" → the site's root through the proxy, \"/api/wp/s/\" → itself so proxied URLs are untouched), injected right after the runtime when the page has none, MERGED into the page's own first map when it has one (one map per document, the page's own \"/\" key wins), using the final <base> origin; documents without an id get none",
+      "covers": {
+        "WP-17": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt41-unit",
+      "name": "WP-18 segments: every legal flag combination round-trips through parseSidSegment / flagString / decodeTarget in canonical order; out-of-order, repeated or unknown flags, a flag on \"r\" / \"f\", and a short document id are all rejected",
+      "covers": {
+        "WP-18": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt41-unit",
+      "name": "WP-18 redirect chains (Fetch §4.4 / §4.1): A→B→C taints the origin (Origin \"null\") and marks the chain cross-origin and cross-site; A→B→A taints too and keeps the request non-same-origin (no same-origin cookies, origin-only Referer, Sec-Fetch-Site cross-site); A→A stays clean; flags are sticky (never cleared by a later hop); mode same-origin refuses the cross-origin hop",
+      "covers": {
+        "WP-18": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt41-unit",
+      "name": "WP-19 frame tree: a document registered with cross-site ancestors (xs) keeps that through the LRU; its subresources and script requests are cross-site for SameSite even to its OWN origin, while Sec-Fetch-Site and Origin still follow the document's origin; documentCsp drops frame-ancestors only for a validated nested frame",
+      "covers": {
+        "WP-19": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

@@ -321,7 +321,9 @@ await test("markup tagging (WP-16): img / script / link / source / track / audio
   const { html: out } = CORE.rewriteHtml(html, { sid, url: "https://www.shop.example/", resSid: res });
   const segOf = (path: string) => { const m = new RegExp(`/api/wp/s/([^/]+)/https/www\\.shop\\.example${path.replace(/[.]/g, "\\.")}["' )&\\s]`).exec(out); return m ? m[1] : "(missing)"; };
   for (const p of ["/c.css", "/bg.png", "/b.png", "/i.png", "/i2.png", "/s.js", "/v.mp4", "/p.jpg", "/v.webm", "/t.vtt", "/a.mp3", "/btn.png", "/d.png"]) eq(segOf(p), res, `resource ${p}`);
-  for (const p of ["/page", "/map", "/post", "/f.html", "/o.pdf", "/e.swf", "/next"]) eq(segOf(p), sid, `navigation ${p}`);
+  for (const p of ["/page", "/map", "/post", "/o.pdf", "/e.swf", "/next"]) eq(segOf(p), sid, `navigation ${p}`);
+  // TT41 (WP-19): an iframe is still never a subresource, but it names its parent document ("f") so SameSite can follow the frame tree
+  eq(segOf("/f.html"), `${sid}:abcdefgh12:f`, "iframe → frame tag");
   const { html: plain } = CORE.rewriteHtml(html, { sid, url: "https://www.shop.example/" });
   ok(!plain.includes(":r/"), "no tag without resSid");
 });

@@ -11,7 +11,8 @@
  * correctly by itself; only root-relative ("/static/a.css") and absolute URLs need rewriting.
  */
 
-import { parseSidSegment, type Cred } from "./wp-cors";
+import { parseSidSegment, type ChainFlags, type Cred } from "./wp-cors";
+import { rewriteModule } from "./js-imports";
 
 export const WP_PREFIX = "/api/wp/s/";
 const SID_RE = /^[A-Za-z0-9_-]{16,64}$/;
@@ -28,7 +29,7 @@ export function encodeTarget(abs: string | URL, sid: string): string | null {
 }
 
 /** Proxied pathname + search → { sid, target }. Throws a plain-language Error on anything malformed. */
-export function decodeTarget(pathname: string, search = ""): { sid: string; target: URL; rest: string; doc?: string; cred?: Cred; resource?: true } {
+export function decodeTarget(pathname: string, search = ""): { sid: string; target: URL; rest: string; doc?: string; cred?: Cred; resource?: true; frame?: true; flags?: ChainFlags } {
   if (!pathname.startsWith(WP_PREFIX)) throw new Error("not a proxy path");
   const tail = pathname.slice(WP_PREFIX.length);
   const s1 = tail.indexOf("/");
@@ -36,7 +37,7 @@ export function decodeTarget(pathname: string, search = ""): { sid: string; targ
   // TT39 (WP-10): script requests carry "<sid>:<document id>:<credentials mode>" — see src/lib/wp-cors.ts
   const seg = parseSidSegment(tail.slice(0, s1));
   if (!seg || !isSid(seg.sid)) throw new Error("bad session id");
-  const { sid, doc, cred, resource } = seg;
+  const { sid, doc, cred, resource, frame, flags } = seg;
   const rest = tail.slice(s1 + 1);
   if (rest.startsWith("__")) return { sid, target: new URL("about:blank"), rest }; // control endpoints (__cookie)
   const s2 = rest.indexOf("/");
@@ -50,7 +51,8 @@ export function decodeTarget(pathname: string, search = ""): { sid: string; targ
   const target = new URL(`${scheme}://${host}${path}${search}`);
   if (target.host.toLowerCase() !== host.toLowerCase().replace(/:(80|443)$/, (m) => ((scheme === "http" && m === ":80") || (scheme === "https" && m === ":443") ? "" : m))) throw new Error("bad host");
   if (doc && resource) return { sid, target, rest, doc, resource };
-  return doc ? { sid, target, rest, doc, cred } : { sid, target, rest };
+  if (doc && frame) return { sid, target, rest, doc, frame };
+  return doc ? (flags ? { sid, target, rest, doc, cred, flags } : { sid, target, rest, doc, cred }) : { sid, target, rest };
 }
 
 const PASS_SCHEMES = /^(data|blob|javascript|mailto|tel|sms|about|ftp|ws|wss|intent|geo|magnet|chrome|file):/i;
@@ -64,6 +66,61 @@ export function rewriteUrl(raw: string, base: string | URL, sid: string): string
   try { abs = new URL(v, base); } catch { return raw; }
   return encodeTarget(abs, sid) ?? raw;
 }
+
+// ------------------------------------------------------------------------------ TT41 (WP-17): JavaScript modules
+/**
+ * HTML "resolve a module specifier", URL-like part: "/x", "./x", "../x" resolve against the module's base URL; an
+ * absolute URL is itself; anything else is a BARE specifier (left for import maps — natively it fails without one).
+ * Every http(s) result becomes a proxied address with `seg` (the module graph's requests: CORS mode, credentials
+ * "same-origin", from the same document). data: / blob: specifiers are left alone.
+ */
+export function rewriteSpecifier(spec: string, base: string | URL, seg: string): string | null {
+  if (spec.startsWith(WP_PREFIX)) return null;
+  let abs: URL;
+  if (spec.startsWith("/") || spec.startsWith("./") || spec.startsWith("../")) { try { abs = new URL(spec, base); } catch { return null; } }
+  else { try { abs = new URL(spec); } catch { return null; } }
+  if (abs.protocol !== "http:" && abs.protocol !== "https:") return null;
+  return encodeTarget(abs, seg);
+}
+/**
+ * import.meta.resolve(s) resolves against the module's PROXIED address (so relative specifiers and the import map
+ * still work) and the result is decoded back to the real URL — inline, no global (mirror of encodeTarget)
+ */
+export const RESOLVE_WRAP = String.raw`((s) => { const u = import.meta.resolve(s), m = /^https?:\/\/[^/]+\/api\/wp\/s\/[^/]+\/(https?)\/([^/?#]+)(.*)$/.exec(u); return m ? m[1] + "://" + m[2] + m[3] : u; })`;
+/** a module's source with its specifiers proxied and import.meta.url = the module's REAL address (metaUrl) */
+export function rewriteModuleSource(js: string, o: { base: string | URL; seg: string; metaUrl: string | null }): { code: string; rewritten: number; metaUrls: number; error?: string } {
+  return rewriteModule(js, (spec) => rewriteSpecifier(spec, o.base, o.seg), o.metaUrl, RESOLVE_WRAP);
+}
+/**
+ * An import map (HTML §8.1.5.3): URL-like KEYS and every address are proxied the same way as module specifiers, so a
+ * rewritten specifier and a rewritten key still match by prefix; bare keys stay; "integrity" is dropped (the proxy
+ * may rewrite module bodies). Unparseable JSON is returned unchanged (the browser reports it as natively).
+ */
+export function rewriteImportMap(json: string, base: string | URL, seg: string): string {
+  let m: unknown;
+  try { m = JSON.parse(json); } catch { return json; }
+  if (!m || typeof m !== "object" || Array.isArray(m)) return json;
+  const map = (obj: unknown): unknown => {
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) return obj;
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      const nk = /^(\/|\.\/|\.\.\/)/.test(k) || /^[a-z][a-z0-9+.-]*:/i.test(k) ? rewriteSpecifier(k, base, seg) ?? k : k;
+      out[nk] = typeof v === "string" ? rewriteSpecifier(v, base, seg) ?? v : v;
+    }
+    return out;
+  };
+  const src = m as Record<string, unknown>, out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(src)) {
+    if (k === "imports") out.imports = map(v);
+    else if (k === "scopes" && v && typeof v === "object" && !Array.isArray(v)) {
+      const sc: Record<string, unknown> = {};
+      for (const [sk, sv] of Object.entries(v as Record<string, unknown>)) sc[rewriteSpecifier(sk, base, seg) ?? sk] = map(sv);
+      out.scopes = sc;
+    } else if (k !== "integrity") out[k] = v;
+  }
+  return JSON.stringify(out);
+}
+const JS_TYPES = /^(|module|text\/javascript|application\/javascript|text\/ecmascript|application\/ecmascript|application\/x-javascript|text\/x-javascript|text\/jscript|text\/livescript|text\/javascript1\.[0-5])$/;
 
 /** srcset = candidates "url [descriptor]" separated by commas; a URL may itself contain commas (HTML §4.8.4.3.1). */
 export function rewriteSrcset(value: string, base: string | URL, sid: string): string {
@@ -159,13 +216,34 @@ export interface HtmlRewriteReport { rewritten: number; removed: string[]; base:
  */
 export function rewriteHtml(html: string, o: HtmlRewriteOptions): { html: string; report: HtmlRewriteReport } {
   const res = o.resSid ?? o.sid;
+  /** "<sid>:<doc>" when this document has an id (from resSid "<sid>:<doc>:r") */
+  const docSeg = o.resSid && o.resSid.endsWith(":r") ? o.resSid.slice(0, -2) : null;
   let base = o.url;
   const report: HtmlRewriteReport = { rewritten: 0, removed: [], base };
   let out = "";
   let i = 0;
   const n = html.length;
   let injected = !o.inject;
-  const inject = () => { if (!injected) { out += o.inject; injected = true; } };
+  // TT41 (WP-17): an import map that sends ROOT-RELATIVE module URLs computed at run time (import(variable) — the
+  // static ones are rewritten in the source) to the site, through the proxy: key "/" → the target's root; the longer
+  // key "/api/wp/s/" maps proxied URLs to themselves (import maps pick the longest matching prefix). Merged into the
+  // page's own first import map when it has one (one map per document works in every browser), else injected first
+  // thing in <head>; filled in at the end, when the final base URL (a <base> may change the origin) is known.
+  const MAP_MARK = "\u0000fusion-import-map\u0000";
+  const useRootMap = !!(docSeg && o.inject);
+  let pageMapMerged = false;
+  const rootKeys = (): Record<string, string> => {
+    const root = rewriteSpecifier("/", base, `${docSeg}:s`);
+    // identity keys run through the WHOLE segment: what follows a matched key is parsed as a URL, and a remainder
+    // starting "<sid>:<doc>:…" would parse as an absolute URL with scheme "<sid>" whenever the random id happens to
+    // be scheme-shaped (Chromium then refuses it as backtracking above the prefix); after these keys the remainder
+    // starts "http/" or "https/", never a scheme. The bare prefix stays as the last resort.
+    if (!root) return {};
+    const keys: Record<string, string> = { "/": root, [WP_PREFIX]: WP_PREFIX };
+    for (const g of [`${docSeg}:s`, `${docSeg}:i`, o.sid]) keys[`${WP_PREFIX}${g}/`] = `${WP_PREFIX}${g}/`;
+    return keys;
+  };
+  const inject = () => { if (!injected) { out += o.inject + (useRootMap ? MAP_MARK : ""); injected = true; } };
   while (i < n) {
     const lt = html.indexOf("<", i);
     if (lt < 0) { out += html.slice(i); break; }
@@ -212,13 +290,25 @@ export function rewriteHtml(html: string, o: HtmlRewriteOptions): { html: string
       const h = get("href");
       if (h !== null) { try { base = new URL(decodeEntities(h), base).toString(); report.base = base; } catch { /* keep */ } }
     }
+    // TT41: a CORS-mode load (a module script, modulepreload, or any element with a crossorigin attribute) is a
+    // "same-origin" / "include" credentials request of this document — not a no-cors subresource — so it carries
+    // "<sid>:<doc>:s|i" and the server runs the CORS check a browser would (the attribute itself stays "anonymous":
+    // credentials never travel between the page and the proxy)
+    let corsSeg: string | null = null;
+    if (docSeg) {
+      const co = get("crossorigin"), typ = lower(decodeEntities(get("type") ?? "")).trim(), rel = lower(decodeEntities(get("rel") ?? ""));
+      const isModule = (name === "script" && typ === "module") || (name === "link" && /(^|\s)modulepreload(\s|$)/.test(rel));
+      // (a valueless `crossorigin` — the common form — is present with no value: the "anonymous" state)
+      const hasCo = attrs.some((x) => lower(x.name) === "crossorigin");
+      if (hasCo || isModule) corsSeg = `${docSeg}:${co !== null && lower(decodeEntities(co)).trim() === "use-credentials" ? "i" : "s"}`;
+    }
     const parts: string[] = [];
     for (const a of attrs) {
       const an = lower(a.name);
       if (a.value === null) { parts.push(a.raw); continue; }
       const val = decodeEntities(a.value);
       let nv: string | null = val;
-      if ((URL_ATTRS[an] && (URL_ATTRS[an].includes(name) || URL_ATTRS[an].includes("*")))) nv = rewriteUrl(val, base, isResourceAttr(name, an) ? res : o.sid);
+      if ((URL_ATTRS[an] && (URL_ATTRS[an].includes(name) || URL_ATTRS[an].includes("*")))) nv = rewriteUrl(val, base, isResourceAttr(name, an) ? corsSeg ?? res : an === "src" && (name === "iframe" || name === "frame") && docSeg ? `${docSeg}:f` : o.sid);
       else if (SRCSET_ATTRS.has(an)) nv = rewriteSrcset(val, base, res);
       else if (an === "style") nv = rewriteCss(val, base, res);
       else if (an === "integrity" || an === "ping") { nv = null; report.removed.push(`${name}[${an}]`); }
@@ -238,11 +328,46 @@ export function rewriteHtml(html: string, o: HtmlRewriteOptions): { html: string
       const end = rel < 0 ? n : i + rel;
       const body = html.slice(i, end);
       if (name === "style") { const r = rewriteCss(body, base, res); if (r !== body) report.rewritten++; out += r; }
+      else if (name === "script" && get("src") === null && body.trim()) {
+        // TT41 (WP-17): inline scripts resolve specifiers against the DOCUMENT's base URL — the proxy's, inside the
+        // frame — so their import specifiers (static ones in modules, import() anywhere) and import maps are proxied
+        const typ = lower(decodeEntities(get("type") ?? "")).trim();
+        const seg = docSeg ? `${docSeg}:s` : o.sid;
+        if (typ === "importmap") {
+          let r = rewriteImportMap(body, base, seg);
+          if (useRootMap && !pageMapMerged) {
+            try {
+              const m = JSON.parse(r) as { imports?: Record<string, unknown> };
+              if (m && typeof m === "object" && !Array.isArray(m)) {
+                const imports = m.imports && typeof m.imports === "object" && !Array.isArray(m.imports) ? m.imports : {};
+                // a page key under this site's root also gets its root-relative twin (same value), so a URL computed
+                // at run time ("/mapped/x.js" → Fusion's origin) maps exactly as the page's own key would natively
+                const R = rootKeys()["/"];
+                if (R) for (const [k, v] of Object.entries({ ...imports })) if (k.startsWith(R) && !(`/${k.slice(R.length)}` in imports)) imports[`/${k.slice(R.length)}`] = v;
+                for (const [k, v] of Object.entries(rootKeys())) if (!(k in imports)) imports[k] = v;
+                m.imports = imports; r = JSON.stringify(m); pageMapMerged = true;
+              }
+            } catch { /* not JSON: the browser reports it; ours is injected separately */ }
+          }
+          if (r !== body) report.rewritten++;
+          out += r.replace(/<\/script/gi, "<\\/script");
+        }
+        else if (JS_TYPES.test(typ)) {
+          const r = rewriteModuleSource(body, { base, seg, metaUrl: typ === "module" ? base : null });
+          if (r.code !== body) report.rewritten++;
+          out += r.code.replace(/<\/script/gi, "<\\/script");
+        } else out += body;
+      }
       else out += body;
       i = end;
     }
   }
-  if (!injected) out = o.inject + out;
+  if (!injected) out = o.inject + (useRootMap ? MAP_MARK : "") + out;
+  if (useRootMap) {
+    const keys = rootKeys();
+    const tag = !pageMapMerged && Object.keys(keys).length ? `<script type="importmap">${JSON.stringify({ imports: keys }).replace(/</g, "\\u003c")}</script>` : "";
+    out = out.split(MAP_MARK).join(tag);
+  }
   return { html: out, report };
 }
 
@@ -440,14 +565,19 @@ export function readerCsp(selfOrigins: string[]): string {
     `form-action 'none'`, `base-uri 'none'`, `frame-ancestors ${src}`, "object-src 'none'",
   ].join("; ");
 }
-export function documentCsp(selfOrigins: string[]): string {
+export function documentCsp(selfOrigins: string[], o: { nestedFrame?: boolean } = {}): string {
   const src = ["'self'", ...selfOrigins].join(" ");
+  // TT41 (WP-19): a proxied page's own iframes have an OPAQUE-origin parent (the sandbox), which no CSP source
+  // expression can match — "frame-ancestors 'self' <fusion>" blocked every nested frame (YouTube embeds, maps,
+  // widgets: blank). A frame navigation carrying a VALID frame tag (this session's id + a document id the server
+  // issued — secrets that already grant full access) therefore omits frame-ancestors; everything else keeps it.
+  const ancestors = o.nestedFrame ? [] : [`frame-ancestors ${src}`];
   return [
     "sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads allow-pointer-lock allow-presentation",
     `default-src ${src} data: blob: 'unsafe-inline' 'unsafe-eval'`,
     `img-src ${src} data: blob:`, `media-src ${src} data: blob:`, `font-src ${src} data:`,
     `connect-src ${src} data: blob:`, `frame-src ${src} data: blob:`, `worker-src ${src} blob:`,
-    `form-action ${src}`, `base-uri ${src}`, `frame-ancestors ${src}`, "object-src 'none'",
+    `form-action ${src}`, `base-uri ${src}`, ...ancestors, "object-src 'none'",
   ].join("; ");
 }
 

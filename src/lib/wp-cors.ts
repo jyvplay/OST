@@ -19,13 +19,47 @@ export function credCode(c: Cred): string { return c === "include" ? "i" : c ===
 
 /** "<sid>" or "<sid>:<doc>:<cred>" (the session segment of a proxied path); TT40: "<sid>:<doc>:r" = a markup
  *  SUBRESOURCE (img / script / stylesheet / media …) of that document — no-cors, credentials "include", SameSite. */
-export function parseSidSegment(seg: string): { sid: string; doc?: string; cred?: Cred; resource?: true } | null {
+export function parseSidSegment(seg: string): { sid: string; doc?: string; cred?: Cred; resource?: true; frame?: true; flags?: ChainFlags } | null {
   const parts = seg.split(":");
   if (parts.length === 1) return { sid: seg };
   if (parts.length !== 3 || !/^[A-Za-z0-9_-]{8,32}$/.test(parts[1])) return null;
   if (parts[2] === "r") return { sid: parts[0], doc: parts[1], resource: true };
-  if (!CRED_CODE[parts[2]]) return null;
-  return { sid: parts[0], doc: parts[1], cred: CRED_CODE[parts[2]] };
+  // TT41 (WP-19): "<sid>:<doc>:f" = an iframe / frame of that document (honoured only for frame navigations)
+  if (parts[2] === "f") return { sid: parts[0], doc: parts[1], frame: true };
+  const m = FLAG_RE.exec(parts[2]);
+  if (!m) return null;
+  const flags: ChainFlags = {};
+  if (m[2]) flags.m = true; if (m[3]) flags.t = true; if (m[4]) flags.x = true; if (m[5]) flags.y = true; if (m[6]) flags.n = true;
+  return Object.keys(flags).length ? { sid: parts[0], doc: parts[1], cred: CRED_CODE[m[1]], flags } : { sid: parts[0], doc: parts[1], cred: CRED_CODE[m[1]] };
+}
+
+/**
+ * TT41: what a script request's REDIRECT CHAIN has done so far (Fetch §4.1 main fetch, §4.4 HTTP-redirect fetch,
+ * Fetch Metadata §5.2, Referrer Policy §8.3). The browser follows the proxy's redirects itself, so the server writes
+ * the chain's state into the next hop's segment: "<sid>:<doc>:<cred><flags>", flags in this order:
+ *   m  the request's mode is "same-origin" (a hop to another origin is a network error)
+ *   t  tainted origin — a redirect went to another origin from a URL not same-origin with the page: Origin "null"
+ *   x  a hop was cross-origin: response tainting stays "cors" (a later same-origin hop still needs the CORS check and
+ *      gets no "same-origin" credentials); the referrer has been cut to the page's origin
+ *   y  a hop was cross-site: Sec-Fetch-Site is "cross-site" from then on (the header covers the whole URL list)
+ *   n  the referrer was dropped (https → http): no Referer from then on
+ * A forged flag can only make a request more restricted (null origin, fewer cookies, a CORS check, no Referer).
+ */
+export interface ChainFlags { m?: boolean; t?: boolean; x?: boolean; y?: boolean; n?: boolean }
+const FLAG_RE = /^([iso])(m?)(t?)(x?)(y?)(n?)$/;
+export function flagString(f: ChainFlags | undefined): string {
+  return f ? `${f.m ? "m" : ""}${f.t ? "t" : ""}${f.x ? "x" : ""}${f.y ? "y" : ""}${f.n ? "n" : ""}` : "";
+}
+/** the flags for the hop after `current` redirects to `next` */
+export function nextChainFlags(p: Policy, current: URL, next: URL): ChainFlags {
+  const f = p.chain, init = p.initiator;
+  const out: ChainFlags = { ...f };
+  if (!init || init !== current.origin) out.x = true;
+  if (!p.sameSiteHop) out.y = true;
+  if (next.origin !== current.origin && (!init || init !== current.origin)) out.t = true;
+  if (init && p.referer === null) out.n = true;
+  for (const k of Object.keys(out) as (keyof ChainFlags)[]) if (!out[k]) delete out[k];
+  return out;
 }
 
 /**
@@ -36,12 +70,13 @@ export function parseSidSegment(seg: string): { sid: string; doc?: string; cred?
  *   Set-Cookie    stored as for script requests: cross-site responses may store only SameSite=None cookies
  *   Sec-Fetch-Site / Referer   from the document's origin (the browser's own say "same-origin" for every proxied URL)
  */
-export function resourcePolicy(o: { initiator: string | null; target: URL; siteOf: SiteOf; referrerUrl?: string | null }): { crossSite: boolean; secFetchSite: "same-origin" | "same-site" | "cross-site"; referer: string | null } {
+export function resourcePolicy(o: { initiator: string | null; target: URL; siteOf: SiteOf; referrerUrl?: string | null; ancestorsCrossSite?: boolean }): { crossSite: boolean; secFetchSite: "same-origin" | "same-site" | "cross-site"; referer: string | null } {
   const init = o.initiator ? new URL(o.initiator) : null;
   const sameOrigin = !!init && init.origin === o.target.origin;
   const sameSite = !!init && init.protocol === o.target.protocol && o.siteOf(init.hostname) === o.siteOf(o.target.hostname);
   return {
-    crossSite: !sameSite,
+    // TT41 (WP-19): inside a frame whose ancestors are cross-site, every request is cross-site for SameSite
+    crossSite: !sameSite || !!o.ancestorsCrossSite,
     secFetchSite: sameOrigin ? "same-origin" : sameSite ? "same-site" : "cross-site",
     referer: init ? strictOriginWhenCrossOrigin(o.referrerUrl ? new URL(o.referrerUrl) : init, o.target) : null,
   };
@@ -105,6 +140,13 @@ export function unsafeHeaderNames(headers: Iterable<[string, string]>): string[]
 // ------------------------------------------------------------------------------------- the policy for one request
 export interface Policy {
   initiator: string | null; // the document's origin, or null = unverified (treated like an opaque origin: "null")
+  /** TT41: the origin a CORS check compares with and the Origin header names — "null" once the chain is tainted */
+  corsOrigin: string;
+  chain: ChainFlags;
+  /** this hop alone is same-site with the page (SameSite cookies are decided per hop) */
+  sameSiteHop: boolean;
+  /** a network error the browser would raise before sending (mode "same-origin" reaching another origin) */
+  refused?: string;
   cred: Cred;
   sameOrigin: boolean;
   sameSite: boolean;
@@ -117,24 +159,35 @@ export interface Policy {
   unsafeHeaders: string[];
 }
 
-export function policyFor(o: { initiator: string | null; target: URL; cred: Cred; method: string; headers: Iterable<[string, string]>; siteOf: SiteOf }): Policy {
+export function policyFor(o: { initiator: string | null; target: URL; cred: Cred; method: string; headers: Iterable<[string, string]>; siteOf: SiteOf; referrerUrl?: string | null; chain?: ChainFlags; ancestorsCrossSite?: boolean }): Policy {
   const method = o.method.toUpperCase();
+  const f = o.chain ?? {};
   const init = o.initiator ? new URL(o.initiator) : null;
-  const sameOrigin = !!init && init.origin === o.target.origin;
+  const sameOriginHop = !!init && init.origin === o.target.origin;
+  // response tainting stays "basic" only while every hop so far was same-origin (TT41: flag x)
+  const sameOrigin = sameOriginHop && !f.x;
   // "same site" is schemeful (RFC 6265bis): http://a.example and https://a.example are different sites
   const sameSite = !!init && init.protocol === o.target.protocol && o.siteOf(init.hostname) === o.siteOf(o.target.hostname);
   const sendCookies = !!init && (o.cred === "include" || (o.cred === "same-origin" && sameOrigin));
   const unsafe = sameOrigin ? [] : unsafeHeaderNames(o.headers);
   const needsPreflight = !sameOrigin && (!SIMPLE_METHODS.has(method) || unsafe.length > 0);
+  const corsOrigin = !init || f.t ? "null" : init.origin;
+  // Referrer Policy strict-origin-when-cross-origin, from the document's URL (TT41: the FULL URL to the same origin,
+  // as browsers send — TT39 sent only the origin); once a hop went cross-origin the referrer is the origin; once it
+  // was dropped it stays dropped
+  const ref = init && !f.n ? strictOriginWhenCrossOrigin(f.x || !o.referrerUrl ? new URL(`${init.origin}/`) : new URL(o.referrerUrl), o.target) : null;
+  const rank = { "same-origin": 0, "same-site": 1, "cross-site": 2 } as const;
+  let sfs: "same-origin" | "same-site" | "cross-site" = sameOriginHop ? "same-origin" : sameSite ? "same-site" : "cross-site";
+  if (f.x && rank[sfs] < 1) sfs = "same-site";
+  if (f.y) sfs = "cross-site";
   return {
-    initiator: init ? init.origin : null, cred: o.cred, sameOrigin, sameSite, sendCookies, crossSite: !sameSite,
+    initiator: init ? init.origin : null, corsOrigin, chain: { ...f }, sameSiteHop: sameSite, cred: o.cred, sameOrigin, sameSite, sendCookies, crossSite: !sameSite || !!o.ancestorsCrossSite,
     // a browser sends Origin on every CORS request and on same-origin requests other than GET / HEAD
-    origin: sameOrigin ? (method === "GET" || method === "HEAD" ? null : init!.origin) : (init ? init.origin : "null"),
-    // strict-origin-when-cross-origin (the default policy): the page's origin, never its path, cross-origin;
-    // nothing when going from https to http
-    referer: init && !(init.protocol === "https:" && o.target.protocol === "http:") ? `${init.origin}/` : null,
-    secFetchSite: sameOrigin ? "same-origin" : sameSite ? "same-site" : "cross-site",
+    origin: sameOrigin ? (method === "GET" || method === "HEAD" ? null : init!.origin) : corsOrigin,
+    referer: ref,
+    secFetchSite: sfs,
     needsPreflight, unsafeHeaders: unsafe,
+    ...(f.m && !sameOriginHop ? { refused: "mode \"same-origin\": a redirect reached another origin" } : {}),
   };
 }
 
@@ -145,7 +198,7 @@ const one = (h: H, k: string): string | undefined => { const v = h[k.toLowerCase
 export function corsCheck(p: Policy, res: H): { ok: true } | { ok: false; reason: string } {
   if (p.sameOrigin) return { ok: true };
   const acao = one(res, "access-control-allow-origin");
-  const origin = p.initiator ?? "null";
+  const origin = p.corsOrigin;
   if (acao === undefined) return { ok: false, reason: "no Access-Control-Allow-Origin header" };
   if (acao.includes(",")) return { ok: false, reason: "multiple Access-Control-Allow-Origin values" };
   const v = acao.trim();
@@ -198,7 +251,7 @@ export class PreflightCache {
   private m = new Map<string, number>();
   private max: number;
   constructor(max = 2048) { this.max = max; }
-  private k(p: Policy, url: string, kind: "m" | "h", name: string) { return `${p.initiator}|${p.cred}|${url}|${kind}|${name}`; }
+  private k(p: Policy, url: string, kind: "m" | "h", name: string) { return `${p.corsOrigin}|${p.cred}|${url}|${kind}|${name}`; }
   private live(key: string, now: number): boolean { const e = this.m.get(key); if (e === undefined) return false; if (e <= now) { this.m.delete(key); return false; } return true; }
   /** Does this request still need a preflight? */
   needs(p: Policy, url: string, method: string, now = Date.now(), strict = STRICT_AUTH_WILDCARD): boolean {
