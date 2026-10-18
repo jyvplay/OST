@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-18T04:02:46.841Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-60 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-18T04:52:19.079Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+62 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
 | **Features in register** | **352** |
-| Fully built | 267 |
-| Partially built (partial 48 + probe 16) | 64 |
+| Fully built | 268 |
+| Partially built (partial 47 + probe 16) | 63 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **149** |
-| **Partially tested** (only `partial` tags) | **81** |
-| Untested | 122 |
-| Automated tests executed / passed | 586 / 586 |
+| **Fully tested** (≥1 passing test tagged `full`) | **151** |
+| **Partially tested** (only `partial` tags) | **80** |
+| Untested | 121 |
+| Automated tests executed / passed | 594 / 594 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 139 | 61 | 67 |
-| partially built | 4 | 18 | 42 |
+| fully built | 140 | 61 | 67 |
+| partially built | 5 | 17 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
 
@@ -33,66 +33,68 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-18T01:58:24.008Z |
-| ai-format | 5 | 5 | 0 | 2026-10-18T01:58:25.971Z |
-| browser-session | 5 | 5 | 0 | 2026-10-18T03:50:01.392Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-18T01:58:27.312Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-18T02:12:17.959Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-18T02:13:42.838Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-18T02:30:12.219Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-18T03:55:10.836Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-18T02:14:13.962Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-18T02:03:53.807Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-18T02:33:42.093Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-18T02:17:51.761Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-18T02:02:38.315Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-18T02:34:47.894Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T02:06:57.906Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-18T02:12:52.694Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T02:17:03.730Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T02:18:31.666Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T02:18:57.106Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T04:01:08.717Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T02:22:20.906Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T02:25:05.135Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T02:25:19.862Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T02:26:23.426Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T04:02:41.479Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-18T02:04:44.566Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T02:13:27.378Z |
-| e2e | 61 | 61 | 0 | 2026-10-18T02:32:32.103Z |
-| image | 12 | 12 | 0 | 2026-10-18T01:58:07.510Z |
-| integration | 25 | 25 | 0 | 2026-10-18T01:58:01.539Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-18T01:58:28.152Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-18T01:58:35.097Z |
-| metaclean | 6 | 6 | 0 | 2026-10-18T01:58:20.357Z |
-| names | 7 | 7 | 0 | 2026-10-18T01:58:07.147Z |
-| office | 35 | 35 | 0 | 2026-10-18T01:58:01.937Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-18T01:58:26.954Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-18T01:58:10.646Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-18T01:58:12.692Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-18T01:58:27.873Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T01:58:03.729Z |
-| oracle | 5 | 5 | 0 | 2026-10-18T01:58:02.308Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-18T01:58:23.709Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-18T01:58:17.486Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-18T01:58:18.995Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-18T01:58:04.103Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-18T02:30:43.547Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-18T01:58:24.270Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-18T01:58:28.527Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-18T01:58:35.370Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-18T01:58:36.195Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-18T02:18:57.340Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-18T02:20:59.509Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-18T02:22:37.081Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-18T02:25:05.374Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-18T02:25:24.562Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-18T03:47:09.542Z |
-| unit | 23 | 23 | 0 | 2026-10-18T03:50:06.064Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-18T01:58:11.907Z |
-| vector | 18 | 18 | 0 | 2026-10-18T01:58:10.918Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T01:58:24.477Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-18T04:16:16.983Z |
+| ai-format | 5 | 5 | 0 | 2026-10-18T04:16:18.710Z |
+| browser-session | 5 | 5 | 0 | 2026-10-18T04:47:21.745Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-18T04:16:19.942Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-18T04:26:46.282Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-18T04:27:53.356Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-18T04:46:06.521Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-18T04:48:04.677Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-18T04:28:19.934Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-18T04:19:59.146Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-18T04:29:32.810Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-18T04:32:02.315Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-18T04:18:56.207Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-18T04:48:37.346Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T04:22:26.101Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-18T04:27:15.181Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T04:31:12.145Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T04:32:44.832Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T04:33:07.297Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T04:35:13.469Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T04:36:39.121Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T04:39:30.410Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T04:39:45.837Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T04:40:51.533Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T04:50:52.052Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T04:52:14.518Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-18T04:20:30.725Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T04:27:38.277Z |
+| e2e | 61 | 61 | 0 | 2026-10-18T04:18:19.732Z |
+| image | 12 | 12 | 0 | 2026-10-18T04:16:00.786Z |
+| integration | 25 | 25 | 0 | 2026-10-18T04:50:21.665Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-18T04:16:20.694Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-18T04:16:27.459Z |
+| metaclean | 6 | 6 | 0 | 2026-10-18T04:16:13.562Z |
+| names | 7 | 7 | 0 | 2026-10-18T04:16:00.378Z |
+| office | 35 | 35 | 0 | 2026-10-18T04:15:54.776Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-18T04:16:19.620Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-18T04:16:03.877Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-18T04:16:05.765Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-18T04:16:20.437Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T04:15:56.739Z |
+| oracle | 5 | 5 | 0 | 2026-10-18T04:15:55.212Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-18T04:16:16.702Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-18T04:16:10.543Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-18T04:16:12.190Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-18T04:15:57.162Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-18T04:16:21.223Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-18T04:16:17.208Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-18T04:16:21.016Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-18T04:16:27.709Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-18T04:16:28.497Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-18T04:33:07.505Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-18T04:35:13.767Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-18T04:36:56.111Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-18T04:39:30.658Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-18T04:39:50.782Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-18T04:41:01.396Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-18T04:41:33.173Z |
+| unit | 23 | 23 | 0 | 2026-10-18T04:15:52.192Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-18T04:16:05.108Z |
+| vector | 18 | 18 | 0 | 2026-10-18T04:16:04.134Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T04:16:17.418Z |
 
 ## Rows touched by failing tests
 
@@ -111,7 +113,7 @@ None.
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
-| PR | 38 | 28 | 10 | 0 | 19 | 11 | 8 |
+| PR | 38 | 29 | 9 | 0 | 21 | 10 | 7 |
 | FF | 34 | 25 | 9 | 0 | 25 | 5 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
@@ -248,11 +250,11 @@ None.
 | PR-07h | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads |
 | PR-07i | built | full | e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab |
 | PR-07j | built | untested |  |
-| PR-07k | partial | untested |  |
+| PR-07k | built | full | e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page; e2e-tt36: reader endpoint headers (PR-07k): the reader page is served with a CSP sandbox (no same-origin), scripts only from Fusion (no inline script), no forms; a non-page address gets a plain refusal; a private address is refused (SSRF); tt36-unit: reader vs Readability (PR-07k): on live pages from github.com and pypi.org the reader keeps everything readability-lxml calls the article (recall ≥ 0.95) and agrees on where the article starts and ends; pages a site answers with a bot challenge are skipped and named, at least 5 must be measured (+2) |
 | PR-07l | built | full | browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused; browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: site permissions panel writes the iframe delegation policy into the saved session |
 | PR-07m | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413) |
 | PR-07n | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads |
-| PR-07o | partial | partial | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server |
+| PR-07o | partial | full | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server; e2e-tt36: named profiles (PR-07o): two tabs in profile Work share one session and its cookies, a third tab on the same site (this tab only) does not; switching it to Work joins the jar, switching a Work tab to 'this tab only' leaves it; the profile is saved with the window; closing the last Work tab deletes the Work session; tt36-unit: profile names and saved sessions (PR-07o): a named profile survives normalisation of a saved Browser session; unsafe or oversized names are dropped (the tab falls back to 'this tab only') |
 | PR-07p | partial | untested |  |
 | PR-07q | built | full | browser-session: batch actions: close others / to the right / duplicates keep pinned tabs and the anchor; e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs |
 | PR-07r | built | partial | browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first; e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin; e2e: mount: routines (+1) |
@@ -388,7 +390,7 @@ None.
 | SM-07 | partial | full | e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; tt33-unit: Amazon Music grammar (SM-07): Share → Embed code kept as issued (tracking params dropped); page links → embed shape flagged unverified; 12 storefronts; tt33-unit: ≥ 15 refused shapes, each with a reason (negative space) (+1) |
 | SM-08 | built | full | e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video; e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; e2e-tt33: library + modal shortcut (SM-08): TIDAL / Qobuz / Amazon links saved show their provider; Next walks them; the Rename dialog traps Escape (closes the dialog only — title unchanged, window open) and Enter renames (+2) |
 | MP-06 | built | full | e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track; tt34-unit: geodesy (MP-06): inverse on WGS84 vs GeographicLib — 20 000 random pairs and 2 000 near-antipodal pairs (Vincenty's failure region, solved by shooting), all ≤ 1 mm; tt34-unit: geodesy (MP-06): direct problem (10 000 cases, up to 19 000 km) lands ≤ 1 mm from GeographicLib; poles, equator, antimeridian, coincident points; the sphere was up to ~0.5 % off (+1) |
-| MP-07 | built | full | e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track; tt34-unit: Plus Codes (MP-07): every official Open Location Code vector — encoding (302, incl. degrees → integers), decoding (420), validity (25), shorten / recover (19); tt34-unit: Plus Codes (MP-07): refusals and search parsing — bad lengths, padded shortening, invalid codes; codes found in free text with a locality; recovery across the antimeridian |
+| MP-07 | built | full | e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track; tt34-unit: Plus Codes (MP-07): every official Open Location Code vector — encoding (302, incl. degrees → integers), decoding (420), validity (25), shorten / recover (19); tt34-unit: Plus Codes (MP-07): refusals and search parsing — bad lengths, padded shortening, invalid codes; codes found in free text with a locality; recovery across the antimeridian (+1) |
 | MP-08 | built | full | e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track; tt34-unit: GPX / KML export (MP-08): gpxpy and xml.etree read Fusion's files back exactly — 60 waypoints with hostile names (& < " ' ]]> emoji, tabs, spaces), a 50-point track, a route with elevations, a KML polygon; tt34-unit: GPX / KML import (MP-08): Fusion reads GPX 1.0 and 1.1 written by gpxpy, its own GPX/KML, namespaced and real-world shapes (multi-segment tracks, MultiGeometry, Folder nesting, CDATA, gx: extensions) (+1) |
 | SM-09 | built | full | e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing; e2e-tt34: transport honesty (SM-09): Vimeo with speed disabled by its owner — setPlaybackRate is sent but the speed shown stays unreported 1×; volume uses 0–1 and follows volumechange; seek slider → setCurrentTime. SoundCloud: seek + playlist next, no volume control at all; e2e-tt34: native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them (+2) |
 | SM-10 | built | full | e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing; tt34-unit: keyboard (SM-10): Space/K, J/L, arrows, M, Shift+N/P, < >, digits; nothing while typing or with modifiers; sliders keep their arrows; Space on a button stays the button's; speed stepping |
@@ -397,7 +399,7 @@ None.
 | WP-02 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413) (+7) |
 | WP-03 | built | full | e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted; tt35-unit: privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream requests carry no cookie / referer / origin / client hints / forwarding headers of the user, one UA and language for everyone, Sec-GPC and an origin-only Referer of the target; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised |
 | WP-04 | built | full | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server; tt35-unit: cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix refusal, domain mismatch, default-path and path matching (/docs vs /docsx), Secure only over https, Max-Age over Expires, deletion, HttpOnly hidden from (and unwritable by) scripts, __Secure- / __Host- prefixes, ordering by path length, per-domain cap; tt35-unit: sessions (WP-04): 128-bit url-safe capability ids, unique; idle sessions expire after 30 min; the store never exceeds its cap (least recently used goes first); dropping forgets the cookie jar |
-| WP-05 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads |
+| WP-05 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page |
 | WP-06 | built | full | e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |

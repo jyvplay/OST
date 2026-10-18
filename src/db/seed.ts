@@ -29,9 +29,10 @@ import { tt32Features } from "./seed-data/features-tt32";
 import { tt33Features } from "./seed-data/features-tt33";
 import { tt34Features } from "./seed-data/features-tt34";
 import { tt35Features, UPDATES_TT35 } from "./seed-data/features-tt35";
+import { UPDATES_TT36 } from "./seed-data/features-tt36";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.24.0";
+export const SEED_VERSION = "3.25.0";
 
 export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
@@ -49,7 +50,8 @@ export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, 
   .map((f) => (UPDATES_TT27[f.code] ? { ...f, ...UPDATES_TT27[f.code] } : f))
   .map((f) => (UPDATES_TT28[f.code] ? { ...f, ...UPDATES_TT28[f.code] } : f))
   .map((f) => (UPDATES_TT29[f.code] ? { ...f, ...UPDATES_TT29[f.code] } : f))
-  .map((f) => (UPDATES_TT35[f.code] ? { ...f, ...UPDATES_TT35[f.code] } : f));
+  .map((f) => (UPDATES_TT35[f.code] ? { ...f, ...UPDATES_TT35[f.code] } : f))
+  .map((f) => (UPDATES_TT36[f.code] ? { ...f, ...UPDATES_TT36[f.code] } : f));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

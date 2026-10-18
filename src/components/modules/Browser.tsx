@@ -70,11 +70,13 @@ export default function BrowserModule({ win }: ModuleProps) {
   // tab through the private proxy, so no site ever sees the user's address and trackers are blocked everywhere.
   const [proxyAll, setProxyAll] = useState(Boolean(saved.proxyAll));
   const [proxySessions] = useState(() => new Map<string, string>());
-  const tabIds = tabs.map((t) => t.id).join(",");
+  // a session lives while some tab uses its key: the tab id, or "p:<profile>" for tabs sharing a named profile
+  const sessionKeys = tabs.map((t) => (t.profile ? `p:${t.profile}` : t.id)).join(",");
+  const profileNames = [...new Set(tabs.map((t) => t.profile ?? "").filter(Boolean))];
   useEffect(() => {
-    const live = new Set(tabIds.split(","));
-    for (const [tid, sid] of proxySessions) if (!live.has(tid)) { proxySessions.delete(tid); void fetch(`/api/wp-session?sid=${encodeURIComponent(sid)}`, { method: "DELETE" }).catch(() => {}); }
-  }, [tabIds, proxySessions]);
+    const live = new Set(sessionKeys.split(","));
+    for (const [key, sid] of proxySessions) if (!live.has(key)) { proxySessions.delete(key); void fetch(`/api/wp-session?sid=${encodeURIComponent(sid)}`, { method: "DELETE" }).catch(() => {}); }
+  }, [sessionKeys, proxySessions]);
   useEffect(() => () => { for (const sid of proxySessions.values()) void fetch(`/api/wp-session?sid=${encodeURIComponent(sid)}`, { method: "DELETE", keepalive: true }).catch(() => {}); proxySessions.clear(); }, [proxySessions]);
 
   useEffect(() => {
@@ -138,7 +140,9 @@ export default function BrowserModule({ win }: ModuleProps) {
   };
 
   const proxied = (tab: Tab, key: string) => (
-    <ProxyFrame key={`${key}:${tab.id}`} tabId={tab.id} url={tab.url} sessions={proxySessions}
+    <ProxyFrame key={`${key}:${tab.id}:${tab.profile ?? ""}`} tabId={tab.id} url={tab.url} sessions={proxySessions}
+      profile={tab.profile ?? ""} profiles={profileNames}
+      onProfile={(p) => setTabs((ts) => ts.map((x) => (x.id === tab.id ? { ...x, profile: p || undefined } : x)))}
       onNav={(u, t) => { setTabs((ts) => ts.map((x) => (x.id === tab.id ? { ...x, url: u, title: t || new URL(u).host } : x))); if (tab.id === active) setAddress(u); }} />
   );
   const renderFrame = (tab: Tab | null, key: string) => {
@@ -268,9 +272,10 @@ export default function BrowserModule({ win }: ModuleProps) {
               {shown.map((t) => (
                 <button key={t.id} className="fs-btn" data-variant={t.id === active ? "primary" : "ghost"} data-tab={t.id}
                   style={{ minHeight: 24, maxWidth: t.pinned ? 70 : 190, borderBottom: `3px solid ${groupOf(t)?.color ?? "transparent"}` }} onClick={() => setActive(t.id)}
-                  title={`${t.title}${groupOf(t) ? ` · ${groupOf(t)!.name}` : ""} (middle-click closes)`}
+                  title={`${t.title}${groupOf(t) ? ` · ${groupOf(t)!.name}` : ""}${t.profile ? ` · profile ${t.profile}` : ""} (middle-click closes)`}
                   onAuxClick={(e) => { if (e.button === 1) { e.preventDefault(); setSess((s) => closeTab(s, t.id)); } }}>
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.pinned ? <PinIcon /> : null}{t.asleep ? <SleepIcon /> : null}{t.title}</span>
+                  {t.profile ? <span data-tab-profile style={{ marginLeft: 6, flexShrink: 0, fontSize: "0.75em", lineHeight: 1.4, padding: "0 6px", borderRadius: 999, border: "1px solid currentColor", opacity: 0.85 }}>{t.profile}</span> : null}
                 </button>
               ))}
               <Btn variant="ghost" onClick={() => open("https://example.com")}>+</Btn>

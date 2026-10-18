@@ -15,9 +15,15 @@ import { Btn } from "../ui";
 export interface ProxyFrameProps {
   tabId: string;
   url: string;
-  /** tab id → session id, owned by the Browser so a tab keeps its session (and cookies) across tab switches */
+  /** session key (tab id, or "p:<profile>") → session id, owned by the Browser so a tab keeps its session (and
+   *  cookies) across tab switches, and tabs of one named profile share theirs */
   sessions: Map<string, string>;
   onNav: (url: string, title: string) => void;
+  /** named profile of this tab ("" = this tab only) */
+  profile?: string;
+  /** profile names in use by other tabs (offered in the menu) */
+  profiles?: string[];
+  onProfile?: (name: string) => void;
 }
 
 interface Stats { requests: number; blocked: number; cookies: number; errors: number; blockedHosts: Record<string, number>; failedHosts?: Record<string, string> }
@@ -35,7 +41,10 @@ export function saveName(url: string, type: string): string {
   return n;
 }
 
-export default function ProxyFrame({ tabId, url, sessions, onNav }: ProxyFrameProps) {
+export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", profiles = [], onProfile }: ProxyFrameProps) {
+  // TT36 (PR-07o): tabs sharing a named profile share one proxy session (one cookie jar); "" = this tab only
+  const sessionKey = profile ? `p:${profile}` : tabId;
+  const [reader, setReader] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
   const [start] = useState(url);
   const [sid, setSid] = useState<string | null>(null);
@@ -53,27 +62,27 @@ export default function ProxyFrame({ tabId, url, sessions, onNav }: ProxyFramePr
   useEffect(() => {
     let live = true;
     (async () => {
-      let id = sessions.get(tabId) ?? null;
+      let id = sessions.get(sessionKey) ?? null;
       if (id) {
         const r = await fetch(`/api/wp-session?sid=${encodeURIComponent(id)}`);
         if (r.ok) { const j = (await r.json()) as { ua: UaKind }; if (live) setUa(j.ua); } else id = null;
       }
       if (!id) {
-        const r = await fetch("/api/wp-session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ua: "desktop", profile: tabId }) });
+        const r = await fetch("/api/wp-session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ua: "desktop", profile: profile || tabId }) });
         if (!r.ok) throw new Error(`could not start a proxy session (HTTP ${r.status})`);
         id = ((await r.json()) as { sid: string }).sid;
-        sessions.set(tabId, id);
+        sessions.set(sessionKey, id);
       }
       if (live) setSid(id);
     })().catch((e) => { if (live) setErr(String((e as Error).message ?? e)); });
     return () => { live = false; };
-  }, [tabId, sessions]);
+  }, [tabId, sessionKey, profile, sessions]);
 
   // the page reports its address / title / find results; only THIS frame's window is listened to
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       if (!frame.current || e.source !== frame.current.contentWindow) return;
-      const d = e.data as { fusionWp?: string; url?: string; title?: string; n?: number; i?: number };
+      const d = e.data as { fusionWp?: string; url?: string; title?: string; n?: number; i?: number; reader?: boolean };
       if (!d || typeof d.fusionWp !== "string") return;
       if (d.fusionWp === "nav" && typeof d.url === "string" && /^https?:\/\//.test(d.url)) {
         const u = d.url, t = String(d.title ?? "").slice(0, 200);
@@ -87,6 +96,7 @@ export default function ProxyFrame({ tabId, url, sessions, onNav }: ProxyFramePr
         // before its first report: the first report only records the address; a DIFFERENT address later resets find
         if (lastUrl.current && lastUrl.current !== u) setFound(null);
         lastUrl.current = u;
+        setReader(d.reader === true); // the page says which view it is (an "Original page" link leaves the reader)
         onNav(u, t);
       } else if (d.fusionWp === "found") setFound({ n: Number(d.n) || 0, i: Number(d.i) || 0 });
     };
@@ -104,7 +114,9 @@ export default function ProxyFrame({ tabId, url, sessions, onNav }: ProxyFramePr
     return () => { live = false; window.clearInterval(t); };
   }, [sid]);
 
-  const go = (target: string) => { setFound(null); if (frame.current && sid) frame.current.src = encodeTarget(target, sid) ?? "about:blank"; };
+  const frameUrl = (target: string, asReader: boolean) => (!sid ? null : asReader ? `/api/wp/s/${sid}/__reader?u=${encodeURIComponent(target)}` : encodeTarget(target, sid));
+  const go = (target: string, asReader = reader) => { setFound(null); if (frame.current && sid) frame.current.src = frameUrl(target, asReader) ?? "about:blank"; };
+  const toggleReader = () => { const r = !reader; setReader(r); go(hist.list[hist.i], r); };
   const reload = () => { setFound(null); send({ fusionWp: "reload" }); };
   const send = (m: Record<string, unknown>) => frame.current?.contentWindow?.postMessage(m, "*"); // an opaque origin can only be addressed as "*"
   const back = () => { if (hist.i > 0) { const t = hist.list[hist.i - 1]; setHist({ ...hist, i: hist.i - 1 }); go(t); } };
@@ -157,6 +169,14 @@ export default function ProxyFrame({ tabId, url, sessions, onNav }: ProxyFramePr
         ) : null}
         <span data-testid="wp-cookies" className="fs-dim" title="Cookies live in this tab's proxy session, in memory only">Cookies: {stats ? stats.cookies : "…"}</span>
         <Btn variant="ghost" data-testid="wp-clear" onClick={async () => { await patch({ clearCookies: true }); reload(); }}>Clear cookies</Btn>
+        <Btn variant="ghost" data-testid="wp-reader" aria-pressed={reader} data-variant={reader ? "primary" : "ghost"} title="Reader view: the article text and images only, in Fusion's typography; links stay in the reader" onClick={toggleReader}>Reader</Btn>
+        <label className="fs-dim" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>Profile
+          <select className="fs-input" data-testid="wp-profile" aria-label="Profile" value={profile} title="Tabs with the same profile share cookies (signed in together); 'This tab only' keeps a tab on its own. Profiles live in memory and end when no tab uses them."
+            onChange={(e) => onProfile?.(e.target.value)}>
+            <option value="">This tab only</option>
+            {[...new Set(["Personal", "Work", ...profiles])].filter(Boolean).map((p) => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </label>
         <Btn variant="ghost" data-testid="wp-save" onClick={() => void save()}>Save to Files</Btn>
         <span className="fs-dim" title="Every request goes through Fusion: the site never sees your address, trackers are blocked, nothing is cached or stored on disk.">Private proxy{title ? ` · ${title.slice(0, 60)}` : ""}</span>
       </div>

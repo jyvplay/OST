@@ -394,6 +394,15 @@ function sanitizeDisposition(v: string): string {
 }
 
 /** CSP for proxied DOCUMENTS: an opaque origin (sandbox without allow-same-origin) that may only load from us. */
+/** The reader page is Fusion's own sanitised markup: scripts only from Fusion (the runtime), no inline script at all. */
+export function readerCsp(selfOrigins: string[]): string {
+  const src = ["'self'", ...selfOrigins].join(" ");
+  return [
+    "sandbox allow-scripts allow-popups allow-downloads",
+    `default-src ${src}`, `script-src ${src}`, `style-src 'unsafe-inline'`, `img-src ${src} data:`, `connect-src ${src}`,
+    `form-action 'none'`, `base-uri 'none'`, `frame-ancestors ${src}`, "object-src 'none'",
+  ].join("; ");
+}
 export function documentCsp(selfOrigins: string[]): string {
   const src = ["'self'", ...selfOrigins].join(" ");
   return [

@@ -1,0 +1,51 @@
+{
+  "suite": "tt36-unit",
+  "at": "2026-10-18T04:41:33.173Z",
+  "results": [
+    {
+      "suite": "tt36-unit",
+      "name": "reader vs Readability (PR-07k): on live pages from github.com and pypi.org the reader keeps everything readability-lxml calls the article (recall ≥ 0.95) and agrees on where the article starts and ends; pages a site answers with a bot challenge are skipped and named, at least 5 must be measured",
+      "covers": {
+        "PR-07k": "full"
+      },
+      "pass": true,
+      "ms": 3104
+    },
+    {
+      "suite": "tt36-unit",
+      "name": "reader safety (PR-07k): adversarial markup — script / style / svg / iframe / template / noscript bodies (any case, '</script >', a fake end tag inside a string), event handlers, javascript: / data: / vbscript: links, style attributes, forms, tracking pixels — re-parsed by Python's html.parser: only allow-listed tags and attributes survive and every href / src went through the mapper",
+      "covers": {
+        "PR-07k": "full"
+      },
+      "pass": true,
+      "ms": 33
+    },
+    {
+      "suite": "tt36-unit",
+      "name": "chrome pruning, scoring and metadata (PR-07k): navigation, header, a link-heavy sidebar, a cookie banner, a share bar, comments and hidden blocks are dropped while the article (and its own lists and code) stays; og:title, author, site name, language, direction; a repeated <h1> is not shown twice; reading time; the reader page escapes the title and carries no script but the runtime; reader CSP forbids inline script, forms and same-origin",
+      "covers": {
+        "PR-07k": "full"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt36-unit",
+      "name": "Plus Codes code lengths (MP-07): identical codes — or identical refusals — to Google's reference implementation (openlocationcode, Apache-2.0) for lengths −1…20 at 300 random points: odd lengths below 10 and lengths below 2 are refused, 10–15 encode, longer is clamped to 15 digits",
+      "covers": {
+        "MP-07": "full"
+      },
+      "pass": true,
+      "ms": 72
+    },
+    {
+      "suite": "tt36-unit",
+      "name": "profile names and saved sessions (PR-07o): a named profile survives normalisation of a saved Browser session; unsafe or oversized names are dropped (the tab falls back to 'this tab only')",
+      "covers": {
+        "PR-07o": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

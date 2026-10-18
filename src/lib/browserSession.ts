@@ -12,6 +12,8 @@
 export interface Tab {
   id: string; url: string; title: string; group: string; pinned: boolean; asleep: boolean;
   verdict?: string; reason?: string; host?: string; mode?: "iframe" | "proxy" | "reader" | "snapshot";
+  /** TT36: named private-proxy profile; tabs with the same name share one cookie jar (absent = this tab only) */
+  profile?: string;
 }
 export interface TabGroup { id: string; name: string; color: string; collapsed: boolean }
 export interface Session { tabs: Tab[]; active: string; groups: TabGroup[]; perms: Record<string, string[]> }
@@ -38,6 +40,13 @@ let seq = 0;
 export const makeTab = (url: string, id?: string): Tab => ({ id: id ?? `t${Date.now().toString(36)}${(seq++).toString(36)}`, url, title: hostOf(url), group: "", pinned: false, asleep: false });
 
 /** Validate an untrusted saved session (win.props / presets / imported bundles). */
+/** A profile name from untrusted input: 1–30 letters, digits, spaces, "-" or "_"; anything else → none. */
+export function safeProfileName(v: unknown): string | undefined {
+  if (typeof v !== "string") return undefined;
+  const t = v.trim().replace(/\s+/g, " ");
+  return /^[\p{L}\p{N} _-]{1,30}$/u.test(t) ? t : undefined;
+}
+
 export function normalizeSession(raw: unknown, selfOrigin?: string, fallbackUrl = "https://example.com"): Session & { dropped: number } {
   const o = (raw && typeof raw === "object" ? raw : {}) as Partial<Session> & { tabs?: unknown[] };
   let dropped = 0;
@@ -52,7 +61,8 @@ export function normalizeSession(raw: unknown, selfOrigin?: string, fallbackUrl 
     if (!url || typeof t.id !== "string" || !/^[\w-]{1,40}$/.test(t.id) || seen.has(t.id)) { dropped++; continue; }
     seen.add(t.id);
     tabs.push({ id: t.id, url, title: String(t.title ?? hostOf(url)).slice(0, 100), group: t.group && gids.has(t.group) ? t.group : "", pinned: !!t.pinned, asleep: !!t.asleep,
-      mode: t.mode === "proxy" || t.mode === "reader" || t.mode === "snapshot" ? t.mode : undefined });
+      mode: t.mode === "proxy" || t.mode === "reader" || t.mode === "snapshot" ? t.mode : undefined,
+      profile: safeProfileName(t.profile) });
   }
   if (!tabs.length) tabs.push(makeTab(safeBrowserUrl(fallbackUrl, selfOrigin) ?? "https://example.com/"));
   const perms: Record<string, string[]> = {};

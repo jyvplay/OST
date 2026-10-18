@@ -1,8 +1,9 @@
 import { type NextRequest } from "next/server";
 import {
-  classifyError, decodeTarget, documentCsp, downstreamHeaders, encodeAttr, encodeTarget, escapeHtml, isTracker, rewriteCss, rewriteHtml, upstreamHeaders,
+  classifyError, decodeTarget, documentCsp, readerCsp, WP_PREFIX, downstreamHeaders, encodeAttr, encodeTarget, escapeHtml, isTracker, rewriteCss, rewriteHtml, upstreamHeaders,
 } from "@/lib/wp-core";
 import { getSession, type WpSession } from "@/lib/server/wp-sessions";
+import { readable, readerDocument } from "@/lib/reader-core";
 import { decodeText, readAll, toWebStream, upstreamRequest } from "@/lib/server/wp-fetch";
 
 export const dynamic = "force-dynamic";
@@ -140,7 +141,51 @@ async function control(req: NextRequest, s: WpSession, rest: string): Promise<Re
       return new Response(new Uint8Array(buf), { status: up.status, headers: { ...CORS, "content-type": "application/octet-stream", "content-disposition": "attachment", "content-security-policy": "sandbox; default-src 'none'", "x-fusion-wp-type": String(up.headers["content-type"] ?? "").replace(/[\r\n]/g, "").slice(0, 200), "access-control-expose-headers": "x-fusion-wp-type" } });
     } catch (e) { return new Response(classifyError(e).message, { status: 502, headers: CORS }); }
   }
+  if (rest === "__reader" && req.method === "GET") return reader(req, s);
   return new Response("unknown control endpoint", { status: 404, headers: CORS });
+}
+
+/** TT36 (PR-07k): reader view of any page, fetched within this session (its cookies and identity). Links stay in the
+ *  reader, images come through the proxy; redirects are followed here (≤ 5 hops, each re-checked by netguard). */
+async function reader(req: NextRequest, s: WpSession): Promise<Response> {
+  let u: URL;
+  try { u = new URL(String(new URL(req.url).searchParams.get("u"))); } catch { return errorPage(req, "", 400, "Reader", "Not a web address."); }
+  if (u.protocol !== "http:" && u.protocol !== "https:") return errorPage(req, u.href, 400, "Reader", "Reader works on http and https pages.");
+  if (isTracker(u.hostname)) return errorPage(req, u.href, 403, "Reader", "That host is on the tracker list.");
+  let up: Awaited<ReturnType<typeof upstreamRequest>> | null = null;
+  for (let hop = 0; hop <= 5; hop++) {
+    s.stats.requests++;
+    try {
+      up = await upstreamRequest(u.href, { method: "GET", maxBytes: TEXT_MAX + 1, headers: upstreamHeaders([], u, { ua: s.ua, cookie: s.jar.header(u), method: "GET" }) });
+    } catch (e) {
+      s.stats.errors++;
+      const c = classifyError(e);
+      if (Object.keys(s.stats.failedHosts).length < 50 || s.stats.failedHosts[u.hostname]) s.stats.failedHosts[u.hostname] = c.kind;
+      return errorPage(req, u.href, c.kind === "private" || c.kind === "scheme" ? 403 : 502, `Could not reach ${u.hostname}`, c.message);
+    }
+    const sc = up.headers["set-cookie"];
+    for (const line of Array.isArray(sc) ? sc : sc ? [sc] : []) s.jar.set(line, u);
+    if (up.status >= 300 && up.status < 400 && up.headers.location) {
+      up.body.resume();
+      try { u = new URL(String(up.headers.location), u); } catch { return errorPage(req, u.href, 502, "Reader", "The site sent a bad redirect."); }
+      up = null;
+      continue;
+    }
+    break;
+  }
+  if (!up) return errorPage(req, u.href, 502, "Reader", "Too many redirects.");
+  const type = String(up.headers["content-type"] ?? "").toLowerCase();
+  if (!/text\/html|application\/xhtml\+xml/.test(type)) { up.body.resume(); return errorPage(req, u.href, 415, "Reader", `Reader works on web pages; this address is ${type.split(";")[0] || "not a page"}.`); }
+  let buf: Buffer;
+  try { buf = await readAll(up.body, TEXT_MAX); } catch (e) { return errorPage(req, u.href, 502, `Could not read ${u.hostname}`, classifyError(e).message); }
+  s.stats.bytesIn += buf.length;
+  const r = readable(decodeText(buf, type), u.href, (abs, kind) => {
+    if (kind === "image") return isTracker(new URL(abs).hostname) ? null : encodeTarget(abs, s.sid);
+    return `${WP_PREFIX}${s.sid}/__reader?u=${encodeURIComponent(abs)}`;
+  });
+  const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(u.href)}" data-ua="${s.ua}" data-cookies="" data-reader="1"></script>`;
+  const html = readerDocument(r, { target: u.href, inject, original: encodeTarget(u.href, s.sid) ?? "#" });
+  return new Response(html, { status: up.status, headers: { ...CORS, "content-type": "text/html; charset=utf-8", "content-security-policy": readerCsp(selfOrigins(req)), "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", "x-fusion-wp-target": u.href } });
 }
 
 export const GET = handle, HEAD = handle, POST = handle, PUT = handle, PATCH = handle, DELETE = handle;

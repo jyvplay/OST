@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-18T04:02:46.844Z",
+ "generatedAt": "2026-10-18T04:52:19.081Z",
  "totals": {
   "built": {
-   "full": 267,
-   "partial": 64,
+   "full": 268,
+   "partial": 63,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 149,
-   "partial": 81,
-   "untested": 122
+   "full": 151,
+   "partial": 80,
+   "untested": 121
   },
   "tests": {
-   "total": 586,
-   "passed": 586
+   "total": 594,
+   "passed": 594
   }
  },
  "rows": {
@@ -614,8 +614,14 @@
    "tests": []
   },
   "PR-07k": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page",
+    "e2e-tt36: reader endpoint headers (PR-07k): the reader page is served with a CSP sandbox (no same-origin), scripts only from Fusion (no inline script), no forms; a non-page address gets a plain refusal; a private address is refused (SSRF)",
+    "tt36-unit: reader vs Readability (PR-07k): on live pages from github.com and pypi.org the reader keeps everything readability-lxml calls the article (recall ≥ 0.95) and agrees on where the article starts and ends; pages a site answers with a bot challenge are skipped and named, at least 5 must be measured",
+    "tt36-unit: reader safety (PR-07k): adversarial markup — script / style / svg / iframe / template / noscript bodies (any case, '</script >', a fake end tag inside a string), event handlers, javascript: / data: / vbscript: links, style attributes, forms, tracking pixels — re-parsed by Python's html.parser: only allow-listed tags and attributes survive and every href / src went through the mapper",
+    "tt36-unit: chrome pruning, scoring and metadata (PR-07k): navigation, header, a link-heavy sidebar, a cookie banner, a share bar, comments and hidden blocks are dropped while the article (and its own lists and code) stays; og:title, author, site name, language, direction; a repeated <h1> is not shown twice; reading time; the reader page escapes the title and carries no script but the runtime; reader CSP forbids inline script, forms and same-origin"
+   ]
   },
   "PR-07l": {
    "tested": "full",
@@ -639,9 +645,11 @@
    ]
   },
   "PR-07o": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server"
+    "e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server",
+    "e2e-tt36: named profiles (PR-07o): two tabs in profile Work share one session and its cookies, a third tab on the same site (this tab only) does not; switching it to Work joins the jar, switching a Work tab to 'this tab only' leaves it; the profile is saved with the window; closing the last Work tab deletes the Work session",
+    "tt36-unit: profile names and saved sessions (PR-07o): a named profile survives normalisation of a saved Browser session; unsafe or oversized names are dropped (the tab falls back to 'this tab only')"
    ]
   },
   "PR-07p": {
@@ -1971,7 +1979,8 @@
    "tests": [
     "e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track",
     "tt34-unit: Plus Codes (MP-07): every official Open Location Code vector — encoding (302, incl. degrees → integers), decoding (420), validity (25), shorten / recover (19)",
-    "tt34-unit: Plus Codes (MP-07): refusals and search parsing — bad lengths, padded shortening, invalid codes; codes found in free text with a locality; recovery across the antimeridian"
+    "tt34-unit: Plus Codes (MP-07): refusals and search parsing — bad lengths, padded shortening, invalid codes; codes found in free text with a locality; recovery across the antimeridian",
+    "tt36-unit: Plus Codes code lengths (MP-07): identical codes — or identical refusals — to Google's reference implementation (openlocationcode, Apache-2.0) for lengths −1…20 at 300 random points: odd lengths below 10 and lengths below 2 are refused, 10–15 encode, longer is clamped to 15 digits"
    ]
   },
   "MP-08": {
@@ -2053,7 +2062,8 @@
    "tested": "full",
    "tests": [
     "e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows",
-    "e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads"
+    "e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads",
+    "e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page"
    ]
   },
   "WP-06": {

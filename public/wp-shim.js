@@ -231,7 +231,7 @@
   // ---- talking to Fusion's Browser (the parent frame only)
   function report() {
     if (W.parent === W) return;
-    try { W.parent.postMessage({ fusionWp: "nav", url: currentTarget(), title: D.title || "", beacons: beacons }, "*"); } catch (e) { /* detached */ }
+    try { W.parent.postMessage({ fusionWp: "nav", url: currentTarget(), title: D.title || "", beacons: beacons, reader: !!(me && me.getAttribute("data-reader") === "1") }, "*"); } catch (e) { /* detached */ }
   }
   var hits = [], cur = -1, lastQ = null, dirty = false;
   // pages keep building after load (and the parent may ask before they finish): any DOM change invalidates the hits
