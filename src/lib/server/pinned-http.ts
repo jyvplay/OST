@@ -3,6 +3,8 @@ import * as https from "node:https";
 import { isIP, type LookupFunction } from "node:net";
 import type { LookupAddress } from "node:dns";
 import { parsePublicWebUrl, resolvePinnedPublicHost } from "./netguard";
+import { getRoute } from "./wp-route";
+import { readAll, upstreamRequest } from "./wp-fetch";
 
 export interface PinnedResponse {
   status: number;
@@ -37,6 +39,19 @@ export async function getPinnedPublic(
   for (let hop = 0; hop <= maxRedirects; hop++) {
     if (visited.has(current.toString())) throw new Error("redirect loop refused");
     visited.add(current.toString());
+    // TT37: with an upstream route (Tor / a proxy) set, the legacy fetchers (reader for direct tabs, embed probe)
+    // go through it too — nothing leaves the server around the route, and no local DNS lookup happens
+    if (getRoute().mode !== "direct") {
+      const up = await upstreamRequest(current.href, { method: "GET", maxBytes, timeoutMs, session: { sid: "legacy-fetch", circuit: 0 }, headers: { "user-agent": "Mozilla/5.0 (compatible; FusionShellWeb-Proxy/1.0)", accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.5", "accept-encoding": "identity" } });
+      if (REDIRECTS.has(up.status) && up.headers.location) {
+        up.body.resume();
+        if (hop >= maxRedirects) throw new Error(`redirect limit (${maxRedirects}) exceeded`);
+        current = parsePublicWebUrl(new URL(String(up.headers.location), current).toString());
+        continue;
+      }
+      const body = await readAll(up.body, maxBytes);
+      return { status: up.status, headers: up.headers, body, finalUrl: current.toString(), pinnedAddress: up.pinned, redirects: hop };
+    }
     const addresses = await resolvePinnedPublicHost(current.hostname);
     const addr = addresses.find((a) => a.family === 4) ?? addresses[0];
     if (!addr) throw new Error("DNS returned no usable public address");

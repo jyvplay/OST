@@ -4,7 +4,9 @@ import * as zlib from "node:zlib";
 import { isIP, type LookupFunction } from "node:net";
 import type { LookupAddress } from "node:dns";
 import { pipeline, Readable, Transform } from "node:stream";
-import { parsePublicWebUrl, resolvePinnedPublicHost } from "./netguard";
+import { isPrivateAddress, parsePublicWebUrl, resolvePinnedPublicHost } from "./netguard";
+import { describeRoute, isolationCredentials, openTunnel, tunnelHostVerdict, type UpstreamRoute } from "./wp-tunnel";
+import { getRoute } from "./wp-route";
 
 /**
  * TT35: one upstream HTTP exchange for the proxy — any method, a bounded request body, streamed response.
@@ -19,8 +21,11 @@ export interface Upstream { status: number; headers: http.IncomingHttpHeaders; b
 
 export const WP_TIMEOUT_MS = 15_000;
 
-export async function upstreamRequest(raw: string, o: { method: string; headers: Record<string, string>; body?: Buffer; maxBytes: number; timeoutMs?: number }): Promise<Upstream> {
+export async function upstreamRequest(raw: string, o: { method: string; headers: Record<string, string>; body?: Buffer; maxBytes: number; timeoutMs?: number; session?: { sid: string; circuit: number }; route?: UpstreamRoute }): Promise<Upstream> {
   const url = parsePublicWebUrl(raw);
+  const route = o.route ?? getRoute();
+  if (route.mode !== "direct") return tunnelRequest(url, route, o);
+  if (/\.onion\.?$/i.test(url.hostname)) throw new Error("onion addresses need the Tor (SOCKS5) route");
   const addrs = await resolvePinnedPublicHost(url.hostname);
   const addr = addrs.find((a) => a.family === 4) ?? addrs[0];
   if (!addr) throw new Error("DNS returned no usable public address");
@@ -45,6 +50,44 @@ export async function upstreamRequest(raw: string, o: { method: string; headers:
     });
     const timer = setTimeout(() => req.destroy(Object.assign(new Error(`request timed out after ${timeoutMs} ms`), { code: "ETIMEDOUT" })), timeoutMs);
     req.on("error", (e) => { clearTimeout(timer); reject(e); });
+    if (o.body && o.body.length) req.write(o.body);
+    req.end();
+  });
+}
+
+/**
+ * TT37: the same exchange through an upstream proxy (SOCKS5 / HTTP CONNECT). No local DNS: the NAME goes to the
+ * proxy (no DNS leak, .onion works through Tor); IP literals are still checked private-or-not here, and local /
+ * internal names are refused before anything is sent. Each Private proxy session gets its own SOCKS credentials,
+ * so Tor keeps sessions (tabs, profiles) on separate circuits.
+ */
+function tunnelRequest(url: URL, route: UpstreamRoute, o: { method: string; headers: Record<string, string>; body?: Buffer; maxBytes: number; timeoutMs?: number; session?: { sid: string; circuit: number } }): Promise<Upstream> {
+  const hostname = url.hostname.replace(/^\[|\]$/g, "");
+  if (isIP(hostname) && isPrivateAddress(hostname)) return Promise.reject(new Error(`refusing private/reserved address ${hostname}`));
+  const verdict = tunnelHostVerdict(route, hostname);
+  if (verdict) return Promise.reject(new Error(verdict));
+  const secure = url.protocol === "https:";
+  const port = url.port ? Number(url.port) : secure ? 443 : 80;
+  const timeoutMs = o.timeoutMs ?? WP_TIMEOUT_MS;
+  const cred = isolationCredentials(route, o.session?.sid ?? "", o.session?.circuit ?? 0);
+  return new Promise((resolve, reject) => {
+    const headers: Record<string, string> = { ...o.headers, host: url.host, connection: "close" };
+    if (o.body && o.body.length) headers["content-length"] = String(o.body.length);
+    const createConnection = ((_opts: unknown, cb: (e: Error | null, s?: import("node:net").Socket) => void) => {
+      openTunnel(route, hostname, port, { secure, servername: hostname, cred, timeoutMs }).then((s) => cb(null, s), (e) => cb(e));
+      return undefined;
+    }) as unknown as http.RequestOptions["createConnection"];
+    // NO `agent` key: with agent:false Node builds a fresh Agent whose own createConnection (direct TCP + local DNS)
+    // wins over ours — every "tunnelled" request would silently go direct (caught by tt37-unit: .onion → ENOTFOUND)
+    const req = http.request({ protocol: "http:", hostname, port, method: o.method, path: `${url.pathname}${url.search}`, headers, createConnection }, (res) => {
+      clearTimeout(timer);
+      resolve({ status: res.statusCode ?? 502, headers: res.headers, body: responseBody(res, o.maxBytes, () => req.destroy()), pinned: `via ${describeRoute(route).label}` });
+    });
+    const timer = setTimeout(() => req.destroy(Object.assign(new Error(`request timed out after ${timeoutMs} ms`), { code: "ETIMEDOUT" })), timeoutMs);
+    req.on("error", (e) => { clearTimeout(timer); reject(e); });
+    // the tunnel comes back paused (so no byte is lost between handshake and parser); Node emits 'socket' after the
+    // HTTP parser has attached its data listener — the right moment to let bytes flow
+    req.on("socket", (sk) => sk.resume());
     if (o.body && o.body.length) req.write(o.body);
     req.end();
   });

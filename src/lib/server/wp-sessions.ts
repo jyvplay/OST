@@ -9,6 +9,8 @@ import { CookieJar, type UaKind } from "../wp-core";
  */
 export interface WpSession {
   sid: string; ua: UaKind; profile: string; jar: CookieJar; created: number; lastUsed: number;
+  /** TT37: bumped by "New circuit" — changes the session's SOCKS isolation credentials (a fresh Tor circuit). */
+  circuit: number;
   stats: { requests: number; blocked: number; bytesIn: number; errors: number; blockedHosts: Record<string, number>; failedHosts: Record<string, string> };
 }
 export const WP_IDLE_MS = 30 * 60_000;
@@ -32,7 +34,7 @@ function sweep(now: number) {
 export function createSession(ua: UaKind = "desktop", profile = "default", now = Date.now()): WpSession {
   sweep(now);
   const sid = randomBytes(16).toString("base64url");
-  const s: WpSession = { sid, ua, profile: profile.slice(0, 40), jar: new CookieJar(), created: now, lastUsed: now, stats: { requests: 0, blocked: 0, bytesIn: 0, errors: 0, blockedHosts: {}, failedHosts: {} } };
+  const s: WpSession = { sid, ua, profile: profile.slice(0, 40), jar: new CookieJar(), created: now, lastUsed: now, circuit: 0, stats: { requests: 0, blocked: 0, bytesIn: 0, errors: 0, blockedHosts: {}, failedHosts: {} } };
   store.set(sid, s);
   return s;
 }
@@ -46,5 +48,5 @@ export function getSession(sid: string, now = Date.now()): WpSession | null {
 export function dropSession(sid: string): boolean { return store.delete(sid); }
 export function sessionCount(): number { return store.size; }
 export function publicStats(s: WpSession) {
-  return { sid: s.sid, ua: s.ua, profile: s.profile, cookies: s.jar.size, cookieDomains: s.jar.domains(), ...s.stats, blockedHosts: s.stats.blockedHosts };
+  return { sid: s.sid, ua: s.ua, profile: s.profile, circuit: s.circuit, cookies: s.jar.size, cookieDomains: s.jar.domains(), ...s.stats, blockedHosts: s.stats.blockedHosts };
 }

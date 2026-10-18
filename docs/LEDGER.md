@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-18T04:52:19.079Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-62 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-18T07:12:42.653Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+64 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **352** |
-| Fully built | 268 |
-| Partially built (partial 47 + probe 16) | 63 |
+| **Features in register** | **353** |
+| Fully built | 270 |
+| Partially built (partial 46 + probe 16) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **151** |
+| **Fully tested** (≥1 passing test tagged `full`) | **152** |
 | **Partially tested** (only `partial` tags) | **80** |
 | Untested | 121 |
-| Automated tests executed / passed | 594 / 594 |
+| Automated tests executed / passed | 608 / 608 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 140 | 61 | 67 |
-| partially built | 5 | 17 | 41 |
+| fully built | 141 | 62 | 67 |
+| partially built | 5 | 16 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
 
@@ -33,68 +33,70 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-18T04:16:16.983Z |
-| ai-format | 5 | 5 | 0 | 2026-10-18T04:16:18.710Z |
-| browser-session | 5 | 5 | 0 | 2026-10-18T04:47:21.745Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-18T04:16:19.942Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-18T04:26:46.282Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-18T04:27:53.356Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-18T04:46:06.521Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-18T04:48:04.677Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-18T04:28:19.934Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-18T04:19:59.146Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-18T04:29:32.810Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-18T04:32:02.315Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-18T04:18:56.207Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-18T04:48:37.346Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T04:22:26.101Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-18T04:27:15.181Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T04:31:12.145Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T04:32:44.832Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T04:33:07.297Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T04:35:13.469Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T04:36:39.121Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T04:39:30.410Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T04:39:45.837Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T04:40:51.533Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T04:50:52.052Z |
-| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T04:52:14.518Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-18T04:20:30.725Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T04:27:38.277Z |
-| e2e | 61 | 61 | 0 | 2026-10-18T04:18:19.732Z |
-| image | 12 | 12 | 0 | 2026-10-18T04:16:00.786Z |
-| integration | 25 | 25 | 0 | 2026-10-18T04:50:21.665Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-18T04:16:20.694Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-18T04:16:27.459Z |
-| metaclean | 6 | 6 | 0 | 2026-10-18T04:16:13.562Z |
-| names | 7 | 7 | 0 | 2026-10-18T04:16:00.378Z |
-| office | 35 | 35 | 0 | 2026-10-18T04:15:54.776Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-18T04:16:19.620Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-18T04:16:03.877Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-18T04:16:05.765Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-18T04:16:20.437Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T04:15:56.739Z |
-| oracle | 5 | 5 | 0 | 2026-10-18T04:15:55.212Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-18T04:16:16.702Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-18T04:16:10.543Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-18T04:16:12.190Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-18T04:15:57.162Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-18T04:16:21.223Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-18T04:16:17.208Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-18T04:16:21.016Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-18T04:16:27.709Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-18T04:16:28.497Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-18T04:33:07.505Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-18T04:35:13.767Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-18T04:36:56.111Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-18T04:39:30.658Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-18T04:39:50.782Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-18T04:41:01.396Z |
-| tt36-unit | 5 | 5 | 0 | 2026-10-18T04:41:33.173Z |
-| unit | 23 | 23 | 0 | 2026-10-18T04:15:52.192Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-18T04:16:05.108Z |
-| vector | 18 | 18 | 0 | 2026-10-18T04:16:04.134Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T04:16:17.418Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-18T06:36:13.867Z |
+| ai-format | 5 | 5 | 0 | 2026-10-18T06:36:15.687Z |
+| browser-session | 5 | 5 | 0 | 2026-10-18T06:36:00.978Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-18T06:36:17.087Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-18T06:48:31.668Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-18T06:50:08.003Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-18T07:09:07.530Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-18T06:41:52.864Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-18T06:50:43.008Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-18T06:40:14.337Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-18T06:52:14.242Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-18T06:54:48.301Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-18T06:39:03.380Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-18T06:42:36.664Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T06:43:18.264Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-18T06:49:09.142Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T07:10:54.429Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T06:55:29.916Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T06:55:51.955Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T06:58:01.621Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T07:12:21.293Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T07:02:25.247Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T07:02:39.718Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T07:03:46.801Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T07:04:23.003Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T07:04:39.526Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-18T07:05:08.290Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-18T06:41:07.976Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T06:49:50.229Z |
+| e2e | 61 | 61 | 0 | 2026-10-18T06:38:19.425Z |
+| image | 12 | 12 | 0 | 2026-10-18T06:35:55.845Z |
+| integration | 25 | 25 | 0 | 2026-10-18T06:35:49.999Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-18T06:36:18.022Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-18T06:36:25.115Z |
+| metaclean | 6 | 6 | 0 | 2026-10-18T06:36:09.298Z |
+| names | 7 | 7 | 0 | 2026-10-18T06:35:55.484Z |
+| office | 35 | 35 | 0 | 2026-10-18T06:35:50.441Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-18T06:36:16.741Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-18T06:35:58.890Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-18T06:36:00.781Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-18T06:36:17.714Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T06:35:52.369Z |
+| oracle | 5 | 5 | 0 | 2026-10-18T06:35:50.849Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-18T06:36:13.567Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-18T06:36:05.646Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-18T06:36:07.709Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-18T06:35:52.744Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-18T06:36:18.610Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-18T06:36:14.088Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-18T06:36:18.385Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-18T06:36:25.376Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-18T06:36:26.351Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-18T06:55:52.169Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-18T06:58:01.908Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-18T06:59:46.947Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-18T07:02:25.506Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-18T07:02:44.581Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-18T07:03:56.330Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-18T07:04:26.434Z |
+| tt37-unit | 9 | 9 | 0 | 2026-10-18T07:12:42.339Z |
+| unit | 23 | 23 | 0 | 2026-10-18T06:35:46.545Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-18T06:36:00.093Z |
+| vector | 18 | 18 | 0 | 2026-10-18T06:35:59.162Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T06:36:14.312Z |
 
 ## Rows touched by failing tests
 
@@ -106,14 +108,14 @@ None.
 |---|---:|---:|---:|---:|---:|---:|---:|
 | SH | 15 | 14 | 1 | 0 | 3 | 2 | 10 |
 | WM | 19 | 15 | 3 | 1 | 3 | 4 | 12 |
-| IN | 8 | 5 | 3 | 0 | 1 | 1 | 6 |
+| IN | 8 | 6 | 2 | 0 | 1 | 1 | 6 |
 | SR | 8 | 7 | 0 | 1 | 3 | 3 | 2 |
 | FM | 18 | 15 | 2 | 1 | 5 | 3 | 10 |
 | NC | 6 | 6 | 0 | 0 | 0 | 3 | 3 |
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
-| PR | 38 | 29 | 9 | 0 | 21 | 10 | 7 |
+| PR | 39 | 30 | 9 | 0 | 22 | 10 | 7 |
 | FF | 34 | 25 | 9 | 0 | 25 | 5 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
@@ -179,7 +181,7 @@ None.
 | IN-04 | probe | untested |  |
 | IN-05 | built | full | unit: shortcut presets have no internal conflicts; chord matcher |
 | IN-06 | probe | untested |  |
-| IN-07 | partial | partial | e2e: mount: devices |
+| IN-07 | built | partial | e2e-tt37: gamepad pointer (IN-07) with a scripted W3C-shape pad (no physical controller exists in this sandbox — the hardware is substituted, everything from navigator.getGamepads() on is real): appears on connect, the stick steers it onto the launcher button and A opens the launcher, B (Escape) closes it, X opens the desktop menu, the right stick scrolls the window under it, RB moves keyboard focus and the pointer follows, Start turns it off and on, disconnect removes it; no page errors; e2e: mount: devices; tt37-unit: gamepad stick shaping and motion (IN-07): radial deadzone 0.15, power curve that keeps the stick's angle, full deflection = 1400 px/s, the same distance at 30 / 60 / 144 Hz, a stalled frame cannot teleport the cursor (dt ≤ 100 ms), the cursor stays inside the viewport, NaN axes are inert (+1) |
 | IN-08 | built | untested |  |
 | SR-01 | built | full | e2e: mount: find; e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it; integration: SR-01 search finds new content with provenance (+1) |
 | SR-02 | built | partial | e2e: mount: find; integration: SR-01 search finds new content with provenance; integration: deleting a note removes only its own index row |
@@ -401,6 +403,7 @@ None.
 | WP-04 | built | full | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server; tt35-unit: cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix refusal, domain mismatch, default-path and path matching (/docs vs /docsx), Secure only over https, Max-Age over Expires, deletion, HttpOnly hidden from (and unwritable by) scripts, __Secure- / __Host- prefixes, ordering by path length, per-domain cap; tt35-unit: sessions (WP-04): 128-bit url-safe capability ids, unique; idle sessions expire after 30 min; the store never exceeds its cap (least recently used goes first); dropping forgets the cookie jar |
 | WP-05 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page |
 | WP-06 | built | full | e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked |
+| WP-07 | built | full | e2e-tt37: Network route panel (WP-07): test a candidate SOCKS5 route on a real page, apply it — toolbar and status line follow, the Private proxy tab loads pypi.org through it (seen in the independent proxy's own log), 'New circuit' rotates the tab's isolation and reloads, the browser itself still contacts only Fusion; the Tor check result is printed as it is; e2e-tt37: a dead route is named, not blamed on the site (WP-07): with the route pointing at a port where nothing listens, the Private proxy tab shows 'The network route failed' and how to fix it; back on Direct the page loads again; e2e-tt37: everything follows the route; pages cannot change it (WP-07): with an HTTP proxy route the legacy reader for direct tabs goes through it (the proxy's log), a .onion address is refused with the reason (Tor route needed), and a cross-site PUT to /api/wp-route is refused by the CSRF guard (+8) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

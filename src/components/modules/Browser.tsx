@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Blocked } from "../ui";
 import ProxyFrame from "./ProxyFrame";
+import NetworkRoute, { useRoute } from "./NetworkRoute";
 import {
   PERMISSION_FEATURES, activate, allowAttribute, batchClose, closeTab, createGroup, hostOf, makeTab, normalizeSession, removeGroup,
   safeBrowserUrl, setGroup, sleepInactive, toggleCollapse, togglePin, visibleTabs, type Session, type Tab,
@@ -61,6 +62,8 @@ export default function BrowserModule({ win }: ModuleProps) {
   const [notice, setNotice] = useState(boot.dropped ? `${boot.dropped} saved tab(s) dropped: unsafe or invalid URL` : "");
   const [query, setQuery] = useState("");
   const [showPerms, setShowPerms] = useState(false);
+  const [showRoute, setShowRoute] = useState(false);
+  const [route, setRoute] = useRoute();
   const tabs = sess.tabs, active = sess.active;
   const setTabs = (f: (ts: Tab[]) => Tab[]) => setSess((s) => ({ ...s, tabs: f(s.tabs) }));
   const setActive = (id: string) => setSess((s) => activate(s, id));
@@ -141,7 +144,7 @@ export default function BrowserModule({ win }: ModuleProps) {
 
   const proxied = (tab: Tab, key: string) => (
     <ProxyFrame key={`${key}:${tab.id}:${tab.profile ?? ""}`} tabId={tab.id} url={tab.url} sessions={proxySessions}
-      profile={tab.profile ?? ""} profiles={profileNames}
+      profile={tab.profile ?? ""} profiles={profileNames} circuitable={route?.mode === "socks5"} via={route && route.mode !== "direct" ? route.label : ""}
       onProfile={(p) => setTabs((ts) => ts.map((x) => (x.id === tab.id ? { ...x, profile: p || undefined } : x)))}
       onNav={(u, t) => { setTabs((ts) => ts.map((x) => (x.id === tab.id ? { ...x, url: u, title: t || new URL(u).host } : x))); if (tab.id === active) setAddress(u); }} />
   );
@@ -225,10 +228,12 @@ export default function BrowserModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => runBatch("duplicates")}>Close duplicates</Btn>
         <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)}>Site permissions</Btn>
         <Btn variant="ghost" data-testid="br-proxy-all" aria-pressed={proxyAll} title="Route every tab through Fusion's private proxy: sites never see your address, trackers are blocked, cookies stay in memory per tab, and find in page / desktop-or-mobile identity / Save to Files work on every site" onClick={() => setProxyAll((v) => !v)}>Private proxy: {proxyAll ? "all tabs" : "off"}</Btn>
+        <Btn variant="ghost" data-testid="br-route" aria-pressed={showRoute} aria-expanded={showRoute} title="How Fusion's server reaches the web for Private proxy tabs: directly, through Tor, or through another proxy" onClick={() => setShowRoute((v) => !v)}>Network route: {route?.label ?? "…"}</Btn>
         {current?.verdict ? <Badge tone={current.verdict === "embeddable" ? "ok" : "bad"} title={current.reason}>{current.verdict}</Badge> : <Badge>probing…</Badge>}
       </div>
 
       {notice ? <div data-testid="browser-notice" className="fs-dim" style={{ fontSize: fz(11), padding: "3px 8px", borderBottom: "1px solid var(--fs-border)" }}>{notice}</div> : null}
+      {showRoute ? <NetworkRoute route={route} onRoute={setRoute} /> : null}
       {showPerms && current ? (
         <div data-testid="site-perms" className="fs-row" style={{ gap: 10, flexWrap: "wrap", padding: "4px 8px", fontSize: fz(11), borderBottom: "1px solid var(--fs-border)" }}>
           <b>{curHost}</b>

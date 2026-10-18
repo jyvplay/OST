@@ -282,6 +282,14 @@ function Gamepads() {
   return (
     <Section title="Gamepad (IN-07)">
       {pads.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>Connect a controller and press any button (browsers hide pads until first input).</div> : null}
+      <div data-testid="gp-help" style={{ display: "grid", gap: 4, fontSize: fz(11.5) }}>
+        <div className="fs-row" style={{ gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <b>Pointer mode</b>
+          <span>On while a controller is connected — Start turns it on / off.</span>
+          <button className="fs-btn" data-variant="ghost" data-testid="gp-toggle" disabled={pads.length === 0} onClick={() => dispatchEvent(new Event("fusion:gamepad-toggle"))}>Toggle pointer mode</button>
+        </div>
+        <span className="fs-dim">Left stick moves the pointer (fine near the centre), d-pad nudges 1 px, A clicks, X right-clicks, B is Escape, LB / RB move keyboard focus (the pointer follows), right stick scrolls. Not reachable: embedded players and Private proxy pages (cross-origin / sandboxed frames), native drop-down lists; dragging windows is not mapped.</span>
+      </div>
       {pads.map((p) => (
         <div key={p.id} style={{ display: "grid", gap: 4 }}>
           <strong style={{ fontSize: fz(12) }}>{p.id}</strong>

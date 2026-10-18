@@ -1,0 +1,87 @@
+{
+  "suite": "tt37-unit",
+  "at": "2026-10-18T07:12:42.339Z",
+  "results": [
+    {
+      "suite": "tt37-unit",
+      "name": "route parsing (WP-07): direct / socks5 / socks5h / http with optional credentials; unsupported schemes, bad ports, paths and oversized credentials are refused; the description never contains the password",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt37-unit",
+      "name": "SOCKS5 request encoding (WP-07): names go as ATYP 3 (the proxy resolves them), IPv4 as ATYP 1, IPv6 as ATYP 4 — IPv6 bytes identical to Python's ipaddress packing for 8 shapes (compressed, embedded IPv4, zones of zeros)",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 30
+    },
+    {
+      "suite": "tt37-unit",
+      "name": "handshake bytes identical to curl's (WP-07): for the same target and credentials, our SOCKS5 greeting, RFC 1929 login and CONNECT — and our HTTP CONNECT request line, Host and Proxy-Authorization — equal what curl sends to the same recording server",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 40
+    },
+    {
+      "suite": "tt37-unit",
+      "name": "live through an independent proxy server (WP-07): pproxy carries the proxy's real requests to pypi.org over SOCKS5 and to github.com over HTTP CONNECT (TLS verified end to end); pproxy logs the NAME it was given — Fusion's server did no DNS lookup of its own; the legacy fetcher (reader / embed probe) follows the route too",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 2914
+    },
+    {
+      "suite": "tt37-unit",
+      "name": "no local DNS and per-session circuits (WP-07): a .onion address (which no local resolver can answer) reaches the SOCKS proxy as a name; each Private proxy session sends its own SOCKS login (Tor IsolateSOCKSAuth → separate circuits), the same session keeps it, 'New circuit' changes it, isolation off sends none, fixed route credentials win",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 11
+    },
+    {
+      "suite": "tt37-unit",
+      "name": "SSRF guard with a route (WP-07): without local DNS the guard still refuses private / loopback / link-local IP literals, local and single-label names, internal suffixes, non-web ports and .onion over an HTTP proxy — before anything is sent to the proxy",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt37-unit",
+      "name": "hostile and broken proxies (WP-07): no acceptable method, every RFC 1928 reply code and Tor's onion codes, a non-SOCKS server, silence (deadline), a 100 KB flood, a close mid-reply, HTTP 407 / 403, an oversized CONNECT reply header — each fails fast with a 'network route' error that never blames the site; bytes glued to the reply reach the page intact",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 1529
+    },
+    {
+      "suite": "tt37-unit",
+      "name": "gamepad stick shaping and motion (IN-07): radial deadzone 0.15, power curve that keeps the stick's angle, full deflection = 1400 px/s, the same distance at 30 / 60 / 144 Hz, a stalled frame cannot teleport the cursor (dt ≤ 100 ms), the cursor stays inside the viewport, NaN axes are inert",
+      "covers": {
+        "IN-07": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt37-unit",
+      "name": "gamepad buttons (IN-07): A is edge-triggered (one down, one up, no repeat while held), B → Escape, X → context menu, LB / RB → focus back / forward, d-pad nudges 1 px and auto-repeats after 350 ms every 45 ms, Start toggles the mode — while off nothing moves or clicks, and turning it back on with A still held fires no stray 'up'; a non-standard pad gets stick, A and B only; slow scrolling is never lost (sub-pixel carry)",
+      "covers": {
+        "IN-07": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    }
+  ]
+}

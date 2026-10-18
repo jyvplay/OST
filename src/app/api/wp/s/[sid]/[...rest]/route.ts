@@ -71,7 +71,7 @@ async function handle(req: NextRequest): Promise<Response> {
   let up;
   try {
     up = await upstreamRequest(target.href, {
-      method, body, maxBytes: STREAM_MAX,
+      method, body, maxBytes: STREAM_MAX, session: { sid: s.sid, circuit: s.circuit },
       headers: upstreamHeaders(req.headers.entries(), target, { ua: s.ua, cookie: s.jar.header(target), method }),
     });
   } catch (e) {
@@ -135,7 +135,7 @@ async function control(req: NextRequest, s: WpSession, rest: string): Promise<Re
     try { u = new URL(String(new URL(req.url).searchParams.get("u"))); } catch { return new Response("bad url", { status: 400, headers: CORS }); }
     if (isTracker(u.hostname)) return new Response("blocked", { status: 403, headers: CORS });
     try {
-      const up = await upstreamRequest(u.href, { method: "GET", maxBytes: 20 * 1024 * 1024, headers: upstreamHeaders([], u, { ua: s.ua, cookie: s.jar.header(u), method: "GET" }) });
+      const up = await upstreamRequest(u.href, { method: "GET", maxBytes: 20 * 1024 * 1024, session: { sid: s.sid, circuit: s.circuit }, headers: upstreamHeaders([], u, { ua: s.ua, cookie: s.jar.header(u), method: "GET" }) });
       if (up.status >= 300 && up.status < 400) { up.body.resume(); return new Response(`redirected to ${String(up.headers.location ?? "")}`, { status: 409, headers: CORS }); }
       const buf = await readAll(up.body);
       return new Response(new Uint8Array(buf), { status: up.status, headers: { ...CORS, "content-type": "application/octet-stream", "content-disposition": "attachment", "content-security-policy": "sandbox; default-src 'none'", "x-fusion-wp-type": String(up.headers["content-type"] ?? "").replace(/[\r\n]/g, "").slice(0, 200), "access-control-expose-headers": "x-fusion-wp-type" } });
@@ -156,7 +156,7 @@ async function reader(req: NextRequest, s: WpSession): Promise<Response> {
   for (let hop = 0; hop <= 5; hop++) {
     s.stats.requests++;
     try {
-      up = await upstreamRequest(u.href, { method: "GET", maxBytes: TEXT_MAX + 1, headers: upstreamHeaders([], u, { ua: s.ua, cookie: s.jar.header(u), method: "GET" }) });
+      up = await upstreamRequest(u.href, { method: "GET", maxBytes: TEXT_MAX + 1, session: { sid: s.sid, circuit: s.circuit }, headers: upstreamHeaders([], u, { ua: s.ua, cookie: s.jar.header(u), method: "GET" }) });
     } catch (e) {
       s.stats.errors++;
       const c = classifyError(e);

@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-18T04:52:19.081Z",
+ "generatedAt": "2026-10-18T07:12:42.654Z",
  "totals": {
   "built": {
-   "full": 268,
-   "partial": 63,
+   "full": 270,
+   "partial": 62,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 151,
+   "full": 152,
    "partial": 80,
    "untested": 121
   },
   "tests": {
-   "total": 594,
-   "passed": 594
+   "total": 608,
+   "passed": 608
   }
  },
  "rows": {
@@ -208,7 +208,10 @@
   "IN-07": {
    "tested": "partial",
    "tests": [
-    "e2e: mount: devices"
+    "e2e-tt37: gamepad pointer (IN-07) with a scripted W3C-shape pad (no physical controller exists in this sandbox — the hardware is substituted, everything from navigator.getGamepads() on is real): appears on connect, the stick steers it onto the launcher button and A opens the launcher, B (Escape) closes it, X opens the desktop menu, the right stick scrolls the window under it, RB moves keyboard focus and the pointer follows, Start turns it off and on, disconnect removes it; no page errors",
+    "e2e: mount: devices",
+    "tt37-unit: gamepad stick shaping and motion (IN-07): radial deadzone 0.15, power curve that keeps the stick's angle, full deflection = 1400 px/s, the same distance at 30 / 60 / 144 Hz, a stalled frame cannot teleport the cursor (dt ≤ 100 ms), the cursor stays inside the viewport, NaN axes are inert",
+    "tt37-unit: gamepad buttons (IN-07): A is edge-triggered (one down, one up, no repeat while held), B → Escape, X → context menu, LB / RB → focus back / forward, d-pad nudges 1 px and auto-repeats after 350 ms every 45 ms, Start toggles the mode — while off nothing moves or clicks, and turning it back on with A still held fires no stray 'up'; a non-standard pad gets stick, A and B only; slow scrolling is never lost (sub-pixel carry)"
    ]
   },
   "IN-08": {
@@ -2071,6 +2074,22 @@
    "tests": [
     "e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused",
     "tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked"
+   ]
+  },
+  "WP-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt37: Network route panel (WP-07): test a candidate SOCKS5 route on a real page, apply it — toolbar and status line follow, the Private proxy tab loads pypi.org through it (seen in the independent proxy's own log), 'New circuit' rotates the tab's isolation and reloads, the browser itself still contacts only Fusion; the Tor check result is printed as it is",
+    "e2e-tt37: a dead route is named, not blamed on the site (WP-07): with the route pointing at a port where nothing listens, the Private proxy tab shows 'The network route failed' and how to fix it; back on Direct the page loads again",
+    "e2e-tt37: everything follows the route; pages cannot change it (WP-07): with an HTTP proxy route the legacy reader for direct tabs goes through it (the proxy's log), a .onion address is refused with the reason (Tor route needed), and a cross-site PUT to /api/wp-route is refused by the CSRF guard",
+    "e2e-tt37: client resets never become uncaught exceptions (TT36 blocker, root-caused): a second production server of this build runs with an uncaught-exception recorder; cross-site writes refused by the CSRF guard (403) and malformed JSON (400) — the two answers src/proxy.ts gives itself — are reset by the client right after sending, ×3 each; the recorder stays empty (before the fix: 6 of 6 recorded, matching vercel/next.js#99278), and un-reset requests still get exactly 403 'refused: …' and 400 'malformed JSON body'",
+    "tt37-unit: route parsing (WP-07): direct / socks5 / socks5h / http with optional credentials; unsupported schemes, bad ports, paths and oversized credentials are refused; the description never contains the password",
+    "tt37-unit: SOCKS5 request encoding (WP-07): names go as ATYP 3 (the proxy resolves them), IPv4 as ATYP 1, IPv6 as ATYP 4 — IPv6 bytes identical to Python's ipaddress packing for 8 shapes (compressed, embedded IPv4, zones of zeros)",
+    "tt37-unit: handshake bytes identical to curl's (WP-07): for the same target and credentials, our SOCKS5 greeting, RFC 1929 login and CONNECT — and our HTTP CONNECT request line, Host and Proxy-Authorization — equal what curl sends to the same recording server",
+    "tt37-unit: live through an independent proxy server (WP-07): pproxy carries the proxy's real requests to pypi.org over SOCKS5 and to github.com over HTTP CONNECT (TLS verified end to end); pproxy logs the NAME it was given — Fusion's server did no DNS lookup of its own; the legacy fetcher (reader / embed probe) follows the route too",
+    "tt37-unit: no local DNS and per-session circuits (WP-07): a .onion address (which no local resolver can answer) reaches the SOCKS proxy as a name; each Private proxy session sends its own SOCKS login (Tor IsolateSOCKSAuth → separate circuits), the same session keeps it, 'New circuit' changes it, isolation off sends none, fixed route credentials win",
+    "tt37-unit: SSRF guard with a route (WP-07): without local DNS the guard still refuses private / loopback / link-local IP literals, local and single-label names, internal suffixes, non-web ports and .onion over an HTTP proxy — before anything is sent to the proxy",
+    "tt37-unit: hostile and broken proxies (WP-07): no acceptable method, every RFC 1928 reply code and Tor's onion codes, a non-SOCKS server, silence (deadline), a 100 KB flood, a close mid-reply, HTTP 407 / 403, an oversized CONNECT reply header — each fails fast with a 'network route' error that never blames the site; bytes glued to the reply reach the page intact"
    ]
   },
   "CT-01": {

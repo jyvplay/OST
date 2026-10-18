@@ -415,11 +415,15 @@ export function documentCsp(selfOrigins: string[]): string {
 }
 
 // ---------------------------------------------------------------------------------------------------- errors
-export type FetchFailure = "dns" | "refused" | "reset" | "timeout" | "tls" | "private" | "too-large" | "scheme" | "other";
+export type FetchFailure = "dns" | "refused" | "reset" | "timeout" | "tls" | "private" | "too-large" | "scheme" | "proxy" | "other";
 /** Map a Node network error to a plain-language class, so a blocked network is never reported as a broken site. */
 export function classifyError(e: unknown): { kind: FetchFailure; message: string } {
   const err = e as { code?: string; message?: string };
   const code = String(err?.code ?? ""); const msg = String(err?.message ?? e);
+  // TT37: failures of the upstream route (the proxy Fusion's server goes through) are named as such — never
+  // blamed on the site
+  if ((e as Error)?.name === "ProxyRouteError" || code === "EPROXYREFUSED") return { kind: "proxy", message: `The network route failed: ${msg}. Check Browser → Network route (or that Tor / the proxy is running).` };
+  if (/onion addresses need/i.test(msg)) return { kind: "proxy", message: "Onion addresses (.onion) can only be opened through the Tor route. Set Browser → Network route to Tor (SOCKS5)." };
   if (/private|loopback|link-local|reserved/i.test(msg)) return { kind: "private", message: "Refused: the address is on a private or local network (the proxy never reaches inside your network)." };
   if (/local\/internal|SSRF/i.test(msg)) return { kind: "private", message: "Refused: local and internal host names are never proxied (SSRF guard)." };
   if (/only ports/i.test(msg)) return { kind: "scheme", message: "Only the standard web ports (80 and 443) can be proxied." };

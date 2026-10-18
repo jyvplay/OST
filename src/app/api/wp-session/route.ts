@@ -25,11 +25,12 @@ export function GET(req: NextRequest) {
   return s ? ok(publicStats(s)) : ok({ error: "no such session" }, 404);
 }
 export async function PATCH(req: NextRequest) {
-  const b = (await readJsonObject(req)) as { clearCookies?: boolean; ua?: string } | Response;
+  const b = (await readJsonObject(req)) as { clearCookies?: boolean; ua?: string; newCircuit?: boolean } | Response;
   if (b instanceof Response) return b; // a bad body is a 400 whatever the session
   const s = getSession(req.nextUrl.searchParams.get("sid") ?? "");
   if (!s) return ok({ error: "no such session" }, 404);
   if (b.clearCookies) s.jar.clear();
+  if (b.newCircuit === true) s.circuit++; // TT37: new SOCKS isolation credentials → Tor builds a fresh circuit
   if (b.ua === "mobile" || b.ua === "desktop") s.ua = b.ua;
   return ok(publicStats(s));
 }

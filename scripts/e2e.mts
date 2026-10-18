@@ -23,6 +23,14 @@ const api = async (method: string, path: string, body?: unknown) => {
   return { status: r.status, json: await r.json().catch(() => ({})) };
 };
 
+// TT37: this suite measures the Fusion chrome on the classic desktop (e2e-layout covers Business / Art, e2e-tabletop
+// the Tabletop). Pin both and give the user's choice back at the end — a full run found 7 failures when the shared
+// desktop had been left on Art + Tabletop.
+const settingsRows = ((await api("GET", "/api/settings")).json.rows ?? []) as { key: string; value: string }[];
+const prevShell = { layout: settingsRows.find((r) => r.key === "appearance.layout")?.value, view: settingsRows.find((r) => r.key === "appearance.desktopView")?.value };
+await api("PUT", "/api/settings", { key: "appearance.layout", value: "fusion" });
+await api("PUT", "/api/settings", { key: "appearance.desktopView", value: "classic" });
+
 async function resetDesktop() {
   const cur = await api("GET", "/api/state?id=default");
   const rev = Number(cur.json.row?.revision ?? 1) + 1000;
@@ -372,4 +380,6 @@ await test("desktop shows sticky note widget; seeded widget has no hang button",
 
 await browser.close();
 await api("POST", "/api/fs", { op: "purge", path: DIR });
+if (prevShell.layout && prevShell.layout !== "fusion") await api("PUT", "/api/settings", { key: "appearance.layout", value: prevShell.layout });
+if (prevShell.view && prevShell.view !== "classic") await api("PUT", "/api/settings", { key: "appearance.desktopView", value: prevShell.view });
 finish();

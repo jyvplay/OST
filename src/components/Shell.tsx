@@ -35,6 +35,7 @@ import { Badge, Btn } from "./ui";
 import { AppIcon, FusionLogo, UiGlyph } from "./AppIcon";
 import { AskHost } from "./AskHost";
 import { NarratorHost } from "./NarratorHost";
+import GamepadPointer from "./GamepadPointer";
 import { SnapHost, snapUi } from "./SnapHost";
 import { isAskOpen } from "@/lib/ask";
 
@@ -513,6 +514,10 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         ) : null}
         {layout === "art" ? <Dock onLaunchpad={() => setLauncher((v) => !v)} launchpadOpen={launcher} /> : null}
       </div>
+
+      {/* TT37 IN-07: outside the desk — in Business / Art the desk is an isolated stacking context (z-index 0), which
+          would paint the pointer under the taskbar, menu bar and dock it has to reach */}
+      {booted ? <GamepadPointer /> : null}
 
       {/* BlackTop source-screen blackout (SH-10/SH-11) */}
       {blackout ? (

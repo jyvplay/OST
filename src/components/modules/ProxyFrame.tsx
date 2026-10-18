@@ -19,6 +19,10 @@ export interface ProxyFrameProps {
    *  cookies) across tab switches, and tabs of one named profile share theirs */
   sessions: Map<string, string>;
   onNav: (url: string, title: string) => void;
+  /** TT37: the server's upstream route is SOCKS5 (Tor): offer "New circuit" (fresh isolation credentials) */
+  circuitable?: boolean;
+  /** TT37: label of a non-direct upstream route, shown in the status line */
+  via?: string;
   /** named profile of this tab ("" = this tab only) */
   profile?: string;
   /** profile names in use by other tabs (offered in the menu) */
@@ -26,7 +30,7 @@ export interface ProxyFrameProps {
   onProfile?: (name: string) => void;
 }
 
-interface Stats { requests: number; blocked: number; cookies: number; errors: number; blockedHosts: Record<string, number>; failedHosts?: Record<string, string> }
+interface Stats { requests: number; blocked: number; cookies: number; errors: number; blockedHosts: Record<string, number>; failedHosts?: Record<string, string>; circuit?: number }
 
 function b64(buf: ArrayBuffer): string {
   const u = new Uint8Array(buf); let s = "";
@@ -41,7 +45,7 @@ export function saveName(url: string, type: string): string {
   return n;
 }
 
-export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", profiles = [], onProfile }: ProxyFrameProps) {
+export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", profiles = [], onProfile, circuitable = false, via = "" }: ProxyFrameProps) {
   // TT36 (PR-07o): tabs sharing a named profile share one proxy session (one cookie jar); "" = this tab only
   const sessionKey = profile ? `p:${profile}` : tabId;
   const [reader, setReader] = useState(false);
@@ -117,7 +121,9 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
   const frameUrl = (target: string, asReader: boolean) => (!sid ? null : asReader ? `/api/wp/s/${sid}/__reader?u=${encodeURIComponent(target)}` : encodeTarget(target, sid));
   const go = (target: string, asReader = reader) => { setFound(null); if (frame.current && sid) frame.current.src = frameUrl(target, asReader) ?? "about:blank"; };
   const toggleReader = () => { const r = !reader; setReader(r); go(hist.list[hist.i], r); };
-  const reload = () => { setFound(null); send({ fusionWp: "reload" }); };
+  // TT37: reload by navigating the frame to the current address — works on Fusion's own error pages too (they carry
+  // no runtime to receive a "reload" message; found when a dead network route was fixed and Reload did nothing)
+  const reload = () => { setFound(null); const cur = hist.list[hist.i]; if (cur && frame.current && sid) go(cur); else send({ fusionWp: "reload" }); };
   const send = (m: Record<string, unknown>) => frame.current?.contentWindow?.postMessage(m, "*"); // an opaque origin can only be addressed as "*"
   const back = () => { if (hist.i > 0) { const t = hist.list[hist.i - 1]; setHist({ ...hist, i: hist.i - 1 }); go(t); } };
   const fwd = () => { if (hist.i < hist.list.length - 1) { const t = hist.list[hist.i + 1]; setHist({ ...hist, i: hist.i + 1 }); go(t); } };
@@ -169,6 +175,7 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
         ) : null}
         <span data-testid="wp-cookies" className="fs-dim" title="Cookies live in this tab's proxy session, in memory only">Cookies: {stats ? stats.cookies : "…"}</span>
         <Btn variant="ghost" data-testid="wp-clear" onClick={async () => { await patch({ clearCookies: true }); reload(); }}>Clear cookies</Btn>
+        {circuitable ? <Btn variant="ghost" data-testid="wp-circuit" title="New circuit: this tab (or profile) gets fresh Tor credentials, so Tor builds a new circuit and the page reloads from a different exit" onClick={async () => { await patch({ newCircuit: true }); reload(); }}>New circuit{stats?.circuit ? ` (${stats.circuit})` : ""}</Btn> : null}
         <Btn variant="ghost" data-testid="wp-reader" aria-pressed={reader} data-variant={reader ? "primary" : "ghost"} title="Reader view: the article text and images only, in Fusion's typography; links stay in the reader" onClick={toggleReader}>Reader</Btn>
         <label className="fs-dim" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>Profile
           <select className="fs-input" data-testid="wp-profile" aria-label="Profile" value={profile} title="Tabs with the same profile share cookies (signed in together); 'This tab only' keeps a tab on its own. Profiles live in memory and end when no tab uses them."
@@ -178,7 +185,7 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
           </select>
         </label>
         <Btn variant="ghost" data-testid="wp-save" onClick={() => void save()}>Save to Files</Btn>
-        <span className="fs-dim" title="Every request goes through Fusion: the site never sees your address, trackers are blocked, nothing is cached or stored on disk.">Private proxy{title ? ` · ${title.slice(0, 60)}` : ""}</span>
+        <span className="fs-dim" title="Every request goes through Fusion: the site never sees your address, trackers are blocked, nothing is cached or stored on disk." data-testid="wp-via">Private proxy{via ? ` via ${via}` : ""}{title ? ` · ${title.slice(0, 60)}` : ""}</span>
       </div>
       {note ? <div data-testid="wp-note" className="fs-dim" style={{ fontSize: fz(11), padding: "2px 8px" }}>{note}</div> : null}
       {err ? <div data-testid="wp-error" style={{ padding: 12 }}>{err}</div> : null}
