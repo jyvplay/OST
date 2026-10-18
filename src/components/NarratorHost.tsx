@@ -10,6 +10,7 @@ import { useShell } from "./shell-context";
 import { BINDINGS, comboFor, matchChord, type Preset } from "@/lib/shortcuts";
 import { COMMANDS, stepRate, RATES } from "@/lib/narrator-core";
 import { Narrator } from "@/lib/narrator-dom";
+import { VOICE_PREFS, FUSION_VOICE_IDS, type EngineId, type VoicePref } from "@/lib/voice-engine";
 
 type Line = { id: number; text: string; kind: string };
 const keyName = (code: string) => code.replace(/^Key/, "").replace(/^Arrow/, "").replace("Equal", "=").replace("Minus", "−");
@@ -21,13 +22,16 @@ export function NarratorHost() {
   const captions = (shell.settings["accessibility.narratorCaptions"] ?? "on") !== "off";
   const speech = (shell.settings["accessibility.narratorSpeech"] ?? "on") !== "off";
   const preset = (shell.settings["shell.shortcutPreset"] ?? "hybrid") as Preset;
+  const voicePref = ((VOICE_PREFS as readonly string[]).includes(shell.settings["accessibility.narratorVoice"] ?? "") ? shell.settings["accessibility.narratorVoice"] : "auto") as VoicePref;
+  const fusionVoice = FUSION_VOICE_IDS.includes(shell.settings["accessibility.fusionVoice"] ?? "") ? shell.settings["accessibility.fusionVoice"]! : "standard";
+  const [engine, setEngine] = useState<EngineId | "">("");
   const [lines, setLines] = useState<Line[]>([]);
   const [box, setBox] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const [help, setHelp] = useState(false);
-  const speechOk = typeof window !== "undefined" && "speechSynthesis" in window;
+  const speechOk = typeof window !== "undefined" && ("speechSynthesis" in window || "AudioContext" in window);
   const [speechErr, setSpeechErr] = useState("");
-  const live = useRef({ rate, speech });
-  useEffect(() => { live.current = { rate, speech }; }, [rate, speech]);
+  const live = useRef({ rate, speech, voicePref, fusionVoice });
+  useEffect(() => { live.current = { rate, speech, voicePref, fusionVoice }; }, [rate, speech, voicePref, fusionVoice]);
   const reader = useRef<Narrator | null>(null);
   const seq = useRef(0);
   const setSetting = shell.setSetting;
@@ -50,6 +54,9 @@ export function NarratorHost() {
     const r = new Narrator({
       rate: () => Number(live.current.rate),
       speech: () => live.current.speech,
+      voicePref: () => live.current.voicePref,
+      fusionVoice: () => live.current.fusionVoice,
+      onEngine: (e) => setEngine(e),
       onSpeechError: (err) => setSpeechErr(err),
       onCaption: (text, kind) => setLines((ls) => [...ls.slice(-5), { id: ++seq.current, text, kind }]),
       onCursor: (rc) => setBox(rc ? { x: rc.left, y: rc.top, w: rc.width, h: rc.height } : null),
@@ -82,7 +89,7 @@ export function NarratorHost() {
     <>
       {on && captions ? (
         <div className="fs-narrator-captions" data-testid="narrator-captions" data-narrator-ui aria-hidden="true">
-          <div className="fs-narrator-title"><span className="fs-narrator-dot" />Narrator{speech ? "" : " · captions only"}{!speechOk ? " · no speech in this browser" : speech && speechErr ? ` · speech failed (${speechErr}) — captions only` : ""}</div>
+          <div className="fs-narrator-title" data-testid="narrator-title" data-engine={speech ? engine : ""}><span className="fs-narrator-dot" />Narrator{speech ? (engine === "fusion" ? " · Fusion Voice" : engine === "system" ? " · system voice" : "") : " · captions only"}{!speechOk ? " · no speech in this browser" : speech && speechErr ? ` · speech failed (${speechErr}) — captions only` : ""}</div>
           {lines.slice(-3).map((l) => <div key={l.id} className="fs-narrator-line" data-testid="narrator-line" data-kind={l.kind}>{l.text}</div>)}
         </div>
       ) : null}

@@ -1,4 +1,5 @@
 "use client";
+import { FUSION_VOICES } from "@/lib/fusion-voice";
 import { clampTextScale, DEFAULT_TEXT_SCALE, LARGE_TEXT_SCALE, isLargeText, fz, stepTextScale, TEXT_SCALE_MAX, TEXT_SCALE_MIN, TEXT_SCALE_STEPS, useUiUnit } from "@/lib/uiscale";
 import { DEFAULT_WALLPAPER, WALLPAPERS } from "@/lib/appearance";
 import { STYLES, STYLE_IDS, DEFAULT_STYLE, isStyle, resolveWallpaper } from "@/lib/style";
@@ -98,6 +99,23 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
             <input type="checkbox" data-testid="settings-narrator-speech" checked={(shell.settings["accessibility.narratorSpeech"] ?? "on") !== "off"}
               onChange={(e) => set("accessibility.narratorSpeech", e.target.checked ? "on" : "off")} />
             Speak aloud (off: captions only)
+          </label>
+          {/* TT32 (AX-15): which engine speaks — Fusion Voice is Fusion's own on-device synthesiser */}
+          <label className="fs-row" style={{ gap: 8 }}>
+            Voice
+            <select className="fs-input" data-testid="settings-narrator-voice" value={shell.settings["accessibility.narratorVoice"] ?? "auto"}
+              onChange={(e) => set("accessibility.narratorVoice", e.target.value)} style={{ width: "auto" }}>
+              <option value="auto">Automatic (system voice if installed, else Fusion Voice)</option>
+              <option value="system">System voice</option>
+              <option value="fusion">Fusion Voice (built in, works offline)</option>
+            </select>
+          </label>
+          <label className="fs-row" style={{ gap: 8 }}>
+            Fusion Voice
+            <select className="fs-input" data-testid="settings-fusion-voice" value={shell.settings["accessibility.fusionVoice"] ?? "standard"}
+              onChange={(e) => set("accessibility.fusionVoice", e.target.value)} style={{ width: "auto" }}>
+              {Object.entries(FUSION_VOICES).map(([id, v]) => <option key={id} value={id}>{v.label}</option>)}
+            </select>
           </label>
         </div>
 

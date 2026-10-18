@@ -29,6 +29,8 @@ const ENUMS: Record<string, readonly string[]> = {
   "accessibility.narratorRate": ["0.75", "1", "1.25", "1.5", "2"],
   "accessibility.narratorCaptions": ["on", "off"],
   "accessibility.narratorSpeech": ["on", "off"],
+  "accessibility.narratorVoice": ["auto", "system", "fusion"],
+  "accessibility.fusionVoice": ["standard", "bright", "high"],
 };
 
 export function validateSetting(key: string, value: string): string | null {

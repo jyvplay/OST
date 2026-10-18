@@ -1,6 +1,6 @@
 {
   "suite": "tabletop-unit",
-  "at": "2026-10-17T21:08:57.282Z",
+  "at": "2026-10-17T23:37:29.840Z",
   "results": [
     {
       "suite": "tabletop-unit",
@@ -18,7 +18,7 @@
         "LY-05": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 5
     },
     {
       "suite": "tabletop-unit",
@@ -45,7 +45,7 @@
         "LY-06": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 9
     },
     {
       "suite": "tabletop-unit",

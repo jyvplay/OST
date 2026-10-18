@@ -10,6 +10,8 @@
  *   - keyboard: Tab into a wall lifts it, Tab reaches the pins, Alt+Arrow moves one, Esc settles;
  *   - LY-21 (no text under 9 px effective) holds while a wall is lifted at desktop and phone sizes; nothing is text at
  *     rest; the straight-down camera lifts walls too; axe-core finds no serious/critical issue on a lifted wall.
+ *   - TT32 additions: touch (hasTouch, real CDP touch events) — a tap lifts a wall, a finger drag moves a pin on it,
+ *     a tap elsewhere settles it; an opened wall's pinboard never scrolls sideways at 1440 (LY-12).
  * Run: BASE=http://localhost:3999 node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/e2e-tt31.mts
  */
 import type { Browser, Locator, Page } from "playwright";
@@ -269,6 +271,54 @@ try {
       const bad = (await smallText(page)).filter((t) => t.eff < 9); ok(bad.length === 0, `top squashed: ${JSON.stringify(bad.slice(0, 4))}`);
       await close();
     }
+  });
+
+  await test("touch (390×760, hasTouch): tapping a wall lifts it, a finger drag moves a pin along the lifted wall (persisted), tapping the floor settles it", { "LY-22": "full" }, async () => {
+    await desktop({ v: 2, ...base() });
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 760 }, hasTouch: true, isMobile: true });
+    const page = await ctx.newPage();
+    try {
+      await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+      await page.getByTestId("tabletop").waitFor({ timeout: 30_000 });
+      await poll(async () => page.evaluate(() => [...document.querySelectorAll("[data-face]")].every((e) => e.getAnimations().length === 0)), "faces at rest", 10_000);
+      await page.waitForTimeout(400);
+      const p = await facePoint(page, "north");
+      await page.touchscreen.tap(p.x, p.y);
+      await settledLift(page, "north");
+      ok(await page.evaluate(() => document.querySelector("[data-testid=tabletop]")!.getAttribute("data-main") !== "north"), "a tap lifts; it does not open the wall as the main view");
+      // finger drag with real CDP touch events (Playwright has no touch-drag API)
+      const cdp = await ctx.newCDPSession(page);
+      // F[7] is the right-hand pin, so moving it right goes into empty wall (moving F[6] right would pile it on F[7])
+      const b = await box(pin(page, F[7])), x0 = (await getTable())!.walls!.north!.cards[F[7]].x;
+      const sx = b.x + b.width / 2, sy = b.y + b.height / 2;
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: sx, y: sy }] });
+      for (let i = 1; i <= 10; i++) { await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: sx + i * 9, y: sy }] }); await page.waitForTimeout(16); }
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+      await poll(async () => ((await getTable())!.walls!.north!.cards[F[7]]?.x ?? 0) > x0 + 40, "finger drag moved the pin along the wall");
+      ok((await lifted(page)).join() === "north", "still lifted after the drag");
+      // tap an empty part of the floor (hit-tested: the floor itself, not a card)
+      const fp = await page.evaluate(() => {
+        for (let y = 700; y > 300; y -= 20) for (let x = 40; x < 360; x += 20) {
+          const el = document.elementFromPoint(x, y);
+          if (el?.closest("[data-face=floor]") && !el.closest("[data-testid=tt-card], [data-testid=tt-pile], button")) return { x, y };
+        }
+        throw new Error("no empty floor point");
+      });
+      await page.touchscreen.tap(fp.x, fp.y);
+      await poll(async () => (await lifted(page)).length === 0, "tapping the floor settles the wall", 4000);
+    } finally { await ctx.close(); }
+  });
+
+  await test("opened wall at 1440: the pinboard is never narrower than its 840 px board (no sideways scroll)", { "LY-12": "full" }, async () => {
+    await desktop({ v: 2, ...base() });
+    const { page, close } = await boot(1440, 900);
+    await page.getByTestId("tt-nav-north").click();
+    const pb = page.getByTestId("tt-pinboard-north");
+    await pb.waitFor({ timeout: 8000 });
+    await poll(async () => page.evaluate(() => [...document.querySelectorAll("[data-face]")].every((e) => e.getAnimations().length === 0)), "opened", 8000);
+    const m = await pb.evaluate((e) => ({ cw: e.clientWidth, sw: e.scrollWidth }));
+    ok(m.sw <= m.cw + 1, `pinboard ${m.cw} px wide but content ${m.sw} px`);
+    await close();
   });
 
   await test("axe-core on a lifted wall (dark + light): no serious or critical violations", { "LY-22": "full", "AX-01": "full" }, async () => {

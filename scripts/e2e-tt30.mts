@@ -21,7 +21,7 @@ const { test, finish } = makeHarness("e2e-tt30");
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); return r.json().catch(() => ({})); };
-const KEYS = ["appearance.layout", "accessibility.narrator", "accessibility.narratorRate", "accessibility.narratorCaptions", "accessibility.narratorSpeech", "shell.shortcutPreset"];
+const KEYS = ["appearance.layout", "accessibility.narrator", "accessibility.narratorRate", "accessibility.narratorCaptions", "accessibility.narratorSpeech", "accessibility.narratorVoice", "shell.shortcutPreset"];
 const saved: Record<string, string> = {};
 for (const r of (await api("GET", "/api/settings")).rows as { key: string; value: string }[]) if (KEYS.includes(r.key)) saved[r.key] = r.value;
 const set = (k: string, v: string) => api("PUT", "/api/settings", { key: k, value: v });
@@ -108,6 +108,9 @@ try {
 
   await test("behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed", { "AX-14": "full" }, async () => {
     await set("appearance.layout", "fusion"); await set("accessibility.narrator", "off"); await set("accessibility.narratorRate", "1"); await set("accessibility.narratorSpeech", "on"); await set("accessibility.narratorCaptions", "on"); await set("shell.shortcutPreset", "hybrid");
+    // TT32: this suite checks the SYSTEM engine path (speechSynthesis calls); "auto" would hand a voiceless browser
+    // to Fusion Voice, which e2e-tt32 covers
+    await set("accessibility.narratorVoice", "system");
     const page = await boot([win("n1", "notes", 0)], true);
     await page.mouse.click(700, 880 - 300); // a neutral spot so the page has keyboard focus
     await page.keyboard.press("Control+Meta+Enter");
@@ -239,6 +242,7 @@ try {
   });
 } finally {
   for (const [k, v] of Object.entries(saved)) await set(k, v);
+  if (!("accessibility.narratorVoice" in saved)) await set("accessibility.narratorVoice", "auto");
   await desktop([]);
   await browser.close();
 }

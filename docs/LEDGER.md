@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-17T21:37:43.374Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-52 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-18T00:08:19.609Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+54 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **335** |
-| Fully built | 251 |
+| **Features in register** | **336** |
+| Fully built | 252 |
 | Partially built (partial 45 + probe 17) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **132** |
+| **Fully tested** (≥1 passing test tagged `full`) | **133** |
 | **Partially tested** (only `partial` tags) | **77** |
 | Untested | 126 |
-| Automated tests executed / passed | 523 / 523 |
+| Automated tests executed / passed | 538 / 538 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 123 | 61 | 67 |
+| fully built | 124 | 61 | 67 |
 | partially built | 3 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
@@ -33,58 +33,60 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-17T21:08:53.364Z |
-| ai-format | 5 | 5 | 0 | 2026-10-17T21:08:55.002Z |
-| browser-session | 5 | 5 | 0 | 2026-10-17T21:08:43.015Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-17T21:08:56.219Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-17T21:21:45.438Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-17T21:22:55.945Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-17T21:34:02.601Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-17T21:14:36.377Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-17T21:23:24.365Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-17T21:13:13.918Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-17T21:24:41.009Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-17T21:26:48.017Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-17T21:12:13.265Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-17T21:36:45.137Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T21:16:45.445Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-17T21:22:14.535Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-17T21:26:06.985Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T21:27:22.455Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-17T21:27:43.124Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-17T21:29:35.834Z |
-| e2e-tt31 | 8 | 8 | 0 | 2026-10-17T21:30:40.265Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-17T21:13:54.369Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T21:22:42.858Z |
-| e2e | 61 | 61 | 0 | 2026-10-17T21:36:21.294Z |
-| image | 12 | 12 | 0 | 2026-10-17T21:08:38.150Z |
-| integration | 25 | 25 | 0 | 2026-10-17T21:08:31.683Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-17T21:08:56.969Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-17T21:09:02.998Z |
-| metaclean | 6 | 6 | 0 | 2026-10-17T21:08:49.972Z |
-| names | 7 | 7 | 0 | 2026-10-17T21:08:37.814Z |
-| office | 35 | 35 | 0 | 2026-10-17T21:08:32.051Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-17T21:08:55.916Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-17T21:08:41.020Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-17T21:08:42.849Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-17T21:08:56.712Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T21:08:34.029Z |
-| oracle | 5 | 5 | 0 | 2026-10-17T21:08:32.419Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-17T21:08:53.096Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-17T21:08:47.049Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-17T21:08:48.655Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-17T21:08:34.380Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-17T21:08:57.497Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-17T21:08:53.577Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-17T21:08:57.282Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-17T21:09:03.233Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-17T21:09:03.991Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-17T21:27:43.321Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-17T21:29:36.088Z |
-| unit | 23 | 23 | 0 | 2026-10-17T21:08:28.864Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-17T21:08:42.171Z |
-| vector | 18 | 18 | 0 | 2026-10-17T21:08:41.257Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T21:08:53.767Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-17T23:37:23.310Z |
+| ai-format | 5 | 5 | 0 | 2026-10-17T23:37:25.146Z |
+| browser-session | 5 | 5 | 0 | 2026-10-17T23:37:09.050Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-17T23:37:28.700Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-17T23:47:01.967Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-17T23:48:02.341Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-18T00:02:48.064Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-17T23:41:59.676Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-17T23:48:27.661Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-17T23:40:50.126Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-17T23:49:37.716Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-17T23:52:08.384Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-17T23:39:55.922Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-17T23:42:30.208Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T23:43:02.466Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-17T23:47:24.881Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T00:04:47.504Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T23:52:48.780Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-17T23:53:12.836Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-17T23:55:13.791Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-17T23:56:35.072Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T00:07:26.799Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-17T23:41:18.073Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T23:47:48.168Z |
+| e2e | 61 | 61 | 0 | 2026-10-17T23:39:26.622Z |
+| image | 12 | 12 | 0 | 2026-10-17T23:37:03.305Z |
+| integration | 25 | 25 | 0 | 2026-10-17T23:36:56.914Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-17T23:37:29.508Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-17T23:37:36.880Z |
+| metaclean | 6 | 6 | 0 | 2026-10-17T23:37:18.728Z |
+| names | 7 | 7 | 0 | 2026-10-17T23:37:02.807Z |
+| office | 35 | 35 | 0 | 2026-10-17T23:36:57.333Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-17T23:37:28.311Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-17T23:37:06.735Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-17T23:37:08.861Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-17T23:37:29.226Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T23:36:59.291Z |
+| oracle | 5 | 5 | 0 | 2026-10-17T23:36:57.749Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-17T23:37:22.935Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-17T23:37:14.887Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-17T23:37:17.004Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-17T23:36:59.748Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-17T23:37:30.040Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-17T23:37:23.591Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-17T23:37:29.840Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-17T23:37:37.177Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-17T23:37:38.074Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-17T23:53:13.051Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-17T23:55:14.088Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-17T23:56:50.773Z |
+| unit | 23 | 23 | 0 | 2026-10-17T23:36:53.669Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-17T23:37:08.112Z |
+| vector | 18 | 18 | 0 | 2026-10-17T23:37:07.036Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T23:37:23.804Z |
 
 ## Rows touched by failing tests
 
@@ -108,7 +110,7 @@ None.
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
-| AX | 14 | 13 | 1 | 0 | 9 | 3 | 2 |
+| AX | 15 | 14 | 1 | 0 | 10 | 3 | 2 |
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
@@ -351,7 +353,7 @@ None.
 | LY-09 | built | full | e2e-tabletop: micro peek shows the real contents (Markdown heading + bullets, CSV grid with a quoted comma) and enlarges on hover / focus; tabletop-unit: micro peek: Markdown keeps headings/bullets, plain text and code, line cap, CSV with RFC 4180 quoting, JSON grid / pretty text, images, SVG, binary, sealed, empty |
 | LY-10 | built | full | e2e-beauty: the pipeline catches seeded violations in the live page (tiny crowded buttons, clipped text, an off-centre dock, an un-golden card); e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+3) |
 | LY-11 | built | full | e2e-tabletop: slanted camera is the default: floor ≥ 80 % of the Tabletop by hit-sampling 1440 points (desktop + phone), the near lip is a ≥ 24 px target, Camera toggles top ↔ slant and persists; tabletop-unit: slanted camera (default): floor ≥ 80 % of the frame across a viewport sweep, lip ≥ 24 px, β = 38°, walls share the rest; tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box |
-| LY-12 | built | full | e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it; e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+3) |
+| LY-12 | built | full | e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it; e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+4) |
 | LY-13 | built | full | e2e-tabletop: saved tabletop views: save (camera + face + pins), change everything, load restores it, survives reload, delete; tabletop-unit: saved tabletop views: save captures camera + face + every surface; same name updates in place; load restores (re-validated against today's files); rename / delete; cap |
 | LY-14 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; e2e-media27: layout ↔ style pairing: Art → Silver + light, Business → Daylight + light (from the Quick-panel/Settings switch), Fusion keeps the look; 'Match the look' off leaves the style alone; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
 | LY-15 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
@@ -372,8 +374,9 @@ None.
 | AX-13 | built | full | e2e-tt28: accessibility tree (AX-13): Playwright ariaSnapshot of the live page in Fusion, Business and Art: landmarks and names a screen reader would announce (dock / taskbar navigation, named window dialogs, no unnamed buttons or text fields); the ask dialog and the snap flyout expose their roles and names |
 | LY-20 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: wall tags (TT29): one per foreshortened wall, inside the frame, centred on the wall's VISIBLE area (hit-test finds that wall under the centre), ≥ 24 px targets, no overlaps with each other or the switcher; counts in the label; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+5) |
 | LY-21 | built | full | e2e-tt29: beauty rule 'no squashed text' (TT29): under the default slanted camera every visible Tabletop text renders at an effective ≥ 9 px (font-size × projected scale, measured per element) at 1440×900 and 390×800; walls below the legibility rule show glyphs only; e2e-tt29: straight-down camera obeys the same rule: its walls are below the legibility scale too (computed), so they show glyphs + tags; no visible text under 9 px effective; the computed box model matches the DOM (each wall face's measured box = its quad's box ± 2 px); e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %) (+1) |
-| AX-14 | built | full | e2e-tt30: oracle: our accessible names and roles agree with Chromium's accessibility tree in all 40 modules × 3 layouts (thresholds declared up front: names ≥ 98 %, roles ≥ 99 %); e2e-tt30: oracle sensitivity: three mutants of the narrator source are caught (aria-label ignored → names < 98 %; buttons as generic → roles < 99 %; CSS text-transform ignored → the uppercase headings differ); e2e-tt30: behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed (+10) |
-| LY-22 | built | full | e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %); e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+13) |
+| AX-14 | built | full | e2e-tt30: oracle: our accessible names and roles agree with Chromium's accessibility tree in all 40 modules × 3 layouts (thresholds declared up front: names ≥ 98 %, roles ≥ 99 %); e2e-tt30: oracle sensitivity: three mutants of the narrator source are caught (aria-label ignored → names < 98 %; buttons as generic → roles < 99 %; CSS text-transform ignored → the uppercase headings differ); e2e-tt30: behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed (+12) |
+| LY-22 | built | full | e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %); e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+14) |
+| AX-15 | built | full | e2e-tt32: environment + engine choice: this Chromium has 0 system voices; Narrator (Automatic) speaks through Fusion Voice — the caption bar says so, Web Audio receives non-silent 16 kHz speech for the start-up announcement, and speechSynthesis.speak is never called; e2e-tt32: intelligibility in the browser (declared gate ≥ 75 %): focus announcements captured from Web Audio on the real page, forced choice among all captured announcements by PocketSphinx; e2e-tt32: control: Ctrl stops Fusion Voice mid-sentence (queued buffers are stopped, nothing new starts) (+10) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

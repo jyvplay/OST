@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt31",
-  "at": "2026-10-17T21:30:40.265Z",
+  "at": "2026-10-17T23:56:35.072Z",
   "results": [
     {
       "suite": "e2e-tt31",
@@ -10,7 +10,7 @@
         "LY-21": "full"
       },
       "pass": true,
-      "ms": 5555
+      "ms": 7092
     },
     {
       "suite": "e2e-tt31",
@@ -20,7 +20,7 @@
         "LY-12": "full"
       },
       "pass": true,
-      "ms": 9651
+      "ms": 11439
     },
     {
       "suite": "e2e-tt31",
@@ -30,7 +30,7 @@
         "LY-08": "full"
       },
       "pass": true,
-      "ms": 7385
+      "ms": 8558
     },
     {
       "suite": "e2e-tt31",
@@ -39,7 +39,7 @@
         "LY-22": "full"
       },
       "pass": true,
-      "ms": 6851
+      "ms": 8001
     },
     {
       "suite": "e2e-tt31",
@@ -48,7 +48,7 @@
         "LY-22": "full"
       },
       "pass": true,
-      "ms": 10483
+      "ms": 11110
     },
     {
       "suite": "e2e-tt31",
@@ -58,7 +58,7 @@
         "AX-01": "full"
       },
       "pass": true,
-      "ms": 3702
+      "ms": 2680
     },
     {
       "suite": "e2e-tt31",
@@ -68,7 +68,25 @@
         "LY-21": "full"
       },
       "pass": true,
-      "ms": 8491
+      "ms": 9434
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "touch (390×760, hasTouch): tapping a wall lifts it, a finger drag moves a pin along the lifted wall (persisted), tapping the floor settles it",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 7576
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "opened wall at 1440: the pinboard is never narrower than its 840 px board (no sideways scroll)",
+      "covers": {
+        "LY-12": "full"
+      },
+      "pass": true,
+      "ms": 3280
     },
     {
       "suite": "e2e-tt31",
@@ -78,7 +96,7 @@
         "AX-01": "full"
       },
       "pass": true,
-      "ms": 10158
+      "ms": 9961
     }
   ]
 }

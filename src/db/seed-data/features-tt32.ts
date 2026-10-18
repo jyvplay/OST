@@ -1,0 +1,13 @@
+import { F, type SpecRow } from "./row";
+
+/**
+ * TT32 register changes. Blocker addressed with original code: "Narrator audible speech is unverified (0 voices)" —
+ * the Narrator depended on the browser's speechSynthesis, which has no voices on many Linux machines and in the
+ * headless browser here, so it could only caption. AX-15 gives Fusion its own text-to-speech.
+ */
+export const tt32Features: SpecRow[] = [
+  F("AX-15", "AX", "Fusion Voice: Fusion's own on-device text-to-speech for the Narrator — text normalisation (numbers, money, percentages, ordinals, clock times, abbreviations, key names, file names, URLs, camelCase), a hand-transcribed lexicon plus context-sensitive letter-to-sound rules with morphology and stress, and a formant synthesiser (glottal source, cascade vocal-tract resonators, nasal pole/zero, parallel frication branch, place-specific stop bursts and aspiration, duration and pitch rules); played phrase by phrase through Web Audio so long text starts at once and Ctrl interrupts it; Settings → Narrator → Voice: Automatic (system voice when one is installed and working, otherwise Fusion Voice), System voice, or Fusion Voice, with Standard / Bright / High presets and the Narrator speed",
+    "A", "P2", "src/lib/voice-text.ts (normaliser, lexicon, letter-to-sound rules, stress, morphology); src/lib/voice-synth.ts (phone table, duration/pitch rules, parameter tracks, formant synthesiser, WAV); src/lib/fusion-voice.ts (synthesizeText, presets); src/lib/voice-engine.ts (engine policy, Web Audio player); src/lib/narrator-dom.ts + src/components/NarratorHost.tsx + DisplaySettings.tsx (integration, caption-bar engine label, settings)",
+    "Original code (no speech library, no recordings, no model download, no network; ~90× faster than real time). Measured with an independent recogniser (CMU PocketSphinx, test-only) under a fixed quiet-room condition, gates declared before measuring: dev UI words 20/20 (≥ 85 %), digits 10/10 (≥ 80 %), held-out app names 19/20 at look #2 (20/20 at look #1; ≥ 70 %), letter-to-sound phone error 18.0 % on 2 000 random dictionary words (≤ 30 %); in a real Chromium with zero system voices the Narrator's own focus announcements, captured from Web Audio, were recognised 13/14 in forced choice (gate ≥ 75 %). Honest boundary: intelligible but robotic; open-vocabulary recognition of whole sentences is weak (word error ≈ 42–48 %, informational); results shift with the listening condition; loudspeaker playback is not verifiable here (no audio device) — the waveform is what is verified; English only.",
+    "built", "tt32-voice.mts ×7 (incl. mutants); e2e-tt32.mts ×6"),
+];

@@ -1,8 +1,8 @@
 {
- "at": "2026-10-17T21:36:36.178Z",
- "bench": "Encrypt\n55 MB/s (72.2 ms per 4.0 MB)\nDecrypt\n56 MB/s (71.1 ms per 4.0 MB)\nLargest file (8 MB VFS cap)\n≈ 146 ms extra to save",
+ "at": "2026-10-17T23:42:18.207Z",
+ "bench": "Encrypt\n55 MB/s (72.8 ms per 4.0 MB)\nDecrypt\n61 MB/s (65.2 ms per 4.0 MB)\nLargest file (8 MB VFS cap)\n≈ 146 ms extra to save",
  "saveMs": {
-  "host": 33,
-  "priv": 41.600000001490116
+  "host": 36.200000000186265,
+  "priv": 53
  }
 }

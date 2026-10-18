@@ -25,11 +25,12 @@ import { tt28Features, UPDATES_TT28 } from "./seed-data/features-tt28";
 import { tt29Features, UPDATES_TT29 } from "./seed-data/features-tt29";
 import { tt30Features } from "./seed-data/features-tt30";
 import { tt31Features } from "./seed-data/features-tt31";
+import { tt32Features } from "./seed-data/features-tt32";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.20.0";
+export const SEED_VERSION = "3.21.2";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...platformFeatures]
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
   .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))
@@ -62,6 +63,8 @@ const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: s
   { key: "accessibility.narratorRate", value: "1", category: "accessibility", label: "Narrator speaking speed", aliases: "speech rate,narrator speed" },
   { key: "accessibility.narratorCaptions", value: "on", category: "accessibility", label: "Show Narrator captions", aliases: "captions,narrator text" },
   { key: "accessibility.narratorSpeech", value: "on", category: "accessibility", label: "Narrator speaks aloud (off = captions only)", aliases: "speech,mute narrator" },
+  { key: "accessibility.narratorVoice", value: "auto", category: "accessibility", label: "Narrator voice engine (auto = system voice if installed, else Fusion Voice)", aliases: "voice,tts,text to speech,fusion voice" },
+  { key: "accessibility.fusionVoice", value: "standard", category: "accessibility", label: "Fusion Voice preset (standard, bright, high)", aliases: "voice pitch" },
   { key: "appearance.dockAutoHide", value: "off", category: "appearance", label: "Automatically hide and show the dock (Art layout)", aliases: "dock,auto hide,autohide,hide dock,mac" },
   { key: "appearance.density", value: "balanced", category: "appearance", label: "Density profile", aliases: "scale,compact,touch,ui size" },
   { key: "appearance.motion", value: "system", category: "appearance", label: "Motion", aliases: "animation,reduce motion" },

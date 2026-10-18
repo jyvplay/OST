@@ -3,8 +3,11 @@
  * state announcements, live regions, typing echo, the Narrator-key scan cursor, and speech through the browser's own
  * Web Speech API (speechSynthesis). Captions are always produced, so the reader stays usable (and testable) where the
  * browser has no voices. Browser-only; all decisions are delegated to the pure core.
+ * TT32 (AX-15): when the browser has no voices (or its engine fails) speech goes through Fusion Voice, Fusion's own
+ * on-device synthesiser (voice-engine.ts), so the reader is audible there too; Settings can force either engine.
  */
 import * as C from "./narrator-core";
+import { chooseEngine, fusionOpts, FusionSpeaker, type EngineId, type VoicePref } from "./voice-engine";
 
 const unquote = (c: string) => {
   if (!c || c === "none" || c === "normal") return "";
@@ -76,6 +79,12 @@ export interface NarratorOptions {
   speech?: () => boolean;
   /** the browser's speech engine failed (e.g. no voice installed): the host tells the user, captions continue */
   onSpeechError?: (error: string) => void;
+  /** TT32: which engine speaks — auto (system voices if any, else Fusion Voice) | system | fusion */
+  voicePref?: () => VoicePref;
+  /** TT32: Fusion Voice preset id (standard | bright | high) */
+  fusionVoice?: () => string;
+  /** TT32: reports the engine that spoke the last utterance */
+  onEngine?: (engine: EngineId) => void;
 }
 
 export class Narrator {
@@ -92,6 +101,11 @@ export class Narrator {
   private focusT = 0;
   private reading = false;
   speechAvailable = false;
+  /** TT32: system voice count (updated on voiceschanged) and whether the system engine has failed this session */
+  private sysVoices = 0;
+  private sysFailed = false;
+  private fusion: FusionSpeaker | null = null;
+  private onVoices = () => { try { this.sysVoices = window.speechSynthesis.getVoices().length; } catch { this.sysVoices = 0; } };
 
   constructor(o: NarratorOptions) { this.o = o; }
 
@@ -99,6 +113,8 @@ export class Narrator {
     if (this.on) return;
     this.on = true;
     this.speechAvailable = typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+    if (this.speechAvailable) { this.onVoices(); window.speechSynthesis.addEventListener?.("voiceschanged", this.onVoices); }
+    if (FusionSpeaker.available()) this.fusion = new FusionSpeaker();
     window.addEventListener("keydown", this.onKey, true);
     window.addEventListener("keyup", this.onKeyUp, true);
     window.addEventListener("blur", this.onBlur);
@@ -124,6 +140,10 @@ export class Narrator {
     document.removeEventListener("change", this.onChange, true);
     this.mo?.disconnect(); this.mo = null;
     window.clearTimeout(this.flushT); window.clearTimeout(this.focusT);
+    if (this.speechAvailable) window.speechSynthesis.removeEventListener?.("voiceschanged", this.onVoices);
+    // let "Narrator off." finish, then release the audio device
+    const f = this.fusion; this.fusion = null;
+    if (f) window.setTimeout(() => f.close(), 2500);
     this.o.onCursor(null);
   }
 
@@ -132,18 +152,36 @@ export class Narrator {
     const t = text.trim();
     if (!t) return;
     this.o.onCaption(t, kind);
-    if (!this.speechAvailable || this.o.speech?.() === false) return;
+    if (this.o.speech?.() === false) return;
+    const pref = this.o.voicePref?.() ?? "auto";
+    const engine = chooseEngine(pref, { api: this.speechAvailable, voices: this.sysVoices, failed: this.sysFailed });
+    if (engine === "fusion" && !this.fusion) return; // no Web Audio either: captions only
+    this.o.onEngine?.(engine);
+    if (engine === "fusion") {
+      if (interrupt && this.speechAvailable) try { window.speechSynthesis.cancel(); } catch { /* ignore */ }
+      this.fusion!.speak(t, fusionOpts(this.o.fusionVoice?.() ?? "standard", this.o.rate()), interrupt, (err) => this.o.onSpeechError?.(`fusion: ${err}`));
+      return;
+    }
     try {
-      if (interrupt) window.speechSynthesis.cancel();
+      if (interrupt) { window.speechSynthesis.cancel(); this.fusion?.cancel(); }
       const u = new SpeechSynthesisUtterance(t);
       u.rate = this.o.rate();
       u.lang = document.documentElement.lang || "en";
-      // "interrupted" / "canceled" are our own cancels; anything else means the engine could not speak
-      u.onerror = (e) => { if (e.error !== "interrupted" && e.error !== "canceled") this.o.onSpeechError?.(e.error); };
+      // "interrupted" / "canceled" are our own cancels; anything else means the engine could not speak —
+      // in auto mode Fusion Voice takes over (and keeps the job for the rest of the session)
+      u.onerror = (e) => {
+        if (e.error === "interrupted" || e.error === "canceled") return;
+        this.o.onSpeechError?.(e.error);
+        if (pref === "auto" && this.fusion) { this.sysFailed = true; this.o.onEngine?.("fusion"); this.fusion.speak(t, fusionOpts(this.o.fusionVoice?.() ?? "standard", this.o.rate()), false); }
+      };
       window.speechSynthesis.speak(u);
     } catch { /* a browser without a working speech backend still gets captions */ }
   }
-  silence() { this.reading = false; if (this.speechAvailable) try { window.speechSynthesis.cancel(); } catch { /* ignore */ } }
+  silence() {
+    this.reading = false;
+    this.fusion?.cancel();
+    if (this.speechAvailable) try { window.speechSynthesis.cancel(); } catch { /* ignore */ }
+  }
 
   // ------------------------------------------------------------------ focus, state, typing
   private announceFocus(target: Element, withContext: boolean) {
