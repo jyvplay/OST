@@ -1,6 +1,6 @@
 {
   "suite": "a11y-unit",
-  "at": "2026-10-18T21:56:32.293Z",
+  "at": "2026-10-18T23:18:40.850Z",
   "results": [
     {
       "suite": "a11y-unit",
@@ -18,7 +18,7 @@
         "AX-10": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 2
     },
     {
       "suite": "a11y-unit",
@@ -65,7 +65,7 @@
         "AX-10": "partial"
       },
       "pass": true,
-      "ms": 14
+      "ms": 13
     },
     {
       "suite": "a11y-unit",

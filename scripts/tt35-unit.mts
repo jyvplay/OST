@@ -113,13 +113,14 @@ await test("CSS + srcset rewriting (WP-01): url() quoted / unquoted / escaped / 
 });
 
 const live: { url: string; html: string }[] = [];
+const CHALLENGE = /<title>\s*(Client Challenge|Just a moment\.\.\.|Attention Required)/i;
 // curl uses the OS trust store: in this sandbox github.com is TLS-intercepted by the egress proxy ("E2B Proxy CA",
 // trusted by the OS only), pypi.org is end-to-end (GlobalSign). Either way the HTML is the site's.
 for (const u of ["https://github.com/", "https://github.com/nodejs/node", "https://pypi.org/", "https://pypi.org/project/requests/"]) {
   try { const html = execFileSync("curl", ["-sfL", "--compressed", "-m", "20", "-A", W.UA.desktop, u], { maxBuffer: 1 << 26 }).toString("utf8"); if (html.length > 1000) live.push({ url: u, html }); } catch { console.log(`    (could not fetch ${u})`); }
 }
 await test(`real pages + independent parser (WP-01, WP-02): ${live.length} pages fetched live (github.com, pypi.org) are rewritten, then walked by Python's html.parser — zero URL-bearing attributes may still point outside the proxy, and the start-tag sequence must survive except the injected runtime and removed CSP metas`, { "WP-01": "full", "WP-02": "full" }, () => {
-  ok(live.length >= 3, `need ≥ 3 live pages, got ${live.length}`);
+  ok(live.filter((p) => !CHALLENGE.test(p.html)).length >= 3, `need ≥ 3 real (non-challenge) live pages, got ${live.length}`);
   const jobs: { html: string; prefix: string }[] = [];
   const reports: W.HtmlRewriteReport[] = [];
   for (const p of live) {
@@ -131,7 +132,10 @@ await test(`real pages + independent parser (WP-01, WP-02): ${live.length} pages
   for (let i = 0; i < live.length; i++) {
     const after = out[2 * i], before = out[2 * i + 1];
     console.log(`    ${live[i].url}: ${before.urls} URLs, ${before.leaks.length} reach outside before → ${after.leaks.length} after; ${reports[i].rewritten} rewritten`);
-    ok(before.leaks.length > 20, "the original page must actually contain outside URLs (else the check proves nothing)");
+    // TT42: a bot-challenge interstitial (seen from this sandbox's IP on pypi.org/project/… since Oct 2026: "Client
+    // Challenge", 3 same-site URLs) is still checked for leaks, but cannot satisfy the outside-URL precondition
+    if (CHALLENGE.test(live[i].html)) console.log(`    ${live[i].url}: bot-challenge interstitial served — outside-URL precondition waived for this page only (leak / tag checks still run)`);
+    else ok(before.leaks.length > 20, "the original page must actually contain outside URLs (else the check proves nothing)");
     eq(after.leaks.filter((l) => !(l[0] === "script" && l[2] === "/wp-shim.js")), [], `leaks in ${live[i].url}`); // our own runtime is the one allowed root path
     eq(after.leaks.length, 1, "exactly one runtime injected");
     const removedMeta = reports[i].removed.filter((x) => x.startsWith("meta")).length;

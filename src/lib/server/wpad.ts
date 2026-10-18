@@ -13,7 +13,8 @@
  * A candidate counts only when it answers 2xx with a script that defines FindProxyForURL (a web server that merely
  * happens to be called "wpad" does not hijack routing with an HTML page). Discovery runs only when the operating
  * system's settings ask for automatic detection (osproxy.ts) or FUSION_WP_WPAD=1 — never by default.
- * Not covered (disclosed): DHCP option 252 (needs a DHCP INFORM from a privileged socket), mDNS/LLMNR names.
+ * TT42: DHCP option 252 (dhcp-wpad.ts — lease files, and DHCPINFORM when port 68 can be bound) is tried FIRST.
+ * Not covered (disclosed): mDNS/LLMNR names.
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -111,11 +112,11 @@ export function searchDomains(platform: string = process.platform, exec: Exec = 
 
 export type WpadResult = { url: string; text: string; tried: string[] };
 /** Try each candidate in order (each with its own timeout, all within `budgetMs`); the first real PAC file wins. */
-export async function discoverWpad(o: { domains: string[]; load: (url: string, timeoutMs: number) => Promise<string>; perTryMs?: number; budgetMs?: number }): Promise<WpadResult> {
+export async function discoverWpad(o: { domains: string[]; load: (url: string, timeoutMs: number) => Promise<string>; perTryMs?: number; budgetMs?: number; first?: string[] }): Promise<WpadResult> {
   const tried: string[] = [];
   const end = Date.now() + (o.budgetMs ?? 12_000);
   const errors: string[] = [];
-  for (const url of wpadCandidates(o.domains)) {
+  for (const url of [...new Set([...(o.first ?? []), ...wpadCandidates(o.domains)])]) {
     const left = end - Date.now();
     if (left <= 50) { errors.push("time budget spent"); break; }
     tried.push(url);

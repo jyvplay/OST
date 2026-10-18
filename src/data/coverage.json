@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-18T22:24:36.086Z",
+ "generatedAt": "2026-10-18T23:45:29.364Z",
  "totals": {
   "built": {
-   "full": 282,
+   "full": 284,
    "partial": 62,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 164,
+   "full": 166,
    "partial": 80,
    "untested": 121
   },
   "tests": {
-   "total": 695,
-   "passed": 695
+   "total": 708,
+   "passed": 708
   }
  },
  "rows": {
@@ -2185,7 +2185,9 @@
     "tt40-unit: HTTPS proxy, negative (WP-14): a proxy whose certificate no trusted CA signed is refused at the TLS step (never sends CONNECT in the clear), classified proxy-down; a proxy that is plain HTTP on a https:// route fails the same way",
     "tt40-unit: PAC entries → routes (WP-14): DIRECT, PROXY / HTTP → http, HTTPS → https (default 443), SOCKS and SOCKS4 → socks4 (Chrome's reading), SOCKS5 → socks5; QUIC → none; an unparsable host → none",
     "tt40-unit: bad-proxy memory (WP-14): a failed proxy is moved BEHIND the healthy candidates (incl. DIRECT) for exactly 5 minutes, then restored to its place; when every candidate is bad they are all still tried, in their order",
-    "tt40-unit: failover classification (WP-14): over REAL connections — an unreachable proxy (refused port) and a broken one (not SOCKS) fail over and are marked bad; a proxy that ANSWERED (SOCKS4 91, HTTP 403 to CONNECT, 407) does not fail over (Chrome ≥ M67); a non-proxy error and a DIRECT failure never fail over; all-down throws the last error"
+    "tt40-unit: failover classification (WP-14): over REAL connections — an unreachable proxy (refused port) and a broken one (not SOCKS) fail over and are marked bad; a proxy that ANSWERED (SOCKS4 91, HTTP 403 to CONNECT, 407) does not fail over (Chrome ≥ M67); a non-proxy error and a DIRECT failure never fail over; all-down throws the last error",
+    "tt42-proxy: WebSocket failover live (WP-14, TT41 blocker): a fresh process reads a PAC file whose first entry is a DEAD proxy — ws:// is carried by the second entry (pproxy HTTP CONNECT) and wss:// by the second entry (pproxy SOCKS5, real TLS to the echo site verified against the test CA); the bridge proxied pages use gets OPEN with the negotiated subprotocol, 3 text messages (UTF-8) and 1 binary message echo byte-exact from an independent server (Python websockets), a clean 1000 close, one failover recorded per run, and the dead proxy received only the proxy handshake, never a WebSocket byte",
+    "tt42-proxy: SOCKS4a live (WP-14, TT41 blocker): https://pypi.org/ through an INDEPENDENT SOCKS4a server (asyncssh's forward_socks over a real SSH connection to an in-process asyncssh server): the bytes on the wire are a SOCKS4a CONNECT — VN 4, CD 1, port 443, DSTIP 0.0.0.x (x ≠ 0), userid, then the NAME \"pypi.org\" — and the SSH server was asked to dial \"pypi.org\" by name; control: SOCKS4 to the same server puts a public IPv4 address on the wire (resolved locally through the public-address guard) and the SSH server dials that address, never the name"
    ]
   },
   "WP-15": {
@@ -2199,7 +2201,10 @@
     "tt40-unit: desktop selection (WP-15): a KDE session reads kioslaverc first; GNOME reads gsettings; without gsettings (ENOENT) kioslaverc is the fallback; Windows reads BOTH registry keys; XDG_CONFIG_HOME is honoured",
     "tt40-unit: WPAD candidates (WP-15): wpad first, then devolution of each search domain DOWN TO the registrable domain and never above it — squatting negatives: co.uk, com.mx, ac.jp, a public suffix as the search domain, single labels, numeric TLDs, bad labels; duplicates merged; at most 8",
     "tt40-unit: search domains (WP-15): resolv.conf search + domain (comments ignored), scutil --dns search domain[n] / domain, the Tcpip registry SearchList / Domain / NV Domain / DhcpDomain; an FQDN hostname adds its domain; .local mDNS names dropped",
-    "tt40-unit: discovery (WP-15): candidates tried strictly in order; a 2xx that is not a PAC file (an HTML page on a host that happens to be called wpad) is skipped; the first real script wins and later names are never contacted; the overall budget stops the walk; total failure lists what was tried"
+    "tt40-unit: discovery (WP-15): candidates tried strictly in order; a 2xx that is not a PAC file (an HTML page on a host that happens to be called wpad) is skipped; the first real script wins and later names are never contacted; the overall budget stops the walk; total failure lists what was tried",
+    "tt42-dhcp: DHCP WPAD from LEASE FILES live (WP-15): a dhclient lease in /var/lib/dhcp (two lease blocks — the LAST is the current one — option 252 as dhclient writes an unnamed option: `option unknown-252 \"…\"`) is found by a fresh process with only FUSION_WP_WPAD=1; its PAC file routes https://pypi.org/ through pproxy (200); then a NEWER systemd-networkd lease in /run/systemd/netif/leases (OPTION_252=<hex>) takes precedence — newest lease first, as the machine's current network",
+    "tt42-dhcp: DHCP WPAD by DHCPINFORM live (WP-15): a REAL DHCP exchange — a fresh server process, root inside a network namespace (port 68), sends DHCPINFORM (RFC 2131 §3.4) on its veth interface; busybox udhcpd (an independent DHCP server) answers DHCPACK with option 252; the PAC file at that URL is loaded and decides pypi.org's route (\"PROXY 10.42.0.1:…\", recorded) and the proxy it names receives the CONNECT",
+    "tt42-unit: WP-15 DHCP option 252 parsing: dhclient leases (named \"wpad\", \"unknown-252\" string with \\000 / \\\" escapes, colon-hex bytes; the LAST lease block wins; non-http values and a block without 252 skipped), systemd-networkd OPTION_252 hex; a DHCPINFORM is a well-formed RFC 2131 BOOTREQUEST (op 1, ciaddr, magic cookie, option 53 = 8, parameter list {252}) and a DHCPACK carrying 252 parses back — a reply for another xid, a BOOTREQUEST, or a bad cookie is ignored"
    ]
   },
   "WP-16": {
@@ -2219,7 +2224,7 @@
     "e2e-tt41: WP-17 oracle: an ES-module page — root-relative, parent-relative, absolute cross-origin imports; an import map with a bare prefix AND a URL-like key; export-from; dynamic import() of a literal AND of a root-relative path computed at run time; import.meta.url and import.meta.resolve; a module worker created with new Worker(new URL(\"./w.js\", import.meta.url)) that itself imports root-relative and reports self.location / self.origin; an inline module — yields IDENTICAL values natively and through the proxy",
     "e2e-tt41: WP-17/18/19 adversary: page fetch() of a module gets its bytes UNCHANGED (only script / worker destinations are rewritten); a module the lexer cannot tokenise (an unterminated template) is served unchanged and labelled; an \"f\" (frame) tag on an image is not honoured as a frame (no frame-tree cookies, the script rules apply: none cross-site); chain flags only ever REMOVE — a tag without them is what the shim emits, so a page cannot claim more",
     "tt41-unit: WP-17 lexer oracle: 28 edge cases module lexers are known to get wrong (strings / comments / templates / regexes containing import, member and method named import, regex after while / export default / of / return / typeof / a newline, division vs regex, hashbang, import attributes, \\u escapes, export * as, string-named imports, dynamic import with options and plain templates) — the specifier ranges are IDENTICAL to acorn's",
-    "tt41-unit: WP-17 lexer fail-safe: on the residual ambiguity (a function EXPRESSION followed by `/`, which needs a parser) the lexer either agrees with acorn or reports an error — and an error means the source is served UNCHANGED, never mis-rewritten",
+    "tt41-unit: WP-17 lexer, function / class EXPRESSION vs DECLARATION (TT42; TT41 refused these files — and one shape was silently MISSED, not refused): after an expression body's \"}\" a slash divides, after a declaration's it starts a regex — 15 shapes identical to acorn (V8 when acorn itself mis-lexes), including named / async / generator function expressions, class expressions with heritage, a declaration followed by a regex statement, and export default function",
     "tt41-unit: WP-17 import.meta: every READ of import.meta.url becomes the module's real URL and import.meta.resolve is wrapped; an assignment target, import.meta.urlx and a string are left alone; the wrapper decodes a proxied URL back and passes any other through",
     "tt41-unit: WP-17 specifiers and import maps: root-relative, relative, absolute and protocol-relative http(s) specifiers are proxied with the module-graph segment; bare, data:, blob: and already-proxied ones are not; an import map's URL-like KEYS and every address are proxied the same way (so a rewritten specifier still prefix-matches a rewritten key), bare keys stay, scopes are mapped, \"integrity\" is dropped, malformed JSON is untouched",
     "tt41-unit: WP-17 / WP-19 HTML wiring: an inline module's specifiers and import.meta.url are rewritten (a classic inline script's dynamic import too, without import.meta), an inline import map is rewritten, a body the HTML parser split at a \"</script>\" inside a string is left unchanged, crossorigin elements / module scripts / modulepreload carry the CORS segment (\":i\" for use-credentials), and an iframe names its parent document (\":f\") while links and forms stay plain navigations",
@@ -2239,8 +2244,26 @@
    "tests": [
     "e2e-tt41: WP-19 oracle: a CROSS-SITE iframe (B in A) — its navigation, its own image and its same-origin fetch get only SameSite=None cookies, and its Set-Cookie may store only SameSite=None; a SAME-SITE iframe (A′ in A) keeps every cookie and may store Lax — identical natively and through the proxy, including Sec-Fetch-Site and Referer",
     "e2e-tt41: WP-17/18/19 adversary: page fetch() of a module gets its bytes UNCHANGED (only script / worker destinations are rewritten); a module the lexer cannot tokenise (an unterminated template) is served unchanged and labelled; an \"f\" (frame) tag on an image is not honoured as a frame (no frame-tree cookies, the script rules apply: none cross-site); chain flags only ever REMOVE — a tag without them is what the shim emits, so a page cannot claim more",
+    "e2e-tt42: WP-19 srcdoc frames (TT41 blocker): a STATIC srcdoc (server-rewritten: its image, its script's fetch, its inline MODULE's root-relative import, and a NESTED srcdoc's image) and DYNAMIC srcdoc set by script through the property and through setAttribute (shim-rewritten in an inert DOMParser document, runtime injected) — every resource reaches the site and every value the frames report to their parent is IDENTICAL natively and through the proxy",
     "tt41-unit: WP-17 / WP-19 HTML wiring: an inline module's specifiers and import.meta.url are rewritten (a classic inline script's dynamic import too, without import.meta), an inline import map is rewritten, a body the HTML parser split at a \"</script>\" inside a string is left unchanged, crossorigin elements / module scripts / modulepreload carry the CORS segment (\":i\" for use-credentials), and an iframe names its parent document (\":f\") while links and forms stay plain navigations",
     "tt41-unit: WP-19 frame tree: a document registered with cross-site ancestors (xs) keeps that through the LRU; its subresources and script requests are cross-site for SameSite even to its OWN origin, while Sec-Fetch-Site and Origin still follow the document's origin; documentCsp drops frame-ancestors only for a validated nested frame"
+   ]
+  },
+  "WP-20": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt42: WP-20 oracle: computed dynamic import() — root-relative in the document AND in a module worker (where no import map applies), a colon in the first path segment (document and worker), an absolute CROSS-ORIGIN URL object (document and worker; CSP refuses the raw URL), new URL(\"./x\", import.meta.url), a template, a relative computed path in the worker, a bare name routed by the page's map, a missing module (same rejection), a classic inline script's computed import, and an eval'd import() routed only by an import-map SCOPE — every value IDENTICAL natively and through the proxy",
+    "tt42-unit: WP-20 wrapper value semantics: for 20 run-time specifier values (root-relative, ./, ../, a colon in the first path segment, absolute http(s), protocol-relative, URL objects, an object with toString, credentials in the URL, bare names, data:, blob:, already-proxied, a non-http scheme, an unparseable string) the inline wrapper yields EXACTLY what the static rewriter yields for the same literal (or the string itself where the static rewriter leaves it); a throwing toString / a Symbol is passed through untouched so import() rejects natively",
+    "tt42-unit: WP-20 lexer: the first argument of every computed dynamic import is found with exactly acorn's source range — 19 shapes incl. nested templates, commas inside calls / arrays / objects, comments, a trailing comma, nested imports (literal inside computed, computed inside computed), import.source / import.defer — and literal imports, object / class METHODS named import and member calls are never wrapped",
+    "tt42-unit: WP-20 executed by V8: a rewritten script's import() calls receive the proxied address of every computed root-relative / relative / absolute / colon-segment / URL-object specifier, bare names unchanged, a literal import proxied statically, options still passed — and the original script, run the same way, receives the raw values (the difference is ONLY the proxying)",
+    "tt42-unit: WP-20 fail-safe and scope: a file the lexer cannot read is returned byte-identical (nothing wrapped); an `import(x)` followed by \"{\" on the next line (call + block via ASI) is conservatively NOT wrapped — the same shape a method has — so it behaves exactly as before (root import map path), never broken"
+   ]
+  },
+  "WP-21": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt42: WP-21 browsers WITHOUT Fetch Metadata (TT41 blocker; emulated at the HTTP layer: real Chromium behind a front that removes every Sec-Fetch-* header, as Safari < 16.4 sends none): the destination is inferred from the URL tag + Accept — module scripts and module workers are still rewritten (all computed / static imports identical to native), a page fetch() of a module still gets its bytes UNCHANGED (the shim's \"e\" flag = destination empty), and a page fetch() of a document gets NO navigation secret (before TT42 every untagged request without Fetch Metadata counted as a navigation)",
+    "tt42-unit: WP-21 destination inference without Fetch Metadata: Safari's real Accept values (document / image / stylesheet / */*) and the URL tag decide — untagged document → navigate, untagged image / css → no-cors image / style, a markup-subresource tag → its Accept or script, a script tag → script (CORS) or, with the shim's \"e\" flag, empty (fetch / XHR), a frame tag → iframe; ANY Fetch Metadata header present → null (the browser's own values win); \"e\" round-trips in canonical order after \"n\", is rejected out of order, and survives a redirect hop"
    ]
   },
   "CT-01": {

@@ -3,6 +3,7 @@ import { systemProxyFromEnv, systemProxyFromOs, systemRouteFor, type SystemProxy
 import { readOsProxy } from "./osproxy";
 import { PacScript, loadPac, parsePacResult, type PacEntry } from "./pac";
 import { WPAD_URL, discoverWpad, searchDomains } from "./wpad";
+import { dhcpWpadUrls } from "./dhcp-wpad";
 
 /**
  * TT37: the server-wide upstream route of the Private proxy. RAM only (amnesic like the cookie jars): it starts
@@ -10,7 +11,7 @@ import { WPAD_URL, discoverWpad, searchDomains } from "./wpad";
  * local Tor — and a change made in the Browser lasts until the server restarts. A bad env value falls back to
  * Direct and is reported, never silently ignored.
  */
-type PacState = { url: string; script: PacScript | null; error: string | null; at: number; last?: { host: string; result: string; chosen: string }; discovered?: string; tried?: string[] };
+type PacState = { url: string; script: PacScript | null; error: string | null; at: number; last?: { host: string; result: string; chosen: string }; discovered?: string; tried?: string[]; dhcp?: string[] };
 type State = { route: UpstreamRoute; envError: string | null; changed: number; system: SystemProxy | null; useSystem: boolean; pac?: PacState; pacLoading?: Promise<PacState> };
 const usable = (sp: SystemProxy | null) => !!(sp && (sp.https || sp.http || sp.pacUrl));
 const g = globalThis as unknown as { __fusionWpRoute?: State };
@@ -49,7 +50,7 @@ export function systemRouteInfo() {
   return { available: usable(s.system), active: s.useSystem, source: s.system.source, noProxy: s.system.noProxy,
     https: s.system.https ? describeRoute(s.system.https) : null, http: s.system.http ? describeRoute(s.system.http) : null, errors: s.system.errors,
     pac: s.system.pacUrl ? { url: s.system.pacUrl, loaded: !!s.pac?.script, error: s.pac?.error ?? null, last: s.pac?.last ?? null,
-      discovered: s.pac?.discovered ?? null, tried: s.pac?.tried ?? null } : null, failover: failoverInfo() };
+      discovered: s.pac?.discovered ?? null, tried: s.pac?.tried ?? null, dhcp: s.pac?.dhcp ?? null } : null, failover: failoverInfo() };
 }
 /** The route for ONE target: the chosen route, or under system settings the scheme's proxy unless no_proxy says direct. */
 export function routeFor(target: URL): UpstreamRoute {
@@ -71,7 +72,10 @@ async function pacFor(s: State, url: string): Promise<PacState> {
     const next: PacState = { url, script: p?.url === url ? p.script : null, error: null, at: now, discovered: p?.discovered, tried: p?.tried };
     try {
       if (url === WPAD_URL) {
-        const w = await discoverWpad({ domains: wpadDomains(), load: (u, t) => loadPac(u, t) });
+        // TT42: DHCP option 252 first (lease files; DHCPINFORM when port 68 can be bound) — FUSION_WP_WPAD_DHCP=0 skips it
+        const dhcp = process.env.FUSION_WP_WPAD_DHCP === "0" ? [] : await dhcpWpadUrls({ inform: process.env.FUSION_WP_WPAD_INFORM !== "0" }).catch(() => []);
+        next.dhcp = dhcp.map((x) => `${x.url} (${x.source})`); // recorded even when no candidate answers
+        const w = await discoverWpad({ domains: wpadDomains(), load: (u, t) => loadPac(u, t), first: dhcp.map((x) => x.url) });
         next.script = new PacScript(w.text); next.discovered = w.url; next.tried = w.tried;
       } else next.script = new PacScript(await loadPac(url));
     } catch (e) { next.error = (e as Error).message; if (url === WPAD_URL) next.tried = (e as { tried?: string[] }).tried; } // keep the last good script

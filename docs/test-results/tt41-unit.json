@@ -1,6 +1,6 @@
 {
   "suite": "tt41-unit",
-  "at": "2026-10-18T22:22:46.537Z",
+  "at": "2026-10-18T23:43:47.440Z",
   "results": [
     {
       "suite": "tt41-unit",
@@ -9,16 +9,16 @@
         "WP-17": "full"
       },
       "pass": true,
-      "ms": 17
+      "ms": 15
     },
     {
       "suite": "tt41-unit",
-      "name": "WP-17 lexer fail-safe: on the residual ambiguity (a function EXPRESSION followed by `/`, which needs a parser) the lexer either agrees with acorn or reports an error — and an error means the source is served UNCHANGED, never mis-rewritten",
+      "name": "WP-17 lexer, function / class EXPRESSION vs DECLARATION (TT42; TT41 refused these files — and one shape was silently MISSED, not refused): after an expression body's \"}\" a slash divides, after a declaration's it starts a regex — 15 shapes identical to acorn (V8 when acorn itself mis-lexes), including named / async / generator function expressions, class expressions with heritage, a declaration followed by a regex statement, and export default function",
       "covers": {
         "WP-17": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 54
     },
     {
       "suite": "tt41-unit",

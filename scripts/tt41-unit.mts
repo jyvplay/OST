@@ -10,6 +10,7 @@
  * The large-scale differential (12,457 files of node_modules, 0 disagreements) is scripts/oracle/js-imports-diff.mts.
  * Run: node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/tt41-unit.mts
  */
+import { spawnSync } from "node:child_process";
 import { makeHarness } from "./harness.mts";
 import { acornSpecifiers } from "./oracle/js-imports-diff.mts";
 import { findImportSpecifiers, findModuleRefs, rewriteModule } from "../src/lib/js-imports.ts";
@@ -20,6 +21,14 @@ import { newDoc, docInfo } from "../src/lib/server/wp-sessions.ts";
 const { test, finish } = makeHarness("tt41-unit");
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const eq = (a: unknown, b: unknown, m: string) => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m}: expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`); };
+/** the specifiers V8 hands to import() when `src` runs as a classic script (child process: the hook needs a flag) */
+function v8DynamicSpecs(src: string): string[] | null {
+  const code = `process.on("unhandledRejection", () => {}); process.on("uncaughtException", () => {}); const vm = require("vm"); let src = ""; process.stdin.on("data", (d) => src += d).on("end", () => { const seen = [];
+    new vm.Script(src, { importModuleDynamically: (s) => { seen.push(s); return Promise.reject(new Error("captured")); } }).runInNewContext({ x: 0, y: 0, a: 0, f: () => 0, Base: Object, mix: (o) => class {} });
+    setTimeout(() => console.log(JSON.stringify(seen)), 20); });`;
+  const r = spawnSync(process.execPath, ["--experimental-vm-modules", "--no-warnings", "-e", code], { input: src, encoding: "utf8" });
+  try { return JSON.parse(r.stdout.trim()); } catch { return null; }
+}
 const ours = (src: string) => findImportSpecifiers(src).map((s) => `${s.start}-${s.end}`).sort();
 
 // every case: [label, source, how many specifiers acorn must find (so a case cannot pass vacuously)]
@@ -68,18 +77,42 @@ await test("WP-17 lexer oracle: 28 edge cases module lexers are known to get wro
   ok(bad.length === 0, bad.join("\n    "));
 });
 
-await test("WP-17 lexer fail-safe: on the residual ambiguity (a function EXPRESSION followed by `/`, which needs a parser) the lexer either agrees with acorn or reports an error — and an error means the source is served UNCHANGED, never mis-rewritten", { "WP-17": "full" }, async () => {
-  const hard = [`x = function () {} / 2; import("/yes.js");`, `x = class {} / 2; import("/yes.js");`, `f(function () {} / 1, import("/yes.js"));`];
-  const out: string[] = [];
-  for (const src of hard) {
-    const a = acornSpecifiers(src)!;
-    let verdict: string;
-    try { verdict = JSON.stringify(ours(src)) === JSON.stringify(a.ranges) ? "agrees" : "WRONG"; } catch { verdict = "error"; }
-    ok(verdict !== "WRONG", `mis-lexed: ${src}`);
-    if (verdict === "error") { const r = rewriteModule(src, () => "/changed.js", null); ok(r.code === src && !!r.error, "error → unchanged"); }
-    out.push(verdict);
+await test("WP-17 lexer, function / class EXPRESSION vs DECLARATION (TT42; TT41 refused these files — and one shape was silently MISSED, not refused): after an expression body's \"}\" a slash divides, after a declaration's it starts a regex — 15 shapes identical to acorn (V8 when acorn itself mis-lexes), including named / async / generator function expressions, class expressions with heritage, a declaration followed by a regex statement, and export default function", { "WP-17": "full" }, async () => {
+  const hard: [string, number][] = [
+    [`x = function () {} / 2; import("/yes.js");`, 1],
+    [`x = function () {} / 1; import("/a.js"); y = 1 / 2;`, 1], // TT41: lex error -> file left unrewritten (fail-safe)
+    [`x = function () {} / 1; import('dep.js'); y = 1 / 2; z = 'q';`, 1], // TT41: NO error, import silently missed (verified vs git HEAD)
+    [`x = class {} / 2; import("/yes.js");`, 1],
+    [`f(function () {} / 1, import("/yes.js"));`, 1],
+    [`x = async function () {} / 1; import("/yes.js");`, 1],
+    [`x = function* g(a, b) { yield a; } / 1; import("/yes.js");`, 1],
+    [`x = function named({ a }, [b]) { return a; } / 2 / import("/yes.js").length;`, 1],
+    [`x = class extends (Base ?? Object) { m() { return 1; } } / 2; import("/yes.js");`, 1],
+    [`x = class Y extends mix({ a: 1 }) { static { this.q = 1; } } / 2; import("/yes.js");`, 1],
+    [`function f() {}\n/import("\\/no")/g.test(""); import("/yes.js");`, 1],
+    [`class K {}\n/import("\\/no")/g.test(""); import("/yes.js");`, 1],
+    [`export default function () {}\n/import("\\/no")/g.test(""); import("/yes.js");`, 1],
+    [`if (a) function g() {}\n/import("\\/no")/.test(""); import("/yes.js");`, 1],
+    [`const o = { m: function () {} / 1, n: class {} / 2 }; import("/yes.js");`, 1],
+  ];
+  const bad: string[] = [];
+  for (const [src, n] of hard) {
+    const a = acornSpecifiers(src);
+    if (!a) {
+      // acorn's own tokenizer mis-reads one shape (async function expression then "/") — the arbiter is then V8:
+      // run the snippet and record which import() calls really execute
+      const v8 = v8DynamicSpecs(src);
+      let o: string[] = [];
+      try { o = findImportSpecifiers(src).map((x) => x.value); } catch (e) { bad.push(`lexer error ${(e as Error).message}: ${src}`); continue; }
+      if (v8 === null || JSON.stringify(v8) !== JSON.stringify(o) || v8.length !== n) bad.push(`acorn failed; V8 ${JSON.stringify(v8)} ours ${JSON.stringify(o)}: ${src}`);
+      continue;
+    }
+    if (a.ranges.length !== n) { bad.push(`case expects ${n}, acorn ${a.ranges.length}: ${src}`); continue; }
+    let o: string[];
+    try { o = ours(src); } catch (e) { bad.push(`lexer error ${(e as Error).message}: ${src}`); continue; }
+    if (JSON.stringify(o) !== JSON.stringify(a.ranges)) bad.push(`ours ${JSON.stringify(o)} acorn ${JSON.stringify(a.ranges)}: ${src}`);
   }
-  console.log(`     residual cases: ${out.join(", ")}`);
+  ok(bad.length === 0, bad.join("\n    "));
 });
 
 await test("WP-17 import.meta: every READ of import.meta.url becomes the module's real URL and import.meta.resolve is wrapped; an assignment target, import.meta.urlx and a string are left alone; the wrapper decodes a proxied URL back and passes any other through", { "WP-17": "full" }, async () => {

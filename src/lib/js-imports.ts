@@ -24,6 +24,8 @@ interface Tok { t: TT; v: string; s: number; e: number; prop?: boolean; cooked?:
 const REGEX_AFTER_NAME = new Set(["return", "typeof", "instanceof", "in", "of", "new", "delete", "void", "throw", "case", "do", "else", "yield", "await", "default", "extends"]);
 const EXPR_BRACE_AFTER_NAME = new Set(["return", "typeof", "instanceof", "in", "of", "new", "delete", "void", "throw", "case", "yield", "await", "extends"]);
 const PAREN_KW = new Set(["if", "while", "for", "with"]);
+/** keywords after which `function` / `class` is an EXPRESSION (export default function … is a declaration) */
+const EXPR_KW = new Set(["return", "typeof", "instanceof", "in", "of", "new", "delete", "void", "throw", "case", "yield", "await", "extends"]);
 const PUNCTS = [">>>=", "...", "===", "!==", "**=", "<<=", ">>=", ">>>", "&&=", "||=", "??=", "=>", "==", "!=", "<=", ">=", "&&", "||", "??", "?.", "++", "--", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "**", "<<", ">>"];
 
 const isIdStart = (c: number) => (c >= 97 && c <= 122) || (c >= 65 && c <= 90) || c === 36 || c === 95 || c === 92 || (c > 127 && !isSpace(c));
@@ -65,6 +67,13 @@ export function tokenize(src: string): Tok[] {
   const parens: boolean[] = []; // per open "(": belongs to if / while / for / with
   const braces: ("block" | "expr" | "tmpl")[] = [];
   let i = 0, lastPopped: "paren-kw" | "paren" | "block" | "expr" | null = null;
+  // TT42: function / class EXPRESSIONS. Their body's "}" ends an expression (a following "/" divides), unlike a
+  // declaration's (a following "/" starts a regex). fnParen: the index of the parameter "(" of a function expression
+  // whose body is next; fnBodyNext: that "(" has just closed; classBody: the paren / brace depth at which a class
+  // expression's body "{" will open (its heritage may hold nested brackets).
+  const fnParen: number[] = [];
+  let fnBodyNext = false, fnAwait = -1;
+  const classBody: { p: number; b: number }[] = [];
   const n = src.length;
   if (src.startsWith("#!")) { while (i < n && !isLineTerm(src.charCodeAt(i))) i++; }
   const last = (): Tok | undefined => toks[toks.length - 1];
@@ -79,6 +88,16 @@ export function tokenize(src: string): Tok[] {
     if (p.v === "}") return lastPopped === "block";
     if (p.v === "++" || p.v === "--") return false; // postfix far more common than prefix-before-regex
     return true;
+  }
+  /** is the token before position k an expression slot (so `function` / `class` there is an expression)? */
+  function exprSlotBefore(k: number): boolean {
+    let p = toks[k - 1];
+    if (p && p.t === "name" && !p.prop && p.v === "async") p = toks[k - 2]; // async function …
+    if (!p) return false;
+    if (p.t === "tmplpart") return true;
+    if (p.t === "punct") return !(p.v === ";" || p.v === ")" || p.v === "]" || p.v === "}" || p.v === "{");
+    if (p.t === "name") return !p.prop && EXPR_KW.has(p.v);
+    return false;
   }
   function braceKind(): "block" | "expr" {
     const p = last();
@@ -163,16 +182,36 @@ export function tokenize(src: string): Tok[] {
       let j = i;
       while (j < n && isIdPart(src.charCodeAt(j))) { if (src.charCodeAt(j) === 92) { j += src[j + 2] === "{" ? src.indexOf("}", j) - j + 1 : 6; } else j++; }
       const p = last();
-      toks.push({ t: "name", v: src.slice(i, j), s: i, e: j, prop: !!p && p.t === "punct" && (p.v === "." || p.v === "?.") });
+      const prop = !!p && p.t === "punct" && (p.v === "." || p.v === "?.");
+      const word = src.slice(i, j);
+      if (!prop && (word === "function" || word === "class") && exprSlotBefore(toks.length)) {
+        if (word === "function") fnAwait = parens.length; // its parameter "(" opens at this depth (after an optional * and name)
+        else classBody.push({ p: parens.length, b: braces.length });
+      }
+      fnBodyNext = false;
+      toks.push({ t: "name", v: word, s: i, e: j, prop });
       i = j; continue;
     }
     // punctuator
     let v = src[i];
     for (const q of PUNCTS) if (src.startsWith(q, i)) { if (q === "?." && /[0-9]/.test(src[i + 2] ?? "")) continue; v = q; break; }
-    if (v === "(") { const p = last(); parens.push(!!p && p.t === "name" && !p.prop && PAREN_KW.has(p.v)); }
-    else if (v === ")") { if (!parens.length) throw new JsLexError(`unbalanced ) at ${i}`); lastPopped = parens.pop() ? "paren-kw" : "paren"; }
-    else if (v === "{") braces.push(braceKind());
+    if (v === "(") {
+      const p = last(); parens.push(!!p && p.t === "name" && !p.prop && PAREN_KW.has(p.v));
+      if (fnAwait === parens.length - 1) { fnParen.push(parens.length - 1); fnAwait = -1; }
+    }
+    else if (v === ")") {
+      if (!parens.length) throw new JsLexError(`unbalanced ) at ${i}`);
+      lastPopped = parens.pop() ? "paren-kw" : "paren";
+      if (fnParen.length && fnParen[fnParen.length - 1] === parens.length) { fnParen.pop(); fnBodyNext = true; toks.push({ t: "punct", v, s: i, e: i + 1 }); i += 1; continue; }
+    }
+    else if (v === "{") {
+      const p = last(), cb = classBody[classBody.length - 1];
+      if (fnBodyNext && p && p.v === ")") braces.push("expr");
+      else if (cb && cb.p === parens.length && cb.b === braces.length) { classBody.pop(); braces.push("expr"); }
+      else braces.push(braceKind());
+    }
     else if (v === "}") { const b = braces.pop(); if (!b) throw new JsLexError(`unbalanced } at ${i}`); lastPopped = b === "block" ? "block" : "expr"; }
+    fnBodyNext = false;
     toks.push({ t: "punct", v, s: i, e: i + v.length }); i += v.length;
   }
   if (parens.length || braces.length) throw new JsLexError("unbalanced brackets at end of input");
@@ -183,8 +222,33 @@ export function tokenize(src: string): Tok[] {
 export function findImportSpecifiers(src: string): Specifier[] { return findModuleRefs(src).specs; }
 
 /** specifiers, plus every `import.meta.url` read (start / end of the whole expression) */
-export function findModuleRefs(src: string): { specs: Specifier[]; metaUrls: { start: number; end: number }[]; metaResolves: { start: number; end: number }[] } {
+export function findModuleRefs(src: string): { specs: Specifier[]; metaUrls: { start: number; end: number }[]; metaResolves: { start: number; end: number }[]; computed: { start: number; end: number }[] } {
   const toks = tokenize(src), out: Specifier[] = [], metaUrls: { start: number; end: number }[] = [], metaResolves: { start: number; end: number }[] = [];
+  const computed: { start: number; end: number }[] = [];
+  /**
+   * TT42: the FIRST argument of a dynamic import whose specifier is computed at run time — tokens j.. up to the
+   * top-level "," or ")". null when it is not a call: `import(a, b) {` is a METHOD named import (object / class
+   * member; a call cannot be followed by "{"), and `import()` has no argument.
+   */
+  const firstArg = (j: number): { start: number; end: number } | null => {
+    let depth = 0, k = j;
+    for (; k < toks.length; k++) {
+      const t = toks[k];
+      if (t.t === "punct" && (t.v === "(" || t.v === "[" || t.v === "{")) depth++;
+      else if (t.t === "tmplpart" && t.v === "`${") depth++;
+      else if (t.t === "tmpl" && t.v === "}`") depth--;
+      else if (t.t === "punct" && (t.v === ")" || t.v === "]" || t.v === "}")) { if (depth === 0) break; depth--; }
+      else if (t.t === "punct" && t.v === "," && depth === 0) break;
+    }
+    if (k >= toks.length || k === j) return null;
+    // the call's closing paren: skip the remaining arguments
+    let m = k;
+    if (toks[m].v === ",") { depth = 0; for (m++; m < toks.length; m++) { const t = toks[m]; if (t.t === "punct" && (t.v === "(" || t.v === "[" || t.v === "{")) depth++; else if (t.t === "tmplpart" && t.v === "`${") depth++; else if (t.t === "tmpl" && t.v === "}`") depth--; else if (t.t === "punct" && (t.v === ")" || t.v === "]" || t.v === "}")) { if (depth === 0) break; depth--; } } }
+    if (m >= toks.length) return null;
+    const after = toks[m + 1];
+    if (after && after.t === "punct" && after.v === "{") return null;
+    return { start: toks[j].s, end: toks[k - 1].e };
+  };
   const lit = (k: Tok | undefined) => !!k && (k.t === "str" || k.t === "tmpl") && typeof k.cooked === "string";
   const add = (k: Tok, kind: SpecKind) => out.push({ start: k.s, end: k.e, value: k.cooked as string, kind });
   /** from token j, find `from "<str>"` before anything that cannot be in an import / export clause */
@@ -211,14 +275,17 @@ export function findModuleRefs(src: string): { specs: Specifier[]; metaUrls: { s
           // `import(` after a class / object member position would be a METHOD named import, not a call:
           // `import("x") {` cannot be a method (its parameters must be bindings), so a string argument is a call
           add(a, "dynamic");
-        }
+        } else { const r = firstArg(i + 2); if (r) computed.push(r); }
       } else if (nx.t === "punct" && nx.v === ".") {
         const ph = toks[i + 2], op = toks[i + 3], a = toks[i + 4], b = toks[i + 5];
         // import.meta.url (read, never assigned: `import.meta.url = …` is not touched)
         if (ph?.t === "name" && ph.v === "meta" && op?.t === "punct" && op.v === "." && a?.t === "name" && a.v === "url" && !(b?.t === "punct" && /^(=|\+\+|--|[-+*/%&|^]=|\*\*=|<<=|>>>?=|&&=|\|\|=|\?\?=)$/.test(b.v))) { metaUrls.push({ start: k.s, end: a.e }); continue; }
         // import.meta.resolve (the function itself, called or not; never an assignment target)
         if (ph?.t === "name" && ph.v === "meta" && op?.t === "punct" && op.v === "." && a?.t === "name" && a.v === "resolve" && !(b?.t === "punct" && /^(=|\+\+|--|[-+*/%&|^]=|\*\*=|<<=|>>>?=|&&=|\|\|=|\?\?=)$/.test(b.v))) { metaResolves.push({ start: k.s, end: a.e }); continue; }
-        if (ph?.t === "name" && (ph.v === "source" || ph.v === "defer") && op?.v === "(" && lit(a) && b && (b.v === ")" || b.v === ",")) add(a, "dynamic");
+        if (ph?.t === "name" && (ph.v === "source" || ph.v === "defer") && op?.v === "(") {
+          if (lit(a) && b && (b.v === ")" || b.v === ",")) add(a, "dynamic");
+          else { const r = firstArg(i + 4); if (r) computed.push(r); }
+        }
       } else if (nx.t === "str") {
         add(nx, "static"); // `import "x"` — only valid as a statement
       } else if (nx.t === "name" || (nx.t === "punct" && (nx.v === "{" || nx.v === "*"))) {
@@ -230,7 +297,7 @@ export function findModuleRefs(src: string): { specs: Specifier[]; metaUrls: { s
       fromClause(i + 1, "reexport");
     }
   }
-  return { specs: out, metaUrls, metaResolves };
+  return { specs: out, metaUrls, metaResolves, computed };
 }
 
 /**
@@ -242,7 +309,7 @@ export function rewriteSpecifiers(src: string, map: (spec: string, kind: SpecKin
 }
 
 /** specifiers through `map`, and — when `metaUrl` is given — every `import.meta.url` read replaced by that string */
-export function rewriteModule(src: string, map: (spec: string, kind: SpecKind) => string | null, metaUrl: string | null, resolveWrap: string | null = null): { code: string; rewritten: number; metaUrls: number; error?: string } {
+export function rewriteModule(src: string, map: (spec: string, kind: SpecKind) => string | null, metaUrl: string | null, resolveWrap: string | null = null, dynWrap: { open: string; close: string } | null = null): { code: string; rewritten: number; metaUrls: number; wrapped?: number; error?: string } {
   let refs: ReturnType<typeof findModuleRefs>;
   try { refs = findModuleRefs(src); } catch (e) { return { code: src, rewritten: 0, metaUrls: 0, error: (e as Error).message }; }
   const edits: { start: number; end: number; text: string }[] = [];
@@ -254,9 +321,12 @@ export function rewriteModule(src: string, map: (spec: string, kind: SpecKind) =
   }
   if (metaUrl !== null) for (const m of refs.metaUrls) edits.push({ start: m.start, end: m.end, text: JSON.stringify(metaUrl) });
   if (metaUrl !== null && resolveWrap !== null) for (const m of refs.metaResolves) edits.push({ start: m.start, end: m.end, text: resolveWrap });
-  if (!edits.length) return { code: src, rewritten: 0, metaUrls: 0 };
-  edits.sort((a, b) => a.start - b.start);
+  // TT42: a computed specifier is wrapped — zero-width edits around the argument; the opening one sorts before any
+  // edit that starts at the same place (`import(import.meta.url)`), the closing one after any that ends there
+  if (dynWrap) for (const c of refs.computed) { edits.push({ start: c.start, end: c.start, text: dynWrap.open }); edits.push({ start: c.end, end: c.end, text: dynWrap.close }); }
+  if (!edits.length) return { code: src, rewritten: 0, metaUrls: 0, wrapped: 0 };
+  edits.sort((a, b) => a.start - b.start || (a.end - a.start) - (b.end - b.start) || (a.text === dynWrap?.close ? 1 : 0) - (b.text === dynWrap?.close ? 1 : 0));
   let out = "", at = 0;
   for (const e of edits) { out += src.slice(at, e.start) + e.text; at = e.end; }
-  return { code: out + src.slice(at), rewritten: count, metaUrls: metaUrl !== null ? refs.metaUrls.length : 0 };
+  return { code: out + src.slice(at), rewritten: count, metaUrls: metaUrl !== null ? refs.metaUrls.length : 0, wrapped: dynWrap ? refs.computed.length : 0 };
 }

@@ -29,7 +29,7 @@ export function parseSidSegment(seg: string): { sid: string; doc?: string; cred?
   const m = FLAG_RE.exec(parts[2]);
   if (!m) return null;
   const flags: ChainFlags = {};
-  if (m[2]) flags.m = true; if (m[3]) flags.t = true; if (m[4]) flags.x = true; if (m[5]) flags.y = true; if (m[6]) flags.n = true;
+  if (m[2]) flags.m = true; if (m[3]) flags.t = true; if (m[4]) flags.x = true; if (m[5]) flags.y = true; if (m[6]) flags.n = true; if (m[7]) flags.e = true;
   return Object.keys(flags).length ? { sid: parts[0], doc: parts[1], cred: CRED_CODE[m[1]], flags } : { sid: parts[0], doc: parts[1], cred: CRED_CODE[m[1]] };
 }
 
@@ -45,10 +45,30 @@ export function parseSidSegment(seg: string): { sid: string; doc?: string; cred?
  *   n  the referrer was dropped (https → http): no Referer from then on
  * A forged flag can only make a request more restricted (null origin, fewer cookies, a CORS check, no Referer).
  */
-export interface ChainFlags { m?: boolean; t?: boolean; x?: boolean; y?: boolean; n?: boolean }
-const FLAG_RE = /^([iso])(m?)(t?)(x?)(y?)(n?)$/;
+/** e (TT42): the request was made by page SCRIPT through fetch() / XMLHttpRequest — destination "empty". Only read
+ *  when the browser sends no Fetch Metadata (see inferDest); a browser's own Sec-Fetch-Dest always wins. */
+export interface ChainFlags { m?: boolean; t?: boolean; x?: boolean; y?: boolean; n?: boolean; e?: boolean }
+const FLAG_RE = /^([iso])(m?)(t?)(x?)(y?)(n?)(e?)$/;
 export function flagString(f: ChainFlags | undefined): string {
-  return f ? `${f.m ? "m" : ""}${f.t ? "t" : ""}${f.x ? "x" : ""}${f.y ? "y" : ""}${f.n ? "n" : ""}` : "";
+  return f ? `${f.m ? "m" : ""}${f.t ? "t" : ""}${f.x ? "x" : ""}${f.y ? "y" : ""}${f.n ? "n" : ""}${f.e ? "e" : ""}` : "";
+}
+/**
+ * TT42: Sec-Fetch-Dest / Sec-Fetch-Mode for a browser that sends NO Fetch Metadata (Safari before 16.4, older engines).
+ * The URL tag says who asked — a frame tag → iframe; a script tag → page script ("e": fetch / XHR → empty, else the
+ * module graph → script, CORS); a markup-subresource tag → Accept decides (image/*, text/css, else script, no-cors);
+ * untagged → Accept decides (image/*, text/css) or a navigation (as before TT42). Returns null when the browser sent
+ * either header (its own values are used). Like every no-Fetch-Metadata decision this trusts the page's own requests:
+ * a page script can omit "e" — it then gets what a script load gets, never another site's secrets beyond TT35's.
+ */
+export function inferDest(get: (name: string) => string | null, d: { doc?: string; cred?: Cred; resource?: true; frame?: true; flags?: ChainFlags }): { dest: string; mode: string } | null {
+  if (get("sec-fetch-dest") || get("sec-fetch-mode")) return null;
+  const acc = (get("accept") ?? "").trim().toLowerCase();
+  const byAccept = (fallback: string) => /^image\//.test(acc) ? "image" : /^text\/css\b/.test(acc) ? "style" : /^(video|audio)\//.test(acc) ? "video" : fallback;
+  if (d.frame && d.doc) return { dest: "iframe", mode: "navigate" };
+  if (d.cred && d.doc) return d.flags?.e ? { dest: "empty", mode: "cors" } : { dest: "script", mode: "cors" };
+  if (d.resource && d.doc) return { dest: byAccept("script"), mode: "no-cors" };
+  const dest = byAccept("document");
+  return { dest, mode: dest === "document" ? "navigate" : "no-cors" };
 }
 /** the flags for the hop after `current` redirects to `next` */
 export function nextChainFlags(p: Policy, current: URL, next: URL): ChainFlags {

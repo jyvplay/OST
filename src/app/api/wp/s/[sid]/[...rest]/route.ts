@@ -3,7 +3,7 @@ import {
   classifyError, decodeTarget, documentCsp, readerCsp, WP_PREFIX, downstreamHeaders, encodeAttr, encodeTarget, escapeHtml, isTracker, rewriteCss, rewriteHtml, rewriteModuleSource, siteOf, upstreamHeaders,
 } from "@/lib/wp-core";
 import { docInfo, docOrigin, getSession, newDoc, type WpSession } from "@/lib/server/wp-sessions";
-import { corsCheck, credCode, exposeHeaders, flagString, nextChainFlags, policyFor, PreflightCache, preflightCheck, scriptResponseHeaders, storableSetCookies, type Policy, resourcePolicy, storableForResource } from "@/lib/wp-cors";
+import { corsCheck, inferDest, credCode, exposeHeaders, flagString, nextChainFlags, policyFor, PreflightCache, preflightCheck, scriptResponseHeaders, storableSetCookies, type Policy, resourcePolicy, storableForResource } from "@/lib/wp-cors";
 import { readable, readerDocument } from "@/lib/reader-core";
 import { decodeText, readAll, toWebStream, upstreamRequest } from "@/lib/server/wp-fetch";
 import { openBridge, originToken, sendToBridge, WsOpenError, WS_MAX_MESSAGE } from "@/lib/server/wp-ws";
@@ -29,9 +29,13 @@ const CORS: Record<string, string> = {
   "cache-control": "no-store", // amnesic: no proxied page ever lands in the browser's disk cache
 };
 
-/** A navigation (top-level or frame) per Fetch Metadata; browsers without it (pre-2023 Safari) are trusted as before. */
+/** TT42: a browser without Fetch Metadata gets Sec-Fetch-Dest / -Mode INFERRED from the URL tag and Accept (inferDest) */
+const INFERRED = new WeakMap<NextRequest, { dest: string; mode: string }>();
+const hdrDest = (req: NextRequest) => req.headers.get("sec-fetch-dest") ?? INFERRED.get(req)?.dest ?? null;
+const hdrMode = (req: NextRequest) => req.headers.get("sec-fetch-mode") ?? INFERRED.get(req)?.mode ?? null;
+/** A navigation (top-level or frame) per Fetch Metadata — browsers without it: per the inferred destination (TT42). */
 function isNavigation(req: NextRequest): boolean {
-  const dest = req.headers.get("sec-fetch-dest"), mode = req.headers.get("sec-fetch-mode");
+  const dest = hdrDest(req), mode = hdrMode(req);
   if (!dest && !mode) return true;
   return /^(document|iframe|frame|embed|object)$/.test(dest ?? "") || mode === "navigate";
 }
@@ -45,7 +49,7 @@ function selfOrigins(req: NextRequest): string[] {
 }
 
 function errorPage(req: NextRequest, target: string, status: number, title: string, detail: string): Response {
-  const isDoc = /^(document|iframe|frame)$/.test(req.headers.get("sec-fetch-dest") ?? "document");
+  const isDoc = /^(document|iframe|frame)$/.test(hdrDest(req) ?? "document");
   if (!isDoc) return new Response(`${title}: ${detail}`, { status, headers: { ...CORS, "content-type": "text/plain; charset=utf-8" } });
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>
 <style>body{font:15px/1.6 system-ui,sans-serif;margin:0;display:grid;place-items:center;min-height:100vh;background:#f6f8fa;color:#1f2328}
@@ -88,6 +92,7 @@ async function handle(req: NextRequest): Promise<Response> {
   const raw = new URL(req.url);
   let d: ReturnType<typeof decodeTarget>;
   try { d = decodeTarget(raw.pathname, raw.search); } catch (e) { return errorPage(req, raw.pathname, 400, "Not a proxy address", (e as Error).message); }
+  { const inf = inferDest((n) => req.headers.get(n), d); if (inf) INFERRED.set(req, inf); }
   const s = getSession(d.sid);
   if (!s) return errorPage(req, raw.pathname, 403, "Proxy session ended", "This proxied page belonged to a session that has expired or was closed. Reload the tab from Fusion's address bar to start a new one.");
   if (d.rest.startsWith("__")) return control(req, s, d.rest);
@@ -112,7 +117,7 @@ async function handle(req: NextRequest): Promise<Response> {
   // that document's origin. An untagged or forged-tag script request has no verified origin: it is treated like one
   // from an opaque origin ("null") and carries no cookies. Browsers without Fetch Metadata keep the TT35 behaviour for
   // untagged requests.
-  const fdest = req.headers.get("sec-fetch-dest"), fmode = req.headers.get("sec-fetch-mode");
+  const fdest = hdrDest(req), fmode = hdrMode(req);
   // TT40 (WP-16): a markup subresource ("<sid>:<doc>:r") — honoured only for what the BROWSER says is a subresource
   // load (not a navigation, not script: Sec-Fetch-Dest empty → the script rules below with "same-origin")
   const resTag0 = !!(d.resource && d.doc) && fdest !== "empty" && !isNavigation(req);

@@ -24,7 +24,10 @@
   var TARGET = me.dataset.url;
   var UA_KIND = me.dataset.ua === "mobile" ? "mobile" : "desktop";
   var L = W.location;
-  var HERE = CFG ? String(CFG.here) : L.protocol + "//" + L.host; // location keeps the URL's origin even in an opaque-origin document
+  // TT42: inside an iframe srcdoc document location is about:srcdoc — its URLs resolve against document.baseURI (the
+  // parent's proxied address, inherited), so that is what this runtime resolves and decodes against
+  var SRCDOC = !CFG && L.href === "about:srcdoc", LB = SRCDOC ? new URL(D.baseURI) : L;
+  var HERE = CFG ? String(CFG.here) : LB.protocol + "//" + LB.host; // location keeps the URL's origin even in an opaque-origin document
   // a worker's own location is a blob: URL — nothing resolves against it, so worker-side URLs are absolute
   var HOME = new URL(HERE + "/"), HOST = HOME.host, PROTO = HOME.protocol, ABS = CFG ? HERE : "";
   var PASS = /^(data|blob|javascript|mailto|tel|sms|about|ftp|ws|wss|intent|geo|magnet|chrome|file):/i;
@@ -33,13 +36,13 @@
   /** our URL (absolute or path) → the target URL it stands for, or null */
   function decode(u) {
     var x;
-    try { x = new URL(String(u), CFG ? HOME.href : L.href); } catch (e) { return null; }
+    try { x = new URL(String(u), CFG ? HOME.href : LB.href); } catch (e) { return null; }
     if (x.host !== HOST || x.pathname.indexOf(PREFIX) !== 0) return null;
     var p = x.pathname.slice(PREFIX.length).split("/");
     if (p.length < 3 || (p[1] !== "http" && p[1] !== "https")) return null;
     return p[1] + "://" + p[2] + "/" + p.slice(3).join("/") + x.search + x.hash;
   }
-  function currentTarget() { return CFG ? TARGET : decode(L.href) || TARGET; }
+  function currentTarget() { return CFG ? TARGET : decode(LB.href) || TARGET; }
   function targetBase() { return CFG ? TARGET : decode(D.baseURI) || currentTarget(); }
 
   /** any URL a page uses → the proxied path (mirror of encodeTarget / rewriteUrl in src/lib/wp-core.ts) */
@@ -62,18 +65,20 @@
   // TT39 (WP-10): script requests name the document that made them and its credentials mode, in the session segment
   // ("<sid>:<doc>:<i|s|o>") — the server applies the Fetch standard's rules for that document's real origin.
   var DOC = me.dataset.doc || "";
-  function tag(p, cred, sameOriginMode) {
+  function tag(p, cred, sameOriginMode, script) {
     if (!DOC || typeof p !== "string") return p;
     // TT41: "m" = the page asked for mode "same-origin" (the server refuses a redirect that leaves the origin)
     // a data: worker's origin is opaque: Origin "null", never same-origin, cross-site, no Referer ("txyn") — the
     // chain flags the server already applies to tainted redirects (wp-cors ChainFlags)
-    var c = (cred === "include" ? "i" : cred === "omit" ? "o" : "s") + (sameOriginMode ? "m" : "") + (CFG && CFG.opaque ? "txyn" : ""), head = PREFIX + SID + "/", seg = PREFIX + SID + ":" + DOC + ":" + c + "/";
+    // TT42: "e" = made by page script through fetch() / XHR (destination "empty") — read by the server only when the
+    // browser sends no Fetch Metadata (older Safari), to tell a page's fetch from a module-graph load
+    var c = (cred === "include" ? "i" : cred === "omit" ? "o" : "s") + (sameOriginMode ? "m" : "") + (CFG && CFG.opaque ? "txyn" : "") + (script ? "e" : ""), head = PREFIX + SID + "/", seg = PREFIX + SID + ":" + DOC + ":" + c + "/";
     // TT40: a URL that already carries a tag (e.g. an <img>'s "<sid>:<doc>:r" src read back by script) is re-tagged
     // as THIS script request — a fetch() is never treated as a markup subresource
     var at = p.indexOf(HERE) === 0 ? HERE.length : 0;
     if (p.indexOf(PREFIX + SID + ":", at) === at) {
       var slash = p.indexOf("/", at + PREFIX.length);
-      if (slash > 0 && /^[A-Za-z0-9_-]+:[A-Za-z0-9_-]{8,32}:(r|f|[iso]m?t?x?y?n?)$/.test(p.slice(at + PREFIX.length, slash))) p = p.slice(0, at) + head + p.slice(slash + 1);
+      if (slash > 0 && /^[A-Za-z0-9_-]+:[A-Za-z0-9_-]{8,32}:(r|f|[iso]m?t?x?y?n?e?)$/.test(p.slice(at + PREFIX.length, slash))) p = p.slice(0, at) + head + p.slice(slash + 1);
     }
     if (p.indexOf(head) === 0) return seg + p.slice(head.length);
     if (p.indexOf(HERE + head) === 0) return HERE + seg + p.slice(HERE.length + head.length);
@@ -115,8 +120,8 @@
       var cred = (init && init.credentials) || (input && typeof input === "object" && input.credentials) || "same-origin";
       var i = input, o = Object.assign({}, init || {}, { credentials: "omit" });
       var mode = o.mode || (i && typeof i === "object" && i.mode) || "", proxied, som = mode === "same-origin";
-      if (typeof i === "string" || (W.URL && i instanceof URL)) i = proxied = tag(enc(String(i)), cred, som);
-      else if (i && i.url) i = new Request(proxied = tag(enc(i.url), cred, som), i); // method, headers and body come along; o.mode overrides below
+      if (typeof i === "string" || (W.URL && i instanceof URL)) i = proxied = tag(enc(String(i)), cred, som, true);
+      else if (i && i.url) i = new Request(proxied = tag(enc(i.url), cred, som, true), i); // method, headers and body come along; o.mode overrides below
       // "same-origin" can never be met from the page's opaque origin. A request the SITE would have made to ITSELF goes
       // as "cors" (the proxy answers with ACAO *); a request to another site keeps "same-origin" and fails, as natively.
       if (mode === "same-origin") {
@@ -135,7 +140,7 @@
     X.open = function (m, u) {
       var a = Array.prototype.slice.call(arguments), f = st(this);
       f.args = a.slice(); f.hdrs = []; f.sent = f.cred;
-      a[1] = tag(enc(u), f.cred ? "include" : "same-origin");
+      a[1] = tag(enc(u), f.cred ? "include" : "same-origin", false, true);
       return _open.apply(this, a);
     };
     X.setRequestHeader = function (k, v) { st(this).hdrs.push([k, v]); return _srh.call(this, k, v); };
@@ -143,7 +148,7 @@
       var f = st(this), self = this;
       if (f.args && f.sent !== f.cred && this.readyState === 1) {
         var a = f.args.slice(), hdrs = f.hdrs.slice();
-        a[1] = tag(enc(a[1]), f.cred ? "include" : "same-origin"); f.sent = f.cred;
+        a[1] = tag(enc(a[1]), f.cred ? "include" : "same-origin", false, true); f.sent = f.cred;
         _open.apply(this, a);
         hdrs.forEach(function (h) { _srh.call(self, h[0], h[1]); });
         f.hdrs = hdrs;
@@ -355,10 +360,43 @@
       Object.defineProperty(C.prototype, p[1], { configurable: true, enumerable: d.enumerable, get: d.get, set: function (v) { d.set.call(this, encSrcset(v)); } });
     });
   });
+  guard(function () {
+    var C = W.HTMLIFrameElement, d = C && Object.getOwnPropertyDescriptor(C.prototype, "srcdoc"); if (!d || !d.set) return;
+    Object.defineProperty(C.prototype, "srcdoc", { configurable: true, enumerable: d.enumerable, get: d.get, set: function (v) { d.set.call(this, rewriteSrcdoc(v, 0)); } });
+  });
   var ATTR = { src: 1, href: 1, action: 1, formaction: 1, poster: 1, background: 1 };
   var _setAttr = W.Element.prototype.setAttribute;
+  // TT42 (WP-19): a srcdoc set by script is rewritten before the frame sees it — parsed INERT (DOMParser loads
+  // nothing), every URL attribute fixed as if it were set on a live element, nested srcdoc too, and this runtime's own
+  // tag (data-srcdoc) put first in its <head>. Markup that already carries a srcdoc runtime is ours: unchanged.
+  function srcdocTag(doc) {
+    var t = doc.createElement("script");
+    for (var i = 0; i < me.attributes.length; i++) _setAttr.call(t, me.attributes[i].name, me.attributes[i].value);
+    _setAttr.call(t, "data-srcdoc", "1");
+    return t;
+  }
+  function rewriteSrcdoc(v, depth) {
+    var s = String(v);
+    if (/data-srcdoc="1"/.test(s) && s.indexOf("/wp-shim.js") >= 0) return s;
+    if ((depth || 0) > 3 || !W.DOMParser || !me.attributes) return s;
+    try {
+      var doc = new W.DOMParser().parseFromString(s, "text/html");
+      var all = doc.querySelectorAll("[src],[href],[action],[formaction],[poster],[srcset],[background],object[data],iframe[srcdoc]");
+      for (var j = 0; j < all.length; j++) {
+        var x = all[j];
+        for (var a = 0; a < x.attributes.length; a++) {
+          var at = x.attributes[a], k = at.name.toLowerCase();
+          var nv = k === "srcdoc" ? rewriteSrcdoc(at.value, (depth || 0) + 1) : fixAttr(x, at.name, at.value);
+          if (nv !== at.value) _setAttr.call(x, at.name, nv);
+        }
+      }
+      doc.head.insertBefore(srcdocTag(doc), doc.head.firstChild);
+      return (doc.doctype ? "<!DOCTYPE " + doc.doctype.name + ">" : "") + doc.documentElement.outerHTML;
+    } catch (e) { return s; }
+  }
   function fixAttr(el, name, value) {
     var k = String(name).toLowerCase();
+    if (k === "srcdoc" && el.tagName === "IFRAME") return rewriteSrcdoc(value, 0);
     if (ATTR[k] || (k === "data" && el.tagName === "OBJECT")) return encFor(el, k, value);
     if (k === "srcset" || k === "imagesrcset") return encSrcset(value);
     return value;
@@ -372,7 +410,7 @@
   });
   // markup inserted with innerHTML / insertAdjacentHTML bypasses the setters: fix it as it lands
   guard(function () {
-    var SEL = "[src],[href],[action],[formaction],[poster],[srcset],[background],object[data]";
+    var SEL = "[src],[href],[action],[formaction],[poster],[srcset],[background],object[data],iframe[srcdoc]";
     function fix(el) {
       if (!el || el.nodeType !== 1) return;
       var list = el.matches && el.matches(SEL) ? [el] : [];
@@ -389,7 +427,7 @@
         if (r.type === "attributes") { var v = r.target.getAttribute(r.attributeName); if (v !== null) { var nv = fixAttr(r.target, r.attributeName, v); if (nv !== v) _setAttr.call(r.target, r.attributeName, nv); } }
         else for (var i = 0; i < r.addedNodes.length; i++) fix(r.addedNodes[i]);
       });
-    }).observe(D.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["src", "href", "action", "formaction", "poster", "srcset", "background", "data"] });
+    }).observe(D.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["src", "href", "action", "formaction", "poster", "srcset", "background", "data", "srcdoc"] });
   });
 
   // ---- navigation that slips past the rewriting (location.href = "/x", unrewritten links): catch it in flight

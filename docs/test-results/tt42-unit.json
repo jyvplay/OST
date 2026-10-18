@@ -1,0 +1,60 @@
+{
+  "suite": "tt42-unit",
+  "at": "2026-10-18T23:43:51.252Z",
+  "results": [
+    {
+      "suite": "tt42-unit",
+      "name": "WP-20 wrapper value semantics: for 20 run-time specifier values (root-relative, ./, ../, a colon in the first path segment, absolute http(s), protocol-relative, URL objects, an object with toString, credentials in the URL, bare names, data:, blob:, already-proxied, a non-http scheme, an unparseable string) the inline wrapper yields EXACTLY what the static rewriter yields for the same literal (or the string itself where the static rewriter leaves it); a throwing toString / a Symbol is passed through untouched so import() rejects natively",
+      "covers": {
+        "WP-20": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt42-unit",
+      "name": "WP-20 lexer: the first argument of every computed dynamic import is found with exactly acorn's source range — 19 shapes incl. nested templates, commas inside calls / arrays / objects, comments, a trailing comma, nested imports (literal inside computed, computed inside computed), import.source / import.defer — and literal imports, object / class METHODS named import and member calls are never wrapped",
+      "covers": {
+        "WP-20": "full"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt42-unit",
+      "name": "WP-20 executed by V8: a rewritten script's import() calls receive the proxied address of every computed root-relative / relative / absolute / colon-segment / URL-object specifier, bare names unchanged, a literal import proxied statically, options still passed — and the original script, run the same way, receives the raw values (the difference is ONLY the proxying)",
+      "covers": {
+        "WP-20": "full"
+      },
+      "pass": true,
+      "ms": 105
+    },
+    {
+      "suite": "tt42-unit",
+      "name": "WP-20 fail-safe and scope: a file the lexer cannot read is returned byte-identical (nothing wrapped); an `import(x)` followed by \"{\" on the next line (call + block via ASI) is conservatively NOT wrapped — the same shape a method has — so it behaves exactly as before (root import map path), never broken",
+      "covers": {
+        "WP-20": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt42-unit",
+      "name": "WP-21 destination inference without Fetch Metadata: Safari's real Accept values (document / image / stylesheet / */*) and the URL tag decide — untagged document → navigate, untagged image / css → no-cors image / style, a markup-subresource tag → its Accept or script, a script tag → script (CORS) or, with the shim's \"e\" flag, empty (fetch / XHR), a frame tag → iframe; ANY Fetch Metadata header present → null (the browser's own values win); \"e\" round-trips in canonical order after \"n\", is rejected out of order, and survives a redirect hop",
+      "covers": {
+        "WP-21": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt42-unit",
+      "name": "WP-15 DHCP option 252 parsing: dhclient leases (named \"wpad\", \"unknown-252\" string with \\000 / \\\" escapes, colon-hex bytes; the LAST lease block wins; non-http values and a block without 252 skipped), systemd-networkd OPTION_252 hex; a DHCPINFORM is a well-formed RFC 2131 BOOTREQUEST (op 1, ciaddr, magic cookie, option 53 = 8, parameter list {252}) and a DHCPACK carrying 252 parses back — a reply for another xid, a BOOTREQUEST, or a bad cookie is ignored",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

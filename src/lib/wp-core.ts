@@ -87,9 +87,25 @@ export function rewriteSpecifier(spec: string, base: string | URL, seg: string):
  * still work) and the result is decoded back to the real URL — inline, no global (mirror of encodeTarget)
  */
 export const RESOLVE_WRAP = String.raw`((s) => { const u = import.meta.resolve(s), m = /^https?:\/\/[^/]+\/api\/wp\/s\/[^/]+\/(https?)\/([^/?#]+)(.*)$/.exec(u); return m ? m[1] + "://" + m[2] + m[3] : u; })`;
+/**
+ * TT42: a COMPUTED dynamic-import specifier — `import(X)` where X is only known at run time — is wrapped so the browser
+ * receives exactly what rewriteSpecifier would have produced for that value: X is converted to a string once (as
+ * import() itself does; if that throws, X is passed through and import() rejects natively), URL-like strings resolve
+ * against the script's REAL base URL, absolute http(s) results become proxied addresses with the module graph's
+ * segment, and bare / data: / blob: / already-proxied values go through untouched (import maps still apply).
+ * Inline and global-free, like RESOLVE_WRAP, so it works in module workers and frames without the shim. Mirrors
+ * encodeTarget (credentials in URLs refused → passed through, so the browser's own CSP refuses it as before).
+ */
+export function dynImportWrap(base: string | URL, seg: string): { open: string; close: string } {
+  const b = typeof base === "string" ? base : base.href;
+  return {
+    open: String.raw`((s, b, g) => { let t; try { t = ` + "`${s}`" + String.raw`; } catch { return s; } let u; try { u = /^\.{0,2}\//.test(t) ? new URL(t, b) : new URL(t); } catch { return t; } return /^https?:$/.test(u.protocol) && u.hostname && !u.username && !u.password && !u.pathname.startsWith(${JSON.stringify(WP_PREFIX)}) ? ${JSON.stringify(WP_PREFIX)} + g + "/" + u.protocol.slice(0, -1) + "/" + u.host + u.pathname + u.search + u.hash : t; })(`,
+    close: `, ${JSON.stringify(b)}, ${JSON.stringify(seg)})`,
+  };
+}
 /** a module's source with its specifiers proxied and import.meta.url = the module's REAL address (metaUrl) */
-export function rewriteModuleSource(js: string, o: { base: string | URL; seg: string; metaUrl: string | null }): { code: string; rewritten: number; metaUrls: number; error?: string } {
-  return rewriteModule(js, (spec) => rewriteSpecifier(spec, o.base, o.seg), o.metaUrl, RESOLVE_WRAP);
+export function rewriteModuleSource(js: string, o: { base: string | URL; seg: string; metaUrl: string | null }): { code: string; rewritten: number; metaUrls: number; wrapped?: number; error?: string } {
+  return rewriteModule(js, (spec) => rewriteSpecifier(spec, o.base, o.seg), o.metaUrl, RESOLVE_WRAP, dynImportWrap(o.base, o.seg));
 }
 /**
  * An import map (HTML §8.1.5.3): URL-like KEYS and every address are proxied the same way as module specifiers, so a
@@ -205,6 +221,8 @@ export interface HtmlRewriteOptions {
   url: string;
   /** markup injected first thing in <head> (the runtime + its data) */
   inject?: string;
+  /** TT42: nesting depth of srcdoc documents being rewritten (an iframe srcdoc inside a srcdoc …) — capped at 3 */
+  srcdocDepth?: number;
 }
 export interface HtmlRewriteReport { rewritten: number; removed: string[]; base: string }
 
@@ -311,6 +329,12 @@ export function rewriteHtml(html: string, o: HtmlRewriteOptions): { html: string
       if ((URL_ATTRS[an] && (URL_ATTRS[an].includes(name) || URL_ATTRS[an].includes("*")))) nv = rewriteUrl(val, base, isResourceAttr(name, an) ? corsSeg ?? res : an === "src" && (name === "iframe" || name === "frame") && docSeg ? `${docSeg}:f` : o.sid);
       else if (SRCSET_ATTRS.has(an)) nv = rewriteSrcset(val, base, res);
       else if (an === "style") nv = rewriteCss(val, base, res);
+      // TT42 (WP-19): an iframe's srcdoc is a whole document with THIS document's origin and (fallback) base URL — it is
+      // rewritten like this one (same document segment, same runtime with data-srcdoc so it resolves against
+      // document.baseURI instead of about:srcdoc), then re-encoded; deeper than 3 levels it is left as it was
+      else if (an === "srcdoc" && name === "iframe" && (o.srcdocDepth ?? 0) < 3) {
+        nv = rewriteHtml(val, { ...o, url: base, inject: o.inject ? o.inject.replace('data-fusion-wp="1"', 'data-fusion-wp="1" data-srcdoc="1"') : o.inject, srcdocDepth: (o.srcdocDepth ?? 0) + 1 }).html;
+      }
       else if (an === "integrity" || an === "ping") { nv = null; report.removed.push(`${name}[${an}]`); }
       else if (an === "crossorigin" && lower(val) === "use-credentials") nv = "anonymous"; // credentials never cross the proxy
       else if (an === "target" && /^_(top|parent)$/i.test(val)) nv = "_self"; // inside the frame, not over the whole desktop
@@ -344,6 +368,15 @@ export function rewriteHtml(html: string, o: HtmlRewriteOptions): { html: string
                 // at run time ("/mapped/x.js" → Fusion's origin) maps exactly as the page's own key would natively
                 const R = rootKeys()["/"];
                 if (R) for (const [k, v] of Object.entries({ ...imports })) if (k.startsWith(R) && !(`/${k.slice(R.length)}` in imports)) imports[`/${k.slice(R.length)}`] = v;
+                // TT42: the same twins INSIDE every scope (a scope's inner keys are matched against the resolved
+                // specifier exactly like top-level ones). Scope KEYS need none: they are matched against the
+                // REFERRER — a module, an inline script's document or an eval caller — which is always a proxied URL.
+                const sc = (m as { scopes?: unknown }).scopes;
+                if (R && sc && typeof sc === "object" && !Array.isArray(sc)) for (const inner of Object.values(sc as Record<string, unknown>)) {
+                  if (!inner || typeof inner !== "object" || Array.isArray(inner)) continue;
+                  const im = inner as Record<string, unknown>;
+                  for (const [k, v] of Object.entries({ ...im })) if (k.startsWith(R) && !(`/${k.slice(R.length)}` in im)) im[`/${k.slice(R.length)}`] = v;
+                }
                 for (const [k, v] of Object.entries(rootKeys())) if (!(k in imports)) imports[k] = v;
                 m.imports = imports; r = JSON.stringify(m); pageMapMerged = true;
               }
