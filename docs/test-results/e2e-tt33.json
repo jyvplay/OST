@@ -1,0 +1,45 @@
+{
+  "suite": "e2e-tt33",
+  "at": "2026-10-18T00:54:11.253Z",
+  "results": [
+    {
+      "suite": "e2e-tt33",
+      "name": "TIDAL (SM-05): click-to-load gate names embed.tidal.com + the 30-second/sign-in note and sends nothing before consent; against TIDAL's real bridge: Play → 'Started', Pause → 'Pause sent' (flagged assumed), a start inside the player → 'Started'; spoofed starts (our own window, a foreign pid) ignored",
+      "covers": {
+        "SM-05": "full"
+      },
+      "pass": true,
+      "ms": 4134
+    },
+    {
+      "suite": "e2e-tt33",
+      "name": "one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video",
+      "covers": {
+        "SM-08": "full",
+        "SM-05": "full"
+      },
+      "pass": true,
+      "ms": 2371
+    },
+    {
+      "suite": "e2e-tt33",
+      "name": "Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour",
+      "covers": {
+        "SM-06": "full",
+        "SM-07": "full",
+        "SM-08": "full"
+      },
+      "pass": true,
+      "ms": 2952
+    },
+    {
+      "suite": "e2e-tt33",
+      "name": "library + modal shortcut (SM-08): TIDAL / Qobuz / Amazon links saved show their provider; Next walks them; the Rename dialog traps Escape (closes the dialog only — title unchanged, window open) and Enter renames",
+      "covers": {
+        "SM-08": "full"
+      },
+      "pass": true,
+      "ms": 4136
+    }
+  ]
+}

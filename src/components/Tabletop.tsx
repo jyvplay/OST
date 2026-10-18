@@ -83,6 +83,8 @@ export default function Tabletop() {
   const [lift, setLift] = useState<Wall | null>(null);
   const [pans, setPans] = useState<Record<Wall, number>>(NO_PANS);
   const liftT = useRef(0);
+  /** TT33: true while Esc hands focus back to a wall's own button — that focus must not lift the wall again */
+  const quietFocus = useRef(false);
   const settling = useRef(false);
   const pendingLift = useRef<Wall | null>(null);
   const spring = useRef<{ w: Wall | null; t: number }>({ w: null, t: 0 });
@@ -141,7 +143,17 @@ export default function Tabletop() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       if (menu) setMenu(null); else if (viewsOpen) setViewsOpen(false); else if (zoom) setZoom(null); else if (fanned) setFanned(null);
-      else if (main === "floor" && lift) { window.clearTimeout(liftT.current); setLift(null); } else setMain("floor");
+      else if (main === "floor" && lift) {
+        window.clearTimeout(liftT.current); setLift(null);
+        // TT33: focus was inside the lifted wall (a pin) → return it to the control that lifted it, the wall's own
+        // button, instead of leaving it on a pin of a wall that is now foreshortened (WAI-ARIA: Esc returns focus)
+        const wallEl = document.querySelector(`[data-testid="tt-wall-${lift}"]`), ae = document.activeElement;
+        const opener = document.querySelector<HTMLElement>(`[data-testid="tt-open-${lift}"]`);
+        if (wallEl && ae && wallEl.contains(ae) && opener && ae !== opener) {
+          quietFocus.current = true;
+          try { opener.focus({ preventScroll: true }); } finally { quietFocus.current = false; }
+        }
+      } else setMain("floor");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -223,7 +235,7 @@ export default function Tabletop() {
     wv[w] = { lifted: isLifted, ew, eh, quad, frame, liftFrame, rows, pan: clampPan(frame, rows, pans[w]), toEl: screenToElementH(quad, ew, eh), toSc: elementToScreenH(quad, ew, eh), dock, m };
   }
   const clearLiftTimer = () => { window.clearTimeout(liftT.current); settling.current = false; pendingLift.current = null; };
-  const liftNow = (w: Wall) => { clearLiftTimer(); if (main === "floor" && lift !== w) setLift(w); };
+  const liftNow = (w: Wall) => { if (quietFocus.current) return; clearLiftTimer(); if (main === "floor" && lift !== w) setLift(w); };
   const hoverWall = (w: Wall) => { clearLiftTimer(); if (lift !== w) { pendingLift.current = w; liftT.current = window.setTimeout(() => { pendingLift.current = null; setLift(w); }, LIFT_DELAY); } };
   /**
    * Hover INTENT: only real pointer movement over a wall (or its tag) arms the lift — not the synthetic enter Chrome

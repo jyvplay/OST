@@ -1,0 +1,74 @@
+{
+  "suite": "tt33-unit",
+  "at": "2026-10-18T00:53:56.679Z",
+  "results": [
+    {
+      "suite": "tt33-unit",
+      "name": "TIDAL link grammar (SM-05): tidal.com / browse / listen.tidal.com / album…track / embed.tidal.com → embed.tidal.com/<types>/<id>; kinds, heights, allow",
+      "covers": {
+        "SM-05": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt33-unit",
+      "name": "Qobuz link grammar (SM-06): widget / open / play / store pages → widget.qobuz.com with zone; track compact; heights",
+      "covers": {
+        "SM-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt33-unit",
+      "name": "Amazon Music grammar (SM-07): Share → Embed code kept as issued (tracking params dropped); page links → embed shape flagged unverified; 12 storefronts",
+      "covers": {
+        "SM-07": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt33-unit",
+      "name": "≥ 15 refused shapes, each with a reason (negative space)",
+      "covers": {
+        "SM-05": "partial",
+        "SM-06": "partial",
+        "SM-07": "partial",
+        "SM-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt33-unit",
+      "name": "embed codes (SM-08): any provider's <iframe> snippet → its src only (data-src ignored, protocol-relative ok); SoundCloud api widget",
+      "covers": {
+        "SM-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt33-unit",
+      "name": "access notes say what each embed can and cannot do; library round-trip and dedupe across link forms",
+      "covers": {
+        "SM-05": "partial",
+        "SM-06": "partial",
+        "SM-07": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt33-unit",
+      "name": "TIDAL control protocol, parent side (SM-05): pid in src, one-way state, exact {commandName} strings, start signal, foreign pid/junk ignored, pause flagged as assumed, no seek/end",
+      "covers": {
+        "SM-05": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

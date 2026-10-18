@@ -25,10 +25,16 @@ const PENCIL = "M3 13l1-3.5L11 2.5l2.5 2.5L6.5 12z", UP = "M8 13V3M3.5 7.5L8 3l4
 
 export const LIBRARY_PATH = "/Documents/Streams.json";
 const STATUS_LABEL: Record<E.Status, string> = { loading: "Loading", ready: "Ready", cued: "Ready", playing: "Playing", paused: "Paused", buffering: "Buffering", ended: "Ended" };
+/** TT33: a one-way player (TIDAL) reports starts only — say exactly what is known */
+const statusText = (c: E.CtlState) => c.oneWay
+  ? (c.status === "playing" ? "Started" : c.status === "paused" && c.assumed ? "Pause sent" : STATUS_LABEL[c.status])
+  : `${STATUS_LABEL[c.status]} · ${E.formatClock(c.time, c.duration)}`;
+/** TT33: one player at a time across every Video / Music window (a start anywhere pauses the others) */
+const EXCLUSIVE = "fusion-media-exclusive";
 
 const EXAMPLES: Record<S.StreamKind, string[]> = {
-  video: ["https://www.youtube.com/watch?v=…", "https://vimeo.com/…", "https://<peertube-instance>/w/…", "https://….mp4"],
-  audio: ["https://open.spotify.com/track/…", "https://soundcloud.com/artist/track", "spotify:album:…", "https://….mp3"],
+  video: ["https://www.youtube.com/watch?v=…", "https://vimeo.com/…", "https://<peertube-instance>/w/…", "https://tidal.com/video/…", "https://….mp4"],
+  audio: ["https://open.spotify.com/track/…", "https://soundcloud.com/artist/track", "https://tidal.com/album/…", "https://open.qobuz.com/album/…", "https://music.amazon.com/albums/…", "an embed code <iframe …>", "https://….mp3"],
 };
 
 export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
@@ -51,6 +57,8 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
   /** the iframe's identity: a new key/src only when a NEW player is needed (a same-player load keeps the frame) */
   const [frame, setFrame] = useState<{ key: number; src: string; ctl: E.Ctl | null } | null>(null);
   const frameSeq = useRef(0);
+  const mediaRef = useRef<HTMLMediaElement | null>(null);
+  const selfId = useRef(`${win.id}`);
   const autoplayNext = useRef(false);
   const dirty = useRef(false);
   const libRef = useRef<S.Library | null>(null);
@@ -112,8 +120,9 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
     }
     const auto = autoplayNext.current; autoplayNext.current = false;
     frameSeq.current += 1;
-    setFrame({ key: frameSeq.current, src: c ? E.controlUrl(c, p.ref.embed, origin, auto) : p.ref.embed, ctl: c });
-    ctlRef.current = c ? E.initialState(c, auto) : null; setCtl(ctlRef.current);
+    const pid = E.tidalPid(`${selfId.current}-${frameSeq.current}`);
+    setFrame({ key: frameSeq.current, src: c ? E.controlUrl(c, p.ref.embed, origin, auto, pid) : p.ref.embed, ctl: c });
+    ctlRef.current = c ? E.initialState(c, auto, pid) : null; setCtl(ctlRef.current);
     setCurrent({ ref: p.ref, itemId });
   };
   // a link handed over by another app (open-with / routine) starts in the player
@@ -144,17 +153,47 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
       ctlRef.current = r.state;
       for (const m of r.send) fr.contentWindow?.postMessage(m, ev.origin);
       if (r.events.length) setCtl(r.state);
+      if (r.events.some((e) => e.type === "status" && e.status === "playing")) announce();
       if (r.events.some((e) => e.type === "ended") && autoRef.current) { autoplayNext.current = true; nextRef.current(); }
     };
+    // another Video / Music window started playing → pause ours (embed via its protocol, native media directly)
+    const onExclusive = (ev: Event) => {
+      const who = (ev as CustomEvent<string>).detail;
+      if (who === selfId.current) return;
+      const m = mediaRef.current;
+      if (m && !m.paused) m.pause();
+      const st = ctlRef.current, fr = frameRef.current;
+      if (!st || !fr?.contentWindow || !st.connected || !(st.status === "playing" || st.status === "buffering")) return;
+      const src = fr.getAttribute("src") ?? "";
+      const msg = E.command(st.ctl, { op: "pause" }, "fusion", st), to = E.targetOrigin(st.ctl, src);
+      if (msg && to) { fr.contentWindow.postMessage(msg, to); ctlRef.current = E.afterCommand(st, { op: "pause" }); setCtl(ctlRef.current); }
+    };
     window.addEventListener("message", onMsg);
-    return () => window.removeEventListener("message", onMsg);
+    window.addEventListener(EXCLUSIVE, onExclusive);
+    return () => { window.removeEventListener("message", onMsg); window.removeEventListener(EXCLUSIVE, onExclusive); };
   }, []);
+  function announce() { window.dispatchEvent(new CustomEvent(EXCLUSIVE, { detail: selfId.current })); }
   // YouTube speaks only after a "listening" handshake: repeat it until the player answers (≤ 10 s)
   const onFrameLoad = () => {
     const st = ctlRef.current, fr = frameRef.current, f = frame;
     if (!st || !fr || !f?.ctl) return;
     const to = E.targetOrigin(f.ctl, f.src);
     if (!to) return;
+    if (st.oneWay) {
+      // TIDAL never speaks first: usable from load; a queued autoplay is retried until the player reports a start
+      const r = E.frameLoaded(st);
+      ctlRef.current = r.state; setCtl(r.state);
+      if (r.send.length) {
+        let n = 0;
+        const again = () => {
+          if (ctlRef.current?.status === "playing" || frameRef.current !== fr || n++ > 8) return;
+          for (const m of r.send) fr.contentWindow?.postMessage(m, to);
+          setTimeout(again, 750);
+        };
+        again();
+      }
+      return;
+    }
     const msgs = E.handshake(f.ctl, `fusion-${f.key}`);
     if (!msgs.length) return;
     let n = 0;
@@ -169,7 +208,11 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
     const st = ctlRef.current, fr = frameRef.current, f = frame;
     if (!st || !fr || !f?.ctl) return;
     const msg = E.command(f.ctl, c, "fusion", st), to = E.targetOrigin(f.ctl, f.src);
-    if (msg && to) fr.contentWindow?.postMessage(msg, to);
+    if (msg && to) {
+      fr.contentWindow?.postMessage(msg, to);
+      const nx = E.afterCommand(st, c);
+      if (nx !== st) { ctlRef.current = nx; setCtl(nx); }
+    }
   };
   const ref = current?.ref ?? null;
   const loaded = !!ref && (ref.provider === "file" || alwaysLoad || consented.has(ref.host));
@@ -189,7 +232,7 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
         <section className="fs-stream-stage" aria-label="Player" data-testid={`${pfx}-stage`} data-provider={ref?.provider ?? ""} data-loaded={loaded ? "1" : "0"}>
           {!ref ? (
             <div className="fs-stream-empty">
-              <strong>{kind === "video" ? "Play a video from YouTube, Vimeo, Dailymotion, Twitch, PeerTube or a file link" : "Stream from Spotify or SoundCloud, or play an audio file link"}</strong>
+              <strong>{kind === "video" ? "Play a video from YouTube, Vimeo, Dailymotion, Twitch, PeerTube, TIDAL or a file link" : "Stream from Spotify, SoundCloud, TIDAL, Qobuz or Amazon Music, or play an audio file link"}</strong>
               <span className="fs-dim">Examples: {EXAMPLES[kind].join(" · ")}</span>
             </div>
           ) : !loaded ? (
@@ -197,7 +240,7 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
               <Badge tone="info">{S.PROVIDER_LABEL[ref.provider]}{ref.sub ? ` · ${ref.sub}` : ""}</Badge>
               <strong className="fs-stream-facade-title">Load the {S.PROVIDER_LABEL[ref.provider]} player?</strong>
               <span className="fs-dim">This connects to <b>{ref.host}</b>, which sees your IP address and may set cookies. Nothing has been sent yet.
-                {ref.provider === "spotify" ? " Full tracks need you to be signed in to Spotify in this browser; otherwise Spotify plays 30-second previews." : ""}</span>
+                {S.accessNote(ref) ? <span data-testid={`${pfx}-access-note`}>{" "}{S.accessNote(ref)}</span> : null}</span>
               <label className="fs-row" style={{ gap: 8 }}>
                 <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} data-testid={`${pfx}-remember`} />
                 Always load embedded players without asking
@@ -212,8 +255,8 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
             </div>
           ) : ref.provider === "file" ? (
             ref.kind === "video"
-              ? <video key={ref.embed} className="fs-stream-video" src={ref.embed} controls playsInline data-testid={`${pfx}-media`} onEnded={() => { if (autoNext) next(); }} />
-              : <audio key={ref.embed} className="fs-stream-audio" src={ref.embed} controls data-testid={`${pfx}-media`} onEnded={() => { if (autoNext) next(); }} />
+              ? <video key={ref.embed} ref={(el) => { mediaRef.current = el; }} className="fs-stream-video" src={ref.embed} controls playsInline data-testid={`${pfx}-media`} onPlay={announce} onEnded={() => { if (autoNext) next(); }} />
+              : <audio key={ref.embed} ref={(el) => { mediaRef.current = el; }} className="fs-stream-audio" src={ref.embed} controls data-testid={`${pfx}-media`} onPlay={announce} onEnded={() => { if (autoNext) next(); }} />
           ) : (
             <iframe key={frame?.key ?? ref.embed} ref={frameRef} onLoad={onFrameLoad} className="fs-stream-frame" data-testid={`${pfx}-frame`} src={frame?.src ?? ref.embed}
               title={`${S.PROVIDER_LABEL[ref.provider]} player`} allow={S.iframeAllow(ref)} allowFullScreen
@@ -226,12 +269,21 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
               <span className="fs-dim" data-testid={`${pfx}-now`}>{S.PROVIDER_LABEL[ref.provider]}{ref.start ? ` · from ${ref.start}s` : ""}</span>
               {loaded && ctl ? (
                 <>
-                  <Btn variant="ghost" data-testid={`${pfx}-toggle`} disabled={!ctl.connected}
-                    onClick={() => send(ctl.status === "playing" || ctl.status === "buffering" ? { op: "pause" } : { op: "play" })}>
-                    {ctl.status === "playing" || ctl.status === "buffering" ? "Pause" : "Play"}
-                  </Btn>
-                  <span className="fs-dim fs-stream-clock" role="status" data-testid={`${pfx}-clock`} data-status={ctl.status} data-connected={ctl.connected ? "1" : "0"}>
-                    {ctl.connected ? `${STATUS_LABEL[ctl.status]} · ${E.formatClock(ctl.time, ctl.duration)}` : "Connecting to the player…"}
+                  {ctl.oneWay ? (
+                    <>
+                      {/* TT33 TIDAL: the player does not report pauses, so our state can be stale — offer both */}
+                      <Btn variant="ghost" data-testid={`${pfx}-ctl-play`} disabled={!ctl.connected} onClick={() => send({ op: "play" })}>Play</Btn>
+                      <Btn variant="ghost" data-testid={`${pfx}-ctl-pause`} disabled={!ctl.connected} onClick={() => send({ op: "pause" })}>Pause</Btn>
+                    </>
+                  ) : (
+                    <Btn variant="ghost" data-testid={`${pfx}-toggle`} disabled={!ctl.connected}
+                      onClick={() => send(ctl.status === "playing" || ctl.status === "buffering" ? { op: "pause" } : { op: "play" })}>
+                      {ctl.status === "playing" || ctl.status === "buffering" ? "Pause" : "Play"}
+                    </Btn>
+                  )}
+                  <span className="fs-dim fs-stream-clock" role="status" data-testid={`${pfx}-clock`} data-status={ctl.status} data-assumed={ctl.assumed ? "1" : "0"} data-connected={ctl.connected ? "1" : "0"}
+                    title={ctl.oneWay ? `${S.PROVIDER_LABEL[ref.provider]}'s player reports when playback starts, not pauses, progress or the end` : undefined}>
+                    {ctl.connected ? statusText(ctl) : "Connecting to the player…"}
                   </span>
                 </>
               ) : null}

@@ -33,11 +33,22 @@
  *              is inferred from the stream (paused within 0.5 s of the end, or paused after the position fell back from
  *              the last second) — see spotifyEnded().
  *
+ *   TIDAL      (TT33) Read from TIDAL's own embed-player source (Apache-2.0, github.com/tidal-music/embed-player @0f4fb0f,
+ *              src/client/js/message-bridge.js + app.js), not guessed. Parent → embed: a JSON string (or object)
+ *              {commandName:"play"|"pause"} — the embed clicks its own play button when it is not / is PLAYING.
+ *              Embed → parent: JSON string {activatePlayerId:<pid>} whenever playback STARTS (its "pause the other
+ *              embeds" signal; pid is the ?pid= we put in the src), and size messages {height,width,newEmbed,pid}.
+ *              Its broadcastMediaStatus (currentTime / duration / paused / ended) exists in the source but is never
+ *              called, so the embed does NOT report pauses, progress or ends: our side knows "started" for certain
+ *              and "pause sent" only as a request (status "paused" with `assumed`). No seek, no volume, no end →
+ *              Auto-next cannot follow a TIDAL item. The embed speaks only when playback starts, so controls are
+ *              enabled once the frame has loaded (`oneWay`), not after a handshake.
+ *
  * Security: a message is only accepted when its origin is exactly the provider's player origin AND (checked by the
  * caller) event.source is our own iframe's window. Unknown shapes are ignored, never thrown.
  */
 
-export type Ctl = "youtube" | "vimeo" | "soundcloud" | "spotify";
+export type Ctl = "youtube" | "vimeo" | "soundcloud" | "spotify" | "tidal";
 /** A message to post: YouTube / Vimeo / SoundCloud take JSON strings; Spotify's embed reads plain objects. */
 export type Msg = string | Record<string, unknown>;
 /** Spotify embed commands. TOGGLE is publicly confirmed; ACK is best-effort (see header). */
@@ -62,6 +73,12 @@ export interface CtlState {
   wantPlay?: boolean;
   /** this provider cannot seek through our controls */
   noSeek?: boolean;
+  /** TT33 TIDAL: the player never speaks first and never confirms a pause — controls work from frame load */
+  oneWay?: boolean;
+  /** TT33: our player id inside the provider's messages (TIDAL ?pid=) */
+  pid?: string;
+  /** TT33: the status is what we last ASKED for (TIDAL pause), not something the player reported */
+  assumed?: boolean;
 }
 
 export type CtlEvent = { type: "ready" } | { type: "status"; status: Status } | { type: "progress"; time: number; duration: number } | { type: "ended" };
@@ -72,14 +89,41 @@ export const PLAYER_ORIGINS: Record<Ctl, readonly string[]> = {
   vimeo: ["https://player.vimeo.com"],
   soundcloud: ["https://w.soundcloud.com"],
   spotify: ["https://open.spotify.com"],
+  tidal: ["https://embed.tidal.com"],
 };
 
-export const initialState = (ctl: Ctl, autoplay = false): CtlState => ({ ctl, connected: false, status: "loading", time: 0, duration: 0, subscribed: false, ends: 0,
-  ...(ctl === "spotify" ? { noSeek: true, wantPlay: autoplay } : {}) });
+export const initialState = (ctl: Ctl, autoplay = false, pid?: string): CtlState => ({ ctl, connected: false, status: "loading", time: 0, duration: 0, subscribed: false, ends: 0,
+  ...(ctl === "spotify" ? { noSeek: true, wantPlay: autoplay } : {}),
+  ...(ctl === "tidal" ? { noSeek: true, oneWay: true, wantPlay: autoplay, pid: pid ?? "fusion" } : {}) });
+
+/** TIDAL's pid: what we put in ?pid= and expect back in activatePlayerId (short, URL-safe). */
+export const tidalPid = (key: number | string) => `fusion-${String(key).replace(/[^A-Za-z0-9_-]/g, "").slice(0, 32)}`;
+
+/**
+ * TT33: the frame finished loading. A one-way player (TIDAL) cannot confirm anything before playback, so this is the
+ * moment its controls become usable; returns the messages to send (a queued autoplay request).
+ */
+export function frameLoaded(s: CtlState): { state: CtlState; send: Msg[] } {
+  if (!s.oneWay || s.connected) return { state: s, send: [] };
+  const st: CtlState = { ...s, connected: true, status: s.status === "loading" ? "ready" : s.status };
+  const send: Msg[] = [];
+  if (st.wantPlay) { st.wantPlay = false; send.push(JSON.stringify({ commandName: "play" })); }
+  return { state: st, send };
+}
+
+/**
+ * TT33: record a command we just sent to a one-way player. Pause is never confirmed by TIDAL, so the state shows
+ * "paused" flagged `assumed`; play is left to the player's own start signal (activatePlayerId).
+ */
+export function afterCommand(s: CtlState, c: Command): CtlState {
+  if (!s.oneWay) return s;
+  if (c.op === "pause" && (s.status === "playing" || s.status === "buffering")) return { ...s, status: "paused", assumed: true };
+  return s;
+}
 
 /** Which providers this module can control (Dailymotion / Twitch / PeerTube: not implemented). */
 export function controllable(provider: string): Ctl | null {
-  return provider === "youtube" || provider === "vimeo" || provider === "soundcloud" || provider === "spotify" ? provider : null;
+  return provider === "youtube" || provider === "vimeo" || provider === "soundcloud" || provider === "spotify" || provider === "tidal" ? provider : null;
 }
 
 /**
@@ -109,7 +153,7 @@ export function targetOrigin(ctl: Ctl, embed: string): string | null {
  * answers pages whose origin matches). `autoplay` asks the player to start (the browser may still refuse, e.g. no
  * user activation — reported as status, never assumed).
  */
-export function controlUrl(ctl: Ctl, embed: string, parentOrigin: string, autoplay = false): string {
+export function controlUrl(ctl: Ctl, embed: string, parentOrigin: string, autoplay = false, pid?: string): string {
   let u: URL;
   try { u = new URL(embed); } catch { return embed; }
   if (ctl === "youtube") {
@@ -120,6 +164,9 @@ export function controlUrl(ctl: Ctl, embed: string, parentOrigin: string, autopl
     if (autoplay) u.searchParams.set("autoplay", "1");
   } else if (ctl === "soundcloud") {
     u.searchParams.set("auto_play", autoplay ? "true" : "false");
+  } else if (ctl === "tidal") {
+    // the embed echoes ?pid= in activatePlayerId — how we know a start came from THIS player
+    u.searchParams.set("pid", pid ?? "fusion");
   }
   return u.toString();
 }
@@ -194,6 +241,17 @@ export function receive(s: CtlState, data: unknown): { state: CtlState; send: Ms
     else if (e === "pause") { connect(); setStatus("paused"); }
     else if (e === "timeupdate" || e === "playProgress") { connect(); progress(num(data2.seconds), num(data2.duration)); if (st.status !== "playing" && st.status !== "paused") setStatus("playing"); }
     else return out;
+  } else if (s.ctl === "tidal") {
+    if (typeof m.activatePlayerId === "string") {
+      // a start of ANOTHER TIDAL embed is not ours (the bridge broadcasts to its parent; pids tell them apart)
+      if (s.pid && m.activatePlayerId !== s.pid) return out;
+      connect();
+      st.assumed = false;
+      setStatus("playing");
+    } else if (m.newEmbed === true && typeof m.height === "number") {
+      connect(); // size report: proof of life only
+      if (!ev.length) return { state: st, send, events: [] };
+    } else return out;
   } else if (s.ctl === "spotify") {
     const t = m.type;
     if (t === "ready") {
@@ -248,6 +306,12 @@ export type Command = { op: "play" } | { op: "pause" } | { op: "seek"; seconds: 
  * has only a confirmed toggle: play / pause send it unless `state` shows the player is already in that state.
  */
 export function command(ctl: Ctl, c: Command, id = "fusion", state?: CtlState | null): Msg | null {
+  if (ctl === "tidal") {
+    // the embed ignores play while PLAYING and pause while not, so both are always safe to send (our state may be stale)
+    if (c.op === "play") return JSON.stringify({ commandName: "play" });
+    if (c.op === "pause") return JSON.stringify({ commandName: "pause" });
+    return null;
+  }
   if (ctl === "spotify") {
     const active = state?.status === "playing" || state?.status === "buffering";
     if (c.op === "play") return state && active ? null : { ...SPOTIFY_TOGGLE };

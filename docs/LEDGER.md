@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-18T00:08:19.609Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-54 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-18T01:01:52.028Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+56 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **336** |
-| Fully built | 252 |
-| Partially built (partial 45 + probe 17) | 62 |
+| **Features in register** | **340** |
+| Fully built | 255 |
+| Partially built (partial 46 + probe 17) | 63 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 22 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **133** |
+| **Fully tested** (≥1 passing test tagged `full`) | **137** |
 | **Partially tested** (only `partial` tags) | **77** |
 | Untested | 126 |
-| Automated tests executed / passed | 538 / 538 |
+| Automated tests executed / passed | 549 / 549 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 124 | 61 | 67 |
-| partially built | 3 | 14 | 45 |
+| fully built | 127 | 61 | 67 |
+| partially built | 4 | 14 | 45 |
 | blocked | 6 | 2 | 14 |
 | skeleton | 0 | 0 | 0 |
 
@@ -33,60 +33,62 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-17T23:37:23.310Z |
-| ai-format | 5 | 5 | 0 | 2026-10-17T23:37:25.146Z |
-| browser-session | 5 | 5 | 0 | 2026-10-17T23:37:09.050Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-17T23:37:28.700Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-17T23:47:01.967Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-17T23:48:02.341Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-18T00:02:48.064Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-17T23:41:59.676Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-17T23:48:27.661Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-17T23:40:50.126Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-17T23:49:37.716Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-17T23:52:08.384Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-17T23:39:55.922Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-17T23:42:30.208Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-17T23:43:02.466Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-17T23:47:24.881Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T00:04:47.504Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-17T23:52:48.780Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-17T23:53:12.836Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-17T23:55:13.791Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-17T23:56:35.072Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T00:07:26.799Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-17T23:41:18.073Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-17T23:47:48.168Z |
-| e2e | 61 | 61 | 0 | 2026-10-17T23:39:26.622Z |
-| image | 12 | 12 | 0 | 2026-10-17T23:37:03.305Z |
-| integration | 25 | 25 | 0 | 2026-10-17T23:36:56.914Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-17T23:37:29.508Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-17T23:37:36.880Z |
-| metaclean | 6 | 6 | 0 | 2026-10-17T23:37:18.728Z |
-| names | 7 | 7 | 0 | 2026-10-17T23:37:02.807Z |
-| office | 35 | 35 | 0 | 2026-10-17T23:36:57.333Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-17T23:37:28.311Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-17T23:37:06.735Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-17T23:37:08.861Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-17T23:37:29.226Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-17T23:36:59.291Z |
-| oracle | 5 | 5 | 0 | 2026-10-17T23:36:57.749Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-17T23:37:22.935Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-17T23:37:14.887Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-17T23:37:17.004Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-17T23:36:59.748Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-17T23:37:30.040Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-17T23:37:23.591Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-17T23:37:29.840Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-17T23:37:37.177Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-17T23:37:38.074Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-17T23:53:13.051Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-17T23:55:14.088Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-17T23:56:50.773Z |
-| unit | 23 | 23 | 0 | 2026-10-17T23:36:53.669Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-17T23:37:08.112Z |
-| vector | 18 | 18 | 0 | 2026-10-17T23:37:07.036Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-17T23:37:23.804Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-18T00:32:04.606Z |
+| ai-format | 5 | 5 | 0 | 2026-10-18T00:32:06.384Z |
+| browser-session | 5 | 5 | 0 | 2026-10-18T00:31:53.056Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-18T00:32:07.702Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-18T00:41:44.828Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-18T00:42:43.447Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-18T00:57:57.744Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-18T00:36:41.564Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-18T00:43:07.529Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-18T00:35:29.630Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-18T00:44:19.104Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-18T00:46:47.589Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-18T00:34:32.521Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-18T00:37:10.744Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T00:37:45.488Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-18T00:42:06.665Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T01:01:30.433Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T00:47:26.873Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T00:47:48.764Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T00:49:52.409Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T00:51:14.052Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T00:53:56.444Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T00:54:11.253Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-18T00:35:59.118Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T00:42:29.944Z |
+| e2e | 61 | 61 | 0 | 2026-10-18T00:34:02.198Z |
+| image | 12 | 12 | 0 | 2026-10-18T00:31:47.809Z |
+| integration | 25 | 25 | 0 | 2026-10-18T00:31:41.643Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-18T00:32:08.463Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-18T00:32:15.153Z |
+| metaclean | 6 | 6 | 0 | 2026-10-18T00:32:01.093Z |
+| names | 7 | 7 | 0 | 2026-10-18T00:31:47.433Z |
+| office | 35 | 35 | 0 | 2026-10-18T00:31:42.142Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-18T00:32:07.361Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-18T00:31:50.979Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-18T00:31:52.890Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-18T00:32:08.210Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T00:31:44.110Z |
+| oracle | 5 | 5 | 0 | 2026-10-18T00:31:42.536Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-18T00:32:04.302Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-18T00:31:57.868Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-18T00:31:59.578Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-18T00:31:44.475Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-18T00:32:08.988Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-18T00:32:04.845Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-18T00:32:08.783Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-18T00:32:15.460Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-18T00:32:16.261Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-18T00:47:48.974Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-18T00:49:52.695Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-18T00:51:30.352Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-18T00:53:56.679Z |
+| unit | 23 | 23 | 0 | 2026-10-18T00:31:38.970Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-18T00:31:52.209Z |
+| vector | 18 | 18 | 0 | 2026-10-18T00:31:51.240Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T00:32:05.077Z |
 
 ## Rows touched by failing tests
 
@@ -115,7 +117,7 @@ None.
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
 | LY | 22 | 22 | 0 | 0 | 22 | 0 | 0 |
-| SM | 4 | 4 | 0 | 0 | 1 | 3 | 0 |
+| SM | 8 | 7 | 1 | 0 | 5 | 3 | 0 |
 | MP | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 1 | 4 |
 | CA | 15 | 6 | 3 | 6 | 6 | 7 | 2 |
@@ -377,6 +379,10 @@ None.
 | AX-14 | built | full | e2e-tt30: oracle: our accessible names and roles agree with Chromium's accessibility tree in all 40 modules × 3 layouts (thresholds declared up front: names ≥ 98 %, roles ≥ 99 %); e2e-tt30: oracle sensitivity: three mutants of the narrator source are caught (aria-label ignored → names < 98 %; buttons as generic → roles < 99 %; CSS text-transform ignored → the uppercase headings differ); e2e-tt30: behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed (+12) |
 | LY-22 | built | full | e2e-tt31: hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %); e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+14) |
 | AX-15 | built | full | e2e-tt32: environment + engine choice: this Chromium has 0 system voices; Narrator (Automatic) speaks through Fusion Voice — the caption bar says so, Web Audio receives non-silent 16 kHz speech for the start-up announcement, and speechSynthesis.speak is never called; e2e-tt32: intelligibility in the browser (declared gate ≥ 75 %): focus announcements captured from Web Audio on the real page, forced choice among all captured announcements by PocketSphinx; e2e-tt32: control: Ctrl stops Fusion Voice mid-sentence (queued buffers are stopped, nothing new starts) (+10) |
+| SM-05 | built | full | e2e-tt33: TIDAL (SM-05): click-to-load gate names embed.tidal.com + the 30-second/sign-in note and sends nothing before consent; against TIDAL's real bridge: Play → 'Started', Pause → 'Pause sent' (flagged assumed), a start inside the player → 'Started'; spoofed starts (our own window, a foreign pid) ignored; e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video; tt33-unit: TIDAL link grammar (SM-05): tidal.com / browse / listen.tidal.com / album…track / embed.tidal.com → embed.tidal.com/<types>/<id>; kinds, heights, allow (+3) |
+| SM-06 | built | full | e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; tt33-unit: Qobuz link grammar (SM-06): widget / open / play / store pages → widget.qobuz.com with zone; track compact; heights; tt33-unit: ≥ 15 refused shapes, each with a reason (negative space) (+1) |
+| SM-07 | partial | full | e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; tt33-unit: Amazon Music grammar (SM-07): Share → Embed code kept as issued (tracking params dropped); page links → embed shape flagged unverified; 12 storefronts; tt33-unit: ≥ 15 refused shapes, each with a reason (negative space) (+1) |
+| SM-08 | built | full | e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video; e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; e2e-tt33: library + modal shortcut (SM-08): TIDAL / Qobuz / Amazon links saved show their provider; Next walks them; the Rename dialog traps Escape (closes the dialog only — title unchanged, window open) and Enter renames (+2) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
@@ -417,7 +423,7 @@ None.
 | MS-02 | blocked | untested |  |
 | MS-03 | blocked | partial | e2e: mount: messages |
 | MS-04 | partial | untested |  |
-| AX-01 | built | full | e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall; e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations (+1) |
+| AX-01 | built | full | e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting; e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations (+1) |
 | AX-02 | built | partial | e2e: structural a11y: every window is a named dialog; no unnamed buttons |
 | AX-03 | built | full | e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens) |
 | AX-04 | built | untested |  |

@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-18T00:08:19.611Z",
+ "generatedAt": "2026-10-18T01:01:52.031Z",
  "totals": {
   "built": {
-   "full": 252,
-   "partial": 62,
+   "full": 255,
+   "partial": 63,
    "blocked": 22,
    "none": 0
   },
   "tested": {
-   "full": 133,
+   "full": 137,
    "partial": 77,
    "untested": 126
   },
   "tests": {
-   "total": 538,
-   "passed": 538
+   "total": 549,
+   "passed": 549
   }
  },
  "rows": {
@@ -1876,7 +1876,7 @@
     "e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor",
     "e2e-tt31: wall → wall: a pin dragged from the lifted north wall onto the west wall's spine spring-loads the west wall (lifts while still dragging) and lands on it",
     "e2e-tt31: no pin limit: 40 pins on the Widgets wall — rows unroll along it, the pan buttons and the wheel reach the last pin, and there is always an empty row to drop into",
-    "e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall",
+    "e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting",
     "e2e-tt31: phone 390×760 and the straight-down camera: a focused wall lifts inside the frame with ≥ 24 px pins and no text under 9 px; nothing is text at rest",
     "e2e-tt31: touch (390×760, hasTouch): tapping a wall lifts it, a finger drag moves a pin along the lifted wall (persisted), tapping the floor settles it",
     "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
@@ -1906,6 +1906,45 @@
     "tt32-voice: text normalisation: numbers, money, ordinals, clock times, abbreviations, keys, file names, URLs",
     "tt32-voice: engine policy: auto = system voice only when the API exists, has voices and has not failed; else Fusion Voice",
     "tt32-voice: mutants: the oracle and gates can fail (time-reversed speech, noise, spelled-out letter-to-sound)"
+   ]
+  },
+  "SM-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt33: TIDAL (SM-05): click-to-load gate names embed.tidal.com + the 30-second/sign-in note and sends nothing before consent; against TIDAL's real bridge: Play → 'Started', Pause → 'Pause sent' (flagged assumed), a start inside the player → 'Started'; spoofed starts (our own window, a foreign pid) ignored",
+    "e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video",
+    "tt33-unit: TIDAL link grammar (SM-05): tidal.com / browse / listen.tidal.com / album…track / embed.tidal.com → embed.tidal.com/<types>/<id>; kinds, heights, allow",
+    "tt33-unit: ≥ 15 refused shapes, each with a reason (negative space)",
+    "tt33-unit: access notes say what each embed can and cannot do; library round-trip and dedupe across link forms",
+    "tt33-unit: TIDAL control protocol, parent side (SM-05): pid in src, one-way state, exact {commandName} strings, start signal, foreign pid/junk ignored, pause flagged as assumed, no seek/end"
+   ]
+  },
+  "SM-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour",
+    "tt33-unit: Qobuz link grammar (SM-06): widget / open / play / store pages → widget.qobuz.com with zone; track compact; heights",
+    "tt33-unit: ≥ 15 refused shapes, each with a reason (negative space)",
+    "tt33-unit: access notes say what each embed can and cannot do; library round-trip and dedupe across link forms"
+   ]
+  },
+  "SM-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour",
+    "tt33-unit: Amazon Music grammar (SM-07): Share → Embed code kept as issued (tracking params dropped); page links → embed shape flagged unverified; 12 storefronts",
+    "tt33-unit: ≥ 15 refused shapes, each with a reason (negative space)",
+    "tt33-unit: access notes say what each embed can and cannot do; library round-trip and dedupe across link forms"
+   ]
+  },
+  "SM-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video",
+    "e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour",
+    "e2e-tt33: library + modal shortcut (SM-08): TIDAL / Qobuz / Amazon links saved show their provider; Next walks them; the Rename dialog traps Escape (closes the dialog only — title unchanged, window open) and Enter renames",
+    "tt33-unit: ≥ 15 refused shapes, each with a reason (negative space)",
+    "tt33-unit: embed codes (SM-08): any provider's <iframe> snippet → its src only (data-src ignored, protocol-relative ok); SoundCloud api widget"
    ]
   },
   "CT-01": {
@@ -2126,7 +2165,7 @@
    "tested": "full",
    "tests": [
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
-    "e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall",
+    "e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting",
     "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
     "e2e: structural a11y: every window is a named dialog; no unnamed buttons"
    ]

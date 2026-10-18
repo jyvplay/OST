@@ -233,7 +233,7 @@ try {
     await close();
   });
 
-  await test("keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall", { "LY-22": "full", "AX-01": "full" }, async () => {
+  await test("keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting", { "LY-22": "full", "AX-01": "full" }, async () => {
     await desktop({ v: 2, ...base() });
     const { page, close } = await boot();
     await page.getByTestId("tt-open-north").focus();
@@ -247,6 +247,12 @@ try {
     ok(await page.evaluate((p) => document.activeElement?.getAttribute("data-path") === p, path), "focus stayed on the pin");
     await page.keyboard.press("Escape");
     await poll(async () => (await lifted(page)).length === 0, "Esc settles");
+    // TT33: Esc returns focus to the wall's own button (the control that lifted it), and that does not re-lift it
+    ok(await page.evaluate(() => document.activeElement?.getAttribute("data-testid")) === "tt-open-north", "Esc returns focus to the wall's button");
+    await page.waitForTimeout(900);
+    ok((await lifted(page)).length === 0, "returning focus does not lift the wall again");
+    await page.keyboard.press("Tab");
+    await poll(async () => (await lifted(page)).join() === "north", "Tab back into the wall lifts it again");
     await close();
   });
 
