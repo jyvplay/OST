@@ -1,6 +1,6 @@
 {
   "suite": "image",
-  "at": "2026-10-18T06:35:55.845Z",
+  "at": "2026-10-18T08:01:06.706Z",
   "results": [
     {
       "suite": "image",
@@ -18,7 +18,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "image",
@@ -28,7 +28,7 @@
         "FF-24": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "image",
@@ -37,7 +37,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "image",
@@ -55,7 +55,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 8
+      "ms": 9
     },
     {
       "suite": "image",
@@ -74,7 +74,7 @@
         "FF-31": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "image",
@@ -84,7 +84,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 80
+      "ms": 97
     },
     {
       "suite": "image",
@@ -93,7 +93,7 @@
         "FF-31": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "image",

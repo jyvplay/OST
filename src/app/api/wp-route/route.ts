@@ -2,13 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { readJsonObject } from "@/lib/http-json";
 import { classifyError } from "@/lib/wp-core";
 import { describeRoute, parseRoute, type UpstreamRoute } from "@/lib/server/wp-tunnel";
-import { getRoute, routeEnvError, setRoute } from "@/lib/server/wp-route";
+import { getRoute, routeEnvError, setRoute, systemRouteInfo, selectSystemRoute } from "@/lib/server/wp-route";
 import { readAll, upstreamRequest } from "@/lib/server/wp-fetch";
 
 /**
  * TT37 — the Private proxy's upstream network route (see src/lib/server/wp-tunnel.ts).
  *   GET                       → the route (never its password), the env error if FUSION_WP_UPSTREAM was bad
- *   PUT  {spec, isolate?}     → set it ("direct", "socks5://[user:pass@]host:port", "http://host:port"); RAM only
+ *   PUT  {spec, isolate?}     → set it ("direct", "socks5://[user:pass@]host:port", "http://host:port", or "system":
+ *                               the computer's https_proxy / http_proxy / all_proxy / no_proxy — TT38); RAM only
  *   POST {spec?, url?}        → test a route (the candidate or the current one) by fetching `url`
  *                               (default: the Tor Project's check service, which reports whether the exit is Tor)
  * Same-origin only for PUT / POST (the CSRF guard in src/proxy.ts), so a proxied page cannot re-route the server.
@@ -18,7 +19,7 @@ const json = (j: unknown, status = 200) => NextResponse.json(j, { status, header
 const TOR_CHECK = "https://check.torproject.org/api/ip";
 
 export function GET() {
-  return json({ route: describeRoute(getRoute()), envError: routeEnvError(), presets: [{ id: "direct", label: "Direct", spec: "direct" }, { id: "tor", label: "Tor (SOCKS5 127.0.0.1:9050)", spec: "socks5://127.0.0.1:9050" }, { id: "tor-browser", label: "Tor Browser's Tor (SOCKS5 127.0.0.1:9150)", spec: "socks5://127.0.0.1:9150" }] });
+  return json({ route: describeRoute(getRoute()), system: systemRouteInfo(), envError: routeEnvError(), presets: [...(systemRouteInfo().available ? [{ id: "system", label: "System proxy settings", spec: "system" }] : []), { id: "direct", label: "Direct", spec: "direct" }, { id: "tor", label: "Tor (SOCKS5 127.0.0.1:9050)", spec: "socks5://127.0.0.1:9050" }, { id: "tor-browser", label: "Tor Browser's Tor (SOCKS5 127.0.0.1:9150)", spec: "socks5://127.0.0.1:9150" }] });
 }
 
 function routeFrom(b: Record<string, unknown>): UpstreamRoute {
@@ -28,6 +29,10 @@ function routeFrom(b: Record<string, unknown>): UpstreamRoute {
 export async function PUT(req: NextRequest) {
   const b = await readJsonObject(req);
   if (b instanceof Response) return b;
+  if (b.spec === "system") {
+    if (!selectSystemRoute()) return json({ error: "this computer has no proxy settings (https_proxy / http_proxy / all_proxy)" }, 400);
+    return json({ route: describeRoute(getRoute()), system: systemRouteInfo() });
+  }
   let r: UpstreamRoute;
   try { r = routeFrom(b); } catch (e) { return json({ error: (e as Error).message }, 400); }
   setRoute(r);
@@ -38,7 +43,7 @@ export async function POST(req: NextRequest) {
   const b = await readJsonObject(req);
   if (b instanceof Response) return b;
   let r: UpstreamRoute;
-  try { r = typeof b.spec === "string" ? routeFrom(b) : getRoute(); } catch (e) { return json({ error: (e as Error).message }, 400); }
+  try { r = typeof b.spec === "string" && b.spec !== "system" ? routeFrom(b) : getRoute(); } catch (e) { return json({ error: (e as Error).message }, 400); }
   const url = typeof b.url === "string" && b.url ? b.url : TOR_CHECK;
   const t0 = Date.now();
   try {

@@ -12,6 +12,8 @@ import { Btn } from "../ui";
  */
 export interface RouteInfo { mode: "direct" | "socks5" | "http"; host: string; port: number; auth: boolean; isolate: boolean; label: string }
 interface Preset { id: string; label: string; spec: string }
+/** TT38: the computer's own proxy settings (https_proxy / http_proxy / all_proxy / no_proxy), read as curl reads them */
+interface SystemInfo { available: boolean; active: boolean; source?: string[]; noProxy?: string; https?: RouteInfo | null; http?: RouteInfo | null; errors?: string[] }
 interface TestResult { ok: boolean; status?: number; ms: number; via?: string; isTor?: boolean | null; exitIp?: string | null; kind?: string; message?: string; url: string; bytes?: number }
 
 export function useRoute(): [RouteInfo | null, (r: RouteInfo) => void] {
@@ -33,16 +35,18 @@ export default function NetworkRoute({ route, onRoute }: { route: RouteInfo | nu
   const [testUrl, setTestUrl] = useState("");
   const [result, setResult] = useState<TestResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const [system, setSystem] = useState<SystemInfo | null>(null);
   const [error, setError] = useState("");
   const touchedRef = useRef(false); // once the user picks, the initial load must not override the choice
   const [touched, setTouched] = useState(false);
   useEffect(() => {
     let live = true;
-    fetch("/api/wp-route").then((r) => r.json()).then((j: { presets: Preset[]; envError: string | null; route: RouteInfo }) => {
+    fetch("/api/wp-route").then((r) => r.json()).then((j: { presets: Preset[]; envError: string | null; route: RouteInfo; system?: SystemInfo }) => {
       if (!live) return;
-      setPresets(j.presets); setEnvError(j.envError);
+      setPresets(j.presets); setEnvError(j.envError); setSystem(j.system ?? null);
       if (touchedRef.current) return;
       setIsolate(j.route.isolate);
+      if (j.system?.active) { setChoice("system"); return; }
       const p = j.presets.find((x) => x.spec === (j.route.mode === "direct" ? "direct" : `${j.route.mode}://${j.route.host}:${j.route.port}`));
       if (p) setChoice(p.id); else { setChoice("custom"); setCustom(`${j.route.mode}://${j.route.host}:${j.route.port}`); }
     }).catch(() => undefined);
@@ -82,6 +86,11 @@ export default function NetworkRoute({ route, onRoute }: { route: RouteInfo | nu
           {error ? `Not applied: ${error}` : result ? (result.ok ? `Reached ${new URL(result.url).host} — HTTP ${result.status} in ${result.ms} ms ${result.via ?? ""}${result.isTor === true ? " · Tor: yes" : result.isTor === false ? " · Tor: NO" : ""}${result.exitIp ? ` · exit ${result.exitIp}` : ""}` : `Failed (${result.kind}): ${result.message}`) : busy ? "Working…" : ""}
         </span>
       </div>
+      {choice === "system" && system?.available ? (
+        <span data-testid="route-system" className="fs-dim">
+          From {system.source?.join(", ") || "the environment"}: HTTPS via {system.https?.label ?? "direct"}, HTTP via {system.http?.label ?? "direct"}{system.noProxy ? ` · direct for: ${system.noProxy}` : ""}{system.errors?.length ? ` · ignored: ${system.errors.join("; ")}` : ""}
+        </span>
+      ) : null}
       <span className="fs-dim">Kept in server memory until restart (set FUSION_WP_UPSTREAM to make it permanent). With a proxy, the server resolves no names itself — the proxy does.{envError ? ` FUSION_WP_UPSTREAM was ignored: ${envError}` : ""}</span>
     </div>
   );

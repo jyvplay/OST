@@ -7,7 +7,8 @@
  * back through the proxy, and stand in for the storage APIs an opaque origin is denied.
  *
  * Declared limits: scripts that read window.location see the proxy address (location cannot be redefined);
- * WebSockets are not proxied (the CSP refuses them); storage is per page and in memory only.
+ * storage is per page and in memory only. WebSockets (TT38) go through a same-origin bridge (fetch streams) and
+ * EventSource through the proxy; Web Workers' own sockets are not covered (workers do not run this runtime).
  */
 (function (W) {
   "use strict";
@@ -272,6 +273,202 @@
     else if (m.fusionWp === "reload") L.reload();
     else if (m.fusionWp === "ping") report();
     else if (m.fusionWp === "text") W.parent.postMessage({ fusionWp: "text", title: D.title || "", text: D.body ? D.body.innerText.slice(0, 200000) : "" }, "*");
+  });
+  // ---- TT38 (WP-08): WebSocket through the same-origin bridge (src/lib/server/wp-ws.ts), EventSource through the proxy.
+  // The page's CSP refuses native sockets to the internet; this class keeps the WebSocket API (readyState, events in
+  // order, binaryType, bufferedAmount, close codes, the constructor's errors) and carries the frames over fetch.
+  guard(function () {
+    var raw = W.__fusionWp.rawFetch;
+    if (!raw || typeof W.EventTarget !== "function" || typeof W.ReadableStream !== "function" || typeof W.TextEncoder !== "function") return;
+    var TE = new TextEncoder(), TDEC = new TextDecoder();
+    var TOKEN = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+    function domErr(msg, name) { try { return new DOMException(msg, name); } catch (e) { var x = new Error(msg); x.name = name; return x; } }
+    function pack(type, bytes) {
+      var out = new Uint8Array(5 + bytes.length);
+      out[0] = type; new DataView(out.buffer).setUint32(1, bytes.length); out.set(bytes, 5);
+      return out;
+    }
+    function concat(list, total) { var o = new Uint8Array(total), i = 0; list.forEach(function (b) { o.set(b, i); i += b.length; }); return o; }
+    function pageOrigin() { try { return new URL(currentTarget()).origin; } catch (e) { return ""; } }
+    function fire(t, type, init) {
+      var ev;
+      try { ev = type === "message" ? new MessageEvent(type, init) : type === "close" ? new CloseEvent(type, init) : new Event(type); }
+      catch (e) { ev = new Event(type); for (var k in init) try { Object.defineProperty(ev, k, { value: init[k] }); } catch (e2) { /* read-only */ } }
+      t.dispatchEvent(ev);
+    }
+
+    class FusionWebSocket extends W.EventTarget {
+      constructor(url, protocols) {
+        super();
+        if (arguments.length < 1) throw new TypeError("Failed to construct 'WebSocket': 1 argument required, but only 0 present.");
+        var u;
+        try { u = new URL(String(url), targetBase()); } catch (e) { throw domErr("Failed to construct 'WebSocket': The URL '" + url + "' is invalid.", "SyntaxError"); }
+        if (u.protocol === "http:") u.protocol = "ws:"; else if (u.protocol === "https:") u.protocol = "wss:";
+        if (u.protocol !== "ws:" && u.protocol !== "wss:") throw domErr("Failed to construct 'WebSocket': The URL's scheme must be either 'http', 'https', 'ws', or 'wss'. '" + u.protocol.slice(0, -1) + "' is not allowed.", "SyntaxError");
+        if (u.hash) throw domErr("Failed to construct 'WebSocket': The URL contains a fragment identifier ('" + u.hash + "'). Fragment identifiers are not allowed in WebSocket URLs.", "SyntaxError");
+        var list = protocols === undefined ? [] : typeof protocols === "string" ? [protocols] : Array.prototype.slice.call(protocols).map(String);
+        var seen = {};
+        list.forEach(function (p) {
+          if (!TOKEN.test(p) || seen[p]) throw domErr("Failed to construct 'WebSocket': The subprotocol '" + p + "' is invalid or duplicated.", "SyntaxError");
+          seen[p] = 1;
+        });
+        this._url = u.href; this._state = 0; this._protocol = ""; this._extensions = ""; this._binaryType = "blob";
+        this._buffered = 0; this._queue = []; this._sending = false; this._id = null; this._ended = false;
+        this._abort = typeof AbortController === "function" ? new AbortController() : null;
+        this._handlers = {};
+        var self = this;
+        raw.call(W, PREFIX + SID + "/__ws/open", {
+          method: "POST", credentials: "omit", cache: "no-store", headers: { "content-type": "text/plain" },
+          body: JSON.stringify({ url: this._url, protocols: list, origin: pageOrigin(), token: me.dataset.wst || "" }), signal: this._abort ? this._abort.signal : undefined,
+        }).then(function (res) {
+          if (!res.ok || !res.body) throw new Error("bridge " + res.status);
+          return self._read(res.body.getReader());
+        }).catch(function () { self._finish(1006, "", false, true); });
+      }
+      get url() { return this._url; }
+      get readyState() { return this._state; }
+      get protocol() { return this._protocol; }
+      get extensions() { return this._extensions; }
+      get bufferedAmount() { return this._buffered; }
+      get binaryType() { return this._binaryType; }
+      set binaryType(v) { if (v === "blob" || v === "arraybuffer") this._binaryType = v; }
+
+      _read(reader) {
+        var self = this, buf = new Uint8Array(0);
+        function step() {
+          return reader.read().then(function (r) {
+            if (r.done) { self._streamDone = true; self._finish(1006, "", false, true); return; } // the bridge ended without a close frame
+            var b = new Uint8Array(buf.length + r.value.length); b.set(buf); b.set(r.value, buf.length); buf = b;
+            while (buf.length >= 5) {
+              var len = new DataView(buf.buffer, buf.byteOffset, buf.byteLength).getUint32(1);
+              if (buf.length < 5 + len) break;
+              var type = buf[0], payload = buf.slice(5, 5 + len);
+              buf = buf.slice(5 + len);
+              self._frame(type, payload);
+              if (self._ended) { try { reader.cancel().catch(function () { /* already closed */ }); } catch (e) { /* done */ } return; }
+            }
+            return step();
+          });
+        }
+        return step();
+      }
+      _frame(type, payload) {
+        if (type === 1) {
+          var o = JSON.parse(TDEC.decode(payload));
+          if (this._state !== 0) return; // close() was called while connecting: already failed
+          this._id = o.id; this._protocol = o.protocol || ""; this._extensions = o.extensions || ""; this._state = 1;
+          fire(this, "open", {});
+          this._pump();
+        } else if (type === 2 || type === 3) {
+          if (this._state !== 1) return; // after close() no more messages are delivered
+          var origin = new URL(this._url).origin;
+          var data = type === 2 ? TDEC.decode(payload) : this._binaryType === "arraybuffer" ? payload.buffer.slice(payload.byteOffset, payload.byteOffset + payload.byteLength) : new Blob([payload]);
+          fire(this, "message", { data: data, origin: origin });
+        } else if (type === 4) {
+          var c = {};
+          try { c = JSON.parse(TDEC.decode(payload)); } catch (e) { /* malformed: abnormal */ }
+          this._finish(typeof c.code === "number" ? c.code : 1006, String(c.reason || ""), !!c.wasClean, !c.wasClean);
+        }
+      }
+      _finish(code, reason, wasClean, error) {
+        if (this._ended) return;
+        this._ended = true; this._state = 3;
+        // stop the bridge stream (a no-op when it already ended); the pending read settles inside the handled chain
+        if (this._abort && !this._streamDone) try { this._abort.abort(); } catch (e) { /* done */ }
+        if (error) fire(this, "error", {});
+        fire(this, "close", { code: code, reason: reason, wasClean: wasClean });
+      }
+      send(data) {
+        if (this._state === 0) throw domErr("Failed to execute 'send' on 'WebSocket': Still in CONNECTING state.", "InvalidStateError");
+        var item;
+        if (typeof data === "string") item = { t: 2, b: TE.encode(data) };
+        else if (data instanceof ArrayBuffer) item = { t: 3, b: new Uint8Array(data.slice(0)) };
+        else if (ArrayBuffer.isView(data)) item = { t: 3, b: new Uint8Array(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)) };
+        else if (typeof Blob === "function" && data instanceof Blob) item = { t: 3, blob: data, n: data.size };
+        else item = { t: 2, b: TE.encode(String(data)) };
+        var n = item.b ? item.b.length : item.n;
+        this._buffered += n; // per spec it also grows after close, when nothing is sent any more
+        if (this._state !== 1) return;
+        item.n = n;
+        this._queue.push(item);
+        this._pump();
+      }
+      close(code, reason) {
+        if (code !== undefined && (code !== 1000 && (code < 3000 || code > 4999) || code !== Math.floor(code))) throw domErr("Failed to execute 'close' on 'WebSocket': The close code must be either 1000, or between 3000 and 4999. " + code + " is neither.", "InvalidAccessError");
+        var r = reason === undefined ? "" : String(reason);
+        if (TE.encode(r).length > 123) throw domErr("Failed to execute 'close' on 'WebSocket': The close reason must not be greater than 123 UTF-8 bytes.", "SyntaxError");
+        if (this._state >= 2) return;
+        if (this._state === 0) { // spec: fail the connection — error, then close 1006, asynchronously
+          this._state = 2;
+          var self = this;
+          setTimeout(function () { self._finish(1006, "", false, true); }, 0);
+          return;
+        }
+        this._state = 2;
+        this._queue.push({ t: 4, b: TE.encode(JSON.stringify(code === undefined ? {} : { code: code, reason: r })), n: 0 });
+        this._pump();
+      }
+      // one POST in flight at a time, in order; Blobs are read in place so a later string never overtakes an earlier Blob
+      _pump() {
+        if (this._sending || !this._queue.length || this._id === null || this._ended) return;
+        var self = this, head = this._queue[0];
+        if (head.blob) {
+          this._sending = true;
+          head.blob.arrayBuffer().then(function (ab) { head.b = new Uint8Array(ab); delete head.blob; self._sending = false; self._pump(); },
+            function () { self._sending = false; self._queue.shift(); self._buffered -= head.n; self._pump(); });
+          return;
+        }
+        var batch = [], bytes = [], total = 0, sent = 0;
+        while (this._queue.length && !this._queue[0].blob && (total === 0 || total + this._queue[0].b.length < 1048576)) {
+          var it = this._queue.shift(); batch.push(it); var f = pack(it.t, it.b); bytes.push(f); total += f.length; sent += it.n;
+        }
+        this._sending = true;
+        raw.call(W, PREFIX + SID + "/__ws/" + this._id, { method: "POST", credentials: "omit", cache: "no-store", headers: { "content-type": "text/plain" }, body: concat(bytes, total) })
+          .then(function () { /* a 410 means the socket is gone: its close frame arrives on the stream */ }, function () { /* network: same */ })
+          .then(function () { self._buffered -= sent; self._sending = false; self._pump(); });
+      }
+      get onopen() { return this._handlers.open || null; } set onopen(f) { this._handler("open", f); }
+      get onmessage() { return this._handlers.message || null; } set onmessage(f) { this._handler("message", f); }
+      get onerror() { return this._handlers.error || null; } set onerror(f) { this._handler("error", f); }
+      get onclose() { return this._handlers.close || null; } set onclose(f) { this._handler("close", f); }
+      _handler(type, f) {
+        // an event handler attribute: one listener, registered where it was first set, calling the current value
+        if (!this._wrap) this._wrap = {};
+        if (!this._wrap[type]) {
+          var self = this;
+          this._wrap[type] = function (e) { var h = self._handlers[type]; if (typeof h === "function") return h.call(self, e); };
+          this.addEventListener(type, this._wrap[type]);
+        }
+        this._handlers[type] = typeof f === "function" ? f : null;
+      }
+    }
+    ["CONNECTING", "OPEN", "CLOSING", "CLOSED"].forEach(function (k, i) {
+      Object.defineProperty(FusionWebSocket, k, { value: i, enumerable: true });
+      Object.defineProperty(FusionWebSocket.prototype, k, { value: i, enumerable: true });
+    });
+    Object.defineProperty(FusionWebSocket, "name", { value: "WebSocket" });
+    W.WebSocket = FusionWebSocket;
+  });
+  guard(function () {
+    var NativeES = W.EventSource;
+    if (typeof NativeES !== "function") return;
+    // EventSource is a plain GET stream: the proxy carries it (no buffering — see the event-stream branch in the route).
+    // Cookies come from the session jar on the server; the page's withCredentials has nothing to send.
+    class FusionEventSource extends NativeES {
+      constructor(url, init) {
+        if (arguments.length < 1) throw new TypeError("Failed to construct 'EventSource': 1 argument required, but only 0 present.");
+        var abs;
+        try { abs = new URL(String(url), targetBase()).href; } catch (e) { throw domErr2("Failed to construct 'EventSource': Cannot open an EventSource to '" + url + "'. The URL is invalid.", "SyntaxError"); }
+        super(enc(abs), { withCredentials: false });
+        this._fusionUrl = abs;
+        this._fusionCred = !!(init && init.withCredentials);
+      }
+      get url() { return this._fusionUrl; }
+      get withCredentials() { return this._fusionCred; }
+    }
+    function domErr2(msg, name) { try { return new DOMException(msg, name); } catch (e) { var x = new Error(msg); x.name = name; return x; } }
+    Object.defineProperty(FusionEventSource, "name", { value: "EventSource" });
+    W.EventSource = FusionEventSource;
   });
   D.addEventListener("DOMContentLoaded", report);
   W.addEventListener("load", report);

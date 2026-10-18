@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-18T07:12:42.653Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-64 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-18T08:32:40.029Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+66 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **353** |
-| Fully built | 270 |
+| **Features in register** | **355** |
+| Fully built | 272 |
 | Partially built (partial 46 + probe 16) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **152** |
+| **Fully tested** (≥1 passing test tagged `full`) | **154** |
 | **Partially tested** (only `partial` tags) | **80** |
 | Untested | 121 |
-| Automated tests executed / passed | 608 / 608 |
+| Automated tests executed / passed | 630 / 630 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 141 | 62 | 67 |
+| fully built | 143 | 62 | 67 |
 | partially built | 5 | 16 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
@@ -33,70 +33,72 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-18T06:36:13.867Z |
-| ai-format | 5 | 5 | 0 | 2026-10-18T06:36:15.687Z |
-| browser-session | 5 | 5 | 0 | 2026-10-18T06:36:00.978Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-18T06:36:17.087Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-18T06:48:31.668Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-18T06:50:08.003Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-18T07:09:07.530Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-18T06:41:52.864Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-18T06:50:43.008Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-18T06:40:14.337Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-18T06:52:14.242Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-18T06:54:48.301Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-18T06:39:03.380Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-18T06:42:36.664Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T06:43:18.264Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-18T06:49:09.142Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T07:10:54.429Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T06:55:29.916Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T06:55:51.955Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T06:58:01.621Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T07:12:21.293Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T07:02:25.247Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T07:02:39.718Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T07:03:46.801Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T07:04:23.003Z |
-| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T07:04:39.526Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-18T07:05:08.290Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-18T06:41:07.976Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T06:49:50.229Z |
-| e2e | 61 | 61 | 0 | 2026-10-18T06:38:19.425Z |
-| image | 12 | 12 | 0 | 2026-10-18T06:35:55.845Z |
-| integration | 25 | 25 | 0 | 2026-10-18T06:35:49.999Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-18T06:36:18.022Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-18T06:36:25.115Z |
-| metaclean | 6 | 6 | 0 | 2026-10-18T06:36:09.298Z |
-| names | 7 | 7 | 0 | 2026-10-18T06:35:55.484Z |
-| office | 35 | 35 | 0 | 2026-10-18T06:35:50.441Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-18T06:36:16.741Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-18T06:35:58.890Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-18T06:36:00.781Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-18T06:36:17.714Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T06:35:52.369Z |
-| oracle | 5 | 5 | 0 | 2026-10-18T06:35:50.849Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-18T06:36:13.567Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-18T06:36:05.646Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-18T06:36:07.709Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-18T06:35:52.744Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-18T06:36:18.610Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-18T06:36:14.088Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-18T06:36:18.385Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-18T06:36:25.376Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-18T06:36:26.351Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-18T06:55:52.169Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-18T06:58:01.908Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-18T06:59:46.947Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-18T07:02:25.506Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-18T07:02:44.581Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-18T07:03:56.330Z |
-| tt36-unit | 5 | 5 | 0 | 2026-10-18T07:04:26.434Z |
-| tt37-unit | 9 | 9 | 0 | 2026-10-18T07:12:42.339Z |
-| unit | 23 | 23 | 0 | 2026-10-18T06:35:46.545Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-18T06:36:00.093Z |
-| vector | 18 | 18 | 0 | 2026-10-18T06:35:59.162Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T06:36:14.312Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-18T08:01:24.422Z |
+| ai-format | 5 | 5 | 0 | 2026-10-18T08:01:26.326Z |
+| browser-session | 5 | 5 | 0 | 2026-10-18T08:01:12.110Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-18T08:01:29.813Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-18T08:11:21.566Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-18T08:12:28.089Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-18T08:30:56.520Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-18T08:06:07.664Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-18T08:12:53.526Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-18T08:04:56.161Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-18T08:14:12.977Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-18T08:16:46.413Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-18T08:04:00.473Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-18T08:06:40.733Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T08:07:15.086Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-18T08:11:47.423Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T08:15:55.602Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T08:17:30.385Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T08:17:54.557Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T08:20:01.834Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T08:21:27.409Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T08:24:10.035Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T08:24:25.459Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T08:32:31.882Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T08:26:03.036Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T08:26:19.641Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-18T08:26:48.779Z |
+| e2e-tt38 | 7 | 7 | 0 | 2026-10-18T08:31:04.496Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-18T08:05:25.169Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T08:12:12.505Z |
+| e2e | 61 | 61 | 0 | 2026-10-18T08:03:29.960Z |
+| image | 12 | 12 | 0 | 2026-10-18T08:01:06.706Z |
+| integration | 25 | 25 | 0 | 2026-10-18T08:00:59.781Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-18T08:01:30.590Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-18T08:01:38.211Z |
+| metaclean | 6 | 6 | 0 | 2026-10-18T08:01:20.658Z |
+| names | 7 | 7 | 0 | 2026-10-18T08:01:06.289Z |
+| office | 35 | 35 | 0 | 2026-10-18T08:01:00.332Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-18T08:01:29.414Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-18T08:01:09.900Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-18T08:01:11.919Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-18T08:01:30.335Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T08:01:02.736Z |
+| oracle | 5 | 5 | 0 | 2026-10-18T08:01:00.806Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-18T08:01:24.099Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-18T08:01:17.365Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-18T08:01:19.138Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-18T08:01:03.162Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-18T08:01:31.229Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-18T08:01:24.662Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-18T08:01:30.988Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-18T08:01:38.479Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-18T08:01:39.298Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-18T08:17:54.820Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-18T08:20:02.125Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-18T08:21:43.487Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-18T08:24:10.312Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-18T08:31:32.860Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-18T08:25:35.542Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-18T08:26:06.335Z |
+| tt37-unit | 9 | 9 | 0 | 2026-10-18T08:26:23.899Z |
+| tt38-unit | 15 | 15 | 0 | 2026-10-18T08:31:01.108Z |
+| unit | 23 | 23 | 0 | 2026-10-18T08:00:55.815Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-18T08:01:11.213Z |
+| vector | 18 | 18 | 0 | 2026-10-18T08:01:10.181Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T08:01:24.891Z |
 
 ## Rows touched by failing tests
 
@@ -115,7 +117,7 @@ None.
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
-| PR | 39 | 30 | 9 | 0 | 22 | 10 | 7 |
+| PR | 41 | 32 | 9 | 0 | 24 | 10 | 7 |
 | FF | 34 | 25 | 9 | 0 | 25 | 5 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
@@ -404,6 +406,8 @@ None.
 | WP-05 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page |
 | WP-06 | built | full | e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked |
 | WP-07 | built | full | e2e-tt37: Network route panel (WP-07): test a candidate SOCKS5 route on a real page, apply it — toolbar and status line follow, the Private proxy tab loads pypi.org through it (seen in the independent proxy's own log), 'New circuit' rotates the tab's isolation and reloads, the browser itself still contacts only Fusion; the Tor check result is printed as it is; e2e-tt37: a dead route is named, not blamed on the site (WP-07): with the route pointing at a port where nothing listens, the Private proxy tab shows 'The network route failed' and how to fix it; back on Direct the page loads again; e2e-tt37: everything follows the route; pages cannot change it (WP-07): with an HTTP proxy route the legacy reader for direct tabs goes through it (the proxy's log), a .onion address is refused with the reason (Tor route needed), and a cross-site PUT to /api/wp-route is refused by the CSRF guard (+8) |
+| WP-08 | built | full | e2e-tt38: WebSocket in a proxied page (WP-08): the page's own `new WebSocket` reaches the site through Fusion — readyState CONNECTING→OPEN→CLOSING→CLOSED, subprotocol chat.v2, string / ArrayBuffer / Blob / typed-array sends echoed in order with binaryType 'arraybuffer', bufferedAmount counts queued bytes and drains to 0, handler and listener fire in registration order, MessageEvent.origin is the socket's origin, close(4001, 'bye ✓') ends clean; 200 server messages arrive in order; e2e-tt38: WebSocket errors exactly where a browser raises them (WP-08): SyntaxError for a non-ws scheme, a fragment, duplicate or invalid subprotocols; TypeError with no argument; InvalidStateError for send() while CONNECTING; InvalidAccessError for close(1001); SyntaxError for a 124-byte reason; an unreachable server → 'error' then close 1006 (not clean); close() while connecting → error + close 1006 and never 'open'; constants and name match the platform; e2e-tt38: what the site sees (WP-08): the WebSocket handshake carries the session's User-Agent (not the real browser's) and the PAGE's origin (the site's own, not Fusion's), and the site's own cookie from the session jar (+13) |
+| WP-09 | built | full | e2e-tt38: keep-alive through the real server (WP-09): the page and its 8 images and event stream are carried over a few reused connections to the site (counted at the site), not one connection per request; tt38-unit: Happy Eyeballs (WP-09, RFC 8305): families interleave from the resolver's first choice; a refused address hands over AT ONCE (no 250 ms wait) to a live one on real sockets; a blackholed first address loses to the second, started 250 ms later; every loser is destroyed; all refused → one error listing every address with the first code; nothing answering → ETIMEDOUT at the deadline; tt38-unit: TLS stays verified on the new path (WP-09): github.com:443 over connectPinned + tlsOver negotiates http/1.1 with a valid chain; a self-signed local server is refused (rejectUnauthorized never turned off) (+5) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

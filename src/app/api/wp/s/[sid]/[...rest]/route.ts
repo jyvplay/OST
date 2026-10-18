@@ -5,6 +5,7 @@ import {
 import { getSession, type WpSession } from "@/lib/server/wp-sessions";
 import { readable, readerDocument } from "@/lib/reader-core";
 import { decodeText, readAll, toWebStream, upstreamRequest } from "@/lib/server/wp-fetch";
+import { openBridge, originToken, sendToBridge, WsOpenError, WS_MAX_MESSAGE } from "@/lib/server/wp-ws";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -26,6 +27,13 @@ const CORS: Record<string, string> = {
   "referrer-policy": "no-referrer",
   "cache-control": "no-store", // amnesic: no proxied page ever lands in the browser's disk cache
 };
+
+/** A navigation (top-level or frame) per Fetch Metadata; browsers without it (pre-2023 Safari) are trusted as before. */
+function isNavigation(req: NextRequest): boolean {
+  const dest = req.headers.get("sec-fetch-dest"), mode = req.headers.get("sec-fetch-mode");
+  if (!dest && !mode) return true;
+  return /^(document|iframe|frame|embed|object)$/.test(dest ?? "") || mode === "navigate";
+}
 
 function selfOrigins(req: NextRequest): string[] {
   const hosts = new Set<string>();
@@ -105,7 +113,11 @@ async function handle(req: NextRequest): Promise<Response> {
     s.stats.bytesIn += buf.length;
     const text = decodeText(buf, type);
     if (isCss) return new Response(rewriteCss(text, target, s.sid), { status: up.status, headers: { ...headers, "content-type": "text/css; charset=utf-8" } });
-    const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(target.href)}" data-ua="${s.ua}" data-cookies="${encodeAttr(s.jar.header(target, Date.now(), true))}"></script>`;
+    // TT38 (G/I): page secrets go only into documents the BROWSER is navigating to. A page's own fetch() of another
+    // site's HTML through the proxy (Sec-Fetch-Dest: empty — a header page script cannot set) gets neither that site's
+    // script cookies nor its WebSocket origin token, so it cannot read them or open a socket in that site's name.
+    const nav = isNavigation(req);
+    const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(target.href)}" data-ua="${s.ua}" data-cookies="${nav ? encodeAttr(s.jar.header(target, Date.now(), true)) : ""}" data-wst="${nav ? originToken(s.sid, target.origin) : ""}"></script>`;
     const { html } = rewriteHtml(text, { sid: s.sid, url: target.href, inject });
     return new Response(html, {
       status: up.status,
@@ -113,6 +125,8 @@ async function handle(req: NextRequest): Promise<Response> {
     });
   }
   // everything else streams straight through (images, scripts, fonts, media with Range → 206)
+  // TT38: Server-Sent Events (EventSource) must arrive event by event — never buffered or compressed on the way
+  if (/^text\/event-stream/.test(type)) { headers["cache-control"] = "no-store, no-transform"; headers["x-accel-buffering"] = "no"; }
   const len = up.headers["content-length"];
   if (len && !up.headers["content-encoding"]) headers["content-length"] = String(len);
   return new Response(toWebStream(up.body, (n) => { s.stats.bytesIn += n; }), { status: up.status, headers });
@@ -120,6 +134,25 @@ async function handle(req: NextRequest): Promise<Response> {
 
 /** Control endpoints inside a session: the page's document.cookie writes come back here. */
 async function control(req: NextRequest, s: WpSession, rest: string): Promise<Response> {
+  // TT38 (WP-08): WebSocket bridge (src/lib/server/wp-ws.ts) — the shim's WebSocket class talks to these
+  if (rest === "__ws/open" && req.method === "POST") {
+    let j: { url?: unknown; protocols?: unknown; origin?: unknown; token?: unknown };
+    try { j = JSON.parse((await req.text()).slice(0, 16384)); } catch { return new Response("bad json", { status: 400, headers: CORS }); }
+    const protocols = Array.isArray(j.protocols) ? j.protocols.map(String).slice(0, 32) : [];
+    let stream: ReadableStream<Uint8Array>;
+    try { stream = openBridge(s, { url: String(j.url ?? ""), protocols, origin: typeof j.origin === "string" ? j.origin : undefined, token: typeof j.token === "string" ? j.token : undefined, signal: req.signal }); }
+    catch (e) { return new Response((e as Error).message, { status: e instanceof WsOpenError ? e.status : 400, headers: { ...CORS, "content-type": "text/plain; charset=utf-8" } }); }
+    // octet-stream + no-transform: no compression layer may hold frames back; x-accel-buffering for nginx in front
+    return new Response(stream, { status: 200, headers: { ...CORS, "content-type": "application/octet-stream", "cache-control": "no-store, no-transform", "x-accel-buffering": "no" } });
+  }
+  const wsSend = /^__ws\/([0-9a-f]{32})$/.exec(rest);
+  if (wsSend && req.method === "POST") {
+    const len = Number(req.headers.get("content-length") ?? 0);
+    if (len > WS_MAX_MESSAGE + 64) return new Response("message too large", { status: 413, headers: CORS });
+    const body = Buffer.from(await req.arrayBuffer());
+    if (body.length > WS_MAX_MESSAGE + 64) return new Response("message too large", { status: 413, headers: CORS });
+    return new Response(null, { status: sendToBridge(s.sid, wsSend[1], body), headers: CORS });
+  }
   if (rest === "__cookie" && req.method === "POST") {
     let j: { url?: string; cookie?: string };
     try { j = JSON.parse((await req.text()).slice(0, 8192)); } catch { return new Response("bad json", { status: 400, headers: CORS }); }

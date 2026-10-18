@@ -18,8 +18,11 @@ if [ ! -d node_modules/@sparticuz/chromium ] || [ ! -d node_modules/@embedded-po
   npm install --no-audit --no-fund "@sparticuz/chromium@^143" "@embedded-postgres/linux-x64" "file-type@22.2.0" "ft16@npm:file-type@16.5.4" >/dev/null
 fi
 if [ ! -x venv/bin/python ]; then python3 -m venv venv; fi
-venv/bin/python -c "import argon2, cryptography, docx, formulas, numpy, openpyxl, pptx, psd_tools, shapely, svgelements, pocketsphinx" 2>/dev/null || \
-  venv/bin/pip install -q argon2-cffi cryptography python-docx formulas numpy openpyxl python-pptx psd-tools shapely svgelements pypdf==6.21.0 vobject==0.9.9 pocketsphinx==5.1.1
+venv/bin/python -c "import argon2, cryptography, docx, formulas, numpy, openpyxl, pptx, psd_tools, shapely, svgelements, pocketsphinx, readability, openlocationcode, pproxy, websockets, geographiclib, gpxpy" 2>/dev/null || \
+  venv/bin/pip install -q argon2-cffi cryptography python-docx formulas numpy openpyxl python-pptx psd-tools shapely svgelements pypdf==6.21.0 vobject==0.9.9 pocketsphinx==5.1.1 \
+    readability-lxml openlocationcode pproxy==2.7.9 websockets==13.1 geographiclib gpxpy
+# TT36/TT37 test-only oracles: readability-lxml (Apache-2.0, reader-view oracle), openlocationcode (Apache-2.0, Plus Codes
+# reference), pproxy (MIT, an independent SOCKS5 / HTTP CONNECT server for the network-route tests), websockets (BSD-3, an independent RFC 6455 server for the WebSocket tests), geographiclib (MIT) and gpxpy (Apache-2.0) — the TT34 geodesy / GPX oracles, missing from this list until TT38. None ships in Fusion.
 # pocketsphinx (CMU BSD-style licence, wheel bundles the en-us acoustic model + CMUdict) is the TEST-ONLY speech-recognition oracle for
 # Fusion Voice (scripts/oracle/asr.py, scripts/tt32-voice.mts, scripts/e2e-tt32.mts). Nothing from it ships in Fusion.
 node "$REPO/scripts/sandbox/pg-start.mjs"

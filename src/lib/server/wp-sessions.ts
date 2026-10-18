@@ -20,14 +20,24 @@ type Store = Map<string, WpSession>;
 // one store per server process, shared by every route bundle that imports this module
 const g = globalThis as unknown as { __fusionWpSessions?: Store };
 const store: Store = (g.__fusionWpSessions ??= new Map());
+// TT38: whoever holds per-session resources (WebSocket bridges, keep-alive pools) is told when a session ends —
+// closed, swept idle, or evicted — so nothing outlives the session it belongs to.
+const gh = globalThis as unknown as { __fusionWpEndHooks?: Map<string, (sid: string) => void> };
+const endHooks = (gh.__fusionWpEndHooks ??= new Map());
+export function onSessionEnd(name: string, fn: (sid: string) => void): void { endHooks.set(name, fn); }
+function end(sid: string): boolean {
+  const had = store.delete(sid);
+  if (had) for (const fn of endHooks.values()) { try { fn(sid); } catch { /* a hook must not break the store */ } }
+  return had;
+}
 
 function sweep(now: number) {
-  for (const [k, s] of store) if (now - s.lastUsed > WP_IDLE_MS) store.delete(k);
+  for (const [k, s] of store) if (now - s.lastUsed > WP_IDLE_MS) end(k);
   while (store.size >= WP_MAX_SESSIONS) {
     let oldest: WpSession | null = null;
     for (const s of store.values()) if (!oldest || s.lastUsed < oldest.lastUsed) oldest = s;
     if (!oldest) break;
-    store.delete(oldest.sid);
+    end(oldest.sid);
   }
 }
 
@@ -41,11 +51,11 @@ export function createSession(ua: UaKind = "desktop", profile = "default", now =
 export function getSession(sid: string, now = Date.now()): WpSession | null {
   const s = store.get(sid);
   if (!s) return null;
-  if (now - s.lastUsed > WP_IDLE_MS) { store.delete(sid); return null; }
+  if (now - s.lastUsed > WP_IDLE_MS) { end(sid); return null; }
   s.lastUsed = now;
   return s;
 }
-export function dropSession(sid: string): boolean { return store.delete(sid); }
+export function dropSession(sid: string): boolean { return end(sid); }
 export function sessionCount(): number { return store.size; }
 export function publicStats(s: WpSession) {
   return { sid: s.sid, ua: s.ua, profile: s.profile, circuit: s.circuit, cookies: s.jar.size, cookieDomains: s.jar.domains(), ...s.stats, blockedHosts: s.stats.blockedHosts };

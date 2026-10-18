@@ -1,12 +1,11 @@
 import * as http from "node:http";
-import * as https from "node:https";
 import * as zlib from "node:zlib";
-import { isIP, type LookupFunction } from "node:net";
-import type { LookupAddress } from "node:dns";
+import { isIP } from "node:net";
 import { pipeline, Readable, Transform } from "node:stream";
-import { isPrivateAddress, parsePublicWebUrl, resolvePinnedPublicHost } from "./netguard";
-import { describeRoute, isolationCredentials, openTunnel, tunnelHostVerdict, type UpstreamRoute } from "./wp-tunnel";
-import { getRoute } from "./wp-route";
+import { isPrivateAddress, parsePublicWebUrl } from "./netguard";
+import { describeRoute, tunnelHostVerdict, type UpstreamRoute } from "./wp-tunnel";
+import { routeFor } from "./wp-route";
+import { agentFor } from "./wp-connect";
 
 /**
  * TT35: one upstream HTTP exchange for the proxy — any method, a bounded request body, streamed response.
@@ -23,74 +22,50 @@ export const WP_TIMEOUT_MS = 15_000;
 
 export async function upstreamRequest(raw: string, o: { method: string; headers: Record<string, string>; body?: Buffer; maxBytes: number; timeoutMs?: number; session?: { sid: string; circuit: number }; route?: UpstreamRoute }): Promise<Upstream> {
   const url = parsePublicWebUrl(raw);
-  const route = o.route ?? getRoute();
-  if (route.mode !== "direct") return tunnelRequest(url, route, o);
-  if (/\.onion\.?$/i.test(url.hostname)) throw new Error("onion addresses need the Tor (SOCKS5) route");
-  const addrs = await resolvePinnedPublicHost(url.hostname);
-  const addr = addrs.find((a) => a.family === 4) ?? addrs[0];
-  if (!addr) throw new Error("DNS returned no usable public address");
-  const timeoutMs = o.timeoutMs ?? WP_TIMEOUT_MS;
-  return new Promise((resolve, reject) => {
-    const hostname = url.hostname.replace(/^\[|\]$/g, "");
-    const lookup: LookupFunction = (_h, opts, cb) => {
-      const a: LookupAddress = { address: addr.address, family: addr.family };
-      if (opts.all) (cb as (e: NodeJS.ErrnoException | null, r: LookupAddress[]) => void)(null, [a]);
-      else (cb as (e: NodeJS.ErrnoException | null, a: string, f: number) => void)(null, a.address, a.family);
-    };
-    const headers: Record<string, string> = { ...o.headers, host: url.host, connection: "close" };
-    if (o.body && o.body.length) headers["content-length"] = String(o.body.length);
-    const transport = url.protocol === "https:" ? https : http;
-    const req = transport.request({
-      protocol: url.protocol, hostname, port: url.port ? Number(url.port) : undefined, method: o.method,
-      path: `${url.pathname}${url.search}`, lookup, headers,
-      ...(url.protocol === "https:" && !isIP(hostname) ? { servername: hostname } : {}),
-    }, (res) => {
-      clearTimeout(timer);
-      resolve({ status: res.statusCode ?? 502, headers: res.headers, body: responseBody(res, o.maxBytes, () => req.destroy()), pinned: addr.address });
-    });
-    const timer = setTimeout(() => req.destroy(Object.assign(new Error(`request timed out after ${timeoutMs} ms`), { code: "ETIMEDOUT" })), timeoutMs);
-    req.on("error", (e) => { clearTimeout(timer); reject(e); });
-    if (o.body && o.body.length) req.write(o.body);
-    req.end();
-  });
-}
-
-/**
- * TT37: the same exchange through an upstream proxy (SOCKS5 / HTTP CONNECT). No local DNS: the NAME goes to the
- * proxy (no DNS leak, .onion works through Tor); IP literals are still checked private-or-not here, and local /
- * internal names are refused before anything is sent. Each Private proxy session gets its own SOCKS credentials,
- * so Tor keeps sessions (tabs, profiles) on separate circuits.
- */
-function tunnelRequest(url: URL, route: UpstreamRoute, o: { method: string; headers: Record<string, string>; body?: Buffer; maxBytes: number; timeoutMs?: number; session?: { sid: string; circuit: number } }): Promise<Upstream> {
+  const route = o.route ?? routeFor(url);
   const hostname = url.hostname.replace(/^\[|\]$/g, "");
-  if (isIP(hostname) && isPrivateAddress(hostname)) return Promise.reject(new Error(`refusing private/reserved address ${hostname}`));
-  const verdict = tunnelHostVerdict(route, hostname);
-  if (verdict) return Promise.reject(new Error(verdict));
+  // refusals that need no connection come first, with the same messages as before TT38
+  if (route.mode === "direct" && /\.onion\.?$/i.test(hostname)) throw new Error("onion addresses need the Tor (SOCKS5) route");
+  if (route.mode !== "direct") {
+    if (isIP(hostname) && isPrivateAddress(hostname)) throw new Error(`refusing private/reserved address ${hostname}`);
+    const verdict = tunnelHostVerdict(route, hostname);
+    if (verdict) throw new Error(verdict);
+  }
   const secure = url.protocol === "https:";
   const port = url.port ? Number(url.port) : secure ? 443 : 80;
   const timeoutMs = o.timeoutMs ?? WP_TIMEOUT_MS;
-  const cred = isolationCredentials(route, o.session?.sid ?? "", o.session?.circuit ?? 0);
-  return new Promise((resolve, reject) => {
-    const headers: Record<string, string> = { ...o.headers, host: url.host, connection: "close" };
+  const agent = agentFor(route, secure, o.session, timeoutMs);
+  const idempotent = /^(GET|HEAD|OPTIONS|PUT|DELETE|TRACE)$/i.test(o.method);
+  const once = async (): Promise<Upstream> => {
+    const release = await agent.acquire(`${hostname}:${port}`); // ≤ 6 connections per host and session, as browsers
+    try { return await attempt(release); } catch (e) { release(); throw e; }
+  };
+  const attempt = (release: () => void): Promise<Upstream> => new Promise((resolve, reject) => {
+    // keep-alive (TT38): no "Connection: close" — the session's pool reuses the connection for the next request
+    const headers: Record<string, string> = { ...o.headers, host: url.host };
     if (o.body && o.body.length) headers["content-length"] = String(o.body.length);
-    const createConnection = ((_opts: unknown, cb: (e: Error | null, s?: import("node:net").Socket) => void) => {
-      openTunnel(route, hostname, port, { secure, servername: hostname, cred, timeoutMs }).then((s) => cb(null, s), (e) => cb(e));
-      return undefined;
-    }) as unknown as http.RequestOptions["createConnection"];
-    // NO `agent` key: with agent:false Node builds a fresh Agent whose own createConnection (direct TCP + local DNS)
-    // wins over ours — every "tunnelled" request would silently go direct (caught by tt37-unit: .onion → ENOTFOUND)
-    const req = http.request({ protocol: "http:", hostname, port, method: o.method, path: `${url.pathname}${url.search}`, headers, createConnection }, (res) => {
+    // TLS (when secure) is already done by the pool's connection (src/lib/server/wp-connect.ts), so plain "http:"
+    // framing is right here. NO `agent: false` anywhere: Node would then ignore the custom connection (TT37 finding).
+    const req = http.request({ protocol: "http:", hostname, port, method: o.method, path: `${url.pathname}${url.search}`, headers, agent }, (res) => {
       clearTimeout(timer);
-      resolve({ status: res.statusCode ?? 502, headers: res.headers, body: responseBody(res, o.maxBytes, () => req.destroy()), pinned: `via ${describeRoute(route).label}` });
+      const remote = (res.socket as unknown as { fusionRemote?: string } | null)?.fusionRemote ?? (route.mode === "direct" ? "" : `via ${describeRoute(route).label}`);
+      resolve({ status: res.statusCode ?? 502, headers: res.headers, body: responseBody(res, o.maxBytes, () => req.destroy()), pinned: remote });
     });
     const timer = setTimeout(() => req.destroy(Object.assign(new Error(`request timed out after ${timeoutMs} ms`), { code: "ETIMEDOUT" })), timeoutMs);
-    req.on("error", (e) => { clearTimeout(timer); reject(e); });
-    // the tunnel comes back paused (so no byte is lost between handshake and parser); Node emits 'socket' after the
-    // HTTP parser has attached its data listener — the right moment to let bytes flow
+    req.on("error", (e: NodeJS.ErrnoException) => {
+      clearTimeout(timer);
+      // a pooled connection the server closed while idle fails at once on reuse: retry an idempotent request on a fresh one
+      // (what browsers do; Node documents req.reusedSocket for exactly this race)
+      reject(Object.assign(e, { fusionRetry: req.reusedSocket && idempotent && (e.code === "ECONNRESET" || e.code === "EPIPE" || e.code === "ECONNABORTED") }));
+    });
+    // a tunnel comes back paused (no byte lost between handshake and parser); 'socket' fires after the parser attached
     req.on("socket", (sk) => sk.resume());
+    req.once("close", release); // the exchange is over (body read, or failed): the slot goes to the next request
     if (o.body && o.body.length) req.write(o.body);
     req.end();
   });
+  try { return await once(); }
+  catch (e) { if ((e as { fusionRetry?: boolean }).fusionRetry) return once(); throw e; }
 }
 
 /**

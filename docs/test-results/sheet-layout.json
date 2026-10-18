@@ -1,6 +1,6 @@
 {
   "suite": "sheet-layout",
-  "at": "2026-10-18T06:35:52.744Z",
+  "at": "2026-10-18T08:01:03.162Z",
   "results": [
     {
       "suite": "sheet-layout",
@@ -9,7 +9,7 @@
         "FF-33": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 4
     },
     {
       "suite": "sheet-layout",
@@ -18,7 +18,7 @@
         "FF-33": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "sheet-layout",
@@ -28,7 +28,7 @@
         "FF-35": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "sheet-layout",
@@ -46,7 +46,7 @@
         "FF-35": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 13
     },
     {
       "suite": "sheet-layout",
@@ -57,7 +57,7 @@
         "FF-34": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 4
     }
   ]
 }

@@ -247,10 +247,27 @@ export function decodeEntities(s: string): string {
 export function encodeAttr(s: string): string { return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
 // ---------------------------------------------------------------------------------------------------- cookie jar
-export interface Cookie { name: string; value: string; domain: string; path: string; hostOnly: boolean; secure: boolean; httpOnly: boolean; expires: number; created: number }
+export interface Cookie { name: string; value: string; domain: string; path: string; hostOnly: boolean; secure: boolean; httpOnly: boolean; expires: number; created: number; sameSite?: "strict" | "lax" | "none" }
 
 /** The smallest public-suffix guard that matters: single labels and the common multi-label registries. Declared partial. */
 const PUBLIC_SUFFIXES = new Set(["com", "net", "org", "edu", "gov", "io", "co", "uk", "co.uk", "org.uk", "ac.uk", "gov.uk", "com.au", "net.au", "co.jp", "co.nz", "com.br", "co.in", "github.io", "herokuapp.com", "vercel.app", "netlify.app", "pages.dev", "blogspot.com", "appspot.com", "cloudfront.net", "s3.amazonaws.com", "azurewebsites.net", "e2b.app"]);
+
+/**
+ * TT38: the registrable domain ("site") of a host, for SameSite decisions — the longest known public suffix plus one
+ * label (the built-in suffix list above is short; an unknown multi-label suffix falls back to the last two labels).
+ * IP literals are their own site.
+ */
+export function siteOf(host: string): string {
+  const h = host.replace(/^\[|\]$/g, "").replace(/\.$/, "").toLowerCase();
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(h) || h.includes(":")) return h;
+  const labels = h.split(".");
+  for (let i = 0; i < labels.length - 1; i++) {
+    const suffix = labels.slice(i + 1).join(".");
+    if (PUBLIC_SUFFIXES.has(suffix)) return labels.slice(i).join(".");
+  }
+  return labels.slice(-2).join(".");
+}
+export function sameSite(a: string, b: string): boolean { return siteOf(a) === siteOf(b); }
 
 export function domainMatch(host: string, domain: string): boolean { return host === domain || (host.endsWith("." + domain) && !/^\d+\.\d+\.\d+\.\d+$/.test(host)); }
 
@@ -277,7 +294,7 @@ export class CookieJar {
     if (!name && !value) return "empty";
     if (/[\x00-\x1f\x7f]/.test(name + value)) return "control characters";
     const host = url.hostname.toLowerCase();
-    let domain = ""; let path = ""; let secure = false; let httpOnly = false; let expires = Infinity; let maxAge: number | null = null;
+    let domain = ""; let path = ""; let secure = false; let httpOnly = false; let expires = Infinity; let maxAge: number | null = null; let sameSite: "strict" | "lax" | "none" = "lax"; // TT38: no attribute = Lax (Chrome's default since 2020)
     for (const a of attrs) {
       const k = a.indexOf("=");
       const an = (k < 0 ? a : a.slice(0, k)).trim().toLowerCase();
@@ -286,12 +303,14 @@ export class CookieJar {
       else if (an === "path") path = av.startsWith("/") ? av : "";
       else if (an === "secure") secure = true;
       else if (an === "httponly") httpOnly = true;
+      else if (an === "samesite") { const v = av.toLowerCase(); sameSite = v === "strict" ? "strict" : v === "none" ? "none" : "lax"; }
       else if (an === "max-age" && /^-?\d+$/.test(av)) maxAge = Number(av);
       else if (an === "expires") { const t = Date.parse(av); if (!Number.isNaN(t)) expires = t; }
     }
     if (maxAge !== null) expires = maxAge <= 0 ? -Infinity : now + maxAge * 1000;
     if (fromScript && httpOnly) return "HttpOnly from script";
     if (secure && url.protocol !== "https:") return "Secure over http";
+    if (sameSite === "none" && !secure) return "SameSite=None without Secure"; // refused by browsers since 2020
     let hostOnly = true; // RFC 6265 §5.3 step 6: no Domain attribute → the cookie goes back to this exact host only
     if (domain) {
       if ((PUBLIC_SUFFIXES.has(domain) || !domain.includes(".")) && domain !== host) return "public suffix";
@@ -305,7 +324,7 @@ export class CookieJar {
     const created = existing >= 0 ? this.list[existing].created : now;
     if (existing >= 0) { if (fromScript && this.list[existing].httpOnly) return "HttpOnly from script"; this.list.splice(existing, 1); }
     if (expires < now) return null; // a deletion (expired / Max-Age<=0) — removed above
-    this.list.push({ name, value, domain, path, hostOnly, secure, httpOnly, expires, created });
+    this.list.push({ name, value, domain, path, hostOnly, secure, httpOnly, expires, created, sameSite });
     // eviction: expired first, then the oldest in an over-full domain, then the oldest overall
     this.list = this.list.filter((c) => c.expires > now);
     const inDomain = this.list.filter((c) => c.domain === domain);
@@ -314,9 +333,10 @@ export class CookieJar {
     return null;
   }
   /** RFC 6265 §5.4: the Cookie header for a request to `url` (longer paths first, then older). */
-  header(url: URL, now = Date.now(), forScript = false): string {
+  header(url: URL, now = Date.now(), forScript = false, crossSite = false): string {
     const host = url.hostname.toLowerCase();
     const hits = this.list.filter((c) => c.expires > now
+      && (!crossSite || c.sameSite === "none") // TT38: a cross-site initiator gets SameSite=None cookies only
       && (c.hostOnly ? host === c.domain : domainMatch(host, c.domain))
       && pathMatch(url.pathname || "/", c.path)
       && (!c.secure || url.protocol === "https:")

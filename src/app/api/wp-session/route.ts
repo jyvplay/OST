@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { WP_PREFIX } from "@/lib/wp-core";
 import { readJsonObject } from "@/lib/http-json";
 import { createSession, dropSession, getSession, publicStats } from "@/lib/server/wp-sessions";
+import { dropPools } from "@/lib/server/wp-connect";
+import { closeSessionSockets } from "@/lib/server/wp-ws";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -30,7 +32,11 @@ export async function PATCH(req: NextRequest) {
   const s = getSession(req.nextUrl.searchParams.get("sid") ?? "");
   if (!s) return ok({ error: "no such session" }, 404);
   if (b.clearCookies) s.jar.clear();
-  if (b.newCircuit === true) s.circuit++; // TT37: new SOCKS isolation credentials → Tor builds a fresh circuit
+  if (b.newCircuit === true) {
+    s.circuit++; // TT37: new SOCKS isolation credentials → Tor builds a fresh circuit
+    // TT38: and nothing keeps riding the old one — pooled connections closed, open WebSockets closed (1001)
+    dropPools(s.sid); closeSessionSockets(s.sid);
+  }
   if (b.ua === "mobile" || b.ua === "desktop") s.ua = b.ua;
   return ok(publicStats(s));
 }
