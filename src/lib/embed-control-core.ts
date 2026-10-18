@@ -79,9 +79,38 @@ export interface CtlState {
   pid?: string;
   /** TT33: the status is what we last ASKED for (TIDAL pause), not something the player reported */
   assumed?: boolean;
+  /** TT34 SM-09: volume 0–100 / muted / playback rate AS REPORTED BY THE PLAYER (undefined = never reported) */
+  volume?: number;
+  muted?: boolean;
+  rate?: number;
+  /** YouTube: the rates this video offers (info.availablePlaybackRates) */
+  rates?: number[];
+  /** YouTube playlist: number of entries and our index; SoundCloud playlist: number of sounds (from getSounds) */
+  playlistSize?: number;
+  playlistIndex?: number;
 }
 
-export type CtlEvent = { type: "ready" } | { type: "status"; status: Status } | { type: "progress"; time: number; duration: number } | { type: "ended" };
+/**
+ * TT34 SM-09: what our transport may drive on each provider (documented message APIs only):
+ *   YouTube   seekTo, setVolume 0–100, mute/unMute, setPlaybackRate, nextVideo/previousVideo   (IFrame API)
+ *   Vimeo     setCurrentTime, setVolume 0–1, setMuted, setPlaybackRate (only if the creator allows speed:
+ *             the rate shown changes only when the player confirms with playbackratechange)   (player.js)
+ *   SoundCloud seekTo ms, next, prev — NOT volume: the widget docs say 0–100 while public reports say 0–1, and we
+ *             will not ship a guess                                                            (HTML5 widget API)
+ *   Spotify   toggle only;  TIDAL  play / pause only  (see the header)
+ */
+export interface Caps { seek: boolean; volume: boolean; mute: boolean; rate: boolean; playlist: boolean }
+export function capabilities(s: CtlState | null): Caps {
+  const none = { seek: false, volume: false, mute: false, rate: false, playlist: false };
+  if (!s || !s.connected) return none;
+  if (s.ctl === "youtube") return { seek: true, volume: true, mute: true, rate: true, playlist: (s.playlistSize ?? 0) > 1 };
+  if (s.ctl === "vimeo") return { seek: true, volume: true, mute: true, rate: true, playlist: false };
+  if (s.ctl === "soundcloud") return { seek: true, volume: false, mute: false, rate: false, playlist: (s.playlistSize ?? 0) > 1 };
+  return none;
+}
+export const DEFAULT_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2] as const;
+
+export type CtlEvent = { type: "ready" } | { type: "status"; status: Status } | { type: "progress"; time: number; duration: number } | { type: "ended" } | { type: "settings" };
 
 /** Exact player origins we accept messages from (and post to). */
 export const PLAYER_ORIGINS: Record<Ctl, readonly string[]> = {
@@ -177,7 +206,7 @@ export function handshake(ctl: Ctl, id: string): Msg[] {
   return []; // Vimeo, SoundCloud and Spotify speak first ("ready")
 }
 
-const VIMEO_EVENTS = ["ended", "finish", "play", "pause", "timeupdate", "playProgress"] as const;
+const VIMEO_EVENTS = ["ended", "finish", "play", "pause", "timeupdate", "playProgress", "volumechange", "playbackratechange"] as const;
 const SC_EVENTS = ["finish", "play", "pause", "playProgress"] as const;
 
 function parse(data: unknown): Record<string, unknown> | null {
@@ -224,6 +253,21 @@ export function receive(s: CtlState, data: unknown): { state: CtlState; send: Ms
       const ps = num(info.playerState);
       if (ps !== null && YT_STATE[ps]) setStatus(YT_STATE[ps]);
       progress(num(info.currentTime), num(info.duration));
+      // TT34: volume / mute / speed / playlist position, whenever the player includes them
+      const vol = num(info.volume), rt = num(info.playbackRate);
+      let touched = false;
+      if (vol !== null && vol >= 0 && vol <= 100) { st.volume = vol; touched = true; }
+      if (typeof info.muted === "boolean") { st.muted = info.muted; touched = true; }
+      if (rt !== null && rt > 0 && rt <= 16) { st.rate = rt; touched = true; }
+      if (Array.isArray(info.availablePlaybackRates)) {
+        const rs = info.availablePlaybackRates.filter((x): x is number => typeof x === "number" && x > 0 && x <= 16).slice(0, 16);
+        if (rs.length) { st.rates = rs; touched = true; }
+      }
+      if (Array.isArray(info.playlist)) { st.playlistSize = info.playlist.length; touched = true; }
+      else if (info.playlist === null) { st.playlistSize = 0; touched = true; }
+      const pi = num(info.playlistIndex);
+      if (pi !== null && pi >= 0) { st.playlistIndex = pi; touched = true; }
+      if (touched) ev.push({ type: "settings" });
     } else if (e === "onStateChange") {
       connect();
       const ps = num(m.info);
@@ -240,7 +284,17 @@ export function receive(s: CtlState, data: unknown): { state: CtlState; send: Ms
     else if (e === "play" || e === "playing") { connect(); setStatus("playing"); }
     else if (e === "pause") { connect(); setStatus("paused"); }
     else if (e === "timeupdate" || e === "playProgress") { connect(); progress(num(data2.seconds), num(data2.duration)); if (st.status !== "playing" && st.status !== "paused") setStatus("playing"); }
-    else return out;
+    else if (e === "volumechange") {
+      connect();
+      const v = num(data2.volume);
+      if (v !== null && v >= 0 && v <= 1) st.volume = Math.round(v * 100);
+      if (typeof data2.muted === "boolean") st.muted = data2.muted;
+      ev.push({ type: "settings" });
+    } else if (e === "playbackratechange") {
+      connect();
+      const r = num(data2.playbackRate);
+      if (r !== null && r > 0 && r <= 16) { st.rate = r; ev.push({ type: "settings" }); }
+    } else return out;
   } else if (s.ctl === "tidal") {
     if (typeof m.activatePlayerId === "string") {
       // a start of ANOTHER TIDAL embed is not ours (the bridge broadcasts to its parent; pids tell them apart)
@@ -281,7 +335,14 @@ export function receive(s: CtlState, data: unknown): { state: CtlState; send: Ms
     const v = m.value as Record<string, unknown> | undefined;
     if (e === "ready") {
       connect();
-      if (!st.subscribed) { st.subscribed = true; for (const x of SC_EVENTS) send.push(JSON.stringify({ method: "addEventListener", value: x })); }
+      if (!st.subscribed) {
+        st.subscribed = true;
+        for (const x of SC_EVENTS) send.push(JSON.stringify({ method: "addEventListener", value: x }));
+        send.push(JSON.stringify({ method: "getSounds" })); // a set (playlist) answers with its sounds → next / prev
+      }
+    } else if (e === "getSounds") {
+      connect();
+      if (Array.isArray(m.value)) { st.playlistSize = m.value.length; ev.push({ type: "settings" }); }
     } else if (e === "finish") { connect(); setStatus("ended"); }
     else if (e === "play") { connect(); setStatus("playing"); }
     else if (e === "pause") { connect(); setStatus("paused"); }
@@ -299,7 +360,9 @@ export function receive(s: CtlState, data: unknown): { state: CtlState; send: Ms
   return { state: st, send, events: ev };
 }
 
-export type Command = { op: "play" } | { op: "pause" } | { op: "seek"; seconds: number } | { op: "load"; id: string; start?: number };
+export type Command = { op: "play" } | { op: "pause" } | { op: "seek"; seconds: number } | { op: "load"; id: string; start?: number }
+  | { op: "volume"; value: number } | { op: "mute"; on: boolean } | { op: "rate"; value: number } | { op: "next" } | { op: "prev" };
+const clampVol = (v: number) => Math.max(0, Math.min(100, Math.round(Number.isFinite(v) ? v : 0)));
 
 /**
  * One command as the exact message for the provider. `load` (same player, new item) only exists for YouTube. Spotify
@@ -324,18 +387,73 @@ export function command(ctl: Ctl, c: Command, id = "fusion", state?: CtlState | 
     if (c.op === "pause") return call("pauseVideo");
     if (c.op === "seek") return call("seekTo", [Math.max(0, c.seconds), true]);
     if (c.op === "load") return /^[A-Za-z0-9_-]{11}$/.test(c.id) ? call("loadVideoById", [c.id, Math.max(0, c.start ?? 0)]) : null;
+    if (c.op === "volume") return call("setVolume", [clampVol(c.value)]);
+    if (c.op === "mute") return call(c.on ? "mute" : "unMute");
+    if (c.op === "rate") return c.value > 0 && c.value <= 16 ? call("setPlaybackRate", [c.value]) : null;
+    if (c.op === "next") return call("nextVideo");
+    if (c.op === "prev") return call("previousVideo");
     return null;
   }
   if (ctl === "vimeo") {
     if (c.op === "play") return JSON.stringify({ method: "play" });
     if (c.op === "pause") return JSON.stringify({ method: "pause" });
     if (c.op === "seek") return JSON.stringify({ method: "setCurrentTime", value: Math.max(0, c.seconds) });
+    if (c.op === "volume") return JSON.stringify({ method: "setVolume", value: clampVol(c.value) / 100 }); // 0–1
+    if (c.op === "mute") return JSON.stringify({ method: "setMuted", value: c.on });
+    if (c.op === "rate") return c.value > 0 && c.value <= 2 ? JSON.stringify({ method: "setPlaybackRate", value: c.value }) : null; // player.js: 0–2
     return null;
   }
   if (c.op === "play") return JSON.stringify({ method: "play" });
   if (c.op === "pause") return JSON.stringify({ method: "pause" });
   if (c.op === "seek") return JSON.stringify({ method: "seekTo", value: Math.round(Math.max(0, c.seconds) * 1000) });
+  if (c.op === "next") return JSON.stringify({ method: "next" });
+  if (c.op === "prev") return JSON.stringify({ method: "prev" });
+  return null; // SoundCloud volume / mute / rate: deliberately not sent (see capabilities)
+}
+
+/* ---------------------------------------------------------------- TT34 SM-10 keyboard */
+
+export type KeyAction = { op: "toggle" } | { op: "skip"; seconds: number } | { op: "volume"; delta: number } | { op: "mute" }
+  | { op: "rate"; dir: 1 | -1 } | { op: "libNext" } | { op: "libPrev" } | { op: "seekFraction"; f: number };
+export interface KeyInput { key: string; shiftKey?: boolean; ctrlKey?: boolean; metaKey?: boolean; altKey?: boolean; tag?: string; type?: string; editable?: boolean }
+const TEXT_TYPES = new Set(["text", "search", "url", "email", "password", "number", "tel", ""]);
+/**
+ * Media keys while focus is in the player (YouTube-style): Space/K play·pause, J/L ±10 s, ←/→ ±5 s, ↑/↓ volume ±5,
+ * M mute, Shift+N / Shift+P next / previous in the library, < / > slower / faster, 0–9 jump to 0–90 %.
+ * Nothing fires while typing (text inputs, textareas, selects, contenteditable) or with Ctrl/⌘/Alt held; on a range
+ * slider the arrow keys and digits stay the slider's own.
+ */
+export function keyAction(k: KeyInput): KeyAction | null {
+  if (k.ctrlKey || k.metaKey || k.altKey) return null;
+  const tag = (k.tag ?? "").toLowerCase(), type = (k.type ?? "").toLowerCase();
+  if (k.editable || tag === "textarea" || tag === "select" || (tag === "input" && TEXT_TYPES.has(type))) return null;
+  const onSlider = tag === "input" && type === "range";
+  const onButton = tag === "button" || (tag === "input" && (type === "checkbox" || type === "radio")) || tag === "a" || tag === "summary";
+  const key = k.key;
+  if (key === " " || key === "Spacebar") return onButton || onSlider ? null : { op: "toggle" }; // Space activates the focused button
+  if (key === "k" || key === "K") return { op: "toggle" };
+  if (key === "j" || key === "J") return { op: "skip", seconds: -10 };
+  if (key === "l" || key === "L") return { op: "skip", seconds: 10 };
+  if (key === "m" || key === "M") return { op: "mute" };
+  if (key === "N" && k.shiftKey) return { op: "libNext" };
+  if (key === "P" && k.shiftKey) return { op: "libPrev" };
+  if (key === ">" || (key === "." && k.shiftKey)) return { op: "rate", dir: 1 };
+  if (key === "<" || (key === "," && k.shiftKey)) return { op: "rate", dir: -1 };
+  if (onSlider) return null;
+  if (key === "ArrowLeft") return { op: "skip", seconds: -5 };
+  if (key === "ArrowRight") return { op: "skip", seconds: 5 };
+  if (key === "ArrowUp") return { op: "volume", delta: 5 };
+  if (key === "ArrowDown") return { op: "volume", delta: -5 };
+  if (/^[0-9]$/.test(key) && !k.shiftKey) return { op: "seekFraction", f: Number(key) / 10 };
   return null;
+}
+/** the next rate up / down from the list (current rate snapped to the nearest entry) */
+export function stepRate(rates: readonly number[], current: number, dir: 1 | -1): number {
+  const rs = [...rates].sort((a, b) => a - b);
+  if (!rs.length) return current;
+  let i = 0;
+  for (let k = 1; k < rs.length; k++) if (Math.abs(rs[k] - current) < Math.abs(rs[i] - current)) i = k;
+  return rs[Math.max(0, Math.min(rs.length - 1, i + dir))];
 }
 
 /** "1:05 / 3:20" (h:mm:ss over an hour); unknown duration → just the time. */

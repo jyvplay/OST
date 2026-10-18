@@ -426,3 +426,29 @@ export function nextIn(items: LibraryItem[], currentId: string | null, loop: boo
   if (i + 1 < items.length) return items[i + 1];
   return loop ? items[0] : null;
 }
+/** TT34 SM-11: previous item (wraps to the last when `loop`; from "nothing playing" → the last item). */
+export function prevIn(items: LibraryItem[], currentId: string | null, loop: boolean): LibraryItem | null {
+  if (!items.length) return null;
+  const i = items.findIndex((x) => x.id === currentId);
+  if (i < 0) return items[items.length - 1];
+  if (i > 0) return items[i - 1];
+  return loop ? items[items.length - 1] : null;
+}
+/**
+ * TT34 SM-11: shuffle without repeats — a uniformly random item not yet played in this round and not the current one.
+ * When the round is used up: a new round if `loop` (the current item is still excluded, so no back-to-back repeat),
+ * else null. `played` is the ids already played this round; `rand` returns [0, 1).
+ */
+export function shuffleNext(items: LibraryItem[], currentId: string | null, played: readonly string[], loop: boolean, rand: () => number = Math.random): { item: LibraryItem; newRound: boolean } | null {
+  const seen = new Set(played);
+  let pool = items.filter((x) => x.id !== currentId && !seen.has(x.id));
+  let newRound = false;
+  if (!pool.length) {
+    if (!loop) return null;
+    pool = items.filter((x) => x.id !== currentId);
+    newRound = true;
+    if (!pool.length) return items.length ? { item: items[0], newRound } : null; // a one-item list loops onto itself
+  }
+  const k = Math.min(pool.length - 1, Math.floor(rand() * pool.length));
+  return { item: pool[k], newRound };
+}

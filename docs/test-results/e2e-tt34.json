@@ -1,0 +1,15 @@
+{
+  "suite": "e2e-tt34",
+  "at": "2026-10-18T01:57:44.422Z",
+  "results": [
+    {
+      "suite": "e2e-tt34",
+      "name": "tabletop double-click guard (LY-22): a double-click on a RESTING wall whose 300 ms hover-lift deadline passes between the clicks still makes it the main view (×3 walls, optional TT_CPU load); plain hover still lifts a wall",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 18853
+    }
+  ]
+}

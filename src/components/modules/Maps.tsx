@@ -5,6 +5,9 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import * as M from "@/lib/maps-core";
+import * as G from "@/lib/geodesy";
+import * as PC from "@/lib/pluscode";
+import * as GF from "@/lib/geo-formats";
 import { GEONAMES_URL } from "@/lib/gazetteer-core";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
@@ -58,6 +61,10 @@ export default function MapsModule({ win }: ModuleProps) {
   const dirty = useRef(false);
   const [saveErr, setSaveErr] = useState("");
   const [measure, setMeasure] = useState<M.LatLng[]>([]);
+  const [closed, setClosed] = useState(false); // TT34 MP-06: treat the measured points as a closed shape → area
+  // TT34 MP-07: a short Plus Code with a locality ("9G8F+6W Zürich") is recovered around that city (offline gazetteer)
+  const [view, setView] = useState<{ lat: number; lng: number } | null>(null); // map centre after each move (Plus Code recovery)
+  const [pcCity, setPcCity] = useState<{ q: string; lat: number; lng: number; label: string } | null>(null);
   const [cursor, setCursor] = useState<{ lat: number; lng: number; country: string } | null>(null);
   const [selCountry, setSelCountry] = useState<string>("");
   const [selPlace, setSelPlace] = useState<string | null>(null);
@@ -134,22 +141,6 @@ export default function MapsModule({ win }: ModuleProps) {
   const addRef = useRef(addAt);
   useEffect(() => { addRef.current = addAt; });
 
-  // a .geojson handed over by Files ("Open with Maps") is merged into the places
-  const openPath = (win.props.path as string) ?? "";
-  useEffect(() => {
-    if (!openPath || openPath === PLACES_PATH || !places) return;
-    let live = true;
-    api<{ node: { content: string } }>(`/api/fs?op=read&path=${encodeURIComponent(openPath)}`).then((r) => {
-      if (!live) return;
-      let raw: unknown = null; try { raw = JSON.parse(r.node.content); } catch { setStatus(`${openPath} is not valid JSON`); return; }
-      const inc = M.normalizePlaces(raw).places;
-      change((p) => inc.reduce((acc, x) => M.addPlace(acc, { ...x, id: newId() }), p));
-      setStatus(`Imported ${inc.length} place(s) from ${openPath.split("/").pop()}`);
-    }).catch((e: Error) => setStatus(e.message));
-    return () => { live = false; };
-    // run once when the places file has loaded
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openPath, places === null]);
 
   /* ------------------------------------------------------------------- the map */
   useEffect(() => {
@@ -176,6 +167,7 @@ export default function MapsModule({ win }: ModuleProps) {
         const sync = () => {
           const c = map.getCenter(), el = host.current; if (!el) return;
           el.dataset.zoom = String(map.getZoom()); el.dataset.lat = c.lat.toFixed(4); el.dataset.lng = c.lng.toFixed(4);
+          setView({ lat: c.lat, lng: M.wrapLng(c.lng) });
         };
         map.on("moveend zoomend", sync); sync();
         let raf = 0;
@@ -245,9 +237,11 @@ export default function MapsModule({ win }: ModuleProps) {
   useEffect(() => {
     const L = LRef.current, g = layers.current.measure; if (!ready || !L || !g) return;
     g.clearLayers();
-    if (measure.length > 1) L.polyline(measure, { color: "#ff9f0a", weight: 3, dashArray: "6 6" }).addTo(g);
+    // TT34: geodesic curves on WGS84 (densified, longitudes unwrapped), not straight Mercator segments
+    if (measure.length > 2 && closed) L.polygon(G.geodesicLine(measure, true), { color: "#ff9f0a", weight: 3, dashArray: "6 6", fillColor: "#ff9f0a", fillOpacity: 0.12, interactive: false }).addTo(g);
+    else if (measure.length > 1) L.polyline(G.geodesicLine(measure), { color: "#ff9f0a", weight: 3, dashArray: "6 6", interactive: false }).addTo(g);
     measure.forEach((pt) => L.circleMarker(pt, { radius: 5, color: "#ffffff", weight: 2, fillColor: "#ff9f0a", fillOpacity: 1, interactive: false }).addTo(g));
-  }, [ready, measure]);
+  }, [ready, measure, closed]);
 
   // found-city marker
   useEffect(() => {
@@ -277,10 +271,41 @@ export default function MapsModule({ win }: ModuleProps) {
     return () => { clearTimeout(h); ctl.abort(); };
   }, [q]);
 
+  const pcFind = useMemo(() => PC.findCode(q), [q]);
+  const [goCell, setGoCell] = useState<(PC.CodeArea & { code: string }) | null>(null);
+  useEffect(() => { // fly to a chosen Plus Code cell and mark its centre
+    const L = LRef.current, map = mapRef.current; if (!goCell || !L || !map) return;
+    map.flyToBounds([[goCell.latLo, goCell.lngLo], [goCell.latHi, goCell.lngHi]], { maxZoom: goCell.length >= 10 ? 18 : goCell.length >= 8 ? 15 : goCell.length >= 6 ? 11 : 7 });
+    layers.current.found?.remove();
+    layers.current.found = dot(L, [goCell.lat, goCell.lng], { size: 16, fill: "#8e4ec6", title: goCell.code }).addTo(map);
+  }, [goCell]);
+  useEffect(() => {
+    if (!pcFind || !PC.isShort(pcFind.code) || pcFind.rest.length < 2) return;
+    const ctl = new AbortController(); const key = q;
+    void fetch(`/api/places/search?q=${encodeURIComponent(pcFind.rest)}&limit=1`, { signal: ctl.signal })
+      .then((r) => r.json()).then((j: { ok?: boolean; results?: CityResult[] }) => { const c = j.ok ? j.results?.[0] : undefined; if (c) setPcCity({ q: key, lat: c.lat, lng: c.lng, label: c.label }); })
+      .catch(() => {});
+    return () => ctl.abort();
+  }, [pcFind, q]);
+
   /* ------------------------------------------------------------------ search */
   const results = useMemo(() => {
-    const out: { label: string; go: () => void; kind: "coord" | "country" | "place" }[] = [];
+    const out: { label: string; go: () => void; kind: "coord" | "country" | "place" | "plus code" }[] = [];
     if (!q.trim()) return out;
+    if (pcFind) {
+      // full code → its cell centre; short code → nearest match to the named city, else to the map centre
+      let full = "", near = "";
+      if (PC.isFull(pcFind.code)) full = pcFind.code;
+      else {
+        const ref = pcFind.rest ? (pcCity && pcCity.q === q ? pcCity : null) : null;
+        const c = ref ?? (view ? { ...view, label: "the map centre" } : null);
+        if (c) { full = PC.recoverNearest(pcFind.code, c.lat, c.lng); near = ` (near ${c.label})`; }
+      }
+      if (full) {
+        const a = PC.decode(full);
+        out.push({ kind: "plus code", label: `Go to ${full}${near}`, go: () => { setFound(null); setGoCell({ code: full, ...a }); setStatus(`${full} → ${M.formatLatLng(a.lat, a.lng, fmt)} (a ${M.formatDistance(G.distance([a.latLo, a.lngLo], [a.latLo, a.lngHi]), units)} × ${M.formatDistance(G.distance([a.latLo, a.lngLo], [a.latHi, a.lngLo]), units)} cell)`); } });
+      }
+    }
     const c = M.parseLatLng(q);
     if (c) out.push({ kind: "coord", label: `Go to ${M.formatLatLng(c.lat, c.lng, fmt)}`, go: () => mapRef.current?.flyTo([c.lat, c.lng], c.zoom ?? Math.max(mapRef.current.getZoom(), 9)) });
     const n = q.trim().toLowerCase();
@@ -290,7 +315,7 @@ export default function MapsModule({ win }: ModuleProps) {
       out.push({ kind: "country", label: name, go: () => { setSelCountry(name); const bb = M.mainBbox(f.geometry); if (bb && mapRef.current) mapRef.current.flyToBounds(bb, { padding: [24, 24], maxZoom: 7 }); } });
     }
     return out;
-  }, [q, ready, places, fmt]);
+  }, [q, ready, places, fmt, pcFind, pcCity, units, view]);
   const cityHits = q.trim().length >= 2 && cities.q === q.trim() ? cities.items : [];
   const goCity = (c: CityResult) => { setFound(c); setSelPlace(null); setSelCountry(""); mapRef.current?.flyTo([c.lat, c.lng], tiles === "off" ? 7 : 11); }; // offline layer has only coastlines/borders: a regional zoom keeps context
 
@@ -313,16 +338,65 @@ export default function MapsModule({ win }: ModuleProps) {
     a.href = URL.createObjectURL(new Blob([M.placesToGeoJSON(places)], { type: "application/geo+json" }));
     a.download = "places.geojson"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
+  /** TT34 MP-08: places → GPX waypoints / KML Points; the measured path → a GPX track / KML LineString (or Polygon) */
+  const exportGeo = (format: "gpx" | "kml") => {
+    const doc = {
+      points: (places?.places ?? []).map((p) => ({ lat: p.lat, lng: p.lng, name: p.name, note: p.note })),
+      paths: measure.length > 1 ? [{ name: closed && measure.length > 2 ? "Measured area" : "Measured path", kind: (closed && measure.length > 2 ? "polygon" : "track") as GF.GeoPath["kind"], points: measure.map(([lat, lng]) => ({ lat, lng })) }] : [],
+    };
+    const text = format === "gpx" ? GF.toGPX(doc, { name: "Fusion Maps", time: new Date().toISOString() }) : GF.toKML(doc, { name: "Fusion Maps" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: format === "gpx" ? "application/gpx+xml" : "application/vnd.google-earth.kml+xml" }));
+    a.download = `places.${format}`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    setStatus(`Exported ${doc.points.length} place(s)${doc.paths.length ? " and the measured path" : ""} as ${format.toUpperCase()}`);
+  };
+  /** GPX / KML text → places (waypoints) + the first path into Measure */
+  function importGeoText(text: string, label: string) {
+    let d: ReturnType<typeof GF.parseGeoFile>;
+    try { d = GF.parseGeoFile(text); } catch (e) { setStatus(`${label}: ${(e as Error).message}`); return; }
+    const inc = d.points.slice(0, M.PLACES_MAX);
+    change((p) => inc.reduce((acc, x) => M.addPlace(acc, { id: newId(), name: x.name.trim() || "Waypoint", note: x.note, lat: x.lat, lng: M.wrapLng(x.lng), added: new Date().toISOString() }), p));
+    const path = d.paths[0];
+    if (path) {
+      setMeasure(path.points.map((x) => [x.lat, M.wrapLng(x.lng)] as M.LatLng)); setClosed(path.kind === "polygon"); setMode("measure");
+      const L = LRef.current, map = mapRef.current;
+      if (L && map) { const ll = path.points.map((x) => [x.lat, x.lng] as M.LatLng); map.flyToBounds(L.latLngBounds(ll), { padding: [24, 24], maxZoom: 15 }); }
+    }
+    const more = d.paths.length > 1 ? ` (${d.paths.length - 1} more path(s) not loaded: Measure holds one)` : "";
+    setStatus(`Imported ${inc.length} place(s)${path ? ` and “${path.name}” (${path.points.length} points)` : ""} from ${label}${more}${d.warnings.length ? ` · ${d.warnings.length} warning(s): ${d.warnings[0]}` : ""}`);
+  }
+
   const importFile = async (file: File) => {
     let raw: unknown = null;
-    try { raw = JSON.parse(await file.text()); } catch { setStatus(`${file.name} is not valid JSON`); return; }
+    const text = await file.text();
+    if (/\.(gpx|kml)$/i.test(file.name) || /^\s*(<\?xml|<gpx|<kml)/.test(text)) { importGeoText(text, file.name); return; }
+    try { raw = JSON.parse(text); } catch { setStatus(`${file.name} is not valid JSON`); return; }
     const inc = M.normalizePlaces(raw).places;
     change((p) => inc.reduce((acc, x) => M.addPlace(acc, { ...x, id: newId() }), p));
     setStatus(`Imported ${inc.length} place(s) from ${file.name}`);
   };
 
+  // a .geojson / .gpx / .kml handed over by Files ("Open with Maps") is merged into the places
+  const openPath = (win.props.path as string) ?? "";
+  useEffect(() => {
+    if (!openPath || openPath === PLACES_PATH || !places) return;
+    let live = true;
+    api<{ node: { content: string } }>(`/api/fs?op=read&path=${encodeURIComponent(openPath)}`).then((r) => {
+      if (!live) return;
+      if (/\.(gpx|kml)$/i.test(openPath)) { importGeoText(r.node.content, openPath.split("/").pop() ?? openPath); return; }
+      let raw: unknown = null; try { raw = JSON.parse(r.node.content); } catch { setStatus(`${openPath} is not valid JSON`); return; }
+      const inc = M.normalizePlaces(raw).places;
+      change((p) => inc.reduce((acc, x) => M.addPlace(acc, { ...x, id: newId() }), p));
+      setStatus(`Imported ${inc.length} place(s) from ${openPath.split("/").pop()}`);
+    }).catch((e: Error) => setStatus(e.message));
+    return () => { live = false; };
+    // run once when the places file has loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openPath, places === null]);
+
   const sel = places?.places.find((p) => p.id === selPlace) ?? null;
-  const dist = M.pathLength(measure);
+  const dist = G.pathLength(measure); // TT34 MP-06: WGS84 ellipsoid (Vincenty + shooting), not the sphere
+  const shape = closed && measure.length > 2 ? G.polygonArea(measure) : null;
 
   return (
     <div className="fs-maps" data-testid="mp-app">
@@ -330,7 +404,7 @@ export default function MapsModule({ win }: ModuleProps) {
         <div className="fs-maps-search">
           <input className="fs-input" data-testid="mp-search" value={q} onChange={(e) => setQ(e.target.value)} spellCheck={false}
             onKeyDown={(e) => { if (e.key === "Enter" && (results[0] || cityHits[0])) { e.preventDefault(); if (results[0]) results[0].go(); else goCity(cityHits[0]); } }}
-            placeholder="City, country, place or coordinates" aria-label="Search cities, countries, saved places or coordinates" />
+            placeholder="City, country, place, coordinates or Plus Code" aria-label="Search cities, countries, saved places, coordinates or Plus Codes" />
           {results.length || cityHits.length ? (
             <ul className="fs-maps-results" data-testid="mp-results">
               {results.map((r, i) => <li key={`${r.kind}${i}`}><button type="button" className="fs-maps-result" data-testid="mp-result" data-kind={r.kind} onClick={r.go}>{r.label}<span className="fs-dim">{r.kind}</span></button></li>)}
@@ -351,7 +425,9 @@ export default function MapsModule({ win }: ModuleProps) {
         {mode === "measure" ? (
           <div className="fs-maps-card" data-testid="mp-measure-card">
             <strong data-testid="mp-measure" data-metres={Math.round(dist)}>{measure.length > 1 ? M.formatDistance(dist, units) : "Click the map to add points"}</strong>
-            {measure.length > 1 ? <span className="fs-dim">{measure.length} points · first leg bearing {Math.round(M.bearing(measure[0], measure[1]))}°</span> : null}
+            {measure.length > 1 ? <span className="fs-dim">{measure.length} points · first leg bearing {Math.round(G.inverse(measure[0], measure[1]).az1 + 360) % 360}° · WGS84 ellipsoid</span> : null}
+            <label className="fs-row" style={{ gap: 8 }}><input type="checkbox" checked={closed} onChange={(e) => setClosed(e.target.checked)} data-testid="mp-measure-closed" />Closed shape (area)</label>
+            {shape ? <span data-testid="mp-area" data-m2={Math.round(shape.area)} data-perimeter={Math.round(shape.perimeter)}>Area <strong>{G.formatArea(shape.area, units)}</strong> · perimeter {M.formatDistance(shape.perimeter, units)}</span> : closed ? <span className="fs-dim">Add 3 or more points for an area</span> : null}
             <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
               <Btn onClick={() => { const c = centre(); if (c) setMeasure((m) => [...m, [c.lat, c.lng]]); }} data-testid="mp-measure-centre">Add map centre</Btn>
               <Btn variant="ghost" onClick={() => setMeasure((m) => m.slice(0, -1))} disabled={!measure.length}>Undo point</Btn>
@@ -362,7 +438,7 @@ export default function MapsModule({ win }: ModuleProps) {
         {found ? (
           <div className="fs-maps-card" data-testid="mp-found" data-city={found.name}>
             <strong>{found.label}</strong>
-            <span className="fs-dim">Population {found.population.toLocaleString("en-US")} · {found.timezone.replace(/_/g, " ")} · {M.formatLatLng(found.lat, found.lng, fmt)}</span>
+            <span className="fs-dim">Population {found.population.toLocaleString("en-US")} · {found.timezone.replace(/_/g, " ")} · {M.formatLatLng(found.lat, found.lng, fmt)} · Plus Code {PC.encode(found.lat, found.lng)}</span>
             <div className="fs-row" style={{ gap: 6 }}>
               <Btn onClick={() => { addAt(found.lat, found.lng, found.name); setFound(null); }} disabled={!places} data-testid="mp-found-save">Save as place</Btn>
               <Btn variant="ghost" onClick={() => setFound(null)}>Close</Btn>
@@ -392,11 +468,16 @@ export default function MapsModule({ win }: ModuleProps) {
           <div className="fs-maps-card" data-testid="mp-place-edit">
             <input className="fs-input" value={sel.name} aria-label="Place name" data-testid="mp-place-name" onChange={(e) => { renamed.current.add(sel.id); change((p) => M.updatePlace(p, sel.id, { name: e.target.value || " " })); }} />
             <textarea className="fs-input" value={sel.note} aria-label="Note" rows={2} placeholder="Note" onChange={(e) => { renamed.current.add(sel.id); change((p) => M.updatePlace(p, sel.id, { note: e.target.value })); }} />
+            <div className="fs-row" style={{ gap: 6, alignItems: "center" }}>
+              <span className="fs-dim">Plus Code</span>
+              <code data-testid="mp-pluscode" style={{ fontSize: fz(13) }}>{PC.encode(sel.lat, sel.lng)}</code>
+              <Btn variant="ghost" onClick={() => { const code = PC.encode(sel.lat, sel.lng); void navigator.clipboard?.writeText(code).then(() => setStatus(`Copied ${code}`), () => setStatus(code)); }} data-testid="mp-pluscode-copy" aria-label={`Copy Plus Code ${PC.encode(sel.lat, sel.lng)}`}>Copy</Btn>
+            </div>
             <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }} role="group" aria-label="Pin colour">
               {M.PLACE_COLORS.map((c) => <button key={c} type="button" className="fs-maps-swatch" style={{ background: c }} aria-label={`Colour ${c}`} aria-pressed={sel.color === c} onClick={() => change((p) => M.updatePlace(p, sel.id, { color: c }))} />)}
             </div>
             <div className="fs-row" style={{ gap: 6 }}>
-              <Btn variant="ghost" onClick={() => { const a = mapRef.current?.getCenter(); if (a) { const b: M.LatLng = [sel.lat, sel.lng]; setStatus(`${sel.name} is ${M.formatDistance(M.haversine([a.lat, M.wrapLng(a.lng)], b), units)} from the map centre`); } }}>Distance from centre</Btn>
+              <Btn variant="ghost" onClick={() => { const a = mapRef.current?.getCenter(); if (a) { const b: M.LatLng = [sel.lat, sel.lng]; setStatus(`${sel.name} is ${M.formatDistance(G.distance([a.lat, M.wrapLng(a.lng)], b), units)} from the map centre`); } }}>Distance from centre</Btn>
               <Btn variant="danger" onClick={() => { change((p) => M.removePlace(p, sel.id)); setSelPlace(null); }} data-testid="mp-place-remove">Remove</Btn>
             </div>
           </div>
@@ -405,7 +486,9 @@ export default function MapsModule({ win }: ModuleProps) {
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <Btn variant="ghost" onClick={locate} data-testid="mp-locate">Locate me</Btn>
           <Btn variant="ghost" onClick={exportFile} disabled={!places?.places.length} data-testid="mp-export">Export GeoJSON</Btn>
-          <label className="fs-btn fs-maps-import" data-variant="ghost">Import…<input type="file" accept=".geojson,.json,application/geo+json" className="fs-visually-hidden-radio" data-testid="mp-import" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f); e.target.value = ""; }} /></label>
+          <Btn variant="ghost" onClick={() => exportGeo("gpx")} disabled={!places?.places.length && measure.length < 2} data-testid="mp-export-gpx" title="Places as GPX waypoints; the measured path as a track">Export GPX</Btn>
+          <Btn variant="ghost" onClick={() => exportGeo("kml")} disabled={!places?.places.length && measure.length < 2} data-testid="mp-export-kml" title="Places as KML placemarks; the measured path as a line (or polygon)">Export KML</Btn>
+          <label className="fs-btn fs-maps-import" data-variant="ghost">Import…<input type="file" accept=".geojson,.json,.gpx,.kml,application/geo+json,application/gpx+xml,application/vnd.google-earth.kml+xml" className="fs-visually-hidden-radio" data-testid="mp-import" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f); e.target.value = ""; }} /></label>
         </div>
 
         <details className="fs-maps-card" data-testid="mp-layers">

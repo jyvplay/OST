@@ -465,6 +465,12 @@ input[type="color"] { min-width: calc(6px + 16 * var(--fs-u)); min-height: calc(
 .fs-stream[data-kind="audio"] .fs-stream-empty, .fs-stream[data-kind="audio"] .fs-stream-facade { aspect-ratio: auto; min-height: 220px; }
 .fs-stream-facade-title { font-size: calc(17 * var(--fs-u)); line-height: 1.3; }
 .fs-stream-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* TT34 SM-09: transport row (seek / volume / speed / playlist) shared by embeds and native files */
+.fs-stream-transport { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 6px 0 2px; }
+.fs-stream-seek { flex: 1 1 180px; min-width: 120px; min-height: 24px; accent-color: var(--accent, #0a84ff); }
+.fs-stream-vol { width: 104px; min-height: 24px; accent-color: var(--accent, #0a84ff); }
+.fs-stream-rate { width: auto; min-height: 32px; padding: 2px 6px; }
+.fs-stream-stage:focus-visible { outline: 2px solid var(--accent, #0a84ff); outline-offset: 2px; }
 .fs-stream-lib { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto; gap: 8px; min-height: 0; }
 .fs-stream-list { list-style: none; margin: 0; padding: 0; overflow: auto; display: grid; align-content: start; gap: 4px; min-height: 0; }
 .fs-stream-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px; border-radius: 10px; }

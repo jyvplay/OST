@@ -49,6 +49,12 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
   const [consented, setConsented] = useState<Set<string>>(() => new Set());
   const [remember, setRemember] = useState(false);
   const [loop, setLoop] = useState(false);
+  // TT34 SM-11: shuffle (no repeats within a round) + a history so Previous retraces shuffled picks
+  const [shuffle, setShuffle] = useState(false);
+  const history = useRef<string[]>([]);
+  const played = useRef<string[]>([]);
+  // TT34 SM-09: native <video>/<audio> state for the shared transport (embeds report through `ctl`)
+  const [media, setMedia] = useState<{ time: number; duration: number; volume: number; muted: boolean; rate: number; paused: boolean } | null>(null);
   // TT28 SM-04: two-way control of the embed (ended → auto-next, play/pause, progress) — see embed-control-core.ts
   const [autoNext, setAutoNext] = useState(true);
   const [ctl, setCtl] = useState<E.CtlState | null>(null);
@@ -139,7 +145,26 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
   };
 
   const items = useMemo(() => (lib ? S.filterLibrary(lib, kind, q) : []), [lib, kind, q]);
-  const next = () => { const n = S.nextIn(items, current?.itemId ?? null, loop); if (n) play(n.url, n.id); };
+  const next = () => {
+    const cur = current?.itemId ?? null;
+    let n: S.LibraryItem | null;
+    if (shuffle) {
+      const r = S.shuffleNext(items, cur, played.current, loop);
+      if (r?.newRound) played.current = [];
+      n = r?.item ?? null;
+      if (n) played.current = [...played.current, n.id];
+    } else n = S.nextIn(items, cur, loop);
+    if (!n) return;
+    if (cur) history.current = [...history.current.slice(-99), cur];
+    play(n.url, n.id);
+  };
+  const prev = () => {
+    const cur = current?.itemId ?? null;
+    let n: S.LibraryItem | null = null;
+    while (!n && history.current.length) { const id = history.current[history.current.length - 1]; history.current = history.current.slice(0, -1); n = items.find((x) => x.id === id) ?? null; }
+    if (!n && !shuffle) n = S.prevIn(items, cur, loop);
+    if (n) play(n.url, n.id);
+  };
   const nextRef = useRef(next);
   const autoRef = useRef(autoNext);
   useEffect(() => { nextRef.current = next; autoRef.current = autoNext; });
@@ -216,10 +241,58 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
   };
   const ref = current?.ref ?? null;
   const loaded = !!ref && (ref.provider === "file" || alwaysLoad || consented.has(ref.host));
+
+  /* ------------------------------------------------ TT34 SM-09/10: one transport for embeds and native files */
+  const native = ref?.provider === "file";
+  const caps: E.Caps = native ? { seek: true, volume: true, mute: true, rate: true, playlist: false } : E.capabilities(ctl);
+  const tp = native
+    ? { time: media?.time ?? 0, duration: media?.duration ?? 0, volume: media ? Math.round(media.volume * 100) : undefined, muted: media?.muted, rate: media?.rate, rates: E.DEFAULT_RATES as readonly number[], playing: media ? !media.paused : false }
+    : { time: ctl?.time ?? 0, duration: ctl?.duration ?? 0, volume: ctl?.volume, muted: ctl?.muted, rate: ctl?.rate, rates: (ctl?.rates?.length ? ctl.rates : E.DEFAULT_RATES) as readonly number[], playing: ctl?.status === "playing" || ctl?.status === "buffering" };
+  const syncMedia = (el: HTMLMediaElement) => setMedia({ time: el.currentTime, duration: Number.isFinite(el.duration) ? el.duration : 0, volume: el.volume, muted: el.muted, rate: el.playbackRate, paused: el.paused });
+  const t = {
+    toggle: () => {
+      if (native) { const m = mediaRef.current; if (m) { if (m.paused) void m.play().catch(() => {}); else m.pause(); } return; }
+      if (ctl?.connected) send(tp.playing ? { op: "pause" } : { op: "play" });
+    },
+    seekTo: (sec: number) => {
+      const d = tp.duration, x = Math.max(0, d > 0 ? Math.min(d - 0.25, sec) : sec);
+      if (native) { const m = mediaRef.current; if (m) m.currentTime = x; return; }
+      if (caps.seek) { send({ op: "seek", seconds: x }); if (ctlRef.current) { ctlRef.current = { ...ctlRef.current, time: x }; setCtl(ctlRef.current); } }
+    },
+    volume: (v: number) => {
+      const x = Math.max(0, Math.min(100, Math.round(v)));
+      if (native) { const m = mediaRef.current; if (m) { m.volume = x / 100; if (x > 0 && m.muted) m.muted = false; } return; }
+      if (caps.volume) { send({ op: "volume", value: x }); if (x > 0 && tp.muted) send({ op: "mute", on: false }); }
+    },
+    mute: () => {
+      if (native) { const m = mediaRef.current; if (m) m.muted = !m.muted; return; }
+      if (caps.mute) send({ op: "mute", on: !tp.muted });
+    },
+    rate: (r: number) => {
+      if (native) { const m = mediaRef.current; if (m) m.playbackRate = r; return; }
+      if (caps.rate) send({ op: "rate", value: r });
+    },
+  };
+  /** keyboard: only while focus is inside this app (not inside the provider's iframe, which keeps its own keys) */
+  const onKeys = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const el = e.target as HTMLElement;
+    const a = E.keyAction({ key: e.key, shiftKey: e.shiftKey, ctrlKey: e.ctrlKey, metaKey: e.metaKey, altKey: e.altKey, tag: el.tagName, type: (el as HTMLInputElement).type, editable: el.isContentEditable });
+    if (!a) return;
+    if (a.op === "libNext") { if (items.length) next(); }
+    else if (a.op === "libPrev") prev();
+    else if (!ref || !loaded) return;
+    else if (a.op === "toggle") t.toggle();
+    else if (a.op === "skip") { if (!caps.seek) return; t.seekTo(tp.time + a.seconds); }
+    else if (a.op === "seekFraction") { if (!caps.seek || !(tp.duration > 0)) return; t.seekTo(tp.duration * a.f); }
+    else if (a.op === "volume") { if (!caps.volume) return; t.volume((tp.volume ?? 100) + a.delta); }
+    else if (a.op === "mute") { if (!caps.mute) return; t.mute(); }
+    else if (a.op === "rate") { if (!caps.rate) return; t.rate(E.stepRate(tp.rates, tp.rate ?? 1, a.dir)); }
+    e.preventDefault();
+  };
   const h = ref ? S.playerHeight(ref) : null;
 
   return (
-    <div className="fs-stream" data-testid={`${pfx}-app`} data-kind={kind}>
+    <div className="fs-stream" data-testid={`${pfx}-app`} data-kind={kind} onKeyDown={onKeys}>
       <form className="fs-stream-bar" onSubmit={(e) => { e.preventDefault(); play(url); }}>
         <input className="fs-input" data-testid={`${pfx}-url`} value={url} onChange={(e) => setUrl(e.target.value)} spellCheck={false}
           aria-label={kind === "video" ? "Video link" : "Music link"} placeholder={`Paste a link — ${EXAMPLES[kind].slice(0, 2).join(" or ")}`} />
@@ -229,7 +302,8 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
       {error ? <p className="fs-stream-err" role="alert" data-testid={`${pfx}-error`}>{error}</p> : null}
 
       <div className="fs-stream-main">
-        <section className="fs-stream-stage" aria-label="Player" data-testid={`${pfx}-stage`} data-provider={ref?.provider ?? ""} data-loaded={loaded ? "1" : "0"}>
+        <section className="fs-stream-stage" aria-label="Player" data-testid={`${pfx}-stage`} data-provider={ref?.provider ?? ""} data-loaded={loaded ? "1" : "0"}
+          tabIndex={-1} aria-keyshortcuts="Space K J L ArrowLeft ArrowRight ArrowUp ArrowDown M Shift+N Shift+P < >">
           {!ref ? (
             <div className="fs-stream-empty">
               <strong>{kind === "video" ? "Play a video from YouTube, Vimeo, Dailymotion, Twitch, PeerTube, TIDAL or a file link" : "Stream from Spotify, SoundCloud, TIDAL, Qobuz or Amazon Music, or play an audio file link"}</strong>
@@ -255,8 +329,8 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
             </div>
           ) : ref.provider === "file" ? (
             ref.kind === "video"
-              ? <video key={ref.embed} ref={(el) => { mediaRef.current = el; }} className="fs-stream-video" src={ref.embed} controls playsInline data-testid={`${pfx}-media`} onPlay={announce} onEnded={() => { if (autoNext) next(); }} />
-              : <audio key={ref.embed} ref={(el) => { mediaRef.current = el; }} className="fs-stream-audio" src={ref.embed} controls data-testid={`${pfx}-media`} onPlay={announce} onEnded={() => { if (autoNext) next(); }} />
+              ? <video key={ref.embed} ref={(el) => { mediaRef.current = el; }} className="fs-stream-video" src={ref.embed} controls playsInline data-testid={`${pfx}-media`} onPlay={(e) => { announce(); syncMedia(e.currentTarget); }} onEnded={() => { if (autoNext) next(); }} onTimeUpdate={(e) => syncMedia(e.currentTarget)} onDurationChange={(e) => syncMedia(e.currentTarget)} onVolumeChange={(e) => syncMedia(e.currentTarget)} onRateChange={(e) => syncMedia(e.currentTarget)} onPause={(e) => syncMedia(e.currentTarget)} onLoadedMetadata={(e) => syncMedia(e.currentTarget)} />
+              : <audio key={ref.embed} ref={(el) => { mediaRef.current = el; }} className="fs-stream-audio" src={ref.embed} controls data-testid={`${pfx}-media`} onPlay={(e) => { announce(); syncMedia(e.currentTarget); }} onEnded={() => { if (autoNext) next(); }} onTimeUpdate={(e) => syncMedia(e.currentTarget)} onDurationChange={(e) => syncMedia(e.currentTarget)} onVolumeChange={(e) => syncMedia(e.currentTarget)} onRateChange={(e) => syncMedia(e.currentTarget)} onPause={(e) => syncMedia(e.currentTarget)} onLoadedMetadata={(e) => syncMedia(e.currentTarget)} />
           ) : (
             <iframe key={frame?.key ?? ref.embed} ref={frameRef} onLoad={onFrameLoad} className="fs-stream-frame" data-testid={`${pfx}-frame`} src={frame?.src ?? ref.embed}
               title={`${S.PROVIDER_LABEL[ref.provider]} player`} allow={S.iframeAllow(ref)} allowFullScreen
@@ -288,10 +362,40 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
                 </>
               ) : null}
               <span style={{ flex: 1 }} />
+              <Btn variant="ghost" onClick={prev} disabled={!items.length} data-testid={`${pfx}-prev`} title="Previous in the library (Shift+P)">Previous</Btn>
               <Btn variant="ghost" onClick={next} disabled={!items.length} data-testid={`${pfx}-next`} title={ref.provider === "file" || ctl ? "Next in the library (Auto-next also moves on when this one ends)" : "Next in the library (this provider's player does not report when it ends, so Auto-next cannot follow it)"}>Next</Btn>
               <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={autoNext} onChange={(e) => setAutoNext(e.target.checked)} data-testid={`${pfx}-auto`} />Auto-next</label>
               <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} data-testid={`${pfx}-loop`} />Loop list</label>
+              <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={shuffle} onChange={(e) => { setShuffle(e.target.checked); played.current = current?.itemId ? [current.itemId] : []; }} data-testid={`${pfx}-shuffle`} />Shuffle</label>
               <a className="fs-btn" data-variant="ghost" href={ref.page} target="_blank" rel="noopener noreferrer">Open on site</a>
+            </div>
+          ) : null}
+          {ref && loaded && (native ? media : ctl?.connected) && (caps.seek || caps.volume || caps.rate || caps.playlist) ? (
+            <div className="fs-stream-transport" role="group" aria-label="Playback controls" data-testid={`${pfx}-transport`}
+              data-caps={(Object.keys(caps) as (keyof E.Caps)[]).filter((k) => caps[k]).join(" ")}>
+              {caps.playlist ? <Btn variant="ghost" onClick={() => send({ op: "prev" })} data-testid={`${pfx}-pl-prev`} aria-label="Previous in this playlist">Prev track</Btn> : null}
+              {caps.seek ? <Btn variant="ghost" onClick={() => t.seekTo(tp.time - 10)} data-testid={`${pfx}-back10`} aria-label="Back 10 seconds" title="Back 10 s (J)">−10 s</Btn> : null}
+              {native ? <Btn variant="ghost" onClick={t.toggle} data-testid={`${pfx}-toggle`}>{tp.playing ? "Pause" : "Play"}</Btn> : null}
+              {caps.seek ? <Btn variant="ghost" onClick={() => t.seekTo(tp.time + 10)} data-testid={`${pfx}-fwd10`} aria-label="Forward 10 seconds" title="Forward 10 s (L)">+10 s</Btn> : null}
+              {caps.playlist ? <Btn variant="ghost" onClick={() => send({ op: "next" })} data-testid={`${pfx}-pl-next`} aria-label="Next in this playlist">Next track</Btn> : null}
+              {caps.seek && tp.duration > 0 ? (
+                <input type="range" className="fs-stream-seek" min={0} max={Math.max(1, Math.floor(tp.duration))} step={1} value={Math.min(Math.floor(tp.time), Math.floor(tp.duration))}
+                  onChange={(e) => t.seekTo(Number(e.target.value))} data-testid={`${pfx}-seek`} aria-label="Seek" aria-valuetext={E.formatClock(tp.time, tp.duration)} />
+              ) : null}
+              {native ? <span className="fs-dim fs-stream-clock" data-testid={`${pfx}-native-clock`}>{E.formatClock(tp.time, tp.duration)}</span> : null}
+              {caps.mute ? <Btn variant="ghost" onClick={t.mute} data-testid={`${pfx}-mute`} aria-pressed={!!tp.muted} title="Mute (M)">{tp.muted ? "Unmute" : "Mute"}</Btn> : null}
+              {caps.volume ? (
+                <input type="range" className="fs-stream-vol" min={0} max={100} step={5} value={tp.volume ?? 100} onChange={(e) => t.volume(Number(e.target.value))}
+                  data-testid={`${pfx}-volume`} data-reported={tp.volume === undefined ? "0" : "1"} aria-label="Volume" aria-valuetext={tp.volume === undefined ? "not reported yet" : `${tp.volume} %`} />
+              ) : null}
+              {caps.rate ? (
+                <label className="fs-row" style={{ gap: 4 }}><span className="fs-dim">Speed</span>
+                  <select className="fs-input fs-stream-rate" value={String(tp.rate ?? 1)} onChange={(e) => t.rate(Number(e.target.value))} data-testid={`${pfx}-rate`} data-reported={tp.rate === undefined ? "0" : "1"}
+                    title={ref.provider === "vimeo" ? "Vimeo applies speed only when the video's owner allows it; the value shown is what the player reports" : "Playback speed (< and >)"}>
+                    {[...new Set([...tp.rates, tp.rate ?? 1])].sort((a, b) => a - b).map((r) => <option key={r} value={String(r)}>{r}×</option>)}
+                  </select>
+                </label>
+              ) : null}
             </div>
           ) : null}
         </section>
