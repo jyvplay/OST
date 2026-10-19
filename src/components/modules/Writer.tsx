@@ -543,8 +543,8 @@ export default function WriterModule({ win }: ModuleProps) {
         <Btn {...tb(!!fmt?.i && !mixed("i"))} aria-label="Italic" aria-pressed={!!fmt?.i} onClick={() => toggleFmt("i")}><i>I</i></Btn>
         <Btn {...tb(!!fmt?.u && fmt.u !== "none" && !mixed("u"))} aria-label="Underline" aria-pressed={!!fmt?.u} onClick={() => toggleFmt("u")}><u>U</u></Btn>
         <Btn {...tb(!!fmt?.s)} aria-label="Strikethrough" onClick={() => toggleFmt("s")}><s>S</s></Btn>
-        <Btn {...tb(fmt?.va === "superscript")} aria-label="Superscript" onClick={() => toggleFmt("va-sup")}>x²</Btn>
-        <Btn {...tb(fmt?.va === "subscript")} aria-label="Subscript" onClick={() => toggleFmt("va-sub")}>x₂</Btn>
+        <Btn {...tb(fmt?.va === "superscript")} aria-label="x² superscript" title="Superscript" onClick={() => toggleFmt("va-sup")}>x²</Btn>
+        <Btn {...tb(fmt?.va === "subscript")} aria-label="x₂ subscript" title="Subscript" onClick={() => toggleFmt("va-sub")}>x₂</Btn>
         <label title="Text colour" style={{ display: "flex", alignItems: "center" }}><input type="color" aria-label="Text colour" value={`#${fmt?.color && /^[0-9a-f]{6}$/i.test(fmt.color) ? fmt.color : "000000"}`} onChange={(e) => applyRunFmt({ color: e.target.value.slice(1).toUpperCase() })} style={{ width: fz(28), height: fz(24), border: "none", background: "none" }} /></label>
         <select className="fs-select" aria-label="Highlight" value={fmt?.hl ?? ""} style={{ width: fz(96) }} onChange={(e) => applyRunFmt({ hl: e.target.value || null })}>
           <option value="">No highlight</option>{HIGHLIGHTS.map((h) => <option key={h} value={h}>{h}</option>)}
@@ -555,7 +555,7 @@ export default function WriterModule({ win }: ModuleProps) {
           <option value="" disabled>Spacing</option>{[1, 1.15, 1.5, 2, 2.5, 3].map((v) => <option key={v} value={String(v)}>{v.toFixed(2)}</option>)}
         </select>
         <Btn {...tb(!!curPara && E.listKind(doc, curPara) === "bullet")} aria-label="Bulleted list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "bullet"))}>• List</Btn>
-        <Btn {...tb(!!curPara && E.listKind(doc, curPara) === "number")} aria-label="Numbered list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "number"))}>1. List</Btn>
+        <Btn {...tb(!!curPara && E.listKind(doc, curPara) === "number")} aria-label="1. List (numbered)" title="Numbered list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "number"))}>1. List</Btn>
         <Btn variant="ghost" aria-label="Decrease indent" onClick={() => paraOp((d, r) => E.indent(d, r, -1))}>⇤</Btn>
         <Btn variant="ghost" aria-label="Increase indent" onClick={() => paraOp((d, r) => E.indent(d, r, 1))}>⇥</Btn>
         <span className="wsep" />
@@ -590,7 +590,7 @@ export default function WriterModule({ win }: ModuleProps) {
           {pop === "saveas" && <><span>Save as</span><input className="fs-input" autoFocus aria-label="Save path" value={popVal} onChange={(e) => setPopVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { const p = popVal.toLowerCase().endsWith(".docx") ? popVal : `${popVal}.docx`; setPop(""); void saveTo(p); } }} style={{ width: fz(340) }} />
             <Btn onClick={() => { const p = popVal.toLowerCase().endsWith(".docx") ? popVal : `${popVal}.docx`; setPop(""); void saveTo(p); }}>Save .docx</Btn>
             <span style={{ fontSize: fz(12), opacity: 0.8 }} data-testid="writer-fidelity">Fidelity: lossless — every part of the original package is kept{fidelity(doc) ? `; shown read-only: ${fidelity(doc)}` : ""}.</span></>}
-          <Btn variant="ghost" onClick={() => setPop("")} aria-label="Close">Cancel</Btn>
+          <Btn variant="ghost" onClick={() => setPop("")}>Cancel</Btn>
         </div>
       )}
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
@@ -601,7 +601,7 @@ export default function WriterModule({ win }: ModuleProps) {
           </div>
         )}
         {/* ---------- pages */}
-        <div className="wcanvas" style={{ flex: 1, overflow: "auto", background: "var(--fs-surface-2, #e9ecef)", padding: 24 }}>
+        <div className="wcanvas" role="region" aria-label="Document pages" tabIndex={0} style={{ flex: 1, overflow: "auto", background: "var(--fs-surface-2, #e9ecef)", padding: 24 }}>
           <div style={{ width: g.pageW * z, height: pages * (g.pageH + g.gap) * z, margin: "0 auto", position: "relative" }}>
             <div style={{ transform: `scale(${z})`, transformOrigin: "0 0", width: g.pageW, position: "absolute", left: 0, top: 0 }}>
               <div ref={pagesRef} className="wpages" style={{ position: "absolute", left: 0, top: 0, width: g.pageW }} aria-hidden />
@@ -742,7 +742,7 @@ function PageSetup({ doc, onApply }: { doc: WordDoc; onApply: (o: { paper?: stri
       <div className="wside-h">Margins (inches)</div>
       {(["top", "right", "bottom", "left"] as const).map((k) => <label key={k} style={{ display: "flex", justifyContent: "space-between" }}>{k[0].toUpperCase() + k.slice(1)} <input className="fs-input" type="number" step={0.05} min={0} max={4} value={m[k]} aria-label={`${k} margin`} onChange={(e) => setM({ ...m, [k]: Number(e.target.value) })} style={{ width: 80 }} /></label>)}
       <Btn onClick={() => onApply({ margins: { top: Math.round(m.top * 1440), right: Math.round(m.right * 1440), bottom: Math.round(m.bottom * 1440), left: Math.round(m.left * 1440) } })}>Apply margins</Btn>
-      <div style={{ fontSize: 12, opacity: 0.75 }}>{(p.w / 1440).toFixed(2)}″ × {(p.h / 1440).toFixed(2)}″ · {p.cols && p.cols > 1 ? `${p.cols} columns (shown as one)` : "1 column"}</div>
+      <div style={{ fontSize: fz(12), opacity: 0.75 }}>{(p.w / 1440).toFixed(2)}″ × {(p.h / 1440).toFixed(2)}″ · {p.cols && p.cols > 1 ? `${p.cols} columns (shown as one)` : "1 column"}</div>
     </div>
   );
 }

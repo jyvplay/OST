@@ -1,25 +1,61 @@
 {
   "suite": "tt47-crypto",
-  "at": "2026-10-19T18:48:09.112Z",
+  "at": "2026-10-19T19:59:27.398Z",
   "results": [
+    {
+      "suite": "tt47-crypto",
+      "name": "SHA-1/256/384/512, HMAC and AES-128/192/256 (CBC, ECB) equal OpenSSL on 400 random vectors incl. padding boundaries",
+      "covers": {
+        "FF-21": "full",
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 1090
+    },
     {
       "suite": "tt47-crypto",
       "name": "corpus: Agile SHA-1 'pass' (HMAC verified, opens in Writer), Standard 'solrcell' and 'tika' byte-equal to msoffcrypto-tool",
       "covers": {
-        "FF-11": "full"
+        "FF-21": "full",
+        "FF-22": "full",
+        "PR-11": "partial"
       },
-      "pass": false,
-      "error": "The password is not correct.",
-      "ms": 550
+      "pass": true,
+      "ms": 1029
     },
     {
       "suite": "tt47-crypto",
       "name": "independent Agile vectors: msoffcrypto-tool -e (SHA-512/AES-256, HMAC) on 24 corpus files + Unicode password decrypt byte-equal",
       "covers": {
-        "FF-11": "full"
+        "FF-21": "full",
+        "FF-22": "full",
+        "PR-11": "partial"
       },
       "pass": true,
-      "ms": 24979
+      "ms": 26023
+    },
+    {
+      "suite": "tt47-crypto",
+      "name": "negative shapes: 25 malformed/hostile inputs are refused with a specific error, never hang, never yield plaintext",
+      "covers": {
+        "FF-21": "full",
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 8108
+    },
+    {
+      "suite": "tt47-crypto",
+      "name": "bounded fuzz: 240 random header/FAT/directory mutations of encrypted files — every outcome is a thrown Error or exact plaintext",
+      "covers": {
+        "FF-21": "full",
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 93850
     }
   ]
 }

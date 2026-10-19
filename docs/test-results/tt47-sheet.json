@@ -1,33 +1,36 @@
 {
   "suite": "tt47-sheet",
-  "at": "2026-10-19T18:57:31.809Z",
+  "at": "2026-10-19T19:57:16.913Z",
   "results": [
     {
       "suite": "tt47-sheet",
       "name": "indexed colour palette equals openpyxl's COLOR_INDEX (independent table, 64 entries; 64/65 = system fg/bg)",
       "covers": {
-        "FF-20": "full"
+        "FF-20": "full",
+        "FF-21": "full"
       },
       "pass": true,
-      "ms": 176
+      "ms": 188
     },
     {
       "suite": "tt47-sheet",
       "name": "tint maths matches stdlib colorsys within 1/255 per channel on a 1,000-sample grid; theme index order swaps lt/dk",
       "covers": {
-        "FF-20": "full"
+        "FF-20": "full",
+        "FF-21": "full"
       },
       "pass": true,
-      "ms": 33
+      "ms": 37
     },
     {
       "suite": "tt47-sheet",
       "name": "corpus: every styled cell's fill and font colour equals the independent oracle (rgb, theme+tint, indexed, custom palette)",
       "covers": {
-        "FF-20": "full"
+        "FF-20": "full",
+        "FF-21": "full"
       },
       "pass": true,
-      "ms": 102178
+      "ms": 107102
     },
     {
       "suite": "tt47-sheet",
@@ -47,7 +50,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 378
+      "ms": 397
     },
     {
       "suite": "tt47-sheet",
@@ -57,7 +60,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 1948
+      "ms": 1754
     },
     {
       "suite": "tt47-sheet",
@@ -67,7 +70,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 21
+      "ms": 31
     },
     {
       "suite": "tt47-sheet",
@@ -76,7 +79,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 131359
+      "ms": 118707
     }
   ]
 }

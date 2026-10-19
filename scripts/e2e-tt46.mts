@@ -225,5 +225,12 @@ print(json.dumps({"names":w.sheetnames,"charts":[n for n in z if n.startswith("x
 await test("no uncaught page errors during the Writer session", COV, () => { eq(errors, [], "page errors"); });
 
 await browser.close();
+// hygiene: remove this run's uploads/saves so repeated runs don't pile up desktop icons and tabletop cards
+{
+  const r = await fetch(`${BASE}/api/fs?op=list&path=/Documents`).then((x) => x.json()) as { nodes?: { path: string }[] };
+  for (const n of r.nodes ?? []) if (n.path.startsWith(`/Documents/${RUN}-`)) {
+    for (const op of ["trash", "purge"]) await fetch(`${BASE}/api/fs`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op, path: n.path }) });
+  }
+}
 await finish();
 process.exit(0);

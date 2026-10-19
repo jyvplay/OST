@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-19T04:27:11.926Z",
+  "generated": "2026-10-19T20:12:36.543Z",
   "rules": "src/lib/beauty-core.ts",
   "retries": [],
   "views": [
@@ -12,7 +12,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:21 AMMonday, October ”#57",
+          "id": "div“08:08 PMMonday, October ”#57",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -40,7 +40,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:21 AMMonday, October ”#135",
+          "id": "div“08:08 PMMonday, October ”#135",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -74,7 +74,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:21 AMMonday, October ”#356",
+          "id": "div“08:08 PMMonday, October ”#356",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -192,7 +192,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:21 AMMonday, October ”#56",
+          "id": "div“08:08 PMMonday, October ”#56",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -220,7 +220,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:21 AMMonday, October ”#171",
+          "id": "div“08:08 PMMonday, October ”#171",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -254,7 +254,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:21 AMMonday, October ”#63",
+          "id": "div“08:08 PMMonday, October ”#63",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -286,7 +286,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:21 AMMonday, October ”#92",
+          "id": "div“08:08 PMMonday, October ”#92",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -314,7 +314,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:21 AMMonday, October ”#147",
+          "id": "div“08:08 PMMonday, October ”#147",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -337,7 +337,7 @@
           "hard": false
         }
       ],
-      "balance": 0.563
+      "balance": 0.56
     },
     {
       "view": "tabletop floor",
@@ -393,7 +393,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:22 AMMonday, October ”#57",
+          "id": "div“08:09 PMMonday, October ”#57",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -421,7 +421,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:22 AMMonday, October ”#133",
+          "id": "div“08:09 PMMonday, October ”#133",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -455,7 +455,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:22 AMMonday, October ”#56",
+          "id": "div“08:09 PMMonday, October ”#56",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -483,7 +483,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:22 AMMonday, October ”#162",
+          "id": "div“08:09 PMMonday, October ”#162",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -517,7 +517,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:22 AMMonday, October ”#63",
+          "id": "div“08:09 PMMonday, October ”#63",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -549,7 +549,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:22 AMMonday, October ”#92",
+          "id": "div“08:09 PMMonday, October ”#92",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -577,7 +577,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:22 AMMonday, October ”#141",
+          "id": "div“08:09 PMMonday, October ”#141",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -656,7 +656,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:22 AMMonday, October ”#57",
+          "id": "div“08:09 PMMonday, October ”#57",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -684,7 +684,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:22 AMMonday, October ”#145",
+          "id": "div“08:09 PMMonday, October ”#145",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -712,7 +712,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:23 AMMonday, October ”#356",
+          "id": "div“08:09 PMMonday, October ”#356",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -830,7 +830,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:23 AMMonday, October ”#56",
+          "id": "div“08:09 PMMonday, October ”#56",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -858,7 +858,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:23 AMMonday, October ”#176",
+          "id": "div“08:09 PMMonday, October ”#176",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -886,7 +886,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:23 AMMonday, October ”#70",
+          "id": "div“08:09 PMMonday, October ”#70",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -918,7 +918,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:23 AMMonday, October ”#99",
+          "id": "div“08:09 PMMonday, October ”#99",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -946,7 +946,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:23 AMMonday, October ”#153",
+          "id": "div“08:09 PMMonday, October ”#153",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -969,7 +969,7 @@
           "hard": false
         }
       ],
-      "balance": 0.694
+      "balance": 0.691
     },
     {
       "view": "tabletop floor",
@@ -1025,7 +1025,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:24 AMMonday, October ”#48",
+          "id": "div“08:09 PMMonday, October ”#48",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1053,7 +1053,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:24 AMMonday, October ”#106",
+          "id": "div“08:09 PMMonday, October ”#106",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1087,7 +1087,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:24 AMMonday, October ”#44",
+          "id": "div“08:09 PMMonday, October ”#44",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1115,7 +1115,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:24 AMMonday, October ”#127",
+          "id": "div“08:09 PMMonday, October ”#127",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1149,7 +1149,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:24 AMMonday, October ”#49",
+          "id": "div“08:10 PMMonday, October ”#49",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1181,7 +1181,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:24 AMMonday, October ”#68",
+          "id": "div“08:10 PMMonday, October ”#68",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1215,7 +1215,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“04:24 AMMonday, October ”#102",
+          "id": "div“08:10 PMMonday, October ”#102",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
