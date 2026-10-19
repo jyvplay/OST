@@ -1,6 +1,6 @@
 {
   "suite": "tt46-writer",
-  "at": "2026-10-19T18:25:11.128Z",
+  "at": "2026-10-19T19:09:05.103Z",
   "results": [
     {
       "suite": "tt46-writer",
@@ -10,7 +10,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 2967
+      "ms": 3286
     },
     {
       "suite": "tt46-writer",
@@ -30,7 +30,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 174
+      "ms": 191
     },
     {
       "suite": "tt46-writer",
@@ -40,7 +40,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 5402
+      "ms": 6073
     },
     {
       "suite": "tt46-writer",
@@ -50,7 +50,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 39327
+      "ms": 42636
     },
     {
       "suite": "tt46-writer",
@@ -60,7 +60,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 170
+      "ms": 177
     },
     {
       "suite": "tt46-writer",
@@ -70,7 +70,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 55
+      "ms": 51
     },
     {
       "suite": "tt46-writer",
@@ -80,7 +80,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 707
+      "ms": 698
     },
     {
       "suite": "tt46-writer",
@@ -90,7 +90,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 11
+      "ms": 13
     },
     {
       "suite": "tt46-writer",
@@ -100,7 +100,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 120
+      "ms": 136
     },
     {
       "suite": "tt46-writer",
@@ -110,7 +110,18 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 105
+      "ms": 111
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "table column delete: last column of a 3-column table, then down to one column, then the only column removes the table (TT47 fix) — saved file reopens",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": false,
+      "error": "deleting the only column must remove the table",
+      "ms": 5
     }
   ]
 }

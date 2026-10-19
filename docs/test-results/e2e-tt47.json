@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt47",
-  "at": "2026-10-19T18:19:26.661Z",
+  "at": "2026-10-19T19:05:20.354Z",
   "results": [
     {
       "suite": "e2e-tt47",
@@ -12,7 +12,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 8254
+      "ms": 7840
     },
     {
       "suite": "e2e-tt47",
@@ -24,7 +24,31 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 6750
+      "ms": 7265
+    },
+    {
+      "suite": "e2e-tt47",
+      "name": "Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 3972
+    },
+    {
+      "suite": "e2e-tt47",
+      "name": "Spreadsheet opens a password-protected .xlsx (Standard), saves only an explicit unencrypted copy; server refuses plaintext over an encrypted file; cancel never overwrites",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 6661
     },
     {
       "suite": "e2e-tt47",

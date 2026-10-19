@@ -22,7 +22,7 @@ const ONLY = process.env.ONLY;
 const test: typeof test0 = (name, covers, fn) => (ONLY && !name.includes(ONLY) ? Promise.resolve() : test0(name, covers, fn)) as ReturnType<typeof test0>;
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const hex = (b: Uint8Array) => Buffer.from(b).toString("hex");
-const COV = { "FF-11": "full" } as const;
+const COV = { "FF-21": "full", "FF-22": "full", "PR-11": "partial" } as const;
 export const PY = "/home/user/tools/venv/bin/python";
 export const tmp = mkdtempSync(join(tmpdir(), "tt47c-"));
 const C = "/home/user/tools/corpus";

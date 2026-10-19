@@ -25,7 +25,7 @@ const CORPUS = "/home/user/tools/corpus/xlsx";
 const PY = "/home/user/tools/venv/bin/python";
 const haveCorpus = existsSync(CORPUS) && existsSync(PY);
 function ok(c: unknown, m: string): asserts c { if (!c) throw new Error(m); }
-const COV = { "FF-20": "full" } as const;
+const COV = { "FF-20": "full", "FF-21": "full" } as const;
 const near = (a: string | null | undefined, b: string | null | undefined) => {
   if (!a || !b) return a === b || (!a && !b);
   return [1, 3, 5].every((i) => Math.abs(parseInt(a.slice(i, i + 2), 16) - parseInt(b.slice(i, i + 2), 16)) <= 1);

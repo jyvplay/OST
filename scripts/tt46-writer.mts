@@ -241,5 +241,21 @@ await test("picture resize rewrites wp:extent + a:ext; cross-paragraph delete me
   eq(allParas(d.blocks).length, before, "structure kept"); eq(paraText(allParas([t])[1]), " text", "cell trimmed");
 });
 
+await test("table column delete: last column of a 3-column table, then down to one column, then the only column removes the table (TT47 fix) — saved file reopens", COV, async () => {
+  const d = await blankWord("cols");
+  const p0 = allParas(d.blocks)[0];
+  const t = E.insertTableAfter(d, p0.id, 2, 3); if (!t) throw new Error("table not inserted");
+  const W = await import("../src/lib/office/wordml.ts");
+  const cellPara = (col: number) => { const r = W.rowsOf(t)[0]; const c = W.cellsOf(r)[col]; return allParas(c.blocks)[0]; };
+  const cols = () => W.cellsOf(W.rowsOf(t)[0]).length;
+  const hasTable = () => d.blocks.includes(t as never);
+  if (!E.tableColOp(d, cellPara(2).id, "delete") || cols() !== 2 || t.grid.length !== 2) throw new Error(`last-column delete: ${cols()} cells, grid ${t.grid.length}`);
+  for (const r of W.rowsOf(t)) if (W.cellsOf(r).length !== 2) throw new Error("every row lost exactly one cell");
+  if (!E.tableColOp(d, cellPara(1).id, "delete") || cols() !== 1) throw new Error("second delete");
+  if (!E.tableColOp(d, cellPara(0).id, "delete") || hasTable()) throw new Error("deleting the only column must remove the table");
+  const re = await readWord(await writeWord(d));
+  if (JSON.stringify(re.blocks).includes('"t":"tbl"')) throw new Error("table still serialised");
+});
+
 await finish();
 process.exit(0);
