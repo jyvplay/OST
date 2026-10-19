@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-19T00:46:52.563Z",
+ "generatedAt": "2026-10-19T05:08:55.762Z",
  "totals": {
   "built": {
-   "full": 285,
-   "partial": 62,
+   "full": 286,
+   "partial": 61,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 167,
-   "partial": 80,
+   "full": 168,
+   "partial": 79,
    "untested": 121
   },
   "tests": {
-   "total": 718,
-   "passed": 718
+   "total": 774,
+   "passed": 774
   }
  },
  "rows": {
@@ -485,9 +485,65 @@
    ]
   },
   "TD-03": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: mount: devices"
+    "e2e-tt44: Terminal `ssh` opens the SSH window prefilled; connect → host-key dialog with ssh-keygen's fingerprint → trust once → password → remote shell renders",
+    "e2e-tt44: typed keys round-trip through the bridge; a pasted ANSI colour returns as a coloured span",
+    "e2e-tt44: Files pane: list, upload through <input type=file> (bytes equal on the server), Save to Fusion → /Downloads; results stay visible",
+    "e2e-tt44: Files pane management uses in-app dialogs (no window.prompt/confirm): new folder with validation, rename, two-step delete — checked on the server's disk",
+    "e2e-tt44: Disconnect returns to the form; Recent lists the server and /System/ssh/recent.json holds no secret; key generation has an honest outcome",
+    "e2e-tt45: a server offering ML-KEM (asyncssh defaults) → the session negotiates mlkem768x25519-sha256 and the status bar says Post-quantum, with an honest tooltip",
+    "e2e-tt45: a classical-only server (KEX=curve25519-sha256) → the status bar says Classical key exchange instead — never a false post-quantum claim",
+    "e2e: mount: ssh",
+    "e2e: mount: devices",
+    "tt44-bridge: first contact: host-key prompt shows ssh-keygen's fingerprint → trust once → password prompt → ready → shell I/O, resize, exit, closed",
+    "tt44-bridge: trust & remember writes known_hosts in the VFS; the next connection skips the prompt; a CHANGED key is refused before auth; forget re-prompts",
+    "tt44-bridge: public-key auth with an encrypted key: passphrase prompt, wrong passphrase re-prompts, right one logs in; the key is never echoed back",
+    "tt44-bridge: SFTP over HTTP: list/mkdir/rename/remove, a 9 MiB chunked upload and a streamed download are byte-identical with the server's disk",
+    "tt44-bridge: D: ≥15 hostile request shapes are refused with the right status and nothing is dialled",
+    "tt44-bridge: D: frame-level abuse on a live session (truncated / trailing / unknown frames, bad control JSON, stray answers, bad signals, > 1 MiB, SFTP before ready)",
+    "tt44-bridge: D: dial failures are honest — closed port, unresolvable name, .onion without Tor; amnesic sessions cannot save host keys",
+    "tt44-bridge: client helpers: frame parser across arbitrary splits, paste-injection stripping, ssh target parsing",
+    "tt44-unit: Blowfish constants computed from π match the published first/last words; bcrypt_pbkdf == python bcrypt.kdf",
+    "tt44-unit: Poly1305 (13-bit limbs) == cryptography's Poly1305 on 40 random (key, message) pairs incl. block edges",
+    "tt44-unit: OpenSSH key files written by ssh-keygen: encrypted ed25519 (bcrypt+aes256-ctr), RSA-3072 (aes256-gcm), ECDSA-384, PEM P-521",
+    "tt44-unit: generated ed25519 keys (plain and passphrase-encrypted) are read by ssh-keygen and sign for real logins",
+    "tt44-unit: every KEX × cipher × MAC × host-key algorithm negotiates with asyncssh and runs a command",
+    "tt44-unit: auth: password (retry after a wrong one), banner, every public key type, keyboard-interactive, all-fail",
+    "tt44-unit: host key: a rejection (unknown / changed) aborts BEFORE authentication; nothing is sent after",
+    "tt44-unit: pty shell: TERM/size/env reach the server, typed lines echo, window-change resizes, exit status 3",
+    "tt44-unit: exec: exit codes, stderr, signals (exit-signal), unknown command 127, several channels at once",
+    "tt44-unit: 10 MiB each way with flow control: download hash == server's, upload hash == server's; stats count it",
+    "tt44-unit: rekeying: server-initiated (every 1 MiB) and client-initiated (every 512 KiB) during 10 MiB transfers, strict KEX",
+    "tt44-unit: SFTP v3: realpath, mkdir, 3 MiB pipelined upload/download byte-identical, stat, list, rename, symlink, errors",
+    "tt44-unit: Terrapin-style injection: an IGNORE before the server's KEXINIT aborts a strict-KEX session (accepted only when strict is off)",
+    "tt44-unit: strict KEX: an IGNORE injected AFTER the server's KEXINIT (inside the initial key exchange) aborts with strict-kex",
+    "tt44-unit: a different host key presented at a REKEY aborts the session (hostkey-changed), even though that key belongs to the same server",
+    "tt44-unit: MAC / AEAD tampering: one flipped bit after the handshake kills the connection for every cipher+MAC mode; no corrupted byte is delivered",
+    "tt44-unit: a server sending an all-zero curve25519 point is refused (RFC 8731 §3), before any signature work",
+    "tt44-unit: known_hosts: plain, [host]:port, wildcard/negation, @revoked, @cert-authority ignored; hashed by ssh-keygen -H is matched",
+    "tt44-vt: fuzz differential vs xterm.js: 600 seeds × (40×12, 80×24), random chunking — zero unexplained mismatches",
+    "tt44-vt: xterm.js itself crashes on CUP-past-corner + ED1 (oracle bug) — vt.ts survives it with a sane cursor",
+    "tt44-vt: real programs through a real pty (ls, less, top, bash readline, ncurses app, git log --graph) == xterm.js under 2 chunkings",
+    "tt44-vt: where xterm.js deviates, vt.ts follows xterm/VT510: DECALN, DECOM, CPR in pending wrap, EL0 at the margin",
+    "tt44-vt: DECRQSS / DA / DSR replies match xterm.js exactly",
+    "tt44-vt: key encoder == terminfo xterm-256color (cursor keys in keypad-transmit mode, F1–F63 with modifier banks, editing keys)",
+    "tt44-vt: mouse encoder == xterm.js core mouse service (X10/1000/1002/1003 × legacy/SGR × buttons, wheel, drag, modifiers)",
+    "tt44-vt: hostile output is bounded: REP / parameter floods, 10 MB stream, malformed UTF-8, OSC 52, title cap, DCS inert",
+    "tt44-vt: resize keeps the cursor row on screen and bounds everything; scrollback only from the primary screen",
+    "tt44-vt: reflow: 300 seeds × 4 width changes — every logical line equals the INPUT's line (ground truth) and xterm.js's reflow wherever xterm.js itself keeps the input",
+    "tt44-vt: documented divergence: xterm.js does not reflow the cursor's line, so narrowing cuts it; vt.ts re-wraps it (as VTE and kitty do)",
+    "tt44-vt: reflow round trip: 70 → 41 → 70 columns restores every cell, colour and the cursor; the alternate screen is cut, not reflowed",
+    "tt45-unit: constants: ζ = 17 has order 256 mod 3329; 20 random ML-KEM-768 key / encaps / decaps round trips agree",
+    "tt45-unit: ACVP keyGen: all 75 (d, z) → (ek, dk) vectors for ML-KEM-512/768/1024 are byte-identical",
+    "tt45-unit: ACVP encapsulation (75: ek, m → c, K), decapsulation (30, incl. modified ciphertexts → implicit rejection K̄), key checks (60)",
+    "tt45-unit: OpenSSL ML-KEM (python cryptography) agrees: same seed → same ek; encaps in one, decaps in the other, both directions (768 and 1024, 40 runs each)",
+    "tt45-unit: D: inputs outside the contract are refused — wrong lengths, an ek coefficient ≥ q, a dk with a broken H(ek), d/z of the wrong size",
+    "tt45-unit: SSH: each hybrid (mlkem768x25519 / mlkem768nistp256 / mlkem1024nistp384) negotiates with asyncssh + OpenSSL ML-KEM, C_INIT / S_REPLY have the draft's exact sizes, a 1 MiB echo round-trips",
+    "tt45-unit: SSH: repeated key exchanges under mlkem768x25519 (server rekeys every 256 KiB; K is a string in the KDF every time) keep a 3 MiB transfer intact",
+    "tt45-unit: D/G: a man in the middle flips one ML-KEM ciphertext bit → implicit rejection gives an unrelated K_PQ → the host signature over H fails (hostkey-signature), never a silent session",
+    "tt45-unit: D: S_REPLY one byte short / one byte long / classical half missing → refused as kex before any ML-KEM work; X25519 half replaced by a low-order point → refused",
+    "tt45-unit: G: downgrade adversary strips the mlkem* names from BOTH KEXINITs → both sides agree on curve25519, but I_C / I_S are inside H, so the signature check fails; stripping one side only → the server's own DISCONNECT reason is shown"
    ]
   },
   "TD-04": {

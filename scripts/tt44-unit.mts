@@ -135,7 +135,7 @@ await test("every KEX × cipher × MAC × host-key algorithm negotiates with asy
     ok(r.out.toString() === `${k.kex}/${k.cipher}\n` && (r.exit as { code: number }).code === 0, `output ${JSON.stringify(r.out.toString())}`);
     c.end(); seen.push(`${k.kex}|${k.cipher}|${k.mac ?? "aead"}|${k.hk}`);
   }
-  ok(seen.length === combos.length && combos.length === 7 + 3 + 2 * 4, `${seen.length} combos`);
+  ok(seen.length === combos.length && combos.length === 10 + 3 + 2 * 4, `${seen.length} combos`); // 10 KEX methods (TT45 added the 3 ML-KEM hybrids)
 });
 
 // ------------------------------------------------------------------------------------------- authentication

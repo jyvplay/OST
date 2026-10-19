@@ -198,4 +198,40 @@ zlib; certificates; forwarding; Firefox and Safari.
 
 ## Results (this turn)
 
-Filled in from the full run below.
+| Suite | Result |
+|---|---|
+| tt45-unit (ACVP, OpenSSL cross-check, input checks, 3 hybrids end to end, rekey, MITM, downgrade) | 10/10 |
+| e2e-tt45 (Chromium: Post-quantum vs Classical badge, exact "kex · cipher · auth") | 2/2 |
+| tt44-unit (its KEX matrix now includes the 3 hybrids) | 18/18 |
+
+| Mutant | Killed by |
+|---|---|
+| MK1 implicit rejection disabled | ACVP decaps, OpenSSL cross-check |
+| MK2 §7.2 modulus check skipped | ACVP ek checks, D test |
+| MK3 hybrid K as mpint | asyncssh end to end, rekey |
+| MK4 S_REPLY length check removed | D length test |
+| MK5 G(d) without k | ACVP keyGen, OpenSSL seed check |
+| MK6 matrix index order swapped | ACVP (6 tests) |
+| MK7 DISCONNECT after the strict gate | downgrade test (one-sided) |
+| MK8 K = K_CL only | asyncssh end to end, rekey |
+
+**8/8 killed.** Client cost per handshake, measured: ML-KEM-768 keygen 0.33 ms + decaps 1.01 ms; ML-KEM-1024
+0.35 + 1.07 ms.
+
+**Visual check:** `/tmp/tt45-pq.png` shows "alice@127.0.0.1 · mlkem768x25519-sha256 · aes128-gcm · password" plus a
+green "Post-quantum" badge, with the remote shell live. The first screenshot exposed the empty cipher field (fixed).
+
+- **Full run** (`bash scripts/run-all.sh`, 86 suites, production build, Chromium, UTF8 Postgres): 85 suites reported
+  749 passed / 12 failed; tt39-unit printed no tally (its known ws-start flake).
+- **Single reruns, causes identified:**
+  - tt44-unit: its matrix negotiated all 21 combinations, but the hard-coded total (7 KEX + 3 + 8 = 18) predated the
+    3 hybrids. Updated to 10 + 3 + 8 (an explicit count, not `KEX_ALGS.length`) → 18/18.
+  - e2e-a11y 9/9, e2e-whiteboard 7/7, e2e-layout 12/12, tt39-unit 13/13, e2e-tt28 7/7 on rerun. e2e-layout's
+    failure was caused by me: I PUT `appearance.layout` while it was running.
+  - e2e-tabletop and e2e-tt31 failed wall hit-tests on **@sparticuz/chromium 153**, which I had installed after the
+    reset instead of the repo-pinned ^143. On 143.0.4: e2e-tabletop 14/14, e2e-tt31 10/10 (e2e-tt44 5/5 and e2e-tt45
+    2/2 rerun on 143 too). **Open forward-compatibility finding:** tabletop wall hit-testing (elementFromPoint on 3D
+    walls) breaks on Chromium 153, so users on newer Chrome may hit it. Not fixed this turn.
+- **Ledger** (`node scripts/ledger.mjs`, latest result per suite): **774/774** tests, 0 failing rows touched; 368 rows;
+  built full/partial/blocked **286/61/21** (TD-03 → built); tested full/partial/untested **168/79/121**; Tails 39
+  rows 9/10/20 (`node scripts/tails-ledger.mjs`, all cited evidence passing). No uncaught server exceptions were logged.

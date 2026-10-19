@@ -242,6 +242,38 @@ TD-03 is built. All four TT44 suites pass, the two surviving mutants were turned
 - vim and tmux captures;
 - Firefox and Safari.
 
-## Results (this turn)
+## Results (released in TT45)
 
-Filled in from the full run; see the PR body for the final numbers.
+| Suite | Result |
+|---|---|
+| tt44-unit | 18/18 (16 before the two mutation-driven tests) |
+| tt44-vt | 12/12: fuzz 1,433,520 cells, 0 unexplained; mouse 648/648; reflow 1200 states, 0 mismatches (347 xterm.js truncations excused) |
+| tt44-bridge | 8/8 |
+| e2e-tt44 | 5/5 (Chromium, full UI) |
+
+| Mutant | Suite | Result |
+|---|---|---|
+| M1 poly1305 tag unchecked | tt44-unit | killed |
+| M2 strict-KEX enforcement off | tt44-unit | killed after a new test (IGNORE injected after KEXINIT) |
+| M3 known_hosts "changed" dropped | tt44-unit | killed |
+| M4 reflow pad marker | tt44-vt | killed |
+| M5 reflow cursor +1 | tt44-vt | killed |
+| M6 rekey host-key change accepted | tt44-unit | killed after a new test (`rekeyHostKeyAlgs` hook; unreachable from the browser) |
+
+**Release fixes found by the full suite and visual inspection:** the badge cipher field (`c2s`), the missing ssh icon,
+SFTP's 400-before-404 ordering, and DISCONNECT before the strict-KEX gate (details in DESIGN-TT45 §G).
+
+- **Full run** (`bash scripts/run-all.sh`, 86 suites, production build, Chromium, UTF8 Postgres): 85 suites reported
+  749 passed / 12 failed; tt39-unit printed no tally (its known ws-start flake).
+- **Single reruns, causes identified:**
+  - tt44-unit: its matrix negotiated all 21 combinations, but the hard-coded total (7 KEX + 3 + 8 = 18) predated the
+    3 hybrids. Updated to 10 + 3 + 8 (an explicit count, not `KEX_ALGS.length`) → 18/18.
+  - e2e-a11y 9/9, e2e-whiteboard 7/7, e2e-layout 12/12, tt39-unit 13/13, e2e-tt28 7/7 on rerun. e2e-layout's
+    failure was caused by me: I PUT `appearance.layout` while it was running.
+  - e2e-tabletop and e2e-tt31 failed wall hit-tests on **@sparticuz/chromium 153**, which I had installed after the
+    reset instead of the repo-pinned ^143. On 143.0.4: e2e-tabletop 14/14, e2e-tt31 10/10 (e2e-tt44 5/5 and e2e-tt45
+    2/2 rerun on 143 too). **Open forward-compatibility finding:** tabletop wall hit-testing (elementFromPoint on 3D
+    walls) breaks on Chromium 153, so users on newer Chrome may hit it. Not fixed this turn.
+- **Ledger** (`node scripts/ledger.mjs`, latest result per suite): **774/774** tests, 0 failing rows touched; 368 rows;
+  built full/partial/blocked **286/61/21** (TD-03 → built); tested full/partial/untested **168/79/121**; Tails 39
+  rows 9/10/20 (`node scripts/tails-ledger.mjs`, all cited evidence passing). No uncaught server exceptions were logged.

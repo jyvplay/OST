@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-19T00:46:52.561Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-80 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-19T05:08:55.760Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+86 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
 | **Features in register** | **368** |
-| Fully built | 285 |
-| Partially built (partial 46 + probe 16) | 62 |
+| Fully built | 286 |
+| Partially built (partial 45 + probe 16) | 61 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **167** |
-| **Partially tested** (only `partial` tags) | **80** |
+| **Fully tested** (≥1 passing test tagged `full`) | **168** |
+| **Partially tested** (only `partial` tags) | **79** |
 | Untested | 121 |
-| Automated tests executed / passed | 718 / 718 |
+| Automated tests executed / passed | 774 / 774 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 156 | 62 | 67 |
-| partially built | 5 | 16 | 41 |
+| fully built | 157 | 62 | 67 |
+| partially built | 5 | 15 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
 
@@ -33,86 +33,92 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-19T00:20:59.588Z |
-| ai-format | 5 | 5 | 0 | 2026-10-19T00:21:01.023Z |
-| browser-session | 5 | 5 | 0 | 2026-10-19T00:20:50.439Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-19T00:21:02.191Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-19T00:29:20.550Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-19T00:30:09.342Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-19T00:45:37.760Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-19T00:24:59.638Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-19T00:30:29.118Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-19T00:23:55.162Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-19T00:31:29.395Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-19T00:33:33.941Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-19T00:23:09.450Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-19T00:25:23.865Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-19T00:25:48.761Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-19T00:29:39.357Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-19T00:32:53.865Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-19T00:34:08.838Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-19T00:34:29.657Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-19T00:36:21.919Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-19T00:37:30.569Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-19T00:40:02.237Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-19T00:40:14.418Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-19T00:41:14.577Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-19T00:41:48.243Z |
-| e2e-tt36 | 3 | 3 | 0 | 2026-10-19T00:42:03.237Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-19T00:42:27.423Z |
-| e2e-tt38 | 7 | 7 | 0 | 2026-10-19T00:45:45.262Z |
-| e2e-tt39 | 7 | 7 | 0 | 2026-10-19T00:46:04.882Z |
-| e2e-tt40 | 3 | 3 | 0 | 2026-10-19T00:46:17.193Z |
-| e2e-tt41 | 4 | 4 | 0 | 2026-10-19T00:46:20.901Z |
-| e2e-tt42 | 3 | 3 | 0 | 2026-10-19T00:46:31.565Z |
-| e2e-tt43 | 3 | 3 | 0 | 2026-10-19T00:46:41.307Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-19T00:24:18.750Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-19T00:29:58.150Z |
-| e2e | 61 | 61 | 0 | 2026-10-19T00:22:44.826Z |
-| image | 12 | 12 | 0 | 2026-10-19T00:20:45.864Z |
-| integration | 25 | 25 | 0 | 2026-10-19T00:20:40.112Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-19T00:21:02.860Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-19T00:21:08.472Z |
-| metaclean | 6 | 6 | 0 | 2026-10-19T00:20:56.647Z |
-| names | 7 | 7 | 0 | 2026-10-19T00:20:45.524Z |
-| office | 35 | 35 | 0 | 2026-10-19T00:20:40.480Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-19T00:21:01.917Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-19T00:20:48.558Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-19T00:20:50.281Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-19T00:21:02.631Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-19T00:20:42.279Z |
-| oracle | 5 | 5 | 0 | 2026-10-19T00:20:40.860Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-19T00:20:59.343Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-19T00:20:54.019Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-19T00:20:55.450Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-19T00:20:42.607Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-19T00:21:03.363Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-19T00:20:59.775Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-19T00:21:03.165Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-19T00:21:08.696Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-19T00:21:09.419Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-19T00:34:29.860Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-19T00:36:22.196Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-19T00:37:45.231Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-19T00:40:02.446Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-19T00:40:18.519Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-19T00:41:23.927Z |
-| tt36-unit | 5 | 5 | 0 | 2026-10-19T00:41:51.493Z |
-| tt37-unit | 9 | 9 | 0 | 2026-10-19T00:42:07.693Z |
-| tt38-unit | 15 | 15 | 0 | 2026-10-19T00:45:42.073Z |
-| tt39-pac | 8 | 8 | 0 | 2026-10-19T00:46:01.226Z |
-| tt39-unit | 13 | 13 | 0 | 2026-10-19T00:45:46.738Z |
-| tt40-proxy | 4 | 4 | 0 | 2026-10-19T00:46:14.059Z |
-| tt40-unit | 17 | 17 | 0 | 2026-10-19T00:46:06.656Z |
-| tt41-unit | 9 | 9 | 0 | 2026-10-19T00:46:17.519Z |
-| tt42-dhcp | 2 | 2 | 0 | 2026-10-19T00:46:29.165Z |
-| tt42-proxy | 2 | 2 | 0 | 2026-10-19T00:46:23.646Z |
-| tt42-unit | 6 | 6 | 0 | 2026-10-19T00:46:21.257Z |
-| tt43-unit | 7 | 7 | 0 | 2026-10-19T00:46:31.866Z |
-| unit | 23 | 23 | 0 | 2026-10-19T00:20:37.123Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-19T00:20:49.697Z |
-| vector | 18 | 18 | 0 | 2026-10-19T00:20:48.801Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-19T00:20:59.951Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-19T03:33:57.621Z |
+| ai-format | 5 | 5 | 0 | 2026-10-19T03:33:59.489Z |
+| browser-session | 5 | 5 | 0 | 2026-10-19T03:33:45.865Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-19T03:34:02.715Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-19T04:39:01.349Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-19T03:51:11.864Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-19T04:27:11.927Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-19T03:39:08.520Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-19T03:52:57.977Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-19T03:37:45.897Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-19T04:41:07.008Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-19T04:06:20.848Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-19T03:36:55.092Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-19T03:39:53.842Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-19T03:40:32.166Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-19T03:48:25.258Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-19T05:07:23.416Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-19T05:01:20.061Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-19T04:08:46.577Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-19T04:11:01.914Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-19T05:08:17.516Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-19T04:18:04.417Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-19T04:18:21.293Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-19T04:19:40.799Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-19T04:20:17.634Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-19T04:20:33.484Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-19T04:21:12.246Z |
+| e2e-tt38 | 7 | 7 | 0 | 2026-10-19T04:27:19.959Z |
+| e2e-tt39 | 7 | 7 | 0 | 2026-10-19T04:27:54.181Z |
+| e2e-tt40 | 3 | 3 | 0 | 2026-10-19T04:28:08.165Z |
+| e2e-tt41 | 4 | 4 | 0 | 2026-10-19T04:28:12.996Z |
+| e2e-tt42 | 3 | 3 | 0 | 2026-10-19T04:28:26.024Z |
+| e2e-tt43 | 3 | 3 | 0 | 2026-10-19T04:28:38.441Z |
+| e2e-tt44 | 5 | 5 | 0 | 2026-10-19T05:08:30.073Z |
+| e2e-tt45 | 2 | 2 | 0 | 2026-10-19T05:08:35.902Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-19T03:38:23.360Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-19T04:39:26.288Z |
+| e2e | 62 | 62 | 0 | 2026-10-19T03:36:17.778Z |
+| image | 12 | 12 | 0 | 2026-10-19T03:33:40.150Z |
+| integration | 25 | 25 | 0 | 2026-10-19T03:33:34.354Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-19T03:34:03.626Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-19T03:34:10.807Z |
+| metaclean | 6 | 6 | 0 | 2026-10-19T03:33:53.792Z |
+| names | 7 | 7 | 0 | 2026-10-19T03:33:39.770Z |
+| office | 35 | 35 | 0 | 2026-10-19T03:33:34.781Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-19T03:34:02.358Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-19T03:33:43.318Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-19T03:33:45.573Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-19T03:34:03.310Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-19T03:33:36.572Z |
+| oracle | 5 | 5 | 0 | 2026-10-19T03:33:35.181Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-19T03:33:57.284Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-19T03:33:50.714Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-19T03:33:52.317Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-19T03:33:36.942Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-19T03:34:04.214Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-19T03:33:57.855Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-19T03:34:03.987Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-19T03:34:11.066Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-19T03:34:11.935Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-19T04:08:46.780Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-19T04:11:02.194Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-19T04:15:40.944Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-19T04:18:04.655Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-19T04:18:26.097Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-19T04:19:50.626Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-19T04:20:21.229Z |
+| tt37-unit | 9 | 9 | 0 | 2026-10-19T04:20:37.784Z |
+| tt38-unit | 15 | 15 | 0 | 2026-10-19T04:27:16.532Z |
+| tt39-pac | 8 | 8 | 0 | 2026-10-19T04:27:50.755Z |
+| tt39-unit | 13 | 13 | 0 | 2026-10-19T04:34:47.155Z |
+| tt40-proxy | 4 | 4 | 0 | 2026-10-19T04:28:04.748Z |
+| tt40-unit | 17 | 17 | 0 | 2026-10-19T04:27:56.070Z |
+| tt41-unit | 9 | 9 | 0 | 2026-10-19T04:28:08.552Z |
+| tt42-dhcp | 2 | 2 | 0 | 2026-10-19T04:28:22.264Z |
+| tt42-proxy | 2 | 2 | 0 | 2026-10-19T04:28:16.275Z |
+| tt42-unit | 6 | 6 | 0 | 2026-10-19T04:28:13.407Z |
+| tt43-unit | 7 | 7 | 0 | 2026-10-19T04:28:26.450Z |
+| tt44-bridge | 8 | 8 | 0 | 2026-10-19T04:29:14.781Z |
+| tt44-unit | 18 | 18 | 0 | 2026-10-19T04:34:45.806Z |
+| tt44-vt | 12 | 12 | 0 | 2026-10-19T04:29:11.581Z |
+| tt45-unit | 10 | 10 | 0 | 2026-10-19T04:29:34.990Z |
+| unit | 23 | 23 | 0 | 2026-10-19T03:33:31.571Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-19T03:33:44.745Z |
+| vector | 18 | 18 | 0 | 2026-10-19T03:33:43.619Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-19T03:33:58.055Z |
 
 ## Rows touched by failing tests
 
@@ -130,7 +136,7 @@ None.
 | NC | 6 | 6 | 0 | 0 | 0 | 3 | 3 |
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
-| TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
+| TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 45 | 9 | 0 | 37 | 10 | 7 |
 | FF | 34 | 25 | 9 | 0 | 25 | 5 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
@@ -247,7 +253,7 @@ None.
 | AP-05 | partial | untested |  |
 | TD-01 | built | full | e2e: mount: terminal; e2e: terminal: write + cat through the journal; mv shows journal op |
 | TD-02 | built | full | e2e: mount: terminal; e2e: terminal: write + cat through the journal; mv shows journal op |
-| TD-03 | partial | partial | e2e: mount: devices |
+| TD-03 | built | full | e2e-tt44: Terminal `ssh` opens the SSH window prefilled; connect → host-key dialog with ssh-keygen's fingerprint → trust once → password → remote shell renders; e2e-tt44: typed keys round-trip through the bridge; a pasted ANSI colour returns as a coloured span; e2e-tt44: Files pane: list, upload through <input type=file> (bytes equal on the server), Save to Fusion → /Downloads; results stay visible (+54) |
 | TD-04 | probe | untested |  |
 | TD-05 | blocked | untested |  |
 | TD-06 | built | full | unit: command log replay reproduces the identical state hash |

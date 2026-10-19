@@ -1,0 +1,96 @@
+{
+  "suite": "tt45-unit",
+  "at": "2026-10-19T04:29:34.990Z",
+  "results": [
+    {
+      "suite": "tt45-unit",
+      "name": "constants: ζ = 17 has order 256 mod 3329; 20 random ML-KEM-768 key / encaps / decaps round trips agree",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 46
+    },
+    {
+      "suite": "tt45-unit",
+      "name": "ACVP keyGen: all 75 (d, z) → (ek, dk) vectors for ML-KEM-512/768/1024 are byte-identical",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 25
+    },
+    {
+      "suite": "tt45-unit",
+      "name": "ACVP encapsulation (75: ek, m → c, K), decapsulation (30, incl. modified ciphertexts → implicit rejection K̄), key checks (60)",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 62
+    },
+    {
+      "suite": "tt45-unit",
+      "name": "OpenSSL ML-KEM (python cryptography) agrees: same seed → same ek; encaps in one, decaps in the other, both directions (768 and 1024, 40 runs each)",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 532
+    },
+    {
+      "suite": "tt45-unit",
+      "name": "D: inputs outside the contract are refused — wrong lengths, an ek coefficient ≥ q, a dk with a broken H(ek), d/z of the wrong size",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt45-unit",
+      "name": "SSH: each hybrid (mlkem768x25519 / mlkem768nistp256 / mlkem1024nistp384) negotiates with asyncssh + OpenSSL ML-KEM, C_INIT / S_REPLY have the draft's exact sizes, a 1 MiB echo round-trips",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 482
+    },
+    {
+      "suite": "tt45-unit",
+      "name": "SSH: repeated key exchanges under mlkem768x25519 (server rekeys every 256 KiB; K is a string in the KDF every time) keep a 3 MiB transfer intact",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 792
+    },
+    {
+      "suite": "tt45-unit",
+      "name": "D/G: a man in the middle flips one ML-KEM ciphertext bit → implicit rejection gives an unrelated K_PQ → the host signature over H fails (hostkey-signature), never a silent session",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 19
+    },
+    {
+      "suite": "tt45-unit",
+      "name": "D: S_REPLY one byte short / one byte long / classical half missing → refused as kex before any ML-KEM work; X25519 half replaced by a low-order point → refused",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 14
+    },
+    {
+      "suite": "tt45-unit",
+      "name": "G: downgrade adversary strips the mlkem* names from BOTH KEXINITs → both sides agree on curve25519, but I_C / I_S are inside H, so the signature check fails; stripping one side only → the server's own DISCONNECT reason is shown",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 243
+    }
+  ]
+}
