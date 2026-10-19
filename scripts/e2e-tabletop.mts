@@ -12,7 +12,10 @@ import { makeHarness } from "./harness.mts";
 import { boxGeometry, PHI } from "../src/lib/tabletop-core.ts";
 
 const BASE = process.env.BASE ?? "http://localhost:3999";
-const { test, finish } = makeHarness("e2e-tabletop");
+const { test: test0, finish } = makeHarness("e2e-tabletop");
+/** ONLY="substring" runs just the matching tests (diagnosis); the full suite runs by default */
+const ONLY = process.env.ONLY ?? "";
+const test: typeof test0 = (name, covers, fn) => (ONLY && !name.includes(ONLY) ? Promise.resolve() : test0(name, covers, fn)) as ReturnType<typeof test0>;
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const RUN = Date.now().toString(36);
 const api = async (method: string, path: string, body?: unknown) => {
@@ -419,6 +422,8 @@ try {
     ok((await page.getByTestId("tt-pincount-north").textContent())?.startsWith("1"), "count chip");
     // wait for the unfold transition to finish (the card's box stops moving) before measuring and dragging
     await poll(async () => (await page.getByTestId("tabletop").getAttribute("data-main")) === "north", "north is main");
+    // TT48: equal boxes 100 ms apart can occur mid-transition; wait for the app's own settle signal first
+    await poll(async () => (await page.getByTestId("tabletop").getAttribute("data-settled")) === "true", "unfold finished");
     let prev = "";
     await poll(async () => { const b = JSON.stringify(await box(pinned)); const same = b === prev; prev = b; return same; }, "wall settled");
     const before = await box(pinned);
@@ -427,6 +432,29 @@ try {
     await pinned.focus(); await page.keyboard.press("Shift+F10");
     await page.getByTestId("tt-menu").getByRole("menuitem", { name: "Put back on the table" }).click();
     await poll(async () => { const t = (await getState())?.table as { walls?: { north?: unknown } } | undefined; return !t?.walls?.north; }, "back on the floor");
+    await close();
+  });
+
+  await test("TT48 fast flick: pointerdown, eight pointermoves and pointerup in ONE task (no render in between) still move the card — the release must not read a stale drag", { "LY-12": "full" }, async () => {
+    await setSetting("appearance.desktopView", "tabletop");
+    await desktop([], { table: { v: 1, cards: { [F.a]: { x: 24, y: 24 } }, piles: [] } });
+    const { page, close } = await boot();
+    const A = card(page, F.a); await A.waitFor({ timeout: 10_000 });
+    await poll(async () => (await page.getByTestId("tabletop").getAttribute("data-settled")) === "true", "settled");
+    const b = await box(A);
+    const moved = await page.evaluate(({ x, y }) => {
+      const el = document.elementFromPoint(x, y) as HTMLElement | null; if (!el) return "no element";
+      const ev = (type: string, cx: number, buttons: number) => new PointerEvent(type, { bubbles: true, cancelable: true, composed: true, pointerId: 1, pointerType: "mouse", isPrimary: true, button: 0, buttons, clientX: cx, clientY: y });
+      el.dispatchEvent(ev("pointerdown", x, 1));
+      for (let i = 1; i <= 8; i++) el.dispatchEvent(ev("pointermove", x + 30 * i, 1));
+      el.dispatchEvent(ev("pointerup", x + 240, 0));
+      return "ok";
+    }, { x: b.x + b.width / 2, y: b.y + b.height / 2 });
+    ok(moved === "ok", moved);
+    // the release must act: the card either moved (x ≥ 100) or, landing on another /Documents card, piled with it.
+    // The pre-fix handler returned on its stale moved=false, leaving the card loose at x = 24 (this test, in its first
+    // x ≥ 100 form, failed on the pre-fix build and passes on the fixed one).
+    await poll(async () => { const t = (await getState())?.table; if (!t) return false; const c = t.cards[F.a] as { x?: number } | undefined; return (c?.x ?? 0) >= 100 || t.piles.some((p) => p.paths.includes(F.a)); }, "flicked card moved (or piled) and persisted");
     await close();
   });
 

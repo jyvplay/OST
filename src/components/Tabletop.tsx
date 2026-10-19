@@ -67,9 +67,16 @@ export default function Tabletop() {
   const [size, setSize] = useState({ w: 1440, h: 860 });
   const [pinSize, setPinSize] = useState<{ w: number; h: number } | null>(null);
   const [main, setMain] = useState<Face>("floor");
+  /** TT48: false while the faces are transitioning after a main-face / camera / size change (data-settled on the root) */
+  const [settled, setSettled] = useState(true);
   const [files, setFiles] = useState<FileNode[]>([]);
   const [peeks, setPeeks] = useState<Record<string, Peek>>({});
   const [drag, setDrag] = useState<Drag | null>(null);
+  // TT48: pointermove is a continuous-priority event whose state updates React batches to the next frame, while
+  // pointerup is discrete and handled at once — so a release in the same frame as the last moves saw a stale `drag`
+  // (moved=false) and the move was dropped. The handlers read and write this synchronous mirror; render uses state.
+  const dragRef = useRef<Drag | null>(null);
+  const setDragNow = (d: Drag | null) => { dragRef.current = d; setDrag(d); };
   const [fanned, setFanned] = useState<string | null>(null); // `${surface}:${pileId}`
   const [zoom, setZoom] = useState<{ path: string; x: number; y: number } | null>(null);
   const [menu, setMenu] = useState<{ key: string; surface: Face; x: number; y: number } | null>(null);
@@ -320,12 +327,13 @@ export default function Tabletop() {
     e.stopPropagation();
     suppress.current = false;
     const p = pointerOn(surface, e.clientX, e.clientY), [px, py] = rootPt(e.clientX, e.clientY);
-    setDrag({ key, surface, fan, sx: e.clientX, sy: e.clientY, ox: p.x - at.x, oy: p.y - at.y, x: at.x, y: at.y, moved: false, over: null,
+    setDragNow({ key, surface, fan, sx: e.clientX, sy: e.clientY, ox: p.x - at.x, oy: p.y - at.y, x: at.x, y: at.y, moved: false, over: null,
       space: surface !== "floor" && main !== surface ? "strip" : "board", target: null, tpos: null, px, py });
     e.currentTarget.setPointerCapture(e.pointerId);
     setZoom(null);
   };
   const move = (e: React.PointerEvent) => {
+    const drag = dragRef.current;
     if (!drag) return;
     const p = pointerOn(drag.surface, e.clientX, e.clientY), pt = rootPt(e.clientX, e.clientY);
     const moved = drag.moved || Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4;
@@ -341,7 +349,7 @@ export default function Tabletop() {
       else if (st.S - v.pan > vis - edge) setPan(lifted, v.pan + 16 / v.frame.k);
     }
     const tpos = target && target.face !== drag.surface ? dropPos(target, e.clientX, e.clientY) : null;
-    setDrag({ ...drag, moved, over, target, tpos, px: pt[0], py: pt[1], x: p.x - drag.ox, y: p.y - drag.oy });
+    setDragNow({ ...drag, moved, over, target, tpos, px: pt[0], py: pt[1], x: p.x - drag.ox, y: p.y - drag.oy });
   };
   const pinPos = (t: TableState, w: Wall) => freeSlot(floorItems(boardOf(t, w), surfacePaths(t, w, paths), WALL_BOARD_W), WALL_BOARD_W);
   /** a card / pile / card out of a fan moved to ANOTHER surface; it piles up if it lands on something there */
@@ -364,9 +372,10 @@ export default function Tabletop() {
     commit(t);
   };
   const up = () => {
-    if (!drag) return;
-    const d = drag, f = d.surface;
-    setDrag(null);
+    const d = dragRef.current;
+    if (!d) return;
+    const f = d.surface;
+    setDragNow(null);
     const sprung = spring.current.w !== null;
     cancelSpring();
     if (!d.moved) return;
@@ -483,7 +492,7 @@ export default function Tabletop() {
         style={{ left: opts.x, top: opts.y, zIndex: opts.dragging ? 900 : opts.z, ["--rot" as string]: `${opts.rot ?? 0}deg`,
           pointerEvents: opts.interactive ? "auto" : "none", transition: opts.dragging ? "transform .12s ease, box-shadow .12s ease" : undefined }}
         onPointerDown={opts.interactive ? (e) => down(e, surface, `card:${path}`, { x: opts.x, y: opts.y }, opts.fan) : undefined}
-        onPointerMove={opts.interactive ? move : undefined} onPointerUp={opts.interactive ? up : undefined} onPointerCancel={() => setDrag(null)}
+        onPointerMove={opts.interactive ? move : undefined} onPointerUp={opts.interactive ? up : undefined} onPointerCancel={() => setDragNow(null)}
         onDoubleClick={(e) => { e.stopPropagation(); if (!suppress.current) openFile(path); }}
         onPointerEnter={(e) => {
           if (drag || e.pointerType === "touch") return;
@@ -531,7 +540,7 @@ export default function Tabletop() {
           aria-expanded={isFan} aria-describedby="tt-pile-hint"
           style={isFan ? { left: at.x, top: at.y + CARD_H - 34, height: 34, zIndex: 60 } : { left: at.x, top: at.y - (pile.paths.length - 1) * 2, zIndex: dragging ? 901 : 40 }}
           onPointerDown={(e) => down(e, surface, it.key, { x: it.x, y: it.y })} onPointerMove={move}
-          onPointerUp={() => { const wasDrag = drag?.moved; up(); if (!wasDrag) setFanned(isFan ? null : fk); }}
+          onPointerUp={() => { const wasDrag = dragRef.current?.moved; up(); if (!wasDrag) setFanned(isFan ? null : fk); }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFanned(isFan ? null : fk); return; }
             if (e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(), o = root.current!.getBoundingClientRect(); openMenu(it.key, surface, r.left - o.left + 20, r.top - o.top + 30); return; }
@@ -626,7 +635,7 @@ export default function Tabletop() {
       <button key={`c:${path}`} type="button" className={v.lifted ? "fs-tt-card fs-tt-pincard" : "fs-tt-glyph fs-tt-pin"} data-testid="tt-pin" data-path={path} data-surface={w}
         data-kind={kindOf(path)} data-dragging={o.dragging || undefined} data-away={o.away || undefined} data-fan={o.fan ? o.fan.pile : undefined}
         aria-label={v.lifted ? undefined : `${f.name}, pinned to the ${WALL_INFO[w].title} wall`} aria-describedby="tt-card-hint" style={style}
-        onPointerDown={(e) => down(e, w, `card:${path}`, { x: o.S, y: o.t }, o.fan)} onPointerMove={move} onPointerUp={up} onPointerCancel={() => { setDrag(null); cancelSpring(); }}
+        onPointerDown={(e) => down(e, w, `card:${path}`, { x: o.S, y: o.t }, o.fan)} onPointerMove={move} onPointerUp={up} onPointerCancel={() => { setDragNow(null); cancelSpring(); }}
         onDoubleClick={(e) => { e.stopPropagation(); if (!suppress.current) openFile(path); }}
         onFocus={() => { liftNow(w); panLifted(w, o.S); }}
         onKeyDown={pinKeys(w, path, menuKey, o, o.fan)}
@@ -664,8 +673,8 @@ export default function Tabletop() {
         <button key={it.key} type="button" className={v.lifted ? "fs-tt-wallpile" : "fs-tt-glyph fs-tt-pin"} data-testid="tt-wallpile" data-pile={pile.id} data-surface={w} data-count={n}
           data-dragging={live || undefined} data-away={away(it.key) || undefined} aria-expanded={false} aria-describedby="tt-pile-hint"
           aria-label={v.lifted ? undefined : `Pile “${pile.name}”, ${n} files, on the ${title} wall`} style={style}
-          onPointerDown={(e) => down(e, w, it.key, { x: at.S, y: at.t })} onPointerMove={move} onPointerCancel={() => { setDrag(null); cancelSpring(); }}
-          onPointerUp={() => { const was = drag?.moved; up(); if (!was) { liftNow(w); setFanned(fk); } }}
+          onPointerDown={(e) => down(e, w, it.key, { x: at.S, y: at.t })} onPointerMove={move} onPointerCancel={() => { setDragNow(null); cancelSpring(); }}
+          onPointerUp={() => { const was = dragRef.current?.moved; up(); if (!was) { liftNow(w); setFanned(fk); } }}
           onFocus={() => { liftNow(w); panLifted(w, at.S); }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFanned(fk); return; }
@@ -807,10 +816,22 @@ export default function Tabletop() {
     );
   };
 
+  // TT48: expose "the box has finished moving" — the faces' computed transition time (0 under reduced motion) after the
+  // last main/camera/size change. Pointer work that starts mid-transition is mapped through a moving transform.
+  useEffect(() => {
+    const el = root.current; if (!el) return;
+    const face = el.querySelector<HTMLElement>(".fs-tt-face");
+    const ms = face ? Math.max(0, ...getComputedStyle(face).transitionDuration.split(",").map((v) => (v.trim().endsWith("ms") ? parseFloat(v) : parseFloat(v) * 1000) || 0)) : 0;
+    if (ms === 0) { setSettled(true); return; }
+    setSettled(false);
+    const t = window.setTimeout(() => setSettled(true), ms + 80);
+    return () => window.clearTimeout(t);
+  }, [main, camera, size.w, size.h]);
+
   const zoomFile = zoom ? byPath.get(zoom.path) : undefined;
   const views = table.views ?? [];
   return (
-    <div ref={root} className="fs-tabletop" data-testid="tabletop" data-main={main} data-camera={camera} data-depth={geo.depth} data-floor-scale={s.toFixed(4)}
+    <div ref={root} className="fs-tabletop" data-testid="tabletop" data-main={main} data-settled={settled ? "true" : "false"} data-camera={camera} data-depth={geo.depth} data-floor-scale={s.toFixed(4)}
       data-coverage={camera === "slant" ? slant.coverage.toFixed(4) : undefined} data-tilt={camera === "slant" ? slant.beta : undefined}
       style={{ position: "absolute", inset: 0, perspective: camera === "slant" ? slant.P : geo.perspective, perspectiveOrigin: camera === "slant" ? `50% ${slant.oy}px` : "50% 50%", overflow: "hidden",
         "--tt-w": `${size.w}px`, "--tt-h": `${size.h}px`, "--tt-lip": camera === "slant" ? `${Math.round(size.h - slant.quads.south[0][1])}px` : "0px" } as React.CSSProperties}

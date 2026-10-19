@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tabletop",
-  "at": "2026-10-19T20:29:21.714Z",
+  "at": "2026-10-19T22:48:58.844Z",
   "results": [
     {
       "suite": "e2e-tabletop",
@@ -9,7 +9,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 6494
+      "ms": 7627
     },
     {
       "suite": "e2e-tabletop",
@@ -18,7 +18,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 2650
+      "ms": 3134
     },
     {
       "suite": "e2e-tabletop",
@@ -27,7 +27,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 7271
+      "ms": 7522
     },
     {
       "suite": "e2e-tabletop",
@@ -36,7 +36,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 3506
+      "ms": 3332
     },
     {
       "suite": "e2e-tabletop",
@@ -45,7 +45,7 @@
         "LY-09": "full"
       },
       "pass": true,
-      "ms": 3683
+      "ms": 3543
     },
     {
       "suite": "e2e-tabletop",
@@ -54,7 +54,7 @@
         "LY-08": "full"
       },
       "pass": true,
-      "ms": 9165
+      "ms": 7702
     },
     {
       "suite": "e2e-tabletop",
@@ -64,7 +64,7 @@
         "LY-07": "partial"
       },
       "pass": true,
-      "ms": 4194
+      "ms": 3214
     },
     {
       "suite": "e2e-tabletop",
@@ -73,7 +73,7 @@
         "LY-06": "full"
       },
       "pass": true,
-      "ms": 4266
+      "ms": 4330
     },
     {
       "suite": "e2e-tabletop",
@@ -82,7 +82,7 @@
         "LY-11": "full"
       },
       "pass": true,
-      "ms": 7907
+      "ms": 6929
     },
     {
       "suite": "e2e-tabletop",
@@ -90,9 +90,17 @@
       "covers": {
         "LY-12": "full"
       },
-      "pass": false,
-      "error": "timed out: moved on the wall",
-      "ms": 13375
+      "pass": true,
+      "ms": 7279
+    },
+    {
+      "suite": "e2e-tabletop",
+      "name": "TT48 fast flick: pointerdown, eight pointermoves and pointerup in ONE task (no render in between) still move the card — the release must not read a stale drag",
+      "covers": {
+        "LY-12": "full"
+      },
+      "pass": true,
+      "ms": 2313
     },
     {
       "suite": "e2e-tabletop",
@@ -101,7 +109,7 @@
         "LY-12": "full"
       },
       "pass": true,
-      "ms": 6719
+      "ms": 7048
     },
     {
       "suite": "e2e-tabletop",
@@ -110,7 +118,7 @@
         "LY-13": "full"
       },
       "pass": true,
-      "ms": 11981
+      "ms": 12099
     },
     {
       "suite": "e2e-tabletop",
@@ -120,7 +128,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 1879
+      "ms": 2702
     },
     {
       "suite": "e2e-tabletop",
@@ -130,7 +138,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 18294
+      "ms": 18836
     }
   ]
 }

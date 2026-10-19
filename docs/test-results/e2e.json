@@ -1,6 +1,6 @@
 {
   "suite": "e2e",
-  "at": "2026-10-19T19:14:26.390Z",
+  "at": "2026-10-19T22:47:13.427Z",
   "results": [
     {
       "suite": "e2e",
@@ -12,7 +12,7 @@
         "FM-18": "partial"
       },
       "pass": true,
-      "ms": 1728
+      "ms": 1465
     },
     {
       "suite": "e2e",
@@ -22,7 +22,7 @@
         "FF-15": "partial"
       },
       "pass": true,
-      "ms": 1615
+      "ms": 1988
     },
     {
       "suite": "e2e",
@@ -33,7 +33,7 @@
         "SR-08": "partial"
       },
       "pass": true,
-      "ms": 1333
+      "ms": 1370
     },
     {
       "suite": "e2e",
@@ -43,7 +43,7 @@
         "TD-02": "partial"
       },
       "pass": true,
-      "ms": 1522
+      "ms": 1300
     },
     {
       "suite": "e2e",
@@ -52,7 +52,7 @@
         "TD-03": "partial"
       },
       "pass": true,
-      "ms": 1311
+      "ms": 1366
     },
     {
       "suite": "e2e",
@@ -61,7 +61,7 @@
         "PR-02": "partial"
       },
       "pass": true,
-      "ms": 1291
+      "ms": 1307
     },
     {
       "suite": "e2e",
@@ -71,7 +71,7 @@
         "WM-06": "partial"
       },
       "pass": true,
-      "ms": 1292
+      "ms": 1258
     },
     {
       "suite": "e2e",
@@ -81,7 +81,7 @@
         "CA-01": "partial"
       },
       "pass": true,
-      "ms": 1902
+      "ms": 1371
     },
     {
       "suite": "e2e",
@@ -90,7 +90,7 @@
         "MD-01": "partial"
       },
       "pass": true,
-      "ms": 1441
+      "ms": 1220
     },
     {
       "suite": "e2e",
@@ -101,7 +101,7 @@
         "LN-14": "partial"
       },
       "pass": true,
-      "ms": 1281
+      "ms": 1224
     },
     {
       "suite": "e2e",
@@ -112,7 +112,7 @@
         "CA-02": "partial"
       },
       "pass": true,
-      "ms": 1382
+      "ms": 1329
     },
     {
       "suite": "e2e",
@@ -122,7 +122,7 @@
         "CA-15": "partial"
       },
       "pass": true,
-      "ms": 1328
+      "ms": 1296
     },
     {
       "suite": "e2e",
@@ -132,7 +132,7 @@
         "MS-03": "partial"
       },
       "pass": true,
-      "ms": 1500
+      "ms": 1290
     },
     {
       "suite": "e2e",
@@ -142,7 +142,7 @@
         "SC-02": "partial"
       },
       "pass": true,
-      "ms": 1208
+      "ms": 1663
     },
     {
       "suite": "e2e",
@@ -156,7 +156,7 @@
         "SC-15": "partial"
       },
       "pass": true,
-      "ms": 1303
+      "ms": 1302
     },
     {
       "suite": "e2e",
@@ -167,7 +167,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 1282
+      "ms": 1511
     },
     {
       "suite": "e2e",
@@ -177,7 +177,7 @@
         "NC-04": "partial"
       },
       "pass": true,
-      "ms": 1305
+      "ms": 1449
     },
     {
       "suite": "e2e",
@@ -188,7 +188,7 @@
         "DP-14": "partial"
       },
       "pass": true,
-      "ms": 1313
+      "ms": 1370
     },
     {
       "suite": "e2e",
@@ -198,7 +198,7 @@
         "SR-06": "partial"
       },
       "pass": true,
-      "ms": 1382
+      "ms": 1253
     },
     {
       "suite": "e2e",
@@ -209,7 +209,7 @@
         "BL-01": "partial"
       },
       "pass": true,
-      "ms": 1495
+      "ms": 1539
     },
     {
       "suite": "e2e",
@@ -219,7 +219,7 @@
         "DP-08": "partial"
       },
       "pass": true,
-      "ms": 1516
+      "ms": 2061
     },
     {
       "suite": "e2e",
@@ -228,7 +228,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 1902
+      "ms": 1709
     },
     {
       "suite": "e2e",
@@ -238,7 +238,7 @@
         "PR-04": "partial"
       },
       "pass": true,
-      "ms": 1369
+      "ms": 1272
     },
     {
       "suite": "e2e",
@@ -253,7 +253,7 @@
         "IN-07": "partial"
       },
       "pass": true,
-      "ms": 1271
+      "ms": 1400
     },
     {
       "suite": "e2e",
@@ -264,7 +264,7 @@
         "CA-13": "partial"
       },
       "pass": true,
-      "ms": 1393
+      "ms": 1324
     },
     {
       "suite": "e2e",
@@ -275,7 +275,7 @@
         "PR-07r": "partial"
       },
       "pass": true,
-      "ms": 1279
+      "ms": 1197
     },
     {
       "suite": "e2e",
@@ -284,7 +284,7 @@
         "PR-12": "partial"
       },
       "pass": true,
-      "ms": 1445
+      "ms": 1245
     },
     {
       "suite": "e2e",
@@ -293,7 +293,7 @@
         "FM-07": "partial"
       },
       "pass": true,
-      "ms": 1301
+      "ms": 1246
     },
     {
       "suite": "e2e",
@@ -303,7 +303,7 @@
         "BK-02": "partial"
       },
       "pass": true,
-      "ms": 1451
+      "ms": 1517
     },
     {
       "suite": "e2e",
@@ -315,7 +315,7 @@
         "FF-31": "partial"
       },
       "pass": true,
-      "ms": 1467
+      "ms": 1618
     },
     {
       "suite": "e2e",
@@ -326,7 +326,7 @@
         "FF-32": "partial"
       },
       "pass": true,
-      "ms": 1669
+      "ms": 1342
     },
     {
       "suite": "e2e",
@@ -336,7 +336,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 1330
+      "ms": 1564
     },
     {
       "suite": "e2e",
@@ -346,7 +346,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 1598
+      "ms": 1319
     },
     {
       "suite": "e2e",
@@ -365,7 +365,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 1436
+      "ms": 1313
     },
     {
       "suite": "e2e",
@@ -378,7 +378,7 @@
         "CN-04": "partial"
       },
       "pass": true,
-      "ms": 1443
+      "ms": 1437
     },
     {
       "suite": "e2e",
@@ -391,7 +391,7 @@
         "TB-05": "partial"
       },
       "pass": true,
-      "ms": 1361
+      "ms": 1393
     },
     {
       "suite": "e2e",
@@ -404,7 +404,7 @@
         "WB-05": "partial"
       },
       "pass": true,
-      "ms": 1820
+      "ms": 1439
     },
     {
       "suite": "e2e",
@@ -415,7 +415,7 @@
         "FF-11": "partial"
       },
       "pass": true,
-      "ms": 1224
+      "ms": 1291
     },
     {
       "suite": "e2e",
@@ -425,7 +425,7 @@
         "SM-03": "partial"
       },
       "pass": true,
-      "ms": 1375
+      "ms": 1387
     },
     {
       "suite": "e2e",
@@ -435,7 +435,7 @@
         "SM-03": "partial"
       },
       "pass": true,
-      "ms": 1341
+      "ms": 1218
     },
     {
       "suite": "e2e",
@@ -446,7 +446,7 @@
         "MP-03": "partial"
       },
       "pass": true,
-      "ms": 1343
+      "ms": 1256
     },
     {
       "suite": "e2e",
@@ -466,7 +466,7 @@
         "SH-08": "full"
       },
       "pass": true,
-      "ms": 2876
+      "ms": 3332
     },
     {
       "suite": "e2e",
@@ -477,7 +477,7 @@
         "AX-05": "partial"
       },
       "pass": true,
-      "ms": 652
+      "ms": 848
     },
     {
       "suite": "e2e",
@@ -486,7 +486,7 @@
         "PR-09": "full"
       },
       "pass": true,
-      "ms": 24
+      "ms": 23
     },
     {
       "suite": "e2e",
@@ -496,7 +496,7 @@
         "SR-03": "full"
       },
       "pass": true,
-      "ms": 162
+      "ms": 199
     },
     {
       "suite": "e2e",
@@ -506,7 +506,7 @@
         "TD-02": "full"
       },
       "pass": true,
-      "ms": 1176
+      "ms": 989
     },
     {
       "suite": "e2e",
@@ -517,7 +517,7 @@
         "FF-15": "partial"
       },
       "pass": true,
-      "ms": 682
+      "ms": 340
     },
     {
       "suite": "e2e",
@@ -527,7 +527,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 1318
+      "ms": 1275
     },
     {
       "suite": "e2e",
@@ -536,7 +536,7 @@
         "AU-01": "full"
       },
       "pass": true,
-      "ms": 1297
+      "ms": 1746
     },
     {
       "suite": "e2e",
@@ -545,7 +545,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 1691
+      "ms": 2108
     },
     {
       "suite": "e2e",
@@ -556,7 +556,7 @@
         "LN-15": "partial"
       },
       "pass": true,
-      "ms": 6434
+      "ms": 5103
     },
     {
       "suite": "e2e",
@@ -566,7 +566,7 @@
         "RG-04": "partial"
       },
       "pass": true,
-      "ms": 6219
+      "ms": 5733
     },
     {
       "suite": "e2e",
@@ -582,7 +582,7 @@
         "CA-12": "full"
       },
       "pass": true,
-      "ms": 380
+      "ms": 467
     },
     {
       "suite": "e2e",
@@ -591,7 +591,7 @@
         "DP-08": "partial"
       },
       "pass": true,
-      "ms": 1307
+      "ms": 684
     },
     {
       "suite": "e2e",
@@ -601,7 +601,7 @@
         "SH-10": "partial"
       },
       "pass": true,
-      "ms": 1409
+      "ms": 1757
     },
     {
       "suite": "e2e",
@@ -611,7 +611,7 @@
         "AX-02": "partial"
       },
       "pass": true,
-      "ms": 3820
+      "ms": 2243
     },
     {
       "suite": "e2e",
@@ -620,7 +620,7 @@
         "SH-14": "full"
       },
       "pass": true,
-      "ms": 2411
+      "ms": 2639
     },
     {
       "suite": "e2e",
@@ -630,7 +630,7 @@
         "CA-09": "partial"
       },
       "pass": true,
-      "ms": 4983
+      "ms": 4449
     },
     {
       "suite": "e2e",
@@ -639,14 +639,14 @@
         "SH-05": "partial"
       },
       "pass": true,
-      "ms": 6324
+      "ms": 6282
     },
     {
       "suite": "e2e",
       "name": "characterisation: default headless config freezes the shell (documented limitation, not a pass claim)",
       "covers": {},
       "pass": true,
-      "ms": 10671
+      "ms": 10726
     },
     {
       "suite": "e2e",
@@ -655,7 +655,7 @@
         "PR-13": "full"
       },
       "pass": true,
-      "ms": 724
+      "ms": 720
     }
   ]
 }

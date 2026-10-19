@@ -12,7 +12,7 @@ import {
   completionToken, completions, activeCall, SIGNATURES, hasValueIn,
   type WorkbookJson, type CellStyle, type Range, type Clip, type ChartKind, type CondKind, type CondRule, type Scalar,
 } from "@/lib/formula/client";
-import { confirmUnencryptedCopy, isEncryptedOffice, unlockOffice } from "@/lib/office/unlock";
+import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import {
   applyBorders, borderCss, edgeAt, expandToMerges, invalidCells, listFormula, listItems, mergeAcross, mergeAt, mergeCells, partialMergeConflict,
   ruleAt, sanitizeValidation, sortConflict, stepCell, unmergeCells, validateEntry, VALIDATION_OPS, type BorderPreset,
@@ -98,8 +98,9 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const renamesRef = useRef<Record<string, string>>({});
   const redoRef = useRef<{ json: string; active: string }[]>([]);
   const clipRef = useRef<{ tsv: string; clip: Clip; cut: boolean; range: Range; sheet: string } | null>(null);
-  /** TT47: set while the workbook came from a password-protected .xlsx (decrypted here; Fusion cannot re-encrypt). */
-  const encRef = useRef<{ path: string; plain: Uint8Array | null } | null>(null);
+  /** TT47/48: password protection (password in this window's memory only) + the decrypted package used as patch source. */
+  const encRef = useRef<(Protection & { plain: Uint8Array | null }) | null>(null);
+  const [locked, setLocked] = useState(false);
   const dragRef = useRef<Drag>(null);
   const [editAt, setEditAt] = useState<Pos>({ col: 0, row: 0 });
   const [editSheet, setEditSheet] = useState("Sheet1");
@@ -118,21 +119,21 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       let wb = new Workbook();
       renamesRef.current = {};
       if (path.toLowerCase().endsWith(".xlsx")) {
-        encRef.current = null;
+        encRef.current = null; setLocked(false);
         try { const r = await post<{ ok: boolean; workbook: WorkbookJson }>("/api/sheet", { op: "importXlsx", path }); wb = workbookFromJson(r.workbook); }
         catch (e) {
           const msg = String((e as Error).message);
           if (/OLE\/CFB container/.test(msg)) {
             // TT47: password-protected .xlsx — fetch the container, decrypt on this device, import the decrypted package
-            encRef.current = { path, plain: null }; // set first: a cancelled/failed open must never save plaintext over it
+            encRef.current = { ...lockedProtection(path), plain: null }; // set first: a cancelled/failed open must never save plaintext over it
             try {
               const n = await api<{ node: { content: string; encoding?: string } }>(`/api/fs?op=read&path=${encodeURIComponent(path)}`);
               const raw = Uint8Array.from(atob(n.node.content), (c) => c.charCodeAt(0));
               const u = isEncryptedOffice(raw) ? await unlockOffice(raw, path.split("/").pop() ?? "workbook.xlsx") : null;
               if (u) {
                 const r = await post<{ ok: boolean; workbook: WorkbookJson }>("/api/sheet", { op: "importXlsx", base64: toBase64(u.bytes) });
-                wb = workbookFromJson(r.workbook); encRef.current = { path, plain: u.bytes };
-                setStatus(`Opened password-protected workbook (${u.method}${u.integrity === "verified" ? ", integrity verified" : ""}) — saving creates an unencrypted copy`);
+                wb = workbookFromJson(r.workbook); encRef.current = { ...lockedProtection(path), password: u.password, plain: u.bytes }; setLocked(true);
+                setStatus(`Opened password-protected workbook (${u.method}${u.integrity === "verified" ? ", integrity verified" : ""}) — saves stay encrypted with the same password`);
               } else shell.toast(isEncryptedOffice(raw) ? "Not opened: the workbook is password-protected and no password was entered." : `Could not import .xlsx: ${msg}`, "warn");
             } catch (e2) { shell.toast(`Could not open the protected workbook: ${String((e2 as Error).message)}`, "bad"); }
           } else shell.toast(`Could not import .xlsx: ${msg}`, "bad");
@@ -167,23 +168,29 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   /* ------------------------------------------------------------ persistence */
   /** TT46: lossless .xlsx save — the original package is kept; only edited cells/sheets/styles are rewritten. */
   const saveXlsxLossless = async (dest0: string): Promise<boolean> => {
-    let dest = dest0; let src: { sourceBase64?: string } = {};
-    if (encRef.current) {
-      // never write plaintext over (or silently beside) a password-protected original — explicit unencrypted copy only
-      const enc = encRef.current;
-      if (!enc.plain) { shell.toast("Not saved: the password-protected workbook was not unlocked.", "warn"); return true; }
-      const d2 = await confirmUnencryptedCopy(enc.path, dest0 === enc.path ? "" : dest0, ".xlsx");
-      if (!d2) { setStatus("not saved — the password-protected original is unchanged"); return true; }
-      dest = d2; src = { sourceBase64: toBase64(enc.plain) };
-    }
+    const dest = dest0; const prot = encRef.current;
+    // never write plaintext over a password-protected original that was not unlocked (or whose password was not removed)
+    if (saveBlocked(prot, dest) || (prot?.wasEncrypted && !prot.plain)) { shell.toast("Not saved: the password-protected workbook was not unlocked.", "warn"); return true; }
+    const src = prot?.plain ? { sourceBase64: toBase64(prot.plain) } : {};
+    const replaceEncrypted = !!(prot?.removed && dest === prot.path);
     try {
-      const r = await post<{ ok: boolean; path: string; bytes: number; report: { partsCopied: number; partsRewritten: string[]; cellsRewritten: number; sheetsAdded: string[]; sheetsRemoved: string[]; sheetsRenamed: [string, string][] } }>(
-        "/api/sheet", { op: "patchXlsxToVfs", source: path, dest, workbook: workbookToJson(workbook), renames: renamesRef.current, ...src });
+      type Rep = { partsCopied: number; partsRewritten: string[]; cellsRewritten: number; sheetsAdded: string[]; sheetsRemoved: string[]; sheetsRenamed: [string, string][] };
+      const r = await post<{ ok: boolean; path: string; bytes: number; base64?: string; report: Rep }>(
+        "/api/sheet", { op: "patchXlsxToVfs", source: path, dest, workbook: workbookToJson(workbook), renames: renamesRef.current, ...src, returnBytes: !!prot?.password, replaceEncrypted });
+      let note = replaceEncrypted ? " · password removed" : "";
+      if (prot?.password) {
+        // TT48: encrypt the patched package here (MS-OFFCRYPTO Agile, AES-256) and upload the encrypted container
+        setStatus(prot.key ? "encrypting…" : "encrypting (deriving the key from your password)…"); await new Promise((res) => setTimeout(res, 30));
+        const plain = Uint8Array.from(atob(r.base64 ?? ""), (c) => c.charCodeAt(0));
+        const sealed = sealPackage(plain, prot).bytes;
+        await post("/api/fs", { op: "upload", path: dest, content: toBase64(sealed), mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        prot.plain = plain; prot.path = dest; note = " · encrypted with your password (AES-256)";
+      } else if (prot?.removed) { encRef.current = null; setLocked(false); }
       const rp = r.report;
       setDirty(false);
       setStatus(rp.partsRewritten.length
-        ? `saved ${r.path} · lossless: ${rp.partsCopied} part(s) kept byte-identical, ${rp.partsRewritten.length} rewritten, ${rp.cellsRewritten} cell(s) written`
-        : `saved ${r.path} · no changes — file left byte-identical`);
+        ? `saved ${r.path}${note} · lossless: ${rp.partsCopied} part(s) kept byte-identical, ${rp.partsRewritten.length} rewritten, ${rp.cellsRewritten} cell(s) written`
+        : `saved ${r.path}${note} · no changes — file left byte-identical`);
       shell.bumpRefresh();
       if (dest !== path) shell.dispatch({ t: "setProps", id: win.id, props: { path: dest } });
       return true;
@@ -612,6 +619,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
         <Btn variant="primary" onClick={() => void save()}>Save workbook</Btn>
         <Btn variant="ghost" onClick={() => void exportXlsx()}>Export .xlsx</Btn>
+        <Btn variant="ghost" data-testid="sheet-password" aria-pressed={locked} disabled={!/\.xlsx$/i.test(path)} title={/\.xlsx$/i.test(path) ? "Set, change or remove the file's password" : "Export as .xlsx first — passwords protect .xlsx files"} onClick={async () => {
+          const cur = encRef.current;
+          if (saveBlocked(cur, path) || (cur?.wasEncrypted && !cur.plain)) { setStatus("unlock the workbook first (reopen it and enter its password)"); return; }
+          const np = await askPassword(path.split("/").pop() || "workbook.xlsx", cur, path);
+          if (!np) return;
+          encRef.current = { ...np, plain: cur?.plain ?? null }; setLocked(!!np.password); setDirty(true);
+          setStatus(np.password ? "password set — the next save encrypts the workbook (AES-256)" : "password removed — the next save writes the workbook without encryption");
+        }}>{locked ? "Password: on" : "Password…"}</Btn>
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import .xlsx<input type="file" accept=".xlsx" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void importXlsx(f); }} /></label>
         <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>
         <Badge tone="info" title="First-party formula engine; see docs/OFFICE-ENGINE.md">from-scratch engine · {fnNames.length} functions</Badge>

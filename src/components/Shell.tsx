@@ -159,7 +159,10 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           // (a state saved on a larger display otherwise produced oversized maximised windows — TT15 screenshot finding).
           const desk = deskRef.current?.getBoundingClientRect();
           const measured = desk && desk.width > 0 && desk.height > 0 ? { viewport: { w: Math.round(desk.width), h: Math.round(desk.height) } } : {};
-          dispatch({ t: "hydrate", state: { ...initialDesktop(), ...st.row.state, ...measured } });
+          // TT48: the row's revision column is authoritative (a state written without an inner revision — another tool, an
+          // older client — otherwise hydrated as revision 1, and every later save of this tab was refused with 409)
+          const revision = Math.max(Number(st.row.revision) || 0, Number(st.row.state.revision) || 0, 1);
+          dispatch({ t: "hydrate", state: { ...initialDesktop(), ...st.row.state, ...measured, revision } });
         }
       } catch (err) {
         toast(`Offline or server error: ${String((err as Error).message)}. The shell runs read-only.`, "warn");
@@ -203,7 +206,19 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     const wait = Math.max(0, Math.min(600, dirtySince.current + 1000 - now));
     saveTimer.current = window.setTimeout(() => {
       dirtySince.current = 0;
-      void put("/api/state", { id: stateId, state, revision: state.revision }).catch(() => undefined);
+      void fetch("/api/state", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: stateId, state, revision: state.revision }) })
+        .then(async (r) => {
+          if (r.status !== 409) return;
+          // TT48 (SH-08 contract): a newer desktop was saved by another tab/window — adopt it instead of silently dropping
+          // this save (and, before this fix, every later one: the stale revision never caught up)
+          const j = await r.json().catch(() => null) as { row?: { state?: DesktopState; revision?: number } } | null;
+          if (!j?.row?.state) return;
+          const desk = deskRef.current?.getBoundingClientRect();
+          const measured = desk && desk.width > 0 && desk.height > 0 ? { viewport: { w: Math.round(desk.width), h: Math.round(desk.height) } } : {};
+          dispatch({ t: "reconcile", state: { ...initialDesktop(), ...j.row.state, ...measured, revision: Math.max(Number(j.row.revision) || 0, Number(j.row.state.revision) || 0) } });
+          toast("This desktop was also changed in another tab or window — its changes were merged in; the windows open here stay.", "info");
+        })
+        .catch(() => undefined);
       // TT18: the browser-profile mirror gets the same /Private path sealing as the server copy
       void (privacy.layer ? privacy.layer.sealState(state) : Promise.resolve(state))
         .then((sealed) => { try { localStorage.setItem(`fusion.state.${stateId}`, JSON.stringify(sealed)); } catch { /* quota */ } });

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-19T20:30:34.499Z",
+ "generatedAt": "2026-10-19T22:51:15.585Z",
  "totals": {
   "built": {
    "full": 289,
@@ -13,8 +13,8 @@
    "untested": 121
   },
   "tests": {
-   "total": 820,
-   "passed": 819
+   "total": 837,
+   "passed": 837
   }
  },
  "rows": {
@@ -51,6 +51,10 @@
   "SH-08": {
    "tested": "full",
    "tests": [
+    "e2e-tt48-sync: reducer 'reconcile': the newer desktop's shared data wins, this tab keeps exactly its own windows/focus, z order stays monotonic, revision never goes back",
+    "e2e-tt48-sync: a fresh tab hydrates at the row revision even when the stored state JSON lacks one, so its first save is accepted (no 409)",
+    "e2e-tt48-sync: another tab saves a newer desktop → this tab's stale save gets 409 → it adopts the newer desktop, says so, and its next save builds on it (nothing lost on either side)",
+    "e2e-tt48-sync: no uncaught page errors",
     "e2e: drag a window by its title bar; geometry is committed and persisted",
     "integration: SH-08 stale revision cannot clobber newer desktop state (409)",
     "unit: command log replay reproduces the identical state hash",
@@ -769,8 +773,14 @@
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
     "e2e-tt47: Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
     "e2e-tt47: Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
-    "e2e-tt47: Spreadsheet opens a password-protected .xlsx (Standard), saves only an explicit unencrypted copy; server refuses plaintext over an encrypted file; cancel never overwrites",
+    "e2e-tt47: Spreadsheet opens a password-protected .xlsx (Standard), Save re-encrypts it (TT48); server refuses plaintext over an encrypted file; cancel never overwrites",
     "e2e-tt47: no uncaught page errors during the Spreadsheet session",
+    "e2e-tt48: Writer: protected .docx → edit → Save re-encrypts in place (msoffcrypto + HMAC verify); reopening asks for the password and shows the edit; change password → old one refused, new one works",
+    "e2e-tt48: Writer: protect a plain .docx (mismatched confirmation refused in the dialog), then remove the password → plain .docx again; the server refused plaintext over it until removal was explicit",
+    "e2e-tt48: Spreadsheet: protected .xlsx (Standard) → edit a cell → Save re-encrypts in place as Agile (msoffcrypto + HMAC verify), lossless patch kept the other sheets; reopening shows the edit",
+    "e2e-tt48: Spreadsheet: protect a plain .xlsx → encrypted; remove the password → plain lossless .xlsx again (no-edit parts byte-identical to the original)",
+    "e2e-tt48: adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
+    "e2e-tt48: no uncaught page errors during the TT48 sessions",
     "e2e: mount: writer",
     "e2e: mount: slides",
     "e2e: mount: sheet",
@@ -792,6 +802,12 @@
     "tt47-crypto: independent Agile vectors: msoffcrypto-tool -e (SHA-512/AES-256, HMAC) on 24 corpus files + Unicode password decrypt byte-equal",
     "tt47-crypto: negative shapes: 25 malformed/hostile inputs are refused with a specific error, never hang, never yield plaintext",
     "tt47-crypto: bounded fuzz: 240 random header/FAT/directory mutations of encrypted files — every outcome is a thrown Error or exact plaintext",
+    "tt48-office: CFB writer: 40 random trees (nested storages, Unicode names, 0…20,000-byte streams across the 4096 mini-stream cutoff) parse under olefile's strict mode and our reader with identical bytes",
+    "tt48-office: CFB writer: a 7.5 MB stream needs more than 109 FAT sectors → DIFAT chain; olefile strict + our reader agree; sibling order follows MS-CFB 2.6.4",
+    "tt48-office: DataSpaces storage streams are byte-identical to msoffcrypto-tool's encrypt output (independent writer)",
+    "tt48-office: re-encryption: 22 corpus .docx/.xlsx (1.9 KB … 3 MB, mini-stream and multi-segment, Unicode password) → msoffcrypto-tool decrypts byte-identically WITH HMAC verification, olefile strict parses, our reader agrees",
+    "tt48-office: security properties: Office-default parameters, fresh salts/keys per save, no plaintext block in the ciphertext, wrong password and tampering refused by the independent decryptor",
+    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification",
     "unit: docx extraction; EPUB spine order; PSD header"
    ]
   },
@@ -896,8 +912,14 @@
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
     "e2e-tt47: Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
     "e2e-tt47: Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
-    "e2e-tt47: Spreadsheet opens a password-protected .xlsx (Standard), saves only an explicit unencrypted copy; server refuses plaintext over an encrypted file; cancel never overwrites",
+    "e2e-tt47: Spreadsheet opens a password-protected .xlsx (Standard), Save re-encrypts it (TT48); server refuses plaintext over an encrypted file; cancel never overwrites",
     "e2e-tt47: no uncaught page errors during the Spreadsheet session",
+    "e2e-tt48: Writer: protected .docx → edit → Save re-encrypts in place (msoffcrypto + HMAC verify); reopening asks for the password and shows the edit; change password → old one refused, new one works",
+    "e2e-tt48: Writer: protect a plain .docx (mismatched confirmation refused in the dialog), then remove the password → plain .docx again; the server refused plaintext over it until removal was explicit",
+    "e2e-tt48: Spreadsheet: protected .xlsx (Standard) → edit a cell → Save re-encrypts in place as Agile (msoffcrypto + HMAC verify), lossless patch kept the other sheets; reopening shows the edit",
+    "e2e-tt48: Spreadsheet: protect a plain .xlsx → encrypted; remove the password → plain lossless .xlsx again (no-edit parts byte-identical to the original)",
+    "e2e-tt48: adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
+    "e2e-tt48: no uncaught page errors during the TT48 sessions",
     "e2e: mount: peek",
     "tt46-xlsx-patch: no-edit save of every readable corpus workbook returns the original bytes",
     "tt46-xlsx-patch: corpus edit session: change a number, add a bold text cell, re-style a cell — openpyxl sees exactly those edits and nothing else lost",
@@ -906,6 +928,12 @@
     "tt46-xlsx-patch: sheet rename, add, delete and reorder; merges, column widths, freeze panes and validations written; definedNames follow the rename",
     "tt46-xlsx-patch: style derivation keeps theme colours and font face/size of the original cell",
     "tt46-xlsx-patch: Strict OOXML workbooks (openpyxl cannot read them): edit round-trips through our reader, namespaces kept, no part lost",
+    "tt48-office: CFB writer: 40 random trees (nested storages, Unicode names, 0…20,000-byte streams across the 4096 mini-stream cutoff) parse under olefile's strict mode and our reader with identical bytes",
+    "tt48-office: CFB writer: a 7.5 MB stream needs more than 109 FAT sectors → DIFAT chain; olefile strict + our reader agree; sibling order follows MS-CFB 2.6.4",
+    "tt48-office: DataSpaces storage streams are byte-identical to msoffcrypto-tool's encrypt output (independent writer)",
+    "tt48-office: re-encryption: 22 corpus .docx/.xlsx (1.9 KB … 3 MB, mini-stream and multi-segment, Unicode password) → msoffcrypto-tool decrypts byte-identically WITH HMAC verification, olefile strict parses, our reader agrees",
+    "tt48-office: security properties: Office-default parameters, fresh salts/keys per save, no plaintext block in the ciphertext, wrong password and tampering refused by the independent decryptor",
+    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification",
     "unit: loss report itemises drops; registry grades"
    ]
   },
@@ -962,8 +990,14 @@
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
     "e2e-tt47: Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
     "e2e-tt47: Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
-    "e2e-tt47: Spreadsheet opens a password-protected .xlsx (Standard), saves only an explicit unencrypted copy; server refuses plaintext over an encrypted file; cancel never overwrites",
+    "e2e-tt47: Spreadsheet opens a password-protected .xlsx (Standard), Save re-encrypts it (TT48); server refuses plaintext over an encrypted file; cancel never overwrites",
     "e2e-tt47: no uncaught page errors during the Spreadsheet session",
+    "e2e-tt48: Writer: protected .docx → edit → Save re-encrypts in place (msoffcrypto + HMAC verify); reopening asks for the password and shows the edit; change password → old one refused, new one works",
+    "e2e-tt48: Writer: protect a plain .docx (mismatched confirmation refused in the dialog), then remove the password → plain .docx again; the server refused plaintext over it until removal was explicit",
+    "e2e-tt48: Spreadsheet: protected .xlsx (Standard) → edit a cell → Save re-encrypts in place as Agile (msoffcrypto + HMAC verify), lossless patch kept the other sheets; reopening shows the edit",
+    "e2e-tt48: Spreadsheet: protect a plain .xlsx → encrypted; remove the password → plain lossless .xlsx again (no-edit parts byte-identical to the original)",
+    "e2e-tt48: adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
+    "e2e-tt48: no uncaught page errors during the TT48 sessions",
     "e2e: mount: sheet",
     "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file",
     "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
@@ -985,7 +1019,13 @@
     "tt47-sheet: new-file .xlsx writer emits conditional formats (all 10 kinds + dxfs): our reader and the independent oracle read them back",
     "tt47-sheet: lossless .xlsx save writes UI conditional-format edits (change / delete / add) and keeps unmodelled rules, other sheets and order verbatim (independent oracle)",
     "tt47-sheet: adversary: an extLst that redeclares the default namespace around <conditionalFormatting> is neither modelled nor misaligns provenance; edits keep it verbatim exactly once",
-    "tt47-sheet: text cells stay text: every corpus string that looks like a number / boolean / formula reads back as the same TEXT (independent openpyxl list); quote-prefix input semantics"
+    "tt47-sheet: text cells stay text: every corpus string that looks like a number / boolean / formula reads back as the same TEXT (independent openpyxl list); quote-prefix input semantics",
+    "tt48-office: CFB writer: 40 random trees (nested storages, Unicode names, 0…20,000-byte streams across the 4096 mini-stream cutoff) parse under olefile's strict mode and our reader with identical bytes",
+    "tt48-office: CFB writer: a 7.5 MB stream needs more than 109 FAT sectors → DIFAT chain; olefile strict + our reader agree; sibling order follows MS-CFB 2.6.4",
+    "tt48-office: DataSpaces storage streams are byte-identical to msoffcrypto-tool's encrypt output (independent writer)",
+    "tt48-office: re-encryption: 22 corpus .docx/.xlsx (1.9 KB … 3 MB, mini-stream and multi-segment, Unicode password) → msoffcrypto-tool decrypts byte-identically WITH HMAC verification, olefile strict parses, our reader agrees",
+    "tt48-office: security properties: Office-default parameters, fresh salts/keys per save, no plaintext block in the ciphertext, wrong password and tampering refused by the independent decryptor",
+    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification"
    ]
   },
   "FF-21": {
@@ -996,7 +1036,7 @@
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
     "e2e-tt47: Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
     "e2e-tt47: Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
-    "e2e-tt47: Spreadsheet opens a password-protected .xlsx (Standard), saves only an explicit unencrypted copy; server refuses plaintext over an encrypted file; cancel never overwrites",
+    "e2e-tt47: Spreadsheet opens a password-protected .xlsx (Standard), Save re-encrypts it (TT48); server refuses plaintext over an encrypted file; cancel never overwrites",
     "e2e-tt47: no uncaught page errors during the Spreadsheet session",
     "e2e: mount: sheet",
     "names: openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
@@ -1014,7 +1054,13 @@
     "tt47-sheet: colour scales: 2/3-colour, cfvo min/max/num/percent/percentile (PERCENTILE.INC), clamping, monotone thresholds",
     "tt47-sheet: new-file .xlsx writer emits conditional formats (all 10 kinds + dxfs): our reader and the independent oracle read them back",
     "tt47-sheet: lossless .xlsx save writes UI conditional-format edits (change / delete / add) and keeps unmodelled rules, other sheets and order verbatim (independent oracle)",
-    "tt47-sheet: adversary: an extLst that redeclares the default namespace around <conditionalFormatting> is neither modelled nor misaligns provenance; edits keep it verbatim exactly once"
+    "tt47-sheet: adversary: an extLst that redeclares the default namespace around <conditionalFormatting> is neither modelled nor misaligns provenance; edits keep it verbatim exactly once",
+    "tt48-office: CFB writer: 40 random trees (nested storages, Unicode names, 0…20,000-byte streams across the 4096 mini-stream cutoff) parse under olefile's strict mode and our reader with identical bytes",
+    "tt48-office: CFB writer: a 7.5 MB stream needs more than 109 FAT sectors → DIFAT chain; olefile strict + our reader agree; sibling order follows MS-CFB 2.6.4",
+    "tt48-office: DataSpaces storage streams are byte-identical to msoffcrypto-tool's encrypt output (independent writer)",
+    "tt48-office: re-encryption: 22 corpus .docx/.xlsx (1.9 KB … 3 MB, mini-stream and multi-segment, Unicode password) → msoffcrypto-tool decrypts byte-identically WITH HMAC verification, olefile strict parses, our reader agrees",
+    "tt48-office: security properties: Office-default parameters, fresh salts/keys per save, no plaintext block in the ciphertext, wrong password and tampering refused by the independent decryptor",
+    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification"
    ]
   },
   "FF-22": {
@@ -1026,6 +1072,12 @@
     "e2e-tt46: real Word file (POI bug57031.docx): tables, header on every page, multiple pages; edit+save keeps all other parts byte-identical",
     "e2e-tt46: pictures from a real file render as images; Ctrl+Enter adds a page; find & replace through the panel",
     "e2e-tt46: no uncaught page errors during the Writer session",
+    "e2e-tt48: Writer: protected .docx → edit → Save re-encrypts in place (msoffcrypto + HMAC verify); reopening asks for the password and shows the edit; change password → old one refused, new one works",
+    "e2e-tt48: Writer: protect a plain .docx (mismatched confirmation refused in the dialog), then remove the password → plain .docx again; the server refused plaintext over it until removal was explicit",
+    "e2e-tt48: Spreadsheet: protected .xlsx (Standard) → edit a cell → Save re-encrypts in place as Agile (msoffcrypto + HMAC verify), lossless patch kept the other sheets; reopening shows the edit",
+    "e2e-tt48: Spreadsheet: protect a plain .xlsx → encrypted; remove the password → plain lossless .xlsx again (no-edit parts byte-identical to the original)",
+    "e2e-tt48: adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
+    "e2e-tt48: no uncaught page errors during the TT48 sessions",
     "e2e: mount: writer",
     "tt46-writer: xmltree: every well-formed XML part of the docx corpus re-serializes byte-identically",
     "tt46-writer: xmltree guards: nesting bomb refused, external/undeclared entities never resolved, numeric refs decoded",
@@ -1043,7 +1095,13 @@
     "tt47-crypto: corpus: Agile SHA-1 'pass' (HMAC verified, opens in Writer), Standard 'solrcell' and 'tika' byte-equal to msoffcrypto-tool",
     "tt47-crypto: independent Agile vectors: msoffcrypto-tool -e (SHA-512/AES-256, HMAC) on 24 corpus files + Unicode password decrypt byte-equal",
     "tt47-crypto: negative shapes: 25 malformed/hostile inputs are refused with a specific error, never hang, never yield plaintext",
-    "tt47-crypto: bounded fuzz: 240 random header/FAT/directory mutations of encrypted files — every outcome is a thrown Error or exact plaintext"
+    "tt47-crypto: bounded fuzz: 240 random header/FAT/directory mutations of encrypted files — every outcome is a thrown Error or exact plaintext",
+    "tt48-office: CFB writer: 40 random trees (nested storages, Unicode names, 0…20,000-byte streams across the 4096 mini-stream cutoff) parse under olefile's strict mode and our reader with identical bytes",
+    "tt48-office: CFB writer: a 7.5 MB stream needs more than 109 FAT sectors → DIFAT chain; olefile strict + our reader agree; sibling order follows MS-CFB 2.6.4",
+    "tt48-office: DataSpaces storage streams are byte-identical to msoffcrypto-tool's encrypt output (independent writer)",
+    "tt48-office: re-encryption: 22 corpus .docx/.xlsx (1.9 KB … 3 MB, mini-stream and multi-segment, Unicode password) → msoffcrypto-tool decrypts byte-identically WITH HMAC verification, olefile strict parses, our reader agrees",
+    "tt48-office: security properties: Office-default parameters, fresh salts/keys per save, no plaintext block in the ciphertext, wrong password and tampering refused by the independent decryptor",
+    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification"
    ]
   },
   "FF-23": {
@@ -1864,6 +1922,8 @@
   "LY-12": {
    "tested": "full",
    "tests": [
+    "e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it",
+    "e2e-tabletop: TT48 fast flick: pointerdown, eight pointermoves and pointerup in ONE task (no render in between) still move the card — the release must not read a stale drag",
     "e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload",
     "e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted)",
     "e2e-tt31: floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along",

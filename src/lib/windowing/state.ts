@@ -105,7 +105,9 @@ export type WindowCommand =
   | { t: "showDesktop" }
   | { t: "icons"; icons: DesktopState["icons"] }
   | { t: "table"; table: NonNullable<DesktopState["table"]> }
-  | { t: "hydrate"; state: DesktopState };
+  | { t: "hydrate"; state: DesktopState }
+  /** TT48: a save was refused (409) because another tab/window saved a newer desktop — adopt it, keep this tab's windows */
+  | { t: "reconcile"; state: DesktopState };
 
 // Round FIRST, clamp SECOND. (v3.0 clamped then rounded, which the property test
 // caught pushing x up to 0.5 px past the bound when the viewport was fractional.)
@@ -180,6 +182,14 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
   switch (cmd.t) {
     case "hydrate":
       return invariants({ ...cmd.state, revision: Math.max(cmd.state.revision, state.revision) });
+
+    case "reconcile": {
+      // the newer desktop wins for shared data (workspaces, icons, tabletop, …) but each tab keeps its OWN windows:
+      // nothing open here disappears, and the other tab's windows do not pop up here (a window is per-tab UI)
+      return invariants({ ...cmd.state, windows: state.windows, focus: state.focus, nextZ: Math.max(state.nextZ, cmd.state.nextZ),
+        activeWorkspace: cmd.state.workspaces.some((w) => w.id === state.activeWorkspace) ? state.activeWorkspace : cmd.state.activeWorkspace,
+        viewport: state.viewport, revision: Math.max(cmd.state.revision, state.revision) });
+    }
 
     case "open": {
       const existing = state.windows.find((w) => w.id === cmd.id);

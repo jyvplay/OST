@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt47",
-  "at": "2026-10-19T20:13:57.109Z",
+  "at": "2026-10-19T22:11:06.981Z",
   "results": [
     {
       "suite": "e2e-tt47",
@@ -12,7 +12,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 7211
+      "ms": 7887
     },
     {
       "suite": "e2e-tt47",
@@ -24,7 +24,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 6290
+      "ms": 7359
     },
     {
       "suite": "e2e-tt47",
@@ -36,11 +36,11 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 3245
+      "ms": 5845
     },
     {
       "suite": "e2e-tt47",
-      "name": "Spreadsheet opens a password-protected .xlsx (Standard), saves only an explicit unencrypted copy; server refuses plaintext over an encrypted file; cancel never overwrites",
+      "name": "Spreadsheet opens a password-protected .xlsx (Standard), Save re-encrypts it (TT48); server refuses plaintext over an encrypted file; cancel never overwrites",
       "covers": {
         "FF-20": "full",
         "FF-21": "full",
@@ -48,7 +48,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 5199
+      "ms": 7863
     },
     {
       "suite": "e2e-tt47",

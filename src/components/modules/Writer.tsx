@@ -13,7 +13,7 @@ import { api, post } from "@/lib/api";
 import { toB64, fromB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Btn } from "../ui";
-import { confirmUnencryptedCopy, isEncryptedOffice, unlockOffice } from "@/lib/office/unlock";
+import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import { allParas, blankWord, docText, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
 import * as E from "@/lib/office/wordedit";
 import { domToPos, geomOf, makeState, paginate, posToDom, renderBlocks, renderPara, cssFont } from "./writer/view";
@@ -32,7 +32,9 @@ export default function WriterModule({ win }: ModuleProps) {
   const [path, setPath] = useState<string>((win.props.path as string) ?? "");
   const docRef = useRef<WordDoc | null>(null);
   /** TT47: set while the open document came from a password-protected file (Fusion decrypts but cannot re-encrypt). */
-  const encRef = useRef<{ path: string } | null>(null);
+  /** TT47/48: password protection of the open document (password kept in this window's memory only). */
+  const encRef = useRef<Protection | null>(null);
+  const [locked, setLocked] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const pagesRef = useRef<HTMLDivElement | null>(null);
   const selRef = useRef<E.Range | null>(null);
@@ -176,12 +178,14 @@ export default function WriterModule({ win }: ModuleProps) {
   const loadBytes = useCallback(async (bytes: Uint8Array, name: string, srcPath = "") => {
     let enc = "";
     if (isEncryptedOffice(bytes)) {
-      // TT47: password-protected .docx — decrypted on this device (MS-OFFCRYPTO Agile/Standard), never re-encrypted
-      encRef.current = { path: srcPath }; // set first: even a cancelled/failed open must never save plaintext over it
+      // TT47: password-protected .docx — decrypted on this device (MS-OFFCRYPTO Agile/Standard); TT48: saves re-encrypt
+      encRef.current = lockedProtection(srcPath); // set first: even a cancelled/failed open must never save plaintext over it
       const u = await unlockOffice(bytes, name);
       if (!u) throw new Error("it is password-protected and no password was entered");
-      bytes = u.bytes; enc = ` · password-protected (${u.method}${u.integrity === "verified" ? ", integrity verified" : ""}) — saving creates an unencrypted copy`;
+      encRef.current = { ...encRef.current, password: u.password };
+      bytes = u.bytes; enc = ` · password-protected (${u.method}${u.integrity === "verified" ? ", integrity verified" : ""}) — saves stay encrypted with the same password`;
     } else encRef.current = null;
+    setLocked(!!encRef.current?.password);
     const d = await readWord(bytes, name);
     docRef.current = d; undo.current = []; redo.current = [];
     const fid = fidelity(d);
@@ -223,18 +227,21 @@ export default function WriterModule({ win }: ModuleProps) {
 
   const saveTo = useCallback(async (dest0: string) => {
     const doc = docRef.current!;
-    let dest = dest0; let confirmed = false;
-    if (encRef.current) {
-      const d2 = await confirmUnencryptedCopy(encRef.current.path, dest0 === encRef.current.path ? "" : dest0, ".docx");
-      if (!d2) { setStatus("Not saved — the password-protected original is unchanged"); return; }
-      dest = d2; confirmed = true;
-    }
-    const bytes = await writeWord(doc);
-    try { await post("/api/fs", { op: "upload", path: dest, content: toB64(bytes), mime: MIME_DOCX }); }
+    const dest = dest0; const prot = encRef.current;
+    if (saveBlocked(prot, dest)) { setStatus("Not saved — this password-protected file was not unlocked; the original is unchanged"); return; }
+    const plain = await writeWord(doc);
+    if (prot?.password) { setStatus(prot.key ? "Encrypting…" : "Encrypting (deriving the key from your password)…"); await new Promise((r) => setTimeout(r, 30)); }
+    let bytes: Uint8Array; let sealed = false;
+    try { const r = sealPackage(plain, prot); bytes = r.bytes; sealed = r.encrypted; }
     catch (e) { shell.toast(`Not saved: ${(e as Error).message}`, "bad"); return; }
-    if (confirmed) encRef.current = null;
+    // removing the password is explicit (Password… dialog): only then may plaintext replace the encrypted original
+    const replaceEncrypted = !!(prot?.removed && dest === prot.path);
+    try { await post("/api/fs", { op: "upload", path: dest, content: toB64(bytes), mime: MIME_DOCX, replaceEncrypted }); }
+    catch (e) { shell.toast(`Not saved: ${(e as Error).message}`, "bad"); return; }
+    if (prot?.removed) { encRef.current = null; setLocked(false); }
+    else if (prot && sealed) prot.path = dest;
     // edited paragraphs stay dirty: their original XML is not replaced, so they must be re-serialised on the next save too
-    setDirty(false); setStatus(`Saved ${dest} (${(bytes.length / 1024).toFixed(1)} KB, lossless)`); shell.bumpRefresh();
+    setDirty(false); setStatus(`Saved ${dest} (${(bytes.length / 1024).toFixed(1)} KB, lossless${sealed ? ", encrypted with your password — AES-256" : replaceEncrypted ? ", password removed" : ""})`); shell.bumpRefresh();
     if (dest !== path) { setPath(dest); shell.dispatch({ t: "setProps", id: win.id, props: { path: dest, title: dest.split("/").pop() } }); }
   }, [path, shell, win.id]);
   const save = useCallback(async () => {
@@ -244,15 +251,17 @@ export default function WriterModule({ win }: ModuleProps) {
     setPop("saveas");
   }, [path, saveTo]);
   useEffect(() => {
-    if (!autosave || !dirty || !path.toLowerCase().endsWith(".docx") || encRef.current) return;
+    if (!autosave || !dirty || !path.toLowerCase().endsWith(".docx") || (encRef.current && !encRef.current.password)) return;
     const t = window.setTimeout(() => { void saveTo(path); }, 4000);
     return () => window.clearTimeout(t);
   }, [autosave, dirty, path, saveTo, ver]);
 
   const download = async () => {
     const doc = docRef.current!;
-    if (encRef.current && !(await confirmUnencryptedCopy(encRef.current.path, `${(path.split("/").pop() || "Document.docx").replace(/\.docx$/i, "")} (unencrypted).docx`, ".docx"))) return;
-    const bytes = await writeWord(doc);
+    if (saveBlocked(encRef.current, encRef.current?.path ?? "")) { setStatus("Not downloaded — the password-protected file was not unlocked"); return; }
+    let bytes: Uint8Array;
+    try { bytes = sealPackage(await writeWord(doc), encRef.current).bytes; } // a protected document downloads encrypted
+    catch (e) { shell.toast(`Not downloaded: ${(e as Error).message}`, "bad"); return; }
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: MIME_DOCX }));
     a.download = (path.split("/").pop() || `${doc.title || "Document"}.docx`).replace(/\.fdoc$/i, ".docx"); a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
@@ -510,12 +519,19 @@ export default function WriterModule({ win }: ModuleProps) {
       <style>{WRITER_CSS}</style>
       {/* ---------- file / history row */}
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }}>
-        <Btn variant="ghost" onClick={async () => { if (dirty && !confirmLeave()) return; const d = await blankWord(); docRef.current = d; setPath(""); undo.current = []; setDirty(false); bump(); setDocGen((g) => g + 1); }}>New</Btn>
+        <Btn variant="ghost" onClick={async () => { if (dirty && !confirmLeave()) return; const d = await blankWord(); docRef.current = d; setPath(""); encRef.current = null; setLocked(false); undo.current = []; setDirty(false); bump(); setDocGen((g) => g + 1); }}>New</Btn>
         <Btn variant="ghost" onClick={() => fileInput.current?.click()}>Open…</Btn>
         <input ref={fileInput} type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { await loadBytes(new Uint8Array(await f.arrayBuffer()), f.name, ""); setPath(""); } catch (err) { shell.toast(`Cannot open ${f.name}: ${(err as Error).message}`, "bad"); } e.target.value = ""; }} />
         <Btn data-testid="writer-save" onClick={() => void save()}>{dirty ? "Save •" : "Save"}</Btn>
         <Btn variant="ghost" onClick={() => { setPopVal(path || `/Documents/${doc.title || "Document"}.docx`); setPop("saveas"); }}>Save as…</Btn>
         <Btn variant="ghost" onClick={() => void download()}>Download</Btn>
+        <Btn variant="ghost" data-testid="writer-password" aria-pressed={locked} onClick={async () => {
+          if (saveBlocked(encRef.current, encRef.current?.path ?? "")) { setStatus("Unlock the file first (reopen it and enter its password)"); return; }
+          const np = await askPassword(path.split("/").pop() || docRef.current?.title || "Document", encRef.current, path);
+          if (!np) return;
+          encRef.current = np; setLocked(!!np.password); setDirty(true); bump();
+          setStatus(np.password ? "Password set — the next save encrypts the file (AES-256)" : "Password removed — the next save writes the file without encryption");
+        }}>{locked ? "Password: on" : "Password…"}</Btn>
         <Btn variant="ghost" onClick={print}>Print / PDF</Btn>
         <Btn variant="ghost" onClick={() => exportText("html")}>HTML</Btn>
         <Btn variant="ghost" onClick={() => exportText("txt")}>Text</Btn>
@@ -523,7 +539,7 @@ export default function WriterModule({ win }: ModuleProps) {
         <Btn variant="ghost" disabled={!undo.current.length} onClick={() => restore(undo, redo)} aria-label="Undo">Undo</Btn>
         <Btn variant="ghost" disabled={!redo.current.length} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>
         <span style={{ flex: 1 }} />
-        <label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || !!encRef.current} aria-label="AutoSave" />AutoSave</label>
+        <label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || !!(encRef.current && !encRef.current.password)} aria-label="AutoSave" />AutoSave</label>
         {(["nav", "find", "review", "page"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", page: "Layout", none: "" }[p]}</Btn>)}
       </div>
       {/* ---------- formatting row */}

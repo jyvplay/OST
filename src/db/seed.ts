@@ -40,9 +40,10 @@ import { tt43Features, patchTT43 } from "./seed-data/features-tt43";
 import { patchTT44 } from "./seed-data/features-tt44";
 import { patchTT45 } from "./seed-data/features-tt45";
 import { UPDATES_TT47 } from "./seed-data/features-tt47";
+import { UPDATES_TT48 } from "./seed-data/features-tt48";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.35.0";
+export const SEED_VERSION = "3.36.0";
 
 export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
@@ -70,7 +71,8 @@ export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, 
   .map(patchTT43)
   .map(patchTT44)
   .map(patchTT45)
-  .map((f) => (UPDATES_TT47[f.code] ? { ...f, ...UPDATES_TT47[f.code] } : f));
+  .map((f) => (UPDATES_TT47[f.code] ? { ...f, ...UPDATES_TT47[f.code] } : f))
+  .map((f) => (UPDATES_TT48[f.code] ? { ...f, ...UPDATES_TT48[f.code] } : f));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

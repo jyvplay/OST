@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     op?: "recalculate" | "exportXlsx" | "importXlsx" | "saveXlsxToVfs" | "patchXlsxToVfs";
     source?: string; renames?: Record<string, string>;
     workbook?: WorkbookJson; sheet?: { name: string; cells: { ref: string; input: string }[] };
-    path?: string; dest?: string; base64?: string; sourceBase64?: string; replaceEncrypted?: boolean;
+    path?: string; dest?: string; base64?: string; sourceBase64?: string; replaceEncrypted?: boolean; returnBytes?: boolean;
   }) | Response;
   if (body instanceof Response) return body;
   try {
@@ -78,6 +78,9 @@ export async function POST(req: NextRequest) {
         if (orig.length > 8 * 1024 * 1024) throw new Error("xlsx exceeds the 8 MB guard");
         const renames = body.renames && typeof body.renames === "object" ? Object.fromEntries(Object.entries(body.renames).filter(([k, v]) => typeof k === "string" && typeof v === "string").slice(0, 255)) : {};
         const { bytes, report } = await patchXlsx(new Uint8Array(orig), workbookFromBody(body), renames as Record<string, string>);
+        // TT48: password-protected save — return the patched package so the browser encrypts it (the password never
+        // reaches the server) and uploads the encrypted container itself; nothing is written here
+        if (body.returnBytes === true) return NextResponse.json({ ok: true, path: body.dest, base64: Buffer.from(bytes).toString("base64"), bytes: bytes.length, report });
         refuseEncryptedOverwrite(await getNode(body.dest), Buffer.from(bytes.subarray(0, 16)).toString("base64"), body.replaceEncrypted);
         const r = await writeFile({ path: body.dest, content: Buffer.from(bytes).toString("base64"), encoding: "base64", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reason: "sheet-save-lossless" });
         return NextResponse.json({ ...r, bytes: bytes.length, report });

@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt48-sync",
+  "at": "2026-10-19T22:51:07.698Z",
+  "results": [
+    {
+      "suite": "e2e-tt48-sync",
+      "name": "reducer 'reconcile': the newer desktop's shared data wins, this tab keeps exactly its own windows/focus, z order stays monotonic, revision never goes back",
+      "covers": {
+        "SH-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "e2e-tt48-sync",
+      "name": "a fresh tab hydrates at the row revision even when the stored state JSON lacks one, so its first save is accepted (no 409)",
+      "covers": {
+        "SH-08": "full"
+      },
+      "pass": true,
+      "ms": 2752
+    },
+    {
+      "suite": "e2e-tt48-sync",
+      "name": "another tab saves a newer desktop → this tab's stale save gets 409 → it adopts the newer desktop, says so, and its next save builds on it (nothing lost on either side)",
+      "covers": {
+        "SH-08": "full"
+      },
+      "pass": true,
+      "ms": 4615
+    },
+    {
+      "suite": "e2e-tt48-sync",
+      "name": "no uncaught page errors",
+      "covers": {
+        "SH-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

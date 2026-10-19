@@ -6,7 +6,8 @@
  * Decryption only; runs in the browser and in Node (pure TS primitives from ./cryptoprims).
  * Guards: sector-chain cycle/bounds checks, 256 MiB package cap, HMAC integrity check for Agile packages.
  */
-import { HASHES, aesCbcDecrypt, aesEcbDecrypt, concat, hmac, sha1, type HashName } from "./cryptoprims";
+import { HASHES, aesCbcDecrypt, aesCbcEncrypt as _enc, aesEcbDecrypt, concat, hmac, sha1, sha512 as _sha512, type HashName } from "./cryptoprims";
+import { writeCfb, type CfbNode } from "./cfbwrite";
 
 type Bytes = Uint8Array;
 export class OfficePasswordError extends Error {
@@ -189,4 +190,79 @@ export function decryptOffice(buf: Bytes, password: string): { bytes: Bytes; met
   else throw new Error(`offcrypto: unsupported encryption version ${major}.${minor}`);
   if (!(r.bytes[0] === 0x50 && r.bytes[1] === 0x4b)) throw new Error("offcrypto: decrypted data is not a ZIP package");
   return { ...r, method };
+}
+
+/* ------------------------------------------------------------------ TT48: Agile encryption (re-encrypting save) */
+
+const rnd = (n: number) => { const b = new Uint8Array(n); globalThis.crypto.getRandomValues(b); return b; };
+const b64e = (b: Bytes) => { let s = ""; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
+const pad16 = (b: Bytes) => { if (b.length % 16 === 0) return b; const o = new Uint8Array(b.length + 16 - (b.length % 16)); o.set(b); return o; };
+/** [MS-OFFCRYPTO] 2.1.2 UNICODE-LP-P4: u32 byte length, UTF-16LE, zero-padded to a multiple of 4 */
+const lpp4 = (s: string) => { const u = utf16(s); const o = new Uint8Array(4 + u.length + ((4 - (u.length % 4)) % 4)); new DataView(o.buffer).setUint32(0, u.length, true); o.set(u, 4); return o; };
+const u32s = (...v: number[]) => { const o = new Uint8Array(v.length * 4); const d = new DataView(o.buffer); v.forEach((x, i) => d.setUint32(i * 4, x, true)); return o; };
+const ver = () => { const o = new Uint8Array(4); const d = new DataView(o.buffer); d.setUint16(0, 1, true); d.setUint16(2, 0, true); return o; };
+
+/** The \x06DataSpaces storage Office expects beside an encrypted package ([MS-OFFCRYPTO] 2.1.5-2.1.8, 2.3.4.1). */
+export function dataSpacesStorage(): CfbNode {
+  const version = concat(lpp4("Microsoft.Container.DataSpaces"), ver(), ver(), ver());
+  const entry = concat(u32s(1, 0), lpp4("EncryptedPackage"), lpp4("StrongEncryptionDataSpace"));
+  const map = concat(u32s(8, 1), u32s(entry.length + 4), entry);
+  const def = concat(u32s(8, 1), lpp4("StrongEncryptionTransform"));
+  const id = lpp4("{FF9A3F03-56EF-4613-BDD5-5A41C1D07246}");
+  const primary = concat(u32s(8 + id.length, 1), id, lpp4("Microsoft.Container.EncryptionTransform"), ver(), ver(), ver(), u32s(0, 0, 0, 4));
+  return { name: "\u0006DataSpaces", children: [
+    { name: "Version", data: version },
+    { name: "DataSpaceMap", data: map },
+    { name: "DataSpaceInfo", children: [{ name: "StrongEncryptionDataSpace", data: def }] },
+    { name: "TransformInfo", children: [{ name: "StrongEncryptionTransform", children: [{ name: "\u0006Primary", data: primary }] }] },
+  ] };
+}
+
+/**
+ * Encrypt an OOXML package with a password: Agile Encryption, SHA-512, AES-256-CBC, 100,000-round key derivation,
+ * 4096-byte segments and an HMAC-SHA512 integrity record — the parameters Office 2013+ writes by default.
+ */
+/** The slow part of a password save: SHA-512 iterated spinCount times over (salt, password) — [MS-OFFCRYPTO] 2.3.4.11. */
+export interface AgileKey { salt: Bytes; hash: Bytes; spin: number }
+export function deriveAgileKey(password: string, spinCount = 100000): AgileKey {
+  if (!password) throw new Error("offcrypto: a password is required");
+  if (!(spinCount >= 1 && spinCount <= 10_000_000)) throw new Error("offcrypto: bad spinCount");
+  const salt = rnd(16); let h = _sha512(concat(salt, utf16(password.slice(0, 255))));
+  const buf = new Uint8Array(4 + 64); const dv = new DataView(buf.buffer);
+  for (let i = 0; i < spinCount; i++) { dv.setUint32(0, i, true); buf.set(h, 4); h = _sha512(buf); }
+  return { salt, hash: h, spin: spinCount };
+}
+
+/**
+ * opts.key: a cached deriveAgileKey() result for the same password (a window re-saving the same document). The
+ * package key, data salt, segment IVs, verifier and HMAC key are still fresh random values on every call.
+ */
+export function encryptOffice(plain: Bytes, password: string, opts: { spinCount?: number; key?: AgileKey } = {}): Bytes {
+  if (!(plain[0] === 0x50 && plain[1] === 0x4b)) throw new Error("offcrypto: only OOXML (ZIP) packages can be encrypted");
+  if (plain.length > MAX_PACKAGE) throw new Error("offcrypto: package too large to encrypt");
+  if (!password) throw new Error("offcrypto: a password is required");
+  const K = opts.key ?? deriveAgileKey(password, opts.spinCount ?? 100000);
+  const H = _sha512, HS = 64, spin = K.spin, pwSalt = K.salt, h = K.hash;
+  const kdSalt = rnd(16), secret = rnd(32), verifier = rnd(16), hmacKey = rnd(HS);
+  // package: u64 size + AES-256-CBC per 4096-byte segment, IV_i = SHA512(keyData.salt + LE32(i))[0:16]
+  const nSeg = Math.ceil(plain.length / 4096);
+  const parts: Bytes[] = [concat(le32(plain.length), le32(0))];
+  for (let i = 0; i < nSeg; i++) parts.push(_enc(secret, H(concat(kdSalt, le32(i))).slice(0, 16), pad16(plain.subarray(i * 4096, (i + 1) * 4096))));
+  const pkg = concat(...parts);
+  // password key encryptor (§2.3.4.13)
+  const keyFor = (bk: Bytes) => H(concat(h, bk)).slice(0, 32);
+  const encVI = _enc(keyFor(BK_VERIFIER_INPUT), pwSalt, verifier);
+  const encVH = _enc(keyFor(BK_VERIFIER_VALUE), pwSalt, H(verifier));
+  const encKV = _enc(keyFor(BK_KEY), pwSalt, secret);
+  // integrity (§2.3.4.14): HMAC over the whole EncryptedPackage stream
+  const hmacVal = hmac("SHA512", hmacKey, pkg);
+  const encHK = _enc(secret, H(concat(kdSalt, BK_HMAC_KEY)).slice(0, 16), hmacKey);
+  const encHV = _enc(secret, H(concat(kdSalt, BK_HMAC_VALUE)).slice(0, 16), hmacVal);
+  const common = `blockSize="16" keyBits="256" hashSize="64" cipherAlgorithm="AES" cipherChaining="ChainingModeCBC" hashAlgorithm="SHA512"`;
+  const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<encryption xmlns="http://schemas.microsoft.com/office/2006/encryption" xmlns:p="http://schemas.microsoft.com/office/2006/keyEncryptor/password" xmlns:c="http://schemas.microsoft.com/office/2006/keyEncryptor/certificate">`
+    + `<keyData saltSize="16" ${common} saltValue="${b64e(kdSalt)}"/>`
+    + `<dataIntegrity encryptedHmacKey="${b64e(encHK)}" encryptedHmacValue="${b64e(encHV)}"/>`
+    + `<keyEncryptors><keyEncryptor uri="http://schemas.microsoft.com/office/2006/keyEncryptor/password"><p:encryptedKey spinCount="${spin}" saltSize="16" ${common} saltValue="${b64e(pwSalt)}" encryptedVerifierHashInput="${b64e(encVI)}" encryptedVerifierHashValue="${b64e(encVH)}" encryptedKeyValue="${b64e(encKV)}"/></keyEncryptor></keyEncryptors></encryption>`;
+  const info = concat(new Uint8Array([4, 0, 4, 0, 0x40, 0, 0, 0]), new TextEncoder().encode(xml));
+  return writeCfb([dataSpacesStorage(), { name: "EncryptionInfo", data: info }, { name: "EncryptedPackage", data: pkg }]);
 }

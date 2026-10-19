@@ -1,0 +1,84 @@
+{
+  "suite": "tt48-office",
+  "at": "2026-10-19T22:11:20.579Z",
+  "results": [
+    {
+      "suite": "tt48-office",
+      "name": "CFB writer: 40 random trees (nested storages, Unicode names, 0…20,000-byte streams across the 4096 mini-stream cutoff) parse under olefile's strict mode and our reader with identical bytes",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 545
+    },
+    {
+      "suite": "tt48-office",
+      "name": "CFB writer: a 7.5 MB stream needs more than 109 FAT sectors → DIFAT chain; olefile strict + our reader agree; sibling order follows MS-CFB 2.6.4",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 146
+    },
+    {
+      "suite": "tt48-office",
+      "name": "DataSpaces storage streams are byte-identical to msoffcrypto-tool's encrypt output (independent writer)",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 226
+    },
+    {
+      "suite": "tt48-office",
+      "name": "re-encryption: 22 corpus .docx/.xlsx (1.9 KB … 3 MB, mini-stream and multi-segment, Unicode password) → msoffcrypto-tool decrypts byte-identically WITH HMAC verification, olefile strict parses, our reader agrees",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 7813
+    },
+    {
+      "suite": "tt48-office",
+      "name": "security properties: Office-default parameters, fresh salts/keys per save, no plaintext block in the ciphertext, wrong password and tampering refused by the independent decryptor",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 3440
+    },
+    {
+      "suite": "tt48-office",
+      "name": "window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 1192
+    }
+  ]
+}
