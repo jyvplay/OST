@@ -620,6 +620,14 @@ export class PrivacyLayer {
       const r = await this.reader(u.pathname, body, url, init);
       if (r) return r;
     }
+    // TT44 (TD-03): SSH talks to a remote machine, not to the host's store. In an amnesic session it still works, but
+    // the request is tagged so the server refuses every host write it could cause (known_hosts) — a host key can be
+    // accepted for this session only. SFTP file content reaches the store only through /api/fs (this layer).
+    if (u.pathname === "/api/ssh" || u.pathname.startsWith("/api/ssh/")) {
+      if (!this.amnesic) return this.raw(url, init);
+      const h = new Headers(init.headers); h.set("x-fusion-amnesic", "1");
+      return this.raw(url, { ...init, headers: h });
+    }
     if (this.amnesic && method !== "GET" && method !== "HEAD" && !COMPUTE.has(u.pathname)) {
       this.note(`${method} ${u.pathname}`);
       return fail(423, `amnesic session: ${u.pathname} would be written to the host — nothing was saved`, { amnesic: true });

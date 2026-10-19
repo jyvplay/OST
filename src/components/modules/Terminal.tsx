@@ -4,6 +4,7 @@ import { fz } from "@/lib/uiscale";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
 import { MODULES } from "@/lib/registry";
+import { parseTarget } from "@/lib/ssh-client";
 import { useShell, type ModuleProps } from "../shell-context";
 
 interface Line { text: string; tone?: "out" | "err" | "cmd" | "info" }
@@ -69,6 +70,7 @@ export default function TerminalModule({ win }: ModuleProps) {
             "sha256 <path>          stored digest",
             "jobs                   recent journal entries",
             "open <module> [path]   open a Fusion window",
+            "ssh user@host[:port]   open the SSH window for that server (-p PORT works too)",
             "cast                   list Beam transports",
             "probe                  capability summary",
             "spec [filter]          query the feature register",
@@ -155,6 +157,14 @@ export default function TerminalModule({ win }: ModuleProps) {
         case "jobs": {
           const r = await api<{ ops: { id: number; op: string; state: string; src: string; dst: string }[] }>("/api/jobs?limit=12");
           out(r.ops.map((o) => `#${o.id} ${o.op.padEnd(6)} ${o.state.padEnd(16)} ${o.src}${o.dst ? ` → ${o.dst}` : ""}`).join("\n"));
+          break;
+        }
+        case "ssh": {
+          // TT44 (TD-03): opens the SSH window prefilled; authentication and host-key questions happen there
+          const t = parseTarget(args);
+          if (typeof t === "string") { out(t, "err"); break; }
+          shell.open("ssh", { ...t, title: `${t.username}@${t.host}` });
+          out(`opened SSH for ${t.username}@${t.host}:${t.port}`);
           break;
         }
         case "open": {

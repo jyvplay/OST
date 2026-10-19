@@ -231,7 +231,10 @@ function SerialConsole() {
       <input className="fs-input fs-mono" placeholder="send line (CRLF appended)" value={line} disabled={!port}
         onChange={(e) => setLine(e.target.value)}
         onKeyDown={async (e) => { if (e.key === "Enter" && writer.current) { await writer.current.write(new TextEncoder().encode(`${line}\r\n`)); setLine(""); } }} />
-      <div className="fs-dim" style={{ fontSize: fz(11) }}>SSH/SFTP remain blocked: browsers have no raw TCP. Serial is real because Web Serial is a user-granted device API.</div>
+      <div className="fs-row" style={{ gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <span className="fs-dim" style={{ fontSize: fz(11), flex: 1, minWidth: 200 }}>Serial uses Web Serial, a device API you grant per port. Remote machines over the network: SSH and SFTP have their own window (the host key is checked before any password is sent).</span>
+        <Btn onClick={() => shell.open("ssh")}>Open SSH…</Btn>
+      </div>
     </Section>
   );
 }

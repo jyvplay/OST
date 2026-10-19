@@ -21,6 +21,7 @@ export const MODULES: ModuleDef[] = [
   { id: "editor", title: "Editor", icon: "📝", group: "Create", summary: "Text/Markdown editor with versions and safe-save", rect: { w: 820, h: 560 }, implements: ["PR-01", "FF-15"] },
   { id: "find", title: "Find", icon: "🔎", group: "Core", summary: "Index search with provenance and diagnostics", rect: { w: 760, h: 520 }, implements: ["SR-01", "SR-02", "SR-08"] },
   { id: "terminal", title: "Terminal", icon: "⌨️", group: "Core", summary: "Real shell over the VFS and the same journal", rect: { w: 820, h: 480 }, implements: ["TD-01", "TD-02"] },
+  { id: "ssh", title: "SSH", icon: "🔐", group: "Connect", summary: "SSH terminal and SFTP files — host keys checked, keys from /Private", rect: { w: 980, h: 600 }, implements: ["TD-03"] },
   { id: "notes", title: "Notes", icon: "🗒", group: "Create", summary: "Local-first notes, indexed with files", rect: { w: 720, h: 520 }, implements: ["PR-02"] },
   { id: "browser", title: "Browser", icon: "🌐", group: "Core", summary: "Tabs, splits and groups with an embeddability probe", rect: { w: 1000, h: 640 }, implements: ["PR-07", "WM-06"] },
   { id: "media", title: "Media", icon: "🎞", group: "Create", summary: "Player with Media Session, PiP and Beam", rect: { w: 820, h: 540 }, implements: ["MD-02", "CA-01"] },

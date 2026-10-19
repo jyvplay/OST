@@ -5,6 +5,7 @@ import type { WindowState } from "@/lib/windowing/state";
 import FilesModule from "./modules/Files";
 import EditorModule from "./modules/Editor";
 import TerminalModule from "./modules/Terminal";
+import SshModule from "./modules/Ssh";
 import FindModule from "./modules/Find";
 import NotesModule from "./modules/Notes";
 import BrowserModule from "./modules/Browser";
@@ -50,6 +51,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "files": return <FilesModule win={win} />;
     case "editor": return <EditorModule win={win} />;
     case "terminal": return <TerminalModule win={win} />;
+    case "ssh": return <SshModule win={win} />;
     case "find": return <FindModule win={win} />;
     case "notes": return <NotesModule win={win} />;
     case "browser": return <BrowserModule win={win} />;
