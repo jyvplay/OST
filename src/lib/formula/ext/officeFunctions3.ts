@@ -356,10 +356,14 @@ export const ADVANCED_FUNCTIONS: Record<string, FnImpl> = {
     const a1 = a[3] ? toBool(a[3].value()) : true;
     const colPart = a1 ? colLetters(col) : `[${col}]`;
     const rowPart = a1 ? String(row) : `[${row}]`;
-    if (abs === 1) return `$${colPart}$${rowPart}`;
-    if (abs === 2) return `$${colPart}${rowPart}`;
-    if (abs === 3) return `${colPart}$${rowPart}`;
-    return `${colPart}${rowPart}`;
+    // TT46 (corpus-found): abs_num 2 = absolute ROW / relative column, 3 = relative row / absolute column; sheet_text prefix.
+    const sheet = a[4] ? toStr(a[4].value()) : "";
+    const pre = sheet ? `${/^[A-Za-z_][A-Za-z0-9_.]*$/.test(sheet) || /^\[[^\]]+\][A-Za-z_][A-Za-z0-9_.]*$/.test(sheet) ? sheet : `'${sheet.replace(/'/g, "''")}'`}!` : "";
+    if (!a1) { const r = abs === 1 || abs === 2 ? `R${row}` : `R[${row}]`, c = abs === 1 || abs === 3 ? `C${col}` : `C[${col}]`; return pre + r + c; }
+    if (abs === 1) return `${pre}$${colPart}$${rowPart}`;
+    if (abs === 2) return `${pre}${colPart}$${rowPart}`;
+    if (abs === 3) return `${pre}$${colPart}${rowPart}`;
+    return `${pre}${colPart}${rowPart}`;
   },
   HYPERLINK: (a) => { need(a, 1); const url = toStr(a[0].value()); const label = a[1] ? toStr(a[1].value()) : url; return label; },
 

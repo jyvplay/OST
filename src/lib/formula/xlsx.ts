@@ -285,7 +285,12 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
         const [a, b] = fa.ref.split(":").map(parseA1);
         if (a && b) for (let r = a.row; r <= b.row; r++) for (let c = a.col; c <= b.col; c++) if (r !== row || c !== col) arrayChildren.add(`${c},${r}`);
       }
-      if (body) { sheet.setCell(col, row, `=${stripFuturePrefixes(body)}`); applyStyle(); continue; }
+      if (body) {
+        sheet.setCell(col, row, `=${stripFuturePrefixes(body)}`); applyStyle();
+        // TT46: no dynamic-array cell metadata (cm) and not a CSE array → Excel evaluates it with legacy semantics.
+        if (fa.t !== "array" && attrs.cm === undefined) { const c = sheet.get(col, row); if (c?.formula) c.legacy = true; }
+        continue;
+      }
     }
     if (arrayChildren.has(`${col},${row}`)) { applyStyle(); continue; } // cached spill value: the anchor re-spills on recalc
     const type = attrs.t ?? "n";
@@ -330,10 +335,31 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
   return sheet;
 }
 
+/** TT46: Excel tables of one sheet (sheet rels → xl/tables/tableN.xml) — targets of structured references. */
+function readTables(sheetXml: string, sheetPath: string, sheetName: string, wb: Workbook, get: (n: string) => string | null) {
+  const parts = [...sheetXml.matchAll(/<tablePart\b([^>]*)\/?>/g)].map((m) => xmlAttrs(m[1])["r:id"]).filter(Boolean);
+  if (!parts.length) return;
+  const dir = sheetPath.slice(0, sheetPath.lastIndexOf("/") + 1);
+  const rels = get(`${dir}_rels/${sheetPath.slice(dir.length)}.rels`) ?? "";
+  for (const rid of parts) {
+    const rel = [...rels.matchAll(/<Relationship\b([^>]*)\/?\s*>/g)].map((r) => xmlAttrs(r[1])).find((x) => x.Id === rid);
+    if (!rel?.Target) continue;
+    const target = rel.Target.startsWith("/") ? rel.Target.slice(1) : normPath(dir + rel.Target);
+    const tx = get(target); if (!tx) continue;
+    const at = xmlAttrs(/<table\b([^>]*)>/.exec(tx)?.[1] ?? "");
+    const r = parseRef(at.ref ?? ""); const name = at.displayName ?? at.name;
+    if (!r || !name) continue;
+    const columns = [...tx.matchAll(/<tableColumn\b([^>]*?)(?:\/>|>)/g)].map((m) => dec(xmlAttrs(m[1]).name ?? ""));
+    wb.tables.set(name.toUpperCase(), { name, sheet: sheetName, c0: r.c0, r0: r.r0, c1: r.c1, r1: r.r1, headerRows: at.headerRowCount === "0" ? 0 : 1, totalsRows: Number(at.totalsRowCount ?? 0) > 0 ? 1 : 0, columns });
+  }
+}
+const normPath = (p: string) => { const out: string[] = []; for (const seg of p.split("/")) { if (seg === "..") out.pop(); else if (seg && seg !== ".") out.push(seg); } return out.join("/"); };
+
 /** Read every workbook sheet by following workbook.xml relationship IDs. */
 export function readXlsxWorkbook(buf: Buffer): Workbook {
   const entries = readCentralDirectory(buf);
-  const get = (n: string) => { const e = entries.find((x) => x.name === n); return e ? readEntryVerified(buf, e).toString("utf8") : null; };
+  // XML 1.0 §2.11: CR LF / lone CR in the raw text are normalised to LF before parsing (escaped &#13; survives).
+  const get = (n: string) => { const e = entries.find((x) => x.name === n); return e ? readEntryVerified(buf, e).toString("utf8").replace(/\r\n?/g, "\n") : null; };
   const workbookXml = get("xl/workbook.xml");
   if (!workbookXml) throw new Error("invalid .xlsx: xl/workbook.xml missing");
   const relsXml = get("xl/_rels/workbook.xml.rels") ?? "";
@@ -350,8 +376,10 @@ export function readXlsxWorkbook(buf: Buffer): Workbook {
     const path = rels.get(rid);
     if (!name || !path) continue;
     const xml = get(path);
-    if (xml) wb.sheets.set(name, readSheet(xml, name, sst, xfs));
+    if (xml) { wb.sheets.set(name, readSheet(xml, name, sst, xfs)); readTables(xml, path, name, wb, get); }
   }
+  const wbPr = /<workbookPr\b([^>]*)\/?>/.exec(workbookXml);
+  if (wbPr) { const d = xmlAttrs(wbPr[1]).date1904; wb.date1904 = d === "1" || d === "true"; }
   if (!wb.sheets.size) throw new Error("invalid .xlsx: workbook has no readable sheets");
   const order = [...workbookXml.matchAll(/<sheet\b([^>]*)\/?\s*>/g)].map((m) => xmlAttrs(m[1]).name ?? "");
   readDefinedNames(workbookXml, wb, order);

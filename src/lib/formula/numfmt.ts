@@ -40,9 +40,10 @@ function splitSections(fmt: string): string[] {
   return out;
 }
 
-type Tok = { k: "lit"; v: string } | { k: "ph"; v: string } | { k: "dot" } | { k: "comma" } | { k: "pct" } | { k: "exp"; sign: "+" | "-" } | { k: "at" } | { k: "date"; v: string } | { k: "ampm"; v: string } | { k: "elapsed"; v: string };
-function lex(sec: string): { toks: Tok[]; color?: string } {
-  const toks: Tok[] = []; let color: string | undefined; let i = 0;
+type Tok = { k: "lit"; v: string } | { k: "ph"; v: string } | { k: "dot" } | { k: "comma" } | { k: "pct" } | { k: "exp"; sign: "+" | "-"; upper: boolean } | { k: "at" } | { k: "date"; v: string } | { k: "ampm"; v: string } | { k: "elapsed"; v: string };
+interface Cond { op: string; v: number }
+function lex(sec: string): { toks: Tok[]; color?: string; cond?: Cond } {
+  const toks: Tok[] = []; let color: string | undefined; let cond: Cond | undefined; let i = 0;
   const s = sec;
   while (i < s.length) {
     const c = s[i];
@@ -54,6 +55,7 @@ function lex(sec: string): { toks: Tok[]; color?: string } {
       const j = s.indexOf("]", i); const inner = s.slice(i + 1, j < 0 ? s.length : j); i = j < 0 ? s.length : j + 1;
       if (COLORS[inner.toLowerCase()]) color = COLORS[inner.toLowerCase()];
       else if (/^(h+|m+|s+)$/i.test(inner)) toks.push({ k: "elapsed", v: inner.toLowerCase() });
+      else { const cm = /^(<=|>=|<>|<|>|=)\s*(-?\d+(?:\.\d+)?)$/.exec(inner.trim()); if (cm) cond = { op: cm[1], v: Number(cm[2]) }; }
       continue; // [$-409], [<0] etc. ignored (declared)
     }
     if (/^(AM\/PM|A\/P)/i.test(s.slice(i))) { const m = /^(AM\/PM|A\/P)/i.exec(s.slice(i))![0]; toks.push({ k: "ampm", v: m }); i += m.length; continue; }
@@ -62,11 +64,59 @@ function lex(sec: string): { toks: Tok[]; color?: string } {
     if (c === ".") { toks.push({ k: "dot" }); i++; continue; }
     if (c === ",") { toks.push({ k: "comma" }); i++; continue; }
     if (c === "%") { toks.push({ k: "pct" }); i++; continue; }
-    if ((c === "E" || c === "e") && (s[i + 1] === "+" || s[i + 1] === "-")) { toks.push({ k: "exp", sign: s[i + 1] as "+" | "-" }); i += 2; continue; }
+    if ((c === "E" || c === "e") && (s[i + 1] === "+" || s[i + 1] === "-")) { toks.push({ k: "exp", sign: s[i + 1] as "+" | "-", upper: c === "E" }); i += 2; continue; }
     if (c === "@") { toks.push({ k: "at" }); i++; continue; }
     toks.push({ k: "lit", v: c }); i++;
   }
-  return { toks, color };
+  return { toks, color, cond };
+}
+const condOk = (c: Cond, x: number) => (c.op === "<" ? x < c.v : c.op === "<=" ? x <= c.v : c.op === ">" ? x > c.v : c.op === ">=" ? x >= c.v : c.op === "=" ? x === c.v : x !== c.v);
+
+/** TT46: best rational approximation p/q of x ∈ [0,1) with q ≤ maxQ (Stern–Brocot / continued fractions). */
+function bestFraction(x: number, maxQ: number): [number, number] {
+  if (x <= 0) return [0, 1];
+  let [p0, q0, p1, q1] = [0, 1, 1, 0]; let v = x;
+  for (let k = 0; k < 64; k++) {
+    const a = Math.floor(v); const p2 = a * p1 + p0, q2 = a * q1 + q0;
+    if (q2 > maxQ) { const t = Math.floor((maxQ - q0) / q1); const pa = t * p1 + p0, qa = t * q1 + q0; return Math.abs(pa / qa - x) < Math.abs(p1 / q1 - x) ? [pa, qa] : [p1, q1]; }
+    [p0, q0, p1, q1] = [p1, q1, p2, q2];
+    if (Math.abs(v - a) < 1e-12) break; v = 1 / (v - a);
+  }
+  return [p1, q1];
+}
+/** Fraction formats: "# ?/?", "# ??/??", "?/8", "0 0/100" (numerator/denominator placeholders around a literal '/'). */
+function formatFraction(value: number, toks: Tok[], slash: number): string {
+  let ns = slash; while (ns > 0 && toks[ns - 1].k === "ph") ns--;
+  const numPh = toks.slice(ns, slash) as { k: "ph"; v: string }[];
+  let de = slash + 1; let fixedDen = "";
+  while (de < toks.length && toks[de].k === "lit" && /^\d$/.test((toks[de] as { v: string }).v)) { fixedDen += (toks[de] as { v: string }).v; de++; }
+  const denStart = slash + 1; let denEnd = denStart;
+  if (!fixedDen) while (denEnd < toks.length && toks[denEnd].k === "ph") denEnd++;
+  const denPh = toks.slice(denStart, denEnd) as { k: "ph"; v: string }[];
+  const intIdx = toks.slice(0, ns).map((t, i) => (t.k === "ph" ? i : -1)).filter((i) => i >= 0);
+  const mixed = intIdx.length > 0;
+  const x = Math.abs(value);
+  let ip = mixed ? Math.floor(x) : 0; const frac = x - ip;
+  let [num, den] = fixedDen ? [Math.round(frac * Number(fixedDen)), Number(fixedDen)] : bestFraction(frac, 10 ** Math.max(1, denPh.length) - 1);
+  if (!mixed && !fixedDen && frac >= 1) [num, den] = bestFraction(frac % 1, 10 ** Math.max(1, denPh.length) - 1), num += Math.floor(frac) * den;
+  if (num === den && mixed) { ip++; num = 0; }
+  const padL = (str: string, ph: { v: string }[]) => { const z = ph.filter((p) => p.v === "0").length; const q = ph.filter((p) => p.v === "?").length; return str.padStart(z, "0").padStart(z + q, " "); };
+  const blankFrac = num === 0 && mixed;
+  let ipStr = ip === 0 ? "" : String(ip);
+  if (mixed) { const ph = intIdx.map((i) => toks[i] as { v: string }); ipStr = padL(ipStr, ph); if (ip === 0 && (num === 0 || !ph.length) && !ipStr.trim()) ipStr = num === 0 ? "0" : ipStr; }
+  const numStr = blankFrac ? " ".repeat(Math.max(numPh.length, String(num).length)) : padL(String(num), numPh);
+  const denStr = fixedDen ? (blankFrac ? " ".repeat(fixedDen.length) : fixedDen) : blankFrac ? " ".repeat(Math.max(denPh.length, 1)) : String(den).padEnd(denPh.length, " ");
+  let out = "", done = false;
+  for (let i = 0; i < toks.length; i++) {
+    const t = toks[i];
+    if (mixed && i === intIdx[0]) { out += ipStr; continue; }
+    if (mixed && intIdx.includes(i)) continue;
+    if (i === ns && !done) { out += numStr + (blankFrac ? " " : "/") + denStr; done = true; i = fixedDen ? de - 1 : denEnd - 1; continue; }
+    if (t.k === "lit") out += mixed && blankFrac && i > intIdx[intIdx.length - 1] && i < ns ? " ".repeat(t.v.length) : t.v;
+    else if (t.k === "pct") out += "%";
+  }
+  if (!mixed && num === 0 && !fixedDen) return out.replace(numStr + "/" + denStr, "0".padStart(numStr.length, " ") + " ".repeat(1 + denStr.length));
+  return out;
 }
 
 /** Round half away from zero at `d` decimals (Excel display rounding). */
@@ -85,6 +135,8 @@ function formatNumberToks(value: number, toks: Tok[]): string {
   const firstPh = toks.findIndex((t) => t.k === "ph");
   if (firstPh < 0) return toks.map((t) => (t.k === "lit" ? t.v : t.k === "pct" ? "%" : "")).join("");
   const expIdx = toks.findIndex((t) => t.k === "exp");
+  const slash = toks.findIndex((t, i) => t.k === "lit" && t.v === "/" && toks[i - 1]?.k === "ph" && (toks[i + 1]?.k === "ph" || (toks[i + 1]?.k === "lit" && /^\d$/.test((toks[i + 1] as { v: string }).v))));
+  if (slash > 0 && expIdx < 0) return formatFraction(value, toks, slash);
   const dotIdx = toks.findIndex((t, i) => t.k === "dot" && (expIdx < 0 || i < expIdx));
   let lastPh = -1; toks.forEach((t, i) => { if (t.k === "ph" && (expIdx < 0 || i < expIdx)) lastPh = i; });
   const intEnd = dotIdx >= 0 ? dotIdx : lastPh + 1;
@@ -98,12 +150,15 @@ function formatNumberToks(value: number, toks: Tok[]): string {
   if (expIdx >= 0) {
     const expPh = toks.slice(expIdx + 1).filter((t) => t.k === "ph").length;
     const intDigits = Math.max(1, intPh.length);
-    let e = x === 0 ? 0 : Math.floor(Math.log10(x)) - (intDigits - 1);
-    let m = x / 10 ** e;
-    if (Number(roundAway(m, decPh.length)) >= 10 ** intDigits) { e++; m = x / 10 ** e; }
+    // TT46: a '#' in the integer placeholders makes it ENGINEERING notation (exponent a multiple of their count).
+    const eng = intPh.length > 1 && intPh.some((p) => p.v === "#");
+    let e: number, m: number;
+    if (eng) { e = x === 0 ? 0 : Math.floor(Math.floor(Math.log10(x)) / intDigits) * intDigits; m = x / 10 ** e; if (Number(roundAway(m, decPh.length)) >= 10 ** intDigits) { e += intDigits; m = x / 10 ** e; } }
+    else { e = x === 0 ? 0 : Math.floor(Math.log10(x)) - (intDigits - 1); m = x / 10 ** e; if (Number(roundAway(m, decPh.length)) >= 10 ** intDigits) { e++; m = x / 10 ** e; } }
     x = m;
-    const sign = e < 0 ? "-" : (toks[expIdx] as { sign: string }).sign === "+" ? "+" : "";
-    expStr = `E${sign}${String(Math.abs(e)).padStart(expPh, "0")}`;
+    const et = toks[expIdx] as { sign: string; upper: boolean };
+    const sign = e < 0 ? "-" : et.sign === "+" ? "+" : "";
+    expStr = `${et.upper ? "E" : "e"}${sign}${String(Math.abs(e)).padStart(expPh, "0")}`;
   }
   let fixed = roundAway(x, decPh.length).replace("-", "");
   let [ip, dp = ""] = fixed.split(".");
@@ -135,6 +190,8 @@ function formatNumberToks(value: number, toks: Tok[]): string {
 }
 
 function formatDate(value: number, toks: Tok[]): string {
+  const elapsed = toks.some((t) => t.k === "elapsed");
+  if (value < 0 && elapsed) return "-" + formatDate(-value, toks); // [h]:mm etc. show negative durations
   if (value < 0) return "#".repeat(8);
   const day = Math.floor(value); const frac = value - day;
   const d = serialToDate(day);
@@ -154,8 +211,8 @@ function formatDate(value: number, toks: Tok[]): string {
   for (let i = 0; i < toks.length; i++) {
     const t = toks[i];
     if (t.k === "lit") out += t.v;
-    else if (t.k === "elapsed") { const total = value * 86400; out += t.v.startsWith("h") ? Math.floor(total / 3600) : t.v.startsWith("m") ? Math.floor(total / 60) : Math.floor(total); }
-    else if (t.k === "ampm") out += t.v.length > 3 ? (H < 12 ? "AM" : "PM") : (H < 12 ? "A" : "P");
+    else if (t.k === "elapsed") { const total = Math.round(value * 86400 * (subsec ? 1000 : 1)) / (subsec ? 1000 : 1); const n = t.v.startsWith("h") ? Math.floor(total / 3600) : t.v.startsWith("m") ? Math.floor(total / 60) : Math.floor(total); out += String(n).padStart(t.v.length, "0"); }
+    else if (t.k === "ampm") out += t.v.length > 3 ? (H < 12 ? "AM" : "PM") : t.v[0] === "a" ? (H < 12 ? "a" : "p") : (H < 12 ? "A" : "P");
     else if (t.k === "dot") { out += "."; if (toks[i + 1]?.k === "ph") { let n = 0; while (toks[i + 1 + n]?.k === "ph") n++; out += (frac * 86400 % 1).toFixed(n).slice(2); i += n; } }
     else if (t.k === "date") {
       const v = t.v;
@@ -202,7 +259,14 @@ export function formatValue(v: Scalar | undefined, fmt?: string): Formatted {
   }
   if (/^general$/i.test(code) || code === "") return { text: formatGeneral(v) };
   let sec = sections[0]; let value = v; let autoMinus = v < 0;
-  if (v < 0 && sections.length >= 2 && sections[1] !== "") { sec = sections[1]; value = -v; autoMinus = false; }
+  const conds = sections.map((x) => lex(x).cond);
+  if (conds.some(Boolean)) { // TT46: [<0] / [>=100] conditional sections; the first matching wins, else the next unconditioned one
+    const i = sections.findIndex((_, k) => conds[k] && condOk(conds[k]!, v));
+    const j = i >= 0 ? i : sections.findIndex((_, k) => !conds[k] && k < 3);
+    sec = sections[j >= 0 ? j : 0];
+    autoMinus = v < 0 && !(conds[j]?.op.startsWith("<") ?? false) && j === 0;
+    value = v;
+  } else if (v < 0 && sections.length >= 2 && sections[1] !== "") { sec = sections[1]; value = -v; autoMinus = false; }
   else if (v === 0 && sections.length >= 3 && sections[2] !== "") { sec = sections[2]; autoMinus = false; }
   if (/^general$/i.test(sec.trim())) return { text: formatGeneral(v) };
   const { toks, color } = lex(sec);

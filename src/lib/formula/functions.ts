@@ -172,8 +172,8 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   // evaluated value catches nothing. Branching constructs that must not
   // evaluate (or must selectively catch) a branch need the unevaluated AST
   // node, which only the engine has.
-  AND: (a) => a.flatMap(flattenAll).map(toBool).every(Boolean),
-  OR: (a) => a.flatMap(flattenAll).map(toBool).some(Boolean),
+  AND: (a) => logicals(a).every(Boolean),
+  OR: (a) => logicals(a).some(Boolean),
   NOT: (a) => !toBool(scalar(a[0])),
   XOR: (a) => a.flatMap(flattenAll).map(toBool).filter(Boolean).length % 2 === 1,
 
@@ -199,7 +199,19 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   SEARCH: (a) => { const find = toStr(scalar(a[0])).toLowerCase(); const s = toStr(scalar(a[1])).toLowerCase(); const start = a[2] ? toNumberStrict(scalar(a[2])) : 1; const i = s.indexOf(find, start - 1); return i < 0 ? raise(err("#VALUE!")) : i + 1; },
   REPT: (a) => toStr(scalar(a[0])).repeat(Math.max(0, toNumberStrict(scalar(a[1])))),
   EXACT: (a) => toStr(scalar(a[0])) === toStr(scalar(a[1])),
-  VALUE: (a) => { const n = Number(toStr(scalar(a[0])).trim()); return Number.isNaN(n) ? raise(err("#VALUE!")) : n; },
+  // TT46: VALUE("") is #VALUE! but VALUE(blank cell) is 0; accepts 1,234.5 / $12 / 50% / (7) like Excel.
+  VALUE: (a) => {
+    const v = scalar(a[0]);
+    if (typeof v === "number") return v;
+    if (v === "" && a[0]?.kind === "matrix") return 0;
+    let t = toStr(v).trim(); let sign = 1, scale = 1;
+    if (/^\(.*\)$/.test(t)) { sign = -1; t = t.slice(1, -1).trim(); }
+    if (t.endsWith("%")) { scale = 0.01; t = t.slice(0, -1).trim(); }
+    t = t.replace(/^[-+]?\$/, (m) => m.replace("$", "")).replace(/^\$/, "");
+    if (/^[-+]?\d{1,3}(,\d{3})+(\.\d*)?$/.test(t)) t = t.replace(/,/g, "");
+    if (t === "" || !/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(t)) return raise(err("#VALUE!"));
+    return sign * scale * Number(t);
+  },
   // TT15: full Excel format-code language via numfmt.ts (sections, colours, dates, E+, scaling).
   TEXT: (a) => { const v = scalar(a[0]); const f = toStr(scalar(a[1])); return formatValue(typeof v === "string" && v.trim() !== "" && !Number.isNaN(Number(v)) ? Number(v) : v, f).text; },
 
@@ -325,11 +337,11 @@ function vlookup(a: Arg[]): Scalar {
   const table = matrixOf(a[1]);
   const col = toNumberStrict(scalar(a[2])) - 1;
   const approx = a[3] === undefined || toBool(scalar(a[3]));
+  if (col < 0) return raise(err("#VALUE!"));
   if (approx) {
-    let best: Scalar[] | null = null;
-    for (const row of table) { const v = row[0]; if (lte(v, key)) best = row; else break; }
-    if (!best) return raise(err("#N/A"));
-    return best[col] ?? raise(err("#REF!"));
+    const i = approxIndex(table.map((r) => r[0]), key);
+    if (i < 0) return raise(err("#N/A"));
+    return table[i][col] ?? raise(err("#REF!"));
   }
   const row = table.find((r) => eq(r[0], key));
   if (!row) return raise(err("#N/A"));
@@ -342,7 +354,8 @@ function hlookup(a: Arg[]): Scalar {
   const approx = a[3] === undefined || toBool(scalar(a[3]));
   const header = table[0];
   let colIdx = -1;
-  if (approx) { for (let i = 0; i < header.length; i++) if (lte(header[i], key)) colIdx = i; else break; }
+  if (rowIdx < 0) return raise(err("#VALUE!"));
+  if (approx) colIdx = approxIndex(header, key);
   else colIdx = header.findIndex((v) => eq(v, key));
   if (colIdx < 0) return raise(err("#N/A"));
   return table[rowIdx]?.[colIdx] ?? raise(err("#REF!"));
@@ -361,11 +374,56 @@ function matchFn(a: Arg[]): Scalar {
   const mode = a[2] ? toNumberStrict(scalar(a[2])) : 1;
   if (mode === 0) { const i = list.findIndex((v) => eq(v, key)); return i < 0 ? raise(err("#N/A")) : i + 1; }
   let best = -1;
-  for (let i = 0; i < list.length; i++) { if (mode > 0 ? lte(list[i], key) : lte(key, list[i])) best = i; else if (mode > 0) break; }
+  if (mode > 0) best = approxIndex(list, key);
+  else for (let i = 0; i < list.length; i++) { if (sameKind(list[i], key) && cmpKind(key, list[i]) <= 0) best = i; else if (sameKind(list[i], key)) break; }
   return best < 0 ? raise(err("#N/A")) : best + 1;
 }
-function eq(a: Scalar, b: Scalar): boolean { return typeof a === "string" && typeof b === "string" ? a === b : a === b; }
+/** TT46 Excel lookup equality: type-strict, case-insensitive text, * ? ~ wildcards when the key is text. */
+function eq(a: Scalar, b: Scalar): boolean {
+  if (typeof a === "string" && typeof b === "string") {
+    if (/[*?~]/.test(b)) return wildcardRe(b).test(a);
+    return a.toLowerCase() === b.toLowerCase();
+  }
+  return a === b;
+}
+const wildcardCache = new Map<string, RegExp>();
+function wildcardRe(pat: string): RegExp {
+  let re = wildcardCache.get(pat);
+  if (!re) {
+    let src = "";
+    for (let i = 0; i < pat.length; i++) { const ch = pat[i]; if (ch === "~" && i + 1 < pat.length) { src += pat[++i].replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); } else if (ch === "*") src += "[\\s\\S]*"; else if (ch === "?") src += "[\\s\\S]"; else src += ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+    re = new RegExp(`^${src}$`, "i"); if (wildcardCache.size > 500) wildcardCache.clear(); wildcardCache.set(pat, re);
+  }
+  return re;
+}
+const sameKind = (a: Scalar, b: Scalar) => typeof a === typeof b && !isError(a) && a !== "";
+function cmpKind(a: Scalar, b: Scalar): number {
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  if (typeof a === "boolean" && typeof b === "boolean") return Number(a) - Number(b);
+  const x = String(a).toLowerCase(), y = String(b).toLowerCase(); return x < y ? -1 : x > y ? 1 : 0;
+}
+/** Excel approximate match: binary search for the last value ≤ key, considering only values of the key's type. */
+function approxIndex(list: Scalar[], key: Scalar): number {
+  let lo = 0, hi = list.length - 1, best = -1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1; let m = mid;
+    while (m >= lo && !sameKind(list[m], key)) m--;
+    if (m < lo) { m = mid + 1; while (m <= hi && !sameKind(list[m], key)) m++; if (m > hi) break; if (cmpKind(list[m], key) <= 0) { best = m; lo = m + 1; } else break; continue; }
+    if (cmpKind(list[m], key) <= 0) { best = m; lo = mid + 1; } else hi = m - 1;
+  }
+  return best;
+}
 function lte(a: Scalar, b: Scalar): boolean {
   if (typeof a === "number" && typeof b === "number") return a <= b;
-  return toStr(a) <= toStr(b);
+  return cmpKind(a, b) <= 0;
+}
+/** AND/OR operands: range text and blanks are ignored; scalar "TRUE"/"FALSE" text converts; none at all → #VALUE!. */
+function logicals(a: Arg[]): boolean[] {
+  const out: boolean[] = [];
+  for (const x of a) {
+    if (x.kind === "scalar") { out.push(toBool(x.value)); continue; }
+    for (const v of x.value.flat()) { if (isError(v)) raise(v); if (typeof v === "number" || typeof v === "boolean") out.push(toBool(v)); }
+  }
+  if (!out.length) raise(err("#VALUE!"));
+  return out;
 }

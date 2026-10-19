@@ -1,15 +1,15 @@
 {
   "suite": "oracle",
-  "at": "2026-10-19T03:33:35.181Z",
+  "at": "2026-10-19T05:42:12.828Z",
   "results": [
     {
       "suite": "oracle",
-      "name": "oracle: 123 scalar vectors match LibreOffice 7.4.7.2",
+      "name": "oracle: 123 scalar vectors match LibreOffice 7.4.7.2 (4 documented Excel divergences asserted as Excel)",
       "covers": {
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 12
+      "ms": 14
     },
     {
       "suite": "oracle",
@@ -45,7 +45,7 @@
         "FF-27": "full"
       },
       "pass": true,
-      "ms": 11
+      "ms": 13
     }
   ]
 }

@@ -47,13 +47,28 @@ function runGrid(input: string[][]) {
 }
 
 const failures: string[] = [];
-await test(`oracle: ${fx.scalar.length} scalar vectors match LibreOffice 7.4.7.2`, { "FF-19": "full" }, () => {
+/**
+ * TT46: vectors where LibreOffice and EXCEL disagree. This engine targets Excel (.xlsx) semantics, so these assert the
+ * Excel value, with the evidence that established it. Every other LibreOffice vector remains a strict gate.
+ *  - Excel corpus: value Excel itself cached in a real file (Apache POI test-data, scripts/diag/xlsx-corpus.mts).
+ *  - formulas: independent PyPI Excel emulator (formulas 1.3.4), run 2026-10-19.
+ */
+export const EXCEL_DIVERGES_FROM_LO: Record<string, { excel: number | boolean; evidence: string }> = {
+  '="A"="a"': { excel: true, evidence: "formulas → TRUE; Excel comparison operators are case-insensitive (EXACT is the case-sensitive test). LO's 'case sensitive' option defaults ON." },
+  "=DATE(1900,1,1)": { excel: 1, evidence: "Excel corpus FormulaEvalTestData_Copy.xlsx!D320 cached 1; formulas → 1 (Lotus 1900 leap-year quirk: serial 1 = 1900-01-01)." },
+  "=DATE(1900,2,28)": { excel: 59, evidence: "follows from serial 1 = 1900-01-01 (Excel corpus D320) and serial 61 = 1900-03-01 (formulas → 61)." },
+  "=DATE(1900,2,29)": { excel: 60, evidence: "Excel corpus FormulaEvalTestData_Copy.xlsx!H320 cached 60 (the non-existent 1900-02-29)." },
+};
+await test(`oracle: ${fx.scalar.length} scalar vectors match LibreOffice 7.4.7.2 (${Object.keys(EXCEL_DIVERGES_FROM_LO).length} documented Excel divergences asserted as Excel)`, { "FF-19": "full" }, () => {
   const bad: string[] = [];
   for (const v of fx.scalar) {
     const get = runGrid([[v.formula]]);
     const got = get("A1");
+    const ex = EXCEL_DIVERGES_FROM_LO[v.formula];
+    if (ex) { if (got !== ex.excel) bad.push(`${v.formula}: got ${show(got)} want Excel ${ex.excel}`); continue; }
     if (!same(got, v)) bad.push(`${v.formula}: got ${show(got)} want ${v.type}:${v.value}`);
   }
+  if (Object.keys(EXCEL_DIVERGES_FROM_LO).some((f) => !fx.scalar.some((v) => v.formula === f))) bad.push("divergence map names a vector that is not in the frozen fixture");
   failures.push(...bad);
   if (bad.length) throw new Error(`${bad.length} mismatches:\n      ${bad.join("\n      ")}`);
 });

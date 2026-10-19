@@ -31,14 +31,16 @@
  *    wins on name collisions.
  */
 import type { ChartSpec, CondRule } from "./sheetmeta";
-import { parseFormula } from "./parser";
+import { parseFormula, MAX_ROW, MAX_COL } from "./parser";
+import { setDate1904 } from "./dates";
+import { takesArray } from "./paramkinds";
 import { validateName, type DefinedName } from "./names";
 import { colToLetters, isError, type CellAddr, type ErrorCode, type Node, type RangeAddr, type Scalar } from "./types";
 import { FUNCTIONS, toBool, toNumberStrict, toStr, type Arg } from "./functions";
 import { err } from "./types";
 import { EXT_FUNCTIONS, isGridValue, type ArgAccessor, type ExtValue, type ResultValue } from "./ext";
 
-export interface Cell { input: string; formula: Node | null; value: Scalar; error?: string; spill?: { rows: number; cols: number } | null; spillGrid?: Scalar[][] | null; style?: CellStyle }
+export interface Cell { input: string; formula: Node | null; value: Scalar; error?: string; /** TT46: legacy (pre-dynamic-array) formula read from .xlsx — implicit intersection, never spills. */ legacy?: boolean; spill?: { rows: number; cols: number } | null; spillGrid?: Scalar[][] | null; style?: CellStyle }
 /** Presentation-only attributes. Never affect values (DP-04: no silent mutation of data). */
 export type BorderLine = "thin" | "medium" | "thick" | "dashed" | "dotted" | "double" | "hair";
 export interface BorderSide { style: BorderLine; color?: string }
@@ -132,6 +134,10 @@ export class Workbook {
   condFormats: CondRule[] = [];
   /** TT19 defined names. Key: `${scope ?? ""}|${NAME_UPPER}`. */
   names = new Map<string, DefinedName>();
+  /** TT46: Excel tables (xl/tables/tableN.xml) — the targets of structured references. Key: upper-case name. */
+  tables = new Map<string, TableDef>();
+  /** TT46: 1904 date system (<workbookPr date1904="1">). */
+  date1904 = false;
   private nameAst = new Map<string, Node | null>();
   private expandCache = new WeakMap<Node, Map<string, Node>>();
   private namesVersion = 0;
@@ -158,6 +164,11 @@ export class Workbook {
   }
   /** Sheet-scoped names shadow workbook names on their own sheet (Excel precedence). */
   lookupName(name: string, sheet: string | null): DefinedName | undefined {
+    const bang = name.lastIndexOf("!");
+    if (bang > 0) { // TT46: Sheet!Name → that sheet's scoped name (else the workbook name)
+      const raw = name.slice(0, bang); const sc = raw.startsWith("'") ? raw.slice(1, -1).replace(/''/g, "'") : raw; const nm = name.slice(bang + 1);
+      return this.names.get(this.nameKey(nm, sc)) ?? this.names.get(this.nameKey(nm, null));
+    }
     return (sheet !== null ? this.names.get(this.nameKey(name, sheet)) : undefined) ?? this.names.get(this.nameKey(name, null));
   }
   listNames(): DefinedName[] { return [...this.names.values()].sort((a, b) => a.name.localeCompare(b.name) || (a.scope ?? "").localeCompare(b.scope ?? "")); }
@@ -224,6 +235,10 @@ export class Workbook {
 
   /** Full dependency-ordered recalculation with cycle detection and bounded spill fixed point. */
   recalculate(): void {
+    const prev = setDate1904(this.date1904);
+    try { this.recalculateInner(); } finally { setDate1904(prev); }
+  }
+  private recalculateInner(): void {
     let prevSig = "";
     let passes = 0;
     let stable = false;
@@ -253,6 +268,29 @@ export class Workbook {
     const raw = new Map<string, Value>();
     const prevOwner = this.spillOwner;
 
+    /** Truly empty (no input, no spilled value) — Excel's "blank", distinct from a formula that returns "". */
+    const isBlank = (sheetName: string | null, col: number, row: number, home?: string): boolean => {
+      const sn = sheetName ?? home ?? "";
+      const cell = this.sheets.get(sn)?.get(col, row);
+      if (cell && cell.input !== "") return false;
+      return !prevOwner.has(fqKey(sn, col, row));
+    };
+    const bounds = new Map<string, { r: number; c: number }>();
+    /** Whole-column/row and very large ranges are evaluated over the sheet's used area only (results identical for aggregates). */
+    const clampRange = (range: RangeAddr, home: string): RangeAddr => {
+      const area = (Math.abs(range.to.col - range.from.col) + 1) * (Math.abs(range.to.row - range.from.row) + 1);
+      if (!range.whole && area <= 200_000) return range;
+      const sn = range.from.sheet ?? home;
+      let b = bounds.get(sn);
+      if (!b) {
+        b = { r: 0, c: 0 };
+        const sh = this.sheets.get(sn);
+        if (sh) for (const [k, cell] of sh.grid) { if (cell.input === "") continue; const [c, r] = k.split(",").map(Number); if (r > b.r) b.r = r; if (c > b.c) b.c = c; if (cell.spill) { b.r = Math.max(b.r, r + cell.spill.rows - 1); b.c = Math.max(b.c, c + cell.spill.cols - 1); } }
+        bounds.set(sn, b);
+      }
+      const r1 = Math.max(range.from.row, Math.min(range.to.row, b.r)), c1 = Math.max(range.from.col, Math.min(range.to.col, b.c));
+      return { from: range.from, to: { ...range.to, row: r1, col: c1 } };
+    };
     const evalCell = (sheetName: string, col: number, row: number): Scalar => {
       const fk = fqKey(sheetName, col, row);
       const sheet = this.sheets.get(sheetName);
@@ -279,13 +317,26 @@ export class Workbook {
       color.set(fk, GRAY);
       const ctx: EvalContext = {
         resolveRef: (addr) => evalCell(addr.sheet ?? sheetName, addr.col, addr.row),
-        resolveRange: (range) => resolveRangeMatrix(range, sheetName, evalCell),
+        resolveRange: (range) => resolveRangeMatrix(clampRange(range, sheetName), sheetName, evalCell),
         cursor: { sheet: sheetName, col, row },
+        isBlank,
+        sheetsBetween: (a, b) => { const order = [...this.sheets.keys()]; const i = order.findIndex((x) => x.toUpperCase() === a.toUpperCase()), j = order.findIndex((x) => x.toUpperCase() === b.toUpperCase()); return i < 0 || j < 0 ? null : order.slice(Math.min(i, j), Math.max(i, j) + 1); },
+        table: (name) => (name ? this.tables.get(name.toUpperCase()) : [...this.tables.values()].find((t) => t.sheet === sheetName && col >= t.c0 && col <= t.c1 && row >= t.r0 && row <= t.r1)),
+        sheetExists: (n) => this.sheets.has(n),
+        expandName: (n) => (this.lookupName(n, sheetName) ? this.expandNames({ t: "name", name: n }, sheetName) : null),
+        legacy: !!cell.legacy,
+        cellInput: (s, c, r) => this.sheets.get(s ?? sheetName)?.get(c, r)?.input,
       };
       let value: Value;
-      try { value = evalRaw(this.names.size ? this.expandNames(cell.formula, sheetName) : cell.formula, ctx); }
+      try {
+        let top = this.names.size ? this.expandNames(cell.formula, sheetName) : cell.formula;
+        top = resolveRefNode(top, ctx);
+        if (ctx.legacy && top.t === "range") top = intersectNode(top, ctx);
+        // A formula whose result IS a blank cell displays 0 (=A9, =OFFSET(...), =INDEX(...)) — Excel semantics.
+        value = top.t === "ref" && isBlank(top.v.sheet, top.v.col, top.v.row, sheetName) ? 0 : evalRaw(top, ctx);
+      }
       catch (e) { value = (e as { code?: Scalar }).code ?? err("#VALUE!"); }
-      if (isGrid(value) && value.length === 1 && value[0].length === 1) value = value[0][0];
+      if (isGrid(value) && (ctx.legacy || (value.length === 1 && value[0].length === 1))) value = value[0]?.[0] ?? "";
       if (isGrid(value) && value.length * (value[0]?.length ?? 0) > SPILL_CELL_LIMIT) value = err("#NUM!");
       raw.set(fk, value);
       cell.value = isGrid(value) ? (value[0]?.[0] ?? "") : value;
@@ -338,7 +389,18 @@ function resolveRangeMatrix(range: RangeAddr, defaultSheet: string, evalCell: (s
   return rows;
 }
 
+export interface TableDef { name: string; sheet: string; c0: number; r0: number; c1: number; r1: number; headerRows: number; totalsRows: number; columns: string[] }
 export interface EvalContext {
+  /** TT46 (optional so simple contexts keep working): blank detection, 3-D sheet spans, tables. */
+  isBlank?(sheet: string | null, col: number, row: number, home?: string): boolean;
+  sheetsBetween?(a: string, b: string): string[] | null;
+  table?(name: string): TableDef | undefined;
+  sheetExists?(name: string): boolean;
+  expandName?(name: string): Node | null;
+  /** TT46: raw input of a cell (FORMULATEXT, SUBTOTAL nesting). */
+  cellInput?(sheet: string | null, col: number, row: number): string | undefined;
+  /** TT46: evaluating a legacy formula (implicit intersection). */
+  legacy?: boolean;
   resolveRef(addr: CellAddr): Scalar;
   resolveRange(range: RangeAddr): Scalar[][];
   /** The cell being evaluated (for ROW()/COLUMN() with no argument). */
@@ -361,10 +423,13 @@ export function evalRaw(node: Node, ctx: EvalContext): Value {
     case "ref": return ctx.resolveRef(node.v);
     case "range": return ctx.resolveRange(node.v);
     case "array": return node.rows.map((row) => row.map((n) => evaluate(n, ctx)));
-    case "unary": return map1(evalRaw(node.arg, ctx), (x) => { const v = toNumberStrict(x); return node.op === "-" ? -v : v; });
-    case "percent": return map1(evalRaw(node.arg, ctx), (x) => toNumberStrict(x) / 100);
-    case "binary": return map2(evalRaw(node.left, ctx), evalRaw(node.right, ctx), (l, r) => evalBinary(node.op, l, r));
-    case "call": return evalCall(node.name, node.args, ctx);
+    case "unary": return map1(evalOperand(node.arg, ctx), (x) => { const v = x === BLANK ? 0 : toNumberStrict(x); return node.op === "-" ? -v : v; });
+    case "percent": return map1(evalOperand(node.arg, ctx), (x) => (x === BLANK ? 0 : toNumberStrict(x) / 100));
+    case "binary": return map2(evalOperand(node.left, ctx), evalOperand(node.right, ctx), (l, r) => { const v = evalBinary(node.op, l, r); return typeof v === "number" && !Number.isFinite(v) ? err("#NUM!") : v; });
+    case "call": {
+      if (REF_FORMS.has(node.name)) { const r = resolveRefNode(node, ctx); if (r !== node) return evalRaw(r, ctx); if (node.name.startsWith("__")) return node.name === "__MISSING" ? 0 : err("#VALUE!"); }
+      return evalCall(node.name, node.args, ctx);
+    }
     case "name": return err("#NAME?"); // only reached when no workbook expanded it (unknown name / no context)
   }
 }
@@ -398,6 +463,11 @@ function map2(l: Value, r: Value, f: (a: Scalar, b: Scalar) => Scalar): Value {
 function evalBinary(op: string, l: Scalar, r: Scalar): Scalar {
   if (isError(l)) return l;
   if (isError(r)) return r;
+  if (l === BLANK || r === BLANK) {
+    // Excel blank: 0 in arithmetic, "" in &, and in comparisons it takes the type of the other operand.
+    const as = (other: Scalar): Scalar => (op === "&" ? "" : "+-*/^".includes(op) ? 0 : typeof other === "string" ? "" : typeof other === "boolean" ? false : 0);
+    const l2 = l === BLANK ? as(r === BLANK ? 0 : r) : l; r = r === BLANK ? as(l2) : r; l = l2;
+  }
   switch (op) {
     case "+": return toNumberStrict(l) + toNumberStrict(r);
     case "-": return toNumberStrict(l) - toNumberStrict(r);
@@ -423,7 +493,9 @@ function typeCompare(l: Scalar, r: Scalar): number {
   if (rl !== rr) return rl - rr;
   if (typeof l === "number" && typeof r === "number") return l - r;
   if (typeof l === "boolean" && typeof r === "boolean") return (l ? 1 : 0) - (r ? 1 : 0);
-  return (l as string) < (r as string) ? -1 : (l as string) > (r as string) ? 1 : 0;
+  // TT46: Excel comparison operators are case-INSENSITIVE ("A"="a" is TRUE; EXACT is the case-sensitive test).
+  const a = (l as string).toLowerCase(), b = (r as string).toLowerCase();
+  return a < b ? -1 : a > b ? 1 : 0;
 }
 
 /**
@@ -472,6 +544,26 @@ function evalLazy(name: string, argNodes: Node[], ctx: EvalContext): Value | und
 }
 
 function evalCall(name: string, argNodes: Node[], ctx: EvalContext): Value {
+  if (argNodes.some((n) => n.t === "call" && n.name === "__REF3D")) {
+    const out: Node[] = [];
+    for (const n of argNodes) { const x = expand3d(n, ctx); if (!x) return err("#REF!"); out.push(...x); }
+    argNodes = out;
+  }
+  if (argNodes.some((n) => n.t === "call" && REF_FORMS.has(n.name) && n.name !== "__MISSING")) argNodes = argNodes.map((n) => resolveRefNode(n, ctx));
+  if (ctx.legacy) argNodes = argNodes.map((n, i) => (n.t === "range" && !takesArray(name, i) ? intersectNode(n, ctx) : n));
+  if ((name === "ROWS" || name === "COLUMNS") && argNodes.length === 1 && (argNodes[0].t === "range" || argNodes[0].t === "ref")) {
+    const v = argNodes[0].t === "ref" ? { from: argNodes[0].v, to: argNodes[0].v } : argNodes[0].v;
+    return name === "ROWS" ? Math.abs(v.to.row - v.from.row) + 1 : Math.abs(v.to.col - v.from.col) + 1;
+  }
+  if (name === "SUBTOTAL" || name === "AGGREGATE") return evalSubtotal(name, argNodes, ctx);
+  if (name === "FORMULATEXT") {
+    const n = argNodes[0];
+    if (!n || (n.t !== "ref" && n.t !== "range")) return n?.t === "err" ? err(n.v) : err("#N/A");
+    const a = n.t === "ref" ? n.v : n.v.from; const input = ctx.cellInput?.(a.sheet, a.col, a.row) ?? "";
+    return input.startsWith("=") ? input : err("#N/A");
+  }
+  const lifted = liftCriteria(name, argNodes, ctx);
+  if (lifted !== undefined) return lifted;
   if (name === "ROW" || name === "COLUMN") {
     if (argNodes[0]?.t === "ref") return name === "ROW" ? argNodes[0].v.row + 1 : argNodes[0].v.col + 1;
     if (argNodes.length === 0 && ctx.cursor) return name === "ROW" ? ctx.cursor.row + 1 : ctx.cursor.col + 1;
@@ -486,17 +578,22 @@ function evalCall(name: string, argNodes: Node[], ctx: EvalContext): Value {
   const lazy = evalLazy(name, argNodes, ctx);
   if (lazy !== undefined) return lazy;
   const fn = FUNCTIONS[name];
+  // Legacy formulas: array-typed parameters are evaluated as arrays (SUMPRODUCT(--(A1:A9)) needs no CSE).
+  const actx: EvalContext = ctx.legacy ? { ...ctx, legacy: false } : ctx;
+  const ctxFor = (i: number) => (ctx.legacy && takesArray(name, i) ? actx : ctx);
   if (fn) {
-    const args: Arg[] = argNodes.map((n) => toArg(n, ctx));
-    try { return fn(args); }
+    const args: Arg[] = argNodes.map((n, i) => toArg(n, ctxFor(i)));
+    try { const r = fn(args); return typeof r === "number" && !Number.isFinite(r) ? err("#NUM!") : r; }
     catch (e) { return (e as { code?: Scalar }).code ?? err("#VALUE!"); }
   }
   const ext = (EXT_FUNCTIONS as Record<string, (a: ArgAccessor[], env: { now: () => Date; random: () => number; cursor: { row: number; col: number } }) => ResultValue>)[name];
   if (!ext) return err("#NAME?");
-  return callExt(ext, argNodes, ctx);
+  return callExt(ext, argNodes, ctx, ctxFor);
 }
 function toArg(node: Node, ctx: EvalContext): Arg {
   if (node.t === "range") return { kind: "matrix", value: ctx.resolveRange(node.v) };
+  // TT46: a direct single-cell reference behaves like a 1×1 range (SUM ignores its text, COUNTA ignores a blank).
+  if (node.t === "ref") return { kind: "matrix", value: [[ctx.resolveRef(node.v)]] };
   if (node.t === "array") return { kind: "matrix", value: node.rows.map((row) => row.map((n) => evaluate(n, ctx))) };
   const v = evalRaw(node, ctx);
   return isGrid(v) ? { kind: "matrix", value: v } : { kind: "scalar", value: v };
@@ -516,10 +613,10 @@ function fromExt(v: ExtValue): Scalar {
   if (typeof v === "string" && EXT_ERRORS.has(v)) return err((v === "#CYCLE!" ? "#CIRCULAR!" : v === "#ERROR!" ? "#VALUE!" : v) as ErrorCode);
   return v;
 }
-function callExt(fn: (a: ArgAccessor[], env: { now: () => Date; random: () => number; cursor: { row: number; col: number } }) => ResultValue, argNodes: Node[], ctx: EvalContext): Value {
-  const accessors: ArgAccessor[] = argNodes.map((n) => {
+function callExt(fn: (a: ArgAccessor[], env: { now: () => Date; random: () => number; cursor: { row: number; col: number } }) => ResultValue, argNodes: Node[], ctx: EvalContext, ctxFor: (i: number) => EvalContext = () => ctx): Value {
+  const accessors: ArgAccessor[] = argNodes.map((n, i) => {
     let cached: Value | undefined;
-    const get = () => (cached === undefined ? (cached = evalRaw(n, ctx)) : cached);
+    const get = () => (cached === undefined ? (cached = evalRaw(n, ctxFor(i))) : cached);
     const isRange = n.t === "range" || n.t === "ref";
     const grid = (): ExtValue[][] => { const v = get(); return isGrid(v) ? v.map((r) => r.map((x) => toExt(x, true))) : [[toExt(v, isRange)]]; };
     return {
@@ -540,6 +637,249 @@ function callExt(fn: (a: ArgAccessor[], env: { now: () => Date; random: () => nu
     const msg = (e as Error).message;
     return EXT_ERRORS.has(msg) ? fromExt(msg) : err("#VALUE!");
   }
+}
+
+/* ---------------------------------------------------- TT46 reference layer */
+/** Operand-only marker for an empty cell; never stored, never returned from evalBinary/map1. */
+const BLANK = Object.freeze({ blank: true }) as unknown as Scalar;
+const REF_FORMS = new Set(["OFFSET", "INDIRECT", "INDEX", "__SREF", "__REF3D", "__MISSING", "__ISECT", "__UNION"]);
+const isMissing = (n: Node | undefined) => !n || (n.t === "call" && n.name === "__MISSING");
+const errNode = (code: ErrorCode): Node => ({ t: "err", v: code });
+function asRange(n: Node): RangeAddr | null { return n.t === "range" ? n.v : n.t === "ref" ? { from: n.v, to: n.v } : null; }
+function bounds(r: RangeAddr) { return { c0: Math.min(r.from.col, r.to.col), c1: Math.max(r.from.col, r.to.col), r0: Math.min(r.from.row, r.to.row), r1: Math.max(r.from.row, r.to.row) }; }
+function mkRef(sheet: string | null, c0: number, r0: number, c1: number, r1: number): Node {
+  if (c0 < 0 || r0 < 0 || c1 > MAX_COL || r1 > MAX_ROW || c1 < c0 || r1 < r0) return errNode("#REF!");
+  const a = (col: number, row: number): CellAddr => ({ sheet, col, row, colAbs: true, rowAbs: true });
+  return c0 === c1 && r0 === r1 ? { t: "ref", v: a(c0, r0) } : { t: "range", v: { from: a(c0, r0), to: a(c1, r1) } };
+}
+/** Evaluates a numeric argument; a grid (array argument) or error aborts the reference form. */
+function intArg(n: Node | undefined, dflt: number, ctx: EvalContext): number | Node {
+  if (isMissing(n)) return dflt;
+  const v = evalRaw(resolveRefNode(n!, ctx), ctx);
+  if (isGrid(v)) return n!;
+  if (isError(v)) return errNode(v.error);
+  try { return Math.trunc(toNumberStrict(v)); } catch (e) { return errNode(((e as { code?: { error: ErrorCode } }).code?.error) ?? "#VALUE!"); }
+}
+/** OFFSET / INDIRECT / reference-form INDEX / structured / single-sheet 3-D → a concrete ref/range node (or #REF!). */
+export function resolveRefNode(node: Node, ctx: EvalContext): Node {
+  if (node.t !== "call" || !REF_FORMS.has(node.name)) return node;
+  const a = node.args;
+  switch (node.name) {
+    case "OFFSET": {
+      if (a.length < 3) return errNode("#VALUE!");
+      const baseN = resolveRefNode(a[0], ctx); const base = asRange(baseN);
+      if (!base) return baseN.t === "err" ? baseN : errNode("#VALUE!");
+      const b = bounds(base);
+      const vals: number[] = [];
+      for (const [i, d] of [[1, 0], [2, 0], [3, b.r1 - b.r0 + 1], [4, b.c1 - b.c0 + 1]] as const) { const x = intArg(a[i], d, ctx); if (typeof x !== "number") return x.t === "err" ? x : node; vals.push(x); }
+      const [dr, dc, h, w] = vals;
+      if (h === 0 || w === 0) return errNode("#REF!");
+      const r0 = b.r0 + dr + (h < 0 ? h + 1 : 0), c0 = b.c0 + dc + (w < 0 ? w + 1 : 0);
+      return mkRef(base.from.sheet, c0, r0, c0 + Math.abs(w) - 1, r0 + Math.abs(h) - 1);
+    }
+    case "INDIRECT": {
+      const tv = evalRaw(a[0], ctx);
+      if (isGrid(tv)) return node;
+      if (isError(tv)) return errNode(tv.error);
+      let a1 = true;
+      if (!isMissing(a[1])) { const f = evaluate(a[1], ctx); if (isError(f)) return errNode(f.error); a1 = toBool(f); }
+      return parseIndirect(String(tv), a1, ctx) ?? errNode("#REF!");
+    }
+    case "INDEX": {
+      if (a.length < 2) return node;
+      const baseN = resolveRefNode(a[0], ctx); const base = asRange(baseN);
+      if (!base) return node; // value form (array argument) handled by the INDEX function
+      const b = bounds(base); const rows = b.r1 - b.r0 + 1, cols = b.c1 - b.c0 + 1;
+      const rx = intArg(a[1], 0, ctx); if (typeof rx !== "number") return rx.t === "err" ? rx : node;
+      let r = rx, c: number;
+      if (a.length < 3 || isMissing(a[2])) { if (rows === 1 && a.length < 3) { c = r; r = 1; } else c = cols === 1 ? 1 : 0; }
+      else { const cx = intArg(a[2], 0, ctx); if (typeof cx !== "number") return cx.t === "err" ? cx : node; c = cx; }
+      if (r < 0 || c < 0 || r > rows || c > cols) return errNode("#REF!");
+      return mkRef(base.from.sheet, c === 0 ? b.c0 : b.c0 + c - 1, r === 0 ? b.r0 : b.r0 + r - 1, c === 0 ? b.c1 : b.c0 + c - 1, r === 0 ? b.r1 : b.r0 + r - 1);
+    }
+    case "__ISECT": {
+      const x = asRange(resolveRefNode(a[0], ctx)), y = asRange(resolveRefNode(a[1], ctx));
+      if (!x || !y) return errNode("#VALUE!");
+      const p = bounds(x), q = bounds(y);
+      const c0 = Math.max(p.c0, q.c0), c1 = Math.min(p.c1, q.c1), r0 = Math.max(p.r0, q.r0), r1 = Math.min(p.r1, q.r1);
+      if (c0 > c1 || r0 > r1 || (x.from.sheet ?? null) !== (y.from.sheet ?? null)) return errNode("#NULL!");
+      return mkRef(x.from.sheet, c0, r0, c1, r1);
+    }
+    case "__UNION": { // (A1,B2:B3) — evaluated as one row of all member values (aggregates/RANK/LARGE semantics)
+      const vals: Node[] = [];
+      for (const m of a) {
+        const r = resolveRefNode(m, ctx);
+        if (r.t === "err") return r;
+        const v = r.t === "range" ? ctx.resolveRange(r.v).flat() : r.t === "ref" ? [ctx.resolveRef(r.v)] : (() => { const z = evalRaw(r, ctx); return isGrid(z) ? z.flat() : [z]; })();
+        vals.push(...v.map(litNode));
+      }
+      return { t: "array", rows: [vals] };
+    }
+    case "__SREF": return structuredRef((a[0] as { v: string }).v, (a[1] as { v: string }).v, ctx) ?? errNode("#REF!");
+    case "__REF3D": { const x = expand3d(node, ctx); return x && x.length === 1 ? x[0] : x ? node : errNode("#REF!"); }
+    default: return node;
+  }
+}
+/** INDIRECT text → reference. A1 style (with sheet, defined names) or R1C1 (absolute R5C2 / relative R[-1]C[2]). */
+function parseIndirect(text: string, a1: boolean, ctx: EvalContext): Node | null {
+  const t = text.trim();
+  if (!t) return null;
+  const home = ctx.cursor?.sheet ?? null;
+  const own = (n: Node): Node | null => {
+    if (n.t === "ref") { const sh = n.v.sheet ?? home; return sh && ctx.sheetExists && !ctx.sheetExists(sh) ? null : { t: "ref", v: { ...n.v, sheet: sh } }; }
+    if (n.t === "range") { const sh = n.v.from.sheet ?? home; return sh && ctx.sheetExists && !ctx.sheetExists(sh) ? null : { t: "range", v: { ...n.v, from: { ...n.v.from, sheet: sh }, to: { ...n.v.to, sheet: sh } } }; }
+    return null;
+  };
+  if (a1) {
+    let n: Node;
+    try { n = parseFormula(`=${t}`); } catch { return null; }
+    if (n.t === "name") { const e = ctx.expandName?.(n.name); return e ? own(e) : null; }
+    if (n.t === "call" && n.name === "__SREF") return resolveRefNode(n, ctx);
+    return own(n);
+  }
+  const m = /^(?:('(?:[^']|'')+'|[^!]+)!)?(R(\[-?\d+\]|\d*)C(\[-?\d+\]|\d*))(?::(R(\[-?\d+\]|\d*)C(\[-?\d+\]|\d*)))?$/i.exec(t);
+  if (!m || !ctx.cursor) return null;
+  const sheet = m[1] ? (m[1].startsWith("'") ? m[1].slice(1, -1).replace(/''/g, "'") : m[1]) : home;
+  const part = (s: string, cur: number) => (s === "" ? cur : s.startsWith("[") ? cur + Number(s.slice(1, -1)) : Number(s) - 1);
+  const r0 = part(m[3], ctx.cursor.row), c0 = part(m[4], ctx.cursor.col);
+  const r1 = m[5] ? part(m[6], ctx.cursor.row) : r0, c1 = m[5] ? part(m[7], ctx.cursor.col) : c0;
+  if (sheet && ctx.sheetExists && !ctx.sheetExists(sheet)) return null;
+  const n = mkRef(sheet, Math.min(c0, c1), Math.min(r0, r1), Math.max(c0, c1), Math.max(r0, r1));
+  return n.t === "err" ? null : n;
+}
+/** Sheet1:Sheet3!A1 → one node per sheet, in workbook order. null → #REF! (unknown sheet). */
+function expand3d(n: Node, ctx: EvalContext): Node[] | null {
+  if (n.t !== "call" || n.name !== "__REF3D") return [n];
+  const [s0, s1, target] = n.args as [{ v: string }, { v: string }, Node];
+  const sheets = ctx.sheetsBetween?.(s0.v, s1.v);
+  if (!sheets) return null;
+  return sheets.map((sh): Node => target.t === "ref" ? { t: "ref", v: { ...target.v, sheet: sh } } : target.t === "range" ? { t: "range", v: { from: { ...target.v.from, sheet: sh }, to: { ...target.v.to, sheet: sh } } } : target);
+}
+/** Structured references: Table1[Col], Table1[[#Headers],[A]:[C]], Table1[#All], [@Col], Table1[@[Col Name]], Table1[]. */
+function structuredRef(tableName: string, spec: string, ctx: EvalContext): Node | null {
+  const t = ctx.table?.(tableName);
+  if (!t) return null;
+  let inner = spec.slice(1, -1).trim();
+  let thisRow = false;
+  if (inner.startsWith("@")) { thisRow = true; inner = inner.slice(1).trim(); }
+  // split on top-level commas
+  const parts: string[] = []; let depth = 0, cur = "";
+  for (let i = 0; i < inner.length; i++) {
+    const ch = inner[i];
+    if (ch === "'") { cur += ch + (inner[i + 1] ?? ""); i++; continue; }
+    if (ch === "[") depth++; else if (ch === "]") depth--;
+    if (ch === "," && depth === 0) { parts.push(cur.trim()); cur = ""; continue; }
+    cur += ch;
+  }
+  if (cur.trim()) parts.push(cur.trim());
+  // Column names are whitespace-exact inside their brackets ("Gender " ≠ "Gender").
+  const unbr = (x: string) => { const t = x.trim(); return (t.startsWith("[") && t.endsWith("]") ? t.slice(1, -1) : t).replace(/'(.)/g, "$1"); };
+  const specials = new Set<string>(); let cols: [number, number] | null = null;
+  for (const p of parts) {
+    const sp = /^\[?\s*#(All|Data|Headers|Totals|This Row)\s*\]?$/i.exec(p);
+    if (sp) { specials.add(sp[1].toLowerCase()); continue; }
+    const pt = p.trim(); const body = pt.startsWith("[") && pt.endsWith("]") ? pt.slice(1, -1) : pt;
+    const names = body.split(/\]\s*:\s*\[/).map((x) => x.replace(/'(.)/g, "$1"));
+    const idx = names.map((nm) => t.columns.findIndex((c) => c.toLowerCase() === nm.toLowerCase()));
+    if (idx.some((i) => i < 0)) return null;
+    cols = [Math.min(...idx), Math.max(...idx)];
+  }
+  if (thisRow) specials.add("this row");
+  const header = t.headerRows ? t.r0 : -1, d0 = t.r0 + t.headerRows, d1 = t.r1 - t.totalsRows, totals = t.totalsRows ? t.r1 : -1;
+  let r0 = Infinity, r1 = -Infinity;
+  const take = (a: number, b: number) => { if (a < 0 || b < a) return; r0 = Math.min(r0, a); r1 = Math.max(r1, b); };
+  if (!specials.size || specials.has("data")) take(d0, d1);
+  if (specials.has("all")) take(t.r0, t.r1);
+  if (specials.has("headers")) take(header, header);
+  if (specials.has("totals")) take(totals, totals);
+  if (specials.has("this row")) { const row = ctx.cursor?.row ?? -1; if (row < d0 || row > d1) return null; r0 = r1 = row; }
+  if (!Number.isFinite(r0)) return null;
+  const [c0, c1] = cols ? [t.c0 + cols[0], t.c0 + cols[1]] : [t.c0, t.c1];
+  return mkRef(t.sheet, c0, r0, c1, r1);
+}
+/** Operator operands: blank cells become BLANK (0 / "" / FALSE by context, Excel semantics). */
+/** Legacy implicit intersection: a range in a value position yields the cell in the formula's row/column, else #VALUE!. */
+function intersectNode(n: Node, ctx: EvalContext): Node {
+  if (n.t !== "range" || !ctx.cursor) return n;
+  const b = bounds(n.v); const sh = n.v.from.sheet; const { row, col } = ctx.cursor;
+  if (b.c0 === b.c1 && b.r0 === b.r1) return mkRef(sh, b.c0, b.r0, b.c0, b.r0);
+  if (b.c0 === b.c1) return row >= b.r0 && row <= b.r1 ? mkRef(sh, b.c0, row, b.c0, row) : errNode("#VALUE!");
+  if (b.r0 === b.r1) return col >= b.c0 && col <= b.c1 ? mkRef(sh, col, b.r0, col, b.r0) : errNode("#VALUE!");
+  return errNode("#VALUE!");
+}
+function evalOperand(node: Node, ctx: EvalContext): Value {
+  let n = node.t === "call" && REF_FORMS.has(node.name) ? resolveRefNode(node, ctx) : node;
+  if (ctx.legacy && n.t === "range") n = intersectNode(n, ctx);
+  if (!ctx.isBlank) return evalRaw(n, ctx);
+  const home = ctx.cursor?.sheet;
+  if (n.t === "ref") return ctx.isBlank(n.v.sheet, n.v.col, n.v.row, home) ? BLANK : ctx.resolveRef(n.v);
+  if (n.t === "range") {
+    const m = ctx.resolveRange(n.v); const { c0, r0 } = bounds(n.v);
+    return m.map((row, i) => row.map((x, j) => (x === "" && ctx.isBlank!(n.v.from.sheet, c0 + j, r0 + i, home) ? BLANK : x)));
+  }
+  return evalRaw(n, ctx);
+}
+/** SUBTOTAL(fn, refs…) / AGGREGATE(fn, options, refs… | array, k): nested SUBTOTAL/AGGREGATE cells are skipped. */
+const SUB_FN = ["", "AVERAGE", "COUNT", "COUNTA", "MAX", "MIN", "PRODUCT", "STDEV", "STDEVP", "SUM", "VAR", "VARP", "MEDIAN", "MODE.SNGL", "LARGE", "SMALL", "PERCENTILE.INC", "QUARTILE.INC", "PERCENTILE.EXC", "QUARTILE.EXC"];
+function evalSubtotal(name: string, argNodes: Node[], ctx: EvalContext): Value {
+  const f = evaluate(argNodes[0] ?? errNode("#VALUE!"), ctx);
+  if (isError(f)) return f;
+  let k: number, opts = 0;
+  try { k = Math.trunc(toNumberStrict(f)); } catch { return err("#VALUE!"); }
+  let refs: Node[];
+  if (name === "SUBTOTAL") { if (k > 100) k -= 100; if (k < 1 || k > 11) return err("#VALUE!"); refs = argNodes.slice(1); }
+  else {
+    const o = argNodes[1] && !isMissing(argNodes[1]) ? evaluate(argNodes[1], ctx) : 0;
+    if (isError(o)) return o;
+    try { opts = Math.trunc(toNumberStrict(o)); } catch { return err("#VALUE!"); }
+    if (k < 1 || k > 19 || opts < 0 || opts > 7) return err("#VALUE!");
+    refs = argNodes.slice(2);
+  }
+  if (!refs.length) return err("#VALUE!");
+  const ignoreNested = name === "SUBTOTAL" || opts <= 3, ignoreErr = [2, 3, 6, 7].includes(opts);
+  const nested = /\b(?:_xlfn\.)?(SUBTOTAL|AGGREGATE)\s*\(/i;
+  const data = k >= 14 ? refs.slice(0, 1) : refs;
+  const lit: Node[] = [];
+  for (const n of data) {
+    let m: Scalar[][];
+    if (n.t === "range" || n.t === "ref") {
+      const rg = asRange(n)!; const b = bounds(rg); const sheet = rg.from.sheet ?? ctx.cursor?.sheet ?? null;
+      m = (n.t === "range" ? ctx.resolveRange(n.v) : [[ctx.resolveRef(n.v)]]).map((row, i) => row.map((v, j) => (ignoreNested && nested.test(ctx.cellInput?.(sheet, b.c0 + j, b.r0 + i) ?? "") ? "" : v)));
+    } else { const v = evalRaw(n, ctx); m = isGrid(v) ? v : [[v]]; }
+    if (ignoreErr) m = m.map((row) => row.map((v) => (isError(v) ? "" : v)));
+    lit.push({ t: "array", rows: m.map((row) => row.map(litNode)) });
+  }
+  if (k >= 14) lit.push(refs[1] ?? errNode("#VALUE!"));
+  return evalCall(SUB_FN[k], lit, ctx);
+}
+/** Excel lifts the *IF(S) criteria over an array: COUNTIFS(A1:F1,{"a","b"}) → {count a, count b}. */
+const CRITERIA_POS: Record<string, (i: number) => boolean> = {
+  COUNTIF: (i) => i === 1, SUMIF: (i) => i === 1, AVERAGEIF: (i) => i === 1,
+  COUNTIFS: (i) => i % 2 === 1, SUMIFS: (i) => i >= 2 && i % 2 === 0, AVERAGEIFS: (i) => i >= 2 && i % 2 === 0, MAXIFS: (i) => i >= 2 && i % 2 === 0, MINIFS: (i) => i >= 2 && i % 2 === 0,
+};
+const litNode = (v: Scalar): Node => (isError(v) ? { t: "err", v: v.error } : typeof v === "number" ? { t: "num", v } : typeof v === "boolean" ? { t: "bool", v } : { t: "str", v: String(v) });
+function liftCriteria(name: string, argNodes: Node[], ctx: EvalContext): Value | undefined {
+  const pos = CRITERIA_POS[name];
+  if (!pos) return undefined;
+  const grids = new Map<number, Scalar[][]>();
+  argNodes.forEach((n, i) => {
+    if (!pos(i) || n.t === "str" || n.t === "num" || n.t === "bool") return;
+    const v = n.t === "range" ? ctx.resolveRange(n.v) : n.t === "ref" ? null : evalRaw(n, ctx);
+    if (v && isGrid(v) && v.length * (v[0]?.length ?? 0) > 1) grids.set(i, v);
+  });
+  if (!grids.size) return undefined;
+  const R = Math.max(...[...grids.values()].map((g) => g.length)), C = Math.max(...[...grids.values()].map((g) => g[0]?.length ?? 0));
+  const out: Scalar[][] = [];
+  for (let r = 0; r < R; r++) {
+    const row: Scalar[] = [];
+    for (let c = 0; c < C; c++) {
+      const args = argNodes.map((n, i) => { const g = grids.get(i); if (!g) return n; const v = g[g.length === 1 ? 0 : r]?.[(g[0]?.length ?? 0) === 1 ? 0 : c]; return v === undefined ? errNode("#N/A") : litNode(v); });
+      const v = evalCall(name, args, ctx);
+      row.push(isGrid(v) ? (v[0]?.[0] ?? "") : v);
+    }
+    out.push(row);
+  }
+  return out;
 }
 
 export { toBool };

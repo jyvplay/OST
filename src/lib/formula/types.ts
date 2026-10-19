@@ -23,7 +23,7 @@ export type CellValue = Scalar;
 
 /** AST ---------------------------------------------------------------- */
 export interface CellAddr { sheet: string | null; col: number; row: number; colAbs: boolean; rowAbs: boolean }
-export interface RangeAddr { from: CellAddr; to: CellAddr }
+export interface RangeAddr { from: CellAddr; to: CellAddr; /** TT46: written as A:C or 3:5 (evaluated over the used area). */ whole?: "col" | "row" }
 
 export type Node =
   | { t: "num"; v: number }
