@@ -36,11 +36,12 @@ import { tt39Features, patchTT39 } from "./seed-data/features-tt39";
 import { tt40Features, patchTT40 } from "./seed-data/features-tt40";
 import { tt41Features, patchTT41 } from "./seed-data/features-tt41";
 import { tt42Features, patchTT42 } from "./seed-data/features-tt42";
+import { tt43Features, patchTT43 } from "./seed-data/features-tt43";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.31.0";
+export const SEED_VERSION = "3.32.0";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...platformFeatures]
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
   .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))
@@ -62,7 +63,8 @@ export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, 
   .map(patchTT39)
   .map(patchTT40)
   .map(patchTT41)
-  .map(patchTT42);
+  .map(patchTT42)
+  .map(patchTT43);
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

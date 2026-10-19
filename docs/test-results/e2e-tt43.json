@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt43",
+  "at": "2026-10-19T00:46:41.307Z",
+  "results": [
+    {
+      "suite": "e2e-tt43",
+      "name": "WP-22 oracle: SharedWorker shared like Chromium's own — two tabs of one profile (Fusion split view, one proxy session) and their nested same-site frames reach ONE worker (count and connections continue across them), a tab of another session gets its own; self.name, self.location, the worker's cookie jar (cookies set by BOTH tabs of the profile, only the other tab's in the other session), a second named worker, SecurityError for another site's script, SyntaxError for a bad URL and the error event of a missing script — every value IDENTICAL natively and through the proxy",
+      "covers": {
+        "WP-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt43",
+      "name": "WP-22 hosts and lifecycle (proxied): one hidden host document per (session, site) — opaque origin, sandboxed — and when the last page of a session leaves the site its host is removed (after the grace), while the other session's worker keeps its state; coming back starts a fresh worker",
+      "covers": {
+        "WP-22": "full"
+      },
+      "pass": true,
+      "ms": 3005
+    },
+    {
+      "suite": "e2e-tt43",
+      "name": "WP-22 attacks (proxied): a page that forges a connect with a document id the server never issued, or names another site's script, gets an error and no worker; a proxied page calling the broker's server endpoints directly (__shared-who / __shared-host) cannot read them, and the server refuses such requests (403: only the Fusion window may), so it can neither learn about documents nor mint host documents",
+      "covers": {
+        "WP-22": "full"
+      },
+      "pass": true,
+      "ms": 1537
+    }
+  ]
+}

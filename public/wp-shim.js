@@ -283,28 +283,98 @@
     W.Worker = FusionWorker;
 
     // An opaque-origin page may not use SharedWorker at all (Chromium: "Access to shared workers is denied to origin
-    // 'null'"). Stand-in: one dedicated worker per (script URL, name) in this page, connected through MessageChannels,
-    // with the SharedWorker API (port, onerror, the worker's connect event).
+    // 'null'"). TT43: inside Fusion the worker is SHARED like a native one — by every document of the same site in the
+    // same proxy session (the tabs of one profile, their frames) — through a broker in the Fusion window
+    // (src/lib/wp-shared-broker.ts): this page hands one end of a MessageChannel to the window, which verifies with
+    // the server which site this document really is (its secret document id), and passes the port to a hidden host
+    // document of that site, where the one worker runs under this runtime. Outside Fusion (no broker answers), or for
+    // a data: / blob: script, it falls back to one dedicated worker per (script URL, name) in this page.
     if (typeof W.MessageChannel === "function" && typeof W.EventTarget === "function" && D) {
-      var pool = {};
+      var pool = {}, conns = {}, mine = [];
+      // broker presence: asked once; constructors made before the answer wait (their port buffers the messages)
+      var BROKER = W.top !== W && DOC ? 0 : -1, waiting = [];
+      function brokerSettled(v) { if (BROKER !== 0) return; BROKER = v; waiting.splice(0).forEach(function (f) { f(); }); }
+      if (BROKER === 0) {
+        try { W.top.postMessage({ fusionWpShared: "hello" }, "*"); } catch (e) { BROKER = -1; }
+        setTimeout(function () { brokerSettled(-1); }, 2000);
+      }
+      W.addEventListener("message", function (e) {
+        var d = e.data;
+        if (!d || typeof d.fusionWpShared !== "string" || e.source !== W.top || e.origin !== HOME.origin) return;
+        if (d.fusionWpShared === "here") brokerSettled(1);
+        else if (d.fusionWpShared === "error" && conns[d.id]) conns[d.id]();
+        // TT43: liveness — this document answers with the connections it owns (the broker drops any other of this
+        // window: they belonged to a document that has gone)
+        else if (d.fusionWpShared === "ping") try { W.top.postMessage({ fusionWpShared: "alive", nonce: String(d.nonce), ids: mine.slice() }, "*"); } catch (x) { /* gone */ }
+      });
+      // fast path only (a message posted while the document unloads is not always delivered — measured in Chromium);
+      // the broker's ping / alive liveness check is what guarantees the release
+      W.addEventListener("pagehide", function (e) {
+        if (BROKER === 1 && mine.length && !e.persisted) try { W.top.postMessage({ fusionWpShared: "bye", ids: mine.slice() }, "*"); } catch (x) { /* window gone */ }
+      });
+      /** the script URL a SharedWorker would load — the same checks and errors as natively; null = data: / blob: */
+      function sharedScript(url) {
+        var t = String(url).trim();
+        if (/^(data|blob):/i.test(t)) return null;
+        var abs;
+        try { abs = new URL(t, targetBase()); } catch (e) { throw domErr3("Failed to construct 'SharedWorker': The URL '" + String(url) + "' is invalid.", "SyntaxError"); }
+        var here = new URL(currentTarget());
+        if (abs.origin !== here.origin) throw domErr3("Failed to construct 'SharedWorker': Script at '" + abs.href + "' cannot be accessed from origin '" + here.origin + "'.", "SecurityError");
+        return abs.href;
+      }
       class FusionSharedWorker extends EventTarget {
         constructor(url, opts) {
           super();
           if (arguments.length < 1) throw new TypeError("Failed to construct 'SharedWorker': 1 argument required, but only 0 present.");
           var o = typeof opts === "string" ? { name: opts } : opts || {};
-          var key = String(url) + "\u0000" + (o.name || "") + "\u0000" + (o.type || "classic"), w = pool[key], self = this;
-          if (!w) { var b = plan(url, o, true, "SharedWorker"); w = pool[key] = new NW(b || url, { name: o.name || "", type: b ? "classic" : o.type === "module" ? "module" : "classic" }); }
+          var name = o.name === undefined ? "" : String(o.name), type = o.type === "module" ? "module" : "classic", self = this;
+          var abs = sharedScript(url);
           var mc = new MessageChannel();
           this.port = mc.port1;
           this._onerror = null;
-          w.addEventListener("error", function (e) { var ev = new Event("error"); self.dispatchEvent(ev); if (typeof self._onerror === "function") self._onerror.call(self, ev); e.preventDefault(); });
-          w.postMessage({ __fusionWpConnect: 1 }, [mc.port2]);
+          var fire = function () { var ev = new Event("error"); self.dispatchEvent(ev); if (typeof self._onerror === "function") self._onerror.call(self, ev); };
+          var local = function () {
+            var key = String(url) + "\u0000" + name + "\u0000" + type, w = pool[key];
+            if (!w) { var b = plan(url, o, true, "SharedWorker"); w = pool[key] = new NW(b || url, { name: name, type: b ? "classic" : type }); }
+            w.addEventListener("error", function (e) { fire(); e.preventDefault(); });
+            w.postMessage({ __fusionWpConnect: 1 }, [mc.port2]);
+          };
+          var viaBroker = function () {
+            var id = Math.random().toString(36).slice(2) + Date.now().toString(36);
+            conns[id] = fire; mine.push(id);
+            W.top.postMessage({ fusionWpShared: "connect", id: id, sid: SID, doc: DOC, url: abs, name: name, type: type }, "*", [mc.port2]);
+          };
+          var go = function () { if (abs && BROKER === 1) viaBroker(); else local(); };
+          if (abs && BROKER === 0) waiting.push(go); else go();
         }
         get onerror() { return this._onerror; }
         set onerror(f) { this._onerror = typeof f === "function" ? f : null; }
       }
       Object.defineProperty(FusionSharedWorker, "name", { value: "SharedWorker" });
       W.SharedWorker = FusionSharedWorker;
+    }
+    // TT43: the HOST document of shared workers (served by the server as /api/wp/s/<sid>/__shared-host for one site,
+    // framed hidden by the broker). Only the Fusion window that framed it may attach ports; each (script, name, type)
+    // runs ONE worker under this runtime, terminated when its last connection is released.
+    if (D && me.dataset.sharedHost === "1") {
+      var hosted = {};
+      W.addEventListener("message", function (e) {
+        var d = e.data;
+        if (!d || typeof d.fusionWpShared !== "string" || e.source !== W.parent || e.origin !== HOME.origin) return;
+        if (d.fusionWpShared === "attach" && e.ports && e.ports[0] && typeof d.key === "string") {
+          var h = hosted[d.key];
+          if (!h) {
+            var b = plan(String(d.url), { name: String(d.name || ""), type: d.type === "module" ? "module" : "classic" }, true, "SharedWorker");
+            if (!b) return;
+            h = hosted[d.key] = { w: new NW(b, { name: String(d.name || ""), type: "classic" }) };
+            (function (key) { h.w.addEventListener("error", function (ev) { ev.preventDefault(); W.parent.postMessage({ fusionWpShared: "error", key: key }, "*"); }); })(d.key);
+          }
+          h.w.postMessage({ __fusionWpConnect: 1 }, [e.ports[0]]);
+        } else if (d.fusionWpShared === "release" && hosted[d.key]) {
+          hosted[d.key].w.terminate(); delete hosted[d.key];
+        }
+      });
+      W.parent.postMessage({ fusionWpShared: "host-ready" }, "*");
     }
   });
   if (CFG) guard(function () {

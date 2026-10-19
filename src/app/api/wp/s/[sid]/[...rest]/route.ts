@@ -312,7 +312,39 @@ async function control(req: NextRequest, s: WpSession, rest: string): Promise<Re
     } catch (e) { return new Response(classifyError(e).message, { status: 502, headers: CORS }); }
   }
   if (rest === "__reader" && req.method === "GET") return reader(req, s);
+  if (rest === "__shared-who" && req.method === "GET") return sharedWho(req, s);
+  if (rest === "__shared-host" && req.method === "GET") return sharedHost(req, s);
   return new Response("unknown control endpoint", { status: 404, headers: CORS });
+}
+
+/** TT43 (WP-22): which site a document of this session really is — asked by the Fusion window's SharedWorker broker
+ *  (src/lib/wp-shared-broker.ts) before it lets the document join a worker. The document id is a secret the server
+ *  issued to that document alone; unknown or evicted ids get 404. Only same-origin callers (the Fusion window): a
+ *  proxied page (opaque origin, Sec-Fetch-Site cross-site / Origin null) is refused. */
+function fusionCaller(req: NextRequest): boolean {
+  const site = req.headers.get("sec-fetch-site"), origin = req.headers.get("origin");
+  if (origin === "null") return false;
+  return site === null ? true : site === "same-origin";
+}
+function sharedWho(req: NextRequest, s: WpSession): Response {
+  if (!fusionCaller(req)) return new Response("forbidden", { status: 403 });
+  const di = docInfo(s, new URL(req.url).searchParams.get("d") ?? "");
+  if (!di) return new Response(JSON.stringify({ error: "unknown document" }), { status: 404, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  return new Response(JSON.stringify({ origin: di.origin, xs: di.xs }), { status: 200, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+}
+/** TT43 (WP-22): the hidden HOST document in which a site's shared workers run — a proxied document of the site the
+ *  SERVER has on record for document d (never what a page claims), with its own document id (frame ancestry carried
+ *  over), sandboxed like every proxied page, running only the proxy runtime in host mode. */
+function sharedHost(req: NextRequest, s: WpSession): Response {
+  if (!fusionCaller(req)) return new Response("forbidden", { status: 403 });
+  const di = docInfo(s, new URL(req.url).searchParams.get("d") ?? "");
+  if (!di) return new Response("unknown document", { status: 404, headers: { "cache-control": "no-store" } });
+  const site = new URL("/", di.origin);
+  const hd = newDoc(s, di.origin, site.href, di.xs);
+  const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-shared-host="1" data-sid="${s.sid}" data-url="${encodeAttr(site.href)}" data-ua="${s.ua}" data-cookies="" data-wst="${originToken(s.sid, di.origin)}" data-doc="${hd}"></script>`;
+  return new Response(`<!doctype html><html><head><meta charset="utf-8"><title>Shared worker host</title>${inject}</head><body></body></html>`, {
+    status: 200, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "content-security-policy": documentCsp(selfOrigins(req)) },
+  });
 }
 
 /** TT36 (PR-07k): reader view of any page, fetched within this session (its cookies and identity). Links stay in the

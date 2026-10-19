@@ -19,7 +19,11 @@ export interface Specifier { start: number; end: number; value: string; kind: Sp
 export class JsLexError extends Error {}
 
 type TT = "name" | "punct" | "num" | "str" | "tmpl" | "tmplpart" | "regex" | "priv";
-interface Tok { t: TT; v: string; s: number; e: number; prop?: boolean; cooked?: string | null }
+interface Tok { t: TT; v: string; s: number; e: number; prop?: boolean; cooked?: string | null; m?: MemberCtx }
+/** TT43: what the innermost open brace is — a class body or object literal (members: `import(x) {` is a METHOD there),
+ *  a block / function body or the top level (statements: `import(x)` + newline + `{` is a CALL then a block), or a
+ *  template substitution */
+type MemberCtx = "class" | "obj" | "body" | "tmpl" | "top";
 
 const REGEX_AFTER_NAME = new Set(["return", "typeof", "instanceof", "in", "of", "new", "delete", "void", "throw", "case", "do", "else", "yield", "await", "default", "extends"]);
 const EXPR_BRACE_AFTER_NAME = new Set(["return", "typeof", "instanceof", "in", "of", "new", "delete", "void", "throw", "case", "yield", "await", "extends"]);
@@ -74,6 +78,10 @@ export function tokenize(src: string): Tok[] {
   const fnParen: number[] = [];
   let fnBodyNext = false, fnAwait = -1;
   const classBody: { p: number; b: number }[] = [];
+  // TT43: member contexts, parallel to `braces`; anyClass = every class head (declaration or expression) whose body
+  // "{" opens at this paren / brace depth
+  const mem: MemberCtx[] = [];
+  const anyClass: { p: number; b: number }[] = [];
   const n = src.length;
   if (src.startsWith("#!")) { while (i < n && !isLineTerm(src.charCodeAt(i))) i++; }
   const last = (): Tok | undefined => toks[toks.length - 1];
@@ -122,7 +130,7 @@ export function tokenize(src: string): Tok[] {
       }
       if (c === 36 && src.charCodeAt(j + 1) === 123) { // ${
         toks.push({ t: "tmplpart", v: opener ? "`${" : "}${", s: start, e: j + 2, cooked: null });
-        braces.push("tmpl"); i = j + 2; return;
+        braces.push("tmpl"); mem.push("tmpl"); i = j + 2; return;
       }
       j++;
     }
@@ -162,7 +170,7 @@ export function tokenize(src: string): Tok[] {
       i = j + 1; continue;
     }
     if (c === 96) { const s = i; i++; templateChunk(s, true); continue; }
-    if (c === 125 && braces[braces.length - 1] === "tmpl") { braces.pop(); const s = i; i++; templateChunk(s, false); lastPopped = null; continue; }
+    if (c === 125 && braces[braces.length - 1] === "tmpl") { braces.pop(); mem.pop(); const s = i; i++; templateChunk(s, false); lastPopped = null; continue; }
     if ((c >= 48 && c <= 57) || (c === 46 && src.charCodeAt(i + 1) >= 48 && src.charCodeAt(i + 1) <= 57)) {
       let j = i + 1;
       const hex = c === 48 && /[xX]/.test(src[i + 1] ?? "");
@@ -188,12 +196,15 @@ export function tokenize(src: string): Tok[] {
         if (word === "function") fnAwait = parens.length; // its parameter "(" opens at this depth (after an optional * and name)
         else classBody.push({ p: parens.length, b: braces.length });
       }
+      if (!prop && word === "class") anyClass.push({ p: parens.length, b: braces.length });
       fnBodyNext = false;
-      toks.push({ t: "name", v: word, s: i, e: j, prop });
+      toks.push(word === "import" && !prop ? { t: "name", v: word, s: i, e: j, prop, m: mem[mem.length - 1] ?? "top" } : { t: "name", v: word, s: i, e: j, prop });
       i = j; continue;
     }
     // punctuator
     let v = src[i];
+    // "class" followed by punctuation other than "{" is a property name (`{ class: 1 }`, `class() {}`), not a class head
+    { const p0 = last(); if (p0 && p0.t === "name" && !p0.prop && p0.v === "class" && v !== "{") anyClass.pop(); }
     for (const q of PUNCTS) if (src.startsWith(q, i)) { if (q === "?." && /[0-9]/.test(src[i + 2] ?? "")) continue; v = q; break; }
     if (v === "(") {
       const p = last(); parens.push(!!p && p.t === "name" && !p.prop && PAREN_KW.has(p.v));
@@ -205,12 +216,19 @@ export function tokenize(src: string): Tok[] {
       if (fnParen.length && fnParen[fnParen.length - 1] === parens.length) { fnParen.pop(); fnBodyNext = true; toks.push({ t: "punct", v, s: i, e: i + 1 }); i += 1; continue; }
     }
     else if (v === "{") {
-      const p = last(), cb = classBody[classBody.length - 1];
+      const p = last(), cb = classBody[classBody.length - 1], ac = anyClass[anyClass.length - 1];
+      if (ac && ac.p === parens.length && ac.b === braces.length) { anyClass.pop(); mem.push("class"); }
+      else if (fnBodyNext && p && p.v === ")") mem.push("body");
+      else mem.push(braceKind() === "expr" || (!!p && p.t === "name" && !p.prop && p.v === "default") ? "obj" : "body");
       if (fnBodyNext && p && p.v === ")") braces.push("expr");
       else if (cb && cb.p === parens.length && cb.b === braces.length) { classBody.pop(); braces.push("expr"); }
       else braces.push(braceKind());
     }
-    else if (v === "}") { const b = braces.pop(); if (!b) throw new JsLexError(`unbalanced } at ${i}`); lastPopped = b === "block" ? "block" : "expr"; }
+    else if (v === "}") {
+      const b = braces.pop(); if (!b) throw new JsLexError(`unbalanced } at ${i}`); lastPopped = b === "block" ? "block" : "expr";
+      mem.pop();
+      while (anyClass.length && anyClass[anyClass.length - 1].b > braces.length) anyClass.pop(); // stale heads
+    }
     fnBodyNext = false;
     toks.push({ t: "punct", v, s: i, e: i + v.length }); i += v.length;
   }
@@ -230,7 +248,7 @@ export function findModuleRefs(src: string): { specs: Specifier[]; metaUrls: { s
    * top-level "," or ")". null when it is not a call: `import(a, b) {` is a METHOD named import (object / class
    * member; a call cannot be followed by "{"), and `import()` has no argument.
    */
-  const firstArg = (j: number): { start: number; end: number } | null => {
+  const firstArg = (j: number, kw: Tok): { start: number; end: number } | null => {
     let depth = 0, k = j;
     for (; k < toks.length; k++) {
       const t = toks[k];
@@ -246,7 +264,9 @@ export function findModuleRefs(src: string): { specs: Specifier[]; metaUrls: { s
     if (toks[m].v === ",") { depth = 0; for (m++; m < toks.length; m++) { const t = toks[m]; if (t.t === "punct" && (t.v === "(" || t.v === "[" || t.v === "{")) depth++; else if (t.t === "tmplpart" && t.v === "`${") depth++; else if (t.t === "tmpl" && t.v === "}`") depth--; else if (t.t === "punct" && (t.v === ")" || t.v === "]" || t.v === "}")) { if (depth === 0) break; depth--; } } }
     if (m >= toks.length) return null;
     const after = toks[m + 1];
-    if (after && after.t === "punct" && after.v === "{") return null;
+    // TT43: "{" after the call — a METHOD named import inside a class body / object literal, but in a block, a function
+    // body or at the top level only a statement can stand there: the call, then (ASI) a block
+    if (after && after.t === "punct" && after.v === "{" && kw.m !== "body" && kw.m !== "top") return null;
     return { start: toks[j].s, end: toks[k - 1].e };
   };
   const lit = (k: Tok | undefined) => !!k && (k.t === "str" || k.t === "tmpl") && typeof k.cooked === "string";
@@ -275,7 +295,7 @@ export function findModuleRefs(src: string): { specs: Specifier[]; metaUrls: { s
           // `import(` after a class / object member position would be a METHOD named import, not a call:
           // `import("x") {` cannot be a method (its parameters must be bindings), so a string argument is a call
           add(a, "dynamic");
-        } else { const r = firstArg(i + 2); if (r) computed.push(r); }
+        } else { const r = firstArg(i + 2, k); if (r) computed.push(r); }
       } else if (nx.t === "punct" && nx.v === ".") {
         const ph = toks[i + 2], op = toks[i + 3], a = toks[i + 4], b = toks[i + 5];
         // import.meta.url (read, never assigned: `import.meta.url = …` is not touched)
@@ -284,7 +304,7 @@ export function findModuleRefs(src: string): { specs: Specifier[]; metaUrls: { s
         if (ph?.t === "name" && ph.v === "meta" && op?.t === "punct" && op.v === "." && a?.t === "name" && a.v === "resolve" && !(b?.t === "punct" && /^(=|\+\+|--|[-+*/%&|^]=|\*\*=|<<=|>>>?=|&&=|\|\|=|\?\?=)$/.test(b.v))) { metaResolves.push({ start: k.s, end: a.e }); continue; }
         if (ph?.t === "name" && (ph.v === "source" || ph.v === "defer") && op?.v === "(") {
           if (lit(a) && b && (b.v === ")" || b.v === ",")) add(a, "dynamic");
-          else { const r = firstArg(i + 4); if (r) computed.push(r); }
+          else { const r = firstArg(i + 4, k); if (r) computed.push(r); }
         }
       } else if (nx.t === "str") {
         add(nx, "static"); // `import "x"` — only valid as a statement

@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-18T23:45:29.364Z",
+ "generatedAt": "2026-10-19T00:46:52.563Z",
  "totals": {
   "built": {
-   "full": 284,
+   "full": 285,
    "partial": 62,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 166,
+   "full": 167,
    "partial": 80,
    "untested": 121
   },
   "tests": {
-   "total": 708,
-   "passed": 708
+   "total": 718,
+   "passed": 718
   }
  },
  "rows": {
@@ -2256,7 +2256,8 @@
     "tt42-unit: WP-20 wrapper value semantics: for 20 run-time specifier values (root-relative, ./, ../, a colon in the first path segment, absolute http(s), protocol-relative, URL objects, an object with toString, credentials in the URL, bare names, data:, blob:, already-proxied, a non-http scheme, an unparseable string) the inline wrapper yields EXACTLY what the static rewriter yields for the same literal (or the string itself where the static rewriter leaves it); a throwing toString / a Symbol is passed through untouched so import() rejects natively",
     "tt42-unit: WP-20 lexer: the first argument of every computed dynamic import is found with exactly acorn's source range — 19 shapes incl. nested templates, commas inside calls / arrays / objects, comments, a trailing comma, nested imports (literal inside computed, computed inside computed), import.source / import.defer — and literal imports, object / class METHODS named import and member calls are never wrapped",
     "tt42-unit: WP-20 executed by V8: a rewritten script's import() calls receive the proxied address of every computed root-relative / relative / absolute / colon-segment / URL-object specifier, bare names unchanged, a literal import proxied statically, options still passed — and the original script, run the same way, receives the raw values (the difference is ONLY the proxying)",
-    "tt42-unit: WP-20 fail-safe and scope: a file the lexer cannot read is returned byte-identical (nothing wrapped); an `import(x)` followed by \"{\" on the next line (call + block via ASI) is conservatively NOT wrapped — the same shape a method has — so it behaves exactly as before (root import map path), never broken"
+    "tt42-unit: WP-20 fail-safe and scope: a file the lexer cannot read is returned byte-identical (nothing wrapped); an `import(x)` followed by \"{\" on the next line is a call + block (ASI) at statement level and is wrapped (TT43; was TT42's documented miss), while the same shape inside an object literal / class body is a METHOD and stays untouched",
+    "tt43-unit: Modules (TT42 blocker `import(x)` + newline + `{` not wrapped): a computed import followed on the next line by \"{\" is a CALL then a block wherever only statements can stand (top level, blocks, function / method / arrow bodies, class static blocks, switch bodies), and a METHOD named import inside a class body (declaration or expression, with heritage) or an object literal (incl. `export default {`); acorn (MIT, test-only) is the oracle for every case — the exact computed ranges must match, and the rewritten source must still parse with the same number of import expressions"
    ]
   },
   "WP-21": {
@@ -2264,6 +2265,20 @@
    "tests": [
     "e2e-tt42: WP-21 browsers WITHOUT Fetch Metadata (TT41 blocker; emulated at the HTTP layer: real Chromium behind a front that removes every Sec-Fetch-* header, as Safari < 16.4 sends none): the destination is inferred from the URL tag + Accept — module scripts and module workers are still rewritten (all computed / static imports identical to native), a page fetch() of a module still gets its bytes UNCHANGED (the shim's \"e\" flag = destination empty), and a page fetch() of a document gets NO navigation secret (before TT42 every untagged request without Fetch Metadata counted as a navigation)",
     "tt42-unit: WP-21 destination inference without Fetch Metadata: Safari's real Accept values (document / image / stylesheet / */*) and the URL tag decide — untagged document → navigate, untagged image / css → no-cors image / style, a markup-subresource tag → its Accept or script, a script tag → script (CORS) or, with the shim's \"e\" flag, empty (fetch / XHR), a frame tag → iframe; ANY Fetch Metadata header present → null (the browser's own values win); \"e\" round-trips in canonical order after \"n\", is rejected out of order, and survives a redirect hop"
+   ]
+  },
+  "WP-22": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt43: WP-22 oracle: SharedWorker shared like Chromium's own — two tabs of one profile (Fusion split view, one proxy session) and their nested same-site frames reach ONE worker (count and connections continue across them), a tab of another session gets its own; self.name, self.location, the worker's cookie jar (cookies set by BOTH tabs of the profile, only the other tab's in the other session), a second named worker, SecurityError for another site's script, SyntaxError for a bad URL and the error event of a missing script — every value IDENTICAL natively and through the proxy",
+    "e2e-tt43: WP-22 hosts and lifecycle (proxied): one hidden host document per (session, site) — opaque origin, sandboxed — and when the last page of a session leaves the site its host is removed (after the grace), while the other session's worker keeps its state; coming back starts a fresh worker",
+    "e2e-tt43: WP-22 attacks (proxied): a page that forges a connect with a document id the server never issued, or names another site's script, gets an error and no worker; a proxied page calling the broker's server endpoints directly (__shared-who / __shared-host) cannot read them, and the server refuses such requests (403: only the Fusion window may), so it can neither learn about documents nor mint host documents",
+    "tt43-unit: WP-22 sharing scope: two documents of one site in ONE session (two tabs of a profile) get ONE host and ONE worker key, and both pages' ports arrive there entangled (a message posted by each page is received at the host end); another session, another site, another name or a module type get their own; a hello is answered; the host gets nothing before it is ready, then everything in order",
+    "tt43-unit: WP-22 forged and malformed requests: a sender that is not an opaque-origin document is ignored; an unknown (session, document) — a forged or evicted id — is refused with an error and its port closed; a script on ANOTHER site than the server's record of the document is refused (a page cannot join another site's worker by claiming it); bad id / type / missing port refused; nothing is framed for any of them",
+    "tt43-unit: WP-22 partitioning: documents whose frame ancestors are cross-site (third-party contexts) never share with first-party documents of the same site, nor with each other (stricter than Chromium's per-top-site partition — disclosed); the server is asked once per document, not per connection",
+    "tt43-unit: WP-22 lifetime (HTML 'permissible worker'): the worker lives while any document is connected; the last pagehide starts a grace period after which the host is told to terminate it and an empty host is removed; a reconnect within the grace keeps the SAME worker (no release); a window that is gone (closed) is swept; a bye from a different window cannot disconnect someone else; a bye that overtakes its own connect (pagehide during the server check) cancels it",
+    "tt43-unit: WP-22 errors: a worker error reported by a host reaches exactly the documents connected to THAT worker (by their own connection ids), not other workers' documents; a message from an unknown host key is ignored",
+    "tt43-unit: WP-22 liveness by acknowledgement (the TT43 repair: a pagehide message is not always delivered): the broker pings each connected window; the document now in it answers with the ids it owns — a navigated window's NEW document (answering without the old ids) releases them at once; a busy page that misses one ping keeps its worker; a window that never answers is dropped after exactly 3 missed pings; an answer with a wrong nonce or from another window changes nothing"
    ]
   },
   "CT-01": {

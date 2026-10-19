@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-18T23:45:29.362Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-78 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-19T00:46:52.561Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+80 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **367** |
-| Fully built | 284 |
+| **Features in register** | **368** |
+| Fully built | 285 |
 | Partially built (partial 46 + probe 16) | 62 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **166** |
+| **Fully tested** (≥1 passing test tagged `full`) | **167** |
 | **Partially tested** (only `partial` tags) | **80** |
 | Untested | 121 |
-| Automated tests executed / passed | 708 / 708 |
+| Automated tests executed / passed | 718 / 718 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 155 | 62 | 67 |
+| fully built | 156 | 62 | 67 |
 | partially built | 5 | 16 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
@@ -33,84 +33,86 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-18T23:18:40.850Z |
-| ai-format | 5 | 5 | 0 | 2026-10-18T23:18:42.351Z |
-| browser-session | 5 | 5 | 0 | 2026-10-18T23:18:31.968Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-18T23:18:43.436Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-18T23:27:01.558Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-18T23:27:52.063Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-18T23:43:08.114Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-18T23:22:42.976Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-18T23:28:12.728Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-18T23:21:40.044Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-18T23:29:10.995Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-18T23:31:10.144Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-18T23:20:54.773Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-18T23:23:07.365Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-18T23:23:33.376Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-18T23:27:20.560Z |
-| e2e-tabletop | 14 | 14 | 0 | 2026-10-18T23:30:30.696Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-18T23:31:44.817Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-18T23:32:03.557Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-18T23:33:55.913Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-18T23:35:05.324Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-18T23:37:29.760Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-18T23:37:41.996Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-18T23:38:42.403Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-18T23:39:15.110Z |
-| e2e-tt36 | 3 | 3 | 0 | 2026-10-18T23:39:29.050Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-18T23:39:55.106Z |
-| e2e-tt38 | 7 | 7 | 0 | 2026-10-18T23:43:15.661Z |
-| e2e-tt39 | 7 | 7 | 0 | 2026-10-18T23:43:34.635Z |
-| e2e-tt40 | 3 | 3 | 0 | 2026-10-18T23:43:47.136Z |
-| e2e-tt41 | 4 | 4 | 0 | 2026-10-18T23:43:50.908Z |
-| e2e-tt42 | 3 | 3 | 0 | 2026-10-18T23:44:01.800Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-18T23:22:02.482Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-18T23:27:40.603Z |
-| e2e | 61 | 61 | 0 | 2026-10-18T23:20:29.338Z |
-| image | 12 | 12 | 0 | 2026-10-18T23:18:27.408Z |
-| integration | 25 | 25 | 0 | 2026-10-18T23:18:21.563Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-18T23:18:44.089Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-18T23:18:49.749Z |
-| metaclean | 6 | 6 | 0 | 2026-10-18T23:18:37.924Z |
-| names | 7 | 7 | 0 | 2026-10-18T23:18:27.076Z |
-| office | 35 | 35 | 0 | 2026-10-18T23:18:21.946Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-18T23:18:43.154Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-18T23:18:30.122Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-18T23:18:31.827Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-18T23:18:43.855Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-18T23:18:23.848Z |
-| oracle | 5 | 5 | 0 | 2026-10-18T23:18:22.332Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-18T23:18:40.604Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-18T23:18:35.400Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-18T23:18:36.730Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-18T23:18:24.195Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-18T23:18:44.568Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-18T23:18:41.044Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-18T23:18:44.374Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-18T23:18:49.983Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-18T23:18:50.726Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-18T23:32:03.733Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-18T23:33:56.172Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-18T23:35:18.700Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-18T23:37:29.965Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-18T23:37:45.686Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-18T23:45:21.616Z |
-| tt36-unit | 5 | 5 | 0 | 2026-10-18T23:39:18.383Z |
-| tt37-unit | 9 | 9 | 0 | 2026-10-18T23:39:33.383Z |
-| tt38-unit | 15 | 15 | 0 | 2026-10-18T23:43:12.570Z |
-| tt39-pac | 8 | 8 | 0 | 2026-10-18T23:43:31.600Z |
-| tt39-unit | 13 | 13 | 0 | 2026-10-18T23:43:17.064Z |
-| tt40-proxy | 4 | 4 | 0 | 2026-10-18T23:43:44.334Z |
-| tt40-unit | 17 | 17 | 0 | 2026-10-18T23:43:36.476Z |
-| tt41-unit | 9 | 9 | 0 | 2026-10-18T23:43:47.440Z |
-| tt42-dhcp | 2 | 2 | 0 | 2026-10-18T23:43:59.076Z |
-| tt42-proxy | 2 | 2 | 0 | 2026-10-18T23:43:53.603Z |
-| tt42-unit | 6 | 6 | 0 | 2026-10-18T23:43:51.252Z |
-| unit | 23 | 23 | 0 | 2026-10-18T23:18:18.438Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-18T23:18:31.248Z |
-| vector | 18 | 18 | 0 | 2026-10-18T23:18:30.378Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-18T23:18:41.216Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-19T00:20:59.588Z |
+| ai-format | 5 | 5 | 0 | 2026-10-19T00:21:01.023Z |
+| browser-session | 5 | 5 | 0 | 2026-10-19T00:20:50.439Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-19T00:21:02.191Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-19T00:29:20.550Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-19T00:30:09.342Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-19T00:45:37.760Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-19T00:24:59.638Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-19T00:30:29.118Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-19T00:23:55.162Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-19T00:31:29.395Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-19T00:33:33.941Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-19T00:23:09.450Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-19T00:25:23.865Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-19T00:25:48.761Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-19T00:29:39.357Z |
+| e2e-tabletop | 14 | 14 | 0 | 2026-10-19T00:32:53.865Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-19T00:34:08.838Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-19T00:34:29.657Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-19T00:36:21.919Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-19T00:37:30.569Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-19T00:40:02.237Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-19T00:40:14.418Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-19T00:41:14.577Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-19T00:41:48.243Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-19T00:42:03.237Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-19T00:42:27.423Z |
+| e2e-tt38 | 7 | 7 | 0 | 2026-10-19T00:45:45.262Z |
+| e2e-tt39 | 7 | 7 | 0 | 2026-10-19T00:46:04.882Z |
+| e2e-tt40 | 3 | 3 | 0 | 2026-10-19T00:46:17.193Z |
+| e2e-tt41 | 4 | 4 | 0 | 2026-10-19T00:46:20.901Z |
+| e2e-tt42 | 3 | 3 | 0 | 2026-10-19T00:46:31.565Z |
+| e2e-tt43 | 3 | 3 | 0 | 2026-10-19T00:46:41.307Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-19T00:24:18.750Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-19T00:29:58.150Z |
+| e2e | 61 | 61 | 0 | 2026-10-19T00:22:44.826Z |
+| image | 12 | 12 | 0 | 2026-10-19T00:20:45.864Z |
+| integration | 25 | 25 | 0 | 2026-10-19T00:20:40.112Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-19T00:21:02.860Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-19T00:21:08.472Z |
+| metaclean | 6 | 6 | 0 | 2026-10-19T00:20:56.647Z |
+| names | 7 | 7 | 0 | 2026-10-19T00:20:45.524Z |
+| office | 35 | 35 | 0 | 2026-10-19T00:20:40.480Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-19T00:21:01.917Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-19T00:20:48.558Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-19T00:20:50.281Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-19T00:21:02.631Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-19T00:20:42.279Z |
+| oracle | 5 | 5 | 0 | 2026-10-19T00:20:40.860Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-19T00:20:59.343Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-19T00:20:54.019Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-19T00:20:55.450Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-19T00:20:42.607Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-19T00:21:03.363Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-19T00:20:59.775Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-19T00:21:03.165Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-19T00:21:08.696Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-19T00:21:09.419Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-19T00:34:29.860Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-19T00:36:22.196Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-19T00:37:45.231Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-19T00:40:02.446Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-19T00:40:18.519Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-19T00:41:23.927Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-19T00:41:51.493Z |
+| tt37-unit | 9 | 9 | 0 | 2026-10-19T00:42:07.693Z |
+| tt38-unit | 15 | 15 | 0 | 2026-10-19T00:45:42.073Z |
+| tt39-pac | 8 | 8 | 0 | 2026-10-19T00:46:01.226Z |
+| tt39-unit | 13 | 13 | 0 | 2026-10-19T00:45:46.738Z |
+| tt40-proxy | 4 | 4 | 0 | 2026-10-19T00:46:14.059Z |
+| tt40-unit | 17 | 17 | 0 | 2026-10-19T00:46:06.656Z |
+| tt41-unit | 9 | 9 | 0 | 2026-10-19T00:46:17.519Z |
+| tt42-dhcp | 2 | 2 | 0 | 2026-10-19T00:46:29.165Z |
+| tt42-proxy | 2 | 2 | 0 | 2026-10-19T00:46:23.646Z |
+| tt42-unit | 6 | 6 | 0 | 2026-10-19T00:46:21.257Z |
+| tt43-unit | 7 | 7 | 0 | 2026-10-19T00:46:31.866Z |
+| unit | 23 | 23 | 0 | 2026-10-19T00:20:37.123Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-19T00:20:49.697Z |
+| vector | 18 | 18 | 0 | 2026-10-19T00:20:48.801Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-19T00:20:59.951Z |
 
 ## Rows touched by failing tests
 
@@ -129,7 +131,7 @@ None.
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 3 | 2 | 1 | 3 | 1 | 2 |
-| PR | 53 | 44 | 9 | 0 | 36 | 10 | 7 |
+| PR | 54 | 45 | 9 | 0 | 37 | 10 | 7 |
 | FF | 34 | 25 | 9 | 0 | 25 | 5 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
@@ -430,8 +432,9 @@ None.
 | WP-17 | built | full | e2e-tt41: WP-17 oracle: an ES-module page — root-relative, parent-relative, absolute cross-origin imports; an import map with a bare prefix AND a URL-like key; export-from; dynamic import() of a literal AND of a root-relative path computed at run time; import.meta.url and import.meta.resolve; a module worker created with new Worker(new URL("./w.js", import.meta.url)) that itself imports root-relative and reports self.location / self.origin; an inline module — yields IDENTICAL values natively and through the proxy; e2e-tt41: WP-17/18/19 adversary: page fetch() of a module gets its bytes UNCHANGED (only script / worker destinations are rewritten); a module the lexer cannot tokenise (an unterminated template) is served unchanged and labelled; an "f" (frame) tag on an image is not honoured as a frame (no frame-tree cookies, the script rules apply: none cross-site); chain flags only ever REMOVE — a tag without them is what the shim emits, so a page cannot claim more; tt41-unit: WP-17 lexer oracle: 28 edge cases module lexers are known to get wrong (strings / comments / templates / regexes containing import, member and method named import, regex after while / export default / of / return / typeof / a newline, division vs regex, hashbang, import attributes, \u escapes, export * as, string-named imports, dynamic import with options and plain templates) — the specifier ranges are IDENTICAL to acorn's (+5) |
 | WP-18 | built | full | e2e-tt41: WP-18 oracle: Response.url / redirected / type after redirects, XHR responseURL, Request.url (fragment kept), redirect TAINT (A→B→C: C sees Origin "null" and must allow "null"; A→B→A: no same-origin cookies, needs CORS), mode "same-origin" leaving the origin fails, the full page URL as same-origin Referer, a classic worker's importScripts + Response.url, and a data: worker's opaque origin — the page's view AND what A / B / C saw are IDENTICAL natively and through the proxy; tt41-unit: WP-18 segments: every legal flag combination round-trips through parseSidSegment / flagString / decodeTarget in canonical order; out-of-order, repeated or unknown flags, a flag on "r" / "f", and a short document id are all rejected; tt41-unit: WP-18 redirect chains (Fetch §4.4 / §4.1): A→B→C taints the origin (Origin "null") and marks the chain cross-origin and cross-site; A→B→A taints too and keeps the request non-same-origin (no same-origin cookies, origin-only Referer, Sec-Fetch-Site cross-site); A→A stays clean; flags are sticky (never cleared by a later hop); mode same-origin refuses the cross-origin hop |
 | WP-19 | built | full | e2e-tt41: WP-19 oracle: a CROSS-SITE iframe (B in A) — its navigation, its own image and its same-origin fetch get only SameSite=None cookies, and its Set-Cookie may store only SameSite=None; a SAME-SITE iframe (A′ in A) keeps every cookie and may store Lax — identical natively and through the proxy, including Sec-Fetch-Site and Referer; e2e-tt41: WP-17/18/19 adversary: page fetch() of a module gets its bytes UNCHANGED (only script / worker destinations are rewritten); a module the lexer cannot tokenise (an unterminated template) is served unchanged and labelled; an "f" (frame) tag on an image is not honoured as a frame (no frame-tree cookies, the script rules apply: none cross-site); chain flags only ever REMOVE — a tag without them is what the shim emits, so a page cannot claim more; e2e-tt42: WP-19 srcdoc frames (TT41 blocker): a STATIC srcdoc (server-rewritten: its image, its script's fetch, its inline MODULE's root-relative import, and a NESTED srcdoc's image) and DYNAMIC srcdoc set by script through the property and through setAttribute (shim-rewritten in an inert DOMParser document, runtime injected) — every resource reaches the site and every value the frames report to their parent is IDENTICAL natively and through the proxy (+2) |
-| WP-20 | built | full | e2e-tt42: WP-20 oracle: computed dynamic import() — root-relative in the document AND in a module worker (where no import map applies), a colon in the first path segment (document and worker), an absolute CROSS-ORIGIN URL object (document and worker; CSP refuses the raw URL), new URL("./x", import.meta.url), a template, a relative computed path in the worker, a bare name routed by the page's map, a missing module (same rejection), a classic inline script's computed import, and an eval'd import() routed only by an import-map SCOPE — every value IDENTICAL natively and through the proxy; tt42-unit: WP-20 wrapper value semantics: for 20 run-time specifier values (root-relative, ./, ../, a colon in the first path segment, absolute http(s), protocol-relative, URL objects, an object with toString, credentials in the URL, bare names, data:, blob:, already-proxied, a non-http scheme, an unparseable string) the inline wrapper yields EXACTLY what the static rewriter yields for the same literal (or the string itself where the static rewriter leaves it); a throwing toString / a Symbol is passed through untouched so import() rejects natively; tt42-unit: WP-20 lexer: the first argument of every computed dynamic import is found with exactly acorn's source range — 19 shapes incl. nested templates, commas inside calls / arrays / objects, comments, a trailing comma, nested imports (literal inside computed, computed inside computed), import.source / import.defer — and literal imports, object / class METHODS named import and member calls are never wrapped (+2) |
+| WP-20 | built | full | e2e-tt42: WP-20 oracle: computed dynamic import() — root-relative in the document AND in a module worker (where no import map applies), a colon in the first path segment (document and worker), an absolute CROSS-ORIGIN URL object (document and worker; CSP refuses the raw URL), new URL("./x", import.meta.url), a template, a relative computed path in the worker, a bare name routed by the page's map, a missing module (same rejection), a classic inline script's computed import, and an eval'd import() routed only by an import-map SCOPE — every value IDENTICAL natively and through the proxy; tt42-unit: WP-20 wrapper value semantics: for 20 run-time specifier values (root-relative, ./, ../, a colon in the first path segment, absolute http(s), protocol-relative, URL objects, an object with toString, credentials in the URL, bare names, data:, blob:, already-proxied, a non-http scheme, an unparseable string) the inline wrapper yields EXACTLY what the static rewriter yields for the same literal (or the string itself where the static rewriter leaves it); a throwing toString / a Symbol is passed through untouched so import() rejects natively; tt42-unit: WP-20 lexer: the first argument of every computed dynamic import is found with exactly acorn's source range — 19 shapes incl. nested templates, commas inside calls / arrays / objects, comments, a trailing comma, nested imports (literal inside computed, computed inside computed), import.source / import.defer — and literal imports, object / class METHODS named import and member calls are never wrapped (+3) |
 | WP-21 | built | full | e2e-tt42: WP-21 browsers WITHOUT Fetch Metadata (TT41 blocker; emulated at the HTTP layer: real Chromium behind a front that removes every Sec-Fetch-* header, as Safari < 16.4 sends none): the destination is inferred from the URL tag + Accept — module scripts and module workers are still rewritten (all computed / static imports identical to native), a page fetch() of a module still gets its bytes UNCHANGED (the shim's "e" flag = destination empty), and a page fetch() of a document gets NO navigation secret (before TT42 every untagged request without Fetch Metadata counted as a navigation); tt42-unit: WP-21 destination inference without Fetch Metadata: Safari's real Accept values (document / image / stylesheet / */*) and the URL tag decide — untagged document → navigate, untagged image / css → no-cors image / style, a markup-subresource tag → its Accept or script, a script tag → script (CORS) or, with the shim's "e" flag, empty (fetch / XHR), a frame tag → iframe; ANY Fetch Metadata header present → null (the browser's own values win); "e" round-trips in canonical order after "n", is rejected out of order, and survives a redirect hop |
+| WP-22 | built | full | e2e-tt43: WP-22 oracle: SharedWorker shared like Chromium's own — two tabs of one profile (Fusion split view, one proxy session) and their nested same-site frames reach ONE worker (count and connections continue across them), a tab of another session gets its own; self.name, self.location, the worker's cookie jar (cookies set by BOTH tabs of the profile, only the other tab's in the other session), a second named worker, SecurityError for another site's script, SyntaxError for a bad URL and the error event of a missing script — every value IDENTICAL natively and through the proxy; e2e-tt43: WP-22 hosts and lifecycle (proxied): one hidden host document per (session, site) — opaque origin, sandboxed — and when the last page of a session leaves the site its host is removed (after the grace), while the other session's worker keeps its state; coming back starts a fresh worker; e2e-tt43: WP-22 attacks (proxied): a page that forges a connect with a document id the server never issued, or names another site's script, gets an error and no worker; a proxied page calling the broker's server endpoints directly (__shared-who / __shared-host) cannot read them, and the server refuses such requests (403: only the Fusion window may), so it can neither learn about documents nor mint host documents (+6) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

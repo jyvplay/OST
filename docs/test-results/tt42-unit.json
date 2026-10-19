@@ -1,6 +1,6 @@
 {
   "suite": "tt42-unit",
-  "at": "2026-10-18T23:43:51.252Z",
+  "at": "2026-10-19T00:46:21.257Z",
   "results": [
     {
       "suite": "tt42-unit",
@@ -18,7 +18,7 @@
         "WP-20": "full"
       },
       "pass": true,
-      "ms": 10
+      "ms": 11
     },
     {
       "suite": "tt42-unit",
@@ -27,11 +27,11 @@
         "WP-20": "full"
       },
       "pass": true,
-      "ms": 105
+      "ms": 106
     },
     {
       "suite": "tt42-unit",
-      "name": "WP-20 fail-safe and scope: a file the lexer cannot read is returned byte-identical (nothing wrapped); an `import(x)` followed by \"{\" on the next line (call + block via ASI) is conservatively NOT wrapped — the same shape a method has — so it behaves exactly as before (root import map path), never broken",
+      "name": "WP-20 fail-safe and scope: a file the lexer cannot read is returned byte-identical (nothing wrapped); an `import(x)` followed by \"{\" on the next line is a call + block (ASI) at statement level and is wrapped (TT43; was TT42's documented miss), while the same shape inside an object literal / class body is a METHOD and stays untouched",
       "covers": {
         "WP-20": "full"
       },

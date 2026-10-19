@@ -109,13 +109,16 @@ await test("WP-20 executed by V8: a rewritten script's import() calls receive th
   ok(JSON.stringify(got) === JSON.stringify(want), `rewritten ${JSON.stringify(got)}\n    want ${JSON.stringify(want)}`);
 });
 
-await test("WP-20 fail-safe and scope: a file the lexer cannot read is returned byte-identical (nothing wrapped); an `import(x)` followed by \"{\" on the next line (call + block via ASI) is conservatively NOT wrapped — the same shape a method has — so it behaves exactly as before (root import map path), never broken", { "WP-20": "full" }, async () => {
+await test("WP-20 fail-safe and scope: a file the lexer cannot read is returned byte-identical (nothing wrapped); an `import(x)` followed by \"{\" on the next line is a call + block (ASI) at statement level and is wrapped (TT43; was TT42's documented miss), while the same shape inside an object literal / class body is a METHOD and stays untouched", { "WP-20": "full" }, async () => {
   const broken = `import(a); var s = "unterminated`;
   const r = rewriteModuleSource(broken, { base: BASE, seg: SEG, metaUrl: null });
   ok(r.code === broken && r.error, "unlexable source untouched");
   const asi = `import(a)\n{ b(); }`;
   const r2 = rewriteModuleSource(asi, { base: BASE, seg: SEG, metaUrl: null });
-  ok(r2.code === asi && r2.wrapped === 0, "ASI block shape left unwrapped (documented conservative miss)");
+  ok(r2.code !== asi && r2.wrapped === 1 && /\n\{ b\(\); \}$/.test(r2.code), `TT43: statement-level ASI block shape wrapped, block kept: ${r2.code.slice(-40)}`);
+  const meth = `({ import(a) { b(); } })`;
+  const r3 = rewriteModuleSource(meth, { base: BASE, seg: SEG, metaUrl: null });
+  ok(r3.code === meth && (r3.wrapped ?? 0) === 0, "a method named import is never wrapped");
 });
 
 await test("WP-21 destination inference without Fetch Metadata: Safari's real Accept values (document / image / stylesheet / */*) and the URL tag decide — untagged document → navigate, untagged image / css → no-cors image / style, a markup-subresource tag → its Accept or script, a script tag → script (CORS) or, with the shim's \"e\" flag, empty (fetch / XHR), a frame tag → iframe; ANY Fetch Metadata header present → null (the browser's own values win); \"e\" round-trips in canonical order after \"n\", is rejected out of order, and survives a redirect hop", { "WP-21": "full" }, async () => {

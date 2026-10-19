@@ -1,0 +1,69 @@
+{
+  "suite": "tt43-unit",
+  "at": "2026-10-19T00:46:31.866Z",
+  "results": [
+    {
+      "suite": "tt43-unit",
+      "name": "WP-22 sharing scope: two documents of one site in ONE session (two tabs of a profile) get ONE host and ONE worker key, and both pages' ports arrive there entangled (a message posted by each page is received at the host end); another session, another site, another name or a module type get their own; a hello is answered; the host gets nothing before it is ready, then everything in order",
+      "covers": {
+        "WP-22": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt43-unit",
+      "name": "WP-22 forged and malformed requests: a sender that is not an opaque-origin document is ignored; an unknown (session, document) — a forged or evicted id — is refused with an error and its port closed; a script on ANOTHER site than the server's record of the document is refused (a page cannot join another site's worker by claiming it); bad id / type / missing port refused; nothing is framed for any of them",
+      "covers": {
+        "WP-22": "full"
+      },
+      "pass": true,
+      "ms": 11
+    },
+    {
+      "suite": "tt43-unit",
+      "name": "WP-22 partitioning: documents whose frame ancestors are cross-site (third-party contexts) never share with first-party documents of the same site, nor with each other (stricter than Chromium's per-top-site partition — disclosed); the server is asked once per document, not per connection",
+      "covers": {
+        "WP-22": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt43-unit",
+      "name": "WP-22 lifetime (HTML 'permissible worker'): the worker lives while any document is connected; the last pagehide starts a grace period after which the host is told to terminate it and an empty host is removed; a reconnect within the grace keeps the SAME worker (no release); a window that is gone (closed) is swept; a bye from a different window cannot disconnect someone else; a bye that overtakes its own connect (pagehide during the server check) cancels it",
+      "covers": {
+        "WP-22": "full"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt43-unit",
+      "name": "WP-22 errors: a worker error reported by a host reaches exactly the documents connected to THAT worker (by their own connection ids), not other workers' documents; a message from an unknown host key is ignored",
+      "covers": {
+        "WP-22": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt43-unit",
+      "name": "WP-22 liveness by acknowledgement (the TT43 repair: a pagehide message is not always delivered): the broker pings each connected window; the document now in it answers with the ids it owns — a navigated window's NEW document (answering without the old ids) releases them at once; a busy page that misses one ping keeps its worker; a window that never answers is dropped after exactly 3 missed pings; an answer with a wrong nonce or from another window changes nothing",
+      "covers": {
+        "WP-22": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt43-unit",
+      "name": "Modules (TT42 blocker `import(x)` + newline + `{` not wrapped): a computed import followed on the next line by \"{\" is a CALL then a block wherever only statements can stand (top level, blocks, function / method / arrow bodies, class static blocks, switch bodies), and a METHOD named import inside a class body (declaration or expression, with heritage) or an object literal (incl. `export default {`); acorn (MIT, test-only) is the oracle for every case — the exact computed ranges must match, and the rewritten source must still parse with the same number of import expressions",
+      "covers": {
+        "WP-20": "full"
+      },
+      "pass": true,
+      "ms": 28
+    }
+  ]
+}

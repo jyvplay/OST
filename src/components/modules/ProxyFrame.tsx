@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { fz } from "@/lib/uiscale";
 import { post } from "@/lib/api";
 import { encodeTarget, type UaKind } from "@/lib/wp-core";
+import { startSharedBroker } from "@/lib/wp-shared-broker";
 import { Btn } from "../ui";
 
 /**
@@ -45,6 +46,9 @@ export function saveName(url: string, type: string): string {
   return n;
 }
 
+/** session creations in flight, per Browser session map → key */
+const minting = new WeakMap<Map<string, string>, Map<string, Promise<string>>>();
+
 export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", profiles = [], onProfile, circuitable = false, via = "" }: ProxyFrameProps) {
   // TT36 (PR-07o): tabs sharing a named profile share one proxy session (one cookie jar); "" = this tab only
   const sessionKey = profile ? `p:${profile}` : tabId;
@@ -62,6 +66,9 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
   const lastUrl = useRef("");
   const [note, setNote] = useState("");
 
+  // TT43 (WP-22): this window's SharedWorker broker — proxied pages of one site and session share their workers
+  useEffect(() => { startSharedBroker(); }, []);
+
   // session: reuse this tab's, or mint one (same-origin POST — a proxied page cannot do this)
   useEffect(() => {
     let live = true;
@@ -72,10 +79,22 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
         if (r.ok) { const j = (await r.json()) as { ua: UaKind }; if (live) setUa(j.ua); } else id = null;
       }
       if (!id) {
-        const r = await fetch("/api/wp-session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ua: "desktop", profile: profile || tabId }) });
-        if (!r.ok) throw new Error(`could not start a proxy session (HTTP ${r.status})`);
-        id = ((await r.json()) as { sid: string }).sid;
-        sessions.set(sessionKey, id);
+        // TT43: ONE creation per key in flight — two tabs of a profile mounting together (split view, a restored
+        // window) each minted their own session before, silently splitting the profile's cookie jar in two
+        let inflight = minting.get(sessions);
+        if (!inflight) minting.set(sessions, (inflight = new Map()));
+        let p = inflight.get(sessionKey);
+        if (!p) {
+          p = (async () => {
+            const r = await fetch("/api/wp-session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ua: "desktop", profile: profile || tabId }) });
+            if (!r.ok) throw new Error(`could not start a proxy session (HTTP ${r.status})`);
+            const sid = ((await r.json()) as { sid: string }).sid;
+            sessions.set(sessionKey, sid);
+            return sid;
+          })().finally(() => inflight!.delete(sessionKey));
+          inflight.set(sessionKey, p);
+        }
+        id = await p;
       }
       if (live) setSid(id);
     })().catch((e) => { if (live) setErr(String((e as Error).message ?? e)); });

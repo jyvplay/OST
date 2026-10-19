@@ -1,6 +1,6 @@
 {
   "suite": "vector",
-  "at": "2026-10-18T23:18:30.378Z",
+  "at": "2026-10-19T00:20:48.801Z",
   "results": [
     {
       "suite": "vector",
@@ -81,7 +81,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "vector",
@@ -108,7 +108,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "vector",
@@ -117,7 +117,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "vector",
@@ -126,7 +126,7 @@
         "FF-32": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "vector",
