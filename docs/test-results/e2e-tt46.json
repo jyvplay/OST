@@ -1,0 +1,94 @@
+{
+  "suite": "e2e-tt46",
+  "at": "2026-10-19T07:52:11.584Z",
+  "results": [
+    {
+      "suite": "e2e-tt46",
+      "name": "welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box)",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 813
+    },
+    {
+      "suite": "e2e-tt46",
+      "name": "typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 984
+    },
+    {
+      "suite": "e2e-tt46",
+      "name": "Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 1136
+    },
+    {
+      "suite": "e2e-tt46",
+      "name": "real Word file (POI bug57031.docx): tables, header on every page, multiple pages; edit+save keeps all other parts byte-identical",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 2100
+    },
+    {
+      "suite": "e2e-tt46",
+      "name": "pictures from a real file render as images; Ctrl+Enter adds a page; find & replace through the panel",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 1795
+    },
+    {
+      "suite": "e2e-tt46",
+      "name": "Spreadsheet: real Excel file with a table + conditional formats — structured refs evaluate in the UI; keyboard edit + Save keeps the package (openpyxl-verified)",
+      "covers": {
+        "FF-20": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 3394
+    },
+    {
+      "suite": "e2e-tt46",
+      "name": "Spreadsheet: no-edit Save of a chart workbook leaves it byte-identical; rename a sheet + Save keeps the chart part and openpyxl sees the new name",
+      "covers": {
+        "FF-20": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 2145
+    },
+    {
+      "suite": "e2e-tt46",
+      "name": "no uncaught page errors during the Writer session",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

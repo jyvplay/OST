@@ -1,0 +1,16 @@
+{
+  "suite": "tt47-sheet",
+  "at": "2026-10-19T18:34:53.433Z",
+  "results": [
+    {
+      "suite": "tt47-sheet",
+      "name": "text cells stay text: every corpus string that looks like a number / boolean / formula reads back as the same TEXT (independent openpyxl list); quote-prefix input semantics",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": false,
+      "error": "round trip keeps text, never a live formula",
+      "ms": 13
+    }
+  ]
+}

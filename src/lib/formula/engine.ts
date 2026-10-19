@@ -64,12 +64,22 @@ export const SPILL_CELL_LIMIT = 20_000;
 export const SPILL_MAX_PASSES = 8;
 
 const key = (col: number, row: number) => `${col},${row}`;
+/**
+ * TT47: input that reproduces TEXT exactly. Text that would otherwise parse as a number, boolean or formula
+ * (or that itself starts with an apostrophe) gets Excel's quote prefix; the cell VALUE stays the plain text.
+ */
+export function textInput(text: string): string {
+  if (text === "") return "";
+  return text.startsWith("=") || text.startsWith("'") || typeof parseLiteral(text) !== "string" ? `'${text}` : text;
+}
 export const a1 = (col: number, row: number) => `${colToLetters(col)}${row + 1}`;
 const isGrid = (v: Value): v is Scalar[][] => Array.isArray(v);
 
 /** Parse a raw input string into either a literal Scalar or a formula AST. */
 function parseLiteral(input: string): Scalar {
   if (input === "") return "";
+  // TT47: Excel's quote prefix — a leading apostrophe makes the rest literal text ('0012, 'TRUE, '=A1)
+  if (input.startsWith("'")) return input.slice(1);
   const n = Number(input);
   if (input.trim() !== "" && !Number.isNaN(n)) return n;
   if (/^(TRUE|FALSE)$/i.test(input.trim())) return input.trim().toUpperCase() === "TRUE";

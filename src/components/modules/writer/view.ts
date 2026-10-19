@@ -244,37 +244,44 @@ export function geomOf(doc: WordDoc, gap = 24): PageGeom {
   return { pageW: twipToPx(p.w), pageH: twipToPx(p.h), top: twipToPx(p.top), bottom: twipToPx(p.bottom), left: twipToPx(p.left), right: twipToPx(p.right), gap };
 }
 /** Pushes blocks (and top-level table rows) that cross a page boundary onto the next page. Returns the page count. */
+export const MAX_PAGES = 2000;
 export function paginate(root: HTMLElement, g: PageGeom): number {
   root.querySelectorAll(".wpg-sp").forEach((e) => e.remove());
   for (const e of Array.from(root.children) as HTMLElement[]) e.style.marginTop = "";
   const contentH = g.pageH - g.top - g.bottom, stride = g.pageH + g.gap;
   let page = 0;
   const pageEnd = () => page * stride + contentH;
-  const top = (e: HTMLElement) => e.offsetTop - root.offsetTop;
-  const push = (e: HTMLElement, isRow: boolean) => {
+  // root is positioned, so a block's offsetTop is already relative to it; a <tr>'s offsetParent is its table
+  const push = (e: HTMLElement, absTop: number, isRow: boolean) => {
+    if (page >= MAX_PAGES - 1) return;
     page++;
-    const need = page * stride - top(e);
+    const need = page * stride - absTop;
     if (need <= 0) return;
     if (isRow) { const sp = document.createElement("tr"); sp.className = "wpg-sp"; sp.contentEditable = "false"; const td = document.createElement("td"); td.colSpan = 99; td.style.cssText = `height:${need}px;padding:0;border:none;background:transparent`; sp.appendChild(td); e.parentElement!.insertBefore(sp, e); }
     else e.style.marginTop = `${need}px`;
   };
+  /** moves the page cursor to the page whose content area contains (or follows) y */
+  const advancePast = (y: number) => { while (y >= (page + 1) * stride && page < MAX_PAGES - 1) page++; };
   for (const e of Array.from(root.children) as HTMLElement[]) {
     const prev = e.previousElementSibling as HTMLElement | null;
     let lastKid = prev?.lastElementChild as HTMLElement | null | undefined;
     if (lastKid?.dataset.empty) lastKid = lastKid.previousElementSibling as HTMLElement | null;
     const forced = e.dataset.break === "page" || !!lastKid?.classList.contains("wtok-page") || prev?.dataset?.sect === "1";
-    if (forced && top(e) > page * stride) { push(e, false); }
+    if (forced && e.offsetTop > page * stride) push(e, e.offsetTop, false);
     if (e.tagName === "TABLE") {
       const rows = Array.from(e.querySelectorAll(":scope > tbody > tr.wtr")) as HTMLElement[];
-      for (const r of rows) { const rt = r.offsetTop + e.offsetTop - root.offsetTop; if (rt + r.offsetHeight > pageEnd() && rt > page * stride + 1) push(r, true); while (rt > pageEnd() + g.gap + g.top + g.bottom) page++; }
+      for (const r of rows) {
+        const rt = e.offsetTop + r.offsetTop;
+        advancePast(rt);
+        if (rt + r.offsetHeight > pageEnd() && rt > page * stride + 1 && r.offsetHeight <= contentH) push(r, rt, true);
+        advancePast(e.offsetTop + r.offsetTop + r.offsetHeight);
+      }
       continue;
     }
-    let t = top(e);
-    while (t >= pageEnd() + g.bottom + g.gap) { page++; }
-    t = top(e);
-    if (t + e.offsetHeight > pageEnd() && t > page * stride + 1 && e.offsetHeight <= contentH) push(e, false);
-    // an over-tall block flows across the gap; advance the page counter past its end
-    while (top(e) + e.offsetHeight > pageEnd() + g.bottom + g.gap) page++;
+    advancePast(e.offsetTop);
+    const t = e.offsetTop;
+    if (t + e.offsetHeight > pageEnd() && t > page * stride + 1 && e.offsetHeight <= contentH) push(e, t, false);
+    advancePast(e.offsetTop + e.offsetHeight); // an over-tall block flows across the gap
   }
   return page + 1;
 }

@@ -112,14 +112,14 @@ await test("C. our writer → openpyxl: merges, per-edge borders (style+colour),
   assert.deepEqual([d.type, d.formula1, d.promptTitle, d.prompt], ["custom", 'AND(I6>0,I6<"z")', "Even", "an even number"]);
 });
 
-await test("D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce", { "FF-33": "full", "FF-34": "full", "FF-35": "full", "FF-21": "full" }, () => {
+await test("D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce", { "FF-33": "full", "FF-34": "full", "FF-35": "full", "FF-21": "full" }, () => {
   const f = join(dir, "layout-theirs.xlsx"); execFileSync(PY, ["scripts/oracles/xlsx_openpyxl.py", "layout-write", f]);
   const wb = readXlsxWorkbook(readFileSync(f)); const s = wb.sheet("Layout");
   assert.deepEqual(s.merges, [{ c0: 0, r0: 0, c1: 3, r1: 0 }, { c0: 0, r0: 2, c1: 0, r1: 4 }]);
   assert.equal(s.get(2, 0)?.input ?? "", "", "covered cell value not present");
   assert.deepEqual(s.get(0, 0)?.style, { align: "center", valign: "center" });
   assert.deepEqual(s.get(1, 2)?.style?.border, { left: { style: "thin", color: "#000000" }, right: { style: "medium", color: "#ff0000" }, top: { style: "dashed" }, bottom: { style: "double", color: "#00b050" } });
-  assert.deepEqual(s.get(2, 2)?.style?.border, { bottom: { style: "thick" } }, "theme colour read as unset");
+  assert.deepEqual(s.get(2, 2)?.style?.border, { bottom: { style: "thick", color: "#4f81bd" } }, "theme=4 → accent1 of the file's theme (4F81BD)");
   assert.equal(s.get(3, 2)?.style?.border, undefined, "mediumDashed is outside our border set (declared)");
   assert.equal(s.get(1, 3)?.style?.valign, "top");
   assert.equal(s.freezeRows, 1); assert.equal(s.freezeCols, 1);

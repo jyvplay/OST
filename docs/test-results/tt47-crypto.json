@@ -1,0 +1,25 @@
+{
+  "suite": "tt47-crypto",
+  "at": "2026-10-19T18:48:09.112Z",
+  "results": [
+    {
+      "suite": "tt47-crypto",
+      "name": "corpus: Agile SHA-1 'pass' (HMAC verified, opens in Writer), Standard 'solrcell' and 'tika' byte-equal to msoffcrypto-tool",
+      "covers": {
+        "FF-11": "full"
+      },
+      "pass": false,
+      "error": "The password is not correct.",
+      "ms": 550
+    },
+    {
+      "suite": "tt47-crypto",
+      "name": "independent Agile vectors: msoffcrypto-tool -e (SHA-512/AES-256, HMAC) on 24 corpus files + Unicode password decrypt byte-equal",
+      "covers": {
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 24979
+    }
+  ]
+}

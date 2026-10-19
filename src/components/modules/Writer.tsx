@@ -13,6 +13,7 @@ import { api, post } from "@/lib/api";
 import { toB64, fromB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Btn } from "../ui";
+import { confirmUnencryptedCopy, isEncryptedOffice, unlockOffice } from "@/lib/office/unlock";
 import { allParas, blankWord, docText, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
 import * as E from "@/lib/office/wordedit";
 import { domToPos, geomOf, makeState, paginate, posToDom, renderBlocks, renderPara, cssFont } from "./writer/view";
@@ -30,6 +31,8 @@ export default function WriterModule({ win }: ModuleProps) {
   const unit = useUiUnit();
   const [path, setPath] = useState<string>((win.props.path as string) ?? "");
   const docRef = useRef<WordDoc | null>(null);
+  /** TT47: set while the open document came from a password-protected file (Fusion decrypts but cannot re-encrypt). */
+  const encRef = useRef<{ path: string } | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const pagesRef = useRef<HTMLDivElement | null>(null);
   const selRef = useRef<E.Range | null>(null);
@@ -50,6 +53,7 @@ export default function WriterModule({ win }: ModuleProps) {
   const [imgSel, setImgSel] = useState<{ pid: string; off: number; w: number; h: number } | null>(null);
   const [autosave, setAutosave] = useState(false);
   const [tick, setTick] = useState(0); // toolbar refresh on selection change
+  const [docGen, setDocGen] = useState(0); // bumps when a new document (or page geometry) must be fully rendered
   const fileInput = useRef<HTMLInputElement | null>(null), imgInput = useRef<HTMLInputElement | null>(null);
   const z = zoom ?? unit;
   const bump = () => setVer((v) => v + 1);
@@ -169,13 +173,21 @@ export default function WriterModule({ win }: ModuleProps) {
   };
 
   /* ------------------------------------------------------------ load / save */
-  const loadBytes = useCallback(async (bytes: Uint8Array, name: string) => {
+  const loadBytes = useCallback(async (bytes: Uint8Array, name: string, srcPath = "") => {
+    let enc = "";
+    if (isEncryptedOffice(bytes)) {
+      // TT47: password-protected .docx — decrypted on this device (MS-OFFCRYPTO Agile/Standard), never re-encrypted
+      encRef.current = { path: srcPath }; // set first: even a cancelled/failed open must never save plaintext over it
+      const u = await unlockOffice(bytes, name);
+      if (!u) throw new Error("it is password-protected and no password was entered");
+      bytes = u.bytes; enc = ` · password-protected (${u.method}${u.integrity === "verified" ? ", integrity verified" : ""}) — saving creates an unencrypted copy`;
+    } else encRef.current = null;
     const d = await readWord(bytes, name);
     docRef.current = d; undo.current = []; redo.current = [];
     const fid = fidelity(d);
-    setStatus(`Opened ${name} · lossless engine${fid ? ` · view-only: ${fid}` : ""}${d.warnings.length ? ` · ${d.warnings.length} warning(s)` : ""}`);
+    setStatus(`Opened ${name} · lossless engine${fid ? ` · view-only: ${fid}` : ""}${d.warnings.length ? ` · ${d.warnings.length} warning(s)` : ""}${enc}`);
     setLoaded(true); setDirty(false); bump();
-    requestAnimationFrame(() => renderAll());
+    setDocGen((g) => g + 1);
   }, [renderAll]);
 
   useEffect(() => {
@@ -185,7 +197,7 @@ export default function WriterModule({ win }: ModuleProps) {
         if (path.toLowerCase().endsWith(".docx")) {
           const r = await api<{ node: { content: string; encoding?: string } }>(`/api/fs?op=read&path=${encodeURIComponent(path)}`);
           const bytes = r.node.encoding === "base64" ? fromB64(r.node.content) : new TextEncoder().encode(r.node.content);
-          if (live) await loadBytes(bytes, path.split("/").pop() ?? "document.docx");
+          if (live) await loadBytes(bytes, path.split("/").pop() ?? "document.docx", path);
           return;
         }
         const d = await blankWord(path ? path.split("/").pop()!.replace(/\.[^.]+$/, "") : "Untitled");
@@ -199,22 +211,29 @@ export default function WriterModule({ win }: ModuleProps) {
         } else if (!path) seedWelcome(d);
         if (!live) return;
         docRef.current = d; setLoaded(true); bump();
-        requestAnimationFrame(() => renderAll());
+        setDocGen((g) => g + 1);
       } catch (e) {
         shell.toast(`Could not open document: ${String((e as Error).message)}`, "bad");
-        const d = await blankWord(); docRef.current = d; setLoaded(true); bump(); requestAnimationFrame(() => renderAll());
+        const d = await blankWord(); docRef.current = d; setLoaded(true); bump(); setDocGen((g) => g + 1);
       }
     })();
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const saveTo = useCallback(async (dest: string) => {
+  const saveTo = useCallback(async (dest0: string) => {
     const doc = docRef.current!;
+    let dest = dest0; let confirmed = false;
+    if (encRef.current) {
+      const d2 = await confirmUnencryptedCopy(encRef.current.path, dest0 === encRef.current.path ? "" : dest0, ".docx");
+      if (!d2) { setStatus("Not saved — the password-protected original is unchanged"); return; }
+      dest = d2; confirmed = true;
+    }
     const bytes = await writeWord(doc);
-    await post("/api/fs", { op: "upload", path: dest, content: toB64(bytes), mime: MIME_DOCX });
-    // after a save the written XML is the new baseline (keeps later saves minimal)
-    for (const p of allParas(doc.blocks)) if (p.dirty) p.dirty = true;
+    try { await post("/api/fs", { op: "upload", path: dest, content: toB64(bytes), mime: MIME_DOCX }); }
+    catch (e) { shell.toast(`Not saved: ${(e as Error).message}`, "bad"); return; }
+    if (confirmed) encRef.current = null;
+    // edited paragraphs stay dirty: their original XML is not replaced, so they must be re-serialised on the next save too
     setDirty(false); setStatus(`Saved ${dest} (${(bytes.length / 1024).toFixed(1)} KB, lossless)`); shell.bumpRefresh();
     if (dest !== path) { setPath(dest); shell.dispatch({ t: "setProps", id: win.id, props: { path: dest, title: dest.split("/").pop() } }); }
   }, [path, shell, win.id]);
@@ -225,13 +244,15 @@ export default function WriterModule({ win }: ModuleProps) {
     setPop("saveas");
   }, [path, saveTo]);
   useEffect(() => {
-    if (!autosave || !dirty || !path.toLowerCase().endsWith(".docx")) return;
+    if (!autosave || !dirty || !path.toLowerCase().endsWith(".docx") || encRef.current) return;
     const t = window.setTimeout(() => { void saveTo(path); }, 4000);
     return () => window.clearTimeout(t);
   }, [autosave, dirty, path, saveTo, ver]);
 
   const download = async () => {
-    const doc = docRef.current!; const bytes = await writeWord(doc);
+    const doc = docRef.current!;
+    if (encRef.current && !(await confirmUnencryptedCopy(encRef.current.path, `${(path.split("/").pop() || "Document.docx").replace(/\.docx$/i, "")} (unencrypted).docx`, ".docx"))) return;
+    const bytes = await writeWord(doc);
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: MIME_DOCX }));
     a.download = (path.split("/").pop() || `${doc.title || "Document"}.docx`).replace(/\.fdoc$/i, ".docx"); a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
@@ -364,7 +385,7 @@ export default function WriterModule({ win }: ModuleProps) {
           const p = E.paraById(d, pos.pid)!;
           if (para.style) { E.setStyle(d, { a: pos, b: pos }, para.style); }
           if (para.list) p.p = { ...p.p, num: { id: para.list === "bullet" ? "~bullet" : "~decimal", lvl: 0 } };
-          for (const run of para.runs) { const start = pos; pos = E.insertText(d, pos, run.text); const patch: Record<string, unknown> = {}; if (run.b) patch.b = true; if (run.i) patch.i = true; if (run.u) patch.u = "single"; if (Object.keys(patch).length) E.applyFmt(d, { a: start, b: pos }, patch); if (run.href && /^(https?:|mailto:|#)/i.test(run.href)) E.setLink(d, { a: start, b: pos }, run.href); }
+          for (const run of para.runs) { const start = pos; pos = E.insertText(d, pos, run.text); if (pos.off > start.off) E.applyFmt(d, { a: start, b: pos }, { b: run.b ? true : null, i: run.i ? true : null, u: run.u ? "single" : null }); if (run.href && /^(https?:|mailto:|#)/i.test(run.href)) E.setLink(d, { a: start, b: pos }, run.href); }
         });
         r = { a: pos, b: pos }; changed(undefined, r); return;
       }
@@ -422,6 +443,7 @@ export default function WriterModule({ win }: ModuleProps) {
     return () => { root.removeEventListener("beforeinput", bi); root.removeEventListener("compositionstart", cs); root.removeEventListener("compositionend", ce as EventListener); document.removeEventListener("selectionchange", sc); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
+  useEffect(() => { if (loaded && docGen) renderAll(); }, [docGen, loaded, renderAll]);
   useEffect(() => { if (loaded) relayout(); }, [z, loaded, relayout]);
 
   /* ------------------------------------------------------------ commands */
@@ -488,9 +510,9 @@ export default function WriterModule({ win }: ModuleProps) {
       <style>{WRITER_CSS}</style>
       {/* ---------- file / history row */}
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }}>
-        <Btn variant="ghost" onClick={async () => { if (dirty && !confirmLeave()) return; const d = await blankWord(); docRef.current = d; setPath(""); undo.current = []; setDirty(false); bump(); requestAnimationFrame(renderAll); }}>New</Btn>
+        <Btn variant="ghost" onClick={async () => { if (dirty && !confirmLeave()) return; const d = await blankWord(); docRef.current = d; setPath(""); undo.current = []; setDirty(false); bump(); setDocGen((g) => g + 1); }}>New</Btn>
         <Btn variant="ghost" onClick={() => fileInput.current?.click()}>Open…</Btn>
-        <input ref={fileInput} type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { await loadBytes(new Uint8Array(await f.arrayBuffer()), f.name); setPath(""); } catch (err) { shell.toast(`Cannot open ${f.name}: ${(err as Error).message}`, "bad"); } e.target.value = ""; }} />
+        <input ref={fileInput} type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { await loadBytes(new Uint8Array(await f.arrayBuffer()), f.name, ""); setPath(""); } catch (err) { shell.toast(`Cannot open ${f.name}: ${(err as Error).message}`, "bad"); } e.target.value = ""; }} />
         <Btn data-testid="writer-save" onClick={() => void save()}>{dirty ? "Save •" : "Save"}</Btn>
         <Btn variant="ghost" onClick={() => { setPopVal(path || `/Documents/${doc.title || "Document"}.docx`); setPop("saveas"); }}>Save as…</Btn>
         <Btn variant="ghost" onClick={() => void download()}>Download</Btn>
@@ -501,7 +523,7 @@ export default function WriterModule({ win }: ModuleProps) {
         <Btn variant="ghost" disabled={!undo.current.length} onClick={() => restore(undo, redo)} aria-label="Undo">Undo</Btn>
         <Btn variant="ghost" disabled={!redo.current.length} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>
         <span style={{ flex: 1 }} />
-        <label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx")} aria-label="AutoSave" />AutoSave</label>
+        <label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || !!encRef.current} aria-label="AutoSave" />AutoSave</label>
         {(["nav", "find", "review", "page"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", page: "Layout", none: "" }[p]}</Btn>)}
       </div>
       {/* ---------- formatting row */}
@@ -607,7 +629,7 @@ export default function WriterModule({ win }: ModuleProps) {
               <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>New comment on selection</Btn>
               {doc.comments.map((c) => <button key={c.id} className="wcom" onClick={() => { const m = rootRef.current?.querySelector(`[data-cids~="${c.id}"], .wcmt[data-cids*="${c.id}"]`); m?.scrollIntoView({ block: "center" }); }}><b>{c.author || "Unknown"}</b>{c.date ? <span style={{ opacity: 0.6 }}> · {c.date.slice(0, 10)}</span> : null}<div>{c.text}</div></button>)}
             </>}
-            {panel === "page" && <PageSetup doc={doc} onApply={(o) => { snapshot(); E.setPageSetup(doc, o); setDirty(true); bump(); requestAnimationFrame(renderAll); }} />}
+            {panel === "page" && <PageSetup doc={doc} onApply={(o) => { snapshot(); E.setPageSetup(doc, o); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
           </div>
         )}
       </div>
@@ -655,7 +677,7 @@ function importLegacy(d: WordDoc, m: { title?: string; blocks?: { kind: string; 
     const style = b.style === "ListBullet" ? undefined : b.style;
     if (style && style !== "Normal") E.setStyle(d, { a: pos, b: pos }, style);
     if (b.style === "ListBullet") { const p = E.paraById(d, pos.pid)!; p.p = { ...p.p, num: { id: "~bullet", lvl: 0 } }; }
-    for (const r of b.runs ?? []) { const s = pos; pos = E.insertText(d, pos, r.text); const patch: Record<string, unknown> = {}; if (r.bold) patch.b = true; if (r.italic) patch.i = true; if (r.underline) patch.u = "single"; if (Object.keys(patch).length) E.applyFmt(d, { a: s, b: pos }, patch); }
+    for (const r of b.runs ?? []) { const s = pos; pos = E.insertText(d, pos, r.text); if (pos.off > s.off) E.applyFmt(d, { a: s, b: pos }, { b: r.bold ? true : null, i: r.italic ? true : null, u: r.underline ? "single" : null }); }
   });
 }
 function seedWelcome(d: WordDoc) {
@@ -739,6 +761,7 @@ const WRITER_CSS = `
 .writer .wtok-del{text-decoration:line-through;color:#b00020}
 .writer .wtok-ins{text-decoration:underline;color:#0a7a3f}
 .writer .wtok-math,.writer .wtok-box,.writer .wtok-field,.writer .wtok-other,.writer .wtok-sym{background:#eef2f7;border-radius:3px;padding:0 2px}
+.writer .wtok:empty:not(img):not(.wtok-page):not(.wtok-commentRef){display:inline;padding:0;background:none;width:0}
 .writer .wtok-image{display:inline-block}
 .writer .wtok-noprev{display:inline-flex;align-items:center;justify-content:center;background:#f3f4f6;border:1px dashed #9ca3af;color:#4b5563;font-size:9pt}
 .writer img.wimg-sel{outline:2px solid #2563eb;outline-offset:1px}

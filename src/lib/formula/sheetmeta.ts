@@ -20,8 +20,8 @@ import { colToLetters, lettersToCol, type Scalar } from "./types";
 
 export type ChartKind = "bar" | "line" | "pie" | "scatter";
 export interface ChartSpec { id: string; sheet: string; range: string; kind: ChartKind; title: string; headerRow: boolean }
-export type CondKind = "gt" | "lt" | "eq" | "between" | "contains" | "duplicate" | "top" | "scale";
-export interface CondRule { id: string; sheet: string; range: string; kind: CondKind; a?: string; b?: string; fill?: string; color?: string; bold?: boolean; scaleMin?: string; scaleMax?: string }
+export type CondKind = "gt" | "lt" | "ge" | "le" | "eq" | "between" | "contains" | "duplicate" | "top" | "scale";
+export interface CondRule { id: string; sheet: string; range: string; kind: CondKind; a?: string; b?: string; fill?: string; color?: string; bold?: boolean; scaleMin?: string; scaleMax?: string; /** TT47: 3-colour scale midpoint colour */ scaleMid?: string; /** TT47: cfvo thresholds "min|percentile:50|max" (min, max, num:v, percent:p, percentile:p) */ scaleAt?: string; /** TT47: provenance of an imported rule — "<conditionalFormatting index>.<cfRule index>" in its sheet part */ src?: string }
 
 const PALETTE = ["#38bdf8", "#f472b6", "#34d399", "#fbbf24", "#a78bfa", "#fb7185", "#22d3ee", "#f97316"];
 const xml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
@@ -151,6 +151,34 @@ const lerp = (a: string, b: string, t: number) => {
   const p = (h: string, i: number) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16);
   return "#" + [0, 1, 2].map((i) => Math.round(p(a, i) + (p(b, i) - p(a, i)) * t).toString(16).padStart(2, "0")).join("");
 };
+/** PERCENTILE.INC on sorted values (Excel's colour-scale percentile cfvo). */
+const percentileInc = (sorted: number[], p: number) => {
+  const r = (Math.max(0, Math.min(100, p)) / 100) * (sorted.length - 1), i = Math.floor(r);
+  return i + 1 < sorted.length ? sorted[i] + (sorted[i + 1] - sorted[i]) * (r - i) : sorted[i];
+};
+/** cfvo spec → numeric thresholds (ECMA-376 §18.3.1.11). Default: min | percentile 50 | max. */
+export function scaleThresholds(spec: string | undefined, nums: number[], n: number): number[] {
+  const sorted = [...nums].sort((a, b) => a - b), lo = sorted[0], hi = sorted[sorted.length - 1];
+  const parts = spec?.split("|") ?? [];
+  const dflt = n === 3 ? ["min", "percentile:50", "max"] : ["min", "max"];
+  const out = dflt.map((d, i) => {
+    const [t, v] = (parts.length === n ? parts[i] : d).split(":"); const x = Number(v);
+    if (t === "min") return lo; if (t === "max") return hi;
+    if (t === "num" && Number.isFinite(x)) return x;
+    if (t === "percent" && Number.isFinite(x)) return lo + ((hi - lo) * x) / 100;
+    if (t === "percentile" && Number.isFinite(x)) return percentileInc(sorted, x);
+    return i === 0 ? lo : i === n - 1 ? hi : percentileInc(sorted, 50);
+  });
+  for (let i = 1; i < out.length; i++) if (out[i] < out[i - 1]) out[i] = out[i - 1]; // thresholds are monotone
+  return out;
+}
+/** Colour for v: clamp outside [t0, tN]; linear RGB interpolation inside the containing segment. */
+export function scaleColor(v: number, at: number[], colors: string[]): string {
+  if (v <= at[0]) return colors[0];
+  if (v >= at[at.length - 1]) return colors[colors.length - 1];
+  for (let i = 1; i < at.length; i++) if (v <= at[i]) return at[i] > at[i - 1] ? lerp(colors[i - 1], colors[i], (v - at[i - 1]) / (at[i] - at[i - 1])) : colors[i];
+  return colors[colors.length - 1];
+}
 /** Evaluate every rule for one sheet → per-cell overlay ("col,row" keys). Later rules win (Excel applies in priority order; first rule = highest priority, so we apply in reverse). */
 export function evalCondFormats(wb: Workbook, sheet: string, rules: CondRule[]): Map<string, CfStyle> {
   const out = new Map<string, CfStyle>();
@@ -167,6 +195,8 @@ export function evalCondFormats(wb: Workbook, sheet: string, rules: CondRule[]):
     switch (rule.kind) {
       case "gt": test = (v) => typeof v === "number" && v > a; break;
       case "lt": test = (v) => typeof v === "number" && v < a; break;
+      case "ge": test = (v) => typeof v === "number" && v >= a; break;
+      case "le": test = (v) => typeof v === "number" && v <= a; break;
       case "eq": test = (v) => (typeof v === "number" && !Number.isNaN(a) ? v === a : String(v ?? "").toLowerCase() === String(rule.a ?? "").toLowerCase()); break;
       case "between": test = (v) => typeof v === "number" && v >= Math.min(a, b) && v <= Math.max(a, b); break;
       case "contains": test = (v) => typeof v === "string" && !!rule.a && v.toLowerCase().includes(rule.a.toLowerCase()); break;
@@ -176,8 +206,12 @@ export function evalCondFormats(wb: Workbook, sheet: string, rules: CondRule[]):
       }
       case "top": { const k = Math.max(1, Math.trunc(a) || 10); const cut = [...nums].sort((x, y) => y - x)[Math.min(k, nums.length) - 1]; test = (v) => typeof v === "number" && cut !== undefined && v >= cut; break; }
       case "scale": {
-        const lo = Math.min(...nums), hi = Math.max(...nums); const c0 = HEX.test(rule.scaleMin ?? "") ? rule.scaleMin! : "#f8696b", c1 = HEX.test(rule.scaleMax ?? "") ? rule.scaleMax! : "#63be7b";
-        for (const x of cells) if (typeof x.v === "number") out.set(x.k, { ...out.get(x.k), fill: lerp(c0, c1, hi > lo ? (x.v - lo) / (hi - lo) : 0.5) });
+        if (!nums.length) continue;
+        const c0 = HEX.test(rule.scaleMin ?? "") ? rule.scaleMin! : "#f8696b", c1 = HEX.test(rule.scaleMax ?? "") ? rule.scaleMax! : "#63be7b";
+        const mid = HEX.test(rule.scaleMid ?? "") ? rule.scaleMid : undefined;
+        const colors = mid ? [c0, mid, c1] : [c0, c1];
+        const at = scaleThresholds(rule.scaleAt, nums, colors.length);
+        for (const x of cells) if (typeof x.v === "number") out.set(x.k, { ...out.get(x.k), fill: scaleColor(x.v, at, colors) });
         continue;
       }
     }
@@ -188,6 +222,8 @@ export function evalCondFormats(wb: Workbook, sheet: string, rules: CondRule[]):
 
 /* ------------------------------------------------------------------ untrusted JSON validation */
 const ID = /^[A-Za-z0-9_-]{1,40}$/;
+const CFVO = "(?:min|max|(?:num|percent|percentile):-?\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)";
+const SCALE_AT = new RegExp(`^${CFVO}(?:\\|${CFVO}){1,2}$`);
 export function sanitizeCharts(raw: unknown): ChartSpec[] {
   if (!Array.isArray(raw)) return [];
   return raw.slice(0, 50).flatMap((c) => {
@@ -200,13 +236,13 @@ export function sanitizeCharts(raw: unknown): ChartSpec[] {
 }
 export function sanitizeCondFormats(raw: unknown): CondRule[] {
   if (!Array.isArray(raw)) return [];
-  return raw.slice(0, 200).flatMap((c) => {
+  return raw.slice(0, 2000).flatMap((c) => {
     if (!c || typeof c !== "object") return [];
     const o = c as Record<string, unknown>;
     if (typeof o.id !== "string" || !ID.test(o.id) || typeof o.sheet !== "string" || typeof o.range !== "string" || !parseRange(o.range)) return [];
-    if (!["gt", "lt", "eq", "between", "contains", "duplicate", "top", "scale"].includes(o.kind as string)) return [];
+    if (!["gt", "lt", "ge", "le", "eq", "between", "contains", "duplicate", "top", "scale"].includes(o.kind as string)) return [];
     const str = (k: string) => (typeof o[k] === "string" ? (o[k] as string).slice(0, 200) : undefined);
     const col = (k: string) => (typeof o[k] === "string" && HEX.test(o[k] as string) ? (o[k] as string) : undefined);
-    return [{ id: o.id, sheet: o.sheet.slice(0, 31), range: o.range, kind: o.kind as CondKind, a: str("a"), b: str("b"), fill: col("fill"), color: col("color"), bold: o.bold === true || undefined, scaleMin: col("scaleMin"), scaleMax: col("scaleMax") }];
+    return [{ id: o.id, sheet: o.sheet.slice(0, 31), range: o.range, kind: o.kind as CondKind, a: str("a"), b: str("b"), fill: col("fill"), color: col("color"), bold: o.bold === true || undefined, scaleMin: col("scaleMin"), scaleMax: col("scaleMax"), scaleMid: col("scaleMid"), scaleAt: typeof o.scaleAt === "string" && SCALE_AT.test(o.scaleAt) ? o.scaleAt : undefined, src: typeof o.src === "string" && /^\d{1,6}\.\d{1,4}$/.test(o.src) ? o.src : undefined }];
   });
 }

@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt47",
+  "at": "2026-10-19T18:19:26.661Z",
+  "results": [
+    {
+      "suite": "e2e-tt47",
+      "name": "Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 8254
+    },
+    {
+      "suite": "e2e-tt47",
+      "name": "Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 6750
+    },
+    {
+      "suite": "e2e-tt47",
+      "name": "no uncaught page errors during the Spreadsheet session",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

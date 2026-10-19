@@ -10,8 +10,9 @@ import {
   norm, rangeA1, toTsv, parseTsv, copyBlock, pasteBlock, clearRange, autoFill, sortRange, insertDelete, findAll, replaceAll, selectionStats, shiftFormula,
   chartDataFromRange, buildChartSvg, svgDataUri, evalCondFormats, parseRange, currentRegion, jump, fillTarget, looksLikeHeader,
   completionToken, completions, activeCall, SIGNATURES, hasValueIn,
-  type WorkbookJson, type CellStyle, type Range, type Clip, type ChartKind, type CondKind, type Scalar,
+  type WorkbookJson, type CellStyle, type Range, type Clip, type ChartKind, type CondKind, type CondRule, type Scalar,
 } from "@/lib/formula/client";
+import { confirmUnencryptedCopy, isEncryptedOffice, unlockOffice } from "@/lib/office/unlock";
 import {
   applyBorders, borderCss, edgeAt, expandToMerges, invalidCells, listFormula, listItems, mergeAcross, mergeAt, mergeCells, partialMergeConflict,
   ruleAt, sanitizeValidation, sortConflict, stepCell, unmergeCells, validateEntry, VALIDATION_OPS, type BorderPreset,
@@ -90,11 +91,15 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [showInvalid, setShowInvalid] = useState(false);
   const [scroll, setScroll] = useState({ top: 0, h: 600 });
   const [findQ, setFindQ] = useState(""); const [replQ, setReplQ] = useState(""); const [matchCase, setMatchCase] = useState(false); const [findInfo, setFindInfo] = useState("");
-  const [cf, setCf] = useState<{ kind: CondKind; a: string; b: string; fill: string; color: string }>({ kind: "gt", a: "10", b: "", fill: "#14532d", color: "#bbf7d0" });
+  const [cf, setCf] = useState<{ kind: CondKind | "scale3"; a: string; b: string; fill: string; color: string; sMin: string; sMid: string; sMax: string }>({ kind: "gt", a: "10", b: "", fill: "#14532d", color: "#bbf7d0", sMin: "#f8696b", sMid: "#ffeb84", sMax: "#63be7b" });
   const gridRef = useRef<HTMLDivElement | null>(null);
   const undoRef = useRef<{ json: string; active: string }[]>([]);
+  /** current sheet name → name in the opened .xlsx (lossless save maps renamed sheets back to their parts). */
+  const renamesRef = useRef<Record<string, string>>({});
   const redoRef = useRef<{ json: string; active: string }[]>([]);
   const clipRef = useRef<{ tsv: string; clip: Clip; cut: boolean; range: Range; sheet: string } | null>(null);
+  /** TT47: set while the workbook came from a password-protected .xlsx (decrypted here; Fusion cannot re-encrypt). */
+  const encRef = useRef<{ path: string; plain: Uint8Array | null } | null>(null);
   const dragRef = useRef<Drag>(null);
   const [editAt, setEditAt] = useState<Pos>({ col: 0, row: 0 });
   const [editSheet, setEditSheet] = useState("Sheet1");
@@ -111,9 +116,27 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     let alive = true;
     (async () => {
       let wb = new Workbook();
+      renamesRef.current = {};
       if (path.toLowerCase().endsWith(".xlsx")) {
+        encRef.current = null;
         try { const r = await post<{ ok: boolean; workbook: WorkbookJson }>("/api/sheet", { op: "importXlsx", path }); wb = workbookFromJson(r.workbook); }
-        catch (e) { shell.toast(`Could not import .xlsx: ${String((e as Error).message)}`, "bad"); }
+        catch (e) {
+          const msg = String((e as Error).message);
+          if (/OLE\/CFB container/.test(msg)) {
+            // TT47: password-protected .xlsx — fetch the container, decrypt on this device, import the decrypted package
+            encRef.current = { path, plain: null }; // set first: a cancelled/failed open must never save plaintext over it
+            try {
+              const n = await api<{ node: { content: string; encoding?: string } }>(`/api/fs?op=read&path=${encodeURIComponent(path)}`);
+              const raw = Uint8Array.from(atob(n.node.content), (c) => c.charCodeAt(0));
+              const u = isEncryptedOffice(raw) ? await unlockOffice(raw, path.split("/").pop() ?? "workbook.xlsx") : null;
+              if (u) {
+                const r = await post<{ ok: boolean; workbook: WorkbookJson }>("/api/sheet", { op: "importXlsx", base64: toBase64(u.bytes) });
+                wb = workbookFromJson(r.workbook); encRef.current = { path, plain: u.bytes };
+                setStatus(`Opened password-protected workbook (${u.method}${u.integrity === "verified" ? ", integrity verified" : ""}) — saving creates an unencrypted copy`);
+              } else shell.toast(isEncryptedOffice(raw) ? "Not opened: the workbook is password-protected and no password was entered." : `Could not import .xlsx: ${msg}`, "warn");
+            } catch (e2) { shell.toast(`Could not open the protected workbook: ${String((e2 as Error).message)}`, "bad"); }
+          } else shell.toast(`Could not import .xlsx: ${msg}`, "bad");
+        }
       } else if (path) {
         try {
           const r = await api<{ node: { content: string } }>(`/api/fs?op=read&path=${encodeURIComponent(path)}`);
@@ -142,7 +165,36 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const redo = () => restore(redoRef, undoRef);
 
   /* ------------------------------------------------------------ persistence */
+  /** TT46: lossless .xlsx save — the original package is kept; only edited cells/sheets/styles are rewritten. */
+  const saveXlsxLossless = async (dest0: string): Promise<boolean> => {
+    let dest = dest0; let src: { sourceBase64?: string } = {};
+    if (encRef.current) {
+      // never write plaintext over (or silently beside) a password-protected original — explicit unencrypted copy only
+      const enc = encRef.current;
+      if (!enc.plain) { shell.toast("Not saved: the password-protected workbook was not unlocked.", "warn"); return true; }
+      const d2 = await confirmUnencryptedCopy(enc.path, dest0 === enc.path ? "" : dest0, ".xlsx");
+      if (!d2) { setStatus("not saved — the password-protected original is unchanged"); return true; }
+      dest = d2; src = { sourceBase64: toBase64(enc.plain) };
+    }
+    try {
+      const r = await post<{ ok: boolean; path: string; bytes: number; report: { partsCopied: number; partsRewritten: string[]; cellsRewritten: number; sheetsAdded: string[]; sheetsRemoved: string[]; sheetsRenamed: [string, string][] } }>(
+        "/api/sheet", { op: "patchXlsxToVfs", source: path, dest, workbook: workbookToJson(workbook), renames: renamesRef.current, ...src });
+      const rp = r.report;
+      setDirty(false);
+      setStatus(rp.partsRewritten.length
+        ? `saved ${r.path} · lossless: ${rp.partsCopied} part(s) kept byte-identical, ${rp.partsRewritten.length} rewritten, ${rp.cellsRewritten} cell(s) written`
+        : `saved ${r.path} · no changes — file left byte-identical`);
+      shell.bumpRefresh();
+      if (dest !== path) shell.dispatch({ t: "setProps", id: win.id, props: { path: dest } });
+      return true;
+    } catch (e) {
+      if (encRef.current) { shell.toast(`Not saved: ${String((e as Error).message)}`, "bad"); return true; } // no plaintext .fworkbook fallback
+      shell.toast(`Lossless .xlsx save refused: ${String((e as Error).message)}. Saved as a Fusion workbook instead; "Export .xlsx" writes a NEW package that drops charts, comments, conditional formats, pivots and drawings.`, "warn");
+      return false;
+    }
+  };
   const save = async () => {
+    if (path && /\.xlsx$/i.test(path) && await saveXlsxLossless(path)) return;
     const dest = path && !/\.xlsx$/i.test(path) ? path : `/Documents/workbook-${Date.now()}.fworkbook`;
     await post("/api/fs", { op: "write", path: dest, content: JSON.stringify(workbookToJson(workbook)), reason: "spreadsheet-save" });
     setDirty(false); setStatus(`saved ${dest}`); shell.bumpRefresh();
@@ -150,13 +202,18 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   };
   const exportXlsx = async () => {
     const dest = (path || "/Documents/workbook").replace(/\.(fworkbook|fsheet|xlsx)$/i, "") + ".xlsx";
+    if (path && /\.xlsx$/i.test(path)) { await saveXlsxLossless(dest); return; }
     const r = await post<{ ok: boolean; path: string; bytes: number; sheets: number; error?: string }>("/api/sheet", { op: "saveXlsxToVfs", workbook: workbookToJson(workbook), dest });
     if (r.ok) { setStatus(`exported ${r.bytes} B · ${r.sheets} sheet(s) → ${r.path} (charts & conditional formats are not exported to .xlsx)`); shell.bumpRefresh(); }
     else shell.toast(r.error ?? "export failed", "bad");
   };
   const importXlsx = async (file: File) => {
     if (file.size > 8 * 1024 * 1024) { shell.toast(".xlsx exceeds the 8 MB import guard", "warn"); return; }
-    const bytes = new Uint8Array(await file.arrayBuffer());
+    let bytes: Uint8Array = new Uint8Array(await file.arrayBuffer());
+    if (isEncryptedOffice(bytes)) {
+      try { const u = await unlockOffice(bytes, file.name); if (!u) return; bytes = u.bytes; }
+      catch (e) { shell.toast(`Cannot open ${file.name}: ${(e as Error).message}`, "bad"); return; }
+    }
     const r = await post<{ ok: boolean; workbook?: WorkbookJson; error?: string }>("/api/sheet", { op: "importXlsx", base64: toBase64(bytes) });
     if (!r.ok || !r.workbook) { shell.toast(r.error ?? "import failed", "bad"); return; }
     pushUndo();
@@ -178,6 +235,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     mutate((wb) => {
       const entries = [...wb.sheets.entries()]; wb.sheets.clear();
       for (const [n, s] of entries) { if (n === old) s.name = next; wb.sheets.set(s.name, s); } // keeps order, styles, widths, freeze
+      for (const t of wb.tables.values()) if (t.sheet === old) t.sheet = next; // structured references follow the sheet
+      const was = renamesRef.current[old] ?? old; delete renamesRef.current[old]; renamesRef.current[next] = was; // lossless .xlsx save maps it back
       const re = new RegExp(`(^|[^A-Za-z0-9_.'])(?:${escapeRe(old)}|'${escapeRe(old.replace(/'/g, "''"))}')!`, "g");
       for (const s of wb.sheets.values()) for (const [k, cell] of [...s.grid]) if (cell.formula && re.test(cell.input)) { re.lastIndex = 0; const [c, r] = k.split(",").map(Number); s.setCell(c, r, cell.input.replace(re, (_m, pre) => `${pre}${quoteSheet(next)}!`)); }
       for (const x of [...wb.charts, ...wb.condFormats]) if (x.sheet === old) x.sheet = next;
@@ -389,7 +448,13 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   };
   const addCf = () => {
     const id = nextId("cf", workbook.condFormats.map((c) => c.id));
-    mutate((wb) => { wb.condFormats.push({ id, sheet: active, range: rangeA1(selR).includes(":") ? rangeA1(selR) : `${rangeA1(selR)}:${rangeA1(selR)}`, kind: cf.kind, a: cf.a, b: cf.b, fill: cf.fill, color: cf.color }); });
+    const range = rangeA1(selR).includes(":") ? rangeA1(selR) : `${rangeA1(selR)}:${rangeA1(selR)}`;
+    if ((["gt", "lt", "ge", "le", "between"] as string[]).includes(cf.kind) && (cf.a.trim() === "" || !Number.isFinite(Number(cf.a)) || (cf.kind === "between" && (cf.b.trim() === "" || !Number.isFinite(Number(cf.b)))))) { shell.toast("Enter a number for the rule value.", "warn"); return; }
+    // TT47: colour scales carry their colours (2- or 3-colour, Excel's default min | 50th percentile | max thresholds)
+    const rule: CondRule = cf.kind === "scale" || cf.kind === "scale3"
+      ? { id, sheet: active, range, kind: "scale", scaleMin: cf.sMin, scaleMax: cf.sMax, ...(cf.kind === "scale3" ? { scaleMid: cf.sMid, scaleAt: "min|percentile:50|max" } : { scaleAt: "min|max" }) }
+      : { id, sheet: active, range, kind: cf.kind, a: cf.a, b: cf.kind === "between" ? cf.b : undefined, fill: cf.fill, color: cf.color };
+    mutate((wb) => { wb.condFormats.push(rule); });
   };
   const findNext = () => {
     const hits = findAll(workbook, findQ, { matchCase }); if (!hits.length) { setFindInfo("no matches"); return; }
@@ -536,7 +601,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const row = (r: number, sticky = false, segStart = r, segEnd = r) => (
     <tr key={r} style={sticky ? { position: "sticky", top: HEAD_H, zIndex: 2, background: "var(--fs-bg, #0b1020)" } : undefined}>
       <td className="fs-dim" onMouseDown={() => { commit(null); setSel({ a: { col: 0, row: r }, f: { col: COLS - 1, row: r } }); gridRef.current?.focus(); }}
-        style={{ position: "sticky", left: 0, zIndex: 1, textAlign: "center", fontSize: fz(10.5), background: r >= selR.r0 && r <= selR.r1 ? "rgba(91,140,255,.22)" : "var(--fs-bg-2, #131a2b)", borderRight: "1px solid var(--fs-border)", borderBottom: sticky ? "2px solid #475569" : "1px solid var(--fs-border)", cursor: "e-resize" }}>{r + 1}</td>
+        style={{ position: "sticky", left: 0, zIndex: 1, textAlign: "center", fontSize: fz(10.5), background: r >= selR.r0 && r <= selR.r1 ? "linear-gradient(rgba(91,140,255,.22), rgba(91,140,255,.22)), var(--fs-bg-2, #131a2b)" : "var(--fs-bg-2, #131a2b)", borderRight: "1px solid var(--fs-border)", borderBottom: sticky ? "2px solid #475569" : "1px solid var(--fs-border)", cursor: "e-resize" }}>{r + 1}</td>
       {Array.from({ length: COLS }, (_, c) => renderCell(c, r, segStart, segEnd))}
     </tr>
   );
@@ -717,19 +782,20 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
             <span>Apply to <b className="fs-mono">{rangeA1(selR)}</b> when</span>
             <select className="fs-input" aria-label="Rule type" value={cf.kind} onChange={(e) => setCf({ ...cf, kind: e.target.value as CondKind })} style={{ width: 150 }}>
-              <option value="gt">value &gt;</option><option value="lt">value &lt;</option><option value="eq">value =</option><option value="between">between</option>
-              <option value="contains">text contains</option><option value="duplicate">duplicate values</option><option value="top">top N</option><option value="scale">2-colour scale</option>
+              <option value="gt">value &gt;</option><option value="lt">value &lt;</option><option value="ge">value &ge;</option><option value="le">value &le;</option><option value="eq">value =</option><option value="between">between</option>
+              <option value="contains">text contains</option><option value="duplicate">duplicate values</option><option value="top">top N</option><option value="scale">2-colour scale</option><option value="scale3">3-colour scale</option>
             </select>
-            {["gt", "lt", "eq", "between", "contains", "top"].includes(cf.kind) ? <input className="fs-input" aria-label="Rule value" value={cf.a} onChange={(e) => setCf({ ...cf, a: e.target.value })} style={{ width: 80 }} /> : null}
+            {["gt", "lt", "ge", "le", "eq", "between", "contains", "top"].includes(cf.kind) ? <input className="fs-input" aria-label="Rule value" value={cf.a} onChange={(e) => setCf({ ...cf, a: e.target.value })} style={{ width: 80 }} /> : null}
             {cf.kind === "between" ? <input className="fs-input" aria-label="Rule value 2" value={cf.b} onChange={(e) => setCf({ ...cf, b: e.target.value })} style={{ width: 80 }} /> : null}
-            {cf.kind !== "scale" ? <>fill <input type="color" value={cf.fill} onChange={(e) => setCf({ ...cf, fill: e.target.value })} /> text <input type="color" value={cf.color} onChange={(e) => setCf({ ...cf, color: e.target.value })} /></> : null}
+            {cf.kind !== "scale" && cf.kind !== "scale3" ? <>fill <input type="color" aria-label="Rule fill" value={cf.fill} onChange={(e) => setCf({ ...cf, fill: e.target.value })} /> text <input type="color" aria-label="Rule text colour" value={cf.color} onChange={(e) => setCf({ ...cf, color: e.target.value })} /></>
+              : <>min <input type="color" aria-label="Scale minimum colour" value={cf.sMin} onChange={(e) => setCf({ ...cf, sMin: e.target.value })} />{cf.kind === "scale3" ? <> mid <input type="color" aria-label="Scale midpoint colour" value={cf.sMid} onChange={(e) => setCf({ ...cf, sMid: e.target.value })} /></> : null} max <input type="color" aria-label="Scale maximum colour" value={cf.sMax} onChange={(e) => setCf({ ...cf, sMax: e.target.value })} /></>}
             <Btn variant="primary" onClick={addCf}>Add rule</Btn>
           </div>
           {workbook.condFormats.filter((r) => r.sheet === active).map((r) => (
-            <div key={r.id} className="fs-row" style={{ gap: 6, marginTop: 3 }}>
-              <span className="fs-mono">{r.range}</span><span>{r.kind}{r.a ? ` ${r.a}` : ""}{r.b ? `…${r.b}` : ""}</span>
-              {r.fill ? <span style={{ width: 14, height: 14, background: r.fill, display: "inline-block", borderRadius: 3 }} /> : null}
-              <button className="fs-btn" data-variant="ghost" onClick={() => mutate((wb) => { wb.condFormats = wb.condFormats.filter((x) => x.id !== r.id); })}>remove</button>
+            <div key={r.id} className="fs-row" data-testid="cf-rule" data-range={r.range} style={{ gap: 6, marginTop: 3 }}>
+              <span className="fs-mono">{r.range}</span><span>{r.kind === "scale" ? (r.scaleMid ? "3-colour scale" : "2-colour scale") : r.kind}{r.a ? ` ${r.a}` : ""}{r.b ? `…${r.b}` : ""}</span>
+              {(r.kind === "scale" ? [r.scaleMin, r.scaleMid, r.scaleMax] : [r.fill, r.color]).filter(Boolean).map((c, i) => <span key={i} aria-hidden style={{ width: 14, height: 14, background: c, display: "inline-block", borderRadius: 3, border: "1px solid var(--fs-border)" }} />)}
+              <button className="fs-btn" data-variant="ghost" aria-label={`Remove rule ${r.range}`} onClick={() => mutate((wb) => { wb.condFormats = wb.condFormats.filter((x) => x.id !== r.id); })}>remove</button>
             </div>
           ))}
         </div>
@@ -744,7 +810,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
               <th onMouseDown={() => setSel({ a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } })} style={{ position: "sticky", left: 0, zIndex: 4, height: HEAD_H, background: "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)" }} title="Select all" />
               {Array.from({ length: COLS }, (_, c) => (
                 <th key={c} onMouseDown={(e) => { if ((e.target as HTMLElement).dataset.resize) return; commit(null); setSel(e.shiftKey ? { a: { col: sel.a.col, row: 0 }, f: { col: c, row: ROWS - 1 } } : { a: { col: c, row: 0 }, f: { col: c, row: ROWS - 1 } }); gridRef.current?.focus(); }}
-                  style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, height: HEAD_H, fontWeight: 500, fontSize: fz(11), background: c >= selR.c0 && c <= selR.c1 ? "rgba(91,140,255,.22)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
+                  style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, height: HEAD_H, fontWeight: 500, fontSize: fz(11), background: c >= selR.c0 && c <= selR.c1 ? "linear-gradient(rgba(91,140,255,.22), rgba(91,140,255,.22)), var(--fs-bg-2, #131a2b)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
                   {colToLetters(c)}
                   <div data-resize="1" data-testid={`resize-${colToLetters(c)}`} onMouseDown={(e) => { e.stopPropagation(); pushUndo(); dragRef.current = { mode: "resize", col: c, x: e.clientX, w: colW(c) }; }}
                     onDoubleClick={() => mutate((_wb, s) => { delete s.colWidths[c]; })} style={{ position: "absolute", right: -3, top: 0, width: 6, height: "100%", cursor: "col-resize", zIndex: 2 }} />

@@ -89,7 +89,7 @@ def layout_write(path):
     ws.merge_cells("A3:A5")
     thin = Side(style="thin", color="FF000000")
     ws["B3"].border = Border(left=thin, right=Side(style="medium", color="FFFF0000"), top=Side(style="dashed"), bottom=Side(style="double", color="FF00B050"))
-    ws["C3"].border = Border(bottom=Side(style="thick", color=Color(theme=4)))  # theme colour: style kept, colour unset
+    ws["C3"].border = Border(bottom=Side(style="thick", color=Color(theme=4)))  # theme colour: resolved by the reader through theme1.xml (TT47)
     ws["D3"].border = Border(left=Side(style="mediumDashed"))  # style outside our set: dropped (declared)
     ws["B4"].alignment = Alignment(vertical="top")
     ws["F1"] = "Red"; ws["F2"] = "Green"; ws["F3"] = "Blue"

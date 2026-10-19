@@ -1,6 +1,6 @@
 {
   "suite": "oracle-xlsx",
-  "at": "2026-10-19T05:42:14.180Z",
+  "at": "2026-10-19T18:32:22.800Z",
   "results": [
     {
       "suite": "oracle-xlsx",
@@ -9,7 +9,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 183
+      "ms": 204
     },
     {
       "suite": "oracle-xlsx",
@@ -20,7 +20,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 208
+      "ms": 203
     },
     {
       "suite": "oracle-xlsx",
@@ -31,7 +31,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 204
+      "ms": 189
     },
     {
       "suite": "oracle-xlsx",
@@ -43,11 +43,11 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 194
+      "ms": 178
     },
     {
       "suite": "oracle-xlsx",
-      "name": "D. openpyxl-authored layout → our reader: merges, borders (theme colour → unset, mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
+      "name": "D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
       "covers": {
         "FF-33": "full",
         "FF-34": "full",
@@ -55,7 +55,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 197
+      "ms": 192
     }
   ]
 }

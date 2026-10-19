@@ -9,6 +9,7 @@ import {
 } from "@/lib/server/vfs";
 import { readCentralDirectory, readEntryVerified, writeZip } from "@/lib/server/zip";
 import { readJsonObject } from "@/lib/http-json";
+import { refuseEncryptedOverwrite } from "@/lib/mime";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
   try {
     switch (op) {
       case "write":
+        if (body.encoding === "base64") refuseEncryptedOverwrite(await getNode(normalize(String(body.path))), String(body.content ?? ""), body.replaceEncrypted);
         return NextResponse.json(await writeFile({
           path: String(body.path), content: String(body.content ?? ""),
           encoding: (body.encoding as "utf8" | "base64") ?? "utf8",
@@ -116,6 +118,7 @@ export async function POST(req: NextRequest) {
       case "upload": {
         // base64 payload from the browser; size guard lives in writeFile
         const path = normalize(String(body.path));
+        refuseEncryptedOverwrite(await getNode(path), String(body.content ?? ""), body.replaceEncrypted);
         return NextResponse.json(await writeFile({
           path, content: String(body.content ?? ""), encoding: "base64",
           mime: body.mime ? String(body.mime) : undefined, reason: "upload",

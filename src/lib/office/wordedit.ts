@@ -326,11 +326,17 @@ export function insertTableAfter(doc: WordDoc, pid: string, rows: number, cols: 
 /** Logical grid column of a cell (sums gridSpans before it). */
 export function colOf(row: Row, cell: Cell): number { let c = 0; for (const x of cellsOf(row)) { if (x === cell) return c; c += x.span; } return c; }
 export function cellAtCol(row: Row, col: number): Cell | undefined { let c = 0; for (const x of cellsOf(row)) { if (col >= c && col < c + x.span) return x; c += x.span; } return undefined; }
+/** Remove the whole table; keeps at least one paragraph in the containing block list. */
+function removeTable(w: NonNullable<ReturnType<typeof locate>>): boolean {
+  w.tableList!.splice(w.tableIndex!, 1);
+  if (!w.tableList!.some((b) => b.t === "p")) w.tableList!.push({ t: "p", id: newId(), p: {}, p0: {}, content: [], dirty: true });
+  return true;
+}
 export function tableRowOp(doc: WordDoc, pid: string, op: "above" | "below" | "delete"): boolean {
   const w = locate(doc, pid); if (!w?.table || !w.row) return false;
   const t = w.table; const at = t.items.indexOf(w.row);
   if (op === "delete") {
-    if (rowsOf(t).length === 1) { w.tableList!.splice(w.tableIndex!, 1); if (!w.tableList!.some((b) => b.t === "p")) w.tableList!.push({ t: "p", id: newId(), p: {}, p0: {}, content: [], dirty: true }); return true; }
+    if (rowsOf(t).length === 1) return removeTable(w);
     t.items.splice(at, 1); return true;
   }
   const nr: Row = { t: "tr", items: cellsOf(w.row).map((c) => { const n = newCell(c.width ?? 2000, c); n.span = c.span; n.span0 = -1; return n; }) };
@@ -341,7 +347,7 @@ export function tableColOp(doc: WordDoc, pid: string, op: "left" | "right" | "de
   const w = locate(doc, pid); if (!w?.table || !w.row || !w.cell) return false;
   const t = w.table; const col = colOf(w.row, w.cell) + (op === "right" ? w.cell.span - 1 : 0);
   if (op === "delete") {
-    if (t.grid.length <= 1) return tableRowOp(doc, pid, "delete") && false;
+    if (t.grid.length <= 1) return removeTable(w); // TT47: deleting the only column deletes the table (was: deleted one row, reported no change)
     for (const r of rowsOf(t)) { const c = cellAtCol(r, col); if (!c) continue; if (c.span > 1) c.span--; else r.items.splice(r.items.indexOf(c), 1); }
     t.grid.splice(col, 1);
     return true;

@@ -28,3 +28,16 @@ export const isPrivateVfsPath = (p: string) => p === "/Private" || p.startsWith(
 export function refuseEncrypted(node: { mime: string; path: string }) {
   if (node.mime === ENCRYPTED_MIME) throw new Error(`${node.path} is encrypted Persistent Storage — the server holds ciphertext only; open it from the browser while unlocked`);
 }
+
+/** TT47: base64 prefix of the MS-CFB signature D0CF11E0A1B11AE1 (password-protected OOXML lives in a CFB container). */
+const CFB_B64 = "0M8R4KGxGu"; // first 10 chars = 60 bits of the signature, independent of the byte that follows
+/**
+ * Server-side guard: refuse to replace a password-protected .docx/.xlsx/.pptx with a non-encrypted body unless the
+ * client confirmed it explicitly (replaceEncrypted). Fusion decrypts but cannot re-encrypt, so this is what stops a
+ * decrypted document being written back over its protected original as plaintext.
+ */
+export function refuseEncryptedOverwrite(existing: { content?: string | null; encoding?: string | null; path: string } | null | undefined, newBase64: string, confirmed: unknown) {
+  if (!existing || confirmed === true || !/\.(docx|xlsx|pptx|docm|xlsm|pptm)$/i.test(existing.path)) return;
+  const wasCfb = existing.encoding === "base64" && typeof existing.content === "string" && existing.content.startsWith(CFB_B64);
+  if (wasCfb && !newBase64.startsWith(CFB_B64)) throw new Error(`${existing.path} is a password-protected file; refusing to replace it with an unencrypted copy (save under a different name)`);
+}

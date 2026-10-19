@@ -123,7 +123,9 @@ function formatFraction(value: number, toks: Tok[], slash: number): string {
 function roundAway(x: number, d: number): string {
   if (d > 15) d = 15;
   const sgn = x < 0 ? -1 : 1; const a = Math.abs(x);
-  const r = Math.round(Number(`${a}e${d}`)) / 10 ** d; // decimal-string shift avoids 1.005*100 errors
+  // decimal-exponent shift on the 15-significant-digit value avoids 1.005*100 errors (and works for 1e-7 forms)
+  const [mant, ex] = Number(a.toPrecision(15)).toExponential(14).split("e");
+  const r = Math.round(Number(`${mant}e${Number(ex) + d}`)) / 10 ** d;
   const v = Number.isFinite(r) ? r : a;
   return (sgn < 0 && v !== 0 ? "-" : "") + v.toFixed(d);
 }
@@ -145,7 +147,8 @@ function formatNumberToks(value: number, toks: Tok[]): string {
   const thousands = toks.slice(firstPh, intEnd).some((t) => t.k === "comma");
   let scale = 0; for (let i = lastPh + 1; i < toks.length && toks[i].k === "comma"; i++) scale++;
   const pct = toks.filter((t) => t.k === "pct").length;
-  let x = Math.abs(value) * 100 ** pct / 1000 ** scale;
+  // TT47: Excel works to 15 significant digits — 0.00035*100 is 0.034999…96 in binary but 0.035 to Excel
+  let x = Number((Math.abs(value) * 100 ** pct / 1000 ** scale).toPrecision(15));
   let expStr = "";
   if (expIdx >= 0) {
     const expPh = toks.slice(expIdx + 1).filter((t) => t.k === "ph").length;
@@ -179,6 +182,7 @@ function formatNumberToks(value: number, toks: Tok[]): string {
     const t = toks[i];
     if (t.k === "lit") out += t.v;
     else if (t.k === "pct") out += "%";
+    else if (t.k === "comma" && i < firstPh) out += ","; // TT47: a comma before any digit placeholder is literal
     else if (t.k === "ph") {
       if (expIdx >= 0 && i > expIdx) { if (!expDone) { out += expStr; expDone = true; } continue; }
       if (dotIdx >= 0 && i > dotIdx) { if (!decDone) { out += dp; decDone = true; } continue; }
@@ -263,7 +267,8 @@ export function formatValue(v: Scalar | undefined, fmt?: string): Formatted {
   if (conds.some(Boolean)) { // TT46: [<0] / [>=100] conditional sections; the first matching wins, else the next unconditioned one
     const i = sections.findIndex((_, k) => conds[k] && condOk(conds[k]!, v));
     const j = i >= 0 ? i : sections.findIndex((_, k) => !conds[k] && k < 3);
-    sec = sections[j >= 0 ? j : 0];
+    if (j < 0) return { text: formatGeneral(v) }; // TT47: no section applies → Excel shows the value in General
+    sec = sections[j];
     autoMinus = v < 0 && !(conds[j]?.op.startsWith("<") ?? false) && j === 0;
     value = v;
   } else if (v < 0 && sections.length >= 2 && sections[1] !== "") { sec = sections[1]; value = -v; autoMinus = false; }

@@ -10,13 +10,16 @@ import { sanitizeCharts, sanitizeCondFormats } from "./sheetmeta";
 
 export interface CellJson { ref: string; input: string; style?: CellStyle }
 export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[] }
-export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[] }
+export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[]; tables?: unknown[]; date1904?: boolean }
 
 export function workbookToJson(wb: Workbook): WorkbookJson {
   const extra: Partial<WorkbookJson> = {};
   if (wb.charts.length) extra.charts = wb.charts.map((c) => ({ ...c }));
   if (wb.condFormats.length) extra.condFormats = wb.condFormats.map((c) => ({ ...c }));
   if (wb.names.size) extra.names = wb.listNames().map((n) => ({ ...n }));
+  // TT46: Excel tables (structured-reference targets) and the 1904 date system must survive the UI round-trip.
+  if (wb.tables.size) extra.tables = [...wb.tables.values()].map((t) => ({ ...t, columns: [...t.columns] }));
+  if (wb.date1904) extra.date1904 = true;
   return {
     ...extra,
     sheets: [...wb.sheets.values()].map((s) => {
@@ -46,7 +49,8 @@ function cleanStyle(raw: unknown): Partial<CellStyle> | null {
   const out: Record<string, unknown> = {};
   for (const k of STYLE_KEYS) {
     const v = (raw as Record<string, unknown>)[k];
-    if (typeof v === "boolean" || (typeof v === "string" && v.length <= 64)) out[k] = v;
+    // Excel caps number-format codes at 255 characters; accounting formats routinely exceed 64.
+    if (typeof v === "boolean" || (typeof v === "string" && v.length <= (k === "numFmt" ? 255 : 64))) out[k] = v;
   }
   if (out.align !== undefined && !["left", "center", "right"].includes(out.align as string)) delete out.align;
   for (const k of ["fill", "color"]) if (out[k] !== undefined && !/^#[0-9a-f]{6}$/i.test(out[k] as string)) delete out[k];
@@ -89,6 +93,17 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
   if (!wb.sheets.size) wb.addSheet("Sheet1");
   wb.charts = sanitizeCharts(data.charts);
   wb.condFormats = sanitizeCondFormats(data.condFormats);
+  wb.date1904 = data.date1904 === true;
+  // Untrusted tables: name syntax, existing sheet, sane bounds, one column name per column (max 2000 tables).
+  const okInt = (v: unknown, max: number) => typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= max;
+  for (const raw of (Array.isArray(data.tables) ? data.tables : []).slice(0, 2000)) {
+    const t = raw as Partial<Record<keyof import("./engine").TableDef, unknown>>;
+    if (typeof t?.name !== "string" || !/^[A-Za-z_\\][\w.\\]{0,254}$/.test(t.name) || typeof t.sheet !== "string" || !wb.sheets.has(t.sheet)) continue;
+    if (!okInt(t.c0, 16383) || !okInt(t.c1, 16383) || !okInt(t.r0, 1048575) || !okInt(t.r1, 1048575) || (t.c1 as number) < (t.c0 as number) || (t.r1 as number) < (t.r0 as number)) continue;
+    const cols = Array.isArray(t.columns) ? t.columns.filter((c): c is string => typeof c === "string" && c.length <= 255) : [];
+    if (cols.length !== (t.c1 as number) - (t.c0 as number) + 1) continue;
+    wb.tables.set(t.name.toUpperCase(), { name: t.name, sheet: t.sheet, c0: t.c0 as number, r0: t.r0 as number, c1: t.c1 as number, r1: t.r1 as number, headerRows: okInt(t.headerRows, 1) ? (t.headerRows as number) : 1, totalsRows: okInt(t.totalsRows, 1) ? (t.totalsRows as number) : 0, columns: cols });
+  }
   // Untrusted names: each goes through defineName's validation; invalid ones are dropped (max 2000).
   for (const raw of (Array.isArray(data.names) ? data.names : []).slice(0, 2000)) {
     const n = raw as { name?: unknown; ref?: unknown; scope?: unknown; comment?: unknown };
