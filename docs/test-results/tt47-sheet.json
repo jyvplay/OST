@@ -1,6 +1,6 @@
 {
   "suite": "tt47-sheet",
-  "at": "2026-10-19T22:08:14.994Z",
+  "at": "2026-10-20T09:06:05.229Z",
   "results": [
     {
       "suite": "tt47-sheet",
@@ -10,7 +10,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 183
+      "ms": 173
     },
     {
       "suite": "tt47-sheet",
@@ -20,7 +20,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 34
+      "ms": 32
     },
     {
       "suite": "tt47-sheet",
@@ -30,7 +30,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 111851
+      "ms": 88036
     },
     {
       "suite": "tt47-sheet",
@@ -40,7 +40,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt47-sheet",
@@ -50,7 +50,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 418
+      "ms": 373
     },
     {
       "suite": "tt47-sheet",
@@ -60,7 +60,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 1983
+      "ms": 1449
     },
     {
       "suite": "tt47-sheet",
@@ -70,7 +70,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 21
+      "ms": 26
     },
     {
       "suite": "tt47-sheet",
@@ -79,7 +79,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 135107
+      "ms": 100259
     }
   ]
 }

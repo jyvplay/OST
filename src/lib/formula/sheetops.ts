@@ -69,6 +69,8 @@ function rewriteRefs(input: string, fn: (unit: RefParts[]) => string): string {
 export function shiftFormula(input: string, dCol: number, dRow: number): string {
   if ((dCol === 0 && dRow === 0) || !input.startsWith("=")) return input;
   return rewriteRefs(input, (unit) => {
+    const text = () => unit.map((p, i) => (i === 0 ? refText(p) : refText({ ...p, sheet: "" }))).join(":");
+    if (unit.some((p) => p.col < 0 || p.row < 0 || p.col > MAX_COL || p.row > MAX_ROW)) return text(); // TT49: "A0" is not a reference — never shift it into one
     const moved = unit.map((p) => ({ ...p, col: p.colAbs ? p.col : p.col + dCol, row: p.rowAbs ? p.row : p.row + dRow }));
     if (moved.some((p) => p.col < 0 || p.row < 0 || p.col > MAX_COL || p.row > MAX_ROW)) return "#REF!";
     return moved.map((p, i) => (i === 0 ? refText(p) : refText({ ...p, sheet: "" }))).join(":");

@@ -13,6 +13,8 @@ import {
   type WorkbookJson, type CellStyle, type Range, type Clip, type ChartKind, type CondKind, type CondRule, type Scalar,
 } from "@/lib/formula/client";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
+import { iconDataUri, iconLabel, ICON_SETS, MAIN_ICON_SETS } from "@/lib/formula/cficons";
+import { TIME_PERIODS, type CfStyle } from "@/lib/formula/sheetmeta";
 import {
   applyBorders, borderCss, edgeAt, expandToMerges, invalidCells, listFormula, listItems, mergeAcross, mergeAt, mergeCells, partialMergeConflict,
   ruleAt, sanitizeValidation, sortConflict, stepCell, unmergeCells, validateEntry, VALIDATION_OPS, type BorderPreset,
@@ -51,6 +53,43 @@ type Drag = { mode: "select" } | { mode: "fill"; target: Range | null } | { mode
  * Pure logic lives in src/lib/formula/{sheetops,sheetui,sheetmeta,numfmt}.ts
  * and is covered headless by scripts/office-engine*.mts.
  */
+/** TT49: the rule types the conditional-format panel can author (Excel's "New Formatting Rule" set). */
+type CfUiKind = "gt" | "lt" | "ge" | "le" | "eq" | "ne" | "between" | "notBetween" | "contains" | "notContains" | "begins" | "ends" | "blanks" | "noBlanks" | "errors" | "noErrors"
+  | "duplicate" | "unique" | "top" | "bottom" | "topPct" | "bottomPct" | "aboveAvg" | "belowAvg" | "period" | "expr" | "scale" | "scale3" | "bar" | "icons";
+const CF_UI_KINDS: [CfUiKind, string][] = [
+  ["gt", "value >"], ["lt", "value <"], ["ge", "value \u2265"], ["le", "value \u2264"], ["eq", "value ="], ["ne", "value \u2260"], ["between", "between"], ["notBetween", "not between"],
+  ["contains", "text contains"], ["notContains", "text does not contain"], ["begins", "text begins with"], ["ends", "text ends with"],
+  ["blanks", "blanks"], ["noBlanks", "no blanks"], ["errors", "errors"], ["noErrors", "no errors"], ["duplicate", "duplicate values"], ["unique", "unique values"],
+  ["top", "top N"], ["bottom", "bottom N"], ["topPct", "top N%"], ["bottomPct", "bottom N%"], ["aboveAvg", "above average"], ["belowAvg", "below average"],
+  ["period", "date occurring"], ["expr", "formula is true"], ["scale", "2-colour scale"], ["scale3", "3-colour scale"], ["bar", "data bar"], ["icons", "icon set"],
+];
+const PERIOD_LABEL: Record<string, string> = { today: "today", yesterday: "yesterday", tomorrow: "tomorrow", last7Days: "in the last 7 days", thisWeek: "this week", lastWeek: "last week", nextWeek: "next week", thisMonth: "this month", lastMonth: "last month", nextMonth: "next month" };
+const CMP_LABEL: Record<string, string> = { gt: ">", lt: "<", ge: "\u2265", le: "\u2264", eq: "=", ne: "\u2260" };
+function cfLabel(r: CondRule): string {
+  const A = r.af !== undefined ? `=${r.af}` : r.a ?? "", B = r.bf !== undefined ? `=${r.bf}` : r.b ?? "";
+  const stop = r.stop ? " (stop)" : "";
+  switch (r.kind) {
+    case "gt": case "lt": case "ge": case "le": case "eq": case "ne": return `value ${CMP_LABEL[r.kind]} ${A}${stop}`;
+    case "between": return `between ${A} and ${B}${stop}`;
+    case "notBetween": return `not between ${A} and ${B}${stop}`;
+    case "contains": return `text contains "${r.a ?? ""}"${stop}`;
+    case "notContains": return `text does not contain "${r.a ?? ""}"${stop}`;
+    case "begins": return `text begins with "${r.a ?? ""}"${stop}`;
+    case "ends": return `text ends with "${r.a ?? ""}"${stop}`;
+    case "blanks": return `blanks${stop}`; case "noBlanks": return `no blanks${stop}`;
+    case "errors": return `errors${stop}`; case "noErrors": return `no errors${stop}`;
+    case "duplicate": return `duplicate values${stop}`; case "unique": return `unique values${stop}`;
+    case "top": return `${r.bottom ? "bottom" : "top"} ${r.a ?? 10}${r.pct ? "%" : ""}${stop}`;
+    case "aboveAvg": return `${r.below ? "below" : "above"} average${r.equal ? " or equal" : ""}${r.stdDev ? ` by ${r.stdDev} std dev` : ""}${stop}`;
+    case "period": return `date ${PERIOD_LABEL[r.period ?? ""] ?? r.period}${stop}`;
+    case "expr": return `formula =${r.formula ?? ""}${stop}`;
+    case "scale": return r.scaleMid ? "3-colour scale" : "2-colour scale";
+    case "bar": return `data bar${r.barAxis ? " (negative axis)" : ""}`;
+    case "icons": return `icon set ${r.iconSet ?? "3TrafficLights1"}${r.reverse ? " reversed" : ""}${r.icons ? " (custom)" : ""}`;
+  }
+  return r.kind;
+}
+
 export default function SpreadsheetModule({ win }: ModuleProps) {
   // TT21: rows, headers and default columns grow with the text size. Stored column widths stay in document px
   // (what xlsx export writes); the screen width is stored × k and a drag divides by k.
@@ -91,7 +130,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [showInvalid, setShowInvalid] = useState(false);
   const [scroll, setScroll] = useState({ top: 0, h: 600 });
   const [findQ, setFindQ] = useState(""); const [replQ, setReplQ] = useState(""); const [matchCase, setMatchCase] = useState(false); const [findInfo, setFindInfo] = useState("");
-  const [cf, setCf] = useState<{ kind: CondKind | "scale3"; a: string; b: string; fill: string; color: string; sMin: string; sMid: string; sMax: string }>({ kind: "gt", a: "10", b: "", fill: "#14532d", color: "#bbf7d0", sMin: "#f8696b", sMid: "#ffeb84", sMax: "#63be7b" });
+  const [cf, setCf] = useState<{ kind: CfUiKind; a: string; b: string; fill: string; color: string; sMin: string; sMid: string; sMax: string; bold: boolean; stop: boolean; formula: string; period: string; iconSet: string; reverse: boolean; barColor: string }>({ kind: "gt", a: "10", b: "", fill: "#14532d", color: "#bbf7d0", sMin: "#f8696b", sMid: "#ffeb84", sMax: "#63be7b", bold: false, stop: false, formula: "", period: "today", iconSet: "3Arrows", reverse: false, barColor: "#638ec6" });
   const gridRef = useRef<HTMLDivElement | null>(null);
   const undoRef = useRef<{ json: string; active: string }[]>([]);
   /** current sheet name → name in the opened .xlsx (lossless save maps renamed sheets back to their parts). */
@@ -456,12 +495,36 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const addCf = () => {
     const id = nextId("cf", workbook.condFormats.map((c) => c.id));
     const range = rangeA1(selR).includes(":") ? rangeA1(selR) : `${rangeA1(selR)}:${rangeA1(selR)}`;
-    if ((["gt", "lt", "ge", "le", "between"] as string[]).includes(cf.kind) && (cf.a.trim() === "" || !Number.isFinite(Number(cf.a)) || (cf.kind === "between" && (cf.b.trim() === "" || !Number.isFinite(Number(cf.b)))))) { shell.toast("Enter a number for the rule value.", "warn"); return; }
-    // TT47: colour scales carry their colours (2- or 3-colour, Excel's default min | 50th percentile | max thresholds)
-    const rule: CondRule = cf.kind === "scale" || cf.kind === "scale3"
-      ? { id, sheet: active, range, kind: "scale", scaleMin: cf.sMin, scaleMax: cf.sMax, ...(cf.kind === "scale3" ? { scaleMid: cf.sMid, scaleAt: "min|percentile:50|max" } : { scaleAt: "min|max" }) }
-      : { id, sheet: active, range, kind: cf.kind, a: cf.a, b: cf.kind === "between" ? cf.b : undefined, fill: cf.fill, color: cf.color };
-    mutate((wb) => { wb.condFormats.push(rule); });
+    const k = cf.kind;
+    const fmt = { fill: cf.fill, color: cf.color, ...(cf.bold ? { bold: true } : {}), ...(cf.stop ? { stop: true } : {}) };
+    const formulaOk = (f: string) => { try { parseFormula("=" + f); return true; } catch { return false; } };
+    // cellIs operand: a number, text (= and ≠ only), or "=formula" relative to the range's top-left cell
+    const operand = (v: string, key: "a" | "b", textOk: boolean): Partial<CondRule> | null => {
+      const t = v.trim();
+      if (t.startsWith("=")) return t.length > 1 && formulaOk(t.slice(1)) ? { [key + "f"]: t.slice(1) } : null;
+      if (t !== "" && Number.isFinite(Number(t))) return { [key]: t };
+      return textOk ? { [key]: v } : null;
+    };
+    let rule: CondRule | null = null;
+    if (k === "scale" || k === "scale3") rule = { id, sheet: active, range, kind: "scale", scaleMin: cf.sMin, scaleMax: cf.sMax, ...(k === "scale3" ? { scaleMid: cf.sMid, scaleAt: "min|percentile:50|max" } : { scaleAt: "min|max" }) };
+    else if (k === "bar") rule = { id, sheet: active, range, kind: "bar", barColor: cf.barColor, cfvo: [{ t: "min" }, { t: "max" }] };
+    else if (k === "icons") { const n = ICON_SETS[cf.iconSet]?.length ?? 3; const pct = n === 5 ? [0, 20, 40, 60, 80] : n === 4 ? [0, 25, 50, 75] : [0, 33, 67]; rule = { id, sheet: active, range, kind: "icons", iconSet: cf.iconSet, cfvo: pct.map((p) => ({ t: "percent" as const, v: String(p) })), ...(cf.reverse ? { reverse: true } : {}) }; }
+    else if (k === "expr") { const f = cf.formula.trim().replace(/^=/, ""); if (!f || !formulaOk(f)) { shell.toast("Enter a valid formula, e.g. =$B2>100", "warn"); return; } rule = { id, sheet: active, range, kind: "expr", formula: f, ...fmt }; }
+    else if (k === "period") rule = { id, sheet: active, range, kind: "period", period: cf.period, ...fmt };
+    else if (k === "top" || k === "bottom" || k === "topPct" || k === "bottomPct") {
+      const n = Math.trunc(Number(cf.a)); if (!(n >= 1 && n <= (k.endsWith("Pct") ? 100 : 1000))) { shell.toast("Enter a whole number for N.", "warn"); return; }
+      rule = { id, sheet: active, range, kind: "top", a: String(n), ...(k.startsWith("bottom") ? { bottom: true } : {}), ...(k.endsWith("Pct") ? { pct: true } : {}), ...fmt };
+    } else if (k === "aboveAvg" || k === "belowAvg") rule = { id, sheet: active, range, kind: "aboveAvg", ...(k === "belowAvg" ? { below: true } : {}), ...fmt };
+    else if (k === "contains" || k === "notContains" || k === "begins" || k === "ends") rule = { id, sheet: active, range, kind: k, a: cf.a, ...fmt };
+    else if (k === "blanks" || k === "noBlanks" || k === "errors" || k === "noErrors" || k === "duplicate" || k === "unique") rule = { id, sheet: active, range, kind: k, ...fmt };
+    else {
+      const two = k === "between" || k === "notBetween";
+      const p = operand(cf.a, "a", k === "eq" || k === "ne"), q = two ? operand(cf.b, "b", false) : {};
+      if (!p || !q) { shell.toast("Enter a number (or =formula) for the rule value.", "warn"); return; }
+      rule = { id, sheet: active, range, kind: k, ...p, ...q, ...fmt };
+    }
+    const r = rule;
+    mutate((wb) => { wb.condFormats.push(r); });
   };
   const findNext = () => {
     const hits = findAll(workbook, findQ, { matchCase }); if (!hits.length) { setFindInfo("no matches"); return; }
@@ -541,8 +604,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const span = m ? { colSpan: m.c1 - m.c0 + 1, rowSpan: Math.min(m.r1, segEnd) - row0 + 1 } : {};
     const cell = sheet.get(col, row); const st = cell?.style ?? {};
     const v: Scalar | undefined = workbook.valueAt(active, col, row);
-    const fmt = formatValue(v, st.numFmt);
     const over = cfMap.get(`${col},${row}`);
+    const fmt = formatValue(v, over?.numFmt ?? st.numFmt);
     const inSel = col >= selR.c0 && col <= selR.c1 && row >= selR.r0 && row <= selR.r1;
     const isCur = m ? sel.f.col >= m.c0 && sel.f.col <= m.c1 && sel.f.row >= m.r0 && sel.f.row <= m.r1 : sel.f.col === col && sel.f.row === row;
     const rEdge = edgeAt(sheet, m ? m.c1 : col, row, "right"), bEdge = edgeAt(sheet, col, m ? m.r1 : row, "bottom");
@@ -564,7 +627,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           position: stickyCol ? "sticky" : "relative", left: stickyCol ? ROWHDR_W : undefined, zIndex: stickyCol ? 1 : undefined, verticalAlign: m ? (st.valign === "top" ? "top" : st.valign === "center" ? "middle" : "bottom") : undefined,
           height: ROW_H, padding: "0 5px", overflow: editingHere ? "visible" : "hidden", textOverflow: "ellipsis", whiteSpace: st.wrap ? "normal" : "nowrap", cursor: "cell",
           borderTop: sp && row === sp.r0 ? edge : base, borderBottom: sp && row === sp.r1 ? edge : base, borderLeft: sp && col === sp.c0 ? edge : base, borderRight: sp && col === sp.c1 ? edge : base,
-          fontWeight: st.bold || over?.bold ? 700 : undefined, fontStyle: st.italic ? "italic" : undefined, textDecoration: st.underline ? "underline" : undefined, textAlign: align,
+          fontWeight: st.bold || over?.bold ? 700 : undefined, fontStyle: st.italic || over?.italic ? "italic" : undefined, textDecoration: [st.underline || over?.underline ? "underline" : "", over?.strike ? "line-through" : ""].filter(Boolean).join(" ") || undefined, textAlign: align,
+          paddingLeft: over?.icon ? 22 : undefined,
           // TT22: theme tokens (light theme had pale-blue formula text), and "automatic" ink on filled cells with no
           // explicit font colour — white or near-black by the fill's luminance (display only; the document is unchanged)
           color: err ? "var(--fs-bad-text, #ff9b9b)" : fmt.color ?? over?.color ?? st.color ?? autoInk(over?.fill ?? st.fill) ?? (cell?.formula ? "var(--fs-cell-formula, #bcd4ff)" : "var(--fs-text)"),
@@ -577,9 +641,11 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
               value={editing ?? ""} onFocus={(e) => { const n = e.currentTarget.value.length; e.currentTarget.setSelectionRange(n, n); }} onChange={(e) => { setEditing(e.target.value); setAcIdx(0); }} onKeyDown={editKeys} onBlur={() => { if (!dragRef.current) commit(null); }} />
             {renderAssist()}
           </>
-        ) : fmt.text}
+        ) : over?.bar || over?.icon || over?.hideValue ? cfDecor(over, fmt.text) : fmt.text}
         {rEdge || bEdge || tEdge || lEdge ? <div aria-hidden data-border={[tEdge && "t", rEdge && "r", bEdge && "b", lEdge && "l"].filter(Boolean).join("")}
           style={{ position: "absolute", top: tEdge ? 0 : -1, left: lEdge ? 0 : -1, right: -1, bottom: -1, borderRight: borderCss(rEdge), borderBottom: borderCss(bEdge), borderTop: borderCss(tEdge), borderLeft: borderCss(lEdge), pointerEvents: "none", zIndex: 2 }} /> : null}
+        {over?.border ? <div aria-hidden data-cf-border={(["top", "right", "bottom", "left"] as const).filter((k) => over.border![k]).map((k) => k[0]).join("")}
+          style={{ position: "absolute", inset: 0, borderTop: borderCss(over.border.top), borderRight: borderCss(over.border.right), borderBottom: borderCss(over.border.bottom), borderLeft: borderCss(over.border.left), pointerEvents: "none", zIndex: 2 }} /> : null}
         {bad ? <div aria-hidden data-invalid="1" style={{ position: "absolute", inset: "1px 2px", border: "2px solid #ef4444", borderRadius: "50%", pointerEvents: "none", zIndex: 2 }} /> : null}
         {rule && rule.type === "list" && rule.inCellDropdown && !editingHere ? (
           <button type="button" aria-label="Show list" data-testid="list-arrow" onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); openList(true, e.currentTarget); }}
@@ -589,6 +655,21 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         {isFillCorner ? <div data-testid="fill-handle" onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); dragRef.current = { mode: "fill", target: null }; }}
           style={{ position: "absolute", right: -1, bottom: -1, width: 7, height: 7, background: "var(--fs-accent)", border: "1px solid #fff", cursor: "crosshair", zIndex: 3 }} /> : null}
       </td>
+    );
+  };
+  /** TT49: data bar / icon layers of a conditionally formatted cell; a hidden value (showValue="0") stays readable to screen readers. */
+  const cfDecor = (over: CfStyle, text: string) => {
+    const b = over.bar;
+    const barBg = b ? (b.solid ? b.color : `linear-gradient(${b.negative ? 270 : 90}deg, ${b.color}, ${b.color}33)`) : undefined;
+    return (
+      <>
+        {b ? <span aria-hidden data-cf-bar={`${b.from.toFixed(3)}-${b.to.toFixed(3)}`} data-cf-bar-color={b.color}
+          style={{ position: "absolute", left: `${b.from * 100}%`, width: `${Math.max(0, b.to - b.from) * 100}%`, top: 2, bottom: 2, background: barBg, border: b.border ? `1px solid ${b.border}` : undefined, borderRadius: 1, pointerEvents: "none", zIndex: 0 }} /> : null}
+        {b && b.axis !== undefined && b.axis > 0 && b.axis < 1 ? <span aria-hidden style={{ position: "absolute", left: `${b.axis * 100}%`, top: 0, bottom: 0, borderLeft: `1px dashed ${b.axisColor ?? "#000"}`, pointerEvents: "none", zIndex: 0 }} /> : null}
+        {over.icon ? <img alt="" aria-hidden data-cf-icon={over.icon} src={iconDataUri(over.icon)} width={14} height={14} style={{ position: "absolute", left: 4, top: (ROW_H - 14) / 2, pointerEvents: "none" }} /> : null}
+        {over.icon ? <span className="fs-visually-hidden">{iconLabel(over.icon)}: </span> : null}
+        <span className={over.hideValue ? "fs-visually-hidden" : undefined} style={{ position: "relative", zIndex: 1 }}>{text}</span>
+      </>
     );
   };
   const renderAssist = () => (acList.length || call) ? (
@@ -796,20 +877,27 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <div data-testid="cf-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5) }}>
           <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
             <span>Apply to <b className="fs-mono">{rangeA1(selR)}</b> when</span>
-            <select className="fs-input" aria-label="Rule type" value={cf.kind} onChange={(e) => setCf({ ...cf, kind: e.target.value as CondKind })} style={{ width: 150 }}>
-              <option value="gt">value &gt;</option><option value="lt">value &lt;</option><option value="ge">value &ge;</option><option value="le">value &le;</option><option value="eq">value =</option><option value="between">between</option>
-              <option value="contains">text contains</option><option value="duplicate">duplicate values</option><option value="top">top N</option><option value="scale">2-colour scale</option><option value="scale3">3-colour scale</option>
+            <select className="fs-input" aria-label="Rule type" value={cf.kind} onChange={(e) => setCf({ ...cf, kind: e.target.value as CfUiKind })} style={{ width: 170 }}>
+              {CF_UI_KINDS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
             </select>
-            {["gt", "lt", "ge", "le", "eq", "between", "contains", "top"].includes(cf.kind) ? <input className="fs-input" aria-label="Rule value" value={cf.a} onChange={(e) => setCf({ ...cf, a: e.target.value })} style={{ width: 80 }} /> : null}
-            {cf.kind === "between" ? <input className="fs-input" aria-label="Rule value 2" value={cf.b} onChange={(e) => setCf({ ...cf, b: e.target.value })} style={{ width: 80 }} /> : null}
-            {cf.kind !== "scale" && cf.kind !== "scale3" ? <>fill <input type="color" aria-label="Rule fill" value={cf.fill} onChange={(e) => setCf({ ...cf, fill: e.target.value })} /> text <input type="color" aria-label="Rule text colour" value={cf.color} onChange={(e) => setCf({ ...cf, color: e.target.value })} /></>
+            {["gt", "lt", "ge", "le", "eq", "ne", "between", "notBetween", "contains", "notContains", "begins", "ends", "top", "bottom", "topPct", "bottomPct"].includes(cf.kind) ? <input className="fs-input" aria-label="Rule value" value={cf.a} onChange={(e) => setCf({ ...cf, a: e.target.value })} style={{ width: 80 }} /> : null}
+            {cf.kind === "between" || cf.kind === "notBetween" ? <input className="fs-input" aria-label="Rule value 2" value={cf.b} onChange={(e) => setCf({ ...cf, b: e.target.value })} style={{ width: 80 }} /> : null}
+            {cf.kind === "expr" ? <input className="fs-input fs-mono" aria-label="Rule formula" placeholder="=$B2>100" value={cf.formula} onChange={(e) => setCf({ ...cf, formula: e.target.value })} style={{ width: 170 }} /> : null}
+            {cf.kind === "period" ? <select className="fs-input" aria-label="Time period" value={cf.period} onChange={(e) => setCf({ ...cf, period: e.target.value })}>{TIME_PERIODS.map((p) => <option key={p} value={p}>{PERIOD_LABEL[p]}</option>)}</select> : null}
+            {cf.kind === "icons" ? <><select className="fs-input" aria-label="Icon set" value={cf.iconSet} onChange={(e) => setCf({ ...cf, iconSet: e.target.value })}>{MAIN_ICON_SETS.map((k) => <option key={k} value={k}>{k}</option>)}</select>
+              <span aria-hidden className="fs-row" style={{ gap: 2 }}>{(ICON_SETS[cf.iconSet] ?? []).map((g, i) => <img key={i} alt="" src={iconDataUri(g)} width={14} height={14} />)}</span>
+              <label><input type="checkbox" checked={cf.reverse} onChange={(e) => setCf({ ...cf, reverse: e.target.checked })} /> reverse</label></> : null}
+            {cf.kind === "bar" ? <>bar <input type="color" aria-label="Bar colour" value={cf.barColor} onChange={(e) => setCf({ ...cf, barColor: e.target.value })} /></> : null}
+            {cf.kind === "bar" || cf.kind === "icons" ? null : cf.kind !== "scale" && cf.kind !== "scale3" ? <>fill <input type="color" aria-label="Rule fill" value={cf.fill} onChange={(e) => setCf({ ...cf, fill: e.target.value })} /> text <input type="color" aria-label="Rule text colour" value={cf.color} onChange={(e) => setCf({ ...cf, color: e.target.value })} /></>
               : <>min <input type="color" aria-label="Scale minimum colour" value={cf.sMin} onChange={(e) => setCf({ ...cf, sMin: e.target.value })} />{cf.kind === "scale3" ? <> mid <input type="color" aria-label="Scale midpoint colour" value={cf.sMid} onChange={(e) => setCf({ ...cf, sMid: e.target.value })} /></> : null} max <input type="color" aria-label="Scale maximum colour" value={cf.sMax} onChange={(e) => setCf({ ...cf, sMax: e.target.value })} /></>}
+            {!["scale", "scale3", "bar", "icons"].includes(cf.kind) ? <><label><input type="checkbox" checked={cf.bold} onChange={(e) => setCf({ ...cf, bold: e.target.checked })} /> bold</label>
+              <label title="Lower-priority rules are not applied to cells this rule matches"><input type="checkbox" checked={cf.stop} onChange={(e) => setCf({ ...cf, stop: e.target.checked })} /> stop if true</label></> : null}
             <Btn variant="primary" onClick={addCf}>Add rule</Btn>
           </div>
           {workbook.condFormats.filter((r) => r.sheet === active).map((r) => (
             <div key={r.id} className="fs-row" data-testid="cf-rule" data-range={r.range} style={{ gap: 6, marginTop: 3 }}>
-              <span className="fs-mono">{r.range}</span><span>{r.kind === "scale" ? (r.scaleMid ? "3-colour scale" : "2-colour scale") : r.kind}{r.a ? ` ${r.a}` : ""}{r.b ? `…${r.b}` : ""}</span>
-              {(r.kind === "scale" ? [r.scaleMin, r.scaleMid, r.scaleMax] : [r.fill, r.color]).filter(Boolean).map((c, i) => <span key={i} aria-hidden style={{ width: 14, height: 14, background: c, display: "inline-block", borderRadius: 3, border: "1px solid var(--fs-border)" }} />)}
+              <span className="fs-mono">{r.range}</span><span data-testid="cf-rule-label">{cfLabel(r)}</span>
+              {(r.kind === "scale" ? [r.scaleMin, r.scaleMid, r.scaleMax] : r.kind === "bar" ? [r.barColor] : [r.fill, r.color]).filter(Boolean).map((c, i) => <span key={i} aria-hidden style={{ width: 14, height: 14, background: c, display: "inline-block", borderRadius: 3, border: "1px solid var(--fs-border)" }} />)}
               <button className="fs-btn" data-variant="ghost" aria-label={`Remove rule ${r.range}`} onClick={() => mutate((wb) => { wb.condFormats = wb.condFormats.filter((x) => x.id !== r.id); })}>remove</button>
             </div>
           ))}

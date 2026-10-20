@@ -32,7 +32,8 @@ import { colToLetters, lettersToCol, isError } from "./types";
 import { shiftFormula, addFuturePrefixes, stripFuturePrefixes } from "./sheetops";
 export { workbookToJson, workbookFromJson, type WorkbookJson } from "./workbook-json";
 import { workbookToJson, workbookFromJson } from "./workbook-json";
-import type { CondRule } from "./sheetmeta";
+import { periodFormula, TIME_PERIODS, type CondRule, type Cfvo } from "./sheetmeta";
+import { ICON_SETS, MAIN_ICON_SETS, DEFAULT_ICON_PERCENTS } from "./cficons";
 import { readThemeColors, readIndexedColors, resolveTag, resolveColorAttrs, EMPTY_COLOR_CONTEXT, type ColorContext } from "./xlsxcolor";
 
 const CT = "http://schemas.openxmlformats.org/package/2006/content-types";
@@ -147,42 +148,120 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   // CT_Worksheet order: … sheetData, …, mergeCells, phoneticPr, conditionalFormatting, dataValidations, …
   const merges = sheet.merges.length ? `<mergeCells count="${sheet.merges.length}">${sheet.merges.map((m) => `<mergeCell ref="${rangeRef(m)}"/>`).join("")}</mergeCells>` : "";
   // TT47: conditional formats (one <conditionalFormatting> per rule; first rule = priority 1)
-  const cfs = wb.condFormats.filter((r) => r.sheet === sheet.name).map((r, i) => { const dx = cfDxfXml(r); return `<conditionalFormatting sqref="${esc(r.range)}">${cfRuleXml(r, dx ? styles.dxf(dx) : null, i + 1)}</conditionalFormatting>`; }).join("");
+  // TT49: Excel 2010 extensions — a data bar with x14-only properties gets a linked <x14:cfRule>; an x14-only or custom
+  // icon set lives only in the worksheet <extLst> (MS-XLSX §2.6.29/§2.6.30), exactly where our reader looks for them.
+  const x14Parts: string[] = [];
+  const cfs = wb.condFormats.filter((r) => r.sheet === sheet.name).map((r, i) => {
+    const x = cfX14Xml(r, i + 1, `${sheet.name}|${i}|${r.range}`);
+    if (x) x14Parts.push(`<x14:conditionalFormatting xmlns:xm="${XM_NS}">${x.xml}<xm:sqref>${esc(r.range)}</xm:sqref></x14:conditionalFormatting>`);
+    if (x && !x.linked) return "";
+    const xmlr = cfRuleXml(r, null, i + 1); if (!xmlr) return ""; const dx = cfDxfXml(r);
+    const main = cfRuleXml(r, dx ? styles.dxf(dx) : null, i + 1);
+    return `<conditionalFormatting sqref="${esc(r.range)}">${x ? main.replace(/<\/cfRule>$/, `<extLst><ext uri="{B025F937-C7B1-47D3-B67F-A62EFF666E3E}" xmlns:x14="${X14_NS}"><x14:id>${x.id}</x14:id></ext></extLst></cfRule>`) : main}</conditionalFormatting>`;
+  }).join("");
+  const ext = x14Parts.length ? `<extLst><ext uri="{78C0D931-6437-407d-A8EE-F0AAD7539E65}" xmlns:x14="${X14_NS}"><x14:conditionalFormattings>${x14Parts.join("")}</x14:conditionalFormattings></ext></extLst>` : "";
   const dvs = sheet.validations.length ? `<dataValidations count="${sheet.validations.length}">${sheet.validations.map(dvXml).join("")}</dataValidations>` : "";
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${merges}${cfs}${dvs}</worksheet>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${merges}${cfs}${dvs}${ext}</worksheet>`;
 }
 
-/** Differential format for a CF rule (ECMA-376 §18.8.14); null when the rule draws no dxf (colour scales). */
+/** Differential format for a CF rule (ECMA-376 §18.8.14, CT_Dxf order font, numFmt, fill); null when the rule draws none. */
 function cfDxfXml(r: CondRule): string | null {
-  if (r.kind === "scale" || (!r.fill && !r.color && !r.bold)) return null;
-  const font = r.bold || r.color ? `<font>${r.bold ? "<b/>" : ""}${r.color ? `<color rgb="${argb(r.color)}"/>` : ""}</font>` : "";
+  if (r.kind === "scale" || r.kind === "bar" || r.kind === "icons" || (!r.fill && !r.color && !r.bold && !r.italic && !r.underline && !r.strike && !r.numFmt && !r.border)) return null;
+  const f = `${r.bold ? "<b/>" : ""}${r.italic ? "<i/>" : ""}${r.strike ? "<strike/>" : ""}${r.underline ? "<u/>" : ""}${r.color ? `<color rgb="${argb(r.color)}"/>` : ""}`;
+  // a dxf numFmt is self-contained (formatCode inline); the id only has to be a custom-range number
+  const nf = r.numFmt ? `<numFmt numFmtId="${200 + ([...r.numFmt].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7) % 5000)}" formatCode="${esc(r.numFmt)}"/>` : "";
   const fill = r.fill ? `<fill><patternFill><bgColor rgb="${argb(r.fill)}"/></patternFill></fill>` : "";
-  return `<dxf>${font}${fill}</dxf>`;
+  const bd = r.border ? `<border>${(["left", "right", "top", "bottom"] as const).map((k) => { const b = r.border![k]; return b ? `<${k} style="${b.style}">${b.color ? `<color rgb="${argb(b.color)}"/>` : '<color auto="1"/>'}</${k}>` : ""; }).join("")}</border>` : "";
+  return `<dxf>${f ? `<font>${f}</font>` : ""}${nf}${fill}${bd}</dxf>`;
 }
-/** One <cfRule> (ECMA-376 §18.3.1.10) for a modelled CondRule. */
+const X14_NS = "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main", XM_NS = "http://schemas.microsoft.com/office/excel/2006/main";
+const GUID_RE = /^\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\}$/;
+/** Deterministic GUID (same workbook → same bytes): four FNV-1a passes over the seed. */
+function stableGuid(seed: string): string {
+  const h = [0x811c9dc5, 0x01000193, 0x2545f491, 0x9e3779b9].map((h0, k) => { let h = h0 ^ k; for (const ch of seed) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0; return h.toString(16).padStart(8, "0").toUpperCase(); }).join("");
+  return `{${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-8${h.slice(17, 20)}-${h.slice(20, 32)}}`;
+}
+/**
+ * TT49: the Excel 2010 (x14) half of a rule, or null when the main schema carries everything.
+ * linked=true → the main <cfRule> stays (Excel 2007 fallback) and points at this part by id; false → x14 only.
+ */
+function cfX14Xml(r: CondRule, priority: number, seed: string): { xml: string; id: string; linked: boolean } | null {
+  const id = r.x14 && GUID_RE.test(r.x14) ? r.x14 : stableGuid(seed);
+  const cfvo = (c: Cfvo, icon: boolean) => `<x14:cfvo type="${c.t}"${icon && c.gt ? ' gte="0"' : ""}${c.v !== undefined && c.t !== "min" && c.t !== "max" && c.t !== "autoMin" && c.t !== "autoMax" ? `><xm:f>${esc(c.v)}</xm:f></x14:cfvo>` : "/>"}`;
+  if (r.kind === "bar") {
+    const auto = r.cfvo?.some((c) => c.t === "autoMin" || c.t === "autoMax");
+    if (!(r.x14 || r.barAxis || r.barNeg || r.barBorder || r.barSolid || r.barAxisColor || auto)) return null;
+    const cv = r.cfvo?.length === 2 ? r.cfvo : [{ t: "autoMin" as const }, { t: "autoMax" as const }];
+    const at = ` minLength="${r.barMinLen ?? 10}" maxLength="${r.barMaxLen ?? 90}"${r.barSolid ? ' gradient="0"' : ""}${r.barBorder ? ' border="1"' : ""}${r.barNeg ? ' negativeBarColorSameAsPositive="0"' : ""}${r.barAxis === "middle" ? ' axisPosition="middle"' : r.barAxis === "auto" ? "" : ' axisPosition="none"'}`;
+    const kids = `${cv.map((c) => cfvo(c, false)).join("")}${r.barBorder ? `<x14:borderColor rgb="${argb(r.barBorder)}"/>` : ""}${r.barNeg ? `<x14:negativeFillColor rgb="${argb(r.barNeg)}"/>` : ""}${r.barAxisColor ? `<x14:axisColor rgb="${argb(r.barAxisColor)}"/>` : ""}`;
+    return { xml: `<x14:cfRule type="dataBar" id="${id}"><x14:dataBar${at}>${kids}</x14:dataBar></x14:cfRule>`, id, linked: true };
+  }
+  if (r.kind === "icons") {
+    const set = r.iconSet ?? "3TrafficLights1"; if (!ICON_SETS[set]) return null;
+    const custom = r.icons?.filter((g) => /^([0-9A-Za-z]+):(\d)$/.test(g)) ?? [];
+    if (MAIN_ICON_SETS.includes(set) && !custom.length) return null;
+    const n = ICON_SETS[set].length;
+    const cv = r.cfvo?.length === n ? r.cfvo : DEFAULT_ICON_PERCENTS[n].map((p) => ({ t: "percent" as const, v: String(p) }));
+    const at = `${set !== "3TrafficLights1" ? ` iconSet="${set}"` : ""}${custom.length ? ' custom="1"' : ""}${r.hideValue ? ' showValue="0"' : ""}${r.reverse ? ' reverse="1"' : ""}`;
+    const icons = custom.map((g) => { const [cs, k] = g.split(":"); return `<x14:cfIcon iconSet="${esc(cs)}" iconId="${k}"/>`; }).join("");
+    return { xml: `<x14:cfRule type="iconSet" priority="${priority}" id="${id}"><x14:iconSet${at}>${cv.map((c) => cfvo(c, true)).join("")}${icons}</x14:iconSet></x14:cfRule>`, id, linked: false };
+  }
+  return null;
+}
+/** One <cfRule> (ECMA-376 §18.3.1.10) for a modelled CondRule; "" when the main schema cannot carry it (x14-only icon sets). */
 function cfRuleXml(r: CondRule, dxfId: number | null, priority: number): string {
   const d = dxfId === null ? "" : ` dxfId="${dxfId}"`;
+  const head = (type: string, extra = "") => `<cfRule type="${type}"${d} priority="${priority}"${r.stop ? ' stopIfTrue="1"' : ""}${extra}>`;
   const lit = (v: string | undefined) => { const t = (v ?? "").trim(); return /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(t) ? t : `"${t.replace(/"/g, '""')}"`; };
-  const top = r.range.split(":")[0];
-  const op: Partial<Record<CondRule["kind"], string>> = { gt: "greaterThan", lt: "lessThan", ge: "greaterThanOrEqual", le: "lessThanOrEqual", eq: "equal", between: "between" };
+  const fx = (f: string) => `<formula>${esc(f)}</formula>`;
+  const q = (t: string) => `"${t.replace(/"/g, '""')}"`;
+  const top = r.range.trim().split(/[\s:]/)[0].replace(/\$/g, "");
+  const op: Partial<Record<CondRule["kind"], string>> = { gt: "greaterThan", lt: "lessThan", ge: "greaterThanOrEqual", le: "lessThanOrEqual", eq: "equal", ne: "notEqual", between: "between", notBetween: "notBetween" };
+  const cfvoXml = (c: Cfvo, main: boolean, icon: boolean) => {
+    const t = main && c.t === "autoMin" ? "min" : main && c.t === "autoMax" ? "max" : c.t;
+    return `<cfvo type="${t}"${c.v !== undefined && t !== "min" && t !== "max" ? ` val="${esc(c.v)}"` : ""}${icon && c.gt ? ' gte="0"' : ""}/>`;
+  };
+  const t = r.a ?? "";
   switch (r.kind) {
-    case "gt": case "lt": case "ge": case "le": case "eq":
-      return `<cfRule type="cellIs"${d} priority="${priority}" operator="${op[r.kind]}"><formula>${esc(lit(r.a))}</formula></cfRule>`;
-    case "between":
-      return `<cfRule type="cellIs"${d} priority="${priority}" operator="between"><formula>${esc(lit(r.a))}</formula><formula>${esc(lit(r.b))}</formula></cfRule>`;
-    case "contains": {
-      const t = r.a ?? "";
-      return `<cfRule type="containsText"${d} priority="${priority}" operator="containsText" text="${esc(t)}"><formula>${esc(`NOT(ISERROR(SEARCH("${t.replace(/"/g, '""')}",${top})))`)}</formula></cfRule>`;
-    }
-    case "duplicate": return `<cfRule type="duplicateValues"${d} priority="${priority}"/>`;
-    case "top": return `<cfRule type="top10"${d} priority="${priority}" rank="${Math.max(1, Math.min(1000, Math.trunc(Number(r.a)) || 10))}"/>`;
+    case "gt": case "lt": case "ge": case "le": case "eq": case "ne":
+      return `${head("cellIs", ` operator="${op[r.kind]}"`)}${fx(r.af ?? lit(r.a))}</cfRule>`;
+    case "between": case "notBetween":
+      return `${head("cellIs", ` operator="${op[r.kind]}"`)}${fx(r.af ?? lit(r.a))}${fx(r.bf ?? lit(r.b))}</cfRule>`;
+    case "contains": return `${head("containsText", ` operator="containsText" text="${esc(t)}"`)}${fx(`NOT(ISERROR(SEARCH(${q(t)},${top})))`)}</cfRule>`;
+    case "notContains": return `${head("notContainsText", ` operator="notContains" text="${esc(t)}"`)}${fx(`ISERROR(SEARCH(${q(t)},${top}))`)}</cfRule>`;
+    case "begins": return `${head("beginsWith", ` operator="beginsWith" text="${esc(t)}"`)}${fx(`LEFT(${top},LEN(${q(t)}))=${q(t)}`)}</cfRule>`;
+    case "ends": return `${head("endsWith", ` operator="endsWith" text="${esc(t)}"`)}${fx(`RIGHT(${top},LEN(${q(t)}))=${q(t)}`)}</cfRule>`;
+    case "blanks": return `${head("containsBlanks")}${fx(`LEN(TRIM(${top}))=0`)}</cfRule>`;
+    case "noBlanks": return `${head("notContainsBlanks")}${fx(`LEN(TRIM(${top}))>0`)}</cfRule>`;
+    case "errors": return `${head("containsErrors")}${fx(`ISERROR(${top})`)}</cfRule>`;
+    case "noErrors": return `${head("notContainsErrors")}${fx(`NOT(ISERROR(${top}))`)}</cfRule>`;
+    case "duplicate": return `${head("duplicateValues")}</cfRule>`.replace("></cfRule>", "/>");
+    case "unique": return `${head("uniqueValues")}</cfRule>`.replace("></cfRule>", "/>");
+    case "top": return `${head("top10", `${r.pct ? ' percent="1"' : ""}${r.bottom ? ' bottom="1"' : ""} rank="${Math.max(1, Math.min(1000, Math.trunc(Number(r.a)) || 10))}"`)}</cfRule>`.replace("></cfRule>", "/>");
+    case "aboveAvg": return `${head("aboveAverage", `${r.below ? ' aboveAverage="0"' : ""}${r.equal ? ' equalAverage="1"' : ""}${r.stdDev ? ` stdDev="${r.stdDev}"` : ""}`)}</cfRule>`.replace("></cfRule>", "/>");
+    case "period": { const f = r.formula ?? periodFormula(r.period ?? "", top); return f ? `${head("timePeriod", ` timePeriod="${esc(r.period ?? "today")}"`)}${fx(f)}</cfRule>` : ""; }
+    case "expr": return r.formula ? `${head("expression")}${fx(r.formula)}</cfRule>` : "";
     case "scale": {
       const cols = [r.scaleMin ?? "#f8696b", ...(r.scaleMid ? [r.scaleMid] : []), r.scaleMax ?? "#63be7b"];
       const parts = r.scaleAt?.split("|").length === cols.length ? r.scaleAt!.split("|") : cols.length === 3 ? ["min", "percentile:50", "max"] : ["min", "max"];
       const cfvo = parts.map((p) => { const [t, v] = p.split(":"); return v === undefined ? `<cfvo type="${t}"/>` : `<cfvo type="${t}" val="${esc(v)}"/>`; }).join("");
       return `<cfRule type="colorScale" priority="${priority}"><colorScale>${cfvo}${cols.map((c) => `<color rgb="${argb(c)}"/>`).join("")}</colorScale></cfRule>`;
     }
+    case "bar": {
+      // Excel 2007 data bar (main schema); x14-only properties (axis, solid fill, border, autoMin/Max) go to the linked x14 part
+      const cv = r.cfvo?.length === 2 ? r.cfvo : [{ t: "min" as const }, { t: "max" as const }];
+      const at = `${r.barMinLen !== undefined && r.barMinLen !== 10 ? ` minLength="${r.barMinLen}"` : ""}${r.barMaxLen !== undefined && r.barMaxLen !== 90 ? ` maxLength="${r.barMaxLen}"` : ""}${r.hideValue ? ' showValue="0"' : ""}`;
+      return `<cfRule type="dataBar" priority="${priority}"><dataBar${at}>${cv.map((c) => cfvoXml(c, true, false)).join("")}<color rgb="${argb(r.barColor ?? "#638ec6")}"/></dataBar></cfRule>`;
+    }
+    case "icons": {
+      const set = r.iconSet ?? "3TrafficLights1"; if (!MAIN_ICON_SETS.includes(set)) return "";
+      const n = ICON_SETS[set].length;
+      const cv = r.cfvo?.length === n ? r.cfvo : DEFAULT_ICON_PERCENTS[n].map((p) => ({ t: "percent" as const, v: String(p) }));
+      const at = `${set !== "3TrafficLights1" ? ` iconSet="${set}"` : ""}${r.hideValue ? ' showValue="0"' : ""}${r.reverse ? ' reverse="1"' : ""}`;
+      return `<cfRule type="iconSet" priority="${priority}"><iconSet${at}>${cv.map((c) => cfvoXml(c, true, true)).join("")}</iconSet></cfRule>`;
+    }
   }
+  return "";
 }
 
 /** ECMA-376 §18.3.1.32. NB showDropDown="1" HIDES the in-cell arrow. */
@@ -461,68 +540,192 @@ export function sheetFromJson(data: { name: string; cells: { ref: string; input:
   return workbookFromJson({ sheets: [data] }).sheet();
 }
 function singleSheetWorkbook(sheet: Sheet) { const wb = new Workbook(); wb.sheets.set(sheet.name, sheet); return wb; }
-/** styles.xml <dxfs> → the differential formats conditional-format rules point at (rgb colours only; theme colours unset). */
-function readDxfs(xml: string | null, ctx: ColorContext = EMPTY_COLOR_CONTEXT): { fill?: string; color?: string; bold?: boolean }[] {
+type Dxf = { fill?: string; color?: string; bold?: boolean; italic?: boolean; underline?: boolean; strike?: boolean; numFmt?: string; border?: CellBorder };
+/** styles.xml <dxfs> → the differential formats conditional-format rules point at (font b/i/strike/u/colour, numFmt, solid fill). */
+function readDxfs(xml: string | null, ctx: ColorContext = EMPTY_COLOR_CONTEXT): Dxf[] {
   const body = xml ? /<dxfs\b[^>]*>([\s\S]*?)<\/dxfs>/.exec(xml)?.[1] ?? "" : "";
+  const on = (font: string, tag: string) => { const m = new RegExp(`<${tag}(\\s[^>]*)?\\/?>`).exec(font); return !!m && !/val="(0|false|none)"/.test(m[1] ?? ""); };
   return [...body.matchAll(/<dxf\b[^>]*>([\s\S]*?)<\/dxf>|<dxf\b[^>]*\/>/g)].map((m) => {
-    const inner = m[1] ?? ""; const out: { fill?: string; color?: string; bold?: boolean } = {};
+    const inner = m[1] ?? ""; const out: Dxf = {};
     const font = /<font\b[^>]*>([\s\S]*?)<\/font>/.exec(inner)?.[1] ?? "";
     const fc = resolveTag(font, "color", ctx); if (fc) out.color = fc;
-    const b = /<b(\s[^>]*)?\/?>/.exec(font); if (b && !/val="(0|false)"/.test(b[1] ?? "")) out.bold = true;
+    if (on(font, "b")) out.bold = true;
+    if (on(font, "i")) out.italic = true;
+    if (on(font, "strike")) out.strike = true;
+    if (on(font, "u")) out.underline = true;
+    const nf = /<numFmt\b([^>]*?)\/?>/.exec(inner); const code = nf ? xmlAttrs(nf[1]).formatCode : undefined; if (code) out.numFmt = code.slice(0, 255);
     // in a dxf the solid fill colour is bgColor (ECMA-376 §18.8.17); fall back to fgColor
     const fill = /<fill\b[^>]*>([\s\S]*?)<\/fill>/.exec(inner)?.[1] ?? "";
     const fl = resolveTag(fill, "bgColor", ctx) ?? resolveTag(fill, "fgColor", ctx);
     if (fl) out.fill = fl;
+    // TT49: CF borders (a dxf <border> with styled sides; color auto → the default line colour)
+    const bd = /<border\b[^>]*>([\s\S]*?)<\/border>/.exec(inner)?.[1] ?? "";
+    const b: CellBorder = {};
+    for (const side of ["left", "right", "top", "bottom"] as const) {
+      const sm = new RegExp(`<${side}\\b([^>]*?)(?:/>|>([\\s\\S]*?)</${side}>)`).exec(bd); if (!sm) continue;
+      const style = xmlAttrs(sm[1]).style; if (!isBorderLine(style)) continue;
+      const c = resolveTag(sm[2] ?? "", "color", ctx); b[side] = c ? { style, color: c } : { style };
+    }
+    if (Object.keys(b).length) out.border = b;
     return out;
   });
 }
 /**
- * <conditionalFormatting> → workbook CondRules for DISPLAY (TT46). Supported: cellIs (> < ≥ ≤ = between with
- * constant operands), containsText, duplicateValues, top10 (top N, not percent/bottom), 2/3-colour scales.
- * Icon sets, data bars, formula rules and theme-coloured formats are not displayed; the lossless save keeps
- * every rule verbatim either way.
+ * <conditionalFormatting> → workbook CondRules for DISPLAY (TT46; TT49 every cfRule type). Rules are sorted by
+ * their sheet-wide priority (array order = priority). Linked x14 extension rules supply data-bar extras (autoMin/
+ * autoMax, lengths, solid fill, border, negative axis); x14-only icon sets (3Stars, 3Triangles, 5Boxes, custom
+ * icons) are modelled with provenance "x<n>". Other x14-only rules (cross-sheet expressions) are not displayed;
+ * the lossless save keeps every rule verbatim either way.
  */
-function readCondFormats(xml: string, sheet: string, wb: Workbook, dxfs: { fill?: string; color?: string; bold?: boolean }[], ctx: ColorContext = EMPTY_COLOR_CONTEXT) {
+function readCondFormats(xml: string, sheet: string, wb: Workbook, dxfs: Dxf[], ctx: ColorContext = EMPTY_COLOR_CONTEXT) {
   const num = (f: string | undefined) => (f !== undefined && /^-?\d+(\.\d+)?(E[+-]?\d+)?$/i.test(f.trim()) ? f.trim() : undefined);
   const strConst = (f: string | undefined) => { const m = f ? /^"((?:[^"]|"")*)"$/.exec(f.trim()) : null; return m ? m[1].replace(/""/g, "\"") : undefined; };
   let cfIndex = -1;
+  // x14 extension rules (MS-XLSX 2.6.2): collected by id; the main rule links to one through <x14:id>
+  // TT49: the WORKSHEET-level extLst starts at the first <extLst> outside every <cfRule> — a data-bar cfRule carries
+  // its own inner <extLst> (the x14 link), and a greedy match from there used to swallow every rule that followed it
+  let cut = xml.length, depth = 0;
+  for (const m of xml.matchAll(/<(\/?)(?:\w+:)?(cfRule|extLst)\b[^>]*?(\/?)>/g)) {
+    if (m[2] === "cfRule") { if (m[3]) continue; depth += m[1] ? -1 : 1; continue; }
+    if (!m[1] && depth <= 0) { cut = m.index!; break; }
+  }
+  const ext = xml.slice(cut);
+  type X14 = { at: Record<string, string>; inner: string; sqref: string; index: number };
+  const x14: X14[] = []; const x14ById = new Map<string, X14>();
+  for (const m of ext.matchAll(/<x14:conditionalFormatting\b[^>]*>([\s\S]*?)<\/x14:conditionalFormatting>/g)) {
+    const sqref = (/<xm:sqref>([^<]*)<\/xm:sqref>/.exec(m[1])?.[1] ?? "").trim();
+    for (const r of m[1].matchAll(/<x14:cfRule\b([^>]*?)(?:\/>|>([\s\S]*?)<\/x14:cfRule>)/g)) {
+      const e: X14 = { at: xmlAttrs(r[1]), inner: r[2] ?? "", sqref, index: x14.length }; x14.push(e); if (e.at.id) x14ById.set(e.at.id, e);
+    }
+  }
+  const x14Cfvo = (inner: string): Cfvo[] => [...inner.matchAll(/<x14:cfvo\b([^>]*?)(?:\/>|>([\s\S]*?)<\/x14:cfvo>)/g)].flatMap((c) => {
+    const a = xmlAttrs(c[1]); const f = /<xm:f>([\s\S]*?)<\/xm:f>/.exec(c[2] ?? "")?.[1];
+    if (!CFVO_TYPES.includes(a.type)) return [];
+    return [{ t: a.type as Cfvo["t"], ...(f !== undefined ? { v: dec(f) } : {}), ...(a.gte === "0" || a.gte === "false" ? { gt: true } : {}) }];
+  });
+  const mainCfvo = (inner: string): Cfvo[] => [...inner.matchAll(/<cfvo\b([^>]*?)\/?>/g)].flatMap((c) => {
+    const a = xmlAttrs(c[1]); if (!CFVO_TYPES.includes(a.type)) return [];
+    return [{ t: a.type as Cfvo["t"], ...(a.val !== undefined && a.type !== "min" && a.type !== "max" ? { v: a.val } : {}), ...(a.gte === "0" || a.gte === "false" ? { gt: true } : {}) }];
+  });
+  const linked = new Set<string>();
+  const pending: { prio: number; seq: number; rules: CondRule[] }[] = [];
+  let seq = 0;
+  const push = (rule: Partial<CondRule>, ranges: string[], fmt: Dxf, src: string, prio: number) => {
+    const visual = rule.kind === "scale" || rule.kind === "bar" || rule.kind === "icons";
+    if (!visual && !Object.values(fmt).some(Boolean) && !rule.stop) return; // nothing visible and no stopIfTrue
+    // one rule per cfRule over the whole sqref (a union): splitting a 200-range sqref per range multiplied rules past the cap
+    pending.push({ prio, seq: seq++, rules: [{ id: "", sheet, range: ranges.join(" "), ...rule, ...(visual ? {} : fmt), src } as CondRule] });
+  };
   // extLst may redeclare a default namespace around x14 <conditionalFormatting> — not main-namespace rules; skipping it
   // keeps the provenance index aligned with the patcher's count of top-level elements
-  const top = xml.replace(/<(?:\w+:)?extLst\b[\s\S]*<\/(?:\w+:)?extLst>/, "");
+  const top = xml.slice(0, cut);
   for (const cf of top.matchAll(/<conditionalFormatting\b([^>]*?)(?:\/>|>([\s\S]*?)<\/conditionalFormatting>)/g)) {
     cfIndex++;
     const sqref = xmlAttrs(cf[1]).sqref; if (!sqref) continue;
-    const ranges = sqref.trim().split(/\s+/).filter((r) => parseRef(r.replace(/\$/g, "")));
-    const rules = [...(cf[2] ?? "").matchAll(/<cfRule\b([^>]*?)(?:\/>|>([\s\S]*?)<\/cfRule>)/g)].map((r, ri) => ({ at: xmlAttrs(r[1]), inner: r[2] ?? "", ri }))
-      .sort((x, y) => Number(x.at.priority ?? 0) - Number(y.at.priority ?? 0));
-    for (const { at, inner, ri } of rules) {
+    const ranges = sqref.trim().split(/\s+/).map((r) => r.replace(/\$/g, "")).filter((r) => parseRef(r));
+    if (!ranges.length) continue;
+    const rules = [...(cf[2] ?? "").matchAll(/<cfRule\b([^>]*?)(?:\/>|>([\s\S]*?)<\/cfRule>)/g)].map((r, ri) => ({ at: xmlAttrs(r[1]), inner: r[2] ?? "", ri }));
+    for (const { at, inner: rawInner, ri } of rules) {
+      const x14id = /<x14:id>([^<]*)<\/x14:id>/.exec(rawInner)?.[1]?.trim();
+      const inner = rawInner.replace(/<extLst\b[\s\S]*<\/extLst>/, "");
       const formulas = [...inner.matchAll(/<formula>([\s\S]*?)<\/formula>/g)].map((f) => dec(f[1]));
       const fmt = at.dxfId !== undefined ? dxfs[Number(at.dxfId)] ?? {} : {};
+      const prio = Number(at.priority ?? 0) || 0;
+      const yes = (v: string | undefined) => v === "1" || v === "true";
       let rule: Partial<CondRule> | null = null;
-      if (at.type === "cellIs") {
-        const kind = ({ greaterThan: "gt", lessThan: "lt", greaterThanOrEqual: "ge", lessThanOrEqual: "le", equal: "eq", between: "between" } as Record<string, CondRule["kind"]>)[at.operator ?? ""];
-        const a = num(formulas[0]) ?? (kind === "eq" ? strConst(formulas[0]) : undefined), b = num(formulas[1]);
-        if (kind && a !== undefined && (kind !== "between" || b !== undefined)) rule = { kind, a, b };
-      } else if (at.type === "containsText" && at.text) rule = { kind: "contains", a: at.text };
-      else if (at.type === "duplicateValues") rule = { kind: "duplicate" };
-      else if (at.type === "top10" && at.percent !== "1" && at.bottom !== "1") rule = { kind: "top", a: at.rank ?? "10" };
-      else if (at.type === "colorScale") {
+      const t = at.type;
+      if (t === "cellIs") {
+        const kind = ({ greaterThan: "gt", lessThan: "lt", greaterThanOrEqual: "ge", lessThanOrEqual: "le", equal: "eq", notEqual: "ne", between: "between", notBetween: "notBetween" } as Record<string, CondRule["kind"]>)[at.operator ?? ""];
+        const operand = (f: string | undefined, textOk: boolean): { v?: string; f?: string } | null => {
+          if (f === undefined || f.trim() === "") return null;
+          const n = num(f); if (n !== undefined) return { v: n };
+          const s = strConst(f); if (s !== undefined && textOk && !/^\s*-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?\s*$/.test(s)) return { v: s };
+          return { f: f.trim().replace(/^=/, "") };
+        };
+        const two = kind === "between" || kind === "notBetween";
+        const p = operand(formulas[0], kind === "eq" || kind === "ne"), q = two ? operand(formulas[1], false) : null;
+        if (kind && p && (!two || q)) rule = { kind, ...(p.v !== undefined ? { a: p.v } : { af: p.f }), ...(q ? (q.v !== undefined ? { b: q.v } : { bf: q.f }) : {}) };
+      } else if (t === "containsText" || t === "notContainsText" || t === "beginsWith" || t === "endsWith") {
+        const kind = ({ containsText: "contains", notContainsText: "notContains", beginsWith: "begins", endsWith: "ends" } as const)[t];
+        if (at.text !== undefined) rule = { kind, a: at.text };
+        else if (formulas[0]) rule = { kind: "expr", formula: formulas[0] };
+      } else if (t === "containsBlanks") rule = { kind: "blanks" };
+      else if (t === "notContainsBlanks") rule = { kind: "noBlanks" };
+      else if (t === "containsErrors") rule = { kind: "errors" };
+      else if (t === "notContainsErrors") rule = { kind: "noErrors" };
+      else if (t === "duplicateValues") rule = { kind: "duplicate" };
+      else if (t === "uniqueValues") rule = { kind: "unique" };
+      else if (t === "top10") rule = { kind: "top", a: at.rank ?? "10", ...(yes(at.percent) ? { pct: true } : {}), ...(yes(at.bottom) ? { bottom: true } : {}) };
+      else if (t === "aboveAverage") {
+        const sd = Math.trunc(Number(at.stdDev ?? 0));
+        rule = { kind: "aboveAvg", ...(at.aboveAverage === "0" || at.aboveAverage === "false" ? { below: true } : {}), ...(yes(at.equalAverage) ? { equal: true } : {}), ...(sd >= 1 && sd <= 3 ? { stdDev: sd } : {}) };
+      } else if (t === "timePeriod") {
+        if ((TIME_PERIODS as readonly string[]).includes(at.timePeriod ?? "")) rule = { kind: "period", period: at.timePeriod, ...(formulas[0] ? { formula: formulas[0] } : {}) };
+      } else if (t === "expression") {
+        if (formulas[0]) rule = { kind: "expr", formula: formulas[0] };
+      } else if (t === "colorScale") {
         // TT47: 2- and 3-colour scales with their cfvo thresholds; formula thresholds are not modelled → rule skipped
         const cols = [...inner.matchAll(/<color\b([^>]*?)\/?>/g)].map((c) => resolveColorAttrs(c[1], ctx));
         const cfvo = [...inner.matchAll(/<cfvo\b([^>]*?)\/?>/g)].map((c) => xmlAttrs(c[1]));
-        const at = cfvo.map((c) => (c.type === "min" || c.type === "max" ? c.type : ["num", "percent", "percentile"].includes(c.type ?? "") && c.val !== undefined && /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(c.val.trim()) ? `${c.type}:${c.val.trim()}` : null));
-        if ((cols.length === 2 || cols.length === 3) && cfvo.length === cols.length && cols.every(Boolean) && at.every(Boolean))
-          rule = { kind: "scale", scaleMin: cols[0]!, scaleMax: cols[cols.length - 1]!, ...(cols.length === 3 ? { scaleMid: cols[1]! } : {}), scaleAt: at.join("|") };
+        const sat = cfvo.map((c) => (c.type === "min" || c.type === "max" ? c.type : ["num", "percent", "percentile"].includes(c.type ?? "") && c.val !== undefined && /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(c.val.trim()) ? `${c.type}:${c.val.trim()}` : null));
+        if ((cols.length === 2 || cols.length === 3) && cfvo.length === cols.length && cols.every(Boolean) && sat.every(Boolean))
+          rule = { kind: "scale", scaleMin: cols[0]!, scaleMax: cols[cols.length - 1]!, ...(cols.length === 3 ? { scaleMid: cols[1]! } : {}), scaleAt: sat.join("|") };
+      } else if (t === "dataBar") {
+        const db = /<dataBar\b([^>]*?)>/.exec(inner); const dat = db ? xmlAttrs(db[1]) : {};
+        const colorTag = /<color\b([^>]*?)\/?>/.exec(inner); const color = colorTag ? resolveColorAttrs(colorTag[1], ctx) : null;
+        let cfvo = mainCfvo(inner);
+        const len = (v: string | undefined) => { const n = Math.trunc(Number(v)); return v !== undefined && Number.isFinite(n) && n >= 0 && n <= 100 ? n : undefined; };
+        const r: Partial<CondRule> = { kind: "bar", barColor: color ?? "#638ec6" };
+        let minL = len(dat.minLength), maxL = len(dat.maxLength);
+        const x = x14id ? x14ById.get(x14id) : undefined;
+        if (x && x.at.type === "dataBar") {
+          linked.add(x14id!); r.x14 = x14id;
+          const xb = /<x14:dataBar\b([^>]*?)\/?>/.exec(x.inner); const xa = xb ? xmlAttrs(xb[1]) : {};
+          const xc = x14Cfvo(x.inner); if (xc.length === 2) cfvo = xc;
+          minL = len(xa.minLength) ?? 10; maxL = len(xa.maxLength) ?? 90;
+          if (xa.gradient === "0" || xa.gradient === "false") r.barSolid = true;
+          const tagColor = (tag: string) => { const m = new RegExp(`<x14:${tag}\\b([^>]*?)\\/?>`).exec(x.inner); return m ? resolveColorAttrs(m[1], ctx) : null; };
+          if (yes(xa.border)) { const bc = tagColor("borderColor"); if (bc) r.barBorder = bc; }
+          r.barAxis = xa.axisPosition === "middle" ? "middle" : xa.axisPosition === "none" ? "none" : "auto";
+          const neg = tagColor("negativeFillColor"); if (neg) r.barNeg = neg;
+          const ax = tagColor("axisColor"); if (ax) r.barAxisColor = ax;
+        }
+        if (cfvo.length === 2) r.cfvo = cfvo;
+        if (minL !== undefined && minL !== 10) r.barMinLen = minL;
+        if (maxL !== undefined && maxL !== 90) r.barMaxLen = maxL;
+        if (dat.showValue === "0" || dat.showValue === "false") r.hideValue = true;
+        rule = r;
+      } else if (t === "iconSet") {
+        const is = /<iconSet\b([^>]*?)\/?>/.exec(inner); const ia = is ? xmlAttrs(is[1]) : {};
+        const set = ia.iconSet ?? "3TrafficLights1";
+        if (ICON_SETS[set]) {
+          const cfvo = mainCfvo(inner);
+          rule = { kind: "icons", iconSet: set, ...(cfvo.length ? { cfvo } : {}), ...(yes(ia.reverse) ? { reverse: true } : {}), ...(ia.showValue === "0" || ia.showValue === "false" ? { hideValue: true } : {}) };
+        }
       }
-      if (!rule || (rule.kind !== "scale" && !fmt.fill && !fmt.color && !fmt.bold)) continue; // nothing visible to draw
-      // duplicate / top-N / colour scales evaluate over the UNION of a multi-range sqref — not modelled (kept verbatim)
-      if (ranges.length > 1 && (rule.kind === "duplicate" || rule.kind === "top" || rule.kind === "scale")) continue;
-      for (const range of ranges) {
-        if (wb.condFormats.length >= 2000) return;
-        wb.condFormats.push({ id: `x${wb.condFormats.length + 1}`, sheet, range: range.replace(/\$/g, ""), ...rule, ...(rule.kind === "scale" ? {} : fmt), src: `${cfIndex}.${ri}` } as CondRule);
-      }
+      if (!rule) continue;
+      if (yes(at.stopIfTrue) && rule.kind !== "scale" && rule.kind !== "bar" && rule.kind !== "icons") rule.stop = true;
+      push(rule, ranges, fmt, `${cfIndex}.${ri}`, prio);
     }
   }
+  // x14-only icon sets (Excel 2010+: 3Stars, 3Triangles, 5Boxes, custom icon mixes) — no main-schema counterpart
+  for (const x of x14) {
+    if (x.at.type !== "iconSet" || (x.at.id && linked.has(x.at.id))) continue;
+    const is = /<x14:iconSet\b([^>]*?)\/?>/.exec(x.inner); const ia = is ? xmlAttrs(is[1]) : {};
+    const set = ia.iconSet ?? "3TrafficLights1"; if (!ICON_SETS[set]) continue;
+    const ranges = x.sqref.split(/\s+/).map((r) => r.replace(/\$/g, "")).filter((r) => parseRef(r)); if (!ranges.length) continue;
+    const cfvo = x14Cfvo(x.inner);
+    const icons = [...x.inner.matchAll(/<x14:cfIcon\b([^>]*?)\/?>/g)].map((c) => { const a = xmlAttrs(c[1]); return `${a.iconSet}:${Math.trunc(Number(a.iconId) || 0)}`; });
+    const yes = (v: string | undefined) => v === "1" || v === "true";
+    const rule: Partial<CondRule> = { kind: "icons", iconSet: set, ...(cfvo.length ? { cfvo } : {}), ...(yes(ia.custom) && icons.length ? { icons } : {}), ...(yes(ia.reverse) ? { reverse: true } : {}), ...(ia.showValue === "0" || ia.showValue === "false" ? { hideValue: true } : {}) };
+    push(rule, ranges, {}, `x${x.index}`, Number(x.at.priority ?? 0) || 0);
+  }
+  pending.sort((a, b) => a.prio - b.prio || a.seq - b.seq);
+  for (const p of pending) for (const r of p.rules) {
+    if (wb.condFormats.length >= 2000) return;
+    wb.condFormats.push({ ...r, id: `x${wb.condFormats.length + 1}` });
+  }
 }
+const CFVO_TYPES = ["min", "max", "num", "percent", "percentile", "formula", "autoMin", "autoMax"];
 /** Internals shared with the lossless patch writer (xlsx-patch.ts). */
 export const xlsxInternals = { BUILTIN_BY_CODE, argb, dvXml, pxToWidth, readStyles, cfRuleXml, cfDxfXml };

@@ -408,10 +408,26 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
         const cfEls = doc.root.kids.filter((k): k is XEl => k.k === "el" && k.name === SP + "conditionalFormatting");
         cfEls.forEach((cf, i) => { let j = -1; cf.kids = cf.kids.filter((k) => { if (!(k.k === "el" && ln(k.name) === "cfRule")) return true; j++; return !remove.has(`${i}.${j}`); }); });
         doc.root.kids = doc.root.kids.filter((k) => !(k.k === "el" && cfEls.includes(k as XEl) && !kidsL(k as XEl, "cfRule").length));
+        // TT49: a removed rule takes its linked x14 extension rule with it (else Excel keeps drawing the bar), and an
+        // x14-only rule ("x<n>" = n-th x14:cfRule in document order, as the reader counts them) is removed in place
+        const x14Ids = new Set<string>(); const x14Idx = new Set<number>();
+        for (const src of remove) { if (/^x\d+$/.test(src)) x14Idx.add(Number(src.slice(1))); for (const r of bySrc.get(src) ?? []) if (r.x14) x14Ids.add(r.x14); }
+        if (x14Ids.size || x14Idx.size) {
+          let xi = -1;
+          for (const lst of kids(doc.root).filter((k) => ln(k.name) === "extLst")) {
+            for (const ex of kids(lst)) for (const cfs of kids(ex, "x14:conditionalFormattings")) {
+              for (const cfx of kids(cfs, "x14:conditionalFormatting")) cfx.kids = cfx.kids.filter((k) => { if (!(k.k === "el" && k.name === "x14:cfRule")) return true; xi++; return !(x14Idx.has(xi) || x14Ids.has(attr(k, "id") ?? "")); });
+              cfs.kids = cfs.kids.filter((k) => !(k.k === "el" && k.name === "x14:conditionalFormatting" && !kids(k, "x14:cfRule").length));
+            }
+            for (const ex of kids(lst)) ex.kids = ex.kids.filter((k) => !(k.k === "el" && k.name === "x14:conditionalFormattings" && !kids(k).length));
+            lst.kids = lst.kids.filter((k) => !(k.k === "el" && ln(k.name) === "ext" && !kids(k).length));
+          }
+          doc.root.kids = doc.root.kids.filter((k) => !(k.k === "el" && ln(k.name) === "extLst" && !kids(k).length));
+        }
         let pr = 0; const walk = (e: XEl) => { if (ln(e.name) === "cfRule") pr = Math.max(pr, Number(attr(e, "priority")) || 0); kids(e).forEach(walk); }; walk(doc.root);
         const added: XEl[] = [];
         for (const r of after) {
-          if (kept.has(key(r))) continue;
+          if (kept.has(key(r)) || !X.cfRuleXml(r, null, 1)) continue; // "" = not representable in the main schema
           const dx = X.cfDxfXml(r);
           const node = parseXml(`<conditionalFormatting xmlns="${NS_MAIN}" sqref="${r.range.replace(/[<&"]/g, "")}">${X.cfRuleXml(r, dx ? styles.dxf(dx) : null, ++pr)}</conditionalFormatting>`).root;
           const strip = (e: XEl) => { e.attrs = e.attrs.filter(([k]) => k !== "xmlns"); e.quote = e.quote.slice(-e.attrs.length); e.name = SP + ln(e.name); kids(e).forEach(strip); };

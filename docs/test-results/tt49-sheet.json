@@ -1,0 +1,47 @@
+{
+  "suite": "tt49-sheet",
+  "at": "2026-10-20T09:26:08.926Z",
+  "results": [
+    {
+      "suite": "tt49-sheet",
+      "name": "documented answers: Microsoft's data-bar length (10–90 %), x14 automatic bounds (0–100 %), top/bottom N% rounding, blank-as-zero, gte=\"0\", sample σ",
+      "covers": {
+        "FF-29": "full",
+        "SS-49": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt49-sheet",
+      "name": "priority order, format merging and stopIfTrue: the highest-priority rule wins each property, non-conflicting formats combine, stopIfTrue blocks icons and fills below it",
+      "covers": {
+        "FF-29": "full",
+        "SS-49": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt49-sheet",
+      "name": "JSON boundary: every corpus rule survives workbookToJson → workbookFromJson unchanged; 18 hostile shapes are rejected or neutralised",
+      "covers": {
+        "FF-29": "full",
+        "SS-49": "full"
+      },
+      "pass": false,
+      "error": "unknown icon set dropped: [{\"id\":\"h\",\"sheet\":\"Sheet1\",\"range\":\"A1:A3\",\"kind\":\"icons\",\"iconSet\":\"__proto__\"}]",
+      "ms": 48006
+    },
+    {
+      "suite": "tt49-sheet",
+      "name": "adversarial evaluation: degenerate distributions, errors, #REF! after shifting, whole-column formulas, caps, no mutation, no recursion",
+      "covers": {
+        "FF-29": "full",
+        "SS-49": "full"
+      },
+      "pass": true,
+      "ms": 104
+    }
+  ]
+}

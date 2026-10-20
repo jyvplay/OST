@@ -25,6 +25,8 @@ const CORPUS = "/home/user/tools/corpus/xlsx";
 const PY = "/home/user/tools/venv/bin/python";
 const haveCorpus = existsSync(CORPUS) && existsSync(PY);
 function ok(c: unknown, m: string): asserts c { if (!c) throw new Error(m); }
+/** canonical JSON: keys sorted at every depth (a key-array replacer would DROP nested keys such as cfvo.t/v) */
+const canon = (v: unknown): string => Array.isArray(v) ? `[${v.map(canon).join(",")}]` : v && typeof v === "object" ? `{${Object.keys(v).filter((k) => (v as Record<string, unknown>)[k] !== undefined).sort().map((k) => `${JSON.stringify(k)}:${canon((v as Record<string, unknown>)[k])}`).join(",")}}` : JSON.stringify(v);
 const COV = { "FF-20": "full", "FF-21": "full" } as const;
 const near = (a: string | null | undefined, b: string | null | undefined) => {
   if (!a || !b) return a === b || (!a && !b);
@@ -108,9 +110,11 @@ await test("corpus: every styled cell's fill and font colour equals the independ
 
 const CF = { "FF-21": "full", "FF-20": "full" } as const;
 const tmp = mkdtempSync(join(tmpdir(), "tt47s-"));
-const ruleKey = ({ id: _i, src: _s, ...r }: CondRule) => JSON.stringify(r, Object.keys(r).sort());
+const ruleKey = ({ id: _i, src: _s, ...r }: CondRule) => canon(r);
 const cfOracle = (paths: string[]) => execFileSync(PY, ["-W", "ignore", "scripts/oracle/xlsx_cf.py"], { input: paths.join("\n"), encoding: "utf8" }).trim().split("\n").map((l) => JSON.parse(l) as { file: string; rules?: unknown[][]; error?: string });
-const cellIsOf = (rules: CondRule[]) => rules.filter((r) => ["gt", "lt", "ge", "le", "eq", "between"].includes(r.kind) && (r.fill || r.color))
+// TT49: formula-operand cellIs rules (af/bf) are modelled now; the oracle lists constant operands only
+const cellIsOf = (rules: CondRule[]) => rules.filter((r) => ["gt", "lt", "ge", "le", "eq", "between"].includes(r.kind) && !r.af && !r.bf && (r.fill || r.color))
+  .flatMap((r) => r.range.split(/\s+/).map((range) => ({ ...r, range }))) // TT49: a multi-range sqref is one union rule
   .map((r) => JSON.stringify([r.sheet, r.range, r.kind, Number.isFinite(Number(r.a)) && String(r.a).trim() !== "" ? Number(r.a) : r.a, r.b === undefined ? null : Number(r.b), r.fill ?? null, r.color ?? null])).sort();
 
 await test("colour scales: 2/3-colour, cfvo min/max/num/percent/percentile (PERCENTILE.INC), clamping, monotone thresholds", CF, async () => {

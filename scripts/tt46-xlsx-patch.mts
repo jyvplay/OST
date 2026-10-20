@@ -226,8 +226,9 @@ await test("conditional formats are imported for display: every constant cellIs 
   const ours = new Map<string, unknown[]>();
   for (const { name, bytes } of cand) {
     const num = (v: unknown) => (typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)) ? Number(v) : v);
-    ours.set(join(CORPUS, name), readXlsxWorkbook(Buffer.from(bytes)).condFormats.filter((r) => ["gt", "lt", "ge", "le", "eq", "between"].includes(r.kind) && (r.fill || r.color))
-      .map((r) => [r.sheet, r.range, r.kind, num(r.a), r.b === undefined ? null : num(r.b), r.fill ?? null, r.color ?? null]));
+    ours.set(join(CORPUS, name), readXlsxWorkbook(Buffer.from(bytes)).condFormats.filter((r) => ["gt", "lt", "ge", "le", "eq", "between"].includes(r.kind) && (r.fill || r.color) && r.af === undefined && r.bf === undefined)
+      // TT49: one rule per cfRule over its whole sqref (union); the constant-operand oracle lists one entry per range
+      .flatMap((r) => r.range.split(/\s+/).map((rg) => [r.sheet, rg, r.kind, num(r.a), r.b === undefined ? null : num(r.b), r.fill ?? null, r.color ?? null])));
   }
   const paths = [...ours.keys()]; const res: { file: string; rules?: unknown[]; error?: string }[] = [];
   for (let i = 0; i < paths.length; i += 40) {

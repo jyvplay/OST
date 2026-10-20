@@ -27,7 +27,10 @@ function parseCellToken(text: string): CellAddr {
   if (!m) throw new Error(`bad reference token: ${text}`);
   const [, sheetRaw, colAbs, colLetters, rowAbs, rowDigits] = m;
   const sheet = sheetRaw ? unquoteSheet(sheetRaw) : null;
-  return { sheet, col: lettersToCol(colLetters.toUpperCase()), row: Number(rowDigits) - 1, colAbs: colAbs === "$", rowAbs: rowAbs === "$" };
+  // TT49: A0 / A1048577 / XFE1 are not references in Excel (found by the CF adversary: "A0" became row −1)
+  const row = Number(rowDigits) - 1, col = lettersToCol(colLetters.toUpperCase());
+  if (!(row >= 0 && row <= 1_048_575 && col <= 16_383)) throw new Error(`reference out of range: ${text}`);
+  return { sheet, col, row, colAbs: colAbs === "$", rowAbs: rowAbs === "$" };
 }
 
 const unquoteSheet = (raw: string) => (raw.startsWith("'") ? raw.slice(1, -1).replace(/''/g, "'") : raw);

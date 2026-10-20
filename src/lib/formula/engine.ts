@@ -243,6 +243,54 @@ export class Workbook {
   }
   spillAnchorOf(sheetName: string, col: number, row: number): SpillClaim | undefined { return this.spillOwner.get(fqKey(sheetName, col, row)); }
 
+  /**
+   * TT49: evaluate a formula (conditional-format expression, cfvo formula, cellIs operand) as if it sat in
+   * (sheet, col, row), against the values of the last recalculation. Read-only — never writes a cell. Array
+   * results collapse to their top-left element (CF formulas are evaluated as array formulas, not legacy implicit
+   * intersection); errors are returned as values.
+   */
+  evalFormulaAt(sheetName: string, col: number, row: number, formula: Node | string): Scalar {
+    const prev = setDate1904(this.date1904);
+    try {
+      const node = typeof formula === "string" ? parseFormula(formula.startsWith("=") ? formula : "=" + formula) : formula;
+      const isBlank = (s: string | null, c: number, r: number, home?: string): boolean => {
+        const sn = s ?? home ?? sheetName; const cell = this.sheets.get(sn)?.get(c, r);
+        if (cell && cell.input !== "") return false;
+        return !this.spillOwner.has(fqKey(sn, c, r));
+      };
+      const vAt = (s: string, c: number, r: number): Scalar => this.valueAt(s, c, r) ?? "";
+      const clamp = (range: RangeAddr): RangeAddr => {
+        const area = (Math.abs(range.to.col - range.from.col) + 1) * (Math.abs(range.to.row - range.from.row) + 1);
+        if (!range.whole && area <= 200_000) return range;
+        const b = this.usedBounds(range.from.sheet ?? sheetName);
+        const r1 = Math.max(range.from.row, Math.min(range.to.row, b.r)), c1 = Math.max(range.from.col, Math.min(range.to.col, b.c));
+        return { from: range.from, to: { ...range.to, row: r1, col: c1 } };
+      };
+      const ctx: EvalContext = {
+        resolveRef: (addr) => vAt(addr.sheet ?? sheetName, addr.col, addr.row),
+        resolveRange: (range) => resolveRangeMatrix(clamp(range), sheetName, vAt),
+        cursor: { sheet: sheetName, col, row },
+        isBlank,
+        sheetsBetween: (a, b) => { const order = [...this.sheets.keys()]; const i = order.findIndex((x) => x.toUpperCase() === a.toUpperCase()), j = order.findIndex((x) => x.toUpperCase() === b.toUpperCase()); return i < 0 || j < 0 ? null : order.slice(Math.min(i, j), Math.max(i, j) + 1); },
+        table: (name) => (name ? this.tables.get(name.toUpperCase()) : [...this.tables.values()].find((t) => t.sheet === sheetName && col >= t.c0 && col <= t.c1 && row >= t.r0 && row <= t.r1)),
+        sheetExists: (n) => this.sheets.has(n),
+        expandName: (n) => (this.lookupName(n, sheetName) ? this.expandNames({ t: "name", name: n }, sheetName) : null),
+        cellInput: (s, c, r) => this.sheets.get(s ?? sheetName)?.get(c, r)?.input,
+      };
+      let top = this.names.size ? this.expandNames(node, sheetName) : node;
+      top = resolveRefNode(top, ctx);
+      const v = top.t === "ref" && isBlank(top.v.sheet, top.v.col, top.v.row, sheetName) ? 0 : evalRaw(top, ctx);
+      return isGrid(v) ? (v[0]?.[0] ?? "") : v;
+    } catch (e) { return (e as { code?: Scalar }).code ?? err("#VALUE!"); }
+    finally { setDate1904(prev); }
+  }
+  /** Used area of a sheet (last row/col holding input or a spill) — clamps whole-column refs in evalFormulaAt. */
+  private usedBounds(sheetName: string): { r: number; c: number } {
+    const b = { r: 0, c: 0 }; const sh = this.sheets.get(sheetName); if (!sh) return b;
+    for (const [k, cell] of sh.grid) { if (cell.input === "") continue; const [c, r] = k.split(",").map(Number); if (r > b.r) b.r = r; if (c > b.c) b.c = c; if (cell.spill) { b.r = Math.max(b.r, r + cell.spill.rows - 1); b.c = Math.max(b.c, c + cell.spill.cols - 1); } }
+    return b;
+  }
+
   /** Full dependency-ordered recalculation with cycle detection and bounded spill fixed point. */
   recalculate(): void {
     const prev = setDate1904(this.date1904);
@@ -493,6 +541,11 @@ function evalBinary(op: string, l: Scalar, r: Scalar): Scalar {
     case ">=": return typeCompare(l, r) >= 0;
     default: return err("#VALUE!");
   }
+}
+/** TT49: an Excel comparison between a cell and an operand with Excel's blank semantics (blank takes the other
+ * operand's type: 0, "" or FALSE) — the cellIs conditional-format test. Errors never match. */
+export function cfCompare(op: "=" | "<>" | "<" | ">" | "<=" | ">=", cell: Scalar | undefined, blank: boolean, operand: Scalar): boolean {
+  return evalBinary(op, blank ? BLANK : (cell ?? ""), operand) === true;
 }
 /** [spec] cross-type ordering: number < text < boolean, matching the documented
  * Excel/Calc sort convention; same-type compares directly (numbers numerically,
