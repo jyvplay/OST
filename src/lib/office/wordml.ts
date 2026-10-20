@@ -51,6 +51,8 @@ export interface WordDoc {
   rels: Rel[]; relsXml: XDoc; relsPath: string;
   media: Map<string, { data: Uint8Array; mime: string }>; // by rId
   parts: Map<string, Block[]>; // header/footer blocks by rId
+  /** TT49: header/footer part XML by rId (re-serialized on save only when edited), edited rIds, rIds created in the editor */
+  hf: { xml: Map<string, { path: string; xml: XDoc; rels: Map<string, Rel> }>; dirty: Set<string>; created: Set<string> };
   comments: Comment[]; commentsPath?: string; commentsXml?: XDoc;
   notes: Note[];
   theme: { major: string; minor: string };
@@ -61,8 +63,8 @@ export interface WordDoc {
 /* ================================================================ units / helpers */
 export const twipToPx = (t: number) => t / 15;
 export const emuToPx = (e: number) => e / 9525;
-const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-const R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+export const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+export const R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const RT = { styles: R_NS + "/styles", numbering: R_NS + "/numbering", hyperlink: R_NS + "/hyperlink", image: R_NS + "/image", header: R_NS + "/header", footer: R_NS + "/footer", comments: R_NS + "/comments", footnotes: R_NS + "/footnotes", endnotes: R_NS + "/endnotes", theme: R_NS + "/theme", settings: R_NS + "/settings", officeDocument: R_NS + "/officeDocument" };
 const td = new TextDecoder("utf-8", { ignoreBOM: true }), te = new TextEncoder();
 const onOff = (e: XEl | undefined): boolean | undefined => { if (!e) return undefined; const v = attr(e, "w:val"); return !(v === "0" || v === "false" || v === "off" || v === "none"); };
@@ -123,7 +125,7 @@ export function parsePPr(p: XEl | undefined): ParaProps {
 /* Schema sequences (ECMA-376 CT_RPr / CT_PPrBase) used to insert regenerated children in valid order. */
 const RPR_ORDER = ["w:rStyle", "w:rFonts", "w:b", "w:bCs", "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath", "w:rPrChange"];
 const PPR_ORDER = ["w:pStyle", "w:keepNext", "w:keepLines", "w:pageBreakBefore", "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange"];
-function put(parent: XEl, order: string[], name: string, node: XEl | null) {
+export function put(parent: XEl, order: string[], name: string, node: XEl | null) {
   const at = parent.kids.findIndex((k) => k.k === "el" && k.name === name);
   if (at >= 0) parent.kids.splice(at, 1);
   if (!node) { parent.selfClose = parent.kids.length === 0; return; }
@@ -183,7 +185,7 @@ export function buildPPr(p: ParaProps, p0: ParaProps | undefined, base: XEl | un
 }
 
 /* ================================================================ reading */
-interface Ctx { doc: WordDoc; part: string; rels: Map<string, Rel>; linkSeq: number; fld: boolean[] }
+export interface Ctx { doc: WordDoc; part: string; rels: Map<string, Rel>; linkSeq: number; fld: boolean[] }
 function relMap(xml: XDoc | null): Rel[] {
   if (!xml) return [];
   return kids(xml.root, "Relationship").map((r) => ({ id: attr(r, "Id") ?? "", type: attr(r, "Type") ?? "", target: attr(r, "Target") ?? "", mode: attr(r, "TargetMode") }));
@@ -386,7 +388,7 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
   const rels = relMap(relsXml);
   const doc: WordDoc = {
     zip, order, docPath, docXml, body, blocks: [], page: parseSect(undefined), styles: new Map(), defaults: { f: {}, p: {} }, numbering: new Map(),
-    rels, relsXml, relsPath, media: new Map(), parts: new Map(), comments: [], notes: [], theme: { major: "Calibri Light", minor: "Calibri" },
+    rels, relsXml, relsPath, media: new Map(), parts: new Map(), hf: { xml: new Map(), dirty: new Set(), created: new Set() }, comments: [], notes: [], theme: { major: "Calibri Light", minor: "Calibri" },
     added: { rels: [], media: [], styles: new Set(), lists: new Map(), comments: [] }, title: name.replace(/\.[^.]+$/, ""), warnings: [],
   };
   const relById = new Map(rels.map((r) => [r.id, r]));
@@ -402,7 +404,7 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
   // headers / footers (rendered on pages; preserved verbatim)
   for (const r of rels) if (r.type === RT.header || r.type === RT.footer) {
     const p = resolveTarget(docPath, r.target); const s = text(p); if (!s) continue;
-    try { const x = parseXml(s); const pr = new Map(relMap(text(relsPathOf(p)) ? parseXml(text(relsPathOf(p))!) : null).map((q) => [q.id, q])); doc.parts.set(r.id, parseBlocks({ doc, part: p, rels: pr, linkSeq: 1000, fld: [] }, x.root.kids)); } catch (e) { doc.warnings.push(`header/footer ${p}: ${(e as Error).message}`); }
+    try { const x = parseXml(s); const pr = new Map(relMap(text(relsPathOf(p)) ? parseXml(text(relsPathOf(p))!) : null).map((q) => [q.id, q])); doc.parts.set(r.id, parseBlocks({ doc, part: p, rels: pr, linkSeq: 1000, fld: [] }, x.root.kids)); doc.hf.xml.set(r.id, { path: p, xml: x, rels: pr }); } catch (e) { doc.warnings.push(`header/footer ${p}: ${(e as Error).message}`); }
   }
   for (const [type, kind] of [[RT.footnotes, "footnote"], [RT.endnotes, "endnote"]] as const) {
     const p = partOf(type); const s = p && text(p); if (!s) continue;
@@ -604,6 +606,8 @@ const BUILTIN_STYLES: Record<string, string> = {
   Quote: `<w:style w:type="paragraph" w:styleId="Quote"><w:name w:val="Quote"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:before="200"/><w:ind w:left="864" w:right="864"/><w:jc w:val="center"/></w:pPr><w:rPr><w:i/><w:iCs/><w:color w:val="404040"/></w:rPr></w:style>`,
   ListParagraph: `<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:ind w:left="720"/><w:contextualSpacing/></w:pPr></w:style>`,
   Code: `<w:style w:type="paragraph" w:customStyle="1" w:styleId="Code"><w:name w:val="Code"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:shd w:val="clear" w:color="auto" w:fill="F2F2F2"/></w:pPr><w:rPr><w:rFonts w:ascii="Consolas" w:hAnsi="Consolas"/><w:sz w:val="20"/></w:rPr></w:style>`,
+  Header: `<w:style w:type="paragraph" w:styleId="Header"><w:name w:val="header"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:pPr><w:tabs><w:tab w:val="center" w:pos="4680"/><w:tab w:val="right" w:pos="9360"/></w:tabs><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:style>`,
+  Footer: `<w:style w:type="paragraph" w:styleId="Footer"><w:name w:val="footer"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:pPr><w:tabs><w:tab w:val="center" w:pos="4680"/><w:tab w:val="right" w:pos="9360"/></w:tabs><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:style>`,
   Hyperlink: `<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:basedOn w:val="DefaultParagraphFont"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:rPr><w:color w:val="0563C1" w:themeColor="hyperlink"/><w:u w:val="single"/></w:rPr></w:style>`,
 };
 export const BUILTIN_STYLE_IDS = Object.keys(BUILTIN_STYLES);
@@ -710,8 +714,9 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
       doc.stylesPath = doc.docPath.replace(/[^/]+$/, "") + "styles.xml";
       doc.stylesXml = parseXml(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:styles xmlns:w="${W}"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:asciiTheme="minorHAnsi" w:hAnsiTheme="minorHAnsi" w:eastAsiaTheme="minorHAnsi" w:cstheme="minorBidi"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="en-US"/></w:rPr></w:rPrDefault><w:pPrDefault/></w:docDefaults></w:styles>`);
       addRel(doc, RT.styles, "styles.xml");
-      ensureContentType(ct, "Override", "/" + doc.stylesPath, "application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"); ctDirty = true;
     }
+    // [Content_Types] is re-read from the original on every save, so a part created by an earlier save needs its Override again
+    if (!doc.zip.has(doc.stylesPath!)) { ensureContentType(ct, "Override", "/" + doc.stylesPath, "application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"); ctDirty = true; }
     const have = new Set(kids(doc.stylesXml.root, "w:style").map((s) => attr(s, "w:styleId")));
     for (const id of doc.added.styles) if (!have.has(id) && BUILTIN_STYLES[id]) { const x = parseXml(BUILTIN_STYLES[id].replace("<w:style ", `<w:style xmlns:w="${W}" `)).root; x.attrs = x.attrs.filter((a) => a[0] !== "xmlns:w"); x.quote = x.attrs.map(() => '"'); x.ws = undefined; doc.stylesXml.root.kids.push(x); }
     setPart(doc.stylesPath!, te.encode(serializeXml(doc.stylesXml)));
@@ -722,8 +727,8 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
       doc.commentsPath = doc.docPath.replace(/[^/]+$/, "") + "comments.xml";
       doc.commentsXml = parseXml(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:comments xmlns:w="${W}"></w:comments>`);
       addRel(doc, RT.comments, "comments.xml");
-      ensureContentType(ct, "Override", "/" + doc.commentsPath, "application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml"); ctDirty = true;
     }
+    if (!doc.zip.has(doc.commentsPath!)) { ensureContentType(ct, "Override", "/" + doc.commentsPath, "application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml"); ctDirty = true; }
     const root = doc.commentsXml.root;
     const have = new Set(kids(root, "w:comment").map((c) => attr(c, "w:id")));
     for (const c of doc.added.comments) if (!have.has(c.id)) {
@@ -731,6 +736,13 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
       root.selfClose = false;
     }
     setPart(doc.commentsPath!, te.encode(serializeXml(doc.commentsXml)));
+  }
+  // TT49: edited / created header and footer parts (untouched parts keep their original bytes)
+  for (const rid of doc.hf.dirty) {
+    const h = doc.hf.xml.get(rid), blocks = doc.parts.get(rid); if (!h || !blocks) continue;
+    const keep = h.xml.root.kids; h.xml.root.kids = serializeBlocks(blocks); h.xml.root.selfClose = false;
+    setPart(h.path, te.encode(serializeXml(h.xml))); h.xml.root.kids = keep;
+    if (doc.hf.created.has(rid)) { ensureContentType(ct, "Override", "/" + h.path, `application/vnd.openxmlformats-officedocument.wordprocessingml.${h.xml.root.name === "w:ftr" ? "footer" : "header"}+xml`); ctDirty = true; }
   }
   // media
   for (const m of doc.added.media) {

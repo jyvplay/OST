@@ -16,15 +16,19 @@ import { Btn } from "../ui";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import { allParas, blankWord, docText, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
 import * as E from "@/lib/office/wordedit";
+import { hfLines, removeHf, setDifferentFirst, setHf, type HfAlign, type HfKind, type HfLine, type HfType } from "@/lib/office/hdrftr";
+import type { XEl } from "@/lib/office/xmltree";
 import { domToPos, geomOf, makeState, paginate, posToDom, renderBlocks, renderPara, cssFont } from "./writer/view";
 
-type Panel = "none" | "find" | "review" | "nav" | "page";
+type Panel = "none" | "find" | "review" | "nav" | "page" | "hf";
 const MIME_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const FONTS = ["Calibri", "Cambria", "Arial", "Times New Roman", "Georgia", "Verdana", "Courier New", "Consolas", "Segoe UI", "Aptos"];
 const SIZES = [8, 9, 10, 10.5, 11, 12, 14, 16, 18, 20, 24, 28, 36, 48, 72];
 const HIGHLIGHTS = ["yellow", "green", "cyan", "magenta", "red", "lightGray"];
 
-interface Snap { blocks: Block[]; sel: E.Range | null }
+/** hf: header/footer state (parts are replaced, never mutated, by setHf — a shallow copy is a true snapshot) */
+interface Snap { blocks: Block[]; sel: E.Range | null; hf?: { parts: Map<string, Block[]>; sect?: XEl; page: WordDoc["page"] } }
+const hfSnap = (d: WordDoc): Snap["hf"] => ({ parts: new Map(d.parts), sect: d.finalSect ? (JSON.parse(JSON.stringify(d.finalSect)) as XEl) : undefined, page: { ...d.page } });
 
 export default function WriterModule({ win }: ModuleProps) {
   const shell = useShell();
@@ -157,14 +161,20 @@ export default function WriterModule({ win }: ModuleProps) {
     const doc = docRef.current!; const now = Date.now();
     if (typing && now - lastTyping.current < 1200 && undo.current.length) { lastTyping.current = now; return; }
     lastTyping.current = typing ? now : 0;
-    undo.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current });
+    undo.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current, hf: hfSnap(doc) });
     if (undo.current.length > 200) undo.current.shift();
     redo.current = [];
   };
   const restore = (from: React.MutableRefObject<Snap[]>, to: React.MutableRefObject<Snap[]>) => {
     const doc = docRef.current!; const s = from.current.pop(); if (!s) return;
-    to.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current });
+    to.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current, hf: hfSnap(doc) });
     doc.blocks = s.blocks;
+    if (s.hf) {
+      for (const [rid, b] of s.hf.parts) if (doc.parts.get(rid) !== b) doc.hf.dirty.add(rid);
+      for (const rid of doc.parts.keys()) if (!s.hf.parts.has(rid)) doc.hf.dirty.delete(rid);
+      doc.parts = new Map(s.hf.parts); doc.finalSect = s.hf.sect; doc.page = { ...s.hf.page };
+      setDocGen((g) => g + 1);
+    }
     for (const p of allParas(doc.blocks)) p.dirty = true; // conservative: restored paragraphs regenerate (still lossless per run)
     renderAll(); if (s.sel) setSel(s.sel); setDirty(true); bump();
   };
@@ -540,7 +550,7 @@ export default function WriterModule({ win }: ModuleProps) {
         <Btn variant="ghost" disabled={!redo.current.length} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>
         <span style={{ flex: 1 }} />
         <label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || !!(encRef.current && !encRef.current.password)} aria-label="AutoSave" />AutoSave</label>
-        {(["nav", "find", "review", "page"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", page: "Layout", none: "" }[p]}</Btn>)}
+        {(["nav", "find", "review", "page", "hf"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
       </div>
       {/* ---------- formatting row */}
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }} onMouseDown={(e) => { if ((e.target as HTMLElement).tagName === "BUTTON") e.preventDefault(); }}>
@@ -645,6 +655,7 @@ export default function WriterModule({ win }: ModuleProps) {
               <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>New comment on selection</Btn>
               {doc.comments.map((c) => <button key={c.id} className="wcom" onClick={() => { const m = rootRef.current?.querySelector(`[data-cids~="${c.id}"], .wcmt[data-cids*="${c.id}"]`); m?.scrollIntoView({ block: "center" }); }}><b>{c.author || "Unknown"}</b>{c.date ? <span style={{ opacity: 0.6 }}> · {c.date.slice(0, 10)}</span> : null}<div>{c.text}</div></button>)}
             </>}
+            {panel === "hf" && <HeaderFooter doc={doc} gen={docGen} onApply={(fn) => { snapshot(); fn(doc); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
             {panel === "page" && <PageSetup doc={doc} onApply={(o) => { snapshot(); E.setPageSetup(doc, o); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
           </div>
         )}
@@ -746,6 +757,65 @@ function AlignIcon({ a }: { a: "left" | "center" | "right" | "justify" }) {
   const rows = [14, 10, 14, 8];
   return <svg width="16" height="14" viewBox="0 0 16 14" aria-hidden>{rows.map((w, i) => { const ww = a === "justify" ? 14 : w; const x = a === "left" || a === "justify" ? 1 : a === "right" ? 15 - ww : (16 - ww) / 2; return <rect key={i} x={x} y={1 + i * 3.3} width={ww} height="1.6" rx="0.8" fill="currentColor" />; })}</svg>;
 }
+/** TT49: header & footer editor (src/lib/office/hdrftr.ts). One row per paragraph; locked rows are kept verbatim. */
+function HeaderFooter({ doc, gen, onApply }: { doc: WordDoc; gen: number; onApply: (fn: (d: WordDoc) => void) => void }) {
+  const [kind, setKind] = useState<HfKind>("header");
+  const [type, setType] = useState<HfType>("default");
+  const load = (k: HfKind, t: HfType) => hfLines(doc, k, t);
+  const [lines, setLines] = useState<HfLine[]>(() => load("header", "default"));
+  const [focus, setFocus] = useState<{ i: number; at: number } | null>(null);
+  const first = doc.page.titlePg ?? false;
+  const switchTo = (k: HfKind, t: HfType) => { setKind(k); setType(t); setLines(load(k, t)); setFocus(null); };
+  const opened = useRef(doc);
+  useEffect(() => { if (opened.current !== doc) { opened.current = doc; switchTo("header", "default"); } }); // another document was opened
+  const seenGen = useRef(gen);
+  useEffect(() => { if (seenGen.current !== gen) { seenGen.current = gen; setLines(load(kind, type)); } }); // undo/redo restored the parts
+  const apply = (fn: (d: WordDoc) => void, k = kind, t = type) => { onApply(fn); setLines(load(k, t)); }; // onApply runs synchronously
+  const exists = load(kind, type).length > 0;
+  const insert = (tok: string) => {
+    const i = focus && !lines[focus.i]?.locked ? focus.i : lines.findIndex((l) => !l.locked);
+    if (i < 0) { setLines([...lines, { text: tok, align: "center" }]); return; }
+    const at = focus && focus.i === i ? focus.at : lines[i].text.length;
+    setLines(lines.map((l, j) => (j === i ? { ...l, text: l.text.slice(0, at) + tok + l.text.slice(at) } : l))); setFocus({ i, at: at + tok.length });
+  };
+  const name = `${type === "first" ? "First-page " : ""}${kind}`;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }} data-testid="hf-panel">
+      <div className="wside-h">Header &amp; footer</div>
+      <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }} role="tablist" aria-label="Header or footer">
+        {(["header", "footer"] as const).map((k) => (["default", ...(first ? ["first"] : [])] as HfType[]).map((t) => (
+          <Btn key={k + t} variant={kind === k && type === t ? "primary" : "ghost"} role="tab" aria-selected={kind === k && type === t} onClick={() => switchTo(k, t)}>{t === "first" ? `First-page ${k}` : k[0].toUpperCase() + k.slice(1)}</Btn>
+        )))}
+      </div>
+      <label><input type="checkbox" checked={first} aria-label="Different first page" onChange={(e) => { const on = e.target.checked; apply((d) => setDifferentFirst(d, on)); if (!on && type === "first") switchTo(kind, "default"); }} /> Different first page</label>
+      {!exists && <div style={{ fontSize: fz(12), opacity: 0.75 }}>This document has no {name} yet — type below and Apply to add one.</div>}
+      {lines.map((l, i) => (
+        <div key={l.id ?? `n${i}`} className="fs-row" style={{ gap: 4, alignItems: "center" }} data-testid="hf-line">
+          {l.locked ? <span style={{ flex: 1, fontSize: fz(12), opacity: 0.8 }} title="Kept exactly as in the document">{l.text || "(empty)"} <em>· {l.label} — kept as is</em></span>
+            : <input className="fs-input" style={{ flex: "1 1 10em", minWidth: "8em" }} aria-label={`${name} line ${i + 1}`} value={l.text} maxLength={2000}
+              onChange={(e) => { const v = e.target.value; setLines(lines.map((x, j) => (j === i ? { ...x, text: v } : x))); setFocus({ i, at: e.target.selectionStart ?? v.length }); }}
+              onSelect={(e) => setFocus({ i, at: e.currentTarget.selectionStart ?? 0 })} />}
+          <select className="fs-select" style={{ flex: "0 0 auto", width: "auto" }} aria-label={`${name} line ${i + 1} alignment`} value={l.align ?? "left"} disabled={l.locked} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, align: e.target.value as HfAlign } : x)))}>
+            <option value="left">Left</option><option value="center">Centre</option><option value="right">Right</option>
+          </select>
+          <Btn variant="ghost" aria-label={`Remove ${name} line ${i + 1}`} onClick={() => setLines(lines.filter((_, j) => j !== i))}>×</Btn>
+        </div>
+      ))}
+      <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
+        <Btn variant="ghost" onClick={() => setLines([...lines, { text: "", align: lines.at(-1)?.align ?? "left" }])}>Add line</Btn>
+        <Btn variant="ghost" onClick={() => insert("{PAGE}")}>Insert page number</Btn>
+        <Btn variant="ghost" onClick={() => insert("{NUMPAGES}")}>Insert page count</Btn>
+        <Btn variant="ghost" title="Tab moves focus in a text box, so this inserts a column tab (centre / right column in a three-part header)" onClick={() => insert("\t")}>Insert tab</Btn>
+      </div>
+      <div className="fs-row" style={{ gap: 4 }}>
+        <Btn onClick={() => { const ls = lines; apply((d) => { setHf(d, kind, type, ls); }); }}>Apply {name}</Btn>
+        {exists && <Btn variant="ghost" onClick={() => apply((d) => removeHf(d, kind, type))}>Remove {name}</Btn>}
+      </div>
+      <div style={{ fontSize: fz(12), opacity: 0.75 }}>{"{PAGE}"} and {"{NUMPAGES}"} become live page fields. Pictures, other fields and links in a line keep it locked so they are never flattened. Applies to the document&apos;s last section (sections without their own header use it, as in Word).</div>
+    </div>
+  );
+}
+
 function PageSetup({ doc, onApply }: { doc: WordDoc; onApply: (o: { paper?: string; landscape?: boolean; margins?: { top: number; right: number; bottom: number; left: number } }) => void }) {
   const p = doc.page;
   const cur = Object.entries(E.PAPER).find(([, [w, h]]) => (Math.abs(w - Math.min(p.w, p.h)) < 30 && Math.abs(h - Math.max(p.w, p.h)) < 30))?.[0] ?? "Custom";

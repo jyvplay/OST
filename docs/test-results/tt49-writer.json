@@ -1,0 +1,78 @@
+{
+  "suite": "tt49-writer",
+  "at": "2026-10-20T09:51:54.157Z",
+  "results": [
+    {
+      "suite": "tt49-writer",
+      "name": "edit the existing default header of every corpus document that has one: python-docx sees the new text with live PAGE/NUMPAGES fields; every other paragraph, part and the body are unchanged",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 6676
+    },
+    {
+      "suite": "tt49-writer",
+      "name": "add a header AND a footer to every corpus document that has none: new parts, relationships, content types and section references that python-docx resolves",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 28147
+    },
+    {
+      "suite": "tt49-writer",
+      "name": "different first page: a first-page header is created, <w:titlePg/> is set in schema order, the default header stays; switching it off keeps both parts",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 4262
+    },
+    {
+      "suite": "tt49-writer",
+      "name": "untouched header paragraphs keep their exact XML; locked lines (pictures, DATE/STYLEREF/… fields, links) survive an edit of the same header byte-for-byte",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 1836
+    },
+    {
+      "suite": "tt49-writer",
+      "name": "remove: the section no longer references the header (python-docx: linked to previous), body and footer unchanged; no-edit save stays byte-identical",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 7309
+    },
+    {
+      "suite": "tt49-writer",
+      "name": "hostile input: over-long text and too many lines are capped, XML specials escaped, invalid XML characters dropped, tabs become <w:tab/>, braces other than the two fields stay text — and every result opens in python-docx",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 205
+    },
+    {
+      "suite": "tt49-writer",
+      "name": "lines holding other fields (DATE complex field, STYLEREF fldSimple) or a hyperlink are locked: sent back with changed text they stay byte-identical and python-docx still sees the fields",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 99
+    },
+    {
+      "suite": "tt49-writer",
+      "name": "three-column headers (positional tabs): an edited line keeps its centre/right <w:ptab/> elements, so python-docx and our reader see the same three columns",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 203
+    }
+  ]
+}

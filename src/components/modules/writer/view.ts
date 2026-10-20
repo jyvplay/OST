@@ -87,6 +87,9 @@ export function renderPara(st: RenderState, p: Para): HTMLElement {
     pe.appendChild(node);
     off += it.t === "r" ? it.text.length : 1;
   });
+  // positional tabs (Word's three-column header/footer): the paragraph becomes a row and each ptab a flexible gap,
+  // so text after a "center" ptab sits mid-line and text after a "right" ptab ends at the margin
+  if (p.content.some(isPtab)) { pe.style.display = "flex"; pe.style.whiteSpace = "pre"; pe.dataset.ptab = "1"; }
   if (!p.content.some((i) => (i.t === "r" && i.text) || (i.t === "k" && (i.kind === "image" || i.label)))) { const br = document.createElement("br"); br.dataset.empty = "1"; pe.appendChild(br); }
   else if (p.content.length && p.content[p.content.length - 1].t === "r" && (p.content[p.content.length - 1] as { text: string }).text.endsWith("\n")) { const br = document.createElement("br"); br.dataset.empty = "1"; pe.appendChild(br); }
   return pe;
@@ -124,10 +127,12 @@ function renderInline(st: RenderState, p: Para, it: Inline, ri: number, off: num
     case "del": t.textContent = it.label; t.title = `Deleted${authorOf(it.nodes[0] as XEl)} — accept or reject in the Review panel`; break;
     case "commentRef": t.textContent = ""; t.title = doc.comments.find((c) => c.id === it.cid)?.text ?? "comment"; break;
     case "fieldcode": case "bookmark": case "comment": t.textContent = ""; break;
+    case "other": if (isPtab(it)) { t.textContent = ""; t.dataset.kind = "ptab"; t.style.flex = "1 1 0"; t.style.minWidth = "1em"; t.title = "Positional tab"; } else t.textContent = it.label; break;
     default: t.textContent = it.label;
   }
   return t;
 }
+function isPtab(i: Inline): boolean { const n = i.t === "k" && i.kind === "other" ? i.nodes[0] : undefined; return !!n && n.k === "el" && n.name === "w:ptab"; }
 const authorOf = (e: XEl) => { const a = e.attrs.find((x) => x[0] === "w:author")?.[1]; return a ? ` by ${a}` : ""; };
 const toRoman = (n: number) => { const m: [number, string][] = [[10, "x"], [9, "ix"], [5, "v"], [4, "iv"], [1, "i"]]; let s = ""; for (const [v, r] of m) while (n >= v) { s += r; n -= v; } return s; };
 function noteText(doc: WordDoc, type: string, id: string) { const n = doc.notes.find((x) => x.type === type && x.id === id); return n ? allParas(n.blocks).map((p) => p.content.map((i) => (i.t === "r" ? i.text : "")).join("")).join(" ").trim() : ""; }

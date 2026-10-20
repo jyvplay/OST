@@ -20,7 +20,17 @@ const NEW_FF20 = "new and edited CF rules of every kind are written into <condit
   + "the new-file writer emits Excel 2010 x14 parts for data-bar extras and x14-only/custom icon sets (our reader and the independent oracle agree on "
   + "all 25 rule kinds after a write; lxml checks the x14 structure).";
 
+/** Writer: header/footer editing (src/lib/office/hdrftr.ts + Writer "Header & footer" panel). Evidence: scripts/tt49-writer.mts
+ *  (python-docx oracle scripts/oracle/docx_hf.py over the POI corpus) and scripts/e2e-tt49-writer.mts (real UI). */
+const OLD_HF = "headers/footers are view-only; ";
+const NEW_HF = "TT49: headers and footers are EDITABLE — the Header & footer panel edits, adds and removes the default and first-page header/footer "
+  + "line by line (left/centre/right), with {PAGE}/{NUMPAGES} written as live Word fields and drawn per page; untouched lines keep their exact XML and lines "
+  + "holding pictures, other fields or links are kept verbatim (shown locked); Word's positional-tab three-column headers stay editable. python-docx "
+  + "confirms it on the corpus: 22 existing headers edited, a header + footer added to 80 documents, first-page headers, removal, hostile input; "
+  + "only the edited part changes. Limits: only the last section's references are edited (earlier sections with their own header keep it); even-page "
+  + "headers are not authored; a removed header's part stays in the package unreferenced; ";
 export function patchTT49(f: SpecRow): SpecRow {
+  if (f.code === "FF-22") return { ...f, nuance: f.nuance.replace(OLD_HF, NEW_HF), test: `${f.test}; tt49-writer.mts; e2e-tt49-writer.mts` };
   if (f.code === "FF-21") return { ...f, nuance: f.nuance.replace(OLD_FF21, CF_DRAWN), test: `${f.test}; tt49-sheet.mts; e2e-tt49.mts` };
   if (f.code === "FF-20") return { ...f, nuance: f.nuance.replace(OLD_FF20, NEW_FF20), test: `${f.test}; tt49-sheet.mts; e2e-tt49.mts` };
   if (f.code === "FF-29") return {

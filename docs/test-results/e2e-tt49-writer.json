@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt49-writer",
+  "at": "2026-10-20T09:42:15.827Z",
+  "results": [
+    {
+      "suite": "e2e-tt49-writer",
+      "name": "add a footer 'Page {PAGE} of {NUMPAGES}' and a header through the panel: every page box draws its own number; saved file → python-docx sees live PAGE/NUMPAGES fields",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 3948
+    },
+    {
+      "suite": "e2e-tt49-writer",
+      "name": "edit a real Word header (POI bug57031.docx): the change shows on every page, Undo restores the original on the pages AND in the panel, the saved file keeps the other header lines",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 3526
+    },
+    {
+      "suite": "e2e-tt49-writer",
+      "name": "different first page: the checkbox adds First-page tabs; page 1 draws the cover header, later pages the default header; python-docx agrees after save; unticking restores",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 3045
+    },
+    {
+      "suite": "e2e-tt49-writer",
+      "name": "locked content: a header line holding a picture is shown 'kept as is' (no input); adding a line beside it saves with the picture intact; Remove unlinks the header",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 2959
+    },
+    {
+      "suite": "e2e-tt49-writer",
+      "name": "no page errors; uploads cleaned up",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 112
+    }
+  ]
+}
