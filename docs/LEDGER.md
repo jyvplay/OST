@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-21T06:28:49.673Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-103 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-21T17:58:53.500Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+107 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
 | **Features in register** | **368** |
-| Fully built | 291 |
-| Partially built (partial 40 + probe 16) | 56 |
+| Fully built | 294 |
+| Partially built (partial 37 + probe 16) | 53 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **170** |
-| **Partially tested** (only `partial` tags) | **77** |
-| Untested | 121 |
-| Automated tests executed / passed | 903 / 903 |
+| **Fully tested** (≥1 passing test tagged `full`) | **173** |
+| **Partially tested** (only `partial` tags) | **76** |
+| Untested | 119 |
+| Automated tests executed / passed | 957 / 957 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 162 | 62 | 67 |
-| partially built | 2 | 13 | 41 |
+| fully built | 165 | 62 | 67 |
+| partially built | 2 | 12 | 39 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
 
@@ -44,7 +44,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-contacts | 9 | 9 | 0 | 2026-10-19T21:37:53.356Z |
 | e2e-image | 10 | 10 | 0 | 2026-10-19T21:29:43.220Z |
 | e2e-layout | 12 | 12 | 0 | 2026-10-19T22:50:18.568Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-19T21:41:43.483Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-21T17:55:59.792Z |
 | e2e-office | 11 | 11 | 0 | 2026-10-19T21:28:43.832Z |
 | e2e-privacy | 14 | 14 | 0 | 2026-10-19T22:42:11.470Z |
 | e2e-sheet-layout | 7 | 7 | 0 | 2026-10-19T21:32:05.781Z |
@@ -76,11 +76,13 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt49 | 5 | 5 | 0 | 2026-10-21T05:10:03.698Z |
 | e2e-tt50-charts | 5 | 5 | 0 | 2026-10-21T06:28:25.326Z |
 | e2e-tt51-slides | 6 | 6 | 0 | 2026-10-21T06:27:31.084Z |
+| e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-21T17:54:58.372Z |
+| e2e-tt53-media | 6 | 6 | 0 | 2026-10-21T17:52:18.397Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-19T21:30:14.481Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-19T21:37:12.803Z |
-| e2e | 62 | 62 | 0 | 2026-10-19T22:47:13.427Z |
+| e2e | 63 | 63 | 0 | 2026-10-21T17:57:41.359Z |
 | image | 12 | 12 | 0 | 2026-10-19T21:25:10.526Z |
-| integration | 25 | 25 | 0 | 2026-10-19T21:25:03.337Z |
+| integration | 25 | 25 | 0 | 2026-10-21T17:55:18.309Z |
 | layout-unit | 8 | 8 | 0 | 2026-10-19T22:47:19.718Z |
 | maps-unit | 6 | 6 | 0 | 2026-10-19T21:25:40.593Z |
 | metaclean | 6 | 6 | 0 | 2026-10-19T21:25:24.865Z |
@@ -131,8 +133,10 @@ verifies the honesty contract, not the (impossible) capability.
 | tt49-sheet | 10 | 10 | 0 | 2026-10-21T05:07:25.016Z |
 | tt49-writer | 9 | 9 | 0 | 2026-10-21T05:20:39.142Z |
 | tt50-charts | 10 | 10 | 0 | 2026-10-21T05:08:48.981Z |
-| tt51-slides | 15 | 15 | 0 | 2026-10-21T06:27:05.812Z |
-| unit | 23 | 23 | 0 | 2026-10-19T22:47:19.398Z |
+| tt51-slides | 15 | 15 | 0 | 2026-10-21T17:58:40.926Z |
+| tt52-pdf | 28 | 28 | 0 | 2026-10-21T17:36:05.237Z |
+| tt53-media | 11 | 11 | 0 | 2026-10-21T17:53:14.424Z |
+| unit | 23 | 23 | 0 | 2026-10-21T17:55:15.198Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-19T21:25:15.468Z |
 | vector | 18 | 18 | 0 | 2026-10-19T21:25:14.412Z |
 | whiteboard-engine | 9 | 9 | 0 | 2026-10-19T21:25:29.179Z |
@@ -154,9 +158,9 @@ None.
 | ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
-| PR | 54 | 45 | 9 | 0 | 37 | 10 | 7 |
-| FF | 34 | 30 | 4 | 0 | 27 | 3 | 4 |
-| MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
+| PR | 54 | 46 | 8 | 0 | 38 | 10 | 6 |
+| FF | 34 | 31 | 3 | 0 | 28 | 2 | 4 |
+| MD | 9 | 7 | 2 | 0 | 1 | 7 | 1 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
 | AX | 15 | 14 | 1 | 0 | 10 | 3 | 2 |
@@ -300,7 +304,7 @@ None.
 | PR-07q | built | full | browser-session: batch actions: close others / to the right / duplicates keep pinned tabs and the anchor; e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs |
 | PR-07r | built | partial | browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first; e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin; e2e: mount: routines (+1) |
 | PR-07s | partial | untested |  |
-| PR-08 | partial | untested |  |
+| PR-08 | built | full | e2e-tt52-pdf: corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms); e2e-tt52-pdf: annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update); e2e-tt52-pdf: forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values (+34) |
 | PR-09 | built | full | e2e: mount: calculator; e2e: calculator evaluates typed input with the shared evaluator; unit: precedence, power associativity, rounding policy (+1) |
 | PR-10 | built | partial | e2e: mount: clock; e2e: clock stopwatch advances from performance.now anchors |
 | PR-11 | partial | partial | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+44) |
@@ -308,7 +312,7 @@ None.
 | PR-13 | built | full | e2e: desktop shows sticky note widget; seeded widget has no hang button |
 | FF-01 | built | partial | e2e: mount: peek; unit: loss report itemises drops; registry grades |
 | FF-02 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
-| FF-03 | partial | partial | oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf |
+| FF-03 | built | full | e2e-tt52-pdf: corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms); e2e-tt52-pdf: annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update); e2e-tt52-pdf: forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values (+35) |
 | FF-04 | built | full | ai-format: real Illustrator output: PDF export, DOS-EPS, Illustrator 88 EPS and FreeHand AI-dialect PostScript; ai-format: constructed .ai with and without PDF compatibility (the spec's open-vs-limited split); ai-format: creator hidden in a compressed object stream, UTF-16BE strings, junk before the header (+15) |
 | FF-05 | built | untested |  |
 | FF-06 | probe | untested |  |
@@ -335,7 +339,7 @@ None.
 | MD-05 | built | partial | e2e: mount: devices |
 | MD-06 | built | partial | e2e: mount: devices |
 | MD-07 | built | partial | e2e: mount: devices |
-| MD-08 | partial | untested |  |
+| MD-08 | built | full | e2e-tt53-media: MP4 (H.264 B-frames + AAC) exact-start lossless cut from the Media app: saved .mp4 verified by FFmpeg, starts at the requested time; e2e-tt53-media: MP4 with 'exact start' off snaps to the key frame (1.000 s) and says so; e2e-tt53-media: WebM (VP9 + Opus) lossless cut: start snaps to the previous key frame, the status line says where, output verified by FFmpeg (+14) |
 | MD-09 | partial | untested |  |
 | SC-01 | built | partial | e2e: mount: vault; unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
 | SC-02 | built | partial | e2e: mount: vault |

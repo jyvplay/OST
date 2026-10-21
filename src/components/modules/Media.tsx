@@ -8,6 +8,7 @@ import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
 import { askText } from "@/lib/ask";
+import { losslessTrim, isTrimError } from "@/lib/media/trim";
 
 /**
  * MD-02 + CA-01. Remote Playback is media-element scoped: on the web you cast a
@@ -26,6 +27,32 @@ export default function MediaModule({ win }: ModuleProps) {
   const [capSize, setCapSize] = useState("100%");
   const [trim, setTrim] = useState<[number, number]>([0, 5]);
   const [trimming, setTrimming] = useState(false);
+
+  const [exactStart, setExactStart] = useState(true);
+  const store = async (bytes: Uint8Array, ext: string, mime: string, what: string) => {
+    if (bytes.length <= 8 * 1024 * 1024) {
+      let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      const out = `/Documents/trim-${Date.now()}.${ext}`;
+      await post("/api/fs", { op: "upload", path: out, content: btoa(bin), mime });
+      setStatus(`${what}, saved to ${out}`); shell.bumpRefresh();
+    } else {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: mime })); a.download = `trim.${ext}`; a.click();
+      setStatus(`${what} — over 8 MB, downloaded instead of stored.`);
+    }
+  };
+  // MD-08 lossless: copy the compressed samples of the range into a new container (no decode, no re-encode)
+  const runLossless = async () => {
+    setTrimming(true);
+    try {
+      let bytes: Uint8Array;
+      const m = /^data:[^;,]*;base64,([\s\S]*)$/.exec(src);
+      if (m) { const bin = atob(m[1]); bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i); }
+      else bytes = new Uint8Array(await (await fetch(src)).arrayBuffer());
+      const r = losslessTrim(bytes, trim[0], trim[1], exactStart, path || src);
+      await store(r.bytes, r.ext, r.mime, `Lossless cut ${r.start.toFixed(3)}–${r.end.toFixed(3)} s (${r.note})`);
+    } catch (e) { setStatus(isTrimError(e) ? `Lossless cut not possible: ${(e as Error).message}` : `Lossless cut failed: ${String((e as Error).message)}`); }
+    finally { setTrimming(false); }
+  };
 
   const runTrim = async () => {
     const v = videoRef.current as (HTMLVideoElement & { captureStream?: () => MediaStream }) | null;
@@ -46,16 +73,7 @@ export default function MediaModule({ win }: ModuleProps) {
       });
       v.pause(); rec.stop(); await done;
       const blob = new Blob(parts, { type: rec.mimeType || "video/webm" });
-      const bytes = new Uint8Array(await blob.arrayBuffer());
-      if (bytes.length <= 8 * 1024 * 1024) {
-        let bin = ""; bytes.forEach((b) => { bin += String.fromCharCode(b); });
-        const out = `/Documents/trim-${Date.now()}.webm`;
-        await post("/api/fs", { op: "upload", path: out, content: btoa(bin), mime: "video/webm" });
-        setStatus(`Exported ${trim[0]}–${trim[1]} s → ${out}`); shell.bumpRefresh();
-      } else {
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "trim.webm"; a.click();
-        setStatus("Export over 8 MB — downloaded instead of stored.");
-      }
+      await store(new Uint8Array(await blob.arrayBuffer()), "webm", "video/webm", `Re-encoded ${trim[0]}–${trim[1]} s`);
     } catch (e) { setStatus(`Trim failed: ${String((e as Error).message)}`); }
     finally { setTrimming(false); }
   };
@@ -158,7 +176,7 @@ export default function MediaModule({ win }: ModuleProps) {
             </select>
           </label>
         ) : <Badge tone="warn">per-element audio routing unavailable</Badge>}
-        {status ? <span className="fs-dim" style={{ fontSize: fz(11) }}>{status}</span> : null}
+        {status ? <span className="fs-dim" style={{ fontSize: fz(11) }} data-testid="media-status">{status}</span> : null}
       </div>
 
       <Section title="Captions (AX-07)">
@@ -169,7 +187,7 @@ export default function MediaModule({ win }: ModuleProps) {
             try {
               const r = await api<{ node: { content: string } }>(`/api/fs?op=read&path=${encodeURIComponent(p)}`);
               setCaptions(URL.createObjectURL(new Blob([toVtt(r.node.content)], { type: "text/vtt" })));
-              setStatus(`Captions loaded from ${p}${p.endsWith(".srt") ? " (converted SRT → WebVTT)" : ""}`);
+              setStatus(`Captions loaded from ${p}${p.endsWith(".srt") ? " (converted SRT to WebVTT)" : ""}`);
             } catch (e) { setStatus(String((e as Error).message)); }
           }}>Load subtitles…</Btn>
           <label className="fs-row" style={{ gap: 4, fontSize: fz(11.5) }}>size
@@ -179,18 +197,24 @@ export default function MediaModule({ win }: ModuleProps) {
           </label>
         </div>
         <style>{`video::cue { font-size: ${capSize}; background: rgba(0,0,0,.75); }`}</style>
-        <div className="fs-dim" style={{ fontSize: fz(11) }}>Browsers only render WebVTT; SRT is converted (comma → dot timestamps, WEBVTT header) instead of silently failing.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>Browsers only render WebVTT; SRT is converted (comma-to-dot timestamps, WEBVTT header) instead of silently failing.</div>
       </Section>
 
       <Section title="Trim / export (MD-08)">
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <input className="fs-input" type="number" step="0.1" style={{ width: fz(90) }} value={trim[0]} onChange={(e) => setTrim([Number(e.target.value), trim[1]])} aria-label="Start seconds" />
           <input className="fs-input" type="number" step="0.1" style={{ width: fz(90) }} value={trim[1]} onChange={(e) => setTrim([trim[0], Number(e.target.value)])} aria-label="End seconds" />
-          <Btn variant="primary" disabled={!src || trimming || trim[1] <= trim[0]} onClick={() => void runTrim()}>{trimming ? "Exporting (real time)…" : "Export range"}</Btn>
+          <Btn variant="primary" disabled={!src || trimming || trim[1] <= trim[0]} onClick={() => void runLossless()} data-testid="trim-lossless">Lossless cut (instant)</Btn>
+          <Btn disabled={!src || trimming || trim[1] <= trim[0]} onClick={() => void runTrim()} data-testid="trim-reencode">{trimming ? "Working…" : "Re-encode (real time)"}</Btn>
+          <label className="fs-row" style={{ gap: 4, fontSize: fz(11.5) }}>
+            <input type="checkbox" checked={exactStart} onChange={(e) => setExactStart(e.target.checked)} data-testid="trim-exact" /> exact start (MP4)
+          </label>
         </div>
         <div className="fs-dim" style={{ fontSize: fz(11) }}>
-          Honest path: the range is replayed and re-encoded by MediaRecorder at 1× speed (a 30 s clip takes 30 s). A
-          lossless cut would need a container muxer in WASM, which is not bundled.
+          Lossless: MP4/MOV/M4A and WebM/MKV are cut by copying the compressed frames into a new file — no quality loss,
+          no waiting. MP4 keeps an exact start with an edit list; WebM has none, so its start moves back to the previous
+          key frame (the status line says where). Re-encode replays the range through MediaRecorder at 1× speed and works
+          for any format the browser can play.
         </div>
       </Section>
 

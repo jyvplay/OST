@@ -33,7 +33,7 @@ export const MODULE_ICONS: Record<string, [PaletteName, GlyphName]> = {
   monitor: ["green", "pulse"], calculator: ["orange", "keypad"], settings: ["slate", "gear"], spec: ["blue", "checklist"],
   clock: ["sky", "clock"], planner: ["coral", "calendar"], devices: ["teal", "plug"], share: ["blue", "screenShare"],
   routines: ["sun", "bolt"], clipboard: ["lime", "clipboard"], storage: ["indigo", "pie"], localdisk: ["slate", "drive"],
-  imageedit: ["lagoon", "picture"], vector: ["orange", "pen"], writer: ["blue", "doc"], slides: ["ember", "easel"],
+  imageedit: ["lagoon", "picture"], vector: ["orange", "pen"], writer: ["blue", "doc"], slides: ["ember", "easel"], pdf: ["coral", "doc"],
   sheet: ["green", "grid"], tables: ["sky", "table"], whiteboard: ["indigo", "board"], contacts: ["green", "contact"], video: ["ember", "film"], music: ["coral", "music"], maps: ["mint", "map"], peek: ["teal", "eye"],
 };
 

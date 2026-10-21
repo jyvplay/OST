@@ -1,0 +1,86 @@
+{
+  "suite": "e2e-tt52-pdf",
+  "at": "2026-10-21T17:54:58.372Z",
+  "results": [
+    {
+      "suite": "e2e-tt52-pdf",
+      "name": "corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 13727
+    },
+    {
+      "suite": "e2e-tt52-pdf",
+      "name": "annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 6340
+    },
+    {
+      "suite": "e2e-tt52-pdf",
+      "name": "forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 2495
+    },
+    {
+      "suite": "e2e-tt52-pdf",
+      "name": "find + undo/redo: matches counted; Ctrl+Z inside the Find box edits the box, not the document; toolbar undo/redo restore the rotation",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 2062
+    },
+    {
+      "suite": "e2e-tt52-pdf",
+      "name": "modal-shortcut failure test: while the Title dialog is open, Ctrl+Z / Ctrl+S / PageDown never reach the document",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1946
+    },
+    {
+      "suite": "e2e-tt52-pdf",
+      "name": "encrypted: issue6010_1.pdf asks for a password; a wrong one is refused, 'abc' opens it and the page draws",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 2185
+    },
+    {
+      "suite": "e2e-tt52-pdf",
+      "name": "Peek: first page drawn by the first-party renderer (no <embed>/<object>); 'Open in PDF app' opens the PDF window",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1825
+    },
+    {
+      "suite": "e2e-tt52-pdf",
+      "name": "no uncaught page errors during the run",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

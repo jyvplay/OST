@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-21T06:28:49.676Z",
+ "generatedAt": "2026-10-21T17:58:53.504Z",
  "totals": {
   "built": {
-   "full": 291,
-   "partial": 56,
+   "full": 294,
+   "partial": 53,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 170,
-   "partial": 77,
-   "untested": 121
+   "full": 173,
+   "partial": 76,
+   "untested": 119
   },
   "tests": {
-   "total": 903,
-   "passed": 903
+   "total": 957,
+   "passed": 957
   }
  },
  "rows": {
@@ -740,8 +740,46 @@
    "tests": []
   },
   "PR-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt52-pdf: corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms)",
+    "e2e-tt52-pdf: annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update)",
+    "e2e-tt52-pdf: forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values",
+    "e2e-tt52-pdf: find + undo/redo: matches counted; Ctrl+Z inside the Find box edits the box, not the document; toolbar undo/redo restore the rotation",
+    "e2e-tt52-pdf: modal-shortcut failure test: while the Title dialog is open, Ctrl+Z / Ctrl+S / PageDown never reach the document",
+    "e2e-tt52-pdf: encrypted: issue6010_1.pdf asks for a password; a wrong one is refused, 'abc' opens it and the page draws",
+    "e2e-tt52-pdf: Peek: first page drawn by the first-party renderer (no <embed>/<object>); 'Open in PDF app' opens the PDF window",
+    "e2e-tt52-pdf: no uncaught page errors during the run",
+    "e2e: mount: pdf",
+    "tt52-pdf: open + text: hand-built PDF, three pages, page text in order",
+    "tt52-pdf: incremental save keeps the original bytes as an exact prefix; Prev chains to the old xref",
+    "tt52-pdf: page operations: reorder + delete + insert blank + move, verified by page text",
+    "tt52-pdf: annotations: 8 kinds written with appearance streams; PDF text of the FreeText comes back from its appearance",
+    "tt52-pdf: forms: text field + checkbox + choice filled, appearances generated, values re-read",
+    "tt52-pdf: NEG forms: read-only field and unknown field are refused, document unchanged",
+    "tt52-pdf: NEG page ops: deleting every page, bad permutations and out-of-range rotate throw",
+    "tt52-pdf: privacy: a clean copy drops a deleted page's content; the incremental save keeps it (documented)",
+    "tt52-pdf: merge + extract: page counts and text order",
+    "tt52-pdf: NEG damaged xref: save() falls back to a clean rewrite instead of chaining onto bad offsets",
+    "tt52-pdf: NEG hostile input: garbage, truncation, page-tree loop and absurd /Count stay bounded",
+    "tt52-pdf: names round-trip byte-exactly (GBK font name bytes survive a rewrite) — regression",
+    "tt52-pdf: synthesised appearances for annotations without /AP (as PDFium/Acrobat); NEG: no colour → nothing",
+    "tt52-pdf: NEG shading: an axial shading whose function takes 18 inputs is rejected (PDFium paints nothing)",
+    "tt52-pdf: text fitting: wrap() never exceeds the width; Helvetica widths match the AFM (\"Hello\" = 2.278 em at 1 pt)",
+    "tt52-pdf: routing: .pdf opens in the PDF app; forge grade A with the gaps written into the boundary",
+    "tt52-pdf: encrypted files: RC4/AES open with their pdf.js-manifest passwords; edits stay encrypted and re-open; NEG wrong password",
+    "tt52-pdf: corpus: 972 pdf.js test files open; page tree agrees with PDFium/pypdf page counts (/tmp/struct.jsonl)",
+    "tt52-pdf: oracle: our edits re-opened by PDFium + qpdf (rotate, annotate, title, reorder/delete/insert, merge, extract)",
+    "tt52-pdf: oracle: text differential vs PDFium ≥ 0.93 mean bigram-F1 (needs /tmp/text.jsonl)",
+    "tt52-pdf: interpreter: annotations of every corpus page run without throwing (bounded time)",
+    "tt52-pdf: CCITT tables: white/black/mode codes are prefix-free and complete (Kraft sum), as T.4 requires",
+    "tt52-pdf: CCITT oracle: libtiff (via Pillow) encodes 9 bitmaps as G4, G3-1D and G3-2D; our decoder reproduces every bit",
+    "tt52-pdf: NEG CCITT: corrupt, truncated and garbage streams decode the good rows, flag partial, never throw or hang; absurd sizes are capped",
+    "tt52-pdf: CCITT in a page: an inline /CCF image reaches the device as decoded 1-bit samples (no 'unsupported codec')",
+    "tt52-pdf: CID-keyed CFF: an explicit top FontMatrix is not scaled again (issue16500 glyphs at 1000-unit size, not ×1000) — regression",
+    "tt52-pdf: nested content keeps the caller's graphics state: unbalanced q/Q in a form/glyph never unwinds the page's q levels — regression",
+    "tt52-pdf: embedded-file-only encryption (/EFF, StmF+StrF Identity) opens without a password like PDFium — regression"
+   ]
   },
   "PR-09": {
    "tested": "full",
@@ -838,9 +876,46 @@
    ]
   },
   "FF-03": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf"
+    "e2e-tt52-pdf: corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms)",
+    "e2e-tt52-pdf: annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update)",
+    "e2e-tt52-pdf: forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values",
+    "e2e-tt52-pdf: find + undo/redo: matches counted; Ctrl+Z inside the Find box edits the box, not the document; toolbar undo/redo restore the rotation",
+    "e2e-tt52-pdf: modal-shortcut failure test: while the Title dialog is open, Ctrl+Z / Ctrl+S / PageDown never reach the document",
+    "e2e-tt52-pdf: encrypted: issue6010_1.pdf asks for a password; a wrong one is refused, 'abc' opens it and the page draws",
+    "e2e-tt52-pdf: Peek: first page drawn by the first-party renderer (no <embed>/<object>); 'Open in PDF app' opens the PDF window",
+    "e2e-tt52-pdf: no uncaught page errors during the run",
+    "e2e: mount: pdf",
+    "oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf",
+    "tt52-pdf: open + text: hand-built PDF, three pages, page text in order",
+    "tt52-pdf: incremental save keeps the original bytes as an exact prefix; Prev chains to the old xref",
+    "tt52-pdf: page operations: reorder + delete + insert blank + move, verified by page text",
+    "tt52-pdf: annotations: 8 kinds written with appearance streams; PDF text of the FreeText comes back from its appearance",
+    "tt52-pdf: forms: text field + checkbox + choice filled, appearances generated, values re-read",
+    "tt52-pdf: NEG forms: read-only field and unknown field are refused, document unchanged",
+    "tt52-pdf: NEG page ops: deleting every page, bad permutations and out-of-range rotate throw",
+    "tt52-pdf: privacy: a clean copy drops a deleted page's content; the incremental save keeps it (documented)",
+    "tt52-pdf: merge + extract: page counts and text order",
+    "tt52-pdf: NEG damaged xref: save() falls back to a clean rewrite instead of chaining onto bad offsets",
+    "tt52-pdf: NEG hostile input: garbage, truncation, page-tree loop and absurd /Count stay bounded",
+    "tt52-pdf: names round-trip byte-exactly (GBK font name bytes survive a rewrite) — regression",
+    "tt52-pdf: synthesised appearances for annotations without /AP (as PDFium/Acrobat); NEG: no colour → nothing",
+    "tt52-pdf: NEG shading: an axial shading whose function takes 18 inputs is rejected (PDFium paints nothing)",
+    "tt52-pdf: text fitting: wrap() never exceeds the width; Helvetica widths match the AFM (\"Hello\" = 2.278 em at 1 pt)",
+    "tt52-pdf: routing: .pdf opens in the PDF app; forge grade A with the gaps written into the boundary",
+    "tt52-pdf: encrypted files: RC4/AES open with their pdf.js-manifest passwords; edits stay encrypted and re-open; NEG wrong password",
+    "tt52-pdf: corpus: 972 pdf.js test files open; page tree agrees with PDFium/pypdf page counts (/tmp/struct.jsonl)",
+    "tt52-pdf: oracle: our edits re-opened by PDFium + qpdf (rotate, annotate, title, reorder/delete/insert, merge, extract)",
+    "tt52-pdf: oracle: text differential vs PDFium ≥ 0.93 mean bigram-F1 (needs /tmp/text.jsonl)",
+    "tt52-pdf: interpreter: annotations of every corpus page run without throwing (bounded time)",
+    "tt52-pdf: CCITT tables: white/black/mode codes are prefix-free and complete (Kraft sum), as T.4 requires",
+    "tt52-pdf: CCITT oracle: libtiff (via Pillow) encodes 9 bitmaps as G4, G3-1D and G3-2D; our decoder reproduces every bit",
+    "tt52-pdf: NEG CCITT: corrupt, truncated and garbage streams decode the good rows, flag partial, never throw or hang; absurd sizes are capped",
+    "tt52-pdf: CCITT in a page: an inline /CCF image reaches the device as decoded 1-bit samples (no 'unsupported codec')",
+    "tt52-pdf: CID-keyed CFF: an explicit top FontMatrix is not scaled again (issue16500 glyphs at 1000-unit size, not ×1000) — regression",
+    "tt52-pdf: nested content keeps the caller's graphics state: unbalanced q/Q in a form/glyph never unwinds the page's q levels — regression",
+    "tt52-pdf: embedded-file-only encryption (/EFF, StmF+StrF Identity) opens without a password like PDFium — regression"
    ]
   },
   "FF-04": {
@@ -1234,8 +1309,26 @@
    ]
   },
   "MD-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt53-media: MP4 (H.264 B-frames + AAC) exact-start lossless cut from the Media app: saved .mp4 verified by FFmpeg, starts at the requested time",
+    "e2e-tt53-media: MP4 with 'exact start' off snaps to the key frame (1.000 s) and says so",
+    "e2e-tt53-media: WebM (VP9 + Opus) lossless cut: start snaps to the previous key frame, the status line says where, output verified by FFmpeg",
+    "e2e-tt53-media: MOV keeps its .mov extension; audio-only MP4 is saved as .m4a",
+    "e2e-tt53-media: a file that is not MP4/WebM gets a clear 'not possible' message instead of a broken file",
+    "e2e-tt53-media: no page errors during the run",
+    "tt53-media: container detection by magic bytes routes MP4/MOV and WebM/MKV; anything else is refused",
+    "tt53-media: MP4/MOV sweep (progressive, faststart, fragmented, MOV, video-only, audio-only) × exact + key-frame starts: FFmpeg decodes, frames hash-equal, packets byte-identical",
+    "tt53-media: WebM/MKV sweep (VP8+Opus, VP9+Opus, H.264+AAC with B-frames in MKV, Opus-only): start snaps to the key frame, FFmpeg decodes, frames hash-equal, packets byte-identical",
+    "tt53-media: WebM output is self-indexed: Duration, Cues pointing at key-frame clusters, SeekHead positions; re-parse gives rebased block times",
+    "tt53-media: real Chromium MediaRecorder WebM (unknown-size Segment and Clusters, no Cues, no Duration) is trimmed losslessly and plays back in Chromium",
+    "tt53-media: modal-shortcut failure: cutting WebM at the requested frame without its key frame is caught by the oracle (frames differ or fail to decode)",
+    "tt53-media: negative shapes (≥15): ranges, truncation, damaged sizes, DRM, multi-edit lists, several sample descriptions, bogus sample counts, EBML damage — clear refusals, never garbage",
+    "tt53-media: unusual-but-valid shapes: size-0 (to EOF) mdat, 64-bit largesize mdat, co64 chunk offsets, truncated live WebM recording — all trim and verify",
+    "tt53-media: int16 cluster-relative timestamps: a 100 s audio-only Matroska with 40 s source clusters splits so every relative time fits",
+    "tt53-media: irregular recorder timestamps: the reported end never passes the next real frame (synthetic gaps 40/10 ms)",
+    "tt53-media: Media module wiring: Lossless cut button + exact-start toggle exist, the re-encode path stays, and the old 'not bundled' blocker text is gone"
+   ]
   },
   "MD-09": {
    "tested": "untested",

@@ -18,9 +18,13 @@ if [ ! -d node_modules/@sparticuz/chromium ] || [ ! -d node_modules/@embedded-po
   npm install --no-audit --no-fund "@sparticuz/chromium@^143" "@embedded-postgres/linux-x64" "file-type@22.2.0" "ft16@npm:file-type@16.5.4" >/dev/null
 fi
 if [ ! -x venv/bin/python ]; then python3 -m venv venv; fi
-venv/bin/python -c "import argon2, cryptography, docx, formulas, numpy, openpyxl, pptx, psd_tools, shapely, svgelements, pocketsphinx, readability, openlocationcode, pproxy, websockets, geographiclib, gpxpy, pypac, asyncssh, bcrypt, paramiko" 2>/dev/null || \
+venv/bin/python -c "import argon2, cryptography, docx, formulas, numpy, openpyxl, pptx, psd_tools, shapely, svgelements, pocketsphinx, readability, openlocationcode, pproxy, websockets, geographiclib, gpxpy, pypac, asyncssh, bcrypt, paramiko, msoffcrypto, olefile, lxml, pypdfium2, pikepdf" 2>/dev/null || \
   venv/bin/pip install -q argon2-cffi cryptography python-docx formulas numpy openpyxl python-pptx psd-tools shapely svgelements pypdf==6.21.0 vobject==0.9.9 pocketsphinx==5.1.1 \
-    readability-lxml openlocationcode pproxy==2.7.9 websockets==13.1 geographiclib gpxpy pypac==0.19.0 asyncssh bcrypt paramiko
+    readability-lxml openlocationcode pproxy==2.7.9 websockets==13.1 geographiclib gpxpy pypac==0.19.0 asyncssh bcrypt paramiko \
+    msoffcrypto-tool==6.0.0 olefile lxml pypdfium2==5.14.0 pikepdf==10.17.0
+# TT52 test-only PDF oracles: pypdfium2 (BSD-3/Apache-2.0 bindings to PDFium, Chrome's PDF engine — structure, text and
+# render references) and pikepdf (MPL-2.0 bindings to qpdf, Apache-2.0 — structural validity checks of the files our editor
+# writes). msoffcrypto-tool/olefile/lxml (TT46–TT51 office oracles) were installed by hand until TT52. None ships in Fusion.
 # TT44 test-only SSH oracles: asyncssh (EPL-2.0/GPL-2.0 — an independent SSH-2 + SFTP server; its ML-KEM comes from cryptography's
 # OpenSSL), bcrypt (Apache-2.0, bcrypt_pbkdf oracle), paramiko (LGPL, key-format cross-check). None ships in Fusion.
 # TT36/TT37 test-only oracles: readability-lxml (Apache-2.0, reader-view oracle), openlocationcode (Apache-2.0, Plus Codes

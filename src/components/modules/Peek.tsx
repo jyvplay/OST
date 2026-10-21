@@ -1,7 +1,9 @@
 "use client";
 import { fz } from "@/lib/uiscale";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { fromB64 } from "@/lib/crypto";
+import PdfPreview from "./PdfPreview";
 import { api, fmtBytes, post } from "@/lib/api";
 import { formatFor, GRADE_TEXT, parseCsv, sanitizeSvg } from "@/lib/forge";
 import { sniffAi, streamInflate, type AiSniff } from "@/lib/ai-format";
@@ -27,9 +29,6 @@ export default function PeekModule({ win }: ModuleProps) {
   const isAiFamily = !!fmt && ["ai", "eps", "ps"].some((x) => fmt.ext.includes(x));
   const [ai, setAi] = useState<AiSniff | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  // HTML standard: false means a PDF in a frame would be DOWNLOADED, not shown, so we must not frame it (measured in
-  // the sandbox's headless Chromium, which has no PDF viewer: framing the blob fired a download).
-  const [pdfViewer] = useState(() => typeof navigator === "undefined" || (navigator as Navigator & { pdfViewerEnabled?: boolean }).pdfViewerEnabled !== false);
 
   // FF-04: decide from the bytes, never from the extension, whether the browser PDF engine may render this file.
   useEffect(() => {
@@ -69,6 +68,8 @@ export default function PeekModule({ win }: ModuleProps) {
     } finally { setBusy(false); }
   };
 
+  // TT52: PDF bytes for the first-party preview (PDF files and PDF-compatible Illustrator artwork)
+  const pdfBytes = useMemo(() => (node && node.encoding === "base64" && (node.mime === "application/pdf" || isAiFamily) ? fromB64(node.content) : null), [node, isAiFamily]);
   if (!path) return <Empty title="Nothing to preview" icon="👁" />;
 
   const dataUrl = node && node.encoding === "base64" ? `data:${node.mime};base64,${node.content}` : null;
@@ -104,14 +105,12 @@ export default function PeekModule({ win }: ModuleProps) {
                 ))}
               </dl>
               {ai.notes.length ? <ul className="fs-dim" style={{ margin: 0, paddingLeft: 18, fontSize: fz(11.5) }}>{ai.notes.map((n) => <li key={n}>{n}</li>)}</ul> : null}
-              {ai.renderable && pdfUrl && !pdfViewer ? (
-                <div data-testid="peek-ai-nopdf" className="fs-row" style={{ gap: 8, flexWrap: "wrap" }}>
-                  <span className="fs-dim" style={{ fontSize: fz(12) }}>This browser has no built-in PDF viewer, so the artwork cannot be shown here.</span>
+              {ai.renderable && pdfUrl ? (
+                // TT52: the PDF-compatible artwork is drawn by the first-party PDF renderer (no browser PDF viewer needed)
+                <>
+                  {pdfBytes ? <PdfPreview testid="peek-ai-pdf" bytes={pdfBytes} /> : null}
                   <a className="fs-btn" href={pdfUrl} download={`${node.name.replace(/\.ai$/i, "")}.pdf`}>Download as PDF</a>
-                </div>
-              ) : null}
-              {ai.renderable && pdfUrl && pdfViewer ? (
-                <iframe data-testid="peek-ai-pdf" src={pdfUrl} title={`${node.name} (PDF view)`} style={{ width: "100%", height: 420, border: 0, borderRadius: 8, background: "#fff" }} />
+                </>
               ) : null}
             </>
           )}
@@ -131,8 +130,8 @@ export default function PeekModule({ win }: ModuleProps) {
                 </>
               );
             })()
-          ) : node.mime === "application/pdf" && dataUrl ? (
-            <embed src={dataUrl} type="application/pdf" style={{ width: "100%", height: 420 }} />
+          ) : node.mime === "application/pdf" && pdfBytes ? (
+            <PdfPreview bytes={pdfBytes} onOpen={() => shell.open("pdf", { path, title: node.name })} />
           ) : node.mime === "text/csv" ? (
             <table style={{ borderCollapse: "collapse", fontSize: fz(11.5) }}>
               <tbody>
