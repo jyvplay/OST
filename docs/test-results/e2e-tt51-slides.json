@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt51-slides",
+  "at": "2026-10-21T06:27:31.084Z",
+  "results": [
+    {
+      "suite": "e2e-tt51-slides",
+      "name": "corpus decks open in the real UI with every slide in the rail and the file's content drawn: shapes.pptx (6 slides, preset shapes + text), table_test.pptx (a table with its cell text), bar-chart.pptx (chart drawn from its cache as SVG), backgrounds.pptx",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 11461
+    },
+    {
+      "suite": "e2e-tt51-slides",
+      "name": "edit → save → python-pptx: retype the title by double-click, bold one word through the toolbar, add speaker notes, duplicate and hide a slide, insert a text box, drag a shape — the saved file carries exactly those edits, validates, and untouched parts keep their bytes",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 4275
+    },
+    {
+      "suite": "e2e-tt51-slides",
+      "name": "slide show: Present opens a full-window show at the first visible slide; → / Space / click advance, ← goes back, HIDDEN slides are skipped, Escape ends and returns to the editor",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 3037
+    },
+    {
+      "suite": "e2e-tt51-slides",
+      "name": "modal-shortcut failure test: with a shape selected, Delete / Backspace / Ctrl+Z / Ctrl+D pressed while the Save-as dialog, the slide show or the notes field has the keyboard never delete the shape, undo, or duplicate a slide; the same keys on the canvas do",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 2949
+    },
+    {
+      "suite": "e2e-tt51-slides",
+      "name": "legacy .fdeck outline opens as a real PowerPoint deck (titles, bullets, notes) and Save writes a .pptx that python-pptx reads",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 2511
+    },
+    {
+      "suite": "e2e-tt51-slides",
+      "name": "no page errors in any Slides session",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

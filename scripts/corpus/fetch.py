@@ -7,13 +7,13 @@ raw.githubusercontent.com is not reachable from the sandbox, so files come throu
 the GitHub REST API (git trees + blobs, base64).  Authentication reuses the gh CLI
 login (`gh auth token`) when available; anonymous works but is rate-limited (60/h).
 Idempotent: files already present with the same git blob sha are skipped.
-Writes <dest>/xlsx/*.xlsx, <dest>/docx/*.docx and <dest>/MANIFEST.tsv (name, sha, bytes).
+Writes <dest>/xlsx/*.xlsx, <dest>/docx/*.docx, <dest>/pptx/*.pptx and <dest>/MANIFEST.tsv (name, sha, bytes).
 """
 import base64, hashlib, json, os, subprocess, sys, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 REPO = "apache/poi"
-DIRS = {"xlsx": ("test-data/spreadsheet", ".xlsx"), "docx": ("test-data/document", ".docx")}
+DIRS = {"xlsx": ("test-data/spreadsheet", ".xlsx"), "docx": ("test-data/document", ".docx"), "pptx": ("test-data/slideshow", ".pptx")}
 DEST = sys.argv[1] if len(sys.argv) > 1 else "/home/user/tools/corpus"
 
 def token():

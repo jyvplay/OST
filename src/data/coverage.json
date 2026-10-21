@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-21T05:20:39.342Z",
+ "generatedAt": "2026-10-21T06:28:49.676Z",
  "totals": {
   "built": {
-   "full": 290,
-   "partial": 57,
+   "full": 291,
+   "partial": 56,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 169,
-   "partial": 78,
+   "full": 170,
+   "partial": 77,
    "untested": 121
   },
   "tests": {
-   "total": 882,
-   "passed": 882
+   "total": 903,
+   "passed": 903
   }
  },
  "rows": {
@@ -1145,9 +1145,30 @@
    ]
   },
   "FF-23": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: mount: slides"
+    "e2e-tt51-slides: corpus decks open in the real UI with every slide in the rail and the file's content drawn: shapes.pptx (6 slides, preset shapes + text), table_test.pptx (a table with its cell text), bar-chart.pptx (chart drawn from its cache as SVG), backgrounds.pptx",
+    "e2e-tt51-slides: edit → save → python-pptx: retype the title by double-click, bold one word through the toolbar, add speaker notes, duplicate and hide a slide, insert a text box, drag a shape — the saved file carries exactly those edits, validates, and untouched parts keep their bytes",
+    "e2e-tt51-slides: slide show: Present opens a full-window show at the first visible slide; → / Space / click advance, ← goes back, HIDDEN slides are skipped, Escape ends and returns to the editor",
+    "e2e-tt51-slides: modal-shortcut failure test: with a shape selected, Delete / Backspace / Ctrl+Z / Ctrl+D pressed while the Save-as dialog, the slide show or the notes field has the keyboard never delete the shape, undo, or duplicate a slide; the same keys on the canvas do",
+    "e2e-tt51-slides: legacy .fdeck outline opens as a real PowerPoint deck (titles, bullets, notes) and Save writes a .pptx that python-pptx reads",
+    "e2e-tt51-slides: no page errors in any Slides session",
+    "e2e: mount: slides",
+    "tt51-slides: reader vs python-pptx over every openable corpus deck: slide order, hidden flags, layout names, notes text, shape ids/names, geometry with placeholder inheritance, paragraph text, table cells and group members agree exactly",
+    "tt51-slides: lossless identity: opening and saving every corpus deck without edits returns the original bytes (83/83); the view model renders every slide of every deck without throwing",
+    "tt51-slides: text edits keep formatting: a word typed into the middle of a paragraph joins its run (rPr kept byte-for-byte), every other run and paragraph keeps its exact XML, untouched parts keep their bytes; python-pptx reads the new text and the validator finds no new problems in any deck",
+    "tt51-slides: setParaText unit cases: insertion at a run boundary joins the left run; deletion across runs keeps both outer runs' rPr; typing into an empty paragraph uses endParaRPr; line breaks stay a:br; fields keep their a:fld; XML-illegal control characters are dropped",
+    "tt51-slides: range formatting: bold/italic/size/colour on a sub-range splits runs at the exact boundaries (python-pptx sees bold only on the selected characters), paragraph alignment / bullets / level land in a:pPr in schema order",
+    "tt51-slides: slide operations on every multi-slide corpus deck — duplicate, move, hide, delete — produce the expected slide sequence, hidden flags and notes in python-pptx, with no new validator problems (no dangling rels, content types or sldIds; duplicated charts get their own parts)",
+    "tt51-slides: duplicated slide with a chart gets a deep copy (own chart part + embedded workbook), deleting the original removes only its own chart; deleting a slide drops links to it from other slides, its notes slide, custom-show entries and section ids",
+    "tt51-slides: speaker notes: setting notes on a slide without a notes slide creates one (and a notes master + theme when the deck has none) on every corpus deck; python-pptx reads the exact text including markup characters and line breaks; editing existing notes keeps the notes slide",
+    "tt51-slides: shape operations on every corpus deck: add text box + preset shape + picture, move/resize, fill/outline, z-order, delete a picture (its media part is garbage-collected when unused) — python-pptx sees the shapes at the written geometry and shape ids stay unique",
+    "tt51-slides: undo is exact: a snapshot taken before a burst of edits (text, notes, slide ops, shapes, pictures) restores a package whose every part has the original content",
+    "tt51-slides: new decks: blankPptx is a valid 16:9 package (validator clean, python-pptx opens it, 4 layouts); a slide from every layout validates; an outline (legacy .fdeck) converts to a real deck with titles, bullets and notes",
+    "tt51-slides: password-protected decks: our Agile-encrypted save decrypts with msoffcrypto-tool to the exact package, and our decryptor opens it again; the encrypted file is a CFB container, not a zip",
+    "tt51-slides: hostile input: the 12 corpus files python-pptx also rejects (fuzzer cases, bad CRC, truncated zip) fail with a clear error; billion-laughs DOCTYPE text is not expanded; target paths cannot climb out of the package; a sldIdLst with missing / duplicate / external slides opens what is valid; 5,000-deep group nesting and > 2,000 slides are refused or capped without crashing",
+    "tt51-slides: colour maths and numbering against Office's documented values: Accent 1 (4472C4) lumMod 75 % = 2F5597 ('Darker 25 %'), lumMod 20 % + lumOff 80 % = DAE3F3 ('Lighter 80 %'), tint/shade/alpha, clrMap bg1→lt1; auto-numbers arabic / alpha / roman with all punctuation styles",
+    "tt51-slides: view model over the corpus: placeholders inherit layout/master geometry, theme colours resolve for every text run (no undefined colours or fonts), pictures map to package parts with crops, tables carry their grid, charts point at chart parts, SmartArt draws its saved drawing; approximate presets are reported, never silent"
    ]
   },
   "FF-24": {

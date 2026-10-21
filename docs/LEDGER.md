@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-21T05:20:39.341Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-101 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-21T06:28:49.673Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+103 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
 | **Features in register** | **368** |
-| Fully built | 290 |
-| Partially built (partial 41 + probe 16) | 57 |
+| Fully built | 291 |
+| Partially built (partial 40 + probe 16) | 56 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **169** |
-| **Partially tested** (only `partial` tags) | **78** |
+| **Fully tested** (≥1 passing test tagged `full`) | **170** |
+| **Partially tested** (only `partial` tags) | **77** |
 | Untested | 121 |
-| Automated tests executed / passed | 882 / 882 |
+| Automated tests executed / passed | 903 / 903 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 161 | 62 | 67 |
-| partially built | 2 | 14 | 41 |
+| fully built | 162 | 62 | 67 |
+| partially built | 2 | 13 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
 
@@ -71,10 +71,11 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt46 | 8 | 8 | 0 | 2026-10-21T05:09:27.579Z |
 | e2e-tt47 | 5 | 5 | 0 | 2026-10-21T03:41:51.102Z |
 | e2e-tt48-sync | 4 | 4 | 0 | 2026-10-19T22:51:07.698Z |
-| e2e-tt48 | 6 | 6 | 0 | 2026-10-19T22:11:57.676Z |
-| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-21T05:09:46.967Z |
+| e2e-tt48 | 6 | 6 | 0 | 2026-10-21T06:28:05.896Z |
+| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-21T06:28:46.673Z |
 | e2e-tt49 | 5 | 5 | 0 | 2026-10-21T05:10:03.698Z |
-| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-21T05:09:07.035Z |
+| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-21T06:28:25.326Z |
+| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-21T06:27:31.084Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-19T21:30:14.481Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-19T21:37:12.803Z |
 | e2e | 62 | 62 | 0 | 2026-10-19T22:47:13.427Z |
@@ -130,6 +131,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt49-sheet | 10 | 10 | 0 | 2026-10-21T05:07:25.016Z |
 | tt49-writer | 9 | 9 | 0 | 2026-10-21T05:20:39.142Z |
 | tt50-charts | 10 | 10 | 0 | 2026-10-21T05:08:48.981Z |
+| tt51-slides | 15 | 15 | 0 | 2026-10-21T06:27:05.812Z |
 | unit | 23 | 23 | 0 | 2026-10-19T22:47:19.398Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-19T21:25:15.468Z |
 | vector | 18 | 18 | 0 | 2026-10-19T21:25:14.412Z |
@@ -153,7 +155,7 @@ None.
 | AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 45 | 9 | 0 | 37 | 10 | 7 |
-| FF | 34 | 29 | 5 | 0 | 26 | 4 | 4 |
+| FF | 34 | 30 | 4 | 0 | 27 | 3 | 4 |
 | MD | 9 | 6 | 3 | 0 | 0 | 7 | 2 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
@@ -323,7 +325,7 @@ None.
 | FF-20 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen (+56) |
 | FF-21 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint) (+37) |
 | FF-22 | built | full | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+48) |
-| FF-23 | partial | partial | e2e: mount: slides |
+| FF-23 | built | full | e2e-tt51-slides: corpus decks open in the real UI with every slide in the rail and the file's content drawn: shapes.pptx (6 slides, preset shapes + text), table_test.pptx (a table with its cell text), bar-chart.pptx (chart drawn from its cache as SVG), backgrounds.pptx; e2e-tt51-slides: edit → save → python-pptx: retype the title by double-click, bold one word through the toolbar, add speaker notes, duplicate and hide a slide, insert a text box, drag a shape — the saved file carries exactly those edits, validates, and untouched parts keep their bytes; e2e-tt51-slides: slide show: Present opens a full-window show at the first visible slide; → / Space / click advance, ← goes back, HIDDEN slides are skipped, Escape ends and returns to the editor (+19) |
 | FF-24 | built | full | e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection; e2e-image: Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes; e2e-image: classic Quick edit mode is still available (additive merge) (+3) |
 | FF-25 | built | full | e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard; e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size); e2e: mount: vector |
 | MD-01 | built | partial | e2e: mount: capture |
