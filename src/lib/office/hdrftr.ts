@@ -74,14 +74,24 @@ function newPart(doc: WordDoc, kind: HfKind): string {
   doc.hf.created.add(rid); doc.parts.set(rid, []);
   return rid;
 }
-function finalSect(doc: WordDoc): XEl {
-  if (!doc.finalSect) doc.finalSect = el("w:sectPr");
-  return doc.finalSect;
+/**
+ * Copy-on-write edit of the final <w:sectPr>: the old element is never mutated (undo snapshots and the body block
+ * list hold it by reference); the new one replaces it in doc.blocks and doc.finalSect, as setPageSetup does.
+ */
+function editSect(doc: WordDoc, fn: (s: XEl) => void): XEl {
+  const old = doc.finalSect;
+  const s: XEl = old ? { ...old, kids: old.kids.slice() } : el("w:sectPr");
+  fn(s);
+  const at = old ? doc.blocks.findIndex((b) => b.t === "x" && b.node === old) : -1;
+  if (at >= 0) doc.blocks[at] = { ...(doc.blocks[at] as Extract<Block, { t: "x" }>), node: s };
+  doc.finalSect = s; // writeWord appends doc.finalSect when it is not already in the body
+  return s;
 }
 function setRef(doc: WordDoc, kind: HfKind, type: HfType, rid: string | null) {
-  const s = finalSect(doc);
   // r:id needs the relationships namespace in scope; some producers never declare it on <w:document> (POI corpus)
-  if (rid && !attr(doc.docXml.root, "xmlns:r") && !attr(s, "xmlns:r")) setAttr(doc.docXml.root, "xmlns:r", R_NS); const name = kind === "header" ? "w:headerReference" : "w:footerReference";
+  if (rid && !attr(doc.docXml.root, "xmlns:r") && !(doc.finalSect && attr(doc.finalSect, "xmlns:r"))) setAttr(doc.docXml.root, "xmlns:r", R_NS);
+  const name = kind === "header" ? "w:headerReference" : "w:footerReference";
+  const s = editSect(doc, (s) => {
   s.kids = s.kids.filter((k) => !(k.k === "el" && k.name === name && (attr(k, "w:type") ?? "default") === type));
   if (rid) {
     const ref = el(name, { "w:type": type, "r:id": rid });
@@ -90,6 +100,7 @@ function setRef(doc: WordDoc, kind: HfKind, type: HfType, rid: string | null) {
     s.kids.splice(at, 0, ref);
   }
   s.selfClose = s.kids.length === 0;
+  });
   const keepCols = doc.page.cols; doc.page = { ...parseSect(s), cols: keepCols };
 }
 
@@ -167,8 +178,7 @@ export function removeHf(doc: WordDoc, kind: HfKind, type: HfType) { setRef(doc,
 
 /** <w:titlePg/>: the first page uses the "first" header/footer (an absent one shows nothing, as in Word). */
 export function setDifferentFirst(doc: WordDoc, on: boolean) {
-  const s = finalSect(doc);
-  put(s, SECT_ORDER, "w:titlePg", on ? el("w:titlePg") : null);
+  editSect(doc, (s) => { put(s, SECT_ORDER, "w:titlePg", on ? el("w:titlePg") : null); s.selfClose = s.kids.length === 0; });
   doc.page = { ...doc.page, titlePg: on };
 }
 

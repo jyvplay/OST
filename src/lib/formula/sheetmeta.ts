@@ -23,10 +23,29 @@ import { toStr } from "./functions";
 import { ICON_SETS } from "./cficons";
 import { err, isError, type Node } from "./types";
 import { formatValue } from "./numfmt";
+import { fitTrend, trendLabel, TREND_TYPES, type TrendSpec, type TrendType } from "./trend";
+export type { TrendSpec, TrendType } from "./trend";
 import { colToLetters, lettersToCol, type Scalar } from "./types";
 
-export type ChartKind = "bar" | "line" | "pie" | "scatter";
-export interface ChartSpec { id: string; sheet: string; range: string; kind: ChartKind; title: string; headerRow: boolean }
+/** TT50: "bar" = vertical columns (TT15 name kept), "hbar" = horizontal bars; 3-D variants in files are drawn flat. */
+export type ChartKind = "bar" | "hbar" | "line" | "area" | "pie" | "doughnut" | "scatter";
+export const CHART_KINDS: readonly ChartKind[] = ["bar", "hbar", "line", "area", "pie", "doughnut", "scatter"];
+export type ChartGrouping = "clustered" | "stacked" | "percent";
+/** TT50: one series as Excel stores it (references + the file's cached values for when a reference cannot be resolved). */
+export interface ChartSeriesRef { name?: string; nameRef?: string; cat?: string; val: string; catCache?: string[]; valCache?: (number | null)[]; color?: string; trend?: TrendSpec }
+export interface ChartSpec {
+  id: string; sheet: string; range: string; kind: ChartKind; title: string; headerRow: boolean;
+  /** TT50 (all optional) */
+  grouping?: ChartGrouping; catTitle?: string; valTitle?: string; trend?: TrendSpec; legend?: boolean; blanks?: "gap" | "zero" | "span";
+  /** explicit series (charts read from a file); when present `range` is informational */
+  series?: ChartSeriesRef[]; numFmt?: string;
+  /** cell anchor (0-based, inclusive) — where the chart sits on the sheet */
+  anchor?: { c0: number; r0: number; c1: number; r1: number };
+  /** package part the chart was read from (xl/charts/chartN.xml); absent for charts created in Fusion */
+  src?: string;
+  /** what could not be represented (e.g. "3-D drawn flat", "combo chart: first type drawn") */
+  note?: string;
+}
 export type CondKind = "gt" | "lt" | "ge" | "le" | "eq" | "between" | "contains" | "duplicate" | "top" | "scale"
   /* TT49 */ | "ne" | "notBetween" | "expr" | "notContains" | "begins" | "ends" | "blanks" | "noBlanks" | "errors" | "noErrors" | "unique" | "aboveAvg" | "period" | "bar" | "icons";
 export const COND_KINDS: readonly CondKind[] = ["gt", "lt", "ge", "le", "eq", "between", "contains", "duplicate", "top", "scale", "ne", "notBetween", "expr", "notContains", "begins", "ends", "blanks", "noBlanks", "errors", "noErrors", "unique", "aboveAvg", "period", "bar", "icons"];
@@ -71,8 +90,10 @@ export function parseRange(s: string): Rng | null {
 export const rangeText = (r: Rng) => `${colToLetters(r.c0)}${r.r0 + 1}:${colToLetters(r.c1)}${r.r1 + 1}`;
 
 /* ------------------------------------------------------------------ charts */
-export interface Series { name: string; values: (number | null)[] }
+export interface Series { name: string; values: (number | null)[]; /** scatter: own X values */ xs?: (number | null)[]; color?: string; trend?: TrendSpec }
 export interface ChartData { categories: string[]; series: Series[]; numFmt?: string }
+/** TT50 rendering options (all optional — absent options draw exactly the TT15 chart). */
+export interface ChartOpts { grouping?: ChartGrouping; catTitle?: string; valTitle?: string; trend?: TrendSpec; legend?: boolean; blanks?: "gap" | "zero" | "span" }
 
 /** First column = categories (or X for scatter), remaining columns = series. Text/blank values are gaps. */
 export function chartDataFromRange(wb: Workbook, sheet: string, range: string, headerRow: boolean): ChartData {
@@ -93,6 +114,52 @@ export function chartDataFromRange(wb: Workbook, sheet: string, range: string, h
 }
 const display = (x: Scalar | undefined) => (x === undefined || x === null ? "" : typeof x === "object" ? x.error : String(x));
 
+/**
+ * TT50: a chart series reference as Excel stores it — `Sheet1!$B$2:$B$9` or `'My sheet'!$B$2:$B$9` — resolved to
+ * live values (so edits move the chart, as in Excel). null when the sheet is unknown or the reference is not a single
+ * rectangle (defined names, multi-area unions, other workbooks): the caller then uses the file's cached values.
+ */
+export function resolveChartRef(wb: Workbook, ref: string | undefined): { values: (Scalar | undefined)[]; sheet: string; c0: number; r0: number } | null {
+  if (!ref) return null;
+  const m = /^\s*(?:'((?:[^']|'')+)'|([^'!()[\],]+))!(\$?[A-Za-z]{1,3}\$?\d{1,7}(?::\$?[A-Za-z]{1,3}\$?\d{1,7})?)\s*$/.exec(ref);
+  if (!m) return null;
+  const want = (m[1] !== undefined ? m[1].replace(/''/g, "'") : m[2]).toLowerCase();
+  const sheet = [...wb.sheets.keys()].find((n) => n.toLowerCase() === want); if (!sheet) return null;
+  const r = parseRange(m[3].replace(/\$/g, "").toUpperCase()); if (!r) return null;
+  if ((r.r1 - r.r0 + 1) * (r.c1 - r.c0 + 1) > 20_000) return null;
+  const values: (Scalar | undefined)[] = [];
+  for (let row = r.r0; row <= r.r1; row++) for (let c = r.c0; c <= r.c1; c++) values.push(wb.valueAt(sheet, c, row));
+  return { values, sheet, c0: r.c0, r0: r.r0 };
+}
+const numOrNull = (x: Scalar | undefined) => (typeof x === "number" && Number.isFinite(x) ? x : null);
+
+/** TT50: data for any chart — range charts (TT15) or explicit per-series references (charts read from .xlsx). */
+export function chartDataFor(wb: Workbook, c: ChartSpec): ChartData {
+  if (!c.series?.length) {
+    const d = chartDataFromRange(wb, c.sheet, c.range, c.headerRow);
+    if (c.trend) for (const s of d.series) s.trend = c.trend;
+    return d;
+  }
+  let categories: string[] | undefined; let numFmt = c.numFmt;
+  const series: Series[] = c.series.map((s, i) => {
+    const live = resolveChartRef(wb, s.val);
+    const values = live ? live.values.map(numOrNull) : (s.valCache ?? []).slice(0, 20_000);
+    if (live && !numFmt) numFmt = wb.sheets.get(live.sheet)?.get(live.c0, live.r0)?.style?.numFmt;
+    const cat = resolveChartRef(wb, s.cat);
+    const catText = cat ? cat.values.map(display) : s.catCache;
+    if (!categories && catText) categories = catText;
+    const nameLive = resolveChartRef(wb, s.nameRef);
+    const name = (nameLive ? display(nameLive.values[0]) : s.name) || `Series ${i + 1}`;
+    const xs = c.kind === "scatter" ? (cat ? cat.values.map(numOrNull) : s.catCache?.map((t) => (t.trim() !== "" && Number.isFinite(Number(t)) ? Number(t) : null))) : undefined;
+    return { name, values, ...(xs ? { xs } : {}), ...(s.color ? { color: s.color } : {}), ...(s.trend ?? c.trend ? { trend: s.trend ?? c.trend } : {}) };
+  });
+  const n = Math.max(0, ...series.map((s) => s.values.length));
+  categories = (categories ?? []).slice(0, n);
+  while (categories.length < n) categories.push(String(categories.length + 1));
+  for (const s of series) while (s.values.length < n) s.values.push(null);
+  return { categories, series, numFmt };
+}
+
 /** Heckbert "nice numbers": tick step in {1,2,5}×10^k covering [lo,hi] with ~n ticks. */
 export function niceTicks(lo: number, hi: number, n = 5): number[] {
   if (!(Number.isFinite(lo) && Number.isFinite(hi))) return [0, 1];
@@ -104,59 +171,183 @@ export function niceTicks(lo: number, hi: number, n = 5): number[] {
   return out;
 }
 
-export function buildChartSvg(kind: ChartKind, title: string, data: ChartData, width = 520, height = 300): string {
+/**
+ * TT50 stacking (Excel semantics): stacked charts pile positive values upward and negative values downward from
+ * zero, series in order; 100 % stacked charts first divide each value by its category's sum of absolute values.
+ * Returns per series and category the [from, to] interval, or null for a blank point.
+ */
+export function stackSeries(series: Series[], grouping: ChartGrouping, blanksAsZero: boolean): ([number, number] | null)[][] {
+  const n = Math.max(0, ...series.map((s) => s.values.length));
+  const out = series.map(() => new Array<[number, number] | null>(n).fill(null));
+  for (let i = 0; i < n; i++) {
+    const tot = series.reduce((a, s) => a + Math.abs(s.values[i] ?? 0), 0);
+    let pos = 0, neg = 0;
+    series.forEach((s, si) => {
+      let v = s.values[i]; if (v === null || v === undefined) { if (!blanksAsZero) return; v = 0; }
+      if (grouping === "percent") v = tot > 0 ? (v / tot) * 100 : 0;
+      if (grouping === "clustered") { out[si][i] = [0, v]; return; }
+      if (v >= 0) { out[si][i] = [pos, pos + v]; pos += v; } else { out[si][i] = [neg, neg + v]; neg += v; }
+    });
+  }
+  return out;
+}
+const TREND_NAME: Record<TrendType, string> = { linear: "Linear", exp: "Expon.", log: "Log.", power: "Power", poly: "Poly.", movingAvg: "Mov. Avg." };
+/** Excel's default legend text for a trendline: "Linear (Sales)", "2 per. Mov. Avg. (Sales)". */
+/** TT50: a sheet rename rewrites the sheet prefix of chart series references (Excel keeps them live). */
+export function renameChartRefs(c: ChartSpec, from: string, to: string): ChartSpec {
+  if (!c.series?.length) return c;
+  const quote = (s: string) => (/^[A-Za-z_][\w.]*$/.test(s) ? s : `'${s.replace(/'/g, "''")}'`);
+  const fix = (r: string | undefined) => {
+    if (!r) return r;
+    const m = /^\s*(?:'((?:[^']|'')+)'|([^'!()[\],]+))!(.*)$/.exec(r); if (!m) return r;
+    const name = m[1] !== undefined ? m[1].replace(/''/g, "'") : m[2];
+    return name.toLowerCase() === from.toLowerCase() ? `${quote(to)}!${m[3]}` : r;
+  };
+  return { ...c, range: fix(c.range) ?? c.range, series: c.series.map((s) => ({ ...s, val: fix(s.val) ?? s.val, cat: fix(s.cat), nameRef: fix(s.nameRef) })) };
+}
+export const trendLegend = (t: TrendSpec, series: string) => t.name || `${t.type === "movingAvg" ? `${Math.max(2, t.period ?? 2)} per. ` : ""}${TREND_NAME[t.type]} (${series})`;
+
+export function buildChartSvg(kind: ChartKind, title: string, data: ChartData, width = 520, height = 300, opts: ChartOpts = {}): string {
   const pts = data.series.flatMap((s) => s.values).filter((x): x is number => x !== null);
   if (!pts.length) throw new Error("a chart needs at least one numeric point");
   const head = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect x="0" y="0" width="${width}" height="${height}" fill="#0f172a"/>`;
   const titleEl = `<text x="${width / 2}" y="20" font-size="14" font-family="sans-serif" text-anchor="middle" fill="#e2e8f0">${xml(title)}</text>`;
-  if (kind === "pie") return head + titleEl + piePart(data, width, height) + "</svg>";
+  if (kind === "pie" || kind === "doughnut") return head + titleEl + piePart(data, width, height, kind === "doughnut") + "</svg>";
+  const grouping: ChartGrouping = kind === "scatter" ? "clustered" : opts.grouping ?? "clustered";
+  const blanks = opts.blanks ?? "gap";
+  const color = (si: number, s: Series) => s.color ?? PALETTE[si % PALETTE.length];
+  // trendlines: Excel offers them only on unstacked 2-D bar/column/line/area/scatter charts
+  const trendOk = grouping === "clustered";
+  const trends = trendOk ? data.series.flatMap((s, si) => (s.trend ? [{ s, si, t: s.trend }] : [])) : [];
   const multi = data.series.length > 1;
-  const left = 56, right = multi ? 120 : 16, top = 34, bottom = 44;
+  // Excel: an explicit legend setting wins (false = no legend at all); default = several series or any trendline
+  const showLegend = opts.legend ?? (multi || trends.length > 0);
+  const legendItems = showLegend ? data.series.length + trends.length : 0;
+  const left = 56 + (opts.valTitle ? 18 : 0), right = showLegend && legendItems ? 120 : 16, top = 34, bottom = 44 + (opts.catTitle ? 16 : 0);
   const pw = width - left - right, ph = height - top - bottom;
-  const tick = (n: number) => formatValue(n, data.numFmt && !/[dmyhs]/i.test(data.numFmt) ? data.numFmt : "General").text;
+  const pct = grouping === "percent";
+  const tick = (n: number) => (pct ? `${n}%` : formatValue(n, data.numFmt && !/[dmyhs]/i.test(data.numFmt) ? data.numFmt : "General").text);
+  const n = data.categories.length;
+  const horiz = kind === "hbar";
+  // value range
+  const stacks = kind === "scatter" ? null : stackSeries(data.series, grouping, blanks === "zero" || kind === "area");
+  let vals = pts;
+  if (stacks && grouping !== "clustered") vals = stacks.flat().filter((x): x is [number, number] => !!x).flatMap((x) => x);
+  if (blanks === "zero") vals = [...vals, 0];
   let xs: number[] | null = null;
-  if (kind === "scatter") { xs = data.categories.map(Number); if (xs.some((x) => !Number.isFinite(x))) throw new Error("scatter X values must be numeric"); }
-  const yt = niceTicks(Math.min(0, ...pts), Math.max(0, ...pts));
+  if (kind === "scatter") {
+    xs = data.categories.map(Number);
+    const anyOwn = data.series.some((s) => s.xs);
+    if (!anyOwn && xs.some((x) => !Number.isFinite(x))) throw new Error("scatter X values must be numeric");
+    if (anyOwn) xs = data.series.flatMap((s) => (s.xs ?? data.categories.map(Number)).filter((x): x is number => x !== null && Number.isFinite(x)));
+    if (!xs.length) throw new Error("scatter X values must be numeric");
+  }
+  // trend values extend the axis like Excel (forecast forward/backward included)
+  const fits = trends.flatMap(({ s, si, t }) => {
+    try {
+      const xv = kind === "scatter" ? (s.xs ?? data.categories.map(Number)) : s.values.map((_, i) => i + 1);
+      const f = fitTrend(t, xv, s.values);
+      const finite = xv.filter((x): x is number => x !== null && Number.isFinite(x));
+      const x0 = Math.min(...finite) - (t.backward ?? 0), x1 = Math.max(...finite) + (t.forward ?? 0);
+      const curve: [number, number][] = f.points ?? Array.from({ length: 41 }, (_, k) => { const x = x0 + ((x1 - x0) * k) / 40; return [x, f.predict(x)] as [number, number]; }).filter(([, y]) => Number.isFinite(y));
+      return [{ s, si, t, f, curve, x0, x1 }];
+    } catch { return []; }
+  });
+  for (const ft of fits) vals = [...vals, ...ft.curve.map(([, y]) => y)];
+  let lo0 = Math.min(...vals), hi0 = Math.max(...vals);
+  // Excel's automatic minimum: zero unless every value is positive and the spread is under 1/6 of the maximum
+  // (applies to line/scatter value axes; bar/area always start at zero)
+  if ((kind === "line" || kind === "scatter") && lo0 > 0 && (hi0 - lo0) / hi0 < 1 / 6) { /* keep lo0 */ } else { lo0 = Math.min(0, lo0); hi0 = Math.max(0, hi0); }
+  const yt = pct ? niceTicks(Math.min(0, lo0), Math.max(0, hi0)).filter((t) => t >= -100 && t <= 100) : niceTicks(lo0, hi0);
   const lo = yt[0], hi = yt[yt.length - 1];
-  const yOf = (v: number) => top + ((hi - v) / (hi - lo || 1)) * ph;
-  const n = data.categories.length; const slot = pw / Math.max(1, n);
+  const yOf = (v: number) => top + ((hi - v) / (hi - lo || 1)) * ph;           // vertical charts
+  const vX = (v: number) => left + ((v - lo) / (hi - lo || 1)) * pw;           // horizontal bars
+  const slot = (horiz ? ph : pw) / Math.max(1, n);
   let xOf = (i: number) => left + i * slot + slot / 2;
+  const catY = (i: number) => top + ph - i * slot - slot / 2;                   // hbar: first category at the bottom (Excel)
   let xAxis = "";
+  const T = (x: number, y: number, s: string, anchor = "middle", fill = "#cbd5e1", extra = "") => `<text x="${x}" y="${y}" font-size="10" font-family="sans-serif" text-anchor="${anchor}" fill="${fill}"${extra}>${xml(s)}</text>`;
   if (xs) {
-    const xt = niceTicks(Math.min(...xs), Math.max(...xs)); const xl = xt[0], xh = xt[xt.length - 1];
+    const xt = niceTicks(Math.min(...xs), Math.max(...xs, ...fits.map((f) => f.x1)), 5); const xl = Math.min(xt[0], ...fits.map((f) => f.x0)), xh = xt[xt.length - 1];
     const sx = (x: number) => left + ((x - xl) / (xh - xl || 1)) * pw;
-    xOf = (i: number) => sx(xs![i]);
-    xAxis = xt.map((t) => `<text x="${sx(t)}" y="${top + ph + 16}" font-size="10" font-family="sans-serif" text-anchor="middle" fill="#cbd5e1">${xml(tick(t))}</text>`).join("");
+    xOf = (i: number) => sx(Number(data.categories[i]));
+    (xOf as unknown as { sx: typeof sx }).sx = sx;
+    xAxis = xt.filter((t) => t >= xl).map((t) => T(sx(t), top + ph + 16, tick(t))).join("");
+  } else if (horiz) {
+    const every = Math.ceil(n / Math.max(1, Math.floor(ph / 14)));
+    xAxis = data.categories.map((c, i) => (i % every ? "" : T(left - 6, catY(i) + 3, c.slice(0, 12), "end"))).join("");
   } else {
     const every = Math.ceil(n / Math.max(1, Math.floor(pw / 46)));
-    xAxis = data.categories.map((c, i) => (i % every ? "" : `<text x="${xOf(i)}" y="${top + ph + 16}" font-size="10" font-family="sans-serif" text-anchor="middle" fill="#cbd5e1">${xml(c.slice(0, 12))}</text>`)).join("");
+    xAxis = data.categories.map((c, i) => (i % every ? "" : T(xOf(i), top + ph + 16, c.slice(0, 12)))).join("");
   }
-  const grid = yt.map((t) => `<line x1="${left}" y1="${yOf(t)}" x2="${left + pw}" y2="${yOf(t)}" stroke="#1e293b" stroke-width="1"/><text x="${left - 6}" y="${yOf(t) + 3}" font-size="10" font-family="sans-serif" text-anchor="end" fill="#94a3b8">${xml(tick(t))}</text>`).join("");
-  const axis = `<polyline points="${left},${top} ${left},${top + ph} ${left + pw},${top + ph}" fill="none" stroke="#64748b" stroke-width="1"/>` + (lo < 0 ? `<line x1="${left}" y1="${yOf(0)}" x2="${left + pw}" y2="${yOf(0)}" stroke="#94a3b8" stroke-width="1"/>` : "");
+  const grid = horiz
+    ? yt.map((t) => `<line x1="${vX(t)}" y1="${top}" x2="${vX(t)}" y2="${top + ph}" stroke="#1e293b" stroke-width="1"/>` + T(vX(t), top + ph + 16, tick(t), "middle", "#94a3b8")).join("")
+    : yt.map((t) => `<line x1="${left}" y1="${yOf(t)}" x2="${left + pw}" y2="${yOf(t)}" stroke="#1e293b" stroke-width="1"/><text x="${left - 6}" y="${yOf(t) + 3}" font-size="10" font-family="sans-serif" text-anchor="end" fill="#94a3b8">${xml(tick(t))}</text>`).join("");
+  const axis = horiz
+    ? `<polyline points="${left},${top} ${left},${top + ph} ${left + pw},${top + ph}" fill="none" stroke="#64748b" stroke-width="1"/>` + (lo < 0 ? `<line x1="${vX(0)}" y1="${top}" x2="${vX(0)}" y2="${top + ph}" stroke="#94a3b8" stroke-width="1"/>` : "")
+    : `<polyline points="${left},${top} ${left},${top + ph} ${left + pw},${top + ph}" fill="none" stroke="#64748b" stroke-width="1"/>` + (lo < 0 ? `<line x1="${left}" y1="${yOf(0)}" x2="${left + pw}" y2="${yOf(0)}" stroke="#94a3b8" stroke-width="1"/>` : "");
   let body = "";
-  if (kind === "bar") {
-    const k = data.series.length; const groupW = slot * 0.75; const barW = groupW / k;
-    data.series.forEach((s, si) => s.values.forEach((v, i) => {
-      if (v === null) return;
-      const x = left + i * slot + (slot - groupW) / 2 + si * barW; const y = Math.min(yOf(v), yOf(0)); const h = Math.abs(yOf(v) - yOf(0));
-      body += `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${Math.max(1, barW - 1).toFixed(2)}" height="${h.toFixed(2)}" fill="${multi ? PALETTE[si % PALETTE.length] : PALETTE[i % PALETTE.length]}"/>`;
+  if (kind === "bar" || kind === "hbar") {
+    const k = grouping === "clustered" ? data.series.length : 1; const groupW = slot * 0.75; const barW = groupW / k;
+    data.series.forEach((s, si) => s.values.forEach((_, i) => {
+      const iv = stacks![si][i]; if (!iv) return;
+      const off = (slot - groupW) / 2 + (grouping === "clustered" ? si * barW : 0);
+      const fill = multi ? color(si, s) : s.color ?? PALETTE[i % PALETTE.length];
+      const attrs = grouping === "clustered" ? "" : ` data-stack="${si}"`;
+      if (horiz) {
+        const y = top + ph - (i + 1) * slot + off; const x = Math.min(vX(iv[0]), vX(iv[1])); const w = Math.abs(vX(iv[1]) - vX(iv[0]));
+        body += `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${Math.max(1, barW - 1).toFixed(2)}" fill="${fill}"${attrs}/>`;
+      } else {
+        const x = left + i * slot + off; const y = Math.min(yOf(iv[0]), yOf(iv[1])); const h = Math.abs(yOf(iv[1]) - yOf(iv[0]));
+        body += `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${Math.max(1, barW - 1).toFixed(2)}" height="${h.toFixed(2)}" fill="${fill}"${attrs}/>`;
+      }
     }));
+  } else if (kind === "area") {
+    // series in order; stacked areas fill between the previous stack line and this one, standard areas from zero
+    data.series.forEach((s, si) => {
+      const iv = stacks![si]; const up: string[] = [], dn: string[] = [];
+      iv.forEach((p, i) => { const q = p ?? [0, 0]; up.push(`${xOf(i).toFixed(2)},${yOf(q[1]).toFixed(2)}`); dn.unshift(`${xOf(i).toFixed(2)},${yOf(q[0]).toFixed(2)}`); });
+      body += `<polygon points="${[...up, ...dn].join(" ")}" fill="${color(si, s)}" fill-opacity="${grouping === "clustered" ? 0.55 : 0.85}" stroke="${color(si, s)}" stroke-width="1"/>`;
+    });
   } else {
     data.series.forEach((s, si) => {
-      const color = PALETTE[si % PALETTE.length];
-      // gaps break the line (Excel "show empty cells as gaps")
+      const c = color(si, s);
+      const xOfS = (i: number) => (xs && s.xs ? (xOf as unknown as { sx: (x: number) => number }).sx(s.xs[i] ?? NaN) : xOf(i));
+      const yv = (i: number): number | null => { if (kind === "line" && stacks && grouping !== "clustered") return stacks[si][i]?.[1] ?? null; const v = s.values[i]; return v === null && blanks === "zero" ? 0 : v; };
+      // gaps break the line (Excel "show empty cells as gaps"); "span" connects across them
       let seg: string[] = []; const segs: string[][] = [];
-      s.values.forEach((v, i) => { if (v === null) { if (seg.length) segs.push(seg); seg = []; } else seg.push(`${xOf(i).toFixed(2)},${yOf(v).toFixed(2)}`); });
+      s.values.forEach((_, i) => { const v = yv(i); const x = xOfS(i); if (v === null || !Number.isFinite(x)) { if (blanks !== "span") { if (seg.length) segs.push(seg); seg = []; } } else seg.push(`${x.toFixed(2)},${yOf(v).toFixed(2)}`); });
       if (seg.length) segs.push(seg);
-      if (kind === "line") for (const g of segs) body += `<polyline points="${g.join(" ")}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>`;
-      s.values.forEach((v, i) => { if (v !== null) body += `<circle cx="${xOf(i).toFixed(2)}" cy="${yOf(v).toFixed(2)}" r="${kind === "scatter" ? 3.5 : 2.5}" fill="${color}"/>`; });
+      if (kind === "line") for (const g of segs) body += `<polyline points="${g.join(" ")}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round"/>`;
+      s.values.forEach((_, i) => { const v = yv(i); const x = xOfS(i); if (v !== null && Number.isFinite(x)) body += `<circle cx="${x.toFixed(2)}" cy="${yOf(v).toFixed(2)}" r="${kind === "scatter" ? 3.5 : 2.5}" fill="${c}"/>`; });
     });
   }
-  const legend = multi ? data.series.map((s, i) => `<rect x="${width - right + 12}" y="${top + i * 18}" width="10" height="10" fill="${PALETTE[i % PALETTE.length]}"/><text x="${width - right + 27}" y="${top + i * 18 + 9}" font-size="11" font-family="sans-serif" fill="#e2e8f0">${xml(s.name.slice(0, 14))}</text>`).join("") : "";
-  return head + titleEl + grid + axis + body + xAxis + legend + "</svg>";
+  // trendlines (dashed, series colour) + optional equation / R² labels
+  for (const ft of fits) {
+    const P = (x: number, y: number): [number, number] => {
+      if (kind === "scatter") return [(xOf as unknown as { sx: (x: number) => number }).sx(x), yOf(y)];
+      const cat = left + (x - 1) * slot + slot / 2; // category position for x = 1..n (continuous)
+      return horiz ? [vX(y), top + ph - (x - 1) * slot - slot / 2] : [cat, yOf(y)];
+    };
+    const ptsT = ft.curve.map(([x, y]) => P(x, y)).filter(([a, b]) => Number.isFinite(a) && Number.isFinite(b));
+    if (ptsT.length < 2) continue;
+    body += `<polyline points="${ptsT.map(([a, b]) => `${a.toFixed(2)},${b.toFixed(2)}`).join(" ")}" fill="none" stroke="${color(ft.si, ft.s)}" stroke-width="1.5" stroke-dasharray="5 3" data-trend="${ft.t.type}"/>`;
+    const label = trendLabel(ft.f, !!ft.t.dispEq, !!ft.t.dispRSqr);
+    const [lx, ly] = ptsT[ptsT.length - 1];
+    label.forEach((l, i) => { body += T(Math.min(lx, left + pw - 4), Math.max(top + 10, ly - 6 - (label.length - 1 - i) * 12), l, "end", "#e2e8f0", ' data-trend-label="1"'); });
+  }
+  const titles = ((horiz ? opts.valTitle : opts.catTitle) ? `<text x="${left + pw / 2}" y="${height - 8}" font-size="11" font-family="sans-serif" text-anchor="middle" fill="#cbd5e1" data-axis-title="${horiz ? "val" : "cat"}">${xml((horiz ? opts.valTitle : opts.catTitle) ?? "")}</text>` : "")
+    + ((horiz ? opts.catTitle : opts.valTitle) ? `<text x="14" y="${top + ph / 2}" font-size="11" font-family="sans-serif" text-anchor="middle" fill="#cbd5e1" transform="rotate(-90 14 ${top + ph / 2})" data-axis-title="${horiz ? "cat" : "val"}">${xml((horiz ? opts.catTitle : opts.valTitle) ?? "")}</text>` : "");
+  const entries: { name: string; color: string; dashed: boolean }[] = [];
+  if (showLegend) data.series.forEach((s, i) => entries.push({ name: s.name, color: color(i, s), dashed: false }));
+  for (const ft of fits) entries.push({ name: trendLegend(ft.t, ft.s.name), color: color(ft.si, ft.s), dashed: true });
+  const legend = showLegend ? entries.map((e, i) => (e.dashed
+    ? `<line x1="${width - right + 10}" y1="${top + i * 18 + 5}" x2="${width - right + 24}" y2="${top + i * 18 + 5}" stroke="${e.color}" stroke-width="2" stroke-dasharray="3 2"/>`
+    : `<rect x="${width - right + 12}" y="${top + i * 18}" width="10" height="10" fill="${e.color}"/>`) + `<text x="${width - right + 27}" y="${top + i * 18 + 9}" font-size="11" font-family="sans-serif" fill="#e2e8f0">${xml(e.name.slice(0, 14))}</text>`).join("") : "";
+  return head + titleEl + grid + axis + body + xAxis + titles + legend + "</svg>";
 }
 
-function piePart(data: ChartData, width: number, height: number): string {
+function piePart(data: ChartData, width: number, height: number, hole = false): string {
   const s = data.series[0];
   const parts = data.categories.map((label, i) => ({ label, value: s.values[i] })).filter((p): p is { label: string; value: number } => p.value !== null && p.value > 0);
   const total = parts.reduce((a, p) => a + p.value, 0);
@@ -173,6 +364,7 @@ function piePart(data: ChartData, width: number, height: number): string {
     }
     if (i < 12) out += `<rect x="${width - 190}" y="${48 + i * 19}" width="10" height="10" fill="${color}"/><text x="${width - 174}" y="${57 + i * 19}" font-size="11" font-family="sans-serif" fill="#e2e8f0">${xml(`${p.label.slice(0, 16)} (${Math.round(frac * 1000) / 10}%)`)}</text>`;
   });
+  if (hole) out += `<circle cx="${cx}" cy="${cy}" r="${(r * 0.5).toFixed(2)}" fill="#0f172a" data-hole="1"/>`; // doughnut: Excel's default 50 % hole
   return out;
 }
 export const svgDataUri = (svg: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
@@ -428,14 +620,59 @@ const DEFAULT_PCT: Record<number, number[]> = { 3: [0, 33, 67], 4: [0, 25, 50, 7
 const ID = /^[A-Za-z0-9_-]{1,40}$/;
 const CFVO = "(?:min|max|(?:num|percent|percentile):-?\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)";
 const SCALE_AT = new RegExp(`^${CFVO}(?:\\|${CFVO}){1,2}$`);
+const str = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : undefined);
+const finite = (v: unknown, lo: number, hi: number) => (typeof v === "number" && Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : undefined);
+/** TT50: trendline spec from untrusted JSON (type allow-list, numeric ranges clamped as Excel's dialog does). */
+export function sanitizeTrend(raw: unknown): TrendSpec | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const o = raw as Record<string, unknown>;
+  if (!TREND_TYPES.includes(o.type as TrendType)) return undefined;
+  const t: TrendSpec = { type: o.type as TrendType };
+  if (t.type === "poly") t.order = Math.round(finite(o.order, 2, 6) ?? 2);
+  if (t.type === "movingAvg") t.period = Math.round(finite(o.period, 2, 255) ?? 2);
+  const fw = finite(o.forward, 0, 1e9), bw = finite(o.backward, 0, 1e9), ic = finite(o.intercept, -1e300, 1e300);
+  if (fw) t.forward = fw; if (bw) t.backward = bw; if (ic !== undefined && (t.type === "linear" || t.type === "exp")) t.intercept = ic;
+  if (o.dispEq === true) t.dispEq = true; if (o.dispRSqr === true) t.dispRSqr = true;
+  const nm = str(o.name, 255); if (nm) t.name = nm;
+  return t;
+}
+const REF_MAX = 600;
 export function sanitizeCharts(raw: unknown): ChartSpec[] {
   if (!Array.isArray(raw)) return [];
-  return raw.slice(0, 50).flatMap((c) => {
+  return raw.slice(0, 200).flatMap((c) => {
     if (!c || typeof c !== "object") return [];
     const o = c as Record<string, unknown>;
-    if (typeof o.id !== "string" || !ID.test(o.id) || typeof o.sheet !== "string" || !o.sheet || o.sheet.length > 255 || typeof o.range !== "string" || !parseRange(o.range)) return [];
-    if (!["bar", "line", "pie", "scatter"].includes(o.kind as string)) return [];
-    return [{ id: o.id, sheet: o.sheet /* TT49: never truncate — a file may carry a longer name and the rule must keep pointing at it */, range: o.range, kind: o.kind as ChartKind, title: typeof o.title === "string" ? o.title.slice(0, 120) : "", headerRow: o.headerRow !== false }];
+    const series = Array.isArray(o.series) ? o.series.slice(0, 255).flatMap((x): ChartSeriesRef[] => {
+      if (!x || typeof x !== "object") return [];
+      const r = x as Record<string, unknown>;
+      // an over-long reference is dropped, never truncated (a cut reference would point somewhere else)
+      const ref = (v: unknown) => (typeof v === "string" && v.length <= REF_MAX ? v : undefined);
+      if (typeof r.val === "string" && r.val.length > REF_MAX) return [];
+      const val = ref(r.val) ?? ""; const valCache = Array.isArray(r.valCache) ? r.valCache.slice(0, 20_000).map((v) => (typeof v === "number" && Number.isFinite(v) ? v : null)) : undefined;
+      if (!val && !valCache) return [];
+      const out: ChartSeriesRef = { val };
+      const name = str(r.name, 255), nameRef = ref(r.nameRef), cat = ref(r.cat), trend = sanitizeTrend(r.trend);
+      if (name !== undefined) out.name = name; if (nameRef) out.nameRef = nameRef; if (cat) out.cat = cat; if (valCache) out.valCache = valCache;
+      if (Array.isArray(r.catCache)) out.catCache = r.catCache.slice(0, 20_000).map((v) => (typeof v === "string" ? v.slice(0, 255) : typeof v === "number" ? String(v) : ""));
+      if (typeof r.color === "string" && /^#[0-9a-fA-F]{6}$/.test(r.color)) out.color = r.color; if (trend) out.trend = trend;
+      return [out];
+    }) : undefined;
+    const hasSeries = !!series?.length;
+    if (typeof o.id !== "string" || !ID.test(o.id) || typeof o.sheet !== "string" || !o.sheet || o.sheet.length > 255 || typeof o.range !== "string" || (!hasSeries && !parseRange(o.range))) return [];
+    if (!CHART_KINDS.includes(o.kind as ChartKind)) return [];
+    const spec: ChartSpec = { id: o.id, sheet: o.sheet /* TT49: never truncate — a file may carry a longer name and the rule must keep pointing at it */, range: hasSeries ? o.range.slice(0, REF_MAX) : o.range, kind: o.kind as ChartKind, title: typeof o.title === "string" ? o.title.slice(0, 255) : "", headerRow: o.headerRow !== false };
+    if (o.grouping === "stacked" || o.grouping === "percent") spec.grouping = o.grouping; else if (o.grouping === "clustered") spec.grouping = "clustered";
+    const ct = str(o.catTitle, 255), vt = str(o.valTitle, 255), tr = sanitizeTrend(o.trend), nf = str(o.numFmt, 255), src = str(o.src, 255), note = str(o.note, 500);
+    if (ct) spec.catTitle = ct; if (vt) spec.valTitle = vt; if (tr) spec.trend = tr; if (nf) spec.numFmt = nf;
+    if (src && /^[\w./-]+\.xml$/.test(src) && !src.includes("..")) spec.src = src; if (note) spec.note = note;
+    if (typeof o.legend === "boolean") spec.legend = o.legend;
+    if (o.blanks === "zero" || o.blanks === "span" || o.blanks === "gap") spec.blanks = o.blanks;
+    if (hasSeries) spec.series = series;
+    if (o.anchor && typeof o.anchor === "object") {
+      const a = o.anchor as Record<string, unknown>; const v = [a.c0, a.r0, a.c1, a.r1].map((x) => finite(x, 0, 1_048_575));
+      if (v.every((x) => x !== undefined)) spec.anchor = { c0: Math.min(v[0]!, 16383), r0: v[1]!, c1: Math.min(Math.max(v[2]!, v[0]!), 16383), r1: Math.max(v[3]!, v[1]!) };
+    }
+    return [spec];
   });
 }
 const CFVO_T = ["min", "max", "num", "percent", "percentile", "formula", "autoMin", "autoMax"];

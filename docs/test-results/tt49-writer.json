@@ -1,6 +1,6 @@
 {
   "suite": "tt49-writer",
-  "at": "2026-10-20T09:51:54.157Z",
+  "at": "2026-10-21T05:20:39.142Z",
   "results": [
     {
       "suite": "tt49-writer",
@@ -9,7 +9,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 6676
+      "ms": 8511
     },
     {
       "suite": "tt49-writer",
@@ -18,7 +18,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 28147
+      "ms": 31853
     },
     {
       "suite": "tt49-writer",
@@ -27,7 +27,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 4262
+      "ms": 4730
     },
     {
       "suite": "tt49-writer",
@@ -36,7 +36,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 1836
+      "ms": 2337
     },
     {
       "suite": "tt49-writer",
@@ -45,7 +45,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 7309
+      "ms": 8472
     },
     {
       "suite": "tt49-writer",
@@ -54,7 +54,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 205
+      "ms": 269
     },
     {
       "suite": "tt49-writer",
@@ -63,7 +63,16 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 99
+      "ms": 104
+    },
+    {
+      "suite": "tt49-writer",
+      "name": "undo (Writer's snapshot/restore replayed): add → undo, remove → undo, first-page → undo each save a valid package with exactly one <w:sectPr> and the ORIGINAL references; page setup after a header edit keeps both",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 1349
     },
     {
       "suite": "tt49-writer",
@@ -72,7 +81,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 203
+      "ms": 212
     }
   ]
 }

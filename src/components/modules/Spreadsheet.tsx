@@ -8,9 +8,9 @@ import { Badge, Btn } from "../ui";
 import {
   Workbook, Sheet, a1, isError, colToLetters, FUNCTIONS, EXT_FUNCTIONS, workbookFromJson, workbookToJson, parseFormula, formatValue, BUILTIN_FORMATS,
   norm, rangeA1, toTsv, parseTsv, copyBlock, pasteBlock, clearRange, autoFill, sortRange, insertDelete, findAll, replaceAll, selectionStats, shiftFormula,
-  chartDataFromRange, buildChartSvg, svgDataUri, evalCondFormats, parseRange, currentRegion, jump, fillTarget, looksLikeHeader,
+  chartDataFromRange, chartDataFor, renameChartRefs, CHART_KINDS, trendLegend, buildChartSvg, svgDataUri, evalCondFormats, parseRange, currentRegion, jump, fillTarget, looksLikeHeader,
   completionToken, completions, activeCall, SIGNATURES, hasValueIn,
-  type WorkbookJson, type CellStyle, type Range, type Clip, type ChartKind, type CondKind, type CondRule, type Scalar,
+  type WorkbookJson, type CellStyle, type Range, type Clip, type ChartKind, type ChartGrouping, type TrendSpec, type CondKind, type CondRule, type Scalar,
 } from "@/lib/formula/client";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import { iconDataUri, iconLabel, ICON_SETS, MAIN_ICON_SETS } from "@/lib/formula/cficons";
@@ -235,7 +235,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       return true;
     } catch (e) {
       if (encRef.current) { shell.toast(`Not saved: ${String((e as Error).message)}`, "bad"); return true; } // no plaintext .fworkbook fallback
-      shell.toast(`Lossless .xlsx save refused: ${String((e as Error).message)}. Saved as a Fusion workbook instead; "Export .xlsx" writes a NEW package that drops charts, comments, conditional formats, pivots and drawings.`, "warn");
+      shell.toast(`Lossless .xlsx save refused: ${String((e as Error).message)}. Saved as a Fusion workbook instead; "Export .xlsx" writes a NEW package (cells, styles, charts, conditional formats and validations kept; comments, pivots and non-chart drawings dropped).`, "warn");
       return false;
     }
   };
@@ -250,7 +250,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const dest = (path || "/Documents/workbook").replace(/\.(fworkbook|fsheet|xlsx)$/i, "") + ".xlsx";
     if (path && /\.xlsx$/i.test(path)) { await saveXlsxLossless(dest); return; }
     const r = await post<{ ok: boolean; path: string; bytes: number; sheets: number; error?: string }>("/api/sheet", { op: "saveXlsxToVfs", workbook: workbookToJson(workbook), dest });
-    if (r.ok) { setStatus(`exported ${r.bytes} B · ${r.sheets} sheet(s) → ${r.path} (charts & conditional formats are not exported to .xlsx)`); shell.bumpRefresh(); }
+    if (r.ok) { setStatus(`exported ${r.bytes} B · ${r.sheets} sheet(s) → ${r.path} · ${workbook.charts.length} chart(s) written as Excel charts`); shell.bumpRefresh(); }
     else shell.toast(r.error ?? "export failed", "bad");
   };
   const importXlsx = async (file: File) => {
@@ -285,6 +285,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       const was = renamesRef.current[old] ?? old; delete renamesRef.current[old]; renamesRef.current[next] = was; // lossless .xlsx save maps it back
       const re = new RegExp(`(^|[^A-Za-z0-9_.'])(?:${escapeRe(old)}|'${escapeRe(old.replace(/'/g, "''"))}')!`, "g");
       for (const s of wb.sheets.values()) for (const [k, cell] of [...s.grid]) if (cell.formula && re.test(cell.input)) { re.lastIndex = 0; const [c, r] = k.split(",").map(Number); s.setCell(c, r, cell.input.replace(re, (_m, pre) => `${pre}${quoteSheet(next)}!`)); }
+      wb.charts = wb.charts.map((c) => renameChartRefs(c, old, next)); // TT50: chart series references follow the rename
       for (const x of [...wb.charts, ...wb.condFormats]) if (x.sheet === old) x.sheet = next;
     });
     setActive(next);
@@ -944,20 +945,53 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         })() : null}
       </div>
       {panel === "charts" ? (
-        <div data-testid="charts-panel" className="fs-scroll" style={{ display: "flex", gap: 10, padding: 8, borderTop: "1px solid var(--fs-border)", overflowX: "auto", height: 270, flexShrink: 0 }}>
+        <div data-testid="charts-panel" className="fs-scroll" tabIndex={0} aria-label="Charts" style={{ display: "flex", gap: 10, padding: 8, borderTop: "1px solid var(--fs-border)", overflowX: "auto", height: 266, flexShrink: 0 }}>
           {charts.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(12) }}>No charts on this sheet. Select a range with labels in the first column and numbers to the right, then press “Chart”.</span> : null}
           {charts.map((c) => {
             let src = "", error = "";
-            try { src = svgDataUri(buildChartSvg(c.kind, c.title, chartDataFromRange(workbook, c.sheet, c.range, c.headerRow), 420, 220)); } catch (e) { error = (e as Error).message; }
+            try { src = svgDataUri(buildChartSvg(c.kind, c.title, chartDataFor(workbook, c), 420, 220, c)); } catch (e) { error = (e as Error).message; }
+            const axes = c.kind !== "pie" && c.kind !== "doughnut";
+            const stackable = c.kind === "bar" || c.kind === "hbar" || c.kind === "line" || c.kind === "area";
+            const trend = c.trend ?? c.series?.find((s) => s.trend)?.trend;
+            const trendOk = axes && (c.grouping ?? "clustered") === "clustered";
+            const setTrend = (t: TrendSpec | undefined) => mutate(() => { c.trend = t; c.series?.forEach((s) => { delete s.trend; }); });
+            const edit = (fn: () => void) => { fn(); setRev((r) => r + 1); setDirty(true); };
+            const at = c.anchor;
             return (
-              <div key={c.id} data-chart={c.id} style={{ flexShrink: 0, width: 424, border: "1px solid var(--fs-border)", borderRadius: 6, padding: 4 }}>
-                <div className="fs-row" style={{ gap: 4, fontSize: fz(11), marginBottom: 2 }}>
-                  <input className="fs-input" aria-label="Chart title" value={c.title} onChange={(e) => { c.title = e.target.value.slice(0, 120); setRev((r) => r + 1); setDirty(true); }} style={{ flex: 1 }} />
-                  <select className="fs-input" aria-label="Chart type" value={c.kind} onChange={(e) => mutate(() => { c.kind = e.target.value as ChartKind; })} style={{ width: 80 }}>
-                    <option value="bar">bar</option><option value="line">line</option><option value="pie">pie</option><option value="scatter">scatter</option>
+              <div key={c.id} data-chart={c.id} style={{ flexShrink: 0, display: "flex", gap: 6, border: "1px solid var(--fs-border)", borderRadius: 6, padding: 4 }}>
+                <div style={{ width: 212, display: "flex", flexDirection: "column", gap: 4, fontSize: fz(11), minWidth: 0 }}>
+                <div className="fs-row" style={{ gap: 4 }}>
+                  <input className="fs-input" aria-label="Chart title" value={c.title} onChange={(e) => edit(() => { c.title = e.target.value.slice(0, 255); })} style={{ flex: 1, minWidth: 0 }} />
+                  <select className="fs-input" aria-label="Chart type" value={c.kind} onChange={(e) => mutate(() => { c.kind = e.target.value as ChartKind; if (c.kind === "pie" || c.kind === "doughnut" || c.kind === "scatter") c.grouping = undefined; })} style={{ width: 84 }}>
+                    {CHART_KINDS.map((k) => <option key={k} value={k}>{CHART_KIND_LABEL[k]}</option>)}
                   </select>
-                  <span className="fs-mono fs-dim">{c.range}</span>
-                  <button className="fs-btn" data-variant="ghost" onClick={() => mutate((wb) => { wb.charts = wb.charts.filter((x) => x.id !== c.id); })}>✕</button>
+                  <button className="fs-btn" data-variant="ghost" aria-label="Delete chart" title="Delete chart" onClick={() => mutate((wb) => { wb.charts = wb.charts.filter((x) => x.id !== c.id); })}>✕</button>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+                  <select className="fs-input" aria-label="Stacking" value={c.grouping ?? "clustered"} disabled={!stackable} onChange={(e) => mutate(() => { c.grouping = e.target.value === "clustered" ? undefined : e.target.value as ChartGrouping; })} style={{ gridColumn: "1 / -1" }}>
+                    <option value="clustered">{c.kind === "line" || c.kind === "area" ? "standard" : "clustered"}</option><option value="stacked">stacked</option><option value="percent">100% stacked</option>
+                  </select>
+                  <input className="fs-input" aria-label="Horizontal axis title" placeholder={c.kind === "hbar" ? "category axis title" : "x-axis title"} disabled={!axes} value={c.catTitle ?? ""} onChange={(e) => edit(() => { c.catTitle = e.target.value.slice(0, 255) || undefined; })} style={{ minWidth: 0 }} />
+                  <input className="fs-input" aria-label="Vertical axis title" placeholder={c.kind === "hbar" ? "value axis title" : "y-axis title"} disabled={!axes} value={c.valTitle ?? ""} onChange={(e) => edit(() => { c.valTitle = e.target.value.slice(0, 255) || undefined; })} style={{ minWidth: 0 }} />
+                </div>
+                <div className="fs-row" style={{ gap: 4, alignItems: "center", flexWrap: "wrap" }}>
+                  <select className="fs-input" aria-label="Trendline" value={trend?.type ?? ""} disabled={!trendOk} title={trendOk ? "Trendline" : "Excel offers trendlines only on unstacked, non-pie charts"} onChange={(e) => setTrend(e.target.value ? { ...(trend ?? {}), type: e.target.value as TrendSpec["type"] } : undefined)} style={{ minWidth: 0 }}>
+                    <option value="">no trendline</option><option value="linear">linear</option><option value="exp">exponential</option><option value="log">logarithmic</option><option value="power">power</option><option value="poly">polynomial</option><option value="movingAvg">moving avg</option>
+                  </select>
+                  {trend?.type === "poly" ? <input className="fs-input" type="number" min={2} max={6} aria-label="Polynomial order" value={trend.order ?? 2} onChange={(e) => setTrend({ ...trend, order: clamp(Math.round(Number(e.target.value) || 2), 6, 2) })} style={{ width: 48 }} /> : null}
+                  {trend?.type === "movingAvg" ? <input className="fs-input" type="number" min={2} max={255} aria-label="Moving average period" value={trend.period ?? 2} onChange={(e) => setTrend({ ...trend, period: clamp(Math.round(Number(e.target.value) || 2), 255, 2) })} style={{ width: 54 }} /> : null}
+                  {trend && trend.type !== "movingAvg" ? <>
+                    <label className="fs-row" style={{ gap: 2 }}><input type="checkbox" checked={!!trend.dispEq} onChange={(e) => setTrend({ ...trend, dispEq: e.target.checked || undefined })} />equation</label>
+                    <label className="fs-row" style={{ gap: 2 }}><input type="checkbox" checked={!!trend.dispRSqr} onChange={(e) => setTrend({ ...trend, dispRSqr: e.target.checked || undefined })} />R²</label>
+                  </> : null}
+                  <label className="fs-row" style={{ gap: 2 }}><input type="checkbox" checked={c.legend ?? ((c.series?.length ?? 2) > 1 || !!trend)} onChange={(e) => mutate(() => { c.legend = e.target.checked; })} />legend</label>
+                  
+                </div>
+                <div className="fs-dim" style={{ display: "flex", flexDirection: "column", gap: 1, fontSize: fz(10.5), minWidth: 0, marginTop: "auto" }}>
+                  <span className="fs-mono" data-testid="chart-source" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.series?.length ? `${c.series.length} series · ${c.series[0].val}` : c.range}</span>
+                  <span className="fs-row" style={{ gap: 4, alignItems: "center" }}><button className="fs-btn" data-variant="ghost" style={{ padding: "1px 8px" }} aria-label="Place chart over the selected cells · Place" title="Place the chart over the selected cells (saved as its position in .xlsx)" onClick={() => { const r = selR; if (r.c1 === r.c0 && r.r1 === r.r0) { shell.toast("Select the cells the chart should cover first.", "warn"); return; } mutate(() => { c.anchor = { c0: r.c0, r0: r.r0, c1: r.c1, r1: r.r1 }; }); }}>Place</button><span data-testid="chart-anchor">{at ? `at ${a1(at.c0, at.r0)}:${a1(at.c1, at.r1)}` : "position: auto"}</span></span>
+                  {c.note ? <span title={c.note} data-testid="chart-note" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{c.note}</span> : null}
+                </div>
                 </div>
                 {error ? <div style={{ color: "var(--fs-bad-text, #ff9b9b)", fontSize: fz(11.5), padding: 8 }}>Chart unavailable: {error}</div> : <ChartImg alt={c.title || "chart"} src={src} />}
               </div>
@@ -1001,6 +1035,7 @@ function fillCopy(s: Sheet, t: Range, dir: "down" | "right") {
   }
 }
 /** Smallest unused `${prefix}${n}` id (pure: no clock/random during render). */
+const CHART_KIND_LABEL: Record<ChartKind, string> = { bar: "column", hbar: "bar", line: "line", area: "area", pie: "pie", doughnut: "doughnut", scatter: "scatter" };
 function nextId(prefix: string, used: string[]): string { let n = used.length + 1; while (used.includes(`${prefix}${n}`)) n++; return `${prefix}${n}`; }
 function ChartImg({ alt, src }: { alt: string; src: string }) {
   // data: URI SVG (script-inert inside <img>); next/image optimisation does not apply to data URIs

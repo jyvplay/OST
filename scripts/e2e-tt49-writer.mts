@@ -153,6 +153,24 @@ await test("locked content: a header line holding a picture is shown 'kept as is
   await close();
 });
 
+await test("Undo of an ADDED header through the UI: pages and panel return to 'no header', typing in the body still lands at the caret, and the saved file is a valid package with no header referenced", COV, async () => {
+  const path = `/Documents/${RUN}-undo.docx`; await upload(path, longDoc());
+  const { page, dlg, panel, close } = await openWriter(path);
+  await panel.getByRole("button", { name: "Add line" }).click(); await panel.getByLabel("header line 1", { exact: true }).fill("Temporary");
+  await panel.getByRole("button", { name: "Apply header" }).click(); await page.waitForTimeout(300);
+  ok(await dlg.locator(".wpage .whdr").count() > 0, "header drawn");
+  await dlg.getByRole("button", { name: "Undo", exact: true }).click(); await page.waitForTimeout(400);
+  eq(await dlg.locator(".wpage .whdr").count(), 0, "no header after undo");
+  ok((await panel.innerText()).includes("has no header yet"), "panel back to the empty state");
+  // body editing after an hf undo: caret placement still works (the TT49 docGen regression)
+  const p1 = dlg.locator('[data-testid="writer-body"] p[data-pid]').first(); await p1.click(); await page.keyboard.press("Control+Home"); await page.keyboard.type("ZQ "); // p1 wraps: Home = start of the visual line only
+  ok((await p1.innerText()).startsWith("ZQ "), `typed at the caret: ${(await p1.innerText()).slice(0, 30)}`);
+  await save(dlg);
+  const s = hf(await readBytes(path), "undo-saved.docx");
+  ok(s.header.linked, "python-docx: no header referenced after undo");
+  await close();
+});
+
 await test("no page errors; uploads cleaned up", COV, async () => {
   eq(errors, [], "page errors");
   const list = await api("GET", "/api/fs?op=list&path=/Documents");

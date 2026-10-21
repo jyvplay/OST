@@ -1,47 +1,116 @@
 {
   "suite": "tt49-sheet",
-  "at": "2026-10-20T09:26:08.926Z",
+  "at": "2026-10-21T05:07:25.016Z",
   "results": [
+    {
+      "suite": "tt49-sheet",
+      "name": "corpus differential: every conditional-format rule in 19 real workbooks evaluates cell-for-cell like the independent Python oracle (openpyxl + Translator + `formulas`, Excel-cached values)",
+      "covers": {
+        "FF-29": "full",
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 62809
+    },
+    {
+      "suite": "tt49-sheet",
+      "name": "Apache POI's asserted answers (TestConditionalFormattingEval): matching-rule counts and first-rule colours per cell, including after editing the rule inputs",
+      "covers": {
+        "FF-29": "full",
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 81
+    },
     {
       "suite": "tt49-sheet",
       "name": "documented answers: Microsoft's data-bar length (10–90 %), x14 automatic bounds (0–100 %), top/bottom N% rounding, blank-as-zero, gte=\"0\", sample σ",
       "covers": {
         "FF-29": "full",
-        "SS-49": "full"
+        "FF-21": "full",
+        "FF-20": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 1
     },
     {
       "suite": "tt49-sheet",
       "name": "priority order, format merging and stopIfTrue: the highest-priority rule wins each property, non-conflicting formats combine, stopIfTrue blocks icons and fills below it",
       "covers": {
         "FF-29": "full",
-        "SS-49": "full"
+        "FF-21": "full",
+        "FF-20": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt49-sheet",
+      "name": "new-file writer: all 25 rule kinds survive our writer → (our reader: identical rules) and (openpyxl + the Python oracle: same cells as our evaluator)",
+      "covers": {
+        "FF-29": "full",
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 903
+    },
+    {
+      "suite": "tt49-sheet",
+      "name": "new-file writer, Excel 2010 parts: x14 data bars (auto bounds, negative colour, middle axis, border, solid) and x14-only / custom icon sets round-trip and are well-formed for lxml and openpyxl",
+      "covers": {
+        "FF-29": "full",
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 181
+    },
+    {
+      "suite": "tt49-sheet",
+      "name": "lossless save: unedited CF corpus files stay byte-identical; deleting a data bar also deletes its linked x14 rule; deleting an x14-only icon set removes it from the extLst; openpyxl reads every result",
+      "covers": {
+        "FF-29": "full",
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 205364
+    },
+    {
+      "suite": "tt49-sheet",
+      "name": "known answers for x14-only parts openpyxl cannot see: automatic-bound bars with border, defined-name bar maximum, 3Stars, custom icon mix",
+      "covers": {
+        "FF-29": "full",
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 772
+    },
+    {
+      "suite": "tt49-sheet",
       "name": "JSON boundary: every corpus rule survives workbookToJson → workbookFromJson unchanged; 18 hostile shapes are rejected or neutralised",
       "covers": {
         "FF-29": "full",
-        "SS-49": "full"
+        "FF-21": "full",
+        "FF-20": "full"
       },
-      "pass": false,
-      "error": "unknown icon set dropped: [{\"id\":\"h\",\"sheet\":\"Sheet1\",\"range\":\"A1:A3\",\"kind\":\"icons\",\"iconSet\":\"__proto__\"}]",
-      "ms": 48006
+      "pass": true,
+      "ms": 57268
     },
     {
       "suite": "tt49-sheet",
       "name": "adversarial evaluation: degenerate distributions, errors, #REF! after shifting, whole-column formulas, caps, no mutation, no recursion",
       "covers": {
         "FF-29": "full",
-        "SS-49": "full"
+        "FF-21": "full",
+        "FF-20": "full"
       },
       "pass": true,
-      "ms": 104
+      "ms": 117
     }
   ]
 }

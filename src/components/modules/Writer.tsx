@@ -28,7 +28,9 @@ const HIGHLIGHTS = ["yellow", "green", "cyan", "magenta", "red", "lightGray"];
 
 /** hf: header/footer state (parts are replaced, never mutated, by setHf — a shallow copy is a true snapshot) */
 interface Snap { blocks: Block[]; sel: E.Range | null; hf?: { parts: Map<string, Block[]>; sect?: XEl; page: WordDoc["page"] } }
-const hfSnap = (d: WordDoc): Snap["hf"] => ({ parts: new Map(d.parts), sect: d.finalSect ? (JSON.parse(JSON.stringify(d.finalSect)) as XEl) : undefined, page: { ...d.page } });
+// the final sectPr is copy-on-write (hdrftr.editSect / setPageSetup), so the snapshot holds it by reference — a clone would
+// not be the node in the restored block list and writeWord would then emit a second <w:sectPr>
+const hfSnap = (d: WordDoc): Snap["hf"] => ({ parts: new Map(d.parts), sect: d.finalSect, page: { ...d.page } });
 
 export default function WriterModule({ win }: ModuleProps) {
   const shell = useShell();
@@ -60,6 +62,7 @@ export default function WriterModule({ win }: ModuleProps) {
   const [autosave, setAutosave] = useState(false);
   const [tick, setTick] = useState(0); // toolbar refresh on selection change
   const [docGen, setDocGen] = useState(0); // bumps when a new document (or page geometry) must be fully rendered
+  const [hfGen, setHfGen] = useState(0); // bumps when undo/redo changed headers/footers (the panel reloads; the caret is NOT reset)
   const fileInput = useRef<HTMLInputElement | null>(null), imgInput = useRef<HTMLInputElement | null>(null);
   const z = zoom ?? unit;
   const bump = () => setVer((v) => v + 1);
@@ -170,10 +173,15 @@ export default function WriterModule({ win }: ModuleProps) {
     to.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current, hf: hfSnap(doc) });
     doc.blocks = s.blocks;
     if (s.hf) {
-      for (const [rid, b] of s.hf.parts) if (doc.parts.get(rid) !== b) doc.hf.dirty.add(rid);
-      for (const rid of doc.parts.keys()) if (!s.hf.parts.has(rid)) doc.hf.dirty.delete(rid);
-      doc.parts = new Map(s.hf.parts); doc.finalSect = s.hf.sect; doc.page = { ...s.hf.page };
-      setDocGen((g) => g + 1);
+      // only touch header/footer state when this step actually changed it: a full re-render (docGen) here would run
+      // after setSel below and drop the caret on every ordinary Ctrl+Z (regression caught by e2e-tt46)
+      const hfChanged = s.hf.parts.size !== doc.parts.size || [...s.hf.parts].some(([rid, b]) => doc.parts.get(rid) !== b)
+        || s.hf.sect !== doc.finalSect;
+      if (hfChanged) {
+        for (const [rid, b] of s.hf.parts) if (doc.parts.get(rid) !== b) doc.hf.dirty.add(rid);
+        doc.parts = new Map(s.hf.parts); doc.finalSect = s.hf.sect; doc.page = { ...s.hf.page };
+        setHfGen((g) => g + 1);
+      }
     }
     for (const p of allParas(doc.blocks)) p.dirty = true; // conservative: restored paragraphs regenerate (still lossless per run)
     renderAll(); if (s.sel) setSel(s.sel); setDirty(true); bump();
@@ -655,7 +663,7 @@ export default function WriterModule({ win }: ModuleProps) {
               <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>New comment on selection</Btn>
               {doc.comments.map((c) => <button key={c.id} className="wcom" onClick={() => { const m = rootRef.current?.querySelector(`[data-cids~="${c.id}"], .wcmt[data-cids*="${c.id}"]`); m?.scrollIntoView({ block: "center" }); }}><b>{c.author || "Unknown"}</b>{c.date ? <span style={{ opacity: 0.6 }}> · {c.date.slice(0, 10)}</span> : null}<div>{c.text}</div></button>)}
             </>}
-            {panel === "hf" && <HeaderFooter doc={doc} gen={docGen} onApply={(fn) => { snapshot(); fn(doc); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
+            {panel === "hf" && <HeaderFooter doc={doc} gen={docGen * 100000 + hfGen} onApply={(fn) => { snapshot(); fn(doc); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
             {panel === "page" && <PageSetup doc={doc} onApply={(o) => { snapshot(); E.setPageSetup(doc, o); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
           </div>
         )}

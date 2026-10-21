@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-10-19T22:51:15.585Z",
+ "generatedAt": "2026-10-21T05:20:39.342Z",
  "totals": {
   "built": {
-   "full": 289,
-   "partial": 58,
+   "full": 290,
+   "partial": 57,
    "blocked": 21,
    "none": 0
   },
@@ -13,8 +13,8 @@
    "untested": 121
   },
   "tests": {
-   "total": 837,
-   "passed": 837
+   "total": 882,
+   "passed": 882
   }
  },
  "rows": {
@@ -998,6 +998,11 @@
     "e2e-tt48: Spreadsheet: protect a plain .xlsx → encrypted; remove the password → plain lossless .xlsx again (no-edit parts byte-identical to the original)",
     "e2e-tt48: adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
     "e2e-tt48: no uncaught page errors during the TT48 sessions",
+    "e2e-tt49: imported x14 data bars (automatic bounds + border), x14-only 3Stars and a custom icon mix are drawn cell-for-cell as evaluated",
+    "e2e-tt49: CF borders, formula rules and time periods from a workbook our writer produced are drawn as evaluated",
+    "e2e-tt49: modal-shortcut failure test: Delete, Backspace, typing, Ctrl+Z and Enter inside the CF panel never touch the selected grid cell",
+    "e2e-tt49: add a data bar, an icon set and a formula rule in the panel → drawn at once → Save → the independent oracle evaluates the saved .xlsx exactly as the grid showed",
+    "e2e-tt49: no uncaught page errors during the conditional-formatting session",
     "e2e: mount: sheet",
     "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file",
     "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
@@ -1025,7 +1030,17 @@
     "tt48-office: DataSpaces storage streams are byte-identical to msoffcrypto-tool's encrypt output (independent writer)",
     "tt48-office: re-encryption: 22 corpus .docx/.xlsx (1.9 KB … 3 MB, mini-stream and multi-segment, Unicode password) → msoffcrypto-tool decrypts byte-identically WITH HMAC verification, olefile strict parses, our reader agrees",
     "tt48-office: security properties: Office-default parameters, fresh salts/keys per save, no plaintext block in the ciphertext, wrong password and tampering refused by the independent decryptor",
-    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification"
+    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification",
+    "tt49-sheet: corpus differential: every conditional-format rule in 19 real workbooks evaluates cell-for-cell like the independent Python oracle (openpyxl + Translator + `formulas`, Excel-cached values)",
+    "tt49-sheet: Apache POI's asserted answers (TestConditionalFormattingEval): matching-rule counts and first-rule colours per cell, including after editing the rule inputs",
+    "tt49-sheet: documented answers: Microsoft's data-bar length (10–90 %), x14 automatic bounds (0–100 %), top/bottom N% rounding, blank-as-zero, gte=\"0\", sample σ",
+    "tt49-sheet: priority order, format merging and stopIfTrue: the highest-priority rule wins each property, non-conflicting formats combine, stopIfTrue blocks icons and fills below it",
+    "tt49-sheet: new-file writer: all 25 rule kinds survive our writer → (our reader: identical rules) and (openpyxl + the Python oracle: same cells as our evaluator)",
+    "tt49-sheet: new-file writer, Excel 2010 parts: x14 data bars (auto bounds, negative colour, middle axis, border, solid) and x14-only / custom icon sets round-trip and are well-formed for lxml and openpyxl",
+    "tt49-sheet: lossless save: unedited CF corpus files stay byte-identical; deleting a data bar also deletes its linked x14 rule; deleting an x14-only icon set removes it from the extLst; openpyxl reads every result",
+    "tt49-sheet: known answers for x14-only parts openpyxl cannot see: automatic-bound bars with border, defined-name bar maximum, 3Stars, custom icon mix",
+    "tt49-sheet: JSON boundary: every corpus rule survives workbookToJson → workbookFromJson unchanged; 18 hostile shapes are rejected or neutralised",
+    "tt49-sheet: adversarial evaluation: degenerate distributions, errors, #REF! after shifting, whole-column formulas, caps, no mutation, no recursion"
    ]
   },
   "FF-21": {
@@ -1060,7 +1075,17 @@
     "tt48-office: DataSpaces storage streams are byte-identical to msoffcrypto-tool's encrypt output (independent writer)",
     "tt48-office: re-encryption: 22 corpus .docx/.xlsx (1.9 KB … 3 MB, mini-stream and multi-segment, Unicode password) → msoffcrypto-tool decrypts byte-identically WITH HMAC verification, olefile strict parses, our reader agrees",
     "tt48-office: security properties: Office-default parameters, fresh salts/keys per save, no plaintext block in the ciphertext, wrong password and tampering refused by the independent decryptor",
-    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification"
+    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification",
+    "tt49-sheet: corpus differential: every conditional-format rule in 19 real workbooks evaluates cell-for-cell like the independent Python oracle (openpyxl + Translator + `formulas`, Excel-cached values)",
+    "tt49-sheet: Apache POI's asserted answers (TestConditionalFormattingEval): matching-rule counts and first-rule colours per cell, including after editing the rule inputs",
+    "tt49-sheet: documented answers: Microsoft's data-bar length (10–90 %), x14 automatic bounds (0–100 %), top/bottom N% rounding, blank-as-zero, gte=\"0\", sample σ",
+    "tt49-sheet: priority order, format merging and stopIfTrue: the highest-priority rule wins each property, non-conflicting formats combine, stopIfTrue blocks icons and fills below it",
+    "tt49-sheet: new-file writer: all 25 rule kinds survive our writer → (our reader: identical rules) and (openpyxl + the Python oracle: same cells as our evaluator)",
+    "tt49-sheet: new-file writer, Excel 2010 parts: x14 data bars (auto bounds, negative colour, middle axis, border, solid) and x14-only / custom icon sets round-trip and are well-formed for lxml and openpyxl",
+    "tt49-sheet: lossless save: unedited CF corpus files stay byte-identical; deleting a data bar also deletes its linked x14 rule; deleting an x14-only icon set removes it from the extLst; openpyxl reads every result",
+    "tt49-sheet: known answers for x14-only parts openpyxl cannot see: automatic-bound bars with border, defined-name bar maximum, 3Stars, custom icon mix",
+    "tt49-sheet: JSON boundary: every corpus rule survives workbookToJson → workbookFromJson unchanged; 18 hostile shapes are rejected or neutralised",
+    "tt49-sheet: adversarial evaluation: degenerate distributions, errors, #REF! after shifting, whole-column formulas, caps, no mutation, no recursion"
    ]
   },
   "FF-22": {
@@ -1078,6 +1103,12 @@
     "e2e-tt48: Spreadsheet: protect a plain .xlsx → encrypted; remove the password → plain lossless .xlsx again (no-edit parts byte-identical to the original)",
     "e2e-tt48: adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
     "e2e-tt48: no uncaught page errors during the TT48 sessions",
+    "e2e-tt49-writer: add a footer 'Page {PAGE} of {NUMPAGES}' and a header through the panel: every page box draws its own number; saved file → python-docx sees live PAGE/NUMPAGES fields",
+    "e2e-tt49-writer: edit a real Word header (POI bug57031.docx): the change shows on every page, Undo restores the original on the pages AND in the panel, the saved file keeps the other header lines",
+    "e2e-tt49-writer: different first page: the checkbox adds First-page tabs; page 1 draws the cover header, later pages the default header; python-docx agrees after save; unticking restores",
+    "e2e-tt49-writer: locked content: a header line holding a picture is shown 'kept as is' (no input); adding a line beside it saves with the picture intact; Remove unlinks the header",
+    "e2e-tt49-writer: Undo of an ADDED header through the UI: pages and panel return to 'no header', typing in the body still lands at the caret, and the saved file is a valid package with no header referenced",
+    "e2e-tt49-writer: no page errors; uploads cleaned up",
     "e2e: mount: writer",
     "tt46-writer: xmltree: every well-formed XML part of the docx corpus re-serializes byte-identically",
     "tt46-writer: xmltree guards: nesting bomb refused, external/undeclared entities never resolved, numeric refs decoded",
@@ -1101,7 +1132,16 @@
     "tt48-office: DataSpaces storage streams are byte-identical to msoffcrypto-tool's encrypt output (independent writer)",
     "tt48-office: re-encryption: 22 corpus .docx/.xlsx (1.9 KB … 3 MB, mini-stream and multi-segment, Unicode password) → msoffcrypto-tool decrypts byte-identically WITH HMAC verification, olefile strict parses, our reader agrees",
     "tt48-office: security properties: Office-default parameters, fresh salts/keys per save, no plaintext block in the ciphertext, wrong password and tampering refused by the independent decryptor",
-    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification"
+    "tt48-office: window key cache: repeated saves reuse the derived password key (one 100,000-round derivation) but get a fresh package key, data salt and HMAC key; every save decrypts in msoffcrypto with HMAC verification",
+    "tt49-writer: edit the existing default header of every corpus document that has one: python-docx sees the new text with live PAGE/NUMPAGES fields; every other paragraph, part and the body are unchanged",
+    "tt49-writer: add a header AND a footer to every corpus document that has none: new parts, relationships, content types and section references that python-docx resolves",
+    "tt49-writer: different first page: a first-page header is created, <w:titlePg/> is set in schema order, the default header stays; switching it off keeps both parts",
+    "tt49-writer: untouched header paragraphs keep their exact XML; locked lines (pictures, DATE/STYLEREF/… fields, links) survive an edit of the same header byte-for-byte",
+    "tt49-writer: remove: the section no longer references the header (python-docx: linked to previous), body and footer unchanged; no-edit save stays byte-identical",
+    "tt49-writer: hostile input: over-long text and too many lines are capped, XML specials escaped, invalid XML characters dropped, tabs become <w:tab/>, braces other than the two fields stay text — and every result opens in python-docx",
+    "tt49-writer: lines holding other fields (DATE complex field, STYLEREF fldSimple) or a hyperlink are locked: sent back with changed text they stay byte-identical and python-docx still sees the fields",
+    "tt49-writer: undo (Writer's snapshot/restore replayed): add → undo, remove → undo, first-page → undo each save a valid package with exactly one <w:sectPr> and the ORIGINAL references; page setup after a header edit keeps both",
+    "tt49-writer: three-column headers (positional tabs): an edited line keeps its centre/right <w:ptab/> elements, so python-docx and our reader see the same three columns"
    ]
   },
   "FF-23": {
@@ -1345,10 +1385,40 @@
    "tested": "full",
    "tests": [
     "e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source",
+    "e2e-tt49: imported x14 data bars (automatic bounds + border), x14-only 3Stars and a custom icon mix are drawn cell-for-cell as evaluated",
+    "e2e-tt49: CF borders, formula rules and time periods from a workbook our writer produced are drawn as evaluated",
+    "e2e-tt49: modal-shortcut failure test: Delete, Backspace, typing, Ctrl+Z and Enter inside the CF panel never touch the selected grid cell",
+    "e2e-tt49: add a data bar, an icon set and a formula rule in the panel → drawn at once → Save → the independent oracle evaluates the saved .xlsx exactly as the grid showed",
+    "e2e-tt49: no uncaught page errors during the conditional-formatting session",
+    "e2e-tt50-charts: imported Excel charts are drawn where and as the file says: WithThreeCharts.xlsx — line + pie on Sheet2, area on Sheet3, titles, anchors, legends",
+    "e2e-tt50-charts: edit an imported chart (title, stacked, value-axis title) and insert a new one → Save → openpyxl sees exactly those edits; the other charts and every cell unchanged",
+    "e2e-tt50-charts: a chart made in the UI with a linear trendline, equation and R² draws them and saves a real c:trendline (openpyxl)",
+    "e2e-tt50-charts: modal-shortcut failure test: Delete, Backspace, typing and Ctrl+Z inside the chart panel never touch the selected grid cell",
+    "e2e-tt50-charts: no uncaught page errors during the charts session",
     "e2e: mount: sheet",
     "office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data",
     "office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
-    "office: workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads"
+    "office: workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads",
+    "tt49-sheet: corpus differential: every conditional-format rule in 19 real workbooks evaluates cell-for-cell like the independent Python oracle (openpyxl + Translator + `formulas`, Excel-cached values)",
+    "tt49-sheet: Apache POI's asserted answers (TestConditionalFormattingEval): matching-rule counts and first-rule colours per cell, including after editing the rule inputs",
+    "tt49-sheet: documented answers: Microsoft's data-bar length (10–90 %), x14 automatic bounds (0–100 %), top/bottom N% rounding, blank-as-zero, gte=\"0\", sample σ",
+    "tt49-sheet: priority order, format merging and stopIfTrue: the highest-priority rule wins each property, non-conflicting formats combine, stopIfTrue blocks icons and fills below it",
+    "tt49-sheet: new-file writer: all 25 rule kinds survive our writer → (our reader: identical rules) and (openpyxl + the Python oracle: same cells as our evaluator)",
+    "tt49-sheet: new-file writer, Excel 2010 parts: x14 data bars (auto bounds, negative colour, middle axis, border, solid) and x14-only / custom icon sets round-trip and are well-formed for lxml and openpyxl",
+    "tt49-sheet: lossless save: unedited CF corpus files stay byte-identical; deleting a data bar also deletes its linked x14 rule; deleting an x14-only icon set removes it from the extLst; openpyxl reads every result",
+    "tt49-sheet: known answers for x14-only parts openpyxl cannot see: automatic-bound bars with border, defined-name bar maximum, 3Stars, custom icon mix",
+    "tt49-sheet: JSON boundary: every corpus rule survives workbookToJson → workbookFromJson unchanged; 18 hostile shapes are rejected or neutralised",
+    "tt49-sheet: adversarial evaluation: degenerate distributions, errors, #REF! after shifting, whole-column formulas, caps, no mutation, no recursion",
+    "tt50-charts: trendlines: all six Excel types fit like numpy (polyfit / lstsq) — 120 random datasets incl. fixed intercept and poly orders 2–6; R² on the fitted scale",
+    "tt50-charts: reader differential: every chart in 25 corpus workbooks (worksheets + chartsheets, one-cell/two-cell/absolute anchors) matches openpyxl — type, bar direction, grouping, series tx/cat/val refs, trendlines, titles, axis titles, anchor",
+    "tt50-charts: reader semantics: Excel automatic titles, multi-paragraph rich titles, formula titles, combo/3-D notes, cached values when a reference cannot be resolved (defined names), live values otherwise",
+    "tt50-charts: new-workbook writer: every corpus chart written by writeXlsxWorkbook is read back identically by openpyxl AND by our reader (refs, caches, titles, axis titles, grouping, anchors)",
+    "tt50-charts: new charts made in Fusion export as real Excel charts: stacked / 100 % / hbar / doughnut / area / scatter, axis titles, poly + moving-average trendlines, legend — openpyxl reads every property back",
+    "tt50-charts: renderer: Excel stacking semantics (negatives below zero, 100 % by Σ|v|, blanks), hbar first category at the bottom, trendline + equation + R² only on clustered charts, axis titles and doughnut hole drawn",
+    "tt50-charts: patch writer: unchanged → original bytes; title / axis-title / grouping / anchor edits touch ONLY that chart (and drawing) part; openpyxl sees the edit and every other chart unchanged",
+    "tt50-charts: patch writer: delete a chart (frame + rel + part + Override go, siblings stay), add a chart to a sheet WITH and WITHOUT a drawing, add a trendline, change the type (regenerated, reported), rename a referenced sheet (refs follow)",
+    "tt50-charts: hostile packages: huge ptCount, 400 series, external / escaping relationship targets, malformed chart XML, chart-less drawings and 10 MB caches never crash the reader and stay bounded",
+    "tt50-charts: persistence: charts with explicit series, trendlines, grouping, anchors survive Fusion workbook JSON; sanitizeCharts drops hostile fields (bad src paths, unknown kinds, oversize refs) and clamps trend order/period"
    ]
   },
   "FF-30": {

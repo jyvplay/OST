@@ -13,6 +13,7 @@ import { makeHarness } from "./harness.mts";
 import { readWord, writeWord, type WordDoc } from "../src/lib/office/wordml.ts";
 import { hfLines, removeHf, setDifferentFirst, setHf, type HfLine } from "../src/lib/office/hdrftr.ts";
 import { openZip, writeZip } from "../src/lib/office/zipkit.ts";
+import { cloneBlocks, setPageSetup } from "../src/lib/office/wordedit.ts";
 
 const { test: test0, finish } = makeHarness("tt49-writer");
 const ONLY = process.env.ONLY;
@@ -218,6 +219,38 @@ await test("lines holding other fields (DATE complex field, STYLEREF fldSimple) 
   if (!haveCorpus) return;
   const [o] = oracle([p]); const ps = paras(last(o).header);
   ok(ps[0].fields.includes("DATE") && ps[1].fields.includes("STYLEREF") && ps[3].text === "Page 1 (edited)" && ps[3].fields.join() === "PAGE", `python-docx ${JSON.stringify(ps)}`);
+});
+
+await test("undo (Writer's snapshot/restore replayed): add → undo, remove → undo, first-page → undo each save a valid package with exactly one <w:sectPr> and the ORIGINAL references; page setup after a header edit keeps both", COV, async () => {
+  // mirrors Writer.tsx snapshot()/restore(): blocks via cloneBlocks, parts Map copy, finalSect BY REFERENCE, page copy
+  type Snap = { blocks: ReturnType<typeof cloneBlocks>; parts: Map<string, unknown>; sect: WordDoc["finalSect"]; page: WordDoc["page"] };
+  const snap = (d: WordDoc): Snap => ({ blocks: cloneBlocks(d.blocks), parts: new Map(d.parts), sect: d.finalSect, page: { ...d.page } });
+  const restore = (d: WordDoc, s: Snap) => { d.blocks = s.blocks; for (const [rid, b] of s.parts) if (d.parts.get(rid) !== b) d.hf.dirty.add(rid); d.parts = new Map(s.parts) as WordDoc["parts"]; d.finalSect = s.sect; d.page = { ...s.page }; };
+  const sects = async (b: Uint8Array, path: string) => ((await openZip(b).readText(path))!.match(/<w:sectPr\b/g) ?? []).length;
+  const srcs = haveCorpus ? [join(CORPUS, "bug57031.docx"), join(CORPUS, "52288.docx")] : [];
+  const blank = await (await import("../src/lib/office/wordml.ts")).blankWord("x").then(writeWord);
+  for (const src of [null, ...srcs]) {
+    const bytes = src ? new Uint8Array(readFileSync(src)) : blank; const tag = src ? src.split("/").pop()! : "blank";
+    const d0 = await readWord(bytes); const before = d0.page.headerRid; const nSect = await sects(bytes, d0.docPath);
+    // add (or replace) → undo
+    let d = await readWord(bytes); let s0 = snap(d);
+    if (d.page.headerRid) removeHf(d, "header", "default"); else setHf(d, "header", "default", [{ text: "temp {PAGE}" }]);
+    restore(d, s0); let out = await save(d, `undo1-${tag}`);
+    ok(await sects(out.b, d.docPath) === nSect, `${tag}: sectPr count after undo`);
+    ok((await readWord(out.b)).page.headerRid === before, `${tag}: header reference after undo ${(await readWord(out.b)).page.headerRid} ≠ ${before}`);
+    if (haveCorpus) { const [o] = oracle([out.p]); ok(!o.error, `${tag}: python-docx after undo: ${o.error}`); ok((last(o).header.linked) === !before, `${tag}: oracle linked=${last(o).header.linked}`); }
+    // different first page → undo
+    d = await readWord(bytes); const tp = d.page.titlePg ?? false; s0 = snap(d);
+    setHf(d, "header", "first", [{ text: "cover" }]); restore(d, s0); out = await save(d, `undo2-${tag}`);
+    const back = await readWord(out.b); ok((back.page.titlePg ?? false) === tp && back.page.firstHeaderRid === d0.page.firstHeaderRid, `${tag}: first-page undo`);
+    ok(await sects(out.b, d.docPath) === nSect, `${tag}: sectPr count after first-page undo`);
+    // header edit, then page setup (copy-on-write of the same sectPr), both survive; undo of the page setup keeps the header
+    d = await readWord(bytes); setHf(d, "header", "default", [{ text: "kept {PAGE}" }]); const s1 = snap(d);
+    setPageSetup(d, { landscape: true }); out = await save(d, `undo3-${tag}`);
+    const b3 = await readWord(out.b); ok(b3.page.landscape && hfLines(b3, "header", "default")[0]?.text === "kept {PAGE}", `${tag}: page setup + header`);
+    restore(d, s1); out = await save(d, `undo4-${tag}`); const b4 = await readWord(out.b);
+    ok(!b4.page.landscape && hfLines(b4, "header", "default")[0]?.text === "kept {PAGE}" && await sects(out.b, d.docPath) === Math.max(nSect, 1), `${tag}: undo page setup`);
+  }
 });
 
 await test("three-column headers (positional tabs): an edited line keeps its centre/right <w:ptab/> elements, so python-docx and our reader see the same three columns", COV, async () => {

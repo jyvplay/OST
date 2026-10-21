@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt49-writer",
-  "at": "2026-10-20T09:42:15.827Z",
+  "at": "2026-10-21T05:09:46.967Z",
   "results": [
     {
       "suite": "e2e-tt49-writer",
@@ -9,7 +9,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 3948
+      "ms": 4536
     },
     {
       "suite": "e2e-tt49-writer",
@@ -18,7 +18,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 3526
+      "ms": 3928
     },
     {
       "suite": "e2e-tt49-writer",
@@ -27,7 +27,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 3045
+      "ms": 3642
     },
     {
       "suite": "e2e-tt49-writer",
@@ -36,7 +36,16 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 2959
+      "ms": 3283
+    },
+    {
+      "suite": "e2e-tt49-writer",
+      "name": "Undo of an ADDED header through the UI: pages and panel return to 'no header', typing in the body still lands at the caret, and the saved file is a valid package with no header referenced",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 3060
     },
     {
       "suite": "e2e-tt49-writer",

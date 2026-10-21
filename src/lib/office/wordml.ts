@@ -738,8 +738,12 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
     setPart(doc.commentsPath!, te.encode(serializeXml(doc.commentsXml)));
   }
   // TT49: edited / created header and footer parts (untouched parts keep their original bytes)
-  for (const rid of doc.hf.dirty) {
-    const h = doc.hf.xml.get(rid), blocks = doc.parts.get(rid); if (!h || !blocks) continue;
+  // a part created in the editor is always written — undo may have dropped it from doc.parts, but its relationship
+  // (added by addRel) stays, and a relationship to a missing part makes the package unreadable (python-docx KeyError)
+  for (const rid of new Set([...doc.hf.dirty, ...doc.hf.created])) {
+    const h = doc.hf.xml.get(rid); if (!h) continue;
+    const blocks = doc.parts.get(rid) ?? (doc.hf.created.has(rid) ? parseBlocks({ doc, part: h.path, rels: h.rels, linkSeq: 0, fld: [] }, [el("w:p")]) : undefined);
+    if (!blocks) continue;
     const keep = h.xml.root.kids; h.xml.root.kids = serializeBlocks(blocks); h.xml.root.selfClose = false;
     setPart(h.path, te.encode(serializeXml(h.xml))); h.xml.root.kids = keep;
     if (doc.hf.created.has(rid)) { ensureContentType(ct, "Override", "/" + h.path, `application/vnd.openxmlformats-officedocument.wordprocessingml.${h.xml.root.name === "w:ftr" ? "footer" : "header"}+xml`); ctDirty = true; }

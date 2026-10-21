@@ -42,6 +42,7 @@ import { patchTT45 } from "./seed-data/features-tt45";
 import { UPDATES_TT47 } from "./seed-data/features-tt47";
 import { UPDATES_TT48 } from "./seed-data/features-tt48";
 import { patchTT49 } from "./seed-data/features-tt49";
+import { patchTT50 } from "./seed-data/features-tt50";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
 export const SEED_VERSION = "3.37.0";
@@ -74,7 +75,8 @@ export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, 
   .map(patchTT45)
   .map((f) => (UPDATES_TT47[f.code] ? { ...f, ...UPDATES_TT47[f.code] } : f))
   .map((f) => (UPDATES_TT48[f.code] ? { ...f, ...UPDATES_TT48[f.code] } : f))
-  .map(patchTT49);
+  .map(patchTT49)
+  .map(patchTT50);
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

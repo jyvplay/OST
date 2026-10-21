@@ -25,6 +25,7 @@
  * [Content_Types].xml and definedNames.
  */
 import { openZip, writeZip } from "../office/zipkit";
+import { patchCharts, chartKey, type ChartPatchIO, type ChartPatchReport } from "./xlsx-chartpatch";
 import { parseXml, serializeXml, attr, setAttr, kids, kid, el, textNode, clone, textOf, type XEl, type XDoc, type XNode } from "../office/xmltree";
 import { Workbook, a1, type Sheet, type CellStyle, type Cell } from "./engine";
 import { colToLetters, lettersToCol, isError } from "./types";
@@ -35,6 +36,7 @@ import { addFuturePrefixes } from "./sheetops";
 
 
 const ln = (n: string) => n.slice(n.indexOf(":") + 1);
+const pre0 = (n: string) => (n.includes(":") ? n.slice(0, n.indexOf(":") + 1) : "");
 const kidsL = (e: XEl | undefined, name: string) => kids(e).filter((k) => ln(k.name) === name);
 const kidL = (e: XEl | undefined, name: string) => kidsL(e, name)[0];
 const REL_WS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet";
@@ -146,7 +148,7 @@ class StylePatcher {
   }
 }
 
-interface PatchReport { sheetsPatched: string[]; sheetsAdded: string[]; sheetsRemoved: string[]; sheetsRenamed: [string, string][]; cellsRewritten: number; cellsReused: number; partsCopied: number; partsRewritten: string[] }
+interface PatchReport { sheetsPatched: string[]; sheetsAdded: string[]; sheetsRemoved: string[]; sheetsRenamed: [string, string][]; cellsRewritten: number; cellsReused: number; partsCopied: number; partsRewritten: string[]; charts?: ChartPatchReport }
 
 /**
  * The baseline an edit is measured against: the original exactly as the Spreadsheet UI loaded it
@@ -257,9 +259,11 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       const o = m.orig && orig.sheets.get(m.orig.name);
       if (!o || m.orig !== origSheets[i] || m.sheet.name !== m.orig!.name || m.sheet.grid.size !== o.grid.size) return false;
       for (const [k, c] of m.sheet.grid) { const d = o.grid.get(k); if (!d || d.input !== c.input || normStyle(d.style) !== normStyle(c.style)) return false; }
-      return eqJ(cfOf(workbook, m.sheet.name), cfOf(orig, o.name)) && eqJ(m.sheet.merges, o.merges) && eqJ(m.sheet.validations, o.validations) && eqJ(m.sheet.colWidths, o.colWidths) && m.sheet.freezeRows === o.freezeRows && m.sheet.freezeCols === o.freezeCols;
+      return eqJ(workbook.charts.filter((c) => c.sheet === m.sheet.name).map(chartKey), orig.charts.filter((c) => c.sheet === o.name).map(chartKey)) && eqJ(cfOf(workbook, m.sheet.name), cfOf(orig, o.name)) && eqJ(m.sheet.merges, o.merges) && eqJ(m.sheet.validations, o.validations) && eqJ(m.sheet.colWidths, o.colWidths) && m.sheet.freezeRows === o.freezeRows && m.sheet.freezeCols === o.freezeCols;
     });
-    if (same) return { bytes: original, report };
+    // charts on pinned chartsheets are not covered by the per-sheet comparison above
+    const pinnedCharts = (w: Workbook) => w.charts.filter((c) => pinnedNames.has(c.sheet.toLowerCase())).map((c) => c.sheet.toLowerCase() + chartKey(c));
+    if (same && eqJ(pinnedCharts(workbook), pinnedCharts(orig))) return { bytes: original, report };
   }
 
   for (const { sheet, orig: o } of mapping) {
@@ -465,6 +469,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
   // --- workbook structure: order, names, additions, removals
   const structural = report.sheetsAdded.length || report.sheetsRenamed.length || origSheets.some((s) => !used.has(s.part)) || mapping.some((m, i) => m.orig !== origSheets[i]) || mapping.length !== origSheets.length;
   const wbChanged = structural || anyCellChange;
+  const newPartOf = new Map<string, string>(); let ctChanged = false;
   if (structural) {
     const usedIds = new Set(kids(relsDoc.root).map((r) => attr(r, "Id")!));
     const usedSheetIds = new Set(origSheets.map((s) => Number(attr(s.el, "sheetId"))));
@@ -480,7 +485,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       ctTypes.kids.push(el(CTP + "Override", { PartName: `/${part}`, ContentType: CT_WS }));
       const s = el(P + "sheet", { name: m.sheet.name, sheetId: String(sid) }); s.attrs.push([wbDoc.root.attrs.find(([k, v]) => k.startsWith("xmlns:") && v === NS_R)?.[0].slice(6) + ":id" || "r:id", `rId${id}`]); s.quote.push("\"");
       if (!wbDoc.root.attrs.some(([k, v]) => k.startsWith("xmlns:") && v === NS_R)) { wbDoc.root.attrs.push(["xmlns:r", NS_R]); wbDoc.root.quote.push("\""); }
-      newEls.push(s); out.set(part, (m as { xml?: string }).xml!); report.partsRewritten.push(part);
+      newEls.push(s); out.set(part, (m as { xml?: string }).xml!); report.partsRewritten.push(part); newPartOf.set(m.sheet.name, part);
     }
     for (const s of origSheets) if (!used.has(s.part)) {
       report.sheetsRemoved.push(s.name); removed.add(s.part);
@@ -504,6 +509,28 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     const view = kidL(kidL(wbDoc.root, "bookViews"), "workbookView");
     if (view) for (const a of ["activeTab", "firstSheet"]) if (Number(attr(view, a) ?? 0) >= newEls.length) setAttr(view, a, "0");
   }
+  // --- TT50 charts: targeted edits / additions / removals in drawing + chart parts
+  {
+    const td = new TextDecoder();
+    const CTP = pre0(ctDoc.root.name);
+    // OPC part names are case-insensitive: map a path to the entry name the package really uses
+    const real = (p: string) => out.has(p) || zip.has(p) ? p : zip.entries.find((e) => e.name.toLowerCase() === p.toLowerCase())?.name ?? p;
+    const io: ChartPatchIO = {
+      read: async (p0) => { const p = real(p0); if (removed.has(p)) return null; const o = out.get(p); if (o !== undefined) return typeof o === "string" ? o : td.decode(o); return zip.readText(p); },
+      exists: (p0) => { const p = real(p0); return !removed.has(p) && (out.has(p) || zip.has(p)); },
+      write: (p0, x) => { const p = real(p0); out.set(p, x); removed.delete(p); },
+      remove: (p0) => { const p = real(p0); out.delete(p); removed.add(p); },
+      override: (p, ct) => {
+        ctDoc.root.kids = ctDoc.root.kids.filter((k) => !(k.k === "el" && ln(k.name) === "Override" && (attr(k, "PartName") ?? "").toLowerCase() === `/${p}`.toLowerCase()));
+        if (ct) { ctDoc.root.kids.push(el(CTP + "Override", { PartName: `/${p}`, ContentType: ct })); ctDoc.root.selfClose = false; }
+        ctChanged = true;
+      },
+      sheetPartNow: (name) => { const m = mapping.find((x) => x.sheet.name === name); if (m) return m.orig?.part ?? newPartOf.get(name); const was = (renames[name] ?? name).toLowerCase(); return pinned.find((p) => p.name.toLowerCase() === was)?.part; },
+      sheetPartWas: (name) => allSheets.find((s) => s.name.toLowerCase() === name.toLowerCase())?.part,
+    };
+    const cr = await patchCharts(io, workbook, orig.charts, workbook.charts, report.sheetsRenamed);
+    if (cr.parts.length || cr.removed) { report.partsRewritten.push(...cr.parts); report.charts = cr; }
+  }
   if (wbChanged) {
     // calcChain lists formula cells; a stale chain makes Excel "repair" the file — drop it, ask for a full recalc.
     const cc = kids(relsDoc.root).find((r) => /\/calcChain$/.test(attr(r, "Type") ?? ""));
@@ -523,6 +550,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     out.set(wbPart, serializeXml(wbDoc)); report.partsRewritten.push(wbPart);
     if (structural || cc) { out.set(wbRelsPath, serializeXml(relsDoc)); out.set("[Content_Types].xml", serializeXml(ctDoc)); report.partsRewritten.push(wbRelsPath, "[Content_Types].xml"); }
   }
+  if (ctChanged && !out.has("[Content_Types].xml")) { out.set("[Content_Types].xml", serializeXml(ctDoc)); report.partsRewritten.push("[Content_Types].xml"); }
   if (styles.changed) { out.set(stylesPart, serializeXml(styles.doc)); report.partsRewritten.push(stylesPart); }
 
   // --- assemble in original entry order; new parts appended

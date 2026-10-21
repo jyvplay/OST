@@ -18,7 +18,8 @@
  * do not block the re-spill.
  * TT17: borders (per-edge style+rgb), vertical alignment, <mergeCells>, <dataValidations> (list/whole/decimal/
  * textLength/date/custom, operators, error styles, prompts, inverted showDropDown), frozen columns (xSplit).
- * Unsupported (loss-report items): charts, pivot tables, Excel built-in/hidden names (_xlnm.*),
+ * TT50: charts are read (drawing → chart parts) and written (chart + drawing parts with cached values).
+ * Unsupported (loss-report items): pivot tables, Excel built-in/hidden names (_xlnm.*),
  * conditional formatting, external links, data validation, drawings, macros,
  * 1904 date system, theme/indexed colours (read as unset), rich text
  * runs, Excel 365 XLDAPR dynamic-array metadata (array formulas open in Excel
@@ -33,6 +34,7 @@ import { shiftFormula, addFuturePrefixes, stripFuturePrefixes } from "./sheetops
 export { workbookToJson, workbookFromJson, type WorkbookJson } from "./workbook-json";
 import { workbookToJson, workbookFromJson } from "./workbook-json";
 import { periodFormula, TIME_PERIODS, type CondRule, type Cfvo } from "./sheetmeta";
+import { readSheetCharts, chartSpaceXml, chartAnchorXml, drawingXml, defaultAnchor, seriesOutFor, REL_DRAWING, REL_CHART, CT_DRAWING, CT_CHART, type SeriesOut } from "./chartxml";
 import { ICON_SETS, MAIN_ICON_SETS, DEFAULT_ICON_PERCENTS } from "./cficons";
 import { readThemeColors, readIndexedColors, resolveTag, resolveColorAttrs, EMPTY_COLOR_CONTEXT, type ColorContext } from "./xlsxcolor";
 
@@ -104,7 +106,7 @@ class StyleTable {
 const pxToWidth = (px: number) => Math.trunc((px / 7) * 256) / 256;
 const widthToPx = (w: number) => Math.trunc(((256 * w + Math.trunc(128 / 7)) / 256) * 7);
 
-function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => number, styles: StyleTable) {
+function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => number, styles: StyleTable, drawingRid?: string) {
   const positions = new Map<string, { col: number; row: number }>();
   for (const k of sheet.grid.keys()) { const [col, row] = k.split(",").map(Number); positions.set(k, { col, row }); }
   for (const fq of wb.spillOwner.keys()) {
@@ -161,7 +163,7 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   }).join("");
   const ext = x14Parts.length ? `<extLst><ext uri="{78C0D931-6437-407d-A8EE-F0AAD7539E65}" xmlns:x14="${X14_NS}"><x14:conditionalFormattings>${x14Parts.join("")}</x14:conditionalFormattings></ext></extLst>` : "";
   const dvs = sheet.validations.length ? `<dataValidations count="${sheet.validations.length}">${sheet.validations.map(dvXml).join("")}</dataValidations>` : "";
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${merges}${cfs}${dvs}${ext}</worksheet>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"${drawingRid ? ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' : ""}><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${merges}${cfs}${dvs}${drawingRid ? `<drawing r:id="${drawingRid}"/>` : ""}${ext}</worksheet>`;
 }
 
 /** Differential format for a CF rule (ECMA-376 §18.8.14, CT_Dxf order font, numFmt, fill); null when the rule draws none. */
@@ -310,13 +312,36 @@ export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook"): Buffe
   const sharedIndex = (s: string) => { let i = strings.indexOf(s); if (i < 0) { i = strings.length; strings.push(s); } return i; };
   // Render sheets first so their literals populate the shared string table.
   const styles = new StyleTable();
-  const sheetXmls = sheets.map((s) => renderSheet(workbook, s, sharedIndex, styles));
+  // TT50: charts → one drawing part per sheet that has charts + one chart part per chart (with cached values)
+  const chartParts: { name: string; data: Buffer }[] = []; const chartTypes: string[] = [];
+  let chartNo = 0, drawingNo = 0;
+  const drawingOf = sheets.map((s) => {
+    const list = workbook.charts.filter((c) => c.sheet === s.name);
+    if (!list.length) return undefined;
+    const d = ++drawingNo; const anchors: string[] = []; const drels: string[] = [];
+    list.forEach((c, k) => {
+      let series: SeriesOut[]; try { series = seriesOutFor(workbook, c); } catch { return; }
+      if (!series.length) return;
+      const n = ++chartNo;
+      chartParts.push({ name: `xl/charts/chart${n}.xml`, data: Buffer.from(chartSpaceXml(c, series)) });
+      chartTypes.push(`<Override PartName="/xl/charts/chart${n}.xml" ContentType="${CT_CHART}"/>`);
+      drels.push(`<Relationship Id="rId${k + 1}" Type="${REL_CHART}" Target="../charts/chart${n}.xml"/>`);
+      anchors.push(chartAnchorXml(c.anchor ?? defaultAnchor(c.range, k), `rId${k + 1}`, k + 2, c.title || `Chart ${n}`));
+    });
+    if (!anchors.length) return undefined;
+    chartParts.push({ name: `xl/drawings/drawing${d}.xml`, data: Buffer.from(drawingXml(anchors)) });
+    chartParts.push({ name: `xl/drawings/_rels/drawing${d}.xml.rels`, data: Buffer.from(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${drels.join("")}</Relationships>`) });
+    chartTypes.push(`<Override PartName="/xl/drawings/drawing${d}.xml" ContentType="${CT_DRAWING}"/>`);
+    return d;
+  });
+  sheets.forEach((_, i) => { const d = drawingOf[i]; if (d) chartParts.push({ name: `xl/worksheets/_rels/sheet${i + 1}.xml.rels`, data: Buffer.from(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL_DRAWING}" Target="../drawings/drawing${d}.xml"/></Relationships>`) }); });
+  const sheetXmls = sheets.map((s, i) => renderSheet(workbook, s, sharedIndex, styles, drawingOf[i] ? "rId1" : undefined));
   const rels = sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`);
   const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${names.map((n, i) => `<sheet name="${esc(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets>${definedNamesXml(workbook, sheets.map((x) => x.name))}<calcPr calcMode="auto" fullCalcOnLoad="1" forceFullCalc="1"/></workbook>`;
   const workbookRels = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels.join("")}</Relationships>`;
-  const contentTypes = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="${CT}"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>${sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
+  const contentTypes = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="${CT}"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>${sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}${chartTypes.join("")}<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
   const sst = `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${strings.length}" uniqueCount="${strings.length}">${strings.map((s) => `<si><t xml:space="preserve">${esc(s)}</t></si>`).join("")}</sst>`;
   return writeZip([
     { name: "[Content_Types].xml", data: Buffer.from(contentTypes) },
@@ -328,6 +353,7 @@ export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook"): Buffe
     { name: "xl/styles.xml", data: Buffer.from(styles.toXml()) },
     { name: "xl/sharedStrings.xml", data: Buffer.from(sst) },
     ...sheetXmls.map((x, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, data: Buffer.from(x) })),
+    ...chartParts,
   ]);
 }
 
@@ -498,7 +524,8 @@ const normPath = (p: string) => { const out: string[] = []; for (const seg of p.
 export function readXlsxWorkbook(buf: Buffer): Workbook {
   const entries = readCentralDirectory(buf);
   // XML 1.0 §2.11: CR LF / lone CR in the raw text are normalised to LF before parsing (escaped &#13; survives).
-  const get = (n: string) => { const e = entries.find((x) => x.name === n); return e ? readEntryVerified(buf, e).toString("utf8").replace(/\r\n?/g, "\n") : null; };
+  // OPC part names compare case-insensitively (ECMA-376 Part 2 §6.2.2.3): exact match first, then ignoring case
+  const get = (n: string) => { const e = entries.find((x) => x.name === n) ?? entries.find((x) => x.name.toLowerCase() === n.toLowerCase()); return e ? readEntryVerified(buf, e).toString("utf8").replace(/\r\n?/g, "\n") : null; };
   const workbookXml = get("xl/workbook.xml");
   if (!workbookXml) throw new Error("invalid .xlsx: xl/workbook.xml missing");
   const relsXml = get("xl/_rels/workbook.xml.rels") ?? "";
@@ -513,13 +540,17 @@ export function readXlsxWorkbook(buf: Buffer): Workbook {
   const colors = colorContext(stylesXml, themeTarget ? get(resolveTarget(themeTarget)) : null);
   const xfs = readStyles(stylesXml, colors);
   const dxfs = readDxfs(stylesXml, colors);
-  const wb = new Workbook(); wb.sheets.clear();
+  const wb = new Workbook(); wb.sheets.clear(); let chartSeq = 0;
   for (const m of workbookXml.matchAll(/<sheet\b([^>]*)\/?\s*>/g)) {
     const at = xmlAttrs(m[1]); const name = at.name; const rid = at["r:id"];
     const path = rels.get(rid);
     if (!name || !path) continue;
     const xml = get(path);
-    if (xml) { wb.sheets.set(name, readSheet(xml, name, sst, xfs)); readTables(xml, path, name, wb, get); readCondFormats(xml, name, wb, dxfs, colors); }
+    if (xml) {
+      wb.sheets.set(name, readSheet(xml, name, sst, xfs)); readTables(xml, path, name, wb, get); readCondFormats(xml, name, wb, dxfs, colors);
+      // TT50: charts (drawing → chart parts) on worksheets and chartsheets
+      try { wb.charts.push(...readSheetCharts(get, path, xml, name, () => `x${++chartSeq}`)); } catch { /* unreadable drawing: charts skipped, file still opens */ }
+    }
   }
   const wbPr = /<workbookPr\b([^>]*)\/?>/.exec(workbookXml);
   if (wbPr) { const d = xmlAttrs(wbPr[1]).date1904; wb.date1904 = d === "1" || d === "true"; }
