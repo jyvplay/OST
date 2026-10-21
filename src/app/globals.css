@@ -173,6 +173,8 @@ body {
 .fs-row { display: flex; align-items: center; gap: 8px; }
 .fs-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .fs-dim { color: var(--fs-muted); }
+/* TT54: muted text inside a filled (primary) button takes the button's own text colour — muted-on-accent fails 4.5:1 */
+.fs-btn[data-variant="primary"] .fs-dim { color: inherit; }
 .fs-scroll { overflow: auto; }
 .fs-list-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 8px; cursor: default; }
 .fs-list-item:hover { background: rgba(255,255,255,.05); }
@@ -647,3 +649,7 @@ span.fs-tt-pin { pointer-events: none; }
 .fs-narrator-help table { border-collapse: collapse; }
 .fs-narrator-help th, .fs-narrator-help td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--fs-border); }
 @media (prefers-reduced-motion: reduce) { .fs-narrator-cursor { transition: none !important; } }
+
+/* TT55: the Files selection toolbar is one scrollable line — in a narrow (dual) pane wrapping took 3 lines from the listing */
+.fs-selbar > * { flex: none; }
+.fs-selbar { scrollbar-width: thin; }

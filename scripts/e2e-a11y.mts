@@ -49,13 +49,14 @@ async function boot(vw = 1440, vh = 900, opts: Record<string, unknown> = {}): Pr
   return { page, close: () => ctx.close() };
 }
 interface Violation { id: string; impact: string; help: string; nodes: { target: string[]; failureSummary?: string }[] }
-async function axe(page: Page, include?: string): Promise<Violation[]> {
+async function axe(page: Page, include?: string, exclude?: string[]): Promise<Violation[]> {
   if (!(await page.evaluate(() => "axe" in window))) await page.addScriptTag({ content: AXE });
-  return page.evaluate(async ({ include, tags }) => {
+  return page.evaluate(async ({ include, exclude, tags }) => {
     const w = window as unknown as { axe: { run: (ctx: unknown, o: unknown) => Promise<{ violations: Violation[] }> } };
-    const r = await w.axe.run(include ? { include: [include] } : document, { runOnly: { type: "tag", values: tags }, resultTypes: ["violations"] });
+    const ctx = include || exclude?.length ? { ...(include ? { include: [include] } : {}), ...(exclude?.length ? { exclude: exclude.map((x) => [x]) } : {}) } : document;
+    const r = await w.axe.run(ctx, { runOnly: { type: "tag", values: tags }, resultTypes: ["violations"] });
     return r.violations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodes: v.nodes.map((n) => ({ target: n.target, failureSummary: n.failureSummary })) }));
-  }, { include, tags: TAGS });
+  }, { include, exclude, tags: TAGS });
 }
 
 await setSetting("appearance.textScale", "125");
@@ -352,9 +353,14 @@ await test(`light + dark theme, all ${STYLE_IDS.length} styles: axe finds no ser
       await desktop([win("lt_files", "files", 20, 20, 700, 500, 11), win("lt_sheet", "sheet", 420, 160, 1000, 560, 12)]);
       const { page, close } = await boot();
       await page.locator('td[data-cell="A2"]').waitFor({ timeout: 15_000 });
-      const vs = (await axe(page)).filter((v) => v.impact === "serious" || v.impact === "critical");
-      for (const v of vs) bad.push(`${st}/${theme}: ${v.id} ×${v.nodes.length} e.g. ${v.nodes[0]?.target.join(" ")} ${(v.nodes[0]?.failureSummary ?? "").split("\n").slice(1, 2).join(" ")}`);
-      console.log(`    ${st}/${theme}: ${vs.length} serious rule(s)`);
+      // TT55: the desktop icons are laid out from whatever sits in the VFS root, so an icon can straddle a window edge
+      // and axe then measures its visible sliver (target-size). The windows pass excludes the icon layer; the icons get
+      // their own pass on the same page with the windows hidden, so they are still checked in every style × theme.
+      const vs = (await axe(page, undefined, ['[data-testid="desk-icons"]'])).filter((v) => v.impact === "serious" || v.impact === "critical");
+      await page.evaluate(() => { for (const el of document.querySelectorAll<HTMLElement>(".fs-window")) el.style.display = "none"; });
+      const icons = (await page.locator('[data-testid="desk-icon"]').count()) ? (await axe(page, '[data-testid="desk-icons"]')).filter((v) => v.impact === "serious" || v.impact === "critical") : [];
+      for (const v of [...vs, ...icons]) bad.push(`${st}/${theme}: ${v.id} ×${v.nodes.length} e.g. ${v.nodes[0]?.target.join(" ")} ${(v.nodes[0]?.failureSummary ?? "").split("\n").slice(1, 2).join(" ")}`);
+      console.log(`    ${st}/${theme}: ${vs.length} serious rule(s) in the windows, ${icons.length} on the desktop icons`);
       await close();
     }
   } finally {

@@ -1,0 +1,131 @@
+{
+  "suite": "e2e-tt55-files",
+  "at": "2026-10-21T21:37:46.386Z",
+  "results": [
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash",
+      "covers": {
+        "FM-15": "full",
+        "FM-01": "partial"
+      },
+      "pass": true,
+      "ms": 6062
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane",
+      "covers": {
+        "FM-02": "full",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 6030
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified)",
+      "covers": {
+        "FM-02": "full",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 4044
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward",
+      "covers": {
+        "SH-09": "full",
+        "FM-01": "partial"
+      },
+      "pass": true,
+      "ms": 2956
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-01 folder tree + column view + tabs: the tree lists the server's folders and navigates; Columns show every ancestor; tabs keep their own folder",
+      "covers": {
+        "FM-01": "full"
+      },
+      "pass": true,
+      "ms": 5060
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-06 context menu: concise vs full sets, type-to-search reaches any action, arrow keys + Enter run it, Esc closes; background menu has New / templates / Paste",
+      "covers": {
+        "FM-06": "full"
+      },
+      "pass": true,
+      "ms": 4429
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-13 New from template: the menu lists /System/Templates from the server; a new file is a byte copy of the template; a second one gets a free name",
+      "covers": {
+        "FM-13": "full"
+      },
+      "pass": true,
+      "ms": 2601
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-16 quick filter + Subfolders: deep matches equal a recursive walk of the server; % and _ are literal; dotfiles and /System stay out",
+      "covers": {
+        "FM-16": "full"
+      },
+      "pass": true,
+      "ms": 2649
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-17 folder sizes: every folder row shows the size of its subtree (= a recursive walk of the server), and the cached size refreshes after a write",
+      "covers": {
+        "FM-17": "full"
+      },
+      "pass": true,
+      "ms": 2812
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay",
+      "covers": {
+        "FM-09": "full",
+        "DP-03": "full",
+        "SH-14": "partial"
+      },
+      "pass": true,
+      "ms": 2918
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection",
+      "covers": {
+        "FM-15": "full",
+        "FM-05": "partial"
+      },
+      "pass": true,
+      "ms": 4337
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there",
+      "covers": {
+        "FM-02": "full"
+      },
+      "pass": true,
+      "ms": 3012
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree)",
+      "covers": {
+        "FM-01": "full",
+        "AX-02": "partial"
+      },
+      "pass": true,
+      "ms": 2947
+    }
+  ]
+}

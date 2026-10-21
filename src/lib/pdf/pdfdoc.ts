@@ -84,6 +84,8 @@ export class PdfDoc {
       seen.add(pos);
       const { trailer, isStream } = this.readXrefSection(pos);
       if (first) { this.trailer = trailer; this.lastXrefIsStream = isStream; first = false; }
+      // TT54: an update whose trailer omits /Info or /ID inherits them from an older section (pdf.js / pypdf behave alike)
+      else for (const k of ["Info", "ID"]) if (!this.trailer.has(k) && trailer.has(k)) this.trailer.set(k, trailer.get(k));
       // hybrid file: the table's trailer points at an xref stream with the compressed objects (§7.5.8.4)
       const xs = trailer.get("XRefStm"); if (isNum(xs) && !seen.has(xs)) { seen.add(xs); try { this.readXrefSection(xs); } catch (e) { this.warnings.push(`XRefStm: ${(e as Error).message}`); } }
       const prev = trailer.get("Prev"); pos = isNum(prev) ? prev : null;
@@ -207,6 +209,18 @@ export class PdfDoc {
       if (!trailer.has("Root") || !isDict(this.resolve(trailer.get("Root")))) trailer.set("Root", undefined);
     }
     if (!trailer.has("Root")) throw new Error("pdf: no document catalog found (file is not a usable PDF)");
+    // TT54: the rebuilt trailer may have come from a section without /Encrypt, /ID or /Info (or from the catalog search):
+    // borrow them from any other trailer / xref-stream dictionary the scan finds. Losing /Encrypt would silently skip
+    // decryption and show ciphertext.
+    if (!trailer.has("Encrypt") || !trailer.has("ID") || !trailer.has("Info")) {
+      const cands: PDict[] = streams.map((x) => x.dict);
+      for (let p = b.length, n = 0; n < 32; n++) {
+        p = lastIndexOf(b, "trailer", p - 1); if (p < 0) break;
+        try { const t = parseObj(new Lexer(b, p + 7), 0, this.sr()); if (isDict(t)) cands.push(t); } catch { /* next */ }
+        if (p === 0) break;
+      }
+      for (const k of ["Encrypt", "ID", "Info"]) if (!trailer.has(k)) { const c = cands.find((t) => t.has(k) && t.get(k) !== null); if (c) { trailer.set(k, c.get(k)); this.warnings.push(`recovered /${k} from another trailer`); } }
+    }
     this.trailer = trailer; this.cache.clear(); this.lastXrefIsStream = false;
     this.startxref = -1;
   }

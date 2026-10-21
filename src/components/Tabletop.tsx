@@ -117,7 +117,7 @@ export default function Tabletop() {
   useEffect(() => {
     let live = true;
     api<{ nodes: FileNode[] }>("/api/fs?op=list&path=/Documents")
-      .then((r) => { if (live) setFiles(r.nodes.filter((n) => n.kind === "file").slice(0, MAX_FILES)); })
+      .then((r) => { if (live) setFiles(r.nodes.filter((n) => n.kind === "file" && !n.name.startsWith(".")).slice(0, MAX_FILES)); })
       .catch(() => { if (live) setFiles([]); });
     return () => { live = false; };
   }, [shell.refreshTick]);

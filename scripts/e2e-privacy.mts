@@ -178,6 +178,7 @@ await test("Files ▸ Remove metadata (copy) on a host .docx; overwrite mode als
   const item = page.locator(".fs-list-item", { hasText: "plan.docx" }).first();
   await item.waitFor({ timeout: 25_000 });
   await item.click({ button: "right" });
+  await page.getByRole("menuitem", { name: /^More actions/ }).click(); // TT55: privacy actions live in the full menu
   await page.getByRole("menu").getByText("Remove metadata (copy)").click();
   let copy: { content: string } | undefined;
   for (let i = 0; i < 50 && !copy; i++) { [copy] = await rows("select content from vfs_nodes where path = $1", [`/Documents/meta-${RUN}/plan.clean.docx`]); if (!copy) await page.waitForTimeout(200); }

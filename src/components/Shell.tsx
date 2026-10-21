@@ -107,7 +107,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     dispatch({
       t: "open", id, module: moduleId,
       title: (props?.title as string) ?? mod?.title ?? moduleId,
-      props: props ?? {}, rect: { ...scaledRect(mod?.rect, stateRefOpen.current.viewport), ...(rect ?? {}) }, host: "tab",
+      // TT55 (WM-08): registry sizes are DEFAULTS (a remembered geometry beats them); only a caller's rect is explicit
+      props: props ?? {}, defaults: scaledRect(mod?.rect, stateRefOpen.current.viewport), ...(rect ? { rect } : {}), host: "tab",
     });
     return id;
   }, [dispatch]);
@@ -399,7 +400,18 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   }, [dispatch, open, setSetting, toast]);
 
   const pulse = useCallback((ts: number) => governor.tick(ts), []);
-  const bumpRefresh = useCallback(() => setRefreshTick((t) => t + 1), []);
+  /** SH-04: a file change made in another tab / window of this browser (same origin) refreshes this desktop too — the bump
+   *  is broadcast (no payload, no paths) and a tab that was hidden re-reads when it becomes visible again. */
+  const refreshChan = useRef<BroadcastChannel | null>(null);
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const ch = new BroadcastChannel("fusion.refresh"); refreshChan.current = ch;
+    ch.onmessage = () => setRefreshTick((t) => t + 1);
+    const onVis = () => { if (document.visibilityState === "visible") setRefreshTick((t) => t + 1); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => { ch.close(); refreshChan.current = null; document.removeEventListener("visibilitychange", onVis); };
+  }, []);
+  const bumpRefresh = useCallback(() => { setRefreshTick((t) => t + 1); refreshChan.current?.postMessage(1); }, []);
 
   const value: ShellApi = useMemo(() => ({
     state, dispatch, open, caps, gov, settings, setSetting, toast,

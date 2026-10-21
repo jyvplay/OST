@@ -19,8 +19,8 @@ export function Btn({
   );
 }
 
-export function Badge({ children, tone = "default", title }: { children: ReactNode; tone?: "default" | "ok" | "warn" | "bad" | "info"; title?: string }) {
-  return <span className="fs-badge" data-tone={tone} title={title}>{children}</span>;
+export function Badge({ children, tone = "default", title, ...data }: { children: ReactNode; tone?: "default" | "ok" | "warn" | "bad" | "info"; title?: string } & { [k: `data-${string}`]: string | number | undefined }) {
+  return <span className="fs-badge" data-tone={tone} title={title} {...data}>{children}</span>;
 }
 
 export function Section({ title, right, children, dense }: { title: string; right?: ReactNode; children: ReactNode; dense?: boolean }) {

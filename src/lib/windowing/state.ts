@@ -47,7 +47,11 @@ export interface DesktopState {
   peek?: string[];
   /** TT26 Tabletop floor: loose card positions + piles (validated against the VFS by tabletop-core normalizeTable). */
   table?: import("../tabletop-core").TableState;
+  /** TT55 (WM-08): last normal (un-maximized) geometry per "module|host", recorded on close, reused on the next open */
+  geometry?: Record<string, Rect>;
 }
+export const geometryKey = (module: string, host: string) => `${module}|${host}`;
+const MAX_GEOMETRY = 64;
 
 export const MIN_W: Record<Density, number> = { compact: 240, balanced: 280, touch: 320 };
 export const MIN_H: Record<Density, number> = { compact: 180, balanced: 200, touch: 240 };
@@ -76,7 +80,9 @@ export type TileSlot =
   | "center" | "full";
 
 export type WindowCommand =
-  | { t: "open"; id: string; module: string; title: string; props?: Record<string, unknown>; rect?: Partial<Rect>; host?: HostKind }
+  | { t: "open"; id: string; module: string; title: string; props?: Record<string, unknown>; rect?: Partial<Rect>; host?: HostKind;
+      /** registry default geometry: used only when neither an explicit rect nor a remembered one (WM-08) exists */
+      defaults?: Partial<Rect> }
   | { t: "close"; id: string }
   | { t: "focus"; id: string }
   | { t: "move"; id: string; x: number; y: number }
@@ -149,6 +155,16 @@ export const tileRect = (slot: TileSlot, vp: { w: number; h: number }): Rect => 
 };
 
 /** Invariants are enforced centrally; no call site may bypass them. */
+/** WM-08: store the window's NORMAL rect (the restore rect when maximized), newest last, bounded */
+function remember(g: Record<string, Rect> | undefined, w: WindowState): Record<string, Rect> {
+  const r = w.maximized && w.restore ? w.restore : { x: w.x, y: w.y, w: w.w, h: w.h };
+  const k = geometryKey(w.module, w.host);
+  const { [k]: _old, ...rest } = g ?? {}; void _old;
+  const next = { ...rest, [k]: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.w), h: Math.round(r.h) } };
+  const keys = Object.keys(next);
+  return keys.length > MAX_GEOMETRY ? Object.fromEntries(keys.slice(-MAX_GEOMETRY).map((x) => [x, next[x]])) : next;
+}
+
 function invariants(state: DesktopState): DesktopState {
   const seenZ = new Set<number>();
   const windows = state.windows.map((win) => {
@@ -198,11 +214,16 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
           windows: map((w) => ({ ...w, minimized: false, z: state.nextZ + 1 }), cmd.id) });
       }
       const count = state.windows.length;
+      // WM-08: an explicit rect (deep link, session restore) wins; otherwise the geometry this module last closed with
+      const remembered = cmd.rect ? undefined : state.geometry?.[geometryKey(cmd.module, cmd.host ?? "tab")];
+      let rx = remembered?.x, ry = remembered?.y;
+      // two windows of the same app must not stack exactly on top of each other
+      while (remembered && state.windows.some((w) => w.x === rx && w.y === ry)) { rx = (rx ?? 0) + 28; ry = (ry ?? 0) + 28; }
       const base: Rect = {
-        x: 80 + (count % 6) * 36,
-        y: 70 + (count % 6) * 28,
-        w: cmd.rect?.w ?? 760,
-        h: cmd.rect?.h ?? 520,
+        x: rx ?? cmd.defaults?.x ?? 80 + (count % 6) * 36,
+        y: ry ?? cmd.defaults?.y ?? 70 + (count % 6) * 28,
+        w: cmd.rect?.w ?? remembered?.w ?? cmd.defaults?.w ?? 760,
+        h: cmd.rect?.h ?? remembered?.h ?? cmd.defaults?.h ?? 520,
       };
       // TT21: larger default text makes default windows larger — keep a new window inside the desktop
       // (shift it up/left first, shrink only if it is bigger than the desktop itself).
@@ -219,11 +240,16 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
       return bump({ ...state, windows: [...state.windows, win], focus: win.id, nextZ: state.nextZ + 1 });
     }
 
-    case "close":
-      return bump({ ...state, windows: state.windows.filter((w) => w.id !== cmd.id), focus: state.focus === cmd.id ? null : state.focus });
+    case "close": {
+      const gone = state.windows.find((w) => w.id === cmd.id);
+      const geometry = gone ? remember(state.geometry, gone) : state.geometry;
+      return bump({ ...state, windows: state.windows.filter((w) => w.id !== cmd.id), focus: state.focus === cmd.id ? null : state.focus, ...(geometry ? { geometry } : {}) });
+    }
 
-    case "closeAll":
-      return bump({ ...state, windows: [], focus: null });
+    case "closeAll": {
+      const geometry = state.windows.reduce<Record<string, Rect> | undefined>((g, w) => remember(g, w), state.geometry);
+      return bump({ ...state, windows: [], focus: null, ...(geometry ? { geometry } : {}) });
+    }
 
     case "focus":
       return bump({ ...state, focus: cmd.id, nextZ: state.nextZ + 1,

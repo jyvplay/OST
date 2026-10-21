@@ -18,9 +18,17 @@ interface Line { text: string; tone?: "out" | "err" | "cmd" | "info" }
 export default function TerminalModule({ win }: ModuleProps) {
   const shell = useShell();
   const [cwd, setCwd] = useState<string>((win.props.cwd as string) ?? "/");
+  // TT55 (FM-02): docked under Files, the terminal follows the active pane — derive from the prop during render
+  // (React's "adjust state when a prop changes" pattern) so the history survives and the cd is visible
+  const propCwd = (win.props.cwd as string | undefined) ?? "/";
+  const [seenCwd, setSeenCwd] = useState(propCwd);
   const [lines, setLines] = useState<Line[]>([
     { text: "Fusion shell — type `help`. Commands run against the Postgres VFS.", tone: "info" },
   ]);
+  if (win.props.embedded === true && propCwd !== seenCwd) {
+    setSeenCwd(propCwd); setCwd(propCwd);
+    setLines((l) => [...l, { text: `cd ${propCwd}   (following the Files pane)`, tone: "info" as const }].slice(-500));
+  }
   const [input, setInput] = useState("");
   const [hist, setHist] = useState<string[]>([]);
   const [histIdx, setHistIdx] = useState(-1);
@@ -88,8 +96,11 @@ export default function TerminalModule({ win }: ModuleProps) {
           break;
         }
         case "ls": {
-          const target = resolve(args[0] ?? "");
-          const r = await api<{ nodes: { name: string; kind: string; size: number; version: number }[] }>(`/api/fs?op=list&path=${encodeURIComponent(target)}`);
+          // TT54: Unix convention — dotfiles (photo edit sidecars) only with -a / -A
+          const all = args.some((a) => /^-[a-zA-Z]*[aA]/.test(a)); const pos = args.filter((a) => !a.startsWith("-"));
+          const target = resolve(pos[0] ?? "");
+          const r0 = await api<{ nodes: { name: string; kind: string; size: number; version: number }[] }>(`/api/fs?op=list&path=${encodeURIComponent(target)}`);
+          const r = { nodes: all ? r0.nodes : r0.nodes.filter((n) => !n.name.startsWith(".")) };
           if (r.nodes.length === 0) out("(empty)");
           else out(r.nodes.map((n) => `${n.kind === "dir" ? "d" : "-"} ${String(fmtBytes(n.size)).padStart(8)}  v${n.version}  ${n.name}`).join("\n"));
           break;

@@ -51,7 +51,7 @@ export default function DesktopSurface({ onLauncher }: { onLauncher: () => void 
 
   useEffect(() => {
     api<{ nodes: Item[] }>("/api/fs?op=list&path=/Documents")
-      .then((r) => setItems(r.nodes.slice(0, MAX_ICONS)))
+      .then((r) => setItems(r.nodes.filter((n) => !n.name.startsWith(".")).slice(0, MAX_ICONS))) // TT54: dotfiles (photo edit sidecars) stay hidden
       .catch(() => setItems([]));
   }, [shell.refreshTick]);
 

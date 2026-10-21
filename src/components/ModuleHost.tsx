@@ -11,6 +11,7 @@ import NotesModule from "./modules/Notes";
 import BrowserModule from "./modules/Browser";
 import PeekModule from "./modules/Peek";
 import MediaModule from "./modules/Media";
+import PhotosModule from "./modules/Photos";
 import CaptureModule from "./modules/Capture";
 import LensModule from "./modules/Lens";
 import BeamModule from "./modules/Beam";
@@ -58,6 +59,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "browser": return <BrowserModule win={win} />;
     case "peek": return <PeekModule win={win} />;
     case "media": return <MediaModule win={win} />;
+    case "photos": return <PhotosModule win={win} />;
     case "capture": return <CaptureModule win={win} />;
     case "lens": return <LensModule win={win} />;
     case "beam": return <BeamModule win={win} />;

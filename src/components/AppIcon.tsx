@@ -221,7 +221,7 @@ export function FusionLogo({ size = 20, label = "Fusion", styleId: forced }: { s
 }
 
 /** Small monochrome UI glyphs for chrome buttons (currentColor, so they follow theme + contrast). */
-export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "close" | "plus" | "spark" | "tileLeft" | "tileRight" | "popout" | "minimize" | "maximize" | "up";
+export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "close" | "plus" | "spark" | "tileLeft" | "tileRight" | "popout" | "minimize" | "maximize" | "up" | "back" | "forward" | "chevron" | "tree" | "split" | "terminal";
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
     search: <><circle cx="10.5" cy="10.5" r="6" {...S} stroke="currentColor" strokeWidth="2.4" /><path d="M15 15l5 5" {...S} stroke="currentColor" strokeWidth="2.8" /></>,
@@ -237,6 +237,12 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     minimize: <path d="M6 12.5h12" {...S} stroke="currentColor" strokeWidth="3" />,
     maximize: <rect x="6" y="6" width="12" height="12" rx="3" {...S} stroke="currentColor" strokeWidth="2.6" />,
     up: <path d="M12 19V6M6 11.5L12 5.5l6 6" {...S} stroke="currentColor" strokeWidth="2.6" />,
+    back: <path d="M19 12H6M11.5 6L5.5 12l6 6" {...S} stroke="currentColor" strokeWidth="2.6" />,
+    forward: <path d="M5 12h13M12.5 6l6 6-6 6" {...S} stroke="currentColor" strokeWidth="2.6" />,
+    chevron: <path d="M9.5 6l6 6-6 6" {...S} stroke="currentColor" strokeWidth="2.6" />,
+    tree: <><path d="M6 4v14h5M6 9h5" {...S} stroke="currentColor" strokeWidth="2.2" /><rect x="12" y="6.5" width="8" height="5" rx="1.5" fill="currentColor" /><rect x="12" y="15.5" width="8" height="5" rx="1.5" fill="currentColor" opacity=".7" /></>,
+    split: <><rect x="3.5" y="5" width="17" height="14" rx="3" {...S} stroke="currentColor" strokeWidth="2.2" /><path d="M12 5v14" {...S} stroke="currentColor" strokeWidth="2.2" /></>,
+    terminal: <><rect x="3.5" y="5" width="17" height="14" rx="3" {...S} stroke="currentColor" strokeWidth="2.2" /><path d="M7.5 10l3 2.5-3 2.5M12.5 15.5h4" {...S} stroke="currentColor" strokeWidth="2.2" /></>,
   };
   return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style={{ width: fz(size), height: fz(size), flex: "0 0 auto", display: "inline-block", verticalAlign: "middle" }}>{d[name]}</svg>;
 }

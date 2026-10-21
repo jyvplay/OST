@@ -303,6 +303,7 @@ try {
       ok(!(await list()).includes("New folder"), "Escape created nothing");
       // passphrase: masked, two fields, mismatch / too short stay open with an alert, then a match encrypts
       await fw.getByText("secret.txt", { exact: true }).click({ button: "right" });
+      await page.getByRole("menuitem", { name: /^More actions/ }).click(); // TT55: privacy actions live in the full menu
       await page.locator("[role=menu]").getByText(/^Encrypt/).click();
       const enc = page.getByRole("dialog", { name: /Encrypt “secret\.txt”/ });
       await enc.waitFor();

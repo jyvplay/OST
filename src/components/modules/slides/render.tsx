@@ -9,6 +9,8 @@
 import { memo, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import type { Fill, VLine, VPara, VShape, VSlide, VText } from "@/lib/office/pmlview";
 import type { PptxDoc } from "@/lib/office/pml";
+/** placeholder label in slide coordinates — scaled with the slide itself, like the slide text (document space, not UI) */
+const PLACEHOLDER_PX = 11;
 
 /* ---------------- picture URLs (one blob URL per part's bytes) ---------------- */
 const urls = new WeakMap<Uint8Array, string>();
@@ -111,7 +113,7 @@ function ChartBox({ doc, part, w, h }: { doc: PptxDoc; part: string; w: number; 
   return svg ? <div style={{ position: "absolute", inset: 0 }} dangerouslySetInnerHTML={{ __html: svg }} /> : null;
 }
 function Placeholder({ label }: { label: string }) {
-  return <div style={{ position: "absolute", inset: 0, border: "1px dashed rgba(100,116,139,.8)", background: "repeating-linear-gradient(45deg, rgba(148,163,184,.12) 0 8px, transparent 8px 16px)", display: "grid", placeItems: "center", color: "#475569", fontSize: 11, fontFamily: "system-ui, sans-serif", textAlign: "center", padding: 4, overflow: "hidden" }}>{label}</div>;
+  return <div style={{ position: "absolute", inset: 0, border: "1px dashed rgba(100,116,139,.8)", background: "repeating-linear-gradient(45deg, rgba(148,163,184,.12) 0 8px, transparent 8px 16px)", display: "grid", placeItems: "center", color: "#475569", fontSize: PLACEHOLDER_PX, fontFamily: "system-ui, sans-serif", textAlign: "center", padding: 4, overflow: "hidden" }}>{label}</div>;
 }
 
 function TableBox({ t, s }: { t: NonNullable<VShape["table"]>; s: number }) {

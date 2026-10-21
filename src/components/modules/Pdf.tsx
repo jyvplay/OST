@@ -22,6 +22,11 @@ import { renderPage, pageTransform, type DecodedImages } from "@/lib/pdf/pdfcanv
 import { apply, invert, type M } from "@/lib/pdf/pdfinterp";
 import { pageChars, layout, search, type TLine, type Hit } from "@/lib/pdf/pdftext";
 import { PdfEditor, extractPages, type AnnotSpec } from "@/lib/pdf/pdfedit";
+/** FreeText annotation size in PDF points — document data written into the file, not UI text (so not scaled by fz) */
+const ANNOT_FONT_PT = 12;
+
+/** text drawn directly on the light page-stage background keeps a dark ink in every theme (contrast ≥ 4.5:1 on #e8eaef) */
+const STAGE_INK = "#1f2937";
 
 export const MAX_PDF_BYTES = 256 << 20;
 type Tool = "select" | "highlight" | "underline" | "strike" | "ink" | "box" | "ellipse" | "text" | "note";
@@ -32,7 +37,7 @@ type Panel = "pages" | "find" | "forms" | "info";
 interface Rev { bytes: Uint8Array; what: string }
 /** inline SVG icons (Unicode arrows render as tofu with the app's fonts) */
 function Ico({ d, label }: { d: string; label: string }) {
-  return <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" role="img" aria-label={label} style={{ display: "block" }}><path d={d} /></svg>;
+  return <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true })} style={{ display: "block" }}><path d={d} /></svg>;
 }
 const ICON = {
   rotL: "M3 3v4h4M3.5 7A5 5 0 1 1 4 11", rotR: "M13 3v4H9M12.5 7A5 5 0 1 0 12 11",
@@ -230,7 +235,7 @@ export default function PdfModule({ win }: ModuleProps) {
     }
     if (r[2] - r[0] < 4 || r[3] - r[1] < 4) return;
     if (tool === "box" || tool === "ellipse") { apply_(tool === "box" ? "Box" : "Ellipse", (ed) => ed.addAnnotation(pi, { type: tool === "box" ? "Square" : "Circle", rect: r, color, width: 2 })); return; }
-    if (tool === "text") void (async () => { const t = await askText("Text box", "", { okLabel: "Add" }); if (!t) return; apply_("Text box", (ed) => ed.addAnnotation(pi, { type: "FreeText", rect: r, contents: t, color: color[0] + color[1] + color[2] > 2.4 ? [0, 0, 0] : color, fontSize: 12 })); })();
+    if (tool === "text") void (async () => { const t = await askText("Text box", "", { okLabel: "Add" }); if (!t) return; apply_("Text box", (ed) => ed.addAnnotation(pi, { type: "FreeText", rect: r, contents: t, color: color[0] + color[1] + color[2] > 2.4 ? [0, 0, 0] : color, fontSize: ANNOT_FONT_PT })); })();
   };
 
   /* ------------------------------------------------------------ forms + info */
@@ -284,7 +289,7 @@ export default function PdfModule({ win }: ModuleProps) {
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
         <aside style={{ width: 248, borderRight: "1px solid var(--fs-border)", display: "flex", flexDirection: "column", minHeight: 0 }}>
           <div role="tablist" style={{ display: "flex", flexWrap: "wrap", gap: 2, padding: 4 }}>
-            {(["pages", "find", "forms", "info"] as Panel[]).map((p) => <Btn key={p} data-testid={`pdf-panel-${p}`} variant={panel === p ? "primary" : "ghost"} onClick={() => setPanel(p)}>{p === "pages" ? "Pages" : p === "find" ? "Find" : p === "forms" ? `Forms${fields.length ? ` (${fields.length})` : ""}` : "Info"}</Btn>)}
+            {(["pages", "find", "forms", "info"] as Panel[]).map((p) => <Btn key={p} role="tab" aria-selected={panel === p} data-testid={`pdf-panel-${p}`} variant={panel === p ? "primary" : "ghost"} onClick={() => setPanel(p)}>{p === "pages" ? "Pages" : p === "find" ? "Find" : p === "forms" ? `Forms${fields.length ? ` (${fields.length})` : ""}` : "Info"}</Btn>)}
           </div>
           <div style={{ flex: 1, overflow: "auto", padding: 6, minHeight: 0 }}>
             {panel === "pages" && doc ? (
@@ -349,8 +354,8 @@ export default function PdfModule({ win }: ModuleProps) {
           </div>
         </aside>
         <div ref={stageRef} data-testid="pdf-stage" style={{ flex: 1, overflow: "auto", background: "var(--fs-surface-2, #e8eaef)", minHeight: 0, minWidth: 0 }}>
-          {err ? <div role="alert" style={{ padding: 16 }}><Badge tone="bad">Error</Badge> {err}</div> : null}
-          {!doc && !err ? <div style={{ padding: 24, fontSize: fz(14) }} className="fs-dim">{status || "Loading…"}</div> : null}
+          {err ? <div role="alert" style={{ padding: 16, color: STAGE_INK }}><Badge tone="bad">Error</Badge> {err}</div> : null}
+          {!doc && !err ? <div style={{ padding: 24, fontSize: fz(14), color: STAGE_INK }}>{status || "Loading…"}</div> : null}
           {doc ? pages.map((p, i) => {
             const s = scaleFor(p); const t = pageTransform(p, s, viewRot);
             const toDev = (x: number, y: number) => apply(t.m as M, x, y);

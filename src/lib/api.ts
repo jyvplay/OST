@@ -48,8 +48,19 @@ const readQueue = (): Queued[] => {
 };
 const writeQueue = (q: Queued[]) => { try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); } catch { /* quota */ } };
 export const queuedCount = () => (typeof localStorage === "undefined" ? 0 : readQueue().length);
+/** TT55 (FM-09 / DP-03): VFS writes still waiting in the offline queue — Files shows them as "queued" ghost rows */
+export const queuedFsWrites = (): { op: string; path: string; at: number }[] => (typeof localStorage === "undefined" ? [] : readQueue()
+  .filter((q) => q.path === "/api/fs").map((q) => ({ ...(q.body as { op?: string; path?: string; dst?: string }), at: q.at }))
+  .map((b) => ({ op: String(b.op ?? "write"), path: String(b.path ?? b.dst ?? ""), at: b.at })).filter((b) => b.path));
 
-export async function replayQueue(): Promise<{ replayed: number; failed: number }> {
+// TT55: one replay at a time — mount + "online" (or two "online" events) used to run two replays that both read the
+// queue before either shifted it, applying the head write twice
+let replaying: Promise<{ replayed: number; failed: number }> | null = null;
+export function replayQueue(): Promise<{ replayed: number; failed: number }> {
+  if (!replaying) replaying = replayOnce().finally(() => { replaying = null; });
+  return replaying;
+}
+async function replayOnce(): Promise<{ replayed: number; failed: number }> {
   if (typeof localStorage === "undefined" || (typeof navigator !== "undefined" && !navigator.onLine)) return { replayed: 0, failed: 0 };
   const q = readQueue();
   let replayed = 0;

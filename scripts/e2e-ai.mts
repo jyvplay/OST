@@ -2,8 +2,8 @@
  * Real-browser suite "e2e-ai" (TT24, FF-04): .ai / .eps files written to the VFS and opened in Peek, in headless
  * Chromium against the production build. Uses the committed fixtures in scripts/fixtures/ai/ (file-type, MIT;
  * Apache Tika, Apache-2.0) and constructed hostile files from scripts/fixtures/ai/build.mts.
- * The PDF view is checked structurally (an <iframe> on a blob: URL that the CSP allows). Whether pixels appear depends
- * on the browser's PDF viewer: the suite records navigator.pdfViewerEnabled and does not claim a rendering it cannot see.
+ * TT52+: the PDF part is drawn by the first-party renderer (src/lib/pdf) onto a canvas, so the suite checks real pixels
+ * of the artwork whether or not the browser has a PDF viewer (navigator.pdfViewerEnabled is only recorded).
  * Run: BASE=http://localhost:3999 node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/e2e-ai.mts
  */
 import { readFileSync } from "node:fs";
@@ -53,38 +53,48 @@ const facts = async (box: Locator) => box.getByTestId("peek-ai-facts").innerText
 
 let pdfViewer = "unknown";
 
-await test("PDF-compatible .ai (constructed, Illustrator 28.5 + /AIPrivateData1): kind ai-pdf, facts shown; PDF part framed only when the browser has a PDF viewer, else an explicit download link (never an automatic download); no CSP violation", { "FF-04": "full" }, async () => {
+/** TT52 contract: the PDF part is drawn by the FIRST-PARTY renderer onto a canvas — no <embed> (CSP object-src 'none'),
+ *  no browser-viewer <iframe> (headless / mobile browsers without a viewer download it instead of showing it).
+ *  The constructed artwork is one rectangle filled rgb(0.18, 0.39, 0.39) ≈ (46, 99, 99): its pixels must be on the canvas. */
+async function artworkPixels(box: Locator) {
+  const prev = box.getByTestId("peek-ai-pdf"); await prev.locator("canvas").waitFor({ timeout: 20_000 });
+  const t0 = Date.now(); let r = { w: 0, h: 0, teal: 0 };
+  while (Date.now() - t0 < 15_000) {
+    r = await prev.locator("canvas").evaluate((c: HTMLCanvasElement) => {
+      const g = c.getContext("2d")!; const d = g.getImageData(0, 0, c.width, c.height).data; let teal = 0;
+      for (let i = 0; i < d.length; i += 4) if (Math.abs(d[i] - 46) < 12 && Math.abs(d[i + 1] - 99) < 12 && Math.abs(d[i + 2] - 99) < 12) teal++;
+      return { w: c.width, h: c.height, teal };
+    });
+    if (r.teal > 0) break; await new Promise((res) => setTimeout(res, 200));
+  }
+  return r;
+}
+
+await test("PDF-compatible .ai (constructed, Illustrator 28.5 + /AIPrivateData1): kind ai-pdf, facts shown; artwork drawn by the first-party PDF renderer (pixels checked) with or without a browser PDF viewer; explicit 'Download as PDF' link, never an automatic download; no embed/iframe; no CSP violation", { "FF-04": "full" }, async () => {
   const p = await put("art.ai", B.aiWithPdf());
   const { page, box, csp, close } = await peek(p);
   ok(await box.getAttribute("data-kind") === "ai-pdf", `kind ${await box.getAttribute("data-kind")}`);
   ok((await box.getByTestId("peek-ai-label").innerText()).length > 10, "label");
   ok((await facts(box)).includes("Adobe Illustrator 28.5"), `facts: ${await facts(box)}`);
   pdfViewer = String(await page.evaluate(() => (navigator as Navigator & { pdfViewerEnabled?: boolean }).pdfViewerEnabled));
-  console.log(`    note: navigator.pdfViewerEnabled = ${pdfViewer} in this Chromium`);
-  if (pdfViewer === "false") {
-    // no viewer: no frame (a framed PDF would be downloaded), an explicit download link instead
-    ok(await box.getByTestId("peek-ai-pdf").count() === 0, "no frame without a PDF viewer");
-    const link = box.getByTestId("peek-ai-nopdf").locator("a");
-    ok((await link.getAttribute("href"))!.startsWith("blob:") && (await link.getAttribute("download")) === `e2e-${RUN}-art.pdf`, "download link");
-    ok(downloads.length === 0, `opening Peek downloaded something: ${downloads}`);
-  } else {
-    const frame = box.getByTestId("peek-ai-pdf");
-    await frame.waitFor();
-    const src = (await frame.getAttribute("src"))!;
-    ok(await frame.evaluate((e) => e.tagName) === "IFRAME" && src.startsWith("blob:"), "an iframe on a blob: URL, not <embed> (object-src 'none')");
-    ok(page.frames().some((f) => f.url() === src), "the frame navigated to the blob URL");
-  }
+  console.log(`    note: navigator.pdfViewerEnabled = ${pdfViewer} in this Chromium (irrelevant since TT52: our renderer draws the page)`);
+  const px = await artworkPixels(box);
+  // 160×60 pt of a 200×100 pt page (MediaBox from the fixture) at ≥ 420 px wide → thousands of teal pixels
+  ok(px.w >= 400 && px.teal > 2000, `artwork not rendered: ${JSON.stringify(px)}`);
+  ok(await box.locator("embed, object, iframe").count() === 0, "no embed / object / iframe");
+  const link = box.getByRole("link", { name: "Download as PDF" });
+  ok((await link.getAttribute("href"))!.startsWith("blob:") && (await link.getAttribute("download")) === `e2e-${RUN}-art.pdf`, "explicit download link");
+  ok(downloads.length === 0, `opening Peek downloaded something: ${downloads}`);
   ok(csp.length === 0, `CSP violations: ${csp.join(" | ")}`);
   await close();
 });
 
-await test("with a PDF viewer present (navigator.pdfViewerEnabled forced true): the artwork is framed on a blob: URL, never <embed>, and the CSP allows it", { "FF-04": "partial" }, async () => {
+await test("with a PDF viewer present (navigator.pdfViewerEnabled forced true): the same first-party canvas rendering — no viewer iframe, no embed, CSP clean", { "FF-04": "partial" }, async () => {
   const p = await put("art2.ai", B.aiWithPdf());
   const { box, csp, close } = await peek(p, true);
-  const frame = box.getByTestId("peek-ai-pdf");
-  await frame.waitFor();
-  ok(await frame.evaluate((e) => e.tagName) === "IFRAME" && (await frame.getAttribute("src"))!.startsWith("blob:"), "iframe on a blob: URL");
-  ok(await box.locator("embed, object").count() === 0, "no embed/object");
+  const px = await artworkPixels(box);
+  ok(px.teal > 2000, `artwork not rendered: ${JSON.stringify(px)}`);
+  ok(await box.locator("embed, object, iframe").count() === 0, "no embed / object / iframe");
   ok(csp.length === 0, `CSP violations: ${csp.join(" | ")}`);
   await close();
 });
@@ -94,7 +104,7 @@ await test("real Illustrator-made PDF (file-type fixture): kind illustrator-pdf,
   const { box, close } = await peek(p);
   ok(await box.getAttribute("data-kind") === "illustrator-pdf", `kind ${await box.getAttribute("data-kind")}`);
   ok((await facts(box)).includes("24.1"), `facts: ${await facts(box)}`);
-  await box.locator('[data-testid="peek-ai-pdf"], [data-testid="peek-ai-nopdf"]').first().waitFor();   // whichever this browser supports
+  await box.getByTestId("peek-ai-pdf").locator("canvas").waitFor({ timeout: 20_000 });   // first-party renderer (TT52)
   await close();
 });
 

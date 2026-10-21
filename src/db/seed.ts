@@ -46,9 +46,11 @@ import { patchTT50 } from "./seed-data/features-tt50";
 import { patchTT51 } from "./seed-data/features-tt51";
 import { patchTT52 } from "./seed-data/features-tt52";
 import { patchTT53 } from "./seed-data/features-tt53";
+import { patchTT54 } from "./seed-data/features-tt54";
+import { patchTT55 } from "./seed-data/features-tt55";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.39.0";
+export const SEED_VERSION = "3.41.0";
 
 export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
@@ -82,7 +84,9 @@ export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, 
   .map(patchTT50)
   .map(patchTT51)
   .map(patchTT52)
-  .map(patchTT53);
+  .map(patchTT53)
+  .map(patchTT54)
+  .map(patchTT55);
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

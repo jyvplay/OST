@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tabletop",
-  "at": "2026-10-19T22:48:58.844Z",
+  "at": "2026-10-21T19:48:12.952Z",
   "results": [
     {
       "suite": "e2e-tabletop",
@@ -9,7 +9,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 7627
+      "ms": 6284
     },
     {
       "suite": "e2e-tabletop",
@@ -18,7 +18,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 3134
+      "ms": 3209
     },
     {
       "suite": "e2e-tabletop",
@@ -27,7 +27,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 7522
+      "ms": 8256
     },
     {
       "suite": "e2e-tabletop",
@@ -36,7 +36,7 @@
         "LY-07": "full"
       },
       "pass": true,
-      "ms": 3332
+      "ms": 3802
     },
     {
       "suite": "e2e-tabletop",
@@ -45,7 +45,7 @@
         "LY-09": "full"
       },
       "pass": true,
-      "ms": 3543
+      "ms": 3661
     },
     {
       "suite": "e2e-tabletop",
@@ -54,7 +54,7 @@
         "LY-08": "full"
       },
       "pass": true,
-      "ms": 7702
+      "ms": 7863
     },
     {
       "suite": "e2e-tabletop",
@@ -64,7 +64,7 @@
         "LY-07": "partial"
       },
       "pass": true,
-      "ms": 3214
+      "ms": 3581
     },
     {
       "suite": "e2e-tabletop",
@@ -73,7 +73,7 @@
         "LY-06": "full"
       },
       "pass": true,
-      "ms": 4330
+      "ms": 4411
     },
     {
       "suite": "e2e-tabletop",
@@ -82,7 +82,7 @@
         "LY-11": "full"
       },
       "pass": true,
-      "ms": 6929
+      "ms": 6824
     },
     {
       "suite": "e2e-tabletop",
@@ -91,7 +91,7 @@
         "LY-12": "full"
       },
       "pass": true,
-      "ms": 7279
+      "ms": 7521
     },
     {
       "suite": "e2e-tabletop",
@@ -100,7 +100,7 @@
         "LY-12": "full"
       },
       "pass": true,
-      "ms": 2313
+      "ms": 2301
     },
     {
       "suite": "e2e-tabletop",
@@ -109,7 +109,7 @@
         "LY-12": "full"
       },
       "pass": true,
-      "ms": 7048
+      "ms": 7427
     },
     {
       "suite": "e2e-tabletop",
@@ -118,7 +118,7 @@
         "LY-13": "full"
       },
       "pass": true,
-      "ms": 12099
+      "ms": 9827
     },
     {
       "suite": "e2e-tabletop",
@@ -128,7 +128,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 2702
+      "ms": 2424
     },
     {
       "suite": "e2e-tabletop",
@@ -138,7 +138,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 18836
+      "ms": 16887
     }
   ]
 }

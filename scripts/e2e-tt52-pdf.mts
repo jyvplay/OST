@@ -180,4 +180,10 @@ await test("Peek: first page drawn by the first-party renderer (no <embed>/<obje
 
 await test("no uncaught page errors during the run", COV, () => { ok(errors.length === 0, errors.slice(0, 5).join("\n")); });
 await browser.close();
+// TT55: remove this run's files (left behind they piled up in /Documents and crowded the desktop / Tabletop of later suites)
+{
+  const post = (body: unknown) => fetch(BASE + "/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const ls = await (await fetch(`${BASE}/api/fs?op=list&path=/Documents`)).json() as { nodes?: { name: string; path: string }[] };
+  for (const n of ls.nodes ?? []) if (n.name.startsWith(`${RUN}-`)) { await post({ op: "trash", path: n.path }); await post({ op: "purge", path: n.path }); }
+}
 finish();

@@ -1,0 +1,79 @@
+{
+  "suite": "e2e-tt54",
+  "at": "2026-10-21T21:28:58.855Z",
+  "results": [
+    {
+      "suite": "e2e-tt54",
+      "name": "FF-13 Files grid: real thumbnails for JPEG (EXIF orientation applied), TIFF (own decoder), PNG, GIF, SVG, MP3/M4A cover art, PDF page 1, WebM frame, text; no-preview types keep the icon with a reason",
+      "covers": {
+        "FF-13": "full"
+      },
+      "pass": true,
+      "ms": 4774
+    },
+    {
+      "suite": "e2e-tt54",
+      "name": "FF-13 thumbnail cache: WebP nodes under /System/Cache/thumbs (content-addressed, written once); a fresh session is served from the cache without re-rendering",
+      "covers": {
+        "FF-13": "full"
+      },
+      "pass": true,
+      "ms": 3328
+    },
+    {
+      "suite": "e2e-tt54",
+      "name": "MD-03 sidecars follow their photo on rename / copy / move / trash / restore / purge and batch rename (server-side, any client); op=media lists photos + sidecars and nothing under /System",
+      "covers": {
+        "MD-03": "full"
+      },
+      "pass": true,
+      "ms": 337
+    },
+    {
+      "suite": "e2e-tt54",
+      "name": "Hidden files: sidecars never show in Files (until 'Hidden' is toggled) or on the desktop",
+      "covers": {
+        "MD-03": "full"
+      },
+      "pass": true,
+      "ms": 2547
+    },
+    {
+      "suite": "e2e-tt54",
+      "name": "FF-13 Info panel: metadata of the selected file (camera, capture date, exposure, GPS) from the first-party readers",
+      "covers": {
+        "FF-13": "full"
+      },
+      "pass": true,
+      "ms": 2722
+    },
+    {
+      "suite": "e2e-tt54",
+      "name": "MD-03 Photos library + editor: timeline by capture date, edit (rotate + exposure + preset) saved as a sidecar recipe, original bytes untouched, rating saved, library thumbnail shows the edit",
+      "covers": {
+        "MD-03": "full"
+      },
+      "pass": true,
+      "ms": 4958
+    },
+    {
+      "suite": "e2e-tt54",
+      "name": "FF-07 export PNG from Photos is BIT-EXACT to the Node recipe renderer on the same pixels (browser decode → recipe → encode)",
+      "covers": {
+        "FF-07": "full",
+        "MD-03": "full"
+      },
+      "pass": true,
+      "ms": 4122
+    },
+    {
+      "suite": "e2e-tt54",
+      "name": "FF-07 export AVIF (WebCodecs AV1 + our AVIF writer) and JPEG / WebP with curated metadata: decoded by Pillow (libavif / libjpeg / libwebp); location only when asked; Orientation reset to 1",
+      "covers": {
+        "FF-07": "full"
+      },
+      "pass": true,
+      "ms": 15811
+    }
+  ]
+}

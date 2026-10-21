@@ -302,10 +302,11 @@ export async function mkdir(path: string) {
 export async function folderSize(path: string) {
   const p = normalize(path);
   const rows = await db
-    .select({ bytes: sql<number>`coalesce(sum(${vfsNodes.size}),0)`, files: sql<number>`count(*)` })
+    .select({ bytes: sql<number>`coalesce(sum(${vfsNodes.size}),0)`, files: sql<number>`count(*) filter (where ${vfsNodes.kind} = 'file')`, dirs: sql<number>`count(*) filter (where ${vfsNodes.kind} = 'dir')` })
     .from(vfsNodes)
     .where(and(like(vfsNodes.path, descendantsOf(p)), eq(vfsNodes.trashed, false)));
-  return { bytes: Number(rows[0]?.bytes ?? 0), files: Number(rows[0]?.files ?? 0) };
+  // TT55: `files` counted folders too; now files and folders are separate (FM-17 shows "N files · M folders")
+  return { bytes: Number(rows[0]?.bytes ?? 0), files: Number(rows[0]?.files ?? 0), dirs: Number(rows[0]?.dirs ?? 0) };
 }
 
 /**

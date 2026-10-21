@@ -1,38 +1,44 @@
 {
- "generatedAt": "2026-10-21T17:58:53.504Z",
+ "generatedAt": "2026-10-21T21:57:25.371Z",
  "totals": {
   "built": {
-   "full": 294,
-   "partial": 53,
+   "full": 290,
+   "partial": 55,
    "blocked": 21,
-   "none": 0
+   "none": 2
   },
   "tested": {
-   "full": 173,
-   "partial": 76,
-   "untested": 119
+   "full": 190,
+   "partial": 74,
+   "untested": 104
   },
   "tests": {
-   "total": 957,
-   "passed": 957
+   "total": 995,
+   "passed": 995
   }
  },
  "rows": {
   "SH-01": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-shell: SH-01 one registry: launcher tiles = palette app results = src/lib/registry.ts (same ids, titles, count); a tile and a palette row each open their module"
+   ]
   },
   "SH-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-shell: SH-02 shelf = windows: one shelf button per window of the active workspace (= persisted state), through open, middle-click close, and a workspace with other windows"
+   ]
   },
   "SH-03": {
    "tested": "untested",
    "tests": []
   },
   "SH-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-shell: SH-04 desktop icons follow the file system: a folder trashed in Files disappears from the desktop with no reload — in the same tab and in a second tab of the browser — and the icon set always equals the server listing"
+   ]
   },
   "SH-05": {
    "tested": "partial",
@@ -62,8 +68,11 @@
    ]
   },
   "SH-09": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-files: SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward",
+    "tt55-files-unit: SH-09 back / forward history = browser model (entries + index) over 3 000 random sequences, incl. the 50-entry cap"
+   ]
   },
   "SH-10": {
    "tested": "partial",
@@ -86,6 +95,7 @@
   "SH-14": {
    "tested": "full",
    "tests": [
+    "e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay",
     "e2e: offline write is queued, then replayed through the journal when back online"
    ]
   },
@@ -131,8 +141,10 @@
    "tests": []
   },
   "WM-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt55-files-unit: WM-08 remembered geometry: close records the normal rect per module|host (restore rect when maximized), the next open reuses it, an explicit rect wins, no exact stacking, fits a smaller viewport, bounded, closeAll records all"
+   ]
   },
   "WM-09": {
    "tested": "full",
@@ -276,26 +288,39 @@
    ]
   },
   "FM-01": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
     "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
+    "e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash",
+    "e2e-tt55-files: SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward",
+    "e2e-tt55-files: FM-01 folder tree + column view + tabs: the tree lists the server's folders and navigates; Columns show every ancestor; tabs keep their own folder",
+    "e2e-tt55-files: regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree)",
     "e2e: mount: files",
-    "e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)"
+    "e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)",
+    "tt55-files-unit: FM-01 sort: folders first in both directions, numeric-aware names, size / date keys, vs a reference comparator",
+    "tt55-files-unit: FM-01 paths: join / parent / base / breadcrumbs round-trip over random paths; root never doubles or vanishes"
    ]
   },
   "FM-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane",
+    "e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified)",
+    "e2e-tt55-files: FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there"
+   ]
   },
   "FM-03": {
    "tested": "full",
    "tests": [
+    "e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane",
+    "e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified)",
     "e2e: mount: files",
     "e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)",
     "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
     "integration: FM-03 adversarial moves are refused and journaled as FAILED",
-    "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)"
+    "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)",
+    "tt55-files-unit: FM-03 / FM-13 conflict-free names: never in use, the smallest free candidate, copies of copies do not grow, dirs and dotfiles keep their name"
    ]
   },
   "FM-04": {
@@ -309,6 +334,7 @@
   "FM-05": {
    "tested": "full",
    "tests": [
+    "e2e-tt55-files: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection",
     "integration: FM-05 compress → extract round trip preserves bytes (text and binary)",
     "integration: FM-05 extract refuses zip-slip and writes nothing",
     "unit: zip-slip and bomb guards fire before allocation",
@@ -317,8 +343,11 @@
    ]
   },
   "FM-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-files: FM-06 context menu: concise vs full sets, type-to-search reaches any action, arrow keys + Enter run it, Esc closes; background menu has New / templates / Paste",
+    "tt55-files-unit: FM-06 context-menu model: concise ⊂ full, type-to-search matches every word (label + keywords, case- and accent-folded), order kept"
+   ]
   },
   "FM-07": {
    "tested": "full",
@@ -334,8 +363,10 @@
    ]
   },
   "FM-09": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay"
+   ]
   },
   "FM-10": {
    "tested": "untested",
@@ -354,24 +385,35 @@
    "tests": []
   },
   "FM-13": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-files: FM-13 New from template: the menu lists /System/Templates from the server; a new file is a byte copy of the template; a second one gets a free name",
+    "tt55-files-unit: FM-03 / FM-13 conflict-free names: never in use, the smallest free candidate, copies of copies do not grow, dirs and dotfiles keep their name"
+   ]
   },
   "FM-14": {
    "tested": "untested",
    "tests": []
   },
   "FM-15": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash",
+    "e2e-tt55-files: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection",
+    "tt55-files-unit: FM-15 selection model = spec-literal reference over 3 000 random click / Ctrl / Shift / Ctrl+Shift / keyboard sequences"
+   ]
   },
   "FM-16": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-files: FM-16 quick filter + Subfolders: deep matches equal a recursive walk of the server; % and _ are literal; dotfiles and /System stay out"
+   ]
   },
   "FM-17": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-files: FM-17 folder sizes: every folder row shows the size of its subtree (= a recursive walk of the server), and the cached size refreshes after a write"
+   ]
   },
   "FM-18": {
    "tested": "full",
@@ -926,8 +968,8 @@
     "ai-format: creator hidden in a compressed object stream, UTF-16BE strings, junk before the header",
     "ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files",
     "ai-format: version strings, PDF literal escapes, format registry and MIME",
-    "e2e-ai: PDF-compatible .ai (constructed, Illustrator 28.5 + /AIPrivateData1): kind ai-pdf, facts shown; PDF part framed only when the browser has a PDF viewer, else an explicit download link (never an automatic download); no CSP violation",
-    "e2e-ai: with a PDF viewer present (navigator.pdfViewerEnabled forced true): the artwork is framed on a blob: URL, never <embed>, and the CSP allows it",
+    "e2e-ai: PDF-compatible .ai (constructed, Illustrator 28.5 + /AIPrivateData1): kind ai-pdf, facts shown; artwork drawn by the first-party PDF renderer (pixels checked) with or without a browser PDF viewer; explicit 'Download as PDF' link, never an automatic download; no embed/iframe; no CSP violation",
+    "e2e-ai: with a PDF viewer present (navigator.pdfViewerEnabled forced true): the same first-party canvas rendering — no viewer iframe, no embed, CSP clean",
     "e2e-ai: real Illustrator-made PDF (file-type fixture): kind illustrator-pdf, version 24.1, renderable",
     "e2e-ai: PostScript-era .ai (Apache Tika testAI_PS.ai) and an Illustrator EPS (file-type fixture): metadata only, no PDF view, 'limited' badge",
     "e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog",
@@ -950,8 +992,14 @@
    "tests": []
   },
   "FF-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt54: FF-07 export PNG from Photos is BIT-EXACT to the Node recipe renderer on the same pixels (browser decode → recipe → encode)",
+    "e2e-tt54: FF-07 export AVIF (WebCodecs AV1 + our AVIF writer) and JPEG / WebP with curated metadata: decoded by Pillow (libavif / libjpeg / libwebp); location only when asked; Orientation reset to 1",
+    "e2e: mount: photos",
+    "tt54-meta: FF-07 export encoder: EXIF injection into JPEG / PNG / WebP (VP8, VP8L, VP8X+alpha) read back by Pillow + exifread, pixels untouched, one EXIF block after re-injection; AVIF from libsvtav1 key frames decoded by libavif + FFmpeg/dav1d; HEIC re-wrap decoded by libheif pixel-identical",
+    "tt54-meta: Negative shapes: 22 hostile inputs to the readers / decoder / writers are refused or bounded — no crash, no hang, no garbage output"
+   ]
   },
   "FF-08": {
    "tested": "full",
@@ -1022,8 +1070,17 @@
    ]
   },
   "FF-13": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt54: FF-13 Files grid: real thumbnails for JPEG (EXIF orientation applied), TIFF (own decoder), PNG, GIF, SVG, MP3/M4A cover art, PDF page 1, WebM frame, text; no-preview types keep the icon with a reason",
+    "e2e-tt54: FF-13 thumbnail cache: WebP nodes under /System/Cache/thumbs (content-addressed, written once); a fresh session is served from the cache without re-rendering",
+    "e2e-tt54: FF-13 Info panel: metadata of the selected file (camera, capture date, exposure, GPS) from the first-party readers",
+    "e2e: mount: photos",
+    "tt54-meta: FF-13 metadata readers agree with independent readers on every field over the real corpora (EXIF / XMP / GPS / thumbnails, image size & frames, audio tags & duration, PDF pages / Info / size / encryption, OOXML core, video size & duration): 0 disagreements",
+    "tt54-meta: FF-13 TIFF decoder: 34 files (8 corpus LZW+predictor, Pillow-written 1 / L / P / RGB / RGBA / 16-bit × none / LZW / Deflate / PackBits, multi-strip, hand-built planar) bit-exact to Pillow",
+    "tt54-meta: FF-13 PDF recovery: a damaged incremental update (bad startxref, trailer without /Info or /ID) is rebuilt by scanning and inherits /Info + /ID from the older trailer — same title as pypdf (strict=False)",
+    "tt54-meta: Negative shapes: 22 hostile inputs to the readers / decoder / writers are refused or bounded — no crash, no hang, no garbage output"
+   ]
   },
   "FF-14": {
    "tested": "full",
@@ -1278,10 +1335,17 @@
    ]
   },
   "MD-03": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-image: classic Quick edit mode is still available (additive merge)",
-    "e2e: mount: imageedit"
+    "e2e-tt54: MD-03 sidecars follow their photo on rename / copy / move / trash / restore / purge and batch rename (server-side, any client); op=media lists photos + sidecars and nothing under /System",
+    "e2e-tt54: Hidden files: sidecars never show in Files (until 'Hidden' is toggled) or on the desktop",
+    "e2e-tt54: MD-03 Photos library + editor: timeline by capture date, edit (rotate + exposure + preset) saved as a sidecar recipe, original bytes untouched, rating saved, library thumbnail shows the edit",
+    "e2e-tt54: FF-07 export PNG from Photos is BIT-EXACT to the Node recipe renderer on the same pixels (browser decode → recipe → encode)",
+    "e2e: mount: photos",
+    "e2e: mount: imageedit",
+    "tt54-meta: MD-03 recipe engine: 117 renders vs numpy/Pillow (geometry bit-exact, tone ≤ 1 level, straighten ≥ 30 dB vs Pillow rotate with the crop scale checked by bisection, resolution independence) + 14 properties (rotate⁴ = id, flips, monotone curves on 343 slider combos, hostile sidecars bounded, no prototype keys)",
+    "tt54-meta: Negative shapes: 22 hostile inputs to the readers / decoder / writers are refused or bounded — no crash, no hang, no garbage output"
    ]
   },
   "MD-04": {
@@ -2919,6 +2983,7 @@
   "AX-02": {
    "tested": "partial",
    "tests": [
+    "e2e-tt55-files: regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree)",
     "e2e: structural a11y: every window is a named dialog; no unnamed buttons"
    ]
   },
@@ -3114,8 +3179,10 @@
    "tests": []
   },
   "DP-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay"
+   ]
   },
   "DP-04": {
    "tested": "partial",

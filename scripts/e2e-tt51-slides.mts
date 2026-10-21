@@ -88,7 +88,7 @@ await test("edit → save → python-pptx: retype the title by double-click, bol
   // duplicate slide 1 → slide 2 is the copy; hide it
   await s.dlg.getByRole("button", { name: "Duplicate" }).click(); eq(await s.rail.count(), 3, "after duplicate");
   await s.dlg.getByRole("button", { name: "Hide", exact: true }).click();
-  ok((await s.rail.nth(1).getAttribute("aria-label"))?.includes("hidden"), "slide 2 hidden");
+  ok((await s.rail.nth(1).textContent())?.includes("(hidden)"), "slide 2 hidden"); // TT55: the name comes from content ("Slide 2 (hidden)", visually hidden words) — axe label-content-name-mismatch
   // back to slide 1, insert a text box, type into it
   await s.rail.nth(0).click();
   await s.dlg.getByRole("button", { name: "Text box" }).click(); await ta.waitFor(); await ta.fill("Inserted by e2e"); await s.canvas.click({ position: { x: 5, y: 5 } });
@@ -190,4 +190,10 @@ await test("legacy .fdeck outline opens as a real PowerPoint deck (titles, bulle
 await test("no page errors in any Slides session", COV, async () => { ok(errors.length === 0, errors.join("\n")); });
 
 await browser.close();
+// TT55: remove this run's files (left behind they piled up in /Documents and crowded the desktop / Tabletop of later suites)
+{
+  const post = (body: unknown) => fetch(BASE + "/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const ls = await (await fetch(`${BASE}/api/fs?op=list&path=/Documents`)).json() as { nodes?: { name: string; path: string }[] };
+  for (const n of ls.nodes ?? []) if (n.name.startsWith(`${RUN}-`)) { await post({ op: "trash", path: n.path }); await post({ op: "purge", path: n.path }); }
+}
 finish();

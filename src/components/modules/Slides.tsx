@@ -346,7 +346,7 @@ export default function SlidesModule({ win }: ModuleProps) {
         <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ algn: "ctr" })} aria-label="Centre"><Ico d="M4 6 H20 M7 10 H17 M4 14 H20 M8 18 H16" /></Btn>
         <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ algn: "r" })} aria-label="Align right"><Ico d="M4 6 H20 M10 10 H20 M4 14 H20 M12 18 H20" /></Btn>
         <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "char" })} aria-label="Bullets">•</Btn>
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "num" })} aria-label="Numbering">1.</Btn>
+        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "num" })} aria-label="1. Numbering" title="Numbering">1.</Btn>
         <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "none" })} aria-label="No bullets">¶</Btn>
         <span style={{ width: 8 }} />
         <label className="fs-dim" style={{ fontSize: fz(11) }}>Fill <input type="color" aria-label="Shape fill" disabled={!sel} className="fs-input" style={{ width: 34, padding: 2 }} onChange={(e) => { const a = sel!; mutate("Fill", (d) => M.setShapeFill(d, cur, a, e.target.value)); }} /></label>
@@ -360,12 +360,12 @@ export default function SlidesModule({ win }: ModuleProps) {
       <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
         <div className="fs-scroll" aria-label="Slides" role="listbox" style={{ width: thumbW + 34, flex: "none", borderRight: "1px solid var(--fs-border)", padding: 8, display: "grid", gap: 8, alignContent: "start", overflowY: "auto" }}>
           {doc.slides.map((s, i) => (
-            <div key={s.uid} role="option" aria-selected={i === cur} aria-label={`Slide ${i + 1}${M.isHidden(s) ? " (hidden)" : ""}`} draggable
+            <div key={s.uid} role="option" aria-selected={i === cur} draggable
               onDragStart={(e) => e.dataTransfer.setData("text/x-slide", String(i))} onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); const from = Number(e.dataTransfer.getData("text/x-slide")); if (Number.isFinite(from)) moveTo(from, i); }}
               onClick={() => { if (edit) commitEdit(); setCur(i); setSel(null); }} style={{ display: "flex", gap: 6, cursor: "pointer", alignItems: "flex-start" }}>
-              <span className="fs-dim" style={{ fontSize: fz(11), width: 18, textAlign: "right", textDecoration: M.isHidden(s) ? "line-through" : undefined }}>{i + 1}</span>
-              <div style={{ outline: i === cur ? "2px solid var(--fs-accent, #2563eb)" : "1px solid var(--fs-border)", outlineOffset: 1, borderRadius: 3, opacity: M.isHidden(s) ? 0.45 : 1, pointerEvents: "none" }}>
+              <span className="fs-dim" style={{ fontSize: fz(11), width: 18, textAlign: "right", textDecoration: M.isHidden(s) ? "line-through" : undefined }}><span className="fs-visually-hidden">Slide </span>{i + 1}{M.isHidden(s) ? <span className="fs-visually-hidden"> (hidden)</span> : null}</span>
+              <div aria-hidden="true" style={{ outline: i === cur ? "2px solid var(--fs-accent, #2563eb)" : "1px solid var(--fs-border)", outlineOffset: 1, borderRadius: 3, opacity: M.isHidden(s) ? 0.45 : 1, pointerEvents: "none" }}>
                 <SlideCanvas doc={doc} view={viewOf(doc, s)} width={thumbW} uid={`t${s.uid}`} />
               </div>
             </div>
@@ -418,7 +418,7 @@ export default function SlidesModule({ win }: ModuleProps) {
           onClick={() => { const k = shown.indexOf(present); if (k < shown.length - 1) setPresent(shown[k + 1]); else endShow(); }}
           style={{ position: "fixed", inset: 0, background: "#000", zIndex: 2147483000, display: "grid", placeItems: "center", outline: "none", cursor: "none" }}>
           <ShowSlide doc={doc} i={present} />
-          <span className="fs-dim" style={{ position: "absolute", bottom: 8, right: 12, color: "rgba(255,255,255,.45)", fontSize: 12 }}>{shown.indexOf(present) + 1} / {shown.length} · Esc to end</span>
+          <span className="fs-dim" style={{ position: "absolute", bottom: 8, right: 12, color: "rgba(255,255,255,.45)", fontSize: fz(12) }}>{shown.indexOf(present) + 1} / {shown.length} · Esc to end</span>
         </div>, document.body,
       ) : null}
     </div>

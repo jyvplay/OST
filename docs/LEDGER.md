@@ -1,30 +1,30 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-21T17:58:53.500Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-107 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-21T21:57:25.367Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+112 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
 | **Features in register** | **368** |
-| Fully built | 294 |
-| Partially built (partial 37 + probe 16) | 53 |
+| Fully built | 290 |
+| Partially built (partial 37 + probe 18) | 55 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
-| Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **173** |
-| **Partially tested** (only `partial` tags) | **76** |
-| Untested | 119 |
-| Automated tests executed / passed | 957 / 957 |
+| Not built at all (skeleton) | 2 |
+| **Fully tested** (≥1 passing test tagged `full`) | **190** |
+| **Partially tested** (only `partial` tags) | **74** |
+| Untested | 104 |
+| Automated tests executed / passed | 995 / 995 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 165 | 62 | 67 |
-| partially built | 2 | 12 | 39 |
+| fully built | 182 | 61 | 47 |
+| partially built | 2 | 11 | 42 |
 | blocked | 6 | 2 | 13 |
-| skeleton | 0 | 0 | 0 |
+| skeleton | 0 | 0 | 2 |
 
 "Blocked + fully tested" means a test asserts that the UI renders the platform-impossibility reason — it
 verifies the honesty contract, not the (impossible) capability.
@@ -33,113 +33,118 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-19T21:25:28.718Z |
-| ai-format | 5 | 5 | 0 | 2026-10-19T21:25:30.575Z |
-| browser-session | 5 | 5 | 0 | 2026-10-19T21:25:16.422Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-19T21:25:32.151Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-19T22:38:59.559Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-19T21:37:27.636Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-19T22:34:41.641Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-19T21:30:56.468Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-19T21:37:53.356Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-19T21:29:43.220Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-19T22:50:18.568Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-21T17:55:59.792Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-19T21:28:43.832Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-19T22:42:11.470Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-19T21:32:05.781Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-19T21:36:47.854Z |
-| e2e-tabletop | 15 | 15 | 0 | 2026-10-19T22:48:58.844Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-19T21:42:27.719Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-19T21:42:52.499Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-19T21:44:59.979Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-19T21:46:22.679Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-19T21:49:08.455Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-19T21:49:24.388Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-19T21:50:31.219Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-19T21:51:06.076Z |
-| e2e-tt36 | 3 | 3 | 0 | 2026-10-19T21:51:24.926Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-19T21:51:53.510Z |
-| e2e-tt38 | 7 | 7 | 0 | 2026-10-19T21:55:58.355Z |
-| e2e-tt39 | 7 | 7 | 0 | 2026-10-19T21:56:19.430Z |
-| e2e-tt40 | 3 | 3 | 0 | 2026-10-19T21:56:33.519Z |
-| e2e-tt41 | 4 | 4 | 0 | 2026-10-19T21:56:38.353Z |
-| e2e-tt42 | 3 | 3 | 0 | 2026-10-19T21:56:50.903Z |
-| e2e-tt43 | 3 | 3 | 0 | 2026-10-19T21:57:01.048Z |
-| e2e-tt44 | 5 | 5 | 0 | 2026-10-19T21:57:53.379Z |
-| e2e-tt45 | 2 | 2 | 0 | 2026-10-19T21:58:04.087Z |
-| e2e-tt46 | 8 | 8 | 0 | 2026-10-21T05:09:27.579Z |
-| e2e-tt47 | 5 | 5 | 0 | 2026-10-21T03:41:51.102Z |
-| e2e-tt48-sync | 4 | 4 | 0 | 2026-10-19T22:51:07.698Z |
-| e2e-tt48 | 6 | 6 | 0 | 2026-10-21T06:28:05.896Z |
-| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-21T06:28:46.673Z |
-| e2e-tt49 | 5 | 5 | 0 | 2026-10-21T05:10:03.698Z |
-| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-21T06:28:25.326Z |
-| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-21T06:27:31.084Z |
-| e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-21T17:54:58.372Z |
-| e2e-tt53-media | 6 | 6 | 0 | 2026-10-21T17:52:18.397Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-19T21:30:14.481Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-19T21:37:12.803Z |
-| e2e | 63 | 63 | 0 | 2026-10-21T17:57:41.359Z |
-| image | 12 | 12 | 0 | 2026-10-19T21:25:10.526Z |
-| integration | 25 | 25 | 0 | 2026-10-21T17:55:18.309Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-19T22:47:19.718Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-19T21:25:40.593Z |
-| metaclean | 6 | 6 | 0 | 2026-10-19T21:25:24.865Z |
-| names | 7 | 7 | 0 | 2026-10-19T21:25:10.103Z |
-| office | 35 | 35 | 0 | 2026-10-21T05:01:57.082Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-19T21:25:31.692Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-19T21:25:14.131Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-19T21:25:16.237Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-19T21:25:32.763Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-19T21:25:06.125Z |
-| oracle | 5 | 5 | 0 | 2026-10-19T21:25:04.402Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-19T21:25:28.398Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-19T21:25:21.364Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-19T21:25:23.330Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-19T21:25:06.553Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-19T21:25:33.650Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-19T21:25:28.961Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-19T22:29:30.564Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-19T21:25:40.893Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-19T21:25:41.834Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-19T21:42:52.731Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-19T21:45:00.302Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-19T21:46:39.220Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-19T21:49:08.704Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-19T21:49:29.439Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-19T21:50:40.738Z |
-| tt36-unit | 5 | 5 | 0 | 2026-10-19T21:51:12.090Z |
-| tt37-unit | 9 | 9 | 0 | 2026-10-19T21:51:29.343Z |
-| tt38-unit | 15 | 15 | 0 | 2026-10-19T21:55:54.887Z |
-| tt39-pac | 8 | 8 | 0 | 2026-10-19T21:56:15.596Z |
-| tt39-unit | 13 | 13 | 0 | 2026-10-19T21:56:00.024Z |
-| tt40-proxy | 4 | 4 | 0 | 2026-10-19T21:56:30.186Z |
-| tt40-unit | 17 | 17 | 0 | 2026-10-19T21:56:21.669Z |
-| tt41-unit | 9 | 9 | 0 | 2026-10-19T21:56:33.888Z |
-| tt42-dhcp | 2 | 2 | 0 | 2026-10-19T21:56:47.710Z |
-| tt42-proxy | 2 | 2 | 0 | 2026-10-19T21:56:41.931Z |
-| tt42-unit | 6 | 6 | 0 | 2026-10-19T21:56:38.850Z |
-| tt43-unit | 7 | 7 | 0 | 2026-10-19T21:56:51.248Z |
-| tt44-bridge | 8 | 8 | 0 | 2026-10-19T21:57:36.127Z |
-| tt44-unit | 18 | 18 | 0 | 2026-10-19T21:57:15.592Z |
-| tt44-vt | 12 | 12 | 0 | 2026-10-19T21:57:33.185Z |
-| tt45-unit | 10 | 10 | 0 | 2026-10-19T21:57:56.432Z |
-| tt46-writer | 12 | 12 | 0 | 2026-10-21T04:57:39.515Z |
-| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-21T05:01:56.523Z |
-| tt47-crypto | 5 | 5 | 0 | 2026-10-19T22:10:36.916Z |
-| tt47-sheet | 8 | 8 | 0 | 2026-10-21T04:28:44.594Z |
-| tt48-office | 6 | 6 | 0 | 2026-10-21T04:34:35.573Z |
-| tt49-sheet | 10 | 10 | 0 | 2026-10-21T05:07:25.016Z |
-| tt49-writer | 9 | 9 | 0 | 2026-10-21T05:20:39.142Z |
-| tt50-charts | 10 | 10 | 0 | 2026-10-21T05:08:48.981Z |
-| tt51-slides | 15 | 15 | 0 | 2026-10-21T17:58:40.926Z |
-| tt52-pdf | 28 | 28 | 0 | 2026-10-21T17:36:05.237Z |
-| tt53-media | 11 | 11 | 0 | 2026-10-21T17:53:14.424Z |
-| unit | 23 | 23 | 0 | 2026-10-21T17:55:15.198Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-19T21:25:15.468Z |
-| vector | 18 | 18 | 0 | 2026-10-19T21:25:14.412Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-19T21:25:29.179Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-21T21:14:35.023Z |
+| ai-format | 5 | 5 | 0 | 2026-10-21T19:34:55.583Z |
+| browser-session | 5 | 5 | 0 | 2026-10-21T19:34:43.454Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-21T19:34:59.647Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-21T21:56:22.537Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-21T21:21:32.526Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-21T21:47:55.875Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-21T19:39:10.328Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-21T21:24:27.987Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-21T19:38:05.738Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-21T21:52:11.666Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-21T19:48:59.492Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-21T19:37:18.919Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-21T21:22:00.602Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-21T19:40:05.186Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-21T19:44:28.503Z |
+| e2e-tabletop | 15 | 15 | 0 | 2026-10-21T19:48:12.952Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-21T21:22:40.086Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-21T19:49:55.415Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-21T20:02:04.070Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-21T20:03:31.375Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-21T21:27:21.463Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-21T20:06:14.590Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-21T20:07:16.355Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-21T20:07:48.734Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-21T20:08:04.573Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-21T20:08:32.131Z |
+| e2e-tt38 | 7 | 7 | 0 | 2026-10-21T20:12:02.889Z |
+| e2e-tt39 | 7 | 7 | 0 | 2026-10-21T20:12:23.988Z |
+| e2e-tt40 | 3 | 3 | 0 | 2026-10-21T20:12:37.006Z |
+| e2e-tt41 | 4 | 4 | 0 | 2026-10-21T20:12:40.875Z |
+| e2e-tt42 | 3 | 3 | 0 | 2026-10-21T20:12:52.893Z |
+| e2e-tt43 | 3 | 3 | 0 | 2026-10-21T20:13:03.280Z |
+| e2e-tt44 | 5 | 5 | 0 | 2026-10-21T21:22:55.509Z |
+| e2e-tt45 | 2 | 2 | 0 | 2026-10-21T20:14:00.951Z |
+| e2e-tt46 | 8 | 8 | 0 | 2026-10-21T20:15:15.078Z |
+| e2e-tt47 | 5 | 5 | 0 | 2026-10-21T20:24:50.347Z |
+| e2e-tt48-sync | 4 | 4 | 0 | 2026-10-21T20:25:40.834Z |
+| e2e-tt48 | 6 | 6 | 0 | 2026-10-21T20:25:33.126Z |
+| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-21T20:32:09.110Z |
+| e2e-tt49 | 5 | 5 | 0 | 2026-10-21T20:30:55.405Z |
+| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-21T20:33:44.746Z |
+| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-21T21:57:16.684Z |
+| e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-21T21:42:40.584Z |
+| e2e-tt53-media | 6 | 6 | 0 | 2026-10-21T20:36:33.568Z |
+| e2e-tt54 | 8 | 8 | 0 | 2026-10-21T21:28:58.855Z |
+| e2e-tt55-files | 13 | 13 | 0 | 2026-10-21T21:37:46.386Z |
+| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-21T21:52:23.763Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-21T19:38:29.658Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-21T19:44:48.935Z |
+| e2e | 64 | 64 | 0 | 2026-10-21T21:44:26.365Z |
+| image | 12 | 12 | 0 | 2026-10-21T19:34:38.046Z |
+| integration | 25 | 25 | 0 | 2026-10-21T19:34:30.882Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-21T19:35:00.435Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-21T19:35:06.067Z |
+| metaclean | 6 | 6 | 0 | 2026-10-21T19:34:50.498Z |
+| names | 7 | 7 | 0 | 2026-10-21T19:34:37.698Z |
+| office | 35 | 35 | 0 | 2026-10-21T19:34:31.320Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-21T19:34:59.310Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-21T19:34:41.282Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-21T19:34:43.292Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-21T19:35:00.166Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-21T19:34:33.166Z |
+| oracle | 5 | 5 | 0 | 2026-10-21T19:34:31.770Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-21T19:34:53.783Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-21T19:34:47.455Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-21T19:34:49.085Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-21T19:34:33.575Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-21T19:35:00.980Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-21T19:34:54.242Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-21T19:35:00.770Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-21T19:35:06.301Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-21T19:35:07.093Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-21T19:49:55.618Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-21T20:02:04.391Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-21T20:03:47.531Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-21T20:06:02.449Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-21T20:06:18.319Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-21T20:07:25.771Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-21T20:07:52.569Z |
+| tt37-unit | 9 | 9 | 0 | 2026-10-21T20:08:09.223Z |
+| tt38-unit | 15 | 15 | 0 | 2026-10-21T20:11:59.657Z |
+| tt39-pac | 8 | 8 | 0 | 2026-10-21T20:12:20.619Z |
+| tt39-unit | 13 | 13 | 0 | 2026-10-21T20:12:04.773Z |
+| tt40-proxy | 4 | 4 | 0 | 2026-10-21T20:12:33.802Z |
+| tt40-unit | 17 | 17 | 0 | 2026-10-21T20:12:25.798Z |
+| tt41-unit | 9 | 9 | 0 | 2026-10-21T20:12:37.338Z |
+| tt42-dhcp | 2 | 2 | 0 | 2026-10-21T20:12:49.869Z |
+| tt42-proxy | 2 | 2 | 0 | 2026-10-21T20:12:44.195Z |
+| tt42-unit | 6 | 6 | 0 | 2026-10-21T20:12:41.244Z |
+| tt43-unit | 7 | 7 | 0 | 2026-10-21T20:12:53.216Z |
+| tt44-bridge | 8 | 8 | 0 | 2026-10-21T20:13:35.283Z |
+| tt44-unit | 18 | 18 | 0 | 2026-10-21T20:13:16.282Z |
+| tt44-vt | 12 | 12 | 0 | 2026-10-21T20:13:32.636Z |
+| tt45-unit | 10 | 10 | 0 | 2026-10-21T20:13:53.899Z |
+| tt46-writer | 12 | 12 | 0 | 2026-10-21T20:14:45.817Z |
+| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-21T20:19:12.240Z |
+| tt47-crypto | 5 | 5 | 0 | 2026-10-21T20:24:25.106Z |
+| tt47-sheet | 8 | 8 | 0 | 2026-10-21T20:22:28.172Z |
+| tt48-office | 6 | 6 | 0 | 2026-10-21T20:25:01.033Z |
+| tt49-sheet | 10 | 10 | 0 | 2026-10-21T20:30:39.757Z |
+| tt49-writer | 9 | 9 | 0 | 2026-10-21T20:31:50.060Z |
+| tt50-charts | 10 | 10 | 0 | 2026-10-21T20:33:28.785Z |
+| tt51-slides | 15 | 15 | 0 | 2026-10-21T20:34:42.009Z |
+| tt52-pdf | 28 | 28 | 0 | 2026-10-21T20:35:18.066Z |
+| tt53-media | 11 | 11 | 0 | 2026-10-21T20:36:17.102Z |
+| tt54-meta | 6 | 6 | 0 | 2026-10-21T20:36:45.862Z |
+| tt55-files-unit | 7 | 7 | 0 | 2026-10-21T21:14:35.548Z |
+| unit | 23 | 23 | 0 | 2026-10-21T21:14:34.739Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-21T19:34:42.594Z |
+| vector | 18 | 18 | 0 | 2026-10-21T19:34:41.537Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-21T19:34:54.430Z |
 
 ## Rows touched by failing tests
 
@@ -149,18 +154,18 @@ None.
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| SH | 15 | 14 | 1 | 0 | 3 | 2 | 10 |
-| WM | 19 | 15 | 3 | 1 | 3 | 4 | 12 |
-| IN | 8 | 6 | 2 | 0 | 1 | 1 | 6 |
+| SH | 15 | 13 | 2 | 0 | 7 | 2 | 6 |
+| WM | 19 | 13 | 5 | 1 | 4 | 4 | 11 |
+| IN | 8 | 5 | 3 | 0 | 1 | 1 | 6 |
 | SR | 8 | 7 | 0 | 1 | 3 | 3 | 2 |
-| FM | 18 | 15 | 2 | 1 | 5 | 3 | 10 |
-| NC | 6 | 6 | 0 | 0 | 0 | 3 | 3 |
-| ST | 9 | 6 | 2 | 1 | 0 | 3 | 6 |
-| AP | 5 | 2 | 2 | 1 | 0 | 0 | 5 |
+| FM | 18 | 15 | 2 | 1 | 13 | 2 | 3 |
+| NC | 6 | 5 | 0 | 0 | 0 | 3 | 3 |
+| ST | 9 | 5 | 3 | 1 | 0 | 3 | 6 |
+| AP | 5 | 1 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 46 | 8 | 0 | 38 | 10 | 6 |
-| FF | 34 | 31 | 3 | 0 | 28 | 2 | 4 |
-| MD | 9 | 7 | 2 | 0 | 1 | 7 | 1 |
+| FF | 34 | 33 | 1 | 0 | 30 | 2 | 2 |
+| MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
 | SC | 18 | 16 | 1 | 1 | 10 | 3 | 5 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
 | AX | 15 | 14 | 1 | 0 | 10 | 3 | 2 |
@@ -179,34 +184,34 @@ None.
 | HW | 11 | 2 | 9 | 0 | 0 | 1 | 10 |
 | CM | 2 | 1 | 0 | 1 | 0 | 0 | 2 |
 | BL | 5 | 4 | 1 | 0 | 1 | 2 | 2 |
-| DP | 14 | 13 | 1 | 0 | 1 | 6 | 7 |
+| DP | 14 | 13 | 1 | 0 | 2 | 6 | 6 |
 
 ## Per-row detail
 
 | code | status | tested | evidence (passing tests) |
 |---|---|---|---|
-| SH-01 | built | untested |  |
-| SH-02 | built | untested |  |
+| SH-01 | built | full | e2e-tt55-shell: SH-01 one registry: launcher tiles = palette app results = src/lib/registry.ts (same ids, titles, count); a tile and a palette row each open their module |
+| SH-02 | built | full | e2e-tt55-shell: SH-02 shelf = windows: one shelf button per window of the active workspace (= persisted state), through open, middle-click close, and a workspace with other windows |
 | SH-03 | built | untested |  |
-| SH-04 | built | untested |  |
+| SH-04 | built | full | e2e-tt55-shell: SH-04 desktop icons follow the file system: a folder trashed in Files disappears from the desktop with no reload — in the same tab and in a second tab of the browser — and the icon set always equals the server listing |
 | SH-05 | built | partial | e2e: SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive |
 | SH-06 | built | untested |  |
 | SH-07 | built | untested |  |
 | SH-08 | built | full | e2e-tt48-sync: reducer 'reconcile': the newer desktop's shared data wins, this tab keeps exactly its own windows/focus, z order stays monotonic, revision never goes back; e2e-tt48-sync: a fresh tab hydrates at the row revision even when the stored state JSON lacks one, so its first save is accepted (no 409); e2e-tt48-sync: another tab saves a newer desktop → this tab's stale save gets 409 → it adopts the newer desktop, says so, and its next save builds on it (nothing lost on either side) (+5) |
-| SH-09 | built | untested |  |
+| SH-09 | built | full | e2e-tt55-files: SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward; tt55-files-unit: SH-09 back / forward history = browser model (entries + index) over 3 000 random sequences, incl. the 50-entry cap |
 | SH-10 | partial | partial | e2e: Overview (Meta+Q) and Blackout overlay toggle |
 | SH-11 | built | untested |  |
 | SH-12 | built | untested |  |
-| SH-13 | built | untested |  |
-| SH-14 | built | full | e2e: offline write is queued, then replayed through the journal when back online |
+| SH-13 | partial | untested |  |
+| SH-14 | built | full | e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay; e2e: offline write is queued, then replayed through the journal when back online |
 | WM-01 | built | full | e2e: drag a window by its title bar; geometry is committed and persisted; unit: 10 000 random commands preserve every invariant; unit: TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk |
 | WM-02 | built | full | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half; unit: 10 000 random commands preserve every invariant |
 | WM-03 | built | partial | unit: reducer is pure (input not mutated); workspaces filter without unmounting |
 | WM-04 | built | partial | e2e: Overview (Meta+Q) and Blackout overlay toggle |
-| WM-05 | built | untested |  |
+| WM-05 | partial | untested |  |
 | WM-06 | built | partial | e2e: mount: browser |
 | WM-07 | partial | untested |  |
-| WM-08 | built | untested |  |
+| WM-08 | built | full | tt55-files-unit: WM-08 remembered geometry: close records the normal rect per module/host (restore rect when maximized), the next open reuses it, an explicit rect wins, no exact stacking, fits a smaller viewport, bounded, closeAll records all |
 | WM-09 | built | full | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half; unit: 10 000 random commands preserve every invariant |
 | WM-10 | built | untested |  |
 | WM-11 | built | untested |  |
@@ -214,7 +219,7 @@ None.
 | WM-13 | built | untested |  |
 | WM-14 | blocked | untested |  |
 | WM-15 | partial | untested |  |
-| WM-16 | built | untested |  |
+| WM-16 | probe | untested |  |
 | WM-17 | built | untested |  |
 | WM-18 | built | untested |  |
 | WM-19 | probe | untested |  |
@@ -225,7 +230,7 @@ None.
 | IN-05 | built | full | unit: shortcut presets have no internal conflicts; chord matcher |
 | IN-06 | probe | untested |  |
 | IN-07 | built | partial | e2e-tt37: gamepad pointer (IN-07) with a scripted W3C-shape pad (no physical controller exists in this sandbox — the hardware is substituted, everything from navigator.getGamepads() on is real): appears on connect, the stick steers it onto the launcher button and A opens the launcher, B (Escape) closes it, X opens the desktop menu, the right stick scrolls the window under it, RB moves keyboard focus and the pointer follows, Start turns it off and on, disconnect removes it; no page errors; e2e: mount: devices; tt37-unit: gamepad stick shaping and motion (IN-07): radial deadzone 0.15, power curve that keeps the stick's angle, full deflection = 1400 px/s, the same distance at 30 / 60 / 144 Hz, a stalled frame cannot teleport the cursor (dt ≤ 100 ms), the cursor stays inside the viewport, NaN axes are inert (+1) |
-| IN-08 | built | untested |  |
+| IN-08 | partial | untested |  |
 | SR-01 | built | full | e2e: mount: find; e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it; integration: SR-01 search finds new content with provenance (+1) |
 | SR-02 | built | partial | e2e: mount: find; integration: SR-01 search finds new content with provenance; integration: deleting a note removes only its own index row |
 | SR-03 | built | full | e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it; integration: SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing; unit: OSA distance counts adjacent transposition as 1 (+1) |
@@ -234,30 +239,30 @@ None.
 | SR-06 | built | partial | e2e: mount: calculator; unit: precedence, power associativity, rounding policy |
 | SR-07 | blocked | untested |  |
 | SR-08 | built | partial | e2e: mount: find |
-| FM-01 | built | partial | e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e: mount: files (+1) |
-| FM-02 | built | untested |  |
-| FM-03 | built | full | e2e: mount: files; e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix); integration: FM-03 journaled move: 6 states in order, digest preserved, source retired (+2) |
+| FM-01 | built | full | e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash (+7) |
+| FM-02 | built | full | e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane; e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified); e2e-tt55-files: FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there |
+| FM-03 | built | full | e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane; e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified); e2e: mount: files (+5) |
 | FM-04 | built | partial | e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog; e2e: mount: peek; integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades |
-| FM-05 | built | full | integration: FM-05 compress → extract round trip preserves bytes (text and binary); integration: FM-05 extract refuses zip-slip and writes nothing; unit: zip-slip and bomb guards fire before allocation (+2) |
-| FM-06 | built | untested |  |
+| FM-05 | built | full | e2e-tt55-files: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection; integration: FM-05 compress → extract round trip preserves bytes (text and binary); integration: FM-05 extract refuses zip-slip and writes nothing (+3) |
+| FM-06 | built | full | e2e-tt55-files: FM-06 context menu: concise vs full sets, type-to-search reaches any action, arrow keys + Enter run it, Esc closes; background menu has New / templates / Paste; tt55-files-unit: FM-06 context-menu model: concise ⊂ full, type-to-search matches every word (label + keywords, case- and accent-folded), order kept |
 | FM-07 | built | full | e2e: mount: storage; integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest |
 | FM-08 | built | partial | e2e: mount: localdisk |
-| FM-09 | built | untested |  |
+| FM-09 | built | full | e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay |
 | FM-10 | probe | untested |  |
 | FM-11 | built | full | e2e: mount: files; integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest; integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard) |
 | FM-12 | blocked | untested |  |
-| FM-13 | built | untested |  |
+| FM-13 | built | full | e2e-tt55-files: FM-13 New from template: the menu lists /System/Templates from the server; a new file is a byte copy of the template; a second one gets a free name; tt55-files-unit: FM-03 / FM-13 conflict-free names: never in use, the smallest free candidate, copies of copies do not grow, dirs and dotfiles keep their name |
 | FM-14 | partial | untested |  |
-| FM-15 | built | untested |  |
-| FM-16 | built | untested |  |
-| FM-17 | built | untested |  |
+| FM-15 | built | full | e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash; e2e-tt55-files: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection; tt55-files-unit: FM-15 selection model = spec-literal reference over 3 000 random click / Ctrl / Shift / Ctrl+Shift / keyboard sequences |
+| FM-16 | built | full | e2e-tt55-files: FM-16 quick filter + Subfolders: deep matches equal a recursive walk of the server; % and _ are literal; dotfiles and /System stay out |
+| FM-17 | built | full | e2e-tt55-files: FM-17 folder sizes: every folder row shows the size of its subtree (= a recursive walk of the server), and the cached size refreshes after a write |
 | FM-18 | built | full | e2e: mount: files; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists; integration: FM-18 overwrite snapshots the previous version |
 | NC-01 | built | partial | e2e: mount: alerts |
 | NC-02 | built | untested |  |
 | NC-03 | built | untested |  |
 | NC-04 | built | partial | e2e: mount: alerts |
 | NC-05 | built | partial | integration: FM-03 journaled move: 6 states in order, digest preserved, source retired |
-| NC-06 | built | untested |  |
+| NC-06 | skeleton | untested |  |
 | ST-01 | built | partial | e2e: mount: settings; integration: SR-04 / settings: locked settings refuse writes (423) |
 | ST-02 | probe | untested |  |
 | ST-03 | partial | untested |  |
@@ -266,9 +271,9 @@ None.
 | ST-06 | built | partial | unit: shortcut presets have no internal conflicts; chord matcher |
 | ST-07 | built | untested |  |
 | ST-08 | blocked | untested |  |
-| ST-09 | built | untested |  |
+| ST-09 | probe | untested |  |
 | AP-01 | partial | untested |  |
-| AP-02 | built | untested |  |
+| AP-02 | skeleton | untested |  |
 | AP-03 | blocked | untested |  |
 | AP-04 | built | untested |  |
 | AP-05 | partial | untested |  |
@@ -316,13 +321,13 @@ None.
 | FF-04 | built | full | ai-format: real Illustrator output: PDF export, DOS-EPS, Illustrator 88 EPS and FreeHand AI-dialect PostScript; ai-format: constructed .ai with and without PDF compatibility (the spec's open-vs-limited split); ai-format: creator hidden in a compressed object stream, UTF-16BE strings, junk before the header (+15) |
 | FF-05 | built | untested |  |
 | FF-06 | probe | untested |  |
-| FF-07 | partial | untested |  |
+| FF-07 | built | full | e2e-tt54: FF-07 export PNG from Photos is BIT-EXACT to the Node recipe renderer on the same pixels (browser decode → recipe → encode); e2e-tt54: FF-07 export AVIF (WebCodecs AV1 + our AVIF writer) and JPEG / WebP with curated metadata: decoded by Pillow (libavif / libjpeg / libwebp); location only when asked; Orientation reset to 1; e2e: mount: photos (+2) |
 | FF-08 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
 | FF-09 | built | full | unit: CSV RFC-4180 round trip |
 | FF-10 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
 | FF-11 | built | full | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+31) |
 | FF-12 | built | full | ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files; integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; integration: FM-05 extract refuses zip-slip and writes nothing (+1) |
-| FF-13 | partial | untested |  |
+| FF-13 | built | full | e2e-tt54: FF-13 Files grid: real thumbnails for JPEG (EXIF orientation applied), TIFF (own decoder), PNG, GIF, SVG, MP3/M4A cover art, PDF page 1, WebM frame, text; no-preview types keep the icon with a reason; e2e-tt54: FF-13 thumbnail cache: WebP nodes under /System/Cache/thumbs (content-addressed, written once); a fresh session is served from the cache without re-rendering; e2e-tt54: FF-13 Info panel: metadata of the selected file (camera, capture date, exposure, GPS) from the first-party readers (+5) |
 | FF-14 | built | full | ai-format: version strings, PDF literal escapes, format registry and MIME; unit: loss report itemises drops; registry grades |
 | FF-15 | built | partial | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists |
 | FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
@@ -334,7 +339,7 @@ None.
 | FF-25 | built | full | e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard; e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size); e2e: mount: vector |
 | MD-01 | built | partial | e2e: mount: capture |
 | MD-02 | built | partial | e2e: mount: media |
-| MD-03 | partial | partial | e2e-image: classic Quick edit mode is still available (additive merge); e2e: mount: imageedit |
+| MD-03 | built | full | e2e-image: classic Quick edit mode is still available (additive merge); e2e-tt54: MD-03 sidecars follow their photo on rename / copy / move / trash / restore / purge and batch rename (server-side, any client); op=media lists photos + sidecars and nothing under /System; e2e-tt54: Hidden files: sidecars never show in Files (until 'Hidden' is toggled) or on the desktop (+6) |
 | MD-04 | built | partial | e2e: mount: devices |
 | MD-05 | built | partial | e2e: mount: devices |
 | MD-06 | built | partial | e2e: mount: devices |
@@ -503,7 +508,7 @@ None.
 | MS-03 | blocked | partial | e2e: mount: messages |
 | MS-04 | partial | untested |  |
 | AX-01 | built | full | e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting; e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations (+1) |
-| AX-02 | built | partial | e2e: structural a11y: every window is a named dialog; no unnamed buttons |
+| AX-02 | built | partial | e2e-tt55-files: regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree); e2e: structural a11y: every window is a named dialog; no unnamed buttons |
 | AX-03 | built | full | e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens) |
 | AX-04 | built | untested |  |
 | AX-05 | built | partial | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half |
@@ -541,7 +546,7 @@ None.
 | BL-05 | built | partial | integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused |
 | DP-01 | built | untested |  |
 | DP-02 | built | untested |  |
-| DP-03 | built | untested |  |
+| DP-03 | built | full | e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay |
 | DP-04 | built | partial | integration: FM-03 journaled move: 6 states in order, digest preserved, source retired |
 | DP-05 | built | partial | integration: FM-18 overwrite snapshots the previous version; integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard) |
 | DP-06 | built | untested |  |
