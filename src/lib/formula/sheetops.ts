@@ -16,8 +16,8 @@
  */
 import { adjustLayoutForStructure, sortConflict } from "./sheetlayout";
 import { tokenize } from "./lexer";
-import { colToLetters, lettersToCol } from "./types";
-import { Sheet, Workbook, type Cell, type CellStyle } from "./engine";
+import { colToLetters, lettersToCol, type Scalar } from "./types";
+import { Sheet, Workbook, textInput, type Cell, type CellStyle } from "./engine";
 
 export interface Range { c0: number; r0: number; c1: number; r1: number }
 export const MAX_COL = 16_383, MAX_ROW = 1_048_575;
@@ -74,6 +74,25 @@ export function shiftFormula(input: string, dCol: number, dRow: number): string 
     const moved = unit.map((p) => ({ ...p, col: p.colAbs ? p.col : p.col + dCol, row: p.rowAbs ? p.row : p.row + dRow }));
     if (moved.some((p) => p.col < 0 || p.row < 0 || p.col > MAX_COL || p.row > MAX_ROW)) return "#REF!";
     return moved.map((p, i) => (i === 0 ? refText(p) : refText({ ...p, sheet: "" }))).join(":");
+  });
+}
+
+/**
+ * TT56 Paste Special → Transpose: a formula copied from `src` lands at `dst`. A fully relative reference keeps pointing
+ * at the TRANSPOSED cell — its row / column offsets from the formula cell are swapped (R[a]C[b] → R[b]C[a]); a mixed
+ * reference shifts only its relative component by the displacement (copy semantics); absolute references are kept.
+ */
+export function transposeFormula(input: string, src: { col: number; row: number }, dst: { col: number; row: number }): string {
+  if (!input.startsWith("=")) return input;
+  return rewriteRefs(input, (unit) => {
+    const text = (u: RefParts[]) => u.map((p, i) => (i === 0 ? refText(p) : refText({ ...p, sheet: "" }))).join(":");
+    if (unit.some((p) => p.col < 0 || p.row < 0 || p.col > MAX_COL || p.row > MAX_ROW)) return text(unit);
+    const moved = unit.map((p) => {
+      if (!p.colAbs && !p.rowAbs) return { ...p, col: dst.col + (p.row - src.row), row: dst.row + (p.col - src.col) };
+      return { ...p, col: p.colAbs ? p.col : p.col + dst.col - src.col, row: p.rowAbs ? p.row : p.row + dst.row - src.row };
+    });
+    if (moved.some((p) => p.col < 0 || p.row < 0 || p.col > MAX_COL || p.row > MAX_ROW)) return "#REF!";
+    return text(moved);
   });
 }
 
@@ -185,6 +204,67 @@ export function pasteBlock(sheet: Sheet, clip: Clip, col: number, row: number, o
     if (!opts.valuesOnly) sheet.setStyle(col + j, row + i, clip.styles[i]?.[j] ?? null);
   }));
   return { c0: col, r0: row, c1: col + (clip.inputs[0]?.length ?? 1) - 1, r1: row + clip.inputs.length - 1 };
+}
+/* ------------------------------------------------------------------ TT56 Paste Special */
+export type PasteWhat = "all" | "formulas" | "values" | "formats";
+export type PasteOp = "none" | "add" | "subtract" | "multiply" | "divide";
+export interface PasteSpecialOpts { what: PasteWhat; op?: PasteOp; transpose?: boolean; skipBlanks?: boolean }
+/**
+ * Excel-style Paste Special from an in-app clip.
+ *  - what: all (inputs shifted + formats) · formulas (inputs shifted, target formats kept) · values (the computed values at
+ *    copy time, `values`, as literals — text that would re-parse gets the quote prefix) · formats (styles only).
+ *  - transpose: source cell (i, j) lands at (j, i); formulas go through transposeFormula (relative offsets swapped).
+ *  - skipBlanks: an empty source cell leaves the target untouched (inputs and formats).
+ *  - op: arithmetic with the target's current value for numeric pastes (blank target = 0, blank source = 0 → no change);
+ *    a non-numeric source or target value is pasted as-is (Excel pastes text over the operation). Division by zero writes
+ *    the error literal =#DIV/0!. With what="all"/"formulas" and a formula source, the result is the formula
+ *    "=(<target>)<op>(<source formula>)" like Excel.
+ * `targetValue(col,row)` reads the target's current computed value (needed for op); returns the written range.
+ */
+export function pasteSpecial(sheet: Sheet, clip: Clip, values: Scalar[][] | undefined, col: number, row: number, o: PasteSpecialOpts,
+  targetValue: (col: number, row: number) => Scalar | undefined = () => undefined): Range {
+  const op = o.op ?? "none";
+  const H = clip.inputs.length, W = clip.inputs[0]?.length ?? 1;
+  const sym = { add: "+", subtract: "-", multiply: "*", divide: "/" } as const;
+  const lit = (v: Scalar | undefined): string => v === undefined || v === "" ? "" : typeof v === "number" ? String(v) : typeof v === "boolean" ? (v ? "TRUE" : "FALSE")
+    : typeof v === "string" ? textInput(v) : `=${(v as { error: string }).error}`;
+  const num = (v: Scalar | undefined): number | null => v === undefined || v === "" ? 0 : typeof v === "number" ? v : typeof v === "boolean" ? null : null;
+  const apply = (a: number, b: number): number | null => op === "add" ? a + b : op === "subtract" ? a - b : op === "multiply" ? a * b : b === 0 ? null : a / b;
+  for (let i = 0; i < H; i++) for (let j = 0; j < W; j++) {
+    const input = clip.inputs[i]?.[j] ?? "";
+    const tc = col + (o.transpose ? i : j), tr = row + (o.transpose ? j : i);
+    if (o.skipBlanks && input === "") continue;
+    if (o.what === "formats") { sheet.setStyle(tc, tr, clip.styles[i]?.[j] ?? null); continue; }
+    let out: string;
+    if (o.what === "values") {
+      const v = values?.[i]?.[j];
+      out = lit(v === undefined ? (input.startsWith("=") ? "" : parseLit(input)) : v);
+    } else {
+      out = o.transpose ? transposeFormula(input, { col: clip.origin.col + j, row: clip.origin.row + i }, { col: tc, row: tr })
+        : shiftFormula(input, tc - (clip.origin.col + j), tr - (clip.origin.row + i));
+    }
+    if (op !== "none" && out !== "") {
+      const tv = targetValue(tc, tr);
+      if (out.startsWith("=")) {
+        const tn = num(tv);
+        if (tn !== null) out = `=(${tn})${sym[op]}(${out.slice(1)})`;
+      } else {
+        const sv = o.what === "values" ? values?.[i]?.[j] : parseLit(input);
+        const a = num(tv), b = num(sv);
+        if (a !== null && b !== null && typeof sv === "number") { const r = apply(a, b); out = r === null ? "=#DIV/0!" : String(r); }
+      }
+    }
+    sheet.setCell(tc, tr, out);
+    if (o.what === "all") sheet.setStyle(tc, tr, clip.styles[i]?.[j] ?? null);
+  }
+  return { c0: col, r0: row, c1: col + (o.transpose ? H : W) - 1, r1: row + (o.transpose ? W : H) - 1 };
+}
+function parseLit(input: string): Scalar {
+  if (input === "") return "";
+  if (input.startsWith("'")) return input.slice(1);
+  const n = Number(input); if (input.trim() !== "" && !Number.isNaN(n)) return n;
+  if (/^(TRUE|FALSE)$/i.test(input.trim())) return input.trim().toUpperCase() === "TRUE";
+  return input;
 }
 export function clearRange(sheet: Sheet, r: Range, what: "contents" | "all" = "contents") {
   const n = norm(r);

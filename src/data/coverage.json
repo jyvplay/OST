@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-21T21:57:25.371Z",
+ "generatedAt": "2026-10-21T23:50:07.707Z",
  "totals": {
   "built": {
-   "full": 290,
-   "partial": 55,
+   "full": 292,
+   "partial": 54,
    "blocked": 21,
-   "none": 2
+   "none": 1
   },
   "tested": {
-   "full": 190,
+   "full": 201,
    "partial": 74,
-   "untested": 104
+   "untested": 93
   },
   "tests": {
-   "total": 995,
-   "passed": 995
+   "total": 1026,
+   "passed": 1025
   }
  },
  "rows": {
@@ -127,8 +127,16 @@
    ]
   },
   "WM-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56: WM-05 MRU after 5 focus changes, held-chord switcher: overlay lists MRU order, chord advances, Shift reverses, release commits, Esc cancels",
+    "e2e-tt56: WM-05 modes: app mode groups windows by app (2 calculators → 1 entry), workspace mode switches workspace on release; ←/→ and 1/2/3 change mode",
+    "e2e-tt56: WM-05 modal failure test: with an ask dialog open the switcher chord does nothing (no overlay, focus unchanged)",
+    "e2e-tt56: no uncaught page errors during the TT56 session",
+    "tt56-shell-unit: WM-05 spec acceptance: MRU order after 5 focus changes (open A–E, focus C, A, E, B, D → D B E A C)",
+    "tt56-shell-unit: WM-05 property: over 400 random command sequences MRU is a permutation of the live windows, focus is its head, and it equals a reference model",
+    "tt56-shell-unit: WM-05 modes: app mode groups by module (newest window per app), workspace mode lists workspaces MRU-first; step wraps both ways"
+   ]
   },
   "WM-06": {
    "tested": "partial",
@@ -154,8 +162,10 @@
    ]
   },
   "WM-10": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56: WM-10 focus mode: Meta+Shift+F sets ONE parent CSS variable; unfocused windows read it (opacity .45), the focused one stays 1; OSD; toggles back"
+   ]
   },
   "WM-11": {
    "tested": "untested",
@@ -450,8 +460,12 @@
    ]
   },
   "NC-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56: NC-06 OSD: 20 volume changes in a burst → the pill tracks every step, the polite live region changes exactly once (settled value)",
+    "e2e-tt56: WM-10 focus mode: Meta+Shift+F sets ONE parent CSS variable; unfocused windows read it (opacity .45), the focused one stays 1; OSD; toggles back",
+    "tt56-shell-unit: NC-06 settle model: 20 events 50 ms apart announce once; bursts separated by > settle announce once each; labels"
+   ]
   },
   "ST-01": {
    "tested": "partial",
@@ -475,8 +489,10 @@
    ]
   },
   "ST-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56: ST-05 OS media queries: prefers-reduced-motion → motion token 0 ms (transitions 0 s); “Match system” theme follows prefers-color-scheme live"
+   ]
   },
   "ST-06": {
    "tested": "partial",
@@ -485,8 +501,10 @@
    ]
   },
   "ST-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56: ST-07 UI scale is independent of the display: device scale factor 1 vs 2 (external HiDPI display / browser-zoom emulation) gives the same CSS text size; the app's own scale changes it"
+   ]
   },
   "ST-08": {
    "tested": "untested",
@@ -1135,6 +1153,7 @@
     "e2e-tt49: modal-shortcut failure test: Delete, Backspace, typing, Ctrl+Z and Enter inside the CF panel never touch the selected grid cell",
     "e2e-tt49: add a data bar, an icon set and a formula rule in the panel → drawn at once → Save → the independent oracle evaluates the saved .xlsx exactly as the grid showed",
     "e2e-tt49: no uncaught page errors during the conditional-formatting session",
+    "e2e-tt56: FF-20 Spreadsheet Paste Special in the UI: Ctrl+C → Ctrl+Shift+V → Values + Transpose, then Values + Add; Save → openpyxl reads literal values at the transposed cells",
     "e2e: mount: sheet",
     "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file",
     "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
@@ -1172,7 +1191,11 @@
     "tt49-sheet: lossless save: unedited CF corpus files stay byte-identical; deleting a data bar also deletes its linked x14 rule; deleting an x14-only icon set removes it from the extLst; openpyxl reads every result",
     "tt49-sheet: known answers for x14-only parts openpyxl cannot see: automatic-bound bars with border, defined-name bar maximum, 3Stars, custom icon mix",
     "tt49-sheet: JSON boundary: every corpus rule survives workbookToJson → workbookFromJson unchanged; 18 hostile shapes are rejected or neutralised",
-    "tt49-sheet: adversarial evaluation: degenerate distributions, errors, #REF! after shifting, whole-column formulas, caps, no mutation, no recursion"
+    "tt49-sheet: adversarial evaluation: degenerate distributions, errors, #REF! after shifting, whole-column formulas, caps, no mutation, no recursion",
+    "tt56-sheet-paste: hand cases: values of formulas, formulas keep target format, formats only, skip blanks, quote-prefixed text",
+    "tt56-sheet-paste: transpose: in-range relationships follow the transposed cells; mixed and absolute refs; out-of-sheet → #REF!",
+    "tt56-sheet-paste: operations: add / subtract / multiply / divide against the target, blank = 0, text pasted as-is, ÷0 → #DIV/0!, formula source → combined formula",
+    "tt56-sheet-paste: random blocks vs an independent reference model (values + op + skip blanks + transpose) and transpose∘transpose = id"
    ]
   },
   "FF-21": {
@@ -1241,6 +1264,7 @@
     "e2e-tt49-writer: locked content: a header line holding a picture is shown 'kept as is' (no input); adding a line beside it saves with the picture intact; Remove unlinks the header",
     "e2e-tt49-writer: Undo of an ADDED header through the UI: pages and panel return to 'no header', typing in the body still lands at the caret, and the saved file is a valid package with no header referenced",
     "e2e-tt49-writer: no page errors; uploads cleaned up",
+    "e2e-tt56: FF-22 Writer Track Changes in the UI: toggle, type, delete, review panel per-change accept; saved bytes verified by the lxml oracle",
     "e2e: mount: writer",
     "tt46-writer: xmltree: every well-formed XML part of the docx corpus re-serializes byte-identically",
     "tt46-writer: xmltree guards: nesting bomb refused, external/undeclared entities never resolved, numeric refs decoded",
@@ -1273,7 +1297,13 @@
     "tt49-writer: hostile input: over-long text and too many lines are capped, XML specials escaped, invalid XML characters dropped, tabs become <w:tab/>, braces other than the two fields stay text — and every result opens in python-docx",
     "tt49-writer: lines holding other fields (DATE complex field, STYLEREF fldSimple) or a hyperlink are locked: sent back with changed text they stay byte-identical and python-docx still sees the fields",
     "tt49-writer: undo (Writer's snapshot/restore replayed): add → undo, remove → undo, first-page → undo each save a valid package with exactly one <w:sectPr> and the ORIGINAL references; page setup after a header edit keeps both",
-    "tt49-writer: three-column headers (positional tabs): an edited line keeps its centre/right <w:ptab/> elements, so python-docx and our reader see the same three columns"
+    "tt49-writer: three-column headers (positional tabs): an edited line keeps its centre/right <w:ptab/> elements, so python-docx and our reader see the same three columns",
+    "tt56-writer-track: recording: each edit kind produces exactly the expected w:ins / w:del (lxml oracle); trackRevisions saved; ids unique; python-docx opens",
+    "tt56-writer-track: accept-all / reject-all (ours) equal the oracle's independent resolution, on the live model and after a save/re-open",
+    "tt56-writer-track: per-change review: 40 random accept/reject decisions, applied one change at a time in random order, equal the oracle",
+    "tt56-writer-track: next/previous order + toggling: revisions() is in document order; turning tracking off is saved; untracked edits add no revision",
+    "tt56-writer-track: typing over a selection under tracking: deleted text stays, the insertion follows it (Word order); Delete key skips past",
+    "tt56-writer-track: POI corpus: every document with run revisions re-serializes (all paragraphs regenerated) with the same revisions and the same accept/reject text"
    ]
   },
   "FF-23": {
@@ -1412,8 +1442,10 @@
    ]
   },
   "SC-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56-rows: SC-03 permission audit: Settings lists every name of the full permission list, each state equals an independent permissions.query"
+   ]
   },
   "SC-04": {
    "tested": "untested",
@@ -1733,7 +1765,6 @@
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
     "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
-    "e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
     "e2e-privacy: no page errors across the privacy flows",
     "e2e: mount: privacy",
     "privacy-crypto: Argon2id (hash-wasm) equals the reference C implementation (argon2-cffi), incl. the default 64 MiB/t=3 slot cost",
@@ -2994,8 +3025,10 @@
    ]
   },
   "AX-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56-rows: AX-04 focus not obscured: Tab into a control of a covered window raises that window (server focus + top z); programmatic focus does not"
+   ]
   },
   "AX-05": {
    "tested": "partial",
@@ -3065,8 +3098,10 @@
    "tests": []
   },
   "RG-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56-rows: RG-03 idle: with the desktop static for 3 s, zero requestAnimationFrame callbacks run (rAF counted by an init script)"
+   ]
   },
   "RG-04": {
    "tested": "partial",
@@ -3086,8 +3121,10 @@
    ]
   },
   "RG-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56-rows: RG-07 capability report: ≥ 40 APIs in Settings → Capabilities, each row has detail/degrade text, sampled rows equal independent detection"
+   ]
   },
   "HW-01": {
    "tested": "partial",
@@ -3171,12 +3208,17 @@
    ]
   },
   "DP-01": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56-rows: DP-01 account-free: no login / auth route answers, no auth library or sign-in call in the client bundle",
+    "e2e-tt56-rows: no uncaught page errors"
+   ]
   },
   "DP-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt56-rows: DP-02 no ads, feeds or upsells: zero ad/promo/upsell components or strings in src/, zero ad-SDK markers in the client bundle"
+   ]
   },
   "DP-03": {
    "tested": "full",

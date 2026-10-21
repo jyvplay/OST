@@ -24,6 +24,9 @@ import Shelf from "./Shelf";
 import DesktopSurface from "./DesktopSurface";
 import Tabletop from "./Tabletop";
 import Palette from "./Palette";
+import Switcher from "./Switcher";
+import OsdLayer from "./OsdLayer";
+import { showOsd } from "@/lib/osd";
 import Overview from "./Overview";
 import QuickPanel from "./QuickPanel";
 import Taskbar from "./Taskbar";
@@ -42,6 +45,8 @@ import { isAskOpen } from "@/lib/ask";
 interface Toast { id: number; message: string; tone: "info" | "ok" | "warn" | "bad"; action?: { label: string; run: () => void } }
 
 /** TT21: default window sizes grow with the text scale (40% of the text growth), clamped to the desktop. */
+/** TT56 (WM-05): stable module-title lookup for the switcher */
+const appTitle = (m: string) => moduleById(m)?.title ?? m;
 function scaledRect(r: Partial<Rect> | undefined, vp: { w: number; h: number } | undefined): Partial<Rect> {
   if (!r) return {};
   const f = Math.max(1, 1 + (readUiUnit() - 1) * 0.4);
@@ -261,7 +266,10 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   /* --------------------------------------------------------- appearance */
   useEffect(() => {
     const root = document.documentElement;
-    root.dataset.theme = settings["appearance.theme"] ?? "dark";
+    // TT56 (ST-05): "system" follows the OS prefers-color-scheme (live, see the effect below); dark stays the house default
+    const th = settings["appearance.theme"] ?? "dark";
+    root.dataset.theme = th === "system" ? (window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark") : th;
+    root.dataset.themeSource = th === "system" ? "system" : "user";
     root.dataset.density = settings["appearance.density"] ?? "balanced";
     const motion = settings["appearance.motion"] ?? "system";
     root.dataset.motion = motion === "off" ? "off" : "";
@@ -275,8 +283,47 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     applyTextScale(Number(settings["appearance.textScale"] ?? DEFAULT_TEXT_SCALE));
   }, [settings, gov.effects]);
 
+  /* TT56 (ST-05): live OS colour-scheme following for the "system" theme */
+  const themeSetting = settings["appearance.theme"] ?? "dark";
+  useEffect(() => {
+    if (themeSetting !== "system" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    const apply = () => { document.documentElement.dataset.theme = mq.matches ? "light" : "dark"; };
+    apply(); mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [themeSetting]);
+  /* TT56 (WM-10): focus mode is ONE parent CSS variable (--fs-focus-dim) that every unfocused window reads */
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--fs-focus-dim", state.focusMode ? "0.45" : "1");
+    root.dataset.focusMode = state.focusMode ? "on" : "off";
+  }, [state.focusMode]);
+
+  /* ------------------------------------------------- TT56 on-screen display (NC-06) */
+  // shown for user-visible system changes AFTER boot (hydration itself is silent): text size, layout, theme, focus mode,
+  // workspace. Volume comes from <OsdLayer>'s own volumechange listener and the Streams slider.
+  const osdPrev = useRef<Record<string, string> | null>(null);
+  const osdNow: Record<string, string> = {
+    text: String(settings["appearance.textScale"] ?? DEFAULT_TEXT_SCALE), layout: layoutOf(settings["appearance.layout"]),
+    theme: String(settings["appearance.style"] ?? ""), focus: String(state.focusMode), ws: String(state.activeWorkspace),
+  };
+  const osdKey = JSON.stringify(osdNow);
+  useEffect(() => {
+    const now = JSON.parse(osdKey) as Record<string, string>;
+    const prev = osdPrev.current;
+    if (!booted) return;
+    osdPrev.current = now;
+    if (!prev) return;
+    if (now.text !== prev.text) { const pct = Math.round(Number(now.text)); showOsd("text", `Text size ${pct}%`, Math.min(100, Math.round(pct / 2))); }
+    else if (now.layout !== prev.layout) showOsd("layout", `Layout: ${now.layout === "art" ? "Art (dock)" : now.layout === "business" ? "Business (taskbar)" : now.layout}`);
+    else if (now.theme !== prev.theme && now.theme) showOsd("theme", `Theme: ${now.theme.replace(/^./, (c) => c.toUpperCase())}`);
+    else if (now.focus !== prev.focus) showOsd("focus", now.focus === "true" ? "Focus mode on" : "Focus mode off");
+    else if (now.ws !== prev.ws) showOsd("workspace", `Workspace: ${state.workspaces.find((w) => String(w.id) === now.ws)?.name ?? now.ws}`);
+  }, [osdKey, booted, state.workspaces]);
+
   /* ------------------------------------------------------------ keyboard */
   const preset = (settings["shell.shortcutPreset"] ?? "hybrid") as Preset;
+  const switcherCombo = useMemo(() => { const b = BINDINGS.find((x) => x.id === "switcher"); return b ? comboFor(b, preset) : ""; }, [preset]);
   useEffect(() => {
     const chord = (id: string) => {
       const b = BINDINGS.find((x) => x.id === id);
@@ -298,7 +345,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       if (matchChord(e, chord("launcher"))) return act(() => setLauncher((v) => !v));
       if (matchChord(e, chord("overview"))) return act(() => setOverview((v) => !v));
       if (matchChord(e, chord("quickPanel"))) return act(() => setQuick((v) => !v));
-      if (matchChord(e, chord("switcher"))) return act(() => dispatch({ t: "cycle", dir: e.shiftKey ? -1 : 1 }));
+      // the switcher chord (WM-05) is handled by <Switcher> in the capture phase (held-modifier overlay, MRU order)
       if (matchChord(e, chord("files"))) return act(() => open("files"));
       if (matchChord(e, chord("terminal"))) return act(() => open("terminal"));
       if (matchChord(e, chord("alerts"))) return act(() => open("alerts"));
@@ -485,6 +532,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           <AskHost />
           {booted ? <NarratorHost /> : null}
           {palette ? <Palette onClose={() => setPalette(false)} /> : null}
+          <OsdLayer />
+          <Switcher state={state} dispatch={dispatch} combo={switcherCombo} appName={appTitle} blocked={isAskOpen} />
           {quick ? <QuickPanel onClose={() => setQuick(false)} onBlackout={() => setBlackout(true)} anchor={layout === "business" ? "bottom" : "top"} /> : null}
 
           {launcher && layout === "business" ? <StartMenu onClose={() => setLauncher(false)} /> : null}

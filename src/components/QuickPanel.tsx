@@ -23,7 +23,9 @@ export default function QuickPanel({ onClose, onBlackout, anchor = "top" }: { on
     if (typeof Notification !== "undefined") setNotif(Notification.permission);
   }, []);
 
-  const theme = shell.settings["appearance.theme"] ?? "dark";
+  const themeSetting = shell.settings["appearance.theme"] ?? "dark";
+  // TT56: with "Match system" the toggle flips away from what is currently shown (and leaves system-following)
+  const theme = themeSetting === "system" ? (typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark") : themeSetting;
   const density = shell.settings["appearance.density"] ?? "balanced";
   const textScale = clampTextScale(shell.settings["appearance.textScale"] ?? DEFAULT_TEXT_SCALE);
   const rawStyle = shell.settings["appearance.style"];
@@ -45,7 +47,7 @@ export default function QuickPanel({ onClose, onBlackout, anchor = "top" }: { on
           <span style={{ fontWeight: 700, flex: 1 }}>Text size</span>
           <Btn aria-label="A− smaller text" title="Smaller text" disabled={textScale <= TEXT_SCALE_MIN}
             onClick={() => void shell.setSetting("appearance.textScale", String(stepTextScale(textScale, -1)))}>A−</Btn>
-          <output data-testid="quick-textscale" aria-live="polite" style={{ minWidth: fz(42), textAlign: "center", fontWeight: 800 }}>{textScale}%</output>
+          <output data-testid="quick-textscale" style={{ minWidth: fz(42), textAlign: "center", fontWeight: 800 }}>{textScale}%</output>
           <Btn aria-label="A+ larger text" title="Larger text" disabled={textScale >= TEXT_SCALE_MAX}
             onClick={() => void shell.setSetting("appearance.textScale", String(stepTextScale(textScale, 1)))}>A+</Btn>
         </div>

@@ -1,0 +1,97 @@
+{
+  "suite": "e2e-tt56",
+  "at": "2026-10-21T23:41:27.666Z",
+  "results": [
+    {
+      "suite": "e2e-tt56",
+      "name": "WM-05 MRU after 5 focus changes, held-chord switcher: overlay lists MRU order, chord advances, Shift reverses, release commits, Esc cancels",
+      "covers": {
+        "WM-05": "full"
+      },
+      "pass": true,
+      "ms": 6724
+    },
+    {
+      "suite": "e2e-tt56",
+      "name": "WM-05 modes: app mode groups windows by app (2 calculators → 1 entry), workspace mode switches workspace on release; ←/→ and 1/2/3 change mode",
+      "covers": {
+        "WM-05": "full"
+      },
+      "pass": true,
+      "ms": 2635
+    },
+    {
+      "suite": "e2e-tt56",
+      "name": "WM-05 modal failure test: with an ask dialog open the switcher chord does nothing (no overlay, focus unchanged)",
+      "covers": {
+        "WM-05": "full"
+      },
+      "pass": true,
+      "ms": 2437
+    },
+    {
+      "suite": "e2e-tt56",
+      "name": "NC-06 OSD: 20 volume changes in a burst → the pill tracks every step, the polite live region changes exactly once (settled value)",
+      "covers": {
+        "NC-06": "full"
+      },
+      "pass": true,
+      "ms": 4270
+    },
+    {
+      "suite": "e2e-tt56",
+      "name": "WM-10 focus mode: Meta+Shift+F sets ONE parent CSS variable; unfocused windows read it (opacity .45), the focused one stays 1; OSD; toggles back",
+      "covers": {
+        "WM-10": "full",
+        "NC-06": "full"
+      },
+      "pass": true,
+      "ms": 1905
+    },
+    {
+      "suite": "e2e-tt56",
+      "name": "ST-05 OS media queries: prefers-reduced-motion → motion token 0 ms (transitions 0 s); “Match system” theme follows prefers-color-scheme live",
+      "covers": {
+        "ST-05": "full"
+      },
+      "pass": true,
+      "ms": 1674
+    },
+    {
+      "suite": "e2e-tt56",
+      "name": "ST-07 UI scale is independent of the display: device scale factor 1 vs 2 (external HiDPI display / browser-zoom emulation) gives the same CSS text size; the app's own scale changes it",
+      "covers": {
+        "ST-07": "full"
+      },
+      "pass": true,
+      "ms": 2836
+    },
+    {
+      "suite": "e2e-tt56",
+      "name": "FF-22 Writer Track Changes in the UI: toggle, type, delete, review panel per-change accept; saved bytes verified by the lxml oracle",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 2560
+    },
+    {
+      "suite": "e2e-tt56",
+      "name": "FF-20 Spreadsheet Paste Special in the UI: Ctrl+C → Ctrl+Shift+V → Values + Transpose, then Values + Add; Save → openpyxl reads literal values at the transposed cells",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 4328
+    },
+    {
+      "suite": "e2e-tt56",
+      "name": "no uncaught page errors during the TT56 session",
+      "covers": {
+        "WM-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

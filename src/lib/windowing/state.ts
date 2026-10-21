@@ -1,3 +1,4 @@
+import { syncMru, syncWsMru, touch as touchMru } from "./mru";
 /**
  * Fusion window engine — pure, deterministic, serialisable.
  *
@@ -49,6 +50,9 @@ export interface DesktopState {
   table?: import("../tabletop-core").TableState;
   /** TT55 (WM-08): last normal (un-maximized) geometry per "module|host", recorded on close, reused on the next open */
   geometry?: Record<string, Rect>;
+  /** TT56 (WM-05): window ids most-recently-focused first, and workspace ids most-recently-active first (see mru.ts) */
+  mru?: string[];
+  wsMru?: number[];
 }
 export const geometryKey = (module: string, host: string) => `${module}|${host}`;
 const MAX_GEOMETRY = 64;
@@ -184,10 +188,19 @@ function invariants(state: DesktopState): DesktopState {
 /** Commands after which a pending "Show desktop" restore no longer makes sense (the user picked a window). */
 const ENDS_PEEK = new Set<WindowCommand["t"]>(["open", "focus", "restore", "switchWorkspace", "closeAll", "minimize", "cycle"]);
 
+/** Commands that make their target the most recently used window even when it already had focus. */
+const TOUCHES_MRU = new Set<WindowCommand["t"]>(["open", "focus", "restore", "tile", "place"]);
 export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
-  const next = reduceInner(state, cmd);
-  if (next !== state && next.peek && ENDS_PEEK.has(cmd.t)) { const { peek: _drop, ...rest } = next; void _drop; return rest; }
-  return next;
+  let next = reduceInner(state, cmd);
+  if (next !== state && next.peek && ENDS_PEEK.has(cmd.t)) { const { peek: _drop, ...rest } = next; void _drop; next = rest; }
+  return next === state ? state : withMru(state, next, cmd);
+}
+/** WM-05: keep `mru` / `wsMru` exact after every state change (pure; never bumps the revision on its own). */
+function withMru(prev: DesktopState, next: DesktopState, cmd: WindowCommand): DesktopState {
+  let mru = syncMru(next.mru ?? (cmd.t === "hydrate" ? undefined : prev.mru), next.windows);
+  if (next.focus && (next.focus !== prev.focus || TOUCHES_MRU.has(cmd.t))) mru = touchMru(mru, next.focus);
+  const wsMru = syncWsMru(next.wsMru ?? (cmd.t === "hydrate" ? undefined : prev.wsMru), next.workspaces, next.activeWorkspace);
+  return { ...next, mru, wsMru };
 }
 
 function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
@@ -332,13 +345,14 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
     }
 
     case "cycle": {
-      const visible = state.windows
-        .filter((w) => w.workspace === state.activeWorkspace && !w.minimized)
-        .sort((a, b) => b.z - a.z);
+      // TT56 (WM-05): one-shot switch in MOST-RECENTLY-USED order (the held-chord overlay lives in Shell / Switcher.tsx):
+      // forward = the previously used window, so repeating toggles between the two most recent, like Alt+Tab
+      const order = syncMru(state.mru, state.windows);
+      const visible = order.map((id) => state.windows.find((w) => w.id === id)!).filter((w) => w.workspace === state.activeWorkspace && !w.minimized);
       if (visible.length === 0) return state;
       const idx = Math.max(0, visible.findIndex((w) => w.id === state.focus));
       const next = visible[(idx + (cmd.dir === 1 ? 1 : visible.length - 1)) % visible.length];
-      return reduce(state, { t: "focus", id: next.id });
+      return reduceInner(state, { t: "focus", id: next.id });
     }
 
     case "focusMode":

@@ -90,6 +90,12 @@ export function renderPara(st: RenderState, p: Para): HTMLElement {
   // positional tabs (Word's three-column header/footer): the paragraph becomes a row and each ptab a flexible gap,
   // so text after a "center" ptab sits mid-line and text after a "right" ptab ends at the margin
   if (p.content.some(isPtab)) { pe.style.display = "flex"; pe.style.whiteSpace = "pre"; pe.dataset.ptab = "1"; }
+  if (p.markRev) {
+    // a tracked paragraph mark shows as a coloured pilcrow (zero model length, like list markers)
+    const m = document.createElement("span"); m.contentEditable = "false"; m.dataset.marker = "1"; m.textContent = "\u00b6";
+    markRev(m, p.markRev); m.classList.add("wrev-mark"); m.setAttribute("aria-label", m.title);
+    pe.appendChild(m);
+  }
   if (!p.content.some((i) => (i.t === "r" && i.text) || (i.t === "k" && (i.kind === "image" || i.label)))) { const br = document.createElement("br"); br.dataset.empty = "1"; pe.appendChild(br); }
   else if (p.content.length && p.content[p.content.length - 1].t === "r" && (p.content[p.content.length - 1] as { text: string }).text.endsWith("\n")) { const br = document.createElement("br"); br.dataset.empty = "1"; pe.appendChild(br); }
   return pe;
@@ -103,6 +109,7 @@ function renderInline(st: RenderState, p: Para, it: Inline, ri: number, off: num
     Object.assign(s.style, runCss(effectiveRun(doc, p, it.f)));
     if (it.link) { s.dataset.href = it.link.href ?? (it.link.anchor ? `#${it.link.anchor}` : ""); s.classList.add("wlink"); s.title = `${s.dataset.href} — Ctrl+click to open`; }
     if (st.commentOpen.size) { s.classList.add("wcmt"); s.dataset.cids = [...st.commentOpen].join(","); }
+    if (it.rev) markRev(s, it.rev);
     s.textContent = it.text;
     return s;
   }
@@ -110,6 +117,7 @@ function renderInline(st: RenderState, p: Para, it: Inline, ri: number, off: num
   t.contentEditable = "false"; t.dataset.ti = String(ri); t.dataset.o = String(off); t.dataset.kind = it.kind;
   t.className = `wtok wtok-${it.kind}`;
   if (it.link) t.dataset.href = it.link.href ?? "";
+  if (it.rev) markRev(t, it.rev);
   switch (it.kind) {
     case "image": {
       if (it.img?.data && t instanceof HTMLImageElement) {
@@ -131,6 +139,17 @@ function renderInline(st: RenderState, p: Para, it: Inline, ri: number, off: num
     default: t.textContent = it.label;
   }
   return t;
+}
+/** TT56 revision marks: insertions underlined, deletions struck through, in a per-author colour (Word's "All Markup") */
+const REV_INK = ["#0b5cad", "#a3176b", "#1d6b2e", "#8a4b00", "#5b3cc4", "#00616e"];
+export function revColor(author: string) { let h = 0; for (let i = 0; i < author.length; i++) h = (h * 31 + author.charCodeAt(i)) >>> 0; return REV_INK[h % REV_INK.length]; }
+function markRev(e: HTMLElement, r: NonNullable<Inline["rev"]>) {
+  const del = r.kind === "del";
+  e.classList.add(del ? "wrev-del" : "wrev-ins"); e.dataset.rev = `${r.kind}:${r.id}`;
+  e.style.color = revColor(del ? r.author : r.author);
+  e.style.textDecoration = del ? "line-through" : "underline";
+  if (r.ins && del) e.style.textDecoration = "underline line-through";
+  e.title = `${del ? "Deleted" : "Inserted"}${r.author ? ` by ${r.author}` : ""}${r.date ? ` · ${r.date.slice(0, 16).replace("T", " ")}` : ""} — review in the Review panel`;
 }
 function isPtab(i: Inline): boolean { const n = i.t === "k" && i.kind === "other" ? i.nodes[0] : undefined; return !!n && n.k === "el" && n.name === "w:ptab"; }
 const authorOf = (e: XEl) => { const a = e.attrs.find((x) => x[0] === "w:author")?.[1]; return a ? ` by ${a}` : ""; };

@@ -7,7 +7,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import {
   Workbook, Sheet, a1, isError, colToLetters, FUNCTIONS, EXT_FUNCTIONS, workbookFromJson, workbookToJson, parseFormula, formatValue, BUILTIN_FORMATS,
-  norm, rangeA1, toTsv, parseTsv, copyBlock, pasteBlock, clearRange, autoFill, sortRange, insertDelete, findAll, replaceAll, selectionStats, shiftFormula,
+  norm, rangeA1, toTsv, parseTsv, copyBlock, pasteBlock, pasteSpecial, type PasteSpecialOpts, type PasteOp, clearRange, autoFill, sortRange, insertDelete, findAll, replaceAll, selectionStats, shiftFormula,
   chartDataFromRange, chartDataFor, renameChartRefs, CHART_KINDS, trendLegend, buildChartSvg, svgDataUri, evalCondFormats, parseRange, currentRegion, jump, fillTarget, looksLikeHeader,
   completionToken, completions, activeCall, SIGNATURES, hasValueIn,
   type WorkbookJson, type CellStyle, type Range, type Clip, type ChartKind, type ChartGrouping, type TrendSpec, type CondKind, type CondRule, type Scalar,
@@ -107,7 +107,9 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [loaded, setLoaded] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState("");
-  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv" | "names">(null);
+  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv" | "names" | "paste">(null);
+  const [psFrom, setPsFrom] = useState("");
+  const [ps, setPs] = useState<PasteSpecialOpts>({ what: "values", op: "none", transpose: false, skipBlanks: false });
   const [nameBox, setNameBox] = useState<string | null>(null);
   const [newName, setNewName] = useState({ name: "", ref: "", scope: "" });
   const [borderLine, setBorderLine] = useState<BorderLine>("thin");
@@ -136,7 +138,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   /** current sheet name → name in the opened .xlsx (lossless save maps renamed sheets back to their parts). */
   const renamesRef = useRef<Record<string, string>>({});
   const redoRef = useRef<{ json: string; active: string }[]>([]);
-  const clipRef = useRef<{ tsv: string; clip: Clip; cut: boolean; range: Range; sheet: string } | null>(null);
+  const clipRef = useRef<{ tsv: string; clip: Clip; cut: boolean; range: Range; sheet: string; values?: Scalar[][] } | null>(null);
   /** TT47/48: password protection (password in this window's memory only) + the decrypted package used as patch source. */
   const encRef = useRef<(Protection & { plain: Uint8Array | null }) | null>(null);
   const [locked, setLocked] = useState(false);
@@ -392,6 +394,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (mod && k === "r") { e.preventDefault(); fillDir("right"); return; }
     if (mod && k === "a") { e.preventDefault(); const r = currentRegion(has, sel.f.col, sel.f.row, COLS - 1, ROWS - 1); const whole = (r.c0 === selR.c0 && r.r0 === selR.r0 && r.c1 === selR.c1 && r.r1 === selR.r1) || !has(sel.f.col, sel.f.row); setSel(whole ? { a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } } : { a: { col: r.c0, row: r.r0 }, f: { col: r.c1, row: r.r1 } }); return; }
     if (mod && k === "f") { e.preventDefault(); setPanel("find"); return; }
+    if (mod && e.shiftKey && k === "v") { e.preventDefault(); openPasteSpecial(); return; }
     if (mod && e.key === "F3") { e.preventDefault(); setPanel("names"); return; }
     if (mod && k === "home") { e.preventDefault(); moveTo({ col: 0, row: 0 }); return; }
     if (k === "home") { e.preventDefault(); moveTo({ col: 0, row: sel.f.row }, e.shiftKey); return; }
@@ -411,7 +414,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     e.preventDefault();
     const rows: string[][] = []; for (let r = selR.r0; r <= selR.r1; r++) { const row: string[] = []; for (let c = selR.c0; c <= selR.c1; c++) row.push(displayText(c, r)); rows.push(row); }
     const tsv = toTsv(rows); e.clipboardData.setData("text/plain", tsv);
-    clipRef.current = { tsv, clip: copyBlock(sheet, selR), cut, range: selR, sheet: active };
+    const values: Scalar[][] = []; for (let r = selR.r0; r <= selR.r1; r++) { const row: Scalar[] = []; for (let c = selR.c0; c <= selR.c1; c++) row.push(workbook.valueAt(active, c, r) ?? ""); values.push(row); }
+    clipRef.current = { tsv, clip: copyBlock(sheet, selR), cut, range: selR, sheet: active, values };
     setStatus(`${cut ? "cut" : "copied"} ${rangeA1(selR)} — paste with Ctrl+V`);
   };
   const onPaste = (e: React.ClipboardEvent) => {
@@ -439,6 +443,23 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     });
     if (internal?.cut) clipRef.current = null;
     setSel({ a: { col: out.c0, row: out.r0 }, f: { col: Math.min(out.c1, COLS - 1), row: Math.min(out.r1, ROWS - 1) } });
+  };
+
+  const openPasteSpecial = () => {
+    if (!clipRef.current) { const m = "Paste special uses this Spreadsheet's clipboard — copy cells here first (Ctrl+C)."; shell.toast(m, "warn"); setStatus(m); return; }
+    setPsFrom(`${clipRef.current.sheet}!${rangeA1(clipRef.current.range)}`); setPanel("paste");
+  };
+  const doPasteSpecial = () => {
+    const c = clipRef.current; if (!c) return;
+    const h = c.clip.inputs.length, w = c.clip.inputs[0]?.length ?? 1;
+    const [H, W] = ps.transpose ? [w, h] : [h, w];
+    const conflict = partialMergeConflict(sheet, { c0: selR.c0, r0: selR.r0, c1: selR.c0 + W - 1, r1: selR.r0 + H - 1 });
+    if (conflict) { shell.toast(conflict, "warn"); setStatus(conflict); return; }
+    let out: Range = selR;
+    mutate((wb, s) => { out = pasteSpecial(s, c.clip, c.values, selR.c0, selR.r0, ps, (col, row) => wb.valueAt(active, col, row)); });
+    setSel({ a: { col: out.c0, row: out.r0 }, f: { col: Math.min(out.c1, COLS - 1), row: Math.min(out.r1, ROWS - 1) } });
+    setStatus(`pasted ${ps.what}${ps.transpose ? ", transposed" : ""}${ps.skipBlanks ? ", skipping blanks" : ""}${ps.op && ps.op !== "none" ? `, ${ps.op}` : ""} into ${rangeA1(out)}`);
+    setPanel(null); gridRef.current?.focus();
   };
 
   /* ------------------------------------------------------------ formatting + data ops */
@@ -758,6 +779,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <TB label="Chart" onClick={() => addChart("bar")} title={"Insert a chart from the selection (or current region)"} />
         <TB label={`Charts${charts.length ? ` (${charts.length})` : ""}`} onClick={() => setPanel(panel === "charts" ? null : "charts")} active={panel === "charts"} title="Show charts" />
         <TB label="Cond. format" onClick={() => setPanel(panel === "cf" ? null : "cf")} active={panel === "cf"} title={"Conditional formatting rules"} />
+        <TB label="Paste special" onClick={() => (panel === "paste" ? setPanel(null) : openPasteSpecial())} active={panel === "paste"} title={"Paste special: values / formulas / formats, operation, skip blanks, transpose (Ctrl+Shift+V)"} />
         <TB label="Find" onClick={() => setPanel(panel === "find" ? null : "find")} active={panel === "find"} title={"Find & replace (Ctrl+F)"} />
         <TB label={`Names${workbook.names.size ? ` (${workbook.names.size})` : ""}`} onClick={() => setPanel(panel === "names" ? null : "names")} active={panel === "names"} title={"Name Manager (Ctrl+F3)"} />
         <TB label={`Validation${sheet.validations.length ? ` (${sheet.validations.length})` : ""}`} onClick={() => setPanel(panel === "dv" ? null : "dv")} active={panel === "dv"} title={"Data validation"} />
@@ -862,6 +884,21 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
                   </tr>);
               })}</tbody>
             </table>)}
+        </div>
+      ) : null}
+      {panel === "paste" ? (
+        <div className="fs-row" role="group" aria-label="Paste special" data-testid="paste-special" style={{ gap: 10, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), flexWrap: "wrap", alignItems: "center" }}
+          onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setPanel(null); gridRef.current?.focus(); } if (e.key === "Enter") { e.preventDefault(); doPasteSpecial(); } }}>
+          <b>Paste special</b>
+          <span className="fs-row" style={{ gap: 6 }}>{(["all", "formulas", "values", "formats"] as const).map((w) => (
+            <label key={w}><input type="radio" name="ps-what" checked={ps.what === w} onChange={() => setPs({ ...ps, what: w })} /> {w === "all" ? "All" : w === "formulas" ? "Formulas" : w === "values" ? "Values" : "Formats"}</label>))}</span>
+          <label>Operation <select className="fs-input" aria-label="Operation" value={ps.op ?? "none"} onChange={(e) => setPs({ ...ps, op: e.target.value as PasteOp })} disabled={ps.what === "formats"}>
+            <option value="none">None</option><option value="add">Add</option><option value="subtract">Subtract</option><option value="multiply">Multiply</option><option value="divide">Divide</option></select></label>
+          <label><input type="checkbox" checked={!!ps.skipBlanks} onChange={(e) => setPs({ ...ps, skipBlanks: e.target.checked })} /> Skip blanks</label>
+          <label><input type="checkbox" checked={!!ps.transpose} onChange={(e) => setPs({ ...ps, transpose: e.target.checked })} /> Transpose</label>
+          <Btn variant="primary" onClick={doPasteSpecial}>Paste</Btn>
+          <Btn variant="ghost" onClick={() => { setPanel(null); gridRef.current?.focus(); }}>Cancel</Btn>
+          <span className="fs-dim">from {psFrom} (this Spreadsheet&apos;s clipboard)</span>
         </div>
       ) : null}
       {panel === "find" ? (

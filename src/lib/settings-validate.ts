@@ -10,7 +10,7 @@ import { LAYOUT_IDS, DOCK_SIZE_IDS } from "./layout-core";
  * Returns null when valid, otherwise a human-readable reason.
  */
 const ENUMS: Record<string, readonly string[]> = {
-  "appearance.theme": ["dark", "light"],
+  "appearance.theme": ["dark", "light", "system"],
   "appearance.density": ["compact", "balanced", "touch"],
   "appearance.motion": ["system", "on", "off"],
   "appearance.wallpaper": WALLPAPERS.map((w) => w.id),

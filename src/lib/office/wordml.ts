@@ -18,15 +18,20 @@ import { openZip, writeZip, type ZipArchive } from "./zipkit";
 /* ================================================================ model */
 export interface RunFmt { b?: boolean; i?: boolean; u?: string; s?: boolean; sz?: number; font?: string; color?: string; hl?: string; va?: "superscript" | "subscript" | "baseline"; caps?: boolean; smallCaps?: boolean; rStyle?: string; shd?: string }
 export interface Link { id: number; el: XEl; href?: string; anchor?: string }
-export interface TextRun { t: "r"; text: string; f: RunFmt; f0?: RunFmt; rPr?: XEl; link?: Link }
+/** TT56: a revision recorded by the editor while Track Changes is on (§17.13.5 w:ins / w:del around runs; §17.13.5.16
+ *  / .14 paragraph-mark revisions in w:pPr/w:rPr). File revisions that the editor did not create stay opaque tokens. */
+export interface Rev { kind: "ins" | "del"; id: number; author: string; date?: string; /** a deletion of text that is itself a pending insertion (<w:ins><w:del>…) */ ins?: Rev }
+export interface TextRun { t: "r"; text: string; f: RunFmt; f0?: RunFmt; rPr?: XEl; link?: Link; rev?: Rev }
 export type TokKind = "image" | "fieldcode" | "field" | "bookmark" | "comment" | "commentRef" | "note" | "ins" | "del" | "page" | "column" | "math" | "sym" | "box" | "other";
 export interface Tok {
   t: "k"; kind: TokKind; nodes: XNode[]; bare: boolean; rPr?: XEl; link?: Link; label: string;
   img?: { rid: string; cx: number; cy: number; descr?: string; data?: Uint8Array; mime?: string }; note?: { type: "footnote" | "endnote"; id: string }; cid?: string; mark?: "start" | "end";
+  /** TT56: run-level tokens (images, symbols, breaks…) deleted / inserted under Track Changes */
+  rev?: Rev;
 }
 export type Inline = TextRun | Tok;
 export interface ParaProps { style?: string; align?: string; indL?: number; indR?: number; indFirst?: number; before?: number; after?: number; line?: number; lineRule?: string; num?: { id: string; lvl: number } | null; pageBreakBefore?: boolean; keepNext?: boolean; shd?: string }
-export interface Para { t: "p"; id: string; p: ParaProps; p0?: ParaProps; pPr?: XEl; content: Inline[]; src?: XEl; dirty?: boolean; sect?: XEl }
+export interface Para { t: "p"; id: string; p: ParaProps; p0?: ParaProps; pPr?: XEl; content: Inline[]; src?: XEl; dirty?: boolean; sect?: XEl; /** TT56: tracked insertion / deletion of this paragraph's mark */ markRev?: Rev }
 export interface Cell { t: "tc"; src?: XEl; span0?: number; tcPr?: XEl; blocks: Block[]; span: number; vmerge?: "restart" | "continue"; width?: number; fill?: string }
 export interface Row { t: "tr"; src?: XEl; items: (Cell | XNode)[]; header?: boolean; height?: number }
 export interface Table { t: "tbl"; id: string; items: (Row | XNode)[]; grid: number[]; grid0?: string; src?: XEl; borders: boolean; style?: string }
@@ -58,6 +63,9 @@ export interface WordDoc {
   theme: { major: string; minor: string };
   added: { rels: Rel[]; media: { path: string; data: Uint8Array }[]; styles: Set<string>; lists: Map<string, string>; comments: Comment[] };
   title: string; warnings: string[];
+  /** TT56 Track Changes: on = record edits as revisions; on0 = w:trackRevisions in settings.xml when opened; next = next free
+   *  annotation id (above every w:id in the package's main parts) */
+  track: { on: boolean; on0: boolean; author: string; next: number; settingsPath?: string };
 }
 
 /* ================================================================ units / helpers */
@@ -125,6 +133,22 @@ export function parsePPr(p: XEl | undefined): ParaProps {
 /* Schema sequences (ECMA-376 CT_RPr / CT_PPrBase) used to insert regenerated children in valid order. */
 const RPR_ORDER = ["w:rStyle", "w:rFonts", "w:b", "w:bCs", "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath", "w:rPrChange"];
 const PPR_ORDER = ["w:pStyle", "w:keepNext", "w:keepLines", "w:pageBreakBefore", "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange"];
+const SETTINGS_ORDER = ["w:writeProtection", "w:view", "w:zoom", "w:removePersonalInformation", "w:removeDateAndTime", "w:doNotDisplayPageBoundaries",
+  "w:displayBackgroundShape", "w:printPostScriptOverText", "w:printFractionalCharacterWidth", "w:printFormsData", "w:embedTrueTypeFonts", "w:embedSystemFonts",
+  "w:saveSubsetFonts", "w:saveFormsData", "w:mirrorMargins", "w:alignBordersAndEdges", "w:bordersDoNotSurroundHeader", "w:bordersDoNotSurroundFooter",
+  "w:gutterAtTop", "w:hideSpellingErrors", "w:hideGrammaticalErrors", "w:activeWritingStyle", "w:proofState", "w:formsDesign", "w:attachedTemplate",
+  "w:linkStyles", "w:stylePaneFormatFilter", "w:stylePaneSortMethod", "w:documentType", "w:mailMerge", "w:revisionView", "w:trackRevisions",
+  "w:doNotTrackMoves", "w:doNotTrackFormatting", "w:documentProtection", "w:autoFormatOverride", "w:styleLockTheme", "w:styleLockQFSet", "w:defaultTabStop",
+  "w:autoHyphenation", "w:consecutiveHyphenLimit", "w:hyphenationZone", "w:doNotHyphenateCaps", "w:showEnvelope", "w:summaryLength", "w:clickAndTypeStyle",
+  "w:defaultTableStyle", "w:evenAndOddHeaders", "w:bookFoldRevPrinting", "w:bookFoldPrinting", "w:bookFoldPrintingSheets", "w:drawingGridHorizontalSpacing",
+  "w:drawingGridVerticalSpacing", "w:displayHorizontalDrawingGridEvery", "w:displayVerticalDrawingGridEvery", "w:doNotUseMarginsForDrawingGridOrigin",
+  "w:drawingGridHorizontalOrigin", "w:drawingGridVerticalOrigin", "w:doNotShadeFormData", "w:noPunctuationKerning", "w:characterSpacingControl",
+  "w:printTwoOnOne", "w:strictFirstAndLastChars", "w:noLineBreaksAfter", "w:noLineBreaksBefore", "w:savePreviewPicture", "w:doNotValidateAgainstSchema",
+  "w:saveInvalidXml", "w:ignoreMixedContent", "w:alwaysShowPlaceholderText", "w:doNotDemarcateInvalidXml", "w:saveXmlDataOnly", "w:useXSLTWhenSaving",
+  "w:saveThroughXslt", "w:showXMLTags", "w:alwaysMergeEmptyNamespace", "w:updateFields", "w:hdrShapeDefaults", "w:footnotePr", "w:endnotePr", "w:compat",
+  "w:docVars", "w:rsids", "m:mathPr", "w:attachedSchema", "w:themeFontLang", "w:clrSchemeMapping", "w:doNotIncludeSubdocsInStats",
+  "w:doNotAutoCompressPictures", "w:forceUpgrade", "w:captions", "w:readModeInkLockDown", "w:smartTagType", "sl:schemaLibrary", "w:shapeDefaults",
+  "w:doNotEmbedSmartTags", "w:decimalSymbol", "w:listSeparator"];
 export function put(parent: XEl, order: string[], name: string, node: XEl | null) {
   const at = parent.kids.findIndex((k) => k.k === "el" && k.name === name);
   if (at >= 0) parent.kids.splice(at, 1);
@@ -206,8 +230,11 @@ function parseInlines(ctx: Ctx, nodes: XNode[], out: Inline[], link?: Link) {
       }
       case "w:bookmarkStart": case "w:bookmarkEnd": out.push({ t: "k", kind: "bookmark", nodes: [n], bare: true, label: "", link }); break;
       case "w:commentRangeStart": case "w:commentRangeEnd": out.push({ t: "k", kind: "comment", nodes: [n], bare: true, label: "", cid: attr(n, "w:id"), mark: n.name.endsWith("Start") ? "start" : "end", link }); break;
-      case "w:ins": case "w:moveTo": out.push({ t: "k", kind: "ins", nodes: [n], bare: true, label: tokLabel(n), link }); break;
-      case "w:del": case "w:moveFrom": out.push({ t: "k", kind: "del", nodes: [n], bare: true, label: findAll(n, (x) => x.name === "w:delText" || x.name === "w:t").map(textOf).join(""), link }); break;
+      case "w:ins": case "w:del": if (parseRevision(ctx, n, out, link)) break;
+        if (n.name === "w:del") { out.push({ t: "k", kind: "del", nodes: [n], bare: true, label: findAll(n, (x) => x.name === "w:delText" || x.name === "w:t").map(textOf).join(""), link }); break; }
+        out.push({ t: "k", kind: "ins", nodes: [n], bare: true, label: tokLabel(n), link }); break;
+      case "w:moveTo": out.push({ t: "k", kind: "ins", nodes: [n], bare: true, label: tokLabel(n), link }); break;
+      case "w:moveFrom": out.push({ t: "k", kind: "del", nodes: [n], bare: true, label: findAll(n, (x) => x.name === "w:delText" || x.name === "w:t").map(textOf).join(""), link }); break;
       case "w:fldSimple": out.push({ t: "k", kind: "field", nodes: [n], bare: true, label: tokLabel(n), link }); break;
       case "m:oMath": case "m:oMathPara": out.push({ t: "k", kind: "math", nodes: [n], bare: true, label: tokLabel(n) || "equation", link }); break;
       case "w:sdt": case "w:smartTag": case "w:customXml": case "w:dir": case "w:bdo": out.push({ t: "k", kind: "box", nodes: [n], bare: true, label: tokLabel(n), link }); break;
@@ -216,6 +243,34 @@ function parseInlines(ctx: Ctx, nodes: XNode[], out: Inline[], link?: Link) {
       default: out.push({ t: "k", kind: "other", nodes: [n], bare: true, label: tokLabel(n), link });
     }
   }
+}
+/** TT56: <w:ins>/<w:del> holding only runs (a <w:del> may sit inside a <w:ins>) → revision runs the editor can edit,
+ *  review one by one and write back. Anything else (moves, nested fields, custom XML…) stays an opaque token. */
+function parseRevision(ctx: Ctx, n: XEl, out: Inline[], link?: Link, outer?: Rev): boolean {
+  const id = Number(attr(n, "w:id"));
+  if (!Number.isInteger(id) || ctx.fld.some(Boolean)) return false;
+  const known = new Set(["w:id", "w:author", "w:date"]);
+  if (n.attrs.some((a) => !known.has(a[0]))) return false;
+  const rv: Rev = { kind: n.name === "w:ins" ? "ins" : "del", id, author: attr(n, "w:author") ?? "", date: attr(n, "w:date") };
+  if (outer) rv.ins = outer;
+  const els = n.kids.filter((k): k is XEl => k.k === "el");
+  if (n.kids.some((k) => k.k === "raw")) return false;
+  const okRun = (r: XEl) => r.kids.every((c) => c.k !== "el" || ["w:rPr", "w:t", "w:delText", "w:tab", "w:cr", "w:br", "w:noBreakHyphen", "w:softHyphen", "w:sym", "w:drawing"].includes(c.name));
+  for (const e of els) {
+    if (e.name === "w:r" && okRun(e)) continue;
+    if (e.name === "w:del" && rv.kind === "ins" && !outer) continue;
+    return false;
+  }
+  const tmp: Inline[] = [];
+  for (const e of els) {
+    if (e.name === "w:del") { if (!parseRevision(ctx, e, tmp, link, rv)) return false; continue; }
+    const r = rv.kind === "del" ? { ...e, kids: e.kids.map((c) => (c.k === "el" && c.name === "w:delText" ? { ...c, name: "w:t" } : c)) } : e;
+    const before = tmp.length;
+    parseRun(ctx, r, tmp, link);
+    for (let i = before; i < tmp.length; i++) { const it = tmp[i]; if (it.t === "k" && it.bare) return false; it.rev = rv; }
+  }
+  out.push(...tmp);
+  return true;
 }
 function parseRun(ctx: Ctx, r: XEl, out: Inline[], link?: Link) {
   const rPr = kid(r, "w:rPr");
@@ -299,7 +354,18 @@ function parsePara(ctx: Ctx, n: XEl): Para {
   const p = parsePPr(pPr);
   const content: Inline[] = [];
   parseInlines(ctx, n.kids.filter((k) => !(k.k === "el" && k.name === "w:pPr")), content);
-  return { t: "p", id: newId(), p, p0: { ...p }, pPr, content, src: n, sect: kid(pPr, "w:sectPr") };
+  const para: Para = { t: "p", id: newId(), p, p0: { ...p }, pPr, content, src: n, sect: kid(pPr, "w:sectPr") };
+  // TT56: an inserted / deleted paragraph mark (§17.13.5.16 / .14) becomes markRev; the copy in pPr is dropped so a re-serialized
+  // paragraph writes it exactly once (untouched paragraphs keep their source bytes)
+  const rp = kid(pPr, "w:rPr"), mk = kid(rp, "w:ins") ?? kid(rp, "w:del");
+  const mid = mk ? Number(attr(mk, "w:id")) : NaN;
+  if (pPr && rp && mk && Number.isInteger(mid) && !kid(rp, "w:moveFrom") && !kid(rp, "w:moveTo")) {
+    para.markRev = { kind: mk.name === "w:ins" ? "ins" : "del", id: mid, author: attr(mk, "w:author") ?? "", date: attr(mk, "w:date") };
+    const rest = rp.kids.filter((k) => !(k.k === "el" && (k.name === "w:ins" || k.name === "w:del")));
+    const np = { ...pPr, kids: pPr.kids.flatMap((k) => (k === rp ? (rest.some((x) => x.k === "el") ? [{ ...rp, kids: rest }] : []) : [k])) };
+    para.pPr = np;
+  }
+  return para;
 }
 function parseTable(ctx: Ctx, n: XEl): Table {
   const tblPr = kid(n, "w:tblPr");
@@ -390,6 +456,7 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
     zip, order, docPath, docXml, body, blocks: [], page: parseSect(undefined), styles: new Map(), defaults: { f: {}, p: {} }, numbering: new Map(),
     rels, relsXml, relsPath, media: new Map(), parts: new Map(), hf: { xml: new Map(), dirty: new Set(), created: new Set() }, comments: [], notes: [], theme: { major: "Calibri Light", minor: "Calibri" },
     added: { rels: [], media: [], styles: new Set(), lists: new Map(), comments: [] }, title: name.replace(/\.[^.]+$/, ""), warnings: [],
+    track: { on: false, on0: false, author: "", next: 1 },
   };
   const relById = new Map(rels.map((r) => [r.id, r]));
   const partOf = (type: string) => { const r = rels.find((x) => x.type === type); return r ? resolveTarget(docPath, r.target) : undefined; };
@@ -418,6 +485,16 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
   }
   const core = text("docProps/core.xml");
   if (core) { const t = /<dc:title>([^<]*)<\/dc:title>/.exec(core); if (t && t[1].trim()) doc.title = decText(t[1]); }
+  // TT56 Track Changes: settings.xml w:trackRevisions (§17.15.1.89) and the first free annotation id
+  const stp = partOf(RT.settings); const stx = stp ? text(stp) : null;
+  let on = false;
+  if (stx) { const tr = find(parseXml(stx).root, (x) => x.name === "w:trackRevisions"); on = !!tr && onOff(tr) !== false; }
+  let maxId = 0;
+  for (const part of [docPath, doc.commentsPath, partOf(RT.footnotes), partOf(RT.endnotes)]) {
+    const src = part ? text(part) : null; if (!src) continue;
+    for (const m of src.matchAll(/\sw:id="(-?\d+)"/g)) maxId = Math.max(maxId, Number(m[1]));
+  }
+  doc.track = { on, on0: on, author: "", next: maxId + 1, settingsPath: stp };
   return doc;
 }
 
@@ -516,6 +593,24 @@ function serializeInlines(content: Inline[]): XNode[] {
       out.push(h);
       continue;
     }
+    const outerOf = (x: Inline) => (x.rev?.kind === "ins" ? x.rev : x.rev?.ins);
+    const oi = outerOf(content[i]);
+    if (oi) {
+      // <w:ins> wraps its runs and any <w:del> of text inside the insertion
+      const group: Inline[] = [];
+      while (i < content.length && !content[i].link && sameRev(outerOf(content[i]), oi)) group.push(content[i++]);
+      out.push(el("w:ins", { "w:id": String(oi.id), "w:author": oi.author, "w:date": oi.date }, serializeInlines(group.map((g) => ({ ...g, rev: g.rev?.kind === "ins" ? undefined : { ...g.rev!, ins: undefined } })))));
+      continue;
+    }
+    const rv = content[i].rev;
+    if (rv) {
+      const group: Inline[] = [];
+      while (i < content.length && !content[i].link && sameRev(content[i].rev, rv) && !outerOf(content[i])) group.push(content[i++]);
+      const wrap = el("w:del", { "w:id": String(rv.id), "w:author": rv.author, "w:date": rv.date }, serializeInlines(group.map((g) => ({ ...g, rev: undefined }))));
+      wrap.kids = wrap.kids.map((k) => (k.k === "el" ? toDelText(k) : k));
+      out.push(wrap);
+      continue;
+    }
     const it = content[i++];
     if (it.t === "k") {
       if (it.bare) out.push(...it.nodes);
@@ -539,10 +634,25 @@ function serializeInlines(content: Inline[]): XNode[] {
   }
   return out;
 }
+export const sameRev = (a?: Rev, b?: Rev) => a === b || (!!a && !!b && a.id === b.id && a.kind === b.kind);
+/** inside <w:del>, text is <w:delText> and field codes <w:delInstrText> (§17.13.5.13) */
+function toDelText(e: XEl): XEl {
+  return { ...e, name: e.name === "w:t" ? "w:delText" : e.name === "w:instrText" ? "w:delInstrText" : e.name, kids: e.kids.map((k) => (k.k === "el" ? toDelText(k) : k)) };
+}
 export function serializePara(p: Para): XEl {
   if (!p.dirty && p.src) return p.src;
   const base = p.src ? clone(p.src) : el("w:p");
-  const pPr = buildPPr(p.p, p.p0, p.pPr);
+  let pPr = buildPPr(p.p, p.p0, p.pPr);
+  if (p.markRev) {
+    // CT_ParaRPr: the revision marks come first (w:ins, w:del, w:moveFrom, w:moveTo), then the mark's run properties
+    pPr = pPr ? clone(pPr) : el("w:pPr");
+    const rp0 = kid(pPr, "w:rPr");
+    const rp = rp0 ? clone(rp0) : el("w:rPr");
+    rp.kids = [el(p.markRev.kind === "ins" ? "w:ins" : "w:del", { "w:id": String(p.markRev.id), "w:author": p.markRev.author, "w:date": p.markRev.date }),
+      ...rp.kids.filter((k) => !(k.k === "el" && (k.name === "w:ins" || k.name === "w:del")))];
+    rp.selfClose = false;
+    put(pPr, PPR_ORDER, "w:rPr", rp);
+  }
   base.kids = [...(pPr ? [pPr] : []), ...serializeInlines(p.content)];
   base.selfClose = base.kids.length === 0;
   return base;
@@ -747,6 +857,20 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
     const keep = h.xml.root.kids; h.xml.root.kids = serializeBlocks(blocks); h.xml.root.selfClose = false;
     setPart(h.path, te.encode(serializeXml(h.xml))); h.xml.root.kids = keep;
     if (doc.hf.created.has(rid)) { ensureContentType(ct, "Override", "/" + h.path, `application/vnd.openxmlformats-officedocument.wordprocessingml.${h.xml.root.name === "w:ftr" ? "footer" : "header"}+xml`); ctDirty = true; }
+  }
+  // TT56: Track Changes toggled in the editor → settings.xml w:trackRevisions (Word keeps recording when it opens the file)
+  if (doc.track.on !== doc.track.on0) {
+    let sp = doc.track.settingsPath;
+    const src = sp ? out.get(sp) : undefined;
+    const sx = parseXml(src ? td.decode(src) : `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:settings xmlns:w="${W}"></w:settings>`);
+    if (!sp || !src) {
+      sp = doc.docPath.replace(/[^/]+$/, "") + "settings.xml"; doc.track.settingsPath = sp;
+      if (!doc.rels.some((r) => r.type === RT.settings)) addRel(doc, RT.settings, "settings.xml");
+      ensureContentType(ct, "Override", "/" + sp, "application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"); ctDirty = true;
+      if (doc.added.rels.length) { const have = new Set(kids(doc.relsXml.root, "Relationship").map((r) => attr(r, "Id"))); for (const r of doc.added.rels) if (!have.has(r.id)) { doc.relsXml.root.kids.push(el("Relationship", { Id: r.id, Type: r.type, Target: r.target, TargetMode: r.mode })); doc.relsXml.root.selfClose = false; } setPart(doc.relsPath, te.encode(serializeXml(doc.relsXml))); }
+    }
+    put(sx.root, SETTINGS_ORDER, "w:trackRevisions", doc.track.on ? el("w:trackRevisions") : null);
+    setPart(sp, te.encode(serializeXml(sx)));
   }
   // media
   for (const m of doc.added.media) {

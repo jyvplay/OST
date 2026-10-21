@@ -1,0 +1,42 @@
+{
+  "suite": "tt56-sheet-paste",
+  "at": "2026-10-21T23:14:18.550Z",
+  "results": [
+    {
+      "suite": "tt56-sheet-paste",
+      "name": "hand cases: values of formulas, formulas keep target format, formats only, skip blanks, quote-prefixed text",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt56-sheet-paste",
+      "name": "transpose: in-range relationships follow the transposed cells; mixed and absolute refs; out-of-sheet → #REF!",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt56-sheet-paste",
+      "name": "operations: add / subtract / multiply / divide against the target, blank = 0, text pasted as-is, ÷0 → #DIV/0!, formula source → combined formula",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt56-sheet-paste",
+      "name": "random blocks vs an independent reference model (values + op + skip blanks + transpose) and transpose∘transpose = id",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 44
+    }
+  ]
+}

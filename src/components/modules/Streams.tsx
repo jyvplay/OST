@@ -7,6 +7,7 @@ import * as E from "@/lib/embed-control-core";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import { askText } from "@/lib/ask";
+import { showOsd } from "@/lib/osd";
 
 /**
  * TT27 SM-01 / SM-02 / SM-03: the Video and Music players. Both are the providers' *official* embed players in an
@@ -385,7 +386,7 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
               {native ? <span className="fs-dim fs-stream-clock" data-testid={`${pfx}-native-clock`}>{E.formatClock(tp.time, tp.duration)}</span> : null}
               {caps.mute ? <Btn variant="ghost" onClick={t.mute} data-testid={`${pfx}-mute`} aria-pressed={!!tp.muted} title="Mute (M)">{tp.muted ? "Unmute" : "Mute"}</Btn> : null}
               {caps.volume ? (
-                <input type="range" className="fs-stream-vol" min={0} max={100} step={5} value={tp.volume ?? 100} onChange={(e) => t.volume(Number(e.target.value))}
+                <input type="range" className="fs-stream-vol" min={0} max={100} step={5} value={tp.volume ?? 100} onChange={(e) => { const v = Number(e.target.value); t.volume(v); showOsd("volume", v <= 0 ? "Muted" : `Volume ${v}%`, v); }}
                   data-testid={`${pfx}-volume`} data-reported={tp.volume === undefined ? "0" : "1"} aria-label="Volume" aria-valuetext={tp.volume === undefined ? "not reported yet" : `${tp.volume} %`} />
               ) : null}
               {caps.rate ? (

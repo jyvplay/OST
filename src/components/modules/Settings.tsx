@@ -9,6 +9,7 @@ import { BINDINGS, BROWSER_RESERVED, comboFor, conflicts, type Preset } from "@/
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, KV, Section, Tabs } from "../ui";
 import DisplaySettings from "../DisplaySettings";
+import { auditPermissions, type PermRow } from "@/lib/permissions";
 
 interface SettingRow { key: string; value: string; category: string; label: string; aliases: string; lockReason: string }
 interface HistRow { id: number; key: string; oldValue: string; newValue: string; createdAt: string }
@@ -23,7 +24,7 @@ export default function SettingsModule({ win }: ModuleProps) {
   const [q, setQ] = useState((win.props.focus as string) ?? "");
   const [ent, setEnt] = useState<{ tier: string; publicKey: string; entitlements: { kind: string; status: string; expiresAt: string | null }[] } | null>(null);
   const [licenseKey, setLicenseKey] = useState("");
-  const [perms, setPerms] = useState<{ name: string; state: string }[]>([]);
+  const [perms, setPerms] = useState<PermRow[]>([]);
   const [capDiff, setCapDiff] = useState<(CapDiff & { from: string }) | null>(null);
 
   const load = () => api<{ rows: SettingRow[]; history: HistRow[] }>("/api/settings?history=1")
@@ -37,13 +38,7 @@ export default function SettingsModule({ win }: ModuleProps) {
 
   useEffect(() => {
     if (tab !== "capabilities" || !navigator.permissions) return;
-    const names = ["camera", "microphone", "geolocation", "notifications", "clipboard-read", "persistent-storage", "window-management", "screen-wake-lock"];
-    Promise.all(names.map(async (name) => {
-      try {
-        const s = await navigator.permissions.query({ name: name as PermissionName });
-        return { name, state: s.state };
-      } catch { return { name, state: "not queryable" }; }
-    })).then(setPerms);
+    void auditPermissions().then(setPerms);
   }, [tab]);
 
   const preset = (shell.settings["shell.shortcutPreset"] ?? "hybrid") as Preset;
@@ -150,9 +145,14 @@ export default function SettingsModule({ win }: ModuleProps) {
           </Section>
           <Section title="Permission audit (SC-03)">
             <div style={{ display: "grid", gap: 2 }}>
-              {perms.map((p) => (
-                <KV key={p.name} k={p.name} v={<Badge tone={p.state === "granted" ? "ok" : p.state === "denied" ? "bad" : "default"}>{p.state}</Badge>} />
-              ))}
+              <div className="fs-dim" style={{ fontSize: fz(11) }}>{perms.length} permission names checked · {perms.filter((p) => p.used).length} can be requested by a Fusion feature · {perms.filter((p) => !p.used).length} are never requested</div>
+              <div data-testid="perm-audit" style={{ display: "grid", gap: 2 }}>
+                {perms.map((p) => (
+                  <div key={p.name} data-perm={p.name} data-state={p.state} data-used={p.used ? "1" : "0"}>
+                    <KV k={p.name} v={<span className="fs-row" style={{ gap: 4 }}><Badge tone={p.state === "granted" ? "ok" : p.state === "denied" ? "bad" : "default"}>{p.state}</Badge>{p.used ? null : <Badge>never requested</Badge>}</span>} />
+                  </div>
+                ))}
+              </div>
               {perms.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Permissions API unavailable.</span> : null}
             </div>
             <div className="fs-dim" style={{ fontSize: fz(11) }}>

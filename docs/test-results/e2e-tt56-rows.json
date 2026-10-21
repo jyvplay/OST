@@ -1,0 +1,69 @@
+{
+  "suite": "e2e-tt56-rows",
+  "at": "2026-10-21T23:41:43.992Z",
+  "results": [
+    {
+      "suite": "e2e-tt56-rows",
+      "name": "DP-01 account-free: no login / auth route answers, no auth library or sign-in call in the client bundle",
+      "covers": {
+        "DP-01": "full"
+      },
+      "pass": true,
+      "ms": 104
+    },
+    {
+      "suite": "e2e-tt56-rows",
+      "name": "DP-02 no ads, feeds or upsells: zero ad/promo/upsell components or strings in src/, zero ad-SDK markers in the client bundle",
+      "covers": {
+        "DP-02": "full"
+      },
+      "pass": true,
+      "ms": 68
+    },
+    {
+      "suite": "e2e-tt56-rows",
+      "name": "RG-03 idle: with the desktop static for 3 s, zero requestAnimationFrame callbacks run (rAF counted by an init script)",
+      "covers": {
+        "RG-03": "full"
+      },
+      "pass": true,
+      "ms": 7490
+    },
+    {
+      "suite": "e2e-tt56-rows",
+      "name": "RG-07 capability report: ≥ 40 APIs in Settings → Capabilities, each row has detail/degrade text, sampled rows equal independent detection",
+      "covers": {
+        "RG-07": "full"
+      },
+      "pass": true,
+      "ms": 2320
+    },
+    {
+      "suite": "e2e-tt56-rows",
+      "name": "SC-03 permission audit: Settings lists every name of the full permission list, each state equals an independent permissions.query",
+      "covers": {
+        "SC-03": "full"
+      },
+      "pass": true,
+      "ms": 2088
+    },
+    {
+      "suite": "e2e-tt56-rows",
+      "name": "AX-04 focus not obscured: Tab into a control of a covered window raises that window (server focus + top z); programmatic focus does not",
+      "covers": {
+        "AX-04": "full"
+      },
+      "pass": true,
+      "ms": 3629
+    },
+    {
+      "suite": "e2e-tt56-rows",
+      "name": "no uncaught page errors",
+      "covers": {
+        "DP-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

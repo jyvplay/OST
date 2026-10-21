@@ -160,8 +160,10 @@ export default function WriterModule({ win }: ModuleProps) {
   const collapsed = (r: E.Range) => r.a.pid === r.b.pid && r.a.off === r.b.off;
 
   /* ------------------------------------------------------------ history */
+  const authorName = () => String(shell.settings["profile.name"] ?? "Fusion user");
   const snapshot = (typing = false) => {
     const doc = docRef.current!; const now = Date.now();
+    doc.track.author = authorName(); // revisions recorded by this edit carry the profile name (as comments do)
     if (typing && now - lastTyping.current < 1200 && undo.current.length) { lastTyping.current = now; return; }
     lastTyping.current = typing ? now : 0;
     undo.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current, hf: hfSnap(doc) });
@@ -304,7 +306,7 @@ export default function WriterModule({ win }: ModuleProps) {
     const d = docRef.current!; let r = curSel();
     snapshot(true);
     let at = r.a;
-    if (!collapsed(r)) { at = E.deleteRange(d, r); r = { a: at, b: at }; }
+    if (!collapsed(r)) { at = E.deleteForReplace(d, r); r = { a: at, b: at }; }
     const lines = text.replace(/\r\n?/g, "\n").split("\n");
     let pos = at;
     const multi = lines.length > 1;
@@ -312,7 +314,7 @@ export default function WriterModule({ win }: ModuleProps) {
     pendingFmt.current = null;
     changed(multi || at.pid !== r.b.pid ? undefined : pos.pid, { a: pos, b: pos });
   };
-  const delRange = (r: E.Range) => { snapshot(true); const at = E.deleteRange(docRef.current!, r); changed(undefined, { a: at, b: at }); };
+  const delRange = (r: E.Range, forward = false) => { snapshot(true); const at = forward ? E.deleteForward(docRef.current!, r) : E.deleteRange(docRef.current!, r); changed(undefined, { a: at, b: at }); };
 
   const onBeforeInput = useCallback((ev: InputEvent) => {
     const d = docRef.current; if (!d) return;
@@ -335,15 +337,15 @@ export default function WriterModule({ win }: ModuleProps) {
       case "insertLineBreak": typeText("\n"); break;
       case "deleteContentBackward": case "deleteContentForward": case "deleteWordBackward": case "deleteWordForward": case "deleteSoftLineBackward": case "deleteSoftLineForward": case "deleteHardLineBackward": case "deleteHardLineForward": case "deleteContent": case "deleteByCut": {
         if (!collapsed(r)) { delRange(r); break; }
-        if (tr && !collapsed(tr)) { delRange(tr); break; }
+        if (tr && !collapsed(tr)) { delRange(tr, t.includes("Forward")); break; }
         const back = t.includes("Backward");
         const p = E.paraById(d, r.a.pid)!;
         if (back) {
           if (r.a.off > 0) delRange({ a: { pid: p.id, off: r.a.off - 1 }, b: r.a });
           else { snapshot(); const at = E.joinBackward(d, p.id); if (at) changed(undefined, { a: at, b: at }); }
         } else {
-          if (r.a.off < E.plen(p)) delRange({ a: r.a, b: { pid: p.id, off: r.a.off + 1 } });
-          else { const ps = allParas(d.blocks); const nx = ps[ps.indexOf(p) + 1]; if (nx) delRange({ a: r.a, b: { pid: nx.id, off: 0 } }); }
+          if (r.a.off < E.plen(p)) delRange({ a: r.a, b: { pid: p.id, off: r.a.off + 1 } }, true);
+          else { const ps = allParas(d.blocks); const nx = ps[ps.indexOf(p) + 1]; if (nx) delRange({ a: r.a, b: { pid: nx.id, off: 0 } }, true); }
         }
         break;
       }
@@ -383,6 +385,7 @@ export default function WriterModule({ win }: ModuleProps) {
     if (mod && k === "f") { e.preventDefault(); setPanel("find"); return; }
     if (mod && k === "k") { e.preventDefault(); openLink(); return; }
     if (mod && e.key === "Enter") { e.preventDefault(); const d = docRef.current!; snapshot(); const at = E.insertPageBreak(d, curSel().b); changed(undefined, { a: at, b: at }); return; }
+    if (mod && e.shiftKey && k === "e") { e.preventDefault(); toggleTrack(); return; }
     if (mod && ["l", "e", "r", "j"].includes(k)) { e.preventDefault(); paraOp((d, r) => E.setParaProps(d, r, { align: { l: "left", e: "center", r: "right", j: "justify" }[k] })); return; }
     if (e.key === "Tab") {
       e.preventDefault();
@@ -511,6 +514,17 @@ export default function WriterModule({ win }: ModuleProps) {
     runFind(1);
   };
   const replaceAll = () => { const d = docRef.current!; snapshot(); const n = E.replaceAll(d, find.q, find.r, find); changed(); setStatus(`Replaced ${n} occurrence(s)`); };
+  /* TT56 Track Changes: record own edits as w:ins / w:del, review each change */
+  const toggleTrack = () => { const d = docRef.current!; E.setTracking(d, !d.track.on, authorName()); setDirty(true); bump(); setStatus(d.track.on ? "Track Changes on: edits are recorded as revisions" : "Track Changes off"); };
+  const goChange = (c: E.Change) => { const p = E.paraById(docRef.current!, c.pid); if (!p) return; const at = { pid: c.pid, off: Math.min(c.off, E.plen(p)) }; setSel({ a: at, b: at }); rootRef.current?.querySelector(`[data-pid="${c.pid}"]`)?.scrollIntoView({ block: "center" }); };
+  const stepChange = (dir: 1 | -1) => {
+    const d = docRef.current!; const list = E.revisions(d); if (!list.length) { setStatus("No tracked changes"); return; }
+    const o = E.order(d); const r = curSel(); const here = (o.get(r.a.pid) ?? 0) * 1e6 + r.a.off;
+    const key = (c: E.Change) => (o.get(c.pid) ?? 0) * 1e6 + c.off;
+    const c = dir > 0 ? (list.find((x) => key(x) > here) ?? list[0]) : ([...list].reverse().find((x) => key(x) < here) ?? list[list.length - 1]);
+    goChange(c); setStatus(`${c.kind === "ins" ? "Inserted" : "Deleted"}${c.author ? ` by ${c.author}` : ""}: ${c.text.slice(0, 60)}`);
+  };
+  const resolveOne = (c: E.Change, accept: boolean) => { const d = docRef.current!; snapshot(); const ok = E.resolveOne(d, c.key, accept); changed(); setStatus(ok ? `${accept ? "Accepted" : "Rejected"} 1 change` : "That change no longer exists"); };
   const resolve = (accept: boolean) => { const d = docRef.current!; snapshot(); const n = E.resolveChanges(d, accept); changed(); setStatus(`${accept ? "Accepted" : "Rejected"} ${n} change(s)`); };
 
   /* ------------------------------------------------------------ derived toolbar state */
@@ -528,7 +542,7 @@ export default function WriterModule({ win }: ModuleProps) {
   if (!loaded || !doc) return <div style={{ padding: 16 }}>Opening document…</div>;
   const g = geomOf(doc);
   const styleId = curPara?.p.style ?? E.styleChoices(doc)[0]?.id;
-  const changes = panel === "review" ? E.trackedChanges(doc) : [];
+  const changes = panel === "review" ? E.revisions(doc) : [];
   const mixed = (k: string) => fmt?.mixed.has(k);
   const tb = (on: boolean | undefined) => ({ variant: (on ? "primary" : "ghost") as "primary" | "ghost" });
 
@@ -656,9 +670,21 @@ export default function WriterModule({ win }: ModuleProps) {
               <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}><Btn onClick={() => runFind(1)}>Next</Btn><Btn variant="ghost" onClick={() => runFind(-1)}>Previous</Btn><Btn variant="ghost" onClick={replaceOne}>Replace</Btn><Btn variant="ghost" onClick={replaceAll}>Replace all</Btn></div>
             </>}
             {panel === "review" && <>
+              <div className="fs-row" style={{ gap: 6, alignItems: "center" }}>
+                <Btn {...tb(doc.track.on)} aria-pressed={doc.track.on} onClick={toggleTrack} data-testid="writer-track" title="Record edits as tracked changes (Ctrl+Shift+E)">Track changes</Btn>
+              </div>
               <div className="wside-h">Tracked changes ({changes.length})</div>
-              <div className="fs-row" style={{ gap: 4 }}><Btn disabled={!changes.length} onClick={() => resolve(true)}>Accept all</Btn><Btn variant="ghost" disabled={!changes.length} onClick={() => resolve(false)}>Reject all</Btn></div>
-              {changes.slice(0, 100).map((c, i) => <div key={i} className={`wchg wchg-${c.kind}`}><b>{c.kind === "ins" ? "Inserted" : "Deleted"}</b>{c.author ? ` · ${c.author}` : ""}<div>{c.text.slice(0, 120) || "(formatting / empty)"}</div></div>)}
+              <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
+                <Btn variant="ghost" disabled={!changes.length} onClick={() => stepChange(-1)}>Previous</Btn><Btn variant="ghost" disabled={!changes.length} onClick={() => stepChange(1)}>Next</Btn>
+                <Btn disabled={!changes.length} onClick={() => resolve(true)}>Accept all</Btn><Btn variant="ghost" disabled={!changes.length} onClick={() => resolve(false)}>Reject all</Btn>
+              </div>
+              <div role="list" aria-label="Tracked changes" data-testid="writer-changes">
+                {changes.slice(0, 200).map((c, i) => <div role="listitem" key={c.key} className={`wchg wchg-${c.kind}`} data-key={c.key}>
+                  <button className="wchg-go" onClick={() => goChange(c)}><b>{c.kind === "ins" ? "Inserted" : "Deleted"}</b>{c.author ? ` · ${c.author}` : ""}{c.date ? <span style={{ opacity: 0.7 }}> · {c.date.slice(0, 10)}</span> : null}<span className="wchg-t">{c.text.slice(0, 120) || "(formatting / empty)"}</span></button>
+                  <div className="fs-row" style={{ gap: 4 }}><Btn variant="ghost" onClick={() => resolveOne(c, true)}>Accept<span className="sr-only"> change {i + 1}</span></Btn><Btn variant="ghost" onClick={() => resolveOne(c, false)}>Reject<span className="sr-only"> change {i + 1}</span></Btn></div>
+                </div>)}
+              </div>
+              {changes.length > 200 && <div style={{ opacity: 0.75 }}>Showing the first 200 of {changes.length}; Accept all / Reject all cover every change.</div>}
               <div className="wside-h" style={{ marginTop: 10 }}>Comments ({doc.comments.length})</div>
               <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>New comment on selection</Btn>
               {doc.comments.map((c) => <button key={c.id} className="wcom" onClick={() => { const m = rootRef.current?.querySelector(`[data-cids~="${c.id}"], .wcmt[data-cids*="${c.id}"]`); m?.scrollIntoView({ block: "center" }); }}><b>{c.author || "Unknown"}</b>{c.date ? <span style={{ opacity: 0.6 }}> · {c.date.slice(0, 10)}</span> : null}<div>{c.text}</div></button>)}
@@ -669,6 +695,7 @@ export default function WriterModule({ win }: ModuleProps) {
         )}
       </div>
       <div className="fs-row" style={{ padding: "3px 8px", gap: 12, borderTop: "1px solid var(--fs-border)", fontSize: fz(12), opacity: 0.85 }} aria-live="polite">
+        {doc.track.on && <button className="wtrack-chip" onClick={toggleTrack} data-testid="writer-track-chip" title="Track Changes is on — click to turn off (Ctrl+Shift+E)">Tracking changes</button>}
         <span data-testid="writer-pages">Page count: {pages}</span><span data-testid="writer-words">{counts.words} words</span><span>{counts.chars} characters</span>
         <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} data-testid="writer-status">{status}</span>
         <span>{path || "unsaved"}</span>
@@ -870,6 +897,10 @@ const WRITER_CSS = `
 .writer .wnav{all:unset;cursor:pointer;padding:3px 6px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .writer .wnav:hover,.writer .wcom:hover{background:var(--fs-hover, rgba(0,0,0,.06))}
 .writer .wcom{all:unset;cursor:pointer;display:block;padding:6px;border-radius:6px;border:1px solid var(--fs-border)}
+.writer .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.writer .wchg-go{display:block;width:100%;text-align:left;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}
+.writer .wchg-t{display:block;overflow-wrap:anywhere}
+.writer .wtrack-chip{border:1px solid #b00020;color:#8a0019;background:#fff4f6;border-radius:999px;padding:0 8px;font:inherit;cursor:pointer}
 .writer .wchg{padding:4px 6px;border-radius:6px;border-left:3px solid #0a7a3f;background:rgba(10,122,63,.06)}
 .writer .wchg-del{border-left-color:#b00020;background:rgba(176,0,32,.06)}
 .writer .wsep{width:1px;align-self:stretch;background:var(--fs-border);margin:0 2px}

@@ -206,10 +206,10 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
         <div style={{ display: "grid", gap: fz(5) }}>
           <strong id="theme-label" style={{ fontSize: fz(13) }}>Theme</strong>
           <div role="radiogroup" aria-labelledby="theme-label" className="fs-row" style={{ gap: 6 }}>
-            {(["dark", "light"] as const).map((t) => (
+            {(["dark", "light", "system"] as const).map((t) => (
               <button key={t} type="button" role="radio" aria-checked={theme === t} disabled={Boolean(locked["appearance.theme"])}
                 className="fs-btn" data-variant={theme === t ? "primary" : "ghost"} onClick={() => set("appearance.theme", t)}>
-                {t === "dark" ? "Dark" : "Light"}
+                {t === "dark" ? "Dark" : t === "light" ? "Light" : "Match system"}
               </button>
             ))}
           </div>

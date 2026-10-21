@@ -79,7 +79,9 @@ export default function MapsModule({ win }: ModuleProps) {
   const [tileDraft, setTileDraft] = useState(shell.settings["maps.tileUrl"] ?? "");
   const tiles = shell.settings["maps.tiles"] ?? "off";
   const tileUrl = shell.settings["maps.tileUrl"] ?? "";
-  const theme = shell.settings["appearance.theme"] === "light" ? "light" : "dark";
+  const themeSetting = shell.settings["appearance.theme"];
+  // TT56: "system" (ST-05) resolves through the OS colour scheme, like the shell
+  const theme = themeSetting === "light" || (themeSetting === "system" && typeof window !== "undefined" && !!window.matchMedia?.("(prefers-color-scheme: light)").matches) ? "light" : "dark";
 
   useEffect(() => { modeRef.current = mode; }, [mode]);
 

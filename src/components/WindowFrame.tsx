@@ -11,6 +11,7 @@ import { layoutOf } from "@/lib/layout-core";
 import { assistPlan, dragTarget, type DragTarget } from "@/lib/snap-core";
 import { snapUi, startAssist } from "./SnapHost";
 import { runGenie } from "./genie";
+import { armFocusRaise, keyboardNavRecent } from "@/lib/focus-raise";
 
 const ORDER_ART: UiGlyphName[] = ["close", "minimize", "maximize"];
 const clearSnapPreview = () => { if (snapUi.get().preview) snapUi.set({ preview: null }); };
@@ -36,6 +37,7 @@ export default function WindowFrame({ win }: { win: WindowState }) {
   // removed it, and the detached element is cloned and animated into its dock tile
   const lastEl = useRef<{ el: HTMLElement; desk: HTMLElement } | null>(null);
   const artLayout = layoutOf(shell.settings["appearance.layout"]) === "art";
+  useEffect(() => { armFocusRaise(); }, []);
   useEffect(() => {
     if (!win.minimized) { const el = ref.current, desk = el?.parentElement; if (el && desk) lastEl.current = { el, desk }; return; }
     const last = lastEl.current; lastEl.current = null;
@@ -210,9 +212,10 @@ export default function WindowFrame({ win }: { win: WindowState }) {
       style={{
         zIndex: win.z,
         borderColor: focused ? "rgba(91,140,255,.55)" : "var(--fs-border)",
-        opacity: shell.state.focusMode && !focused ? 0.45 : 1,
+        opacity: focused ? 1 : "var(--fs-focus-dim, 1)",
       }}
       onPointerDown={() => shell.dispatch({ t: "focus", id: win.id })}
+      onFocusCapture={() => { if (!focused && keyboardNavRecent()) shell.dispatch({ t: "focus", id: win.id }); }}
     >
       <div
         className="fs-titlebar"
