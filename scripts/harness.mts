@@ -24,7 +24,7 @@ export function makeHarness(suite: string) {
       results.push({ suite, name, covers, pass: true, ms: Math.round(performance.now() - t0) });
       console.log(`  ✓ ${name}`);
     } catch (e) {
-      const error = (e as Error).message;
+      const error = (e as Error).message; if (process.env.HARNESS_STACK) console.log((e as Error).stack);
       results.push({ suite, name, covers, pass: false, error, ms: Math.round(performance.now() - t0) });
       console.log(`  ✗ ${name}\n    ${error}`);
     }

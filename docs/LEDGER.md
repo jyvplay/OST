@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-22T08:23:21.655Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-138 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-22T15:14:40.032Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+142 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **373** |
-| Fully built | 297 |
+| **Features in register** | **375** |
+| Fully built | 299 |
 | Partially built (partial 36 + probe 18) | 54 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 1 |
-| **Fully tested** (≥1 passing test tagged `full`) | **212** |
+| **Fully tested** (≥1 passing test tagged `full`) | **214** |
 | **Partially tested** (only `partial` tags) | **72** |
 | Untested | 89 |
-| Automated tests executed / passed | 1114 / 1114 |
+| Automated tests executed / passed | 1130 / 1130 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 204 | 59 | 34 |
+| fully built | 206 | 59 | 34 |
 | partially built | 2 | 11 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 1 |
@@ -86,9 +86,10 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt57-rows | 4 | 4 | 0 | 2026-10-22T02:57:21.042Z |
 | e2e-tt57 | 3 | 3 | 0 | 2026-10-22T08:10:47.400Z |
 | e2e-tt58-rows | 3 | 3 | 0 | 2026-10-22T03:18:58.559Z |
-| e2e-tt58 | 3 | 3 | 0 | 2026-10-22T08:11:10.861Z |
+| e2e-tt58 | 3 | 3 | 0 | 2026-10-22T15:14:12.107Z |
 | e2e-tt59 | 4 | 4 | 0 | 2026-10-22T08:11:55.383Z |
-| e2e-tt60 | 5 | 5 | 0 | 2026-10-22T08:12:26.183Z |
+| e2e-tt60 | 5 | 5 | 0 | 2026-10-22T15:14:30.210Z |
+| e2e-tt61 | 4 | 4 | 0 | 2026-10-22T15:02:35.826Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-22T01:58:53.023Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-22T02:06:08.158Z |
 | e2e | 64 | 64 | 0 | 2026-10-22T01:56:57.757Z |
@@ -137,11 +138,11 @@ verifies the honesty contract, not the (impossible) capability.
 | tt44-vt | 12 | 12 | 0 | 2026-10-22T07:50:10.468Z |
 | tt45-unit | 10 | 10 | 0 | 2026-10-22T02:26:19.615Z |
 | tt46-writer | 12 | 12 | 0 | 2026-10-22T07:59:21.337Z |
-| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-22T04:50:55.339Z |
+| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-22T15:06:17.514Z |
 | tt47-crypto | 5 | 5 | 0 | 2026-10-22T02:37:10.869Z |
-| tt47-sheet | 8 | 8 | 0 | 2026-10-22T04:54:46.448Z |
+| tt47-sheet | 8 | 8 | 0 | 2026-10-22T15:09:19.273Z |
 | tt48-office | 6 | 6 | 0 | 2026-10-22T02:37:56.949Z |
-| tt49-sheet | 10 | 10 | 0 | 2026-10-22T08:06:07.692Z |
+| tt49-sheet | 10 | 10 | 0 | 2026-10-22T15:13:57.533Z |
 | tt49-writer | 9 | 9 | 0 | 2026-10-22T08:00:17.065Z |
 | tt50-charts | 10 | 10 | 0 | 2026-10-22T05:02:36.777Z |
 | tt51-slides | 15 | 15 | 0 | 2026-10-22T02:48:41.151Z |
@@ -156,8 +157,8 @@ verifies the honesty contract, not the (impossible) capability.
 | tt57-units | 2 | 2 | 0 | 2026-10-22T02:56:40.665Z |
 | tt57-writer-fmt | 5 | 5 | 0 | 2026-10-22T08:06:34.157Z |
 | tt57-writer-para | 5 | 5 | 0 | 2026-10-22T08:07:11.683Z |
-| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-22T05:02:59.050Z |
-| tt58-writer-notes | 5 | 5 | 0 | 2026-10-22T08:07:39.075Z |
+| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-22T15:06:22.885Z |
+| tt58-writer-notes | 5 | 5 | 0 | 2026-10-22T15:02:58.329Z |
 | tt59-raster | 5 | 5 | 0 | 2026-10-22T05:50:48.178Z |
 | tt59-sheet-paste | 3 | 3 | 0 | 2026-10-22T08:08:38.028Z |
 | tt59-sheet-spell | 5 | 5 | 0 | 2026-10-22T08:08:37.118Z |
@@ -165,8 +166,11 @@ verifies the honesty contract, not the (impossible) capability.
 | tt59-x14-cf | 3 | 3 | 0 | 2026-10-22T04:44:57.158Z |
 | tt60-sheet-spell-all | 2 | 2 | 0 | 2026-10-22T08:08:45.094Z |
 | tt60-units | 2 | 2 | 0 | 2026-10-22T08:08:46.415Z |
-| tt60-writer-spell-stories | 3 | 3 | 0 | 2026-10-22T08:08:46.246Z |
-| tt60-writer-tblrev | 7 | 7 | 0 | 2026-10-22T08:08:44.120Z |
+| tt60-writer-spell-stories | 3 | 3 | 0 | 2026-10-22T15:03:04.760Z |
+| tt60-writer-tblrev | 7 | 7 | 0 | 2026-10-22T15:03:03.740Z |
+| tt61-sheet-pivot-delete | 1 | 1 | 0 | 2026-10-22T15:02:25.111Z |
+| tt61-writer-cellrev | 4 | 4 | 0 | 2026-10-22T15:02:24.086Z |
+| tt61-writer-notes-rich | 7 | 7 | 0 | 2026-10-22T15:02:20.184Z |
 | unit | 23 | 23 | 0 | 2026-10-22T01:54:33.667Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-22T01:54:47.466Z |
 | vector | 18 | 18 | 0 | 2026-10-22T01:54:46.451Z |
@@ -190,7 +194,7 @@ None.
 | AP | 5 | 1 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 46 | 8 | 0 | 40 | 8 | 6 |
-| FF | 39 | 38 | 1 | 0 | 36 | 2 | 1 |
+| FF | 41 | 40 | 1 | 0 | 38 | 2 | 1 |
 | MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
 | SC | 18 | 16 | 1 | 1 | 11 | 3 | 4 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
@@ -358,7 +362,7 @@ None.
 | FF-15 | built | partial | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists |
 | FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
 | FF-20 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen (+64) |
-| FF-21 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint) (+52) |
+| FF-21 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint) (+53) |
 | FF-22 | built | full | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+72) |
 | FF-23 | built | full | e2e-tt51-slides: corpus decks open in the real UI with every slide in the rail and the file's content drawn: shapes.pptx (6 slides, preset shapes + text), table_test.pptx (a table with its cell text), bar-chart.pptx (chart drawn from its cache as SVG), backgrounds.pptx; e2e-tt51-slides: edit → save → python-pptx: retype the title by double-click, bold one word through the toolbar, add speaker notes, duplicate and hide a slide, insert a text box, drag a shape — the saved file carries exactly those edits, validates, and untouched parts keep their bytes; e2e-tt51-slides: slide show: Present opens a full-window show at the first visible slide; → / Space / click advance, ← goes back, HIDDEN slides are skipped, Escape ends and returns to the editor (+19) |
 | FF-24 | built | full | e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection; e2e-image: Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes; e2e-image: classic Quick edit mode is still available (additive merge) (+3) |
@@ -497,7 +501,9 @@ None.
 | FF-39 | built | full | e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save; tt59-sheet-spell: only text constants are checked (formulas, numbers, logicals, errors skipped); quote prefix offsets; row-major order; repeated words; tt59-sheet-spell: selection scope, Ignore All / Ignore Once, user dictionary (+3) |
 | FF-40 | built | full | e2e-tt60: FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right refused; saved trPr ins/del verified by lxml; per-change Accept removes the row; tt60-writer-tblrev: recording: an inserted row is w:trPr/w:ins and a deleted row w:trPr/w:del with its text as w:delText (oracle); CT_TrPr order; ids unique; python-docx opens; tt60-writer-tblrev: accept-all / reject-all (ours) equal the oracle's independent views, live and after save → re-open (+5) |
 | FF-41 | built | full | e2e-tt60: FF-41 Spreadsheet spelling in all sheets: F7 → All sheets → tab order from the active sheet; Change switches to the issue's sheet; Change All covers every sheet; openpyxl reads the save; tt60-sheet-spell-all: all sheets: tab order from the starting sheet, wrapping; a selection range is ignored; single sheet unchanged; tt60-sheet-spell-all: openpyxl 3-sheet .xlsx: Change All across sheets, a fix on a non-active sheet, saved losslessly, openpyxl reads every sheet back |
-| FF-42 | built | full | e2e-tt60: FF-42 Writer spelling in headers and notes: F7 lists body → Header → Footnote 1 issues; Change fixes them in place; saved file verified by python-docx and lxml; tt60-writer-spell-stories: issues in every story: main text first, then header, footer, footnote — each with its place; spellIssues (main) unchanged; tt60-writer-spell-stories: fixing in a header keeps the run formatting (bold 'The'), footer + footnote fixed; saved file verified by python-docx (hf), lxml (notes, runs) (+1) |
+| FF-42 | built | full | e2e-tt60: FF-42 Writer spelling in headers and notes: F7 lists body → Header → Footnote 1 issues; Change fixes them in place; saved file verified by python-docx and lxml; e2e-tt61: FF-42 completion: a header misspelling is underlined on the page itself — a spelling highlight range lies inside the page header box on every page (2 pages), and disappears after Change; tt60-writer-spell-stories: issues in every story: main text first, then header, footer, footnote — each with its place; spellIssues (main) unchanged (+2) |
+| FF-43 | built | full | e2e-tt61: FF-43 Writer: editing a formatted footnote in the Notes panel keeps its bold / italic / underline (lxml reads the saved runs); the edit is exact and the reference mark still leads; e2e-tt61: no page errors during the suite; tt61-writer-notes-rich: fixture sanity: the lxml-written formatted note reads back as written (independent probe) and as text in our model (+6) |
+| FF-44 | built | full | e2e-tt61: FF-44 Writer cell revisions in the UI: lxml-written cellIns / cellDel listed as [Table cell]; Accept the deletion removes the cell on the page; Reject All removes the inserted cell; saved file passes the oracle (tables, grid_ok, no markers); tt61-writer-cellrev: listing: the 4 cell markers written by the independent writer appear in the Changes list at their cell, kind / author / id from the file, in document order; tt61-writer-cellrev: accept all / reject all equal the oracle's §17.13.5.4/.5 views of the original file; rows keep filling the grid (gridAfter); the emptied 1×1 table disappears on accept (+2) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

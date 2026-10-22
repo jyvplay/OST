@@ -209,6 +209,15 @@ function renderTable(st: RenderState, t: Extract<Block, { t: "tbl" }>): HTMLElem
       if (c.span > 1) td.colSpan = c.span;
       const sd = spanDown.get(c); if (sd && sd > 1) td.rowSpan = sd;
       if (c.fill && /^[0-9a-f]{6}$/i.test(c.fill)) td.style.backgroundColor = `#${c.fill}`;
+      // TT61: a tracked cell insertion / deletion (w:cellIns / w:cellDel) is tinted like Word does, in the author's colour
+      const cm = c.tcPr?.kids.find((k): k is XEl => k.k === "el" && (k.name === "w:cellIns" || k.name === "w:cellDel"));
+      if (cm) {
+        const ins = cm.name === "w:cellIns"; const who = cm.attrs.find((x) => x[0] === "w:author")?.[1];
+        td.classList.add(ins ? "wcell-ins" : "wcell-del");
+        td.title = `${ins ? "Inserted" : "Deleted"} cell${who ? ` — ${who}` : ""} — review in the Review panel`;
+        td.style.backgroundColor = ins ? "rgba(11,92,173,.12)" : "rgba(163,23,107,.14)";
+        td.style.outline = `2px ${ins ? "solid" : "dashed"} ${revColor(who ?? "")}`; td.style.outlineOffset = "-2px";
+      }
       renderBlocks(st, c.blocks, td);
       tr.appendChild(td);
     }

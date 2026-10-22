@@ -1,0 +1,15 @@
+{
+  "suite": "tt61-sheet-pivot-delete",
+  "at": "2026-10-22T15:02:25.111Z",
+  "results": [
+    {
+      "suite": "tt61-sheet-pivot-delete",
+      "name": "delete every output cell (save), then delete the pivot (save): the pivot and its hidden names are gone in the file (openpyxl) and on reopen; an untouched save is still byte-identical",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 634
+    }
+  ]
+}

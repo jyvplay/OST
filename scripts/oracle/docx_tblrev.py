@@ -11,10 +11,19 @@ Prints one JSON object:
   order_ok     each w:trPr obeys CT_TrPr (base properties, then ins?, del?, trPrChange?) and each w:tr obeys
                (tblPrEx?, trPr?, cells...) ; order_errors lists violations
   ids_unique   every revision-record w:id (ins, del, *PrChange, rPrChange, pPrChange) is unique in document.xml
+  cells        TT61: every cell revision marker (w:tcPr/w:cellIns, w:cellDel, w:cellMerge): {table, row, cell, kind, id,
+               author, text}
+  grid_ok      TT61: every row fills its table grid: gridBefore + sum(gridSpan) + gridAfter == number of w:gridCol
+               (grid_errors lists the rows that don't); tcpr_ok: cellIns / cellDel / cellMerge sit where CT_TcPr puts them
+               (after the base cell properties, before w:tcPrChange)
   accept / reject   top-level tables as [[cell text]] after accepting / rejecting ALL changes, ECMA-376 §17.13.5:
                row w:del accepted = row removed, row w:ins rejected = row removed (a row carrying both is removed
                either way except accept-ins+reject-del); run w:ins accept = keep text, reject = drop; run w:del reversed;
-               a table whose every row is removed disappears
+               a table whose every row is removed disappears; TT61 cells: accepting a cellDel or rejecting a cellIns
+               removes that cell (§17.13.5.4 / .5)
+
+Fixture writer (TT61): docx_tblrev.py markcells IN.docx OUT.docx T,R,C,KIND,ID [...]
+  adds w:cellIns / w:cellDel (KIND = ins | del) with author "Oracle" to cell C of row R of top-level table T
 """
 import json
 import sys
@@ -63,6 +72,16 @@ def row_marks(tr):
     return out
 
 
+def cell_mark(tc):
+    tcpr = tc.find(q("tcPr"))
+    if tcpr is None:
+        return None
+    for k in tcpr:
+        if isinstance(k.tag, str) and local(k) in ("cellIns", "cellDel", "cellMerge"):
+            return k
+    return None
+
+
 def tables_view(body, mode):
     res = []
     for tbl in body.findall(q("tbl")):
@@ -73,7 +92,16 @@ def tables_view(body, mode):
                 continue
             if mode == "reject" and "ins" in kinds:
                 continue
-            rows.append([cell_text(tc, mode) for tc in tr.findall(q("tc"))])
+            cells = []
+            for tc in tr.findall(q("tc")):
+                m = cell_mark(tc)
+                k = local(m) if m is not None else None
+                if (mode == "accept" and k == "cellDel") or (mode == "reject" and k == "cellIns"):
+                    continue
+                cells.append(cell_text(tc, mode))
+            if not cells:
+                continue
+            rows.append(cells)
         if rows:
             res.append(rows)
     return res
@@ -157,9 +185,81 @@ def main():
            and local(el) in REV_TAGS and el.get(q("id")) is not None]
     out["ids_unique"] = len(ids) == len(set(ids))
     out["ids"] = ids
+    cells = []
+    for ti, tbl in enumerate(body.iter(q("tbl"))):
+        for ri, tr in enumerate(tbl.findall(q("tr"))):
+            for ci, tc in enumerate(tr.findall(q("tc"))):
+                m = cell_mark(tc)
+                if m is not None:
+                    cells.append({"table": ti, "row": ri, "cell": ci, "kind": local(m), "id": m.get(q("id")),
+                                  "author": m.get(q("author")), "text": cell_text(tc, None)})
+    out["cells"] = cells
+    gerr = []
+
+    def ival(parent, name):
+        e = parent.find(q(name)) if parent is not None else None
+        return int(e.get(q("val"))) if e is not None and e.get(q("val")) is not None else 0
+
+    for ti, tbl in enumerate(body.iter(q("tbl"))):
+        g = tbl.find(q("tblGrid"))
+        n = len(g.findall(q("gridCol"))) if g is not None else 0
+        for ri, tr in enumerate(tbl.findall(q("tr"))):
+            trpr = tr.find(q("trPr"))
+            tot = ival(trpr, "gridBefore") + ival(trpr, "gridAfter")
+            for tc in tr.findall(q("tc")):
+                tot += max(1, ival(tc.find(q("tcPr")), "gridSpan"))
+            if tot != n:
+                gerr.append({"table": ti, "row": ri, "cols": tot, "grid": n})
+    out["grid_ok"] = not gerr
+    out["grid_errors"] = gerr
+    TCPR_BASE = ["cnfStyle", "tcW", "gridSpan", "hMerge", "vMerge", "tcBorders", "shd", "noWrap", "tcMar", "textDirection",
+                 "tcFitText", "vAlign", "hideMark", "headers"]
+    terr = []
+    for tcpr in doc.iter(q("tcPr")):
+        names = [local(k) for k in tcpr if isinstance(k.tag, str)]
+        marks = [i for i, n in enumerate(names) if n in ("cellIns", "cellDel", "cellMerge")]
+        if len(marks) > 1:
+            terr.append("two cell marks: %s" % names)
+        for i in marks:
+            if any(n in TCPR_BASE for n in names[i + 1:]) or ("tcPrChange" in names and names.index("tcPrChange") < i):
+                terr.append("cell mark misplaced: %s" % names)
+    out["tcpr_ok"] = not terr
+    out["tcpr_errors"] = terr
     out["accept"] = tables_view(body, "accept")
     out["reject"] = tables_view(body, "reject")
     print(json.dumps(out))
 
 
-main()
+def markcells(src, dst, specs):
+    zin = zipfile.ZipFile(src)
+    doc = etree.fromstring(zin.read("word/document.xml"))
+    tbls = doc.find(q("body")).findall(q("tbl"))
+    for spec in specs:
+        t, r, c, kind, rid = spec.split(",")
+        tc = tbls[int(t)].findall(q("tr"))[int(r)].findall(q("tc"))[int(c)]
+        tcpr = tc.find(q("tcPr"))
+        if tcpr is None:
+            tcpr = etree.Element(q("tcPr"))
+            tc.insert(0, tcpr)
+        m = etree.Element(q("cellIns" if kind == "ins" else "cellDel"))
+        m.set(q("id"), rid)
+        m.set(q("author"), "Oracle")
+        m.set(q("date"), "2026-10-22T00:00:00Z")
+        ch = tcpr.find(q("tcPrChange"))
+        if ch is not None:
+            ch.addprevious(m)
+        else:
+            tcpr.append(m)
+    zout = zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED)
+    for it in zin.infolist():
+        data = zin.read(it.filename)
+        if it.filename == "word/document.xml":
+            data = etree.tostring(doc, xml_declaration=True, encoding="UTF-8", standalone=True)
+        zout.writestr(it, data)
+    zout.close()
+
+
+if len(sys.argv) > 1 and sys.argv[1] == "markcells":
+    markcells(sys.argv[2], sys.argv[3], sys.argv[4:])
+else:
+    main()

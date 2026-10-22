@@ -322,6 +322,141 @@ export function setNoteText(doc: WordDoc, kind: "footnote" | "endnote", id: stri
   doc.notesTouched = true;
   return true;
 }
+/** TT61: edit a note's text keeping its formatting. The old and new plain texts (noteTextOf) are diffed to one changed span
+ *  (common prefix / suffix); only that span is rewritten: deleted characters leave their runs, inserted characters take the
+ *  formatting of the character before them in the same paragraph (Word's typing rule; the next one at a paragraph start),
+ *  "\n" splits a paragraph (the new one copies the paragraph properties) and a deleted break joins two. Zero-width items
+ *  (the w:footnoteRef mark, bookmarks) are never deleted. Falls back to the plain rebuild (setNoteText) only when the edit
+ *  touches text the editor keeps inside an opaque token, when the note holds tracked changes, or when it is not paragraphs
+ *  only — and says which via the return value. */
+export function editNoteText(doc: WordDoc, kind: "footnote" | "endnote", id: string, text: string): "kept" | "plain" | false {
+  const ni = doc.notes.findIndex((n) => n.type === kind && n.id === id);
+  if (ni < 0) return false;
+  const note = doc.notes[ni];
+  const want = text.replace(/\r\n?/g, "\n");
+  if (noteTextOf(note.blocks) === want) return false;
+  const plain = () => (setNoteText(doc, kind, id, want) ? "plain" as const : false);
+  if (!note.blocks.length || note.blocks.some((b) => b.t !== "p")) return plain();
+  const paras = note.blocks as Para[];
+  if (paras.some((p) => p.markRev || p.pc || p.content.some((it) => it.rev || (it.t === "r" && it.fc)))) return plain();
+  // explode into items: one per UTF-16 unit, tokens (zero-width or carrying opaque text), paragraph breaks
+  const tokText = (nodes: XNode[]) => nodes.map((n) => (n.k === "el" ? findAll(n, (x) => x.name === "w:t").map(textOf).join("") : "")).join("");
+  let items: NoteItem[] = [];
+  paras.forEach((p, pi) => {
+    if (pi > 0) items.push({ br: p });
+    for (const it of p.content) {
+      if (it.t === "r") { for (let u = 0; u < it.text.length; u++) items.push({ c: it.text[u], tpl: it }); }
+      else { const tx = it.kind === "note" ? "" : tokText(it.nodes); items.push({ tok: it, w: tx.length, tx }); }
+    }
+  });
+  const full = itemsText(items);
+  const lead = full.startsWith(" ") ? 1 : 0;
+  const cur = full.slice(lead);
+  // the changes as hunks (Myers shortest edit script; one prefix/suffix span when the texts are large or very different)
+  const hunks = diffHunks(cur, want);
+  // right to left, so positions to the left stay valid
+  for (const h of hunks.reverse()) {
+    const next = applyNoteHunk(items, paras[0], lead + h.a, lead + h.b, h.ins);
+    if (!next) return plain();
+    items = next;
+  }
+  // regroup into paragraphs; consecutive characters of one template merge back into one run
+  const out: Para[] = []; let curP: Para = { ...paras[0], content: [], dirty: true }; let buf: { tpl: TextRun; text: string } | null = null;
+  const flush = () => { if (buf) { if (buf.text) curP.content.push({ ...buf.tpl, text: buf.text }); buf = null; } };
+  for (const it of items) {
+    if ("br" in it) { flush(); out.push(curP); curP = { ...it.br, content: [], dirty: true }; continue; }
+    if ("tok" in it) { flush(); curP.content.push(it.tok); continue; }
+    if (buf && buf.tpl === it.tpl) buf.text += it.c; else { flush(); buf = { tpl: it.tpl, text: it.c }; }
+  }
+  flush(); out.push(curP);
+  if (noteTextOf(out) !== want) return plain(); // never write a note whose text differs from the request
+  doc.notes[ni] = { ...note, blocks: out, dirty: true };
+  doc.notesTouched = true;
+  return "kept";
+}
+type NoteItem = { c: string; tpl: TextRun } | { tok: Inline; w: number; tx: string } | { br: Para };
+const itemsText = (items: NoteItem[]) => items.map((it) => ("c" in it ? it.c : "br" in it ? "\n" : it.tx)).join("");
+/** one change [a, b) → ins on the exploded note; null when it would cut into an opaque token's text */
+function applyNoteHunk(items: NoteItem[], first: Para, a: number, b: number, ins: string): NoteItem[] | null {
+  const at: number[] = []; let pos = 0;
+  for (const it of items) { at.push(pos); pos += "c" in it ? 1 : "br" in it ? 1 : it.w; }
+  for (let k = 0; k < items.length; k++) { const it = items[k]; if ("tok" in it && it.w > 0 && at[k] < Math.max(b, a + 1) && at[k] + it.w > a) return null; }
+  // insertion point: after every item starting before a, and after zero-width tokens sitting exactly at a (typed text never
+  // lands in front of the reference mark)
+  let ip = 0; while (ip < items.length && (at[ip] < a || (at[ip] === a && "tok" in items[ip] && (items[ip] as { w: number }).w === 0))) ip++;
+  // formatting: replacing a selection keeps the format of its first character (Word); pure typing takes the character
+  // before it in the same paragraph, else the next one
+  let tpl: TextRun | undefined;
+  for (let k = 0; k < items.length && b > a; k++) { const it = items[k]; if (at[k] >= a && at[k] < b && "c" in it) { tpl = it.tpl; break; } if (at[k] >= b) break; }
+  const kept: NoteItem[] = []; let mi = -1;
+  for (let k = 0; k < items.length; k++) {
+    if (k === ip) mi = kept.length;
+    const it = items[k];
+    if (!(at[k] >= a && at[k] < b && ("c" in it || "br" in it))) kept.push(it);
+  }
+  if (mi < 0) mi = kept.length;
+  if (!tpl) for (let k = mi - 1; k >= 0 && !("br" in kept[k]); k--) { const it = kept[k]; if ("c" in it) { tpl = it.tpl; break; } }
+  if (!tpl) for (let k = mi; k < kept.length && !("br" in kept[k]); k++) { const it = kept[k]; if ("c" in it) { tpl = it.tpl; break; } }
+  let host: Para = first;
+  for (let k = mi - 1; k >= 0; k--) { const it = kept[k]; if ("br" in it) { host = it.br; break; } }
+  const plainRun: TextRun = { t: "r", text: "", f: {} };
+  const neu: NoteItem[] = [];
+  for (const ch of ins) {
+    if (ch === "\n") neu.push({ br: { t: "p", id: newId(), p: { ...host.p }, p0: {}, pPr: host.pPr, content: [], dirty: true } });
+    else for (let u = 0; u < ch.length; u++) neu.push({ c: ch[u], tpl: tpl ?? plainRun });
+  }
+  kept.splice(mi, 0, ...neu);
+  return kept;
+}
+/** TT61: Myers' O((N+M)·D) shortest edit script between two strings as hunks {a, b, ins} on `x` (adjacent edits merged);
+ *  above 4,000 combined characters or 400 edits it degrades to the single common-prefix / common-suffix hunk */
+export function diffHunks(x: string, y: string): { a: number; b: number; ins: string }[] {
+  let p = 0; while (p < x.length && p < y.length && x[p] === y[p]) p++;
+  let s = 0; while (s < x.length - p && s < y.length - p && x[x.length - 1 - s] === y[y.length - 1 - s]) s++;
+  const X = x.slice(p, x.length - s), Y = y.slice(p, y.length - s);
+  if (!X.length && !Y.length) return [];
+  const single = [{ a: p, b: x.length - s, ins: Y }];
+  const N = X.length, M = Y.length, MAX = Math.min(N + M, 400);
+  if (N + M > 4000) return single;
+  const off = MAX + 1; const V = new Int32Array(2 * MAX + 3); const trace: Int32Array[] = [];
+  let D = -1;
+  outer: for (let d = 0; d <= MAX; d++) {
+    trace.push(V.slice());
+    for (let k = -d; k <= d; k += 2) {
+      let i = k === -d || (k !== d && V[off + k - 1] < V[off + k + 1]) ? V[off + k + 1] : V[off + k - 1] + 1;
+      let j = i - k;
+      while (i < N && j < M && X[i] === Y[j]) { i++; j++; }
+      V[off + k] = i;
+      if (i >= N && j >= M) { D = d; break outer; }
+    }
+  }
+  if (D < 0) return single;
+  // backtrack into single-character operations, then merge runs of edits into hunks
+  const ops: { t: "=" | "-" | "+"; i: number; j: number }[] = [];
+  let i = N, j = M;
+  for (let d = D; d > 0; d--) {
+    const v = trace[d]; const k = i - j;
+    const prevK = k === -d || (k !== d && v[off + k - 1] < v[off + k + 1]) ? k + 1 : k - 1;
+    const pi = v[off + prevK], pj = pi - prevK;
+    while (i > pi && j > pj && i - 1 >= 0 && j - 1 >= 0 && X[i - 1] === Y[j - 1] && i - j === k) { ops.push({ t: "=", i: i - 1, j: j - 1 }); i--; j--; }
+    if (prevK === k + 1) { ops.push({ t: "+", i, j: j - 1 }); j--; } else { ops.push({ t: "-", i: i - 1, j }); i--; }
+  }
+  while (i > 0 && j > 0) { ops.push({ t: "=", i: i - 1, j: j - 1 }); i--; j--; }
+  ops.reverse();
+  const hunks: { a: number; b: number; ins: string }[] = [];
+  let cur: { a: number; b: number; ins: string } | null = null; let xi = 0;
+  for (const o of ops) {
+    if (o.t === "=") { if (cur) { hunks.push(cur); cur = null; } xi = o.i + 1; continue; }
+    if (!cur) cur = { a: p + xi, b: p + xi, ins: "" };
+    if (o.t === "-") { cur.b = p + o.i + 1; xi = o.i + 1; } else cur.ins += Y[o.j];
+  }
+  if (cur) hunks.push(cur);
+  // a hunk list must reproduce y exactly; otherwise use the single span (defensive: never trust a broken script)
+  let out = "", last = 0;
+  for (const h of hunks) { out += x.slice(last, h.a) + h.ins; last = h.b; }
+  out += x.slice(last);
+  return out === y ? hunks : single;
+}
 /** delete a note: its reference mark leaves the text (a tracked deletion while recording); the note itself is dropped on save */
 export function deleteNote(doc: WordDoc, kind: "footnote" | "endnote", id: string): boolean {
   for (const p of allParas(doc.blocks)) {
@@ -658,6 +793,14 @@ export function revisions(doc: WordDoc): Change[] {
     const c: Change = { key: s.key, kind: "fmt", author: g("w:author") || undefined, date: g("w:date"), text: s.label, pid: s.pid, off: 0, editable: true, detail: `${s.label} properties` };
     prAt.set(s.pid, [...(prAt.get(s.pid) ?? []), c]);
   }
+  // TT61: cell insertions / deletions (w:tcPr/w:cellIns, w:cellDel) at the cell's first paragraph; w:cellMerge is listed
+  // but not resolvable here (its vertical-merge semantics are not modelled)
+  for (const s of cellMarks(doc)) {
+    const a = s.ch.attrs; const g = (k: string) => a.find((x) => x[0] === k)?.[1];
+    const merge = s.ch.name === "w:cellMerge";
+    const c: Change = { key: s.key, kind: s.ch.name === "w:cellDel" ? "del" : "ins", author: g("w:author") || undefined, date: g("w:date"), text: merge ? "[Table cell merge] " : "[Table cell] ", pid: s.pid, off: 0, editable: !merge, detail: merge ? "Cell merge (review in Word)" : undefined };
+    prAt.set(s.pid, [...(prAt.get(s.pid) ?? []), c]);
+  }
   const walkRows = (bs: Block[]) => { for (const b of bs) if (b.t === "tbl") for (const r of rowsOf(b)) { const f = rowParas(r)[0]; if (r.rev && f) rowAt.set(f.id, r); for (const c of cellsOf(r)) walkRows(c.blocks); } else if (b.t === "box") walkRows(b.blocks); };
   walkRows(doc.blocks);
   for (const p of allParas(doc.blocks)) {
@@ -692,6 +835,19 @@ export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean 
     const keep = (it.kind === "ins") === accept;
     p.content.splice(Number(si), 1, ...(keep ? parseInlineNodes(doc, it.kind === "del" ? delToIns(host.kids.filter((k): k is XEl => k.k === "el")) : host.kids) : []));
     normalize(p); touch(p);
+    return true;
+  }
+  if (key.startsWith("c:")) {
+    const s = cellMarks(doc).find((x) => x.key === key); if (!s || s.ch.name === "w:cellMerge") return false;
+    // accept an insertion / reject a deletion: the marker goes; otherwise the cell goes (§17.13.5.4 / .5)
+    if ((s.ch.name === "w:cellIns") === accept) {
+      const np: XEl = { ...clone(s.cell.tcPr!), kids: s.cell.tcPr!.kids.filter((k) => k !== s.ch) };
+      if (s.cell.src && s.cell.src.kids.indexOf(s.cell.tcPr!) >= 0) s.cell.src = { ...s.cell.src, kids: s.cell.src.kids.map((k) => (k === s.cell.tcPr ? np : k)) };
+      np.selfClose = np.kids.length === 0; s.cell.tcPr = np;
+      for (const p of s.paras) touch(p);
+      return true;
+    }
+    removeCell(s.table, s.row, s.cell, s.host);
     return true;
   }
   if (key.startsWith("x:")) {
@@ -801,6 +957,45 @@ export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean 
   walk(doc.blocks);
   for (const rid of restore) if (rid !== id || kind !== "del") resolveOne(doc, `r:del:${rid}`, false);
   return found;
+}
+/** TT61: cell revision markers (w:cellIns / w:cellDel / w:cellMerge in w:tcPr, §17.13.5.4–.6) in document order */
+interface CellSite { key: string; ch: XEl; cell: Cell; row: Row; table: Table; host: Block[]; pid: string; paras: Para[] }
+function cellMarks(doc: WordDoc): CellSite[] {
+  const out: CellSite[] = []; let n = 0;
+  const walk = (bs: Block[]) => {
+    for (const b of bs) {
+      if (b.t === "box") { walk(b.blocks); continue; }
+      if (b.t !== "tbl") continue;
+      for (const r of rowsOf(b)) for (const c of cellsOf(r)) {
+        const ch = c.tcPr ? kids(c.tcPr).find((k) => k.name === "w:cellIns" || k.name === "w:cellDel" || k.name === "w:cellMerge") : undefined;
+        const paras = allParas(c.blocks);
+        if (ch && paras[0]) { const id = ch.attrs.find((a) => a[0] === "w:id")?.[1]; out.push({ key: `c:${id !== undefined && /^-?\d+$/.test(id) ? id : `n${n}`}`, ch, cell: c, row: r, table: b, host: bs, pid: paras[0].id, paras }); }
+        n++;
+        walk(c.blocks);
+      }
+    }
+  };
+  walk(doc.blocks);
+  return out;
+}
+/** remove one cell; the row keeps filling the table grid through w:gridAfter (CT_TrPrBase), an emptied row goes, an emptied
+ *  table goes */
+function removeCell(t: Table, r: Row, c: Cell, host: Block[]) {
+  r.items.splice(r.items.indexOf(c), 1);
+  if (!cellsOf(r).length) {
+    t.items.splice(t.items.indexOf(r), 1);
+    if (!rowsOf(t).length) host.splice(host.indexOf(t), 1);
+    return;
+  }
+  const ti = r.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:trPr");
+  const trPr: XEl = ti >= 0 ? clone(r.items[ti] as XEl) : el("w:trPr");
+  const ga = kid(trPr, "w:gridAfter"); const cur = Number(ga?.attrs.find((a) => a[0] === "w:val")?.[1] ?? 0) || 0;
+  const g = el("w:gridAfter", { "w:val": String(cur + c.span) });
+  if (ga) trPr.kids[trPr.kids.indexOf(ga)] = g; else trPr.kids.unshift(g);
+  trPr.selfClose = false;
+  if (ti >= 0) r.items[ti] = trPr;
+  else { const ex = r.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:tblPrEx"); r.items.splice(ex + 1, 0, trPr); }
+  for (const p of rowParas(r)) touch(p);
 }
 /** TT60: table / row / cell property change records (w:tblPrChange, w:trPrChange, w:tcPrChange — §17.13.5.34–.37) in
  *  document order, each with a setter that swaps in a rewritten properties element */

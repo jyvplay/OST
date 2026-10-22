@@ -61,6 +61,7 @@ export default function WriterModule({ win }: ModuleProps) {
   const [status, setStatus] = useState("");
   const [zoom, setZoom] = useState<number | null>(null);
   const [pages, setPages] = useState(1);
+  const [layoutGen, setLayoutGen] = useState(0); // TT61: bumps after every relayout (page headers / footers are rebuilt; their spelling marks are repainted)
   const [panel, setPanel] = useState<Panel>("none");
   const [pop, setPop] = useState<"" | "link" | "table" | "comment" | "saveas">("");
   const [popVal, setPopVal] = useState(""); const [popVal2, setPopVal2] = useState("");
@@ -94,7 +95,7 @@ export default function WriterModule({ win }: ModuleProps) {
         const blocks = rid ? doc.parts.get(rid) : undefined;
         if (!blocks) continue;
         const hf = document.createElement("div");
-        hf.className = isHdr ? "whdr" : "wftr";
+        hf.className = isHdr ? "whdr" : "wftr"; hf.dataset.rid = rid!;
         hf.style.cssText = `position:absolute;left:${g.left}px;right:${g.right}px;${isHdr ? `top:${doc.page.header / 15}px` : `bottom:${doc.page.footer / 15}px`};pointer-events:none;color:#333`;
         const st = makeState(doc, blocks, false); st.page = { n: i + 1, total: n };
         renderBlocks(st, blocks, hf);
@@ -103,6 +104,7 @@ export default function WriterModule({ win }: ModuleProps) {
       pg.appendChild(box);
     }
     pg.style.height = `${n * (g.pageH + g.gap)}px`;
+    setLayoutGen((x) => x + 1);
   }, []);
   const scheduleLayout = useCallback(() => { if (layoutTimer.current) window.clearTimeout(layoutTimer.current); layoutTimer.current = window.setTimeout(relayout, 120); }, [relayout]);
 
@@ -248,17 +250,24 @@ export default function WriterModule({ win }: ModuleProps) {
   useEffect(() => {
     const owner = `writer-${win.id}`, root = rootRef.current;
     if (!root || spellMode !== "fusion") { paintSpell(owner, [], []); return; }
-    const mk = (i: WS.SpellIssue) => {
-      const a = posToDom(root, { pid: i.pid, off: i.off }), b = posToDom(root, { pid: i.pid, off: i.off + i.len });
+    const mk1 = (host: HTMLElement, i: WS.SpellIssue) => {
+      const a = posToDom(host, { pid: i.pid, off: i.off }), b = posToDom(host, { pid: i.pid, off: i.off + i.len });
       if (!a || !b) return null;
       try { const rg = document.createRange(); rg.setStart(a.node, a.offset); rg.setEnd(b.node, b.offset); return rg; } catch { return null; }
     };
+    // TT61: a header / footer issue is marked on every page that shows that part (each page has its own rendered copy)
+    const mk = (i: WS.SpellIssue): Range[] => {
+      const h = i.story ? /^hf:(.+)$/.exec(i.story) : null;
+      if (!h) { const rg = mk1(root, i); return rg ? [rg] : []; }
+      const hosts = Array.from(pagesRef.current?.querySelectorAll<HTMLElement>(".whdr, .wftr") ?? []).filter((el) => el.dataset.rid === h[1]);
+      return hosts.map((el) => mk1(el, i)).filter((x): x is Range => !!x);
+    };
     const sp: Range[] = [], rp: Range[] = [], cur: Range[] = [];
-    issues.forEach((i) => { const rg = mk(i); if (rg) (i.kind === "repeat" ? rp : sp).push(rg); });
-    if (panel === "spell" && issues.length) { const c = mk(issues[Math.min(spellIdx, issues.length - 1)]); if (c) cur.push(c); }
+    issues.forEach((i) => { for (const rg of mk(i)) (i.kind === "repeat" ? rp : sp).push(rg); });
+    if (panel === "spell" && issues.length) cur.push(...mk(issues[Math.min(spellIdx, issues.length - 1)]));
     root.dataset.spellIssues = String(issues.length);
     paintSpell(owner, sp, rp, cur);
-  }, [issues, panel, spellIdx, spellMode, win.id]);
+  }, [issues, panel, spellIdx, spellMode, win.id, layoutGen]);
   useEffect(() => () => paintSpell(`writer-${win.id}`, [], []), [win.id]);
   const spellContext = (i: WS.SpellIssue) => {
     const p = WS.issuePara(docRef.current!, i); const t = p ? WS.proofText(p).replace(/[\u0000\ufffc]/g, " ") : i.word;
@@ -651,7 +660,7 @@ export default function WriterModule({ win }: ModuleProps) {
   };
   const commitNote = (kind: "footnote" | "endnote", id: string, text: string) => {
     const d = docRef.current!; const cur = d.notes.find((n) => n.type === kind && n.id === id); if (!cur || E.noteTextOf(cur.blocks) === text) return;
-    snapshot(); E.setNoteText(d, kind, id, text); changed(); setStatus(`${kind === "footnote" ? "Footnote" : "Endnote"} updated`);
+    snapshot(); const how = E.editNoteText(d, kind, id, text); changed(); setStatus(`${kind === "footnote" ? "Footnote" : "Endnote"} updated${how === "plain" ? " — rewritten as plain text (it held tracked changes or a field / content control in the edited span)" : ""}`);
   };
   const removeNote = (n: E.NoteInfo) => { const d = docRef.current!; snapshot(); E.deleteNote(d, n.type, n.id); changed(); setNoteGen((g) => g + 1); setStatus(`${n.type === "footnote" ? "Footnote" : "Endnote"} deleted`); };
   const goNote = (n: E.NoteInfo) => { const at = { pid: n.pid, off: n.off + 1 }; setSel({ a: at, b: at }); rootRef.current?.querySelector(`[data-pid="${n.pid}"]`)?.scrollIntoView({ block: "center" }); rootRef.current?.focus(); };

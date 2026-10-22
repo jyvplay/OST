@@ -252,6 +252,8 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     return { sheet: s, orig: o };
   });
   let anyCellChange = false;
+  // TT58: a PivotTable added / edited / deleted changes the hidden definition names even when no cell value changed
+  const pivKey = (w: Workbook) => JSON.stringify([...w.sheets.values()].map((sh) => [sh.name, sh.pivots]));
   // TT47: a sheet's modelled conditional formats, compared without sheet name / provenance
   const cfOf = (w: Workbook, name: string) => w.condFormats.filter((r) => r.sheet.toLowerCase() === name.toLowerCase()).map(({ sheet: _s, src: _p, ...r }) => JSON.stringify(r, Object.keys(r).sort())); // flat object: sorted keys = order-independent
   {
@@ -265,7 +267,9 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     });
     // charts on pinned chartsheets are not covered by the per-sheet comparison above
     const pinnedCharts = (w: Workbook) => w.charts.filter((c) => pinnedNames.has(c.sheet.toLowerCase())).map((c) => c.sheet.toLowerCase() + chartKey(c));
-    if (same && eqJ(pinnedCharts(workbook), pinnedCharts(orig))) return { bytes: original, report };
+    // TT61 fix: pivot definitions count too — deleting a pivot whose output cells were already gone changes no cell, and the
+    // shortcut used to hand back the original bytes, so the hidden definition names (and the pivot) came back on reopen
+    if (same && eqJ(pinnedCharts(workbook), pinnedCharts(orig)) && pivKey(orig) === pivKey(workbook)) return { bytes: original, report };
   }
 
   for (const { sheet, orig: o } of mapping) {
@@ -498,8 +502,6 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
 
   // --- workbook structure: order, names, additions, removals
   const structural = report.sheetsAdded.length || report.sheetsRenamed.length || origSheets.some((s) => !used.has(s.part)) || mapping.some((m, i) => m.orig !== origSheets[i]) || mapping.length !== origSheets.length;
-  // TT58: a PivotTable added / edited / deleted changes the hidden definition names even when no cell value changed
-  const pivKey = (w: Workbook) => JSON.stringify([...w.sheets.values()].map((sh) => [sh.name, sh.pivots]));
   const wbChanged = structural || anyCellChange || pivKey(orig) !== pivKey(workbook);
   const newPartOf = new Map<string, string>(); let ctChanged = false;
   if (structural) {

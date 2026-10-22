@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-22T08:23:21.657Z",
+ "generatedAt": "2026-10-22T15:14:40.034Z",
  "totals": {
   "built": {
-   "full": 297,
+   "full": 299,
    "partial": 54,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 212,
+   "full": 214,
    "partial": 72,
    "untested": 89
   },
   "tests": {
-   "total": 1114,
-   "passed": 1114
+   "total": 1130,
+   "passed": 1130
   }
  },
  "rows": {
@@ -1275,7 +1275,8 @@
     "tt58-sheet-pivot: negative shapes: a field on Rows and Columns, an out-of-range field, a source without headings, too many fields / columns, unknown function — each refused with a reason",
     "tt58-sheet-pivot: 300 random tables × specs (1–3 row fields, 0–2 column fields, 1–3 of 11 summary functions, blanks, errors, mixed text/number items, case variants, filters, totals on/off) — every shown cell equals the pandas oracle and nothing extra is shown",
     "tt58-sheet-pivot: workbook: create on a new sheet, source formulas are calculated values, refresh after the source changes (output grows / shrinks, stale cells cleared), refuse to overwrite data or overlap the source, save/reload keeps the definition, delete clears",
-    "tt58-sheet-pivot: .xlsx round trip of the definition (hidden sheet-scoped string names, ≤255 characters each): fresh export and lossless patch of a POI workbook with its own names; openpyxl opens both, sees the names hidden; reopened pivots refresh; deleting the pivot removes the names"
+    "tt58-sheet-pivot: .xlsx round trip of the definition (hidden sheet-scoped string names, ≤255 characters each): fresh export and lossless patch of a POI workbook with its own names; openpyxl opens both, sees the names hidden; reopened pivots refresh; deleting the pivot removes the names",
+    "tt61-sheet-pivot-delete: delete every output cell (save), then delete the pivot (save): the pivot and its hidden names are gone in the file (openpyxl) and on reopen; an untouched save is still byte-identical"
    ]
   },
   "FF-22": {
@@ -2898,9 +2899,34 @@
    "tested": "full",
    "tests": [
     "e2e-tt60: FF-42 Writer spelling in headers and notes: F7 lists body → Header → Footnote 1 issues; Change fixes them in place; saved file verified by python-docx and lxml",
+    "e2e-tt61: FF-42 completion: a header misspelling is underlined on the page itself — a spelling highlight range lies inside the page header box on every page (2 pages), and disappears after Change",
     "tt60-writer-spell-stories: issues in every story: main text first, then header, footer, footnote — each with its place; spellIssues (main) unchanged",
     "tt60-writer-spell-stories: fixing in a header keeps the run formatting (bold 'The'), footer + footnote fixed; saved file verified by python-docx (hf), lxml (notes, runs)",
     "tt60-writer-spell-stories: Change All spans stories; a stale issue (text changed since the check) is refused; undo snapshots keep the old header blocks"
+   ]
+  },
+  "FF-43": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt61: FF-43 Writer: editing a formatted footnote in the Notes panel keeps its bold / italic / underline (lxml reads the saved runs); the edit is exact and the reference mark still leads",
+    "e2e-tt61: no page errors during the suite",
+    "tt61-writer-notes-rich: fixture sanity: the lxml-written formatted note reads back as written (independent probe) and as text in our model",
+    "tt61-writer-notes-rich: an edit inside plain text, inside a bold word, at the start of an italic word: only the edited span changes; inserted text takes the previous character's formatting",
+    "tt61-writer-notes-rich: line breaks: typing \\n splits the paragraph (new one keeps FootnoteText), deleting a break joins paragraphs, deleting everything keeps the reference mark",
+    "tt61-writer-notes-rich: fallback is explicit: a note holding a tracked change is rebuilt as plain text and the call says so",
+    "tt61-writer-notes-rich: randomized differential: 60 random edits — note text always equals the request; every character outside the changed span keeps its formatting; save → re-open → lxml text agrees",
+    "tt61-writer-notes-rich: diffHunks (from-scratch Myers): on 400 random string pairs the hunks rebuild the target exactly and the edit count equals an independent DP insert/delete distance; two separate edits leave the text between them — and its formatting — alone",
+    "tt61-writer-notes-rich: POI corpus (6 files, every footnote / endnote): a random mid-note edit keeps the text exact, keeps each untouched character's formatting (independent lxml probe before vs after), keeps references sound"
+   ]
+  },
+  "FF-44": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt61: FF-44 Writer cell revisions in the UI: lxml-written cellIns / cellDel listed as [Table cell]; Accept the deletion removes the cell on the page; Reject All removes the inserted cell; saved file passes the oracle (tables, grid_ok, no markers)",
+    "tt61-writer-cellrev: listing: the 4 cell markers written by the independent writer appear in the Changes list at their cell, kind / author / id from the file, in document order",
+    "tt61-writer-cellrev: accept all / reject all equal the oracle's §17.13.5.4/.5 views of the original file; rows keep filling the grid (gridAfter); the emptied 1×1 table disappears on accept",
+    "tt61-writer-cellrev: one at a time: each marker resolved alone (both directions) then the rest by the oracle = the oracle's all-at-once view; 12 random mixed decision / order trials equal hand-applied expectations",
+    "tt61-writer-cellrev: grid bookkeeping: removing a spanning cell adds its full span to an existing gridAfter; removing every cell of a row removes the row; cellMerge is listed read-only and refused"
    ]
   },
   "CT-01": {
