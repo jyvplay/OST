@@ -1,6 +1,6 @@
 {
   "suite": "tt50-charts",
-  "at": "2026-10-22T01:02:12.663Z",
+  "at": "2026-10-22T02:47:14.848Z",
   "results": [
     {
       "suite": "tt50-charts",
@@ -9,7 +9,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 232
+      "ms": 217
     },
     {
       "suite": "tt50-charts",
@@ -18,7 +18,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 26645
+      "ms": 28590
     },
     {
       "suite": "tt50-charts",
@@ -36,7 +36,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 49108
+      "ms": 48754
     },
     {
       "suite": "tt50-charts",
@@ -45,7 +45,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 214
+      "ms": 212
     },
     {
       "suite": "tt50-charts",
@@ -63,7 +63,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 2493
+      "ms": 2753
     },
     {
       "suite": "tt50-charts",
@@ -72,7 +72,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 853
+      "ms": 939
     },
     {
       "suite": "tt50-charts",
@@ -81,7 +81,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 1862
+      "ms": 2323
     },
     {
       "suite": "tt50-charts",

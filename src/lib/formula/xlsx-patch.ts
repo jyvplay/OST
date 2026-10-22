@@ -34,6 +34,7 @@ import { rangeRef } from "./sheetlayout";
 import type { CondRule } from "./sheetmeta";
 import { addFuturePrefixes } from "./sheetops";
 import { linksXml, REL_HYPERLINK } from "./sheetlinks";
+import { PIVOT_NAME_RE, pivotNames } from "./pivotsheet";
 
 
 const ln = (n: string) => n.slice(n.indexOf(":") + 1);
@@ -497,7 +498,9 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
 
   // --- workbook structure: order, names, additions, removals
   const structural = report.sheetsAdded.length || report.sheetsRenamed.length || origSheets.some((s) => !used.has(s.part)) || mapping.some((m, i) => m.orig !== origSheets[i]) || mapping.length !== origSheets.length;
-  const wbChanged = structural || anyCellChange;
+  // TT58: a PivotTable added / edited / deleted changes the hidden definition names even when no cell value changed
+  const pivKey = (w: Workbook) => JSON.stringify([...w.sheets.values()].map((sh) => [sh.name, sh.pivots]));
+  const wbChanged = structural || anyCellChange || pivKey(orig) !== pivKey(workbook);
   const newPartOf = new Map<string, string>(); let ctChanged = false;
   if (structural) {
     const usedIds = new Set(kids(relsDoc.root).map((r) => attr(r, "Id")!));
@@ -577,6 +580,24 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       if (at < 0) wbDoc.root.kids.push(calc); else wbDoc.root.kids.splice(at, 0, calc);
     }
     setAttr(calc, "fullCalcOnLoad", "1");
+    // TT58: PivotTable definitions → hidden sheet-scoped names (replacing the ones this app wrote before)
+    {
+      const sheetEls = kidsL(kidL(wbDoc.root, "sheets"), "sheet");
+      let dn = kidL(wbDoc.root, "definedNames");
+      if (dn) dn.kids = dn.kids.filter((k) => !(k.k === "el" && PIVOT_NAME_RE.test(attr(k, "name") ?? "")));
+      const add: XEl[] = [];
+      for (const sh of workbook.sheets.values()) {
+        const idx = sheetEls.findIndex((e) => attr(e, "name") === sh.name); if (idx < 0) continue;
+        for (const x of pivotNames(sh.pivots)) { const e = el(P + "definedName", { name: x.name, localSheetId: String(idx), hidden: "1" }); e.kids = [textNode(x.text)]; e.selfClose = false; add.push(e); }
+      }
+      if (add.length && !dn) {
+        dn = el(P + "definedNames", {}); dn.selfClose = false;
+        const after = ["calcPr", "oleSize", "customWorkbookViews", "pivotCaches", "smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", "webPublishObjects", "extLst"];
+        const at = wbDoc.root.kids.findIndex((k) => k.k === "el" && after.includes(ln(k.name)));
+        if (at < 0) wbDoc.root.kids.push(dn); else wbDoc.root.kids.splice(at, 0, dn);
+      }
+      if (dn) { dn.kids.push(...add); if (!kids(dn).length) wbDoc.root.kids = wbDoc.root.kids.filter((k) => k !== dn); }
+    }
     out.set(wbPart, serializeXml(wbDoc)); report.partsRewritten.push(wbPart);
     if (structural || cc) { out.set(wbRelsPath, serializeXml(relsDoc)); out.set("[Content_Types].xml", serializeXml(ctDoc)); report.partsRewritten.push(wbRelsPath, "[Content_Types].xml"); }
   }

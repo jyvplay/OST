@@ -22,6 +22,8 @@ import {
 import { textInput, type BorderLine, type DataValidation, type ValidationOp, type ValidationType } from "@/lib/formula/engine";
 import { cellLink, linkAction, parseAddress, setLink } from "@/lib/formula/sheetlinks";
 import { parseA1Range } from "@/lib/formula/sheetops";
+import { FN_LABEL, fieldItems, type PivotFn, type PivotSpec } from "@/lib/formula/pivot";
+import { deletePivot, nextPivotName, pivotAt, readTable, refreshPivots, writePivot, type PivotDef } from "@/lib/formula/pivotsheet";
 import { absoluteRef, referenceTarget, validateName } from "@/lib/formula/names";
 import { autoInk } from "@/lib/auto-ink";
 import { askText } from "@/lib/ask";
@@ -109,9 +111,12 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [loaded, setLoaded] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState("");
-  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv" | "names" | "paste" | "link">(null);
+  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv" | "names" | "paste" | "link" | "pivot">(null);
   // TT57: Insert ▸ Link (Ctrl+K) form
   const [lk, setLk] = useState({ addr: "", text: "", tip: "", had: false });
+  // TT58 PivotTable panel: field indexes into the source heading row (-1 = none)
+  const [pv, setPv] = useState<{ src: string; rows: number[]; cols: number[]; vals: { field: number; fn: PivotFn }[]; filter: number; inc: string[] | null; subtotals: boolean; grand: boolean; edit: null | { sheet: string; name: string } }>(
+    { src: "", rows: [-1, -1, -1], cols: [-1, -1], vals: [{ field: -1, fn: "sum" }, { field: -1, fn: "sum" }, { field: -1, fn: "sum" }], filter: -1, inc: null, subtotals: true, grand: true, edit: null });
   const [psFrom, setPsFrom] = useState("");
   const [ps, setPs] = useState<PasteSpecialOpts>({ what: "values", op: "none", transpose: false, skipBlanks: false });
   const [nameBox, setNameBox] = useState<string | null>(null);
@@ -311,6 +316,86 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     return true;
   };
   const switchSheet = (name: string) => { commit(null); setActive(name); setSel({ a: { col: 0, row: 0 }, f: { col: 0, row: 0 } }); };
+  // ---- TT58 PivotTables ----
+  const splitSrc = (t: string): { sheet: string; ref: string } | null => {
+    const m = /^(?:'((?:[^']|'')+)'|([^!]+))!(.+)$/.exec(t.trim());
+    const sheetName = m ? (m[1]?.replace(/''/g, "'") ?? m[2]) : active, ref = m ? m[3] : t.trim();
+    return parseA1Range(ref) && workbook.sheets.has(sheetName) ? { sheet: sheetName, ref: ref.replace(/\$/g, "").toUpperCase() } : null;
+  };
+  const srcText = (src: { sheet: string; ref: string }) => `${quoteSheet(src.sheet)}!${src.ref}`;
+  const pivotHeads = (): string[] => {
+    const src = splitSrc(pv.src); if (!src) return [];
+    try { const t = readTable(workbook, src); return (t[0] ?? []).map((h, i) => (h === null ? `(column ${i + 1})` : typeof h === "object" ? h.e : String(h))); } catch { return []; }
+  };
+  const openPivotPanel = () => {
+    commit(null);
+    const ex = pivotAt(sheet, sel.f.col, sel.f.row);
+    if (ex) {
+      const sp = ex.spec, pad = <T,>(a: T[], n: number, f: T) => [...a, ...Array(Math.max(0, n - a.length)).fill(f)].slice(0, n);
+      setPv({ src: srcText(ex.src), rows: pad(sp.rows, 3, -1), cols: pad(sp.cols, 2, -1), vals: pad(sp.values, 3, { field: -1, fn: "sum" as PivotFn }), filter: sp.filters?.[0]?.field ?? -1, inc: sp.filters?.[0]?.include ?? null, subtotals: sp.subtotals !== false, grand: sp.grandRows !== false, edit: { sheet: active, name: ex.name } });
+    } else {
+      const r = dataRange(); const src = { sheet: active, ref: rangeA1(r) };
+      let heads: (string | null)[] = [], numeric: boolean[] = [];
+      try { const t = readTable(workbook, src); heads = (t[0] ?? []).map((h) => (h === null ? null : String(h))); numeric = heads.map((_, j) => t.slice(1).some((row) => typeof row[j] === "number")); } catch { /* the panel explains invalid sources */ }
+      const firstText = numeric.findIndex((n) => !n), firstNum = numeric.findIndex((n, j) => n && j !== firstText);
+      setPv({ src: srcText(src), rows: [firstText, -1, -1], cols: [-1, -1], vals: [{ field: firstNum, fn: "sum" }, { field: -1, fn: "sum" }, { field: -1, fn: "sum" }], filter: -1, inc: null, subtotals: true, grand: true, edit: null });
+    }
+    setPanel("pivot");
+  };
+  const pivotSpecOf = (): PivotSpec => ({
+    rows: pv.rows.filter((f) => f >= 0), cols: pv.cols.filter((f) => f >= 0), values: pv.vals.filter((v) => v.field >= 0),
+    filters: pv.filter >= 0 && pv.inc ? [{ field: pv.filter, include: pv.inc }] : [], subtotals: pv.subtotals, grandRows: pv.grand, grandCols: pv.grand,
+  });
+  const say = (m: string, warn = false) => { setStatus(m); if (warn) shell.toast(m, "warn"); };
+  const writeFilterCaption = (s: Sheet, def: PivotDef) => {
+    // Excel's report-filter area two rows above the table: field name | (All) / item / (Multiple Items)
+    if (def.anchor.row < 2) return;
+    const r = def.anchor.row - 2, f = def.spec.filters?.[0];
+    let label = "", value = "";
+    if (f) { const heads = readTable(workbook, def.src)[0] ?? []; label = String(heads[f.field] ?? ""); value = f.include.length === 1 ? f.include[0] : "(Multiple Items)"; }
+    s.setCell(def.anchor.col, r, label ? textInput(label) : ""); s.setCell(def.anchor.col + 1, r, value ? textInput(value) : "");
+    s.setStyle(def.anchor.col, r, { bold: label ? true : undefined });
+  };
+  const applyPivot = () => {
+    const src = splitSrc(pv.src);
+    if (!src) { say("Enter the source as a range such as Sheet1!A1:D20 (the first row holds the field names).", true); return; }
+    const spec = pivotSpecOf();
+    if (pv.edit) {
+      const sh = workbook.sheets.get(pv.edit.sheet); const def = sh?.pivots.find((p) => p.name === pv.edit!.name);
+      if (!sh || !def) { say("That PivotTable no longer exists.", true); return; }
+      let res: ReturnType<typeof writePivot> = { ok: false };
+      mutate((wb) => { const old = { src: def.src, spec: def.spec }; def.src = src; def.spec = spec; res = writePivot(wb, sh, def); if (!res.ok) { def.src = old.src; def.spec = old.spec; } else writeFilterCaption(sh, def); });
+      if (!res.ok) { say(res.why ?? "PivotTable not updated", true); return; }
+      say(`${def.name} updated (${rangeA1(res.out!)})`); setPanel(null); gridRef.current?.focus(); return;
+    }
+    let n = 1; while (workbook.sheets.has(`Pivot${n}`)) n++;
+    const name = `Pivot${n}`, def: PivotDef = { name: nextPivotName(workbook), src, anchor: { col: 0, row: 2 }, spec };
+    let res: ReturnType<typeof writePivot> = { ok: false };
+    // compute first so a refused spec does not leave an empty sheet behind
+    try { readTable(workbook, src); } catch (e) { say((e as Error).message, true); return; }
+    mutate((wb) => { const sh = wb.addSheet(name); res = writePivot(wb, sh, def); if (!res.ok) wb.sheets.delete(name); else writeFilterCaption(sh, def); });
+    if (!res.ok) { say(res.why ?? "PivotTable not created", true); return; }
+    switchSheet(name);
+    say(`${def.name} created on ${name} (${rangeA1(res.out!)}) from ${srcText(src)}`); setPanel(null); gridRef.current?.focus();
+  };
+  const refreshPivotUi = (onlyHere: boolean) => {
+    const here = pivotAt(sheet, sel.f.col, sel.f.row);
+    const total = [...workbook.sheets.values()].reduce((k, s) => k + s.pivots.length, 0);
+    if (!total) { say("This workbook has no PivotTables — Data > PivotTable creates one."); return; }
+    let bad: { name: string; why: string }[] = [];
+    if (onlyHere && here) {
+      mutate((wb, s) => { const r = writePivot(wb, s, here, true); if (!r.ok) bad = [{ name: here.name, why: r.why! }]; });
+      say(bad.length ? `${here.name}: ${bad[0].why}` : `${here.name} refreshed`, !!bad.length); return;
+    }
+    mutate((wb) => { bad = refreshPivots(wb); });
+    say(bad.length ? `refreshed ${total - bad.length} of ${total} PivotTable(s) — ${bad.map((b) => `${b.name}: ${b.why}`).join("; ")}` : `refreshed ${total} PivotTable(s)`, !!bad.length);
+  };
+  const removePivot = () => {
+    const sh = pv.edit && workbook.sheets.get(pv.edit.sheet); const def = sh?.pivots.find((p) => p.name === pv.edit!.name);
+    if (!sh || !def) return;
+    mutate(() => { deletePivot(sh, def); if (def.anchor.row >= 2) { sh.setCell(def.anchor.col, def.anchor.row - 2, ""); sh.setCell(def.anchor.col + 1, def.anchor.row - 2, ""); } });
+    say(`${def.name} deleted`); setPanel(null); gridRef.current?.focus();
+  };
   const newSheet = () => { let n = workbook.sheets.size + 1; while (workbook.sheets.has(`Sheet${n}`)) n++; const name = `Sheet${n}`; mutate((wb) => { wb.addSheet(name); }); switchSheet(name); };
   const renameSheet = async (old: string) => {
     const next = (await askText("Sheet name", old, {
@@ -329,6 +414,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       for (const s of wb.sheets.values()) for (const [k, cell] of [...s.grid]) if (cell.formula && re.test(cell.input)) { re.lastIndex = 0; const [c, r] = k.split(",").map(Number); s.setCell(c, r, cell.input.replace(re, (_m, pre) => `${pre}${quoteSheet(next)}!`)); }
       wb.charts = wb.charts.map((c) => renameChartRefs(c, old, next)); // TT50: chart series references follow the rename
       for (const x of [...wb.charts, ...wb.condFormats]) if (x.sheet === old) x.sheet = next;
+      for (const sh of wb.sheets.values()) for (const p of sh.pivots) if (p.src.sheet === old) p.src.sheet = next; // TT58: PivotTable sources follow
     });
     setActive(next);
   };
@@ -435,6 +521,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (mod && k === "a") { e.preventDefault(); const r = currentRegion(has, sel.f.col, sel.f.row, COLS - 1, ROWS - 1); const whole = (r.c0 === selR.c0 && r.r0 === selR.r0 && r.c1 === selR.c1 && r.r1 === selR.r1) || !has(sel.f.col, sel.f.row); setSel(whole ? { a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } } : { a: { col: r.c0, row: r.r0 }, f: { col: r.c1, row: r.r1 } }); return; }
     if (mod && k === "f") { e.preventDefault(); setPanel("find"); return; }
     if (mod && k === "k") { e.preventDefault(); openLinkPanel(); return; }
+    if (e.key === "F5" && e.altKey) { e.preventDefault(); refreshPivotUi(!e.ctrlKey && !e.metaKey); return; }
     if (mod && e.shiftKey && k === "v") { e.preventDefault(); openPasteSpecial(); return; }
     if (mod && e.key === "F3") { e.preventDefault(); setPanel("names"); return; }
     if (mod && k === "home") { e.preventDefault(); moveTo({ col: 0, row: 0 }); return; }
@@ -824,6 +911,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <TB label={`Charts${charts.length ? ` (${charts.length})` : ""}`} onClick={() => setPanel(panel === "charts" ? null : "charts")} active={panel === "charts"} title="Show charts" />
         <TB label="Cond. format" onClick={() => setPanel(panel === "cf" ? null : "cf")} active={panel === "cf"} title={"Conditional formatting rules"} />
         <TB label="Paste special" onClick={() => (panel === "paste" ? setPanel(null) : openPasteSpecial())} active={panel === "paste"} title={"Paste special: values / formulas / formats, operation, skip blanks, transpose (Ctrl+Shift+V)"} />
+        <TB label="PivotTable" onClick={() => (panel === "pivot" ? setPanel(null) : openPivotPanel())} active={panel === "pivot"} title={"Insert a PivotTable from the selection (or current region), or edit the one under the cursor"} />
+        <TB label="Refresh All" onClick={() => refreshPivotUi(false)} title={"Refresh every PivotTable from its source (Ctrl+Alt+F5; Alt+F5 refreshes the one under the cursor)"} />
         <TB label="Link" onClick={() => (panel === "link" ? setPanel(null) : openLinkPanel())} active={panel === "link"} title={"Insert link (Ctrl+K) — Ctrl+click a linked cell to follow it"} />
         <TB label="Find" onClick={() => setPanel(panel === "find" ? null : "find")} active={panel === "find"} title={"Find & replace (Ctrl+F)"} />
         <TB label={`Names${workbook.names.size ? ` (${workbook.names.size})` : ""}`} onClick={() => setPanel(panel === "names" ? null : "names")} active={panel === "names"} title={"Name Manager (Ctrl+F3)"} />
@@ -960,6 +1049,58 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           <span className="fs-dim">only web and e-mail links open; others are kept in the file</span>
         </div>
       ) : null}
+      {panel === "pivot" ? (() => {
+        const heads = pivotHeads();
+        const fieldSel = (label: string, v: number, on: (n: number) => void, none = "(none)") => (
+          <select className="fs-input" aria-label={label} value={v} onChange={(e) => on(Number(e.target.value))} style={{ maxWidth: 150 }}>
+            <option value={-1}>{none}</option>{heads.map((h, i) => <option key={i} value={i}>{h}</option>)}
+          </select>);
+        const setAt = <T,>(a: T[], i: number, x: T) => a.map((y, j) => (j === i ? x : y));
+        let items: string[] = [];
+        if (pv.filter >= 0) { const src = splitSrc(pv.src); try { if (src) items = fieldItems(readTable(workbook, src), pv.filter); } catch { items = []; } }
+        const inc = pv.inc ?? items;
+        return (
+          <div role="group" aria-label="PivotTable" data-testid="pivot-panel" style={{ padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5) }}
+            onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setPanel(null); gridRef.current?.focus(); } }}>
+            <div className="fs-row" style={{ gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <b>{pv.edit ? `Edit ${pv.edit.name}` : "New PivotTable"}</b>
+              <label>Source <input className="fs-input fs-mono" aria-label="PivotTable source" value={pv.src} onChange={(e) => setPv({ ...pv, src: e.target.value })} style={{ width: 150 }} /></label>
+              {heads.length ? <span className="fs-dim">{heads.length} fields</span> : <span role="alert">The source needs a heading row and data (for example Sheet1!A1:D20).</span>}
+            </div>
+            <div className="fs-row" style={{ gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 4 }}>
+              <span>Rows</span>{fieldSel("Rows field", pv.rows[0], (n) => setPv({ ...pv, rows: setAt(pv.rows, 0, n) }))}
+              {pv.rows[0] >= 0 ? <>then by {fieldSel("Rows field 2", pv.rows[1], (n) => setPv({ ...pv, rows: setAt(pv.rows, 1, n) }))}</> : null}
+              {pv.rows[1] >= 0 ? <>then by {fieldSel("Rows field 3", pv.rows[2], (n) => setPv({ ...pv, rows: setAt(pv.rows, 2, n) }))}</> : null}
+              <span style={{ marginLeft: 8 }}>Columns</span>{fieldSel("Columns field", pv.cols[0], (n) => setPv({ ...pv, cols: setAt(pv.cols, 0, n) }))}
+              {pv.cols[0] >= 0 ? <>then by {fieldSel("Columns field 2", pv.cols[1], (n) => setPv({ ...pv, cols: setAt(pv.cols, 1, n) }))}</> : null}
+            </div>
+            <div className="fs-row" style={{ gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 4 }}>
+              {pv.vals.map((v, i) => (i === 0 || pv.vals[i - 1].field >= 0 ? (
+                <span key={i} className="fs-row" style={{ gap: 4, alignItems: "center" }}>
+                  <span>{i === 0 ? "Values" : "and"}</span>
+                  {fieldSel(i ? `Values field ${i + 1}` : "Values field", v.field, (n) => setPv({ ...pv, vals: setAt(pv.vals, i, { ...v, field: n }) }), i ? "(none)" : "(count of rows)")}
+                  {v.field >= 0 ? <select className="fs-input" aria-label={i ? `Summarize values field ${i + 1} by` : "Summarize values by"} value={v.fn} onChange={(e) => setPv({ ...pv, vals: setAt(pv.vals, i, { ...v, fn: e.target.value as PivotFn }) })}>
+                    {(Object.keys(FN_LABEL) as PivotFn[]).map((f) => <option key={f} value={f}>{FN_LABEL[f]}</option>)}
+                  </select> : null}
+                </span>) : null))}
+              <span style={{ marginLeft: 8 }}>Filter</span>{fieldSel("Filter field", pv.filter, (n) => setPv({ ...pv, filter: n, inc: null }))}
+              <label><input type="checkbox" checked={pv.subtotals} onChange={(e) => setPv({ ...pv, subtotals: e.target.checked })} /> Subtotals</label>
+              <label><input type="checkbox" checked={pv.grand} onChange={(e) => setPv({ ...pv, grand: e.target.checked })} /> Grand totals</label>
+            </div>
+            {pv.filter >= 0 ? (
+              <div role="group" aria-label="Filter items" className="fs-row" style={{ gap: 8, flexWrap: "wrap", marginTop: 4, maxHeight: 72, overflowY: "auto" }}>
+                {items.slice(0, 200).map((it) => <label key={it}><input type="checkbox" checked={inc.includes(it)} onChange={(e) => setPv({ ...pv, inc: e.target.checked ? [...inc, it] : inc.filter((x) => x !== it) })} /> {it}</label>)}
+                {items.length > 200 ? <span className="fs-dim">first 200 of {items.length} items</span> : null}
+              </div>) : null}
+            <div className="fs-row" style={{ gap: 8, marginTop: 4, alignItems: "center" }}>
+              <Btn variant="primary" onClick={applyPivot}>{pv.edit ? "Update" : "Create"}</Btn>
+              {pv.edit ? <Btn variant="ghost" onClick={() => { setPanel(null); refreshPivotUi(true); }}>Refresh</Btn> : null}
+              {pv.edit ? <Btn variant="ghost" onClick={removePivot}>Delete PivotTable</Btn> : null}
+              <Btn variant="ghost" onClick={() => { setPanel(null); gridRef.current?.focus(); }}>Cancel</Btn>
+              <span className="fs-dim">{pv.edit ? "the table is values; Refresh recomputes it from the source" : "creates a new sheet; the result is plain values — refresh after the source changes"}</span>
+            </div>
+          </div>);
+      })() : null}
       {panel === "find" ? (
         <div className="fs-row" data-testid="find-panel" style={{ gap: 6, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), flexWrap: "wrap" }}>
           <input className="fs-input" aria-label="Find" placeholder="Find" value={findQ} onChange={(e) => setFindQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") findNext(); }} style={{ width: 160 }} />

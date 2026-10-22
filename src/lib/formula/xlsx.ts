@@ -25,6 +25,7 @@
  * runs, Excel 365 XLDAPR dynamic-array metadata (array formulas open in Excel
  * as legacy {=…} arrays with correct values). Not a claim of modern-suite parity.
  */
+import { PIVOT_NAME_RE, pivotNames, pivotsFromNames } from "./pivotsheet";
 import { posix } from "node:path";
 import { writeZip, readCentralDirectory, readEntryVerified } from "../server/zip";
 import { Sheet, Workbook, a1, textInput, type CellStyle, type CellBorder, type DataValidation } from "./engine";
@@ -280,25 +281,30 @@ function dvXml(v: DataValidation): string {
 /** TT19: <definedNames> (ECMA-376 §18.2.5) — after <sheets>, before <calcPr>; sheet scope → localSheetId. */
 function definedNamesXml(wb: Workbook, order: string[]): string {
   const list = wb.listNames().filter((d) => d.scope === null || order.includes(d.scope));
-  if (!list.length) return "";
+  // TT58: PivotTable definitions as hidden sheet-scoped string names
+  const piv = order.flatMap((n, i) => pivotNames(wb.sheets.get(n)?.pivots ?? []).map((x) => `<definedName name="${x.name}" localSheetId="${i}" hidden="1">${esc(x.text)}</definedName>`));
+  if (!list.length && !piv.length) return "";
   return `<definedNames>${list.map((d) => {
     const local = d.scope !== null ? ` localSheetId="${order.indexOf(d.scope)}"` : "";
     const comment = d.comment ? ` comment="${esc(d.comment)}"` : "";
     return `<definedName name="${esc(d.name)}"${local}${comment}>${esc(addFuturePrefixes(d.ref))}</definedName>`;
-  }).join("")}</definedNames>`;
+  }).join("")}${piv.join("")}</definedNames>`;
 }
 
 /** Reads <definedNames>; Excel built-ins (_xlnm.Print_Area, _FilterDatabase…) are skipped and counted. */
 function readDefinedNames(workbookXml: string, wb: Workbook, order: string[]) {
   const skipped: string[] = [];
+  const piv = new Map<string, { name: string; text: string }[]>();
   for (const m of workbookXml.matchAll(/<definedName\b([^>]*)>([\s\S]*?)<\/definedName>/g)) {
     const at = xmlAttrs(m[1]);
     const name = at.name ? dec(at.name) : "";
+    if (PIVOT_NAME_RE.test(name) && at.localSheetId !== undefined) { const host = order[Number(at.localSheetId)]; if (host) { if (!piv.has(host)) piv.set(host, []); piv.get(host)!.push({ name, text: dec(m[2]) }); } continue; }
     if (!name || name.startsWith("_xlnm.") || at.hidden === "1" || at.hidden === "true") { skipped.push(name); continue; }
     const scope = at.localSheetId !== undefined ? order[Number(at.localSheetId)] ?? null : null;
     try { wb.defineName(name, stripFuturePrefixes(dec(m[2]).trim()), scope, at.comment ? dec(at.comment) : undefined); }
     catch { skipped.push(name); }
   }
+  for (const [host, items] of piv) { const sh = wb.sheets.get(host); if (sh) sh.pivots = pivotsFromNames(items); }
   return skipped;
 }
 

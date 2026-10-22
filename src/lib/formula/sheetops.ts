@@ -152,6 +152,26 @@ export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: nu
     const next = adjustForStructure(`=${d.ref}`, home, sheetName, axis, at, count);
     if (next !== `=${d.ref}`) { try { wb.defineName(d.name, next, d.scope, d.comment); } catch { /* keep the old text if unparsable */ } }
   }
+  // TT58: PivotTable sources follow inserted / deleted rows and columns (a row inserted inside the source grows it), and
+  // a pivot's own position moves with its cells
+  for (const s of wb.sheets.values()) for (const p of s.pivots) {
+    if (p.src.sheet === sheetName) {
+      const was = parseA1Range(p.src.ref);
+      const next = adjustForStructure(`=${p.src.ref}`, sheetName, sheetName, axis, at, count).slice(1); if (parseA1Range(next)) p.src = { ...p.src, ref: next };
+      // fields are source columns: a column inserted / deleted inside the source shifts them (a deleted field leaves the pivot)
+      if (axis === "col" && was && at <= was.c1) {
+        const k = Math.max(0, at - was.c0), n = count > 0 ? count : -count, start = at - was.c0;
+        const map = (f: number): number | null => (count > 0 ? (f >= k && at > was.c0 ? f + n : f) : f >= start + n ? f - n : f >= start ? null : f);
+        const ok = (f: number | null): f is number => f !== null;
+        const sp = p.spec;
+        p.spec = { ...sp, rows: sp.rows.map(map).filter(ok), cols: sp.cols.map(map).filter(ok), values: sp.values.map((v) => ({ ...v, field: map(v.field) })).filter((v): v is typeof v & { field: number } => v.field !== null), filters: (sp.filters ?? []).map((f) => ({ ...f, field: map(f.field) })).filter((f): f is typeof f & { field: number } => f.field !== null) };
+      }
+    }
+    if (s.name !== sheetName) continue;
+    const mv = (v: number) => (count > 0 ? (v >= at ? v + count : v) : v >= at - count ? v + count : v >= at ? at : v);
+    if (axis === "row") { p.anchor = { ...p.anchor, row: mv(p.anchor.row) }; if (p.out) p.out = { ...p.out, r0: mv(p.out.r0), r1: Math.max(mv(p.out.r0), count < 0 && p.out.r1 >= at && p.out.r1 < at - count ? at - 1 : mv(p.out.r1)) }; }
+    else { p.anchor = { ...p.anchor, col: mv(p.anchor.col) }; if (p.out) p.out = { ...p.out, c0: mv(p.out.c0), c1: Math.max(mv(p.out.c0), count < 0 && p.out.c1 >= at && p.out.c1 < at - count ? at - 1 : mv(p.out.c1)) }; }
+  }
   for (const s of wb.sheets.values()) {
     for (const [k, cell] of s.grid) {
       if (!cell.formula) continue;

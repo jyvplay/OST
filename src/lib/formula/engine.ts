@@ -32,6 +32,7 @@
  */
 import type { ChartSpec, CondRule } from "./sheetmeta";
 import type { SheetLink } from "./sheetlinks";
+import type { PivotDef } from "./pivotsheet";
 import { parseFormula, MAX_ROW, MAX_COL } from "./parser";
 import { setDate1904 } from "./dates";
 import { takesArray } from "./paramkinds";
@@ -102,6 +103,8 @@ export class Sheet {
   validations: DataValidation[] = [];
   /** Cell hyperlinks (TT57; <hyperlinks> + sheet rels). */
   links: SheetLink[] = [];
+  /** TT58: PivotTables shown on this sheet (definitions; their output is ordinary cells). */
+  pivots: PivotDef[] = [];
   constructor(name = "Sheet1") { this.name = name; }
 
   setCell(col: number, row: number, input: string) {

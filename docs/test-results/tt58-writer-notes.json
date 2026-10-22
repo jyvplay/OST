@@ -1,0 +1,51 @@
+{
+  "suite": "tt58-writer-notes",
+  "at": "2026-10-22T03:17:47.458Z",
+  "results": [
+    {
+      "suite": "tt58-writer-notes",
+      "name": "blank document: insert two footnotes and an endnote → footnotes.xml / endnotes.xml created with separators, content types, relationships, footnoteRef marks and FootnoteText style; numbering follows reference order",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 128
+    },
+    {
+      "suite": "tt58-writer-notes",
+      "name": "edit and delete: setNoteText rewrites only that note; deleteNote removes reference and note; Backspace over a reference also drops the note on save; ids stay stable",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 290
+    },
+    {
+      "suite": "tt58-writer-notes",
+      "name": "POI corpus (6 files): untouched round trip keeps every notes part byte-identical; editing one note changes only that note; deleting one keeps the rest; all equal to the oracle",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 11926
+    },
+    {
+      "suite": "tt58-writer-notes",
+      "name": "Track Changes: a footnote inserted while recording is a tracked insertion (reject → reference and note gone); deleting one while recording keeps it as a pending deletion until accepted",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 502
+    },
+    {
+      "suite": "tt58-writer-notes",
+      "name": "120 random sessions: insert / edit / delete footnotes and endnotes at random places, save, reopen — our list = oracle references and texts, never dangling or orphaned, ids unique",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 12485
+    }
+  ]
+}

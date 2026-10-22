@@ -20,14 +20,14 @@ import { hfLines, removeHf, setDifferentFirst, setHf, type HfAlign, type HfKind,
 import type { XEl } from "@/lib/office/xmltree";
 import { domToPos, geomOf, makeState, paginate, posToDom, renderBlocks, renderPara, cssFont } from "./writer/view";
 
-type Panel = "none" | "find" | "review" | "nav" | "page" | "hf";
+type Panel = "none" | "find" | "review" | "nav" | "page" | "hf" | "notes";
 const MIME_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const FONTS = ["Calibri", "Cambria", "Arial", "Times New Roman", "Georgia", "Verdana", "Courier New", "Consolas", "Segoe UI", "Aptos"];
 const SIZES = [8, 9, 10, 10.5, 11, 12, 14, 16, 18, 20, 24, 28, 36, 48, 72];
 const HIGHLIGHTS = ["yellow", "green", "cyan", "magenta", "red", "lightGray"];
 
 /** hf: header/footer state (parts are replaced, never mutated, by setHf — a shallow copy is a true snapshot) */
-interface Snap { blocks: Block[]; sel: E.Range | null; hf?: { parts: Map<string, Block[]>; sect?: XEl; page: WordDoc["page"] } }
+interface Snap { blocks: Block[]; sel: E.Range | null; notes?: WordDoc["notes"]; hf?: { parts: Map<string, Block[]>; sect?: XEl; page: WordDoc["page"] } }
 // the final sectPr is copy-on-write (hdrftr.editSect / setPageSetup), so the snapshot holds it by reference — a clone would
 // not be the node in the restored block list and writeWord would then emit a second <w:sectPr>
 const hfSnap = (d: WordDoc): Snap["hf"] => ({ parts: new Map(d.parts), sect: d.finalSect, page: { ...d.page } });
@@ -43,6 +43,7 @@ export default function WriterModule({ win }: ModuleProps) {
   const [locked, setLocked] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const shellRef = useRef<HTMLDivElement | null>(null);
+  const [noteGen, setNoteGen] = useState(0);
   const pagesRef = useRef<HTMLDivElement | null>(null);
   const selRef = useRef<E.Range | null>(null);
   const pendingFmt = useRef<Record<string, unknown> | null>(null);
@@ -108,14 +109,16 @@ export default function WriterModule({ win }: ModuleProps) {
     const st = makeState(doc, doc.blocks);
     renderBlocks(st, doc.blocks, root);
     // footnotes / endnotes (view; kept verbatim on save)
-    const notes = doc.notes.filter((n) => allParas(n.blocks).some((p) => paraText(p).trim()));
+    // TT58: only notes still referenced from the text, footnotes first then endnotes, each in reference order
+    const notes = doc.notes.filter((n) => st.noteNo.has(`${n.type}:${n.id}`) && allParas(n.blocks).some((p) => paraText(p).trim()))
+      .sort((a, b) => (a.type === b.type ? st.noteNo.get(`${a.type}:${a.id}`)! - st.noteNo.get(`${b.type}:${b.id}`)! : a.type === "footnote" ? -1 : 1));
     if (notes.length) {
       const sec = document.createElement("div"); sec.className = "wnotes"; sec.contentEditable = "false";
       const h = document.createElement("div"); h.className = "wnotes-h"; h.textContent = "Notes"; sec.appendChild(h);
       for (const n of notes) {
         const row = document.createElement("div"); row.className = "wnote";
         const num = st.noteNo.get(`${n.type}:${n.id}`);
-        const b = document.createElement("sup"); b.textContent = String(num ?? n.id); row.appendChild(b);
+        const b = document.createElement("sup"); b.textContent = n.type === "endnote" ? toRomanLower(num ?? 0) : String(num ?? n.id); row.appendChild(b);
         const nst = makeState(doc, n.blocks, false);
         const inner = document.createElement("div"); renderBlocks(nst, n.blocks, inner); row.appendChild(inner);
         sec.appendChild(row);
@@ -167,14 +170,16 @@ export default function WriterModule({ win }: ModuleProps) {
     doc.track.author = authorName(); // revisions recorded by this edit carry the profile name (as comments do)
     if (typing && now - lastTyping.current < 1200 && undo.current.length) { lastTyping.current = now; return; }
     lastTyping.current = typing ? now : 0;
-    undo.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current, hf: hfSnap(doc) });
+    undo.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current, hf: hfSnap(doc), notes: doc.notes.slice() });
     if (undo.current.length > 200) undo.current.shift();
     redo.current = [];
   };
   const restore = (from: React.MutableRefObject<Snap[]>, to: React.MutableRefObject<Snap[]>) => {
     const doc = docRef.current!; const s = from.current.pop(); if (!s) return;
-    to.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current, hf: hfSnap(doc) });
+    to.current.push({ blocks: E.cloneBlocks(doc.blocks), sel: selRef.current, hf: hfSnap(doc), notes: doc.notes.slice() });
     doc.blocks = s.blocks;
+    // TT58: notes are replaced, never mutated, so the array copy restores their text; a restored set is written on save
+    if (s.notes && (s.notes.length !== doc.notes.length || s.notes.some((n, i) => n !== doc.notes[i]))) { doc.notes = s.notes; doc.notesTouched = true; }
     if (s.hf) {
       // only touch header/footer state when this step actually changed it: a full re-render (docGen) here would run
       // after setSel below and drop the caret on every ordinary Ctrl+Z (regression caught by e2e-tt46)
@@ -383,8 +388,10 @@ export default function WriterModule({ win }: ModuleProps) {
     if (mod && k === "b") { e.preventDefault(); toggleFmt("b"); return; }
     if (mod && k === "i") { e.preventDefault(); toggleFmt("i"); return; }
     if (mod && k === "u") { e.preventDefault(); toggleFmt("u"); return; }
-    if (mod && k === "f") { e.preventDefault(); setPanel("find"); return; }
+    if (mod && !e.altKey && k === "f") { e.preventDefault(); setPanel("find"); return; }
     if (mod && k === "k") { e.preventDefault(); openLink(); return; }
+    // Word: Ctrl+Alt+F footnote, Ctrl+Alt+D endnote
+    if (mod && e.altKey && (k === "f" || k === "d" || e.code === "KeyF" || e.code === "KeyD")) { e.preventDefault(); addNote(k === "d" || e.code === "KeyD" ? "endnote" : "footnote"); return; }
     if (mod && e.key === "Enter") { e.preventDefault(); const d = docRef.current!; snapshot(); const at = E.insertPageBreak(d, curSel().b); changed(undefined, { a: at, b: at }); return; }
     if (mod && e.shiftKey && k === "e") { e.preventDefault(); toggleTrack(); return; }
     if (mod && ["l", "e", "r", "j"].includes(k)) { e.preventDefault(); paraOp((d, r) => E.setParaProps(d, r, { align: { l: "left", e: "center", r: "right", j: "justify" }[k] })); return; }
@@ -525,6 +532,20 @@ export default function WriterModule({ win }: ModuleProps) {
     const c = dir > 0 ? (list.find((x) => key(x) > here) ?? list[0]) : ([...list].reverse().find((x) => key(x) < here) ?? list[list.length - 1]);
     goChange(c); setStatus(`${c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? `Formatted (${c.detail})` : c.kind === "para" ? `Paragraph (${c.detail})` : "Deleted"}${c.author ? ` by ${c.author}` : ""}: ${c.text.slice(0, 60)}`);
   };
+  /* TT58 footnotes / endnotes */
+  const addNote = (kind: "footnote" | "endnote") => {
+    const d = docRef.current!; const r = curSel(); snapshot();
+    const { pos } = E.insertNote(d, r.b, kind, "");
+    changed(undefined, { a: pos, b: pos }); setPanel("notes"); setNoteGen((g) => g + 1);
+    setStatus(`${kind === "footnote" ? "Footnote" : "Endnote"} inserted: type its text in the Notes panel`);
+    requestAnimationFrame(() => { const ta = shellRef.current?.querySelectorAll<HTMLTextAreaElement>('[data-testid="writer-notes"] textarea'); const all = E.listNotes(d); const i = all.findIndex((n) => n.pid === pos.pid && n.off === pos.off - 1); ta?.[i >= 0 ? i : (ta.length - 1)]?.focus(); });
+  };
+  const commitNote = (kind: "footnote" | "endnote", id: string, text: string) => {
+    const d = docRef.current!; const cur = d.notes.find((n) => n.type === kind && n.id === id); if (!cur || E.noteTextOf(cur.blocks) === text) return;
+    snapshot(); E.setNoteText(d, kind, id, text); changed(); setStatus(`${kind === "footnote" ? "Footnote" : "Endnote"} updated`);
+  };
+  const removeNote = (n: E.NoteInfo) => { const d = docRef.current!; snapshot(); E.deleteNote(d, n.type, n.id); changed(); setNoteGen((g) => g + 1); setStatus(`${n.type === "footnote" ? "Footnote" : "Endnote"} deleted`); };
+  const goNote = (n: E.NoteInfo) => { const at = { pid: n.pid, off: n.off + 1 }; setSel({ a: at, b: at }); rootRef.current?.querySelector(`[data-pid="${n.pid}"]`)?.scrollIntoView({ block: "center" }); rootRef.current?.focus(); };
   const resolveOne = (c: E.Change, accept: boolean) => {
     const d = docRef.current!; snapshot(); const ok = E.resolveOne(d, c.key, accept); changed(); setStatus(ok ? `${accept ? "Accepted" : "Rejected"} 1 change` : "That change no longer exists");
     // TT57: the pressed button disappears with its change — keep focus inside Writer (next change, else the page) so Ctrl+S etc. still work
@@ -548,6 +569,7 @@ export default function WriterModule({ win }: ModuleProps) {
   const g = geomOf(doc);
   const styleId = curPara?.p.style ?? E.styleChoices(doc)[0]?.id;
   const changes = panel === "review" ? E.revisions(doc) : [];
+  const notes = panel === "notes" ? E.listNotes(doc) : [];
   const mixed = (k: string) => fmt?.mixed.has(k);
   const tb = (on: boolean | undefined) => ({ variant: (on ? "primary" : "ghost") as "primary" | "ghost" });
 
@@ -578,7 +600,7 @@ export default function WriterModule({ win }: ModuleProps) {
         <Btn variant="ghost" disabled={!redo.current.length} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>
         <span style={{ flex: 1 }} />
         <label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || !!(encRef.current && !encRef.current.password)} aria-label="AutoSave" />AutoSave</label>
-        {(["nav", "find", "review", "page", "hf"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
+        {(["nav", "find", "review", "notes", "page", "hf"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", notes: "Notes", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
       </div>
       {/* ---------- formatting row */}
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }} onMouseDown={(e) => { if ((e.target as HTMLElement).tagName === "BUTTON") e.preventDefault(); }}>
@@ -619,6 +641,7 @@ export default function WriterModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => { setPopVal("3"); setPopVal2("3"); setPop("table"); }}>Table</Btn>
         <Btn variant="ghost" onClick={() => { const d = docRef.current!; snapshot(); const at = E.insertPageBreak(d, curSel().b); changed(undefined, { a: at, b: at }); }}>Page break</Btn>
         <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>Comment</Btn>
+        <Btn variant="ghost" onClick={() => addNote("footnote")} title="Insert a footnote at the cursor (Ctrl+Alt+F)">Footnote</Btn>
         <Btn variant="ghost" aria-label="Clear formatting" onClick={() => paraOp((d, r) => E.applyFmt(d, r, { b: null, i: null, u: null, s: null, sz: null, font: null, color: null, hl: null, va: null, caps: null, smallCaps: null, shd: null }))}>Clear</Btn>
         <select className="fs-select" aria-label="Zoom" value={String(Math.round(z * 100))} style={{ width: fz(72) }} onChange={(e) => setZoom(Number(e.target.value) / 100)}>
           {[...new Set([50, 75, 100, 125, 150, 175, 200, 250, Math.round(unit * 100)])].sort((a, b) => a - b).map((v) => <option key={v} value={String(v)}>{v}%</option>)}
@@ -695,6 +718,21 @@ export default function WriterModule({ win }: ModuleProps) {
               <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>New comment on selection</Btn>
               {doc.comments.map((c) => <button key={c.id} className="wcom" onClick={() => { const m = rootRef.current?.querySelector(`[data-cids~="${c.id}"], .wcmt[data-cids*="${c.id}"]`); m?.scrollIntoView({ block: "center" }); }}><b>{c.author || "Unknown"}</b>{c.date ? <span style={{ opacity: 0.6 }}> · {c.date.slice(0, 10)}</span> : null}<div>{c.text}</div></button>)}
             </>}
+            {panel === "notes" && <>
+              <div className="wside-h">Footnotes &amp; endnotes ({notes.length})</div>
+              <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
+                <Btn onClick={() => addNote("footnote")}>Insert footnote</Btn><Btn variant="ghost" onClick={() => addNote("endnote")}>Insert endnote</Btn>
+              </div>
+              {!notes.length && <div style={{ opacity: 0.75 }}>No notes yet. Put the cursor after a word and press Insert footnote (Ctrl+Alt+F).</div>}
+              <div role="list" aria-label="Notes" data-testid="writer-notes">
+                {notes.map((n) => { const name = `${n.type === "footnote" ? "Footnote" : "Endnote"} ${n.type === "endnote" ? toRomanLower(n.n) : n.n}`; return <div role="listitem" key={`${n.type}:${n.id}`} className="wnote-edit" data-note={`${n.type}:${n.id}`}>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 2 }}><b>{name}</b>
+                    <textarea className="fs-input" rows={2} aria-label={`${name} text`} defaultValue={n.text} key={`${n.type}:${n.id}:${noteGen}`}
+                      onBlur={(e) => commitNote(n.type, n.id, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); commitNote(n.type, n.id, (e.target as HTMLTextAreaElement).value); } }} /></label>
+                  <div className="fs-row" style={{ gap: 4 }}><Btn variant="ghost" onClick={() => goNote(n)}>Go to<span className="sr-only"> {name}</span></Btn><Btn variant="ghost" onClick={() => removeNote(n)}>Delete<span className="sr-only"> {name}</span></Btn></div>
+                </div>; })}
+              </div>
+            </>}
             {panel === "hf" && <HeaderFooter doc={doc} gen={docGen * 100000 + hfGen} onApply={(fn) => { snapshot(); fn(doc); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
             {panel === "page" && <PageSetup doc={doc} onApply={(o) => { snapshot(); E.setPageSetup(doc, o); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
           </div>
@@ -712,6 +750,7 @@ export default function WriterModule({ win }: ModuleProps) {
 
 /* ================================================================ helpers */
 function cellsInRow(r: { items: unknown[] }) { return r.items.filter((c) => (c as { t?: string }).t === "tc").length; }
+const toRomanLower = (n: number) => { const m: [number, string][] = [[10, "x"], [9, "ix"], [5, "v"], [4, "iv"], [1, "i"]]; let s = ""; for (const [v, r] of m) while (n >= v) { s += r; n -= v; } return s; };
 function confirmLeave() { return true; /* unsaved work is still in undo history; New keeps no prompt (window.confirm is a rejected pattern) */ }
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 function headingLevel(doc: WordDoc, p: Para): number {
@@ -897,7 +936,7 @@ const WRITER_CSS = `
 .writer .wbox{border-left:2px solid #c7d2fe;padding-left:3px}
 .writer .wopq{background:#f3f4f6;color:#4b5563;border:1px dashed #cbd5e1;padding:2px 6px;margin:2px 0;font-size:9pt;border-radius:3px}
 .writer .wnotes{border-top:1px solid #9ca3af;margin-top:18px;padding-top:6px;font-size:9pt;color:#222}
-.writer .wnotes-h{font-weight:600;margin-bottom:4px}.writer .wnote{display:flex;gap:6px}
+.writer .wnotes-h{font-weight:600;margin-bottom:4px}.writer .wnote{display:flex;gap:6px}.writer .wnote>sup{font-size:7.5pt;line-height:1.3;min-width:1.1em;text-align:right;vertical-align:baseline;font-weight:600}
 .writer .wside{width:220px;overflow:auto;border-left:1px solid var(--fs-border);border-right:1px solid var(--fs-border);padding:8px;display:flex;flex-direction:column;gap:6px;font-size:${fz(13)}}
 .writer .wside-h{font-weight:600;opacity:.85}
 .writer .wnav{all:unset;cursor:pointer;padding:3px 6px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

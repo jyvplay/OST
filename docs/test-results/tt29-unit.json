@@ -1,6 +1,6 @@
 {
   "suite": "tt29-unit",
-  "at": "2026-10-22T00:07:33.272Z",
+  "at": "2026-10-22T01:55:09.377Z",
   "results": [
     {
       "suite": "tt29-unit",
@@ -27,7 +27,7 @@
         "LY-20": "full"
       },
       "pass": true,
-      "ms": 663
+      "ms": 520
     },
     {
       "suite": "tt29-unit",
@@ -36,7 +36,7 @@
         "LY-20": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     }
   ]
 }

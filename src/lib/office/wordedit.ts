@@ -3,8 +3,8 @@
  * Positions are (paragraph id, offset) where a text run counts its UTF-16 length and every opaque token counts 1.
  * Every operation marks the paragraphs it touches `dirty`, so untouched paragraphs keep serializing byte-for-byte.
  */
-import { allParas, cellsOf, ensureStyle, makeLink, newId, parseInlineNodes, rowsOf, styleChain, type Block, type Cell, type Inline, type FmtChange, type Para, type ParaProps, type Rev, type Row, type RunFmt, type Table, type TextRun, type Tok, type WordDoc, inlineText, BUILTIN_STYLE_IDS, defaultParaStyle, effectiveRun } from "./wordml";
-import { clone, el, kid, kids, type XEl } from "./xmltree";
+import { allParas, cellsOf, ensureStyle, makeLink, newId, noteBlocks, parseInlineNodes, rowsOf, styleChain, type Block, type Cell, type Inline, type FmtChange, type Para, type ParaProps, type Rev, type Row, type RunFmt, type Table, type TextRun, type Tok, type WordDoc, inlineText, BUILTIN_STYLE_IDS, defaultParaStyle, effectiveRun } from "./wordml";
+import { clone, el, findAll, kid, kids, textOf, type XEl, type XNode } from "./xmltree";
 import { sameRev, sameFc, sameFmt, parsePPr } from "./wordml";
 
 export interface Pos { pid: string; off: number }
@@ -279,6 +279,63 @@ export function insertToken(doc: WordDoc, pos: Pos, tok: Tok): Pos {
 export function insertPageBreak(doc: WordDoc, pos: Pos): Pos {
   const after = insertToken(doc, pos, { t: "k", kind: "page", nodes: [el("w:br", { "w:type": "page" })], bare: false, label: "page break" });
   return splitParagraph(doc, after);
+}
+/* ---------------------------------------------------------------- TT58 footnotes / endnotes */
+export interface NoteInfo { type: "footnote" | "endnote"; id: string; n: number; text: string; pid: string; off: number }
+/** notes in reference order with their displayed number (footnotes 1, 2, …; endnotes numbered separately) */
+export function listNotes(doc: WordDoc): NoteInfo[] {
+  const out: NoteInfo[] = []; const no = { footnote: 0, endnote: 0 };
+  for (const p of allParas(doc.blocks)) {
+    let off = 0;
+    for (const it of p.content) {
+      if (it.t === "k" && it.kind === "note" && it.note) {
+        const n = doc.notes.find((x) => x.type === it.note!.type && x.id === it.note!.id);
+        out.push({ type: it.note.type, id: it.note.id, n: ++no[it.note.type], text: n ? noteTextOf(n.blocks) : "", pid: p.id, off });
+      }
+      off += it.t === "r" ? it.text.length : 1;
+    }
+  }
+  return out;
+}
+/** plain text of a note body (the leading reference mark and the space after it are not part of the text) */
+export function noteTextOf(blocks: Block[]): string {
+  // text the editor keeps inside opaque tokens (a content control, a hyperlink field…) is part of what the reader sees
+  const tokText = (nodes: XNode[]) => nodes.map((n) => (n.k === "el" ? findAll(n, (x) => x.name === "w:t").map(textOf).join("") : "")).join("");
+  return allParas(blocks).map((p) => p.content.map((i) => (i.t === "r" ? i.text : i.kind === "note" ? "" : tokText(i.nodes))).join("")).join("\n").replace(/^ /, "");
+}
+/** Insert ▸ Footnote / Endnote at pos: a new note (next free id) holding `text`, and its reference mark in the text. */
+export function insertNote(doc: WordDoc, pos: Pos, kind: "footnote" | "endnote", text = ""): { id: string; pos: Pos } {
+  const used = doc.notes.filter((n) => n.type === kind).map((n) => Number(n.id)).filter((n) => Number.isFinite(n));
+  const fromXml = (doc.noteParts?.[kind]?.xml.root.kids ?? []).map((k) => (k.k === "el" ? Number(k.attrs.find((a) => a[0] === "w:id")?.[1]) : NaN)).filter((n) => Number.isFinite(n));
+  const id = String(Math.max(0, ...used, ...fromXml) + 1);
+  doc.notes.push({ id, type: kind, blocks: noteBlocks(doc, kind, text), dirty: true });
+  doc.notesTouched = true;
+  const cap = kind === "footnote" ? "Footnote" : "Endnote";
+  const after = insertToken(doc, pos, { t: "k", kind: "note", nodes: [el(`w:${kind}Reference`, { "w:id": id })], bare: false, rPr: el("w:rPr", {}, [el("w:rStyle", { "w:val": `${cap}Reference` })]), label: "", note: { type: kind, id } });
+  return { id, pos: after };
+}
+/** replace a note's text (plain text; one paragraph per line). Returns false for an unknown note. */
+export function setNoteText(doc: WordDoc, kind: "footnote" | "endnote", id: string, text: string): boolean {
+  const i = doc.notes.findIndex((n) => n.type === kind && n.id === id);
+  if (i < 0) return false;
+  doc.notes[i] = { ...doc.notes[i], blocks: noteBlocks(doc, kind, text), dirty: true };
+  doc.notesTouched = true;
+  return true;
+}
+/** delete a note: its reference mark leaves the text (a tracked deletion while recording); the note itself is dropped on save */
+export function deleteNote(doc: WordDoc, kind: "footnote" | "endnote", id: string): boolean {
+  for (const p of allParas(doc.blocks)) {
+    let off = 0;
+    for (const it of p.content) {
+      if (it.t === "k" && it.kind === "note" && it.note?.type === kind && it.note.id === id) {
+        doc.notesTouched = true;
+        if (doc.track?.on) deleteForward(doc, { a: { pid: p.id, off }, b: { pid: p.id, off: off + 1 } }); else { p.content = p.content.filter((x) => x !== it); touch(p); }
+        return true;
+      }
+      off += it.t === "r" ? it.text.length : 1;
+    }
+  }
+  return false;
 }
 export function addComment(doc: WordDoc, r0: Range, text: string, author: string): string {
   const r = normRange(doc, r0);

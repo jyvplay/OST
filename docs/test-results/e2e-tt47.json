@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt47",
-  "at": "2026-10-22T01:35:12.414Z",
+  "at": "2026-10-22T02:37:48.191Z",
   "results": [
     {
       "suite": "e2e-tt47",
@@ -12,7 +12,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 6263
+      "ms": 11608
     },
     {
       "suite": "e2e-tt47",
@@ -24,7 +24,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 5506
+      "ms": 8052
     },
     {
       "suite": "e2e-tt47",
@@ -36,7 +36,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 4486
+      "ms": 6301
     },
     {
       "suite": "e2e-tt47",
@@ -48,7 +48,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 5714
+      "ms": 9329
     },
     {
       "suite": "e2e-tt47",

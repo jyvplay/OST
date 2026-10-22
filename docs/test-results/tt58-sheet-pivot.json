@@ -1,0 +1,51 @@
+{
+  "suite": "tt58-sheet-pivot",
+  "at": "2026-10-22T03:17:52.991Z",
+  "results": [
+    {
+      "suite": "tt58-sheet-pivot",
+      "name": "hand case (Excel tabular form): Region × Product, Sum of Units — item order, case-insensitive grouping (east = East), text ignored by Sum, blank intersection empty, Grand Totals",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt58-sheet-pivot",
+      "name": "negative shapes: a field on Rows and Columns, an out-of-range field, a source without headings, too many fields / columns, unknown function — each refused with a reason",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt58-sheet-pivot",
+      "name": "300 random tables × specs (1–3 row fields, 0–2 column fields, 1–3 of 11 summary functions, blanks, errors, mixed text/number items, case variants, filters, totals on/off) — every shown cell equals the pandas oracle and nothing extra is shown",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 4419
+    },
+    {
+      "suite": "tt58-sheet-pivot",
+      "name": "workbook: create on a new sheet, source formulas are calculated values, refresh after the source changes (output grows / shrinks, stale cells cleared), refuse to overwrite data or overlap the source, save/reload keeps the definition, delete clears",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt58-sheet-pivot",
+      "name": ".xlsx round trip of the definition (hidden sheet-scoped string names, ≤255 characters each): fresh export and lossless patch of a POI workbook with its own names; openpyxl opens both, sees the names hidden; reopened pivots refresh; deleting the pivot removes the names",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 601
+    }
+  ]
+}

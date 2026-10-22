@@ -1,6 +1,6 @@
 {
   "suite": "metaclean",
-  "at": "2026-10-22T00:07:19.048Z",
+  "at": "2026-10-22T01:54:55.506Z",
   "results": [
     {
       "suite": "metaclean",
@@ -45,7 +45,7 @@
         "SC-12": "partial"
       },
       "pass": true,
-      "ms": 90
+      "ms": 80
     },
     {
       "suite": "metaclean",
@@ -54,7 +54,7 @@
         "SC-12": "full"
       },
       "pass": true,
-      "ms": 139
+      "ms": 132
     }
   ]
 }

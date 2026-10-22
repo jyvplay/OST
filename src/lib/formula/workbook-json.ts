@@ -8,9 +8,10 @@ import { isBorderLine, parseRef, rangeRef, sanitizeValidation, intersects } from
 import { lettersToCol } from "./types";
 import { sanitizeCharts, sanitizeCondFormats } from "./sheetmeta";
 import { sanitizeLink, type SheetLink } from "./sheetlinks";
+import { sanitizePivot, type PivotDef } from "./pivotsheet";
 
 export interface CellJson { ref: string; input: string; style?: CellStyle }
-export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[]; links?: unknown[] }
+export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[]; links?: unknown[]; pivots?: unknown[] }
 export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[]; tables?: unknown[]; date1904?: boolean }
 
 export function workbookToJson(wb: Workbook): WorkbookJson {
@@ -39,6 +40,7 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
       if (s.merges.length) out.merges = s.merges.map(rangeRef);
       if (s.validations.length) out.validations = s.validations.map((v) => ({ ...v }));
       if (s.links.length) out.links = s.links.map((l) => Object.fromEntries(Object.entries(l).filter(([, v]) => v !== undefined)));
+      if (s.pivots.length) out.pivots = s.pivots.map((p) => JSON.parse(JSON.stringify(p)));
       return out;
     }),
   };
@@ -91,6 +93,7 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
     }
     sheet.validations = (Array.isArray(s.validations) ? s.validations : []).slice(0, 1000).map((v, i) => sanitizeValidation(v, `v${i + 1}`)).filter((v): v is NonNullable<typeof v> => !!v);
     sheet.links = (Array.isArray(s.links) ? s.links : []).slice(0, 10000).map(sanitizeLink).filter((l): l is SheetLink => !!l);
+    sheet.pivots = (Array.isArray(s.pivots) ? s.pivots : []).slice(0, 100).map(sanitizePivot).filter((x): x is PivotDef => !!x);
     wb.sheets.set(s.name, sheet);
   }
   if (!wb.sheets.size) wb.addSheet("Sheet1");

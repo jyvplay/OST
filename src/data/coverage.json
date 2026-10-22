@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-22T01:52:15.451Z",
+ "generatedAt": "2026-10-22T03:29:57.968Z",
  "totals": {
   "built": {
    "full": 292,
@@ -8,13 +8,13 @@
    "none": 1
   },
   "tested": {
-   "full": 203,
+   "full": 205,
    "partial": 72,
-   "untested": 93
+   "untested": 91
   },
   "tests": {
-   "total": 1051,
-   "passed": 1051
+   "total": 1067,
+   "passed": 1067
   }
  },
  "rows": {
@@ -271,8 +271,10 @@
    ]
   },
   "SR-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt58-rows: SR-04 web results: off by default — no web row and no outside request while typing; opted in — one explicit row ranked last with the provider URL, still nothing sent until it is picked"
+   ]
   },
   "SR-05": {
    "tested": "full",
@@ -1216,6 +1218,8 @@
     "e2e-tt47: no uncaught page errors during the Spreadsheet session",
     "e2e-tt57: FF-21 Spreadsheet hyperlinks in the UI: Ctrl+K web link + ScreenTip, place link with display text, Ctrl+click follows it, bad address refused, Escape closes only the panel; openpyxl reads the saved links",
     "e2e-tt57: no uncaught page errors during the TT57 session",
+    "e2e-tt58: FF-21 Spreadsheet PivotTable in the UI: Data > PivotTable → Rows Region, Columns Product, Sum of Units → new sheet with Excel's tabular layout; Alt+F5 refresh follows a source edit; bad source refused; Escape closes only the panel; openpyxl reads the saved pivot values",
+    "e2e-tt58: no uncaught page errors during the TT58 session",
     "e2e: mount: sheet",
     "names: openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
     "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
@@ -1254,7 +1258,12 @@
     "tt57-sheet-links: lossless patch: add / change / remove links on POI workbooks (existing rels kept, hyperlink rels rebuilt, untouched sheets byte-identical) = openpyxl",
     "tt57-sheet-links: set/remove/insert/delete/clear: 300 random operations = an independent per-cell reference model; JSON round trip keeps links",
     "tt57-sheet-links: links travel with cells: sort moves each row's link with the row; copy/paste carries links; pasting unlinked cells clears links; values-only paste leaves links",
-    "tt57-sheet-links: addresses and safety: typed address parsing, javascript:/data: refused everywhere, only http(s)/mailto open, places resolve sheets"
+    "tt57-sheet-links: addresses and safety: typed address parsing, javascript:/data: refused everywhere, only http(s)/mailto open, places resolve sheets",
+    "tt58-sheet-pivot: hand case (Excel tabular form): Region × Product, Sum of Units — item order, case-insensitive grouping (east = East), text ignored by Sum, blank intersection empty, Grand Totals",
+    "tt58-sheet-pivot: negative shapes: a field on Rows and Columns, an out-of-range field, a source without headings, too many fields / columns, unknown function — each refused with a reason",
+    "tt58-sheet-pivot: 300 random tables × specs (1–3 row fields, 0–2 column fields, 1–3 of 11 summary functions, blanks, errors, mixed text/number items, case variants, filters, totals on/off) — every shown cell equals the pandas oracle and nothing extra is shown",
+    "tt58-sheet-pivot: workbook: create on a new sheet, source formulas are calculated values, refresh after the source changes (output grows / shrinks, stale cells cleared), refuse to overwrite data or overlap the source, save/reload keeps the definition, delete clears",
+    "tt58-sheet-pivot: .xlsx round trip of the definition (hidden sheet-scoped string names, ≤255 characters each): fresh export and lossless patch of a POI workbook with its own names; openpyxl opens both, sees the names hidden; reopened pivots refresh; deleting the pivot removes the names"
    ]
   },
   "FF-22": {
@@ -1280,6 +1289,7 @@
     "e2e-tt49-writer: no page errors; uploads cleaned up",
     "e2e-tt56: FF-22 Writer Track Changes in the UI: toggle, type, delete, review panel per-change accept; saved bytes verified by the lxml oracle",
     "e2e-tt57: FF-22 Writer format tracking in the UI: Ctrl+B with tracking on → 'Formatted: Bold' listed, saved as w:rPrChange; Reject restores plain text; Align centre → 'Paragraph: Centered' → w:pPrChange → Accept (lxml oracle)",
+    "e2e-tt58: FF-22 Writer notes in the UI: Ctrl+Alt+F footnote → type in the Notes panel → numbered note on the page → saved footnotes.xml (lxml oracle) → reopen keeps it → endnote (roman) → delete footnote → no orphan, no dangling reference",
     "e2e: mount: writer",
     "tt46-writer: xmltree: every well-formed XML part of the docx corpus re-serializes byte-identically",
     "tt46-writer: xmltree guards: nesting bomb refused, external/undeclared entities never resolved, numeric refs decoded",
@@ -1328,7 +1338,12 @@
     "tt57-writer-para: lists: bullets added under tracking reject to none; bullets REMOVED under tracking reject to the real list id (a new list is created for the record); back-to-original drops the record",
     "tt57-writer-para: not tracked: edits with recording off, and a paragraph whose mark is a pending insertion (new text); a style change lists the style; ids stay unique beside ins/del/fmt",
     "tt57-writer-para: Word-shaped file record (pPrChange with a recorded pStyle + jc, mark rPr present) → listed; reject restores the recorded pPr exactly and keeps the mark's rPr; untouched round-trip keeps the record",
-    "tt57-writer-para: 120 random trials: random align / indent / list / style edits on 3 paragraphs with recording toggling, random per-revision decisions — live model, reopened file and the oracle agree"
+    "tt57-writer-para: 120 random trials: random align / indent / list / style edits on 3 paragraphs with recording toggling, random per-revision decisions — live model, reopened file and the oracle agree",
+    "tt58-writer-notes: blank document: insert two footnotes and an endnote → footnotes.xml / endnotes.xml created with separators, content types, relationships, footnoteRef marks and FootnoteText style; numbering follows reference order",
+    "tt58-writer-notes: edit and delete: setNoteText rewrites only that note; deleteNote removes reference and note; Backspace over a reference also drops the note on save; ids stay stable",
+    "tt58-writer-notes: POI corpus (6 files): untouched round trip keeps every notes part byte-identical; editing one note changes only that note; deleting one keeps the rest; all equal to the oracle",
+    "tt58-writer-notes: Track Changes: a footnote inserted while recording is a tracked insertion (reject → reference and note gone); deleting one while recording keeps it as a pending deletion until accepted",
+    "tt58-writer-notes: 120 random sessions: insert / edit / delete footnotes and endnotes at random places, save, reopen — our list = oracle references and texts, never dangling or orphaned, ids unique"
    ]
   },
   "FF-23": {
@@ -3298,8 +3313,11 @@
    ]
   },
   "DP-11": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt58-rows: DP-11 least privilege: desktop + every registered app opened — no prompting permission API is called and every permission stays 'prompt'",
+    "e2e-tt58-rows: no uncaught page errors during the TT58 rows session"
+   ]
   },
   "DP-12": {
    "tested": "untested",

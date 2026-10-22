@@ -99,7 +99,9 @@ export default function Palette({ onClose }: { onClose: () => void }) {
     // SH-01: every registered app stays reachable — the 40-row cap applies to the other sources only (it used to cut
     // the "apps" scope at 40 of 43 modules)
     let others = 0;
-    return out.sort((a, b) => b.rank - a.rank).filter((r) => r.id.startsWith("m_") || ++others <= 40);
+    // TT58 (SR-04): the opt-in web row is exempt too — it ranks last, so the cap used to cut it whenever a query had
+    // more than 40 local hits, silently hiding the one explicit way to search the web
+    return out.sort((a, b) => b.rank - a.rank).filter((r) => r.id.startsWith("m_") || r.id === "web" || ++others <= 40);
   }, [q, scope, hits, shell, onClose]);
 
   useEffect(() => setSel(0), [q, scope]);

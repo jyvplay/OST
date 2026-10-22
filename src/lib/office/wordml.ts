@@ -49,7 +49,7 @@ export interface LvlDef { start: number; fmt: string; text: string; indL?: numbe
 export interface NumDef { abs: string; lvls: Record<number, LvlDef> }
 export interface PageSetup { w: number; h: number; top: number; right: number; bottom: number; left: number; header: number; footer: number; landscape: boolean; headerRid?: string; footerRid?: string; firstHeaderRid?: string; firstFooterRid?: string; titlePg?: boolean; cols?: number }
 export interface Comment { id: string; author: string; date?: string; initials?: string; text: string; blocks: Block[] }
-export interface Note { id: string; type: "footnote" | "endnote"; blocks: Block[] }
+export interface Note { id: string; type: "footnote" | "endnote"; blocks: Block[]; /** TT58: source element (untouched notes are written verbatim) */ src?: XEl; /** TT58: edited / created in the editor */ dirty?: boolean }
 export interface Rel { id: string; type: string; target: string; mode?: string }
 
 export interface WordDoc {
@@ -65,6 +65,8 @@ export interface WordDoc {
   hf: { xml: Map<string, { path: string; xml: XDoc; rels: Map<string, Rel> }>; dirty: Set<string>; created: Set<string> };
   comments: Comment[]; commentsPath?: string; commentsXml?: XDoc;
   notes: Note[];
+  /** TT58: footnotes.xml / endnotes.xml as opened (or created on save); notesTouched = a note was inserted, edited or removed */
+  noteParts?: { footnote?: { path: string; xml: XDoc }; endnote?: { path: string; xml: XDoc } }; notesTouched?: boolean; notesRef0?: Record<"footnote" | "endnote", Set<string>>;
   theme: { major: string; minor: string };
   added: { rels: Rel[]; media: { path: string; data: Uint8Array }[]; styles: Set<string>; lists: Map<string, string>; comments: Comment[] };
   title: string; warnings: string[];
@@ -260,7 +262,7 @@ function parseRevision(ctx: Ctx, n: XEl, out: Inline[], link?: Link, outer?: Rev
   if (outer) rv.ins = outer;
   const els = n.kids.filter((k): k is XEl => k.k === "el");
   if (n.kids.some((k) => k.k === "raw")) return false;
-  const okRun = (r: XEl) => r.kids.every((c) => c.k !== "el" || ["w:rPr", "w:t", "w:delText", "w:tab", "w:cr", "w:br", "w:noBreakHyphen", "w:softHyphen", "w:sym", "w:drawing"].includes(c.name));
+  const okRun = (r: XEl) => r.kids.every((c) => c.k !== "el" || ["w:rPr", "w:t", "w:delText", "w:tab", "w:cr", "w:br", "w:noBreakHyphen", "w:softHyphen", "w:sym", "w:drawing", "w:footnoteReference", "w:endnoteReference"].includes(c.name));
   for (const e of els) {
     if (e.name === "w:r" && okRun(e)) continue;
     if (e.name === "w:del" && rv.kind === "ins" && !outer) continue;
@@ -500,8 +502,10 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
   for (const [type, kind] of [[RT.footnotes, "footnote"], [RT.endnotes, "endnote"]] as const) {
     const p = partOf(type); const s = p && text(p); if (!s) continue;
     const x = parseXml(s);
-    for (const n of kids(x.root, `w:${kind}`)) { const t = attr(n, "w:type"); if (t === "separator" || t === "continuationSeparator" || t === "continuationNotice") continue; doc.notes.push({ id: attr(n, "w:id") ?? "", type: kind, blocks: parseBlocks({ doc, part: p!, rels: relById, linkSeq: 2000, fld: [] }, n.kids) }); }
+    (doc.noteParts ??= {})[kind] = { path: p!, xml: x };
+    for (const n of kids(x.root, `w:${kind}`)) { const t = attr(n, "w:type"); if (t === "separator" || t === "continuationSeparator" || t === "continuationNotice") continue; doc.notes.push({ id: attr(n, "w:id") ?? "", type: kind, src: n, blocks: parseBlocks({ doc, part: p!, rels: relById, linkSeq: 2000, fld: [] }, n.kids) }); }
   }
+  doc.notesRef0 = referencedNotes(doc);
   const cp = partOf(RT.comments);
   if (cp && text(cp)) {
     doc.commentsPath = cp; doc.commentsXml = parseXml(text(cp)!);
@@ -787,9 +791,51 @@ const BUILTIN_STYLES: Record<string, string> = {
   Code: `<w:style w:type="paragraph" w:customStyle="1" w:styleId="Code"><w:name w:val="Code"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:shd w:val="clear" w:color="auto" w:fill="F2F2F2"/></w:pPr><w:rPr><w:rFonts w:ascii="Consolas" w:hAnsi="Consolas"/><w:sz w:val="20"/></w:rPr></w:style>`,
   Header: `<w:style w:type="paragraph" w:styleId="Header"><w:name w:val="header"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:pPr><w:tabs><w:tab w:val="center" w:pos="4680"/><w:tab w:val="right" w:pos="9360"/></w:tabs><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:style>`,
   Footer: `<w:style w:type="paragraph" w:styleId="Footer"><w:name w:val="footer"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:pPr><w:tabs><w:tab w:val="center" w:pos="4680"/><w:tab w:val="right" w:pos="9360"/></w:tabs><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:style>`,
+  FootnoteText: `<w:style w:type="paragraph" w:styleId="FootnoteText"><w:name w:val="footnote text"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="99"/><w:semiHidden/><w:unhideWhenUsed/><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:rPr><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:style>`,
+  FootnoteReference: `<w:style w:type="character" w:styleId="FootnoteReference"><w:name w:val="footnote reference"/><w:basedOn w:val="DefaultParagraphFont"/><w:uiPriority w:val="99"/><w:semiHidden/><w:unhideWhenUsed/><w:rPr><w:vertAlign w:val="superscript"/></w:rPr></w:style>`,
+  EndnoteText: `<w:style w:type="paragraph" w:styleId="EndnoteText"><w:name w:val="endnote text"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="99"/><w:semiHidden/><w:unhideWhenUsed/><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:rPr><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:style>`,
+  EndnoteReference: `<w:style w:type="character" w:styleId="EndnoteReference"><w:name w:val="endnote reference"/><w:basedOn w:val="DefaultParagraphFont"/><w:uiPriority w:val="99"/><w:semiHidden/><w:unhideWhenUsed/><w:rPr><w:vertAlign w:val="superscript"/></w:rPr></w:style>`,
   Hyperlink: `<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:basedOn w:val="DefaultParagraphFont"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:rPr><w:color w:val="0563C1" w:themeColor="hyperlink"/><w:u w:val="single"/></w:rPr></w:style>`,
 };
 export const BUILTIN_STYLE_IDS = Object.keys(BUILTIN_STYLES);
+/** TT58: the body of a footnote / endnote made from plain text (one paragraph per line). The first paragraph starts with
+ *  the w:footnoteRef / w:endnoteRef mark (§17.11.13 / .6) in the reference style, as Word writes it. */
+export function noteBlocks(doc: WordDoc, kind: "footnote" | "endnote", text: string): Block[] {
+  const cap = kind === "footnote" ? "Footnote" : "Endnote";
+  ensureStyle(doc, `${cap}Text`); ensureStyle(doc, `${cap}Reference`);
+  const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const lines = text.replace(/\r\n?/g, "\n").split("\n");
+  const xml = lines.map((line, i) => `<w:p><w:pPr><w:pStyle w:val="${cap}Text"/></w:pPr>${i === 0 ? `<w:r><w:rPr><w:rStyle w:val="${cap}Reference"/></w:rPr><w:${kind}Ref/></w:r>` : ""}<w:r><w:t xml:space="preserve">${esc(i === 0 ? " " + line : line)}</w:t></w:r></w:p>`).join("");
+  const root = parseXml(`<w:${kind} xmlns:w="${W}">${xml}</w:${kind}>`).root;
+  const part = doc.noteParts?.[kind]?.path ?? doc.docPath.replace(/[^/]+$/, "") + `${kind}s.xml`;
+  return parseBlocks({ doc, part, rels: new Map(), linkSeq: 3000, fld: [] }, root.kids);
+}
+/** every note id referenced from the main story (and headers / footers), by kind */
+export function referencedNotes(doc: WordDoc): Record<"footnote" | "endnote", Set<string>> {
+  const out = { footnote: new Set<string>(), endnote: new Set<string>() };
+  // references the editor keeps inside opaque XML (moves, content controls, fields, tables it does not model…) count too:
+  // a note must never be dropped while anything in the story still points at it
+  const xmlRefs = (nodes: XNode[]) => { for (const n of nodes) if (n.k === "el") for (const r of findAll(n, (x) => x.name === "w:footnoteReference" || x.name === "w:endnoteReference")) { const id = attr(r, "w:id"); if (id !== undefined) out[r.name === "w:footnoteReference" ? "footnote" : "endnote"].add(id); } };
+  const scan = (blocks: Block[]) => {
+    const walk = (bs: Block[]) => {
+      for (const b of bs) {
+        if (b.t === "x") xmlRefs([b.node]);
+        else if (b.t === "box") walk(b.blocks);
+        else if (b.t === "tbl") for (const it of b.items) {
+          if ((it as Row).t !== "tr") { xmlRefs([it as XNode]); continue; }
+          for (const c of (it as Row).items) if ((c as Cell).t === "tc") walk((c as Cell).blocks); else xmlRefs([c as XNode]);
+        }
+      }
+    };
+    walk(blocks);
+    for (const p of allParas(blocks)) for (const it of p.content) {
+      if (it.t === "k" && it.kind === "note" && it.note) out[it.note.type].add(it.note.id);
+      else if (it.t === "k") xmlRefs(it.nodes);
+    }
+  };
+  scan(doc.blocks); for (const b of doc.parts.values()) scan(b);
+  return out;
+}
 /** Registers a built-in style for rendering and marks it to be written if the document lacks it. */
 export function ensureStyle(doc: WordDoc, id: string) {
   if (doc.styles.has(id) || !BUILTIN_STYLES[id]) return;
@@ -919,6 +965,42 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
       root.selfClose = false;
     }
     setPart(doc.commentsPath!, te.encode(serializeXml(doc.commentsXml)));
+  }
+  // TT58: footnotes / endnotes — inserted, edited or orphaned (reference deleted) notes. Untouched notes keep their source
+  // element verbatim; separators and other special notes are kept; a note whose reference is gone is dropped (Word).
+  const refs = referencedNotes(doc);
+  const ref0 = doc.notesRef0 ?? { footnote: new Set<string>(), endnote: new Set<string>() };
+  // a reference typed away (Backspace) counts as a change too; a note that was already unreferenced in the file is kept
+  if (doc.notesTouched || doc.notes.some((n) => ref0[n.type].has(n.id) && !refs[n.type].has(n.id))) {
+    for (const kind of ["footnote", "endnote"] as const) {
+      const mine = doc.notes.filter((n) => n.type === kind);
+      let part = doc.noteParts?.[kind];
+      if (!part && !mine.some((n) => refs[kind].has(n.id))) continue;
+      const fresh = !part;
+      if (!part) {
+        const path = doc.docPath.replace(/[^/]+$/, "") + `${kind}s.xml`;
+        part = { path, xml: parseXml(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:${kind}s xmlns:w="${W}" xmlns:r="${R_NS}"><w:${kind} w:type="separator" w:id="-1"><w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:separator/></w:r></w:p></w:${kind}><w:${kind} w:type="continuationSeparator" w:id="0"><w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:continuationSeparator/></w:r></w:p></w:${kind}></w:${kind}s>`) };
+        (doc.noteParts ??= {})[kind] = part;
+        addRel(doc, kind === "footnote" ? RT.footnotes : RT.endnotes, `${kind}s.xml`);
+      }
+      if (fresh || !doc.zip.has(part.path)) { ensureContentType(ct, "Override", "/" + part.path, `application/vnd.openxmlformats-officedocument.wordprocessingml.${kind}s+xml`); ctDirty = true; }
+      const root = part.xml.root;
+      const byId = new Map(mine.map((n) => [n.id, n]));
+      const seen = new Set<string>();
+      const kidsOut: XNode[] = [];
+      for (const k of root.kids) {
+        if (k.k !== "el" || k.name !== `w:${kind}`) { kidsOut.push(k); continue; }
+        const t = attr(k, "w:type"), id = attr(k, "w:id") ?? "";
+        if (t === "separator" || t === "continuationSeparator" || t === "continuationNotice") { kidsOut.push(k); continue; }
+        const n = byId.get(id); seen.add(id);
+        if (!n) { kidsOut.push(k); continue; }
+        if (!refs[kind].has(id)) { if (n.dirty || ref0[kind].has(id)) continue; kidsOut.push(k); continue; }
+        kidsOut.push(n.dirty || !n.src ? el(`w:${kind}`, { "w:id": id }, serializeBlocks(n.blocks)) : n.src);
+      }
+      for (const n of mine) if (!seen.has(n.id) && refs[kind].has(n.id)) kidsOut.push(el(`w:${kind}`, { "w:id": n.id }, serializeBlocks(n.blocks)));
+      const keep = root.kids; root.kids = kidsOut; root.selfClose = false;
+      setPart(part.path, te.encode(serializeXml(part.xml))); root.kids = keep;
+    }
   }
   // TT49: edited / created header and footer parts (untouched parts keep their original bytes)
   // a part created in the editor is always written — undo may have dropped it from doc.parts, but its relationship

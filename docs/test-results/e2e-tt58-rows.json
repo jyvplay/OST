@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt58-rows",
+  "at": "2026-10-22T03:18:58.559Z",
+  "results": [
+    {
+      "suite": "e2e-tt58-rows",
+      "name": "SR-04 web results: off by default — no web row and no outside request while typing; opted in — one explicit row ranked last with the provider URL, still nothing sent until it is picked",
+      "covers": {
+        "SR-04": "full"
+      },
+      "pass": true,
+      "ms": 4916
+    },
+    {
+      "suite": "e2e-tt58-rows",
+      "name": "DP-11 least privilege: desktop + every registered app opened — no prompting permission API is called and every permission stays 'prompt'",
+      "covers": {
+        "DP-11": "full"
+      },
+      "pass": true,
+      "ms": 42235
+    },
+    {
+      "suite": "e2e-tt58-rows",
+      "name": "no uncaught page errors during the TT58 rows session",
+      "covers": {
+        "DP-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}
