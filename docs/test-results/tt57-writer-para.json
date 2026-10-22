@@ -1,6 +1,6 @@
 {
   "suite": "tt57-writer-para",
-  "at": "2026-10-22T17:36:51.668Z",
+  "at": "2026-10-22T21:40:37.189Z",
   "results": [
     {
       "suite": "tt57-writer-para",
@@ -9,7 +9,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 426
+      "ms": 566
     },
     {
       "suite": "tt57-writer-para",
@@ -18,7 +18,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 359
+      "ms": 511
     },
     {
       "suite": "tt57-writer-para",
@@ -27,7 +27,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 91
+      "ms": 105
     },
     {
       "suite": "tt57-writer-para",
@@ -36,7 +36,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 355
+      "ms": 497
     },
     {
       "suite": "tt57-writer-para",
@@ -45,7 +45,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 31036
+      "ms": 39100
     }
   ]
 }

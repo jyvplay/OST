@@ -1,6 +1,6 @@
 {
   "suite": "tt46-xlsx-patch",
-  "at": "2026-10-22T20:12:57.912Z",
+  "at": "2026-10-22T21:14:33.678Z",
   "results": [
     {
       "suite": "tt46-xlsx-patch",
@@ -10,7 +10,7 @@
         "FF-11": "full"
       },
       "pass": true,
-      "ms": 36716
+      "ms": 35853
     },
     {
       "suite": "tt46-xlsx-patch",
@@ -20,7 +20,7 @@
         "FF-11": "full"
       },
       "pass": true,
-      "ms": 124617
+      "ms": 120282
     },
     {
       "suite": "tt46-xlsx-patch",
@@ -30,7 +30,7 @@
         "FF-11": "full"
       },
       "pass": true,
-      "ms": 677
+      "ms": 703
     },
     {
       "suite": "tt46-xlsx-patch",
@@ -40,7 +40,7 @@
         "FF-11": "full"
       },
       "pass": true,
-      "ms": 237
+      "ms": 224
     },
     {
       "suite": "tt46-xlsx-patch",
@@ -50,7 +50,7 @@
         "FF-11": "full"
       },
       "pass": true,
-      "ms": 224
+      "ms": 226
     },
     {
       "suite": "tt46-xlsx-patch",
@@ -60,7 +60,7 @@
         "FF-11": "full"
       },
       "pass": true,
-      "ms": 3049
+      "ms": 3088
     },
     {
       "suite": "tt46-xlsx-patch",
@@ -70,7 +70,7 @@
         "FF-11": "full"
       },
       "pass": true,
-      "ms": 70
+      "ms": 81
     },
     {
       "suite": "tt46-xlsx-patch",
@@ -79,7 +79,7 @@
         "FF-21": "partial"
       },
       "pass": true,
-      "ms": 69344
+      "ms": 68904
     }
   ]
 }

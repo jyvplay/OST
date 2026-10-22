@@ -1,6 +1,6 @@
 {
   "suite": "tt61-writer-cellrev",
-  "at": "2026-10-22T17:41:22.972Z",
+  "at": "2026-10-22T21:46:05.449Z",
   "results": [
     {
       "suite": "tt61-writer-cellrev",
@@ -9,7 +9,7 @@
         "FF-44": "full"
       },
       "pass": true,
-      "ms": 177
+      "ms": 233
     },
     {
       "suite": "tt61-writer-cellrev",
@@ -18,7 +18,7 @@
         "FF-44": "full"
       },
       "pass": true,
-      "ms": 255
+      "ms": 352
     },
     {
       "suite": "tt61-writer-cellrev",
@@ -27,7 +27,7 @@
         "FF-44": "full"
       },
       "pass": true,
-      "ms": 2300
+      "ms": 3092
     },
     {
       "suite": "tt61-writer-cellrev",
@@ -36,7 +36,7 @@
         "FF-44": "full"
       },
       "pass": true,
-      "ms": 291
+      "ms": 402
     }
   ]
 }

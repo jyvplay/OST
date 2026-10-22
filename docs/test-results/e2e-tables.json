@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tables",
-  "at": "2026-10-22T16:54:01.947Z",
+  "at": "2026-10-22T20:45:52.855Z",
   "results": [
     {
       "suite": "e2e-tables",
@@ -10,7 +10,7 @@
         "TB-03": "partial"
       },
       "pass": true,
-      "ms": 758
+      "ms": 948
     },
     {
       "suite": "e2e-tables",
@@ -20,7 +20,7 @@
         "TB-01": "partial"
       },
       "pass": true,
-      "ms": 3380
+      "ms": 4242
     },
     {
       "suite": "e2e-tables",
@@ -29,7 +29,7 @@
         "TB-03": "full"
       },
       "pass": true,
-      "ms": 1726
+      "ms": 1922
     },
     {
       "suite": "e2e-tables",
@@ -38,7 +38,7 @@
         "TB-04": "full"
       },
       "pass": true,
-      "ms": 1908
+      "ms": 2927
     },
     {
       "suite": "e2e-tables",
@@ -47,7 +47,7 @@
         "TB-02": "full"
       },
       "pass": true,
-      "ms": 1941
+      "ms": 2408
     },
     {
       "suite": "e2e-tables",
@@ -56,7 +56,7 @@
         "TB-04": "full"
       },
       "pass": true,
-      "ms": 2054
+      "ms": 2718
     },
     {
       "suite": "e2e-tables",
@@ -66,7 +66,7 @@
         "TB-01": "full"
       },
       "pass": true,
-      "ms": 2773
+      "ms": 3844
     },
     {
       "suite": "e2e-tables",
@@ -76,7 +76,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 4529
+      "ms": 5034
     }
   ]
 }

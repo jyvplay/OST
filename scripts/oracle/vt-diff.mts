@@ -21,6 +21,17 @@ function rng(seed: number) { let s = seed >>> 0 || 1; return () => { s ^= s << 1
 
 const colorOf = (mode: "default" | "palette" | "rgb", v: number) => (mode === "default" ? DEFAULT : mode === "palette" ? v : RGB | v);
 
+/** End index of the last complete UTF-8 sequence (an incomplete trailing lead + continuations is excluded). */
+export function utf8Boundary(b: Uint8Array): number {
+  for (let k = 1; k <= 3 && k <= b.length; k++) {
+    const x = b[b.length - k];
+    if ((x & 0xc0) === 0x80) continue;
+    const need = x >= 0xf0 && x < 0xf8 ? 4 : x >= 0xe0 ? 3 : x >= 0xc0 ? 2 : 1;
+    return need > k ? b.length - k : b.length;
+  }
+  return b.length;
+}
+
 export async function diffRun(data: Uint8Array | string, cols: number, rows: number, seed = 1, opts: { checkModes?: boolean } = {}): Promise<DiffResult> {
   const bytes = typeof data === "string" ? new TextEncoder().encode(data) : data;
   const vt = new Vt(cols, rows, 1000);
@@ -31,12 +42,19 @@ export async function diffRun(data: Uint8Array | string, cols: number, rows: num
   xt.loadAddon(new Unicode11Addon()); (xt as unknown as { unicode: { activeVersion: string } }).unicode.activeVersion = "11";
   xt.onData((s) => theirs.push(s));
   const r = rng(seed);
+  // Oracle defect (measured, TT63): xterm.js writeSync drops a 3-byte UTF-8 character when a chunk boundary falls
+  // after its 2nd byte ("e2 80 | 94" loses the em dash). Ours still gets the raw random split; xterm gets the same
+  // bytes with an incomplete trailing sequence held over to its next chunk.
+  let carry = new Uint8Array(0);
   for (let i = 0; i < bytes.length;) {
     const n = 1 + Math.floor(r() * 200);
     const chunk = bytes.subarray(i, i + n); i += n;
     vt.write(chunk);
+    const joined = new Uint8Array(carry.length + chunk.length); joined.set(carry); joined.set(chunk, carry.length);
+    const cut = i >= bytes.length ? joined.length : utf8Boundary(joined);
+    const feed = joined.subarray(0, cut); carry = joined.slice(cut);
     // synchronous parse so an exception INSIDE xterm.js is catchable (it has crashes of its own — reported, not a pass)
-    try { (xt as unknown as { _core: { writeSync(d: Uint8Array): void } })._core.writeSync(chunk); }
+    try { (xt as unknown as { _core: { writeSync(d: Uint8Array): void } })._core.writeSync(feed); }
     catch (e) { xt.dispose(); return { mismatches: [], cells: 0, oracleCrash: String((e as Error).message ?? e) }; }
   }
   const mm: string[] = [];

@@ -125,9 +125,16 @@
 - **Repair 1 (page area):** a new attack, "a wrong caption must still be refused", is the WrongCaption case; it passes. The mutants "any caption accepted" and "captions never accepted" are both killed.
 - **Repair 2 (dangling targets):** the attack is test 10, a dangling rel to records2. The new records parts are named records3 and records4; records2 is skipped. The "not claimed" mutant is killed.
 - **Mutation total:** 22/22 killed.
+- **Repair 3 (gate, oracle side):** tt44-vt failed twice in a row because its `git log` case reads this repo's real history.
+  - The TT63 commit shifted the log so that a commit subject with an em dash fell on row 25.
+  - Measured: xterm.js `writeSync` drops a 3-byte UTF-8 character whenever a chunk boundary falls after its 2nd byte. Ours keeps it, which is correct.
+  - Fix in `scripts/oracle/vt-diff.mts`: our emulator still gets the raw random splits; xterm.js gets the same bytes with any incomplete trailing sequence held over (`utf8Boundary`).
+  - Attack on the patch: `utf8Boundary` was checked on every prefix of a mixed 1/2/3/4-byte string. It always yields a strictly decodable prefix and holds at most 3 bytes. tt44-vt passes 12/12, including the 600-seed fuzz test.
 
 ## J. Stopping
 - Suites: tt63-sheet-pivotparts 10/10; e2e-tt63 2/2.
 - 13 regression suites were re-run and all pass: names, oracle-xlsx, tt46-xlsx-patch (309 openpyxl sessions), tt47-sheet, tt49-sheet, tt50-charts, tt57-sheet-links, tt58-sheet-pivot, tt59-sheet-paste, tt59-x14-cf, tt61-sheet-pivot-delete, tt62-sheet-schema and unit.
-- Full gate: see the PR body (TT63 section).
+- Full gate: 148 suites, 1154/1159 on the first pass.
+  - e2e-layout (4 failures, known flake) passed 12/12 on rerun.
+  - tt44-vt (1 failure) is the xterm.js oracle defect above; after the oracle fix it passes 12/12.
 - Stopped at "pivots values-only → real parts" because the remaining pivot gaps (shared caches, compact form, number formats) need either Excel to verify or an engine layout change.

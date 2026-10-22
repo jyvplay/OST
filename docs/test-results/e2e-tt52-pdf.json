@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt52-pdf",
-  "at": "2026-10-22T17:33:35.898Z",
+  "at": "2026-10-22T21:35:31.738Z",
   "results": [
     {
       "suite": "e2e-tt52-pdf",
@@ -10,7 +10,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 13344
+      "ms": 14506
     },
     {
       "suite": "e2e-tt52-pdf",
@@ -20,7 +20,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 5936
+      "ms": 7773
     },
     {
       "suite": "e2e-tt52-pdf",
@@ -30,7 +30,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 2434
+      "ms": 3451
     },
     {
       "suite": "e2e-tt52-pdf",
@@ -40,7 +40,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 1837
+      "ms": 2481
     },
     {
       "suite": "e2e-tt52-pdf",
@@ -50,7 +50,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 2013
+      "ms": 2463
     },
     {
       "suite": "e2e-tt52-pdf",
@@ -60,7 +60,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 2043
+      "ms": 3044
     },
     {
       "suite": "e2e-tt52-pdf",
@@ -70,7 +70,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 1571
+      "ms": 2533
     },
     {
       "suite": "e2e-tt52-pdf",

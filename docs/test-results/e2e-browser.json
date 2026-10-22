@@ -1,6 +1,6 @@
 {
   "suite": "e2e-browser",
-  "at": "2026-10-22T16:48:54.515Z",
+  "at": "2026-10-22T20:39:48.203Z",
   "results": [
     {
       "suite": "e2e-browser",
@@ -10,7 +10,7 @@
         "PR-07r": "partial"
       },
       "pass": true,
-      "ms": 871
+      "ms": 983
     },
     {
       "suite": "e2e-browser",
@@ -20,7 +20,7 @@
         "PR-07a": "partial"
       },
       "pass": true,
-      "ms": 2228
+      "ms": 2327
     },
     {
       "suite": "e2e-browser",
@@ -31,7 +31,7 @@
         "PR-07a": "full"
       },
       "pass": true,
-      "ms": 1999
+      "ms": 2573
     },
     {
       "suite": "e2e-browser",
@@ -43,7 +43,7 @@
         "PR-07g": "full"
       },
       "pass": true,
-      "ms": 32117
+      "ms": 33032
     },
     {
       "suite": "e2e-browser",
@@ -52,7 +52,7 @@
         "PR-07l": "full"
       },
       "pass": true,
-      "ms": 3005
+      "ms": 3050
     },
     {
       "suite": "e2e-browser",
