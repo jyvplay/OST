@@ -5,6 +5,7 @@ import {
   Workbook, Sheet, writeXlsxWorkbook, readXlsxWorkbook, workbookFromJson, workbookToJson,
   isError, type WorkbookJson,
 } from "@/lib/formula";
+import type { PivotSaveNote } from "@/lib/formula/pivotxml";
 import { readJsonObject } from "@/lib/http-json";
 import { patchXlsx } from "@/lib/formula/xlsx-patch";
 
@@ -57,9 +58,10 @@ export async function POST(req: NextRequest) {
       case "saveXlsxToVfs": {
         if (!body.dest) throw new Error("dest required");
         const wb = workbookFromBody(body);
-        const buf = writeXlsxWorkbook(wb, [...wb.sheets.keys()][0] ?? "Workbook");
+        const rep = { pivots: [] as PivotSaveNote[] }; // TT63: which PivotTables became real Excel PivotTables
+        const buf = writeXlsxWorkbook(wb, [...wb.sheets.keys()][0] ?? "Workbook", rep);
         const r = await writeFile({ path: body.dest, content: buf.toString("base64"), encoding: "base64", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reason: "sheet-export" });
-        return NextResponse.json({ ...r, bytes: buf.length, sheets: wb.sheets.size });
+        return NextResponse.json({ ...r, bytes: buf.length, sheets: wb.sheets.size, pivots: rep.pivots });
       }
       case "patchXlsxToVfs": {
         // TT46 lossless save: keep the original package and rewrite only what changed (xlsx-patch.ts).

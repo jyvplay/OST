@@ -32,7 +32,7 @@ export function itemLabel(v: PVal): string {
   return String(v);
 }
 /** a stable key for grouping that keeps 1 and "1" apart (Excel does too) */
-const keyOf = (v: PVal) => (isBlank(v) ? "b:" : isErr(v) ? `e:${v.e}` : typeof v === "number" ? `n:${v}` : typeof v === "boolean" ? `l:${v}` : `s:${String(v).toLowerCase()}`);
+export const keyOf = (v: PVal) => (isBlank(v) ? "b:" : isErr(v) ? `e:${v.e}` : typeof v === "number" ? `n:${v}` : typeof v === "boolean" ? `l:${v}` : `s:${String(v).toLowerCase()}`);
 const rank = (v: PVal) => (isBlank(v) ? 4 : isErr(v) ? 3 : typeof v === "number" ? 0 : typeof v === "string" ? 1 : 2);
 export function compareItems(a: PVal, b: PVal): number {
   const ra = rank(a), rb = rank(b); if (ra !== rb) return ra - rb;

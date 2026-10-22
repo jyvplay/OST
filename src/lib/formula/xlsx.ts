@@ -25,6 +25,7 @@
  * runs, Excel 365 XLDAPR dynamic-array metadata (array formulas open in Excel
  * as legacy {=…} arrays with correct values). Not a claim of modern-suite parity.
  */
+import { pivotPartsFor, uniquePivotName, CT_PIVOT_CACHE, CT_PIVOT_RECORDS, CT_PIVOT_TABLE, REL_PIVOT_CACHE, REL_PIVOT_RECORDS, REL_PIVOT_TABLE, type PivotSaveNote } from "./pivotxml";
 import { PIVOT_NAME_RE, pivotNames, pivotsFromNames } from "./pivotsheet";
 import { posix } from "node:path";
 import { writeZip, readCentralDirectory, readEntryVerified } from "../server/zip";
@@ -319,7 +320,7 @@ function readDefinedNames(workbookXml: string, wb: Workbook, order: string[]) {
   return skipped;
 }
 
-export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook"): Buffer {
+export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook", report?: { pivots: PivotSaveNote[] }): Buffer {
   const sheets = [...workbook.sheets.values()];
   if (!sheets.length) throw new Error("workbook must contain at least one sheet");
   if (sheets.length > 255) throw new Error("workbook sheet limit in this engine is 255");
@@ -352,17 +353,37 @@ export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook"): Buffe
     chartTypes.push(`<Override PartName="/xl/drawings/drawing${d}.xml" ContentType="${CT_DRAWING}"/>`);
     return d;
   });
-  // sheet rels: rId1 = drawing (when charts), then one external relationship per linked address (TT57)
+  // TT63: PivotTables → pivotCacheDefinition + pivotCacheRecords + pivotTableDefinition (pivotxml.ts); one cache per table
+  const pivotRels: string[][] = sheets.map(() => []); const pivotCaches: number[] = [];
+  sheets.forEach((s, i) => {
+    const taken = new Set<string>();
+    for (const def of s.pivots) {
+      const n = pivotCaches.length + 1;
+      const r = pivotPartsFor(workbook, s, def, n, { sheetName: (x) => names[sheets.findIndex((y) => y.name === x)] ?? x, name: uniquePivotName(def.name, taken) });
+      if (!r.ok) { report?.pivots.push({ sheet: s.name, name: def.name, native: false, why: r.why }); continue; }
+      pivotCaches.push(n);
+      chartParts.push({ name: `xl/pivotCache/pivotCacheDefinition${n}.xml`, data: Buffer.from(r.parts.cacheXml) });
+      chartParts.push({ name: `xl/pivotCache/_rels/pivotCacheDefinition${n}.xml.rels`, data: Buffer.from(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL_PIVOT_RECORDS}" Target="pivotCacheRecords${n}.xml"/></Relationships>`) });
+      chartParts.push({ name: `xl/pivotCache/pivotCacheRecords${n}.xml`, data: Buffer.from(r.parts.recordsXml) });
+      chartParts.push({ name: `xl/pivotTables/pivotTable${n}.xml`, data: Buffer.from(r.parts.tableXml) });
+      chartParts.push({ name: `xl/pivotTables/_rels/pivotTable${n}.xml.rels`, data: Buffer.from(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL_PIVOT_CACHE}" Target="../pivotCache/pivotCacheDefinition${n}.xml"/></Relationships>`) });
+      chartTypes.push(`<Override PartName="/xl/pivotCache/pivotCacheDefinition${n}.xml" ContentType="${CT_PIVOT_CACHE}"/>`, `<Override PartName="/xl/pivotCache/pivotCacheRecords${n}.xml" ContentType="${CT_PIVOT_RECORDS}"/>`, `<Override PartName="/xl/pivotTables/pivotTable${n}.xml" ContentType="${CT_PIVOT_TABLE}"/>`);
+      pivotRels[i].push(`<Relationship Id="rIdPt${n}" Type="${REL_PIVOT_TABLE}" Target="../pivotTables/pivotTable${n}.xml"/>`);
+      report?.pivots.push({ sheet: s.name, name: r.parts.name, native: true });
+    }
+  });
+  // sheet rels: rId1 = drawing (when charts), then one external relationship per linked address (TT57), then PivotTables
   const linkOf = sheets.map((s) => { let n = 1; return linksXml(s.links, () => `rId${++n}`); });
   sheets.forEach((_, i) => {
-    const d = drawingOf[i]; const rs = [...(d ? [`<Relationship Id="rId1" Type="${REL_DRAWING}" Target="../drawings/drawing${d}.xml"/>`] : []), ...linkOf[i].rels];
+    const d = drawingOf[i]; const rs = [...(d ? [`<Relationship Id="rId1" Type="${REL_DRAWING}" Target="../drawings/drawing${d}.xml"/>`] : []), ...linkOf[i].rels, ...pivotRels[i]];
     if (rs.length) chartParts.push({ name: `xl/worksheets/_rels/sheet${i + 1}.xml.rels`, data: Buffer.from(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rs.join("")}</Relationships>`) });
   });
   const sheetXmls = sheets.map((s, i) => renderSheet(workbook, s, sharedIndex, styles, drawingOf[i] ? "rId1" : undefined, linkOf[i].xml));
   const rels = sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`);
-  const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${names.map((n, i) => `<sheet name="${esc(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets>${definedNamesXml(workbook, sheets.map((x) => x.name))}<calcPr calcMode="auto" fullCalcOnLoad="1" forceFullCalc="1"/></workbook>`;
+  for (const n of pivotCaches) rels.push(`<Relationship Id="rIdPc${n}" Type="${REL_PIVOT_CACHE}" Target="pivotCache/pivotCacheDefinition${n}.xml"/>`);
+  const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${names.map((n, i) => `<sheet name="${esc(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets>${definedNamesXml(workbook, sheets.map((x) => x.name))}<calcPr calcMode="auto" fullCalcOnLoad="1" forceFullCalc="1"/>${pivotCaches.length ? `<pivotCaches>${pivotCaches.map((n) => `<pivotCache cacheId="${n}" r:id="rIdPc${n}"/>`).join("")}</pivotCaches>` : ""}</workbook>`;
   const workbookRels = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels.join("")}</Relationships>`;
   const contentTypes = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="${CT}"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>${sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}${chartTypes.join("")}<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
   const sst = `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${strings.length}" uniqueCount="${strings.length}">${strings.map((s) => `<si><t xml:space="preserve">${esc(s)}</t></si>`).join("")}</sst>`;

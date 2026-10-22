@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-22T17:49:03.257Z",
+ "generatedAt": "2026-10-22T20:36:04.160Z",
  "totals": {
   "built": {
-   "full": 301,
+   "full": 302,
    "partial": 54,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 216,
+   "full": 217,
    "partial": 72,
    "untested": 89
   },
   "tests": {
-   "total": 1147,
-   "passed": 1147
+   "total": 1159,
+   "passed": 1159
   }
  },
  "rows": {
@@ -2954,6 +2954,23 @@
     "tt62-sheet-schema: 20 randomized workbooks (random subsets of every feature, random sizes) — every fresh export is schema-valid",
     "tt62-sheet-schema: lossless patch: the kitchen-sink feature set added through patchXlsx to 4 POI workbooks (plus a cell edit on every original sheet) adds no schema error the input lacked",
     "tt62-sheet-schema: OPC part names are case-insensitive: POI 123233_charts.xlsx stores Sheet1.xml with _rels/sheet1.xml.rels — a hyperlink + a chart + a new sheet patched in keep ONE rels part (with the original drawing relationship), ONE <drawing>, no two entries equal ignoring case, and openpyxl loads it"
+   ]
+  },
+  "FF-47": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt63: FF-47 PivotTable saved as a real Excel PivotTable from the UI: create with a report filter → Save → XSD + pandas + openpyxl oracles; reopen → source edit → Alt+F5 → Save regenerates in place; Delete → Save removes every pivot part",
+    "e2e-tt63: no uncaught page errors during the TT63 session",
+    "tt63-sheet-pivotparts: 1. fresh export: 13 pivot shapes are schema-valid, recomputed by pandas from the XML, survive openpyxl",
+    "tt63-sheet-pivotparts: 2. 60 randomized pivots on random data (fresh export) — XSD + pandas oracle",
+    "tt63-sheet-pivotparts: 3. unfaithful shapes are saved values-only with the reason; the package stays valid",
+    "tt63-sheet-pivotparts: 4. lossless save: source edit + Refresh regenerates ours in place (same parts, same cacheId)",
+    "tt63-sheet-pivotparts: 5. lossless save: deleting a pivot removes its parts / rels / overrides / <pivotCache>; a new one is added",
+    "tt63-sheet-pivotparts: 6. POI workbooks with native PivotTables: native parts byte-identical, ours added with a new cacheId",
+    "tt63-sheet-pivotparts: 7. a name colliding with a native PivotTable on the same sheet becomes \"Name (2)\"",
+    "tt63-sheet-pivotparts: 8. a table re-pivoted outside the app is treated as native and never overwritten",
+    "tt63-sheet-pivotparts: 9. a cache shared with another table is not rewritten: ours moves to its own cache",
+    "tt63-sheet-pivotparts: 10. a part name that an existing relationship points at is never reused, even when that part is missing"
    ]
   },
   "CT-01": {

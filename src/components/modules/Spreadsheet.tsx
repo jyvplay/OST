@@ -48,6 +48,9 @@ const SAMPLE: Record<string, string> = {
   F1: "Top sellers", F2: "=SORTBY(A2:A4,D2:D4,-1)",
 };
 type Pos = { col: number; row: number };
+/** TT63: what the .xlsx writer did with each PivotTable (src/lib/formula/pivotxml.ts PivotSaveNote) */
+type PivotNote = { sheet: string; name: string; native: boolean; why?: string };
+const pivotNote = (notes?: PivotNote[]) => { const n = (notes ?? []).filter((x) => x.native).length; return n ? ` · ${n} PivotTable(s) written as Excel PivotTables` : ""; };
 type Sel = { a: Pos; f: Pos };
 type Drag = { mode: "select" } | { mode: "fill"; target: Range | null } | { mode: "resize"; col: number; x: number; w: number } | { mode: "point"; prefix: string; start: Pos } | null;
 
@@ -237,7 +240,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const src = prot?.plain ? { sourceBase64: toBase64(prot.plain) } : {};
     const replaceEncrypted = !!(prot?.removed && dest === prot.path);
     try {
-      type Rep = { partsCopied: number; partsRewritten: string[]; cellsRewritten: number; sheetsAdded: string[]; sheetsRemoved: string[]; sheetsRenamed: [string, string][] };
+      type Rep = { partsCopied: number; partsRewritten: string[]; cellsRewritten: number; sheetsAdded: string[]; sheetsRemoved: string[]; sheetsRenamed: [string, string][]; pivots?: { notes: PivotNote[] } };
       const r = await post<{ ok: boolean; path: string; bytes: number; base64?: string; report: Rep }>(
         "/api/sheet", { op: "patchXlsxToVfs", source: path, dest, workbook: workbookToJson(workbook), renames: renamesRef.current, ...src, returnBytes: !!prot?.password, replaceEncrypted });
       let note = replaceEncrypted ? " · password removed" : "";
@@ -252,16 +255,22 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       const rp = r.report;
       setDirty(false);
       setStatus(rp.partsRewritten.length
-        ? `saved ${r.path}${note} · lossless: ${rp.partsCopied} part(s) kept byte-identical, ${rp.partsRewritten.length} rewritten, ${rp.cellsRewritten} cell(s) written`
+        ? `saved ${r.path}${note} · lossless: ${rp.partsCopied} part(s) kept byte-identical, ${rp.partsRewritten.length} rewritten, ${rp.cellsRewritten} cell(s) written${pivotNote(rp.pivots?.notes)}`
         : `saved ${r.path}${note} · no changes — file left byte-identical`);
+      warnValuesOnly(rp.pivots?.notes);
       shell.bumpRefresh();
       if (dest !== path) shell.dispatch({ t: "setProps", id: win.id, props: { path: dest } });
       return true;
     } catch (e) {
       if (encRef.current) { shell.toast(`Not saved: ${String((e as Error).message)}`, "bad"); return true; } // no plaintext .fworkbook fallback
-      shell.toast(`Lossless .xlsx save refused: ${String((e as Error).message)}. Saved as a Fusion workbook instead; "Export .xlsx" writes a NEW package (cells, styles, charts, conditional formats and validations kept; comments, pivots and non-chart drawings dropped).`, "warn");
+      shell.toast(`Lossless .xlsx save refused: ${String((e as Error).message)}. Saved as a Fusion workbook instead; "Export .xlsx" writes a NEW package (cells, styles, charts, PivotTables, conditional formats and validations kept; comments and non-chart drawings dropped).`, "warn");
       return false;
     }
+  };
+  /** TT63: PivotTables become real Excel PivotTables on .xlsx save; the ones that cannot are saved as values + definition */
+  const warnValuesOnly = (notes?: PivotNote[]) => {
+    const bad = (notes ?? []).filter((n) => !n.native);
+    if (bad.length) shell.toast(`Saved as values only (still editable here): ${bad.map((n) => `${n.name} — ${n.why}`).join("; ")}`, "warn");
   };
   const save = async () => {
     if (path && /\.xlsx$/i.test(path) && await saveXlsxLossless(path)) return;
@@ -273,8 +282,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const exportXlsx = async () => {
     const dest = (path || "/Documents/workbook").replace(/\.(fworkbook|fsheet|xlsx)$/i, "") + ".xlsx";
     if (path && /\.xlsx$/i.test(path)) { await saveXlsxLossless(dest); return; }
-    const r = await post<{ ok: boolean; path: string; bytes: number; sheets: number; error?: string }>("/api/sheet", { op: "saveXlsxToVfs", workbook: workbookToJson(workbook), dest });
-    if (r.ok) { setStatus(`exported ${r.bytes} B · ${r.sheets} sheet(s) to ${r.path} · ${workbook.charts.length} chart(s) written as Excel charts`); shell.bumpRefresh(); }
+    const r = await post<{ ok: boolean; path: string; bytes: number; sheets: number; error?: string; pivots?: PivotNote[] }>("/api/sheet", { op: "saveXlsxToVfs", workbook: workbookToJson(workbook), dest });
+    if (r.ok) { setStatus(`exported ${r.bytes} B · ${r.sheets} sheet(s) to ${r.path} · ${workbook.charts.length} chart(s) written as Excel charts${pivotNote(r.pivots)}`); warnValuesOnly(r.pivots); shell.bumpRefresh(); }
     else shell.toast(r.error ?? "export failed", "bad");
   };
   const importXlsx = async (file: File) => {
@@ -1131,7 +1140,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
               {pv.edit ? <Btn variant="ghost" onClick={() => { setPanel(null); refreshPivotUi(true); }}>Refresh</Btn> : null}
               {pv.edit ? <Btn variant="ghost" onClick={removePivot}>Delete PivotTable</Btn> : null}
               <Btn variant="ghost" onClick={() => { setPanel(null); gridRef.current?.focus(); }}>Cancel</Btn>
-              <span className="fs-dim">{pv.edit ? "the table is values; Refresh recomputes it from the source" : "creates a new sheet; the result is plain values — refresh after the source changes"}</span>
+              <span className="fs-dim">{pv.edit ? "Refresh recomputes it from the source; .xlsx save writes a real Excel PivotTable" : "creates a new sheet; refresh after the source changes — .xlsx save writes a real Excel PivotTable"}</span>
             </div>
           </div>);
       })() : null}

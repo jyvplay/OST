@@ -1,6 +1,6 @@
 {
   "suite": "privacy-backup",
-  "at": "2026-10-22T16:44:42.516Z",
+  "at": "2026-10-22T20:34:40.242Z",
   "results": [
     {
       "suite": "privacy-backup",
@@ -9,7 +9,7 @@
         "SC-17": "full"
       },
       "pass": true,
-      "ms": 52
+      "ms": 70
     },
     {
       "suite": "privacy-backup",
@@ -18,7 +18,7 @@
         "SC-17": "full"
       },
       "pass": true,
-      "ms": 265
+      "ms": 392
     },
     {
       "suite": "privacy-backup",
@@ -27,7 +27,7 @@
         "SC-17": "full"
       },
       "pass": true,
-      "ms": 250
+      "ms": 319
     },
     {
       "suite": "privacy-backup",
@@ -36,7 +36,7 @@
         "SC-17": "full"
       },
       "pass": true,
-      "ms": 131
+      "ms": 134
     },
     {
       "suite": "privacy-backup",
@@ -45,7 +45,7 @@
         "SC-17": "full"
       },
       "pass": true,
-      "ms": 176
+      "ms": 171
     },
     {
       "suite": "privacy-backup",
@@ -55,7 +55,7 @@
         "SC-11": "partial"
       },
       "pass": true,
-      "ms": 156
+      "ms": 171
     },
     {
       "suite": "privacy-backup",
@@ -64,7 +64,7 @@
         "SC-17": "partial"
       },
       "pass": true,
-      "ms": 1452
+      "ms": 1642
     }
   ]
 }

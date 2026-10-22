@@ -35,6 +35,8 @@ import type { CondRule } from "./sheetmeta";
 import { addFuturePrefixes } from "./sheetops";
 import { linksXml, REL_HYPERLINK } from "./sheetlinks";
 import { PIVOT_NAME_RE, pivotNames } from "./pivotsheet";
+import { patchPivots, type PivotPatchReport } from "./xlsx-pivotpatch";
+import { REL_PIVOT_CACHE, relTarget } from "./pivotxml";
 
 
 const ln = (n: string) => n.slice(n.indexOf(":") + 1);
@@ -150,7 +152,7 @@ class StylePatcher {
   }
 }
 
-interface PatchReport { sheetsPatched: string[]; sheetsAdded: string[]; sheetsRemoved: string[]; sheetsRenamed: [string, string][]; cellsRewritten: number; cellsReused: number; partsCopied: number; partsRewritten: string[]; charts?: ChartPatchReport }
+interface PatchReport { sheetsPatched: string[]; sheetsAdded: string[]; sheetsRemoved: string[]; sheetsRenamed: [string, string][]; cellsRewritten: number; cellsReused: number; partsCopied: number; partsRewritten: string[]; charts?: ChartPatchReport; pivots?: PivotPatchReport }
 
 /**
  * The baseline an edit is measured against: the original exactly as the Spreadsheet UI loaded it
@@ -511,7 +513,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
   // --- workbook structure: order, names, additions, removals
   const structural = report.sheetsAdded.length || report.sheetsRenamed.length || origSheets.some((s) => !used.has(s.part)) || mapping.some((m, i) => m.orig !== origSheets[i]) || mapping.length !== origSheets.length;
   const wbChanged = structural || anyCellChange || pivKey(orig) !== pivKey(workbook);
-  const newPartOf = new Map<string, string>(); let ctChanged = false;
+  const newPartOf = new Map<string, string>(); let ctChanged = false; let pivotRelsChanged = false;
   if (structural) {
     const usedIds = new Set(kids(relsDoc.root).map((r) => attr(r, "Id")!));
     const usedSheetIds = new Set(origSheets.map((s) => Number(attr(s.el, "sheetId"))));
@@ -573,6 +575,40 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     };
     const cr = await patchCharts(io, workbook, orig.charts, workbook.charts, report.sheetsRenamed);
     if (cr.parts.length || cr.removed) { report.partsRewritten.push(...cr.parts); report.charts = cr; }
+    // TT63: PivotTables → real pivotTable / pivotCache parts (ours regenerated in place; native ones never touched)
+    const anyPivots = (w: Workbook) => [...w.sheets.values()].some((s) => s.pivots.length);
+    if (wbChanged && (anyPivots(workbook) || anyPivots(orig))) {
+      const rPre = () => wbDoc.root.attrs.find(([k, v]) => k.startsWith("xmlns:") && v === NS_R)?.[0].slice(6);
+      const ridOf = (e: XEl) => e.attrs.find(([k]) => ln(k) === "id" && k.includes(":"))?.[1];
+      const book = {
+        caches: () => kidsL(kidL(wbDoc.root, "pivotCaches"), "pivotCache").map((e) => {
+          const rel = kids(relsDoc.root).find((r) => attr(r, "Id") === ridOf(e));
+          return { id: Number(attr(e, "cacheId") ?? -1), part: rel && attr(rel, "TargetMode") !== "External" ? real(resolve(wbPart, attr(rel, "Target") ?? "")) : "" };
+        }),
+        add: (id: number, part: string) => {
+          let n = 1; while (kids(relsDoc.root).some((r) => attr(r, "Id") === `rId${n}`)) n++;
+          relsDoc.root.kids.push(el(relsDoc.root.name.replace(/Relationships$/, "Relationship"), { Id: `rId${n}`, Type: REL_PIVOT_CACHE, Target: relTarget(wbPart, part) })); relsDoc.root.selfClose = false;
+          if (!rPre()) { wbDoc.root.attrs.push(["xmlns:r", NS_R]); wbDoc.root.quote.push("\""); }
+          let pc = kidL(wbDoc.root, "pivotCaches");
+          if (!pc) {
+            pc = el(P + "pivotCaches", {}); pc.selfClose = false;
+            const before = ["smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", "webPublishObjects", "extLst"];
+            const at = wbDoc.root.kids.findIndex((k) => k.k === "el" && before.includes(ln(k.name)));
+            if (at < 0) wbDoc.root.kids.push(pc); else wbDoc.root.kids.splice(at, 0, pc);
+          }
+          const c = el(P + "pivotCache", { cacheId: String(id) }); c.attrs.push([`${rPre()}:id`, `rId${n}`]); c.quote.push("\"");
+          pc.kids.push(c); pc.selfClose = false; pivotRelsChanged = true;
+        },
+        remove: (id: number) => {
+          const pc = kidL(wbDoc.root, "pivotCaches"); const c = kidsL(pc, "pivotCache").find((e) => Number(attr(e, "cacheId")) === id); if (!pc || !c) return;
+          const rid = ridOf(c); relsDoc.root.kids = relsDoc.root.kids.filter((k) => !(k.k === "el" && attr(k, "Id") === rid));
+          pc.kids = pc.kids.filter((k) => k !== c); if (!kids(pc).length) wbDoc.root.kids = wbDoc.root.kids.filter((k) => k !== pc);
+          pivotRelsChanged = true;
+        },
+      };
+      const pr = await patchPivots(io, book, orig, workbook, renames);
+      report.pivots = pr; report.partsRewritten.push(...pr.parts);
+    }
   }
   if (wbChanged) {
     // calcChain lists formula cells; a stale chain makes Excel "repair" the file — drop it, ask for a full recalc.
@@ -609,7 +645,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       if (dn) { dn.kids.push(...add); if (!kids(dn).length) wbDoc.root.kids = wbDoc.root.kids.filter((k) => k !== dn); }
     }
     out.set(wbPart, serializeXml(wbDoc)); report.partsRewritten.push(wbPart);
-    if (structural || cc) { out.set(wbRelsPath, serializeXml(relsDoc)); out.set("[Content_Types].xml", serializeXml(ctDoc)); report.partsRewritten.push(wbRelsPath, "[Content_Types].xml"); }
+    if (structural || cc || pivotRelsChanged) { out.set(wbRelsPath, serializeXml(relsDoc)); out.set("[Content_Types].xml", serializeXml(ctDoc)); report.partsRewritten.push(wbRelsPath, "[Content_Types].xml"); }
   }
   if (ctChanged && !out.has("[Content_Types].xml")) { out.set("[Content_Types].xml", serializeXml(ctDoc)); report.partsRewritten.push("[Content_Types].xml"); }
   if (styles.changed) { out.set(stylesPart, serializeXml(styles.doc)); report.partsRewritten.push(stylesPart); }

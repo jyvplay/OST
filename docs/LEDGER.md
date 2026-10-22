@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-22T17:49:03.256Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-146 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-22T20:36:04.157Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+148 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **377** |
-| Fully built | 301 |
+| **Features in register** | **378** |
+| Fully built | 302 |
 | Partially built (partial 36 + probe 18) | 54 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 1 |
-| **Fully tested** (≥1 passing test tagged `full`) | **216** |
+| **Fully tested** (≥1 passing test tagged `full`) | **217** |
 | **Partially tested** (only `partial` tags) | **72** |
 | Untested | 89 |
-| Automated tests executed / passed | 1147 / 1147 |
+| Automated tests executed / passed | 1159 / 1159 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 208 | 59 | 34 |
+| fully built | 209 | 59 | 34 |
 | partially built | 2 | 11 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 1 |
@@ -33,10 +33,10 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-22T16:44:42.791Z |
-| ai-format | 5 | 5 | 0 | 2026-10-22T16:44:44.293Z |
-| browser-session | 5 | 5 | 0 | 2026-10-22T16:44:32.538Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-22T16:44:47.272Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-22T20:34:40.584Z |
+| ai-format | 5 | 5 | 0 | 2026-10-22T20:34:42.504Z |
+| browser-session | 5 | 5 | 0 | 2026-10-22T20:34:26.549Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-22T20:34:46.326Z |
 | e2e-a11y | 9 | 9 | 0 | 2026-10-22T16:53:42.236Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-22T16:54:36.302Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-22T17:11:34.214Z |
@@ -91,31 +91,32 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt60 | 5 | 5 | 0 | 2026-10-22T17:40:57.627Z |
 | e2e-tt61 | 4 | 4 | 0 | 2026-10-22T17:41:58.710Z |
 | e2e-tt62 | 3 | 3 | 0 | 2026-10-22T17:42:05.505Z |
+| e2e-tt63 | 2 | 2 | 0 | 2026-10-22T20:33:24.524Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-22T16:48:13.662Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-22T16:54:21.966Z |
 | e2e | 64 | 64 | 0 | 2026-10-22T16:46:36.470Z |
-| image | 12 | 12 | 0 | 2026-10-22T16:44:27.480Z |
-| integration | 25 | 25 | 0 | 2026-10-22T16:44:22.088Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-22T16:44:48.016Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-22T16:44:53.514Z |
-| metaclean | 6 | 6 | 0 | 2026-10-22T16:44:39.344Z |
-| names | 7 | 7 | 0 | 2026-10-22T16:44:27.115Z |
-| office | 35 | 35 | 0 | 2026-10-22T16:44:22.491Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-22T16:44:46.994Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-22T16:44:30.484Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-22T16:44:32.388Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-22T16:44:47.786Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-22T16:44:24.101Z |
-| oracle | 5 | 5 | 0 | 2026-10-22T16:44:22.877Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-22T16:44:42.516Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-22T16:44:36.346Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-22T16:44:37.872Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-22T16:44:24.442Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-22T16:44:48.475Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-22T16:44:42.984Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-22T16:44:48.305Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-22T16:44:53.749Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-22T16:44:54.384Z |
+| image | 12 | 12 | 0 | 2026-10-22T20:34:19.819Z |
+| integration | 25 | 25 | 0 | 2026-10-22T20:34:13.187Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-22T20:34:47.594Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-22T20:34:55.773Z |
+| metaclean | 6 | 6 | 0 | 2026-10-22T20:34:36.409Z |
+| names | 7 | 7 | 0 | 2026-10-22T20:34:19.392Z |
+| office | 35 | 35 | 0 | 2026-10-22T20:34:13.688Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-22T20:34:45.965Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-22T20:34:23.784Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-22T20:34:26.356Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-22T20:34:47.114Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-22T20:34:15.697Z |
+| oracle | 5 | 5 | 0 | 2026-10-22T20:34:14.176Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-22T20:34:40.242Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-22T20:34:31.884Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-22T20:34:34.324Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-22T20:34:16.141Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-22T20:34:48.298Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-22T20:34:40.813Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-22T20:34:48.042Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-22T20:34:56.069Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-22T20:34:56.979Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-22T16:59:22.392Z |
 | tt31-unit | 8 | 8 | 0 | 2026-10-22T17:01:24.722Z |
 | tt32-voice | 7 | 7 | 0 | 2026-10-22T17:02:53.316Z |
@@ -139,13 +140,13 @@ verifies the honesty contract, not the (impossible) capability.
 | tt44-vt | 12 | 12 | 0 | 2026-10-22T17:13:04.379Z |
 | tt45-unit | 10 | 10 | 0 | 2026-10-22T17:13:24.190Z |
 | tt46-writer | 12 | 12 | 0 | 2026-10-22T17:14:10.730Z |
-| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-22T17:17:59.397Z |
+| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-22T20:12:57.912Z |
 | tt47-crypto | 5 | 5 | 0 | 2026-10-22T17:22:51.370Z |
-| tt47-sheet | 8 | 8 | 0 | 2026-10-22T17:21:04.452Z |
+| tt47-sheet | 8 | 8 | 0 | 2026-10-22T20:17:06.569Z |
 | tt48-office | 6 | 6 | 0 | 2026-10-22T17:23:26.148Z |
-| tt49-sheet | 10 | 10 | 0 | 2026-10-22T17:28:47.323Z |
+| tt49-sheet | 10 | 10 | 0 | 2026-10-22T20:24:13.949Z |
 | tt49-writer | 9 | 9 | 0 | 2026-10-22T17:29:50.862Z |
-| tt50-charts | 10 | 10 | 0 | 2026-10-22T17:31:27.080Z |
+| tt50-charts | 10 | 10 | 0 | 2026-10-22T20:26:10.041Z |
 | tt51-slides | 15 | 15 | 0 | 2026-10-22T17:32:36.994Z |
 | tt52-pdf | 28 | 28 | 0 | 2026-10-22T17:33:05.748Z |
 | tt53-media | 11 | 11 | 0 | 2026-10-22T17:34:02.834Z |
@@ -154,31 +155,32 @@ verifies the honesty contract, not the (impossible) capability.
 | tt56-sheet-paste | 4 | 4 | 0 | 2026-10-22T17:35:22.966Z |
 | tt56-shell-unit | 4 | 4 | 0 | 2026-10-22T17:35:22.613Z |
 | tt56-writer-track | 6 | 6 | 0 | 2026-10-22T17:35:22.303Z |
-| tt57-sheet-links | 6 | 6 | 0 | 2026-10-22T17:37:03.678Z |
+| tt57-sheet-links | 6 | 6 | 0 | 2026-10-22T20:26:26.266Z |
 | tt57-units | 2 | 2 | 0 | 2026-10-22T17:37:03.849Z |
 | tt57-writer-fmt | 5 | 5 | 0 | 2026-10-22T17:36:19.180Z |
 | tt57-writer-para | 5 | 5 | 0 | 2026-10-22T17:36:51.668Z |
-| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-22T17:38:20.975Z |
+| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-22T20:26:32.460Z |
 | tt58-writer-notes | 5 | 5 | 0 | 2026-10-22T17:38:16.063Z |
 | tt59-raster | 5 | 5 | 0 | 2026-10-22T17:40:09.006Z |
-| tt59-sheet-paste | 3 | 3 | 0 | 2026-10-22T17:40:05.347Z |
+| tt59-sheet-paste | 3 | 3 | 0 | 2026-10-22T20:26:33.340Z |
 | tt59-sheet-spell | 5 | 5 | 0 | 2026-10-22T17:40:04.708Z |
 | tt59-writer-spell | 8 | 8 | 0 | 2026-10-22T17:40:02.561Z |
-| tt59-x14-cf | 3 | 3 | 0 | 2026-10-22T17:40:06.640Z |
+| tt59-x14-cf | 3 | 3 | 0 | 2026-10-22T20:26:34.904Z |
 | tt60-sheet-spell-all | 2 | 2 | 0 | 2026-10-22T17:40:38.306Z |
 | tt60-units | 2 | 2 | 0 | 2026-10-22T17:40:39.417Z |
 | tt60-writer-spell-stories | 3 | 3 | 0 | 2026-10-22T17:40:39.282Z |
 | tt60-writer-tblrev | 7 | 7 | 0 | 2026-10-22T17:40:37.439Z |
-| tt61-sheet-pivot-delete | 1 | 1 | 0 | 2026-10-22T17:41:49.243Z |
+| tt61-sheet-pivot-delete | 1 | 1 | 0 | 2026-10-22T20:26:36.104Z |
 | tt61-writer-cellrev | 4 | 4 | 0 | 2026-10-22T17:41:22.972Z |
 | tt61-writer-notes-rich | 7 | 7 | 0 | 2026-10-22T17:41:19.585Z |
-| tt62-sheet-schema | 5 | 5 | 0 | 2026-10-22T17:41:45.385Z |
-| tt62-writer-cellmerge | 4 | 4 | 0 | 2026-10-22T17:41:48.284Z |
-| tt62-writer-schema | 5 | 5 | 0 | 2026-10-22T17:41:43.559Z |
-| unit | 23 | 23 | 0 | 2026-10-22T16:44:18.800Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-22T16:44:31.741Z |
-| vector | 18 | 18 | 0 | 2026-10-22T16:44:30.740Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-22T16:44:43.171Z |
+| tt62-sheet-schema | 5 | 5 | 0 | 2026-10-22T20:26:38.423Z |
+| tt62-writer-cellmerge | 4 | 4 | 0 | 2026-10-22T19:40:15.331Z |
+| tt62-writer-schema | 5 | 5 | 0 | 2026-10-22T19:40:07.630Z |
+| tt63-sheet-pivotparts | 10 | 10 | 0 | 2026-10-22T20:35:45.521Z |
+| unit | 23 | 23 | 0 | 2026-10-22T20:34:09.420Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-22T20:34:25.474Z |
+| vector | 18 | 18 | 0 | 2026-10-22T20:34:24.144Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-22T20:34:41.043Z |
 
 ## Rows touched by failing tests
 
@@ -198,7 +200,7 @@ None.
 | AP | 5 | 1 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 46 | 8 | 0 | 40 | 8 | 6 |
-| FF | 43 | 42 | 1 | 0 | 40 | 2 | 1 |
+| FF | 44 | 43 | 1 | 0 | 41 | 2 | 1 |
 | MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
 | SC | 18 | 16 | 1 | 1 | 11 | 3 | 4 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
@@ -510,6 +512,7 @@ None.
 | FF-44 | built | full | e2e-tt61: FF-44 Writer cell revisions in the UI: lxml-written cellIns / cellDel listed as [Table cell]; Accept the deletion removes the cell on the page; Reject All removes the inserted cell; saved file passes the oracle (tables, grid_ok, no markers); e2e-tt62: FF-44 Writer vertical-merge revisions in the UI: the proposed merge is drawn (rowspan 2), both cellMerge changes are listed with their states; Reject each → cells unmerged on the page and in the saved file (lxml oracle + XSD); e2e-tt62: FF-44: Accept all on the same proposal keeps the merge — saved file has restart / continue and no marker (lxml oracle + XSD); the page still spans (+9) |
 | FF-45 | built | full | tt62-writer-schema: the oracle is a real verifier: it rejects wrong child order, an unknown element, a bad enumeration value and an unknown non-ignorable namespace; it accepts a w14 extension declared ignorable; tt62-writer-schema: randomized editing sessions: 24 sessions × 60 steps (all edit operations, Track Changes toggled) on two starting documents; every saved package (checked every 10 steps) is schema-valid; tt62-writer-schema: kitchen sink: every run property on one run, every paragraph property + style + list on one paragraph, the same again under Track Changes (rPrChange / pPrChange with everything), a table cell with shading inside a landscape A4 section with first-page header — schema-valid (+2) |
 | FF-46 | built | full | tt62-sheet-schema: oracle sanity on SpreadsheetML: mergeCells before sheetData, a bad cell type enumeration and an unknown element are rejected; our fresh export of an empty workbook is valid; tt62-sheet-schema: kitchen sink (fresh export): every style / border line, merges, 6 validation types, links, freeze panes, widths, names, all 25 CF kinds, 7 chart kinds × groupings + trendlines, a PivotTable, awkward sheet names — every part schema-valid, and it reads back; tt62-sheet-schema: 20 randomized workbooks (random subsets of every feature, random sizes) — every fresh export is schema-valid (+2) |
+| FF-47 | built | full | e2e-tt63: FF-47 PivotTable saved as a real Excel PivotTable from the UI: create with a report filter → Save → XSD + pandas + openpyxl oracles; reopen → source edit → Alt+F5 → Save regenerates in place; Delete → Save removes every pivot part; e2e-tt63: no uncaught page errors during the TT63 session; tt63-sheet-pivotparts: 1. fresh export: 13 pivot shapes are schema-valid, recomputed by pandas from the XML, survive openpyxl (+9) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

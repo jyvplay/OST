@@ -1,6 +1,6 @@
 {
   "suite": "oracle-ai",
-  "at": "2026-10-22T16:44:46.994Z",
+  "at": "2026-10-22T20:34:45.965Z",
   "results": [
     {
       "suite": "oracle-ai",
@@ -10,7 +10,7 @@
         "FF-03": "partial"
       },
       "pass": true,
-      "ms": 2167
+      "ms": 2810
     },
     {
       "suite": "oracle-ai",
@@ -19,7 +19,7 @@
         "FF-04": "full"
       },
       "pass": true,
-      "ms": 211
+      "ms": 264
     },
     {
       "suite": "oracle-ai",
@@ -28,7 +28,7 @@
         "FF-04": "partial"
       },
       "pass": true,
-      "ms": 113
+      "ms": 139
     }
   ]
 }

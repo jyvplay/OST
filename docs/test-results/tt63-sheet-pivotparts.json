@@ -1,0 +1,96 @@
+{
+  "suite": "tt63-sheet-pivotparts",
+  "at": "2026-10-22T20:35:45.521Z",
+  "results": [
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "1. fresh export: 13 pivot shapes are schema-valid, recomputed by pandas from the XML, survive openpyxl",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 3084
+    },
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "2. 60 randomized pivots on random data (fresh export) — XSD + pandas oracle",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 12172
+    },
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "3. unfaithful shapes are saved values-only with the reason; the package stays valid",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 1286
+    },
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "4. lossless save: source edit + Refresh regenerates ours in place (same parts, same cacheId)",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 1634
+    },
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "5. lossless save: deleting a pivot removes its parts / rels / overrides / <pivotCache>; a new one is added",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 1575
+    },
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "6. POI workbooks with native PivotTables: native parts byte-identical, ours added with a new cacheId",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 7299
+    },
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "7. a name colliding with a native PivotTable on the same sheet becomes \"Name (2)\"",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 1131
+    },
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "8. a table re-pivoted outside the app is treated as native and never overwritten",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 331
+    },
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "9. a cache shared with another table is not rewritten: ours moves to its own cache",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 1167
+    },
+    {
+      "suite": "tt63-sheet-pivotparts",
+      "name": "10. a part name that an existing relationship points at is never reused, even when that part is missing",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 358
+    }
+  ]
+}
