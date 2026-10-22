@@ -668,7 +668,11 @@ export function setPageSetup(doc: WordDoc, o: { paper?: string; landscape?: bool
   const land = o.landscape ?? doc.page.landscape;
   if (land !== (w > h)) [w, h] = [h, w];
   const npg = el("w:pgSz", { "w:w": String(w), "w:h": String(h), "w:orient": land ? "landscape" : undefined, "w:code": pg?.attrs.find((a) => a[0] === "w:code")?.[1] });
-  if (pg) s.kids[s.kids.indexOf(pg)] = npg; else s.kids.splice(0, 0, npg);
+  // TT62 fix: CT_SectPr puts header / footer references, footnotePr, endnotePr and type BEFORE pgSz — a missing pgSz used
+  // to be inserted at index 0, invalid when the section had a header reference (found by the XSD gate)
+  const SECT_HEAD = new Set(["w:headerReference", "w:footerReference", "w:footnotePr", "w:endnotePr", "w:type"]);
+  if (pg) s.kids[s.kids.indexOf(pg)] = npg;
+  else { let at = 0; s.kids.forEach((k, i) => { if (k.k === "el" && SECT_HEAD.has(k.name)) at = i + 1; }); s.kids.splice(at, 0, npg); }
   const m = o.margins ?? doc.page;
   const nm = el("w:pgMar", { "w:top": String(m.top), "w:right": String(m.right), "w:bottom": String(m.bottom), "w:left": String(m.left), "w:header": String(doc.page.header), "w:footer": String(doc.page.footer), "w:gutter": "0" });
   if (mar) s.kids[s.kids.indexOf(mar)] = nm; else s.kids.splice(s.kids.indexOf(npg) + 1, 0, nm);
@@ -793,12 +797,12 @@ export function revisions(doc: WordDoc): Change[] {
     const c: Change = { key: s.key, kind: "fmt", author: g("w:author") || undefined, date: g("w:date"), text: s.label, pid: s.pid, off: 0, editable: true, detail: `${s.label} properties` };
     prAt.set(s.pid, [...(prAt.get(s.pid) ?? []), c]);
   }
-  // TT61: cell insertions / deletions (w:tcPr/w:cellIns, w:cellDel) at the cell's first paragraph; w:cellMerge is listed
-  // but not resolvable here (its vertical-merge semantics are not modelled)
+  // TT61: cell insertions / deletions (w:tcPr/w:cellIns, w:cellDel) at the cell's first paragraph; TT62: w:cellMerge
+  // (vertical-merge revision, §17.13.5.3) is resolvable too
   for (const s of cellMarks(doc)) {
     const a = s.ch.attrs; const g = (k: string) => a.find((x) => x[0] === k)?.[1];
     const merge = s.ch.name === "w:cellMerge";
-    const c: Change = { key: s.key, kind: s.ch.name === "w:cellDel" ? "del" : "ins", author: g("w:author") || undefined, date: g("w:date"), text: merge ? "[Table cell merge] " : "[Table cell] ", pid: s.pid, off: 0, editable: !merge, detail: merge ? "Cell merge (review in Word)" : undefined };
+    const c: Change = { key: s.key, kind: s.ch.name === "w:cellDel" ? "del" : "ins", author: g("w:author") || undefined, date: g("w:date"), text: merge ? "[Table cell merge] " : "[Table cell] ", pid: s.pid, off: 0, editable: true, detail: merge ? `${VM_LABEL[g("w:vMerge") ?? ""] ?? "not merged"} (was: ${VM_LABEL[g("w:vMergeOrig") ?? ""] ?? "not merged"})` : undefined };
     prAt.set(s.pid, [...(prAt.get(s.pid) ?? []), c]);
   }
   const walkRows = (bs: Block[]) => { for (const b of bs) if (b.t === "tbl") for (const r of rowsOf(b)) { const f = rowParas(r)[0]; if (r.rev && f) rowAt.set(f.id, r); for (const c of cellsOf(r)) walkRows(c.blocks); } else if (b.t === "box") walkRows(b.blocks); };
@@ -838,7 +842,21 @@ export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean 
     return true;
   }
   if (key.startsWith("c:")) {
-    const s = cellMarks(doc).find((x) => x.key === key); if (!s || s.ch.name === "w:cellMerge") return false;
+    const s = cellMarks(doc).find((x) => x.key === key); if (!s) return false;
+    if (s.ch.name === "w:cellMerge") {
+      // §17.13.5.3: w:vMerge = the revised vertical-merge state, w:vMergeOrig = the state it replaced (absent = not
+      // vertically merged). Accept applies the revised state, reject restores the original; the marker goes either way.
+      const want = s.ch.attrs.find((a) => a[0] === (accept ? "w:vMerge" : "w:vMergeOrig"))?.[1];
+      const pr = s.cell.tcPr!;
+      const rest = pr.kids.filter((k) => k !== s.ch && !(k.k === "el" && k.name === "w:vMerge"));
+      const vm = want === "rest" ? el("w:vMerge", { "w:val": "restart" }) : want === "cont" ? el("w:vMerge") : null;
+      if (vm) { let at = 0; rest.forEach((k, i) => { if (k.k === "el" && TCPR_BEFORE_VMERGE.has(k.name)) at = i + 1; }); rest.splice(at, 0, vm); }
+      const np: XEl = { ...clone(pr), kids: rest, selfClose: rest.length === 0 };
+      if (s.cell.src && s.cell.src.kids.indexOf(pr) >= 0) s.cell.src = { ...s.cell.src, kids: s.cell.src.kids.map((k) => (k === pr ? np : k)) };
+      s.cell.tcPr = np; s.cell.vmerge = want === "rest" ? "restart" : want === "cont" ? "continue" : undefined;
+      for (const p of s.paras) touch(p);
+      return true;
+    }
     // accept an insertion / reject a deletion: the marker goes; otherwise the cell goes (§17.13.5.4 / .5)
     if ((s.ch.name === "w:cellIns") === accept) {
       const np: XEl = { ...clone(s.cell.tcPr!), kids: s.cell.tcPr!.kids.filter((k) => k !== s.ch) };
@@ -958,6 +976,9 @@ export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean 
   for (const rid of restore) if (rid !== id || kind !== "del") resolveOne(doc, `r:del:${rid}`, false);
   return found;
 }
+/** CT_TcPr children that precede w:vMerge */
+const TCPR_BEFORE_VMERGE = new Set(["w:cnfStyle", "w:tcW", "w:gridSpan", "w:hMerge"]);
+const VM_LABEL: Record<string, string> = { rest: "starts a vertical merge", cont: "continues the merge above" };
 /** TT61: cell revision markers (w:cellIns / w:cellDel / w:cellMerge in w:tcPr, §17.13.5.4–.6) in document order */
 interface CellSite { key: string; ch: XEl; cell: Cell; row: Row; table: Table; host: Block[]; pid: string; paras: Para[] }
 function cellMarks(doc: WordDoc): CellSite[] {

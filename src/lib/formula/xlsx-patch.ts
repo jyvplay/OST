@@ -202,6 +202,11 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
   renames = Object.fromEntries(Object.entries(renames).filter(([cur, was]) => workbook.sheets.has(cur) && cur !== was));
   // Readers disagree on which of two same-named entries wins (zipfile: last; others: first) — refuse rather than guess.
   { const seen = new Set<string>(); for (const e of zip.entries) { if (seen.has(e.name)) throw new Error(`ambiguous package: duplicate zip entry ${e.name}`); seen.add(e.name); } }
+  // TT62 (found by the XSD gate on POI 123233_charts.xlsx, which stores Sheet1.xml with _rels/sheet1.xml.rels): OPC part
+  // names are compared case-insensitively (ECMA-376 Part 2 §6.2.2.3), so every lookup of an EXISTING part goes through the
+  // stored spelling, and new parts never collide with an existing name in another case.
+  const storedName = new Map(zip.entries.map((e) => [e.name.toLowerCase(), e.name] as const));
+  const realName = (p: string) => zip.has(p) ? p : storedName.get(p.toLowerCase()) ?? p; // exact spelling wins (a package can hold both)
   // `base` lets a caller that already parsed the original skip a second parse (it must be untouched).
   const orig = base ?? loadedBaseline(original);
   workbook.recalculate();
@@ -212,27 +217,27 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
   // --- package map
   const rootRels = parseXml((await zip.readText("_rels/.rels")) ?? "");
   const wbRel = kids(rootRels.root).find((r) => /officeDocument$/.test(attr(r, "Type") ?? ""));
-  const wbPart = resolve("", attr(wbRel, "Target") ?? "xl/workbook.xml");
+  const wbPart = realName(resolve("", attr(wbRel, "Target") ?? "xl/workbook.xml"));
   const wbDoc = parseXml((await zip.readText(wbPart))!);
-  const wbRelsPath = relsPathOf(wbPart);
+  const wbRelsPath = realName(relsPathOf(wbPart));
   const relsDoc = parseXml((await zip.readText(wbRelsPath)) ?? `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>`);
   const ctDoc = parseXml((await zip.readText("[Content_Types].xml"))!);
   const P = wbDoc.root.name.includes(":") ? wbDoc.root.name.slice(0, wbDoc.root.name.indexOf(":") + 1) : "";
   const sheetsEl = kidL(wbDoc.root, "sheets")!;
   const relById = new Map(kids(relsDoc.root).map((r) => [attr(r, "Id")!, r]));
   const rAttr = (s: XEl) => s.attrs.find(([k]) => ln(k) === "id" && k.includes(":"))?.[1];
-  const allSheets = kidsL(sheetsEl, "sheet").map((s, index) => { const rel = relById.get(rAttr(s) ?? ""); return { el: s, index, name: attr(s, "name")!, part: resolve(wbPart, attr(rel, "Target") ?? ""), isWs: /\/worksheet$/.test(attr(rel, "Type") ?? "") }; });
+  const allSheets = kidsL(sheetsEl, "sheet").map((s, index) => { const rel = relById.get(rAttr(s) ?? ""); return { el: s, index, name: attr(s, "name")!, part: realName(resolve(wbPart, attr(rel, "Target") ?? "")), isWs: /\/worksheet$/.test(attr(rel, "Type") ?? "") }; });
   const modelled = (s: { name: string; isWs: boolean }) => s.isWs && [...orig.sheets.keys()].some((n) => n.toLowerCase() === s.name.toLowerCase());
   const origSheets = allSheets.filter(modelled);
   const pinned = allSheets.filter((s) => !modelled(s)); // kept verbatim at their original position
 
   // --- styles
   const stylesRel = kids(relsDoc.root).find((r) => /\/styles$/.test(attr(r, "Type") ?? ""));
-  const stylesPart = stylesRel ? resolve(wbPart, attr(stylesRel, "Target")!) : "xl/styles.xml";
+  const stylesPart = realName(stylesRel ? resolve(wbPart, attr(stylesRel, "Target")!) : "xl/styles.xml");
   const stylesXml = await zip.readText(stylesPart);
   // same colour context as the reader, or every theme-coloured cell would look "changed"
   const themeRel = kids(relsDoc.root).find((r) => /\/theme$/.test(attr(r, "Type") ?? ""));
-  const themeXml = themeRel ? await zip.readText(resolve(wbPart, attr(themeRel, "Target")!)) : null;
+  const themeXml = themeRel ? await zip.readText(realName(resolve(wbPart, attr(themeRel, "Target")!))) : null;
   const readStyles = X.readStyles(stylesXml, colorContext(stylesXml, themeXml));
   const styles = new StylePatcher(stylesXml, (i) => readStyles[i]);
 
@@ -453,8 +458,11 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     let sheetRels: string | undefined;
     if (origSheet ? !eqJ(sheet.links, origSheet.links) : sheet.links.length > 0) {
       extrasChanged.push("hyperlinks");
-      const relsPath = o ? relsPathOf(o.part) : "";
-      const relsSrc = o ? await zip.readText(relsPath) : null;
+      // read the rels part under its stored spelling, write it under the canonical one (case-sensitive readers such as
+      // openpyxl look only there) and drop a differently-cased original so the package never holds both
+      const relsPath = o ? relsPathOf(o.part) : "", relsOld = o ? realName(relsPath) : "";
+      const relsSrc = o ? await zip.readText(relsOld) : null;
+      if (o && relsOld !== relsPath && relsSrc !== null) removed.add(relsOld);
       const rd = parseXml(relsSrc ?? `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>`);
       rd.root.kids = rd.root.kids.filter((k) => !(k.k === "el" && attr(k, "Type") === REL_HYPERLINK));
       const ids = new Set(kids(rd.root).map((r) => attr(r, "Id")));
@@ -512,7 +520,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     let n = 1;
     for (const m of mapping) {
       if (m.orig) { setAttr(m.orig.el, "name", m.sheet.name); newEls.push(m.orig.el); continue; }
-      let part: string; do part = `xl/worksheets/sheet${n++}.xml`; while (zip.has(part) || out.has(part));
+      let part: string; do part = `xl/worksheets/sheet${n++}.xml`; while (storedName.has(part.toLowerCase()) || [...out.keys()].some((k) => k.toLowerCase() === part.toLowerCase()));
       let id = 1; while (usedIds.has(`rId${id}`)) id++; usedIds.add(`rId${id}`);
       let sid = 1; while (usedSheetIds.has(sid)) sid++; usedSheetIds.add(sid);
       relsDoc.root.kids.push(el(relsDoc.root.name.replace(/Relationships$/, "Relationship"), { Id: `rId${id}`, Type: REL_WS, Target: part.slice(wbPart.slice(0, wbPart.lastIndexOf("/") + 1).length) }));
@@ -549,7 +557,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     const td = new TextDecoder();
     const CTP = pre0(ctDoc.root.name);
     // OPC part names are case-insensitive: map a path to the entry name the package really uses
-    const real = (p: string) => out.has(p) || zip.has(p) ? p : zip.entries.find((e) => e.name.toLowerCase() === p.toLowerCase())?.name ?? p;
+    const real = (p: string) => out.has(p) ? p : [...out.keys()].find((k) => k.toLowerCase() === p.toLowerCase()) ?? realName(p);
     const io: ChartPatchIO = {
       read: async (p0) => { const p = real(p0); if (removed.has(p)) return null; const o = out.get(p); if (o !== undefined) return typeof o === "string" ? o : td.decode(o); return zip.readText(p); },
       exists: (p0) => { const p = real(p0); return !removed.has(p) && (out.has(p) || zip.has(p)); },

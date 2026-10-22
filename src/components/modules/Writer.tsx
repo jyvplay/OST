@@ -648,7 +648,7 @@ export default function WriterModule({ win }: ModuleProps) {
     const o = E.order(d); const r = curSel(); const here = (o.get(r.a.pid) ?? 0) * 1e6 + r.a.off;
     const key = (c: E.Change) => (o.get(c.pid) ?? 0) * 1e6 + c.off;
     const c = dir > 0 ? (list.find((x) => key(x) > here) ?? list[0]) : ([...list].reverse().find((x) => key(x) < here) ?? list[list.length - 1]);
-    goChange(c); setStatus(`${c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? `Formatted (${c.detail})` : c.kind === "para" ? `Paragraph (${c.detail})` : "Deleted"}${c.author ? ` by ${c.author}` : ""}: ${c.text.slice(0, 60)}`);
+    goChange(c); setStatus(`${c.text.startsWith("[Table cell merge]") ? `Cell merge (${c.detail})` : c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? `Formatted (${c.detail})` : c.kind === "para" ? `Paragraph (${c.detail})` : "Deleted"}${c.author ? ` by ${c.author}` : ""}: ${c.text.slice(0, 60)}`);
   };
   /* TT58 footnotes / endnotes */
   const addNote = (kind: "footnote" | "endnote") => {
@@ -832,7 +832,7 @@ export default function WriterModule({ win }: ModuleProps) {
               </div>
               <div role="list" aria-label="Tracked changes" data-testid="writer-changes">
                 {changes.slice(0, 200).map((c, i) => <div role="listitem" key={c.key} className={`wchg wchg-${c.kind}`} data-key={c.key}>
-                  <button className="wchg-go" onClick={() => goChange(c)}><b>{c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? "Formatted" : c.kind === "para" ? "Paragraph" : "Deleted"}</b>{(c.kind === "fmt" || c.kind === "para") && c.detail ? <span data-testid="writer-change-detail">: {c.detail}</span> : null}{c.author ? ` · ${c.author}` : ""}{c.date ? <span style={{ opacity: 0.7 }}> · {c.date.slice(0, 10)}</span> : null}<span className="wchg-t">{c.text.slice(0, 120) || "(formatting / empty)"}</span></button>
+                  <button className="wchg-go" onClick={() => goChange(c)}><b>{c.text.startsWith("[Table cell merge]") ? "Cell merge" : c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? "Formatted" : c.kind === "para" ? "Paragraph" : "Deleted"}</b>{c.detail ? <span data-testid="writer-change-detail">: {c.detail}</span> : null}{c.author ? ` · ${c.author}` : ""}{c.date ? <span style={{ opacity: 0.7 }}> · {c.date.slice(0, 10)}</span> : null}<span className="wchg-t">{c.text.slice(0, 120) || "(formatting / empty)"}</span></button>
                   <div className="fs-row" style={{ gap: 4 }}><Btn variant="ghost" onClick={() => resolveOne(c, true)}>Accept<span className="sr-only"> change {i + 1}</span></Btn><Btn variant="ghost" onClick={() => resolveOne(c, false)}>Reject<span className="sr-only"> change {i + 1}</span></Btn></div>
                 </div>)}
               </div>

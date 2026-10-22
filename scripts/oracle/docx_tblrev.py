@@ -23,7 +23,9 @@ Prints one JSON object:
                removes that cell (§17.13.5.4 / .5)
 
 Fixture writer (TT61): docx_tblrev.py markcells IN.docx OUT.docx T,R,C,KIND,ID [...]
-  adds w:cellIns / w:cellDel (KIND = ins | del) with author "Oracle" to cell C of row R of top-level table T
+  adds w:cellIns / w:cellDel (KIND = ins | del) with author "Oracle" to cell C of row R of top-level table T;
+  TT62: KIND = merge:NEW:ORIG (rest | cont | none) adds w:cellMerge w:vMerge=NEW w:vMergeOrig=ORIG
+Merge view (TT62): docx_tblrev.py vmerges IN.docx asis|accept|reject → {tables: [[[state…]…]…], cellMerge: n}
 """
 import json
 import sys
@@ -241,7 +243,28 @@ def markcells(src, dst, specs):
         if tcpr is None:
             tcpr = etree.Element(q("tcPr"))
             tc.insert(0, tcpr)
-        m = etree.Element(q("cellIns" if kind == "ins" else "cellDel"))
+        if kind.startswith("merge:"):
+            # TT62: w:cellMerge (§17.13.5.3) — vMerge = revised state, vMergeOrig = replaced state; the cell's own
+            # w:vMerge shows the revised state (the document displays the proposal, as with tcPrChange)
+            _, new, orig = kind.split(":")
+            m = etree.Element(q("cellMerge"))
+            if new != "none":
+                m.set(q("vMerge"), new)
+            if orig != "none":
+                m.set(q("vMergeOrig"), orig)
+            for old in tcpr.findall(q("vMerge")):
+                tcpr.remove(old)
+            if new != "none":
+                vm = etree.Element(q("vMerge"))
+                if new == "rest":
+                    vm.set(q("val"), "restart")
+                pos = 0
+                for i, k in enumerate(tcpr):
+                    if isinstance(k.tag, str) and local(k) in ("cnfStyle", "tcW", "gridSpan", "hMerge"):
+                        pos = i + 1
+                tcpr.insert(pos, vm)
+        else:
+            m = etree.Element(q("cellIns" if kind == "ins" else "cellDel"))
         m.set(q("id"), rid)
         m.set(q("author"), "Oracle")
         m.set(q("date"), "2026-10-22T00:00:00Z")
@@ -259,7 +282,36 @@ def markcells(src, dst, specs):
     zout.close()
 
 
-if len(sys.argv) > 1 and sys.argv[1] == "markcells":
+def vmerges(src, mode):
+    """TT62: vertical-merge state of every top-level table cell — "restart" | "continue" | None — as the file says
+    (mode asis) or after accepting / rejecting its w:cellMerge revisions; also lists cellMerge markers left over."""
+    doc = etree.fromstring(zipfile.ZipFile(src).read("word/document.xml"))
+    out, left = [], 0
+    to = {"rest": "restart", "cont": "continue"}
+    for tbl in doc.find(q("body")).findall(q("tbl")):
+        rows = []
+        for tr in tbl.findall(q("tr")):
+            cells = []
+            for tc in tr.findall(q("tc")):
+                tcpr = tc.find(q("tcPr"))
+                vm = tcpr.find(q("vMerge")) if tcpr is not None else None
+                state = None if vm is None else ("restart" if vm.get(q("val")) == "restart" else "continue")
+                cm = tcpr.find(q("cellMerge")) if tcpr is not None else None
+                if cm is not None:
+                    left += 1
+                    if mode == "accept":
+                        state = to.get(cm.get(q("vMerge")))
+                    elif mode == "reject":
+                        state = to.get(cm.get(q("vMergeOrig")))
+                cells.append(state)
+            rows.append(cells)
+        out.append(rows)
+    print(json.dumps({"tables": out, "cellMerge": left}))
+
+
+if len(sys.argv) > 1 and sys.argv[1] == "vmerges":
+    vmerges(sys.argv[2], sys.argv[3])
+elif len(sys.argv) > 1 and sys.argv[1] == "markcells":
     markcells(sys.argv[2], sys.argv[3], sys.argv[4:])
 else:
     main()

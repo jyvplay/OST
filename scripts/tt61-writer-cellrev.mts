@@ -1,8 +1,8 @@
 /**
  * TT61 Writer cell revisions — w:cellIns / w:cellDel (ECMA-376 §17.13.5.4 / .5) are listed in the Changes pane and can be
  * accepted / rejected one by one or all at once: accepting a deletion or rejecting an insertion removes the cell, and the
- * row keeps filling the table grid through w:trPr/w:gridAfter; an emptied row goes, an emptied table goes. w:cellMerge is
- * listed but refused (disclosed).
+ * row keeps filling the table grid through w:trPr/w:gridAfter; an emptied row goes, an emptied table goes. w:cellMerge was
+ * listed but refused in TT61; TT62 made it resolvable (tt62-writer-cellmerge).
  * Ground truth: the markers are written by an INDEPENDENT writer (scripts/oracle/docx_tblrev.py markcells, lxml) and every
  * result is checked by the same independent oracle: its accept-all / reject-all table views (computed from the ORIGINAL
  * file) must equal what our per-change and all-at-once resolution produce; grid_ok (gridBefore + Σ gridSpan + gridAfter =
@@ -140,14 +140,15 @@ await test("grid bookkeeping: removing a spanning cell adds its full span to an 
   const o2 = oracle(await writeWord(d)); sound(o2, "after row emptied");
   eq(o2.tables, [[["R0C0", "R0C1", "R0C2"], ["R1C2"]], [["Solo"]]], "row 2 removed; row 1 keeps R1C2");
   eq(o2.tables, o0.accept, "= oracle accept view of the original");
-  // cellMerge: written by hand into tcPr, listed read-only, refused
+  // cellMerge: written by hand into tcPr — TT61 listed it read-only and refused it; TT62 upgrade: resolvable (§17.13.5.3,
+  // full coverage in tt62-writer-cellmerge)
   const d3 = await readWord(BASE);
   const t3 = d3.blocks.find((b): b is Table => b.t === "tbl")!;
   const c3 = cellsOf(rowsOf(t3)[0])[0];
   c3.tcPr = el("w:tcPr", {}, [el("w:cellMerge", { "w:id": "950", "w:author": "X", "w:vMerge": "rest" })]);
   const cm = E.revisions(d3).find((c) => c.key === "c:950");
-  ok(cm && !cm.editable && /merge/i.test(cm.text), "cellMerge listed read-only");
-  ok(!E.resolveOne(d3, "c:950", true) && !E.resolveOne(d3, "c:950", false), "cellMerge refused both ways");
+  ok(cm && cm.editable && /merge/i.test(cm.text), "cellMerge listed and resolvable (TT62)");
+  ok(E.resolveOne(d3, "c:950", true) && c3.vmerge === "restart" && !E.revisions(d3).some((c) => c.key === "c:950"), "accepting applies vMerge=rest");
 });
 
 await finish();
