@@ -1,6 +1,6 @@
 {
   "suite": "tt43-unit",
-  "at": "2026-10-22T02:25:14.906Z",
+  "at": "2026-10-22T17:12:28.669Z",
   "results": [
     {
       "suite": "tt43-unit",
@@ -9,7 +9,7 @@
         "WP-22": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 8
     },
     {
       "suite": "tt43-unit",
@@ -18,7 +18,7 @@
         "WP-22": "full"
       },
       "pass": true,
-      "ms": 11
+      "ms": 10
     },
     {
       "suite": "tt43-unit",
@@ -27,7 +27,7 @@
         "WP-22": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 5
     },
     {
       "suite": "tt43-unit",
@@ -63,7 +63,7 @@
         "WP-20": "full"
       },
       "pass": true,
-      "ms": 29
+      "ms": 40
     }
   ]
 }

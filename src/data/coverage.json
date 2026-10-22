@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-22T15:14:40.034Z",
+ "generatedAt": "2026-10-22T17:49:03.257Z",
  "totals": {
   "built": {
-   "full": 299,
+   "full": 301,
    "partial": 54,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 214,
+   "full": 216,
    "partial": 72,
    "untested": 89
   },
   "tests": {
-   "total": 1130,
-   "passed": 1130
+   "total": 1147,
+   "passed": 1147
   }
  },
  "rows": {
@@ -2923,10 +2923,37 @@
    "tested": "full",
    "tests": [
     "e2e-tt61: FF-44 Writer cell revisions in the UI: lxml-written cellIns / cellDel listed as [Table cell]; Accept the deletion removes the cell on the page; Reject All removes the inserted cell; saved file passes the oracle (tables, grid_ok, no markers)",
+    "e2e-tt62: FF-44 Writer vertical-merge revisions in the UI: the proposed merge is drawn (rowspan 2), both cellMerge changes are listed with their states; Reject each → cells unmerged on the page and in the saved file (lxml oracle + XSD)",
+    "e2e-tt62: FF-44: Accept all on the same proposal keeps the merge — saved file has restart / continue and no marker (lxml oracle + XSD); the page still spans",
+    "e2e-tt62: no page errors during the suite",
     "tt61-writer-cellrev: listing: the 4 cell markers written by the independent writer appear in the Changes list at their cell, kind / author / id from the file, in document order",
     "tt61-writer-cellrev: accept all / reject all equal the oracle's §17.13.5.4/.5 views of the original file; rows keep filling the grid (gridAfter); the emptied 1×1 table disappears on accept",
     "tt61-writer-cellrev: one at a time: each marker resolved alone (both directions) then the rest by the oracle = the oracle's all-at-once view; 12 random mixed decision / order trials equal hand-applied expectations",
-    "tt61-writer-cellrev: grid bookkeeping: removing a spanning cell adds its full span to an existing gridAfter; removing every cell of a row removes the row; cellMerge is listed read-only and refused"
+    "tt61-writer-cellrev: grid bookkeeping: removing a spanning cell adds its full span to an existing gridAfter; removing every cell of a row removes the row; cellMerge is listed read-only and refused",
+    "tt62-writer-cellmerge: listed: every w:cellMerge shows in the Changes pane as a resolvable cell change with author, and a detail naming both states",
+    "tt62-writer-cellmerge: accept all / reject all: our vertical-merge grid equals the oracle's (computed from the original file), no cellMerge left, CT_TcPr order intact, python-docx opens it, XSD-valid",
+    "tt62-writer-cellmerge: one by one, alternating accept / reject in two different orders: each order lands on the oracle's mixed expectation",
+    "tt62-writer-cellmerge: a cellMerge beside cellIns / cellDel and a row revision: all resolve together (accept all) and the result matches the oracle's grid and its table view"
+   ]
+  },
+  "FF-45": {
+   "tested": "full",
+   "tests": [
+    "tt62-writer-schema: the oracle is a real verifier: it rejects wrong child order, an unknown element, a bad enumeration value and an unknown non-ignorable namespace; it accepts a w14 extension declared ignorable",
+    "tt62-writer-schema: randomized editing sessions: 24 sessions × 60 steps (all edit operations, Track Changes toggled) on two starting documents; every saved package (checked every 10 steps) is schema-valid",
+    "tt62-writer-schema: kitchen sink: every run property on one run, every paragraph property + style + list on one paragraph, the same again under Track Changes (rPrChange / pPrChange with everything), a table cell with shading inside a landscape A4 section with first-page header — schema-valid",
+    "tt62-writer-schema: file revision paths stay valid: lxml-written cellIns / cellDel accepted and rejected (all and one by one) → schema-valid, and the lxml-marked fixture itself is valid",
+    "tt62-writer-schema: POI corpus round trip: every readable .docx in the corpus, opened, edited (text typed into the first body paragraph) and saved, adds no schema error the input did not already have (per part, line numbers ignored)"
+   ]
+  },
+  "FF-46": {
+   "tested": "full",
+   "tests": [
+    "tt62-sheet-schema: oracle sanity on SpreadsheetML: mergeCells before sheetData, a bad cell type enumeration and an unknown element are rejected; our fresh export of an empty workbook is valid",
+    "tt62-sheet-schema: kitchen sink (fresh export): every style / border line, merges, 6 validation types, links, freeze panes, widths, names, all 25 CF kinds, 7 chart kinds × groupings + trendlines, a PivotTable, awkward sheet names — every part schema-valid, and it reads back",
+    "tt62-sheet-schema: 20 randomized workbooks (random subsets of every feature, random sizes) — every fresh export is schema-valid",
+    "tt62-sheet-schema: lossless patch: the kitchen-sink feature set added through patchXlsx to 4 POI workbooks (plus a cell edit on every original sheet) adds no schema error the input lacked",
+    "tt62-sheet-schema: OPC part names are case-insensitive: POI 123233_charts.xlsx stores Sheet1.xml with _rels/sheet1.xml.rels — a hyperlink + a chart + a new sheet patched in keep ONE rels part (with the original drawing relationship), ONE <drawing>, no two entries equal ignoring case, and openpyxl loads it"
    ]
   },
   "CT-01": {

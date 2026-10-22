@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt62",
+  "at": "2026-10-22T17:42:05.505Z",
+  "results": [
+    {
+      "suite": "e2e-tt62",
+      "name": "FF-44 Writer vertical-merge revisions in the UI: the proposed merge is drawn (rowspan 2), both cellMerge changes are listed with their states; Reject each → cells unmerged on the page and in the saved file (lxml oracle + XSD)",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 4003
+    },
+    {
+      "suite": "e2e-tt62",
+      "name": "FF-44: Accept all on the same proposal keeps the merge — saved file has restart / continue and no marker (lxml oracle + XSD); the page still spans",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 1966
+    },
+    {
+      "suite": "e2e-tt62",
+      "name": "no page errors during the suite",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}
