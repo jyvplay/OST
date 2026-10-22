@@ -49,7 +49,7 @@ export default function SpellPanel(p: SpellPanelProps) {
         : p.loading ? <div role="status">{p.loading}</div>
         : !cur ? <div role="status" data-testid="spell-count">Spelling check complete. No issues found.</div>
         : <>
-          <div role="status" data-testid="spell-count">Issue {i + 1} of {n}</div>
+          <div role="status" data-testid="spell-count">Issue {i + 1} of {n}{cur.where ? <> &middot; <span data-testid="spell-where">in {cur.where}</span></> : null}</div>
           <div style={{ fontWeight: 600 }}>{cur.kind === "repeat" ? "Repeated word" : "Not in dictionary"}</div>
           <div className="wspell-ctx" data-testid="spell-context" style={{ fontSize: fz(13), lineHeight: 1.5, padding: 6, border: "1px solid var(--fs-border)", borderRadius: 6, background: "var(--fs-field, rgba(6,10,22,.7))", color: "var(--fs-text)", wordBreak: "break-word" }}>
             {ctx!.before}<mark data-testid="spell-word" style={{ background: "transparent", textDecoration: cur.kind === "repeat" ? "underline double #1f5fbf" : "underline wavy #d0021b", color: "inherit" }}>{ctx!.word}</mark>{ctx!.after}

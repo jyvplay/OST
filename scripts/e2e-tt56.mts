@@ -48,6 +48,8 @@ const server = async (): Promise<any> => (await api("GET", "/api/state?id=defaul
 const ms = (t: string) => { const v = t.trim(); return v.endsWith("ms") ? parseFloat(v) : Math.round(parseFloat(v) * 1000); };
 const setSetting = (key: string, value: string) => api("PUT", "/api/settings", { key, value });
 
+// TT60: these tests use the classic desktop (its right-click menu, the Apps button); an earlier suite may leave the Tabletop on
+await setSetting("appearance.desktopView", "classic");
 const browser: Browser = await launchChromium();
 const errors: string[] = [];
 async function newPage(opts: { dsf?: number; reducedMotion?: "reduce" | "no-preference"; colorScheme?: "light" | "dark" } = {}): Promise<Page> {

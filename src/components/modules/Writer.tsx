@@ -231,7 +231,8 @@ export default function WriterModule({ win }: ModuleProps) {
     let recheck = 0;
     const t = window.setTimeout(() => {
       const doc = docRef.current, root = rootRef.current; if (!doc || !root) return;
-      let list = WS.spellIssues(doc, speller, { skipUpper, ignoreAll: ignoreAll.current, ignoreOnce: ignoreOnce.current });
+      // TT60: headers / footers and notes are proofed too (listed after the main text)
+      let list = WS.allIssues(doc, speller, { skipUpper, ignoreAll: ignoreAll.current, ignoreOnce: ignoreOnce.current });
       // the word being typed is not flagged while typing continues (Word); TT59 fix: once typing pauses it IS flagged
       // (before, nothing re-ran the check, so a misspelled last word stayed unmarked until the next edit)
       const r = selRef.current; const age = Date.now() - lastTyping.current;
@@ -260,11 +261,13 @@ export default function WriterModule({ win }: ModuleProps) {
   }, [issues, panel, spellIdx, spellMode, win.id]);
   useEffect(() => () => paintSpell(`writer-${win.id}`, [], []), [win.id]);
   const spellContext = (i: WS.SpellIssue) => {
-    const p = E.paraById(docRef.current!, i.pid); const t = p ? WS.proofText(p).replace(/[\u0000\ufffc]/g, " ") : i.word;
+    const p = WS.issuePara(docRef.current!, i); const t = p ? WS.proofText(p).replace(/[\u0000\ufffc]/g, " ") : i.word;
     const b0 = Math.max(0, i.off - 48), a1 = Math.min(t.length, i.off + i.len + 48);
     return { before: (b0 > 0 ? "…" : "") + t.slice(b0, i.off).replace(/^\S*\s/, b0 > 0 ? "" : "$&"), word: t.slice(i.off, i.off + i.len), after: t.slice(i.off + i.len, a1) + (a1 < t.length ? "…" : "") };
   };
   const goIssue = (i: WS.SpellIssue) => {
+    // a header / footer / note issue is shown (scrolled to where it is drawn) but the caret stays in the main text
+    if (i.story) { rootRef.current?.querySelector(`[data-pid="${i.pid}"]`)?.scrollIntoView({ block: "center" }); return; }
     const r = { a: { pid: i.pid, off: i.off }, b: { pid: i.pid, off: i.off + i.len } };
     rootRef.current?.querySelector(`[data-pid="${i.pid}"]`)?.scrollIntoView({ block: "center" });
     setSel(r);
@@ -272,7 +275,8 @@ export default function WriterModule({ win }: ModuleProps) {
   const fixIssue = (i: WS.SpellIssue, to: string) => {
     const d = docRef.current!; snapshot();
     const at = WS.fixIssue(d, i, to);
-    changed(i.pid, { a: at, b: at }); setSpellMenu(null);
+    if (i.story) { changed(); setHfGen((g) => g + 1); } else changed(i.pid, { a: at, b: at });
+    setSpellMenu(null);
     setStatus(i.kind === "repeat" ? `Deleted repeated word “${i.word.trim()}”` : `Changed “${i.word}” to “${to}”`);
   };
   const fixAll = (i: WS.SpellIssue, to: string) => {
@@ -598,7 +602,7 @@ export default function WriterModule({ win }: ModuleProps) {
     paraOp((d, rr) => E.setLink(d, rr, url));
   };
   const insertTable = (rows: number, cols: number) => { const d = docRef.current!; const r = curSel(); snapshot(); const t = E.insertTableAfter(d, r.b.pid, Math.max(1, Math.min(50, rows)), Math.max(1, Math.min(20, cols))); setPop(""); changed(); if (t) { const p = allParas([t])[0]; setSel({ a: { pid: p.id, off: 0 }, b: { pid: p.id, off: 0 } }); } };
-  const tableOp = (op: "above" | "below" | "rdel" | "left" | "right" | "cdel") => { const d = docRef.current!; const r = curSel(); snapshot(); const ok = op === "above" || op === "below" ? E.tableRowOp(d, r.a.pid, op) : op === "rdel" ? E.tableRowOp(d, r.a.pid, "delete") : E.tableColOp(d, r.a.pid, op === "cdel" ? "delete" : op); if (ok) changed(); };
+  const tableOp = (op: "above" | "below" | "rdel" | "left" | "right" | "cdel") => { const d = docRef.current!; const r = curSel(); snapshot(); const ok = op === "above" || op === "below" ? E.tableRowOp(d, r.a.pid, op) : op === "rdel" ? E.tableRowOp(d, r.a.pid, "delete") : E.tableColOp(d, r.a.pid, op === "cdel" ? "delete" : op); if (ok) changed(); else if (d.track.on && (op === "left" || op === "right" || op === "cdel")) shell.toast(E.COLUMN_TRACK_REFUSAL, "warn"); };
   const insertImageFile = async (f: File) => {
     const d = docRef.current!; const data = new Uint8Array(await f.arrayBuffer());
     if (data.length > 20 * 1024 * 1024) { shell.toast("Images over 20 MB are refused", "warn"); return; }

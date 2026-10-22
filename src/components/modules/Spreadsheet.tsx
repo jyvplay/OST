@@ -27,7 +27,7 @@ import { deletePivot, nextPivotName, pivotAt, readTable, refreshPivots, writePiv
 import { absoluteRef, referenceTarget, validateName } from "@/lib/formula/names";
 import { autoInk } from "@/lib/auto-ink";
 import { askText } from "@/lib/ask";
-import { changeAllCells, fixCellIssue, type CellSpellIssue } from "@/lib/formula/sheetspell";
+import { changeAllCells, changeAllWorkbook, fixCellIssue, type CellSpellIssue } from "@/lib/formula/sheetspell";
 import SheetSpellBar from "./sheet-spell";
 import type { Speller } from "@/lib/spell/hunspell";
 import { addUserWord, loadSpeller } from "@/lib/spell/client";
@@ -120,6 +120,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [speller, setSpeller] = useState<Speller | null>(null);
   const [spErr, setSpErr] = useState("");
   const [spScope, setSpScope] = useState<{ c0: number; r0: number; c1: number; r1: number } | null>(null);
+  const [spAll, setSpAll] = useState(false); const [spFrom, setSpFrom] = useState(""); // TT60 spelling across all sheets
   const [spIdx, setSpIdx] = useState(0);
   const [spGen, setSpGen] = useState(0);
   const [spTo, setSpTo] = useState<{ key: string; v: string } | null>(null);
@@ -518,7 +519,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const spShow = (x: CellSpellIssue) => { if (x.sheet !== active) setActive(x.sheet); moveTo({ col: x.col, row: x.row }); };
   const spFix = (x: CellSpellIssue, v: string) => { let done = false; mutate((wb) => { done = fixCellIssue(wb, x, v); }); if (done) spShow(x); };
   const openSpelling = () => {
-    const r = selR; setSpScope(r.c0 === r.c1 && r.r0 === r.r1 ? null : r); setSpIdx(0); setPanel("spell");
+    const r = selR; setSpScope(r.c0 === r.c1 && r.r0 === r.r1 ? null : r); setSpIdx(0); setSpFrom(active); setPanel("spell");
     if (!speller) loadSpeller().then(setSpeller).catch((e) => setSpErr(`Spelling dictionary could not be loaded: ${(e as Error).message}`));
   };
 
@@ -1135,9 +1136,9 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           </div>);
       })() : null}
       {panel === "spell" ? (
-        <SheetSpellBar sheet={sheet} rev={rev} speller={speller} err={spErr} scope={spScope} ignore={spIgnore} gen={spGen} idx={spIdx} setIdx={setSpIdx}
+        <SheetSpellBar sheet={sheet} workbook={workbook} allSheets={spAll} setAllSheets={setSpAll} from={spFrom || active} rev={rev} speller={speller} err={spErr} scope={spScope} ignore={spIgnore} gen={spGen} idx={spIdx} setIdx={setSpIdx}
           onFix={spFix} onShow={spShow}
-          onChangeAll={(x, v, opts) => { let n = 0; mutate((wb, sh) => { n = changeAllCells(wb, sh, speller!, x.word, v, opts); }); setFindInfo(`changed ${n}`); }}
+          onChangeAll={(x, v, opts, all) => { let n = 0; mutate((wb, sh) => { n = all ? changeAllWorkbook(wb, speller!, x.word, v, opts) : changeAllCells(wb, sh, speller!, x.word, v, opts); }); setFindInfo(`changed ${n}`); }}
           onIgnore={(all, v) => setSpIgnore((x) => (all ? { ...x, all: new Set([...x.all, v]) } : { ...x, once: new Set([...x.once, v]) }))}
           onAdd={(w) => { if (addUserWord(w)) setSpGen((g) => g + 1); }}
           onClose={() => { setPanel(null); gridRef.current?.focus(); }} />

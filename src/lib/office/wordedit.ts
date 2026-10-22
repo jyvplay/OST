@@ -432,15 +432,32 @@ export function tableRowOp(doc: WordDoc, pid: string, op: "above" | "below" | "d
   const w = locate(doc, pid); if (!w?.table || !w.row) return false;
   const t = w.table; const at = t.items.indexOf(w.row);
   if (op === "delete") {
+    // TT60: tracked, a row is marked deleted (w:trPr/w:del) and its text struck through — unless it is the author's own
+    // pending inserted row, which simply goes (as own pending text does)
+    if (doc.track?.on && !(w.row.rev?.kind === "ins" && isMine(doc, w.row.rev))) {
+      if (w.row.rev?.kind === "del") return false;
+      const ps = rowParas(w.row);
+      w.row.rev = w.row.rev?.kind === "ins" ? { ...newRev(doc, "del"), ins: w.row.rev } : newRev(doc, "del");
+      const last = ps[ps.length - 1];
+      if (last) trackedDelete(doc, { a: { pid: ps[0].id, off: 0 }, b: { pid: last.id, off: plen(last) } });
+      return true;
+    }
     if (rowsOf(t).length === 1) return removeTable(w);
     t.items.splice(at, 1); return true;
   }
   const nr: Row = { t: "tr", items: cellsOf(w.row).map((c) => { const n = newCell(c.width ?? 2000, c); n.span = c.span; n.span0 = -1; return n; }) };
+  if (doc.track?.on) nr.rev = newRev(doc, "ins");
   t.items.splice(op === "above" ? at : at + 1, 0, nr);
   return true;
 }
+/** every paragraph of a row (nested tables included), in document order */
+export function rowParas(r: Row): Para[] { return cellsOf(r).flatMap((c) => allParas(c.blocks)); }
+/** TT60: WordprocessingML records row insertions / deletions (w:trPr) and cell-level cellIns / cellDel, which Word itself does
+ *  not offer for columns; a column change made while recording would silently become untracked, so it is refused instead. */
+export const COLUMN_TRACK_REFUSAL = "Column changes can't be tracked \u2014 turn off Track Changes to insert or delete columns";
 export function tableColOp(doc: WordDoc, pid: string, op: "left" | "right" | "delete"): boolean {
   const w = locate(doc, pid); if (!w?.table || !w.row || !w.cell) return false;
+  if (doc.track?.on) return false;
   const t = w.table; const col = colOf(w.row, w.cell) + (op === "right" ? w.cell.span - 1 : 0);
   if (op === "delete") {
     if (t.grid.length <= 1) return removeTable(w); // TT47: deleting the only column deletes the table (was: deleted one row, reported no change)
@@ -634,7 +651,19 @@ export function revisions(doc: WordDoc): Change[] {
     const c = byId.get(key);
     if (c) c.text += text; else { const n: Change = { key, kind: rv.kind, author: rv.author || undefined, date: rv.date, text, pid, off, editable: true }; byId.set(key, n); out.push(n); }
   };
+  // TT60: tracked rows and table / row / cell property changes are listed at their first paragraph, in document order
+  const rowAt = new Map<string, Row>(); const prAt = new Map<string, Change[]>();
+  for (const s of tablePrChanges(doc)) {
+    const a = s.ch.attrs; const g = (k: string) => a.find((x) => x[0] === k)?.[1];
+    const c: Change = { key: s.key, kind: "fmt", author: g("w:author") || undefined, date: g("w:date"), text: s.label, pid: s.pid, off: 0, editable: true, detail: `${s.label} properties` };
+    prAt.set(s.pid, [...(prAt.get(s.pid) ?? []), c]);
+  }
+  const walkRows = (bs: Block[]) => { for (const b of bs) if (b.t === "tbl") for (const r of rowsOf(b)) { const f = rowParas(r)[0]; if (r.rev && f) rowAt.set(f.id, r); for (const c of cellsOf(r)) walkRows(c.blocks); } else if (b.t === "box") walkRows(b.blocks); };
+  walkRows(doc.blocks);
   for (const p of allParas(doc.blocks)) {
+    for (const c of prAt.get(p.id) ?? []) out.push(c);
+    const rr = rowAt.get(p.id)?.rev;
+    if (rr) { add(rr, p.id, 0, "[Table row] "); if (rr.ins) add(rr.ins, p.id, 0, "[Table row] "); }
     let off = 0;
     p.content.forEach((it, idx) => {
       const txt = it.t === "r" ? it.text : it.t === "k" ? (it.label || `[${it.kind}]`) : "";
@@ -663,6 +692,21 @@ export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean 
     const keep = (it.kind === "ins") === accept;
     p.content.splice(Number(si), 1, ...(keep ? parseInlineNodes(doc, it.kind === "del" ? delToIns(host.kids.filter((k): k is XEl => k.k === "el")) : host.kids) : []));
     normalize(p); touch(p);
+    return true;
+  }
+  if (key.startsWith("x:")) {
+    const s = tablePrChanges(doc).find((x) => x.key === key); if (!s) return false;
+    // accept: the record goes; reject: the properties recorded in it come back (a row keeps its own revision marks)
+    const old = kid(s.ch, s.pr.name);
+    let np: XEl;
+    if (accept || !old) np = { ...clone(s.pr), kids: s.pr.kids.filter((k) => k !== s.ch).map((k) => k) };
+    else {
+      const marks = s.pr.name === "w:trPr" ? s.pr.kids.filter((k) => k.k === "el" && (k.name === "w:ins" || k.name === "w:del")) : [];
+      np = { ...clone(s.pr), kids: [...clone(old).kids, ...marks] };
+    }
+    np.selfClose = np.kids.length === 0;
+    s.set(np);
+    for (const p of s.paras) touch(p);
     return true;
   }
   const pm = /^p:fmt:(-?\d+)$/.exec(key);
@@ -732,5 +776,69 @@ export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean 
     if (changed) { p.content = next; normalize(p); touch(p); }
   }
   for (const p of joins.reverse()) { p.markRev = undefined; joinNext(doc, p); }
+  // TT60: tracked rows — kept (accepted insertion / rejected deletion) the mark goes, otherwise the row goes; rejecting a row
+  // deletion also restores the text the deletion struck through in that row (Word treats them as one change)
+  const restore: number[] = [];
+  const walk = (bs: Block[]) => {
+    for (let bi = 0; bi < bs.length; bi++) {
+      const b = bs[bi];
+      if (b.t === "box") { walk(b.blocks); continue; }
+      if (b.t !== "tbl") continue;
+      for (const r of rowsOf(b)) {
+        for (const c of cellsOf(r)) walk(c.blocks);
+        const rv = r.rev; if (!rv) continue;
+        let keep: boolean | undefined;
+        if (hit(rv)) { keep = kind === "ins" ? accept : !accept; if (keep) { if (kind === "del") for (const p of rowParas(r)) for (const it of p.content) if (it.rev?.kind === "del" && it.rev.author === rv.author && !restore.includes(it.rev.id)) restore.push(it.rev.id); r.rev = kind === "del" ? rv.ins : undefined; } }
+        else if (rv.kind === "del" && hit(rv.ins)) { keep = accept; if (keep) r.rev = { ...rv, ins: undefined }; }
+        if (keep === undefined) continue;
+        found = true;
+        for (const p of rowParas(r)) touch(p);
+        if (!keep) b.items.splice(b.items.indexOf(r), 1);
+      }
+      if (!rowsOf(b).length) { bs.splice(bi, 1, { t: "p", id: newId(), p: {}, p0: {}, content: [], dirty: true }); }
+    }
+  };
+  walk(doc.blocks);
+  for (const rid of restore) if (rid !== id || kind !== "del") resolveOne(doc, `r:del:${rid}`, false);
   return found;
+}
+/** TT60: table / row / cell property change records (w:tblPrChange, w:trPrChange, w:tcPrChange — §17.13.5.34–.37) in
+ *  document order, each with a setter that swaps in a rewritten properties element */
+interface PrSite { n: number; key: string; label: "Table" | "Row" | "Cell"; pr: XEl; ch: XEl; pid: string; paras: Para[]; set: (np: XEl) => void }
+function tablePrChanges(doc: WordDoc): PrSite[] {
+  const out: PrSite[] = [];
+  const push = (label: PrSite["label"], pr: XNode | undefined, chName: string, paras: Para[], set: (np: XEl) => void) => {
+    if (!pr || pr.k !== "el" || !paras[0]) return;
+    const ch = kid(pr, chName); if (!ch) return;
+    const id = ch.attrs.find((a) => a[0] === "w:id")?.[1];
+    out.push({ n: out.length, key: `x:${id !== undefined && /^-?\d+$/.test(id) ? id : `n${out.length}`}`, label, pr, ch, pid: paras[0].id, paras, set });
+  };
+  const walk = (bs: Block[]) => {
+    for (const b of bs) {
+      if (b.t === "box") { walk(b.blocks); continue; }
+      if (b.t !== "tbl") continue;
+      const ti = b.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:tblPr");
+      const tp = allParas([b]);
+      if (ti >= 0) push("Table", b.items[ti] as XNode, "w:tblPrChange", tp, (np) => {
+        b.items[ti] = np;
+        const st = kid(np, "w:tblStyle")?.attrs.find((a) => a[0] === "w:val")?.[1]; const bd = kid(np, "w:tblBorders");
+        b.style = st;
+        b.borders = bd ? kids(bd).some((x) => { const v = x.attrs.find((a) => a[0] === "w:val")?.[1]; return !!v && v !== "nil" && v !== "none"; }) : !!st && /grid|table/i.test(st);
+      });
+      for (const r of rowsOf(b)) {
+        const ri = r.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:trPr");
+        if (ri >= 0) push("Row", r.items[ri] as XNode, "w:trPrChange", rowParas(r), (np) => { r.items[ri] = np; });
+        for (const c of cellsOf(r)) {
+          push("Cell", c.tcPr, "w:tcPrChange", allParas(c.blocks), (np) => {
+            const g = (n: string, a: string) => kid(np, n)?.attrs.find((x) => x[0] === a)?.[1];
+            c.tcPr = np; c.width = g("w:tcW", "w:w") !== undefined ? Number(g("w:tcW", "w:w")) : undefined; c.fill = g("w:shd", "w:fill");
+            const vm = kid(np, "w:vMerge"); c.vmerge = vm ? (g("w:vMerge", "w:val") === "restart" ? "restart" : "continue") : undefined;
+          });
+          walk(c.blocks);
+        }
+      }
+    }
+  };
+  walk(doc.blocks);
+  return out;
 }

@@ -195,6 +195,14 @@ function renderTable(st: RenderState, t: Extract<Block, { t: "tbl" }>): HTMLElem
   rows.forEach((r) => {
     const tr = document.createElement("tr"); tr.className = "wtr";
     if (r.height) tr.style.height = `${twipToPx(r.height)}px`;
+    // TT60: a tracked row insertion / deletion gets Word's change bar in the author's colour plus a tint
+    if (r.rev) {
+      const ink = revColor(r.rev.author);
+      tr.classList.add(r.rev.kind === "ins" ? "wrow-ins" : "wrow-del"); tr.dataset.rev = `${r.rev.kind}:${r.rev.id}`;
+      tr.title = `${r.rev.kind === "ins" ? "Inserted" : "Deleted"} row${r.rev.author ? ` — ${r.rev.author}` : ""}`;
+      tr.style.outline = `2px ${r.rev.kind === "ins" ? "solid" : "dashed"} ${ink}`; tr.style.outlineOffset = "-1px";
+      tr.style.backgroundColor = r.rev.kind === "ins" ? "rgba(11,92,173,.07)" : "rgba(163,23,107,.08)";
+    }
     for (const c of cellsOf(r)) {
       if (c.vmerge === "continue") continue;
       const td = document.createElement("td");

@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-22T05:58:23.574Z",
+ "generatedAt": "2026-10-22T08:23:21.657Z",
  "totals": {
   "built": {
-   "full": 294,
+   "full": 297,
    "partial": 54,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 208,
+   "full": 212,
    "partial": 72,
-   "untested": 90
+   "untested": 89
   },
   "tests": {
-   "total": 1095,
-   "passed": 1095
+   "total": 1114,
+   "passed": 1114
   }
  },
  "rows": {
@@ -134,6 +134,7 @@
     "e2e-tt56: WM-05 modal failure test: with an ask dialog open the switcher chord does nothing (no overlay, focus unchanged)",
     "e2e-tt56: no uncaught page errors during the TT56 session",
     "e2e-tt59: no uncaught page errors during the TT59 session",
+    "e2e-tt60: no uncaught page errors during the TT60 session",
     "tt56-shell-unit: WM-05 spec acceptance: MRU order after 5 focus changes (open A–E, focus C, A, E, B, D → D B E A C)",
     "tt56-shell-unit: WM-05 property: over 400 random command sequences MRU is a permutation of the live windows, focus is its head, and it equals a reference model",
     "tt56-shell-unit: WM-05 modes: app mode groups by module (newest window per app), workspace mode lists workspaces MRU-first; step wraps both ways"
@@ -2872,6 +2873,36 @@
     "tt59-sheet-spell: robustness: 20,000 text cells checked < 4 s; hostile cell text never throws"
    ]
   },
+  "FF-40": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt60: FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right refused; saved trPr ins/del verified by lxml; per-change Accept removes the row",
+    "tt60-writer-tblrev: recording: an inserted row is w:trPr/w:ins and a deleted row w:trPr/w:del with its text as w:delText (oracle); CT_TrPr order; ids unique; python-docx opens",
+    "tt60-writer-tblrev: accept-all / reject-all (ours) equal the oracle's independent views, live and after save → re-open",
+    "tt60-writer-tblrev: per-change review: rejecting the row deletion restores the row AND its struck text in one action; accepting the row insertion keeps it",
+    "tt60-writer-tblrev: own pending inserted row is deleted outright; another reviewer's inserted row deleted → w:ins + w:del on one row (nested), each reviewable",
+    "tt60-writer-tblrev: deleting the last remaining rows tracked then accepting removes the table (an empty paragraph remains); columns refuse while tracking",
+    "tt60-writer-tblrev: spec-built file: table / row / cell property changes and a row insertion are listed; untouched save keeps them; accept drops the record; reject restores the recorded properties (oracle)",
+    "tt60-writer-tblrev: randomized: 40 tracked row edit sessions — our accept-all / reject-all equal the oracle's views of the saved file; order and ids always valid"
+   ]
+  },
+  "FF-41": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt60: FF-41 Spreadsheet spelling in all sheets: F7 → All sheets → tab order from the active sheet; Change switches to the issue's sheet; Change All covers every sheet; openpyxl reads the save",
+    "tt60-sheet-spell-all: all sheets: tab order from the starting sheet, wrapping; a selection range is ignored; single sheet unchanged",
+    "tt60-sheet-spell-all: openpyxl 3-sheet .xlsx: Change All across sheets, a fix on a non-active sheet, saved losslessly, openpyxl reads every sheet back"
+   ]
+  },
+  "FF-42": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt60: FF-42 Writer spelling in headers and notes: F7 lists body → Header → Footnote 1 issues; Change fixes them in place; saved file verified by python-docx and lxml",
+    "tt60-writer-spell-stories: issues in every story: main text first, then header, footer, footnote — each with its place; spellIssues (main) unchanged",
+    "tt60-writer-spell-stories: fixing in a header keeps the run formatting (bold 'The'), footer + footnote fixed; saved file verified by python-docx (hf), lxml (notes, runs)",
+    "tt60-writer-spell-stories: Change All spans stories; a stale issue (text changed since the check) is refused; undo snapshots keep the old header blocks"
+   ]
+  },
   "CT-01": {
    "tested": "untested",
    "tests": []
@@ -3195,8 +3226,12 @@
    ]
   },
   "RG-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt60: RG-05 Backup refuses on a low discharging battery (injected getBattery 12%) with the reason, Build anyway works; Monitor shows background work paused; charging builds directly",
+    "tt60-units: RG-05 heavyWorkRefusal: < 20 % and discharging refuses (says the level); 20 %, charging, unknown battery go ahead; Data Saver refuses",
+    "tt60-units: RG-05 governor snapshot: a low discharging battery pauses background work and states why; charging restores it"
+   ]
   },
   "RG-06": {
    "tested": "full",

@@ -38,7 +38,7 @@ export interface ParaProps { style?: string; align?: string; indL?: number; indR
 export interface ParaChange { id: number; author: string; date?: string; old: ParaProps; oldPPr?: XEl }
 export interface Para { t: "p"; id: string; p: ParaProps; p0?: ParaProps; pPr?: XEl; pc?: ParaChange; content: Inline[]; src?: XEl; dirty?: boolean; sect?: XEl; /** TT56: tracked insertion / deletion of this paragraph's mark */ markRev?: Rev }
 export interface Cell { t: "tc"; src?: XEl; span0?: number; tcPr?: XEl; blocks: Block[]; span: number; vmerge?: "restart" | "continue"; width?: number; fill?: string }
-export interface Row { t: "tr"; src?: XEl; items: (Cell | XNode)[]; header?: boolean; height?: number }
+export interface Row { t: "tr"; src?: XEl; items: (Cell | XNode)[]; header?: boolean; height?: number; /** TT60: tracked insertion / deletion of the whole row (w:trPr/w:ins, w:trPr/w:del — §17.13.5.17 / .14) */ rev?: Rev }
 export interface Table { t: "tbl"; id: string; items: (Row | XNode)[]; grid: number[]; grid0?: string; src?: XEl; borders: boolean; style?: string }
 export interface Box { t: "box"; id: string; src: XEl; content: string; blocks: Block[]; label: string }
 export interface Opaque { t: "x"; node: XNode; label: string }
@@ -403,6 +403,15 @@ function parseTable(ctx: Ctx, n: XEl): Table {
     if (k.k !== "el" || k.name !== "w:tr") return k;
     const trPr = kid(k, "w:trPr");
     const row: Row = { t: "tr", src: k, items: k.kids.map((c) => (c.k === "el" && c.name === "w:tc" ? parseCell(ctx, c) : c)), header: onOff(kid(trPr, "w:tblHeader")) ?? false, height: num(attr(kid(trPr, "w:trHeight"), "w:val")) };
+    // TT60: an inserted / deleted table row (CT_TrPr ins / del: CT_TrackChange id, author, date)
+    // (both present = another reviewer deleted an inserted row: the deletion nests the insertion, like <w:ins><w:del> runs)
+    const asRev = (m: XEl | undefined): Rev | undefined => {
+      const rid = m ? Number(attr(m, "w:id")) : NaN; if (!m || !Number.isInteger(rid)) return undefined;
+      if (ctx.doc.track && rid >= ctx.doc.track.next) ctx.doc.track.next = rid + 1;
+      return { kind: m.name === "w:ins" ? "ins" : "del", id: rid, author: attr(m, "w:author") ?? "", date: attr(m, "w:date") };
+    };
+    const ri = asRev(kid(trPr, "w:ins")), rd = asRev(kid(trPr, "w:del"));
+    if (rd) { row.rev = rd; if (ri) rd.ins = ri; } else if (ri) row.rev = ri;
     return row;
   });
   return { t: "tbl", id: newId("t"), items, grid, grid0: grid.join(","), src: n, borders, style };
@@ -754,6 +763,22 @@ function serializeTable(t: Table): XEl {
     if ((it as Row).t === "tr") {
       const r = it as Row;
       const kidsOut = r.items.map((c) => ((c as Cell).t === "tc" ? serializeCell(c as Cell) : (c as XNode)));
+      // TT60: the row's revision mark lives in w:trPr after the row properties and before w:trPrChange (CT_TrPr)
+      const ti = kidsOut.findIndex((k) => k.k === "el" && k.name === "w:trPr");
+      const had = ti >= 0 && !!(kid(kidsOut[ti] as XEl, "w:ins") ?? kid(kidsOut[ti] as XEl, "w:del"));
+      if (r.rev || had) {
+        const trPr = ti >= 0 ? clone(kidsOut[ti] as XEl) : el("w:trPr");
+        trPr.kids = trPr.kids.filter((k) => !(k.k === "el" && (k.name === "w:ins" || k.name === "w:del")));
+        if (r.rev) {
+          const mk = (v: Rev) => el(v.kind === "ins" ? "w:ins" : "w:del", { "w:id": String(v.id), "w:author": v.author, "w:date": v.date });
+          const marks = r.rev.kind === "del" && r.rev.ins ? [mk(r.rev.ins), mk(r.rev)] : [mk(r.rev)];
+          const ch = trPr.kids.findIndex((k) => k.k === "el" && k.name === "w:trPrChange");
+          trPr.kids.splice(ch >= 0 ? ch : trPr.kids.length, 0, ...marks);
+        }
+        trPr.selfClose = trPr.kids.length === 0;
+        if (ti >= 0) { if (trPr.kids.length) kidsOut[ti] = trPr; else kidsOut.splice(ti, 1); }
+        else { const ex = kidsOut.findIndex((k) => k.k === "el" && k.name === "w:tblPrEx"); kidsOut.splice(ex + 1, 0, trPr); }
+      }
       return r.src ? { ...clone({ ...r.src, kids: [] }), kids: kidsOut, selfClose: false } : el("w:tr", {}, kidsOut);
     }
     const n = it as XNode;
@@ -1048,7 +1073,10 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
   // two w:r that both carry the same w:rPrChange record — revision ids must be unique, so later copies get fresh ids
   {
     const seen = new Set<string>();
-    for (const rc of findAll(body, (x) => x.name === "w:rPrChange" || x.name === "w:pPrChange")) {
+    // TT60: likewise one tracked deletion spanning several paragraphs / table cells (a deleted row's text) writes one w:del per
+    // paragraph; §17.13.5 wants each annotation id unique, so every revision record is renumbered on collision
+    const REC = new Set(["w:rPrChange", "w:pPrChange", "w:ins", "w:del", "w:tblPrChange", "w:trPrChange", "w:tcPrChange"]);
+    for (const rc of findAll(body, (x) => REC.has(x.name))) {
       const id = attr(rc, "w:id");
       if (id === undefined) continue;
       if (seen.has(id)) setAttr(rc, "w:id", String(doc.track.next++));

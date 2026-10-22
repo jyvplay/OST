@@ -6,23 +6,26 @@
 import { useMemo, useState } from "react";
 import { Btn } from "../ui";
 import { fz } from "@/lib/uiscale";
-import type { Sheet } from "@/lib/formula/engine";
+import type { Sheet, Workbook } from "@/lib/formula/engine";
 import type { Speller } from "@/lib/spell/hunspell";
 import { readSkipUpper } from "@/lib/spell/client";
-import { cellIssueKey, sheetSpellIssues, type CellSpellIssue, type SheetSpellOpts } from "@/lib/formula/sheetspell";
+import { cellIssueKey, sheetSpellIssues, workbookSpellIssues, type CellSpellIssue, type SheetSpellOpts } from "@/lib/formula/sheetspell";
 import { rangeA1 } from "@/lib/formula/sheetops";
 import { a1 } from "@/lib/formula/engine";
 
 type Scope = { c0: number; r0: number; c1: number; r1: number } | null;
 export default function SheetSpellBar(p: {
-  sheet: Sheet; rev: number; speller: Speller | null; err: string; scope: Scope; ignore: { all: Set<string>; once: Set<string> }; gen: number;
+  sheet: Sheet; workbook: Workbook; allSheets: boolean; from: string; setAllSheets: (v: boolean) => void; rev: number; speller: Speller | null; err: string; scope: Scope; ignore: { all: Set<string>; once: Set<string> }; gen: number;
   idx: number; setIdx: (i: number) => void; onFix: (x: CellSpellIssue, v: string) => void; onShow: (x: CellSpellIssue) => void;
-  onChangeAll: (x: CellSpellIssue, v: string, o: SheetSpellOpts) => void; onIgnore: (all: boolean, v: string) => void; onAdd: (w: string) => void; onClose: () => void;
+  onChangeAll: (x: CellSpellIssue, v: string, o: SheetSpellOpts, all: boolean) => void; onIgnore: (all: boolean, v: string) => void; onAdd: (w: string) => void; onClose: () => void;
 }) {
-  const { sheet, rev, speller, scope, ignore, gen } = p;
+  const { sheet, workbook, from, rev, speller, scope, ignore, gen } = p;
+  const all = p.allSheets && !scope && workbook.sheets.size > 1;
   const opts = useMemo<SheetSpellOpts>(() => ({ skipUpper: readSkipUpper(), ignoreAll: ignore.all, ignoreOnce: ignore.once, range: scope ?? undefined }), [ignore, scope]);
   // rev / gen: the workbook or the user dictionary changed — recheck
-  const list = useMemo(() => (speller ? sheetSpellIssues(sheet, speller, opts) : []), [sheet, speller, opts, rev, gen]); // eslint-disable-line react-hooks/exhaustive-deps
+  // TT60 "All sheets": tab order from the sheet that was active when the check began (switching to an issue's sheet must not
+  // reorder the list under the user)
+  const list = useMemo(() => (!speller ? [] : all ? workbookSpellIssues(workbook, speller, opts, from) : sheetSpellIssues(sheet, speller, opts)), [all, workbook, from, sheet, speller, opts, rev, gen]); // eslint-disable-line react-hooks/exhaustive-deps
   const i = list.length ? Math.min(p.idx, list.length - 1) : -1; const cur = i >= 0 ? list[i] : null;
   const key = cur ? cellIssueKey(cur) : "";
   const sugs = useMemo(() => (cur && speller && cur.kind === "spell" ? speller.suggest(cur.word, 8) : []), [cur, speller]);
@@ -33,7 +36,8 @@ export default function SheetSpellBar(p: {
   return (
     <div className="fs-row" role="group" aria-label="Spelling" data-testid="sheet-spell-panel" style={{ gap: 8, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), flexWrap: "wrap", alignItems: "center" }}
       onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); p.onClose(); } }}>
-      <b>Spelling{scope ? <> in <span className="fs-mono">{rangeA1(scope)}</span></> : <> on {sheet.name}</>}</b>
+      <b>Spelling{scope ? <> in <span className="fs-mono">{rangeA1(scope)}</span></> : all ? <> in all sheets</> : <> on {sheet.name}</>}</b>
+      {!scope && workbook.sheets.size > 1 ? <label style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={p.allSheets} onChange={(e) => { p.setAllSheets(e.target.checked); p.setIdx(0); }} />All sheets</label> : null}
       {p.err ? <span role="status">{p.err}</span> : !speller ? <span role="status">Loading the English (US) dictionary…</span>
         : !cur ? <span role="status" data-testid="sheet-spell-status">Spelling check complete. No issues found.</span>
         : <>
@@ -45,7 +49,7 @@ export default function SheetSpellBar(p: {
             </select>
             <input className="fs-input" aria-label="Change to" value={to} onChange={(e) => setTyped({ key, v: e.target.value })} style={{ width: 130 }} />
             <Btn variant="primary" disabled={!to} onClick={() => p.onFix(cur, to)}>Change</Btn>
-            <Btn variant="ghost" disabled={!to} onClick={() => p.onChangeAll(cur, to, opts)}>Change All</Btn>
+            <Btn variant="ghost" disabled={!to} onClick={() => p.onChangeAll(cur, to, opts, all)}>Change All</Btn>
             <Btn variant="ghost" onClick={() => p.onIgnore(true, word)}>Ignore All</Btn>
             <Btn variant="ghost" onClick={() => p.onAdd(word)}>Add to Dictionary</Btn>
           </> : <Btn variant="primary" onClick={() => p.onFix(cur, "")}>Delete repeated word</Btn>}

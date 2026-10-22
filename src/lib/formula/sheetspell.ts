@@ -68,3 +68,16 @@ export function changeAllCells(wb: Workbook, sh: Sheet, sp: Speller, word: strin
   let n = 0; for (const h of hits) if (fixCellIssue(wb, h, replacement)) n++;
   return n;
 }
+
+/** TT60: the whole workbook, sheet by sheet in tab order starting at `from` and wrapping round (Excel checks only the
+ *  sheets in the selection group; with no grouping UI here, "All sheets" is the explicit equivalent); a range is ignored */
+export function workbookSpellIssues(wb: Workbook, sp: Speller, o: SheetSpellOpts = {}, from?: string): CellSpellIssue[] {
+  const names = [...wb.sheets.keys()];
+  const k = Math.max(0, from === undefined ? 0 : names.indexOf(from));
+  return [...names.slice(k), ...names.slice(0, k)].flatMap((n) => sheetSpellIssues(wb.sheets.get(n)!, sp, { ...o, range: undefined }));
+}
+/** Change All over every sheet; returns the number of words changed */
+export function changeAllWorkbook(wb: Workbook, sp: Speller, word: string, replacement: string, o: SheetSpellOpts = {}): number {
+  let n = 0; for (const sh of [...wb.sheets.values()]) n += changeAllCells(wb, sh, sp, word, replacement, { ...o, range: undefined });
+  return n;
+}

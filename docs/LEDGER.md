@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-22T05:58:23.572Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-133 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-22T08:23:21.655Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+138 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **370** |
-| Fully built | 294 |
+| **Features in register** | **373** |
+| Fully built | 297 |
 | Partially built (partial 36 + probe 18) | 54 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 1 |
-| **Fully tested** (≥1 passing test tagged `full`) | **208** |
+| **Fully tested** (≥1 passing test tagged `full`) | **212** |
 | **Partially tested** (only `partial` tags) | **72** |
-| Untested | 90 |
-| Automated tests executed / passed | 1095 / 1095 |
+| Untested | 89 |
+| Automated tests executed / passed | 1114 / 1114 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 200 | 59 | 35 |
+| fully built | 204 | 59 | 34 |
 | partially built | 2 | 11 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 1 |
@@ -37,9 +37,9 @@ verifies the honesty contract, not the (impossible) capability.
 | ai-format | 5 | 5 | 0 | 2026-10-22T01:55:00.599Z |
 | browser-session | 5 | 5 | 0 | 2026-10-22T01:54:48.321Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-22T01:55:01.849Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-22T05:51:25.248Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-22T08:17:57.706Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-22T02:06:27.438Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-22T05:55:21.003Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-22T08:22:05.637Z |
 | e2e-browser | 6 | 6 | 0 | 2026-10-22T01:59:34.054Z |
 | e2e-contacts | 9 | 9 | 0 | 2026-10-22T02:06:53.410Z |
 | e2e-image | 10 | 10 | 0 | 2026-10-22T01:58:26.025Z |
@@ -49,7 +49,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-privacy | 14 | 14 | 0 | 2026-10-22T02:00:04.661Z |
 | e2e-sheet-layout | 7 | 7 | 0 | 2026-10-22T05:18:58.213Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-22T02:05:48.197Z |
-| e2e-tabletop | 15 | 15 | 0 | 2026-10-22T02:09:33.579Z |
+| e2e-tabletop | 15 | 15 | 0 | 2026-10-22T07:46:08.397Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-22T02:10:58.158Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-22T02:11:17.843Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-22T02:13:24.201Z |
@@ -59,35 +59,36 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt34 | 5 | 5 | 0 | 2026-10-22T02:18:53.751Z |
 | e2e-tt35 | 7 | 7 | 0 | 2026-10-22T02:19:31.846Z |
 | e2e-tt36 | 3 | 3 | 0 | 2026-10-22T02:19:47.683Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-22T02:20:12.589Z |
-| e2e-tt38 | 7 | 7 | 0 | 2026-10-22T02:23:56.587Z |
-| e2e-tt39 | 7 | 7 | 0 | 2026-10-22T02:24:16.403Z |
-| e2e-tt40 | 3 | 3 | 0 | 2026-10-22T02:24:29.637Z |
-| e2e-tt41 | 4 | 4 | 0 | 2026-10-22T02:24:35.101Z |
-| e2e-tt42 | 3 | 3 | 0 | 2026-10-22T02:25:14.571Z |
-| e2e-tt43 | 3 | 3 | 0 | 2026-10-22T02:25:25.062Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-22T07:46:32.867Z |
+| e2e-tt38 | 7 | 7 | 0 | 2026-10-22T07:46:40.068Z |
+| e2e-tt39 | 7 | 7 | 0 | 2026-10-22T07:49:33.253Z |
+| e2e-tt40 | 3 | 3 | 0 | 2026-10-22T07:49:36.600Z |
+| e2e-tt41 | 4 | 4 | 0 | 2026-10-22T07:49:40.406Z |
+| e2e-tt42 | 3 | 3 | 0 | 2026-10-22T07:49:43.603Z |
+| e2e-tt43 | 3 | 3 | 0 | 2026-10-22T07:49:53.815Z |
 | e2e-tt44 | 5 | 5 | 0 | 2026-10-22T02:26:16.842Z |
 | e2e-tt45 | 2 | 2 | 0 | 2026-10-22T02:26:26.727Z |
 | e2e-tt46 | 8 | 8 | 0 | 2026-10-22T02:27:40.159Z |
 | e2e-tt47 | 5 | 5 | 0 | 2026-10-22T02:37:48.191Z |
 | e2e-tt48-sync | 4 | 4 | 0 | 2026-10-22T03:09:45.714Z |
 | e2e-tt48 | 6 | 6 | 0 | 2026-10-22T02:38:40.008Z |
-| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-22T05:19:23.639Z |
+| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-22T08:09:23.303Z |
 | e2e-tt49 | 5 | 5 | 0 | 2026-10-22T05:19:42.515Z |
 | e2e-tt50-charts | 5 | 5 | 0 | 2026-10-22T02:47:43.852Z |
-| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-22T02:49:09.534Z |
+| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-22T07:50:47.347Z |
 | e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-22T02:50:02.224Z |
 | e2e-tt53-media | 6 | 6 | 0 | 2026-10-22T02:50:53.673Z |
 | e2e-tt54 | 8 | 8 | 0 | 2026-10-22T05:57:51.315Z |
 | e2e-tt55-files | 13 | 13 | 0 | 2026-10-22T02:52:52.836Z |
 | e2e-tt55-shell | 3 | 3 | 0 | 2026-10-22T03:25:46.718Z |
-| e2e-tt56-rows | 7 | 7 | 0 | 2026-10-22T02:55:34.404Z |
-| e2e-tt56 | 10 | 10 | 0 | 2026-10-22T05:20:17.072Z |
+| e2e-tt56-rows | 7 | 7 | 0 | 2026-10-22T07:51:07.928Z |
+| e2e-tt56 | 10 | 10 | 0 | 2026-10-22T08:23:00.466Z |
 | e2e-tt57-rows | 4 | 4 | 0 | 2026-10-22T02:57:21.042Z |
-| e2e-tt57 | 3 | 3 | 0 | 2026-10-22T05:20:29.255Z |
+| e2e-tt57 | 3 | 3 | 0 | 2026-10-22T08:10:47.400Z |
 | e2e-tt58-rows | 3 | 3 | 0 | 2026-10-22T03:18:58.559Z |
-| e2e-tt58 | 3 | 3 | 0 | 2026-10-22T05:20:48.788Z |
-| e2e-tt59 | 4 | 4 | 0 | 2026-10-22T05:56:55.165Z |
+| e2e-tt58 | 3 | 3 | 0 | 2026-10-22T08:11:10.861Z |
+| e2e-tt59 | 4 | 4 | 0 | 2026-10-22T08:11:55.383Z |
+| e2e-tt60 | 5 | 5 | 0 | 2026-10-22T08:12:26.183Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-22T01:58:53.023Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-22T02:06:08.158Z |
 | e2e | 64 | 64 | 0 | 2026-10-22T01:56:57.757Z |
@@ -97,7 +98,7 @@ verifies the honesty contract, not the (impossible) capability.
 | maps-unit | 6 | 6 | 0 | 2026-10-22T01:55:08.410Z |
 | metaclean | 6 | 6 | 0 | 2026-10-22T01:54:55.506Z |
 | names | 7 | 7 | 0 | 2026-10-22T04:46:23.552Z |
-| office | 35 | 35 | 0 | 2026-10-22T02:17:28.482Z |
+| office | 35 | 35 | 0 | 2026-10-22T07:58:31.818Z |
 | oracle-ai | 3 | 3 | 0 | 2026-10-22T01:55:01.537Z |
 | oracle-psd | 8 | 8 | 0 | 2026-10-22T01:54:46.197Z |
 | oracle-svg | 4 | 4 | 0 | 2026-10-22T01:54:48.166Z |
@@ -122,7 +123,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt36-unit | 5 | 5 | 0 | 2026-10-22T02:19:35.907Z |
 | tt37-unit | 9 | 9 | 0 | 2026-10-22T02:19:51.976Z |
 | tt38-unit | 15 | 15 | 0 | 2026-10-22T02:23:52.628Z |
-| tt39-pac | 8 | 8 | 0 | 2026-10-22T02:24:13.152Z |
+| tt39-pac | 8 | 8 | 0 | 2026-10-22T08:23:15.695Z |
 | tt39-unit | 13 | 13 | 0 | 2026-10-22T02:23:58.165Z |
 | tt40-proxy | 4 | 4 | 0 | 2026-10-22T02:24:26.438Z |
 | tt40-unit | 17 | 17 | 0 | 2026-10-22T02:24:18.581Z |
@@ -133,15 +134,15 @@ verifies the honesty contract, not the (impossible) capability.
 | tt43-unit | 7 | 7 | 0 | 2026-10-22T02:25:14.906Z |
 | tt44-bridge | 8 | 8 | 0 | 2026-10-22T02:25:57.179Z |
 | tt44-unit | 18 | 18 | 0 | 2026-10-22T02:25:38.033Z |
-| tt44-vt | 12 | 12 | 0 | 2026-10-22T03:10:22.433Z |
+| tt44-vt | 12 | 12 | 0 | 2026-10-22T07:50:10.468Z |
 | tt45-unit | 10 | 10 | 0 | 2026-10-22T02:26:19.615Z |
-| tt46-writer | 12 | 12 | 0 | 2026-10-22T02:27:09.220Z |
+| tt46-writer | 12 | 12 | 0 | 2026-10-22T07:59:21.337Z |
 | tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-22T04:50:55.339Z |
 | tt47-crypto | 5 | 5 | 0 | 2026-10-22T02:37:10.869Z |
 | tt47-sheet | 8 | 8 | 0 | 2026-10-22T04:54:46.448Z |
 | tt48-office | 6 | 6 | 0 | 2026-10-22T02:37:56.949Z |
-| tt49-sheet | 10 | 10 | 0 | 2026-10-22T05:00:55.385Z |
-| tt49-writer | 9 | 9 | 0 | 2026-10-22T02:45:20.273Z |
+| tt49-sheet | 10 | 10 | 0 | 2026-10-22T08:06:07.692Z |
+| tt49-writer | 9 | 9 | 0 | 2026-10-22T08:00:17.065Z |
 | tt50-charts | 10 | 10 | 0 | 2026-10-22T05:02:36.777Z |
 | tt51-slides | 15 | 15 | 0 | 2026-10-22T02:48:41.151Z |
 | tt52-pdf | 28 | 28 | 0 | 2026-10-22T02:49:18.437Z |
@@ -150,18 +151,22 @@ verifies the honesty contract, not the (impossible) capability.
 | tt55-files-unit | 7 | 7 | 0 | 2026-10-22T02:51:54.877Z |
 | tt56-sheet-paste | 4 | 4 | 0 | 2026-10-22T05:02:37.383Z |
 | tt56-shell-unit | 4 | 4 | 0 | 2026-10-22T02:53:43.868Z |
-| tt56-writer-track | 6 | 6 | 0 | 2026-10-22T02:53:43.466Z |
+| tt56-writer-track | 6 | 6 | 0 | 2026-10-22T08:06:18.035Z |
 | tt57-sheet-links | 6 | 6 | 0 | 2026-10-22T05:02:52.849Z |
 | tt57-units | 2 | 2 | 0 | 2026-10-22T02:56:40.665Z |
-| tt57-writer-fmt | 5 | 5 | 0 | 2026-10-22T02:55:49.409Z |
-| tt57-writer-para | 5 | 5 | 0 | 2026-10-22T02:56:26.906Z |
+| tt57-writer-fmt | 5 | 5 | 0 | 2026-10-22T08:06:34.157Z |
+| tt57-writer-para | 5 | 5 | 0 | 2026-10-22T08:07:11.683Z |
 | tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-22T05:02:59.050Z |
-| tt58-writer-notes | 5 | 5 | 0 | 2026-10-22T03:17:47.458Z |
+| tt58-writer-notes | 5 | 5 | 0 | 2026-10-22T08:07:39.075Z |
 | tt59-raster | 5 | 5 | 0 | 2026-10-22T05:50:48.178Z |
-| tt59-sheet-paste | 3 | 3 | 0 | 2026-10-22T04:44:55.740Z |
-| tt59-sheet-spell | 5 | 5 | 0 | 2026-10-22T04:46:13.672Z |
-| tt59-writer-spell | 8 | 8 | 0 | 2026-10-22T04:45:51.525Z |
+| tt59-sheet-paste | 3 | 3 | 0 | 2026-10-22T08:08:38.028Z |
+| tt59-sheet-spell | 5 | 5 | 0 | 2026-10-22T08:08:37.118Z |
+| tt59-writer-spell | 8 | 8 | 0 | 2026-10-22T08:08:33.855Z |
 | tt59-x14-cf | 3 | 3 | 0 | 2026-10-22T04:44:57.158Z |
+| tt60-sheet-spell-all | 2 | 2 | 0 | 2026-10-22T08:08:45.094Z |
+| tt60-units | 2 | 2 | 0 | 2026-10-22T08:08:46.415Z |
+| tt60-writer-spell-stories | 3 | 3 | 0 | 2026-10-22T08:08:46.246Z |
+| tt60-writer-tblrev | 7 | 7 | 0 | 2026-10-22T08:08:44.120Z |
 | unit | 23 | 23 | 0 | 2026-10-22T01:54:33.667Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-22T01:54:47.466Z |
 | vector | 18 | 18 | 0 | 2026-10-22T01:54:46.451Z |
@@ -185,7 +190,7 @@ None.
 | AP | 5 | 1 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 46 | 8 | 0 | 40 | 8 | 6 |
-| FF | 36 | 35 | 1 | 0 | 33 | 2 | 1 |
+| FF | 39 | 38 | 1 | 0 | 36 | 2 | 1 |
 | MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
 | SC | 18 | 16 | 1 | 1 | 11 | 3 | 4 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
@@ -201,7 +206,7 @@ None.
 | LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
 | MS | 4 | 0 | 2 | 2 | 0 | 2 | 2 |
 | AU | 4 | 2 | 2 | 0 | 1 | 2 | 1 |
-| RG | 7 | 6 | 1 | 0 | 3 | 2 | 2 |
+| RG | 7 | 6 | 1 | 0 | 4 | 2 | 1 |
 | HW | 11 | 2 | 9 | 0 | 0 | 1 | 10 |
 | CM | 2 | 1 | 0 | 1 | 0 | 0 | 2 |
 | BL | 5 | 4 | 1 | 0 | 1 | 2 | 2 |
@@ -229,7 +234,7 @@ None.
 | WM-02 | built | full | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half; unit: 10 000 random commands preserve every invariant |
 | WM-03 | built | partial | unit: reducer is pure (input not mutated); workspaces filter without unmounting |
 | WM-04 | built | partial | e2e: Overview (Meta+Q) and Blackout overlay toggle |
-| WM-05 | built | full | e2e-tt56: WM-05 MRU after 5 focus changes, held-chord switcher: overlay lists MRU order, chord advances, Shift reverses, release commits, Esc cancels; e2e-tt56: WM-05 modes: app mode groups windows by app (2 calculators → 1 entry), workspace mode switches workspace on release; ←/→ and 1/2/3 change mode; e2e-tt56: WM-05 modal failure test: with an ask dialog open the switcher chord does nothing (no overlay, focus unchanged) (+5) |
+| WM-05 | built | full | e2e-tt56: WM-05 MRU after 5 focus changes, held-chord switcher: overlay lists MRU order, chord advances, Shift reverses, release commits, Esc cancels; e2e-tt56: WM-05 modes: app mode groups windows by app (2 calculators → 1 entry), workspace mode switches workspace on release; ←/→ and 1/2/3 change mode; e2e-tt56: WM-05 modal failure test: with an ask dialog open the switcher chord does nothing (no overlay, focus unchanged) (+6) |
 | WM-06 | built | partial | e2e: mount: browser |
 | WM-07 | partial | untested |  |
 | WM-08 | built | full | tt55-files-unit: WM-08 remembered geometry: close records the normal rect per module/host (restore rect when maximized), the next open reuses it, an explicit rect wins, no exact stacking, fits a smaller viewport, bounded, closeAll records all |
@@ -490,6 +495,9 @@ None.
 | WP-22 | built | full | e2e-tt43: WP-22 oracle: SharedWorker shared like Chromium's own — two tabs of one profile (Fusion split view, one proxy session) and their nested same-site frames reach ONE worker (count and connections continue across them), a tab of another session gets its own; self.name, self.location, the worker's cookie jar (cookies set by BOTH tabs of the profile, only the other tab's in the other session), a second named worker, SecurityError for another site's script, SyntaxError for a bad URL and the error event of a missing script — every value IDENTICAL natively and through the proxy; e2e-tt43: WP-22 hosts and lifecycle (proxied): one hidden host document per (session, site) — opaque origin, sandboxed — and when the last page of a session leaves the site its host is removed (after the grace), while the other session's worker keeps its state; coming back starts a fresh worker; e2e-tt43: WP-22 attacks (proxied): a page that forges a connect with a document id the server never issued, or names another site's script, gets an error and no worker; a proxied page calling the broker's server endpoints directly (__shared-who / __shared-host) cannot read them, and the server refuses such requests (403: only the Fusion window may), so it can neither learn about documents nor mint host documents (+6) |
 | FF-38 | built | full | e2e-tt59: FF-38 Writer spell check in the UI: highlights painted → F7 pane Change / typed Change / Ignore All / Delete repeated word → right-click menu suggestion → Add to Dictionary persists → Escape closes only menu/pane → saved document.xml (lxml); tt59-writer-spell: en_US: every verdict equals spylls (Hunspell port) on ~22k words — forms, misspellings, case, ordinals, apostrophes, hyphens; tt59-writer-spell: hand-written dictionary (FLAG long, KEEPCASE, FORBIDDENWORD, NEEDAFFIX, NOSUGGEST, BREAK, COMPOUNDRULE ?, conditions, cross product) equals spylls (+6) |
 | FF-39 | built | full | e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save; tt59-sheet-spell: only text constants are checked (formulas, numbers, logicals, errors skipped); quote prefix offsets; row-major order; repeated words; tt59-sheet-spell: selection scope, Ignore All / Ignore Once, user dictionary (+3) |
+| FF-40 | built | full | e2e-tt60: FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right refused; saved trPr ins/del verified by lxml; per-change Accept removes the row; tt60-writer-tblrev: recording: an inserted row is w:trPr/w:ins and a deleted row w:trPr/w:del with its text as w:delText (oracle); CT_TrPr order; ids unique; python-docx opens; tt60-writer-tblrev: accept-all / reject-all (ours) equal the oracle's independent views, live and after save → re-open (+5) |
+| FF-41 | built | full | e2e-tt60: FF-41 Spreadsheet spelling in all sheets: F7 → All sheets → tab order from the active sheet; Change switches to the issue's sheet; Change All covers every sheet; openpyxl reads the save; tt60-sheet-spell-all: all sheets: tab order from the starting sheet, wrapping; a selection range is ignored; single sheet unchanged; tt60-sheet-spell-all: openpyxl 3-sheet .xlsx: Change All across sheets, a fix on a non-active sheet, saved losslessly, openpyxl reads every sheet back |
+| FF-42 | built | full | e2e-tt60: FF-42 Writer spelling in headers and notes: F7 lists body → Header → Footnote 1 issues; Change fixes them in place; saved file verified by python-docx and lxml; tt60-writer-spell-stories: issues in every story: main text first, then header, footer, footnote — each with its place; spellIssues (main) unchanged; tt60-writer-spell-stories: fixing in a header keeps the run formatting (bold 'The'), footer + footnote fixed; saved file verified by python-docx (hf), lxml (notes, runs) (+1) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
@@ -546,7 +554,7 @@ None.
 | RG-02 | partial | untested |  |
 | RG-03 | built | full | e2e-tt56-rows: RG-03 idle: with the desktop static for 3 s, zero requestAnimationFrame callbacks run (rAF counted by an init script) |
 | RG-04 | built | partial | e2e: mount: monitor; e2e: governor reacts to injected long tasks |
-| RG-05 | built | untested |  |
+| RG-05 | built | full | e2e-tt60: RG-05 Backup refuses on a low discharging battery (injected getBattery 12%) with the reason, Build anyway works; Monitor shows background work paused; charging builds directly; tt60-units: RG-05 heavyWorkRefusal: < 20 % and discharging refuses (says the level); 20 %, charging, unknown battery go ahead; Data Saver refuses; tt60-units: RG-05 governor snapshot: a low discharging battery pauses background work and states why; charging restores it |
 | RG-06 | built | full | unit: RG-06 memory policy: absence is not low memory |
 | RG-07 | built | full | e2e-tt56-rows: RG-07 capability report: ≥ 40 APIs in Settings → Capabilities, each row has detail/degrade text, sampled rows equal independent detection |
 | HW-01 | built | partial | e2e: drag a window by its title bar; geometry is committed and persisted |

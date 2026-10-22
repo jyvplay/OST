@@ -1,0 +1,24 @@
+{
+  "suite": "tt60-units",
+  "at": "2026-10-22T08:08:46.415Z",
+  "results": [
+    {
+      "suite": "tt60-units",
+      "name": "RG-05 heavyWorkRefusal: < 20 % and discharging refuses (says the level); 20 %, charging, unknown battery go ahead; Data Saver refuses",
+      "covers": {
+        "RG-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt60-units",
+      "name": "RG-05 governor snapshot: a low discharging battery pauses background work and states why; charging restores it",
+      "covers": {
+        "RG-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -7,12 +7,16 @@
  * (w:noProof), runs in a non-English language (w:lang), URLs / e-mail / paths, words with digits (ordinals excepted),
  * optionally words in UPPERCASE, words the user chose to "Ignore All", and single occurrences ignored once.
  */
-import { allParas, type Para, type WordDoc } from "./wordml";
+import { allParas, type Block, type Para, type WordDoc } from "./wordml";
 import { kid, attr, type XEl } from "./xmltree";
 import * as E from "./wordedit";
 import { tokenize, type Speller } from "../spell/hunspell";
 
-export interface SpellIssue { kind: "spell" | "repeat"; pid: string; off: number; len: number; word: string }
+export interface SpellIssue {
+  kind: "spell" | "repeat"; pid: string; off: number; len: number; word: string;
+  /** TT60: set for issues outside the main text — "hf:<rId>" (header / footer part) or "note:<footnote|endnote>:<id>" */
+  story?: string; /** human place name for the pane: "Header", "Footer", "Footnote 2" */ where?: string;
+}
 export interface SpellOpts { skipUpper?: boolean; ignoreAll?: Set<string>; ignoreOnce?: Set<string> }
 
 /** key of one occurrence for "Ignore once" (stable while the paragraph text before it is unchanged) */
@@ -62,9 +66,63 @@ export function issuesInPara(p: Para, sp: Speller, o: SpellOpts, ignoreAll: Set<
   return out;
 }
 
+/** TT60: headers / footers and footnotes / endnotes are checked too (Word proofs every story). Issues come after the main
+ *  text: header / footer parts in relationship order, then notes in document order. */
+export function storyIssues(doc: WordDoc, sp: Speller, o: SpellOpts = {}): SpellIssue[] {
+  const out: SpellIssue[] = [];
+  const ignoreAll = o.ignoreAll ?? new Set<string>(), once = o.ignoreOnce ?? new Set<string>();
+  for (const [rid, blocks] of doc.parts) {
+    const where = /footer/i.test(doc.hf.xml.get(rid)?.path ?? doc.rels.find((r) => r.id === rid)?.target ?? "") ? "Footer" : "Header";
+    for (const p of allParas(blocks)) for (const x of issuesInPara(p, sp, o, ignoreAll, once)) out.push({ ...x, story: `hf:${rid}`, where });
+  }
+  const n = { footnote: 0, endnote: 0 };
+  for (const note of doc.notes) {
+    const k = ++n[note.type];
+    for (const p of allParas(note.blocks)) for (const x of issuesInPara(p, sp, o, ignoreAll, once)) out.push({ ...x, story: `note:${note.type}:${note.id}`, where: `${note.type === "footnote" ? "Footnote" : "Endnote"} ${k}` });
+  }
+  return out;
+}
+/** every story: main text first, then headers / footers and notes */
+export const allIssues = (doc: WordDoc, sp: Speller, o: SpellOpts = {}) => [...spellIssues(doc, sp, o), ...storyIssues(doc, sp, o)];
+
+/** the paragraph an issue points at, in whichever story it lives */
+export function issuePara(doc: WordDoc, i: SpellIssue): Para | undefined {
+  if (!i.story) return E.paraById(doc, i.pid);
+  return storyBlocks(doc, i.story).flatMap((b) => allParas(b.blocks)).find((p) => p.id === i.pid);
+}
+function storyBlocks(doc: WordDoc, story: string): { blocks: Block[]; set: (b: Block[]) => void }[] {
+  const h = /^hf:(.+)$/.exec(story);
+  if (h) { const b = doc.parts.get(h[1]); return b ? [{ blocks: b, set: (nb) => { doc.parts.set(h[1], nb); doc.hf.dirty.add(h[1]); } }] : []; }
+  const m = /^note:(footnote|endnote):(.+)$/.exec(story);
+  const k = m ? doc.notes.findIndex((x) => x.type === m[1] && x.id === m[2]) : -1;
+  return k < 0 ? [] : [{ blocks: doc.notes[k].blocks, set: (nb) => { doc.notes[k] = { ...doc.notes[k], blocks: nb, dirty: true }; doc.notesTouched = true; } }];
+}
+/** a fix outside the main text: the story's blocks are copied first (so undo snapshots, which hold the old arrays, still
+ *  restore), then the words are replaced inside the runs — run formatting is kept (untracked: Word tracks header edits,
+ *  this editor's tracking covers the main text) */
+function fixStoryIssue(doc: WordDoc, i: SpellIssue, replacement: string): boolean {
+  const st = storyBlocks(doc, i.story!)[0]; if (!st) return false;
+  const nb = E.cloneBlocks(st.blocks);
+  const p = allParas(nb).find((x) => x.id === i.pid); if (!p) return false;
+  if (proofText(p).slice(i.off, i.off + i.len) !== i.word) return false;
+  let pos = 0, put = false;
+  const a = i.off, b = i.off + i.len;
+  p.content = p.content.flatMap((it) => {
+    const s0 = pos; pos += E.ilen(it);
+    if (it.t !== "r" || pos <= a || s0 >= b) return [it];
+    const from = Math.max(a, s0) - s0, to = Math.min(b, pos) - s0;
+    const text = it.text.slice(0, from) + (put ? "" : replacement) + it.text.slice(to); put = true;
+    return text ? [{ ...it, text }] : [];
+  });
+  p.dirty = true;
+  st.set(nb);
+  return true;
+}
+
 /** replaces one issue's text (tracked when Track Changes is on); a "repeat" issue with no replacement deletes the
  *  repeated word together with the space before it. Returns the caret position after the change. */
 export function fixIssue(doc: WordDoc, i: SpellIssue, replacement: string): E.Pos {
+  if (i.story) { fixStoryIssue(doc, i, replacement); return { pid: i.pid, off: i.off + replacement.length }; }
   const r = { a: { pid: i.pid, off: i.off }, b: { pid: i.pid, off: i.off + i.len } };
   const at = replacement === "" ? E.deleteForward(doc, r) : E.deleteForReplace(doc, r);
   return replacement ? E.insertText(doc, at, replacement) : at;
@@ -72,7 +130,7 @@ export function fixIssue(doc: WordDoc, i: SpellIssue, replacement: string): E.Po
 
 /** "Change All": every remaining misspelling equal to `word` (exact text) is replaced; returns the count */
 export function changeAll(doc: WordDoc, sp: Speller, word: string, replacement: string, o: SpellOpts = {}): number {
-  const hits = spellIssues(doc, sp, o).filter((i) => i.kind === "spell" && i.word === word);
+  const hits = allIssues(doc, sp, o).filter((i) => i.kind === "spell" && i.word === word);
   for (const h of hits.slice().reverse()) fixIssue(doc, h, replacement);
   return hits.length;
 }

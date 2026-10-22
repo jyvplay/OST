@@ -168,8 +168,9 @@ await test("differential vs PyPAC 0.19 (Apache-2.0, Duktape engine) at the same 
     // the same URL string the oracle gets; hosts resolve through the system resolver in both implementations
     ours.push(await p.find(new URL(c.url.replace(/^https:\/\/([^/]+)\/$/, "https://$1/")), { now: NOW }));
   }
-  const r = spawnSync(PY, ["scripts/fixtures/pac/pac_oracle.py"], { input: JSON.stringify({ now: NOW_ISO, cases }), env: { ...process.env, TZ: "UTC" }, encoding: "utf8", timeout: 60000 });
-  ok(r.status === 0, `oracle failed: ${r.stderr}`);
+  const r = spawnSync(PY, ["scripts/fixtures/pac/pac_oracle.py"], { input: JSON.stringify({ now: NOW_ISO, cases }), env: { ...process.env, TZ: "UTC" }, encoding: "utf8", timeout: 300000 });
+  // TT60: 300 s — each unresolvable test host costs PyPAC's resolver ~10 s in this sandbox (was 60 s: a timeout, not a mismatch)
+  ok(r.status === 0, `oracle failed: ${r.stderr}${r.error ? ` (${r.error.message})` : ""}${r.signal ? ` signal ${r.signal}` : ""}`);
   const theirs = JSON.parse(r.stdout) as string[];
   eq(theirs.length, cases.length, "oracle answered every case");
   const n = cases.length - predicted.length;
