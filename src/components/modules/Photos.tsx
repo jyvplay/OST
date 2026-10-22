@@ -207,7 +207,7 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported }: { item: Item;
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0.5, y: 0.5 });
   const [busy, setBusy] = useState<string | null>(null);
-  const [exp, setExp] = useState<{ format: "jpeg" | "png" | "webp" | "avif" | "heic"; quality: number; size: number; meta: boolean; location: boolean } | null>(null);
+  const [exp, setExp] = useState<{ format: "jpeg" | "png" | "webp" | "avif" | "heic" | "gif" | "bmp"; quality: number; size: number; meta: boolean; location: boolean } | null>(null);
   const [caps, setCaps] = useState<Record<string, boolean> | null>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const recipe = hist.list[hist.at];
@@ -374,10 +374,10 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported }: { item: Item;
           <strong>Export a copy</strong>
           <label className="fs-row" style={{ gap: 6 }}>Format
             <select className="fs-input" value={exp.format} onChange={(e) => setExp({ ...exp, format: e.target.value as typeof exp.format })}>
-              {(["jpeg", "png", "webp", "avif", "heic"] as const).map((f) => <option key={f} value={f} disabled={caps ? !caps[f] : f === "heic"}>{f.toUpperCase()}{caps && !caps[f] ? " — not available in this browser" : ""}</option>)}
+              {(["jpeg", "png", "webp", "avif", "heic", "gif", "bmp"] as const).map((f) => <option key={f} value={f} disabled={caps ? !caps[f] : f === "heic"}>{f.toUpperCase()}{caps && !caps[f] ? " — not available in this browser" : ""}</option>)}
             </select>
           </label>
-          {exp.format !== "png" ? <Slider label="Quality" min={0.3} max={1} step={0.01} value={exp.quality} onChange={(v) => setExp({ ...exp, quality: v })} /> : null}
+          {exp.format !== "png" && exp.format !== "gif" && exp.format !== "bmp" ? <Slider label="Quality" min={0.3} max={1} step={0.01} value={exp.quality} onChange={(v) => setExp({ ...exp, quality: v })} /> : null}
           <label className="fs-row" style={{ gap: 6 }}>Size
             <select className="fs-input" value={exp.size} onChange={(e) => setExp({ ...exp, size: Number(e.target.value) })}>
               <option value={0}>Full resolution</option><option value={3840}>3840 px long side</option><option value={2048}>2048 px</option><option value={1080}>1080 px</option>

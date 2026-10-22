@@ -8,6 +8,7 @@
  *   page setup, print/PDF, navigation pane, word count, AutoSave. Legacy .fdoc files still open.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { fz, useUiUnit } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
 import { toB64, fromB64 } from "@/lib/crypto";
@@ -16,11 +17,15 @@ import { Btn } from "../ui";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import { allParas, blankWord, docText, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
 import * as E from "@/lib/office/wordedit";
+import * as WS from "@/lib/office/wordspell";
+import type { Speller } from "@/lib/spell/hunspell";
+import { addUserWord, loadSpeller, paintSpell, readSkipUpper, readSpellMode, readUserWords, removeUserWord, SPELL_CSS, writeSkipUpper, writeSpellMode, type SpellMode } from "@/lib/spell/client";
+import SpellPanel from "./writer/SpellPanel";
 import { hfLines, removeHf, setDifferentFirst, setHf, type HfAlign, type HfKind, type HfLine, type HfType } from "@/lib/office/hdrftr";
 import type { XEl } from "@/lib/office/xmltree";
 import { domToPos, geomOf, makeState, paginate, posToDom, renderBlocks, renderPara, cssFont } from "./writer/view";
 
-type Panel = "none" | "find" | "review" | "nav" | "page" | "hf" | "notes";
+type Panel = "none" | "find" | "review" | "nav" | "page" | "hf" | "notes" | "spell";
 const MIME_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const FONTS = ["Calibri", "Cambria", "Arial", "Times New Roman", "Georgia", "Verdana", "Courier New", "Consolas", "Segoe UI", "Aptos"];
 const SIZES = [8, 9, 10, 10.5, 11, 12, 14, 16, 18, 20, 24, 28, 36, 48, 72];
@@ -198,6 +203,106 @@ export default function WriterModule({ win }: ModuleProps) {
     if (pid) renderParaOnly(pid); else renderAll();
     if (sel) setSel(sel);
     setDirty(true); bump();
+  };
+
+  /* ------------------------------------------------------------ TT59 spelling */
+  const [spellMode, setSpellModeS] = useState<SpellMode>(() => readSpellMode());
+  const [skipUpper, setSkipUpperS] = useState<boolean>(() => readSkipUpper());
+  const [speller, setSpeller] = useState<Speller | null>(null);
+  const [spellErr, setSpellErr] = useState("");
+  const [spellGen, setSpellGen] = useState(0);
+  const [issues, setIssues] = useState<WS.SpellIssue[]>([]);
+  const [spellIdx, setSpellIdx] = useState(0);
+  const [userWords, setUserWords] = useState<string[]>(() => readUserWords());
+  const [spellMenu, setSpellMenu] = useState<{ x: number; y: number; issue: WS.SpellIssue; sugs: string[] } | null>(null);
+  const ignoreAll = useRef(new Set<string>()), ignoreOnce = useRef(new Set<string>());
+  const issuesRef = useRef<WS.SpellIssue[]>([]);
+  const setSpellMode = (m: SpellMode) => { writeSpellMode(m); setSpellModeS(m); };
+  const setSkipUpper = (v: boolean) => { writeSkipUpper(v); setSkipUpperS(v); };
+  useEffect(() => {
+    if (spellMode !== "fusion" || speller) return;
+    let live = true;
+    loadSpeller().then((sp) => { if (live) setSpeller(sp); }).catch((e) => { if (live) setSpellErr(`Spelling dictionary could not be loaded: ${(e as Error).message}`); });
+    return () => { live = false; };
+  }, [spellMode, speller]);
+  useEffect(() => {
+    const owner = `writer-${win.id}`;
+    if (!loaded || spellMode !== "fusion" || !speller) { paintSpell(owner, [], []); const t0 = window.setTimeout(() => { issuesRef.current = []; setIssues([]); }, 0); return () => window.clearTimeout(t0); }
+    let recheck = 0;
+    const t = window.setTimeout(() => {
+      const doc = docRef.current, root = rootRef.current; if (!doc || !root) return;
+      let list = WS.spellIssues(doc, speller, { skipUpper, ignoreAll: ignoreAll.current, ignoreOnce: ignoreOnce.current });
+      // the word being typed is not flagged while typing continues (Word); TT59 fix: once typing pauses it IS flagged
+      // (before, nothing re-ran the check, so a misspelled last word stayed unmarked until the next edit)
+      const r = selRef.current; const age = Date.now() - lastTyping.current;
+      if (r && r.a.pid === r.b.pid && r.a.off === r.b.off && age < 1500) {
+        const n0 = list.length; list = list.filter((i) => !(i.pid === r.a.pid && r.a.off === i.off + i.len));
+        if (list.length !== n0) recheck = window.setTimeout(() => setSpellGen((g) => g + 1), 1550 - age);
+      }
+      issuesRef.current = list; setIssues(list);
+    }, 300);
+    return () => { window.clearTimeout(t); window.clearTimeout(recheck); };
+  }, [ver, docGen, loaded, spellMode, speller, skipUpper, spellGen, win.id]);
+  // paint after React committed the issue list (ranges are built from the live DOM)
+  useEffect(() => {
+    const owner = `writer-${win.id}`, root = rootRef.current;
+    if (!root || spellMode !== "fusion") { paintSpell(owner, [], []); return; }
+    const mk = (i: WS.SpellIssue) => {
+      const a = posToDom(root, { pid: i.pid, off: i.off }), b = posToDom(root, { pid: i.pid, off: i.off + i.len });
+      if (!a || !b) return null;
+      try { const rg = document.createRange(); rg.setStart(a.node, a.offset); rg.setEnd(b.node, b.offset); return rg; } catch { return null; }
+    };
+    const sp: Range[] = [], rp: Range[] = [], cur: Range[] = [];
+    issues.forEach((i) => { const rg = mk(i); if (rg) (i.kind === "repeat" ? rp : sp).push(rg); });
+    if (panel === "spell" && issues.length) { const c = mk(issues[Math.min(spellIdx, issues.length - 1)]); if (c) cur.push(c); }
+    root.dataset.spellIssues = String(issues.length);
+    paintSpell(owner, sp, rp, cur);
+  }, [issues, panel, spellIdx, spellMode, win.id]);
+  useEffect(() => () => paintSpell(`writer-${win.id}`, [], []), [win.id]);
+  const spellContext = (i: WS.SpellIssue) => {
+    const p = E.paraById(docRef.current!, i.pid); const t = p ? WS.proofText(p).replace(/[\u0000\ufffc]/g, " ") : i.word;
+    const b0 = Math.max(0, i.off - 48), a1 = Math.min(t.length, i.off + i.len + 48);
+    return { before: (b0 > 0 ? "…" : "") + t.slice(b0, i.off).replace(/^\S*\s/, b0 > 0 ? "" : "$&"), word: t.slice(i.off, i.off + i.len), after: t.slice(i.off + i.len, a1) + (a1 < t.length ? "…" : "") };
+  };
+  const goIssue = (i: WS.SpellIssue) => {
+    const r = { a: { pid: i.pid, off: i.off }, b: { pid: i.pid, off: i.off + i.len } };
+    rootRef.current?.querySelector(`[data-pid="${i.pid}"]`)?.scrollIntoView({ block: "center" });
+    setSel(r);
+  };
+  const fixIssue = (i: WS.SpellIssue, to: string) => {
+    const d = docRef.current!; snapshot();
+    const at = WS.fixIssue(d, i, to);
+    changed(i.pid, { a: at, b: at }); setSpellMenu(null);
+    setStatus(i.kind === "repeat" ? `Deleted repeated word “${i.word.trim()}”` : `Changed “${i.word}” to “${to}”`);
+  };
+  const fixAll = (i: WS.SpellIssue, to: string) => {
+    const d = docRef.current!; snapshot();
+    const n = WS.changeAll(d, speller!, i.word, to, { skipUpper, ignoreAll: ignoreAll.current, ignoreOnce: ignoreOnce.current });
+    changed(); setSpellMenu(null); setStatus(`Changed ${n} occurrence(s) of “${i.word}” to “${to}”`);
+  };
+  const ignoreIssue = (i: WS.SpellIssue, all: boolean) => {
+    if (all) ignoreAll.current.add(i.word.replace(/’/g, "'")); else ignoreOnce.current.add(WS.issueKey(i));
+    setSpellMenu(null); setSpellGen((g) => g + 1);
+    setStatus(all ? `Ignoring “${i.word}” in this document` : `Ignored this occurrence of “${i.word}”`);
+  };
+  const addWord = (i: WS.SpellIssue) => {
+    if (!addUserWord(i.word.replace(/’/g, "'"))) { setStatus("That cannot be added to the dictionary"); return; }
+    setUserWords(readUserWords()); setSpellMenu(null); setSpellGen((g) => g + 1); setStatus(`Added “${i.word}” to your dictionary`);
+  };
+  const nextIssue = () => {
+    const list = issuesRef.current; if (!list.length) { setStatus(spellMode === "fusion" ? "No spelling issues" : "Fusion spell checking is off"); return; }
+    const r = curSel(); const ord = E.order(docRef.current!);
+    const after = (i: WS.SpellIssue) => (ord.get(i.pid) ?? 0) > (ord.get(r.b.pid) ?? 0) || (i.pid === r.b.pid && i.off >= r.b.off);
+    const j = Math.max(0, list.findIndex(after)); setSpellIdx(j); goIssue(list[j]);
+  };
+  const onSpellContext = (e: React.MouseEvent) => {
+    if (spellMode !== "fusion" || !speller || !issuesRef.current.length) return;
+    const cr = (document as Document & { caretRangeFromPoint?: (x: number, y: number) => Range | null }).caretRangeFromPoint?.(e.clientX, e.clientY);
+    const pos = cr ? domToPos(cr.startContainer, cr.startOffset) : readSel()?.a;
+    const hit = pos ? WS.issueAt(issuesRef.current, pos) : undefined;
+    if (!hit) return;
+    e.preventDefault();
+    setSpellMenu({ x: e.clientX, y: e.clientY, issue: hit, sugs: hit.kind === "spell" ? speller.suggest(hit.word, 5) : [] });
   };
 
   /* ------------------------------------------------------------ load / save */
@@ -575,8 +680,13 @@ export default function WriterModule({ win }: ModuleProps) {
 
   return (
     <div className="writer" ref={shellRef} style={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }} data-testid="writer"
-      onKeyDown={(e) => { if (!e.defaultPrevented && (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "s") { e.preventDefault(); void save(); } }}>
-      <style>{WRITER_CSS}</style>
+      onKeyDown={(e) => {
+        if (!e.defaultPrevented && (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "s") { e.preventDefault(); void save(); }
+        // TT59 Word keys: F7 opens the Spelling pane, Alt+F7 jumps to the next spelling issue after the cursor
+        if (e.key === "F7" && !e.ctrlKey && !e.metaKey) { e.preventDefault(); if (e.altKey) nextIssue(); else setPanel("spell"); }
+        if (e.key === "Escape" && spellMenu) { e.preventDefault(); setSpellMenu(null); }
+      }}>
+      <style>{WRITER_CSS + SPELL_CSS}</style>
       {/* ---------- file / history row */}
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }}>
         <Btn variant="ghost" onClick={async () => { if (dirty && !confirmLeave()) return; const d = await blankWord(); docRef.current = d; setPath(""); encRef.current = null; setLocked(false); undo.current = []; setDirty(false); bump(); setDocGen((g) => g + 1); }}>New</Btn>
@@ -600,7 +710,7 @@ export default function WriterModule({ win }: ModuleProps) {
         <Btn variant="ghost" disabled={!redo.current.length} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>
         <span style={{ flex: 1 }} />
         <label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || !!(encRef.current && !encRef.current.password)} aria-label="AutoSave" />AutoSave</label>
-        {(["nav", "find", "review", "notes", "page", "hf"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", notes: "Notes", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
+        {(["nav", "find", "review", "spell", "notes", "page", "hf"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} title={p === "spell" ? "Spelling (F7; Alt+F7 next issue)" : undefined} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", spell: "Spelling", notes: "Notes", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
       </div>
       {/* ---------- formatting row */}
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }} onMouseDown={(e) => { if ((e.target as HTMLElement).tagName === "BUTTON") e.preventDefault(); }}>
@@ -682,7 +792,7 @@ export default function WriterModule({ win }: ModuleProps) {
           <div style={{ width: g.pageW * z, height: pages * (g.pageH + g.gap) * z, margin: "0 auto", position: "relative" }}>
             <div style={{ transform: `scale(${z})`, transformOrigin: "0 0", width: g.pageW, position: "absolute", left: 0, top: 0 }}>
               <div ref={pagesRef} className="wpages" style={{ position: "absolute", left: 0, top: 0, width: g.pageW }} aria-hidden />
-              <div ref={rootRef} className="wdoc" contentEditable suppressContentEditableWarning spellCheck role="textbox" aria-multiline aria-label="Document body"
+              <div ref={rootRef} className="wdoc" contentEditable suppressContentEditableWarning spellCheck={spellMode === "browser"} onContextMenu={onSpellContext} role="textbox" aria-multiline aria-label="Document body"
                 style={{ position: "absolute", left: g.left, top: g.top, width: g.pageW - g.left - g.right, outline: "none", color: "#111", caretColor: "#111" }}
                 onKeyDown={onKeyDown} onPaste={onPaste} onCut={onCut} onCopy={onCopy} onClick={onClick} onDrop={(e) => e.preventDefault()} data-testid="writer-body" />
             </div>
@@ -718,6 +828,11 @@ export default function WriterModule({ win }: ModuleProps) {
               <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>New comment on selection</Btn>
               {doc.comments.map((c) => <button key={c.id} className="wcom" onClick={() => { const m = rootRef.current?.querySelector(`[data-cids~="${c.id}"], .wcmt[data-cids*="${c.id}"]`); m?.scrollIntoView({ block: "center" }); }}><b>{c.author || "Unknown"}</b>{c.date ? <span style={{ opacity: 0.6 }}> · {c.date.slice(0, 10)}</span> : null}<div>{c.text}</div></button>)}
             </>}
+            {panel === "spell" && <SpellPanel issues={issues} idx={spellIdx} setIdx={setSpellIdx} sp={speller}
+              loading={spellErr || (spellMode === "fusion" && !speller ? "Loading the English (US) dictionary…" : "")}
+              context={spellContext} mode={spellMode} setMode={setSpellMode} skipUpper={skipUpper} setSkipUpper={setSkipUpper}
+              onGo={goIssue} onChange={fixIssue} onChangeAll={fixAll} onIgnoreOnce={(i) => ignoreIssue(i, false)} onIgnoreAll={(i) => ignoreIssue(i, true)} onAdd={addWord}
+              userWords={userWords} onRemoveWord={(w) => { removeUserWord(w); setUserWords(readUserWords()); setSpellGen((g) => g + 1); }} />}
             {panel === "notes" && <>
               <div className="wside-h">Footnotes &amp; endnotes ({notes.length})</div>
               <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
@@ -738,8 +853,28 @@ export default function WriterModule({ win }: ModuleProps) {
           </div>
         )}
       </div>
+      {/* TT59: portalled to <body> — inside the (transformed) window a fixed menu was offset by the window position and
+          its autoFocus scrolled the window body, so the pointer no longer matched the text */}
+      {spellMenu && typeof document !== "undefined" && createPortal(<>
+        <div style={{ position: "fixed", inset: 0, zIndex: 9998 }} onMouseDown={() => setSpellMenu(null)} onContextMenu={(e) => { e.preventDefault(); setSpellMenu(null); }} />
+        <div role="menu" aria-label={`Spelling: ${spellMenu.issue.word}`} className="wspell-menu" data-testid="spell-menu" style={{ position: "fixed", left: Math.max(4, Math.min(spellMenu.x, window.innerWidth - 230)), top: Math.max(4, Math.min(spellMenu.y, window.innerHeight - 320)), zIndex: 9999 }}
+          onKeyDown={(e) => {
+            const items = [...(e.currentTarget.querySelectorAll("[role=menuitem]") as NodeListOf<HTMLElement>)]; const k = items.indexOf(document.activeElement as HTMLElement);
+            if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); items[(k + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length]?.focus(); }
+            if (e.key === "Escape") { e.preventDefault(); setSpellMenu(null); rootRef.current?.focus(); }
+          }}>
+          {spellMenu.issue.kind === "repeat" ? <button role="menuitem" autoFocus onClick={() => fixIssue(spellMenu.issue, "")}>Delete repeated word</button>
+            : spellMenu.sugs.length ? spellMenu.sugs.map((s, k) => <button key={s} role="menuitem" autoFocus={k === 0} className="wspell-menu-sug" onClick={() => fixIssue(spellMenu.issue, s)}>{s}</button>)
+            : <button role="menuitem" autoFocus disabled>(no suggestions)</button>}
+          <hr />
+          <button role="menuitem" onClick={() => ignoreIssue(spellMenu.issue, spellMenu.issue.kind === "spell")}>{spellMenu.issue.kind === "spell" ? "Ignore All" : "Ignore"}</button>
+          {spellMenu.issue.kind === "spell" && <button role="menuitem" onClick={() => addWord(spellMenu.issue)}>Add to Dictionary</button>}
+          <button role="menuitem" onClick={() => { const j = issuesRef.current.indexOf(spellMenu.issue); setSpellIdx(Math.max(0, j)); setPanel("spell"); setSpellMenu(null); }}>Spelling…</button>
+        </div>
+      </>, document.body)}
       <div className="fs-row" style={{ padding: "3px 8px", gap: 12, borderTop: "1px solid var(--fs-border)", fontSize: fz(12), opacity: 0.85 }} aria-live="polite">
         {doc.track.on && <button className="wtrack-chip" onClick={toggleTrack} data-testid="writer-track-chip" title="Track Changes is on — click to turn off (Ctrl+Shift+E)">Tracking changes</button>}
+        {spellMode === "fusion" && speller && <button className="wspell-chip" data-testid="writer-spell-chip" onClick={() => setPanel("spell")} title="Spelling (F7)">{issues.length ? `${issues.length} spelling issue${issues.length === 1 ? "" : "s"}` : "No spelling issues"}</button>}
         <span data-testid="writer-pages">Page count: {pages}</span><span data-testid="writer-words">{counts.words} words</span><span>{counts.chars} characters</span>
         <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} data-testid="writer-status">{status}</span>
         <span>{path || "unsaved"}</span>
@@ -914,6 +1049,16 @@ function PageSetup({ doc, onApply }: { doc: WordDoc; onApply: (o: { paper?: stri
 }
 const PRINT_CSS = `.wp{margin:0}.wtbl{border-collapse:collapse;table-layout:fixed;margin:2px 0}.wtbl td{vertical-align:top;padding:2px 6px}.wtbl-b td{border:1px solid #444}.wtok-fieldcode,.wtok-bookmark,.wtok-comment{display:none}.wtok-note{vertical-align:super;font-size:70%}.wtok-del{text-decoration:line-through;color:#b00020}.wtok-ins{text-decoration:underline;color:#0a5}.wlink{color:#0563c1;text-decoration:underline}.wnotes{border-top:1px solid #999;margin-top:18px;padding-top:6px;font-size:9pt}.wnotes-h{font-weight:600}`;
 const WRITER_CSS = `
+.wspell-sug{text-align:left;padding:4px 8px;border-radius:6px;border:1px solid transparent;background:transparent;color:inherit;font:inherit;cursor:pointer;min-height:28px}
+.wspell-sug:hover{background:var(--fs-hover,rgba(0,0,0,.06))}
+.wspell-sug.on{border-color:var(--fs-accent,#2563eb);background:var(--fs-accent-soft,rgba(37,99,235,.10));font-weight:600}
+.wspell-link{background:none;border:0;padding:2px 0;color:var(--fs-accent,#2563eb);text-align:left;cursor:pointer;font:inherit;text-decoration:underline}
+.wspell-chip{background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer;text-decoration:underline dotted}
+.wspell-menu{min-width:190px;padding:4px;border-radius:10px;border:1px solid var(--fs-border,#ccc);background:var(--fs-panel-solid,#fff);color:var(--fs-text,#111);box-shadow:0 10px 30px rgba(0,0,0,.18);display:flex;flex-direction:column}
+.wspell-menu button{text-align:left;padding:6px 10px;min-height:32px;border:0;border-radius:6px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.wspell-menu button:hover,.wspell-menu button:focus-visible{background:var(--fs-accent-soft,rgba(37,99,235,.12));outline:none}
+.wspell-menu .wspell-menu-sug{font-weight:600}
+.wspell-menu hr{border:0;border-top:1px solid var(--fs-border,#ddd);margin:4px 0}
 .writer .wpage{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18),0 6px 18px rgba(0,0,0,.08);border-radius:2px}
 .writer .wdoc{font-family:${cssFont("Calibri")};font-size:11pt;line-height:1.17}
 .writer .wdoc .wp{margin:0;min-height:1em}

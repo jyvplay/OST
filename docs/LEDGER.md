@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-22T03:29:57.965Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-127 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-22T05:58:23.572Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+133 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **368** |
-| Fully built | 292 |
+| **Features in register** | **370** |
+| Fully built | 294 |
 | Partially built (partial 36 + probe 18) | 54 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 1 |
-| **Fully tested** (≥1 passing test tagged `full`) | **205** |
+| **Fully tested** (≥1 passing test tagged `full`) | **208** |
 | **Partially tested** (only `partial` tags) | **72** |
-| Untested | 91 |
-| Automated tests executed / passed | 1067 / 1067 |
+| Untested | 90 |
+| Automated tests executed / passed | 1095 / 1095 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 197 | 59 | 36 |
+| fully built | 200 | 59 | 35 |
 | partially built | 2 | 11 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 1 |
@@ -37,17 +37,17 @@ verifies the honesty contract, not the (impossible) capability.
 | ai-format | 5 | 5 | 0 | 2026-10-22T01:55:00.599Z |
 | browser-session | 5 | 5 | 0 | 2026-10-22T01:54:48.321Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-22T01:55:01.849Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-22T03:29:39.419Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-22T05:51:25.248Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-22T02:06:27.438Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-22T02:23:47.501Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-22T05:55:21.003Z |
 | e2e-browser | 6 | 6 | 0 | 2026-10-22T01:59:34.054Z |
 | e2e-contacts | 9 | 9 | 0 | 2026-10-22T02:06:53.410Z |
 | e2e-image | 10 | 10 | 0 | 2026-10-22T01:58:26.025Z |
 | e2e-layout | 12 | 12 | 0 | 2026-10-22T02:07:58.860Z |
 | e2e-media27 | 7 | 7 | 0 | 2026-10-22T02:10:18.061Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-22T03:24:26.323Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-22T05:18:24.726Z |
 | e2e-privacy | 14 | 14 | 0 | 2026-10-22T02:00:04.661Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-22T03:24:54.247Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-22T05:18:58.213Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-22T02:05:48.197Z |
 | e2e-tabletop | 15 | 15 | 0 | 2026-10-22T02:09:33.579Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-22T02:10:58.158Z |
@@ -72,21 +72,22 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt47 | 5 | 5 | 0 | 2026-10-22T02:37:48.191Z |
 | e2e-tt48-sync | 4 | 4 | 0 | 2026-10-22T03:09:45.714Z |
 | e2e-tt48 | 6 | 6 | 0 | 2026-10-22T02:38:40.008Z |
-| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-22T02:45:50.549Z |
-| e2e-tt49 | 5 | 5 | 0 | 2026-10-22T02:44:24.467Z |
+| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-22T05:19:23.639Z |
+| e2e-tt49 | 5 | 5 | 0 | 2026-10-22T05:19:42.515Z |
 | e2e-tt50-charts | 5 | 5 | 0 | 2026-10-22T02:47:43.852Z |
 | e2e-tt51-slides | 6 | 6 | 0 | 2026-10-22T02:49:09.534Z |
 | e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-22T02:50:02.224Z |
 | e2e-tt53-media | 6 | 6 | 0 | 2026-10-22T02:50:53.673Z |
-| e2e-tt54 | 8 | 8 | 0 | 2026-10-22T02:51:53.832Z |
+| e2e-tt54 | 8 | 8 | 0 | 2026-10-22T05:57:51.315Z |
 | e2e-tt55-files | 13 | 13 | 0 | 2026-10-22T02:52:52.836Z |
 | e2e-tt55-shell | 3 | 3 | 0 | 2026-10-22T03:25:46.718Z |
 | e2e-tt56-rows | 7 | 7 | 0 | 2026-10-22T02:55:34.404Z |
-| e2e-tt56 | 10 | 10 | 0 | 2026-10-22T03:25:24.234Z |
+| e2e-tt56 | 10 | 10 | 0 | 2026-10-22T05:20:17.072Z |
 | e2e-tt57-rows | 4 | 4 | 0 | 2026-10-22T02:57:21.042Z |
-| e2e-tt57 | 3 | 3 | 0 | 2026-10-22T03:25:34.517Z |
+| e2e-tt57 | 3 | 3 | 0 | 2026-10-22T05:20:29.255Z |
 | e2e-tt58-rows | 3 | 3 | 0 | 2026-10-22T03:18:58.559Z |
-| e2e-tt58 | 3 | 3 | 0 | 2026-10-22T03:18:10.397Z |
+| e2e-tt58 | 3 | 3 | 0 | 2026-10-22T05:20:48.788Z |
+| e2e-tt59 | 4 | 4 | 0 | 2026-10-22T05:56:55.165Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-22T01:58:53.023Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-22T02:06:08.158Z |
 | e2e | 64 | 64 | 0 | 2026-10-22T01:56:57.757Z |
@@ -95,18 +96,18 @@ verifies the honesty contract, not the (impossible) capability.
 | layout-unit | 8 | 8 | 0 | 2026-10-22T01:55:02.638Z |
 | maps-unit | 6 | 6 | 0 | 2026-10-22T01:55:08.410Z |
 | metaclean | 6 | 6 | 0 | 2026-10-22T01:54:55.506Z |
-| names | 7 | 7 | 0 | 2026-10-22T02:29:53.129Z |
+| names | 7 | 7 | 0 | 2026-10-22T04:46:23.552Z |
 | office | 35 | 35 | 0 | 2026-10-22T02:17:28.482Z |
 | oracle-ai | 3 | 3 | 0 | 2026-10-22T01:55:01.537Z |
 | oracle-psd | 8 | 8 | 0 | 2026-10-22T01:54:46.197Z |
 | oracle-svg | 4 | 4 | 0 | 2026-10-22T01:54:48.166Z |
 | oracle-vcard | 3 | 3 | 0 | 2026-10-22T01:55:02.365Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-22T02:29:48.337Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-22T04:46:25.501Z |
 | oracle | 5 | 5 | 0 | 2026-10-22T01:54:37.915Z |
 | privacy-backup | 7 | 7 | 0 | 2026-10-22T01:54:58.739Z |
 | privacy-crypto | 9 | 9 | 0 | 2026-10-22T01:54:52.301Z |
 | privacy-layer | 11 | 11 | 0 | 2026-10-22T01:54:54.033Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-22T02:29:48.814Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-22T04:46:25.932Z |
 | stream-unit | 7 | 7 | 0 | 2026-10-22T01:55:03.172Z |
 | tables-engine | 9 | 9 | 0 | 2026-10-22T01:54:59.211Z |
 | tabletop-unit | 17 | 17 | 0 | 2026-10-22T01:55:02.967Z |
@@ -135,27 +136,32 @@ verifies the honesty contract, not the (impossible) capability.
 | tt44-vt | 12 | 12 | 0 | 2026-10-22T03:10:22.433Z |
 | tt45-unit | 10 | 10 | 0 | 2026-10-22T02:26:19.615Z |
 | tt46-writer | 12 | 12 | 0 | 2026-10-22T02:27:09.220Z |
-| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-22T03:08:16.009Z |
+| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-22T04:50:55.339Z |
 | tt47-crypto | 5 | 5 | 0 | 2026-10-22T02:37:10.869Z |
-| tt47-sheet | 8 | 8 | 0 | 2026-10-22T02:37:16.256Z |
+| tt47-sheet | 8 | 8 | 0 | 2026-10-22T04:54:46.448Z |
 | tt48-office | 6 | 6 | 0 | 2026-10-22T02:37:56.949Z |
-| tt49-sheet | 10 | 10 | 0 | 2026-10-22T03:23:59.543Z |
+| tt49-sheet | 10 | 10 | 0 | 2026-10-22T05:00:55.385Z |
 | tt49-writer | 9 | 9 | 0 | 2026-10-22T02:45:20.273Z |
-| tt50-charts | 10 | 10 | 0 | 2026-10-22T02:47:14.848Z |
+| tt50-charts | 10 | 10 | 0 | 2026-10-22T05:02:36.777Z |
 | tt51-slides | 15 | 15 | 0 | 2026-10-22T02:48:41.151Z |
 | tt52-pdf | 28 | 28 | 0 | 2026-10-22T02:49:18.437Z |
 | tt53-media | 11 | 11 | 0 | 2026-10-22T02:50:31.238Z |
-| tt54-meta | 6 | 6 | 0 | 2026-10-22T02:51:05.765Z |
+| tt54-meta | 6 | 6 | 0 | 2026-10-22T05:58:06.026Z |
 | tt55-files-unit | 7 | 7 | 0 | 2026-10-22T02:51:54.877Z |
-| tt56-sheet-paste | 4 | 4 | 0 | 2026-10-22T02:53:44.267Z |
+| tt56-sheet-paste | 4 | 4 | 0 | 2026-10-22T05:02:37.383Z |
 | tt56-shell-unit | 4 | 4 | 0 | 2026-10-22T02:53:43.868Z |
 | tt56-writer-track | 6 | 6 | 0 | 2026-10-22T02:53:43.466Z |
-| tt57-sheet-links | 6 | 6 | 0 | 2026-10-22T02:56:40.487Z |
+| tt57-sheet-links | 6 | 6 | 0 | 2026-10-22T05:02:52.849Z |
 | tt57-units | 2 | 2 | 0 | 2026-10-22T02:56:40.665Z |
 | tt57-writer-fmt | 5 | 5 | 0 | 2026-10-22T02:55:49.409Z |
 | tt57-writer-para | 5 | 5 | 0 | 2026-10-22T02:56:26.906Z |
-| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-22T03:17:52.991Z |
+| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-22T05:02:59.050Z |
 | tt58-writer-notes | 5 | 5 | 0 | 2026-10-22T03:17:47.458Z |
+| tt59-raster | 5 | 5 | 0 | 2026-10-22T05:50:48.178Z |
+| tt59-sheet-paste | 3 | 3 | 0 | 2026-10-22T04:44:55.740Z |
+| tt59-sheet-spell | 5 | 5 | 0 | 2026-10-22T04:46:13.672Z |
+| tt59-writer-spell | 8 | 8 | 0 | 2026-10-22T04:45:51.525Z |
+| tt59-x14-cf | 3 | 3 | 0 | 2026-10-22T04:44:57.158Z |
 | unit | 23 | 23 | 0 | 2026-10-22T01:54:33.667Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-22T01:54:47.466Z |
 | vector | 18 | 18 | 0 | 2026-10-22T01:54:46.451Z |
@@ -179,7 +185,7 @@ None.
 | AP | 5 | 1 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 46 | 8 | 0 | 40 | 8 | 6 |
-| FF | 34 | 33 | 1 | 0 | 30 | 2 | 2 |
+| FF | 36 | 35 | 1 | 0 | 33 | 2 | 1 |
 | MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
 | SC | 18 | 16 | 1 | 1 | 11 | 3 | 4 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
@@ -223,7 +229,7 @@ None.
 | WM-02 | built | full | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half; unit: 10 000 random commands preserve every invariant |
 | WM-03 | built | partial | unit: reducer is pure (input not mutated); workspaces filter without unmounting |
 | WM-04 | built | partial | e2e: Overview (Meta+Q) and Blackout overlay toggle |
-| WM-05 | built | full | e2e-tt56: WM-05 MRU after 5 focus changes, held-chord switcher: overlay lists MRU order, chord advances, Shift reverses, release commits, Esc cancels; e2e-tt56: WM-05 modes: app mode groups windows by app (2 calculators → 1 entry), workspace mode switches workspace on release; ←/→ and 1/2/3 change mode; e2e-tt56: WM-05 modal failure test: with an ask dialog open the switcher chord does nothing (no overlay, focus unchanged) (+4) |
+| WM-05 | built | full | e2e-tt56: WM-05 MRU after 5 focus changes, held-chord switcher: overlay lists MRU order, chord advances, Shift reverses, release commits, Esc cancels; e2e-tt56: WM-05 modes: app mode groups windows by app (2 calculators → 1 entry), workspace mode switches workspace on release; ←/→ and 1/2/3 change mode; e2e-tt56: WM-05 modal failure test: with an ask dialog open the switcher chord does nothing (no overlay, focus unchanged) (+5) |
 | WM-06 | built | partial | e2e: mount: browser |
 | WM-07 | partial | untested |  |
 | WM-08 | built | full | tt55-files-unit: WM-08 remembered geometry: close records the normal rect per module/host (restore rect when maximized), the next open reuses it, an explicit rect wins, no exact stacking, fits a smaller viewport, bounded, closeAll records all |
@@ -334,7 +340,7 @@ None.
 | FF-02 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
 | FF-03 | built | full | e2e-tt52-pdf: corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms); e2e-tt52-pdf: annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update); e2e-tt52-pdf: forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values (+35) |
 | FF-04 | built | full | ai-format: real Illustrator output: PDF export, DOS-EPS, Illustrator 88 EPS and FreeHand AI-dialect PostScript; ai-format: constructed .ai with and without PDF compatibility (the spec's open-vs-limited split); ai-format: creator hidden in a compressed object stream, UTF-16BE strings, junk before the header (+15) |
-| FF-05 | built | untested |  |
+| FF-05 | built | full | e2e-tt59: FF-05 Photos exports GIF and BMP (our encoders): Pillow decodes both bit-exact to the source pixels; Chromium re-opens the GIF; tt59-raster: BMP: 24-bit bottom-up rows with 4-byte padding (odd widths 1, 2, 3, 37) decode bit-exact in Pillow; alpha composited over white by the documented formula; tt59-raster: GIF: ≤ 255 colours are exact (2-, 16-, 200-colour images incl. 1×1 and 600×400 noise past the 4096-code LZW reset) and Pillow decodes them bit-exact (+3) |
 | FF-06 | probe | untested |  |
 | FF-07 | built | full | e2e-tt54: FF-07 export PNG from Photos is BIT-EXACT to the Node recipe renderer on the same pixels (browser decode → recipe → encode); e2e-tt54: FF-07 export AVIF (WebCodecs AV1 + our AVIF writer) and JPEG / WebP with curated metadata: decoded by Pillow (libavif / libjpeg / libwebp); location only when asked; Orientation reset to 1; e2e: mount: photos (+2) |
 | FF-08 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
@@ -346,7 +352,7 @@ None.
 | FF-14 | built | full | ai-format: version strings, PDF literal escapes, format registry and MIME; unit: loss report itemises drops; registry grades |
 | FF-15 | built | partial | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists |
 | FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
-| FF-20 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen (+61) |
+| FF-20 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen (+64) |
 | FF-21 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint) (+52) |
 | FF-22 | built | full | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+72) |
 | FF-23 | built | full | e2e-tt51-slides: corpus decks open in the real UI with every slide in the rail and the file's content drawn: shapes.pptx (6 slides, preset shapes + text), table_test.pptx (a table with its cell text), bar-chart.pptx (chart drawn from its cache as SVG), backgrounds.pptx; e2e-tt51-slides: edit → save → python-pptx: retype the title by double-click, bold one word through the toolbar, add speaker notes, duplicate and hide a slide, insert a text box, drag a shape — the saved file carries exactly those edits, validates, and untouched parts keep their bytes; e2e-tt51-slides: slide show: Present opens a full-window show at the first visible slide; → / Space / click advance, ← goes back, HIDDEN slides are skipped, Escape ends and returns to the editor (+19) |
@@ -378,8 +384,8 @@ None.
 | BK-06 | built | full | privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused; privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key; unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
 | FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: SEQUENCE(2,3) spills all six cells with correct values (+13) |
 | FF-27 | built | full | e2e: mount: sheet; office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+6) |
-| FF-28 | built | full | e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen; e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates (+29) |
-| FF-29 | built | full | e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source; e2e-tt49: imported x14 data bars (automatic bounds + border), x14-only 3Stars and a custom icon mix are drawn cell-for-cell as evaluated; e2e-tt49: CF borders, formula rules and time periods from a workbook our writer produced are drawn as evaluated (+32) |
+| FF-28 | built | full | e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen; e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates (+33) |
+| FF-29 | built | full | e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source; e2e-tt49: imported x14 data bars (automatic bounds + border), x14-only 3Stars and a custom icon mix are drawn cell-for-cell as evaluated; e2e-tt49: CF borders, formula rules and time periods from a workbook our writer produced are drawn as evaluated (+35) |
 | FF-30 | built | full | e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops; e2e-image: new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo; e2e-image: layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge (+23) |
 | FF-31 | built | full | e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels; e2e: mount: imageedit; image: PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size (+9) |
 | FF-32 | built | full | e2e-vector: ORACLE Chromium SVG: getBBox + getTotalLength of the ORIGINAL d vs our normalised cubics (arcs included); e2e-vector: ORACLE Chromium SVG: isPointInFill (nonzero + evenodd) vs our containment on a 31×31 grid per path; transform.baseVal; e2e-vector: ORACLE render parity: Chromium rasterises the original SVG and our import→export identically (≤0.5% pixels > 24/255) (+31) |
@@ -482,6 +488,8 @@ None.
 | WP-20 | built | full | e2e-tt42: WP-20 oracle: computed dynamic import() — root-relative in the document AND in a module worker (where no import map applies), a colon in the first path segment (document and worker), an absolute CROSS-ORIGIN URL object (document and worker; CSP refuses the raw URL), new URL("./x", import.meta.url), a template, a relative computed path in the worker, a bare name routed by the page's map, a missing module (same rejection), a classic inline script's computed import, and an eval'd import() routed only by an import-map SCOPE — every value IDENTICAL natively and through the proxy; tt42-unit: WP-20 wrapper value semantics: for 20 run-time specifier values (root-relative, ./, ../, a colon in the first path segment, absolute http(s), protocol-relative, URL objects, an object with toString, credentials in the URL, bare names, data:, blob:, already-proxied, a non-http scheme, an unparseable string) the inline wrapper yields EXACTLY what the static rewriter yields for the same literal (or the string itself where the static rewriter leaves it); a throwing toString / a Symbol is passed through untouched so import() rejects natively; tt42-unit: WP-20 lexer: the first argument of every computed dynamic import is found with exactly acorn's source range — 19 shapes incl. nested templates, commas inside calls / arrays / objects, comments, a trailing comma, nested imports (literal inside computed, computed inside computed), import.source / import.defer — and literal imports, object / class METHODS named import and member calls are never wrapped (+3) |
 | WP-21 | built | full | e2e-tt42: WP-21 browsers WITHOUT Fetch Metadata (TT41 blocker; emulated at the HTTP layer: real Chromium behind a front that removes every Sec-Fetch-* header, as Safari < 16.4 sends none): the destination is inferred from the URL tag + Accept — module scripts and module workers are still rewritten (all computed / static imports identical to native), a page fetch() of a module still gets its bytes UNCHANGED (the shim's "e" flag = destination empty), and a page fetch() of a document gets NO navigation secret (before TT42 every untagged request without Fetch Metadata counted as a navigation); tt42-unit: WP-21 destination inference without Fetch Metadata: Safari's real Accept values (document / image / stylesheet / */*) and the URL tag decide — untagged document → navigate, untagged image / css → no-cors image / style, a markup-subresource tag → its Accept or script, a script tag → script (CORS) or, with the shim's "e" flag, empty (fetch / XHR), a frame tag → iframe; ANY Fetch Metadata header present → null (the browser's own values win); "e" round-trips in canonical order after "n", is rejected out of order, and survives a redirect hop |
 | WP-22 | built | full | e2e-tt43: WP-22 oracle: SharedWorker shared like Chromium's own — two tabs of one profile (Fusion split view, one proxy session) and their nested same-site frames reach ONE worker (count and connections continue across them), a tab of another session gets its own; self.name, self.location, the worker's cookie jar (cookies set by BOTH tabs of the profile, only the other tab's in the other session), a second named worker, SecurityError for another site's script, SyntaxError for a bad URL and the error event of a missing script — every value IDENTICAL natively and through the proxy; e2e-tt43: WP-22 hosts and lifecycle (proxied): one hidden host document per (session, site) — opaque origin, sandboxed — and when the last page of a session leaves the site its host is removed (after the grace), while the other session's worker keeps its state; coming back starts a fresh worker; e2e-tt43: WP-22 attacks (proxied): a page that forges a connect with a document id the server never issued, or names another site's script, gets an error and no worker; a proxied page calling the broker's server endpoints directly (__shared-who / __shared-host) cannot read them, and the server refuses such requests (403: only the Fusion window may), so it can neither learn about documents nor mint host documents (+6) |
+| FF-38 | built | full | e2e-tt59: FF-38 Writer spell check in the UI: highlights painted → F7 pane Change / typed Change / Ignore All / Delete repeated word → right-click menu suggestion → Add to Dictionary persists → Escape closes only menu/pane → saved document.xml (lxml); tt59-writer-spell: en_US: every verdict equals spylls (Hunspell port) on ~22k words — forms, misspellings, case, ordinals, apostrophes, hyphens; tt59-writer-spell: hand-written dictionary (FLAG long, KEEPCASE, FORBIDDENWORD, NEEDAFFIX, NOSUGGEST, BREAK, COMPOUNDRULE ?, conditions, cross product) equals spylls (+6) |
+| FF-39 | built | full | e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save; tt59-sheet-spell: only text constants are checked (formulas, numbers, logicals, errors skipped); quote prefix offsets; row-major order; repeated words; tt59-sheet-spell: selection scope, Ignore All / Ignore Once, user dictionary (+3) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

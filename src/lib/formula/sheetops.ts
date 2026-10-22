@@ -284,9 +284,29 @@ export function pasteSpecial(sheet: Sheet, clip: Clip, values: Scalar[][] | unde
       }
     }
     sheet.setCell(tc, tr, out);
-    if (o.what === "all") sheet.setStyle(tc, tr, clip.styles[i]?.[j] ?? null);
+    if (o.what === "all") {
+      sheet.setStyle(tc, tr, clip.styles[i]?.[j] ?? null);
+      // TT59: hyperlinks travel with Paste Special ▸ All (as with a plain paste): the target cell takes the source cell's
+      // link state; Values / Formulas / Formats leave the target's links alone (Excel keeps a link under pasted values)
+      const l = clip.links?.[i]?.[j];
+      if (l || sheet.links.length) setLink(sheet, { c0: tc, r0: tr, c1: tc, r1: tr }, l ?? null);
+    }
   }
   return { c0: col, r0: row, c1: col + (o.transpose ? H : W) - 1, r1: row + (o.transpose ? W : H) - 1 };
+}
+/**
+ * TT59 Paste Link (Paste Special ▸ Paste Link): every target cell gets a formula referring to its source cell with an
+ * absolute reference ("=$B$2", or "=Sheet1!$B$2" from another sheet), so the target follows later source edits.
+ * Excel offers it only without Transpose / Skip blanks / an operation; a blank source shows 0, as in Excel.
+ */
+export function pasteLink(sheet: Sheet, clip: Clip, srcSheet: string, col: number, row: number): Range {
+  const H = clip.inputs.length, W = clip.inputs[0]?.length ?? 1;
+  const q = srcSheet === sheet.name ? "" : `${/^[A-Za-z_][A-Za-z0-9_.]*$/.test(srcSheet) && !/^[A-Za-z]{1,3}\d+$|^[RrCc]$|^[Rr]\d*[Cc]\d*$/.test(srcSheet) ? srcSheet : `'${srcSheet.replace(/'/g, "''")}'`}!`;
+  for (let i = 0; i < H; i++) for (let j = 0; j < W; j++) {
+    const sc = clip.origin.col + j, sr = clip.origin.row + i;
+    sheet.setCell(col + j, row + i, `=${q}$${colToLetters(sc)}$${sr + 1}`);
+  }
+  return { c0: col, r0: row, c1: col + W - 1, r1: row + H - 1 };
 }
 function parseLit(input: string): Scalar {
   if (input === "") return "";

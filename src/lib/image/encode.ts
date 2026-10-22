@@ -13,6 +13,7 @@
  */
 import { readExif, TAG, type ExifIfds } from "../meta/exif";
 import { crc32 } from "../office/zipkit";
+import { encodeBmp, encodeGif } from "./rasterenc";
 
 /* ------------------------------------------------------------------ EXIF writer ------ */
 
@@ -265,7 +266,7 @@ export function avifFromAv1(chunk: Uint8Array, exif?: Uint8Array | null): { byte
 
 /* ------------------------------------------------------------------ browser entry ------ */
 
-export type ExportFormat = "png" | "jpeg" | "webp" | "avif" | "heic";
+export type ExportFormat = "png" | "jpeg" | "webp" | "avif" | "heic" | "gif" | "bmp";
 export interface EncodeOptions { format: ExportFormat; quality?: number; exif?: Uint8Array | null }
 export interface EncodeResult { bytes: Uint8Array; mime: string; format: ExportFormat; note?: string }
 
@@ -281,7 +282,7 @@ export function exportCapabilities(): Promise<Record<ExportFormat, boolean>> {
     const ok = async (t: string) => { try { return (await toBlob(c, t)).type === t; } catch { return false; } };
     const VE = (globalThis as { VideoEncoder?: { isConfigSupported(c: unknown): Promise<{ supported?: boolean }> } }).VideoEncoder;
     const ve = async (codec: string) => { try { return !!VE && !!(await VE.isConfigSupported({ codec, width: 64, height: 64 })).supported; } catch { return false; } };
-    return { png: await ok("image/png"), jpeg: await ok("image/jpeg"), webp: await ok("image/webp"), avif: await ok("image/avif") || await ve("av01.0.08M.08"), heic: await ve("hvc1.1.6.L120.B0") };
+    return { gif: true, bmp: true, png: await ok("image/png"), jpeg: await ok("image/jpeg"), webp: await ok("image/webp"), avif: await ok("image/avif") || await ve("av01.0.08M.08"), heic: await ve("hvc1.1.6.L120.B0") };
   })();
   return caps;
 }
@@ -294,6 +295,16 @@ export async function encodeImage(c: Canv, o: EncodeOptions): Promise<EncodeResu
     let bytes: Uint8Array = new Uint8Array(await blob.arrayBuffer());
     if (o.exif) bytes = o.format === "jpeg" ? injectExifJpeg(bytes, o.exif) : o.format === "png" ? injectExifPng(bytes, o.exif) : injectExifWebp(bytes, o.exif, c.width, c.height);
     return { bytes, mime, format: o.format };
+  }
+  if (o.format === "gif" || o.format === "bmp") {
+    // TT59 (FF-05): our own encoders (src/lib/image/rasterenc.ts) — canvases only encode PNG / JPEG / WebP. Neither
+    // container carries our curated EXIF, so metadata is never embedded (said in the note when it was asked for).
+    const ctx = (c as HTMLCanvasElement).getContext("2d") as CanvasRenderingContext2D | null;
+    if (!ctx) throw new Error("no 2D canvas context to read pixels from");
+    const px = ctx.getImageData(0, 0, c.width, c.height);
+    const img = { width: c.width, height: c.height, data: px.data };
+    const bytes = o.format === "gif" ? encodeGif(img) : encodeBmp(img);
+    return { bytes, mime: o.format === "gif" ? "image/gif" : "image/bmp", format: o.format, note: `Fusion ${o.format.toUpperCase()} encoder${o.format === "gif" ? " (256 colours, dithered)" : " (24-bit, transparency over white)"}${o.exif ? "; metadata not embedded" : ""}` };
   }
   if (o.format === "avif") {
     // a platform AVIF encoder cannot embed EXIF: when metadata was asked for, our writer (which can) goes first

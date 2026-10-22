@@ -210,8 +210,19 @@ function cfX14Xml(r: CondRule, priority: number, seed: string): { xml: string; i
     const icons = custom.map((g) => { const [cs, k] = g.split(":"); return `<x14:cfIcon iconSet="${esc(cs)}" iconId="${k}"/>`; }).join("");
     return { xml: `<x14:cfRule type="iconSet" priority="${priority}" id="${id}"><x14:iconSet${at}>${cv.map((c) => cfvo(c, true)).join("")}${icons}</x14:iconSet></x14:cfRule>`, id, linked: false };
   }
+  // TT59: a formula rule that refers to another sheet is x14-only, as Excel 2010+ writes it (the 2007 <cfRule> cannot
+  // carry cross-sheet references): <xm:f> operands and an inline <x14:dxf> (MS-XLSX: xm:f*, dxf, extLst order)
+  if (r.kind !== "scale" && [r.af, r.bf, r.formula].some((f) => !!f && crossSheet(f))) {
+    const main = cfRuleXml(r, null, priority); if (!main.endsWith("</cfRule>")) return null;
+    const dx = cfDxfXml(r);
+    const xml = main.replace(/^<cfRule([^>]*)>/, `<x14:cfRule$1 id="${id}">`).replace(/<(\/?)formula>/g, "<$1xm:f>")
+      .replace(/<\/cfRule>$/, `${dx ? `<x14:dxf>${dx.replace(/^<dxf>|<\/dxf>$/g, "")}</x14:dxf>` : ""}</x14:cfRule>`);
+    return { xml, id, linked: false };
+  }
   return null;
 }
+/** a formula refers to another sheet: a "!" outside string literals */
+function crossSheet(f: string): boolean { return f.replace(/"(?:[^"]|"")*"/g, "").includes("!"); }
 /** One <cfRule> (ECMA-376 §18.3.1.10) for a modelled CondRule; "" when the main schema cannot carry it (x14-only icon sets). */
 function cfRuleXml(r: CondRule, dxfId: number | null, priority: number): string {
   const d = dxfId === null ? "" : ` dxfId="${dxfId}"`;
@@ -589,9 +600,13 @@ type Dxf = { fill?: string; color?: string; bold?: boolean; italic?: boolean; un
 /** styles.xml <dxfs> → the differential formats conditional-format rules point at (font b/i/strike/u/colour, numFmt, solid fill). */
 function readDxfs(xml: string | null, ctx: ColorContext = EMPTY_COLOR_CONTEXT): Dxf[] {
   const body = xml ? /<dxfs\b[^>]*>([\s\S]*?)<\/dxfs>/.exec(xml)?.[1] ?? "" : "";
+  return [...body.matchAll(/<dxf\b[^>]*>([\s\S]*?)<\/dxf>|<dxf\b[^>]*\/>/g)].map((m) => dxfFrom(m[1] ?? "", ctx));
+}
+/** one CT_Dxf body → Dxf (TT59: shared with inline <x14:dxf> of x14-only rules) */
+function dxfFrom(inner: string, ctx: ColorContext = EMPTY_COLOR_CONTEXT): Dxf {
   const on = (font: string, tag: string) => { const m = new RegExp(`<${tag}(\\s[^>]*)?\\/?>`).exec(font); return !!m && !/val="(0|false|none)"/.test(m[1] ?? ""); };
-  return [...body.matchAll(/<dxf\b[^>]*>([\s\S]*?)<\/dxf>|<dxf\b[^>]*\/>/g)].map((m) => {
-    const inner = m[1] ?? ""; const out: Dxf = {};
+  {
+    const out: Dxf = {};
     const font = /<font\b[^>]*>([\s\S]*?)<\/font>/.exec(inner)?.[1] ?? "";
     const fc = resolveTag(font, "color", ctx); if (fc) out.color = fc;
     if (on(font, "b")) out.bold = true;
@@ -613,7 +628,7 @@ function readDxfs(xml: string | null, ctx: ColorContext = EMPTY_COLOR_CONTEXT): 
     }
     if (Object.keys(b).length) out.border = b;
     return out;
-  });
+  }
 }
 /**
  * <conditionalFormatting> → workbook CondRules for DISPLAY (TT46; TT49 every cfRule type). Rules are sorted by
@@ -661,6 +676,43 @@ function readCondFormats(xml: string, sheet: string, wb: Workbook, dxfs: Dxf[], 
     // one rule per cfRule over the whole sqref (a union): splitting a 200-range sqref per range multiplied rules past the cap
     pending.push({ prio, seq: seq++, rules: [{ id: "", sheet, range: ranges.join(" "), ...rule, ...(visual ? {} : fmt), src } as CondRule] });
   };
+  /** TT59: the non-visual rule kinds, shared by main-schema <cfRule> and x14-only <x14:cfRule> (MS-XLSX 2.6.x: same
+   *  attributes, operands in <xm:f>, formatting in an inline <x14:dxf>) */
+  const decodeBasic = (t: string | undefined, at: Record<string, string>, formulas: string[]): Partial<CondRule> | null => {
+    const yes = (v: string | undefined) => v === "1" || v === "true";
+    let rule: Partial<CondRule> | null = null;
+    if (t === "cellIs") {
+      const kind = ({ greaterThan: "gt", lessThan: "lt", greaterThanOrEqual: "ge", lessThanOrEqual: "le", equal: "eq", notEqual: "ne", between: "between", notBetween: "notBetween" } as Record<string, CondRule["kind"]>)[at.operator ?? ""];
+      const operand = (f: string | undefined, textOk: boolean): { v?: string; f?: string } | null => {
+        if (f === undefined || f.trim() === "") return null;
+        const n = num(f); if (n !== undefined) return { v: n };
+        const s = strConst(f); if (s !== undefined && textOk && !/^\s*-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?\s*$/.test(s)) return { v: s };
+        return { f: f.trim().replace(/^=/, "") };
+      };
+      const two = kind === "between" || kind === "notBetween";
+      const p = operand(formulas[0], kind === "eq" || kind === "ne"), q = two ? operand(formulas[1], false) : null;
+      if (kind && p && (!two || q)) rule = { kind, ...(p.v !== undefined ? { a: p.v } : { af: p.f }), ...(q ? (q.v !== undefined ? { b: q.v } : { bf: q.f }) : {}) };
+    } else if (t === "containsText" || t === "notContainsText" || t === "beginsWith" || t === "endsWith") {
+      const kind = ({ containsText: "contains", notContainsText: "notContains", beginsWith: "begins", endsWith: "ends" } as const)[t];
+      if (at.text !== undefined) rule = { kind, a: at.text };
+      else if (formulas[0]) rule = { kind: "expr", formula: formulas[0] };
+    } else if (t === "containsBlanks") rule = { kind: "blanks" };
+    else if (t === "notContainsBlanks") rule = { kind: "noBlanks" };
+    else if (t === "containsErrors") rule = { kind: "errors" };
+    else if (t === "notContainsErrors") rule = { kind: "noErrors" };
+    else if (t === "duplicateValues") rule = { kind: "duplicate" };
+    else if (t === "uniqueValues") rule = { kind: "unique" };
+    else if (t === "top10") rule = { kind: "top", a: at.rank ?? "10", ...(yes(at.percent) ? { pct: true } : {}), ...(yes(at.bottom) ? { bottom: true } : {}) };
+    else if (t === "aboveAverage") {
+      const sd = Math.trunc(Number(at.stdDev ?? 0));
+      rule = { kind: "aboveAvg", ...(at.aboveAverage === "0" || at.aboveAverage === "false" ? { below: true } : {}), ...(yes(at.equalAverage) ? { equal: true } : {}), ...(sd >= 1 && sd <= 3 ? { stdDev: sd } : {}) };
+    } else if (t === "timePeriod") {
+      if ((TIME_PERIODS as readonly string[]).includes(at.timePeriod ?? "")) rule = { kind: "period", period: at.timePeriod, ...(formulas[0] ? { formula: formulas[0] } : {}) };
+    } else if (t === "expression") {
+      if (formulas[0]) rule = { kind: "expr", formula: formulas[0] };
+    }
+    return rule;
+  };
   // extLst may redeclare a default namespace around x14 <conditionalFormatting> — not main-namespace rules; skipping it
   // keeps the provenance index aligned with the patcher's count of top-level elements
   const top = xml.slice(0, cut);
@@ -679,36 +731,8 @@ function readCondFormats(xml: string, sheet: string, wb: Workbook, dxfs: Dxf[], 
       const yes = (v: string | undefined) => v === "1" || v === "true";
       let rule: Partial<CondRule> | null = null;
       const t = at.type;
-      if (t === "cellIs") {
-        const kind = ({ greaterThan: "gt", lessThan: "lt", greaterThanOrEqual: "ge", lessThanOrEqual: "le", equal: "eq", notEqual: "ne", between: "between", notBetween: "notBetween" } as Record<string, CondRule["kind"]>)[at.operator ?? ""];
-        const operand = (f: string | undefined, textOk: boolean): { v?: string; f?: string } | null => {
-          if (f === undefined || f.trim() === "") return null;
-          const n = num(f); if (n !== undefined) return { v: n };
-          const s = strConst(f); if (s !== undefined && textOk && !/^\s*-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?\s*$/.test(s)) return { v: s };
-          return { f: f.trim().replace(/^=/, "") };
-        };
-        const two = kind === "between" || kind === "notBetween";
-        const p = operand(formulas[0], kind === "eq" || kind === "ne"), q = two ? operand(formulas[1], false) : null;
-        if (kind && p && (!two || q)) rule = { kind, ...(p.v !== undefined ? { a: p.v } : { af: p.f }), ...(q ? (q.v !== undefined ? { b: q.v } : { bf: q.f }) : {}) };
-      } else if (t === "containsText" || t === "notContainsText" || t === "beginsWith" || t === "endsWith") {
-        const kind = ({ containsText: "contains", notContainsText: "notContains", beginsWith: "begins", endsWith: "ends" } as const)[t];
-        if (at.text !== undefined) rule = { kind, a: at.text };
-        else if (formulas[0]) rule = { kind: "expr", formula: formulas[0] };
-      } else if (t === "containsBlanks") rule = { kind: "blanks" };
-      else if (t === "notContainsBlanks") rule = { kind: "noBlanks" };
-      else if (t === "containsErrors") rule = { kind: "errors" };
-      else if (t === "notContainsErrors") rule = { kind: "noErrors" };
-      else if (t === "duplicateValues") rule = { kind: "duplicate" };
-      else if (t === "uniqueValues") rule = { kind: "unique" };
-      else if (t === "top10") rule = { kind: "top", a: at.rank ?? "10", ...(yes(at.percent) ? { pct: true } : {}), ...(yes(at.bottom) ? { bottom: true } : {}) };
-      else if (t === "aboveAverage") {
-        const sd = Math.trunc(Number(at.stdDev ?? 0));
-        rule = { kind: "aboveAvg", ...(at.aboveAverage === "0" || at.aboveAverage === "false" ? { below: true } : {}), ...(yes(at.equalAverage) ? { equal: true } : {}), ...(sd >= 1 && sd <= 3 ? { stdDev: sd } : {}) };
-      } else if (t === "timePeriod") {
-        if ((TIME_PERIODS as readonly string[]).includes(at.timePeriod ?? "")) rule = { kind: "period", period: at.timePeriod, ...(formulas[0] ? { formula: formulas[0] } : {}) };
-      } else if (t === "expression") {
-        if (formulas[0]) rule = { kind: "expr", formula: formulas[0] };
-      } else if (t === "colorScale") {
+      rule = decodeBasic(t, at, formulas);
+      if (rule) { /* decoded */ } else if (t === "colorScale") {
         // TT47: 2- and 3-colour scales with their cfvo thresholds; formula thresholds are not modelled → rule skipped
         const cols = [...inner.matchAll(/<color\b([^>]*?)\/?>/g)].map((c) => resolveColorAttrs(c[1], ctx));
         const cfvo = [...inner.matchAll(/<cfvo\b([^>]*?)\/?>/g)].map((c) => xmlAttrs(c[1]));
@@ -764,6 +788,18 @@ function readCondFormats(xml: string, sheet: string, wb: Workbook, dxfs: Dxf[], 
     const yes = (v: string | undefined) => v === "1" || v === "true";
     const rule: Partial<CondRule> = { kind: "icons", iconSet: set, ...(cfvo.length ? { cfvo } : {}), ...(yes(ia.custom) && icons.length ? { icons } : {}), ...(yes(ia.reverse) ? { reverse: true } : {}), ...(ia.showValue === "0" || ia.showValue === "false" ? { hideValue: true } : {}) };
     push(rule, ranges, {}, `x${x.index}`, Number(x.at.priority ?? 0) || 0);
+  }
+  // TT59: x14-only non-visual rules — Excel 2010+ writes a rule whose formulas refer to another sheet here (2007's
+  // <cfRule> cannot); operands are <xm:f> children and the format is an inline <x14:dxf> (CT_Dxf, main namespace)
+  for (const x of x14) {
+    const t = x.at.type; if (!t || t === "iconSet" || t === "dataBar" || t === "colorScale" || (x.at.id && linked.has(x.at.id))) continue;
+    const ranges = x.sqref.split(/\s+/).map((r) => r.replace(/\$/g, "")).filter((r) => parseRef(r)); if (!ranges.length) continue;
+    const formulas = [...x.inner.replace(/<x14:dxf\b[\s\S]*?<\/x14:dxf>/g, "").matchAll(/<xm:f>([\s\S]*?)<\/xm:f>/g)].map((f) => dec(f[1]));
+    const rule = decodeBasic(t, x.at, formulas); if (!rule) continue;
+    const dxfInner = /<x14:dxf\b[^>]*>([\s\S]*?)<\/x14:dxf>/.exec(x.inner)?.[1] ?? "";
+    const fmt = dxfInner ? dxfFrom(dxfInner.replace(/<(\/?)x:/g, "<$1"), ctx) : {};
+    if (x.at.stopIfTrue === "1" || x.at.stopIfTrue === "true") rule.stop = true;
+    push(rule, ranges, fmt, `x${x.index}`, Number(x.at.priority ?? 0) || 0);
   }
   pending.sort((a, b) => a.prio - b.prio || a.seq - b.seq);
   for (const p of pending) for (const r of p.rules) {

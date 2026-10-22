@@ -7,7 +7,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import {
   Workbook, Sheet, a1, isError, colToLetters, FUNCTIONS, EXT_FUNCTIONS, workbookFromJson, workbookToJson, parseFormula, formatValue, BUILTIN_FORMATS,
-  norm, rangeA1, toTsv, parseTsv, copyBlock, pasteBlock, pasteSpecial, type PasteSpecialOpts, type PasteOp, clearRange, autoFill, sortRange, insertDelete, findAll, replaceAll, selectionStats, shiftFormula,
+  norm, rangeA1, toTsv, parseTsv, copyBlock, pasteBlock, pasteSpecial, pasteLink, type PasteSpecialOpts, type PasteOp, clearRange, autoFill, sortRange, insertDelete, findAll, replaceAll, selectionStats, shiftFormula,
   chartDataFromRange, chartDataFor, renameChartRefs, CHART_KINDS, trendLegend, buildChartSvg, svgDataUri, evalCondFormats, parseRange, currentRegion, jump, fillTarget, looksLikeHeader,
   completionToken, completions, activeCall, SIGNATURES, hasValueIn,
   type WorkbookJson, type CellStyle, type Range, type Clip, type ChartKind, type ChartGrouping, type TrendSpec, type CondKind, type CondRule, type Scalar,
@@ -27,6 +27,10 @@ import { deletePivot, nextPivotName, pivotAt, readTable, refreshPivots, writePiv
 import { absoluteRef, referenceTarget, validateName } from "@/lib/formula/names";
 import { autoInk } from "@/lib/auto-ink";
 import { askText } from "@/lib/ask";
+import { changeAllCells, fixCellIssue, type CellSpellIssue } from "@/lib/formula/sheetspell";
+import SheetSpellBar from "./sheet-spell";
+import type { Speller } from "@/lib/spell/hunspell";
+import { addUserWord, loadSpeller } from "@/lib/spell/client";
 
 const COLS = 52;          // A..AZ
 const ROWS = 1000;
@@ -111,7 +115,15 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [loaded, setLoaded] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState("");
-  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv" | "names" | "paste" | "link" | "pivot">(null);
+  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv" | "names" | "paste" | "link" | "pivot" | "spell">(null);
+  // TT59 spelling (F7): scope = the selection when it spans several cells, else the whole active sheet
+  const [speller, setSpeller] = useState<Speller | null>(null);
+  const [spErr, setSpErr] = useState("");
+  const [spScope, setSpScope] = useState<{ c0: number; r0: number; c1: number; r1: number } | null>(null);
+  const [spIdx, setSpIdx] = useState(0);
+  const [spGen, setSpGen] = useState(0);
+  const [spTo, setSpTo] = useState<{ key: string; v: string } | null>(null);
+  const [spIgnore, setSpIgnore] = useState<{ all: Set<string>; once: Set<string> }>(() => ({ all: new Set(), once: new Set() }));
   // TT57: Insert ▸ Link (Ctrl+K) form
   const [lk, setLk] = useState({ addr: "", text: "", tip: "", had: false });
   // TT58 PivotTable panel: field indexes into the source heading row (-1 = none)
@@ -503,6 +515,12 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   };
   const moveTo = (p: Pos, extend = false) => { setListOpen(false); setSel((s) => (extend ? { a: s.a, f: p } : { a: p, f: p })); requestAnimationFrame(() => ensureVisible(p)); };
   const has = hasValueIn(workbook, active);
+  const spShow = (x: CellSpellIssue) => { if (x.sheet !== active) setActive(x.sheet); moveTo({ col: x.col, row: x.row }); };
+  const spFix = (x: CellSpellIssue, v: string) => { let done = false; mutate((wb) => { done = fixCellIssue(wb, x, v); }); if (done) spShow(x); };
+  const openSpelling = () => {
+    const r = selR; setSpScope(r.c0 === r.c1 && r.r0 === r.r1 ? null : r); setSpIdx(0); setPanel("spell");
+    if (!speller) loadSpeller().then(setSpeller).catch((e) => setSpErr(`Spelling dictionary could not be loaded: ${(e as Error).message}`));
+  };
 
   const gridKeys = (e: React.KeyboardEvent) => {
     if (editing !== null) return;
@@ -522,6 +540,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (mod && k === "f") { e.preventDefault(); setPanel("find"); return; }
     if (mod && k === "k") { e.preventDefault(); openLinkPanel(); return; }
     if (e.key === "F5" && e.altKey) { e.preventDefault(); refreshPivotUi(!e.ctrlKey && !e.metaKey); return; }
+    if (e.key === "F7" && !mod && !e.altKey) { e.preventDefault(); openSpelling(); return; }
     if (mod && e.shiftKey && k === "v") { e.preventDefault(); openPasteSpecial(); return; }
     if (mod && e.key === "F3") { e.preventDefault(); setPanel("names"); return; }
     if (mod && k === "home") { e.preventDefault(); moveTo({ col: 0, row: 0 }); return; }
@@ -587,6 +606,18 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     mutate((wb, s) => { out = pasteSpecial(s, c.clip, c.values, selR.c0, selR.r0, ps, (col, row) => wb.valueAt(active, col, row)); });
     setSel({ a: { col: out.c0, row: out.r0 }, f: { col: Math.min(out.c1, COLS - 1), row: Math.min(out.r1, ROWS - 1) } });
     setStatus(`pasted ${ps.what}${ps.transpose ? ", transposed" : ""}${ps.skipBlanks ? ", skipping blanks" : ""}${ps.op && ps.op !== "none" ? `, ${ps.op}` : ""} into ${rangeA1(out)}`);
+    setPanel(null); gridRef.current?.focus();
+  };
+
+  const doPasteLink = () => {
+    const c = clipRef.current; if (!c) return;
+    const h = c.clip.inputs.length, w = c.clip.inputs[0]?.length ?? 1;
+    const conflict = partialMergeConflict(sheet, { c0: selR.c0, r0: selR.r0, c1: selR.c0 + w - 1, r1: selR.r0 + h - 1 });
+    if (conflict) { shell.toast(conflict, "warn"); setStatus(conflict); return; }
+    let out: Range = selR;
+    mutate((_wb, s) => { out = pasteLink(s, c.clip, c.sheet, selR.c0, selR.r0); });
+    setSel({ a: { col: out.c0, row: out.r0 }, f: { col: Math.min(out.c1, COLS - 1), row: Math.min(out.r1, ROWS - 1) } });
+    setStatus(`pasted links to ${c.sheet}!${rangeA1(c.range)} into ${rangeA1(out)}`);
     setPanel(null); gridRef.current?.focus();
   };
 
@@ -915,6 +946,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <TB label="Refresh All" onClick={() => refreshPivotUi(false)} title={"Refresh every PivotTable from its source (Ctrl+Alt+F5; Alt+F5 refreshes the one under the cursor)"} />
         <TB label="Link" onClick={() => (panel === "link" ? setPanel(null) : openLinkPanel())} active={panel === "link"} title={"Insert link (Ctrl+K) — Ctrl+click a linked cell to follow it"} />
         <TB label="Find" onClick={() => setPanel(panel === "find" ? null : "find")} active={panel === "find"} title={"Find & replace (Ctrl+F)"} />
+        <TB label="Spelling" onClick={() => (panel === "spell" ? setPanel(null) : openSpelling())} active={panel === "spell"} title={"Check spelling (F7)"} />
         <TB label={`Names${workbook.names.size ? ` (${workbook.names.size})` : ""}`} onClick={() => setPanel(panel === "names" ? null : "names")} active={panel === "names"} title={"Name Manager (Ctrl+F3)"} />
         <TB label={`Validation${sheet.validations.length ? ` (${sheet.validations.length})` : ""}`} onClick={() => setPanel(panel === "dv" ? null : "dv")} active={panel === "dv"} title={"Data validation"} />
         <TB label="Circle invalid" onClick={() => setShowInvalid((x) => !x)} active={showInvalid} title={"Circle invalid data"} />
@@ -1031,6 +1063,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           <label><input type="checkbox" checked={!!ps.skipBlanks} onChange={(e) => setPs({ ...ps, skipBlanks: e.target.checked })} /> Skip blanks</label>
           <label><input type="checkbox" checked={!!ps.transpose} onChange={(e) => setPs({ ...ps, transpose: e.target.checked })} /> Transpose</label>
           <Btn variant="primary" onClick={doPasteSpecial}>Paste</Btn>
+          <Btn variant="ghost" onClick={doPasteLink} disabled={!!ps.transpose || !!ps.skipBlanks || (ps.op ?? "none") !== "none"} title="Paste formulas that refer to the copied cells (=$A$1); not with Transpose, Skip blanks or an operation">Paste Link</Btn>
           <Btn variant="ghost" onClick={() => { setPanel(null); gridRef.current?.focus(); }}>Cancel</Btn>
           <span className="fs-dim">from {psFrom} (this Spreadsheet&apos;s clipboard)</span>
         </div>
@@ -1101,6 +1134,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
             </div>
           </div>);
       })() : null}
+      {panel === "spell" ? (
+        <SheetSpellBar sheet={sheet} rev={rev} speller={speller} err={spErr} scope={spScope} ignore={spIgnore} gen={spGen} idx={spIdx} setIdx={setSpIdx}
+          onFix={spFix} onShow={spShow}
+          onChangeAll={(x, v, opts) => { let n = 0; mutate((wb, sh) => { n = changeAllCells(wb, sh, speller!, x.word, v, opts); }); setFindInfo(`changed ${n}`); }}
+          onIgnore={(all, v) => setSpIgnore((x) => (all ? { ...x, all: new Set([...x.all, v]) } : { ...x, once: new Set([...x.once, v]) }))}
+          onAdd={(w) => { if (addUserWord(w)) setSpGen((g) => g + 1); }}
+          onClose={() => { setPanel(null); gridRef.current?.focus(); }} />
+      ) : null}
       {panel === "find" ? (
         <div className="fs-row" data-testid="find-panel" style={{ gap: 6, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), flexWrap: "wrap" }}>
           <input className="fs-input" aria-label="Find" placeholder="Find" value={findQ} onChange={(e) => setFindQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") findNext(); }} style={{ width: 160 }} />

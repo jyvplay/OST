@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-22T03:29:57.968Z",
+ "generatedAt": "2026-10-22T05:58:23.574Z",
  "totals": {
   "built": {
-   "full": 292,
+   "full": 294,
    "partial": 54,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 205,
+   "full": 208,
    "partial": 72,
-   "untested": 91
+   "untested": 90
   },
   "tests": {
-   "total": 1067,
-   "passed": 1067
+   "total": 1095,
+   "passed": 1095
   }
  },
  "rows": {
@@ -133,6 +133,7 @@
     "e2e-tt56: WM-05 modes: app mode groups windows by app (2 calculators → 1 entry), workspace mode switches workspace on release; ←/→ and 1/2/3 change mode",
     "e2e-tt56: WM-05 modal failure test: with an ask dialog open the switcher chord does nothing (no overlay, focus unchanged)",
     "e2e-tt56: no uncaught page errors during the TT56 session",
+    "e2e-tt59: no uncaught page errors during the TT59 session",
     "tt56-shell-unit: WM-05 spec acceptance: MRU order after 5 focus changes (open A–E, focus C, A, E, B, D → D B E A C)",
     "tt56-shell-unit: WM-05 property: over 400 random command sequences MRU is a permutation of the live windows, focus is its head, and it equals a reference model",
     "tt56-shell-unit: WM-05 modes: app mode groups by module (newest window per app), workspace mode lists workspaces MRU-first; step wraps both ways"
@@ -1010,8 +1011,15 @@
    ]
   },
   "FF-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt59: FF-05 Photos exports GIF and BMP (our encoders): Pillow decodes both bit-exact to the source pixels; Chromium re-opens the GIF",
+    "tt59-raster: BMP: 24-bit bottom-up rows with 4-byte padding (odd widths 1, 2, 3, 37) decode bit-exact in Pillow; alpha composited over white by the documented formula",
+    "tt59-raster: GIF: ≤ 255 colours are exact (2-, 16-, 200-colour images incl. 1×1 and 600×400 noise past the 4096-code LZW reset) and Pillow decodes them bit-exact",
+    "tt59-raster: GIF transparency: alpha < 128 → the transparent index (Graphic Control Extension), visible pixels exact; an all-transparent image is valid",
+    "tt59-raster: GIF photo (> 256 colours): median cut + Floyd–Steinberg — mean error per channel ≤ 6 and 8×8 block-mean error ≤ 0.8 (no diffusion: 2.7; no right-hand term: 0.95) on a smooth 256×256 gradient, ≤ 12 on noise; quantising 1 MP stays < 4 s",
+    "tt59-raster: refusals: zero / oversized dimensions and short pixel buffers throw instead of writing a broken file"
+   ]
   },
   "FF-06": {
    "tested": "untested",
@@ -1203,7 +1211,10 @@
     "tt56-sheet-paste: hand cases: values of formulas, formulas keep target format, formats only, skip blanks, quote-prefixed text",
     "tt56-sheet-paste: transpose: in-range relationships follow the transposed cells; mixed and absolute refs; out-of-sheet → #REF!",
     "tt56-sheet-paste: operations: add / subtract / multiply / divide against the target, blank = 0, text pasted as-is, ÷0 → #DIV/0!, formula source → combined formula",
-    "tt56-sheet-paste: random blocks vs an independent reference model (values + op + skip blanks + transpose) and transpose∘transpose = id"
+    "tt56-sheet-paste: random blocks vs an independent reference model (values + op + skip blanks + transpose) and transpose∘transpose = id",
+    "tt59-x14-cf: x14-only cellIs / between / expression rules with other-sheet references are read with their inline x14:dxf and drawn in priority order (stopIfTrue honoured)",
+    "tt59-x14-cf: new-file writer: cross-sheet formula rules are emitted as x14-only rules (xm:f + inline x14:dxf), round-trip to the same drawing, and openpyxl/lxml still open the file",
+    "tt59-x14-cf: same-sheet formula rules stay in the 2007 schema (no x14 duplication); a lossless save of the original keeps the x14 rules byte-identical"
    ]
   },
   "FF-21": {
@@ -1609,6 +1620,7 @@
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
     "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
+    "e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save",
     "e2e: mount: sheet",
     "office: shiftFormula: relative parts move, $-anchored parts stay, strings untouched, off-grid → #REF!",
     "office: adjustForStructure: insert/delete rows repair refs; deleted single ref → #REF!; ranges shrink; other sheets untouched",
@@ -1628,7 +1640,10 @@
     "office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
     "office: workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads",
     "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
-    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block"
+    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
+    "tt59-sheet-paste: Paste Special ▸ All carries hyperlinks (plain, transposed, skip blanks keeps a target link under a blank source); openpyxl reads them",
+    "tt59-sheet-paste: Values / Formulas / Formats leave the target's links alone (Excel keeps a link under pasted values) and never copy source links",
+    "tt59-sheet-paste: Paste Link: absolute references (same sheet, other sheet, quoted names), follows source edits, blank source shows 0; openpyxl reads the formulas"
    ]
   },
   "FF-29": {
@@ -1668,7 +1683,10 @@
     "tt50-charts: patch writer: unchanged → original bytes; title / axis-title / grouping / anchor edits touch ONLY that chart (and drawing) part; openpyxl sees the edit and every other chart unchanged",
     "tt50-charts: patch writer: delete a chart (frame + rel + part + Override go, siblings stay), add a chart to a sheet WITH and WITHOUT a drawing, add a trendline, change the type (regenerated, reported), rename a referenced sheet (refs follow)",
     "tt50-charts: hostile packages: huge ptCount, 400 series, external / escaping relationship targets, malformed chart XML, chart-less drawings and 10 MB caches never crash the reader and stay bounded",
-    "tt50-charts: persistence: charts with explicit series, trendlines, grouping, anchors survive Fusion workbook JSON; sanitizeCharts drops hostile fields (bad src paths, unknown kinds, oversize refs) and clamps trend order/period"
+    "tt50-charts: persistence: charts with explicit series, trendlines, grouping, anchors survive Fusion workbook JSON; sanitizeCharts drops hostile fields (bad src paths, unknown kinds, oversize refs) and clamps trend order/period",
+    "tt59-x14-cf: x14-only cellIs / between / expression rules with other-sheet references are read with their inline x14:dxf and drawn in priority order (stopIfTrue honoured)",
+    "tt59-x14-cf: new-file writer: cross-sheet formula rules are emitted as x14-only rules (xm:f + inline x14:dxf), round-trip to the same drawing, and openpyxl/lxml still open the file",
+    "tt59-x14-cf: same-sheet formula rules stay in the 2007 schema (no x14 duplication); a lossless save of the original keeps the x14 rules byte-identical"
    ]
   },
   "FF-30": {
@@ -2827,6 +2845,31 @@
     "tt43-unit: WP-22 lifetime (HTML 'permissible worker'): the worker lives while any document is connected; the last pagehide starts a grace period after which the host is told to terminate it and an empty host is removed; a reconnect within the grace keeps the SAME worker (no release); a window that is gone (closed) is swept; a bye from a different window cannot disconnect someone else; a bye that overtakes its own connect (pagehide during the server check) cancels it",
     "tt43-unit: WP-22 errors: a worker error reported by a host reaches exactly the documents connected to THAT worker (by their own connection ids), not other workers' documents; a message from an unknown host key is ignored",
     "tt43-unit: WP-22 liveness by acknowledgement (the TT43 repair: a pagehide message is not always delivered): the broker pings each connected window; the document now in it answers with the ids it owns — a navigated window's NEW document (answering without the old ids) releases them at once; a busy page that misses one ping keeps its worker; a window that never answers is dropped after exactly 3 missed pings; an answer with a wrong nonce or from another window changes nothing"
+   ]
+  },
+  "FF-38": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt59: FF-38 Writer spell check in the UI: highlights painted → F7 pane Change / typed Change / Ignore All / Delete repeated word → right-click menu suggestion → Add to Dictionary persists → Escape closes only menu/pane → saved document.xml (lxml)",
+    "tt59-writer-spell: en_US: every verdict equals spylls (Hunspell port) on ~22k words — forms, misspellings, case, ordinals, apostrophes, hyphens",
+    "tt59-writer-spell: hand-written dictionary (FLAG long, KEEPCASE, FORBIDDENWORD, NEEDAFFIX, NOSUGGEST, BREAK, COMPOUNDRULE ?, conditions, cross product) equals spylls",
+    "tt59-writer-spell: suggestions: oracle's first suggestion is in ours ≥ 90%, our first is among the oracle's 5 ≥ 85%, never an invalid or NOSUGGEST word",
+    "tt59-writer-spell: tokenizer + capitalisation classes: URLs, e-mail, paths, digits skipped; ordinals and inner apostrophes kept; UPPERCASE optional",
+    "tt59-writer-spell: document layer on a python-docx file: exactly the right issues — tracked deletion, w:noProof, w:lang fr-FR, links, UPPERCASE skipped; table cell + repeated word found",
+    "tt59-writer-spell: fixes write correct .docx (lxml read-back): Change, Change All, Delete repeated word; under Track Changes they are w:del + w:ins",
+    "tt59-writer-spell: performance and robustness: dictionary loads < 1.5 s, 50k checks < 3 s, hostile input (long / odd Unicode / huge word) never throws",
+    "tt59-writer-spell: mutants of the engine are each caught by the spylls comparison (6 mutants)"
+   ]
+  },
+  "FF-39": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save",
+    "tt59-sheet-spell: only text constants are checked (formulas, numbers, logicals, errors skipped); quote prefix offsets; row-major order; repeated words",
+    "tt59-sheet-spell: selection scope, Ignore All / Ignore Once, user dictionary",
+    "tt59-sheet-spell: Change / Change All / Delete repeated word; a stale issue is refused; a fix never turns text into a number or formula",
+    "tt59-sheet-spell: openpyxl-written .xlsx: issues found, fixed, saved losslessly and read back by openpyxl (values + untouched formula)",
+    "tt59-sheet-spell: robustness: 20,000 text cells checked < 4 s; hostile cell text never throws"
    ]
   },
   "CT-01": {
