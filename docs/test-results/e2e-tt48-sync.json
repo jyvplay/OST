@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt48-sync",
-  "at": "2026-10-21T22:53:26.293Z",
+  "at": "2026-10-22T01:35:49.010Z",
   "results": [
     {
       "suite": "e2e-tt48-sync",
@@ -9,7 +9,7 @@
         "SH-08": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 1
     },
     {
       "suite": "e2e-tt48-sync",
@@ -18,7 +18,7 @@
         "SH-08": "full"
       },
       "pass": true,
-      "ms": 2666
+      "ms": 2626
     },
     {
       "suite": "e2e-tt48-sync",
@@ -27,7 +27,7 @@
         "SH-08": "full"
       },
       "pass": true,
-      "ms": 5001
+      "ms": 4733
     },
     {
       "suite": "e2e-tt48-sync",

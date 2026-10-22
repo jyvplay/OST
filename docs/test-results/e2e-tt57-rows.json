@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt57-rows",
+  "at": "2026-10-22T01:49:25.146Z",
+  "results": [
+    {
+      "suite": "e2e-tt57-rows",
+      "name": "PR-10 stopwatch: start → 65.43 s → lap → 10-minute jump with timers firing at most once (throttled tab) → still exact; pause holds; reset",
+      "covers": {
+        "PR-10": "full"
+      },
+      "pass": true,
+      "ms": 20446
+    },
+    {
+      "suite": "e2e-tt57-rows",
+      "name": "PR-10 timer fires on time with requestAnimationFrame never running (hidden-tab emulation): 0 min 3 s → 'Timer finished' at 3 s, not before",
+      "covers": {
+        "PR-10": "full"
+      },
+      "pass": true,
+      "ms": 2544
+    },
+    {
+      "suite": "e2e-tt57-rows",
+      "name": "PR-12 clipboard history: Fusion copies land in the system clipboard (read back independently) and the history; same text twice = one entry moved to top; pin survives Clear; search filters",
+      "covers": {
+        "PR-12": "full"
+      },
+      "pass": true,
+      "ms": 2648
+    },
+    {
+      "suite": "e2e-tt57-rows",
+      "name": "no uncaught page errors during the TT57 rows session",
+      "covers": {
+        "PR-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

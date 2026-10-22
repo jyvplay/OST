@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt44",
-  "at": "2026-10-21T23:37:28.346Z",
+  "at": "2026-10-22T00:42:13.301Z",
   "results": [
     {
       "suite": "e2e-tt44",
@@ -9,7 +9,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 2065
+      "ms": 3449
     },
     {
       "suite": "e2e-tt44",
@@ -18,7 +18,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 586
+      "ms": 1388
     },
     {
       "suite": "e2e-tt44",
@@ -27,7 +27,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 1563
+      "ms": 2541
     },
     {
       "suite": "e2e-tt44",
@@ -36,7 +36,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 6273
+      "ms": 8080
     },
     {
       "suite": "e2e-tt44",
@@ -45,7 +45,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 841
+      "ms": 1521
     }
   ]
 }

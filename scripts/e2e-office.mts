@@ -184,7 +184,7 @@ await test("save → reopen keeps styles/widths/charts; export .xlsx → server 
   const saved = (await text(dlg.locator('[data-testid="sheet-status"]'))).replace(/^saved /, "");
   await dlg.getByRole("button", { name: "Export .xlsx" }).click();
   await dlg.locator('[data-testid="sheet-status"]').filter({ hasText: "exported" }).waitFor({ timeout: 10_000 });
-  const xlsxPath = /→ (\S+\.xlsx)/.exec(await text(dlg.locator('[data-testid="sheet-status"]')))![1];
+  const xlsxPath = /(?:→| to) (\S+\.xlsx)/.exec(await text(dlg.locator('[data-testid="sheet-status"]')))![1];
   await close();
   const re = await api("POST", "/api/sheet", { op: "importXlsx", path: xlsxPath });
   ok(re.json.ok, JSON.stringify(re.json).slice(0, 200));

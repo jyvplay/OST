@@ -28,20 +28,26 @@ export default function ClockModule(_: ModuleProps) {
   const [laps, setLaps] = useState<number[]>([]);
   const [timerEnd, setTimerEnd] = useState<number | null>(null);
   const [timerMin, setTimerMin] = useState(5);
+  const [timerSec, setTimerSec] = useState(0);
+  const timerMs = (timerMin * 60 + timerSec) * 1000;
   const fired = useRef(false);
   const zones = ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo", "Australia/Sydney"];
 
   useEffect(() => {
     let raf = 0;
     let t: number | undefined;
+    let due: number | undefined;
     const running = swStart !== null || timerEnd !== null;
     if (running) {
       const loop = () => { setNow(performance.now()); raf = requestAnimationFrame(loop); };
       raf = requestAnimationFrame(loop);
+      // TT57: rAF stops in a hidden tab, so a running timer also gets ONE timeout at its end time (a lone timeout is only
+      // clamped to ~1 s when hidden, unlike chained ticks) — the alarm fires on time behind other tabs; display stays rAF
+      if (timerEnd !== null) due = window.setTimeout(() => setNow(performance.now()), Math.max(0, timerEnd - performance.now()) + 5);
     } else {
       t = window.setInterval(() => setNow(performance.now()), 1000); // idle: 1 Hz, no rAF (RG-03)
     }
-    return () => { cancelAnimationFrame(raf); if (t) window.clearInterval(t); };
+    return () => { cancelAnimationFrame(raf); if (t) window.clearInterval(t); if (due) window.clearTimeout(due); };
   }, [swStart, timerEnd]);
 
   const sw = swAcc + (swStart !== null ? now - swStart : 0);
@@ -75,24 +81,26 @@ export default function ClockModule(_: ModuleProps) {
       </Section>
 
       <Section title="Stopwatch">
-        <div className="fs-mono" style={{ fontSize: fz(30) }}>{fmt(sw)}</div>
+        <div className="fs-mono" data-testid="clock-sw" style={{ fontSize: fz(30) }}>{fmt(sw)}</div>
         <div className="fs-row" style={{ gap: 6 }}>
           {swStart === null
-            ? <Btn variant="primary" onClick={() => setSwStart(performance.now())}>Start</Btn>
+            ? <Btn variant="primary" onClick={() => setSwStart(performance.now())}>Start<span className="sr-only"> stopwatch</span></Btn>
             : <Btn onClick={() => { setSwAcc(sw); setSwStart(null); }}>Pause</Btn>}
           <Btn variant="ghost" disabled={swStart === null} onClick={() => setLaps((l) => [sw, ...l])}>Lap</Btn>
           <Btn variant="ghost" onClick={() => { setSwStart(null); setSwAcc(0); setLaps([]); }}>Reset</Btn>
         </div>
-        {laps.map((l, i) => <div key={i} className="fs-mono fs-dim" style={{ fontSize: fz(11.5) }}>lap {laps.length - i}: {fmt(l)}</div>)}
+        {laps.map((l, i) => <div key={i} data-testid="clock-lap" className="fs-mono fs-dim" style={{ fontSize: fz(11.5) }}>lap {laps.length - i}: {fmt(l)}</div>)}
       </Section>
 
       <Section title="Timer" right={remaining !== null ? <Badge tone="warn">running</Badge> : null}>
-        <div className="fs-mono" style={{ fontSize: fz(30) }}>{remaining !== null ? fmt(Math.max(0, remaining)) : fmt(timerMin * 60_000)}</div>
+        <div className="fs-mono" data-testid="clock-timer" style={{ fontSize: fz(30) }}>{remaining !== null ? fmt(Math.max(0, remaining)) : fmt(timerMs)}</div>
         <div className="fs-row" style={{ gap: 6 }}>
-          <input className="fs-input" type="number" min={1} max={600} style={{ width: fz(90) }} value={timerMin}
-            onChange={(e) => setTimerMin(Number(e.target.value) || 1)} aria-label="Minutes" />
+          <input className="fs-input" type="number" min={0} max={600} style={{ width: fz(90) }} value={timerMin}
+            onChange={(e) => setTimerMin(Math.max(0, Math.min(600, Math.trunc(Number(e.target.value)) || 0)))} aria-label="Minutes" />
+          <input className="fs-input" type="number" min={0} max={59} style={{ width: fz(70) }} value={timerSec}
+            onChange={(e) => setTimerSec(Math.max(0, Math.min(59, Math.trunc(Number(e.target.value)) || 0)))} aria-label="Seconds" />
           {remaining === null
-            ? <Btn variant="primary" onClick={() => { fired.current = false; setTimerEnd(performance.now() + timerMin * 60_000); }}>Start</Btn>
+            ? <Btn variant="primary" disabled={timerMs <= 0} onClick={() => { fired.current = false; setTimerEnd(performance.now() + timerMs); }}>Start<span className="sr-only"> timer</span></Btn>
             : <Btn variant="danger" onClick={() => setTimerEnd(null)}>Cancel</Btn>}
         </div>
         <div className="fs-dim" style={{ fontSize: fz(11) }}>

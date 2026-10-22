@@ -21,7 +21,10 @@ export interface Link { id: number; el: XEl; href?: string; anchor?: string }
 /** TT56: a revision recorded by the editor while Track Changes is on (§17.13.5 w:ins / w:del around runs; §17.13.5.16
  *  / .14 paragraph-mark revisions in w:pPr/w:rPr). File revisions that the editor did not create stay opaque tokens. */
 export interface Rev { kind: "ins" | "del"; id: number; author: string; date?: string; /** a deletion of text that is itself a pending insertion (<w:ins><w:del>…) */ ins?: Rev }
-export interface TextRun { t: "r"; text: string; f: RunFmt; f0?: RunFmt; rPr?: XEl; link?: Link; rev?: Rev }
+/** TT57: a tracked formatting change on a run (§17.13.5.31 w:rPrChange): `old` is the formatting before the change;
+ *  `oldRPr` is the exact original <w:rPr> when the change came from a file (restored verbatim on reject). */
+export interface FmtChange { id: number; author: string; date?: string; old: RunFmt; oldRPr?: XEl }
+export interface TextRun { t: "r"; text: string; f: RunFmt; f0?: RunFmt; rPr?: XEl; link?: Link; rev?: Rev; fc?: FmtChange }
 export type TokKind = "image" | "fieldcode" | "field" | "bookmark" | "comment" | "commentRef" | "note" | "ins" | "del" | "page" | "column" | "math" | "sym" | "box" | "other";
 export interface Tok {
   t: "k"; kind: TokKind; nodes: XNode[]; bare: boolean; rPr?: XEl; link?: Link; label: string;
@@ -31,7 +34,9 @@ export interface Tok {
 }
 export type Inline = TextRun | Tok;
 export interface ParaProps { style?: string; align?: string; indL?: number; indR?: number; indFirst?: number; before?: number; after?: number; line?: number; lineRule?: string; num?: { id: string; lvl: number } | null; pageBreakBefore?: boolean; keepNext?: boolean; shd?: string }
-export interface Para { t: "p"; id: string; p: ParaProps; p0?: ParaProps; pPr?: XEl; content: Inline[]; src?: XEl; dirty?: boolean; sect?: XEl; /** TT56: tracked insertion / deletion of this paragraph's mark */ markRev?: Rev }
+/** TT57: a tracked paragraph-property change (w:pPrChange, §17.13.5.29): `old` = properties before; `oldPPr` = the file's record. */
+export interface ParaChange { id: number; author: string; date?: string; old: ParaProps; oldPPr?: XEl }
+export interface Para { t: "p"; id: string; p: ParaProps; p0?: ParaProps; pPr?: XEl; pc?: ParaChange; content: Inline[]; src?: XEl; dirty?: boolean; sect?: XEl; /** TT56: tracked insertion / deletion of this paragraph's mark */ markRev?: Rev }
 export interface Cell { t: "tc"; src?: XEl; span0?: number; tcPr?: XEl; blocks: Block[]; span: number; vmerge?: "restart" | "continue"; width?: number; fill?: string }
 export interface Row { t: "tr"; src?: XEl; items: (Cell | XNode)[]; header?: boolean; height?: number }
 export interface Table { t: "tbl"; id: string; items: (Row | XNode)[]; grid: number[]; grid0?: string; src?: XEl; borders: boolean; style?: string }
@@ -272,14 +277,26 @@ function parseRevision(ctx: Ctx, n: XEl, out: Inline[], link?: Link, outer?: Rev
   out.push(...tmp);
   return true;
 }
+/** TT57: <w:rPrChange w:id w:author w:date><w:rPr>…original…</w:rPr></w:rPrChange> inside a run's rPr → FmtChange */
+function parseFmtChange(ctx: Ctx, rPr: XEl | undefined): FmtChange | undefined {
+  const ch = kid(rPr, "w:rPrChange"); if (!ch) return undefined;
+  const inner = kid(ch, "w:rPr") ?? el("w:rPr");
+  const id = Number(attr(ch, "w:id") ?? NaN);
+  if (Number.isFinite(id) && ctx.doc.track && id >= ctx.doc.track.next) ctx.doc.track.next = id + 1;
+  return { id: Number.isFinite(id) ? id : -1, author: attr(ch, "w:author") ?? "", date: attr(ch, "w:date"), old: parseRPr(inner), oldRPr: inner };
+}
 function parseRun(ctx: Ctx, r: XEl, out: Inline[], link?: Link) {
   const rPr = kid(r, "w:rPr");
   const f = parseRPr(rPr);
   let buf = "";
-  const flush = () => { if (buf) { out.push({ t: "r", text: buf, f: { ...f }, f0: { ...f }, rPr, link }); buf = ""; } };
+  const fc = parseFmtChange(ctx, rPr);
+  const flush = () => { if (buf) { out.push({ t: "r", text: buf, f: { ...f }, f0: { ...f }, rPr, link, ...(fc ? { fc } : {}) }); buf = ""; } };
   const tok = (kind: TokKind, n: XNode, label = "", extra: Partial<Tok> = {}) => { flush(); out.push({ t: "k", kind, nodes: [n], bare: false, rPr, link, label, ...extra }); };
   for (const c of r.kids) {
     if (c.k !== "el") continue;
+    // TT57: the run's own rPr is never content — inside a field it used to become a "fieldcode" token, so a regenerated
+    // paragraph wrote <w:r> with two <w:rPr> children (schema-invalid) and duplicated any w:rPrChange
+    if (c.name === "w:rPr") continue;
     if (ctx.fld.some(Boolean) && c.name !== "w:fldChar") { tok("fieldcode", c); continue; }
     switch (c.name) {
       case "w:rPr": break;
@@ -364,6 +381,13 @@ function parsePara(ctx: Ctx, n: XEl): Para {
     const rest = rp.kids.filter((k) => !(k.k === "el" && (k.name === "w:ins" || k.name === "w:del")));
     const np = { ...pPr, kids: pPr.kids.flatMap((k) => (k === rp ? (rest.some((x) => x.k === "el") ? [{ ...rp, kids: rest }] : []) : [k])) };
     para.pPr = np;
+  }
+  // TT57: w:pPrChange → pc (the copy in pPr is dropped; a regenerated paragraph writes it from pc)
+  const pcEl = kid(para.pPr, "w:pPrChange"), pcid = pcEl ? Number(attr(pcEl, "w:id")) : NaN;
+  if (para.pPr && pcEl && Number.isInteger(pcid)) {
+    const inner = kid(pcEl, "w:pPr");
+    para.pc = { id: pcid, author: attr(pcEl, "w:author") ?? "", date: attr(pcEl, "w:date"), old: parsePPr(inner), oldPPr: inner ?? el("w:pPr") };
+    para.pPr = { ...para.pPr, kids: para.pPr.kids.filter((k) => k !== pcEl) };
   }
   return para;
 }
@@ -583,6 +607,7 @@ export const docText = (d: WordDoc) => allParas(d.blocks).map(paraText).join("\n
 /* ================================================================ writing */
 function serializeInlines(content: Inline[]): XNode[] {
   const out: XNode[] = [];
+  let last: { el: XEl; src: XEl | undefined; sig: string } | null = null;
   let i = 0;
   while (i < content.length) {
     const lk = content[i].link;
@@ -612,14 +637,25 @@ function serializeInlines(content: Inline[]): XNode[] {
       continue;
     }
     const it = content[i++];
+    // TT57: pieces that came from ONE original <w:r> (text + run-level objects such as breaks or symbols) and still
+    // serialize to the same rPr are written back into one run — otherwise a run's w:rPrChange would be duplicated
+    const joinable = (rPrOut: XEl | undefined) => {
+      const sig = rPrOut ? serializeEl(rPrOut) : "";
+      const ok = !!it.rPr && !!last && last.src === it.rPr && last.sig === sig && out[out.length - 1] === last.el;
+      return { ok, sig };
+    };
     if (it.t === "k") {
-      if (it.bare) out.push(...it.nodes);
-      else out.push(el("w:r", {}, [...(it.rPr ? [it.rPr] : []), ...it.nodes]));
+      if (it.bare) { out.push(...it.nodes); last = null; continue; }
+      const j = joinable(it.rPr);
+      if (j.ok) { last!.el.kids.push(...it.nodes); continue; }
+      const r = el("w:r", {}, [...(it.rPr ? [it.rPr] : []), ...it.nodes]); out.push(r);
+      last = { el: r, src: it.rPr, sig: j.sig };
       continue;
     }
     if (!it.text) continue;
-    const rPr = buildRPr(it.f, it.f0, it.rPr);
-    const kidsOut: XNode[] = rPr ? [rPr] : [];
+    const rPr = withFmtChange(buildRPr(it.f, it.f0, it.rPr), it);
+    const jt = joinable(rPr);
+    const kidsOut: XNode[] = rPr && !jt.ok ? [rPr] : [];
     let buf = "";
     const flushT = () => { if (buf) { kidsOut.push(el("w:t", /^\s|\s$/.test(buf) ? { "xml:space": "preserve" } : {}, [textNode(buf)])); buf = ""; } };
     for (const ch of it.text) {
@@ -630,10 +666,33 @@ function serializeInlines(content: Inline[]): XNode[] {
       else buf += ch;
     }
     flushT();
-    out.push(el("w:r", {}, kidsOut));
+    if (jt.ok) { last!.el.kids.push(...kidsOut); continue; }
+    const r = el("w:r", {}, kidsOut); out.push(r);
+    last = { el: r, src: it.rPr, sig: jt.sig };
   }
   return out;
 }
+const notRevKid = (k: XNode) => !(k.k === "el" && (k.name === "w:rPrChange" || k.name === "w:ins" || k.name === "w:del" || k.name === "w:moveFrom" || k.name === "w:moveTo"));
+/** TT57: the run's rPr with its w:rPrChange regenerated from `fc` (last child, CT_RPr) — or removed once resolved. */
+export function withFmtChange(rPr: XEl | undefined, it: TextRun): XEl | undefined {
+  if (!it.fc && !(rPr && kid(rPr, "w:rPrChange"))) return rPr;
+  const r = rPr ? clone(rPr) : el("w:rPr");
+  r.kids = r.kids.filter((k) => !(k.k === "el" && k.name === "w:rPrChange"));
+  if (it.fc) {
+    const base = it.fc.oldRPr ? clone(it.fc.oldRPr) : (buildRPr(it.fc.old, it.f0, it.rPr) ?? el("w:rPr"));
+    const old = { ...base, name: "w:rPr", kids: base.kids.filter(notRevKid) };
+    old.selfClose = old.kids.length === 0;
+    r.kids.push(el("w:rPrChange", { "w:id": String(it.fc.id), "w:author": it.fc.author, "w:date": it.fc.date }, [old]));
+  }
+  r.selfClose = r.kids.length === 0;
+  return r.kids.length ? r : undefined;
+}
+/** canonical equality of two formatting records (key order and undefined values ignored) */
+export function sameFmt(a?: RunFmt, b?: RunFmt): boolean {
+  const c = (f?: RunFmt) => JSON.stringify(Object.entries(f ?? {}).filter(([, v]) => v !== undefined && v !== null).sort(([x], [y]) => (x < y ? -1 : 1)));
+  return c(a) === c(b);
+}
+export const sameFc = (a?: FmtChange, b?: FmtChange) => a === b || (!!a && !!b && a.id === b.id && sameFmt(a.old, b.old));
 export const sameRev = (a?: Rev, b?: Rev) => a === b || (!!a && !!b && a.id === b.id && a.kind === b.kind);
 /** inside <w:del>, text is <w:delText> and field codes <w:delInstrText> (§17.13.5.13) */
 function toDelText(e: XEl): XEl {
@@ -652,6 +711,16 @@ export function serializePara(p: Para): XEl {
       ...rp.kids.filter((k) => !(k.k === "el" && (k.name === "w:ins" || k.name === "w:del")))];
     rp.selfClose = false;
     put(pPr, PPR_ORDER, "w:rPr", rp);
+  }
+  if (pPr && kid(pPr, "w:pPrChange")) { pPr = clone(pPr); pPr.kids = pPr.kids.filter((k) => !(k.k === "el" && k.name === "w:pPrChange")); }
+  if (p.pc) {
+    // CT_PPrChange holds a CT_PPrBase: the old properties without the mark's rPr, sectPr or another pPrChange
+    const old = p.pc.oldPPr ? clone(p.pc.oldPPr) : (buildPPr(p.pc.old, undefined, undefined) ?? el("w:pPr"));
+    old.kids = old.kids.filter((k) => !(k.k === "el" && (k.name === "w:rPr" || k.name === "w:sectPr" || k.name === "w:pPrChange")));
+    old.selfClose = old.kids.length === 0;
+    pPr = pPr ? clone(pPr) : el("w:pPr");
+    put(pPr, PPR_ORDER, "w:pPrChange", el("w:pPrChange", { "w:id": String(p.pc.id), "w:author": p.pc.author, "w:date": p.pc.date }, [old]));
+    pPr.selfClose = false;
   }
   base.kids = [...(pPr ? [pPr] : []), ...serializeInlines(p.content)];
   base.selfClose = base.kids.length === 0;
@@ -792,6 +861,7 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
   // resolve editor list ids (~bullet / ~decimal) to real numbering definitions
   const usesList = new Set<string>();
   for (const p of allParas(doc.blocks)) if (p.p.num && p.p.num.id.startsWith("~")) usesList.add(p.p.num.id);
+  for (const p of allParas(doc.blocks)) if (p.pc?.old.num && p.pc.old.num.id.startsWith("~")) usesList.add(p.pc.old.num.id);
   if (usesList.size) {
     if (!doc.numXml) {
       doc.numPath = doc.docPath.replace(/[^/]+$/, "") + "numbering.xml";
@@ -813,8 +883,11 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
       root.kids.push(el("w:num", { "w:numId": String(numId) }, [el("w:abstractNumId", { "w:val": String(absId) })]));
       root.selfClose = false;
       doc.added.lists.set(key, String(numId));
+      // TT57: the live model learns the new list too, so after a save toggling the list off (or listKind) still recognises it
+      if (!doc.numbering.has(String(numId))) doc.numbering.set(String(numId), def);
     }
   }
+  for (const p of allParas(doc.blocks)) if (p.pc && p.pc.old.num && p.pc.old.num.id.startsWith("~") && doc.added.lists.has(p.pc.old.num.id)) p.pc = { ...p.pc, old: { ...p.pc.old, num: { id: doc.added.lists.get(p.pc.old.num.id)!, lvl: p.pc.old.num.lvl } } };
   const remapLists = (blocks: Block[]) => { for (const p of allParas(blocks)) if (p.p.num && p.p.num.id.startsWith("~")) { p.p = { ...p.p, num: { id: doc.added.lists.get(p.p.num.id)!, lvl: p.p.num.lvl } }; p.dirty = true; } };
   remapLists(doc.blocks);
   if (doc.numXml && doc.numPath && doc.added.lists.size) setPart(doc.numPath, te.encode(serializeXml(doc.numXml)));
@@ -889,6 +962,17 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
   const before = body.kids;
   body.kids = serializeBlocks(doc.blocks);
   if (doc.finalSect && !body.kids.includes(doc.finalSect)) body.kids.push(doc.finalSect);
+  // TT57: a formatted run that an edit later split (a tracked insertion typed into it, a field boundary) is written as
+  // two w:r that both carry the same w:rPrChange record — revision ids must be unique, so later copies get fresh ids
+  {
+    const seen = new Set<string>();
+    for (const rc of findAll(body, (x) => x.name === "w:rPrChange" || x.name === "w:pPrChange")) {
+      const id = attr(rc, "w:id");
+      if (id === undefined) continue;
+      if (seen.has(id)) setAttr(rc, "w:id", String(doc.track.next++));
+      seen.add(attr(rc, "w:id")!);
+    }
+  }
   body.selfClose = false;
   const docBytes = te.encode(serializeXml(doc.docXml));
   body.kids = before;

@@ -19,7 +19,9 @@ import {
   applyBorders, borderCss, edgeAt, expandToMerges, invalidCells, listFormula, listItems, mergeAcross, mergeAt, mergeCells, partialMergeConflict,
   ruleAt, sanitizeValidation, sortConflict, stepCell, unmergeCells, validateEntry, VALIDATION_OPS, type BorderPreset,
 } from "@/lib/formula/sheetlayout";
-import type { BorderLine, DataValidation, ValidationOp, ValidationType } from "@/lib/formula/engine";
+import { textInput, type BorderLine, type DataValidation, type ValidationOp, type ValidationType } from "@/lib/formula/engine";
+import { cellLink, linkAction, parseAddress, setLink } from "@/lib/formula/sheetlinks";
+import { parseA1Range } from "@/lib/formula/sheetops";
 import { absoluteRef, referenceTarget, validateName } from "@/lib/formula/names";
 import { autoInk } from "@/lib/auto-ink";
 import { askText } from "@/lib/ask";
@@ -107,7 +109,9 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [loaded, setLoaded] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState("");
-  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv" | "names" | "paste">(null);
+  const [panel, setPanel] = useState<null | "find" | "charts" | "cf" | "dv" | "names" | "paste" | "link">(null);
+  // TT57: Insert ▸ Link (Ctrl+K) form
+  const [lk, setLk] = useState({ addr: "", text: "", tip: "", had: false });
   const [psFrom, setPsFrom] = useState("");
   const [ps, setPs] = useState<PasteSpecialOpts>({ what: "values", op: "none", transpose: false, skipBlanks: false });
   const [nameBox, setNameBox] = useState<string | null>(null);
@@ -252,7 +256,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const dest = (path || "/Documents/workbook").replace(/\.(fworkbook|fsheet|xlsx)$/i, "") + ".xlsx";
     if (path && /\.xlsx$/i.test(path)) { await saveXlsxLossless(dest); return; }
     const r = await post<{ ok: boolean; path: string; bytes: number; sheets: number; error?: string }>("/api/sheet", { op: "saveXlsxToVfs", workbook: workbookToJson(workbook), dest });
-    if (r.ok) { setStatus(`exported ${r.bytes} B · ${r.sheets} sheet(s) → ${r.path} · ${workbook.charts.length} chart(s) written as Excel charts`); shell.bumpRefresh(); }
+    if (r.ok) { setStatus(`exported ${r.bytes} B · ${r.sheets} sheet(s) to ${r.path} · ${workbook.charts.length} chart(s) written as Excel charts`); shell.bumpRefresh(); }
     else shell.toast(r.error ?? "export failed", "bad");
   };
   const importXlsx = async (file: File) => {
@@ -270,6 +274,42 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   };
 
   /* ------------------------------------------------------------ sheets */
+  /* ---------------------------------------------------------------- TT57 hyperlinks */
+  const openLinkPanel = () => {
+    commit(null);
+    const l = cellLink(workbook, active, sel.f.col, sel.f.row);
+    const c = sheet.get(sel.f.col, sel.f.row);
+    const addr = l ? (l.target ? `${l.target}${l.location ? `#${l.location}` : ""}` : l.location ?? "") : "";
+    setLk({ addr, text: c && !c.formula ? c.input : "", tip: l?.tooltip ?? "", had: !!l && !l.formula });
+    setPanel("link");
+  };
+  const applyLink = () => {
+    const a = parseAddress(lk.addr);
+    if (!a) { const m = "Enter a web address (example.com), an e-mail address, or a place in this workbook such as Sheet2!A1."; shell.toast(m, "warn"); setStatus(m); return; }
+    const where = { c0: selR.c0, r0: selR.r0, c1: selR.c1, r1: selR.r1 };
+    mutate((_wb, s) => {
+      setLink(s, where, { ...a, tooltip: lk.tip.trim() || undefined });
+      // Excel's "Text to display": the top-left cell shows it (formulas are left alone); an empty cell shows the address
+      const c = s.get(where.c0, where.r0);
+      if (!c?.formula) { const t = lk.text.trim() || (c?.input ? c.input : lk.addr.trim()); if (t !== (c?.input ?? "")) s.setCell(where.c0, where.r0, textInput(t)); }
+    });
+    setStatus(`link on ${rangeA1(selR)}: ${a.target ?? a.location}`); setPanel(null); gridRef.current?.focus();
+  };
+  const removeLink = () => { mutate((_wb, s) => setLink(s, { c0: selR.c0, r0: selR.r0, c1: selR.c1, r1: selR.r1 }, null)); setStatus(`link removed from ${rangeA1(selR)}`); setPanel(null); gridRef.current?.focus(); };
+  const followLink = (col: number, row: number): boolean => {
+    const l = cellLink(workbook, active, col, row);
+    if (!l) return false;
+    const act = linkAction(l, [...workbook.sheets.keys()]);
+    if (act.kind === "url") {
+      if (/^mailto:/i.test(act.url)) window.open(act.url, "_blank", "noopener,noreferrer");
+      else shell.open("browser", { url: act.url });
+      setStatus(`opened ${act.url}`);
+    } else if (act.kind === "place") {
+      const r = parseA1Range(act.ref);
+      if (r) { if (act.sheet && act.sheet !== active) { commit(null); setActive(act.sheet); } setSel({ a: { col: r.c0, row: r.r0 }, f: { col: r.c1, row: r.r1 } }); requestAnimationFrame(() => ensureVisible({ col: r.c0, row: r.r0 })); setStatus(`went to ${act.sheet ? `${act.sheet}!` : ""}${act.ref}`); }
+    } else { shell.toast(act.why, "warn"); setStatus(act.why); }
+    return true;
+  };
   const switchSheet = (name: string) => { commit(null); setActive(name); setSel({ a: { col: 0, row: 0 }, f: { col: 0, row: 0 } }); };
   const newSheet = () => { let n = workbook.sheets.size + 1; while (workbook.sheets.has(`Sheet${n}`)) n++; const name = `Sheet${n}`; mutate((wb) => { wb.addSheet(name); }); switchSheet(name); };
   const renameSheet = async (old: string) => {
@@ -394,6 +434,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (mod && k === "r") { e.preventDefault(); fillDir("right"); return; }
     if (mod && k === "a") { e.preventDefault(); const r = currentRegion(has, sel.f.col, sel.f.row, COLS - 1, ROWS - 1); const whole = (r.c0 === selR.c0 && r.r0 === selR.r0 && r.c1 === selR.c1 && r.r1 === selR.r1) || !has(sel.f.col, sel.f.row); setSel(whole ? { a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } } : { a: { col: r.c0, row: r.r0 }, f: { col: r.c1, row: r.r1 } }); return; }
     if (mod && k === "f") { e.preventDefault(); setPanel("find"); return; }
+    if (mod && k === "k") { e.preventDefault(); openLinkPanel(); return; }
     if (mod && e.shiftKey && k === "v") { e.preventDefault(); openPasteSpecial(); return; }
     if (mod && e.key === "F3") { e.preventDefault(); setPanel("names"); return; }
     if (mod && k === "home") { e.preventDefault(); moveTo({ col: 0, row: 0 }); return; }
@@ -476,7 +517,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const r = dataRange(); const header = looksLikeHeader(workbook, active, r);
     const conflict = sortConflict(sheet, r); if (conflict) { shell.toast(conflict, "warn"); setStatus(conflict); return; }
     mutate((wb) => sortRange(wb, active, r, clamp(sel.f.col, r.c1, r.c0), asc, header));
-    setStatus(`sorted ${rangeA1(r)} by ${colToLetters(clamp(sel.f.col, r.c1, r.c0))} ${asc ? "A→Z" : "Z→A"}${header ? " (header row kept)" : ""}`);
+    setStatus(`sorted ${rangeA1(r)} by ${colToLetters(clamp(sel.f.col, r.c1, r.c0))} ${asc ? "A to Z" : "Z to A"}${header ? " (header row kept)" : ""}`);
   };
   const structural = (axis: "row" | "col", insert: boolean) => {
     const at = axis === "row" ? selR.r0 : selR.c0; const n = axis === "row" ? selR.r1 - selR.r0 + 1 : selR.c1 - selR.c0 + 1;
@@ -560,6 +601,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   /* ------------------------------------------------------------ mouse */
   const cellDown = (e: React.MouseEvent, p: Pos) => {
     if (e.button !== 0) return;
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && editing === null && followLink(p.col, p.row)) { e.preventDefault(); return; }
     if (editing !== null && editing.startsWith("=") && /[=(,+\-*/^&<>:;]$/.test(editing)) { e.preventDefault(); dragRef.current = { mode: "point", prefix: editing, start: p }; setEditing(editing + (active !== editSheet ? `${quoteSheet(active)}!` : "") + a1(p.col, p.row)); return; }
     commit(null); setListOpen(false);
     if (e.shiftKey) setSel((s) => ({ a: s.a, f: p })); else setSel({ a: p, f: p });
@@ -642,18 +684,20 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const align = st.align ?? (typeof v === "number" ? "right" : typeof v === "boolean" || err ? "center" : "left");
     const editingHere = editing !== null && editSrc === "cell" && editAt.col === col && editAt.row === row && editSheet === active;
     const isFillCorner = !editing && col === selR.c1 && row === selR.r1;
+    const link = cellLink(workbook, active, col, row);
+    const linkTip = link ? `${link.tooltip ?? link.target ?? link.location ?? ""}${link.target || link.location ? " — Ctrl+click to follow" : ""}` : undefined;
     return (
       <td key={col0} data-cell={a1(col, row)} {...span} data-merge={m ? `${a1(m.c0, m.r0)}:${a1(m.c1, m.r1)}` : undefined} onMouseDown={(e) => cellDown(e, { col, row })} onMouseEnter={() => cellEnter({ col, row })}
-        onDoubleClick={() => startEdit(cell?.input ?? "")} title={cell?.error ?? (sp && !(sp.c0 === col && sp.r0 === row) ? `spilled from ${a1(sp.c0, sp.r0)}` : undefined)}
+        onDoubleClick={() => startEdit(cell?.input ?? "")} title={cell?.error ?? linkTip ?? (sp && !(sp.c0 === col && sp.r0 === row) ? `spilled from ${a1(sp.c0, sp.r0)}` : undefined)} data-link={link ? (link.target ?? link.location ?? "") : undefined}
         style={{
           position: stickyCol ? "sticky" : "relative", left: stickyCol ? ROWHDR_W : undefined, zIndex: stickyCol ? 1 : undefined, verticalAlign: m ? (st.valign === "top" ? "top" : st.valign === "center" ? "middle" : "bottom") : undefined,
           height: ROW_H, padding: "0 5px", overflow: editingHere ? "visible" : "hidden", textOverflow: "ellipsis", whiteSpace: st.wrap ? "normal" : "nowrap", cursor: "cell",
           borderTop: sp && row === sp.r0 ? edge : base, borderBottom: sp && row === sp.r1 ? edge : base, borderLeft: sp && col === sp.c0 ? edge : base, borderRight: sp && col === sp.c1 ? edge : base,
-          fontWeight: st.bold || over?.bold ? 700 : undefined, fontStyle: st.italic || over?.italic ? "italic" : undefined, textDecoration: [st.underline || over?.underline ? "underline" : "", over?.strike ? "line-through" : ""].filter(Boolean).join(" ") || undefined, textAlign: align,
+          fontWeight: st.bold || over?.bold ? 700 : undefined, fontStyle: st.italic || over?.italic ? "italic" : undefined, textDecoration: [st.underline || over?.underline || (link && (link.target || link.location)) ? "underline" : "", over?.strike ? "line-through" : ""].filter(Boolean).join(" ") || undefined, textAlign: align,
           paddingLeft: over?.icon ? 22 : undefined,
           // TT22: theme tokens (light theme had pale-blue formula text), and "automatic" ink on filled cells with no
           // explicit font colour — white or near-black by the fill's luminance (display only; the document is unchanged)
-          color: err ? "var(--fs-bad-text, #ff9b9b)" : fmt.color ?? over?.color ?? st.color ?? autoInk(over?.fill ?? st.fill) ?? (cell?.formula ? "var(--fs-cell-formula, #bcd4ff)" : "var(--fs-text)"),
+          color: err ? "var(--fs-bad-text, #ff9b9b)" : fmt.color ?? over?.color ?? st.color ?? autoInk(over?.fill ?? st.fill) ?? (link && (link.target || link.location) ? "var(--fs-link, #4ea1ff)" : undefined) ?? (cell?.formula ? "var(--fs-cell-formula, #bcd4ff)" : "var(--fs-text)"),
           background: inFill ? "rgba(96,165,250,.18)" : inSel && !isCur ? `linear-gradient(rgba(91,140,255,.18),rgba(91,140,255,.18)),${over?.fill ?? st.fill ?? (stickyCol ? "var(--fs-bg, #0b1020)" : "transparent")}` : over?.fill ?? st.fill ?? (stickyCol ? "var(--fs-bg, #0b1020)" : "transparent"),
           outline: isCur ? "2px solid var(--fs-accent)" : undefined, outlineOffset: -2,
         }}>
@@ -780,6 +824,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <TB label={`Charts${charts.length ? ` (${charts.length})` : ""}`} onClick={() => setPanel(panel === "charts" ? null : "charts")} active={panel === "charts"} title="Show charts" />
         <TB label="Cond. format" onClick={() => setPanel(panel === "cf" ? null : "cf")} active={panel === "cf"} title={"Conditional formatting rules"} />
         <TB label="Paste special" onClick={() => (panel === "paste" ? setPanel(null) : openPasteSpecial())} active={panel === "paste"} title={"Paste special: values / formulas / formats, operation, skip blanks, transpose (Ctrl+Shift+V)"} />
+        <TB label="Link" onClick={() => (panel === "link" ? setPanel(null) : openLinkPanel())} active={panel === "link"} title={"Insert link (Ctrl+K) — Ctrl+click a linked cell to follow it"} />
         <TB label="Find" onClick={() => setPanel(panel === "find" ? null : "find")} active={panel === "find"} title={"Find & replace (Ctrl+F)"} />
         <TB label={`Names${workbook.names.size ? ` (${workbook.names.size})` : ""}`} onClick={() => setPanel(panel === "names" ? null : "names")} active={panel === "names"} title={"Name Manager (Ctrl+F3)"} />
         <TB label={`Validation${sheet.validations.length ? ` (${sheet.validations.length})` : ""}`} onClick={() => setPanel(panel === "dv" ? null : "dv")} active={panel === "dv"} title={"Data validation"} />
@@ -810,7 +855,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       {dvAlert ? (
         <div role="alertdialog" aria-label={dvAlert.title} data-testid="dv-alert" data-style={dvAlert.style} className="fs-row" style={{ gap: 8, padding: "5px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(12), alignItems: "center",
           background: dvAlert.style === "stop" ? "rgba(239,68,68,.16)" : dvAlert.style === "warning" ? "rgba(234,179,8,.16)" : "rgba(59,130,246,.16)" }}>
-          <b>{dvAlert.title}</b><span>{dvAlert.message}</span><span className="fs-dim fs-mono">({dvAlert.text} → {a1(dvAlert.col, dvAlert.row)})</span>
+          <b>{dvAlert.title}</b><span>{dvAlert.message}</span><span className="fs-dim fs-mono">({dvAlert.text} in {a1(dvAlert.col, dvAlert.row)})</span>
           <span style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
             {dvAlert.style === "stop" ? <><Btn variant="primary" onClick={() => resolveAlert(false, true)}>Retry</Btn><Btn variant="ghost" onClick={() => resolveAlert(false)}>Cancel</Btn></>
               : dvAlert.style === "warning" ? <><span>Continue?</span><Btn variant="primary" onClick={() => resolveAlert(true)}>Yes</Btn><Btn variant="ghost" onClick={() => resolveAlert(false, true)}>No</Btn><Btn variant="ghost" onClick={() => resolveAlert(false)}>Cancel</Btn></>
@@ -899,6 +944,20 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           <Btn variant="primary" onClick={doPasteSpecial}>Paste</Btn>
           <Btn variant="ghost" onClick={() => { setPanel(null); gridRef.current?.focus(); }}>Cancel</Btn>
           <span className="fs-dim">from {psFrom} (this Spreadsheet&apos;s clipboard)</span>
+        </div>
+      ) : null}
+      {panel === "link" ? (
+        <div className="fs-row" role="group" aria-label="Insert link" data-testid="link-panel" style={{ gap: 8, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), flexWrap: "wrap", alignItems: "center" }}
+          onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setPanel(null); gridRef.current?.focus(); } if (e.key === "Enter") { e.preventDefault(); applyLink(); } }}>
+          <b>Link on <span className="fs-mono">{rangeA1(selR)}</span></b>
+          <label>Address <input className="fs-input" autoFocus aria-label="Link address" placeholder="example.com · me@example.com · Sheet2!A1" value={lk.addr} onChange={(e) => setLk({ ...lk, addr: e.target.value })} style={{ width: 240 }} /></label>
+          <label>Text to display <input className="fs-input" aria-label="Text to display" value={lk.text} onChange={(e) => setLk({ ...lk, text: e.target.value })} style={{ width: 140 }} /></label>
+          <label>ScreenTip <input className="fs-input" aria-label="ScreenTip" value={lk.tip} onChange={(e) => setLk({ ...lk, tip: e.target.value })} style={{ width: 140 }} /></label>
+          <Btn variant="primary" onClick={applyLink}>{lk.had ? "Update" : "Insert"}</Btn>
+          {lk.had ? <Btn variant="ghost" onClick={removeLink}>Remove link</Btn> : null}
+          {lk.had ? <Btn variant="ghost" onClick={() => followLink(sel.f.col, sel.f.row)}>Open</Btn> : null}
+          <Btn variant="ghost" onClick={() => { setPanel(null); gridRef.current?.focus(); }}>Cancel</Btn>
+          <span className="fs-dim">only web and e-mail links open; others are kept in the file</span>
         </div>
       ) : null}
       {panel === "find" ? (

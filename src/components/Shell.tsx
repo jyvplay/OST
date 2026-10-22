@@ -18,6 +18,7 @@ import {
   initialDesktop, reduce, type DesktopState, type Rect, type WindowCommand,
 } from "@/lib/windowing/state";
 import { ShellContext, type BeamSession, type ClipEntry, type ShellApi } from "./shell-context";
+import { addClip, SENSITIVE_CLEAR_MS } from "@/lib/cliphistory";
 import WindowFrame from "./WindowFrame";
 import TopBar from "./TopBar";
 import Shelf from "./Shelf";
@@ -118,11 +119,24 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     return id;
   }, [dispatch]);
 
+  const clipSeq = useRef(0);
   const copy = useCallback(async (text: string, from: string, sensitive = false) => {
-    try { await navigator.clipboard?.writeText(text); } catch { /* clipboard write needs focus; the in-app history still records it */ }
-    setClips((c) => [{ text: sensitive ? "•".repeat(Math.min(text.length, 12)) : text, at: Date.now(), sensitive, from }, ...c].slice(0, 50));
-    toast(sensitive ? "Copied (sensitive — not stored)" : "Copied", "ok");
+    let wrote = false;
+    try { await navigator.clipboard?.writeText(text); wrote = true; } catch { /* clipboard write needs focus; the in-app history still records it */ }
+    // unique, increasing ids even for two copies in the same millisecond (entries are addressed by `at`)
+    const at = Math.max(Date.now(), clipSeq.current + 1); clipSeq.current = at;
+    setClips((c) => addClip(c, { text: sensitive ? "•".repeat(Math.min(text.length, 12)) : text, at, sensitive, from }));
+    if (sensitive && wrote) {
+      // TT57: like a password manager, clear the system clipboard after 30 s — but only if it still holds this secret
+      // (when the page may not read the clipboard, only if Fusion has not copied anything since)
+      window.setTimeout(async () => {
+        try { if ((await navigator.clipboard.readText()) === text) await navigator.clipboard.writeText(""); }
+        catch { if (clipSeq.current === at) { try { await navigator.clipboard.writeText(""); } catch { /* no focus: nothing more a web page can do */ } } }
+      }, SENSITIVE_CLEAR_MS);
+    }
+    toast(sensitive ? "Copied (sensitive — not stored, clipboard clears in 30 s)" : "Copied", "ok");
   }, [toast]);
+  const editClips = useCallback((fn: (c: ClipEntry[]) => ClipEntry[]) => setClips(fn), []);
 
   const publishStream = useCallback((id: string, stream: MediaStream | null) => {
     if (stream) streams.set(id, stream);
@@ -462,10 +476,10 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
 
   const value: ShellApi = useMemo(() => ({
     state, dispatch, open, caps, gov, settings, setSetting, toast,
-    streams, publishStream, streamVersion, clips, copy, beam, setBeam,
+    streams, publishStream, streamVersion, clips, copy, editClips, beam, setBeam,
     commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions,
   }), [state, dispatch, open, caps, gov, settings, setSetting, toast, streams, publishStream,
-      streamVersion, clips, copy, beam, commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions]);
+      streamVersion, clips, copy, editClips, beam, commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions]);
 
   const styleId = useStyleId();
   const visible = state.windows.filter((w) => w.workspace === state.activeWorkspace);

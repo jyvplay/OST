@@ -16,6 +16,7 @@
  */
 import { adjustLayoutForStructure, sortConflict } from "./sheetlayout";
 import { tokenize } from "./lexer";
+import { setLink, linkAt, type SheetLink } from "./sheetlinks";
 import { colToLetters, lettersToCol, type Scalar } from "./types";
 import { Sheet, Workbook, textInput, type Cell, type CellStyle } from "./engine";
 
@@ -185,7 +186,7 @@ export function parseTsv(text: string): string[][] {
 }
 
 /* ------------------------------------------------------------------ block copy / paste */
-export interface Clip { inputs: string[][]; styles: (CellStyle | undefined)[][]; origin: { col: number; row: number } }
+export interface Clip { inputs: string[][]; styles: (CellStyle | undefined)[][]; origin: { col: number; row: number }; links?: (Omit<SheetLink, "ref"> | undefined)[][] }
 export function copyBlock(sheet: Sheet, r: Range): Clip {
   const n = norm(r); const inputs: string[][] = [], styles: (CellStyle | undefined)[][] = [];
   for (let row = n.r0; row <= n.r1; row++) {
@@ -193,7 +194,9 @@ export function copyBlock(sheet: Sheet, r: Range): Clip {
     for (let col = n.c0; col <= n.c1; col++) { const c = sheet.get(col, row); ir.push(c?.input ?? ""); sr.push(c?.style ? { ...c.style } : undefined); }
     inputs.push(ir); styles.push(sr);
   }
-  return { inputs, styles, origin: { col: n.c0, row: n.r0 } };
+  // TT57: hyperlinks travel with their cells (copy / paste, and sort which is built on these)
+  const links = sheet.links.length ? inputs.map((ir, i) => ir.map((_, j) => { const l = linkAt(sheet, n.c0 + j, n.r0 + i); if (!l) return undefined; const { ref: _r, ...rest } = l; return rest; })) : undefined;
+  return { inputs, styles, origin: { col: n.c0, row: n.r0 }, links: links?.some((r) => r.some(Boolean)) ? links : undefined };
 }
 /** Paste a block at (col,row); formulas are shifted relative to where they were copied from. */
 export function pasteBlock(sheet: Sheet, clip: Clip, col: number, row: number, opts: { valuesOnly?: boolean; values?: string[][] } = {}): Range {
@@ -203,6 +206,12 @@ export function pasteBlock(sheet: Sheet, clip: Clip, col: number, row: number, o
     sheet.setCell(col + j, row + i, v);
     if (!opts.valuesOnly) sheet.setStyle(col + j, row + i, clip.styles[i]?.[j] ?? null);
   }));
+  if (!opts.valuesOnly && (clip.links || sheet.links.length)) {
+    // the pasted cells take the source's link state: its link, or none (as Excel's paste-all does)
+    const H = clip.inputs.length, W = clip.inputs[0]?.length ?? 1;
+    setLink(sheet, { c0: col, r0: row, c1: col + W - 1, r1: row + H - 1 }, null);
+    clip.links?.forEach((lr, i) => lr.forEach((l, j) => { if (l) setLink(sheet, { c0: col + j, r0: row + i, c1: col + j, r1: row + i }, l); }));
+  }
   return { c0: col, r0: row, c1: col + (clip.inputs[0]?.length ?? 1) - 1, r1: row + clip.inputs.length - 1 };
 }
 /* ------------------------------------------------------------------ TT56 Paste Special */
@@ -267,6 +276,7 @@ function parseLit(input: string): Scalar {
   return input;
 }
 export function clearRange(sheet: Sheet, r: Range, what: "contents" | "all" = "contents") {
+  if (what === "all") setLink(sheet, norm(r), null); // TT57: Clear All removes hyperlinks too (Clear Contents keeps them, as in Excel)
   const n = norm(r);
   for (let row = n.r0; row <= n.r1; row++) for (let col = n.c0; col <= n.c1; col++) { sheet.setCell(col, row, ""); if (what === "all") sheet.setStyle(col, row, null); }
 }

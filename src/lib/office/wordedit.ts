@@ -3,9 +3,9 @@
  * Positions are (paragraph id, offset) where a text run counts its UTF-16 length and every opaque token counts 1.
  * Every operation marks the paragraphs it touches `dirty`, so untouched paragraphs keep serializing byte-for-byte.
  */
-import { allParas, cellsOf, ensureStyle, makeLink, newId, parseInlineNodes, rowsOf, styleChain, type Block, type Cell, type Inline, type Para, type ParaProps, type Rev, type Row, type RunFmt, type Table, type TextRun, type Tok, type WordDoc, inlineText, BUILTIN_STYLE_IDS, defaultParaStyle, effectiveRun } from "./wordml";
-import { el, kid, kids, type XEl } from "./xmltree";
-import { sameRev } from "./wordml";
+import { allParas, cellsOf, ensureStyle, makeLink, newId, parseInlineNodes, rowsOf, styleChain, type Block, type Cell, type Inline, type FmtChange, type Para, type ParaProps, type Rev, type Row, type RunFmt, type Table, type TextRun, type Tok, type WordDoc, inlineText, BUILTIN_STYLE_IDS, defaultParaStyle, effectiveRun } from "./wordml";
+import { clone, el, kid, kids, type XEl } from "./xmltree";
+import { sameRev, sameFc, sameFmt, parsePPr } from "./wordml";
 
 export interface Pos { pid: string; off: number }
 export interface Range { a: Pos; b: Pos }
@@ -61,7 +61,7 @@ export function normalize(p: Para) {
   for (const it of p.content) {
     const prev = out[out.length - 1];
     if (it.t === "r" && !it.text) continue;
-    if (it.t === "r" && prev && prev.t === "r" && prev.link === it.link && prev.rPr === it.rPr && sameRev(prev.rev, it.rev) && sameRev(prev.rev?.ins, it.rev?.ins) && JSON.stringify(prev.f) === JSON.stringify(it.f) && JSON.stringify(prev.f0 ?? {}) === JSON.stringify(it.f0 ?? {})) { out[out.length - 1] = { ...prev, text: prev.text + it.text }; continue; }
+    if (it.t === "r" && prev && prev.t === "r" && prev.link === it.link && prev.rPr === it.rPr && sameRev(prev.rev, it.rev) && sameRev(prev.rev?.ins, it.rev?.ins) && sameFc(prev.fc, it.fc) && JSON.stringify(prev.f) === JSON.stringify(it.f) && JSON.stringify(prev.f0 ?? {}) === JSON.stringify(it.f0 ?? {})) { out[out.length - 1] = { ...prev, text: prev.text + it.text }; continue; }
     out.push(it);
   }
   p.content = out;
@@ -170,6 +170,7 @@ export function joinBackward(doc: WordDoc, pid: string): Pos | null {
 /* ---------------------------------------------------------------- formatting */
 export function applyFmt(doc: WordDoc, r0: Range, patch: Partial<Record<keyof RunFmt, unknown>>) {
   const r = normRange(doc, r0);
+  let fcRev: FmtChange | undefined;
   for (const p of parasIn(doc, r)) {
     const from = p.id === r.a.pid ? r.a.off : 0, to = p.id === r.b.pid ? r.b.off : plen(p);
     if (to <= from) continue;
@@ -179,6 +180,18 @@ export function applyFmt(doc: WordDoc, r0: Range, patch: Partial<Record<keyof Ru
       if (it.t !== "r") continue;
       const f = { ...it.f } as Record<string, unknown>;
       for (const [key, v] of Object.entries(patch)) { if (v === null || v === undefined) delete f[key]; else f[key] = v; }
+      // TT57: with Track Changes on, a formatting change on existing text records w:rPrChange (the formatting before the
+      // first tracked change is kept; returning to it drops the record). Text that is itself a pending insertion or
+      // deletion is just reformatted (Word keeps one revision per run there).
+      if (doc.track?.on && !it.rev && !sameFmt(it.f, f as RunFmt)) {
+        const old = it.fc ? it.fc.old : { ...it.f };
+        let fc: FmtChange | undefined;
+        if (sameFmt(old, f as RunFmt)) fc = undefined;
+        else if (it.fc) fc = it.fc;
+        else { const sh = (fcRev ??= { id: 0, author: authorName(doc), date: isoNow(), old: {} }); fc = { ...sh, id: doc.track.next++, old }; } // one w:id per run element (ids are unique per annotation, §17.13.4)
+        p.content[k] = { ...it, f: f as RunFmt, fc };
+        continue;
+      }
       p.content[k] = { ...it, f: f as RunFmt };
     }
     normalize(p); touch(p);
@@ -198,8 +211,17 @@ export function fmtAt(doc: WordDoc, r0: Range): RunFmt & { mixed: Set<string> } 
   }
   return { ...(first ?? effectiveRun(doc, undefined, {})), mixed };
 }
+/** TT57: with recording on, a paragraph-property change keeps the properties from before the FIRST change (w:pPrChange);
+ *  changing back to them drops the record. A paragraph whose mark is a pending insertion is new text — not tracked. */
+const samePP = (a: ParaProps, b: ParaProps) => { const n = (x: ParaProps) => JSON.stringify(Object.keys(x).sort().filter((k) => (x as Record<string, unknown>)[k] !== undefined && !(k === "num" && x.num === null)).map((k) => [k, (x as Record<string, unknown>)[k]])); return n(a) === n(b); };
+function trackPara(doc: WordDoc, p: Para, before: ParaProps) {
+  if (!doc.track?.on || p.markRev?.kind === "ins" || samePP(before, p.p)) return;
+  const old = p.pc ? p.pc.old : before;
+  if (samePP(old, p.p)) { p.pc = undefined; return; }
+  if (!p.pc) p.pc = { id: doc.track.next++, author: authorName(doc), date: isoNow(), old: { ...before } };
+}
 export function setParaProps(doc: WordDoc, r: Range, patch: Partial<ParaProps>) {
-  for (const p of parasIn(doc, normRange(doc, r))) { p.p = { ...p.p, ...patch }; for (const [k, v] of Object.entries(patch)) if (v === undefined) delete (p.p as Record<string, unknown>)[k]; touch(p); }
+  for (const p of parasIn(doc, normRange(doc, r))) { const before = p.p; p.p = { ...p.p, ...patch }; for (const [k, v] of Object.entries(patch)) if (v === undefined) delete (p.p as Record<string, unknown>)[k]; trackPara(doc, p, before); touch(p); }
 }
 export function setStyle(doc: WordDoc, r: Range, styleId: string) {
   ensureStyle(doc, styleId);
@@ -220,12 +242,14 @@ export function toggleList(doc: WordDoc, r: Range, kind: "bullet" | "number") {
   const all = allParas(doc.blocks); const at = all.indexOf(ps[0]);
   const neighbour = at > 0 && listKind(doc, all[at - 1]) === kind ? all[at - 1].p.num : undefined;
   const id = neighbour?.id ?? (kind === "bullet" ? "~bullet" : "~decimal");
-  for (const p of ps) { p.p = { ...p.p, num: allOn ? null : { id, lvl: p.p.num?.lvl ?? 0 } }; touch(p); }
+  for (const p of ps) { const before = p.p; p.p = { ...p.p, num: allOn ? null : { id, lvl: p.p.num?.lvl ?? 0 } }; trackPara(doc, p, before); touch(p); }
 }
 export function indent(doc: WordDoc, r: Range, dir: 1 | -1) {
   for (const p of parasIn(doc, normRange(doc, r))) {
+    const before = p.p;
     if (p.p.num) p.p = { ...p.p, num: { ...p.p.num, lvl: Math.max(0, Math.min(8, p.p.num.lvl + dir)) } };
     else p.p = { ...p.p, indL: Math.max(0, (p.p.indL ?? 0) + dir * 720) };
+    trackPara(doc, p, before);
     touch(p);
   }
 }
@@ -283,7 +307,7 @@ function delToIns(nodes: XEl[]): XEl[] {
   return nodes.map(conv);
 }
 export function trackedChanges(doc: WordDoc): { pid: string; kind: "ins" | "del"; author?: string; date?: string; text: string }[] {
-  return revisions(doc).map((c) => ({ pid: c.pid, kind: c.kind, author: c.author, date: c.date, text: c.text }));
+  return revisions(doc).flatMap((c) => (c.kind === "fmt" || c.kind === "para" ? [] : [{ pid: c.pid, kind: c.kind, author: c.author, date: c.date, text: c.text }]));
 }
 /** Accept (true) or reject (false) every insertion/deletion; also clears formatting-change records on accept. */
 export function resolveChanges(doc: WordDoc, accept: boolean): number {
@@ -519,7 +543,31 @@ function joinNext(doc: WordDoc, p: Para) {
   normalize(p); touch(p);
 }
 
-export interface Change { key: string; kind: "ins" | "del"; author?: string; date?: string; text: string; pid: string; off: number; editable: boolean }
+export interface Change { key: string; kind: "ins" | "del" | "fmt" | "para"; author?: string; date?: string; text: string; pid: string; off: number; editable: boolean; /** fmt: what changed */ detail?: string }
+const FMT_LABEL: Record<string, string> = { b: "Bold", i: "Italic", u: "Underline", s: "Strikethrough", sz: "Font size", font: "Font", color: "Font colour", hl: "Highlight", va: "Position", caps: "All caps", smallCaps: "Small caps", rStyle: "Character style", shd: "Shading" };
+/** human summary of a formatting change: "Bold, Italic off, Font size 14 pt" */
+export function fmtDiff(old: RunFmt, now: RunFmt): string {
+  const keys = [...new Set([...Object.keys(old), ...Object.keys(now)])].filter((k) => JSON.stringify((old as Record<string, unknown>)[k] ?? null) !== JSON.stringify((now as Record<string, unknown>)[k] ?? null));
+  return keys.map((k) => {
+    const v = (now as Record<string, unknown>)[k]; const lab = FMT_LABEL[k] ?? k;
+    if (typeof v === "boolean" || v === undefined) return v ? lab : `${lab} off`;
+    return k === "sz" ? `${lab} ${Number(v) / 2} pt` : `${lab} ${String(v)}`;
+  }).join(", ") || "Formatted";
+}
+const ALIGN_LABEL: Record<string, string> = { left: "Left", start: "Left", center: "Centered", right: "Right", end: "Right", both: "Justified", justify: "Justified", distribute: "Distributed" };
+/** human summary of a paragraph-property change: "Centered, Style Heading1, Numbered list" */
+export function paraDiff(doc: WordDoc, old: ParaProps, now: ParaProps): string {
+  const out: string[] = [];
+  const ch = (k: keyof ParaProps) => JSON.stringify(old[k] ?? null) !== JSON.stringify(now[k] ?? null);
+  if (ch("style")) out.push(`Style ${now.style ? (doc.styles.get(now.style)?.name ?? now.style) : "Normal"}`);
+  if (ch("align")) out.push(now.align ? (ALIGN_LABEL[now.align] ?? now.align) : "Left");
+  if (ch("num")) { const k = now.num ? (now.num.id === "~bullet" || doc.numbering.get(now.num.id)?.lvls[now.num.lvl]?.fmt === "bullet" ? "Bulleted list" : "Numbered list") : "List removed"; out.push(old.num && now.num && old.num.id === now.num.id ? `List level ${now.num.lvl + 1}` : k); }
+  if (ch("indL") || ch("indR") || ch("indFirst")) out.push("Indent");
+  if (ch("before") || ch("after") || ch("line") || ch("lineRule")) out.push("Spacing");
+  const known = new Set(["style", "align", "num", "indL", "indR", "indFirst", "before", "after", "line", "lineRule"]);
+  if ([...new Set([...Object.keys(old), ...Object.keys(now)])].some((k) => !known.has(k) && ch(k as keyof ParaProps))) out.push("Paragraph");
+  return out.join(", ") || "Paragraph";
+}
 /** Every pending revision in document order: editor/parsed revision runs grouped by id (text + paragraph marks), plus opaque
  *  file revisions (moves, revisions around fields…) one per element. */
 export function revisions(doc: WordDoc): Change[] {
@@ -537,9 +585,15 @@ export function revisions(doc: WordDoc): Change[] {
         const n = it.nodes[0] as XEl; const a = (k: string) => n.attrs.find((x) => x[0] === k)?.[1];
         out.push({ key: `k:${p.id}:${idx}`, kind: it.kind, author: a("w:author"), date: a("w:date"), text: it.label, pid: p.id, off, editable: false });
       } else if (it.rev) { add(it.rev, p.id, off, txt); if (it.rev.ins) add(it.rev.ins, p.id, off, txt); }
+      if (it.t === "r" && it.fc) {
+        const key = `r:fmt:${it.fc.id}`; const c = byId.get(key);
+        if (c) c.text += txt;
+        else { const n: Change = { key, kind: "fmt", author: it.fc.author || undefined, date: it.fc.date, text: txt, pid: p.id, off, editable: true, detail: fmtDiff(it.fc.old, it.f) }; byId.set(key, n); out.push(n); }
+      }
       off += ilen(it);
     });
     if (p.markRev) add(p.markRev, p.id, off, "\u00b6");
+    if (p.pc) out.push({ key: `p:fmt:${p.pc.id}`, kind: "para", author: p.pc.author || undefined, date: p.pc.date, text: p.content.map((it) => (it.t === "r" ? it.text : "")).join("").slice(0, 80) || "\u00b6", pid: p.id, off: 0, editable: true, detail: paraDiff(doc, p.pc.old, p.p) });
   }
   return out;
 }
@@ -553,6 +607,43 @@ export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean 
     p.content.splice(Number(si), 1, ...(keep ? parseInlineNodes(doc, it.kind === "del" ? delToIns(host.kids.filter((k): k is XEl => k.k === "el")) : host.kids) : []));
     normalize(p); touch(p);
     return true;
+  }
+  const pm = /^p:fmt:(-?\d+)$/.exec(key);
+  if (pm) {
+    const id = Number(pm[1]);
+    for (const p of allParas(doc.blocks)) {
+      if (!p.pc || p.pc.id !== id) continue;
+      const pc = p.pc; p.pc = undefined;
+      if (!accept) {
+        if (pc.oldPPr) {
+          // a file's record: the recorded pPr verbatim, keeping this paragraph's mark properties and section break
+          const keep = (p.pPr?.kids ?? []).filter((k) => k.k === "el" && (k.name === "w:rPr" || k.name === "w:sectPr"));
+          const np = clone(pc.oldPPr); np.kids = [...np.kids.filter((k) => !(k.k === "el" && (k.name === "w:rPr" || k.name === "w:sectPr"))), ...keep]; np.selfClose = np.kids.length === 0;
+          p.pPr = np; p.p = parsePPr(np); p.p0 = { ...p.p };
+        } else p.p = { ...pc.old };
+      }
+      touch(p);
+      return true;
+    }
+    return false;
+  }
+  const fm = /^r:fmt:(-?\d+)$/.exec(key);
+  if (fm) {
+    const id = Number(fm[1]); let found = false;
+    for (const p of allParas(doc.blocks)) {
+      let changed = false;
+      p.content = p.content.map((it) => {
+        if (it.t !== "r" || !it.fc || it.fc.id !== id) return it;
+        found = changed = true;
+        const fc = it.fc;
+        if (accept) return { ...it, fc: undefined };
+        // reject: back to the formatting before the change (a file's original rPr is restored verbatim)
+        if (fc.oldRPr) { const f = { ...fc.old }; return { ...it, f, f0: { ...f }, rPr: fc.oldRPr.kids.length ? fc.oldRPr : undefined, fc: undefined }; }
+        return { ...it, f: { ...fc.old }, fc: undefined };
+      });
+      if (changed) { normalize(p); touch(p); }
+    }
+    return found;
   }
   const m = /^r:(ins|del):(-?\d+)$/.exec(key); if (!m) return false;
   const kind = m[1] as "ins" | "del", id = Number(m[2]);

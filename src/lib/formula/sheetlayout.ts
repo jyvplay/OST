@@ -119,6 +119,7 @@ export function adjustLayoutForStructure(sheet: Sheet, axis: "row" | "col", at: 
     const parts = parseSqref(v.sqref).map((p) => adjustRange(p, axis, at, count)).filter((p): p is R => !!p);
     return parts.length ? { ...v, sqref: parts.map(rangeRef).join(" ") } : null;
   }).filter((v): v is DataValidation => !!v);
+  sheet.links = sheet.links.flatMap((l) => { const r = parseRef(l.ref); const n = r && adjustRange(r, axis, at, count); return n ? [{ ...l, ref: rangeRef(n) }] : []; });
   if (axis === "row" && sheet.freezeRows > 0 && count < 0 && at < sheet.freezeRows) sheet.freezeRows = Math.max(0, sheet.freezeRows - Math.min(-count, sheet.freezeRows - at));
   if (axis === "col" && sheet.freezeCols > 0 && count < 0 && at < sheet.freezeCols) sheet.freezeCols = Math.max(0, sheet.freezeCols - Math.min(-count, sheet.freezeCols - at));
 }

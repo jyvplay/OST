@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt57",
+  "at": "2026-10-22T01:48:58.685Z",
+  "results": [
+    {
+      "suite": "e2e-tt57",
+      "name": "FF-22 Writer format tracking in the UI: Ctrl+B with tracking on → 'Formatted: Bold' listed, saved as w:rPrChange; Reject restores plain text; Align centre → 'Paragraph: Centered' → w:pPrChange → Accept (lxml oracle)",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 6651
+    },
+    {
+      "suite": "e2e-tt57",
+      "name": "FF-21 Spreadsheet hyperlinks in the UI: Ctrl+K web link + ScreenTip, place link with display text, Ctrl+click follows it, bad address refused, Escape closes only the panel; openpyxl reads the saved links",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 3966
+    },
+    {
+      "suite": "e2e-tt57",
+      "name": "no uncaught page errors during the TT57 session",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

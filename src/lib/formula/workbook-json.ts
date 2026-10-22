@@ -7,9 +7,10 @@ import { Workbook, Sheet, a1, type CellStyle, type CellBorder, type MergeRange }
 import { isBorderLine, parseRef, rangeRef, sanitizeValidation, intersects } from "./sheetlayout";
 import { lettersToCol } from "./types";
 import { sanitizeCharts, sanitizeCondFormats } from "./sheetmeta";
+import { sanitizeLink, type SheetLink } from "./sheetlinks";
 
 export interface CellJson { ref: string; input: string; style?: CellStyle }
-export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[] }
+export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[]; links?: unknown[] }
 export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[]; tables?: unknown[]; date1904?: boolean }
 
 export function workbookToJson(wb: Workbook): WorkbookJson {
@@ -37,6 +38,7 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
       if (s.freezeCols) out.freezeCols = s.freezeCols;
       if (s.merges.length) out.merges = s.merges.map(rangeRef);
       if (s.validations.length) out.validations = s.validations.map((v) => ({ ...v }));
+      if (s.links.length) out.links = s.links.map((l) => Object.fromEntries(Object.entries(l).filter(([, v]) => v !== undefined)));
       return out;
     }),
   };
@@ -88,6 +90,7 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
       if (r && !(r.c0 === r.c1 && r.r0 === r.r1) && !sheet.merges.some((m: MergeRange) => intersects(m, r))) sheet.merges.push(r);
     }
     sheet.validations = (Array.isArray(s.validations) ? s.validations : []).slice(0, 1000).map((v, i) => sanitizeValidation(v, `v${i + 1}`)).filter((v): v is NonNullable<typeof v> => !!v);
+    sheet.links = (Array.isArray(s.links) ? s.links : []).slice(0, 10000).map(sanitizeLink).filter((l): l is SheetLink => !!l);
     wb.sheets.set(s.name, sheet);
   }
   if (!wb.sheets.size) wb.addSheet("Sheet1");

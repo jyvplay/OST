@@ -1,0 +1,51 @@
+{
+  "suite": "tt57-writer-para",
+  "at": "2026-10-22T01:37:44.442Z",
+  "results": [
+    {
+      "suite": "tt57-writer-para",
+      "name": "centre + indent with tracking on → one w:pPrChange per paragraph holding the old pPr; accept keeps, reject restores — oracle, reopened file and live model agree",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 585
+    },
+    {
+      "suite": "tt57-writer-para",
+      "name": "lists: bullets added under tracking reject to none; bullets REMOVED under tracking reject to the real list id (a new list is created for the record); back-to-original drops the record",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 390
+    },
+    {
+      "suite": "tt57-writer-para",
+      "name": "not tracked: edits with recording off, and a paragraph whose mark is a pending insertion (new text); a style change lists the style; ids stay unique beside ins/del/fmt",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 92
+    },
+    {
+      "suite": "tt57-writer-para",
+      "name": "Word-shaped file record (pPrChange with a recorded pStyle + jc, mark rPr present) → listed; reject restores the recorded pPr exactly and keeps the mark's rPr; untouched round-trip keeps the record",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 419
+    },
+    {
+      "suite": "tt57-writer-para",
+      "name": "120 random trials: random align / indent / list / style edits on 3 paragraphs with recording toggling, random per-revision decisions — live model, reopened file and the oracle agree",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 34728
+    }
+  ]
+}

@@ -42,6 +42,7 @@ export default function WriterModule({ win }: ModuleProps) {
   const encRef = useRef<Protection | null>(null);
   const [locked, setLocked] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const shellRef = useRef<HTMLDivElement | null>(null);
   const pagesRef = useRef<HTMLDivElement | null>(null);
   const selRef = useRef<E.Range | null>(null);
   const pendingFmt = useRef<Record<string, unknown> | null>(null);
@@ -522,9 +523,13 @@ export default function WriterModule({ win }: ModuleProps) {
     const o = E.order(d); const r = curSel(); const here = (o.get(r.a.pid) ?? 0) * 1e6 + r.a.off;
     const key = (c: E.Change) => (o.get(c.pid) ?? 0) * 1e6 + c.off;
     const c = dir > 0 ? (list.find((x) => key(x) > here) ?? list[0]) : ([...list].reverse().find((x) => key(x) < here) ?? list[list.length - 1]);
-    goChange(c); setStatus(`${c.kind === "ins" ? "Inserted" : "Deleted"}${c.author ? ` by ${c.author}` : ""}: ${c.text.slice(0, 60)}`);
+    goChange(c); setStatus(`${c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? `Formatted (${c.detail})` : c.kind === "para" ? `Paragraph (${c.detail})` : "Deleted"}${c.author ? ` by ${c.author}` : ""}: ${c.text.slice(0, 60)}`);
   };
-  const resolveOne = (c: E.Change, accept: boolean) => { const d = docRef.current!; snapshot(); const ok = E.resolveOne(d, c.key, accept); changed(); setStatus(ok ? `${accept ? "Accepted" : "Rejected"} 1 change` : "That change no longer exists"); };
+  const resolveOne = (c: E.Change, accept: boolean) => {
+    const d = docRef.current!; snapshot(); const ok = E.resolveOne(d, c.key, accept); changed(); setStatus(ok ? `${accept ? "Accepted" : "Rejected"} 1 change` : "That change no longer exists");
+    // TT57: the pressed button disappears with its change — keep focus inside Writer (next change, else the page) so Ctrl+S etc. still work
+    requestAnimationFrame(() => { const next = shellRef.current?.querySelector<HTMLElement>('[data-testid="writer-changes"] [role=listitem] button'); (next ?? rootRef.current)?.focus(); });
+  };
   const resolve = (accept: boolean) => { const d = docRef.current!; snapshot(); const n = E.resolveChanges(d, accept); changed(); setStatus(`${accept ? "Accepted" : "Rejected"} ${n} change(s)`); };
 
   /* ------------------------------------------------------------ derived toolbar state */
@@ -547,7 +552,8 @@ export default function WriterModule({ win }: ModuleProps) {
   const tb = (on: boolean | undefined) => ({ variant: (on ? "primary" : "ghost") as "primary" | "ghost" });
 
   return (
-    <div className="writer" style={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }} data-testid="writer">
+    <div className="writer" ref={shellRef} style={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }} data-testid="writer"
+      onKeyDown={(e) => { if (!e.defaultPrevented && (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "s") { e.preventDefault(); void save(); } }}>
       <style>{WRITER_CSS}</style>
       {/* ---------- file / history row */}
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }}>
@@ -680,7 +686,7 @@ export default function WriterModule({ win }: ModuleProps) {
               </div>
               <div role="list" aria-label="Tracked changes" data-testid="writer-changes">
                 {changes.slice(0, 200).map((c, i) => <div role="listitem" key={c.key} className={`wchg wchg-${c.kind}`} data-key={c.key}>
-                  <button className="wchg-go" onClick={() => goChange(c)}><b>{c.kind === "ins" ? "Inserted" : "Deleted"}</b>{c.author ? ` · ${c.author}` : ""}{c.date ? <span style={{ opacity: 0.7 }}> · {c.date.slice(0, 10)}</span> : null}<span className="wchg-t">{c.text.slice(0, 120) || "(formatting / empty)"}</span></button>
+                  <button className="wchg-go" onClick={() => goChange(c)}><b>{c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? "Formatted" : c.kind === "para" ? "Paragraph" : "Deleted"}</b>{(c.kind === "fmt" || c.kind === "para") && c.detail ? <span data-testid="writer-change-detail">: {c.detail}</span> : null}{c.author ? ` · ${c.author}` : ""}{c.date ? <span style={{ opacity: 0.7 }}> · {c.date.slice(0, 10)}</span> : null}<span className="wchg-t">{c.text.slice(0, 120) || "(formatting / empty)"}</span></button>
                   <div className="fs-row" style={{ gap: 4 }}><Btn variant="ghost" onClick={() => resolveOne(c, true)}>Accept<span className="sr-only"> change {i + 1}</span></Btn><Btn variant="ghost" onClick={() => resolveOne(c, false)}>Reject<span className="sr-only"> change {i + 1}</span></Btn></div>
                 </div>)}
               </div>

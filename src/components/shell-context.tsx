@@ -6,7 +6,7 @@ import type { GovernorSnapshot } from "@/lib/governor";
 import type { RoutineAction } from "@/lib/routines";
 import type { DesktopState, Rect, WindowCommand, WindowState } from "@/lib/windowing/state";
 
-export interface ClipEntry { text: string; at: number; sensitive: boolean; from: string }
+export interface ClipEntry { text: string; at: number; sensitive: boolean; from: string; pinned?: boolean }
 
 export interface BeamSession {
   id: number | null;
@@ -32,6 +32,8 @@ export interface ShellApi {
   streamVersion: number;
   clips: ClipEntry[];
   copy: (text: string, from: string, sensitive?: boolean) => Promise<void>;
+  /** TT57: edit the in-memory clipboard history (pin / remove / clear) — pure ops live in lib/cliphistory. */
+  editClips: (fn: (c: ClipEntry[]) => ClipEntry[]) => void;
   beam: BeamSession | null;
   setBeam: (s: BeamSession | null) => void;
   commandLog: { cmd: WindowCommand; at: number }[];

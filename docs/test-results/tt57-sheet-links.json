@@ -1,0 +1,60 @@
+{
+  "suite": "tt57-sheet-links",
+  "at": "2026-10-22T01:22:37.664Z",
+  "results": [
+    {
+      "suite": "tt57-sheet-links",
+      "name": "POI corpus: every <hyperlink> read with its relationship target, location and tooltip = lxml raw reading; per-cell = openpyxl",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 4054
+    },
+    {
+      "suite": "tt57-sheet-links",
+      "name": "export: external, mailto, in-workbook, ranged and special-character links → openpyxl reads the same; rels resolve; schema order",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 172
+    },
+    {
+      "suite": "tt57-sheet-links",
+      "name": "lossless patch: add / change / remove links on POI workbooks (existing rels kept, hyperlink rels rebuilt, untouched sheets byte-identical) = openpyxl",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 6997
+    },
+    {
+      "suite": "tt57-sheet-links",
+      "name": "set/remove/insert/delete/clear: 300 random operations = an independent per-cell reference model; JSON round trip keeps links",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 30
+    },
+    {
+      "suite": "tt57-sheet-links",
+      "name": "links travel with cells: sort moves each row's link with the row; copy/paste carries links; pasting unlinked cells clears links; values-only paste leaves links",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt57-sheet-links",
+      "name": "addresses and safety: typed address parsing, javascript:/data: refused everywhere, only http(s)/mailto open, places resolve sheets",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}

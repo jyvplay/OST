@@ -145,8 +145,8 @@ await test("Full stack: merges + borders + validation + frozen panes survive Exp
     await s.dlg.getByRole("button", { name: "Apply rule" }).click();
     await s.dlg.getByRole("button", { name: "Freeze first column" }).click();
     await s.dlg.getByRole("button", { name: "Export .xlsx" }).click();
-    await waitFor(async () => /exported .* → /.test(await text(s.dlg.locator('[data-testid="sheet-status"]'))), "export failed", 10_000);
-    dest = /→ (\S+\.xlsx)/.exec(await text(s.dlg.locator('[data-testid="sheet-status"]')))![1];
+    await waitFor(async () => /exported .* (?:→|to) /.test(await text(s.dlg.locator('[data-testid="sheet-status"]'))), "export failed", 10_000);
+    dest = /(?:→| to) (\S+\.xlsx)/.exec(await text(s.dlg.locator('[data-testid="sheet-status"]')))![1];
   } finally { await s.close(); }
   const r = await openSheet(dest);
   try {
@@ -186,8 +186,8 @@ await test("TT19 defined names: Name Box defines a name for the selection and ju
     await row.waitFor({ timeout: 5000 });
     eq(/\$B\$2:\$B\$4/.test(await row.innerText()), true, "Name Manager shows refers-to");
     await s.dlg.getByRole("button", { name: "Export .xlsx" }).click();
-    await waitFor(async () => /exported .* → /.test(await status()), "export failed", 10_000);
-    dest = /→ (\S+\.xlsx)/.exec(await status())![1];
+    await waitFor(async () => /exported .* (?:→|to) /.test(await status()), "export failed", 10_000);
+    dest = /(?:→| to) (\S+\.xlsx)/.exec(await status())![1];
   } finally { await s.close(); }
   const r = await openSheet(dest);
   try {

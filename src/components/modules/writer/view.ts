@@ -63,6 +63,8 @@ export function renderPara(st: RenderState, p: Para): HTMLElement {
   Object.assign(ps, { fontFamily: cssFont(baseRun.font), fontSize: `${(baseRun.sz ?? 22) / 2}pt` });
   if (e.pageBreakBefore) pe.dataset.break = "page";
   if (p.sect) pe.dataset.sect = "1";
+  // TT57: a tracked paragraph-property change shows Word's change bar (an inset left rule in the reviewer's colour)
+  if (p.pc) { pe.classList.add("wrev-para"); pe.dataset.pc = String(p.pc.id); ps.boxShadow = `inset 3px 0 0 ${revColor(p.pc.author)}`; pe.title = `Paragraph formatting changed${p.pc.author ? ` by ${p.pc.author}` : ""} — review in the Review panel`; }
   if (mk) {
     const m = document.createElement("span");
     m.className = "wmark"; m.contentEditable = "false"; m.dataset.marker = "1";
@@ -110,6 +112,8 @@ function renderInline(st: RenderState, p: Para, it: Inline, ri: number, off: num
     if (it.link) { s.dataset.href = it.link.href ?? (it.link.anchor ? `#${it.link.anchor}` : ""); s.classList.add("wlink"); s.title = `${s.dataset.href} — Ctrl+click to open`; }
     if (st.commentOpen.size) { s.classList.add("wcmt"); s.dataset.cids = [...st.commentOpen].join(","); }
     if (it.rev) markRev(s, it.rev);
+    // TT57: tracked formatting change (w:rPrChange) — a dotted under-rule in the author's colour, like Word's markup
+    if (it.fc) { s.classList.add("wrev-fmt"); s.dataset.fc = String(it.fc.id); s.style.borderBottom = `2px dotted ${revColor(it.fc.author)}`; if (!it.rev) s.title = `Formatted${it.fc.author ? ` by ${it.fc.author}` : ""}${it.fc.date ? ` · ${it.fc.date.slice(0, 16).replace("T", " ")}` : ""} — review in the Review panel`; }
     s.textContent = it.text;
     return s;
   }

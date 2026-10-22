@@ -33,6 +33,7 @@ import { readXlsxWorkbook, workbookToJson, workbookFromJson, colorContext, xlsxI
 import { rangeRef } from "./sheetlayout";
 import type { CondRule } from "./sheetmeta";
 import { addFuturePrefixes } from "./sheetops";
+import { linksXml, REL_HYPERLINK } from "./sheetlinks";
 
 
 const ln = (n: string) => n.slice(n.indexOf(":") + 1);
@@ -259,7 +260,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       const o = m.orig && orig.sheets.get(m.orig.name);
       if (!o || m.orig !== origSheets[i] || m.sheet.name !== m.orig!.name || m.sheet.grid.size !== o.grid.size) return false;
       for (const [k, c] of m.sheet.grid) { const d = o.grid.get(k); if (!d || d.input !== c.input || normStyle(d.style) !== normStyle(c.style)) return false; }
-      return eqJ(workbook.charts.filter((c) => c.sheet === m.sheet.name).map(chartKey), orig.charts.filter((c) => c.sheet === o.name).map(chartKey)) && eqJ(cfOf(workbook, m.sheet.name), cfOf(orig, o.name)) && eqJ(m.sheet.merges, o.merges) && eqJ(m.sheet.validations, o.validations) && eqJ(m.sheet.colWidths, o.colWidths) && m.sheet.freezeRows === o.freezeRows && m.sheet.freezeCols === o.freezeCols;
+      return eqJ(workbook.charts.filter((c) => c.sheet === m.sheet.name).map(chartKey), orig.charts.filter((c) => c.sheet === o.name).map(chartKey)) && eqJ(cfOf(workbook, m.sheet.name), cfOf(orig, o.name)) && eqJ(m.sheet.links, o.links) && eqJ(m.sheet.merges, o.merges) && eqJ(m.sheet.validations, o.validations) && eqJ(m.sheet.colWidths, o.colWidths) && m.sheet.freezeRows === o.freezeRows && m.sheet.freezeCols === o.freezeCols;
     });
     // charts on pinned chartsheets are not covered by the per-sheet comparison above
     const pinnedCharts = (w: Workbook) => w.charts.filter((c) => pinnedNames.has(c.sheet.toLowerCase())).map((c) => c.sheet.toLowerCase() + chartKey(c));
@@ -443,6 +444,34 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
         }
       }
     }
+    // TT57: hyperlinks — the <hyperlinks> element and the sheet's external hyperlink relationships are rewritten together
+    let sheetRels: string | undefined;
+    if (origSheet ? !eqJ(sheet.links, origSheet.links) : sheet.links.length > 0) {
+      extrasChanged.push("hyperlinks");
+      const relsPath = o ? relsPathOf(o.part) : "";
+      const relsSrc = o ? await zip.readText(relsPath) : null;
+      const rd = parseXml(relsSrc ?? `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>`);
+      rd.root.kids = rd.root.kids.filter((k) => !(k.k === "el" && attr(k, "Type") === REL_HYPERLINK));
+      const ids = new Set(kids(rd.root).map((r) => attr(r, "Id")));
+      let n = 0; const nextId = () => { let id: string; do id = `rIdHl${++n}`; while (ids.has(id)); return id; };
+      const lx = linksXml(sheet.links, nextId);
+      const RP = rd.root.name.replace(/Relationships$/, "");
+      for (const r of lx.rels) { const x = parseXml(r).root; x.name = RP + x.name; rd.root.kids.push(x); }
+      rd.root.selfClose = rd.root.kids.length === 0;
+      if (lx.rels.length || relsSrc !== null) sheetRels = serializeXml(rd);
+      let hl: XEl | null = null;
+      if (lx.xml) {
+        hl = parseXml(`<hyperlinks xmlns="${NS_MAIN}" xmlns:r="${NS_R}">${lx.xml.replace(/^<hyperlinks>|<\/hyperlinks>$/g, "")}</hyperlinks>`).root;
+        hl.attrs = []; hl.quote = [];
+        // the r: prefix must resolve on the worksheet root
+        const rPre = doc.root.attrs.find(([k, v]) => k.startsWith("xmlns:") && v === NS_R)?.[0].slice(6);
+        if (!rPre) { doc.root.attrs.push(["xmlns:r", NS_R]); doc.root.quote.push("\""); }
+        const pre = (e: XEl) => { e.name = SP + e.name; if (rPre && rPre !== "r") e.attrs = e.attrs.map(([k, v]) => [k === "r:id" ? `${rPre}:id` : k, v]); kids(e).forEach(pre); };
+        pre(hl);
+      }
+      replaceChild("hyperlinks", hl, ["sheetData", "sheetCalcPr", "sheetProtection", "protectedRanges", "scenarios", "autoFilter", "sortState", "dataConsolidate", "customSheetViews", "mergeCells", "phoneticPr", "conditionalFormatting", "dataValidations"]);
+      if (o && sheetRels !== undefined) { out.set(relsPath, sheetRels); report.partsRewritten.push(relsPath); }
+    }
     if (!origSheet || sheet.freezeRows !== origSheet.freezeRows || sheet.freezeCols !== origSheet.freezeCols) {
       extrasChanged.push("pane");
       let views = kidL(doc.root, "sheetViews");
@@ -463,7 +492,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     if (dim) setAttr(dim, "ref", dimRef);
     report.cellsRewritten += rewritten; report.cellsReused += reused;
     if (o) { out.set(o.part, serializeXml(doc)); report.sheetsPatched.push(sheet.name); report.partsRewritten.push(o.part); if (sheet.name !== o.name) report.sheetsRenamed.push([o.name, sheet.name]); }
-    else { (mapping.find((m) => m.sheet === sheet) as { xml?: string }).xml = serializeXml(doc); report.sheetsAdded.push(sheet.name); }
+    else { const mm = mapping.find((m) => m.sheet === sheet) as { xml?: string; rels?: string }; mm.xml = serializeXml(doc); mm.rels = sheetRels; report.sheetsAdded.push(sheet.name); }
   }
 
   // --- workbook structure: order, names, additions, removals
@@ -486,6 +515,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       const s = el(P + "sheet", { name: m.sheet.name, sheetId: String(sid) }); s.attrs.push([wbDoc.root.attrs.find(([k, v]) => k.startsWith("xmlns:") && v === NS_R)?.[0].slice(6) + ":id" || "r:id", `rId${id}`]); s.quote.push("\"");
       if (!wbDoc.root.attrs.some(([k, v]) => k.startsWith("xmlns:") && v === NS_R)) { wbDoc.root.attrs.push(["xmlns:r", NS_R]); wbDoc.root.quote.push("\""); }
       newEls.push(s); out.set(part, (m as { xml?: string }).xml!); report.partsRewritten.push(part); newPartOf.set(m.sheet.name, part);
+      const nr = (m as { rels?: string }).rels; if (nr) { out.set(relsPathOf(part), nr); report.partsRewritten.push(relsPathOf(part)); }
     }
     for (const s of origSheets) if (!used.has(s.part)) {
       report.sheetsRemoved.push(s.name); removed.add(s.part);

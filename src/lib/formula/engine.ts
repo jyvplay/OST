@@ -31,6 +31,7 @@
  *    wins on name collisions.
  */
 import type { ChartSpec, CondRule } from "./sheetmeta";
+import type { SheetLink } from "./sheetlinks";
 import { parseFormula, MAX_ROW, MAX_COL } from "./parser";
 import { setDate1904 } from "./dates";
 import { takesArray } from "./paramkinds";
@@ -99,6 +100,8 @@ export class Sheet {
   merges: MergeRange[] = [];
   /** Data-validation rules (TT17; <dataValidations>). */
   validations: DataValidation[] = [];
+  /** Cell hyperlinks (TT57; <hyperlinks> + sheet rels). */
+  links: SheetLink[] = [];
   constructor(name = "Sheet1") { this.name = name; }
 
   setCell(col: number, row: number, input: string) {

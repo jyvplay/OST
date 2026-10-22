@@ -1,0 +1,51 @@
+{
+  "suite": "tt57-writer-fmt",
+  "at": "2026-10-22T01:22:24.339Z",
+  "results": [
+    {
+      "suite": "tt57-writer-fmt",
+      "name": "bold on a word with tracking on → one w:rPrChange holding the old (plain) rPr; accept keeps bold, reject restores plain — oracle and our model agree",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 501
+    },
+    {
+      "suite": "tt57-writer-fmt",
+      "name": "formatting back to the original removes the record; a second change keeps the FIRST original (Word); untracked formatting adds nothing",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 201
+    },
+    {
+      "suite": "tt57-writer-fmt",
+      "name": "parsed rPrChange (Word-written, POI corpus) → listed with a detail; reject restores the recorded original rPr exactly; accept drops it — equal to the oracle",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 1613
+    },
+    {
+      "suite": "tt57-writer-fmt",
+      "name": "40 random sessions: random tracked formatting / typing / deleting over random ranges, random per-change decisions in random order — our result = oracle decided_runs; save → reopen keeps every record",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 11682
+    },
+    {
+      "suite": "tt57-writer-fmt",
+      "name": "split formatted run: a tracked insertion typed inside a tracked-bold word → saved ids stay unique, both halves keep the record, oracle accept/reject agree",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 381
+    }
+  ]
+}

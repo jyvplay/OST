@@ -35,6 +35,7 @@ export { workbookToJson, workbookFromJson, type WorkbookJson } from "./workbook-
 import { workbookToJson, workbookFromJson } from "./workbook-json";
 import { periodFormula, TIME_PERIODS, type CondRule, type Cfvo } from "./sheetmeta";
 import { readSheetCharts, chartSpaceXml, chartAnchorXml, drawingXml, defaultAnchor, seriesOutFor, REL_DRAWING, REL_CHART, CT_DRAWING, CT_CHART, type SeriesOut } from "./chartxml";
+import { readLinks, linksXml } from "./sheetlinks";
 import { ICON_SETS, MAIN_ICON_SETS, DEFAULT_ICON_PERCENTS } from "./cficons";
 import { readThemeColors, readIndexedColors, resolveTag, resolveColorAttrs, EMPTY_COLOR_CONTEXT, type ColorContext } from "./xlsxcolor";
 
@@ -106,7 +107,7 @@ class StyleTable {
 const pxToWidth = (px: number) => Math.trunc((px / 7) * 256) / 256;
 const widthToPx = (w: number) => Math.trunc(((256 * w + Math.trunc(128 / 7)) / 256) * 7);
 
-function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => number, styles: StyleTable, drawingRid?: string) {
+function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => number, styles: StyleTable, drawingRid?: string, linksMarkup = "") {
   const positions = new Map<string, { col: number; row: number }>();
   for (const k of sheet.grid.keys()) { const [col, row] = k.split(",").map(Number); positions.set(k, { col, row }); }
   for (const fq of wb.spillOwner.keys()) {
@@ -163,7 +164,7 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   }).join("");
   const ext = x14Parts.length ? `<extLst><ext uri="{78C0D931-6437-407d-A8EE-F0AAD7539E65}" xmlns:x14="${X14_NS}"><x14:conditionalFormattings>${x14Parts.join("")}</x14:conditionalFormattings></ext></extLst>` : "";
   const dvs = sheet.validations.length ? `<dataValidations count="${sheet.validations.length}">${sheet.validations.map(dvXml).join("")}</dataValidations>` : "";
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"${drawingRid ? ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' : ""}><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${merges}${cfs}${dvs}${drawingRid ? `<drawing r:id="${drawingRid}"/>` : ""}${ext}</worksheet>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"${drawingRid || linksMarkup ? ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' : ""}><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${merges}${cfs}${dvs}${linksMarkup}${drawingRid ? `<drawing r:id="${drawingRid}"/>` : ""}${ext}</worksheet>`;
 }
 
 /** Differential format for a CF rule (ECMA-376 §18.8.14, CT_Dxf order font, numFmt, fill); null when the rule draws none. */
@@ -270,7 +271,7 @@ function cfRuleXml(r: CondRule, dxfId: number | null, priority: number): string 
 function dvXml(v: DataValidation): string {
   const at = [`type="${v.type}"`, v.operator && v.type !== "list" && v.type !== "custom" ? `operator="${v.operator}"` : "", v.allowBlank ? 'allowBlank="1"' : "",
     v.type === "list" && !v.inCellDropdown ? 'showDropDown="1"' : "", v.prompt || v.promptTitle ? 'showInputMessage="1"' : "", v.showError ? 'showErrorMessage="1"' : "",
-    v.errorStyle !== "stop" ? `errorStyle="${v.errorStyle}"` : "", v.errorTitle ? `errorTitle="${esc(v.errorTitle)}"` : "", v.error ? `error="${esc(v.error)}"` : "",
+    v.errorStyle === "warning" || v.errorStyle === "information" ? `errorStyle="${v.errorStyle}"` : "", v.errorTitle ? `errorTitle="${esc(v.errorTitle)}"` : "", v.error ? `error="${esc(v.error)}"` : "",
     v.promptTitle ? `promptTitle="${esc(v.promptTitle)}"` : "", v.prompt ? `prompt="${esc(v.prompt)}"` : "", `sqref="${esc(v.sqref)}"`].filter(Boolean).join(" ");
   return `<dataValidation ${at}><formula1>${esc(v.formula1)}</formula1>${v.formula2 ? `<formula2>${esc(v.formula2)}</formula2>` : ""}</dataValidation>`;
 }
@@ -334,8 +335,13 @@ export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook"): Buffe
     chartTypes.push(`<Override PartName="/xl/drawings/drawing${d}.xml" ContentType="${CT_DRAWING}"/>`);
     return d;
   });
-  sheets.forEach((_, i) => { const d = drawingOf[i]; if (d) chartParts.push({ name: `xl/worksheets/_rels/sheet${i + 1}.xml.rels`, data: Buffer.from(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL_DRAWING}" Target="../drawings/drawing${d}.xml"/></Relationships>`) }); });
-  const sheetXmls = sheets.map((s, i) => renderSheet(workbook, s, sharedIndex, styles, drawingOf[i] ? "rId1" : undefined));
+  // sheet rels: rId1 = drawing (when charts), then one external relationship per linked address (TT57)
+  const linkOf = sheets.map((s) => { let n = 1; return linksXml(s.links, () => `rId${++n}`); });
+  sheets.forEach((_, i) => {
+    const d = drawingOf[i]; const rs = [...(d ? [`<Relationship Id="rId1" Type="${REL_DRAWING}" Target="../drawings/drawing${d}.xml"/>`] : []), ...linkOf[i].rels];
+    if (rs.length) chartParts.push({ name: `xl/worksheets/_rels/sheet${i + 1}.xml.rels`, data: Buffer.from(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rs.join("")}</Relationships>`) });
+  });
+  const sheetXmls = sheets.map((s, i) => renderSheet(workbook, s, sharedIndex, styles, drawingOf[i] ? "rId1" : undefined, linkOf[i].xml));
   const rels = sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`);
@@ -548,6 +554,8 @@ export function readXlsxWorkbook(buf: Buffer): Workbook {
     const xml = get(path);
     if (xml) {
       wb.sheets.set(name, readSheet(xml, name, sst, xfs)); readTables(xml, path, name, wb, get); readCondFormats(xml, name, wb, dxfs, colors);
+      // TT57: cell hyperlinks (<hyperlinks> + this sheet's relationship part)
+      if (/<(?:\w+:)?hyperlinks\b/.test(xml)) { const dir = path.slice(0, path.lastIndexOf("/") + 1); wb.sheets.get(name)!.links = readLinks(xml, get(`${dir}_rels/${path.slice(dir.length)}.rels`) ?? ""); }
       // TT50: charts (drawing → chart parts) on worksheets and chartsheets
       try { wb.charts.push(...readSheetCharts(get, path, xml, name, () => `x${++chartSeq}`)); } catch { /* unreadable drawing: charts skipped, file still opens */ }
     }
