@@ -19,7 +19,9 @@ import { privacy } from "@/lib/privacy/session";
 import {
   initialDesktop, reduce, type DesktopState, type Rect, type WindowCommand,
 } from "@/lib/windowing/state";
-import { ShellContext, type BeamSession, type ClipEntry, type ShellApi } from "./shell-context";
+import { ShellContext, type BeamSession, type ClipEntry, type SaveAnswer, type ShellApi } from "./shell-context";
+import CloseConfirm from "./CloseConfirm";
+import { anyDirtyDoc, enqueueAsk, guardFor, isDocDirty, planClose } from "@/lib/doc-lifecycle";
 import { addClip, SENSITIVE_CLEAR_MS } from "@/lib/cliphistory";
 import WindowFrame from "./WindowFrame";
 import TopBar from "./TopBar";
@@ -95,11 +97,73 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const toastId = useRef(1);
 
   /* ------------------------------------------------------------ dispatch */
-  const dispatch = useCallback((cmd: WindowCommand) => {
+  const rawDispatch = useCallback((cmd: WindowCommand) => {
     commandLog.push({ cmd, at: Date.now() });
     if (commandLog.length > 400) commandLog.shift();
     setState((s) => reduce(s, cmd));
   }, [commandLog]);
+
+  /* TT69 FF-15: every close path (title bar, Alt+F4 / Cmd+W, menus, Quit, dock, taskbar, Overview, shelf middle-click,
+     routines' Close all) dispatches "close"/"closeAll" — so the Save-changes question is asked HERE, once, for all */
+  type AskItem = { id: string; mode: "close" | "replace"; resolve?: (a: SaveAnswer) => void };
+  const [askQ, setAskQ] = useState<AskItem[]>([]);
+  const askRef = useRef<AskItem[]>([]);
+  useEffect(() => { askRef.current = askQ; }, [askQ]);
+  const [askBusy, setAskBusy] = useState(false);
+  const [askErr, setAskErr] = useState("");
+  const dispatch = useCallback((cmd: WindowCommand) => {
+    if (cmd.t !== "close" && cmd.t !== "closeAll") { rawDispatch(cmd); return; }
+    const plan = planClose(cmd, stateRefOpen.current.windows.map((w) => w.id), isDocDirty);
+    const asking = new Set(askRef.current.map((a) => a.id));
+    for (const id of plan.closeNow) {
+      // a forced close of a window that is being asked about settles its question (nobody is left to answer it)
+      if (asking.has(id)) setAskQ((q) => { q.filter((a) => a.id === id).forEach((a) => a.resolve?.("discarded")); return q.filter((a) => a.id !== id); });
+      rawDispatch({ t: "close", id });
+    }
+    if (plan.ask.length) {
+      setAskQ((q) => {
+        const ids = enqueueAsk(q.map((a) => a.id), plan.ask);
+        return ids.map((id) => q.find((a) => a.id === id) ?? { id, mode: "close" as const });
+      });
+    }
+  }, [rawDispatch]);
+  const askSave = useCallback((winId: string) => new Promise<SaveAnswer>((resolve) => {
+    if (!isDocDirty(winId)) { resolve("saved"); return; }
+    setAskQ((q) => (q.some((a) => a.id === winId) ? q : [...q, { id: winId, mode: "replace", resolve }]));
+  }), []);
+  // only windows that still exist are asked about (a window can also vanish without a close command)
+  const liveAsk = useCallback(() => askRef.current.filter((a) => stateRefOpen.current.windows.some((w) => w.id === a.id)), []);
+  const settleHead = useCallback((answer: SaveAnswer, closeIt: boolean, stopAll = false) => {
+    const q = liveAsk(); const head = q[0]; if (!head) { setAskQ([]); setAskBusy(false); return; }
+    if (closeIt && head.mode === "close") rawDispatch({ t: "close", id: head.id });
+    head.resolve?.(answer);
+    const rest = q.slice(1);
+    if (stopAll) rest.forEach((a) => a.resolve?.("cancelled"));
+    setAskQ(stopAll ? [] : rest); setAskErr(""); setAskBusy(false);
+    if (!closeIt) rawDispatch({ t: "focus", id: head.id });
+  }, [rawDispatch, liveAsk]);
+  const answerSave = useCallback(async () => {
+    const head = liveAsk()[0]; const g = head ? guardFor(head.id) : undefined;
+    if (!head) return;
+    if (!g) { settleHead("saved", true); return; }
+    setAskBusy(true); setAskErr("");
+    let ok = false; let err = "";
+    try { ok = await g.save(); } catch (e) { err = `Not saved: ${String((e as Error).message)}`; }
+    if (ok && !g.dirty()) { settleHead("saved", true); return; }
+    setAskBusy(false);
+    // a thrown save keeps the question open with the reason; Save As still open / refused: keep the window and stop
+    // the queue so the user can finish saving
+    if (err) setAskErr(err); else settleHead("cancelled", false, true);
+  }, [settleHead, liveAsk]);
+  const answerDiscard = useCallback(async () => {
+    const head = liveAsk()[0]; if (!head) { settleHead("cancelled", false, true); return; }
+    const g = guardFor(head.id);
+    setAskBusy(true);
+    // the last edits are drafted before the window goes (bounded: a hung store must not trap the user)
+    if (g) await Promise.race([g.flushDraft().catch(() => undefined), new Promise((r) => setTimeout(r, 4000))]);
+    settleHead("discarded", true);
+  }, [settleHead, liveAsk]);
+  const answerCancel = useCallback(() => settleHead("cancelled", false, true), [settleHead]);
 
   const toast = useCallback((message: string, tone: Toast["tone"] = "info", action?: Toast["action"]) => {
     const id = toastId.current++;
@@ -485,9 +549,30 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const value: ShellApi = useMemo(() => ({
     state, dispatch, open, caps, gov, settings, setSetting, toast,
     streams, publishStream, streamVersion, clips, copy, editClips, beam, setBeam,
-    commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions,
+    commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions, askSave,
   }), [state, dispatch, open, caps, gov, settings, setSetting, toast, streams, publishStream,
-      streamVersion, clips, copy, editClips, beam, commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions]);
+      streamVersion, clips, copy, editClips, beam, commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions, askSave]);
+
+  // TT69 FF-15: while "Save changes?" is open nothing behind it can be focused or clicked
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const asking = askQ.some((a) => state.windows.some((w) => w.id === a.id));
+  useEffect(() => {
+    const el = rootRef.current; if (!el) return;
+    if (asking) el.setAttribute("inert", ""); else el.removeAttribute("inert");
+  }, [asking]);
+  // leaving the page with unsaved documents: the browser's own prompt, and the newest drafts are started
+  useEffect(() => {
+    const onUnload = (e: BeforeUnloadEvent) => {
+      if (!anyDirtyDoc()) return;
+      for (const w of stateRefOpen.current.windows) { const g = guardFor(w.id); if (g && isDocDirty(w.id)) void g.flushDraft().catch(() => undefined); }
+      e.preventDefault(); e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onUnload);
+    return () => window.removeEventListener("beforeunload", onUnload);
+  }, []);
+  const askLive = askQ.filter((a) => state.windows.some((w) => w.id === a.id));
+  const askHead = askLive[0];
+  const askGuard = askHead ? guardFor(askHead.id) : undefined;
 
   const styleId = useStyleId();
   const visible = state.windows.filter((w) => w.workspace === state.activeWorkspace);
@@ -502,7 +587,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     <ShellContext.Provider value={value}>
       {/* TT25: in Business / Art the wallpaper sits behind the whole column so the translucent taskbar, menu bar and
           floating dock show it through; Fusion keeps it on the desk exactly as before */}
-      <div className={layout === "fusion" ? undefined : `fs-wallpaper-${wallpaper}`} data-layout={layout}
+      <div ref={rootRef} className={layout === "fusion" ? undefined : `fs-wallpaper-${wallpaper}`} data-layout={layout}
         style={{ height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {layout === "fusion" ? (
           <TopBar
@@ -645,6 +730,11 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           </div>
         ))}
       </div>
+      {askHead ? (
+        <CloseConfirm key={askHead.id + askHead.mode} title={askGuard?.title() ?? state.windows.find((w) => w.id === askHead.id)?.title ?? "document"}
+          recoverable={askGuard?.recoverable?.() ?? true} mode={askHead.mode} busy={askBusy} error={askErr} queued={askLive.length}
+          onSave={() => void answerSave()} onDiscard={() => void answerDiscard()} onCancel={answerCancel} />
+      ) : null}
     </ShellContext.Provider>
   );
 }

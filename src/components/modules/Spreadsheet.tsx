@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 import {
   Workbook, Sheet, a1, isError, colToLetters, FUNCTIONS, EXT_FUNCTIONS, workbookFromJson, workbookToJson, parseFormula, formatValue, BUILTIN_FORMATS,
   norm, rangeA1, toTsv, parseTsv, copyBlock, pasteBlock, pasteSpecial, pasteLink, type PasteSpecialOpts, type PasteOp, clearRange, autoFill, sortRange, insertDelete, findAll, replaceAll, selectionStats, shiftFormula,
@@ -233,6 +234,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
 
   /* ------------------------------------------------------------ persistence */
   /** TT46: lossless .xlsx save — the original package is kept; only edited cells/sheets/styles are rewritten. */
+  const savedOk = useRef(false);
+  const savedHook = useRef<(p: string) => Promise<void>>(async () => undefined);
   const saveXlsxLossless = async (dest0: string): Promise<boolean> => {
     const dest = dest0; const prot = encRef.current;
     // never write plaintext over a password-protected original that was not unlocked (or whose password was not removed)
@@ -253,7 +256,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         prot.plain = plain; prot.path = dest; note = " · encrypted with your password (AES-256)";
       } else if (prot?.removed) { encRef.current = null; setLocked(false); }
       const rp = r.report;
-      setDirty(false);
+      setDirty(false); savedOk.current = true; await savedHook.current(dest).catch(() => undefined);
       setStatus(rp.partsRewritten.length
         ? `saved ${r.path}${note} · lossless: ${rp.partsCopied} part(s) kept byte-identical, ${rp.partsRewritten.length} rewritten, ${rp.cellsRewritten} cell(s) written${pivotNote(rp.pivots?.notes)}`
         : `saved ${r.path}${note} · no changes — file left byte-identical`);
@@ -272,12 +275,39 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const bad = (notes ?? []).filter((n) => !n.native);
     if (bad.length) shell.toast(`Saved as values only (still editable here): ${bad.map((n) => `${n.name} — ${n.why}`).join("; ")}`, "warn");
   };
-  const save = async () => {
-    if (path && /\.xlsx$/i.test(path) && await saveXlsxLossless(path)) return;
+  /** TT69 FF-15: true only when the workbook really reached the store (a refused protected save is "handled", not saved) */
+  const save = async (): Promise<boolean> => {
+    savedOk.current = false;
+    if (path && /\.xlsx$/i.test(path) && await saveXlsxLossless(path)) return savedOk.current;
     const dest = path && !/\.xlsx$/i.test(path) ? path : `/Documents/workbook-${Date.now()}.fworkbook`;
     await post("/api/fs", { op: "write", path: dest, content: JSON.stringify(workbookToJson(workbook)), reason: "spreadsheet-save" });
     setDirty(false); setStatus(`saved ${dest}`); shell.bumpRefresh();
+    await savedHook.current(dest).catch(() => undefined);
     if (dest !== path) shell.dispatch({ t: "setProps", id: win.id, props: { path: dest } });
+    return true;
+  };
+  const life = useDocLifecycle({
+    winId: win.id, kind: "sheet", path, dirty, version: rev,
+    title: path ? path.split("/").pop()! : "Untitled workbook",
+    recoverable: !locked, // a protected document keeps no draft (makeDraft re-checks the protection itself)
+    save,
+    // the draft is exactly what Save sends the lossless patcher: the workbook model + sheet renames
+    makeDraft: async () => (encRef.current ? null
+      : { encoding: "utf8", payload: JSON.stringify({ workbook: workbookToJson(workbook), renames: renamesRef.current, active }) }),
+  });
+  useEffect(() => { savedHook.current = life.saved; }, [life.saved]);
+  const recovery = useRecoveryOffer("sheet", path, loaded);
+  const restoreDraft = () => {
+    const o = recovery.take(); if (!o) return;
+    try {
+      const d = JSON.parse(o.draft.payload) as { workbook: WorkbookJson; renames?: Record<string, string>; active?: string };
+      pushUndo();
+      const wb = workbookFromJson(d.workbook); wb.recalculate();
+      renamesRef.current = d.renames && typeof d.renames === "object" ? d.renames : {};
+      setWorkbook(wb); setActive(d.active && wb.sheets.has(d.active) ? d.active : wb.sheets.keys().next().value ?? "Sheet1");
+      setRev((x) => x + 1); setDirty(true);
+      setStatus(`restored the recovery draft from ${o.at} — not saved yet${o.stale ? " (the file had changed since the draft)" : ""}`);
+    } catch (e) { shell.toast(`Could not restore the draft: ${(e as Error).message}`, "bad"); }
   };
   const exportXlsx = async () => {
     const dest = (path || "/Documents/workbook").replace(/\.(fworkbook|fsheet|xlsx)$/i, "") + ".xlsx";
@@ -763,7 +793,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       const d = dragRef.current; dragRef.current = null;
       if (d?.mode === "fill" && d.target) { const t = d.target; mutate((_wb, s) => autoFill(s, selR, t)); setSel({ a: { col: t.c0, row: t.r0 }, f: { col: t.c1, row: t.r1 } }); }
       if (d?.mode === "fill") setFillPreview(null);
-      if (d?.mode === "resize") setDirty(true);
+      if (d?.mode === "resize") { setDirty(true); setRev((r) => r + 1); } // TT69: a new revision, so the draft gets the width too
     };
     window.addEventListener("mousemove", move); window.addEventListener("mouseup", up);
     return () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
@@ -1078,6 +1108,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
             </table>)}
         </div>
       ) : null}
+      <RecoveryBanner offer={recovery.offer} onRestore={restoreDraft} onDiscard={() => void recovery.discard()} />
       {panel === "paste" ? (
         <div className="fs-row" role="group" aria-label="Paste special" data-testid="paste-special" style={{ gap: 10, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), flexWrap: "wrap", alignItems: "center" }}
           onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setPanel(null); gridRef.current?.focus(); } if (e.key === "Enter") { e.preventDefault(); doPasteSpecial(); } }}>

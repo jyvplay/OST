@@ -14,6 +14,7 @@ import { api, post } from "@/lib/api";
 import { toB64, fromB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Btn } from "../ui";
+import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import { allParas, blankWord, docText, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
 import * as E from "@/lib/office/wordedit";
@@ -369,31 +370,56 @@ export default function WriterModule({ win }: ModuleProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const saveTo = useCallback(async (dest0: string) => {
+  const savedHook = useRef<(p: string) => Promise<void>>(async () => undefined);
+  const saveTo = useCallback(async (dest0: string): Promise<boolean> => {
     const doc = docRef.current!;
     const dest = dest0; const prot = encRef.current;
-    if (saveBlocked(prot, dest)) { setStatus("Not saved — this password-protected file was not unlocked; the original is unchanged"); return; }
+    if (saveBlocked(prot, dest)) { setStatus("Not saved — this password-protected file was not unlocked; the original is unchanged"); return false; }
     const plain = await writeWord(doc);
     if (prot?.password) { setStatus(prot.key ? "Encrypting…" : "Encrypting (deriving the key from your password)…"); await new Promise((r) => setTimeout(r, 30)); }
     let bytes: Uint8Array; let sealed = false;
     try { const r = sealPackage(plain, prot); bytes = r.bytes; sealed = r.encrypted; }
-    catch (e) { shell.toast(`Not saved: ${(e as Error).message}`, "bad"); return; }
+    catch (e) { shell.toast(`Not saved: ${(e as Error).message}`, "bad"); return false; }
     // removing the password is explicit (Password… dialog): only then may plaintext replace the encrypted original
     const replaceEncrypted = !!(prot?.removed && dest === prot.path);
     try { await post("/api/fs", { op: "upload", path: dest, content: toB64(bytes), mime: MIME_DOCX, replaceEncrypted }); }
-    catch (e) { shell.toast(`Not saved: ${(e as Error).message}`, "bad"); return; }
+    catch (e) { shell.toast(`Not saved: ${(e as Error).message}`, "bad"); return false; }
     if (prot?.removed) { encRef.current = null; setLocked(false); }
     else if (prot && sealed) prot.path = dest;
     // edited paragraphs stay dirty: their original XML is not replaced, so they must be re-serialised on the next save too
     setDirty(false); setStatus(`Saved ${dest} (${(bytes.length / 1024).toFixed(1)} KB, lossless${sealed ? ", encrypted with your password — AES-256" : replaceEncrypted ? ", password removed" : ""})`); shell.bumpRefresh();
+    await savedHook.current(dest).catch(() => undefined); // TT69 FF-15: drafts of this document are no longer needed
     if (dest !== path) { setPath(dest); shell.dispatch({ t: "setProps", id: win.id, props: { path: dest, title: dest.split("/").pop() } }); }
+    return true;
   }, [path, shell, win.id]);
-  const save = useCallback(async () => {
-    if (!docRef.current) return;
+  const save = useCallback(async (): Promise<boolean> => {
+    if (!docRef.current) return false;
     if (path.toLowerCase().endsWith(".docx")) return saveTo(path);
     setPopVal(path ? path.replace(/\.[^./]+$/, ".docx") : `/Documents/${(docRef.current.title || "Document").replace(/[\\/:*?"<>|]/g, "").trim() || "Document"}.docx`);
     setPop("saveas");
+    return false;
   }, [path, saveTo]);
+  // TT69 FF-15: close / Quit / Close all / leaving the page ask first; drafts are the bytes Save would write
+  const life = useDocLifecycle({
+    winId: win.id, kind: "writer", path, dirty, version: ver,
+    title: path ? path.split("/").pop()! : "Untitled document",
+    recoverable: !locked, // a protected document keeps no draft (makeDraft re-checks the protection itself)
+    save,
+    makeDraft: async () => {
+      const d = docRef.current; if (!d || encRef.current) return null;
+      return { encoding: "base64", payload: toB64(await writeWord(d)) };
+    },
+  });
+  useEffect(() => { savedHook.current = life.saved; }, [life.saved]);
+  const recovery = useRecoveryOffer("writer", path, loaded);
+  const restoreDraft = async () => {
+    const o = recovery.take(); if (!o) return;
+    try {
+      await loadBytes(fromB64(o.draft.payload), path ? path.split("/").pop()! : "Untitled.docx", path);
+      setDirty(true); bump();
+      setStatus(`Restored the recovery draft from ${o.at} — not saved yet${o.stale ? " (the file had changed since the draft)" : ""}`);
+    } catch (e) { shell.toast(`Could not restore the draft: ${(e as Error).message}`, "bad"); }
+  };
   useEffect(() => {
     if (!autosave || !dirty || !path.toLowerCase().endsWith(".docx") || (encRef.current && !encRef.current.password)) return;
     const t = window.setTimeout(() => { void saveTo(path); }, 4000);
@@ -711,7 +737,7 @@ export default function WriterModule({ win }: ModuleProps) {
       <style>{WRITER_CSS + SPELL_CSS}</style>
       {/* ---------- file / history row */}
       <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }}>
-        <Btn variant="ghost" onClick={async () => { if (dirty && !confirmLeave()) return; const d = await blankWord(); docRef.current = d; setPath(""); encRef.current = null; setLocked(false); undo.current = []; setDirty(false); bump(); setDocGen((g) => g + 1); }}>New</Btn>
+        <Btn variant="ghost" data-testid="writer-new" onClick={async () => { if (dirty && (await shell.askSave(win.id)) === "cancelled") return; life.rotateUntitled(); const d = await blankWord(); docRef.current = d; setPath(""); encRef.current = null; setLocked(false); undo.current = []; setDirty(false); bump(); setDocGen((g) => g + 1); }}>New</Btn>
         <Btn variant="ghost" onClick={() => fileInput.current?.click()}>Open…</Btn>
         <input ref={fileInput} type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { await loadBytes(new Uint8Array(await f.arrayBuffer()), f.name, ""); setPath(""); } catch (err) { shell.toast(`Cannot open ${f.name}: ${(err as Error).message}`, "bad"); } e.target.value = ""; }} />
         <Btn data-testid="writer-save" onClick={() => void save()}>{dirty ? "Save •" : "Save"}</Btn>
@@ -791,6 +817,7 @@ export default function WriterModule({ win }: ModuleProps) {
             <span style={{ opacity: 0.7 }}>× {imgSel.h} (aspect locked)</span></>}
         </div>
       )}
+      <RecoveryBanner offer={recovery.offer} onRestore={() => void restoreDraft()} onDiscard={() => void recovery.discard()} />
       {pop && (
         <div className="fs-row wpop" style={{ padding: 6, gap: 6, borderBottom: "1px solid var(--fs-border)", alignItems: "center", flexWrap: "wrap" }}>
           {pop === "link" && <><span>Link to</span><input className="fs-input" autoFocus aria-label="Link address" value={popVal} onChange={(e) => setPopVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") applyLink(popVal); if (e.key === "Escape") setPop(""); }} style={{ width: fz(320) }} /><Btn onClick={() => applyLink(popVal)}>Apply</Btn><Btn variant="ghost" onClick={() => applyLink(null)}>Remove link</Btn></>}
@@ -908,7 +935,6 @@ export default function WriterModule({ win }: ModuleProps) {
 /* ================================================================ helpers */
 function cellsInRow(r: { items: unknown[] }) { return r.items.filter((c) => (c as { t?: string }).t === "tc").length; }
 const toRomanLower = (n: number) => { const m: [number, string][] = [[10, "x"], [9, "ix"], [5, "v"], [4, "iv"], [1, "i"]]; let s = ""; for (const [v, r] of m) while (n >= v) { s += r; n -= v; } return s; };
-function confirmLeave() { return true; /* unsaved work is still in undo history; New keeps no prompt (window.confirm is a rejected pattern) */ }
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 function headingLevel(doc: WordDoc, p: Para): number {
   for (const s of styleChain(doc, p.p.style).reverse()) { const m = /^heading\s*(\d)$/i.exec(s.name) ?? /^Heading(\d)$/.exec(s.id); if (m) return Number(m[1]); if (s.name.toLowerCase() === "title") return 1; }

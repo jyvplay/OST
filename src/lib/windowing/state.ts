@@ -87,7 +87,8 @@ export type WindowCommand =
   | { t: "open"; id: string; module: string; title: string; props?: Record<string, unknown>; rect?: Partial<Rect>; host?: HostKind;
       /** registry default geometry: used only when neither an explicit rect nor a remembered one (WM-08) exists */
       defaults?: Partial<Rect> }
-  | { t: "close"; id: string }
+  /** TT69: force = the Save-changes question was already answered (or must not be asked) */
+  | { t: "close"; id: string; force?: boolean }
   | { t: "focus"; id: string }
   | { t: "move"; id: string; x: number; y: number }
   | { t: "resize"; id: string; w: number; h: number; x?: number; y?: number }
@@ -111,7 +112,7 @@ export type WindowCommand =
   | { t: "cycle"; dir: 1 | -1 }
   | { t: "focusMode"; on: boolean }
   | { t: "cascade" }
-  | { t: "closeAll" }
+  | { t: "closeAll"; force?: boolean }
   | { t: "showDesktop" }
   | { t: "icons"; icons: DesktopState["icons"] }
   | { t: "table"; table: NonNullable<DesktopState["table"]> }

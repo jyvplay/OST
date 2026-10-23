@@ -44,7 +44,10 @@ export interface ShellApi {
   bumpRefresh: () => void;
   /** AU-01/AU-02: single executor for routines, presets and triggers */
   runActions: (actions: RoutineAction[]) => Promise<void>;
+  /** TT69 FF-15: ask "Save changes?" for a window's document without closing it (Writer's New over unsaved work) */
+  askSave: (winId: string) => Promise<SaveAnswer>;
 }
+export type SaveAnswer = "saved" | "discarded" | "cancelled";
 
 export const ShellContext = createContext<ShellApi | null>(null);
 

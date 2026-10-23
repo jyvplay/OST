@@ -20,7 +20,7 @@ import { readCentralDirectory, readEntryVerified, writeZip } from "../src/lib/se
 import { canonicalizeNs, isCanonicalNs, NS, RELS_CANON, SML_CANON, type NsCanon } from "../src/lib/office/xml-ns.ts";
 
 const { test, finish } = makeHarness("tt67-sheet-ns");
-const COV = { "FF-21": "full", "FF-50": "full" } as const;
+const COV = { "FF-21": "full", "FF-50": "full", "FF-51": "full" } as const;
 const PY = "/home/user/tools/venv/bin/python";
 const CORPUS = "/home/user/tools/corpus/xlsx";
 const dir = "/tmp/tt67ns"; mkdirSync(dir, { recursive: true });

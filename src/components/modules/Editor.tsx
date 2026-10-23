@@ -7,14 +7,16 @@ import { formatFor, lossReport, parseCsv, sanitizeSvg } from "@/lib/forge";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { askText } from "@/lib/ask";
+import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
 interface Version { id: number; version: number; size: number; sha256: string; createdAt: string; content: string }
 
 /**
  * PR-01 + FF-15 document lifecycle.
  * Autosave writes through the journal and snapshots a version, so "autosave"
- * never means "irreversibly overwrote". Recovery drafts go to /System/Recovery
- * on a debounce and survive a tab death even if you later discard changes.
+ * never means "irreversibly overwrote". Recovery drafts (TT69: the shared FF-15 lifecycle) go to
+ * /System/Recovery/editor_<path>.draft — /Private/.Recovery for private files, so the privacy layer encrypts them —
+ * on a debounce, survive a tab death even if you later discard changes, and are offered back on the next open.
  */
 export default function EditorModule({ win }: ModuleProps) {
   const shell = useShell();
@@ -25,7 +27,6 @@ export default function EditorModule({ win }: ModuleProps) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [preview, setPreview] = useState(false);
   const [status, setStatus] = useState("");
-  const draftTimer = useRef<number | null>(null);
   const fmt = formatFor(path);
 
   useEffect(() => {
@@ -41,30 +42,29 @@ export default function EditorModule({ win }: ModuleProps) {
       .catch(() => undefined);
   }, [path]);
 
-  // recovery draft (FF-15)
-  useEffect(() => {
-    if (!dirty || !path) return;
-    if (draftTimer.current) window.clearTimeout(draftTimer.current);
-    draftTimer.current = window.setTimeout(() => {
-      void post("/api/fs", {
-        op: "write", path: `/System/Recovery${path.replace(/\//g, "_")}.draft`, content: text, reason: "recovery-draft",
-      }).catch(() => undefined);
-    }, 2000);
-  }, [text, dirty, path]);
-
-  const save = useCallback(async () => {
-    if (!path) { shell.toast("This buffer has no path. Use Save as…", "warn"); return; }
+  const savedHook = useRef<(p: string) => Promise<void>>(async () => undefined);
+  const save = useCallback(async (): Promise<boolean> => {
+    if (!path) { shell.toast("This buffer has no path. Use Save as…", "warn"); return false; }
     try {
       const r = await post<{ sha256: string; size: number }>("/api/fs", { op: "write", path, content: text, reason: "editor" });
       setDirty(false);
+      await savedHook.current(path).catch(() => undefined);
       setStatus(`saved · sha ${r.sha256.slice(0, 10)} · ${r.size} B`);
       const v = await api<{ versions: Version[] }>(`/api/fs?op=versions&path=${encodeURIComponent(path)}`);
       setVersions(v.versions.reverse());
       shell.bumpRefresh();
+      return true;
     } catch (e) {
       shell.toast(`Save failed: ${String((e as Error).message)} — the original file is untouched.`, "bad");
+      return false;
     }
   }, [path, text, shell]);
+  const life = useDocLifecycle({
+    winId: win.id, kind: "editor", path, dirty, version: text, title: path.split("/").pop() || "Untitled",
+    recoverable: true, save, makeDraft: async () => ({ encoding: "utf8", payload: text }),
+  });
+  useEffect(() => { savedHook.current = life.saved; }, [life.saved]);
+  const recovery = useRecoveryOffer("editor", path, loaded && !!path);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -82,6 +82,11 @@ export default function EditorModule({ win }: ModuleProps) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
+      <RecoveryBanner offer={recovery.offer} onDiscard={() => void recovery.discard()} onRestore={() => {
+        const o = recovery.take(); if (!o) return;
+        setText(o.draft.payload); setDirty(true);
+        setStatus(`restored the recovery draft from ${o.at} — not saved yet${o.stale ? " (the file had changed since the draft)" : ""}`);
+      }} />
       <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
         <Btn variant="primary" onClick={() => void save()} disabled={!dirty}>Save</Btn>
         <Btn variant="ghost" onClick={async () => {

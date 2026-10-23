@@ -113,6 +113,10 @@ export async function POST(req: NextRequest) {
           encoding: (body.encoding as "utf8" | "base64") ?? "utf8",
           mime: body.mime ? String(body.mime) : undefined,
           reason: body.reason ? String(body.reason) : "write",
+          // TT69 (FF-15): a recovery draft is rewritten every few seconds while someone types; snapshotting each one
+          // would grow the version table without bound. Only drafts in the recovery folders skip it (a /Private
+          // draft's path is encrypted, so the whole private store qualifies).
+          ...(isDraftWrite(body) ? { snapshot: false } : {}),
         }));
       case "mkdir":
         return NextResponse.json(await mkdir(String(body.path)));
@@ -241,4 +245,10 @@ export async function POST(req: NextRequest) {
 function strip(n: typeof vfsNodes.$inferSelect) {
   const { content, ...rest } = n;
   return { ...rest, hasContent: content.length > 0, base: baseName(n.path) };
+}
+
+/** TT69: draft writes that skip the version snapshot — reason AND location must both say "recovery draft" */
+function isDraftWrite(body: Record<string, unknown>): boolean {
+  const p = normalize(String(body.path ?? ""));
+  return body.reason === "recovery-draft" && (p.startsWith("/System/Recovery/") || p.startsWith("/Private/"));
 }
