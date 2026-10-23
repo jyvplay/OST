@@ -1,6 +1,6 @@
 {
   "suite": "tt64-writer-trackcols",
-  "at": "2026-10-23T00:52:14.143Z",
+  "at": "2026-10-23T03:10:51.107Z",
   "results": [
     {
       "suite": "tt64-writer-trackcols",
@@ -9,7 +9,7 @@
         "FF-48": "full"
       },
       "pass": true,
-      "ms": 580
+      "ms": 394
     },
     {
       "suite": "tt64-writer-trackcols",
@@ -18,7 +18,7 @@
         "FF-48": "full"
       },
       "pass": true,
-      "ms": 45719
+      "ms": 34726
     },
     {
       "suite": "tt64-writer-trackcols",
@@ -27,7 +27,7 @@
         "FF-48": "full"
       },
       "pass": true,
-      "ms": 1021
+      "ms": 692
     },
     {
       "suite": "tt64-writer-trackcols",
@@ -36,7 +36,7 @@
         "FF-48": "full"
       },
       "pass": true,
-      "ms": 1361
+      "ms": 1019
     },
     {
       "suite": "tt64-writer-trackcols",
@@ -45,7 +45,7 @@
         "FF-48": "full"
       },
       "pass": true,
-      "ms": 1828
+      "ms": 1410
     },
     {
       "suite": "tt64-writer-trackcols",
@@ -54,7 +54,7 @@
         "FF-48": "full"
       },
       "pass": true,
-      "ms": 6356
+      "ms": 4776
     }
   ]
 }

@@ -642,13 +642,18 @@ export default function WriterModule({ win }: ModuleProps) {
   const replaceAll = () => { const d = docRef.current!; snapshot(); const n = E.replaceAll(d, find.q, find.r, find); changed(); setStatus(`Replaced ${n} occurrence(s)`); };
   /* TT56 Track Changes: record own edits as w:ins / w:del, review each change */
   const toggleTrack = () => { const d = docRef.current!; E.setTracking(d, !d.track.on, authorName()); setDirty(true); bump(); setStatus(d.track.on ? "Track Changes on: edits are recorded as revisions" : "Track Changes off"); };
-  const goChange = (c: E.Change) => { const p = E.paraById(docRef.current!, c.pid); if (!p) return; const at = { pid: c.pid, off: Math.min(c.off, E.plen(p)) }; setSel({ a: at, b: at }); rootRef.current?.querySelector(`[data-pid="${c.pid}"]`)?.scrollIntoView({ block: "center" }); };
+  const goChange = (c: E.Change) => {
+    // TT65: a header / footer / note change has no caret position in the main text — bring its paragraph into view (headers
+    // are drawn on the page) and name where it is
+    if (c.story) { rootRef.current?.querySelector(`[data-pid="${c.pid}"]`)?.scrollIntoView({ block: "center" }); setStatus(`${c.where}: ${c.kind === "ins" ? "inserted" : c.kind === "del" ? "deleted" : "changed"} ${c.text.slice(0, 60)}`); return; }
+    const p = E.paraById(docRef.current!, c.pid); if (!p) return; const at = { pid: c.pid, off: Math.min(c.off, E.plen(p)) }; setSel({ a: at, b: at }); rootRef.current?.querySelector(`[data-pid="${c.pid}"]`)?.scrollIntoView({ block: "center" }); };
   const stepChange = (dir: 1 | -1) => {
     const d = docRef.current!; const list = E.revisions(d); if (!list.length) { setStatus("No tracked changes"); return; }
     const o = E.order(d); const r = curSel(); const here = (o.get(r.a.pid) ?? 0) * 1e6 + r.a.off;
-    const key = (c: E.Change) => (o.get(c.pid) ?? 0) * 1e6 + c.off;
+    // story changes (headers / footers, then notes) come after the main text, in list order — as Word's Next does
+    const key = (c: E.Change) => (c.story ? 1e15 + list.indexOf(c) : (o.get(c.pid) ?? 0) * 1e6 + c.off);
     const c = dir > 0 ? (list.find((x) => key(x) > here) ?? list[0]) : ([...list].reverse().find((x) => key(x) < here) ?? list[list.length - 1]);
-    goChange(c); setStatus(`${c.text.startsWith("[Table cell merge]") ? `Cell merge (${c.detail})` : c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? `Formatted (${c.detail})` : c.kind === "para" ? `Paragraph (${c.detail})` : "Deleted"}${c.author ? ` by ${c.author}` : ""}: ${c.text.slice(0, 60)}`);
+    goChange(c); if (!c.story) setStatus(`${c.text.startsWith("[Table cell merge]") ? `Cell merge (${c.detail})` : c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? `Formatted (${c.detail})` : c.kind === "para" ? `Paragraph (${c.detail})` : "Deleted"}${c.author ? ` by ${c.author}` : ""}: ${c.text.slice(0, 60)}`);
   };
   /* TT58 footnotes / endnotes */
   const addNote = (kind: "footnote" | "endnote") => {
@@ -660,16 +665,20 @@ export default function WriterModule({ win }: ModuleProps) {
   };
   const commitNote = (kind: "footnote" | "endnote", id: string, text: string) => {
     const d = docRef.current!; const cur = d.notes.find((n) => n.type === kind && n.id === id); if (!cur || E.noteTextOf(cur.blocks) === text) return;
-    snapshot(); const how = E.editNoteText(d, kind, id, text); changed(); setStatus(`${kind === "footnote" ? "Footnote" : "Endnote"} updated${how === "plain" ? " — rewritten as plain text (it held tracked changes or a field / content control in the edited span)" : ""}`);
+    const label = kind === "footnote" ? "Footnote" : "Endnote";
+    snapshot(); const how = E.editNoteText(d, kind, id, text);
+    // TT65: "refused" = the edit cuts into a field / content control while its changes must be kept (tracked) — nothing changed
+    if (how === "refused") { undo.current.pop(); setNoteGen((g) => g + 1); setStatus(`${label} not changed: the edit cuts into a field or content control, which can't be recorded as a tracked change. Edit around it, or turn off Track Changes.`); return; }
+    changed(); setStatus(`${label} updated${how === "tracked" ? " — recorded as tracked changes" : how === "plain" ? " — rewritten as plain text (it held a field / content control in the edited span)" : ""}`);
   };
   const removeNote = (n: E.NoteInfo) => { const d = docRef.current!; snapshot(); E.deleteNote(d, n.type, n.id); changed(); setNoteGen((g) => g + 1); setStatus(`${n.type === "footnote" ? "Footnote" : "Endnote"} deleted`); };
   const goNote = (n: E.NoteInfo) => { const at = { pid: n.pid, off: n.off + 1 }; setSel({ a: at, b: at }); rootRef.current?.querySelector(`[data-pid="${n.pid}"]`)?.scrollIntoView({ block: "center" }); rootRef.current?.focus(); };
   const resolveOne = (c: E.Change, accept: boolean) => {
-    const d = docRef.current!; snapshot(); const ok = E.resolveOne(d, c.key, accept); changed(); setStatus(ok ? `${accept ? "Accepted" : "Rejected"} 1 change` : "That change no longer exists");
+    const d = docRef.current!; snapshot(); const ok = E.resolveOne(d, c.key, accept); changed(); if (c.story) { setHfGen((g) => g + 1); setNoteGen((g) => g + 1); } setStatus(ok ? `${accept ? "Accepted" : "Rejected"} 1 change` : "That change no longer exists");
     // TT57: the pressed button disappears with its change — keep focus inside Writer (next change, else the page) so Ctrl+S etc. still work
     requestAnimationFrame(() => { const next = shellRef.current?.querySelector<HTMLElement>('[data-testid="writer-changes"] [role=listitem] button'); (next ?? rootRef.current)?.focus(); });
   };
-  const resolve = (accept: boolean) => { const d = docRef.current!; snapshot(); const n = E.resolveChanges(d, accept); changed(); setStatus(`${accept ? "Accepted" : "Rejected"} ${n} change(s)`); };
+  const resolve = (accept: boolean) => { const d = docRef.current!; snapshot(); const n = E.resolveChanges(d, accept); changed(); setHfGen((g) => g + 1); setNoteGen((g) => g + 1); setStatus(`${accept ? "Accepted" : "Rejected"} ${n} change(s)`); };
 
   /* ------------------------------------------------------------ derived toolbar state */
   const fmt = useMemo(() => {
@@ -832,7 +841,7 @@ export default function WriterModule({ win }: ModuleProps) {
               </div>
               <div role="list" aria-label="Tracked changes" data-testid="writer-changes">
                 {changes.slice(0, 200).map((c, i) => <div role="listitem" key={c.key} className={`wchg wchg-${c.kind}`} data-key={c.key}>
-                  <button className="wchg-go" onClick={() => goChange(c)}><b>{c.text.startsWith("[Table cell merge]") ? "Cell merge" : c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? "Formatted" : c.kind === "para" ? "Paragraph" : "Deleted"}</b>{c.detail ? <span data-testid="writer-change-detail">: {c.detail}</span> : null}{c.author ? ` · ${c.author}` : ""}{c.date ? <span style={{ opacity: 0.7 }}> · {c.date.slice(0, 10)}</span> : null}<span className="wchg-t">{c.text.slice(0, 120) || "(formatting / empty)"}</span></button>
+                  <button className="wchg-go" onClick={() => goChange(c)}>{c.where ? <span data-testid="writer-change-where" className="wchg-where">{c.where} · </span> : null}<b>{c.text.startsWith("[Table cell merge]") ? "Cell merge" : c.kind === "ins" ? "Inserted" : c.kind === "fmt" ? "Formatted" : c.kind === "para" ? "Paragraph" : "Deleted"}</b>{c.detail ? <span data-testid="writer-change-detail">: {c.detail}</span> : null}{c.author ? ` · ${c.author}` : ""}{c.date ? <span style={{ opacity: 0.7 }}> · {c.date.slice(0, 10)}</span> : null}<span className="wchg-t">{c.text.slice(0, 120) || "(formatting / empty)"}</span></button>
                   <div className="fs-row" style={{ gap: 4 }}><Btn variant="ghost" onClick={() => resolveOne(c, true)}>Accept<span className="sr-only"> change {i + 1}</span></Btn><Btn variant="ghost" onClick={() => resolveOne(c, false)}>Reject<span className="sr-only"> change {i + 1}</span></Btn></div>
                 </div>)}
               </div>
@@ -861,7 +870,7 @@ export default function WriterModule({ win }: ModuleProps) {
                 </div>; })}
               </div>
             </>}
-            {panel === "hf" && <HeaderFooter doc={doc} gen={docGen * 100000 + hfGen} onApply={(fn) => { snapshot(); fn(doc); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
+            {panel === "hf" && <HeaderFooter doc={doc} gen={docGen * 100000 + hfGen} onApply={(fn) => { snapshot(); try { fn(doc); } catch (e) { undo.current.pop(); throw e; } setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
             {panel === "page" && <PageSetup doc={doc} onApply={(o) => { snapshot(); E.setPageSetup(doc, o); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
           </div>
         )}
@@ -998,7 +1007,9 @@ function HeaderFooter({ doc, gen, onApply }: { doc: WordDoc; gen: number; onAppl
   useEffect(() => { if (opened.current !== doc) { opened.current = doc; switchTo("header", "default"); } }); // another document was opened
   const seenGen = useRef(gen);
   useEffect(() => { if (seenGen.current !== gen) { seenGen.current = gen; setLines(load(kind, type)); } }); // undo/redo restored the parts
-  const apply = (fn: (d: WordDoc) => void, k = kind, t = type) => { onApply(fn); setLines(load(k, t)); }; // onApply runs synchronously
+  const [refusal, setRefusal] = useState("");
+  // onApply runs synchronously; TT65: a tracked edit that can't be recorded throws before changing anything — say why, keep the typed lines
+  const apply = (fn: (d: WordDoc) => void, k = kind, t = type) => { try { onApply(fn); } catch (e) { setRefusal(e instanceof Error ? e.message : String(e)); return; } setRefusal(""); setLines(load(k, t)); };
   const exists = load(kind, type).length > 0;
   const insert = (tok: string) => {
     const i = focus && !lines[focus.i]?.locked ? focus.i : lines.findIndex((l) => !l.locked);
@@ -1010,6 +1021,7 @@ function HeaderFooter({ doc, gen, onApply }: { doc: WordDoc; gen: number; onAppl
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }} data-testid="hf-panel">
       <div className="wside-h">Header &amp; footer</div>
+      {refusal && <div role="alert" data-testid="hf-refusal" style={{ fontSize: "0.9em" }}>{refusal}</div>}
       <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }} role="tablist" aria-label="Header or footer">
         {(["header", "footer"] as const).map((k) => (["default", ...(first ? ["first"] : [])] as HfType[]).map((t) => (
           <Btn key={k + t} variant={kind === k && type === t ? "primary" : "ghost"} role="tab" aria-selected={kind === k && type === t} onClick={() => switchTo(k, t)}>{t === "first" ? `First-page ${k}` : k[0].toUpperCase() + k.slice(1)}</Btn>

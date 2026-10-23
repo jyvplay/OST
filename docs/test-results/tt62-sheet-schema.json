@@ -1,6 +1,6 @@
 {
   "suite": "tt62-sheet-schema",
-  "at": "2026-10-23T00:50:10.962Z",
+  "at": "2026-10-23T03:09:20.713Z",
   "results": [
     {
       "suite": "tt62-sheet-schema",
@@ -9,7 +9,7 @@
         "FF-46": "full"
       },
       "pass": true,
-      "ms": 331
+      "ms": 257
     },
     {
       "suite": "tt62-sheet-schema",
@@ -18,7 +18,7 @@
         "FF-46": "full"
       },
       "pass": true,
-      "ms": 318
+      "ms": 232
     },
     {
       "suite": "tt62-sheet-schema",
@@ -27,7 +27,7 @@
         "FF-46": "full"
       },
       "pass": true,
-      "ms": 285
+      "ms": 205
     },
     {
       "suite": "tt62-sheet-schema",
@@ -36,7 +36,7 @@
         "FF-46": "full"
       },
       "pass": true,
-      "ms": 641
+      "ms": 474
     },
     {
       "suite": "tt62-sheet-schema",
@@ -45,7 +45,7 @@
         "FF-46": "full"
       },
       "pass": true,
-      "ms": 618
+      "ms": 419
     }
   ]
 }

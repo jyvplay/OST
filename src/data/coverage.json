@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-23T01:10:31.619Z",
+ "generatedAt": "2026-10-23T03:13:01.774Z",
  "totals": {
   "built": {
-   "full": 303,
+   "full": 304,
    "partial": 54,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 218,
+   "full": 219,
    "partial": 72,
    "untested": 89
   },
   "tests": {
-   "total": 1168,
-   "passed": 1168
+   "total": 1178,
+   "passed": 1178
   }
  },
  "rows": {
@@ -2914,7 +2914,7 @@
     "tt61-writer-notes-rich: fixture sanity: the lxml-written formatted note reads back as written (independent probe) and as text in our model",
     "tt61-writer-notes-rich: an edit inside plain text, inside a bold word, at the start of an italic word: only the edited span changes; inserted text takes the previous character's formatting",
     "tt61-writer-notes-rich: line breaks: typing \\n splits the paragraph (new one keeps FootnoteText), deleting a break joins paragraphs, deleting everything keeps the reference mark",
-    "tt61-writer-notes-rich: fallback is explicit: a note holding a tracked change is rebuilt as plain text and the call says so",
+    "tt61-writer-notes-rich: a note holding another reviewer's tracked change is edited in place: the call says \"kept\" and the revision survives",
     "tt61-writer-notes-rich: randomized differential: 60 random edits — note text always equals the request; every character outside the changed span keeps its formatting; save → re-open → lxml text agrees",
     "tt61-writer-notes-rich: diffHunks (from-scratch Myers): on 400 random string pairs the hunks rebuild the target exactly and the edit count equals an independent DP insert/delete distance; two separate edits leave the text between them — and its formatting — alone",
     "tt61-writer-notes-rich: POI corpus (6 files, every footnote / endnote): a random mid-note edit keeps the text exact, keeps each untouched character's formatting (independent lxml probe before vs after), keeps references sound"
@@ -2985,6 +2985,21 @@
     "tt64-writer-trackcols: refusals and boundaries: a merged cell across the column / another reviewer's pending cell → tracked delete refused (document unchanged, message names Track Changes); 1-row tables stay per-cell; tracked rows + columns together",
     "tt64-writer-trackcols: files from the independent writer: a whole column marked cellDel / cellIns by markcells (lxml) is listed as one column change and resolves to the oracle's views; mixed authors in one column stay per-cell; file revision ids are reserved; a width-only w:tblGridChange settles on Accept / Reject All",
     "tt64-writer-trackcols: TT64 fix — rows with w:gridBefore / w:gridAfter: column operations address GRID columns (they used to count from the row's first cell); untracked and tracked, every column, both directions, vs hand-derived tables and the oracle"
+   ]
+  },
+  "FF-49": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt65: FF-49 Track Changes in every story in the UI: tracked header Apply (struck / inserted runs on the page), a field-cutting edit refused with no phantom undo step (Ctrl+Z / Ctrl+Y), tracked Notes edit, Review by place, reject footnote items singly + Accept all → Save → lxml oracle + XSD",
+    "e2e-tt65: no page errors during the TT65 session",
+    "tt65-writer-stories: header & footer Apply under Track Changes: edited line, alignment, new and removed lines are w:ins / w:del / w:pPrChange — oracle Accept All = the untracked edit, Reject All = the original; our Accept / Reject All agree; Review names the place",
+    "tt65-writer-stories: Notes panel edits under Track Changes return \"tracked\" and record w:ins / w:del (a new line = inserted paragraph mark) — oracle and our resolution agree with the untracked edit / the original; untracked edits keep other reviewers' revisions (\"kept\")",
+    "tt65-writer-stories: spelling Change and Change All in headers and notes are tracked like main-text fixes (w:del old word + w:ins new); verdicts from the engine, views from the oracle",
+    "tt65-writer-stories: Review one by one: resolving story changes singly (any order) equals Accept All / Reject All; a mixed review (accept header, reject notes) gives exactly that per story",
+    "tt65-writer-stories: revision ids are unique ACROSS parts: a re-opened file reserves the ids already used in headers / footers (defect: the scan skipped them), and a save renumbers collisions in every written part while untouched parts keep their bytes",
+    "tt65-writer-stories: refusals change nothing: a tracked header edit cutting into a page field throws HF_TRACK_REFUSAL before any mutation (save byte-identical); a tracked note edit inside a field returns \"refused\"; typing {PAGE} while tracking inserts a real tracked PAGE field",
+    "tt65-writer-stories: Remove header under Track Changes keeps the part, its text struck (Accept → empty header, Reject → the original); without tracking the reference is dropped as before",
+    "tt65-writer-stories: randomized differential: 40 header / footer sessions and 40 note sessions of random edits (characters, new / removed lines, alignment, {PAGE}, new paragraphs) — tracked = refused-with-no-change, or oracle Accept = untracked edit and Reject = original; ids unique; XSD on every 4th"
    ]
   },
   "CT-01": {

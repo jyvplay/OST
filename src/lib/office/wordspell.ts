@@ -46,13 +46,32 @@ export function spellIssues(doc: WordDoc, sp: Speller, o: SpellOpts = {}): Spell
   return out;
 }
 
+/** TT65: the text a reader sees — tracked deletions left out (they used to be blanked to a word separator, so "re[ci]ceive"
+ *  with struck "ci" was checked as "re" + "ceive", and a tracked word fix left two false squiggles) — with each character's
+ *  model offset; other unchecked spans stay U+0000 separators, tokens U+FFFC */
+export function visibleProof(p: Para): { s: string; at: number[] } {
+  let s = ""; const at: number[] = []; let off = 0;
+  for (const i of p.content) {
+    const n = i.t === "r" ? i.text.length : 1;
+    if (i.t === "r" && i.rev?.kind === "del") { off += n; continue; }
+    const t = i.t !== "r" ? "\ufffc" : !checkable(i) ? "\u0000".repeat(n) : i.text;
+    for (let k = 0; k < t.length; k++) at.push(off + k);
+    s += t; off += n;
+  }
+  at.push(off);
+  return { s, at };
+}
+/** the visible text of a model span (tracked deletions left out) — what an issue's `word` was read from */
+export const visibleSlice = (p: Para, off: number, len: number) => { const v = visibleProof(p); let w = ""; for (let k = 0; k < v.s.length; k++) if (v.at[k] >= off && v.at[k] < off + len) w += v.s[k]; return w; };
+
 export function issuesInPara(p: Para, sp: Speller, o: SpellOpts, ignoreAll: Set<string>, once: Set<string>, out: SpellIssue[] = []): SpellIssue[] {
-  const s = proofText(p);
+  const { s, at } = visibleProof(p);
   const toks = tokenize(s, { skipUpper: o.skipUpper });
   let prev: { word: string; end: number } | null = null;
   for (const t of toks) {
     const w = t.word.replace(/’/g, "'");
-    const iss = (kind: SpellIssue["kind"], off: number, len: number): SpellIssue => ({ kind, pid: p.id, off, len, word: s.slice(off, off + len) });
+    // off / len are MODEL offsets (a word with struck letters inside spans them); word = the visible text
+    const iss = (kind: SpellIssue["kind"], c0: number, n: number): SpellIssue => ({ kind, pid: p.id, off: at[c0], len: (n ? at[c0 + n - 1] + 1 : at[c0]) - at[c0], word: s.slice(c0, c0 + n) });
     // repeated word: same word (case-insensitive), separated only by spaces / tabs
     if (prev && prev.word.toLowerCase() === w.toLowerCase() && /^[ \t\u00a0]+$/.test(s.slice(prev.end, t.start)) && !/^\d/.test(w)) {
       const i = iss("repeat", prev.end, t.end - prev.end);
@@ -98,13 +117,22 @@ function storyBlocks(doc: WordDoc, story: string): { blocks: Block[]; set: (b: B
   return k < 0 ? [] : [{ blocks: doc.notes[k].blocks, set: (nb) => { doc.notes[k] = { ...doc.notes[k], blocks: nb, dirty: true }; doc.notesTouched = true; } }];
 }
 /** a fix outside the main text: the story's blocks are copied first (so undo snapshots, which hold the old arrays, still
- *  restore), then the words are replaced inside the runs — run formatting is kept (untracked: Word tracks header edits,
- *  this editor's tracking covers the main text) */
+ *  restore), then the words are replaced inside the runs — run formatting is kept. TT65: with Track Changes on the fix is
+ *  tracked like one in the main text (Word tracks header / footer / note edits): w:del of the old word + w:ins of the new,
+ *  through the story's own view of the document (E.storyDoc) */
 function fixStoryIssue(doc: WordDoc, i: SpellIssue, replacement: string): boolean {
   const st = storyBlocks(doc, i.story!)[0]; if (!st) return false;
   const nb = E.cloneBlocks(st.blocks);
   const p = allParas(nb).find((x) => x.id === i.pid); if (!p) return false;
-  if (proofText(p).slice(i.off, i.off + i.len) !== i.word) return false;
+  if (visibleSlice(p, i.off, i.len) !== i.word) return false;
+  if (doc.track?.on) {
+    const d = E.storyDoc(doc, nb);
+    const r = { a: { pid: i.pid, off: i.off }, b: { pid: i.pid, off: i.off + i.len } };
+    const at = replacement === "" ? E.deleteForward(d, r) : E.deleteForReplace(d, r);
+    if (replacement) E.insertText(d, at, replacement);
+    st.set(d.blocks);
+    return true;
+  }
   let pos = 0, put = false;
   const a = i.off, b = i.off + i.len;
   p.content = p.content.flatMap((it) => {

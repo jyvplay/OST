@@ -532,7 +532,8 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
   let on = false;
   if (stx) { const tr = find(parseXml(stx).root, (x) => x.name === "w:trackRevisions"); on = !!tr && onOff(tr) !== false; }
   let maxId = 0;
-  for (const part of [docPath, doc.commentsPath, partOf(RT.footnotes), partOf(RT.endnotes)]) {
+  // TT65: header / footer parts too — their revisions are reviewable now, and a new id must not repeat one of theirs
+  for (const part of [docPath, doc.commentsPath, partOf(RT.footnotes), partOf(RT.endnotes), ...[...doc.hf.xml.values()].map((h) => h.path)]) {
     const src = part ? text(part) : null; if (!src) continue;
     for (const m of src.matchAll(/\sw:id="(-?\d+)"/g)) maxId = Math.max(maxId, Number(m[1]));
   }
@@ -932,6 +933,16 @@ function ensureContentType(ct: XDoc, kind: "Default" | "Override", key: string, 
 
 export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
   const out = new Map(doc.zip);
+  const REC = new Set(["w:rPrChange", "w:pPrChange", "w:ins", "w:del", "w:tblPrChange", "w:trPrChange", "w:tcPrChange", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tblGridChange"]);
+  const recSeen = new Set<string>();
+  const renumberRecords = (root: XEl) => {
+    for (const rc of findAll(root, (x) => REC.has(x.name))) {
+      const id = attr(rc, "w:id");
+      if (id === undefined) continue;
+      if (recSeen.has(id)) setAttr(rc, "w:id", String(doc.track.next++));
+      recSeen.add(attr(rc, "w:id")!);
+    }
+  };
   const order = doc.order.slice();
   const setPart = (p: string, data: Uint8Array) => { if (!out.has(p)) order.push(p); out.set(p, data); };
   const ctSrc = out.get("[Content_Types].xml");
@@ -1031,6 +1042,7 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
         kidsOut.push(n.dirty || !n.src ? el(`w:${kind}`, { "w:id": id }, serializeBlocks(n.blocks)) : n.src);
       }
       for (const n of mine) if (!seen.has(n.id) && refs[kind].has(n.id)) kidsOut.push(el(`w:${kind}`, { "w:id": n.id }, serializeBlocks(n.blocks)));
+      for (const k of kidsOut) if (k.k === "el") renumberRecords(k);
       const keep = root.kids; root.kids = kidsOut; root.selfClose = false;
       setPart(part.path, te.encode(serializeXml(part.xml))); root.kids = keep;
     }
@@ -1043,6 +1055,7 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
     const blocks = doc.parts.get(rid) ?? (doc.hf.created.has(rid) ? parseBlocks({ doc, part: h.path, rels: h.rels, linkSeq: 0, fld: [] }, [el("w:p")]) : undefined);
     if (!blocks) continue;
     const keep = h.xml.root.kids; h.xml.root.kids = serializeBlocks(blocks); h.xml.root.selfClose = false;
+    renumberRecords(h.xml.root);
     setPart(h.path, te.encode(serializeXml(h.xml))); h.xml.root.kids = keep;
     if (doc.hf.created.has(rid)) { ensureContentType(ct, "Override", "/" + h.path, `application/vnd.openxmlformats-officedocument.wordprocessingml.${h.xml.root.name === "w:ftr" ? "footer" : "header"}+xml`); ctDirty = true; }
   }
@@ -1079,18 +1092,11 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
   if (doc.finalSect && !body.kids.includes(doc.finalSect)) body.kids.push(doc.finalSect);
   // TT57: a formatted run that an edit later split (a tracked insertion typed into it, a field boundary) is written as
   // two w:r that both carry the same w:rPrChange record — revision ids must be unique, so later copies get fresh ids
-  {
-    const seen = new Set<string>();
-    // TT60: likewise one tracked deletion spanning several paragraphs / table cells (a deleted row's text) writes one w:del per
-    // paragraph; §17.13.5 wants each annotation id unique, so every revision record is renumbered on collision
-    const REC = new Set(["w:rPrChange", "w:pPrChange", "w:ins", "w:del", "w:tblPrChange", "w:trPrChange", "w:tcPrChange", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tblGridChange"]);
-    for (const rc of findAll(body, (x) => REC.has(x.name))) {
-      const id = attr(rc, "w:id");
-      if (id === undefined) continue;
-      if (seen.has(id)) setAttr(rc, "w:id", String(doc.track.next++));
-      seen.add(attr(rc, "w:id")!);
-    }
-  }
+  // TT60: likewise one tracked deletion spanning several paragraphs / table cells (a deleted row's text) writes one w:del per
+  // paragraph; §17.13.5 wants each annotation id unique, so every revision record is renumbered on collision. TT65: the
+  // set is shared by every part written in this save (notes, headers / footers, then the body), so a story revision never
+  // repeats a body id either
+  renumberRecords(body);
   body.selfClose = false;
   const docBytes = te.encode(serializeXml(doc.docXml));
   body.kids = before;

@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt58-rows",
-  "at": "2026-10-23T00:46:46.471Z",
+  "at": "2026-10-23T03:06:38.532Z",
   "results": [
     {
       "suite": "e2e-tt58-rows",
@@ -9,7 +9,7 @@
         "SR-04": "full"
       },
       "pass": true,
-      "ms": 6139
+      "ms": 5476
     },
     {
       "suite": "e2e-tt58-rows",
@@ -18,7 +18,7 @@
         "DP-11": "full"
       },
       "pass": true,
-      "ms": 53904
+      "ms": 38990
     },
     {
       "suite": "e2e-tt58-rows",

@@ -1,6 +1,6 @@
 {
   "suite": "tt46-writer",
-  "at": "2026-10-23T00:11:17.947Z",
+  "at": "2026-10-23T02:39:05.691Z",
   "results": [
     {
       "suite": "tt46-writer",
@@ -10,7 +10,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 3121
+      "ms": 3030
     },
     {
       "suite": "tt46-writer",
@@ -30,7 +30,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 177
+      "ms": 157
     },
     {
       "suite": "tt46-writer",
@@ -40,7 +40,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 5724
+      "ms": 5909
     },
     {
       "suite": "tt46-writer",
@@ -50,7 +50,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 42879
+      "ms": 32832
     },
     {
       "suite": "tt46-writer",
@@ -60,7 +60,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 222
+      "ms": 114
     },
     {
       "suite": "tt46-writer",
@@ -70,7 +70,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 95
+      "ms": 34
     },
     {
       "suite": "tt46-writer",
@@ -80,7 +80,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 783
+      "ms": 652
     },
     {
       "suite": "tt46-writer",
@@ -90,7 +90,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 12
+      "ms": 10
     },
     {
       "suite": "tt46-writer",
@@ -100,7 +100,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 109
+      "ms": 105
     },
     {
       "suite": "tt46-writer",
@@ -110,7 +110,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 127
+      "ms": 90
     },
     {
       "suite": "tt46-writer",
@@ -120,7 +120,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 10
+      "ms": 8
     }
   ]
 }

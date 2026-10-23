@@ -29,7 +29,9 @@ type Sec = { firstPage: boolean; header: Slot; footer: Slot; firstHeader: Slot; 
 type Probe = { file: string; error?: string; sections: Sec[]; body: string[] };
 const oracle = (paths: string[]): Probe[] => paths.length ? execFileSync(PY, ["-W", "ignore", "scripts/oracle/docx_hf.py", ...paths], { encoding: "utf8", maxBuffer: 1 << 28 }).trim().split("\n").map((l) => JSON.parse(l)) : [];
 const files = haveCorpus ? readdirSync(CORPUS).filter((f) => f.endsWith(".docx")).sort().map((f) => join(CORPUS, f)) : [];
-async function load(f: string): Promise<WordDoc | null> { try { return await readWord(new Uint8Array(readFileSync(f)), f.split("/").pop()); } catch { return null; } }
+// TT65: corpus files saved with Track Changes on (w:trackRevisions) now get TRACKED header / footer edits, as in Word; this
+// suite checks the part / relationship / section plumbing, so it edits untracked (tracked story edits: tt65-writer-stories)
+async function load(f: string): Promise<WordDoc | null> { try { const d = await readWord(new Uint8Array(readFileSync(f)), f.split("/").pop()); d.track.on = false; return d; } catch { return null; } }
 async function save(d: WordDoc, name: string) { const b = await writeWord(d); const p = join(tmp, name); writeFileSync(p, b); return { p, b }; }
 async function partsDiff(a: Uint8Array, b: Uint8Array) {
   const za = openZip(a), zb = openZip(b); const out: string[] = [];

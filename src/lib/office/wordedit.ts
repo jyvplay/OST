@@ -3,7 +3,7 @@
  * Positions are (paragraph id, offset) where a text run counts its UTF-16 length and every opaque token counts 1.
  * Every operation marks the paragraphs it touches `dirty`, so untouched paragraphs keep serializing byte-for-byte.
  */
-import { allParas, cellsOf, ensureStyle, makeLink, newId, noteBlocks, parseInlineNodes, rowsOf, styleChain, type Block, type Cell, type Inline, type FmtChange, type Para, type ParaProps, type Rev, type Row, type RunFmt, type Table, type TextRun, type Tok, type WordDoc, inlineText, BUILTIN_STYLE_IDS, defaultParaStyle, effectiveRun } from "./wordml";
+import { allParas, cellsOf, ensureStyle, makeLink, newId, noteBlocks, referencedNotes, parseInlineNodes, rowsOf, styleChain, type Block, type Cell, type Inline, type FmtChange, type Para, type ParaProps, type Rev, type Row, type RunFmt, type Table, type TextRun, type Tok, type WordDoc, inlineText, BUILTIN_STYLE_IDS, defaultParaStyle, effectiveRun } from "./wordml";
 import { clone, el, findAll, kid, kids, textOf, type XEl, type XNode } from "./xmltree";
 import { sameRev, sameFc, sameFmt, parsePPr } from "./wordml";
 
@@ -214,6 +214,8 @@ export function fmtAt(doc: WordDoc, r0: Range): RunFmt & { mixed: Set<string> } 
 /** TT57: with recording on, a paragraph-property change keeps the properties from before the FIRST change (w:pPrChange);
  *  changing back to them drops the record. A paragraph whose mark is a pending insertion is new text — not tracked. */
 const samePP = (a: ParaProps, b: ParaProps) => { const n = (x: ParaProps) => JSON.stringify(Object.keys(x).sort().filter((k) => (x as Record<string, unknown>)[k] !== undefined && !(k === "num" && x.num === null)).map((k) => [k, (x as Record<string, unknown>)[k]])); return n(a) === n(b); };
+/** TT65: exported for story edits (header / footer alignment under Track Changes) */
+export function trackParaProps(doc: WordDoc, p: Para, before: ParaProps) { trackPara(doc, p, before); }
 function trackPara(doc: WordDoc, p: Para, before: ParaProps) {
   if (!doc.track?.on || p.markRev?.kind === "ins" || samePP(before, p.p)) return;
   const old = p.pc ? p.pc.old : before;
@@ -297,12 +299,61 @@ export function listNotes(doc: WordDoc): NoteInfo[] {
   }
   return out;
 }
-/** plain text of a note body (the leading reference mark and the space after it are not part of the text) */
+/** plain text of a note body (the leading reference mark and the space after it are not part of the text). TT65: the text the
+ *  reader sees — tracked deletions are not part of it (they were, so an edit through the Notes panel brought struck text
+ *  back), and a deleted paragraph mark joins its two paragraphs */
 export function noteTextOf(blocks: Block[]): string {
-  // text the editor keeps inside opaque tokens (a content control, a hyperlink field…) is part of what the reader sees
-  const tokText = (nodes: XNode[]) => nodes.map((n) => (n.k === "el" ? findAll(n, (x) => x.name === "w:t").map(textOf).join("") : "")).join("");
-  return allParas(blocks).map((p) => p.content.map((i) => (i.t === "r" ? i.text : i.kind === "note" ? "" : tokText(i.nodes))).join("")).join("\n").replace(/^ /, "");
+  return viewText(allParas(blocks), noteParaView).replace(/^ /, "");
 }
+/* ---------------------------------------------------------------- TT65 reader's view of a story paragraph */
+/** a paragraph as the reader sees it: tracked deletions hidden. offs[k] = model offset of visible UTF-16 unit k, null when it
+ *  is text the editor cannot address (inside an opaque token / a field); before[k] = model position just before unit k
+ *  (null inside a token) */
+export interface ParaView { text: string; offs: (number | null)[]; before: (number | null)[] }
+// text the editor keeps inside opaque tokens (a content control, a hyperlink field…) is part of what the reader sees
+const tokTextOf = (nodes: XNode[]) => nodes.map((n) => (n.k === "el" ? findAll(n, (x) => x.name === "w:t").map(textOf).join("") : "")).join("");
+export function noteParaView(p: Para): ParaView {
+  let text = ""; const offs: (number | null)[] = [], before: (number | null)[] = []; let off = 0;
+  for (const it of p.content) {
+    const n = ilen(it);
+    if (it.rev?.kind === "del") { off += n; continue; }
+    if (it.t === "r") for (let u = 0; u < it.text.length; u++) { text += it.text[u]; offs.push(off + u); before.push(off + u); }
+    else if (it.kind !== "note") { const tx = tokTextOf(it.nodes); for (let u = 0; u < tx.length; u++) { text += tx[u]; offs.push(null); before.push(u === 0 ? off : null); } }
+    off += n;
+  }
+  return { text, offs, before };
+}
+/** paragraphs joined by "\n" — except after a paragraph whose mark is a pending deletion (the reader sees one paragraph) */
+export function viewText(paras: Para[], view: (p: Para) => ParaView): string {
+  return paras.map((p, i) => view(p).text + (i < paras.length - 1 && p.markRev?.kind !== "del" ? "\n" : "")).join("");
+}
+/** TT65: applies `want` — the reader's new text for `paras` (in `doc`, normally a story copy from storyDoc) — as the minimal
+ *  hunks of diffHunks, right to left, through the ordinary editing operations: under Track Changes every hunk is a w:del of
+ *  what went and a w:ins of what came (own pending insertions just vanish), exactly as if it were typed in the main text;
+ *  untracked it is a plain edit that leaves other pending revisions alone. "\n" in the new text splits a paragraph (tracked:
+ *  an inserted paragraph mark). Returns false, having changed nothing, when a hunk would cut into text the editor cannot
+ *  address (a field, a content control); callers re-check the resulting view (verified, not assumed). `stripLead` ignores
+ *  one leading space (a note's space after its reference mark); `put` inserts one "\n"-free piece (default insertText). */
+export function viewEdit(doc: WordDoc, paras: Para[], view: (p: Para) => ParaView, stripLead: boolean, want: string, put: (d: WordDoc, at: Pos, s: string) => Pos = insertText): boolean {
+  if (!paras.length) return false;
+  let V = ""; const posAt: (Pos | null)[] = []; const frozen: boolean[] = [];
+  paras.forEach((p, i) => {
+    const v = view(p);
+    for (let k = 0; k < v.text.length; k++) { V += v.text[k]; const b = v.before[k]; posAt.push(b === null ? null : { pid: p.id, off: b }); frozen.push(v.offs[k] === null); }
+    if (i < paras.length - 1 && p.markRev?.kind !== "del") { V += "\n"; posAt.push({ pid: p.id, off: plen(p) }); frozen.push(false); }
+  });
+  const last = paras[paras.length - 1]; posAt.push({ pid: last.id, off: plen(last) });
+  const lead = stripLead && V.startsWith(" ") ? 1 : 0;
+  const hunks = diffHunks(V.slice(lead), want).map((h) => ({ a: h.a + lead, b: h.b + lead, ins: h.ins }));
+  for (const h of hunks) { if (!posAt[h.a] || !posAt[h.b]) return false; for (let k = h.a; k < h.b; k++) if (frozen[k]) return false; }
+  for (const h of hunks.reverse()) {
+    let at = posAt[h.a]!;
+    if (h.b > h.a) at = deleteForReplace(doc, { a: posAt[h.a]!, b: posAt[h.b]! });
+    h.ins.split("\n").forEach((piece, i) => { if (i) at = splitParagraph(doc, at); if (piece) at = put(doc, at, piece); });
+  }
+  return true;
+}
+const hasRevisions = (ps: Para[]) => ps.some((p) => p.markRev || p.pc || p.content.some((it) => it.rev || (it.t === "r" && it.fc)));
 /** Insert ▸ Footnote / Endnote at pos: a new note (next free id) holding `text`, and its reference mark in the text. */
 export function insertNote(doc: WordDoc, pos: Pos, kind: "footnote" | "endnote", text = ""): { id: string; pos: Pos } {
   const used = doc.notes.filter((n) => n.type === kind).map((n) => Number(n.id)).filter((n) => Number.isFinite(n));
@@ -329,16 +380,27 @@ export function setNoteText(doc: WordDoc, kind: "footnote" | "endnote", id: stri
  *  (the w:footnoteRef mark, bookmarks) are never deleted. Falls back to the plain rebuild (setNoteText) only when the edit
  *  touches text the editor keeps inside an opaque token, when the note holds tracked changes, or when it is not paragraphs
  *  only — and says which via the return value. */
-export function editNoteText(doc: WordDoc, kind: "footnote" | "endnote", id: string, text: string): "kept" | "plain" | false {
+export function editNoteText(doc: WordDoc, kind: "footnote" | "endnote", id: string, text: string): "kept" | "plain" | "tracked" | "refused" | false {
   const ni = doc.notes.findIndex((n) => n.type === kind && n.id === id);
   if (ni < 0) return false;
   const note = doc.notes[ni];
   const want = text.replace(/\r\n?/g, "\n");
   if (noteTextOf(note.blocks) === want) return false;
   const plain = () => (setNoteText(doc, kind, id, want) ? "plain" as const : false);
-  if (!note.blocks.length || note.blocks.some((b) => b.t !== "p")) return plain();
+  // TT65: with Track Changes on, or when the note already holds revisions, the edit goes through viewEdit on a copy of the
+  // note — tracked edits are recorded (w:ins / w:del), other reviewers' pending revisions are kept. (TT61 rebuilt such a
+  // note as plain text: every pending revision in it was silently resolved.) Never the plain rebuild here: refused instead.
+  const notP = !note.blocks.length || note.blocks.some((b) => b.t !== "p");
+  if (doc.track?.on || (!notP && hasRevisions(note.blocks as Para[]))) {
+    if (notP) return "refused";
+    const nb = cloneBlocks(note.blocks); const proxy = storyDoc(doc, nb);
+    if (!viewEdit(proxy, nb as Para[], noteParaView, true, want) || noteTextOf(proxy.blocks) !== want) return "refused";
+    doc.notes[ni] = { ...note, blocks: proxy.blocks, dirty: true };
+    doc.notesTouched = true;
+    return doc.track?.on ? "tracked" : "kept";
+  }
+  if (notP) return plain();
   const paras = note.blocks as Para[];
-  if (paras.some((p) => p.markRev || p.pc || p.content.some((it) => it.rev || (it.t === "r" && it.fc)))) return plain();
   // explode into items: one per UTF-16 unit, tokens (zero-width or carrying opaque text), paragraph breaks
   const tokText = (nodes: XNode[]) => nodes.map((n) => (n.k === "el" ? findAll(n, (x) => x.name === "w:t").map(textOf).join("") : "")).join("");
   let items: NoteItem[] = [];
@@ -503,8 +565,17 @@ export function trackedChanges(doc: WordDoc): { pid: string; kind: "ins" | "del"
 }
 /** Accept (true) or reject (false) every insertion/deletion; also clears formatting-change records on accept. */
 export function resolveChanges(doc: WordDoc, accept: boolean): number {
+  let n = resolveAllMain(doc, accept);
+  // TT65: Accept All / Reject All cover every story (Word: "Accept All Changes" in the document)
+  for (const st of stories(doc)) {
+    const nb = cloneBlocks(st.blocks); const k = resolveAllMain(storyDoc(doc, nb), accept);
+    if (k) { st.set(nb); n += k; }
+  }
+  return n;
+}
+function resolveAllMain(doc: WordDoc, accept: boolean): number {
   let n = 0;
-  for (const c of revisions(doc)) if (c.editable && resolveOne(doc, c.key, accept)) n++;
+  for (const c of mainRevisions(doc)) if (c.editable && resolveOneMain(doc, c.key, accept)) n++;
   // TT64: a tracked grid change with no cell revision left is settled too (accept = keep the widths, reject = the recorded ones)
   const grids = (bs: Block[]) => { for (const b of bs) { if (b.t === "box") grids(b.blocks); if (b.t !== "tbl") continue; if (b.gridChange) { settleGrid(b, !accept); if (!b.gridChange) n++; } for (const r of rowsOf(b)) for (const c of cellsOf(r)) grids(c.blocks); } };
   grids(doc.blocks);
@@ -867,6 +938,10 @@ export function deleteForward(doc: WordDoc, r0: Range): Pos {
 function joinNext(doc: WordDoc, p: Para) {
   const w = locate(doc, p.id); if (!w) return;
   const nx = w.list[w.index + 1]; if (!nx || nx.t !== "p") return;
+  // TT65: Word keeps the FIRST paragraph's formatting when two paragraphs merge — but a paragraph deleted (or rejected) as
+  // a whole is not a merge, and the next paragraph keeps its own (bettersolutions "Merging Paragraphs"; wordarticles.com
+  // "A Quirk: Deleting Paragraphs"). "As a whole" = nothing in p outside pending revisions.
+  if (!p.content.some((it) => !it.rev && (it.t === "r" ? it.text.length > 0 : !it.bare))) { p.p = nx.p; p.pc = nx.pc; p.pPr = nx.pPr; }
   p.content.push(...nx.content);
   p.markRev = nx.markRev;
   if (nx.sect) { p.sect = nx.sect; p.pPr = nx.pPr; }
@@ -874,7 +949,7 @@ function joinNext(doc: WordDoc, p: Para) {
   normalize(p); touch(p);
 }
 
-export interface Change { key: string; kind: "ins" | "del" | "fmt" | "para"; author?: string; date?: string; text: string; pid: string; off: number; editable: boolean; /** fmt: what changed */ detail?: string }
+export interface Change { key: string; kind: "ins" | "del" | "fmt" | "para"; author?: string; date?: string; text: string; pid: string; off: number; editable: boolean; /** fmt: what changed */ detail?: string; /** TT65: a change outside the main text — story id ("hf:<rId>", "note:<type>:<id>") and its place name ("Header", "Footnote 2") */ story?: string; where?: string }
 const FMT_LABEL: Record<string, string> = { b: "Bold", i: "Italic", u: "Underline", s: "Strikethrough", sz: "Font size", font: "Font", color: "Font colour", hl: "Highlight", va: "Position", caps: "All caps", smallCaps: "Small caps", rStyle: "Character style", shd: "Shading" };
 /** human summary of a formatting change: "Bold, Italic off, Font size 14 pt" */
 export function fmtDiff(old: RunFmt, now: RunFmt): string {
@@ -902,6 +977,38 @@ export function paraDiff(doc: WordDoc, old: ParaProps, now: ParaProps): string {
 /** Every pending revision in document order: editor/parsed revision runs grouped by id (text + paragraph marks), plus opaque
  *  file revisions (moves, revisions around fields…) one per element. */
 export function revisions(doc: WordDoc): Change[] {
+  const out = mainRevisions(doc);
+  // TT65: then every other story, in Word's Reviewing Pane order — headers / footers, then footnotes / endnotes
+  for (const st of stories(doc)) for (const c of mainRevisions(storyDoc(doc, st.blocks))) out.push({ ...c, key: `s:${st.story}|${c.key}`, story: st.story, where: st.where });
+  return out;
+}
+/* ---------------------------------------------------------------- TT65 stories */
+/** A story other than the main text: a header / footer part or a (referenced) footnote / endnote. `set` commits new blocks
+ *  (copy-on-write: undo snapshots hold the old arrays) and marks the part for writing. */
+export interface Story { story: string; where: string; blocks: Block[]; set: (nb: Block[]) => void }
+export function stories(doc: WordDoc): Story[] {
+  const out: Story[] = [];
+  for (const [rid, blocks] of doc.parts) {
+    const where = /footer/i.test(doc.hf.xml.get(rid)?.path ?? doc.rels.find((r) => r.id === rid)?.target ?? "") ? "Footer" : "Header";
+    out.push({ story: `hf:${rid}`, where, blocks, set: (nb) => { doc.parts.set(rid, nb); doc.hf.dirty.add(rid); } });
+  }
+  // notes whose reference is gone are dropped on save (Word) — their revisions are not listed
+  const refs = referencedNotes(doc); const n = { footnote: 0, endnote: 0 };
+  for (const kind of ["footnote", "endnote"] as const) doc.notes.forEach((note, k) => {
+    if (note.type !== kind || !refs[kind].has(note.id)) return;
+    out.push({ story: `note:${kind}:${note.id}`, where: `${kind === "footnote" ? "Footnote" : "Endnote"} ${++n[kind]}`, blocks: note.blocks, set: (nb) => { doc.notes[k] = { ...doc.notes[k], blocks: nb, dirty: true }; doc.notesTouched = true; } });
+  });
+  return out;
+}
+/** the document seen through one story: same styles, ids and Track Changes state (doc.track is shared, so revision ids stay
+ *  unique package-wide), but `blocks` = the story's blocks — every editing / review operation then works on that story */
+export const storyDoc = (doc: WordDoc, blocks: Block[]): WordDoc => ({ ...doc, blocks });
+function storyOf(doc: WordDoc, key: string): { st: Story; inner: string } | null {
+  const bar = key.indexOf("|"); if (!key.startsWith("s:") || bar < 0) return null;
+  const st = stories(doc).find((x) => x.story === key.slice(2, bar));
+  return st ? { st, inner: key.slice(bar + 1) } : null;
+}
+function mainRevisions(doc: WordDoc): Change[] {
   const out: Change[] = []; const byId = new Map<string, Change>();
   const add = (rv: Rev, pid: string, off: number, text: string) => {
     const key = `r:${rv.kind}:${rv.id}`;
@@ -958,6 +1065,16 @@ export function revisions(doc: WordDoc): Change[] {
 }
 /** Accept / reject one change (by `revisions()` key). Returns false when the key no longer exists. */
 export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean {
+  if (key.startsWith("s:")) {
+    const f = storyOf(doc, key); if (!f) return false;
+    const nb = cloneBlocks(f.st.blocks);
+    if (!resolveOneMain(storyDoc(doc, nb), f.inner, accept)) return false;
+    f.st.set(nb);
+    return true;
+  }
+  return resolveOneMain(doc, key, accept);
+}
+function resolveOneMain(doc: WordDoc, key: string, accept: boolean): boolean {
   if (key.startsWith("k:")) {
     const [, pid, si] = key.split(":"); const p = paraById(doc, pid); const it = p?.content[Number(si)];
     if (!p || !it || it.t !== "k" || (it.kind !== "ins" && it.kind !== "del")) return false;

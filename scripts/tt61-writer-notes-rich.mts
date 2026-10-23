@@ -104,13 +104,18 @@ await test("line breaks: typing \\n splits the paragraph (new one keeps Footnote
   eq(E.editNoteText(d, "footnote", "99", "x"), false, "unknown note → false");
 });
 
-await test("fallback is explicit: a note holding a tracked change is rebuilt as plain text and the call says so", COV, async () => {
+// TT65 contract change: TT61 rebuilt a note holding a tracked change as plain text ("plain") — silently resolving another
+// reviewer's pending revision. Now the edit goes through the note's own view (wordedit viewEdit): the revision is kept
+await test("a note holding another reviewer's tracked change is edited in place: the call says \"kept\" and the revision survives", COV, async () => {
   const d = await load();
   const n = d.notes.find((x) => x.id === "1")!;
-  const para = n.blocks[0] as { content: { t: string; rev?: unknown }[] };
-  const r = para.content.find((it) => it.t === "r")!; r.rev = { kind: "ins", id: 900, author: "A" };
-  eq(E.editNoteText(d, "footnote", "1", "Replaced."), "plain", "plain fallback reported");
-  eq(E.listNotes(d)[0].text, "Replaced.", "text applied");
+  const para = n.blocks[0] as { content: { t: string; text?: string; rev?: { id: number } }[] };
+  const r = para.content.find((it) => it.t === "r")!; r.rev = { kind: "ins", id: 900, author: "A" } as never;
+  const want = E.noteTextOf(n.blocks).replace("2026", "2027");
+  eq(E.editNoteText(d, "footnote", "1", want), "kept", "kept reported");
+  eq(E.noteTextOf(d.notes.find((x) => x.id === "1")!.blocks), want, "text applied");
+  const after = (d.notes.find((x) => x.id === "1")!.blocks[0] as typeof para).content.filter((it) => it.rev);
+  eq(after.map((it) => [it.text, it.rev!.id]), [[" See ", 900]], "the pending insertion is untouched");
 });
 
 await test("randomized differential: 60 random edits — note text always equals the request; every character outside the changed span keeps its formatting; save → re-open → lxml text agrees", COV, async () => {
