@@ -24,6 +24,7 @@ import { appForFile } from "@/lib/open-with";
 import { formatFor } from "@/lib/forge";
 import { fromB64, open, seal, toB64, type Envelope } from "@/lib/crypto";
 import { useShell } from "../shell-context";
+import { guardedButtons, mouseConfigFrom, navActionFor } from "@/lib/input";
 import { Badge, Btn, Empty } from "../ui";
 import { FileIcon, UiGlyph } from "../AppIcon";
 import { askText, askForm } from "@/lib/ask";
@@ -470,11 +471,14 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     else if (mod && e.key.toLowerCase() === "l") { e.preventDefault(); setPathDraft(cwd); }
   };
   // SH-09: mouse buttons 4 / 5 navigate THIS pane; the event is swallowed so the browser tab never goes back
+  // TT67 IN-02: which index means Back / Forward follows what the user taught Settings → Shortcuts → Mouse buttons
+  const mouseCfg = mouseConfigFrom(shell.settings);
   const onMouseUp = (e: RMouseEvent) => {
-    if (e.button === 3) { e.preventDefault(); e.stopPropagation(); back(); }
-    else if (e.button === 4) { e.preventDefault(); e.stopPropagation(); forward(); }
+    const act = navActionFor(mouseCfg, e.button);
+    if (act === "back") { e.preventDefault(); e.stopPropagation(); back(); }
+    else if (act === "forward") { e.preventDefault(); e.stopPropagation(); forward(); }
   };
-  const swallowAux = (e: RMouseEvent) => { if (e.button === 3 || e.button === 4) { e.preventDefault(); e.stopPropagation(); } };
+  const swallowAux = (e: RMouseEvent) => { if (guardedButtons(mouseCfg).includes(e.button)) { e.preventDefault(); e.stopPropagation(); } };
 
   /* ---------------------------------------------------------------- drag and drop */
   const onDragStart = (e: DragEvent, n: FNode) => {

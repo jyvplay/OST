@@ -9,6 +9,8 @@ import { BINDINGS, BROWSER_RESERVED, comboFor, conflicts, type Preset } from "@/
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, KV, Section, Tabs } from "../ui";
 import DisplaySettings from "../DisplaySettings";
+import MouseButtonsSettings from "../MouseButtonsSettings";
+import { layoutSource, useChordLabel } from "@/lib/keyboard-layout";
 import { auditPermissions, type PermRow } from "@/lib/permissions";
 
 interface SettingRow { key: string; value: string; category: string; label: string; aliases: string; lockReason: string }
@@ -19,6 +21,7 @@ type Tab = "settings" | "capabilities" | "shortcuts" | "licence" | "about";
 export default function SettingsModule({ win }: ModuleProps) {
   const shell = useShell();
   const [tab, setTab] = useState<Tab>("settings");
+  const chordLabel = useChordLabel(); // TT67 IN-03
   const [rows, setRows] = useState<SettingRow[]>([]);
   const [history, setHistory] = useState<HistRow[]>([]);
   const [q, setQ] = useState((win.props.focus as string) ?? "");
@@ -185,11 +188,15 @@ export default function SettingsModule({ win }: ModuleProps) {
                     <span style={{ fontSize: fz(12) }}>{b.label}</span>
                     <span className="fs-row" style={{ gap: 6 }}>
                       {reserved ? <Badge tone="warn" title={b.reservedBy ?? "The browser intercepts this chord unless Keyboard Lock is active in fullscreen."}>browser-reserved</Badge> : null}
-                      <span className="fs-kbd">{chord}</span>
+                      <span className="fs-kbd" title={`physical key: ${chord} (US-layout name)`} data-chord={chord}>{chordLabel(chord)}</span>
                     </span>
                   </div>
                 );
               })}
+            </div>
+            <div className="fs-dim" data-testid="layout-source" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
+              Letter and punctuation shortcuts are physical keys, labelled with what they type on your keyboard layout
+              ({{ api: "from the browser's keyboard map", observed: "learned from your typing", "api+observed": "browser keyboard map + your typing", none: "layout unknown yet — US names shown" }[layoutSource()]}).
             </div>
             <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
               A conflict detector that only checks our own table would be useless here: on the web the real competitor
@@ -197,6 +204,7 @@ export default function SettingsModule({ win }: ModuleProps) {
               claim them.
             </div>
           </Section>
+          <MouseButtonsSettings />
         </>
       ) : null}
 

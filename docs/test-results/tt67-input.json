@@ -1,0 +1,96 @@
+{
+  "suite": "tt67-input",
+  "at": "2026-10-23T05:39:56.188Z",
+  "results": [
+    {
+      "suite": "tt67-input",
+      "name": "IN-03 layout property: on 5 layouts × 3 presets, a chord's physical key fires that chord and NO other (incl. the AZERTY Meta+A / Meta+Q case)",
+      "covers": {
+        "IN-03": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt67-input",
+      "name": "IN-03 before: the TT66 matcher (git 2edf699) violates the same property — the defect is real, not asserted",
+      "covers": {
+        "IN-03": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "tt67-input",
+      "name": "IN-03 fallbacks: an event without a code (synthetic / virtual keyboard) still matches by character; named keys, Arrows and modifiers are exact",
+      "covers": {
+        "IN-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt67-input",
+      "name": "IN-03 labels: chordLabel shows what the physical key types on each layout; named keys untouched; '+' spelled Plus; dead / multi-char values ignored",
+      "covers": {
+        "IN-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt67-input",
+      "name": "IN-03 learner: only unmodified, non-secret, non-composing presses of binding keys teach; shifted symbols never; CapsLock/Shift letters fold to the key's letter",
+      "covers": {
+        "IN-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt67-input",
+      "name": "IN-03 layout switch: a learned pair evicts the stale key that typed the same character, so labels stay distinct after AZERTY → QWERTY",
+      "covers": {
+        "IN-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt67-input",
+      "name": "IN-02 config: stored indices are validated (0 / 2 / non-numbers / >31 / Back = Forward fall back to 3 / 4); the server validator agrees with the client rule on every input",
+      "covers": {
+        "IN-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt67-input",
+      "name": "IN-02 learning: main / secondary refused with a reason; learning the other action's index swaps them; re-learning the same index is a no-op; navAction + guard follow",
+      "covers": {
+        "IN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt67-input",
+      "name": "IN-02 capture: refused presses keep listening and still swallow their context menu; the accepted press is consumed with its trailing mouseup / auxclick (800 ms), then released; Escape cancels; dispose is idempotent",
+      "covers": {
+        "IN-02": "full"
+      },
+      "pass": true,
+      "ms": 852
+    },
+    {
+      "suite": "tt67-input",
+      "name": "IN-02 modal hold: holding keeps isAskOpen() true (Shell + Switcher ignore global chords); a double release can't unbalance it",
+      "covers": {
+        "IN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

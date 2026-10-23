@@ -69,7 +69,18 @@ export async function askText(label: string, def = "", opts: { secret?: boolean;
 }
 
 export const currentAsk = (): AskRequest | null => queue[0]?.req ?? null;
-export const isAskOpen = (): boolean => queue.length > 0;
+/**
+ * TT67: other in-app modal captures (the "Learn my mouse" overlay) hold the same modal contract: while any hold is
+ * active, isAskOpen() is true, so the Shell and the window switcher act on no global shortcut behind it. The returned
+ * release is idempotent (a double release can't unbalance the count).
+ */
+let holds = 0;
+export function holdModal(): () => void {
+  holds++;
+  let done = false;
+  return () => { if (!done) { done = true; holds--; } };
+}
+export const isAskOpen = (): boolean => queue.length > 0 || holds > 0;
 export const askQueueLength = (): number => queue.length;
 export function subscribeAsk(f: () => void): () => void { subs.add(f); return () => { subs.delete(f); }; }
 

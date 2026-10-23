@@ -40,6 +40,10 @@ export function validateSetting(key: string, value: string): string | null {
     if (n < TEXT_SCALE_MIN || n > TEXT_SCALE_MAX) return `text size must be between ${TEXT_SCALE_MIN} and ${TEXT_SCALE_MAX} %`;
     return null;
   }
+  // TT67 IN-02: learned mouse Back / Forward indices — 0..31 except 0 (main) and 2 (secondary); same rule as input.ts LEARNABLE
+  if ((key === "input.mouseBack" || key === "input.mouseForward") && !/^(?:1|[3-9]|[12][0-9]|3[01])$/.test(value)) {
+    return "mouse button must be a button index from 1 to 31, not 0 (main) or 2 (secondary)";
+  }
   if (key === "maps.tileUrl" && value !== "" && !validTileUrl(value)) return "tile URL must be https:// and contain {z}, {x} and {y}";
   if (key === "appearance.wallpaper" && !isWallpaper(value)) return `wallpaper must be one of ${ENUMS[key].join(", ")}`;
   const allowed = ENUMS[key];

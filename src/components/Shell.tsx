@@ -1,5 +1,6 @@
 "use client";
-import { useMouseNavGuard } from "@/lib/input";
+import { mouseConfigFrom, useMouseNavGuard } from "@/lib/input";
+import { startLayoutWatch, useChordLabel } from "@/lib/keyboard-layout";
 import { fz, readUiUnit, applyTextScale, DEFAULT_TEXT_SCALE, TEXT_SCALE_MIN, TEXT_SCALE_MAX } from "@/lib/uiscale";
 import { DEFAULT_WALLPAPER } from "@/lib/appearance";
 import { applyStyle, isStyle, resolveWallpaper, useStyleId } from "@/lib/style";
@@ -59,11 +60,16 @@ function scaledRect(r: Partial<Rect> | undefined, vp: { w: number; h: number } |
 }
 
 export default function Shell({ stateId, hostKind }: { stateId: string; hostKind: "tab" | "pip" | "screen" }) {
-  useMouseNavGuard(); // TT66 IN-01: mouse Back / Forward never navigate the tab away
   const [state, setState] = useState<DesktopState>(initialDesktop);
   const [caps, setCaps] = useState<CapabilityReport | null>(null);
   const [gov, setGov] = useState<GovernorSnapshot>(() => governor.snapshot());
   const [settings, setSettings] = useState<Record<string, string>>({});
+  // TT66 IN-01: mouse Back / Forward never navigate the tab away; TT67 IN-02: also the indices the user taught it
+  const mouseCfg = useMemo(() => mouseConfigFrom(settings), [settings]);
+  useMouseNavGuard(mouseCfg);
+  // TT67 IN-03: physical-key chords are labelled with the user's layout
+  useEffect(() => startLayoutWatch(), []);
+  const chordLabel = useChordLabel();
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [palette, setPalette] = useState(false);
   const [overview, setOverview] = useState(false);
@@ -589,7 +595,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
                     <span style={{ fontSize: fz(12) }}>{b.label}</span>
                     <span className="fs-row" style={{ gap: 6 }}>
                       {b.reservedBy ? <Badge tone="warn" title={b.reservedBy}>browser-reserved</Badge> : null}
-                      <span className="fs-kbd">{comboFor(b, preset)}</span>
+                      <span className="fs-kbd" title={`physical key: ${comboFor(b, preset)} (US-layout name)`} data-chord={comboFor(b, preset)}>{chordLabel(comboFor(b, preset))}</span>
                     </span>
                   </div>
                 ))}

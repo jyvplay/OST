@@ -29,6 +29,7 @@ import { pivotPartsFor, uniquePivotName, CT_PIVOT_CACHE, CT_PIVOT_RECORDS, CT_PI
 import { PIVOT_NAME_RE, pivotNames, pivotsFromNames } from "./pivotsheet";
 import { posix } from "node:path";
 import { writeZip, readCentralDirectory, readEntryVerified } from "../server/zip";
+import { canonicalizeNs, RELS_CANON, SML_CANON } from "../office/xml-ns";
 import { Sheet, Workbook, a1, textInput, type CellStyle, type CellBorder, type DataValidation } from "./engine";
 import { isBorderLine, parseRef, rangeRef, intersects, sanitizeValidation } from "./sheetlayout";
 import { colToLetters, lettersToCol, isError } from "./types";
@@ -44,7 +45,18 @@ import { readThemeColors, readIndexedColors, resolveTag, resolveColorAttrs, EMPT
 const CT = "http://schemas.openxmlformats.org/package/2006/content-types";
 // XML 1.0 forbids C0 controls other than tab/LF/CR; strip them so a pasted control char cannot corrupt the package.
 const esc = (s: string) => s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\uFFFE\uFFFF]/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const dec = (s: string) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+/**
+ * XML text / attribute value → string. TT67: numeric character references (&#10; &#x1F61C;) are decoded too — until
+ * TT67 only the five named entities were, so line breaks written as &#10; (Apache POI, .NET, LibreOffice output in the
+ * corpus) showed as literal "&#10;" and astral characters as "&#x1f61c;". One pass, so "&amp;lt;" stays "&lt;";
+ * a reference to a non-character (surrogate, > U+10FFFF) is left as written.
+ */
+const NAMED: Record<string, string> = { lt: "<", gt: ">", quot: "\"", apos: "'", amp: "&" };
+const dec = (s: string) => (s.indexOf("&") < 0 ? s : s.replace(/&(?:#([0-9]{1,7})|#x([0-9a-fA-F]{1,6})|(lt|gt|quot|apos|amp));/g, (m, d: string | undefined, h: string | undefined, n: string | undefined) => {
+  if (n) return NAMED[n];
+  const cp = d !== undefined ? parseInt(d, 10) : parseInt(h!, 16);
+  return cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff) ? String.fromCodePoint(cp) : m;
+}));
 const xmlAttrs = (s: string) => Object.fromEntries([...s.matchAll(/([A-Za-z_:][\w:.-]*)="([^"]*)"/g)].map((m) => [m[1], dec(m[2])]));
 
 const ROOT_RELS = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -575,7 +587,12 @@ export function readXlsxWorkbook(buf: Buffer): Workbook {
   const entries = readCentralDirectory(buf);
   // XML 1.0 §2.11: CR LF / lone CR in the raw text are normalised to LF before parsing (escaped &#13; survives).
   // OPC part names compare case-insensitively (ECMA-376 Part 2 §6.2.2.3): exact match first, then ignoring case
-  const get = (n: string) => { const e = entries.find((x) => x.name === n) ?? entries.find((x) => x.name.toLowerCase() === n.toLowerCase()); return e ? readEntryVerified(buf, e).toString("utf8").replace(/\r\n?/g, "\n") : null; };
+  const get = (n: string) => { const e = entries.find((x) => x.name === n) ?? entries.find((x) => x.name.toLowerCase() === n.toLowerCase()); if (!e) return null;
+    // TT67: element / attribute prefixes resolved to the canonical ones the readers below match (x:worksheet → worksheet,
+    // a foreign prefix bound to the x14 namespace → x14:); unchanged (same string) for Excel's own output
+    const raw = readEntryVerified(buf, e).toString("utf8").replace(/\r\n?/g, "\n");
+    return /\.rels$/i.test(e.name) ? canonicalizeNs(raw, RELS_CANON, { knownRoot: true }) : /\.xml$/i.test(e.name) ? canonicalizeNs(raw, SML_CANON, { knownRoot: true }) : raw;
+  };
   const workbookXml = get("xl/workbook.xml");
   if (!workbookXml) throw new Error("invalid .xlsx: xl/workbook.xml missing");
   const relsXml = get("xl/_rels/workbook.xml.rels") ?? "";
