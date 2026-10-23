@@ -113,23 +113,42 @@ function countNonBlank(a: Arg): number {
 
 /* ------------------------------------------------------- criteria (xIF) */
 /** SUMIF/COUNTIF/AVERAGEIF criteria: ">2", "<=10", "<>x", wildcard "App*", or exact match. [spec] */
+/** TT68: the error literals a criterion can name ("#N/A", "=#DIV/0!", "<>#N/A"). */
+const CRIT_ERRORS = new Set(["#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A", "#SPILL!", "#CALC!", "#GETTING_DATA"]);
+/**
+ * *IF/*IFS criterion. TT68: error cells in the range never make the function fail — they match only an error criterion
+ * (an error value, or an error literal after "=" / "<>" / nothing) with the same code, and every "<>" criterion
+ * that is not that error. Numeric comparisons only see numbers and numeric text (a blank, "" or a boolean is not 0/1);
+ * "<>n" is TRUE for everything that is not equal to n, text included.
+ */
 function makeCriteria(raw: Scalar): (v: Scalar) => boolean {
+  if (isError(raw)) return (v) => isError(v) && v.error === raw.error;
   if (typeof raw === "number") return (v) => typeof v === "number" && v === raw;
   const s = toStr(raw);
   const m = /^(<=|>=|<>|<|>|=)(.*)$/.exec(s);
+  const tok = (m ? m[2] : s).trim().toUpperCase();
+  if (CRIT_ERRORS.has(tok) && (!m || m[1] === "=" || m[1] === "<>")) {
+    const hit = (v: Scalar) => isError(v) && v.error === tok;
+    return m && m[1] === "<>" ? (v) => !hit(v) : hit;
+  }
+  const notEq = !!m && m[1] === "<>";
+  const inner = plainCriteria(s, m);
+  return (v) => (isError(v) ? notEq : inner(v));
+}
+function plainCriteria(s: string, m: RegExpExecArray | null): (v: Scalar) => boolean {
   if (m) {
     const [, op, rest] = m;
     const asNum = Number(rest);
     const cmp = (v: Scalar): number => {
       if (!Number.isNaN(asNum) && rest.trim() !== "") {
-        const n = typeof v === "number" ? v : Number(v);
+        const n = typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN;
         return Number.isNaN(n) ? NaN : n - asNum;
       }
       return toStr(v).localeCompare(rest);
     };
     return (v) => {
       const c = cmp(v);
-      if (Number.isNaN(c)) return false;
+      if (Number.isNaN(c)) return op === "<>";
       switch (op) { case "<=": return c <= 0; case ">=": return c >= 0; case "<>": return c !== 0; case "<": return c < 0; case ">": return c > 0; default: return c === 0; }
     };
   }

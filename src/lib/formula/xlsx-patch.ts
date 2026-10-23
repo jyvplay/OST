@@ -348,7 +348,9 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
           const f = el(SP + "f", sp && (sp.rows > 1 || sp.cols > 1) ? { t: "array", ref: `${a1(col, row)}:${a1(col + sp.cols - 1, row + sp.rows - 1)}` } : {}, [textNode(addFuturePrefixes(cell.input.slice(1)))]);
           c.kids.push(f);
         }
-        if (v !== undefined && !(v === "" && !c.kids.length)) setCached(c, v, SP);
+        // TT68 FF-52: a constant empty-text cell (input "'") is non-blank — store it as an empty inline string.
+        if (cell && cell.input !== "" && !cell.formula && v === "") { setAttr(c, "t", "inlineStr"); c.kids.push(el(SP + "is", {}, [el(SP + "t")])); c.selfClose = false; }
+        else if (v !== undefined && !(v === "" && !c.kids.length)) setCached(c, v, SP);
         else c.selfClose = true;
         if (!s && c.selfClose && !kidL(c, "f")) c = null; // nothing to store
         rewritten++; anyCellChange = true;

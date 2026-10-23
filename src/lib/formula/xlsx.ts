@@ -143,7 +143,8 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
       formula = sp && (sp.rows > 1 || sp.cols > 1) ? `<f t="array" ref="${ref}:${a1(col + sp.cols - 1, row + sp.rows - 1)}">${body}</f>` : `<f>${body}</f>`;
     }
     let out: string;
-    if (v === undefined || (v === "" && !formula)) { if (!s) continue; out = `<c r="${ref}"${sa}/>`; }
+    // TT68 FF-52: a constant empty-text cell (input "'") is NOT blank in Excel — keep it as a shared "" string.
+    if (v === undefined || (v === "" && !formula && !hasInput)) { if (!s) continue; out = `<c r="${ref}"${sa}/>`; }
     else if (isError(v)) {
       // #CIRCULAR!/#SPILL!/#CALC! are not ECMA-376 ST_CellError tokens; export as #VALUE! (engine keeps its own code).
       const code = v.error === "#CIRCULAR!" || v.error === "#SPILL!" || v.error === "#CALC!" ? "#VALUE!" : v.error;
@@ -477,6 +478,12 @@ function readStyles(xml: string | null, ctx: ColorContext = EMPTY_COLOR_CONTEXT)
   });
 }
 const parseA1 = (ref: string) => { const m = /^\$?([A-Z]+)\$?(\d+)$/i.exec(ref); return m ? { col: lettersToCol(m[1].toUpperCase()), row: Number(m[2]) - 1 } : null; };
+/**
+ * TT68 FF-52: text input for a STRING cell read from a file. Excel keeps a string cell whose text is ""
+ * (shared string "", empty inlineStr) as a NON-blank empty-text cell — ISBLANK FALSE, counted by COUNTA and
+ * COUNTBLANK alike. `textInput("")` would delete the cell, so keep it as the bare quote prefix `'`.
+ */
+const keepText = (text: string) => text === "" ? "'" : textInput(text);
 function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | undefined)[]): Sheet {
   const sheet = new Sheet(name);
   const shared = new Map<string, { body: string; col: number; row: number }>();
@@ -522,13 +529,13 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
     const type = attrs.t ?? "n";
     if (type === "inlineStr") {
       const text = cellText([...inner.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((x) => dec(x[1])).join(""));
-      sheet.setCell(col, row, textInput(text)); applyStyle(); continue; // TT47: string cells stay text
+      sheet.setCell(col, row, keepText(text)); applyStyle(); continue; // TT47: string cells stay text
     }
     const value = /<v(?:\s[^>]*)?>([\s\S]*?)<\/v>/.exec(inner)?.[1];
     if (value === undefined) { applyStyle(); continue; }
     const v = dec(value);
-    if (type === "s") sheet.setCell(col, row, textInput(sst[Number(v)] ?? "")); // TT47: "0.00", "00123", "TRUE", "=x" stay TEXT
-    else if (type === "str") sheet.setCell(col, row, textInput(v));
+    if (type === "s") { const sv = /^\s*\d+\s*$/.test(v) ? sst[Number(v)] : undefined; if (sv !== undefined) sheet.setCell(col, row, keepText(sv)); } // TT47: "0.00", "00123", "TRUE", "=x" stay TEXT
+    else if (type === "str") sheet.setCell(col, row, keepText(v));
     else if (type === "b") sheet.setCell(col, row, v === "1" ? "TRUE" : "FALSE");
     else sheet.setCell(col, row, v); // e (literal error text), str, n
     applyStyle();
