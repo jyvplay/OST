@@ -16,7 +16,16 @@ import { formatValue } from "./numfmt";
 import { dateToSerial, nowSerial, serialToDate, todaySerial } from "./dates";
 import { err, isError, type FormulaError, type Scalar } from "./types";
 
-export type Arg = { kind: "scalar"; value: Scalar } | { kind: "matrix"; value: Scalar[][] };
+/**
+ * TT68: `blank` (same shape as `value`) marks the elements that are truly EMPTY CELLS — Excel's "blank", which is
+ * different from empty text "" (a formula returning "", or a constant empty string). Present for cell references and
+ * ranges when the evaluation context knows the grid; computed arrays carry an all-false mask (their "" elements are
+ * values: COUNTA(FILTER(…, "")) = 1). Absent only for contexts without a grid, where "" is the best available guess.
+ */
+export type Arg = { kind: "scalar"; value: Scalar } | { kind: "matrix"; value: Scalar[][]; blank?: boolean[][] };
+/** Is element (i, j) of an argument a truly empty cell? */
+const blankAt = (a: Arg, i: number, j: number): boolean =>
+  a.kind === "matrix" ? (a.blank ? a.blank[i]?.[j] === true : a.value[i]?.[j] === "") : false;
 export interface FnError extends Error { code?: FormulaError }
 export const raise = (e: FormulaError): never => { const x = new Error(e.error) as FnError; x.code = e; throw x; };
 
@@ -95,7 +104,11 @@ function countNumeric(a: Arg): number {
  */
 function countNonBlank(a: Arg): number {
   if (a.kind === "scalar") return 1;
-  return a.value.flat().filter((v) => v !== "").length;
+  // TT68: Microsoft — COUNTA "counts cells containing any type of information, including … empty text (\"\")";
+  // "does not count empty cells". With a blank mask that is exact; without one the old guess ("" = blank) remains.
+  let n = 0;
+  a.value.forEach((row, i) => row.forEach((_v, j) => { if (!blankAt(a, i, j)) n++; }));
+  return n;
 }
 
 /* ------------------------------------------------------- criteria (xIF) */
@@ -266,9 +279,12 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   // ---- information [oracle: ISNUMBER/ISTEXT/ISERROR/ISNA/ISLOGICAL]
   // BUG FIX: these must inspect the already-evaluated error VALUE directly —
   // there is no exception to catch here, for the same reason as above.
-  ISBLANK: (a) => scalar(a[0]) === "",
+  // TT68: TRUE only for a REFERENCE to an empty cell (Microsoft, IS functions): =ISBLANK(A1) with A1 ="" is FALSE, and
+  // ISBLANK("") of a literal / computed "" is FALSE (it is a value, not an empty cell).
+  ISBLANK: (a) => { const x = a[0]; if (!x) return raise(err("#VALUE!")); return x.kind === "matrix" ? blankAt(x, 0, 0) : false; },
   ISNUMBER: (a) => typeof scalar(a[0]) === "number",
-  ISTEXT: (a) => typeof scalar(a[0]) === "string",
+  // TT68: an empty cell is not text (ISNONTEXT is TRUE for it — Microsoft); "" in a cell IS text
+  ISTEXT: (a) => { const x = a[0]; if (x && blankAt(x, 0, 0)) return false; return typeof scalar(x) === "string"; },
   ISLOGICAL: (a) => typeof scalar(a[0]) === "boolean",
   ISERROR: (a) => isError(scalar(a[0])),
   ISNA: (a) => { const v = scalar(a[0]); return isError(v) && v.error === "#N/A"; },
@@ -300,8 +316,11 @@ function sumIf(a: Arg[]): Scalar {
   return total;
 }
 function countIf(a: Arg[]): Scalar {
+  const c = scalar(a[1]);
+  // TT68: "<>" means "not an empty cell" — a cell whose formula returns "" is counted (it is not empty)
+  if (c === "<>" && a[0]?.kind === "matrix" && a[0].blank) { let n = 0; const x = a[0]; x.value.forEach((r, i) => r.forEach((_v, j) => { if (!blankAt(x, i, j)) n++; })); return n; }
   const range = matrixOf(a[0]).flat();
-  const crit = makeCriteria(scalar(a[1]));
+  const crit = makeCriteria(c);
   return range.filter(crit).length;
 }
 function averageIf(a: Arg[]): Scalar {

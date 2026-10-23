@@ -659,13 +659,32 @@ function evalCall(name: string, argNodes: Node[], ctx: EvalContext): Value {
   if (!ext) return err("#NAME?");
   return callExt(ext, argNodes, ctx, ctxFor);
 }
+/**
+ * TT68: which elements of a reference / range are truly EMPTY cells (no input, no spilled value). Excel distinguishes an
+ * empty cell from empty text "" (ISBLANK, COUNTA, ISTEXT, TYPE, ISNONTEXT, COUNTIF "<>"); the value matrix alone
+ * cannot, because both read as "". Returns undefined when the context has no grid (simple contexts).
+ */
+function blankMask(n: Node, m: Scalar[][], ctx: EvalContext): boolean[][] | undefined {
+  if (!ctx.isBlank) return undefined;
+  const home = ctx.cursor?.sheet;
+  if (n.t === "ref") return [[m[0]?.[0] === "" && ctx.isBlank(n.v.sheet, n.v.col, n.v.row, home)]];
+  if (n.t !== "range") return undefined;
+  const { c0, r0 } = bounds(n.v);
+  return m.map((row, i) => row.map((x, j) => x === "" && ctx.isBlank!(n.v.from.sheet, c0 + j, r0 + i, home)));
+}
 function toArg(node: Node, ctx: EvalContext): Arg {
-  if (node.t === "range") return { kind: "matrix", value: ctx.resolveRange(node.v) };
+  // reference forms (OFFSET / INDEX / INDIRECT / structured / 3-D) resolve to a ref / range first, so they get a mask too
+  const n = node.t === "call" && REF_FORMS.has(node.name) ? resolveRefNode(node, ctx) : node;
+  if (n.t === "range") { const value = ctx.resolveRange(n.v); return { kind: "matrix", value, blank: blankMask(n, value, ctx) }; }
   // TT46: a direct single-cell reference behaves like a 1×1 range (SUM ignores its text, COUNTA ignores a blank).
-  if (node.t === "ref") return { kind: "matrix", value: [[ctx.resolveRef(node.v)]] };
-  if (node.t === "array") return { kind: "matrix", value: node.rows.map((row) => row.map((n) => evaluate(n, ctx))) };
-  const v = evalRaw(node, ctx);
-  return isGrid(v) ? { kind: "matrix", value: v } : { kind: "scalar", value: v };
+  if (n.t === "ref") { const value = [[ctx.resolveRef(n.v)]]; return { kind: "matrix", value, blank: blankMask(n, value, ctx) }; }
+  // computed arrays: their "" elements are VALUES (COUNTA({"",1}) = 2; COUNTA(FILTER(…, "")) = 1)
+  const allValues = (value: Scalar[][]): Arg => ({ kind: "matrix", value, blank: ctx.isBlank ? value.map((r) => r.map(() => false)) : undefined });
+  if (n.t === "array") return allValues(n.rows.map((row) => row.map((x) => evaluate(x, ctx))));
+  const v = evalRaw(n, ctx);
+  if (!isGrid(v)) return { kind: "scalar", value: v };
+  // an unresolved reference form (multi-area union) keeps the "" guess; anything else computed is all values
+  return n.t === "call" && REF_FORMS.has(n.name) ? { kind: "matrix", value: v } : allValues(v);
 }
 
 /* ------------------------------------------------ extended-library adapter */
@@ -687,12 +706,19 @@ function callExt(fn: (a: ArgAccessor[], env: { now: () => Date; random: () => nu
     let cached: Value | undefined;
     const get = () => (cached === undefined ? (cached = evalRaw(n, ctxFor(i))) : cached);
     const isRange = n.t === "range" || n.t === "ref";
-    const grid = (): ExtValue[][] => { const v = get(); return isGrid(v) ? v.map((r) => r.map((x) => toExt(x, true))) : [[toExt(v, isRange)]]; };
+    // TT68: a cell holding "" (formula or constant empty text) is a VALUE for TYPE / ISNONTEXT …; only empty cells are null
+    let mask: boolean[][] | undefined | null = null;
+    const blankOf = (m: Scalar[][]) => (mask === null ? (mask = isRange ? blankMask(n, m, ctx) : undefined) : mask);
+    const ext1 = (x: Scalar, i: number, j: number, m: Scalar[][]): ExtValue => {
+      if (x !== "") return toExt(x, false);
+      const b = blankOf(m); return b ? (b[i]?.[j] ? null : "") : toExt(x, true);
+    };
+    const grid = (): ExtValue[][] => { const v = get(); if (isGrid(v)) return v.map((r, i) => r.map((x, j) => (isRange ? ext1(x, i, j, v) : toExt(x, true)))); return [[isRange ? ext1(v, 0, 0, [[v]]) : toExt(v, false)]]; };
     return {
       isRange: isRange || n.t === "array" || (n.t === "call" && isGrid(get())),
       grid,
       list: () => grid().flat(),
-      value: () => { const v = get(); return toExt(isGrid(v) ? (v[0]?.[0] ?? "") : v, isRange); },
+      value: () => { const v = get(); const x = isGrid(v) ? (v[0]?.[0] ?? "") : v; return isRange ? ext1(x, 0, 0, isGrid(v) ? v : [[v]]) : toExt(x, false); },
     };
   });
   const env = { now: () => new Date(), random: Math.random, cursor: { row: (ctx.cursor?.row ?? 0) + 1, col: (ctx.cursor?.col ?? 0) + 1 } };
