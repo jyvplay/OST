@@ -1,5 +1,6 @@
 "use client";
 import { fz } from "@/lib/uiscale";
+import { hotCornerTracker } from "@/lib/hot-corner";
 
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
@@ -28,7 +29,6 @@ export default function DesktopSurface({ onLauncher }: { onLauncher: () => void 
   const shell = useShell();
   const [items, setItems] = useState<Item[]>([]);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
-  const hot = useRef(0);
   const area = useRef<HTMLDivElement | null>(null);
   const probe = useRef<HTMLDivElement | null>(null);
   const [grid, setGrid] = useState({ cw: 130, ch: 100, cols: 6, rows: 6 });
@@ -63,13 +63,8 @@ export default function DesktopSurface({ onLauncher }: { onLauncher: () => void 
   // SH-06 hot corners: pointerrawupdate survives coalescing at 120 Hz
   useEffect(() => {
     if ((shell.settings["shell.hotCorners"] ?? "on") !== "on") return;
-    const onMove = (e: PointerEvent) => {
-      const now = performance.now();
-      if (e.clientX < 6 && e.clientY < 42 && now - hot.current > 1200) {
-        hot.current = now;
-        onLauncher();
-      }
-    };
+    const step = hotCornerTracker(); // fires on ENTRY only; re-arms after the pointer leaves the corner
+    const onMove = (e: PointerEvent) => { if (step(e.clientX, e.clientY)) onLauncher(); };
     window.addEventListener("pointerrawupdate" in window ? "pointerrawupdate" : "pointermove", onMove as EventListener);
     return () => window.removeEventListener("pointerrawupdate" in window ? "pointerrawupdate" : "pointermove", onMove as EventListener);
   }, [onLauncher, shell.settings]);

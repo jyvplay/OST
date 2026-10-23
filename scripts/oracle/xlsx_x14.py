@@ -61,9 +61,16 @@ def cross_sheet(f):
 
 def q(ns, n): return "{%s}%s" % (ns, n)
 
+PARSER = etree.XMLParser(resolve_entities=False, no_network=True, huge_tree=True)
+
 def report(xml, sch):
-    root = etree.fromstring(xml)
     r = {"x14_valid": [], "x14_errors": [], "main": [], "x14": [], "problems": []}
+    try:
+        root = etree.fromstring(xml, PARSER)
+    except etree.XMLSyntaxError as e:  # TT67: a malformed part is REPORTED (it is a finding), never a traceback
+        r["malformed"] = str(e)
+        r["problems"].append("malformed XML: %s" % e)
+        return r
     kids = [k for k in root if isinstance(k.tag, str)]
     lst = [k for k in kids if k.tag == q(S, "extLst")]
     if lst and kids[-1] is not lst[-1]: r["problems"].append("worksheet extLst is not the last child")
@@ -105,8 +112,11 @@ def main():
     sch = build()
     res = {}
     for path in sys.argv[1:]:
-        z = zipfile.ZipFile(path)
-        res[path] = {n: report(z.read(n), sch) for n in z.namelist() if re.match(r"xl/worksheets/[^/]+\.xml$", n, re.I)}
+        try:
+            z = zipfile.ZipFile(path)
+            res[path] = {n: report(z.read(n), sch) for n in z.namelist() if re.match(r"xl/worksheets/[^/]+\.xml$", n, re.I)}
+        except (zipfile.BadZipFile, OSError, KeyError, EOFError) as e:
+            res[path] = {"__package__": {"x14_valid": [], "x14_errors": [], "main": [], "x14": [], "problems": ["unreadable package: %s" % e], "malformed": str(e)}}
     print(json.dumps(res))
 
 if __name__ == "__main__":

@@ -1,20 +1,20 @@
 {
   "suite": "tt67-sheet-ns",
-  "at": "2026-10-23T06:03:18.869Z",
+  "at": "2026-10-23T06:42:48.624Z",
   "results": [
     {
       "suite": "tt67-sheet-ns",
-      "name": "lxml equivalence: every rewritten XML part of the 353-file corpus + 13 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path",
+      "name": "lxml equivalence: every rewritten XML part of the 353-file corpus + 15 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path",
       "covers": {
         "FF-21": "full",
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 2145
+      "ms": 2098
     },
     {
       "suite": "tt67-sheet-ns",
-      "name": "adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming",
+      "name": "adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, no-namespace children undeclare the default, strict prefixes canonical, value text is not a declaration, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming",
       "covers": {
         "FF-21": "full",
         "FF-50": "full"
@@ -30,7 +30,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 5139
+      "ms": 4795
     },
     {
       "suite": "tt67-sheet-ns",
@@ -40,7 +40,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 493
+      "ms": 440
     },
     {
       "suite": "tt67-sheet-ns",
@@ -50,7 +50,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 225
+      "ms": 197
     },
     {
       "suite": "tt67-sheet-ns",
@@ -60,7 +60,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 629
+      "ms": 542
     },
     {
       "suite": "tt67-sheet-ns",
@@ -70,7 +70,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 267
+      "ms": 252
     },
     {
       "suite": "tt67-sheet-ns",
@@ -80,27 +80,37 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 251
+      "ms": 236
     },
     {
       "suite": "tt67-sheet-ns",
-      "name": "references that are not characters (lone surrogate, beyond U+10FFFF, NUL-free overflow) stay literal instead of crashing or inventing a character — lenient, as Excel-tolerant readers are; lxml rejects such files outright",
+      "name": "references that are not characters (lone surrogate in hex and decimal, beyond U+10FFFF in hex and decimal) stay literal instead of crashing or inventing a character — lenient, as Excel-tolerant readers are; lxml rejects such files outright",
       "covers": {
         "FF-21": "full",
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 263
+      "ms": 240
     },
     {
       "suite": "tt67-sheet-ns",
-      "name": "whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 6 workbooks that now open and 4 whose &#…; text is now decoded",
+      "name": "the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)",
       "covers": {
         "FF-21": "full",
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 81473
+      "ms": 98
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full"
+      },
+      "pass": true,
+      "ms": 79667
     },
     {
       "suite": "tt67-sheet-ns",
@@ -110,7 +120,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 1721
+      "ms": 1707
     }
   ]
 }

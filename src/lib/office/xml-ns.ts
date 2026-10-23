@@ -111,7 +111,7 @@ export function canonicalizeNs(xml: string, canon: NsCanon, opts: { knownRoot?: 
   // canonical namespaces used anywhere → declared once, on the root element
   const usedMap = new Map<string, string>();
   for (const [, uri] of declarations(xml)) if (uri in canon && !usedMap.has(canon[uri])) usedMap.set(canon[uri], uri);
-  const used = [...usedMap].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)); // deterministic → idempotent
+  const used = [...usedMap]; // output is canonical, so a second pass takes the fast path: idempotent without sorting
   const aliases = new Map<string, string>();
   const aliasOf = (uri: string) => {
     let a = aliases.get(uri);

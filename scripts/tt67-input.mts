@@ -208,4 +208,18 @@ await test("IN-02 modal hold: holding keeps isAskOpen() true (Shell + Switcher i
   r2(); ok(!isAskOpen(), "released");
 });
 
+await test("SH-06 hot corner: fires once on ENTRY, never again while the pointer rests or jitters inside, re-arms after leaving; the TT66 rule (re-fire every 1.2 s inside) reopened a just-closed launcher", { "SH-06": "full" }, async () => {
+  const { hotCornerTracker, TOP_LEFT_ZONE } = await import("../src/lib/hot-corner.ts");
+  const step = hotCornerTracker();
+  const path: [number, number][] = [[300, 300], [2, 20], [3, 21], [2, 22], [1, 20], [300, 300], [0, 0], [5, 41], [6, 10], [1, 42], [-1, 5], [300, 300], [6, 10], [2, 42], [5, 41]];
+  const fired = path.map(([x, y]) => step(x, y));
+  eq(fired, [false, true, false, false, false, false, true, false, false, false, false, false, false, false, true], "fires (x = 6 / y = 42 are outside)");
+  ok(TOP_LEFT_ZONE.w === 6 && TOP_LEFT_ZONE.h === 42, "zone");
+  // before: the TT66 debounce rule, replayed on a resting pointer sampled every 100 ms for 3 s
+  let last = -1e9, tt66 = 0, now = 0;
+  const s2 = hotCornerTracker(); let ours = 0;
+  for (let t = 0; t <= 3000; t += 100) { now = t; const [x, y] = [2 + (t / 100) % 2, 20]; if (x < 6 && y < 42 && now - last > 1200) { last = now; tt66++; } if (s2(x, y)) ours++; }
+  ok(tt66 === 3 && ours === 1, `resting 3 s: TT66 rule fired ${tt66}x, now ${ours}x`);
+});
+
 await finish();

@@ -1,6 +1,6 @@
 {
   "suite": "tt67-input",
-  "at": "2026-10-23T05:39:56.188Z",
+  "at": "2026-10-23T06:43:30.300Z",
   "results": [
     {
       "suite": "tt67-input",
@@ -81,7 +81,7 @@
         "IN-02": "full"
       },
       "pass": true,
-      "ms": 852
+      "ms": 851
     },
     {
       "suite": "tt67-input",
@@ -91,6 +91,15 @@
       },
       "pass": true,
       "ms": 0
+    },
+    {
+      "suite": "tt67-input",
+      "name": "SH-06 hot corner: fires once on ENTRY, never again while the pointer rests or jitters inside, re-arms after leaving; the TT66 rule (re-fire every 1.2 s inside) reopened a just-closed launcher",
+      "covers": {
+        "SH-06": "full"
+      },
+      "pass": true,
+      "ms": 2
     }
   ]
 }

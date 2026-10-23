@@ -57,10 +57,14 @@ const ADV: [string, string][] = [
   ["single-quotes-ws", `<x:worksheet\n  xmlns:x='${SML}'\n  ><x:sheetData\n/></x:worksheet\n>`],
   ["xml-space", `<x:sst xmlns:x="${SML}"><x:si><x:t xml:space="preserve"> a </x:t></x:si></x:sst>`],
   ["undeclare-default", `<root xmlns="urn:example:r"><x:a xmlns:x="${SML}"/><b xmlns=""/></root>`],
+  // TT67 second-order (mutants survived without these): no-namespace children under a canonical OUTPUT default, incl.
+  // two consecutive self-closing siblings (the output default must be restored after each) and a nested one
+  ["no-ns-under-default", `<x:worksheet xmlns:x="${SML}"><x:sheetData><a xmlns=""/><b xmlns=""/><c xmlns=""><d/></c><x:row r="1"/></x:sheetData></x:worksheet>`],
+  ["strict-prefixed", `<s:worksheet xmlns:s="${NS.smlStrict}" xmlns:rs="${NS.rStrict}"><s:sheetData><s:row r="1"><s:c r="A1"><s:v>1</s:v></s:c></s:row></s:sheetData><s:drawing rs:id="rId2"/></s:worksheet>`],
   ["alias-collision", `<x:worksheet xmlns:x="${SML}" xmlns:ns1="urn:keep"><ns1:a/><extLst xmlns="urn:example:other"><b/></extLst></x:worksheet>`],
 ];
 
-await test("lxml equivalence: every rewritten XML part of the 353-file corpus + 13 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path", COV, () => {
+await test("lxml equivalence: every rewritten XML part of the 353-file corpus + 15 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path", COV, () => {
   const items: Item[] = []; let fast = 0, slow = 0, files = 0, unreadable = 0;
   const slowFiles = new Set<string>();
   for (const f of readdirSync(CORPUS).filter((x) => x.endsWith(".xlsx")).sort()) {
@@ -84,7 +88,7 @@ await test("lxml equivalence: every rewritten XML part of the 353-file corpus + 
   console.log(`    corpus: ${files} files (${unreadable} unreadable zips), ${fast} parts fast path, ${slow} rewritten in ${slowFiles.size} files; ${items.length} items lxml-equivalent`);
 });
 
-await test("adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming", COV, () => {
+await test("adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, no-namespace children undeclare the default, strict prefixes canonical, value text is not a declaration, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming", COV, () => {
   const c = (id: string) => canonicalizeNs(ADV.find((a) => a[0] === id)![1], SML_CANON);
   ok(c("comments-cdata-pi").includes("<!-- <x:fake/> -->") && c("comments-cdata-pi").includes("<![CDATA[<x:c r=\"Z9\"/>]]>") && c("comments-cdata-pi").includes("<?pi <x:no/>?>"), "lookalikes untouched");
   ok(!/<x14:cfRule/.test(c("foreign-on-x14")) && /<ns\d+:cfRule/.test(c("foreign-on-x14")), `foreign x14 prefix aliased: ${c("foreign-on-x14")}`);
@@ -93,6 +97,13 @@ await test("adversarial shapes read correctly: comment / CDATA / PI lookalikes u
   ok(/<c r="A1"\/>/.test(c("prefixed-main")) === false && /<c r="A1" t="s">/.test(c("prefixed-main")) && /r:id="rId1"/.test(c("prefixed-main")), "prefixed main → unprefixed, r: kept");
   ok(/r:id="rId9"/.test(c("renamed-r")), `rel:id → r:id: ${c("renamed-r")}`);
   ok(/<ns\d+:thing/.test(c("foreign-default")) && /<ns\d+:c r="A1"\/>/.test(c("foreign-default")), `foreign default namespace can't pose as SpreadsheetML: ${c("foreign-default")}`);
+  const nn = c("no-ns-under-default");
+  ok(/<worksheet xmlns="[^"]+">/.test(nn) && /<a xmlns=""\/><b xmlns=""\/><c xmlns=""><d\/><\/c><row r="1"\/>/.test(nn), `no-namespace siblings each undeclare the default, SpreadsheetML resumes after them: ${nn}`);
+  ok(/^<worksheet[\s>]/.test(c("strict-prefixed")) && /<c r="A1"><v>1<\/v><\/c>/.test(c("strict-prefixed")) && /r:id="rId2"/.test(c("strict-prefixed")), `strict s: → unprefixed, rs: → r: ${c("strict-prefixed")}`);
+  // the fast path's global scan is only an over-approximation: "declarations" inside an attribute value are not real
+  const fake = `<worksheet xmlns="${SML}"><definedName v=" xmlns:x14='urn:evil' xmlns=''"/></worksheet>`;
+  ok([...fake.matchAll(/\sxmlns(?::([A-Za-z_][\w.-]*))?\s*=\s*(?:"([^"]*)"|'([^']*)')/g)].length === 3, "fixture: the global over-approximation DOES see the two fakes (so the exact scan is exercised)");
+  ok(isCanonicalNs(fake, SML_CANON) && canonicalizeNs(fake, SML_CANON) === fake, "declaration text inside an attribute value is not a declaration");
   ok(!/xmlns:ns1="urn:example:other"/.test(c("alias-collision")) && /xmlns:ns1="urn:keep"/.test(c("alias-collision")), `alias never reuses a source prefix: ${c("alias-collision")}`);
 });
 
@@ -236,6 +247,11 @@ await test("pre-standard / unknown dialects: the Excel 2007 beta namespace (samp
   const lx = JSON.parse(execFileSync(PY, ["scripts/oracle/xlsx_values_lxml.py", `${CORPUS}/sample-beta.xlsx`], { encoding: "utf8" })) as Vals;
   eq([...readXlsxWorkbook(beta).sheets.keys()], Object.keys(lx), "sample-beta sheet names = lxml");
   eq(ourVals(readXlsxWorkbook(beta)), Object.fromEntries(Object.entries(ourVals(before.readXlsxWorkbook(beta)))), "sample-beta reads as TT66 read it");
+  // a beta part written with an explicit prefix (x:) — only the beta entry in SML_CANON makes this readable
+  const betaSheet = readCentralDirectory(beta).find((e) => /^xl\/worksheets\/sheet1\.xml$/.test(e.name))!.name;
+  const xBeta = rezip(beta, betaSheet, (x) => x.replace(`xmlns="${NS.smlBeta}"`, `xmlns:x="${NS.smlBeta}"`).replace(/<(\/?)([A-Za-z][\w]*)(?=[\s>/])/g, (m, sl: string, n: string) => (n === "xml" ? m : `<${sl}x:${n}`)));
+  ok(!readEntryVerified(Buffer.from(xBeta), readCentralDirectory(Buffer.from(xBeta)).find((e) => e.name === betaSheet)!).toString("utf8").includes("<sheetData"), "fixture: every element of the beta sheet is now x:-prefixed");
+  eq(ourVals(readXlsxWorkbook(Buffer.from(xBeta))), ourVals(readXlsxWorkbook(beta)), "x:-prefixed beta sheet = the original");
   // a hypothetical future dialect: every SpreadsheetML part moved to urn:x-future-sml
   let fut: Uint8Array = fixture();
   for (const part of ["xl/workbook.xml", SHEET, "xl/worksheets/sheet2.xml", "xl/styles.xml"]) fut = rezip(fut, part, (x) => x.split(SML).join("urn:x-future-sml"));
@@ -272,6 +288,16 @@ await test("references that are not characters (lone surrogate in hex and decima
   let lxmlRejects = false;
   try { execFileSync(PY, ["scripts/oracle/xlsx_values_lxml.py", `${dir}/bad-ents.xlsx`], { stdio: "pipe" }); } catch { lxmlRejects = true; }
   ok(lxmlRejects, "lxml treats these as fatal well-formedness errors (so they are not in any Excel-written file)");
+});
+
+await test("the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)", COV, () => {
+  const bad = writeZip([{ name: "xl/worksheets/sheet1.xml", data: Buffer.from(`<worksheet xmlns="${SML}"><sheetData></worksheet>`) }, { name: "xl/worksheets/sheet2.xml", data: Buffer.from(`<worksheet xmlns="${SML}"><sheetData/></worksheet>`) }]);
+  writeFileSync(`${dir}/x14-bad.xlsx`, bad); writeFileSync(`${dir}/x14-notzip.xlsx`, "not a zip");
+  const r = JSON.parse(execFileSync(PY, ["scripts/oracle/xlsx_x14.py", `${dir}/x14-bad.xlsx`, `${dir}/x14-notzip.xlsx`], { encoding: "utf8" })) as Record<string, Record<string, { problems: string[]; malformed?: string }>>;
+  const s1 = r[`${dir}/x14-bad.xlsx`]["xl/worksheets/sheet1.xml"], s2 = r[`${dir}/x14-bad.xlsx`]["xl/worksheets/sheet2.xml"];
+  ok(s1.malformed && s1.problems.some((p) => /malformed XML/.test(p)), `malformed part reported: ${JSON.stringify(s1)}`);
+  ok(!s2.malformed && s2.problems.length === 0, "the well-formed sibling part is still analysed");
+  ok(r[`${dir}/x14-notzip.xlsx`].__package__.problems.some((p) => /unreadable package/.test(p)), "unreadable package reported");
 });
 
 await test("whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded", COV, () => {
