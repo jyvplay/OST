@@ -678,8 +678,9 @@ function blankMask(n: Node, m: Scalar[][], ctx: EvalContext): boolean[][] | unde
   return m.map((row, i) => row.map((x, j) => x === "" && ctx.isBlank!(n.v.from.sheet, c0 + j, r0 + i, home)));
 }
 function toArg(node: Node, ctx: EvalContext): Arg {
-  // reference forms (OFFSET / INDEX / INDIRECT / structured / 3-D) resolve to a ref / range first, so they get a mask too
-  const n = node.t === "call" && REF_FORMS.has(node.name) ? resolveRefNode(node, ctx) : node;
+  // reference forms (OFFSET / INDEX / INDIRECT / structured / 3-D) were already resolved to a ref / range by evalCall,
+  // so they get a blank mask like any other reference
+  const n = node;
   if (n.t === "range") { const value = ctx.resolveRange(n.v); return { kind: "matrix", value, blank: blankMask(n, value, ctx) }; }
   // TT46: a direct single-cell reference behaves like a 1×1 range (SUM ignores its text, COUNTA ignores a blank).
   if (n.t === "ref") { const value = [[ctx.resolveRef(n.v)]]; return { kind: "matrix", value, blank: blankMask(n, value, ctx) }; }
