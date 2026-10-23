@@ -107,15 +107,15 @@ try {
       // Back to the home page, then a real link
       await page.getByTestId("wp-back").click();
       await poll(async () => ((await tabUrl(page)) ?? "") === "https://pypi.org/", "Back to home");
-      const fr3 = await frameReady(page, async (f) => (await f.locator('a[href*="/help/"]').count()) > 0, "home again after Back");
-      await fr3.locator('a[href*="/help/"]').first().click();
-      await poll(async () => /pypi\.org\/help\/$/.test((await tabUrl(page)) ?? ""), "Help link followed");
-      await frameReady(page, async (f) => /^Help/.test(await f.title()), "help page");
+      const fr3 = await frameReady(page, async (f) => (await f.locator('a[href*="/sponsors/"]').count()) > 0, "home again after Back");
+      await fr3.locator('a[href*="/sponsors/"]').first().click();
+      await poll(async () => /pypi\.org\/sponsors\/$/.test((await tabUrl(page)) ?? ""), "Sponsors link followed");
+      await frameReady(page, async (f) => /^Sponsors/.test(await f.title()), "sponsors page");
       await page.getByTestId("wp-back").click();
       await poll(async () => ((await tabUrl(page)) ?? "") === "https://pypi.org/", "Back");
       await page.getByTestId("wp-forward").click();
-      await poll(async () => /\/help\/$/.test((await tabUrl(page)) ?? ""), "Forward");
-      await frameReady(page, async (f) => /^Help/.test(await f.title()), "help page after Forward");
+      await poll(async () => /\/sponsors\/$/.test((await tabUrl(page)) ?? ""), "Forward");
+      await frameReady(page, async (f) => /^Sponsors/.test(await f.title()), "sponsors page after Forward");
       const foreign = [...hosts.keys()].filter((h) => h !== HOST);
       console.log(`    requests by host: ${JSON.stringify(Object.fromEntries(hosts))}`);
       ok(foreign.length === 0, `the browser contacted other hosts directly: ${foreign.join(", ")}`);
@@ -123,11 +123,13 @@ try {
     } finally { await ctx.close(); }
   });
 
+  // TT68: pypi.org/help/ now 301-redirects to docs.pypi.org (another host, outside this sandbox's egress), so the
+  // real-site walk uses pypi.org/sponsors/ — linked from the home page and still served by pypi.org itself.
   await test("find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads", { "WP-05": "full", "PR-07h": "partial", "PR-07n": "partial", "PR-07m": "partial" }, async () => {
-    const { page, ctx } = await boot([browserWin([tab("t1", "https://pypi.org/help/")])]);
+    const { page, ctx } = await boot([browserWin([tab("t1", "https://pypi.org/sponsors/")])]);
     let savedPath = "";
     try {
-      await frameReady(page, async (f) => /^Help/.test(await f.title()), "help page");
+      await frameReady(page, async (f) => /^Sponsors/.test(await f.title()), "sponsors page");
       await page.getByTestId("wp-find").fill("package");
       await page.getByTestId("wp-find").press("Enter");
       await poll(async () => /^1\/\d+$/.test((await page.getByTestId("wp-find-count").innerText()).trim()), "find: first of N");
@@ -152,7 +154,7 @@ try {
       const node = await readNode(savedPath);
       ok(node, `file exists at ${savedPath}`);
       const text = node!.encoding === "base64" ? Buffer.from(node!.content, "base64").toString("utf8") : node!.content;
-      ok(/<html/i.test(text) && text.includes("Help") && !text.includes("/api/wp/s/"), "the ORIGINAL page HTML (not the rewritten copy) was saved");
+      ok(/<html/i.test(text) && text.includes("Sponsors") && !text.includes("/api/wp/s/"), "the ORIGINAL page HTML (not the rewritten copy) was saved");
     } finally { await ctx.close(); if (savedPath) await removeFile(savedPath); }
   });
 
@@ -167,8 +169,8 @@ try {
       await poll(async () => /Cookies: [1-9]/.test(await page.getByTestId("wp-cookies").innerText()), "Cookies counter");
       await page.getByTestId("wp-reload").click();
       await poll(async () => /fwp_profile=alpha/.test(await frameOf(sid1)!.evaluate(() => document.cookie).catch(() => "")), "cookie survives reload (served from the jar)");
-      await frameOf(sid1)!.locator('a[href*="/help/"]').first().click();
-      await poll(async () => /\/help\/$/.test((await tabUrl(page)) ?? ""), "navigate inside tab 1");
+      await frameOf(sid1)!.locator('a[href*="/sponsors/"]').first().click();
+      await poll(async () => /\/sponsors\/$/.test((await tabUrl(page)) ?? ""), "navigate inside tab 1");
       await poll(async () => /fwp_profile=alpha/.test(await frameOf(sid1)!.evaluate(() => document.cookie).catch(() => "")), "cookie on another page of the site");
       await page.locator("[data-tab=t2]").click();
       await poll(async () => { const s2 = await page.getByTestId("wp-tab").getAttribute("data-sid"); return !!s2 && s2 !== sid1 && !!frameOf(s2) && (await frameOf(s2)!.locator("input[name=q]").count()) > 0; }, "tab 2 with its own session");

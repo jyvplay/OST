@@ -83,25 +83,34 @@ await test("FF-52 typing: ' makes empty text (ISBLANK FALSE), #n/a makes an erro
   eq(o, { A2: [null, "n"], A3: ["#N/A", "e"], C2: ["#N/A", "e"], D1: ["=ISBLANK(C1)", "f"] }, "openpyxl");
 });
 
-await test("modal-shortcut: with Paste Special open (focus moved into it, or the grid re-focused), typing, Delete and Backspace never edit the grid behind it; Escape closes only the dialog (Spreadsheet stays open, the selected cell keeps its value)", { "FF-52": "partial", "FF-28": "partial" }, async () => {
+await test("shortcut scope: Paste Special is a non-modal bar (TT60) — the grid keeps the keyboard and ArrowRight still moves the target, but typing, Delete, Backspace, F2, Enter, Ctrl+X / V / Z / D / B never edit the cell behind it, nor do keys typed into the bar's own controls; Escape closes only the bar (Spreadsheet stays open)", { "FF-52": "partial", "FF-28": "partial" }, async () => {
   const dlg = page.locator('[role=dialog][aria-label="Spreadsheet"]').first();
   const cell = (r: string) => dlg.locator(`[data-cell="${r}"]`);
   const txt = async (r: string) => (await cell(r).innerText()).trim();
+  const nameBox = () => dlg.getByRole("textbox", { name: /Name box/i }).inputValue().catch(() => "");
   await cell("A4").click(); await page.keyboard.press("Control+c");
   await cell("B4").click(); await page.keyboard.press("Control+Shift+V");
   const ps = dlg.getByTestId("paste-special"); await ps.waitFor();
-  const before = await txt("B4");
-  ok(await ps.evaluate((el) => el.contains(document.activeElement)), "focus moved into Paste Special");
-  await page.keyboard.type("zz"); await page.keyboard.press("Delete"); await page.keyboard.press("Backspace");
+  const before = await txt("B4"); const weight = () => cell("B4").evaluate((el) => getComputedStyle(el).fontWeight);
+  const w0 = await weight();
+  ok(await dlg.getByTestId("sheet-grid").evaluate((el) => el.contains(document.activeElement)), "the grid keeps the keyboard (non-modal bar, as TT60 designed)");
+  await page.keyboard.type("zz");
+  for (const k of ["Delete", "Backspace", "F2", "Enter", "Control+x", "Control+v", "Control+z", "Control+d", "Control+b"]) await page.keyboard.press(k);
   await page.waitForTimeout(300);
-  ok(await ps.isVisible(), "dialog still open after typing");
-  eq(await txt("B4"), before, "B4 unchanged by keys typed into the modal");
-  // backstop: even with the grid itself focused, the modal swallows editing keys
-  await dlg.getByTestId("sheet-grid").evaluate((el) => (el as HTMLElement).focus());
-  await page.keyboard.press("Delete"); await page.keyboard.press("Backspace"); await page.keyboard.type("q");
+  ok(await ps.isVisible(), "bar still open after the editing keys");
+  eq(await txt("B4"), before, "B4 unchanged by editing keys sent while Paste Special is open");
+  eq(await weight(), w0, "Ctrl+B did not bold B4 behind the bar");
+  ok(/(^|!)B4$/.test(await nameBox()), `Name box shows the paste target B4 (${await nameBox()})`);
+  await page.keyboard.press("ArrowRight");
+  await poll(async () => /(^|!)C4$/.test(await nameBox()), "ArrowRight moved the paste target to C4");
+  ok(await ps.isVisible(), "bar still open after moving the target");
+  await page.keyboard.press("ArrowLeft");
+  // keys typed inside the bar's own controls stay there
+  await ps.locator("input").first().focus();
+  await page.keyboard.type("q"); await page.keyboard.press("Delete"); await page.keyboard.press("Backspace");
   await page.waitForTimeout(300);
-  eq(await txt("B4"), before, "B4 unchanged by keys sent to the grid while the modal is open");
-  ok(await ps.isVisible(), "dialog still open");
+  eq(await txt("B4"), before, "B4 unchanged by keys typed into the bar");
+  ok(await ps.isVisible(), "bar still open");
   await page.keyboard.press("Escape");
   await poll(async () => (await ps.count()) === 0, "Escape closed Paste Special");
   ok(await dlg.isVisible(), "Spreadsheet still open");

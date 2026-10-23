@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt32",
-  "at": "2026-10-23T07:18:27.045Z",
+  "at": "2026-10-23T14:38:55.077Z",
   "results": [
     {
       "suite": "e2e-tt32",
@@ -10,7 +10,7 @@
         "AX-14": "partial"
       },
       "pass": true,
-      "ms": 5231
+      "ms": 4838
     },
     {
       "suite": "e2e-tt32",
@@ -19,7 +19,7 @@
         "AX-15": "full"
       },
       "pass": true,
-      "ms": 99339
+      "ms": 81968
     },
     {
       "suite": "e2e-tt32",
@@ -28,7 +28,7 @@
         "AX-15": "full"
       },
       "pass": true,
-      "ms": 8349
+      "ms": 7580
     },
     {
       "suite": "e2e-tt32",
@@ -38,7 +38,7 @@
         "AX-14": "partial"
       },
       "pass": true,
-      "ms": 8392
+      "ms": 7759
     },
     {
       "suite": "e2e-tt32",
@@ -47,7 +47,7 @@
         "AX-15": "full"
       },
       "pass": true,
-      "ms": 16976
+      "ms": 15311
     },
     {
       "suite": "e2e-tt32",
@@ -56,7 +56,7 @@
         "AX-15": "full"
       },
       "pass": true,
-      "ms": 5820
+      "ms": 6082
     }
   ]
 }

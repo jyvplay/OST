@@ -18,7 +18,7 @@ const UP: Record<string, { note: string; test: string; route?: string; status?: 
   "FF-20": { note: "TT68: the writer saves a constant empty-text cell as a shared \"\" string instead of dropping it.", test: "tt68-blank.mts (writer)" },
   "FF-19": { note: "TT68: empty cell vs empty text (FF-52); error literals typed in a cell are error constants.", test: "tt68-blank.mts" },
   "FF-27": { note: "TT68: COUNTIF / SUMIF / AVERAGEIF / SUMIFS / COUNTIFS / AVERAGEIFS / MAXIFS / MINIFS share one criteria matcher — error cells no longer make them fail; *IFS size mismatch → #VALUE!.", test: "tt68-blank.mts (criteria)" },
-  "FF-28": { note: "TT68 modal-shortcut fix: Paste Special is modal — focus moves into it and the grid takes no keys while it is open (Delete / Backspace / typing used to edit the selected cell behind it).", test: "e2e-tt68-sheet.mts (modal-shortcut)" },
+  "FF-28": { note: "TT68 shortcut-scope fix: Paste Special stays a non-modal bar (TT60: the grid keeps the keyboard, arrows move the paste target, F7 / Ctrl+F / Ctrl+K switch panels), but no key edits a cell behind it — Delete / Backspace / typing / F2 / Enter / Ctrl+X / V / Z / D / B used to change the selected cell while the bar was open. A first, fully modal version broke TT60's F7 switch (e2e-tt60 caught it) and was replaced.", test: "e2e-tt68-sheet.mts (shortcut scope), e2e-tt60.mts (F7 replaces the bar)" },
 };
 
 export function patchTT68(f: SpecRow): SpecRow {

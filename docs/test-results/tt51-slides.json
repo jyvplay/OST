@@ -1,6 +1,6 @@
 {
   "suite": "tt51-slides",
-  "at": "2026-10-23T07:51:06.425Z",
+  "at": "2026-10-23T15:04:53.899Z",
   "results": [
     {
       "suite": "tt51-slides",
@@ -9,7 +9,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 8121
+      "ms": 6307
     },
     {
       "suite": "tt51-slides",
@@ -18,7 +18,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 2949
+      "ms": 2478
     },
     {
       "suite": "tt51-slides",
@@ -27,7 +27,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 14579
+      "ms": 11284
     },
     {
       "suite": "tt51-slides",
@@ -45,7 +45,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 305
+      "ms": 260
     },
     {
       "suite": "tt51-slides",
@@ -54,7 +54,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 9107
+      "ms": 7107
     },
     {
       "suite": "tt51-slides",
@@ -63,7 +63,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 1585
+      "ms": 1307
     },
     {
       "suite": "tt51-slides",
@@ -72,7 +72,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 10532
+      "ms": 8460
     },
     {
       "suite": "tt51-slides",
@@ -81,7 +81,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 10641
+      "ms": 8237
     },
     {
       "suite": "tt51-slides",
@@ -90,7 +90,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 3748
+      "ms": 3511
     },
     {
       "suite": "tt51-slides",
@@ -99,7 +99,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 580
+      "ms": 519
     },
     {
       "suite": "tt51-slides",
@@ -108,7 +108,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 174
+      "ms": 154
     },
     {
       "suite": "tt51-slides",
@@ -117,7 +117,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 546
+      "ms": 434
     },
     {
       "suite": "tt51-slides",
@@ -126,7 +126,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt51-slides",
@@ -135,7 +135,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 2689
+      "ms": 2035
     }
   ]
 }

@@ -1,4 +1,4 @@
-# TT68 — empty cells vs empty text, error constants, *IF criteria (FF-52) + a modal Paste Special
+# TT68 — empty cells vs empty text, error constants, *IF criteria (FF-52) + Paste Special shortcut scope
 
 ## Runtime honesty
 
@@ -59,8 +59,14 @@ File mapping:
 - **Writer:** input `'` → shared string `""`.
 - **Lossless patcher:** untouched cells keep their original `<c>`; an edited `'` cell → `<c t="inlineStr"><is><t/></is></c>`.
 
-**UI.** While Paste Special is open the grid accepts no keys except Escape (close) and Tab, and focus moves into the
-panel when it opens.
+**UI (shortcut scope).** Paste Special stays the non-modal bar TT60 designed: the grid keeps the keyboard. Allowed
+keys while it is open:
+- navigation (arrows, Home, End, PageUp / PageDown, Tab, Ctrl+A), so the paste target can still move;
+- Ctrl+C;
+- the panel switches F7, Ctrl+F, Ctrl+K, Ctrl+F3 and Ctrl+Shift+V;
+- Escape, which closes only the bar.
+
+Every other key is blocked, because it would EDIT the cell behind the bar.
 
 ## B. Hypotheses
 
@@ -80,7 +86,11 @@ panel when it opens.
 - **H− (refuted):** "a constant `t="str"` with `<v></v>` is empty text". Excel writes `str` only with `<f>`; lxml
   reads no value. Reverted to no value.
 - **H∂ (open, disclosed):** whether criterion `5` matches the text `"5"`. Not source-confirmed, so left as it was.
-- **H+ (confirmed by a UI test):** Paste Special was not modal. Delete / Backspace cleared the selected cell behind it.
+- **H+ (confirmed by a UI test):** with Paste Special open, Delete / Backspace cleared the selected cell behind it.
+- **H− (refuted by the gate):** "make Paste Special fully modal" (focus into the bar, the grid takes no keys). The full
+  gate's e2e-tt60 failed, because TT60 designed the bar as non-modal (F7 must replace it with Spelling, and the target
+  must stay movable). That version was replaced by the allow-list above, which keeps TT60's behaviour and still blocks
+  every editing key.
 
 ## C. Frontier (what is still not Class A here)
 
@@ -138,9 +148,9 @@ Escape closes only the panel, and the Spreadsheet stays open.
    engine's existing "literal text" input, so no new state.
 5. Keep two criteria implementations (core + extension library) and patch both. Rejected: they had already diverged
    (the extension one turned error objects into `"[object Object]"`). One matcher now serves all eight functions.
-6. Make Paste Special a real `role="dialog"` overlay with a focus trap. Deferred: the inline panel layout is the
-   current UI/UX (kept per the standing constraint). The grid guard plus focus-in gives the modal behaviour without
-   a redesign.
+6. Make Paste Special a real `role="dialog"` overlay with a focus trap, or the grid-blocks-everything variant (tried,
+   then replaced). Both remove TT60's non-modal behaviour (F7 swap, movable target), a good feature the standing
+   constraint says to keep. Chosen instead: an allow-list of non-editing keys on the existing bar.
 7. Infer Excel behaviour from the PyPI `formulas` oracle. Rejected for these semantics: it evaluates array constants,
    not grid cells, so it cannot tell empty cells from empty text.
 
@@ -186,19 +196,41 @@ Escape closes only the panel, and the Spreadsheet stays open.
 ## I. Repair + attack on the patch
 
 Repairs (within the ~1/10 budget):
-- the modal Paste Special key leak, found by this tier's modal-shortcut test;
+- the Paste Special key leak, found by this tier's shortcut-scope test. The first fix (fully modal) caused a
+  regression that the full gate caught (e2e-tt60, FF-41's F7 swap). It was replaced by the allow-list; e2e-tt60 5/5,
+  e2e-tt56 10/10, e2e-tt59 4/4, e2e-tt64 3/3 and e2e-tt68-sheet 3/3 all pass, covering every suite that opens the bar;
 - error cells failing *IF functions, found by the held-out probe.
 
 Attacks aimed at the patches:
-- **Modal fix:** the e2e re-focuses the grid while the panel is open and sends Delete / Backspace / a character
-  (the backstop path), then checks Escape still closes the panel only. e2e-tt59 (Paste Link through the same panel)
-  still passes, 4/4.
+- **Shortcut-scope fix:** the e2e checks:
+  - the grid keeps focus;
+  - typing, Delete, Backspace, F2, Enter, Ctrl+X / V / Z / D / B leave B4's text and weight unchanged;
+  - ArrowRight moves the target to C4 with the bar still open;
+  - keys typed into the bar's own radio controls do not leak;
+  - Escape closes only the bar.
+
+  e2e-tt60 (F7 replaces the bar) and e2e-tt59 (Paste Link through the same bar) pass.
 - **Criteria rewrite:**
   - the held-out probe was rerun after each change (0 regressions each time);
   - 17 spreadsheet suites were rerun (all pass);
   - the 7 hostile `<v>` index shapes target the reader guard added with it.
 - **Test-environment slip:** overwriting `/tmp/tt67-before` with the wrong baseline made tt67-sheet-ns fail 4 tests.
   It was diagnosed as the test environment, not the code, and the baseline was restored before any test was changed.
+
+## Gate (full run-all, 161 suites, on the build with the first, fully modal fix)
+
+The first full gate gave 1 204 passed / 4 failed, plus 2 suites that crashed. Each one was diagnosed:
+
+| Suite | Cause | Resolution |
+|---|---|---|
+| e2e-tt60 (1) | **real TT68 regression:** the fully modal Paste Special blocked TT60's F7 swap | fixed (allow-list), rebuilt, 5/5 |
+| e2e-tt35 (2, then 3 on rerun) | **the live site changed:** pypi.org/help/ now 301-redirects to docs.pypi.org (another host, outside the sandbox egress); the home page no longer links /help/ | the test walks pypi.org/sponsors/ instead → 7/7. Browser / proxy code unchanged |
+| e2e-tt51-slides (1) | known flake | rerun 6/6 |
+| tt38-unit (crash) | **test environment:** an orphaned ws_server.py from an earlier suite held port 41801 (EADDRINUSE) | killed that pid → 15/15 |
+| tt39-unit (crash) | known flake | rerun 13/13 |
+
+After the Spreadsheet change only Spreadsheet.tsx changed (the bar's key handling), so the rerun covered every suite
+that opens Paste Special, plus the tt68 suites. The other 155 suites were not rerun on the final build.
 
 ## J. Stopping
 

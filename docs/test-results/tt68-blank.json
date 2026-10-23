@@ -1,0 +1,87 @@
+{
+  "suite": "tt68-blank",
+  "at": "2026-10-23T15:43:05.105Z",
+  "results": [
+    {
+      "suite": "tt68-blank",
+      "name": "blank vs empty text follows Microsoft's definitions (27 cases): ISBLANK only for empty cells, COUNTA counts \"\", ISTEXT/ISNONTEXT/TYPE of an empty cell, through OFFSET/INDEX/whole columns/array constants",
+      "covers": {
+        "FF-52": "full",
+        "FF-19": "partial"
+      },
+      "pass": true,
+      "ms": 17
+    },
+    {
+      "suite": "tt68-blank",
+      "name": "*IF / *IFS criteria (30 cases): an error cell never fails the function and matches its own error literal; \"=\" = empty cells only, \"\" = empty + empty text, \"<>\" = non-empty; wildcards see text only, ~ escapes; size mismatch → #VALUE!",
+      "covers": {
+        "FF-52": "full",
+        "FF-27": "partial"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "tt68-blank",
+      "name": "error literals are error CONSTANTS (ECMA-376 ST_CellError), case-insensitive; '#N/A stays text; #bogus / #SPILL! typed stay text; textInput quotes an error-looking text so it round-trips as text",
+      "covers": {
+        "FF-52": "full",
+        "FF-19": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt68-blank",
+      "name": "reader: every constant empty-text cell of the 8 corpus workbooks that have them is kept as non-blank empty text — the SAME cells lxml finds (6 190 cells); TT67 dropped them all",
+      "covers": {
+        "FF-52": "full",
+        "FF-21": "partial"
+      },
+      "pass": true,
+      "ms": 7849
+    },
+    {
+      "suite": "tt68-blank",
+      "name": "hostile / edge cell shapes (18): which XML is empty text, which is no value — sst \"\" / rich-empty / spaced index → empty text; empty, negative, fractional or out-of-range index, inlineStr without <is>, str without <v> → no value; lxml agrees on every empty-text verdict; text \"#N/A\" stays text",
+      "covers": {
+        "FF-52": "full",
+        "FF-21": "partial"
+      },
+      "pass": true,
+      "ms": 806
+    },
+    {
+      "suite": "tt68-blank",
+      "name": "writer: a constant empty-text cell is saved (shared string \"\"), a blank is not; openpyxl sees '' vs no cell; re-read keeps ISBLANK FALSE / COUNTA 1; styled blank stays blank",
+      "covers": {
+        "FF-52": "full",
+        "FF-20": "partial"
+      },
+      "pass": true,
+      "ms": 203
+    },
+    {
+      "suite": "tt68-blank",
+      "name": "lossless save: untouched empty-text cells keep their original <c> byte-for-byte; a cell edited to empty text is written as an empty inline string; openpyxl opens it and lxml lists exactly the original empty-text cells plus the new one",
+      "covers": {
+        "FF-52": "full",
+        "FF-21": "partial"
+      },
+      "pass": true,
+      "ms": 508
+    },
+    {
+      "suite": "tt68-blank",
+      "name": "held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
+      "covers": {
+        "FF-52": "full",
+        "FF-19": "partial",
+        "FF-21": "partial"
+      },
+      "pass": true,
+      "ms": 192114
+    }
+  ]
+}

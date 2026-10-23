@@ -1,6 +1,6 @@
 {
   "suite": "tt67-sheet-ns",
-  "at": "2026-10-23T08:45:06.579Z",
+  "at": "2026-10-23T15:18:16.750Z",
   "results": [
     {
       "suite": "tt67-sheet-ns",
@@ -10,7 +10,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 2153
+      "ms": 1724
     },
     {
       "suite": "tt67-sheet-ns",
@@ -20,7 +20,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt67-sheet-ns",
@@ -30,7 +30,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 5159
+      "ms": 4012
     },
     {
       "suite": "tt67-sheet-ns",
@@ -40,7 +40,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 474
+      "ms": 395
     },
     {
       "suite": "tt67-sheet-ns",
@@ -50,7 +50,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 230
+      "ms": 161
     },
     {
       "suite": "tt67-sheet-ns",
@@ -60,7 +60,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 654
+      "ms": 478
     },
     {
       "suite": "tt67-sheet-ns",
@@ -70,7 +70,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 266
+      "ms": 215
     },
     {
       "suite": "tt67-sheet-ns",
@@ -80,7 +80,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 251
+      "ms": 208
     },
     {
       "suite": "tt67-sheet-ns",
@@ -90,7 +90,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 249
+      "ms": 197
     },
     {
       "suite": "tt67-sheet-ns",
@@ -100,7 +100,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 912
+      "ms": 746
     },
     {
       "suite": "tt67-sheet-ns",
@@ -110,7 +110,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 95
+      "ms": 74
     },
     {
       "suite": "tt67-sheet-ns",
@@ -120,7 +120,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 110149
+      "ms": 67121
     },
     {
       "suite": "tt67-sheet-ns",
@@ -130,7 +130,7 @@
         "FF-50": "full"
       },
       "pass": true,
-      "ms": 2005
+      "ms": 1190
     }
   ]
 }

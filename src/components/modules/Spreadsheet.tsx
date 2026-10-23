@@ -534,11 +534,18 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
 
   const gridKeys = (e: React.KeyboardEvent) => {
     if (editing !== null) return;
-    // TT68 modal-shortcut fix: Paste Special is modal (as in Excel) — while it is open the grid takes no keys
-    // (Delete / Backspace / typing used to edit the selected cell behind it); Escape closes it, Tab moves focus.
-    if (panel === "paste") { if (e.key === "Escape") { e.preventDefault(); setPanel(null); } else if (e.key !== "Tab") e.preventDefault(); return; }
     const mod = e.ctrlKey || e.metaKey; const k = e.key.toLowerCase();
     const arrows: Record<string, [number, number]> = { arrowup: [0, -1], arrowdown: [0, 1], arrowleft: [-1, 0], arrowright: [1, 0] };
+    // TT68 shortcut scope: Paste Special stays a non-modal bar (TT60: the grid keeps the keyboard so the target can move
+    // and F7 / Ctrl+F / Ctrl+K switch panels), but no key may EDIT a cell behind it — Delete / Backspace / typing / F2 /
+    // Enter / Ctrl+V / Ctrl+X / undo / fill / bold used to change the selected cell while the bar was open.
+    if (panel === "paste") {
+      if (e.key === "Escape") { e.preventDefault(); setPanel(null); return; }
+      const allowed = !!arrows[k] || ["home", "end", "pageup", "pagedown", "tab", "shift", "control", "meta", "alt"].includes(k)
+        || (mod && !e.shiftKey && (k === "a" || k === "c" || k === "f" || k === "k" || e.key === "F3"))
+        || (mod && e.shiftKey && k === "v") || (e.key === "F7" && !mod && !e.altKey);
+      if (!allowed) { e.preventDefault(); return; }
+    }
     if (arrows[k]) {
       e.preventDefault(); const [dc, dr] = arrows[k];
       const p = mod ? jump(has, sel.f.col, sel.f.row, dc, dr, COLS - 1, ROWS - 1) : stepCell(sheet, sel.f, dc, dr, COLS - 1, ROWS - 1);
@@ -1072,7 +1079,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         </div>
       ) : null}
       {panel === "paste" ? (
-        <div className="fs-row" role="group" aria-label="Paste special" data-testid="paste-special" ref={(el) => { if (el && !el.contains(document.activeElement)) el.querySelector<HTMLInputElement>("input:checked, input")?.focus(); }} style={{ gap: 10, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), flexWrap: "wrap", alignItems: "center" }}
+        <div className="fs-row" role="group" aria-label="Paste special" data-testid="paste-special" style={{ gap: 10, padding: "4px 8px", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11.5), flexWrap: "wrap", alignItems: "center" }}
           onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setPanel(null); gridRef.current?.focus(); } if (e.key === "Enter") { e.preventDefault(); doPasteSpecial(); } }}>
           <b>Paste special</b>
           <span className="fs-row" style={{ gap: 6 }}>{(["all", "formulas", "values", "formats"] as const).map((w) => (

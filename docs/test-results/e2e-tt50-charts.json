@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt50-charts",
-  "at": "2026-10-23T07:50:00.572Z",
+  "at": "2026-10-23T15:04:01.549Z",
   "results": [
     {
       "suite": "e2e-tt50-charts",
@@ -9,7 +9,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 4699
+      "ms": 3900
     },
     {
       "suite": "e2e-tt50-charts",
@@ -18,7 +18,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 4471
+      "ms": 3410
     },
     {
       "suite": "e2e-tt50-charts",
@@ -27,7 +27,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 4419
+      "ms": 3107
     },
     {
       "suite": "e2e-tt50-charts",
@@ -36,7 +36,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 3373
+      "ms": 2162
     },
     {
       "suite": "e2e-tt50-charts",
@@ -45,7 +45,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 89
+      "ms": 75
     }
   ]
 }
