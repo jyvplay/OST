@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt51-slides",
-  "at": "2026-10-23T07:51:29.692Z",
+  "at": "2026-10-23T08:46:21.649Z",
   "results": [
     {
       "suite": "e2e-tt51-slides",
@@ -9,7 +9,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 10885
+      "ms": 10357
     },
     {
       "suite": "e2e-tt51-slides",
@@ -18,7 +18,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 3991
+      "ms": 4030
     },
     {
       "suite": "e2e-tt51-slides",
@@ -27,7 +27,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 3197
+      "ms": 3153
     },
     {
       "suite": "e2e-tt51-slides",
@@ -35,9 +35,8 @@
       "covers": {
         "FF-23": "full"
       },
-      "pass": false,
-      "error": "pick selected nothing",
-      "ms": 1233
+      "pass": true,
+      "ms": 2944
     },
     {
       "suite": "e2e-tt51-slides",
@@ -46,7 +45,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 2358
+      "ms": 2056
     },
     {
       "suite": "e2e-tt51-slides",

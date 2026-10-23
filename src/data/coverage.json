@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-23T05:03:33.303Z",
+ "generatedAt": "2026-10-23T08:53:50.906Z",
  "totals": {
   "built": {
    "full": 305,
-   "partial": 54,
+   "partial": 55,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 221,
+   "full": 224,
    "partial": 72,
-   "untested": 88
+   "untested": 86
   },
   "tests": {
-   "total": 1196,
-   "passed": 1196
+   "total": 1225,
+   "passed": 1225
   }
  },
  "rows": {
@@ -47,8 +47,11 @@
    ]
   },
   "SH-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt67-input: SH-06 hot corner with real pointer moves: entering the top-left corner opens the launcher; after Escape, a pointer resting / jittering in the corner for 3 s does NOT reopen it; leaving and re-entering does; with Hot corners off nothing opens",
+    "tt67-input: SH-06 hot corner: fires once on ENTRY, never again while the pointer rests or jitters inside, re-arms after leaving; the TT66 rule (re-fire every 1.2 s inside) reopened a just-closed launcher"
+   ]
   },
   "SH-07": {
    "tested": "untested",
@@ -219,12 +222,28 @@
    ]
   },
   "IN-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt67-input: IN-02 learn: Learn Back + the device's FORWARD button → Back = 4, Forward = 3 (swapped), stored, survives reload; Files then goes Back on that button and the tab never navigates; the trailing mouseup / auxclick never reach the page",
+    "e2e-tt67-input: IN-02 refusals and modality: the overlay covers the screen; the right button is refused with a reason, the dialog stays and its context menu never reaches the page; Meta+Q behind the overlay opens nothing; Escape cancels without changing the pair",
+    "tt67-input: IN-02 config: stored indices are validated (0 / 2 / non-numbers / >31 / Back = Forward fall back to 3 / 4); the server validator agrees with the client rule on every input",
+    "tt67-input: IN-02 learning: main / secondary refused with a reason; learning the other action's index swaps them; re-learning the same index is a no-op; navAction + guard follow",
+    "tt67-input: IN-02 capture: refused presses keep listening and still swallow their context menu; the accepted press is consumed with its trailing mouseup / auxclick (800 ms), then released — even when React disposes the capture right after the press; Escape cancels; dispose is idempotent",
+    "tt67-input: IN-02 modal hold: holding keeps isAskOpen() true (Shell + Switcher ignore global chords); a double release can't unbalance it"
+   ]
   },
   "IN-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt67-input: IN-03 AZERTY at the event level: Meta + the physical Q key (types \"a\") opens Overview and NOT the launcher; Meta + physical A (types \"q\") opens the launcher and NOT Overview; Escape closes",
+    "e2e-tt67-input: IN-03 labels: typing in a password field teaches NOTHING (Snap layouts keeps its label); the same AZERTY keys typed elsewhere relabel Meta+Z → Meta+W and Meta+Q → Meta+A",
+    "tt67-input: IN-03 layout property: on 5 layouts × 3 presets, a chord's physical key fires that chord and NO other (incl. the AZERTY Meta+A / Meta+Q case)",
+    "tt67-input: IN-03 before: the TT66 matcher (git 2edf699) violates the same property — the defect is real, not asserted",
+    "tt67-input: IN-03 fallbacks: an event without a code (synthetic / virtual keyboard) still matches by character; named keys, Arrows and modifiers are exact",
+    "tt67-input: IN-03 labels: chordLabel shows what the physical key types on each layout; named keys untouched; '+' spelled Plus; dead / multi-char values ignored",
+    "tt67-input: IN-03 learner: only unmodified, non-secret, non-composing presses of binding keys teach; shifted symbols never; CapsLock/Shift letters fold to the key's letter",
+    "tt67-input: IN-03 layout switch: a learned pair evicts the stale key that typed the same character, so labels stay distinct after AZERTY → QWERTY"
+   ]
   },
   "IN-04": {
    "tested": "untested",
@@ -1292,7 +1311,20 @@
     "tt66-sheet-x14-patch: second-order: an existing CF ext whose x14 namespace uses another prefix (a:conditionalFormattings) is extended in place — never a second container in the same ext",
     "tt66-sheet-x14-patch: re-saving the patched file unchanged is a no-op for conditional formatting (no duplicated x14 rules), and removing an added x14-only rule removes exactly it",
     "tt66-sheet-x14-patch: new-file export (writeXlsxWorkbook): cross-sheet thresholds go x14-only too, and the reader reads an x14-only data bar back",
-    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)"
+    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)",
+    "tt67-sheet-ns: lxml equivalence: every rewritten XML part of the 353-file corpus + 15 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path",
+    "tt67-sheet-ns: adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, no-namespace children undeclare the default, strict prefixes canonical, value text is not a declaration, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming",
+    "tt67-sheet-ns: the 7 corpus workbooks TT66 could not read (x: / s: SpreadsheetML prefixes, prefixed mc:AlternateContent) open, and every non-empty cell equals an lxml namespace-aware reader and (where it can open the file) openpyxl; TT66 rejected 6 and read 0 cells from the 7th",
+    "tt67-sheet-ns: x14 conditional formats written under other prefixes (q: for x14, m: for xm) are modelled exactly like Excel's spelling; the MS-XLSX oracle confirms the renamed file is the same x14 content; TT66 lost the x14-only rules",
+    "tt67-sheet-ns: a FOREIGN namespace that borrows the x14 prefix is never read as conditional formatting (TT66 read it as a rule: a false positive)",
+    "tt67-sheet-ns: lossless save of a prefixed workbook: edit one cell of 59021.xlsx (x: prefixes), patch, re-read → the edit and every other value survive; openpyxl opens the result",
+    "tt67-sheet-ns: pre-standard / unknown dialects: the Excel 2007 beta namespace (sample-beta.xlsx) is SpreadsheetML; a workbook in a namespace nobody knows is read exactly as TT66 read it (knownRoot guard) instead of being aliased away",
+    "tt67-sheet-ns: numeric character references are decoded in ONE pass, exactly as an XML parser does (lxml oracle): decimal, hex, astral, newline; &amp;lt; stays the text &lt;; TT66 showed the raw &#…; text",
+    "tt67-sheet-ns: references that are not characters (lone surrogate in hex and decimal, beyond U+10FFFF in hex and decimal) stay literal instead of crashing or inventing a character — lenient, as Excel-tolerant readers are; lxml rejects such files outright",
+    "tt67-sheet-ns: lossless re-style of a cell in an x:-prefixed styles.xml changes ONLY its font (openpyxl): the patcher reads styles through the same canonical view as the reader (found by the TT67 gate: fill / border / alignment were rebuilt)",
+    "tt67-sheet-ns: the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)",
+    "tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded",
+    "tt67-sheet-ns: cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells"
    ]
   },
   "FF-22": {
@@ -3053,8 +3085,25 @@
     "tt66-sheet-x14-patch: second-order: an existing CF ext whose x14 namespace uses another prefix (a:conditionalFormattings) is extended in place — never a second container in the same ext",
     "tt66-sheet-x14-patch: re-saving the patched file unchanged is a no-op for conditional formatting (no duplicated x14 rules), and removing an added x14-only rule removes exactly it",
     "tt66-sheet-x14-patch: new-file export (writeXlsxWorkbook): cross-sheet thresholds go x14-only too, and the reader reads an x14-only data bar back",
-    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)"
+    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)",
+    "tt67-sheet-ns: lxml equivalence: every rewritten XML part of the 353-file corpus + 15 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path",
+    "tt67-sheet-ns: adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, no-namespace children undeclare the default, strict prefixes canonical, value text is not a declaration, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming",
+    "tt67-sheet-ns: the 7 corpus workbooks TT66 could not read (x: / s: SpreadsheetML prefixes, prefixed mc:AlternateContent) open, and every non-empty cell equals an lxml namespace-aware reader and (where it can open the file) openpyxl; TT66 rejected 6 and read 0 cells from the 7th",
+    "tt67-sheet-ns: x14 conditional formats written under other prefixes (q: for x14, m: for xm) are modelled exactly like Excel's spelling; the MS-XLSX oracle confirms the renamed file is the same x14 content; TT66 lost the x14-only rules",
+    "tt67-sheet-ns: a FOREIGN namespace that borrows the x14 prefix is never read as conditional formatting (TT66 read it as a rule: a false positive)",
+    "tt67-sheet-ns: lossless save of a prefixed workbook: edit one cell of 59021.xlsx (x: prefixes), patch, re-read → the edit and every other value survive; openpyxl opens the result",
+    "tt67-sheet-ns: pre-standard / unknown dialects: the Excel 2007 beta namespace (sample-beta.xlsx) is SpreadsheetML; a workbook in a namespace nobody knows is read exactly as TT66 read it (knownRoot guard) instead of being aliased away",
+    "tt67-sheet-ns: numeric character references are decoded in ONE pass, exactly as an XML parser does (lxml oracle): decimal, hex, astral, newline; &amp;lt; stays the text &lt;; TT66 showed the raw &#…; text",
+    "tt67-sheet-ns: references that are not characters (lone surrogate in hex and decimal, beyond U+10FFFF in hex and decimal) stay literal instead of crashing or inventing a character — lenient, as Excel-tolerant readers are; lxml rejects such files outright",
+    "tt67-sheet-ns: lossless re-style of a cell in an x:-prefixed styles.xml changes ONLY its font (openpyxl): the patcher reads styles through the same canonical view as the reader (found by the TT67 gate: fill / border / alignment were rebuilt)",
+    "tt67-sheet-ns: the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)",
+    "tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded",
+    "tt67-sheet-ns: cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells"
    ]
+  },
+  "FF-51": {
+   "tested": "untested",
+   "tests": []
   },
   "CT-01": {
    "tested": "untested",

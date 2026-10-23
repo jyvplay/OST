@@ -1,6 +1,6 @@
 {
   "suite": "tt67-input",
-  "at": "2026-10-23T08:07:45.553Z",
+  "at": "2026-10-23T08:45:08.668Z",
   "results": [
     {
       "suite": "tt67-input",
@@ -9,7 +9,7 @@
         "IN-03": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt67-input",
@@ -18,7 +18,7 @@
         "IN-03": "full"
       },
       "pass": true,
-      "ms": 79
+      "ms": 46
     },
     {
       "suite": "tt67-input",
@@ -99,7 +99,7 @@
         "SH-06": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     }
   ]
 }
