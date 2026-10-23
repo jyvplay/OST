@@ -116,24 +116,38 @@ function countNonBlank(a: Arg): number {
 /** TT68: the error literals a criterion can name ("#N/A", "=#DIV/0!", "<>#N/A"). */
 const CRIT_ERRORS = new Set(["#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A", "#SPILL!", "#CALC!", "#GETTING_DATA"]);
 /**
- * *IF/*IFS criterion. TT68: error cells in the range never make the function fail — they match only an error criterion
- * (an error value, or an error literal after "=" / "<>" / nothing) with the same code, and every "<>" criterion
- * that is not that error. Numeric comparisons only see numbers and numeric text (a blank, "" or a boolean is not 0/1);
- * "<>n" is TRUE for everything that is not equal to n, text included.
+ * *IF/*IFS criterion, called with each range element and whether that element is a truly EMPTY cell. TT68 semantics:
+ *  - error cells never make the function fail: they match only an error criterion (an error value, or an error literal
+ *    after "=" / "<>" / nothing) with the same code, and every other "<>" criterion;
+ *  - "" matches blank cells AND empty text; "=" matches only truly empty cells; "<>" matches every non-empty cell
+ *    (a formula returning "" included);
+ *  - wildcards (* ?, with nothing / "=" / "<>") look at TEXT values only — "*" counts text incl. "" but not numbers
+ *    or empty cells; "<>*" counts the cells that are not text;
+ *  - numeric comparisons see numbers and numeric text only (an empty cell, "" or a boolean is not 0/1), and "<>n"
+ *    is TRUE for everything not equal to n.
  */
-function makeCriteria(raw: Scalar): (v: Scalar) => boolean {
+export type Criterion = (v: Scalar, blank: boolean) => boolean;
+function makeCriteria(raw: Scalar): Criterion {
   if (isError(raw)) return (v) => isError(v) && v.error === raw.error;
   if (typeof raw === "number") return (v) => typeof v === "number" && v === raw;
   const s = toStr(raw);
   const m = /^(<=|>=|<>|<|>|=)(.*)$/.exec(s);
-  const tok = (m ? m[2] : s).trim().toUpperCase();
-  if (CRIT_ERRORS.has(tok) && (!m || m[1] === "=" || m[1] === "<>")) {
+  const op = m ? m[1] : "", rest = m ? m[2] : s;
+  const tok = rest.trim().toUpperCase();
+  if (CRIT_ERRORS.has(tok) && (op === "" || op === "=" || op === "<>")) {
     const hit = (v: Scalar) => isError(v) && v.error === tok;
-    return m && m[1] === "<>" ? (v) => !hit(v) : hit;
+    return op === "<>" ? (v) => !hit(v) : hit;
   }
-  const notEq = !!m && m[1] === "<>";
+  if (rest === "" && op === "=") return (_v, blank) => blank;
+  if (rest === "" && op === "<>") return (_v, blank) => !blank;
+  if (rest === "" && op === "") return (v) => v === "";
+  if (/[*?]/.test(rest) && (op === "" || op === "=" || op === "<>")) {
+    const re = wildcardRe(rest);
+    const hit = (v: Scalar, blank: boolean) => typeof v === "string" && !blank && re.test(v);
+    return op === "<>" ? (v, blank) => !hit(v, blank) : hit;
+  }
   const inner = plainCriteria(s, m);
-  return (v) => (isError(v) ? notEq : inner(v));
+  return (v) => (isError(v) ? op === "<>" : inner(v));
 }
 function plainCriteria(s: string, m: RegExpExecArray | null): (v: Scalar) => boolean {
   if (m) {
@@ -152,11 +166,16 @@ function plainCriteria(s: string, m: RegExpExecArray | null): (v: Scalar) => boo
       switch (op) { case "<=": return c <= 0; case ">=": return c >= 0; case "<>": return c !== 0; case "<": return c < 0; case ">": return c > 0; default: return c === 0; }
     };
   }
-  if (/[*?]/.test(s)) {
-    const re = new RegExp(`^${s.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".")}$`, "i");
-    return (v) => re.test(toStr(v));
-  }
   return (v) => toStr(v).toLowerCase() === s.toLowerCase();
+}
+/** Flattened values of a range argument with the matching truly-empty flags. */
+function cellsOf(a: Arg | undefined): { v: Scalar[]; blank: boolean[] } {
+  if (!a) return { v: [], blank: [] };
+  const x = a;
+  if (x.kind === "scalar") return { v: [x.value], blank: [false] };
+  const v: Scalar[] = [], blank: boolean[] = [];
+  x.value.forEach((r, i) => r.forEach((e, j) => { v.push(e); blank.push(blankAt(x, i, j)); }));
+  return { v, blank };
 }
 
 /* ------------------------------------------------------------- the table */
@@ -190,7 +209,7 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   MIN: (a) => { const n = a.flatMap(flattenNumbers); return n.length ? Math.min(...n) : 0; },
   MAX: (a) => { const n = a.flatMap(flattenNumbers); return n.length ? Math.max(...n) : 0; },
   MEDIAN: (a) => { const n = a.flatMap(flattenNumbers).sort((x, y) => x - y); if (!n.length) return raise(err("#NUM!")); const mid = Math.floor(n.length / 2); return n.length % 2 ? n[mid] : (n[mid - 1] + n[mid]) / 2; },
-  SUMIF: (a) => sumIf(a), COUNTIF: (a) => countIf(a), AVERAGEIF: (a) => averageIf(a),
+  SUMIF: (a) => sumIf(a), COUNTIF: (a) => countIf(a), AVERAGEIF: (a) => averageIf(a), AVERAGEIFS: (a) => averageIfs(a), MAXIFS: (a) => extremeIfs(a, true), MINIFS: (a) => extremeIfs(a, false),
   SUMIFS: (a) => sumIfs(a), COUNTIFS: (a) => countIfs(a),
 
   // ---- logical [oracle: AND/OR/NOT/XOR]
@@ -327,44 +346,60 @@ function roundDir(n: number, digits: number, dir: "up" | "down"): number {
   return fn(n * f) / f;
 }
 function sumIf(a: Arg[]): Scalar {
-  const range = matrixOf(a[0]).flat();
+  const r = cellsOf(a[0]);
   const crit = makeCriteria(scalar(a[1]));
   const sumRange = (a[2] ? matrixOf(a[2]) : matrixOf(a[0])).flat();
   let total = 0;
-  range.forEach((v, i) => { if (crit(v)) { const n = sumRange[i]; if (typeof n === "number") total += n; } });
+  r.v.forEach((v, i) => { if (crit(v, r.blank[i])) { const n = sumRange[i]; if (typeof n === "number") total += n; } });
   return total;
 }
 function countIf(a: Arg[]): Scalar {
-  const c = scalar(a[1]);
-  // TT68: "<>" means "not an empty cell" — a cell whose formula returns "" is counted (it is not empty)
-  if (c === "<>" && a[0]?.kind === "matrix" && a[0].blank) { let n = 0; const x = a[0]; x.value.forEach((r, i) => r.forEach((_v, j) => { if (!blankAt(x, i, j)) n++; })); return n; }
-  const range = matrixOf(a[0]).flat();
-  const crit = makeCriteria(c);
-  return range.filter(crit).length;
+  const r = cellsOf(a[0]);
+  const crit = makeCriteria(scalar(a[1]));
+  let n = 0; r.v.forEach((v, i) => { if (crit(v, r.blank[i])) n++; }); return n;
 }
 function averageIf(a: Arg[]): Scalar {
-  const range = matrixOf(a[0]).flat();
+  const r = cellsOf(a[0]);
   const crit = makeCriteria(scalar(a[1]));
   const avgRange = (a[2] ? matrixOf(a[2]) : matrixOf(a[0])).flat();
   const matched: number[] = [];
-  range.forEach((v, i) => { if (crit(v)) { const n = avgRange[i]; if (typeof n === "number") matched.push(n); } });
+  r.v.forEach((v, i) => { if (crit(v, r.blank[i])) { const n = avgRange[i]; if (typeof n === "number") matched.push(n); } });
   return matched.length ? matched.reduce((x, y) => x + y, 0) / matched.length : raise(err("#DIV/0!"));
 }
+/** TT68: numbers of `target` where every criteria pair matches (sizes must agree, else #VALUE!). */
+function maskedNumbers(target: Arg, pairs: Arg[]): number[] {
+  const t = matrixOf(target).flat();
+  const mask = buildMultiCriteriaMask(pairs);
+  if (mask.length !== t.length) raise(err("#VALUE!"));
+  const out: number[] = []; t.forEach((v, i) => { if (mask[i] && typeof v === "number") out.push(v); }); return out;
+}
 function sumIfs(a: Arg[]): Scalar {
-  const sumRange = matrixOf(a[0]).flat();
-  const mask = buildMultiCriteriaMask(a.slice(1));
-  let total = 0; sumRange.forEach((v, i) => { if (mask[i] && typeof v === "number") total += v; }); return total;
+  if (a.length < 3) raise(err("#VALUE!"));
+  return maskedNumbers(a[0], a.slice(1)).reduce((x, y) => x + y, 0);
 }
 function countIfs(a: Arg[]): Scalar {
   const mask = buildMultiCriteriaMask(a);
   return mask.filter(Boolean).length;
 }
+function averageIfs(a: Arg[]): Scalar {
+  if (a.length < 3) raise(err("#VALUE!"));
+  const ns = maskedNumbers(a[0], a.slice(1));
+  return ns.length ? ns.reduce((x, y) => x + y, 0) / ns.length : raise(err("#DIV/0!"));
+}
+function extremeIfs(a: Arg[], max: boolean): Scalar {
+  if (a.length < 3) raise(err("#VALUE!"));
+  const ns = maskedNumbers(a[0], a.slice(1));
+  if (!ns.length) return 0;
+  let best = ns[0]; for (const n of ns) if (max ? n > best : n < best) best = n; return best;
+}
 function buildMultiCriteriaMask(pairs: Arg[]): boolean[] {
+  if (pairs.length < 2 || pairs.length % 2 !== 0) raise(err("#VALUE!"));
   let mask: boolean[] | null = null;
   for (let i = 0; i + 1 < pairs.length; i += 2) {
-    const range = matrixOf(pairs[i]).flat();
+    const r = cellsOf(pairs[i]);
     const crit = makeCriteria(scalar(pairs[i + 1]));
-    const m = range.map(crit);
+    const m = r.v.map((v, j) => crit(v, r.blank[j]));
+    if (mask && mask.length !== m.length) raise(err("#VALUE!"));
     mask = mask ? mask.map((x, j) => x && m[j]) : m;
   }
   return mask ?? [];
