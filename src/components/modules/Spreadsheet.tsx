@@ -95,7 +95,7 @@ function cfLabel(r: CondRule): string {
     case "period": return `date ${PERIOD_LABEL[r.period ?? ""] ?? r.period}${stop}`;
     case "expr": return `formula =${r.formula ?? ""}${stop}`;
     case "scale": return r.scaleMid ? "3-colour scale" : "2-colour scale";
-    case "bar": return `data bar${r.barAxis ? " (negative axis)" : ""}`;
+    case "bar": return `data bar${r.barAxis === "middle" || r.barAxis === "auto" ? " (negative axis)" : ""}`;
     case "icons": return `icon set ${r.iconSet ?? "3TrafficLights1"}${r.reverse ? " reversed" : ""}${r.icons ? " (custom)" : ""}`;
   }
   return r.kind;
@@ -157,7 +157,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const [showInvalid, setShowInvalid] = useState(false);
   const [scroll, setScroll] = useState({ top: 0, h: 600 });
   const [findQ, setFindQ] = useState(""); const [replQ, setReplQ] = useState(""); const [matchCase, setMatchCase] = useState(false); const [findInfo, setFindInfo] = useState("");
-  const [cf, setCf] = useState<{ kind: CfUiKind; a: string; b: string; fill: string; color: string; sMin: string; sMid: string; sMax: string; bold: boolean; stop: boolean; formula: string; period: string; iconSet: string; reverse: boolean; barColor: string }>({ kind: "gt", a: "10", b: "", fill: "#14532d", color: "#bbf7d0", sMin: "#f8696b", sMid: "#ffeb84", sMax: "#63be7b", bold: false, stop: false, formula: "", period: "today", iconSet: "3Arrows", reverse: false, barColor: "#638ec6" });
+  const [cf, setCf] = useState<{ kind: CfUiKind; a: string; b: string; fill: string; color: string; sMin: string; sMid: string; sMax: string; bold: boolean; stop: boolean; formula: string; period: string; iconSet: string; reverse: boolean; barColor: string; barAxis: "none" | "auto" | "middle"; barNeg: string; barSolid: boolean; barBorderOn: boolean; barBorder: string; hideValue: boolean; customIcons: boolean; iconPick: string[] }>({ kind: "gt", a: "10", b: "", fill: "#14532d", color: "#bbf7d0", sMin: "#f8696b", sMid: "#ffeb84", sMax: "#63be7b", bold: false, stop: false, formula: "", period: "today", iconSet: "3Arrows", reverse: false, barColor: "#638ec6", barAxis: "none", barNeg: "#ff0000", barSolid: false, barBorderOn: false, barBorder: "#1f4e79", hideValue: false, customIcons: false, iconPick: [] });
   const gridRef = useRef<HTMLDivElement | null>(null);
   const undoRef = useRef<{ json: string; active: string }[]>([]);
   /** current sheet name → name in the opened .xlsx (lossless save maps renamed sheets back to their parts). */
@@ -698,8 +698,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     };
     let rule: CondRule | null = null;
     if (k === "scale" || k === "scale3") rule = { id, sheet: active, range, kind: "scale", scaleMin: cf.sMin, scaleMax: cf.sMax, ...(k === "scale3" ? { scaleMid: cf.sMid, scaleAt: "min|percentile:50|max" } : { scaleAt: "min|max" }) };
-    else if (k === "bar") rule = { id, sheet: active, range, kind: "bar", barColor: cf.barColor, cfvo: [{ t: "min" }, { t: "max" }] };
-    else if (k === "icons") { const n = ICON_SETS[cf.iconSet]?.length ?? 3; const pct = n === 5 ? [0, 20, 40, 60, 80] : n === 4 ? [0, 25, 50, 75] : [0, 33, 67]; rule = { id, sheet: active, range, kind: "icons", iconSet: cf.iconSet, cfvo: pct.map((p) => ({ t: "percent" as const, v: String(p) })), ...(cf.reverse ? { reverse: true } : {}) }; }
+    // TT66: the Excel 2010 options (axis + negative colour, solid fill, border, x14-only and custom icon sets) are saved
+    // in the worksheet's x14 extension by both writers; the defaults stay a plain Excel 2007 bar / icon set
+    else if (k === "bar") rule = { id, sheet: active, range, kind: "bar", barColor: cf.barColor, cfvo: [{ t: "min" }, { t: "max" }], ...(cf.barAxis !== "none" ? { barAxis: cf.barAxis, barNeg: cf.barNeg } : {}), ...(cf.barSolid ? { barSolid: true } : {}), ...(cf.barBorderOn ? { barBorder: cf.barBorder } : {}), ...(cf.hideValue ? { hideValue: true } : {}) };
+    else if (k === "icons") {
+      const n = ICON_SETS[cf.iconSet]?.length ?? 3; const pct = n === 5 ? [0, 20, 40, 60, 80] : n === 4 ? [0, 25, 50, 75] : [0, 33, 67];
+      const icons = cf.customIcons ? Array.from({ length: n }, (_, i) => (cf.iconPick[i] && /^[0-9A-Za-z]+:\d$/.test(cf.iconPick[i]) ? cf.iconPick[i] : `${cf.iconSet}:${i}`)) : null;
+      rule = { id, sheet: active, range, kind: "icons", iconSet: cf.iconSet, cfvo: pct.map((p) => ({ t: "percent" as const, v: String(p) })), ...(cf.reverse ? { reverse: true } : {}), ...(cf.hideValue ? { hideValue: true } : {}), ...(icons ? { icons } : {}) };
+    }
     else if (k === "expr") { const f = cf.formula.trim().replace(/^=/, ""); if (!f || !formulaOk(f)) { shell.toast("Enter a valid formula, e.g. =$B2>100", "warn"); return; } rule = { id, sheet: active, range, kind: "expr", formula: f, ...fmt }; }
     else if (k === "period") rule = { id, sheet: active, range, kind: "period", period: cf.period, ...fmt };
     else if (k === "top" || k === "bottom" || k === "topPct" || k === "bottomPct") {
@@ -1173,10 +1179,26 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
             {cf.kind === "between" || cf.kind === "notBetween" ? <input className="fs-input" aria-label="Rule value 2" value={cf.b} onChange={(e) => setCf({ ...cf, b: e.target.value })} style={{ width: 80 }} /> : null}
             {cf.kind === "expr" ? <input className="fs-input fs-mono" aria-label="Rule formula" placeholder="=$B2>100" value={cf.formula} onChange={(e) => setCf({ ...cf, formula: e.target.value })} style={{ width: 170 }} /> : null}
             {cf.kind === "period" ? <select className="fs-input" aria-label="Time period" value={cf.period} onChange={(e) => setCf({ ...cf, period: e.target.value })}>{TIME_PERIODS.map((p) => <option key={p} value={p}>{PERIOD_LABEL[p]}</option>)}</select> : null}
-            {cf.kind === "icons" ? <><select className="fs-input" aria-label="Icon set" value={cf.iconSet} onChange={(e) => setCf({ ...cf, iconSet: e.target.value })}>{MAIN_ICON_SETS.map((k) => <option key={k} value={k}>{k}</option>)}</select>
-              <span aria-hidden className="fs-row" style={{ gap: 2 }}>{(ICON_SETS[cf.iconSet] ?? []).map((g, i) => <img key={i} alt="" src={iconDataUri(g)} width={14} height={14} />)}</span>
-              <label><input type="checkbox" checked={cf.reverse} onChange={(e) => setCf({ ...cf, reverse: e.target.checked })} /> reverse</label></> : null}
-            {cf.kind === "bar" ? <>bar <input type="color" aria-label="Bar colour" value={cf.barColor} onChange={(e) => setCf({ ...cf, barColor: e.target.value })} /></> : null}
+            {cf.kind === "icons" ? <><select className="fs-input" aria-label="Icon set" value={cf.iconSet} style={{ width: 200 }} onChange={(e) => setCf({ ...cf, iconSet: e.target.value, iconPick: [] })}>{Object.keys(ICON_SETS).map((k) => <option key={k} value={k}>{k}{MAIN_ICON_SETS.includes(k) ? "" : " (Excel 2010+)"}</option>)}</select>
+              <span aria-hidden className="fs-row" style={{ gap: 2 }}>{(ICON_SETS[cf.iconSet] ?? []).map((g, i) => { const pick = cf.customIcons ? cf.iconPick[i] : ""; const [ps, pk] = (pick || "").split(":"); const glyph = pick ? (ps === "NoIcons" ? null : ICON_SETS[ps]?.[Number(pk)]) : g; return glyph ? <img key={i} alt="" src={iconDataUri(glyph)} width={14} height={14} /> : <span key={i} style={{ width: 14, display: "inline-block" }} />; })}</span>
+              <label><input type="checkbox" checked={cf.reverse} onChange={(e) => setCf({ ...cf, reverse: e.target.checked })} /> reverse</label>
+              <label><input type="checkbox" checked={cf.hideValue} onChange={(e) => setCf({ ...cf, hideValue: e.target.checked })} /> icon only</label>
+              <label title="Pick the icon for each band (lowest values first) — saved as an Excel 2010 custom icon set"><input type="checkbox" checked={cf.customIcons} onChange={(e) => setCf({ ...cf, customIcons: e.target.checked })} /> custom icons</label>
+              {cf.customIcons ? (ICON_SETS[cf.iconSet] ?? []).map((_, i) => (
+                <select key={i} className="fs-input" aria-label={`Icon for band ${i + 1}`} value={cf.iconPick[i] ?? ""} style={{ width: 150 }} onChange={(e) => { const iconPick = [...cf.iconPick]; iconPick[i] = e.target.value; setCf({ ...cf, iconPick }); }}>
+                  <option value="">{`set default (${iconLabel(ICON_SETS[cf.iconSet][i])})`}</option>
+                  <option value="NoIcons:0">no icon</option>
+                  {Object.entries(ICON_SETS).flatMap(([set, gs]) => gs.map((g, k) => <option key={`${set}:${k}`} value={`${set}:${k}`}>{`${iconLabel(g)} — ${set}`}</option>))}
+                </select>)) : null}</> : null}
+            {cf.kind === "bar" ? <>bar <input type="color" aria-label="Bar colour" value={cf.barColor} onChange={(e) => setCf({ ...cf, barColor: e.target.value })} />
+              <select className="fs-input" aria-label="Bar axis" value={cf.barAxis} onChange={(e) => setCf({ ...cf, barAxis: e.target.value as "none" | "auto" | "middle" })} style={{ width: 170 }}>
+                <option value="none">no axis (Excel 2007 bar)</option><option value="auto">negative: automatic axis</option><option value="middle">negative: axis at cell middle</option>
+              </select>
+              {cf.barAxis !== "none" ? <>negative <input type="color" aria-label="Negative bar colour" value={cf.barNeg} onChange={(e) => setCf({ ...cf, barNeg: e.target.value })} /></> : null}
+              <label><input type="checkbox" checked={cf.barSolid} onChange={(e) => setCf({ ...cf, barSolid: e.target.checked })} /> solid fill</label>
+              <label><input type="checkbox" checked={cf.barBorderOn} onChange={(e) => setCf({ ...cf, barBorderOn: e.target.checked })} /> border</label>
+              {cf.barBorderOn ? <input type="color" aria-label="Bar border colour" value={cf.barBorder} onChange={(e) => setCf({ ...cf, barBorder: e.target.value })} /> : null}
+              <label><input type="checkbox" checked={cf.hideValue} onChange={(e) => setCf({ ...cf, hideValue: e.target.checked })} /> bar only</label></> : null}
             {cf.kind === "bar" || cf.kind === "icons" ? null : cf.kind !== "scale" && cf.kind !== "scale3" ? <>fill <input type="color" aria-label="Rule fill" value={cf.fill} onChange={(e) => setCf({ ...cf, fill: e.target.value })} /> text <input type="color" aria-label="Rule text colour" value={cf.color} onChange={(e) => setCf({ ...cf, color: e.target.value })} /></>
               : <>min <input type="color" aria-label="Scale minimum colour" value={cf.sMin} onChange={(e) => setCf({ ...cf, sMin: e.target.value })} />{cf.kind === "scale3" ? <> mid <input type="color" aria-label="Scale midpoint colour" value={cf.sMid} onChange={(e) => setCf({ ...cf, sMid: e.target.value })} /></> : null} max <input type="color" aria-label="Scale maximum colour" value={cf.sMax} onChange={(e) => setCf({ ...cf, sMax: e.target.value })} /></>}
             {!["scale", "scale3", "bar", "icons"].includes(cf.kind) ? <><label><input type="checkbox" checked={cf.bold} onChange={(e) => setCf({ ...cf, bold: e.target.checked })} /> bold</label>

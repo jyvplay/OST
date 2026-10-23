@@ -1,6 +1,6 @@
 {
   "suite": "tt60-writer-tblrev",
-  "at": "2026-10-23T03:08:02.385Z",
+  "at": "2026-10-23T04:57:58.291Z",
   "results": [
     {
       "suite": "tt60-writer-tblrev",
@@ -9,7 +9,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 137
+      "ms": 133
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -18,7 +18,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 473
+      "ms": 434
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -27,7 +27,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 105
+      "ms": 111
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -36,7 +36,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 116
+      "ms": 103
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -45,7 +45,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 17
+      "ms": 14
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -54,7 +54,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 398
+      "ms": 395
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -63,7 +63,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 4393
+      "ms": 5032
     }
   ]
 }

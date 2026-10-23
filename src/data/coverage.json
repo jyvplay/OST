@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-23T03:13:01.774Z",
+ "generatedAt": "2026-10-23T05:03:33.303Z",
  "totals": {
   "built": {
-   "full": 304,
+   "full": 305,
    "partial": 54,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 219,
+   "full": 221,
    "partial": 72,
-   "untested": 89
+   "untested": 88
   },
   "tests": {
-   "total": 1178,
-   "passed": 1178
+   "total": 1196,
+   "passed": 1196
   }
  },
  "rows": {
@@ -208,8 +208,15 @@
    "tests": []
   },
   "IN-01": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt66-input: positive control: a real CDP Back press on a page WITHOUT the shell navigates the tab back (the guard test is not vacuous)",
+    "e2e-tt66-input: desktop: Back / Forward over the wallpaper never leave the page; Files still goes back / forward in its own history on the same buttons",
+    "e2e-tt66-input: wheel: Whiteboard pans the same distance for a real pixel notch (CDP deltaY 100), a 3-line event and (page mode) one canvas height",
+    "e2e-tt66-input: no uncaught page errors",
+    "tt66-input: one notch from three input kinds (Chromium px, Firefox lines, Firefox converted px) → the same distance ±10%; page mode = surface height",
+    "tt66-input: deltaMode is read BEFORE the deltas (Firefox ≥ 88 reports lines only to scripts that do; reading deltaY first converts the event)"
+   ]
   },
   "IN-02": {
    "tested": "untested",
@@ -1276,7 +1283,16 @@
     "tt58-sheet-pivot: 300 random tables × specs (1–3 row fields, 0–2 column fields, 1–3 of 11 summary functions, blanks, errors, mixed text/number items, case variants, filters, totals on/off) — every shown cell equals the pandas oracle and nothing extra is shown",
     "tt58-sheet-pivot: workbook: create on a new sheet, source formulas are calculated values, refresh after the source changes (output grows / shrinks, stale cells cleared), refuse to overwrite data or overlap the source, save/reload keeps the definition, delete clears",
     "tt58-sheet-pivot: .xlsx round trip of the definition (hidden sheet-scoped string names, ≤255 characters each): fresh export and lossless patch of a POI workbook with its own names; openpyxl opens both, sees the names hidden; reopened pivots refresh; deleting the pivot removes the names",
-    "tt61-sheet-pivot-delete: delete every output cell (save), then delete the pivot (save): the pivot and its hidden names are gone in the file (openpyxl) and on reopen; an untouched save is still byte-identical"
+    "tt61-sheet-pivot-delete: delete every output cell (save), then delete the pivot (save): the pivot and its hidden names are gone in the file (openpyxl) and on reopen; an untouched save is still byte-identical",
+    "tt66-sheet-x14-patch: lossless save of a file with no extLst: every added x14 rule lands in a new worksheet extLst, validates against the MS-XLSX schema, and nothing x14-only is written as a 2007 rule",
+    "tt66-sheet-x14-patch: reopen: the reader gets back every added rule with its x14 properties, and the reopened workbook draws exactly what the edited one drew",
+    "tt66-sheet-x14-patch: a file that already has an x14 ext (Excel-written corpus file): the ext and its <x14:conditionalFormattings> are reused, Excel's own x14 rules stay byte-identical, priorities stay unique",
+    "tt66-sheet-x14-patch: changing an imported x14 data bar rewrites it under the SAME id (no orphan x14 rule, no dangling link); a duplicated rule gets a fresh id",
+    "tt66-sheet-x14-patch: a worksheet whose SpreadsheetML namespace is prefixed (x:worksheet) gets a prefixed x:extLst / x:ext; the x14 elements keep their own namespace",
+    "tt66-sheet-x14-patch: second-order: an existing CF ext whose x14 namespace uses another prefix (a:conditionalFormattings) is extended in place — never a second container in the same ext",
+    "tt66-sheet-x14-patch: re-saving the patched file unchanged is a no-op for conditional formatting (no duplicated x14 rules), and removing an added x14-only rule removes exactly it",
+    "tt66-sheet-x14-patch: new-file export (writeXlsxWorkbook): cross-sheet thresholds go x14-only too, and the reader reads an x14-only data bar back",
+    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)"
    ]
   },
   "FF-22": {
@@ -1663,6 +1679,9 @@
     "e2e-tt50-charts: a chart made in the UI with a linear trendline, equation and R² draws them and saves a real c:trendline (openpyxl)",
     "e2e-tt50-charts: modal-shortcut failure test: Delete, Backspace, typing and Ctrl+Z inside the chart panel never touch the selected grid cell",
     "e2e-tt50-charts: no uncaught page errors during the charts session",
+    "e2e-tt66: CF panel → Excel 2010 rules (axis bar, 3Stars, custom icons) drawn at once → Save → saved .xlsx passes the MS-XLSX x14 schema + structural oracle and the ECMA XSDs → reopen lists and draws the same",
+    "e2e-tt66: modal-shortcut failure test: keys pressed in the new CF controls (band icon select, bar axis select, colour inputs) never edit, clear or undo the grid cell",
+    "e2e-tt66: no uncaught page errors during the session",
     "e2e: mount: sheet",
     "office: charts: series from columns with header names, gaps for text, nice ticks, SVG escaping, error on no data",
     "office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
@@ -1689,7 +1708,16 @@
     "tt50-charts: persistence: charts with explicit series, trendlines, grouping, anchors survive Fusion workbook JSON; sanitizeCharts drops hostile fields (bad src paths, unknown kinds, oversize refs) and clamps trend order/period",
     "tt59-x14-cf: x14-only cellIs / between / expression rules with other-sheet references are read with their inline x14:dxf and drawn in priority order (stopIfTrue honoured)",
     "tt59-x14-cf: new-file writer: cross-sheet formula rules are emitted as x14-only rules (xm:f + inline x14:dxf), round-trip to the same drawing, and openpyxl/lxml still open the file",
-    "tt59-x14-cf: same-sheet formula rules stay in the 2007 schema (no x14 duplication); a lossless save of the original keeps the x14 rules byte-identical"
+    "tt59-x14-cf: same-sheet formula rules stay in the 2007 schema (no x14 duplication); a lossless save of the original keeps the x14 rules byte-identical",
+    "tt66-sheet-x14-patch: lossless save of a file with no extLst: every added x14 rule lands in a new worksheet extLst, validates against the MS-XLSX schema, and nothing x14-only is written as a 2007 rule",
+    "tt66-sheet-x14-patch: reopen: the reader gets back every added rule with its x14 properties, and the reopened workbook draws exactly what the edited one drew",
+    "tt66-sheet-x14-patch: a file that already has an x14 ext (Excel-written corpus file): the ext and its <x14:conditionalFormattings> are reused, Excel's own x14 rules stay byte-identical, priorities stay unique",
+    "tt66-sheet-x14-patch: changing an imported x14 data bar rewrites it under the SAME id (no orphan x14 rule, no dangling link); a duplicated rule gets a fresh id",
+    "tt66-sheet-x14-patch: a worksheet whose SpreadsheetML namespace is prefixed (x:worksheet) gets a prefixed x:extLst / x:ext; the x14 elements keep their own namespace",
+    "tt66-sheet-x14-patch: second-order: an existing CF ext whose x14 namespace uses another prefix (a:conditionalFormattings) is extended in place — never a second container in the same ext",
+    "tt66-sheet-x14-patch: re-saving the patched file unchanged is a no-op for conditional formatting (no duplicated x14 rules), and removing an added x14-only rule removes exactly it",
+    "tt66-sheet-x14-patch: new-file export (writeXlsxWorkbook): cross-sheet thresholds go x14-only too, and the reader reads an x14-only data bar back",
+    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)"
    ]
   },
   "FF-30": {
@@ -2954,7 +2982,16 @@
     "tt62-sheet-schema: kitchen sink (fresh export): every style / border line, merges, 6 validation types, links, freeze panes, widths, names, all 25 CF kinds, 7 chart kinds × groupings + trendlines, a PivotTable, awkward sheet names — every part schema-valid, and it reads back",
     "tt62-sheet-schema: 20 randomized workbooks (random subsets of every feature, random sizes) — every fresh export is schema-valid",
     "tt62-sheet-schema: lossless patch: the kitchen-sink feature set added through patchXlsx to 4 POI workbooks (plus a cell edit on every original sheet) adds no schema error the input lacked",
-    "tt62-sheet-schema: OPC part names are case-insensitive: POI 123233_charts.xlsx stores Sheet1.xml with _rels/sheet1.xml.rels — a hyperlink + a chart + a new sheet patched in keep ONE rels part (with the original drawing relationship), ONE <drawing>, no two entries equal ignoring case, and openpyxl loads it"
+    "tt62-sheet-schema: OPC part names are case-insensitive: POI 123233_charts.xlsx stores Sheet1.xml with _rels/sheet1.xml.rels — a hyperlink + a chart + a new sheet patched in keep ONE rels part (with the original drawing relationship), ONE <drawing>, no two entries equal ignoring case, and openpyxl loads it",
+    "tt66-sheet-x14-patch: lossless save of a file with no extLst: every added x14 rule lands in a new worksheet extLst, validates against the MS-XLSX schema, and nothing x14-only is written as a 2007 rule",
+    "tt66-sheet-x14-patch: reopen: the reader gets back every added rule with its x14 properties, and the reopened workbook draws exactly what the edited one drew",
+    "tt66-sheet-x14-patch: a file that already has an x14 ext (Excel-written corpus file): the ext and its <x14:conditionalFormattings> are reused, Excel's own x14 rules stay byte-identical, priorities stay unique",
+    "tt66-sheet-x14-patch: changing an imported x14 data bar rewrites it under the SAME id (no orphan x14 rule, no dangling link); a duplicated rule gets a fresh id",
+    "tt66-sheet-x14-patch: a worksheet whose SpreadsheetML namespace is prefixed (x:worksheet) gets a prefixed x:extLst / x:ext; the x14 elements keep their own namespace",
+    "tt66-sheet-x14-patch: second-order: an existing CF ext whose x14 namespace uses another prefix (a:conditionalFormattings) is extended in place — never a second container in the same ext",
+    "tt66-sheet-x14-patch: re-saving the patched file unchanged is a no-op for conditional formatting (no duplicated x14 rules), and removing an added x14-only rule removes exactly it",
+    "tt66-sheet-x14-patch: new-file export (writeXlsxWorkbook): cross-sheet thresholds go x14-only too, and the reader reads an x14-only data bar back",
+    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)"
    ]
   },
   "FF-47": {
@@ -3000,6 +3037,23 @@
     "tt65-writer-stories: refusals change nothing: a tracked header edit cutting into a page field throws HF_TRACK_REFUSAL before any mutation (save byte-identical); a tracked note edit inside a field returns \"refused\"; typing {PAGE} while tracking inserts a real tracked PAGE field",
     "tt65-writer-stories: Remove header under Track Changes keeps the part, its text struck (Accept → empty header, Reject → the original); without tracking the reference is dropped as before",
     "tt65-writer-stories: randomized differential: 40 header / footer sessions and 40 note sessions of random edits (characters, new / removed lines, alignment, {PAGE}, new paragraphs) — tracked = refused-with-no-change, or oracle Accept = untracked edit and Reject = original; ids unique; XSD on every 4th"
+   ]
+  },
+  "FF-50": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt66: CF panel → Excel 2010 rules (axis bar, 3Stars, custom icons) drawn at once → Save → saved .xlsx passes the MS-XLSX x14 schema + structural oracle and the ECMA XSDs → reopen lists and draws the same",
+    "e2e-tt66: modal-shortcut failure test: keys pressed in the new CF controls (band icon select, bar axis select, colour inputs) never edit, clear or undo the grid cell",
+    "e2e-tt66: no uncaught page errors during the session",
+    "tt66-sheet-x14-patch: lossless save of a file with no extLst: every added x14 rule lands in a new worksheet extLst, validates against the MS-XLSX schema, and nothing x14-only is written as a 2007 rule",
+    "tt66-sheet-x14-patch: reopen: the reader gets back every added rule with its x14 properties, and the reopened workbook draws exactly what the edited one drew",
+    "tt66-sheet-x14-patch: a file that already has an x14 ext (Excel-written corpus file): the ext and its <x14:conditionalFormattings> are reused, Excel's own x14 rules stay byte-identical, priorities stay unique",
+    "tt66-sheet-x14-patch: changing an imported x14 data bar rewrites it under the SAME id (no orphan x14 rule, no dangling link); a duplicated rule gets a fresh id",
+    "tt66-sheet-x14-patch: a worksheet whose SpreadsheetML namespace is prefixed (x:worksheet) gets a prefixed x:extLst / x:ext; the x14 elements keep their own namespace",
+    "tt66-sheet-x14-patch: second-order: an existing CF ext whose x14 namespace uses another prefix (a:conditionalFormattings) is extended in place — never a second container in the same ext",
+    "tt66-sheet-x14-patch: re-saving the patched file unchanged is a no-op for conditional formatting (no duplicated x14 rules), and removing an added x14-only rule removes exactly it",
+    "tt66-sheet-x14-patch: new-file export (writeXlsxWorkbook): cross-sheet thresholds go x14-only too, and the reader reads an x14-only data bar back",
+    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)"
    ]
   },
   "CT-01": {

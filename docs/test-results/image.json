@@ -1,6 +1,6 @@
 {
   "suite": "image",
-  "at": "2026-10-23T02:08:44.861Z",
+  "at": "2026-10-23T03:56:54.623Z",
   "results": [
     {
       "suite": "image",
@@ -55,7 +55,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 8
+      "ms": 10
     },
     {
       "suite": "image",
@@ -84,7 +84,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 92
+      "ms": 82
     },
     {
       "suite": "image",
@@ -111,7 +111,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 6
+      "ms": 3
     }
   ]
 }

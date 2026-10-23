@@ -1,6 +1,6 @@
 {
   "suite": "tt32-voice",
-  "at": "2026-10-23T02:28:03.978Z",
+  "at": "2026-10-23T04:15:55.485Z",
   "results": [
     {
       "suite": "tt32-voice",
@@ -9,7 +9,7 @@
         "AX-15": "full"
       },
       "pass": true,
-      "ms": 1003
+      "ms": 1297
     },
     {
       "suite": "tt32-voice",
@@ -18,7 +18,7 @@
         "AX-15": "full"
       },
       "pass": true,
-      "ms": 726
+      "ms": 758
     },
     {
       "suite": "tt32-voice",
@@ -27,7 +27,7 @@
         "AX-15": "full"
       },
       "pass": true,
-      "ms": 1017
+      "ms": 1033
     },
     {
       "suite": "tt32-voice",
@@ -36,7 +36,7 @@
         "AX-15": "partial"
       },
       "pass": true,
-      "ms": 449
+      "ms": 442
     },
     {
       "suite": "tt32-voice",
@@ -63,7 +63,7 @@
         "AX-15": "full"
       },
       "pass": true,
-      "ms": 2503
+      "ms": 2472
     }
   ]
 }

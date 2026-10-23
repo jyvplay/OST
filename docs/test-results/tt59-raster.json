@@ -1,6 +1,6 @@
 {
   "suite": "tt59-raster",
-  "at": "2026-10-23T03:07:30.531Z",
+  "at": "2026-10-23T04:57:25.169Z",
   "results": [
     {
       "suite": "tt59-raster",
@@ -9,7 +9,7 @@
         "FF-05": "full"
       },
       "pass": true,
-      "ms": 509
+      "ms": 528
     },
     {
       "suite": "tt59-raster",
@@ -18,7 +18,7 @@
         "FF-05": "full"
       },
       "pass": true,
-      "ms": 604
+      "ms": 648
     },
     {
       "suite": "tt59-raster",
@@ -27,7 +27,7 @@
         "FF-05": "full"
       },
       "pass": true,
-      "ms": 215
+      "ms": 203
     },
     {
       "suite": "tt59-raster",
@@ -36,7 +36,7 @@
         "FF-05": "full"
       },
       "pass": true,
-      "ms": 1062
+      "ms": 1157
     },
     {
       "suite": "tt59-raster",
@@ -45,7 +45,7 @@
         "FF-05": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     }
   ]
 }

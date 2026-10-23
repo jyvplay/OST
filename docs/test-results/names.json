@@ -1,6 +1,6 @@
 {
   "suite": "names",
-  "at": "2026-10-23T02:08:44.504Z",
+  "at": "2026-10-23T03:56:54.254Z",
   "results": [
     {
       "suite": "names",
@@ -18,7 +18,7 @@
         "FF-36": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 6
     },
     {
       "suite": "names",
@@ -55,7 +55,7 @@
         "FF-21": "partial"
       },
       "pass": true,
-      "ms": 210
+      "ms": 208
     },
     {
       "suite": "names",
@@ -65,7 +65,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 2421
+      "ms": 3782
     }
   ]
 }

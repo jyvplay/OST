@@ -1,4 +1,5 @@
 "use client";
+import { wheelPx } from "@/lib/input";
 import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
@@ -202,7 +203,7 @@ export default function WhiteboardModule({ win }: ModuleProps) {
     if (ev.ctrlKey || ev.metaKey) {
       const r = svgRef.current!.getBoundingClientRect();
       zoomAt(ev.deltaY < 0 ? 1.1 : 1 / 1.1, ev.clientX - r.left, ev.clientY - r.top);
-    } else setCam((c) => ({ ...c, x: c.x - ev.deltaX, y: c.y - ev.deltaY }));
+    } else { const d = wheelPx(ev, svgRef.current?.clientHeight ?? 800); setCam((c) => ({ ...c, x: c.x - d.dx, y: c.y - d.dy })); } // TT66 IN-01: line / page wheels pan as far as pixel wheels
   };
   const zoomAt = (f: number, sx: number, sy: number) => setCam((c) => {
     const z = Math.min(4, Math.max(0.2, c.z * f));

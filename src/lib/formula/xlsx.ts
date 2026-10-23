@@ -193,23 +193,29 @@ function stableGuid(seed: string): string {
 function cfX14Xml(r: CondRule, priority: number, seed: string): { xml: string; id: string; linked: boolean } | null {
   const id = r.x14 && GUID_RE.test(r.x14) ? r.x14 : stableGuid(seed);
   const cfvo = (c: Cfvo, icon: boolean) => `<x14:cfvo type="${c.t}"${icon && c.gt ? ' gte="0"' : ""}${c.v !== undefined && c.t !== "min" && c.t !== "max" && c.t !== "autoMin" && c.t !== "autoMax" ? `><xm:f>${esc(c.v)}</xm:f></x14:cfvo>` : "/>"}`;
+  // TT66: a threshold formula that refers to another sheet cannot sit in a 2007 <cfvo val> either → x14-only rule
+  const xcv = (r.kind === "bar" || r.kind === "icons") && (r.cfvo ?? []).some((c) => c.v !== undefined && crossSheet(c.v));
   if (r.kind === "bar") {
     const auto = r.cfvo?.some((c) => c.t === "autoMin" || c.t === "autoMax");
-    if (!(r.x14 || r.barAxis || r.barNeg || r.barBorder || r.barSolid || r.barAxisColor || auto)) return null;
+    if (!(r.x14 || r.barAxis || r.barNeg || r.barBorder || r.barSolid || r.barAxisColor || auto || xcv)) return null;
     const cv = r.cfvo?.length === 2 ? r.cfvo : [{ t: "autoMin" as const }, { t: "autoMax" as const }];
     const at = ` minLength="${r.barMinLen ?? 10}" maxLength="${r.barMaxLen ?? 90}"${r.barSolid ? ' gradient="0"' : ""}${r.barBorder ? ' border="1"' : ""}${r.barNeg ? ' negativeBarColorSameAsPositive="0"' : ""}${r.barAxis === "middle" ? ' axisPosition="middle"' : r.barAxis === "auto" ? "" : ' axisPosition="none"'}`;
-    const kids = `${cv.map((c) => cfvo(c, false)).join("")}${r.barBorder ? `<x14:borderColor rgb="${argb(r.barBorder)}"/>` : ""}${r.barNeg ? `<x14:negativeFillColor rgb="${argb(r.barNeg)}"/>` : ""}${r.barAxisColor ? `<x14:axisColor rgb="${argb(r.barAxisColor)}"/>` : ""}`;
+    // x14-only (no 2007 fallback to inherit from): the bar colour, priority, stopIfTrue and showValue live here (MS-XLSX
+    // CT_DataBar child order cfvo, cfvo, fillColor, borderColor, negativeFillColor, negativeBorderColor, axisColor)
+    const fill = xcv ? `<x14:fillColor rgb="${argb(r.barColor ?? "#638ec6")}"/>` : "";
+    const kids = `${cv.map((c) => cfvo(c, false)).join("")}${fill}${r.barBorder ? `<x14:borderColor rgb="${argb(r.barBorder)}"/>` : ""}${r.barNeg ? `<x14:negativeFillColor rgb="${argb(r.barNeg)}"/>` : ""}${r.barAxisColor ? `<x14:axisColor rgb="${argb(r.barAxisColor)}"/>` : ""}`;
+    if (xcv) return { xml: `<x14:cfRule type="dataBar" priority="${priority}"${r.stop ? ' stopIfTrue="1"' : ""} id="${id}"><x14:dataBar${at}${r.hideValue ? ' showValue="0"' : ""}>${kids}</x14:dataBar></x14:cfRule>`, id, linked: false };
     return { xml: `<x14:cfRule type="dataBar" id="${id}"><x14:dataBar${at}>${kids}</x14:dataBar></x14:cfRule>`, id, linked: true };
   }
   if (r.kind === "icons") {
     const set = r.iconSet ?? "3TrafficLights1"; if (!ICON_SETS[set]) return null;
     const custom = r.icons?.filter((g) => /^([0-9A-Za-z]+):(\d)$/.test(g)) ?? [];
-    if (MAIN_ICON_SETS.includes(set) && !custom.length) return null;
+    if (MAIN_ICON_SETS.includes(set) && !custom.length && !xcv) return null;
     const n = ICON_SETS[set].length;
     const cv = r.cfvo?.length === n ? r.cfvo : DEFAULT_ICON_PERCENTS[n].map((p) => ({ t: "percent" as const, v: String(p) }));
     const at = `${set !== "3TrafficLights1" ? ` iconSet="${set}"` : ""}${custom.length ? ' custom="1"' : ""}${r.hideValue ? ' showValue="0"' : ""}${r.reverse ? ' reverse="1"' : ""}`;
     const icons = custom.map((g) => { const [cs, k] = g.split(":"); return `<x14:cfIcon iconSet="${esc(cs)}" iconId="${k}"/>`; }).join("");
-    return { xml: `<x14:cfRule type="iconSet" priority="${priority}" id="${id}"><x14:iconSet${at}>${cv.map((c) => cfvo(c, true)).join("")}${icons}</x14:iconSet></x14:cfRule>`, id, linked: false };
+    return { xml: `<x14:cfRule type="iconSet" priority="${priority}"${r.stop ? ' stopIfTrue="1"' : ""} id="${id}"><x14:iconSet${at}>${cv.map((c) => cfvo(c, true)).join("")}${icons}</x14:iconSet></x14:cfRule>`, id, linked: false };
   }
   // TT59: a formula rule that refers to another sheet is x14-only, as Excel 2010+ writes it (the 2007 <cfRule> cannot
   // carry cross-sheet references): <xm:f> operands and an inline <x14:dxf> (MS-XLSX: xm:f*, dxf, extLst order)
@@ -688,6 +694,19 @@ function readCondFormats(xml: string, sheet: string, wb: Workbook, dxfs: Dxf[], 
     const a = xmlAttrs(c[1]); if (!CFVO_TYPES.includes(a.type)) return [];
     return [{ t: a.type as Cfvo["t"], ...(a.val !== undefined && a.type !== "min" && a.type !== "max" ? { v: a.val } : {}), ...(a.gte === "0" || a.gte === "false" ? { gt: true } : {}) }];
   });
+  /** x14 data-bar properties (MS-XLSX CT_DataBar) into r; shared by linked bars and (TT66) x14-only bars */
+  const x14Bar = (r: Partial<CondRule>, x: { inner: string }) => {
+    const yes = (v: string | undefined) => v === "1" || v === "true";
+    const len = (v: string | undefined) => { const n = Math.trunc(Number(v)); return v !== undefined && Number.isFinite(n) && n >= 0 && n <= 100 ? n : undefined; };
+    const xb = /<x14:dataBar\b([^>]*?)\/?>/.exec(x.inner); const xa = xb ? xmlAttrs(xb[1]) : {};
+    if (xa.gradient === "0" || xa.gradient === "false") r.barSolid = true;
+    const tagColor = (tag: string) => { const m = new RegExp(`<x14:${tag}\\b([^>]*?)\\/?>`).exec(x.inner); return m ? resolveColorAttrs(m[1], ctx) : null; };
+    if (yes(xa.border)) { const bc = tagColor("borderColor"); if (bc) r.barBorder = bc; }
+    r.barAxis = xa.axisPosition === "middle" ? "middle" : xa.axisPosition === "none" ? "none" : "auto";
+    const neg = tagColor("negativeFillColor"); if (neg) r.barNeg = neg;
+    const ax = tagColor("axisColor"); if (ax) r.barAxisColor = ax;
+    return { cfvo: x14Cfvo(x.inner), minL: len(xa.minLength) ?? 10, maxL: len(xa.maxLength) ?? 90, fill: tagColor("fillColor"), hide: xa.showValue === "0" || xa.showValue === "false" };
+  };
   const linked = new Set<string>();
   const pending: { prio: number; seq: number; rules: CondRule[] }[] = [];
   let seq = 0;
@@ -770,15 +789,8 @@ function readCondFormats(xml: string, sheet: string, wb: Workbook, dxfs: Dxf[], 
         const x = x14id ? x14ById.get(x14id) : undefined;
         if (x && x.at.type === "dataBar") {
           linked.add(x14id!); r.x14 = x14id;
-          const xb = /<x14:dataBar\b([^>]*?)\/?>/.exec(x.inner); const xa = xb ? xmlAttrs(xb[1]) : {};
-          const xc = x14Cfvo(x.inner); if (xc.length === 2) cfvo = xc;
-          minL = len(xa.minLength) ?? 10; maxL = len(xa.maxLength) ?? 90;
-          if (xa.gradient === "0" || xa.gradient === "false") r.barSolid = true;
-          const tagColor = (tag: string) => { const m = new RegExp(`<x14:${tag}\\b([^>]*?)\\/?>`).exec(x.inner); return m ? resolveColorAttrs(m[1], ctx) : null; };
-          if (yes(xa.border)) { const bc = tagColor("borderColor"); if (bc) r.barBorder = bc; }
-          r.barAxis = xa.axisPosition === "middle" ? "middle" : xa.axisPosition === "none" ? "none" : "auto";
-          const neg = tagColor("negativeFillColor"); if (neg) r.barNeg = neg;
-          const ax = tagColor("axisColor"); if (ax) r.barAxisColor = ax;
+          const b = x14Bar(r, x); if (b.cfvo.length === 2) cfvo = b.cfvo;
+          minL = b.minL; maxL = b.maxL;
         }
         if (cfvo.length === 2) r.cfvo = cfvo;
         if (minL !== undefined && minL !== 10) r.barMinLen = minL;
@@ -810,6 +822,22 @@ function readCondFormats(xml: string, sheet: string, wb: Workbook, dxfs: Dxf[], 
     const rule: Partial<CondRule> = { kind: "icons", iconSet: set, ...(cfvo.length ? { cfvo } : {}), ...(yes(ia.custom) && icons.length ? { icons } : {}), ...(yes(ia.reverse) ? { reverse: true } : {}), ...(ia.showValue === "0" || ia.showValue === "false" ? { hideValue: true } : {}) };
     push(rule, ranges, {}, `x${x.index}`, Number(x.at.priority ?? 0) || 0);
   }
+  // TT66: x14-only data bars — Excel 2010+ writes one when a threshold formula refers to another sheet (a 2007 <cfvo val>
+  // cannot); with no 2007 fallback the bar colour (<x14:fillColor>), priority and showValue all live in the x14 rule
+  for (const x of x14) {
+    if (x.at.type !== "dataBar" || (x.at.id && linked.has(x.at.id))) continue;
+    const ranges = x.sqref.split(/\s+/).map((r) => r.replace(/\$/g, "")).filter((r) => parseRef(r)); if (!ranges.length) continue;
+    const r: Partial<CondRule> = { kind: "bar" };
+    const b = x14Bar(r, x);
+    r.barColor = b.fill ?? "#638ec6";
+    if (r.barAxis === "none") delete r.barAxis; // = an Excel 2007 bar (no axis); the writer spells an unset axis "none"
+    if (b.cfvo.length === 2) r.cfvo = b.cfvo;
+    if (b.minL !== 10) r.barMinLen = b.minL;
+    if (b.maxL !== 90) r.barMaxLen = b.maxL;
+    if (b.hide) r.hideValue = true;
+    if (x.at.id && GUID_RE.test(x.at.id)) r.x14 = x.at.id;
+    push(r, ranges, {}, `x${x.index}`, Number(x.at.priority ?? 0) || 0);
+  }
   // TT59: x14-only non-visual rules — Excel 2010+ writes a rule whose formulas refer to another sheet here (2007's
   // <cfRule> cannot); operands are <xm:f> children and the format is an inline <x14:dxf> (CT_Dxf, main namespace)
   for (const x of x14) {
@@ -830,4 +858,4 @@ function readCondFormats(xml: string, sheet: string, wb: Workbook, dxfs: Dxf[], 
 }
 const CFVO_TYPES = ["min", "max", "num", "percent", "percentile", "formula", "autoMin", "autoMax"];
 /** Internals shared with the lossless patch writer (xlsx-patch.ts). */
-export const xlsxInternals = { BUILTIN_BY_CODE, argb, dvXml, pxToWidth, readStyles, cfRuleXml, cfDxfXml };
+export const xlsxInternals = { BUILTIN_BY_CODE, argb, dvXml, pxToWidth, readStyles, cfRuleXml, cfDxfXml, cfX14Xml, stableGuid, X14_NS, XM_NS, GUID_RE };

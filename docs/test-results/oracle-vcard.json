@@ -1,6 +1,6 @@
 {
   "suite": "oracle-vcard",
-  "at": "2026-10-23T02:09:05.340Z",
+  "at": "2026-10-23T03:57:15.315Z",
   "results": [
     {
       "suite": "oracle-vcard",
@@ -9,7 +9,7 @@
         "CN-01": "full"
       },
       "pass": true,
-      "ms": 143
+      "ms": 145
     },
     {
       "suite": "oracle-vcard",
@@ -18,7 +18,7 @@
         "CN-01": "full"
       },
       "pass": true,
-      "ms": 63
+      "ms": 59
     },
     {
       "suite": "oracle-vcard",
@@ -27,7 +27,7 @@
         "CN-01": "full"
       },
       "pass": true,
-      "ms": 165
+      "ms": 174
     }
   ]
 }

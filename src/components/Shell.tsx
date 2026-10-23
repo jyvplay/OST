@@ -1,4 +1,5 @@
 "use client";
+import { useMouseNavGuard } from "@/lib/input";
 import { fz, readUiUnit, applyTextScale, DEFAULT_TEXT_SCALE, TEXT_SCALE_MIN, TEXT_SCALE_MAX } from "@/lib/uiscale";
 import { DEFAULT_WALLPAPER } from "@/lib/appearance";
 import { applyStyle, isStyle, resolveWallpaper, useStyleId } from "@/lib/style";
@@ -58,6 +59,7 @@ function scaledRect(r: Partial<Rect> | undefined, vp: { w: number; h: number } |
 }
 
 export default function Shell({ stateId, hostKind }: { stateId: string; hostKind: "tab" | "pip" | "screen" }) {
+  useMouseNavGuard(); // TT66 IN-01: mouse Back / Forward never navigate the tab away
   const [state, setState] = useState<DesktopState>(initialDesktop);
   const [caps, setCaps] = useState<CapabilityReport | null>(null);
   const [gov, setGov] = useState<GovernorSnapshot>(() => governor.snapshot());

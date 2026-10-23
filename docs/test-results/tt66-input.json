@@ -1,0 +1,24 @@
+{
+  "suite": "tt66-input",
+  "at": "2026-10-23T05:02:01.136Z",
+  "results": [
+    {
+      "suite": "tt66-input",
+      "name": "one notch from three input kinds (Chromium px, Firefox lines, Firefox converted px) → the same distance ±10%; page mode = surface height",
+      "covers": {
+        "IN-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt66-input",
+      "name": "deltaMode is read BEFORE the deltas (Firefox ≥ 88 reports lines only to scripts that do; reading deltaY first converts the event)",
+      "covers": {
+        "IN-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

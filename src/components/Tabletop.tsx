@@ -17,6 +17,7 @@
  * camera + main face under a name and load it again in one click. All motion is CSS transforms timed from
  * --fs-motion, so Motion: off / prefers-reduced-motion make every transition instant.
  */
+import { wheelPx } from "@/lib/input";
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { MODULES, moduleById } from "@/lib/registry";
@@ -470,7 +471,8 @@ export default function Tabletop() {
     onBlur: (e: React.FocusEvent) => { if (main === "floor" && !e.currentTarget.contains(e.relatedTarget as Node | null) && menu?.surface !== w) leaveWall(w, 200); },
     onWheel: (e: React.WheelEvent) => {
       if (main !== "floor") return;
-      const v = wv[w], dl = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      const px = wheelPx(e, (e.currentTarget as HTMLElement).clientHeight || 800); // TT66 IN-01: deltaMode-aware
+      const v = wv[w], dl = Math.abs(px.dx) > Math.abs(px.dy) ? px.dx : px.dy;
       if (!dl) return;
       if (lift !== w) liftNow(w);
       setPan(w, v.pan + dl / v.frame.k);

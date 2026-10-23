@@ -442,17 +442,56 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
           doc.root.kids = doc.root.kids.filter((k) => !(k.k === "el" && ln(k.name) === "extLst" && !kids(k).length));
         }
         let pr = 0; const walk = (e: XEl) => { if (ln(e.name) === "cfRule") pr = Math.max(pr, Number(attr(e, "priority")) || 0); kids(e).forEach(walk); }; walk(doc.root);
-        const added: XEl[] = [];
+        // TT66: an added rule gets its Excel 2010 (x14) half exactly as the full writer emits it — data bars with x14
+        // properties keep a linked 2007 <cfRule> (fallback) that points at the x14 rule by <x14:id>; x14-only and custom
+        // icon sets and cross-sheet formula rules live only in the worksheet extLst (the 2007 schema cannot carry them)
+        const usedIds = new Set<string>();
+        const walkIds = (e: XEl) => { const a = attr(e, "id"); if (ln(e.name) === "cfRule" && a) usedIds.add(a.toUpperCase()); if (e.name === "x14:id") usedIds.add(textOf(e).trim().toUpperCase()); kids(e).forEach(walkIds); };
+        walkIds(doc.root);
+        const strip = (e: XEl) => {
+          if (!e.name.includes(":")) { const keep = e.attrs.map(([k]) => k !== "xmlns"); e.attrs = e.attrs.filter((_, i) => keep[i]); e.quote = e.quote.filter((_, i) => keep[i]); e.name = SP + e.name; }
+          kids(e).forEach(strip);
+        };
+        const added: XEl[] = []; const addedX14: XEl[] = [];
         for (const r of after) {
-          if (kept.has(key(r)) || !X.cfRuleXml(r, null, 1)) continue; // "" = not representable in the main schema
-          const dx = X.cfDxfXml(r);
-          const node = parseXml(`<conditionalFormatting xmlns="${NS_MAIN}" sqref="${r.range.replace(/[<&"]/g, "")}">${X.cfRuleXml(r, dx ? styles.dxf(dx) : null, ++pr)}</conditionalFormatting>`).root;
-          const strip = (e: XEl) => { e.attrs = e.attrs.filter(([k]) => k !== "xmlns"); e.quote = e.quote.slice(-e.attrs.length); e.name = SP + ln(e.name); kids(e).forEach(strip); };
+          if (kept.has(key(r))) continue;
+          const sq = r.range.replace(/[<&"]/g, "");
+          // a carried x14 id that a kept rule still uses (a duplicated rule) must not be shared: mint a fresh one
+          const rr: CondRule = r.x14 && usedIds.has(r.x14.toUpperCase()) ? { ...r, x14: undefined } : r;
+          const prio = pr + 1;
+          let x = X.cfX14Xml(rr, prio, `${sheet.name}|patch|${prio}|${sq}`);
+          for (let n = 1; x && usedIds.has(x.id.toUpperCase()) && n < 64; n++) x = X.cfX14Xml(rr, prio, `${sheet.name}|patch|${prio}|${sq}|${n}`);
+          const main = X.cfRuleXml(rr, null, prio);
+          if (!x && !main) continue; // representable in neither schema
+          pr = prio;
+          if (x) {
+            usedIds.add(x.id.toUpperCase());
+            addedX14.push(parseXml(`<x14:conditionalFormatting xmlns:x14="${X.X14_NS}" xmlns:xm="${X.XM_NS}">${x.xml}<xm:sqref>${sq}</xm:sqref></x14:conditionalFormatting>`).root);
+            if (!x.linked) continue;
+          }
+          const dx = X.cfDxfXml(rr);
+          let m = X.cfRuleXml(rr, dx ? styles.dxf(dx) : null, prio);
+          if (x) m = m.replace(/<\/cfRule>$/, `<extLst><ext uri="{B025F937-C7B1-47D3-B67F-A62EFF666E3E}" xmlns:x14="${X.X14_NS}"><x14:id>${x.id}</x14:id></ext></extLst></cfRule>`);
+          const node = parseXml(`<conditionalFormatting xmlns="${NS_MAIN}" sqref="${sq}">${m}</conditionalFormatting>`).root;
           strip(node); added.push(node);
         }
         if (added.length) {
           let at = -1; doc.root.kids.forEach((k, j) => { if (k.k === "el" && ["sheetData", "sheetCalcPr", "sheetProtection", "protectedRanges", "scenarios", "autoFilter", "sortState", "dataConsolidate", "customSheetViews", "mergeCells", "phoneticPr", "conditionalFormatting"].includes(ln(k.name))) at = j; });
           doc.root.kids.splice(at + 1, 0, ...added);
+        }
+        if (addedX14.length) {
+          // the worksheet extLst is always the last child (CT_Worksheet); reuse its CF ext (URI compared case-blind —
+          // Excel spells it with a lower-case "407d") and its <x14:conditionalFormattings>, else create them
+          let lst = kidL(doc.root, "extLst");
+          if (!lst) { lst = el(SP + "extLst"); doc.root.kids.push(lst); }
+          let ex = kidsL(lst, "ext").find((k) => (attr(k, "uri") ?? "").toUpperCase() === "{78C0D931-6437-407D-A8EE-F0AAD7539E65}");
+          if (!ex) { ex = el(SP + "ext", { uri: "{78C0D931-6437-407d-A8EE-F0AAD7539E65}", "xmlns:x14": X.X14_NS }); lst.kids.push(ex); }
+          // matched by local name: another generator may bind the x14 namespace to a different prefix; the added
+          // <x14:conditionalFormatting> elements declare their own xmlns:x14, so they are correct inside either spelling
+          let cfs = kidL(ex, "conditionalFormattings");
+          if (!cfs) { cfs = el("x14:conditionalFormattings", attr(ex, "xmlns:x14") === X.X14_NS ? {} : { "xmlns:x14": X.X14_NS }); ex.kids.push(cfs); }
+          cfs.kids.push(...addedX14);
+          lst.selfClose = ex.selfClose = cfs.selfClose = false;
         }
       }
     }

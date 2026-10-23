@@ -53,12 +53,42 @@ export function useDesktopMouse(handlers: DesktopMouseHandlers, cfg: MouseConfig
   return { onPointerDown, onPointerUp, onAuxClick };
 }
 
+/**
+ * TT66: one wheel notch of an ordinary mouse is 100 px in Chromium on Windows (pixel mode), 3 LINES in Firefox's line
+ * mode, ~102.4 px when Firefox converts lines itself (Firefox ≥ 88 does so unless deltaMode is read before deltaY) and
+ * ~53 px in Chromium on Linux. A line is therefore taken as 100/3 px, so a notch is ~100 px in both browsers (±3%),
+ * and deltaMode is ALWAYS read first. A page is the scrolled surface's height.
+ */
+export const PX_PER_LINE = 100 / 3;
+export const PX_PER_NOTCH = 100;
+type WheelLike = { readonly deltaMode: number; readonly deltaX: number; readonly deltaY: number };
+/** Wheel deltas in CSS pixels whatever the deltaMode (0 px, 1 line, 2 page). */
+export function wheelPx(e: WheelLike, pageHeight = 800): { dx: number; dy: number } {
+  const mode = e.deltaMode; // read before the deltas (see above)
+  const f = mode === 1 ? PX_PER_LINE : mode === 2 ? Math.max(1, pageHeight) : 1;
+  return { dx: e.deltaX * f, dy: e.deltaY * f };
+}
 /** Normalise wheel deltas across input devices into notches and pixels. */
-export function normalizeWheel(e: WheelEvent, linesPerNotch = 3) {
-  const lineHeight = 16;
-  const pageHeight = 800;
-  const factor = e.deltaMode === 1 ? lineHeight * linesPerNotch : e.deltaMode === 2 ? pageHeight : 1;
-  return { px: e.deltaY * factor, notches: (e.deltaY * factor) / (lineHeight * linesPerNotch) };
+export function normalizeWheel(e: WheelLike, pageHeight = 800) {
+  const { dy } = wheelPx(e, pageHeight);
+  return { px: dy, notches: dy / PX_PER_NOTCH };
+}
+
+/**
+ * TT66: shell-wide guard for mouse buttons 3/4 (browser Back / Forward). Without it, pressing a mouse's Back button
+ * anywhere on the desktop navigates the tab away and unmounts the whole session. Capture-phase listeners cancel the
+ * default action of the events that can trigger the navigation (mousedown / mouseup / pointerup / auxclick); they do
+ * NOT stop propagation, so a surface with its own history (Files) still receives the press and goes back / forward.
+ */
+export function useMouseNavGuard(cfg: MouseConfig = DEFAULT_MOUSE) {
+  useEffect(() => {
+    const swallow = (e: MouseEvent) => { if (e.button === cfg.back || e.button === cfg.forward) e.preventDefault(); };
+    // NOT pointerdown: cancelling it suppresses the compatibility mouseup (Pointer Events §11), which is exactly where Files
+    // listens for buttons 3/4 — that variant broke Files' own Back / Forward (TT66 second-order finding)
+    const types = ["mousedown", "mouseup", "pointerup", "auxclick"] as const;
+    for (const t of types) window.addEventListener(t, swallow as EventListener, { capture: true });
+    return () => { for (const t of types) window.removeEventListener(t, swallow as EventListener, { capture: true }); };
+  }, [cfg.back, cfg.forward]);
 }
 
 /** IN-02 "Learn my mouse": record which indices this device actually reports. */
