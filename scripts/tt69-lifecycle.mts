@@ -190,6 +190,13 @@ await test("DraftWriter.clear: a write in flight when Save clears is awaited and
   w2.schedule(slow); await c2.advance(100);
   const cl2 = w2.clear("/System/Recovery/y.draft"); releaseMake(); await cl2; await settle();
   assert.equal(io2.store.has("/System/Recovery/y.draft"), false, "a draft serialised before Save must not land after it");
+  assert.deepEqual(io2.log, ["rm"], "not written at all (TT69 mutant: write-then-delete hid a late write)");
+  // Save As: the late draft is of the OLD path; clear() deletes the NEW path's draft — the old one must not be orphaned
+  const c3 = new FakeClock(); const io3 = new GatedIo(); const w3 = new DraftWriter(io3, 100, 1000, c3, () => c3.t);
+  let rel3 = () => undefined as void; w3.schedule(() => new Promise<{ path: string; text: string }>((r) => { rel3 = () => r({ path: "/System/Recovery/old.draft", text: "late" }); }));
+  await c3.advance(100);
+  const cl3 = w3.clear("/System/Recovery/new.draft"); rel3(); await cl3; await settle();
+  assert.equal(io3.store.has("/System/Recovery/old.draft"), false, "an orphan draft of the old path was written after Save As");
 });
 
 await test("DraftWriter: oversize drafts are skipped with a reason; a failing store sets lastError and the next change drafts again; flush() writes immediately", FULL, async () => {
