@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { holdModal } from "@/lib/ask";
 import { captureNextButton, guardedButtons, learnButton, mouseConfigFrom, MOUSE_BACK_KEY, MOUSE_FORWARD_KEY, navActionFor } from "@/lib/input";
 import { fz } from "@/lib/uiscale";
@@ -76,7 +77,8 @@ export default function MouseButtonsSettings() {
         buttons 3 and 4 as page Back / Forward, so those (and anything learned: {guardedButtons(cfg).join(", ")}) never
         navigate away from the desktop; learning decides what Files and other panes do.
       </div>
-      {learning ? (
+      {/* portalled to <body>: a window frame is a transformed ancestor, which would confine position:fixed to the window */}
+      {learning && typeof document !== "undefined" ? createPortal(
         <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`Learn mouse ${name(learning)} button`} tabIndex={-1}
           data-testid="mouse-learn-dialog"
           style={{ position: "fixed", inset: 0, zIndex: 9500, display: "grid", placeItems: "center", background: "rgba(8,20,30,.55)" }}>
@@ -86,7 +88,7 @@ export default function MouseButtonsSettings() {
             {msg ? <span role="alert" style={{ fontSize: fz(12) }}>{msg}</span> : null}
             <span><button type="button" className="fs-btn" data-learn-cancel="">Cancel</button></span>
           </div>
-        </div>
+        </div>, document.body,
       ) : null}
     </Section>
   );

@@ -24,6 +24,8 @@ MUTANTS = [
     ("server: validator accepts a leading zero (\\d{1,2})", V, r'!/^(?:1|[3-9]|[12][0-9]|3[01])$/.test(value)', r'!/^\d{1,2}$/.test(value)'),
     ("capture: no trailing swallow (context menu / click after the learning press)", I,
      "    startTrail(); // even a refused press", "    // even a refused press"),
+    ("capture: disposer ends the trail (React cleanup lets mouseup / auxclick through — TT67 browser finding)", I,
+     "  return () => { finish(); };\n}", "  return () => { finish(); endTrail(); };\n}"),
     ("capture: Escape does not cancel", I, '    if (e.key === "Escape") { finish(); onCancel(); }', '    if (e.key === "Esc") { finish(); onCancel(); }'),
     ("capture: pointerdown+mousedown of one press counted twice", I,
      '    if (e.type === "mousedown" && lastDown === me.button) { lastDown = -1; return; }\n', ''),

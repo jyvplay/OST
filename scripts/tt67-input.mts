@@ -171,7 +171,7 @@ await test("IN-02 learning: main / secondary refused with a reason; learning the
 function mouse(type: string, button: number) { const e = new Event(type, { cancelable: true }); Object.defineProperty(e, "button", { value: button }); return e; }
 function key(k: string) { const e = new Event("keydown", { cancelable: true }); Object.defineProperty(e, "key", { value: k }); return e; }
 
-await test("IN-02 capture: refused presses keep listening and still swallow their context menu; the accepted press is consumed with its trailing mouseup / auxclick (800 ms), then released; Escape cancels; dispose is idempotent", IN2, async () => {
+await test("IN-02 capture: refused presses keep listening and still swallow their context menu; the accepted press is consumed with its trailing mouseup / auxclick (800 ms), then released — even when React disposes the capture right after the press; Escape cancels; dispose is idempotent", IN2, async () => {
   const t = new EventTarget() as unknown as Window;
   const got: number[] = []; let cancelled = 0;
   const dispose = captureNextButton((b) => { got.push(b); return b !== 0 && b !== 2; }, () => { cancelled++; }, t);
@@ -199,6 +199,16 @@ await test("IN-02 capture: refused presses keep listening and still swallow thei
   const other = key("q"); t2.dispatchEvent(other); ok(other.defaultPrevented && cancelled === 0, "other keys swallowed, not cancelling");
   t2.dispatchEvent(key("Escape")); ok(cancelled === 1, "Escape cancels");
   t2.dispatchEvent(mouse("pointerdown", 4)); ok(n === 0, "nothing captured after cancel"); d2();
+  // React path (TT67 real-browser finding): the effect cleanup disposes the capture right after the accepted press,
+  // before its mouseup / auxclick — the trail must survive the disposer
+  const t3 = new EventTarget() as unknown as Window;
+  const d3 = captureNextButton(() => true, () => undefined, t3);
+  t3.dispatchEvent(mouse("pointerdown", 4)); d3();
+  const up3 = mouse("mouseup", 4), aux3 = mouse("auxclick", 4); t3.dispatchEvent(up3); t3.dispatchEvent(aux3);
+  ok(up3.defaultPrevented && aux3.defaultPrevented, "trailing events swallowed even after an immediate dispose");
+  const d4 = mouse("pointerdown", 4); t3.dispatchEvent(d4); ok(!d4.defaultPrevented, "disposed: no new press is captured");
+  await new Promise((r) => setTimeout(r, 850));
+  const up4 = mouse("mouseup", 4); t3.dispatchEvent(up4); ok(!up4.defaultPrevented, "trail ends on its own after 800 ms");
 });
 
 await test("IN-02 modal hold: holding keeps isAskOpen() true (Shell + Switcher ignore global chords); a double release can't unbalance it", IN2, () => {

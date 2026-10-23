@@ -1,6 +1,6 @@
 {
   "suite": "tt67-input",
-  "at": "2026-10-23T06:43:30.300Z",
+  "at": "2026-10-23T06:46:02.677Z",
   "results": [
     {
       "suite": "tt67-input",
@@ -9,7 +9,7 @@
         "IN-03": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt67-input",
@@ -18,7 +18,7 @@
         "IN-03": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 11
     },
     {
       "suite": "tt67-input",
@@ -76,12 +76,12 @@
     },
     {
       "suite": "tt67-input",
-      "name": "IN-02 capture: refused presses keep listening and still swallow their context menu; the accepted press is consumed with its trailing mouseup / auxclick (800 ms), then released; Escape cancels; dispose is idempotent",
+      "name": "IN-02 capture: refused presses keep listening and still swallow their context menu; the accepted press is consumed with its trailing mouseup / auxclick (800 ms), then released — even when React disposes the capture right after the press; Escape cancels; dispose is idempotent",
       "covers": {
         "IN-02": "full"
       },
       "pass": true,
-      "ms": 851
+      "ms": 1702
     },
     {
       "suite": "tt67-input",
@@ -99,7 +99,7 @@
         "SH-06": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     }
   ]
 }

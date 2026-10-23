@@ -61,13 +61,19 @@ export default function DesktopSurface({ onLauncher }: { onLauncher: () => void 
   const commit = (icons: IconPos[]) => shell.dispatch({ t: "icons", icons });
 
   // SH-06 hot corners: pointerrawupdate survives coalescing at 120 Hz
+  // The tracker and the callback live in refs: Shell passes a new onLauncher on every render, and re-creating the tracker
+  // per render forgot that the pointer was already inside — closing the launcher re-rendered, and the next jitter in
+  // the corner "entered" again and reopened it (found by the real-pointer suite, TT67).
+  const corner = useRef(hotCornerTracker()); // fires on ENTRY only; re-arms after the pointer leaves the corner
+  const launch = useRef(onLauncher);
+  useEffect(() => { launch.current = onLauncher; }, [onLauncher]);
+  const hotOn = (shell.settings["shell.hotCorners"] ?? "on") === "on";
   useEffect(() => {
-    if ((shell.settings["shell.hotCorners"] ?? "on") !== "on") return;
-    const step = hotCornerTracker(); // fires on ENTRY only; re-arms after the pointer leaves the corner
-    const onMove = (e: PointerEvent) => { if (step(e.clientX, e.clientY)) onLauncher(); };
+    if (!hotOn) return;
+    const onMove = (e: PointerEvent) => { if (corner.current(e.clientX, e.clientY)) launch.current(); };
     window.addEventListener("pointerrawupdate" in window ? "pointerrawupdate" : "pointermove", onMove as EventListener);
     return () => window.removeEventListener("pointerrawupdate" in window ? "pointerrawupdate" : "pointermove", onMove as EventListener);
-  }, [onLauncher, shell.settings]);
+  }, [hotOn]);
 
   return (
     <div

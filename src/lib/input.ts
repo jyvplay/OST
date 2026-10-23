@@ -124,7 +124,7 @@ export function guardedButtons(cfg: MouseConfig): number[] {
  * Capture mouse presses anywhere on the page (window capture phase) until `onPress` accepts one (returns true). Every press is consumed:
  * its pointerdown / mousedown are stopped, and the trailing mouseup / auxclick / click / contextmenu of the SAME press
  * are swallowed for 800 ms so the learning press can't also navigate Files, open a context menu or click a button.
- * Escape cancels. Returns a disposer (idempotent).
+ * Escape cancels. Returns a disposer (idempotent) that stops capturing presses but lets an active trail finish.
  */
 export function captureNextButton(onPress: (button: number, e: MouseEvent) => boolean, onCancel: () => void, target: Window = window): () => void {
   let done = false;
@@ -163,7 +163,10 @@ export function captureNextButton(onPress: (button: number, e: MouseEvent) => bo
   target.addEventListener("pointerdown", onDown, { capture: true });
   target.addEventListener("mousedown", onDown, { capture: true });
   target.addEventListener("keydown", onKey as EventListener, { capture: true });
-  return () => { finish(); endTrail(); };
+  // NOT endTrail(): React disposes the capture in the effect cleanup right after the accepted press — BEFORE that press's
+  // mouseup / auxclick arrive. Ending the trail here let them through (found by the real-browser suite, TT67); an
+  // active trail removes itself after 800 ms.
+  return () => { finish(); };
 }
 
 /**

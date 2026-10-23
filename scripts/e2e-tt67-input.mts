@@ -129,6 +129,7 @@ await test("IN-02 learn: Learn Back + the device's FORWARD button → Back = 4, 
   await press(cdp, cx, cy, "back"); await settle(page, 1200);
   ok((await crumbs.innerText()).includes("Documents") && page.url() === app, `Files Forward on button 3: crumbs "${await crumbs.innerText()}"`);
   // test pad reports the learned meaning
+  await s2.getByTestId("mouse-probe").scrollIntoViewIfNeeded();
   const pad = await s2.getByTestId("mouse-probe").boundingBox();
   await press(cdp, pad!.x + 20, pad!.y + pad!.height / 2, "forward"); await settle(page, 300);
   ok(/button 4 → Back/.test(await s2.getByTestId("mouse-probe-out").innerText()), `test pad: ${await s2.getByTestId("mouse-probe-out").innerText()}`);
@@ -137,12 +138,14 @@ await test("IN-02 learn: Learn Back + the device's FORWARD button → Back = 4, 
   await ctx.close();
 });
 
-await test("IN-02 refusals and modality: the right button is refused with a reason, the dialog stays and its context menu never reaches the page; Meta+Q behind the overlay opens nothing; Escape cancels without changing the pair", IN2, async () => {
+await test("IN-02 refusals and modality: the overlay covers the screen; the right button is refused with a reason, the dialog stays and its context menu never reaches the page; Meta+Q behind the overlay opens nothing; Escape cancels without changing the pair", IN2, async () => {
   await setMouse("3", "4");
   const { ctx, page, cdp, s } = await openSettings();
   await page.evaluate(() => { const w = window as unknown as { __cm: number }; w.__cm = 0; document.addEventListener("contextmenu", () => { w.__cm++; }); });
   await s.getByRole("button", { name: "Learn Forward" }).click();
   const dlg = page.getByTestId("mouse-learn-dialog"); await dlg.waitFor({ timeout: 5000 });
+  const box = await dlg.boundingBox();
+  ok(box && box.x <= 0 && box.y <= 0 && box.width >= 1440 && box.height >= 900, `the overlay covers the whole viewport, not just the Settings window: ${JSON.stringify(box)}`);
   await press(cdp, 700, 450, "right"); await settle(page);
   ok(await dlg.count() === 1, "still learning after a refused press");
   ok(/secondary/.test(await dlg.innerText()), `reason shown: ${await dlg.innerText()}`);
@@ -167,7 +170,7 @@ await test("SH-06 hot corner with real pointer moves: entering the top-left corn
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } }); const page = await ctx.newPage(); const cdp = await ctx.newCDPSession(page);
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
-  await page.locator(".fs-desktop, [data-testid=\"desktop\"], main").first().waitFor({ timeout: 30_000 });
+  await page.locator("html[data-focus-mode]").waitFor({ state: "attached", timeout: 30_000 });
   await settle(page, 1500);
   const move = (x: number, y: number) => cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y, button: "none", buttons: 0 });
   const launcher = () => page.locator('[role="dialog"][aria-label="Launcher"]').count();
