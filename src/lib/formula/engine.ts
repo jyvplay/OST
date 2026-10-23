@@ -85,8 +85,13 @@ function parseLiteral(input: string): Scalar {
   const n = Number(input);
   if (input.trim() !== "" && !Number.isNaN(n)) return n;
   if (/^(TRUE|FALSE)$/i.test(input.trim())) return input.trim().toUpperCase() === "TRUE";
+  // TT68: an error literal typed (or stored as a t="e" constant) is an ERROR value, as in Excel — ISERROR(#N/A typed) is TRUE.
+  const e = input.trim().toUpperCase();
+  if (CONST_ERRORS.has(e)) return err(e as ErrorCode);
   return input;
 }
+/** ECMA-376 ST_CellError — the error literals a cell constant can hold. */
+const CONST_ERRORS = new Set(["#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A"]);
 
 export class Sheet {
   grid: SheetGrid = new Map();

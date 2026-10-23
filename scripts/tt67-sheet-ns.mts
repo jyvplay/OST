@@ -107,6 +107,8 @@ await test("adversarial shapes read correctly: comment / CDATA / PI lookalikes u
   ok(!/xmlns:ns1="urn:example:other"/.test(c("alias-collision")) && /xmlns:ns1="urn:keep"/.test(c("alias-collision")), `alias never reuses a source prefix: ${c("alias-collision")}`);
 });
 
+/** TT68: corpus workbooks containing "" string cells (now kept as non-blank empty text, scripts/tt68-blank.mts) */
+const TT68_EMPTY_TEXT = ["47737.xlsx", "52348.xlsx", "54288-ref.xlsx", "54288.xlsx", "56278.xlsx", "FormulaEvalTestData_Copy.xlsx", "LIBRE_OFFICE-116306-0.xlsx", "bug60858.xlsx", "bug66675.xlsx"];
 /* ------------------------------------------------------------------ the corpus workbooks with prefixed SpreadsheetML */
 /** the corpus workbooks the TT66 reader could not open or read empty (found by the whole-corpus differential below) */
 const PREFIXED = ["59021.xlsx", "59746_NoRowNums.xlsx", "InlineString.xlsx", "58760.xlsx", "65016.xlsx", "craftonhills.edu_programreview_report.aspx_goalpriorityreport_0011d159-1eeb-4b63-8833-867b0926e5f3.xlsx", "style-alternate-content.xlsx"];
@@ -329,7 +331,7 @@ await test("whole-corpus differential vs the TT66 reader (338 workbooks: cells +
     for (const [n, sh] of wb.sheets) { const d: Record<string, unknown> = {}; for (const [k, c] of (sh as unknown as { grid: Map<string, { input: string; style?: unknown }> }).grid) d[k] = [c.input, c.style ? JSON.stringify(c.style) : ""]; sheets[n] = d; }
     return JSON.stringify({ sheets, cf: wb.condFormats.map(({ id: _i, ...r }) => r), tables: (wb as unknown as { tables?: unknown[] }).tables?.length ?? 0, charts: wb.charts.length });
   };
-  const opened: string[] = [], decoded: string[] = [], worse: string[] = [], other: string[] = []; let same = 0;
+  const opened: string[] = [], decoded: string[] = [], worse: string[] = [], other: string[] = []; let same = 0; const emptyText = new Map<string, number>();
   for (const f of readdirSync(CORPUS).filter((x) => x.endsWith(".xlsx")).sort()) {
     const buf = readFileSync(`${CORPUS}/${f}`);
     let a: string | null = null, b: string | null = null;
@@ -337,6 +339,13 @@ await test("whole-corpus differential vs the TT66 reader (338 workbooks: cells +
     try { b = snap(readXlsxWorkbook(buf)); } catch { b = null; }
     if (a === b) { same++; continue; }
     if (b === null) { worse.push(f); continue; }
+    // TT68 FF-52 (intended): a string cell whose text is "" is now kept as the empty-text input "'" (TT66/67 dropped it,
+    // leaving nothing or a styled blank). Map exactly that back; any other difference still counts as unexplained.
+    if (a !== null) {
+      const o = JSON.parse(b) as { sheets: Record<string, Record<string, [string, string]>> }; let n = 0;
+      for (const d of Object.values(o.sheets)) for (const [k, [inp, st]] of Object.entries(d)) if (inp === "'") { n++; if (st) d[k] = ["", st]; else delete d[k]; }
+      if (n) { b = JSON.stringify(o); emptyText.set(f, n); if (a === b) { same++; continue; } }
+    }
     if (a === null || /"sheets":\{"[^"]*":\{\}\}/.test(a)) { opened.push(f); continue; }
     // the same workbook except for numeric character references now decoded
     const dec = a.replace(/&#(x[0-9a-fA-F]+|[0-9]+);/g, (_m, n: string) => JSON.stringify(String.fromCodePoint(n[0] === "x" ? parseInt(n.slice(1), 16) : Number(n))).slice(1, -1));
@@ -346,7 +355,8 @@ await test("whole-corpus differential vs the TT66 reader (338 workbooks: cells +
   eq(other, [], "files changed for an unexplained reason");
   eq(opened.length, 7, `newly readable: ${opened.join(", ")}`);
   eq(decoded.sort(), ["CVLKRA-KYC_Download_File_Structure_V3.1.xlsx", "LIBRE_OFFICE-128382-0.xlsx", "no_drawing_patriarch.xlsx"], "entity-decoded files");
-  console.log(`    ${same} identical, ${opened.length} newly readable, ${decoded.length} decoded, 0 worse`);
+  eq([...emptyText.keys()].sort(), TT68_EMPTY_TEXT, "files whose only change is TT68's kept empty-text cells");
+  console.log(`    ${same} identical, ${opened.length} newly readable, ${decoded.length} decoded, 0 worse; TT68 empty-text cells kept: ${[...emptyText].map(([f, n]) => `${f}=${n}`).join(" ")}`);
 });
 
 await test("cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells", COV, () => {
