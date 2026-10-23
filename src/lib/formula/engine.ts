@@ -448,7 +448,9 @@ function resolveRangeMatrix(range: RangeAddr, defaultSheet: string, evalCell: (s
   const sheetName = range.from.sheet ?? defaultSheet;
   const c0 = Math.min(range.from.col, range.to.col), c1 = Math.max(range.from.col, range.to.col);
   const r0 = Math.min(range.from.row, range.to.row), r1 = Math.max(range.from.row, range.to.row);
-  if ((c1 - c0 + 1) * (r1 - r0 + 1) > 1_000_000) throw Object.assign(new Error("#NUM!"), { code: err("#NUM!") });
+  // TT69: 2^21 (two full columns). The old 1,000,000 cap made one full column (1,048,576 rows) #NUM! once data reached
+  // the last rows: =SUM(C1:C1048576) and SUMIF(A:A,…) failed where Excel sums them
+  if ((c1 - c0 + 1) * (r1 - r0 + 1) > 2_097_152) throw Object.assign(new Error("#NUM!"), { code: err("#NUM!") });
   const rows: Scalar[][] = [];
   for (let r = r0; r <= r1; r++) {
     const row: Scalar[] = [];
@@ -625,6 +627,21 @@ function evalCall(name: string, argNodes: Node[], ctx: EvalContext): Value {
   }
   if (argNodes.some((n) => n.t === "call" && REF_FORMS.has(n.name) && n.name !== "__MISSING")) argNodes = argNodes.map((n) => resolveRefNode(n, ctx));
   if (ctx.legacy) argNodes = argNodes.map((n, i) => (n.t === "range" && !takesArray(name, i) ? intersectNode(n, ctx) : n));
+  // TT69: SUMIF / AVERAGEIF use sum_range's TOP-LEFT cell resized to the shape of `range` (Microsoft: "uses the upper
+  // leftmost cell in sum_range as the beginning cell and then includes cells that correspond in size and shape to range");
+  // TT68 paired the cells by flat index, so SUMIF(A1:A3,…,C1) summed only C1 and SUMIF(A1:B2,…,C1:C4) paired A2 with C3
+  if ((name === "SUMIF" || name === "AVERAGEIF") && argNodes.length === 3) {
+    const a = asRange(argNodes[0]), sr = asRange(argNodes[2]);
+    if (a && sr) {
+      const A = bounds(a), S = bounds(sr);
+      if (A.c1 - A.c0 !== S.c1 - S.c0 || A.r1 - A.r0 !== S.r1 - S.r0) {
+        // past the sheet edge the resize is clipped (the missing cells pair with nothing; Excel's docs are silent: unverified).
+        // Column clipping keeps pairing right because the function pairs by flat index only when widths agree.
+        const c1 = Math.min(MAX_COL, S.c0 + (A.c1 - A.c0)), r1 = Math.min(MAX_ROW, S.r0 + (A.r1 - A.r0));
+        if (c1 - S.c0 === A.c1 - A.c0) argNodes = [argNodes[0], argNodes[1], mkRef(sr.from.sheet, S.c0, S.r0, c1, r1)];
+      }
+    }
+  }
   if ((name === "ROWS" || name === "COLUMNS") && argNodes.length === 1 && (argNodes[0].t === "range" || argNodes[0].t === "ref")) {
     const v = argNodes[0].t === "ref" ? { from: argNodes[0].v, to: argNodes[0].v } : argNodes[0].v;
     return name === "ROWS" ? Math.abs(v.to.row - v.from.row) + 1 : Math.abs(v.to.col - v.from.col) + 1;

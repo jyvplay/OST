@@ -268,6 +268,9 @@ export function pasteSpecial(sheet: Sheet, clip: Clip, values: Scalar[][] | unde
     if (o.what === "values") {
       const v = values?.[i]?.[j];
       out = lit(v === undefined ? (input.startsWith("=") ? "" : parseLit(input)) : v);
+      // TT69: an EMPTY-TEXT value (="" or a typed ') pastes as empty text ("'": ISBLANK FALSE, COUNTA counts it, as Excel's
+      // Paste Values keeps a zero-length string); only a truly blank source (input "") pastes as blank
+      if (out === "" && input !== "" && (v === "" || (v === undefined && !input.startsWith("=")))) out = "'";
     } else {
       out = o.transpose ? transposeFormula(input, { col: clip.origin.col + j, row: clip.origin.row + i }, { col: tc, row: tr })
         : shiftFormula(input, tc - (clip.origin.col + j), tr - (clip.origin.row + i));

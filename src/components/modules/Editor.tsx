@@ -68,11 +68,14 @@ export default function EditorModule({ win }: ModuleProps) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // TT69: scoped to THIS window (was every window: Ctrl+S in a Spreadsheet, another Editor, or under the Save dialog saved it)
+      const t = e.target as HTMLElement | null;
+      if (!t?.closest?.(`[data-editor-win="${win.id}"]`)) return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); void save(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [save]);
+  }, [save, win.id]);
 
   if (!loaded) return <Empty title="Loading…" icon="⏳" />;
   if (!path) return <Empty title="No document" icon="📝" hint="Open a file from Files, or use the palette." />;
@@ -81,7 +84,7 @@ export default function EditorModule({ win }: ModuleProps) {
   const csv = fmt?.ext.includes("csv") ? parseCsv(text).slice(0, 60) : null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
+    <div data-editor-win={win.id} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <RecoveryBanner offer={recovery.offer} onDiscard={() => void recovery.discard()} onRestore={() => {
         const o = recovery.take(); if (!o) return;
         setText(o.draft.payload); setDirty(true);

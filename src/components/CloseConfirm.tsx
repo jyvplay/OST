@@ -77,14 +77,14 @@ export default function CloseConfirm(p: CloseConfirmProps) {
       <div ref={box} role="alertdialog" aria-modal="true" aria-labelledby="fs-close-confirm-title" aria-describedby="fs-close-confirm-body"
         data-testid="close-confirm" className="fs-card" onPointerDown={(e) => e.stopPropagation()}
         style={{ width: "min(30rem, calc(100vw - 32px))", padding: 20, borderRadius: 16, display: "grid", gap: 12,
-          background: "var(--fs-surface, #fff)", color: "var(--fs-text, #102030)", boxShadow: "0 18px 48px rgba(0,0,0,0.35)" }}>
+          background: "var(--fs-panel-solid, #fff)", color: "var(--fs-text, #102030)", border: "1px solid var(--fs-border, rgba(0,0,0,0.2))", boxShadow: "0 18px 48px rgba(0,0,0,0.35)" }}>
         <h2 id="fs-close-confirm-title" style={{ margin: 0, fontSize: fz(18) }}>
           Save changes to “{p.title}”?
         </h2>
         <p id="fs-close-confirm-body" style={{ margin: 0, fontSize: fz(14), lineHeight: 1.5 }}>
           {body}{p.queued > 1 ? ` (${p.queued - 1} more document${p.queued > 2 ? "s" : ""} with unsaved changes after this one.)` : ""}
         </p>
-        {p.error ? <p role="alert" data-testid="close-confirm-error" style={{ margin: 0, fontSize: fz(13), color: "var(--fs-bad, #b3261e)" }}>{p.error}</p> : null}
+        {p.error ? <p role="alert" data-testid="close-confirm-error" style={{ margin: 0, fontSize: fz(13), color: "var(--fs-bad-text, #b3261e)" }}>{p.error}</p> : null}
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
           <button type="button" className="fs-btn" data-variant="ghost" data-testid="close-confirm-cancel" disabled={p.busy} onClick={() => p.onCancel()}>Cancel</button>
           <button type="button" className="fs-btn" data-variant="danger" data-testid="close-confirm-discard" disabled={p.busy} onClick={() => p.onDiscard()}>Don&apos;t save</button>
