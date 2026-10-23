@@ -1,6 +1,6 @@
 {
   "suite": "tt56-shell-unit",
-  "at": "2026-10-23T04:52:17.520Z",
+  "at": "2026-10-23T07:55:55.680Z",
   "results": [
     {
       "suite": "tt56-shell-unit",
@@ -18,7 +18,7 @@
         "WM-05": "full"
       },
       "pass": true,
-      "ms": 218
+      "ms": 400
     },
     {
       "suite": "tt56-shell-unit",

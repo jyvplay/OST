@@ -31,6 +31,7 @@ import { Workbook, a1, type Sheet, type CellStyle, type Cell } from "./engine";
 import { colToLetters, lettersToCol, isError } from "./types";
 import { readXlsxWorkbook, workbookToJson, workbookFromJson, colorContext, xlsxInternals as X } from "./xlsx";
 import { rangeRef } from "./sheetlayout";
+import { canonicalizeNs, SML_CANON } from "../office/xml-ns";
 import type { CondRule } from "./sheetmeta";
 import { addFuturePrefixes } from "./sheetops";
 import { linksXml, REL_HYPERLINK } from "./sheetlinks";
@@ -240,7 +241,11 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
   // same colour context as the reader, or every theme-coloured cell would look "changed"
   const themeRel = kids(relsDoc.root).find((r) => /\/theme$/.test(attr(r, "Type") ?? ""));
   const themeXml = themeRel ? await zip.readText(realName(resolve(wbPart, attr(themeRel, "Target")!))) : null;
-  const readStyles = X.readStyles(stylesXml, colorContext(stylesXml, themeXml));
+  // TT67: the style READER needs the canonical view the workbook reader had (an x:-prefixed styles.xml read literally
+  // gave no styles, so every edited cell's fill / border / alignment looked "changed" and was rebuilt). The
+  // StylePatcher below still edits the ORIGINAL bytes (it is prefix-aware).
+  const canonView = (x: string | null) => (x == null ? x : canonicalizeNs(x, SML_CANON, { knownRoot: true }));
+  const readStyles = X.readStyles(canonView(stylesXml) as string, colorContext(canonView(stylesXml) as string, canonView(themeXml)));
   const styles = new StylePatcher(stylesXml, (i) => readStyles[i]);
 
   // --- sheet identity: same position+name, or same name, = same sheet (rename detected by position when counts match)

@@ -7,7 +7,7 @@ Run from the repository root:  python3 scripts/tt67-sheet-ns-mutants.py   (MUT=<
 """
 import os, subprocess, sys, pathlib
 
-N, X = "src/lib/office/xml-ns.ts", "src/lib/formula/xlsx.ts"
+N, X, P = "src/lib/office/xml-ns.ts", "src/lib/formula/xlsx.ts", "src/lib/formula/xlsx-patch.ts"
 MUTANTS = [
     ("reader: canonicalisation not wired (TT66 behaviour)", X,
      '? canonicalizeNs(raw, SML_CANON, { knownRoot: true }) : raw;', '? raw : raw;'),
@@ -29,6 +29,8 @@ MUTANTS = [
      'while (xml.includes(`ns${k}:`) || xml.includes(`xmlns:ns${k}`) || prefixes.has(`ns${k}`)) k++;', 'while (prefixes.has(`ns${k}`)) k++;'),
     ("canon: attribute prefixes not renamed", N,
      '      const op = ap === "xml" ? "xml" : outPrefix(au, ap);', '      const op = ap;'),
+    ("patch: styles read from the raw (prefixed) styles.xml (TT67 gate finding)", P,
+     "X.readStyles(canonView(stylesXml) as string, colorContext(canonView(stylesXml) as string, canonView(themeXml)))", "X.readStyles(stylesXml, colorContext(stylesXml, themeXml))"),
     ("dec: numeric references not decoded (TT66 behaviour)", X,
      '  if (n) return NAMED[n];\n', '  if (n) return NAMED[n];\n  if (n === undefined) return m;\n'),
     ("dec: two passes (&amp;lt; decoded to <)", X,

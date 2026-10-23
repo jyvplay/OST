@@ -290,6 +290,29 @@ await test("references that are not characters (lone surrogate in hex and decima
   ok(lxmlRejects, "lxml treats these as fatal well-formedness errors (so they are not in any Excel-written file)");
 });
 
+await test("lossless re-style of a cell in an x:-prefixed styles.xml changes ONLY its font (openpyxl): the patcher reads styles through the same canonical view as the reader (found by the TT67 gate: fill / border / alignment were rebuilt)", COV, async () => {
+  const rep: string[] = [];
+  for (const [f, ref] of [["59746_NoRowNums.xlsx", "A1"], ["craftonhills.edu_programreview_report.aspx_goalpriorityreport_0011d159-1eeb-4b63-8833-867b0926e5f3.xlsx", "A1"]] as const) {
+    const orig = readFileSync(`${CORPUS}/${f}`);
+    const wb = readXlsxWorkbook(orig);
+    const sh = [...wb.sheets.values()][0];
+    sh.setStyle(0, 0, { bold: true });
+    const { bytes } = await patchXlsx(orig, wb);
+    writeFileSync(`${dir}/restyle.xlsx`, bytes);
+    const dump = (path: string) => JSON.parse(execFileSync(PY, ["-c", `
+import json, sys, openpyxl, warnings
+warnings.filterwarnings("ignore")
+c = openpyxl.load_workbook(sys.argv[1]).worksheets[0]["${ref}"]
+f, b, a = c.fill, c.border, c.alignment
+print(json.dumps({"bold": bool(c.font.b), "fill": [f.patternType, str(f.fgColor.rgb), str(f.bgColor.rgb)], "border": [b.left.style, b.right.style, b.top.style, b.bottom.style, str(b.left.color.rgb) if b.left.color else None], "align": [a.horizontal, a.vertical, a.wrap_text], "value": c.value}))`, path], { encoding: "utf8" }));
+    const a = dump(`${CORPUS}/${f}`), b = dump(`${dir}/restyle.xlsx`);
+    eq({ ...b, bold: a.bold }, a, `${f}: only the font may change`);
+    ok(b.bold === true, `${f}: bold applied`);
+    rep.push(`${f.slice(0, 20)}: fill ${a.fill[0]}/${a.fill[1]}, align ${a.align[0]} kept`);
+  }
+  console.log(`    ${rep.join("; ")}`);
+});
+
 await test("the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)", COV, () => {
   const bad = writeZip([{ name: "xl/worksheets/sheet1.xml", data: Buffer.from(`<worksheet xmlns="${SML}"><sheetData></worksheet>`) }, { name: "xl/worksheets/sheet2.xml", data: Buffer.from(`<worksheet xmlns="${SML}"><sheetData/></worksheet>`) }]);
   writeFileSync(`${dir}/x14-bad.xlsx`, bad); writeFileSync(`${dir}/x14-notzip.xlsx`, "not a zip");

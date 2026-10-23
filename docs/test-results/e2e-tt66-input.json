@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt66-input",
-  "at": "2026-10-23T05:02:29.124Z",
+  "at": "2026-10-23T08:07:43.488Z",
   "results": [
     {
       "suite": "e2e-tt66-input",
@@ -9,7 +9,7 @@
         "IN-01": "full"
       },
       "pass": true,
-      "ms": 2888
+      "ms": 2858
     },
     {
       "suite": "e2e-tt66-input",
@@ -18,7 +18,7 @@
         "IN-01": "full"
       },
       "pass": true,
-      "ms": 8023
+      "ms": 7419
     },
     {
       "suite": "e2e-tt66-input",
@@ -27,7 +27,7 @@
         "IN-01": "full"
       },
       "pass": true,
-      "ms": 1977
+      "ms": 2042
     },
     {
       "suite": "e2e-tt66-input",

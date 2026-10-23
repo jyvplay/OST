@@ -1,6 +1,6 @@
 {
   "suite": "tt60-sheet-spell-all",
-  "at": "2026-10-23T04:57:59.512Z",
+  "at": "2026-10-23T08:03:09.555Z",
   "results": [
     {
       "suite": "tt60-sheet-spell-all",
@@ -9,7 +9,7 @@
         "FF-41": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 7
     },
     {
       "suite": "tt60-sheet-spell-all",
@@ -18,7 +18,7 @@
         "FF-41": "full"
       },
       "pass": true,
-      "ms": 531
+      "ms": 460
     }
   ]
 }
