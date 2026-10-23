@@ -2,7 +2,9 @@
 """TT67 test-only oracle: cell values of an .xlsx read with lxml and REAL namespace resolution (ElementTree Clark
 names, so any prefix — x:, s:, default — works), independent of openpyxl and of our reader.
 
-Usage: xlsx_values_lxml.py FILE  → JSON {sheet: {A1: value}} for non-empty cells. Values: shared / inline / rich
+Usage: xlsx_values_lxml.py FILE  → JSON {sheet: {A1: value}} for non-empty cells.
+       xlsx_values_lxml.py FILE --empty-text → JSON {sheet: [A1, …]}: CONSTANT string cells (t = s / inlineStr / str,
+       no <f>) whose text is "" — Excel's non-blank empty text (TT68) — excluding cached children of array formulas. Values: shared / inline / rich
 strings (runs concatenated), booleans as true/false, numbers as float, errors as their text, formula-string results.
 Only what ECMA-376 §18.3.1.4 (c), §18.4 (sst / is / r / t) define; styles and dates are not interpreted (numbers stay
 serials). Main namespaces accepted: transitional, strict and the Excel 2007 beta namespace.
@@ -97,6 +99,7 @@ def main(path):
         if x is None:
             continue
         d = {}
+        cand, arrays = [], []
         data = next((k for k in x if is_main(k) and local(k) == "sheetData"), None)
         row_no = 0
         for row in (kids(data, "row") if data is not None else []):
@@ -114,7 +117,11 @@ def main(path):
                 elif vt is None:
                     val = None
                 elif t == "s":
-                    val = sst[int(vt)] if int(vt) < len(sst) else None
+                    try:
+                        ix = int(vt)
+                    except ValueError:
+                        ix = -1
+                    val = sst[ix] if 0 <= ix < len(sst) else None
                 elif t == "b":
                     val = vt.strip() in ("1", "true")
                 elif t in ("str", "e"):
@@ -124,11 +131,24 @@ def main(path):
                         val = float(vt)
                     except ValueError:
                         val = vt
-                if val is not None and val != "":
+                fe = next(iter(kids(c, "f")), None)
+                if fe is not None and fe.get("t") == "array" and fe.get("ref") and ":" in fe.get("ref"):
+                    lo, hi = fe.get("ref").split(":")
+                    arrays.append((col_index(lo), int("".join(ch for ch in lo if ch.isdigit())), col_index(hi), int("".join(ch for ch in hi if ch.isdigit())), col_no, row_no))
+                if EMPTY_TEXT:
+                    if val == "" and t in ("s", "inlineStr", "str") and fe is None:
+                        cand.append((col_no, row_no))
+                elif val is not None and val != "":
                     d[a1(col_no, row_no)] = val
+        if EMPTY_TEXT:
+            # constant empty-text cells, minus cached children of array formulas (the anchor re-computes them)
+            inside = lambda c, r: any(c0 <= c <= c1 and r0 <= r <= r1 and (c, r) != (ca, ra) for c0, r0, c1, r1, ca, ra in arrays)
+            d = sorted(a1(c, r) for c, r in cand if not inside(c, r))
         out[sh.get("name")] = d
     print(json.dumps(out))
 
 
+EMPTY_TEXT = "--empty-text" in sys.argv
+
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main([a for a in sys.argv[1:] if not a.startswith("--")][0])

@@ -108,7 +108,7 @@ await test("adversarial shapes read correctly: comment / CDATA / PI lookalikes u
 });
 
 /** TT68: corpus workbooks containing "" string cells (now kept as non-blank empty text, scripts/tt68-blank.mts) */
-const TT68_EMPTY_TEXT = ["47737.xlsx", "52348.xlsx", "54288-ref.xlsx", "54288.xlsx", "56278.xlsx", "FormulaEvalTestData_Copy.xlsx", "LIBRE_OFFICE-116306-0.xlsx", "bug60858.xlsx", "bug66675.xlsx"];
+const TT68_EMPTY_TEXT = ["47737.xlsx", "54288-ref.xlsx", "54288.xlsx", "56278.xlsx", "FormulaEvalTestData_Copy.xlsx", "LIBRE_OFFICE-116306-0.xlsx", "bug60858.xlsx", "bug66675.xlsx"];
 /* ------------------------------------------------------------------ the corpus workbooks with prefixed SpreadsheetML */
 /** the corpus workbooks the TT66 reader could not open or read empty (found by the whole-corpus differential below) */
 const PREFIXED = ["59021.xlsx", "59746_NoRowNums.xlsx", "InlineString.xlsx", "58760.xlsx", "65016.xlsx", "craftonhills.edu_programreview_report.aspx_goalpriorityreport_0011d159-1eeb-4b63-8833-867b0926e5f3.xlsx", "style-alternate-content.xlsx"];

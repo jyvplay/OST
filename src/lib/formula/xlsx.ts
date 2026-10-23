@@ -528,6 +528,7 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
     if (arrayChildren.has(`${col},${row}`)) { applyStyle(); continue; } // cached spill value: the anchor re-spills on recalc
     const type = attrs.t ?? "n";
     if (type === "inlineStr") {
+      if (!/<is[\s>/]/.test(inner)) { applyStyle(); continue; } // TT68: no <is> → no value (not empty text)
       const text = cellText([...inner.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((x) => dec(x[1])).join(""));
       sheet.setCell(col, row, keepText(text)); applyStyle(); continue; // TT47: string cells stay text
     }
@@ -535,7 +536,7 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
     if (value === undefined) { applyStyle(); continue; }
     const v = dec(value);
     if (type === "s") { const sv = /^\s*\d+\s*$/.test(v) ? sst[Number(v)] : undefined; if (sv !== undefined) sheet.setCell(col, row, keepText(sv)); } // TT47: "0.00", "00123", "TRUE", "=x" stay TEXT
-    else if (type === "str") sheet.setCell(col, row, keepText(v));
+    else if (type === "str") sheet.setCell(col, row, textInput(v)); // a constant t="str" with <v></v> is no value (Excel writes str only with <f>)
     else if (type === "b") sheet.setCell(col, row, v === "1" ? "TRUE" : "FALSE");
     else sheet.setCell(col, row, v); // e (literal error text), str, n
     applyStyle();
