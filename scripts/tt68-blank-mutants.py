@@ -37,6 +37,7 @@ MUTANTS = [
     ("reader: inlineStr without <is> becomes empty text", X, '      if (!/<is[\\s>/]/.test(inner)) { applyStyle(); continue; }', '      if (false) { applyStyle(); continue; }'),
     ("reader: shared-string index not validated", X, '/^\\s*\\d+\\s*$/.test(v) ? sst[Number(v)] : undefined', 'sst[Number(v)]'),
     ("patcher drops an edited empty-text cell", P, 'if (cell && cell.input !== "" && !cell.formula && v === "") {', 'if (false) {'),
+    ("criterion referring to an empty cell read as \"\" (not 0)", F, '&& blankAt(a, 0, 0) && a.blank ? 0 : scalar(a));', '&& false ? 0 : scalar(a));'),
     ("COUNTA counts by value", F, 'a.value.forEach((row, i) => row.forEach((_v, j) => { if (!blankAt(a, i, j)) n++; }));', 'a.value.forEach((row) => row.forEach((v) => { if (v !== "") n++; }));'),
 ]
 

@@ -168,6 +168,8 @@ function plainCriteria(s: string, m: RegExpExecArray | null): (v: Scalar) => boo
   }
   return (v) => toStr(v).toLowerCase() === s.toLowerCase();
 }
+/** TT68: a criterion that refers to an EMPTY cell means 0 (Microsoft COUNTIFS remarks; exceljet) — not "" (use Z1&""). */
+const critOf = (a: Arg | undefined): Scalar => (a && a.kind === "matrix" && blankAt(a, 0, 0) && a.blank ? 0 : scalar(a));
 /** Flattened values of a range argument with the matching truly-empty flags. */
 function cellsOf(a: Arg | undefined): { v: Scalar[]; blank: boolean[] } {
   if (!a) return { v: [], blank: [] };
@@ -347,7 +349,7 @@ function roundDir(n: number, digits: number, dir: "up" | "down"): number {
 }
 function sumIf(a: Arg[]): Scalar {
   const r = cellsOf(a[0]);
-  const crit = makeCriteria(scalar(a[1]));
+  const crit = makeCriteria(critOf(a[1]));
   const sumRange = (a[2] ? matrixOf(a[2]) : matrixOf(a[0])).flat();
   let total = 0;
   r.v.forEach((v, i) => { if (crit(v, r.blank[i])) { const n = sumRange[i]; if (typeof n === "number") total += n; } });
@@ -355,12 +357,12 @@ function sumIf(a: Arg[]): Scalar {
 }
 function countIf(a: Arg[]): Scalar {
   const r = cellsOf(a[0]);
-  const crit = makeCriteria(scalar(a[1]));
+  const crit = makeCriteria(critOf(a[1]));
   let n = 0; r.v.forEach((v, i) => { if (crit(v, r.blank[i])) n++; }); return n;
 }
 function averageIf(a: Arg[]): Scalar {
   const r = cellsOf(a[0]);
-  const crit = makeCriteria(scalar(a[1]));
+  const crit = makeCriteria(critOf(a[1]));
   const avgRange = (a[2] ? matrixOf(a[2]) : matrixOf(a[0])).flat();
   const matched: number[] = [];
   r.v.forEach((v, i) => { if (crit(v, r.blank[i])) { const n = avgRange[i]; if (typeof n === "number") matched.push(n); } });
@@ -397,7 +399,7 @@ function buildMultiCriteriaMask(pairs: Arg[]): boolean[] {
   let mask: boolean[] | null = null;
   for (let i = 0; i + 1 < pairs.length; i += 2) {
     const r = cellsOf(pairs[i]);
-    const crit = makeCriteria(scalar(pairs[i + 1]));
+    const crit = makeCriteria(critOf(pairs[i + 1]));
     const m = r.v.map((v, j) => crit(v, r.blank[j]));
     if (mask && mask.length !== m.length) raise(err("#VALUE!"));
     mask = mask ? mask.map((x, j) => x && m[j]) : m;

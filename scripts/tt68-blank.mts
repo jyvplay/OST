@@ -77,14 +77,15 @@ const CRIT: Case[] = [
   ['=MINIFS(C1:C9,A1:A9,"<>#DIV/0!")', 10], ['=COUNTIFS(A1:A9,"<>",C1:C9,">40")', 5], ['=COUNTIFS(A1:A9,"<>",C1:C8,">40")', { error: "#VALUE!" }],
   ['=AVERAGEIFS(C1:C9,A1:A9,"zzz")', { error: "#DIV/0!" }], ['=MAXIFS(C1:C9,A1:A9,"zzz")', 0], ['=AVERAGEIF(A1:A9,"<>#DIV/0!",C1:C9)', 53.75], ['=SUMIFS(C1:C8,A1:A9,"<>")', { error: "#VALUE!" }],
   ['=COUNTIF(A3:A9,"<>0")', 7], ['=COUNTIF(A3:A4,"<=0")', 0],
+  ["=COUNTIF(A1:A9,Z1)", 0], ['=COUNTIF(A1:A9,Z1&"")', 2], ["=COUNTIFS(D1:D3,Z1)", 2],
 ];
-await test("*IF / *IFS criteria (27 cases): an error cell never fails the function and matches its own error literal; \"=\" = empty cells only, \"\" = empty + empty text, \"<>\" = non-empty; wildcards see text only, ~ escapes; size mismatch → #VALUE!", { "FF-52": "full", "FF-27": "partial" }, () => {
-  const run = (W: typeof Workbook) => { const wb = new W(); const s = wb.sheet(); SETUP2.forEach((v, i) => { if (v) s.setCell(0, i, v); }); for (let i = 0; i < 9; i++) s.setCell(2, i, String((i + 1) * 10)); CRIT.forEach(([f], i) => s.setCell(4, i, f)); wb.recalculate(); return report(CRIT.map(([f, e], i) => { const v = s.get(4, i)?.value; return { f, e, v, good: J(v) === J(e) || (typeof v === "number" && typeof e === "number" && Math.abs(v - e) < 1e-9) }; })); };
+await test("*IF / *IFS criteria (30 cases): an error cell never fails the function and matches its own error literal; \"=\" = empty cells only, \"\" = empty + empty text, \"<>\" = non-empty; wildcards see text only, ~ escapes; size mismatch → #VALUE!", { "FF-52": "full", "FF-27": "partial" }, () => {
+  const run = (W: typeof Workbook) => { const wb = new W(); const s = wb.sheet(); SETUP2.forEach((v, i) => { if (v) s.setCell(0, i, v); }); for (let i = 0; i < 9; i++) s.setCell(2, i, String((i + 1) * 10)); s.setCell(3, 0, "0"); s.setCell(3, 2, "0"); CRIT.forEach(([f], i) => s.setCell(4, i, f)); wb.recalculate(); return report(CRIT.map(([f, e], i) => { const v = s.get(4, i)?.value; return { f, e, v, good: J(v) === J(e) || (typeof v === "number" && typeof e === "number" && Math.abs(v - e) < 1e-9) }; })); };
   void COLB2;
   const now = run(Workbook), before = run(B.Workbook);
   ok(now.length === 0, `wrong: ${now.join(" | ")}`);
   ok(before.length >= 10, `before evidence: TT67 should get ≥10 wrong, got ${before.length}`);
-  console.log(`    TT67 got ${before.length}/27 wrong, e.g. ${before.slice(0, 4).join(" | ")}`);
+  console.log(`    TT67 got ${before.length}/30 wrong, e.g. ${before.slice(0, 4).join(" | ")}`);
 });
 
 /* ---------------------------------------------------------------- 3. error constants */
