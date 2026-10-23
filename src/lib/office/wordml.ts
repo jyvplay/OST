@@ -39,7 +39,9 @@ export interface ParaChange { id: number; author: string; date?: string; old: Pa
 export interface Para { t: "p"; id: string; p: ParaProps; p0?: ParaProps; pPr?: XEl; pc?: ParaChange; content: Inline[]; src?: XEl; dirty?: boolean; sect?: XEl; /** TT56: tracked insertion / deletion of this paragraph's mark */ markRev?: Rev }
 export interface Cell { t: "tc"; src?: XEl; span0?: number; tcPr?: XEl; blocks: Block[]; span: number; vmerge?: "restart" | "continue"; width?: number; fill?: string }
 export interface Row { t: "tr"; src?: XEl; items: (Cell | XNode)[]; header?: boolean; height?: number; /** TT60: tracked insertion / deletion of the whole row (w:trPr/w:ins, w:trPr/w:del — §17.13.5.17 / .14) */ rev?: Rev }
-export interface Table { t: "tbl"; id: string; items: (Row | XNode)[]; grid: number[]; grid0?: string; src?: XEl; borders: boolean; style?: string }
+export interface Table { t: "tbl"; id: string; items: (Row | XNode)[]; grid: number[]; grid0?: string; src?: XEl; borders: boolean; style?: string; /** TT64: tracked grid change (w:tblGrid/w:tblGridChange, §17.13.5.33): the column widths before the revision */ gridChange?: { id: number; cols: number[] } }
+/** TT64: lossless signature of a table grid (+ its tracked grid change); the original w:tblGrid is kept while it is unchanged */
+export const gridSig = (t: Pick<Table, "grid" | "gridChange">) => `${t.grid.join(",")}|${t.gridChange ? `${t.gridChange.id}:${t.gridChange.cols.join(",")}` : ""}`;
 export interface Box { t: "box"; id: string; src: XEl; content: string; blocks: Block[]; label: string }
 export interface Opaque { t: "x"; node: XNode; label: string }
 export type Block = Para | Table | Box | Opaque;
@@ -396,6 +398,9 @@ function parsePara(ctx: Ctx, n: XEl): Para {
 function parseTable(ctx: Ctx, n: XEl): Table {
   const tblPr = kid(n, "w:tblPr");
   const grid = kids(kid(n, "w:tblGrid"), "w:gridCol").map((g) => Number(attr(g, "w:w") ?? 0));
+  // TT64: w:tblGridChange (CT_Markup id + the previous w:tblGrid)
+  const gce = kid(kid(n, "w:tblGrid"), "w:tblGridChange"); const gcId = gce ? Number(attr(gce, "w:id")) : NaN;
+  const gridChange = gce && Number.isInteger(gcId) ? { id: gcId, cols: kids(kid(gce, "w:tblGrid"), "w:gridCol").map((g) => Number(attr(g, "w:w") ?? 0)) } : undefined;
   const b = kid(tblPr, "w:tblBorders");
   const style = attr(kid(tblPr, "w:tblStyle"), "w:val");
   const borders = b ? kids(b).some((x) => attr(x, "w:val") && attr(x, "w:val") !== "nil" && attr(x, "w:val") !== "none") : !!style && /grid|table/i.test(style);
@@ -414,7 +419,7 @@ function parseTable(ctx: Ctx, n: XEl): Table {
     if (rd) { row.rev = rd; if (ri) rd.ins = ri; } else if (ri) row.rev = ri;
     return row;
   });
-  return { t: "tbl", id: newId("t"), items, grid, grid0: grid.join(","), src: n, borders, style };
+  return { t: "tbl", id: newId("t"), items, grid, grid0: gridSig({ grid, gridChange }), src: n, borders, style, gridChange };
 }
 function parseCell(ctx: Ctx, c: XEl): Cell {
   const tcPr = kid(c, "w:tcPr");
@@ -782,7 +787,10 @@ function serializeTable(t: Table): XEl {
       return r.src ? { ...clone({ ...r.src, kids: [] }), kids: kidsOut, selfClose: false } : el("w:tr", {}, kidsOut);
     }
     const n = it as XNode;
-    if (n.k === "el" && n.name === "w:tblGrid" && t.grid.join(",") !== t.grid0) return el("w:tblGrid", {}, t.grid.map((g) => el("w:gridCol", { "w:w": String(Math.round(g)) })));
+    if (n.k === "el" && n.name === "w:tblGrid" && gridSig(t) !== t.grid0) {
+      const cols = (ws: number[]) => ws.map((g) => el("w:gridCol", { "w:w": String(Math.round(g)) }));
+      return el("w:tblGrid", {}, [...cols(t.grid), ...(t.gridChange ? [el("w:tblGridChange", { "w:id": String(t.gridChange.id) }, [el("w:tblGrid", {}, cols(t.gridChange.cols))])] : [])]);
+    }
     return n;
   });
   base.selfClose = false;
@@ -1075,7 +1083,7 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
     const seen = new Set<string>();
     // TT60: likewise one tracked deletion spanning several paragraphs / table cells (a deleted row's text) writes one w:del per
     // paragraph; §17.13.5 wants each annotation id unique, so every revision record is renumbered on collision
-    const REC = new Set(["w:rPrChange", "w:pPrChange", "w:ins", "w:del", "w:tblPrChange", "w:trPrChange", "w:tcPrChange"]);
+    const REC = new Set(["w:rPrChange", "w:pPrChange", "w:ins", "w:del", "w:tblPrChange", "w:trPrChange", "w:tcPrChange", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tblGridChange"]);
     for (const rc of findAll(body, (x) => REC.has(x.name))) {
       const id = attr(rc, "w:id");
       if (id === undefined) continue;

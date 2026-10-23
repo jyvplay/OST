@@ -134,5 +134,8 @@ await test("FF-47 PivotTable saved as a real Excel PivotTable from the UI: creat
 
 await test("no uncaught page errors during the TT63 session", { "FF-47": "full" }, () => { eq(errors, [], "page errors"); });
 
+// test hygiene (TT64): this run's /Documents files go — left behind, every run's uploads pile up on the Tabletop floor past its
+// ~46-card layout and fail e2e-tabletop / e2e-beauty (found in the TT64 gate)
+for (const n of ((await api("GET", "/api/fs?op=list&path=/Documents")).json?.nodes ?? []) as { name: string; path: string }[]) if (n.name.startsWith(RUN)) { await api("POST", "/api/fs", { op: "trash", path: n.path }); await api("POST", "/api/fs", { op: "purge", path: n.path }); }
 await browser.close();
 finish();

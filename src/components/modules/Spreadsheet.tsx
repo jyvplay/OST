@@ -1073,7 +1073,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           <label><input type="checkbox" checked={!!ps.skipBlanks} onChange={(e) => setPs({ ...ps, skipBlanks: e.target.checked })} /> Skip blanks</label>
           <label><input type="checkbox" checked={!!ps.transpose} onChange={(e) => setPs({ ...ps, transpose: e.target.checked })} /> Transpose</label>
           <Btn variant="primary" onClick={doPasteSpecial}>Paste</Btn>
-          <Btn variant="ghost" onClick={doPasteLink} disabled={!!ps.transpose || !!ps.skipBlanks || (ps.op ?? "none") !== "none"} title="Paste formulas that refer to the copied cells (=$A$1); not with Transpose, Skip blanks or an operation">Paste Link</Btn>
+          <Btn variant="ghost" onClick={doPasteLink} disabled={!!ps.transpose || !!ps.skipBlanks || (ps.op ?? "none") !== "none"} title="Paste formulas that refer to the copied cells: one cell links absolutely (=$A$1), a range relatively (=A1, =B1, …) as in Excel; not with Transpose, Skip blanks or an operation">Paste Link</Btn>
           <Btn variant="ghost" onClick={() => { setPanel(null); gridRef.current?.focus(); }}>Cancel</Btn>
           <span className="fs-dim">from {psFrom} (this Spreadsheet&apos;s clipboard)</span>
         </div>

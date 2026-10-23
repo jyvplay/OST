@@ -1,6 +1,6 @@
 {
   "suite": "tt58-sheet-pivot",
-  "at": "2026-10-22T21:42:10.956Z",
+  "at": "2026-10-23T00:45:23.657Z",
   "results": [
     {
       "suite": "tt58-sheet-pivot",
@@ -9,7 +9,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt58-sheet-pivot",
@@ -27,7 +27,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 4959
+      "ms": 5986
     },
     {
       "suite": "tt58-sheet-pivot",
@@ -36,7 +36,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 14
+      "ms": 10
     },
     {
       "suite": "tt58-sheet-pivot",
@@ -45,7 +45,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 813
+      "ms": 836
     }
   ]
 }

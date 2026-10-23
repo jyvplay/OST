@@ -295,16 +295,19 @@ export function pasteSpecial(sheet: Sheet, clip: Clip, values: Scalar[][] | unde
   return { c0: col, r0: row, c1: col + (o.transpose ? H : W) - 1, r1: row + (o.transpose ? W : H) - 1 };
 }
 /**
- * TT59 Paste Link (Paste Special ▸ Paste Link): every target cell gets a formula referring to its source cell with an
- * absolute reference ("=$B$2", or "=Sheet1!$B$2" from another sheet), so the target follows later source edits.
- * Excel offers it only without Transpose / Skip blanks / an operation; a blank source shows 0, as in Excel.
+ * TT59 Paste Link (Paste Special ▸ Paste Link): every target cell gets a formula referring to its source cell, so the target
+ * follows later source edits ("=Sheet1!…" from another sheet). TT64: as in Excel, a SINGLE copied cell links with an
+ * absolute reference ("=$B$2") and a copied RANGE links with relative references ("=B2", "=C2", …), so the linked block can
+ * itself be copied on and keep its shape. Excel offers it only without Transpose / Skip blanks / an operation; a blank
+ * source shows 0, as in Excel.
  */
 export function pasteLink(sheet: Sheet, clip: Clip, srcSheet: string, col: number, row: number): Range {
   const H = clip.inputs.length, W = clip.inputs[0]?.length ?? 1;
   const q = srcSheet === sheet.name ? "" : `${/^[A-Za-z_][A-Za-z0-9_.]*$/.test(srcSheet) && !/^[A-Za-z]{1,3}\d+$|^[RrCc]$|^[Rr]\d*[Cc]\d*$/.test(srcSheet) ? srcSheet : `'${srcSheet.replace(/'/g, "''")}'`}!`;
   for (let i = 0; i < H; i++) for (let j = 0; j < W; j++) {
     const sc = clip.origin.col + j, sr = clip.origin.row + i;
-    sheet.setCell(col + j, row + i, `=${q}$${colToLetters(sc)}$${sr + 1}`);
+    const abs = H === 1 && W === 1 ? "$" : "";
+    sheet.setCell(col + j, row + i, `=${q}${abs}${colToLetters(sc)}${abs}${sr + 1}`);
   }
   return { c0: col, r0: row, c1: col + W - 1, r1: row + H - 1 };
 }

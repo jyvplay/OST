@@ -505,6 +505,9 @@ export function trackedChanges(doc: WordDoc): { pid: string; kind: "ins" | "del"
 export function resolveChanges(doc: WordDoc, accept: boolean): number {
   let n = 0;
   for (const c of revisions(doc)) if (c.editable && resolveOne(doc, c.key, accept)) n++;
+  // TT64: a tracked grid change with no cell revision left is settled too (accept = keep the widths, reject = the recorded ones)
+  const grids = (bs: Block[]) => { for (const b of bs) { if (b.t === "box") grids(b.blocks); if (b.t !== "tbl") continue; if (b.gridChange) { settleGrid(b, !accept); if (!b.gridChange) n++; } for (const r of rowsOf(b)) for (const c of cellsOf(r)) grids(c.blocks); } };
+  grids(doc.blocks);
   for (const p of allParas(doc.blocks)) {
     let changed = false;
     const next: Inline[] = [];
@@ -555,8 +558,25 @@ export function insertTableAfter(doc: WordDoc, pid: string, rows: number, cols: 
   return t;
 }
 /** Logical grid column of a cell (sums gridSpans before it). */
-export function colOf(row: Row, cell: Cell): number { let c = 0; for (const x of cellsOf(row)) { if (x === cell) return c; c += x.span; } return c; }
-export function cellAtCol(row: Row, col: number): Cell | undefined { let c = 0; for (const x of cellsOf(row)) { if (col >= c && col < c + x.span) return x; c += x.span; } return undefined; }
+/** TT64 fix: grid positions start after the row's w:trPr/w:gridBefore (empty leading grid columns) — they used to start at 0,
+ *  so a column operation on a table with gridBefore rows hit the wrong cell in those rows */
+const trPrOf = (row: Row) => row.items.find((it): it is XEl => (it as XNode).k === "el" && (it as XEl).name === "w:trPr");
+export function trGrid(row: Row, name: "w:gridBefore" | "w:gridAfter"): number { return Number(kid(trPrOf(row), name)?.attrs.find((a) => a[0] === "w:val")?.[1] ?? 0) || 0; }
+function setTrGrid(row: Row, name: "w:gridBefore" | "w:gridAfter", v: number) {
+  const ti = row.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:trPr");
+  const trPr: XEl = ti >= 0 ? clone(row.items[ti] as XEl) : el("w:trPr");
+  const cur = kid(trPr, name);
+  if (v <= 0) trPr.kids = trPr.kids.filter((k) => k !== cur);
+  else if (cur) trPr.kids[trPr.kids.indexOf(cur)] = el(name, { "w:val": String(v) });
+  else { const at = name === "w:gridBefore" ? trPr.kids.findIndex((k) => k.k === "el" && k.name !== "w:cnfStyle" && k.name !== "w:divId") : trPr.kids.findIndex((k) => k.k === "el" && !/^w:(cnfStyle|divId|gridBefore)$/.test(k.name)); trPr.kids.splice(at >= 0 ? at : trPr.kids.length, 0, el(name, { "w:val": String(v) })); }
+  trPr.selfClose = trPr.kids.length === 0;
+  if (ti >= 0) row.items[ti] = trPr; else if (trPr.kids.length) { const ex = row.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:tblPrEx"); row.items.splice(ex + 1, 0, trPr); }
+  for (const p of rowParas(row)) touch(p);
+}
+export function colOf(row: Row, cell: Cell): number { let c = trGrid(row, "w:gridBefore"); for (const x of cellsOf(row)) { if (x === cell) return c; c += x.span; } return c; }
+export function cellAtCol(row: Row, col: number): Cell | undefined { let c = trGrid(row, "w:gridBefore"); for (const x of cellsOf(row)) { if (col >= c && col < c + x.span) return x; c += x.span; } return undefined; }
+/** a grid column the row has no cell at lies in its empty leading (gridBefore) or trailing (gridAfter) region */
+function emptyRegion(row: Row, col: number): "w:gridBefore" | "w:gridAfter" { return col < trGrid(row, "w:gridBefore") ? "w:gridBefore" : "w:gridAfter"; }
 /** Remove the whole table; keeps at least one paragraph in the containing block list. */
 function removeTable(w: NonNullable<ReturnType<typeof locate>>): boolean {
   w.tableList!.splice(w.tableIndex!, 1);
@@ -587,24 +607,54 @@ export function tableRowOp(doc: WordDoc, pid: string, op: "above" | "below" | "d
 }
 /** every paragraph of a row (nested tables included), in document order */
 export function rowParas(r: Row): Para[] { return cellsOf(r).flatMap((c) => allParas(c.blocks)); }
-/** TT60: WordprocessingML records row insertions / deletions (w:trPr) and cell-level cellIns / cellDel, which Word itself does
- *  not offer for columns; a column change made while recording would silently become untracked, so it is refused instead. */
-export const COLUMN_TRACK_REFUSAL = "Column changes can't be tracked \u2014 turn off Track Changes to insert or delete columns";
+/** TT64: column changes are tracked with the schema's own cell markers — every cell of an inserted column carries
+ *  w:cellIns and the widths it replaced go in w:tblGrid/w:tblGridChange (§17.13.5.4, .33); every cell of a deleted column
+ *  carries w:cellDel (§17.13.5.5). Review lists the column as ONE change (columnGroups). A tracked delete is refused only
+ *  where a merged (gridSpan) cell crosses the column or a cell of it already holds another reviewer's cell revision. */
+export const COLUMN_TRACK_REFUSAL = "This column change can't be tracked \u2014 a merged cell crosses it, one of its cells already has a pending cell change, or only one row has a cell there. Resolve that first, or turn off Track Changes.";
+/** CT_TcPr: cell markup (cellIns / cellDel / cellMerge) goes after the base properties and before w:tcPrChange */
+function withCellMark(c: Cell, mark: XEl) {
+  const pr = c.tcPr ?? el("w:tcPr");
+  const ks = pr.kids.filter((k) => !(k.k === "el" && (k.name === "w:cellIns" || k.name === "w:cellDel" || k.name === "w:cellMerge")));
+  const at = ks.findIndex((k) => k.k === "el" && k.name === "w:tcPrChange");
+  ks.splice(at >= 0 ? at : ks.length, 0, mark);
+  const np: XEl = { ...pr, kids: ks, selfClose: false };
+  if (c.src && c.tcPr && c.src.kids.indexOf(c.tcPr) >= 0) c.src = { ...c.src, kids: c.src.kids.map((k) => (k === c.tcPr ? np : k)) };
+  c.tcPr = np;
+  for (const p of allParas(c.blocks)) touch(p);
+}
+const cellMarkOf = (c: Cell) => c.tcPr?.kids.find((k): k is XEl => k.k === "el" && (k.name === "w:cellIns" || k.name === "w:cellDel" || k.name === "w:cellMerge"));
+const revMark = (doc: WordDoc, name: "w:cellIns" | "w:cellDel") => { const r = newRev(doc, name === "w:cellIns" ? "ins" : "del"); return el(name, { "w:id": String(r.id), "w:author": r.author, "w:date": r.date }); };
 export function tableColOp(doc: WordDoc, pid: string, op: "left" | "right" | "delete"): boolean {
   const w = locate(doc, pid); if (!w?.table || !w.row || !w.cell) return false;
-  if (doc.track?.on) return false;
   const t = w.table; const col = colOf(w.row, w.cell) + (op === "right" ? w.cell.span - 1 : 0);
+  // a tracked column must be reviewable as ONE column change (2+ marked cells): in a table of 2+ rows where only one row has a
+  // cell at this grid column (the others' empty gridBefore / gridAfter region) it would be a lone cell change instead, whose
+  // per-cell reject leaves the grid column behind — refused (1-row tables keep TT61's per-cell semantics)
+  if (doc.track?.on && rowsOf(t).length >= 2 && rowsOf(t).filter((r) => cellAtCol(r, col)).length < 2) return false;
+  if (op === "delete" && doc.track?.on) {
+    // the author's own pending inserted column simply goes (as own pending text does)
+    const g = columnGroups(doc).find((x) => x.table === t && x.col === col);
+    if (g && g.kind === "ins" && g.sites.every((x) => attrOf(x.ch, "w:author") === authorName(doc))) return untrackedColDelete(t, col, g.host, true);
+    const cells = rowsOf(t).map((r) => cellAtCol(r, col)).filter((c): c is Cell => !!c);
+    if (!cells.length || cells.some((c) => c.span > 1 || cellMarkOf(c))) return false;
+    for (const c of cells) withCellMark(c, revMark(doc, "w:cellDel"));
+    return true;
+  }
   if (op === "delete") {
     if (t.grid.length <= 1) return removeTable(w); // TT47: deleting the only column deletes the table (was: deleted one row, reported no change)
-    for (const r of rowsOf(t)) { const c = cellAtCol(r, col); if (!c) continue; if (c.span > 1) c.span--; else r.items.splice(r.items.indexOf(c), 1); }
+    for (const r of rowsOf(t)) { const c = cellAtCol(r, col); if (!c) { const g = emptyRegion(r, col); setTrGrid(r, g, trGrid(r, g) - 1); continue; } if (c.span > 1) c.span--; else r.items.splice(r.items.indexOf(c), 1); }
     t.grid.splice(col, 1);
     return true;
   }
   const gw = t.grid[col] ?? 1500;
+  const tracked = !!doc.track?.on; const before = t.grid.slice();
   for (const r of rowsOf(t)) {
     const c = cellAtCol(r, col);
+    // no cell at the column in this row: its empty leading / trailing grid region widens instead (the row keeps filling the grid)
+    if (!c) { const g = emptyRegion(r, col); setTrGrid(r, g, trGrid(r, g) + 1); continue; }
     const nc = newCell(gw, c);
-    if (!c) { r.items.push(nc); continue; }
+    if (tracked) withCellMark(nc, revMark(doc, "w:cellIns"));
     const idx = r.items.indexOf(c);
     r.items.splice(op === "left" ? idx : idx + 1, 0, nc);
   }
@@ -612,7 +662,75 @@ export function tableColOp(doc: WordDoc, pid: string, op: "left" | "right" | "de
   // keep the table inside the text width: scale columns proportionally
   const max = doc.page.w - doc.page.left - doc.page.right; const sum = t.grid.reduce((a, b) => a + b, 0);
   if (sum > max) { const k = max / sum; t.grid = t.grid.map((g) => Math.round(g * k)); }
+  // the first tracked grid change keeps the original widths (a later one must not overwrite them: reject restores the start)
+  if (tracked && !t.gridChange) t.gridChange = { id: newRev(doc, "ins").id, cols: before };
   return true;
+}
+const attrOf = (e: XEl, k: string) => e.attrs.find((a) => a[0] === k)?.[1];
+/** TT64: a whole tracked column = in every row of one table exactly one cell carries a cellIns (or every one a cellDel)
+ *  mark, all by the same author, all single-span at the same grid column, in a table of 2+ rows, 2+ marked cells (TT64: a row with NO cell at
+ *  that grid column — inside its empty gridBefore / gridAfter region — is part of the column too). Such a column is reviewed as one change and
+ *  resolved like Word's column operation (exact grid), not cell by cell (which would pad rows with w:gridAfter). */
+export interface ColumnGroup { key: string; kind: "ins" | "del"; table: Table; host: Block[]; col: number; sites: CellSite[] }
+export function columnGroups(doc: WordDoc): ColumnGroup[] {
+  const byTable = new Map<Table, CellSite[]>();
+  for (const s of cellMarks(doc)) if (s.ch.name !== "w:cellMerge") byTable.set(s.table, [...(byTable.get(s.table) ?? []), s]);
+  const out: ColumnGroup[] = [];
+  for (const [table, sites] of byTable) {
+    const rows = rowsOf(table);
+    // a one-row "column" is indistinguishable from a cell: it stays a cell change (TT61 semantics, Word's shift-left) — implied by
+    // the 2+ marks rule below (one mark per row), so no separate row-count guard (it was an equivalent mutant)
+    for (const name of ["w:cellIns", "w:cellDel"]) {
+      const mine = sites.filter((x) => x.ch.name === name);
+      // one candidate per (author, grid column)
+      const buckets = new Map<string, CellSite[]>();
+      for (const x of mine) { if (x.cell.span !== 1) continue; const k = `${attrOf(x.ch, "w:author") ?? ""}\u0000${colOf(x.row, x.cell)}`; buckets.set(k, [...(buckets.get(k) ?? []), x]); }
+      for (const [k, xs] of buckets) {
+        // every row either has its marked cell at the column, or no cell there at all (its empty gridBefore / gridAfter region)
+        const gc = Number(k.split("\u0000")[1]);
+        // a lone marked cell stays a cell change (TT61: Word's shift-left / gridAfter semantics) even when every other row is
+        // empty at that column — a column takes 2+ marked cells
+        if (xs.length < 2 || new Set(xs.map((x) => x.row)).size !== xs.length || !rows.every((r) => { const c = cellAtCol(r, gc); return c ? xs.some((x) => x.cell === c) : true; })) continue;
+        out.push({ key: `cg:${xs.map((x) => x.key.slice(2)).join(",")}`, kind: name === "w:cellIns" ? "ins" : "del", table, host: xs[0].host, col: Number(k.split("\u0000")[1]), sites: xs });
+      }
+    }
+  }
+  return out;
+}
+/** the untracked column delete on a column group (reject an insertion / accept a deletion / own pending insertion): the
+ *  grid column goes; when the table's tracked grid change has exactly the remaining column count its widths come back */
+function untrackedColDelete(t: Table, col: number, host: Block[], reject: boolean): boolean {
+  if (t.grid.length <= 1) {
+    const at = host.indexOf(t); if (at < 0) return false;
+    host.splice(at, 1);
+    if (!host.some((b) => b.t === "p")) host.push({ t: "p", id: newId(), p: {}, p0: {}, content: [], dirty: true });
+    return true;
+  }
+  for (const r of rowsOf(t)) { const c = cellAtCol(r, col); if (!c) { const g = emptyRegion(r, col); setTrGrid(r, g, trGrid(r, g) - 1); continue; } if (c.span > 1) c.span--; else r.items.splice(r.items.indexOf(c), 1); for (const p of rowParas(r)) touch(p); }
+  t.grid.splice(col, 1);
+  settleGrid(t, reject);
+  return true;
+}
+/** once no cell revision is pending in the table, its tracked grid change is settled: rejected back to the recorded widths
+ *  when they still fit the grid (the column count matches), otherwise simply dropped (the accepted state) */
+export function settleGrid(t: Table, reject = false) {
+  if (!t.gridChange) return;
+  const pending = rowsOf(t).some((r) => cellsOf(r).some((c) => cellMarkOf(c)));
+  if (pending) return;
+  if (reject && t.gridChange.cols.length === t.grid.length) t.grid = t.gridChange.cols.slice();
+  t.gridChange = undefined;
+}
+function resolveColumn(doc: WordDoc, g: ColumnGroup, accept: boolean): boolean {
+  const t = g.table;
+  if ((g.kind === "ins") === accept) {
+    // keep the column: its markers go
+    for (const x of g.sites) { const pr = x.cell.tcPr!; const np: XEl = { ...pr, kids: pr.kids.filter((k) => k !== x.ch) }; np.selfClose = np.kids.length === 0; if (x.cell.src && x.cell.src.kids.indexOf(pr) >= 0) x.cell.src = { ...x.cell.src, kids: x.cell.src.kids.map((k) => (k === pr ? np : k)) }; x.cell.tcPr = np; for (const p of x.paras) touch(p); }
+    settleGrid(t);
+    return true;
+  }
+  // rejecting an insertion restores the widths recorded when it was made; accepting a deletion settles to the new grid
+  void doc;
+  return untrackedColDelete(t, g.col, g.host, g.kind === "ins");
 }
 
 /* ---------------------------------------------------------------- find / replace */
@@ -799,7 +917,15 @@ export function revisions(doc: WordDoc): Change[] {
   }
   // TT61: cell insertions / deletions (w:tcPr/w:cellIns, w:cellDel) at the cell's first paragraph; TT62: w:cellMerge
   // (vertical-merge revision, §17.13.5.3) is resolvable too
+  const grouped = new Set<string>();
+  for (const cg of columnGroups(doc)) {
+    for (const x of cg.sites) grouped.add(x.key);
+    const f = cg.sites[0]; const g = (k: string) => attrOf(f.ch, k);
+    const c: Change = { key: cg.key, kind: cg.kind, author: g("w:author") || undefined, date: g("w:date"), text: "[Table column] ", pid: f.pid, off: 0, editable: true, detail: `${cg.kind === "ins" ? "Inserted" : "Deleted"} column ${cg.col + 1} (${cg.sites.length} cell${cg.sites.length === 1 ? "" : "s"})` };
+    prAt.set(f.pid, [...(prAt.get(f.pid) ?? []), c]);
+  }
   for (const s of cellMarks(doc)) {
+    if (grouped.has(s.key)) continue;
     const a = s.ch.attrs; const g = (k: string) => a.find((x) => x[0] === k)?.[1];
     const merge = s.ch.name === "w:cellMerge";
     const c: Change = { key: s.key, kind: s.ch.name === "w:cellDel" ? "del" : "ins", author: g("w:author") || undefined, date: g("w:date"), text: merge ? "[Table cell merge] " : "[Table cell] ", pid: s.pid, off: 0, editable: true, detail: merge ? `${VM_LABEL[g("w:vMerge") ?? ""] ?? "not merged"} (was: ${VM_LABEL[g("w:vMergeOrig") ?? ""] ?? "not merged"})` : undefined };
@@ -841,6 +967,10 @@ export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean 
     normalize(p); touch(p);
     return true;
   }
+  if (key.startsWith("cg:")) {
+    const g = columnGroups(doc).find((x) => x.key === key); if (!g) return false;
+    return resolveColumn(doc, g, accept);
+  }
   if (key.startsWith("c:")) {
     const s = cellMarks(doc).find((x) => x.key === key); if (!s) return false;
     if (s.ch.name === "w:cellMerge") {
@@ -863,9 +993,11 @@ export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean 
       if (s.cell.src && s.cell.src.kids.indexOf(s.cell.tcPr!) >= 0) s.cell.src = { ...s.cell.src, kids: s.cell.src.kids.map((k) => (k === s.cell.tcPr ? np : k)) };
       np.selfClose = np.kids.length === 0; s.cell.tcPr = np;
       for (const p of s.paras) touch(p);
+      settleGrid(s.table);
       return true;
     }
     removeCell(s.table, s.row, s.cell, s.host);
+    settleGrid(s.table);
     return true;
   }
   if (key.startsWith("x:")) {

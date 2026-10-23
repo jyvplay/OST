@@ -9,7 +9,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { makeHarness } from "./harness.mts";
 import { Workbook } from "../src/lib/formula/engine.ts";
-import { copyBlock, pasteSpecial, pasteLink } from "../src/lib/formula/sheetops.ts";
+import { copyBlock, pasteSpecial, pasteLink, pasteBlock } from "../src/lib/formula/sheetops.ts";
 import { linkAt, setLink } from "../src/lib/formula/sheetlinks.ts";
 import { writeXlsxWorkbook } from "../src/lib/formula/xlsx.ts";
 
@@ -65,13 +65,13 @@ await test("Values / Formulas / Formats leave the target's links alone (Excel ke
   eq(s.grid.get("4,0")!.input, "Docs", "values pasted over the kept link");
 });
 
-await test("Paste Link: absolute references (same sheet, other sheet, quoted names), follows source edits, blank source shows 0; openpyxl reads the formulas", COV, () => {
+await test("Paste Link: a single cell links absolutely, a range relatively (TT64, as Excel); same sheet, other sheet, quoted names; follows source edits, blank source shows 0; openpyxl reads the formulas", COV, () => {
   const wb = new Workbook(); wb.sheets.clear(); const s1 = wb.addSheet("Data 2026"); const s2 = wb.addSheet("Q1"); const s3 = wb.addSheet("Report");
   s1.setCell(1, 1, "10"); s1.setCell(2, 1, "=B2*2"); s1.setCell(1, 2, "text"); /* C3 blank */
   s2.setCell(0, 0, "7");
   const clip = copyBlock(s1, { c0: 1, r0: 1, c1: 2, r1: 2 });
   eq(pasteLink(s3, clip, "Data 2026", 0, 0), { c0: 0, r0: 0, c1: 1, r1: 1 }, "range");
-  eq([s3.grid.get("0,0")!.input, s3.grid.get("1,0")!.input, s3.grid.get("0,1")!.input, s3.grid.get("1,1")!.input], ["='Data 2026'!$B$2", "='Data 2026'!$C$2", "='Data 2026'!$B$3", "='Data 2026'!$C$3"], "quoted other-sheet refs");
+  eq([s3.grid.get("0,0")!.input, s3.grid.get("1,0")!.input, s3.grid.get("0,1")!.input, s3.grid.get("1,1")!.input], ["='Data 2026'!B2", "='Data 2026'!C2", "='Data 2026'!B3", "='Data 2026'!C3"], "quoted other-sheet refs, relative for a range (TT64)");
   pasteLink(s3, copyBlock(s2, { c0: 0, r0: 0, c1: 0, r1: 0 }), "Q1", 3, 0);
   eq(s3.grid.get("3,0")!.input, "='Q1'!$A$1", "a sheet name that looks like a cell is quoted");
   pasteLink(s1, copyBlock(s1, { c0: 1, r0: 1, c1: 1, r1: 1 }), "Data 2026", 5, 5);
@@ -80,9 +80,15 @@ await test("Paste Link: absolute references (same sheet, other sheet, quoted nam
   eq([wb.valueAt("Report", 0, 0), wb.valueAt("Report", 1, 0), wb.valueAt("Report", 0, 1), wb.valueAt("Report", 1, 1), wb.valueAt("Report", 3, 0)], [10, 20, "text", 0, 7], "values (blank → 0)");
   s1.setCell(1, 1, "21"); wb.recalculate();
   eq([wb.valueAt("Report", 0, 0), wb.valueAt("Report", 1, 0), wb.valueAt("Data 2026", 5, 5)], [21, 42, 21], "follows the source");
+  // TT64: the linked RANGE is relative — copying it one row down shifts its references (the single-cell link would not)
+  const moved = copyBlock(s3, { c0: 0, r0: 0, c1: 1, r1: 0 }); pasteBlock(s3, moved, 0, 5);
+  eq([s3.grid.get("0,5")!.input, s3.grid.get("1,5")!.input], ["='Data 2026'!B7", "='Data 2026'!C7"], "a copied linked range shifts like Excel's");
+  const one = copyBlock(s3, { c0: 3, r0: 0, c1: 3, r1: 0 }); pasteBlock(s3, one, 3, 5);
+  eq(s3.grid.get("3,5")!.input, "='Q1'!$A$1", "a copied single-cell link stays put");
+  for (const k of ["0,5", "1,5", "3,5"]) s3.setCell(Number(k.split(",")[0]), 5, "");
   writeFileSync(`${dir}/b.xlsx`, writeXlsxWorkbook(wb));
   const o = pyRead(`${dir}/b.xlsx`, "Report", ["A1", "B2", "D1"]);
-  eq(o, { A1: ["='Data 2026'!$B$2", null], B2: ["='Data 2026'!$C$3", null], D1: ["='Q1'!$A$1", null] }, "openpyxl formulas");
+  eq(o, { A1: ["='Data 2026'!B2", null], B2: ["='Data 2026'!C3", null], D1: ["='Q1'!$A$1", null] }, "openpyxl formulas");
   ok(true, "");
 });
 

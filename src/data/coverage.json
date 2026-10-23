@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-22T21:51:03.133Z",
+ "generatedAt": "2026-10-23T01:10:31.619Z",
  "totals": {
   "built": {
-   "full": 302,
+   "full": 303,
    "partial": 54,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 217,
+   "full": 218,
    "partial": 72,
    "untested": 89
   },
   "tests": {
-   "total": 1159,
-   "passed": 1159
+   "total": 1168,
+   "passed": 1168
   }
  },
  "rows": {
@@ -1623,6 +1623,7 @@
     "e2e-office: no uncaught page errors during the spreadsheet session",
     "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
     "e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save",
+    "e2e-tt64: FF-28 (TT64) Paste Link of a range in the UI writes relative references, a single cell absolute — openpyxl reads the saved formulas; the links follow a source edit",
     "e2e: mount: sheet",
     "office: shiftFormula: relative parts move, $-anchored parts stay, strings untouched, off-grid → #REF!",
     "office: adjustForStructure: insert/delete rows repair refs; deleted single ref → #REF!; ranges shrink; other sheets untouched",
@@ -1645,7 +1646,7 @@
     "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
     "tt59-sheet-paste: Paste Special ▸ All carries hyperlinks (plain, transposed, skip blanks keeps a target link under a blank source); openpyxl reads them",
     "tt59-sheet-paste: Values / Formulas / Formats leave the target's links alone (Excel keeps a link under pasted values) and never copy source links",
-    "tt59-sheet-paste: Paste Link: absolute references (same sheet, other sheet, quoted names), follows source edits, blank source shows 0; openpyxl reads the formulas"
+    "tt59-sheet-paste: Paste Link: a single cell links absolutely, a range relatively (TT64, as Excel); same sheet, other sheet, quoted names; follows source edits, blank source shows 0; openpyxl reads the formulas"
    ]
   },
   "FF-29": {
@@ -2877,12 +2878,12 @@
   "FF-40": {
    "tested": "full",
    "tests": [
-    "e2e-tt60: FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right refused; saved trPr ins/del verified by lxml; per-change Accept removes the row",
+    "e2e-tt60: FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right tracked + rejected; saved trPr ins/del verified by lxml; per-change Accept removes the row; TT64: tracked Column right listed and rejected",
     "tt60-writer-tblrev: recording: an inserted row is w:trPr/w:ins and a deleted row w:trPr/w:del with its text as w:delText (oracle); CT_TrPr order; ids unique; python-docx opens",
     "tt60-writer-tblrev: accept-all / reject-all (ours) equal the oracle's independent views, live and after save → re-open",
     "tt60-writer-tblrev: per-change review: rejecting the row deletion restores the row AND its struck text in one action; accepting the row insertion keeps it",
     "tt60-writer-tblrev: own pending inserted row is deleted outright; another reviewer's inserted row deleted → w:ins + w:del on one row (nested), each reviewable",
-    "tt60-writer-tblrev: deleting the last remaining rows tracked then accepting removes the table (an empty paragraph remains); columns refuse while tracking",
+    "tt60-writer-tblrev: deleting the last remaining rows tracked then accepting removes the table (an empty paragraph remains); TT64: a tracked column insert is a reviewable change",
     "tt60-writer-tblrev: spec-built file: table / row / cell property changes and a row insertion are listed; untouched save keeps them; accept drops the record; reject restores the recorded properties (oracle)",
     "tt60-writer-tblrev: randomized: 40 tracked row edit sessions — our accept-all / reject-all equal the oracle's views of the saved file; order and ids always valid"
    ]
@@ -2971,6 +2972,19 @@
     "tt63-sheet-pivotparts: 8. a table re-pivoted outside the app is treated as native and never overwritten",
     "tt63-sheet-pivotparts: 9. a cache shared with another table is not rewritten: ours moves to its own cache",
     "tt63-sheet-pivotparts: 10. a part name that an existing relationship points at is never reused, even when that part is missing"
+   ]
+  },
+  "FF-48": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt64: FF-48 Writer tracked columns in the UI: Track changes → Column right (3 inserted cells, one '[Table column]' change) → Delete column (3 deleted cells, a second change) → Reject the deletion, Accept the insertion → Save → lxml oracle + XSD; a gridBefore row renders on the grid",
+    "e2e-tt64: no page errors during the TT64 session",
+    "tt64-writer-trackcols: a tracked column insert: every new cell carries w:cellIns (unique ids, author, date), the old widths go in w:tblGridChange; one '[Table column]' change; schema-valid; the file round-trips the grouping",
+    "tt64-writer-trackcols: differential: 48 random tables × random column op (left / right / delete): oracle accept/reject views of the TRACKED file = untracked op / original; ours (Accept All, Reject All, the one column change both ways) = the same; text AND widths",
+    "tt64-writer-trackcols: sequences: two tracked inserts then a tracked delete; resolving in mixed orders; Reject All returns the ORIGINAL widths exactly; the author's own pending column deletes outright",
+    "tt64-writer-trackcols: refusals and boundaries: a merged cell across the column / another reviewer's pending cell → tracked delete refused (document unchanged, message names Track Changes); 1-row tables stay per-cell; tracked rows + columns together",
+    "tt64-writer-trackcols: files from the independent writer: a whole column marked cellDel / cellIns by markcells (lxml) is listed as one column change and resolves to the oracle's views; mixed authors in one column stay per-cell; file revision ids are reserved; a width-only w:tblGridChange settles on Accept / Reject All",
+    "tt64-writer-trackcols: TT64 fix — rows with w:gridBefore / w:gridAfter: column operations address GRID columns (they used to count from the row's first cell); untracked and tracked, every column, both directions, vs hand-derived tables and the oracle"
    ]
   },
   "CT-01": {

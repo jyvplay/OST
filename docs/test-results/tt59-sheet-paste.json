@@ -1,6 +1,6 @@
 {
   "suite": "tt59-sheet-paste",
-  "at": "2026-10-22T21:44:24.072Z",
+  "at": "2026-10-23T00:47:48.454Z",
   "results": [
     {
       "suite": "tt59-sheet-paste",
@@ -9,7 +9,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 216
+      "ms": 229
     },
     {
       "suite": "tt59-sheet-paste",
@@ -22,12 +22,12 @@
     },
     {
       "suite": "tt59-sheet-paste",
-      "name": "Paste Link: absolute references (same sheet, other sheet, quoted names), follows source edits, blank source shows 0; openpyxl reads the formulas",
+      "name": "Paste Link: a single cell links absolutely, a range relatively (TT64, as Excel); same sheet, other sheet, quoted names; follows source edits, blank source shows 0; openpyxl reads the formulas",
       "covers": {
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 233
+      "ms": 224
     }
   ]
 }

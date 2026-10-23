@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-22T21:06:25.813Z",
+  "generated": "2026-10-23T01:08:07.040Z",
   "rules": "src/lib/beauty-core.ts",
   "retries": [],
   "views": [
@@ -12,7 +12,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#59",
+          "id": "div“01:04 AMFriday, October ”#59",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -40,7 +40,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#141",
+          "id": "div“01:04 AMFriday, October ”#141",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -74,7 +74,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#359",
+          "id": "div“01:04 AMFriday, October ”#359",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -192,7 +192,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#58",
+          "id": "div“01:04 AMFriday, October ”#58",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -220,7 +220,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#175",
+          "id": "div“01:04 AMFriday, October ”#175",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -254,7 +254,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#65",
+          "id": "div“01:04 AMFriday, October ”#65",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -271,7 +271,7 @@
           "hard": false
         }
       ],
-      "balance": 0.5,
+      "balance": 0.501,
       "dock": {
         "icon": 48,
         "width": 918
@@ -286,7 +286,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#98",
+          "id": "div“01:04 AMFriday, October ”#98",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -309,7 +309,7 @@
           "hard": false
         }
       ],
-      "balance": 0.518
+      "balance": 0.519
     },
     {
       "view": "launchpad",
@@ -320,7 +320,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#152",
+          "id": "div“01:04 AMFriday, October ”#152",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -399,7 +399,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#59",
+          "id": "div“01:04 AMFriday, October ”#59",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -427,7 +427,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#136",
+          "id": "div“01:04 AMFriday, October ”#136",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -461,7 +461,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#58",
+          "id": "div“01:04 AMFriday, October ”#58",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -489,7 +489,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#166",
+          "id": "div“01:04 AMFriday, October ”#166",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -523,7 +523,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#65",
+          "id": "div“01:04 AMFriday, October ”#65",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -555,7 +555,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#98",
+          "id": "div“01:04 AMFriday, October ”#98",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -578,7 +578,7 @@
           "hard": false
         }
       ],
-      "balance": 0.544
+      "balance": 0.545
     },
     {
       "view": "launchpad",
@@ -589,7 +589,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:02 PMThursday, Octobe”#145",
+          "id": "div“01:04 AMFriday, October ”#145",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -668,7 +668,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#59",
+          "id": "div“01:04 AMFriday, October ”#59",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -696,7 +696,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#150",
+          "id": "div“01:04 AMFriday, October ”#150",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -724,7 +724,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#359",
+          "id": "div“01:04 AMFriday, October ”#359",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -842,7 +842,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#58",
+          "id": "div“01:04 AMFriday, October ”#58",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -870,7 +870,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#182",
+          "id": "div“01:04 AMFriday, October ”#182",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -898,7 +898,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#72",
+          "id": "div“01:04 AMFriday, October ”#72",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -925,12 +925,12 @@
       "view": "dock stack Create",
       "vw": 1920,
       "vh": 1080,
-      "measured": 172,
+      "measured": 171,
       "hard": [],
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#105",
+          "id": "div“01:04 AMFriday, October ”#105",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -945,15 +945,9 @@
           "id": "div“counter.worker.jsworker-”#107",
           "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
           "hard": false
-        },
-        {
-          "rule": "proportion",
-          "id": "div“dock-stack-pop”#108",
-          "detail": "ratio 1.175 (nearest √2, 16.9% off)",
-          "hard": false
         }
       ],
-      "balance": 0.355
+      "balance": 0.356
     },
     {
       "view": "launchpad",
@@ -964,7 +958,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#159",
+          "id": "div“01:05 AMFriday, October ”#159",
           "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
           "hard": false
         },
@@ -1043,7 +1037,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#50",
+          "id": "div“01:05 AMFriday, October ”#50",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1071,7 +1065,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#110",
+          "id": "div“01:05 AMFriday, October ”#110",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1105,7 +1099,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#46",
+          "id": "div“01:05 AMFriday, October ”#46",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1133,7 +1127,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#131",
+          "id": "div“01:05 AMFriday, October ”#131",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1167,7 +1161,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#51",
+          "id": "div“01:05 AMFriday, October ”#51",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1199,7 +1193,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#70",
+          "id": "div“01:05 AMFriday, October ”#70",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1233,7 +1227,7 @@
       "soft": [
         {
           "rule": "proportion",
-          "id": "div“09:03 PMThursday, Octobe”#106",
+          "id": "div“01:05 AMFriday, October ”#106",
           "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
           "hard": false
         },
@@ -1256,7 +1250,7 @@
           "hard": false
         }
       ],
-      "balance": 0.781
+      "balance": 0.776
     },
     {
       "view": "tabletop floor",

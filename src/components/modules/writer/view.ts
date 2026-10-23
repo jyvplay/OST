@@ -184,11 +184,13 @@ function renderTable(st: RenderState, t: Extract<Block, { t: "tbl" }>): HTMLElem
   const rows = rowsOf(t);
   // vertical merges: a "restart" cell spans down over following "continue" cells in the same grid column
   const spanDown = new Map<object, number>();
-  const colStart = (r: number, cell: object) => { let c = 0; for (const x of cellsOf(rows[r])) { if (x === cell) return c; c += x.span; } return -1; };
+  // TT64: grid positions start after the row's empty leading columns (w:gridBefore)
+  const gridPad = (r: (typeof rows)[number], name: string) => { const tp = r.items.find((it): it is XEl => (it as XEl).k === "el" && (it as XEl).name === "w:trPr"); const g = tp?.kids.find((k): k is XEl => k.k === "el" && k.name === name); return Number(g?.attrs.find((a) => a[0] === "w:val")?.[1] ?? 0) || 0; };
+  const colStart = (r: number, cell: object) => { let c = gridPad(rows[r], "w:gridBefore"); for (const x of cellsOf(rows[r])) { if (x === cell) return c; c += x.span; } return -1; };
   rows.forEach((r, ri) => {
     for (const c of cellsOf(r)) if (c.vmerge === "restart") {
       const col = colStart(ri, c); let n = 1;
-      for (let k = ri + 1; k < rows.length; k++) { let cc = 0; const below = cellsOf(rows[k]).find((x) => { const hit = cc === col; cc += x.span; return hit; }); if (below?.vmerge === "continue") n++; else break; }
+      for (let k = ri + 1; k < rows.length; k++) { let cc = gridPad(rows[k], "w:gridBefore"); const below = cellsOf(rows[k]).find((x) => { const hit = cc === col; cc += x.span; return hit; }); if (below?.vmerge === "continue") n++; else break; }
       spanDown.set(c, n);
     }
   });
@@ -203,6 +205,9 @@ function renderTable(st: RenderState, t: Extract<Block, { t: "tbl" }>): HTMLElem
       tr.style.outline = `2px ${r.rev.kind === "ins" ? "solid" : "dashed"} ${ink}`; tr.style.outlineOffset = "-1px";
       tr.style.backgroundColor = r.rev.kind === "ins" ? "rgba(11,92,173,.07)" : "rgba(163,23,107,.08)";
     }
+    // empty leading / trailing grid columns (w:gridBefore / w:gridAfter) take their place without a cell border, as Word draws them
+    const pad = (n: number) => { if (n <= 0) return; const e = document.createElement("td"); e.colSpan = n; e.className = "wgrid-pad"; e.contentEditable = "false"; e.style.cssText = "border:none;background:transparent;padding:0"; tr.appendChild(e); };
+    pad(gridPad(r, "w:gridBefore"));
     for (const c of cellsOf(r)) {
       if (c.vmerge === "continue") continue;
       const td = document.createElement("td");
@@ -221,6 +226,7 @@ function renderTable(st: RenderState, t: Extract<Block, { t: "tbl" }>): HTMLElem
       renderBlocks(st, c.blocks, td);
       tr.appendChild(td);
     }
+    pad(gridPad(r, "w:gridAfter"));
     body.appendChild(tr);
   });
   tb.appendChild(body);

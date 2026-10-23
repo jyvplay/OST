@@ -1,6 +1,6 @@
 {
   "suite": "tt60-writer-tblrev",
-  "at": "2026-10-22T21:45:05.846Z",
+  "at": "2026-10-23T00:48:33.149Z",
   "results": [
     {
       "suite": "tt60-writer-tblrev",
@@ -9,7 +9,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 136
+      "ms": 154
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -18,7 +18,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 470
+      "ms": 501
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -27,7 +27,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 113
+      "ms": 117
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -36,16 +36,16 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 119
+      "ms": 127
     },
     {
       "suite": "tt60-writer-tblrev",
-      "name": "deleting the last remaining rows tracked then accepting removes the table (an empty paragraph remains); columns refuse while tracking",
+      "name": "deleting the last remaining rows tracked then accepting removes the table (an empty paragraph remains); TT64: a tracked column insert is a reviewable change",
       "covers": {
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 17
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -54,7 +54,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 410
+      "ms": 443
     },
     {
       "suite": "tt60-writer-tblrev",
@@ -63,7 +63,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 4808
+      "ms": 5095
     }
   ]
 }

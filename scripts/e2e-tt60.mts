@@ -1,7 +1,7 @@
 /**
  * TT60 real-browser suite (Playwright + headless Chromium 143 against the production server):
  *   FF-40 Writer table revisions through the UI: Track Changes on → Row below / Delete row → change bars on the rows, the
- *         Review pane lists "[Table row]" changes, Column right is refused with a message, Ctrl+S → the saved bytes are
+ *         Review pane lists "[Table row]" changes, Column right is tracked (TT64; rejected again), Ctrl+S → the saved bytes are
  *         checked by the independent lxml oracle (scripts/oracle/docx_tblrev.py), per-change Accept removes the row
  *   FF-41 Spreadsheet spelling in all sheets: F7 → "All sheets" → issues in tab order from the active sheet, Show cell
  *         switches sheets, Change All covers every sheet, openpyxl reads the saved workbook
@@ -51,7 +51,7 @@ async function newPage(): Promise<Page> {
 }
 const oracle = (buf: Buffer) => { const f = join(tmp, `o${Date.now()}.docx`); writeFileSync(f, buf); return JSON.parse(execFileSync(PY, ["scripts/oracle/docx_tblrev.py", f], { encoding: "utf8" })); };
 
-await test("FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right refused; saved trPr ins/del verified by lxml; per-change Accept removes the row", { "FF-40": "full" }, async () => {
+await test("FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right tracked + rejected; saved trPr ins/del verified by lxml; per-change Accept removes the row; TT64: tracked Column right listed and rejected", { "FF-40": "full" }, async () => {
   const d = await blankWord("t"); const p0 = allParas(d.blocks)[0];
   E.insertText(d, { pid: p0.id, off: 0 }, "Rows below.");
   const t = E.insertTableAfter(d, p0.id, 3, 2)!;
@@ -81,11 +81,16 @@ await test("FF-40 Writer table revisions in the UI: tracked Row below + Delete r
   eq(await body.locator("tr.wtr").count(), 4, "4 rows on screen (one pending deletion)");
   const items = dlg.getByTestId("writer-changes").locator("[role=listitem]");
   await poll(async () => (await items.filter({ hasText: "[Table row]" }).count()) === 2, "two row changes listed");
-  // columns can't be tracked: refused with a message, grid unchanged
+  // TT64 (supersedes the TT60 refusal): a tracked Column right is recorded — one cellIns per row, ONE column change — and
+  // rejecting that change gives the 2-column table back (FF-48)
   await cell("R0C1").click();
   await dlg.getByRole("button", { name: "Column right", exact: true }).click();
-  await page.getByTestId("toasts").filter({ hasText: "Column changes can't be tracked" }).waitFor({ timeout: 10_000 });
-  eq(await body.locator("tr.wtr").first().locator("td").count(), 2, "still 2 columns");
+  await dlg.getByTestId("writer-status").filter({ hasText: "Column inserted as a tracked change" }).waitFor();
+  await poll(async () => (await body.locator("td.wcell-ins").count()) === 4, "one inserted cell per row on screen");
+  const colItem = items.filter({ hasText: "[Table column]" });
+  await poll(async () => (await colItem.count()) === 1, "one column change listed");
+  await colItem.first().getByRole("button", { name: /^Reject/ }).click();
+  await poll(async () => (await body.locator("tr.wtr").first().locator("td").count()) === 2, "rejected: 2 columns again");
   await page.screenshot({ path: "docs/screens/tt60-writer-table-revisions.png" });
   // modal-shortcut failure test: with the shell's modal ask dialog open, Writer shortcuts (Ctrl+Shift+E Track Changes,
   // F7 Spelling) must not reach the document behind it
@@ -238,5 +243,8 @@ await test("RG-05 Backup refuses on a low discharging battery (injected getBatte
 });
 
 await test("no uncaught page errors during the TT60 session", { "WM-05": "full" }, () => { eq(errors, [], "page errors"); });
+// test hygiene (TT64): this run's /Documents files go — left behind, every run's uploads pile up on the Tabletop floor past its
+// ~46-card layout and fail e2e-tabletop / e2e-beauty (found in the TT64 gate)
+for (const n of ((await api("GET", "/api/fs?op=list&path=/Documents")).json?.nodes ?? []) as { name: string; path: string }[]) if (n.name.startsWith(RUN)) { await api("POST", "/api/fs", { op: "trash", path: n.path }); await api("POST", "/api/fs", { op: "purge", path: n.path }); }
 await browser.close();
 finish();

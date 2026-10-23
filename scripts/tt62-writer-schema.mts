@@ -102,7 +102,7 @@ function step(d: WordDoc, rand: (n: number) => number, t: number): string {
     case 15: if (b > a) { E.addComment(d, R, `Comment ${t} & <check>`, "Reviewer"); return "comment"; } return "noop";
     case 16: if (!E.locate(d, p.id)?.table) { E.insertTableAfter(d, p.id, 1 + rand(3), 1 + rand(3)); return "table"; } return "noop";
     case 17: { const w = E.locate(d, p.id); if (w?.table) { E.tableRowOp(d, p.id, (["above", "below", "delete"] as const)[rand(3)]); return "row"; } return "noop"; }
-    case 18: { const w = E.locate(d, p.id); if (w?.table && !d.track.on) { E.tableColOp(d, p.id, (["left", "right", "delete"] as const)[rand(3)]); return "col"; } return "noop"; }
+    case 18: { const w = E.locate(d, p.id); if (w?.table) { E.tableColOp(d, p.id, (["left", "right", "delete"] as const)[rand(3)]); return "col"; } return "noop"; }
     case 19: E.setPageSetup(d, [{ landscape: true }, { paper: "A4" }, { margins: { top: 1440, right: 1080, bottom: 1440, left: 1080 } }, { landscape: false, paper: "Letter" }][rand(4)]); return "page";
     case 20: setHf(d, rand(2) ? "header" : "footer", rand(4) ? "default" : "first", [{ text: `Header ${t}`, align: (["left", "center", "right"] as const)[rand(3)] }]); if (rand(4) === 0) setDifferentFirst(d, true); return "hf";
     case 21: if (!E.locate(d, p.id)?.table) { E.insertToken(d, R.a, makeImage(d, PNG, "image/png", 40, 40, `Picture ${t}`)); return "image"; } return "noop";

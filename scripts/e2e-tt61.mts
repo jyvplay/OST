@@ -152,5 +152,8 @@ await test("FF-44 Writer cell revisions in the UI: lxml-written cellIns / cellDe
 await test("no page errors during the suite", { "FF-43": "full" }, async () => { eq(errors, [], "page errors"); });
 
 await api("PUT", "/api/settings", { key: "appearance.desktopView", value: prevView });
+// test hygiene (TT64): this run's /Documents files go — left behind, every run's uploads pile up on the Tabletop floor past its
+// ~46-card layout and fail e2e-tabletop / e2e-beauty (found in the TT64 gate)
+for (const n of ((await api("GET", "/api/fs?op=list&path=/Documents")).json?.nodes ?? []) as { name: string; path: string }[]) if (n.name.startsWith(RUN)) { await api("POST", "/api/fs", { op: "trash", path: n.path }); await api("POST", "/api/fs", { op: "purge", path: n.path }); }
 await browser.close();
 finish();

@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-22T21:51:03.131Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-148 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-23T01:10:31.617Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+150 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **378** |
-| Fully built | 302 |
+| **Features in register** | **379** |
+| Fully built | 303 |
 | Partially built (partial 36 + probe 18) | 54 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 1 |
-| **Fully tested** (≥1 passing test tagged `full`) | **217** |
+| **Fully tested** (≥1 passing test tagged `full`) | **218** |
 | **Partially tested** (only `partial` tags) | **72** |
 | Untested | 89 |
-| Automated tests executed / passed | 1159 / 1159 |
+| Automated tests executed / passed | 1168 / 1168 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 209 | 59 | 34 |
+| fully built | 210 | 59 | 34 |
 | partially built | 2 | 11 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 1 |
@@ -33,154 +33,156 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-22T20:34:40.584Z |
-| ai-format | 5 | 5 | 0 | 2026-10-22T20:34:42.504Z |
-| browser-session | 5 | 5 | 0 | 2026-10-22T20:34:26.549Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-22T20:34:46.326Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-22T20:45:28.069Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-22T20:46:36.844Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-22T21:06:25.814Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-22T20:39:48.203Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-22T20:47:03.148Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-22T20:38:34.530Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-22T21:49:24.584Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-22T20:52:01.104Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-22T20:37:37.779Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-22T20:40:19.799Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-22T20:40:56.132Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-22T20:45:52.855Z |
-| e2e-tabletop | 15 | 15 | 0 | 2026-10-22T20:51:07.496Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-22T20:52:45.648Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-22T20:53:10.208Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-22T20:55:21.614Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-22T20:56:49.506Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-22T20:59:35.628Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-22T20:59:51.359Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-22T21:00:59.172Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-22T21:01:36.678Z |
-| e2e-tt36 | 3 | 3 | 0 | 2026-10-22T21:01:54.152Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-22T21:02:22.516Z |
-| e2e-tt38 | 7 | 7 | 0 | 2026-10-22T21:06:33.895Z |
-| e2e-tt39 | 7 | 7 | 0 | 2026-10-22T21:06:54.664Z |
-| e2e-tt40 | 3 | 3 | 0 | 2026-10-22T21:07:08.322Z |
-| e2e-tt41 | 4 | 4 | 0 | 2026-10-22T21:07:12.743Z |
-| e2e-tt42 | 3 | 3 | 0 | 2026-10-22T21:07:25.892Z |
-| e2e-tt43 | 3 | 3 | 0 | 2026-10-22T21:07:36.782Z |
-| e2e-tt44 | 5 | 5 | 0 | 2026-10-22T21:08:28.924Z |
-| e2e-tt45 | 2 | 2 | 0 | 2026-10-22T21:08:40.355Z |
-| e2e-tt46 | 8 | 8 | 0 | 2026-10-22T21:09:58.498Z |
-| e2e-tt47 | 5 | 5 | 0 | 2026-10-22T21:21:24.692Z |
-| e2e-tt48-sync | 4 | 4 | 0 | 2026-10-22T21:22:21.065Z |
-| e2e-tt48 | 6 | 6 | 0 | 2026-10-22T21:22:12.811Z |
-| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-22T21:31:06.151Z |
-| e2e-tt49 | 5 | 5 | 0 | 2026-10-22T21:29:38.687Z |
-| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-22T21:33:11.241Z |
-| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-22T21:34:44.159Z |
-| e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-22T21:35:31.738Z |
-| e2e-tt53-media | 6 | 6 | 0 | 2026-10-22T21:36:21.201Z |
-| e2e-tt54 | 8 | 8 | 0 | 2026-10-22T21:37:22.500Z |
-| e2e-tt55-files | 13 | 13 | 0 | 2026-10-22T21:38:20.242Z |
-| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-22T21:38:33.588Z |
-| e2e-tt56-rows | 7 | 7 | 0 | 2026-10-22T21:39:39.479Z |
-| e2e-tt56 | 10 | 10 | 0 | 2026-10-22T21:39:20.416Z |
-| e2e-tt57-rows | 4 | 4 | 0 | 2026-10-22T21:41:35.190Z |
-| e2e-tt57 | 3 | 3 | 0 | 2026-10-22T21:41:07.272Z |
-| e2e-tt58-rows | 3 | 3 | 0 | 2026-10-22T21:43:24.617Z |
-| e2e-tt58 | 3 | 3 | 0 | 2026-10-22T21:42:30.918Z |
-| e2e-tt59 | 4 | 4 | 0 | 2026-10-22T21:44:59.495Z |
-| e2e-tt60 | 5 | 5 | 0 | 2026-10-22T21:45:32.251Z |
-| e2e-tt61 | 4 | 4 | 0 | 2026-10-22T21:46:52.371Z |
-| e2e-tt62 | 3 | 3 | 0 | 2026-10-22T21:47:01.407Z |
-| e2e-tt63 | 2 | 2 | 0 | 2026-10-22T21:47:31.063Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-22T20:39:05.425Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-22T20:46:18.277Z |
-| e2e | 64 | 64 | 0 | 2026-10-22T20:37:04.466Z |
-| image | 12 | 12 | 0 | 2026-10-22T20:34:19.819Z |
-| integration | 25 | 25 | 0 | 2026-10-22T20:34:13.187Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-22T20:34:47.594Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-22T20:34:55.773Z |
-| metaclean | 6 | 6 | 0 | 2026-10-22T20:34:36.409Z |
-| names | 7 | 7 | 0 | 2026-10-22T20:34:19.392Z |
-| office | 35 | 35 | 0 | 2026-10-22T20:34:13.688Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-22T20:34:45.965Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-22T20:34:23.784Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-22T20:34:26.356Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-22T20:34:47.114Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-22T20:34:15.697Z |
-| oracle | 5 | 5 | 0 | 2026-10-22T20:34:14.176Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-22T20:34:40.242Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-22T20:34:31.884Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-22T20:34:34.324Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-22T20:34:16.141Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-22T20:34:48.298Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-22T20:34:40.813Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-22T20:34:48.042Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-22T20:34:56.069Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-22T20:34:56.979Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-22T20:53:10.436Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-22T20:55:21.943Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-22T20:57:06.735Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-22T20:59:35.873Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-22T20:59:56.477Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-22T21:01:08.696Z |
-| tt36-unit | 5 | 5 | 0 | 2026-10-22T21:01:40.991Z |
-| tt37-unit | 9 | 9 | 0 | 2026-10-22T21:01:58.666Z |
-| tt38-unit | 15 | 15 | 0 | 2026-10-22T21:06:30.397Z |
-| tt39-pac | 8 | 8 | 0 | 2026-10-22T21:06:50.845Z |
-| tt39-unit | 13 | 13 | 0 | 2026-10-22T21:06:35.621Z |
-| tt40-proxy | 4 | 4 | 0 | 2026-10-22T21:07:04.912Z |
-| tt40-unit | 17 | 17 | 0 | 2026-10-22T21:06:56.571Z |
-| tt41-unit | 9 | 9 | 0 | 2026-10-22T21:07:08.707Z |
-| tt42-dhcp | 2 | 2 | 0 | 2026-10-22T21:07:22.238Z |
-| tt42-proxy | 2 | 2 | 0 | 2026-10-22T21:07:16.227Z |
-| tt42-unit | 6 | 6 | 0 | 2026-10-22T21:07:13.150Z |
-| tt43-unit | 7 | 7 | 0 | 2026-10-22T21:07:26.336Z |
-| tt44-bridge | 8 | 8 | 0 | 2026-10-22T21:08:12.248Z |
-| tt44-unit | 18 | 18 | 0 | 2026-10-22T21:07:51.962Z |
-| tt44-vt | 12 | 12 | 0 | 2026-10-22T21:50:51.254Z |
-| tt45-unit | 10 | 10 | 0 | 2026-10-22T21:08:32.789Z |
-| tt46-writer | 12 | 12 | 0 | 2026-10-22T21:09:33.231Z |
-| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-22T21:14:33.678Z |
-| tt47-crypto | 5 | 5 | 0 | 2026-10-22T21:20:54.168Z |
-| tt47-sheet | 8 | 8 | 0 | 2026-10-22T21:18:38.362Z |
-| tt48-office | 6 | 6 | 0 | 2026-10-22T21:21:37.572Z |
-| tt49-sheet | 10 | 10 | 0 | 2026-10-22T21:29:19.821Z |
-| tt49-writer | 9 | 9 | 0 | 2026-10-22T21:30:40.349Z |
-| tt50-charts | 10 | 10 | 0 | 2026-10-22T21:32:52.075Z |
-| tt51-slides | 15 | 15 | 0 | 2026-10-22T21:34:18.594Z |
-| tt52-pdf | 28 | 28 | 0 | 2026-10-22T21:34:54.253Z |
-| tt53-media | 11 | 11 | 0 | 2026-10-22T21:36:01.917Z |
-| tt54-meta | 6 | 6 | 0 | 2026-10-22T21:36:36.621Z |
-| tt55-files-unit | 7 | 7 | 0 | 2026-10-22T21:37:23.869Z |
-| tt56-sheet-paste | 4 | 4 | 0 | 2026-10-22T21:38:45.510Z |
-| tt56-shell-unit | 4 | 4 | 0 | 2026-10-22T21:38:45.037Z |
-| tt56-writer-track | 6 | 6 | 0 | 2026-10-22T21:38:44.545Z |
-| tt57-sheet-links | 6 | 6 | 0 | 2026-10-22T21:40:53.898Z |
-| tt57-units | 2 | 2 | 0 | 2026-10-22T21:40:54.139Z |
-| tt57-writer-fmt | 5 | 5 | 0 | 2026-10-22T21:39:56.126Z |
-| tt57-writer-para | 5 | 5 | 0 | 2026-10-22T21:40:37.189Z |
-| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-22T21:42:10.956Z |
-| tt58-writer-notes | 5 | 5 | 0 | 2026-10-22T21:42:04.603Z |
-| tt59-raster | 5 | 5 | 0 | 2026-10-22T21:44:28.672Z |
-| tt59-sheet-paste | 3 | 3 | 0 | 2026-10-22T21:44:24.072Z |
-| tt59-sheet-spell | 5 | 5 | 0 | 2026-10-22T21:44:23.176Z |
-| tt59-writer-spell | 8 | 8 | 0 | 2026-10-22T21:44:19.933Z |
-| tt59-x14-cf | 3 | 3 | 0 | 2026-10-22T21:44:25.653Z |
-| tt60-sheet-spell-all | 2 | 2 | 0 | 2026-10-22T21:45:06.913Z |
-| tt60-units | 2 | 2 | 0 | 2026-10-22T21:45:08.367Z |
-| tt60-writer-spell-stories | 3 | 3 | 0 | 2026-10-22T21:45:08.191Z |
-| tt60-writer-tblrev | 7 | 7 | 0 | 2026-10-22T21:45:05.846Z |
-| tt61-sheet-pivot-delete | 1 | 1 | 0 | 2026-10-22T21:46:40.013Z |
-| tt61-writer-cellrev | 4 | 4 | 0 | 2026-10-22T21:46:05.449Z |
-| tt61-writer-notes-rich | 7 | 7 | 0 | 2026-10-22T21:46:00.887Z |
-| tt62-sheet-schema | 5 | 5 | 0 | 2026-10-22T21:46:34.924Z |
-| tt62-writer-cellmerge | 4 | 4 | 0 | 2026-10-22T21:46:38.761Z |
-| tt62-writer-schema | 5 | 5 | 0 | 2026-10-22T21:46:32.537Z |
-| tt63-sheet-pivotparts | 10 | 10 | 0 | 2026-10-22T21:47:19.118Z |
-| unit | 23 | 23 | 0 | 2026-10-22T20:34:09.420Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-22T20:34:25.474Z |
-| vector | 18 | 18 | 0 | 2026-10-22T20:34:24.144Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-22T20:34:41.043Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-22T23:34:43.152Z |
+| ai-format | 5 | 5 | 0 | 2026-10-22T23:34:44.953Z |
+| browser-session | 5 | 5 | 0 | 2026-10-22T23:34:30.585Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-22T23:34:46.377Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-22T23:45:45.528Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-22T23:46:56.576Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-23T01:08:07.042Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-22T23:39:50.236Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-22T23:47:23.442Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-22T23:38:34.460Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-22T23:48:48.656Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-22T23:51:59.360Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-22T23:37:33.956Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-23T01:09:03.440Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-22T23:40:59.104Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-22T23:46:11.368Z |
+| e2e-tabletop | 15 | 15 | 0 | 2026-10-23T01:04:02.788Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-22T23:52:43.932Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-23T01:08:30.291Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-22T23:55:21.492Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-22T23:56:56.598Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-23T00:00:30.436Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-23T00:00:45.990Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-23T00:01:55.750Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-23T00:02:33.363Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-23T00:02:52.030Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-23T00:03:21.597Z |
+| e2e-tt38 | 7 | 7 | 0 | 2026-10-23T00:08:11.908Z |
+| e2e-tt39 | 7 | 7 | 0 | 2026-10-23T00:08:35.276Z |
+| e2e-tt40 | 3 | 3 | 0 | 2026-10-23T00:08:50.524Z |
+| e2e-tt41 | 4 | 4 | 0 | 2026-10-23T00:08:55.390Z |
+| e2e-tt42 | 3 | 3 | 0 | 2026-10-23T00:09:08.372Z |
+| e2e-tt43 | 3 | 3 | 0 | 2026-10-23T00:09:19.495Z |
+| e2e-tt44 | 5 | 5 | 0 | 2026-10-23T00:10:13.579Z |
+| e2e-tt45 | 2 | 2 | 0 | 2026-10-23T00:10:24.373Z |
+| e2e-tt46 | 8 | 8 | 0 | 2026-10-23T00:11:46.550Z |
+| e2e-tt47 | 5 | 5 | 0 | 2026-10-23T00:23:46.235Z |
+| e2e-tt48-sync | 4 | 4 | 0 | 2026-10-23T00:24:44.961Z |
+| e2e-tt48 | 6 | 6 | 0 | 2026-10-23T00:24:36.306Z |
+| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-23T00:33:47.287Z |
+| e2e-tt49 | 5 | 5 | 0 | 2026-10-23T00:32:13.464Z |
+| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-23T00:36:01.357Z |
+| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-23T00:37:39.735Z |
+| e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-23T00:38:29.767Z |
+| e2e-tt53-media | 6 | 6 | 0 | 2026-10-23T00:39:17.951Z |
+| e2e-tt54 | 8 | 8 | 0 | 2026-10-23T00:40:18.490Z |
+| e2e-tt55-files | 13 | 13 | 0 | 2026-10-23T00:41:20.768Z |
+| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-23T00:41:34.886Z |
+| e2e-tt56-rows | 7 | 7 | 0 | 2026-10-23T00:42:42.928Z |
+| e2e-tt56 | 10 | 10 | 0 | 2026-10-23T00:42:23.056Z |
+| e2e-tt57-rows | 4 | 4 | 0 | 2026-10-23T00:44:44.537Z |
+| e2e-tt57 | 3 | 3 | 0 | 2026-10-23T00:44:17.247Z |
+| e2e-tt58-rows | 3 | 3 | 0 | 2026-10-23T00:46:46.471Z |
+| e2e-tt58 | 3 | 3 | 0 | 2026-10-23T00:45:44.530Z |
+| e2e-tt59 | 4 | 4 | 0 | 2026-10-23T00:48:26.375Z |
+| e2e-tt60 | 5 | 5 | 0 | 2026-10-23T01:09:39.807Z |
+| e2e-tt61 | 4 | 4 | 0 | 2026-10-23T01:09:56.001Z |
+| e2e-tt62 | 3 | 3 | 0 | 2026-10-23T01:10:07.787Z |
+| e2e-tt63 | 2 | 2 | 0 | 2026-10-23T01:10:22.035Z |
+| e2e-tt64 | 3 | 3 | 0 | 2026-10-23T01:02:13.449Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-22T23:39:06.752Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-22T23:46:36.821Z |
+| e2e | 64 | 64 | 0 | 2026-10-22T23:37:00.293Z |
+| image | 12 | 12 | 0 | 2026-10-22T23:34:24.377Z |
+| integration | 25 | 25 | 0 | 2026-10-22T23:34:17.507Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-22T23:34:47.285Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-22T23:34:54.982Z |
+| metaclean | 6 | 6 | 0 | 2026-10-22T23:34:39.197Z |
+| names | 7 | 7 | 0 | 2026-10-22T23:34:23.940Z |
+| office | 35 | 35 | 0 | 2026-10-22T23:34:18.017Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-22T23:34:45.993Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-22T23:34:28.122Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-22T23:34:30.375Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-22T23:34:46.982Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-22T23:34:20.196Z |
+| oracle | 5 | 5 | 0 | 2026-10-22T23:34:18.509Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-22T23:34:42.848Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-22T23:34:35.723Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-22T23:34:37.721Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-22T23:34:20.683Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-22T23:34:47.857Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-22T23:34:43.408Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-22T23:34:47.629Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-22T23:34:55.261Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-22T23:34:56.195Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-22T23:53:09.195Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-22T23:55:21.796Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-22T23:57:13.613Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-23T00:00:30.704Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-23T00:00:50.755Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-23T00:02:05.389Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-23T00:02:37.058Z |
+| tt37-unit | 9 | 9 | 0 | 2026-10-23T00:02:56.495Z |
+| tt38-unit | 15 | 15 | 0 | 2026-10-23T00:08:07.942Z |
+| tt39-pac | 8 | 8 | 0 | 2026-10-23T00:08:30.582Z |
+| tt39-unit | 13 | 13 | 0 | 2026-10-23T00:08:13.781Z |
+| tt40-proxy | 4 | 4 | 0 | 2026-10-23T00:08:46.483Z |
+| tt40-unit | 17 | 17 | 0 | 2026-10-23T00:08:37.320Z |
+| tt41-unit | 9 | 9 | 0 | 2026-10-23T00:08:51.032Z |
+| tt42-dhcp | 2 | 2 | 0 | 2026-10-23T00:09:04.623Z |
+| tt42-proxy | 2 | 2 | 0 | 2026-10-23T00:08:58.719Z |
+| tt42-unit | 6 | 6 | 0 | 2026-10-23T00:08:55.825Z |
+| tt43-unit | 7 | 7 | 0 | 2026-10-23T00:09:08.762Z |
+| tt44-bridge | 8 | 8 | 0 | 2026-10-23T00:09:56.402Z |
+| tt44-unit | 18 | 18 | 0 | 2026-10-23T00:09:33.953Z |
+| tt44-vt | 12 | 12 | 0 | 2026-10-23T00:09:53.335Z |
+| tt45-unit | 10 | 10 | 0 | 2026-10-23T00:10:16.650Z |
+| tt46-writer | 12 | 12 | 0 | 2026-10-23T00:11:17.947Z |
+| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-23T00:16:33.060Z |
+| tt47-crypto | 5 | 5 | 0 | 2026-10-23T00:23:13.826Z |
+| tt47-sheet | 8 | 8 | 0 | 2026-10-23T00:20:37.940Z |
+| tt48-office | 6 | 6 | 0 | 2026-10-23T00:23:59.678Z |
+| tt49-sheet | 10 | 10 | 0 | 2026-10-23T00:31:53.511Z |
+| tt49-writer | 9 | 9 | 0 | 2026-10-23T00:33:19.161Z |
+| tt50-charts | 10 | 10 | 0 | 2026-10-23T00:35:40.353Z |
+| tt51-slides | 15 | 15 | 0 | 2026-10-23T00:37:11.857Z |
+| tt52-pdf | 28 | 28 | 0 | 2026-10-23T00:37:50.674Z |
+| tt53-media | 11 | 11 | 0 | 2026-10-23T00:38:57.866Z |
+| tt54-meta | 6 | 6 | 0 | 2026-10-23T00:39:32.406Z |
+| tt55-files-unit | 7 | 7 | 0 | 2026-10-23T00:40:19.712Z |
+| tt56-sheet-paste | 4 | 4 | 0 | 2026-10-23T00:41:47.435Z |
+| tt56-shell-unit | 4 | 4 | 0 | 2026-10-23T00:41:46.892Z |
+| tt56-writer-track | 6 | 6 | 0 | 2026-10-23T00:41:46.407Z |
+| tt57-sheet-links | 6 | 6 | 0 | 2026-10-23T00:44:02.323Z |
+| tt57-units | 2 | 2 | 0 | 2026-10-23T00:44:02.584Z |
+| tt57-writer-fmt | 5 | 5 | 0 | 2026-10-23T00:43:00.260Z |
+| tt57-writer-para | 5 | 5 | 0 | 2026-10-23T00:43:44.381Z |
+| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-23T00:45:23.657Z |
+| tt58-writer-notes | 5 | 5 | 0 | 2026-10-23T00:45:16.179Z |
+| tt59-raster | 5 | 5 | 0 | 2026-10-23T00:47:53.341Z |
+| tt59-sheet-paste | 3 | 3 | 0 | 2026-10-23T00:47:48.454Z |
+| tt59-sheet-spell | 5 | 5 | 0 | 2026-10-23T00:47:47.481Z |
+| tt59-writer-spell | 8 | 8 | 0 | 2026-10-23T00:47:44.064Z |
+| tt59-x14-cf | 3 | 3 | 0 | 2026-10-23T00:47:50.182Z |
+| tt60-sheet-spell-all | 2 | 2 | 0 | 2026-10-23T00:48:34.327Z |
+| tt60-units | 2 | 2 | 0 | 2026-10-23T00:48:35.836Z |
+| tt60-writer-spell-stories | 3 | 3 | 0 | 2026-10-23T00:48:35.650Z |
+| tt60-writer-tblrev | 7 | 7 | 0 | 2026-10-23T00:48:33.149Z |
+| tt61-sheet-pivot-delete | 1 | 1 | 0 | 2026-10-23T00:50:16.952Z |
+| tt61-writer-cellrev | 4 | 4 | 0 | 2026-10-23T00:49:36.870Z |
+| tt61-writer-notes-rich | 7 | 7 | 0 | 2026-10-23T00:49:31.952Z |
+| tt62-sheet-schema | 5 | 5 | 0 | 2026-10-23T00:50:10.962Z |
+| tt62-writer-cellmerge | 4 | 4 | 0 | 2026-10-23T00:50:15.629Z |
+| tt62-writer-schema | 5 | 5 | 0 | 2026-10-23T00:50:08.148Z |
+| tt63-sheet-pivotparts | 10 | 10 | 0 | 2026-10-23T00:51:00.641Z |
+| tt64-writer-trackcols | 6 | 6 | 0 | 2026-10-23T00:52:14.143Z |
+| unit | 23 | 23 | 0 | 2026-10-22T23:34:12.674Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-22T23:34:29.610Z |
+| vector | 18 | 18 | 0 | 2026-10-22T23:34:28.431Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-22T23:34:43.634Z |
 
 ## Rows touched by failing tests
 
@@ -200,7 +202,7 @@ None.
 | AP | 5 | 1 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 46 | 8 | 0 | 40 | 8 | 6 |
-| FF | 44 | 43 | 1 | 0 | 41 | 2 | 1 |
+| FF | 45 | 44 | 1 | 0 | 42 | 2 | 1 |
 | MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
 | SC | 18 | 16 | 1 | 1 | 11 | 3 | 4 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
@@ -399,7 +401,7 @@ None.
 | BK-06 | built | full | privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused; privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key; unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
 | FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: SEQUENCE(2,3) spills all six cells with correct values (+13) |
 | FF-27 | built | full | e2e: mount: sheet; office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+6) |
-| FF-28 | built | full | e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen; e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates (+33) |
+| FF-28 | built | full | e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen; e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates (+34) |
 | FF-29 | built | full | e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source; e2e-tt49: imported x14 data bars (automatic bounds + border), x14-only 3Stars and a custom icon mix are drawn cell-for-cell as evaluated; e2e-tt49: CF borders, formula rules and time periods from a workbook our writer produced are drawn as evaluated (+35) |
 | FF-30 | built | full | e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops; e2e-image: new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo; e2e-image: layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge (+23) |
 | FF-31 | built | full | e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels; e2e: mount: imageedit; image: PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size (+9) |
@@ -505,7 +507,7 @@ None.
 | WP-22 | built | full | e2e-tt43: WP-22 oracle: SharedWorker shared like Chromium's own — two tabs of one profile (Fusion split view, one proxy session) and their nested same-site frames reach ONE worker (count and connections continue across them), a tab of another session gets its own; self.name, self.location, the worker's cookie jar (cookies set by BOTH tabs of the profile, only the other tab's in the other session), a second named worker, SecurityError for another site's script, SyntaxError for a bad URL and the error event of a missing script — every value IDENTICAL natively and through the proxy; e2e-tt43: WP-22 hosts and lifecycle (proxied): one hidden host document per (session, site) — opaque origin, sandboxed — and when the last page of a session leaves the site its host is removed (after the grace), while the other session's worker keeps its state; coming back starts a fresh worker; e2e-tt43: WP-22 attacks (proxied): a page that forges a connect with a document id the server never issued, or names another site's script, gets an error and no worker; a proxied page calling the broker's server endpoints directly (__shared-who / __shared-host) cannot read them, and the server refuses such requests (403: only the Fusion window may), so it can neither learn about documents nor mint host documents (+6) |
 | FF-38 | built | full | e2e-tt59: FF-38 Writer spell check in the UI: highlights painted → F7 pane Change / typed Change / Ignore All / Delete repeated word → right-click menu suggestion → Add to Dictionary persists → Escape closes only menu/pane → saved document.xml (lxml); tt59-writer-spell: en_US: every verdict equals spylls (Hunspell port) on ~22k words — forms, misspellings, case, ordinals, apostrophes, hyphens; tt59-writer-spell: hand-written dictionary (FLAG long, KEEPCASE, FORBIDDENWORD, NEEDAFFIX, NOSUGGEST, BREAK, COMPOUNDRULE ?, conditions, cross product) equals spylls (+6) |
 | FF-39 | built | full | e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save; tt59-sheet-spell: only text constants are checked (formulas, numbers, logicals, errors skipped); quote prefix offsets; row-major order; repeated words; tt59-sheet-spell: selection scope, Ignore All / Ignore Once, user dictionary (+3) |
-| FF-40 | built | full | e2e-tt60: FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right refused; saved trPr ins/del verified by lxml; per-change Accept removes the row; tt60-writer-tblrev: recording: an inserted row is w:trPr/w:ins and a deleted row w:trPr/w:del with its text as w:delText (oracle); CT_TrPr order; ids unique; python-docx opens; tt60-writer-tblrev: accept-all / reject-all (ours) equal the oracle's independent views, live and after save → re-open (+5) |
+| FF-40 | built | full | e2e-tt60: FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right tracked + rejected; saved trPr ins/del verified by lxml; per-change Accept removes the row; TT64: tracked Column right listed and rejected; tt60-writer-tblrev: recording: an inserted row is w:trPr/w:ins and a deleted row w:trPr/w:del with its text as w:delText (oracle); CT_TrPr order; ids unique; python-docx opens; tt60-writer-tblrev: accept-all / reject-all (ours) equal the oracle's independent views, live and after save → re-open (+5) |
 | FF-41 | built | full | e2e-tt60: FF-41 Spreadsheet spelling in all sheets: F7 → All sheets → tab order from the active sheet; Change switches to the issue's sheet; Change All covers every sheet; openpyxl reads the save; tt60-sheet-spell-all: all sheets: tab order from the starting sheet, wrapping; a selection range is ignored; single sheet unchanged; tt60-sheet-spell-all: openpyxl 3-sheet .xlsx: Change All across sheets, a fix on a non-active sheet, saved losslessly, openpyxl reads every sheet back |
 | FF-42 | built | full | e2e-tt60: FF-42 Writer spelling in headers and notes: F7 lists body → Header → Footnote 1 issues; Change fixes them in place; saved file verified by python-docx and lxml; e2e-tt61: FF-42 completion: a header misspelling is underlined on the page itself — a spelling highlight range lies inside the page header box on every page (2 pages), and disappears after Change; tt60-writer-spell-stories: issues in every story: main text first, then header, footer, footnote — each with its place; spellIssues (main) unchanged (+2) |
 | FF-43 | built | full | e2e-tt61: FF-43 Writer: editing a formatted footnote in the Notes panel keeps its bold / italic / underline (lxml reads the saved runs); the edit is exact and the reference mark still leads; e2e-tt61: no page errors during the suite; tt61-writer-notes-rich: fixture sanity: the lxml-written formatted note reads back as written (independent probe) and as text in our model (+6) |
@@ -513,6 +515,7 @@ None.
 | FF-45 | built | full | tt62-writer-schema: the oracle is a real verifier: it rejects wrong child order, an unknown element, a bad enumeration value and an unknown non-ignorable namespace; it accepts a w14 extension declared ignorable; tt62-writer-schema: randomized editing sessions: 24 sessions × 60 steps (all edit operations, Track Changes toggled) on two starting documents; every saved package (checked every 10 steps) is schema-valid; tt62-writer-schema: kitchen sink: every run property on one run, every paragraph property + style + list on one paragraph, the same again under Track Changes (rPrChange / pPrChange with everything), a table cell with shading inside a landscape A4 section with first-page header — schema-valid (+2) |
 | FF-46 | built | full | tt62-sheet-schema: oracle sanity on SpreadsheetML: mergeCells before sheetData, a bad cell type enumeration and an unknown element are rejected; our fresh export of an empty workbook is valid; tt62-sheet-schema: kitchen sink (fresh export): every style / border line, merges, 6 validation types, links, freeze panes, widths, names, all 25 CF kinds, 7 chart kinds × groupings + trendlines, a PivotTable, awkward sheet names — every part schema-valid, and it reads back; tt62-sheet-schema: 20 randomized workbooks (random subsets of every feature, random sizes) — every fresh export is schema-valid (+2) |
 | FF-47 | built | full | e2e-tt63: FF-47 PivotTable saved as a real Excel PivotTable from the UI: create with a report filter → Save → XSD + pandas + openpyxl oracles; reopen → source edit → Alt+F5 → Save regenerates in place; Delete → Save removes every pivot part; e2e-tt63: no uncaught page errors during the TT63 session; tt63-sheet-pivotparts: 1. fresh export: 13 pivot shapes are schema-valid, recomputed by pandas from the XML, survive openpyxl (+9) |
+| FF-48 | built | full | e2e-tt64: FF-48 Writer tracked columns in the UI: Track changes → Column right (3 inserted cells, one '[Table column]' change) → Delete column (3 deleted cells, a second change) → Reject the deletion, Accept the insertion → Save → lxml oracle + XSD; a gridBefore row renders on the grid; e2e-tt64: no page errors during the TT64 session; tt64-writer-trackcols: a tracked column insert: every new cell carries w:cellIns (unique ids, author, date), the old widths go in w:tblGridChange; one '[Table column]' change; schema-valid; the file round-trips the grouping (+5) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

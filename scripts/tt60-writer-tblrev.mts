@@ -140,16 +140,23 @@ await test("own pending inserted row is deleted outright; another reviewer's ins
   eq(rowsOf(firstTable(d2)).length, 4, "row gone");
 });
 
-await test("deleting the last remaining rows tracked then accepting removes the table (an empty paragraph remains); columns refuse while tracking", COV, async () => {
+await test("deleting the last remaining rows tracked then accepting removes the table (an empty paragraph remains); TT64: a tracked column insert is a reviewable change", COV, async () => {
   const d = await blankWord("T");
   const p0 = allParas(d.blocks)[0];
   const t = E.insertTableAfter(d, p0.id, 1, 2)!;
   E.insertText(d, { pid: cellPara(t, 0, 0).id, off: 0 }, "only");
   E.setTracking(d, true, "Ann");
-  ok(!E.tableColOp(d, cellPara(t, 0, 0).id, "right"), "column insert refused while tracking");
-  ok(!E.tableColOp(d, cellPara(t, 0, 0).id, "delete"), "column delete refused while tracking");
-  eq(t.grid.length, 2, "grid unchanged");
-  ok(E.COLUMN_TRACK_REFUSAL.includes("Track Changes"), "message names the setting");
+  // TT64 (supersedes the TT60 refusal): the insert is recorded with w:cellIns and listed as one column change; rejecting it restores the grid
+  {
+    const d3 = await blankWord("C"); const t3 = E.insertTableAfter(d3, allParas(d3.blocks)[0].id, 2, 2)!; E.setTracking(d3, true, "Ann");
+    ok(E.tableColOp(d3, cellPara(t3, 0, 0).id, "right"), "tracked column insert");
+    eq(t3.grid.length, 3, "grid grew");
+    const colCh = E.revisions(d3).find((c) => c.key.startsWith("cg:"));
+    ok(colCh && colCh.kind === "ins" && colCh.text.includes("column"), `one column change listed: ${JSON.stringify(E.revisions(d3).map((c) => c.key))}`);
+    ok(E.resolveOne(d3, colCh!.key, false), "reject the column");
+    eq(t3.grid.length, 2, "grid back to 2 columns");
+  }
+  ok(E.COLUMN_TRACK_REFUSAL.includes("Track Changes"), "the remaining refusal message names the setting");
   ok(E.tableRowOp(d, cellPara(t, 0, 0).id, "delete"), "tracked delete of the only row keeps the table");
   ok(d.blocks.includes(t), "table still there (pending)");
   E.resolveChanges(d, true);

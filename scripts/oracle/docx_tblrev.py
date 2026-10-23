@@ -16,6 +16,8 @@ Prints one JSON object:
   grid_ok      TT61: every row fills its table grid: gridBefore + sum(gridSpan) + gridAfter == number of w:gridCol
                (grid_errors lists the rows that don't); tcpr_ok: cellIns / cellDel / cellMerge sit where CT_TcPr puts them
                (after the base cell properties, before w:tcPrChange)
+  grids        TT64: per table (document order, nested included) {asis, change (w:tblGridChange widths | null),
+               change_id, accept, reject}: widths after accepting / rejecting all (whole-column cellIns / cellDel, 2+ rows)
   accept / reject   top-level tables as [[cell text]] after accepting / rejecting ALL changes, ECMA-376 §17.13.5:
                row w:del accepted = row removed, row w:ins rejected = row removed (a row carrying both is removed
                either way except accept-ins+reject-del); run w:ins accept = keep text, reject = drop; run w:del reversed;
@@ -38,7 +40,7 @@ q = lambda t: "{%s}%s" % (W, t)
 TRPR_BASE = {"cnfStyle", "divId", "gridBefore", "gridAfter", "wBefore", "wAfter", "cantSplit", "trHeight", "tblHeader",
              "tblCellSpacing", "jc", "hidden"}
 REV_TAGS = {"ins", "del", "tblPrChange", "trPrChange", "tcPrChange", "rPrChange", "pPrChange", "tblPrExChange",
-            "sectPrChange", "numberingChange", "cellIns", "cellDel", "cellMerge"}
+            "sectPrChange", "numberingChange", "cellIns", "cellDel", "cellMerge", "tblGridChange"}
 
 
 def local(el):
@@ -229,7 +231,52 @@ def main():
     out["tcpr_errors"] = terr
     out["accept"] = tables_view(body, "accept")
     out["reject"] = tables_view(body, "reject")
+    out["grids"] = [grid_views(tbl, ival) for tbl in body.iter(q("tbl"))]
     print(json.dumps(out))
+
+
+def grid_views(tbl, ival):
+    """TT64: column widths of one table as is / after accepting all / after rejecting all (independent restatement):
+    a grid column whose every row (2+ rows) has a single-span cell starting there marked cellDel by one author (2+ such cells), or no cell
+    over it at all (empty gridBefore / gridAfter region), is removed on accept,
+    one marked cellIns on every row is removed on reject; reject then takes w:tblGridChange's recorded widths when their
+    count equals the remaining columns. A tracked grid change never survives accept-all or reject-all."""
+    g = tbl.find(q("tblGrid"))
+    cols = [int(c.get(q("w"), "0")) for c in g.findall(q("gridCol"))] if g is not None else []
+    gc = g.find(q("tblGridChange")) if g is not None else None
+    old = [int(c.get(q("w"), "0")) for c in gc.find(q("tblGrid")).findall(q("gridCol"))] if gc is not None and gc.find(q("tblGrid")) is not None else None
+    rows = tbl.findall(q("tr"))
+    starts = []  # per row: {grid column: (span, mark local name or None)}
+    for tr in rows:
+        pos = ival(tr.find(q("trPr")), "gridBefore")
+        m = {}
+        for tc in tr.findall(q("tc")):
+            sp = max(1, ival(tc.find(q("tcPr")), "gridSpan"))
+            mk = cell_mark(tc)
+            m[pos] = (sp, local(mk) if mk is not None else None, mk.get(q("author")) if mk is not None else None)
+            pos += sp
+        starts.append(m)
+    covered = []  # per row: the grid columns its cells occupy
+    for st in starts:
+        covered.append({c for p0, v in st.items() for c in range(p0, p0 + v[0])})
+
+    def whole(kind):
+        if len(rows) < 2:
+            return set()
+        out = set()
+        for i in range(len(cols)):
+            # rows with no cell at all over column i (empty gridBefore / gridAfter region) belong to the column
+            got = [st.get(i, (0, None, None)) for st, cv in zip(starts, covered) if i in cv]
+            # a single marked cell is a cell change (TT61), not a column: 2+ marked cells make a column
+            if len(got) >= 2 and all(x[0] == 1 and x[1] == kind for x in got) and len({x[2] for x in got}) == 1:
+                out.add(i)
+        return out
+
+    acc = [w for i, w in enumerate(cols) if i not in whole("cellDel")]
+    rej = [w for i, w in enumerate(cols) if i not in whole("cellIns")]
+    if old is not None and len(old) == len(rej):
+        rej = old
+    return {"asis": cols, "change": old, "change_id": gc.get(q("id")) if gc is not None else None, "accept": acc, "reject": rej}
 
 
 def markcells(src, dst, specs):

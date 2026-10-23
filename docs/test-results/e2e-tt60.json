@@ -1,15 +1,15 @@
 {
   "suite": "e2e-tt60",
-  "at": "2026-10-22T21:45:32.251Z",
+  "at": "2026-10-23T01:09:39.807Z",
   "results": [
     {
       "suite": "e2e-tt60",
-      "name": "FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right refused; saved trPr ins/del verified by lxml; per-change Accept removes the row",
+      "name": "FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right tracked + rejected; saved trPr ins/del verified by lxml; per-change Accept removes the row; TT64: tracked Column right listed and rejected",
       "covers": {
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 6098
+      "ms": 6432
     },
     {
       "suite": "e2e-tt60",
@@ -18,7 +18,7 @@
         "FF-41": "full"
       },
       "pass": true,
-      "ms": 5418
+      "ms": 5756
     },
     {
       "suite": "e2e-tt60",
@@ -27,7 +27,7 @@
         "FF-42": "full"
       },
       "pass": true,
-      "ms": 5228
+      "ms": 5962
     },
     {
       "suite": "e2e-tt60",
@@ -36,7 +36,7 @@
         "RG-05": "full"
       },
       "pass": true,
-      "ms": 5569
+      "ms": 7828
     },
     {
       "suite": "e2e-tt60",
