@@ -8,7 +8,8 @@
  *     desktop — all on display 2; the tab's own state is unchanged.
  *  3. adversary on the channel (same-origin page.evaluate): wrong recipient, 6 malformed shapes and replayed / stale
  *     sequence numbers change nothing; one fresh, well-formed message does (control).
- *  4. no presenting screen (display closed → it says goodbye): the status says so and the pad moves this tab's window.
+ *  4. a proxied page (opaque-origin sandbox, the Browser's proxy mode) posting a valid pad message moves nothing.
+ *  5. no presenting screen (display closed → it says goodbye): the status says so and the pad moves this tab's window.
  * Restores both desktop states and the settings it changes.
  * Run: BASE=http://localhost:3999 node --experimental-strip-types --no-warnings --use-system-ca --import ./scripts/register-hook.mjs scripts/e2e-tt72-pad.mts
  */
@@ -137,6 +138,26 @@ try {
     const dx = Math.round(after.x - before.x);
     eq(dx, 7 + 400, "only the fresh +7 and the clamped +400 (from 9000) applied; replay / stale / wrong-to / malformed ignored");
     ok(Math.abs(after.y - before.y) <= 1, "no vertical change");
+  });
+
+  await test("a proxied page (opaque-origin sandbox, as Browser → proxy runs it) posting a VALID pad message moves nothing", COV, async () => {
+    const before = await box(disp, "dB");
+    const S = Date.now() * 10 + 5_000_000;
+    const ran = await tab.evaluate((S) => new Promise<string>((done) => {
+      window.addEventListener("message", (e) => { if (typeof e.data === "string" && e.data.startsWith("ran:")) done(e.data); });
+      const f = document.createElement("iframe");
+      f.setAttribute("sandbox", "allow-scripts allow-forms allow-popups allow-modals allow-downloads");
+      f.srcdoc = `<script>const ch = new BroadcastChannel("fusion-shell");
+        for (let i = 0; i < 5; i++) ch.postMessage({ v: 1, kind: "pad", from: "default", to: "display-2", seq: ${S} + i, op: { t: "move", dx: 120, dy: 0 } });
+        parent.postMessage("ran:" + String(self.origin), "*");<\/script>`;
+      document.body.appendChild(f);
+      setTimeout(() => done("timeout"), 5000);
+    }), S);
+    eq(ran, "ran:null", "the sandboxed script ran in an opaque origin");
+    await new Promise((r) => setTimeout(r, 1200));
+    const after = await box(disp, "dB");
+    eq([Math.round(after.x - before.x), Math.round(after.y - before.y)], [0, 0], "display window unchanged");
+    await tab.evaluate(() => document.querySelectorAll("iframe[srcdoc]").forEach((f) => f.remove()));
   });
 
   await test("no presenting screen: the status says so and the pad moves this tab's focused window", COV, async () => {

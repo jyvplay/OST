@@ -10,7 +10,7 @@ import { clearLog, snapshot, stopLive, subscribe, type AccessEntry } from "@/lib
 import { Badge, Btn, Section } from "../ui";
 
 const EMPTY: readonly AccessEntry[] = [];
-const ICON: Record<string, string> = { camera: "📷", microphone: "🎙", screen: "🖥", "clipboard-read": "📋", location: "📍" };
+const LABEL: Record<string, string> = { camera: "Camera", microphone: "Microphone", screen: "Screen", "clipboard-read": "Clipboard read", location: "Location" };
 const clock = (t: number) => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 const dur = (a: number, b: number) => { const s = Math.max(0, Math.round((b - a) / 1000)); return s < 60 ? `${s} s` : `${Math.floor(s / 60)} min ${s % 60} s`; };
 
@@ -25,7 +25,7 @@ export function AccessLogPanel() {
             {live.map((e) => (
               <div key={e.id} className="fs-list-item" data-testid={`access-live-${e.id}`}>
                 <Badge tone="warn">live</Badge>
-                <span style={{ flex: 1, fontSize: fz(12) }}>{e.kinds.map((k) => `${ICON[k]} ${k}`).join(" + ")} — {e.app} · since {clock(e.at)}</span>
+                <span style={{ flex: 1, fontSize: fz(12) }}>{e.kinds.map((k) => LABEL[k] ?? k).join(" + ")} — {e.app} · since {clock(e.at)}</span>
                 <Btn variant="danger" onClick={() => stopLive(e.id)}>Stop</Btn>
               </div>
             ))}
@@ -39,7 +39,7 @@ export function AccessLogPanel() {
             <tbody>
               {log.map((e) => (
                 <tr key={e.id} data-testid="access-row" data-kinds={e.kinds.join(",")} data-outcome={e.outcome} data-app={e.app}>
-                  <td className="fs-mono">{clock(e.at)}</td><td>{e.app}</td><td>{e.kinds.map((k) => `${ICON[k]} ${k}`).join(" + ")}</td>
+                  <td className="fs-mono">{clock(e.at)}</td><td>{e.app}</td><td>{e.kinds.map((k) => LABEL[k] ?? k).join(" + ")}</td>
                   <td><Badge tone={e.outcome === "granted" ? "ok" : e.outcome === "denied" ? "warn" : "bad"}>{e.outcome}</Badge>{e.error ? <span className="fs-dim"> {e.error}</span> : null}</td>
                   <td>{e.live ? "live" : e.endedAt ? dur(e.at, e.endedAt) : "—"}</td>
                 </tr>

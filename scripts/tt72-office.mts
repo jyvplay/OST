@@ -16,6 +16,7 @@
  * Run: node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/tt72-office.mts
  */
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { makeHarness } from "./harness.mts";
 import { readWord, writeWord, type WordDoc } from "../src/lib/office/wordml.ts";
@@ -223,6 +224,167 @@ await test("W4 legacy /api/office readDocx: prefix and default-namespace forms, 
   // a foreign namespace on the w prefix can never pose as WordprocessingML
   const evil = readDocx(pkg(`<x:document xmlns:x="${W}"><x:body><x:p><x:r><x:t>real</x:t></x:r></x:p><w:p xmlns:w="urn:evil"><w:r><w:t>fake</w:t></w:r></w:p></x:body></x:document>`));
   eq(evil.blocks.map((b) => b.kind === "paragraph" ? b.runs.map((r) => r.text).join("") : ""), ["real"], "foreign w: is aliased away");
+});
+
+await test("W5 corpus: every readable docx with all word/**.xml attributes single-quoted and spaced reads to the SAME model, and the next tracked-change id stays above every existing w:id (no revision-id collisions)", WCOV, async () => {
+  let files = 0, same = 0, withIds = 0;
+  const fails: string[] = [];
+  for (const f of docxFiles) {
+    const buf = readFileSync(`${DOCX}/${f}`);
+    const o = await readOr(() => readWord(new Uint8Array(buf), f));
+    if (!o.doc) continue;
+    files++;
+    const sq = rezipAll(buf, isWmlPart, (t) => singleQuote(t));
+    const r = await readOr(() => readWord(new Uint8Array(sq), f));
+    if (!r.doc) { fails.push(`${f}: ${r.err}`); continue; }
+    const a = JSON.stringify(wordModel(o.doc)), b = JSON.stringify(wordModel(r.doc));
+    if (a === b && r.doc.track.next === o.doc.track.next && r.doc.track.on === o.doc.track.on) same++;
+    else fails.push(`${f}: model ${a === b}, next ${o.doc.track.next}/${r.doc.track.next}, track ${o.doc.track.on}/${r.doc.track.on}`);
+    // independent of the reader: the largest w:id written in the original main document part
+    const main = readCentralDirectory(buf).find((e) => e.name === o.doc!.docPath);
+    let max = 0;
+    if (main) for (const m of readEntryVerified(buf, main).toString("utf8").matchAll(/\sw:id="(-?\d+)"/g)) max = Math.max(max, Number(m[1]));
+    if (max > 0) { withIds++; if (!(r.doc.track.next > max)) fails.push(`${f}: next ${r.doc.track.next} ≤ existing w:id ${max}`); }
+  }
+  eq(fails.slice(0, 5), [], `${fails.length} differences`);
+  ok(files >= 100 && same === files, `coverage: ${files} readable, ${same} same`);
+  ok(withIds >= 10, `documents with existing revision / comment / bookmark ids: ${withIds}`);
+  console.log(`    docx corpus single-quoted: ${files} readable → ${same} identical models (incl. revision-id counter); ${withIds} carry w:id values`);
+});
+
+await test("W6 pictures in headers / footers / comments / notes resolve through THAT part's relationships (OPC): every picture the reader shows is one the part references — lxml + zipfile oracle over the corpus; TT71 showed the main document's rIdN", WCOV, async () => {
+  const sha = (d: Uint8Array) => createHash("sha1").update(d).digest("hex");
+  const pics = (root: unknown): string[] => {
+    const out: string[] = []; const seen = new Set<unknown>();
+    const walk = (v: unknown) => {
+      if (!v || typeof v !== "object" || seen.has(v) || v instanceof Uint8Array) return; seen.add(v);
+      const img = (v as { img?: { data?: unknown } }).img;
+      if (img && img.data instanceof Uint8Array) out.push(sha(img.data));
+      for (const [k, x] of Object.entries(v as object)) if (k !== "src" && k !== "doc") walk(x);
+    };
+    walk(root); return out;
+  };
+  const model = (d: WordDoc) => ({ hf: pics([...d.parts.values()]), comments: pics(d.comments.map((c) => c.blocks)), notes: pics(d.notes.map((n) => n.blocks)) });
+  const paths = docxFiles.map((f) => `${DOCX}/${f}`);
+  const oracle = JSON.parse(execFileSync(PY, ["-c", `
+import sys, json, zipfile, hashlib, posixpath
+from lxml import etree
+R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+PR = "http://schemas.openxmlformats.org/package/2006/relationships"
+A = "http://schemas.openxmlformats.org/drawingml/2006/main"
+KIND = {R + "/header": "hf", R + "/footer": "hf", R + "/comments": "comments", R + "/footnotes": "notes", R + "/endnotes": "notes"}
+def rels(z, part):
+    d, b = posixpath.split(part); p = posixpath.join(d, "_rels", b + ".rels")
+    try: x = etree.fromstring(z.read(p))
+    except Exception: return {}
+    return {r.get("Id"): r for r in x.iter("{%s}Relationship" % PR)}
+def resolve(part, target):
+    return target.lstrip("/") if target.startswith("/") else posixpath.normpath(posixpath.join(posixpath.dirname(part), target))
+out = []
+for f in sys.argv[1:]:
+    try:
+        z = zipfile.ZipFile(f); names = set(z.namelist())
+        ct = etree.fromstring(z.read("_rels/.rels"))
+        main = [resolve("", r.get("Target")) for r in ct.iter("{%s}Relationship" % PR) if r.get("Type") == R + "/officeDocument"][0]
+        res = {"hf": [], "comments": [], "notes": []}
+        for rid, r in rels(z, main).items():
+            k = KIND.get(r.get("Type"))
+            if not k or r.get("TargetMode") == "External": continue
+            part = resolve(main, r.get("Target"))
+            if part not in names: continue
+            pr = rels(z, part)
+            for blip in etree.fromstring(z.read(part)).iter("{%s}blip" % A):
+                e = blip.get("{%s}embed" % R)
+                if e in pr and pr[e].get("TargetMode") != "External":
+                    t = resolve(part, pr[e].get("Target"))
+                    if t in names: res[k].append(hashlib.sha1(z.read(t)).hexdigest())
+        out.append(res)
+    except Exception as ex:
+        out.append(None)
+print(json.dumps(out))
+`, ...paths], { encoding: "utf8", maxBuffer: 1 << 28 })) as ({ hf: string[]; comments: string[]; notes: string[] } | null)[];
+  let files = 0, withPics = 0, picsChecked = 0, beforeWrong = 0;
+  const fails: string[] = [];
+  for (let i = 0; i < docxFiles.length; i++) {
+    const f = docxFiles[i], o = oracle[i];
+    const buf = readFileSync(paths[i]);
+    const r = await readOr(() => readWord(new Uint8Array(buf), f));
+    if (!r.doc || !o) continue;
+    files++;
+    const m = model(r.doc);
+    const n = m.hf.length + m.comments.length + m.notes.length;
+    if (n) withPics++;
+    for (const k of ["hf", "comments", "notes"] as const) {
+      const allowed = new Set(o[k]);
+      for (const h of m[k]) { picsChecked++; if (!allowed.has(h)) fails.push(`${f}: a ${k} picture the part does not reference`); }
+      if (o[k].length && !m[k].length && k !== "hf") fails.push(`${f}: ${k} pictures dropped (${o[k].length} referenced)`);
+    }
+    const b = await (async () => { try { return await before.word.readWord(new Uint8Array(buf), f); } catch { return null; } })();
+    if (b) { const mb = model(b); if ((["hf", "comments", "notes"] as const).some((k) => mb[k].some((h) => !new Set(o[k]).has(h)))) beforeWrong++; }
+  }
+  eq(fails.slice(0, 5), [], `${fails.length} wrong pictures`);
+  ok(files >= 100 && picsChecked >= 5, `coverage: ${files} documents, ${withPics} with part pictures, ${picsChecked} pictures checked`);
+  ok(beforeWrong >= 1, `the TT71 reader showed a wrong picture in ${beforeWrong} documents (the bug is real on the corpus)`);
+  console.log(`    part pictures: ${files} documents, ${withPics} with header / footer / comment / note pictures, ${picsChecked} checked against the part's own rels; TT71 wrong in ${beforeWrong}`);
+});
+
+await test("W7 one rId, four parts: body, header, comment and footnote each use rId9 for a DIFFERENT picture — each part shows its own (part rels + no cross-part media cache); TT71 showed the body's picture or styles.xml everywhere", WCOV, async () => {
+  const W_ = NS.w, R_ = "http://schemas.openxmlformats.org/officeDocument/2006/relationships", PR_ = "http://schemas.openxmlformats.org/package/2006/relationships";
+  const png = (tag: number) => { const b = Buffer.from("89504e470d0a1a0a0000000d4948445200000001000000010806000000" + tag.toString(16).padStart(8, "0"), "hex"); return b; };
+  const pic = `<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="9525" cy="9525"/><wp:docPr id="1" name="p"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:blipFill><a:blip r:embed="rId9"/></pic:blipFill></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+  const rels = (items: [string, string, string][]) => `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="${PR_}">${items.map(([id, t, tg]) => `<Relationship Id="${id}" Type="${R_}/${t}" Target="${tg}"/>`).join("")}</Relationships>`;
+  const ns = `xmlns:w="${W_}" xmlns:r="${R_}"`;
+  const files = [
+    { name: "[Content_Types].xml", data: Buffer.from(`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/comments.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml"/><Override PartName="/word/footnotes.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/></Types>`) },
+    { name: "_rels/.rels", data: Buffer.from(`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="${PR_}"><Relationship Id="rId1" Type="${R_}/officeDocument" Target="word/document.xml"/></Relationships>`) },
+    { name: "word/document.xml", data: Buffer.from(`<?xml version="1.0" encoding="UTF-8"?><w:document ${ns}><w:body><w:p>${pic}<w:r><w:t>body</w:t></w:r><w:r><w:footnoteReference w:id="1"/></w:r></w:p><w:sectPr><w:headerReference w:type="default" r:id="rId2"/></w:sectPr></w:body></w:document>`) },
+    { name: "word/_rels/document.xml.rels", data: Buffer.from(rels([["rId9", "image", "media/body.png"], ["rId2", "header", "header1.xml"], ["rId3", "comments", "comments.xml"], ["rId4", "footnotes", "footnotes.xml"]])) },
+    { name: "word/header1.xml", data: Buffer.from(`<?xml version="1.0" encoding="UTF-8"?><w:hdr ${ns}><w:p>${pic}</w:p></w:hdr>`) },
+    { name: "word/_rels/header1.xml.rels", data: Buffer.from(rels([["rId9", "image", "media/header.png"]])) },
+    { name: "word/comments.xml", data: Buffer.from(`<?xml version="1.0" encoding="UTF-8"?><w:comments ${ns}><w:comment w:id="0" w:author="A"><w:p>${pic}</w:p></w:comment></w:comments>`) },
+    { name: "word/_rels/comments.xml.rels", data: Buffer.from(rels([["rId9", "image", "media/comment.png"]])) },
+    { name: "word/footnotes.xml", data: Buffer.from(`<?xml version="1.0" encoding="UTF-8"?><w:footnotes ${ns}><w:footnote w:id="1"><w:p>${pic}</w:p></w:footnote></w:footnotes>`) },
+    { name: "word/_rels/footnotes.xml.rels", data: Buffer.from(rels([["rId9", "image", "../media2/note.png"]])) },
+    { name: "word/media/body.png", data: png(1) }, { name: "word/media/header.png", data: png(2) },
+    { name: "word/media/comment.png", data: png(3) }, { name: "media2/note.png", data: png(4) },
+  ];
+  const buf = writeZip(files);
+  const tagOf = (blocks: unknown): number[] => {
+    const out: number[] = []; const seen = new Set<unknown>();
+    const walk = (v: unknown) => { if (!v || typeof v !== "object" || seen.has(v) || v instanceof Uint8Array) return; seen.add(v); const img = (v as { img?: { data?: unknown } }).img; if (img && img.data instanceof Uint8Array) out.push(Buffer.from(img.data).readUInt32BE(29)); for (const [k, x] of Object.entries(v as object)) if (k !== "src" && k !== "doc") walk(x); };
+    walk(blocks); return out;
+  };
+  const view = (d: WordDoc) => ({ body: tagOf(d.blocks), header: tagOf([...d.parts.values()]), comment: tagOf(d.comments.map((c) => c.blocks)), note: tagOf(d.notes.map((n) => n.blocks)) });
+  const d = await readWord(new Uint8Array(buf), "w7.docx");
+  eq(view(d), { body: [1], header: [2], comment: [3], note: [4] }, "each part's own picture");
+  const b = await before.word.readWord(new Uint8Array(buf), "w7.docx");
+  const vb = view(b);
+  ok(JSON.stringify(vb) !== JSON.stringify(view(d)), `TT71 differed: ${JSON.stringify(vb)}`);
+  console.log(`    rId9 in four parts → ${JSON.stringify(view(d))}; TT71 ${JSON.stringify(vb)}`);
+});
+
+await test("W8 lossless no-edit save: every readable corpus docx AND its q:-prefixed rewrite saves byte-identically when unedited (canonicalised parts go back as their original bytes; Word 2007 ve: files are not rewritten)", WCOV, async () => {
+  const unzip = (b: Uint8Array) => { const B = Buffer.from(b); return new Map(readCentralDirectory(B).filter((e) => !e.name.endsWith("/")).map((e) => [e.name, readEntryVerified(B, e).toString("base64")])); };
+  let files = 0, qfiles = 0;
+  const fails: string[] = [];
+  const check = async (buf: Buffer, f: string, tag: string) => {
+    const d = await readWord(new Uint8Array(buf), f);
+    const out = await writeWord(d);
+    const a = unzip(buf), b = unzip(out);
+    const diff = [...new Set([...a.keys(), ...b.keys()])].filter((k) => k !== "docProps/core.xml" && a.get(k) !== b.get(k)); // core.xml: dcterms:modified is bumped on save (as Word does)
+    if (diff.length) fails.push(`${tag} ${f}: ${diff.slice(0, 3).join(",")}`);
+  };
+  for (const f of docxFiles) {
+    const buf = readFileSync(`${DOCX}/${f}`);
+    if (!(await readOr(() => readWord(new Uint8Array(buf), f))).doc) continue;
+    files++; await check(buf, f, "original");
+    const main = readCentralDirectory(buf).find((e) => e.name === "word/document.xml");
+    if (!main || !declaresW(readEntryVerified(buf, main).toString("utf8"))) continue;
+    qfiles++; await check(rezipAll(buf, isWmlPart, (t) => (declaresW(t) ? reprefix(t) : t)), f, "q-prefixed");
+  }
+  eq(fails.slice(0, 5), [], `${fails.length} saves changed bytes`);
+  ok(files >= 100 && qfiles >= 100, `coverage: ${files} originals, ${qfiles} q-prefixed`);
+  console.log(`    no-edit saves byte-identical: ${files} originals + ${qfiles} q-prefixed rewrites`);
 });
 
 /* ------------------------------------------------------------------ S: Spreadsheet */

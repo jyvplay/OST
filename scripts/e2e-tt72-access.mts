@@ -34,6 +34,8 @@ const getSetting = async (k: string) => ((await api("GET", "/api/settings")).jso
 const setSetting = (key: string, value: string) => api("PUT", "/api/settings", { key, value });
 const win = (id: string, module: string, title: string, x: number, w: number, z: number) => ({ id, module, title, x, y: 40, w, h: 820, z, minimized: false, maximized: false, workspace: 1, host: "tab", props: {} });
 async function putDesk(windows: unknown[], focus: string | null) {
+  // a still-open page from the previous test would keep syncing ITS desktop over this fixture
+  for (const b of browsers.splice(0)) await b.close().catch(() => {});
   const cur = await api("GET", "/api/state?id=default"); const rev = Number(cur.json.row?.revision ?? 1) + 1000;
   await api("PUT", "/api/state", { id: "default", revision: rev, state: { windows, focus, workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, focusMode: false, nextZ: 40, viewport: { w: 1600, h: 1000 }, icons: [] } });
 }
@@ -115,8 +117,8 @@ try {
     await W(p, "cb").getByRole("button", { name: "Capture system clipboard now" }).click();
     await W(p, "mp").getByTestId("mp-locate").click();
     await poll(async () => (await rows(p)).length === 3, "three rows");
-    const r = Object.fromEntries((await rows(p)).map((x) => [x.app, [x.kinds, x.outcome, /NotFoundError|NotAllowedError|PermissionDenied/.exec(x.text)?.[0]]]));
-    eq(r, { "Devices · Voice": ["microphone", "failed", "NotFoundError"], Clipboard: ["clipboard-read", "denied", "NotAllowedError"], Maps: ["location", "denied", "PermissionDenied"] }, "refusals");
+    const r = Object.fromEntries((await rows(p)).map((x) => [x.app, [x.kinds, x.outcome, /NotFoundError|NotAllowedError|PermissionDenied/.exec(x.text)?.[0]]]).sort());
+    eq(r, { Clipboard: ["clipboard-read", "denied", "NotAllowedError"], "Devices · Voice": ["microphone", "failed", "NotFoundError"], Maps: ["location", "denied", "PermissionDenied"] }, "refusals");
     await W(p, "pv").getByRole("button", { name: "Clear" }).click();
     await poll(async () => (await rows(p)).length === 0, "cleared");
 
@@ -129,7 +131,7 @@ try {
     await W(q, "cb").getByRole("button", { name: "Capture system clipboard now" }).click();
     await W(q, "mp").getByTestId("mp-locate").click();
     await poll(async () => (await rows(q)).length === 2, "two granted rows");
-    const r2 = Object.fromEntries((await rows(q)).map((x) => [x.app, [x.kinds, x.outcome]]));
+    const r2 = Object.fromEntries((await rows(q)).map((x) => [x.app, [x.kinds, x.outcome]]).sort());
     eq(r2, { Clipboard: ["clipboard-read", "granted"], Maps: ["location", "granted"] }, "grants");
     const panel = (await W(q, "pv").getByTestId("access-log").textContent()) ?? "";
     ok(!panel.includes(SECRET), "no clipboard text in the log");

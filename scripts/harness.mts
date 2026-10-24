@@ -17,7 +17,10 @@ interface Result { suite: string; name: string; covers: Covers; pass: boolean; e
 
 export function makeHarness(suite: string) {
   const results: Result[] = [];
+  // HARNESS_ONLY=prefix[,prefix] runs a subset (mutation runs); such a partial run never writes the results file
+  const only = process.env.HARNESS_ONLY;
   const test = async (name: string, covers: Covers, fn: () => unknown | Promise<unknown>) => {
+    if (only && !only.split(",").some((p) => name.startsWith(p))) return;
     const t0 = performance.now();
     try {
       await fn();
@@ -31,7 +34,7 @@ export function makeHarness(suite: string) {
   };
   const finish = () => {
     mkdirSync("docs/test-results", { recursive: true });
-    writeFileSync(`docs/test-results/${suite}.json`, JSON.stringify({ suite, at: new Date().toISOString(), results }, null, 2));
+    if (!only) writeFileSync(`docs/test-results/${suite}.json`, JSON.stringify({ suite, at: new Date().toISOString(), results }, null, 2));
     const failed = results.filter((r) => !r.pass);
     console.log(`\n${results.length - failed.length} passed, ${failed.length} failed`);
     if (failed.length) { console.log("FAILED:", failed.map((f) => f.name).join(" | ")); process.exitCode = 1; }

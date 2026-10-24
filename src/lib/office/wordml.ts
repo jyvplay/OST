@@ -12,7 +12,9 @@
  *    complex-field codes, comment anchors, note references, tracked changes, equations, VML, content controls,
  *    smart tags, symbols…) are carried as opaque inline tokens in document order.
  */
-import { canonicalizeNs, RELS_CANON, WML_CANON } from "./xml-ns";
+import { canonicalizeNs, isCanonicalNs, NS as XNS, RELS_CANON, WML_CANON } from "./xml-ns";
+/** WML_CANON minus markup compatibility (Word 2007 spells it ve:) */
+const WML_CANON_NO_MC = Object.fromEntries(Object.entries(WML_CANON).filter(([u]) => u !== XNS.mc));
 import { attr, clone, el, find, findAll, kid, kids, parseXml, serializeEl, serializeXml, setAttr, textNode, textOf, decText, type XDoc, type XEl, type XNode } from "./xmltree";
 import { openZip, writeZip, type ZipArchive } from "./zipkit";
 
@@ -76,6 +78,8 @@ export interface WordDoc {
   /** TT56 Track Changes: on = record edits as revisions; on0 = w:trackRevisions in settings.xml when opened; next = next free
    *  annotation id (above every w:id in the package's main parts) */
   track: { on: boolean; on0: boolean; author: string; next: number; settingsPath?: string };
+  /** TT72: canonical text of every part whose namespace canonicalisation changed it (see writeWord's final pass) */
+  canon?: Map<string, string>;
 }
 
 /* ================================================================ units / helpers */
@@ -333,7 +337,8 @@ function parseRun(ctx: Ctx, r: XEl, out: Inline[], link?: Link) {
         const dp = find(c, (x) => x.name === "wp:docPr");
         const rid = blip ? attr(blip, "r:embed") ?? attr(blip, "r:link") : undefined;
         if (rid) {
-          const m = ctx.doc.media.get(rid) ?? loadMediaSync(ctx, rid);
+          // TT72: the rId cache belongs to the main document part; a header / comment / note rId1 is a different picture
+          const m = (ctx.part === ctx.doc.docPath ? ctx.doc.media.get(rid) : undefined) ?? loadMediaSync(ctx, rid);
           tok("image", c, attr(dp, "descr") ?? attr(dp, "name") ?? "image", { img: { rid, cx: Number(attr(ext, "cx") ?? 0), cy: Number(attr(ext, "cy") ?? 0), descr: attr(dp, "descr"), data: m?.data, mime: m?.mime } });
         } else tok("other", c, "drawing");
         break;
@@ -485,7 +490,19 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
   // WordprocessingML written with another prefix (x:p, ns0:p, a default namespace) is the same document as w:p. Word's
   // own output takes the fast path (returned unchanged, no copy); a root outside WML_CANON is left exactly as written.
   const raw = (p: string) => { const d = zip.get(p); return d ? td.decode(d) : null; };
-  const text = (p: string) => { const t = raw(p); return t === null ? null : canonicalizeNs(t, /\.rels$/i.test(p) ? RELS_CANON : WML_CANON, { knownRoot: true }); };
+  // parts whose text canonicalisation CHANGED (e.g. Word 2007's ve: for markup compatibility, a foreign w prefix) — the
+  // writer gives back the original bytes for any of them it would re-emit unedited (lossless no-edit save)
+  const canon = new Map<string, string>();
+  const text = (p: string) => {
+    const t = raw(p); if (t === null) return null;
+    const rels = /\.rels$/i.test(p);
+    // Word 2007 binds markup compatibility to ve: (ve:Ignorable) and never writes AlternateContent; the reader needs no
+    // rewrite for that, and a rewrite would hoist every declaration — so such a part is read exactly as written
+    if (!rels && !t.includes("AlternateContent") && isCanonicalNs(t, WML_CANON_NO_MC)) return t;
+    const c = canonicalizeNs(t, rels ? RELS_CANON : WML_CANON, { knownRoot: true });
+    if (c !== t) canon.set(p, c);
+    return c;
+  };
   const rootRels = relMap(text("_rels/.rels") ? parseXml(text("_rels/.rels")!) : null);
   const main = rootRels.find((r) => r.type === RT.officeDocument || r.type.endsWith("/officeDocument"));
   const docPath = main ? resolveTarget("", main.target) : "word/document.xml";
@@ -501,7 +518,7 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
     zip, order, docPath, docXml, body, blocks: [], page: parseSect(undefined), styles: new Map(), defaults: { f: {}, p: {} }, numbering: new Map(),
     rels, relsXml, relsPath, media: new Map(), parts: new Map(), hf: { xml: new Map(), dirty: new Set(), created: new Set() }, comments: [], notes: [], theme: { major: "Calibri Light", minor: "Calibri" },
     added: { rels: [], media: [], styles: new Set(), lists: new Map(), comments: [] }, title: name.replace(/\.[^.]+$/, ""), warnings: [],
-    track: { on: false, on0: false, author: "", next: 1 },
+    track: { on: false, on0: false, author: "", next: 1 }, canon,
   };
   const relById = new Map(rels.map((r) => [r.id, r]));
   const partOf = (type: string) => { const r = rels.find((x) => x.type === type); return r ? resolveTarget(docPath, r.target) : undefined; };
@@ -510,6 +527,10 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
   const tp = partOf(RT.theme);
   if (tp && text(tp)) { const th = parseXml(text(tp)!); const maj = find(th.root, (x) => x.name === "a:majorFont"), min = find(th.root, (x) => x.name === "a:minorFont"); doc.theme = { major: attr(kid(maj, "a:latin"), "typeface") || "Calibri Light", minor: attr(kid(min, "a:latin"), "typeface") || "Calibri" }; }
   const ctx: Ctx = { doc, part: docPath, rels: relById, linkSeq: 0, fld: [] };
+  // TT72: every part has its OWN relationships (OPC: <dir>/_rels/<part>.rels) — a picture or link in a comment / note
+  // must resolve through comments.xml.rels / footnotes.xml.rels, not the main document's (TT71 picked whatever the
+  // document's rIdN was: testComment.docx showed styles.xml as the comment's picture)
+  const relsOfPart = (p: string) => { const rx = text(relsPathOf(p)); return new Map(relMap(rx ? parseXml(rx) : null).map((q) => [q.id, q])); };
   doc.blocks = parseBlocks(ctx, body.kids);
   doc.finalSect = kid(body, "w:sectPr");
   doc.page = parseSect(doc.finalSect);
@@ -522,13 +543,15 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
     const p = partOf(type); const s = p && text(p); if (!s) continue;
     const x = parseXml(s);
     (doc.noteParts ??= {})[kind] = { path: p!, xml: x };
-    for (const n of kids(x.root, `w:${kind}`)) { const t = attr(n, "w:type"); if (t === "separator" || t === "continuationSeparator" || t === "continuationNotice") continue; doc.notes.push({ id: attr(n, "w:id") ?? "", type: kind, src: n, blocks: parseBlocks({ doc, part: p!, rels: relById, linkSeq: 2000, fld: [] }, n.kids) }); }
+    const noteRels = relsOfPart(p!);
+    for (const n of kids(x.root, `w:${kind}`)) { const t = attr(n, "w:type"); if (t === "separator" || t === "continuationSeparator" || t === "continuationNotice") continue; doc.notes.push({ id: attr(n, "w:id") ?? "", type: kind, src: n, blocks: parseBlocks({ doc, part: p!, rels: noteRels, linkSeq: 2000, fld: [] }, n.kids) }); }
   }
   doc.notesRef0 = referencedNotes(doc);
   const cp = partOf(RT.comments);
   if (cp && text(cp)) {
     doc.commentsPath = cp; doc.commentsXml = parseXml(text(cp)!);
-    for (const c of kids(doc.commentsXml.root, "w:comment")) doc.comments.push({ id: attr(c, "w:id") ?? "", author: attr(c, "w:author") ?? "", date: attr(c, "w:date"), initials: attr(c, "w:initials"), text: kids(c, "w:p").map(textOf).join("\n"), blocks: parseBlocks({ doc, part: cp, rels: relById, linkSeq: 3000, fld: [] }, c.kids) });
+    const commentRels = relsOfPart(cp);
+    for (const c of kids(doc.commentsXml.root, "w:comment")) doc.comments.push({ id: attr(c, "w:id") ?? "", author: attr(c, "w:author") ?? "", date: attr(c, "w:date"), initials: attr(c, "w:initials"), text: kids(c, "w:p").map(textOf).join("\n"), blocks: parseBlocks({ doc, part: cp, rels: commentRels, linkSeq: 3000, fld: [] }, c.kids) });
   }
   const core = text("docProps/core.xml");
   if (core) { const t = /<dc:title>([^<]*)<\/dc:title>/.exec(core); if (t && t[1].trim()) doc.title = decText(t[1]); }
@@ -1107,6 +1130,10 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
   body.kids = before;
   setPart(doc.docPath, docBytes);
   if (ctDirty) setPart("[Content_Types].xml", te.encode(serializeXml(ct)));
+  // TT72: a part read through namespace canonicalisation and re-emitted unedited goes back as the ORIGINAL bytes — the
+  // serializer reproduces the canonical text exactly, so equality means "not edited"; an edited part stays canonical
+  // (same document by XML Namespaces 1.0, different prefixes)
+  if (doc.canon?.size) for (const [p, c] of doc.canon) { const d = out.get(p), o = doc.zip.get(p); if (d && o && td.decode(d) === c) out.set(p, o); }
   // core properties: bump dcterms:modified when present (Word does the same)
   const core = out.get("docProps/core.xml");
   if (core) {
