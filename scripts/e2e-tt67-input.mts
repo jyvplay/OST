@@ -20,6 +20,10 @@ const { test, finish } = makeHarness("e2e-tt67-input");
 const IN2 = { "IN-02": "full" } as const, IN3 = { "IN-03": "full" } as const;
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); return { status: r.status, json: await r.json().catch(() => ({})) as Record<string, any> }; };
+// TT69: these tests need the CLASSIC desktop (icons, hot corner); a suite interrupted in Tabletop view left
+// appearance.desktopView = "tabletop" and both suites failed with no app change. Force classic, restore afterwards.
+const prevView = (await api("GET", "/api/settings")).json?.rows?.find((r: { key: string }) => r.key === "appearance.desktopView")?.value as string | undefined;
+if (prevView && prevView !== "classic") await api("PUT", "/api/settings", { key: "appearance.desktopView", value: "classic" });
 async function desktop(windows: unknown[]) {
   const cur = await api("GET", "/api/state?id=default");
   const rev = Number(cur.json.row?.revision ?? 1) + 1000;
@@ -195,4 +199,5 @@ await test("SH-06 hot corner with real pointer moves: entering the top-left corn
 
 await browser.close();
 if (errors.length) console.log(`  page errors: ${errors.slice(0, 3).join(" | ")}`);
+if (prevView && prevView !== "classic") await api("PUT", "/api/settings", { key: "appearance.desktopView", value: prevView });
 await finish();

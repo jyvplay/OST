@@ -96,7 +96,7 @@ await test("handshake bytes identical to curl's (WP-07): for the same target and
     const recC: Parameters<typeof recordingSocks>[0] = [], recO: typeof recC = [];
     const a = await recordingSocks(recC), b = await recordingSocks(recO);
     const userinfo = withAuth ? "alice:s3cret@" : "";
-    await run("curl", ["-s", "-m", "10", "-o", "/dev/null", "--socks5-hostname", `${userinfo}127.0.0.1:${a.port}`, "http://pypi.org/help/"]);
+    await run("curl", ["-s", "-m", "10", "-o", "/dev/null", "--socks5-hostname", `${userinfo}127.0.0.1:${a.port}`, "http://pypi.org/sponsors/"]);
     const r = route(`socks5://${userinfo}127.0.0.1:${b.port}`, false);
     const s = await openTunnel(r, "pypi.org", 80, { secure: false, cred: isolationCredentials(r, "x", 0), timeoutMs: 5000 });
     s.end("GET / HTTP/1.1\r\nHost: pypi.org\r\n\r\n"); s.resume(); await new Promise((res) => s.on("close", res));
@@ -128,8 +128,8 @@ await test("live through an independent proxy server (WP-07): pproxy carries the
     const up = await upstreamRequest(url, { method: "GET", maxBytes: 1 << 24, route: route(spec), session: { sid: "s1", circuit: 0 }, headers: { "user-agent": "Mozilla/5.0", "accept-encoding": "gzip" } });
     return { status: up.status, via: up.pinned, text: (await readAll(up.body)).toString() };
   };
-  const a = await via("socks5://127.0.0.1:18150", "https://pypi.org/help/");
-  ok(a.status === 200 && /<title>Help/.test(a.text) && a.via === "via SOCKS5 127.0.0.1:18150", `${a.status} ${a.via}`);
+  const a = await via("socks5://127.0.0.1:18150", "https://pypi.org/sponsors/");
+  ok(a.status === 200 && /<title>Sponsors/.test(a.text) && a.via === "via SOCKS5 127.0.0.1:18150", `${a.status} ${a.via}`);
   const b = await via("http://127.0.0.1:18180", "https://github.com/nodejs/node");
   ok(b.status === 200 && /nodejs\/node/.test(b.text) && b.via === "via HTTP proxy 127.0.0.1:18180", `${b.status} ${b.via}`);
   setRoute(route("socks5://127.0.0.1:18150"));

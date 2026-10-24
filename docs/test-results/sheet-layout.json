@@ -1,6 +1,6 @@
 {
   "suite": "sheet-layout",
-  "at": "2026-10-23T14:20:39.740Z",
+  "at": "2026-10-23T23:13:51.976Z",
   "results": [
     {
       "suite": "sheet-layout",
@@ -9,7 +9,7 @@
         "FF-33": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 5
     },
     {
       "suite": "sheet-layout",
@@ -28,7 +28,7 @@
         "FF-35": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 3
     },
     {
       "suite": "sheet-layout",
@@ -37,7 +37,7 @@
         "FF-34": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "sheet-layout",
@@ -46,7 +46,7 @@
         "FF-35": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 10
     },
     {
       "suite": "sheet-layout",

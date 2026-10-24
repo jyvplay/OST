@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-23T15:43:35.520Z",
+ "generatedAt": "2026-10-24T00:54:49.156Z",
  "totals": {
   "built": {
    "full": 306,
@@ -8,13 +8,13 @@
    "none": 1
   },
   "tested": {
-   "full": 225,
-   "partial": 72,
-   "untested": 86
+   "full": 227,
+   "partial": 71,
+   "untested": 85
   },
   "tests": {
-   "total": 1236,
-   "passed": 1236
+   "total": 1258,
+   "passed": 1257
   }
  },
  "rows": {
@@ -769,7 +769,7 @@
   "PR-07k": {
    "tested": "full",
    "tests": [
-    "e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page",
+    "e2e-tt36: Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page",
     "e2e-tt36: reader endpoint headers (PR-07k): the reader page is served with a CSP sandbox (no same-origin), scripts only from Fusion (no inline script), no forms; a non-page address gets a plain refusal; a private address is refused (SSRF)",
     "tt36-unit: reader vs Readability (PR-07k): on live pages from github.com and pypi.org the reader keeps everything readability-lxml calls the article (recall ≥ 0.95) and agrees on where the article starts and ends; pages a site answers with a bot challenge are skipped and named, at least 5 must be measured",
     "tt36-unit: reader safety (PR-07k): adversarial markup — script / style / svg / iframe / template / noscript bodies (any case, '</script >', a fake end tag inside a string), event handlers, javascript: / data: / vbscript: links, style attributes, forms, tracking pixels — re-parsed by Python's html.parser: only allow-listed tags and attributes survive and every href / src went through the mapper",
@@ -1151,10 +1151,29 @@
    ]
   },
   "FF-15": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt69-lifecycle: Spreadsheet: closing a dirty window asks Save changes? — MODAL: Delete, typing, Ctrl+Z, Ctrl+S, Alt+F4, Meta+W, a script focusing the grid and a raw click on a cell never reach the workbook; Tab stays inside; Escape cancels; Save writes the file and closes",
+    "e2e-tt69-lifecycle: Writer: typing writes a recovery draft (python-docx reads its bytes; no version snapshots); Close → Don't save keeps it; reopening offers Restore; Restore brings the text back unsaved; Save writes it and deletes the draft",
+    "e2e-tt69-lifecycle: leaving the page with unsaved work raises the browser's beforeunload prompt (dismiss = stay); a page with nothing unsaved closes without one",
+    "e2e-tt69-lifecycle: Editor: the draft lands INSIDE /System/Recovery (TT68 wrote /System/Recovery_… beside it); Don't save keeps it; reopening offers it; Discard deletes it and leaves the file as it was",
+    "e2e-tt69-lifecycle: Editor: Ctrl+S saves only from inside its own window — not under the Save dialog, not with focus outside the window (TT68's listener saved from anywhere)",
+    "e2e-tt69-lifecycle: Spreadsheet: a draft whose file changed since is offered flagged as changed-since; Restore brings the drafted edit back as unsaved (the newer file is not overwritten until Save)",
     "e2e: mount: editor",
-    "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists"
+    "e2e: mount: writer",
+    "e2e: mount: sheet",
+    "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
+    "tt69-lifecycle: planClose: clean windows close now, every dirty one is asked exactly once in window order; force skips; unknown ids ignored; closeAll covers all",
+    "tt69-lifecycle: guard registry: dirty() is consulted live; a throwing dirty() counts as dirty (fail safe); unregister only removes its own guard; live untitled keys are reported",
+    "tt69-lifecycle: draftPathFor: injective keys (/a_b ≠ /a/b, a:b ≠ a?b), private drafts stay under /Private, untitled ids validated, unknown kinds refused",
+    "tt69-lifecycle: draft codec: round-trips; refuses wrong version / kind, NaN or negative time, malformed sha, non-base64 payload, unknown encoding, arrays, junk and oversize text",
+    "tt69-lifecycle: draftOffer: only a draft OF this document is offered; stale when the file's sha changed since; unknown shas are not called stale",
+    "tt69-lifecycle: DraftWriter: 5 changes inside the idle window → ONE write with the newest content; continuous typing still drafts by the max-wait; nothing written before idle",
+    "tt69-lifecycle: DraftWriter: one write in flight; newer content during a slow write lands last (never an older draft over a newer one)",
+    "tt69-lifecycle: DraftWriter.clear: a write in flight when Save clears is awaited and then deleted — a late draft can never resurrect after Save; clear during serialisation writes nothing",
+    "tt69-lifecycle: DraftWriter: oversize drafts are skipped with a reason; a failing store sets lastError and the next change drafts again; flush() writes immediately",
+    "tt69-lifecycle: server: draft writes in /System/Recovery keep NO version snapshots (3 writes → 0 versions); the same reason elsewhere and plain writes still snapshot; %-encoded names round-trip",
+    "tt69-lifecycle: privacy: a /Private document's draft written through the real PrivacyLayer leaves no plaintext name, content or version on the host (Postgres read directly); the legacy Editor draft path put the same text on the host in the clear"
    ]
   },
   "FF-19": {
@@ -1172,7 +1191,11 @@
     "oracle: oracle: circular — 2 cells match",
     "tt68-blank: blank vs empty text follows Microsoft's definitions (27 cases): ISBLANK only for empty cells, COUNTA counts \"\", ISTEXT/ISNONTEXT/TYPE of an empty cell, through OFFSET/INDEX/whole columns/array constants",
     "tt68-blank: error literals are error CONSTANTS (ECMA-376 ST_CellError), case-insensitive; '#N/A stays text; #bogus / #SPILL! typed stay text; textInput quotes an error-looking text so it round-trips as text",
-    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions"
+    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
+    "tt69-sheet-misc: an empty-text cell survives .xlsx: openpyxl reads '' (a string cell, not None) and our reader reads it back as empty text",
+    "tt69-sheet-misc: SUMIF / AVERAGEIF resize sum_range from its top-left cell to range's shape (hand cases + recalc of a cell outside the written sum_range)",
+    "tt69-sheet-misc: SUMIF / AVERAGEIF resize: brute-force reference over 400 random shapes and offsets",
+    "tt69-sheet-misc: adversary on the resize patch: cross-sheet sum_range keeps its sheet; a resize past the last row is clipped (no crash; Excel's behaviour there is unverified); whole columns; a union sum_range is left alone; Paste Values+Add of empty text over a number"
    ]
   },
   "FF-20": {
@@ -1245,7 +1268,10 @@
     "tt59-x14-cf: x14-only cellIs / between / expression rules with other-sheet references are read with their inline x14:dxf and drawn in priority order (stopIfTrue honoured)",
     "tt59-x14-cf: new-file writer: cross-sheet formula rules are emitted as x14-only rules (xm:f + inline x14:dxf), round-trip to the same drawing, and openpyxl/lxml still open the file",
     "tt59-x14-cf: same-sheet formula rules stay in the 2007 schema (no x14 duplication); a lossless save of the original keeps the x14 rules byte-identical",
-    "tt68-blank: writer: a constant empty-text cell is saved (shared string \"\"), a blank is not; openpyxl sees '' vs no cell; re-read keeps ISBLANK FALSE / COUNTA 1; styled blank stays blank"
+    "tt68-blank: writer: a constant empty-text cell is saved (shared string \"\"), a blank is not; openpyxl sees '' vs no cell; re-read keeps ISBLANK FALSE / COUNTA 1; styled blank stays blank",
+    "tt69-sheet-misc: Paste Values: =\"\" and a typed ' paste as EMPTY TEXT (ISBLANK FALSE, COUNTA counts it); a blank source pastes blank; formulas/numbers unchanged",
+    "tt69-sheet-misc: an empty-text cell survives .xlsx: openpyxl reads '' (a string cell, not None) and our reader reads it back as empty text",
+    "tt69-sheet-misc: adversary on the resize patch: cross-sheet sum_range keeps its sheet; a resize past the last row is clipped (no crash; Excel's behaviour there is unverified); whole columns; a union sum_range is left alone; Paste Values+Add of empty text over a number"
    ]
   },
   "FF-21": {
@@ -1898,7 +1924,6 @@
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
     "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
-    "e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
     "e2e-privacy: no page errors across the privacy flows",
     "e2e: mount: privacy",
     "privacy-crypto: Argon2id (hash-wasm) equals the reference C implementation (argon2-cffi), incl. the default 64 MiB/t=3 slot cost",
@@ -2707,7 +2732,7 @@
    "tests": [
     "e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows",
     "e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads",
-    "e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page"
+    "e2e-tt36: Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page"
    ]
   },
   "WP-06": {
@@ -3114,8 +3139,22 @@
    ]
   },
   "FF-51": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt67-sheet-ns: lxml equivalence: every rewritten XML part of the 353-file corpus + 15 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path",
+    "tt67-sheet-ns: adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, no-namespace children undeclare the default, strict prefixes canonical, value text is not a declaration, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming",
+    "tt67-sheet-ns: the 7 corpus workbooks TT66 could not read (x: / s: SpreadsheetML prefixes, prefixed mc:AlternateContent) open, and every non-empty cell equals an lxml namespace-aware reader and (where it can open the file) openpyxl; TT66 rejected 6 and read 0 cells from the 7th",
+    "tt67-sheet-ns: x14 conditional formats written under other prefixes (q: for x14, m: for xm) are modelled exactly like Excel's spelling; the MS-XLSX oracle confirms the renamed file is the same x14 content; TT66 lost the x14-only rules",
+    "tt67-sheet-ns: a FOREIGN namespace that borrows the x14 prefix is never read as conditional formatting (TT66 read it as a rule: a false positive)",
+    "tt67-sheet-ns: lossless save of a prefixed workbook: edit one cell of 59021.xlsx (x: prefixes), patch, re-read → the edit and every other value survive; openpyxl opens the result",
+    "tt67-sheet-ns: pre-standard / unknown dialects: the Excel 2007 beta namespace (sample-beta.xlsx) is SpreadsheetML; a workbook in a namespace nobody knows is read exactly as TT66 read it (knownRoot guard) instead of being aliased away",
+    "tt67-sheet-ns: numeric character references are decoded in ONE pass, exactly as an XML parser does (lxml oracle): decimal, hex, astral, newline; &amp;lt; stays the text &lt;; TT66 showed the raw &#…; text",
+    "tt67-sheet-ns: references that are not characters (lone surrogate in hex and decimal, beyond U+10FFFF in hex and decimal) stay literal instead of crashing or inventing a character — lenient, as Excel-tolerant readers are; lxml rejects such files outright",
+    "tt67-sheet-ns: lossless re-style of a cell in an x:-prefixed styles.xml changes ONLY its font (openpyxl): the patcher reads styles through the same canonical view as the reader (found by the TT67 gate: fill / border / alignment were rebuilt)",
+    "tt67-sheet-ns: the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)",
+    "tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded",
+    "tt67-sheet-ns: cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells"
+   ]
   },
   "FF-52": {
    "tested": "full",

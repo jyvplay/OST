@@ -2,7 +2,7 @@
 """TT69 mutation check: each mutant re-introduces one plausible bug in the FF-15 lifecycle core (src/lib/doc-lifecycle.ts)
 or in this tier's Spreadsheet fixes (engine.ts sum_range resize / range cap, sheetops.ts Paste Values empty text); the
 named suite must FAIL for every mutant. L = scripts/tt69-lifecycle.mts (needs the server on BASE for its server tests),
-M = scripts/tt69-sheet-misc.mts. Files are restored afterwards (also on Ctrl+C).
+M = scripts/tt69-sheet-misc.mts, H = scripts/tt67-input.mts (hot corner). Files are restored afterwards (also on Ctrl+C).
 Run from the repository root:  BASE=http://localhost:3999 python3 scripts/tt69-mutants.py   (MUT=<substring> for a subset)
 """
 import os, subprocess, sys, pathlib
@@ -28,10 +28,13 @@ MUTANTS = [
     ("sum_range paired by flat index (TT68)", "M", E, '  if ((name === "SUMIF" || name === "AVERAGEIF") && argNodes.length === 3) {', '  if (false) {'),
     ("sum_range resized from the wrong corner", "M", E, 'mkRef(sr.from.sheet, S.c0, S.r0, c1, r1)', 'mkRef(sr.from.sheet, S.c0, S.r0 + 1, c1, r1 + 1)'),
     ("range cap back to 1 000 000", "M", E, '> 2_097_152) throw', '> 1_000_000) throw'),
+    ("hot corner: the first sighting fires (launcher opens under a resting pointer)", "H", "src/lib/hot-corner.ts", "const fire = inside === false && now", "const fire = inside !== true && now"),
+    ("hot corner: zero-movement events fire", "H", "src/lib/hot-corner.ts", " && !(mx === 0 && my === 0);", ";"),
+    ("hot corner: zero-movement events skipped entirely (first event never arms)", "H", "src/lib/hot-corner.ts", "    const now = x >= 0", "    if (mx === 0 && my === 0) return false;\n    const now = x >= 0"),
     ("Paste Values of empty text pastes blank (TT68)", "M", S, '      if (out === "" && input !== "" && (v === "" || (v === undefined && !input.startsWith("=")))) out = "\'";\n', ''),
     ("Paste Values pastes a blank source as empty text", "M", S, 'if (out === "" && input !== "" && (v === ""', 'if (out === "" && (v === ""'),
 ]
-SUITE = {"L": "scripts/tt69-lifecycle.mts", "M": "scripts/tt69-sheet-misc.mts"}
+SUITE = {"L": "scripts/tt69-lifecycle.mts", "M": "scripts/tt69-sheet-misc.mts", "H": "scripts/tt67-input.mts"}
 SELECTED = [m for m in MUTANTS if os.environ.get("MUT", "") in m[0]]
 for name, _, path, old, _n in SELECTED: assert pathlib.Path(path).read_text().count(old) == 1, f"{name}: anchor found {pathlib.Path(path).read_text().count(old)}x"
 orig = {p: pathlib.Path(p).read_text() for p in {m[2] for m in SELECTED}}

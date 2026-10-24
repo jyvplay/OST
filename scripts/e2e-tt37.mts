@@ -64,15 +64,15 @@ try {
 
   await test("Network route panel (WP-07): test a candidate SOCKS5 route on a real page, apply it — toolbar and status line follow, the Private proxy tab loads pypi.org through it (seen in the independent proxy's own log), 'New circuit' rotates the tab's isolation and reloads, the browser itself still contacts only Fusion; the Tor check result is printed as it is", { "WP-07": "full" }, async () => {
     await direct();
-    const { page, ctx, hosts } = await boot([browserWin([tab("t1", "https://pypi.org/help/")])]);
+    const { page, ctx, hosts } = await boot([browserWin([tab("t1", "https://pypi.org/sponsors/")])]);
     try {
-      await poll(async () => /^Help/.test((await proxFrame(page)?.title()) ?? ""), "help page (direct)");
+      await poll(async () => /^Sponsors/.test((await proxFrame(page)?.title()) ?? ""), "sponsors page (direct)");
       ok(/Network route: Direct/.test(await page.getByTestId("br-route").innerText()), "toolbar shows Direct");
       await page.getByTestId("br-route").click();
       await poll(async () => (await page.getByTestId("route-choice").getAttribute("data-ready")) === "1", "route presets loaded");
       await page.getByTestId("route-choice").selectOption("custom");
       await page.getByTestId("route-custom").fill("socks5://127.0.0.1:18250");
-      await page.getByTestId("route-test-url").fill("https://pypi.org/help/");
+      await page.getByTestId("route-test-url").fill("https://pypi.org/sponsors/");
       const before = seen(/socks5 .*-> pypi\.org:443/);
       await page.getByTestId("route-test").click();
       await poll(async () => /Reached pypi\.org — HTTP 200 .* via SOCKS5 127\.0\.0\.1:18250/.test(await page.getByTestId("route-result").innerText()), "test result");
@@ -91,14 +91,14 @@ try {
       // the tab now goes through the route
       const b2 = seen(/socks5 .*-> pypi\.org:443/);
       await page.getByTestId("wp-reload").click();
-      await poll(async () => seen(/socks5 .*-> pypi\.org:443/) > b2 && /^Help/.test((await proxFrame(page)?.title()) ?? ""), "reload through the route");
+      await poll(async () => seen(/socks5 .*-> pypi\.org:443/) > b2 && /^Sponsors/.test((await proxFrame(page)?.title()) ?? ""), "reload through the route");
       await poll(async () => /via SOCKS5 127\.0\.0\.1:18250/.test(await page.getByTestId("wp-via").innerText()), "status line shows the route");
       // new circuit
       const sid = await page.getByTestId("wp-tab").getAttribute("data-sid");
       await page.getByTestId("wp-circuit").click();
       await poll(async () => (await api("GET", `/api/wp-session?sid=${sid}`)).json.circuit === 1, "circuit rotated");
       await poll(async () => /New circuit \(1\)/.test(await page.getByTestId("wp-circuit").innerText()), "button shows the circuit");
-      await poll(async () => /^Help/.test((await proxFrame(page)?.title()) ?? ""), "page reloaded on the new circuit");
+      await poll(async () => /^Sponsors/.test((await proxFrame(page)?.title()) ?? ""), "page reloaded on the new circuit");
       const foreign = [...hosts.keys()].filter((h) => h !== HOST);
       ok(foreign.length === 0, `the browser contacted: ${foreign.join(", ")}`);
       console.log(`    pproxy log: ${seen(/-> pypi\.org:443/)} tunnels to pypi.org:443 (names, not addresses)`);

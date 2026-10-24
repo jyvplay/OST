@@ -17,6 +17,9 @@ KILLED  oversized drafts written  [L]  DraftWriter: oversize drafts are skipped 
 KILLED  sum_range paired by flat index (TT68)  [M]  SUMIF / AVERAGEIF resize sum_range from its top-left cell to range's
 KILLED  sum_range resized from the wrong corner  [M]  SUMIF / AVERAGEIF resize sum_range from its top-left cell to range's
 KILLED  range cap back to 1 000 000  [M]  adversary on the resize patch: cross-sheet sum_range keeps its sheet
+KILLED  hot corner: the first sighting fires (launcher opens under a resting pointer)  [H]  SH-06 hot corner: fires once on ENTRY, never again while the pointer
+KILLED  hot corner: zero-movement events fire  [H]  SH-06 hot corner: fires once on ENTRY, never again while the pointer
+KILLED  hot corner: zero-movement events skipped entirely (first event never arms)  [H]  SH-06 hot corner: fires once on ENTRY, never again while the pointer
 KILLED  Paste Values of empty text pastes blank (TT68)  [M]  Paste Values: ="" and a typed ' paste as EMPTY TEXT (ISBLANK FALSE, 
 KILLED  Paste Values pastes a blank source as empty text  [M]  Paste Values: ="" and a typed ' paste as EMPTY TEXT (ISBLANK FALSE, 
-21/21 mutants killed
+24/24 mutants killed

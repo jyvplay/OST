@@ -1,6 +1,6 @@
 {
   "suite": "e2e-whiteboard",
-  "at": "2026-10-23T14:29:27.020Z",
+  "at": "2026-10-23T23:25:29.571Z",
   "results": [
     {
       "suite": "e2e-whiteboard",
@@ -10,7 +10,7 @@
         "WB-02": "partial"
       },
       "pass": true,
-      "ms": 676
+      "ms": 969
     },
     {
       "suite": "e2e-whiteboard",
@@ -20,7 +20,7 @@
         "WB-05": "partial"
       },
       "pass": true,
-      "ms": 4010
+      "ms": 5506
     },
     {
       "suite": "e2e-whiteboard",
@@ -29,7 +29,7 @@
         "WB-02": "full"
       },
       "pass": true,
-      "ms": 2484
+      "ms": 3847
     },
     {
       "suite": "e2e-whiteboard",
@@ -39,7 +39,7 @@
         "WB-03": "partial"
       },
       "pass": true,
-      "ms": 1595
+      "ms": 1901
     },
     {
       "suite": "e2e-whiteboard",
@@ -48,7 +48,7 @@
         "WB-03": "full"
       },
       "pass": true,
-      "ms": 1658
+      "ms": 2388
     },
     {
       "suite": "e2e-whiteboard",
@@ -57,7 +57,7 @@
         "WB-04": "full"
       },
       "pass": true,
-      "ms": 3451
+      "ms": 4746
     },
     {
       "suite": "e2e-whiteboard",
@@ -67,7 +67,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 2844
+      "ms": 3689
     }
   ]
 }

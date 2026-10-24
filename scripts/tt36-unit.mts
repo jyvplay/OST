@@ -28,7 +28,7 @@ const map = (abs: string, kind: "link" | "image") => (kind === "image" ? `/IMG/$
 
 /* ============================================================ oracle agreement */
 await test("reader vs Readability (PR-07k): on live pages from github.com and pypi.org the reader keeps everything readability-lxml calls the article (recall ≥ 0.95) and agrees on where the article starts and ends; pages a site answers with a bot challenge are skipped and named, at least 5 must be measured", { "PR-07k": "full" }, () => {
-  const pages = ["https://github.com/nodejs/node", "https://github.com/expressjs/express/blob/master/Readme.md", "https://github.com/nodejs/node/blob/main/CONTRIBUTING.md", "https://pypi.org/help/", "https://pypi.org/security/", "https://pypi.org/stats/", "https://pypi.org/"];
+  const pages = ["https://github.com/nodejs/node", "https://github.com/expressjs/express/blob/master/Readme.md", "https://github.com/nodejs/node/blob/main/CONTRIBUTING.md", "https://github.com/nodejs/node/blob/main/doc/contributing/first-contributions.md", "https://pypi.org/security/", "https://pypi.org/stats/", "https://pypi.org/"];
   let measured = 0;
   for (const u of pages) {
     const html = execFileSync("curl", ["-sL", "-m", "20", "-A", "Mozilla/5.0", u], { maxBuffer: 1 << 26 }).toString();

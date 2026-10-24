@@ -39,7 +39,7 @@ MUTANTS = [
     ("learner: learns shifted symbols", S, "  if (e.shiftKey && !cased) return null; // a shifted symbol", "  // a shifted symbol"),
     ("learner: learns while modifiers are held", S, "  if (secret || e.ctrlKey || e.altKey || e.metaKey || e.isComposing) return null;", "  if (secret || e.isComposing) return null;"),
     # SH-06 hot corner
-    ("hot corner: fires on every move inside", H, "    const fire = now && !inside;", "    const fire = now;"),
+    ("hot corner: fires on every move inside", H, "    const fire = inside === false && now && !(mx === 0 && my === 0);", "    const fire = now;"),
     ("hot corner: never re-arms after leaving", H, "    inside = now;", "    inside = inside || now;"),
     ("hot corner: zone edge inclusive (x = 6 fires)", H, "x < zone.w && y < zone.h", "x <= zone.w && y < zone.h"),
     ("layout: stale key typing the same character not evicted", S, "  for (const [c, v] of table) if (c !== code && v === ch) { table.delete(c); changed = true; }\n", ""),

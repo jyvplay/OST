@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt68-sheet",
-  "at": "2026-10-23T15:43:12.096Z",
+  "at": "2026-10-24T00:30:36.217Z",
   "results": [
     {
       "suite": "e2e-tt68-sheet",
@@ -10,7 +10,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 1566
+      "ms": 952
     },
     {
       "suite": "e2e-tt68-sheet",
@@ -20,7 +20,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 3517
+      "ms": 4690
     },
     {
       "suite": "e2e-tt68-sheet",
@@ -30,7 +30,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 1121
+      "ms": 1239
     }
   ]
 }

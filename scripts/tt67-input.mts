@@ -229,7 +229,13 @@ await test("SH-06 hot corner: fires once on ENTRY, never again while the pointer
   let last = -1e9, tt66 = 0, now = 0;
   const s2 = hotCornerTracker(); let ours = 0;
   for (let t = 0; t <= 3000; t += 100) { now = t; const [x, y] = [2 + (t / 100) % 2, 20]; if (x < 6 && y < 42 && now - last > 1200) { last = now; tt66++; } if (s2(x, y)) ours++; }
-  ok(tt66 === 3 && ours === 1, `resting 3 s: TT66 rule fired ${tt66}x, now ${ours}x`);
+  // TT69: a pointer resting in the corner from the very first event is NOT an entry (first sighting only arms) → 0
+  ok(tt66 === 3 && ours === 0, `resting 3 s from the start: TT66 rule fired ${tt66}x, now ${ours}x`);
+  // TT69: zero-movement events (synthetic hover updates at a resting cursor) never fire and never change state
+  const s3 = hotCornerTracker();
+  eq([s3(300, 300, 4, 4), s3(0, 0, 0, 0), s3(2, 20, -3, 1), s3(300, 300, 9, 9), s3(1, 1, 0, 0), s3(300, 300, 9, 9), s3(2, 20, -5, -5)], [false, false, false, false, false, false, true], "zero-movement entries never fire (but track position)");
+  const s4 = hotCornerTracker(); // Chromium: the first pointerrawupdate reports movement 0 — it must still arm
+  eq([s4(400, 400, 0, 0), s4(2, 20, -398, -380)], [false, true], "a zero-movement first event arms the tracker");
 });
 
 await finish();

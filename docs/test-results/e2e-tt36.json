@@ -1,16 +1,16 @@
 {
   "suite": "e2e-tt36",
-  "at": "2026-10-23T14:41:44.065Z",
+  "at": "2026-10-24T00:49:41.960Z",
   "results": [
     {
       "suite": "e2e-tt36",
-      "name": "Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page",
+      "name": "Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page",
       "covers": {
         "PR-07k": "partial",
         "WP-05": "full"
       },
       "pass": true,
-      "ms": 4527
+      "ms": 6964
     },
     {
       "suite": "e2e-tt36",
@@ -19,7 +19,7 @@
         "PR-07k": "partial"
       },
       "pass": true,
-      "ms": 690
+      "ms": 483
     },
     {
       "suite": "e2e-tt36",
@@ -28,7 +28,7 @@
         "PR-07o": "partial"
       },
       "pass": true,
-      "ms": 5360
+      "ms": 5583
     }
   ]
 }

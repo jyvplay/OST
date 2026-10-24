@@ -70,7 +70,7 @@ export default function DesktopSurface({ onLauncher }: { onLauncher: () => void 
   const hotOn = (shell.settings["shell.hotCorners"] ?? "on") === "on";
   useEffect(() => {
     if (!hotOn) return;
-    const onMove = (e: PointerEvent) => { if (corner.current(e.clientX, e.clientY)) launch.current(); };
+    const onMove = (e: PointerEvent) => { if (corner.current(e.clientX, e.clientY, e.movementX, e.movementY)) launch.current(); };
     window.addEventListener("pointerrawupdate" in window ? "pointerrawupdate" : "pointermove", onMove as EventListener);
     return () => window.removeEventListener("pointerrawupdate" in window ? "pointerrawupdate" : "pointermove", onMove as EventListener);
   }, [hotOn]);

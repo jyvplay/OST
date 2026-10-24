@@ -1,7 +1,7 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-23T15:43:35.518Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-161 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-24T00:54:49.153Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+164 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
@@ -12,16 +12,16 @@ Generated 2026-10-23T15:43:35.518Z by `scripts/ledger.mjs` from the live registe
 | Partially built (partial 37 + probe 18) | 55 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 1 |
-| **Fully tested** (≥1 passing test tagged `full`) | **225** |
-| **Partially tested** (only `partial` tags) | **72** |
-| Untested | 86 |
-| Automated tests executed / passed | 1236 / 1236 |
+| **Fully tested** (≥1 passing test tagged `full`) | **227** |
+| **Partially tested** (only `partial` tags) | **71** |
+| Untested | 85 |
+| Automated tests executed / passed | 1258 / 1257 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 216 | 59 | 31 |
+| fully built | 218 | 58 | 30 |
 | partially built | 3 | 11 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 1 |
@@ -33,171 +33,174 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-23T14:20:54.665Z |
-| ai-format | 5 | 5 | 0 | 2026-10-23T14:20:56.015Z |
-| browser-session | 5 | 5 | 0 | 2026-10-23T14:20:46.511Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-23T14:20:59.017Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-23T14:28:54.181Z |
-| e2e-ai | 6 | 6 | 0 | 2026-10-23T14:29:38.430Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-23T14:45:14.757Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-23T14:24:42.985Z |
-| e2e-contacts | 9 | 9 | 0 | 2026-10-23T14:29:57.028Z |
-| e2e-image | 10 | 10 | 0 | 2026-10-23T14:23:43.780Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-23T14:30:52.797Z |
-| e2e-media27 | 7 | 7 | 0 | 2026-10-23T14:32:50.048Z |
-| e2e-office | 11 | 11 | 0 | 2026-10-23T14:23:05.983Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-23T14:25:05.604Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-23T14:25:28.657Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-23T14:29:09.816Z |
-| e2e-tabletop | 15 | 15 | 0 | 2026-10-23T14:32:13.170Z |
-| e2e-tt28 | 7 | 7 | 0 | 2026-10-23T14:33:22.708Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-23T14:33:40.785Z |
-| e2e-tt30 | 6 | 6 | 0 | 2026-10-23T14:35:32.777Z |
-| e2e-tt31 | 10 | 10 | 0 | 2026-10-23T14:36:38.650Z |
-| e2e-tt32 | 6 | 6 | 0 | 2026-10-23T14:38:55.077Z |
-| e2e-tt33 | 4 | 4 | 0 | 2026-10-23T14:39:05.792Z |
-| e2e-tt34 | 5 | 5 | 0 | 2026-10-23T14:40:03.121Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-23T15:33:26.884Z |
-| e2e-tt36 | 3 | 3 | 0 | 2026-10-23T14:41:44.065Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-23T14:42:07.233Z |
-| e2e-tt38 | 7 | 7 | 0 | 2026-10-23T14:45:20.059Z |
-| e2e-tt39 | 7 | 7 | 0 | 2026-10-23T14:45:38.169Z |
-| e2e-tt40 | 3 | 3 | 0 | 2026-10-23T14:45:49.706Z |
-| e2e-tt41 | 4 | 4 | 0 | 2026-10-23T14:45:53.113Z |
-| e2e-tt42 | 3 | 3 | 0 | 2026-10-23T14:46:04.112Z |
-| e2e-tt43 | 3 | 3 | 0 | 2026-10-23T14:46:13.882Z |
-| e2e-tt44 | 5 | 5 | 0 | 2026-10-23T14:46:55.861Z |
-| e2e-tt45 | 2 | 2 | 0 | 2026-10-23T14:47:05.186Z |
-| e2e-tt46 | 8 | 8 | 0 | 2026-10-23T14:48:01.989Z |
-| e2e-tt47 | 5 | 5 | 0 | 2026-10-23T14:56:11.781Z |
-| e2e-tt48-sync | 4 | 4 | 0 | 2026-10-23T14:56:53.336Z |
-| e2e-tt48 | 6 | 6 | 0 | 2026-10-23T14:56:45.776Z |
-| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-23T15:02:39.293Z |
-| e2e-tt49 | 5 | 5 | 0 | 2026-10-23T15:01:31.449Z |
-| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-23T15:04:01.549Z |
-| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-23T15:24:47.635Z |
-| e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-23T15:05:46.255Z |
-| e2e-tt53-media | 6 | 6 | 0 | 2026-10-23T15:06:23.904Z |
-| e2e-tt54 | 8 | 8 | 0 | 2026-10-23T15:07:08.126Z |
-| e2e-tt55-files | 13 | 13 | 0 | 2026-10-23T15:07:47.947Z |
-| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-23T15:07:58.037Z |
-| e2e-tt56-rows | 7 | 7 | 0 | 2026-10-23T15:08:49.542Z |
-| e2e-tt56 | 10 | 10 | 0 | 2026-10-23T15:28:31.201Z |
-| e2e-tt57-rows | 4 | 4 | 0 | 2026-10-23T15:10:19.663Z |
-| e2e-tt57 | 3 | 3 | 0 | 2026-10-23T15:09:55.428Z |
-| e2e-tt58-rows | 3 | 3 | 0 | 2026-10-23T15:11:43.477Z |
-| e2e-tt58 | 3 | 3 | 0 | 2026-10-23T15:10:59.177Z |
-| e2e-tt59 | 4 | 4 | 0 | 2026-10-23T15:28:53.725Z |
-| e2e-tt60 | 5 | 5 | 0 | 2026-10-23T15:43:28.796Z |
-| e2e-tt61 | 4 | 4 | 0 | 2026-10-23T15:14:32.692Z |
-| e2e-tt62 | 3 | 3 | 0 | 2026-10-23T15:14:39.108Z |
-| e2e-tt63 | 2 | 2 | 0 | 2026-10-23T15:15:00.305Z |
-| e2e-tt64 | 3 | 3 | 0 | 2026-10-23T15:29:02.728Z |
-| e2e-tt65 | 2 | 2 | 0 | 2026-10-23T15:16:29.244Z |
-| e2e-tt66-input | 4 | 4 | 0 | 2026-10-23T15:16:57.685Z |
-| e2e-tt66 | 3 | 3 | 0 | 2026-10-23T15:16:45.377Z |
-| e2e-tt67-input | 5 | 5 | 0 | 2026-10-23T15:18:49.908Z |
-| e2e-tt68-sheet | 3 | 3 | 0 | 2026-10-23T15:43:12.096Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-23T14:24:04.185Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-23T14:29:27.020Z |
-| e2e | 64 | 64 | 0 | 2026-10-23T14:22:43.092Z |
-| image | 12 | 12 | 0 | 2026-10-23T14:20:42.319Z |
-| integration | 25 | 25 | 0 | 2026-10-23T14:20:37.546Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-23T14:20:59.726Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-23T14:21:04.485Z |
-| metaclean | 6 | 6 | 0 | 2026-10-23T14:20:51.962Z |
-| names | 7 | 7 | 0 | 2026-10-23T14:20:42.004Z |
-| office | 35 | 35 | 0 | 2026-10-23T14:20:37.921Z |
-| oracle-ai | 3 | 3 | 0 | 2026-10-23T14:20:58.759Z |
-| oracle-psd | 8 | 8 | 0 | 2026-10-23T14:20:44.833Z |
-| oracle-svg | 4 | 4 | 0 | 2026-10-23T14:20:46.381Z |
-| oracle-vcard | 3 | 3 | 0 | 2026-10-23T14:20:59.512Z |
-| oracle-xlsx | 5 | 5 | 0 | 2026-10-23T14:20:39.395Z |
-| oracle | 5 | 5 | 0 | 2026-10-23T14:20:38.257Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-23T14:20:54.440Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-23T14:20:49.598Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-23T14:20:50.845Z |
-| sheet-layout | 6 | 6 | 0 | 2026-10-23T14:20:39.740Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-23T14:21:00.143Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-23T14:20:54.843Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-23T14:20:59.981Z |
-| tt28-unit | 5 | 5 | 0 | 2026-10-23T14:21:04.699Z |
-| tt29-unit | 4 | 4 | 0 | 2026-10-23T14:21:05.416Z |
-| tt30-unit | 7 | 7 | 0 | 2026-10-23T14:33:40.946Z |
-| tt31-unit | 8 | 8 | 0 | 2026-10-23T14:35:33.026Z |
-| tt32-voice | 7 | 7 | 0 | 2026-10-23T14:36:50.906Z |
-| tt33-unit | 7 | 7 | 0 | 2026-10-23T14:38:55.269Z |
-| tt34-unit | 12 | 12 | 0 | 2026-10-23T14:39:08.789Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-23T14:40:12.612Z |
-| tt36-unit | 5 | 5 | 0 | 2026-10-23T14:41:32.732Z |
-| tt37-unit | 9 | 9 | 0 | 2026-10-23T14:41:48.266Z |
-| tt38-unit | 15 | 15 | 0 | 2026-10-23T15:30:43.894Z |
-| tt39-pac | 8 | 8 | 0 | 2026-10-23T14:45:35.499Z |
-| tt39-unit | 13 | 13 | 0 | 2026-10-23T15:22:45.723Z |
-| tt40-proxy | 4 | 4 | 0 | 2026-10-23T14:45:46.957Z |
-| tt40-unit | 17 | 17 | 0 | 2026-10-23T14:45:39.901Z |
-| tt41-unit | 9 | 9 | 0 | 2026-10-23T14:45:50.003Z |
-| tt42-dhcp | 2 | 2 | 0 | 2026-10-23T14:46:01.593Z |
-| tt42-proxy | 2 | 2 | 0 | 2026-10-23T14:45:56.047Z |
-| tt42-unit | 6 | 6 | 0 | 2026-10-23T14:45:53.531Z |
-| tt43-unit | 7 | 7 | 0 | 2026-10-23T14:46:04.390Z |
-| tt44-bridge | 8 | 8 | 0 | 2026-10-23T14:46:42.149Z |
-| tt44-unit | 18 | 18 | 0 | 2026-10-23T14:46:25.820Z |
-| tt44-vt | 12 | 12 | 0 | 2026-10-23T14:46:40.177Z |
-| tt45-unit | 10 | 10 | 0 | 2026-10-23T14:46:59.069Z |
-| tt46-writer | 12 | 12 | 0 | 2026-10-23T14:47:43.126Z |
-| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-23T14:51:12.872Z |
-| tt47-crypto | 5 | 5 | 0 | 2026-10-23T14:55:49.634Z |
-| tt47-sheet | 8 | 8 | 0 | 2026-10-23T14:54:04.329Z |
-| tt48-office | 6 | 6 | 0 | 2026-10-23T14:56:21.156Z |
-| tt49-sheet | 10 | 10 | 0 | 2026-10-23T15:01:18.124Z |
-| tt49-writer | 9 | 9 | 0 | 2026-10-23T15:02:19.229Z |
-| tt50-charts | 10 | 10 | 0 | 2026-10-23T15:03:47.922Z |
-| tt51-slides | 15 | 15 | 0 | 2026-10-23T15:04:53.899Z |
-| tt52-pdf | 28 | 28 | 0 | 2026-10-23T15:05:18.549Z |
-| tt53-media | 11 | 11 | 0 | 2026-10-23T15:06:10.108Z |
-| tt54-meta | 6 | 6 | 0 | 2026-10-23T15:06:35.054Z |
-| tt55-files-unit | 7 | 7 | 0 | 2026-10-23T15:07:08.971Z |
-| tt56-sheet-paste | 4 | 4 | 0 | 2026-10-23T15:08:07.372Z |
-| tt56-shell-unit | 4 | 4 | 0 | 2026-10-23T15:08:07.004Z |
-| tt56-writer-track | 6 | 6 | 0 | 2026-10-23T15:08:06.682Z |
-| tt57-sheet-links | 6 | 6 | 0 | 2026-10-23T15:09:45.872Z |
-| tt57-units | 2 | 2 | 0 | 2026-10-23T15:09:46.053Z |
-| tt57-writer-fmt | 5 | 5 | 0 | 2026-10-23T15:09:02.340Z |
-| tt57-writer-para | 5 | 5 | 0 | 2026-10-23T15:09:34.510Z |
-| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-23T15:10:45.762Z |
-| tt58-writer-notes | 5 | 5 | 0 | 2026-10-23T15:10:41.391Z |
-| tt59-raster | 5 | 5 | 0 | 2026-10-23T15:12:28.163Z |
-| tt59-sheet-paste | 3 | 3 | 0 | 2026-10-23T15:12:24.819Z |
-| tt59-sheet-spell | 5 | 5 | 0 | 2026-10-23T15:12:24.153Z |
-| tt59-writer-spell | 8 | 8 | 0 | 2026-10-23T15:12:21.876Z |
-| tt59-x14-cf | 3 | 3 | 0 | 2026-10-23T15:12:26.060Z |
-| tt60-sheet-spell-all | 2 | 2 | 0 | 2026-10-23T15:12:55.541Z |
-| tt60-units | 2 | 2 | 0 | 2026-10-23T15:12:56.565Z |
-| tt60-writer-spell-stories | 3 | 3 | 0 | 2026-10-23T15:12:56.438Z |
-| tt60-writer-tblrev | 7 | 7 | 0 | 2026-10-23T15:12:54.699Z |
-| tt61-sheet-pivot-delete | 1 | 1 | 0 | 2026-10-23T15:14:23.824Z |
-| tt61-writer-cellrev | 4 | 4 | 0 | 2026-10-23T15:13:58.186Z |
-| tt61-writer-notes-rich | 7 | 7 | 0 | 2026-10-23T15:13:54.484Z |
-| tt62-sheet-schema | 5 | 5 | 0 | 2026-10-23T15:14:20.043Z |
-| tt62-writer-cellmerge | 4 | 4 | 0 | 2026-10-23T15:14:22.946Z |
-| tt62-writer-schema | 5 | 5 | 0 | 2026-10-23T15:14:18.339Z |
-| tt63-sheet-pivotparts | 10 | 10 | 0 | 2026-10-23T15:14:51.893Z |
-| tt64-writer-trackcols | 6 | 6 | 0 | 2026-10-23T15:15:37.929Z |
-| tt65-writer-stories | 8 | 8 | 0 | 2026-10-23T15:16:22.846Z |
-| tt66-input | 2 | 2 | 0 | 2026-10-23T15:16:32.976Z |
-| tt66-sheet-x14-patch | 9 | 9 | 0 | 2026-10-23T15:16:32.803Z |
-| tt67-input | 11 | 11 | 0 | 2026-10-23T15:16:59.686Z |
-| tt67-sheet-ns | 13 | 13 | 0 | 2026-10-23T15:18:16.750Z |
-| tt68-blank | 8 | 8 | 0 | 2026-10-23T15:43:05.105Z |
-| unit | 23 | 23 | 0 | 2026-10-23T14:20:34.737Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-23T14:20:45.791Z |
-| vector | 18 | 18 | 0 | 2026-10-23T14:20:45.034Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-23T14:20:55.000Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-23T23:14:15.192Z |
+| ai-format | 5 | 5 | 0 | 2026-10-23T23:14:17.172Z |
+| browser-session | 5 | 5 | 0 | 2026-10-23T23:14:02.884Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-23T23:14:20.640Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-23T23:24:42.791Z |
+| e2e-ai | 6 | 6 | 0 | 2026-10-23T23:25:46.361Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-23T23:44:29.904Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-23T23:19:03.317Z |
+| e2e-contacts | 9 | 9 | 0 | 2026-10-23T23:26:11.033Z |
+| e2e-image | 10 | 10 | 0 | 2026-10-23T23:17:52.325Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-23T23:27:27.053Z |
+| e2e-media27 | 7 | 7 | 0 | 2026-10-23T23:29:49.153Z |
+| e2e-office | 11 | 11 | 0 | 2026-10-23T23:16:57.973Z |
+| e2e-privacy | 14 | 13 | 1 | 2026-10-24T00:48:43.456Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-10-23T23:20:25.376Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-23T23:25:05.805Z |
+| e2e-tabletop | 15 | 15 | 0 | 2026-10-23T23:29:02.693Z |
+| e2e-tt28 | 7 | 7 | 0 | 2026-10-23T23:30:30.671Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-23T23:30:54.040Z |
+| e2e-tt30 | 6 | 6 | 0 | 2026-10-23T23:32:58.573Z |
+| e2e-tt31 | 10 | 10 | 0 | 2026-10-23T23:34:23.217Z |
+| e2e-tt32 | 6 | 6 | 0 | 2026-10-23T23:37:00.649Z |
+| e2e-tt33 | 4 | 4 | 0 | 2026-10-23T23:37:15.228Z |
+| e2e-tt34 | 5 | 5 | 0 | 2026-10-23T23:38:20.185Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-23T23:38:55.887Z |
+| e2e-tt36 | 3 | 3 | 0 | 2026-10-24T00:49:41.960Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-24T00:50:05.768Z |
+| e2e-tt38 | 7 | 7 | 0 | 2026-10-23T23:44:37.982Z |
+| e2e-tt39 | 7 | 7 | 0 | 2026-10-23T23:44:58.258Z |
+| e2e-tt40 | 3 | 3 | 0 | 2026-10-23T23:45:11.684Z |
+| e2e-tt41 | 4 | 4 | 0 | 2026-10-23T23:45:15.618Z |
+| e2e-tt42 | 3 | 3 | 0 | 2026-10-23T23:45:27.813Z |
+| e2e-tt43 | 3 | 3 | 0 | 2026-10-23T23:45:38.521Z |
+| e2e-tt44 | 5 | 5 | 0 | 2026-10-23T23:46:27.176Z |
+| e2e-tt45 | 2 | 2 | 0 | 2026-10-23T23:46:37.691Z |
+| e2e-tt46 | 8 | 8 | 0 | 2026-10-23T23:47:52.644Z |
+| e2e-tt47 | 5 | 5 | 0 | 2026-10-23T23:58:41.929Z |
+| e2e-tt48-sync | 4 | 4 | 0 | 2026-10-23T23:59:36.448Z |
+| e2e-tt48 | 6 | 6 | 0 | 2026-10-23T23:59:28.228Z |
+| e2e-tt49-writer | 6 | 6 | 0 | 2026-10-24T00:07:38.324Z |
+| e2e-tt49 | 5 | 5 | 0 | 2026-10-24T00:06:18.613Z |
+| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-24T00:09:27.221Z |
+| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-24T00:10:55.032Z |
+| e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-24T00:11:39.530Z |
+| e2e-tt53-media | 6 | 6 | 0 | 2026-10-24T00:12:24.479Z |
+| e2e-tt54 | 8 | 8 | 0 | 2026-10-24T00:13:18.222Z |
+| e2e-tt55-files | 13 | 13 | 0 | 2026-10-24T00:14:11.079Z |
+| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-24T00:53:35.502Z |
+| e2e-tt56-rows | 7 | 7 | 0 | 2026-10-24T00:15:21.868Z |
+| e2e-tt56 | 10 | 10 | 0 | 2026-10-24T00:15:04.480Z |
+| e2e-tt57-rows | 4 | 4 | 0 | 2026-10-24T00:17:02.339Z |
+| e2e-tt57 | 3 | 3 | 0 | 2026-10-24T00:16:36.501Z |
+| e2e-tt58-rows | 3 | 3 | 0 | 2026-10-24T00:18:41.849Z |
+| e2e-tt58 | 3 | 3 | 0 | 2026-10-24T00:17:49.851Z |
+| e2e-tt59 | 4 | 4 | 0 | 2026-10-24T00:20:07.269Z |
+| e2e-tt60 | 5 | 5 | 0 | 2026-10-24T00:20:36.292Z |
+| e2e-tt61 | 4 | 4 | 0 | 2026-10-24T00:21:47.248Z |
+| e2e-tt62 | 3 | 3 | 0 | 2026-10-24T00:21:54.832Z |
+| e2e-tt63 | 2 | 2 | 0 | 2026-10-24T00:22:20.052Z |
+| e2e-tt64 | 3 | 3 | 0 | 2026-10-24T00:23:10.284Z |
+| e2e-tt65 | 2 | 2 | 0 | 2026-10-24T00:23:55.196Z |
+| e2e-tt66-input | 4 | 4 | 0 | 2026-10-24T00:44:26.141Z |
+| e2e-tt66 | 3 | 3 | 0 | 2026-10-24T00:24:13.680Z |
+| e2e-tt67-input | 5 | 5 | 0 | 2026-10-24T00:53:22.644Z |
+| e2e-tt68-sheet | 3 | 3 | 0 | 2026-10-24T00:30:36.217Z |
+| e2e-tt69-lifecycle | 6 | 6 | 0 | 2026-10-24T00:49:27.933Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-23T23:18:21.541Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-23T23:25:29.571Z |
+| e2e | 64 | 64 | 0 | 2026-10-23T23:16:26.331Z |
+| image | 12 | 12 | 0 | 2026-10-23T23:13:56.274Z |
+| integration | 25 | 25 | 0 | 2026-10-23T23:13:48.766Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-23T23:14:21.565Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-23T23:14:28.831Z |
+| metaclean | 6 | 6 | 0 | 2026-10-23T23:14:11.264Z |
+| names | 7 | 7 | 0 | 2026-10-23T23:13:55.865Z |
+| office | 35 | 35 | 0 | 2026-10-23T23:13:49.294Z |
+| oracle-ai | 3 | 3 | 0 | 2026-10-23T23:14:20.300Z |
+| oracle-psd | 8 | 8 | 0 | 2026-10-23T23:14:00.473Z |
+| oracle-svg | 4 | 4 | 0 | 2026-10-23T23:14:02.684Z |
+| oracle-vcard | 3 | 3 | 0 | 2026-10-23T23:14:21.278Z |
+| oracle-xlsx | 5 | 5 | 0 | 2026-10-23T23:13:51.499Z |
+| oracle | 5 | 5 | 0 | 2026-10-23T23:13:49.830Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-23T23:14:14.859Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-23T23:14:07.552Z |
+| privacy-layer | 11 | 11 | 0 | 2026-10-23T23:14:09.664Z |
+| sheet-layout | 6 | 6 | 0 | 2026-10-23T23:13:51.976Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-23T23:14:22.200Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-23T23:14:15.438Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-23T23:14:21.953Z |
+| tt28-unit | 5 | 5 | 0 | 2026-10-23T23:14:29.128Z |
+| tt29-unit | 4 | 4 | 0 | 2026-10-23T23:14:30.143Z |
+| tt30-unit | 7 | 7 | 0 | 2026-10-23T23:30:54.244Z |
+| tt31-unit | 8 | 8 | 0 | 2026-10-23T23:32:58.849Z |
+| tt32-voice | 7 | 7 | 0 | 2026-10-23T23:34:38.893Z |
+| tt33-unit | 7 | 7 | 0 | 2026-10-23T23:37:00.889Z |
+| tt34-unit | 12 | 12 | 0 | 2026-10-23T23:37:19.848Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-23T23:38:29.588Z |
+| tt36-unit | 5 | 5 | 0 | 2026-10-24T00:34:42.190Z |
+| tt37-unit | 9 | 9 | 0 | 2026-10-24T00:33:52.057Z |
+| tt38-unit | 15 | 15 | 0 | 2026-10-23T23:44:34.502Z |
+| tt39-pac | 8 | 8 | 0 | 2026-10-23T23:44:54.440Z |
+| tt39-unit | 13 | 13 | 0 | 2026-10-23T23:44:39.572Z |
+| tt40-proxy | 4 | 4 | 0 | 2026-10-23T23:45:08.276Z |
+| tt40-unit | 17 | 17 | 0 | 2026-10-23T23:45:00.124Z |
+| tt41-unit | 9 | 9 | 0 | 2026-10-23T23:45:12.041Z |
+| tt42-dhcp | 2 | 2 | 0 | 2026-10-23T23:45:24.528Z |
+| tt42-proxy | 2 | 2 | 0 | 2026-10-23T23:45:18.763Z |
+| tt42-unit | 6 | 6 | 0 | 2026-10-23T23:45:15.997Z |
+| tt43-unit | 7 | 7 | 0 | 2026-10-23T23:45:28.151Z |
+| tt44-bridge | 8 | 8 | 0 | 2026-10-23T23:46:11.934Z |
+| tt44-unit | 18 | 18 | 0 | 2026-10-23T23:45:52.339Z |
+| tt44-vt | 12 | 12 | 0 | 2026-10-23T23:46:09.421Z |
+| tt45-unit | 10 | 10 | 0 | 2026-10-23T23:46:30.732Z |
+| tt46-writer | 12 | 12 | 0 | 2026-10-23T23:47:27.547Z |
+| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-23T23:52:20.049Z |
+| tt47-crypto | 5 | 5 | 0 | 2026-10-23T23:58:14.669Z |
+| tt47-sheet | 8 | 8 | 0 | 2026-10-23T23:56:09.553Z |
+| tt48-office | 6 | 6 | 0 | 2026-10-23T23:58:53.908Z |
+| tt49-sheet | 10 | 10 | 0 | 2026-10-24T00:06:00.860Z |
+| tt49-writer | 9 | 9 | 0 | 2026-10-24T00:07:12.591Z |
+| tt50-charts | 10 | 10 | 0 | 2026-10-24T00:09:07.671Z |
+| tt51-slides | 15 | 15 | 0 | 2026-10-24T00:10:31.486Z |
+| tt52-pdf | 28 | 28 | 0 | 2026-10-24T00:11:04.160Z |
+| tt53-media | 11 | 11 | 0 | 2026-10-24T00:12:07.178Z |
+| tt54-meta | 6 | 6 | 0 | 2026-10-24T00:12:38.111Z |
+| tt55-files-unit | 7 | 7 | 0 | 2026-10-24T00:13:19.235Z |
+| tt56-sheet-paste | 4 | 4 | 0 | 2026-10-24T00:14:32.791Z |
+| tt56-shell-unit | 4 | 4 | 0 | 2026-10-24T00:14:32.395Z |
+| tt56-writer-track | 6 | 6 | 0 | 2026-10-24T00:14:31.983Z |
+| tt57-sheet-links | 6 | 6 | 0 | 2026-10-24T00:16:24.269Z |
+| tt57-units | 2 | 2 | 0 | 2026-10-24T00:16:24.457Z |
+| tt57-writer-fmt | 5 | 5 | 0 | 2026-10-24T00:15:36.152Z |
+| tt57-writer-para | 5 | 5 | 0 | 2026-10-24T00:16:10.810Z |
+| tt58-sheet-pivot | 5 | 5 | 0 | 2026-10-24T00:17:32.236Z |
+| tt58-writer-notes | 5 | 5 | 0 | 2026-10-24T00:17:26.700Z |
+| tt59-raster | 5 | 5 | 0 | 2026-10-24T00:19:41.000Z |
+| tt59-sheet-paste | 3 | 3 | 0 | 2026-10-24T00:19:37.130Z |
+| tt59-sheet-spell | 5 | 5 | 0 | 2026-10-24T00:19:36.363Z |
+| tt59-writer-spell | 8 | 8 | 0 | 2026-10-24T00:19:33.572Z |
+| tt59-x14-cf | 3 | 3 | 0 | 2026-10-24T00:19:38.524Z |
+| tt60-sheet-spell-all | 2 | 2 | 0 | 2026-10-24T00:20:13.691Z |
+| tt60-units | 2 | 2 | 0 | 2026-10-24T00:20:14.917Z |
+| tt60-writer-spell-stories | 3 | 3 | 0 | 2026-10-24T00:20:14.758Z |
+| tt60-writer-tblrev | 7 | 7 | 0 | 2026-10-24T00:20:12.746Z |
+| tt61-sheet-pivot-delete | 1 | 1 | 0 | 2026-10-24T00:21:35.974Z |
+| tt61-writer-cellrev | 4 | 4 | 0 | 2026-10-24T00:21:04.507Z |
+| tt61-writer-notes-rich | 7 | 7 | 0 | 2026-10-24T00:21:00.607Z |
+| tt62-sheet-schema | 5 | 5 | 0 | 2026-10-24T00:21:31.552Z |
+| tt62-writer-cellmerge | 4 | 4 | 0 | 2026-10-24T00:21:34.941Z |
+| tt62-writer-schema | 5 | 5 | 0 | 2026-10-24T00:21:29.519Z |
+| tt63-sheet-pivotparts | 10 | 10 | 0 | 2026-10-24T00:22:09.711Z |
+| tt64-writer-trackcols | 6 | 6 | 0 | 2026-10-24T00:22:59.445Z |
+| tt65-writer-stories | 8 | 8 | 0 | 2026-10-24T00:23:47.264Z |
+| tt66-input | 2 | 2 | 0 | 2026-10-24T00:23:59.272Z |
+| tt66-sheet-x14-patch | 9 | 9 | 0 | 2026-10-24T00:23:59.103Z |
+| tt67-input | 11 | 11 | 0 | 2026-10-24T00:45:38.895Z |
+| tt67-sheet-ns | 13 | 13 | 0 | 2026-10-24T00:25:53.091Z |
+| tt68-blank | 8 | 8 | 0 | 2026-10-24T00:30:28.320Z |
+| tt69-lifecycle | 11 | 11 | 0 | 2026-10-24T00:30:36.943Z |
+| tt69-sheet-misc | 5 | 5 | 0 | 2026-10-24T00:30:38.852Z |
+| unit | 23 | 23 | 0 | 2026-10-23T23:13:45.521Z |
+| vector-boolean | 6 | 6 | 0 | 2026-10-23T23:14:01.901Z |
+| vector | 18 | 18 | 0 | 2026-10-23T23:14:00.768Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-23T23:14:15.698Z |
 
-## Rows touched by failing tests
+## Rows touched by FAILING tests (not counted as tested)
 
-None.
+- SC-10: e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end
 
 ## By family
 
@@ -213,7 +216,7 @@ None.
 | AP | 5 | 1 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 46 | 8 | 0 | 40 | 8 | 6 |
-| FF | 49 | 48 | 1 | 0 | 45 | 2 | 2 |
+| FF | 49 | 48 | 1 | 0 | 47 | 1 | 1 |
 | MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
 | SC | 18 | 16 | 1 | 1 | 11 | 3 | 4 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
@@ -349,7 +352,7 @@ None.
 | PR-07h | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads |
 | PR-07i | built | full | e2e-browser: Alt+T / Alt+P / Alt+1..9 / Alt+W shortcuts; pinned tabs move left; middle-click closing the active tab keeps a live tab |
 | PR-07j | built | untested |  |
-| PR-07k | built | full | e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page; e2e-tt36: reader endpoint headers (PR-07k): the reader page is served with a CSP sandbox (no same-origin), scripts only from Fusion (no inline script), no forms; a non-page address gets a plain refusal; a private address is refused (SSRF); tt36-unit: reader vs Readability (PR-07k): on live pages from github.com and pypi.org the reader keeps everything readability-lxml calls the article (recall ≥ 0.95) and agrees on where the article starts and ends; pages a site answers with a bot challenge are skipped and named, at least 5 must be measured (+2) |
+| PR-07k | built | full | e2e-tt36: Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page; e2e-tt36: reader endpoint headers (PR-07k): the reader page is served with a CSP sandbox (no same-origin), scripts only from Fusion (no inline script), no forms; a non-page address gets a plain refusal; a private address is refused (SSRF); tt36-unit: reader vs Readability (PR-07k): on live pages from github.com and pypi.org the reader keeps everything readability-lxml calls the article (recall ≥ 0.95) and agrees on where the article starts and ends; pages a site answers with a bot challenge are skipped and named, at least 5 must be measured (+2) |
 | PR-07l | built | full | browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused; browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: site permissions panel writes the iframe delegation policy into the saved session |
 | PR-07m | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413) |
 | PR-07n | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads |
@@ -378,9 +381,9 @@ None.
 | FF-12 | built | full | ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files; integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; integration: FM-05 extract refuses zip-slip and writes nothing (+1) |
 | FF-13 | built | full | e2e-tt54: FF-13 Files grid: real thumbnails for JPEG (EXIF orientation applied), TIFF (own decoder), PNG, GIF, SVG, MP3/M4A cover art, PDF page 1, WebM frame, text; no-preview types keep the icon with a reason; e2e-tt54: FF-13 thumbnail cache: WebP nodes under /System/Cache/thumbs (content-addressed, written once); a fresh session is served from the cache without re-rendering; e2e-tt54: FF-13 Info panel: metadata of the selected file (camera, capture date, exposure, GPS) from the first-party readers (+5) |
 | FF-14 | built | full | ai-format: version strings, PDF literal escapes, format registry and MIME; unit: loss report itemises drops; registry grades |
-| FF-15 | built | partial | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists |
-| FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+10) |
-| FF-20 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen (+65) |
+| FF-15 | built | full | e2e-tt69-lifecycle: Spreadsheet: closing a dirty window asks Save changes? — MODAL: Delete, typing, Ctrl+Z, Ctrl+S, Alt+F4, Meta+W, a script focusing the grid and a raw click on a cell never reach the workbook; Tab stays inside; Escape cancels; Save writes the file and closes; e2e-tt69-lifecycle: Writer: typing writes a recovery draft (python-docx reads its bytes; no version snapshots); Close → Don't save keeps it; reopening offers Restore; Restore brings the text back unsaved; Save writes it and deletes the draft; e2e-tt69-lifecycle: leaving the page with unsaved work raises the browser's beforeunload prompt (dismiss = stay); a page with nothing unsaved closes without one (+18) |
+| FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+14) |
+| FF-20 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen (+68) |
 | FF-21 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint) (+79) |
 | FF-22 | built | full | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+72) |
 | FF-23 | built | full | e2e-tt51-slides: corpus decks open in the real UI with every slide in the rail and the file's content drawn: shapes.pptx (6 slides, preset shapes + text), table_test.pptx (a table with its cell text), bar-chart.pptx (chart drawn from its cache as SVG), backgrounds.pptx; e2e-tt51-slides: edit → save → python-pptx: retype the title by double-click, bold one word through the toolbar, add speaker notes, duplicate and hide a slide, insert a text box, drag a shape — the saved file carries exactly those edits, validates, and untouched parts keep their bytes; e2e-tt51-slides: slide show: Present opens a full-window show at the first visible slide; → / Space / click advance, ← goes back, HIDDEN slides are skipped, Escape ends and returns to the editor (+19) |
@@ -420,7 +423,7 @@ None.
 | FF-33 | built | full | e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells; e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader) (+8) |
 | FF-34 | built | full | e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+4) |
 | FF-35 | built | full | e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+5) |
-| SC-10 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path; e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists (+19) |
+| SC-10 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path; e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists (+18) |
 | SC-11 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only); e2e: mount: privacy (+3) |
 | SC-12 | built | full | e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e: mount: privacy (+6) |
 | SC-13 | built | full | e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists; e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache; e2e: mount: privacy (+1) |
@@ -498,7 +501,7 @@ None.
 | WP-02 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413) (+7) |
 | WP-03 | built | full | e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted; tt35-unit: privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream requests carry no cookie / referer / origin / client hints / forwarding headers of the user, one UA and language for everyone, Sec-GPC and an origin-only Referer of the target; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised |
 | WP-04 | built | full | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server; tt35-unit: cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix refusal, domain mismatch, default-path and path matching (/docs vs /docsx), Secure only over https, Max-Age over Expires, deletion, HttpOnly hidden from (and unwritable by) scripts, __Secure- / __Host- prefixes, ordering by path length, per-domain cap; tt35-unit: sessions (WP-04): 128-bit url-safe capability ids, unique; idle sessions expire after 30 min; the store never exceeds its cap (least recently used goes first); dropping forgets the cookie jar |
-| WP-05 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt36: Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page |
+| WP-05 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt36: Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page |
 | WP-06 | built | full | e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked |
 | WP-07 | built | full | e2e-tt37: Network route panel (WP-07): test a candidate SOCKS5 route on a real page, apply it — toolbar and status line follow, the Private proxy tab loads pypi.org through it (seen in the independent proxy's own log), 'New circuit' rotates the tab's isolation and reloads, the browser itself still contacts only Fusion; the Tor check result is printed as it is; e2e-tt37: a dead route is named, not blamed on the site (WP-07): with the route pointing at a port where nothing listens, the Private proxy tab shows 'The network route failed' and how to fix it; back on Direct the page loads again; e2e-tt37: everything follows the route; pages cannot change it (WP-07): with an HTTP proxy route the legacy reader for direct tabs goes through it (the proxy's log), a .onion address is refused with the reason (Tor route needed), and a cross-site PUT to /api/wp-route is refused by the CSRF guard (+8) |
 | WP-08 | built | full | e2e-tt38: WebSocket in a proxied page (WP-08): the page's own `new WebSocket` reaches the site through Fusion — readyState CONNECTING→OPEN→CLOSING→CLOSED, subprotocol chat.v2, string / ArrayBuffer / Blob / typed-array sends echoed in order with binaryType 'arraybuffer', bufferedAmount counts queued bytes and drains to 0, handler and listener fire in registration order, MessageEvent.origin is the socket's origin, close(4001, 'bye ✓') ends clean; 200 server messages arrive in order; e2e-tt38: WebSocket errors exactly where a browser raises them (WP-08): SyntaxError for a non-ws scheme, a fragment, duplicate or invalid subprotocols; TypeError with no argument; InvalidStateError for send() while CONNECTING; InvalidAccessError for close(1001); SyntaxError for a 124-byte reason; an unreachable server → 'error' then close 1006 (not clean); close() while connecting → error + close 1006 and never 'open'; constants and name match the platform; e2e-tt38: what the site sees (WP-08): the WebSocket handshake carries the session's User-Agent (not the real browser's) and the PAGE's origin (the site's own, not Fusion's), and the site's own cookie from the session jar (+13) |
@@ -529,7 +532,7 @@ None.
 | FF-48 | built | full | e2e-tt64: FF-48 Writer tracked columns in the UI: Track changes → Column right (3 inserted cells, one '[Table column]' change) → Delete column (3 deleted cells, a second change) → Reject the deletion, Accept the insertion → Save → lxml oracle + XSD; a gridBefore row renders on the grid; e2e-tt64: no page errors during the TT64 session; tt64-writer-trackcols: a tracked column insert: every new cell carries w:cellIns (unique ids, author, date), the old widths go in w:tblGridChange; one '[Table column]' change; schema-valid; the file round-trips the grouping (+5) |
 | FF-49 | built | full | e2e-tt65: FF-49 Track Changes in every story in the UI: tracked header Apply (struck / inserted runs on the page), a field-cutting edit refused with no phantom undo step (Ctrl+Z / Ctrl+Y), tracked Notes edit, Review by place, reject footnote items singly + Accept all → Save → lxml oracle + XSD; e2e-tt65: no page errors during the TT65 session; tt65-writer-stories: header & footer Apply under Track Changes: edited line, alignment, new and removed lines are w:ins / w:del / w:pPrChange — oracle Accept All = the untracked edit, Reject All = the original; our Accept / Reject All agree; Review names the place (+7) |
 | FF-50 | built | full | e2e-tt66: CF panel → Excel 2010 rules (axis bar, 3Stars, custom icons) drawn at once → Save → saved .xlsx passes the MS-XLSX x14 schema + structural oracle and the ECMA XSDs → reopen lists and draws the same; e2e-tt66: modal-shortcut failure test: keys pressed in the new CF controls (band icon select, bar axis select, colour inputs) never edit, clear or undo the grid cell; e2e-tt66: no uncaught page errors during the session (+22) |
-| FF-51 | built | untested |  |
+| FF-51 | built | full | tt67-sheet-ns: lxml equivalence: every rewritten XML part of the 353-file corpus + 15 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path; tt67-sheet-ns: adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, no-namespace children undeclare the default, strict prefixes canonical, value text is not a declaration, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming; tt67-sheet-ns: the 7 corpus workbooks TT66 could not read (x: / s: SpreadsheetML prefixes, prefixed mc:AlternateContent) open, and every non-empty cell equals an lxml namespace-aware reader and (where it can open the file) openpyxl; TT66 rejected 6 and read 0 cells from the 7th (+10) |
 | FF-52 | built | full | e2e-tt68-sheet: FF-52 in the UI: an opened workbook shows Excel's results for empty text and an error constant (ISBLANK FALSE / TRUE, COUNTIF "#N/A" 1, COUNTA 3, "=" 1, "<>" 3, ISNA TRUE); e2e-tt68-sheet: FF-52 typing: ' makes empty text (ISBLANK FALSE), #n/a makes an error constant (ISNA TRUE); Save → lxml lists A1 and C1 as empty text, openpyxl reads C2 as an error cell; e2e-tt68-sheet: shortcut scope: Paste Special is a non-modal bar (TT60) — the grid keeps the keyboard and ArrowRight still moves the target, but typing, Delete, Backspace, F2, Enter, Ctrl+X / V / Z / D / B never edit the cell behind it, nor do keys typed into the bar's own controls; Escape closes only the bar (Spreadsheet stays open) (+8) |
 | CT-01 | built | untested |  |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |

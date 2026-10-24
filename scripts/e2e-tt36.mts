@@ -1,6 +1,6 @@
 /**
  * Real-browser suite "e2e-tt36" (TT36) in headless Chromium against the production build, on REAL outside pages:
- *   - Reader view in a Private proxy tab (PR-07k): pypi.org/help/ becomes Fusion's reader page (article text, title,
+ *   - Reader view in a Private proxy tab (PR-07k): a github CONTRIBUTING.md (TT69; pypi.org/help/ now leaves pypi.org) becomes Fusion's reader page (article text, title,
  *     reading time; no script but the runtime; still an opaque origin; nothing contacted but Fusion); find in page
  *     works in the reader; an in-article link stays in the reader and the address follows; Back returns; "Original
  *     page" leaves the reader and the Reader button follows the page; Reader off returns to the normal page
@@ -58,10 +58,11 @@ try {
   if (prevView && prevView !== "classic") await api("PUT", "/api/settings", { key: "appearance.desktopView", value: "classic" });
   browser = await launchChromium();
 
-  await test("Reader view in a Private proxy tab (PR-07k): pypi.org/help/ as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page", { "PR-07k": "partial", "WP-05": "full" }, async () => {
-    const { page, ctx, hosts } = await boot([browserWin([tab("t1", "https://pypi.org/help/")])]);
+  const START = "https://github.com/nodejs/node/blob/main/CONTRIBUTING.md", START_TITLE = /CONTRIBUTING\.md/;
+  await test("Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page", { "PR-07k": "partial", "WP-05": "full" }, async () => {
+    const { page, ctx, hosts } = await boot([browserWin([tab("t1", START)])]);
     try {
-      await frameReady(page, async (f) => /^Help/.test(await f.title()), "help page (normal)");
+      await frameReady(page, async (f) => START_TITLE.test(await f.title()), "article page (normal)");
       ok((await page.getByTestId("wp-reader").getAttribute("aria-pressed")) === "false", "reader off at first");
       await page.getByTestId("wp-reader").click();
       const rd = await frameReady(page, async (f) => isReader(f) && (await f.locator("article[data-reader]").count()) > 0, "reader page");
@@ -72,37 +73,36 @@ try {
         links: [...document.querySelectorAll("article a[href]")].map((a) => a.getAttribute("href")!),
       }));
       console.log(`    reader: "${info.title}" — ${info.meta.replace(/\s+/g, " ").trim()}`);
-      ok(/Help/.test(info.title) && /min read/.test(info.meta) && /Common questions/.test(info.text), JSON.stringify(info).slice(0, 300));
+      ok(/Contribut/i.test(info.title) && /min read/.test(info.meta) && /Contribut/i.test(info.text), JSON.stringify(info).slice(0, 300));
       ok(info.scripts.length === 1 && info.scripts[0] === "/wp-shim.js", `scripts: ${info.scripts}`);
       ok(info.origin === "null" && info.inlineHandlers === 0, "sandboxed, no inline handlers or styles");
       ok((await page.getByTestId("wp-reader").getAttribute("aria-pressed")) === "true", "Reader button pressed");
-      ok(((await tabUrl(page)) ?? "") === "https://pypi.org/help/", "address unchanged by the reader");
+      ok(((await tabUrl(page)) ?? "") === START, "address unchanged by the reader");
       // find inside the reader
-      await page.getByTestId("wp-find").fill("package");
+      await page.getByTestId("wp-find").fill("Node");
       await page.getByTestId("wp-find").press("Enter");
       await poll(async () => /^1\/\d+$/.test((await page.getByTestId("wp-find-count").innerText()).trim()), "find in the reader");
-      // an in-article link to another pypi page that is not bot-challenged
-      const target = info.links.map((h) => ({ h, u: decodeURIComponent(/__reader\?u=([^&]+)/.exec(h)?.[1] ?? "") })).find((x) => /^https:\/\/pypi\.org\/(security|sponsors|stats|account\/login)\/?$/.test(x.u))
-        ?? info.links.map((h) => ({ h, u: decodeURIComponent(/__reader\?u=([^&]+)/.exec(h)?.[1] ?? "") })).find((x) => /^https:\/\/(docs\.)?pypi\.org\//.test(x.u) && !/search|project/.test(x.u));
-      ok(target, `an in-article pypi link among ${info.links.length}`);
+      // an in-article link to another document of the same repository
+      const target = info.links.map((h) => ({ h, u: decodeURIComponent(/__reader\?u=([^&]+)/.exec(h)?.[1] ?? "") })).find((x) => /^https:\/\/github\.com\/nodejs\/node\/blob\/main\/[\w/.-]+\.md$/.test(x.u) && x.u !== START);
+      ok(target, `an in-article repository link among ${info.links.length}`);
       console.log(`    following ${target!.u}`);
       await rd.locator(`article a[href="${target!.h}"]`).first().click();
       await poll(async () => ((await tabUrl(page)) ?? "").startsWith(target!.u.replace(/\/$/, "")), "address follows the reader link");
       const rd2 = await frameReady(page, async (f) => isReader(f) && f.url().includes(encodeURIComponent(target!.u)) && (await f.locator("article[data-reader]").count()) > 0, "still in the reader on the new page");
       ok((await page.getByTestId("wp-reader").getAttribute("aria-pressed")) === "true", "still reader");
       await page.getByTestId("wp-back").click();
-      await poll(async () => ((await tabUrl(page)) ?? "") === "https://pypi.org/help/", "Back to help");
-      await frameReady(page, async (f) => isReader(f) && f.url().includes(encodeURIComponent("https://pypi.org/help/")), "help in the reader after Back");
+      await poll(async () => ((await tabUrl(page)) ?? "") === START, "Back to the first article");
+      await frameReady(page, async (f) => isReader(f) && f.url().includes(encodeURIComponent(START)), "first article in the reader after Back");
       // "Original page" leaves the reader; the button follows the page
       const rd3 = proxFrame(page)!;
       await rd3.locator("[data-reader-original]").click();
-      await frameReady(page, async (f) => !isReader(f) && /^Help/.test(await f.title()), "original page");
+      await frameReady(page, async (f) => !isReader(f) && START_TITLE.test(await f.title()), "original page");
       await poll(async () => (await page.getByTestId("wp-reader").getAttribute("aria-pressed")) === "false", "Reader button follows the page");
       // and back on, then off via the button
       await page.getByTestId("wp-reader").click();
       await frameReady(page, async (f) => isReader(f), "reader again");
       await page.getByTestId("wp-reader").click();
-      await frameReady(page, async (f) => !isReader(f) && /^Help/.test(await f.title()), "Reader off → normal page");
+      await frameReady(page, async (f) => !isReader(f) && START_TITLE.test(await f.title()), "Reader off → normal page");
       void rd2;
       const foreign = [...hosts.keys()].filter((h) => h !== HOST);
       ok(foreign.length === 0, `direct contact: ${foreign.join(", ")}`);
@@ -125,7 +125,7 @@ try {
   });
 
   await test("named profiles (PR-07o): two tabs in profile Work share one session and its cookies, a third tab on the same site (this tab only) does not; switching it to Work joins the jar, switching a Work tab to 'this tab only' leaves it; the profile is saved with the window; closing the last Work tab deletes the Work session", { "PR-07o": "partial" }, async () => {
-    const { page, ctx } = await boot([browserWin([tab("t1", "https://pypi.org/", "Work"), tab("t2", "https://pypi.org/help/", "Work"), tab("t3", "https://pypi.org/security/")])]);
+    const { page, ctx } = await boot([browserWin([tab("t1", "https://pypi.org/", "Work"), tab("t2", "https://pypi.org/sponsors/", "Work"), tab("t3", "https://pypi.org/security/")])]);
     const sidNow = () => page.getByTestId("wp-tab").getAttribute("data-sid");
     const frameOf = (sid: string) => page.frames().find((f) => f.url().includes(`/api/wp/s/${sid}/`));
     const cookieIn = async (sid: string) => (await frameOf(sid)?.evaluate(() => document.cookie).catch(() => "")) ?? "";
