@@ -1,0 +1,164 @@
+{
+  "suite": "tabletop-unit",
+  "at": "2026-10-24T19:08:48.044Z",
+  "results": [
+    {
+      "suite": "tabletop-unit",
+      "name": "idealDockIcon: 44–64 px band on the 4-px grid, from the screen not the app count; presets; junk input",
+      "covers": {
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "planDock: keeps the pleasing size and folds the biggest groups first; pinned + running stay out; every app reachable; never wider than the fill limit when it reports fits",
+      "covers": {
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "planDock on a phone: all groups fold, pinned apps fold back before shrinking, ≥32 px; with many minimised windows it reports !fits (dock scrolls)",
+      "covers": {
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "desktop icons: column-major auto layout, saved cells win, contested/out-of-grid cells ignored, missing paths dropped (SH-04)",
+      "covers": {
+        "LY-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "desktop icons: drag moves to a cell and swaps with an occupant, nudge clamps at the edges, clean up closes gaps in reading order, sort by name is natural",
+      "covers": {
+        "LY-06": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "tabletop state: normalizeTable validates untrusted input against the files that exist",
+      "covers": {
+        "LY-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "tabletop piles: drop card on card → pile at the target, drop on a pile adds on top, pile on pile merges, take out / dissolve, unstack, rename, deterministic ids",
+      "covers": {
+        "LY-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "tabletop geometry: golden cards, jitter deterministic + bounded (top card straight), fan inside the floor, floor items never overlap their slots, hit test topmost",
+      "covers": {
+        "LY-07": "full",
+        "LY-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "tabletop box geometry: floor scale = p/(p+depth) < 1, walls hinge on their screen edge and fold 90° inward",
+      "covers": {
+        "LY-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "slanted camera (default): floor ≥ 80 % of the frame across a viewport sweep, lip ≥ 24 px, β = 38°, walls share the rest",
+      "covers": {
+        "LY-11": "full"
+      },
+      "pass": true,
+      "ms": 20
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box",
+      "covers": {
+        "LY-11": "full",
+        "LY-12": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "walls as pinboards: pin a card / a whole pile to a wall, move between walls, back to the floor; walls-first wins on conflicts; v1 → v2 migration; free slots",
+      "covers": {
+        "LY-12": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "saved tabletop views: save captures camera + face + every surface; same name updates in place; load restores (re-validated against today's files); rename / delete; cap",
+      "covers": {
+        "LY-13": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light",
+      "covers": {
+        "LY-15": "full",
+        "LY-14": "partial"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "micro peek: Markdown keeps headings/bullets, plain text and code, line cap, CSV with RFC 4180 quoting, JSON grid / pretty text, images, SVG, binary, sealed, empty",
+      "covers": {
+        "LY-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "beauty rules: each hard rule catches a seeded violation and passes the clean layout",
+      "covers": {
+        "LY-10": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tabletop-unit",
+      "name": "open-with routing shared by Files / desktop / Tabletop; settings, routine 'view', seed rows",
+      "covers": {
+        "LY-06": "partial",
+        "LY-07": "full",
+        "LY-05": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

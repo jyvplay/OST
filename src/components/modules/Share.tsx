@@ -1,4 +1,6 @@
 "use client";
+import { displayMedia } from "@/lib/access-log";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, clientId, post } from "@/lib/api";
@@ -180,7 +182,7 @@ export default function ShareModule(_: ModuleProps) {
   const join = async () => {
     try {
       if (role === "share") {
-        local.current = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: false });
+        local.current = await displayMedia("Share", { video: { frameRate: 30 }, audio: false });
         if (videoRef.current) { videoRef.current.srcObject = local.current; videoRef.current.muted = true; }
         local.current.getVideoTracks()[0].addEventListener("ended", () => void leave());
         shell.setBeam({ id: null, target: `room ${room}`, transport: "webrtc", source: "screen", startedAt: Date.now(), stop: () => void leave() });
@@ -206,9 +208,9 @@ export default function ShareModule(_: ModuleProps) {
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        <input className="fs-input" style={{ width: 110 }} value={room} disabled={joined} aria-label="Room"
+        <input className="fs-input" style={{ width: fz(110) }} value={room} disabled={joined} aria-label="Room"
           onChange={(e) => setRoom(e.target.value.toUpperCase())} />
-        <select className="fs-select" style={{ width: 150 }} value={role} disabled={joined} onChange={(e) => setRole(e.target.value as "share" | "view")}>
+        <select className="fs-select" aria-label="Share role" style={{ width: fz(150) }} value={role} disabled={joined} onChange={(e) => setRole(e.target.value as "share" | "view")}>
           <option value="view">view / bridge only</option>
           <option value="share" disabled={!capAvailable(shell.caps, "displayCapture")}>share my screen</option>
         </select>
@@ -250,10 +252,10 @@ export default function ShareModule(_: ModuleProps) {
             }} />
           </label>
         </div>
-        <div className="fs-mono" style={{ fontSize: 11, maxHeight: 120, overflow: "auto" }}>{msgs.map((m, i) => <div key={i}>{m}</div>)}</div>
+        <div className="fs-mono" style={{ fontSize: fz(11), maxHeight: 120, overflow: "auto" }}>{msgs.map((m, i) => <div key={i}>{m}</div>)}</div>
       </Section>
 
-      <div className="fs-dim" style={{ fontSize: 11, lineHeight: 1.6 }}>
+      <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
         Test with two windows: open Share twice (or on two devices against the same server), pick “share my screen” in
         one and “view” in the other, same room. Signalling rides on Postgres (~1 s to connect); media and files flow
         peer to peer, encrypted (DTLS-SRTP), and never touch the server.

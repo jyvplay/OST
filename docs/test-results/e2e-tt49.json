@@ -1,0 +1,56 @@
+{
+  "suite": "e2e-tt49",
+  "at": "2026-10-24T20:07:12.132Z",
+  "results": [
+    {
+      "suite": "e2e-tt49",
+      "name": "imported x14 data bars (automatic bounds + border), x14-only 3Stars and a custom icon mix are drawn cell-for-cell as evaluated",
+      "covers": {
+        "FF-29": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 4444
+    },
+    {
+      "suite": "e2e-tt49",
+      "name": "CF borders, formula rules and time periods from a workbook our writer produced are drawn as evaluated",
+      "covers": {
+        "FF-29": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 3329
+    },
+    {
+      "suite": "e2e-tt49",
+      "name": "modal-shortcut failure test: Delete, Backspace, typing, Ctrl+Z and Enter inside the CF panel never touch the selected grid cell",
+      "covers": {
+        "FF-29": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 3383
+    },
+    {
+      "suite": "e2e-tt49",
+      "name": "add a data bar, an icon set and a formula rule in the panel → drawn at once → Save → the independent oracle evaluates the saved .xlsx exactly as the grid showed",
+      "covers": {
+        "FF-29": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 6354
+    },
+    {
+      "suite": "e2e-tt49",
+      "name": "no uncaught page errors during the conditional-formatting session",
+      "covers": {
+        "FF-29": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 59
+    }
+  ]
+}

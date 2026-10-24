@@ -1,0 +1,159 @@
+{
+  "suite": "tt40-unit",
+  "at": "2026-10-24T19:38:21.959Z",
+  "results": [
+    {
+      "suite": "tt40-unit",
+      "name": "route parsing (WP-14): socks4:// socks4a:// https:// are routes now, with Chrome's default ports (1080 / 443) and labels; still refused: unknown schemes, bad ports, paths",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "SOCKS4 / SOCKS4a request bytes (WP-14): byte-identical to an independent client (npm `socks` 2.8.10) for IPv4 / name targets, with and without a user id, ports 1 and 65535; IPv6, a name over plain SOCKS4, a NUL in the user id and a 256-byte name are refused before any byte is sent",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 155
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "SOCKS4 hostile servers (WP-14): a SOCKS5 answer, a refusal (91), a 3-byte reply then close, silence past the deadline — each a classified ProxyRouteError (proxy-down only where the proxy itself is broken); VN=4 echo is accepted and bytes that arrive WITH the grant are not lost",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 806
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "HTTPS proxy, negative (WP-14): a proxy whose certificate no trusted CA signed is refused at the TLS step (never sends CONNECT in the clear), classified proxy-down; a proxy that is plain HTTP on a https:// route fails the same way",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 150
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "PAC entries → routes (WP-14): DIRECT, PROXY / HTTP → http, HTTPS → https (default 443), SOCKS and SOCKS4 → socks4 (Chrome's reading), SOCKS5 → socks5; QUIC → none; an unparsable host → none",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "bad-proxy memory (WP-14): a failed proxy is moved BEHIND the healthy candidates (incl. DIRECT) for exactly 5 minutes, then restored to its place; when every candidate is bad they are all still tried, in their order",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "failover classification (WP-14): over REAL connections — an unreachable proxy (refused port) and a broken one (not SOCKS) fail over and are marked bad; a proxy that ANSWERED (SOCKS4 91, HTTP 403 to CONNECT, 407) does not fail over (Chrome ≥ M67); a non-proxy error and a DIRECT failure never fail over; all-down throws the last error",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "Windows (WP-15): the AutoDetect bit (0x08) of DefaultConnectionSettings byte 8 is read from the Connections key; other bits do not set it; an absent / short value is no flag; socks= is SOCKS v4 unless written socks5:// (Chrome's ProxyRules); auto-detect alone is a usable setting",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "macOS + GNOME (WP-15): ProxyAutoDiscoveryEnable : 1 sets auto-detect; GNOME mode 'auto' with an EMPTY autoconfig-url means WPAD (with a URL it means that URL); a configured script URL wins over auto-detect",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "KDE kioslaverc (WP-15): ProxyType 0 none · 1 manual (\"http://h:p\" and KDE 5's \"http://h p\") · 2 script URL · 3 WPAD · 4 environment-variable NAMES; NoProxyFor lists; KDE's [$e] markers; keys outside [Proxy Settings] ignored; comments; SOCKS is v5",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "desktop selection (WP-15): a KDE session reads kioslaverc first; GNOME reads gsettings; without gsettings (ENOENT) kioslaverc is the fallback; Windows reads BOTH registry keys; XDG_CONFIG_HOME is honoured",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "WPAD candidates (WP-15): wpad first, then devolution of each search domain DOWN TO the registrable domain and never above it — squatting negatives: co.uk, com.mx, ac.jp, a public suffix as the search domain, single labels, numeric TLDs, bad labels; duplicates merged; at most 8",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "search domains (WP-15): resolv.conf search + domain (comments ignored), scutil --dns search domain[n] / domain, the Tcpip registry SearchList / Domain / NV Domain / DhcpDomain; an FQDN hostname adds its domain; .local mDNS names dropped",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "discovery (WP-15): candidates tried strictly in order; a 2xx that is not a PAC file (an HTML page on a host that happens to be called wpad) is skipped; the first real script wins and later names are never contacted; the overall budget stops the walk; total failure lists what was tried",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 362
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "subresource segment (WP-16): \"<sid>:<doc>:r\" parses as a markup subresource of that document; malformed doc ids and unknown codes still refuse; decodeTarget carries the flag",
+      "covers": {
+        "WP-16": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "subresource policy (WP-16): same-site (incl. a sibling subdomain) gets every cookie, cross-site only SameSite=None, schemeful (http vs https = cross-site); Sec-Fetch-Site same-origin / same-site / cross-site from the DOCUMENT; Referer = the document's origin, none https→http; an unknown document = cross-site with no Referer; cross-site Set-Cookie keeps only SameSite=None",
+      "covers": {
+        "WP-16": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt40-unit",
+      "name": "markup tagging (WP-16): img / script / link / source / track / audio / video / input[type=image] / poster / background / srcset / style attribute / <style> get the subresource segment; a / area / form / iframe / frame / object / embed / base / meta refresh keep the plain one (a new page must never inherit this document's id); without resSid nothing changes",
+      "covers": {
+        "WP-16": "full"
+      },
+      "pass": true,
+      "ms": 4
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "suite": "names",
+  "at": "2026-10-24T19:08:25.020Z",
+  "results": [
+    {
+      "suite": "names",
+      "name": "name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255",
+      "covers": {
+        "FF-36": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "names",
+      "name": "names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined",
+      "covers": {
+        "FF-36": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "names",
+      "name": "scope: a sheet-level name shadows the workbook name on its sheet only; self-reference terminates with #NAME?",
+      "covers": {
+        "FF-36": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "names",
+      "name": "insert/delete rows and columns move names like cell formulas; deleting the whole range gives #REF!",
+      "covers": {
+        "FF-36": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "names",
+      "name": "workbook JSON round-trips names; hostile JSON names (invalid syntax, A1-like, oversized) are dropped",
+      "covers": {
+        "FF-36": "partial"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "names",
+      "name": "openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
+      "covers": {
+        "FF-36": "full",
+        "FF-21": "partial"
+      },
+      "pass": true,
+      "ms": 194
+    },
+    {
+      "suite": "names",
+      "name": "our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file",
+      "covers": {
+        "FF-36": "full",
+        "FF-20": "partial"
+      },
+      "pass": true,
+      "ms": 2547
+    }
+  ]
+}

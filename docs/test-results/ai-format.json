@@ -1,0 +1,53 @@
+{
+  "suite": "ai-format",
+  "at": "2026-10-24T19:08:43.042Z",
+  "results": [
+    {
+      "suite": "ai-format",
+      "name": "real Illustrator output: PDF export, DOS-EPS, Illustrator 88 EPS and FreeHand AI-dialect PostScript",
+      "covers": {
+        "FF-04": "full"
+      },
+      "pass": true,
+      "ms": 32
+    },
+    {
+      "suite": "ai-format",
+      "name": "constructed .ai with and without PDF compatibility (the spec's open-vs-limited split)",
+      "covers": {
+        "FF-04": "full"
+      },
+      "pass": true,
+      "ms": 14
+    },
+    {
+      "suite": "ai-format",
+      "name": "creator hidden in a compressed object stream, UTF-16BE strings, junk before the header",
+      "covers": {
+        "FF-04": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "ai-format",
+      "name": "FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files",
+      "covers": {
+        "FF-04": "full",
+        "FF-12": "partial"
+      },
+      "pass": true,
+      "ms": 1068
+    },
+    {
+      "suite": "ai-format",
+      "name": "version strings, PDF literal escapes, format registry and MIME",
+      "covers": {
+        "FF-04": "full",
+        "FF-14": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

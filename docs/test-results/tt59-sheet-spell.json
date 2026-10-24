@@ -1,0 +1,51 @@
+{
+  "suite": "tt59-sheet-spell",
+  "at": "2026-10-24T20:23:23.876Z",
+  "results": [
+    {
+      "suite": "tt59-sheet-spell",
+      "name": "only text constants are checked (formulas, numbers, logicals, errors skipped); quote prefix offsets; row-major order; repeated words",
+      "covers": {
+        "FF-39": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt59-sheet-spell",
+      "name": "selection scope, Ignore All / Ignore Once, user dictionary",
+      "covers": {
+        "FF-39": "full"
+      },
+      "pass": true,
+      "ms": 105
+    },
+    {
+      "suite": "tt59-sheet-spell",
+      "name": "Change / Change All / Delete repeated word; a stale issue is refused; a fix never turns text into a number or formula",
+      "covers": {
+        "FF-39": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt59-sheet-spell",
+      "name": "openpyxl-written .xlsx: issues found, fixed, saved losslessly and read back by openpyxl (values + untouched formula)",
+      "covers": {
+        "FF-39": "full"
+      },
+      "pass": true,
+      "ms": 936
+    },
+    {
+      "suite": "tt59-sheet-spell",
+      "name": "robustness: 20,000 text cells checked < 4 s; hostile cell text never throws",
+      "covers": {
+        "FF-39": "full"
+      },
+      "pass": true,
+      "ms": 1394
+    }
+  ]
+}

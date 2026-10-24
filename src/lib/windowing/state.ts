@@ -1,3 +1,4 @@
+import { syncMru, syncWsMru, touch as touchMru } from "./mru";
 /**
  * Fusion window engine — pure, deterministic, serialisable.
  *
@@ -43,7 +44,18 @@ export interface DesktopState {
   icons: { id: string; path: string; x: number; y: number }[];
   focusMode: boolean;
   revision: number;
+  /** TT25 "Show desktop": ids minimised by the last showDesktop, restored by the next one (cleared by any focus/open). */
+  peek?: string[];
+  /** TT26 Tabletop floor: loose card positions + piles (validated against the VFS by tabletop-core normalizeTable). */
+  table?: import("../tabletop-core").TableState;
+  /** TT55 (WM-08): last normal (un-maximized) geometry per "module|host", recorded on close, reused on the next open */
+  geometry?: Record<string, Rect>;
+  /** TT56 (WM-05): window ids most-recently-focused first, and workspace ids most-recently-active first (see mru.ts) */
+  mru?: string[];
+  wsMru?: number[];
 }
+export const geometryKey = (module: string, host: string) => `${module}|${host}`;
+const MAX_GEOMETRY = 64;
 
 export const MIN_W: Record<Density, number> = { compact: 240, balanced: 280, touch: 320 };
 export const MIN_H: Record<Density, number> = { compact: 180, balanced: 200, touch: 240 };
@@ -72,8 +84,11 @@ export type TileSlot =
   | "center" | "full";
 
 export type WindowCommand =
-  | { t: "open"; id: string; module: string; title: string; props?: Record<string, unknown>; rect?: Partial<Rect>; host?: HostKind }
-  | { t: "close"; id: string }
+  | { t: "open"; id: string; module: string; title: string; props?: Record<string, unknown>; rect?: Partial<Rect>; host?: HostKind;
+      /** registry default geometry: used only when neither an explicit rect nor a remembered one (WM-08) exists */
+      defaults?: Partial<Rect> }
+  /** TT69: force = the Save-changes question was already answered (or must not be asked) */
+  | { t: "close"; id: string; force?: boolean }
   | { t: "focus"; id: string }
   | { t: "move"; id: string; x: number; y: number }
   | { t: "resize"; id: string; w: number; h: number; x?: number; y?: number }
@@ -83,6 +98,8 @@ export type WindowCommand =
   | { t: "restore"; id: string }
   | { t: "toggleMax"; id: string }
   | { t: "tile"; id: string; slot: TileSlot }
+  /** TT28 Snap layouts / Snap Assist: put a window into an arbitrary zone rect (clamped like every other rect). */
+  | { t: "place"; id: string; rect: Rect }
   | { t: "setTitle"; id: string; title: string }
   | { t: "setProps"; id: string; props: Record<string, unknown> }
   | { t: "setHost"; id: string; host: HostKind }
@@ -95,9 +112,13 @@ export type WindowCommand =
   | { t: "cycle"; dir: 1 | -1 }
   | { t: "focusMode"; on: boolean }
   | { t: "cascade" }
-  | { t: "closeAll" }
+  | { t: "closeAll"; force?: boolean }
+  | { t: "showDesktop" }
   | { t: "icons"; icons: DesktopState["icons"] }
-  | { t: "hydrate"; state: DesktopState };
+  | { t: "table"; table: NonNullable<DesktopState["table"]> }
+  | { t: "hydrate"; state: DesktopState }
+  /** TT48: a save was refused (409) because another tab/window saved a newer desktop — adopt it, keep this tab's windows */
+  | { t: "reconcile"; state: DesktopState };
 
 // Round FIRST, clamp SECOND. (v3.0 clamped then rounded, which the property test
 // caught pushing x up to 0.5 px past the bound when the viewport was fractional.)
@@ -139,6 +160,16 @@ export const tileRect = (slot: TileSlot, vp: { w: number; h: number }): Rect => 
 };
 
 /** Invariants are enforced centrally; no call site may bypass them. */
+/** WM-08: store the window's NORMAL rect (the restore rect when maximized), newest last, bounded */
+function remember(g: Record<string, Rect> | undefined, w: WindowState): Record<string, Rect> {
+  const r = w.maximized && w.restore ? w.restore : { x: w.x, y: w.y, w: w.w, h: w.h };
+  const k = geometryKey(w.module, w.host);
+  const { [k]: _old, ...rest } = g ?? {}; void _old;
+  const next = { ...rest, [k]: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.w), h: Math.round(r.h) } };
+  const keys = Object.keys(next);
+  return keys.length > MAX_GEOMETRY ? Object.fromEntries(keys.slice(-MAX_GEOMETRY).map((x) => [x, next[x]])) : next;
+}
+
 function invariants(state: DesktopState): DesktopState {
   const seenZ = new Set<number>();
   const windows = state.windows.map((win) => {
@@ -155,7 +186,25 @@ function invariants(state: DesktopState): DesktopState {
   return { ...state, windows, focus };
 }
 
+/** Commands after which a pending "Show desktop" restore no longer makes sense (the user picked a window). */
+const ENDS_PEEK = new Set<WindowCommand["t"]>(["open", "focus", "restore", "switchWorkspace", "closeAll", "minimize", "cycle"]);
+
+/** Commands that make their target the most recently used window even when it already had focus. */
+const TOUCHES_MRU = new Set<WindowCommand["t"]>(["open", "focus", "restore", "tile", "place"]);
 export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
+  let next = reduceInner(state, cmd);
+  if (next !== state && next.peek && ENDS_PEEK.has(cmd.t)) { const { peek: _drop, ...rest } = next; void _drop; next = rest; }
+  return next === state ? state : withMru(state, next, cmd);
+}
+/** WM-05: keep `mru` / `wsMru` exact after every state change (pure; never bumps the revision on its own). */
+function withMru(prev: DesktopState, next: DesktopState, cmd: WindowCommand): DesktopState {
+  let mru = syncMru(next.mru ?? (cmd.t === "hydrate" ? undefined : prev.mru), next.windows);
+  if (next.focus && (next.focus !== prev.focus || TOUCHES_MRU.has(cmd.t))) mru = touchMru(mru, next.focus);
+  const wsMru = syncWsMru(next.wsMru ?? (cmd.t === "hydrate" ? undefined : prev.wsMru), next.workspaces, next.activeWorkspace);
+  return { ...next, mru, wsMru };
+}
+
+function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
   const bump = (s: DesktopState): DesktopState => invariants({ ...s, revision: s.revision + 1 });
   const map = (fn: (w: WindowState) => WindowState, id: string) =>
     state.windows.map((w) => (w.id === id ? fn(w) : w));
@@ -164,6 +213,14 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
     case "hydrate":
       return invariants({ ...cmd.state, revision: Math.max(cmd.state.revision, state.revision) });
 
+    case "reconcile": {
+      // the newer desktop wins for shared data (workspaces, icons, tabletop, …) but each tab keeps its OWN windows:
+      // nothing open here disappears, and the other tab's windows do not pop up here (a window is per-tab UI)
+      return invariants({ ...cmd.state, windows: state.windows, focus: state.focus, nextZ: Math.max(state.nextZ, cmd.state.nextZ),
+        activeWorkspace: cmd.state.workspaces.some((w) => w.id === state.activeWorkspace) ? state.activeWorkspace : cmd.state.activeWorkspace,
+        viewport: state.viewport, revision: Math.max(cmd.state.revision, state.revision) });
+    }
+
     case "open": {
       const existing = state.windows.find((w) => w.id === cmd.id);
       if (existing) {
@@ -171,26 +228,42 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
           windows: map((w) => ({ ...w, minimized: false, z: state.nextZ + 1 }), cmd.id) });
       }
       const count = state.windows.length;
+      // WM-08: an explicit rect (deep link, session restore) wins; otherwise the geometry this module last closed with
+      const remembered = cmd.rect ? undefined : state.geometry?.[geometryKey(cmd.module, cmd.host ?? "tab")];
+      let rx = remembered?.x, ry = remembered?.y;
+      // two windows of the same app must not stack exactly on top of each other
+      while (remembered && state.windows.some((w) => w.x === rx && w.y === ry)) { rx = (rx ?? 0) + 28; ry = (ry ?? 0) + 28; }
       const base: Rect = {
-        x: 80 + (count % 6) * 36,
-        y: 70 + (count % 6) * 28,
-        w: cmd.rect?.w ?? 760,
-        h: cmd.rect?.h ?? 520,
+        x: rx ?? cmd.defaults?.x ?? 80 + (count % 6) * 36,
+        y: ry ?? cmd.defaults?.y ?? 70 + (count % 6) * 28,
+        w: cmd.rect?.w ?? remembered?.w ?? cmd.defaults?.w ?? 760,
+        h: cmd.rect?.h ?? remembered?.h ?? cmd.defaults?.h ?? 520,
       };
+      // TT21: larger default text makes default windows larger — keep a new window inside the desktop
+      // (shift it up/left first, shrink only if it is bigger than the desktop itself).
+      const vp = state.viewport;
+      const fitW = Math.min(base.w, Math.max(320, vp.w - 8)), fitH = Math.min(base.h, Math.max(240, vp.h - 8));
+      const wantX = cmd.rect?.x ?? base.x, wantY = cmd.rect?.y ?? base.y;
+      const fitX = Math.max(0, Math.min(wantX, vp.w - fitW - 4)), fitY = Math.max(0, Math.min(wantY, vp.h - fitH - 4));
       const win: WindowState = {
         id: cmd.id, module: cmd.module, title: cmd.title,
-        x: cmd.rect?.x ?? base.x, y: cmd.rect?.y ?? base.y, w: base.w, h: base.h,
+        x: fitX, y: fitY, w: fitW, h: fitH,
         z: state.nextZ + 1, minimized: false, maximized: false,
         workspace: state.activeWorkspace, host: cmd.host ?? "tab", props: cmd.props ?? {},
       };
       return bump({ ...state, windows: [...state.windows, win], focus: win.id, nextZ: state.nextZ + 1 });
     }
 
-    case "close":
-      return bump({ ...state, windows: state.windows.filter((w) => w.id !== cmd.id), focus: state.focus === cmd.id ? null : state.focus });
+    case "close": {
+      const gone = state.windows.find((w) => w.id === cmd.id);
+      const geometry = gone ? remember(state.geometry, gone) : state.geometry;
+      return bump({ ...state, windows: state.windows.filter((w) => w.id !== cmd.id), focus: state.focus === cmd.id ? null : state.focus, ...(geometry ? { geometry } : {}) });
+    }
 
-    case "closeAll":
-      return bump({ ...state, windows: [], focus: null });
+    case "closeAll": {
+      const geometry = state.windows.reduce<Record<string, Rect> | undefined>((g, w) => remember(g, w), state.geometry);
+      return bump({ ...state, windows: [], focus: null, ...(geometry ? { geometry } : {}) });
+    }
 
     case "focus":
       return bump({ ...state, focus: cmd.id, nextZ: state.nextZ + 1,
@@ -233,6 +306,13 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
           restore: w.restore ?? { x: w.x, y: w.y, w: w.w, h: w.h } }), cmd.id) });
     }
 
+    case "place": {
+      if (![cmd.rect?.x, cmd.rect?.y, cmd.rect?.w, cmd.rect?.h].every((v) => typeof v === "number" && Number.isFinite(v))) return state;
+      return bump({ ...state, focus: cmd.id, nextZ: state.nextZ + 1,
+        windows: map((w) => ({ ...w, ...clampRect(cmd.rect, state.viewport, w.density ?? "balanced"), maximized: false, minimized: false, z: state.nextZ + 1,
+          restore: w.restore ?? { x: w.x, y: w.y, w: w.w, h: w.h } }), cmd.id) });
+    }
+
     case "setTitle":
       return bump({ ...state, windows: map((w) => ({ ...w, title: cmd.title }), cmd.id) });
 
@@ -257,21 +337,43 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
     case "addWorkspace":
       return bump({ ...state, workspaces: [...state.workspaces, { id: cmd.id, name: cmd.name }] });
 
-    case "viewport":
-      return bump({ ...state, viewport: { w: Math.max(320, Math.floor(cmd.w)), h: Math.max(240, Math.floor(cmd.h)) } });
+    case "viewport": {
+      const w = Math.max(320, Math.floor(cmd.w)), h = Math.max(240, Math.floor(cmd.h));
+      // TT21: a ResizeObserver tick with an unchanged size is a no-op. Bumping anyway re-armed the 600 ms
+      // persistence debounce on every top-bar reflow at 2x text, which delayed geometry saves past 1.8 s.
+      if (state.viewport.w === w && state.viewport.h === h) return state;
+      return bump({ ...state, viewport: { w, h } });
+    }
 
     case "cycle": {
-      const visible = state.windows
-        .filter((w) => w.workspace === state.activeWorkspace && !w.minimized)
-        .sort((a, b) => b.z - a.z);
+      // TT56 (WM-05): one-shot switch in MOST-RECENTLY-USED order (the held-chord overlay lives in Shell / Switcher.tsx):
+      // forward = the previously used window, so repeating toggles between the two most recent, like Alt+Tab
+      const order = syncMru(state.mru, state.windows);
+      const visible = order.map((id) => state.windows.find((w) => w.id === id)!).filter((w) => w.workspace === state.activeWorkspace && !w.minimized);
       if (visible.length === 0) return state;
       const idx = Math.max(0, visible.findIndex((w) => w.id === state.focus));
       const next = visible[(idx + (cmd.dir === 1 ? 1 : visible.length - 1)) % visible.length];
-      return reduce(state, { t: "focus", id: next.id });
+      return reduceInner(state, { t: "focus", id: next.id });
     }
 
     case "focusMode":
       return bump({ ...state, focusMode: cmd.on });
+
+    case "showDesktop": {
+      // Windows "Show desktop": minimise every visible window on this workspace; pressing it again puts exactly
+      // those windows back (still in their z-order), unless the user has opened/focused something in between.
+      const back = (state.peek ?? []).filter((id) => state.windows.some((w) => w.id === id && w.minimized));
+      if (back.length) {
+        const set = new Set(back);
+        const top = state.windows.filter((w) => set.has(w.id)).sort((a, b) => b.z - a.z)[0];
+        const { peek: _p, ...rest } = state; void _p;
+        return bump({ ...rest, windows: state.windows.map((w) => (set.has(w.id) ? { ...w, minimized: false } : w)), focus: top?.id ?? null });
+      }
+      const ids = state.windows.filter((w) => !w.minimized && w.workspace === state.activeWorkspace).map((w) => w.id);
+      if (!ids.length) return state;
+      const set = new Set(ids);
+      return bump({ ...state, windows: state.windows.map((w) => (set.has(w.id) ? { ...w, minimized: true } : w)), focus: null, peek: ids });
+    }
 
     case "cascade":
       return bump({ ...state, windows: state.windows.map((w, i) => ({
@@ -280,6 +382,8 @@ export function reduce(state: DesktopState, cmd: WindowCommand): DesktopState {
 
     case "icons":
       return bump({ ...state, icons: cmd.icons });
+    case "table":
+      return bump({ ...state, table: cmd.table });
 
     default:
       return state;

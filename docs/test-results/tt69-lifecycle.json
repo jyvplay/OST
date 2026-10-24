@@ -1,0 +1,105 @@
+{
+  "suite": "tt69-lifecycle",
+  "at": "2026-10-24T20:38:13.495Z",
+  "results": [
+    {
+      "suite": "tt69-lifecycle",
+      "name": "planClose: clean windows close now, every dirty one is asked exactly once in window order; force skips; unknown ids ignored; closeAll covers all",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "guard registry: dirty() is consulted live; a throwing dirty() counts as dirty (fail safe); unregister only removes its own guard; live untitled keys are reported",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "draftPathFor: injective keys (/a_b ≠ /a/b, a:b ≠ a?b), private drafts stay under /Private, untitled ids validated, unknown kinds refused",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "draft codec: round-trips; refuses wrong version / kind, NaN or negative time, malformed sha, non-base64 payload, unknown encoding, arrays, junk and oversize text",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 57
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "draftOffer: only a draft OF this document is offered; stale when the file's sha changed since; unknown shas are not called stale",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "DraftWriter: 5 changes inside the idle window → ONE write with the newest content; continuous typing still drafts by the max-wait; nothing written before idle",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "DraftWriter: one write in flight; newer content during a slow write lands last (never an older draft over a newer one)",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "DraftWriter.clear: a write in flight when Save clears is awaited and then deleted — a late draft can never resurrect after Save; clear during serialisation writes nothing",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "DraftWriter: oversize drafts are skipped with a reason; a failing store sets lastError and the next change drafts again; flush() writes immediately",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "server: draft writes in /System/Recovery keep NO version snapshots (3 writes → 0 versions); the same reason elsewhere and plain writes still snapshot; %-encoded names round-trip",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 240
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "name": "privacy: a /Private document's draft written through the real PrivacyLayer leaves no plaintext name, content or version on the host (Postgres read directly); the legacy Editor draft path put the same text on the host in the clear",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 79
+    }
+  ]
+}

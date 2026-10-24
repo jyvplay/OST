@@ -1,0 +1,24 @@
+{
+  "suite": "tt60-sheet-spell-all",
+  "at": "2026-10-24T20:24:05.707Z",
+  "results": [
+    {
+      "suite": "tt60-sheet-spell-all",
+      "name": "all sheets: tab order from the starting sheet, wrapping; a selection range is ignored; single sheet unchanged",
+      "covers": {
+        "FF-41": "full"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt60-sheet-spell-all",
+      "name": "openpyxl 3-sheet .xlsx: Change All across sheets, a fix on a non-active sheet, saved losslessly, openpyxl reads every sheet back",
+      "covers": {
+        "FF-41": "full"
+      },
+      "pass": true,
+      "ms": 426
+    }
+  ]
+}

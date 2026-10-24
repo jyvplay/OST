@@ -172,6 +172,14 @@ await test("FF-08/FF-10/FF-02 Forge engines via the API, with grades", { "FF-08"
   await call("POST", "/api/fs", { op: "upload", path: `${DIR}/art.psd`, content: h.toString("base64") });
   const p = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/art.psd` });
   ok(p.json.grade === "E" && p.json.header.width === 20 && p.json.header.layers === 2, JSON.stringify(p.json.header));
+  // TT16: a complete layered PSD decodes fully on the server (grade B, layer list with blend + mask)
+  const { writePsd } = await import("../src/lib/image/psd.ts");
+  const { newDoc, makeLayer, addLayer } = await import("../src/lib/image/doc.ts");
+  const top = { ...makeLayer("Überzug", 8, 6, [0, 0, 255, 200]), x: 2, y: 1, blend: "screen" as const, mask: new Uint8ClampedArray(48).fill(255) };
+  const real = Buffer.from(await writePsd(addLayer(newDoc(16, 12), top)));
+  await call("POST", "/api/fs", { op: "upload", path: `${DIR}/layers.psd`, content: real.toString("base64") });
+  const q = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/layers.psd` });
+  ok(q.json.grade === "B" && q.json.layers.length === 2 && q.json.layers[1].name === "Überzug" && q.json.layers[1].blend === "screen" && q.json.layers[1].mask === true, JSON.stringify(q.json).slice(0, 300));
   const slip = zip([{ name: "../evil.txt", data: Buffer.from("x") }]);
   const s = await call("POST", "/api/forge", { op: "listZip", base64: slip.toString("base64") });
   ok(s.status === 400 && /zip-slip/.test(s.json.error), "zip-slip archive accepted by the server engine");
@@ -269,6 +277,32 @@ await test("deleting a note removes only its own index row", { "PR-02": "partial
 });
 
 // cleanup
+await test("every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)", { "AU-03": "partial" }, async () => {
+  // Every handler that reads a JSON body, discovered from the source so a new route is covered automatically.
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const handlers: [string, string][] = [];
+  const walk = (dir: string) => { for (const e of readdirSync(dir, { withFileTypes: true })) { const p = `${dir}/${e.name}`; if (e.isDirectory()) walk(p); else if (e.name === "route.ts") {
+    const src = readFileSync(p, "utf8");
+    ok(!/\b(req|request)\.json\(\)/.test(src), `${p} still calls req.json() directly`);
+    for (const m of src.matchAll(/export async function (GET|POST|PUT|PATCH|DELETE)\b/g)) {
+      const rest = src.slice(m.index! + m[0].length); const end = rest.indexOf("export async function");
+      if ((end < 0 ? rest : rest.slice(0, end)).includes("readJsonObject(req)")) handlers.push([m[1], p.replace(/^src\/app/, "").replace(/\/route\.ts$/, "")]);
+    } } } };
+  walk("src/app/api");
+  ok(handlers.length >= 22, `found only ${handlers.length} JSON handlers`);
+  const count = async (path: string) => ((await call("GET", path)).json.rows as unknown[]).length;
+  const before = { notes: await count("/api/notes"), alerts: await count("/api/alerts") };
+  const send = (method: string, path: string, body: string, type?: string) =>
+    fetch(BASE + path, { method, headers: type ? { "content-type": type } : {}, body }).then((r) => r.status);
+  const bodies = ["", "   ", "null", "[]", "42", '"text"', "{oops", '{"a":1}}', "\u0000"];
+  for (const [m, p] of handlers) {
+    for (const body of bodies) { const st = await send(m, p, body, "application/json"); ok(st === 400, `${m} ${p} ${JSON.stringify(body)} → ${st}`); }
+    const st = await send(m, p, ""); ok(st === 400, `${m} ${p} empty body without content-type → ${st}`);
+  }
+  ok((await count("/api/notes")) === before.notes && (await count("/api/alerts")) === before.alerts, "a rejected body still wrote a record");
+  ok((await send("PUT", "/api/settings", JSON.stringify({ key: "appearance.style", value: "poolside" }), "application/json")) === 200, "valid JSON still reaches the route");
+});
+
 await call("POST", "/api/fs", { op: "purge", path: DIR });
 await call("POST", "/api/fs", { op: "purge", path: "/Sync" }).catch(() => undefined);
 

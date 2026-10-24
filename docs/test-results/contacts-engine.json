@@ -1,0 +1,80 @@
+{
+  "suite": "contacts-engine",
+  "at": "2026-10-24T19:08:46.800Z",
+  "results": [
+    {
+      "suite": "contacts-engine",
+      "name": "RFC 6350 §8 author's vCard: unfolding, structured N/ADR, quoted TYPE lists, tel: URIs, unknown properties kept",
+      "covers": {
+        "CN-01": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "contacts-engine",
+      "name": "RFC 2426 §7 (vCard 3.0): TYPE=PREF, INTERNET dropped, VOICE dropped beside other types, mixed-case BEGIN",
+      "covers": {
+        "CN-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "contacts-engine",
+      "name": "vCard 2.1: QUOTED-PRINTABLE with soft breaks, CHARSET=ISO-8859-1, bare TYPE params, base64 PHOTO, missing FN",
+      "covers": {
+        "CN-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "contacts-engine",
+      "name": "round trip: parse → write 4.0 → parse is identical; lines ≤ 75 octets; UTF-8 never split; PID/ALTID kept",
+      "covers": {
+        "CN-01": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "contacts-engine",
+      "name": "RFC 6350 §4.3.1 dates: write basic format (YYYY-MM-DD is disallowed in 4.0), accept every listed form, Feb 29",
+      "covers": {
+        "CN-01": "full",
+        "CN-03": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "contacts-engine",
+      "name": "duplicates (e-mail case, phone formatting, folded name) and merge keep everything from both",
+      "covers": {
+        "CN-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "contacts-engine",
+      "name": "search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation",
+      "covers": {
+        "CN-02": "partial",
+        "CN-04": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "contacts-engine",
+      "name": "hostile input: nested AGENT vCard, missing END, junk lines, 25 MB input, 20 001 contacts, RFC 6868 param escapes",
+      "covers": {
+        "CN-01": "full"
+      },
+      "pass": true,
+      "ms": 129
+    }
+  ]
+}

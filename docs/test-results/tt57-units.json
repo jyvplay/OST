@@ -1,0 +1,24 @@
+{
+  "suite": "tt57-units",
+  "at": "2026-10-24T20:20:03.136Z",
+  "results": [
+    {
+      "suite": "tt57-units",
+      "name": "PR-12 hand cases: dedupe moves to top keeping the pin; sensitive never deduped/pinned; cap spares pinned; clear keeps pinned; search text+source",
+      "covers": {
+        "PR-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt57-units",
+      "name": "PR-12 600 random operations = independent reference model (set semantics written separately)",
+      "covers": {
+        "PR-12": "full"
+      },
+      "pass": true,
+      "ms": 4
+    }
+  ]
+}

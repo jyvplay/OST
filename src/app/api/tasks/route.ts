@@ -3,6 +3,7 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { tasks } from "@/db/schema";
 import { parseIcs, toIcs } from "@/lib/ics";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const b = (await req.json()) as { title?: string; notes?: string; dueAt?: string | null; ics?: string };
+  const b = (await readJsonObject(req)) as ({ title?: string; notes?: string; dueAt?: string | null; ics?: string }) | Response;
+  if (b instanceof Response) return b;
   if (b.ics) {
     // PR-04: import is additive and idempotent by UID — re-importing never duplicates
     const events = parseIcs(b.ics);
@@ -44,7 +46,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const b = (await req.json()) as { id?: number; done?: boolean; reminded?: boolean; title?: string; dueAt?: string | null };
+  const b = (await readJsonObject(req)) as ({ id?: number; done?: boolean; reminded?: boolean; title?: string; dueAt?: string | null }) | Response;
+  if (b instanceof Response) return b;
   if (!b.id) return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
   await db.update(tasks).set({
     ...(b.done !== undefined ? { done: b.done } : {}),

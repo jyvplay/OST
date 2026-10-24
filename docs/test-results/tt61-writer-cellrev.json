@@ -1,0 +1,42 @@
+{
+  "suite": "tt61-writer-cellrev",
+  "at": "2026-10-24T20:25:03.727Z",
+  "results": [
+    {
+      "suite": "tt61-writer-cellrev",
+      "name": "listing: the 4 cell markers written by the independent writer appear in the Changes list at their cell, kind / author / id from the file, in document order",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 215
+    },
+    {
+      "suite": "tt61-writer-cellrev",
+      "name": "accept all / reject all equal the oracle's §17.13.5.4/.5 views of the original file; rows keep filling the grid (gridAfter); the emptied 1×1 table disappears on accept",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 331
+    },
+    {
+      "suite": "tt61-writer-cellrev",
+      "name": "one at a time: each marker resolved alone (both directions) then the rest by the oracle = the oracle's all-at-once view; 12 random mixed decision / order trials equal hand-applied expectations",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 3101
+    },
+    {
+      "suite": "tt61-writer-cellrev",
+      "name": "grid bookkeeping: removing a spanning cell adds its full span to an existing gridAfter; removing every cell of a row removes the row; cellMerge is listed read-only and refused",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 391
+    }
+  ]
+}

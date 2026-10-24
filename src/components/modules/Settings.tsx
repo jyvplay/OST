@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, clientId, fmtTime, post } from "@/lib/api";
@@ -7,6 +8,10 @@ import { diffCapabilities, type CapDiff } from "@/lib/policy";
 import { BINDINGS, BROWSER_RESERVED, comboFor, conflicts, type Preset } from "@/lib/shortcuts";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, KV, Section, Tabs } from "../ui";
+import DisplaySettings from "../DisplaySettings";
+import MouseButtonsSettings from "../MouseButtonsSettings";
+import { layoutSource, useChordLabel } from "@/lib/keyboard-layout";
+import { auditPermissions, type PermRow } from "@/lib/permissions";
 
 interface SettingRow { key: string; value: string; category: string; label: string; aliases: string; lockReason: string }
 interface HistRow { id: number; key: string; oldValue: string; newValue: string; createdAt: string }
@@ -16,12 +21,13 @@ type Tab = "settings" | "capabilities" | "shortcuts" | "licence" | "about";
 export default function SettingsModule({ win }: ModuleProps) {
   const shell = useShell();
   const [tab, setTab] = useState<Tab>("settings");
+  const chordLabel = useChordLabel(); // TT67 IN-03
   const [rows, setRows] = useState<SettingRow[]>([]);
   const [history, setHistory] = useState<HistRow[]>([]);
   const [q, setQ] = useState((win.props.focus as string) ?? "");
   const [ent, setEnt] = useState<{ tier: string; publicKey: string; entitlements: { kind: string; status: string; expiresAt: string | null }[] } | null>(null);
   const [licenseKey, setLicenseKey] = useState("");
-  const [perms, setPerms] = useState<{ name: string; state: string }[]>([]);
+  const [perms, setPerms] = useState<PermRow[]>([]);
   const [capDiff, setCapDiff] = useState<(CapDiff & { from: string }) | null>(null);
 
   const load = () => api<{ rows: SettingRow[]; history: HistRow[] }>("/api/settings?history=1")
@@ -35,13 +41,7 @@ export default function SettingsModule({ win }: ModuleProps) {
 
   useEffect(() => {
     if (tab !== "capabilities" || !navigator.permissions) return;
-    const names = ["camera", "microphone", "geolocation", "notifications", "clipboard-read", "persistent-storage", "window-management", "screen-wake-lock"];
-    Promise.all(names.map(async (name) => {
-      try {
-        const s = await navigator.permissions.query({ name: name as PermissionName });
-        return { name, state: s.state };
-      } catch { return { name, state: "not queryable" }; }
-    })).then(setPerms);
+    void auditPermissions().then(setPerms);
   }, [tab]);
 
   const preset = (shell.settings["shell.shortcutPreset"] ?? "hybrid") as Preset;
@@ -64,6 +64,8 @@ export default function SettingsModule({ win }: ModuleProps) {
 
       {tab === "settings" ? (
         <>
+          {!q || /display|text|font|size|zoom|theme|wallpaper|read|access|dark|light/i.test(q)
+            ? <DisplaySettings locked={Object.fromEntries(rows.filter((r) => r.lockReason).map((r) => [r.key, r.lockReason]))} /> : null}
           <input className="fs-input" placeholder="Search settings — try 'dark mode', 'taskbar', 'analytics'"
             value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search settings" />
           {Object.entries(byCategory).map(([cat, list]) => (
@@ -71,11 +73,11 @@ export default function SettingsModule({ win }: ModuleProps) {
               {list.map((r) => (
                 <div key={r.key} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12 }}>{r.label || r.key}</div>
-                    <div className="fs-dim fs-mono" style={{ fontSize: 10.5 }}>{r.key}{r.aliases ? ` · aka ${r.aliases}` : ""}</div>
+                    <div style={{ fontSize: fz(12) }}>{r.label || r.key}</div>
+                    <div className="fs-dim fs-mono" style={{ fontSize: fz(10.5) }}>{r.key}{r.aliases ? ` · aka ${r.aliases}` : ""}</div>
                   </span>
                   {r.lockReason ? <Badge tone="warn" title={r.lockReason}>locked</Badge> : null}
-                  <input className="fs-input" style={{ width: 150 }} value={shell.settings[r.key] ?? r.value}
+                  <input className="fs-input" style={{ width: fz(150) }} value={shell.settings[r.key] ?? r.value}
                     disabled={Boolean(r.lockReason)} aria-label={r.label || r.key}
                     onChange={(e) => void shell.setSetting(r.key, e.target.value)} />
                 </div>
@@ -83,7 +85,7 @@ export default function SettingsModule({ win }: ModuleProps) {
             </Section>
           ))}
           <Section title="History (every change is undoable)">
-            <div className="fs-scroll fs-mono" style={{ maxHeight: 120, fontSize: 10.5 }}>
+            <div className="fs-scroll fs-mono" style={{ maxHeight: 120, fontSize: fz(10.5) }}>
               {history.map((h) => (
                 <div key={h.id} className="fs-row" style={{ justifyContent: "space-between" }}>
                   <span>{fmtTime(h.createdAt)} {h.key}: {h.oldValue || "∅"} → {h.newValue}</span>
@@ -118,8 +120,8 @@ export default function SettingsModule({ win }: ModuleProps) {
                 {list.map((c) => (
                   <div key={c.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
                     <span style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12 }}>{c.label}</div>
-                      <div className="fs-dim fs-mono" style={{ fontSize: 10.5 }}>{c.available ? c.detail : c.degrade}</div>
+                      <div style={{ fontSize: fz(12) }}>{c.label}</div>
+                      <div className="fs-dim fs-mono" style={{ fontSize: fz(10.5) }}>{c.available ? c.detail : c.degrade}</div>
                     </span>
                     <Badge tone={c.available ? "ok" : "bad"}>{c.available ? "yes" : "no"}</Badge>
                   </div>
@@ -137,21 +139,26 @@ export default function SettingsModule({ win }: ModuleProps) {
           }>
             {capDiff ? (
               <>
-                <div className="fs-dim" style={{ fontSize: 11 }}>vs {capDiff.from} · {capDiff.unchanged} unchanged</div>
-                {capDiff.lost.map((c) => <div key={c.id} style={{ fontSize: 11.5 }}><Badge tone="bad">lost</Badge> {c.label} — {c.degrade}</div>)}
-                {capDiff.gained.map((c) => <div key={c.id} style={{ fontSize: 11.5 }}><Badge tone="ok">gained</Badge> {c.label}</div>)}
+                <div className="fs-dim" style={{ fontSize: fz(11) }}>vs {capDiff.from} · {capDiff.unchanged} unchanged</div>
+                {capDiff.lost.map((c) => <div key={c.id} style={{ fontSize: fz(11.5) }}><Badge tone="bad">lost</Badge> {c.label} — {c.degrade}</div>)}
+                {capDiff.gained.map((c) => <div key={c.id} style={{ fontSize: fz(11.5) }}><Badge tone="ok">gained</Badge> {c.label}</div>)}
                 {capDiff.lost.length + capDiff.gained.length === 0 ? <Badge tone="ok">identical capability set</Badge> : null}
               </>
-            ) : <div className="fs-dim" style={{ fontSize: 11.5 }}>Save a report on the old environment, open Fusion on the new one, then compare. Capability varies by browser, so this diff is the real migration checklist.</div>}
+            ) : <div className="fs-dim" style={{ fontSize: fz(11.5) }}>Save a report on the old environment, open Fusion on the new one, then compare. Capability varies by browser, so this diff is the real migration checklist.</div>}
           </Section>
           <Section title="Permission audit (SC-03)">
             <div style={{ display: "grid", gap: 2 }}>
-              {perms.map((p) => (
-                <KV key={p.name} k={p.name} v={<Badge tone={p.state === "granted" ? "ok" : p.state === "denied" ? "bad" : "default"}>{p.state}</Badge>} />
-              ))}
-              {perms.length === 0 ? <span className="fs-dim" style={{ fontSize: 11.5 }}>Permissions API unavailable.</span> : null}
+              <div className="fs-dim" style={{ fontSize: fz(11) }}>{perms.length} permission names checked · {perms.filter((p) => p.used).length} can be requested by a Fusion feature · {perms.filter((p) => !p.used).length} are never requested</div>
+              <div data-testid="perm-audit" style={{ display: "grid", gap: 2 }}>
+                {perms.map((p) => (
+                  <div key={p.name} data-perm={p.name} data-state={p.state} data-used={p.used ? "1" : "0"}>
+                    <KV k={p.name} v={<span className="fs-row" style={{ gap: 4 }}><Badge tone={p.state === "granted" ? "ok" : p.state === "denied" ? "bad" : "default"}>{p.state}</Badge>{p.used ? null : <Badge>never requested</Badge>}</span>} />
+                  </div>
+                ))}
+              </div>
+              {perms.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Permissions API unavailable.</span> : null}
             </div>
-            <div className="fs-dim" style={{ fontSize: 11 }}>
+            <div className="fs-dim" style={{ fontSize: fz(11) }}>
               Everything listed as <span className="fs-mono">prompt</span> has never been requested: Fusion asks only at
               the moment of first use (DP-11).
             </div>
@@ -178,21 +185,26 @@ export default function SettingsModule({ win }: ModuleProps) {
                 const reserved = BROWSER_RESERVED.includes(chord) || Boolean(b.reservedBy);
                 return (
                   <div key={b.id} className="fs-row" style={{ justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 12 }}>{b.label}</span>
+                    <span style={{ fontSize: fz(12) }}>{b.label}</span>
                     <span className="fs-row" style={{ gap: 6 }}>
                       {reserved ? <Badge tone="warn" title={b.reservedBy ?? "The browser intercepts this chord unless Keyboard Lock is active in fullscreen."}>browser-reserved</Badge> : null}
-                      <span className="fs-kbd">{chord}</span>
+                      <span className="fs-kbd" title={`physical key: ${chord} (US-layout name)`} data-chord={chord}>{chordLabel(chord)}</span>
                     </span>
                   </div>
                 );
               })}
             </div>
-            <div className="fs-dim" style={{ fontSize: 11, lineHeight: 1.6 }}>
+            <div className="fs-dim" data-testid="layout-source" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
+              Letter and punctuation shortcuts are physical keys, labelled with what they type on your keyboard layout
+              ({{ api: "from the browser's keyboard map", observed: "learned from your typing", "api+observed": "browser keyboard map + your typing", none: "layout unknown yet — US names shown" }[layoutSource()]}).
+            </div>
+            <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
               A conflict detector that only checks our own table would be useless here: on the web the real competitor
               is the browser itself. Reserved chords are marked, and Keyboard Lock (fullscreen only) is the one way to
               claim them.
             </div>
           </Section>
+          <MouseButtonsSettings />
         </>
       ) : null}
 
@@ -230,14 +242,14 @@ export default function SettingsModule({ win }: ModuleProps) {
             }}>Verify only</Btn>
             <Btn variant="ghost" onClick={() => void shell.copy((licenseKey || "").slice(0, 24) + "…", "licence")}>Copy</Btn>
           </div>
-          <div className="fs-dim" style={{ fontSize: 11, lineHeight: 1.6 }}>
+          <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
             Keys are Ed25519-signed JSON claims. The public key is published at <span className="fs-mono">/api/entitlement</span>,
             so verification works offline from a cached claim: features never disappear because the network did.
             Revocation marks status only — there is no remote wipe, ever.
           </div>
           <details>
-            <summary style={{ fontSize: 11.5, cursor: "pointer" }}>Authority public key</summary>
-            <pre className="fs-mono" style={{ fontSize: 10, whiteSpace: "pre-wrap" }}>{ent?.publicKey}</pre>
+            <summary style={{ fontSize: fz(11.5), cursor: "pointer" }}>Authority public key</summary>
+            <pre className="fs-mono" style={{ fontSize: fz(10), whiteSpace: "pre-wrap" }}>{ent?.publicKey}</pre>
           </details>
         </Section>
       ) : null}

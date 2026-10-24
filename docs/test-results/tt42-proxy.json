@@ -1,0 +1,24 @@
+{
+  "suite": "tt42-proxy",
+  "at": "2026-10-24T19:38:40.788Z",
+  "results": [
+    {
+      "suite": "tt42-proxy",
+      "name": "WebSocket failover live (WP-14, TT41 blocker): a fresh process reads a PAC file whose first entry is a DEAD proxy — ws:// is carried by the second entry (pproxy HTTP CONNECT) and wss:// by the second entry (pproxy SOCKS5, real TLS to the echo site verified against the test CA); the bridge proxied pages use gets OPEN with the negotiated subprotocol, 3 text messages (UTF-8) and 1 binary message echo byte-exact from an independent server (Python websockets), a clean 1000 close, one failover recorded per run, and the dead proxy received only the proxy handshake, never a WebSocket byte",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 843
+    },
+    {
+      "suite": "tt42-proxy",
+      "name": "SOCKS4a live (WP-14, TT41 blocker): https://pypi.org/ through an INDEPENDENT SOCKS4a server (asyncssh's forward_socks over a real SSH connection to an in-process asyncssh server): the bytes on the wire are a SOCKS4a CONNECT — VN 4, CD 1, port 443, DSTIP 0.0.0.x (x ≠ 0), userid, then the NAME \"pypi.org\" — and the SSH server was asked to dial \"pypi.org\" by name; control: SOCKS4 to the same server puts a public IPv4 address on the wire (resolved locally through the public-address guard) and the SSH server dials that address, never the name",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 963
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt61",
+  "at": "2026-10-24T20:25:50.335Z",
+  "results": [
+    {
+      "suite": "e2e-tt61",
+      "name": "FF-43 Writer: editing a formatted footnote in the Notes panel keeps its bold / italic / underline (lxml reads the saved runs); the edit is exact and the reference mark still leads",
+      "covers": {
+        "FF-43": "full"
+      },
+      "pass": true,
+      "ms": 4028
+    },
+    {
+      "suite": "e2e-tt61",
+      "name": "FF-42 completion: a header misspelling is underlined on the page itself — a spelling highlight range lies inside the page header box on every page (2 pages), and disappears after Change",
+      "covers": {
+        "FF-42": "full"
+      },
+      "pass": true,
+      "ms": 3816
+    },
+    {
+      "suite": "e2e-tt61",
+      "name": "FF-44 Writer cell revisions in the UI: lxml-written cellIns / cellDel listed as [Table cell]; Accept the deletion removes the cell on the page; Reject All removes the inserted cell; saved file passes the oracle (tables, grid_ok, no markers)",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 3383
+    },
+    {
+      "suite": "e2e-tt61",
+      "name": "no page errors during the suite",
+      "covers": {
+        "FF-43": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -4,27 +4,35 @@
    Density is a token set, not a media query: Compact/Balanced/Touch change
    sizes everywhere at once and never remove capability (DP-13). */
 :root {
-  --fs-accent: #5b8cff;
-  --fs-bg: #070b16;
-  --fs-bg-2: #0d1426;
-  --fs-panel: rgba(16, 23, 42, 0.86);
-  --fs-panel-solid: #111a2e;
+  /* TT22: the accent follows the active style (style-core.ts) unless the user picked one (inline --fs-accent) */
+  --fs-accent: var(--fs-style-accent, #4fd8d2);
+  --fs-bg: #0a1330;
+  --fs-bg-2: #11204a;
+  --fs-panel: rgba(17, 28, 58, 0.9);
+  --fs-panel-solid: #13214a;
   --fs-border: rgba(130, 160, 255, 0.16);
   --fs-text: #e8edfa;
-  --fs-muted: #93a1c4;
+  --fs-muted: #a9b6d6;
   --fs-ok: #39d98a;
   --fs-warn: #ffc453;
   --fs-bad: #ff6b6b;
-  --fs-titlebar: 34px;
-  --fs-target: 32px;
-  --fs-radius: 12px;
-  --fs-font: 13px;
+  /* Text size: --fs-ts is the user's text scale (TT22 default 1.25 = 125%; Large text mode = 2); --fs-u is one design pixel.
+     rem-based so the browser's own default-font-size preference still applies (WCAG 1.4.4, relative units). */
+  --fs-ts: 1.25;
+  --fs-u: calc(var(--fs-ts) * 1rem / 16);
+  --fs-titlebar: calc(18px + 16 * var(--fs-u));
+  --fs-target: calc(16px + 16 * var(--fs-u));
+  --fs-radius: calc(6px + 6 * var(--fs-u));
+  --fs-font: calc(13 * var(--fs-u));
   --fs-motion: 160ms;
 }
-:root[data-density="compact"] { --fs-titlebar: 28px; --fs-target: 24px; --fs-radius: 9px; --fs-font: 12px; }
-:root[data-density="touch"]   { --fs-titlebar: 44px; --fs-target: 48px; --fs-radius: 16px; --fs-font: 15px; }
+:root[data-density="compact"] { --fs-titlebar: calc(14px + 14 * var(--fs-u)); --fs-target: calc(12px + 12 * var(--fs-u)); --fs-radius: calc(4px + 5 * var(--fs-u)); --fs-font: calc(12 * var(--fs-u)); }
+:root[data-density="touch"]   { --fs-titlebar: calc(22px + 22 * var(--fs-u)); --fs-target: calc(24px + 24 * var(--fs-u)); --fs-radius: calc(8px + 8 * var(--fs-u)); --fs-font: calc(15 * var(--fs-u)); }
 :root[data-motion="off"]      { --fs-motion: 0ms; }
 :root[data-theme="light"] {
+  /* TT22: light-theme field + status text tokens (TT22 light-theme screenshot: dark-grey inputs, pale badge text) */
+  --fs-field: #ffffff; --fs-ok-text: #0a6638; --fs-warn-text: #7a4a00; --fs-bad-text: #a3141c; --fs-info-text: #1d3e9a;
+  --fs-cell-formula: #1d4ed8; --fs-cell-spill: #6d28d9;
   --fs-bg: #e9eefb; --fs-bg-2: #f5f7ff; --fs-panel: rgba(255,255,255,0.9); --fs-panel-solid: #ffffff;
   --fs-border: rgba(20, 40, 90, 0.14); --fs-text: #111a2e; --fs-muted: #4b5a7a;
 }
@@ -36,7 +44,8 @@ body {
   margin: 0;
   background: var(--fs-bg);
   color: var(--fs-text);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* TT21: Nunito (rounded, friendly, OFL-1.1, bundled — no font CDN request) */
+  font-family: "Nunito Variable", ui-rounded, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: var(--fs-font);
   overscroll-behavior: none;
 }
@@ -60,6 +69,43 @@ body {
   background-size: 32px 32px;
 }
 .fs-wallpaper-slate { background: linear-gradient(180deg, #0a1020, #131c33); }
+/* TT22 on/off switch (role="switch"): 44×26 design px track, knob slides; state also shown by colour + position */
+.fs-switch { position: relative; flex: 0 0 auto; width: calc(44 * var(--fs-u)); height: calc(26 * var(--fs-u)); min-width: 24px; min-height: 24px;
+  border-radius: 999px; border: 2px solid var(--fs-muted); background: transparent; cursor: pointer; padding: 0; transition: background var(--fs-motion); }
+.fs-switch::after { content: ""; position: absolute; top: 50%; left: calc(3 * var(--fs-u)); width: calc(16 * var(--fs-u)); height: calc(16 * var(--fs-u));
+  transform: translateY(-50%); border-radius: 50%; background: var(--fs-muted); transition: left var(--fs-motion); }
+.fs-switch[aria-checked="true"] { background: var(--fs-accent); border-color: var(--fs-accent); }
+.fs-switch[aria-checked="true"]::after { left: calc(100% - 19 * var(--fs-u)); background: #04102b; }
+.fs-switch:disabled { opacity: .5; cursor: not-allowed; }
+@media (forced-colors: active) { .fs-switch { border-color: ButtonText; } .fs-switch::after { background: ButtonText; } .fs-switch[aria-checked="true"] { background: Highlight; } .fs-switch[aria-checked="true"]::after { background: HighlightText; } }
+/* TT22 Miami wallpapers: original SVG art (public/wallpapers), solid fallbacks so the desk is never blank while loading */
+.fs-wallpaper-poolside { background: #2ab8cb url("/wallpapers/poolside.svg") center / cover no-repeat; }
+.fs-wallpaper-vice { background: #2a0a4a url("/wallpapers/vice.svg") center / cover no-repeat; }
+.fs-wallpaper-oceandrive { background: #2f4d6e url("/wallpapers/oceandrive.svg") center / cover no-repeat; }
+.fs-wallpaper-glass { background: #1d3f8f url("/wallpapers/glass.svg") center / cover no-repeat; }
+.fs-wallpaper-material { background: #e8def8 url("/wallpapers/material.svg") center / cover no-repeat; }
+.fs-wallpaper-fluent { background: #0b3d7a url("/wallpapers/fluent.svg") center / cover no-repeat; }
+.fs-wallpaper-clouddancer { background: #f0eee9 url("/wallpapers/clouddancer.svg") center / cover no-repeat; }
+.fs-wallpaper-teal { background: #1f4f50 url("/wallpapers/teal.svg") center / cover no-repeat; }
+/* TT25 professional wallpapers */
+.fs-wallpaper-enterprise { background: #1d4a78 url("/wallpapers/enterprise.svg") center / cover no-repeat; }
+.fs-wallpaper-graphite { background: #55585e url("/wallpapers/graphite.svg") center / cover no-repeat; }
+.fs-wallpaper-silver { background: #d9dde4 url("/wallpapers/silver.svg") center / cover no-repeat; }
+.fs-wallpaper-daylight { background: #dfe9f6 url("/wallpapers/daylight.svg") center / cover no-repeat; }
+/* TT21 default: a cheerful morning sky — cobalt overhead, a warm sun low on the left, floating bubbles */
+.fs-wallpaper-sunrise {
+  background:
+    radial-gradient(circle at 18% 86%, rgba(255,214,90,.95) 0, rgba(255,170,60,.55) 9%, rgba(255,140,80,0) 34%),
+    radial-gradient(circle at 74% 30%, rgba(255,255,255,.16) 0 3.2%, rgba(255,255,255,.05) 3.3% 3.8%, transparent 3.9%),
+    radial-gradient(circle at 86% 62%, rgba(255,255,255,.13) 0 5.5%, rgba(255,255,255,.04) 5.6% 6.2%, transparent 6.3%),
+    radial-gradient(circle at 58% 76%, rgba(120,255,214,.16) 0 2.4%, transparent 2.5%),
+    radial-gradient(circle at 40% 18%, rgba(255,236,150,.14) 0 1.6%, transparent 1.7%),
+    radial-gradient(1100px 520px at 50% 108%, rgba(80,230,190,.38), transparent 70%),
+    linear-gradient(178deg, #1b3a9c 0%, #2f64d8 42%, #49a3f0 72%, #ffb978 100%);
+}
+/* desktop labels sit on a pill so they stay readable on any wallpaper (WCAG 1.4.3) */
+.fs-desk-label { background: var(--fs-desk-label, rgba(10,19,48,.78)); color: #fff; border-radius: 999px; padding: 0 calc(5 * var(--fs-u)); font-weight: 700; }
+.fs-desk-icon:hover .fs-desk-label { background: rgba(10,19,48,.95); }
 
 .fs-panel {
   background: var(--fs-panel);
@@ -94,48 +140,516 @@ body {
   touch-action: none;
 }
 .fs-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: var(--fs-target); padding: 0 10px;
-  border: 1px solid var(--fs-border); border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(2px + 2 * var(--fs-u));
+  min-height: var(--fs-target); padding: 0 calc(4px + 6 * var(--fs-u));
+  border: 1px solid var(--fs-border); border-radius: calc(5px + 4 * var(--fs-u));
   background: rgba(255,255,255,.04); color: var(--fs-text);
-  font-size: 12px; cursor: pointer;
+  font-size: calc(12 * var(--fs-u)); cursor: pointer; white-space: nowrap; font-weight: 600;
   transition: background var(--fs-motion) ease, border-color var(--fs-motion) ease;
 }
 .fs-btn:hover { background: rgba(91,140,255,.16); border-color: rgba(91,140,255,.4); }
 .fs-btn[data-variant="ghost"] { background: transparent; border-color: transparent; }
 .fs-btn[data-variant="primary"] { background: var(--fs-accent); border-color: transparent; color: #04102b; font-weight: 600; }
-.fs-btn[data-variant="danger"] { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.45); color: #ffb0b0; }
+.fs-btn[data-variant="danger"] { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.45); color: var(--fs-bad-text, #ffb0b0); }
 .fs-btn:disabled { opacity: .45; cursor: not-allowed; }
 
 .fs-input, .fs-select, .fs-textarea {
-  width: 100%; background: rgba(6,10,22,.7); color: var(--fs-text);
+  width: 100%; background: var(--fs-field, rgba(6,10,22,.7)); color: var(--fs-text);
   border: 1px solid var(--fs-border); border-radius: 8px;
-  padding: 6px 9px; font-size: 12px; font-family: inherit;
+  padding: calc(3px + 3 * var(--fs-u)) calc(4px + 5 * var(--fs-u)); font-size: calc(12 * var(--fs-u)); font-family: inherit;
 }
 .fs-textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; }
 .fs-badge {
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600;
+  padding: 1px calc(7 * var(--fs-u)); border-radius: 999px; font-size: calc(10.5 * var(--fs-u)); font-weight: 600;
   border: 1px solid var(--fs-border); background: rgba(255,255,255,.05); color: var(--fs-muted);
-  white-space: nowrap;
+  white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
 }
-.fs-badge[data-tone="ok"] { color: #8df0c0; border-color: rgba(57,217,138,.4); background: rgba(57,217,138,.12); }
-.fs-badge[data-tone="warn"] { color: #ffd98a; border-color: rgba(255,196,83,.4); background: rgba(255,196,83,.12); }
-.fs-badge[data-tone="bad"] { color: #ffb3b3; border-color: rgba(255,107,107,.4); background: rgba(255,107,107,.12); }
-.fs-badge[data-tone="info"] { color: #b9ccff; border-color: rgba(91,140,255,.4); background: rgba(91,140,255,.14); }
+.fs-badge[data-tone="ok"] { color: var(--fs-ok-text, #8df0c0); border-color: rgba(57,217,138,.4); background: rgba(57,217,138,.12); }
+.fs-badge[data-tone="warn"] { color: var(--fs-warn-text, #ffd98a); border-color: rgba(255,196,83,.4); background: rgba(255,196,83,.12); }
+.fs-badge[data-tone="bad"] { color: var(--fs-bad-text, #ffb3b3); border-color: rgba(255,107,107,.4); background: rgba(255,107,107,.12); }
+.fs-badge[data-tone="info"] { color: var(--fs-info-text, #b9ccff); border-color: rgba(91,140,255,.4); background: rgba(91,140,255,.14); }
 
 .fs-row { display: flex; align-items: center; gap: 8px; }
 .fs-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .fs-dim { color: var(--fs-muted); }
+/* TT54: muted text inside a filled (primary) button takes the button's own text colour — muted-on-accent fails 4.5:1 */
+.fs-btn[data-variant="primary"] .fs-dim { color: inherit; }
 .fs-scroll { overflow: auto; }
 .fs-list-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 8px; cursor: default; }
 .fs-list-item:hover { background: rgba(255,255,255,.05); }
 .fs-list-item[data-selected="true"] { background: rgba(91,140,255,.22); }
 .fs-sep { height: 1px; background: var(--fs-border); margin: 6px 0; }
 .fs-kbd {
-  font-family: ui-monospace, monospace; font-size: 10.5px; padding: 1px 5px;
+  font-family: ui-monospace, monospace; font-size: calc(10.5 * var(--fs-u)); padding: 1px calc(5 * var(--fs-u));
   border: 1px solid var(--fs-border); border-bottom-width: 2px; border-radius: 5px; background: rgba(255,255,255,.05);
 }
 .fs-resizer { position: absolute; }
+/* TT21 reflow (WCAG 1.4.10): module roots are single-column grids/flex columns; without min-width:0 their auto track
+   grows to the widest no-wrap child and the window clips the right side at 2x text / phone widths. */
+.fs-window .fs-scroll > *, .fs-window .fs-scroll { min-width: 0; }
+/* form controls have an intrinsic width (~20 characters) that doubles with the text; let them shrink to their box */
+.fs-window input, .fs-window select, .fs-window textarea { max-width: 100%; min-width: 0; }
+.fs-window .fs-panel > * { min-width: 0; }
+.fs-window .fs-scroll > .fs-row, .fs-window .fs-scroll > div > .fs-row { flex-wrap: wrap; }
+/* TT21: dense toolbars stay ONE row and scroll sideways at large text, so the document area keeps its height */
+.fs-toolbar { flex-wrap: nowrap !important; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+.fs-toolbar > * { flex-shrink: 0; }
+/* TT21: colour wells grow with the text (inline widths are TT20 px; min-* wins) */
+input[type="color"] { min-width: calc(6px + 16 * var(--fs-u)); min-height: calc(6px + 14 * var(--fs-u)); cursor: pointer; }
+/* TT21: AX-03 — the queries the register always claimed */
+@media (forced-colors: active) {
+  .fs-btn, .fs-input, .fs-select, .fs-panel, .fs-window { border: 1px solid CanvasText; }
+  .fs-btn[data-variant="primary"], [aria-checked="true"].fs-btn, [aria-pressed="true"].fs-btn { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .fs-desk-label { background: Canvas; color: CanvasText; }
+  svg[data-icon] { forced-color-adjust: none; }
+}
+@media (prefers-contrast: more) {
+  :root { --fs-border: rgba(200, 215, 255, 0.55); --fs-muted: #c9d3ec; --fs-panel: #0d1733; }
+  :root[data-theme="light"] { --fs-border: rgba(10, 20, 50, 0.6); --fs-muted: #26324d; --fs-panel: #ffffff; }
+  .fs-btn { border-width: 2px; }
+}
+/* TT21: window controls — round "bubble" buttons; the coloured three always show their glyph (no hover-only meaning) */
+.fs-winbtn { min-height: calc(10px + 12 * var(--fs-u)); min-width: calc(10px + 12 * var(--fs-u)); padding: 0; border-radius: 999px; }
+.fs-winbtn[data-bubble="1"] { box-shadow: inset 0 calc(1 * var(--fs-u)) 0 rgba(255,255,255,.55), 0 1px 2px rgba(0,0,0,.35); }
+.fs-winbtn[data-bubble="1"]:hover { filter: brightness(1.08) saturate(1.1); }
 .fs-blink { animation: fs-blink 1.05s steps(2, start) infinite; }
 @keyframes fs-blink { to { visibility: hidden; } }
+
+/* ------------------------------------------------------------------------------------------------------------------
+ * TT25 layouts: shared menu items, the layout switch, Business (taskbar, Start, caption buttons) and Art (menu bar,
+ * dock, Launchpad, traffic lights). Every animated property is gated on --fs-motion / reduced motion.
+ * ---------------------------------------------------------------------------------------------------------------- */
+.fs-visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.fs-menuitem { display: flex; align-items: center; gap: calc(6 * var(--fs-u)); width: 100%; min-height: calc(8px + 18 * var(--fs-u)); padding: 0 calc(8 * var(--fs-u));
+  border: 0; border-radius: 6px; background: transparent; color: var(--fs-text); font: inherit; cursor: pointer; text-align: left; }
+.fs-menuitem:hover, .fs-menuitem:focus-visible { background: var(--fs-accent); color: #04102b; outline: none; }
+.fs-menuitem:disabled { color: var(--fs-muted); cursor: default; background: transparent; }
+.fs-layout-opt { position: relative; border: 1px solid var(--fs-border); border-radius: 10px; cursor: pointer; color: var(--fs-text); background: var(--fs-bg-2); }
+.fs-layout-opt[data-checked="true"] { outline: 3px solid var(--fs-accent); outline-offset: 1px; }
+.fs-layout-opt:focus-within { box-shadow: 0 0 0 3px var(--fs-text); }
+.fs-visually-hidden-radio { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+
+/* Business — taskbar */
+.fs-tb-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: calc(10px + 30 * var(--fs-u)); height: calc(8px + 32 * var(--fs-u));
+  padding: 0 calc(4 * var(--fs-u)); border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--fs-text); font: inherit; cursor: pointer; }
+.fs-tb-btn:hover { background: color-mix(in srgb, var(--fs-text) 10%, transparent); }
+.fs-tb-btn[data-focused], .fs-tb-btn[aria-pressed="true"], .fs-tb-btn[data-active] { background: color-mix(in srgb, var(--fs-text) 14%, transparent); border-color: color-mix(in srgb, var(--fs-text) 12%, transparent); }
+.fs-tb-ind { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); height: 3px; border-radius: 3px; transition: width var(--fs-motion); }
+.fs-tb-search { display: inline-flex; align-items: center; gap: 8px; height: calc(6px + 26 * var(--fs-u)); min-width: calc(110 * var(--fs-u)); padding: 0 calc(12 * var(--fs-u));
+  border-radius: 999px; border: 1px solid var(--fs-border); background: var(--fs-bg-2); color: var(--fs-muted); font: inherit; cursor: text; margin: 0 4px; }
+.fs-tb-search:hover { border-color: var(--fs-accent); }
+.fs-tb-showdesk { align-self: stretch; width: 10px; margin-left: 4px; border: 0; border-left: 1px solid var(--fs-border); background: transparent; cursor: pointer; padding: 0; }
+.fs-tb-showdesk:hover, .fs-tb-showdesk:focus-visible { background: color-mix(in srgb, var(--fs-text) 14%, transparent); }
+.fs-start-tile { display: grid; justify-items: center; gap: 4px; padding: calc(6 * var(--fs-u)) 2px; border: 0; border-radius: 8px; background: transparent; color: var(--fs-text); font: inherit; font-size: calc(11.5 * var(--fs-u)); cursor: pointer; }
+.fs-start-tile:hover, .fs-start-tile:focus-visible { background: color-mix(in srgb, var(--fs-text) 10%, transparent); }
+.fs-start-tile span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Windows caption buttons */
+.fs-caption { display: inline-flex; align-self: stretch; margin: 0 -6px 0 4px; }
+.fs-cap { display: inline-flex; align-items: center; justify-content: center; width: calc(14px + 26 * var(--fs-u)); min-height: 24px; border: 0; background: transparent; color: var(--fs-text); cursor: pointer; }
+.fs-cap:hover { background: color-mix(in srgb, var(--fs-text) 12%, transparent); }
+.fs-cap-close:hover, .fs-cap-close:focus-visible { background: #c42b1c; color: #fff; }
+
+/* Art — traffic lights (24 px targets, 14 px lights; WCAG 2.5.8) */
+.fs-traffic { display: inline-flex; gap: 0; margin-right: 4px; }
+.fs-tl { width: 24px; height: 24px; display: inline-grid; place-items: center; border: 0; padding: 0; background: transparent; cursor: pointer; color: rgba(0,0,0,.6); position: relative; }
+.fs-tl::before { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; left: 5px; top: 5px; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.25); }
+.fs-tl svg { position: relative; opacity: 0; }
+.fs-traffic:hover .fs-tl svg, .fs-tl:focus-visible svg { opacity: 1; }
+.fs-tl-close::before { background: #ff5f57; } .fs-tl-minimize::before { background: #febc2e; } .fs-tl-maximize::before { background: #28c840; }
+.fs-window[data-focused="false"] .fs-traffic:not(:hover) .fs-tl::before { background: color-mix(in srgb, var(--fs-muted) 55%, transparent); }
+.fs-title-centre { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; padding-right: 24px; }
+
+/* Art — dock */
+.fs-dock { display: flex; align-items: flex-end; border-radius: 18px; border: 1px solid var(--fs-border);
+  background: color-mix(in srgb, var(--fs-panel-solid) 72%, transparent); backdrop-filter: blur(22px) saturate(1.5); box-shadow: 0 10px 30px rgba(0,0,0,.28); }
+.fs-dock-slot { position: relative; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 8px;
+  transition: width calc(var(--fs-motion) * .5) ease-out, flex-basis calc(var(--fs-motion) * .5) ease-out; }
+.fs-dock-item { display: block; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 22%; transform-origin: 50% 100%;
+  transition: width calc(var(--fs-motion) * .5) ease-out, height calc(var(--fs-motion) * .5) ease-out; }
+.fs-dock-item:focus-visible { outline: 3px solid var(--fs-accent); outline-offset: 2px; }
+.fs-dock-item svg { display: block !important; }
+.fs-dock-dot { position: absolute; bottom: -6px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--fs-text); }
+.fs-dock-sep { align-self: center; position: relative; margin-bottom: 0; }
+.fs-dock-sep::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--fs-border); }
+.fs-dock-label { position: absolute; left: 50%; transform: translateX(-50%); padding: 3px 10px; border-radius: 6px; white-space: nowrap; pointer-events: none;
+  background: var(--fs-panel-solid); color: var(--fs-text); border: 1px solid var(--fs-border); font-size: calc(12 * var(--fs-u)); box-shadow: 0 4px 14px rgba(0,0,0,.3); z-index: 2; }
+.fs-dock-min { display: grid; place-items: center; border-radius: 8px; background: color-mix(in srgb, var(--fs-text) 12%, transparent); border: 1px solid var(--fs-border); }
+/* TT26 dock stacks: a folded group's tile (2×2 of its apps on frosted glass) and its grid popover */
+.fs-dock-stack { display: grid; grid-template-columns: 1fr 1fr; place-items: center; box-sizing: border-box; border-radius: 22%;
+  background: color-mix(in srgb, var(--fs-text) 14%, transparent); border: 1px solid var(--fs-border); }
+.fs-dock-stack svg { width: 100% !important; height: 100% !important; }
+.fs-dock-stack-pop { border-radius: 16px; box-shadow: 0 18px 50px rgba(0,0,0,.35); transform-origin: 50% 100%; animation: fs-stack-in calc(var(--fs-motion) * .6) cubic-bezier(.2,.9,.3,1.2); }
+@keyframes fs-stack-in { from { opacity: 0; transform: translateY(12px) scale(.92); } to { opacity: 1; transform: none; } }
+:root[data-motion="off"] .fs-dock-stack-pop { animation: none; }
+@media (prefers-reduced-motion: reduce) { .fs-dock-stack-pop { animation: none; } }
+@keyframes fs-dock-bounce { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-45%); } 50% { transform: translateY(0); } 70% { transform: translateY(-22%); } }
+.fs-dock-item[data-bounce] { animation: fs-dock-bounce .6s ease-in-out 2; }
+:root[data-motion="off"] .fs-dock-item[data-bounce] { animation: none; }
+@media (prefers-reduced-motion: reduce) { .fs-dock-item[data-bounce] { animation: none; } .fs-dock-slot, .fs-dock-item { transition: none; } }
+:root[data-motion="off"] .fs-dock-slot, :root[data-motion="off"] .fs-dock-item { transition: none; }
+
+/* Art — Launchpad */
+.fs-launchpad { position: absolute; inset: 0; z-index: 9200; overflow: auto; background: rgba(12, 14, 20, .55); backdrop-filter: blur(26px) saturate(1.2); padding-top: 4vh; }
+.fs-lp-item { display: grid; justify-items: center; gap: 6px; padding: 8px 2px; border: 0; border-radius: 14px; background: transparent; color: #fff; font: inherit; font-size: calc(12.5 * var(--fs-u)); cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.fs-lp-item:hover, .fs-lp-item:focus-visible { background: rgba(255,255,255,.14); outline: none; }
+.fs-lp-item span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (forced-colors: active) { .fs-tl::before { background: ButtonText !important; } .fs-dock { border-color: CanvasText; } }
+
+/* ===================================================================== TT26 Tabletop (3D desktop) */
+.fs-tabletop { --tt-t: calc(var(--fs-motion) * 4.5); --tt-ease: cubic-bezier(.22, .8, .2, 1); --tt-spring: cubic-bezier(.2, .9, .25, 1.15);
+  background: color-mix(in srgb, var(--fs-bg) 85%, #000); }
+/* the scene is a z = 0 plane in front of every face: it must not take hits (faces opt back in) */
+.fs-tt-scene { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+.fs-tt-face { pointer-events: auto; }
+.fs-tt-face { position: absolute; box-sizing: border-box; backface-visibility: visible;
+  transition: transform var(--tt-t) var(--tt-ease), left var(--tt-t) var(--tt-ease), top var(--tt-t) var(--tt-ease),
+    width var(--tt-t) var(--tt-ease), height var(--tt-t) var(--tt-ease), opacity var(--tt-t) ease; }
+.fs-tt-floor { transform-style: preserve-3d;
+  background:
+    radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--fs-accent) 22%, transparent) 0%, transparent 62%),
+    repeating-linear-gradient(90deg, transparent 0 46px, color-mix(in srgb, var(--fs-text) 3%, transparent) 46px 48px),
+    color-mix(in srgb, var(--fs-panel-solid) 88%, var(--fs-accent)); }
+.fs-tt-floor-inner { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform-style: preserve-3d; }
+.fs-tt-wall { overflow: hidden; color: var(--fs-text); border: 1px solid color-mix(in srgb, var(--fs-text) 10%, transparent); }
+.fs-tt-wall-north { background: linear-gradient(to bottom, color-mix(in srgb, var(--fs-panel-solid) 92%, #fff), color-mix(in srgb, var(--fs-panel-solid) 78%, #000)); }
+.fs-tt-wall-south { background: linear-gradient(to top, color-mix(in srgb, var(--fs-panel-solid) 92%, #fff), color-mix(in srgb, var(--fs-panel-solid) 74%, #000)); }
+.fs-tt-wall-west { background: linear-gradient(to right, color-mix(in srgb, var(--fs-panel-solid) 90%, #fff), color-mix(in srgb, var(--fs-panel-solid) 76%, #000)); }
+.fs-tt-wall-east { background: linear-gradient(to left, color-mix(in srgb, var(--fs-panel-solid) 90%, #fff), color-mix(in srgb, var(--fs-panel-solid) 76%, #000)); }
+.fs-tt-wall[data-main] { background: var(--fs-panel-solid); border-color: transparent; }
+.fs-tt-wall-open { position: absolute; inset: 0; z-index: 2; border: 0; padding: 0; background: transparent; cursor: zoom-in; }
+.fs-tt-wall-open:hover { background: color-mix(in srgb, var(--fs-accent) 10%, transparent); }
+.fs-tt-wall-open:focus-visible { outline: 4px solid var(--fs-accent); outline-offset: -4px; }
+.fs-tt-wall-body { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 14px; padding: 14px 18px; overflow: hidden; }
+.fs-tt-wall[data-main] .fs-tt-wall-body { padding: 72px 40px 96px; overflow: auto; gap: 20px; }
+/* the main wall's content is laid out once at its final size: while the face grows on its hinge it only reveals it
+   (animating the face's width otherwise re-flowed the whole wall — 37 app tiles — on every frame) */
+.fs-tt-wall[data-main] .fs-tt-wall-body { inset: auto; left: 0; top: 0; width: var(--tt-w, 100%); height: var(--tt-h, 100%); }
+.fs-tt-wall-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.fs-tt-wall-head strong { font-size: calc(18 * var(--fs-u)); font-weight: 800; letter-spacing: -.01em; line-height: 1.2; }
+.fs-tt-wall[data-main] .fs-tt-wall-head strong { font-size: calc(29 * var(--fs-u)); }
+.fs-tt-wall-head span { font-size: calc(13 * var(--fs-u)); line-height: 1.5; }
+.fs-tt-empty { margin: 0; line-height: 1.5; }
+.fs-tt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; align-content: start; }
+.fs-tt-tile { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 14px; border-radius: 14px; text-align: left; cursor: pointer;
+  font: inherit; color: var(--fs-text); border: 1px solid var(--fs-border); background: color-mix(in srgb, var(--fs-text) 4%, transparent);
+  transition: background var(--fs-motion) ease, transform var(--fs-motion) ease; }
+.fs-tt-tile:hover { background: color-mix(in srgb, var(--fs-accent) 14%, transparent); transform: translateY(-1px); }
+.fs-tt-tile:focus-visible, .fs-tt-app:focus-visible, .fs-tt-nav button:focus-visible, .fs-tt-pile:focus-visible, .fs-tt-card:focus-visible { outline: 3px solid var(--fs-accent); outline-offset: 2px; }
+.fs-tt-tile-text { display: grid; min-width: 0; gap: 2px; }
+.fs-tt-tile-text > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.35; }
+.fs-tt-tile-text span { font-size: calc(11.5 * var(--fs-u)); }
+.fs-tt-mini { flex: none; width: 52px; height: 84px; border-radius: 6px; overflow: hidden; display: flex; background: #fbfaf6; box-shadow: 0 1px 3px rgba(0,0,0,.25); --pk: .5; }
+.fs-tt-apps { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 20px; align-content: start; }
+.fs-tt-apps h3 { margin: 0 0 8px; font-size: calc(12 * var(--fs-u)); text-transform: uppercase; letter-spacing: .08em; color: var(--fs-muted); }
+.fs-tt-app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+.fs-tt-app { display: grid; justify-items: center; align-content: start; gap: 6px; min-height: 92px; padding: 10px 4px; border: 0; border-radius: 14px; background: transparent;
+  color: var(--fs-text); font: inherit; font-size: calc(11.5 * var(--fs-u)); cursor: pointer; transition: background var(--fs-motion) ease; }
+.fs-tt-app:hover { background: color-mix(in srgb, var(--fs-accent) 14%, transparent); }
+.fs-tt-app span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
+.fs-tt-widgets { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 16px; align-content: start; }
+.fs-tt-widget { display: grid; gap: 8px; align-content: start; padding: 18px; border-radius: 18px; border: 1px solid var(--fs-border); background: color-mix(in srgb, var(--fs-text) 4%, transparent); line-height: 1.4; }
+.fs-tt-time { font-size: calc(42 * var(--fs-u)); font-weight: 800; line-height: 1.1; letter-spacing: -.02em; }
+.fs-tt-cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; text-align: center; font-size: calc(11.5 * var(--fs-u)); line-height: 2; }
+.fs-tt-cal [data-today] { background: var(--fs-accent); color: #04102b; border-radius: 999px; font-weight: 800; }
+
+/* cards: golden rectangles (112 × 181) of "paper" with the micro peek; lift toward the camera on hover/focus */
+.fs-tt-card { --rot: 0deg; --lift: 0px; position: absolute; width: 112px; height: 181px; padding: 0; display: flex; flex-direction: column; overflow: hidden;
+  border-radius: 10px; border: 1px solid rgba(20, 24, 33, .14); background: #fbfaf6; color: #1d2330; text-align: left; font: inherit; cursor: grab; touch-action: none;
+  transform: rotate(var(--rot)) translateZ(var(--lift)); box-shadow: 0 1px 2px rgba(0,0,0,.18), 0 6px 16px rgba(0,0,0,.16);
+  transition: left calc(var(--fs-motion) * 2.6) var(--tt-spring), top calc(var(--fs-motion) * 2.6) var(--tt-spring), transform calc(var(--fs-motion) * 1.4) var(--tt-ease), box-shadow calc(var(--fs-motion) * 1.4) ease; }
+.fs-tt-card:hover, .fs-tt-card:focus-visible, .fs-tt-card[data-lifted] { --lift: 26px; box-shadow: 0 4px 8px rgba(0,0,0,.18), 0 18px 36px rgba(0,0,0,.26); }
+.fs-tt-card[data-dragging] { --lift: 56px; cursor: grabbing; box-shadow: 0 10px 20px rgba(0,0,0,.2), 0 30px 60px rgba(0,0,0,.3); }
+.fs-tt-card-name { display: flex; align-items: center; gap: 5px; min-height: 30px; padding: 0 9px; border-top: 1px solid rgba(20,24,33,.08);
+  font-size: calc(11 * var(--fs-u)); font-weight: 700; color: #1d2330; background: rgba(255,255,255,.7); }
+.fs-tt-card-name > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-tt-card-name svg { flex: none; }
+.fs-tt-peek { --pk: 1; flex: 1; min-height: 0; margin: 9px 9px 6px; display: flex; flex-direction: column; overflow: hidden; pointer-events: none;
+  font-size: calc(4.6px * var(--pk)); line-height: 1.45; color: #2b3240; word-break: break-word; }
+.fs-tt-peek > span { display: block; white-space: nowrap; overflow: hidden; }
+.fs-tt-peek-h { font-weight: 800; font-size: 1.38em; color: #0b4f7a; line-height: 1.3; }
+.fs-tt-peek-li::before { content: "• "; color: #0b4f7a; }
+.fs-tt-peek-code { font-family: ui-monospace, Menlo, Consolas, monospace; color: #37404f; }
+.fs-tt-peek-grid { display: grid !important; gap: 1px; background: #cfd6e2; border: 1px solid #cfd6e2; white-space: normal !important; }
+.fs-tt-peek-grid > span { background: #fff; padding: .3em .4em; overflow: hidden; white-space: nowrap; text-overflow: clip; }
+.fs-tt-peek-grid > span[data-head] { background: #e8f0fb; font-weight: 800; }
+.fs-tt-peek[data-peek="image"] { margin: 0; }
+.fs-tt-peek img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fs-tt-peek-none { margin: auto; padding: .5em 1em; border-radius: 1em; background: #e8f0fb; color: #0b4f7a; font-weight: 800; font-size: calc(11px * var(--pk)); letter-spacing: .06em; }
+.fs-tt-mini .fs-tt-peek { --pk: .5; margin: 4px; }
+.fs-tt-zoom { position: absolute; z-index: 40; width: 260px; height: 451px; display: flex; flex-direction: column; overflow: hidden; pointer-events: none;
+  border-radius: 14px; background: #fbfaf6; color: #1d2330; border: 1px solid rgba(20,24,33,.14); box-shadow: 0 24px 60px rgba(0,0,0,.4);
+  animation: fs-tt-zoom-in calc(var(--fs-motion) * 1.6) var(--tt-spring); transform-origin: 50% 100%; }
+.fs-tt-zoom .fs-tt-peek { --pk: 2.3; margin: 18px 18px 10px; }
+.fs-tt-zoom .fs-tt-card-name { font-size: calc(13 * var(--fs-u)); min-height: 38px; }
+@keyframes fs-tt-zoom-in { from { opacity: 0; transform: translateY(10px) scale(.86); } to { opacity: 1; transform: none; } }
+
+/* piles: the hit target over a messy stack; badge shows name + count */
+.fs-tt-pile { position: absolute; width: 112px; height: 181px; padding: 0; border: 0; border-radius: 10px; background: transparent; cursor: pointer; touch-action: none; transform: translateZ(1px); }
+.fs-tt-pile-badge { position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 4px 12px; border-radius: 999px; background: var(--fs-accent); color: #04102b; font-size: calc(11.5 * var(--fs-u)); font-weight: 800; line-height: 1.3; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+.fs-tt-pile[data-fanned] .fs-tt-pile-badge { bottom: auto; top: 50%; transform: translate(-50%, -50%); }
+
+.fs-tt-nav { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 30; display: flex; gap: 4px; padding: 4px; border-radius: 16px;
+  background: color-mix(in srgb, var(--fs-panel-solid) 84%, transparent); backdrop-filter: blur(18px) saturate(1.4); border: 1px solid var(--fs-border); box-shadow: 0 10px 30px rgba(0,0,0,.28); }
+.fs-tt-nav button { min-height: 36px; min-width: 64px; padding: 0 14px; border: 0; border-radius: 12px; background: transparent; color: var(--fs-text); font: inherit; font-weight: 700; font-size: calc(12 * var(--fs-u)); cursor: pointer; white-space: nowrap; }
+.fs-tt-nav button:hover { background: color-mix(in srgb, var(--fs-text) 10%, transparent); }
+.fs-tt-nav button[aria-pressed="true"] { background: var(--fs-accent); color: #04102b; }
+.fs-tt-back { position: absolute; top: 16px; left: 16px; z-index: 30; min-height: 40px; }
+/* TT27: slanted camera — the switcher floats just above the south lip so the lip stays a visible target */
+.fs-tabletop[data-camera="slant"] .fs-tt-nav { bottom: calc(var(--tt-lip, 0px) + 10px); }
+.fs-tt-nav-sep { width: 1px; align-self: stretch; margin: 6px 2px; background: color-mix(in srgb, var(--fs-text) 18%, transparent); }
+/* TT27: every wall is a pinboard (cards + piles, like the floor) beside its built-in panel */
+.fs-tt-wall[data-main] .fs-tt-wall-body { overflow: hidden; }
+/* TT31: the pinboard column fits a whole 6-card wall row (840 px board) where the screen allows */
+.fs-tt-wall-split { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) min(870px, 64%); gap: 24px; }
+.fs-tt-wall-panel { min-height: 0; overflow: auto; padding-right: 4px; }
+.fs-tt-pinboard { position: relative; min-height: 0; overflow: auto; border-radius: 18px; border: 1px dashed color-mix(in srgb, var(--fs-text) 22%, transparent);
+  background: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--fs-text) 14%, transparent) 1px, transparent 1.5px) 0 0 / 24px 24px,
+    color-mix(in srgb, var(--fs-text) 3%, transparent); }
+.fs-tt-pinboard-inner { position: relative; min-height: 100%; }
+.fs-tt-pincount { padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--fs-accent) 24%, transparent); font-weight: 700; font-size: calc(12 * var(--fs-u)); line-height: 1.6; }
+.fs-tt-pinchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fs-tt-pinchip { display: inline-flex; align-items: center; gap: 5px; max-width: 180px; padding: 3px 9px; border-radius: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background: color-mix(in srgb, var(--fs-panel-solid) 70%, #fff); color: var(--fs-text); font-size: calc(11.5 * var(--fs-u)); line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+.fs-tt-wall[data-drop] { box-shadow: inset 0 0 0 4px var(--fs-accent); }
+.fs-tt-wall[data-drop] .fs-tt-wall-open { background: color-mix(in srgb, var(--fs-accent) 22%, transparent); }
+/* TT27: saved views */
+.fs-tt-views { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--tt-lip, 0px) + 72px); z-index: 45; width: min(440px, calc(100% - 24px));
+  max-height: min(70%, 560px); overflow: auto; display: grid; gap: 10px; padding: 16px; border-radius: 18px; }
+.fs-tt-views-title { font-size: calc(16 * var(--fs-u)); line-height: 1.3; }
+.fs-tt-views-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.fs-tt-views-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px; align-items: stretch; }
+.fs-tt-views-list li > .fs-btn:first-child { display: grid; justify-items: start; gap: 0; min-height: 48px; text-align: left; }
+.fs-tt-view-name { font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-tt-view-meta { font-size: calc(11.5 * var(--fs-u)); }
+.fs-tt-views-save { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.fs-tt-views-msg { margin: 0; min-height: 1.4em; line-height: 1.4; }
+@media (forced-colors: active) { .fs-tt-card, .fs-tt-zoom { border-color: CanvasText; } .fs-tt-nav button[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; } }
+
+/* TT26 beauty pass (found by scripts/e2e-beauty.mts): Start's All-apps rows meet the 32 px chrome floor; on a
+   phone-width screen the shelf, the Business taskbar and the Tabletop switcher re-flow instead of running off-screen. */
+.fs-start-row { min-height: max(36px, calc(10px + 18 * var(--fs-u))); }
+@media (max-width: 560px) {
+  .fs-shelf-opt { display: none !important; }
+  .fs-taskbar { grid-template-columns: 0 minmax(0, 1fr) auto !important; }
+  .fs-tb-desktops, .fs-tb-opt { display: none !important; }
+  .fs-tb-centre { justify-content: flex-start !important; padding-left: 6px; }
+  .fs-tb-search { min-width: 0; width: calc(10px + 30 * var(--fs-u)); flex: 0 0 auto; padding: 0; justify-content: center; }
+  .fs-tb-search > span { display: none; }
+  .fs-narrow-hide { display: none !important; }
+  [data-testid="menubar"] .fs-btn { padding-inline: 5px !important; }
+  [data-testid="menubar-app"] { padding-inline: 4px !important; }
+  .fs-desk-widgets { width: min(58vw, 230px) !important; }
+  .fs-desk-widgets .fs-mono { font-size: min(calc(26 * var(--fs-u)), 7vw) !important; }
+  .fs-desk-widgets > * { min-width: 0; overflow-wrap: anywhere; }
+  .fs-tt-nav { flex-wrap: wrap; justify-content: center; width: max-content; max-width: calc(100% - 16px); }
+  .fs-tt-nav button { min-width: 0; padding: 0 10px; }
+  .fs-tt-wall-split { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 0.42fr) minmax(0, 0.58fr); gap: 14px; }
+  .fs-tt-views { bottom: calc(var(--tt-lip, 0px) + 120px); }
+}
+
+/* ------------------------------------------------------------------ TT27 Video / Music (SM-01..03) */
+/* flex column: the main area takes the remaining height whether or not the error row is present (a 3-row grid put
+   the main area in an auto row when there was no error, so the video stage never had a definite height) */
+.fs-stream { height: 100%; display: flex; flex-direction: column; gap: 12px; padding: 16px; min-height: 0; }
+.fs-stream > .fs-stream-bar, .fs-stream > .fs-stream-err { flex: 0 0 auto; }
+.fs-stream > .fs-stream-main { flex: 1 1 0; }
+.fs-stream-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; }
+.fs-stream-err { margin: 0; padding: 8px 12px; border-radius: 10px; background: color-mix(in srgb, #e5484d 16%, transparent); line-height: 1.45; }
+.fs-stream-main { display: grid; grid-template-columns: minmax(0, 1.618fr) minmax(220px, 1fr); gap: 16px; min-height: 0; }
+.fs-stream-stage { display: grid; align-content: start; gap: 10px; min-height: 0; overflow: auto; }
+.fs-stream-frame, .fs-stream-video { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 14px; background: #000; display: block; }
+.fs-stream[data-kind="audio"] .fs-stream-frame { aspect-ratio: auto; background: transparent; }
+.fs-stream-audio { width: 100%; }
+.fs-stream-empty, .fs-stream-facade { display: grid; gap: 10px; align-content: center; justify-items: start; padding: 24px; border-radius: 14px; aspect-ratio: 16 / 9;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--fs-accent) 16%, var(--fs-panel-solid)), var(--fs-panel-solid)); border: 1px solid var(--fs-border); line-height: 1.5; }
+.fs-stream[data-kind="audio"] .fs-stream-empty, .fs-stream[data-kind="audio"] .fs-stream-facade { aspect-ratio: auto; min-height: 220px; }
+.fs-stream-facade-title { font-size: calc(17 * var(--fs-u)); line-height: 1.3; }
+.fs-stream-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* TT34 SM-09: transport row (seek / volume / speed / playlist) shared by embeds and native files */
+.fs-stream-transport { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 6px 0 2px; }
+.fs-stream-seek { flex: 1 1 180px; min-width: 120px; min-height: 24px; accent-color: var(--accent, #0a84ff); }
+.fs-stream-vol { width: 104px; min-height: 24px; accent-color: var(--accent, #0a84ff); }
+.fs-stream-rate { width: auto; min-height: 32px; padding: 2px 6px; }
+.fs-stream-stage:focus-visible { outline: 2px solid var(--accent, #0a84ff); outline-offset: 2px; }
+.fs-stream-lib { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto; gap: 8px; min-height: 0; }
+.fs-stream-list { list-style: none; margin: 0; padding: 0; overflow: auto; display: grid; align-content: start; gap: 4px; min-height: 0; }
+.fs-stream-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px; border-radius: 10px; }
+.fs-stream-list li[data-current] { background: color-mix(in srgb, var(--fs-accent) 18%, transparent); }
+.fs-stream-item-play { display: grid; gap: 1px; text-align: left; min-height: 44px; padding: 6px 10px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; cursor: pointer; min-width: 0; }
+.fs-stream-item-play:hover { background: color-mix(in srgb, var(--fs-text) 7%, transparent); }
+.fs-stream-item-title { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-stream-item-sub { font-size: calc(11.5 * var(--fs-u)); }
+.fs-stream-item-tools { display: flex; gap: 2px; }
+.fs-stream-item-tools .fs-btn { min-width: 32px; min-height: 32px; padding: 0 6px; }
+/* the window, not the viewport, decides the layout (a 440 px Music window on a 1440 px screen must stack too) */
+.fs-stream { container-type: inline-size; container-name: stream; }
+/* wide video: the player fills the stage height — no dead band under it (the provider letterboxes inside its frame) */
+.fs-stream[data-kind="video"] .fs-stream-stage { grid-template-rows: minmax(0, 1fr) auto; align-content: stretch; overflow: hidden; }
+.fs-stream[data-kind="video"] :is(.fs-stream-frame, .fs-stream-video, .fs-stream-empty, .fs-stream-facade) { aspect-ratio: auto; height: 100%; min-height: 200px; }
+.fs-stream[data-kind="video"] .fs-stream-facade { overflow: auto; }
+@container stream (max-width: 600px) {
+  .fs-stream-main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(160px, 1fr); }
+  .fs-stream[data-kind="video"] .fs-stream-stage { grid-template-rows: auto auto; overflow: visible; }
+  .fs-stream[data-kind="video"] :is(.fs-stream-frame, .fs-stream-video) { height: auto; aspect-ratio: 16 / 9; }
+  /* the consent facade and the empty state hold text and buttons: they size to their content, never clip it */
+  .fs-stream[data-kind="video"] :is(.fs-stream-empty, .fs-stream-facade) { height: auto; aspect-ratio: auto; overflow: visible; }
+  .fs-stream-main { overflow: auto; }
+}
+
+/* ------------------------------------------------------------------ TT27 Maps (MP-01..03) */
+.fs-maps { height: 100%; display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); min-height: 0; }
+.fs-maps-side { display: flex; flex-direction: column; gap: 10px; padding: 14px; overflow: auto; min-height: 0; border-right: 1px solid var(--fs-border); }
+.fs-maps-search { position: relative; }
+.fs-maps-results { list-style: none; margin: 4px 0 0; padding: 4px; display: grid; gap: 2px; border-radius: 10px; background: var(--fs-panel-solid); border: 1px solid var(--fs-border); max-height: 260px; overflow: auto; }
+.fs-maps-result { width: 100%; display: flex; justify-content: space-between; gap: 8px; text-align: left; min-height: 36px; padding: 6px 10px; border: 0; border-radius: 8px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.fs-maps-result:hover, .fs-maps-result:focus-visible { background: color-mix(in srgb, var(--fs-accent) 18%, transparent); }
+.fs-maps-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.fs-maps-modes .fs-layout-opt, .fs-maps-import { position: relative; overflow: hidden; }
+.fs-maps-modes .fs-layout-opt { justify-content: center; text-align: center; min-height: 40px; display: grid; place-items: center; font-weight: 700; }
+.fs-maps-card { display: grid; gap: 8px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--fs-text) 5%, transparent); border: 1px solid var(--fs-border); line-height: 1.45; }
+.fs-maps-card summary { cursor: pointer; font-weight: 700; min-height: 28px; }
+.fs-maps-places { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.fs-maps-places li[data-current] { background: color-mix(in srgb, var(--fs-accent) 18%, transparent); border-radius: 10px; }
+.fs-maps-place { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: center; text-align: left; min-height: 44px; padding: 5px 8px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.fs-maps-place:hover { background: color-mix(in srgb, var(--fs-text) 7%, transparent); }
+.fs-maps-dot { grid-row: span 2; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 2px #fff; }
+.fs-maps-place-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-maps-place-ll { font-size: calc(11 * var(--fs-u)); }
+.fs-maps-swatch { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--fs-border); cursor: pointer; }
+.fs-maps-swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--fs-accent); }
+.fs-maps-stage { position: relative; min-height: 0; min-width: 0; }
+.fs-maps-map { position: absolute; inset: 0; background: #0e2233; outline-offset: -3px; }
+.fs-maps-map[data-theme="light"] { background: #cfe3f2; }
+.fs-maps-map[data-mode="pin"], .fs-maps-map[data-mode="measure"] { cursor: crosshair; }
+.fs-maps-map .leaflet-container { font: inherit; }
+.fs-maps-map .leaflet-control-attribution { font-size: calc(10.5 * var(--fs-u)); background: rgba(255, 255, 255, 0.85); color: #1d1d1f; }
+.fs-maps-map .leaflet-control-attribution a { color: #0b57b5; }
+.fs-maps-map.leaflet-container { background: #0e2233; }
+.fs-maps-map[data-theme="light"].leaflet-container { background: #cfe3f2; }
+.fs-maps-coords { position: absolute; left: 12px; top: 12px; z-index: 500; padding: 5px 10px; border-radius: 10px; background: var(--fs-panel); border: 1px solid var(--fs-border);
+  backdrop-filter: blur(12px); font-variant-numeric: tabular-nums; font-size: calc(12 * var(--fs-u)); pointer-events: none; margin-left: 44px; }
+@media (max-width: 720px) {
+  .fs-maps { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 0.9fr) minmax(0, 1fr); }
+  .fs-maps-side { order: 2; border-right: 0; border-top: 1px solid var(--fs-border); }
+}
+
+/* TT28 in-app ask dialog (replaces window.prompt) */
+.fs-ask-backdrop { position: fixed; inset: 0; z-index: 12000; display: grid; place-items: start center; padding-top: 14vh; background: rgba(4, 10, 28, .38); }
+.fs-ask { width: min(calc(440 * var(--fs-u)), calc(100vw - 32px)); padding: calc(20 * var(--fs-u)); background: var(--fs-panel-solid); color: var(--fs-text); box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
+.fs-ask form { display: flex; flex-direction: column; gap: calc(12 * var(--fs-u)); margin: 0; }
+.fs-ask-title { margin: 0; font-size: calc(17 * var(--fs-u)); font-weight: 750; line-height: 1.3; overflow-wrap: anywhere; }
+.fs-ask-detail { margin: 0; color: var(--fs-muted); font-size: calc(13.5 * var(--fs-u)); line-height: 1.5; }
+.fs-ask-field { display: flex; flex-direction: column; gap: calc(4 * var(--fs-u)); }
+.fs-ask-label { font-size: calc(13 * var(--fs-u)); font-weight: 650; }
+.fs-ask-input { flex: 1 1 auto; min-width: 0; min-height: 44px; }
+.fs-ask-show { gap: 4px; font-size: calc(13 * var(--fs-u)); min-height: 44px; flex: 0 0 auto; cursor: pointer; }
+.fs-ask-error { margin: 0; padding: 6px 10px; border-radius: 8px; border-left: 3px solid #e5484d; background: color-mix(in srgb, #e5484d 14%, transparent); color: var(--fs-text); font-weight: 650; font-size: calc(13 * var(--fs-u)); line-height: 1.45; }
+.fs-ask-actions { gap: calc(8 * var(--fs-u)); align-items: center; }
+.fs-ask-actions .fs-btn { min-height: 44px; min-width: 88px; }
+@media (prefers-reduced-motion: no-preference) { .fs-ask { animation: fs-ask-in .16s ease-out; } }
+@keyframes fs-ask-in { from { opacity: 0; transform: translateY(-8px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* TT28 Snap: drag preview, layouts flyout, Snap Assist */
+.fs-snap-preview { position: absolute; z-index: 2000000000; pointer-events: none; border-radius: 12px; box-sizing: border-box;
+  background: color-mix(in srgb, var(--fs-accent) 22%, transparent); border: 2px solid color-mix(in srgb, var(--fs-accent) 70%, transparent); backdrop-filter: blur(6px); }
+@media (prefers-reduced-motion: no-preference) { .fs-snap-preview { transition: left .12s ease-out, top .12s ease-out, width .12s ease-out, height .12s ease-out; } }
+.fs-snap-flyout { position: absolute; z-index: 2000000001; display: grid; grid-template-columns: repeat(3, auto); gap: 12px; padding: 12px;
+  background: var(--fs-panel-solid); box-shadow: 0 14px 40px rgba(0, 0, 0, .28); }
+.fs-snap-thumb { position: relative; border-radius: 8px; }
+.fs-snap-zone { position: absolute; padding: 0; border-radius: 5px; border: 1.5px solid color-mix(in srgb, var(--fs-text) 35%, transparent);
+  background: color-mix(in srgb, var(--fs-text) 8%, transparent); cursor: pointer; }
+.fs-snap-zone:hover, .fs-snap-zone:focus-visible { background: var(--fs-accent); border-color: var(--fs-accent); outline: none; }
+.fs-snap-zone:focus-visible { box-shadow: 0 0 0 2px var(--fs-panel-solid), 0 0 0 4px var(--fs-accent); }
+.fs-snap-assist-layer { position: absolute; inset: 0; z-index: 2000000001; }
+.fs-snap-assist-later { position: absolute; box-sizing: border-box; border: 2px dashed color-mix(in srgb, var(--fs-text) 30%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--fs-panel-solid) 35%, transparent); }
+.fs-snap-assist { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 14px; overflow: auto;
+  background: color-mix(in srgb, var(--fs-panel-solid) 88%, transparent); box-shadow: 0 14px 40px rgba(0, 0, 0, .25); }
+.fs-snap-assist-title { margin: 0; font-weight: 700; font-size: calc(14 * var(--fs-u)); }
+.fs-snap-assist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.fs-snap-cand { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 88px; padding: 10px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--fs-border); background: color-mix(in srgb, var(--fs-text) 5%, transparent); color: var(--fs-text); font: inherit; font-size: calc(12.5 * var(--fs-u)); }
+.fs-snap-cand span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-snap-cand:hover, .fs-snap-cand:focus-visible { border-color: var(--fs-accent); background: color-mix(in srgb, var(--fs-accent) 16%, transparent); }
+.fs-snap-assist > .fs-btn { align-self: flex-end; }
+
+/* TT28 Art dock auto-hide */
+.fs-dock-reveal { position: fixed; left: 0; right: 0; bottom: 0; height: 4px; z-index: 59; }
+.fs-dock-row-auto { pointer-events: none; }
+.fs-dock-row-auto > * { pointer-events: auto; }
+@media (prefers-reduced-motion: no-preference) { .fs-dock-row-auto { transition: transform calc(var(--fs-motion) * .9) cubic-bezier(.2, .8, .2, 1); } }
+.fs-maps-dot-pin { background: transparent; border: 0; }
+/* TT29 tabletop legibility LOD: glyph walls + flat wall tags */
+.fs-tt-wall-glyphs { flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 10px; padding: 18px; }
+.fs-tt-glyph { width: 46px; height: 58px; border-radius: 6px; background: color-mix(in srgb, var(--fs-text) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fs-text) 18%, transparent); }
+.fs-tt-glyph-win { width: 96px; background: color-mix(in srgb, var(--fs-accent) 26%, transparent); }
+.fs-tt-walltag { position: absolute; z-index: 40; transform: translate(-50%, -50%); display: inline-flex; align-items: center; justify-content: center;
+  min-height: 28px; min-width: 28px; padding: 4px 12px; border-radius: 999px; white-space: nowrap; cursor: zoom-in; user-select: none;
+  font-size: calc(13 * var(--fs-u)); font-weight: 700; line-height: 1.2; letter-spacing: .01em;
+  color: var(--fs-text); background: color-mix(in srgb, var(--fs-panel-solid) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fs-text) 16%, transparent); box-shadow: 0 2px 10px rgb(0 0 0 / .18);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: background .15s, box-shadow .15s; }
+.fs-tt-walltag[data-vertical] { writing-mode: vertical-rl; padding: 12px 4px; max-height: 70%; overflow: hidden; text-overflow: ellipsis; }
+.fs-tt-walltag:hover { background: color-mix(in srgb, var(--fs-accent) 22%, var(--fs-panel-solid)); }
+.fs-tt-walltag[data-drop] { background: color-mix(in srgb, var(--fs-accent) 30%, var(--fs-panel-solid)); border-color: var(--fs-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--fs-accent) 35%, transparent); }
+/* TT31 live walls: every wall is a working strip in the overview; hover / focus / spring-load lifts it flat and true-size */
+.fs-tt-strip { position: absolute; left: 0; top: 0; z-index: 3; overflow: hidden; transform-origin: 0 0; pointer-events: none; }
+.fs-tt-strip-inner { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; transition: transform calc(var(--fs-motion) * 2.2) var(--tt-ease); }
+.fs-tt-strip-inner > button, .fs-tt-strip-head { pointer-events: auto; }
+.fs-tt-winglyphs { position: absolute; inset: 0; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 10px; padding: 14px 18px; opacity: .55; }
+.fs-tt-pin { position: absolute; width: 112px; height: 181px; padding: 0; border: 0; border-radius: 12px; cursor: grab; touch-action: none;
+  background: linear-gradient(to bottom, var(--pin-band, #9fb4d9) 0 18%, #fbfaf6 18%); box-shadow: 0 2px 6px rgb(0 0 0 / .28), inset 0 0 0 2px rgb(20 24 33 / .12);
+  transform: rotate(var(--rot, 0deg)); transition: left calc(var(--fs-motion) * 2.6) var(--tt-spring), top calc(var(--fs-motion) * 2.6) var(--tt-spring); }
+span.fs-tt-pin { pointer-events: none; }
+.fs-tt-pin[data-kind="md"], .fs-tt-pin[data-kind="txt"] { --pin-band: #7cc4e8; }
+.fs-tt-pin[data-kind="csv"], .fs-tt-pin[data-kind="xlsx"], .fs-tt-pin[data-kind="json"] { --pin-band: #6fd3a8; }
+.fs-tt-pin[data-kind="png"], .fs-tt-pin[data-kind="jpg"], .fs-tt-pin[data-kind="svg"], .fs-tt-pin[data-kind="webp"] { --pin-band: #f6b26b; }
+.fs-tt-pin[data-count] { box-shadow: 10px -10px 0 -2px #e6e2d6, 20px -20px 0 -4px #d6d1c3, 0 2px 6px rgb(0 0 0 / .28); }
+.fs-tt-pin:hover, .fs-tt-pin:focus-visible { outline: 6px solid var(--fs-accent); outline-offset: 2px; }
+.fs-tt-pin[data-dragging], .fs-tt-pincard[data-dragging], .fs-tt-wallpile[data-dragging] { cursor: grabbing; transition: none; }
+.fs-tt-pin[data-away], .fs-tt-pincard[data-away], .fs-tt-wallpile[data-away] { opacity: .35; }
+.fs-tt-wallpile { position: absolute; width: 112px; height: 181px; padding: 0; display: flex; flex-direction: column; overflow: visible; cursor: grab; touch-action: none;
+  border-radius: 10px; border: 1px solid rgb(20 24 33 / .14); background: #fbfaf6; color: #1d2330; font: inherit; text-align: left;
+  box-shadow: 8px -8px 0 -1px #ece8dd, 16px -16px 0 -2px #ddd8ca, 0 6px 16px rgb(0 0 0 / .2);
+  transition: left calc(var(--fs-motion) * 2.6) var(--tt-spring), top calc(var(--fs-motion) * 2.6) var(--tt-spring); }
+.fs-tt-wallpile .fs-tt-pile-badge { position: absolute; left: 6px; right: 6px; bottom: 6px; padding: 2px 8px; border-radius: 999px; text-align: center;
+  background: var(--fs-accent); color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fs-tt-wallpile:focus-visible { outline: 3px solid var(--fs-accent); outline-offset: 2px; }
+.fs-tt-wall[data-lifted] { border-radius: 16px; background: color-mix(in srgb, var(--fs-panel-solid) 96%, var(--fs-accent));
+  border: 1px solid color-mix(in srgb, var(--fs-accent) 40%, transparent); box-shadow: 0 22px 60px rgb(0 0 0 / .38), 0 4px 14px rgb(0 0 0 / .2); }
+.fs-tt-wall[data-lifted] .fs-tt-wall-open:hover { background: transparent; }
+.fs-tt-wall[data-drop] { outline: 3px solid var(--fs-accent); outline-offset: -3px; }
+.fs-tt-strip-head { position: absolute; left: 0; top: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: 0 6px 0 14px; z-index: 2;
+  font-size: calc(12 * var(--fs-u)); line-height: 1.2; white-space: nowrap; overflow: hidden; border-bottom: 1px solid color-mix(in srgb, var(--fs-text) 10%, transparent); }
+.fs-tt-strip-head strong { font-weight: 800; }
+.fs-tt-strip-head .fs-dim { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.fs-tt-strip-sp { flex: 1; }
+.fs-tt-strip-btn { flex: none; min-width: 28px; height: 28px; display: inline-grid; place-items: center; padding: 0 8px; border-radius: 8px; cursor: pointer;
+  font: inherit; font-weight: 700; color: var(--fs-text); border: 1px solid var(--fs-border); background: color-mix(in srgb, var(--fs-text) 5%, transparent); }
+.fs-tt-strip-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--fs-accent) 16%, transparent); }
+.fs-tt-strip-btn:disabled { opacity: .4; cursor: default; }
+.fs-tt-strip-btn:focus-visible { outline: 3px solid var(--fs-accent); outline-offset: 1px; }
+.fs-tt-rowsep { position: absolute; top: 0; width: 2px; height: 229px; background: color-mix(in srgb, var(--fs-text) 14%, transparent); }
+.fs-tt-rowsep > span { position: absolute; top: -2px; left: 8px; font-weight: 800; color: color-mix(in srgb, var(--fs-text) 70%, transparent); }
+.fs-tt-ghost { position: absolute; z-index: 950; pointer-events: none; display: flex; flex-direction: column; overflow: hidden; transform-origin: 0 0;
+  border-radius: 10px; border: 2px solid var(--fs-accent); background: #fbfaf6; box-shadow: 0 12px 30px rgb(0 0 0 / .35); opacity: .94; }
+@media (forced-colors: active) { .fs-tt-pin, .fs-tt-wallpile, .fs-tt-ghost { border: 1px solid CanvasText; } }
+/* TT30 Narrator (AX-14): caption panel, cursor box, command list */
+.fs-narrator-captions { position: fixed; left: 12px; bottom: 96px; z-index: 12000; max-width: min(560px, calc(100vw - 24px)); pointer-events: none;
+  display: grid; gap: 4px; padding: 10px 14px; border-radius: 14px; background: rgb(12 16 24 / .9); color: #f4f7fb;
+  box-shadow: 0 8px 28px rgb(0 0 0 / .35); font-size: calc(13 * var(--fs-u)); line-height: 1.45; }
+.fs-narrator-title { display: flex; align-items: center; gap: 8px; font-size: calc(11 * var(--fs-u)); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #b9c4d4; }
+.fs-narrator-dot { width: 8px; height: 8px; border-radius: 50%; background: #3ddc97; box-shadow: 0 0 0 3px rgb(61 220 151 / .25); }
+.fs-narrator-line { opacity: .72; }
+.fs-narrator-line:last-child { opacity: 1; font-weight: 700; }
+.fs-narrator-cursor { position: fixed; z-index: 11999; pointer-events: none; border-radius: 8px; outline: 3px solid #0a84ff; box-shadow: 0 0 0 2px #fff inset, 0 0 0 6px rgb(10 132 255 / .25);
+  transition: left .12s, top .12s, width .12s, height .12s; }
+.fs-narrator-help { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 12001; width: min(520px, calc(100vw - 24px)); max-height: calc(100vh - 48px); overflow: auto; padding: 18px; display: grid; gap: 10px; }
+.fs-narrator-help table { border-collapse: collapse; }
+.fs-narrator-help th, .fs-narrator-help td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--fs-border); }
+@media (prefers-reduced-motion: reduce) { .fs-narrator-cursor { transition: none !important; } }
+
+/* TT55: the Files selection toolbar is one scrollable line — in a narrow (dual) pane wrapping took 3 lines from the listing */
+.fs-selbar > * { flex: none; }
+.fs-selbar { scrollbar-width: thin; }

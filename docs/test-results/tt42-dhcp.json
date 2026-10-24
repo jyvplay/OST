@@ -1,0 +1,24 @@
+{
+  "suite": "tt42-dhcp",
+  "at": "2026-10-24T19:38:46.637Z",
+  "results": [
+    {
+      "suite": "tt42-dhcp",
+      "name": "DHCP WPAD from LEASE FILES live (WP-15): a dhclient lease in /var/lib/dhcp (two lease blocks — the LAST is the current one — option 252 as dhclient writes an unnamed option: `option unknown-252 \"…\"`) is found by a fresh process with only FUSION_WP_WPAD=1; its PAC file routes https://pypi.org/ through pproxy (200); then a NEWER systemd-networkd lease in /run/systemd/netif/leases (OPTION_252=<hex>) takes precedence — newest lease first, as the machine's current network",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 1966
+    },
+    {
+      "suite": "tt42-dhcp",
+      "name": "DHCP WPAD by DHCPINFORM live (WP-15): a REAL DHCP exchange — a fresh server process, root inside a network namespace (port 68), sends DHCPINFORM (RFC 2131 §3.4) on its veth interface; busybox udhcpd (an independent DHCP server) answers DHCPACK with option 252; the PAC file at that URL is loaded and decides pypi.org's route (\"PROXY 10.42.0.1:…\", recorded) and the proxy it names receives the CONNECT",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 2378
+    }
+  ]
+}

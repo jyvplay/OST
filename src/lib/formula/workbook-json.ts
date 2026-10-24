@@ -1,27 +1,121 @@
-import { Workbook, Sheet, a1 } from "./engine";
+/**
+ * Client-safe workbook JSON codec (no node: imports). v2 (TT15) adds optional
+ * per-cell `style` and per-sheet `colWidths` / `freezeRows`; v1 documents
+ * (cells with only ref+input) still load unchanged.
+ */
+import { Workbook, Sheet, a1, type CellStyle, type CellBorder, type MergeRange } from "./engine";
+import { isBorderLine, parseRef, rangeRef, sanitizeValidation, intersects } from "./sheetlayout";
 import { lettersToCol } from "./types";
+import { sanitizeCharts, sanitizeCondFormats } from "./sheetmeta";
+import { sanitizeLink, type SheetLink } from "./sheetlinks";
+import { sanitizePivot, type PivotDef } from "./pivotsheet";
 
-export interface WorkbookJson { sheets: { name: string; cells: { ref: string; input: string }[] }[] }
+export interface CellJson { ref: string; input: string; style?: CellStyle }
+export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[]; links?: unknown[]; pivots?: unknown[] }
+export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[]; tables?: unknown[]; date1904?: boolean }
+
 export function workbookToJson(wb: Workbook): WorkbookJson {
-  return { sheets: [...wb.sheets.values()].map((s) => ({
-    name: s.name,
-    cells: [...s.grid.entries()].map(([k, c]) => {
-      const [col, row] = k.split(",").map(Number);
-      return { ref: a1(col, row), input: c.input };
+  const extra: Partial<WorkbookJson> = {};
+  if (wb.charts.length) extra.charts = wb.charts.map((c) => ({ ...c }));
+  if (wb.condFormats.length) extra.condFormats = wb.condFormats.map((c) => ({ ...c }));
+  if (wb.names.size) extra.names = wb.listNames().map((n) => ({ ...n }));
+  // TT46: Excel tables (structured-reference targets) and the 1904 date system must survive the UI round-trip.
+  if (wb.tables.size) extra.tables = [...wb.tables.values()].map((t) => ({ ...t, columns: [...t.columns] }));
+  if (wb.date1904) extra.date1904 = true;
+  return {
+    ...extra,
+    sheets: [...wb.sheets.values()].map((s) => {
+      const out: SheetJson = {
+        name: s.name,
+        cells: [...s.grid.entries()].map(([k, c]) => {
+          const [col, row] = k.split(",").map(Number);
+          const cell: CellJson = { ref: a1(col, row), input: c.input };
+          if (c.style && Object.keys(c.style).length) cell.style = { ...c.style };
+          return cell;
+        }),
+      };
+      if (Object.keys(s.colWidths).length) out.colWidths = Object.fromEntries(Object.entries(s.colWidths).map(([k, v]) => [k, v]));
+      if (s.freezeRows) out.freezeRows = s.freezeRows;
+      if (s.freezeCols) out.freezeCols = s.freezeCols;
+      if (s.merges.length) out.merges = s.merges.map(rangeRef);
+      if (s.validations.length) out.validations = s.validations.map((v) => ({ ...v }));
+      if (s.links.length) out.links = s.links.map((l) => Object.fromEntries(Object.entries(l).filter(([, v]) => v !== undefined)));
+      if (s.pivots.length) out.pivots = s.pivots.map((p) => JSON.parse(JSON.stringify(p)));
+      return out;
     }),
-  })) };
+  };
 }
+
+const STYLE_KEYS: (keyof CellStyle)[] = ["bold", "italic", "underline", "align", "valign", "fill", "color", "numFmt", "wrap"];
+/** Untrusted JSON → only known style keys with primitive values survive. */
+function cleanStyle(raw: unknown): Partial<CellStyle> | null {
+  if (!raw || typeof raw !== "object") return null;
+  const out: Record<string, unknown> = {};
+  for (const k of STYLE_KEYS) {
+    const v = (raw as Record<string, unknown>)[k];
+    // Excel caps number-format codes at 255 characters; accounting formats routinely exceed 64.
+    if (typeof v === "boolean" || (typeof v === "string" && v.length <= (k === "numFmt" ? 255 : 64))) out[k] = v;
+  }
+  if (out.align !== undefined && !["left", "center", "right"].includes(out.align as string)) delete out.align;
+  for (const k of ["fill", "color"]) if (out[k] !== undefined && !/^#[0-9a-f]{6}$/i.test(out[k] as string)) delete out[k];
+  if (out.valign !== undefined && !["top", "center", "bottom"].includes(out.valign as string)) delete out.valign;
+  const b = (raw as Record<string, unknown>).border;
+  if (b && typeof b === "object") {
+    const border: CellBorder = {};
+    for (const side of ["top", "right", "bottom", "left"] as const) {
+      const v = (b as Record<string, unknown>)[side] as { style?: unknown; color?: unknown } | undefined;
+      if (v && isBorderLine(v.style)) border[side] = typeof v.color === "string" && /^#[0-9a-f]{6}$/i.test(v.color) ? { style: v.style, color: v.color } : { style: v.style };
+    }
+    if (Object.keys(border).length) out.border = border;
+  }
+  return Object.keys(out).length ? (out as Partial<CellStyle>) : null;
+}
+
 export function workbookFromJson(data: WorkbookJson): Workbook {
   const wb = new Workbook(); wb.sheets.clear();
-  for (const s of data.sheets) {
+  for (const s of data.sheets ?? []) {
     const sheet = new Sheet(s.name);
-    for (const { ref, input } of s.cells) {
+    for (const { ref, input, style } of s.cells ?? []) {
       const m = /^([A-Za-z]+)(\d+)$/.exec(ref);
-      if (m) sheet.setCell(lettersToCol(m[1].toUpperCase()), Number(m[2]) - 1, input);
+      if (!m) continue;
+      const col = lettersToCol(m[1].toUpperCase()), row = Number(m[2]) - 1;
+      sheet.setCell(col, row, String(input ?? ""));
+      const st = cleanStyle(style);
+      if (st) sheet.setStyle(col, row, st);
     }
+    for (const [k, v] of Object.entries(s.colWidths ?? {})) if (Number.isInteger(Number(k)) && typeof v === "number" && v >= 16 && v <= 1200) sheet.colWidths[Number(k)] = Math.round(v);
+    if (typeof s.freezeRows === "number" && s.freezeRows >= 0 && s.freezeRows <= 50) sheet.freezeRows = s.freezeRows;
+    if (typeof s.freezeCols === "number" && s.freezeCols >= 0 && s.freezeCols <= 26) sheet.freezeCols = Math.trunc(s.freezeCols);
+    // Untrusted merges: valid refs, ≥2 cells, non-overlapping (first wins).
+    for (const ref of (Array.isArray(s.merges) ? s.merges : []).slice(0, 5000)) {
+      const r = typeof ref === "string" ? parseRef(ref) : null;
+      if (r && !(r.c0 === r.c1 && r.r0 === r.r1) && !sheet.merges.some((m: MergeRange) => intersects(m, r))) sheet.merges.push(r);
+    }
+    sheet.validations = (Array.isArray(s.validations) ? s.validations : []).slice(0, 1000).map((v, i) => sanitizeValidation(v, `v${i + 1}`)).filter((v): v is NonNullable<typeof v> => !!v);
+    sheet.links = (Array.isArray(s.links) ? s.links : []).slice(0, 10000).map(sanitizeLink).filter((l): l is SheetLink => !!l);
+    sheet.pivots = (Array.isArray(s.pivots) ? s.pivots : []).slice(0, 100).map(sanitizePivot).filter((x): x is PivotDef => !!x);
     wb.sheets.set(s.name, sheet);
   }
   if (!wb.sheets.size) wb.addSheet("Sheet1");
+  wb.charts = sanitizeCharts(data.charts);
+  wb.condFormats = sanitizeCondFormats(data.condFormats);
+  wb.date1904 = data.date1904 === true;
+  // Untrusted tables: name syntax, existing sheet, sane bounds, one column name per column (max 2000 tables).
+  const okInt = (v: unknown, max: number) => typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= max;
+  for (const raw of (Array.isArray(data.tables) ? data.tables : []).slice(0, 2000)) {
+    const t = raw as Partial<Record<keyof import("./engine").TableDef, unknown>>;
+    if (typeof t?.name !== "string" || !/^[A-Za-z_\\][\w.\\]{0,254}$/.test(t.name) || typeof t.sheet !== "string" || !wb.sheets.has(t.sheet)) continue;
+    if (!okInt(t.c0, 16383) || !okInt(t.c1, 16383) || !okInt(t.r0, 1048575) || !okInt(t.r1, 1048575) || (t.c1 as number) < (t.c0 as number) || (t.r1 as number) < (t.r0 as number)) continue;
+    const cols = Array.isArray(t.columns) ? t.columns.filter((c): c is string => typeof c === "string" && c.length <= 255) : [];
+    if (cols.length !== (t.c1 as number) - (t.c0 as number) + 1) continue;
+    wb.tables.set(t.name.toUpperCase(), { name: t.name, sheet: t.sheet, c0: t.c0 as number, r0: t.r0 as number, c1: t.c1 as number, r1: t.r1 as number, headerRows: okInt(t.headerRows, 1) ? (t.headerRows as number) : 1, totalsRows: okInt(t.totalsRows, 1) ? (t.totalsRows as number) : 0, columns: cols });
+  }
+  // Untrusted names: each goes through defineName's validation; invalid ones are dropped (max 2000).
+  for (const raw of (Array.isArray(data.names) ? data.names : []).slice(0, 2000)) {
+    const n = raw as { name?: unknown; ref?: unknown; scope?: unknown; comment?: unknown };
+    if (typeof n?.name !== "string" || typeof n.ref !== "string" || n.ref.length > 8192) continue;
+    try { wb.defineName(n.name, n.ref, typeof n.scope === "string" ? n.scope : null, typeof n.comment === "string" ? n.comment : undefined); } catch { /* dropped */ }
+  }
   wb.recalculate();
   return wb;
 }

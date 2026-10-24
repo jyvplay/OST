@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt50-charts",
+  "at": "2026-10-24T20:12:24.714Z",
+  "results": [
+    {
+      "suite": "e2e-tt50-charts",
+      "name": "imported Excel charts are drawn where and as the file says: WithThreeCharts.xlsx — line + pie on Sheet2, area on Sheet3, titles, anchors, legends",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 4743
+    },
+    {
+      "suite": "e2e-tt50-charts",
+      "name": "edit an imported chart (title, stacked, value-axis title) and insert a new one → Save → openpyxl sees exactly those edits; the other charts and every cell unchanged",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 5431
+    },
+    {
+      "suite": "e2e-tt50-charts",
+      "name": "a chart made in the UI with a linear trendline, equation and R² draws them and saves a real c:trendline (openpyxl)",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 4753
+    },
+    {
+      "suite": "e2e-tt50-charts",
+      "name": "modal-shortcut failure test: Delete, Backspace, typing and Ctrl+Z inside the chart panel never touch the selected grid cell",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 3569
+    },
+    {
+      "suite": "e2e-tt50-charts",
+      "name": "no uncaught page errors during the charts session",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 122
+    }
+  ]
+}

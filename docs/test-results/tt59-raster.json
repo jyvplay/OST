@@ -1,0 +1,51 @@
+{
+  "suite": "tt59-raster",
+  "at": "2026-10-24T20:23:28.850Z",
+  "results": [
+    {
+      "suite": "tt59-raster",
+      "name": "BMP: 24-bit bottom-up rows with 4-byte padding (odd widths 1, 2, 3, 37) decode bit-exact in Pillow; alpha composited over white by the documented formula",
+      "covers": {
+        "FF-05": "full"
+      },
+      "pass": true,
+      "ms": 513
+    },
+    {
+      "suite": "tt59-raster",
+      "name": "GIF: ≤ 255 colours are exact (2-, 16-, 200-colour images incl. 1×1 and 600×400 noise past the 4096-code LZW reset) and Pillow decodes them bit-exact",
+      "covers": {
+        "FF-05": "full"
+      },
+      "pass": true,
+      "ms": 616
+    },
+    {
+      "suite": "tt59-raster",
+      "name": "GIF transparency: alpha < 128 → the transparent index (Graphic Control Extension), visible pixels exact; an all-transparent image is valid",
+      "covers": {
+        "FF-05": "full"
+      },
+      "pass": true,
+      "ms": 199
+    },
+    {
+      "suite": "tt59-raster",
+      "name": "GIF photo (> 256 colours): median cut + Floyd–Steinberg — mean error per channel ≤ 6 and 8×8 block-mean error ≤ 0.8 (no diffusion: 2.7; no right-hand term: 0.95) on a smooth 256×256 gradient, ≤ 12 on noise; quantising 1 MP stays < 4 s",
+      "covers": {
+        "FF-05": "full"
+      },
+      "pass": true,
+      "ms": 1119
+    },
+    {
+      "suite": "tt59-raster",
+      "name": "refusals: zero / oversized dimensions and short pixel buffers throw instead of writing a broken file",
+      "covers": {
+        "FF-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

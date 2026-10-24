@@ -1,0 +1,126 @@
+{
+  "suite": "tt46-writer",
+  "at": "2026-10-24T19:40:54.177Z",
+  "results": [
+    {
+      "suite": "tt46-writer",
+      "name": "xmltree: every well-formed XML part of the docx corpus re-serializes byte-identically",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 3152
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "xmltree guards: nesting bomb refused, external/undeclared entities never resolved, numeric refs decoded",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "zipkit: CRC-32 vector, CFB/encrypted refusal, truncation, inflate-ratio bomb guard, write→read round trip",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 195
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "docx corpus: every valid document saves byte-identically when unedited (all parts, all bytes)",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 6172
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "docx corpus: forcing EVERY paragraph to regenerate keeps text, styles and per-character formatting (python-docx oracle)",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 40522
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "edit session on a new document → python-docx sees styles, runs, lists, table, hyperlink, picture, comment, page break, alignment",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 179
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "editing ONE paragraph of a real document leaves every other paragraph's XML byte-identical",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 96
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "tracked changes: accept-all / reject-all on real Word revisions match python-docx's view of the original",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 745
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "lists from real documents: markers follow numbering.xml (per-numId counters, level reset, formats)",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "page setup, find/replace (case, whole word), undo snapshots are independent, backspace joins paragraphs",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 126
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "picture resize rewrites wp:extent + a:ext; cross-paragraph delete merges; deleting across a table only trims",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 110
+    },
+    {
+      "suite": "tt46-writer",
+      "name": "table column delete: last column of a 3-column table, then down to one column, then the only column removes the table (TT47 fix) — saved file reopens",
+      "covers": {
+        "FF-22": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 12
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "suite": "privacy-layer",
+  "at": "2026-10-24T19:08:36.389Z",
+  "results": [
+    {
+      "suite": "privacy-layer",
+      "name": "write through the layer: the host row has no plaintext name, content, size or index entry; read decrypts",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 124
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "list decrypts and sorts names; a second write keeps an encrypted version that decrypts; rename/move stay encrypted server-side",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 118
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "cross-store moves happen in the browser: host file → /Private arrives encrypted (source trashed); /Private → host is an explicit decrypting copy",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 77
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "office on encrypted files: Export .xlsx into /Private (rewritten to export + encrypted write), import from /Private inlined; the bare server refuses the blob",
+      "covers": {
+        "SC-10": "full",
+        "FF-20": "partial"
+      },
+      "pass": true,
+      "ms": 52
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "amnesic: VFS writes live in RAM (no row), host files can be hidden but are untouched, moves copy into RAM; wipe forgets everything",
+      "covers": {
+        "SC-11": "full"
+      },
+      "pass": true,
+      "ms": 48
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "amnesic deny-by-default: notes/settings/presets refused with nothing written; state kept in memory; compute endpoints still work; /Private still persists (Tails' Persistent folder)",
+      "covers": {
+        "SC-11": "full"
+      },
+      "pass": true,
+      "ms": 20
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "desktop state: /Private paths are sealed before reaching the host and reopened when unlocked; locked seal never leaks",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught)",
+      "covers": {
+        "SC-10": "full",
+        "SC-14": "partial"
+      },
+      "pass": true,
+      "ms": 206
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock",
+      "covers": {
+        "SC-16": "full"
+      },
+      "pass": true,
+      "ms": 206
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results",
+      "covers": {
+        "SC-16": "partial",
+        "SC-13": "partial"
+      },
+      "pass": true,
+      "ms": 96
+    }
+  ]
+}

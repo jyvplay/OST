@@ -1,0 +1,69 @@
+{
+  "suite": "tt71-focus",
+  "at": "2026-10-24T20:41:57.552Z",
+  "results": [
+    {
+      "suite": "tt71-focus",
+      "name": "parseRules rejects 18 malformed shapes with a message naming the rule; accepts and normalises a good list",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt71-focus",
+      "name": "inSchedule equals the minute-of-week oracle on every minute of the week for 60 schedules (incl. overnight, Sat→Sun)",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 609
+    },
+    {
+      "suite": "tt71-focus",
+      "name": "localTime: New York DST jumps, +05:30 / +12:45 offsets, unknown zone falls back to UTC (flagged)",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 84
+    },
+    {
+      "suite": "tt71-focus",
+      "name": "decide: every active rule must let the alert through; the first blocking one is recorded; inactive rules never hold",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt71-focus",
+      "name": "the reason sentence names the rule, its condition, the app, what breaks through and the alert's priority",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt71-focus",
+      "name": "validateSetting: alerts.focusRules uses the same parser; alerts.timeZone is checked with Intl ('' = UTC)",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt71-focus",
+      "name": "repair: normalizeAlert refuses non-string fields and non-enum priorities (was: 500 / garbage stored); blanks default",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

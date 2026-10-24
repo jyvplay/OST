@@ -1,0 +1,34 @@
+{
+  "suite": "e2e-tt36",
+  "at": "2026-10-24T19:33:18.187Z",
+  "results": [
+    {
+      "suite": "e2e-tt36",
+      "name": "Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page",
+      "covers": {
+        "PR-07k": "partial",
+        "WP-05": "full"
+      },
+      "pass": true,
+      "ms": 6745
+    },
+    {
+      "suite": "e2e-tt36",
+      "name": "reader endpoint headers (PR-07k): the reader page is served with a CSP sandbox (no same-origin), scripts only from Fusion (no inline script), no forms; a non-page address gets a plain refusal; a private address is refused (SSRF)",
+      "covers": {
+        "PR-07k": "partial"
+      },
+      "pass": true,
+      "ms": 336
+    },
+    {
+      "suite": "e2e-tt36",
+      "name": "named profiles (PR-07o): two tabs in profile Work share one session and its cookies, a third tab on the same site (this tab only) does not; switching it to Work joins the jar, switching a Work tab to 'this tab only' leaves it; the profile is saved with the window; closing the last Work tab deletes the Work session",
+      "covers": {
+        "PR-07o": "partial"
+      },
+      "pass": true,
+      "ms": 6683
+    }
+  ]
+}

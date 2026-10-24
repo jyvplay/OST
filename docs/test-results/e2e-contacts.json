@@ -1,0 +1,93 @@
+{
+  "suite": "e2e-contacts",
+  "at": "2026-10-24T19:20:06.074Z",
+  "results": [
+    {
+      "suite": "e2e-contacts",
+      "name": "create: empty book → New → fill name, e-mail, phone, birthday, two groups → Save; card links and the .vcf on disk are right",
+      "covers": {
+        "CN-02": "full",
+        "PR-05": "partial"
+      },
+      "pass": true,
+      "ms": 4545
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "no lost edit: closing the window right after Save (inside the 0.5 s autosave delay) still writes the change",
+      "covers": {
+        "CN-02": "full"
+      },
+      "pass": true,
+      "ms": 2140
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "validation and cancel: no name + bad e-mail → two errors announced (role=alert), nothing saved; Esc closes the editor",
+      "covers": {
+        "CN-02": "partial"
+      },
+      "pass": true,
+      "ms": 2129
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload",
+      "covers": {
+        "CN-04": "full",
+        "CN-02": "partial",
+        "CN-01": "partial"
+      },
+      "pass": true,
+      "ms": 2206
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "keyboard edit, delete and undo: E opens the editor, Enter saves, Delete removes, Undo restores; unknown fields survive the edit",
+      "covers": {
+        "CN-02": "full"
+      },
+      "pass": true,
+      "ms": 2647
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "duplicates and merge, birthdays: two cards sharing an e-mail (different case) are grouped and merged without losing a phone; a birthday in 3 days is listed",
+      "covers": {
+        "CN-03": "full"
+      },
+      "pass": true,
+      "ms": 1993
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "export: CSV to Files (injection-guarded) and as a download; .vcf download re-imports to the same contacts",
+      "covers": {
+        "CN-04": "full"
+      },
+      "pass": true,
+      "ms": 1310
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
+      "covers": {
+        "CN-04": "partial",
+        "PR-05": "partial",
+        "FM-01": "partial"
+      },
+      "pass": true,
+      "ms": 2109
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
+      "covers": {
+        "CN-02": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 4813
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { entitlements, licenseAuthority } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +53,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as { action?: string; clientId?: string; kind?: "pro" | "propack"; key?: string };
+  const body = (await readJsonObject(req)) as ({ action?: string; clientId?: string; kind?: "pro" | "propack"; key?: string }) | Response;
+  if (body instanceof Response) return body;
   const clientId = body.clientId ?? "anonymous";
   const auth = await authority();
 

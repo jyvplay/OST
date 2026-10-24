@@ -1,0 +1,78 @@
+{
+  "suite": "tt39-pac",
+  "at": "2026-10-24T19:38:16.851Z",
+  "results": [
+    {
+      "suite": "tt39-pac",
+      "name": "PAC helpers vs the Netscape specification's own examples: isPlainHostName, dnsDomainIs, localHostOrDomainIs, dnsDomainLevels, shExpMatch, isInNet (incl. a name resolved through DNS), dnsResolve, isResolvable, myIpAddress, convert_addr, the …Ex IPv6-extension functions; shell classes [ab] / [a-z] / [!a]",
+      "covers": {
+        "WP-12": "full"
+      },
+      "pass": true,
+      "ms": 14
+    },
+    {
+      "suite": "tt39-pac",
+      "name": "PAC date/time helpers at a fixed clock (Sunday 18 Oct 2026 14:30:15 UTC): weekdayRange incl. wrap past Saturday, dateRange in all 9 Netscape forms incl. ranges across the year end, timeRange in its 4 forms incl. wrap past midnight and second-exact bounds, 'GMT' as the last argument",
+      "covers": {
+        "WP-12": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt39-pac",
+      "name": "PAC results and plumbing: 'PROXY a:1; SOCKS5 [::1]:2; DIRECT' parses (default ports, IPv6, case-insensitive types); 9 malformed entries are skipped; https:// URLs reach the script as scheme://host:port/ only (no path, no query — as Chrome); FindProxyForURLEx is preferred when both exist; DNS answers come back through re-runs (one lookup per name, cached), DNS off answers null with NO lookup; 40 concurrent decisions each get their own answer",
+      "covers": {
+        "WP-12": "full"
+      },
+      "pass": true,
+      "ms": 224
+    },
+    {
+      "suite": "tt39-pac",
+      "name": "differential vs PyPAC 0.19 (Apache-2.0, Duktape engine) at the same pinned instant: 3 realistic PAC files (corporate split routing with isInNet/shExpMatch/dnsDomainIs/localHostOrDomainIs, a working-hours schedule, a helper probe) × 14 hosts × http/https = 84 decisions must be IDENTICAL; 6 cases where PyPAC departs from the Netscape text (one-argument weekdayRange is always false, ranges never wrap, localHostOrDomainIs is a bare prefix test, a failed dnsResolve gives \"\" — Chrome gives null) are predicted beforehand and must differ exactly as predicted",
+      "covers": {
+        "WP-12": "full"
+      },
+      "pass": true,
+      "ms": 626
+    },
+    {
+      "suite": "tt39-pac",
+      "name": "hostile PAC files (each in its own process; D: 14 shapes): reaching the host through constructors (3 ways), an endless loop at load and in FindProxyForURL, a real Error with an endless message getter thrown at load, an endless PROMISE JOB (would run after the time limit without microtaskMode), a thrown object with an endless getter, a thrown Proxy, a result whose toString never returns, a DNS flood, a >1 MiB script, a syntax error, no FindProxyForURL — every one ends within its time limit with an error or a harmless string, and the process stays alive",
+      "covers": {
+        "WP-12": "full"
+      },
+      "pass": true,
+      "ms": 9037
+    },
+    {
+      "suite": "tt39-pac",
+      "name": "OS proxy settings parsers (documented output formats — sample text written for the tests, NOT captured from real Windows/macOS/GNOME machines): Windows reg query (one server for all, per-protocol 'http=…;https=…;socks=…', disabled manual + AutoConfigURL), macOS scutil --proxy (scoped per-interface dictionaries ignored), GNOME gsettings (manual / auto / none); 8 malformed inputs give nothing; the exception lists (<local>, globs, .suffix, CIDR incl. macOS '169.254/16'); OS settings → the route per URL",
+      "covers": {
+        "WP-12": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt39-pac",
+      "name": "PAC live (WP-12): a fresh server process with FUSION_WP_PAC_URL fetches the PAC file ONCE over HTTP from the local network and follows it per request — https://pypi.org/ through the PROXY it names (an independent proxy, pproxy, logs the name), github.com DIRECT even though its PATH contains the PAC's trigger word (https paths are hidden from the script), a host whose entries are all unusable (QUIC; HTTPS / SOCKS4 became usable in TT40) is REFUSED, never sent direct; an unreachable PAC file → DIRECT with the error reported; https_proxy in the environment takes precedence over the PAC file",
+      "covers": {
+        "WP-12": "full"
+      },
+      "pass": true,
+      "ms": 2566
+    },
+    {
+      "suite": "tt39-pac",
+      "name": "OS settings live (WP-12): a fresh server process with NO proxy variables reads the system proxy page through the platform tool — here a stand-in `gsettings` executable on PATH that prints GNOME's documented output (this sandbox has no GNOME) naming pproxy as the HTTPS proxy and 127.0.0.0/8 as an exception — and https://pypi.org/ is carried by pproxy while FUSION_WP_OS_PROXY=0 turns the reading off",
+      "covers": {
+        "WP-12": "partial"
+      },
+      "pass": true,
+      "ms": 2009
+    }
+  ]
+}

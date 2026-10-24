@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt66-input",
+  "at": "2026-10-24T20:28:52.524Z",
+  "results": [
+    {
+      "suite": "e2e-tt66-input",
+      "name": "positive control: a real CDP Back press on a page WITHOUT the shell navigates the tab back (the guard test is not vacuous)",
+      "covers": {
+        "IN-01": "full"
+      },
+      "pass": true,
+      "ms": 2859
+    },
+    {
+      "suite": "e2e-tt66-input",
+      "name": "desktop: Back / Forward over the wallpaper never leave the page; Files still goes back / forward in its own history on the same buttons",
+      "covers": {
+        "IN-01": "full"
+      },
+      "pass": true,
+      "ms": 7549
+    },
+    {
+      "suite": "e2e-tt66-input",
+      "name": "wheel: Whiteboard pans the same distance for a real pixel notch (CDP deltaY 100), a 3-line event and (page mode) one canvas height",
+      "covers": {
+        "IN-01": "full"
+      },
+      "pass": true,
+      "ms": 2022
+    },
+    {
+      "suite": "e2e-tt66-input",
+      "name": "no uncaught page errors",
+      "covers": {
+        "IN-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

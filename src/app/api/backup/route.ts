@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { notes, settings, vfsNodes } from "@/db/schema";
 import { sha256, writeFile } from "@/lib/server/vfs";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const bundle = (await req.json()) as Bundle & { dryRun?: boolean };
+  const bundle = (await readJsonObject(req)) as (Bundle & { dryRun?: boolean }) | Response;
+  if (bundle instanceof Response) return bundle;
   if (bundle.version !== "fusion-bundle-1") {
     return NextResponse.json({ ok: false, error: "unknown bundle version" }, { status: 400 });
   }

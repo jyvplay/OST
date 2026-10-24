@@ -1,0 +1,78 @@
+{
+  "suite": "tt31-unit",
+  "at": "2026-10-24T19:27:07.208Z",
+  "results": [
+    {
+      "suite": "tt31-unit",
+      "name": "row mapping (hand values): board (24,24) → strip (24,24); row 1 (y=229) → S = 912 + x; strip → board inverts every on-grid board point",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt31-unit",
+      "name": "strip frames: element ↔ (u,v) are inverse rotations (det +1, no mirror) for rot 0 / 90 / −90 and the CSS matrix matches the math",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt31-unit",
+      "name": "infinite pins: rows in use + one empty row; max pan reaches every pin and the empty row; panToShow brings any pin fully into view",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt31-unit",
+      "name": "lifted pose (slant camera, 6 viewports × 4 walls): projects EXACTLY onto the dock rectangle, in front of every resting face, inside the frame, cards ≥ 24 px and names ≥ 9 px",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "tt31-unit",
+      "name": "pointer mapping: screen → element through the face's quad inverts element → screen (rest quads of both cameras and lifted quads), and surfaceAt follows paint order",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt31-unit",
+      "name": "resting pins: a pin is a pointer target only where its projected box is ≥ 24 px both ways — north band yes at 1440, side slivers no (they lift instead)",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt31-unit",
+      "name": "fan along the strip: n cards, increasing S, no overlap beyond 14 %, centred on the pile, never before S = 0",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt31-unit",
+      "name": "mutants: each seeded defect in the geometry is caught by the checks above",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

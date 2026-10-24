@@ -1,11 +1,13 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, fmtTime, patch, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Empty, Section } from "../ui";
+import { FocusRulesEditor, type FocusStatus } from "./FocusRules";
 
-interface Alert { id: number; app: string; title: string; body: string; priority: string; groupKey: string; read: boolean; pinned: boolean; createdAt: string }
+interface Alert { id: number; app: string; title: string; body: string; priority: string; groupKey: string; read: boolean; pinned: boolean; createdAt: string; heldBy?: string | null; heldReason?: string | null }
 
 /** NC-01/04. First-party alerts; the platform gap is a permanent visible row. */
 export default function AlertsModule(_: ModuleProps) {
@@ -14,25 +16,34 @@ export default function AlertsModule(_: ModuleProps) {
   const [perm, setPerm] = useState<string>(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
   const [group, setGroup] = useState(true);
   const [note, setNote] = useState("");
+  const [focus, setFocus] = useState<FocusStatus | null>(null);
+  const [showRules, setShowRules] = useState(false);
 
-  const load = () => api<{ rows: Alert[]; platformNote: string }>("/api/alerts")
-    .then((r) => { setRows(r.rows); setNote(r.platformNote); })
+  const load = () => api<{ rows: Alert[]; platformNote: string; focus: FocusStatus }>("/api/alerts")
+    .then((r) => { setRows(r.rows); setNote(r.platformNote); setFocus(r.focus); })
     .catch(() => undefined);
   useEffect(() => { void load(); }, []);
 
+  // TT71 NC-02: alerts held by a focus rule are listed apart, each with the sentence saying why
+  const held = rows.filter((r) => r.heldBy);
+  const shown = rows.filter((r) => !r.heldBy);
   const groups = group
-    ? rows.reduce<Record<string, Alert[]>>((acc, a) => { (acc[a.groupKey || a.app] ??= []).push(a); return acc; }, {})
-    : { All: rows };
+    ? shown.reduce<Record<string, Alert[]>>((acc, a) => { (acc[a.groupKey || a.app] ??= []).push(a); return acc; }, {})
+    : { All: shown };
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <Btn variant="primary" onClick={async () => {
-          await post("/api/alerts", { app: "Fusion", title: "Test alert", body: `Created at ${new Date().toLocaleTimeString()}`, priority: "normal" });
-          if (perm === "granted") new Notification("Fusion Shell", { body: "Test alert delivered through the Notification API." });
+          const res = await post<{ delivered?: boolean; reason?: string }>("/api/alerts", { app: "Fusion", title: "Test alert", body: `Created at ${new Date().toLocaleTimeString()}`, priority: "normal" });
+          if (res.delivered === false) shell.toast(`Held: ${res.reason}`, "info");
+          else if (perm === "granted") new Notification("Fusion Shell", { body: "Test alert delivered through the Notification API." });
           await load();
           void navigator.setAppBadge?.(rows.filter((r) => !r.read).length + 1).catch(() => undefined);
         }}>Create test alert</Btn>
+        <Btn variant="ghost" aria-expanded={showRules} onClick={() => setShowRules((v) => !v)}>
+          Focus rules{focus?.active.length ? ` · ${focus.active.length} active` : ""}
+        </Btn>
         <Btn variant="ghost" onClick={() => setGroup((g) => !g)}>{group ? "Ungroup" : "Group"}</Btn>
         <Btn variant="ghost" onClick={async () => { await patch("/api/alerts", { ids: rows.map((r) => r.id), read: true }); await load(); void navigator.clearAppBadge?.().catch(() => undefined); }}>Mark all read</Btn>
         <Btn variant="danger" onClick={async () => { if (confirm("Clear all alerts?")) { await fetch("/api/alerts", { method: "DELETE" }); await load(); } }}>Clear</Btn>
@@ -44,7 +55,30 @@ export default function AlertsModule(_: ModuleProps) {
         )}
       </div>
 
+      {showRules && focus ? <FocusRulesEditor status={focus} onSaved={() => void load()} /> : null}
+      {!showRules && focus?.active.length ? (
+        <div className="fs-dim" data-testid="focus-active-line" style={{ fontSize: fz(12) }}>Focus: {focus.active.join(", ")} — some alerts are being held.</div>
+      ) : null}
+
       {rows.length === 0 ? <Empty title="No alerts" icon="🔔" /> : null}
+
+      {held.length ? (
+        <Section title={`Held by focus rules · ${held.length}`} dense>
+          <div data-testid="alerts-held" style={{ display: "grid", gap: 2 }}>
+            {held.map((a) => (
+              <div key={a.id} className="fs-list-item" data-testid={`held-${a.id}`}>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: fz(12) }}>{a.app}: {a.title}</div>
+                  <div className="fs-dim" style={{ fontSize: fz(11) }}>{a.heldReason} · {fmtTime(a.createdAt)}</div>
+                </span>
+                <Badge tone={a.priority === "high" ? "bad" : a.priority === "low" ? "default" : "info"}>{a.priority}</Badge>
+                <Btn variant="ghost" onClick={async () => { await patch("/api/alerts", { ids: [a.id], deliver: true }); await load(); }}>Deliver now</Btn>
+                <Btn variant="ghost" onClick={async () => { await fetch(`/api/alerts?id=${a.id}`, { method: "DELETE" }); await load(); }}>Dismiss</Btn>
+              </div>
+            ))}
+          </div>
+        </Section>
+      ) : null}
 
       {Object.entries(groups).map(([key, list]) => (
         <Section key={key} title={`${key} · ${list.length}`} dense>
@@ -52,8 +86,8 @@ export default function AlertsModule(_: ModuleProps) {
             {list.map((a) => (
               <div key={a.id} className="fs-list-item" style={{ opacity: a.read ? .6 : 1 }}>
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12 }}>{a.pinned ? "📌 " : ""}{a.title}</div>
-                  <div className="fs-dim" style={{ fontSize: 11 }}>{a.body} · {fmtTime(a.createdAt)}</div>
+                  <div style={{ fontSize: fz(12) }}>{a.pinned ? "📌 " : ""}{a.title}</div>
+                  <div className="fs-dim" style={{ fontSize: fz(11) }}>{a.body} · {fmtTime(a.createdAt)}</div>
                 </span>
                 <Badge tone={a.priority === "high" ? "bad" : a.priority === "low" ? "default" : "info"}>{a.priority}</Badge>
                 <Btn variant="ghost" onClick={async () => { await patch("/api/alerts", { ids: [a.id], snoozeMinutes: 15 }); await load(); }}>Snooze 15m</Btn>
@@ -68,8 +102,8 @@ export default function AlertsModule(_: ModuleProps) {
       <Blocked what="Reading other applications' notifications"
         missing="no NotificationListenerService analog exists for web content; origins are isolated"
         workaround="Fusion's own alerts, OS delivery through the Notification API, and app badging." />
-      {note ? <div className="fs-dim" style={{ fontSize: 11 }}>{note}</div> : null}
-      <div className="fs-dim" style={{ fontSize: 11 }}>
+      {note ? <div className="fs-dim" style={{ fontSize: fz(11) }}>{note}</div> : null}
+      <div className="fs-dim" style={{ fontSize: fz(11) }}>
         Diagnostics: permission <span className="fs-mono">{perm}</span> · badging{" "}
         <span className="fs-mono">{"setAppBadge" in navigator ? "available" : "unavailable"}</span> · alerts are stored
         in Postgres with a visible retention policy, never in a hidden cache.

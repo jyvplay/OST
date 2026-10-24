@@ -1,0 +1,51 @@
+{
+  "suite": "tt70-edge",
+  "at": "2026-10-24T20:41:35.213Z",
+  "results": [
+    {
+      "suite": "tt70-edge",
+      "name": "edge zones are 8 px at each side (inclusive); a desktop too narrow for two zones has none; NaN never matches",
+      "covers": {
+        "WM-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt70-edge",
+      "name": "neighbours follow list order (non-contiguous ids); none past either end or for an unknown active workspace",
+      "covers": {
+        "WM-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt70-edge",
+      "name": "arming: enter with a neighbour arms, without one does not; moving inside keeps; leaving disarms; edge → other edge re-arms",
+      "covers": {
+        "WM-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt70-edge",
+      "name": "latch: after a hop the same edge never re-arms and its half-snap is suppressed; leaving releases the latch",
+      "covers": {
+        "WM-13": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt70-edge",
+      "name": "exhaustive: every (state, side, canHop) — 'arm' only when entering a non-latched edge with a neighbour; state.side = input side",
+      "covers": {
+        "WM-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

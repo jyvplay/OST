@@ -1,0 +1,9 @@
+{"cells":26946,"okBefore":26287,"okAfter":26295,"flips":8,"errors":1}
+{"file":"FormulaEvalTestData_Copy.xlsx","sheet":"EverythingTests","ref":"E296","formula":"=COUNTIF(AA7:AA13, 1/0)","cached":1,"before":"#DIV/0!","after":1}
+{"file":"FormulaEvalTestData_Copy.xlsx","sheet":"EverythingTests","ref":"L732","formula":"=IF(AA11,1)","cached":"#NAME?","before":"#VALUE!","after":"#NAME?"}
+{"file":"FormulaEvalTestData_Copy.xlsx","sheet":"EverythingTests","ref":"H772","formula":"=ISBLANK(E7)","cached":false,"before":true,"after":false}
+{"file":"FormulaEvalTestData_Copy.xlsx","sheet":"EverythingTests","ref":"F788","formula":"=ISNA(AA13)","cached":true,"before":false,"after":true}
+{"file":"FormulaEvalTestData_Copy.xlsx","sheet":"EverythingTests","ref":"I808","formula":"=ISTEXT(B34)","cached":false,"before":true,"after":false}
+{"file":"FormulaEvalTestData_Copy.xlsx","sheet":"EverythingTests","ref":"L832","formula":"=LEN(AA12)","cached":"#NUM!","before":5,"after":"#NUM!"}
+{"file":"FormulaEvalTestData_Copy.xlsx","sheet":"EverythingTests","ref":"P876","formula":"=LOWER(AA8)","cached":"#DIV/0!","before":"#div/0!","after":"#DIV/0!"}
+{"file":"FormulaEvalTestData_Copy.xlsx","sheet":"EverythingTests","ref":"E1324","formula":"=SUMIF(AA7:AA13,C10:D10, C7)","cached":1.1,"before":"#VALUE!","after":1.1}

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <!-- Fusion Shell TT25 "Enterprise" wallpaper — original vector art (a calm glass-facade mood for an open office; not Microsoft's artwork), CC0 for this project. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f2742"/><stop offset=".6" stop-color="#1d4a78"/><stop offset="1" stop-color="#2f6aa3"/></linearGradient>
+    <radialGradient id="glow" cx=".72" cy=".38" r=".55"><stop offset="0" stop-color="#9fd0ff" stop-opacity=".55"/><stop offset=".5" stop-color="#4c9be8" stop-opacity=".18"/><stop offset="1" stop-color="#4c9be8" stop-opacity="0"/></radialGradient>
+    <linearGradient id="pane" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".16"/><stop offset="1" stop-color="#ffffff" stop-opacity=".02"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1d33" stop-opacity="0"/><stop offset="1" stop-color="#0b1d33" stop-opacity=".55"/></linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <rect width="1600" height="1000" fill="url(#glow)"/>
+  <g transform="translate(980 170) skewY(-8)">
+    <rect x="0" y="0" width="190" height="250" rx="6" fill="url(#pane)"/>
+    <rect x="206" y="0" width="190" height="250" rx="6" fill="url(#pane)"/>
+    <rect x="0" y="266" width="190" height="250" rx="6" fill="url(#pane)"/>
+    <rect x="206" y="266" width="190" height="250" rx="6" fill="url(#pane)"/>
+  </g>
+  <g stroke="#ffffff" stroke-opacity=".07" stroke-width="2">
+    <path d="M0 640L1600 520M0 720L1600 610M0 800L1600 700M0 880L1600 790"/>
+    <path d="M160 1000L330 560M480 1000L600 540M800 1000L860 525M1120 1000L1120 510M1440 1000L1380 495"/>
+  </g>
+  <rect width="1600" height="1000" fill="url(#floor)"/>
+</svg>

@@ -1,0 +1,114 @@
+{
+  "suite": "tt44-vt",
+  "at": "2026-10-24T19:39:31.969Z",
+  "results": [
+    {
+      "suite": "tt44-vt",
+      "name": "fuzz differential vs xterm.js: 600 seeds × (40×12, 80×24), random chunking — zero unexplained mismatches",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 9390
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "xterm.js itself crashes on CUP-past-corner + ED1 (oracle bug) — vt.ts survives it with a sane cursor",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "real programs through a real pty (ls, less, top, bash readline, ncurses app, git log --graph) == xterm.js under 2 chunkings",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 5779
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "where xterm.js deviates, vt.ts follows xterm/VT510: DECALN, DECOM, CPR in pending wrap, EL0 at the margin",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "DECRQSS / DA / DSR replies match xterm.js exactly",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "key encoder == terminfo xterm-256color (cursor keys in keypad-transmit mode, F1–F63 with modifier banks, editing keys)",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 11
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "mouse encoder == xterm.js core mouse service (X10/1000/1002/1003 × legacy/SGR × buttons, wheel, drag, modifiers)",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 20
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "hostile output is bounded: REP / parameter floods, 10 MB stream, malformed UTF-8, OSC 52, title cap, DCS inert",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1007
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "resize keeps the cursor row on screen and bounds everything; scrollback only from the primary screen",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 12
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "reflow: 300 seeds × 4 width changes — every logical line equals the INPUT's line (ground truth) and xterm.js's reflow wherever xterm.js itself keeps the input",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 469
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "documented divergence: xterm.js does not reflow the cursor's line, so narrowing cuts it; vt.ts re-wraps it (as VTE and kitty do)",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 11
+    },
+    {
+      "suite": "tt44-vt",
+      "name": "reflow round trip: 70 → 41 → 70 columns restores every cell, colour and the cursor; the alternate screen is cut, not reflowed",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "suite": "tt61-writer-notes-rich",
+  "at": "2026-10-24T20:24:59.182Z",
+  "results": [
+    {
+      "suite": "tt61-writer-notes-rich",
+      "name": "fixture sanity: the lxml-written formatted note reads back as written (independent probe) and as text in our model",
+      "covers": {
+        "FF-43": "full"
+      },
+      "pass": true,
+      "ms": 60
+    },
+    {
+      "suite": "tt61-writer-notes-rich",
+      "name": "an edit inside plain text, inside a bold word, at the start of an italic word: only the edited span changes; inserted text takes the previous character's formatting",
+      "covers": {
+        "FF-43": "full"
+      },
+      "pass": true,
+      "ms": 484
+    },
+    {
+      "suite": "tt61-writer-notes-rich",
+      "name": "line breaks: typing \\n splits the paragraph (new one keeps FootnoteText), deleting a break joins paragraphs, deleting everything keeps the reference mark",
+      "covers": {
+        "FF-43": "full"
+      },
+      "pass": true,
+      "ms": 271
+    },
+    {
+      "suite": "tt61-writer-notes-rich",
+      "name": "a note holding another reviewer's tracked change is edited in place: the call says \"kept\" and the revision survives",
+      "covers": {
+        "FF-43": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt61-writer-notes-rich",
+      "name": "randomized differential: 60 random edits — note text always equals the request; every character outside the changed span keeps its formatting; save → re-open → lxml text agrees",
+      "covers": {
+        "FF-43": "full"
+      },
+      "pass": true,
+      "ms": 1107
+    },
+    {
+      "suite": "tt61-writer-notes-rich",
+      "name": "diffHunks (from-scratch Myers): on 400 random string pairs the hunks rebuild the target exactly and the edit count equals an independent DP insert/delete distance; two separate edits leave the text between them — and its formatting — alone",
+      "covers": {
+        "FF-43": "full"
+      },
+      "pass": true,
+      "ms": 84
+    },
+    {
+      "suite": "tt61-writer-notes-rich",
+      "name": "POI corpus (6 files, every footnote / endnote): a random mid-note edit keeps the text exact, keeps each untouched character's formatting (independent lxml probe before vs after), keeps references sound",
+      "covers": {
+        "FF-43": "full"
+      },
+      "pass": true,
+      "ms": 26026
+    }
+  ]
+}

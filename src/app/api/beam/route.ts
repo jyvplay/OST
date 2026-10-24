@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { beamSessions, castTargets } from "@/db/schema";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -19,10 +20,11 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const b = (await req.json()) as {
+  const b = (await readJsonObject(req)) as ({
     action?: string; name?: string; kind?: string; host?: string; capability?: unknown;
     transport?: string; source?: string; sessionId?: number; stats?: unknown; trusted?: boolean;
-  };
+  }) | Response;
+  if (b instanceof Response) return b;
   if (b.action === "seen" && b.name && b.kind) {
     const existing = await db.select().from(castTargets).where(eq(castTargets.name, b.name)).limit(1);
     if (existing[0]) {

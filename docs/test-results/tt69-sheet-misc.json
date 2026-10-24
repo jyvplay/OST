@@ -1,0 +1,53 @@
+{
+  "suite": "tt69-sheet-misc",
+  "at": "2026-10-24T20:38:14.705Z",
+  "results": [
+    {
+      "suite": "tt69-sheet-misc",
+      "name": "Paste Values: =\"\" and a typed ' paste as EMPTY TEXT (ISBLANK FALSE, COUNTA counts it); a blank source pastes blank; formulas/numbers unchanged",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt69-sheet-misc",
+      "name": "an empty-text cell survives .xlsx: openpyxl reads '' (a string cell, not None) and our reader reads it back as empty text",
+      "covers": {
+        "FF-20": "full",
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 214
+    },
+    {
+      "suite": "tt69-sheet-misc",
+      "name": "SUMIF / AVERAGEIF resize sum_range from its top-left cell to range's shape (hand cases + recalc of a cell outside the written sum_range)",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt69-sheet-misc",
+      "name": "SUMIF / AVERAGEIF resize: brute-force reference over 400 random shapes and offsets",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 129
+    },
+    {
+      "suite": "tt69-sheet-misc",
+      "name": "adversary on the resize patch: cross-sheet sum_range keeps its sheet; a resize past the last row is clipped (no crash; Excel's behaviour there is unverified); whole columns; a union sum_range is left alone; Paste Values+Add of empty text over a number",
+      "covers": {
+        "FF-19": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 440
+    }
+  ]
+}

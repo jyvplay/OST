@@ -1,0 +1,60 @@
+{
+  "suite": "maps-unit",
+  "at": "2026-10-24T19:08:54.461Z",
+  "results": [
+    {
+      "suite": "maps-unit",
+      "name": "geodesy: haversine matches known distances (±0.5 %), bearings, path length, metric/imperial formatting",
+      "covers": {
+        "MP-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "maps-unit",
+      "name": "coordinates: decimal, DMS, hemisphere suffixes, geo: URI, OSM + Google links; formatting round-trips",
+      "covers": {
+        "MP-02": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "maps-unit",
+      "name": "point-in-polygon (holes, multipolygons) and real country lookup + search over world-atlas countries-50m",
+      "covers": {
+        "MP-01": "full"
+      },
+      "pass": true,
+      "ms": 92
+    },
+    {
+      "suite": "maps-unit",
+      "name": "places: add / update / remove / cap, GeoJSON round trip in [lng, lat] order with marker-color, foreign GeoJSON import, tile URL rules",
+      "covers": {
+        "MP-02": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "maps-unit",
+      "name": "gazetteer (TT28): own TSV parser over GeoNames cities15000; folding (Zürich = Zurich, St. = Saint); exact > prefix > word-prefix ranked by population; qualifiers 'Paris, TX' / 'Paris, France' / 'Springfield, Illinois'; garbage-safe",
+      "covers": {
+        "MP-04": "full"
+      },
+      "pass": true,
+      "ms": 1424
+    },
+    {
+      "suite": "maps-unit",
+      "name": "gazetteer nearest (TT28): grid ring search is EXACT: 400 random points (incl. polar + antimeridian) agree with a brute-force scan; 'N km NE of …' labels; Raleigh downtown → In Raleigh",
+      "covers": {
+        "MP-05": "full"
+      },
+      "pass": true,
+      "ms": 4481
+    }
+  ]
+}

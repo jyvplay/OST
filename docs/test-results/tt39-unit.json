@@ -1,0 +1,123 @@
+{
+  "suite": "tt39-unit",
+  "at": "2026-10-24T20:48:05.694Z",
+  "results": [
+    {
+      "suite": "tt39-unit",
+      "name": "session segment codec (WP-10): '<sid>' and '<sid>:<doc>:<i|s|o>' decode; 9 malformed shapes are refused (extra colon, empty doc, short doc, bad doc chars, unknown credentials code, upper-case code, missing code, bad sid, colon in the target part is just path)",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "CORS-safelisted request headers (Fetch §2.2.2 vectors): text/plain;charset=UTF-8, multipart with boundary and form-urlencoded are safe; application/json, a '(' in Accept, a value over 128 bytes, 'bytes=5-1' and multi-range are not; forbidden / browser-added names never count; >1024 bytes of safelisted values makes them all unsafe",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "policy (WP-10): same-origin GET sends cookies but no Origin; same-origin POST sends Origin; cross-origin same-site and cross-site send Origin, origin-only Referer and the right Sec-Fetch-Site; credentials only for include (or same-origin mode on the same origin); http↔https is cross-site (schemeful); https→http drops Referer; an unknown initiator is 'null' with no cookies",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "CORS check (WP-10, Fetch §4.10): ACAO * passes without credentials and fails with them; an echoed origin passes; a different origin, 'null' for a real origin, a missing header and a comma list fail; with credentials ACAC must be exactly 'true'; an unknown initiator matches only 'null' or *",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "preflight check + cache (WP-10, Fetch §4.8/§4.9): methods compare case-sensitively; `*` covers methods and headers only without credentials; Authorization under `*` follows deployed browsers by default and the spec text in strict mode; default Max-Age 5 s, capped at 7200 s; cache entries match per method / header name, `*` entries without credentials only, and expire",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "cookie storage, readable headers (WP-10): a script request stores Set-Cookie only if it could send cookies, cross-site only SameSite=None; same-origin reads every header, cross-origin only exposed ones (ACEH * only without credentials); a script response never carries headers that would act on Fusion's own origin (Set-Cookie, Clear-Site-Data, WWW-Authenticate, CSP, HSTS, Link, Refresh, Service-Worker-Allowed, ACAO from the site)",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "TLS identity for IP-literal sites — why the TT39 fix is needed: Node's tls.connect over an existing socket WITHOUT `host` checks the certificate against \"localhost\" (a localhost-only certificate is ACCEPTED for 127.0.0.2); WITH host 127.0.0.2 (what wp-connect / wp-tunnel now pass) the same certificate is refused (ERR_TLS_CERT_ALTNAME_INVALID)",
+      "covers": {
+        "WP-09": "partial"
+      },
+      "pass": true,
+      "ms": 49
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "permessage-deflate negotiation (RFC 7692 §7): the client offers 'permessage-deflate; client_max_window_bits'; valid answers parse (defaults 15/15, both no_context_takeover flags, quoted \"10\"); 12 hostile answers fail the handshake (another extension, two elements, unknown parameter, duplicate, value on a flag, bits 7 / 16 / 08 / missing value, unterminated quote, garbage)",
+      "covers": {
+        "WP-13": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "permessage-deflate interop, defaults (Python websockets 13.1 server): negotiated; text and binary messages from 0 B to 1 MiB round-trip intact; a 1 MiB repetitive text message crosses the wire COMPRESSED in both directions (bytes counted on the socket); 50 similar messages in a row (context takeover) all decode",
+      "covers": {
+        "WP-13": "full"
+      },
+      "pass": true,
+      "ms": 83
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "permessage-deflate interop, non-default parameters (server_no_context_takeover, client_no_context_takeover, server_max_window_bits=10, client_max_window_bits=9 — the server requires our offer of client_max_window_bits): negotiated as such; repeated identical messages (back-references across messages would break the server's fresh-context inflater) and a message repeating a 600-byte random block (a distance a 9-bit window may not use) all round-trip",
+      "covers": {
+        "WP-13": "full"
+      },
+      "pass": true,
+      "ms": 31
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "permessage-deflate off when the server does not compress: no extension is negotiated against a server with compression disabled, and messages go uncompressed (wire bytes ≥ payload)",
+      "covers": {
+        "WP-13": "partial"
+      },
+      "pass": true,
+      "ms": 103
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "permessage-deflate hostile servers: a decompression bomb (64 MiB of zeros compressed to ~64 KiB) stops at the 1 MiB cap → close 1009 without inflating it all; corrupt compressed data → 1007; RSV1 on a ping, on a continuation frame, or without negotiation → 1002; RSV2 → 1002",
+      "covers": {
+        "WP-13": "full"
+      },
+      "pass": true,
+      "ms": 254
+    },
+    {
+      "suite": "tt39-unit",
+      "name": "permessage-deflate ordering and fragments: one write carrying [1 MiB compressed text][a small uncompressed text][a compressed message in 3 fragments][close 1000] is delivered strictly in that order (nothing overtakes an inflate, not even the close); a context-takeover back-reference into the previous message decodes; a server window of 8 bits (client_max_window_bits=8) gets COMPRESSED messages whose every distance fits a 256-byte window (TT41; was: uncompressed)",
+      "covers": {
+        "WP-13": "full"
+      },
+      "pass": true,
+      "ms": 88
+    }
+  ]
+}

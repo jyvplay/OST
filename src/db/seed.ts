@@ -8,19 +8,136 @@ import { appFeatures } from "./seed-data/features-apps";
 import { platformFeatures } from "./seed-data/features-platform";
 import { spikeRows } from "./seed-data/spikes";
 import { UPDATES_V31 } from "./seed-data/updates-v31";
+import { tt15Features, UPDATES_TT15 } from "./seed-data/features-tt15";
+import { tt16Features, UPDATES_TT16 } from "./seed-data/features-tt16";
+import { tt17Features, UPDATES_TT17 } from "./seed-data/features-tt17";
+import { tt18Features, UPDATES_TT18 } from "./seed-data/features-tt18";
+import { tt19Features, UPDATES_TT19 } from "./seed-data/features-tt19";
+import { tt20Features } from "./seed-data/features-tt20";
+import { tt21Features, UPDATES_TT21 } from "./seed-data/features-tt21";
+import { tt22Features, UPDATES_TT22 } from "./seed-data/features-tt22";
+import { tt23Features, UPDATES_TT23 } from "./seed-data/features-tt23";
+import { tt24Features, UPDATES_TT24 } from "./seed-data/features-tt24";
+import { tt25Features, UPDATES_TT25 } from "./seed-data/features-tt25";
+import { tt26Features, UPDATES_TT26 } from "./seed-data/features-tt26";
+import { tt27Features, UPDATES_TT27 } from "./seed-data/features-tt27";
+import { tt28Features, UPDATES_TT28 } from "./seed-data/features-tt28";
+import { tt29Features, UPDATES_TT29 } from "./seed-data/features-tt29";
+import { tt30Features } from "./seed-data/features-tt30";
+import { tt31Features } from "./seed-data/features-tt31";
+import { tt32Features } from "./seed-data/features-tt32";
+import { tt33Features } from "./seed-data/features-tt33";
+import { tt34Features } from "./seed-data/features-tt34";
+import { tt35Features, UPDATES_TT35 } from "./seed-data/features-tt35";
+import { UPDATES_TT36 } from "./seed-data/features-tt36";
+import { tt37Features, UPDATES_TT37 } from "./seed-data/features-tt37";
+import { tt38Features } from "./seed-data/features-tt38";
+import { tt39Features, patchTT39 } from "./seed-data/features-tt39";
+import { tt40Features, patchTT40 } from "./seed-data/features-tt40";
+import { tt41Features, patchTT41 } from "./seed-data/features-tt41";
+import { tt42Features, patchTT42 } from "./seed-data/features-tt42";
+import { tt43Features, patchTT43 } from "./seed-data/features-tt43";
+import { patchTT44 } from "./seed-data/features-tt44";
+import { patchTT45 } from "./seed-data/features-tt45";
+import { UPDATES_TT47 } from "./seed-data/features-tt47";
+import { UPDATES_TT48 } from "./seed-data/features-tt48";
+import { patchTT49 } from "./seed-data/features-tt49";
+import { patchTT50 } from "./seed-data/features-tt50";
+import { patchTT51 } from "./seed-data/features-tt51";
+import { patchTT52 } from "./seed-data/features-tt52";
+import { patchTT53 } from "./seed-data/features-tt53";
+import { patchTT54 } from "./seed-data/features-tt54";
+import { patchTT55 } from "./seed-data/features-tt55";
+import { patchTT56 } from "./seed-data/features-tt56";
+import { patchTT57 } from "./seed-data/features-tt57";
+import { patchTT58 } from "./seed-data/features-tt58";
+import { tt59Features, patchTT59 } from "./seed-data/features-tt59";
+import { tt60Features, patchTT60 } from "./seed-data/features-tt60";
+import { tt61Features, patchTT61 } from "./seed-data/features-tt61";
+import { tt62Features, patchTT62 } from "./seed-data/features-tt62";
+import { tt63Features, patchTT63 } from "./seed-data/features-tt63";
+import { tt64Features, patchTT64 } from "./seed-data/features-tt64";
+import { tt65Features, patchTT65 } from "./seed-data/features-tt65";
+import { tt66Features, patchTT66 } from "./seed-data/features-tt66";
+import { tt67Features, patchTT67 } from "./seed-data/features-tt67";
+import { tt68Features, patchTT68 } from "./seed-data/features-tt68";
+import { patchTT69 } from "./seed-data/features-tt69";
+import { patchTT70 } from "./seed-data/features-tt70";
+import { patchTT71 } from "./seed-data/features-tt71";
+import { patchTT72 } from "./seed-data/features-tt72";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.3.0";
+export const SEED_VERSION = "3.58.0";
 
-export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...platformFeatures]
-  .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f));
+export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...tt59Features, ...tt60Features, ...tt61Features, ...tt62Features, ...tt63Features, ...tt64Features, ...tt65Features, ...tt66Features, ...tt67Features, ...tt68Features, ...platformFeatures]
+  .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
+  .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
+  .map((f) => (UPDATES_TT16[f.code] ? { ...f, ...UPDATES_TT16[f.code] } : f))
+  .map((f) => (UPDATES_TT17[f.code] ? { ...f, ...UPDATES_TT17[f.code] } : f))
+  .map((f) => (UPDATES_TT18[f.code] ? { ...f, ...UPDATES_TT18[f.code] } : f))
+  .map((f) => (UPDATES_TT19[f.code] ? { ...f, ...UPDATES_TT19[f.code] } : f))
+  .map((f) => (UPDATES_TT21[f.code] ? { ...f, ...UPDATES_TT21[f.code] } : f))
+  .map((f) => (UPDATES_TT22[f.code] ? { ...f, ...UPDATES_TT22[f.code] } : f))
+  .map((f) => (UPDATES_TT23[f.code] ? { ...f, ...UPDATES_TT23[f.code] } : f))
+  .map((f) => (UPDATES_TT24[f.code] ? { ...f, ...UPDATES_TT24[f.code] } : f))
+  .map((f) => (UPDATES_TT25[f.code] ? { ...f, ...UPDATES_TT25[f.code] } : f))
+  .map((f) => (UPDATES_TT26[f.code] ? { ...f, ...UPDATES_TT26[f.code] } : f))
+  .map((f) => (UPDATES_TT27[f.code] ? { ...f, ...UPDATES_TT27[f.code] } : f))
+  .map((f) => (UPDATES_TT28[f.code] ? { ...f, ...UPDATES_TT28[f.code] } : f))
+  .map((f) => (UPDATES_TT29[f.code] ? { ...f, ...UPDATES_TT29[f.code] } : f))
+  .map((f) => (UPDATES_TT35[f.code] ? { ...f, ...UPDATES_TT35[f.code] } : f))
+  .map((f) => (UPDATES_TT36[f.code] ? { ...f, ...UPDATES_TT36[f.code] } : f))
+  .map((f) => (UPDATES_TT37[f.code] ? { ...f, ...UPDATES_TT37[f.code] } : f))
+  .map(patchTT39)
+  .map(patchTT40)
+  .map(patchTT41)
+  .map(patchTT42)
+  .map(patchTT43)
+  .map(patchTT44)
+  .map(patchTT45)
+  .map((f) => (UPDATES_TT47[f.code] ? { ...f, ...UPDATES_TT47[f.code] } : f))
+  .map((f) => (UPDATES_TT48[f.code] ? { ...f, ...UPDATES_TT48[f.code] } : f))
+  .map(patchTT49)
+  .map(patchTT50)
+  .map(patchTT51)
+  .map(patchTT52)
+  .map(patchTT53)
+  .map(patchTT54)
+  .map(patchTT55)
+  .map(patchTT56)
+  .map(patchTT57)
+  .map(patchTT58)
+  .map(patchTT59)
+  .map(patchTT60)
+  .map(patchTT61)
+  .map(patchTT62)
+  .map(patchTT63).map(patchTT64).map(patchTT65).map(patchTT66).map(patchTT67).map(patchTT68).map(patchTT69).map(patchTT70).map(patchTT71).map(patchTT72);
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },
-  { key: "appearance.accent", value: "#5b8cff", category: "appearance", label: "Accent colour", aliases: "highlight,tint" },
+  { key: "appearance.accent", value: "auto", category: "appearance", label: "Accent colour", aliases: "highlight,tint" },
+  { key: "appearance.style", value: "poolside", category: "appearance", label: "Style (colours, icons, logo)", aliases: "theme,palette,look,skin,miami,poolside,vice,neon,art deco,ocean drive,colours,enterprise,graphite,professional,office,corporate,silver,daylight,light,mac,windows 11" },
+  { key: "appearance.layout", value: "fusion", category: "appearance", label: "Layout (Fusion, Business taskbar, Art dock)", aliases: "layout,taskbar,start menu,windows,dock,mac,macos,menu bar,business,art,desktop layout" },
+  { key: "appearance.pairStyle", value: "on", category: "appearance", label: "Pair style with layout (Art → Silver, Business → Daylight, light theme)", aliases: "pair,match style,silver,daylight,layout style" },
+  { key: "media.embeds", value: "ask", category: "media", label: "Embedded players (YouTube, Spotify, SoundCloud, TIDAL, Qobuz, Amazon Music…): ask before loading, or always load", aliases: "youtube,spotify,soundcloud,tidal,qobuz,amazon,embed,privacy,video,music,player" },
+  { key: "maps.tiles", value: "off", category: "maps", label: "Map street tiles: off (offline world), OpenStreetMap, or custom", aliases: "map,tiles,openstreetmap,osm,offline map,street map" },
+  { key: "maps.tileUrl", value: "", category: "maps", label: "Custom map tile URL template ({z}/{x}/{y})", aliases: "tile server,map provider" },
+  { key: "appearance.dockSize", value: "auto", category: "appearance", label: "Dock icon size (Art layout): Auto picks a pleasing size", aliases: "dock size,icon size,dock icons,small,medium,large" },
+  { key: "appearance.desktopView", value: "classic", category: "appearance", label: "Desktop view (Classic or Tabletop 3D)", aliases: "tabletop,3d,desktop view,piles,box,walls,micro peek" },
+  { key: "appearance.dockMagnify", value: "on", category: "appearance", label: "Dock magnification (Art layout)", aliases: "dock,magnify,zoom icons,mac" },
+  { key: "accessibility.narrator", value: "off", category: "accessibility", label: "Narrator: built-in screen reader that speaks what has focus", aliases: "screen reader,narrator,voiceover,speech,read aloud,blind" },
+  { key: "accessibility.narratorRate", value: "1", category: "accessibility", label: "Narrator speaking speed", aliases: "speech rate,narrator speed" },
+  { key: "accessibility.narratorCaptions", value: "on", category: "accessibility", label: "Show Narrator captions", aliases: "captions,narrator text" },
+  { key: "accessibility.narratorSpeech", value: "on", category: "accessibility", label: "Narrator speaks aloud (off = captions only)", aliases: "speech,mute narrator" },
+  { key: "accessibility.narratorVoice", value: "auto", category: "accessibility", label: "Narrator voice engine (auto = system voice if installed, else Fusion Voice)", aliases: "voice,tts,text to speech,fusion voice" },
+  { key: "accessibility.fusionVoice", value: "standard", category: "accessibility", label: "Fusion Voice preset (standard, bright, high)", aliases: "voice pitch" },
+  { key: "appearance.dockAutoHide", value: "off", category: "appearance", label: "Automatically hide and show the dock (Art layout)", aliases: "dock,auto hide,autohide,hide dock,mac" },
   { key: "appearance.density", value: "balanced", category: "appearance", label: "Density profile", aliases: "scale,compact,touch,ui size" },
+  { key: "alerts.focusRules", value: "[]", category: "alerts", label: "Focus rules (hold alerts by schedule, workspace, focus mode)", aliases: "do not disturb,dnd,quiet hours,focus" },
+  { key: "alerts.timeZone", value: "", category: "alerts", label: "Time zone for focus-rule schedules (IANA, e.g. America/New_York)", aliases: "timezone,tz" },
   { key: "appearance.motion", value: "system", category: "appearance", label: "Motion", aliases: "animation,reduce motion" },
-  { key: "appearance.wallpaper", value: "aurora", category: "appearance", label: "Wallpaper", aliases: "background,desktop picture" },
+  { key: "appearance.wallpaper", value: "auto", category: "appearance", label: "Wallpaper", aliases: "background,desktop picture" },
+  { key: "appearance.textScale", value: "125", category: "appearance", label: "Text size (%)", aliases: "font size,zoom,bigger text,large print,magnify,readability,accessibility" },
   { key: "shell.shelfEdge", value: "bottom", category: "shell", label: "Shelf edge", aliases: "taskbar,dock position" },
   { key: "shell.widgets", value: "clock,stickies,system", category: "shell", label: "Desktop widgets", aliases: "gadgets,sticky notes,desktop clock" },
   { key: "shell.hotCorners", value: "on", category: "shell", label: "Hot corners", aliases: "edge triggers" },
@@ -80,6 +197,7 @@ const SAMPLE_FILES: { path: string; body: string }[] = [
 export async function ensureSeeded(): Promise<{ seeded: boolean; features: number }> {
   const marker = await db.select().from(settings).where(sql`${settings.key} = 'system.seedVersion'`).limit(1);
   const already = marker[0]?.value === SEED_VERSION;
+  const previous = marker[0]?.value ?? "";
 
   // Feature + spike registers are always reconciled: the running app must never
   // show a stale copy of its own specification.
@@ -157,6 +275,25 @@ export async function ensureSeeded(): Promise<{ seeded: boolean; features: numbe
   await db.update(settings).set({ value: "clock,stickies,system" })
     .where(sql`${settings.key} = 'shell.widgets' and ${settings.value} = 'clock,stickies,system,user'`);
 
+  // v3.9 (TT21) migration: the cheerful 'sunrise' wallpaper becomes the default. Only when upgrading FROM a pre-3.9
+  // version and only if the wallpaper is still the old default — a user who later picks aurora keeps it.
+  if (previous && versionLess(previous, "3.9.0")) {
+    await db.update(settings).set({ value: "sunrise" })
+      .where(sql`${settings.key} = 'appearance.wallpaper' and ${settings.value} = 'aurora'`);
+  }
+
+  // v3.10 (TT22) migration, only when upgrading FROM a pre-3.10 version and only for values still at the old default:
+  //  - text size 200 % (the TT21 default) → 125 %: large text becomes an opt-in "Large text mode" (user decision)
+  //  - accent #5b8cff (old default) → "auto" (follow the style); wallpaper "sunrise" (TT21 default) → "auto"
+  if (previous && versionLess(previous, "3.10.0")) {
+    await db.update(settings).set({ value: "125" })
+      .where(sql`${settings.key} = 'appearance.textScale' and ${settings.value} = '200'`);
+    await db.update(settings).set({ value: "auto" })
+      .where(sql`${settings.key} = 'appearance.accent' and lower(${settings.value}) = '#5b8cff'`);
+    await db.update(settings).set({ value: "auto" })
+      .where(sql`${settings.key} = 'appearance.wallpaper' and ${settings.value} = 'sunrise'`);
+  }
+
   // notes are indexed every boot (cheap, keeps search truthful)
   const noteRows = await db.select().from(notes);
   for (const n of noteRows) {
@@ -169,4 +306,10 @@ export async function ensureSeeded(): Promise<{ seeded: boolean; features: numbe
   }
 
   return { seeded: !already, features: allFeatures.length };
+}
+
+function versionLess(a: string, b: string): boolean {
+  const pa = a.split(".").map(Number), pb = b.split(".").map(Number);
+  for (let i = 0; i < 3; i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d !== 0) return d < 0; }
+  return false;
 }

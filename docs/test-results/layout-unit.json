@@ -1,0 +1,78 @@
+{
+  "suite": "layout-unit",
+  "at": "2026-10-24T19:08:47.695Z",
+  "results": [
+    {
+      "suite": "layout-unit",
+      "name": "dock magnification: peak under the pointer, symmetric, monotone cosine falloff, exact reach, 1 elsewhere",
+      "covers": {
+        "LY-02": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "layout-unit",
+      "name": "dock magnification: no pointer / bad input → all 1; depends only on resting centres (no feedback)",
+      "covers": {
+        "LY-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "layout-unit",
+      "name": "dock fitting: base size fills the width when possible, clamps to [min,max], reports overflow honestly",
+      "covers": {
+        "LY-02": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "layout-unit",
+      "name": "taskbar click: open → focus → minimise the focused single window; several windows cycle; minimised comes back",
+      "covers": {
+        "LY-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "layout-unit",
+      "name": "Show desktop: minimises the visible windows of this workspace, a second press restores exactly those in z-order",
+      "covers": {
+        "LY-01": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "layout-unit",
+      "name": "Show desktop: opening or focusing a window in between forgets the restore set; viewport changes keep it",
+      "covers": {
+        "LY-01": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "layout-unit",
+      "name": "settings, routines and seed: layout values validated, default stays Fusion, rows registered",
+      "covers": {
+        "LY-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "layout-unit",
+      "name": "TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers",
+      "covers": {
+        "LY-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

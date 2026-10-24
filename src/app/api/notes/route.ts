@@ -3,6 +3,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { indexDocs, notes } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const b = (await req.json()) as { title?: string; body?: string; tags?: string };
+  const b = (await readJsonObject(req)) as ({ title?: string; body?: string; tags?: string }) | Response;
+  if (b instanceof Response) return b;
   const [row] = await db.insert(notes).values({
     title: b.title ?? "Untitled", body: b.body ?? "", tags: b.tags ?? "",
   }).returning();
@@ -27,7 +29,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const b = (await req.json()) as { id?: number; title?: string; body?: string; tags?: string; pinned?: boolean };
+  const b = (await readJsonObject(req)) as ({ id?: number; title?: string; body?: string; tags?: string; pinned?: boolean }) | Response;
+  if (b instanceof Response) return b;
   if (!b.id) return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
   const [row] = await db.update(notes).set({
     ...(b.title !== undefined ? { title: b.title } : {}),

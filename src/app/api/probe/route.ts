@@ -2,12 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { desc } from "drizzle-orm";
 import { db } from "@/db";
 import { capabilityReports } from "@/db/schema";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 
 /** Capability reports are stored only when the user exports/saves one (DP-11). */
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as { clientId?: string; ua?: string; report?: unknown };
+  const body = (await readJsonObject(req)) as ({ clientId?: string; ua?: string; report?: unknown }) | Response;
+  if (body instanceof Response) return body;
   const [row] = await db.insert(capabilityReports).values({
     clientId: body.clientId ?? "anonymous",
     ua: body.ua ?? "",

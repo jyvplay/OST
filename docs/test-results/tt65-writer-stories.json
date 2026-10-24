@@ -1,0 +1,78 @@
+{
+  "suite": "tt65-writer-stories",
+  "at": "2026-10-24T20:28:10.465Z",
+  "results": [
+    {
+      "suite": "tt65-writer-stories",
+      "name": "header & footer Apply under Track Changes: edited line, alignment, new and removed lines are w:ins / w:del / w:pPrChange — oracle Accept All = the untracked edit, Reject All = the original; our Accept / Reject All agree; Review names the place",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 689
+    },
+    {
+      "suite": "tt65-writer-stories",
+      "name": "Notes panel edits under Track Changes return \"tracked\" and record w:ins / w:del (a new line = inserted paragraph mark) — oracle and our resolution agree with the untracked edit / the original; untracked edits keep other reviewers' revisions (\"kept\")",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 744
+    },
+    {
+      "suite": "tt65-writer-stories",
+      "name": "spelling Change and Change All in headers and notes are tracked like main-text fixes (w:del old word + w:ins new); verdicts from the engine, views from the oracle",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 565
+    },
+    {
+      "suite": "tt65-writer-stories",
+      "name": "Review one by one: resolving story changes singly (any order) equals Accept All / Reject All; a mixed review (accept header, reject notes) gives exactly that per story",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 980
+    },
+    {
+      "suite": "tt65-writer-stories",
+      "name": "revision ids are unique ACROSS parts: a re-opened file reserves the ids already used in headers / footers (defect: the scan skipped them), and a save renumbers collisions in every written part while untouched parts keep their bytes",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 384
+    },
+    {
+      "suite": "tt65-writer-stories",
+      "name": "refusals change nothing: a tracked header edit cutting into a page field throws HF_TRACK_REFUSAL before any mutation (save byte-identical); a tracked note edit inside a field returns \"refused\"; typing {PAGE} while tracking inserts a real tracked PAGE field",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 322
+    },
+    {
+      "suite": "tt65-writer-stories",
+      "name": "Remove header under Track Changes keeps the part, its text struck (Accept → empty header, Reject → the original); without tracking the reference is dropped as before",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 240
+    },
+    {
+      "suite": "tt65-writer-stories",
+      "name": "randomized differential: 40 header / footer sessions and 40 note sessions of random edits (characters, new / removed lines, alignment, {PAGE}, new paragraphs) — tracked = refused-with-no-change, or oracle Accept = untracked edit and Reject = original; ids unique; XSD on every 4th",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 38710
+    }
+  ]
+}

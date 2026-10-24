@@ -1,0 +1,65 @@
+{
+  "suite": "e2e-beauty",
+  "at": "2026-10-24T19:37:37.968Z",
+  "results": [
+    {
+      "suite": "e2e-beauty",
+      "name": "the pipeline catches seeded violations in the live page (tiny crowded buttons, clipped text, an off-centre dock, an un-golden card)",
+      "covers": {
+        "LY-10": "full"
+      },
+      "pass": true,
+      "ms": 1487
+    },
+    {
+      "suite": "e2e-beauty",
+      "name": "1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+      "covers": {
+        "LY-10": "full",
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 21558
+    },
+    {
+      "suite": "e2e-beauty",
+      "name": "1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+      "covers": {
+        "LY-10": "full",
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 20039
+    },
+    {
+      "suite": "e2e-beauty",
+      "name": "1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+      "covers": {
+        "LY-10": "full",
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 23724
+    },
+    {
+      "suite": "e2e-beauty",
+      "name": "390×844: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+      "covers": {
+        "LY-10": "full",
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 19161
+    },
+    {
+      "suite": "e2e-beauty",
+      "name": "colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10",
+      "covers": {
+        "LY-15": "full",
+        "LY-14": "full"
+      },
+      "pass": true,
+      "ms": 140953
+    }
+  ]
+}

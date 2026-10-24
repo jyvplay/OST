@@ -1,0 +1,62 @@
+{
+  "suite": "tt54-meta",
+  "at": "2026-10-24T20:15:51.754Z",
+  "results": [
+    {
+      "suite": "tt54-meta",
+      "name": "FF-13 metadata readers agree with independent readers on every field over the real corpora (EXIF / XMP / GPS / thumbnails, image size & frames, audio tags & duration, PDF pages / Info / size / encryption, OOXML core, video size & duration): 0 disagreements",
+      "covers": {
+        "FF-13": "full"
+      },
+      "pass": true,
+      "ms": 11622
+    },
+    {
+      "suite": "tt54-meta",
+      "name": "FF-13 TIFF decoder: 34 files (8 corpus LZW+predictor, Pillow-written 1 / L / P / RGB / RGBA / 16-bit × none / LZW / Deflate / PackBits, multi-strip, hand-built planar) bit-exact to Pillow",
+      "covers": {
+        "FF-13": "full"
+      },
+      "pass": true,
+      "ms": 650
+    },
+    {
+      "suite": "tt54-meta",
+      "name": "FF-07 export encoder: EXIF injection into JPEG / PNG / WebP (VP8, VP8L, VP8X+alpha) read back by Pillow + exifread, pixels untouched, one EXIF block after re-injection; AVIF from libsvtav1 key frames decoded by libavif + FFmpeg/dav1d; HEIC re-wrap decoded by libheif pixel-identical",
+      "covers": {
+        "FF-07": "full"
+      },
+      "pass": true,
+      "ms": 1643
+    },
+    {
+      "suite": "tt54-meta",
+      "name": "MD-03 recipe engine: 117 renders vs numpy/Pillow (geometry bit-exact, tone ≤ 1 level, straighten ≥ 30 dB vs Pillow rotate with the crop scale checked by bisection, resolution independence) + 14 properties (rotate⁴ = id, flips, monotone curves on 343 slider combos, hostile sidecars bounded, no prototype keys)",
+      "covers": {
+        "MD-03": "full"
+      },
+      "pass": true,
+      "ms": 733
+    },
+    {
+      "suite": "tt54-meta",
+      "name": "FF-13 PDF recovery: a damaged incremental update (bad startxref, trailer without /Info or /ID) is rebuilt by scanning and inherits /Info + /ID from the older trailer — same title as pypdf (strict=False)",
+      "covers": {
+        "FF-13": "full"
+      },
+      "pass": true,
+      "ms": 145
+    },
+    {
+      "suite": "tt54-meta",
+      "name": "Negative shapes: 22 hostile inputs to the readers / decoder / writers are refused or bounded — no crash, no hang, no garbage output",
+      "covers": {
+        "FF-13": "full",
+        "FF-07": "full",
+        "MD-03": "full"
+      },
+      "pass": true,
+      "ms": 10
+    }
+  ]
+}

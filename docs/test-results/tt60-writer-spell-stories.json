@@ -1,0 +1,33 @@
+{
+  "suite": "tt60-writer-spell-stories",
+  "at": "2026-10-24T20:24:06.850Z",
+  "results": [
+    {
+      "suite": "tt60-writer-spell-stories",
+      "name": "issues in every story: main text first, then header, footer, footnote — each with its place; spellIssues (main) unchanged",
+      "covers": {
+        "FF-42": "full"
+      },
+      "pass": true,
+      "ms": 161
+    },
+    {
+      "suite": "tt60-writer-spell-stories",
+      "name": "fixing in a header keeps the run formatting (bold 'The'), footer + footnote fixed; saved file verified by python-docx (hf), lxml (notes, runs)",
+      "covers": {
+        "FF-42": "full"
+      },
+      "pass": true,
+      "ms": 386
+    },
+    {
+      "suite": "tt60-writer-spell-stories",
+      "name": "Change All spans stories; a stale issue (text changed since the check) is refused; undo snapshots keep the old header blocks",
+      "covers": {
+        "FF-42": "full"
+      },
+      "pass": true,
+      "ms": 70
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "suite": "oracle-svg",
+  "at": "2026-10-24T19:08:30.353Z",
+  "results": [
+    {
+      "suite": "oracle-svg",
+      "name": "svgelements: path bounds (exact for L/C/Q; arcs within 1e-3·r)",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "oracle-svg",
+      "name": "svgelements: path length (rel. error ≤ 1e-6 exact segments, ≤ 5e-4 arcs)",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 12
+    },
+    {
+      "suite": "oracle-svg",
+      "name": "svgelements: end point of every path identical (relative-command bookkeeping)",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "oracle-svg",
+      "name": "svgelements: transform lists → identical matrices (1e-12)",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

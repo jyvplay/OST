@@ -1,0 +1,60 @@
+{
+  "suite": "tt56-writer-track",
+  "at": "2026-10-24T20:18:02.174Z",
+  "results": [
+    {
+      "suite": "tt56-writer-track",
+      "name": "recording: each edit kind produces exactly the expected w:ins / w:del (lxml oracle); trackRevisions saved; ids unique; python-docx opens",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 137
+    },
+    {
+      "suite": "tt56-writer-track",
+      "name": "accept-all / reject-all (ours) equal the oracle's independent resolution, on the live model and after a save/re-open",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 455
+    },
+    {
+      "suite": "tt56-writer-track",
+      "name": "per-change review: 40 random accept/reject decisions, applied one change at a time in random order, equal the oracle",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 7896
+    },
+    {
+      "suite": "tt56-writer-track",
+      "name": "next/previous order + toggling: revisions() is in document order; turning tracking off is saved; untracked edits add no revision",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 112
+    },
+    {
+      "suite": "tt56-writer-track",
+      "name": "typing over a selection under tracking: deleted text stays, the insertion follows it (Word order); Delete key skips past",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 145
+    },
+    {
+      "suite": "tt56-writer-track",
+      "name": "POI corpus: every document with run revisions re-serializes (all paragraphs regenerated) with the same revisions and the same accept/reject text",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 1112
+    }
+  ]
+}

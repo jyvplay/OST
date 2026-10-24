@@ -1,0 +1,13 @@
+import { F, type SpecRow } from "./row";
+
+/**
+ * TT31 register changes. Blocker addressed with original code: "the other panes are static" — on the Tabletop only
+ * the floor was live; walls could only be used after opening one as the main view. LY-22 makes every wall a live
+ * surface in the box view itself.
+ */
+export const tt31Features: SpecRow[] = [
+  F("LY-22", "LY", "Live walls: every wall of the Tabletop box is a live surface in the box view, at the same level as the floor — hovering (with real pointer movement) or keyboard-focusing a wall lifts it flat and true-size in front of the scene, docked inside the frame, then it settles back when left; on a lifted wall pins are draggable cards that move along the wall, pile when dropped on a pin, fan out along the wall on click and drag back out to the floor or onto another wall; dragging a card from the floor onto a resting wall spring-loads it and the card lands exactly where it was dropped (mapped through the wall's projection, not a free slot); dragging across to another wall's spine spring-loads that wall mid-drag; no pin limit — the wall's rows unroll into one strip along the wall that pans with buttons, the mouse wheel and focus, always with an empty row to drop into; Alt+Arrow moves a focused pin; the resting camera and floor share are untouched",
+    "A", "P2", "src/lib/wall-live-core.ts (row ↔ strip unrolling, strip frames per wall, lifted pose as an exact homography onto a dock rectangle, screen ↔ element inversion through the face quad, paint-order hit testing, pan/fan maths); src/components/Tabletop.tsx (hover intent, lift/settle/spring timers, cross-surface drop mapping, lifted strip render, pan controls, keyboard)",
+    "Original code (no library) built on the existing slant camera maths (tabletop-slant.ts). Verified by unit tests with hand values, six viewports × four walls and five seeded geometry mutants (all caught), and by Playwright against the production build: the lifted wall's measured pins are ≥ 24 px with names ≥ 9 px, a floor→wall drop lands within 1 px of the drop point, piling/fanning/dragging out/spring-loading are exercised with real pointer events, 40 pins are all reachable, keyboard-only use works, phone 390×760 and the straight-down camera, and axe-core reports no serious or critical violations in dark and light. Honest boundary: the lift is a hover/focus affordance — resting side walls are too foreshortened (scale ≈ 0.14 at 1440) to be precise targets, so they lift before accepting fine moves; touch devices lift on tap rather than hover (tap-lift, finger drag on the lifted wall and tap-away settle are tested since TT32).",
+    "built", "tt31-unit.mts ×8 (incl. mutants); e2e-tt31.mts ×10"),
+];

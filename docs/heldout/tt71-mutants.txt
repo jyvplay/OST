@@ -1,0 +1,20 @@
+KILLED  an overnight window belongs to the END day  [F]  inSchedule equals the minute-of-week oracle on every minute of the w
+KILLED  the end minute is inclusive  [F]  inSchedule equals the minute-of-week oracle on every minute of the w
+KILLED  disabled rules still hold  [F]  decide: every active rule must let the alert through; the first bloc
+KILLED  the allow list is case-sensitive  [F]  decide: every active rule must let the alert through; the first bloc
+KILLED  only the first active rule is consulted  [F]  decide: every active rule must let the alert through; the first bloc
+KILLED  an unknown priority counts as high  [F]  decide: every active rule must let the alert through; the first bloc
+KILLED  from = to accepted (zero-length / ambiguous window)  [F]  parseRules rejects 18 malformed shapes with a message naming the rul
+KILLED  nothing breaks through by default  [F]  parseRules rejects 18 malformed shapes with a message naming the rul
+KILLED  the time zone is ignored (always UTC)  [F]  localTime: New York DST jumps, +05:30 / +12:45 offsets, unknown zone
+KILLED  the workspace condition is ignored  [F]  decide: every active rule must let the alert through; the first bloc
+KILLED  the focus-mode condition is ignored  [F]  decide: every active rule must let the alert through; the first bloc
+KILLED  duplicate rule ids accepted  [F]  parseRules rejects 18 malformed shapes with a message naming the rul
+KILLED  day 7 accepted  [F]  parseRules rejects 18 malformed shapes with a message naming the rul
+KILLED  an empty workspace list means 'no workspace' (never active)  [F]  parseRules rejects 18 malformed shapes with a message naming the rul
+KILLED  the setting is not validated  [F]  validateSetting: alerts.focusRules uses the same parser; alerts.time
+KILLED  unknown time zones are accepted  [F]  validateSetting: alerts.focusRules uses the same parser; alerts.time
+KILLED  the reason omits the alert's priority  [F]  the reason sentence names the rule, its condition, the app, what bre
+KILLED  repair reverted: non-enum priority accepted  [F]  repair: normalizeAlert refuses non-string fields and non-enum priori
+KILLED  repair reverted: non-string app accepted  [F]  repair: normalizeAlert refuses non-string fields and non-enum priori
+19/19 mutants killed

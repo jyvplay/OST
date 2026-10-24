@@ -1,0 +1,42 @@
+{
+  "suite": "tt56-shell-unit",
+  "at": "2026-10-24T20:18:02.620Z",
+  "results": [
+    {
+      "suite": "tt56-shell-unit",
+      "name": "WM-05 spec acceptance: MRU order after 5 focus changes (open A–E, focus C, A, E, B, D → D B E A C)",
+      "covers": {
+        "WM-05": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt56-shell-unit",
+      "name": "WM-05 property: over 400 random command sequences MRU is a permutation of the live windows, focus is its head, and it equals a reference model",
+      "covers": {
+        "WM-05": "full"
+      },
+      "pass": true,
+      "ms": 240
+    },
+    {
+      "suite": "tt56-shell-unit",
+      "name": "WM-05 modes: app mode groups by module (newest window per app), workspace mode lists workspaces MRU-first; step wraps both ways",
+      "covers": {
+        "WM-05": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt56-shell-unit",
+      "name": "NC-06 settle model: 20 events 50 ms apart announce once; bursts separated by > settle announce once each; labels",
+      "covers": {
+        "NC-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

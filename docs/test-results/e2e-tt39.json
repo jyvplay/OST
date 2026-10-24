@@ -1,0 +1,69 @@
+{
+  "suite": "e2e-tt39",
+  "at": "2026-10-24T19:38:20.130Z",
+  "results": [
+    {
+      "suite": "e2e-tt39",
+      "name": "WP-10 oracle: the same 27-request matrix (fetch + XHR; credentials include / same-origin / omit; ACAO * vs echoed; ACAC; preflights that pass, are reused from the cache (incl. `*` entries), deny a method, deny `*` with credentials, Authorization under `*`; a JSON body; a redirect; withCredentials before and after open(); cross-site Set-Cookie; Set-Cookie with omit) gives IDENTICAL results natively in Chromium and through the proxy — failures, cookies and Origin the sites saw, Sec-Fetch-Site/Mode, readable response headers",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt39",
+      "name": "WP-10 oracle is not vacuous: the matrix exercises both outcomes — the cross-site request with credentials carries ONLY the SameSite=None cookie (b=1, not the Lax bl=1); same-origin reads the private header, cross-origin reads only exposed ones; ACAO * with credentials, a JSON body without a preflight answer and a denied method all FAIL; the cached preflight was not repeated",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt39",
+      "name": "WP-10 adversary inside the page: an UNTAGGED raw request (the shim's own rawFetch, bypassing tagging) and a FORGED document id both reach B with Origin \"null\" and no cookies; a script-fetched copy of another site's page carries no document id",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 34
+    },
+    {
+      "suite": "e2e-tt39",
+      "name": "WP-10 adversary outside the browser: a direct client using a REAL document id cannot bypass the read check (ACAO * with credentials → 403 and no Access-Control-Allow-Origin, reason given); a failed preflight never sends the actual request",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 24
+    },
+    {
+      "suite": "e2e-tt39",
+      "name": "TLS identity for IP-literal sites (TT39 fix): https://127.0.0.2 with a valid certificate FOR 127.0.0.2 loads through the proxy; a certificate from the same trusted CA but for \"localhost\" is refused for 127.0.0.2 (before the fix Node checked IP sites against \"localhost\" and would have accepted it)",
+      "covers": {
+        "WP-09": "partial"
+      },
+      "pass": true,
+      "ms": 16
+    },
+    {
+      "suite": "e2e-tt39",
+      "name": "modal shortcut fails (D): the TT35–TT38 approach — every proxied response readable by any page via ACAO * — is exactly what a native browser refuses: in the native run, B's credentialed read under ACAO * failed and Lax cookies never went cross-site; the proxy now matches it",
+      "covers": {
+        "WP-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt39",
+      "name": "WP-11 oracle: Web Workers in a proxied page behave as natively — a classic worker (importScripts, relative fetch, new Request, XHR, a cross-origin fetch with the PAGE's origin, a WebSocket, a nested worker), a module worker (static import, top-level await, import.meta.url, awaiting its first message at top level, importScripts → TypeError; a module SharedWorker), a page-made blob: worker, SharedWorker (two connections share one instance; another name gets its own) and the SecurityError for a cross-origin script: results IDENTICAL natively and through the proxy",
+      "covers": {
+        "WP-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

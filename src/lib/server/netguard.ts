@@ -41,9 +41,30 @@ export function isPrivateAddress(addr: string): boolean {
   return !/^2[0-9a-f]{3}:/i.test(v);
 }
 
+/**
+ * TT38 TEST-ONLY allowance: FUSION_WP_TEST_LOOPBACK_PORTS="18601,18602" lets the Private proxy reach 127.0.0.1 on
+ * exactly those ports, so the test suites can run real local servers (WebSocket, SSE, slow / hostile peers) through
+ * the full proxy path. Unset (the default, and every real deployment) it does nothing. Only 127.x literals are
+ * allowed — no names, no other loopback or private address — and a server that has it set says so on stderr.
+ */
+let testPorts: Set<number> | null = null;
+function loopbackTestPorts(): Set<number> {
+  if (testPorts) return testPorts;
+  const raw = process.env.FUSION_WP_TEST_LOOPBACK_PORTS ?? "";
+  testPorts = new Set(raw.split(",").map((x) => Number(x.trim())).filter((n) => Number.isInteger(n) && n > 1024 && n < 65536));
+  if (testPorts.size) console.warn(`[fusion] TEST-ONLY: the Private proxy may reach 127.0.0.1 on ports ${[...testPorts].join(", ")} (FUSION_WP_TEST_LOOPBACK_PORTS). Never set this outside tests.`);
+  return testPorts;
+}
+export function testLoopbackAllowed(host: string, port: number): boolean {
+  // TT39: any 127.x.y.z literal (127.0.0.2 is a different SITE from 127.0.0.1 — the cross-site isolation tests need
+  // two); still no names, no ::1, no other private range, and only the listed ports
+  return /^127\.(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)$/.test(host.replace(/^\[|\]$/g, "")) && loopbackTestPorts().has(port);
+}
+
 export function parsePublicWebUrl(raw: string): URL {
   let url: URL;
   try { url = new URL(raw); } catch { throw new Error("invalid URL"); }
+  if ((url.protocol === "http:" || url.protocol === "https:") && !url.username && !url.password && url.port && testLoopbackAllowed(url.hostname, Number(url.port))) return url;
   if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error("only http(s) URLs are allowed");
   if (url.username || url.password) throw new Error("credentials in URLs are refused");
   if ((url.protocol === "http:" && url.port && url.port !== "80") || (url.protocol === "https:" && url.port && url.port !== "443")) {
@@ -55,7 +76,10 @@ export function parsePublicWebUrl(raw: string): URL {
   return url;
 }
 
-export async function resolvePinnedPublicHost(host: string): Promise<PinnedAddress[]> {
+export async function resolvePinnedPublicHost(rawHost: string): Promise<PinnedAddress[]> {
+  // TT35 fix: URL.hostname keeps the brackets of an IPv6 literal ("[::1]"); unbracketed, it is checked as an
+  // ADDRESS (refused if private) instead of falling through to a DNS lookup that happened to fail.
+  const host = rawHost.replace(/^\[|\]$/g, "");
   const family = isIP(host);
   if (family) {
     if (isPrivateAddress(host)) throw new Error(`refusing private/reserved address ${host}`);

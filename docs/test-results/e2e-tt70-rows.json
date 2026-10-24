@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt70-rows",
+  "at": "2026-10-24T20:41:56.589Z",
+  "results": [
+    {
+      "suite": "e2e-tt70-rows",
+      "name": "WM-13 edge-hold: a real drag held at the right edge ≥600 ms moves the window to the next workspace (no tiling on release); refused at the last workspace (half-snap still works); a 300 ms touch does nothing; the left edge hops back",
+      "covers": {
+        "WM-13": "full"
+      },
+      "pass": true,
+      "ms": 8847
+    },
+    {
+      "suite": "e2e-tt70-rows",
+      "name": "CT-01 share target: manifest share_target → / ; ?url= opens a Browser tab on it and cleans the query; a javascript: URL never runs; Notes Share passes title + body to navigator.share (injected recorder — no OS share sheet in headless Linux)",
+      "covers": {
+        "CT-01": "partial"
+      },
+      "pass": true,
+      "ms": 5036
+    },
+    {
+      "suite": "e2e-tt70-rows",
+      "name": "DP-13 density tokens: compact < balanced < touch (title bar, --fs-target), no control under 24 px, and every density offers the SAME controls by accessible name",
+      "covers": {
+        "DP-13": "full"
+      },
+      "pass": true,
+      "ms": 6272
+    }
+  ]
+}

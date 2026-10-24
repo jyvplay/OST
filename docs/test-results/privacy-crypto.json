@@ -1,0 +1,89 @@
+{
+  "suite": "privacy-crypto",
+  "at": "2026-10-24T19:08:34.848Z",
+  "results": [
+    {
+      "suite": "privacy-crypto",
+      "name": "Argon2id (hash-wasm) equals the reference C implementation (argon2-cffi), incl. the default 64 MiB/t=3 slot cost",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 1290
+    },
+    {
+      "suite": "privacy-crypto",
+      "name": "Padmé equals the paper's pseudocode on 20 000 lengths; overhead ≤ 12%; hand-derived points",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 101
+    },
+    {
+      "suite": "privacy-crypto",
+      "name": "volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused",
+      "covers": {
+        "SC-10": "partial",
+        "BK-06": "partial"
+      },
+      "pass": true,
+      "ms": 400
+    },
+    {
+      "suite": "privacy-crypto",
+      "name": "change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key",
+      "covers": {
+        "SC-10": "full",
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 926
+    },
+    {
+      "suite": "privacy-crypto",
+      "name": "header attacks: KDF downgrade (still above floor) breaks the slot tag; below-floor refused before derivation; slot swap / truncation refused",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 525
+    },
+    {
+      "suite": "privacy-crypto",
+      "name": "oracle unwraps OUR keyslot (passphrase and recovery) to the DEK that decrypts OUR blob — end-to-end format conformance",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 350
+    },
+    {
+      "suite": "privacy-crypto",
+      "name": "content blobs: oracle ⇄ ours both directions; Padmé-sized; any bit flip, flag edit or foreign volume refused",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 105
+    },
+    {
+      "suite": "privacy-crypto",
+      "name": "names: deterministic SIV encryption byte-identical to the oracle; host-chosen nonce rejected; paths map both ways",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 323
+    },
+    {
+      "suite": "privacy-crypto",
+      "name": "base64 codec (perf path): byte-identical to Node Buffer on 6 000 random inputs 0–299 B, strict on malformed input, 264 KiB encode < 5 ms",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 81
+    }
+  ]
+}

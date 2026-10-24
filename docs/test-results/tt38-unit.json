@@ -1,0 +1,143 @@
+{
+  "suite": "tt38-unit",
+  "at": "2026-10-24T19:37:42.747Z",
+  "results": [
+    {
+      "suite": "tt38-unit",
+      "name": "RFC 6455 vectors (WP-08): §1.3 accept key; §5.7 frames byte for byte — unmasked and masked 'Hello', a fragmented text message, ping / masked pong, 256-byte (16-bit length) and 64 KiB (64-bit length) binary — encoded and parsed back; the parser refuses a 64-bit length with the top bit set and a control frame over 125 bytes",
+      "covers": {
+        "WP-08": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "interop with an independent server (WP-08): Python websockets 13.1 echoes text and binary of 0 / 125 / 126 / 65535 / 65536 / 1 MiB bytes intact (both length boundaries), picks the offered subprotocol, sends fragmented messages we reassemble, pings us (we pong), closes with 4001 'bye ✓' and 1011, and receives our clean 1000 close",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 154
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "limits and close semantics (WP-08): a message over the client's cap fails with 1009 without buffering it; a close reason over 123 bytes is cut on a UTF-8 boundary (the far side accepts it — no 1007); the server sees the client's code",
+      "covers": {
+        "WP-08": "partial"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "hostile servers (WP-08, D: 17 negative shapes): wrong accept, 200 instead of 101, no Upgrade, a subprotocol we did not offer, an extension we did not offer, a header flood, silence → each refuses the handshake; then masked server frames, RSV bits, a reserved opcode, invalid UTF-8 text, an oversized / fragmented control frame, a continuation with nothing to continue, a new message inside a fragmented one, close code 1005 on the wire, a 1-byte close payload → each fails the connection with the right status (1002 / 1007), never a hang or a crash",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 524
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "Happy Eyeballs (WP-09, RFC 8305): families interleave from the resolver's first choice; a refused address hands over AT ONCE (no 250 ms wait) to a live one on real sockets; a blackholed first address loses to the second, started 250 ms later; every loser is destroyed; all refused → one error listing every address with the first code; nothing answering → ETIMEDOUT at the deadline",
+      "covers": {
+        "WP-09": "full"
+      },
+      "pass": true,
+      "ms": 954
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "TLS stays verified on the new path (WP-09): github.com:443 over connectPinned + tlsOver negotiates http/1.1 with a valid chain; a self-signed local server is refused (rejectUnauthorized never turned off)",
+      "covers": {
+        "WP-09": "partial"
+      },
+      "pass": true,
+      "ms": 399
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "keep-alive pools (WP-09): a session's sequential requests reuse ONE connection (the old code opened one per request); another session never shares it; a new circuit gets a fresh one; 12 parallel requests use at most 6; a connection the server dropped while idle is retried for GET but never for POST",
+      "covers": {
+        "WP-09": "full"
+      },
+      "pass": true,
+      "ms": 50
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "one connection layer (WP-09): the legacy fetcher (reader of direct tabs, embed probe) goes through the same pools and reports the address it used; redirects stay bounded and re-checked",
+      "covers": {
+        "WP-09": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "system proxy (WP-09): for 22 environment × URL cases our route decision equals curl 7.88's — https_proxy / HTTPS_PROXY, http_proxy lowercase only (curl ignores HTTP_PROXY), ALL_PROXY fallback, no_proxy '*', suffix with and without the leading dot, exact IP, CIDR, :port, case; malformed proxy values are reported, never used",
+      "covers": {
+        "WP-09": "full"
+      },
+      "pass": true,
+      "ms": 204
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "system proxy, live (WP-09): a fresh server process whose environment has https_proxy (an independent proxy, pproxy) and no_proxy=127.0.0.1 uses the system route by itself — https://pypi.org/ is carried by the proxy (pproxy logs the NAME; no local DNS) while the no_proxy site goes direct; a WebSocket runs over a SOCKS5 tunnel (the Tor route) intact",
+      "covers": {
+        "WP-09": "full",
+        "WP-08": "partial"
+      },
+      "pass": true,
+      "ms": 1671
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "bridge (WP-08): opening through the registry reaches the independent server via the connection layer; text and binary go both ways in order; the site sees the session's User-Agent, the page's own Origin and the session's cookie, and a cookie set on the 101 reply lands in the session jar; another session cannot write to the socket (410); a clean close arrives as {code, reason, wasClean}",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 47
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "I — repair against a new attack, cross-site WebSocket hijacking (WP-08): a page that claims another site's origin (with its own token, a made-up one, or none) is sent as Origin 'null' and gets no Lax cookies; a genuine cross-site page keeps its true Origin but also gets no Lax cookies; the jar learns SameSite (default Lax, None needs Secure, Strict/Lax withheld cross-site); siteOf handles public suffixes and IPs",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 76
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "bridge lifecycle and guards (WP-08): closing the session closes its sockets (server sees 1001); cancelling the stream (tab gone) closes upstream 1001; 32 sockets per session then 429; private, non-web-port, fragment and non-ws URLs are refused before any connection, a private IP behind the URL ends as close 1006 with the reason",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 75
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "bridge frame codec (WP-08): frames round-trip; a truncated header, a truncated payload and a declared length over the cap are refused",
+      "covers": {
+        "WP-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt38-unit",
+      "name": "modal shortcuts fail (D): the obvious implementations are measurably wrong — a stock http.Agent with maxSockets 6 and an asynchronous createConnection opens one socket per parallel request; slicing a close reason at 123 bytes yields invalid UTF-8 (a conforming server answers 1007); our versions hold",
+      "covers": {
+        "WP-09": "partial",
+        "WP-08": "partial"
+      },
+      "pass": true,
+      "ms": 76
+    }
+  ]
+}

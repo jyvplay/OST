@@ -1,0 +1,11 @@
+node_modules/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+verification/screenshots/*.tmp.png
+.env*
+scripts/tt28-shots/
+scripts/tt29-shots/
+scripts/tt30-shots/
+scripts/tt31-shots/
+__pycache__/

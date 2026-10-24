@@ -1,0 +1,78 @@
+{
+  "suite": "tt44-bridge",
+  "at": "2026-10-24T19:39:34.603Z",
+  "results": [
+    {
+      "suite": "tt44-bridge",
+      "name": "first contact: host-key prompt shows ssh-keygen's fingerprint → trust once → password prompt → ready → shell I/O, resize, exit, closed",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 103
+    },
+    {
+      "suite": "tt44-bridge",
+      "name": "trust & remember writes known_hosts in the VFS; the next connection skips the prompt; a CHANGED key is refused before auth; forget re-prompts",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 332
+    },
+    {
+      "suite": "tt44-bridge",
+      "name": "public-key auth with an encrypted key: passphrase prompt, wrong passphrase re-prompts, right one logs in; the key is never echoed back",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 530
+    },
+    {
+      "suite": "tt44-bridge",
+      "name": "SFTP over HTTP: list/mkdir/rename/remove, a 9 MiB chunked upload and a streamed download are byte-identical with the server's disk",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 615
+    },
+    {
+      "suite": "tt44-bridge",
+      "name": "D: ≥15 hostile request shapes are refused with the right status and nothing is dialled",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 48
+    },
+    {
+      "suite": "tt44-bridge",
+      "name": "D: frame-level abuse on a live session (truncated / trailing / unknown frames, bad control JSON, stray answers, bad signals, > 1 MiB, SFTP before ready)",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 372
+    },
+    {
+      "suite": "tt44-bridge",
+      "name": "D: dial failures are honest — closed port, unresolvable name, .onion without Tor; amnesic sessions cannot save host keys",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 50
+    },
+    {
+      "suite": "tt44-bridge",
+      "name": "client helpers: frame parser across arbitrary splits, paste-injection stripping, ssh target parsing",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 20
+    }
+  ]
+}

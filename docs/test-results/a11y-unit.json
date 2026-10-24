@@ -1,0 +1,81 @@
+{
+  "suite": "a11y-unit",
+  "at": "2026-10-24T19:08:41.316Z",
+  "results": [
+    {
+      "suite": "a11y-unit",
+      "name": "icon contrast: every palette's glyph colour is ≥3:1 against its tile gradient across the whole glyph area (WCAG 1.4.11)",
+      "covers": {
+        "AX-10": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "a11y-unit",
+      "name": "every registered module and every common file type has a real glyph; tile palettes exist",
+      "covers": {
+        "AX-10": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "a11y-unit",
+      "name": "no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font)",
+      "covers": {
+        "AX-10": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "a11y-unit",
+      "name": "text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz()",
+      "covers": {
+        "AX-09": "partial"
+      },
+      "pass": true,
+      "ms": 16
+    },
+    {
+      "suite": "a11y-unit",
+      "name": "token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
+      "covers": {
+        "AX-09": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "a11y-unit",
+      "name": "settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour",
+      "covers": {
+        "AX-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "a11y-unit",
+      "name": "style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
+      "covers": {
+        "AX-11": "full",
+        "AX-10": "partial"
+      },
+      "pass": true,
+      "ms": 16
+    },
+    {
+      "suite": "a11y-unit",
+      "name": "light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
+      "covers": {
+        "AX-11": "partial",
+        "AX-09": "partial"
+      },
+      "pass": true,
+      "ms": 12
+    }
+  ]
+}

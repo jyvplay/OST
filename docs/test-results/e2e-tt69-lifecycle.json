@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt69-lifecycle",
+  "at": "2026-10-24T20:38:51.858Z",
+  "results": [
+    {
+      "suite": "e2e-tt69-lifecycle",
+      "name": "Spreadsheet: closing a dirty window asks Save changes? — MODAL: Delete, typing, Ctrl+Z, Ctrl+S, Alt+F4, Meta+W, a script focusing the grid and a raw click on a cell never reach the workbook; Tab stays inside; Escape cancels; Save writes the file and closes",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 7513
+    },
+    {
+      "suite": "e2e-tt69-lifecycle",
+      "name": "Writer: typing writes a recovery draft (python-docx reads its bytes; no version snapshots); Close → Don't save keeps it; reopening offers Restore; Restore brings the text back unsaved; Save writes it and deletes the draft",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 8359
+    },
+    {
+      "suite": "e2e-tt69-lifecycle",
+      "name": "leaving the page with unsaved work raises the browser's beforeunload prompt (dismiss = stay); a page with nothing unsaved closes without one",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 4681
+    },
+    {
+      "suite": "e2e-tt69-lifecycle",
+      "name": "Editor: the draft lands INSIDE /System/Recovery (TT68 wrote /System/Recovery_… beside it); Don't save keeps it; reopening offers it; Discard deletes it and leaves the file as it was",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 5392
+    },
+    {
+      "suite": "e2e-tt69-lifecycle",
+      "name": "Editor: Ctrl+S saves only from inside its own window — not under the Save dialog, not with focus outside the window (TT68's listener saved from anywhere)",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 3803
+    },
+    {
+      "suite": "e2e-tt69-lifecycle",
+      "name": "Spreadsheet: a draft whose file changed since is offered flagged as changed-since; Restore brings the drafted edit back as unsaved (the newer file is not overwritten until Save)",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 5970
+    }
+  ]
+}

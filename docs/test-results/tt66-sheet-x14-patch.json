@@ -1,0 +1,114 @@
+{
+  "suite": "tt66-sheet-x14-patch",
+  "at": "2026-10-24T20:28:22.932Z",
+  "results": [
+    {
+      "suite": "tt66-sheet-x14-patch",
+      "name": "lossless save of a file with no extLst: every added x14 rule lands in a new worksheet extLst, validates against the MS-XLSX schema, and nothing x14-only is written as a 2007 rule",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full",
+        "FF-46": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 698
+    },
+    {
+      "suite": "tt66-sheet-x14-patch",
+      "name": "reopen: the reader gets back every added rule with its x14 properties, and the reopened workbook draws exactly what the edited one drew",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full",
+        "FF-46": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 216
+    },
+    {
+      "suite": "tt66-sheet-x14-patch",
+      "name": "a file that already has an x14 ext (Excel-written corpus file): the ext and its <x14:conditionalFormattings> are reused, Excel's own x14 rules stay byte-identical, priorities stay unique",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full",
+        "FF-46": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 346
+    },
+    {
+      "suite": "tt66-sheet-x14-patch",
+      "name": "changing an imported x14 data bar rewrites it under the SAME id (no orphan x14 rule, no dangling link); a duplicated rule gets a fresh id",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full",
+        "FF-46": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 150
+    },
+    {
+      "suite": "tt66-sheet-x14-patch",
+      "name": "a worksheet whose SpreadsheetML namespace is prefixed (x:worksheet) gets a prefixed x:extLst / x:ext; the x14 elements keep their own namespace",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full",
+        "FF-46": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 491
+    },
+    {
+      "suite": "tt66-sheet-x14-patch",
+      "name": "second-order: an existing CF ext whose x14 namespace uses another prefix (a:conditionalFormattings) is extended in place — never a second container in the same ext",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full",
+        "FF-46": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 318
+    },
+    {
+      "suite": "tt66-sheet-x14-patch",
+      "name": "re-saving the patched file unchanged is a no-op for conditional formatting (no duplicated x14 rules), and removing an added x14-only rule removes exactly it",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full",
+        "FF-46": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 322
+    },
+    {
+      "suite": "tt66-sheet-x14-patch",
+      "name": "new-file export (writeXlsxWorkbook): cross-sheet thresholds go x14-only too, and the reader reads an x14-only data bar back",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full",
+        "FF-46": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 481
+    },
+    {
+      "suite": "tt66-sheet-x14-patch",
+      "name": "oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full",
+        "FF-46": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 761
+    }
+  ]
+}

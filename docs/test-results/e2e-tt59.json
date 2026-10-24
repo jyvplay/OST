@@ -1,0 +1,43 @@
+{
+  "suite": "e2e-tt59",
+  "at": "2026-10-24T20:23:58.580Z",
+  "results": [
+    {
+      "suite": "e2e-tt59",
+      "name": "FF-38 Writer spell check in the UI: highlights painted → F7 pane Change / typed Change / Ignore All / Delete repeated word → right-click menu suggestion → Add to Dictionary persists → Escape closes only menu/pane → saved document.xml (lxml)",
+      "covers": {
+        "FF-38": "full"
+      },
+      "pass": true,
+      "ms": 12060
+    },
+    {
+      "suite": "e2e-tt59",
+      "name": "FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save",
+      "covers": {
+        "FF-39": "full",
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 5979
+    },
+    {
+      "suite": "e2e-tt59",
+      "name": "FF-05 Photos exports GIF and BMP (our encoders): Pillow decodes both bit-exact to the source pixels; Chromium re-opens the GIF",
+      "covers": {
+        "FF-05": "full"
+      },
+      "pass": true,
+      "ms": 10313
+    },
+    {
+      "suite": "e2e-tt59",
+      "name": "no uncaught page errors during the TT59 session",
+      "covers": {
+        "WM-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

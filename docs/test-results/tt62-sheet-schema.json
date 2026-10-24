@@ -1,0 +1,51 @@
+{
+  "suite": "tt62-sheet-schema",
+  "at": "2026-10-24T20:25:32.991Z",
+  "results": [
+    {
+      "suite": "tt62-sheet-schema",
+      "name": "oracle sanity on SpreadsheetML: mergeCells before sheetData, a bad cell type enumeration and an unknown element are rejected; our fresh export of an empty workbook is valid",
+      "covers": {
+        "FF-46": "full"
+      },
+      "pass": true,
+      "ms": 298
+    },
+    {
+      "suite": "tt62-sheet-schema",
+      "name": "kitchen sink (fresh export): every style / border line, merges, 6 validation types, links, freeze panes, widths, names, all 25 CF kinds, 7 chart kinds × groupings + trendlines, a PivotTable, awkward sheet names — every part schema-valid, and it reads back",
+      "covers": {
+        "FF-46": "full"
+      },
+      "pass": true,
+      "ms": 260
+    },
+    {
+      "suite": "tt62-sheet-schema",
+      "name": "20 randomized workbooks (random subsets of every feature, random sizes) — every fresh export is schema-valid",
+      "covers": {
+        "FF-46": "full"
+      },
+      "pass": true,
+      "ms": 277
+    },
+    {
+      "suite": "tt62-sheet-schema",
+      "name": "lossless patch: the kitchen-sink feature set added through patchXlsx to 4 POI workbooks (plus a cell edit on every original sheet) adds no schema error the input lacked",
+      "covers": {
+        "FF-46": "full"
+      },
+      "pass": true,
+      "ms": 542
+    },
+    {
+      "suite": "tt62-sheet-schema",
+      "name": "OPC part names are case-insensitive: POI 123233_charts.xlsx stores Sheet1.xml with _rels/sheet1.xml.rels — a hyperlink + a chart + a new sheet patched in keep ONE rels part (with the original drawing relationship), ONE <drawing>, no two entries equal ignoring case, and openpyxl loads it",
+      "covers": {
+        "FF-46": "full"
+      },
+      "pass": true,
+      "ms": 443
+    }
+  ]
+}

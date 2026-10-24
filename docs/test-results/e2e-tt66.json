@@ -1,0 +1,36 @@
+{
+  "suite": "e2e-tt66",
+  "at": "2026-10-24T20:28:39.245Z",
+  "results": [
+    {
+      "suite": "e2e-tt66",
+      "name": "CF panel → Excel 2010 rules (axis bar, 3Stars, custom icons) drawn at once → Save → saved .xlsx passes the MS-XLSX x14 schema + structural oracle and the ECMA XSDs → reopen lists and draws the same",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 11188
+    },
+    {
+      "suite": "e2e-tt66",
+      "name": "modal-shortcut failure test: keys pressed in the new CF controls (band icon select, bar axis select, colour inputs) never edit, clear or undo the grid cell",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 3506
+    },
+    {
+      "suite": "e2e-tt66",
+      "name": "no uncaught page errors during the session",
+      "covers": {
+        "FF-50": "full",
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 56
+    }
+  ]
+}

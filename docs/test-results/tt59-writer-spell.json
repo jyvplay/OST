@@ -1,0 +1,78 @@
+{
+  "suite": "tt59-writer-spell",
+  "at": "2026-10-24T20:23:20.843Z",
+  "results": [
+    {
+      "suite": "tt59-writer-spell",
+      "name": "en_US: every verdict equals spylls (Hunspell port) on ~22k words — forms, misspellings, case, ordinals, apostrophes, hyphens",
+      "covers": {
+        "FF-38": "full"
+      },
+      "pass": true,
+      "ms": 258
+    },
+    {
+      "suite": "tt59-writer-spell",
+      "name": "hand-written dictionary (FLAG long, KEEPCASE, FORBIDDENWORD, NEEDAFFIX, NOSUGGEST, BREAK, COMPOUNDRULE ?, conditions, cross product) equals spylls",
+      "covers": {
+        "FF-38": "full"
+      },
+      "pass": true,
+      "ms": 88
+    },
+    {
+      "suite": "tt59-writer-spell",
+      "name": "suggestions: oracle's first suggestion is in ours ≥ 90%, our first is among the oracle's 5 ≥ 85%, never an invalid or NOSUGGEST word",
+      "covers": {
+        "FF-38": "full"
+      },
+      "pass": true,
+      "ms": 47032
+    },
+    {
+      "suite": "tt59-writer-spell",
+      "name": "tokenizer + capitalisation classes: URLs, e-mail, paths, digits skipped; ordinals and inner apostrophes kept; UPPERCASE optional",
+      "covers": {
+        "FF-38": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt59-writer-spell",
+      "name": "document layer on a python-docx file: exactly the right issues — tracked deletion, w:noProof, w:lang fr-FR, links, UPPERCASE skipped; table cell + repeated word found",
+      "covers": {
+        "FF-38": "full"
+      },
+      "pass": true,
+      "ms": 221
+    },
+    {
+      "suite": "tt59-writer-spell",
+      "name": "fixes write correct .docx (lxml read-back): Change, Change All, Delete repeated word; under Track Changes they are w:del + w:ins",
+      "covers": {
+        "FF-38": "full"
+      },
+      "pass": true,
+      "ms": 429
+    },
+    {
+      "suite": "tt59-writer-spell",
+      "name": "performance and robustness: dictionary loads < 1.5 s, 50k checks < 3 s, hostile input (long / odd Unicode / huge word) never throws",
+      "covers": {
+        "FF-38": "full"
+      },
+      "pass": true,
+      "ms": 1307
+    },
+    {
+      "suite": "tt59-writer-spell",
+      "name": "mutants of the engine are each caught by the spylls comparison (6 mutants)",
+      "covers": {
+        "FF-38": "full"
+      },
+      "pass": true,
+      "ms": 2421
+    }
+  ]
+}

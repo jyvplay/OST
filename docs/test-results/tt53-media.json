@@ -1,0 +1,105 @@
+{
+  "suite": "tt53-media",
+  "at": "2026-10-24T20:15:17.490Z",
+  "results": [
+    {
+      "suite": "tt53-media",
+      "name": "container detection by magic bytes routes MP4/MOV and WebM/MKV; anything else is refused",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt53-media",
+      "name": "MP4/MOV sweep (progressive, faststart, fragmented, MOV, video-only, audio-only) × exact + key-frame starts: FFmpeg decodes, frames hash-equal, packets byte-identical",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 14553
+    },
+    {
+      "suite": "tt53-media",
+      "name": "WebM/MKV sweep (VP8+Opus, VP9+Opus, H.264+AAC with B-frames in MKV, Opus-only): start snaps to the key frame, FFmpeg decodes, frames hash-equal, packets byte-identical",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 4483
+    },
+    {
+      "suite": "tt53-media",
+      "name": "WebM output is self-indexed: Duration, Cues pointing at key-frame clusters, SeekHead positions; re-parse gives rebased block times",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 100
+    },
+    {
+      "suite": "tt53-media",
+      "name": "real Chromium MediaRecorder WebM (unknown-size Segment and Clusters, no Cues, no Duration) is trimmed losslessly and plays back in Chromium",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 5579
+    },
+    {
+      "suite": "tt53-media",
+      "name": "modal-shortcut failure: cutting WebM at the requested frame without its key frame is caught by the oracle (frames differ or fail to decode)",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 199
+    },
+    {
+      "suite": "tt53-media",
+      "name": "negative shapes (≥15): ranges, truncation, damaged sizes, DRM, multi-edit lists, several sample descriptions, bogus sample counts, EBML damage — clear refusals, never garbage",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 216
+    },
+    {
+      "suite": "tt53-media",
+      "name": "unusual-but-valid shapes: size-0 (to EOF) mdat, 64-bit largesize mdat, co64 chunk offsets, truncated live WebM recording — all trim and verify",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 995
+    },
+    {
+      "suite": "tt53-media",
+      "name": "int16 cluster-relative timestamps: a 100 s audio-only Matroska with 40 s source clusters splits so every relative time fits",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 23
+    },
+    {
+      "suite": "tt53-media",
+      "name": "irregular recorder timestamps: the reported end never passes the next real frame (synthetic gaps 40/10 ms)",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt53-media",
+      "name": "Media module wiring: Lossless cut button + exact-start toggle exist, the re-encode path stays, and the old 'not bundled' blocker text is gone",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 7
+    }
+  ]
+}

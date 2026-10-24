@@ -1,0 +1,43 @@
+{
+  "suite": "e2e-tt41",
+  "at": "2026-10-24T19:38:37.373Z",
+  "results": [
+    {
+      "suite": "e2e-tt41",
+      "name": "WP-17 oracle: an ES-module page — root-relative, parent-relative, absolute cross-origin imports; an import map with a bare prefix AND a URL-like key; export-from; dynamic import() of a literal AND of a root-relative path computed at run time; import.meta.url and import.meta.resolve; a module worker created with new Worker(new URL(\"./w.js\", import.meta.url)) that itself imports root-relative and reports self.location / self.origin; an inline module — yields IDENTICAL values natively and through the proxy",
+      "covers": {
+        "WP-17": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "e2e-tt41",
+      "name": "WP-18 oracle: Response.url / redirected / type after redirects, XHR responseURL, Request.url (fragment kept), redirect TAINT (A→B→C: C sees Origin \"null\" and must allow \"null\"; A→B→A: no same-origin cookies, needs CORS), mode \"same-origin\" leaving the origin fails, the full page URL as same-origin Referer, a classic worker's importScripts + Response.url, and a data: worker's opaque origin — the page's view AND what A / B / C saw are IDENTICAL natively and through the proxy",
+      "covers": {
+        "WP-18": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "e2e-tt41",
+      "name": "WP-19 oracle: a CROSS-SITE iframe (B in A) — its navigation, its own image and its same-origin fetch get only SameSite=None cookies, and its Set-Cookie may store only SameSite=None; a SAME-SITE iframe (A′ in A) keeps every cookie and may store Lax — identical natively and through the proxy, including Sec-Fetch-Site and Referer",
+      "covers": {
+        "WP-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt41",
+      "name": "WP-17/18/19 adversary: page fetch() of a module gets its bytes UNCHANGED (only script / worker destinations are rewritten); a module the lexer cannot tokenise (an unterminated template) is served unchanged and labelled; an \"f\" (frame) tag on an image is not honoured as a frame (no frame-tree cookies, the script rules apply: none cross-site); chain flags only ever REMOVE — a tag without them is what the shim emits, so a page cannot claim more",
+      "covers": {
+        "WP-17": "full",
+        "WP-19": "full"
+      },
+      "pass": true,
+      "ms": 363
+    }
+  ]
+}

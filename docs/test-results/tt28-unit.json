@@ -1,0 +1,51 @@
+{
+  "suite": "tt28-unit",
+  "at": "2026-10-24T19:08:54.726Z",
+  "results": [
+    {
+      "suite": "tt28-unit",
+      "name": "snap layouts tile the desk exactly: for 2 000 random desk sizes every layout's zones cover each pixel exactly once; thumbnails stay inside their box",
+      "covers": {
+        "LY-16": "full"
+      },
+      "pass": true,
+      "ms": 27
+    },
+    {
+      "suite": "tt28-unit",
+      "name": "drag targets: corners → quarters, sides → halves, top → maximise, bottom edge only in its corners, interior → none; degenerate input → none",
+      "covers": {
+        "LY-17": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt28-unit",
+      "name": "Snap Assist plan: remaining zones in reading order; nothing to offer → null; the reducer's 'place' clamps, rejects NaN, keeps the restore rect, raises z",
+      "covers": {
+        "LY-16": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt28-unit",
+      "name": "ask store: FIFO queue; validation keeps the dialog open; each request settles exactly once; cancel-all; queue cap 8; values capped at 4 KiB",
+      "covers": {
+        "SH-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt28-unit",
+      "name": "genie keyframes: every frame has the same 4-point clip polygon (so it interpolates), offsets 0 → .45 → 1, phase 1 pinches only the bottom edge over the tile, and the last frame lands exactly on the dock tile for 500 random window/tile pairs",
+      "covers": {
+        "LY-19": "full"
+      },
+      "pass": true,
+      "ms": 12
+    }
+  ]
+}

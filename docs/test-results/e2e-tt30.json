@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt30",
+  "at": "2026-10-24T19:27:06.948Z",
+  "results": [
+    {
+      "suite": "e2e-tt30",
+      "name": "oracle: our accessible names and roles agree with Chromium's accessibility tree in all 40 modules × 3 layouts (thresholds declared up front: names ≥ 98 %, roles ≥ 99 %)",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 86617
+    },
+    {
+      "suite": "e2e-tt30",
+      "name": "oracle sensitivity: three mutants of the narrator source are caught (aria-label ignored → names < 98 %; buttons as generic → roles < 99 %; CSS text-transform ignored → the uppercase headings differ)",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 13376
+    },
+    {
+      "suite": "e2e-tt30",
+      "name": "behaviour: the toggle chord turns Narrator on (spoken + captioned + saved); Tab focus is announced with name and role and the cursor box surrounds the focused element; entering a window announces its dialog context; typing is echoed",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 3526
+    },
+    {
+      "suite": "e2e-tt30",
+      "name": "behaviour: live regions — a polite status is queued without interrupting, an assertive alert interrupts (cancel before speak); aria-busy holds back; Ctrl alone stops speech",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 4549
+    },
+    {
+      "suite": "e2e-tt30",
+      "name": "behaviour: Narrator key + H / Shift+H / Right move the cursor through the focused window (headings, items) without moving focus; W says where you are; = speeds up (saved, next utterance faster); F1 lists commands and Esc returns focus; captions-only mode stops speech but keeps captions",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 8108
+    },
+    {
+      "suite": "e2e-tt30",
+      "name": "behaviour: the toggle chord turns Narrator off (says so, captions and cursor disappear, saved); the Mac preset uses Cmd+F5; the Settings checkbox reflects and drives the same setting",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 7047
+    }
+  ]
+}

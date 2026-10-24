@@ -1,0 +1,36 @@
+{
+  "suite": "e2e-tt68-sheet",
+  "at": "2026-10-24T20:38:12.593Z",
+  "results": [
+    {
+      "suite": "e2e-tt68-sheet",
+      "name": "FF-52 in the UI: an opened workbook shows Excel's results for empty text and an error constant (ISBLANK FALSE / TRUE, COUNTIF \"#N/A\" 1, COUNTA 3, \"=\" 1, \"<>\" 3, ISNA TRUE)",
+      "covers": {
+        "FF-52": "full",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 1470
+    },
+    {
+      "suite": "e2e-tt68-sheet",
+      "name": "FF-52 typing: ' makes empty text (ISBLANK FALSE), #n/a makes an error constant (ISNA TRUE); Save → lxml lists A1 and C1 as empty text, openpyxl reads C2 as an error cell",
+      "covers": {
+        "FF-52": "full",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 4934
+    },
+    {
+      "suite": "e2e-tt68-sheet",
+      "name": "shortcut scope: Paste Special is a non-modal bar (TT60) — the grid keeps the keyboard and ArrowRight still moves the target, but typing, Delete, Backspace, F2, Enter, Ctrl+X / V / Z / D / B never edit the cell behind it, nor do keys typed into the bar's own controls; Escape closes only the bar (Spreadsheet stays open)",
+      "covers": {
+        "FF-52": "partial",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 1337
+    }
+  ]
+}
