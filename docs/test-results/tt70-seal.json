@@ -1,6 +1,6 @@
 {
   "suite": "tt70-seal",
-  "at": "2026-10-24T01:20:34.020Z",
+  "at": "2026-10-24T04:09:05.046Z",
   "results": [
     {
       "suite": "tt70-seal",
@@ -9,7 +9,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 1307
+      "ms": 1712
     },
     {
       "suite": "tt70-seal",
@@ -18,7 +18,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 3653
+      "ms": 3923
     },
     {
       "suite": "tt70-seal",
@@ -27,7 +27,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 31904
+      "ms": 33859
     },
     {
       "suite": "tt70-seal",
@@ -63,7 +63,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 762
+      "ms": 827
     },
     {
       "suite": "tt70-seal",
@@ -72,7 +72,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 2181
+      "ms": 2496
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt58-sheet-pivot",
-  "at": "2026-10-24T02:15:50.809Z",
+  "at": "2026-10-24T03:49:55.561Z",
   "results": [
     {
       "suite": "tt58-sheet-pivot",
@@ -18,7 +18,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 4
     },
     {
       "suite": "tt58-sheet-pivot",
@@ -27,7 +27,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 3670
+      "ms": 3769
     },
     {
       "suite": "tt58-sheet-pivot",
@@ -45,7 +45,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 626
+      "ms": 622
     }
   ]
 }

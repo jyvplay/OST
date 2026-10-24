@@ -1,6 +1,6 @@
 {
   "suite": "tt70-range",
-  "at": "2026-10-24T02:45:23.818Z",
+  "at": "2026-10-24T04:10:39.911Z",
   "results": [
     {
       "suite": "tt70-range",
@@ -9,7 +9,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 4096
+      "ms": 4019
     },
     {
       "suite": "tt70-range",
@@ -18,7 +18,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 1526
+      "ms": 1568
     },
     {
       "suite": "tt70-range",
@@ -27,7 +27,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 44911
+      "ms": 48212
     },
     {
       "suite": "tt70-range",
@@ -36,7 +36,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 470
+      "ms": 531
     },
     {
       "suite": "tt70-range",
@@ -45,7 +45,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt70-range",
@@ -54,7 +54,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 358
+      "ms": 440
     }
   ]
 }

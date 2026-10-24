@@ -1,6 +1,6 @@
 {
   "suite": "office",
-  "at": "2026-10-24T01:54:30.528Z",
+  "at": "2026-10-24T02:45:39.548Z",
   "results": [
     {
       "suite": "office",
@@ -73,7 +73,7 @@
         "FF-27": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 3
     },
     {
       "suite": "office",
@@ -110,7 +110,7 @@
         "FF-27": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "office",
@@ -119,7 +119,7 @@
         "FF-27": "partial"
       },
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "office",

@@ -310,7 +310,12 @@ await test("TT20 backup in the UI: download one encrypted file, verify it, wipe 
   await privacyRoot().locator('[data-testid="backup-file"]').first().setInputFiles(file);
   await privacyRoot().locator('[data-testid="backup-verify"]').click();
   const rep = privacyRoot().locator('[data-testid="backup-report"]');
-  await rep.getByText(/Backup OK/).waitFor({ timeout: 20_000 });
+  await rep.getByText(/Backup OK/).waitFor({ timeout: 20_000 }).catch(async (e) => {
+    // TT70: say WHAT the report shows (DAMAGED / an error / still verifying) instead of only "timeout"
+    const shown = await rep.innerText().catch(() => "(no report)");
+    const errText = await privacyRoot().locator('[role="alert"]').allInnerTexts().catch(() => []);
+    throw new Error(`${(e as Error).message.split("\n")[0]} — report: ${shown.slice(0, 300)} · alerts: ${errText.join(" | ").slice(0, 300)}`);
+  });
   const before = await liveRows();
   ok(before.size >= 3, `expected a populated volume, got ${before.size}`);
   // simulate losing the host volume entirely

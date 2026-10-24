@@ -1,6 +1,6 @@
 {
   "suite": "tt59-sheet-spell",
-  "at": "2026-10-24T02:15:53.944Z",
+  "at": "2026-10-24T03:51:42.105Z",
   "results": [
     {
       "suite": "tt59-sheet-spell",
@@ -18,7 +18,7 @@
         "FF-39": "full"
       },
       "pass": true,
-      "ms": 84
+      "ms": 81
     },
     {
       "suite": "tt59-sheet-spell",
@@ -27,7 +27,7 @@
         "FF-39": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt59-sheet-spell",
@@ -36,7 +36,7 @@
         "FF-39": "full"
       },
       "pass": true,
-      "ms": 889
+      "ms": 812
     },
     {
       "suite": "tt59-sheet-spell",
@@ -45,7 +45,7 @@
         "FF-39": "full"
       },
       "pass": true,
-      "ms": 944
+      "ms": 953
     }
   ]
 }

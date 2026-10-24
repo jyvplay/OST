@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-24T00:54:49.156Z",
+ "generatedAt": "2026-10-24T04:11:10.009Z",
  "totals": {
   "built": {
    "full": 306,
@@ -8,13 +8,13 @@
    "none": 1
   },
   "tested": {
-   "full": 227,
-   "partial": 71,
-   "untested": 85
+   "full": 229,
+   "partial": 72,
+   "untested": 82
   },
   "tests": {
-   "total": 1258,
-   "passed": 1257
+   "total": 1285,
+   "passed": 1285
   }
  },
  "rows": {
@@ -183,8 +183,15 @@
    ]
   },
   "WM-13": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt70-rows: WM-13 edge-hold: a real drag held at the right edge ≥600 ms moves the window to the next workspace (no tiling on release); refused at the last workspace (half-snap still works); a 300 ms touch does nothing; the left edge hops back",
+    "tt70-edge: edge zones are 8 px at each side (inclusive); a desktop too narrow for two zones has none; NaN never matches",
+    "tt70-edge: neighbours follow list order (non-contiguous ids); none past either end or for an unknown active workspace",
+    "tt70-edge: arming: enter with a neighbour arms, without one does not; moving inside keeps; leaving disarms; edge → other edge re-arms",
+    "tt70-edge: latch: after a hop the same edge never re-arms and its half-snap is suppressed; leaving releases the latch",
+    "tt70-edge: exhaustive: every (state, side, canHop) — 'arm' only when entering a non-latched edge with a neighbour; state.side = input side"
+   ]
   },
   "WM-14": {
    "tested": "untested",
@@ -1159,6 +1166,11 @@
     "e2e-tt69-lifecycle: Editor: the draft lands INSIDE /System/Recovery (TT68 wrote /System/Recovery_… beside it); Don't save keeps it; reopening offers it; Discard deletes it and leaves the file as it was",
     "e2e-tt69-lifecycle: Editor: Ctrl+S saves only from inside its own window — not under the Save dialog, not with focus outside the window (TT68's listener saved from anywhere)",
     "e2e-tt69-lifecycle: Spreadsheet: a draft whose file changed since is offered flagged as changed-since; Restore brings the drafted edit back as unsaved (the newer file is not overwritten until Save)",
+    "e2e-tt70-closeall: Close all windows over two dirty workbooks asks about each in window order: Save writes + closes the first, Don't save closes the second and keeps its draft",
+    "e2e-tt70-closeall: Cancel (Escape) on the first question stops the whole queue: both windows stay open and unsaved, no second question",
+    "e2e-tt70-closeall: a clean window among dirty ones closes at once; only the dirty one is asked about",
+    "e2e-tt70-seal: Writer: a protected .docx keeps a SEALED draft (msoffcrypto + python-docx read it with the password; no plaintext on the server); Restore asks nothing more; Save stays encrypted and clears the draft",
+    "e2e-tt70-seal: Spreadsheet adversary: password changed P1→P2 after the draft — Restore asks; a wrong password shows an inline alert; Cancel keeps the banner; P1 restores; Save keeps the CURRENT protection (P2 opens, P1 does not; openpyxl reads the cell)",
     "e2e: mount: editor",
     "e2e: mount: writer",
     "e2e: mount: sheet",
@@ -1173,7 +1185,15 @@
     "tt69-lifecycle: DraftWriter.clear: a write in flight when Save clears is awaited and then deleted — a late draft can never resurrect after Save; clear during serialisation writes nothing",
     "tt69-lifecycle: DraftWriter: oversize drafts are skipped with a reason; a failing store sets lastError and the next change drafts again; flush() writes immediately",
     "tt69-lifecycle: server: draft writes in /System/Recovery keep NO version snapshots (3 writes → 0 versions); the same reason elsewhere and plain writes still snapshot; %-encoded names round-trip",
-    "tt69-lifecycle: privacy: a /Private document's draft written through the real PrivacyLayer leaves no plaintext name, content or version on the host (Postgres read directly); the legacy Editor draft path put the same text on the host in the clear"
+    "tt69-lifecycle: privacy: a /Private document's draft written through the real PrivacyLayer leaves no plaintext name, content or version on the host (Postgres read directly); the legacy Editor draft path put the same text on the host in the clear",
+    "tt70-seal: round trip: the sealed draft opens with the password to the identical bytes; the key derivation is cached",
+    "tt70-seal: a wrong password, a case change and an empty password are refused as 'password', without throwing",
+    "tt70-seal: damage is never opened and never mistaken for a wrong password: non-base64, plaintext, truncation, a flipped byte",
+    "tt70-seal: no leak: the sealed bytes contain neither the password (UTF-8 / UTF-16LE) nor the plaintext marker",
+    "tt70-seal: restoredProtection never weakens: the file's password wins; an unprotected file adopts the draft's; plain drafts change nothing",
+    "tt70-seal: the draft codec accepts encoding 'sealed' only with a base64 payload",
+    "tt70-seal: Spreadsheet packing: the draft JSON travels as a one-entry ZIP; unicode round-trips; other ZIPs are refused",
+    "tt70-seal: outside oracle: msoffcrypto-tool (HMAC verified) decrypts both sealed drafts; python-docx reads the Writer one; a wrong password fails there too"
    ]
   },
   "FF-19": {
@@ -1195,7 +1215,13 @@
     "tt69-sheet-misc: an empty-text cell survives .xlsx: openpyxl reads '' (a string cell, not None) and our reader reads it back as empty text",
     "tt69-sheet-misc: SUMIF / AVERAGEIF resize sum_range from its top-left cell to range's shape (hand cases + recalc of a cell outside the written sum_range)",
     "tt69-sheet-misc: SUMIF / AVERAGEIF resize: brute-force reference over 400 random shapes and offsets",
-    "tt69-sheet-misc: adversary on the resize patch: cross-sheet sum_range keeps its sheet; a resize past the last row is clipped (no crash; Excel's behaviour there is unverified); whole columns; a union sum_range is left alone; Paste Values+Add of empty text over a number"
+    "tt69-sheet-misc: adversary on the resize patch: cross-sheet sum_range keeps its sheet; a resize past the last row is clipped (no crash; Excel's behaviour there is unverified); whole columns; a union sum_range is left alone; Paste Values+Add of empty text over a number",
+    "tt70-range: Excel results for whole-column formulas with data in row 1,048,576 (TT69: #NUM! beyond two columns)",
+    "tt70-range: adversary: spill child rows (no input) are counted; =\"\" in a remote row is non-blank for COUNTA, blank-like for COUNTIF \"\"",
+    "tt70-range: differential oracle: 40 random sparse sheets — whole-column aggregates equal a brute-force computation from the cell list",
+    "tt70-range: both evaluation paths: evalFormulaAt (conditional formats) gives the same sparse results as recalculation",
+    "tt70-range: cross-sheet: whole columns keep one shape on every sheet (TT69: COUNTIFS / SUMIFS / SUMPRODUCT across sheets were #VALUE!); full sizes still must agree",
+    "tt70-range: limits: 16 full columns with bottom-row data evaluate, 17 are #NUM! (documented cap); =SUM(A:C) is fast"
    ]
   },
   "FF-20": {
@@ -1223,6 +1249,8 @@
     "e2e-tt49: add a data bar, an icon set and a formula rule in the panel → drawn at once → Save → the independent oracle evaluates the saved .xlsx exactly as the grid showed",
     "e2e-tt49: no uncaught page errors during the conditional-formatting session",
     "e2e-tt56: FF-20 Spreadsheet Paste Special in the UI: Ctrl+C → Ctrl+Shift+V → Values + Transpose, then Values + Add; Save → openpyxl reads literal values at the transposed cells",
+    "e2e-tt70-seal: Writer: a protected .docx keeps a SEALED draft (msoffcrypto + python-docx read it with the password; no plaintext on the server); Restore asks nothing more; Save stays encrypted and clears the draft",
+    "e2e-tt70-seal: Spreadsheet adversary: password changed P1→P2 after the draft — Restore asks; a wrong password shows an inline alert; Cancel keeps the banner; P1 restores; Save keeps the CURRENT protection (P2 opens, P1 does not; openpyxl reads the cell)",
     "e2e: mount: sheet",
     "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file",
     "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
@@ -1924,6 +1952,7 @@
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
     "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
+    "e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
     "e2e-privacy: no page errors across the privacy flows",
     "e2e: mount: privacy",
     "privacy-crypto: Argon2id (hash-wasm) equals the reference C implementation (argon2-cffi), incl. the default 64 MiB/t=3 slot cost",
@@ -2244,6 +2273,9 @@
     "e2e-layout: Business taskbar: open → minimise → restore on click, Shift+click new window, jump list, Show desktop round trip, clock → Planner",
     "e2e-layout: Business: Start menu opens above the taskbar at bottom-left, search + Enter launches; Quick settings and toasts sit bottom-right; Windows caption buttons",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+    "e2e-tt70-closeall: Close all windows over two dirty workbooks asks about each in window order: Save writes + closes the first, Don't save closes the second and keeps its draft",
+    "e2e-tt70-closeall: Cancel (Escape) on the first question stops the whole queue: both windows stay open and unsaved, no second question",
+    "e2e-tt70-closeall: a clean window among dirty ones closes at once; only the dirty one is asked about",
     "layout-unit: taskbar click: open → focus → minimise the focused single window; several windows cycle; minimised comes back",
     "layout-unit: Show desktop: minimises the visible windows of this workspace, a second press restores exactly those in z-order",
     "layout-unit: Show desktop: opening or focusing a window in between forgets the restore set; viewport changes keep it"
@@ -3173,8 +3205,10 @@
    ]
   },
   "CT-01": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt70-rows: CT-01 share target: manifest share_target → / ; ?url= opens a Browser tab on it and cleans the query; a javascript: URL never runs; Notes Share passes title + body to navigator.share (injected recorder — no OS share sheet in headless Linux)"
+   ]
   },
   "CT-02": {
    "tested": "full",
@@ -3671,8 +3705,10 @@
    "tests": []
   },
   "DP-13": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt70-rows: DP-13 density tokens: compact < balanced < touch (title bar, --fs-target), no control under 24 px, and every density offers the SAME controls by accessible name"
+   ]
   },
   "DP-14": {
    "tested": "partial",
