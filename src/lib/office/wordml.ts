@@ -12,6 +12,7 @@
  *    complex-field codes, comment anchors, note references, tracked changes, equations, VML, content controls,
  *    smart tags, symbols…) are carried as opaque inline tokens in document order.
  */
+import { canonicalizeNs, RELS_CANON, WML_CANON } from "./xml-ns";
 import { attr, clone, el, find, findAll, kid, kids, parseXml, serializeEl, serializeXml, setAttr, textNode, textOf, decText, type XDoc, type XEl, type XNode } from "./xmltree";
 import { openZip, writeZip, type ZipArchive } from "./zipkit";
 
@@ -480,7 +481,11 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
   const zip = new Map<string, Uint8Array>();
   const order: string[] = [];
   for (const e of z.entries) { if (e.name.endsWith("/")) continue; const d = await z.read(e.name); if (d) { zip.set(e.name, d); order.push(e.name); } }
-  const text = (p: string) => { const d = zip.get(p); return d ? td.decode(d) : null; };
+  // TT72: every XML part is read through namespace canonicalisation (XML Namespaces 1.0: the prefix is a local alias) —
+  // WordprocessingML written with another prefix (x:p, ns0:p, a default namespace) is the same document as w:p. Word's
+  // own output takes the fast path (returned unchanged, no copy); a root outside WML_CANON is left exactly as written.
+  const raw = (p: string) => { const d = zip.get(p); return d ? td.decode(d) : null; };
+  const text = (p: string) => { const t = raw(p); return t === null ? null : canonicalizeNs(t, /\.rels$/i.test(p) ? RELS_CANON : WML_CANON, { knownRoot: true }); };
   const rootRels = relMap(text("_rels/.rels") ? parseXml(text("_rels/.rels")!) : null);
   const main = rootRels.find((r) => r.type === RT.officeDocument || r.type.endsWith("/officeDocument"));
   const docPath = main ? resolveTarget("", main.target) : "word/document.xml";
@@ -535,7 +540,7 @@ export async function readWord(bytes: Uint8Array, name = "Document.docx"): Promi
   // TT65: header / footer parts too — their revisions are reviewable now, and a new id must not repeat one of theirs
   for (const part of [docPath, doc.commentsPath, partOf(RT.footnotes), partOf(RT.endnotes), ...[...doc.hf.xml.values()].map((h) => h.path)]) {
     const src = part ? text(part) : null; if (!src) continue;
-    for (const m of src.matchAll(/\sw:id="(-?\d+)"/g)) maxId = Math.max(maxId, Number(m[1]));
+    for (const m of src.matchAll(/\sw:id\s*=\s*(?:"(-?\d+)"|'(-?\d+)')/g)) maxId = Math.max(maxId, Number(m[1] ?? m[2]));
   }
   doc.track = { on, on0: on, author: "", next: maxId + 1, settingsPath: stp };
   return doc;
@@ -1063,7 +1068,7 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
   if (doc.track.on !== doc.track.on0) {
     let sp = doc.track.settingsPath;
     const src = sp ? out.get(sp) : undefined;
-    const sx = parseXml(src ? td.decode(src) : `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:settings xmlns:w="${W}"></w:settings>`);
+    const sx = parseXml(src ? canonicalizeNs(td.decode(src), WML_CANON, { knownRoot: true }) : `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:settings xmlns:w="${W}"></w:settings>`);
     if (!sp || !src) {
       sp = doc.docPath.replace(/[^/]+$/, "") + "settings.xml"; doc.track.settingsPath = sp;
       if (!doc.rels.some((r) => r.type === RT.settings)) addRel(doc, RT.settings, "settings.xml");

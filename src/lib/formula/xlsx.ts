@@ -57,7 +57,12 @@ const dec = (s: string) => (s.indexOf("&") < 0 ? s : s.replace(/&(?:#([0-9]{1,7}
   const cp = d !== undefined ? parseInt(d, 10) : parseInt(h!, 16);
   return cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff) ? String.fromCodePoint(cp) : m;
 }));
-const xmlAttrs = (s: string) => Object.fromEntries([...s.matchAll(/([A-Za-z_:][\w:.-]*)="([^"]*)"/g)].map((m) => [m[1], dec(m[2])]));
+/** CT_BooleanProperty val (xsd:boolean) off values, plus ST_UnderlineValues "none" */
+const OFF_VALS = new Set(["0", "false", "none"]);
+/** TT72: XML 1.0 §3.1 — Attribute ::= Name Eq AttValue, Eq ::= S? '=' S?, AttValue is "…" or '…'. TT71 and earlier read
+ *  only name="value", so a workbook written with single quotes or spaces around '=' (valid XML, e.g. from hand-written
+ *  or XSLT generators) silently lost every attribute: cell refs, types, styles. */
+const xmlAttrs = (s: string) => Object.fromEntries([...s.matchAll(/([A-Za-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)].map((m) => [m[1], dec(m[2] ?? m[3])]));
 
 const ROOT_RELS = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
@@ -453,9 +458,9 @@ function readStyles(xml: string | null, ctx: ColorContext = EMPTY_COLOR_CONTEXT)
   const section = (tag: string) => new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)</${tag}>`).exec(xml)?.[1] ?? "";
   const items = (body: string, tag: string) => [...body.matchAll(new RegExp(`<${tag}\\b([^>]*?)(?:/>|>([\\s\\S]*?)</${tag}>)`, "g"))].map((m) => ({ attrs: xmlAttrs(m[1]), inner: m[2] ?? "" }));
   const rgb = (inner: string, tag: string) => resolveTag(inner, tag, ctx); // TT47: rgb, theme+tint, indexed
-  const flag = (inner: string, tag: string) => { const m = new RegExp(`<${tag}(\\s[^>]*)?/?>`).exec(inner); return !!m && !/val="(0|false|none)"/.test(m[1] ?? ""); };
+  const flag = (inner: string, tag: string) => { const m = new RegExp(`<${tag}(\\s[^>]*)?/?>`).exec(inner); return !!m && !OFF_VALS.has(xmlAttrs(m[1] ?? "").val ?? ""); };
   const fonts = items(section("fonts"), "font").map(({ inner }) => ({ bold: flag(inner, "b"), italic: flag(inner, "i"), underline: flag(inner, "u"), color: rgb(inner, "color") }));
-  const fills = items(section("fills"), "fill").map(({ inner }) => (/patternType="solid"/.test(inner) ? rgb(inner, "fgColor") : undefined));
+  const fills = items(section("fills"), "fill").map(({ inner }) => (xmlAttrs(/<patternFill\b([^>]*)/.exec(inner)?.[1] ?? "").patternType === "solid" ? rgb(inner, "fgColor") : undefined));
   const borders = items(section("borders"), "border").map(({ inner }) => {
     const b: CellBorder = {};
     for (const side of ["left", "right", "top", "bottom"] as const) {
@@ -656,7 +661,7 @@ function readDxfs(xml: string | null, ctx: ColorContext = EMPTY_COLOR_CONTEXT): 
 }
 /** one CT_Dxf body → Dxf (TT59: shared with inline <x14:dxf> of x14-only rules) */
 function dxfFrom(inner: string, ctx: ColorContext = EMPTY_COLOR_CONTEXT): Dxf {
-  const on = (font: string, tag: string) => { const m = new RegExp(`<${tag}(\\s[^>]*)?\\/?>`).exec(font); return !!m && !/val="(0|false|none)"/.test(m[1] ?? ""); };
+  const on = (font: string, tag: string) => { const m = new RegExp(`<${tag}(\\s[^>]*)?\\/?>`).exec(font); return !!m && !OFF_VALS.has(xmlAttrs(m[1] ?? "").val ?? ""); };
   {
     const out: Dxf = {};
     const font = /<font\b[^>]*>([\s\S]*?)<\/font>/.exec(inner)?.[1] ?? "";

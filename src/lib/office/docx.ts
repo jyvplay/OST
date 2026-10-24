@@ -1,3 +1,4 @@
+import { canonicalizeNs, WML_CANON } from "./xml-ns";
 import { readCentralDirectory, readEntryVerified, writeZip } from "../server/zip";
 
 /**
@@ -23,7 +24,13 @@ const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const CT = "http://schemas.openxmlformats.org/package/2006/content-types";
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-const decode = (s: string) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+/** TT72: one pass (so "&amp;lt;" stays "&lt;"), with numeric references (&#10; &#x1F61C;); a non-character is kept as written */
+const NAMED: Record<string, string> = { lt: "<", gt: ">", quot: '"', apos: "'", amp: "&" };
+const decode = (s: string) => s.replace(/&(?:#([0-9]{1,7})|#x([0-9a-fA-F]{1,6})|(lt|gt|quot|apos|amp));/g, (m, d: string | undefined, h: string | undefined, n: string | undefined) => {
+  if (n) return NAMED[n];
+  const cp = d !== undefined ? parseInt(d, 10) : parseInt(h!, 16);
+  return cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff) ? String.fromCodePoint(cp) : m;
+});
 
 /** Balanced OOXML element walker: avoids the common regex bug of stopping at a nested close tag. */
 function elements(xml: string, tag: string): { full: string; inner: string }[] {
@@ -46,7 +53,8 @@ function elements(xml: string, tag: string): { full: string; inner: string }[] {
 }
 
 function parseParagraph(xml: string): Paragraph {
-  const style = /<w:pStyle\b[^>]*w:val="([^"]+)"/.exec(xml)?.[1] ?? "Normal";
+  const sm = /<w:pStyle\b[^>]*w:val\s*=\s*(?:"([^"]+)"|'([^']+)')/.exec(xml);
+  const style = sm ? decode(sm[1] ?? sm[2]) : "Normal";
   const allowed = new Set(["Normal", "Title", "Subtitle", "Heading1", "Heading2", "Heading3", "Quote", "Code", "ListBullet"]);
   const runs: DocRun[] = [];
   for (const run of elements(xml, "r")) {
@@ -64,7 +72,8 @@ export function readDocx(buf: Buffer): DocModel {
   const entries = readCentralDirectory(buf);
   const e = entries.find((x) => x.name === "word/document.xml");
   if (!e) throw new Error("not a WordprocessingML package: word/document.xml missing");
-  const xml = readEntryVerified(buf, e).toString("utf8");
+  // TT72: namespace-aware — another prefix for WordprocessingML (x:p, a default namespace) reads the same as w:p
+  const xml = canonicalizeNs(readEntryVerified(buf, e).toString("utf8"), WML_CANON, { knownRoot: true });
   const body = /<w:body\b[^>]*>([\s\S]*?)<\/w:body>/.exec(xml)?.[1];
   if (!body) throw new Error("word/document.xml has no w:body");
   const blocks: DocBlock[] = [];

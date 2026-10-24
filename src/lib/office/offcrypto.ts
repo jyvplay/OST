@@ -102,7 +102,7 @@ const b64 = (s: string): Bytes => { const bin = atob(s.replace(/\s+/g, "")); con
 /** Truncate, or pad with 0x36, to n bytes (MS-OFFCRYPTO §2.3.4.11/12). */
 const fit = (b: Bytes, n: number) => { if (b.length >= n) return b.slice(0, n); const out = new Uint8Array(n).fill(0x36); out.set(b); return out; };
 const eqBytes = (a: Bytes, b: Bytes) => a.length === b.length && a.every((x, i) => x === b[i]);
-function attrs(tag: string): Record<string, string> { const out: Record<string, string> = {}; for (const m of tag.matchAll(/([\w:]+)="([^"]*)"/g)) out[m[1].replace(/^\w+:/, "")] = m[2]; return out; }
+function attrs(tag: string): Record<string, string> { const out: Record<string, string> = {}; for (const m of tag.matchAll(/([\w:]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)) out[m[1].replace(/^\w+:/, "")] = m[2] ?? m[3]; return out; }
 
 /* ------------------------------------------------------------------ Agile */
 const BK_VERIFIER_INPUT = fromHex("fea7d2763b4b9e79"), BK_VERIFIER_VALUE = fromHex("d7aa0f6d3061344e"), BK_KEY = fromHex("146e0be7abacd0d6");

@@ -25,7 +25,8 @@ export const INDEXED_PALETTE: readonly string[] = [
 export interface ColorContext { theme: string[]; indexed: readonly string[] }
 export const EMPTY_COLOR_CONTEXT: ColorContext = { theme: [], indexed: INDEXED_PALETTE };
 
-const attr = (s: string, name: string) => new RegExp(`\\b${name}="([^"]*)"`).exec(s)?.[1];
+/** TT72: XML 1.0 §3.1 — single or double quotes, optional spaces around "=" (TT71 read name="value" only) */
+const attr = (s: string, name: string) => { const m = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`).exec(s); return m ? m[1] ?? m[2] : undefined; };
 
 /** theme1.xml → 12 colours in SpreadsheetML index order (hex without '#', upper-case). */
 export function readThemeColors(xml: string | null | undefined): string[] {
@@ -34,7 +35,7 @@ export function readThemeColors(xml: string | null | undefined): string[] {
   if (!scheme) return [];
   const slot = (name: string): string => {
     const m = new RegExp(`<(?:\\w+:)?${name}\\b[^>]*>([\\s\\S]*?)</(?:\\w+:)?${name}>`).exec(scheme)?.[1] ?? "";
-    const srgb = /<(?:\w+:)?srgbClr\b[^>]*\bval="([0-9A-Fa-f]{6})"/.exec(m)?.[1];
+    const srgb = /<(?:\w+:)?srgbClr\b[^>]*\bval\s*=\s*["']([0-9A-Fa-f]{6})["']/.exec(m)?.[1];
     if (srgb) return srgb.toUpperCase();
     const sys = /<(?:\w+:)?sysClr\b([^>]*)/.exec(m)?.[1];
     if (sys) { const last = attr(sys, "lastClr"); if (last && /^[0-9A-Fa-f]{6}$/.test(last)) return last.toUpperCase(); const v = attr(sys, "val"); return v === "window" ? "FFFFFF" : "000000"; }
@@ -48,7 +49,7 @@ export function readThemeColors(xml: string | null | undefined): string[] {
 export function readIndexedColors(stylesXml: string | null | undefined): readonly string[] {
   const body = stylesXml ? /<indexedColors\b[^>]*>([\s\S]*?)<\/indexedColors>/.exec(stylesXml)?.[1] : undefined;
   if (!body) return INDEXED_PALETTE;
-  const list = [...body.matchAll(/<rgbColor\b[^>]*\brgb="([0-9A-Fa-f]{8})"/g)].map((m) => m[1].slice(2).toUpperCase());
+  const list = [...body.matchAll(/<rgbColor\b[^>]*\brgb\s*=\s*["']([0-9A-Fa-f]{8})["']/g)].map((m) => m[1].slice(2).toUpperCase());
   return list.length ? [...list, ...INDEXED_PALETTE.slice(list.length)] : INDEXED_PALETTE;
 }
 
