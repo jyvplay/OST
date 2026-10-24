@@ -80,6 +80,15 @@ function flattenAll(a: Arg): Scalar[] {
   return a.kind === "scalar" ? [a.value] : a.value.flat();
 }
 const matrixOf = (a: Arg): Scalar[][] => (a.kind === "matrix" ? a.value : [[a.value]]);
+/**
+ * TT70: a whole-column / whole-row (or very large) range is evaluated over the workbook's used area and carries its FULL
+ * shape as a non-enumerable `full` [rows, cols] (engine.ts clampLarge). The cells beyond the used area are truly blank on
+ * every sheet, so blank-counting functions add them back: COUNTBLANK(A:A) counts all 1,048,576 rows as Excel does.
+ */
+export type ShapedMatrix = Scalar[][] & { full?: [number, number] };
+const shownCells = (a: Arg): number => (a.kind === "matrix" ? a.value.length * (a.value[0]?.length ?? 0) : 1);
+const fullCells = (a: Arg): number => { if (a.kind !== "matrix") return 1; const f = (a.value as ShapedMatrix).full; return f ? f[0] * f[1] : shownCells(a); };
+const tailBlanks = (a: Arg): number => fullCells(a) - shownCells(a);
 
 /**
  * BUG FIX (oracle): COUNT treats a literal non-numeric argument as "not a
@@ -207,7 +216,7 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   AVERAGE: (a) => { const n = a.flatMap(flattenNumbers); return n.length ? n.reduce((x, y) => x + y, 0) / n.length : raise(err("#DIV/0!")); },
   COUNT: (a) => a.reduce((sum, arg) => sum + countNumeric(arg), 0),
   COUNTA: (a) => a.reduce((sum, arg) => sum + countNonBlank(arg), 0),
-  COUNTBLANK: (a) => a.flatMap(flattenAll).filter((v) => v === "" || v === 0 && false).filter((v) => v === "").length,
+  COUNTBLANK: (a) => a.flatMap(flattenAll).filter((v) => v === "").length + a.reduce((n, x) => n + tailBlanks(x), 0),
   MIN: (a) => { const n = a.flatMap(flattenNumbers); return n.length ? Math.min(...n) : 0; },
   MAX: (a) => { const n = a.flatMap(flattenNumbers); return n.length ? Math.max(...n) : 0; },
   MEDIAN: (a) => { const n = a.flatMap(flattenNumbers).sort((x, y) => x - y); if (!n.length) return raise(err("#NUM!")); const mid = Math.floor(n.length / 2); return n.length % 2 ? n[mid] : (n[mid - 1] + n[mid]) / 2; },
@@ -358,7 +367,9 @@ function sumIf(a: Arg[]): Scalar {
 function countIf(a: Arg[]): Scalar {
   const r = cellsOf(a[0]);
   const crit = makeCriteria(critOf(a[1]));
-  let n = 0; r.v.forEach((v, i) => { if (crit(v, r.blank[i])) n++; }); return n;
+  let n = 0; r.v.forEach((v, i) => { if (crit(v, r.blank[i])) n++; });
+  const tail = tailBlanks(a[0]); // TT70: the blank cells beyond the used area of a whole-column range
+  return tail > 0 && crit("", true) ? n + tail : n;
 }
 function averageIf(a: Arg[]): Scalar {
   const r = cellsOf(a[0]);
@@ -371,8 +382,8 @@ function averageIf(a: Arg[]): Scalar {
 /** TT68: numbers of `target` where every criteria pair matches (sizes must agree, else #VALUE!). */
 function maskedNumbers(target: Arg, pairs: Arg[]): number[] {
   const t = matrixOf(target).flat();
-  const mask = buildMultiCriteriaMask(pairs);
-  if (mask.length !== t.length) raise(err("#VALUE!"));
+  const { mask, full } = multiCriteria(pairs);
+  if (mask.length !== t.length || full !== fullCells(target)) raise(err("#VALUE!"));
   const out: number[] = []; t.forEach((v, i) => { if (mask[i] && typeof v === "number") out.push(v); }); return out;
 }
 function sumIfs(a: Arg[]): Scalar {
@@ -380,8 +391,8 @@ function sumIfs(a: Arg[]): Scalar {
   return maskedNumbers(a[0], a.slice(1)).reduce((x, y) => x + y, 0);
 }
 function countIfs(a: Arg[]): Scalar {
-  const mask = buildMultiCriteriaMask(a);
-  return mask.filter(Boolean).length;
+  const { mask, tailMatches, tail } = multiCriteria(a);
+  return mask.filter(Boolean).length + (tailMatches ? tail : 0);
 }
 function averageIfs(a: Arg[]): Scalar {
   if (a.length < 3) raise(err("#VALUE!"));
@@ -394,17 +405,21 @@ function extremeIfs(a: Arg[], max: boolean): Scalar {
   if (!ns.length) return 0;
   let best = ns[0]; for (const n of ns) if (max ? n > best : n < best) best = n; return best;
 }
-function buildMultiCriteriaMask(pairs: Arg[]): boolean[] {
+/** TT70: also the FULL size of the ranges (must agree, as Excel's sizes) and whether the blank tail matches every criterion. */
+function multiCriteria(pairs: Arg[]): { mask: boolean[]; full: number; tail: number; tailMatches: boolean } {
   if (pairs.length < 2 || pairs.length % 2 !== 0) raise(err("#VALUE!"));
-  let mask: boolean[] | null = null;
+  let mask: boolean[] | null = null; let full = -1; let tail = 0; let tailMatches = true;
   for (let i = 0; i + 1 < pairs.length; i += 2) {
     const r = cellsOf(pairs[i]);
     const crit = makeCriteria(critOf(pairs[i + 1]));
     const m = r.v.map((v, j) => crit(v, r.blank[j]));
-    if (mask && mask.length !== m.length) raise(err("#VALUE!"));
+    const f = fullCells(pairs[i]);
+    if (mask && (mask.length !== m.length || f !== full)) raise(err("#VALUE!"));
     mask = mask ? mask.map((x, j) => x && m[j]) : m;
+    full = f; tail = tailBlanks(pairs[i]);
+    if (tailMatches && tail > 0) tailMatches = crit("", true);
   }
-  return mask ?? [];
+  return { mask: mask ?? [], full, tail, tailMatches: tail > 0 && tailMatches };
 }
 
 function vlookup(a: Arg[]): Scalar {

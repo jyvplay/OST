@@ -270,16 +270,16 @@ export class Workbook {
         return !this.spillOwner.has(fqKey(sn, c, r));
       };
       const vAt = (s: string, c: number, r: number): Scalar => this.valueAt(s, c, r) ?? "";
-      const clamp = (range: RangeAddr): RangeAddr => {
-        const area = (Math.abs(range.to.col - range.from.col) + 1) * (Math.abs(range.to.row - range.from.row) + 1);
-        if (!range.whole && area <= 200_000) return range;
-        const b = this.usedBounds(range.from.sheet ?? sheetName);
-        const r1 = Math.max(range.from.row, Math.min(range.to.row, b.r)), c1 = Math.max(range.from.col, Math.min(range.to.col, b.c));
-        return { from: range.from, to: { ...range.to, row: r1, col: c1 } };
+      const occCache = new Map<string, Set<number>>();
+      const occOf = (sn: string) => { let o = occCache.get(sn); if (!o) { o = occupiedRows(this.sheets.get(sn)); occCache.set(sn, o); } return o; };
+      let wbBounds: { r: number; c: number } | null = null;
+      const shaped = (range: RangeAddr): Scalar[][] => {
+        const { range: r, full } = clampLarge(range, () => (wbBounds ??= this.workbookBounds()));
+        return withFull(resolveRangeMatrix(r, sheetName, vAt, occOf), full);
       };
       const ctx: EvalContext = {
         resolveRef: (addr) => vAt(addr.sheet ?? sheetName, addr.col, addr.row),
-        resolveRange: (range) => resolveRangeMatrix(clamp(range), sheetName, vAt),
+        resolveRange: shaped,
         cursor: { sheet: sheetName, col, row },
         isBlank,
         sheetsBetween: (a, b) => { const order = [...this.sheets.keys()]; const i = order.findIndex((x) => x.toUpperCase() === a.toUpperCase()), j = order.findIndex((x) => x.toUpperCase() === b.toUpperCase()); return i < 0 || j < 0 ? null : order.slice(Math.min(i, j), Math.max(i, j) + 1); },
@@ -295,10 +295,15 @@ export class Workbook {
     } catch (e) { return (e as { code?: Scalar }).code ?? err("#VALUE!"); }
     finally { setDate1904(prev); }
   }
-  /** Used area of a sheet (last row/col holding input or a spill) — clamps whole-column refs in evalFormulaAt. */
-  private usedBounds(sheetName: string): { r: number; c: number } {
-    const b = { r: 0, c: 0 }; const sh = this.sheets.get(sheetName); if (!sh) return b;
-    for (const [k, cell] of sh.grid) { if (cell.input === "") continue; const [c, r] = k.split(",").map(Number); if (r > b.r) b.r = r; if (c > b.c) b.c = c; if (cell.spill) { b.r = Math.max(b.r, r + cell.spill.rows - 1); b.c = Math.max(b.c, c + cell.spill.cols - 1); } }
+  /** TT70: used area of the WORKBOOK (last row / col holding input or a spill on any sheet) — clamps whole-column refs. */
+  private workbookBounds(): { r: number; c: number } {
+    const b = { r: 0, c: 0 };
+    for (const sh of this.sheets.values()) for (const [k, cell] of sh.grid) {
+      if (cell.input === "") continue;
+      const comma = k.indexOf(","); const c = Number(k.slice(0, comma)), r = Number(k.slice(comma + 1));
+      const r1 = cell.spill ? r + cell.spill.rows - 1 : r, c1 = cell.spill ? c + cell.spill.cols - 1 : c;
+      if (r1 > b.r) b.r = r1; if (c1 > b.c) b.c = c1;
+    }
     return b;
   }
 
@@ -344,21 +349,14 @@ export class Workbook {
       if (cell && cell.input !== "") return false;
       return !prevOwner.has(fqKey(sn, col, row));
     };
-    const bounds = new Map<string, { r: number; c: number }>();
-    /** Whole-column/row and very large ranges are evaluated over the sheet's used area only (results identical for aggregates). */
-    const clampRange = (range: RangeAddr, home: string): RangeAddr => {
-      const area = (Math.abs(range.to.col - range.from.col) + 1) * (Math.abs(range.to.row - range.from.row) + 1);
-      if (!range.whole && area <= 200_000) return range;
-      const sn = range.from.sheet ?? home;
-      let b = bounds.get(sn);
-      if (!b) {
-        b = { r: 0, c: 0 };
-        const sh = this.sheets.get(sn);
-        if (sh) for (const [k, cell] of sh.grid) { if (cell.input === "") continue; const [c, r] = k.split(",").map(Number); if (r > b.r) b.r = r; if (c > b.c) b.c = c; if (cell.spill) { b.r = Math.max(b.r, r + cell.spill.rows - 1); b.c = Math.max(b.c, c + cell.spill.cols - 1); } }
-        bounds.set(sn, b);
-      }
-      const r1 = Math.max(range.from.row, Math.min(range.to.row, b.r)), c1 = Math.max(range.from.col, Math.min(range.to.col, b.c));
-      return { from: range.from, to: { ...range.to, row: r1, col: c1 } };
+    const occCache = new Map<string, Set<number>>();
+    const occOf = (sn: string) => { let o = occCache.get(sn); if (!o) { o = occupiedRows(this.sheets.get(sn)); occCache.set(sn, o); } return o; };
+    /** Whole-column/row and very large ranges are evaluated over the WORKBOOK's used area (TT70: one bound for all sheets,
+     *  so Sheet1!A:A and Data!A:A keep the same shape) and carry their full shape for blank-counting functions. */
+    let wbBounds: { r: number; c: number } | null = null;
+    const shapedRange = (range: RangeAddr, home: string): Scalar[][] => {
+      const { range: r, full } = clampLarge(range, () => (wbBounds ??= this.workbookBounds()));
+      return withFull(resolveRangeMatrix(r, home, evalCell, occOf), full);
     };
     const evalCell = (sheetName: string, col: number, row: number): Scalar => {
       const fk = fqKey(sheetName, col, row);
@@ -386,7 +384,7 @@ export class Workbook {
       color.set(fk, GRAY);
       const ctx: EvalContext = {
         resolveRef: (addr) => evalCell(addr.sheet ?? sheetName, addr.col, addr.row),
-        resolveRange: (range) => resolveRangeMatrix(clampRange(range, sheetName), sheetName, evalCell),
+        resolveRange: (range) => shapedRange(range, sheetName),
         cursor: { sheet: sheetName, col, row },
         isBlank,
         sheetsBetween: (a, b) => { const order = [...this.sheets.keys()]; const i = order.findIndex((x) => x.toUpperCase() === a.toUpperCase()), j = order.findIndex((x) => x.toUpperCase() === b.toUpperCase()); return i < 0 || j < 0 ? null : order.slice(Math.min(i, j), Math.max(i, j) + 1); },
@@ -444,18 +442,79 @@ export class Workbook {
   }
 }
 
-function resolveRangeMatrix(range: RangeAddr, defaultSheet: string, evalCell: (s: string, c: number, r: number) => Scalar): Scalar[][] {
+/**
+ * TT70: clamp a whole-column / whole-row / very large range to the workbook's used area — only along the oversized axis
+ * (rows of A:C, columns of 3:5), so a range's shape depends on the reference alone, never on which sheet it points at.
+ * Returns the full (unclamped) shape: the cells cut off are blank on every sheet (no input, no spill).
+ */
+function clampLarge(range: RangeAddr, bounds: () => { r: number; c: number }): { range: RangeAddr; full: [number, number] } {
+  const r0 = Math.min(range.from.row, range.to.row), r1 = Math.max(range.from.row, range.to.row);
+  const c0 = Math.min(range.from.col, range.to.col), c1 = Math.max(range.from.col, range.to.col);
+  const full: [number, number] = [r1 - r0 + 1, c1 - c0 + 1];
+  const rows = range.whole === "col" || full[0] > 65_536, cols = range.whole === "row" || full[1] > 1_024;
+  if (!rows && !cols) return { range, full };
+  const b = bounds();
+  const nr1 = rows ? Math.max(r0, Math.min(r1, b.r)) : r1, nc1 = cols ? Math.max(c0, Math.min(c1, b.c)) : c1;
+  return { range: { ...range, from: { ...range.from, row: r0, col: c0 }, to: { ...range.to, row: nr1, col: nc1 } }, full };
+}
+/** attach the full shape (non-enumerable: copies and JSON never carry it) when the matrix was clamped */
+function withFull(m: Scalar[][], full: [number, number]): Scalar[][] {
+  if (m.length !== full[0] || (m[0]?.length ?? 0) !== full[1]) Object.defineProperty(m, "full", { value: full, enumerable: false });
+  return m;
+}
+/** TT70: rows of a sheet holding input or a spill (any column) — every other row of a range is all-empty. */
+function occupiedRows(sh: Sheet | undefined): Set<number> {
+  const rows = new Set<number>(); if (!sh) return rows;
+  for (const [k, cell] of sh.grid) {
+    if (cell.input === "") continue;
+    const r = Number(k.slice(k.indexOf(",") + 1));
+    if (cell.spill) for (let i = 0; i < cell.spill.rows; i++) rows.add(r + i); else rows.add(r);
+  }
+  return rows;
+}
+/** TT70: one shared, frozen all-empty row per width (a mutation throws instead of corrupting other rows). */
+const EMPTY_ROWS = new Map<number, Scalar[]>();
+function emptyRow(w: number): Scalar[] {
+  let e = EMPTY_ROWS.get(w); if (!e) { e = Object.freeze(Array(w).fill("")) as Scalar[]; if (EMPTY_ROWS.size < 64) EMPTY_ROWS.set(w, e); }
+  return e;
+}
+const isSharedEmptyRow = (row: Scalar[]) => EMPTY_ROWS.get(row.length) === row;
+const BLANK_ROWS = new Map<number, boolean[]>();
+function blankRow(w: number): boolean[] {
+  let e = BLANK_ROWS.get(w); if (!e) { e = Object.freeze(Array(w).fill(true)) as boolean[]; if (BLANK_ROWS.size < 64) BLANK_ROWS.set(w, e); }
+  return e;
+}
+/** dense cells evaluated one by one */
+const MAX_DENSE_CELLS = 2_097_152;
+/** TT70: total cells a sparse (whole-column / very large) range may present: 16 full columns */
+const MAX_SPARSE_AREA = 16 * 1_048_576;
+
+function resolveRangeMatrix(range: RangeAddr, defaultSheet: string, evalCell: (s: string, c: number, r: number) => Scalar, occupied?: (sheet: string) => Set<number>): Scalar[][] {
   const sheetName = range.from.sheet ?? defaultSheet;
   const c0 = Math.min(range.from.col, range.to.col), c1 = Math.max(range.from.col, range.to.col);
   const r0 = Math.min(range.from.row, range.to.row), r1 = Math.max(range.from.row, range.to.row);
-  // TT69: 2^21 (two full columns). The old 1,000,000 cap made one full column (1,048,576 rows) #NUM! once data reached
-  // the last rows: =SUM(C1:C1048576) and SUMIF(A:A,…) failed where Excel sums them
-  if ((c1 - c0 + 1) * (r1 - r0 + 1) > 2_097_152) throw Object.assign(new Error("#NUM!"), { code: err("#NUM!") });
-  const rows: Scalar[][] = [];
+  const w = c1 - c0 + 1, h = r1 - r0 + 1;
+  const NUM = () => Object.assign(new Error("#NUM!"), { code: err("#NUM!") });
+  // TT69: 2^21 (two full columns) — the old 1,000,000 cap made one full column #NUM! once data reached the last rows.
+  // TT70: large ranges (whole columns / > 200k cells, already clamped to the used area) are SPARSE: rows with no input
+  // and no spill share one frozen empty row and are never evaluated cell by cell, so =SUM(A:C) with data in row
+  // 1,048,576 is 113, not #NUM!, and takes milliseconds instead of seconds. The dense cap now counts occupied rows only.
+  const occ = occupied && w * h > 200_000 ? occupied(sheetName) : null;
+  if (!occ) {
+    if (w * h > MAX_DENSE_CELLS) throw NUM();
+  } else {
+    if (w * h > MAX_SPARSE_AREA) throw NUM();
+    let dense = 0;
+    if (occ.size < h) { for (const r of occ) if (r >= r0 && r <= r1) dense += w; } else dense = w * h;
+    if (dense > MAX_DENSE_CELLS) throw NUM();
+  }
+  const rows: Scalar[][] = new Array(h);
+  const empty = occ ? emptyRow(w) : null;
   for (let r = r0; r <= r1; r++) {
-    const row: Scalar[] = [];
-    for (let c = c0; c <= c1; c++) row.push(evalCell(sheetName, c, r));
-    rows.push(row);
+    if (empty && !occ!.has(r)) { rows[r - r0] = empty; continue; }
+    const row: Scalar[] = new Array(w);
+    for (let c = c0; c <= c1; c++) row[c - c0] = evalCell(sheetName, c, r);
+    rows[r - r0] = row;
   }
   return rows;
 }
@@ -692,7 +751,8 @@ function blankMask(n: Node, m: Scalar[][], ctx: EvalContext): boolean[][] | unde
   if (n.t === "ref") return [[m[0]?.[0] === "" && ctx.isBlank(n.v.sheet, n.v.col, n.v.row, home)]];
   if (n.t !== "range") return undefined;
   const { c0, r0 } = bounds(n.v);
-  return m.map((row, i) => row.map((x, j) => x === "" && ctx.isBlank!(n.v.from.sheet, c0 + j, r0 + i, home)));
+  // TT70: a shared empty row (sparse range) has no input and no spill in ANY column, so every element is blank
+  return m.map((row, i) => (isSharedEmptyRow(row) ? blankRow(row.length) : row.map((x, j) => x === "" && ctx.isBlank!(n.v.from.sheet, c0 + j, r0 + i, home))));
 }
 function toArg(node: Node, ctx: EvalContext): Arg {
   // reference forms (OFFSET / INDEX / INDIRECT / structured / 3-D) were already resolved to a ref / range by evalCall,

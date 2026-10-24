@@ -1,6 +1,6 @@
 {
   "suite": "tt69-sheet-misc",
-  "at": "2026-10-24T00:30:38.852Z",
+  "at": "2026-10-24T02:20:50.295Z",
   "results": [
     {
       "suite": "tt69-sheet-misc",
@@ -9,7 +9,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 4
     },
     {
       "suite": "tt69-sheet-misc",
@@ -19,7 +19,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 186
+      "ms": 157
     },
     {
       "suite": "tt69-sheet-misc",
@@ -37,7 +37,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 127
+      "ms": 101
     },
     {
       "suite": "tt69-sheet-misc",
@@ -47,7 +47,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 1211
+      "ms": 328
     }
   ]
 }
