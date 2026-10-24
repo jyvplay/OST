@@ -1,0 +1,60 @@
+{
+  "suite": "tt72-padlink",
+  "at": "2026-10-24T20:46:49.889Z",
+  "results": [
+    {
+      "suite": "tt72-padlink",
+      "name": "parseMsg rejects 24 malformed / hostile shapes, accepts the four kinds, clamps and rounds numbers",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt72-padlink",
+      "name": "acceptSeq: per sender strictly increasing — replays, duplicates and out-of-order dropped; 64 senders max",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt72-padlink",
+      "name": "padCommands: key table incl. Shift; nothing focused / focused window minimized; zero moves",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt72-padlink",
+      "name": "safety over 2 000 generated (op, desktop) pairs: a command only names the focused, visible window",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 79
+    },
+    {
+      "suite": "tt72-padlink",
+      "name": "through the real reducer: pad ops change the desktop exactly like the local commands (clamped like any move)",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt72-padlink",
+      "name": "pickTarget: the newest presenting screen, never itself, never a tab or pip",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

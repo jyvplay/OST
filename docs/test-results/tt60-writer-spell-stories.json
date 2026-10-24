@@ -1,6 +1,6 @@
 {
   "suite": "tt60-writer-spell-stories",
-  "at": "2026-10-24T05:59:41.823Z",
+  "at": "2026-10-24T20:24:06.850Z",
   "results": [
     {
       "suite": "tt60-writer-spell-stories",
@@ -9,7 +9,7 @@
         "FF-42": "full"
       },
       "pass": true,
-      "ms": 193
+      "ms": 161
     },
     {
       "suite": "tt60-writer-spell-stories",
@@ -18,7 +18,7 @@
         "FF-42": "full"
       },
       "pass": true,
-      "ms": 417
+      "ms": 386
     },
     {
       "suite": "tt60-writer-spell-stories",
@@ -27,7 +27,7 @@
         "FF-42": "full"
       },
       "pass": true,
-      "ms": 69
+      "ms": 70
     }
   ]
 }

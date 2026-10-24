@@ -1,6 +1,6 @@
 {
   "suite": "image",
-  "at": "2026-10-24T04:54:56.167Z",
+  "at": "2026-10-24T19:08:25.395Z",
   "results": [
     {
       "suite": "image",
@@ -18,7 +18,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "image",
@@ -28,7 +28,7 @@
         "FF-24": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "image",
@@ -37,7 +37,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 4
     },
     {
       "suite": "image",
@@ -46,7 +46,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 4
     },
     {
       "suite": "image",
@@ -55,7 +55,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 7
+      "ms": 11
     },
     {
       "suite": "image",
@@ -84,7 +84,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 73
+      "ms": 93
     },
     {
       "suite": "image",
@@ -93,7 +93,7 @@
         "FF-31": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "image",
@@ -111,7 +111,7 @@
         "FF-30": "partial"
       },
       "pass": true,
-      "ms": 4
+      "ms": 5
     }
   ]
 }

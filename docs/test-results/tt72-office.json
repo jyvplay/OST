@@ -1,6 +1,6 @@
 {
   "suite": "tt72-office",
-  "at": "2026-10-24T18:13:10.961Z",
+  "at": "2026-10-24T20:46:49.485Z",
   "results": [
     {
       "suite": "tt72-office",
@@ -9,7 +9,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 26913
+      "ms": 29508
     },
     {
       "suite": "tt72-office",
@@ -18,7 +18,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 3896
+      "ms": 4091
     },
     {
       "suite": "tt72-office",
@@ -27,7 +27,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 294
+      "ms": 291
     },
     {
       "suite": "tt72-office",
@@ -40,13 +40,49 @@
     },
     {
       "suite": "tt72-office",
+      "name": "W5 corpus: every readable docx with all word/**.xml attributes single-quoted and spaced reads to the SAME model, and the next tracked-change id stays above every existing w:id (no revision-id collisions)",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 8518
+    },
+    {
+      "suite": "tt72-office",
+      "name": "W6 pictures in headers / footers / comments / notes resolve through THAT part's relationships (OPC): every picture the reader shows is one the part references — lxml + zipfile oracle over the corpus; TT71 showed the main document's rIdN",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 4963
+    },
+    {
+      "suite": "tt72-office",
+      "name": "W7 one rId, four parts: body, header, comment and footnote each use rId9 for a DIFFERENT picture — each part shows its own (part rels + no cross-part media cache); TT71 showed the body's picture or styles.xml everywhere",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt72-office",
+      "name": "W8 lossless no-edit save: every readable corpus docx AND its q:-prefixed rewrite saves byte-identically when unedited (canonicalised parts go back as their original bytes; Word 2007 ve: files are not rewritten)",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 21326
+    },
+    {
+      "suite": "tt72-office",
       "name": "S1 corpus: every readable xlsx with all xl/**.xml attributes single-quoted and spaced around '=' reads to the SAME model (inputs, values, styles, widths, merges, validations, links); the TT71 reader lost cells / styles on them",
       "covers": {
         "FF-21": "full",
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 155553
+      "ms": 209110
     },
     {
       "suite": "tt72-office",
@@ -65,7 +101,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 2339
+      "ms": 2541
     },
     {
       "suite": "tt72-office",
@@ -75,7 +111,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 52
+      "ms": 48
     }
   ]
 }

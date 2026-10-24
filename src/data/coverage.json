@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-24T06:15:21.596Z",
+ "generatedAt": "2026-10-24T20:51:32.612Z",
  "totals": {
   "built": {
    "full": 306,
@@ -8,13 +8,13 @@
    "none": 1
   },
   "tested": {
-   "full": 230,
+   "full": 232,
    "partial": 72,
-   "untested": 81
+   "untested": 79
   },
   "tests": {
-   "total": 1296,
-   "passed": 1296
+   "total": 1326,
+   "passed": 1326
   }
  },
  "rows": {
@@ -84,8 +84,20 @@
    ]
   },
   "SH-11": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt72-pad: a real drag on the tab's Blackout pad moves the focused window on display 2 (DOM + persisted); the tab's window stays",
+    "e2e-tt72-pad: keys on the Blackout screen drive display 2: arrows (+Shift), Tab cycles, Enter maximises, Home shows desktop",
+    "e2e-tt72-pad: adversary on the channel: wrong recipient, malformed shapes, replayed / stale seq change nothing; a fresh message does",
+    "e2e-tt72-pad: a proxied page (opaque-origin sandbox, as Browser → proxy runs it) posting a VALID pad message moves nothing",
+    "e2e-tt72-pad: no presenting screen: the status says so and the pad moves this tab's focused window",
+    "tt72-padlink: parseMsg rejects 24 malformed / hostile shapes, accepts the four kinds, clamps and rounds numbers",
+    "tt72-padlink: acceptSeq: per sender strictly increasing — replays, duplicates and out-of-order dropped; 64 senders max",
+    "tt72-padlink: padCommands: key table incl. Shift; nothing focused / focused window minimized; zero moves",
+    "tt72-padlink: safety over 2 000 generated (op, desktop) pairs: a command only names the focused, visible window",
+    "tt72-padlink: through the real reducer: pad ops change the desktop exactly like the local commands (clamped like any move)",
+    "tt72-padlink: pickTarget: the newest presenting screen, never itself, never a tab or pip"
+   ]
   },
   "SH-12": {
    "tested": "untested",
@@ -1398,7 +1410,10 @@
     "tt68-blank: reader: every constant empty-text cell of the 8 corpus workbooks that have them is kept as non-blank empty text — the SAME cells lxml finds (6 190 cells); TT67 dropped them all",
     "tt68-blank: hostile / edge cell shapes (18): which XML is empty text, which is no value — sst \"\" / rich-empty / spaced index → empty text; empty, negative, fractional or out-of-range index, inlineStr without <is>, str without <v> → no value; lxml agrees on every empty-text verdict; text \"#N/A\" stays text",
     "tt68-blank: lossless save: untouched empty-text cells keep their original <c> byte-for-byte; a cell edited to empty text is written as an empty inline string; openpyxl opens it and lxml lists exactly the original empty-text cells plus the new one",
-    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions"
+    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
+    "tt72-office: S1 corpus: every readable xlsx with all xl/**.xml attributes single-quoted and spaced around '=' reads to the SAME model (inputs, values, styles, widths, merges, validations, links); the TT71 reader lost cells / styles on them",
+    "tt72-office: S2 font / fill flags: <b val='0'/> and <b val = \"false\"/> are not bold, <b/> and <b val='1'/> are; patternType = 'solid' fills; underline 'none' is off",
+    "tt72-office: C1 Agile EncryptionInfo written with single quotes (same bytes length, patched inside the CFB) still decrypts with HMAC verified; TT71 refused it"
    ]
   },
   "FF-22": {
@@ -1478,7 +1493,16 @@
     "tt58-writer-notes: edit and delete: setNoteText rewrites only that note; deleteNote removes reference and note; Backspace over a reference also drops the note on save; ids stay stable",
     "tt58-writer-notes: POI corpus (6 files): untouched round trip keeps every notes part byte-identical; editing one note changes only that note; deleting one keeps the rest; all equal to the oracle",
     "tt58-writer-notes: Track Changes: a footnote inserted while recording is a tracked insertion (reject → reference and note gone); deleting one while recording keeps it as a pending deletion until accepted",
-    "tt58-writer-notes: 120 random sessions: insert / edit / delete footnotes and endnotes at random places, save, reopen — our list = oracle references and texts, never dangling or orphaned, ids unique"
+    "tt58-writer-notes: 120 random sessions: insert / edit / delete footnotes and endnotes at random places, save, reopen — our list = oracle references and texts, never dangling or orphaned, ids unique",
+    "tt72-office: W1 corpus: every readable docx rewritten with WordprocessingML prefix q (and in default-namespace form) reads to the SAME model as the original; the TT71 reader opened none of the prefix rewrites",
+    "tt72-office: W2 lxml: every WordprocessingML part canonicalised by the reader (prefix rewrites, default-namespace forms, corpus parts that are not already canonical) is namespace-equivalent to its input",
+    "tt72-office: W3 round trip from a foreign-prefix document: edit → writeWord → the output re-reads to the edited model, python-docx opens it, and Track Changes on a q:-prefixed settings.xml writes a DECLARED w:trackRevisions",
+    "tt72-office: W4 legacy /api/office readDocx: prefix and default-namespace forms, single-quoted pStyle, numeric character references",
+    "tt72-office: W5 corpus: every readable docx with all word/**.xml attributes single-quoted and spaced reads to the SAME model, and the next tracked-change id stays above every existing w:id (no revision-id collisions)",
+    "tt72-office: W6 pictures in headers / footers / comments / notes resolve through THAT part's relationships (OPC): every picture the reader shows is one the part references — lxml + zipfile oracle over the corpus; TT71 showed the main document's rIdN",
+    "tt72-office: W7 one rId, four parts: body, header, comment and footnote each use rId9 for a DIFFERENT picture — each part shows its own (part rels + no cross-part media cache); TT71 showed the body's picture or styles.xml everywhere",
+    "tt72-office: W8 lossless no-edit save: every readable corpus docx AND its q:-prefixed rewrite saves byte-identically when unedited (canonicalised parts go back as their original bytes; Word 2007 ve: files are not rewritten)",
+    "tt72-office: C1 Agile EncryptionInfo written with single quotes (same bytes length, patched inside the CFB) still decrypts with HMAC verified; TT71 refused it"
    ]
   },
   "FF-23": {
@@ -1505,7 +1529,8 @@
     "tt51-slides: password-protected decks: our Agile-encrypted save decrypts with msoffcrypto-tool to the exact package, and our decryptor opens it again; the encrypted file is a CFB container, not a zip",
     "tt51-slides: hostile input: the 12 corpus files python-pptx also rejects (fuzzer cases, bad CRC, truncated zip) fail with a clear error; billion-laughs DOCTYPE text is not expanded; target paths cannot climb out of the package; a sldIdLst with missing / duplicate / external slides opens what is valid; 5,000-deep group nesting and > 2,000 slides are refused or capped without crashing",
     "tt51-slides: colour maths and numbering against Office's documented values: Accent 1 (4472C4) lumMod 75 % = 2F5597 ('Darker 25 %'), lumMod 20 % + lumOff 80 % = DAE3F3 ('Lighter 80 %'), tint/shade/alpha, clrMap bg1→lt1; auto-numbers arabic / alpha / roman with all punctuation styles",
-    "tt51-slides: view model over the corpus: placeholders inherit layout/master geometry, theme colours resolve for every text run (no undefined colours or fonts), pictures map to package parts with crops, tables carry their grid, charts point at chart parts, SmartArt draws its saved drawing; approximate presets are reported, never silent"
+    "tt51-slides: view model over the corpus: placeholders inherit layout/master geometry, theme colours resolve for every text run (no undefined colours or fonts), pictures map to package parts with crops, tables carry their grid, charts point at chart parts, SmartArt draws its saved drawing; approximate presets are reported, never silent",
+    "tt72-office: P1 corpus: every readable pptx with all ppt/**.xml attributes single-quoted and spaced reads to the same deck (titles, bodies, notes); the TT71 reader differed"
    ]
   },
   "FF-24": {
@@ -1627,8 +1652,16 @@
    "tests": []
   },
   "SC-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt72-access: Devices → Record: live microphone entry; Stop on the dashboard ends the real track and the recorder; row gets a duration",
+    "e2e-tt72-access: Lens: camera + mic live, presenter screen live; the module's own Stop camera (no 'ended' event) ends both",
+    "e2e-tt72-access: refusals and grants are logged with the module — no clipboard text or coordinates kept; Clear empties finished rows",
+    "e2e-tt72-access: nothing about the log leaves the tab: no request body names a logged module label or device kind",
+    "tt72-access: outcomes, order, cap",
+    "tt72-access: live until every track ended — 'ended' event or code stop(); double stop once; stopLive; Clear keeps live",
+    "tt72-access: wrappers: granted / denied / failed with the module; original errors rethrown; no content stored"
+   ]
   },
   "SC-06": {
    "tested": "untested",
@@ -3197,7 +3230,9 @@
     "tt67-sheet-ns: lossless re-style of a cell in an x:-prefixed styles.xml changes ONLY its font (openpyxl): the patcher reads styles through the same canonical view as the reader (found by the TT67 gate: fill / border / alignment were rebuilt)",
     "tt67-sheet-ns: the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)",
     "tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded",
-    "tt67-sheet-ns: cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells"
+    "tt67-sheet-ns: cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells",
+    "tt72-office: S1 corpus: every readable xlsx with all xl/**.xml attributes single-quoted and spaced around '=' reads to the SAME model (inputs, values, styles, widths, merges, validations, links); the TT71 reader lost cells / styles on them",
+    "tt72-office: S2 font / fill flags: <b val='0'/> and <b val = \"false\"/> are not bold, <b/> and <b val='1'/> are; patternType = 'solid' fills; underline 'none' is off"
    ]
   },
   "FF-52": {

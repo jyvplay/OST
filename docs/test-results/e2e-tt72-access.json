@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt72-access",
+  "at": "2026-10-24T20:47:29.403Z",
+  "results": [
+    {
+      "suite": "e2e-tt72-access",
+      "name": "Devices → Record: live microphone entry; Stop on the dashboard ends the real track and the recorder; row gets a duration",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 3446
+    },
+    {
+      "suite": "e2e-tt72-access",
+      "name": "Lens: camera + mic live, presenter screen live; the module's own Stop camera (no 'ended' event) ends both",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 7657
+    },
+    {
+      "suite": "e2e-tt72-access",
+      "name": "refusals and grants are logged with the module — no clipboard text or coordinates kept; Clear empties finished rows",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 13135
+    },
+    {
+      "suite": "e2e-tt72-access",
+      "name": "nothing about the log leaves the tab: no request body names a logged module label or device kind",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "suite": "tt72-access",
+  "at": "2026-10-24T20:47:03.851Z",
+  "results": [
+    {
+      "suite": "tt72-access",
+      "name": "outcomes, order, cap",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt72-access",
+      "name": "live until every track ended — 'ended' event or code stop(); double stop once; stopLive; Clear keeps live",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt72-access",
+      "name": "wrappers: granted / denied / failed with the module; original errors rethrown; no content stored",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}

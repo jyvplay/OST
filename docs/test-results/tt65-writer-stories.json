@@ -1,6 +1,6 @@
 {
   "suite": "tt65-writer-stories",
-  "at": "2026-10-24T06:03:23.037Z",
+  "at": "2026-10-24T20:28:10.465Z",
   "results": [
     {
       "suite": "tt65-writer-stories",
@@ -9,7 +9,7 @@
         "FF-49": "full"
       },
       "pass": true,
-      "ms": 830
+      "ms": 689
     },
     {
       "suite": "tt65-writer-stories",
@@ -18,7 +18,7 @@
         "FF-49": "full"
       },
       "pass": true,
-      "ms": 829
+      "ms": 744
     },
     {
       "suite": "tt65-writer-stories",
@@ -27,7 +27,7 @@
         "FF-49": "full"
       },
       "pass": true,
-      "ms": 746
+      "ms": 565
     },
     {
       "suite": "tt65-writer-stories",
@@ -36,7 +36,7 @@
         "FF-49": "full"
       },
       "pass": true,
-      "ms": 1177
+      "ms": 980
     },
     {
       "suite": "tt65-writer-stories",
@@ -45,7 +45,7 @@
         "FF-49": "full"
       },
       "pass": true,
-      "ms": 385
+      "ms": 384
     },
     {
       "suite": "tt65-writer-stories",
@@ -54,7 +54,7 @@
         "FF-49": "full"
       },
       "pass": true,
-      "ms": 362
+      "ms": 322
     },
     {
       "suite": "tt65-writer-stories",
@@ -63,7 +63,7 @@
         "FF-49": "full"
       },
       "pass": true,
-      "ms": 284
+      "ms": 240
     },
     {
       "suite": "tt65-writer-stories",
@@ -72,7 +72,7 @@
         "FF-49": "full"
       },
       "pass": true,
-      "ms": 38037
+      "ms": 38710
     }
   ]
 }
