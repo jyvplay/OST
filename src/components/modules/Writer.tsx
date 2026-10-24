@@ -14,7 +14,8 @@ import { api, post } from "@/lib/api";
 import { toB64, fromB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Btn } from "../ui";
-import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
+import { RecoveryBanner, openSealedWithPrompt, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
+import { restoredProtection, sealDraft } from "@/lib/office/draft-seal";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import { allParas, blankWord, docText, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
 import * as E from "@/lib/office/wordedit";
@@ -403,10 +404,18 @@ export default function WriterModule({ win }: ModuleProps) {
   const life = useDocLifecycle({
     winId: win.id, kind: "writer", path, dirty, version: ver,
     title: path ? path.split("/").pop()! : "Untitled document",
-    recoverable: !locked, // a protected document keeps no draft (makeDraft re-checks the protection itself)
+    recoverable: true, // TT70: protected documents keep a draft too — sealed with their password (makeDraft)
     save,
     makeDraft: async () => {
-      const d = docRef.current; if (!d || encRef.current) return null;
+      const d = docRef.current; const prot = encRef.current; if (!d) return null;
+      if (prot?.password) {
+        // an encrypted .docx under the document's own password (MS-OFFCRYPTO Agile); the key derivation is cached
+        const k = { password: prot.password, key: prot.key };
+        const payload = sealDraft(await writeWord(d), k);
+        if (encRef.current === prot) prot.key = k.key;
+        return { encoding: "sealed", payload };
+      }
+      if (prot && !prot.removed) return null; // still locked (never unlocked): nothing may be written in plaintext
       return { encoding: "base64", payload: toB64(await writeWord(d)) };
     },
   });
@@ -414,8 +423,20 @@ export default function WriterModule({ win }: ModuleProps) {
   const recovery = useRecoveryOffer("writer", path, loaded);
   const restoreDraft = async () => {
     const o = recovery.take(); if (!o) return;
+    const name = path ? path.split("/").pop()! : "Untitled.docx";
+    const prev = encRef.current;
     try {
-      await loadBytes(fromB64(o.draft.payload), path ? path.split("/").pop()! : "Untitled.docx", path);
+      let bytes: Uint8Array; let pw: string | null = null;
+      if (o.draft.encoding === "sealed") {
+        const r = await openSealedWithPrompt(o.draft.payload, prev?.password ?? null, name);
+        if (!r) { recovery.untake(o); return; }
+        bytes = r.bytes; pw = r.password;
+      } else bytes = fromB64(o.draft.payload);
+      await loadBytes(bytes, name, path);
+      // TT70: restoring never weakens the file's protection. loadBytes saw plaintext and cleared it, so put it back:
+      // the file's current protection wins; an unprotected file adopts the password the draft was sealed with.
+      encRef.current = restoredProtection(prev, pw, path);
+      setLocked(!!encRef.current?.password);
       setDirty(true); bump();
       setStatus(`Restored the recovery draft from ${o.at} — not saved yet${o.stale ? " (the file had changed since the draft)" : ""}`);
     } catch (e) { shell.toast(`Could not restore the draft: ${(e as Error).message}`, "bad"); }

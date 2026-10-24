@@ -18,7 +18,7 @@ import { fz } from "@/lib/uiscale";
 
 export interface CloseConfirmProps {
   title: string;
-  /** a recovery draft is kept on "Don't save" (false for password-protected documents) */
+  /** a recovery draft is kept on "Don't save" (TT70: protected documents too — their drafts are sealed) */
   recoverable: boolean;
   /** "close" (closing the window) or "replace" (Writer's New over unsaved work) */
   mode: "close" | "replace";
@@ -68,7 +68,7 @@ export default function CloseConfirm(p: CloseConfirmProps) {
     ? "Starting a new document replaces it."
     : p.recoverable
       ? "If you don't save, a recovery draft is kept: reopen the file to restore or discard it."
-      : "This file is password-protected, so no recovery draft is kept — if you don't save, the changes are gone.";
+      : "No recovery draft can be kept for this file — if you don't save, the changes are gone.";
 
   if (typeof document === "undefined") return null;
   return createPortal(

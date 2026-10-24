@@ -12,8 +12,10 @@ import {
   draftOffer, draftPathFor, encodeDraft, registerDocGuard, type DocKind, type DraftRecord,
 } from "@/lib/doc-lifecycle";
 import { fileSha, fsDraftIo, newDraftWriter, readDraft, untitledDrafts, untitledId } from "@/lib/doc-drafts";
+import { askText } from "@/lib/ask";
+import { openSealedDraft } from "@/lib/office/draft-seal";
 
-export interface DraftPayload { encoding: "base64" | "utf8"; payload: string }
+export interface DraftPayload { encoding: "base64" | "utf8" | "sealed"; payload: string }
 
 export interface LifecycleOpts {
   winId: string;
@@ -23,7 +25,7 @@ export interface LifecycleOpts {
   dirty: boolean;
   /** changes whenever the document content changes (a revision counter) */
   version: unknown;
-  /** false: no draft is written (password-protected documents — a draft would be plaintext) */
+  /** false: no draft is written. TT70: protected documents ARE recoverable (their drafts are sealed with the password) */
   recoverable: boolean;
   save: () => Promise<boolean>;
   makeDraft: () => Promise<DraftPayload | null>;
@@ -43,7 +45,7 @@ export function useDocLifecycle(o: LifecycleOpts) {
   // it is bound to the version saved: any later edit bumps the version and ends it (never hides real changes)
   const justSaved = useRef<{ version: unknown } | null>(null);
   useEffect(() => { if (!o.dirty) justSaved.current = null; }, [o.dirty]);
-  const draftNote = o.dirty && !o.recoverable ? "no recovery draft (password-protected)" : "";
+  const draftNote = o.dirty && !o.recoverable ? "no recovery draft" : "";
 
   const draftPath = useCallback(() => draftPathFor(cur.current.kind, cur.current.path, U()), [U]);
   const schedule = useCallback(() => {
@@ -114,7 +116,9 @@ export function useRecoveryOffer(kind: DocKind, path: string, ready: boolean) {
   }, [kind, path, ready]);
   const discard = useCallback(async () => { const o = offer; setOffer(null); if (o) await fsDraftIo.remove(o.draftFile); }, [offer]);
   const take = useCallback(() => { const o = offer; setOffer(null); return o; }, [offer]);
-  return { offer, discard, take };
+  /** put a taken offer back (the user cancelled a step of the restore, e.g. the password prompt of a sealed draft) */
+  const untake = useCallback((o: Offer) => setOffer(o), []);
+  return { offer, discard, take, untake };
 }
 
 export function RecoveryBanner({ offer, onRestore, onDiscard }: { offer: Offer | null; onRestore: () => void; onDiscard: () => void }) {
@@ -131,4 +135,29 @@ export function RecoveryBanner({ offer, onRestore, onDiscard }: { offer: Offer |
       <button type="button" className="fs-btn" data-variant="ghost" data-testid="recover-discard" onClick={onDiscard}>Discard draft</button>
     </div>
   );
+}
+
+/**
+ * TT70: open a sealed (password-protected) draft. Tries the password the window already holds without asking; when
+ * that fails — the password was changed since the draft — asks in the app's masked dialog, checking each attempt on
+ * this device. null = cancelled. A damaged draft throws (it must not be mistaken for a wrong password).
+ */
+export async function openSealedWithPrompt(payload: string, known: string | null, name: string): Promise<{ bytes: Uint8Array; password: string } | null> {
+  if (known) {
+    const r = openSealedDraft(payload, known);
+    if (r.ok) return { bytes: r.bytes, password: known };
+    if (r.reason === "corrupt") throw new Error(r.message);
+  }
+  let got: { bytes: Uint8Array; password: string } | null = null;
+  const pw = await askText("Password", "", {
+    secret: true, okLabel: "Restore", title: `The recovery draft of "${name}" is password-protected`,
+    detail: "It was sealed with the document's password at the time of the draft. Enter that password to restore it — it is checked on this device only.",
+    validate: (v) => {
+      if (!v) return "Enter the password.";
+      const r = openSealedDraft(payload, v);
+      if (r.ok) { got = { bytes: r.bytes, password: v }; return null; }
+      return r.reason === "password" ? "The password is not correct. Passwords are case-sensitive." : `The draft is damaged: ${r.message}`;
+    },
+  });
+  return pw === null ? null : got;
 }

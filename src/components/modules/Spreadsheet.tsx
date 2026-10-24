@@ -5,7 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
-import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
+import { RecoveryBanner, openSealedWithPrompt, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
+import { packDraftText, restoredProtection, sealDraft, unpackDraftText } from "@/lib/office/draft-seal";
 import {
   Workbook, Sheet, a1, isError, colToLetters, FUNCTIONS, EXT_FUNCTIONS, workbookFromJson, workbookToJson, parseFormula, formatValue, BUILTIN_FORMATS,
   norm, rangeA1, toTsv, parseTsv, copyBlock, pasteBlock, pasteSpecial, pasteLink, type PasteSpecialOpts, type PasteOp, clearRange, autoFill, sortRange, insertDelete, findAll, replaceAll, selectionStats, shiftFormula,
@@ -289,22 +290,42 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const life = useDocLifecycle({
     winId: win.id, kind: "sheet", path, dirty, version: rev,
     title: path ? path.split("/").pop()! : "Untitled workbook",
-    recoverable: !locked, // a protected document keeps no draft (makeDraft re-checks the protection itself)
+    recoverable: true, // TT70: protected workbooks keep a draft too — sealed with their password (makeDraft)
     save,
     // the draft is exactly what Save sends the lossless patcher: the workbook model + sheet renames
-    makeDraft: async () => (encRef.current ? null
-      : { encoding: "utf8", payload: JSON.stringify({ workbook: workbookToJson(workbook), renames: renamesRef.current, active }) }),
+    makeDraft: async () => {
+      const prot = encRef.current;
+      const json = JSON.stringify({ workbook: workbookToJson(workbook), renames: renamesRef.current, active });
+      if (prot?.password) {
+        // the same JSON inside an MS-OFFCRYPTO Agile container under the workbook's password (key derivation cached)
+        const k = { password: prot.password, key: prot.key };
+        const payload = sealDraft(await packDraftText(json), k);
+        if (encRef.current === prot) prot.key = k.key;
+        return { encoding: "sealed", payload };
+      }
+      if (prot && !prot.removed) return null; // still locked (never unlocked): nothing may be written in plaintext
+      return { encoding: "utf8", payload: json };
+    },
   });
   useEffect(() => { savedHook.current = life.saved; }, [life.saved]);
   const recovery = useRecoveryOffer("sheet", path, loaded);
-  const restoreDraft = () => {
+  const restoreDraft = async () => {
     const o = recovery.take(); if (!o) return;
     try {
-      const d = JSON.parse(o.draft.payload) as { workbook: WorkbookJson; renames?: Record<string, string>; active?: string };
+      let text = o.draft.payload; let pw: string | null = null;
+      if (o.draft.encoding === "sealed") {
+        const r = await openSealedWithPrompt(o.draft.payload, encRef.current?.password ?? null, path ? path.split("/").pop()! : "Untitled workbook");
+        if (!r) { recovery.untake(o); return; }
+        text = await unpackDraftText(r.bytes); pw = r.password;
+      }
+      const d = JSON.parse(text) as { workbook: WorkbookJson; renames?: Record<string, string>; active?: string };
       pushUndo();
       const wb = workbookFromJson(d.workbook); wb.recalculate();
       renamesRef.current = d.renames && typeof d.renames === "object" ? d.renames : {};
       setWorkbook(wb); setActive(d.active && wb.sheets.has(d.active) ? d.active : wb.sheets.keys().next().value ?? "Sheet1");
+      const prev = encRef.current;
+      const np = restoredProtection(prev, pw, path);
+      if (np !== prev && np) { encRef.current = { ...np, plain: prev?.plain ?? null }; setLocked(true); }
       setRev((x) => x + 1); setDirty(true);
       setStatus(`restored the recovery draft from ${o.at} — not saved yet${o.stale ? " (the file had changed since the draft)" : ""}`);
     } catch (e) { shell.toast(`Could not restore the draft: ${(e as Error).message}`, "bad"); }

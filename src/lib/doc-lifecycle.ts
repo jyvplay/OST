@@ -107,7 +107,8 @@ export interface DraftRecord {
   savedAt: number;
   /** sha256 of the file as it was opened (null for untitled / new) — tells a stale draft from a fresh one */
   baseSha: string | null;
-  encoding: "base64" | "utf8";
+  /** sealed (TT70): base64 of an MS-OFFCRYPTO Agile container under the document password (protected documents) */
+  encoding: "base64" | "utf8" | "sealed";
   payload: string;
 }
 
@@ -125,9 +126,9 @@ export function decodeDraft(text: string, kind: DocKind): DraftRecord | null {
   if (r.v !== 1 || r.kind !== kind) return null;
   if (typeof r.path !== "string" || typeof r.title !== "string" || typeof r.payload !== "string") return null;
   if (typeof r.savedAt !== "number" || !Number.isFinite(r.savedAt) || r.savedAt <= 0) return null;
-  if (r.encoding !== "base64" && r.encoding !== "utf8") return null;
+  if (r.encoding !== "base64" && r.encoding !== "utf8" && r.encoding !== "sealed") return null;
   if (r.baseSha !== null && (typeof r.baseSha !== "string" || !/^[0-9a-f]{64}$/.test(r.baseSha))) return null;
-  if (r.encoding === "base64" && !/^[A-Za-z0-9+/]*={0,2}$/.test(r.payload)) return null;
+  if ((r.encoding === "base64" || r.encoding === "sealed") && !/^[A-Za-z0-9+/]*={0,2}$/.test(r.payload)) return null;
   return { v: 1, kind, path: r.path, title: r.title, savedAt: r.savedAt, baseSha: r.baseSha as string | null, encoding: r.encoding, payload: r.payload };
 }
 

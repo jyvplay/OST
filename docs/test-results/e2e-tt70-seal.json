@@ -1,0 +1,26 @@
+{
+  "suite": "e2e-tt70-seal",
+  "at": "2026-10-24T01:22:56.486Z",
+  "results": [
+    {
+      "suite": "e2e-tt70-seal",
+      "name": "Writer: a protected .docx keeps a SEALED draft (msoffcrypto + python-docx read it with the password; no plaintext on the server); Restore asks nothing more; Save stays encrypted and clears the draft",
+      "covers": {
+        "FF-15": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 10316
+    },
+    {
+      "suite": "e2e-tt70-seal",
+      "name": "Spreadsheet adversary: password changed P1→P2 after the draft — Restore asks; a wrong password shows an inline alert; Cancel keeps the banner; P1 restores; Save keeps the CURRENT protection (P2 opens, P1 does not; openpyxl reads the cell)",
+      "covers": {
+        "FF-15": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 13831
+    }
+  ]
+}
