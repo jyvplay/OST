@@ -1,4 +1,5 @@
 "use client";
+import { EDGE_HOLD_MS, EDGE_IDLE, edgeFired, edgeMove, edgeSide, neighbourWorkspace, snapSuppressed, type EdgeHold } from "@/lib/windowing/edge-hold";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -29,7 +30,7 @@ const HANDLES: Handle[] = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
 export default function WindowFrame({ win }: { win: WindowState }) {
   const shell = useShell();
   const ref = useRef<HTMLDivElement | null>(null);
-  const drag = useRef<{ mode: "move" | Handle; x0: number; y0: number; rect: { x: number; y: number; w: number; h: number }; snap?: DragTarget | null } | null>(null);
+  const drag = useRef<{ mode: "move" | Handle; x0: number; y0: number; rect: { x: number; y: number; w: number; h: number }; snap?: DragTarget | null; edge?: EdgeHold; timer?: number } | null>(null);
   const [pipDoc, setPipDoc] = useState<Document | null>(null);
   const focused = shell.state.focus === win.id;
 
@@ -65,6 +66,31 @@ export default function WindowFrame({ win }: { win: WindowState }) {
     e.stopPropagation();
   }, [shell, win.id, win.x, win.y, win.w, win.h]);
 
+  /* TT70 WM-13: edge-hold → move the window to the neighbouring workspace (timer: a still pointer sends no events) */
+  const disarmEdge = useCallback((d: NonNullable<typeof drag.current>) => {
+    if (d.timer !== undefined) { window.clearTimeout(d.timer); d.timer = undefined; }
+    delete ref.current?.dataset.edgeHold;
+  }, []);
+  const edgeStep = useCallback((d: NonNullable<typeof drag.current>, x: number, width: number) => {
+    const side = edgeSide(x, width);
+    const st = shell.state;
+    const r = edgeMove(d.edge ?? EDGE_IDLE, side, neighbourWorkspace(st.workspaces, st.activeWorkspace, side) !== null);
+    d.edge = r.state;
+    if (r.timer === "keep") return;
+    disarmEdge(d);
+    if (r.timer !== "arm") return;
+    if (ref.current) ref.current.dataset.edgeHold = side < 0 ? "left" : "right";
+    d.timer = window.setTimeout(() => {
+      d.timer = undefined; delete ref.current?.dataset.edgeHold;
+      if (drag.current !== d || !d.edge || d.edge.side !== side) return; // released / moved away meanwhile
+      const target = neighbourWorkspace(shell.state.workspaces, shell.state.activeWorkspace, side);
+      if (target === null) return;
+      shell.dispatch({ t: "toWorkspace", id: win.id, workspace: target });
+      shell.dispatch({ t: "switchWorkspace", workspace: target });
+      d.edge = edgeFired(d.edge); d.snap = null; clearSnapPreview();
+    }, EDGE_HOLD_MS);
+  }, [shell, win.id, disarmEdge]);
+
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     const d = drag.current;
     const el = ref.current;
@@ -78,7 +104,8 @@ export default function WindowFrame({ win }: { win: WindowState }) {
       // TT28: live snap preview from the POINTER position (corners → quarters, sides → halves, top → maximise)
       const desk = el.parentElement?.getBoundingClientRect();
       if (desk) {
-        const t = dragTarget(e.clientX - desk.left, e.clientY - desk.top, shell.state.viewport);
+        edgeStep(d, e.clientX - desk.left, desk.width);
+        const t = d.edge && snapSuppressed(d.edge) ? null : dragTarget(e.clientX - desk.left, e.clientY - desk.top, shell.state.viewport);
         if ((t?.key ?? null) !== (d.snap?.key ?? null)) snapUi.set({ preview: t ? { ...t.rect, key: t.key } : null });
         d.snap = t;
       }
@@ -97,12 +124,13 @@ export default function WindowFrame({ win }: { win: WindowState }) {
     el.dataset.pendingY = String(Math.round(y));
     el.dataset.pendingW = String(Math.round(w));
     el.dataset.pendingH = String(Math.round(h));
-  }, [shell]);
+  }, [shell, edgeStep]);
 
   const onPointerUp = useCallback(() => {
     const d = drag.current;
     const el = ref.current;
     drag.current = null;
+    if (d) disarmEdge(d);
     if (!d || !el) return;
     const x = Number(el.dataset.pendingX ?? win.x);
     const y = Number(el.dataset.pendingY ?? win.y);
@@ -125,13 +153,15 @@ export default function WindowFrame({ win }: { win: WindowState }) {
         }
       }
       else if (y <= 2) shell.dispatch({ t: "tile", id: win.id, slot: "full" });
+      // TT70 WM-13: released at the edge it just hopped across → the geometric half-tile is suppressed as well
+      else if (d.edge && snapSuppressed(d.edge)) shell.dispatch({ t: "move", id: win.id, x, y });
       else if (x <= 2) shell.dispatch({ t: "tile", id: win.id, slot: "left" });
       else if (x + w >= vp.w - 2) shell.dispatch({ t: "tile", id: win.id, slot: "right" });
       else shell.dispatch({ t: "move", id: win.id, x, y });
     } else {
       shell.dispatch({ t: "resize", id: win.id, w, h, x, y });
     }
-  }, [shell, win.id, win.x, win.y, win.w, win.h]);
+  }, [shell, win.id, win.x, win.y, win.w, win.h, disarmEdge]);
 
   /** WM-11: Document Picture-in-Picture is the web's only true always-on-top. */
   const popOut = useCallback(async () => {
@@ -223,6 +253,7 @@ export default function WindowFrame({ win }: { win: WindowState }) {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
+        onLostPointerCapture={() => { const d = drag.current; if (d) { disarmEdge(d); d.edge = EDGE_IDLE; } }}
         onDoubleClick={() => shell.dispatch({ t: "toggleMax", id: win.id })}
       >
         {layout === "art" ? (

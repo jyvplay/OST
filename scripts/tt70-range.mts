@@ -19,7 +19,7 @@ import { makeHarness } from "./harness.mts";
 import { Workbook } from "../src/lib/formula/engine.ts";
 
 const { test, finish } = makeHarness("tt70-range");
-const COV = { "SH-06": "full" } as const;
+const COV = { "FF-19": "full" } as const;
 const LAST = 1_048_575;
 const valueOf = (wb: Workbook, c: number, r: number) => wb.sheet().get(c, r)?.value;
 
