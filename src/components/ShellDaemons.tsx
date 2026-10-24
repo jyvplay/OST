@@ -30,9 +30,12 @@ export default function ShellDaemons() {
         for (const t of r.rows) {
           if (t.kind !== "task" || t.done || t.reminded || !t.dueAt) continue;
           if (new Date(t.dueAt).getTime() > Date.now()) continue;
-          s.toast(`Reminder: ${t.title}`, "warn", { label: "Open Planner", run: () => s.open("planner") });
-          if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Fusion reminder", { body: t.title });
-          await post("/api/alerts", { app: "Planner", title: `Reminder: ${t.title}`, priority: "high", groupKey: "Planner" });
+          // TT71 NC-02: the server applies the focus rules first; a held reminder waits in Alerts with its reason
+          const a = await post<{ delivered?: boolean }>("/api/alerts", { app: "Planner", title: `Reminder: ${t.title}`, priority: "high", groupKey: "Planner" });
+          if (a.delivered !== false) {
+            s.toast(`Reminder: ${t.title}`, "warn", { label: "Open Planner", run: () => s.open("planner") });
+            if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Fusion reminder", { body: t.title });
+          }
           await patch("/api/tasks", { id: t.id, reminded: true });
         }
       } catch { /* offline: next tick */ }

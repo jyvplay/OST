@@ -63,9 +63,10 @@ import { tt67Features, patchTT67 } from "./seed-data/features-tt67";
 import { tt68Features, patchTT68 } from "./seed-data/features-tt68";
 import { patchTT69 } from "./seed-data/features-tt69";
 import { patchTT70 } from "./seed-data/features-tt70";
+import { patchTT71 } from "./seed-data/features-tt71";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.56.0";
+export const SEED_VERSION = "3.57.0";
 
 export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...tt59Features, ...tt60Features, ...tt61Features, ...tt62Features, ...tt63Features, ...tt64Features, ...tt65Features, ...tt66Features, ...tt67Features, ...tt68Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
@@ -109,7 +110,7 @@ export const allFeatures = [...shellFeatures, ...filesFeatures, ...appFeatures, 
   .map(patchTT60)
   .map(patchTT61)
   .map(patchTT62)
-  .map(patchTT63).map(patchTT64).map(patchTT65).map(patchTT66).map(patchTT67).map(patchTT68).map(patchTT69).map(patchTT70);
+  .map(patchTT63).map(patchTT64).map(patchTT65).map(patchTT66).map(patchTT67).map(patchTT68).map(patchTT69).map(patchTT70).map(patchTT71);
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },
@@ -131,6 +132,8 @@ const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: s
   { key: "accessibility.fusionVoice", value: "standard", category: "accessibility", label: "Fusion Voice preset (standard, bright, high)", aliases: "voice pitch" },
   { key: "appearance.dockAutoHide", value: "off", category: "appearance", label: "Automatically hide and show the dock (Art layout)", aliases: "dock,auto hide,autohide,hide dock,mac" },
   { key: "appearance.density", value: "balanced", category: "appearance", label: "Density profile", aliases: "scale,compact,touch,ui size" },
+  { key: "alerts.focusRules", value: "[]", category: "alerts", label: "Focus rules (hold alerts by schedule, workspace, focus mode)", aliases: "do not disturb,dnd,quiet hours,focus" },
+  { key: "alerts.timeZone", value: "", category: "alerts", label: "Time zone for focus-rule schedules (IANA, e.g. America/New_York)", aliases: "timezone,tz" },
   { key: "appearance.motion", value: "system", category: "appearance", label: "Motion", aliases: "animation,reduce motion" },
   { key: "appearance.wallpaper", value: "auto", category: "appearance", label: "Wallpaper", aliases: "background,desktop picture" },
   { key: "appearance.textScale", value: "125", category: "appearance", label: "Text size (%)", aliases: "font size,zoom,bigger text,large print,magnify,readability,accessibility" },

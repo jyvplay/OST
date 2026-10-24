@@ -1,3 +1,4 @@
+import { parseRules } from "./focus-rules";
 import { isWallpaper, WALLPAPERS } from "./appearance";
 import { TEXT_SCALE_MAX, TEXT_SCALE_MIN } from "./uiscale-core";
 import { STYLE_IDS } from "./style-core";
@@ -34,6 +35,12 @@ const ENUMS: Record<string, readonly string[]> = {
 };
 
 export function validateSetting(key: string, value: string): string | null {
+  // TT71 NC-02: focus rules are validated in full (the server evaluates them for every alert)
+  if (key === "alerts.focusRules") { const r = parseRules(value); return "error" in r ? r.error : null; }
+  if (key === "alerts.timeZone" && value !== "") {
+    if (!/^[A-Za-z_]+(?:\/[A-Za-z0-9_+-]+){0,2}$/.test(value) && value !== "UTC") return "time zone must be an IANA name such as America/New_York";
+    try { new Intl.DateTimeFormat("en-US", { timeZone: value }); } catch { return `unknown time zone ${value}`; }
+  }
   if (key === "appearance.textScale") {
     if (!/^\d{2,3}$/.test(value)) return `text size must be a whole percentage (${TEXT_SCALE_MIN}–${TEXT_SCALE_MAX})`;
     const n = Number(value);

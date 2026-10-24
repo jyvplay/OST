@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt71-focus",
+  "at": "2026-10-24T04:54:02.507Z",
+  "results": [
+    {
+      "suite": "e2e-tt71-focus",
+      "name": "server: rules see the live workspace / focus mode / time zone; held alerts record rule + reason; deliver releases; bad rules are refused",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 239
+    },
+    {
+      "suite": "e2e-tt71-focus",
+      "name": "Alerts UI: status line, held alerts listed apart with their reason, Deliver now, held test alert raises no OS notification",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 2305
+    },
+    {
+      "suite": "e2e-tt71-focus",
+      "name": "editor: real controls build a rule; a bad workspace shows the parser's message and saves nothing; a valid rule activates; Remove clears",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 3119
+    },
+    {
+      "suite": "e2e-tt71-focus",
+      "name": "reminders: a held overdue-task reminder raises no toast and no OS notification and is stored with its reason; with no rules it does (control)",
+      "covers": {
+        "NC-02": "full"
+      },
+      "pass": true,
+      "ms": 2776
+    }
+  ]
+}
