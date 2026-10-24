@@ -58,7 +58,7 @@ export function toNum(v: CellValue): number {
   if (typeof v === "number") return v;
   if (typeof v === "boolean") return v ? 1 : 0;
   if (isErr(v)) throw ERR(String(v));
-  if (v.trim() === "") return 0;
+  if (v.trim() === "") throw ERR("#VALUE!"); // TT73: empty TEXT ("" from a formula) is not a number; empty cells arrive as null → 0
   const n = Number(v);
   if (Number.isNaN(n)) throw ERR("#VALUE!");
   return n;
@@ -159,6 +159,25 @@ export const nums = (vals: CellValue[]) => {
   }
   return out;
 };
+/**
+ * TT73: Excel's numeric-argument rule for SUM-family statistics (STDEV, VAR, MODE, MEDIAN, SUMSQ, DEVSQ …): inside a
+ * REFERENCE or array only numbers count (text — even "2.5" — logicals and empty cells are ignored); a value typed straight
+ * into the argument list is coerced (TRUE → 1, "2.5" → 2.5) and non-numeric text is #VALUE!. Errors propagate.
+ * The older `nums` converted numeric text inside ranges, which disagreed with Excel on 40+ held-out cells.
+ * `literalTextIsError`: MODE rejects even numeric literal text (MODE(B8,"1",2,3) = #VALUE! in Excel's cached values).
+ */
+export const xlNums = (args: ArgAccessor[], literalTextIsError = false): number[] => {
+  const out: number[] = [];
+  for (const a of args) {
+    if (a.isRange) { for (const v of a.list()) { if (isErr(v)) throw ERR(String(v)); if (typeof v === "number") out.push(v); } continue; }
+    const v = a.value();
+    if (isErr(v)) throw ERR(String(v));
+    if (typeof v === "number") out.push(v);
+    else if (typeof v === "boolean") out.push(v ? 1 : 0);
+    else if (typeof v === "string") { const t = v.trim(); if (literalTextIsError || t === "" || Number.isNaN(Number(t))) throw ERR("#VALUE!"); out.push(Number(t)); }
+  }
+  return out;
+};
 export const need = (args: ArgAccessor[], n: number) => { if (args.length < n) throw ERR("#VALUE!"); };
 export const variance = (xs: number[], sample: boolean) => {
   if (xs.length < (sample ? 2 : 1)) throw ERR("#DIV/0!");
@@ -230,10 +249,10 @@ export const FUNCTIONS: Record<string, FnImpl> = {
   COUNTA: (a) => a.flatMap((x) => x.list()).filter((v) => v !== null && v !== "").length,
   COUNTBLANK: (a) => a.flatMap((x) => x.list()).filter((v) => v === null || v === "").length,
   COUNTIF: (a) => conditional(a, "count"),
-  STDEV: (a) => Math.sqrt(variance(nums(a.flatMap((x) => x.list())), true)),
-  STDEVP: (a) => Math.sqrt(variance(nums(a.flatMap((x) => x.list())), false)),
-  VAR: (a) => variance(nums(a.flatMap((x) => x.list())), true),
-  VARP: (a) => variance(nums(a.flatMap((x) => x.list())), false),
+  STDEV: (a) => Math.sqrt(variance(xlNums(a), true)),
+  STDEVP: (a) => Math.sqrt(variance(xlNums(a), false)),
+  VAR: (a) => variance(xlNums(a), true),
+  VARP: (a) => variance(xlNums(a), false),
   LARGE: (a) => { const n = nums(a[0].list()).sort((x, y) => y - x); const k = toNum(a[1].value()); if (k < 1 || k > n.length) throw ERR("#NUM!"); return n[k - 1]; },
   SMALL: (a) => { const n = nums(a[0].list()).sort((x, y) => x - y); const k = toNum(a[1].value()); if (k < 1 || k > n.length) throw ERR("#NUM!"); return n[k - 1]; },
 

@@ -193,24 +193,24 @@ function cellsOf(a: Arg | undefined): { v: Scalar[]; blank: boolean[] } {
 export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   // ---- math [oracle: SUM/PRODUCT/ROUND family/MOD/DATE anchors]
   SUM: (a) => a.flatMap(flattenNumbers).reduce((x, y) => x + y, 0),
-  PRODUCT: (a) => a.flatMap(flattenNumbers).reduce((x, y) => x * y, 1),
-  ABS: (a) => Math.abs(toNumberStrict(scalar(a[0]))),
-  ROUND: (a) => roundHalfAwayFromZero(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1] ?? { kind: "scalar", value: 0 }))),
-  ROUNDUP: (a) => roundDir(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1])), "up"),
-  ROUNDDOWN: (a) => roundDir(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1])), "down"),
-  INT: (a) => Math.floor(toNumberStrict(scalar(a[0]))),
-  TRUNC: (a) => Math.trunc(toNumberStrict(scalar(a[0]))),
-  MOD: (a) => { const n = toNumberStrict(scalar(a[0])); const d = toNumberStrict(scalar(a[1])); if (d === 0) return raise(err("#DIV/0!")); return n - d * Math.floor(n / d); },
-  POWER: (a) => Math.pow(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1]))),
-  SQRT: (a) => { const n = toNumberStrict(scalar(a[0])); return n < 0 ? raise(err("#NUM!")) : Math.sqrt(n); },
-  EXP: (a) => Math.exp(toNumberStrict(scalar(a[0]))),
-  LN: (a) => { const n = toNumberStrict(scalar(a[0])); return n <= 0 ? raise(err("#NUM!")) : Math.log(n); },
-  LOG10: (a) => { const n = toNumberStrict(scalar(a[0])); return n <= 0 ? raise(err("#NUM!")) : Math.log10(n); },
-  LOG: (a) => { const n = toNumberStrict(scalar(a[0])); const base = a[1] ? toNumberStrict(scalar(a[1])) : 10; return Math.log(n) / Math.log(base); },
+  PRODUCT: (a) => { const xs = a.flatMap(flattenNumbers); return xs.length ? xs.reduce((x, y) => x * y, 1) : 0; }, // TT73: no numbers → 0 (Excel)
+  ABS: (a) => Math.abs(numArg(a[0])),
+  ROUND: (a) => roundHalfAwayFromZero(numArg(a[0]), toNumberStrict(scalar(a[1] ?? { kind: "scalar", value: 0 }))),
+  ROUNDUP: (a) => roundDir(numArg(a[0]), numArg(a[1]), "up"),
+  ROUNDDOWN: (a) => roundDir(numArg(a[0]), numArg(a[1]), "down"),
+  INT: (a) => Math.floor(numArg(a[0])),
+  TRUNC: (a) => roundDir(numArg(a[0]), a[1] ? numArg(a[1]) : 0, "down"), // TT73: TRUNC(8.9,1) = 8.9 — the digits argument was ignored
+  MOD: (a) => { const n = numArg(a[0]); const d = numArg(a[1]); if (d === 0) return raise(err("#DIV/0!")); return n - d * Math.floor(n / d); },
+  POWER: (a) => Math.pow(numArg(a[0]), numArg(a[1])),
+  SQRT: (a) => { const n = numArg(a[0]); return n < 0 ? raise(err("#NUM!")) : Math.sqrt(n); },
+  EXP: (a) => Math.exp(numArg(a[0])),
+  LN: (a) => { const n = numArg(a[0]); return n <= 0 ? raise(err("#NUM!")) : Math.log(n); },
+  LOG10: (a) => { const n = numArg(a[0]); return n <= 0 ? raise(err("#NUM!")) : Math.log10(n); },
+  LOG: (a) => { const n = numArg(a[0]); const base = a[1] ? numArg(a[1]) : 10; return Math.log(n) / Math.log(base); },
   PI: () => Math.PI,
-  SIGN: (a) => Math.sign(toNumberStrict(scalar(a[0]))),
+  SIGN: (a) => Math.sign(numArg(a[0])),
   RAND: () => Math.random(),
-  RANDBETWEEN: (a) => { const lo = Math.ceil(toNumberStrict(scalar(a[0]))); const hi = Math.floor(toNumberStrict(scalar(a[1]))); return lo + Math.floor(Math.random() * (hi - lo + 1)); },
+  RANDBETWEEN: (a) => { const lo = Math.ceil(numArg(a[0])); const hi = Math.floor(numArg(a[1])); return lo + Math.floor(Math.random() * (hi - lo + 1)); },
 
   // ---- stats [oracle: AVERAGE/COUNT/COUNTA/MIN/MAX; MEDIAN spec]
   AVERAGE: (a) => { const n = a.flatMap(flattenNumbers); return n.length ? n.reduce((x, y) => x + y, 0) / n.length : raise(err("#DIV/0!")); },
@@ -242,9 +242,9 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   // ---- text [oracle: LEFT/RIGHT/MID/LEN/UPPER/LOWER/TRIM/SUBSTITUTE/REPLACE/FIND/SEARCH/REPT/EXACT/VALUE/TEXT]
   CONCATENATE: (a) => a.flatMap(flattenAll).map(toStr).join(""),
   CONCAT: (a) => a.flatMap(flattenAll).map(toStr).join(""),
-  LEFT: (a) => toStr(scalar(a[0])).slice(0, a[1] ? toNumberStrict(scalar(a[1])) : 1),
-  RIGHT: (a) => { const s = toStr(scalar(a[0])); const n = a[1] ? toNumberStrict(scalar(a[1])) : 1; return n <= 0 ? "" : s.slice(Math.max(0, s.length - n)); },
-  MID: (a) => { const s = toStr(scalar(a[0])); const start = toNumberStrict(scalar(a[1])); const len = toNumberStrict(scalar(a[2])); return s.slice(Math.max(0, start - 1), Math.max(0, start - 1) + len); },
+  LEFT: (a) => toStr(scalar(a[0])).slice(0, a[1] ? numArg(a[1]) : 1),
+  RIGHT: (a) => { const s = toStr(scalar(a[0])); const n = a[1] ? numArg(a[1]) : 1; return n <= 0 ? "" : s.slice(Math.max(0, s.length - n)); },
+  MID: (a) => { const s = toStr(scalar(a[0])); const start = numArg(a[1]); const len = numArg(a[2]); return s.slice(Math.max(0, start - 1), Math.max(0, start - 1) + len); },
   LEN: (a) => toStr(scalar(a[0])).length,
   UPPER: (a) => toStr(scalar(a[0])).toUpperCase(),
   LOWER: (a) => toStr(scalar(a[0])).toLowerCase(),
@@ -253,13 +253,13 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   SUBSTITUTE: (a) => {
     const s = toStr(scalar(a[0])); const find = toStr(scalar(a[1])); const rep = toStr(scalar(a[2]));
     if (a[3] === undefined) return s.split(find).join(rep);
-    const nth = toNumberStrict(scalar(a[3])); let count = 0;
+    const nth = numArg(a[3]); let count = 0;
     return s.replace(new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), (m) => (++count === nth ? rep : m));
   },
-  REPLACE: (a) => { const s = toStr(scalar(a[0])); const start = toNumberStrict(scalar(a[1])); const len = toNumberStrict(scalar(a[2])); const rep = toStr(scalar(a[3])); return s.slice(0, start - 1) + rep + s.slice(start - 1 + len); },
-  FIND: (a) => { const find = toStr(scalar(a[0])); const s = toStr(scalar(a[1])); const start = a[2] ? toNumberStrict(scalar(a[2])) : 1; const i = s.indexOf(find, start - 1); return i < 0 ? raise(err("#VALUE!")) : i + 1; },
-  SEARCH: (a) => { const find = toStr(scalar(a[0])).toLowerCase(); const s = toStr(scalar(a[1])).toLowerCase(); const start = a[2] ? toNumberStrict(scalar(a[2])) : 1; const i = s.indexOf(find, start - 1); return i < 0 ? raise(err("#VALUE!")) : i + 1; },
-  REPT: (a) => toStr(scalar(a[0])).repeat(Math.max(0, toNumberStrict(scalar(a[1])))),
+  REPLACE: (a) => { const s = toStr(scalar(a[0])); const start = numArg(a[1]); const len = numArg(a[2]); const rep = toStr(scalar(a[3])); return s.slice(0, start - 1) + rep + s.slice(start - 1 + len); },
+  FIND: (a) => { const find = toStr(scalar(a[0])); const s = toStr(scalar(a[1])); const start = a[2] ? numArg(a[2]) : 1; const i = s.indexOf(find, start - 1); return i < 0 ? raise(err("#VALUE!")) : i + 1; },
+  SEARCH: (a) => { const find = toStr(scalar(a[0])).toLowerCase(); const s = toStr(scalar(a[1])).toLowerCase(); const start = a[2] ? numArg(a[2]) : 1; const i = s.indexOf(find, start - 1); return i < 0 ? raise(err("#VALUE!")) : i + 1; },
+  REPT: (a) => toStr(scalar(a[0])).repeat(Math.max(0, numArg(a[1]))),
   EXACT: (a) => toStr(scalar(a[0])) === toStr(scalar(a[1])),
   // TT46: VALUE("") is #VALUE! but VALUE(blank cell) is 0; accepts 1,234.5 / $12 / 50% / (7) like Excel.
   VALUE: (a) => {
@@ -278,30 +278,30 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   TEXT: (a) => { const v = scalar(a[0]); const f = toStr(scalar(a[1])); return formatValue(typeof v === "string" && v.trim() !== "" && !Number.isNaN(Number(v)) ? Number(v) : v, f).text; },
 
   // ---- date/time [oracle: DATE epoch anchors, YEAR/MONTH/DAY/WEEKDAY]
-  DATE: (a) => dateToSerial(toNumberStrict(scalar(a[0])), toNumberStrict(scalar(a[1])), toNumberStrict(scalar(a[2]))),
+  DATE: (a) => dateToSerial(numArg(a[0]), numArg(a[1]), numArg(a[2])),
   TODAY: () => todaySerial(),
   NOW: () => nowSerial(),
-  YEAR: (a) => serialToDate(toNumberStrict(scalar(a[0]))).y,
-  MONTH: (a) => serialToDate(toNumberStrict(scalar(a[0]))).m,
-  DAY: (a) => serialToDate(toNumberStrict(scalar(a[0]))).d,
-  WEEKDAY: (a) => serialToDate(toNumberStrict(scalar(a[0]))).weekday0 + 1,
+  YEAR: (a) => serialToDate(numArg(a[0])).y,
+  MONTH: (a) => serialToDate(numArg(a[0])).m,
+  DAY: (a) => serialToDate(numArg(a[0])).d,
+  WEEKDAY: (a) => serialToDate(numArg(a[0])).weekday0 + 1,
   // BUG FIX (oracle): EDATE(Jan 31 2024, +1) must land on Feb 29 2024 (clamped
   // to the last real day of the target month), not overflow into March as
   // naive Date.UTC(y, m, 31) arithmetic does when the target month is shorter.
   EDATE: (a) => {
-    const d = serialToDate(toNumberStrict(scalar(a[0])));
-    const months = toNumberStrict(scalar(a[1]));
+    const d = serialToDate(numArg(a[0]));
+    const months = numArg(a[1]);
     const total = d.m - 1 + months;
     const ty = d.y + Math.floor(total / 12), tm0 = ((total % 12) + 12) % 12;
     const lastDay = serialToDate(dateToSerial(ty + Math.floor((tm0 + 1) / 12), ((tm0 + 1) % 12) + 1, 1) - 1).d;
     return dateToSerial(ty, tm0 + 1, Math.min(d.d, lastDay));
   },
-  EOMONTH: (a) => { const d = serialToDate(toNumberStrict(scalar(a[0]))); const months = toNumberStrict(scalar(a[1])); const total = d.m - 1 + months + 1; const firstOfNext = dateToSerial(d.y + Math.floor(total / 12), (total % 12 + 12) % 12 + 1, 1); return firstOfNext - 1; },
+  EOMONTH: (a) => { const d = serialToDate(numArg(a[0])); const months = numArg(a[1]); const total = d.m - 1 + months + 1; const firstOfNext = dateToSerial(d.y + Math.floor(total / 12), (total % 12 + 12) % 12 + 1, 1); return firstOfNext - 1; },
   // TT15 FIX: "Y" compared `(ed.m, ed.d) < (sd.m, sd.d)` — a Python tuple idiom that in JS is the comma
   // operator, i.e. only `ed.d < sd.d`. DATEDIF(2020-01-15, 2024-03-10, "Y") returned 3 instead of 4
   // (caught by the independent PyPI `formulas` oracle). Y/M now derive from one month count; YM/MD/YD added.
   DATEDIF: (a) => {
-    const s = Math.floor(toNumberStrict(scalar(a[0]))); const e = Math.floor(toNumberStrict(scalar(a[1]))); const unit = toStr(scalar(a[2])).toUpperCase();
+    const s = Math.floor(numArg(a[0])); const e = Math.floor(numArg(a[1])); const unit = toStr(scalar(a[2])).toUpperCase();
     if (s > e) return raise(err("#NUM!"));
     if (unit === "D") return e - s;
     const sd = serialToDate(s); const ed = serialToDate(e);
@@ -313,7 +313,7 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
     if (unit === "YD") { let st = dateToSerial(ed.y, sd.m, sd.d); if (st > e) st = dateToSerial(ed.y - 1, sd.m, sd.d); return e - st; }
     return raise(err("#NUM!"));
   },
-  DAYS: (a) => toNumberStrict(scalar(a[0])) - toNumberStrict(scalar(a[1])),
+  DAYS: (a) => numArg(a[0]) - numArg(a[1]),
 
   // ---- lookup [oracle: VLOOKUP exact+approx, HLOOKUP, INDEX, MATCH, CHOOSE]
   VLOOKUP: (a) => vlookup(a),
@@ -341,6 +341,8 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   N: (a) => { const v = scalar(a[0]); return typeof v === "number" ? v : typeof v === "boolean" ? (v ? 1 : 0) : 0; },
 };
 
+/** TT73: a numeric scalar argument — an EMPTY referenced cell is 0 (ABS(blank) = 0), while empty text "" stays #VALUE!. */
+const numArg = (a: Arg | undefined): number => (a && a.kind === "matrix" && blankAt(a, 0, 0) ? 0 : toNumberStrict(scalar(a)));
 const scalar = (a: Arg | undefined): Scalar => {
   if (a === undefined) return raise(err("#VALUE!"));
   if (a.kind === "scalar") return a.value;
@@ -348,13 +350,15 @@ const scalar = (a: Arg | undefined): Scalar => {
 };
 
 function roundHalfAwayFromZero(n: number, digits: number): number {
+  digits = Math.trunc(digits); // TT73: Excel truncates the digits argument (ROUND(1.00001, 1.1) = 1)
   const f = Math.pow(10, digits);
   return (n >= 0 ? Math.round(n * f) : -Math.round(-n * f)) / f; // [oracle] ROUND(2.5,0)=3, not banker's rounding
 }
 function roundDir(n: number, digits: number, dir: "up" | "down"): number {
+  digits = Math.trunc(digits);
   const f = Math.pow(10, digits);
   const fn = dir === "up" ? (n >= 0 ? Math.ceil : Math.floor) : (n >= 0 ? Math.floor : Math.ceil);
-  return fn(n * f) / f;
+  return fn(Number((n * f).toPrecision(15))) / f; // TT73: 0.29*100 is 28.999999999999996 in binary; Excel works to 15 digits
 }
 function sumIf(a: Arg[]): Scalar {
   const r = cellsOf(a[0]);
@@ -425,7 +429,7 @@ function multiCriteria(pairs: Arg[]): { mask: boolean[]; full: number; tail: num
 function vlookup(a: Arg[]): Scalar {
   const key = scalar(a[0]);
   const table = matrixOf(a[1]);
-  const col = toNumberStrict(scalar(a[2])) - 1;
+  const col = numArg(a[2]) - 1;
   const approx = a[3] === undefined || toBool(scalar(a[3]));
   if (col < 0) return raise(err("#VALUE!"));
   if (approx) {
@@ -440,7 +444,7 @@ function vlookup(a: Arg[]): Scalar {
 function hlookup(a: Arg[]): Scalar {
   const key = scalar(a[0]);
   const table = matrixOf(a[1]);
-  const rowIdx = toNumberStrict(scalar(a[2])) - 1;
+  const rowIdx = numArg(a[2]) - 1;
   const approx = a[3] === undefined || toBool(scalar(a[3]));
   const header = table[0];
   let colIdx = -1;
@@ -452,8 +456,8 @@ function hlookup(a: Arg[]): Scalar {
 }
 function indexFn(a: Arg[]): Scalar {
   const table = matrixOf(a[0]);
-  const row = a[1] ? toNumberStrict(scalar(a[1])) : 0;
-  const col = a[2] ? toNumberStrict(scalar(a[2])) : 0;
+  const row = a[1] ? numArg(a[1]) : 0;
+  const col = a[2] ? numArg(a[2]) : 0;
   if (row === 0 && col > 0) return table.length === 1 ? table[0][col - 1] : raise(err("#VALUE!"));
   if (col === 0 && row > 0) return table[row - 1]?.[0] ?? raise(err("#REF!"));
   return table[row - 1]?.[col - 1] ?? raise(err("#REF!"));
@@ -461,7 +465,7 @@ function indexFn(a: Arg[]): Scalar {
 function matchFn(a: Arg[]): Scalar {
   const key = scalar(a[0]);
   const list = matrixOf(a[1]).flat();
-  const mode = a[2] ? toNumberStrict(scalar(a[2])) : 1;
+  const mode = a[2] ? numArg(a[2]) : 1;
   if (mode === 0) { const i = list.findIndex((v) => eq(v, key)); return i < 0 ? raise(err("#N/A")) : i + 1; }
   let best = -1;
   if (mode > 0) best = approxIndex(list, key);

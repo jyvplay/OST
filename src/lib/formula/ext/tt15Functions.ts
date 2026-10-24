@@ -13,10 +13,10 @@
  *  - RATE: Newton iteration from `guess` (default 0.1), ≤ 100 steps, |Δ| < 1e-12,
  *    else #NUM! (Excel documents the same failure mode after 20 iterations).
  */
-import { ERR, isErr, toNum, toStr, toBool, nums, need, dateToSerial, serialToDate, type ArgAccessor, type CellValue, type FnImpl } from "./officeFunctions";
+import { ERR, isErr, toNum, toStr, toBool, nums, xlNums, need, dateToSerial, serialToDate, type ArgAccessor, type CellValue, type FnImpl } from "./officeFunctions";
 
 const num = (a: ArgAccessor | undefined, dflt?: number) => (a === undefined ? (dflt === undefined ? (() => { throw ERR("#VALUE!"); })() : dflt) : toNum(a.value()));
-const allNums = (args: ArgAccessor[]) => nums(args.flatMap((a) => a.list()));
+const allNums = (args: ArgAccessor[]) => xlNums(args); // TT73: Excel reference/literal rule (officeFunctions xlNums)
 const finite = (x: number) => { if (!Number.isFinite(x)) throw ERR("#NUM!"); return x; };
 
 /* ------------------------------------------------------------ normal distribution */

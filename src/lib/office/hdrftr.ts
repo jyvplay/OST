@@ -12,7 +12,7 @@
  * written as complex fields (fldChar begin / instrText / separate / result / end) — what Word writes, and what the
  * paged view evaluates per page. Original code.
  */
-import { addRel, allParas, ensureStyle, inlineText, parseBlocks, parseSect, put, REL_TYPES, R_NS, W, type Block, type Para, type Rev, type WordDoc } from "./wordml";
+import { addRel, allParas, hfTypeOf, ensureStyle, inlineText, parseBlocks, parseSect, put, REL_TYPES, R_NS, W, type Block, type Para, type Rev, type WordDoc } from "./wordml";
 import { attr, el, encText, kids, setAttr, parseXml, serializeEl, type XEl } from "./xmltree";
 import { cloneBlocks, deleteForward, insertText, insertToken, isMine, newRev, plen, storyDoc, trackParaProps, viewEdit, type ParaView, type Pos } from "./wordedit";
 
@@ -103,7 +103,7 @@ function setRef(doc: WordDoc, kind: HfKind, type: HfType, rid: string | null) {
   if (rid && !attr(doc.docXml.root, "xmlns:r") && !(doc.finalSect && attr(doc.finalSect, "xmlns:r"))) setAttr(doc.docXml.root, "xmlns:r", R_NS);
   const name = kind === "header" ? "w:headerReference" : "w:footerReference";
   const s = editSect(doc, (s) => {
-  s.kids = s.kids.filter((k) => !(k.k === "el" && k.name === name && (attr(k, "w:type") ?? "default") === type));
+  s.kids = s.kids.filter((k) => !(k.k === "el" && k.name === name && hfTypeOf(k) === type)); // a legacy "odd" reference is replaced by a valid "default" one
   if (rid) {
     const ref = el(name, { "w:type": type, "r:id": rid });
     // CT_SectPr: header/footer references come first; keep existing references' order and add after them
@@ -115,6 +115,13 @@ function setRef(doc: WordDoc, kind: HfKind, type: HfType, rid: string | null) {
   const keepCols = doc.page.cols; doc.page = { ...parseSect(s), cols: keepCols };
 }
 
+/** TT73: an edited header / footer still referenced as legacy w:type="odd" (WordprocessingML 2003) is re-referenced as the
+ *  ECMA-376 "default" (same part), so every conforming consumer (python-docx, schema) sees the edit as the default one */
+function normalizeLegacyRef(doc: WordDoc, kind: HfKind, type: HfType, rid: string) {
+  if (type !== "default") return;
+  const name = kind === "header" ? "w:headerReference" : "w:footerReference";
+  if (doc.finalSect?.kids.some((k) => k.k === "el" && k.name === name && attr(k, "w:type") === "odd" && attr(k, "r:id") === rid)) setRef(doc, kind, type, rid);
+}
 const runXml = (rPr: string, inner: string) => `<w:r>${rPr}${inner}</w:r>`;
 // XML 1.0 forbids C0 controls other than tab/LF/CR (and lone surrogates): drop them rather than write an unreadable part
 const cleanLine = (t: string) => t.slice(0, MAX_TEXT).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "").replace(/[\r\n]+/g, " ");
@@ -177,7 +184,7 @@ export function setHf(doc: WordDoc, kind: HfKind, type: HfType, lines: HfLine[])
     if (was.align !== align) { const before = np.p; np.p = { ...np.p }; if (align === "left") delete np.p.align; else np.p.align = align; trackParaProps(d, np, before); np.dirty = true; }
     edited.set(prev.id, np);
   }
-  if (!existed) { rid = newPart(doc, kind); setRef(doc, kind, type, rid); }
+  if (!existed) { rid = newPart(doc, kind); setRef(doc, kind, type, rid); } else normalizeLegacyRef(doc, kind, type, rid!);
   if (type === "first") setDifferentFirst(doc, true);
   const old = doc.parts.get(rid!) ?? [];
   const byId = new Map(old.filter((b): b is Para => b.t === "p").map((p) => [p.id, p]));
@@ -287,3 +294,36 @@ export function setDifferentFirst(doc: WordDoc, on: boolean) {
 /** All header/footer paragraphs (for search / word count callers). */
 export const hfParas = (doc: WordDoc) => [...doc.parts.values()].flatMap((b) => allParas(b));
 export const hfSummary = (doc: WordDoc, kind: HfKind, type: HfType) => hfLines(doc, kind, type).map((l) => (l.locked ? `[${l.label}] ` : "") + l.text).join(" / ");
+
+/**
+ * TT73: a picture (e.g. a letterhead logo) as a new line of a header / footer, created when the slot has none. The media
+ * relationship is added to THAT part's own relationships (OPC: word/_rels/header1.xml.rels), never to document.xml.rels —
+ * the part's r:embed resolves through its own .rels (ECMA-376 Part 2 §9.3). The line reads back as a locked "picture"
+ * line in the panel (kept as is; removable). With Track Changes on, the new paragraph is a tracked insertion.
+ */
+export function addHfPicture(doc: WordDoc, kind: HfKind, type: HfType, data: Uint8Array, mime: string, wPx: number, hPx: number, descr = "Picture", align: HfAlign = "left"): string {
+  if (!/^image\/(png|jpeg|gif)$/.test(mime)) throw new Error("Header / footer pictures must be PNG, JPEG or GIF");
+  let rid = hfRid(doc, kind, type);
+  if (!rid || !doc.hf.xml.has(rid)) rid = setHf(doc, kind, type, []); else normalizeLegacyRef(doc, kind, type, rid);
+  const h = doc.hf.xml.get(rid)!;
+  const ext = mime === "image/png" ? "png" : mime === "image/gif" ? "gif" : "jpeg";
+  const dir = doc.docPath.replace(/[^/]+$/, "");
+  let k = 1; while (doc.zip.has(`${dir}media/image${k}.${ext}`) || doc.added.media.some((m) => m.path === `${dir}media/image${k}.${ext}`)) k++;
+  doc.added.media.push({ path: `${dir}media/image${k}.${ext}`, data });
+  const prior = new Set([...h.rels.keys(), ...(h.relsAdded ?? []).map((r) => r.id)]);
+  let n = 1; while (prior.has(`rId${n}`)) n++;
+  const rel = { id: `rId${n}`, type: REL_TYPES.image, target: `media/image${k}.${ext}` };
+  h.rels = new Map(h.rels).set(rel.id, rel); h.relsAdded = [...(h.relsAdded ?? []), rel];
+  const px = (v: number) => (Number.isFinite(v) ? Math.min(2000, Math.max(1, v)) : 1); // NaN / ∞ / negative sizes never reach the XML
+  const cx = Math.round(px(wPx) * 9525), cy = Math.round(px(hPx) * 9525);
+  const id = 3000 + doc.added.media.length; const name = descr.replace(/[<>&"]/g, "").slice(0, 120) || "Picture";
+  const pPr = pPrXml(doc, kind, undefined, align);
+  const xml = `<w:p>${pPr}<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${id}" name="Picture ${id}" descr="${name}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="${id}" name="image${k}.${ext}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rel.id}" xmlns:r="${R_NS}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+  const built = parseBlocks({ doc, part: h.path, rels: h.rels, linkSeq: 7000, fld: [] }, parseXml(`<w:hdr xmlns:w="${W}" xmlns:r="${R_NS}">${xml}</w:hdr>`).root.kids);
+  if (doc.track?.on) { const rv = newRev(doc, "ins"); for (const b of built) if (b.t === "p") { b.content = b.content.map((it) => ({ ...it, rev: rv })); b.markRev = newRev(doc, "ins"); b.dirty = true; } }
+  const old = doc.parts.get(rid) ?? [];
+  // a slot this call just created holds only its empty placeholder paragraph: the picture replaces it
+  const keep = old.length === 1 && old[0].t === "p" && !plen(old[0] as Para) && doc.hf.created.has(rid) ? [] : old;
+  doc.parts.set(rid, [...keep, ...built]); doc.hf.dirty.add(rid);
+  return rid;
+}

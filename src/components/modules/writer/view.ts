@@ -290,9 +290,11 @@ export function posToDom(root: HTMLElement, pos: Pos): { node: Node; offset: num
 
 /* ---------------------------------------------------------------- pagination */
 export interface PageGeom { pageW: number; pageH: number; top: number; bottom: number; left: number; right: number; gap: number }
-export function geomOf(doc: WordDoc, gap = 24): PageGeom {
+/** TT73: `push` = the space headers / footers actually need (distance from the edge + rendered height). As in Word, the body
+ *  starts below a header that is taller than the top margin (and ends above a tall footer) instead of running under it. */
+export function geomOf(doc: WordDoc, gap = 24, push?: { top: number; bottom: number }): PageGeom {
   const p = doc.page;
-  return { pageW: twipToPx(p.w), pageH: twipToPx(p.h), top: twipToPx(p.top), bottom: twipToPx(p.bottom), left: twipToPx(p.left), right: twipToPx(p.right), gap };
+  return { pageW: twipToPx(p.w), pageH: twipToPx(p.h), top: Math.max(twipToPx(p.top), push?.top ?? 0), bottom: Math.max(twipToPx(p.bottom), push?.bottom ?? 0), left: twipToPx(p.left), right: twipToPx(p.right), gap };
 }
 /** Pushes blocks (and top-level table rows) that cross a page boundary onto the next page. Returns the page count. */
 export const MAX_PAGES = 2000;

@@ -23,7 +23,7 @@ import * as WS from "@/lib/office/wordspell";
 import type { Speller } from "@/lib/spell/hunspell";
 import { addUserWord, loadSpeller, paintSpell, readSkipUpper, readSpellMode, readUserWords, removeUserWord, SPELL_CSS, writeSkipUpper, writeSpellMode, type SpellMode } from "@/lib/spell/client";
 import SpellPanel from "./writer/SpellPanel";
-import { hfLines, removeHf, setDifferentFirst, setHf, type HfAlign, type HfKind, type HfLine, type HfType } from "@/lib/office/hdrftr";
+import { addHfPicture, hfLines, removeHf, setDifferentFirst, setHf, type HfAlign, type HfKind, type HfLine, type HfType } from "@/lib/office/hdrftr";
 import type { XEl } from "@/lib/office/xmltree";
 import { domToPos, geomOf, makeState, paginate, posToDom, renderBlocks, renderPara, cssFont } from "./writer/view";
 
@@ -72,6 +72,7 @@ export default function WriterModule({ win }: ModuleProps) {
   const [autosave, setAutosave] = useState(false);
   const [tick, setTick] = useState(0); // toolbar refresh on selection change
   const [docGen, setDocGen] = useState(0); // bumps when a new document (or page geometry) must be fully rendered
+  const hfPushRef = useRef({ top: 0, bottom: 0 }); const [hfPush, setHfPush] = useState({ top: 0, bottom: 0 }); // TT73: room tall headers / footers need
   const [hfGen, setHfGen] = useState(0); // bumps when undo/redo changed headers/footers (the panel reloads; the caret is NOT reset)
   const fileInput = useRef<HTMLInputElement | null>(null), imgInput = useRef<HTMLInputElement | null>(null);
   const z = zoom ?? unit;
@@ -82,7 +83,10 @@ export default function WriterModule({ win }: ModuleProps) {
   const relayout = useCallback(() => {
     const doc = docRef.current, root = rootRef.current, pg = pagesRef.current;
     if (!doc || !root || !pg) return;
-    const g = geomOf(doc);
+    // TT73: two passes at most — the first measures the rendered headers / footers; when they need more room than the
+    // margins give (a logo in the header), the body is paginated again below / above them (Word's rule)
+    for (let pass = 0; pass < 2; pass++) {
+    const g = geomOf(doc, 24, hfPushRef.current);
     const n = paginate(root, g);
     setPages(n);
     // page boxes + headers/footers
@@ -106,6 +110,14 @@ export default function WriterModule({ win }: ModuleProps) {
       pg.appendChild(box);
     }
     pg.style.height = `${n * (g.pageH + g.gap)}px`;
+    let needTop = 0, needBottom = 0;
+    pg.querySelectorAll<HTMLElement>(".whdr").forEach((h) => { needTop = Math.max(needTop, doc.page.header / 15 + h.offsetHeight); });
+    pg.querySelectorAll<HTMLElement>(".wftr").forEach((h) => { needBottom = Math.max(needBottom, doc.page.footer / 15 + h.offsetHeight); });
+    const next = { top: Math.ceil(needTop), bottom: Math.ceil(needBottom) };
+    const cur = hfPushRef.current;
+    if (next.top === cur.top && next.bottom === cur.bottom) break;
+    hfPushRef.current = next; setHfPush(next);
+    }
     setLayoutGen((x) => x + 1);
   }, []);
   const scheduleLayout = useCallback(() => { if (layoutTimer.current) window.clearTimeout(layoutTimer.current); layoutTimer.current = window.setTimeout(relayout, 120); }, [relayout]);
@@ -740,7 +752,7 @@ export default function WriterModule({ win }: ModuleProps) {
   const headings = useMemo(() => { const d = docRef.current; if (!d || panel !== "nav") return []; return allParas(d.blocks).map((p) => ({ p, lvl: headingLevel(d, p) })).filter((x) => x.lvl > 0 && paraText(x.p).trim()).slice(0, 300); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [ver, panel]);
 
   if (!loaded || !doc) return <div style={{ padding: 16 }}>Opening document…</div>;
-  const g = geomOf(doc);
+  const g = geomOf(doc, 24, hfPush);
   const styleId = curPara?.p.style ?? E.styleChoices(doc)[0]?.id;
   const changes = panel === "review" ? E.revisions(doc) : [];
   const notes = panel === "notes" ? E.listNotes(doc) : [];
@@ -1065,6 +1077,16 @@ function HeaderFooter({ doc, gen, onApply }: { doc: WordDoc; gen: number; onAppl
     setLines(lines.map((l, j) => (j === i ? { ...l, text: l.text.slice(0, at) + tok + l.text.slice(at) } : l))); setFocus({ i, at: at + tok.length });
   };
   const name = `${type === "first" ? "First-page " : ""}${kind}`;
+  /* TT73: a picture (logo) in the header / footer — its relationship goes in that part's own .rels (hdrftr.addHfPicture) */
+  const picRef = useRef<HTMLInputElement>(null);
+  const addPicture = async (f: File) => {
+    const mime = f.type; const data = new Uint8Array(await f.arrayBuffer());
+    if (!/^image\/(png|jpeg|gif)$/.test(mime) || data.length > 5 * 1024 * 1024) { setRefusal("Header and footer pictures must be PNG, JPEG or GIF, up to 5 MB"); return; }
+    const dims = await new Promise<{ w: number; h: number }>((res) => { const im = new Image(); const u = URL.createObjectURL(new Blob([data], { type: mime })); im.onload = () => { URL.revokeObjectURL(u); res({ w: im.naturalWidth || 200, h: im.naturalHeight || 60 }); }; im.onerror = () => { URL.revokeObjectURL(u); res({ w: 200, h: 60 }); }; im.src = u; });
+    const maxW = (doc.page.w - doc.page.left - doc.page.right) / 15; const k = Math.min(1, 96 / dims.h, maxW / dims.w);
+    const ls = lines; const align = ls.at(-1)?.align ?? "left";
+    apply((d) => { if (ls.length) setHf(d, kind, type, ls); addHfPicture(d, kind, type, data, mime, Math.max(1, Math.round(dims.w * k)), Math.max(1, Math.round(dims.h * k)), f.name.replace(/\.[^.]+$/, ""), align); });
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }} data-testid="hf-panel">
       <div className="wside-h">Header &amp; footer</div>
@@ -1093,6 +1115,8 @@ function HeaderFooter({ doc, gen, onApply }: { doc: WordDoc; gen: number; onAppl
         <Btn variant="ghost" onClick={() => insert("{PAGE}")}>Insert page number</Btn>
         <Btn variant="ghost" onClick={() => insert("{NUMPAGES}")}>Insert page count</Btn>
         <Btn variant="ghost" title="Tab moves focus in a text box, so this inserts a column tab (centre / right column in a three-part header)" onClick={() => insert("\t")}>Insert tab</Btn>
+        <Btn variant="ghost" title="Adds a PNG, JPEG or GIF (a logo) as a new line, at most one inch tall; typed line edits are applied first" onClick={() => picRef.current?.click()}>Insert picture…</Btn>
+        <input ref={picRef} type="file" accept="image/png,image/jpeg,image/gif" hidden data-testid="hf-picture-input" aria-label={`Picture for the ${name}`} onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void addPicture(f); }} />
       </div>
       <div className="fs-row" style={{ gap: 4 }}>
         <Btn onClick={() => { const ls = lines; apply((d) => { setHf(d, kind, type, ls); }); }}>Apply {name}</Btn>

@@ -25,7 +25,7 @@ export function validateName(name: string): string | null {
   if (name.length > NAME_MAX) return `names are limited to ${NAME_MAX} characters`;
   if (/\s/.test(name)) return "names cannot contain spaces (use _ or .)";
   if (name.startsWith("\\")) return "names starting with \\ are valid in Excel but not supported by this formula engine";
-  if (!/^[A-Za-z_][A-Za-z0-9_.]*$/.test(name)) return "names must start with a letter or _ and contain only letters, digits, . and _";
+  if (!/^[A-Za-z_\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u03FF\u0400-\u052F\u0531-\u0587\u05D0-\u05EA\u0620-\u064A\u0E01-\u0E30\u1E00-\u1FFF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7A3\uF900-\uFAFF][A-Za-z0-9_.\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u03FF\u0400-\u052F\u0531-\u0587\u05D0-\u05EA\u0620-\u064A\u0E01-\u0E30\u1E00-\u1FFF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7A3\uF900-\uFAFF]*$/.test(name)) return "names must start with a letter or _ and contain only letters, digits, . and _"; // TT73: Unicode letters too (Excel)
   if (/^[rc]$/i.test(name)) return "C, c, R and r are reserved by Excel";
   if (/^(true|false)$/i.test(name)) return "TRUE and FALSE cannot be names";
   const a1 = /^([A-Za-z]{1,3})(\d+)$/.exec(name);

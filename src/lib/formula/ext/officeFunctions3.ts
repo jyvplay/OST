@@ -7,7 +7,7 @@
  */
 import {
   ERR, isErr, toNum, toStr, toBool, nums, need,
-  type ArgAccessor, type CellValue, type FnImpl,
+  xlNums, type ArgAccessor, type CellValue, type FnImpl,
 } from "./officeFunctions";
 
 /* ───────────────── database functions (DSUM, DCOUNT, etc.) ───────────────── */
@@ -424,16 +424,17 @@ export const ADVANCED_FUNCTIONS: Record<string, FnImpl> = {
     return Math.sqrt(sse / (n - 2));
   },
   MODE: (a) => {
-    const vals = nums(a.flatMap((x) => x.list()));
+    const vals = xlNums(a, true);
     if (!vals.length) throw ERR("#N/A");
     const counts = new Map<number, number>();
     for (const v of vals) counts.set(v, (counts.get(v) ?? 0) + 1);
     let best = vals[0], bestC = 0;
     for (const [v, c] of counts) if (c > bestC) { best = v; bestC = c; }
+    if (bestC < 2) throw ERR("#N/A"); // TT73: Excel — no value occurs twice → #N/A
     return best;
   },
   "MODE.SNGL": (a) => {
-    const vals = nums(a.flatMap((x) => x.list()));
+    const vals = xlNums(a, true);
     if (!vals.length) throw ERR("#N/A");
     const counts = new Map<number, number>();
     for (const v of vals) counts.set(v, (counts.get(v) ?? 0) + 1);
@@ -442,18 +443,18 @@ export const ADVANCED_FUNCTIONS: Record<string, FnImpl> = {
     return best;
   },
   MEDIAN: (a) => {
-    const vals = nums(a.flatMap((x) => x.list())).sort((x, y) => x - y);
+    const vals = xlNums(a).sort((x, y) => x - y);
     if (!vals.length) throw ERR("#NUM!");
     const mid = Math.floor(vals.length / 2);
     return vals.length % 2 ? vals[mid] : (vals[mid - 1] + vals[mid]) / 2;
   },
   GEOMEAN: (a) => {
-    const vals = nums(a.flatMap((x) => x.list())).filter((v) => v > 0);
+    const vals = xlNums(a).filter((v) => v > 0);
     if (!vals.length) throw ERR("#NUM!");
     return Math.exp(vals.reduce((s, v) => s + Math.log(v), 0) / vals.length);
   },
   HARMEAN: (a) => {
-    const vals = nums(a.flatMap((x) => x.list())).filter((v) => v > 0);
+    const vals = xlNums(a).filter((v) => v > 0);
     if (!vals.length) throw ERR("#NUM!");
     return vals.length / vals.reduce((s, v) => s + 1 / v, 0);
   },

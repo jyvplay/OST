@@ -23,7 +23,7 @@ import { tokenize, type Token } from "./lexer";
 import { lettersToCol, type BinOp, type CellAddr, type ErrorCode, type Node } from "./types";
 
 function parseCellToken(text: string): CellAddr {
-  const m = /^(?:('(?:[^']|'')+'|[A-Za-z_][A-Za-z0-9_ .]*)!)?(\$?)([A-Za-z]{1,3})(\$?)(\d+)$/.exec(text);
+  const m = /^(?:('(?:[^']|'')+'|[A-Za-z_\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u03FF\u0400-\u052F\u0531-\u0587\u05D0-\u05EA\u0620-\u064A\u0E01-\u0E30\u1E00-\u1FFF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7A3\uF900-\uFAFF][A-Za-z0-9_ .\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u03FF\u0400-\u052F\u0531-\u0587\u05D0-\u05EA\u0620-\u064A\u0E01-\u0E30\u1E00-\u1FFF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7A3\uF900-\uFAFF]*)!)?(\$?)([A-Za-z]{1,3})(\$?)(\d+)$/.exec(text);
   if (!m) throw new Error(`bad reference token: ${text}`);
   const [, sheetRaw, colAbs, colLetters, rowAbs, rowDigits] = m;
   const sheet = sheetRaw ? unquoteSheet(sheetRaw) : null;

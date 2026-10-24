@@ -5,7 +5,7 @@ The schemas are the ECMA-376 transitional set as shipped in python-docx's ref/xs
 freely usable). They are test-only data and are NOT committed: fetch them with
     scripts/oracle/fetch-xsd.sh            (→ /home/user/tools/xsd, or $OOXML_XSD)
 
-Usage: ooxml_xsd.py FILE.docx|.xlsx [...]
+Usage: ooxml_xsd.py FILE.docx|.xlsx|.pptx [...]
 Prints JSON {file: {"parts": {part: [error, ...]}, "checked": n, "skipped": [part, ...], "ok": bool}}.
 
 Per part, by its content type in [Content_Types].xml (Override, else Default by extension):
@@ -109,6 +109,12 @@ VALIDATED_SUFFIX = (
     "spreadsheetml.pivotCacheDefinition+xml", "spreadsheetml.pivotCacheRecords+xml", "spreadsheetml.calcChain+xml",
     "drawing+xml", "drawingml.chart+xml", "officedocument.extended-properties+xml",
     "relationships+xml", "theme+xml",
+    # TT73: PresentationML (pml.xsd) — the deck, slides, layouts, masters, notes, handouts, properties, comments
+    "presentationml.presentation.main+xml", "presentationml.template.main+xml", "presentationml.slideshow.main+xml",
+    "presentationml.slide+xml", "presentationml.slideLayout+xml", "presentationml.slideMaster+xml",
+    "presentationml.notesSlide+xml", "presentationml.notesMaster+xml", "presentationml.handoutMaster+xml",
+    "presentationml.presProps+xml", "presentationml.viewProps+xml", "presentationml.tableStyles+xml",
+    "presentationml.commentAuthors+xml", "presentationml.comments+xml",
 )
 
 

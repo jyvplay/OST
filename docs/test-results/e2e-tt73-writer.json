@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt73-writer",
+  "at": "2026-10-24T22:09:24.049Z",
+  "results": [
+    {
+      "suite": "e2e-tt73-writer",
+      "name": "header picture through the panel: the typed line is applied first, the picture becomes a locked 'picture' line, every page draws it, Undo / Redo move it on every page, and the saved file has it in the header part's own rels (python-docx sees the exact bytes)",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 6727
+    },
+    {
+      "suite": "e2e-tt73-writer",
+      "name": "refusals: an SVG and a PNG over 5 MB are refused with a visible reason; no picture is added and the document stays clean",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 2301
+    },
+    {
+      "suite": "e2e-tt73-writer",
+      "name": "modal shortcut: while a header line input has focus, Ctrl+Z is the input's own undo — the document's header picture and body stay",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 3451
+    },
+    {
+      "suite": "e2e-tt73-writer",
+      "name": "cleanup + no page errors",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 68
+    }
+  ]
+}

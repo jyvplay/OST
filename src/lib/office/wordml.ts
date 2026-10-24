@@ -67,7 +67,7 @@ export interface WordDoc {
   media: Map<string, { data: Uint8Array; mime: string }>; // by rId
   parts: Map<string, Block[]>; // header/footer blocks by rId
   /** TT49: header/footer part XML by rId (re-serialized on save only when edited), edited rIds, rIds created in the editor */
-  hf: { xml: Map<string, { path: string; xml: XDoc; rels: Map<string, Rel> }>; dirty: Set<string>; created: Set<string> };
+  hf: { xml: Map<string, { path: string; xml: XDoc; rels: Map<string, Rel>; relsAdded?: Rel[] }>; dirty: Set<string>; created: Set<string> };
   comments: Comment[]; commentsPath?: string; commentsXml?: XDoc;
   notes: Note[];
   /** TT58: footnotes.xml / endnotes.xml as opened (or created on save); notesTouched = a note was inserted, edited or removed */
@@ -354,7 +354,7 @@ function loadMediaSync(ctx: Ctx, rid: string) {
   const rel = ctx.rels.get(rid);
   if (!rel || rel.mode === "External") return undefined;
   const path = resolveTarget(ctx.part, rel.target);
-  const data = ctx.doc.zip.get(path);
+  const data = ctx.doc.zip.get(path) ?? ctx.doc.added.media.find((m) => m.path === path)?.data; // TT73: a picture added in this session (header / footer logo)
   if (!data) return undefined;
   const m = { data, mime: MIME[path.split(".").pop()!.toLowerCase()] ?? "application/octet-stream" };
   if (ctx.part === ctx.doc.docPath) ctx.doc.media.set(rid, m);
@@ -467,9 +467,12 @@ function parseNumbering(doc: WordDoc, xml: XDoc) {
     doc.numbering.set(attr(nm, "w:numId") ?? "", { abs: a, lvls });
   }
 }
+/** the w:type of a header / footer reference; legacy "odd" (WordprocessingML 2003) is the default one */
+export const hfTypeOf = (h: XEl) => { const t = attr(h, "w:type") ?? "default"; return t === "odd" ? "default" : t; };
 export function parseSect(s: XEl | undefined): PageSetup {
   const pg = kid(s, "w:pgSz"), m = kid(s, "w:pgMar");
-  const ref = (name: string, ty: string) => attr(kids(s, name).find((h) => (attr(h, "w:type") ?? "default") === ty), "r:id");
+  // TT73: w:type="odd" is WordprocessingML 2003's name for the default header / footer (ECMA-376 has even / default / first)
+  const ref = (name: string, ty: string) => attr(kids(s, name).find((h) => hfTypeOf(h) === ty), "r:id");
   return {
     w: num(attr(pg, "w:w")) ?? 12240, h: num(attr(pg, "w:h")) ?? 15840, landscape: attr(pg, "w:orient") === "landscape",
     top: Math.abs(num(attr(m, "w:top")) ?? 1440), right: num(attr(m, "w:right")) ?? 1440, bottom: Math.abs(num(attr(m, "w:bottom")) ?? 1440), left: num(attr(m, "w:left")) ?? 1440,
@@ -1106,6 +1109,15 @@ export async function writeWord(doc: WordDoc): Promise<Uint8Array> {
     setPart(m.path, m.data);
     const ext = m.path.split(".").pop()!;
     ensureContentType(ct, "Default", ext, MIME[ext] ?? "application/octet-stream"); ctDirty = true;
+  }
+  // TT73: relationships added to a header / footer part (a picture there) go in THAT part's .rels (OPC), created if absent
+  for (const h of doc.hf.xml.values()) {
+    if (!h.relsAdded?.length) continue;
+    const rp = relsPathOf(h.path); const src = out.get(rp);
+    const rx = parseXml(src ? td.decode(src) : `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`);
+    const have = new Set(kids(rx.root, "Relationship").map((r) => attr(r, "Id")));
+    for (const r of h.relsAdded) if (!have.has(r.id)) { rx.root.kids.push(el("Relationship", { Id: r.id, Type: r.type, Target: r.target, TargetMode: r.mode })); rx.root.selfClose = false; }
+    setPart(rp, te.encode(serializeXml(rx)));
   }
   // relationships
   if (doc.added.rels.length) {

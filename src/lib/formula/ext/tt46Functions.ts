@@ -22,6 +22,7 @@ function pairs(a: ArgAccessor, b: ArgAccessor): [number, number][] {
   if (x.length !== y.length) throw ERR("#N/A");
   const out: [number, number][] = [];
   for (let i = 0; i < x.length; i++) { throwErr(x[i]); throwErr(y[i]); if (typeof x[i] === "number" && typeof y[i] === "number") out.push([x[i] as number, y[i] as number]); }
+  if (!out.length) throw ERR("#DIV/0!"); // TT73: Excel's SUMX2MY2/SUMX2PY2/SUMXMY2 give #DIV/0! when no numeric pair exists
   return out;
 }
 

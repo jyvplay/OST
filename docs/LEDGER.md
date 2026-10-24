@@ -1,6 +1,6 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-24T20:51:32.608Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+Generated 2026-10-24T20:55:59.242Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
 177 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline

@@ -8,7 +8,7 @@
  */
 import {
   ERR, isErr, toNum, toStr, matchesCriteria, serialToDate, nums, need, variance,
-  type ArgAccessor, type CellValue, type FnImpl,
+  xlNums, type ArgAccessor, type CellValue, type FnImpl,
 } from "./officeFunctions";
 
 /* ───────────────── multi-criteria conditionals ───────────────── */
@@ -244,10 +244,10 @@ export const EXTRA_FUNCTIONS: Record<string, FnImpl> = {
     return ns.length ? Math.min(...ns) : 0;
   },
   XLOOKUP: xlookup,
-  "STDEV.S": (a) => Math.sqrt(variance(nums(a.flatMap((x) => x.list())), true)),
-  "STDEV.P": (a) => Math.sqrt(variance(nums(a.flatMap((x) => x.list())), false)),
-  "VAR.S": (a) => variance(nums(a.flatMap((x) => x.list())), true),
-  "VAR.P": (a) => variance(nums(a.flatMap((x) => x.list())), false),
+  "STDEV.S": (a) => Math.sqrt(variance(xlNums(a), true)),
+  "STDEV.P": (a) => Math.sqrt(variance(xlNums(a), false)),
+  "VAR.S": (a) => variance(xlNums(a), true),
+  "VAR.P": (a) => variance(xlNums(a), false),
   "PERCENTILE.INC": (a) => { need(a, 2); return percentileInc(nums(a[0].list()), toNum(a[1].value())); },
   PERCENTILE: (a) => { need(a, 2); return percentileInc(nums(a[0].list()), toNum(a[1].value())); },
   "RANK.EQ": (a) => {

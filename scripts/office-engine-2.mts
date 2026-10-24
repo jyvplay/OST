@@ -166,7 +166,7 @@ export async function run({ test, book, errOf }: H) {
     assert.equal(F(0.000123, "0.00E+00"), "1.23E-04");
     assert.equal(F(999.99, "0.0E+0"), "1.0E+3"); // mantissa rounding carries into the exponent
     assert.equal(formatGeneral(0.1 + 0.2), "0.3");
-    assert.equal(formatGeneral(1 / 3), "0.3333333333");
+    assert.equal(formatGeneral(1 / 3), "0.333333333"); // TT73: Excel fits General decimals in 11 characters (the TT15 "0.3333333333" was 12, not Excel's output)
     assert.equal(formatGeneral(123456789012), "1.23457E+11");
     assert.equal(formatGeneral(42), "42");
   });

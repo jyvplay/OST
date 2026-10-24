@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt49-writer",
-  "at": "2026-10-24T20:08:40.773Z",
+  "at": "2026-10-24T22:09:50.590Z",
   "results": [
     {
       "suite": "e2e-tt49-writer",
@@ -9,7 +9,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 7276
+      "ms": 6048
     },
     {
       "suite": "e2e-tt49-writer",
@@ -18,7 +18,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 5000
+      "ms": 5159
     },
     {
       "suite": "e2e-tt49-writer",
@@ -27,7 +27,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 5895
+      "ms": 5304
     },
     {
       "suite": "e2e-tt49-writer",
@@ -36,7 +36,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 4892
+      "ms": 4263
     },
     {
       "suite": "e2e-tt49-writer",
@@ -45,7 +45,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 5083
+      "ms": 4775
     },
     {
       "suite": "e2e-tt49-writer",
@@ -54,7 +54,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 235
+      "ms": 185
     }
   ]
 }

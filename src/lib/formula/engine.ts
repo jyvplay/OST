@@ -144,6 +144,15 @@ export class Sheet {
 interface SpillClaim { anchorSheet: string; anchorCol: number; anchorRow: number; r: number; c: number }
 const fqKey = (sheet: string, col: number, row: number) => `${sheet}!${col},${row}`;
 
+/** TT73: one linked workbook's cached copy. `sheets`: upper-case sheet name → "col,row" → value; `names`: upper-case
+ *  defined name → refers-to text in the linked book (e.g. "='Defines'!$B$2"). */
+export interface ExternalBook { target: string; sheetNames: string[]; sheets: Map<string, Map<string, Scalar>>; /** "NAME" or "sheetId|NAME" */ names: Map<string, string> }
+/** `[1]` → book 1; `[Book.xlsx]` / `[file:///…/Book.xlsx]` → the linked book whose target has that file name. */
+export function externalBook(books: ExternalBook[], key: string): ExternalBook | undefined {
+  if (/^\d+$/.test(key)) return books[Number(key) - 1];
+  const base = (p: string) => p.replace(/^'|'$/g, "").split(/[\\/]/).pop()!.toLowerCase();
+  return books.find((b) => base(b.target) === base(key));
+}
 export class Workbook {
   sheets = new Map<string, Sheet>();
   /** fq child key -> owning anchor (children only; anchors are not listed). */
@@ -159,6 +168,17 @@ export class Workbook {
   tables = new Map<string, TableDef>();
   /** TT46: 1904 date system (<workbookPr date1904="1">). */
   date1904 = false;
+  /** TT73: linked external workbooks (xl/externalLinks/externalLinkN.xml, ECMA-376 §18.14) — the cached values Excel shows
+   *  while the source book is closed. Index k holds the book that formulas call [k+1]. Read-only: never recalculated. */
+  externals: ExternalBook[] = [];
+  /** `[1]Sheet` / `[book.xlsx]Sheet` (the sheet part of an external reference) → the cached cell value; "" when the
+   *  cache has no such cell (Excel shows it as 0 / blank), #REF! when the book or sheet is not linked. */
+  externalValue(sheetToken: string, col: number, row: number): Scalar {
+    const m = /^\[([^\]]+)\](.*)$/.exec(sheetToken); if (!m) return err("#REF!");
+    const book = externalBook(this.externals, m[1]); if (!book) return err("#REF!");
+    const cells = book.sheets.get(m[2].toUpperCase()); if (!cells) return err("#REF!");
+    return cells.get(`${col},${row}`) ?? "";
+  }
   private nameAst = new Map<string, Node | null>();
   private expandCache = new WeakMap<Node, Map<string, Node>>();
   private namesVersion = 0;
@@ -188,6 +208,17 @@ export class Workbook {
     const bang = name.lastIndexOf("!");
     if (bang > 0) { // TT46: Sheet!Name → that sheet's scoped name (else the workbook name)
       const raw = name.slice(0, bang); const sc = raw.startsWith("'") ? raw.slice(1, -1).replace(/''/g, "'") : raw; const nm = name.slice(bang + 1);
+      // TT73: [0]!Name is this workbook's name; [k]!Name is a defined name of linked book k, read from its cached copy
+      const ext = /^\[(\d+)\](.*)$/.exec(sc);
+      if (ext) {
+        if (ext[1] === "0") return this.names.get(this.nameKey(nm, ext[2] || null)) ?? this.names.get(this.nameKey(nm, null));
+        const bk = this.externals[Number(ext[1]) - 1]; if (!bk) return undefined;
+        // [1]Sheet!Name → that linked sheet's scoped name (sheetId = its index in <sheetNames>), else the book-level name
+        const si = ext[2] ? bk.sheetNames.findIndex((x) => x.toUpperCase() === ext[2].toUpperCase()) : -1;
+        const d = (si >= 0 ? bk.names.get(`${si}|${nm.toUpperCase()}`) : undefined) ?? bk.names.get(nm.toUpperCase()); if (!d) return undefined;
+        const r = /^=?\s*(?:'((?:[^']|'')+)'|([^'!]+))!(.+)$/.exec(d);
+        return { name: nm, scope: `[${ext[1]}]`, ref: r ? `'[${ext[1]}]${(r[1] ?? r[2]).replace(/'/g, "''")}'!${r[3]}` : d.replace(/^=/, "") };
+      }
       return this.names.get(this.nameKey(nm, sc)) ?? this.names.get(this.nameKey(nm, null));
     }
     return (sheet !== null ? this.names.get(this.nameKey(name, sheet)) : undefined) ?? this.names.get(this.nameKey(name, null));
@@ -204,7 +235,7 @@ export class Workbook {
    * a name that (indirectly) refers to itself → #NAME? after 32 levels (declared; Excel also refuses).
    */
   expandNames(node: Node, sheet: string, depth = 0): Node {
-    if (this.names.size === 0) return node;
+    if (this.names.size === 0 && this.externals.length === 0) return node;
     let perNode = this.expandCache.get(node);
     const ck = `${sheet}|${depth}`;
     const hit = perNode?.get(ck);
@@ -288,7 +319,7 @@ export class Workbook {
         expandName: (n) => (this.lookupName(n, sheetName) ? this.expandNames({ t: "name", name: n }, sheetName) : null),
         cellInput: (s, c, r) => this.sheets.get(s ?? sheetName)?.get(c, r)?.input,
       };
-      let top = this.names.size ? this.expandNames(node, sheetName) : node;
+      let top = this.names.size || this.externals.length ? this.expandNames(node, sheetName) : node;
       top = resolveRefNode(top, ctx);
       const v = top.t === "ref" && isBlank(top.v.sheet, top.v.col, top.v.row, sheetName) ? 0 : evalRaw(top, ctx);
       return isGrid(v) ? (v[0]?.[0] ?? "") : v;
@@ -345,6 +376,7 @@ export class Workbook {
     /** Truly empty (no input, no spilled value) — Excel's "blank", distinct from a formula that returns "". */
     const isBlank = (sheetName: string | null, col: number, row: number, home?: string): boolean => {
       const sn = sheetName ?? home ?? "";
+      if (sn.startsWith("[") && !this.sheets.has(sn)) return this.externalValue(sn, col, row) === ""; // TT73
       const cell = this.sheets.get(sn)?.get(col, row);
       if (cell && cell.input !== "") return false;
       return !prevOwner.has(fqKey(sn, col, row));
@@ -361,6 +393,7 @@ export class Workbook {
     const evalCell = (sheetName: string, col: number, row: number): Scalar => {
       const fk = fqKey(sheetName, col, row);
       const sheet = this.sheets.get(sheetName);
+      if (!sheet && sheetName.startsWith("[")) return this.externalValue(sheetName, col, row); // TT73: linked book cache
       const cell = sheet?.get(col, row);
       if (!cell || cell.input === "") {
         // Spilled child (reservation from the previous pass of the fixed point).
@@ -396,7 +429,7 @@ export class Workbook {
       };
       let value: Value;
       try {
-        let top = this.names.size ? this.expandNames(cell.formula, sheetName) : cell.formula;
+        let top = this.names.size || this.externals.length ? this.expandNames(cell.formula, sheetName) : cell.formula;
         top = resolveRefNode(top, ctx);
         if (ctx.legacy && top.t === "range") top = intersectNode(top, ctx);
         // A formula whose result IS a blank cell displays 0 (=A9, =OFFSET(...), =INDEX(...)) — Excel semantics.

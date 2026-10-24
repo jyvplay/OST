@@ -30,9 +30,9 @@ import { PIVOT_NAME_RE, pivotNames, pivotsFromNames } from "./pivotsheet";
 import { posix } from "node:path";
 import { writeZip, readCentralDirectory, readEntryVerified } from "../server/zip";
 import { canonicalizeNs, RELS_CANON, SML_CANON } from "../office/xml-ns";
-import { Sheet, Workbook, a1, textInput, type CellStyle, type CellBorder, type DataValidation } from "./engine";
+import { Sheet, Workbook, a1, textInput, type CellStyle, type CellBorder, type DataValidation, type ExternalBook } from "./engine";
 import { isBorderLine, parseRef, rangeRef, intersects, sanitizeValidation } from "./sheetlayout";
-import { colToLetters, lettersToCol, isError } from "./types";
+import { colToLetters, lettersToCol, isError, err, ERROR_CODES, type ErrorCode, type Scalar } from "./types";
 import { shiftFormula, addFuturePrefixes, stripFuturePrefixes } from "./sheetops";
 export { workbookToJson, workbookFromJson, type WorkbookJson } from "./workbook-json";
 import { workbookToJson, workbookFromJson } from "./workbook-json";
@@ -639,8 +639,42 @@ export function readXlsxWorkbook(buf: Buffer): Workbook {
   if (!wb.sheets.size) throw new Error("invalid .xlsx: workbook has no readable sheets");
   const order = [...workbookXml.matchAll(/<sheet\b([^>]*)\/?\s*>/g)].map((m) => xmlAttrs(m[1]).name ?? "");
   readDefinedNames(workbookXml, wb, order);
+  wb.externals = readExternalLinks(workbookXml, rels, get);
   wb.recalculate();
   return wb;
+}
+/**
+ * TT73: <externalReferences> (ECMA-376 §18.2.9) in order → each externalLink part's cached <sheetDataSet> (§18.14.13)
+ * and <definedNames>. Cell types per ST_CellType: str/s text (inline <v>), b logical, e error, else number.
+ */
+function readExternalLinks(workbookXml: string, rels: Map<string, string>, get: (n: string) => string | null): ExternalBook[] {
+  const out: ExternalBook[] = [];
+  for (const m of workbookXml.matchAll(/<externalReference\b([^>]*)\/?>/g)) {
+    const path = rels.get(xmlAttrs(m[1])["r:id"] ?? "");
+    const xml = path ? get(path) : null;
+    const book: ExternalBook = { target: "", sheetNames: [], sheets: new Map(), names: new Map() };
+    out.push(book);
+    if (!xml || !path) continue;
+    const dir = path.slice(0, path.lastIndexOf("/") + 1);
+    const lrels = get(`${dir}_rels/${path.slice(dir.length)}.rels`) ?? "";
+    const rid = /<externalBook\b([^>]*)>/.exec(xml); const id = rid ? xmlAttrs(rid[1])["r:id"] : undefined;
+    for (const r of lrels.matchAll(/<Relationship\b([^>]*)\/?\s*>/g)) { const at = xmlAttrs(r[1]); if (at.Id === id) book.target = at.Target ?? ""; }
+    book.sheetNames = [...xml.matchAll(/<sheetName\b([^>]*)\/?>/g)].map((x) => xmlAttrs(x[1]).val ?? "");
+    for (const d of xml.matchAll(/<definedName\b([^>]*)\/?>/g)) { const at = xmlAttrs(d[1]); if (at.name && at.refersTo) book.names.set(at.sheetId !== undefined ? `${at.sheetId}|${at.name.toUpperCase()}` : at.name.toUpperCase(), at.refersTo); }
+    for (const sd of xml.matchAll(/<sheetData\b([^>]*?)(?:\/>|>([\s\S]*?)<\/sheetData>)/g)) {
+      const name = book.sheetNames[Number(xmlAttrs(sd[1]).sheetId ?? -1)]; if (name === undefined) continue;
+      const cells = new Map<string, Scalar>();
+      for (const c of (sd[2] ?? "").matchAll(/<cell\b([^>]*?)(?:\/>|>([\s\S]*?)<\/cell>)/g)) {
+        const at = xmlAttrs(c[1]); const a = /^\$?([A-Za-z]{1,3})\$?(\d+)$/.exec(at.r ?? ""); if (!a) continue;
+        const ref = { col: lettersToCol(a[1].toUpperCase()), row: Number(a[2]) - 1 };
+        const v = /<v>([\s\S]*?)<\/v>/.exec(c[2] ?? ""); if (!v) continue;
+        const raw = dec(v[1]); const t = at.t ?? "n";
+        cells.set(`${ref.col},${ref.row}`, t === "str" || t === "s" || t === "inlineStr" ? raw : t === "b" ? raw === "1" || raw === "true" : t === "e" ? ((ERROR_CODES as readonly string[]).includes(raw) ? err(raw as ErrorCode) : raw) : Number(raw));
+      }
+      book.sheets.set(name.toUpperCase(), cells);
+    }
+  }
+  return out;
 }
 export function readXlsx(buf: Buffer): Sheet { return readXlsxWorkbook(buf).sheet(); }
 export function openWorkbookFromXlsx(buf: Buffer): { workbook: Workbook; sheet: Sheet } {

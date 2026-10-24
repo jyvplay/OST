@@ -1,0 +1,15 @@
+{
+  "suite": "tt73-office",
+  "at": "2026-10-24T22:04:08.283Z",
+  "results": [
+    {
+      "suite": "tt73-office",
+      "name": "W1 header / footer picture: relationship in THAT part's .rels (not document.xml.rels), python-docx finds the image bytes, schema-valid, re-read shows it; Track Changes wraps it in w:ins; an existing header without xmlns:r on its root still gets a declared r:embed",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 1788
+    }
+  ]
+}
