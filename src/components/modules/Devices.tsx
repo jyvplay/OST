@@ -1,4 +1,5 @@
 "use client";
+import { userMedia } from "@/lib/access-log";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
@@ -45,7 +46,7 @@ function Recorder() {
   const raf = useRef(0);
 
   const start = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: { noiseSuppression: ns, echoCancellation: ns, autoGainControl: ns } });
+    const stream = await userMedia("Devices · Voice", { audio: { noiseSuppression: ns, echoCancellation: ns, autoGainControl: ns } });
     const ctx = new AudioContext({ latencyHint: "interactive" });
     const an = ctx.createAnalyser(); an.fftSize = 512;
     ctx.createMediaStreamSource(stream).connect(an);
@@ -61,6 +62,7 @@ function Recorder() {
     chunks.current = [];
     r.ondataavailable = (e) => e.data.size && chunks.current.push(e.data);
     r.onstop = async () => {
+      setRec(null); // TT72: also when the tracks were stopped elsewhere (Privacy → Device access → Stop)
       cancelAnimationFrame(raf.current); void ctx.close(); stream.getTracks().forEach((t) => t.stop());
       const blob = new Blob(chunks.current, { type: r.mimeType });
       const bytes = new Uint8Array(await blob.arrayBuffer());
@@ -103,7 +105,7 @@ function Scanner() {
     if (!running) return;
     let stop = false; let stream: MediaStream | null = null;
     (async () => {
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      stream = await userMedia("Devices · Scan", { video: { facingMode: "environment" } });
       video.current!.srcObject = stream; await video.current!.play();
       const det = new (window as any).BarcodeDetector({ formats: ["qr_code", "ean_13", "code_128"] });
       while (!stop) {
@@ -176,7 +178,7 @@ function AudioDevices() {
   };
   return (
     <Section title="Audio devices (MD-06)" right={<Btn variant="ghost" onClick={async () => {
-      try { (await navigator.mediaDevices.getUserMedia({ audio: true })).getTracks().forEach((t) => t.stop()); await refresh(); }
+      try { (await userMedia("Devices · Reveal labels", { audio: true })).getTracks().forEach((t) => t.stop()); await refresh(); }
       catch (e) { shell.toast(String((e as Error).message), "bad"); }
     }}>Reveal labels</Btn>}>
       {devs.map((d) => (

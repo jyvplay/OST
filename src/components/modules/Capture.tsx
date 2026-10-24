@@ -1,4 +1,5 @@
 "use client";
+import { displayMedia } from "@/lib/access-log";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
@@ -37,7 +38,7 @@ export default function CaptureModule(_: ModuleProps) {
   const start = async () => {
     setErr("");
     try {
-      const s = await navigator.mediaDevices.getDisplayMedia({
+      const s = await displayMedia("Capture", {
         video: { frameRate: shell.gov.maxCastHeight >= 1080 ? 60 : 30 },
         audio: withAudio,
       });

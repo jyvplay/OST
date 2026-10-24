@@ -1,4 +1,5 @@
 "use client";
+import { displayMedia } from "@/lib/access-log";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -181,7 +182,7 @@ export default function ShareModule(_: ModuleProps) {
   const join = async () => {
     try {
       if (role === "share") {
-        local.current = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: false });
+        local.current = await displayMedia("Share", { video: { frameRate: 30 }, audio: false });
         if (videoRef.current) { videoRef.current.srcObject = local.current; videoRef.current.muted = true; }
         local.current.getVideoTracks()[0].addEventListener("ended", () => void leave());
         shell.setBeam({ id: null, target: `room ${room}`, transport: "webrtc", source: "screen", startedAt: Date.now(), stop: () => void leave() });

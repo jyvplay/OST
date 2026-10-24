@@ -8,8 +8,9 @@ import { decryptPath, PBKDF2_FLOOR } from "@/lib/privacy/pcrypt";
 import { cleanVfsFile, type CleanFileResult } from "@/lib/privacy/cleanfile";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, KV, Section, Tabs, Toggle } from "../ui";
+import { AccessLogPanel } from "./AccessLog";
 
-type Tab = "storage" | "amnesia" | "metadata" | "check";
+type Tab = "storage" | "amnesia" | "metadata" | "check" | "access";
 type Audit = Awaited<ReturnType<typeof privacy.audit>>;
 type Bench = Awaited<ReturnType<typeof privacy.benchmark>>;
 
@@ -104,8 +105,10 @@ export default function PrivacyModule(_: ModuleProps) {
 
       <Tabs<Tab> value={tab} onChange={setTab} tabs={[
         { id: "storage", label: "Persistent Storage" }, { id: "amnesia", label: "Amnesia" },
-        { id: "metadata", label: "Remove metadata" }, { id: "check", label: "Audit & speed" },
+        { id: "metadata", label: "Remove metadata" }, { id: "check", label: "Audit & speed" }, { id: "access", label: "Device access" },
       ]} />
+
+      {tab === "access" ? <AccessLogPanel /> : null}
 
       {tab === "storage" ? (
         <>

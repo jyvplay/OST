@@ -1,4 +1,5 @@
 "use client";
+import { displayMedia, userMedia } from "@/lib/access-log";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -82,7 +83,7 @@ export default function LensModule(_: ModuleProps) {
   const start = async () => {
     setErr("");
     try {
-      const s = await navigator.mediaDevices.getUserMedia({
+      const s = await userMedia("Lens", {
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } },
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
@@ -239,7 +240,7 @@ export default function LensModule(_: ModuleProps) {
         {stream ? <Btn variant="danger" onClick={stop}>Stop camera</Btn> : <Btn variant="primary" onClick={() => void start()}>Start camera</Btn>}
         <Btn variant="ghost" disabled={!capAvailable(shell.caps, "displayCapture")} onClick={async () => {
           try {
-            const s = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            const s = await displayMedia("Lens · presenter", { video: true });
             setScreenLayer(s);
             setFx((f) => ({ ...f, presenter: true }));
           } catch (e) { setErr(String((e as Error).message)); }

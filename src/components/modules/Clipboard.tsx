@@ -1,4 +1,5 @@
 "use client";
+import { clipboardRead } from "@/lib/access-log";
 import { fz } from "@/lib/uiscale";
 
 import { useState } from "react";
@@ -23,7 +24,7 @@ export default function ClipboardModule(_: ModuleProps) {
       <div className="fs-row" style={{ gap: 6 }}>
         <Btn variant="primary" disabled={!capAvailable(shell.caps, "clipboardRead")} onClick={async () => {
           try {
-            const t = await navigator.clipboard.readText();
+            const t = await clipboardRead("Clipboard");
             setPasted(t);
             await shell.copy(t, "system clipboard (explicit read)");
           } catch (e) { shell.toast(`Clipboard read refused: ${String((e as Error).message)}`, "warn"); }

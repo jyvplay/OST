@@ -1,4 +1,5 @@
 "use client";
+import { location as geoLocation } from "@/lib/access-log";
 import "leaflet/dist/leaflet.css";
 import type * as LT from "leaflet";
 import { fz } from "@/lib/uiscale";
@@ -325,7 +326,7 @@ export default function MapsModule({ win }: ModuleProps) {
   const locate = () => {
     if (!("geolocation" in navigator)) { setStatus("This browser has no Geolocation API."); return; }
     setStatus("Asking the browser for your location…");
-    navigator.geolocation.getCurrentPosition((pos) => {
+    geoLocation("Maps", (pos) => {
       const L = LRef.current, map = mapRef.current; if (!L || !map) return;
       const ll: M.LatLng = [pos.coords.latitude, pos.coords.longitude];
       layers.current.me?.remove();

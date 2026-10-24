@@ -1,4 +1,7 @@
 "use client";
+import { usePadLink } from "./usePadLink";
+import { clipboardRead } from "@/lib/access-log";
+import { padCommands, padKeyOf, type PadOp } from "@/lib/windowing/pad-link";
 import { mouseConfigFrom, useMouseNavGuard } from "@/lib/input";
 import { startLayoutWatch, useChordLabel } from "@/lib/keyboard-layout";
 import { fz, readUiUnit, applyTextScale, DEFAULT_TEXT_SCALE, TEXT_SCALE_MIN, TEXT_SCALE_MAX } from "@/lib/uiscale";
@@ -202,7 +205,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       // TT57: like a password manager, clear the system clipboard after 30 s — but only if it still holds this secret
       // (when the page may not read the clipboard, only if Fusion has not copied anything since)
       window.setTimeout(async () => {
-        try { if ((await navigator.clipboard.readText()) === text) await navigator.clipboard.writeText(""); }
+        try { if ((await clipboardRead("Shell · clear sensitive copy")) === text) await navigator.clipboard.writeText(""); }
         catch { if (clipSeq.current === at) { try { await navigator.clipboard.writeText(""); } catch { /* no focus: nothing more a web page can do */ } } }
       }, SENSITIVE_CLEAR_MS);
     }
@@ -545,6 +548,11 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     return () => { ch.close(); refreshChan.current = null; document.removeEventListener("visibilitychange", onVis); };
   }, []);
   const bumpRefresh = useCallback(() => { setRefreshTick((t) => t + 1); refreshChan.current?.postMessage(1); }, []);
+  /** TT72 SH-11: the Blackout pad drives the presenting window over BroadcastChannel("fusion-shell") */
+  const pad = usePadLink(stateId, hostKind, stateRefOpen, dispatch);
+  const startBlackout = useCallback(() => { setBlackout(true); pad.refresh(); }, [pad]);
+  const padLocal = useCallback((op: PadOp) => { for (const c of padCommands(op, stateRefOpen.current)) dispatch(c); }, [dispatch]);
+  const padInput = useCallback((op: PadOp) => { if (!pad.send(op)) padLocal(op); }, [pad, padLocal]);
 
   const value: ShellApi = useMemo(() => ({
     state, dispatch, open, caps, gov, settings, setSetting, toast,
@@ -595,7 +603,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
             onPalette={() => setPalette(true)}
             onOverview={() => setOverview((v) => !v)}
             onQuick={() => setQuick((v) => !v)}
-            onBlackout={() => setBlackout(true)}
+            onBlackout={startBlackout}
           />
         ) : null}
         {layout === "art" ? (
@@ -604,7 +612,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
             onPalette={() => setPalette(true)}
             onOverview={() => setOverview((v) => !v)}
             onQuick={() => setQuick((v) => !v)}
-            onBlackout={() => setBlackout(true)}
+            onBlackout={startBlackout}
             onShortcuts={() => setSheet(true)}
           />
         ) : null}
@@ -641,7 +649,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           {palette ? <Palette onClose={() => setPalette(false)} /> : null}
           <OsdLayer />
           <Switcher state={state} dispatch={dispatch} combo={switcherCombo} appName={appTitle} blocked={isAskOpen} />
-          {quick ? <QuickPanel onClose={() => setQuick(false)} onBlackout={() => setBlackout(true)} anchor={layout === "business" ? "bottom" : "top"} /> : null}
+          {quick ? <QuickPanel onClose={() => setQuick(false)} onBlackout={startBlackout} anchor={layout === "business" ? "bottom" : "top"} /> : null}
 
           {launcher && layout === "business" ? <StartMenu onClose={() => setLauncher(false)} /> : null}
           {launcher && layout === "art" ? <Launchpad onClose={() => setLauncher(false)} /> : null}
@@ -693,7 +701,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         {layout === "fusion" ? <Shelf /> : null}
         {layout === "business" ? (
           <Taskbar onStart={() => setLauncher((v) => !v)} startOpen={launcher} onPalette={() => setPalette(true)}
-            onOverview={() => setOverview((v) => !v)} onQuick={() => setQuick((v) => !v)} onBlackout={() => setBlackout(true)} />
+            onOverview={() => setOverview((v) => !v)} onQuick={() => setQuick((v) => !v)} onBlackout={startBlackout} />
         ) : null}
         {layout === "art" ? <Dock onLaunchpad={() => setLauncher((v) => !v)} launchpadOpen={launcher} /> : null}
       </div>
@@ -705,16 +713,28 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       {/* BlackTop source-screen blackout (SH-10/SH-11) */}
       {blackout ? (
         <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 99999, color: "#223", display: "grid", placeItems: "center" }}
-          onDoubleClick={() => setBlackout(false)}>
+          onDoubleClick={() => setBlackout(false)} data-testid="blackout"
+          tabIndex={-1} ref={(el) => { if (el && !el.contains(document.activeElement)) el.focus(); }}
+          onKeyDown={(e) => {
+            const key = padKeyOf(e.key); if (!key) return;
+            e.preventDefault(); e.stopPropagation();
+            padInput({ t: "key", key, shift: e.shiftKey });
+          }}>
           <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-            <div style={{ fontSize: fz(12), color: "#2b3550" }}>Blackout — this screen is a touchpad for the presenting window.</div>
+            <div style={{ fontSize: fz(12), color: "#7f8db3" }}>Blackout — this screen is a touchpad and keyboard for the presenting window.</div>
             <div
-              style={{ width: 260, height: 150, border: "1px solid #1b2440", borderRadius: 10 }}
+              data-testid="blackout-pad" aria-label="Touchpad" role="application"
+              style={{ width: 300, height: 180, border: "1px solid #2b3a66", borderRadius: 12, touchAction: "none" }}
               onPointerMove={(e) => {
-                if (e.buttons !== 1 || !state.focus) return;
-                dispatch({ t: "nudge", id: state.focus, dx: e.movementX, dy: e.movementY });
+                if (e.buttons !== 1 || (!e.movementX && !e.movementY)) return;
+                padInput({ t: "move", dx: e.movementX, dy: e.movementY });
               }}
             />
+            <div data-testid="pad-status" aria-live="polite" style={{ fontSize: fz(12), color: "#9aa7cc", maxWidth: 420, textAlign: "center" }}>
+              {pad.target
+                ? <>Driving the presenting screen ({pad.target}){pad.ack?.moved ? <> · moving “{pad.ack.moved}”</> : null}. Arrows nudge (Shift = ×5), Tab cycles windows, Enter maximises, Home shows the desktop.</>
+                : <>No presenting screen is open — the pad moves this screen&apos;s focused window. Open one with Display → present.</>}
+            </div>
             <Btn variant="ghost" onClick={() => setBlackout(false)}>Resume on this screen</Btn>
           </div>
         </div>
