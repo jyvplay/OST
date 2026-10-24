@@ -1,6 +1,6 @@
 {
   "suite": "tt63-sheet-pivotparts",
-  "at": "2026-10-24T03:54:06.247Z",
+  "at": "2026-10-24T06:01:33.887Z",
   "results": [
     {
       "suite": "tt63-sheet-pivotparts",
@@ -9,7 +9,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 1459
+      "ms": 1370
     },
     {
       "suite": "tt63-sheet-pivotparts",
@@ -18,7 +18,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 4758
+      "ms": 5927
     },
     {
       "suite": "tt63-sheet-pivotparts",
@@ -27,7 +27,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 638
+      "ms": 655
     },
     {
       "suite": "tt63-sheet-pivotparts",
@@ -36,7 +36,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 596
+      "ms": 651
     },
     {
       "suite": "tt63-sheet-pivotparts",
@@ -45,7 +45,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 788
+      "ms": 808
     },
     {
       "suite": "tt63-sheet-pivotparts",
@@ -54,7 +54,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 3204
+      "ms": 3473
     },
     {
       "suite": "tt63-sheet-pivotparts",
@@ -63,7 +63,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 488
+      "ms": 463
     },
     {
       "suite": "tt63-sheet-pivotparts",
@@ -72,7 +72,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 202
+      "ms": 210
     },
     {
       "suite": "tt63-sheet-pivotparts",
@@ -81,7 +81,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 631
+      "ms": 579
     },
     {
       "suite": "tt63-sheet-pivotparts",
@@ -90,7 +90,7 @@
         "FF-47": "full"
       },
       "pass": true,
-      "ms": 187
+      "ms": 162
     }
   ]
 }

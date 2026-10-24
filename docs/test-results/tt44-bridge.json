@@ -1,6 +1,6 @@
 {
   "suite": "tt44-bridge",
-  "at": "2026-10-24T03:13:25.825Z",
+  "at": "2026-10-24T05:21:52.674Z",
   "results": [
     {
       "suite": "tt44-bridge",
@@ -9,7 +9,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 99
+      "ms": 80
     },
     {
       "suite": "tt44-bridge",
@@ -18,7 +18,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 355
+      "ms": 292
     },
     {
       "suite": "tt44-bridge",
@@ -27,7 +27,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 428
+      "ms": 437
     },
     {
       "suite": "tt44-bridge",
@@ -36,7 +36,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 583
+      "ms": 499
     },
     {
       "suite": "tt44-bridge",
@@ -45,7 +45,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 96
+      "ms": 45
     },
     {
       "suite": "tt44-bridge",
@@ -54,7 +54,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 402
+      "ms": 376
     },
     {
       "suite": "tt44-bridge",
@@ -63,7 +63,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 66
+      "ms": 52
     },
     {
       "suite": "tt44-bridge",
@@ -72,7 +72,7 @@
         "TD-03": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 15
     }
   ]
 }

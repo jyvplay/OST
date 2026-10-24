@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-24T04:11:10.009Z",
+ "generatedAt": "2026-10-24T06:15:21.596Z",
  "totals": {
   "built": {
    "full": 306,
@@ -8,13 +8,13 @@
    "none": 1
   },
   "tested": {
-   "full": 229,
+   "full": 230,
    "partial": 72,
-   "untested": 82
+   "untested": 81
   },
   "tests": {
-   "total": 1285,
-   "passed": 1285
+   "total": 1296,
+   "passed": 1296
   }
  },
  "rows": {
@@ -477,8 +477,20 @@
    ]
   },
   "NC-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt71-focus: server: rules see the live workspace / focus mode / time zone; held alerts record rule + reason; deliver releases; bad rules are refused",
+    "e2e-tt71-focus: Alerts UI: status line, held alerts listed apart with their reason, Deliver now, held test alert raises no OS notification",
+    "e2e-tt71-focus: editor: real controls build a rule; a bad workspace shows the parser's message and saves nothing; a valid rule activates; Remove clears",
+    "e2e-tt71-focus: reminders: a held overdue-task reminder raises no toast and no OS notification and is stored with its reason; with no rules it does (control)",
+    "tt71-focus: parseRules rejects 18 malformed shapes with a message naming the rule; accepts and normalises a good list",
+    "tt71-focus: inSchedule equals the minute-of-week oracle on every minute of the week for 60 schedules (incl. overnight, Sat→Sun)",
+    "tt71-focus: localTime: New York DST jumps, +05:30 / +12:45 offsets, unknown zone falls back to UTC (flagged)",
+    "tt71-focus: decide: every active rule must let the alert through; the first blocking one is recorded; inactive rules never hold",
+    "tt71-focus: the reason sentence names the rule, its condition, the app, what breaks through and the alert's priority",
+    "tt71-focus: validateSetting: alerts.focusRules uses the same parser; alerts.timeZone is checked with Intl ('' = UTC)",
+    "tt71-focus: repair: normalizeAlert refuses non-string fields and non-enum priorities (was: 500 / garbage stored); blanks default"
+   ]
   },
   "NC-03": {
    "tested": "untested",

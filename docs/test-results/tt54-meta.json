@@ -1,6 +1,6 @@
 {
   "suite": "tt54-meta",
-  "at": "2026-10-24T03:45:14.072Z",
+  "at": "2026-10-24T05:52:42.023Z",
   "results": [
     {
       "suite": "tt54-meta",
@@ -9,7 +9,7 @@
         "FF-13": "full"
       },
       "pass": true,
-      "ms": 12923
+      "ms": 9765
     },
     {
       "suite": "tt54-meta",
@@ -18,7 +18,7 @@
         "FF-13": "full"
       },
       "pass": true,
-      "ms": 855
+      "ms": 396
     },
     {
       "suite": "tt54-meta",
@@ -27,7 +27,7 @@
         "FF-07": "full"
       },
       "pass": true,
-      "ms": 1088
+      "ms": 756
     },
     {
       "suite": "tt54-meta",
@@ -36,7 +36,7 @@
         "MD-03": "full"
       },
       "pass": true,
-      "ms": 454
+      "ms": 480
     },
     {
       "suite": "tt54-meta",
@@ -45,7 +45,7 @@
         "FF-13": "full"
       },
       "pass": true,
-      "ms": 116
+      "ms": 118
     },
     {
       "suite": "tt54-meta",
@@ -56,7 +56,7 @@
         "MD-03": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 7
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt57-sheet-links",
-  "at": "2026-10-24T03:48:46.181Z",
+  "at": "2026-10-24T05:56:10.610Z",
   "results": [
     {
       "suite": "tt57-sheet-links",
@@ -9,7 +9,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 3550
+      "ms": 3671
     },
     {
       "suite": "tt57-sheet-links",
@@ -18,7 +18,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 159
+      "ms": 145
     },
     {
       "suite": "tt57-sheet-links",
@@ -27,7 +27,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 7277
+      "ms": 7152
     },
     {
       "suite": "tt57-sheet-links",
@@ -36,7 +36,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 38
+      "ms": 31
     },
     {
       "suite": "tt57-sheet-links",

@@ -1,6 +1,6 @@
 {
   "suite": "tt57-units",
-  "at": "2026-10-24T03:48:46.387Z",
+  "at": "2026-10-24T05:56:10.789Z",
   "results": [
     {
       "suite": "tt57-units",
@@ -9,7 +9,7 @@
         "PR-12": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt57-units",
@@ -18,7 +18,7 @@
         "PR-12": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 5
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt52-pdf",
-  "at": "2026-10-24T03:43:43.126Z",
+  "at": "2026-10-24T05:51:21.137Z",
   "results": [
     {
       "suite": "tt52-pdf",
@@ -10,7 +10,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 13
+      "ms": 12
     },
     {
       "suite": "tt52-pdf",
@@ -20,7 +20,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 5
     },
     {
       "suite": "tt52-pdf",
@@ -40,7 +40,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 6
     },
     {
       "suite": "tt52-pdf",
@@ -50,7 +50,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt52-pdf",
@@ -60,7 +60,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt52-pdf",
@@ -80,7 +80,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 1
     },
     {
       "suite": "tt52-pdf",
@@ -90,7 +90,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt52-pdf",
@@ -110,7 +110,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt52-pdf",
@@ -150,7 +150,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 0
     },
     {
       "suite": "tt52-pdf",
@@ -170,7 +170,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 1388
+      "ms": 814
     },
     {
       "suite": "tt52-pdf",
@@ -180,7 +180,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 4770
+      "ms": 1915
     },
     {
       "suite": "tt52-pdf",
@@ -190,7 +190,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 2869
+      "ms": 2336
     },
     {
       "suite": "tt52-pdf",
@@ -210,7 +210,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 1897
+      "ms": 1702
     },
     {
       "suite": "tt52-pdf",
@@ -220,7 +220,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 2
     },
     {
       "suite": "tt52-pdf",
@@ -230,7 +230,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 228
+      "ms": 154
     },
     {
       "suite": "tt52-pdf",
@@ -240,7 +240,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 248
+      "ms": 176
     },
     {
       "suite": "tt52-pdf",
@@ -250,7 +250,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 184
+      "ms": 180
     },
     {
       "suite": "tt52-pdf",
@@ -260,7 +260,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 16
+      "ms": 20
     },
     {
       "suite": "tt52-pdf",
@@ -270,7 +270,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt52-pdf",
@@ -280,7 +280,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 334
+      "ms": 347
     }
   ]
 }
