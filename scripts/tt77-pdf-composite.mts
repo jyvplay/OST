@@ -140,5 +140,18 @@ await H.test("C16 non-isolated group over a SEMI-TRANSPARENT backdrop (transpare
     near(blue, ga === "1" ? [0, 0, 255] : [64, 128, 191], 4, `ca ${ga} blue`);
   }
 });
+await H.test("C17 (TT78) a clip the page leaves active — W n, W before the path, unbalanced q — never clips the paper", C, async () => {
+  // regression found by the full PDFium differential: TT77 composited the paper with the page's clip still active, so
+  // outside the clip the page stayed transparent (black once flattened). Expected: white outside, ink inside.
+  const cases: [string, string][] = [
+    ["W n then a full-page fill", "20 20 60 60 re W n 0 0 0 rg 0 0 100 100 re f"],
+    ["W before the path (clippath.pdf shape)", "W 20 20 m 80 20 l 80 80 l 20 80 l h n 0 g 0 0 100 100 re f"],
+    ["unbalanced q + clip", "q q 20 20 60 60 re W n 0 g 0 0 100 100 re f"],
+  ];
+  for (const [what, ops] of cases) {
+    const [outside, inside] = await probe(onePage(ops, "<< >>"), [[5, 95], [50, 50]]);
+    near(outside, [255, 255, 255], 3, `${what}: outside`); near(inside, [0, 0, 0], 3, `${what}: inside`);
+  }
+});
 await browser.close();
 H.finish();

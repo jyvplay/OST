@@ -1,15 +1,15 @@
 {
   "suite": "e2e-image",
-  "at": "2026-10-25T17:54:16.066Z",
+  "at": "2026-10-25T22:08:10.875Z",
   "results": [
     {
       "suite": "e2e-image",
-      "name": "ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops",
+      "name": "ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — the 16 canvas blend modes (incl. hue/saturation/color/luminosity), opaque and translucent backdrops",
       "covers": {
         "FF-30": "full"
       },
       "pass": true,
-      "ms": 2142
+      "ms": 2809
     },
     {
       "suite": "e2e-image",
@@ -18,7 +18,7 @@
         "FF-30": "full"
       },
       "pass": true,
-      "ms": 4513
+      "ms": 4403
     },
     {
       "suite": "e2e-image",
@@ -27,7 +27,17 @@
         "FF-30": "full"
       },
       "pass": true,
-      "ms": 3071
+      "ms": 4010
+    },
+    {
+      "suite": "e2e-image",
+      "name": "TT78 clipping mask in the UI: 'Clip to layer below' limits a layer to the brush stroke beneath it; non-separable modes offered",
+      "covers": {
+        "FF-30": "full",
+        "FF-08": "partial"
+      },
+      "pass": true,
+      "ms": 4780
     },
     {
       "suite": "e2e-image",
@@ -36,7 +46,7 @@
         "FF-30": "full"
       },
       "pass": true,
-      "ms": 6363
+      "ms": 6707
     },
     {
       "suite": "e2e-image",
@@ -46,7 +56,7 @@
         "FF-24": "full"
       },
       "pass": true,
-      "ms": 3280
+      "ms": 3745
     },
     {
       "suite": "e2e-image",
@@ -55,7 +65,7 @@
         "FF-30": "full"
       },
       "pass": true,
-      "ms": 4049
+      "ms": 4667
     },
     {
       "suite": "e2e-image",
@@ -65,7 +75,7 @@
         "FF-30": "full"
       },
       "pass": true,
-      "ms": 5636
+      "ms": 6887
     },
     {
       "suite": "e2e-image",
@@ -75,7 +85,7 @@
         "FF-24": "full"
       },
       "pass": true,
-      "ms": 8643
+      "ms": 9466
     },
     {
       "suite": "e2e-image",
@@ -85,7 +95,7 @@
         "MD-03": "partial"
       },
       "pass": true,
-      "ms": 1837
+      "ms": 2000
     },
     {
       "suite": "e2e-image",

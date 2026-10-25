@@ -1,7 +1,18 @@
 {
   "suite": "tt78-sheet",
-  "at": "2026-10-25T21:32:04.133Z",
+  "at": "2026-10-25T21:46:49.344Z",
   "results": [
+    {
+      "suite": "tt78-sheet",
+      "name": "O1 corpus outline oracle: levels / collapsed / hidden / summary placement == openpyxl",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-64": "full"
+      },
+      "pass": true,
+      "ms": 5752
+    },
     {
       "suite": "tt78-sheet",
       "name": "O3 openpyxl-WRITTEN outlines (independent writer) read identically; Fusion's patch is read back by openpyxl",
@@ -11,7 +22,110 @@
         "FF-64": "full"
       },
       "pass": true,
-      "ms": 805
+      "ms": 750
+    },
+    {
+      "suite": "tt78-sheet",
+      "name": "O2 corpus calculated columns: calc == openpyxl, and calc shifted per body row == Excel's cell formulas",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-65": "full"
+      },
+      "pass": true,
+      "ms": 3022
+    },
+    {
+      "suite": "tt78-sheet",
+      "name": "M1 outline semantics: nested collapse, level buttons, detail, summary above, filter rows, ungroup",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-64": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt78-sheet",
+      "name": "M2 Subtotal == pandas groupby (Sum / Count / Average / Max) + grand total + 1-2-3 outline + Remove All",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-64": "full"
+      },
+      "pass": true,
+      "ms": 344
+    },
+    {
+      "suite": "tt78-sheet",
+      "name": "M3 calculated columns: F1 fill, F2 refill, E1 exception, F3 no fill, X1/X2 grow, S1 structure",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-65": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt78-sheet",
+      "name": "M4 Auto Outline: nested summary formulas → nested levels (rows and columns)",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-64": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt78-sheet",
+      "name": "R1 new-package writer: XSD valid; openpyxl sees levels / hidden / collapsed / summary / calc; Fusion rereads",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-64": "full",
+        "FF-65": "full"
+      },
+      "pass": true,
+      "ms": 267
+    },
+    {
+      "suite": "tt78-sheet",
+      "name": "R2 patcher on corpus files: outline + calc edits written, untouched parts byte-identical",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-64": "full",
+        "FF-65": "full"
+      },
+      "pass": true,
+      "ms": 902
+    },
+    {
+      "suite": "tt78-sheet",
+      "name": "R3 JSON round trip (undo snapshots) keeps outline and calc",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-64": "full",
+        "FF-65": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt78-sheet",
+      "name": "N1-N18 negative shapes",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-64": "full",
+        "FF-65": "full"
+      },
+      "pass": true,
+      "ms": 23
     }
   ]
 }

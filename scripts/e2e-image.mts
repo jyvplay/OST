@@ -8,7 +8,7 @@
 import { type Browser, type Locator, type Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
-import { BLEND_MODES, compositeRegion, makeLayer, type ImageDoc } from "../src/lib/image/doc.ts";
+import { CANVAS_BLENDS, compositeRegion, makeLayer, type ImageDoc } from "../src/lib/image/doc.ts";
 import { readPsd } from "../src/lib/image/psd.ts";
 
 const BASE = process.env.BASE ?? "http://localhost:3999";
@@ -59,7 +59,7 @@ const waitMsg = async (s: { root: Locator; page: Page }, re: RegExp) => { for (l
 const near = (a: number[], b: number[], tol: number) => a.every((v, i) => Math.abs(v - b[i]) <= tol);
 const waitAttr = async (s: Studio, k: string, v: string) => { for (let i = 0; i < 100; i++) { if ((await s.attr(k)) === v) return; await s.page.waitForTimeout(100); } throw new Error(`data-${k} never became ${v} (is ${await s.attr(k)})`); };
 
-await test("ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops", { "FF-30": "full" }, async () => {
+await test("ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — the 16 canvas blend modes (incl. hue/saturation/color/luminosity), opaque and translucent backdrops", { "FF-30": "full" }, async () => {
   const ctx = await browser.newContext(); const page = await ctx.newPage();
   await page.goto("about:blank");
   let seed = 7; const r = () => ((seed = (1664525 * seed + 1013904223) >>> 0) / 4294967296);
@@ -77,7 +77,7 @@ await test("ORACLE: our compositor vs Chromium/Skia globalCompositeOperation —
       back.set(px(backdropAlpha === "opaque" ? 255 : ALPHAS[Math.floor(r() * 6) + 1]), i * 4);
       src.set(px(ALPHAS[Math.floor(r() * ALPHAS.length)]), i * 4);
     }
-    for (const mode of BLEND_MODES) {
+    for (const mode of CANVAS_BLENDS) {
       const skia = await page.evaluate(([W, H, back, src, mode]) => {
         const mk = (d: number[]) => { const c = new OffscreenCanvas(W, H); c.getContext("2d")!.putImageData(new ImageData(Uint8ClampedArray.from(d), W, H), 0, 0); return c; };
         const out = new OffscreenCanvas(W, H); const g = out.getContext("2d")!;
@@ -144,6 +144,31 @@ await test("layers: new layer, paint, blend=multiply changes composite, opacity,
   await s.root.getByRole("button", { name: "Merge down" }).click();
   await waitAttr(s, "layers", "1");
   ok(near(await s.px(400, 300), [128, 96, 64, 255], 1), "merge preserved the opaque-backdrop multiply result");
+  await s.close();
+});
+
+await test("TT78 clipping mask in the UI: 'Clip to layer below' limits a layer to the brush stroke beneath it; non-separable modes offered", { "FF-30": "full", "FF-08": "partial" }, async () => {
+  const s = await openStudio();
+  eq(await s.root.getByTestId("layer-clip").isDisabled(), true, "the bottom layer has nothing to clip to");
+  await s.root.getByRole("button", { name: "New", exact: true }).nth(1).click(); await waitAttr(s, "layers", "2");
+  await s.tool("Brush"); await s.root.getByLabel("Foreground colour").fill("#ff0000");
+  await s.drag([100, 100], [300, 100]); // base: a red stroke on Layer 2
+  await s.root.getByRole("button", { name: "New", exact: true }).nth(1).click(); await waitAttr(s, "layers", "3");
+  await s.tool("Bucket"); await s.root.getByLabel("Foreground colour").fill("#00c000"); await s.click(600, 400); // Layer 3: all green
+  eq(await s.px(600, 400), [0, 192, 0, 255], "unclipped: green everywhere");
+  await s.root.getByTestId("layer-clip").check();
+  eq(await s.px(600, 400), [255, 255, 255, 255], "clipped: nothing outside the stroke");
+  eq(await s.px(200, 100), [0, 192, 0, 255], "clipped: green inside the stroke");
+  ok((await s.root.locator('[data-testid="layer-row"][data-name="Layer 3"]').innerText()).includes("clip"), "row shows the clip badge");
+  await s.root.getByLabel("Blend mode").selectOption("color");
+  // SetLum(green (0,.753,0), Lum(red) = .3) → (−.144,.609,−.144) → ClipColor → (0, .508, 0)
+  const c = await s.px(200, 100); ok(near(c, [0, 130, 0, 255], 2), `color mode: green's hue+saturation at red's luminosity: ${c}`);
+  for (const m of ["hue", "saturation", "luminosity"]) eq(await s.root.getByLabel("Blend mode").locator(`option[value="${m}"]`).count(), 1, m);
+  await s.dlg.screenshot({ path: "docs/screens/tt78-image-clip.png" });
+  // (focus is on the blend <select>, where the studio deliberately ignores Ctrl+Z — use the Undo button)
+  const undo = s.root.getByRole("button", { name: "Undo", exact: true });
+  await undo.click(); await undo.click();
+  eq(await s.px(600, 400), [0, 192, 0, 255], "undo (blend, then clip) removes the clip");
   await s.close();
 });
 

@@ -44,6 +44,14 @@ const UP: Record<string, { note: string; test: string; tier?: SpecRow["tier"]; s
   "PR-08": { note: "TT77: see FF-03 (JBIG2 / JPX / transparency / signatures).", test: `${PS77}; ${PSE77}` },
   "FF-19": { note: "TT78: outlines / Subtotal (FF-64) and table calculated columns + auto-expansion (FF-65).", test: `${S78}; ${SE78}` },
   "FF-21": { note: "TT78: row / column outlines, outlinePr and calculatedColumnFormula round-trip in both writers.", test: `${S78}` },
+  // TT78 "one other core feature to class A": Photoshop documents
+  "FF-08": {
+    tier: "A", status: "built",
+    note: "TT78 class A (supersedes the grade-E skeleton note): the Image Editor opens, renders, edits and saves PSD with layer groups (pass-through / isolated, nested, hidden, group opacity + blend), clipping masks and 26 of 27 Photoshop blend modes (12 W3C separable, hue / saturation / color / luminosity, linear burn / dodge, vivid / linear / pin light, hard mix, subtract, divide, darker / lighter colour). Verified in both directions against psd-tools' independent compositor (Δ ≤ 1/255 over every mode, groups and clipping), the 16 canvas modes also against Chromium/Skia; 33/33 second-order mutants killed (scripts/tt78-mutants.py). Gaps, each reported on open: layer effects, vector masks, adjustment / smart-object / type layers render from stored pixels, dissolve shown as normal, clipping to a group drawn unclipped, PSB / 16-32-bit / CMYK / Lab refused. No Photoshop available to verify; psd-tools is the oracle.",
+    test: "oracle-psd.mts (A raw/rle/zip, B raw/rle/zip/groups, clipping-exercised); image-engine.mts TT78 pins / clipping / groups / PSD round-trip; e2e-image.mts clipping UI + Skia oracle (16 modes)",
+  },
+  "FF-30": { note: "TT78: non-separable (hue / saturation / color / luminosity) and 10 Photoshop-only blend modes, clipping masks ('Clip to layer below') and layer groups are now composited — supersedes the gap list above.", test: "image-engine.mts TT78; e2e-image.mts TT78 clipping" },
+  "FF-31": { note: "TT78: groups (lsct, pass-through / isolated, nested), clipping byte and all 26 supported blend keys are read and written; see FF-08.", test: "oracle-psd.mts B/groups" },
 };
 
 export function patchTT78(f: SpecRow): SpecRow {

@@ -199,9 +199,9 @@ if (want("M1")) await test("M1 outline semantics: nested collapse, level buttons
 
 /* ================================================================== M2 */
 if (want("M2")) await test("M2 Subtotal == pandas groupby (Sum / Count / Average / Max) + grand total + 1-2-3 outline + Remove All", OUT, () => {
-  const data: [string, string, number, number][] = [["East", "a", 10, 1], ["East", "b", 20.5, 2], ["East", "c", -3, 3], ["North", "d", 7, 4], ["North", "e", 8, 5], ["West", "f", 1, 6], ["West", "g", 2, 7], ["West", "h", 3, 8], ["West", "i", 4.25, 9], ["east", "j", 100, 10]];
+  const data: [string, string, number, number][] = [["East", "a", 10, 1], ["East", "b", 20.5, 2], ["East", "c", -3, 3], ["North", "d", 7, 4], ["north", "e", 8, 5], ["West", "f", 1, 6], ["West", "g", 2, 7], ["West", "h", 3, 8], ["West", "i", 4.25, 9], ["east", "j", 100, 10]];
   const csv = join(tmp, "m2.csv"); writeFileSync(csv, "Region,Item,Sales,Units\n" + data.map((r) => r.join(",")).join("\n"));
-  // pandas: groups of CONSECUTIVE equal keys (Excel compares case-insensitively: "east" after West is a new group)
+  // pandas: groups of CONSECUTIVE equal keys, compared case-insensitively as Excel does ("north" joins North; "east" after West is a new group)
   const pyOut = JSON.parse(execFileSync(PY, ["-c", `
 import pandas as pd, json, sys
 df = pd.read_csv(sys.argv[1]); k = df.Region.str.lower(); run = (k != k.shift()).cumsum()

@@ -4,20 +4,25 @@
  * CompressionStream / DecompressionStream "deflate" = zlib format, which is what PSD compression 2/3 stores).
  *
  * READ  : version 1 (PSD), 8-bit, RGB (mode 3) or Grayscale (mode 1); compression raw / RLE / ZIP / ZIP+prediction;
- *         layer records (bounds, opacity, visibility, 12 separable blend keys, clipping flag), Unicode names (`luni`),
+ *         layer records (bounds, opacity, visibility, 26 blend keys, clipping masks), layer groups (`lsct`), Unicode names (`luni`),
  *         user layer masks (channel −2, mask rect + default colour + disabled flag), group dividers (`lsct`),
  *         merged image with transparency (negative layer count). Fallback: flattened file → one Background layer.
  * WRITE : the same feature set; RLE (default), ZIP or raw; merged composite (RGBA) so viewers that only read the
  *         composite show the right picture.
  * NOT SUPPORTED (reported in `warnings`, never silently): PSB, 16/32-bit, CMYK/Lab/Indexed/Bitmap, adjustment and
  * fill layers, smart objects, type-layer engine data (rendered from pixels only), layer effects, vector masks,
- * non-separable blend modes, pass-through group blending (groups are flattened into their children), clipping masks.
+ * clipping to a GROUP (rendered
+ * unclipped, reported), dissolve (shown as normal, reported). TT78: clipping masks, layer groups (pass-through and
+ * isolated, nested, hidden, group opacity) and all other 26 Photoshop blend modes are read, rendered and written.
  */
-import { BLEND_MODES, compositeRegion, newId, validateDoc, type BlendMode, type ImageDoc, type Layer } from "./doc";
+import { BLEND_MODES, MAX_GROUP_DEPTH, compositeRegion, newId, validateDoc, type BlendMode, type ImageDoc, type Layer, type LayerGroup } from "./doc";
 
 export const BLEND_KEYS: Record<BlendMode, string> = {
   normal: "norm", multiply: "mul ", screen: "scrn", overlay: "over", darken: "dark", lighten: "lite",
   "color-dodge": "div ", "color-burn": "idiv", "hard-light": "hLit", "soft-light": "sLit", difference: "diff", exclusion: "smud",
+  hue: "hue ", saturation: "sat ", color: "colr", luminosity: "lum ",
+  "linear-burn": "lbrn", "linear-dodge": "lddg", "vivid-light": "vLit", "linear-light": "lLit", "pin-light": "pLit", "hard-mix": "hMix",
+  subtract: "fsub", divide: "fdiv", "darker-color": "dkCl", "lighter-color": "lgCl",
 };
 const KEY_TO_BLEND: Record<string, BlendMode> = Object.fromEntries(Object.entries(BLEND_KEYS).map(([k, v]) => [v, k as BlendMode]));
 const MAX_PIXELS = 36_000_000;
@@ -144,23 +149,37 @@ export async function writePsd(doc: ImageDoc, opts: { compression?: PsdCompressi
   const comp = opts.compression ?? "rle";
   const W = doc.width, H = doc.height;
 
-  type Rec = { layer: Layer; channels: { id: number; blob: Uint8Array }[] };
+  // group markers: a section-3 divider below a group's children and a folder record above them (bottom → top)
+  type Rec = { layer: Layer; channels: { id: number; blob: Uint8Array }[]; section?: 1 | 2 | 3; group?: LayerGroup };
   const recs: Rec[] = [];
+  const empty = () => [-1, 0, 1, 2].map((id) => ({ id, blob: new Uint8Array(2) })); // compression 0, no pixels
+  const marker = (section: 1 | 2 | 3, g: LayerGroup): Rec => ({ section, group: g, channels: empty(),
+    layer: { id: g.id, name: section === 3 ? "</Layer group>" : g.name, x: 0, y: 0, w: 0, h: 0, data: new Uint8ClampedArray(0), opacity: section === 3 ? 1 : g.opacity, visible: section === 3 || g.visible, blend: "normal" } });
+  let open: LayerGroup[] = [];
+  const moveTo = (path: LayerGroup[]) => {
+    let k = 0; while (k < open.length && k < path.length && open[k].id === path[k].id) k++;
+    for (let d = open.length - 1; d >= k; d--) recs.push(marker(open[d].open === false ? 2 : 1, open[d]));
+    for (let d = k; d < path.length; d++) recs.push(marker(3, path[d]));
+    open = path.slice();
+  };
   for (const l of doc.layers) {
+    moveTo(l.groups ?? []);
     const chans: { id: number; blob: Uint8Array }[] = [];
     for (const [id, c] of [[-1, 3], [0, 0], [1, 1], [2, 2]] as const) chans.push({ id, blob: await encodePlane(planeOf(l, c), l.w, l.h, comp) });
     if (l.mask) chans.push({ id: -2, blob: await encodePlane(new Uint8Array(l.mask), l.w, l.h, comp) });
     recs.push({ layer: l, channels: chans });
   }
+  moveTo([]);
 
   const li = new Writer();
-  li.i16(-doc.layers.length); // negative: first alpha channel of the merged image = merged transparency
-  for (const { layer: l, channels } of recs) {
+  li.i16(-recs.length); // negative: first alpha channel of the merged image = merged transparency
+  for (const { layer: l, channels, section, group } of recs) {
     li.i32(l.y); li.i32(l.x); li.i32(l.y + l.h); li.i32(l.x + l.w);
     li.u16(channels.length);
     for (const c of channels) { li.i16(c.id); li.u32(c.blob.length); }
-    li.ascii("8BIM"); li.ascii(BLEND_KEYS[l.blend]);
-    li.u8(Math.round(l.opacity * 255)); li.u8(0);
+    const gKey = group && section !== 3 ? (group.blend === "pass-through" ? "pass" : BLEND_KEYS[group.blend]) : null;
+    li.ascii("8BIM"); li.ascii(gKey ?? BLEND_KEYS[l.blend]);
+    li.u8(Math.round(l.opacity * 255)); li.u8(l.clip ? 1 : 0);
     li.u8((l.visible ? 0 : 2) | 8); li.u8(0);
     const extra = new Writer();
     if (l.mask) {
@@ -179,6 +198,7 @@ export async function writePsd(doc: ImageDoc, opts: { compression?: PsdCompressi
     extra.u32(uniLen + uniPad); extra.u32(name.length);
     for (let k = 0; k < name.length; k++) extra.u16(name.charCodeAt(k));
     for (let k = 0; k < uniPad; k++) extra.u8(0);
+    if (section) { extra.ascii("8BIM"); extra.ascii("lsct"); extra.u32(12); extra.u32(section); extra.ascii("8BIM"); extra.ascii(gKey ?? "norm"); }
     const eb = extra.done();
     li.u32(eb.length); li.bytes(eb);
   }
@@ -270,7 +290,8 @@ export async function readPsd(input: Uint8Array): Promise<PsdReadResult> {
   const lmLen = dv.getUint32(p), lmStart = p + 4, lmEnd = lmStart + lmLen;
   const layers: Layer[] = [];
   let records = 0;
-  let groupDepth = 0;
+  const stack: LayerGroup[] = [];
+  let groupDepth = 0; let afterFolder = false, baseDropped = false, clipToGroup = false;
 
   if (lmLen > 0) {
     const liLen = dv.getUint32(lmStart);
@@ -279,7 +300,7 @@ export async function readPsd(input: Uint8Array): Promise<PsdReadResult> {
       const count = dv.getInt16(lmStart + 4);
       const n = Math.abs(count);
       records = n;
-      type Rec = { top: number; left: number; bottom: number; right: number; opacity: number; clipping: number; flags: number; blendKey: string; name: string; ch: { id: number; len: number }[]; mask?: { top: number; left: number; bottom: number; right: number; def: number; flags: number }; section?: number };
+      type Rec = { top: number; left: number; bottom: number; right: number; opacity: number; clipping: number; flags: number; blendKey: string; name: string; ch: { id: number; len: number }[]; mask?: { top: number; left: number; bottom: number; right: number; def: number; flags: number }; section?: number; sectionBlend?: string };
       const recs: Rec[] = [];
       for (let i = 0; i < n; i++) {
         const top = dv.getInt32(q), left = dv.getInt32(q + 4), bottom = dv.getInt32(q + 8), right = dv.getInt32(q + 12);
@@ -301,7 +322,7 @@ export async function readPsd(input: Uint8Array): Promise<PsdReadResult> {
         const nameLen = u8[e];
         let name = decodeMacRoman(u8.subarray(e + 1, e + 1 + nameLen));
         e += Math.ceil((1 + nameLen) / 4) * 4;
-        let section: number | undefined;
+        let section: number | undefined; let sectionBlend: string | undefined;
         // additional layer information (tagged blocks)
         while (e + 12 <= extraEnd) {
           const sig = ascii4(u8, e);
@@ -314,13 +335,14 @@ export async function readPsd(input: Uint8Array): Promise<PsdReadResult> {
             name = s.replace(/\u0000+$/, "");
           } else if (key === "lsct" || key === "lsdk") {
             section = dv.getUint32(d);
+            if (len >= 12 && ascii4(u8, d + 4) === "8BIM") sectionBlend = ascii4(u8, d + 8);
           } else if (["TySh", "SoLd", "SoLE", "PlLd", "lfx2", "lrFX", "vmsk", "vsms", "levl", "curv", "hue2", "brit", "blnc", "SoCo", "GdFl", "PtFl"].includes(key)) {
             warnings.push(`layer "${name}": ${key} data not rendered (pixels used as stored)`);
           }
           e = d + len + (len % 2);
         }
         q = extraEnd;
-        recs.push({ top, left, bottom, right, opacity, clipping, flags, blendKey, name, ch, mask, section });
+        recs.push({ top, left, bottom, right, opacity, clipping, flags, blendKey, name, ch, mask, section, sectionBlend });
       }
       for (const r of recs) {
         const w = r.right - r.left, h = r.bottom - r.top;
@@ -335,10 +357,30 @@ export async function readPsd(input: Uint8Array): Promise<PsdReadResult> {
           }
           q += c.len;
         }
-        if (r.section === 1 || r.section === 2) { groupDepth--; continue; }       // folder (records are stored top→bottom reversed, so this closes)
-        if (r.section === 3) { groupDepth++; warnings.push("layer groups are flattened into their children (group opacity/blend ignored)"); continue; }
-        if (w <= 0 || h <= 0) continue; // empty layer (no pixels)
-        if (w * h > MAX_PIXELS) { warnings.push(`layer "${r.name}" too large; skipped`); continue; }
+        // records run bottom → top: a section-3 divider opens a group, the folder record (1 open / 2 closed) above its
+        // children closes it and carries the group's name, opacity, blend (lsct key; "pass" = pass-through), visibility
+        if (r.section === 1 || r.section === 2) {
+          groupDepth--; afterFolder = true; const g = stack.pop();
+          if (g) {
+            const k = r.sectionBlend ?? r.blendKey;
+            const gb = k === "pass" ? "pass-through" : KEY_TO_BLEND[k];
+            if (!gb) warnings.push(`group "${r.name}": blend "${k.trim()}" not supported; composited as pass-through`);
+            Object.assign(g, { name: r.name || "Group", opacity: r.opacity / 255, blend: gb ?? "pass-through", visible: !(r.flags & 2), open: r.section === 1 });
+          }
+          continue;
+        }
+        if (r.section === 3) {
+          groupDepth++;
+          if (stack.length >= MAX_GROUP_DEPTH) { warnings.push(`groups nested deeper than ${MAX_GROUP_DEPTH} are merged into their parent`); stack.push(stack[stack.length - 1]); }
+          else stack.push({ id: newId("G"), name: "Group", opacity: 1, blend: "pass-through", visible: true });
+          continue;
+        }
+        // a clipping group follows its base: if the base is dropped, its clipped layers have no coverage to paint in
+        const wasAfterFolder = afterFolder; afterFolder = false;
+        if (r.clipping && baseDropped) { warnings.push(`layer "${r.name}": clipped to an empty or skipped layer; hidden (nothing to clip to)`); continue; }
+        if (w <= 0 || h <= 0) { if (!r.clipping) baseDropped = true; continue; } // empty layer (no pixels)
+        if (w * h > MAX_PIXELS) { warnings.push(`layer "${r.name}" too large; skipped`); if (!r.clipping) baseDropped = true; continue; }
+        if (!r.clipping) baseDropped = false;
         const data = new Uint8ClampedArray(w * h * 4);
         const R = planes[0], G = gray ? planes[0] : planes[1], B = gray ? planes[0] : planes[2], A = planes[-1];
         for (let i = 0; i < w * h; i++) {
@@ -346,8 +388,12 @@ export async function readPsd(input: Uint8Array): Promise<PsdReadResult> {
         }
         let blend = KEY_TO_BLEND[r.blendKey];
         if (!blend) { warnings.push(`layer "${r.name}": blend "${r.blendKey.trim()}" not supported; shown as normal`); blend = "normal"; }
-        if (r.clipping) warnings.push(`layer "${r.name}": clipping mask not supported; rendered unclipped`);
+        let clip = !!r.clipping;
+        if (clip && (wasAfterFolder || clipToGroup)) { warnings.push(`layer "${r.name}": clipping to a layer group is not supported; rendered unclipped`); clip = false; clipToGroup = true; }
+        if (!r.clipping) clipToGroup = false;
         const layer: Layer = { id: newId(), name: r.name || `Layer ${layers.length + 1}`, x: r.left, y: r.top, w, h, data, opacity: r.opacity / 255, visible: !(r.flags & 2), blend };
+        if (clip) layer.clip = true;
+        if (stack.length) layer.groups = [...new Set(stack)];
         if (r.mask && planes[-2]) {
           const m = r.mask, mw = m.right - m.left, mask = new Uint8ClampedArray(w * h).fill(m.def);
           for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {

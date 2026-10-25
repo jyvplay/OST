@@ -9,7 +9,7 @@ import { makeHarness } from "./harness.mts";
 import {
   BLEND_FN, BLEND_MODES, composite, compositeRegion, cropCanvas, duplicateLayer, flatten, flipDoc, makeLayer, mergeDown,
   newDoc, addLayer, patchLayer, removeLayer, reorderLayer, resizeImage, rotateDoc, growLayerTo, contentBounds, validateDoc, mergeChangesAppearance,
-  type ImageDoc, type Layer,
+  NONSEP_FN, type ImageDoc, type Layer, type LayerGroup,
 } from "../src/lib/image/doc.ts";
 import {
   dab, strokeSegment, floodFill, regionMask, selectRect, selectEllipse, invertSelection, combineSelections, magicWand,
@@ -42,7 +42,79 @@ await test("W3C separable blend functions: hand-computed pins", { "FF-30": "part
   near(f["soft-light"](0.64, 0.75), 0.64 + 0.5 * (0.8 - 0.64));
   near(f["soft-light"](0.5, 0.25), 0.5 - 0.5 * 0.5 * 0.5);
   near(f.difference(0.2, 0.7), 0.5); near(f.exclusion(0.5, 0.5), 0.5); near(f.darken(0.3, 0.6), 0.3); near(f.lighten(0.3, 0.6), 0.6);
-  assert.equal(BLEND_MODES.length, 12);
+  assert.equal(BLEND_MODES.length, 26); // 12 W3C separable + 4 non-separable + 10 Photoshop-only (TT78)
+  // Photoshop-only modes, hand-computed (edge cases as Photoshop / psd-tools: vivid light's source extremes win)
+  near(f["linear-burn"](0.5, 0.25), 0); near(f["linear-burn"](0.75, 0.5), 0.25); near(f["linear-dodge"](0.75, 0.5), 1);
+  near(f["vivid-light"](0.5, 0.25), 0); near(f["vivid-light"](0.5, 0.75), 1); near(f["vivid-light"](1, 0), 0); near(f["vivid-light"](0, 1), 1); near(f["vivid-light"](0.6, 0.4), 0.5);
+  near(f["linear-light"](0.5, 0.75), 1); near(f["linear-light"](0.5, 0.25), 0); near(f["linear-light"](0.4, 0.6), 0.6);
+  near(f["pin-light"](0.2, 0.8), 0.6); near(f["pin-light"](0.8, 0.2), 0.4); near(f["pin-light"](0.5, 0.5), 0.5);
+  near(f["hard-mix"](0.6, 0.4), 1); near(f["hard-mix"](0.4, 0.6), 0); near(f["hard-mix"](0.5, 0.6), 1); near(f["hard-mix"](0.5, 0.4), 0);
+  near(f.subtract(0.3, 0.5), 0); near(f.subtract(0.7, 0.2), 0.5); near(f.divide(0.25, 0.5), 0.5); near(f.divide(0.2, 0), 1); near(f.divide(0, 0), 0);
+});
+
+await test("TT78 non-separable blends: hand-computed pins (W3C §10.2 SetLum / ClipColor / SetSat)", { "FF-30": "full", "FF-08": "partial" }, () => {
+  const v = (a: number[], b: number[]) => a.forEach((x, k) => near(x, b[k], 1e-4));
+  v(NONSEP_FN.color([0.5, 0.5, 0.5], [1, 0, 0]), [1, 0.285714, 0.285714]);       // SetLum((1,0,0), .5) → (1.2,.2,.2) → ClipColor high
+  v(NONSEP_FN.luminosity([1, 0, 0], [0.5, 0.5, 0.5]), [1, 0.285714, 0.285714]);
+  v(NONSEP_FN.hue([0.2, 0.4, 0.6], [1, 0, 0]), [0.642, 0.242, 0.242]);           // SetSat → (.4,0,0); Lum(b) = .362
+  v(NONSEP_FN.saturation([0.2, 0.4, 0.6], [0, 0, 1]), [0, 0.446914, 0.893827]);  // (−.043,.457,.957) → ClipColor low
+  v(NONSEP_FN.hue([0.5, 0.5, 0.5], [1, 0, 0]), [0.5, 0.5, 0.5]);                 // grey backdrop: Sat 0 keeps the grey
+  v(NONSEP_FN["darker-color"]([0.2, 0.9, 0.2], [0.9, 0.2, 0.2]), [0.9, 0.2, 0.2]);  // Lum .617 vs .424 → the source
+  v(NONSEP_FN["lighter-color"]([0.2, 0.9, 0.2], [0.9, 0.2, 0.2]), [0.2, 0.9, 0.2]);
+  // through the compositor, opaque: result = B(Cb, Cs)
+  const bl = makeLayer("b", 1, 1, [128, 128, 128, 255]); const sl = { ...makeLayer("s", 1, 1, [255, 0, 0, 255]), blend: "color" as const };
+  assert.deepEqual(Array.from(compositeRegion({ width: 1, height: 1, layers: [bl, sl] })), [255, 74, 74, 255]); // lum(128/255)=.50196 → (1,.2902,.2902)
+});
+
+await test("TT78 clipping masks: base coverage, blend onto the base colour, hidden base, base opacity, clip with no base", { "FF-30": "full", "FF-08": "partial" }, () => {
+  const px = (d: ImageDoc, x: number) => Array.from(compositeRegion(d).subarray(x * 4, x * 4 + 4));
+  const white = makeLayer("w", 3, 1, [255, 255, 255, 255]);
+  const base = makeLayer("base", 2, 1, [255, 0, 0, 255]);           // covers x 0..1; x 2 only white
+  const green = { ...makeLayer("g", 3, 1, [0, 255, 0, 255]), opacity: 0.5, clip: true };
+  const d: ImageDoc = { width: 3, height: 1, layers: [white, base, green] };
+  assert.deepEqual(px(d, 0), [128, 128, 0, 255], "50% green over the red base");
+  assert.deepEqual(px(d, 2), [255, 255, 255, 255], "outside the base: clipped away");
+  const mul = { ...green, opacity: 1, blend: "multiply" as const }; // multiplies with the BASE (red), not with white
+  assert.deepEqual(px({ ...d, layers: [white, base, mul] }, 0), [0, 0, 0, 255]);
+  assert.deepEqual(px({ ...d, layers: [white, { ...base, visible: false }, green] }, 0), [255, 255, 255, 255], "hidden base hides its clipping group");
+  assert.deepEqual(px({ ...d, layers: [white, { ...base, opacity: 0.5 }, { ...green, opacity: 1 }] }, 0), [128, 255, 128, 255], "base opacity applies to the clipped content");
+  assert.deepEqual(px({ ...d, layers: [{ ...green, opacity: 1 }] }, 2), [0, 255, 0, 255], "a clipped layer with no base paints as an ordinary layer");
+  const ha = { ...makeLayer("half", 2, 1), clip: false }; ha.data.set([255, 0, 0, 128, 255, 0, 0, 0]);
+  assert.deepEqual(px({ ...d, layers: [white, ha, { ...green, opacity: 1 }] }, 0), [127, 255, 127, 255], "half-covered base: coverage 128/255");
+});
+
+await test("TT78 groups: pass-through vs isolated, group opacity, hidden group, nesting, validation", { "FF-30": "full", "FF-08": "partial" }, () => {
+  const px = (d: ImageDoc) => Array.from(compositeRegion(d).subarray(0, 4));
+  const grey = makeLayer("bg", 1, 1, [128, 128, 128, 255]);
+  const red = { ...makeLayer("r", 1, 1, [255, 0, 0, 255]), blend: "multiply" as const };
+  const pass: LayerGroup = { id: "p", name: "P", opacity: 1, blend: "pass-through", visible: true };
+  const iso: LayerGroup = { id: "i", name: "I", opacity: 1, blend: "normal", visible: true };
+  assert.deepEqual(px({ width: 1, height: 1, layers: [grey, { ...red, groups: [pass] }] }), [128, 0, 0, 255], "pass-through: multiply reaches the grey");
+  assert.deepEqual(px({ width: 1, height: 1, layers: [grey, { ...red, groups: [iso] }] }), [255, 0, 0, 255], "isolated normal group: multiply over transparent = the colour itself");
+  assert.deepEqual(px({ width: 1, height: 1, layers: [grey, { ...red, groups: [{ ...pass, opacity: 0.5 }] }] }), [128, 64, 64, 255], "pass-through 50%: lerp backdrop→result");
+  assert.deepEqual(px({ width: 1, height: 1, layers: [grey, { ...red, groups: [{ ...iso, visible: false }] }] }), [128, 128, 128, 255], "hidden group");
+  assert.deepEqual(px({ width: 1, height: 1, layers: [grey, { ...red, groups: [pass, { ...iso, blend: "screen" }] }] }), [255, 128, 128, 255], "nested isolated screen group inside pass-through");
+  const deep = Array.from({ length: 17 }, (_, k) => ({ ...pass, id: `d${k}` }));
+  assert.throws(() => validateDoc({ width: 1, height: 1, layers: [{ ...red, groups: deep }] }), /deeper/);
+  assert.throws(() => validateDoc({ width: 1, height: 1, layers: [{ ...red, groups: [{ ...iso, opacity: 2 }] }] }), /invalid group/);
+  assert.throws(() => validateDoc({ width: 1, height: 1, layers: [{ ...red, groups: [{ ...iso, blend: "dissolve" as never }] }] }), /unknown blend/);
+});
+
+await test("TT78 PSD: groups / clipping / non-separable keys round-trip; clip to a group is reported and drawn unclipped", { "FF-31": "full", "FF-08": "full" }, async () => {
+  const g: LayerGroup = { id: "g", name: "Grüppe", opacity: 0.6, blend: "pass-through", visible: true, open: false };
+  const h: LayerGroup = { id: "h", name: "inner", opacity: 1, blend: "luminosity", visible: false };
+  const L = (n: string, extra: Partial<Layer>) => ({ ...makeLayer(n, 4, 3, [10, 200, 30, 255]), ...extra });
+  const doc: ImageDoc = { width: 6, height: 4, layers: [L("bg", {}), L("a", { groups: [g] }), L("b", { groups: [g, h], blend: "hue" }), L("c", { groups: [g, h], clip: true, blend: "saturation" }), L("d", {})] };
+  const back = await readPsd(await writePsd(doc));
+  assert.deepEqual(back.warnings, []);
+  assert.deepEqual(back.doc.layers.map((l) => [l.name, l.blend, !!l.clip, (l.groups ?? []).map((x) => `${x.name}/${x.blend}/${Math.round(x.opacity * 255)}/${x.visible}/${x.open !== false}`).join(">")]), [
+    ["bg", "normal", false, ""], ["a", "normal", false, "Grüppe/pass-through/153/true/false"],
+    ["b", "hue", false, "Grüppe/pass-through/153/true/false>inner/luminosity/255/false/true"],
+    ["c", "saturation", true, "Grüppe/pass-through/153/true/false>inner/luminosity/255/false/true"], ["d", "normal", false, ""]]);
+  assert.ok(back.doc.layers[1].groups![0] === back.doc.layers[2].groups![0], "siblings share one group object");
+  // negative: a clipping layer directly above a group (its base would be the group) → unclipped + warning
+  const cg = await readPsd(await writePsd({ width: 6, height: 4, layers: [L("bg", {}), L("in", { groups: [g] }), L("clip-on-group", { clip: true })] }));
+  assert.equal(cg.doc.layers[2].clip, undefined); assert.ok(cg.warnings.some((w) => /clipping to a layer group/.test(w)), cg.warnings.join("; "));
 });
 
 await test("composite: source-over with opacity, blend over transparent backdrop, mask, off-canvas offsets", { "FF-30": "partial" }, () => {

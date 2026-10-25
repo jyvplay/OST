@@ -552,6 +552,11 @@ export default function ImageStudio({ win }: ModuleProps) {
               {BLEND_MODES.map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
+          <label className="fs-row" style={{ gap: 6, alignItems: "center", minHeight: 24 }} title="Clipping mask: this layer shows only where the layer below has pixels (Photoshop Alt+click between layers)">
+            <input type="checkbox" data-testid="layer-clip" checked={!!active.clip} disabled={doc.layers[0]?.id === active.id}
+              onChange={(e) => L.patch({ clip: e.target.checked || undefined })} />
+            Clip to layer below
+          </label>
           <Range label="Opacity" value={Math.round(active.opacity * 100)} min={0} max={100} onChange={(v) => L.patch({ opacity: v / 100 })} aria="Layer opacity" />
           <div role="group" aria-label="Layers" style={{ display: "grid", gap: 2 }}>
             {[...doc.layers].reverse().map((l) => (
@@ -565,6 +570,8 @@ export default function ImageStudio({ win }: ModuleProps) {
                   onDoubleClick={async () => { const n = await askText("Layer name", l.name, { okLabel: "Rename" }); if (n) commit(patchLayer(doc, l.id, { name: n.slice(0, 255) })); }}>{l.name}</button>
                 {l.mask ? <Badge tone={l.maskEnabled === false ? "default" : "info"}>mask</Badge> : null}
                 {l.locked ? <Badge tone="warn">lock</Badge> : null}
+                {l.clip ? <Badge tone="info">clip</Badge> : null}
+                {l.groups?.length ? <span data-testid="layer-group" title={`In group ${l.groups.map((g) => g.name).join(" › ")}`}><Badge tone={l.groups.some((g) => !g.visible) ? "default" : "info"}>{l.groups[l.groups.length - 1].name.slice(0, 12)}{l.groups.some((g) => !g.visible) ? " (hidden)" : ""}</Badge></span> : null}
                 <span className="fs-dim">{l.blend === "normal" ? "" : l.blend.slice(0, 5)} {Math.round(l.opacity * 100)}%</span>
               </div>
             ))}

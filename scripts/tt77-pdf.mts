@@ -4,7 +4,9 @@
  *
  *  J1  JBIG2 differential: every JBIG2 image of the corpus decoded by Fusion vs PDFium's bitmap (scripts/oracle/
  *      pdf_images.py, pypdfium2). Must be bit-exact; one declared divergence (jbig2_file_header.pdf embeds a
- *      stand-alone file header that PDF forbids, §7.4.7 — PDFium decodes it, Fusion refuses: disclosed).
+ *      stand-alone T.88 file header that PDF forbids, §7.4.7 — PDFium yields a BLANK bitmap and blank page; Fusion
+ *      parses the Annex D header and decodes the image (128×96, three black rectangles, 5,043 black pixels; checked
+ *      visually in TT78). Fusion is the more permissive reader here; the PDFium comparison is not meaningful).
  *  J2  JPX differential vs PDFium on the corpus: within ±2 per sample (9/7 float rounding); one declared divergence
  *      (PDFium's bitmap for an /SMaskInData 1 image is pre-composited on white; Fusion keeps colour + alpha apart).
  *  J3  JPX vs OpenJPEG on 40 generated codestreams (scripts/oracle/jpx_gen.py via glymur): all 5 progression orders,

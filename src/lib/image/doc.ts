@@ -18,8 +18,19 @@
 export const BLEND_MODES = [
   "normal", "multiply", "screen", "overlay", "darken", "lighten",
   "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion",
+  // TT78: the four non-separable modes (W3C Compositing §10.2 / PDF 32000 §11.3.5.3) — same names as canvas uses
+  "hue", "saturation", "color", "luminosity",
+  // TT78: Photoshop-only modes (no canvas equivalent) — formulas and edge cases as Photoshop / psd-tools define them
+  "linear-burn", "linear-dodge", "vivid-light", "linear-light", "pin-light", "hard-mix", "subtract", "divide",
+  "darker-color", "lighter-color",
 ] as const;
+/** the modes canvas' globalCompositeOperation also implements (the Skia oracle covers exactly these) */
+export const CANVAS_BLENDS = BLEND_MODES.slice(0, 16);
 export type BlendMode = (typeof BLEND_MODES)[number];
+export const NONSEPARABLE = ["hue", "saturation", "color", "luminosity", "darker-color", "lighter-color"] as const;
+export type NonSeparableBlend = (typeof NONSEPARABLE)[number];
+export type SeparableBlend = Exclude<BlendMode, NonSeparableBlend>;
+export const isNonSeparable = (m: BlendMode): m is NonSeparableBlend => (NONSEPARABLE as readonly string[]).includes(m);
 
 export interface Layer {
   id: string;
@@ -33,7 +44,15 @@ export interface Layer {
   locked?: boolean;              // "lock all": paint / filters refuse
   mask?: Uint8ClampedArray;      // w*h, 255 = reveal (same geometry as the layer)
   maskEnabled?: boolean;         // default true when a mask exists
+  /** TT78 clipping mask (PSD "clipping" byte): this layer paints only where the nearest non-clipped layer below
+   *  (its base) has coverage, and blends onto the BASE's colour rather than onto what lies under the base. */
+  clip?: boolean;
+  /** TT78 layer groups (PSD folders), outermost first. Layers that are adjacent in the stack and share a group id
+   *  form that group; the group composites as pass-through or isolated with its own opacity / blend / visibility. */
+  groups?: LayerGroup[];
 }
+export interface LayerGroup { id: string; name: string; opacity: number; blend: BlendMode | "pass-through"; visible: boolean; open?: boolean }
+export const MAX_GROUP_DEPTH = 16;
 export interface ImageDoc { width: number; height: number; layers: Layer[] }
 export interface Rect { x: number; y: number; w: number; h: number }
 
@@ -44,7 +63,7 @@ type BlendFn = (cb: number, cs: number) => number;
 const multiply: BlendFn = (b, s) => b * s;
 const screen: BlendFn = (b, s) => b + s - b * s;
 const hardLight: BlendFn = (b, s) => (s <= 0.5 ? multiply(b, 2 * s) : screen(b, 2 * s - 1));
-export const BLEND_FN: Record<BlendMode, BlendFn> = {
+export const BLEND_FN: Record<SeparableBlend, BlendFn> = {
   normal: (_b, s) => s,
   multiply,
   screen,
@@ -61,6 +80,46 @@ export const BLEND_FN: Record<BlendMode, BlendFn> = {
   },
   difference: (b, s) => Math.abs(b - s),
   exclusion: (b, s) => b + s - 2 * b * s,
+  "linear-burn": (b, s) => Math.max(0, b + s - 1),
+  "linear-dodge": (b, s) => Math.min(1, b + s),
+  // the SOURCE extreme wins inside vivid light (Cs 0 → 0, Cs 1 → 1), unlike plain colour burn / dodge
+  "vivid-light": (b, s) => (s <= 0 ? 0 : s >= 1 ? 1 : s <= 0.5 ? 1 - Math.min(1, (1 - b) / (2 * s)) : Math.min(1, b / (2 * (1 - s)))),
+  "linear-light": (b, s) => (s > 0.5 ? Math.min(1, b + 2 * s - 1) : Math.max(0, b + 2 * s - 1)),
+  "pin-light": (b, s) => (s > 0.5 ? Math.max(b, 2 * s - 1) : Math.min(b, 2 * s)),
+  "hard-mix": (b, s) => (b + s > 1 || (b + s === 1 && b > 0.5) ? 1 : 0),
+  subtract: (b, s) => Math.max(0, b - s),
+  divide: (b, s) => (s <= 0 ? (b > 0 ? 1 : 0) : Math.min(1, b / s)),
+};
+
+/* Non-separable blends (W3C Compositing §10.2; the PDF reference's Lum/ClipColor/SetLum/Sat/SetSat). They take whole
+   RGB triples. Written to the spec text; psd-tools and Skia are the external checks (scripts/oracle-psd.mts,
+   scripts/e2e-image.mts). */
+type RGB = [number, number, number];
+const lum = (c: RGB) => 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2];
+function clipColor(c: RGB): RGB {
+  const l = lum(c), n = Math.min(c[0], c[1], c[2]), x = Math.max(c[0], c[1], c[2]);
+  const o: RGB = [c[0], c[1], c[2]];
+  for (let k = 0; k < 3; k++) {
+    if (n < 0) o[k] = l + (o[k] - l) * l / (l - n);
+    if (x > 1) o[k] = l + (o[k] - l) * (1 - l) / (x - l);
+    o[k] = Math.min(1, Math.max(0, o[k]));
+  }
+  return o;
+}
+const setLum = (c: RGB, l: number): RGB => { const d = l - lum(c); return clipColor([c[0] + d, c[1] + d, c[2] + d]); };
+const sat = (c: RGB) => Math.max(c[0], c[1], c[2]) - Math.min(c[0], c[1], c[2]);
+function setSat(c: RGB, s: number): RGB {
+  const i = [0, 1, 2].sort((a, b) => c[a] - c[b]); const [mn, md, mx] = i; const o: RGB = [0, 0, 0];
+  if (c[mx] > c[mn]) { o[md] = (c[md] - c[mn]) * s / (c[mx] - c[mn]); o[mx] = s; }
+  return o;
+}
+export const NONSEP_FN: Record<NonSeparableBlend, (cb: RGB, cs: RGB) => RGB> = {
+  hue: (b, s) => setLum(setSat(s, sat(b)), lum(b)),
+  saturation: (b, s) => setLum(setSat(b, sat(s)), lum(b)),
+  color: (b, s) => setLum(s, lum(b)),
+  luminosity: (b, s) => setLum(b, lum(s)),
+  "darker-color": (b, s) => (lum(s) < lum(b) ? [s[0], s[1], s[2]] : [b[0], b[1], b[2]]),
+  "lighter-color": (b, s) => (lum(s) > lum(b) ? [s[0], s[1], s[2]] : [b[0], b[1], b[2]]),
 };
 
 /* --------------------------------------------------------------- construction + validation */
@@ -97,6 +156,13 @@ export function validateDoc(doc: ImageDoc): void {
     if (!Number.isInteger(l.x) || !Number.isInteger(l.y)) throw new Error(`layer ${l.name}: offset must be integral`);
     if (!(l.opacity >= 0 && l.opacity <= 1)) throw new Error(`layer ${l.name}: opacity out of range`);
     if (!(BLEND_MODES as readonly string[]).includes(l.blend)) throw new Error(`layer ${l.name}: unknown blend ${l.blend}`);
+    if (l.groups) {
+      if (l.groups.length > MAX_GROUP_DEPTH) throw new Error(`layer ${l.name}: groups nested deeper than ${MAX_GROUP_DEPTH}`);
+      for (const g of l.groups) {
+        if (!g.id || !(g.opacity >= 0 && g.opacity <= 1)) throw new Error(`layer ${l.name}: invalid group`);
+        if (g.blend !== "pass-through" && !(BLEND_MODES as readonly string[]).includes(g.blend)) throw new Error(`group ${g.name}: unknown blend ${g.blend}`);
+      }
+    }
   }
 }
 
@@ -110,34 +176,98 @@ export function compositeRegion(doc: ImageDoc, rect: Rect = { x: 0, y: 0, w: doc
   const out = new Uint8ClampedArray(rect.w * rect.h * 4);
   if (!r) return out;
   const acc = new Float32Array(r.w * r.h * 4); // premultiplied rgb + alpha, 0..1
-  for (const l of doc.layers) {
-    if (!l.visible || l.opacity <= 0 || l.id === opts.skip) continue;
-    const ov = clipRect(r, { x: l.x, y: l.y, w: l.w, h: l.h });
-    if (!ov) continue;
-    const fn = BLEND_FN[l.blend];
-    const isNormal = l.blend === "normal";
-    const mask = l.mask && l.maskEnabled !== false ? l.mask : null;
-    for (let y = ov.y; y < ov.y + ov.h; y++) {
-      const ly = y - l.y;
-      for (let x = ov.x; x < ov.x + ov.w; x++) {
-        const li = ly * l.w + (x - l.x);
-        const so = li * 4;
-        let as = l.data[so + 3] / 255 * l.opacity;
-        if (mask) as *= mask[li] / 255;
-        if (as <= 0) continue;
-        const d = ((y - r.y) * r.w + (x - r.x)) * 4;
-        const ab = acc[d + 3];
-        for (let c = 0; c < 3; c++) {
-          const cs = l.data[so + c] / 255;
-          const cbP = acc[d + c];
-          const cb = ab > 0 ? cbP / ab : 0;
-          const mixed = isNormal || ab === 0 ? cs : (1 - ab) * cs + ab * fn(cb, cs);
-          acc[d + c] = as * mixed + cbP * (1 - as);
+  const cb: RGB = [0, 0, 0], cs: RGB = [0, 0, 0];
+  const live = (l: Layer) => l.visible && l.opacity > 0 && l.id !== opts.skip;
+  /** blend straight colour (sr, sg, sb) at alpha `as` over the premultiplied pixel A[d..d+3] with mode `m`, in place.
+   *  Allocation-free for normal and the separable modes (this runs per pixel on up to 36 MP). */
+  /** the blend function of a mode, resolved once per layer (not per pixel): null = normal */
+  type Bf = { sep: BlendFn | null; non: ((b: RGB, s: RGB) => RGB) | null } | null;
+  const bfOf = (m: BlendMode): Bf => (m === "normal" ? null : isNonSeparable(m) ? { sep: null, non: NONSEP_FN[m] } : { sep: BLEND_FN[m], non: null });
+  const over = (A: Float32Array, d: number, sr: number, sg: number, sb: number, as: number, bf: Bf) => {
+    const ab = A[d + 3];
+    let mr = sr, mg = sg, mb = sb;
+    if (bf && ab > 0) {
+      const br = A[d] / ab, bg = A[d + 1] / ab, bb = A[d + 2] / ab;
+      let fr: number, fg: number, fb: number;
+      if (bf.non) { cb[0] = br; cb[1] = bg; cb[2] = bb; cs[0] = sr; cs[1] = sg; cs[2] = sb; [fr, fg, fb] = bf.non(cb, cs); }
+      else { const fn = bf.sep!; fr = fn(br, sr); fg = fn(bg, sg); fb = fn(bb, sb); }
+      mr = (1 - ab) * sr + ab * fr; mg = (1 - ab) * sg + ab * fg; mb = (1 - ab) * sb + ab * fb;
+    }
+    A[d] = as * mr + A[d] * (1 - as); A[d + 1] = as * mg + A[d + 1] * (1 - as); A[d + 2] = as * mb + A[d + 2] * (1 - as);
+    A[d + 3] = as + ab * (1 - as);
+  };
+  const alphaAt = (l: Layer, li: number) => {
+    let a = l.data[li * 4 + 3] / 255;
+    if (l.mask && l.maskEnabled !== false) a *= l.mask[li] / 255;
+    return a;
+  };
+  const N = r.w * r.h * 4;
+  /** paint the run `L` (all sharing the same groups above `depth`) into the premultiplied buffer A */
+  const paint = (L: Layer[], depth: number, A: Float32Array) => {
+    for (let i = 0; i < L.length; ) {
+      const g = L[i].groups?.[depth];
+      if (g) {
+        let j = i + 1; while (j < L.length && L[j].groups?.[depth]?.id === g.id) j++;
+        const run = L.slice(i, j); i = j;
+        if (!g.visible || g.opacity <= 0) continue;
+        if (g.blend === "pass-through") {
+          // children composite onto the backdrop itself; group opacity interpolates backdrop → result
+          const B = A.slice(); paint(run, depth + 1, B);
+          const o = g.opacity; for (let k = 0; k < N; k++) A[k] += (B[k] - A[k]) * o;
+        } else {
+          // isolated: children on transparent, then the group as one layer with its blend and opacity
+          const T = new Float32Array(N); paint(run, depth + 1, T); const gbf = bfOf(g.blend);
+          for (let k = 0; k < N; k += 4) { const ta = T[k + 3]; if (ta > 0) over(A, k, T[k] / ta, T[k + 1] / ta, T[k + 2] / ta, ta * g.opacity, gbf); }
         }
-        acc[d + 3] = as + ab * (1 - as);
+        continue;
+      }
+      let j = i + 1; while (j < L.length && !L[j].groups?.[depth]) j++;
+      paintLayers(L.slice(i, j), A); i = j;
+    }
+  };
+  const paintLayers = (L: Layer[], acc: Float32Array) => {
+    for (let i = 0; i < L.length; i++) {
+      const l = L[i];
+      // a clipped layer is painted by its base (below); a clipped layer with no base at all paints as an ordinary one
+      if (l.clip && L.slice(0, i).some((b) => !b.clip)) continue;
+      let j = i + 1; while (j < L.length && L[j].clip) j++;
+      const clips = l.clip ? [] : L.slice(i + 1, j).filter(live); const lbf = bfOf(l.blend), cbf = clips.map((k) => bfOf(k.blend));
+      if (!live(l)) continue; // a hidden base hides its whole clipping group (Photoshop)
+      const ov = clipRect(r, { x: l.x, y: l.y, w: l.w, h: l.h });
+      if (!ov) continue;
+      const sub = new Float32Array(4);
+      const data = l.data, op = l.opacity, lw = l.w, lx = l.x, mask = l.mask && l.maskEnabled !== false ? l.mask : null, nClip = clips.length;
+      for (let y = ov.y; y < ov.y + ov.h; y++) {
+        const ly = y - l.y; const row = ((y - r.y) * r.w - r.x) * 4;
+        for (let x = ov.x; x < ov.x + ov.w; x++) {
+          const li = ly * lw + (x - lx);
+          const so = li * 4;
+          const a0 = data[so + 3] / 255; // the base's own pixel coverage (before its mask and opacity)
+          let as = a0 * op;
+          if (mask) as *= mask[li] / 255;
+          if (as <= 0) continue;
+          let pr = data[so] / 255, pg = data[so + 1] / 255, pb = data[so + 2] / 255;
+          if (nClip) {
+            // clipped layers composite onto the base's colour, seeded with the base's coverage (psd-tools' model:
+            // Compositor seeded with (colour, alpha) of the base; the base keeps its own coverage afterwards)
+            sub[0] = pr * a0; sub[1] = pg * a0; sub[2] = pb * a0; sub[3] = a0;
+            for (let ci = 0; ci < clips.length; ci++) { const k = clips[ci];
+              const kx = x - k.x, ky = y - k.y;
+              if (kx < 0 || ky < 0 || kx >= k.w || ky >= k.h) continue;
+              const ki = ky * k.w + kx; const ka = alphaAt(k, ki) * k.opacity;
+              if (ka <= 0) continue;
+              over(sub, 0, k.data[ki * 4] / 255, k.data[ki * 4 + 1] / 255, k.data[ki * 4 + 2] / 255, ka, cbf[ci]);
+            }
+            if (sub[3] > 0) { pr = sub[0] / sub[3]; pg = sub[1] / sub[3]; pb = sub[2] / sub[3]; }
+          }
+          const d = row + x * 4;
+          if (lbf && acc[d + 3] > 0) over(acc, d, pr, pg, pb, as, lbf);
+          else { const ia = 1 - as; acc[d] = as * pr + acc[d] * ia; acc[d + 1] = as * pg + acc[d + 1] * ia; acc[d + 2] = as * pb + acc[d + 2] * ia; acc[d + 3] = as + acc[d + 3] * ia; } // normal: inline fast path
+        }
       }
     }
-  }
+  };
+  paint(doc.layers, 0, acc);
   for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) {
     const s = (y * r.w + x) * 4;
     const o = ((y + r.y - rect.y) * rect.w + (x + r.x - rect.x)) * 4;
@@ -236,7 +366,7 @@ export function mergeDown(doc: ImageDoc, id: string): ImageDoc {
   // The lower layer's own opacity/blend must still apply to the merged result relative to what is under it,
   // so render lower at full opacity/normal, then upper with its settings, and carry lower's settings.
   const merged = renderStack(doc, [{ ...lower, opacity: 1, blend: "normal", visible: true }, upper], bounds, lower.name);
-  merged.id = lower.id; merged.opacity = lower.opacity; merged.blend = lower.blend; merged.visible = lower.visible;
+  merged.id = lower.id; merged.opacity = lower.opacity; merged.blend = lower.blend; merged.visible = lower.visible; if (lower.clip) merged.clip = true;
   const layers = [...doc.layers];
   layers.splice(i - 1, 2, merged);
   return { ...doc, layers };
@@ -253,6 +383,7 @@ export function mergeChangesAppearance(doc: ImageDoc, id: string): boolean {
   if (i <= 0) return false;
   const lower = doc.layers[i - 1], upper = doc.layers[i];
   if (!lower.visible || lower.blend !== "normal" || lower.opacity < 1 || (lower.mask && lower.maskEnabled !== false)) return true;
+  if (lower.clip || doc.layers.slice(i + 1).some((l, k, a) => l.clip && a.slice(0, k).every((m) => m.clip))) return true; // clipping groups: conservative
   if (upper.blend === "normal") return false;
   for (let y = 0; y < upper.h; y++) for (let x = 0; x < upper.w; x++) {
     if (!upper.data[(y * upper.w + x) * 4 + 3]) continue;
