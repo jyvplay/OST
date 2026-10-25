@@ -1,4 +1,5 @@
 "use client";
+import { tableStructureConflict } from "@/lib/formula/sheettables";
 import { fz, useUiUnit } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -786,6 +787,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   };
   const structural = (axis: "row" | "col", insert: boolean) => {
     const at = axis === "row" ? selR.r0 : selR.c0; const n = axis === "row" ? selR.r1 - selR.r0 + 1 : selR.c1 - selR.c0 + 1;
+    // TT75: Excel refuses inserts / deletes that would cut a table's header row or move cells in two tables
+    const refusal = tableStructureConflict(workbook, active, axis, at, insert ? n : -n); if (refusal) { shell.toast(refusal, "warn"); setStatus(refusal); return; }
     mutate((wb) => insertDelete(wb, active, axis, at, insert ? n : -n));
   };
   const doMerge = (mode: "center" | "across" | "merge" | "unmerge") => {
@@ -1377,7 +1380,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
               <th onMouseDown={() => setSel({ a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } })} style={{ position: "sticky", left: 0, zIndex: 4, height: HEAD_H, background: "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)" }} title="Select all" />
               {Array.from({ length: COLS }, (_, c) => (
                 <th key={c} onMouseDown={(e) => { if ((e.target as HTMLElement).dataset.resize) return; commit(null); setSel(e.shiftKey ? { a: { col: sel.a.col, row: 0 }, f: { col: c, row: ROWS - 1 } } : { a: { col: c, row: 0 }, f: { col: c, row: ROWS - 1 } }); gridRef.current?.focus(); }}
-                  style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, ...(sheet.hiddenCols.has(c) ? { padding: 0, overflow: "hidden", fontSize: 0, borderLeft: "2px solid var(--fs-accent)" } : {}), height: HEAD_H, fontWeight: 500, fontSize: fz(11), background: c >= selR.c0 && c <= selR.c1 ? "linear-gradient(rgba(91,140,255,.22), rgba(91,140,255,.22)), var(--fs-bg-2, #131a2b)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
+                  style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, ...(sheet.hiddenCols.has(c) ? { padding: 0, overflow: "hidden", color: "transparent", borderLeft: "2px solid var(--fs-accent)" } : {}), height: HEAD_H, fontWeight: 500, fontSize: fz(11), background: c >= selR.c0 && c <= selR.c1 ? "linear-gradient(rgba(91,140,255,.22), rgba(91,140,255,.22)), var(--fs-bg-2, #131a2b)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
                   {colToLetters(c)}
                   <div data-resize="1" data-testid={`resize-${colToLetters(c)}`} onMouseDown={(e) => { e.stopPropagation(); pushUndo(); dragRef.current = { mode: "resize", col: c, x: e.clientX, w: colW(c) }; }}
                     onDoubleClick={() => mutate((_wb, s) => { delete s.colWidths[c]; })} style={{ position: "absolute", right: -3, top: 0, width: 6, height: "100%", cursor: "col-resize", zIndex: 2 }} />

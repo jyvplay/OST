@@ -24,12 +24,13 @@ const call = async (method, path, body) => {
 const { test, finish } = makeHarness("integration");
 const ok = (c, m) => { if (!c) throw new Error(m); };
 
+import { crc32 as zlibCrc32 } from "node:zlib";
 function zip(files) {
   const locals = []; const cens = []; let offset = 0;
   for (const f of files) {
-    const comp = deflateRawSync(f.data); const name = Buffer.from(f.name);
-    const lh = Buffer.alloc(30); lh.writeUInt32LE(0x04034b50, 0); lh.writeUInt16LE(8, 8); lh.writeUInt32LE(comp.length, 18); lh.writeUInt32LE(f.data.length, 22); lh.writeUInt16LE(name.length, 26);
-    const ch = Buffer.alloc(46); ch.writeUInt32LE(0x02014b50, 0); ch.writeUInt16LE(8, 10); ch.writeUInt32LE(comp.length, 20); ch.writeUInt32LE(f.data.length, 24); ch.writeUInt16LE(name.length, 28); ch.writeUInt32LE(offset, 42);
+    const comp = deflateRawSync(f.data); const name = Buffer.from(f.name); const crc = zlibCrc32(f.data); // TT75: real CRC-32 (the verified EPUB core checks it)
+    const lh = Buffer.alloc(30); lh.writeUInt32LE(0x04034b50, 0); lh.writeUInt16LE(8, 8); lh.writeUInt32LE(comp.length, 18); lh.writeUInt32LE(f.data.length, 22); lh.writeUInt16LE(name.length, 26); lh.writeUInt32LE(crc, 14);
+    const ch = Buffer.alloc(46); ch.writeUInt32LE(0x02014b50, 0); ch.writeUInt16LE(8, 10); ch.writeUInt32LE(comp.length, 20); ch.writeUInt32LE(f.data.length, 24); ch.writeUInt16LE(name.length, 28); ch.writeUInt32LE(crc, 16); ch.writeUInt32LE(offset, 42);
     locals.push(lh, name, comp); cens.push(ch, name); offset += 30 + name.length + comp.length;
   }
   const cen = Buffer.concat(cens); const end = Buffer.alloc(22);
@@ -167,6 +168,16 @@ await test("FF-08/FF-10/FF-02 Forge engines via the API, with grades", { "FF-08"
   await call("POST", "/api/fs", { op: "upload", path: `${DIR}/book.epub`, content: epub.toString("base64") });
   const e = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/book.epub` });
   ok(e.json.grade === "C" && e.json.text.includes("Chapter text"), JSON.stringify(e.json).slice(0, 200));
+  // TT75: a conformant EPUB goes through the verified core (grade B extraction, contents titles); the sloppy one above
+  // fell back to the legacy reader and said why
+  ok(/refused/.test(e.json.boundary), e.json.boundary);
+  const opf3 = `<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="u"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="u">i</dc:identifier><dc:title>Real</dc:title><dc:language>en</dc:language></metadata><manifest><item id="n" href="n.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="a" href="a.xhtml" media-type="application/xhtml+xml"/></manifest><spine><itemref idref="a"/></spine></package>`;
+  const epub3 = zip([{ name: "mimetype", data: Buffer.from("application/epub+zip") }, { name: "META-INF/container.xml", data: Buffer.from(`<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="c.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`) }, { name: "c.opf", data: Buffer.from(opf3) },
+    { name: "n.xhtml", data: Buffer.from(`<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>n</title></head><body><nav epub:type="toc"><ol><li><a href="a.xhtml">The First</a></li></ol></nav></body></html>`) },
+    { name: "a.xhtml", data: Buffer.from(`<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>a</title></head><body><p>Real text</p></body></html>`) }]);
+  await call("POST", "/api/fs", { op: "upload", path: `${DIR}/real.epub`, content: epub3.toString("base64") });
+  const e3 = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/real.epub` });
+  ok(e3.json.grade === "B" && /## The First\n\nReal text/.test(e3.json.text) && /src\/lib\/epub/.test(e3.json.engine), JSON.stringify(e3.json).slice(0, 300));
   const h = Buffer.alloc(26 + 18); h.write("8BPS", 0, "ascii"); h.writeUInt16BE(1, 4); h.writeUInt16BE(3, 12); h.writeUInt32BE(10, 14); h.writeUInt32BE(20, 18); h.writeUInt16BE(8, 22); h.writeUInt16BE(3, 24);
   h.writeUInt32BE(0, 26); h.writeUInt32BE(0, 30); h.writeUInt32BE(6, 34); h.writeUInt32BE(2, 38); h.writeInt16BE(2, 42);
   await call("POST", "/api/fs", { op: "upload", path: `${DIR}/art.psd`, content: h.toString("base64") });

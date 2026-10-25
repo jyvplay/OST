@@ -38,6 +38,7 @@ export { workbookToJson, workbookFromJson, type WorkbookJson } from "./workbook-
 import { workbookToJson, workbookFromJson } from "./workbook-json";
 import { periodFormula, TIME_PERIODS, type CondRule, type Cfvo } from "./sheetmeta";
 import { autoFilterXml, readAutoFilterXml, xmlAttr } from "./sheetfilter";
+import { tableXml, unXstring, headerMismatches, structuredRefsToFileForm, tableColumnNames } from "./sheettables";
 /** TT74: rows already marked hidden inside a filter's data area (below its header row) were hidden by the filter. */
 function markFiltered(sheet: Sheet, ref: string) {
   const r = parseRef(ref); if (!r) return;
@@ -79,11 +80,21 @@ const ROOT_RELS = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 const CORE = `<?xml version="1.0" encoding="UTF-8"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:creator>Fusion Shell Web</dc:creator></cp:coreProperties>`;
 const APP = `<?xml version="1.0" encoding="UTF-8"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Fusion Shell Web — Sheet</Application></Properties>`;
 
+/** TT75: cut to `max` characters as Excel counts them — an ST_Xstring escape _xHHHH_ is ONE character and is never split. */
+function cutXstring(s: string, max: number): string {
+  let out = "", n = 0;
+  for (let i = 0; i < s.length && n < max;) {
+    const esc = /^_x[0-9A-Fa-f]{4}_/.exec(s.slice(i));
+    const cp = s.codePointAt(i)!; const tok = esc ? esc[0] : String.fromCodePoint(cp);
+    out += tok; i += tok.length; n++;
+  }
+  return out;
+}
 function safeSheetName(name: string, used: Set<string>): string {
-  let base = name.replace(/[\\/*?:\[\]]/g, " ").trim().slice(0, 31) || "Sheet";
+  let base = cutXstring(name.replace(/[\\/*?:\[\]]/g, " ").trim(), 31) || "Sheet";
   let candidate = base, n = 2;
   while ([...used].some((x) => x.toLowerCase() === candidate.toLowerCase())) {
-    const suffix = ` (${n++})`; candidate = base.slice(0, 31 - suffix.length) + suffix;
+    const suffix = ` (${n++})`; candidate = cutXstring(base, 31 - suffix.length) + suffix;
   }
   used.add(candidate); return candidate;
 }
@@ -132,7 +143,7 @@ class StyleTable {
 const pxToWidth = (px: number) => Math.trunc((px / 7) * 256) / 256;
 const widthToPx = (w: number) => Math.trunc(((256 * w + Math.trunc(128 / 7)) / 256) * 7);
 
-function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => number, styles: StyleTable, drawingRid?: string, linksMarkup = "") {
+function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => number, styles: StyleTable, drawingRid?: string, linksMarkup = "", tablePartsXml = "") {
   const positions = new Map<string, { col: number; row: number }>();
   for (const k of sheet.grid.keys()) { const [col, row] = k.split(",").map(Number); positions.set(k, { col, row }); }
   for (const fq of wb.spillOwner.keys()) {
@@ -141,6 +152,9 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   }
   const cells = [...positions.values()].sort((a, b) => a.row - b.row || a.col - b.col);
   const rows = new Map<number, string[]>(); let maxCol = -1, maxRow = -1;
+  // TT75: a table's header cells are text in Excel (a numeric header 2010 is the column name "2010")
+  const headerName = new Map<string, string>();
+  for (const t of wb.tables.values()) if (t.sheet === sheet.name && t.headerRows) tableColumnNames(t).forEach((nm, i) => headerName.set(`${t.c0 + i},${t.r0}`, nm));
   for (const { col, row } of cells) {
     const cell = sheet.get(col, row);
     const ref = a1(col, row);
@@ -149,7 +163,7 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
     const v = hasInput ? cell!.value : wb.valueAt(sheet.name, col, row);
     let formula = "";
     if (hasInput && cell!.formula) {
-      const body = esc(addFuturePrefixes(cell!.input.slice(1)));
+      const body = esc(addFuturePrefixes(structuredRefsToFileForm(cell!.input, wb, sheet.name, col, row).slice(1))); // TT75: file form of structured refs
       const sp = cell!.spill;
       formula = sp && (sp.rows > 1 || sp.cols > 1) ? `<f t="array" ref="${ref}:${a1(col + sp.cols - 1, row + sp.rows - 1)}">${body}</f>` : `<f>${body}</f>`;
     }
@@ -160,7 +174,8 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
       // #CIRCULAR!/#SPILL!/#CALC! are not ECMA-376 ST_CellError tokens; export as #VALUE! (engine keeps its own code).
       const code = v.error === "#CIRCULAR!" || v.error === "#SPILL!" || v.error === "#CALC!" ? "#VALUE!" : v.error;
       out = `<c r="${ref}"${sa} t="e">${formula}<v>${esc(code)}</v></c>`;
-    } else if (typeof v === "boolean") out = `<c r="${ref}"${sa} t="b">${formula}<v>${v ? 1 : 0}</v></c>`;
+    } else if (!formula && headerName.has(`${col},${row}`) && typeof v !== "string" && String(v) === headerName.get(`${col},${row}`)) out = `<c r="${ref}"${sa} t="s"><v>${sharedIndex(String(v))}</v></c>`;
+    else if (typeof v === "boolean") out = `<c r="${ref}"${sa} t="b">${formula}<v>${v ? 1 : 0}</v></c>`;
     else if (typeof v === "number") out = `<c r="${ref}"${sa}>${formula}<v>${v}</v></c>`;
     else if (formula) out = `<c r="${ref}"${sa} t="str">${formula}<v>${esc(v)}</v></c>`;
     else out = `<c r="${ref}"${sa} t="s"><v>${sharedIndex(v)}</v></c>`;
@@ -172,7 +187,7 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   const data = [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([r, cs]) => (cs.length ? `<row r="${r + 1}"${sheet.hiddenRows.has(r) ? ' hidden="1"' : ""}>${cs.join("")}</row>` : `<row r="${r + 1}" hidden="1"/>`)).join("");
   const dim = maxRow < 0 ? "A1" : `A1:${colToLetters(maxCol)}${maxRow + 1}`;
   const widths = Object.entries(sheet.colWidths).map(([c, px]) => [Number(c), px] as const).filter(([c]) => c >= 0 && c <= 16383).sort((a, b) => a[0] - b[0]);
-  const afXml = autoFilterXml(sheet); // TT74 (a table's own AutoFilter is not exported: tables are not written to a new package)
+  const afXml = autoFilterXml(sheet); // TT74 (TT75: a table's own AutoFilter is written in its table part)
   const colSet = [...new Set([...widths.map(([c]) => c), ...[...sheet.hiddenCols].filter((c) => c >= 0 && c <= 16383)])].sort((a, b) => a - b);
   const colXml = (c: number) => { const px = sheet.colWidths[c]; return `<col min="${c + 1}" max="${c + 1}"${px !== undefined ? ` width="${pxToWidth(px)}" customWidth="1"` : ""}${sheet.hiddenCols.has(c) ? ' hidden="1"' : ""}/>`; };
   const cols = colSet.length ? `<cols>${colSet.map(colXml).join("")}</cols>` : "";
@@ -195,7 +210,7 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   }).join("");
   const ext = x14Parts.length ? `<extLst><ext uri="{78C0D931-6437-407d-A8EE-F0AAD7539E65}" xmlns:x14="${X14_NS}"><x14:conditionalFormattings>${x14Parts.join("")}</x14:conditionalFormattings></ext></extLst>` : "";
   const dvs = sheet.validations.length ? `<dataValidations count="${sheet.validations.length}">${sheet.validations.map(dvXml).join("")}</dataValidations>` : "";
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"${drawingRid || linksMarkup ? ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' : ""}><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${afXml}${merges}${cfs}${dvs}${linksMarkup}${drawingRid ? `<drawing r:id="${drawingRid}"/>` : ""}${ext}</worksheet>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"${drawingRid || linksMarkup || tablePartsXml ? ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' : ""}><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${afXml}${merges}${cfs}${dvs}${linksMarkup}${drawingRid ? `<drawing r:id="${drawingRid}"/>` : ""}${tablePartsXml}${ext}</worksheet>`;
 }
 
 /** Differential format for a CF rule (ECMA-376 §18.8.14, CT_Dxf order font, numFmt, fill); null when the rule draws none. */
@@ -355,7 +370,7 @@ function readDefinedNames(workbookXml: string, wb: Workbook, order: string[]) {
   return skipped;
 }
 
-export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook", report?: { pivots: PivotSaveNote[] }): Buffer {
+export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook", report?: { pivots: PivotSaveNote[]; tables?: string[] }): Buffer {
   const sheets = [...workbook.sheets.values()];
   if (!sheets.length) throw new Error("workbook must contain at least one sheet");
   if (sheets.length > 255) throw new Error("workbook sheet limit in this engine is 255");
@@ -409,11 +424,28 @@ export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook", report
   });
   // sheet rels: rId1 = drawing (when charts), then one external relationship per linked address (TT57), then PivotTables
   const linkOf = sheets.map((s) => { let n = 1; return linksXml(s.links, () => `rId${++n}`); });
+  // TT75: Excel tables → xl/tables/tableN.xml (ids unique in the workbook) + <tableParts> in their sheet, so structured
+  // references still resolve after the new package is reopened (TT74 blocker)
+  const tableRels: string[][] = sheets.map(() => []); const tablePartsOf: string[] = sheets.map(() => ""); let tableNo = 0;
+  sheets.forEach((s, i) => {
+    const list = [...workbook.tables.values()].filter((t) => t.sheet === s.name && t.c1 >= t.c0 && t.r1 > t.r0 - (t.headerRows ? 0 : 1));
+    const ids: string[] = [];
+    for (const t of list) {
+      const n = ++tableNo;
+      chartParts.push({ name: `xl/tables/table${n}.xml`, data: Buffer.from(tableXml(t, n)) });
+      chartTypes.push(`<Override PartName="/xl/tables/table${n}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml"/>`);
+      tableRels[i].push(`<Relationship Id="rIdTb${n}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/table" Target="../tables/table${n}.xml"/>`);
+      ids.push(`<tablePart r:id="rIdTb${n}"/>`);
+      const mis = headerMismatches(workbook, t); if (mis.length) report?.tables?.push(`table ${t.name}: header cell(s) ${mis.join(", ")} differ from the column names written (Excel shows the column names)`);
+      if (t.filter?.foreign) report?.tables?.push(`table ${t.name}: custom / top-10 / dynamic / colour filter criteria are not written (its hidden rows are kept)`);
+    }
+    if (ids.length) tablePartsOf[i] = `<tableParts count="${ids.length}">${ids.join("")}</tableParts>`;
+  });
   sheets.forEach((_, i) => {
-    const d = drawingOf[i]; const rs = [...(d ? [`<Relationship Id="rId1" Type="${REL_DRAWING}" Target="../drawings/drawing${d}.xml"/>`] : []), ...linkOf[i].rels, ...pivotRels[i]];
+    const d = drawingOf[i]; const rs = [...(d ? [`<Relationship Id="rId1" Type="${REL_DRAWING}" Target="../drawings/drawing${d}.xml"/>`] : []), ...linkOf[i].rels, ...pivotRels[i], ...tableRels[i]];
     if (rs.length) chartParts.push({ name: `xl/worksheets/_rels/sheet${i + 1}.xml.rels`, data: Buffer.from(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rs.join("")}</Relationships>`) });
   });
-  const sheetXmls = sheets.map((s, i) => renderSheet(workbook, s, sharedIndex, styles, drawingOf[i] ? "rId1" : undefined, linkOf[i].xml));
+  const sheetXmls = sheets.map((s, i) => renderSheet(workbook, s, sharedIndex, styles, drawingOf[i] ? "rId1" : undefined, linkOf[i].xml, tablePartsOf[i]));
   const rels = sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`);
   rels.push(`<Relationship Id="rId${sheets.length + 2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`);
@@ -614,11 +646,14 @@ function readTables(sheetXml: string, sheetPath: string, sheetName: string, wb: 
     const at = xmlAttrs(/<table\b([^>]*)>/.exec(tx)?.[1] ?? "");
     const r = parseRef(at.ref ?? ""); const name = at.displayName ?? at.name;
     if (!r || !name) continue;
-    const columns = [...tx.matchAll(/<tableColumn\b([^>]*?)(?:\/>|>)/g)].map((m) => dec(xmlAttrs(m[1]).name ?? ""));
+    const columns = [...tx.matchAll(/<tableColumn\b([^>]*?)(?:\/>|>)/g)].map((m) => unXstring(dec(xmlAttrs(m[1]).name ?? "")));
     wb.tables.set(name.toUpperCase(), { name, sheet: sheetName, c0: r.c0, r0: r.r0, c1: r.c1, r1: r.r1, headerRows: at.headerRowCount === "0" ? 0 : 1, totalsRows: Number(at.totalsRowCount ?? 0) > 0 ? 1 : 0, columns });
     // TT74: a table's own AutoFilter hides rows the same way (SUBTOTAL 9 skips them; POI ConditionalFormattingSamples)
     const tafm = /<(?:\w+:)?autoFilter\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?autoFilter>)/.exec(tx); const tref = tafm ? xmlAttr(tafm[1], "ref") : undefined;
     const sh = wb.sheets.get(sheetName); if (tref && sh && /<(?:\w+:)?filterColumn\b/.test(tafm![2] ?? "")) markFiltered(sh, tref);
+    // TT75: keep the value-list criteria (column offsets inside the table) so a new package can write them back
+    const taf = tafm ? readAutoFilterXml(tafm[0]) : null; const tdef = wb.tables.get(name.toUpperCase());
+    if (taf && tdef && (Object.keys(taf.cols).length || taf.foreign)) tdef.filter = { cols: taf.cols, ...(taf.foreign ? { foreign: true } : {}), ...(taf.raw ? { raw: taf.raw } : {}) };
   }
 }
 const normPath = (p: string) => { const out: string[] = []; for (const seg of p.split("/")) { if (seg === "..") out.pop(); else if (seg && seg !== ".") out.push(seg); } return out.join("/"); };

@@ -1,6 +1,6 @@
 {
   "suite": "tt68-blank",
-  "at": "2026-10-25T02:05:12.997Z",
+  "at": "2026-10-25T06:45:47.739Z",
   "results": [
     {
       "suite": "tt68-blank",
@@ -10,7 +10,7 @@
         "FF-19": "partial"
       },
       "pass": true,
-      "ms": 20
+      "ms": 19
     },
     {
       "suite": "tt68-blank",
@@ -40,7 +40,7 @@
         "FF-21": "partial"
       },
       "pass": true,
-      "ms": 8983
+      "ms": 8473
     },
     {
       "suite": "tt68-blank",
@@ -50,7 +50,7 @@
         "FF-21": "partial"
       },
       "pass": true,
-      "ms": 813
+      "ms": 860
     },
     {
       "suite": "tt68-blank",
@@ -60,7 +60,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 220
+      "ms": 219
     },
     {
       "suite": "tt68-blank",
@@ -70,7 +70,18 @@
         "FF-21": "partial"
       },
       "pass": true,
-      "ms": 628
+      "ms": 611
+    },
+    {
+      "suite": "tt68-blank",
+      "name": "held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
+      "covers": {
+        "FF-52": "full",
+        "FF-19": "partial",
+        "FF-21": "partial"
+      },
+      "pass": true,
+      "ms": 158340
     }
   ]
 }

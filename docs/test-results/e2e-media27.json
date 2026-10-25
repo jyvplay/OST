@@ -1,6 +1,6 @@
 {
   "suite": "e2e-media27",
-  "at": "2026-10-24T23:56:41.436Z",
+  "at": "2026-10-25T06:01:04.158Z",
   "results": [
     {
       "suite": "e2e-media27",
@@ -10,7 +10,7 @@
         "SM-03": "full"
       },
       "pass": true,
-      "ms": 8578
+      "ms": 5742
     },
     {
       "suite": "e2e-media27",
@@ -19,7 +19,7 @@
         "SM-02": "partial"
       },
       "pass": true,
-      "ms": 3513
+      "ms": 2135
     },
     {
       "suite": "e2e-media27",
@@ -29,7 +29,7 @@
         "MP-02": "partial"
       },
       "pass": true,
-      "ms": 9320
+      "ms": 8348
     },
     {
       "suite": "e2e-media27",
@@ -39,7 +39,7 @@
         "MP-03": "full"
       },
       "pass": true,
-      "ms": 5142
+      "ms": 5185
     },
     {
       "suite": "e2e-media27",
@@ -48,7 +48,7 @@
         "MP-01": "full"
       },
       "pass": true,
-      "ms": 2488
+      "ms": 2492
     },
     {
       "suite": "e2e-media27",
@@ -57,7 +57,7 @@
         "LY-14": "full"
       },
       "pass": true,
-      "ms": 2857
+      "ms": 3090
     },
     {
       "suite": "e2e-media27",
@@ -68,7 +68,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 11359
+      "ms": 12277
     }
   ]
 }

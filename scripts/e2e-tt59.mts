@@ -211,7 +211,9 @@ print(json.dumps({"fmt": fmt, "shape": list(a.shape), "max": int(np.abs(a - b).m
     if (fmt === "gif") {
       // Chromium decodes our GIF: open it in Photos
       await page.goto(`${BASE}/?open=photos&path=${encodeURIComponent(out)}`, { waitUntil: "domcontentloaded" });
-      await page.locator('[data-testid="photos-editor"]').waitFor({ timeout: 30_000 });
+      // TT75: the PNG's Photos window is restored and the GIF opens in a second window (before the Shell id fix the
+      // deep-linked window collided with the restored id and was silently dropped)
+      await page.locator('[data-testid="photos-editor"]').last().waitFor({ timeout: 30_000 });
       const dims = await page.evaluate(async (u) => { const b = await (await fetch(u)).json(); const bytes = Uint8Array.from(atob(b.node.content), (c) => c.charCodeAt(0)); const bm = await createImageBitmap(new Blob([bytes], { type: "image/gif" })); return [bm.width, bm.height]; }, `/api/fs?op=read&path=${encodeURIComponent(out)}`);
       eq(dims, [64, 48], "Chromium's GIF decoder reads it");
     }

@@ -347,8 +347,9 @@ export const ADVANCED_FUNCTIONS: Record<string, FnImpl> = {
   SHEET: (a) => 1, // single-sheet context in our evaluator; multi-sheet is tracked by name
   COLUMN: (a, env) => (a.length ? a[0].grid()[0]?.length && env.cursor.col : env.cursor.col),
   ROW: (a, env) => (a.length ? a[0].grid().length && env.cursor.row : env.cursor.row),
-  COLUMNS: (a) => a[0].grid()[0]?.length ?? 0,
-  ROWS: (a) => a[0].grid().length,
+  COLUMNS: (a) => { const g = a[0].grid(); if (g.length === 1 && g[0]?.length === 1 && isErr(g[0][0])) throw ERR(String(g[0][0])); return g[0]?.length ?? 0; },
+  /* TT75: a non-reference error argument (=ROWS(#REF!) after its table was deleted, =ROWS(1/0)) propagates, as in Excel */
+  ROWS: (a) => { const g = a[0].grid(); if (g.length === 1 && g[0]?.length === 1 && isErr(g[0][0])) throw ERR(String(g[0][0])); return g.length; },
   ADDRESS: (a) => {
     need(a, 2);
     const row = toNum(a[0].value()), col = toNum(a[1].value());

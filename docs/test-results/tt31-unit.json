@@ -1,6 +1,6 @@
 {
   "suite": "tt31-unit",
-  "at": "2026-10-24T23:59:39.180Z",
+  "at": "2026-10-25T06:04:02.270Z",
   "results": [
     {
       "suite": "tt31-unit",
@@ -9,7 +9,7 @@
         "LY-22": "full"
       },
       "pass": true,
-      "ms": 13
+      "ms": 10
     },
     {
       "suite": "tt31-unit",
@@ -18,7 +18,7 @@
         "LY-22": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt31-unit",
@@ -36,7 +36,7 @@
         "LY-22": "full"
       },
       "pass": true,
-      "ms": 12
+      "ms": 10
     },
     {
       "suite": "tt31-unit",
@@ -45,7 +45,7 @@
         "LY-22": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 12
     },
     {
       "suite": "tt31-unit",

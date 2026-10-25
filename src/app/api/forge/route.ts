@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { refuseEncrypted } from "@/lib/mime";
 import { getNode } from "@/lib/server/vfs";
 import { extractEpub, extractOoxml, readCentralDirectory, readPsdHeader } from "@/lib/server/zip";
+import { openEpub, chapterText, type NavPoint } from "@/lib/epub/epub-core";
 import { readPsd } from "@/lib/image/psd";
 import { readJsonObject } from "@/lib/http-json";
 import { convertBytes, CONVERSIONS, type ConvTarget } from "@/lib/office/convert";
@@ -56,14 +57,38 @@ export async function POST(req: NextRequest) {
       });
     }
     if (op === "epub" || name.toLowerCase().endsWith(".epub")) {
-      const book = extractEpub(buf);
+      // TT75 (FF-10): the verified first-party EPUB core (src/lib/epub — W3C epub-tests, IDPF samples, lxml OPF oracle)
+      // replaces the old regex spine reader: linear reading order, manifest fallbacks, nav / NCX titles, strict XML.
+      // Text extraction is a conversion and says what it drops; the full book opens in Books.
+      let book: Awaited<ReturnType<typeof openEpub>>;
+      try { book = await openEpub(new Uint8Array(buf)); }
+      catch (err) {
+        // not a conformant EPUB (no namespaces, missing mimetype, malformed XML …): the lenient legacy text reader still
+        // gets the text out, at grade C, and says why the verified reader refused the file
+        const legacy = extractEpub(buf);
+        return NextResponse.json({
+          ok: true, name, kind: "epub", grade: "C", engine: "legacy zip + OPF spine text reader (fallback)",
+          boundary: `The verified EPUB reader refused this file (${(err as Error).message.slice(0, 200)}); text was recovered in spine order with the lenient legacy reader. Styling, images and links are dropped.`,
+          dropped: ["CSS styling", "images", "internal links"],
+          text: `# ${legacy.title}${legacy.author ? `\n_${legacy.author}_` : ""}\n\n` + legacy.chapters.map((c) => `## Chapter ${c.index}\n\n${c.text}`).join("\n\n").slice(0, 400_000),
+          parts: legacy.chapters.map((c) => c.href),
+        });
+      }
+      const titleOf = new Map<string, string>(); const walk = (ns: NavPoint[]) => { for (const n of ns) { const p = n.href?.split("#")[0]; if (p && !titleOf.has(p)) titleOf.set(p, n.label); walk(n.children); } }; walk(book.toc);
+      const chapters: { href: string; title: string; text: string }[] = []; let total = 0;
+      for (const s of book.spine) {
+        if (!s.linear || !s.shown || total > 400_000) continue;
+        const raw = await book.readText(s.shown.path).catch(() => null); if (raw === null) continue;
+        const text = chapterText(raw).trim(); if (!text) continue;
+        chapters.push({ href: s.shown.path, title: titleOf.get(s.shown.path) ?? "", text }); total += text.length;
+      }
       return NextResponse.json({
-        ok: true, name, kind: "epub", grade: "C", engine: "zip + OPF spine reader",
-        boundary: "Reading order and text are preserved; styling, images and footnote links are not.",
-        dropped: ["CSS styling", "images", "internal links"],
-        text: `# ${book.title}${book.author ? `\n_${book.author}_` : ""}\n\n` +
-          book.chapters.map((c) => `## Chapter ${c.index}\n\n${c.text}`).join("\n\n").slice(0, 400_000),
-        parts: book.chapters.map((c) => c.href),
+        ok: true, name, kind: "epub", grade: "B", engine: "first-party EPUB 3.3 reader (src/lib/epub)",
+        boundary: "Text extraction keeps the linear reading order, chapter titles from the book's contents and the text; styling, images and links are dropped. Open the file in Books to read it with layout, images and links.",
+        dropped: ["CSS styling", "images", "internal links", "non-linear parts"],
+        text: (`# ${book.title}${book.creators.length ? `\n_${book.creators.join(", ")}_` : ""}\n\n` +
+          chapters.map((c, i) => `## ${c.title || `Part ${i + 1}`}\n\n${c.text}`).join("\n\n")).slice(0, 400_000),
+        parts: chapters.map((c) => c.href),
       });
     }
     const ext = name.toLowerCase().split(".").pop() ?? "";

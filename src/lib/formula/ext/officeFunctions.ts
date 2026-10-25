@@ -391,8 +391,9 @@ export const FUNCTIONS: Record<string, FnImpl> = {
     return best + 1;
   },
   CHOOSE: (a) => { const i = toNum(a[0].value()); if (i < 1 || i >= a.length) throw ERR("#VALUE!"); return a[i].value(); },
-  ROWS: (a) => a[0].grid().length,
-  COLUMNS: (a) => a[0].grid()[0]?.length ?? 0,
+  /* TT75: a non-reference error argument (=ROWS(#REF!) after its table was deleted, =ROWS(1/0)) propagates, as in Excel */
+  ROWS: (a) => { const g = a[0].grid(); if (g.length === 1 && g[0]?.length === 1 && isErr(g[0][0])) throw ERR(String(g[0][0])); return g.length; },
+  COLUMNS: (a) => { const g = a[0].grid(); if (g.length === 1 && g[0]?.length === 1 && isErr(g[0][0])) throw ERR(String(g[0][0])); return g[0]?.length ?? 0; },
   ROW: (a, env) => (a.length ? a[0].grid().length && env.cursor.row : env.cursor.row),
   COLUMN: (a, env) => (a.length ? a[0].grid()[0]?.length && env.cursor.col : env.cursor.col),
 

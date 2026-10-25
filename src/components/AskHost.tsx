@@ -31,7 +31,8 @@ function AskDialog({ req, waiting }: { req: AskRequest; waiting: number }) {
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
     const first = box.current?.querySelector<HTMLInputElement>("input");
-    first?.focus(); first?.select();
+    if (first) { first.focus(); first.select(); }
+    else box.current?.querySelector<HTMLElement>("[data-testid=ask-cancel]")?.focus(); // TT75: a yes / no question starts on the safe answer
     return () => { if (prev && prev.isConnected && typeof prev.focus === "function") prev.focus(); };
   }, []);
 
@@ -53,7 +54,7 @@ function AskDialog({ req, waiting }: { req: AskRequest; waiting: number }) {
   const single = req.fields.length === 1 && req.fields[0].label === req.title;
   return (
     <div className="fs-ask-backdrop" data-testid="ask-backdrop"
-      onPointerDown={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) box.current?.querySelector<HTMLInputElement>("input")?.focus(); }}>
+      onPointerDown={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) (box.current?.querySelector<HTMLElement>("input") ?? box.current?.querySelector<HTMLElement>("[data-testid=ask-cancel]"))?.focus(); }}>
       <div ref={box} className="fs-panel fs-ask" role="dialog" aria-modal="true" aria-labelledby={`${uid}-t`} aria-describedby={req.detail ? `${uid}-d` : undefined}
         data-testid="ask-dialog" data-ask-id={req.id} onKeyDown={onKeyDown} onKeyUp={(e) => e.stopPropagation()}>
         <form onSubmit={(e) => { e.preventDefault(); submit(); }} noValidate>

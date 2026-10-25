@@ -43,6 +43,7 @@ import MusicModule from "./modules/Music";
 import MapsModule from "./modules/Maps";
 import SlidesModule from "./modules/Slides";
 import PdfModule from "./modules/Pdf";
+import BooksModule from "./modules/Books";
 import ImageEditorModule from "./modules/ImageEditor";
 import VectorModule from "./modules/Vector";
 
@@ -91,6 +92,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "maps": return <MapsModule win={win} />;
     case "slides": return <SlidesModule win={win} />;
     case "pdf": return <PdfModule win={win} />;
+    case "books": return <BooksModule win={win} />;
     case "imageedit": return <ImageEditorModule win={win} />;
     case "vector": return <VectorModule win={win} />;
     default:

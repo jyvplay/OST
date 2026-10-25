@@ -3,6 +3,7 @@
  * per-cell `style` and per-sheet `colWidths` / `freezeRows`; v1 documents
  * (cells with only ref+input) still load unchanged.
  */
+import { sanitizeFilterColumnXml } from "./sheetfilter";
 import { Workbook, Sheet, a1, type CellStyle, type CellBorder, type MergeRange } from "./engine";
 import { err, isError, ERROR_CODES, type ErrorCode, type Scalar } from "./types";
 import { isBorderLine, parseRef, rangeRef, sanitizeValidation, intersects } from "./sheetlayout";
@@ -11,10 +12,12 @@ import { sanitizeCharts, sanitizeCondFormats } from "./sheetmeta";
 import { sanitizeLink, type SheetLink } from "./sheetlinks";
 import { sanitizePivot, type PivotDef } from "./pivotsheet";
 
-export interface CellJson { ref: string; input: string; style?: CellStyle }
+export interface CellJson { ref: string; input: string; style?: CellStyle;
+  /** TT75: legacy (implicit-intersection) formula read from .xlsx, and a CSE array formula's range — lost before, so the UI showed #SPILL! where Excel shows a value */
+  legacy?: true; cse?: { rows: number; cols: number } }
 export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[]; links?: unknown[]; pivots?: unknown[];
   /** TT74: hidden rows by reason, hidden columns, the AutoFilter */
-  hiddenRows?: { manual?: number[]; filter?: number[] }; hiddenCols?: number[]; autoFilter?: { ref: string; cols: Record<string, string[]>; foreign?: boolean } }
+  hiddenRows?: { manual?: number[]; filter?: number[] }; hiddenCols?: number[]; autoFilter?: { ref: string; cols: Record<string, string[]>; foreign?: boolean; raw?: Record<string, string> } }
 export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[]; tables?: unknown[]; date1904?: boolean;
   /** TT74: cached values of linked external workbooks ([1]Sheet1!A1 keeps evaluating after the UI round trip) */
   externals?: { target: string; sheetNames: string[]; sheets: [string, [string, unknown][]][]; names: [string, string][] }[] }
@@ -37,6 +40,8 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
           const [col, row] = k.split(",").map(Number);
           const cell: CellJson = { ref: a1(col, row), input: c.input };
           if (c.style && Object.keys(c.style).length) cell.style = { ...c.style };
+          if (c.formula && c.legacy) cell.legacy = true;
+          if (c.formula && c.cse) cell.cse = { rows: c.cse.rows, cols: c.cse.cols };
           return cell;
         }),
       };
@@ -49,7 +54,7 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
       if (s.pivots.length) out.pivots = s.pivots.map((p) => JSON.parse(JSON.stringify(p)));
       if (s.hiddenRows.size) { const m: number[] = [], f: number[] = []; for (const [r, w] of s.hiddenRows) (w === "filter" ? f : m).push(r); out.hiddenRows = { ...(m.length ? { manual: m.sort((a, b) => a - b) } : {}), ...(f.length ? { filter: f.sort((a, b) => a - b) } : {}) }; }
       if (s.hiddenCols.size) out.hiddenCols = [...s.hiddenCols].sort((a, b) => a - b);
-      if (s.autoFilter) out.autoFilter = { ref: s.autoFilter.ref, cols: Object.fromEntries(Object.entries(s.autoFilter.cols).map(([k, v]) => [k, [...v]])), ...(s.autoFilter.foreign ? { foreign: true } : {}) };
+      if (s.autoFilter) out.autoFilter = { ref: s.autoFilter.ref, cols: Object.fromEntries(Object.entries(s.autoFilter.cols).map(([k, v]) => [k, [...v]])), ...(s.autoFilter.foreign ? { foreign: true } : {}), ...(s.autoFilter.raw ? { raw: { ...s.autoFilter.raw } } : {}) };
       return out;
     }),
   };
@@ -84,11 +89,17 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
   const wb = new Workbook(); wb.sheets.clear();
   for (const s of data.sheets ?? []) {
     const sheet = new Sheet(s.name);
-    for (const { ref, input, style } of s.cells ?? []) {
+    for (const { ref, input, style, legacy, cse } of s.cells ?? []) {
       const m = /^([A-Za-z]+)(\d+)$/.exec(ref);
       if (!m) continue;
       const col = lettersToCol(m[1].toUpperCase()), row = Number(m[2]) - 1;
       sheet.setCell(col, row, String(input ?? ""));
+      const made = sheet.get(col, row);
+      if (made?.formula) {
+        if (legacy === true) made.legacy = true;
+        const okN = (v: unknown, max: number) => typeof v === "number" && Number.isInteger(v) && v >= 1 && v <= max;
+        if (cse && typeof cse === "object" && okN(cse.rows, 1048576) && okN(cse.cols, 16384) && cse.rows * cse.cols <= 1_000_000) made.cse = { rows: cse.rows, cols: cse.cols };
+      }
       const st = cleanStyle(style);
       if (st) sheet.setStyle(col, row, st);
     }
@@ -109,11 +120,12 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
     for (const r of rowsOf(hr.manual, 1048576)) sheet.hiddenRows.set(r, "manual");
     for (const r of rowsOf(hr.filter, 1048576)) if (!sheet.hiddenRows.has(r)) sheet.hiddenRows.set(r, "filter");
     for (const c of rowsOf(s.hiddenCols, 16384)) sheet.hiddenCols.add(c);
-    const af = s.autoFilter as { ref?: unknown; cols?: unknown; foreign?: unknown } | undefined;
+    const af = s.autoFilter as { ref?: unknown; cols?: unknown; foreign?: unknown; raw?: unknown } | undefined;
     if (af && typeof af.ref === "string" && parseRef(af.ref)) {
       const cols: Record<number, string[]> = {};
       if (af.cols && typeof af.cols === "object") for (const [k, v] of Object.entries(af.cols as Record<string, unknown>).slice(0, 16384)) if (Number.isInteger(Number(k)) && Number(k) >= 0 && Array.isArray(v)) cols[Number(k)] = v.slice(0, 100_000).filter((x): x is string => typeof x === "string").map((x) => x.slice(0, 32767));
-      sheet.autoFilter = { ref: rangeRef(parseRef(af.ref)!), cols, ...(af.foreign === true ? { foreign: true } : {}) };
+      const raw = rawFiltersFromJson(af.raw);
+      sheet.autoFilter = { ref: rangeRef(parseRef(af.ref)!), cols, ...(af.foreign === true ? { foreign: true } : {}), ...(raw ? { raw } : {}) };
     }
     wb.sheets.set(s.name, sheet);
   }
@@ -142,11 +154,11 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
   const okInt = (v: unknown, max: number) => typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= max;
   for (const raw of (Array.isArray(data.tables) ? data.tables : []).slice(0, 2000)) {
     const t = raw as Partial<Record<keyof import("./engine").TableDef, unknown>>;
-    if (typeof t?.name !== "string" || !/^[A-Za-z_\\][\w.\\]{0,254}$/.test(t.name) || typeof t.sheet !== "string" || !wb.sheets.has(t.sheet)) continue;
+    if (typeof t?.name !== "string" || !tableNameOk(t.name) || typeof t.sheet !== "string" || !wb.sheets.has(t.sheet)) continue;
     if (!okInt(t.c0, 16383) || !okInt(t.c1, 16383) || !okInt(t.r0, 1048575) || !okInt(t.r1, 1048575) || (t.c1 as number) < (t.c0 as number) || (t.r1 as number) < (t.r0 as number)) continue;
     const cols = Array.isArray(t.columns) ? t.columns.filter((c): c is string => typeof c === "string" && c.length <= 255) : [];
     if (cols.length !== (t.c1 as number) - (t.c0 as number) + 1) continue;
-    wb.tables.set(t.name.toUpperCase(), { name: t.name, sheet: t.sheet, c0: t.c0 as number, r0: t.r0 as number, c1: t.c1 as number, r1: t.r1 as number, headerRows: okInt(t.headerRows, 1) ? (t.headerRows as number) : 1, totalsRows: okInt(t.totalsRows, 1) ? (t.totalsRows as number) : 0, columns: cols });
+    wb.tables.set(t.name.toUpperCase(), { name: t.name, sheet: t.sheet, c0: t.c0 as number, r0: t.r0 as number, c1: t.c1 as number, r1: t.r1 as number, headerRows: okInt(t.headerRows, 1) ? (t.headerRows as number) : 1, totalsRows: okInt(t.totalsRows, 1) ? (t.totalsRows as number) : 0, columns: cols, ...tableFilterFromJson(t.filter, cols.length) });
   }
   // Untrusted names: each goes through defineName's validation; invalid ones are dropped (max 2000).
   for (const raw of (Array.isArray(data.names) ? data.names : []).slice(0, 2000)) {
@@ -156,4 +168,38 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
   }
   wb.recalculate();
   return wb;
+}
+
+/** TT75: an untrusted table filter — value lists keyed by a column offset inside the table (≤ 1000 values of ≤ 255 chars each). */
+function tableFilterFromJson(raw: unknown, ncols: number): { filter?: { cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string> } } {
+  if (!raw || typeof raw !== "object") return {};
+  const r = raw as { cols?: unknown; foreign?: unknown }; const cols: Record<number, string[]> = {};
+  if (r.cols && typeof r.cols === "object") for (const [k, v] of Object.entries(r.cols as Record<string, unknown>)) {
+    const o = Number(k); if (!/^\d+$/.test(k) || o >= ncols || !Array.isArray(v)) continue;
+    cols[o] = v.filter((x): x is string => typeof x === "string" && x.length <= 255).slice(0, 1000);
+  }
+  const rawK = rawFiltersFromJson((raw as { raw?: unknown }).raw, ncols);
+  return Object.keys(cols).length || r.foreign === true || rawK ? { filter: { cols, ...(r.foreign === true ? { foreign: true } : {}), ...(rawK ? { raw: rawK } : {}) } } : {};
+}
+
+/**
+ * TT75: Excel table-name rules — starts with a letter (any script), "_" or "\\"; then letters, digits, ".", "_", "\\";
+ * ≤ 255 characters; not "C" / "R"; not a cell reference (A1 or R1C1 style). (Was ASCII-only: 表23 tables were dropped.)
+ */
+export function tableNameOk(n: string): boolean {
+  if (!/^[\p{L}_\\][\p{L}\p{N}\p{M}._\\]{0,254}$/u.test(n)) return false;
+  if (/^[cr]$/i.test(n)) return false;
+  if (/^[A-Za-z]{1,3}\d+$/.test(n) || /^R\d*C\d*$/i.test(n)) return false;
+  return true;
+}
+
+/** TT75: kept foreign filter criteria from untrusted JSON — every entry goes back through the allowlist sanitiser. */
+function rawFiltersFromJson(v: unknown, ncols = 16384): Record<number, string> | undefined {
+  if (!v || typeof v !== "object") return undefined;
+  const out: Record<number, string> = {};
+  for (const [k, x] of Object.entries(v as Record<string, unknown>).slice(0, 16384)) {
+    if (!/^\d+$/.test(k) || Number(k) >= ncols || typeof x !== "string") continue;
+    const clean = sanitizeFilterColumnXml(x); if (clean) out[Number(k)] = clean;
+  }
+  return Object.keys(out).length ? out : undefined;
 }

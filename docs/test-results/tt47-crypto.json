@@ -1,6 +1,6 @@
 {
   "suite": "tt47-crypto",
-  "at": "2026-10-25T00:22:20.128Z",
+  "at": "2026-10-25T06:24:52.690Z",
   "results": [
     {
       "suite": "tt47-crypto",
@@ -11,7 +11,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 964
+      "ms": 840
     },
     {
       "suite": "tt47-crypto",
@@ -22,7 +22,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 1004
+      "ms": 895
     },
     {
       "suite": "tt47-crypto",
@@ -33,7 +33,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 20445
+      "ms": 19315
     },
     {
       "suite": "tt47-crypto",
@@ -44,7 +44,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 6794
+      "ms": 5839
     },
     {
       "suite": "tt47-crypto",
@@ -55,7 +55,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 74498
+      "ms": 65136
     }
   ]
 }

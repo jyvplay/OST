@@ -14,6 +14,7 @@
  *  - AutoFill: least-squares linear trend for ≥2 numeric seeds (Excel's
  *    behaviour for a numeric selection), "text N" increments, otherwise cyclic copy.
  */
+import { adjustTablesForStructure, rewriteStructuredRefs, tableStructureConflict, TableEditError } from "./sheettables";
 import { adjustLayoutForStructure, sortConflict } from "./sheetlayout";
 import { tokenize } from "./lexer";
 import { setLink, linkAt, type SheetLink } from "./sheetlinks";
@@ -129,6 +130,8 @@ export function adjustForStructure(input: string, formulaSheet: string, target: 
 /** Physically insert/delete rows or columns on one sheet and repair references in the whole workbook. */
 export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: number, count: number): void {
   const sheet = wb.sheet(sheetName);
+  // TT75: Excel refuses some edits through tables (header row, two tables) — check before anything moves
+  const refusal = tableStructureConflict(wb, sheetName, axis, at, count); if (refusal) throw new TableEditError(refusal);
   const moved = new Map<string, Cell>();
   for (const [k, cell] of sheet.grid) {
     const [c, r] = k.split(",").map(Number);
@@ -157,7 +160,10 @@ export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: nu
       // criteria are keyed by column offset inside the range: re-key them to the moved columns
       const was = parseA1Range(sheet.autoFilter.ref)!, now = parseA1Range(next)!; const cols: Record<number, string[]> = {};
       for (const [k, v] of Object.entries(sheet.autoFilter.cols)) { const n = shift(was.c0 + Number(k)); if (n >= now.c0 && n <= now.c1) cols[n - now.c0] = v; }
-      sheet.autoFilter = { ...sheet.autoFilter, ref: next.replace(/\$/g, ""), cols };
+      const raw: Record<number, string> = {}; // TT75: kept foreign criteria move with their columns too
+      for (const [k, v] of Object.entries(sheet.autoFilter.raw ?? {})) { const n = shift(was.c0 + Number(k)); if (n >= now.c0 && n <= now.c1) raw[n - now.c0] = v; }
+      sheet.autoFilter = { ...sheet.autoFilter, ref: next.replace(/\$/g, ""), cols, ...(Object.keys(raw).length ? { raw } : {}) };
+      if (!Object.keys(raw).length) delete sheet.autoFilter.raw;
     } else sheet.autoFilter = { ...sheet.autoFilter, ref: next.replace(/\$/g, "") };
   }
   // TT19: defined names move with their cells too (Excel adjusts Name Manager references); a fully deleted
@@ -187,10 +193,13 @@ export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: nu
     if (axis === "row") { p.anchor = { ...p.anchor, row: mv(p.anchor.row) }; if (p.out) p.out = { ...p.out, r0: mv(p.out.r0), r1: Math.max(mv(p.out.r0), count < 0 && p.out.r1 >= at && p.out.r1 < at - count ? at - 1 : mv(p.out.r1)) }; }
     else { p.anchor = { ...p.anchor, col: mv(p.anchor.col) }; if (p.out) p.out = { ...p.out, c0: mv(p.out.c0), c1: Math.max(mv(p.out.c0), count < 0 && p.out.c1 >= at && p.out.c1 < at - count ? at - 1 : mv(p.out.c1)) }; }
   }
+  // TT75: tables move / grow / shrink with their lines; removed tables and columns turn their structured references into #REF!
+  const dead = adjustTablesForStructure(wb, sheetName, axis, at, count, { checked: true });
   for (const s of wb.sheets.values()) {
     for (const [k, cell] of s.grid) {
       if (!cell.formula) continue;
-      const next = adjustForStructure(cell.input, s.name, sheetName, axis, at, count);
+      const [fc, fr] = k.split(",").map(Number);
+      const next = rewriteStructuredRefs(adjustForStructure(cell.input, s.name, sheetName, axis, at, count), wb, s.name, fc, fr, dead);
       if (next !== cell.input) { const [c, r] = k.split(",").map(Number); const style = cell.style; s.setCell(c, r, next); if (style) s.setStyle(c, r, style); }
     }
   }

@@ -1,6 +1,6 @@
 {
   "suite": "tt61-writer-notes-rich",
-  "at": "2026-10-25T00:49:48.899Z",
+  "at": "2026-10-25T06:38:23.919Z",
   "results": [
     {
       "suite": "tt61-writer-notes-rich",
@@ -9,7 +9,7 @@
         "FF-43": "full"
       },
       "pass": true,
-      "ms": 50
+      "ms": 48
     },
     {
       "suite": "tt61-writer-notes-rich",
@@ -18,7 +18,7 @@
         "FF-43": "full"
       },
       "pass": true,
-      "ms": 428
+      "ms": 375
     },
     {
       "suite": "tt61-writer-notes-rich",
@@ -27,7 +27,7 @@
         "FF-43": "full"
       },
       "pass": true,
-      "ms": 233
+      "ms": 220
     },
     {
       "suite": "tt61-writer-notes-rich",
@@ -36,7 +36,7 @@
         "FF-43": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt61-writer-notes-rich",
@@ -45,7 +45,7 @@
         "FF-43": "full"
       },
       "pass": true,
-      "ms": 874
+      "ms": 855
     },
     {
       "suite": "tt61-writer-notes-rich",
@@ -54,7 +54,7 @@
         "FF-43": "full"
       },
       "pass": true,
-      "ms": 67
+      "ms": 64
     },
     {
       "suite": "tt61-writer-notes-rich",
@@ -63,7 +63,7 @@
         "FF-43": "full"
       },
       "pass": true,
-      "ms": 22788
+      "ms": 19341
     }
   ]
 }

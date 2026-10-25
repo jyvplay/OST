@@ -205,7 +205,9 @@ await test("leaving the page with unsaved work raises the browser's beforeunload
   await page.context().close();
   const p2 = await newPage();
   await p2.goto(`${BASE}/?open=writer`, { waitUntil: "domcontentloaded" });
-  const d2 = p2.locator('[role=dialog][aria-label="Writer"]').first(); const b2 = d2.locator('[data-testid="writer-body"]');
+  // TT75: the closed page's autosave restores its Writer window; the deep link now opens its own window on top
+  // (before the TT75 Shell id fix it collided with the restored id and was dropped) — use the newest window
+  const d2 = p2.locator('[role=dialog][aria-label="Writer"]').last(); const b2 = d2.locator('[data-testid="writer-body"]');
   await b2.locator("[data-pid]").first().waitFor({ timeout: 25_000 });
   await b2.locator("[data-pid]").first().click(); await p2.keyboard.type("unsaved words");
   await poll(async () => /Save •/.test(await d2.getByTestId("writer-save").innerText()), "dirty");

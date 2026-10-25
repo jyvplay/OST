@@ -115,7 +115,7 @@ export class Sheet {
   /** TT74: hidden columns (presentation; <col hidden="1">). */
   hiddenCols: Set<number> = new Set();
   /** TT74: the sheet AutoFilter (range incl. header row; shown values per column offset). */
-  autoFilter: { ref: string; cols: Record<number, string[]>; foreign?: boolean } | null = null;
+  autoFilter: { ref: string; cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string> } | null = null;
   constructor(name = "Sheet1") { this.name = name; }
 
   setCell(col: number, row: number, input: string) {
@@ -160,6 +160,8 @@ export function externalBook(books: ExternalBook[], key: string): ExternalBook |
   return books.find((b) => base(b.target) === base(key));
 }
 export class Workbook {
+  /** TT75: per-pass range / blank-mask memo (on by default; tests switch it off to compare results differentially) */
+  static memoRanges = true;
   sheets = new Map<string, Sheet>();
   /** fq child key -> owning anchor (children only; anchors are not listed). */
   spillOwner = new Map<string, SpillClaim>();
@@ -393,9 +395,24 @@ export class Workbook {
     /** Whole-column/row and very large ranges are evaluated over the WORKBOOK's used area (TT70: one bound for all sheets,
      *  so Sheet1!A:A and Data!A:A keep the same shape) and carry their full shape for blank-counting functions. */
     let wbBounds: { r: number; c: number } | null = null;
+    /**
+     * TT75: per-pass range memo. Within one pass every cell is evaluated once (WHITE → GRAY → BLACK), so a range whose
+     * materialisation met no in-progress (GRAY) cell can never change later in the pass; it is cached by its resolved
+     * address and handed out as a copy (callers may reshape what they get). A range that touched a cycle is not cached.
+     * (StructuredRefs-lots-with-lookups: 26,593 lookups over one 3,798-row table column — ~100M cell reads per pass before.)
+     */
+    const rangeMemo = new Map<string, Scalar[][]>(); let circHits = 0; let memoCells = 0; const maskMemo = new Map<string, boolean[][]>();
+    const copyM = (m: Scalar[][]): Scalar[][] => { const c = m.map((row) => row.slice()); const f = (m as { full?: [number, number] }).full; if (f) Object.defineProperty(c, "full", { value: f, enumerable: false }); return c; };
     const shapedRange = (range: RangeAddr, home: string): Scalar[][] => {
       const { range: r, full } = clampLarge(range, () => (wbBounds ??= this.workbookBounds()));
-      return withFull(resolveRangeMatrix(r, home, evalCell, occOf), full);
+      const key = `${r.from.sheet ?? home}\u0000${r.from.col},${r.from.row},${r.to.col},${r.to.row}\u0000${full[0]},${full[1]}`;
+      const memoOn = Workbook.memoRanges;
+      const hit = memoOn ? rangeMemo.get(key) : undefined; if (hit) return copyM(hit);
+      const before = circHits;
+      const m = withFull(resolveRangeMatrix(r, home, evalCell, occOf), full);
+      const n = m.length * (m[0]?.length ?? 0);
+      if (memoOn && circHits === before && n >= 64 && memoCells + n <= 8_000_000) { rangeMemo.set(key, copyM(m)); memoCells += n; }
+      return m;
     };
     const evalCell = (sheetName: string, col: number, row: number): Scalar => {
       const fk = fqKey(sheetName, col, row);
@@ -416,7 +433,7 @@ export class Workbook {
     const evalRawCell = (sheetName: string, col: number, row: number): Value => {
       const fk = fqKey(sheetName, col, row);
       const c0 = color.get(fk) ?? WHITE;
-      if (c0 === GRAY) return err("#CIRCULAR!");
+      if (c0 === GRAY) { circHits++; return err("#CIRCULAR!"); }
       const cell = this.sheets.get(sheetName)?.get(col, row);
       if (!cell) return "";
       if (!cell.formula) return cell.value;
@@ -427,6 +444,7 @@ export class Workbook {
         resolveRange: (range) => shapedRange(range, sheetName),
         cursor: { sheet: sheetName, col, row },
         isBlank,
+        maskMemo: Workbook.memoRanges ? maskMemo : undefined,
         sheetsBetween: (a, b) => { const order = [...this.sheets.keys()]; const i = order.findIndex((x) => x.toUpperCase() === a.toUpperCase()), j = order.findIndex((x) => x.toUpperCase() === b.toUpperCase()); return i < 0 || j < 0 ? null : order.slice(Math.min(i, j), Math.max(i, j) + 1); },
         table: (name) => (name ? this.tables.get(name.toUpperCase()) : [...this.tables.values()].find((t) => t.sheet === sheetName && col >= t.c0 && col <= t.c1 && row >= t.r0 && row <= t.r1)),
         sheetExists: (n) => this.sheets.has(n),
@@ -568,10 +586,14 @@ function resolveRangeMatrix(range: RangeAddr, defaultSheet: string, evalCell: (s
   return rows;
 }
 
-export interface TableDef { name: string; sheet: string; c0: number; r0: number; c1: number; r1: number; headerRows: number; totalsRows: number; columns: string[] }
+export interface TableDef { name: string; sheet: string; c0: number; r0: number; c1: number; r1: number; headerRows: number; totalsRows: number; columns: string[];
+  /** TT75: the table's own AutoFilter value lists, keyed by column offset inside the table (foreign = other criteria kept as hidden rows only) */
+  filter?: { cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string> } }
 export interface EvalContext {
   /** TT46 (optional so simple contexts keep working): blank detection, 3-D sheet spans, tables. */
   isBlank?(sheet: string | null, col: number, row: number, home?: string): boolean;
+  /** TT75: per-pass memo of blank masks by resolved range (stable within a pass, like the range memo) */
+  maskMemo?: Map<string, boolean[][]>;
   sheetsBetween?(a: string, b: string): string[] | null;
   table?(name: string): TableDef | undefined;
   sheetExists?(name: string): boolean;
@@ -802,8 +824,12 @@ function blankMask(n: Node, m: Scalar[][], ctx: EvalContext): boolean[][] | unde
   if (n.t === "ref") return [[m[0]?.[0] === "" && ctx.isBlank(n.v.sheet, n.v.col, n.v.row, home)]];
   if (n.t !== "range") return undefined;
   const { c0, r0 } = bounds(n.v);
+  const key = ctx.maskMemo ? `${n.v.from.sheet ?? home}\u0000${c0},${r0}\u0000${m.length}x${m[0]?.length ?? 0}` : "";
+  const hit = ctx.maskMemo?.get(key); if (hit) return hit.map((r) => r.slice());
   // TT70: a shared empty row (sparse range) has no input and no spill in ANY column, so every element is blank
-  return m.map((row, i) => (isSharedEmptyRow(row) ? blankRow(row.length) : row.map((x, j) => x === "" && ctx.isBlank!(n.v.from.sheet, c0 + j, r0 + i, home))));
+  const mask = m.map((row, i) => (isSharedEmptyRow(row) ? blankRow(row.length) : row.map((x, j) => x === "" && ctx.isBlank!(n.v.from.sheet, c0 + j, r0 + i, home))));
+  if (ctx.maskMemo && m.length * (m[0]?.length ?? 0) >= 64 && ctx.maskMemo.size < 20_000) ctx.maskMemo.set(key, mask.map((r) => r.slice()));
+  return mask;
 }
 function toArg(node: Node, ctx: EvalContext): Arg {
   // reference forms (OFFSET / INDEX / INDIRECT / structured / 3-D) were already resolved to a ref / range by evalCall,

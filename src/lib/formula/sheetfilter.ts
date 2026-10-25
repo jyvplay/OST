@@ -20,7 +20,10 @@ import { formatValue } from "./numfmt";
 import { parseRef, rangeRef } from "./sheetlayout";
 
 export type RowHide = "manual" | "filter";
-export interface AutoFilter { ref: string; cols: Record<number, string[]>; foreign?: boolean }
+export interface AutoFilter { ref: string; cols: Record<number, string[]>; foreign?: boolean;
+  /** TT75: criteria this app does not evaluate (custom / top-10 / dynamic / colour / icon / date groups), kept as sanitised
+   *  <filterColumn> XML per column offset so a new package writes them back (the rows they hid stay "filtered") */
+  raw?: Record<number, string> }
 
 export const MAX_FILTER_ROWS = 1_048_576;
 
@@ -108,12 +111,61 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 /** <autoFilter> element for the sheet (no namespace prefix), or "" when the sheet has none. */
 export function autoFilterXml(sheet: Sheet): string {
   const af = sheet.autoFilter; if (!af || !parseRef(af.ref)) return "";
-  const cols = Object.entries(af.cols).map(([k, vals]) => [Number(k), vals] as const).filter(([k]) => Number.isInteger(k) && k >= 0).sort((a, b) => a[0] - b[0]);
-  if (!cols.length) return `<autoFilter ref="${af.ref}"/>`;
-  return `<autoFilter ref="${af.ref}">${cols.map(([k, vals]) => {
-    const blank = vals.includes(""); const v = vals.filter((x) => x !== "");
-    return `<filterColumn colId="${k}"><filters${blank ? ' blank="1"' : ""}${v.length ? `>${v.map((x) => `<filter val="${esc(x)}"/>`).join("")}</filters>` : "/>"}</filterColumn>`;
-  }).join("")}</autoFilter>`;
+  const body = filterColumnsXml(af.cols, af.raw);
+  return body ? `<autoFilter ref="${af.ref}">${body}</autoFilter>` : `<autoFilter ref="${af.ref}"/>`;
+}
+
+/** <filterColumn> elements for value lists + kept foreign criteria, in colId order (one element per column). */
+export function filterColumnsXml(cols: Record<number, string[]>, raw?: Record<number, string>, prefix = ""): string {
+  const p = prefix; const ids = new Set<number>();
+  for (const k of [...Object.keys(cols), ...Object.keys(raw ?? {})]) { const n = Number(k); if (Number.isInteger(n) && n >= 0 && n <= 16383) ids.add(n); }
+  return [...ids].sort((a, b) => a - b).map((k) => {
+    const r = raw?.[k];
+    if (r && !(k in cols)) { const clean = sanitizeFilterColumnXml(r); return clean ? (p ? clean.replace(/<(\/?)(?=[A-Za-z])/g, `<$1${p}`) : clean).replace(/colId="\d+"/, `colId="${k}"`) : ""; }
+    const vals = cols[k]; const blank = vals.includes(""); const v = vals.filter((x) => x !== "");
+    return `<${p}filterColumn colId="${k}"><${p}filters${blank ? ' blank="1"' : ""}${v.length ? `>${v.map((x) => `<${p}filter val="${esc(x)}"/>`).join("")}</${p}filters>` : "/>"}</${p}filterColumn>`;
+  }).join("");
+}
+
+/**
+ * TT75: canonical, allowlisted <filterColumn> (prefix stripped). The ONLY path by which kept criteria reach an output
+ * package — file and workbook-JSON input both pass through it. Unknown element / attribute / text → null (not kept).
+ */
+const FILTER_SCHEMA: Record<string, { attrs: string[]; kids: string[] }> = {
+  filterColumn: { attrs: ["colId", "hiddenButton", "showButton"], kids: ["filters", "top10", "customFilters", "dynamicFilter", "colorFilter", "iconFilter"] },
+  filters: { attrs: ["blank", "calendarType"], kids: ["filter", "dateGroupItem"] },
+  filter: { attrs: ["val"], kids: [] },
+  dateGroupItem: { attrs: ["year", "month", "day", "hour", "minute", "second", "dateTimeGrouping"], kids: [] },
+  top10: { attrs: ["top", "percent", "val", "filterVal"], kids: [] },
+  customFilters: { attrs: ["and"], kids: ["customFilter"] },
+  customFilter: { attrs: ["operator", "val"], kids: [] },
+  dynamicFilter: { attrs: ["type", "val", "valIso", "maxVal", "maxValIso"], kids: [] },
+  colorFilter: { attrs: ["dxfId", "cellColor"], kids: [] },
+  iconFilter: { attrs: ["iconSet", "iconId"], kids: [] },
+};
+export function sanitizeFilterColumnXml(xml: string): string | null {
+  try { return sanitizeFc(xml); } catch { return null; } // e.g. &#99999999; → RangeError → not kept
+}
+function sanitizeFc(xml: string): string | null {
+  if (typeof xml !== "string" || xml.length > 65536) return null;
+  const re = /<(\/?)(?:[A-Za-z_][\w.-]*:)?([A-Za-z_][\w.-]*)((?:\s+[^\s=>\/]+\s*=\s*(?:"[^"]*"|'[^']*'))*)\s*(\/?)>|([^<]+)|(<)/g;
+  const stack: string[] = []; let out = ""; let m: RegExpExecArray | null; let roots = 0;
+  while ((m = re.exec(xml))) {
+    if (m[6]) return null; // a stray "<" (comment, PI, CDATA, malformed)
+    if (m[5] !== undefined) { if (m[5].trim()) return null; continue; }
+    const [, close, name, attrs, selfClose] = m;
+    const spec = FILTER_SCHEMA[name]; if (!spec) return null;
+    if (close) { if (stack.pop() !== name) return null; out += `</${name}>`; continue; }
+    const parent = stack[stack.length - 1];
+    if (parent ? !FILTER_SCHEMA[parent].kids.includes(name) : name !== "filterColumn" || roots++ > 0) return null;
+    let a = "";
+    for (const am of (attrs ?? "").matchAll(/([^\s=]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)) {
+      const an = am[1].replace(/^[A-Za-z_][\w.-]*:/, ""); if (!spec.attrs.includes(an)) return null;
+      a += ` ${an}="${esc(unesc(am[2] ?? am[3] ?? ""))}"`;
+    }
+    if (selfClose) out += `<${name}${a}/>`; else { out += `<${name}${a}>`; stack.push(name); }
+  }
+  return stack.length || roots !== 1 ? null : out;
 }
 
 const unesc = (s: string) => s.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d))).replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&amp;/g, "&");
@@ -130,15 +182,17 @@ export function readAutoFilterXml(xml: string): AutoFilter | null {
   if (!m) return null;
   const ref = xmlAttr(m[1], "ref");
   if (!ref || !parseRef(ref)) return null;
-  const cols: Record<number, string[]> = {}; let foreign = false;
+  const cols: Record<number, string[]> = {}; let foreign = false; let raw: Record<number, string> | undefined;
   for (const fc of (m[2] ?? "").matchAll(/<(?:\w+:)?filterColumn\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?filterColumn>)/g)) {
     const idS = xmlAttr(fc[1], "colId"); const id = idS !== undefined && /^\d+$/.test(idS) ? Number(idS) : NaN; const body = fc[2] ?? "";
     if (!Number.isInteger(id)) continue;
     const f = /<(?:\w+:)?filters\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?filters>)/.exec(body);
-    if (!f || /<(?:\w+:)?dateGroupItem\b/.test(f[2] ?? "") || /<(?:\w+:)?(customFilters|top10|dynamicFilter|colorFilter|iconFilter)\b/.test(body)) { foreign = true; continue; }
+    if (!f || /<(?:\w+:)?dateGroupItem\b/.test(f[2] ?? "") || /<(?:\w+:)?(customFilters|top10|dynamicFilter|colorFilter|iconFilter)\b/.test(body)) {
+      foreign = true; const keep = sanitizeFilterColumnXml(fc[0]); if (keep) (raw ??= {})[id] = keep; continue;
+    }
     const vals = [...(f[2] ?? "").matchAll(/<(?:\w+:)?filter\b([^>]*?)\/?>/g)].map((x) => xmlAttr(x[1], "val")).filter((v): v is string => v !== undefined).map(unesc);
     const bl = xmlAttr(f[1], "blank"); if (bl === "1" || bl === "true") vals.push("");
     cols[id] = vals;
   }
-  return { ref, cols, ...(foreign ? { foreign: true } : {}) };
+  return { ref, cols, ...(foreign ? { foreign: true } : {}), ...(raw ? { raw } : {}) };
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt72-access",
-  "at": "2026-10-25T01:35:40.338Z",
+  "at": "2026-10-25T06:54:09.618Z",
   "results": [
     {
       "suite": "tt72-access",
@@ -18,7 +18,7 @@
         "SC-05": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt72-access",
@@ -27,7 +27,7 @@
         "SC-05": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     }
   ]
 }

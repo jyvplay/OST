@@ -1,6 +1,6 @@
 {
   "suite": "sheet-layout",
-  "at": "2026-10-25T01:40:04.207Z",
+  "at": "2026-10-25T05:47:39.537Z",
   "results": [
     {
       "suite": "sheet-layout",
@@ -46,7 +46,7 @@
         "FF-35": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "sheet-layout",
@@ -57,7 +57,7 @@
         "FF-34": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     }
   ]
 }

@@ -183,8 +183,11 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       setToasts((t) => [...t, { id: Date.now(), message: `Window limit reached (${policy.maxWindows}): ${policy.reason}. Close a window first.`, tone: "warn" }]);
       return "";
     }
-    counter.current += 1;
-    const id = `w${counter.current}_${moduleId}`;
+    // TT75 fix: the counter restarts at 0 on every page load while restored windows keep their ids (w1_books …); an id
+    // collision made the reducer FOCUS the restored window and drop the new props (a deep-linked / opened file never
+    // loaded). Skip ids that are already taken.
+    let id = "";
+    do { counter.current += 1; id = `w${counter.current}_${moduleId}`; } while (stateRefOpen.current.windows.some((w) => w.id === id));
     dispatch({
       t: "open", id, module: moduleId,
       title: (props?.title as string) ?? mod?.title ?? moduleId,
@@ -258,6 +261,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           // older client — otherwise hydrated as revision 1, and every later save of this tab was refused with 409)
           const revision = Math.max(Number(st.row.revision) || 0, Number(st.row.state.revision) || 0, 1);
           dispatch({ t: "hydrate", state: { ...initialDesktop(), ...st.row.state, ...measured, revision } });
+          // TT75: new window ids continue after the restored ones (the deep link below opens before the next render)
+          for (const w of st.row.state.windows) { const n = Number(/^w(\d+)_/.exec(String(w.id))?.[1] ?? 0); if (n > counter.current) counter.current = n; }
         }
       } catch (err) {
         toast(`Offline or server error: ${String((err as Error).message)}. The shell runs read-only.`, "warn");

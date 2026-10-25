@@ -1,0 +1,307 @@
+{
+  "suite": "tt75-epub",
+  "at": "2026-10-25T07:17:26.755Z",
+  "results": [
+    {
+      "suite": "tt75-epub",
+      "name": "W1 W3C epub-tests: every test opens or errors where required; per-test predicates from dc:description; no script / handler / remote resource survives; CSP in every document",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 5842
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "W2 IDPF epub3-samples (45 books): open, every spine document prepared and safe, images / media / styles point to manifest resources, the TOC resolves into the spine",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 11728
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "W3 differential vs an independent lxml package reader on every IDPF + W3C book: title, creators, identifier, version, progression, layout, spine, manifest, TOC",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 14861
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "C1 an entry compressed with a method other than stored / deflate is an error (W3C ocf-zip-comp), not garbage",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "C2 a split / spanned archive is refused (W3C ocf-zip-mult)",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "C3 DRM: a spine document encrypted with any algorithm other than font obfuscation refuses the book with a clear message",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "C4 IDPF font obfuscation: SHA-1(unique id without XML whitespace) XOR over 1040 bytes round-trips exactly; whitespace in the identifier is ignored",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 36
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "C5 Adobe font obfuscation: the identifier's UUID bytes XOR over 1024 bytes round-trips exactly",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 52
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "C6 the first rootfile of the package media type wins; a non-package rootfile listed first is skipped; path resolution clamps ../ at the root and decodes %20",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N1 <script> (XHTML and SVG, any prefix) is removed",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N2 event-handler attributes in any case are removed (onload, ONCLICK, svg onbegin)",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N3 javascript: links are removed, including entity-encoded and whitespace-split schemes",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N4 file: and remote resources are not loaded (img, video poster, audio, source, object)",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N5 iframe / frame / embed / applet / base / meta refresh are removed; srcdoc and target attributes go",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N6 an <object> that is not an image shows its fallback content instead",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N7 CSS: remote @import dropped, remote url() → none, javascript: url() → none, internal @import cycle terminates",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N8 DOCTYPE internal-subset entities are never expanded (no billion laughs, no external entity)",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N9 path traversal: ../../../../ clamps at the container root and only manifest items load (META-INF files are not reachable)",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N10 xml-stylesheet processing instructions and comments are dropped",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N11 data: URLs: images stay, data:text/html links and data: scripts do not",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N12 SVG <set>/<animate> that retarget href are dropped",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N13 malformed XML (unclosed element, a::b names, bad attribute) is an error, never guessed",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N14 deep nesting (10 000 levels) fails cleanly instead of overflowing the stack",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N15 a zip bomb entry (declared small, inflates huge) is refused",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 774
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N16 form actions, formaction and ping are removed",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N17 external links are kept only as consent-gated data-epub-ext; internal links become data-epub-href (the frame never navigates itself)",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N18 hostile package: a manifest item escaping the root, a duplicate id, a missing spine target, an empty spine",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N19 not an EPUB / no container / missing package / malformed package → clear errors",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N20 -epub- CSS mapping does not touch look-alikes (custom properties, selectors, strings) and maps values",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N21 every prepared chapter carries a CSP meta first in <head>: default-src 'none', no script-src, images / media / fonts only from blob: / data:",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-epub",
+      "name": "N22 right-to-left spreads: page-spread-right starts a pair, page-spread-left completes it; left-to-right is the mirror image",
+      "covers": {
+        "FF-10": "full",
+        "FF-60": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

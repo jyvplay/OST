@@ -57,6 +57,20 @@ export function askForm(opts: AskOptions): Promise<Record<string, string> | null
   });
 }
 
+/**
+ * TT75: an in-app yes / no question (no fields) — resolves true only when the user presses the OK button (Enter on it);
+ * Cancel, Escape and a full queue resolve false. askForm itself still refuses a field-less request (resolves null), so a
+ * caller that forgets its fields can never be mistaken for consent.
+ */
+export function askConfirm(opts: { title: string; detail?: string; okLabel?: string }): Promise<boolean> {
+  if (queue.length >= MAX_QUEUE) return Promise.resolve(false);
+  return new Promise((resolve) => {
+    const req: AskRequest = { id: ++seq, title: String(opts.title).slice(0, 200), detail: String(opts.detail ?? "").slice(0, 600), fields: [], okLabel: opts.okLabel || "OK" };
+    queue = [...queue, { req, settle: (v) => resolve(v !== null) }];
+    emit();
+  });
+}
+
 /** Drop-in replacement for prompt(label, def): resolves to the entered text ("" allowed) or null on cancel. */
 export async function askText(label: string, def = "", opts: { secret?: boolean; validate?: (v: string) => string | null | undefined; okLabel?: string; detail?: string; title?: string; placeholder?: string } = {}): Promise<string | null> {
   const v = opts.validate;

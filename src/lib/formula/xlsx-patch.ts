@@ -35,6 +35,8 @@ import { autoFilterXml } from "./sheetfilter";
 import { canonicalizeNs, SML_CANON } from "../office/xml-ns";
 import type { CondRule } from "./sheetmeta";
 import { addFuturePrefixes } from "./sheetops";
+import { structuredRefsToFileForm } from "./sheettables";
+import { filterColumnsXml } from "./sheetfilter";
 import { linksXml, REL_HYPERLINK } from "./sheetlinks";
 import { PIVOT_NAME_RE, pivotNames } from "./pivotsheet";
 import { patchPivots, type PivotPatchReport } from "./xlsx-pivotpatch";
@@ -282,7 +284,9 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     const pinnedCharts = (w: Workbook) => w.charts.filter((c) => pinnedNames.has(c.sheet.toLowerCase())).map((c) => c.sheet.toLowerCase() + chartKey(c));
     // TT61 fix: pivot definitions count too — deleting a pivot whose output cells were already gone changes no cell, and the
     // shortcut used to hand back the original bytes, so the hidden definition names (and the pivot) came back on reopen
-    if (same && eqJ(pinnedCharts(workbook), pinnedCharts(orig)) && pivKey(orig) === pivKey(workbook)) return { bytes: original, report };
+    // TT75: a table moved / resized / removed by a structural edit is a change even if (in theory) no cell moved
+    const tabKey = (w: Workbook) => JSON.stringify([...w.tables.values()].map((t) => [t.name, t.sheet, t.c0, t.r0, t.c1, t.r1, t.headerRows, t.totalsRows, t.columns, t.filter ?? null]));
+    if (same && eqJ(pinnedCharts(workbook), pinnedCharts(orig)) && pivKey(orig) === pivKey(workbook) && tabKey(orig) === tabKey(workbook)) return { bytes: original, report };
   }
 
   for (const { sheet, orig: o } of mapping) {
@@ -346,7 +350,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
         c = el(SP + "c", { r: a1(col, row), s: s ? String(s) : undefined });
         if (cell && cell.input !== "" && cell.formula) {
           const sp = cell.spill;
-          const f = el(SP + "f", sp && (sp.rows > 1 || sp.cols > 1) ? { t: "array", ref: `${a1(col, row)}:${a1(col + sp.cols - 1, row + sp.rows - 1)}` } : {}, [textNode(addFuturePrefixes(cell.input.slice(1)))]);
+          const f = el(SP + "f", sp && (sp.rows > 1 || sp.cols > 1) ? { t: "array", ref: `${a1(col, row)}:${a1(col + sp.cols - 1, row + sp.rows - 1)}` } : {}, [textNode(addFuturePrefixes(structuredRefsToFileForm(cell.input, workbook, sheet.name, col, row).slice(1)))]);
           c.kids.push(f);
         }
         // TT68 FF-52: a constant empty-text cell (input "'") is non-blank — store it as an empty inline string.
@@ -725,6 +729,47 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
   if (ctChanged && !out.has("[Content_Types].xml")) { out.set("[Content_Types].xml", serializeXml(ctDoc)); report.partsRewritten.push("[Content_Types].xml"); }
   if (styles.changed) { out.set(stylesPart, serializeXml(styles.doc)); report.partsRewritten.push(stylesPart); }
 
+  // --- TT75: Excel tables follow the edit (insert / delete rows or columns moved, grew, shrank or removed them). Changed
+  // tables are patched surgically in their ORIGINAL part (unknown attributes / children kept); removed ones lose their
+  // part, relationship, <tablePart> and content-type override.
+  {
+    const tkey = (t?: import("./engine").TableDef) => (t ? JSON.stringify([t.sheet.toLowerCase(), t.c0, t.r0, t.c1, t.r1, t.headerRows, t.totalsRows, t.columns, t.filter ?? null]) : "");
+    for (const { sheet, orig: o } of mapping) {
+      if (!o) continue;
+      const relsPath = realName(relsPathOf(o.part));
+      const relsXml = (typeof out.get(relsPath) === "string" ? out.get(relsPath) as string : null) ?? (await zip.readText(relsPath));
+      if (!relsXml) continue;
+      let rels = relsXml; let sheetXml = typeof out.get(o.part) === "string" ? out.get(o.part) as string : null; let relsTouched = false;
+      for (const m of [...relsXml.matchAll(/<(?:\w+:)?Relationship\b([^>]*?)\/?>/g)]) {
+        if (!/\/relationships\/table$/.test(xmlAttrOf(m[1], "Type") ?? "")) continue;
+        const id = xmlAttrOf(m[1], "Id"); const target = xmlAttrOf(m[1], "Target"); if (!id || !target || xmlAttrOf(m[1], "TargetMode") === "External") continue;
+        const part = realName(target.startsWith("/") ? target.slice(1) : resolve(o.part, target));
+        const txml = await zip.readText(part); if (!txml) continue;
+        const head = /<(\w+:)?table\b([^>]*)>/.exec(txml); if (!head) continue;
+        const tname = xmlAttrOf(head[2], "displayName") ?? xmlAttrOf(head[2], "name") ?? "";
+        const before = orig.tables.get(tname.toUpperCase()); const now = workbook.tables.get(tname.toUpperCase());
+        if (before && now && now.sheet === sheet.name && tkey({ ...before, sheet: sheet.name }) === tkey(now)) continue;
+        if (!before) continue; // not modelled on load → keep verbatim
+        if (!now || now.sheet !== sheet.name) {
+          removed.add(part); out.delete(part);
+          rels = rels.replace(m[0], ""); relsTouched = true;
+          if (sheetXml === null) sheetXml = (await zip.readText(o.part)) ?? null;
+          if (sheetXml !== null) {
+            sheetXml = sheetXml.replace(new RegExp(`<(?:\\w+:)?tablePart\\b[^>]*?\\bid\\s*=\\s*["']${id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["'][^>]*?/>`), "");
+            sheetXml = sheetXml.replace(/<((?:\w+:)?)tableParts\b[^>]*>([\s\S]*?)<\/\1tableParts>/, (all, px: string, inner: string) => { const n = (inner.match(/<(?:\w+:)?tablePart\b/g) ?? []).length; return n ? `<${px}tableParts count="${n}">${inner}</${px}tableParts>` : ""; });
+            out.set(o.part, sheetXml); removed.delete(o.part);
+          }
+          for (const ov of kids(ctDoc.root)) if (ln(ov.name) === "Override" && (attr(ov, "PartName") ?? "").toLowerCase() === `/${part}`.toLowerCase()) { ctDoc.root.kids = ctDoc.root.kids.filter((k) => k !== ov); ctChanged = true; }
+          report.partsRewritten.push(part);
+          continue;
+        }
+        out.set(part, patchTableXml(txml, before, now)); report.partsRewritten.push(part);
+      }
+      if (relsTouched) { out.set(relsPath, rels); removed.delete(relsPath); report.partsRewritten.push(relsPath); }
+    }
+    if (ctChanged) out.set("[Content_Types].xml", serializeXml(ctDoc)); // (re)serialise: overrides of removed table parts are gone
+  }
+
   // --- assemble in original entry order; new parts appended
   const files: { name: string; data: Uint8Array | string }[] = [];
   for (const e of zip.entries) {
@@ -743,3 +788,49 @@ export function canPatch(bytes: Uint8Array): boolean {
   try { const z = openZip(bytes); return z.has("[Content_Types].xml") && z.entries.some((e) => /workbook\.xml$/.test(e.name)); } catch { return false; }
 }
 
+
+/* ------------------------------------------------------------------ TT75 table parts */
+function xmlAttrOf(attrs: string, name: string): string | undefined {
+  const m = new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`).exec(attrs);
+  return m ? (m[1] ?? m[2]) : undefined;
+}
+const colLetters = (c: number) => { let s = ""; c++; while (c > 0) { const m = (c - 1) % 26; s = String.fromCharCode(65 + m) + s; c = Math.floor((c - 1) / 26); } return s; };
+const rng = (c0: number, r0: number, c1: number, r1: number) => `${colLetters(c0)}${r0 + 1}:${colLetters(c1)}${r1 + 1}`;
+const escA = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function setXmlAttr(tag: string, name: string, value: string | null): string {
+  const re = new RegExp(`(\\s)${name}\\s*=\\s*(?:"[^"]*"|'[^']*')`);
+  if (value === null) return tag.replace(re, "");
+  if (re.test(tag)) return tag.replace(re, `$1${name}="${value}"`);
+  return tag.replace(/(\/?>)$/, ` ${name}="${value}"$1`);
+}
+/** Patch one table part to the edited TableDef: ref, totals, autoFilter ref / criteria, tableColumns (by name). */
+export function patchTableXml(xml: string, before: import("./engine").TableDef, now: import("./engine").TableDef): string {
+  let x = xml;
+  x = x.replace(/<(\w+:)?table\b[^>]*>/, (tag) => {
+    let t = setXmlAttr(tag, "ref", rng(now.c0, now.r0, now.c1, now.r1));
+    if (before.totalsRows && !now.totalsRows) { t = setXmlAttr(t, "totalsRowCount", null); t = setXmlAttr(t, "totalsRowShown", "0"); }
+    return t;
+  });
+  const afRef = rng(now.c0, now.r0, now.c1, Math.max(now.r0, now.r1 - now.totalsRows));
+  const filterChanged = JSON.stringify(before.filter ?? null) !== JSON.stringify(now.filter ?? null) || before.c1 - before.c0 !== now.c1 - now.c0;
+  if (!filterChanged) x = x.replace(/<(\w+:)?autoFilter\b[^>]*?\/?>/, (tag) => setXmlAttr(tag, "ref", afRef));
+  else x = x.replace(/<(\w+:)?autoFilter\b[^>]*?(?:\/>|>[\s\S]*?<\/\1autoFilter>)/, (_all, px: string | undefined) => {
+    const p = px ?? "";
+    const body = filterColumnsXml(now.filter?.cols ?? {}, now.filter?.raw, p);
+    return body ? `<${p}autoFilter ref="${afRef}">${body}</${p}autoFilter>` : `<${p}autoFilter ref="${afRef}"/>`;
+  });
+  if (JSON.stringify(before.columns) !== JSON.stringify(now.columns)) {
+    x = x.replace(/<(\w+:)?tableColumns\b[^>]*>([\s\S]*?)<\/\1tableColumns>/, (all, px: string | undefined, inner: string) => {
+      const p = px ?? "";
+      const els = [...inner.matchAll(new RegExp(`<${p}tableColumn\\b([^>]*?)(?:/>|>[\\s\\S]*?</${p}tableColumn>)`, "g"))].map((m) => ({ xml: m[0], name: (xmlAttrOf(m[1], "name") ?? "").toLowerCase(), id: Number(xmlAttrOf(m[1], "id") ?? 0) }));
+      let maxId = Math.max(0, ...els.map((e) => e.id));
+      const byName = new Map(els.map((e) => [decodeXmlName(e.name), e] as const));
+      const outEls = now.columns.map((nm) => byName.get(nm.toLowerCase())?.xml ?? `<${p}tableColumn id="${++maxId}" name="${escA(nm)}"/>`);
+      return `<${p}tableColumns count="${outEls.length}">${outEls.join("")}</${p}tableColumns>`;
+    });
+  }
+  return x;
+}
+function decodeXmlName(s: string): string {
+  return s.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/_x([0-9a-f]{4})_/gi, (_, h: string) => String.fromCharCode(parseInt(h, 16))).toLowerCase();
+}

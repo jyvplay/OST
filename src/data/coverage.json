@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-25T02:45:38.347Z",
+ "generatedAt": "2026-10-25T07:18:26.319Z",
  "totals": {
   "built": {
-   "full": 312,
+   "full": 316,
    "partial": 54,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 237,
+   "full": 241,
    "partial": 72,
    "untested": 79
   },
   "tests": {
-   "total": 1379,
-   "passed": 1379
+   "total": 1445,
+   "passed": 1445
   }
  },
  "rows": {
@@ -1131,7 +1131,55 @@
   "FF-10": {
    "tested": "full",
    "tests": [
+    "e2e-tt75-books: B1 reflowable pages: columns paginate, Next / ArrowRight move one page width, the end of a part goes on, the position is restored on reopen",
+    "e2e-tt75-books: B2 contents: clicking an entry shows that part",
+    "e2e-tt75-books: B3 search: hits are listed; a hit opens its part with a visible <mark>",
+    "e2e-tt75-books: B4 safety: book scripts and handlers never run, no allow-scripts, CSP meta present; an external link asks first and Cancel opens nothing",
+    "e2e-tt75-books: B5 right-to-left page progression: ArrowLeft advances, ArrowRight goes back",
+    "e2e-tt75-books: B6 fixed layout: the 900×600 viewport is scaled to fit; a spread puts page-spread-left on the left; spread none shows one page",
+    "e2e-tt75-books: B7 -epub-writing-mode reaches the computed style",
+    "e2e-tt75-books: B8 an obfuscated font loads after de-obfuscation; the wrong-key variant does not",
+    "e2e-tt75-books: B9 Dark theme and a larger font reach the frame",
+    "e2e-tt75-books: B10 manifest images decode under the frame CSP; an image missing from the manifest is not shown",
+    "e2e-tt75-books: B11 a malformed chapter shows an error message instead of guessed content",
+    "e2e-tt75-books: B12 roll layout: all parts are stacked in one vertical scroller",
+    "e2e-tt75-books: B14 Shell: a file opened after a reload loads even when a restored window holds the same id (w1_books) — it was focused instead and the file never loaded",
+    "e2e-tt75-books: B15 an in-book link (data-epub-href) opens its target part through the frame listener; the frame itself never navigates",
+    "e2e-tt75-books: B16 visual: reflowable page and a fixed-layout spread render (screenshots for inspection)",
+    "e2e-tt75-books: B13 no page errors were thrown by the app during the suite",
+    "e2e: mount: books",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
+    "tt75-epub: W1 W3C epub-tests: every test opens or errors where required; per-test predicates from dc:description; no script / handler / remote resource survives; CSP in every document",
+    "tt75-epub: W2 IDPF epub3-samples (45 books): open, every spine document prepared and safe, images / media / styles point to manifest resources, the TOC resolves into the spine",
+    "tt75-epub: W3 differential vs an independent lxml package reader on every IDPF + W3C book: title, creators, identifier, version, progression, layout, spine, manifest, TOC",
+    "tt75-epub: C1 an entry compressed with a method other than stored / deflate is an error (W3C ocf-zip-comp), not garbage",
+    "tt75-epub: C2 a split / spanned archive is refused (W3C ocf-zip-mult)",
+    "tt75-epub: C3 DRM: a spine document encrypted with any algorithm other than font obfuscation refuses the book with a clear message",
+    "tt75-epub: C4 IDPF font obfuscation: SHA-1(unique id without XML whitespace) XOR over 1040 bytes round-trips exactly; whitespace in the identifier is ignored",
+    "tt75-epub: C5 Adobe font obfuscation: the identifier's UUID bytes XOR over 1024 bytes round-trips exactly",
+    "tt75-epub: C6 the first rootfile of the package media type wins; a non-package rootfile listed first is skipped; path resolution clamps ../ at the root and decodes %20",
+    "tt75-epub: N1 <script> (XHTML and SVG, any prefix) is removed",
+    "tt75-epub: N2 event-handler attributes in any case are removed (onload, ONCLICK, svg onbegin)",
+    "tt75-epub: N3 javascript: links are removed, including entity-encoded and whitespace-split schemes",
+    "tt75-epub: N4 file: and remote resources are not loaded (img, video poster, audio, source, object)",
+    "tt75-epub: N5 iframe / frame / embed / applet / base / meta refresh are removed; srcdoc and target attributes go",
+    "tt75-epub: N6 an <object> that is not an image shows its fallback content instead",
+    "tt75-epub: N7 CSS: remote @import dropped, remote url() → none, javascript: url() → none, internal @import cycle terminates",
+    "tt75-epub: N8 DOCTYPE internal-subset entities are never expanded (no billion laughs, no external entity)",
+    "tt75-epub: N9 path traversal: ../../../../ clamps at the container root and only manifest items load (META-INF files are not reachable)",
+    "tt75-epub: N10 xml-stylesheet processing instructions and comments are dropped",
+    "tt75-epub: N11 data: URLs: images stay, data:text/html links and data: scripts do not",
+    "tt75-epub: N12 SVG <set>/<animate> that retarget href are dropped",
+    "tt75-epub: N13 malformed XML (unclosed element, a::b names, bad attribute) is an error, never guessed",
+    "tt75-epub: N14 deep nesting (10 000 levels) fails cleanly instead of overflowing the stack",
+    "tt75-epub: N15 a zip bomb entry (declared small, inflates huge) is refused",
+    "tt75-epub: N16 form actions, formaction and ping are removed",
+    "tt75-epub: N17 external links are kept only as consent-gated data-epub-ext; internal links become data-epub-href (the frame never navigates itself)",
+    "tt75-epub: N18 hostile package: a manifest item escaping the root, a duplicate id, a missing spine target, an empty spine",
+    "tt75-epub: N19 not an EPUB / no container / missing package / malformed package → clear errors",
+    "tt75-epub: N20 -epub- CSS mapping does not touch look-alikes (custom properties, selectors, strings) and maps values",
+    "tt75-epub: N21 every prepared chapter carries a CSP meta first in <head>: default-src 'none', no script-src, images / media / fonts only from blob: / data:",
+    "tt75-epub: N22 right-to-left spreads: page-spread-right starts a pair, page-spread-left completes it; left-to-right is the mirror image",
     "unit: docx extraction; EPUB spine order; PSD header"
    ]
   },
@@ -1257,6 +1305,7 @@
     "oracle: oracle: circular — 2 cells match",
     "tt68-blank: blank vs empty text follows Microsoft's definitions (27 cases): ISBLANK only for empty cells, COUNTA counts \"\", ISTEXT/ISNONTEXT/TYPE of an empty cell, through OFFSET/INDEX/whole columns/array constants",
     "tt68-blank: error literals are error CONSTANTS (ECMA-376 ST_CellError), case-insensitive; '#N/A stays text; #bogus / #SPILL! typed stay text; textInput quotes an error-looking text so it round-trips as text",
+    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
     "tt69-sheet-misc: an empty-text cell survives .xlsx: openpyxl reads '' (a string cell, not None) and our reader reads it back as empty text",
     "tt69-sheet-misc: SUMIF / AVERAGEIF resize sum_range from its top-left cell to range's shape (hand cases + recalc of a cell outside the written sum_range)",
     "tt69-sheet-misc: SUMIF / AVERAGEIF resize: brute-force reference over 400 random shapes and offsets",
@@ -1287,7 +1336,24 @@
     "tt74-office: N13 setFilterColumn outside the filter range throws; hiding beyond the sheet is clamped",
     "tt74-office: N15 pathological numbers: ROUND of 1e308 / NaN-producing input / negative digits beyond range stay finite or #NUM!",
     "tt74-office: N16 XLOOKUP with mismatched shapes / bad modes is #VALUE!",
-    "tt74-office: N17 AutoFilter XML written with single quotes, spaces around = and a namespace prefix reads the same (found by tt72-office S1)"
+    "tt74-office: N17 AutoFilter XML written with single quotes, spaces around = and a namespace prefix reads the same (found by tt72-office S1)",
+    "tt75-office: T1 corpus → new package: every table written (openpyxl agrees on name / ref / header / totals / columns / filter), structured formulas keep their values after reopening, table parts schema-valid, file-form formulas",
+    "tt75-office: T2 corpus structural edits on every table: insert / delete a body row and a column inside it, delete the whole table, refuse a header-only delete — probes follow the invariants; new package and in-place save carry the geometry (openpyxl)",
+    "tt75-office: T3 table rules: refusals (header row, two tables), totals row, last body row kept, removed column / table → #REF!, file form of [@Col] / name-less refs, strings untouched",
+    "tt75-office: T4 numeric header cells are written as text (openpyxl sees str); a header cell that differs from its column name is reported",
+    "tt75-office: T5 column names with a line break, a tab, a literal _x0041_ and XML specials round-trip through the table part (ST_Xstring) and stay schema-valid",
+    "tt75-office: N1 hostile workbook JSON table filters (bad offsets, non-strings, huge lists, prototype keys) are dropped or capped",
+    "tt75-office: N2 a table name or column name cannot inject XML into the table part (names are escaped; the part stays schema-valid)",
+    "tt75-office: N3 duplicate / empty column names are made unique for Excel (Excel refuses duplicates) without touching the model",
+    "tt75-office: N4 structured-reference rewriting is not fooled by look-alikes: a defined name, a function call, a string, an external [1] index",
+    "tt75-office: N5 an insert / delete that Excel refuses changes nothing (cells, tables, formulas)",
+    "tt75-office: N6 in-place save: a table removed by deleting its rows loses its part, relationship, <tablePart> and content-type override (openpyxl opens it; no dangling part)",
+    "tt75-office: N7 kept foreign filter criteria pass an allowlist sanitiser (file AND workbook JSON): injected elements, attributes, text, comments, entities, prefixes",
+    "tt75-office: N8 kept foreign criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
+    "tt75-office: N9 range memo is invisible: 300 random workbooks with lookups, COUNTBLANK / COUNTA, spills, INDIRECT and cycles through ranges evaluate identically with the memo on and off",
+    "tt75-office: N10 ROWS / COLUMNS: a non-reference error argument propagates (=ROWS(#REF!), =COLUMNS(1/0)), a reference to an error cell counts as 1, arrays keep their shape",
+    "tt75-office: N11 table names: cell-reference and R1C1 look-alikes, C / R, spaces, a leading digit are refused; Unicode, _ / \\ starts and dots are accepted",
+    "tt75-office: N12 adjustTablesForStructure refuses a header-only delete and a two-table insert even when called directly (not through insertDelete)"
    ]
   },
   "FF-20": {
@@ -1453,6 +1519,7 @@
     "tt68-blank: reader: every constant empty-text cell of the 8 corpus workbooks that have them is kept as non-blank empty text — the SAME cells lxml finds (6 190 cells); TT67 dropped them all",
     "tt68-blank: hostile / edge cell shapes (18): which XML is empty text, which is no value — sst \"\" / rich-empty / spaced index → empty text; empty, negative, fractional or out-of-range index, inlineStr without <is>, str without <v> → no value; lxml agrees on every empty-text verdict; text \"#N/A\" stays text",
     "tt68-blank: lossless save: untouched empty-text cells keep their original <c> byte-for-byte; a cell edited to empty text is written as an empty inline string; openpyxl opens it and lxml lists exactly the original empty-text cells plus the new one",
+    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
     "tt72-office: S1 corpus: every readable xlsx with all xl/**.xml attributes single-quoted and spaced around '=' reads to the SAME model (inputs, values, styles, widths, merges, validations, links); the TT71 reader lost cells / styles on them",
     "tt72-office: S2 font / fill flags: <b val='0'/> and <b val = \"false\"/> are not bold, <b/> and <b val='1'/> are; patternType = 'solid' fills; underline 'none' is off",
     "tt72-office: C1 Agile EncryptionInfo written with single quotes (same bytes length, patched inside the CFB) still decrypts with HMAC verified; TT71 refused it",
@@ -1485,7 +1552,24 @@
     "tt74-office: N14 CSV export of text that looks like a number / formula / has leading zeros is quoted or reported as a loss",
     "tt74-office: N15 pathological numbers: ROUND of 1e308 / NaN-producing input / negative digits beyond range stay finite or #NUM!",
     "tt74-office: N16 XLOOKUP with mismatched shapes / bad modes is #VALUE!",
-    "tt74-office: N17 AutoFilter XML written with single quotes, spaces around = and a namespace prefix reads the same (found by tt72-office S1)"
+    "tt74-office: N17 AutoFilter XML written with single quotes, spaces around = and a namespace prefix reads the same (found by tt72-office S1)",
+    "tt75-office: T1 corpus → new package: every table written (openpyxl agrees on name / ref / header / totals / columns / filter), structured formulas keep their values after reopening, table parts schema-valid, file-form formulas",
+    "tt75-office: T2 corpus structural edits on every table: insert / delete a body row and a column inside it, delete the whole table, refuse a header-only delete — probes follow the invariants; new package and in-place save carry the geometry (openpyxl)",
+    "tt75-office: T3 table rules: refusals (header row, two tables), totals row, last body row kept, removed column / table → #REF!, file form of [@Col] / name-less refs, strings untouched",
+    "tt75-office: T4 numeric header cells are written as text (openpyxl sees str); a header cell that differs from its column name is reported",
+    "tt75-office: T5 column names with a line break, a tab, a literal _x0041_ and XML specials round-trip through the table part (ST_Xstring) and stay schema-valid",
+    "tt75-office: N1 hostile workbook JSON table filters (bad offsets, non-strings, huge lists, prototype keys) are dropped or capped",
+    "tt75-office: N2 a table name or column name cannot inject XML into the table part (names are escaped; the part stays schema-valid)",
+    "tt75-office: N3 duplicate / empty column names are made unique for Excel (Excel refuses duplicates) without touching the model",
+    "tt75-office: N4 structured-reference rewriting is not fooled by look-alikes: a defined name, a function call, a string, an external [1] index",
+    "tt75-office: N5 an insert / delete that Excel refuses changes nothing (cells, tables, formulas)",
+    "tt75-office: N6 in-place save: a table removed by deleting its rows loses its part, relationship, <tablePart> and content-type override (openpyxl opens it; no dangling part)",
+    "tt75-office: N7 kept foreign filter criteria pass an allowlist sanitiser (file AND workbook JSON): injected elements, attributes, text, comments, entities, prefixes",
+    "tt75-office: N8 kept foreign criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
+    "tt75-office: N9 range memo is invisible: 300 random workbooks with lookups, COUNTBLANK / COUNTA, spills, INDIRECT and cycles through ranges evaluate identically with the memo on and off",
+    "tt75-office: N10 ROWS / COLUMNS: a non-reference error argument propagates (=ROWS(#REF!), =COLUMNS(1/0)), a reference to an error cell counts as 1, arrays keep their shape",
+    "tt75-office: N11 table names: cell-reference and R1C1 look-alikes, C / R, spaces, a leading digit are refused; Unicode, _ / \\ starts and dots are accepted",
+    "tt75-office: N12 adjustTablesForStructure refuses a header-only delete and a two-table insert even when called directly (not through insertDelete)"
    ]
   },
   "FF-22": {
@@ -3332,6 +3416,7 @@
     "tt68-blank: hostile / edge cell shapes (18): which XML is empty text, which is no value — sst \"\" / rich-empty / spaced index → empty text; empty, negative, fractional or out-of-range index, inlineStr without <is>, str without <v> → no value; lxml agrees on every empty-text verdict; text \"#N/A\" stays text",
     "tt68-blank: writer: a constant empty-text cell is saved (shared string \"\"), a blank is not; openpyxl sees '' vs no cell; re-read keeps ISBLANK FALSE / COUNTA 1; styled blank stays blank",
     "tt68-blank: lossless save: untouched empty-text cells keep their original <c> byte-for-byte; a cell edited to empty text is written as an empty inline string; openpyxl opens it and lxml lists exactly the original empty-text cells plus the new one",
+    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
     "tt73-office: H1 held-out formula probe: ≥ 26,869 of 26,946 Excel-cached formula cells agree after recalculation (TT72 baseline 26,295)"
    ]
   },
@@ -3364,6 +3449,67 @@
    "tested": "full",
    "tests": [
     "e2e-tt74-office: Slides: Outline downloads the deck's titles, bullets and notes as Markdown after the loss dialog"
+   ]
+  },
+  "FF-58": {
+   "tested": "full",
+   "tests": [
+    "tt75-office: T1 corpus → new package: every table written (openpyxl agrees on name / ref / header / totals / columns / filter), structured formulas keep their values after reopening, table parts schema-valid, file-form formulas",
+    "tt75-office: T2 corpus structural edits on every table: insert / delete a body row and a column inside it, delete the whole table, refuse a header-only delete — probes follow the invariants; new package and in-place save carry the geometry (openpyxl)",
+    "tt75-office: T3 table rules: refusals (header row, two tables), totals row, last body row kept, removed column / table → #REF!, file form of [@Col] / name-less refs, strings untouched",
+    "tt75-office: T4 numeric header cells are written as text (openpyxl sees str); a header cell that differs from its column name is reported",
+    "tt75-office: T5 column names with a line break, a tab, a literal _x0041_ and XML specials round-trip through the table part (ST_Xstring) and stay schema-valid",
+    "tt75-office: N1 hostile workbook JSON table filters (bad offsets, non-strings, huge lists, prototype keys) are dropped or capped",
+    "tt75-office: N2 a table name or column name cannot inject XML into the table part (names are escaped; the part stays schema-valid)",
+    "tt75-office: N3 duplicate / empty column names are made unique for Excel (Excel refuses duplicates) without touching the model",
+    "tt75-office: N4 structured-reference rewriting is not fooled by look-alikes: a defined name, a function call, a string, an external [1] index",
+    "tt75-office: N5 an insert / delete that Excel refuses changes nothing (cells, tables, formulas)",
+    "tt75-office: N6 in-place save: a table removed by deleting its rows loses its part, relationship, <tablePart> and content-type override (openpyxl opens it; no dangling part)",
+    "tt75-office: N7 kept foreign filter criteria pass an allowlist sanitiser (file AND workbook JSON): injected elements, attributes, text, comments, entities, prefixes",
+    "tt75-office: N8 kept foreign criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
+    "tt75-office: N11 table names: cell-reference and R1C1 look-alikes, C / R, spaces, a leading digit are refused; Unicode, _ / \\ starts and dots are accepted",
+    "tt75-office: N12 adjustTablesForStructure refuses a header-only delete and a two-table insert even when called directly (not through insertDelete)"
+   ]
+  },
+  "FF-59": {
+   "tested": "full",
+   "tests": [
+    "tt75-office: N9 range memo is invisible: 300 random workbooks with lookups, COUNTBLANK / COUNTA, spills, INDIRECT and cycles through ranges evaluate identically with the memo on and off"
+   ]
+  },
+  "FF-60": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt75-books: B6 fixed layout: the 900×600 viewport is scaled to fit; a spread puts page-spread-left on the left; spread none shows one page",
+    "e2e-tt75-books: B12 roll layout: all parts are stacked in one vertical scroller",
+    "tt75-epub: N22 right-to-left spreads: page-spread-right starts a pair, page-spread-left completes it; left-to-right is the mirror image"
+   ]
+  },
+  "FF-61": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt75-books: B4 safety: book scripts and handlers never run, no allow-scripts, CSP meta present; an external link asks first and Cancel opens nothing",
+    "tt75-epub: W2 IDPF epub3-samples (45 books): open, every spine document prepared and safe, images / media / styles point to manifest resources, the TOC resolves into the spine",
+    "tt75-epub: N1 <script> (XHTML and SVG, any prefix) is removed",
+    "tt75-epub: N2 event-handler attributes in any case are removed (onload, ONCLICK, svg onbegin)",
+    "tt75-epub: N3 javascript: links are removed, including entity-encoded and whitespace-split schemes",
+    "tt75-epub: N4 file: and remote resources are not loaded (img, video poster, audio, source, object)",
+    "tt75-epub: N5 iframe / frame / embed / applet / base / meta refresh are removed; srcdoc and target attributes go",
+    "tt75-epub: N6 an <object> that is not an image shows its fallback content instead",
+    "tt75-epub: N7 CSS: remote @import dropped, remote url() → none, javascript: url() → none, internal @import cycle terminates",
+    "tt75-epub: N8 DOCTYPE internal-subset entities are never expanded (no billion laughs, no external entity)",
+    "tt75-epub: N9 path traversal: ../../../../ clamps at the container root and only manifest items load (META-INF files are not reachable)",
+    "tt75-epub: N10 xml-stylesheet processing instructions and comments are dropped",
+    "tt75-epub: N11 data: URLs: images stay, data:text/html links and data: scripts do not",
+    "tt75-epub: N12 SVG <set>/<animate> that retarget href are dropped",
+    "tt75-epub: N13 malformed XML (unclosed element, a::b names, bad attribute) is an error, never guessed",
+    "tt75-epub: N14 deep nesting (10 000 levels) fails cleanly instead of overflowing the stack",
+    "tt75-epub: N15 a zip bomb entry (declared small, inflates huge) is refused",
+    "tt75-epub: N16 form actions, formaction and ping are removed",
+    "tt75-epub: N17 external links are kept only as consent-gated data-epub-ext; internal links become data-epub-href (the frame never navigates itself)",
+    "tt75-epub: N18 hostile package: a manifest item escaping the root, a duplicate id, a missing spine target, an empty spine",
+    "tt75-epub: N19 not an EPUB / no container / missing package / malformed package → clear errors",
+    "tt75-epub: N21 every prepared chapter carries a CSP meta first in <head>: default-src 'none', no script-src, images / media / fonts only from blob: / data:"
    ]
   },
   "CT-01": {
