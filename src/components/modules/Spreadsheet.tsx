@@ -5,7 +5,8 @@ import { fz, useUiUnit } from "@/lib/uiscale";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import { sheetToCsv, csvToWorkbook } from "@/lib/formula/csv";
-import { filterRange, filterValues, hideCols, hideRows, setAutoFilter, setFilterColumn, unhideCols, unhideRows } from "@/lib/formula/sheetfilter";
+import { filterCriteria, filterRange, filterValues, hideCols, hideRows, setAutoFilter, setFilterColumn, setFilterCriteria, unhideCols, unhideRows } from "@/lib/formula/sheetfilter";
+import { colourOptions, critToDraft, DATE_CHOICES, DATE_LABELS, describeCrit, draftToCrit, iconOptions, UI_OPS, type CondDraft, type CondMode, type IconOption, type UiOp } from "@/lib/formula/filterui";
 import { lossDetail, downloadAs } from "@/lib/office/export-ask";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
@@ -361,7 +362,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   };
 
   /* ---------------------------------------------------------------- TT74 hide / unhide / AutoFilter */
-  const [fpanel, setFpanel] = useState<{ col: number; vals: { value: string; count: number }[]; shown: Set<string> } | null>(null);
+  // TT76: tab "cond" = the Condition dialog (custom / top 10 / average / dates / colour / icon), evaluated by filtereval
+  const [fpanel, setFpanel] = useState<{ col: number; vals: { value: string; count: number }[]; shown: Set<string>; tab: "values" | "cond"; draft: CondDraft; colors: { cell: (string | null)[]; font: (string | null)[] }; icons: IconOption[] } | null>(null);
   const doHide = (what: "rows" | "cols") => {
     commit(null); let n = 0;
     mutate((_wb, s) => { n = what === "rows" ? hideRows(s, selR.r0, selR.r1) : hideCols(s, selR.c0, selR.c1); });
@@ -384,7 +386,38 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const openFilter = (col: number) => {
     const vals = filterValues(workbook, active, col); const r = filterRange(sheet)!;
     const cur = sheet.autoFilter?.cols[col - r.c0];
-    setFpanel({ col, vals, shown: new Set(cur ?? vals.map((v) => v.value)) });
+    // colours / icons actually shown in the column's data rows (conditional formats over cell styles), as Excel lists them
+    let cf: Map<string, CfStyle> | undefined; try { cf = evalCondFormats(workbook, active, workbook.condFormats); } catch { cf = undefined; }
+    const fills: (string | undefined)[] = [], fonts: (string | undefined)[] = [], glyphs: (string | undefined)[] = [];
+    for (let row = r.r0 + 1; row <= r.r1; row++) { const st = sheet.get(col, row)?.style; const o = cf?.get(`${col},${row}`); fills.push(o?.fill ?? st?.fill); fonts.push(o?.color ?? st?.color); glyphs.push(o?.icon); }
+    const prefer = workbook.condFormats.filter((q) => q.sheet === active && q.kind === "icons" && q.iconSet).map((q) => q.iconSet!);
+    const icons = iconOptions(glyphs, prefer); const crit = filterCriteria(sheet, col);
+    const draft = critToDraft(crit, sheet.autoFilter?.fx?.[col - r.c0], icons);
+    setFpanel({ col, vals, shown: new Set(cur ?? vals.map((v) => v.value)), tab: crit ? "cond" : "values", draft, colors: colourOptions(fills, fonts), icons });
+  };
+  /** Filter dialog keys: none reach the grid behind it; Escape cancels; Enter = OK, and only while OK is enabled (an
+   *  untouched Condition dialog has no value, so Enter cannot hide every row — the modal-shortcut guard). */
+  const onFilterKey = (e: React.KeyboardEvent) => {
+    e.stopPropagation(); if (!fpanel) return;
+    if (e.key === "Escape") { setFpanel(null); gridRef.current?.focus(); return; }
+    const tag = (e.target as HTMLElement).tagName;
+    if (e.key !== "Enter" || tag === "SELECT" || tag === "BUTTON") return;
+    const cond = fpanel.tab === "cond";
+    if (cond ? typeof draftToCrit(fpanel.draft, fpanel.icons) === "string" : fpanel.shown.size === 0) return;
+    e.preventDefault(); if (cond) applyCondition(); else applyFilterPanel();
+  };
+  const clearFilterPanel = () => { if (fpanel?.tab === "cond") applyCondition(true); else applyFilterPanel(true); };
+  const okFilterPanel = () => { if (fpanel?.tab === "cond") applyCondition(); else applyFilterPanel(); };
+  const applyCondition = (clear = false) => {
+    if (!fpanel) return;
+    const crit = clear ? null : draftToCrit(fpanel.draft, fpanel.icons);
+    if (typeof crit === "string") { say(crit, true); return; }
+    let hidden = 0;
+    try {
+      mutate((wb) => { setFilterCriteria(wb, active, fpanel.col, crit, crit?.kind === "color" ? fpanel.draft.color ?? null : undefined); hidden = [...wb.sheet(active).hiddenRows.values()].filter((w) => w === "filter").length; });
+    } catch (e) { say(`Filter not applied: ${(e as Error).message}`, true); return; }
+    setStatus(`filter ${colToLetters(fpanel.col)}: ${crit ? describeCrit(crit, fpanel.draft.color) : "cleared"} · ${hidden} row(s) hidden by the filter`);
+    setFpanel(null); gridRef.current?.focus();
   };
   const applyFilterPanel = (clear = false) => {
     if (!fpanel) return;
@@ -999,9 +1032,9 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         {isFillCorner ? <div data-testid="fill-handle" onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); dragRef.current = { mode: "fill", target: null }; }}
           style={{ position: "absolute", right: -1, bottom: -1, width: 7, height: 7, background: "var(--fs-accent)", border: "1px solid #fff", cursor: "crosshair", zIndex: 3 }} /> : null}
         {afR && row === afR.r0 && col >= afR.c0 && col <= afR.c1 ? (
-          <button type="button" data-testid={`filter-btn-${colToLetters(col)}`} aria-label={`Filter column ${colToLetters(col)}`} aria-pressed={!!sheet.autoFilter?.cols[col - afR.c0]}
+          <button type="button" data-testid={`filter-btn-${colToLetters(col)}`} aria-label={`Filter column ${colToLetters(col)}`} aria-pressed={!!(sheet.autoFilter?.cols[col - afR.c0] || sheet.autoFilter?.raw?.[col - afR.c0])}
             onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); if (fpanel?.col === col) setFpanel(null); else openFilter(col); }}
-            style={{ position: "absolute", right: 1, top: 1, width: 16, height: ROW_H - 3, padding: 0, fontSize: fz(10), lineHeight: 1, border: "1px solid var(--fs-border)", borderRadius: 3, background: sheet.autoFilter?.cols[col - afR.c0] ? "var(--fs-accent)" : "var(--fs-bg-2, #131a2b)", color: "inherit", cursor: "pointer", zIndex: 3 }}>{sheet.autoFilter?.cols[col - afR.c0] ? "⧩" : "▾"}</button>
+            style={{ position: "absolute", right: 1, top: 1, width: 16, height: ROW_H - 3, padding: 0, fontSize: fz(10), lineHeight: 1, border: "1px solid var(--fs-border)", borderRadius: 3, background: sheet.autoFilter?.cols[col - afR.c0] || sheet.autoFilter?.raw?.[col - afR.c0] ? "var(--fs-accent)" : "var(--fs-bg-2, #131a2b)", color: "inherit", cursor: "pointer", zIndex: 3 }}>{sheet.autoFilter?.cols[col - afR.c0] || sheet.autoFilter?.raw?.[col - afR.c0] ? "⧩" : "▾"}</button>
         ) : null}
       </td>
     );
@@ -1406,10 +1439,80 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           let left = ROWHDR_W; for (let c = 0; c < fpanel.col; c++) left += colW(c);
           const all = fpanel.vals.every((v) => fpanel.shown.has(v.value));
           const flip = (v: string) => setFpanel((p) => { if (!p) return p; const n = new Set(p.shown); if (n.has(v)) n.delete(v); else n.add(v); return { ...p, shown: n }; });
+          const setD = (patch: Partial<CondDraft>) => setFpanel((p) => (p ? { ...p, draft: { ...p.draft, ...patch } } : p));
+          const d = fpanel.draft; const condOk = typeof draftToCrit(d, fpanel.icons) !== "string";
+          const isCond = fpanel.tab === "cond";
+          const swatch = (c: string | null, on: boolean, onPick: () => void, label: string) => (
+            <button type="button" key={label} aria-label={label} aria-pressed={on} data-testid={`filter-colour-${label.replace(/[^A-Za-z0-9]/g, "")}`} onClick={onPick}
+              style={{ width: 24 * k, height: 24 * k, minWidth: 24, minHeight: 24, borderRadius: 4, cursor: "pointer", border: on ? "2px solid var(--fs-accent)" : "1px solid var(--fs-border)", background: c ?? "repeating-linear-gradient(45deg,#fff 0 4px,#ddd 4px 8px)" }} />
+          );
           return (
-            <div role="dialog" aria-label={`Filter ${colToLetters(fpanel.col)}`} data-testid="filter-panel" className="fs-card" onMouseDown={(e) => e.stopPropagation()} onCopy={(e) => e.stopPropagation()} onCut={(e) => e.stopPropagation()} onPaste={(e) => e.stopPropagation()} onKeyDown={(e) => { e.stopPropagation(); /* a dialog: no key reaches the grid behind it */ if (e.key === "Escape") { setFpanel(null); gridRef.current?.focus(); } else if (e.key === "Enter" && fpanel.shown.size) { e.preventDefault(); applyFilterPanel(); } }}
+            <div role="dialog" aria-label={`Filter ${colToLetters(fpanel.col)}`} data-testid="filter-panel" className="fs-card" onMouseDown={(e) => e.stopPropagation()} onCopy={(e) => e.stopPropagation()} onCut={(e) => e.stopPropagation()} onPaste={(e) => e.stopPropagation()} onKeyDown={onFilterKey}
               ref={(el) => { if (el && !el.contains(document.activeElement)) el.querySelector<HTMLInputElement>("input")?.focus(); }}
-              style={{ position: "absolute", top: HEAD_H + (rowPos(afR.r0) + 1) * ROW_H, left, zIndex: 31, minWidth: 220 * k, maxWidth: 320 * k, padding: 8, fontSize: fz(11.5), background: "var(--fs-panel-solid, #111827)", border: "1px solid var(--fs-border)", borderRadius: 6, boxShadow: "0 8px 24px rgba(0,0,0,.35)" }}>
+              style={{ position: "absolute", top: HEAD_H + (rowPos(afR.r0) + 1) * ROW_H, left, zIndex: 31, minWidth: 220 * k, maxWidth: 340 * k, width: fpanel.tab === "cond" ? 340 * k : undefined, padding: 8, fontSize: fz(11.5), background: "var(--fs-panel-solid, #111827)", border: "1px solid var(--fs-border)", borderRadius: 6, boxShadow: "0 8px 24px rgba(0,0,0,.35)" }}>
+              <div role="tablist" aria-label="Filter by" className="fs-row" style={{ gap: 4, marginBottom: 6 }}>
+                {(["values", "cond"] as const).map((t) => (
+                  <button key={t} type="button" role="tab" aria-selected={fpanel.tab === t} data-testid={`filter-tab-${t}`} className="fs-btn" onClick={() => setFpanel((p) => (p ? { ...p, tab: t } : p))}
+                    style={{ flex: 1, padding: "3px 6px", fontWeight: fpanel.tab === t ? 700 : 400, borderBottom: fpanel.tab === t ? "2px solid var(--fs-accent)" : "2px solid transparent" }}>{t === "values" ? "Values" : "Condition"}</button>
+                ))}
+              </div>
+              {isCond ? (
+                <div data-testid="filter-cond" style={{ display: "grid", gap: 6 }}>
+                  <select className="fs-input" aria-label="Condition type" data-testid="filter-mode" value={d.mode} onChange={(e) => setD({ mode: e.target.value as CondMode })}>
+                    <option value="custom">Custom (text / number rules)</option><option value="top10">Top / Bottom N</option><option value="average">Above / Below average</option>
+                    <option value="date">Date period</option><option value="color">By colour</option><option value="icon">By icon</option>
+                  </select>
+                  {d.mode === "custom" ? (<>
+                    <div className="fs-row" style={{ gap: 4 }}>
+                      <select className="fs-input" aria-label="First rule operator" data-testid="filter-op1" value={d.op1} style={{ flex: "0 0 52%", width: "52%", minWidth: 0 }} onChange={(e) => setD({ op1: e.target.value as UiOp })}>{UI_OPS.map(([o, l]) => <option key={o} value={o}>{l}</option>)}</select>
+                      <input className="fs-input" aria-label="First rule value" data-testid="filter-v1" value={d.v1} maxLength={255} onChange={(e) => setD({ v1: e.target.value })} style={{ flex: 1, minWidth: 72 * k }} />
+                    </div>
+                    <div className="fs-row" role="radiogroup" aria-label="Join rules" style={{ gap: 10 }}>
+                      <label><input type="radio" name="fjoin" checked={d.and} onChange={() => setD({ and: true })} /> And</label>
+                      <label><input type="radio" name="fjoin" data-testid="filter-or" checked={!d.and} onChange={() => setD({ and: false })} /> Or</label>
+                    </div>
+                    <div className="fs-row" style={{ gap: 4 }}>
+                      <select className="fs-input" aria-label="Second rule operator" data-testid="filter-op2" value={d.op2} style={{ flex: "0 0 52%", width: "52%", minWidth: 0 }} onChange={(e) => setD({ op2: e.target.value as UiOp | "" })}><option value="">(no second rule)</option>{UI_OPS.map(([o, l]) => <option key={o} value={o}>{l}</option>)}</select>
+                      <input className="fs-input" aria-label="Second rule value" data-testid="filter-v2" value={d.v2} maxLength={255} disabled={!d.op2} onChange={(e) => setD({ v2: e.target.value })} style={{ flex: 1, minWidth: 72 * k }} />
+                    </div>
+                    <div className="fs-dim">? = any one character, * = any run, ~ before ? or * = the character itself</div>
+                  </>) : null}
+                  {d.mode === "top10" ? (
+                    <div className="fs-row" style={{ gap: 4 }}>
+                      <select className="fs-input" aria-label="Top or bottom" data-testid="filter-topdir" value={d.top ? "top" : "bottom"} onChange={(e) => setD({ top: e.target.value === "top" })}><option value="top">Top</option><option value="bottom">Bottom</option></select>
+                      <input className="fs-input" aria-label="How many" data-testid="filter-n" inputMode="numeric" value={d.n} onChange={(e) => setD({ n: e.target.value })} style={{ width: 56 * k }} />
+                      <select className="fs-input" aria-label="Items or percent" data-testid="filter-pct" value={d.pct ? "pct" : "items"} onChange={(e) => setD({ pct: e.target.value === "pct" })}><option value="items">Items</option><option value="pct">Percent</option></select>
+                    </div>) : null}
+                  {d.mode === "average" ? (
+                    <div className="fs-row" role="radiogroup" aria-label="Average" style={{ gap: 10 }}>
+                      <label><input type="radio" name="favg" data-testid="filter-above" checked={d.above} onChange={() => setD({ above: true })} /> Above average</label>
+                      <label><input type="radio" name="favg" data-testid="filter-below" checked={!d.above} onChange={() => setD({ above: false })} /> Below average</label>
+                    </div>) : null}
+                  {d.mode === "date" ? (
+                    <select className="fs-input" aria-label="Date period" data-testid="filter-date" value={d.date} onChange={(e) => setD({ date: e.target.value as CondDraft["date"] })}>{DATE_CHOICES.map((t) => <option key={t} value={t}>{DATE_LABELS[t]}</option>)}</select>) : null}
+                  {d.mode === "color" ? (<>
+                    <div className="fs-row" role="radiogroup" aria-label="Colour of" style={{ gap: 10 }}>
+                      <label><input type="radio" name="fcol" checked={d.cell} onChange={() => setD({ cell: true, color: undefined })} /> Cell colour</label>
+                      <label><input type="radio" name="fcol" data-testid="filter-fontcolour" checked={!d.cell} onChange={() => setD({ cell: false, color: undefined })} /> Font colour</label>
+                    </div>
+                    <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
+                      {(d.cell ? fpanel.colors.cell : fpanel.colors.font).map((c) => swatch(c, d.color === c, () => setD({ color: c }), c ?? (d.cell ? "No fill" : "Automatic")))}
+                      {(d.cell ? fpanel.colors.cell : fpanel.colors.font).length ? null : <span className="fs-dim">No {d.cell ? "cell" : "font"} colours in this column</span>}
+                    </div>
+                  </>) : null}
+                  {d.mode === "icon" ? (
+                    <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
+                      {fpanel.icons.map((o, i) => (
+                        <button key={`${o.set}:${o.id}`} type="button" aria-label={`Icon ${o.glyph}`} aria-pressed={d.icon === i} data-testid={`filter-icon-${i}`} onClick={() => setD({ icon: i })}
+                          style={{ minWidth: 28, minHeight: 28, padding: 2, borderRadius: 4, cursor: "pointer", border: d.icon === i ? "2px solid var(--fs-accent)" : "1px solid var(--fs-border)", background: "transparent" }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element -- a 16px inline SVG data URI */}
+                          <img src={iconDataUri(o.glyph)} alt="" width={16} height={16} />
+                        </button>
+                      ))}
+                      {fpanel.icons.length ? <button type="button" aria-pressed={d.icon === -2} className="fs-btn" onClick={() => setD({ icon: -2 })} style={{ minHeight: 28 }}>No cell icon</button> : <span className="fs-dim">No conditional-format icons in this column</span>}
+                    </div>) : null}
+                </div>
+              ) : (<>
               <label style={{ display: "flex", gap: 6, alignItems: "center", fontWeight: 600 }}><input type="checkbox" data-testid="filter-all" checked={all} onChange={() => setFpanel((p) => (p ? { ...p, shown: all ? new Set() : new Set(p.vals.map((v) => v.value)) } : p))} />(Select all)</label>
               <div style={{ maxHeight: 220 * k, overflowY: "auto", margin: "6px 0", borderTop: "1px solid var(--fs-border)", paddingTop: 4 }}>
                 {fpanel.vals.slice(0, 1000).map((v) => (
@@ -1420,10 +1523,11 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
                 ))}
                 {fpanel.vals.length > 1000 ? <div className="fs-dim">{fpanel.vals.length - 1000} more value(s) not listed — they keep their current state</div> : null}
               </div>
+              </>)}
               <div className="fs-row" style={{ gap: 6, justifyContent: "flex-end" }}>
-                <Btn variant="ghost" data-testid="filter-clear" onClick={() => applyFilterPanel(true)}>Clear</Btn>
+                <Btn variant="ghost" data-testid="filter-clear" onClick={clearFilterPanel}>Clear</Btn>
                 <Btn variant="ghost" onClick={() => { setFpanel(null); gridRef.current?.focus(); }}>Cancel</Btn>
-                <Btn variant="primary" data-testid="filter-ok" disabled={fpanel.shown.size === 0} onClick={() => applyFilterPanel()}>OK</Btn>
+                <Btn variant="primary" data-testid="filter-ok" disabled={isCond ? !condOk : fpanel.shown.size === 0} onClick={okFilterPanel}>OK</Btn>
               </div>
             </div>
           );

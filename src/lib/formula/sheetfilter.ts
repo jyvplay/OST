@@ -8,9 +8,10 @@
  *   hiddenCols  Set<col> (presentation only; SUBTOTAL never skips columns — it is designed for vertical ranges).
  *   autoFilter  { ref, cols } — ref is the whole filter range INCLUDING its header row; cols maps a column offset
  *               (0 = first column of ref) to the list of DISPLAYED texts that stay visible ("" = blanks). A column
- *               without an entry has no criteria. `foreign` marks criteria read from a file that this model does
- *               not express (custom / top-10 / dynamic / colour filters): those rows stay hidden as the file says,
- *               and re-applying is refused until the user picks values (no silent change of what is shown).
+ *               without an entry has no criteria. `raw` holds every other criterion (custom / top-10 / dynamic /
+ *               colour / icon / date groups) as sanitised <filterColumn> XML; TT76 evaluates them (filtereval.ts).
+ *               `foreign` now marks only criteria that cannot be evaluated (e.g. a non-Gregorian calendar): those
+ *               rows stay hidden as the file says and re-applying changes nothing (no silent change of what is shown).
  *
  * xlsx (ECMA-376 §18.3.1.2 autoFilter, §18.3.2.x filters): values are written as <filters><filter val/> and
  * <filters blank="1"> for blanks; hidden rows carry <row hidden="1">, hidden columns <col hidden="1">.
@@ -18,12 +19,16 @@
 import type { Workbook, Sheet } from "./engine";
 import { formatValue } from "./numfmt";
 import { parseRef, rangeRef } from "./sheetlayout";
+import { colorDxfXml, critXml, evaluateFilter, parseCrit, type ColumnCrit, type FilterColors } from "./filtereval";
 
 export type RowHide = "manual" | "filter";
 export interface AutoFilter { ref: string; cols: Record<number, string[]>; foreign?: boolean;
   /** TT75: criteria this app does not evaluate (custom / top-10 / dynamic / colour / icon / date groups), kept as sanitised
    *  <filterColumn> XML per column offset so a new package writes them back (the rows they hid stay "filtered") */
-  raw?: Record<number, string> }
+  raw?: Record<number, string>;
+  /** TT76: resolved colour of each colorFilter column's dxf ("#RRGGBB" | null = no fill / automatic), so the criterion
+   *  is evaluated and a new package can re-create its dxf */
+  fx?: FilterColors }
 
 export const MAX_FILTER_ROWS = 1_048_576;
 
@@ -86,42 +91,106 @@ export function setFilterColumn(wb: Workbook, sheetName: string, col: number, sh
   if (!r || !sheet.autoFilter || col < r.c0 || col > r.c1) throw new Error("no AutoFilter column there");
   const cols = { ...sheet.autoFilter.cols };
   if (shown === null) delete cols[col - r.c0]; else cols[col - r.c0] = [...new Set(shown)];
-  sheet.autoFilter = { ref: sheet.autoFilter.ref, cols };
+  // TT76: a value list replaces any condition criterion on the column (Excel: one criterion kind per column)
+  const raw = { ...(sheet.autoFilter.raw ?? {}) }; delete raw[col - r.c0];
+  const fx = { ...(sheet.autoFilter.fx ?? {}) }; delete fx[col - r.c0];
+  sheet.autoFilter = { ref: sheet.autoFilter.ref, cols, ...(Object.keys(raw).length ? { raw } : {}), ...(Object.keys(fx).length ? { fx } : {}) };
   applyAutoFilter(wb, sheetName);
 }
 
-/** Recompute which data rows the filter hides. Manual hides are kept. Returns the number of rows hidden by the filter. */
-export function applyAutoFilter(wb: Workbook, sheetName: string): number {
+/**
+ * Recompute which data rows the filter hides. Manual hides are kept. Returns the number of rows hidden by the filter.
+ * TT76: every criterion type is evaluated (filtereval.ts); recomputed cut-offs (top10 filterVal, dynamic val/maxVal)
+ * are written back into `raw`. If any column's criteria cannot be evaluated, nothing changes (the file's state stays).
+ */
+export function applyAutoFilter(wb: Workbook, sheetName: string, opts: { today?: number } = {}): number {
   const sheet = wb.sheet(sheetName); const r = filterRange(sheet); const af = sheet.autoFilter;
-  if (!r || !af || af.foreign) return [...sheet.hiddenRows.values()].filter((w) => w === "filter").length;
+  const filtered = () => [...sheet.hiddenRows.values()].filter((w) => w === "filter").length;
+  if (!r || !af) return filtered();
+  const res = evaluateFilter(wb, sheetName, r, af.cols, af.raw, { today: opts.today, colors: af.fx });
+  if (res.unsupported.length) { af.foreign = true; return filtered(); }
+  if (af.raw) for (const [k, x] of Object.entries(res.raw)) af.raw[Number(k)] = x;
+  delete af.foreign;
   for (const [row, why] of [...sheet.hiddenRows]) if (why === "filter") sheet.hiddenRows.delete(row);
-  const crit = Object.entries(af.cols).map(([k, v]) => [r.c0 + Number(k), new Set(v.map(fold))] as const).filter(([c]) => c >= r.c0 && c <= r.c1);
-  if (!crit.length) return 0;
   let n = 0;
-  for (let row = r.r0 + 1; row <= r.r1; row++) {
-    if (crit.every(([c, ok]) => ok.has(fold(display(wb, sheetName, c, row))))) continue;
-    if (!sheet.hiddenRows.has(row)) { sheet.hiddenRows.set(row, "filter"); n++; }
-  }
+  for (const row of res.hidden) if (!sheet.hiddenRows.has(row)) { sheet.hiddenRows.set(row, "filter"); n++; }
   return n;
+}
+
+/**
+ * TT76: set (or clear with null) a condition criterion on one filter column — custom, top-10, dynamic, colour, icon or
+ * values with date groups — then re-apply. `color` is required for a colour criterion ("#RRGGBB" or null = no fill).
+ */
+export function setFilterCriteria(wb: Workbook, sheetName: string, col: number, crit: ColumnCrit | null, color?: string | null, opts: { today?: number } = {}): number {
+  const sheet = wb.sheet(sheetName); const r = filterRange(sheet);
+  if (!r || !sheet.autoFilter || col < r.c0 || col > r.c1) throw new Error("no AutoFilter column there");
+  const k = col - r.c0; const af = sheet.autoFilter;
+  const cols = { ...af.cols }; delete cols[k];
+  const raw = { ...(af.raw ?? {}) }; delete raw[k];
+  const fx = { ...(af.fx ?? {}) }; delete fx[k];
+  if (crit) {
+    if (crit.kind === "color") { if (color === undefined) throw new Error("a colour criterion needs its colour"); fx[k] = color; }
+    const x = critXml(crit, k); if (!parseCrit(x)) throw new Error("criterion not expressible"); raw[k] = x;
+  }
+  sheet.autoFilter = { ref: af.ref, cols, ...(Object.keys(raw).length ? { raw } : {}), ...(Object.keys(fx).length ? { fx } : {}) };
+  return applyAutoFilter(wb, sheetName, opts);
+}
+
+/**
+ * TT76: re-apply an Excel table's own AutoFilter (its data rows, above the totals row). Same evaluation and the same
+ * refusal as the sheet filter: unsupported criteria leave the file's hidden rows alone. Returns rows hidden by it.
+ */
+export function applyTableFilter(wb: Workbook, tableName: string, opts: { today?: number } = {}): number {
+  const t = wb.tables.get(tableName.toUpperCase()); if (!t || !t.filter || !t.headerRows) return 0;
+  const sheet = wb.sheet(t.sheet); const rng = { c0: t.c0, r0: t.r0, c1: t.c1, r1: t.r1 - t.totalsRows };
+  const res = evaluateFilter(wb, t.sheet, rng, t.filter.cols, t.filter.raw, { today: opts.today, colors: t.filter.fx });
+  if (res.unsupported.length) { t.filter.foreign = true; return 0; }
+  if (t.filter.raw) for (const [k, x] of Object.entries(res.raw)) t.filter.raw[Number(k)] = x;
+  delete t.filter.foreign;
+  for (const [row, why] of [...sheet.hiddenRows]) if (why === "filter" && row > rng.r0 && row <= rng.r1) sheet.hiddenRows.delete(row);
+  let n = 0; for (const row of res.hidden) if (!sheet.hiddenRows.has(row)) { sheet.hiddenRows.set(row, "filter"); n++; }
+  return n;
+}
+
+/** TT76: the typed criterion currently on a filter column (null = none or a plain value list). */
+export function filterCriteria(sheet: Sheet, col: number): ColumnCrit | null {
+  const r = filterRange(sheet); const af = sheet.autoFilter; if (!r || !af) return null;
+  const x = af.raw?.[col - r.c0]; return x ? parseCrit(x) : null;
 }
 
 /* ------------------------------------------------------------------ xlsx */
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /** <autoFilter> element for the sheet (no namespace prefix), or "" when the sheet has none. */
-export function autoFilterXml(sheet: Sheet): string {
+export function autoFilterXml(sheet: Sheet, dxf?: (xml: string) => number, fresh = false): string {
   const af = sheet.autoFilter; if (!af || !parseRef(af.ref)) return "";
-  const body = filterColumnsXml(af.cols, af.raw);
+  const body = filterColumnsXml(af.cols, af.raw, "", dxf ? { fx: af.fx, dxf, fresh } : undefined);
   return body ? `<autoFilter ref="${af.ref}">${body}</autoFilter>` : `<autoFilter ref="${af.ref}"/>`;
 }
 
 /** <filterColumn> elements for value lists + kept foreign criteria, in colId order (one element per column). */
-export function filterColumnsXml(cols: Record<number, string[]>, raw?: Record<number, string>, prefix = ""): string {
+/**
+ * `colour.fresh` = writing a NEW package (Fusion's own styles.xml): a colour criterion's dxfId from the source file means
+ * nothing there, so it is re-created from the resolved colour — and a colour criterion whose colour never resolved
+ * (dangling dxfId in the source) is dropped rather than pointed at an unrelated dxf. In-place patches (fresh = false)
+ * keep the source's dxf table, so an unresolved criterion stays byte-faithful.
+ */
+export function filterColumnsXml(cols: Record<number, string[]>, raw?: Record<number, string>, prefix = "", colour?: { fx?: FilterColors; dxf: (xml: string) => number; fresh?: boolean }): string {
   const p = prefix; const ids = new Set<number>();
   for (const k of [...Object.keys(cols), ...Object.keys(raw ?? {})]) { const n = Number(k); if (Number.isInteger(n) && n >= 0 && n <= 16383) ids.add(n); }
   return [...ids].sort((a, b) => a - b).map((k) => {
     const r = raw?.[k];
-    if (r && !(k in cols)) { const clean = sanitizeFilterColumnXml(r); return clean ? (p ? clean.replace(/<(\/?)(?=[A-Za-z])/g, `<$1${p}`) : clean).replace(/colId="\d+"/, `colId="${k}"`) : ""; }
+    if (r && !(k in cols)) {
+      let clean = sanitizeFilterColumnXml(r);
+      // TT76: a colour criterion's dxfId indexes THIS package's styles — re-create the dxf from the resolved colour
+      if (clean && colour) {
+        const c = parseCrit(clean);
+        if (c?.kind === "color") {
+          if (colour.fx && k in colour.fx) clean = critXml({ ...c, dxfId: colour.dxf(colorDxfXml(colour.fx[k], c.cell)) }, k);
+          else if (colour.fresh) clean = null;
+        }
+      }
+      return clean ? (p ? clean.replace(/<(\/?)(?=[A-Za-z])/g, `<$1${p}`) : clean).replace(/colId="\d+"/, `colId="${k}"`) : ""; }
     const vals = cols[k]; const blank = vals.includes(""); const v = vals.filter((x) => x !== "");
     return `<${p}filterColumn colId="${k}"><${p}filters${blank ? ' blank="1"' : ""}${v.length ? `>${v.map((x) => `<${p}filter val="${esc(x)}"/>`).join("")}</${p}filters>` : "/>"}</${p}filterColumn>`;
   }).join("");
@@ -188,7 +257,9 @@ export function readAutoFilterXml(xml: string): AutoFilter | null {
     if (!Number.isInteger(id)) continue;
     const f = /<(?:\w+:)?filters\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?filters>)/.exec(body);
     if (!f || /<(?:\w+:)?dateGroupItem\b/.test(f[2] ?? "") || /<(?:\w+:)?(customFilters|top10|dynamicFilter|colorFilter|iconFilter)\b/.test(body)) {
-      foreign = true; const keep = sanitizeFilterColumnXml(fc[0]); if (keep) (raw ??= {})[id] = keep; continue;
+      const keep = sanitizeFilterColumnXml(fc[0]); if (keep) (raw ??= {})[id] = keep;
+      if (!keep || !parseCrit(keep)) foreign = true; // TT76: only criteria filtereval cannot evaluate stay "foreign"
+      continue;
     }
     const vals = [...(f[2] ?? "").matchAll(/<(?:\w+:)?filter\b([^>]*?)\/?>/g)].map((x) => xmlAttr(x[1], "val")).filter((v): v is string => v !== undefined).map(unesc);
     const bl = xmlAttr(f[1], "blank"); if (bl === "1" || bl === "true") vals.push("");

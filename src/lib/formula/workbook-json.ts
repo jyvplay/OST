@@ -54,7 +54,7 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
       if (s.pivots.length) out.pivots = s.pivots.map((p) => JSON.parse(JSON.stringify(p)));
       if (s.hiddenRows.size) { const m: number[] = [], f: number[] = []; for (const [r, w] of s.hiddenRows) (w === "filter" ? f : m).push(r); out.hiddenRows = { ...(m.length ? { manual: m.sort((a, b) => a - b) } : {}), ...(f.length ? { filter: f.sort((a, b) => a - b) } : {}) }; }
       if (s.hiddenCols.size) out.hiddenCols = [...s.hiddenCols].sort((a, b) => a - b);
-      if (s.autoFilter) out.autoFilter = { ref: s.autoFilter.ref, cols: Object.fromEntries(Object.entries(s.autoFilter.cols).map(([k, v]) => [k, [...v]])), ...(s.autoFilter.foreign ? { foreign: true } : {}), ...(s.autoFilter.raw ? { raw: { ...s.autoFilter.raw } } : {}) };
+      if (s.autoFilter) out.autoFilter = { ref: s.autoFilter.ref, cols: Object.fromEntries(Object.entries(s.autoFilter.cols).map(([k, v]) => [k, [...v]])), ...(s.autoFilter.foreign ? { foreign: true } : {}), ...(s.autoFilter.raw ? { raw: { ...s.autoFilter.raw } } : {}), ...(s.autoFilter.fx ? { fx: { ...s.autoFilter.fx } } : {}) };
       return out;
     }),
   };
@@ -120,12 +120,13 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
     for (const r of rowsOf(hr.manual, 1048576)) sheet.hiddenRows.set(r, "manual");
     for (const r of rowsOf(hr.filter, 1048576)) if (!sheet.hiddenRows.has(r)) sheet.hiddenRows.set(r, "filter");
     for (const c of rowsOf(s.hiddenCols, 16384)) sheet.hiddenCols.add(c);
-    const af = s.autoFilter as { ref?: unknown; cols?: unknown; foreign?: unknown; raw?: unknown } | undefined;
+    const af = s.autoFilter as { ref?: unknown; cols?: unknown; foreign?: unknown; raw?: unknown; fx?: unknown } | undefined;
     if (af && typeof af.ref === "string" && parseRef(af.ref)) {
       const cols: Record<number, string[]> = {};
       if (af.cols && typeof af.cols === "object") for (const [k, v] of Object.entries(af.cols as Record<string, unknown>).slice(0, 16384)) if (Number.isInteger(Number(k)) && Number(k) >= 0 && Array.isArray(v)) cols[Number(k)] = v.slice(0, 100_000).filter((x): x is string => typeof x === "string").map((x) => x.slice(0, 32767));
       const raw = rawFiltersFromJson(af.raw);
-      sheet.autoFilter = { ref: rangeRef(parseRef(af.ref)!), cols, ...(af.foreign === true ? { foreign: true } : {}), ...(raw ? { raw } : {}) };
+      const fx = filterColorsFromJson(af.fx);
+      sheet.autoFilter = { ref: rangeRef(parseRef(af.ref)!), cols, ...(af.foreign === true ? { foreign: true } : {}), ...(raw ? { raw } : {}), ...(fx ? { fx } : {}) };
     }
     wb.sheets.set(s.name, sheet);
   }
@@ -171,7 +172,17 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
 }
 
 /** TT75: an untrusted table filter — value lists keyed by a column offset inside the table (≤ 1000 values of ≤ 255 chars each). */
-function tableFilterFromJson(raw: unknown, ncols: number): { filter?: { cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string> } } {
+/** TT76: untrusted colour-filter colours — integer column offsets → "#RRGGBB" or null (≤ 16384 entries). */
+function filterColorsFromJson(v: unknown, ncols = 16384): Record<number, string | null> | undefined {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return undefined;
+  const out: Record<number, string | null> = {};
+  for (const [k, c] of Object.entries(v as Record<string, unknown>).slice(0, 16384)) {
+    if (!/^\d+$/.test(k) || Number(k) >= ncols) continue;
+    if (c === null) out[Number(k)] = null; else if (typeof c === "string" && /^#[0-9A-Fa-f]{6}$/.test(c)) out[Number(k)] = c.toUpperCase();
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+function tableFilterFromJson(raw: unknown, ncols: number): { filter?: { cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string>; fx?: Record<number, string | null> } } {
   if (!raw || typeof raw !== "object") return {};
   const r = raw as { cols?: unknown; foreign?: unknown }; const cols: Record<number, string[]> = {};
   if (r.cols && typeof r.cols === "object") for (const [k, v] of Object.entries(r.cols as Record<string, unknown>)) {
@@ -179,7 +190,8 @@ function tableFilterFromJson(raw: unknown, ncols: number): { filter?: { cols: Re
     cols[o] = v.filter((x): x is string => typeof x === "string" && x.length <= 255).slice(0, 1000);
   }
   const rawK = rawFiltersFromJson((raw as { raw?: unknown }).raw, ncols);
-  return Object.keys(cols).length || r.foreign === true || rawK ? { filter: { cols, ...(r.foreign === true ? { foreign: true } : {}), ...(rawK ? { raw: rawK } : {}) } } : {};
+  const fxK = filterColorsFromJson((raw as { fx?: unknown }).fx, ncols);
+  return Object.keys(cols).length || r.foreign === true || rawK ? { filter: { cols, ...(r.foreign === true ? { foreign: true } : {}), ...(rawK ? { raw: rawK } : {}), ...(fxK ? { fx: fxK } : {}) } } : {};
 }
 
 /**

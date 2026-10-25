@@ -4,10 +4,18 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { api, clientId } from "@/lib/api";
+import { sidOk } from "@/lib/office/showlink";
+import SlidesReceiver from "./modules/slides/receiver";
 
 interface Room { code: string; mediaRef: string; positionMs: number; playing: boolean; anchorMs: number }
 
+/** /present?show=<sid> → a Slides audience screen (TT76, CA-02); otherwise the Together media receiver */
 export default function PresentView() {
+  const params = useSearchParams(); const show = params.get("show") ?? "";
+  return sidOk(show) ? <SlidesReceiver sid={show} /> : <RoomReceiver />;
+}
+
+function RoomReceiver() {
   const params = useSearchParams();
   const room = (params.get("room") ?? "BEAM1").toUpperCase();
   const videoRef = useRef<HTMLVideoElement | null>(null);

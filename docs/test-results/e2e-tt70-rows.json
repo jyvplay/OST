@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt70-rows",
-  "at": "2026-10-25T06:52:20.307Z",
+  "at": "2026-10-25T18:50:49.314Z",
   "results": [
     {
       "suite": "e2e-tt70-rows",
@@ -9,7 +9,7 @@
         "WM-13": "full"
       },
       "pass": true,
-      "ms": 8066
+      "ms": 7964
     },
     {
       "suite": "e2e-tt70-rows",
@@ -18,7 +18,7 @@
         "CT-01": "partial"
       },
       "pass": true,
-      "ms": 4206
+      "ms": 4784
     },
     {
       "suite": "e2e-tt70-rows",
@@ -27,7 +27,7 @@
         "DP-13": "full"
       },
       "pass": true,
-      "ms": 4764
+      "ms": 5317
     }
   ]
 }

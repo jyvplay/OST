@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt74-office",
-  "at": "2026-10-25T06:59:30.746Z",
+  "at": "2026-10-25T19:20:19.770Z",
   "results": [
     {
       "suite": "e2e-tt74-office",
@@ -11,7 +11,7 @@
         "FF-21": "partial"
       },
       "pass": true,
-      "ms": 4915
+      "ms": 4669
     },
     {
       "suite": "e2e-tt74-office",
@@ -20,7 +20,7 @@
         "FF-53": "full"
       },
       "pass": true,
-      "ms": 650
+      "ms": 662
     },
     {
       "suite": "e2e-tt74-office",
@@ -30,7 +30,7 @@
         "FF-55": "full"
       },
       "pass": true,
-      "ms": 2874
+      "ms": 2853
     },
     {
       "suite": "e2e-tt74-office",
@@ -41,7 +41,7 @@
         "FF-22": "partial"
       },
       "pass": true,
-      "ms": 2903
+      "ms": 2577
     },
     {
       "suite": "e2e-tt74-office",
@@ -52,7 +52,7 @@
         "FF-23": "partial"
       },
       "pass": true,
-      "ms": 1327
+      "ms": 1498
     },
     {
       "suite": "e2e-tt74-office",

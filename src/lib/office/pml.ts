@@ -16,6 +16,7 @@
  */
 import { openZip, writeZip, type ZipArchive } from "./zipkit";
 import { parseXml, serializeXml, attr, setAttr, kids, kid, el, textNode, clone, textOf, find, findAll, type XDoc, type XEl, type XNode } from "./xmltree";
+import { pruneTiming } from "./pmlanim";
 
 export const NS = {
   p: "http://schemas.openxmlformats.org/presentationml/2006/main",
@@ -684,6 +685,9 @@ function writeXfrmEl(x: XEl, f: Xfrm, r: (v: number) => string, group: boolean) 
 export function deleteShape(d: PptxDoc, i: number, path: string) {
   const s = mutSlide(d, i); const hit = shapeAt(spTreeOf(s.xml), path); if (!hit) return;
   hit.parent.kids = hit.parent.kids.filter((k) => k !== hit.el);
+  // TT76: effects / build entries that targeted the shape (or anything inside it) go too — a dangling spTgt makes
+  // PowerPoint "repair" the file
+  pruneTiming(s.xml);
   // relationships no other element of this slide still uses (pictures, charts, media, links)
   const used = new Set(findAll(s.xml.root, () => true).flatMap((x) => x.attrs.filter(([k]) => k.startsWith("r:") || k === "r:embed" || k === "r:link" || k === "r:id").map(([, v]) => v)));
   const removable = relList(s.relsXml).filter((r) => [RT.image, RT.chart, RT.media, RT.video, RT.audio, RT.hyperlink].includes(r.type) || r.type.endsWith("/oleObject") || r.type.endsWith("/package") || r.type.includes("diagram"));

@@ -71,7 +71,7 @@ export function adjustTablesForStructure(wb: Workbook, sheetName: string, axis: 
           for (let i = 0; i < count; i++) names.push(defaultColumnName([...t.columns, ...names]));
           t.columns = [...t.columns.slice(0, k), ...names, ...t.columns.slice(k)];
           const shiftK = <V,>(r: Record<number, V>) => Object.fromEntries(Object.entries(r).map(([o, v]) => [Number(o) >= k ? Number(o) + count : Number(o), v])) as Record<number, V>;
-          if (t.filter) t.filter = { ...t.filter, cols: shiftK(t.filter.cols), ...(t.filter.raw ? { raw: shiftK(t.filter.raw) } : {}) };
+          if (t.filter) t.filter = { ...t.filter, cols: shiftK(t.filter.cols), ...(t.filter.raw ? { raw: shiftK(t.filter.raw) } : {}), ...(t.filter.fx ? { fx: shiftK(t.filter.fx) } : {}) };
           if (t.headerRows) { const sh = wb.sheets.get(sheetName); names.forEach((nm, i) => sh?.setCell(at + i, t.r0, nm)); }
         }
       }
@@ -86,7 +86,7 @@ export function adjustTablesForStructure(wb: Workbook, sheetName: string, axis: 
         if (gone.size) dead.cols.set(key, gone);
         t.columns = keep;
         const keepK = <V,>(r: Record<number, V>) => Object.fromEntries(Object.entries(r).filter(([o]) => remap.has(Number(o))).map(([o, v]) => [remap.get(Number(o))!, v])) as Record<number, V>;
-        if (t.filter) { const raw = t.filter.raw ? keepK(t.filter.raw) : undefined; t.filter = { ...t.filter, cols: keepK(t.filter.cols), ...(raw && Object.keys(raw).length ? { raw } : {}) }; if (!raw || !Object.keys(raw).length) delete t.filter.raw; }
+        if (t.filter) { const raw = t.filter.raw ? keepK(t.filter.raw) : undefined; const fx = t.filter.fx ? keepK(t.filter.fx) : undefined; t.filter = { ...t.filter, cols: keepK(t.filter.cols), ...(raw && Object.keys(raw).length ? { raw } : {}), ...(fx && Object.keys(fx).length ? { fx } : {}) }; if (!raw || !Object.keys(raw).length) delete t.filter.raw; if (!fx || !Object.keys(fx).length) delete t.filter.fx; }
       } else {
         if (t.totalsRows && t.r1 >= at && t.r1 < end) t.totalsRows = 0; // its totals row went away
         const body = nb - na + 1 - t.headerRows - t.totalsRows;
@@ -183,14 +183,15 @@ export function tableColumnNames(t: TableDef): string[] {
 }
 
 /** xl/tables/tableN.xml for one table (CT_Table: autoFilter, tableColumns, tableStyleInfo). */
-export function tableXml(t: TableDef, id: number): string {
+export function tableXml(t: TableDef, id: number, dxf?: (xml: string) => number): string {
   const names = tableColumnNames(t);
   const ref = a1r(t.c0, t.r0, t.c1, t.r1);
   let af = "";
   if (t.headerRows) {
     const afRef = a1r(t.c0, t.r0, t.c1, Math.max(t.r0, t.r1 - t.totalsRows));
     const n = t.c1 - t.c0; const within = <V,>(o: Record<number, V> | undefined) => Object.fromEntries(Object.entries(o ?? {}).filter(([k]) => Number(k) >= 0 && Number(k) <= n)) as Record<number, V>;
-    const body = filterColumnsXml(within(t.filter?.cols), within(t.filter?.raw));
+    // TT76: colour criteria get a dxf in the NEW package's styles (`dxf` = the writer's StyleTable)
+    const body = filterColumnsXml(within(t.filter?.cols), within(t.filter?.raw), "", dxf ? { fx: within(t.filter?.fx), dxf, fresh: true } : undefined);
     af = body ? `<autoFilter ref="${afRef}">${body}</autoFilter>` : `<autoFilter ref="${afRef}"/>`;
   }
   const head = t.headerRows ? "" : ' headerRowCount="0"';

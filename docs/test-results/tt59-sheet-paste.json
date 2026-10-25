@@ -1,6 +1,6 @@
 {
   "suite": "tt59-sheet-paste",
-  "at": "2026-10-25T06:37:11.122Z",
+  "at": "2026-10-25T18:36:44.691Z",
   "results": [
     {
       "suite": "tt59-sheet-paste",
@@ -9,7 +9,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 178
+      "ms": 152
     },
     {
       "suite": "tt59-sheet-paste",
@@ -27,7 +27,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 172
+      "ms": 153
     }
   ]
 }

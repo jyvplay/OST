@@ -1,6 +1,6 @@
 {
   "suite": "tt30-unit",
-  "at": "2026-10-25T06:02:05.737Z",
+  "at": "2026-10-25T18:04:40.966Z",
   "results": [
     {
       "suite": "tt30-unit",
@@ -9,7 +9,7 @@
         "AX-14": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt30-unit",

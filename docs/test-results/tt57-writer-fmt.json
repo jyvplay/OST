@@ -1,6 +1,6 @@
 {
   "suite": "tt57-writer-fmt",
-  "at": "2026-10-25T06:33:34.781Z",
+  "at": "2026-10-25T18:33:23.957Z",
   "results": [
     {
       "suite": "tt57-writer-fmt",
@@ -9,7 +9,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 475
+      "ms": 474
     },
     {
       "suite": "tt57-writer-fmt",
@@ -18,7 +18,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 172
+      "ms": 174
     },
     {
       "suite": "tt57-writer-fmt",
@@ -27,7 +27,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 1428
+      "ms": 1524
     },
     {
       "suite": "tt57-writer-fmt",
@@ -36,7 +36,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 10383
+      "ms": 9367
     },
     {
       "suite": "tt57-writer-fmt",
@@ -45,7 +45,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 355
+      "ms": 278
     }
   ]
 }

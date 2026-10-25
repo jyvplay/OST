@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt70-closeall",
-  "at": "2026-10-25T06:48:02.330Z",
+  "at": "2026-10-25T18:46:48.915Z",
   "results": [
     {
       "suite": "e2e-tt70-closeall",
@@ -10,7 +10,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 4927
+      "ms": 4375
     },
     {
       "suite": "e2e-tt70-closeall",
@@ -20,7 +20,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 4255
+      "ms": 4078
     },
     {
       "suite": "e2e-tt70-closeall",
@@ -30,7 +30,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 3006
+      "ms": 2970
     }
   ]
 }

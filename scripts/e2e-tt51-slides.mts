@@ -52,6 +52,9 @@ async function openDeck(path: string) {
   const canvas = dlg.locator('[aria-label$=" canvas"]');
   const rail = dlg.locator('[role=listbox][aria-label="Slides"] [role=option]');
   const shapes = () => canvas.locator(".fs-slide > [data-addr]:not([aria-hidden])"); // the selection overlay is aria-hidden
+  // TT76: the shell shifts windows once after its settings arrive (Fusion's top bar appears), so pointer tests wait
+  // until the canvas has held the same box for 3 samples before clicking at measured coordinates.
+  { let last = "", same = 0; for (let i = 0; i < 50 && same < 3; i++) { const bb = JSON.stringify(await canvas.boundingBox()); same = bb === last ? same + 1 : 0; last = bb; await page.waitForTimeout(120); } }
   const save = async () => { await editor.focus(); await page.keyboard.press("Control+s"); await dlg.getByRole("status").filter({ hasText: /Saved .*lossless/ }).waitFor({ timeout: 15_000 }); };
   return { page, dlg, editor, canvas, rail, shapes, save, close: () => ctx.close() };
 }
@@ -124,7 +127,7 @@ await test("slide show: Present opens a full-window show at the first visible sl
   const src = `/Documents/${RUN}-show.pptx`; await upload(src, readFileSync(join(CORPUS, "shapes.pptx")));
   const s = await openDeck(src);
   await s.rail.nth(1).click(); await s.dlg.getByRole("button", { name: "Hide", exact: true }).click(); // hide slide 2
-  await s.dlg.getByRole("button", { name: /Present/ }).click();
+  await s.dlg.getByRole("button", { name: "Present", exact: true }).click();
   const show = s.page.locator('[role=dialog][aria-label^="Slide show"]'); await show.waitFor();
   eq(await show.getAttribute("aria-label"), "Slide show, slide 1", "starts at 1");
   const vp = s.page.viewportSize()!; const sb = (await show.boundingBox())!; ok(sb.width >= vp.width - 2 && sb.height >= vp.height - 2, "full window");
@@ -141,32 +144,32 @@ await test("slide show: Present opens a full-window show at the first visible sl
 await test("modal-shortcut failure test: with a shape selected, Delete / Backspace / Ctrl+Z / Ctrl+D pressed while the Save-as dialog, the slide show or the notes field has the keyboard never delete the shape, undo, or duplicate a slide; the same keys on the canvas do", COV, async () => {
   const src = `/Documents/${RUN}-modal.pptx`; await upload(src, readFileSync(join(CORPUS, "shapes.pptx")));
   const s = await openDeck(src); const n0 = await s.shapes().count(); ok(n0 >= 3, `shapes ${n0}`);
-  const pick = async () => { // the largest shape (shape 1 on this slide is a zero-height connector)
+  const pick = async (step = "") => { // the largest shape (shape 1 on this slide is a zero-height connector)
     const boxes = await s.shapes().evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; }));
     const [x, y, w, h] = boxes.sort((a, b) => b[2] * b[3] - a[2] * a[3])[0]; await s.page.mouse.click(x + w / 2, y + h / 2);
-    ok(await s.canvas.locator("[aria-hidden][data-addr]").count() === 1, "pick selected nothing");
+    { await s.canvas.locator("[aria-hidden][data-addr]").first().waitFor({ timeout: 3000 }).catch(() => {}); const nSel = await s.canvas.locator("[aria-hidden][data-addr]").count(); ok(nSel === 1, `pick selected nothing (${step}): ${nSel}`); }
   };
   // a zero-height line is still selectable through its hit band
   { const line = await s.shapes().evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; }).find((r) => r[3] < 2 && r[2] > 20));
-    if (line) { await s.page.mouse.click(line[0] + line[2] / 2, line[1] + 2); ok(await s.canvas.locator("[aria-hidden][data-addr]").count() === 1, "zero-height line not selectable"); await s.page.keyboard.press("Escape"); } }
+    if (line) { await s.page.mouse.click(line[0] + line[2] / 2, line[1] + 2); await s.canvas.locator("[aria-hidden][data-addr]").first().waitFor({ timeout: 3000 }).catch(() => {}); ok(await s.canvas.locator("[aria-hidden][data-addr]").count() === 1, "zero-height line not selectable"); await s.page.keyboard.press("Escape"); await s.canvas.locator("[aria-hidden][data-addr]").first().waitFor({ state: "detached", timeout: 3000 }).catch(() => {}); } }
   // 1. Save-as dialog open
-  await pick(); await s.dlg.getByRole("button", { name: "Save as…" }).click();
+  await pick("dialog"); await s.dlg.getByRole("button", { name: "Save as…" }).click();
   const dia = s.dlg.locator('[role=dialog][aria-label="Save as"]'); await dia.waitFor();
   for (const k of ["Delete", "Backspace", "Control+z", "Control+d"]) await s.page.keyboard.press(k);
   eq(await s.shapes().count(), n0, "dialog: shapes"); eq(await s.rail.count(), 6, "dialog: slides");
   await s.page.keyboard.press("Escape"); await dia.waitFor({ state: "detached" });
   // 2. notes field focused
-  await pick(); const notes = s.dlg.locator('textarea[aria-label="Speaker notes"]'); await notes.click(); await notes.type("abc");
+  await pick("notes"); const notes = s.dlg.locator('textarea[aria-label="Speaker notes"]'); await notes.click(); await notes.type("abc");
   for (const k of ["Backspace", "Delete", "Control+z", "Control+d"]) await s.page.keyboard.press(k);
   eq(await s.shapes().count(), n0, "notes: shapes"); eq(await s.rail.count(), 6, "notes: slides");
   // 3. slide show open
-  await s.editor.focus(); await pick(); await s.dlg.getByRole("button", { name: /Present/ }).click();
+  await s.editor.focus(); await pick("show"); await s.dlg.getByRole("button", { name: "Present", exact: true }).click();
   const show = s.page.locator('[role=dialog][aria-label^="Slide show"]'); await show.waitFor();
   for (const k of ["Delete", "Control+z", "Control+d"]) await s.page.keyboard.press(k);
   await s.page.keyboard.press("Escape"); await show.waitFor({ state: "detached" });
   eq(await s.shapes().count(), n0, "show: shapes"); eq(await s.rail.count(), 6, "show: slides");
   // control: the same keys on the canvas DO act
-  await pick(); await s.page.keyboard.press("Delete"); eq(await s.shapes().count(), n0 - 1, "Delete on canvas removes the shape");
+  await pick("control"); await s.page.keyboard.press("Delete"); eq(await s.shapes().count(), n0 - 1, "Delete on canvas removes the shape");
   await s.page.keyboard.press("Control+z"); eq(await s.shapes().count(), n0, "Ctrl+Z restores it");
   await s.page.keyboard.press("Control+d"); eq(await s.rail.count(), 7, "Ctrl+D duplicates");
   await s.close();

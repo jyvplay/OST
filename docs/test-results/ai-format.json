@@ -1,6 +1,6 @@
 {
   "suite": "ai-format",
-  "at": "2026-10-25T05:47:59.160Z",
+  "at": "2026-10-25T17:51:21.992Z",
   "results": [
     {
       "suite": "ai-format",
@@ -9,7 +9,7 @@
         "FF-04": "full"
       },
       "pass": true,
-      "ms": 36
+      "ms": 37
     },
     {
       "suite": "ai-format",
@@ -18,7 +18,7 @@
         "FF-04": "full"
       },
       "pass": true,
-      "ms": 13
+      "ms": 12
     },
     {
       "suite": "ai-format",
@@ -37,7 +37,7 @@
         "FF-12": "partial"
       },
       "pass": true,
-      "ms": 955
+      "ms": 873
     },
     {
       "suite": "ai-format",

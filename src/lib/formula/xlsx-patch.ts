@@ -412,7 +412,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     if (!origSheet ? sheet.autoFilter !== null : !eqJ(sheet.autoFilter, origSheet.autoFilter)) {
       // TT74: AutoFilter range / criteria changed (an unchanged foreign filter stays byte-identical)
       extrasChanged.push("autoFilter");
-      const xml = autoFilterXml(sheet);
+      const xml = autoFilterXml(sheet, (x) => styles.dxf(x)); // TT76: colour criteria → a dxf appended to this package
       const af = xml ? parseXml(xml.replace("<autoFilter", `<autoFilter xmlns="${NS_MAIN}"`)).root : null;
       if (af) { af.attrs = af.attrs.filter(([k]) => k !== "xmlns"); af.quote = af.quote.slice(-af.attrs.length); if (SP) { const pre = (e: XEl) => { e.name = SP + e.name; kids(e).forEach(pre); }; pre(af); } }
       replaceChild("autoFilter", af, ["sheetData", "sheetCalcPr", "sheetProtection", "protectedRanges", "scenarios"]);

@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt71-focus",
-  "at": "2026-10-25T06:52:30.229Z",
+  "at": "2026-10-25T18:50:58.923Z",
   "results": [
     {
       "suite": "e2e-tt71-focus",
@@ -9,7 +9,7 @@
         "NC-02": "full"
       },
       "pass": true,
-      "ms": 173
+      "ms": 130
     },
     {
       "suite": "e2e-tt71-focus",
@@ -18,7 +18,7 @@
         "NC-02": "full"
       },
       "pass": true,
-      "ms": 2496
+      "ms": 2189
     },
     {
       "suite": "e2e-tt71-focus",
@@ -27,7 +27,7 @@
         "NC-02": "full"
       },
       "pass": true,
-      "ms": 2916
+      "ms": 2886
     },
     {
       "suite": "e2e-tt71-focus",
@@ -36,7 +36,7 @@
         "NC-02": "full"
       },
       "pass": true,
-      "ms": 2376
+      "ms": 2647
     }
   ]
 }

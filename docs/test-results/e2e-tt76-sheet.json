@@ -1,0 +1,65 @@
+{
+  "suite": "e2e-tt76-sheet",
+  "at": "2026-10-25T19:19:05.098Z",
+  "results": [
+    {
+      "suite": "e2e-tt76-sheet",
+      "name": "modal shortcut: an untouched Condition dialog has OK disabled; Enter (in the empty value box) applies nothing; Escape closes it",
+      "covers": {
+        "FF-19": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 3360
+    },
+    {
+      "suite": "e2e-tt76-sheet",
+      "name": "Top 2 shows only the two largest; reopening pre-fills Top 2; Below average; Clear shows every row",
+      "covers": {
+        "FF-19": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 1147
+    },
+    {
+      "suite": "e2e-tt76-sheet",
+      "name": "Custom: contains \"e\" Or begins with \"z\" (wildcards) on the name column; And with a second column's Top 5",
+      "covers": {
+        "FF-19": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 1956
+    },
+    {
+      "suite": "e2e-tt76-sheet",
+      "name": "Date period: This year on the date column (relative to today)",
+      "covers": {
+        "FF-19": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 585
+    },
+    {
+      "suite": "e2e-tt76-sheet",
+      "name": "By colour: swatches come from the column; orange shows only the filled rows; Save → openpyxl sees the colour filter + the same hidden rows; reopening the file keeps them and pre-fills the colour",
+      "covers": {
+        "FF-19": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 3085
+    },
+    {
+      "suite": "e2e-tt76-sheet",
+      "name": "no page errors",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

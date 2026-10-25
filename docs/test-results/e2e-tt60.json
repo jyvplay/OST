@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt60",
-  "at": "2026-10-25T06:38:02.674Z",
+  "at": "2026-10-25T18:37:33.158Z",
   "results": [
     {
       "suite": "e2e-tt60",
@@ -9,7 +9,7 @@
         "FF-40": "full"
       },
       "pass": true,
-      "ms": 4916
+      "ms": 4645
     },
     {
       "suite": "e2e-tt60",
@@ -18,7 +18,7 @@
         "FF-41": "full"
       },
       "pass": true,
-      "ms": 3662
+      "ms": 3377
     },
     {
       "suite": "e2e-tt60",
@@ -27,7 +27,7 @@
         "FF-42": "full"
       },
       "pass": true,
-      "ms": 3896
+      "ms": 3795
     },
     {
       "suite": "e2e-tt60",
@@ -36,7 +36,7 @@
         "RG-05": "full"
       },
       "pass": true,
-      "ms": 6244
+      "ms": 3592
     },
     {
       "suite": "e2e-tt60",

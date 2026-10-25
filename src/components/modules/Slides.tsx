@@ -6,7 +6,7 @@
  * drawn by slides/render.tsx. Legacy .fdeck outlines open by converting to a real deck; password-protected decks
  * decrypt on this device and save encrypted again (same machinery as Writer).
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { fz } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
@@ -20,6 +20,10 @@ import { askForm } from "@/lib/ask";
 import { lossDetail, downloadAs } from "@/lib/office/export-ask";
 import { slideView, type VSlide } from "@/lib/office/pmlview";
 import { SlideCanvas } from "./slides/render";
+import { MotionPanel, OrderBadges, ShowStage } from "./slides/motion";
+import { autoSteps, playSteps, readAnimations, readTransition, stepMs } from "@/lib/office/pmlanim";
+import { PresenterConsole } from "./slides/presenter";
+import { channelPort, newSid, type ShowPort } from "@/lib/office/showlink";
 
 const MIME_PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 const SHAPES: [M.NewShapeKind, string][] = [["rect", "Rectangle"], ["roundRect", "Rounded rectangle"], ["ellipse", "Oval"], ["triangle", "Triangle"], ["rightArrow", "Arrow"], ["diamond", "Diamond"], ["star5", "Star"], ["line", "Line"]];
@@ -47,6 +51,13 @@ export default function SlidesModule({ win }: ModuleProps) {
   const [locked, setLocked] = useState(false);
   const [pop, setPop] = useState<null | "saveas">(null); const [popVal, setPopVal] = useState("");
   const [present, setPresent] = useState<number | null>(null);
+  // TT76 show state: click steps done on the current slide, whether the last one animates, the slide we came from (transition)
+  const [showSt, setShowSt] = useState<{ done: number; animate: boolean; key: number; from: number | null }>({ done: 0, animate: false, key: 0, from: null });
+  const [motion, setMotion] = useState(false);
+  // TT76 (CA-02) presenter view: the audience screen is a second window running /present?show=<sid>
+  const linkRef = useRef<{ port: ShowPort; win: Window | null; bytes: Uint8Array | null } | null>(null);
+  const [audience, setAudience] = useState<null | "waiting" | "connected">(null);
+  const [showT0, setShowT0] = useState(0);
   const [stageW, setStageW] = useState(720);
   const stageRef = useRef<HTMLDivElement>(null); const taRef = useRef<HTMLTextAreaElement>(null); const rootRef = useRef<HTMLDivElement>(null);
   const [notesEdit, setNotesEdit] = useState<{ k: string; t: string } | null>(null);
@@ -168,9 +179,14 @@ export default function SlidesModule({ win }: ModuleProps) {
   };
 
   /* ------------------------------------------------------------ stage size */
-  useEffect(() => {
-    const el = stageRef.current; if (!el) return;
-    const ro = new ResizeObserver(() => { const r = el.getBoundingClientRect(); if (!doc) return; const ar = doc.size.cy / doc.size.cx; setStageW(Math.max(240, Math.min(r.width - 32, (r.height - 24) / ar))); });
+  // TT76: measured before paint (layout effect + an immediate fit) — the old version started from a 720 px guess and
+  // only corrected it on the first ResizeObserver callback, so every deck visibly jumped once after opening and a
+  // click in that window landed on the wrong shape (found by a flaky e2e-tt51-slides pick).
+  useLayoutEffect(() => {
+    const el = stageRef.current; if (!el || !doc) return;
+    const fit = () => { const r = el.getBoundingClientRect(); if (r.width <= 0 || r.height <= 0) return; const ar = doc.size.cy / doc.size.cx; setStageW(Math.max(240, Math.min(r.width - 32, (r.height - 24) / ar))); };
+    fit();
+    const ro = new ResizeObserver(fit);
     ro.observe(el); return () => ro.disconnect();
   }, [doc, loaded]);
   const scale = doc ? stageW / doc.size.cx : 1;
@@ -291,10 +307,13 @@ export default function SlidesModule({ win }: ModuleProps) {
   const shown = useMemo(() => (doc ? doc.slides.map((s, i) => (M.isHidden(s) ? -1 : i)).filter((i) => i >= 0) : []), [doc, ver]); // eslint-disable-line react-hooks/exhaustive-deps
   const startShow = (from: number) => {
     if (edit) commitEdit(); if (!shown.length) { shell.toast("Every slide is hidden", "warn"); return; }
-    const first = shown.find((i) => i >= from) ?? shown[0]; setPresent(first);
+    const first = shown.find((i) => i >= from) ?? shown[0]; goSlide(first, true, null);
     setTimeout(() => { const el = document.getElementById(`slideshow-${win.id}`); el?.focus(); el?.requestFullscreen?.().catch(() => { /* windowed show still works */ }); }, 0);
   };
-  const endShow = () => { setPresent(null); if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined); setTimeout(() => rootRef.current?.focus(), 0); };
+  const endShow = () => {
+    const l = linkRef.current; linkRef.current = null; setAudience(null);
+    if (l) { l.port.send({ t: "end" }); setTimeout(() => { l.port.close(); try { l.win?.close(); } catch { /* already closed */ } }, 300); }
+    setPresent(null); if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined); setTimeout(() => rootRef.current?.focus(), 0); };
   // while the show runs it owns the whole keyboard (capture phase on window: nothing else sees the keys)
   const showKeyRef = useRef<(e: KeyboardEvent) => void>(() => undefined);
   useEffect(() => {
@@ -302,14 +321,64 @@ export default function SlidesModule({ win }: ModuleProps) {
     const h = (e: KeyboardEvent) => showKeyRef.current(e);
     window.addEventListener("keydown", h, true); return () => window.removeEventListener("keydown", h, true);
   }, [present]);
+  const effectsOf = (i: number) => (doc?.slides[i] ? readAnimations(doc.slides[i].xml).effects : []);
+  /** enter slide i: forward = its auto-start step plays (after its transition); backward = fully built, no animation */
+  const goSlide = (i: number, forward: boolean, from: number | null) => {
+    const eff = effectsOf(i);
+    setPresent(i); setShowSt((st) => ({ done: forward ? autoSteps(eff) : playSteps(eff).length, animate: forward, key: st.key + 1, from: forward ? from : null }));
+  };
+  const showNext = () => {
+    if (present === null) return; const steps = playSteps(effectsOf(present)).length;
+    if (showSt.done < steps) { setShowSt((st) => ({ done: st.done + 1, animate: true, key: st.key + 1, from: null })); return; }
+    const k = shown.indexOf(present); if (k < shown.length - 1) goSlide(shown[k + 1], true, present); else endShow();
+  };
+  const showPrev = () => {
+    if (present === null) return;
+    if (showSt.done > autoSteps(effectsOf(present))) { setShowSt((st) => ({ done: st.done - 1, animate: false, key: st.key + 1, from: null })); return; }
+    const k = shown.indexOf(present); if (k > 0) goSlide(shown[k - 1], false, null);
+  };
+  const showNextRef = useRef<() => void>(() => undefined); const showPrevRef = useRef<() => void>(() => undefined);
+  const startPresenter = () => {
+    const d = docRef.current; if (!d) return; if (edit) commitEdit();
+    if (!shown.length) { shell.toast("Every slide is hidden", "warn"); return; }
+    const sid = newSid();
+    // opened synchronously inside the click so the browser counts it as user-initiated (not a blocked pop-up)
+    const w = window.open(`/present?show=${sid}`, `fusion-audience-${sid}`, "popup,width=1280,height=720");
+    if (!w) { shell.toast("The audience window was blocked — allow pop-ups for this site, or use Present", "warn"); return; }
+    const port = channelPort(sid); const link = { port, win: w, bytes: null as Uint8Array | null }; linkRef.current = link;
+    const name = (path.split("/").pop() || `${d.title || "Presentation"}.pptx`).replace(/\.fdeck$/i, ".pptx");
+    const sendDeck = () => { if (link.bytes && linkRef.current === link) port.send({ t: "deck", name, bytes: link.bytes, slides: d.slides.length }); };
+    port.onmsg = (m) => {
+      if (linkRef.current !== link) return;
+      if (m.t === "hello") sendDeck();
+      else if (m.t === "ready") { setAudience("connected"); sendStateRef.current(); }
+      else if (m.t === "nav") (m.dir === "next" ? showNextRef : showPrevRef).current();
+    };
+    void M.writePptxDoc(d).then((b) => { link.bytes = b; sendDeck(); }).catch((e: Error) => shell.toast(`Audience screen: ${e.message}`, "bad"));
+    void placeOnOtherScreen(w);
+    setAudience("waiting"); setShowT0(Date.now()); startShow(cur);
+  };
+  const sendStateRef = useRef<() => void>(() => undefined);
+  // "advance after" timing: counts once every build step has played (the last step's run time included)
+  const curTrans = present !== null && doc?.slides[present] ? readTransition(doc.slides[present].xml) : null;
+  useEffect(() => {
+    if (present === null || !curTrans || curTrans.advAfterMs === undefined) return;
+    const steps = playSteps(effectsOf(present)); if (showSt.done < steps.length) return;
+    const tr = showSt.from !== null ? curTrans.durMs : 0; const last = showSt.animate ? stepMs(steps[showSt.done - 1]) : 0;
+    const id = setTimeout(() => showNextRef.current(), tr + last + curTrans.advAfterMs);
+    return () => clearTimeout(id);
+  }, [present, showSt, curTrans?.advAfterMs]); // eslint-disable-line react-hooks/exhaustive-deps
   const showKey = (e: KeyboardEvent) => {
     if (present === null) return; e.preventDefault(); e.stopPropagation();
-    const k = shown.indexOf(present);
-    if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter", "n", "N"].includes(e.key)) { if (k < shown.length - 1) setPresent(shown[k + 1]); else endShow(); }
-    else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace", "p", "P"].includes(e.key)) { if (k > 0) setPresent(shown[k - 1]); }
-    else if (e.key === "Home") setPresent(shown[0]); else if (e.key === "End") setPresent(shown[shown.length - 1]);
+    if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter", "n", "N"].includes(e.key)) showNext();
+    else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace", "p", "P"].includes(e.key)) showPrev();
+    else if (e.key === "Home") goSlide(shown[0], true, null); else if (e.key === "End") goSlide(shown[shown.length - 1], false, null);
     else if (e.key === "Escape") endShow();
-  };  useEffect(() => { showKeyRef.current = showKey; });
+  };  useEffect(() => {
+    showKeyRef.current = showKey; showNextRef.current = showNext; showPrevRef.current = showPrev;
+    sendStateRef.current = () => { const l = linkRef.current; if (l && present !== null) l.port.send({ t: "state", s: { i: present, ...showSt } }); };
+  });
+  useEffect(() => { sendStateRef.current(); }, [present, showSt]);
 
 
   if (!loaded || !doc || !slide || !view) return <div style={{ padding: 16 }}>Loading presentation…</div>;
@@ -347,6 +416,8 @@ export default function SlidesModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={delSlide}>Delete slide</Btn>
         <Btn variant="ghost" onClick={() => mutate("Hide slide", (d) => M.setHidden(d, cur, !M.isHidden(d.slides[cur])))} aria-pressed={M.isHidden(slide)}>{M.isHidden(slide) ? "Unhide" : "Hide"}</Btn>
         <Btn variant="primary" onClick={() => startShow(0)} title="Present from the start (F5; Shift+F5 from this slide)"><Ico d="M7 5 L19 12 L7 19 Z" fill /> Present</Btn>
+        <Btn variant="ghost" data-testid="slides-presenter" onClick={startPresenter} title="Show the slides on a second window or screen (projector / TV) and keep notes, next slide and a timer here">Presenter view</Btn>
+        <Btn variant="ghost" data-testid="slides-motion" aria-pressed={motion} onClick={() => setMotion((m) => !m)} title="Transitions and animations of this slide">Motion</Btn>
         <span style={{ flex: 1 }} />
         {locked ? <Badge tone="info">encrypted</Badge> : null}
         {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
@@ -415,17 +486,19 @@ export default function SlidesModule({ win }: ModuleProps) {
                   <textarea ref={taRef} aria-label="Edit shape text" value={edit.text} onChange={(e) => setEdit({ ...edit, text: e.target.value })} onBlur={(e) => { if (!(e.relatedTarget as HTMLElement | null)?.closest?.("[role=toolbar]")) commitEdit(); }}
                     style={{ position: "absolute", left: live.x * scale, top: live.y * scale, width: Math.max(120, live.cx * scale), height: Math.max(48, live.cy * scale), fontSize: Math.max(12, (firstRunSz() ?? 18) * 12700 * scale), lineHeight: 1.2, background: "rgba(255,255,255,.96)", color: "#111827", border: "2px solid #2563eb", borderRadius: 3, padding: 6, resize: "both", fontFamily: "Calibri, Carlito, Arial, sans-serif", zIndex: 5 }} />
                 ) : null}
+                {motion ? <OrderBadges doc={doc} view={view} slide={slide} scale={scale} /> : null}
               </SlideCanvas>
             </div>
           </div>
           <textarea className="fs-textarea" aria-label="Speaker notes" placeholder="Click to add speaker notes" value={notesDraft ?? notes}
             onChange={(e) => setNotesEdit({ k: notesKey, t: e.target.value })} onBlur={commitNotes} style={{ height: 78, margin: 0, borderRadius: 0, borderLeft: 0, borderRight: 0, borderBottom: 0, resize: "vertical", fontSize: fz(13) }} />
         </div>
+        {motion ? <MotionPanel doc={doc} cur={cur} sel={sel} mutate={mutate} onSelect={(a) => { if (edit) commitEdit(); setSel(a); }} onPreview={() => startShow(cur)} onClose={() => { setMotion(false); setTimeout(() => rootRef.current?.focus(), 0); }} /> : null}
       </div>
       <div className="fs-dim" style={{ padding: "3px 8px", borderTop: "1px solid var(--fs-border)", fontSize: fz(10.5), display: "flex", gap: 10 }}>
         <span>Slide {cur + 1} of {doc.slides.length}{view.layoutName ? ` · ${view.layoutName}` : ""}{M.isHidden(slide) ? " · hidden" : ""}</span>
         <span style={{ flex: 1 }} />
-        <span title="Everything the editor does not change — animations, transitions, media, SmartArt data, embedded objects, themes, masters — is written back byte-for-byte.">Lossless .pptx · animations/media kept, not played</span>
+        <span title="Transitions and entrance animations are edited in Motion and played in the show; other effects play approximately (entrance appears, exit hides). Everything the editor does not change — media, SmartArt data, embedded objects, themes, masters — is written back byte-for-byte.">Lossless .pptx · transitions + entrance animations play; media kept, not played</span>
       </div>
       {/* ---------- modal: save as ---------- */}
       {pop === "saveas" ? (
@@ -439,10 +512,11 @@ export default function SlidesModule({ win }: ModuleProps) {
       {/* ---------- slideshow ---------- */}
       {present !== null && typeof document !== "undefined" ? createPortal(
         <div id={`slideshow-${win.id}`} tabIndex={0} role="dialog" aria-modal="true" aria-label={`Slide show, slide ${present + 1}`}
-          onClick={() => { const k = shown.indexOf(present); if (k < shown.length - 1) setPresent(shown[k + 1]); else endShow(); }}
+          onClick={() => { if (curTrans && !curTrans.advClick && showSt.done >= playSteps(effectsOf(present)).length) return; showNext(); }}
           style={{ position: "fixed", inset: 0, background: "#000", zIndex: 2147483000, display: "grid", placeItems: "center", outline: "none", cursor: "none" }}>
-          <ShowSlide doc={doc} i={present} />
-          <span className="fs-dim" style={{ position: "absolute", bottom: 8, right: 12, color: "rgba(255,255,255,.45)", fontSize: fz(12) }}>{shown.indexOf(present) + 1} / {shown.length} · Esc to end</span>
+          {audience ? <PresenterConsole doc={doc} st={{ i: present, ...showSt }} shown={shown} viewOf={(x) => viewOf(doc, x)} notes={M.notesText(doc, present)} audience={audience} t0={showT0} onNext={showNext} onPrev={showPrev} onEnd={endShow} />
+            : <ShowSlide doc={doc} i={present} st={showSt} />}
+          {audience ? null : <span className="fs-dim" style={{ position: "absolute", bottom: 8, right: 12, color: "rgba(255,255,255,.45)", fontSize: fz(12) }}>{shown.indexOf(present) + 1} / {shown.length} · Esc to end</span>}
         </div>, document.body,
       ) : null}
     </div>
@@ -452,13 +526,22 @@ export default function SlidesModule({ win }: ModuleProps) {
   function firstRunSz() { return curRun()?.sz; }
 }
 
+/** With the Window Management permission already granted, move the audience window onto another screen, full size. */
+async function placeOnOtherScreen(w: Window) {
+  try {
+    const st = await navigator.permissions.query({ name: "window-management" as PermissionName }); if (st.state !== "granted") return;
+    const sd = await (window as unknown as { getScreenDetails: () => Promise<{ screens: { availLeft: number; availTop: number; availWidth: number; availHeight: number }[]; currentScreen: unknown }> }).getScreenDetails();
+    const other = sd.screens.find((x) => x !== sd.currentScreen); if (!other) return;
+    w.moveTo(other.availLeft, other.availTop); w.resizeTo(other.availWidth, other.availHeight);
+  } catch { /* no Window Management API: the user drags the window to the projector */ }
+}
 function Ico({ d, fill }: { d: string; fill?: boolean }): ReactNode {
   return <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden style={{ verticalAlign: "-2px" }}><path d={d} fill={fill ? "currentColor" : "none"} stroke="currentColor" strokeWidth={fill ? 0 : 2} strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
-function ShowSlide({ doc, i }: { doc: M.PptxDoc; i: number }) {
+function ShowSlide({ doc, i, st }: { doc: M.PptxDoc; i: number; st: { done: number; animate: boolean; key: number; from: number | null } }) {
   const [vp, setVp] = useState({ w: typeof window !== "undefined" ? window.innerWidth : 1280, h: typeof window !== "undefined" ? window.innerHeight : 720 });
   useEffect(() => { const f = () => setVp({ w: window.innerWidth, h: window.innerHeight }); window.addEventListener("resize", f); document.addEventListener("fullscreenchange", f); return () => { window.removeEventListener("resize", f); document.removeEventListener("fullscreenchange", f); }; }, []);
   const s = doc.slides[i]; if (!s) return null;
   const w = Math.min(vp.w, vp.h * (doc.size.cx / doc.size.cy));
-  return <SlideCanvas doc={doc} view={viewOf(doc, s)} width={w} uid={`p${s.uid}`} />;
+  return <ShowStage doc={doc} i={i} done={st.done} animate={st.animate} animKey={st.key} from={st.from} viewOf={(x) => viewOf(doc, x)} w={w} />;
 }

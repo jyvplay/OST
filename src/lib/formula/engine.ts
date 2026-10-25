@@ -115,7 +115,7 @@ export class Sheet {
   /** TT74: hidden columns (presentation; <col hidden="1">). */
   hiddenCols: Set<number> = new Set();
   /** TT74: the sheet AutoFilter (range incl. header row; shown values per column offset). */
-  autoFilter: { ref: string; cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string> } | null = null;
+  autoFilter: { ref: string; cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string>; /** TT76 resolved colour-filter colours */ fx?: Record<number, string | null> } | null = null;
   constructor(name = "Sheet1") { this.name = name; }
 
   setCell(col: number, row: number, input: string) {
@@ -588,7 +588,7 @@ function resolveRangeMatrix(range: RangeAddr, defaultSheet: string, evalCell: (s
 
 export interface TableDef { name: string; sheet: string; c0: number; r0: number; c1: number; r1: number; headerRows: number; totalsRows: number; columns: string[];
   /** TT75: the table's own AutoFilter value lists, keyed by column offset inside the table (foreign = other criteria kept as hidden rows only) */
-  filter?: { cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string> } }
+  filter?: { cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string>; /** TT76 resolved colour-filter colours */ fx?: Record<number, string | null> } }
 export interface EvalContext {
   /** TT46 (optional so simple contexts keep working): blank detection, 3-D sheet spans, tables. */
   isBlank?(sheet: string | null, col: number, row: number, home?: string): boolean;

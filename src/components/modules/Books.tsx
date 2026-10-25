@@ -49,6 +49,9 @@ function readerCss(p: Prefs, paginated: boolean): string {
     : `${base}html{margin:0}body{margin:0 auto !important;padding:4vh 6vw !important;max-width:46em;box-sizing:border-box}`;
 }
 
+/** TT76: footer page arrows — a 44 px target (WCAG 2.5.5 AAA) and a glyph large enough to read as an arrow. */
+const PAGE_ARROW = { minWidth: 44, minHeight: 44, fontSize: fz(22), lineHeight: 1, padding: "0 10px", fontWeight: 600 } as const;
+
 export default function BooksModule({ win }: ModuleProps) {
   const shell = useShell();
   const [path] = useState<string>((win.props.path as string) ?? "");
@@ -349,12 +352,12 @@ export default function BooksModule({ win }: ModuleProps) {
                 : docs.map((d, i) => frameBox(d, i, stageW, stageH))}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 8px", borderTop: "1px solid var(--line)", fontSize: fz(12) }}>
-              <Btn variant="ghost" data-testid={rtl ? "books-next" : "books-prev"} aria-label={rtl ? "Next page" : "Previous page"} onClick={() => step(rtl ? 1 : -1)}>‹</Btn>
+              <Btn variant="ghost" data-testid={rtl ? "books-next" : "books-prev"} aria-label={rtl ? "Next page" : "Previous page"} onClick={() => step(rtl ? 1 : -1)} style={PAGE_ARROW}>‹</Btn>
               <span data-testid="books-progress" style={{ flex: 1, textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {chapterLabel ? `${chapterLabel} · ` : ""}part {idx + 1} of {book.spine.length}{paginated ? ` · page ${page + 1} of ${pages}` : ""}{book.spine[idx]?.linear === false ? " · (outside the reading order)" : ""}
               </span>
               {notes.length ? <Badge tone="info" title={notes.join("\n")}>{notes.length} note{notes.length === 1 ? "" : "s"}</Badge> : null}
-              <Btn variant="ghost" data-testid={rtl ? "books-prev" : "books-next"} aria-label={rtl ? "Previous page" : "Next page"} onClick={() => step(rtl ? -1 : 1)}>›</Btn>
+              <Btn variant="ghost" data-testid={rtl ? "books-prev" : "books-next"} aria-label={rtl ? "Previous page" : "Next page"} onClick={() => step(rtl ? -1 : 1)} style={PAGE_ARROW}>›</Btn>
             </div>
           </div>
         </div>

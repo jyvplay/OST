@@ -162,8 +162,11 @@ export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: nu
       for (const [k, v] of Object.entries(sheet.autoFilter.cols)) { const n = shift(was.c0 + Number(k)); if (n >= now.c0 && n <= now.c1) cols[n - now.c0] = v; }
       const raw: Record<number, string> = {}; // TT75: kept foreign criteria move with their columns too
       for (const [k, v] of Object.entries(sheet.autoFilter.raw ?? {})) { const n = shift(was.c0 + Number(k)); if (n >= now.c0 && n <= now.c1) raw[n - now.c0] = v; }
-      sheet.autoFilter = { ...sheet.autoFilter, ref: next.replace(/\$/g, ""), cols, ...(Object.keys(raw).length ? { raw } : {}) };
+      const fx: Record<number, string | null> = {}; // TT76: resolved colour-filter colours move with their columns
+      for (const [k, v] of Object.entries(sheet.autoFilter.fx ?? {})) { const n = shift(was.c0 + Number(k)); if (n >= now.c0 && n <= now.c1) fx[n - now.c0] = v; }
+      sheet.autoFilter = { ...sheet.autoFilter, ref: next.replace(/\$/g, ""), cols, ...(Object.keys(raw).length ? { raw } : {}), ...(Object.keys(fx).length ? { fx } : {}) };
       if (!Object.keys(raw).length) delete sheet.autoFilter.raw;
+      if (!Object.keys(fx).length) delete sheet.autoFilter.fx;
     } else sheet.autoFilter = { ...sheet.autoFilter, ref: next.replace(/\$/g, "") };
   }
   // TT19: defined names move with their cells too (Excel adjusts Name Manager references); a fully deleted

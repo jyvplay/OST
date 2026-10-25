@@ -133,13 +133,16 @@ function TableBox({ t, s }: { t: NonNullable<VShape["table"]>; s: number }) {
   );
 }
 
-function ShapeBox({ doc, v, s, uid, hideText }: { doc: PptxDoc; v: VShape; s: number; uid: string; hideText?: string | null }) {
+/** TT76 per-shape motion styles for the slide show / preview, keyed by top-level spTree address (visibility + CSS animation) */
+export type ShapeFx = Record<string, CSSProperties>;
+function ShapeBox({ doc, v, s, uid, hideText, fx }: { doc: PptxDoc; v: VShape; s: number; uid: string; hideText?: string | null; fx?: ShapeFx }) {
   if (v.hidden) return null;
   const w = v.w * s, h = v.h * s;
   const wrap: CSSProperties = { position: "absolute", left: v.x * s, top: v.y * s, width: w, height: h, transform: [v.rot ? `rotate(${v.rot}deg)` : "", v.flipH ? "scaleX(-1)" : "", v.flipV ? "scaleY(-1)" : ""].filter(Boolean).join(" ") || undefined, pointerEvents: v.layer === "slide" ? undefined : "none" };
   const top = v.addr.split(/[/~]/)[0];
+  const motion = v.layer === "slide" ? fx?.[top] : undefined; if (motion) Object.assign(wrap, motion);
   let inner: ReactNode = null;
-  if (v.kind === "group") return <>{v.children?.map((c, i) => <ShapeBox key={i} doc={doc} v={c} s={s} uid={`${uid}g${i}`} hideText={hideText} />)}</>;
+  if (v.kind === "group") return <>{v.children?.map((c, i) => <ShapeBox key={i} doc={doc} v={c} s={s} uid={`${uid}g${i}`} hideText={hideText} fx={fx} />)}</>;
   const d = v.geom ? v.geom.d(w, h) : `M0 0 H${w} V${h} H0 Z`;
   const fc = fillCss(doc, v.fill);
   const fillLayer = fc && !(v.geom?.open) ? <div style={{ position: "absolute", inset: 0, ...fc, clipPath: v.geom && v.geom.name !== "rect" ? `path("${d}")` : undefined }} /> : null;
@@ -167,12 +170,12 @@ function ShapeBox({ doc, v, s, uid, hideText }: { doc: PptxDoc; v: VShape; s: nu
 }
 
 /** a whole slide at `width` CSS pixels */
-export const SlideCanvas = memo(function SlideCanvas({ doc, view, width, uid, hideText, children }: { doc: PptxDoc; view: VSlide; width: number; uid: string; hideText?: string | null; children?: ReactNode }) {
+export const SlideCanvas = memo(function SlideCanvas({ doc, view, width, uid, hideText, children, fx }: { doc: PptxDoc; view: VSlide; width: number; uid: string; hideText?: string | null; children?: ReactNode; fx?: ShapeFx }) {
   const s = width / view.size.cx; const h = view.size.cy * s;
   const bg = fillCss(doc, view.bg) ?? { background: "#fff" };
   return (
     <div className="fs-slide" style={{ position: "relative", width, height: h, overflow: "hidden", ...bg, color: "#000", contain: "strict", userSelect: "none" }}>
-      {view.shapes.map((v, i) => <ShapeBox key={`${v.addr}-${i}`} doc={doc} v={v} s={s} uid={`${uid}-${i}`} hideText={hideText} />)}
+      {view.shapes.map((v, i) => <ShapeBox key={`${v.addr}-${i}`} doc={doc} v={v} s={s} uid={`${uid}-${i}`} hideText={hideText} fx={fx} />)}
       {children}
     </div>
   );

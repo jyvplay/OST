@@ -1,6 +1,6 @@
 {
   "suite": "vector",
-  "at": "2026-10-25T05:47:46.182Z",
+  "at": "2026-10-25T17:51:10.844Z",
   "results": [
     {
       "suite": "vector",
@@ -126,7 +126,7 @@
         "FF-32": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "vector",

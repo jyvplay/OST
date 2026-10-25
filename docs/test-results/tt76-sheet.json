@@ -1,0 +1,149 @@
+{
+  "suite": "tt76-sheet",
+  "at": "2026-10-25T19:01:12.937Z",
+  "results": [
+    {
+      "suite": "tt76-sheet",
+      "name": "O1 external oracles: Excel / ClosedXML / LibreOffice hidden rows == Fusion's re-evaluation",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 140
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "S1 top/bottom N and N% — ties included, numbers only (ported ClosedXML + PhpSpreadsheet expectations)",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "S2 above/below average — numbers only, strict, average written back as val",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "S3 custom filters — typed comparison, wildcard equal, display-text equal, typed notEqual, And/Or",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "S4 value lists compare displayed text, * is literal, date groups OR with values",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "D1 relative dates: ECMA-376 §18.18.26 example + every relative type on a fixed today",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "R1 new package: every criterion kind → XSD-valid → openpyxl reads it + same hidden rows → reread re-evaluates identically",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 343
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "R2 in-place patch: change a ClosedXML file's filter to custom + colour → XSD → openpyxl → only the new dxf appended",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 334
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "R3 workbook JSON keeps criteria + colours and re-evaluates identically; hostile fx dropped",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "R4 inserting / deleting a column shifts criteria AND colours; re-evaluation is unchanged",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 147
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "R5 a TABLE's colour filter: new package re-creates its dxf (openpyxl resolves the colour); a dangling one is dropped from a new package and reported",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 327
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "U1 Condition dialog model: Excel's wildcard encoding both ways, validation keeps OK disabled, reopen pre-fills, colour/icon options",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt76-sheet",
+      "name": "N1–N17 negative shapes: hostile criteria never hang, never hide wrongly, never corrupt the save",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-62": "full"
+      },
+      "pass": true,
+      "ms": 5
+    }
+  ]
+}

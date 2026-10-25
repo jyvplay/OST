@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-25T07:18:26.319Z",
+ "generatedAt": "2026-10-25T19:22:25.745Z",
  "totals": {
   "built": {
-   "full": 316,
-   "partial": 54,
+   "full": 319,
+   "partial": 53,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 241,
-   "partial": 72,
+   "full": 244,
+   "partial": 71,
    "untested": 79
   },
   "tests": {
-   "total": 1445,
-   "passed": 1445
+   "total": 1479,
+   "passed": 1479
   }
  },
  "rows": {
@@ -1294,6 +1294,12 @@
    "tested": "full",
    "tests": [
     "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+    "e2e-tt76-sheet: modal shortcut: an untouched Condition dialog has OK disabled; Enter (in the empty value box) applies nothing; Escape closes it",
+    "e2e-tt76-sheet: Top 2 shows only the two largest; reopening pre-fills Top 2; Below average; Clear shows every row",
+    "e2e-tt76-sheet: Custom: contains \"e\" Or begins with \"z\" (wildcards) on the name column; And with a second column's Top 5",
+    "e2e-tt76-sheet: Date period: This year on the date column (relative to today)",
+    "e2e-tt76-sheet: By colour: swatches come from the column; orange shows only the filled rows; Save → openpyxl sees the colour filter + the same hidden rows; reopening the file keeps them and pre-fills the colour",
+    "e2e-tt76-sheet: no page errors",
     "e2e: mount: sheet",
     "office: first-party verified semantics survive: SUM(1,\"x\",2) is still #VALUE!",
     "office: numeric codes: 0.00, #,##0, $, %, scaling commas, ? alignment, # trailing, literals",
@@ -1349,11 +1355,24 @@
     "tt75-office: N5 an insert / delete that Excel refuses changes nothing (cells, tables, formulas)",
     "tt75-office: N6 in-place save: a table removed by deleting its rows loses its part, relationship, <tablePart> and content-type override (openpyxl opens it; no dangling part)",
     "tt75-office: N7 kept foreign filter criteria pass an allowlist sanitiser (file AND workbook JSON): injected elements, attributes, text, comments, entities, prefixes",
-    "tt75-office: N8 kept foreign criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
+    "tt75-office: N8 kept criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
     "tt75-office: N9 range memo is invisible: 300 random workbooks with lookups, COUNTBLANK / COUNTA, spills, INDIRECT and cycles through ranges evaluate identically with the memo on and off",
     "tt75-office: N10 ROWS / COLUMNS: a non-reference error argument propagates (=ROWS(#REF!), =COLUMNS(1/0)), a reference to an error cell counts as 1, arrays keep their shape",
     "tt75-office: N11 table names: cell-reference and R1C1 look-alikes, C / R, spaces, a leading digit are refused; Unicode, _ / \\ starts and dots are accepted",
-    "tt75-office: N12 adjustTablesForStructure refuses a header-only delete and a two-table insert even when called directly (not through insertDelete)"
+    "tt75-office: N12 adjustTablesForStructure refuses a header-only delete and a two-table insert even when called directly (not through insertDelete)",
+    "tt76-sheet: O1 external oracles: Excel / ClosedXML / LibreOffice hidden rows == Fusion's re-evaluation",
+    "tt76-sheet: S1 top/bottom N and N% — ties included, numbers only (ported ClosedXML + PhpSpreadsheet expectations)",
+    "tt76-sheet: S2 above/below average — numbers only, strict, average written back as val",
+    "tt76-sheet: S3 custom filters — typed comparison, wildcard equal, display-text equal, typed notEqual, And/Or",
+    "tt76-sheet: S4 value lists compare displayed text, * is literal, date groups OR with values",
+    "tt76-sheet: D1 relative dates: ECMA-376 §18.18.26 example + every relative type on a fixed today",
+    "tt76-sheet: R1 new package: every criterion kind → XSD-valid → openpyxl reads it + same hidden rows → reread re-evaluates identically",
+    "tt76-sheet: R2 in-place patch: change a ClosedXML file's filter to custom + colour → XSD → openpyxl → only the new dxf appended",
+    "tt76-sheet: R3 workbook JSON keeps criteria + colours and re-evaluates identically; hostile fx dropped",
+    "tt76-sheet: R4 inserting / deleting a column shifts criteria AND colours; re-evaluation is unchanged",
+    "tt76-sheet: R5 a TABLE's colour filter: new package re-creates its dxf (openpyxl resolves the colour); a dangling one is dropped from a new package and reported",
+    "tt76-sheet: U1 Condition dialog model: Excel's wildcard encoding both ways, validation keeps OK disabled, reopen pre-fills, colour/icon options",
+    "tt76-sheet: N1–N17 negative shapes: hostile criteria never hang, never hide wrongly, never corrupt the save"
    ]
   },
   "FF-20": {
@@ -1565,11 +1584,24 @@
     "tt75-office: N5 an insert / delete that Excel refuses changes nothing (cells, tables, formulas)",
     "tt75-office: N6 in-place save: a table removed by deleting its rows loses its part, relationship, <tablePart> and content-type override (openpyxl opens it; no dangling part)",
     "tt75-office: N7 kept foreign filter criteria pass an allowlist sanitiser (file AND workbook JSON): injected elements, attributes, text, comments, entities, prefixes",
-    "tt75-office: N8 kept foreign criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
+    "tt75-office: N8 kept criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
     "tt75-office: N9 range memo is invisible: 300 random workbooks with lookups, COUNTBLANK / COUNTA, spills, INDIRECT and cycles through ranges evaluate identically with the memo on and off",
     "tt75-office: N10 ROWS / COLUMNS: a non-reference error argument propagates (=ROWS(#REF!), =COLUMNS(1/0)), a reference to an error cell counts as 1, arrays keep their shape",
     "tt75-office: N11 table names: cell-reference and R1C1 look-alikes, C / R, spaces, a leading digit are refused; Unicode, _ / \\ starts and dots are accepted",
-    "tt75-office: N12 adjustTablesForStructure refuses a header-only delete and a two-table insert even when called directly (not through insertDelete)"
+    "tt75-office: N12 adjustTablesForStructure refuses a header-only delete and a two-table insert even when called directly (not through insertDelete)",
+    "tt76-sheet: O1 external oracles: Excel / ClosedXML / LibreOffice hidden rows == Fusion's re-evaluation",
+    "tt76-sheet: S1 top/bottom N and N% — ties included, numbers only (ported ClosedXML + PhpSpreadsheet expectations)",
+    "tt76-sheet: S2 above/below average — numbers only, strict, average written back as val",
+    "tt76-sheet: S3 custom filters — typed comparison, wildcard equal, display-text equal, typed notEqual, And/Or",
+    "tt76-sheet: S4 value lists compare displayed text, * is literal, date groups OR with values",
+    "tt76-sheet: D1 relative dates: ECMA-376 §18.18.26 example + every relative type on a fixed today",
+    "tt76-sheet: R1 new package: every criterion kind → XSD-valid → openpyxl reads it + same hidden rows → reread re-evaluates identically",
+    "tt76-sheet: R2 in-place patch: change a ClosedXML file's filter to custom + colour → XSD → openpyxl → only the new dxf appended",
+    "tt76-sheet: R3 workbook JSON keeps criteria + colours and re-evaluates identically; hostile fx dropped",
+    "tt76-sheet: R4 inserting / deleting a column shifts criteria AND colours; re-evaluation is unchanged",
+    "tt76-sheet: R5 a TABLE's colour filter: new package re-creates its dxf (openpyxl resolves the colour); a dangling one is dropped from a new package and reported",
+    "tt76-sheet: U1 Condition dialog model: Excel's wildcard encoding both ways, validation keeps OK disabled, reopen pre-fills, colour/icon options",
+    "tt76-sheet: N1–N17 negative shapes: hostile criteria never hang, never hide wrongly, never corrupt the save"
    ]
   },
   "FF-22": {
@@ -1679,6 +1711,13 @@
     "e2e-tt51-slides: legacy .fdeck outline opens as a real PowerPoint deck (titles, bullets, notes) and Save writes a .pptx that python-pptx reads",
     "e2e-tt51-slides: no page errors in any Slides session",
     "e2e-tt74-office: Slides: Outline downloads the deck's titles, bullets and notes as Markdown after the loss dialog",
+    "e2e-tt76-slides: E1 author transition + animations in the Motion panel → Ctrl+S → lxml reads exactly what was authored",
+    "e2e-tt76-slides: E2 remove + undo / redo: the effect list follows the document",
+    "e2e-tt76-slides: E3 show: Preview → shapes wait hidden → → plays Fly In (CSS animation) → → next slide enters through its transition → ← steps back built",
+    "e2e-tt76-slides: E4 a deck with effects Fusion does not model: listed as kept; editing only the transition keeps every effect",
+    "e2e-tt76-slides: E5 modal-shortcut test: Delete / Backspace / Ctrl+D typed in Motion fields or during the show never delete the shape or duplicate a slide",
+    "e2e-tt76-slides: E7 presenter view (CA-02): the audience window gets the deck and follows the console; clicks on the audience advance the presenter; notes / next / timer on the console; End closes the audience",
+    "e2e-tt76-slides: E6 no page errors during the Slides motion run",
     "e2e: mount: slides",
     "tt51-slides: reader vs python-pptx over every openable corpus deck: slide order, hidden flags, layout names, notes text, shape ids/names, geometry with placeholder inheritance, paragraph text, table cells and group members agree exactly",
     "tt51-slides: lossless identity: opening and saving every corpus deck without edits returns the original bytes (83/83); the view model renders every slide of every deck without throwing",
@@ -1697,7 +1736,15 @@
     "tt51-slides: view model over the corpus: placeholders inherit layout/master geometry, theme colours resolve for every text run (no undefined colours or fonts), pictures map to package parts with crops, tables carry their grid, charts point at chart parts, SmartArt draws its saved drawing; approximate presets are reported, never silent",
     "tt72-office: P1 corpus: every readable pptx with all ppt/**.xml attributes single-quoted and spaced reads to the same deck (titles, bodies, notes); the TT71 reader differed",
     "tt73-office: P1 the PresentationML schema oracle is a real verifier: a fresh deck validates; a slide with an unknown p: element or with p:clrMapOvr before p:cSld is rejected",
-    "tt73-office: P2 FF-23 Slides gate: EVERY openable corpus deck — text box + preset shape + picture, speaker notes, a duplicated slide and a slide from a layout — saves with no schema error the input lacked (ECMA-376 pml.xsd via lxml) and python-pptx sees every edit"
+    "tt73-office: P2 FF-23 Slides gate: EVERY openable corpus deck — text box + preset shape + picture, speaker notes, a duplicated slide and a slide from a layout — saves with no schema error the input lacked (ECMA-376 pml.xsd via lxml) and python-pptx sees every edit",
+    "tt76-slides: M1 corpus: Fusion's transitions + main-sequence effects == lxml oracle on every slide",
+    "tt76-slides: M2 corpus re-emit from Fusion's model: XSD-valid, python-pptx opens, lxml sees the same effects/groups, unique ids, nothing dangling, reread identical",
+    "tt76-slides: M3 authored: every transition kind + every effect × trigger → XSD → python-pptx → lxml reads exactly what was authored",
+    "tt76-slides: M4 playback model: click / with / after timing, auto start, hidden at start, foreign exit hides",
+    "tt76-slides: M6 show playback CSS: waiting shapes hidden, the played step animates from its start state, transitions layer correctly",
+    "tt76-slides: M5 deleting an animated shape prunes its effects + build entries (modelled timelines here; opaque + AlternateContent timelines in N15 / N17): nothing dangling, XSD-valid",
+    "tt76-slides: L1 presenter ↔ audience link (CA-02): real BroadcastChannel round trip delivers the deck + states + nav; hostile / malformed messages are dropped",
+    "tt76-slides: N1–N17 negative shapes for transitions / animations"
    ]
   },
   "FF-24": {
@@ -3466,7 +3513,7 @@
     "tt75-office: N5 an insert / delete that Excel refuses changes nothing (cells, tables, formulas)",
     "tt75-office: N6 in-place save: a table removed by deleting its rows loses its part, relationship, <tablePart> and content-type override (openpyxl opens it; no dangling part)",
     "tt75-office: N7 kept foreign filter criteria pass an allowlist sanitiser (file AND workbook JSON): injected elements, attributes, text, comments, entities, prefixes",
-    "tt75-office: N8 kept foreign criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
+    "tt75-office: N8 kept criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
     "tt75-office: N11 table names: cell-reference and R1C1 look-alikes, C / R, spaces, a leading digit are refused; Unicode, _ / \\ starts and dots are accepted",
     "tt75-office: N12 adjustTablesForStructure refuses a header-only delete and a two-table insert even when called directly (not through insertDelete)"
    ]
@@ -3512,6 +3559,47 @@
     "tt75-epub: N21 every prepared chapter carries a CSP meta first in <head>: default-src 'none', no script-src, images / media / fonts only from blob: / data:"
    ]
   },
+  "FF-62": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt76-sheet: modal shortcut: an untouched Condition dialog has OK disabled; Enter (in the empty value box) applies nothing; Escape closes it",
+    "e2e-tt76-sheet: Top 2 shows only the two largest; reopening pre-fills Top 2; Below average; Clear shows every row",
+    "e2e-tt76-sheet: Custom: contains \"e\" Or begins with \"z\" (wildcards) on the name column; And with a second column's Top 5",
+    "e2e-tt76-sheet: Date period: This year on the date column (relative to today)",
+    "e2e-tt76-sheet: By colour: swatches come from the column; orange shows only the filled rows; Save → openpyxl sees the colour filter + the same hidden rows; reopening the file keeps them and pre-fills the colour",
+    "tt76-sheet: O1 external oracles: Excel / ClosedXML / LibreOffice hidden rows == Fusion's re-evaluation",
+    "tt76-sheet: S1 top/bottom N and N% — ties included, numbers only (ported ClosedXML + PhpSpreadsheet expectations)",
+    "tt76-sheet: S2 above/below average — numbers only, strict, average written back as val",
+    "tt76-sheet: S3 custom filters — typed comparison, wildcard equal, display-text equal, typed notEqual, And/Or",
+    "tt76-sheet: S4 value lists compare displayed text, * is literal, date groups OR with values",
+    "tt76-sheet: D1 relative dates: ECMA-376 §18.18.26 example + every relative type on a fixed today",
+    "tt76-sheet: R1 new package: every criterion kind → XSD-valid → openpyxl reads it + same hidden rows → reread re-evaluates identically",
+    "tt76-sheet: R2 in-place patch: change a ClosedXML file's filter to custom + colour → XSD → openpyxl → only the new dxf appended",
+    "tt76-sheet: R3 workbook JSON keeps criteria + colours and re-evaluates identically; hostile fx dropped",
+    "tt76-sheet: R4 inserting / deleting a column shifts criteria AND colours; re-evaluation is unchanged",
+    "tt76-sheet: R5 a TABLE's colour filter: new package re-creates its dxf (openpyxl resolves the colour); a dangling one is dropped from a new package and reported",
+    "tt76-sheet: U1 Condition dialog model: Excel's wildcard encoding both ways, validation keeps OK disabled, reopen pre-fills, colour/icon options",
+    "tt76-sheet: N1–N17 negative shapes: hostile criteria never hang, never hide wrongly, never corrupt the save"
+   ]
+  },
+  "FF-63": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt76-slides: E1 author transition + animations in the Motion panel → Ctrl+S → lxml reads exactly what was authored",
+    "e2e-tt76-slides: E2 remove + undo / redo: the effect list follows the document",
+    "e2e-tt76-slides: E3 show: Preview → shapes wait hidden → → plays Fly In (CSS animation) → → next slide enters through its transition → ← steps back built",
+    "e2e-tt76-slides: E4 a deck with effects Fusion does not model: listed as kept; editing only the transition keeps every effect",
+    "e2e-tt76-slides: E5 modal-shortcut test: Delete / Backspace / Ctrl+D typed in Motion fields or during the show never delete the shape or duplicate a slide",
+    "e2e-tt76-slides: E6 no page errors during the Slides motion run",
+    "tt76-slides: M1 corpus: Fusion's transitions + main-sequence effects == lxml oracle on every slide",
+    "tt76-slides: M2 corpus re-emit from Fusion's model: XSD-valid, python-pptx opens, lxml sees the same effects/groups, unique ids, nothing dangling, reread identical",
+    "tt76-slides: M3 authored: every transition kind + every effect × trigger → XSD → python-pptx → lxml reads exactly what was authored",
+    "tt76-slides: M4 playback model: click / with / after timing, auto start, hidden at start, foreign exit hides",
+    "tt76-slides: M6 show playback CSS: waiting shapes hidden, the played step animates from its start state, transitions layer correctly",
+    "tt76-slides: M5 deleting an animated shape prunes its effects + build entries (modelled timelines here; opaque + AlternateContent timelines in N15 / N17): nothing dangling, XSD-valid",
+    "tt76-slides: N1–N17 negative shapes for transitions / animations"
+   ]
+  },
   "CT-01": {
    "tested": "partial",
    "tests": [
@@ -3552,10 +3640,12 @@
    ]
   },
   "CA-02": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt76-slides: E7 presenter view (CA-02): the audience window gets the deck and follows the console; clicks on the audience advance the presenter; notes / next / timer on the console; End closes the audience",
     "e2e: mount: beam",
-    "integration: CA-11 Together anchor clock advances while playing and freezes on pause"
+    "integration: CA-11 Together anchor clock advances while playing and freezes on pause",
+    "tt76-slides: L1 presenter ↔ audience link (CA-02): real BroadcastChannel round trip delivers the deck + states + nav; hostile / malformed messages are dropped"
    ]
   },
   "CA-03": {

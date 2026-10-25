@@ -1,6 +1,6 @@
 {
   "suite": "tt48-office",
-  "at": "2026-10-25T06:25:25.533Z",
+  "at": "2026-10-25T18:25:52.996Z",
   "results": [
     {
       "suite": "tt48-office",
@@ -13,7 +13,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 459
+      "ms": 414
     },
     {
       "suite": "tt48-office",
@@ -26,7 +26,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 132
+      "ms": 97
     },
     {
       "suite": "tt48-office",
@@ -39,7 +39,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 190
+      "ms": 146
     },
     {
       "suite": "tt48-office",
@@ -52,7 +52,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 5326
+      "ms": 4739
     },
     {
       "suite": "tt48-office",
@@ -65,7 +65,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 2109
+      "ms": 2045
     },
     {
       "suite": "tt48-office",
@@ -78,7 +78,7 @@
         "PR-11": "partial"
       },
       "pass": true,
-      "ms": 821
+      "ms": 839
     }
   ]
 }

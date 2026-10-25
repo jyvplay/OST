@@ -1,6 +1,6 @@
 {
   "suite": "tt72-office",
-  "at": "2026-10-25T06:53:57.348Z",
+  "at": "2026-10-25T18:52:20.138Z",
   "results": [
     {
       "suite": "tt72-office",
@@ -9,7 +9,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 21416
+      "ms": 20425
     },
     {
       "suite": "tt72-office",
@@ -18,7 +18,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 3298
+      "ms": 2946
     },
     {
       "suite": "tt72-office",
@@ -27,7 +27,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 203
+      "ms": 194
     },
     {
       "suite": "tt72-office",
@@ -45,7 +45,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 6580
+      "ms": 7992
     },
     {
       "suite": "tt72-office",
@@ -54,7 +54,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 3901
+      "ms": 3610
     },
     {
       "suite": "tt72-office",
@@ -63,7 +63,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 8
     },
     {
       "suite": "tt72-office",
@@ -72,7 +72,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 16881
+      "ms": 14782
     },
     {
       "suite": "tt72-office",
@@ -82,7 +82,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 31884
+      "ms": 28684
     },
     {
       "suite": "tt72-office",
@@ -92,7 +92,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt72-office",
@@ -101,7 +101,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 2305
+      "ms": 1961
     },
     {
       "suite": "tt72-office",
@@ -111,7 +111,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 39
+      "ms": 37
     }
   ]
 }

@@ -243,8 +243,12 @@ if (want("U4")) await test("U4 hide/AutoFilter model: unhide keeps filter rows, 
   setFilterColumn(wb, S, 1, null); ok(sh.hiddenRows.size === 0, "clearing the only criterion shows all");
   hideRows(sh, 3, 3); setFilterColumn(wb, S, 1, ["b"]); setAutoFilter(wb, S, null);
   ok(eq([...sh.hiddenRows], [[3, "manual"]]) && !sh.autoFilter, `filter off keeps manual hides only: ${J([...sh.hiddenRows])}`);
-  const af = readAutoFilterXml('<autoFilter ref="A1:B6"><filterColumn colId="1"><customFilters><customFilter operator="greaterThan" val="3"/></customFilters></filterColumn></autoFilter>');
-  ok(af?.foreign === true, "custom filter is foreign");
+  // TT76: custom criteria are evaluated now (tt76-sheet); "foreign" is reserved for criteria Fusion cannot evaluate —
+  // e.g. a date group in a non-Gregorian calendar — and those must still keep the file's hidden rows.
+  const cust = readAutoFilterXml('<autoFilter ref="A1:B6"><filterColumn colId="1"><customFilters><customFilter operator="greaterThan" val="3"/></customFilters></filterColumn></autoFilter>');
+  ok(cust && !cust.foreign && !!cust.raw?.[1], `custom filter is evaluable (not foreign): ${J(cust)}`);
+  const af = readAutoFilterXml('<autoFilter ref="A1:B6"><filterColumn colId="1"><filters calendarType="hijri"><dateGroupItem year="1447" dateTimeGrouping="year"/></filters></filterColumn></autoFilter>');
+  ok(af?.foreign === true, `a non-Gregorian date group is foreign: ${J(af)}`);
   sh.autoFilter = af; sh.hiddenRows.set(5, "filter"); ok(applyAutoFilter(wb, S) === 1 && sh.hiddenRows.get(5) === "filter", "foreign criteria keep the file's hidden rows");
   sh.autoFilter = { ref: "A1:B6", cols: { 1: ['x<&"y', ""] } };
   const x = autoFilterXml(sh); const back = readAutoFilterXml(x);

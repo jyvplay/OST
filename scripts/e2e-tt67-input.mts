@@ -24,6 +24,10 @@ const api = async (method: string, path: string, body?: unknown) => { const r = 
 // appearance.desktopView = "tabletop" and both suites failed with no app change. Force classic, restore afterwards.
 const prevView = (await api("GET", "/api/settings")).json?.rows?.find((r: { key: string }) => r.key === "appearance.desktopView")?.value as string | undefined;
 if (prevView && prevView !== "classic") await api("PUT", "/api/settings", { key: "appearance.desktopView", value: "classic" });
+// TT76: the same for the layout — a gate suite earlier in the run left appearance.layout = "business", whose taskbar
+// Start menu has no hot corner and maps Meta differently, and IN-03 / SH-06 failed with no app change.
+const prevLayout = (await api("GET", "/api/settings")).json?.rows?.find((r: { key: string }) => r.key === "appearance.layout")?.value as string | undefined;
+if (prevLayout && prevLayout !== "fusion") await api("PUT", "/api/settings", { key: "appearance.layout", value: "fusion" });
 async function desktop(windows: unknown[]) {
   const cur = await api("GET", "/api/state?id=default");
   const rev = Number(cur.json.row?.revision ?? 1) + 1000;
@@ -200,4 +204,5 @@ await test("SH-06 hot corner with real pointer moves: entering the top-left corn
 await browser.close();
 if (errors.length) console.log(`  page errors: ${errors.slice(0, 3).join(" | ")}`);
 if (prevView && prevView !== "classic") await api("PUT", "/api/settings", { key: "appearance.desktopView", value: prevView });
+if (prevLayout && prevLayout !== "fusion") await api("PUT", "/api/settings", { key: "appearance.layout", value: prevLayout });
 await finish();

@@ -38,6 +38,7 @@ export { workbookToJson, workbookFromJson, type WorkbookJson } from "./workbook-
 import { workbookToJson, workbookFromJson } from "./workbook-json";
 import { periodFormula, TIME_PERIODS, type CondRule, type Cfvo } from "./sheetmeta";
 import { autoFilterXml, readAutoFilterXml, xmlAttr } from "./sheetfilter";
+import { parseCrit } from "./filtereval";
 import { tableXml, unXstring, headerMismatches, structuredRefsToFileForm, tableColumnNames } from "./sheettables";
 /** TT74: rows already marked hidden inside a filter's data area (below its header row) were hidden by the filter. */
 function markFiltered(sheet: Sheet, ref: string) {
@@ -187,7 +188,7 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   const data = [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([r, cs]) => (cs.length ? `<row r="${r + 1}"${sheet.hiddenRows.has(r) ? ' hidden="1"' : ""}>${cs.join("")}</row>` : `<row r="${r + 1}" hidden="1"/>`)).join("");
   const dim = maxRow < 0 ? "A1" : `A1:${colToLetters(maxCol)}${maxRow + 1}`;
   const widths = Object.entries(sheet.colWidths).map(([c, px]) => [Number(c), px] as const).filter(([c]) => c >= 0 && c <= 16383).sort((a, b) => a[0] - b[0]);
-  const afXml = autoFilterXml(sheet); // TT74 (TT75: a table's own AutoFilter is written in its table part)
+  const afXml = autoFilterXml(sheet, (x) => styles.dxf(x), true); // TT74 (TT76: colour criteria get a dxf in THIS package) (TT75: a table's own AutoFilter is written in its table part)
   const colSet = [...new Set([...widths.map(([c]) => c), ...[...sheet.hiddenCols].filter((c) => c >= 0 && c <= 16383)])].sort((a, b) => a - b);
   const colXml = (c: number) => { const px = sheet.colWidths[c]; return `<col min="${c + 1}" max="${c + 1}"${px !== undefined ? ` width="${pxToWidth(px)}" customWidth="1"` : ""}${sheet.hiddenCols.has(c) ? ' hidden="1"' : ""}/>`; };
   const cols = colSet.length ? `<cols>${colSet.map(colXml).join("")}</cols>` : "";
@@ -432,12 +433,12 @@ export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook", report
     const ids: string[] = [];
     for (const t of list) {
       const n = ++tableNo;
-      chartParts.push({ name: `xl/tables/table${n}.xml`, data: Buffer.from(tableXml(t, n)) });
+      chartParts.push({ name: `xl/tables/table${n}.xml`, data: Buffer.from(tableXml(t, n, (x) => styles.dxf(x))) });
       chartTypes.push(`<Override PartName="/xl/tables/table${n}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml"/>`);
       tableRels[i].push(`<Relationship Id="rIdTb${n}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/table" Target="../tables/table${n}.xml"/>`);
       ids.push(`<tablePart r:id="rIdTb${n}"/>`);
       const mis = headerMismatches(workbook, t); if (mis.length) report?.tables?.push(`table ${t.name}: header cell(s) ${mis.join(", ")} differ from the column names written (Excel shows the column names)`);
-      if (t.filter?.foreign) report?.tables?.push(`table ${t.name}: custom / top-10 / dynamic / colour filter criteria are not written (its hidden rows are kept)`);
+      if (t.filter?.foreign) report?.tables?.push(`table ${t.name}: a filter criterion Fusion cannot evaluate (unreadable, non-Gregorian date group, or a colour that never resolved) is not rewritten; the rows the file hid stay hidden`);
     }
     if (ids.length) tablePartsOf[i] = `<tableParts count="${ids.length}">${ids.join("")}</tableParts>`;
   });
@@ -607,7 +608,7 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
   const af = readAutoFilterXml(xml.replace(/<extLst>[\s\S]*$/, ""));
   // only a filter with criteria hides rows; hidden rows under a criteria-less filter were hidden by hand (Excel: POI
   // ConditionalFormattingSamples "Regional sales3" SUBTOTAL(9) counts them, "Regional sales2" with an icon filter does not)
-  if (af) { sheet.autoFilter = af; if (Object.keys(af.cols).length || af.foreign) markFiltered(sheet, af.ref); }
+  if (af) { sheet.autoFilter = af; if (Object.keys(af.cols).length || af.foreign || af.raw) markFiltered(sheet, af.ref); }
   const pane = /<pane\b([^>]*)\/?>/.exec(xml);
   if (pane) {
     const at = xmlAttrs(pane[1]);
@@ -653,7 +654,7 @@ function readTables(sheetXml: string, sheetPath: string, sheetName: string, wb: 
     const sh = wb.sheets.get(sheetName); if (tref && sh && /<(?:\w+:)?filterColumn\b/.test(tafm![2] ?? "")) markFiltered(sh, tref);
     // TT75: keep the value-list criteria (column offsets inside the table) so a new package can write them back
     const taf = tafm ? readAutoFilterXml(tafm[0]) : null; const tdef = wb.tables.get(name.toUpperCase());
-    if (taf && tdef && (Object.keys(taf.cols).length || taf.foreign)) tdef.filter = { cols: taf.cols, ...(taf.foreign ? { foreign: true } : {}), ...(taf.raw ? { raw: taf.raw } : {}) };
+    if (taf && tdef && (Object.keys(taf.cols).length || taf.foreign || taf.raw)) tdef.filter = { cols: taf.cols, ...(taf.foreign ? { foreign: true } : {}), ...(taf.raw ? { raw: taf.raw } : {}) };
   }
 }
 const normPath = (p: string) => { const out: string[] = []; for (const seg of p.split("/")) { if (seg === "..") out.pop(); else if (seg && seg !== ".") out.push(seg); } return out.join("/"); };
@@ -697,6 +698,19 @@ export function readXlsxWorkbook(buf: Buffer): Workbook {
       try { wb.charts.push(...readSheetCharts(get, path, xml, name, () => `x${++chartSeq}`)); } catch { /* unreadable drawing: charts skipped, file still opens */ }
     }
   }
+  // TT76: colour filter criteria name a dxf of this package — resolve each to its colour so the criterion can be
+  // evaluated and re-created in another package (sheet AutoFilters and table filters)
+  const colourOf = (raw: Record<number, string> | undefined) => {
+    let fx: Record<number, string | null> | undefined;
+    for (const [k, x] of Object.entries(raw ?? {})) {
+      const c = parseCrit(x); if (c?.kind !== "color") continue; const d = dxfs[c.dxfId]; if (!d) continue;
+      const rgb = c.cell ? d.fill : d.color; // canonical "#RRGGBB" (the JSON validator and the UI expect upper case)
+      (fx ??= {})[Number(k)] = rgb && /^#[0-9a-f]{6}$/i.test(rgb) ? rgb.toUpperCase() : null;
+    }
+    return fx;
+  };
+  for (const sh of wb.sheets.values()) if (sh.autoFilter?.raw) { const fx = colourOf(sh.autoFilter.raw); if (fx) sh.autoFilter.fx = fx; }
+  for (const t of wb.tables.values()) if (t.filter?.raw) { const fx = colourOf(t.filter.raw); if (fx) t.filter.fx = fx; }
   const wbPr = /<workbookPr\b([^>]*)\/?>/.exec(workbookXml);
   if (wbPr) { const d = xmlAttrs(wbPr[1]).date1904; wb.date1904 = d === "1" || d === "true"; }
   if (!wb.sheets.size) throw new Error("invalid .xlsx: workbook has no readable sheets");

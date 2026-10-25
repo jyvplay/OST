@@ -144,7 +144,7 @@ if (want("T1")) await test("T1 corpus → new package: every table written (open
       const expAf = t.headerRows ? refOf({ ...t, r1: Math.max(t.r0, t.r1 - t.totalsRows) }) : null;
       const expF = Object.fromEntries(Object.entries(t.filter?.cols ?? {}).map(([k, v]) => [k, v]));
       const got = { sheet: x.sheet, ref: x.ref, header: x.header, totals: x.totals, columns: x.columns, autoFilter: x.autoFilter, filter: x.filter };
-      const exp = { sheet: t.sheet, ref: refOf(t), header: t.headerRows, totals: t.totalsRows, columns: tableColumnNames(t) /* openpyxl decodes ST_Xstring escapes */, autoFilter: expAf, filter: t.filter?.foreign ? got.filter : expF };
+      const exp = { sheet: t.sheet, ref: refOf(t), header: t.headerRows, totals: t.totalsRows, columns: tableColumnNames(t) /* openpyxl decodes ST_Xstring escapes */, autoFilter: expAf, filter: t.filter?.foreign ? got.filter : { ...expF, ...Object.fromEntries(Object.keys(t.filter?.raw ?? {}).filter((k) => !(k in expF)).map((k) => [k, got.filter[k] ?? "openpyxl lost the criterion column"])) } };
       if (J(got) !== J(exp)) bad.push(`${w.file}: openpyxl ${t.name} ${J(got)} want ${J(exp)}`);
     }
     if (ids.size !== o.tables.length) bad.push(`${w.file}: table ids not unique (${[...ids]})`);
@@ -428,7 +428,9 @@ await neg("N7", "kept foreign filter criteria pass an allowlist sanitiser (file 
   const back = workbookFromJson(JSON.parse(J(j)) as WorkbookJson);
   ok(J(back.sheet("Sheet1").autoFilter?.raw) === J({ 1: S(good) }) && J(back.tables.get("T")!.filter?.raw) === J({ 1: S(good) }), J([back.sheet("Sheet1").autoFilter?.raw, back.tables.get("T")!.filter?.raw]));
 });
-await neg("N8", "kept foreign criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid", () => {
+// TT76: top10 / custom criteria are now EVALUATED, so a reread no longer marks them foreign; what N8 protects (the criteria
+// reach the package, follow a column insert, stay schema-valid) is unchanged.
+await neg("N8", "kept criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid", () => {
   const wb = twoTables(); const t1 = wb.tables.get("T1")!;
   t1.filter = { cols: { 0: ["a"] }, foreign: true, raw: { 1: `<filterColumn colId="1"><top10 val="2"/></filterColumn>` } };
   wb.sheet("Sheet1").autoFilter = null;
@@ -438,8 +440,8 @@ await neg("N8", "kept foreign criteria reach the new package (sheet AutoFilter a
   insertDelete(wb, "Sheet1", "col", 1, 1); // T1 gains a column before Qty: top10 moves to offset 2
   const p1 = join(tmp, "n8a.xlsx"), p2 = join(tmp, "n8b.xlsx"); writeFileSync(p1, writeXlsxWorkbook(wb)); writeFileSync(p2, writeXlsxWorkbook(w2));
   const r1 = readXlsxWorkbook(readFileSync(p1)), r2 = readXlsxWorkbook(readFileSync(p2));
-  ok(J(r1.tables.get("T1")!.filter) === J({ cols: { 0: ["a"] }, foreign: true, raw: { 2: `<filterColumn colId="2"><top10 val="2"/></filterColumn>` } }), J(r1.tables.get("T1")!.filter));
-  ok(J(r2.sheet("Sheet1").autoFilter) === J({ ref: "A1:D4", cols: {}, foreign: true, raw: { 3: `<filterColumn colId="3"><customFilters><customFilter operator="greaterThan" val="15"/></customFilters></filterColumn>` } }), J(r2.sheet("Sheet1").autoFilter));
+  ok(J(r1.tables.get("T1")!.filter) === J({ cols: { 0: ["a"] }, raw: { 2: `<filterColumn colId="2"><top10 val="2"/></filterColumn>` } }), J(r1.tables.get("T1")!.filter));
+  ok(J(r2.sheet("Sheet1").autoFilter) === J({ ref: "A1:D4", cols: {}, raw: { 3: `<filterColumn colId="3"><customFilters><customFilter operator="greaterThan" val="15"/></customFilters></filterColumn>` } }), J(r2.sheet("Sheet1").autoFilter));
   const xs = xsd([p1, p2]); const errs = Object.values(xs).flatMap((x) => Object.entries(x.parts).flatMap(([k, es]) => es.map((e) => `${k}: ${e}`))); ok(!errs.length, errs.slice(0, 4).join("\n"));
 });
 
