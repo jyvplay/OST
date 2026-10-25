@@ -72,7 +72,7 @@ export interface CcittParams { K?: number; Columns?: number; Rows?: number; EndO
 /** a run of one colour: make-up codes repeat until a terminating code (< 64) ends the run */
 function run(b: Bits, white: boolean): number { let total = 0; for (let guard = 0; guard < 64; guard++) { const r = b.code(white ? TW : TB); if (r === null) return -1; total += r; if (r < 64) return total; } return -1; }
 
-export function ccittDecode(data: Bytes, p: CcittParams): { data: Bytes; rows: number; partial: boolean } {
+export function ccittDecode(data: Bytes, p: CcittParams): { data: Bytes; rows: number; partial: boolean; consumed: number } {
   const K = p.K ?? 0, cols = Math.max(1, Math.min(1 << 16, p.Columns ?? 1728)), maxRows = Math.min(p.Rows && p.Rows > 0 ? p.Rows : 1 << 20, Math.floor((1 << 28) / cols));
   const eob = p.EndOfBlock !== false, align = !!p.EncodedByteAlign, black1 = !!p.BlackIs1;
   const rowBytes = (cols + 7) >> 3; const out: Bytes[] = []; const b = new Bits(data);
@@ -120,5 +120,8 @@ export function ccittDecode(data: Bytes, p: CcittParams): { data: Bytes; rows: n
   }
   if (p.Rows && p.Rows > 0 && out.length < maxRows) { partial = true; while (out.length < maxRows) out.push(new Uint8Array(rowBytes).fill(black1 ? 0 : 255)); } // pad to the (capped) row count
   const res = new Uint8Array(out.length * rowBytes); out.forEach((r, k) => res.set(r, k * rowBytes));
-  return { data: res, rows: out.length, partial };
+  // TT77: JBIG2 MMR regions (T.88 6.2.6) sit back to back in one segment, so the caller needs the bytes consumed,
+  // including an EOFB that follows the last row
+  if (K < 0 && b.peek(24) === 0x001001) b.pos += 24;
+  return { data: res, rows: out.length, partial, consumed: Math.min(data.length, (b.pos + 7) >> 3) };
 }

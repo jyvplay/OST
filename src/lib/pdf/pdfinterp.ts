@@ -8,6 +8,8 @@ import { Lexer, PDict, PKw, PName, PStr, PStream, isArr, isDict, isName, isNum, 
 import type { PdfDoc, PdfPage } from "./pdfdoc";
 import { PdfFont, type Glyph } from "./pdffont";
 import { ccittDecode } from "./pdfccitt";
+import { jbig2Decode } from "./pdfjbig2";
+import { jpxDecode, type JpxResult } from "./pdfjpx";
 import { synthAppearance } from "./pdfappear";
 import { DeviceCMYK, DeviceGray, DeviceRGB, loadColorSpace, loadFunction, type ColorSpace, type PdfFn } from "./pdfcolor";
 import { applyFilters, filterChain, type FilterSpec } from "./pdffilters";
@@ -23,10 +25,14 @@ export type Path = number[]; // same op codes as glyph outlines: 0 m, 1 l, 3 c, 
 export interface Paint { cs: ColorSpace; comps: number[]; pattern: PatternRef | null }
 export interface PatternRef { kind: "tiling" | "shading"; stream: PStream | PDict; matrix: M; shading?: Shading; doc: PdfDoc; resources: PDict | null; comps?: number[]; under?: ColorSpace }
 export interface Shading { type: number; cs: ColorSpace; coords: number[]; domain: number[]; extend: [boolean, boolean]; fn: PdfFn | null; bbox: number[] | null; background: number[] | null; dict: PDict; stream: PStream | null; matrix?: number[] }
+/** TT77: an ExtGState soft mask (§11.6.5.2), captured with the CTM in effect when `gs` ran */
+export interface SoftMask { subtype: "Alpha" | "Luminosity"; group: PStream; bc: [number, number, number] | null; tr: PdfFn | null; ctm: M; key: object }
+/** TT77: transparency group attributes (§11.6.6) */
+export interface GroupInfo { isolated: boolean; knockout: boolean; /** an ExtGState in the group's resources sets a non-Normal blend mode */ blends: boolean }
 export interface GState {
   ctm: M; fill: Paint; stroke: Paint;
   lw: number; cap: number; join: number; miter: number; dash: number[]; dashPhase: number;
-  fillAlpha: number; strokeAlpha: number; blend: string; softMask: boolean;
+  fillAlpha: number; strokeAlpha: number; blend: string; softMask: SoftMask | null;
   font: PdfFont | null; fontSize: number; tc: number; tw: number; th: number; tl: number; rise: number; mode: number;
 }
 export interface PdfImage {
@@ -48,7 +54,8 @@ export interface Device {
   textClip?(glyphs: { g: Glyph; font: PdfFont; trm: M }[], gs: GState): void;
   image(img: PdfImage, gs: GState): void;
   shade(sh: Shading, gs: GState): void;
-  beginGroup?(gs: GState, bbox: number[] | null): void; endGroup?(gs: GState): void;
+  /** returns true when the device composites the group as a unit (then alpha, blend mode and soft mask reset inside it) */
+  beginGroup?(gs: GState, bbox: number[] | null, info?: GroupInfo): boolean | void; endGroup?(gs: GState): void;
   annotBegin?(rect: number[], annot: PDict): void; annotEnd?(): void;
   markedContent?(tag: string, props: PDict | null, begin: boolean): void;
   wantsImages: boolean; wantsPaths: boolean;
@@ -57,9 +64,11 @@ export interface Device {
 export interface InterpOptions { maxOps?: number; hiddenOCGs?: Set<string>; fontCache?: Map<object, PdfFont>; warnings?: string[]; deadline?: number }
 
 /* ------------------------------------------------------------------ images */
+const JBIG2_CACHE = new WeakMap<object, { data: Bytes; partial: boolean }>();
+const JPX_CACHE = new WeakMap<object, JpxResult | Error>();
 export function loadImage(doc: PdfDoc, s: PStream | { dict: PDict; raw: Bytes }, resources: PDict | null, inline = false, depth = 0): PdfImage | null {
   const d = s.dict; const g = (k: string, ab?: string) => doc.resolve(d.get(k) ?? (inline && ab ? d.get(ab) : undefined));
-  const w = Math.floor(doc.num(g("Width", "W"))), h = Math.floor(doc.num(g("Height", "H")));
+  let w = Math.floor(doc.num(g("Width", "W"))), h = Math.floor(doc.num(g("Height", "H")));
   if (!(w > 0 && h > 0) || w * h > 100_000_000) return null;
   const imageMask = g("ImageMask", "IM") === true;
   const chain = filterChain(d, (x) => doc.resolve(x)).map((f) => (inline ? { ...f, name: ({ AHx: "ASCIIHexDecode", A85: "ASCII85Decode", LZW: "LZWDecode", Fl: "FlateDecode", RL: "RunLengthDecode", CCF: "CCITTFaxDecode", DCT: "DCTDecode" } as Record<string, string>)[f.name] ?? f.name } : f));
@@ -68,18 +77,44 @@ export function loadImage(doc: PdfDoc, s: PStream | { dict: PDict; raw: Bytes },
     const pp = r.image.parms; const pv = (k: string) => (pp ? doc.resolve(pp.get(k)) : undefined); const pn = (k: string, dflt: number) => { const v = pv(k); return typeof v === "number" ? v : dflt; };
     const c = ccittDecode(r.data, { K: pn("K", 0), Columns: pn("Columns", 1728), Rows: pn("Rows", 0) || h, EndOfLine: pv("EndOfLine") === true, EncodedByteAlign: pv("EncodedByteAlign") === true, EndOfBlock: pv("EndOfBlock") !== false, BlackIs1: pv("BlackIs1") === true });
     r.data = c.data; r.image = null; r.partial = r.partial || c.partial; r.ccitt = true;
+  } else if (r.image?.name === "JBIG2Decode") { // TT77: first-party T.88 decoder (pdfjbig2.ts), cached per stream
+    let j = JBIG2_CACHE.get(s);
+    if (!j) {
+      const pp = r.image.parms; const go = pp ? doc.resolve(pp.get("JBIG2Globals")) : undefined;
+      let glob: Bytes | null = null;
+      if (isStream(go)) { const gr = applyFilters(go.raw, filterChain(go.dict, (x) => doc.resolve(x)), 64 << 20); glob = gr.data; }
+      const o = jbig2Decode(r.data, glob, { width: w, height: h });
+      j = { data: o.data, partial: o.partial }; JBIG2_CACHE.set(s, j);
+    }
+    r.data = j.data; r.image = null; r.partial = r.partial || j.partial; r.ccitt = true;
+  }
+  let jpx: JpxResult | null = null;
+  if (r.image?.name === "JPXDecode") { // TT77: first-party T.800 decoder (pdfjpx.ts); the codestream's size and colour rule
+    let j = JPX_CACHE.get(s);
+    if (!j) {
+      const cso = doc.resolve(d.get("ColorSpace")); const indexed = isArr(cso) && isName(doc.resolve(cso[0]), "Indexed");
+      try { j = jpxDecode(r.data, { indexed }); } catch (e) { j = e as Error; }
+      JPX_CACHE.set(s, j);
+    }
+    if (j instanceof Error) { r.unsupported = "JPXDecode"; r.image = null; r.partial = true; }
+    else { jpx = j; w = j.width; h = j.height; r.data = j.data; r.image = null; r.partial = r.partial || j.partial; }
   }
   let cs: ColorSpace | null = null; let bpc = imageMask || r.ccitt ? 1 : Math.floor(doc.num(g("BitsPerComponent", "BPC"), 8));
   if (!imageMask) {
     const cso = g("ColorSpace", "CS");
     if (cso !== undefined && cso !== null) cs = loadColorSpace(doc, inline && isName(cso) ? (({ G: "DeviceGray", RGB: "DeviceRGB", CMYK: "DeviceCMYK", I: "Indexed" } as Record<string, string>)[cso.n] ? new PName(({ G: "DeviceGray", RGB: "DeviceRGB", CMYK: "DeviceCMYK", I: "Indexed" } as Record<string, string>)[cso.n]) : cso) : inline && isArr(cso) && isName(cso[0], "I") ? [new PName("Indexed"), ...cso.slice(1)] : cso, resources);
-    else if (r.image?.name === "JPXDecode") cs = DeviceRGB; // JPX carries its own colour space
+    else if (jpx) cs = jpx.comps === 1 ? DeviceGray : jpx.comps === 4 || jpx.cs === "cmyk" ? DeviceCMYK : DeviceRGB; // JPX carries its own colour space
     else cs = DeviceGray;
+    if (jpx) { // the PDF colour space decides the channel count; extra JPX channels are dropped, missing ones read 0
+      bpc = 8; const n = cs!.n;
+      if (n !== jpx.comps) { const src = jpx.data, k = jpx.comps, o = new Uint8Array(w * h * n); for (let i = 0; i < w * h; i++) for (let c = 0; c < n && c < k; c++) o[i * n + c] = src[i * k + c]; r.data = o; }
+    }
     if (r.image?.name === "JPXDecode" || r.image?.name === "JBIG2Decode") bpc = r.image.name === "JBIG2Decode" ? 1 : 8;
   }
   if (![1, 2, 4, 8, 16].includes(bpc)) bpc = 8;
   const dec = doc.arr(g("Decode", "D")).map((x) => doc.num(x));
-  const decode = dec.length ? dec : imageMask ? [0, 1] : cs!.defaultDecode(bpc);
+  // JPX: /Decode is ignored unless the image is a mask (§8.9.5.1, Table 87)
+  const decode = dec.length && !(jpx && !imageMask) ? dec : imageMask ? [0, 1] : cs!.defaultDecode(bpc);
   let smask: PdfImage | null = null, stencil: PdfImage | null = null, colorKey: number[] | null = null; let matte: number[] | undefined;
   if (!inline && depth < 2) {
     const sm = doc.resolve(d.get("SMask"));
@@ -88,6 +123,11 @@ export function loadImage(doc: PdfDoc, s: PStream | { dict: PDict; raw: Bytes },
     if (isStream(mk)) stencil = loadImage(doc, mk, resources, false, depth + 1);
     else if (isArr(mk)) colorKey = mk.map((x) => doc.num(x));
   }
+  // /SMaskInData 1|2: the JPX opacity channel is the soft mask when no /SMask is given (§8.9.5.1)
+  const smid = jpx?.alpha && !smask ? doc.num(g("SMaskInData"), 0) : 0;
+  // 2 = colour premultiplied by opacity: un-premultiply against /Matte (default black) through the matte path
+  if (smid === 2) { const mt = doc.arr(d.get("Matte")).map((x) => doc.num(x)); matte = mt.length ? mt : new Array(cs?.n ?? 3).fill(0); }
+  if (smid > 0 && jpx?.alpha) smask = { w, h, bpc: 8, cs: DeviceGray, decode: [0, 1], imageMask: false, interpolate: false, data: jpx.alpha, codec: null, key: {}, smask: null, stencil: null, colorKey: null, partial: false };
   return { w, h, bpc, cs, decode, imageMask, interpolate: g("Interpolate", "I") === true, data: r.data, codec: r.image ?? (r.unsupported ? { name: r.unsupported, parms: null } : null), key: s, smask, stencil, colorKey, matte, partial: r.partial };
 }
 
@@ -132,7 +172,7 @@ export class Interpreter {
   }
   static initialGS(ctm: M): GState {
     return { ctm, fill: { cs: DeviceGray, comps: [0], pattern: null }, stroke: { cs: DeviceGray, comps: [0], pattern: null }, lw: 1, cap: 0, join: 0, miter: 10, dash: [], dashPhase: 0,
-      fillAlpha: 1, strokeAlpha: 1, blend: "source-over", softMask: false, font: null, fontSize: 0, tc: 0, tw: 0, th: 1, tl: 0, rise: 0, mode: 0 };
+      fillAlpha: 1, strokeAlpha: 1, blend: "source-over", softMask: null, font: null, fontSize: 0, tc: 0, tw: 0, th: 1, tl: 0, rise: 0, mode: 0 };
   }
 
   private locked = false;
@@ -294,10 +334,22 @@ export class Interpreter {
         case "D": if (isArr(v)) { gs.dash = this.doc.arr(v[0]).map((x) => this.doc.num(x)); gs.dashPhase = this.doc.num(v[1]); } break;
         case "CA": if (isNum(v)) gs.strokeAlpha = v; break; case "ca": if (isNum(v)) gs.fillAlpha = v; break;
         case "BM": { const bm = isArr(v) ? this.doc.resolve(v[0]) : v; if (isName(bm)) gs.blend = BLEND[bm.n] ?? "source-over"; break; }
-        case "SMask": gs.softMask = isDict(v); if (isDict(v) && this.warnings.length < 50 && !this.warnings.includes("soft masks in ExtGState are not applied")) this.warnings.push("soft masks in ExtGState are not applied"); break;
+        case "SMask": gs.softMask = isDict(v) ? this.softMask(v) : null; break; // /None (or anything else) clears it
         case "Font": if (isArr(v) && v.length >= 2) { const f = this.doc.resolve(v[0]); if (isDict(f)) gs.font = this.fontFromDict(f); gs.fontSize = this.doc.num(v[1]); } break;
       }
     }
+  }
+  /** TT77: soft-mask dictionary → SoftMask (the group's colour space converts the backdrop BC to RGB) */
+  private softMask(d: PDict): SoftMask | null {
+    const g = this.doc.resolve(d.get("G")); if (!isStream(g)) return null;
+    const st = this.doc.resolve(d.get("S")); const subtype = isName(st, "Alpha") ? "Alpha" : "Luminosity";
+    const grp = this.doc.dict(g.dict.get("Group")); const csObj = grp?.get("CS");
+    let bc: [number, number, number] | null = null; const bca = this.doc.arr(d.get("BC")).map((x) => this.doc.num(x));
+    // BC absent: every component 0 in the group colour space (black for Gray/RGB, white for CMYK) — PDFium's reading
+    try { const cs = csObj !== undefined ? loadColorSpace(this.doc, csObj, this.doc.dict(g.dict.get("Resources"))) : null; if (bca.length) bc = (cs ?? (bca.length === 1 ? DeviceGray : bca.length === 4 ? DeviceCMYK : DeviceRGB)).rgb(bca); else if (cs) bc = cs.rgb(new Array(cs.n).fill(0)); } catch { bc = null; }
+    const tro = this.doc.resolve(d.get("TR")); let tr: PdfFn | null = null;
+    if (tro !== undefined && !isName(tro, "Identity")) { try { tr = loadFunction(this.doc, tro); } catch { tr = null; } }
+    return { subtype, group: g, bc, tr, ctm: this.gs.ctm, key: d };
   }
   private ocHidden(o: PObj | undefined): boolean {
     const h = this.opts.hiddenOCGs; if (!h || !h.size) return false;
@@ -316,8 +368,16 @@ export class Interpreter {
   private paint(fill: boolean, stroke: boolean, eo: boolean) {
     const p = this.path; this.path = [];
     if (this.hiddenDepth === 0 && this.dev.wantsPaths && p.length) {
-      if (fill) this.dev.fill(p, this.gs, eo);
-      if (stroke) this.dev.stroke(p, this.gs);
+      // §11.7.4.4: a path both filled and stroked by one operator is a non-isolated knockout group of the two, so under
+      // transparency the stroke composites with the backdrop, not with its own fill
+      const gs = this.gs;
+      const ko = fill && stroke && !!this.dev.beginGroup && (gs.blend !== "source-over" || gs.fillAlpha < 1 || gs.strokeAlpha < 1);
+      const atDo: GState = ko ? { ...gs, fillAlpha: 1, strokeAlpha: 1, blend: "source-over", softMask: null } : gs;
+      const open = ko && this.dev.beginGroup!(atDo, null, { isolated: false, knockout: true, blends: gs.blend !== "source-over" }) === true;
+      try {
+        if (fill) this.dev.fill(p, gs, eo);
+        if (stroke) this.dev.stroke(p, gs);
+      } finally { if (open && this.dev.endGroup) this.dev.endGroup(atDo); }
     }
     if (this.pendingClip && p.length) this.dev.clip(p, this.gs, this.pendingClip === 2);
     else if (this.pendingClip) this.dev.clip([], this.gs, false);
@@ -399,12 +459,18 @@ export class Interpreter {
     this.gs.ctm = mul(m, this.gs.ctm);
     if (bb.length === 4) this.dev.clip([0, bb[0], bb[1], 1, bb[2], bb[1], 1, bb[2], bb[3], 1, bb[0], bb[3], 4], this.gs, false);
     const group = this.doc.dict(x.dict.get("Group"));
-    if (group && this.dev.beginGroup) this.dev.beginGroup(this.gs, bb.length === 4 ? bb : null);
+    if (group && this.dev.beginGroup) {
+      const egs = this.doc.dict(this.doc.dict(x.dict.get("Resources"))?.get("ExtGState")); let blends = false;
+      if (egs) for (const [, e] of egs.m) { const bm0 = this.doc.dict(e)?.get("BM"); const bm = isArr(this.doc.resolve(bm0)) ? this.doc.resolve((this.doc.resolve(bm0) as PObj[])[0]) : this.doc.resolve(bm0); if (isName(bm) && bm.n !== "Normal" && bm.n !== "Compatible") { blends = true; break; } }
+      const info: GroupInfo = { isolated: this.doc.resolve(group.get("I")) === true, knockout: this.doc.resolve(group.get("K")) === true, blends };
+      // §11.6.6: the alpha, blend mode and soft mask at Do apply to the group as a whole and are reset inside it
+      if (this.dev.beginGroup(this.gs, bb.length === 4 ? bb : null, info) === true) { this.gs.fillAlpha = 1; this.gs.strokeAlpha = 1; this.gs.blend = "source-over"; this.gs.softMask = null; }
+    }
     this.depth++; this.formStack.push(id);
     const fres = this.doc.dict(x.dict.get("Resources")) ?? res;
     const t3 = this.t3Uncolored;
-    try { this.run(this.doc.decode(x).data, fres); } finally { this.depth--; this.formStack.pop(); this.t3Uncolored = t3; }
-    if (group && this.dev.endGroup) this.dev.endGroup(this.gs);
+    // endGroup runs even when the content throws (deadline), so a compositing device never stays inside a layer
+    try { this.run(this.doc.decode(x).data, fres); } finally { this.depth--; this.formStack.pop(); this.t3Uncolored = t3; if (group && this.dev.endGroup) this.dev.endGroup(this.gs); }
     this.restore(); this.loadFull(saved);
   }
   private formStack: number[] = [];

@@ -3,7 +3,7 @@
  *   FlateDecode (RFC 1950/1951 — a synchronous inflater that keeps the output decoded before any corruption),
  *   PNG/TIFF predictors (§7.4.4.4), LZWDecode (§7.4.4, EarlyChange), ASCII85Decode, ASCIIHexDecode, RunLengthDecode.
  * Image codecs (DCT, JPX, JBIG2, CCITT) are not byte filters here: DCT goes to the browser's JPEG decoder, CCITT has
- * its own decoder (pdfccitt.ts), JPX/JBIG2 are reported as unsupported.
+ * its own decoder (pdfccitt.ts), JBIG2 has its own decoder (pdfjbig2.ts, TT77); JPX is decoded by pdfjpx.ts.
  */
 import { PDict, PName, isArr, isDict, isName, isNum, type PObj, type Bytes } from "./pdfobj";
 

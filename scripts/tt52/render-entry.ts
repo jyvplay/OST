@@ -24,6 +24,15 @@ function similarity(a: ImageData, b: ImageData, tol = 40) {
   return { sim: ok / n, ink: inkN ? inkOk / inkN : 1 };
 }
 window.__pdf = {
+  /** TT77: render page 1 at `scale` and return [r,g,b,a] at each device-pixel point (y down) */
+  async probe(pdfB64: string, points: [number, number][], scale = 1) {
+    try {
+      const doc = PdfDoc.open(b64(pdfB64)); const c = document.createElement("canvas");
+      const r = await renderPage(doc, doc.pages()[0], c, { scale, annotations: true, deadline: Date.now() + 20000 });
+      const x = c.getContext("2d")!;
+      return { w: c.width, h: c.height, warnings: r.warnings, px: points.map(([px, py]) => Array.from(x.getImageData(px, py, 1, 1).data)) };
+    } catch (e) { return { error: String((e as Error).stack ?? e).slice(0, 400) }; }
+  },
   async run(pdfB64: string, refUrl: string, password?: string) {
     const t0 = performance.now();
     try {

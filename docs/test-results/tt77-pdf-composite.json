@@ -1,0 +1,176 @@
+{
+  "suite": "tt77-pdf-composite",
+  "at": "2026-10-25T20:42:36.833Z",
+  "results": [
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C1 fill+stroke at ca=CA=.5 is a knockout pair: interior = fill over backdrop, stroke over backdrop (not over fill)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 304
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C1b the same knockout pair straight on the (transparent) page, nothing under it: identical result once the paper goes under",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 17
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C2 fill+stroke with BM Difference over white: both halves are the complement (yellow → blue)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 78
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C3 page backdrop is transparent: Difference straight on the page (nothing under it) is Normal; paper goes under afterwards",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C4 blend Multiply: cyan × yellow = green; Screen: red ⊕ blue = magenta",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 30
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C5 Luminosity soft mask: mask group paints gray .5 → red at 50% over white = (255,128,128)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 38
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C6 Luminosity /BC: empty mask group over BC [1] → mask 1 (full red); without /BC the backdrop is black → nothing painted",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C7 Luminosity mask in a DeviceCMYK group with no /BC: backdrop = zero components = WHITE → mask 1",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C8 Alpha soft mask: mask group paints at ca .25 → red at 25% over white = (255,191,191)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C9 soft mask /TR: an inverting transfer function maps luminosity 1 → 0 → nothing painted",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C10 group alpha: two overlapping OPAQUE rects in a group drawn at ca .5 → overlap is blue at 50% (not blue over red)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 36
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C11 isolated knockout group: blue at .5 knocks out red at .5 → overlap = blue .5 over white (PDFium ignores /K: (128,64,191))",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C12 non-isolated knockout group over a black backdrop: knocked-out area returns to the BACKDROP, not to transparent",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C13 nested group inside a knockout group knocks out by its SHAPE: inner group of blue at .5 → overlap blue .5 over white",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C14 negative: a soft mask whose group is not a stream, a mask cycle-depth bomb and /SMask /None all render without throwing",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 21
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C15 /Matte: an image premultiplied against matte black, α .5, un-premultiplies to its true colour",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt77-pdf-composite",
+      "name": "C16 non-isolated group over a SEMI-TRANSPARENT backdrop (transparent page): the backdrop is not counted twice",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    }
+  ]
+}

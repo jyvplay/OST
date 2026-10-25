@@ -4,7 +4,7 @@ import { build } from "esbuild";
 import { launchChromium } from "./browser-launch.mts";
 const DIR = process.env.PDFDIR ?? "/home/user/tools/corpus/pdf", REF = process.env.REFDIR ?? "/tmp/ref";
 const PW: Record<string, string> = { "issue15893_reduced.pdf": "test", "issue3371.pdf": "ELXRTQWS", "issue6010_1.pdf": "abc", "issue6010_2.pdf": "æøå", "bug1782186.pdf": "Hello", "issue21579.pdf": "pässwört", "saslprep-r6.pdf": "SªSL\u00adprep" };
-const bundle = await build({ entryPoints: ["scripts/tt52/render-entry.ts"], bundle: true, write: false, format: "iife", target: "es2022", logLevel: "silent" });
+const bundle = await build({ entryPoints: [process.env.ENTRY ?? "scripts/tt52/render-entry.ts"], bundle: true, write: false, format: "iife", target: "es2022", logLevel: "silent" });
 const js = bundle.outputFiles[0].text;
 const browser = await launchChromium(); let page = await browser.newPage();
 await page.setContent("<html><body></body></html>"); await page.addScriptTag({ content: js });

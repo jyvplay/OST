@@ -3,12 +3,17 @@
  *   paths (nonzero / even-odd), strokes (width, caps, joins, miter, dashes), clipping (incl. text clip modes);
  *   glyphs drawn from the embedded outlines (Path2D cache); a system font substitutes only when nothing is embedded;
  *   images: 1/2/4/8/16-bit, any colour space, Decode, ImageMask stencils, SMask, stencil /Mask, colour-key /Mask;
- *   DCT via the browser's JPEG decoder (async prepare pass); CCITT by pdfccitt.ts (before this device); JPX/JBIG2: a hatched placeholder (disclosed);
+ *   DCT via the browser's JPEG decoder (async prepare pass); CCITT / JBIG2 / JPX by pdfccitt.ts / pdfjbig2.ts / pdfjpx.ts
+ *   (before this device; an undecodable stream still gets the hatched placeholder);
  *   shadings: axial, radial, function-based, free-form/lattice Gouraud triangles, Coons and tensor patches;
  *   tiling patterns (coloured / uncoloured) via an offscreen cell; blend modes and constant alpha; page rotation/crop.
- * Not applied: soft masks from ExtGState, isolated/knockout group compositing, overprint (disclosed in DESIGN-TT52).
+ * TT77: soft masks from ExtGState (Alpha / Luminosity, BC, TR), transparency groups composited as a unit (group alpha,
+ *   blend mode and soft mask at Do; non-isolated groups start from — and interpolate against — their backdrop), knockout
+ *   groups (by shape for nested groups), fill+stroke as a knockout pair (§11.7.4.4), /Matte un-premultiplication; the page
+ *   group has a transparent backdrop and the paper goes under it before annotations are painted. Overprint is not
+ *   simulated (PDFium's default rendering does not simulate it either — DESIGN-TT77 §overprint).
  */
-import { Interpreter, IDENT, apply, hiddenOCGs, invert, mul, runAnnotations, type Device, type GState, type M, type Paint, type Path, type PdfImage, type Shading, type PatternRef } from "./pdfinterp";
+import { Interpreter, IDENT, apply, hiddenOCGs, invert, mul, runAnnotations, type Device, type GState, type GroupInfo, type M, type Paint, type Path, type PdfImage, type Shading, type PatternRef, type SoftMask } from "./pdfinterp";
 import type { Glyph, PdfFont } from "./pdffont";
 import type { PdfDoc, PdfPage } from "./pdfdoc";
 import { isNum } from "./pdfobj";
@@ -57,11 +62,134 @@ export class CanvasDevice implements Device {
   save() { this.ctx.save(); }
   restore() { this.ctx.restore(); }
   private style(p: Paint, alpha: number, gs: GState): string | CanvasGradient | CanvasPattern | null {
-    this.ctx.globalAlpha = alpha; this.ctx.globalCompositeOperation = gs.blend as GlobalCompositeOperation;
+    this.ga(this.ctx, alpha, gs.blend);
     if (p.pattern) return null;
     return css(p.cs.rgb(p.comps));
   }
-  fill(p: Path, gs: GState, eo: boolean) {
+  /* ---------------------------------------------------------------- TT77 compositing: soft masks, groups, knockout */
+  private forceOpaque = false; private forceNormal = false;
+  /** alpha + blend for one paint; a scratch pass may force them (coverage pass / blend applied at composite time) */
+  private ga(c: Ctx, alpha: number, blend: string) { c.globalAlpha = this.forceOpaque ? 1 : alpha; c.globalCompositeOperation = (this.forceNormal ? "source-over" : blend) as GlobalCompositeOperation; }
+  private scratchCv: Canv | null = null;
+  private scratch(W: number, H: number): Canv { if (!this.scratchCv || this.scratchCv.width !== W || this.scratchCv.height !== H) this.scratchCv = mkCanvas(W, H); return this.scratchCv; }
+  private knockout = false; private koBackdrop: Canv | null = null;
+  private layers: ({ prev: Ctx; canvas: Canv; alpha: number; blend: string; mask: SoftMask | null; knockout: boolean; koBackdrop: Canv | null; fromBackdrop: boolean } | null)[] = [];
+  private maskCache = new WeakMap<object, Map<string, Canv | null>>();
+  maskDepth = 0;
+  /** device-space box of user-space points under `m` (padded), clamped to the target; null = whole target */
+  private box(pts: number[], m: M, pad: number): [number, number, number, number] | null {
+    const t = mul(m, this.base); const cv = this.ctx.canvas as Canv; let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (let i = 0; i + 1 < pts.length; i += 2) { const [x, y] = apply(t, pts[i], pts[i + 1]); if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    if (!isFinite(x0)) return null;
+    const bx = Math.max(0, Math.floor(x0 - pad)), by = Math.max(0, Math.floor(y0 - pad)), ex = Math.min(cv.width, Math.ceil(x1 + pad)), ey = Math.min(cv.height, Math.ceil(y1 + pad));
+    return ex > bx && ey > by ? [bx, by, ex - bx, ey - by] : [0, 0, 0, 0];
+  }
+  /** user-space points of a path (control points bound the curve) */
+  private pathPts(p: Path): number[] {
+    const out: number[] = [];
+    for (let i = 0; i < p.length;) { const op = p[i++]; const n = op === 0 || op === 1 ? 2 : op === 3 ? 6 : op === 2 ? 4 : 0; if (op > 4) break; for (let k = 0; k < n; k++) out.push(p[i + k]); i += n; }
+    return out;
+  }
+  /**
+   * one painting operation. Without a soft mask or knockout parent it draws directly. Otherwise it is drawn on a scratch
+   * canvas: in a knockout group its shape first clears what the group painted before (§11.4.6.2); with a soft mask the
+   * scratch is multiplied by the mask (destination-in) and composited with the operation's blend mode (§11.6.5.2).
+   * The target's clip applies when the scratch is composited.
+   */
+  private op(gs: GState, box: [number, number, number, number] | null, draw: () => void) {
+    const mask = gs.softMask && this.maskDepth < 4 ? gs.softMask : null;
+    if (!mask && !this.knockout) { draw(); return; }
+    const main = this.ctx; const cv = main.canvas as Canv; const W = cv.width, H = cv.height;
+    const [bx, by, bw, bh] = box ?? [0, 0, W, H]; if (bw <= 0 || bh <= 0) return;
+    const m = mask ? this.maskCanvas(mask, W, H) : null;
+    const sc = this.scratch(W, H); const s = sc.getContext("2d") as Ctx;
+    const reset = () => { s.setTransform(1, 0, 0, 1, 0, 0); s.globalAlpha = 1; s.globalCompositeOperation = "source-over"; s.clearRect(bx, by, bw, bh); };
+    const onScratch = (opaque: boolean) => { this.ctx = s; this.forceOpaque = opaque; this.forceNormal = true; s.save(); try { draw(); } finally { s.restore(); this.ctx = main; this.forceOpaque = false; this.forceNormal = false; } };
+    if (this.knockout) {
+      reset(); onScratch(true);
+      main.save(); main.setTransform(1, 0, 0, 1, 0, 0); main.globalAlpha = 1; main.globalCompositeOperation = "destination-out"; main.drawImage(sc as CanvasImageSource, bx, by, bw, bh, bx, by, bw, bh);
+      if (this.koBackdrop) { // non-isolated: the covered area goes back to the group's initial backdrop, not to transparent
+        s.setTransform(1, 0, 0, 1, 0, 0); s.globalAlpha = 1; s.globalCompositeOperation = "source-in"; s.drawImage(this.koBackdrop as CanvasImageSource, bx, by, bw, bh, bx, by, bw, bh); s.globalCompositeOperation = "source-over";
+        main.globalCompositeOperation = "lighter"; main.drawImage(sc as CanvasImageSource, bx, by, bw, bh, bx, by, bw, bh);
+      }
+      main.restore();
+    }
+    if (!m) { draw(); return; }
+    reset(); onScratch(false);
+    s.setTransform(1, 0, 0, 1, 0, 0); s.globalAlpha = 1; s.globalCompositeOperation = "destination-in"; s.drawImage(m as CanvasImageSource, bx, by, bw, bh, bx, by, bw, bh); s.globalCompositeOperation = "source-over";
+    main.save(); main.setTransform(1, 0, 0, 1, 0, 0); main.globalAlpha = 1; main.globalCompositeOperation = gs.blend as GlobalCompositeOperation;
+    main.drawImage(sc as CanvasImageSource, bx, by, bw, bh, bx, by, bw, bh); main.restore();
+  }
+  /** the soft mask as a canvas whose alpha is the mask value, cached per mask and device transform */
+  private maskCanvas(sm: SoftMask, W: number, H: number): Canv | null {
+    let per = this.maskCache.get(sm.key); if (!per) { per = new Map(); this.maskCache.set(sm.key, per); }
+    const k = `${W}x${H}|${mul(sm.ctm, this.base).map((v) => v.toFixed(4)).join(",")}`;
+    if (per.has(k)) return per.get(k)!;
+    let out: Canv | null = null;
+    try {
+      const cv = mkCanvas(W, H); const c = cv.getContext("2d") as Ctx;
+      const lum = sm.subtype === "Luminosity";
+      if (lum) { c.fillStyle = css(sm.bc ?? [0, 0, 0]); c.fillRect(0, 0, W, H); } // the group is composited over an opaque BC backdrop
+      const dev = new CanvasDevice(this.doc, c, this.base, this.decoded); dev.fontCache = this.fontCache; dev.maskDepth = this.maskDepth + 1;
+      const it = new Interpreter(this.doc, dev, sm.ctm, { fontCache: this.fontCache, maxOps: 1_000_000, deadline: Date.now() + 4000 });
+      try { it.form(sm.group, null); } catch { /* keep what was drawn */ }
+      const img = c.getImageData(0, 0, W, H); const px = img.data;
+      const lut = new Uint8Array(256);
+      for (let v = 0; v < 256; v++) { let o = v / 255; if (sm.tr) { try { o = sm.tr([o])[0]; } catch { /* identity */ } } lut[v] = Math.max(0, Math.min(255, Math.round(o * 255))); }
+      for (let i = 0; i < px.length; i += 4) {
+        const v = lum ? Math.round(0.3 * px[i] + 0.59 * px[i + 1] + 0.11 * px[i + 2]) : px[i + 3];
+        px[i] = px[i + 1] = px[i + 2] = 0; px[i + 3] = lut[v];
+      }
+      c.putImageData(img, 0, 0); out = cv;
+    } catch { out = null; }
+    if (per.size < 8) per.set(k, out);
+    return out;
+  }
+  beginGroup(gs: GState, _bbox: number[] | null, info?: GroupInfo): boolean {
+    const needs = gs.fillAlpha < 1 || gs.blend !== "source-over" || !!gs.softMask || !!info?.knockout || this.knockout || (!!info?.isolated && info.blends);
+    if (!needs || this.layers.length >= 12) { this.layers.push(null); return false; }
+    const cur = this.ctx.canvas as Canv; const cv = mkCanvas(cur.width, cur.height); const lc = cv.getContext("2d") as Ctx;
+    // a non-isolated group starts from its backdrop (§11.4.7), so blend modes and knockout inside it see the page; the
+    // layer then already contains the backdrop, which group alpha / soft mask interpolate against correctly. A non-Normal
+    // blend at Do would apply twice, so such groups start empty (treated as isolated — disclosed).
+    const fromBackdrop = !info?.isolated && gs.blend === "source-over";
+    if (fromBackdrop) lc.drawImage(cur as CanvasImageSource, 0, 0);
+    let ko: Canv | null = null;
+    if (info?.knockout && fromBackdrop) { ko = mkCanvas(cur.width, cur.height); (ko.getContext("2d") as Ctx).drawImage(cur as CanvasImageSource, 0, 0); }
+    this.layers.push({ prev: this.ctx, canvas: cv, alpha: gs.fillAlpha, blend: gs.blend, mask: gs.softMask, knockout: this.knockout, koBackdrop: this.koBackdrop, fromBackdrop });
+    this.ctx = lc; this.knockout = !!info?.knockout; this.koBackdrop = ko;
+    return true;
+  }
+  endGroup(gs: GState) {
+    const L = this.layers.pop(); if (!L) return;
+    this.ctx = L.prev; this.knockout = L.knockout; this.koBackdrop = L.koBackdrop;
+    const atDo: GState = { ...gs, fillAlpha: L.alpha, blend: L.blend, softMask: L.mask };
+    // inside a knockout parent a group knocks out by its shape (§11.4.6.2), not its opacity: the coverage pass draws the
+    // group's painted area at full strength (only knowable when the group started empty)
+    let shape: Canv | null = null;
+    if (this.knockout && !L.fromBackdrop) {
+      try { const W = L.canvas.width, H = L.canvas.height; const lc = L.canvas.getContext("2d") as Ctx; const d = lc.getImageData(0, 0, W, H); for (let i = 3; i < d.data.length; i += 4) d.data[i] = d.data[i] ? 255 : 0; shape = mkCanvas(W, H); (shape.getContext("2d") as Ctx).putImageData(d, 0, 0); } catch { shape = null; }
+    }
+    if (L.fromBackdrop && !this.knockout) {
+      // the layer already holds its backdrop, so it REPLACES the parent, interpolated by k = group alpha × soft mask
+      // (§11.4.8: non-isolated result = backdrop + k·(group − backdrop)): parent·(1−k) + layer·k, in premultiplied
+      // space via destination-out then lighter. A plain source-over would count a semi-transparent backdrop twice.
+      const main = this.ctx; const W = L.canvas.width, H = L.canvas.height;
+      const m = L.mask && this.maskDepth < 4 ? this.maskCanvas(L.mask, W, H) : null;
+      const sc = this.scratch(W, H); const s = sc.getContext("2d") as Ctx;
+      s.save(); s.setTransform(1, 0, 0, 1, 0, 0); s.globalAlpha = 1; s.globalCompositeOperation = "copy"; s.drawImage(L.canvas as CanvasImageSource, 0, 0);
+      if (m) { s.globalCompositeOperation = "destination-in"; s.drawImage(m as CanvasImageSource, 0, 0); }
+      s.restore();
+      main.save(); main.setTransform(1, 0, 0, 1, 0, 0); main.globalAlpha = L.alpha; main.globalCompositeOperation = "destination-out";
+      if (m) main.drawImage(m as CanvasImageSource, 0, 0); else { main.fillStyle = "#000"; main.fillRect(0, 0, W, H); }
+      main.globalCompositeOperation = "lighter"; main.drawImage(sc as CanvasImageSource, 0, 0); main.restore();
+      return;
+    }
+    this.op(atDo, null, () => { const c = this.ctx; c.save(); c.setTransform(1, 0, 0, 1, 0, 0); this.ga(c, L.alpha, L.blend); c.drawImage((this.forceOpaque && shape ? shape : L.canvas) as CanvasImageSource, 0, 0); c.restore(); });
+  }
+
+  fill(p: Path, gs: GState, eo: boolean) { this.op(gs, gs.softMask || this.knockout ? this.box(this.pathPts(p), gs.ctm, 2) : null, () => this.fillNow(p, gs, eo)); }
+  private fillNow(p: Path, gs: GState, eo: boolean) {
     const st = this.style(gs.fill, gs.fillAlpha, gs);
     if (st === null && gs.fill.pattern) return this.patternFill(p, gs, eo, gs.fill);
     this.setT(gs.ctm); this.build(p); this.ctx.fillStyle = st!; this.ctx.fill(eo ? "evenodd" : "nonzero");
@@ -76,6 +204,10 @@ export class CanvasDevice implements Device {
     const dash = gs.dash.filter((x) => x >= 0); c.setLineDash(dash.length && dash.some((x) => x > 0) ? dash : []); c.lineDashOffset = gs.dashPhase;
   }
   stroke(p: Path, gs: GState) {
+    const pad = () => { const t = mul(gs.ctm, this.base); return Math.max(2, gs.lw * Math.sqrt(Math.abs(t[0] * t[3] - t[1] * t[2])) * Math.max(1, gs.miter / 2) + 2); };
+    this.op(gs, gs.softMask || this.knockout ? this.box(this.pathPts(p), gs.ctm, pad()) : null, () => this.strokeNow(p, gs));
+  }
+  private strokeNow(p: Path, gs: GState) {
     const st = this.style(gs.stroke, gs.strokeAlpha, gs);
     this.setT(gs.ctm); this.lineSetup(gs); this.build(p);
     if (st === null) { // pattern stroke: approximate with the pattern's mean colour
@@ -109,7 +241,11 @@ export class CanvasDevice implements Device {
     return p;
   }
   glyph(g: Glyph, font: PdfFont, trm: M, gs: GState) {
-    const mode = gs.mode & 3; if (mode === 3) return;
+    if ((gs.mode & 3) === 3) return;
+    this.op(gs, gs.softMask || this.knockout ? this.box([-1, -1, 2, -1, 2, 2, -1, 2], trm, 2 + gs.lw * 4) : null, () => this.glyphNow(g, font, trm, gs));
+  }
+  private glyphNow(g: Glyph, font: PdfFont, trm: M, gs: GState) {
+    const mode = gs.mode & 3;
     const c = this.ctx; const path = this.glyphPath(font, g);
     if (path) {
       const om = font.outlineMatrix() as M; this.setT(mul(om, trm));
@@ -142,10 +278,13 @@ export class CanvasDevice implements Device {
 
   /* ---------------------------------------------------------------- images */
   image(img: PdfImage, gs: GState) {
-    const c = this.ctx;
     const data = this.pixels(img, gs);
+    this.op(gs, gs.softMask || this.knockout ? this.box([0, 0, 1, 0, 1, 1, 0, 1], gs.ctm, 2) : null, () => this.imageNow(img, gs, data));
+  }
+  private imageNow(img: PdfImage, gs: GState, data: ImageData | null) {
+    const c = this.ctx;
     this.setT(mul([1 / img.w, 0, 0, -1 / img.h, 0, 1], gs.ctm));
-    c.globalAlpha = gs.fillAlpha; c.globalCompositeOperation = gs.blend as GlobalCompositeOperation;
+    this.ga(c, gs.fillAlpha, gs.blend);
     if (!data) { // unsupported codec: hatched placeholder so the gap is visible, not silent
       c.fillStyle = "rgba(200,200,210,0.6)"; c.fillRect(0, 0, img.w, img.h);
       c.strokeStyle = "rgba(120,120,140,0.7)"; c.lineWidth = Math.max(img.w, img.h) / 100; c.beginPath(); c.moveTo(0, 0); c.lineTo(img.w, img.h); c.moveTo(img.w, 0); c.lineTo(0, img.h); c.stroke();
@@ -190,10 +329,19 @@ export class CanvasDevice implements Device {
       if (!a) return;
       for (let y = 0; y < h; y++) {
         const my = Math.min(mh - 1, Math.floor((y * mh) / h));
-        for (let x = 0; x < w; x++) { const mx = Math.min(mw - 1, Math.floor((x * mw) / w)); let v = a[my * mw + mx]; if (invertStencil) v = 255 - v; px[(y * w + x) * 4 + 3] = (px[(y * w + x) * 4 + 3] * v) / 255; }
+        for (let x = 0; x < w; x++) {
+          const mx = Math.min(mw - 1, Math.floor((x * mw) / w)); let v = a[my * mw + mx]; if (invertStencil) v = 255 - v; const o = (y * w + x) * 4;
+          // /Matte (§11.6.5.3): colours were premultiplied against the matte, c' = m + α(c − m); undo it (done on the
+          // RGB result, exact for DeviceGray/RGB images whose conversion is linear)
+          if (mt && v > 0) for (let k = 0; k < 3; k++) px[o + k] = mt[k] + ((px[o + k] - mt[k]) * 255) / v;
+          px[o + 3] = (px[o + 3] * v) / 255;
+        }
       }
     };
+    let mt: number[] | null = null;
+    if (img.smask && img.matte && img.cs) { try { mt = img.cs.rgb(img.matte.slice(0, img.cs.n)); } catch { mt = null; } }
     if (img.smask) applyAlpha(img.smask, false);
+    mt = null;
     // stencil /Mask: sample 1 (after Decode) = masked out
     if (img.stencil) { const st = img.stencil; const dec = st.decode[0] === 1; applyAlpha({ ...st, decode: dec ? [1, 0] : [0, 1] }, true); }
     void gs;
@@ -201,9 +349,10 @@ export class CanvasDevice implements Device {
   }
 
   /* ---------------------------------------------------------------- shadings & patterns */
-  shade(sh: Shading, gs: GState) {
+  shade(sh: Shading, gs: GState) { this.op(gs, null, () => this.shadeNow(sh, gs)); }
+  private shadeNow(sh: Shading, gs: GState) {
     const c = this.ctx; c.save();
-    c.globalAlpha = gs.fillAlpha; c.globalCompositeOperation = gs.blend as GlobalCompositeOperation;
+    this.ga(c, gs.fillAlpha, gs.blend);
     // BBox is in the shading's target space; a type-1 /Matrix is applied once, inside paintShading
     const m = gs.ctm;
     if (sh.bbox) { this.setT(m); c.beginPath(); c.rect(sh.bbox[0], sh.bbox[1], sh.bbox[2] - sh.bbox[0], sh.bbox[3] - sh.bbox[1]); c.clip(); }
@@ -247,7 +396,7 @@ export class CanvasDevice implements Device {
   private patternFill(p: Path, gs: GState, eo: boolean, paint: Paint) {
     const pat = paint.pattern!; const c = this.ctx;
     c.save(); this.setT(gs.ctm); this.build(p); c.clip(eo ? "evenodd" : "nonzero");
-    c.globalAlpha = gs.fillAlpha;
+    this.ga(c, gs.fillAlpha, gs.blend);
     if (pat.kind === "shading" && pat.shading) this.paintShading(pat.shading, pat.matrix, true);
     else if (pat.kind === "tiling") this.tiling(pat, gs);
     c.restore();
@@ -405,8 +554,11 @@ export interface RenderOptions { scale: number; rotate?: number; annotations?: b
 /** collect DCT images (and DCT soft masks) of a page and decode them with the browser's JPEG decoder */
 export async function prepareImages(doc: PdfDoc, page: PdfPage, cache: DecodedImages): Promise<void> {
   const found: PdfImage[] = [];
-  const dev: Device = { wantsImages: true, wantsPaths: false, save() {}, restore() {}, fill() {}, stroke() {}, clip() {}, glyph() {}, shade() {},
-    image(img) { for (const i of [img, img.smask, img.stencil]) if (i?.codec?.name === "DCTDecode" && !cache.has(i.key)) found.push(i); } };
+  // TT77: soft-mask groups are content too — their DCT images must be decoded before the synchronous render
+  const masks = new Set<object>();
+  const visit = (gs: GState) => { const sm = gs.softMask; if (!sm || masks.has(sm.key) || masks.size > 64) return; masks.add(sm.key); try { new Interpreter(doc, dev, sm.ctm, { maxOps: 500_000 }).form(sm.group, null); } catch { /* best effort */ } };
+  const dev: Device = { wantsImages: true, wantsPaths: true, save() {}, restore() {}, fill: (_p, gs) => visit(gs), stroke: (_p, gs) => visit(gs), clip() {}, glyph: (_g, _f, _t, gs) => visit(gs), shade: (_s, gs) => visit(gs),
+    beginGroup: (gs) => { visit(gs); }, image(img, gs) { visit(gs); for (const i of [img, img.smask, img.stencil]) if (i?.codec?.name === "DCTDecode" && !cache.has(i.key)) found.push(i); } };
   const it = new Interpreter(doc, dev, IDENT, { hiddenOCGs: hiddenOCGs(doc), maxOps: 2_000_000 });
   try { it.runPage(page); runAnnotations(doc, page, it, dev); } catch { /* best effort */ }
   await Promise.all(found.map(async (img) => {
@@ -427,10 +579,15 @@ export async function renderPage(doc: PdfDoc, page: PdfPage, canvas: Canv, opts:
   const { m, w, h } = pageTransform(page, opts.scale, opts.rotate ?? 0);
   canvas.width = Math.max(1, Math.round(w)); canvas.height = Math.max(1, Math.round(h));
   const ctx = canvas.getContext("2d") as Ctx;
-  ctx.save(); ctx.fillStyle = opts.background ?? "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore();
+  // TT77: the page group's backdrop is transparent (§11.4.7, §11.6.6); the paper colour goes underneath at the end, so blend
+  // modes over unpainted areas act as Normal instead of blending with white
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.restore();
   const dev = new CanvasDevice(doc, ctx, m, cache); const warnings: string[] = [];
   const it = new Interpreter(doc, dev, IDENT, { hiddenOCGs: hiddenOCGs(doc), warnings, fontCache: dev.fontCache, deadline: opts.deadline });
   try { it.runPage(page); } catch (e) { warnings.push(`render: ${(e as Error).message}`); }
+  // the page group is done: composite it onto the paper. Annotation appearances are painted on the page as imposed on
+  // the medium, so their blend modes see the paper (a Difference caret over white shows its complement, as in PDFium)
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "destination-over"; ctx.fillStyle = opts.background ?? "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore();
   if (opts.annotations !== false) { try { runAnnotations(doc, page, it, dev, false, opts.skipAnnot); } catch (e) { warnings.push(`annotations: ${(e as Error).message}`); } }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   return { warnings: [...new Set([...warnings, ...dev.warnings])], ms: Date.now() - t0 };

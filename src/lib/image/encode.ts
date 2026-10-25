@@ -278,7 +278,7 @@ let caps: Promise<Record<ExportFormat, boolean>> | null = null;
 export function exportCapabilities(): Promise<Record<ExportFormat, boolean>> {
   caps ??= (async () => {
     const c: Canv = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(2, 2) : Object.assign(document.createElement("canvas"), { width: 2, height: 2 });
-    c.getContext("2d")!.fillRect(0, 0, 2, 2);
+    (c.getContext("2d") as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D).fillRect(0, 0, 2, 2); // explicit: union getContext overloads resolve order-dependently
     const ok = async (t: string) => { try { return (await toBlob(c, t)).type === t; } catch { return false; } };
     const VE = (globalThis as { VideoEncoder?: { isConfigSupported(c: unknown): Promise<{ supported?: boolean }> } }).VideoEncoder;
     const ve = async (codec: string) => { try { return !!VE && !!(await VE.isConfigSupported({ codec, width: 64, height: 64 })).supported; } catch { return false; } };
