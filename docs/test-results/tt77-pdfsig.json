@@ -1,0 +1,236 @@
+{
+  "suite": "tt77-pdfsig",
+  "at": "2026-10-25T21:02:10.050Z",
+  "results": [
+    {
+      "suite": "tt77-pdfsig",
+      "name": "G1 pyHanko fixtures: same verdict per signature (9 files, 10 signatures)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "G2 corpus signed files: agree with pyHanko where it can evaluate",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 2562
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "G3 sign with Fusion → pyHanko intact+valid, PDFium renders identically, qpdf clean",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 693
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "G4 imported RSA identity (PKCS#8 PEM + cert PEM) → pyHanko valid",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 541
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "G5 counter-sign a pyHanko-signed file → first 'modified' + FORM_FILLING, ours valid",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 442
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "G6 sign our own signed output again (unique field names, both verdicts as pyHanko)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 566
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N0 the unmodified signed file is valid (control for N1…)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N1 ByteRange gap shifted by 1 (signed region manipulated)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N2 ByteRange beyond EOF",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N3 ByteRange with three entries",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N3b ByteRange with a negative entry",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N4 garbage /Contents (not DER)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N5 BER indefinite length",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N6 2^31 length",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N7 unknown digest OID (sha256 → 2.16.840.1.101.3.4.2.127)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N8 signer certificate removed from the CMS",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N9 a byte flipped inside the signed range",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N10 empty /Contents",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N11 cyclic field /Kids (the field list stays bounded)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N12 BER indefinite nesting 4000 deep (bounded recursion)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N13 non-hex bytes smuggled into the unsigned gap",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "N14 delimiters inside the signed range but a non-hex gap",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt77-pdfsig",
+      "name": "R1 PdfDoc.open never mutates the caller's Buffer (encrypted corpus files; AES .slice view bug)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 342
+    }
+  ]
+}

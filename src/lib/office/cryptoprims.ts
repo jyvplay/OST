@@ -148,8 +148,11 @@ export function aesExpandKey(key: Bytes): Uint8Array[] {
   }
   return Array.from({ length: nr + 1 }, (_, r) => w.slice(16 * r, 16 * r + 16));
 }
+/** a real copy of 16 bytes. NOT .slice(): on a Node Buffer that is a VIEW, and the in-place round transforms below
+ *  then wrote into the caller's data (TT77: PdfDoc.open mutated encrypted files read with readFileSync). */
+const copy16 = (x: Bytes, o: number) => { const r = new Uint8Array(16); r.set(x.subarray(o, o + 16)); return r; };
 export function aesEncryptBlock(rk: Uint8Array[], inp: Bytes, out: Bytes, o = 0) {
-  const s = inp.slice(o, o + 16); const nr = rk.length - 1;
+  const s = copy16(inp, o); const nr = rk.length - 1;
   for (let i = 0; i < 16; i++) s[i] ^= rk[0][i];
   for (let r = 1; r <= nr; r++) {
     for (let i = 0; i < 16; i++) s[i] = SBOX[s[i]];
@@ -162,7 +165,7 @@ export function aesEncryptBlock(rk: Uint8Array[], inp: Bytes, out: Bytes, o = 0)
 const M9 = new Uint8Array(256), M11 = new Uint8Array(256), M13 = new Uint8Array(256), M14 = new Uint8Array(256);
 for (let i = 0; i < 256; i++) { M9[i] = mul(i, 9); M11[i] = mul(i, 11); M13[i] = mul(i, 13); M14[i] = mul(i, 14); }
 export function aesDecryptBlock(rk: Uint8Array[], inp: Bytes, out: Bytes, o = 0) {
-  const s = inp.slice(o, o + 16); const nr = rk.length - 1;
+  const s = copy16(inp, o); const nr = rk.length - 1;
   for (let i = 0; i < 16; i++) s[i] ^= rk[nr][i];
   for (let r = nr - 1; r >= 0; r--) {
     const t = s.slice(); for (let c = 0; c < 4; c++) for (let rr = 1; rr < 4; rr++) s[4 * ((c + rr) % 4) + rr] = t[4 * c + rr]; // InvShiftRows
@@ -175,15 +178,15 @@ export function aesDecryptBlock(rk: Uint8Array[], inp: Bytes, out: Bytes, o = 0)
 /** AES-CBC decrypt without padding removal (MS-OFFCRYPTO pads to the block size itself). */
 export function aesCbcDecrypt(key: Bytes, iv: Bytes, data: Bytes): Bytes {
   if (data.length % 16) throw new Error("AES-CBC data is not a whole number of blocks");
-  const rk = aesExpandKey(key), out = new Uint8Array(data.length); let prev = iv.slice(0, 16);
-  for (let o = 0; o < data.length; o += 16) { aesDecryptBlock(rk, data, out, o); for (let i = 0; i < 16; i++) out[o + i] ^= prev[i]; prev = data.slice(o, o + 16); }
+  const rk = aesExpandKey(key), out = new Uint8Array(data.length); let prev = copy16(iv, 0);
+  for (let o = 0; o < data.length; o += 16) { aesDecryptBlock(rk, data, out, o); for (let i = 0; i < 16; i++) out[o + i] ^= prev[i]; prev = copy16(data, o); }
   return out;
 }
 export function aesCbcEncrypt(key: Bytes, iv: Bytes, data: Bytes): Bytes {
   if (data.length % 16) throw new Error("AES-CBC data is not a whole number of blocks");
-  const rk = aesExpandKey(key), out = new Uint8Array(data.length); let prev = iv.slice(0, 16);
+  const rk = aesExpandKey(key), out = new Uint8Array(data.length); let prev = copy16(iv, 0);
   const blk = new Uint8Array(16);
-  for (let o = 0; o < data.length; o += 16) { const b = data.slice(o, o + 16); for (let i = 0; i < 16; i++) b[i] ^= prev[i]; aesEncryptBlock(rk, b, blk, 0); out.set(blk, o); prev = blk.slice(); }
+  for (let o = 0; o < data.length; o += 16) { const b = copy16(data, o); for (let i = 0; i < 16; i++) b[i] ^= prev[i]; aesEncryptBlock(rk, b, blk, 0); out.set(blk, o); prev = blk.slice(); }
   return out;
 }
 export function aesEcbDecrypt(key: Bytes, data: Bytes): Bytes {
