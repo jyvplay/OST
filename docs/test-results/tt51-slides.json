@@ -1,6 +1,6 @@
 {
   "suite": "tt51-slides",
-  "at": "2026-10-24T20:13:34.068Z",
+  "at": "2026-10-25T00:39:49.842Z",
   "results": [
     {
       "suite": "tt51-slides",
@@ -9,7 +9,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 8982
+      "ms": 6589
     },
     {
       "suite": "tt51-slides",
@@ -18,7 +18,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 3133
+      "ms": 2380
     },
     {
       "suite": "tt51-slides",
@@ -27,7 +27,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 15403
+      "ms": 13456
     },
     {
       "suite": "tt51-slides",
@@ -45,7 +45,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 326
+      "ms": 262
     },
     {
       "suite": "tt51-slides",
@@ -54,7 +54,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 9134
+      "ms": 8402
     },
     {
       "suite": "tt51-slides",
@@ -63,7 +63,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 1583
+      "ms": 1512
     },
     {
       "suite": "tt51-slides",
@@ -72,7 +72,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 10875
+      "ms": 10116
     },
     {
       "suite": "tt51-slides",
@@ -81,7 +81,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 10902
+      "ms": 9736
     },
     {
       "suite": "tt51-slides",
@@ -90,7 +90,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 4154
+      "ms": 3379
     },
     {
       "suite": "tt51-slides",
@@ -99,7 +99,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 661
+      "ms": 529
     },
     {
       "suite": "tt51-slides",
@@ -108,7 +108,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 191
+      "ms": 199
     },
     {
       "suite": "tt51-slides",
@@ -117,7 +117,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 587
+      "ms": 517
     },
     {
       "suite": "tt51-slides",
@@ -135,7 +135,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 3080
+      "ms": 2249
     }
   ]
 }

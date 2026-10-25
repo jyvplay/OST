@@ -1,6 +1,6 @@
 {
   "suite": "tt42-unit",
-  "at": "2026-10-24T19:38:37.756Z",
+  "at": "2026-10-25T00:09:45.436Z",
   "results": [
     {
       "suite": "tt42-unit",
@@ -18,7 +18,7 @@
         "WP-20": "full"
       },
       "pass": true,
-      "ms": 12
+      "ms": 10
     },
     {
       "suite": "tt42-unit",
@@ -27,7 +27,7 @@
         "WP-20": "full"
       },
       "pass": true,
-      "ms": 109
+      "ms": 97
     },
     {
       "suite": "tt42-unit",
@@ -45,7 +45,7 @@
         "WP-21": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt42-unit",

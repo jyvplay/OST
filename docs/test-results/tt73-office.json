@@ -1,15 +1,76 @@
 {
   "suite": "tt73-office",
-  "at": "2026-10-24T22:04:08.283Z",
+  "at": "2026-10-25T01:51:35.362Z",
   "results": [
     {
       "suite": "tt73-office",
-      "name": "W1 header / footer picture: relationship in THAT part's .rels (not document.xml.rels), python-docx finds the image bytes, schema-valid, re-read shows it; Track Changes wraps it in w:ins; an existing header without xmlns:r on its root still gets a declared r:embed",
+      "name": "S1 TEXT: all 806 Excel-cached TEXT() results in the corpus agree (number formats, dates, 1904 workbooks, booleans, sections)",
       "covers": {
-        "FF-22": "full"
+        "FF-19": "full",
+        "FF-21": "full"
       },
       "pass": true,
-      "ms": 1788
+      "ms": 41
+    },
+    {
+      "suite": "tt73-office",
+      "name": "S2 number formats vs Apache POI TestDataFormatter dfUS assertions (Excel behaviour; POI-only deviations listed in DESIGN-TT73): ≥ 163 of 189 agree (TT72: 120)",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt73-office",
+      "name": "S3 external workbook links resolve from the cached externalLink parts: [1]Sheet!A1, [1]!Name, sheet-scoped [1]Sheet!Name, [0]!Name; a missing book is #REF!",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 28
+    },
+    {
+      "suite": "tt73-office",
+      "name": "S4 Unicode names: Лист2!A1 and 'Лист2'!A1, SUM(Лист2!A1:A3), a defined name Налог, and the Russian corpus workbook's SUBTOTAL(109,Таблица1[[Sum for Q1 ]]) = Excel's cached 19239.04 (TT72: #NAME?, lexer refused 'Т')",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 16
+    },
+    {
+      "suite": "tt73-office",
+      "name": "S5 Excel numeric-argument rules: refs count numbers only, literal text → #VALUE!, TRUE literal → 1, MODE with no repeat → #N/A, PRODUCT of no numbers → 0, ROUND digits truncate, TEXT(TRUE) without a 4th section",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt73-office",
+      "name": "C1 FF-29 chart gate: every corpus chart series evaluates to Excel's own c:numCache / c:strCache — values (blank where Excel cached no point), categories / scatter x values and cached series names (lxml oracle)",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 55061
+    },
+    {
+      "suite": "tt73-office",
+      "name": "H1 held-out formula probe: ≥ 26,869 of 26,946 Excel-cached formula cells agree after recalculation (TT72 baseline 26,295)",
+      "covers": {
+        "FF-52": "full",
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 459246
     }
   ]
 }

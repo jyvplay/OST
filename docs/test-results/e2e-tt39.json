@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt39",
-  "at": "2026-10-24T19:38:20.130Z",
+  "at": "2026-10-25T00:09:28.101Z",
   "results": [
     {
       "suite": "e2e-tt39",
@@ -27,7 +27,7 @@
         "WP-10": "full"
       },
       "pass": true,
-      "ms": 34
+      "ms": 28
     },
     {
       "suite": "e2e-tt39",
@@ -36,7 +36,7 @@
         "WP-10": "full"
       },
       "pass": true,
-      "ms": 24
+      "ms": 30
     },
     {
       "suite": "e2e-tt39",
@@ -45,7 +45,7 @@
         "WP-09": "partial"
       },
       "pass": true,
-      "ms": 16
+      "ms": 13
     },
     {
       "suite": "e2e-tt39",

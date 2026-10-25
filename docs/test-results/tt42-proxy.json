@@ -1,6 +1,6 @@
 {
   "suite": "tt42-proxy",
-  "at": "2026-10-24T19:38:40.788Z",
+  "at": "2026-10-25T00:09:48.060Z",
   "results": [
     {
       "suite": "tt42-proxy",
@@ -9,7 +9,7 @@
         "WP-14": "full"
       },
       "pass": true,
-      "ms": 843
+      "ms": 814
     },
     {
       "suite": "tt42-proxy",
@@ -18,7 +18,7 @@
         "WP-14": "full"
       },
       "pass": true,
-      "ms": 963
+      "ms": 903
     }
   ]
 }

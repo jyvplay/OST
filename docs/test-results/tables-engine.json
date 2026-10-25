@@ -1,6 +1,6 @@
 {
   "suite": "tables-engine",
-  "at": "2026-10-24T19:08:41.527Z",
+  "at": "2026-10-24T23:43:44.497Z",
   "results": [
     {
       "suite": "tables-engine",
@@ -64,7 +64,7 @@
         "TB-04": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tables-engine",

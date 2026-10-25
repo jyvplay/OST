@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-24T20:55:59.247Z",
+ "generatedAt": "2026-10-25T02:10:54.655Z",
  "totals": {
   "built": {
    "full": 306,
@@ -13,8 +13,8 @@
    "untested": 79
   },
   "tests": {
-   "total": 1326,
-   "passed": 1326
+   "total": 1336,
+   "passed": 1334
   }
  },
  "rows": {
@@ -1235,7 +1235,6 @@
     "oracle: oracle: circular — 2 cells match",
     "tt68-blank: blank vs empty text follows Microsoft's definitions (27 cases): ISBLANK only for empty cells, COUNTA counts \"\", ISTEXT/ISNONTEXT/TYPE of an empty cell, through OFFSET/INDEX/whole columns/array constants",
     "tt68-blank: error literals are error CONSTANTS (ECMA-376 ST_CellError), case-insensitive; '#N/A stays text; #bogus / #SPILL! typed stay text; textInput quotes an error-looking text so it round-trips as text",
-    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
     "tt69-sheet-misc: an empty-text cell survives .xlsx: openpyxl reads '' (a string cell, not None) and our reader reads it back as empty text",
     "tt69-sheet-misc: SUMIF / AVERAGEIF resize sum_range from its top-left cell to range's shape (hand cases + recalc of a cell outside the written sum_range)",
     "tt69-sheet-misc: SUMIF / AVERAGEIF resize: brute-force reference over 400 random shapes and offsets",
@@ -1245,7 +1244,13 @@
     "tt70-range: differential oracle: 40 random sparse sheets — whole-column aggregates equal a brute-force computation from the cell list",
     "tt70-range: both evaluation paths: evalFormulaAt (conditional formats) gives the same sparse results as recalculation",
     "tt70-range: cross-sheet: whole columns keep one shape on every sheet (TT69: COUNTIFS / SUMIFS / SUMPRODUCT across sheets were #VALUE!); full sizes still must agree",
-    "tt70-range: limits: 16 full columns with bottom-row data evaluate, 17 are #NUM! (documented cap); =SUM(A:C) is fast"
+    "tt70-range: limits: 16 full columns with bottom-row data evaluate, 17 are #NUM! (documented cap); =SUM(A:C) is fast",
+    "tt73-office: S1 TEXT: all 806 Excel-cached TEXT() results in the corpus agree (number formats, dates, 1904 workbooks, booleans, sections)",
+    "tt73-office: S2 number formats vs Apache POI TestDataFormatter dfUS assertions (Excel behaviour; POI-only deviations listed in DESIGN-TT73): ≥ 163 of 189 agree (TT72: 120)",
+    "tt73-office: S3 external workbook links resolve from the cached externalLink parts: [1]Sheet!A1, [1]!Name, sheet-scoped [1]Sheet!Name, [0]!Name; a missing book is #REF!",
+    "tt73-office: S4 Unicode names: Лист2!A1 and 'Лист2'!A1, SUM(Лист2!A1:A3), a defined name Налог, and the Russian corpus workbook's SUBTOTAL(109,Таблица1[[Sum for Q1 ]]) = Excel's cached 19239.04 (TT72: #NAME?, lexer refused 'Т')",
+    "tt73-office: S5 Excel numeric-argument rules: refs count numbers only, literal text → #VALUE!, TRUE literal → 1, MODE with no repeat → #N/A, PRODUCT of no numbers → 0, ROUND digits truncate, TEXT(TRUE) without a 4th section",
+    "tt73-office: H1 held-out formula probe: ≥ 26,869 of 26,946 Excel-cached formula cells agree after recalculation (TT72 baseline 26,295)"
    ]
   },
   "FF-20": {
@@ -1405,15 +1410,18 @@
     "tt67-sheet-ns: references that are not characters (lone surrogate in hex and decimal, beyond U+10FFFF in hex and decimal) stay literal instead of crashing or inventing a character — lenient, as Excel-tolerant readers are; lxml rejects such files outright",
     "tt67-sheet-ns: lossless re-style of a cell in an x:-prefixed styles.xml changes ONLY its font (openpyxl): the patcher reads styles through the same canonical view as the reader (found by the TT67 gate: fill / border / alignment were rebuilt)",
     "tt67-sheet-ns: the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)",
-    "tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded",
     "tt67-sheet-ns: cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells",
     "tt68-blank: reader: every constant empty-text cell of the 8 corpus workbooks that have them is kept as non-blank empty text — the SAME cells lxml finds (6 190 cells); TT67 dropped them all",
     "tt68-blank: hostile / edge cell shapes (18): which XML is empty text, which is no value — sst \"\" / rich-empty / spaced index → empty text; empty, negative, fractional or out-of-range index, inlineStr without <is>, str without <v> → no value; lxml agrees on every empty-text verdict; text \"#N/A\" stays text",
     "tt68-blank: lossless save: untouched empty-text cells keep their original <c> byte-for-byte; a cell edited to empty text is written as an empty inline string; openpyxl opens it and lxml lists exactly the original empty-text cells plus the new one",
-    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
-    "tt72-office: S1 corpus: every readable xlsx with all xl/**.xml attributes single-quoted and spaced around '=' reads to the SAME model (inputs, values, styles, widths, merges, validations, links); the TT71 reader lost cells / styles on them",
     "tt72-office: S2 font / fill flags: <b val='0'/> and <b val = \"false\"/> are not bold, <b/> and <b val='1'/> are; patternType = 'solid' fills; underline 'none' is off",
-    "tt72-office: C1 Agile EncryptionInfo written with single quotes (same bytes length, patched inside the CFB) still decrypts with HMAC verified; TT71 refused it"
+    "tt72-office: C1 Agile EncryptionInfo written with single quotes (same bytes length, patched inside the CFB) still decrypts with HMAC verified; TT71 refused it",
+    "tt73-office: S1 TEXT: all 806 Excel-cached TEXT() results in the corpus agree (number formats, dates, 1904 workbooks, booleans, sections)",
+    "tt73-office: S2 number formats vs Apache POI TestDataFormatter dfUS assertions (Excel behaviour; POI-only deviations listed in DESIGN-TT73): ≥ 163 of 189 agree (TT72: 120)",
+    "tt73-office: S3 external workbook links resolve from the cached externalLink parts: [1]Sheet!A1, [1]!Name, sheet-scoped [1]Sheet!Name, [0]!Name; a missing book is #REF!",
+    "tt73-office: S4 Unicode names: Лист2!A1 and 'Лист2'!A1, SUM(Лист2!A1:A3), a defined name Налог, and the Russian corpus workbook's SUBTOTAL(109,Таблица1[[Sum for Q1 ]]) = Excel's cached 19239.04 (TT72: #NAME?, lexer refused 'Т')",
+    "tt73-office: S5 Excel numeric-argument rules: refs count numbers only, literal text → #VALUE!, TRUE literal → 1, MODE with no repeat → #N/A, PRODUCT of no numbers → 0, ROUND digits truncate, TEXT(TRUE) without a 4th section",
+    "tt73-office: H1 held-out formula probe: ≥ 26,869 of 26,946 Excel-cached formula cells agree after recalculation (TT72 baseline 26,295)"
    ]
   },
   "FF-22": {
@@ -1440,6 +1448,10 @@
     "e2e-tt56: FF-22 Writer Track Changes in the UI: toggle, type, delete, review panel per-change accept; saved bytes verified by the lxml oracle",
     "e2e-tt57: FF-22 Writer format tracking in the UI: Ctrl+B with tracking on → 'Formatted: Bold' listed, saved as w:rPrChange; Reject restores plain text; Align centre → 'Paragraph: Centered' → w:pPrChange → Accept (lxml oracle)",
     "e2e-tt58: FF-22 Writer notes in the UI: Ctrl+Alt+F footnote → type in the Notes panel → numbered note on the page → saved footnotes.xml (lxml oracle) → reopen keeps it → endnote (roman) → delete footnote → no orphan, no dangling reference",
+    "e2e-tt73-writer: header picture through the panel: the typed line is applied first, the picture becomes a locked 'picture' line, every page draws it, Undo / Redo move it on every page, and the saved file has it in the header part's own rels (python-docx sees the exact bytes)",
+    "e2e-tt73-writer: refusals: an SVG and a PNG over 5 MB are refused with a visible reason; no picture is added and the document stays clean",
+    "e2e-tt73-writer: modal shortcut: while a header line input has focus, Ctrl+Z is the input's own undo — the document's header picture and body stay",
+    "e2e-tt73-writer: cleanup + no page errors",
     "e2e: mount: writer",
     "tt46-writer: xmltree: every well-formed XML part of the docx corpus re-serializes byte-identically",
     "tt46-writer: xmltree guards: nesting bomb refused, external/undeclared entities never resolved, numeric refs decoded",
@@ -1860,7 +1872,8 @@
     "tt66-sheet-x14-patch: second-order: an existing CF ext whose x14 namespace uses another prefix (a:conditionalFormattings) is extended in place — never a second container in the same ext",
     "tt66-sheet-x14-patch: re-saving the patched file unchanged is a no-op for conditional formatting (no duplicated x14 rules), and removing an added x14-only rule removes exactly it",
     "tt66-sheet-x14-patch: new-file export (writeXlsxWorkbook): cross-sheet thresholds go x14-only too, and the reader reads an x14-only data bar back",
-    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)"
+    "tt66-sheet-x14-patch: oracle negative controls: the checker rejects each defect it claims to catch (wrong x14 child order, missing xm:sqref, duplicate id, dangling link, cross-sheet 2007 formula, extLst not last)",
+    "tt73-office: C1 FF-29 chart gate: every corpus chart series evaluates to Excel's own c:numCache / c:strCache — values (blank where Excel cached no point), categories / scatter x values and cached series names (lxml oracle)"
    ]
   },
   "FF-30": {
@@ -3211,7 +3224,6 @@
     "tt67-sheet-ns: references that are not characters (lone surrogate in hex and decimal, beyond U+10FFFF in hex and decimal) stay literal instead of crashing or inventing a character — lenient, as Excel-tolerant readers are; lxml rejects such files outright",
     "tt67-sheet-ns: lossless re-style of a cell in an x:-prefixed styles.xml changes ONLY its font (openpyxl): the patcher reads styles through the same canonical view as the reader (found by the TT67 gate: fill / border / alignment were rebuilt)",
     "tt67-sheet-ns: the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)",
-    "tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded",
     "tt67-sheet-ns: cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells"
    ]
   },
@@ -3229,9 +3241,7 @@
     "tt67-sheet-ns: references that are not characters (lone surrogate in hex and decimal, beyond U+10FFFF in hex and decimal) stay literal instead of crashing or inventing a character — lenient, as Excel-tolerant readers are; lxml rejects such files outright",
     "tt67-sheet-ns: lossless re-style of a cell in an x:-prefixed styles.xml changes ONLY its font (openpyxl): the patcher reads styles through the same canonical view as the reader (found by the TT67 gate: fill / border / alignment were rebuilt)",
     "tt67-sheet-ns: the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)",
-    "tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded",
     "tt67-sheet-ns: cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells",
-    "tt72-office: S1 corpus: every readable xlsx with all xl/**.xml attributes single-quoted and spaced around '=' reads to the SAME model (inputs, values, styles, widths, merges, validations, links); the TT71 reader lost cells / styles on them",
     "tt72-office: S2 font / fill flags: <b val='0'/> and <b val = \"false\"/> are not bold, <b/> and <b val='1'/> are; patternType = 'solid' fills; underline 'none' is off"
    ]
   },
@@ -3248,7 +3258,7 @@
     "tt68-blank: hostile / edge cell shapes (18): which XML is empty text, which is no value — sst \"\" / rich-empty / spaced index → empty text; empty, negative, fractional or out-of-range index, inlineStr without <is>, str without <v> → no value; lxml agrees on every empty-text verdict; text \"#N/A\" stays text",
     "tt68-blank: writer: a constant empty-text cell is saved (shared string \"\"), a blank is not; openpyxl sees '' vs no cell; re-read keeps ISBLANK FALSE / COUNTA 1; styled blank stays blank",
     "tt68-blank: lossless save: untouched empty-text cells keep their original <c> byte-for-byte; a cell edited to empty text is written as an empty inline string; openpyxl opens it and lxml lists exactly the original empty-text cells plus the new one",
-    "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions"
+    "tt73-office: H1 held-out formula probe: ≥ 26,869 of 26,946 Excel-cached formula cells agree after recalculation (TT72 baseline 26,295)"
    ]
   },
   "CT-01": {

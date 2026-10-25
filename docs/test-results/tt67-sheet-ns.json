@@ -1,6 +1,6 @@
 {
   "suite": "tt67-sheet-ns",
-  "at": "2026-10-24T20:31:15.213Z",
+  "at": "2026-10-25T02:05:01.772Z",
   "results": [
     {
       "suite": "tt67-sheet-ns",
@@ -11,7 +11,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 2138
+      "ms": 1780
     },
     {
       "suite": "tt67-sheet-ns",
@@ -22,7 +22,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt67-sheet-ns",
@@ -33,7 +33,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 5250
+      "ms": 4128
     },
     {
       "suite": "tt67-sheet-ns",
@@ -44,7 +44,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 436
+      "ms": 373
     },
     {
       "suite": "tt67-sheet-ns",
@@ -55,7 +55,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 194
+      "ms": 172
     },
     {
       "suite": "tt67-sheet-ns",
@@ -66,7 +66,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 587
+      "ms": 515
     },
     {
       "suite": "tt67-sheet-ns",
@@ -77,7 +77,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 264
+      "ms": 234
     },
     {
       "suite": "tt67-sheet-ns",
@@ -88,7 +88,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 246
+      "ms": 225
     },
     {
       "suite": "tt67-sheet-ns",
@@ -99,7 +99,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 239
+      "ms": 222
     },
     {
       "suite": "tt67-sheet-ns",
@@ -110,7 +110,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 861
+      "ms": 762
     },
     {
       "suite": "tt67-sheet-ns",
@@ -121,7 +121,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 92
+      "ms": 85
     },
     {
       "suite": "tt67-sheet-ns",
@@ -131,8 +131,9 @@
         "FF-50": "full",
         "FF-51": "full"
       },
-      "pass": true,
-      "ms": 127707
+      "pass": false,
+      "error": "files changed for an unexplained reason: [\"50299.xlsx\",\"51519.xlsx\"] != []",
+      "ms": 94009
     },
     {
       "suite": "tt67-sheet-ns",
@@ -143,7 +144,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 1930
+      "ms": 1362
     }
   ]
 }

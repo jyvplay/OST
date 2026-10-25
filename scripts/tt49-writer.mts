@@ -13,6 +13,7 @@ import { makeHarness } from "./harness.mts";
 import { readWord, writeWord, type WordDoc } from "../src/lib/office/wordml.ts";
 import { hfLines, removeHf, setDifferentFirst, setHf, type HfLine } from "../src/lib/office/hdrftr.ts";
 import { openZip, writeZip } from "../src/lib/office/zipkit.ts";
+import { attr } from "../src/lib/office/xmltree.ts";
 import { cloneBlocks, setPageSetup } from "../src/lib/office/wordedit.ts";
 
 const { test: test0, finish } = makeHarness("tt49-writer");
@@ -54,6 +55,8 @@ await test("edit the existing default header of every corpus document that has o
   for (const f of files) {
     const d = await load(f); if (!d || !d.page.headerRid) continue;
     const lines = hfLines(d, "header", "default"); const i = lines.findIndex((l) => !l.locked);
+    const legacyOdd = (d.finalSect?.kids ?? []).some((k) => k.k === "el" && k.name === "w:headerReference" && attr(k, "w:type") === "odd");
+
     if (i < 0) { skipped.push(`${f.split("/").pop()}: every header line locked`); continue; }
     const [before] = oracle([f]); if (before.error) { skipped.push(`${f.split("/").pop()}: oracle ${before.error}`); continue; }
     const orig = new Uint8Array(readFileSync(f));
@@ -61,15 +64,21 @@ await test("edit the existing default header of every corpus document that has o
     setHf(d, "header", "default", want);
     const { p, b } = await save(d, `edit-${edited}.docx`);
     const [after] = oracle([p]); ok(!after.error, `${f}: python-docx cannot open the result: ${after.error}`);
-    const hb = paras(last(before).header), ha = paras(last(after).header);
-    ok(ha.length === hb.length, `${f}: header paragraph count ${hb.length} → ${ha.length}`);
+    // TT74: a WordprocessingML-2003 source that references its default header as w:type="odd" is invisible to
+    // python-docx (it knows default/even/first only), so its "before" view is the linked/empty slot. Our save re-
+    // references the edited part as "default" (TT73, hdrftr.ts) — python-docx then sees it. For those sources the
+    // before-lines come from our own reading of that part, and document.xml is an expected changed part.
+    const ha = paras(last(after).header);
+    const hb = legacyOdd ? ha.map((x, j) => (j === i ? x : { ...x, text: lines[j]?.text ?? "" })) : paras(last(before).header);
+    ok(ha.length === (legacyOdd ? lines.length : hb.length), `${f}: header paragraph count ${legacyOdd ? lines.length : hb.length} → ${ha.length}`);
     ok(ha[i].text === MARK_SHOWN && ha[i].align?.startsWith("CENTER") && ha[i].fields.join() === "PAGE,NUMPAGES" && ha[i].fldChars.join() === "begin,separate,end,begin,separate,end", `${f}: edited line ${JSON.stringify(ha[i])}`);
     for (let j = 0; j < hb.length; j++) if (j !== i) ok(JSON.stringify(ha[j]) === JSON.stringify(hb[j]), `${f}: header line ${j} changed: ${JSON.stringify(hb[j])} → ${JSON.stringify(ha[j])}`);
     ok(JSON.stringify(after.body) === JSON.stringify(before.body), `${f}: body text changed`);
     for (const k of ["footer", "firstHeader", "firstFooter"] as const) ok(JSON.stringify(last(after)[k]) === JSON.stringify(last(before)[k]), `${f}: ${k} changed`);
     const changed = (await partsDiff(orig, b)).filter((n) => n !== "docProps/core.xml");
     const hdrPart = d.hf.xml.get(d.page.headerRid!)!.path;
-    ok(JSON.stringify(changed) === JSON.stringify([hdrPart]), `${f}: changed parts ${changed} (only ${hdrPart} expected)`);
+    const expectParts = legacyOdd ? [hdrPart, "word/document.xml"].sort() : [hdrPart];
+    ok(JSON.stringify(changed) === JSON.stringify(expectParts), `${f}: changed parts ${changed} (only ${expectParts} expected)`);
     const back = await readWord(b);
     ok(JSON.stringify(ours(back, "header", "default")) === JSON.stringify(want.map((l) => ({ text: l.text.replace("<&\"'>", "<&\"'>"), align: l.align ?? "left" }))), `${f}: our reader after save ${JSON.stringify(ours(back, "header", "default"))}`);
     edited++;

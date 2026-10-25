@@ -1,6 +1,6 @@
 {
   "suite": "tt72-padlink",
-  "at": "2026-10-24T20:46:49.889Z",
+  "at": "2026-10-25T01:35:25.937Z",
   "results": [
     {
       "suite": "tt72-padlink",
@@ -36,7 +36,7 @@
         "SH-11": "full"
       },
       "pass": true,
-      "ms": 79
+      "ms": 118
     },
     {
       "suite": "tt72-padlink",

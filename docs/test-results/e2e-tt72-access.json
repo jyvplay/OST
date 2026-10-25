@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt72-access",
-  "at": "2026-10-24T20:47:29.403Z",
+  "at": "2026-10-25T01:36:10.511Z",
   "results": [
     {
       "suite": "e2e-tt72-access",
@@ -9,7 +9,7 @@
         "SC-05": "full"
       },
       "pass": true,
-      "ms": 3446
+      "ms": 5892
     },
     {
       "suite": "e2e-tt72-access",
@@ -18,7 +18,7 @@
         "SC-05": "full"
       },
       "pass": true,
-      "ms": 7657
+      "ms": 8157
     },
     {
       "suite": "e2e-tt72-access",
@@ -27,7 +27,7 @@
         "SC-05": "full"
       },
       "pass": true,
-      "ms": 13135
+      "ms": 14365
     },
     {
       "suite": "e2e-tt72-access",
