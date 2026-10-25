@@ -1,5 +1,7 @@
 "use client";
 import { tableStructureConflict } from "@/lib/formula/sheettables";
+import { afterTypedEntry } from "@/lib/formula/sheettablecalc";
+import { autoOutline, clearOutline, groupIsCollapsed, groupLines, hideDetail, maxLevel, outlineGroups, removeSubtotals, showDetail, showLevel, subtotal, SUBTOTAL_FNS, toggleGroup, ungroupLines, type OAxis, type SubtotalFn } from "@/lib/formula/sheetoutline";
 import { fz, useUiUnit } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -112,7 +114,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   // TT21: rows, headers and default columns grow with the text size. Stored column widths stay in document px
   // (what xlsx export writes); the screen width is stored × k and a drag divides by k.
   const k = useUiUnit();
-  const ROW_H = Math.round(BASE_ROW_H * k), HEAD_H = Math.round(BASE_HEAD_H * k), ROWHDR_W = Math.round(BASE_ROWHDR_W * k);
+  const ROW_H = Math.round(BASE_ROW_H * k), HEAD_H0 = Math.round(BASE_HEAD_H * k), ROWHDR_W0 = Math.round(BASE_ROWHDR_W * k);
   const shell = useShell();
   const path = (win.props.path as string) ?? "";
   const [workbook, setWorkbook] = useState(() => new Workbook());
@@ -186,6 +188,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const colW = useCallback((c: number) => (sheet.hiddenCols.has(c) ? 0 : Math.round((sheet.colWidths[c] ?? BASE_W) * k)), [sheet, rev, k]); // eslint-disable-line react-hooks/exhaustive-deps
   // TT74: hidden rows (Hide / AutoFilter) take no space — row geometry goes through the visible-row index
   const visRows = useMemo(() => (sheet.hiddenRows.size ? Array.from({ length: ROWS }, (_, r) => r).filter((r) => !sheet.hiddenRows.has(r)) : null), [sheet, rev]); // eslint-disable-line react-hooks/exhaustive-deps
+  // TT78: outline gutters — the row header widens and the column header grows by one step per level (+1 for the buttons)
+  const outR = maxLevel(sheet, "row"), outC = maxLevel(sheet, "col"); const OSTEP = Math.round(14 * k);
+  const ROWHDR_W = ROWHDR_W0 + (outR ? (outR + 1) * OSTEP : 0), HEAD_H = HEAD_H0 + (outC ? (outC + 1) * OSTEP : 0);
+  const outlineHeads = useMemo(() => {
+    const m = { row: new Map<number, { level: number; collapsed: boolean; start: number; end: number }[]>(), col: new Map<number, { level: number; collapsed: boolean; start: number; end: number }[]>() };
+    for (const ax of ["row", "col"] as const) for (const g of outlineGroups(sheet, ax)) { const list = m[ax].get(g.summary) ?? []; list.push({ level: g.level, collapsed: groupIsCollapsed(sheet, ax, g), start: g.start, end: g.end }); m[ax].set(g.summary, list); }
+    return m;
+  }, [sheet, rev]); // eslint-disable-line react-hooks/exhaustive-deps
   const rowPos = (r: number) => { if (!visRows) return r; let lo = 0, hi = visRows.length; while (lo < hi) { const mid = (lo + hi) >> 1; if (visRows[mid] < r) lo = mid + 1; else hi = mid; } return lo; };
   const rowAt = (i: number) => (visRows ? visRows[Math.min(i, visRows.length - 1)] ?? 0 : i);
   const nVis = visRows ? visRows.length : ROWS;
@@ -375,6 +385,57 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     const r0 = selR.r0 === selR.r1 ? 0 : selR.r0, r1 = selR.r0 === selR.r1 ? ROWS * 1048 : selR.r1, c0 = selR.c0 === selR.c1 ? 0 : selR.c0, c1 = selR.c0 === selR.c1 ? 16383 : selR.c1;
     mutate((_wb, s) => { n = unhideRows(s, r0, r1) + unhideCols(s, c0, c1); });
     setStatus(n ? `unhid ${n} row(s)/column(s)` : "nothing hidden there (rows hidden by the filter come back when its criteria change)");
+  };
+  /* ---------------------------------------------------------------- TT78 outline (Data ▸ Group / Subtotal) */
+  /** Excel: whole rows / columns selected → that axis; otherwise the Group dialog asks "Rows or Columns" */
+  const outlineAxis = async (verb: string): Promise<OAxis | null> => {
+    const wholeRows = selR.c0 === 0 && selR.c1 >= COLS - 1, wholeCols = selR.r0 === 0 && selR.r1 >= ROWS - 1;
+    if (wholeRows && !wholeCols) return "row";
+    if (wholeCols && !wholeRows) return "col";
+    const r = await askForm({ title: verb, okLabel: verb, fields: [{ name: "axis", label: "Rows or columns? (rows | columns)", def: "rows" }], validate: (v) => (/^\s*(r|rows?|c|cols?|columns?)\s*$/i.test(v.axis ?? "") ? null : "Type rows or columns") });
+    if (!r) return null; return /^\s*c/i.test(r.axis ?? "") ? "col" : "row";
+  };
+  /** run an outline edit as one undo step; a refused edit leaves no undo entry */
+  const outlineEdit = (fn: (wb: Workbook, s: Sheet) => { ok: true; message: string } | { ok: false; error: string }) => {
+    let res: { ok: true; message: string } | { ok: false; error: string } = { ok: false, error: "nothing done" };
+    mutate((wb, s) => { try { res = fn(wb, s); } catch (e) { res = { ok: false, error: (e as Error).message }; } });
+    const out = res as { ok: true; message: string } | { ok: false; error: string }; // assigned inside mutate
+    if (!out.ok) { undo(); redoRef.current.pop(); syncHist(); setStatus(out.error); } else setStatus(out.message);
+    return out.ok;
+  };
+  const doGroup = async (un: boolean) => {
+    commit(null); const ax = await outlineAxis(un ? "Ungroup" : "Group"); if (!ax) return;
+    const [a, b] = ax === "row" ? [selR.r0, selR.r1] : [selR.c0, selR.c1];
+    outlineEdit((_wb, s) => (un ? ungroupLines(s, ax, a, b) : groupLines(s, ax, a, b)));
+  };
+  const detailAxis = (): OAxis => (selR.r0 === 0 && selR.r1 >= ROWS - 1 && !(selR.c0 === 0 && selR.c1 >= COLS - 1) ? "col" : outR || !outC ? "row" : "col");
+  const doDetail = (show: boolean) => { commit(null); const ax = detailAxis(); const line = ax === "row" ? sel.f.row : sel.f.col; outlineEdit((_wb, s) => (show ? showDetail(s, ax, line) : hideDetail(s, ax, line))); };
+  const doOutlineLevel = (ax: OAxis, n: number) => { commit(null); outlineEdit((_wb, s) => showLevel(s, ax, n)); };
+  const doOutlineToggle = (ax: OAxis, level: number, summary: number) => {
+    commit(null); outlineEdit((_wb, s) => { const r = toggleGroup(s, ax, level, summary); return r ? { ok: true, message: `${r} ${ax === "row" ? "rows" : "columns"} (level ${level})` } : { ok: false, error: "that group no longer exists" }; });
+  };
+  const doAutoOutline = () => {
+    commit(null);
+    outlineEdit((_wb, s) => { const a = autoOutline(s, "row"), b = autoOutline(s, "col"); return a.ok || b.ok ? { ok: true, message: [a.ok ? `rows: ${a.message}` : "", b.ok ? `columns: ${b.message}` : ""].filter(Boolean).join(" · ") } : a; });
+  };
+  const doSubtotal = async (remove = false) => {
+    commit(null); const R = dataRange();
+    if (R.r1 <= R.r0) { setStatus("select a list with a header row (or one cell inside it)"); return; }
+    if (remove) { outlineEdit((wb) => { const r = removeSubtotals(wb, active, R); return r.removed ? { ok: true, message: `removed ${r.removed} subtotal row(s) and the outline` } : { ok: false, error: "no SUBTOTAL rows in this list" }; }); return; }
+    const head = (c: number) => String(workbook.valueAt(active, c, R.r0) ?? "").trim() || colToLetters(c);
+    const colOf = (t: string) => { const x = t.trim().toLowerCase(); for (let c = R.c0; c <= R.c1; c++) if (head(c).toLowerCase() === x || colToLetters(c).toLowerCase() === x) return c; return -1; };
+    const fns = Object.keys(SUBTOTAL_FNS); const fnOf = (t: string) => fns.find((f) => f.toLowerCase() === t.trim().toLowerCase()) as SubtotalFn | undefined;
+    const r = await askForm({
+      title: `Subtotal ${a1(R.c0, R.r0)}:${a1(R.c1, R.r1)}`, okLabel: "Add subtotals",
+      detail: "Sort the list by the “At each change in” column first — a subtotal row is inserted wherever its value changes. Rows get an outline (1 2 3 buttons).",
+      fields: [{ name: "by", label: "At each change in (header or column letter)", def: head(R.c0) },
+        { name: "fn", label: `Use function (${fns.join(", ")})`, def: "Sum" },
+        { name: "cols", label: "Add subtotal to (headers or letters, comma-separated)", def: head(R.c1) },
+        { name: "replace", label: "Replace current subtotals (yes | no)", def: "yes" }],
+      validate: (v) => (colOf(v.by ?? "") < 0 ? "“At each change in” must name a column of the list" : !fnOf(v.fn ?? "") ? `Use one of: ${fns.join(", ")}` : (v.cols ?? "").split(",").some((x) => colOf(x) < 0) ? "Each “Add subtotal to” entry must name a column of the list" : null),
+    });
+    if (!r) return;
+    outlineEdit((wb) => subtotal(wb, active, { ...R, groupCol: colOf(r.by ?? ""), fn: fnOf(r.fn ?? "")!, totalCols: (r.cols ?? "").split(",").map(colOf), replace: !/^\s*n/i.test(r.replace ?? "") }));
   };
   const toggleFilter = () => {
     commit(null); setFpanel(null);
@@ -623,18 +684,19 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const enter = (sheetName: string, col: number, row: number, text: string) => {
     const target = workbook.sheets.get(sheetName); if (!target) return;
     const rule = ruleAt(target, col, row);
-    if (!rule || !rule.showError) { mutate(() => target.setCell(col, row, text)); return; }
+    // TT78: table calculated columns / auto-expansion run inside the same undo step as the entry
+    if (!rule || !rule.showError) { let note: string | undefined; mutate(() => { target.setCell(col, row, text); note = afterTypedEntry(workbook, sheetName, col, row, text).note; }); if (note) setStatus(note); return; }
     pushUndo();
     const chk = validateEntry(workbook, sheetName, col, row, text);   // rolls back when invalid
     setRev((r) => r + 1);
-    if (chk.ok) { setDirty(true); setDvAlert(null); return; }
+    if (chk.ok) { const note = afterTypedEntry(workbook, sheetName, col, row, text).note; workbook.recalculate(); if (note) setStatus(note); setDirty(true); setDvAlert(null); return; }
     undoRef.current.pop(); syncHist();
     setDvAlert({ title: chk.title ?? "Invalid entry", message: chk.message ?? "", style: rule.errorStyle, sheet: sheetName, col, row, text });
   };
   const pickListValue = (col: number, row: number, value: string) => { setListOpen(false); enter(active, col, row, value); gridRef.current?.focus(); };
   const resolveAlert = (keep: boolean, retry = false) => {
     const a = dvAlert; if (!a) return; setDvAlert(null);
-    if (keep && a.style !== "stop") { mutate((wb) => wb.sheet(a.sheet).setCell(a.col, a.row, a.text)); setStatus(`kept ${a.text} in ${a1(a.col, a.row)} despite the ${a.style} rule`); }
+    if (keep && a.style !== "stop") { mutate((wb) => { wb.sheet(a.sheet).setCell(a.col, a.row, a.text); afterTypedEntry(wb, a.sheet, a.col, a.row, a.text); }); setStatus(`kept ${a.text} in ${a1(a.col, a.row)} despite the ${a.style} rule`); }
     else if (retry) { setActive(a.sheet); setSel({ a: { col: a.col, row: a.row }, f: { col: a.col, row: a.row } }); setEditAt({ col: a.col, row: a.row }); setEditSheet(a.sheet); setEditSrc("cell"); setEditing(a.text); }
     gridRef.current?.focus();
   };
@@ -707,6 +769,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         || (mod && e.shiftKey && k === "v") || (e.key === "F7" && !mod && !e.altKey);
       if (!allowed) { e.preventDefault(); return; }
     }
+    // TT78: Alt+Shift+→ group / Alt+Shift+← ungroup (Excel); blocked above while the Paste Special bar is open
+    if (e.altKey && e.shiftKey && !mod && (k === "arrowright" || k === "arrowleft")) { e.preventDefault(); void doGroup(k === "arrowleft"); return; }
     if (arrows[k]) {
       e.preventDefault(); const [dc, dr] = arrows[k];
       const p = mod ? jump(has, sel.f.col, sel.f.row, dc, dr, COLS - 1, ROWS - 1) : stepCell(sheet, sel.f, dc, dr, COLS - 1, ROWS - 1);
@@ -1071,11 +1135,30 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   const row = (r: number, sticky = false, segStart = r, segEnd = r) => (
     <tr key={r} style={sticky ? { position: "sticky", top: HEAD_H, zIndex: 2, background: "var(--fs-bg, #0b1020)" } : undefined}>
       <td className="fs-dim" onMouseDown={() => { commit(null); setSel({ a: { col: 0, row: r }, f: { col: COLS - 1, row: r } }); gridRef.current?.focus(); }}
-        style={{ position: "sticky", left: 0, zIndex: 1, textAlign: "center", fontSize: fz(10.5), background: r >= selR.r0 && r <= selR.r1 ? "linear-gradient(rgba(91,140,255,.22), rgba(91,140,255,.22)), var(--fs-bg-2, #131a2b)" : "var(--fs-bg-2, #131a2b)", borderRight: "1px solid var(--fs-border)", borderBottom: sticky ? "2px solid #475569" : "1px solid var(--fs-border)", cursor: "e-resize" }}>{r + 1}</td>
+        style={{ position: "sticky", left: 0, zIndex: 1, textAlign: "center", fontSize: fz(10.5), background: r >= selR.r0 && r <= selR.r1 ? "linear-gradient(rgba(91,140,255,.22), rgba(91,140,255,.22)), var(--fs-bg-2, #131a2b)" : "var(--fs-bg-2, #131a2b)", borderRight: "1px solid var(--fs-border)", borderBottom: sticky ? "2px solid #475569" : "1px solid var(--fs-border)", cursor: "e-resize", ...(outR ? { paddingLeft: (outR + 1) * OSTEP } : {}) }}>{outR ? outlineGutter("row", r) : null}{r + 1}</td>
       {Array.from({ length: COLS }, (_, c) => renderCell(c, r, segStart, segEnd))}
     </tr>
   );
 
+
+  /** TT78: outline bars (one lane per level) and the +/− button on each group's summary line */
+  const outlineGutter = (ax: OAxis, i: number) => {
+    const lvl = (ax === "row" ? sheet.rowLevels : sheet.colLevels).get(i) ?? 0; const heads = outlineHeads[ax].get(i) ?? [];
+    const lanes = ax === "row" ? outR : outC; const name = ax === "row" ? "rows" : "columns";
+    const at = (x: number, y: number) => (ax === "row" ? { left: x, top: y } : { top: x, left: y });
+    return (
+      <span style={{ position: "absolute", ...(ax === "row" ? { left: 0, top: 0, bottom: 0, width: (lanes + 1) * OSTEP } : { left: 0, right: 0, top: 0, height: (lanes + 1) * OSTEP }) }}>
+        {Array.from({ length: lvl }, (_, L) => <span key={L} aria-hidden="true" style={{ position: "absolute", ...(ax === "row" ? { left: L * OSTEP + OSTEP / 2, top: 0, bottom: 0, borderLeft: "1.5px solid #94a3b8" } : { top: L * OSTEP + OSTEP / 2, left: 0, right: 0, borderTop: "1.5px solid #94a3b8" }) }} />)}
+        {heads.map((g) => (
+          <span key={g.level} style={{ position: "absolute", ...at((g.level - 1) * OSTEP, 2) }}>
+            <OutlineBtn size={OSTEP} text={g.collapsed ? "+" : "-"} testid={`outline-${ax}-${g.level}-${i}`} pressed={!g.collapsed}
+              label={`${g.collapsed ? "Expand" : "Collapse"} ${name} ${ax === "row" ? g.start + 1 : colToLetters(g.start)}–${ax === "row" ? g.end + 1 : colToLetters(g.end)} (outline level ${g.level})`}
+              onClick={() => doOutlineToggle(ax, g.level, i)} />
+          </span>
+        ))}
+      </span>
+    );
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
@@ -1141,6 +1224,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <TB label="Hide rows" testid="sheet-hide-rows" onClick={() => doHide("rows")} title="Hide the selected rows" />
         <TB label="Hide cols" testid="sheet-hide-cols" onClick={() => doHide("cols")} title="Hide the selected columns" />
         <TB label="Unhide" testid="sheet-unhide" onClick={doUnhide} active={sheet.hiddenRows.size > 0 || sheet.hiddenCols.size > 0} title="Unhide rows/columns inside the selection (select one cell to unhide everything)" />
+        <TB label="Group" testid="sheet-group" onClick={() => void doGroup(false)} title="Group the selected rows or columns into an outline (Alt+Shift+Right)" />
+        <TB label="Ungroup" testid="sheet-ungroup" onClick={() => void doGroup(true)} title="Ungroup the selected rows or columns (Alt+Shift+Left)" />
+        <TB label="Show detail" testid="sheet-show-detail" onClick={() => doDetail(true)} title="Expand the outline group at the active cell" />
+        <TB label="Hide detail" testid="sheet-hide-detail" onClick={() => doDetail(false)} title="Collapse the outline group at the active cell" />
+        <TB label="Subtotal" testid="sheet-subtotal" onClick={() => void doSubtotal()} title="Insert subtotal rows at each change in a column, with an outline" />
+        <TB label="Remove subtotals" testid="sheet-subtotal-remove" onClick={() => void doSubtotal(true)} title="Delete the SUBTOTAL rows of this list and its outline" />
+        <TB label="Auto outline" testid="sheet-auto-outline" onClick={doAutoOutline} title="Create an outline from summary formulas next to their detail" />
+        <TB label="Clear outline" testid="sheet-clear-outline" onClick={() => { commit(null); outlineEdit((_wb, s) => clearOutline(s)); }} active={outR > 0 || outC > 0} title="Remove every outline group on this sheet (hidden rows stay hidden)" />
         <span style={{ width: 6 }} />
         <TB label="Chart" onClick={() => addChart("bar")} title={"Insert a chart from the selection (or current region)"} />
         <TB label={`Charts${charts.length ? ` (${charts.length})` : ""}`} onClick={() => setPanel(panel === "charts" ? null : "charts")} active={panel === "charts"} title="Show charts" />
@@ -1410,11 +1501,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           <colgroup><col style={{ width: ROWHDR_W }} />{Array.from({ length: COLS }, (_, c) => <col key={c} style={{ width: colW(c) }} />)}</colgroup>
           <thead>
             <tr style={{ position: "sticky", top: 0, zIndex: 3 }}>
-              <th onMouseDown={() => setSel({ a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } })} style={{ position: "sticky", left: 0, zIndex: 4, height: HEAD_H, background: "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)" }} title="Select all" />
+              <th onMouseDown={() => setSel({ a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } })} style={{ position: "sticky", left: 0, zIndex: 4, height: HEAD_H, background: "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)" }} title="Select all">
+                {outR ? <span style={{ position: "absolute", left: 0, bottom: 2, display: "flex" }}>{Array.from({ length: outR + 1 }, (_, i) => <OutlineBtn key={i} size={OSTEP} text={String(i + 1)} testid={`outline-row-level-${i + 1}`} label={`Show row outline level ${i + 1}`} onClick={() => doOutlineLevel("row", i + 1)} />)}</span> : null}
+                {outC ? <span style={{ position: "absolute", right: 2, top: 0, display: "flex", flexDirection: "column" }}>{Array.from({ length: outC + 1 }, (_, i) => <OutlineBtn key={i} size={OSTEP} text={String(i + 1)} testid={`outline-col-level-${i + 1}`} label={`Show column outline level ${i + 1}`} onClick={() => doOutlineLevel("col", i + 1)} />)}</span> : null}
+              </th>
               {Array.from({ length: COLS }, (_, c) => (
                 <th key={c} onMouseDown={(e) => { if ((e.target as HTMLElement).dataset.resize) return; commit(null); setSel(e.shiftKey ? { a: { col: sel.a.col, row: 0 }, f: { col: c, row: ROWS - 1 } } : { a: { col: c, row: 0 }, f: { col: c, row: ROWS - 1 } }); gridRef.current?.focus(); }}
                   style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, ...(sheet.hiddenCols.has(c) ? { padding: 0, overflow: "hidden", color: "transparent", borderLeft: "2px solid var(--fs-accent)" } : {}), height: HEAD_H, fontWeight: 500, fontSize: fz(11), background: c >= selR.c0 && c <= selR.c1 ? "linear-gradient(rgba(91,140,255,.22), rgba(91,140,255,.22)), var(--fs-bg-2, #131a2b)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
-                  {colToLetters(c)}
+                  {outC ? outlineGutter("col", c) : null}{outC ? <span style={{ display: "block", paddingTop: (outC + 1) * OSTEP }}>{colToLetters(c)}</span> : colToLetters(c)}
                   <div data-resize="1" data-testid={`resize-${colToLetters(c)}`} onMouseDown={(e) => { e.stopPropagation(); pushUndo(); dragRef.current = { mode: "resize", col: c, x: e.clientX, w: colW(c) }; }}
                     onDoubleClick={() => mutate((_wb, s) => { delete s.colWidths[c]; })} style={{ position: "absolute", right: -3, top: 0, width: 6, height: "100%", cursor: "col-resize", zIndex: 2 }} />
                 </th>
@@ -1637,6 +1731,19 @@ function ChartImg({ alt, src }: { alt: string; src: string }) {
   // data: URI SVG (script-inert inside <img>); next/image optimisation does not apply to data URIs
   // eslint-disable-next-line @next/next/no-img-element
   return <img alt={alt} src={src} width={420} height={220} style={{ display: "block" }} />;
+}
+/** TT78: outline symbol (level number or +/−). Glyphs are drawn as SVG strokes (UI fonts lack a consistent minus). The
+ *  same actions exist as full-size toolbar buttons (Show / Hide detail), the WCAG 2.5.8 "equivalent control" exception. */
+function OutlineBtn({ size, text, label, onClick, testid, pressed }: { size: number; text: string; label: string; onClick: () => void; testid: string; pressed?: boolean }) {
+  const s = Math.max(12, size - 2);
+  return (
+    <button type="button" data-testid={testid} aria-label={label} title={label} aria-expanded={pressed} onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.stopPropagation(); onClick(); }}
+      style={{ width: s, height: s, padding: 0, margin: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "1px solid #94a3b8", borderRadius: 3, background: "var(--fs-bg, #fff)", color: "inherit", fontSize: fz(10), lineHeight: 1, cursor: "pointer" }}>
+      {text === "+" || text === "-" ? (
+        <svg width={s - 4} height={s - 4} viewBox="0 0 10 10" aria-hidden="true"><path d={text === "+" ? "M2 5h6M5 2v6" : "M2 5h6"} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
+      ) : text}
+    </button>
+  );
 }
 function TB({ label, onClick, active, title, style, testid }: { label: string; onClick: () => void; active?: boolean; title?: string; style?: React.CSSProperties; testid?: string }) {
   return <button type="button" className="fs-btn" data-testid={testid} aria-pressed={active === undefined ? undefined : active} data-variant={active ? "primary" : "ghost"} aria-label={nameWithLabel(label, title)} title={title ?? label} onMouseDown={(e) => e.preventDefault()} onClick={onClick} style={{ padding: "2px 7px", minWidth: 26, ...style }}>{label}</button>;

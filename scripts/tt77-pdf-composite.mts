@@ -30,7 +30,7 @@ function near(got: Px, want: number[], tol = 3, what = "") {
   for (let k = 0; k < want.length; k++) if (Math.abs(got[k] - want[k]) > tol) throw new Error(`${what} got (${got.slice(0, want.length).join(",")}) want (${want.join(",")})`);
 }
 // page is 100×100 pt at scale 1: device (x, 100 − y)
-const C = { "FF-03": "full" as const, "PR-08": "partial" as const };
+const C = { "FF-03": "full" as const, "PR-08": "partial" as const, "FF-68": "full" as const };
 const WHITE_BG = "1 g 0 0 100 100 re f ";
 
 await H.test("C1 fill+stroke at ca=CA=.5 is a knockout pair: interior = fill over backdrop, stroke over backdrop (not over fill)", C, async () => {

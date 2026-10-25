@@ -1,0 +1,17 @@
+{
+  "suite": "tt78-sheet",
+  "at": "2026-10-25T21:32:04.133Z",
+  "results": [
+    {
+      "suite": "tt78-sheet",
+      "name": "O3 openpyxl-WRITTEN outlines (independent writer) read identically; Fusion's patch is read back by openpyxl",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-64": "full"
+      },
+      "pass": true,
+      "ms": 805
+    }
+  ]
+}

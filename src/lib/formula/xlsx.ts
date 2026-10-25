@@ -185,12 +185,19 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   }
   // TT74: hidden rows (Hide or AutoFilter) carry hidden="1", with or without cells
   for (const r of sheet.hiddenRows.keys()) if (r >= 0 && r < 1048576 && !rows.has(r)) rows.set(r, []);
-  const data = [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([r, cs]) => (cs.length ? `<row r="${r + 1}"${sheet.hiddenRows.has(r) ? ' hidden="1"' : ""}>${cs.join("")}</row>` : `<row r="${r + 1}" hidden="1"/>`)).join("");
+  // TT78: outline levels / collapsed flags (CT_Row outlineLevel, collapsed) — rows with them get shells too
+  for (const r of [...sheet.rowLevels.keys(), ...sheet.rowCollapsed]) if (r >= 0 && r < 1048576 && !rows.has(r)) rows.set(r, []);
+  const rowAttrs = (r: number) => `${sheet.hiddenRows.has(r) ? ' hidden="1"' : ""}${sheet.rowLevels.get(r) ? ` outlineLevel="${sheet.rowLevels.get(r)}"` : ""}${sheet.rowCollapsed.has(r) ? ' collapsed="1"' : ""}`;
+  const data = [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([r, cs]) => (cs.length ? `<row r="${r + 1}"${rowAttrs(r)}>${cs.join("")}</row>` : `<row r="${r + 1}"${rowAttrs(r)}/>`)).join("");
   const dim = maxRow < 0 ? "A1" : `A1:${colToLetters(maxCol)}${maxRow + 1}`;
   const widths = Object.entries(sheet.colWidths).map(([c, px]) => [Number(c), px] as const).filter(([c]) => c >= 0 && c <= 16383).sort((a, b) => a[0] - b[0]);
   const afXml = autoFilterXml(sheet, (x) => styles.dxf(x), true); // TT74 (TT76: colour criteria get a dxf in THIS package) (TT75: a table's own AutoFilter is written in its table part)
-  const colSet = [...new Set([...widths.map(([c]) => c), ...[...sheet.hiddenCols].filter((c) => c >= 0 && c <= 16383)])].sort((a, b) => a - b);
-  const colXml = (c: number) => { const px = sheet.colWidths[c]; return `<col min="${c + 1}" max="${c + 1}"${px !== undefined ? ` width="${pxToWidth(px)}" customWidth="1"` : ""}${sheet.hiddenCols.has(c) ? ' hidden="1"' : ""}/>`; };
+  const colSet = [...new Set([...widths.map(([c]) => c), ...[...sheet.hiddenCols, ...sheet.colLevels.keys(), ...sheet.colCollapsed].filter((c) => c >= 0 && c <= 16383)])].sort((a, b) => a - b);
+  const colXml = (c: number) => { const px = sheet.colWidths[c]; return `<col min="${c + 1}" max="${c + 1}"${px !== undefined ? ` width="${pxToWidth(px)}" customWidth="1"` : ""}${sheet.hiddenCols.has(c) ? ' hidden="1"' : ""}${sheet.colLevels.get(c) ? ` outlineLevel="${sheet.colLevels.get(c)}"` : ""}${sheet.colCollapsed.has(c) ? ' collapsed="1"' : ""}/>`; };
+  // TT78: CT_SheetPr/outlinePr (summary placement) and CT_SheetFormatPr outlineLevelRow / outlineLevelCol
+  const sheetPr = !sheet.summaryBelow || !sheet.summaryRight ? `<sheetPr><outlinePr${sheet.summaryBelow ? "" : ' summaryBelow="0"'}${sheet.summaryRight ? "" : ' summaryRight="0"'}/></sheetPr>` : "";
+  const mxR = Math.max(0, ...sheet.rowLevels.values()), mxC = Math.max(0, ...sheet.colLevels.values());
+  const fmtPr = mxR || mxC ? `<sheetFormatPr defaultRowHeight="15"${mxR ? ` outlineLevelRow="${mxR}"` : ""}${mxC ? ` outlineLevelCol="${mxC}"` : ""}/>` : "";
   const cols = colSet.length ? `<cols>${colSet.map(colXml).join("")}</cols>` : "";
   const fr = sheet.freezeRows, fc = sheet.freezeCols;
   const pane = fr > 0 && fc > 0 ? "bottomRight" : fr > 0 ? "bottomLeft" : "topRight";
@@ -211,7 +218,7 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   }).join("");
   const ext = x14Parts.length ? `<extLst><ext uri="{78C0D931-6437-407d-A8EE-F0AAD7539E65}" xmlns:x14="${X14_NS}"><x14:conditionalFormattings>${x14Parts.join("")}</x14:conditionalFormattings></ext></extLst>` : "";
   const dvs = sheet.validations.length ? `<dataValidations count="${sheet.validations.length}">${sheet.validations.map(dvXml).join("")}</dataValidations>` : "";
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"${drawingRid || linksMarkup || tablePartsXml ? ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' : ""}><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${afXml}${merges}${cfs}${dvs}${linksMarkup}${drawingRid ? `<drawing r:id="${drawingRid}"/>` : ""}${tablePartsXml}${ext}</worksheet>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"${drawingRid || linksMarkup || tablePartsXml ? ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' : ""}>${sheetPr}<dimension ref="${dim}"/>${views}${fmtPr}${cols}<sheetData>${data}</sheetData>${afXml}${merges}${cfs}${dvs}${linksMarkup}${drawingRid ? `<drawing r:id="${drawingRid}"/>` : ""}${tablePartsXml}${ext}</worksheet>`;
 }
 
 /** Differential format for a CF rule (ECMA-376 §18.8.14, CT_Dxf order font, numFmt, fill); null when the rule draws none. */
@@ -433,7 +440,7 @@ export function writeXlsxWorkbook(workbook: Workbook, title = "Workbook", report
     const ids: string[] = [];
     for (const t of list) {
       const n = ++tableNo;
-      chartParts.push({ name: `xl/tables/table${n}.xml`, data: Buffer.from(tableXml(t, n, (x) => styles.dxf(x))) });
+      chartParts.push({ name: `xl/tables/table${n}.xml`, data: Buffer.from(tableXml(t, n, (x) => styles.dxf(x), (f, col) => addFuturePrefixes(structuredRefsToFileForm("=" + f, workbook, t.sheet, col, t.r0 + t.headerRows).slice(1)))) });
       chartTypes.push(`<Override PartName="/xl/tables/table${n}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml"/>`);
       tableRels[i].push(`<Relationship Id="rIdTb${n}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/table" Target="../tables/table${n}.xml"/>`);
       ids.push(`<tablePart r:id="rIdTb${n}"/>`);
@@ -548,6 +555,8 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
       const ra = xmlAttrs(m[1]); const rn = Number(ra.r);
       rowCursor = Number.isInteger(rn) && rn >= 1 ? rn - 1 : rowCursor + 1; colCursor = -1;
       if (ra.hidden === "1" || ra.hidden === "true") sheet.hiddenRows.set(rowCursor, "manual"); // TT74 (re-classed below)
+      { const ol = Number(ra.outlineLevel); if (Number.isInteger(ol) && ol >= 1 && ol <= 7 && rowCursor < 1048576) sheet.rowLevels.set(rowCursor, ol); } // TT78
+      if ((ra.collapsed === "1" || ra.collapsed === "true") && rowCursor < 1048576) sheet.rowCollapsed.add(rowCursor);
       continue;
     }
     m[1] = m[3]; m[2] = m[4];
@@ -598,9 +607,12 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
     else sheet.setCell(col, row, v); // e (literal error text), str, n
     applyStyle();
   }
+  { const op = /<(?:\w+:)?outlinePr\b([^>]*?)\/?>/.exec(xml); if (op) { const oa = xmlAttrs(op[1]); if (oa.summaryBelow === "0" || oa.summaryBelow === "false") sheet.summaryBelow = false; if (oa.summaryRight === "0" || oa.summaryRight === "false") sheet.summaryRight = false; } } // TT78
   for (const m of xml.matchAll(/<col\b([^>]*)\/?>/g)) {
     const at = xmlAttrs(m[1]); const min = Number(at.min), max = Number(at.max), w = Number(at.width);
     if ((at.hidden === "1" || at.hidden === "true") && min >= 1 && max >= min) for (let c = min; c <= Math.min(max, 16384); c++) sheet.hiddenCols.add(c - 1); // TT74
+    { const ol = Number(at.outlineLevel); const coll = at.collapsed === "1" || at.collapsed === "true"; // TT78: column outline
+      if (min >= 1 && max >= min) for (let c = min; c <= Math.min(max, 16384); c++) { if (Number.isInteger(ol) && ol >= 1 && ol <= 7) sheet.colLevels.set(c - 1, ol); if (coll) sheet.colCollapsed.add(c - 1); } }
     if (!(min >= 1 && max >= min && max - min <= 256 && w > 0) || at.customWidth === "0") continue;
     for (let c = min; c <= max; c++) sheet.colWidths[c - 1] = Math.min(1200, Math.max(16, widthToPx(w)));
   }
@@ -648,7 +660,15 @@ function readTables(sheetXml: string, sheetPath: string, sheetName: string, wb: 
     const r = parseRef(at.ref ?? ""); const name = at.displayName ?? at.name;
     if (!r || !name) continue;
     const columns = [...tx.matchAll(/<tableColumn\b([^>]*?)(?:\/>|>)/g)].map((m) => unXstring(dec(xmlAttrs(m[1]).name ?? "")));
-    wb.tables.set(name.toUpperCase(), { name, sheet: sheetName, c0: r.c0, r0: r.r0, c1: r.c1, r1: r.r1, headerRows: at.headerRowCount === "0" ? 0 : 1, totalsRows: Number(at.totalsRowCount ?? 0) > 0 ? 1 : 0, columns });
+    // TT78: calculated-column formulas (first-body-row form, future prefixes stripped like cell formulas)
+    const calc: Record<string, string> = {};
+    for (const m of tx.matchAll(/<tableColumn\b([^>]*?)(?:\/>|>([\s\S]*?)<\/tableColumn>)/g)) {
+      const cf = /<calculatedColumnFormula\b([^>]*?)(?:\/>|>([\s\S]*?)<\/calculatedColumnFormula>)/.exec(m[2] ?? "");
+      if (!cf || !cf[2] || xmlAttrs(cf[1]).array === "1") continue;
+      const nm = unXstring(dec(xmlAttrs(m[1]).name ?? "")).toLowerCase(); const f = stripFuturePrefixes(dec(cf[2]).trim()).replace(/^=/, "");
+      if (nm && f && f.length <= 8192) calc[nm] = f;
+    }
+    wb.tables.set(name.toUpperCase(), { name, sheet: sheetName, c0: r.c0, r0: r.r0, c1: r.c1, r1: r.r1, headerRows: at.headerRowCount === "0" ? 0 : 1, totalsRows: Number(at.totalsRowCount ?? 0) > 0 ? 1 : 0, columns, ...(Object.keys(calc).length ? { calc } : {}) });
     // TT74: a table's own AutoFilter hides rows the same way (SUBTOTAL 9 skips them; POI ConditionalFormattingSamples)
     const tafm = /<(?:\w+:)?autoFilter\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?autoFilter>)/.exec(tx); const tref = tafm ? xmlAttr(tafm[1], "ref") : undefined;
     const sh = wb.sheets.get(sheetName); if (tref && sh && /<(?:\w+:)?filterColumn\b/.test(tafm![2] ?? "")) markFiltered(sh, tref);

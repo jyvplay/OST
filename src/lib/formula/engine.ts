@@ -114,6 +114,14 @@ export class Sheet {
   hiddenRows: Map<number, "manual" | "filter"> = new Map();
   /** TT74: hidden columns (presentation; <col hidden="1">). */
   hiddenCols: Set<number> = new Set();
+  /** TT78: outline (group) levels 1..7 per row / column (<row|col outlineLevel>), the summary lines whose group is
+   *  collapsed (<row|col collapsed="1">) and where summaries sit (<outlinePr summaryBelow / summaryRight>). See sheetoutline.ts. */
+  rowLevels: Map<number, number> = new Map();
+  colLevels: Map<number, number> = new Map();
+  rowCollapsed: Set<number> = new Set();
+  colCollapsed: Set<number> = new Set();
+  summaryBelow = true;
+  summaryRight = true;
   /** TT74: the sheet AutoFilter (range incl. header row; shown values per column offset). */
   autoFilter: { ref: string; cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string>; /** TT76 resolved colour-filter colours */ fx?: Record<number, string | null> } | null = null;
   constructor(name = "Sheet1") { this.name = name; }
@@ -587,6 +595,9 @@ function resolveRangeMatrix(range: RangeAddr, defaultSheet: string, evalCell: (s
 }
 
 export interface TableDef { name: string; sheet: string; c0: number; r0: number; c1: number; r1: number; headerRows: number; totalsRows: number; columns: string[];
+  /** TT78: calculated columns — lower-cased column name → formula in file form without "=" (<calculatedColumnFormula>);
+   *  A1 references are relative to the first body row (as Excel writes them). See sheettablecalc.ts. */
+  calc?: Record<string, string>;
   /** TT75: the table's own AutoFilter value lists, keyed by column offset inside the table (foreign = other criteria kept as hidden rows only) */
   filter?: { cols: Record<number, string[]>; foreign?: boolean; raw?: Record<number, string>; /** TT76 resolved colour-filter colours */ fx?: Record<number, string | null> } }
 export interface EvalContext {

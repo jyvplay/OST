@@ -17,7 +17,7 @@ export interface CellJson { ref: string; input: string; style?: CellStyle;
   legacy?: true; cse?: { rows: number; cols: number } }
 export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[]; links?: unknown[]; pivots?: unknown[];
   /** TT74: hidden rows by reason, hidden columns, the AutoFilter */
-  hiddenRows?: { manual?: number[]; filter?: number[] }; hiddenCols?: number[]; autoFilter?: { ref: string; cols: Record<string, string[]>; foreign?: boolean; raw?: Record<string, string> } }
+  hiddenRows?: { manual?: number[]; filter?: number[] }; hiddenCols?: number[]; outline?: { rows: [number, number][]; cols: [number, number][]; rowCollapsed: number[]; colCollapsed: number[]; summaryBelow: boolean; summaryRight: boolean }; autoFilter?: { ref: string; cols: Record<string, string[]>; foreign?: boolean; raw?: Record<string, string> } }
 export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[]; tables?: unknown[]; date1904?: boolean;
   /** TT74: cached values of linked external workbooks ([1]Sheet1!A1 keeps evaluating after the UI round trip) */
   externals?: { target: string; sheetNames: string[]; sheets: [string, [string, unknown][]][]; names: [string, string][] }[] }
@@ -28,7 +28,7 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
   if (wb.condFormats.length) extra.condFormats = wb.condFormats.map((c) => ({ ...c }));
   if (wb.names.size) extra.names = wb.listNames().map((n) => ({ ...n }));
   // TT46: Excel tables (structured-reference targets) and the 1904 date system must survive the UI round-trip.
-  if (wb.tables.size) extra.tables = [...wb.tables.values()].map((t) => ({ ...t, columns: [...t.columns] }));
+  if (wb.tables.size) extra.tables = [...wb.tables.values()].map((t) => ({ ...t, columns: [...t.columns], ...(t.calc ? { calc: { ...t.calc } } : {}) }));
   if (wb.date1904) extra.date1904 = true;
   if (wb.externals.length) extra.externals = wb.externals.map((b) => ({ target: b.target, sheetNames: [...b.sheetNames], sheets: [...b.sheets].map(([n, m]) => [n, [...m].map(([k, v]) => [k, isError(v) ? { error: v.error } : v] as [string, unknown])] as [string, [string, unknown][]]), names: [...b.names] }));
   return {
@@ -54,6 +54,9 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
       if (s.pivots.length) out.pivots = s.pivots.map((p) => JSON.parse(JSON.stringify(p)));
       if (s.hiddenRows.size) { const m: number[] = [], f: number[] = []; for (const [r, w] of s.hiddenRows) (w === "filter" ? f : m).push(r); out.hiddenRows = { ...(m.length ? { manual: m.sort((a, b) => a - b) } : {}), ...(f.length ? { filter: f.sort((a, b) => a - b) } : {}) }; }
       if (s.hiddenCols.size) out.hiddenCols = [...s.hiddenCols].sort((a, b) => a - b);
+      // TT78: outline levels / collapsed flags / summary placement (undo snapshots go through this JSON)
+      if (s.rowLevels.size || s.colLevels.size || s.rowCollapsed.size || s.colCollapsed.size || !s.summaryBelow || !s.summaryRight)
+        out.outline = { rows: [...s.rowLevels].sort((a, b) => a[0] - b[0]), cols: [...s.colLevels].sort((a, b) => a[0] - b[0]), rowCollapsed: [...s.rowCollapsed], colCollapsed: [...s.colCollapsed], summaryBelow: s.summaryBelow, summaryRight: s.summaryRight };
       if (s.autoFilter) out.autoFilter = { ref: s.autoFilter.ref, cols: Object.fromEntries(Object.entries(s.autoFilter.cols).map(([k, v]) => [k, [...v]])), ...(s.autoFilter.foreign ? { foreign: true } : {}), ...(s.autoFilter.raw ? { raw: { ...s.autoFilter.raw } } : {}), ...(s.autoFilter.fx ? { fx: { ...s.autoFilter.fx } } : {}) };
       return out;
     }),
@@ -120,6 +123,14 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
     for (const r of rowsOf(hr.manual, 1048576)) sheet.hiddenRows.set(r, "manual");
     for (const r of rowsOf(hr.filter, 1048576)) if (!sheet.hiddenRows.has(r)) sheet.hiddenRows.set(r, "filter");
     for (const c of rowsOf(s.hiddenCols, 16384)) sheet.hiddenCols.add(c);
+    // TT78 (untrusted): outline — [line, level] pairs with level 1..7, bounded
+    const ol = (s.outline && typeof s.outline === "object" ? s.outline : {}) as { rows?: unknown; cols?: unknown; rowCollapsed?: unknown; colCollapsed?: unknown; summaryBelow?: unknown; summaryRight?: unknown };
+    const pairs = (v: unknown, max: number, m: Map<number, number>) => { for (const p of (Array.isArray(v) ? v : []).slice(0, 200_000)) if (Array.isArray(p) && Number.isInteger(p[0]) && p[0] >= 0 && p[0] < max && Number.isInteger(p[1]) && p[1] >= 1 && p[1] <= 7) m.set(p[0], p[1]); };
+    pairs(ol.rows, 1048576, sheet.rowLevels); pairs(ol.cols, 16384, sheet.colLevels);
+    for (const r of rowsOf(ol.rowCollapsed, 1048576)) sheet.rowCollapsed.add(r);
+    for (const c of rowsOf(ol.colCollapsed, 16384)) sheet.colCollapsed.add(c);
+    if (ol.summaryBelow === false) sheet.summaryBelow = false;
+    if (ol.summaryRight === false) sheet.summaryRight = false;
     const af = s.autoFilter as { ref?: unknown; cols?: unknown; foreign?: unknown; raw?: unknown; fx?: unknown } | undefined;
     if (af && typeof af.ref === "string" && parseRef(af.ref)) {
       const cols: Record<number, string[]> = {};
@@ -159,7 +170,7 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
     if (!okInt(t.c0, 16383) || !okInt(t.c1, 16383) || !okInt(t.r0, 1048575) || !okInt(t.r1, 1048575) || (t.c1 as number) < (t.c0 as number) || (t.r1 as number) < (t.r0 as number)) continue;
     const cols = Array.isArray(t.columns) ? t.columns.filter((c): c is string => typeof c === "string" && c.length <= 255) : [];
     if (cols.length !== (t.c1 as number) - (t.c0 as number) + 1) continue;
-    wb.tables.set(t.name.toUpperCase(), { name: t.name, sheet: t.sheet, c0: t.c0 as number, r0: t.r0 as number, c1: t.c1 as number, r1: t.r1 as number, headerRows: okInt(t.headerRows, 1) ? (t.headerRows as number) : 1, totalsRows: okInt(t.totalsRows, 1) ? (t.totalsRows as number) : 0, columns: cols, ...tableFilterFromJson(t.filter, cols.length) });
+    wb.tables.set(t.name.toUpperCase(), { name: t.name, sheet: t.sheet, c0: t.c0 as number, r0: t.r0 as number, c1: t.c1 as number, r1: t.r1 as number, headerRows: okInt(t.headerRows, 1) ? (t.headerRows as number) : 1, totalsRows: okInt(t.totalsRows, 1) ? (t.totalsRows as number) : 0, columns: cols, ...tableFilterFromJson(t.filter, cols.length), ...calcFromJson(t.calc, cols) });
   }
   // Untrusted names: each goes through defineName's validation; invalid ones are dropped (max 2000).
   for (const raw of (Array.isArray(data.names) ? data.names : []).slice(0, 2000)) {
@@ -214,4 +225,12 @@ function rawFiltersFromJson(v: unknown, ncols = 16384): Record<number, string> |
     const clean = sanitizeFilterColumnXml(x); if (clean) out[Number(k)] = clean;
   }
   return Object.keys(out).length ? out : undefined;
+}
+
+/** TT78 (untrusted): calculated-column formulas — keys must name a column of the table, values bounded strings */
+function calcFromJson(v: unknown, cols: string[]): { calc?: Record<string, string> } {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return {};
+  const names = new Set(cols.map((c) => c.toLowerCase())); const out: Record<string, string> = {};
+  for (const [k, f] of Object.entries(v as Record<string, unknown>)) if (names.has(k) && typeof f === "string" && f.length > 0 && f.length <= 8192 && !f.startsWith("=")) out[k] = f;
+  return Object.keys(out).length ? { calc: out } : {};
 }

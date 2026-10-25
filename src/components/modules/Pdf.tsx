@@ -22,6 +22,9 @@ import { renderPage, pageTransform, type DecodedImages } from "@/lib/pdf/pdfcanv
 import { apply, invert, type M } from "@/lib/pdf/pdfinterp";
 import { pageChars, layout, search, type TLine, type Hit } from "@/lib/pdf/pdftext";
 import { PdfEditor, extractPages, type AnnotSpec } from "@/lib/pdf/pdfedit";
+import { PdfSignatures } from "./PdfSignatures";
+import { signatureFields } from "@/lib/pdf/pdfsig";
+import { askConfirm } from "@/lib/ask";
 /** FreeText annotation size in PDF points — document data written into the file, not UI text (so not scaled by fz) */
 const ANNOT_FONT_PT = 12;
 
@@ -33,7 +36,7 @@ type Tool = "select" | "highlight" | "underline" | "strike" | "ink" | "box" | "e
 const TOOLS: [Tool, string, string][] = [["select", "Select", "Select text / navigate"], ["highlight", "Highlight", "Drag across text"], ["underline", "Underline", "Drag across text"], ["strike", "Strike", "Drag across text"], ["ink", "Pen", "Freehand ink"], ["box", "Box", "Drag a rectangle"], ["ellipse", "Ellipse", "Drag an ellipse"], ["text", "Text box", "Drag, then type"], ["note", "Note", "Click to place a sticky note"]];
 const COLORS: [string, [number, number, number]][] = [["Yellow", [1, 0.85, 0.1]], ["Green", [0.3, 0.85, 0.4]], ["Blue", [0.2, 0.55, 1]], ["Pink", [1, 0.4, 0.7]], ["Red", [0.9, 0.15, 0.15]], ["Black", [0, 0, 0]]];
 const css3 = (c: [number, number, number]) => `rgb(${c.map((v) => Math.round(v * 255)).join(",")})`;
-type Panel = "pages" | "find" | "forms" | "info";
+type Panel = "pages" | "find" | "forms" | "sigs" | "info";
 interface Rev { bytes: Uint8Array; what: string }
 /** inline SVG icons (Unicode arrows render as tofu with the app's fonts) */
 function Ico({ d, label }: { d: string; label: string }) {
@@ -166,6 +169,18 @@ export default function PdfModule({ win }: ModuleProps) {
     setHist({ u: undo.current.length - 1, r: redo.current.length }); setStatus(dir < 0 ? "Undone" : "Redone");
   };
   const curBytes = () => undo.current[undo.current.length - 1]?.bytes ?? null;
+  /** a revision produced outside PdfEditor (signing): the bytes are kept exactly as produced */
+  const pushRevision = (bytes: Uint8Array, what: string) => {
+    let nd: PdfDoc; try { nd = PdfDoc.open(bytes, pwRef.current); } catch (e) { shell.toast(`${what} failed: ${(e as Error).message}`, "bad"); return; }
+    undo.current.push({ bytes, what }); if (undo.current.length > 40) undo.current.splice(1, 1); redo.current = [];
+    setHist({ u: undo.current.length - 1, r: 0 }); setDoc(nd); setDirty(true); setStatus(`${what} · ${(bytes.length / 1024).toFixed(1)} KB`);
+  };
+  const openRevision = async (bytes: Uint8Array, label: string) => {
+    if (dirty && !(await askConfirm({ title: "Open the signed version?", detail: "Unsaved changes in this window will be discarded.", okLabel: "Open" }))) return;
+    try { await openBytes(bytes, `${name.replace(/\.pdf$/i, "")} — ${label}.pdf`); setPath(""); setPanel("sigs"); } catch (e) { shell.toast(`Could not open: ${(e as Error).message}`, "bad"); }
+  };
+  const signedNames = useMemo(() => { if (!doc) return new Set<string>(); try { return new Set(signatureFields(doc).map((f) => f.name)); } catch { return new Set<string>(); } }, [doc]);
+  const sigCount = signedNames.size;
 
   /* ------------------------------------------------------------ save */
   const writeFile = async (dest: string, bytes: Uint8Array, label: string) => {
@@ -289,7 +304,7 @@ export default function PdfModule({ win }: ModuleProps) {
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
         <aside style={{ width: 248, borderRight: "1px solid var(--fs-border)", display: "flex", flexDirection: "column", minHeight: 0 }}>
           <div role="tablist" style={{ display: "flex", flexWrap: "wrap", gap: 2, padding: 4 }}>
-            {(["pages", "find", "forms", "info"] as Panel[]).map((p) => <Btn key={p} role="tab" aria-selected={panel === p} data-testid={`pdf-panel-${p}`} variant={panel === p ? "primary" : "ghost"} onClick={() => setPanel(p)}>{p === "pages" ? "Pages" : p === "find" ? "Find" : p === "forms" ? `Forms${fields.length ? ` (${fields.length})` : ""}` : "Info"}</Btn>)}
+            {(["pages", "find", "forms", "sigs", "info"] as Panel[]).map((p) => <Btn key={p} role="tab" aria-selected={panel === p} data-testid={`pdf-panel-${p}`} variant={panel === p ? "primary" : "ghost"} onClick={() => setPanel(p)}>{p === "pages" ? "Pages" : p === "find" ? "Find" : p === "forms" ? `Forms${fields.length ? ` (${fields.length})` : ""}` : p === "sigs" ? `Signatures${sigCount ? ` (${sigCount})` : ""}` : "Info"}</Btn>)}
           </div>
           <div style={{ flex: 1, overflow: "auto", padding: 6, minHeight: 0 }}>
             {panel === "pages" && doc ? (
@@ -336,11 +351,13 @@ export default function PdfModule({ win }: ModuleProps) {
                     {f.type === "Btn" && !(f.flags & (1 << 16)) ? <input type="checkbox" data-testid="pdf-field" checked={!!f.value && f.value !== "Off"} disabled={!!(f.flags & 1)} onChange={(e) => fill(f.name, e.target.checked)} />
                       : f.type === "Ch" ? <select className="fs-input" data-testid="pdf-field" value={f.value} disabled={!!(f.flags & 1)} onChange={(e) => fill(f.name, e.target.value)}>{["", ...f.options].map((o) => <option key={o} value={o}>{o || "—"}</option>)}</select>
                       : f.type === "Tx" ? <input className="fs-input" data-testid="pdf-field" defaultValue={f.value} disabled={!!(f.flags & 1)} onBlur={(e) => { if (e.target.value !== f.value) fill(f.name, e.target.value); }} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />
-                      : <span className="fs-dim">{f.type === "Sig" ? "signature field (not supported)" : "button"}</span>}
+                      : f.type === "Sig" ? <button type="button" data-testid="pdf-field-sig" onClick={() => setPanel("sigs")} style={{ background: "none", border: 0, padding: 0, color: "inherit", textAlign: "left", cursor: "pointer", textDecoration: "underline" }}>{signedNames.has(f.name) ? "signed — see Signatures" : "empty signature field — sign in Signatures"}</button>
+                      : <span className="fs-dim">button</span>}
                   </label>
                 ))}
               </div>
             ) : null}
+            {panel === "sigs" && doc ? <PdfSignatures doc={doc} dirty={dirty} onSigned={pushRevision} onOpenRevision={(b, l) => void openRevision(b, l)} toast={shell.toast} /> : null}
             {panel === "info" && doc ? (
               <dl data-testid="pdf-info" style={{ fontSize: fz(12), margin: 0, display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 8px" }}>
                 {(["Title", "Author", "Subject", "Keywords"] as const).map((k) => <Fragment key={k}><dt style={{ fontWeight: 600 }}>{k}</dt><dd style={{ margin: 0 }}><button type="button" data-testid={`pdf-info-${k}`} onClick={() => void editInfo(k)} style={{ background: "none", border: 0, padding: 0, color: "inherit", textAlign: "left", cursor: "pointer", textDecoration: "underline dotted" }}>{info[k] || "—"}</button></dd></Fragment>)}

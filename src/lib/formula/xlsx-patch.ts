@@ -53,6 +53,8 @@ const NS_MAIN = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
 const NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
 const stable = (v: unknown): string => v && typeof v === "object" ? `{${Object.keys(v).filter((k) => (v as Record<string, unknown>)[k] !== undefined && (v as Record<string, unknown>)[k] !== false).sort().map((k) => `${k}:${stable((v as Record<string, unknown>)[k])}`).join(",")}}` : JSON.stringify(v);
+/** TT78: everything the outline model stores, for change detection */
+const outlineKey = (s: Sheet) => JSON.stringify([[...s.rowLevels].sort((a, b) => a[0] - b[0]), [...s.colLevels].sort((a, b) => a[0] - b[0]), [...s.rowCollapsed].sort((a, b) => a - b), [...s.colCollapsed].sort((a, b) => a - b), s.summaryBelow, s.summaryRight]);
 const normStyle = (s?: CellStyle) => { const o = { ...(s ?? {}) } as Record<string, unknown>; if (o.numFmt === "General") delete o.numFmt; if (o.border && !Object.keys(o.border as object).length) delete o.border; return stable(o); };
 const pick = (s: CellStyle | undefined, keys: (keyof CellStyle)[]) => stable(Object.fromEntries(keys.map((k) => [k, s?.[k]])));
 
@@ -278,7 +280,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       const o = m.orig && orig.sheets.get(m.orig.name);
       if (!o || m.orig !== origSheets[i] || m.sheet.name !== m.orig!.name || m.sheet.grid.size !== o.grid.size) return false;
       for (const [k, c] of m.sheet.grid) { const d = o.grid.get(k); if (!d || d.input !== c.input || normStyle(d.style) !== normStyle(c.style)) return false; }
-      return eqJ(workbook.charts.filter((c) => c.sheet === m.sheet.name).map(chartKey), orig.charts.filter((c) => c.sheet === o.name).map(chartKey)) && eqJ(cfOf(workbook, m.sheet.name), cfOf(orig, o.name)) && eqJ(m.sheet.links, o.links) && eqJ(m.sheet.merges, o.merges) && eqJ(m.sheet.validations, o.validations) && eqJ(m.sheet.colWidths, o.colWidths) && eqJ([...m.sheet.hiddenRows].sort((x, y) => x[0] - y[0]), [...o.hiddenRows].sort((x, y) => x[0] - y[0])) && eqJ([...m.sheet.hiddenCols].sort((x, y) => x - y), [...o.hiddenCols].sort((x, y) => x - y)) && eqJ(m.sheet.autoFilter ?? null, o.autoFilter ?? null) && m.sheet.freezeRows === o.freezeRows && m.sheet.freezeCols === o.freezeCols;
+      return eqJ(workbook.charts.filter((c) => c.sheet === m.sheet.name).map(chartKey), orig.charts.filter((c) => c.sheet === o.name).map(chartKey)) && eqJ(cfOf(workbook, m.sheet.name), cfOf(orig, o.name)) && eqJ(m.sheet.links, o.links) && eqJ(m.sheet.merges, o.merges) && eqJ(m.sheet.validations, o.validations) && eqJ(m.sheet.colWidths, o.colWidths) && eqJ([...m.sheet.hiddenRows].sort((x, y) => x[0] - y[0]), [...o.hiddenRows].sort((x, y) => x[0] - y[0])) && eqJ([...m.sheet.hiddenCols].sort((x, y) => x - y), [...o.hiddenCols].sort((x, y) => x - y)) && eqJ(m.sheet.autoFilter ?? null, o.autoFilter ?? null) && m.sheet.freezeRows === o.freezeRows && m.sheet.freezeCols === o.freezeCols && outlineKey(m.sheet) === outlineKey(o);
     });
     // charts on pinned chartsheets are not covered by the per-sheet comparison above
     const pinnedCharts = (w: Workbook) => w.charts.filter((c) => pinnedNames.has(c.sheet.toLowerCase())).map((c) => c.sheet.toLowerCase() + chartKey(c));
@@ -368,6 +370,8 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     const rowNums = new Set<number>([...rows.keys()]);
     for (const rn of origRows.keys()) rowNums.add(rn); // every original row shell is kept (heights, hidden, styles, empty rows)
     for (const rn of sheet.hiddenRows.keys()) if (rn >= 0 && rn < 1048576) rowNums.add(rn); // TT74: hidden rows need a <row>
+    for (const rn of [...sheet.rowLevels.keys(), ...sheet.rowCollapsed]) if (rn >= 0 && rn < 1048576) rowNums.add(rn); // TT78: outline rows too
+    let rowOutlineChanged = false;
     let hiddenChanged = false;
     const newRows: XEl[] = [];
     for (const rn of [...rowNums].sort((a, b) => a - b)) {
@@ -384,6 +388,11 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       // TT74: hidden flag (Hide rows / AutoFilter); untouched rows keep their attribute spelling
       const wasHidden = shell ? /^(1|true)$/.test(attr(shell, "hidden") ?? "") : false, isHidden = sheet.hiddenRows.has(rn);
       if (wasHidden !== isHidden) { setAttr(r, "hidden", isHidden ? "1" : undefined); hiddenChanged = true; }
+      // TT78: outline level / collapsed flag; untouched rows keep their spelling
+      const wasLvl = shell ? Number(attr(shell, "outlineLevel") ?? 0) || 0 : 0, isLvl = sheet.rowLevels.get(rn) ?? 0;
+      if (wasLvl !== isLvl) { setAttr(r, "outlineLevel", isLvl ? String(isLvl) : undefined); rowOutlineChanged = true; }
+      const wasColl = shell ? /^(1|true)$/.test(attr(shell, "collapsed") ?? "") : false, isColl = sheet.rowCollapsed.has(rn);
+      if (wasColl !== isColl) { setAttr(r, "collapsed", isColl ? "1" : undefined); rowOutlineChanged = true; }
       newRows.push(r);
     }
     const origRowList = [...origRows.values()];
@@ -391,6 +400,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     // structural extras
     const extrasChanged: string[] = [];
     if (hiddenChanged) extrasChanged.push("row hidden");
+    if (rowOutlineChanged) extrasChanged.push("row outline");
     const eqJ = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
     const replaceChild = (name: string, node: XEl | null, after: string[]) => {
       const i = doc.root.kids.findIndex((k) => k.k === "el" && ln(k.name) === name);
@@ -417,7 +427,24 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       if (af) { af.attrs = af.attrs.filter(([k]) => k !== "xmlns"); af.quote = af.quote.slice(-af.attrs.length); if (SP) { const pre = (e: XEl) => { e.name = SP + e.name; kids(e).forEach(pre); }; pre(af); } }
       replaceChild("autoFilter", af, ["sheetData", "sheetCalcPr", "sheetProtection", "protectedRanges", "scenarios"]);
     }
-    const hidColsChanged = !eqJ([...sheet.hiddenCols].sort((a, b) => a - b), [...(origSheet?.hiddenCols ?? [])].sort((a, b) => a - b));
+    if (outlineKey(sheet) !== (origSheet ? outlineKey(origSheet) : "[[],[],[],[],true,true]")) {
+      // TT78: <sheetPr><outlinePr summaryBelow summaryRight> (CT_SheetPr order: tabColor, outlinePr, pageSetUpPr) and
+      // <sheetFormatPr outlineLevelRow / outlineLevelCol> follow the model
+      let pr = kidL(doc.root, "sheetPr"); let op = kidL(pr, "outlinePr");
+      const wantOp = !sheet.summaryBelow || !sheet.summaryRight;
+      if (op || wantOp) {
+        if (!pr) { pr = el(SP + "sheetPr", {}); replaceChild("sheetPr", pr, []); }
+        if (!op) { op = el(SP + "outlinePr", {}); const i = pr.kids.findIndex((k) => k.k === "el" && ln(k.name) === "pageSetUpPr"); if (i >= 0) pr.kids.splice(i, 0, op); else pr.kids.push(op); pr.selfClose = false; }
+        setAttr(op, "summaryBelow", sheet.summaryBelow ? undefined : "0"); setAttr(op, "summaryRight", sheet.summaryRight ? undefined : "0");
+      }
+      const mxR = Math.max(0, ...sheet.rowLevels.values()), mxC = Math.max(0, ...sheet.colLevels.values());
+      let fp = kidL(doc.root, "sheetFormatPr");
+      if (!fp && (mxR || mxC)) { fp = el(SP + "sheetFormatPr", { defaultRowHeight: "15" }); replaceChild("sheetFormatPr", fp, ["sheetPr", "dimension", "sheetViews"]); }
+      if (fp) { setAttr(fp, "outlineLevelRow", mxR ? String(mxR) : undefined); setAttr(fp, "outlineLevelCol", mxC ? String(mxC) : undefined); }
+      extrasChanged.push("outline");
+    }
+    const colOutKey = (x?: Sheet) => JSON.stringify([[...(x?.colLevels ?? [])].sort((a, b) => a[0] - b[0]), [...(x?.colCollapsed ?? [])].sort((a, b) => a - b)]);
+    const hidColsChanged = !eqJ([...sheet.hiddenCols].sort((a, b) => a - b), [...(origSheet?.hiddenCols ?? [])].sort((a, b) => a - b)) || colOutKey(sheet) !== colOutKey(origSheet); // TT78: + column outline
     if (!origSheet || !eqJ(sheet.colWidths, origSheet.colWidths) || hidColsChanged) {
       extrasChanged.push("cols");
       const prev = kidL(doc.root, "cols"); const prevCols = kidsL(prev, "col");
@@ -441,12 +468,21 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
         const out: XEl[] = [];
         for (const c of cols) {
           const min = Number(attr(c, "min")), max = Number(attr(c, "max"));
-          const same = (cc: number) => sheet.hiddenCols.has(cc - 1) === sheet.hiddenCols.has(min - 1);
+          const st = (cc: number) => `${sheet.hiddenCols.has(cc - 1)}|${sheet.colLevels.get(cc - 1) ?? 0}|${sheet.colCollapsed.has(cc - 1)}`; // TT78: + outline
+          const same = (cc: number) => st(cc) === st(min);
           let uniform = true; for (let cc = min; cc <= max && cc - min < 16384; cc++) if (!same(cc)) { uniform = false; break; }
           const parts = uniform ? [c] : Array.from({ length: Math.min(max - min + 1, 16384) }, (_, i) => { const x = clone(c); setAttr(x, "min", String(min + i)); setAttr(x, "max", String(min + i)); return x; });
-          for (const x of parts) { const h = sheet.hiddenCols.has(Number(attr(x, "min")) - 1); if (/^(1|true)$/.test(attr(x, "hidden") ?? "") !== h) setAttr(x, "hidden", h ? "1" : undefined); out.push(x); }
+          for (const x of parts) {
+            const c0 = Number(attr(x, "min")) - 1; const h = sheet.hiddenCols.has(c0); if (/^(1|true)$/.test(attr(x, "hidden") ?? "") !== h) setAttr(x, "hidden", h ? "1" : undefined);
+            const L = sheet.colLevels.get(c0) ?? 0; if ((Number(attr(x, "outlineLevel") ?? 0) || 0) !== L) setAttr(x, "outlineLevel", L ? String(L) : undefined);
+            const k = sheet.colCollapsed.has(c0); if (/^(1|true)$/.test(attr(x, "collapsed") ?? "") !== k) setAttr(x, "collapsed", k ? "1" : undefined);
+            out.push(x);
+          }
         }
-        for (const hc of sheet.hiddenCols) if (!out.some((x) => Number(attr(x, "min")) <= hc + 1 && Number(attr(x, "max")) >= hc + 1)) out.push(el(SP + "col", { min: String(hc + 1), max: String(hc + 1), hidden: "1" }));
+        for (const hc of new Set([...sheet.hiddenCols, ...sheet.colLevels.keys(), ...sheet.colCollapsed])) if (hc >= 0 && hc < 16384 && !out.some((x) => Number(attr(x, "min")) <= hc + 1 && Number(attr(x, "max")) >= hc + 1)) {
+          const L = sheet.colLevels.get(hc);
+          out.push(el(SP + "col", { min: String(hc + 1), max: String(hc + 1), ...(sheet.hiddenCols.has(hc) ? { hidden: "1" } : {}), ...(L ? { outlineLevel: String(L) } : {}), ...(sheet.colCollapsed.has(hc) ? { collapsed: "1" } : {}) }));
+        }
         cols.splice(0, cols.length, ...out.sort((a, b) => Number(attr(a, "min")) - Number(attr(b, "min"))));
       }
       replaceChild("cols", cols.length ? el(SP + "cols", {}, cols) : null, ["sheetPr", "dimension", "sheetViews", "sheetFormatPr"]);
@@ -733,7 +769,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
   // tables are patched surgically in their ORIGINAL part (unknown attributes / children kept); removed ones lose their
   // part, relationship, <tablePart> and content-type override.
   {
-    const tkey = (t?: import("./engine").TableDef) => (t ? JSON.stringify([t.sheet.toLowerCase(), t.c0, t.r0, t.c1, t.r1, t.headerRows, t.totalsRows, t.columns, t.filter ?? null]) : "");
+    const tkey = (t?: import("./engine").TableDef) => (t ? JSON.stringify([t.sheet.toLowerCase(), t.c0, t.r0, t.c1, t.r1, t.headerRows, t.totalsRows, t.columns, t.filter ?? null, t.calc ?? null]) : ""); // TT78: + calculated columns
     for (const { sheet, orig: o } of mapping) {
       if (!o) continue;
       const relsPath = realName(relsPathOf(o.part));
@@ -763,7 +799,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
           report.partsRewritten.push(part);
           continue;
         }
-        out.set(part, patchTableXml(txml, before, now)); report.partsRewritten.push(part);
+        out.set(part, patchTableXml(txml, before, now, (f, col) => addFuturePrefixes(structuredRefsToFileForm("=" + f, workbook, now.sheet, col, now.r0 + now.headerRows).slice(1)))); report.partsRewritten.push(part);
       }
       if (relsTouched) { out.set(relsPath, rels); removed.delete(relsPath); report.partsRewritten.push(relsPath); }
     }
@@ -804,7 +840,7 @@ function setXmlAttr(tag: string, name: string, value: string | null): string {
   return tag.replace(/(\/?>)$/, ` ${name}="${value}"$1`);
 }
 /** Patch one table part to the edited TableDef: ref, totals, autoFilter ref / criteria, tableColumns (by name). */
-export function patchTableXml(xml: string, before: import("./engine").TableDef, now: import("./engine").TableDef): string {
+export function patchTableXml(xml: string, before: import("./engine").TableDef, now: import("./engine").TableDef, fileForm?: (f: string, col: number) => string): string {
   let x = xml;
   x = x.replace(/<(\w+:)?table\b[^>]*>/, (tag) => {
     let t = setXmlAttr(tag, "ref", rng(now.c0, now.r0, now.c1, now.r1));
@@ -827,6 +863,28 @@ export function patchTableXml(xml: string, before: import("./engine").TableDef, 
       const byName = new Map(els.map((e) => [decodeXmlName(e.name), e] as const));
       const outEls = now.columns.map((nm) => byName.get(nm.toLowerCase())?.xml ?? `<${p}tableColumn id="${++maxId}" name="${escA(nm)}"/>`);
       return `<${p}tableColumns count="${outEls.length}">${outEls.join("")}</${p}tableColumns>`;
+    });
+  }
+  // TT78: <calculatedColumnFormula> follows the model — inserted, replaced or removed per column; columns whose calc did
+  // not change keep their bytes (including other children such as totalsRowFormula / xmlColumnPr)
+  if (JSON.stringify(before.calc ?? null) !== JSON.stringify(now.calc ?? null) || before.c0 !== now.c0 || before.r0 !== now.r0) {
+    x = x.replace(/<(\w+:)?tableColumns\b[^>]*>([\s\S]*?)<\/\1tableColumns>/, (all, px: string | undefined) => {
+      const p = px ?? "";
+      return all.replace(new RegExp(`<${p}tableColumn\\b([^>]*?)(/>|>([\\s\\S]*?)</${p}tableColumn>)`, "g"), (col, attrs: string, _tail: string, inner: string | undefined) => {
+        const nm = decodeXmlName(xmlAttrOf(attrs, "name") ?? "");
+        const idx = now.columns.findIndex((c) => c.toLowerCase() === nm);
+        const was = before.calc?.[nm], want = now.calc?.[nm];
+        if (was === want && before.c0 === now.c0 && before.r0 === now.r0) return col;
+        const body = inner ?? "";
+        const cfRe = new RegExp(`<${p}calculatedColumnFormula\\b[^>]*?(?:/>|>[\\s\\S]*?</${p}calculatedColumnFormula>)`);
+        const hadArray = /\barray="(1|true)"/.test(cfRe.exec(body)?.[0] ?? "");
+        if (hadArray) return col; // array calculated columns are not modelled — kept verbatim
+        const cf = want && idx >= 0 ? `<${p}calculatedColumnFormula>${escA(fileForm ? fileForm(want, now.c0 + idx) : want)}</${p}calculatedColumnFormula>` : "";
+        // CT_TableColumn order: calculatedColumnFormula, totalsRowFormula, xmlColumnPr, extLst
+        let next = cfRe.test(body) ? body.replace(cfRe, cf) : cf + body;
+        next = next.trim() ? next : "";
+        return next ? `<${p}tableColumn${attrs}>${next}</${p}tableColumn>` : `<${p}tableColumn${attrs}/>`;
+      });
     });
   }
   return x;

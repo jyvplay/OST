@@ -1,0 +1,77 @@
+{
+  "suite": "e2e-tt77-pdfsig",
+  "at": "2026-10-25T21:15:00.798Z",
+  "results": [
+    {
+      "suite": "e2e-tt77-pdfsig",
+      "name": "S1 real-world BER qualified signature → valid, signer, identity disclaimer, chain",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 5010
+    },
+    {
+      "suite": "e2e-tt77-pdfsig",
+      "name": "S2 changed after signing → 'modified'; Open signed version → that revision is valid",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 2386
+    },
+    {
+      "suite": "e2e-tt77-pdfsig",
+      "name": "S3 tampered → Invalid",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1386
+    },
+    {
+      "suite": "e2e-tt77-pdfsig",
+      "name": "S6 modal shortcut: Ctrl+S / Ctrl+Z inside the New-identity dialog never reach the document",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 2376
+    },
+    {
+      "suite": "e2e-tt77-pdfsig",
+      "name": "S4 New identity → Sign → Ctrl+S → pyHanko intact+valid+ENTIRE_FILE; panel shows ours valid",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 3296
+    },
+    {
+      "suite": "e2e-tt77-pdfsig",
+      "name": "S5 the identity survives a reload (IndexedDB) and the saved file re-validates in the UI",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": false,
+      "error": "identities ",
+      "ms": 1532
+    },
+    {
+      "suite": "e2e-tt77-pdfsig",
+      "name": "S7 no page errors",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

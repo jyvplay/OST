@@ -29,7 +29,7 @@ const H = makeHarness("tt77-pdf");
 const PY = "/home/user/tools/venv/bin/python", CORPUS = "/home/user/tools/corpus/pdf";
 const ORACLE = join(process.cwd(), "scripts/oracle/pdf_images.py");
 const have = existsSync(PY) && existsSync(CORPUS);
-const COV = { "FF-03": "full" as const, "PR-08": "partial" as const };
+const COV = { "FF-03": "full" as const, "PR-08": "partial" as const, "FF-67": "full" as const };
 const tmp = mkdtempSync(join(tmpdir(), "tt77pdf-"));
 const survey = (key: string): string[] => {
   // corpus files whose streams use a filter (recomputed, not read from a scratch file)

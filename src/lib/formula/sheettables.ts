@@ -183,7 +183,14 @@ export function tableColumnNames(t: TableDef): string[] {
 }
 
 /** xl/tables/tableN.xml for one table (CT_Table: autoFilter, tableColumns, tableStyleInfo). */
-export function tableXml(t: TableDef, id: number, dxf?: (xml: string) => number): string {
+/** TT78: the <tableColumn> element, with <calculatedColumnFormula> when the column is calculated (`fileForm` turns the
+ *  stored formula into file text: structured refs in file form, future-function prefixes) */
+export function tableColumnXml(t: TableDef, names: string[], i: number, fileForm?: (f: string, col: number) => string): string {
+  const f = t.calc?.[names[i].toLowerCase()];
+  const head = `<tableColumn id="${i + 1}" name="${esc(xstring(names[i]))}"`;
+  return f ? `${head}><calculatedColumnFormula>${esc(fileForm ? fileForm(f, t.c0 + i) : f)}</calculatedColumnFormula></tableColumn>` : `${head}/>`;
+}
+export function tableXml(t: TableDef, id: number, dxf?: (xml: string) => number, fileForm?: (f: string, col: number) => string): string {
   const names = tableColumnNames(t);
   const ref = a1r(t.c0, t.r0, t.c1, t.r1);
   let af = "";
@@ -197,7 +204,7 @@ export function tableXml(t: TableDef, id: number, dxf?: (xml: string) => number)
   const head = t.headerRows ? "" : ' headerRowCount="0"';
   const tot = t.totalsRows ? ' totalsRowCount="1"' : ' totalsRowShown="0"';
   const name = esc(t.name);
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><table xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" id="${id}" name="${name}" displayName="${name}" ref="${ref}"${head}${tot}>${af}<tableColumns count="${names.length}">${names.map((n, i) => `<tableColumn id="${i + 1}" name="${esc(xstring(n))}"/>`).join("")}</tableColumns><tableStyleInfo name="TableStyleMedium2" showFirstColumn="0" showLastColumn="0" showRowStripes="1" showColumnStripes="0"/></table>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><table xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" id="${id}" name="${name}" displayName="${name}" ref="${ref}"${head}${tot}>${af}<tableColumns count="${names.length}">${names.map((_n, i) => tableColumnXml(t, names, i, fileForm)).join("")}</tableColumns><tableStyleInfo name="TableStyleMedium2" showFirstColumn="0" showLastColumn="0" showRowStripes="1" showColumnStripes="0"/></table>`;
 }
 
 /** Header cells whose text differs from the column name written (Excel renames the column to its header text). */

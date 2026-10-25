@@ -584,7 +584,12 @@ export async function renderPage(doc: PdfDoc, page: PdfPage, canvas: Canv, opts:
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.restore();
   const dev = new CanvasDevice(doc, ctx, m, cache); const warnings: string[] = [];
   const it = new Interpreter(doc, dev, IDENT, { hiddenOCGs: hiddenOCGs(doc), warnings, fontCache: dev.fontCache, deadline: opts.deadline });
+  // TT78: the page runs inside one canvas save, so a clip it leaves active (W n or text render modes 4–7 outside q/Q) cannot
+  // clip the paper fill below — TT77 regression found by the full PDFium differential (clippath, issue3584, glyph_accent)
+  ctx.save();
   try { it.runPage(page); } catch (e) { warnings.push(`render: ${(e as Error).message}`); }
+  try { it.unwind(); } catch { /* best effort */ }
+  ctx.restore();
   // the page group is done: composite it onto the paper. Annotation appearances are painted on the page as imposed on
   // the medium, so their blend modes see the paper (a Difference caret over white shows its complement, as in PDFium)
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "destination-over"; ctx.fillStyle = opts.background ?? "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore();

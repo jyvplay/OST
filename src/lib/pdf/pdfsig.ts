@@ -166,6 +166,8 @@ export interface SigReport {
   signatureOk: boolean | "unsupported" | null;
   /** the signed revision covers the whole file (false: incremental updates were appended after signing) */
   coversWholeFile: boolean; appendedBytes: number;
+  /** bytes of the signed revision (ByteRange c + d): file.subarray(0, signedLength) is exactly what was signed */
+  signedLength: number;
   /** chain inside the signature: certificates whose signatures verified against an issuer in the bag; root named */
   chain: { subject: string; verifiedByIssuer: boolean | null }[]; selfSigned: boolean;
   /** "valid" only when digest + signature hold; trust is never claimed (no trust store) */
@@ -200,7 +202,7 @@ async function validateOne(doc: PdfDoc, field: string, v: PDict): Promise<SigRep
   const file = doc.bytes; const notes: string[] = [];
   const str = (k: string) => { const x = doc.resolve(v.get(k)); return x instanceof PStr ? textString(x) : ""; };
   const sf = doc.resolve(v.get("SubFilter")); const subFilter = sf instanceof PName ? sf.n : "";
-  const rep: SigReport = { field, subFilter, signer: str("Name"), issuer: "", signingTime: str("M") || null, reason: str("Reason"), location: str("Location"), digestOk: null, signatureOk: null, coversWholeFile: false, appendedBytes: 0, chain: [], selfSigned: false, status: "malformed", certValidAtSigning: null, notes };
+  const rep: SigReport = { field, subFilter, signer: str("Name"), issuer: "", signingTime: str("M") || null, reason: str("Reason"), location: str("Location"), digestOk: null, signatureOk: null, coversWholeFile: false, appendedBytes: 0, signedLength: 0, chain: [], selfSigned: false, status: "malformed", certValidAtSigning: null, notes };
   try {
     const br = doc.arr(v.get("ByteRange")).map((x) => doc.num(x));
     if (br.length !== 4 || br.some((x) => !Number.isInteger(x) || x < 0)) { notes.push("ByteRange is not four non-negative integers"); return rep; }
@@ -217,7 +219,7 @@ async function validateOne(doc: PdfDoc, field: string, v: PDict): Promise<SigRep
     else { notes.push("the ByteRange gap is not the /Contents string — the signed region was manipulated"); rep.status = "invalid"; return rep; }
     for (let i = g0; i < g1; i++) { const ch = file[i]; if (!((ch >= 0x30 && ch <= 0x39) || ((ch | 0x20) >= 0x61 && (ch | 0x20) <= 0x66))) { notes.push("the unsigned gap holds non-hex bytes"); rep.status = "invalid"; return rep; } }
     const contents = hexToBytes(new TextDecoder("latin1").decode(file.subarray(g0, g1)));
-    rep.appendedBytes = file.length - (c + d); rep.coversWholeFile = rep.appendedBytes <= 2; // a trailing EOL is tolerated
+    rep.signedLength = c + d; rep.appendedBytes = file.length - (c + d); rep.coversWholeFile = rep.appendedBytes <= 2; // a trailing EOL is tolerated
     const signed = new Uint8Array(b + d); signed.set(file.subarray(a, a + b)); signed.set(file.subarray(c, c + d), b);
 
     if (subFilter === "adbe.x509.rsa_sha1") {

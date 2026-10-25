@@ -186,6 +186,9 @@ export class Interpreter {
     const data = this.doc.contentBytes(page.dict.get("Contents"));
     this.run(data, page.resources);
   }
+  /** TT78: pop every q the page left open (ISO 32000-1 §8.4.2 wants them balanced; real files are not), so the device's
+   *  state — notably its clip — is back at the page's initial state before the paper and annotations are composited */
+  unwind() { while (this.stack.length) this.restore(); }
 
   /** save-stack depth at the start of the content stream being run: its Q operators never pop below it (an unbalanced
    *  Q inside a Type 3 glyph, form or appearance must not undo the caller's state — ISO 32000-1 §8.4.2 requires q/Q to

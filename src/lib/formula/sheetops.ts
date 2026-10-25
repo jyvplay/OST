@@ -14,6 +14,8 @@
  *  - AutoFill: least-squares linear trend for ≥2 numeric seeds (Excel's
  *    behaviour for a numeric selection), "text N" increments, otherwise cyclic copy.
  */
+import { shiftOutline } from "./sheetoutline";
+import { calcAnchors, adjustCalcForStructure } from "./sheettablecalc";
 import { adjustTablesForStructure, rewriteStructuredRefs, tableStructureConflict, TableEditError } from "./sheettables";
 import { adjustLayoutForStructure, sortConflict } from "./sheetlayout";
 import { tokenize } from "./lexer";
@@ -197,7 +199,10 @@ export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: nu
     else { p.anchor = { ...p.anchor, col: mv(p.anchor.col) }; if (p.out) p.out = { ...p.out, c0: mv(p.out.c0), c1: Math.max(mv(p.out.c0), count < 0 && p.out.c1 >= at && p.out.c1 < at - count ? at - 1 : mv(p.out.c1)) }; }
   }
   // TT75: tables move / grow / shrink with their lines; removed tables and columns turn their structured references into #REF!
+  const anchors = calcAnchors(wb, sheetName, axis, at, count); // TT78: calculated columns, before tables move
   const dead = adjustTablesForStructure(wb, sheetName, axis, at, count, { checked: true });
+  // TT78: outline levels / collapsed flags move with their lines; inserted lines inside a group join it
+  shiftOutline(sheet, axis, at, count);
   for (const s of wb.sheets.values()) {
     for (const [k, cell] of s.grid) {
       if (!cell.formula) continue;
@@ -206,6 +211,7 @@ export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: nu
       if (next !== cell.input) { const [c, r] = k.split(",").map(Number); const style = cell.style; s.setCell(c, r, next); if (style) s.setStyle(c, r, style); }
     }
   }
+  adjustCalcForStructure(wb, sheetName, axis, at, count, anchors); // TT78: calc follows the move; inserted body rows are filled
   wb.recalculate();
 }
 

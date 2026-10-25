@@ -33,7 +33,7 @@ const H = makeHarness("tt77-pdfsig");
 const PY = "/home/user/tools/venv/bin/python", CORPUS = "/home/user/tools/corpus/pdf";
 const ORACLE = join(process.cwd(), "scripts/oracle/pdfsig_oracle.py");
 const have = existsSync(PY) && (() => { try { execFileSync(PY, ["-c", "import pyhanko, pikepdf, pypdfium2"]); return true; } catch { return false; } })();
-const COV = { "FF-03": "full" as const, "PR-08": "partial" as const };
+const COV = { "FF-03": "full" as const, "PR-08": "partial" as const, "FF-66": "full" as const };
 const tmp = mkdtempSync(join(tmpdir(), "tt77sig-"));
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 interface PH { field: string; intact?: boolean; valid?: boolean; coverage?: string; modification?: string; error?: string }
