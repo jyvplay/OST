@@ -15,6 +15,9 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import * as M from "@/lib/office/pml";
+import { deckToMarkdown, deckToText } from "@/lib/office/convert-slides";
+import { askForm } from "@/lib/ask";
+import { lossDetail, downloadAs } from "@/lib/office/export-ask";
 import { slideView, type VSlide } from "@/lib/office/pmlview";
 import { SlideCanvas } from "./slides/render";
 
@@ -138,6 +141,26 @@ export default function SlidesModule({ win }: ModuleProps) {
     let bytes: Uint8Array; try { bytes = sealPackage(await M.writePptxDoc(d), encRef.current).bytes; } catch (e) { shell.toast(`Not downloaded: ${(e as Error).message}`, "bad"); return; }
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: MIME_PPTX }));
     a.download = (path.split("/").pop() || `${d.title || "Presentation"}.pptx`).replace(/\.fdeck$/i, ".pptx"); a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+  // TT74 (FF-02): outline export (Markdown / text) of exactly what Save would write; the loss report is shown first.
+  // Verified against python-pptx on 83 decks / 551 slides (K1).
+  const exportOutline = async () => {
+    const d = docRef.current; if (!d) return;
+    let bytes: Uint8Array; try { bytes = await M.writePptxDoc(d); } catch (e) { shell.toast(`Not exported: ${(e as Error).message}`, "bad"); return; }
+    const stem = (path.split("/").pop() || d.title || "Presentation").replace(/\.[^.]+$/, "");
+    const d2 = await M.readPptxDoc(bytes, `${stem}.pptx`);
+    const preview = deckToMarkdown(d2, { notes: true, hidden: true });
+    const r = await askForm({
+      title: "Export outline", detail: lossDetail(preview.loss), okLabel: "Export",
+      fields: [{ name: "name", label: "File name (.md or .txt)", def: `${stem}.md` }, { name: "opts", label: "Include: notes, hidden (remove a word to leave it out)", def: "notes, hidden" }],
+      validate: (v) => ((v.name ?? "").trim() ? null : "Enter a file name"),
+    });
+    if (!r) return;
+    let name = (r.name ?? "").trim().replace(/[\\/:*?"<>|]+/g, "_"); if (!/\.(md|txt)$/i.test(name)) name += ".md";
+    const o = (r.opts ?? "").toLowerCase();
+    const out = /\.txt$/i.test(name) ? deckToText(d2) : deckToMarkdown(d2, { notes: o.includes("notes"), hidden: o.includes("hidden") });
+    downloadAs(name, "md" in out ? out.md : out.text, /\.txt$/i.test(name) ? "text/plain" : "text/markdown");
+    setStatus(`Exported the outline to ${name}${out.loss.length ? ` — not carried over: ${out.loss.join("; ")}` : ""}`);
   };
   const openLocal = async (f: File) => {
     if (f.size > M.MAX_PPTX) { shell.toast("The file exceeds the 64 MiB guard", "warn"); return; }
@@ -305,6 +328,7 @@ export default function SlidesModule({ win }: ModuleProps) {
         <Btn variant="primary" onClick={() => { if (edit) commitEdit(true); save(); }} title="Save (Ctrl+S)">Save</Btn>
         <Btn variant="ghost" onClick={() => { setPopVal(path.toLowerCase().endsWith(".pptx") ? path : `/Documents/${doc.title || "Presentation"}.pptx`); setPop("saveas"); }}>Save as…</Btn>
         <Btn variant="ghost" onClick={() => void download()}>Download</Btn>
+        <Btn variant="ghost" data-testid="slides-export-outline" title="Export the slide text as a Markdown or plain-text outline" onClick={() => void exportOutline()}>Outline</Btn>
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input type="file" accept=".pptx" hidden aria-label="Open a .pptx file" onChange={(e) => { const f = e.target.files?.[0]; if (f) void openLocal(f); e.target.value = ""; }} /></label>
         <Btn variant="ghost" data-testid="slides-password" aria-pressed={locked} onClick={async () => {
           if (saveBlocked(encRef.current, encRef.current?.path ?? "")) { setStatus("Unlock the file first (reopen it and enter its password)"); return; }

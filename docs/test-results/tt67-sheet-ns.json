@@ -1,6 +1,6 @@
 {
   "suite": "tt67-sheet-ns",
-  "at": "2026-10-25T02:05:01.772Z",
+  "at": "2026-10-25T02:19:43.816Z",
   "results": [
     {
       "suite": "tt67-sheet-ns",
@@ -11,7 +11,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 1780
+      "ms": 1650
     },
     {
       "suite": "tt67-sheet-ns",
@@ -33,7 +33,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 4128
+      "ms": 3848
     },
     {
       "suite": "tt67-sheet-ns",
@@ -44,7 +44,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 373
+      "ms": 366
     },
     {
       "suite": "tt67-sheet-ns",
@@ -55,7 +55,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 172
+      "ms": 164
     },
     {
       "suite": "tt67-sheet-ns",
@@ -66,7 +66,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 515
+      "ms": 502
     },
     {
       "suite": "tt67-sheet-ns",
@@ -77,7 +77,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 234
+      "ms": 228
     },
     {
       "suite": "tt67-sheet-ns",
@@ -88,7 +88,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 225
+      "ms": 221
     },
     {
       "suite": "tt67-sheet-ns",
@@ -99,7 +99,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 222
+      "ms": 206
     },
     {
       "suite": "tt67-sheet-ns",
@@ -110,7 +110,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 762
+      "ms": 740
     },
     {
       "suite": "tt67-sheet-ns",
@@ -121,7 +121,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 85
+      "ms": 80
     },
     {
       "suite": "tt67-sheet-ns",
@@ -131,9 +131,8 @@
         "FF-50": "full",
         "FF-51": "full"
       },
-      "pass": false,
-      "error": "files changed for an unexplained reason: [\"50299.xlsx\",\"51519.xlsx\"] != []",
-      "ms": 94009
+      "pass": true,
+      "ms": 91979
     },
     {
       "suite": "tt67-sheet-ns",
@@ -144,7 +143,7 @@
         "FF-51": "full"
       },
       "pass": true,
-      "ms": 1362
+      "ms": 1396
     }
   ]
 }

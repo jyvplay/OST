@@ -31,6 +31,7 @@ import { Workbook, a1, type Sheet, type CellStyle, type Cell } from "./engine";
 import { colToLetters, lettersToCol, isError } from "./types";
 import { readXlsxWorkbook, workbookToJson, workbookFromJson, colorContext, xlsxInternals as X } from "./xlsx";
 import { rangeRef } from "./sheetlayout";
+import { autoFilterXml } from "./sheetfilter";
 import { canonicalizeNs, SML_CANON } from "../office/xml-ns";
 import type { CondRule } from "./sheetmeta";
 import { addFuturePrefixes } from "./sheetops";
@@ -275,7 +276,7 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       const o = m.orig && orig.sheets.get(m.orig.name);
       if (!o || m.orig !== origSheets[i] || m.sheet.name !== m.orig!.name || m.sheet.grid.size !== o.grid.size) return false;
       for (const [k, c] of m.sheet.grid) { const d = o.grid.get(k); if (!d || d.input !== c.input || normStyle(d.style) !== normStyle(c.style)) return false; }
-      return eqJ(workbook.charts.filter((c) => c.sheet === m.sheet.name).map(chartKey), orig.charts.filter((c) => c.sheet === o.name).map(chartKey)) && eqJ(cfOf(workbook, m.sheet.name), cfOf(orig, o.name)) && eqJ(m.sheet.links, o.links) && eqJ(m.sheet.merges, o.merges) && eqJ(m.sheet.validations, o.validations) && eqJ(m.sheet.colWidths, o.colWidths) && m.sheet.freezeRows === o.freezeRows && m.sheet.freezeCols === o.freezeCols;
+      return eqJ(workbook.charts.filter((c) => c.sheet === m.sheet.name).map(chartKey), orig.charts.filter((c) => c.sheet === o.name).map(chartKey)) && eqJ(cfOf(workbook, m.sheet.name), cfOf(orig, o.name)) && eqJ(m.sheet.links, o.links) && eqJ(m.sheet.merges, o.merges) && eqJ(m.sheet.validations, o.validations) && eqJ(m.sheet.colWidths, o.colWidths) && eqJ([...m.sheet.hiddenRows].sort((x, y) => x[0] - y[0]), [...o.hiddenRows].sort((x, y) => x[0] - y[0])) && eqJ([...m.sheet.hiddenCols].sort((x, y) => x - y), [...o.hiddenCols].sort((x, y) => x - y)) && eqJ(m.sheet.autoFilter ?? null, o.autoFilter ?? null) && m.sheet.freezeRows === o.freezeRows && m.sheet.freezeCols === o.freezeCols;
     });
     // charts on pinned chartsheets are not covered by the per-sheet comparison above
     const pinnedCharts = (w: Workbook) => w.charts.filter((c) => pinnedNames.has(c.sheet.toLowerCase())).map((c) => c.sheet.toLowerCase() + chartKey(c));
@@ -362,6 +363,8 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
     }
     const rowNums = new Set<number>([...rows.keys()]);
     for (const rn of origRows.keys()) rowNums.add(rn); // every original row shell is kept (heights, hidden, styles, empty rows)
+    for (const rn of sheet.hiddenRows.keys()) if (rn >= 0 && rn < 1048576) rowNums.add(rn); // TT74: hidden rows need a <row>
+    let hiddenChanged = false;
     const newRows: XEl[] = [];
     for (const rn of [...rowNums].sort((a, b) => a - b)) {
       const cs = (rows.get(rn) ?? []).sort((a, b) => colOf.get(a)! - colOf.get(b)!);
@@ -374,12 +377,16 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       if (shell && origKids.length === cs.length && origKids.every((c, i) => c === cs[i])) r.kids = shell.kids;
       else r.kids = cs;
       r.selfClose = r.kids.length === 0;
+      // TT74: hidden flag (Hide rows / AutoFilter); untouched rows keep their attribute spelling
+      const wasHidden = shell ? /^(1|true)$/.test(attr(shell, "hidden") ?? "") : false, isHidden = sheet.hiddenRows.has(rn);
+      if (wasHidden !== isHidden) { setAttr(r, "hidden", isHidden ? "1" : undefined); hiddenChanged = true; }
       newRows.push(r);
     }
     const origRowList = [...origRows.values()];
     const unchangedData = !!o && newRows.length === origRowList.length && newRows.every((r, i) => r.kids === origRowList[i].kids);
     // structural extras
     const extrasChanged: string[] = [];
+    if (hiddenChanged) extrasChanged.push("row hidden");
     const eqJ = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
     const replaceChild = (name: string, node: XEl | null, after: string[]) => {
       const i = doc.root.kids.findIndex((k) => k.k === "el" && ln(k.name) === name);
@@ -398,7 +405,16 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
       if (dv) { dv.attrs = dv.attrs.filter(([k]) => k !== "xmlns"); dv.quote = dv.quote.slice(-dv.attrs.length); if (SP) { const pre = (e: XEl) => { e.name = SP + e.name; kids(e).forEach(pre); }; pre(dv); } }
       replaceChild("dataValidations", dv, ["sheetData", "sheetCalcPr", "sheetProtection", "protectedRanges", "scenarios", "autoFilter", "sortState", "dataConsolidate", "customSheetViews", "mergeCells", "phoneticPr", "conditionalFormatting"]);
     }
-    if (!origSheet || !eqJ(sheet.colWidths, origSheet.colWidths)) {
+    if (!origSheet ? sheet.autoFilter !== null : !eqJ(sheet.autoFilter, origSheet.autoFilter)) {
+      // TT74: AutoFilter range / criteria changed (an unchanged foreign filter stays byte-identical)
+      extrasChanged.push("autoFilter");
+      const xml = autoFilterXml(sheet);
+      const af = xml ? parseXml(xml.replace("<autoFilter", `<autoFilter xmlns="${NS_MAIN}"`)).root : null;
+      if (af) { af.attrs = af.attrs.filter(([k]) => k !== "xmlns"); af.quote = af.quote.slice(-af.attrs.length); if (SP) { const pre = (e: XEl) => { e.name = SP + e.name; kids(e).forEach(pre); }; pre(af); } }
+      replaceChild("autoFilter", af, ["sheetData", "sheetCalcPr", "sheetProtection", "protectedRanges", "scenarios"]);
+    }
+    const hidColsChanged = !eqJ([...sheet.hiddenCols].sort((a, b) => a - b), [...(origSheet?.hiddenCols ?? [])].sort((a, b) => a - b));
+    if (!origSheet || !eqJ(sheet.colWidths, origSheet.colWidths) || hidColsChanged) {
       extrasChanged.push("cols");
       const prev = kidL(doc.root, "cols"); const prevCols = kidsL(prev, "col");
       const widths = Object.entries(sheet.colWidths).map(([c, px]) => [Number(c), px] as const).filter(([c]) => c >= 0 && c <= 16383).sort((a, b) => a[0] - b[0]);
@@ -416,6 +432,19 @@ export async function patchXlsx(original: Uint8Array, workbook: Workbook, rename
         cols.push(el(SP + "col", { min: String(cc + 1), max: String(cc + 1), width: String(X.pxToWidth(px)), customWidth: "1" }));
       }
       cols.sort((a, b) => Number(attr(a, "min")) - Number(attr(b, "min")));
+      if (hidColsChanged) {
+        // TT74: split <col> spans whose columns no longer share one hidden state, then set the flag per element
+        const out: XEl[] = [];
+        for (const c of cols) {
+          const min = Number(attr(c, "min")), max = Number(attr(c, "max"));
+          const same = (cc: number) => sheet.hiddenCols.has(cc - 1) === sheet.hiddenCols.has(min - 1);
+          let uniform = true; for (let cc = min; cc <= max && cc - min < 16384; cc++) if (!same(cc)) { uniform = false; break; }
+          const parts = uniform ? [c] : Array.from({ length: Math.min(max - min + 1, 16384) }, (_, i) => { const x = clone(c); setAttr(x, "min", String(min + i)); setAttr(x, "max", String(min + i)); return x; });
+          for (const x of parts) { const h = sheet.hiddenCols.has(Number(attr(x, "min")) - 1); if (/^(1|true)$/.test(attr(x, "hidden") ?? "") !== h) setAttr(x, "hidden", h ? "1" : undefined); out.push(x); }
+        }
+        for (const hc of sheet.hiddenCols) if (!out.some((x) => Number(attr(x, "min")) <= hc + 1 && Number(attr(x, "max")) >= hc + 1)) out.push(el(SP + "col", { min: String(hc + 1), max: String(hc + 1), hidden: "1" }));
+        cols.splice(0, cols.length, ...out.sort((a, b) => Number(attr(a, "min")) - Number(attr(b, "min"))));
+      }
       replaceChild("cols", cols.length ? el(SP + "cols", {}, cols) : null, ["sheetPr", "dimension", "sheetViews", "sheetFormatPr"]);
     }
     {

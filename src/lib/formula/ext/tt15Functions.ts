@@ -13,6 +13,26 @@
  *  - RATE: Newton iteration from `guess` (default 0.1), ≤ 100 steps, |Δ| < 1e-12,
  *    else #NUM! (Excel documents the same failure mode after 20 iterations).
  */
+/** TT74: the "A" aggregates (AVERAGEA/MAXA/MINA). In a range or array: TRUE/FALSE = 1/0, text = 0, empty skipped. A value
+ *  typed as an argument: a number or logical counts, numeric text is converted, other text is #VALUE! (Excel's
+ *  documented rule; POI FormulaEvalTestData misc!A13 =AVERAGEA("TRUE",1) → #VALUE!, A18 =AVERAGEA("1",1,…) → 0.5). */
+function aNums(args: ArgAccessor[]): number[] {
+  const out: number[] = [];
+  for (const a of args) {
+    const g = a.isRange ? null : a.grid();
+    if (a.isRange || (g && (g.length > 1 || (g[0]?.length ?? 0) > 1))) {
+      for (const v of a.list()) { if (v === null || v === undefined) continue; if (isErr(v)) throw ERR(String(v)); out.push(typeof v === "number" ? v : typeof v === "boolean" ? (v ? 1 : 0) : 0); }
+      continue;
+    }
+    const v = a.value();
+    if (v === null || v === undefined) { out.push(0); continue; }
+    if (isErr(v)) throw ERR(String(v));
+    if (typeof v === "number") out.push(v);
+    else if (typeof v === "boolean") out.push(v ? 1 : 0);
+    else { const t = String(v).trim(); const n = t === "" ? NaN : Number(t); if (!Number.isFinite(n)) throw ERR("#VALUE!"); out.push(n); }
+  }
+  return out;
+}
 import { ERR, isErr, toNum, toStr, toBool, nums, xlNums, need, dateToSerial, serialToDate, type ArgAccessor, type CellValue, type FnImpl } from "./officeFunctions";
 
 const num = (a: ArgAccessor | undefined, dflt?: number) => (a === undefined ? (dflt === undefined ? (() => { throw ERR("#VALUE!"); })() : dflt) : toNum(a.value()));
@@ -251,9 +271,9 @@ export const TT15_FUNCTIONS: Record<string, FnImpl> = {
   FISHERINV: (a) => { const y = num(a[0]); return (Math.exp(2 * y) - 1) / (Math.exp(2 * y) + 1); },
   "COVARIANCE.P": (a) => { const x = nums(a[0].list()), y = nums(a[1].list()); if (x.length !== y.length || !x.length) throw ERR("#N/A"); const mx = moments(x).mean, my = moments(y).mean; return x.reduce((s, v, i) => s + (v - mx) * (y[i] - my), 0) / x.length; },
   "COVARIANCE.S": (a) => { const x = nums(a[0].list()), y = nums(a[1].list()); if (x.length !== y.length || x.length < 2) throw ERR("#DIV/0!"); const mx = moments(x).mean, my = moments(y).mean; return x.reduce((s, v, i) => s + (v - mx) * (y[i] - my), 0) / (x.length - 1); },
-  MAXA: (a) => { const xs = a.flatMap((x) => x.list()).map((v) => (typeof v === "boolean" ? (v ? 1 : 0) : typeof v === "number" ? v : v === null ? null : isErr(v) ? (() => { throw ERR(String(v)); })() : 0)).filter((v): v is number => v !== null); return xs.length ? Math.max(...xs) : 0; },
-  MINA: (a) => { const xs = a.flatMap((x) => x.list()).map((v) => (typeof v === "boolean" ? (v ? 1 : 0) : typeof v === "number" ? v : v === null ? null : isErr(v) ? (() => { throw ERR(String(v)); })() : 0)).filter((v): v is number => v !== null); return xs.length ? Math.min(...xs) : 0; },
-  AVERAGEA: (a) => { const xs = a.flatMap((x) => x.list()).map((v) => (typeof v === "boolean" ? (v ? 1 : 0) : typeof v === "number" ? v : v === null ? null : isErr(v) ? (() => { throw ERR(String(v)); })() : 0)).filter((v): v is number => v !== null); if (!xs.length) throw ERR("#DIV/0!"); return xs.reduce((s, x) => s + x, 0) / xs.length; },
+  MAXA: (a) => { const xs = aNums(a); return xs.length ? Math.max(...xs) : 0; },
+  MINA: (a) => { const xs = aNums(a); return xs.length ? Math.min(...xs) : 0; },
+  AVERAGEA: (a) => { const xs = aNums(a); if (!xs.length) throw ERR("#DIV/0!"); return xs.reduce((s, x) => s + x, 0) / xs.length; },
 
   /* text & information */
   CLEAN: (a) => toStr(a[0].value()).replace(/[\x00-\x1f]/g, ""),

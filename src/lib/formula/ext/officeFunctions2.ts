@@ -6,7 +6,7 @@
  *
  * Shares helpers with officeFunctions.ts (one direction of import only, so no cycle).
  */
-import {
+import { type ResultValue,
   ERR, isErr, toNum, toStr, matchesCriteria, serialToDate, nums, need, variance,
   xlNums, type ArgAccessor, type CellValue, type FnImpl,
 } from "./officeFunctions";
@@ -43,49 +43,71 @@ const pickMasked = (values: CellValue[], mask: boolean[]) => values.filter((_, i
  * search_mode: 1 first-to-last (default), -1 last-to-first. 2/-2 (binary search) are NOT implemented
  * and return #VALUE! rather than a possibly-different answer.
  */
-function xlookup(a: ArgAccessor[]): CellValue {
+/** TT74: full XLOOKUP. lookup_array is one row or one column; the result is the matching row (column lookup) or column
+ *  (row lookup) of return_array, so a multi-column return spills. match_mode 0 exact, -1 exact-or-next-smaller,
+ *  1 exact-or-next-larger, 2 wildcard; search_mode 1 first→last, -1 last→first, 2/-2 binary search over ascending /
+ *  descending data. Ordering across types: numbers < text (case-insensitive) < logicals. */
+function xlookup(a: ArgAccessor[]): ResultValue {
   need(a, 3);
-  // Excel rejects formulas with more than six arguments; we refuse them too instead of ignoring extras.
   if (a.length > 6) throw ERR("#VALUE!");
   const key = a[0].value();
-  const lookup = a[1].list();
-  const ret = a[2].list();
-  if (lookup.length !== ret.length || lookup.length === 0) throw ERR("#VALUE!");
-  const matchMode = a[4] ? toNum(a[4].value()) : 0;
-  const searchMode = a[5] ? toNum(a[5].value()) : 1;
-  if (searchMode !== 1 && searchMode !== -1) throw ERR("#VALUE!");
-  if (![-1, 0, 1, 2].includes(matchMode)) throw ERR("#VALUE!");
   if (isErr(key as CellValue)) throw ERR(String(key));
-  const order = lookup.map((_, i) => i);
-  if (searchMode === -1) order.reverse();
-
-  const sameText = (x: CellValue, y: CellValue) => typeof x === "string" && typeof y === "string" && x.toLowerCase() === y.toLowerCase();
-  const isNum = (v: CellValue): v is number => typeof v === "number";
+  const lg = a[1].grid(), rg = a[2].grid();
+  const byRow = lg.length === 1 && (lg[0]?.length ?? 0) > 1; // a horizontal lookup vector
+  if (!byRow && lg.some((r) => r.length !== 1)) throw ERR("#VALUE!");
+  const lookup: CellValue[] = byRow ? lg[0] : lg.map((r) => r[0]);
+  const n = lookup.length;
+  if (!n || (byRow ? (rg[0]?.length ?? 0) !== n : rg.length !== n)) throw ERR("#VALUE!");
+  const matchMode = a[4] && a[4].value() !== null ? toNum(a[4].value()) : 0;
+  const searchMode = a[5] && a[5].value() !== null ? toNum(a[5].value()) : 1;
+  if (![-1, 0, 1, 2].includes(matchMode) || ![-2, -1, 1, 2].includes(searchMode)) throw ERR("#VALUE!");
+  if (matchMode === 2 && Math.abs(searchMode) === 2) throw ERR("#VALUE!");
+  const rank = (v: CellValue) => (typeof v === "number" ? 0 : typeof v === "string" ? 1 : typeof v === "boolean" ? 2 : 3);
+  const cmp = (x: CellValue, y: CellValue): number => {
+    const d = rank(x) - rank(y); if (d) return d;
+    if (typeof x === "number" && typeof y === "number") return x - y;
+    if (typeof x === "string" && typeof y === "string") { const p = x.toLowerCase(), q = y.toLowerCase(); return p < q ? -1 : p > q ? 1 : 0; }
+    if (typeof x === "boolean" && typeof y === "boolean") return Number(x) - Number(y);
+    return 0;
+  };
+  const k: CellValue = key === null ? "" : key;
   let found = -1;
-  if (matchMode === 2) {
-    for (const i of order) if (matchesCriteria(lookup[i], key)) { found = i; break; }
-  } else if (matchMode === 0) {
-    for (const i of order) if (lookup[i] === key || sameText(lookup[i], key)) { found = i; break; }
+  if (Math.abs(searchMode) === 2) {
+    // binary search; desc flips the comparison so the same loop serves both orders
+    const sgn = searchMode === 2 ? 1 : -1;
+    let lo = 0, hi = n - 1, le = -1, ge = -1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1; const c = sgn * cmp(lookup[mid] ?? "", k);
+      if (c === 0) { found = mid; break; }
+      if (c < 0) { le = mid; lo = mid + 1; } else { ge = mid; hi = mid - 1; }
+    }
+    if (found < 0 && matchMode === -1) found = sgn === 1 ? le : ge;
+    if (found < 0 && matchMode === 1) found = sgn === 1 ? ge : le;
+    // Excel returns the binary search's landing position as is, even when it is a different type (POI xlookup.xlsx
+    // Sheet2!F2: next-larger over 9700,"xyz","xyz",160726… lands on "xyz" → 0.22)
   } else {
-    // Approximate: exact first; otherwise nearest smaller (-1) or larger (1). Ties resolved by search order.
-    for (const i of order) if (lookup[i] === key || sameText(lookup[i], key)) { found = i; break; }
-    if (found < 0 && isNum(key)) {
-      let best: number | null = null;
-      for (const i of order) {
-        const v = lookup[i];
-        if (!isNum(v)) continue;
-        if (matchMode === -1 ? v < key : v > key) {
-          if (best === null || (matchMode === -1 ? v > best : v < best)) { best = v; found = i; }
+    const order = lookup.map((_, i) => i); if (searchMode === -1) order.reverse();
+    if (matchMode === 2) { for (const i of order) if (matchesCriteria(lookup[i], key)) { found = i; break; } }
+    else {
+      for (const i of order) if (lookup[i] !== null && cmp(lookup[i], k) === 0) { found = i; break; }
+      if (found < 0 && matchMode !== 0) {
+        let best = -1;
+        for (const i of order) {
+          const v = lookup[i]; if (v === null || rank(v) !== rank(k)) continue;
+          const c = cmp(v, k);
+          if (matchMode === -1 ? c < 0 && (best < 0 || cmp(v, lookup[best]) > 0) : c > 0 && (best < 0 || cmp(v, lookup[best]) < 0)) best = i;
         }
+        found = best;
       }
     }
   }
   if (found < 0) {
-    if (a[3] !== undefined) return a[3].value();
+    if (a[3] !== undefined) { const g = a[3].grid(); return g.length === 1 && g[0].length === 1 ? g[0][0] : g; }
     throw ERR("#N/A");
   }
-  const out = ret[found];
-  return out === null ? 0 : out;
+  const z = (v: CellValue) => (v === null ? 0 : v);
+  const out: CellValue[][] = byRow ? rg.map((r) => [z(r[found])]) : [rg[found].map(z)];
+  return out.length === 1 && out[0].length === 1 ? out[0][0] : out;
 }
 
 /* ───────────────── financial (Excel sign convention: outflows negative) ───────────────── */

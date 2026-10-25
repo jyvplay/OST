@@ -4,6 +4,7 @@
  * (cells with only ref+input) still load unchanged.
  */
 import { Workbook, Sheet, a1, type CellStyle, type CellBorder, type MergeRange } from "./engine";
+import { err, isError, ERROR_CODES, type ErrorCode, type Scalar } from "./types";
 import { isBorderLine, parseRef, rangeRef, sanitizeValidation, intersects } from "./sheetlayout";
 import { lettersToCol } from "./types";
 import { sanitizeCharts, sanitizeCondFormats } from "./sheetmeta";
@@ -11,8 +12,12 @@ import { sanitizeLink, type SheetLink } from "./sheetlinks";
 import { sanitizePivot, type PivotDef } from "./pivotsheet";
 
 export interface CellJson { ref: string; input: string; style?: CellStyle }
-export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[]; links?: unknown[]; pivots?: unknown[] }
-export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[]; tables?: unknown[]; date1904?: boolean }
+export interface SheetJson { name: string; cells: CellJson[]; colWidths?: Record<string, number>; freezeRows?: number; freezeCols?: number; merges?: string[]; validations?: unknown[]; links?: unknown[]; pivots?: unknown[];
+  /** TT74: hidden rows by reason, hidden columns, the AutoFilter */
+  hiddenRows?: { manual?: number[]; filter?: number[] }; hiddenCols?: number[]; autoFilter?: { ref: string; cols: Record<string, string[]>; foreign?: boolean } }
+export interface WorkbookJson { sheets: SheetJson[]; charts?: unknown[]; condFormats?: unknown[]; names?: unknown[]; tables?: unknown[]; date1904?: boolean;
+  /** TT74: cached values of linked external workbooks ([1]Sheet1!A1 keeps evaluating after the UI round trip) */
+  externals?: { target: string; sheetNames: string[]; sheets: [string, [string, unknown][]][]; names: [string, string][] }[] }
 
 export function workbookToJson(wb: Workbook): WorkbookJson {
   const extra: Partial<WorkbookJson> = {};
@@ -22,6 +27,7 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
   // TT46: Excel tables (structured-reference targets) and the 1904 date system must survive the UI round-trip.
   if (wb.tables.size) extra.tables = [...wb.tables.values()].map((t) => ({ ...t, columns: [...t.columns] }));
   if (wb.date1904) extra.date1904 = true;
+  if (wb.externals.length) extra.externals = wb.externals.map((b) => ({ target: b.target, sheetNames: [...b.sheetNames], sheets: [...b.sheets].map(([n, m]) => [n, [...m].map(([k, v]) => [k, isError(v) ? { error: v.error } : v] as [string, unknown])] as [string, [string, unknown][]]), names: [...b.names] }));
   return {
     ...extra,
     sheets: [...wb.sheets.values()].map((s) => {
@@ -41,6 +47,9 @@ export function workbookToJson(wb: Workbook): WorkbookJson {
       if (s.validations.length) out.validations = s.validations.map((v) => ({ ...v }));
       if (s.links.length) out.links = s.links.map((l) => Object.fromEntries(Object.entries(l).filter(([, v]) => v !== undefined)));
       if (s.pivots.length) out.pivots = s.pivots.map((p) => JSON.parse(JSON.stringify(p)));
+      if (s.hiddenRows.size) { const m: number[] = [], f: number[] = []; for (const [r, w] of s.hiddenRows) (w === "filter" ? f : m).push(r); out.hiddenRows = { ...(m.length ? { manual: m.sort((a, b) => a - b) } : {}), ...(f.length ? { filter: f.sort((a, b) => a - b) } : {}) }; }
+      if (s.hiddenCols.size) out.hiddenCols = [...s.hiddenCols].sort((a, b) => a - b);
+      if (s.autoFilter) out.autoFilter = { ref: s.autoFilter.ref, cols: Object.fromEntries(Object.entries(s.autoFilter.cols).map(([k, v]) => [k, [...v]])), ...(s.autoFilter.foreign ? { foreign: true } : {}) };
       return out;
     }),
   };
@@ -94,12 +103,41 @@ export function workbookFromJson(data: WorkbookJson): Workbook {
     sheet.validations = (Array.isArray(s.validations) ? s.validations : []).slice(0, 1000).map((v, i) => sanitizeValidation(v, `v${i + 1}`)).filter((v): v is NonNullable<typeof v> => !!v);
     sheet.links = (Array.isArray(s.links) ? s.links : []).slice(0, 10000).map(sanitizeLink).filter((l): l is SheetLink => !!l);
     sheet.pivots = (Array.isArray(s.pivots) ? s.pivots : []).slice(0, 100).map(sanitizePivot).filter((x): x is PivotDef => !!x);
+    // TT74 (untrusted): hidden rows / columns as bounded integer lists; AutoFilter with a valid ref and string lists
+    const rowsOf = (v: unknown, max: number) => (Array.isArray(v) ? v : []).slice(0, 200_000).filter((n): n is number => Number.isInteger(n) && n >= 0 && n < max);
+    const hr = (s.hiddenRows && typeof s.hiddenRows === "object" ? s.hiddenRows : {}) as { manual?: unknown; filter?: unknown };
+    for (const r of rowsOf(hr.manual, 1048576)) sheet.hiddenRows.set(r, "manual");
+    for (const r of rowsOf(hr.filter, 1048576)) if (!sheet.hiddenRows.has(r)) sheet.hiddenRows.set(r, "filter");
+    for (const c of rowsOf(s.hiddenCols, 16384)) sheet.hiddenCols.add(c);
+    const af = s.autoFilter as { ref?: unknown; cols?: unknown; foreign?: unknown } | undefined;
+    if (af && typeof af.ref === "string" && parseRef(af.ref)) {
+      const cols: Record<number, string[]> = {};
+      if (af.cols && typeof af.cols === "object") for (const [k, v] of Object.entries(af.cols as Record<string, unknown>).slice(0, 16384)) if (Number.isInteger(Number(k)) && Number(k) >= 0 && Array.isArray(v)) cols[Number(k)] = v.slice(0, 100_000).filter((x): x is string => typeof x === "string").map((x) => x.slice(0, 32767));
+      sheet.autoFilter = { ref: rangeRef(parseRef(af.ref)!), cols, ...(af.foreign === true ? { foreign: true } : {}) };
+    }
     wb.sheets.set(s.name, sheet);
   }
   if (!wb.sheets.size) wb.addSheet("Sheet1");
   wb.charts = sanitizeCharts(data.charts);
   wb.condFormats = sanitizeCondFormats(data.condFormats);
   wb.date1904 = data.date1904 === true;
+  // TT74 (untrusted): external-link caches — ≤ 64 books, ≤ 256 sheets each, scalar values only
+  const ERRS = new Set<string>(ERROR_CODES);
+  const scalarOf = (v: unknown): Scalar | undefined => (typeof v === "number" && Number.isFinite(v)) || typeof v === "boolean" ? v : typeof v === "string" ? v.slice(0, 32767)
+    : v && typeof v === "object" && typeof (v as { error?: unknown }).error === "string" && ERRS.has((v as { error: string }).error) ? err((v as { error: string }).error as ErrorCode) : undefined;
+  wb.externals = (Array.isArray(data.externals) ? data.externals : []).slice(0, 64).flatMap((b) => {
+    if (!b || typeof b.target !== "string") return [];
+    const sheets = new Map<string, Map<string, Scalar>>();
+    for (const e of (Array.isArray(b.sheets) ? b.sheets : []).slice(0, 256)) {
+      if (!Array.isArray(e) || typeof e[0] !== "string" || !Array.isArray(e[1])) continue;
+      const m = new Map<string, Scalar>();
+      for (const kv of e[1].slice(0, 1_000_000)) { if (Array.isArray(kv) && typeof kv[0] === "string" && /^\d{1,5},\d{1,7}$/.test(kv[0])) { const v = scalarOf(kv[1]); if (v !== undefined) m.set(kv[0], v); } }
+      sheets.set(e[0].slice(0, 255), m);
+    }
+    const names = new Map<string, string>();
+    for (const kv of (Array.isArray(b.names) ? b.names : []).slice(0, 10_000)) if (Array.isArray(kv) && typeof kv[0] === "string" && typeof kv[1] === "string") names.set(kv[0].slice(0, 300), kv[1].slice(0, 8192));
+    return [{ target: b.target.slice(0, 2048), sheetNames: (Array.isArray(b.sheetNames) ? b.sheetNames : []).filter((x): x is string => typeof x === "string").slice(0, 256), sheets, names }];
+  });
   // Untrusted tables: name syntax, existing sheet, sane bounds, one column name per column (max 2000 tables).
   const okInt = (v: unknown, max: number) => typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= max;
   for (const raw of (Array.isArray(data.tables) ? data.tables : []).slice(0, 2000)) {

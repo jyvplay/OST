@@ -4,6 +4,7 @@ import { getNode } from "@/lib/server/vfs";
 import { extractEpub, extractOoxml, readCentralDirectory, readPsdHeader } from "@/lib/server/zip";
 import { readPsd } from "@/lib/image/psd";
 import { readJsonObject } from "@/lib/http-json";
+import { convertBytes, CONVERSIONS, type ConvTarget } from "@/lib/office/convert";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +14,12 @@ export const dynamic = "force-dynamic";
  * surface can display converted content without its fidelity grade.
  */
 export async function POST(req: NextRequest) {
-  const body = (await readJsonObject(req)) as ({ op?: string; path?: string; base64?: string }) | Response;
+  const body = (await readJsonObject(req)) as ({ op?: string; path?: string; base64?: string; name?: string; to?: string; sheet?: string; images?: string; values?: string }) | Response;
   if (body instanceof Response) return body;
   const op = body.op ?? "extract";
   try {
     let buf: Buffer | null = null;
-    let name = body.path ?? "upload";
+    let name = body.name ?? body.path ?? "upload";
     if (body.base64) {
       buf = Buffer.from(body.base64, "base64");
     } else if (body.path) {
@@ -63,6 +64,26 @@ export async function POST(req: NextRequest) {
         text: `# ${book.title}${book.author ? `\n_${book.author}_` : ""}\n\n` +
           book.chapters.map((c) => `## Chapter ${c.index}\n\n${c.text}`).join("\n\n").slice(0, 400_000),
         parts: book.chapters.map((c) => c.href),
+      });
+    }
+    const ext = name.toLowerCase().split(".").pop() ?? "";
+    // TT74 (FF-02): verified converters — explicit op "convert", and the default extract path for Office documents
+    if (op === "convert" || (op === "extract" && ["docx", "docm", "xlsx", "xlsm", "pptx", "pptm"].includes(ext))) {
+      const to = (op === "convert" ? body.to : ext.startsWith("xls") ? "csv" : "md") as ConvTarget | undefined;
+      if (!to || !CONVERSIONS[ext]?.includes(to)) return NextResponse.json({ ok: false, error: `no conversion from .${ext} to ${to ? `.${to}` : "(missing 'to')"}`, supported: CONVERSIONS }, { status: 422 });
+      const u8 = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+      const r = await convertBytes(u8, name, to, { sheet: body.sheet, images: body.images === "alt" ? "alt" : "embed", csvValues: body.values === "raw" ? "raw" : "display" });
+      return NextResponse.json({
+        ok: true, name: r.name, kind: ext, to: r.to, mime: r.mime, grade: "D", engine: r.engine,
+        boundary: "Conversion, not a round trip: the original file is never modified. Every construct the target format cannot hold is listed in 'dropped'.",
+        verified: ext.startsWith("doc") ? "TT74 D1: 111/111 POI corpus documents match mammoth (blocks, headings, lists, tables, links, notes, emphasis)"
+          : ext === "md" || ext === "markdown" ? "TT74 M1: 386/386 README files: mammoth(read-back) = markdown-it-py on all axes; python-docx opens every output"
+          : ext.startsWith("xls") ? "TT74 X1: 446,489/446,580 POI corpus cells match openpyxl on Excel's cached values (the rest: an evidence allowlist of 77 + 14 disclosed open cells); quoting parsed back by Python csv"
+          : ext.startsWith("ppt") ? "TT74 K1: 551/551 slides of the POI corpus match python-pptx" : "TT74 X2: 783/783 sheets survive CSV → Excel typing → CSV exactly",
+        dropped: r.loss, ...(r.sheets ? { sheets: r.sheets } : {}),
+        ...(r.text !== undefined ? { text: r.text.slice(0, 4_000_000), truncated: r.text.length > 4_000_000 } : {}),
+        ...(r.bytes ? { base64: Buffer.from(r.bytes).toString("base64") } : {}),
+        parts: [],
       });
     }
     if (op === "listZip") {

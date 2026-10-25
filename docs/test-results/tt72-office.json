@@ -1,6 +1,6 @@
 {
   "suite": "tt72-office",
-  "at": "2026-10-25T02:08:33.560Z",
+  "at": "2026-10-25T02:18:01.880Z",
   "results": [
     {
       "suite": "tt72-office",
@@ -9,7 +9,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 21768
+      "ms": 21707
     },
     {
       "suite": "tt72-office",
@@ -18,7 +18,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 3272
+      "ms": 3224
     },
     {
       "suite": "tt72-office",
@@ -27,7 +27,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 266
+      "ms": 217
     },
     {
       "suite": "tt72-office",
@@ -36,7 +36,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 3
     },
     {
       "suite": "tt72-office",
@@ -45,7 +45,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 7033
+      "ms": 6643
     },
     {
       "suite": "tt72-office",
@@ -54,7 +54,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 3562
+      "ms": 3626
     },
     {
       "suite": "tt72-office",
@@ -63,7 +63,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 6
     },
     {
       "suite": "tt72-office",
@@ -72,7 +72,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 18584
+      "ms": 16991
     },
     {
       "suite": "tt72-office",
@@ -81,9 +81,8 @@
         "FF-21": "full",
         "FF-51": "full"
       },
-      "pass": false,
-      "error": "1 not equivalent: ConditionalFormattingSamples.xlsx: differs at 732366: umFmt\":\"\\\"$\\\"#,##0\"}],[\"B13\",\"=SUBTOTAL(9, Table69[Sales])\",1469066,{\"numFmt\":\"\\\"$\\\"#,##0\"}]],\"w\":{\"0\":121,\"1\":115},\"m\":[],\"v\":[],\"l\":[]},\"Regional sa | umFmt\":\"\\\"$\\\"#,##0\"}],[\"B13\",\"=SUBTOTAL(9, Table69[Sales])\",9071953,{\"numFmt\":\"\\\"$\\\"#,##0\"}]],\"w\":{\"0\":121,\"1\":115},\"m\":[],\"v\":[],\"l\":[]},\"Regional sa",
-      "ms": 141584
+      "pass": true,
+      "ms": 135432
     },
     {
       "suite": "tt72-office",
@@ -102,7 +101,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 2826
+      "ms": 2240
     },
     {
       "suite": "tt72-office",
@@ -112,7 +111,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 52
+      "ms": 45
     }
   ]
 }

@@ -3,6 +3,9 @@ import { fz, useUiUnit } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
+import { sheetToCsv, csvToWorkbook } from "@/lib/formula/csv";
+import { filterRange, filterValues, hideCols, hideRows, setAutoFilter, setFilterColumn, unhideCols, unhideRows } from "@/lib/formula/sheetfilter";
+import { lossDetail, downloadAs } from "@/lib/office/export-ask";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import { RecoveryBanner, openSealedWithPrompt, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
@@ -28,7 +31,7 @@ import { FN_LABEL, fieldItems, type PivotFn, type PivotSpec } from "@/lib/formul
 import { deletePivot, nextPivotName, pivotAt, readTable, refreshPivots, writePivot, type PivotDef } from "@/lib/formula/pivotsheet";
 import { absoluteRef, referenceTarget, validateName } from "@/lib/formula/names";
 import { autoInk } from "@/lib/auto-ink";
-import { askText } from "@/lib/ask";
+import { askForm, askText } from "@/lib/ask";
 import { changeAllCells, changeAllWorkbook, fixCellIssue, type CellSpellIssue } from "@/lib/formula/sheetspell";
 import SheetSpellBar from "./sheet-spell";
 import type { Speller } from "@/lib/spell/hunspell";
@@ -152,7 +155,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
       const m = mergeAt(sheet, sel.f.col, sel.f.row); const below = m ? m.r1 : sel.f.row;
       const n = ruleAt(sheet, sel.f.col, sel.f.row)?.type === "list" ? Math.min(8, listItems(workbook, active, ruleAt(sheet, sel.f.col, sel.f.row)!).length) : 8;
       const menuH = Math.min(180 * k, n * 21.5 * k + 8);
-      setListUp(HEAD_H + (below + 1) * ROW_H + menuH > el.scrollTop + el.clientHeight);
+      setListUp(HEAD_H + (rowPos(below) + 1) * ROW_H + menuH > el.scrollTop + el.clientHeight);
     }
     setListOpen((o) => (toggle ? !o : true));
   };
@@ -178,7 +181,12 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   // Excel: a selection touching part of a merged area includes all of it.
   const selR = useMemo(() => expandToMerges(sheet, norm({ c0: sel.a.col, r0: sel.a.row, c1: sel.f.col, r1: sel.f.row })), [sel, sheet, rev]); // eslint-disable-line react-hooks/exhaustive-deps
   const fnNames = useMemo(() => [...new Set([...Object.keys(FUNCTIONS), ...Object.keys(EXT_FUNCTIONS)])].sort(), []);
-  const colW = useCallback((c: number) => Math.round((sheet.colWidths[c] ?? BASE_W) * k), [sheet, rev, k]); // eslint-disable-line react-hooks/exhaustive-deps
+  const colW = useCallback((c: number) => (sheet.hiddenCols.has(c) ? 0 : Math.round((sheet.colWidths[c] ?? BASE_W) * k)), [sheet, rev, k]); // eslint-disable-line react-hooks/exhaustive-deps
+  // TT74: hidden rows (Hide / AutoFilter) take no space — row geometry goes through the visible-row index
+  const visRows = useMemo(() => (sheet.hiddenRows.size ? Array.from({ length: ROWS }, (_, r) => r).filter((r) => !sheet.hiddenRows.has(r)) : null), [sheet, rev]); // eslint-disable-line react-hooks/exhaustive-deps
+  const rowPos = (r: number) => { if (!visRows) return r; let lo = 0, hi = visRows.length; while (lo < hi) { const mid = (lo + hi) >> 1; if (visRows[mid] < r) lo = mid + 1; else hi = mid; } return lo; };
+  const rowAt = (i: number) => (visRows ? visRows[Math.min(i, visRows.length - 1)] ?? 0 : i);
+  const nVis = visRows ? visRows.length : ROWS;
 
   /* ------------------------------------------------------------ load */
   useEffect(() => {
@@ -349,6 +357,74 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     pushUndo();
     const wb = workbookFromJson(r.workbook); setWorkbook(wb); setActive(wb.sheets.keys().next().value ?? "Sheet1"); setDirty(true); setRev((x) => x + 1);
     shell.toast(`Imported ${wb.sheets.size} sheet(s) — formulas re-evaluated by Fusion, styles and widths kept.`, "ok");
+  };
+
+  /* ---------------------------------------------------------------- TT74 hide / unhide / AutoFilter */
+  const [fpanel, setFpanel] = useState<{ col: number; vals: { value: string; count: number }[]; shown: Set<string> } | null>(null);
+  const doHide = (what: "rows" | "cols") => {
+    commit(null); let n = 0;
+    mutate((_wb, s) => { n = what === "rows" ? hideRows(s, selR.r0, selR.r1) : hideCols(s, selR.c0, selR.c1); });
+    setStatus(`hid ${n} ${what === "rows" ? "row" : "column"}(s) — Unhide with the same rows/columns (or the whole sheet) selected`);
+  };
+  const doUnhide = () => {
+    commit(null); let n = 0;
+    // Excel: unhide what lies inside the selection; a single cell selected unhides its neighbours' gap on both axes
+    const r0 = selR.r0 === selR.r1 ? 0 : selR.r0, r1 = selR.r0 === selR.r1 ? ROWS * 1048 : selR.r1, c0 = selR.c0 === selR.c1 ? 0 : selR.c0, c1 = selR.c0 === selR.c1 ? 16383 : selR.c1;
+    mutate((_wb, s) => { n = unhideRows(s, r0, r1) + unhideCols(s, c0, c1); });
+    setStatus(n ? `unhid ${n} row(s)/column(s)` : "nothing hidden there (rows hidden by the filter come back when its criteria change)");
+  };
+  const toggleFilter = () => {
+    commit(null); setFpanel(null);
+    if (sheet.autoFilter) { mutate((wb) => setAutoFilter(wb, active, null)); setStatus("AutoFilter off — every row it hid is shown again"); return; }
+    const r = dataRange();
+    if (r.r1 <= r.r0) { say("Select a range with a header row and at least one data row (or a cell inside one)", true); return; }
+    mutate((wb) => setAutoFilter(wb, active, r)); setStatus(`AutoFilter on ${rangeA1(r)} — use the ▾ buttons in its header row`);
+  };
+  const openFilter = (col: number) => {
+    const vals = filterValues(workbook, active, col); const r = filterRange(sheet)!;
+    const cur = sheet.autoFilter?.cols[col - r.c0];
+    setFpanel({ col, vals, shown: new Set(cur ?? vals.map((v) => v.value)) });
+  };
+  const applyFilterPanel = (clear = false) => {
+    if (!fpanel) return;
+    const all = fpanel.vals.every((v) => fpanel.shown.has(v.value));
+    let hidden = 0;
+    mutate((wb) => { setFilterColumn(wb, active, fpanel.col, clear || all ? null : [...fpanel.shown]); hidden = [...wb.sheet(active).hiddenRows.values()].filter((w) => w === "filter").length; });
+    setStatus(`filter ${colToLetters(fpanel.col)}: ${clear || all ? "cleared" : `${fpanel.shown.size} of ${fpanel.vals.length} value(s) shown`} · ${hidden} row(s) hidden by the filter`);
+    setFpanel(null); gridRef.current?.focus();
+  };
+
+  /* ---------------------------------------------------------------- TT74 CSV (FF-02) */
+  // Export follows Excel's "Save as CSV": the ACTIVE sheet's used range, displayed text, CRLF, RFC 4180 quoting; the
+  // itemised loss report is shown first. Verified against openpyxl on 783 corpus sheets (X1) and round trip (X2).
+  const exportCsv = async () => {
+    commit(null);
+    const probe = sheetToCsv(workbook, active, { values: "display" });
+    const loss = [`only the sheet "${active}" (${probe.range || "empty"})${workbook.sheets.size > 1 ? `; ${workbook.sheets.size - 1} other sheet(s) not exported` : ""}`, ...probe.loss];
+    const r = await askForm({
+      title: "Export as CSV", detail: lossDetail(loss), okLabel: "Export",
+      fields: [{ name: "name", label: "File name", def: `${(path.split("/").pop() || "Workbook").replace(/\.[^.]+$/, "")}-${active}.csv` },
+        { name: "opts", label: "Values: display | raw · delimiter , ; tab · bom (e.g. \"display , bom\")", def: "display ," }],
+      validate: (v) => ((v.name ?? "").trim() ? null : "Enter a file name"),
+    });
+    if (!r) return;
+    const o = (r.opts ?? "").toLowerCase();
+    const delimiter = /\btab\b/.test(o) ? "\t" : o.includes(";") ? ";" : ",";
+    const out = sheetToCsv(workbook, active, { values: /\braw\b/.test(o) ? "raw" : "display", delimiter, bom: /\bbom\b/.test(o) });
+    let name = (r.name ?? "").trim().replace(/[\\/:*?"<>|]+/g, "_"); if (!/\.(csv|tsv|txt)$/i.test(name)) name += ".csv";
+    downloadAs(name, out.text, "text/csv");
+    setStatus(`exported ${name}: ${out.rows} row(s) × ${out.cols} column(s) from ${active}!${out.range || "—"}`);
+  };
+  const importCsv = async (file: File) => {
+    if (file.size > 32 * 1024 * 1024) { shell.toast("CSV exceeds the 32 MB import guard", "warn"); return; }
+    const stem = file.name.replace(/\.[^.]+$/, "").replace(/[[\]:*?/\\]/g, "_").slice(0, 28) || "CSV";
+    let name = stem; for (let i = 2; workbook.sheets.has(name); i++) name = `${stem.slice(0, 27)} ${i}`;
+    const r = csvToWorkbook(await file.text(), { delimiter: /\.tsv$/i.test(file.name) ? "\t" : "auto", sheetName: name });
+    const sh = r.wb.sheets.get(r.sheet)!; sh.name = name;
+    mutate((wb) => { wb.sheets.set(name, sh); });
+    setActive(name);
+    const msg = `imported ${file.name} into sheet "${name}": ${r.rows} row(s) × ${r.cols} column(s), delimiter ${r.delimiter === "\t" ? "tab" : JSON.stringify(r.delimiter)}; ${r.counts.number} numbers, ${r.counts.date + r.counts.time} dates/times, ${r.counts.bool} logicals, ${r.counts.text} text${r.loss.length ? ` — ${r.loss.join("; ")}` : ""}`;
+    setStatus(msg); if (r.loss.length) shell.toast(msg, "warn");
   };
 
   /* ------------------------------------------------------------ sheets */
@@ -567,7 +643,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   /* ------------------------------------------------------------ selection + navigation */
   const ensureVisible = (p: Pos) => {
     const el = gridRef.current; if (!el) return;
-    const top = HEAD_H + p.row * ROW_H, frozen = sheet.freezeRows ? ROW_H : 0;
+    const top = HEAD_H + rowPos(p.row) * ROW_H, frozen = sheet.freezeRows ? ROW_H : 0;
     if (top < el.scrollTop + HEAD_H + frozen && p.row >= sheet.freezeRows) el.scrollTop = top - HEAD_H - frozen;
     else if (top + ROW_H > el.scrollTop + el.clientHeight) el.scrollTop = top + ROW_H - el.clientHeight;
     let left = ROWHDR_W; for (let c = 0; c < p.col; c++) left += colW(c);
@@ -828,7 +904,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   }, [loaded]);
   const frozen = Math.min(sheet.freezeRows, 1);
   const first = Math.max(frozen, Math.floor(scroll.top / ROW_H) - 6);
-  const last = Math.min(ROWS - 1, first + Math.ceil(scroll.h / ROW_H) + 12);
+  const last = Math.min(nVis - 1, first + Math.ceil(scroll.h / ROW_H) + 12);
 
   /* ------------------------------------------------------------ derived render data */
   const cfMap = useMemo(() => evalCondFormats(workbook, active, workbook.condFormats), [workbook, active, rev]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -847,7 +923,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
     if (!curRule || curRule.type !== "list" || !listOpen || editing !== null) return null;
     const m = mergeAt(sheet, sel.f.col, sel.f.row); const col = m ? m.c0 : sel.f.col, row = m ? m.r0 : sel.f.row, below = m ? m.r1 : sel.f.row;
     let left = ROWHDR_W; for (let c = 0; c < col; c++) left += colW(c);
-    return { col, row, left, top: listUp ? HEAD_H + row * ROW_H : HEAD_H + (below + 1) * ROW_H, transform: listUp ? "translateY(-100%)" : undefined, width: Math.max(colW(col), 120 * k), items: listItems(workbook, active, curRule), cur: String(workbook.valueAt(active, col, row) ?? "") };
+    return { col, row, left, top: listUp ? HEAD_H + rowPos(row) * ROW_H : HEAD_H + (rowPos(below) + 1) * ROW_H, transform: listUp ? "translateY(-100%)" : undefined, width: Math.max(colW(col), 120 * k), items: listItems(workbook, active, curRule), cur: String(workbook.valueAt(active, col, row) ?? "") };
   })();
   let totalW = ROWHDR_W; for (let c = 0; c < COLS; c++) totalW += colW(c); // 52 additions; cheaper than a memo
   const selInput = sheet.get(sel.f.col, sel.f.row)?.input ?? "";
@@ -855,12 +931,16 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
 
   if (!loaded) return <div style={{ padding: 16, fontSize: fz(12) }}>Loading…</div>;
 
+  const afR = filterRange(sheet);
   const renderCell = (col0: number, row0: number, segStart: number, segEnd: number) => {
     // Merged area: render once, at its top-left column and the first row of it visible in this segment.
     const m = mergeAt(sheet, col0, row0);
-    if (m && (col0 !== m.c0 || row0 !== Math.max(m.r0, segStart))) return null;
+    let firstVis = m ? Math.max(m.r0, segStart) : row0; if (m) while (firstVis < m.r1 && sheet.hiddenRows.has(firstVis)) firstVis++;
+    if (m && (col0 !== m.c0 || row0 !== firstVis)) return null;
+    if (sheet.hiddenCols.has(col0) && !m) return <td key={col0} data-hidden-col="1" style={{ padding: 0, border: 0, width: 0, overflow: "hidden" }} />;
     const col = m ? m.c0 : col0, row = m ? m.r0 : row0;
-    const span = m ? { colSpan: m.c1 - m.c0 + 1, rowSpan: Math.min(m.r1, segEnd) - row0 + 1 } : {};
+    let visSpan = 0; if (m) for (let r = row0; r <= Math.min(m.r1, segEnd); r++) if (!sheet.hiddenRows.has(r)) visSpan++;
+    const span = m ? { colSpan: m.c1 - m.c0 + 1, rowSpan: Math.max(1, visSpan) } : {};
     const cell = sheet.get(col, row); const st = cell?.style ?? {};
     const v: Scalar | undefined = workbook.valueAt(active, col, row);
     const over = cfMap.get(`${col},${row}`);
@@ -915,6 +995,11 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           </button>) : null}
         {isFillCorner ? <div data-testid="fill-handle" onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); dragRef.current = { mode: "fill", target: null }; }}
           style={{ position: "absolute", right: -1, bottom: -1, width: 7, height: 7, background: "var(--fs-accent)", border: "1px solid #fff", cursor: "crosshair", zIndex: 3 }} /> : null}
+        {afR && row === afR.r0 && col >= afR.c0 && col <= afR.c1 ? (
+          <button type="button" data-testid={`filter-btn-${colToLetters(col)}`} aria-label={`Filter column ${colToLetters(col)}`} aria-pressed={!!sheet.autoFilter?.cols[col - afR.c0]}
+            onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); if (fpanel?.col === col) setFpanel(null); else openFilter(col); }}
+            style={{ position: "absolute", right: 1, top: 1, width: 16, height: ROW_H - 3, padding: 0, fontSize: fz(10), lineHeight: 1, border: "1px solid var(--fs-border)", borderRadius: 3, background: sheet.autoFilter?.cols[col - afR.c0] ? "var(--fs-accent)" : "var(--fs-bg-2, #131a2b)", color: "inherit", cursor: "pointer", zIndex: 3 }}>{sheet.autoFilter?.cols[col - afR.c0] ? "⧩" : "▾"}</button>
+        ) : null}
       </td>
     );
   };
@@ -970,6 +1055,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           setStatus(np.password ? "password set — the next save encrypts the workbook (AES-256)" : "password removed — the next save writes the workbook without encryption");
         }}>{locked ? "Password: on" : "Password…"}</Btn>
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import .xlsx<input type="file" accept=".xlsx" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void importXlsx(f); }} /></label>
+        <Btn variant="ghost" data-testid="sheet-export-csv" onClick={() => void exportCsv()}>Export CSV</Btn>
+        <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import CSV<input type="file" data-testid="sheet-import-csv" accept=".csv,.tsv,.txt,text/csv" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void importCsv(f); }} /></label>
         <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>
         <Badge tone="info" title="First-party formula engine; see docs/OFFICE-ENGINE.md">from-scratch engine · {fnNames.length} functions</Badge>
         {status ? <span className="fs-dim" data-testid="sheet-status" style={{ fontSize: fz(11) }}>{status}</span> : null}
@@ -1014,6 +1101,10 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
         <TB label="+Col" onClick={() => structural("col", true)} title={"Insert columns left of selection"} /><TB label="-Col" onClick={() => structural("col", false)} title={"Delete selected columns"} />
         <TB label="Freeze" onClick={() => mutate((_wb, s) => { s.freezeRows = s.freezeRows ? 0 : 1; })} active={sheet.freezeRows > 0} title={"Freeze top row"} />
         <TB label="Freeze col" onClick={() => mutate((_wb, s) => { s.freezeCols = s.freezeCols ? 0 : 1; })} active={sheet.freezeCols > 0} title={"Freeze first column"} />
+        <TB label="Filter" testid="sheet-filter" onClick={toggleFilter} active={!!sheet.autoFilter} title={sheet.autoFilter ? `AutoFilter on ${sheet.autoFilter.ref} — click to turn it off` : "AutoFilter on the current region (first row = header)"} />
+        <TB label="Hide rows" testid="sheet-hide-rows" onClick={() => doHide("rows")} title="Hide the selected rows" />
+        <TB label="Hide cols" testid="sheet-hide-cols" onClick={() => doHide("cols")} title="Hide the selected columns" />
+        <TB label="Unhide" testid="sheet-unhide" onClick={doUnhide} active={sheet.hiddenRows.size > 0 || sheet.hiddenCols.size > 0} title="Unhide rows/columns inside the selection (select one cell to unhide everything)" />
         <span style={{ width: 6 }} />
         <TB label="Chart" onClick={() => addChart("bar")} title={"Insert a chart from the selection (or current region)"} />
         <TB label={`Charts${charts.length ? ` (${charts.length})` : ""}`} onClick={() => setPanel(panel === "charts" ? null : "charts")} active={panel === "charts"} title="Show charts" />
@@ -1286,7 +1377,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
               <th onMouseDown={() => setSel({ a: { col: 0, row: 0 }, f: { col: COLS - 1, row: ROWS - 1 } })} style={{ position: "sticky", left: 0, zIndex: 4, height: HEAD_H, background: "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)" }} title="Select all" />
               {Array.from({ length: COLS }, (_, c) => (
                 <th key={c} onMouseDown={(e) => { if ((e.target as HTMLElement).dataset.resize) return; commit(null); setSel(e.shiftKey ? { a: { col: sel.a.col, row: 0 }, f: { col: c, row: ROWS - 1 } } : { a: { col: c, row: 0 }, f: { col: c, row: ROWS - 1 } }); gridRef.current?.focus(); }}
-                  style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, height: HEAD_H, fontWeight: 500, fontSize: fz(11), background: c >= selR.c0 && c <= selR.c1 ? "linear-gradient(rgba(91,140,255,.22), rgba(91,140,255,.22)), var(--fs-bg-2, #131a2b)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
+                  style={{ position: fc && c === 0 ? "sticky" : "relative", left: fc && c === 0 ? ROWHDR_W : undefined, zIndex: fc && c === 0 ? 4 : undefined, ...(sheet.hiddenCols.has(c) ? { padding: 0, overflow: "hidden", fontSize: 0, borderLeft: "2px solid var(--fs-accent)" } : {}), height: HEAD_H, fontWeight: 500, fontSize: fz(11), background: c >= selR.c0 && c <= selR.c1 ? "linear-gradient(rgba(91,140,255,.22), rgba(91,140,255,.22)), var(--fs-bg-2, #131a2b)" : "var(--fs-bg-2, #131a2b)", borderBottom: "1px solid var(--fs-border)", borderRight: "1px solid var(--fs-border)", cursor: "s-resize" }}>
                   {colToLetters(c)}
                   <div data-resize="1" data-testid={`resize-${colToLetters(c)}`} onMouseDown={(e) => { e.stopPropagation(); pushUndo(); dragRef.current = { mode: "resize", col: c, x: e.clientX, w: colW(c) }; }}
                     onDoubleClick={() => mutate((_wb, s) => { delete s.colWidths[c]; })} style={{ position: "absolute", right: -3, top: 0, width: 6, height: "100%", cursor: "col-resize", zIndex: 2 }} />
@@ -1297,8 +1388,8 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           </thead>
           <tbody>
             <tr style={{ height: (first - frozen) * ROW_H }} />
-            {Array.from({ length: last - first + 1 }, (_, i) => row(first + i, false, first, last))}
-            <tr style={{ height: (ROWS - 1 - last) * ROW_H }} />
+            {Array.from({ length: Math.max(0, last - first + 1) }, (_, i) => row(rowAt(first + i), false, rowAt(first), rowAt(last)))}
+            <tr style={{ height: Math.max(0, nVis - 1 - last) * ROW_H }} />
           </tbody>
         </table>
         {listMenu ? (
@@ -1308,10 +1399,36 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
               style={{ padding: "2px 6px", cursor: "pointer", borderRadius: 3, background: listMenu.cur === it ? "rgba(91,140,255,.25)" : undefined }} className="fs-list-item">{it}</div>)}
           </div>
         ) : null}
+        {fpanel && afR ? (() => {
+          let left = ROWHDR_W; for (let c = 0; c < fpanel.col; c++) left += colW(c);
+          const all = fpanel.vals.every((v) => fpanel.shown.has(v.value));
+          const flip = (v: string) => setFpanel((p) => { if (!p) return p; const n = new Set(p.shown); if (n.has(v)) n.delete(v); else n.add(v); return { ...p, shown: n }; });
+          return (
+            <div role="dialog" aria-label={`Filter ${colToLetters(fpanel.col)}`} data-testid="filter-panel" className="fs-card" onMouseDown={(e) => e.stopPropagation()} onCopy={(e) => e.stopPropagation()} onCut={(e) => e.stopPropagation()} onPaste={(e) => e.stopPropagation()} onKeyDown={(e) => { e.stopPropagation(); /* a dialog: no key reaches the grid behind it */ if (e.key === "Escape") { setFpanel(null); gridRef.current?.focus(); } else if (e.key === "Enter" && fpanel.shown.size) { e.preventDefault(); applyFilterPanel(); } }}
+              ref={(el) => { if (el && !el.contains(document.activeElement)) el.querySelector<HTMLInputElement>("input")?.focus(); }}
+              style={{ position: "absolute", top: HEAD_H + (rowPos(afR.r0) + 1) * ROW_H, left, zIndex: 31, minWidth: 220 * k, maxWidth: 320 * k, padding: 8, fontSize: fz(11.5), background: "var(--fs-panel-solid, #111827)", border: "1px solid var(--fs-border)", borderRadius: 6, boxShadow: "0 8px 24px rgba(0,0,0,.35)" }}>
+              <label style={{ display: "flex", gap: 6, alignItems: "center", fontWeight: 600 }}><input type="checkbox" data-testid="filter-all" checked={all} onChange={() => setFpanel((p) => (p ? { ...p, shown: all ? new Set() : new Set(p.vals.map((v) => v.value)) } : p))} />(Select all)</label>
+              <div style={{ maxHeight: 220 * k, overflowY: "auto", margin: "6px 0", borderTop: "1px solid var(--fs-border)", paddingTop: 4 }}>
+                {fpanel.vals.slice(0, 1000).map((v) => (
+                  <label key={v.value} style={{ display: "flex", gap: 6, alignItems: "center", padding: "1px 0" }} data-filter-value={v.value}>
+                    <input type="checkbox" checked={fpanel.shown.has(v.value)} onChange={() => flip(v.value)} />
+                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.value === "" ? "(Blanks)" : v.value}</span><span className="fs-dim">{v.count}</span>
+                  </label>
+                ))}
+                {fpanel.vals.length > 1000 ? <div className="fs-dim">{fpanel.vals.length - 1000} more value(s) not listed — they keep their current state</div> : null}
+              </div>
+              <div className="fs-row" style={{ gap: 6, justifyContent: "flex-end" }}>
+                <Btn variant="ghost" data-testid="filter-clear" onClick={() => applyFilterPanel(true)}>Clear</Btn>
+                <Btn variant="ghost" onClick={() => { setFpanel(null); gridRef.current?.focus(); }}>Cancel</Btn>
+                <Btn variant="primary" data-testid="filter-ok" disabled={fpanel.shown.size === 0} onClick={() => applyFilterPanel()}>OK</Btn>
+              </div>
+            </div>
+          );
+        })() : null}
         {curRule && (curRule.prompt || curRule.promptTitle) && !listOpen && editing === null ? (() => {
           // Input message (Excel shows it beside the active cell); positioned in grid space, outside the cell's text.
           let left = ROWHDR_W + 8; for (let c = 0; c < sel.f.col; c++) left += colW(c);
-          return <div data-testid="input-prompt" role="note" className="fs-card" style={{ position: "absolute", top: HEAD_H + (sel.f.row + 1) * ROW_H + 2, left, zIndex: 25, padding: "4px 7px", fontSize: fz(11), maxWidth: 220, background: "#fef9c3", color: "#1f2937", border: "1px solid #a16207", borderRadius: 3, pointerEvents: "none" }}>
+          return <div data-testid="input-prompt" role="note" className="fs-card" style={{ position: "absolute", top: HEAD_H + (rowPos(sel.f.row) + 1) * ROW_H + 2, left, zIndex: 25, padding: "4px 7px", fontSize: fz(11), maxWidth: 220, background: "#fef9c3", color: "#1f2937", border: "1px solid #a16207", borderRadius: 3, pointerEvents: "none" }}>
             {curRule.promptTitle ? <b style={{ display: "block" }}>{curRule.promptTitle}</b> : null}{curRule.prompt}
           </div>;
         })() : null}
@@ -1414,8 +1531,8 @@ function ChartImg({ alt, src }: { alt: string; src: string }) {
   // eslint-disable-next-line @next/next/no-img-element
   return <img alt={alt} src={src} width={420} height={220} style={{ display: "block" }} />;
 }
-function TB({ label, onClick, active, title, style }: { label: string; onClick: () => void; active?: boolean; title?: string; style?: React.CSSProperties }) {
-  return <button type="button" className="fs-btn" data-variant={active ? "primary" : "ghost"} aria-label={nameWithLabel(label, title)} title={title ?? label} onMouseDown={(e) => e.preventDefault()} onClick={onClick} style={{ padding: "2px 7px", minWidth: 26, ...style }}>{label}</button>;
+function TB({ label, onClick, active, title, style, testid }: { label: string; onClick: () => void; active?: boolean; title?: string; style?: React.CSSProperties; testid?: string }) {
+  return <button type="button" className="fs-btn" data-testid={testid} aria-pressed={active === undefined ? undefined : active} data-variant={active ? "primary" : "ghost"} aria-label={nameWithLabel(label, title)} title={title ?? label} onMouseDown={(e) => e.preventDefault()} onClick={onClick} style={{ padding: "2px 7px", minWidth: 26, ...style }}>{label}</button>;
 }
 /** WCAG 2.5.3 label-in-name: the accessible name must contain the visible text ("Clear fmt" → "Clear formatting · Clear fmt"; axe ignores parentheticals). */
 function nameWithLabel(label: string, title?: string): string {

@@ -37,6 +37,12 @@ import { shiftFormula, addFuturePrefixes, stripFuturePrefixes } from "./sheetops
 export { workbookToJson, workbookFromJson, type WorkbookJson } from "./workbook-json";
 import { workbookToJson, workbookFromJson } from "./workbook-json";
 import { periodFormula, TIME_PERIODS, type CondRule, type Cfvo } from "./sheetmeta";
+import { autoFilterXml, readAutoFilterXml, xmlAttr } from "./sheetfilter";
+/** TT74: rows already marked hidden inside a filter's data area (below its header row) were hidden by the filter. */
+function markFiltered(sheet: Sheet, ref: string) {
+  const r = parseRef(ref); if (!r) return;
+  for (const [row] of sheet.hiddenRows) if (row > r.r0 && row <= r.r1) sheet.hiddenRows.set(row, "filter");
+}
 import { readSheetCharts, chartSpaceXml, chartAnchorXml, drawingXml, defaultAnchor, seriesOutFor, REL_DRAWING, REL_CHART, CT_DRAWING, CT_CHART, type SeriesOut } from "./chartxml";
 import { readLinks, linksXml } from "./sheetlinks";
 import { ICON_SETS, MAIN_ICON_SETS, DEFAULT_ICON_PERCENTS } from "./cficons";
@@ -161,10 +167,15 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
     maxCol = Math.max(maxCol, col); maxRow = Math.max(maxRow, row);
     (rows.get(row) ?? rows.set(row, []).get(row)!).push(out);
   }
-  const data = [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([r, cs]) => `<row r="${r + 1}">${cs.join("")}</row>`).join("");
+  // TT74: hidden rows (Hide or AutoFilter) carry hidden="1", with or without cells
+  for (const r of sheet.hiddenRows.keys()) if (r >= 0 && r < 1048576 && !rows.has(r)) rows.set(r, []);
+  const data = [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([r, cs]) => (cs.length ? `<row r="${r + 1}"${sheet.hiddenRows.has(r) ? ' hidden="1"' : ""}>${cs.join("")}</row>` : `<row r="${r + 1}" hidden="1"/>`)).join("");
   const dim = maxRow < 0 ? "A1" : `A1:${colToLetters(maxCol)}${maxRow + 1}`;
   const widths = Object.entries(sheet.colWidths).map(([c, px]) => [Number(c), px] as const).filter(([c]) => c >= 0 && c <= 16383).sort((a, b) => a[0] - b[0]);
-  const cols = widths.length ? `<cols>${widths.map(([c, px]) => `<col min="${c + 1}" max="${c + 1}" width="${pxToWidth(px)}" customWidth="1"/>`).join("")}</cols>` : "";
+  const afXml = autoFilterXml(sheet); // TT74 (a table's own AutoFilter is not exported: tables are not written to a new package)
+  const colSet = [...new Set([...widths.map(([c]) => c), ...[...sheet.hiddenCols].filter((c) => c >= 0 && c <= 16383)])].sort((a, b) => a - b);
+  const colXml = (c: number) => { const px = sheet.colWidths[c]; return `<col min="${c + 1}" max="${c + 1}"${px !== undefined ? ` width="${pxToWidth(px)}" customWidth="1"` : ""}${sheet.hiddenCols.has(c) ? ' hidden="1"' : ""}/>`; };
+  const cols = colSet.length ? `<cols>${colSet.map(colXml).join("")}</cols>` : "";
   const fr = sheet.freezeRows, fc = sheet.freezeCols;
   const pane = fr > 0 && fc > 0 ? "bottomRight" : fr > 0 ? "bottomLeft" : "topRight";
   const views = fr > 0 || fc > 0 ? `<sheetViews><sheetView workbookViewId="0"><pane${fc ? ` xSplit="${fc}"` : ""}${fr ? ` ySplit="${fr}"` : ""} topLeftCell="${colToLetters(fc)}${fr + 1}" activePane="${pane}" state="frozen"/><selection pane="${pane}"/></sheetView></sheetViews>` : "";
@@ -184,7 +195,7 @@ function renderSheet(wb: Workbook, sheet: Sheet, sharedIndex: (s: string) => num
   }).join("");
   const ext = x14Parts.length ? `<extLst><ext uri="{78C0D931-6437-407d-A8EE-F0AAD7539E65}" xmlns:x14="${X14_NS}"><x14:conditionalFormattings>${x14Parts.join("")}</x14:conditionalFormattings></ext></extLst>` : "";
   const dvs = sheet.validations.length ? `<dataValidations count="${sheet.validations.length}">${sheet.validations.map(dvXml).join("")}</dataValidations>` : "";
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"${drawingRid || linksMarkup ? ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' : ""}><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${merges}${cfs}${dvs}${linksMarkup}${drawingRid ? `<drawing r:id="${drawingRid}"/>` : ""}${ext}</worksheet>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"${drawingRid || linksMarkup ? ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' : ""}><dimension ref="${dim}"/>${views}${cols}<sheetData>${data}</sheetData>${afXml}${merges}${cfs}${dvs}${linksMarkup}${drawingRid ? `<drawing r:id="${drawingRid}"/>` : ""}${ext}</worksheet>`;
 }
 
 /** Differential format for a CF rule (ECMA-376 §18.8.14, CT_Dxf order font, numFmt, fill); null when the rule draws none. */
@@ -440,10 +451,12 @@ function cellText(t: string): string {
   if (t.length > MAX_CELL_TEXT) throw new Error(`invalid .xlsx: cell text of ${t.length} characters exceeds Excel's ${MAX_CELL_TEXT}-character limit`);
   return t;
 }
+/** TT74: <rPh> phonetic runs (§18.4.6, furigana reading aids) are not cell text — Excel's cell value excludes them */
+const noPhonetic = (s: string) => (s.includes("<rPh") ? s.replace(/<rPh\b[^>]*>[\s\S]*?<\/rPh>/g, "") : s);
 function readSharedStrings(xml: string | null): string[] {
   if (!xml) return [];
   return [...xml.matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g)].map((m) =>
-    cellText(dec([...m[1].matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((t) => t[1]).join(""))),
+    cellText(dec([...noPhonetic(m[1]).matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((t) => t[1]).join(""))),
   );
 }
 /** styles.xml → CellStyle per cellXfs index. Theme/indexed colours are read as unset (declared gap). */
@@ -499,8 +512,9 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
   let rowCursor = -1, colCursor = -1;
   for (const m of xml.matchAll(/<row\b([^>]*?)(\/?)>|<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
     if (m[1] !== undefined) {
-      const rn = Number(xmlAttrs(m[1]).r);
+      const ra = xmlAttrs(m[1]); const rn = Number(ra.r);
       rowCursor = Number.isInteger(rn) && rn >= 1 ? rn - 1 : rowCursor + 1; colCursor = -1;
+      if (ra.hidden === "1" || ra.hidden === "true") sheet.hiddenRows.set(rowCursor, "manual"); // TT74 (re-classed below)
       continue;
     }
     m[1] = m[3]; m[2] = m[4];
@@ -527,6 +541,11 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
         sheet.setCell(col, row, `=${stripFuturePrefixes(body)}`); applyStyle();
         // TT46: no dynamic-array cell metadata (cm) and not a CSE array → Excel evaluates it with legacy semantics.
         if (fa.t !== "array" && attrs.cm === undefined) { const c = sheet.get(col, row); if (c?.formula) c.legacy = true; }
+        // TT74: a CSE array (no dynamic-array metadata) keeps the shape it was entered with
+        if (fa.t === "array" && fa.ref && attrs.cm === undefined) {
+          const [a, b] = fa.ref.split(":").map(parseA1); const c = sheet.get(col, row);
+          if (a && b && c?.formula) c.cse = { rows: b.row - a.row + 1, cols: b.col - a.col + 1 };
+        }
         continue;
       }
     }
@@ -534,7 +553,7 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
     const type = attrs.t ?? "n";
     if (type === "inlineStr") {
       if (!/<is[\s>/]/.test(inner)) { applyStyle(); continue; } // TT68: no <is> → no value (not empty text)
-      const text = cellText([...inner.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((x) => dec(x[1])).join(""));
+      const text = cellText([...noPhonetic(inner).matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((x) => dec(x[1])).join(""));
       sheet.setCell(col, row, keepText(text)); applyStyle(); continue; // TT47: string cells stay text
     }
     const value = /<v(?:\s[^>]*)?>([\s\S]*?)<\/v>/.exec(inner)?.[1];
@@ -548,9 +567,15 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
   }
   for (const m of xml.matchAll(/<col\b([^>]*)\/?>/g)) {
     const at = xmlAttrs(m[1]); const min = Number(at.min), max = Number(at.max), w = Number(at.width);
+    if ((at.hidden === "1" || at.hidden === "true") && min >= 1 && max >= min) for (let c = min; c <= Math.min(max, 16384); c++) sheet.hiddenCols.add(c - 1); // TT74
     if (!(min >= 1 && max >= min && max - min <= 256 && w > 0) || at.customWidth === "0") continue;
     for (let c = min; c <= max; c++) sheet.colWidths[c - 1] = Math.min(1200, Math.max(16, widthToPx(w)));
   }
+  // TT74: the sheet AutoFilter; hidden rows inside its data area are hidden BY the filter
+  const af = readAutoFilterXml(xml.replace(/<extLst>[\s\S]*$/, ""));
+  // only a filter with criteria hides rows; hidden rows under a criteria-less filter were hidden by hand (Excel: POI
+  // ConditionalFormattingSamples "Regional sales3" SUBTOTAL(9) counts them, "Regional sales2" with an icon filter does not)
+  if (af) { sheet.autoFilter = af; if (Object.keys(af.cols).length || af.foreign) markFiltered(sheet, af.ref); }
   const pane = /<pane\b([^>]*)\/?>/.exec(xml);
   if (pane) {
     const at = xmlAttrs(pane[1]);
@@ -591,6 +616,9 @@ function readTables(sheetXml: string, sheetPath: string, sheetName: string, wb: 
     if (!r || !name) continue;
     const columns = [...tx.matchAll(/<tableColumn\b([^>]*?)(?:\/>|>)/g)].map((m) => dec(xmlAttrs(m[1]).name ?? ""));
     wb.tables.set(name.toUpperCase(), { name, sheet: sheetName, c0: r.c0, r0: r.r0, c1: r.c1, r1: r.r1, headerRows: at.headerRowCount === "0" ? 0 : 1, totalsRows: Number(at.totalsRowCount ?? 0) > 0 ? 1 : 0, columns });
+    // TT74: a table's own AutoFilter hides rows the same way (SUBTOTAL 9 skips them; POI ConditionalFormattingSamples)
+    const tafm = /<(?:\w+:)?autoFilter\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?autoFilter>)/.exec(tx); const tref = tafm ? xmlAttr(tafm[1], "ref") : undefined;
+    const sh = wb.sheets.get(sheetName); if (tref && sh && /<(?:\w+:)?filterColumn\b/.test(tafm![2] ?? "")) markFiltered(sh, tref);
   }
 }
 const normPath = (p: string) => { const out: string[] = []; for (const seg of p.split("/")) { if (seg === "..") out.pop(); else if (seg && seg !== ".") out.push(seg); } return out.join("/"); };

@@ -1,6 +1,6 @@
 {
   "suite": "tt73-office",
-  "at": "2026-10-25T01:51:35.362Z",
+  "at": "2026-10-25T02:44:18.486Z",
   "results": [
     {
       "suite": "tt73-office",
@@ -10,7 +10,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 41
+      "ms": 23
     },
     {
       "suite": "tt73-office",
@@ -20,7 +20,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 3
     },
     {
       "suite": "tt73-office",
@@ -30,7 +30,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 28
+      "ms": 21
     },
     {
       "suite": "tt73-office",
@@ -59,7 +59,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 55061
+      "ms": 54073
     },
     {
       "suite": "tt73-office",
@@ -70,7 +70,54 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 459246
+      "ms": 232832
+    },
+    {
+      "suite": "tt73-office",
+      "name": "W1 header / footer picture: relationship in THAT part's .rels (not document.xml.rels), python-docx finds the image bytes, schema-valid, re-read shows it; Track Changes wraps it in w:ins; an existing header without xmlns:r on its root still gets a declared r:embed",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 1847
+    },
+    {
+      "suite": "tt73-office",
+      "name": "W2 FF-22 Writer gate: EVERY readable corpus docx — text typed into the first body paragraph AND a picture added to its header — saves with no schema error the input lacked; python-docx opens every one and sees the typed text and the header picture; our reader re-reads both",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 28334
+    },
+    {
+      "suite": "tt73-office",
+      "name": "N1 negative shapes (19): header-picture inputs (SVG / WebP / empty / text MIME refused; 0, negative, NaN, ∞ sizes clamped; markup and 10 000-character descriptions sanitised), external refs (missing book, missing sheet, missing name, a string literal that looks like a ref) and Unicode names (× ÷ 😀 unquoted, a name starting with an Arabic-Indic digit, A1 / R1C1 lookalikes)",
+      "covers": {
+        "FF-22": "full",
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 206
+    },
+    {
+      "suite": "tt73-office",
+      "name": "P1 the PresentationML schema oracle is a real verifier: a fresh deck validates; a slide with an unknown p: element or with p:clrMapOvr before p:cSld is rejected",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 218
+    },
+    {
+      "suite": "tt73-office",
+      "name": "P2 FF-23 Slides gate: EVERY openable corpus deck — text box + preset shape + picture, speaker notes, a duplicated slide and a slide from a layout — saves with no schema error the input lacked (ECMA-376 pml.xsd via lxml) and python-pptx sees every edit",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 25663
     }
   ]
 }

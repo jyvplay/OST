@@ -95,6 +95,13 @@ export function stepCell(sheet: Sheet, pos: { col: number; row: number }, dCol: 
   let col = pos.col, row = pos.row;
   if (m) { if (dCol > 0) col = m.c1; if (dCol < 0) col = m.c0; if (dRow > 0) row = m.r1; if (dRow < 0) row = m.r0; }
   col = Math.max(0, Math.min(maxCol, col + dCol)); row = Math.max(0, Math.min(maxRow, row + dRow));
+  // TT74: hidden rows / columns are stepped over (Excel); if only hidden cells lie ahead, the cursor stays put
+  const hr = sheet.hiddenRows, hc = sheet.hiddenCols;
+  if (hr?.size || hc?.size) {
+    while (dRow && hr?.has(row) && row > 0 && row < maxRow) row += Math.sign(dRow);
+    while (dCol && hc?.has(col) && col > 0 && col < maxCol) col += Math.sign(dCol);
+    if ((hr?.has(row) && dRow) || (hc?.has(col) && dCol)) return { col: pos.col, row: pos.row };
+  }
   const t = mergeAt(sheet, col, row);
   return t ? { col: t.c0, row: t.r0 } : { col, row };
 }

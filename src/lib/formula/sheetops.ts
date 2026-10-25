@@ -145,6 +145,21 @@ export function insertDelete(wb: Workbook, sheetName: string, axis: Axis, at: nu
     for (const [k, px] of Object.entries(sheet.colWidths)) { const c = Number(k); if (count > 0) w[c >= at ? c + count : c] = px; else if (c < at) w[c] = px; else if (c >= at - count) w[c + count] = px; }
     sheet.colWidths = w;
   }
+  // TT74: hidden rows / columns move with their cells (deleted ones disappear); the AutoFilter range follows like a
+  // reference (a range that is wholly deleted removes the filter)
+  const shift = (v: number) => (count > 0 ? (v >= at ? v + count : v) : v < at ? v : v >= at - count ? v + count : -1);
+  if (axis === "row") { const m = new Map<number, "manual" | "filter">(); for (const [r, why] of sheet.hiddenRows) { const n = shift(r); if (n >= 0) m.set(n, why); } sheet.hiddenRows = m; }
+  else { const h = new Set<number>(); for (const c of sheet.hiddenCols) { const n = shift(c); if (n >= 0) h.add(n); } sheet.hiddenCols = h; }
+  if (sheet.autoFilter) {
+    const next = adjustForStructure(`=${sheet.autoFilter.ref}`, sheetName, sheetName, axis, at, count).slice(1);
+    if (!parseA1Range(next)) { sheet.autoFilter = null; for (const [r, why] of [...sheet.hiddenRows]) if (why === "filter") sheet.hiddenRows.delete(r); }
+    else if (axis === "col") {
+      // criteria are keyed by column offset inside the range: re-key them to the moved columns
+      const was = parseA1Range(sheet.autoFilter.ref)!, now = parseA1Range(next)!; const cols: Record<number, string[]> = {};
+      for (const [k, v] of Object.entries(sheet.autoFilter.cols)) { const n = shift(was.c0 + Number(k)); if (n >= now.c0 && n <= now.c1) cols[n - now.c0] = v; }
+      sheet.autoFilter = { ...sheet.autoFilter, ref: next.replace(/\$/g, ""), cols };
+    } else sheet.autoFilter = { ...sheet.autoFilter, ref: next.replace(/\$/g, "") };
+  }
   // TT19: defined names move with their cells too (Excel adjusts Name Manager references); a fully deleted
   // range becomes #REF! inside the name, exactly like a cell formula.
   for (const d of wb.listNames()) {

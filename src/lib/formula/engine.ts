@@ -42,7 +42,7 @@ import { FUNCTIONS, toBool, toNumberStrict, toStr, type Arg } from "./functions"
 import { err } from "./types";
 import { EXT_FUNCTIONS, isGridValue, type ArgAccessor, type ExtValue, type ResultValue } from "./ext";
 
-export interface Cell { input: string; formula: Node | null; value: Scalar; error?: string; /** TT46: legacy (pre-dynamic-array) formula read from .xlsx — implicit intersection, never spills. */ legacy?: boolean; spill?: { rows: number; cols: number } | null; spillGrid?: Scalar[][] | null; style?: CellStyle }
+export interface Cell { input: string; formula: Node | null; value: Scalar; error?: string; /** TT46: legacy (pre-dynamic-array) formula read from .xlsx — implicit intersection, never spills. */ legacy?: boolean; /** TT74: legacy CSE array formula range (t="array" ref=…): the result is shaped to exactly this size. */ cse?: { rows: number; cols: number }; spill?: { rows: number; cols: number } | null; spillGrid?: Scalar[][] | null; style?: CellStyle }
 /** Presentation-only attributes. Never affect values (DP-04: no silent mutation of data). */
 export type BorderLine = "thin" | "medium" | "thick" | "dashed" | "dotted" | "double" | "hair";
 export interface BorderSide { style: BorderLine; color?: string }
@@ -110,6 +110,12 @@ export class Sheet {
   links: SheetLink[] = [];
   /** TT58: PivotTables shown on this sheet (definitions; their output is ordinary cells). */
   pivots: PivotDef[] = [];
+  /** TT74: hidden rows — "manual" (Hide) or "filter" (rejected by the AutoFilter); see sheetfilter.ts. */
+  hiddenRows: Map<number, "manual" | "filter"> = new Map();
+  /** TT74: hidden columns (presentation; <col hidden="1">). */
+  hiddenCols: Set<number> = new Set();
+  /** TT74: the sheet AutoFilter (range incl. header row; shown values per column offset). */
+  autoFilter: { ref: string; cols: Record<number, string[]>; foreign?: boolean } | null = null;
   constructor(name = "Sheet1") { this.name = name; }
 
   setCell(col: number, row: number, input: string) {
@@ -318,6 +324,7 @@ export class Workbook {
         sheetExists: (n) => this.sheets.has(n),
         expandName: (n) => (this.lookupName(n, sheetName) ? this.expandNames({ t: "name", name: n }, sheetName) : null),
         cellInput: (s, c, r) => this.sheets.get(s ?? sheetName)?.get(c, r)?.input,
+        rowHidden: (s, r) => this.sheets.get(s ?? sheetName)?.hiddenRows.get(r),
       };
       let top = this.names.size || this.externals.length ? this.expandNames(node, sheetName) : node;
       top = resolveRefNode(top, ctx);
@@ -426,6 +433,7 @@ export class Workbook {
         expandName: (n) => (this.lookupName(n, sheetName) ? this.expandNames({ t: "name", name: n }, sheetName) : null),
         legacy: !!cell.legacy,
         cellInput: (s, c, r) => this.sheets.get(s ?? sheetName)?.get(c, r)?.input,
+        rowHidden: (s, r) => this.sheets.get(s ?? sheetName)?.hiddenRows.get(r),
       };
       let value: Value;
       try {
@@ -436,6 +444,14 @@ export class Workbook {
         value = top.t === "ref" && isBlank(top.v.sheet, top.v.col, top.v.row, sheetName) ? 0 : evalRaw(top, ctx);
       }
       catch (e) { value = (e as { code?: Scalar }).code ?? err("#VALUE!"); }
+      // TT74: a CSE array formula fills exactly its entered range — a scalar or a single row/column is repeated, cells
+      // beyond a smaller result show #N/A, a larger result is cut (Excel legacy array semantics; POI 57798).
+      if (cell.cse && (cell.cse.rows > 1 || cell.cse.cols > 1)) {
+        const src: Scalar[][] = isGrid(value) ? value : [[value as Scalar]];
+        const R = src.length, C = src[0]?.length ?? 0;
+        value = Array.from({ length: cell.cse.rows }, (_, r) => Array.from({ length: cell.cse!.cols }, (_, c) =>
+          (R === 1 || r < R) && (C === 1 || c < C) ? (src[R === 1 ? 0 : r]?.[C === 1 ? 0 : c] ?? err("#N/A")) : err("#N/A")));
+      }
       if (isGrid(value) && (ctx.legacy || (value.length === 1 && value[0].length === 1))) value = value[0]?.[0] ?? "";
       if (isGrid(value) && value.length * (value[0]?.length ?? 0) > SPILL_CELL_LIMIT) value = err("#NUM!");
       raw.set(fk, value);
@@ -560,6 +576,8 @@ export interface EvalContext {
   table?(name: string): TableDef | undefined;
   sheetExists?(name: string): boolean;
   expandName?(name: string): Node | null;
+  /** TT74: why a row is hidden (SUBTOTAL / AGGREGATE skip hidden rows). */
+  rowHidden?: (sheet: string | null, row: number) => "manual" | "filter" | undefined;
   /** TT46: raw input of a cell (FORMULATEXT, SUBTOTAL nesting). */
   cellInput?(sheet: string | null, col: number, row: number): string | undefined;
   /** TT46: evaluating a legacy formula (implicit intersection). */
@@ -1038,6 +1056,7 @@ function evalSubtotal(name: string, argNodes: Node[], ctx: EvalContext): Value {
   let k: number, opts = 0;
   try { k = Math.trunc(toNumberStrict(f)); } catch { return err("#VALUE!"); }
   let refs: Node[];
+  const kOrig = k;
   if (name === "SUBTOTAL") { if (k > 100) k -= 100; if (k < 1 || k > 11) return err("#VALUE!"); refs = argNodes.slice(1); }
   else {
     const o = argNodes[1] && !isMissing(argNodes[1]) ? evaluate(argNodes[1], ctx) : 0;
@@ -1048,6 +1067,12 @@ function evalSubtotal(name: string, argNodes: Node[], ctx: EvalContext): Value {
   }
   if (!refs.length) return err("#VALUE!");
   const ignoreNested = name === "SUBTOTAL" || opts <= 3, ignoreErr = [2, 3, 6, 7].includes(opts);
+  // TT74: SUBTOTAL 1–11 skip rows hidden by a filter, 101–111 skip every hidden row; AGGREGATE options 1/3/5/7 skip
+  // every hidden row. Rows only — SUBTOTAL is defined for vertical ranges (hidden columns never count as skipped).
+  const skipRow = (sheet: string | null, row: number) => {
+    const why = ctx.rowHidden?.(sheet, row); if (!why) return false;
+    return name === "SUBTOTAL" ? (kOrig > 100 || why === "filter") : [1, 3, 5, 7].includes(opts);
+  };
   const nested = /\b(?:_xlfn\.)?(SUBTOTAL|AGGREGATE)\s*\(/i;
   const data = k >= 14 ? refs.slice(0, 1) : refs;
   const lit: Node[] = [];
@@ -1055,11 +1080,30 @@ function evalSubtotal(name: string, argNodes: Node[], ctx: EvalContext): Value {
     let m: Scalar[][];
     if (n.t === "range" || n.t === "ref") {
       const rg = asRange(n)!; const b = bounds(rg); const sheet = rg.from.sheet ?? ctx.cursor?.sheet ?? null;
-      m = (n.t === "range" ? ctx.resolveRange(n.v) : [[ctx.resolveRef(n.v)]]).map((row, i) => row.map((v, j) => (ignoreNested && nested.test(ctx.cellInput?.(sheet, b.c0 + j, b.r0 + i) ?? "") ? "" : v)));
+      m = n.t === "range" ? ctx.resolveRange(n.v) : [[ctx.resolveRef(n.v)]];
+      const excl = (i: number, j: number) => skipRow(sheet, b.r0 + i) || (ignoreNested && nested.test(ctx.cellInput?.(sheet, b.c0 + j, b.r0 + i) ?? "")) || (ignoreErr && isError(m[i][j]));
+      if (k < 14) {
+        // TT74: pass REFERENCES (the included cells as vertical runs), so blanks, text and logicals keep their
+        // range semantics (COUNTA skips blanks, SUM skips text) — a literal array cannot represent a blank cell.
+        const runs: Node[] = []; let skipped = false;
+        for (let j = 0; j < (m[0]?.length ?? 0); j++) {
+          for (let i = 0; i < m.length;) {
+            if (excl(i, j)) { skipped = true; i++; continue; }
+            const st = i; while (i < m.length && !excl(i, j)) i++;
+            runs.push(mkRef(sheet, b.c0 + j, b.r0 + st, b.c0 + j, b.r0 + i - 1));
+          }
+        }
+        if (!skipped) lit.push(n); else lit.push(...runs);
+        continue;
+      }
+      m = m.filter((_, i) => !skipRow(sheet, b.r0 + i)).map((row, i0) => row.map((v, j) => (ignoreNested && nested.test(ctx.cellInput?.(sheet, b.c0 + j, b.r0 + i0) ?? "") ? "" : v)));
+      if (!m.length) m = [[""]];
     } else { const v = evalRaw(n, ctx); m = isGrid(v) ? v : [[v]]; }
     if (ignoreErr) m = m.map((row) => row.map((v) => (isError(v) ? "" : v)));
     lit.push({ t: "array", rows: m.map((row) => row.map(litNode)) });
   }
+  // every referenced cell excluded: Excel's result over an empty set
+  if (!lit.length) return [0, err("#DIV/0!"), 0, 0, 0, 0, 0, err("#DIV/0!"), err("#DIV/0!"), 0, err("#DIV/0!"), err("#DIV/0!"), err("#NUM!"), err("#N/A")][k] ?? err("#VALUE!");
   if (k >= 14) lit.push(refs[1] ?? errNode("#VALUE!"));
   return evalCall(SUB_FN[k], lit, ctx);
 }

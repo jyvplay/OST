@@ -19,6 +19,9 @@ import { restoredProtection, sealDraft } from "@/lib/office/draft-seal";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import { allParas, blankWord, docText, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
 import * as E from "@/lib/office/wordedit";
+import { wordConversionLoss, wordToMarkdown, wordToText } from "@/lib/office/convert-word";
+import { markdownToDocx } from "@/lib/office/md2docx";
+import { askExport, downloadAs } from "@/lib/office/export-ask";
 import * as WS from "@/lib/office/wordspell";
 import type { Speller } from "@/lib/spell/hunspell";
 import { addUserWord, loadSpeller, paintSpell, readSkipUpper, readSpellMode, readUserWords, removeUserWord, SPELL_CSS, writeSkipUpper, writeSpellMode, type SpellMode } from "@/lib/spell/client";
@@ -469,11 +472,32 @@ export default function WriterModule({ win }: ModuleProps) {
     a.download = (path.split("/").pop() || `${doc.title || "Document"}.docx`).replace(/\.fdoc$/i, ".docx"); a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   };
-  const exportText = (kind: "txt" | "html") => {
+  // TT74 (FF-02): every export shows its itemised loss report first; Markdown / text come from the converter verified
+  // against mammoth (D1), run on exactly what Save would write (writeWord → readWord), not on the screen.
+  const exportAs = async (kind: "md" | "txt" | "html") => {
     const doc = docRef.current!; const root = rootRef.current!;
-    const body = kind === "txt" ? docText(doc) : `<!doctype html><meta charset="utf-8"><title>${esc(doc.title)}</title><body style="max-width:48rem;margin:2rem auto">${cleanHtml(root)}</body>`;
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([body], { type: kind === "txt" ? "text/plain" : "text/html" }));
-    a.download = `${doc.title || "Document"}.${kind}`; a.click();
+    const stem = (path.split("/").pop() || doc.title || "Document").replace(/\.[^.]+$/, "");
+    let bytes: Uint8Array;
+    try { bytes = await writeWord(doc); } catch (e) { shell.toast(`Not exported: ${(e as Error).message}`, "bad"); return; }
+    let loss = await wordConversionLoss(bytes, kind);
+    if (kind === "html") loss = [...loss.slice(0, -1), "page size, margins and pagination (one continuous page)"];
+    const name = await askExport(kind === "md" ? "Markdown" : kind === "txt" ? "plain text" : "HTML", `${stem}.${kind}`, loss, kind);
+    if (!name) return;
+    let body: string;
+    if (kind === "html") body = `<!doctype html><meta charset="utf-8"><title>${esc(doc.title)}</title><body style="max-width:48rem;margin:2rem auto">${cleanHtml(root)}</body>`;
+    else { const d2 = await readWord(bytes, `${stem}.docx`); body = kind === "md" ? wordToMarkdown(d2) : wordToText(d2); }
+    downloadAs(name, body, kind === "md" ? "text/markdown" : kind === "txt" ? "text/plain" : "text/html");
+    setStatus(`Exported ${name} — ${loss.length} kind(s) of content not carried over`);
+  };
+  const mdInput = useRef<HTMLInputElement>(null);
+  const importMarkdown = async (f: File) => {
+    if (dirty && (await shell.askSave(win.id)) === "cancelled") return;
+    const r = await markdownToDocx(await f.text(), { rawHtml: "basic" });
+    const stem = f.name.replace(/\.[^.]+$/, "");
+    const d = await readWord(r.bytes, `${stem}.docx`);
+    life.rotateUntitled(); docRef.current = d; setPath(""); encRef.current = null; setLocked(false); undo.current = []; setDirty(true); bump(); setDocGen((g) => g + 1);
+    setStatus(`Converted ${f.name} to a Word document (not saved yet)${r.loss.length ? ` — not carried over: ${r.loss.join("; ")}` : ""}`);
+    if (r.loss.length) shell.toast(`Markdown import: ${r.loss.length} kind(s) of content not carried over (see the status bar)`, "warn");
   };
   const print = () => {
     const doc = docRef.current!; const root = rootRef.current!; const p = doc.page;
@@ -784,8 +808,11 @@ export default function WriterModule({ win }: ModuleProps) {
           setStatus(np.password ? "Password set — the next save encrypts the file (AES-256)" : "Password removed — the next save writes the file without encryption");
         }}>{locked ? "Password: on" : "Password…"}</Btn>
         <Btn variant="ghost" onClick={print}>Print / PDF</Btn>
-        <Btn variant="ghost" onClick={() => exportText("html")}>HTML</Btn>
-        <Btn variant="ghost" onClick={() => exportText("txt")}>Text</Btn>
+        <Btn variant="ghost" data-testid="writer-export-md" onClick={() => void exportAs("md")}>Markdown</Btn>
+        <Btn variant="ghost" onClick={() => void exportAs("html")}>HTML</Btn>
+        <Btn variant="ghost" data-testid="writer-export-txt" onClick={() => void exportAs("txt")}>Text</Btn>
+        <Btn variant="ghost" data-testid="writer-import-md" title="Open a Markdown file as a new Word document" onClick={() => mdInput.current?.click()}>From Markdown…</Btn>
+        <input ref={mdInput} type="file" accept=".md,.markdown,text/markdown" hidden data-testid="writer-md-file" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void importMarkdown(f); }} />
         <span style={{ width: 8 }} />
         <Btn variant="ghost" disabled={!undo.current.length} onClick={() => restore(undo, redo)} aria-label="Undo">Undo</Btn>
         <Btn variant="ghost" disabled={!redo.current.length} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>

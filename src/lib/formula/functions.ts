@@ -190,6 +190,10 @@ function cellsOf(a: Arg | undefined): { v: Scalar[]; blank: boolean[] } {
 }
 
 /* ------------------------------------------------------------- the table */
+/** a character count argument: truncated; negative → #VALUE! (Excel) */
+function cnt(x: Arg): number { const n = Math.trunc(numArg(x)); return n < 0 ? raise(err("#VALUE!")) : n; }
+/** a date serial argument: negative → #NUM! (Excel: YEAR(-10), DAY(-1.1)) */
+function serialArg(x: Arg): number { const n = numArg(x); return n < 0 ? raise(err("#NUM!")) : n; }
 export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   // ---- math [oracle: SUM/PRODUCT/ROUND family/MOD/DATE anchors]
   SUM: (a) => a.flatMap(flattenNumbers).reduce((x, y) => x + y, 0),
@@ -242,9 +246,10 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   // ---- text [oracle: LEFT/RIGHT/MID/LEN/UPPER/LOWER/TRIM/SUBSTITUTE/REPLACE/FIND/SEARCH/REPT/EXACT/VALUE/TEXT]
   CONCATENATE: (a) => a.flatMap(flattenAll).map(toStr).join(""),
   CONCAT: (a) => a.flatMap(flattenAll).map(toStr).join(""),
-  LEFT: (a) => toStr(scalar(a[0])).slice(0, a[1] ? numArg(a[1]) : 1),
-  RIGHT: (a) => { const s = toStr(scalar(a[0])); const n = a[1] ? numArg(a[1]) : 1; return n <= 0 ? "" : s.slice(Math.max(0, s.length - n)); },
-  MID: (a) => { const s = toStr(scalar(a[0])); const start = numArg(a[1]); const len = numArg(a[2]); return s.slice(Math.max(0, start - 1), Math.max(0, start - 1) + len); },
+  // TT74 (POI EverythingTests, Excel-cached): counts / positions are truncated; a negative count or a start below 1 is #VALUE!
+  LEFT: (a) => { const n = a[1] ? cnt(a[1]) : 1; return toStr(scalar(a[0])).slice(0, n); },
+  RIGHT: (a) => { const s = toStr(scalar(a[0])); const n = a[1] ? cnt(a[1]) : 1; return n <= 0 ? "" : s.slice(Math.max(0, s.length - n)); },
+  MID: (a) => { const s = toStr(scalar(a[0])); const start = Math.trunc(numArg(a[1])); const len = cnt(a[2]); if (start < 1) return raise(err("#VALUE!")); return s.slice(start - 1, start - 1 + len); },
   LEN: (a) => toStr(scalar(a[0])).length,
   UPPER: (a) => toStr(scalar(a[0])).toUpperCase(),
   LOWER: (a) => toStr(scalar(a[0])).toLowerCase(),
@@ -252,11 +257,13 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   TRIM: (a) => toStr(scalar(a[0])).trim().replace(/\s+/g, " "),
   SUBSTITUTE: (a) => {
     const s = toStr(scalar(a[0])); const find = toStr(scalar(a[1])); const rep = toStr(scalar(a[2]));
-    if (a[3] === undefined) return s.split(find).join(rep);
-    const nth = numArg(a[3]); let count = 0;
+    if (a[3] === undefined) return find === "" ? s : s.split(find).join(rep);
+    const nth = Math.trunc(numArg(a[3])); if (nth < 1) return raise(err("#VALUE!"));
+    if (find === "") return s;
+    let count = 0;
     return s.replace(new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), (m) => (++count === nth ? rep : m));
   },
-  REPLACE: (a) => { const s = toStr(scalar(a[0])); const start = numArg(a[1]); const len = numArg(a[2]); const rep = toStr(scalar(a[3])); return s.slice(0, start - 1) + rep + s.slice(start - 1 + len); },
+  REPLACE: (a) => { const s = toStr(scalar(a[0])); const start = Math.trunc(numArg(a[1])); const len = cnt(a[2]); if (start < 1) return raise(err("#VALUE!")); const rep = toStr(scalar(a[3])); return s.slice(0, start - 1) + rep + s.slice(start - 1 + len); },
   FIND: (a) => { const find = toStr(scalar(a[0])); const s = toStr(scalar(a[1])); const start = a[2] ? numArg(a[2]) : 1; const i = s.indexOf(find, start - 1); return i < 0 ? raise(err("#VALUE!")) : i + 1; },
   SEARCH: (a) => { const find = toStr(scalar(a[0])).toLowerCase(); const s = toStr(scalar(a[1])).toLowerCase(); const start = a[2] ? numArg(a[2]) : 1; const i = s.indexOf(find, start - 1); return i < 0 ? raise(err("#VALUE!")) : i + 1; },
   REPT: (a) => toStr(scalar(a[0])).repeat(Math.max(0, numArg(a[1]))),
@@ -278,13 +285,13 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   TEXT: (a) => { const v = scalar(a[0]); const f = toStr(scalar(a[1])); return formatValue(typeof v === "string" && v.trim() !== "" && !Number.isNaN(Number(v)) ? Number(v) : v, f).text; },
 
   // ---- date/time [oracle: DATE epoch anchors, YEAR/MONTH/DAY/WEEKDAY]
-  DATE: (a) => dateToSerial(numArg(a[0]), numArg(a[1]), numArg(a[2])),
+  DATE: (a) => dateToSerial(Math.trunc(numArg(a[0])), Math.trunc(numArg(a[1])), Math.trunc(numArg(a[2]))),
   TODAY: () => todaySerial(),
   NOW: () => nowSerial(),
-  YEAR: (a) => serialToDate(numArg(a[0])).y,
-  MONTH: (a) => serialToDate(numArg(a[0])).m,
-  DAY: (a) => serialToDate(numArg(a[0])).d,
-  WEEKDAY: (a) => serialToDate(numArg(a[0])).weekday0 + 1,
+  YEAR: (a) => serialToDate(serialArg(a[0])).y,
+  MONTH: (a) => serialToDate(serialArg(a[0])).m,
+  DAY: (a) => serialToDate(serialArg(a[0])).d,
+  WEEKDAY: (a) => serialToDate(serialArg(a[0])).weekday0 + 1,
   // BUG FIX (oracle): EDATE(Jan 31 2024, +1) must land on Feb 29 2024 (clamped
   // to the last real day of the target month), not overflow into March as
   // naive Date.UTC(y, m, 31) arithmetic does when the target month is shorter.
@@ -351,8 +358,16 @@ const scalar = (a: Arg | undefined): Scalar => {
 
 function roundHalfAwayFromZero(n: number, digits: number): number {
   digits = Math.trunc(digits); // TT73: Excel truncates the digits argument (ROUND(1.00001, 1.1) = 1)
-  const f = Math.pow(10, digits);
-  return (n >= 0 ? Math.round(n * f) : -Math.round(-n * f)) / f; // [oracle] ROUND(2.5,0)=3, not banker's rounding
+  if (!Number.isFinite(n) || n === 0) return n;
+  // TT74: Excel rounds the 15-significant-digit decimal value, not the binary double: ROUND(0.049999999999999975,1)
+  // = 0.1 (POI 56315) and ROUND(2.675,2) = 2.68. Shift the decimal exponent in the string form so no binary product
+  // re-introduces the error. [oracle] ROUND(2.5,0)=3, not banker's rounding.
+  const [m, e] = Math.abs(n).toExponential(14).split("e");
+  if (Number(e) + digits >= 15) return n; // already exact at 15 significant digits
+  const r = Math.round(Number(`${m}e${Number(e) + digits}`));
+  if (r === 0) return 0; // Excel has no negative zero
+  const out = Number(`${r}e${-digits}`);
+  return n < 0 ? -out : out;
 }
 function roundDir(n: number, digits: number, dir: "up" | "down"): number {
   digits = Math.trunc(digits);

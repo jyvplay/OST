@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-25T02:10:54.654Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-179 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-25T02:45:38.346Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+181 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **383** |
-| Fully built | 306 |
-| Partially built (partial 37 + probe 18) | 55 |
+| **Features in register** | **388** |
+| Fully built | 312 |
+| Partially built (partial 36 + probe 18) | 54 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 1 |
-| **Fully tested** (≥1 passing test tagged `full`) | **232** |
+| **Fully tested** (≥1 passing test tagged `full`) | **237** |
 | **Partially tested** (only `partial` tags) | **72** |
 | Untested | 79 |
-| Automated tests executed / passed | 1336 / 1334 |
+| Automated tests executed / passed | 1379 / 1379 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 223 | 59 | 24 |
-| partially built | 3 | 11 | 41 |
+| fully built | 228 | 60 | 24 |
+| partially built | 3 | 10 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 1 |
 
@@ -97,7 +97,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt66-input | 4 | 4 | 0 | 2026-10-25T01:21:16.849Z |
 | e2e-tt66 | 3 | 3 | 0 | 2026-10-25T01:21:04.008Z |
 | e2e-tt67-input | 5 | 5 | 0 | 2026-10-25T01:23:53.290Z |
-| e2e-tt68-sheet | 3 | 3 | 0 | 2026-10-25T01:28:45.989Z |
+| e2e-tt68-sheet | 3 | 3 | 0 | 2026-10-25T02:44:56.588Z |
 | e2e-tt69-lifecycle | 6 | 6 | 0 | 2026-10-25T01:29:19.533Z |
 | e2e-tt70-closeall | 3 | 3 | 0 | 2026-10-25T01:30:31.494Z |
 | e2e-tt70-rows | 3 | 3 | 0 | 2026-10-25T01:31:45.669Z |
@@ -105,7 +105,8 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt71-focus | 4 | 4 | 0 | 2026-10-25T01:31:55.724Z |
 | e2e-tt72-access | 4 | 4 | 0 | 2026-10-25T01:36:10.511Z |
 | e2e-tt72-pad | 5 | 5 | 0 | 2026-10-25T01:35:40.121Z |
-| e2e-tt73-writer | 4 | 4 | 0 | 2026-10-25T01:41:59.261Z |
+| e2e-tt73-writer | 4 | 4 | 0 | 2026-10-25T02:44:48.089Z |
+| e2e-tt74-office | 6 | 6 | 0 | 2026-10-25T02:44:34.732Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-24T23:46:56.052Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-24T23:52:47.424Z |
 | e2e | 64 | 64 | 0 | 2026-10-24T23:45:33.089Z |
@@ -154,7 +155,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt44-vt | 12 | 12 | 0 | 2026-10-25T00:10:30.798Z |
 | tt45-unit | 10 | 10 | 0 | 2026-10-25T00:10:50.113Z |
 | tt46-writer | 12 | 12 | 0 | 2026-10-25T02:09:14.800Z |
-| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-25T00:16:11.912Z |
+| tt46-xlsx-patch | 8 | 8 | 0 | 2026-10-25T02:14:51.037Z |
 | tt47-crypto | 5 | 5 | 0 | 2026-10-25T00:22:20.128Z |
 | tt47-sheet | 8 | 8 | 0 | 2026-10-25T01:52:25.776Z |
 | tt48-office | 6 | 6 | 0 | 2026-10-25T01:52:35.695Z |
@@ -196,7 +197,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt66-input | 2 | 2 | 0 | 2026-10-25T01:20:47.435Z |
 | tt66-sheet-x14-patch | 9 | 9 | 0 | 2026-10-25T02:03:17.358Z |
 | tt67-input | 11 | 11 | 0 | 2026-10-25T01:21:18.877Z |
-| tt67-sheet-ns | 13 | 12 | 1 | 2026-10-25T02:05:01.772Z |
+| tt67-sheet-ns | 13 | 13 | 0 | 2026-10-25T02:19:43.816Z |
 | tt68-blank | 7 | 7 | 0 | 2026-10-25T02:05:12.997Z |
 | tt69-lifecycle | 11 | 11 | 0 | 2026-10-25T01:28:46.716Z |
 | tt69-sheet-misc | 5 | 5 | 0 | 2026-10-25T02:05:14.021Z |
@@ -205,19 +206,18 @@ verifies the honesty contract, not the (impossible) capability.
 | tt70-seal | 8 | 8 | 0 | 2026-10-25T01:29:54.149Z |
 | tt71-focus | 7 | 7 | 0 | 2026-10-25T01:31:46.522Z |
 | tt72-access | 3 | 3 | 0 | 2026-10-25T01:35:40.338Z |
-| tt72-office | 12 | 11 | 1 | 2026-10-25T02:08:33.560Z |
+| tt72-office | 12 | 12 | 0 | 2026-10-25T02:18:01.880Z |
 | tt72-padlink | 6 | 6 | 0 | 2026-10-25T01:35:25.937Z |
-| tt73-office | 7 | 7 | 0 | 2026-10-25T01:51:35.362Z |
+| tt73-office | 12 | 12 | 0 | 2026-10-25T02:44:18.486Z |
+| tt74-office | 32 | 32 | 0 | 2026-10-25T02:38:34.730Z |
 | unit | 23 | 23 | 0 | 2026-10-25T01:40:03.689Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-24T23:43:35.129Z |
 | vector | 18 | 18 | 0 | 2026-10-24T23:43:34.308Z |
 | whiteboard-engine | 9 | 9 | 0 | 2026-10-24T23:43:44.664Z |
 
-## Rows touched by FAILING tests (not counted as tested)
+## Rows touched by failing tests
 
-- FF-21: tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded; tt72-office: S1 corpus: every readable xlsx with all xl/**.xml attributes single-quoted and spaced around '=' reads to the SAME model (inputs, values, styles, widths, merges, validations, links); the TT71 reader lost cells / styles on them
-- FF-50: tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded
-- FF-51: tt67-sheet-ns: whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded; tt72-office: S1 corpus: every readable xlsx with all xl/**.xml attributes single-quoted and spaced around '=' reads to the SAME model (inputs, values, styles, widths, merges, validations, links); the TT71 reader lost cells / styles on them
+None.
 
 ## By family
 
@@ -232,8 +232,8 @@ verifies the honesty contract, not the (impossible) capability.
 | ST | 9 | 5 | 3 | 1 | 2 | 3 | 4 |
 | AP | 5 | 1 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
-| PR | 54 | 46 | 8 | 0 | 40 | 8 | 6 |
-| FF | 49 | 48 | 1 | 0 | 47 | 1 | 1 |
+| PR | 54 | 47 | 7 | 0 | 40 | 8 | 6 |
+| FF | 54 | 53 | 1 | 0 | 52 | 1 | 1 |
 | MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
 | SC | 18 | 16 | 1 | 1 | 12 | 3 | 3 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
@@ -381,11 +381,11 @@ verifies the honesty contract, not the (impossible) capability.
 | PR-08 | built | full | e2e-tt52-pdf: corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms); e2e-tt52-pdf: annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update); e2e-tt52-pdf: forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values (+34) |
 | PR-09 | built | full | e2e: mount: calculator; e2e: calculator evaluates typed input with the shared evaluator; unit: precedence, power associativity, rounding policy (+1) |
 | PR-10 | built | full | e2e-tt57-rows: PR-10 stopwatch: start → 65.43 s → lap → 10-minute jump with timers firing at most once (throttled tab) → still exact; pause holds; reset; e2e-tt57-rows: PR-10 timer fires on time with requestAnimationFrame never running (hidden-tab emulation): 0 min 3 s → 'Timer finished' at 3 s, not before; e2e-tt57-rows: no uncaught page errors during the TT57 rows session (+2) |
-| PR-11 | partial | partial | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+44) |
+| PR-11 | built | partial | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+44) |
 | PR-12 | built | full | e2e-tt57-rows: PR-12 clipboard history: Fusion copies land in the system clipboard (read back independently) and the history; same text twice = one entry moved to top; pin survives Clear; search filters; e2e: mount: clipboard; tt57-units: PR-12 hand cases: dedupe moves to top keeping the pin; sensitive never deduped/pinned; cap spares pinned; clear keeps pinned; search text+source (+1) |
 | PR-13 | built | full | e2e: desktop shows sticky note widget; seeded widget has no hang button |
 | FF-01 | built | partial | e2e: mount: peek; unit: loss report itemises drops; registry grades |
-| FF-02 | built | full | integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; unit: docx extraction; EPUB spine order; PSD header |
+| FF-02 | built | full | e2e-tt74-office: Export CSV: the dialog lists what CSV drops; OK downloads the displayed text of the used range; Cancel downloads nothing; Import CSV adds a typed sheet and keeps =… as text; e2e-tt74-office: Writer: Export Markdown downloads heading / bold / list Markdown after the loss dialog; From Markdown opens a new document with the converted heading and list; e2e-tt74-office: Slides: Outline downloads the deck's titles, bullets and notes as Markdown after the loss dialog (+21) |
 | FF-03 | built | full | e2e-tt52-pdf: corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms); e2e-tt52-pdf: annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update); e2e-tt52-pdf: forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values (+35) |
 | FF-04 | built | full | ai-format: real Illustrator output: PDF export, DOS-EPS, Illustrator 88 EPS and FreeHand AI-dialect PostScript; ai-format: constructed .ai with and without PDF compatibility (the spec's open-vs-limited split); ai-format: creator hidden in a compressed object stream, UTF-16BE strings, junk before the header (+15) |
 | FF-05 | built | full | e2e-tt59: FF-05 Photos exports GIF and BMP (our encoders): Pillow decodes both bit-exact to the source pixels; Chromium re-opens the GIF; tt59-raster: BMP: 24-bit bottom-up rows with 4-byte padding (odd widths 1, 2, 3, 37) decode bit-exact in Pillow; alpha composited over white by the documented formula; tt59-raster: GIF: ≤ 255 colours are exact (2-, 16-, 200-colour images incl. 1×1 and 600×400 noise past the 4096-code LZW reset) and Pillow decodes them bit-exact (+3) |
@@ -399,11 +399,11 @@ verifies the honesty contract, not the (impossible) capability.
 | FF-13 | built | full | e2e-tt54: FF-13 Files grid: real thumbnails for JPEG (EXIF orientation applied), TIFF (own decoder), PNG, GIF, SVG, MP3/M4A cover art, PDF page 1, WebM frame, text; no-preview types keep the icon with a reason; e2e-tt54: FF-13 thumbnail cache: WebP nodes under /System/Cache/thumbs (content-addressed, written once); a fresh session is served from the cache without re-rendering; e2e-tt54: FF-13 Info panel: metadata of the selected file (camera, capture date, exposure, GPS) from the first-party readers (+5) |
 | FF-14 | built | full | ai-format: version strings, PDF literal escapes, format registry and MIME; unit: loss report itemises drops; registry grades |
 | FF-15 | built | full | e2e-tt69-lifecycle: Spreadsheet: closing a dirty window asks Save changes? — MODAL: Delete, typing, Ctrl+Z, Ctrl+S, Alt+F4, Meta+W, a script focusing the grid and a raw click on a cell never reach the workbook; Tab stays inside; Escape cancels; Save writes the file and closes; e2e-tt69-lifecycle: Writer: typing writes a recovery draft (python-docx reads its bytes; no version snapshots); Close → Don't save keeps it; reopening offers Restore; Restore brings the text back unsaved; Save writes it and deletes the draft; e2e-tt69-lifecycle: leaving the page with unsaved work raises the browser's beforeunload prompt (dismiss = stay); a page with nothing unsaved closes without one (+31) |
-| FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+25) |
+| FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+40) |
 | FF-20 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen (+70) |
-| FF-21 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint) (+85) |
-| FF-22 | built | full | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+85) |
-| FF-23 | built | full | e2e-tt51-slides: corpus decks open in the real UI with every slide in the rail and the file's content drawn: shapes.pptx (6 slides, preset shapes + text), table_test.pptx (a table with its cell text), bar-chart.pptx (chart drawn from its cache as SVG), backgrounds.pptx; e2e-tt51-slides: edit → save → python-pptx: retype the title by double-click, bold one word through the toolbar, add speaker notes, duplicate and hide a slide, insert a text box, drag a shape — the saved file carries exactly those edits, validates, and untouched parts keep their bytes; e2e-tt51-slides: slide show: Present opens a full-window show at the first visible slide; → / Space / click advance, ← goes back, HIDDEN slides are skipped, Escape ends and returns to the editor (+20) |
+| FF-21 | built | full | e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint) (+112) |
+| FF-22 | built | full | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+89) |
+| FF-23 | built | full | e2e-tt51-slides: corpus decks open in the real UI with every slide in the rail and the file's content drawn: shapes.pptx (6 slides, preset shapes + text), table_test.pptx (a table with its cell text), bar-chart.pptx (chart drawn from its cache as SVG), backgrounds.pptx; e2e-tt51-slides: edit → save → python-pptx: retype the title by double-click, bold one word through the toolbar, add speaker notes, duplicate and hide a slide, insert a text box, drag a shape — the saved file carries exactly those edits, validates, and untouched parts keep their bytes; e2e-tt51-slides: slide show: Present opens a full-window show at the first visible slide; → / Space / click advance, ← goes back, HIDDEN slides are skipped, Escape ends and returns to the editor (+23) |
 | FF-24 | built | full | e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection; e2e-image: Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes; e2e-image: classic Quick edit mode is still available (additive merge) (+3) |
 | FF-25 | built | full | e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard; e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size); e2e: mount: vector |
 | MD-01 | built | partial | e2e: mount: capture |
@@ -548,9 +548,14 @@ verifies the honesty contract, not the (impossible) capability.
 | FF-47 | built | full | e2e-tt63: FF-47 PivotTable saved as a real Excel PivotTable from the UI: create with a report filter → Save → XSD + pandas + openpyxl oracles; reopen → source edit → Alt+F5 → Save regenerates in place; Delete → Save removes every pivot part; e2e-tt63: no uncaught page errors during the TT63 session; tt63-sheet-pivotparts: 1. fresh export: 13 pivot shapes are schema-valid, recomputed by pandas from the XML, survive openpyxl (+9) |
 | FF-48 | built | full | e2e-tt64: FF-48 Writer tracked columns in the UI: Track changes → Column right (3 inserted cells, one '[Table column]' change) → Delete column (3 deleted cells, a second change) → Reject the deletion, Accept the insertion → Save → lxml oracle + XSD; a gridBefore row renders on the grid; e2e-tt64: no page errors during the TT64 session; tt64-writer-trackcols: a tracked column insert: every new cell carries w:cellIns (unique ids, author, date), the old widths go in w:tblGridChange; one '[Table column]' change; schema-valid; the file round-trips the grouping (+5) |
 | FF-49 | built | full | e2e-tt65: FF-49 Track Changes in every story in the UI: tracked header Apply (struck / inserted runs on the page), a field-cutting edit refused with no phantom undo step (Ctrl+Z / Ctrl+Y), tracked Notes edit, Review by place, reject footnote items singly + Accept all → Save → lxml oracle + XSD; e2e-tt65: no page errors during the TT65 session; tt65-writer-stories: header & footer Apply under Track Changes: edited line, alignment, new and removed lines are w:ins / w:del / w:pPrChange — oracle Accept All = the untracked edit, Reject All = the original; our Accept / Reject All agree; Review names the place (+7) |
-| FF-50 | built | full | e2e-tt66: CF panel → Excel 2010 rules (axis bar, 3Stars, custom icons) drawn at once → Save → saved .xlsx passes the MS-XLSX x14 schema + structural oracle and the ECMA XSDs → reopen lists and draws the same; e2e-tt66: modal-shortcut failure test: keys pressed in the new CF controls (band icon select, bar axis select, colour inputs) never edit, clear or undo the grid cell; e2e-tt66: no uncaught page errors during the session (+21) |
-| FF-51 | built | full | tt67-sheet-ns: lxml equivalence: every rewritten XML part of the 353-file corpus + 15 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path; tt67-sheet-ns: adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, no-namespace children undeclare the default, strict prefixes canonical, value text is not a declaration, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming; tt67-sheet-ns: the 7 corpus workbooks TT66 could not read (x: / s: SpreadsheetML prefixes, prefixed mc:AlternateContent) open, and every non-empty cell equals an lxml namespace-aware reader and (where it can open the file) openpyxl; TT66 rejected 6 and read 0 cells from the 7th (+10) |
+| FF-50 | built | full | e2e-tt66: CF panel → Excel 2010 rules (axis bar, 3Stars, custom icons) drawn at once → Save → saved .xlsx passes the MS-XLSX x14 schema + structural oracle and the ECMA XSDs → reopen lists and draws the same; e2e-tt66: modal-shortcut failure test: keys pressed in the new CF controls (band icon select, bar axis select, colour inputs) never edit, clear or undo the grid cell; e2e-tt66: no uncaught page errors during the session (+22) |
+| FF-51 | built | full | tt67-sheet-ns: lxml equivalence: every rewritten XML part of the 353-file corpus + 15 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path; tt67-sheet-ns: adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, no-namespace children undeclare the default, strict prefixes canonical, value text is not a declaration, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming; tt67-sheet-ns: the 7 corpus workbooks TT66 could not read (x: / s: SpreadsheetML prefixes, prefixed mc:AlternateContent) open, and every non-empty cell equals an lxml namespace-aware reader and (where it can open the file) openpyxl; TT66 rejected 6 and read 0 cells from the 7th (+12) |
 | FF-52 | built | full | e2e-tt68-sheet: FF-52 in the UI: an opened workbook shows Excel's results for empty text and an error constant (ISBLANK FALSE / TRUE, COUNTIF "#N/A" 1, COUNTA 3, "=" 1, "<>" 3, ISNA TRUE); e2e-tt68-sheet: FF-52 typing: ' makes empty text (ISBLANK FALSE), #n/a makes an error constant (ISNA TRUE); Save → lxml lists A1 and C1 as empty text, openpyxl reads C2 as an error cell; e2e-tt68-sheet: shortcut scope: Paste Special is a non-modal bar (TT60) — the grid keeps the keyboard and ArrowRight still moves the target, but typing, Delete, Backspace, F2, Enter, Ctrl+X / V / Z / D / B never edit the cell behind it, nor do keys typed into the bar's own controls; Escape closes only the bar (Spreadsheet stays open) (+8) |
+| FF-53 | built | full | e2e-tt74-office: AutoFilter list hides rows (SUBTOTAL 9 and 109 skip them), Hide rows hides by hand (only 109 skips), arrows skip hidden rows; Save → openpyxl sees hidden rows + the filter; Unhide shows hand-hidden rows only; Clear shows the rest; e2e-tt74-office: modal shortcut: with the filter list open, typing, Delete, Backspace, Ctrl+V / Z / X never edit the cell behind it; Escape closes the list and the grid has the keyboard again |
+| FF-54 | built | full | e2e-tt74-office: AutoFilter list hides rows (SUBTOTAL 9 and 109 skip them), Hide rows hides by hand (only 109 skips), arrows skip hidden rows; Save → openpyxl sees hidden rows + the filter; Unhide shows hand-hidden rows only; Clear shows the rest |
+| FF-55 | built | full | e2e-tt74-office: Export CSV: the dialog lists what CSV drops; OK downloads the displayed text of the used range; Cancel downloads nothing; Import CSV adds a typed sheet and keeps =… as text |
+| FF-56 | built | full | e2e-tt74-office: Writer: Export Markdown downloads heading / bold / list Markdown after the loss dialog; From Markdown opens a new document with the converted heading and list |
+| FF-57 | built | full | e2e-tt74-office: Slides: Outline downloads the deck's titles, bullets and notes as Markdown after the loss dialog |
 | CT-01 | built | partial | e2e-tt70-rows: CT-01 share target: manifest share_target → / ; ?url= opens a Browser tab on it and cleans the query; a javascript: URL never runs; Notes Share passes title + body to navigator.share (injected recorder — no OS share sheet in headless Linux) |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |

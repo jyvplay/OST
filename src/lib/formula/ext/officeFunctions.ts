@@ -227,6 +227,8 @@ export const FUNCTIONS: Record<string, FnImpl> = {
     const lists = a.map((x) => x.list());
     const len = lists[0]?.length ?? 0;
     if (lists.some((l) => l.length !== len)) throw ERR("#VALUE!");
+    // TT74: an error anywhere in the arrays is the result (Excel; POI EverythingTests K1328/L1328 → #REF!)
+    for (const l of lists) for (const v of l) if (isErr(v)) throw ERR(v as string);
     let total = 0;
     for (let i = 0; i < len; i++) total += lists.reduce((p, l) => p * (typeof l[i] === "number" ? (l[i] as number) : 0), 1);
     return total;
