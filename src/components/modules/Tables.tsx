@@ -1,4 +1,5 @@
 "use client";
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -154,17 +155,44 @@ export default function TablesModule({ win }: ModuleProps) {
 
   return (
     <div ref={rootRef} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, position: "relative" }} data-testid="tables">
-      {/* base bar */}
-      <div className="fs-row" style={{ padding: 6, gap: 5, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <input className="fs-input" aria-label="Base name" value={base.name} style={{ flex: `0 1 ${fz(190)}`, minWidth: fz(110) }} onChange={(e) => commit({ ...base, name: e.target.value })} />
-        <Btn variant="primary" onClick={() => void save()}>Save .ftable</Btn>
-        <Btn variant="ghost" disabled={!hist.past.length} onClick={undo}>Undo</Btn>
-        <Btn variant="ghost" disabled={!hist.future.length} onClick={redo}>Redo</Btn>
-        <Btn variant="ghost" onClick={() => fileRef.current?.click()}>Import CSV</Btn>
-        <input ref={fileRef} type="file" accept=".csv,text/csv" hidden aria-label="CSV file" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importCsv(f); e.target.value = ""; }} data-testid="tables-csv-input" />
-        <Btn variant="ghost" onClick={() => void exportCsv()}>Export CSV</Btn>
-        {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
-      </div>
+      {/* TT80 banner: Keep · Tweak · Glance (views) · Crunch · Put over one tool strip; table tabs below */}
+      <AppBanner label="Tables" status={<>
+          {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
+      </>}>
+        <BannerGroup name="Keep">
+          <input className="fs-input" aria-label="Base name" value={base.name} style={{ flex: `0 1 ${fz(190)}`, minWidth: fz(110) }} onChange={(e) => commit({ ...base, name: e.target.value })} />
+          <Btn variant="primary" onClick={() => void save()}>Save .ftable</Btn>
+        </BannerGroup>
+        <BannerGroup name="Tweak">
+          <Btn variant="ghost" disabled={!hist.past.length} onClick={undo}>Undo</Btn>
+          <Btn variant="ghost" disabled={!hist.future.length} onClick={redo}>Redo</Btn>
+          <input className="fs-input" type="search" aria-label="Search records" placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: fz(150) }} />
+        </BannerGroup>
+        <BannerGroup name="Glance">
+          {table.views.map((v) => (
+          <button key={v.id} type="button" className="fs-btn" aria-pressed={v.id === view.id} data-variant={v.id === view.id ? "primary" : "ghost"} onClick={() => { setViewId(v.id); setPanel(null); }} data-testid={`view-${v.name}`}>{v.name}</button>
+          ))}
+          <Btn variant="ghost" onClick={() => { const r = T.addView(base, table.id, "grid"); commit(r.base); setViewId(r.id); }}>+ Grid</Btn>
+          <Btn variant="ghost" onClick={() => { const r = T.addView(base, table.id, "kanban"); commit(r.base); setViewId(r.id); }}>+ Kanban</Btn>
+          <Btn variant="ghost" disabled={table.views.length <= 1} onClick={() => { if (attempt(() => T.deleteView(base, table.id, view.id))) setViewId(table.views.find((v) => v.id !== view.id)!.id); }}>Delete view</Btn>
+        </BannerGroup>
+        <BannerGroup name="Crunch">
+          {(["filter", "sort", "group", "hide"] as const).map((p) => {
+          const n = p === "filter" ? view.filters.length : p === "sort" ? view.sorts.length : p === "group" ? Number(Boolean(view.groupBy)) : view.hidden.length;
+          const label = { filter: "Filter", sort: "Sort", group: "Group", hide: "Hide fields" }[p];
+          return <Btn key={p} variant={panel === p || n ? "primary" : "ghost"} aria-expanded={panel === p} onClick={() => setPanel(panel === p ? null : p)}>{n ? `${label} · ${n}` : label}</Btn>;
+          })}
+        </BannerGroup>
+        <BannerGroup name="Put">
+          <Btn variant="ghost" aria-expanded={panel === "field"} onClick={() => setPanel(panel === "field" ? null : "field")}>+ Field</Btn>
+          <Btn variant="ghost" onClick={() => addRecord()}>+ Record</Btn>
+        </BannerGroup>
+        <BannerGroup name="Keep">
+          <Btn variant="ghost" onClick={() => fileRef.current?.click()}>Import CSV</Btn>
+          <input ref={fileRef} type="file" accept=".csv,text/csv" hidden aria-label="CSV file" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importCsv(f); e.target.value = ""; }} data-testid="tables-csv-input" />
+          <Btn variant="ghost" onClick={() => void exportCsv()}>Export CSV</Btn>
+        </BannerGroup>
+      </AppBanner>
       {/* table tabs */}
       <div className="fs-row fs-toolbar" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)" }}>
         <div role="tablist" aria-label="Tables" className="fs-row" style={{ gap: 4 }}>
@@ -179,24 +207,6 @@ export default function TablesModule({ win }: ModuleProps) {
             onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); if (e.key === "Escape") setRenaming(false); }} />
         ) : <Btn variant="ghost" onClick={() => setRenaming(true)}>Rename table</Btn>}
         <Btn variant="ghost" disabled={base.tables.length <= 1} onClick={() => { if (attempt(() => T.deleteTable(base, table.id))) pickTable(base.tables.find((t) => t.id !== table.id)!.id); }}>Delete table</Btn>
-      </div>
-      {/* views + view tools */}
-      <div className="fs-row fs-toolbar" role="toolbar" aria-label="View" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)" }}>
-        {table.views.map((v) => (
-          <button key={v.id} type="button" className="fs-btn" aria-pressed={v.id === view.id} data-variant={v.id === view.id ? "primary" : "ghost"} onClick={() => { setViewId(v.id); setPanel(null); }} data-testid={`view-${v.name}`}>{v.name}</button>
-        ))}
-        <Btn variant="ghost" onClick={() => { const r = T.addView(base, table.id, "grid"); commit(r.base); setViewId(r.id); }}>+ Grid</Btn>
-        <Btn variant="ghost" onClick={() => { const r = T.addView(base, table.id, "kanban"); commit(r.base); setViewId(r.id); }}>+ Kanban</Btn>
-        <Btn variant="ghost" disabled={table.views.length <= 1} onClick={() => { if (attempt(() => T.deleteView(base, table.id, view.id))) setViewId(table.views.find((v) => v.id !== view.id)!.id); }}>Delete view</Btn>
-        <span aria-hidden="true" style={{ width: 1, alignSelf: "stretch", background: "var(--fs-border)" }} />
-        <input className="fs-input" type="search" aria-label="Search records" placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: fz(150) }} />
-        {(["filter", "sort", "group", "hide"] as const).map((p) => {
-          const n = p === "filter" ? view.filters.length : p === "sort" ? view.sorts.length : p === "group" ? Number(Boolean(view.groupBy)) : view.hidden.length;
-          const label = { filter: "Filter", sort: "Sort", group: "Group", hide: "Hide fields" }[p];
-          return <Btn key={p} variant={panel === p || n ? "primary" : "ghost"} aria-expanded={panel === p} onClick={() => setPanel(panel === p ? null : p)}>{n ? `${label} · ${n}` : label}</Btn>;
-        })}
-        <Btn variant="ghost" aria-expanded={panel === "field"} onClick={() => setPanel(panel === "field" ? null : "field")}>+ Field</Btn>
-        <Btn variant="ghost" onClick={() => addRecord()}>+ Record</Btn>
       </div>
       {status ? <div className="fs-dim" role="status" style={{ padding: "3px 8px", fontSize: fz(11) }}>{status}</div> : null}
 

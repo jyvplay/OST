@@ -51,17 +51,22 @@ export function StatusItems({ compact = false }: { compact?: boolean }) {
   </>;
 }
 
-export interface MenuItem { label: string; onSelect?: () => void; disabled?: boolean; checked?: boolean; hint?: string; separator?: boolean; testid?: string }
+/** `heading`: a non-interactive section caption (TT80 banner menus label the options of a mirrored list) */
+export interface MenuItem { label: string; onSelect?: () => void; disabled?: boolean; checked?: boolean; hint?: string; separator?: boolean; testid?: string; heading?: boolean }
 
 /**
  * Menu button (WAI-ARIA APG "menu button" pattern): Enter/Space/ArrowDown open and focus the first item,
  * ArrowUp/Down/Home/End move, Escape closes and returns focus, Tab closes, a click outside closes.
  */
 export function MenuButton({ label, items, children, testid, buttonStyle, align = "left", above = false, title }: {
-  label: string; items: MenuItem[]; children: ReactNode; testid?: string; buttonStyle?: React.CSSProperties;
+  /** a function is evaluated each time the menu opens (TT80: banner menus mirror live controls) */
+  label: string; items: MenuItem[] | (() => MenuItem[]); children: ReactNode; testid?: string; buttonStyle?: React.CSSProperties;
   align?: "left" | "right"; above?: boolean; title?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [lazy, setLazy] = useState<MenuItem[]>([]);
+  const list = typeof items === "function" ? lazy : items;
+  const toggle = (to?: boolean) => { const next = to ?? !open; if (next && typeof items === "function") setLazy(items()); setOpen(next); };
   const btn = useRef<HTMLButtonElement | null>(null);
   const menu = useRef<HTMLDivElement | null>(null);
   const focusItem = (i: number) => {
@@ -69,23 +74,26 @@ export function MenuButton({ label, items, children, testid, buttonStyle, align 
     if (!els.length) return;
     els[(i + els.length) % els.length].focus();
   };
+  const close = (refocus = true) => { setOpen(false); if (refocus) btn.current?.focus(); };
   useEffect(() => {
     if (!open) return;
     const t = window.setTimeout(() => focusItem(0), 0);
+    // Escape closes from anywhere (focus may still be on the button, not yet moved into the list)
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); } };
     const onDown = (e: PointerEvent) => {
       const n = e.target as Node;
       if (!menu.current?.contains(n) && !btn.current?.contains(n)) setOpen(false);
     };
     window.addEventListener("pointerdown", onDown, true);
-    return () => { window.clearTimeout(t); window.removeEventListener("pointerdown", onDown, true); };
+    window.addEventListener("keydown", onKey, true);
+    return () => { window.clearTimeout(t); window.removeEventListener("pointerdown", onDown, true); window.removeEventListener("keydown", onKey, true); };
   }, [open]);
-  const close = (refocus = true) => { setOpen(false); if (refocus) btn.current?.focus(); };
   return (
     <span style={{ position: "relative", display: "inline-flex" }}>
       <button ref={btn} type="button" className="fs-btn" data-variant="ghost" aria-haspopup="menu" aria-expanded={open}
         data-testid={testid} title={title} aria-label={title ? label : undefined}
-        onClick={() => setOpen((v) => !v)}
-        onKeyDown={(e) => { if (e.key === "ArrowDown" || (above && e.key === "ArrowUp")) { e.preventDefault(); setOpen(true); } }}
+        onClick={() => toggle()}
+        onKeyDown={(e) => { if (e.key === "ArrowDown" || (above && e.key === "ArrowUp")) { e.preventDefault(); toggle(true); } }}
         style={buttonStyle}>{children}</button>
       {open ? (
         <div ref={menu} role="menu" aria-label={label} className="fs-panel"
@@ -102,8 +110,12 @@ export function MenuButton({ label, items, children, testid, buttonStyle, align 
           style={{
             position: "absolute", [align]: 0, ...(above ? { bottom: "calc(100% + 6px)" } : { top: "calc(100% + 4px)" }),
             minWidth: fz(220), padding: 5, zIndex: 9800, display: "grid", gap: 1, boxShadow: "0 12px 32px rgba(0,0,0,.35)",
+            maxHeight: "min(70vh, 560px)", overflowY: "auto",
           } as React.CSSProperties}>
-          {items.map((it, i) => it.separator ? <div key={`s${i}`} role="separator" className="fs-sep" style={{ margin: "4px 2px" }} /> : (
+          {list.length === 0 ? <div className="fs-dim" style={{ padding: "4px 8px", fontSize: fz(12) }}>Nothing here right now</div> : null}
+          {list.map((it, i) => it.separator ? <div key={`s${i}`} role="separator" className="fs-sep" style={{ margin: "4px 2px" }} /> : it.heading ? (
+            <div key={`h${i}`} role="presentation" className="fs-menuhead">{it.label}</div>
+          ) : (
             <button key={it.label + i} type="button" role={it.checked === undefined ? "menuitem" : "menuitemcheckbox"}
               aria-checked={it.checked === undefined ? undefined : it.checked} disabled={it.disabled} data-testid={it.testid}
               className="fs-menuitem" tabIndex={-1}

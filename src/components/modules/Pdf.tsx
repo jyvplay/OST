@@ -10,6 +10,7 @@
  *        that will be written), or a "clean copy" that rewrites only what is still reachable (removes deleted pages and
  *        old revisions). Encrypted files stay encrypted with their original key. Undo/redo by revision.
  */
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { fz } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
@@ -281,26 +282,31 @@ export default function PdfModule({ win }: ModuleProps) {
   const curHit = hits[hitIdx];
   return (
     <div data-testid="pdf-app" data-pdf-win={win.id} tabIndex={-1} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, outline: "none" }}>
-      <div style={bar} role="toolbar" aria-label="PDF file">
-        <label className="fs-btn" style={{ cursor: "pointer" }}>Open…<input data-testid="pdf-open" type="file" accept="application/pdf,.pdf" hidden onChange={(e) => pick(e.target.files?.[0])} /></label>
-        <Btn data-testid="pdf-save" variant="primary" onClick={() => void save()} disabled={!doc}>Save</Btn>
-        <Btn data-testid="pdf-clean" onClick={() => void saveClean()} disabled={!doc} title="Rewrite without deleted content or earlier revisions">Clean copy</Btn>
-        <Btn onClick={download} disabled={!doc}>Download</Btn>
-        <Btn data-testid="pdf-undo" onClick={() => step(-1)} disabled={!hist.u} title="Undo (Ctrl+Z)">Undo</Btn>
-        <Btn data-testid="pdf-redo" onClick={() => step(1)} disabled={!hist.r} title="Redo (Ctrl+Y)">Redo</Btn>
-        <span style={{ flex: 1 }} />
-        <Btn onClick={() => setZoom((z) => Math.max(0.25, +((z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z) / 1.2).toFixed(2)))} disabled={!doc} title="Zoom out">−</Btn>
-        <span data-testid="pdf-zoom" style={{ minWidth: 48, textAlign: "center", fontSize: fz(12) }}>{zoom === "fit" ? "Fit" : `${Math.round(zoom * 100)}%`}</span>
-        <Btn onClick={() => setZoom((z) => Math.min(4, +((z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z) * 1.2).toFixed(2)))} disabled={!doc} title="Zoom in">+</Btn>
-        <Btn onClick={() => setZoom("fit")} disabled={!doc}>Fit width</Btn>
-        <Btn onClick={() => setZoom(1)} disabled={!doc}>100%</Btn>
-        <Btn onClick={() => setViewRot((r) => (r + 90) % 360)} disabled={!doc} title="Rotate the view (does not change the file)"><span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>View <Ico d={ICON.rotR} label="" /></span></Btn>
-      </div>
-      <div style={bar} role="toolbar" aria-label="Annotate">
-        {TOOLS.map(([id, label, tip]) => <Btn key={id} data-testid={`pdf-tool-${id}`} variant={tool === id ? "primary" : "ghost"} onClick={() => setTool(id)} title={tip} disabled={!doc}>{label}</Btn>)}
-        <span style={{ width: 8 }} />
-        {COLORS.map(([n, c]) => <button key={n} type="button" aria-label={`${n} colour`} aria-pressed={color === c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 12, background: css3(c), border: color === c ? "3px solid var(--fs-accent)" : "1px solid var(--fs-border)", cursor: "pointer" }} />)}
-      </div>
+      {/* TT80 banner: Keep · Tweak · Ink · Glance over one tool strip */}
+      <AppBanner label="PDF">
+        <BannerGroup name="Keep">
+          <label className="fs-btn" style={{ cursor: "pointer" }}>Open…<input data-testid="pdf-open" type="file" accept="application/pdf,.pdf" hidden onChange={(e) => pick(e.target.files?.[0])} /></label>
+          <Btn data-testid="pdf-save" variant="primary" onClick={() => void save()} disabled={!doc}>Save</Btn>
+          <Btn data-testid="pdf-clean" onClick={() => void saveClean()} disabled={!doc} title="Rewrite without deleted content or earlier revisions">Clean copy</Btn>
+          <Btn onClick={download} disabled={!doc}>Download</Btn>
+        </BannerGroup>
+        <BannerGroup name="Tweak">
+          <Btn data-testid="pdf-undo" onClick={() => step(-1)} disabled={!hist.u} title="Undo (Ctrl+Z)">Undo</Btn>
+          <Btn data-testid="pdf-redo" onClick={() => step(1)} disabled={!hist.r} title="Redo (Ctrl+Y)">Redo</Btn>
+        </BannerGroup>
+        <BannerGroup name="Ink">
+          {TOOLS.map(([id, label, tip]) => <Btn key={id} data-testid={`pdf-tool-${id}`} variant={tool === id ? "primary" : "ghost"} onClick={() => setTool(id)} title={tip} disabled={!doc}>{label}</Btn>)}
+          {COLORS.map(([n, c]) => <button key={n} type="button" aria-label={`${n} colour`} aria-pressed={color === c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 12, background: css3(c), border: color === c ? "3px solid var(--fs-accent)" : "1px solid var(--fs-border)", cursor: "pointer" }} />)}
+        </BannerGroup>
+        <BannerGroup name="Glance">
+          <Btn onClick={() => setZoom((z) => Math.max(0.25, +((z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z) / 1.2).toFixed(2)))} disabled={!doc} title="Zoom out" aria-label="Zoom out">−</Btn>
+          <span data-testid="pdf-zoom" style={{ minWidth: 48, textAlign: "center", fontSize: fz(12) }}>{zoom === "fit" ? "Fit" : `${Math.round(zoom * 100)}%`}</span>
+          <Btn onClick={() => setZoom((z) => Math.min(4, +((z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z) * 1.2).toFixed(2)))} disabled={!doc} title="Zoom in" aria-label="Zoom in">+</Btn>
+          <Btn onClick={() => setZoom("fit")} disabled={!doc}>Fit width</Btn>
+          <Btn onClick={() => setZoom(1)} disabled={!doc}>100%</Btn>
+          <Btn onClick={() => setViewRot((r) => (r + 90) % 360)} disabled={!doc} title="Rotate the view (does not change the file)" aria-label="Rotate the view"><span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>View <Ico d={ICON.rotR} label="" /></span></Btn>
+        </BannerGroup>
+      </AppBanner>
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
         <aside style={{ width: 248, borderRight: "1px solid var(--fs-border)", display: "flex", flexDirection: "column", minHeight: 0 }}>
           <div role="tablist" style={{ display: "flex", flexWrap: "wrap", gap: 2, padding: 4 }}>

@@ -1,10 +1,11 @@
 "use client";
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
-import { Badge, Btn, Section } from "../ui";
+import { Badge, Btn, Empty, Section } from "../ui";
 import { askText } from "@/lib/ask";
 
 interface Crop { left: number; top: number; width: number; height: number }
@@ -108,10 +109,22 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
     setStatus(`non-destructive recipe saved → ${dst}`); shell.bumpRefresh();
   };
 
+  /** TT80: one banner for both modes — Keep holds the file and export commands, Look the edits */
+  const banner = (
+    <AppBanner label="Image Editor" extra={["Look"]} span="1 / 3" status={<span className="fs-dim" style={{ fontSize: fz(10.5) }}>{status}</span>}>
+      <BannerGroup name="Keep">
+        <label className="fs-btn" data-variant="primary" style={{ width: "fit-content", cursor: "pointer" }}>Open image…<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadBlob(f, f.name).catch((x) => shell.toast(String((x as Error).message), "bad")); e.target.value = ""; }} /></label>
+        <Btn variant="ghost" onClick={async () => { const p = await askText("Open image from Files (path)", "/Pictures/logo.svg", { okLabel: "Open" }); if (p) setSourcePath(p); }}>Open from Files…</Btn>
+        <Btn variant="primary" disabled={busy} onClick={() => void exportImage()}>{busy ? "Exporting…" : "Export PNG copy"}</Btn>
+        <Btn variant="ghost" onClick={() => void saveRecipe()}>Save recipe</Btn>
+      </BannerGroup>
+    </AppBanner>
+  );
+
   if (!bitmap) return (
-    <div className="fs-scroll" style={{ padding: 12, display: "grid", gap: 10, alignContent: "start" }}>
-      <label className="fs-btn" data-variant="primary" style={{ width: "fit-content", cursor: "pointer" }}>Open image…<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadBlob(f, f.name).catch((x) => shell.toast(String((x as Error).message), "bad")); }} /></label>
-      <Btn variant="ghost" onClick={async () => { const p = await askText("Open image from Files (path)", "/Pictures/logo.svg", { okLabel: "Open" }); if (p) setSourcePath(p); }}>Open from Files…</Btn>
+    <div style={{ display: "grid", gridTemplateRows: "auto 1fr", height: "100%", minHeight: 0 }}>
+      {banner}
+      <Empty title="No image yet" icon="🪄" hint="Open a picture from the banner above, or drop one in from Files." />
       <div className="fs-dim" style={{ fontSize: fz(11.5) }}>Raster: PNG/JPEG/WebP/GIF where the browser can decode it. HEIC decode is capability-probed. PSD remains metadata-only.</div>
     </div>
   );
@@ -121,7 +134,8 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
   );
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `minmax(0, 1fr) min(${fz(230)}, 36%)`, height: "100%", minHeight: 0 }}>
+    <div style={{ display: "grid", gridTemplateRows: "auto 1fr", gridTemplateColumns: `minmax(0, 1fr) min(${fz(230)}, 36%)`, height: "100%", minHeight: 0 }}>
+      {banner}
       <div className="fs-scroll" style={{ padding: 10, display: "grid", placeItems: "center", background: "#060a14" }}>
         <canvas ref={canvasRef} aria-label={`Edited preview of ${sourceName}`} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", backgroundImage: "linear-gradient(45deg,#eee 25%,transparent 25%),linear-gradient(-45deg,#eee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eee 75%),linear-gradient(-45deg,transparent 75%,#eee 75%)", backgroundSize: "16px 16px", backgroundPosition: "0 0,0 8px,8px -8px,-8px 0" }} />
       </div>
@@ -135,22 +149,22 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
           {range("height", crop.height, 5, 100 - crop.top, (n) => setCrop((c) => ({ ...c, height: n })))}
         </Section>
         <Section title="Transform" dense>
-          <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
-            {[0,90,180,270].map((n) => <Btn key={n} variant={fx.rotate === n ? "primary" : "ghost"} onClick={() => setFx((f) => ({ ...f, rotate: n as Fx["rotate"] }))}>{n}°</Btn>)}
-            <Btn variant={fx.flipX ? "primary" : "ghost"} onClick={() => setFx((f) => ({ ...f, flipX: !f.flipX }))}>↔ Flip X</Btn>
-            <Btn variant={fx.flipY ? "primary" : "ghost"} onClick={() => setFx((f) => ({ ...f, flipY: !f.flipY }))}>↕ Flip Y</Btn>
+          <div className="fs-row" data-banner-group="Look" style={{ gap: 4, flexWrap: "wrap" }}>
+            {[0,90,180,270].map((n) => <Btn key={n} variant={fx.rotate === n ? "primary" : "ghost"} aria-pressed={fx.rotate === n} onClick={() => setFx((f) => ({ ...f, rotate: n as Fx["rotate"] }))}>{n}°</Btn>)}
+            <Btn variant={fx.flipX ? "primary" : "ghost"} aria-pressed={fx.flipX} onClick={() => setFx((f) => ({ ...f, flipX: !f.flipX }))}>↔ Flip X</Btn>
+            <Btn variant={fx.flipY ? "primary" : "ghost"} aria-pressed={fx.flipY} onClick={() => setFx((f) => ({ ...f, flipY: !f.flipY }))}>↕ Flip Y</Btn>
           </div>
         </Section>
         <Section title="Adjust" dense>
+          <div data-banner-group="Look" style={{ display: "grid", gap: 6 }}>
           {range("brightness", fx.brightness, 0, 200, (n) => setFx((f) => ({ ...f, brightness: n })))}
           {range("contrast", fx.contrast, 0, 200, (n) => setFx((f) => ({ ...f, contrast: n })))}
           {range("saturate", fx.saturate, 0, 200, (n) => setFx((f) => ({ ...f, saturate: n })))}
           {range("grayscale", fx.grayscale, 0, 100, (n) => setFx((f) => ({ ...f, grayscale: n })))}
           {range("sepia", fx.sepia, 0, 100, (n) => setFx((f) => ({ ...f, sepia: n })))}
+          </div>
         </Section>
-        <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
-          <Btn variant="primary" disabled={busy} onClick={() => void exportImage()}>{busy ? "Exporting…" : "Export PNG copy"}</Btn>
-          <Btn variant="ghost" onClick={() => void saveRecipe()}>Save recipe</Btn>
+        <div className="fs-row" data-banner-group="Look" style={{ gap: 4, flexWrap: "wrap" }}>
           <Btn variant="ghost" onClick={() => { setCrop(DEFAULT_CROP); setFx(DEFAULT_FX); }}>Reset edits</Btn>
         </div>
         <div className="fs-dim" style={{ fontSize: fz(10.5), lineHeight: 1.5 }}>Single raster layer; no PSD layers. Source is never overwritten. Export is capped at 32 MP and 8 MB VFS; larger files download instead.</div>

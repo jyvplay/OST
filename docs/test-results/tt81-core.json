@@ -1,0 +1,105 @@
+{
+  "suite": "tt81-core",
+  "at": "2026-10-26T15:59:28.320Z",
+  "results": [
+    {
+      "suite": "tt81-core",
+      "name": "S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates",
+      "covers": {
+        "FF-78": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt81-core",
+      "name": "S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula",
+      "covers": {
+        "FF-78": "full"
+      },
+      "pass": true,
+      "ms": 169
+    },
+    {
+      "suite": "tt81-core",
+      "name": "S3 deterministic independent frequency-map oracle on 240 integer vectors",
+      "covers": {
+        "FF-78": "full"
+      },
+      "pass": true,
+      "ms": 29
+    },
+    {
+      "suite": "tt81-core",
+      "name": "S4 all 17 legacy MODE cells agree with Excel cached results in the Apache POI fixture (includes M936)",
+      "covers": {
+        "FF-78": "full"
+      },
+      "pass": true,
+      "ms": 513
+    },
+    {
+      "suite": "tt81-core",
+      "name": "L1 literal case/scope, groups and tables; no notes/master/package false hits",
+      "covers": {
+        "FF-80": "partial"
+      },
+      "pass": true,
+      "ms": 32
+    },
+    {
+      "suite": "tt81-core",
+      "name": "L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical",
+      "covers": {
+        "FF-80": "partial"
+      },
+      "pass": true,
+      "ms": 171
+    },
+    {
+      "suite": "tt81-core",
+      "name": "L3 one-step snapshot undo/redo, deletion, repeated replacement, literal dollar and unicode; paragraph boundaries",
+      "covers": {
+        "FF-80": "partial"
+      },
+      "pass": true,
+      "ms": 33
+    },
+    {
+      "suite": "tt81-core",
+      "name": "L4 hard breaks and dynamic fields block matching, replacement explosion refused before mutation",
+      "covers": {
+        "FF-80": "partial"
+      },
+      "pass": true,
+      "ms": 23
+    },
+    {
+      "suite": "tt81-core",
+      "name": "P1 custom box geometry exact all rotations, negative crop origin and edge boxes",
+      "covers": {
+        "FF-79": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt81-core",
+      "name": "P2 refuse NaN, infinities, zero, negative, off-page, malformed geometry before signing",
+      "covers": {
+        "FF-79": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt81-core",
+      "name": "P3 signed custom boxes: pyHanko intact/valid, pypdf Rect and PDFium visible pixels within displayed box on four rotations",
+      "covers": {
+        "FF-79": "partial"
+      },
+      "pass": true,
+      "ms": 2900
+    }
+  ]
+}

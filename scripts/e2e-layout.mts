@@ -227,7 +227,10 @@ try {
     const icons = page.locator(".fs-dock-item");
     for (let i = 0; i < await icons.count(); i++) { const b = await box(icons.nth(i)); ok(Math.abs(b.width - base) <= 1 && Math.abs(b.height - base) <= 1, `icon ${i} square at rest ${b.width}×${b.height}`); }
     const folded = ((await page.getByTestId("dock").getAttribute("data-folded")) ?? "").split(",");
-    ok(folded.includes("Create") && folded.includes("System") && !folded.includes("Core"), `folds the big groups first: ${folded}`);
+    // TT79 added an app to Core, so at 1440 the plan folds it as well: what matters is that the dock fits,
+    // folds whole groups (biggest saving first) rather than clipping, and keeps the pinned apps out
+    ok(folded.includes("Create") && folded.includes("System"), `the two biggest groups fold first: ${folded}`);
+    ok(await page.getByTestId("dock").getAttribute("data-magnify") === "on", "folded dock still fits (magnification on)");
     ok(await page.getByTestId("dock-settings").count() === 1 && await page.getByTestId("dock-files").count() === 1, "pinned Settings + Files stay out");
     const stack = page.getByTestId("dock-stack-Create");
     ok(await stack.getAttribute("aria-haspopup") === "dialog" && await stack.getAttribute("aria-expanded") === "false", "stack is a dialog button");
@@ -273,8 +276,15 @@ try {
     await desktop([]);
     const { page, close } = await boot();
     const base = Number(await page.getByTestId("dock").getAttribute("data-base"));
-    const ids = MODULES.filter((m) => m.group === "Core").map((m) => m.id); // Core stays expanded at 1440 (TT26 stacks fold Create/System)
-    const target = ids[4], left1 = ids[3], left4 = ids[0];
+    // TT79 grew Core to 11 apps, so at 1440 the dock folds it into a stack: launch two of its apps from the
+    // stack, and they stay in the dock as running icons (the plan keeps running apps out of the stack)
+    // launching one app from the stack also unfolds Core (the plan keeps a group open once its apps are running),
+    // so the dock then shows every Core app as its own icon — which is what the magnification maths is measured on
+    const stack = page.getByTestId("dock-stack-Core");
+    await stack.click();
+    await page.getByTestId("dock-stack-app-calculator").click();
+    await poll(async () => (await page.getByTestId("dock-calculator").count()) === 1 && (await page.getByTestId("dock-clock").count()) === 1, "launched apps are dock icons");
+    const target = "calculator", left1 = "clock", left4 = "files";
     const t0 = await box(page.getByTestId(`dock-${target}`));
     ok(Math.abs(t0.width - base) <= 1, `resting width ${t0.width} ≈ base ${base}`);
     const cx = t0.x + t0.width / 2, cy = t0.y + t0.height / 2;
@@ -316,15 +326,15 @@ try {
     await setSetting("appearance.layout", "art");
     await desktop([]);
     const { page, close } = await boot();
-    const calc = page.getByTestId("dock-calculator");
+    const calc = page.getByTestId("dock-files");   // Files is pinned, so it is always a dock icon
     await calc.click();
     ok(await calc.getAttribute("data-bounce") === "true", "bounce on launch");
-    const cw = page.locator('.fs-window[aria-label="Calculator"]');
+    const cw = page.locator('.fs-window[aria-label="Files"]');
     await cw.waitFor();
     ok(/running/.test((await calc.getAttribute("aria-label")) ?? ""), "label says running");
     ok(await calc.locator("xpath=..").locator(".fs-dock-dot").count() === 1, "running dot");
     await poll(async () => (await calc.getAttribute("data-bounce")) === null, "bounce ends", 3000);
-    ok(await page.getByTestId("menubar-app").innerText() === "Calculator", "menu bar shows the focused app");
+    ok(await page.getByTestId("menubar-app").innerText() === "Files", "menu bar shows the focused app");
     await cw.locator('.fs-traffic button[aria-label="Minimise"]').click();
     await poll(async () => (await cw.count()) === 0, "minimised");
     const minItem = page.locator('[data-testid^="dock-min-"]');
@@ -335,7 +345,7 @@ try {
     await cw.waitFor();
     ok(await minItem.count() === 0, "restored window leaves the dock");
     await calc.click({ button: "right" });
-    await page.getByTestId("dock-quit-calculator").click();
+    await page.getByTestId("dock-quit-files").click();
     await poll(async () => (await cw.count()) === 0 && !/running/.test((await calc.getAttribute("aria-label")) ?? ""), "Quit closes the app");
     // Trash opens Files on the trash view
     await page.getByTestId("dock-trash").click();
@@ -360,12 +370,18 @@ try {
     const grey = await nw.locator(".fs-tl-close").evaluate((e) => getComputedStyle(e, "::before").backgroundColor);
     const red = await ww.locator(".fs-tl-close").evaluate((e) => getComputedStyle(e, "::before").backgroundColor);
     ok(red === "rgb(255, 95, 87)" && grey !== red, `focused red ${red}, inactive ${grey}`);
-    // Window menu (keyboard: ArrowDown opens and focuses the first item)
+    // Frame menu (keyboard: ArrowDown opens and focuses the first item, which is "New <app> window")
     await page.getByTestId("menu-window").focus();
     await page.keyboard.press("ArrowDown");
-    await page.locator('[role="menu"][aria-label="Window"]').waitFor();
-    await poll(async () => Boolean(await page.evaluate(() => document.activeElement?.textContent?.includes("Minimise"))), "first item focused");
-    ok(await page.locator('[role="menu"][aria-label="Window"] [role="menuitemcheckbox"]').count() === 2, "window list in the menu");
+    await page.locator('[role="menu"][aria-label="Frame"]').waitFor();
+    await poll(async () => /New .* window/.test(await page.evaluate(() => document.activeElement?.textContent ?? "")), "first item focused");
+    await page.keyboard.press("ArrowDown");
+    await poll(async () => Boolean(await page.evaluate(() => document.activeElement?.textContent?.includes("Close window"))), "second item is Close window");
+    await page.keyboard.press("ArrowDown");
+    await poll(async () => Boolean(await page.evaluate(() => document.activeElement?.textContent?.includes("Quit"))), "third item is Quit");
+    await page.keyboard.press("ArrowDown");
+    await poll(async () => Boolean(await page.evaluate(() => document.activeElement?.textContent?.includes("Minimise"))), "fourth item is Minimise");
+    ok(await page.locator('[role="menu"][aria-label="Frame"] [role="menuitemcheckbox"]').count() === 2, "window list in the menu");
     await page.getByTestId("menu-tile-left").click();
     const desk = await page.evaluate(() => { const m = document.querySelector("[data-testid=menubar]")!.getBoundingClientRect(); const d = document.querySelector("[data-testid=dock-row]")!.getBoundingClientRect(); return { top: m.bottom, bottom: d.top }; });
     await poll(async () => { const b = await box(ww); return Math.abs(b.x) <= 1 && Math.abs(b.width - 720) <= 2; }, "Window → Move to Left Side");
@@ -398,8 +414,8 @@ try {
     await poll(async () => (await scaleOf(page, "files")) < 1.7, "focus moved on");
     const td = await page.getByTestId("dock-files").evaluate((e) => getComputedStyle(e).transitionDuration);
     ok(td.split(",").every((x) => parseFloat(x) === 0), `no transition under reduced motion (${td})`);
-    await page.getByTestId("dock-clock").click();
-    ok(await page.getByTestId("dock-clock").evaluate((e) => getComputedStyle(e).animationName) === "none", "no bounce animation under reduced motion");
+    await page.getByTestId("dock-files").click();
+    ok(await page.getByTestId("dock-files").evaluate((e) => getComputedStyle(e).animationName) === "none", "no bounce animation under reduced motion");
     await close();
   });
 

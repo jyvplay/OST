@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-26T08:43:26.072Z",
+ "generatedAt": "2026-10-26T16:12:18.755Z",
  "totals": {
   "built": {
-   "full": 333,
+   "full": 337,
    "partial": 53,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 258,
+   "full": 262,
    "partial": 71,
    "untested": 79
   },
   "tests": {
-   "total": 1609,
-   "passed": 1605
+   "total": 1635,
+   "passed": 1635
   }
  },
  "rows": {
@@ -2389,6 +2389,7 @@
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
     "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
+    "e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
     "e2e-privacy: no page errors across the privacy flows",
     "e2e: mount: privacy",
     "privacy-crypto: Argon2id (hash-wasm) equals the reference C implementation (argon2-cffi), incl. the default 64 MiB/t=3 slot cost",
@@ -2778,6 +2779,7 @@
    "tests": [
     "e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back",
     "e2e-tabletop: box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)",
+    "e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too",
     "e2e-tabletop: walls work: Apps wall launches an app (and returns to the table), Windows wall lists and restores windows, Widgets shows the time, Recent opens a file",
     "e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card",
     "e2e-tabletop: reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately",
@@ -2827,6 +2829,7 @@
   "LY-12": {
    "tested": "full",
    "tests": [
+    "e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it",
     "e2e-tabletop: TT48 fast flick: pointerdown, eight pointermoves and pointerup in ONE task (no render in between) still move the card — the release must not read a stale drag",
     "e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload",
     "e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted)",
@@ -3982,7 +3985,37 @@
   "FF-77": {
    "tested": "full",
    "tests": [
-    "tt79-sheet: X4 text → number coercion (numtext.ts): en-US currency, groups, %, parentheses, exponent; hex / Infinity / dates refused"
+    "tt79-sheet: X4 text → number coercion (numtext.ts): en-US currency, groups, %, parentheses, exponent; hex / Infinity / dates refused",
+    "tt79-sheet: X5 the 10 EverythingTests shapes fixed in TT79, rebuilt in a fresh workbook, with negative controls"
+   ]
+  },
+  "FF-78": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt81: E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output",
+    "tt81-core: S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates",
+    "tt81-core: S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula",
+    "tt81-core: S3 deterministic independent frequency-map oracle on 240 integer vectors",
+    "tt81-core: S4 all 17 legacy MODE cells agree with Excel cached results in the Apache POI fixture (includes M936)"
+   ]
+  },
+  "FF-79": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt81: E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry",
+    "tt81-core: P1 custom box geometry exact all rotations, negative crop origin and edge boxes",
+    "tt81-core: P2 refuse NaN, infinities, zero, negative, off-page, malformed geometry before signing",
+    "tt81-core: P3 signed custom boxes: pyHanko intact/valid, pypdf Rect and PDFium visible pixels within displayed box on four rotations"
+   ]
+  },
+  "FF-80": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt81: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback",
+    "tt81-core: L1 literal case/scope, groups and tables; no notes/master/package false hits",
+    "tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical",
+    "tt81-core: L3 one-step snapshot undo/redo, deletion, repeated replacement, literal dollar and unicode; paragraph boundaries",
+    "tt81-core: L4 hard breaks and dynamic fields block matching, replacement explosion refused before mutation"
    ]
   },
   "CT-01": {
@@ -4498,6 +4531,22 @@
    "tests": [
     "e2e: mount: monitor",
     "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+   ]
+  },
+  "DP-15": {
+   "tested": "full",
+   "tests": [
+    "tt80-banner: writer: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: slides: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: sheet: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: pdf: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: vector: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: whiteboard: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: tables: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: editor: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: photos: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: imageedit: one banner, own menu names, menus mirror the strip",
+    "tt80-banner: imagequick: one banner, own menu names, menus mirror the strip"
    ]
   }
  }

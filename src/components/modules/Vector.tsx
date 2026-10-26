@@ -1,4 +1,5 @@
 "use client";
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { fz } from "@/lib/uiscale";
 
 /**
@@ -346,25 +347,33 @@ export default function VectorModule({ win }: ModuleProps) {
   return (
     <div ref={wrapRef} data-testid="vector-studio" data-shapes={view.shapes.length} data-selected={sel.join(",")} data-tool={tool} data-undo={hist.i}
       tabIndex={0} onKeyDown={onKey} style={{ display: "grid", gridTemplateColumns: `${fz(44)} minmax(0, 1fr) min(${fz(220)}, 34%)`, gridTemplateRows: "auto 1fr auto", height: "100%", minHeight: 0, outline: "none" }}>
-      <div className="fs-row" style={{ gridColumn: "1 / 4", padding: 6, gap: 4, flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)" }}>
-        <input className="fs-input" style={{ width: fz(170) }} aria-label="Vector document title" value={doc.title} onChange={(e) => { setHist((h) => ({ ...h, stack: h.stack.map((d, i) => (i === h.i ? { ...d, title: e.target.value } : d)) })); setDirty(true); }} />
-        <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input type="file" aria-label="Open SVG or fsvg" accept="image/svg+xml,.svg,.fsvg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void f.text().then((t) => { try { openText(t, f.name); } catch (err) { setStatus(`Could not open ${f.name}: ${(err as Error).message}`); } }); e.target.value = ""; }} /></label>
-        <Btn variant="ghost" onClick={() => replaceDoc(blankDoc(), "new document")}>New</Btn>
-        <Btn variant="primary" onClick={() => void saveNative()}>Save .fsvg</Btn>
-        <Btn variant="ghost" onClick={() => void exportSvgFile()}>Export SVG</Btn>
-        <Btn variant="ghost" onClick={() => void exportPng()}>Export PNG</Btn>
-        <Btn variant="ghost" onClick={undo} disabled={hist.i === 0}>Undo</Btn>
-        <Btn variant="ghost" onClick={redo} disabled={hist.i >= hist.stack.length - 1}>Redo</Btn>
-        <select className="fs-input" aria-label="Zoom" value={String(zoom)} onChange={(e) => setZoom(e.target.value === "fit" ? "fit" : Number(e.target.value))} style={{ width: fz(76) }}>
+      {/* TT80 banner: Keep · Tweak · Glance + Kit (tool palette) and Stack (order / align panel) */}
+      <AppBanner label="Vector" span="1 / 4" extra={["Kit", "Stack"]} status={<>
+          <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>
+      </>}>
+        <BannerGroup name="Keep">
+          <input className="fs-input" style={{ width: fz(170) }} aria-label="Vector document title" value={doc.title} onChange={(e) => { setHist((h) => ({ ...h, stack: h.stack.map((d, i) => (i === h.i ? { ...d, title: e.target.value } : d)) })); setDirty(true); }} />
+          <Btn variant="ghost" onClick={() => replaceDoc(blankDoc(), "new document")}>New</Btn>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input type="file" aria-label="Open SVG or fsvg" accept="image/svg+xml,.svg,.fsvg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void f.text().then((t) => { try { openText(t, f.name); } catch (err) { setStatus(`Could not open ${f.name}: ${(err as Error).message}`); } }); e.target.value = ""; }} /></label>
+          <Btn variant="primary" onClick={() => void saveNative()}>Save .fsvg</Btn>
+          <Btn variant="ghost"  onClick={() => void exportSvgFile()}>Export SVG</Btn>
+          <Btn variant="ghost"  onClick={() => void exportPng()}>Export PNG</Btn>
+        </BannerGroup>
+        <BannerGroup name="Tweak">
+          <Btn variant="ghost" onClick={undo} disabled={hist.i === 0}>Undo</Btn>
+          <Btn variant="ghost" onClick={redo} disabled={hist.i >= hist.stack.length - 1}>Redo</Btn>
+        </BannerGroup>
+        <BannerGroup name="Glance">
+          <select className="fs-input" aria-label="Zoom" value={String(zoom)} onChange={(e) => setZoom(e.target.value === "fit" ? "fit" : Number(e.target.value))} style={{ width: fz(76) }}>
           {["fit", "0.5", "1", "2", "4"].map((z) => <option key={z} value={z}>{z === "fit" ? "Fit" : `${Number(z) * 100}%`}</option>)}
-        </select>
-        <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>
-      </div>
+          </select>
+        </BannerGroup>
+      </AppBanner>
 
-      <div style={{ borderRight: "1px solid var(--fs-border)", display: "grid", alignContent: "start", gap: 2, padding: 3 }}>
+      <div data-banner-group="Kit" role="toolbar" aria-label="Drawing kit" style={{ borderRight: "1px solid var(--fs-border)", display: "grid", alignContent: "start", gap: 2, padding: 3 }}>
         {TOOLS.map((t) => (
           <button key={t.id} className="fs-list-item" data-selected={tool === t.id} aria-label={`${t.label} tool (${t.key.toUpperCase()})`} title={`${t.label} (${t.key.toUpperCase()})`}
-            onClick={() => { setTool(t.id); if (t.id !== "pen") setPen([]); }} style={{ flexDirection: "column", padding: "4px 0", fontSize: fz(10), gap: 0, alignItems: "center" }}>
+            aria-pressed={tool === t.id} onClick={() => { setTool(t.id); if (t.id !== "pen") setPen([]); }} style={{ flexDirection: "column", padding: "4px 0", fontSize: fz(10), gap: 0, alignItems: "center" }}>
             <ToolIcon id={t.id} />{t.label}
           </button>
         ))}
@@ -461,12 +470,12 @@ export default function VectorModule({ win }: ModuleProps) {
         </> : null}
         {first?.kind === "rect" && sel.length === 1 ? numIn("Corner radius", first.rx, (n) => patchFirst((s) => (s.kind === "rect" ? { ...s, rx: Math.max(0, n), ry: Math.max(0, n) } : s))) : null}
 
-        <div style={{ fontWeight: 600 }}>Arrange</div>
-        <div className="fs-row" style={{ flexWrap: "wrap", gap: 3 }}>
+        <div style={{ fontWeight: 600 }}>Line up &amp; order</div>
+        <div className="fs-row" data-banner-group="Stack" style={{ flexWrap: "wrap", gap: 3 }}>
           {([["left", "Left"], ["hcenter", "Centre"], ["right", "Right"], ["top", "Top"], ["vcenter", "Middle"], ["bottom", "Bottom"]] as const).map(([m, ic]) => <Btn key={m} variant="ghost" title={`Align ${m}`} aria-label={`Align ${m} · ${ic}`} onClick={() => run(m)}>{ic}</Btn>)}
           <Btn variant="ghost" aria-label="Distribute horizontally · Distribute H" title="Distribute horizontally" onClick={() => run("disth")}>Distribute H</Btn><Btn variant="ghost" aria-label="Distribute vertically · Distribute V" title="Distribute vertically" onClick={() => run("distv")}>Distribute V</Btn>
         </div>
-        <div className="fs-row" style={{ flexWrap: "wrap", gap: 3 }}>
+        <div className="fs-row" data-banner-group="Stack" style={{ flexWrap: "wrap", gap: 3 }}>
           {([["front", "To front"], ["forward", "Forward"], ["backward", "Backward"], ["back", "To back"], ["group", "Group"], ["ungroup", "Ungroup"], ["duplicate", "Duplicate"], ["topath", "To path"], ["fliph", "Flip H"], ["flipv", "Flip V"]] as const).map(([c, l]) => <Btn key={c} variant="ghost" onClick={() => run(c)}>{l}</Btn>)}
           <Btn variant="danger" onClick={() => run("delete")}>Delete</Btn>
         </div>

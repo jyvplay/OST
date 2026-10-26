@@ -1,4 +1,5 @@
 "use client";
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { fz } from "@/lib/uiscale";
 
 /**
@@ -466,27 +467,33 @@ export default function ImageStudio({ win }: ModuleProps) {
     <div data-testid="image-studio" data-doc-w={doc.width} data-doc-h={doc.height} data-layers={doc.layers.length} data-active={active.name} data-tool={tool} data-undo={hist.past.length} data-selection={sel ? `${sel.bounds.x},${sel.bounds.y},${sel.bounds.w},${sel.bounds.h}` : ""}
       tabIndex={0} onKeyDown={onKey} style={{ display: "grid", gridTemplateColumns: `${fz(46)} minmax(0, 1fr) min(${fz(230)}, 34%)`, gridTemplateRows: "auto 1fr auto", height: "100%", minHeight: 0, outline: "none" }}>
       {/* top bar */}
-      <div className="fs-row" style={{ gridColumn: "1 / 4", gap: 4, padding: 6, flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)" }}>
-        <Btn variant="ghost" onClick={image.newDoc}>New</Btn>
-        <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input aria-label="Open image or PSD" type="file" accept="image/*,.psd" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void f.arrayBuffer().then((b) => openBytes(new Uint8Array(b), f.name, f.type)); e.target.value = ""; }} /></label>
-        <Btn variant="ghost" onClick={async () => { const p = await askText("Open from Files (path)", "/Pictures/", { detail: "PNG, JPEG, WebP, GIF or PSD", okLabel: "Open" }); if (p) setPath(p); }}>Open from Files…</Btn>
-        <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Place…<input aria-label="Place image as layer" type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void placeFile(f); e.target.value = ""; }} /></label>
-        <Btn variant="primary" onClick={() => void savePsd()} disabled={!!busy}>Save PSD</Btn>
-        <Btn variant="ghost" onClick={() => void exportFlat("image/png")} disabled={!!busy}>Export PNG</Btn>
-        <Btn variant="ghost" onClick={() => void exportFlat("image/jpeg")} disabled={!!busy}>Export JPEG</Btn>
-        <span style={{ width: 8 }} />
-        <Btn variant="ghost" onClick={undo} disabled={!hist.past.length} title="Undo (Ctrl+Z)">Undo</Btn>
-        <Btn variant="ghost" onClick={redo} disabled={!hist.future.length} title="Redo (Ctrl+Shift+Z)">Redo</Btn>
-        <select className="fs-input" aria-label="Zoom" value={String(zoom)} onChange={(e) => setZoom(e.target.value === "fit" ? "fit" : Number(e.target.value))} style={{ width: 90 }}>
+      {/* TT80 banner: Keep · Tweak · Glance + Kit (the tool rail), which the same menus also reach */}
+      <AppBanner label="Image Editor" extra={["Kit"]} span="1 / 4" status={<>
+          {busy ? <Badge tone="info">{busy}</Badge> : null}
+          {warnings.length ? <Badge tone="warn" title={warnings.join("\n")}>{warnings.length} import note(s)</Badge> : null}
+      </>}>
+        <BannerGroup name="Keep">
+          <Btn variant="ghost" onClick={image.newDoc}>New</Btn>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input aria-label="Open image or PSD" type="file" accept="image/*,.psd" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void f.arrayBuffer().then((b) => openBytes(new Uint8Array(b), f.name, f.type)); e.target.value = ""; }} /></label>
+          <Btn variant="ghost" onClick={async () => { const p = await askText("Open from Files (path)", "/Pictures/", { detail: "PNG, JPEG, WebP, GIF or PSD", okLabel: "Open" }); if (p) setPath(p); }}>Open from Files…</Btn>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Place…<input aria-label="Place image as layer" type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void placeFile(f); e.target.value = ""; }} /></label>
+          <Btn variant="primary" onClick={() => void savePsd()} disabled={!!busy}>Save PSD</Btn>
+          <Btn variant="ghost" onClick={() => void exportFlat("image/png")} disabled={!!busy}>Export PNG</Btn>
+          <Btn variant="ghost" onClick={() => void exportFlat("image/jpeg")} disabled={!!busy}>Export JPEG</Btn>
+        </BannerGroup>
+        <BannerGroup name="Tweak">
+          <Btn variant="ghost" onClick={undo} disabled={!hist.past.length} title="Undo (Ctrl+Z)">Undo</Btn>
+          <Btn variant="ghost" onClick={redo} disabled={!hist.future.length} title="Redo (Ctrl+Shift+Z)">Redo</Btn>
+        </BannerGroup>
+        <BannerGroup name="Glance">
+          <select className="fs-input" aria-label="Zoom" value={String(zoom)} onChange={(e) => setZoom(e.target.value === "fit" ? "fit" : Number(e.target.value))} style={{ width: 90 }}>
           <option value="fit">Fit</option>{[0.25, 0.5, 1, 2, 4, 8].map((z) => <option key={z} value={z}>{z * 100}%</option>)}
-        </select>
-        <input className="fs-input" aria-label="Document name" value={name} onChange={(e) => setName(e.target.value)} style={{ width: 140 }} />
-        {busy ? <Badge tone="info">{busy}</Badge> : null}
-        {warnings.length ? <Badge tone="warn" title={warnings.join("\n")}>{warnings.length} import note(s)</Badge> : null}
-      </div>
-
-      {/* tool rail */}
-      <div role="toolbar" aria-label="Tools" style={{ display: "grid", alignContent: "start", gap: 2, padding: 3, borderRight: "1px solid var(--fs-border)" }}>
+          </select>
+          <input className="fs-input" aria-label="Document name" value={name} onChange={(e) => setName(e.target.value)} style={{ width: 140 }} />
+        </BannerGroup>
+      </AppBanner>
+      {/* TT80: the tool rail is a Kit group — its controls are reachable from the Kit menu */}
+      <div data-banner-group="Kit" role="toolbar" aria-label="Drawing kit" style={{ display: "grid", alignContent: "start", gap: 2, padding: 3, borderRight: "1px solid var(--fs-border)" }}>
         {TOOLS.map((t) => (
           <button key={t.id} className="fs-btn" data-variant={tool === t.id ? "primary" : "ghost"} aria-pressed={tool === t.id} title={`${t.label}${t.key ? ` (${t.key})` : ""}`} aria-label={t.label}
             onClick={() => setTool(t.id)} style={{ padding: "4px 2px", fontSize: fz(10), lineHeight: 1.15, whiteSpace: "normal", textAlign: "center" }}>{t.label}</button>

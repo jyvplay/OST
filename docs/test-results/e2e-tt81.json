@@ -1,0 +1,40 @@
+{
+  "suite": "e2e-tt81",
+  "at": "2026-10-26T16:04:22.106Z",
+  "results": [
+    {
+      "suite": "e2e-tt81",
+      "name": "E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output",
+      "covers": {
+        "FF-78": "full"
+      },
+      "pass": true,
+      "ms": 6323
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry",
+      "covers": {
+        "FF-79": "full"
+      },
+      "pass": true,
+      "ms": 4370
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback",
+      "covers": {
+        "FF-80": "full"
+      },
+      "pass": true,
+      "ms": 4765
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E4 no browser page errors",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

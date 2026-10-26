@@ -1,27 +1,27 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-26T08:43:26.068Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-199 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-26T16:12:18.750Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+202 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
-| **Features in register** | **408** |
-| Fully built | 333 |
+| **Features in register** | **412** |
+| Fully built | 337 |
 | Partially built (partial 35 + probe 18) | 53 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 1 |
-| **Fully tested** (≥1 passing test tagged `full`) | **258** |
+| **Fully tested** (≥1 passing test tagged `full`) | **262** |
 | **Partially tested** (only `partial` tags) | **71** |
 | Untested | 79 |
-| Automated tests executed / passed | 1609 / 1605 |
+| Automated tests executed / passed | 1635 / 1635 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 249 | 60 | 24 |
+| fully built | 253 | 60 | 24 |
 | partially built | 3 | 9 | 41 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 1 |
@@ -37,21 +37,21 @@ verifies the honesty contract, not the (impossible) capability.
 | ai-format | 5 | 5 | 0 | 2026-10-25T22:09:37.900Z |
 | browser-session | 5 | 5 | 0 | 2026-10-25T22:09:27.537Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-25T22:09:39.011Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-25T22:18:47.768Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-26T15:52:13.634Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
-| e2e-beauty | 6 | 6 | 0 | 2026-10-26T07:07:04.865Z |
+| e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
 | e2e-browser | 6 | 6 | 0 | 2026-10-25T22:13:45.088Z |
 | e2e-contacts | 9 | 9 | 0 | 2026-10-25T22:20:01.143Z |
-| e2e-image | 11 | 11 | 0 | 2026-10-25T22:12:41.872Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-25T22:21:03.315Z |
+| e2e-image | 11 | 11 | 0 | 2026-10-26T12:55:59.830Z |
+| e2e-layout | 12 | 12 | 0 | 2026-10-26T13:06:52.259Z |
 | e2e-media27 | 7 | 7 | 0 | 2026-10-25T22:23:42.055Z |
 | e2e-office | 11 | 11 | 0 | 2026-10-25T22:11:51.858Z |
-| e2e-privacy | 14 | 13 | 1 | 2026-10-26T07:00:48.313Z |
+| e2e-privacy | 14 | 14 | 0 | 2026-10-26T08:44:34.982Z |
 | e2e-sheet-layout | 7 | 7 | 0 | 2026-10-25T22:14:54.291Z |
-| e2e-tables | 8 | 8 | 0 | 2026-10-25T22:19:06.652Z |
-| e2e-tabletop | 15 | 13 | 2 | 2026-10-26T07:02:42.975Z |
+| e2e-tables | 8 | 8 | 0 | 2026-10-26T13:12:19.850Z |
+| e2e-tabletop | 15 | 15 | 0 | 2026-10-26T16:10:55.525Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
-| e2e-tt29 | 4 | 4 | 0 | 2026-10-26T07:03:10.766Z |
+| e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
 | e2e-tt31 | 10 | 10 | 0 | 2026-10-25T22:27:55.111Z |
 | e2e-tt32 | 6 | 6 | 0 | 2026-10-25T22:31:14.935Z |
@@ -74,13 +74,13 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt48 | 6 | 6 | 0 | 2026-10-25T22:48:59.174Z |
 | e2e-tt49-writer | 6 | 6 | 0 | 2026-10-25T22:50:59.819Z |
 | e2e-tt49 | 5 | 5 | 0 | 2026-10-25T22:49:43.811Z |
-| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-25T22:51:26.511Z |
-| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-25T22:52:43.211Z |
-| e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-25T22:53:22.944Z |
+| e2e-tt50-charts | 5 | 5 | 0 | 2026-10-26T13:09:52.094Z |
+| e2e-tt51-slides | 6 | 6 | 0 | 2026-10-26T15:55:38.896Z |
+| e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-26T11:53:35.201Z |
 | e2e-tt53-media | 6 | 6 | 0 | 2026-10-25T22:54:02.467Z |
 | e2e-tt54 | 8 | 8 | 0 | 2026-10-25T22:54:49.877Z |
-| e2e-tt55-files | 13 | 13 | 0 | 2026-10-26T08:42:27.817Z |
-| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-25T22:55:50.555Z |
+| e2e-tt55-files | 13 | 13 | 0 | 2026-10-26T11:56:25.498Z |
+| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-26T11:56:38.606Z |
 | e2e-tt56-rows | 7 | 7 | 0 | 2026-10-25T22:56:48.364Z |
 | e2e-tt56 | 10 | 10 | 0 | 2026-10-25T22:56:31.173Z |
 | e2e-tt57-rows | 4 | 4 | 0 | 2026-10-25T22:58:21.446Z |
@@ -110,12 +110,13 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt75-books | 16 | 16 | 0 | 2026-10-25T23:26:09.598Z |
 | e2e-tt76-sheet | 6 | 6 | 0 | 2026-10-25T23:26:23.466Z |
 | e2e-tt76-slides | 7 | 7 | 0 | 2026-10-25T23:27:11.022Z |
-| e2e-tt77-pdfsig | 7 | 7 | 0 | 2026-10-26T08:40:58.547Z |
-| e2e-tt78-sheet | 3 | 3 | 0 | 2026-10-26T08:40:25.602Z |
-| e2e-tt79-archive | 7 | 7 | 0 | 2026-10-26T08:40:00.248Z |
-| e2e-tt79-pdf | 5 | 5 | 0 | 2026-10-26T08:39:14.093Z |
-| e2e-vector | 12 | 12 | 0 | 2026-10-25T22:13:04.942Z |
-| e2e-whiteboard | 7 | 7 | 0 | 2026-10-25T22:19:26.528Z |
+| e2e-tt77-pdfsig | 7 | 7 | 0 | 2026-10-26T16:01:56.377Z |
+| e2e-tt78-sheet | 3 | 3 | 0 | 2026-10-26T11:55:23.062Z |
+| e2e-tt79-archive | 7 | 7 | 0 | 2026-10-26T13:07:47.830Z |
+| e2e-tt79-pdf | 5 | 5 | 0 | 2026-10-26T15:55:00.602Z |
+| e2e-tt81 | 4 | 4 | 0 | 2026-10-26T16:04:22.106Z |
+| e2e-vector | 12 | 12 | 0 | 2026-10-26T13:09:31.262Z |
+| e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 65 | 65 | 0 | 2026-10-25T22:11:26.549Z |
 | image | 16 | 16 | 0 | 2026-10-25T22:09:22.983Z |
 | integration | 25 | 25 | 0 | 2026-10-25T22:09:17.732Z |
@@ -220,25 +221,24 @@ verifies the honesty contract, not the (impossible) capability.
 | tt75-epub | 31 | 31 | 0 | 2026-10-25T23:25:09.333Z |
 | tt75-office | 17 | 17 | 0 | 2026-10-26T08:03:13.483Z |
 | tt76-sheet | 13 | 13 | 0 | 2026-10-26T08:03:15.704Z |
-| tt76-slides | 8 | 8 | 0 | 2026-10-25T23:26:50.045Z |
+| tt76-slides | 8 | 8 | 0 | 2026-10-26T15:59:10.851Z |
 | tt77-pdf-composite | 18 | 18 | 0 | 2026-10-25T23:27:23.618Z |
 | tt77-pdf | 11 | 11 | 0 | 2026-10-25T23:27:21.990Z |
-| tt77-pdfsig | 23 | 23 | 0 | 2026-10-25T23:27:31.213Z |
-| tt78-sheet | 11 | 11 | 0 | 2026-10-26T08:03:30.439Z |
+| tt77-pdfsig | 23 | 23 | 0 | 2026-10-26T15:58:43.407Z |
+| tt78-sheet | 11 | 11 | 0 | 2026-10-26T15:59:23.715Z |
 | tt79-archive | 15 | 15 | 0 | 2026-10-26T07:10:13.663Z |
 | tt79-pdf | 17 | 17 | 0 | 2026-10-26T08:37:24.818Z |
-| tt79-sheet | 5 | 4 | 1 | 2026-10-26T08:14:00.464Z |
+| tt79-sheet | 5 | 5 | 0 | 2026-10-26T15:54:13.462Z |
+| tt80-banner | 11 | 11 | 0 | 2026-10-26T16:05:00.532Z |
+| tt81-core | 11 | 11 | 0 | 2026-10-26T15:59:28.320Z |
 | unit | 23 | 23 | 0 | 2026-10-26T08:12:30.223Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-25T22:09:26.802Z |
 | vector | 18 | 18 | 0 | 2026-10-25T22:09:25.939Z |
 | whiteboard-engine | 9 | 9 | 0 | 2026-10-25T22:09:36.893Z |
 
-## Rows touched by FAILING tests (not counted as tested)
+## Rows touched by failing tests
 
-- SC-10: e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end
-- LY-07: e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too
-- LY-12: e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it
-- FF-77: tt79-sheet: X5 the 10 EverythingTests shapes fixed in TT79, rebuilt in a fresh workbook, with negative controls
+None.
 
 ## By family
 
@@ -254,7 +254,7 @@ verifies the honesty contract, not the (impossible) capability.
 | AP | 5 | 1 | 2 | 1 | 0 | 0 | 5 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
 | PR | 54 | 47 | 7 | 0 | 40 | 8 | 6 |
-| FF | 74 | 73 | 1 | 0 | 72 | 1 | 1 |
+| FF | 77 | 76 | 1 | 0 | 75 | 1 | 1 |
 | MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
 | SC | 18 | 16 | 1 | 1 | 12 | 3 | 3 |
 | BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
@@ -274,7 +274,7 @@ verifies the honesty contract, not the (impossible) capability.
 | HW | 11 | 2 | 9 | 0 | 0 | 1 | 10 |
 | CM | 2 | 1 | 0 | 1 | 0 | 0 | 2 |
 | BL | 5 | 4 | 1 | 0 | 1 | 2 | 2 |
-| DP | 14 | 13 | 1 | 0 | 6 | 6 | 2 |
+| DP | 15 | 14 | 1 | 0 | 7 | 6 | 2 |
 
 ## Per-row detail
 
@@ -461,7 +461,7 @@ verifies the honesty contract, not the (impossible) capability.
 | FF-33 | built | full | e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells; e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader) (+8) |
 | FF-34 | built | full | e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+4) |
 | FF-35 | built | full | e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+5) |
-| SC-10 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path; e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists (+18) |
+| SC-10 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path; e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists (+19) |
 | SC-11 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only); e2e: mount: privacy (+3) |
 | SC-12 | built | full | e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e: mount: privacy (+6) |
 | SC-13 | built | full | e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists; e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache; e2e: mount: privacy (+1) |
@@ -496,12 +496,12 @@ verifies the honesty contract, not the (impossible) capability.
 | LY-04 | built | full | e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet; e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations; layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers |
 | LY-05 | built | full | e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+7) |
 | LY-06 | built | full | e2e-tabletop: desktop icons (classic): drag snaps to another grid cell and persists; Alt+Arrow moves; 'Sort icons by name' and 'Clean up icons' rearrange; tabletop-unit: desktop icons: column-major auto layout, saved cells win, contested/out-of-grid cells ignored, missing paths dropped (SH-04); tabletop-unit: desktop icons: drag moves to a cell and swaps with an occupant, nudge clamps at the edges, clean up closes gaps in reading order, sort by name is natural (+1) |
-| LY-07 | built | full | e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back; e2e-tabletop: box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured); e2e-tabletop: walls work: Apps wall launches an app (and returns to the table), Windows wall lists and restores windows, Widgets shows the time, Recent opens a file (+6) |
+| LY-07 | built | full | e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back; e2e-tabletop: box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured); e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too (+7) |
 | LY-08 | built | full | e2e-tabletop: drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves; e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+3) |
 | LY-09 | built | full | e2e-tabletop: micro peek shows the real contents (Markdown heading + bullets, CSV grid with a quoted comma) and enlarges on hover / focus; tabletop-unit: micro peek: Markdown keeps headings/bullets, plain text and code, line cap, CSV with RFC 4180 quoting, JSON grid / pretty text, images, SVG, binary, sealed, empty |
 | LY-10 | built | full | e2e-beauty: the pipeline catches seeded violations in the live page (tiny crowded buttons, clipped text, an off-centre dock, an un-golden card); e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+3) |
 | LY-11 | built | full | e2e-tabletop: slanted camera is the default: floor ≥ 80 % of the Tabletop by hit-sampling 1440 points (desktop + phone), the near lip is a ≥ 24 px target, Camera toggles top ↔ slant and persists; tabletop-unit: slanted camera (default): floor ≥ 80 % of the frame across a viewport sweep, lip ≥ 24 px, β = 38°, walls share the rest; tabletop-unit: slanted camera maths: floor homography = the 3D projection (< 0.01 px) and inverts (< 0.01 px); faces meet at the seams; every wall faces into the box |
-| LY-12 | built | full | e2e-tabletop: TT48 fast flick: pointerdown, eight pointermoves and pointerup in ONE task (no render in between) still move the card — the release must not read a stale drag; e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload; e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted) (+4) |
+| LY-12 | built | full | e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it; e2e-tabletop: TT48 fast flick: pointerdown, eight pointermoves and pointerup in ONE task (no render in between) still move the card — the release must not read a stale drag; e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload (+5) |
 | LY-13 | built | full | e2e-tabletop: saved tabletop views: save (camera + face + pins), change everything, load restores it, survives reload, delete; tabletop-unit: saved tabletop views: save captures camera + face + every surface; same name updates in place; load restores (re-validated against today's files); rename / delete; cap |
 | LY-14 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; e2e-media27: layout ↔ style pairing: Art → Silver + light, Business → Daylight + light (from the Quick-panel/Settings switch), Fusion keeps the look; 'Match the look' off leaves the style alone; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
 | LY-15 | built | full | e2e-beauty: colour schemes: all 13 styles × dark/light measured from live screenshots (OKLCH) — hard: axe colour-contrast clean, Silver/Daylight light themes mostly light-neutral; soft: harmony template, hue entropy, 60-30-10; tabletop-unit: colour beauty core: OKLCH matches published values, WCAG contrast, harmony templates, hue entropy, pixel statistics (60-30-10, light-neutral share); Silver/Daylight tokens are silver/light |
@@ -596,7 +596,10 @@ verifies the honesty contract, not the (impossible) capability.
 | FF-74 | built | full | e2e-tt79-pdf: Q1 Import .p12: wrong password asked again; Ctrl+S / Delete inert behind the dialog; identity with chain; e2e-tt79-pdf: Q2 visible signature on page 2 → Ctrl+S → pyHanko valid + trusted; widget bottom-right of page 2; drawn by Fusion; e2e-tt79-pdf: Q3 Trust this certificate → Identity trusted; survives reload; Remove → not verified (+5) |
 | FF-75 | built | full | e2e-tt79-pdf: Q1 Import .p12: wrong password asked again; Ctrl+S / Delete inert behind the dialog; identity with chain; e2e-tt79-pdf: Q2 visible signature on page 2 → Ctrl+S → pyHanko valid + trusted; widget bottom-right of page 2; drawn by Fusion; e2e-tt79-pdf: Q3 Trust this certificate → Identity trusted; survives reload; Remove → not verified (+4) |
 | FF-76 | built | full | tt79-sheet: X1 POI Strict workbooks: every cell == openpyxl on the namespace-mapped copy; formulas recompute to the cached values; tt79-sheet: X2 t="d" cells in 1900 and 1904 workbooks == openpyxl (from_ISO8601 + to_excel); tt79-sheet: X3 edges: dateCompatibility=0, bare times, impossible dates stay text |
-| FF-77 | built | full | tt79-sheet: X4 text → number coercion (numtext.ts): en-US currency, groups, %, parentheses, exponent; hex / Infinity / dates refused |
+| FF-77 | built | full | tt79-sheet: X4 text → number coercion (numtext.ts): en-US currency, groups, %, parentheses, exponent; hex / Infinity / dates refused; tt79-sheet: X5 the 10 EverythingTests shapes fixed in TT79, rebuilt in a fresh workbook, with negative controls |
+| FF-78 | built | full | e2e-tt81: E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output; tt81-core: S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates; tt81-core: S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula (+2) |
+| FF-79 | built | full | e2e-tt81: E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry; tt81-core: P1 custom box geometry exact all rotations, negative crop origin and edge boxes; tt81-core: P2 refuse NaN, infinities, zero, negative, off-page, malformed geometry before signing (+1) |
+| FF-80 | built | full | e2e-tt81: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback; tt81-core: L1 literal case/scope, groups and tables; no notes/master/package false hits; tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical (+2) |
 | CT-01 | built | partial | e2e-tt70-rows: CT-01 share target: manifest share_target → / ; ?url= opens a Browser tab on it and cleans the query; a javascript: URL never runs; Notes Share passes title + body to navigator.share (injected recorder — no OS share sheet in headless Linux) |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CT-03 | partial | untested |  |
@@ -688,6 +691,7 @@ verifies the honesty contract, not the (impossible) capability.
 | DP-12 | built | untested |  |
 | DP-13 | built | full | e2e-tt70-rows: DP-13 density tokens: compact < balanced < touch (title bar, --fs-target), no control under 24 px, and every density offers the SAME controls by accessible name |
 | DP-14 | built | partial | e2e: mount: monitor; integration: FM-03 journaled move: 6 states in order, digest preserved, source retired |
+| DP-15 | built | full | tt80-banner: writer: one banner, own menu names, menus mirror the strip; tt80-banner: slides: one banner, own menu names, menus mirror the strip; tt80-banner: sheet: one banner, own menu names, menus mirror the strip (+8) |
 
 ## Definitions
 

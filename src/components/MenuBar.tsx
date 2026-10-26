@@ -7,11 +7,20 @@
  *  (Quick panel) and the day-date-time clock.
  */
 import { fz } from "@/lib/uiscale";
+import { menuItemsForWindow, useBannerMenus } from "./AppBanner";
 import { moduleById } from "@/lib/registry";
 import { privacy } from "@/lib/privacy/session";
 import { useShell } from "./shell-context";
 import { FusionLogo, UiGlyph } from "./AppIcon";
 import { MenuButton, StatusItems, useClock, type MenuItem } from "./chrome-bits";
+
+/** TT80: every window publishes its banner menu names; the shell shows them beside Frame / Guide */
+function WindowMenus({ win }: { win: string | null | undefined }) {
+  const names = useBannerMenus(win);
+  if (!win || !names.length) return null;
+  const pill = { minHeight: fz(24), padding: `0 ${fz(8)}`, borderRadius: 999, fontWeight: 600 } as const;
+  return <>{names.map((n) => <MenuButton key={n} label={n} testid={`shell-menu-${n.toLowerCase()}`} items={() => menuItemsForWindow(win, n)} buttonStyle={pill}>{n}</MenuButton>)}</>;
+}
 
 export default function MenuBar({ onLaunchpad, onPalette, onOverview, onQuick, onBlackout, onShortcuts }: {
   onLaunchpad: () => void; onPalette: () => void; onOverview: () => void; onQuick: () => void; onBlackout: () => void; onShortcuts: () => void;
@@ -37,12 +46,12 @@ export default function MenuBar({ onLaunchpad, onPalette, onOverview, onQuick, o
     { label: "Lock Private storage", onSelect: () => { privacy.lock(); shell.bumpRefresh(); shell.toast("Private storage locked.", "ok"); } },
     { label: "Blackout screen", onSelect: onBlackout },
   ];
-  const fileItems: MenuItem[] = [
+  /** TT80: Frame — everything about the focused window itself (the document commands live in the app's own menus) */
+  const frameItems: MenuItem[] = [
     { label: `New ${appName} window`, onSelect: focused ? () => shell.open(focused.module) : undefined, disabled: !focused },
     { label: "Close window", onSelect: on((id) => shell.dispatch({ t: "close", id })), disabled: !focused, hint: "⌘W" },
     { label: `Quit ${appName}`, disabled: !focused, onSelect: focused ? () => wins.filter((w) => w.module === focused.module).forEach((w) => shell.dispatch({ t: "close", id: w.id })) : undefined },
-  ];
-  const windowItems: MenuItem[] = [
+    { label: "", separator: true },
     { label: "Minimise", onSelect: on((id) => shell.dispatch({ t: "minimize", id })), disabled: !focused, hint: "⌘M", testid: "menu-minimise" },
     { label: "Zoom", onSelect: on((id) => shell.dispatch({ t: "toggleMax", id })), disabled: !focused, testid: "menu-zoom" },
     { label: "Move Window to Left Side of Screen", onSelect: on((id) => shell.dispatch({ t: "tile", id, slot: "left" })), disabled: !focused, testid: "menu-tile-left" },
@@ -53,12 +62,11 @@ export default function MenuBar({ onLaunchpad, onPalette, onOverview, onQuick, o
     ...(wins.length ? [{ label: "", separator: true }] : []),
     ...wins.map((w) => ({ label: w.title, checked: w.id === state.focus && !w.minimized, onSelect: () => shell.dispatch({ t: w.minimized ? "restore" : "focus", id: w.id }) })),
   ];
-  const helpItems: MenuItem[] = [
+  const guideItems: MenuItem[] = [
     { label: "Keyboard shortcuts", onSelect: onShortcuts },
     { label: "Search commands…", onSelect: onPalette, hint: "Ctrl+Space" },
     { label: "Feature register (Spec)", onSelect: () => shell.open("spec") },
   ];
-
   return (
     <header role="banner" data-testid="menubar" className="fs-row"
       style={{ height: fz(30), padding: `0 ${fz(8)}`, gap: 2, background: "var(--fs-panel)", backdropFilter: "blur(24px) saturate(1.4)", borderBottom: "1px solid var(--fs-border)", position: "relative", zIndex: 70 }}>
@@ -67,9 +75,10 @@ export default function MenuBar({ onLaunchpad, onPalette, onOverview, onQuick, o
           <FusionLogo size={18} label="" />
         </MenuButton>
         <strong data-testid="menubar-app" style={{ padding: `0 ${fz(8)}`, fontSize: fz(13), whiteSpace: "nowrap", maxWidth: "28vw", overflow: "hidden", textOverflow: "ellipsis" }}>{appName}</strong>
-        <MenuButton label="File" items={fileItems} buttonStyle={mb}>File</MenuButton>
-        <MenuButton label="Window" items={windowItems} testid="menu-window" buttonStyle={mb}>Window</MenuButton>
-        <span className="fs-narrow-hide" style={{ display: "contents" }}><MenuButton label="Help" items={helpItems} buttonStyle={mb}>Help</MenuButton></span>
+        {/* TT80: the focused window's own menus, then the shell's Frame / Guide */}
+        {focused && <WindowMenus win={focused.id} />}
+        <MenuButton label="Frame" items={frameItems} testid="menu-window" buttonStyle={mb}>Frame</MenuButton>
+        <span className="fs-narrow-hide" style={{ display: "contents" }}><MenuButton label="Guide" items={guideItems} buttonStyle={mb}>Guide</MenuButton></span>
       </nav>
       <div style={{ flex: 1 }} />
       <div className="fs-row" style={{ gap: 2, minWidth: 0 }}>

@@ -20,6 +20,7 @@ import { askConfirm, askText } from "@/lib/ask";
 import { Badge, Btn } from "../ui";
 import type { PdfDoc } from "@/lib/pdf/pdfdoc";
 import { validateSignatures, signPdf, makeSelfSignedIdentity, importIdentity, parseCert, placeSignature, type SigReport, type SigCorner } from "@/lib/pdf/pdfsig";
+import { signatureRectAt, type SignatureBox } from "@/lib/pdf/sigplacement";
 import { identityFromPkcs12, P12PasswordError } from "@/lib/pdf/pkcs12";
 import { listIdentities, putIdentity, deleteIdentity, listAnchors, putAnchor, deleteAnchor, type StoredIdentity, type StoredAnchor } from "@/lib/pdf/sigstore";
 
@@ -53,6 +54,8 @@ export function PdfSignatures({ doc, onSigned, onOpenRevision, toast, dirty, pag
   const [checked, setChecked] = useState<{ doc: PdfDoc; anchors: StoredAnchor[] | null; reports: SigReport[] } | null>(null);
   const reports = checked && checked.doc === doc && checked.anchors === anchors ? checked.reports : null;
   const [visible, setVisible] = useState(false); const [corner, setCorner] = useState<SigCorner>("bottom-right");
+  const [customBox, setCustomBox] = useState(false);
+  const [box, setBox] = useState<SignatureBox>({ left: 36, top: 36, width: 220, height: 70 });
   const [ids, setIds] = useState<StoredIdentity[]>([]);
   const [idSel, setIdSel] = useState("");
   const [reason, setReason] = useState(""); const [location, setLocation] = useState("");
@@ -130,7 +133,7 @@ export function PdfSignatures({ doc, onSigned, onOpenRevision, toast, dirty, pag
     setBusy(true);
     try {
       const pg = doc.pages()[Math.min(page, doc.pages().length - 1)];
-      const vis = visible && pg ? { page: pg.index, rect: placeSignature(pg, corner) } : undefined;
+      const vis = visible && pg ? { page: pg.index, rect: customBox ? signatureRectAt(pg, box) : placeSignature(pg, corner) } : undefined;
       const out = await signPdf(doc, id, { reason: reason.trim() || undefined, location: location.trim() || undefined, visible: vis });
       onSigned(out, `Signed by ${id.name}`); toast(`Signed${vis ? ` (visible on page ${vis.page + 1})` : ""}. Save to keep it — any later edit shows up as a change after signing.`, "ok");
     }
@@ -200,8 +203,13 @@ export function PdfSignatures({ doc, onSigned, onOpenRevision, toast, dirty, pag
         <input className="fs-input" placeholder="Location (optional)" aria-label="Signing location" value={location} onChange={(e) => setLocation(e.target.value)} maxLength={200} />
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <label style={{ display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" data-testid="pdf-sig-visible" checked={visible} onChange={(e) => setVisible(e.target.checked)} />Visible on page {Math.min(page, doc.pages().length - 1) + 1}</label>
-          {visible ? <select className="fs-input" aria-label="Signature position" data-testid="pdf-sig-corner" value={corner} onChange={(e) => setCorner(e.target.value as SigCorner)} style={{ width: "auto" }}>{CORNERS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select> : null}
+          {visible ? <select className="fs-input" aria-label="Signature position" data-testid="pdf-sig-corner" disabled={customBox} value={corner} onChange={(e) => setCorner(e.target.value as SigCorner)} style={{ width: "auto" }}>{CORNERS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select> : null}
         </div>
+        {visible ? <fieldset style={{ border: "1px solid var(--fs-border)", padding: 6 }}>
+          <label><input type="checkbox" data-testid="pdf-sig-custom" checked={customBox} onChange={(e) => setCustomBox(e.target.checked)} /> Custom box</label>
+          {customBox ? <><div className="fs-dim" style={small}>From the displayed page’s top-left, in PDF units (normally points). The whole box must fit.</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>{(["left", "top", "width", "height"] as const).map((k) => <label key={k} style={{ minWidth: 0 }}>{k[0].toUpperCase() + k.slice(1)}<input className="fs-input" style={{ width: "100%" }} type="number" step="any" min={k === "left" || k === "top" ? 0 : 1} aria-label={`Signature ${k}`} data-testid={`pdf-sig-${k}`} value={Number.isFinite(box[k]) ? box[k] : ""} onChange={(e) => setBox((b) => ({ ...b, [k]: e.target.value === "" ? NaN : Number(e.target.value) }))} /></label>)}</div></> : null}
+        </fieldset> : null}
         <Btn variant="primary" data-testid="pdf-sig-sign" disabled={busy || !idSel} onClick={() => void sign()}>{busy ? "Working…" : "Sign"}</Btn>
         <div className="fs-dim" style={small}>Adds {visible ? "a visible" : "an invisible"} signature (SHA-256) as an incremental update{dirty ? "; your unsaved edits are included in what you sign" : ""}. Edits made after signing are visible to anyone checking the signature.</div>
       </section>

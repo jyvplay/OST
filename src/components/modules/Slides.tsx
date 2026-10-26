@@ -6,6 +6,7 @@
  * drawn by slides/render.tsx. Legacy .fdeck outlines open by converting to a real deck; password-protected decks
  * decrypt on this device and save encrypted again (same machinery as Writer).
  */
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { fz } from "@/lib/uiscale";
@@ -15,8 +16,9 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import * as M from "@/lib/office/pml";
+import { findSlideText, replaceSlideText } from "@/lib/office/pmlsearch";
 import { deckToMarkdown, deckToText } from "@/lib/office/convert-slides";
-import { askForm } from "@/lib/ask";
+import { askForm, isAskOpen } from "@/lib/ask";
 import { lossDetail, downloadAs } from "@/lib/office/export-ask";
 import { slideView, type VSlide } from "@/lib/office/pmlview";
 import { SlideCanvas } from "./slides/render";
@@ -53,6 +55,10 @@ export default function SlidesModule({ win }: ModuleProps) {
   const [present, setPresent] = useState<number | null>(null);
   // TT76 show state: click steps done on the current slide, whether the last one animates, the slide we came from (transition)
   const [showSt, setShowSt] = useState<{ done: number; animate: boolean; key: number; from: number | null }>({ done: 0, animate: false, key: 0, from: null });
+  const [findPane, setFindPane] = useState(false);
+  const [findQuery, setFindQuery] = useState(""); const [replacement, setReplacement] = useState("");
+  const [findCase, setFindCase] = useState(false); const [findCurrent, setFindCurrent] = useState(false);
+  const [findMessage, setFindMessage] = useState("");
   const [motion, setMotion] = useState(false);
   // TT76 (CA-02) presenter view: the audience screen is a second window running /present?show=<sid>
   const linkRef = useRef<{ port: ShowPort; win: Window | null; bytes: Uint8Array | null } | null>(null);
@@ -66,6 +72,17 @@ export default function SlidesModule({ win }: ModuleProps) {
   const syncHist = () => setHist({ u: undo.current.length, r: redo.current.length });
   const slide = doc?.slides[cur];
   const view = useMemo(() => (doc && slide ? viewOf(doc, slide) : null), [doc, slide, ver]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const search = useMemo(() => {
+    try { return { hits: doc ? findSlideText(doc, findQuery, { matchCase: findCase, slide: findCurrent ? cur : undefined }) : [], error: "" }; }
+    catch (e) { return { hits: [], error: (e as Error).message }; }
+  }, [doc, ver, findQuery, findCase, findCurrent, cur]); // eslint-disable-line react-hooks/exhaustive-deps -- doc is mutable; ver invalidates after undo/edit
+  const openFind = () => { if (edit) commitEdit(true); setFindPane((v) => !v); setFindMessage(""); };
+  const replaceFound = () => {
+    if (!search.hits.length || !docRef.current) return;
+    mutate("Replace text", (d) => { const n = replaceSlideText(d, findQuery, replacement, { matchCase: findCase, slide: findCurrent ? cur : undefined }); setFindMessage(`Replaced ${n} match(es)`); });
+    setSel(null); setEdit(null);
+  };
 
   /* ------------------------------------------------------------ mutation plumbing */
   const mutate = useCallback((what: string, fn: (d: M.PptxDoc) => void) => {
@@ -255,9 +272,10 @@ export default function SlidesModule({ win }: ModuleProps) {
 
   /* ------------------------------------------------------------ keyboard */
   const onKey = (e: React.KeyboardEvent) => {
-    if (present !== null || pop) return; // a modal owns the keyboard
+    if (present !== null || pop || isAskOpen()) return; // a modal owns the keyboard
     const mod = e.ctrlKey || e.metaKey;
     if (mod && e.key.toLowerCase() === "s") { e.preventDefault(); if (edit) commitEdit(true); save(); return; }
+    if (mod && e.key.toLowerCase() === "f") { e.preventDefault(); openFind(); return; }
     if (isField(e.target)) { if (edit && e.key === "Escape") { e.preventDefault(); commitEdit(); rootRef.current?.focus(); } return; }
     if (mod && e.key.toLowerCase() === "z") { e.preventDefault(); if (e.shiftKey) doRedo(); else doUndo(); return; }
     if (mod && e.key.toLowerCase() === "y") { e.preventDefault(); doRedo(); return; }
@@ -392,64 +410,88 @@ export default function SlidesModule({ win }: ModuleProps) {
 
   return (
     <div ref={rootRef} tabIndex={0} onKeyDown={onKey} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, outline: "none" }} aria-label="Slides editor">
-      {/* ---------- file / slide row ---------- */}
-      <div className="fs-row" style={bar} role="toolbar" aria-label="Presentation">
-        <Btn variant="primary" onClick={() => { if (edit) commitEdit(true); save(); }} title="Save (Ctrl+S)">Save</Btn>
-        <Btn variant="ghost" onClick={() => { setPopVal(path.toLowerCase().endsWith(".pptx") ? path : `/Documents/${doc.title || "Presentation"}.pptx`); setPop("saveas"); }}>Save as…</Btn>
-        <Btn variant="ghost" onClick={() => void download()}>Download</Btn>
-        <Btn variant="ghost" data-testid="slides-export-outline" title="Export the slide text as a Markdown or plain-text outline" onClick={() => void exportOutline()}>Outline</Btn>
-        <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input type="file" accept=".pptx" hidden aria-label="Open a .pptx file" onChange={(e) => { const f = e.target.files?.[0]; if (f) void openLocal(f); e.target.value = ""; }} /></label>
-        <Btn variant="ghost" data-testid="slides-password" aria-pressed={locked} onClick={async () => {
+      {/* ---------- TT80 banner: Keep · Stage · Tweak · Put · Look · Stack over one tool strip ---------- */}
+      <AppBanner label="Slides" status={<>
+          {locked ? <Badge tone="info">encrypted</Badge> : null}
+          {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
+      </>}>
+        <BannerGroup name="Keep">
+          <Btn variant="primary" onClick={() => { if (edit) commitEdit(true); save(); }} title="Save (Ctrl+S)">Save</Btn>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input type="file" accept=".pptx" hidden aria-label="Open a .pptx file" onChange={(e) => { const f = e.target.files?.[0]; if (f) void openLocal(f); e.target.value = ""; }} /></label>
+        </BannerGroup>
+        <BannerGroup name="Stage">
+          <Btn variant="primary" onClick={() => startShow(0)} title="Present from the start (F5; Shift+F5 from this slide)"><Ico d="M7 5 L19 12 L7 19 Z" fill /> Present</Btn>
+          <Btn variant="ghost" data-testid="slides-presenter" onClick={startPresenter} title="Show the slides on a second window or screen (projector / TV) and keep notes, next slide and a timer here">Presenter view</Btn>
+          <Btn variant="ghost" data-testid="slides-motion" aria-pressed={motion} onClick={() => setMotion((m) => !m)} title="Transitions and animations of this slide">Motion</Btn>
+          <Btn variant="ghost" onClick={() => mutate("Hide slide", (d) => M.setHidden(d, cur, !M.isHidden(d.slides[cur])))} aria-pressed={M.isHidden(slide)}>{M.isHidden(slide) ? "Unhide" : "Hide"}</Btn>
+        </BannerGroup>
+        <BannerGroup name="Tweak">
+          <Btn variant="ghost" data-testid="slides-find" aria-pressed={findPane} onClick={openFind} title="Find and replace (Ctrl+F)">Find</Btn>
+          <Btn variant="ghost" onClick={doUndo} disabled={!hist.u} title="Undo (Ctrl+Z)" aria-label="Undo"><Ico d="M9 7 L4 12 L9 17 M4 12 H15 A5 5 0 0 1 15 22" /></Btn>
+          <Btn variant="ghost" onClick={doRedo} disabled={!hist.r} title="Redo (Ctrl+Y)" aria-label="Redo"><Ico d="M15 7 L20 12 L15 17 M20 12 H9 A5 5 0 0 0 9 22" /></Btn>
+        </BannerGroup>
+        <BannerGroup name="Put">
+          <select className="fs-input" aria-label="New slide from layout" value="" onChange={(e) => { if (e.target.value) newSlide(e.target.value); }} style={{ width: fz(150) }}>
+          <option value="">+ New slide…</option>{layouts.map((l) => <option key={l.path} value={l.path}>{l.name}</option>)}
+          </select>
+          <Btn variant="ghost" onClick={dupSlide} title="Duplicate slide (Ctrl+D)">Duplicate</Btn>
+          <Btn variant="ghost" {...noSteal} onClick={() => insertShape("textbox")}>Text box</Btn>
+          <select className="fs-input" aria-label="Insert shape" value="" onChange={(e) => { if (e.target.value) insertShape(e.target.value as M.NewShapeKind); }} style={{ width: fz(120) }}>
+          <option value="">Shape…</option>{SHAPES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
+          </select>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Picture…<input type="file" accept="image/png,image/jpeg,image/gif,image/bmp,image/svg+xml,image/webp" hidden aria-label="Insert picture" onChange={(e) => { const f = e.target.files?.[0]; if (f) void insertPicture(f); e.target.value = ""; }} /></label>
+        </BannerGroup>
+        <BannerGroup name="Look">
+          <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => fmt({ b: !curRun()?.b })} aria-label="Bold" title="Bold"><b>B</b></Btn>
+          <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => fmt({ i: !curRun()?.i })} aria-label="Italic" title="Italic"><i>I</i></Btn>
+          <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => fmt({ u: !curRun()?.u })} aria-label="Underline" title="Underline"><u>U</u></Btn>
+          <select className="fs-input" aria-label="Font size" disabled={!hasText} value="" onMouseDown={(e) => e.stopPropagation()} onChange={(e) => { if (e.target.value) fmt({ sz: Number(e.target.value) }); }} style={{ width: fz(70) }}>
+          <option value="">Size</option>{SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <input type="color" aria-label="Text colour" disabled={!hasText} className="fs-input" style={{ width: 34, padding: 2 }} onChange={(e) => fmt({ color: e.target.value })} />
+          <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ algn: "l" })} aria-label="Align left"><Ico d="M4 6 H20 M4 10 H14 M4 14 H20 M4 18 H12" /></Btn>
+          <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ algn: "ctr" })} aria-label="Centre"><Ico d="M4 6 H20 M7 10 H17 M4 14 H20 M8 18 H16" /></Btn>
+          <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ algn: "r" })} aria-label="Align right"><Ico d="M4 6 H20 M10 10 H20 M4 14 H20 M12 18 H20" /></Btn>
+          <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "char" })} aria-label="Bullets">•</Btn>
+          <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "num" })} aria-label="1. Numbering" title="Numbering">1.</Btn>
+          <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "none" })} aria-label="No bullets">¶</Btn>
+          <label className="fs-dim" style={{ fontSize: fz(11) }} title="Shape fill">Fill <input type="color" aria-label="Shape fill" disabled={!sel} className="fs-input" style={{ width: 34, padding: 2 }} onChange={(e) => { const a = sel!; mutate("Fill", (d) => M.setShapeFill(d, cur, a, e.target.value)); }} /></label>
+          <label className="fs-dim" style={{ fontSize: fz(11) }}>Line <input type="color" aria-label="Shape outline" disabled={!sel} className="fs-input" style={{ width: 34, padding: 2 }} onChange={(e) => { const a = sel!; mutate("Outline", (d) => M.setShapeLine(d, cur, a, e.target.value, 1.5)); }} /></label>
+        </BannerGroup>
+        <BannerGroup name="Stack">
+          <Btn variant="ghost" disabled={!sel} onClick={() => { const a = sel!; let n = a; mutate("Bring to front", (d) => { n = M.zOrder(d, cur, a, "front"); }); setSel(n); }} title="Bring to front">Front</Btn>
+          <Btn variant="ghost" disabled={!sel} onClick={() => { const a = sel!; let n = a; mutate("Send to back", (d) => { n = M.zOrder(d, cur, a, "back"); }); setSel(n); }} title="Send to back">Back</Btn>
+        </BannerGroup>
+        <BannerGroup name="Tweak">
+          <Btn variant="ghost" disabled={!sel} onClick={() => { const a = sel!; setSel(null); setEdit(null); mutate("Delete shape", (d) => M.deleteShape(d, cur, a)); }} title="Delete shape (Del)">Delete shape</Btn>
+          <Btn variant="ghost" onClick={delSlide}>Delete slide</Btn>
+        </BannerGroup>
+        <BannerGroup name="Keep">
+          <Btn variant="ghost" onClick={() => { setPopVal(path.toLowerCase().endsWith(".pptx") ? path : `/Documents/${doc.title || "Presentation"}.pptx`); setPop("saveas"); }}>Save as…</Btn>
+          <Btn variant="ghost" onClick={() => void download()}>Download</Btn>
+          <Btn variant="ghost" data-testid="slides-export-outline" title="Export the slide text as a Markdown or plain-text outline" onClick={() => void exportOutline()}>Outline</Btn>
+          <Btn variant="ghost" data-testid="slides-password" aria-pressed={locked} onClick={async () => {
           if (saveBlocked(encRef.current, encRef.current?.path ?? "")) { setStatus("Unlock the file first (reopen it and enter its password)"); return; }
           const np = await askPassword(path.split("/").pop() || doc.title || "Presentation", encRef.current, path); if (!np) return;
           encRef.current = np; setLocked(!!np.password); setDirty(true); bump();
           setStatus(np.password ? "Password set — the next save encrypts the file (AES-256)" : "Password removed — the next save writes the file without encryption");
-        }}>{locked ? "Password: on" : "Password…"}</Btn>
-        <span style={{ width: 8 }} />
-        <Btn variant="ghost" onClick={doUndo} disabled={!hist.u} title="Undo (Ctrl+Z)" aria-label="Undo"><Ico d="M9 7 L4 12 L9 17 M4 12 H15 A5 5 0 0 1 15 22" /></Btn>
-        <Btn variant="ghost" onClick={doRedo} disabled={!hist.r} title="Redo (Ctrl+Y)" aria-label="Redo"><Ico d="M15 7 L20 12 L15 17 M20 12 H9 A5 5 0 0 0 9 22" /></Btn>
-        <span style={{ width: 8 }} />
-        <select className="fs-input" aria-label="New slide from layout" value="" onChange={(e) => { if (e.target.value) newSlide(e.target.value); }} style={{ width: fz(150) }}>
-          <option value="">+ New slide…</option>{layouts.map((l) => <option key={l.path} value={l.path}>{l.name}</option>)}
-        </select>
-        <Btn variant="ghost" onClick={dupSlide} title="Duplicate slide (Ctrl+D)">Duplicate</Btn>
-        <Btn variant="ghost" onClick={delSlide}>Delete slide</Btn>
-        <Btn variant="ghost" onClick={() => mutate("Hide slide", (d) => M.setHidden(d, cur, !M.isHidden(d.slides[cur])))} aria-pressed={M.isHidden(slide)}>{M.isHidden(slide) ? "Unhide" : "Hide"}</Btn>
-        <Btn variant="primary" onClick={() => startShow(0)} title="Present from the start (F5; Shift+F5 from this slide)"><Ico d="M7 5 L19 12 L7 19 Z" fill /> Present</Btn>
-        <Btn variant="ghost" data-testid="slides-presenter" onClick={startPresenter} title="Show the slides on a second window or screen (projector / TV) and keep notes, next slide and a timer here">Presenter view</Btn>
-        <Btn variant="ghost" data-testid="slides-motion" aria-pressed={motion} onClick={() => setMotion((m) => !m)} title="Transitions and animations of this slide">Motion</Btn>
-        <span style={{ flex: 1 }} />
-        {locked ? <Badge tone="info">encrypted</Badge> : null}
-        {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
-      </div>
-      {/* ---------- insert / format row ---------- */}
-      <div className="fs-row" style={bar} role="toolbar" aria-label="Insert and format">
-        <Btn variant="ghost" {...noSteal} onClick={() => insertShape("textbox")}>Text box</Btn>
-        <select className="fs-input" aria-label="Insert shape" value="" onChange={(e) => { if (e.target.value) insertShape(e.target.value as M.NewShapeKind); }} style={{ width: fz(120) }}>
-          <option value="">Shape…</option>{SHAPES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
-        </select>
-        <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Picture…<input type="file" accept="image/png,image/jpeg,image/gif,image/bmp,image/svg+xml,image/webp" hidden aria-label="Insert picture" onChange={(e) => { const f = e.target.files?.[0]; if (f) void insertPicture(f); e.target.value = ""; }} /></label>
-        <span style={{ width: 8 }} />
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => fmt({ b: !curRun()?.b })} aria-label="Bold" title="Bold"><b>B</b></Btn>
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => fmt({ i: !curRun()?.i })} aria-label="Italic" title="Italic"><i>I</i></Btn>
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => fmt({ u: !curRun()?.u })} aria-label="Underline" title="Underline"><u>U</u></Btn>
-        <select className="fs-input" aria-label="Font size" disabled={!hasText} value="" onMouseDown={(e) => e.stopPropagation()} onChange={(e) => { if (e.target.value) fmt({ sz: Number(e.target.value) }); }} style={{ width: fz(70) }}>
-          <option value="">Size</option>{SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <input type="color" aria-label="Text colour" disabled={!hasText} className="fs-input" style={{ width: 34, padding: 2 }} onChange={(e) => fmt({ color: e.target.value })} />
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ algn: "l" })} aria-label="Align left"><Ico d="M4 6 H20 M4 10 H14 M4 14 H20 M4 18 H12" /></Btn>
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ algn: "ctr" })} aria-label="Centre"><Ico d="M4 6 H20 M7 10 H17 M4 14 H20 M8 18 H16" /></Btn>
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ algn: "r" })} aria-label="Align right"><Ico d="M4 6 H20 M10 10 H20 M4 14 H20 M12 18 H20" /></Btn>
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "char" })} aria-label="Bullets">•</Btn>
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "num" })} aria-label="1. Numbering" title="Numbering">1.</Btn>
-        <Btn variant="ghost" {...noSteal} disabled={!hasText} onClick={() => pfmt({ bullet: "none" })} aria-label="No bullets">¶</Btn>
-        <span style={{ width: 8 }} />
-        <label className="fs-dim" style={{ fontSize: fz(11) }}>Fill <input type="color" aria-label="Shape fill" disabled={!sel} className="fs-input" style={{ width: 34, padding: 2 }} onChange={(e) => { const a = sel!; mutate("Fill", (d) => M.setShapeFill(d, cur, a, e.target.value)); }} /></label>
-        <label className="fs-dim" style={{ fontSize: fz(11) }}>Line <input type="color" aria-label="Shape outline" disabled={!sel} className="fs-input" style={{ width: 34, padding: 2 }} onChange={(e) => { const a = sel!; mutate("Outline", (d) => M.setShapeLine(d, cur, a, e.target.value, 1.5)); }} /></label>
-        <Btn variant="ghost" disabled={!sel} onClick={() => { const a = sel!; let n = a; mutate("Bring to front", (d) => { n = M.zOrder(d, cur, a, "front"); }); setSel(n); }} title="Bring to front">Front</Btn>
-        <Btn variant="ghost" disabled={!sel} onClick={() => { const a = sel!; let n = a; mutate("Send to back", (d) => { n = M.zOrder(d, cur, a, "back"); }); setSel(n); }} title="Send to back">Back</Btn>
-        <Btn variant="ghost" disabled={!sel} onClick={() => { const a = sel!; setSel(null); setEdit(null); mutate("Delete shape", (d) => M.deleteShape(d, cur, a)); }} title="Delete shape (Del)">Delete shape</Btn>
-      </div>
+          }}>{locked ? "Password: on" : "Password…"}</Btn>
+        </BannerGroup>
+      </AppBanner>
+      {findPane ? <section aria-label="Find and replace slide text" data-testid="slides-search" style={{ padding: 8, borderBottom: "1px solid var(--fs-border)", maxHeight: 220, overflow: "auto", flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+          <input className="fs-input" aria-label="Find slide text" placeholder="Find slide text" value={findQuery} maxLength={4096} onChange={(e) => { setFindQuery(e.target.value); setFindMessage(""); }} />
+          <input className="fs-input" aria-label="Replace slide text with" placeholder="Replace with" value={replacement} maxLength={65536} onChange={(e) => setReplacement(e.target.value)} />
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><input type="checkbox" checked={findCase} onChange={(e) => setFindCase(e.target.checked)} />Match case</label>
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><input type="checkbox" checked={findCurrent} onChange={(e) => setFindCurrent(e.target.checked)} />Current slide only</label>
+          <Btn data-testid="slides-replace-all" disabled={!search.hits.length} onClick={replaceFound}>Replace all</Btn>
+          <Btn variant="ghost" aria-label="Close slide search" onClick={() => setFindPane(false)}>Close</Btn>
+        </div>
+        <div role="status">{search.error || findMessage || `${search.hits.length} match(es)`}</div>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>Slide-owned text, tables and groups; not notes, masters, dynamic fields or text inside pictures. Matches do not cross paragraphs or hard breaks. Replacement keeps the first run’s style.</div>
+        {search.hits.slice(0, 100).map((h, i) => <button className="fs-btn" data-variant="ghost" data-testid="slides-search-hit" key={`${h.slide}-${h.segment}-${h.start}`} onClick={() => { if (edit) commitEdit(true); setCur(h.slide); setSel(null); }} style={{ display: "block", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Slide {h.slide + 1} · {i + 1}: {h.text.slice(Math.max(0, h.start - 25), Math.min(h.text.length, h.end + 40))}</button>)}
+        {search.hits.length > 100 ? <div>Showing the first 100 matches; narrow the search to navigate later results. Replace all applies to all {search.hits.length} matches.</div> : null}
+      </section> : null}
       {status ? <div className="fs-dim" role="status" style={{ padding: "3px 8px", fontSize: fz(11), borderBottom: "1px solid var(--fs-border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{status}</div> : null}
       {/* ---------- rail + stage ---------- */}
       <div style={{ flex: 1, minHeight: 0, display: "flex" }}>

@@ -43,6 +43,8 @@ export type ArgAccessor = {
   grid: () => CellValue[][];
   /** True when the argument is a range reference rather than a scalar expression. */
   isRange: boolean;
+  /** Direct cell reference, distinct from a range/array (legacy MODE coercion). */
+  isSingleRef?: boolean;
 };
 
 export type EvalEnv = {

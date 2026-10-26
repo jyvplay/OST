@@ -15,6 +15,7 @@
  *            reason). Optional curated EXIF (camera, exposure, capture time; Orientation reset to 1, new pixel size,
  *            MakerNote / thumbnail dropped); location only when "Include location" is ticked (off by default).
  */
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fz } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
@@ -119,16 +120,21 @@ export default function PhotosModule({ win }: ModuleProps) {
   const indexed = items ? items.filter((i) => index[i.sha256]).length : 0;
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-library">
-      <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
+      {/* TT80 banner: Glance (the library views) · Keep over one tool strip */}
+      <AppBanner label="Photos" status={<>
+{items && indexed < items.length ? <Badge tone="info">reading dates {indexed}/{items.length}</Badge> : null}
+      </>}>
+        <BannerGroup name="Glance">
         {(["all", "favorites", "edited", "places"] as View[]).map((v) => (
           <Btn key={v} variant={view === v ? "primary" : "ghost"} aria-pressed={view === v} onClick={() => setView(v)}>
             {v === "all" ? "All photos" : v === "favorites" ? "Favorites" : v === "edited" ? "Edited" : "Places"} <span className="fs-dim">({counts[v]})</span>
           </Btn>
         ))}
-        <div style={{ flex: 1 }} />
-        {items && indexed < items.length ? <Badge tone="info">reading dates {indexed}/{items.length}</Badge> : null}
-        <Btn variant="ghost" onClick={() => shell.open("files", { path: "/Pictures" })}>Open Pictures folder</Btn>
-      </div>
+        </BannerGroup>
+        <BannerGroup name="Keep">
+<Btn variant="ghost" onClick={() => shell.open("files", { path: "/Pictures" })}>Open Pictures folder</Btn>
+        </BannerGroup>
+      </AppBanner>
       <div className="fs-scroll" style={{ flex: 1, minHeight: 0, padding: 10 }}>
         {error ? <Badge tone="bad">{error}</Badge> : null}
         {items === null ? <div className="fs-dim">Loading library…</div> : null}

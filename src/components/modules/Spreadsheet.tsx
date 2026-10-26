@@ -1,4 +1,5 @@
 "use client";
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { tableStructureConflict } from "@/lib/formula/sheettables";
 import { afterTypedEntry } from "@/lib/formula/sheettablecalc";
 import { autoOutline, clearOutline, groupIsCollapsed, groupLines, hideDetail, maxLevel, outlineGroups, removeSubtotals, showDetail, showLevel, subtotal, SUBTOTAL_FNS, toggleGroup, ungroupLines, type OAxis, type SubtotalFn } from "@/lib/formula/sheetoutline";
@@ -1162,90 +1163,102 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
-      <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <Btn variant="primary" onClick={() => void save()}>Save workbook</Btn>
-        <Btn variant="ghost" onClick={() => void exportXlsx()}>Export .xlsx</Btn>
-        <Btn variant="ghost" data-testid="sheet-password" aria-pressed={locked} disabled={!/\.xlsx$/i.test(path)} title={/\.xlsx$/i.test(path) ? "Set, change or remove the file's password" : "Export as .xlsx first — passwords protect .xlsx files"} onClick={async () => {
+      {/* TT80 banner: Keep · Tweak · Look · Crunch · Put · Glance · Polish over one tool strip */}
+      <AppBanner label="Spreadsheet" status={<>
+          <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>
+          {status ? <span className="fs-dim" data-testid="sheet-status" style={{ fontSize: fz(11) }}>{status}</span> : null}
+          <Badge tone="info" title="First-party formula engine; see docs/OFFICE-ENGINE.md">from-scratch engine · {fnNames.length} functions</Badge>
+      </>}>
+        <BannerGroup name="Keep">
+          <Btn variant="primary" onClick={() => void save()}>Save workbook</Btn>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import .xlsx<input type="file" accept=".xlsx" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void importXlsx(f); }} /></label>
+          <Btn variant="ghost" onClick={() => void exportXlsx()}>Export .xlsx</Btn>
+        </BannerGroup>
+        <BannerGroup name="Tweak">
+          <TB label="Undo" onClick={undo} title={"Undo (Ctrl+Z)"} /><TB label="Redo" onClick={redo} title={"Redo (Ctrl+Y)"} />
+          <TB label="Find" onClick={() => setPanel(panel === "find" ? null : "find")} active={panel === "find"} title={"Find & replace (Ctrl+F)"} />
+          <TB label="Paste special" onClick={() => (panel === "paste" ? setPanel(null) : openPasteSpecial())} active={panel === "paste"} title={"Paste special: values / formulas / formats, operation, skip blanks, transpose (Ctrl+Shift+V)"} />
+        </BannerGroup>
+        <BannerGroup name="Look">
+          <TB label="B" onClick={() => toggle("bold")} active={!!cur.bold} title={"Bold (Ctrl+B)"} style={{ fontWeight: 700 }} />
+          <TB label="I" onClick={() => toggle("italic")} active={!!cur.italic} title={"Italic (Ctrl+I)"} style={{ fontStyle: "italic" }} />
+          <TB label="U" onClick={() => toggle("underline")} active={!!cur.underline} title={"Underline (Ctrl+U)"} style={{ textDecoration: "underline" }} />
+          <TB label="Left" onClick={() => applyStyle({ align: "left" })} active={cur.align === "left"} title={"Align left"} />
+          <TB label="Center" onClick={() => applyStyle({ align: "center" })} active={cur.align === "center"} title={"Align center"} />
+          <TB label="Right" onClick={() => applyStyle({ align: "right" })} active={cur.align === "right"} title={"Align right"} />
+          <TB label="Wrap" onClick={() => toggle("wrap")} active={!!cur.wrap} title={"Wrap text"} />
+          <label className="fs-dim" title="Fill colour" style={{ fontSize: fz(11), display: "flex", alignItems: "center", gap: 2 }}>Fill<input aria-label="Fill colour" type="color" value={cur.fill ?? "#000000"} onChange={(e) => applyStyle({ fill: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
+          <label className="fs-dim" title="Text colour" style={{ fontSize: fz(11), display: "flex", alignItems: "center", gap: 2 }}>Text<input aria-label="Text colour" type="color" value={cur.color ?? "#e5e7eb"} onChange={(e) => applyStyle({ color: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
+          <select className="fs-input" aria-label="Number format" value={BUILTIN_FORMATS.some((f) => f.code === (cur.numFmt ?? "General")) ? cur.numFmt ?? "General" : "custom"} style={{ width: 150, fontSize: fz(11) }}
+          onChange={async (e) => { const v = e.target.value; if (v === "custom") { const code = await askText("Custom number format", cur.numFmt ?? "General", { detail: "Excel syntax, for example #,##0.00;[Red]-#,##0.00", okLabel: "Apply" }); if (code) applyStyle({ numFmt: code }); } else applyStyle({ numFmt: v === "General" ? undefined : v }); }}>
+          {BUILTIN_FORMATS.map((f) => <option key={f.code} value={f.code}>{f.label} — {f.code}</option>)}
+          <option value="custom">Custom…{cur.numFmt && !BUILTIN_FORMATS.some((f) => f.code === cur.numFmt) ? ` (${cur.numFmt})` : ""}</option>
+          </select>
+          <TB label="Clear fmt" onClick={() => applyStyle(null)} title={"Clear formatting"} />
+          <select className="fs-input" aria-label="Merge" value="" style={{ width: fz(92), fontSize: fz(11) }} onChange={(e) => { const v = e.target.value as "center" | "across" | "merge" | "unmerge"; if (v) doMerge(v); }}>
+          <option value="">Merge…</option><option value="center">Merge &amp; Center</option><option value="across">Merge Across</option><option value="merge">Merge Cells</option><option value="unmerge">Unmerge Cells</option>
+          </select>
+          <select className="fs-input" aria-label="Borders" value="" style={{ width: fz(96), fontSize: fz(11) }} onChange={(e) => { const v = e.target.value as BorderPreset; if (v) doBorders(v); }}>
+          <option value="">Borders…</option><option value="all">All Borders</option><option value="outside">Outside Borders</option><option value="thickOutside">Thick Outside Borders</option>
+          <option value="inside">Inside Borders</option><option value="top">Top Border</option><option value="bottom">Bottom Border</option><option value="bottomDouble">Bottom Double Border</option>
+          <option value="left">Left Border</option><option value="right">Right Border</option><option value="none">No Border</option>
+          </select>
+          <select className="fs-input" aria-label="Border line style" value={borderLine} style={{ width: fz(70), fontSize: fz(11) }} onChange={(e) => setBorderLine(e.target.value as BorderLine)}>
+          {(["thin", "medium", "thick", "dashed", "dotted", "double", "hair"] as const).map((l) => <option key={l} value={l}>{l}</option>)}
+          </select>
+          <input aria-label="Border colour" title="Border colour" type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} style={{ width: 22, height: 20, border: 0, background: "none" }} />
+          <select className="fs-input" aria-label="Vertical alignment" value={cur.valign ?? ""} style={{ width: fz(86), fontSize: fz(11) }} onChange={(e) => applyStyle({ valign: (e.target.value || undefined) as CellStyle["valign"] })}>
+          <option value="">V: bottom</option><option value="top">V: top</option><option value="center">V: middle</option><option value="bottom">V: bottom*</option>
+          </select>
+          <TB label="Cond. format" onClick={() => setPanel(panel === "cf" ? null : "cf")} active={panel === "cf"} title={"Conditional formatting rules"} />
+        </BannerGroup>
+        <BannerGroup name="Crunch">
+          <TB label="Sort A-Z" onClick={() => sort(true)} title={"Sort ascending by the active column"} /><TB label="Sort Z-A" onClick={() => sort(false)} title={"Sort descending by the active column"} />
+          <TB label="Filter" testid="sheet-filter" onClick={toggleFilter} active={!!sheet.autoFilter} title={sheet.autoFilter ? `AutoFilter on ${sheet.autoFilter.ref} — click to turn it off` : "AutoFilter on the current region (first row = header)"} />
+          <TB label="Subtotal" testid="sheet-subtotal" onClick={() => void doSubtotal()} title="Insert subtotal rows at each change in a column, with an outline" />
+          <TB label="Remove subtotals" testid="sheet-subtotal-remove" onClick={() => void doSubtotal(true)} title="Delete the SUBTOTAL rows of this list and its outline" />
+          <TB label="Group" testid="sheet-group" onClick={() => void doGroup(false)} title="Group the selected rows or columns into an outline (Alt+Shift+Right)" />
+          <TB label="Ungroup" testid="sheet-ungroup" onClick={() => void doGroup(true)} title="Ungroup the selected rows or columns (Alt+Shift+Left)" />
+          <TB label="Show detail" testid="sheet-show-detail" onClick={() => doDetail(true)} title="Expand the outline group at the active cell" />
+          <TB label="Hide detail" testid="sheet-hide-detail" onClick={() => doDetail(false)} title="Collapse the outline group at the active cell" />
+          <TB label="Auto outline" testid="sheet-auto-outline" onClick={doAutoOutline} title="Create an outline from summary formulas next to their detail" />
+          <TB label="Clear outline" testid="sheet-clear-outline" onClick={() => { commit(null); outlineEdit((_wb, s) => clearOutline(s)); }} active={outR > 0 || outC > 0} title="Remove every outline group on this sheet (hidden rows stay hidden)" />
+          <TB label="PivotTable" onClick={() => (panel === "pivot" ? setPanel(null) : openPivotPanel())} active={panel === "pivot"} title={"Insert a PivotTable from the selection (or current region), or edit the one under the cursor"} />
+          <TB label="Refresh All" onClick={() => refreshPivotUi(false)} title={"Refresh every PivotTable from its source (Ctrl+Alt+F5; Alt+F5 refreshes the one under the cursor)"} />
+          <TB label={`Names${workbook.names.size ? ` (${workbook.names.size})` : ""}`} onClick={() => setPanel(panel === "names" ? null : "names")} active={panel === "names"} title={"Name Manager (Ctrl+F3)"} />
+          <TB label={`Validation${sheet.validations.length ? ` (${sheet.validations.length})` : ""}`} onClick={() => setPanel(panel === "dv" ? null : "dv")} active={panel === "dv"} title={"Data validation"} />
+          <TB label="Circle invalid" onClick={() => setShowInvalid((x) => !x)} active={showInvalid} title={"Circle invalid data"} />
+        </BannerGroup>
+        <BannerGroup name="Put">
+          <TB label="+Row" onClick={() => structural("row", true)} title={"Insert rows above selection"} /><TB label="-Row" onClick={() => structural("row", false)} title={"Delete selected rows"} />
+          <TB label="+Col" onClick={() => structural("col", true)} title={"Insert columns left of selection"} /><TB label="-Col" onClick={() => structural("col", false)} title={"Delete selected columns"} />
+          <TB label="Chart" onClick={() => addChart("bar")} title={"Insert a chart from the selection (or current region)"} />
+          <TB label="Link" onClick={() => (panel === "link" ? setPanel(null) : openLinkPanel())} active={panel === "link"} title={"Insert link (Ctrl+K) — Ctrl+click a linked cell to follow it"} />
+        </BannerGroup>
+        <BannerGroup name="Glance">
+          <TB label="Freeze" onClick={() => mutate((_wb, s) => { s.freezeRows = s.freezeRows ? 0 : 1; })} active={sheet.freezeRows > 0} title={"Freeze top row"} />
+          <TB label="Freeze col" onClick={() => mutate((_wb, s) => { s.freezeCols = s.freezeCols ? 0 : 1; })} active={sheet.freezeCols > 0} title={"Freeze first column"} />
+          <TB label="Hide rows" testid="sheet-hide-rows" onClick={() => doHide("rows")} title="Hide the selected rows" />
+          <TB label="Hide cols" testid="sheet-hide-cols" onClick={() => doHide("cols")} title="Hide the selected columns" />
+          <TB label="Unhide" testid="sheet-unhide" onClick={doUnhide} active={sheet.hiddenRows.size > 0 || sheet.hiddenCols.size > 0} title="Unhide rows/columns inside the selection (select one cell to unhide everything)" />
+          <TB label={`Charts${charts.length ? ` (${charts.length})` : ""}`} onClick={() => setPanel(panel === "charts" ? null : "charts")} active={panel === "charts"} title="Show charts" />
+        </BannerGroup>
+        <BannerGroup name="Polish">
+          <TB label="Spelling" onClick={() => (panel === "spell" ? setPanel(null) : openSpelling())} active={panel === "spell"} title={"Check spelling (F7)"} />
+        </BannerGroup>
+        <BannerGroup name="Keep">
+          <Btn variant="ghost" data-testid="sheet-password" aria-pressed={locked} disabled={!/\.xlsx$/i.test(path)} title={/\.xlsx$/i.test(path) ? "Set, change or remove the file's password" : "Export as .xlsx first — passwords protect .xlsx files"} onClick={async () => {
           const cur = encRef.current;
           if (saveBlocked(cur, path) || (cur?.wasEncrypted && !cur.plain)) { setStatus("unlock the workbook first (reopen it and enter its password)"); return; }
           const np = await askPassword(path.split("/").pop() || "workbook.xlsx", cur, path);
           if (!np) return;
           encRef.current = { ...np, plain: cur?.plain ?? null }; setLocked(!!np.password); setDirty(true);
           setStatus(np.password ? "password set — the next save encrypts the workbook (AES-256)" : "password removed — the next save writes the workbook without encryption");
-        }}>{locked ? "Password: on" : "Password…"}</Btn>
-        <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import .xlsx<input type="file" accept=".xlsx" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void importXlsx(f); }} /></label>
-        <Btn variant="ghost" data-testid="sheet-export-csv" onClick={() => void exportCsv()}>Export CSV</Btn>
-        <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import CSV<input type="file" data-testid="sheet-import-csv" accept=".csv,.tsv,.txt,text/csv" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void importCsv(f); }} /></label>
-        <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>
-        <Badge tone="info" title="First-party formula engine; see docs/OFFICE-ENGINE.md">from-scratch engine · {fnNames.length} functions</Badge>
-        {status ? <span className="fs-dim" data-testid="sheet-status" style={{ fontSize: fz(11) }}>{status}</span> : null}
-      </div>
-      <div className="fs-row fs-toolbar" role="toolbar" aria-label="Formatting" data-testid="sheet-toolbar" style={{ padding: "4px 6px", gap: 3, borderBottom: "1px solid var(--fs-border)", alignItems: "center" }}>
-        <TB label="Undo" onClick={undo} title={"Undo (Ctrl+Z)"} /><TB label="Redo" onClick={redo} title={"Redo (Ctrl+Y)"} />
-        <span style={{ width: 6 }} />
-        <TB label="B" onClick={() => toggle("bold")} active={!!cur.bold} title={"Bold (Ctrl+B)"} style={{ fontWeight: 700 }} />
-        <TB label="I" onClick={() => toggle("italic")} active={!!cur.italic} title={"Italic (Ctrl+I)"} style={{ fontStyle: "italic" }} />
-        <TB label="U" onClick={() => toggle("underline")} active={!!cur.underline} title={"Underline (Ctrl+U)"} style={{ textDecoration: "underline" }} />
-        <TB label="Left" onClick={() => applyStyle({ align: "left" })} active={cur.align === "left"} title={"Align left"} />
-        <TB label="Center" onClick={() => applyStyle({ align: "center" })} active={cur.align === "center"} title={"Align center"} />
-        <TB label="Right" onClick={() => applyStyle({ align: "right" })} active={cur.align === "right"} title={"Align right"} />
-        <TB label="Wrap" onClick={() => toggle("wrap")} active={!!cur.wrap} title={"Wrap text"} />
-        <label className="fs-dim" title="Fill colour" style={{ fontSize: fz(11), display: "flex", alignItems: "center", gap: 2 }}>Fill<input aria-label="Fill colour" type="color" value={cur.fill ?? "#000000"} onChange={(e) => applyStyle({ fill: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
-        <label className="fs-dim" title="Text colour" style={{ fontSize: fz(11), display: "flex", alignItems: "center", gap: 2 }}>Text<input aria-label="Text colour" type="color" value={cur.color ?? "#e5e7eb"} onChange={(e) => applyStyle({ color: e.target.value })} style={{ width: 22, height: 20, border: 0, background: "none" }} /></label>
-        <select className="fs-input" aria-label="Number format" value={BUILTIN_FORMATS.some((f) => f.code === (cur.numFmt ?? "General")) ? cur.numFmt ?? "General" : "custom"} style={{ width: 150, fontSize: fz(11) }}
-          onChange={async (e) => { const v = e.target.value; if (v === "custom") { const code = await askText("Custom number format", cur.numFmt ?? "General", { detail: "Excel syntax, for example #,##0.00;[Red]-#,##0.00", okLabel: "Apply" }); if (code) applyStyle({ numFmt: code }); } else applyStyle({ numFmt: v === "General" ? undefined : v }); }}>
-          {BUILTIN_FORMATS.map((f) => <option key={f.code} value={f.code}>{f.label} — {f.code}</option>)}
-          <option value="custom">Custom…{cur.numFmt && !BUILTIN_FORMATS.some((f) => f.code === cur.numFmt) ? ` (${cur.numFmt})` : ""}</option>
-        </select>
-        <TB label="Clear fmt" onClick={() => applyStyle(null)} title={"Clear formatting"} />
-        <span style={{ width: 6 }} />
-        <select className="fs-input" aria-label="Merge" value="" style={{ width: fz(92), fontSize: fz(11) }} onChange={(e) => { const v = e.target.value as "center" | "across" | "merge" | "unmerge"; if (v) doMerge(v); }}>
-          <option value="">Merge…</option><option value="center">Merge &amp; Center</option><option value="across">Merge Across</option><option value="merge">Merge Cells</option><option value="unmerge">Unmerge Cells</option>
-        </select>
-        <select className="fs-input" aria-label="Borders" value="" style={{ width: fz(96), fontSize: fz(11) }} onChange={(e) => { const v = e.target.value as BorderPreset; if (v) doBorders(v); }}>
-          <option value="">Borders…</option><option value="all">All Borders</option><option value="outside">Outside Borders</option><option value="thickOutside">Thick Outside Borders</option>
-          <option value="inside">Inside Borders</option><option value="top">Top Border</option><option value="bottom">Bottom Border</option><option value="bottomDouble">Bottom Double Border</option>
-          <option value="left">Left Border</option><option value="right">Right Border</option><option value="none">No Border</option>
-        </select>
-        <select className="fs-input" aria-label="Border line style" value={borderLine} style={{ width: fz(70), fontSize: fz(11) }} onChange={(e) => setBorderLine(e.target.value as BorderLine)}>
-          {(["thin", "medium", "thick", "dashed", "dotted", "double", "hair"] as const).map((l) => <option key={l} value={l}>{l}</option>)}
-        </select>
-        <input aria-label="Border colour" title="Border colour" type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} style={{ width: 22, height: 20, border: 0, background: "none" }} />
-        <select className="fs-input" aria-label="Vertical alignment" value={cur.valign ?? ""} style={{ width: fz(86), fontSize: fz(11) }} onChange={(e) => applyStyle({ valign: (e.target.value || undefined) as CellStyle["valign"] })}>
-          <option value="">V: bottom</option><option value="top">V: top</option><option value="center">V: middle</option><option value="bottom">V: bottom*</option>
-        </select>
-        <span style={{ width: 6 }} />
-        <TB label="Sort A-Z" onClick={() => sort(true)} title={"Sort ascending by the active column"} /><TB label="Sort Z-A" onClick={() => sort(false)} title={"Sort descending by the active column"} />
-        <TB label="+Row" onClick={() => structural("row", true)} title={"Insert rows above selection"} /><TB label="-Row" onClick={() => structural("row", false)} title={"Delete selected rows"} />
-        <TB label="+Col" onClick={() => structural("col", true)} title={"Insert columns left of selection"} /><TB label="-Col" onClick={() => structural("col", false)} title={"Delete selected columns"} />
-        <TB label="Freeze" onClick={() => mutate((_wb, s) => { s.freezeRows = s.freezeRows ? 0 : 1; })} active={sheet.freezeRows > 0} title={"Freeze top row"} />
-        <TB label="Freeze col" onClick={() => mutate((_wb, s) => { s.freezeCols = s.freezeCols ? 0 : 1; })} active={sheet.freezeCols > 0} title={"Freeze first column"} />
-        <TB label="Filter" testid="sheet-filter" onClick={toggleFilter} active={!!sheet.autoFilter} title={sheet.autoFilter ? `AutoFilter on ${sheet.autoFilter.ref} — click to turn it off` : "AutoFilter on the current region (first row = header)"} />
-        <TB label="Hide rows" testid="sheet-hide-rows" onClick={() => doHide("rows")} title="Hide the selected rows" />
-        <TB label="Hide cols" testid="sheet-hide-cols" onClick={() => doHide("cols")} title="Hide the selected columns" />
-        <TB label="Unhide" testid="sheet-unhide" onClick={doUnhide} active={sheet.hiddenRows.size > 0 || sheet.hiddenCols.size > 0} title="Unhide rows/columns inside the selection (select one cell to unhide everything)" />
-        <TB label="Group" testid="sheet-group" onClick={() => void doGroup(false)} title="Group the selected rows or columns into an outline (Alt+Shift+Right)" />
-        <TB label="Ungroup" testid="sheet-ungroup" onClick={() => void doGroup(true)} title="Ungroup the selected rows or columns (Alt+Shift+Left)" />
-        <TB label="Show detail" testid="sheet-show-detail" onClick={() => doDetail(true)} title="Expand the outline group at the active cell" />
-        <TB label="Hide detail" testid="sheet-hide-detail" onClick={() => doDetail(false)} title="Collapse the outline group at the active cell" />
-        <TB label="Subtotal" testid="sheet-subtotal" onClick={() => void doSubtotal()} title="Insert subtotal rows at each change in a column, with an outline" />
-        <TB label="Remove subtotals" testid="sheet-subtotal-remove" onClick={() => void doSubtotal(true)} title="Delete the SUBTOTAL rows of this list and its outline" />
-        <TB label="Auto outline" testid="sheet-auto-outline" onClick={doAutoOutline} title="Create an outline from summary formulas next to their detail" />
-        <TB label="Clear outline" testid="sheet-clear-outline" onClick={() => { commit(null); outlineEdit((_wb, s) => clearOutline(s)); }} active={outR > 0 || outC > 0} title="Remove every outline group on this sheet (hidden rows stay hidden)" />
-        <span style={{ width: 6 }} />
-        <TB label="Chart" onClick={() => addChart("bar")} title={"Insert a chart from the selection (or current region)"} />
-        <TB label={`Charts${charts.length ? ` (${charts.length})` : ""}`} onClick={() => setPanel(panel === "charts" ? null : "charts")} active={panel === "charts"} title="Show charts" />
-        <TB label="Cond. format" onClick={() => setPanel(panel === "cf" ? null : "cf")} active={panel === "cf"} title={"Conditional formatting rules"} />
-        <TB label="Paste special" onClick={() => (panel === "paste" ? setPanel(null) : openPasteSpecial())} active={panel === "paste"} title={"Paste special: values / formulas / formats, operation, skip blanks, transpose (Ctrl+Shift+V)"} />
-        <TB label="PivotTable" onClick={() => (panel === "pivot" ? setPanel(null) : openPivotPanel())} active={panel === "pivot"} title={"Insert a PivotTable from the selection (or current region), or edit the one under the cursor"} />
-        <TB label="Refresh All" onClick={() => refreshPivotUi(false)} title={"Refresh every PivotTable from its source (Ctrl+Alt+F5; Alt+F5 refreshes the one under the cursor)"} />
-        <TB label="Link" onClick={() => (panel === "link" ? setPanel(null) : openLinkPanel())} active={panel === "link"} title={"Insert link (Ctrl+K) — Ctrl+click a linked cell to follow it"} />
-        <TB label="Find" onClick={() => setPanel(panel === "find" ? null : "find")} active={panel === "find"} title={"Find & replace (Ctrl+F)"} />
-        <TB label="Spelling" onClick={() => (panel === "spell" ? setPanel(null) : openSpelling())} active={panel === "spell"} title={"Check spelling (F7)"} />
-        <TB label={`Names${workbook.names.size ? ` (${workbook.names.size})` : ""}`} onClick={() => setPanel(panel === "names" ? null : "names")} active={panel === "names"} title={"Name Manager (Ctrl+F3)"} />
-        <TB label={`Validation${sheet.validations.length ? ` (${sheet.validations.length})` : ""}`} onClick={() => setPanel(panel === "dv" ? null : "dv")} active={panel === "dv"} title={"Data validation"} />
-        <TB label="Circle invalid" onClick={() => setShowInvalid((x) => !x)} active={showInvalid} title={"Circle invalid data"} />
-      </div>
+          }}>{locked ? "Password: on" : "Password…"}</Btn>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import CSV<input type="file" data-testid="sheet-import-csv" accept=".csv,.tsv,.txt,text/csv" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void importCsv(f); }} /></label>
+          <Btn variant="ghost" data-testid="sheet-export-csv" onClick={() => void exportCsv()}>Export CSV</Btn>
+        </BannerGroup>
+      </AppBanner>
       <div className="fs-row" style={{ gap: 4, padding: "4px 6px", borderBottom: "1px solid var(--fs-border)", overflowX: "auto" }}>
         {[...workbook.sheets.keys()].map((name) => (
           <button key={name} className="fs-btn" data-variant={name === active ? "primary" : "ghost"} onClick={() => switchSheet(name)} onDoubleClick={() => renameSheet(name)} title="Double-click to rename">{name}</button>

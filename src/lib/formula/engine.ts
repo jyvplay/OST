@@ -891,6 +891,7 @@ function callExt(fn: (a: ArgAccessor[], env: { now: () => Date; random: () => nu
     };
     const grid = (): ExtValue[][] => { const v = get(); if (isGrid(v)) return v.map((r, i) => r.map((x, j) => (isRange ? ext1(x, i, j, v) : toExt(x, true)))); return [[isRange ? ext1(v, 0, 0, [[v]]) : toExt(v, false)]]; };
     return {
+      isSingleRef: n.t === "ref",
       isRange: isRange || n.t === "array" || (n.t === "call" && isGrid(get())),
       grid,
       list: () => grid().flat(),

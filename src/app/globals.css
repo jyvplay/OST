@@ -653,3 +653,37 @@ span.fs-tt-pin { pointer-events: none; }
 /* TT55: the Files selection toolbar is one scrollable line — in a narrow (dual) pane wrapping took 3 lines from the listing */
 .fs-selbar > * { flex: none; }
 .fs-selbar { scrollbar-width: thin; }
+
+/* ------------------------------------------------------------------------------------------------------------------
+ * TT80 app banner (src/components/AppBanner.tsx): a menu row with Fusion's own menu names + ONE tool strip that never
+ * wraps (it scrolls sideways with faded edges), grouped by the same names. Heights follow the text scale.
+ * ---------------------------------------------------------------------------------------------------------------- */
+.fs-banner { display: grid; grid-template-columns: minmax(0, 1fr); border-bottom: 1px solid var(--fs-border); min-width: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--fs-accent) 7%, transparent), transparent 70%); }
+.fs-banner-menus { display: flex; align-items: center; gap: calc(2 * var(--fs-u)); min-width: 0; padding: calc(2 * var(--fs-u)) calc(6 * var(--fs-u)) 0; min-height: calc(8px + 20 * var(--fs-u)); }
+.fs-banner-nav { display: flex; align-items: center; gap: 1px; min-width: 0; flex-wrap: nowrap; overflow: visible; }
+.fs-banner-nav .fs-btn { font-size: calc(12.5 * var(--fs-u)); letter-spacing: .01em; color: var(--fs-text); }
+.fs-banner-nav .fs-btn[aria-expanded="true"] { background: color-mix(in srgb, var(--fs-accent) 22%, transparent); }
+.fs-banner-status { margin-left: auto; display: flex; align-items: center; gap: calc(6 * var(--fs-u)); min-width: 0; flex-wrap: nowrap; overflow: hidden; padding-left: 8px; }
+.fs-banner-status > * { flex-shrink: 1; min-width: 0; }
+.fs-banner-stripwrap { position: relative; display: flex; align-items: stretch; min-width: 0; }
+.fs-banner-strip { display: flex; align-items: center; gap: 0; flex: 1 1 auto; min-width: 0; padding: calc(3 * var(--fs-u)) calc(4 * var(--fs-u)) calc(4 * var(--fs-u));
+  flex-wrap: nowrap !important; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain; }
+.fs-banner-strip::-webkit-scrollbar { display: none; }
+.fs-banner-stripwrap[data-ol] .fs-banner-strip { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 28px); mask-image: linear-gradient(90deg, transparent 0, #000 28px); }
+.fs-banner-stripwrap[data-or] .fs-banner-strip { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
+.fs-banner-stripwrap[data-ol][data-or] .fs-banner-strip { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent); }
+.fs-banner-chev { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: calc(10px + 14 * var(--fs-u)); padding: 0;
+  border: 0; border-radius: 8px; margin: 3px 2px; background: color-mix(in srgb, var(--fs-text) 8%, transparent); color: var(--fs-text); cursor: pointer; }
+.fs-banner-chev:hover { background: color-mix(in srgb, var(--fs-accent) 24%, transparent); }
+.fs-banner-chev[hidden] { display: none; }
+.fs-bgroup { display: flex; align-items: center; gap: calc(2 * var(--fs-u)); flex: 0 0 auto; flex-wrap: nowrap; padding: 0 calc(6 * var(--fs-u)); min-height: calc(8px + 22 * var(--fs-u)); }
+.fs-bgroup + .fs-bgroup { border-left: 1px solid color-mix(in srgb, var(--fs-border) 80%, transparent); }
+.fs-bgroup > * { flex-shrink: 0; }
+.fs-bgroup .fs-btn { white-space: nowrap; min-height: calc(6px + 20 * var(--fs-u)); padding-left: calc(4px + 5 * var(--fs-u)); padding-right: calc(4px + 5 * var(--fs-u)); }
+/* lists size to their longest choice (no clipped "No highligh" / "Spacin"), inputs keep their declared width */
+.fs-window .fs-bgroup select, .fs-bgroup select.fs-select { width: auto !important; max-width: calc(36px + 104 * var(--fs-u)); min-width: calc(40px + 12 * var(--fs-u)); flex-shrink: 0; text-overflow: ellipsis; }
+.fs-bgroup .fs-input { flex-shrink: 0; }
+.fs-bgroup .fs-badge { flex-shrink: 0; }
+.fs-bgroup label { white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.fs-menuhead { padding: calc(4 * var(--fs-u)) calc(8 * var(--fs-u)) 2px; font-size: calc(10.5 * var(--fs-u)); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--fs-muted); }

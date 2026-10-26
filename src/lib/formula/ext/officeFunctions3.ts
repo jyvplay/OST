@@ -10,6 +10,23 @@ import {
   xlNums, type ArgAccessor, type CellValue, type FnImpl,
 } from "./officeFunctions";
 
+/** MODE's scalar arguments (including a single-cell reference) must be numeric.
+ * Ranges/arrays ignore nonnumbers, but still propagate errors. Keep encounter order
+ * for ties. O(n) time and O(distinct numeric values) space, no sorting of the input. */
+function modes(args: ArgAccessor[]): number[] {
+  const counts = new Map<number, number>(); let max = 0;
+  for (const a of args) {
+    const scalar = !a.isRange || a.isSingleRef;
+    for (const v of scalar ? [a.value()] : a.list()) {
+      if (isErr(v)) throw ERR(String(v));
+      if (typeof v !== "number") { if (scalar) throw ERR("#VALUE!"); continue; }
+      const n = (counts.get(v) ?? 0) + 1; counts.set(v, n); max = Math.max(max, n);
+    }
+  }
+  if (max < 2) throw ERR("#N/A");
+  return [...counts].filter(([, n]) => n === max).map(([v]) => v);
+}
+
 /* ───────────────── database functions (DSUM, DCOUNT, etc.) ───────────────── */
 
 /** Extract a grid from a range accessor (first row = field names). */
@@ -424,25 +441,9 @@ export const ADVANCED_FUNCTIONS: Record<string, FnImpl> = {
     for (let i = 0; i < n; i++) sse += (ys[i] - (a0 + b * xs[i])) ** 2;
     return Math.sqrt(sse / (n - 2));
   },
-  MODE: (a) => {
-    const vals = xlNums(a, true);
-    if (!vals.length) throw ERR("#N/A");
-    const counts = new Map<number, number>();
-    for (const v of vals) counts.set(v, (counts.get(v) ?? 0) + 1);
-    let best = vals[0], bestC = 0;
-    for (const [v, c] of counts) if (c > bestC) { best = v; bestC = c; }
-    if (bestC < 2) throw ERR("#N/A"); // TT73: Excel — no value occurs twice → #N/A
-    return best;
-  },
-  "MODE.SNGL": (a) => {
-    const vals = xlNums(a, true);
-    if (!vals.length) throw ERR("#N/A");
-    const counts = new Map<number, number>();
-    for (const v of vals) counts.set(v, (counts.get(v) ?? 0) + 1);
-    let best = vals[0], bestC = 0;
-    for (const [v, c] of counts) if (c > bestC) { best = v; bestC = c; }
-    return best;
-  },
+  MODE: (a) => modes(a)[0],
+  "MODE.SNGL": (a) => modes(a)[0],
+  "MODE.MULT": (a) => modes(a).map((v) => [v]),
   MEDIAN: (a) => {
     const vals = xlNums(a).sort((x, y) => x - y);
     if (!vals.length) throw ERR("#NUM!");

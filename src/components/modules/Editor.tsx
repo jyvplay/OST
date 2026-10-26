@@ -1,7 +1,8 @@
 "use client";
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { fz } from "@/lib/uiscale";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, fmtTime, post } from "@/lib/api";
 import { formatFor, lossReport, parseCsv, sanitizeSvg } from "@/lib/forge";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -77,37 +78,46 @@ export default function EditorModule({ win }: ModuleProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [save, win.id]);
 
-  if (!loaded) return <Empty title="Loading…" icon="⏳" />;
-  if (!path) return <Empty title="No document" icon="📝" hint="Open a file from Files, or use the palette." />;
+  /** TT80: the banner is present in every state, so an empty buffer still offers Keep commands */
+  const banner = (
+  <AppBanner label="Editor" status={<>
+      {fmt ? <Badge tone={fmt.grade === "A" ? "ok" : "info"} title={fmt.boundary}>{fmt.label} · grade {fmt.grade}</Badge> : null}
+      {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
+      <span className="fs-dim" style={{ fontSize: fz(11) }}>{status}</span>
+  </>}>
+    <BannerGroup name="Keep">
+      <Btn variant="ghost" onClick={() => shell.open("files", { path: "/Documents" })} title="Open a text, Markdown, HTML, SVG or CSV file">Open in Files…</Btn>
+      <Btn variant="primary" onClick={() => void save()} disabled={!dirty}>Save</Btn>
+      <Btn variant="ghost" onClick={async () => {
+      const name = await askText("Save a copy as (path)", path, { okLabel: "Save copy", validate: (v) => (v.trim().startsWith("/") ? null : "Use a full path that starts with /") });
+      if (!name) return;
+      const rep = lossReport(path, name.split(".").pop() ?? "");
+      if (!rep.safe && !confirm(`Converting ${rep.from} → ${rep.to} drops:\n\n• ${rep.drops.join("\n• ")}\n\nContinue?`)) return;
+      await post("/api/fs", { op: "write", path: name, content: text, reason: "save-as" });
+      shell.toast(`Saved a copy to ${name}`, "ok");
+      shell.bumpRefresh();
+      }}>Save as…</Btn>
+      <Btn variant={preview ? "primary" : "ghost"} aria-pressed={preview} onClick={() => setPreview((p) => !p)}>Preview</Btn>
+      <Btn variant="ghost" onClick={() => shell.open("peek", { path, title: win.title })}>Peek</Btn>
+    </BannerGroup>
+  </AppBanner>
+  );
+  const wrap = (body: ReactNode) => <div data-editor-win={win.id} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>{banner}{body}</div>;
+  if (!loaded) return wrap(<Empty title="Loading…" icon="⏳" />);
+  if (!path) return wrap(<Empty title="No document" icon="📝" hint="Open a file from Files, or use the palette." />);
 
   const svg = fmt?.ext.includes("svg") ? sanitizeSvg(text) : null;
   const csv = fmt?.ext.includes("csv") ? parseCsv(text).slice(0, 60) : null;
 
   return (
     <div data-editor-win={win.id} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
+      {/* the banner is rendered by `wrap`; the document area follows */}
       <RecoveryBanner offer={recovery.offer} onDiscard={() => void recovery.discard()} onRestore={() => {
         const o = recovery.take(); if (!o) return;
         setText(o.draft.payload); setDirty(true);
         setStatus(`restored the recovery draft from ${o.at} — not saved yet${o.stale ? " (the file had changed since the draft)" : ""}`);
       }} />
-      <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <Btn variant="primary" onClick={() => void save()} disabled={!dirty}>Save</Btn>
-        <Btn variant="ghost" onClick={async () => {
-          const name = await askText("Save a copy as (path)", path, { okLabel: "Save copy", validate: (v) => (v.trim().startsWith("/") ? null : "Use a full path that starts with /") });
-          if (!name) return;
-          const rep = lossReport(path, name.split(".").pop() ?? "");
-          if (!rep.safe && !confirm(`Converting ${rep.from} → ${rep.to} drops:\n\n• ${rep.drops.join("\n• ")}\n\nContinue?`)) return;
-          await post("/api/fs", { op: "write", path: name, content: text, reason: "save-as" });
-          shell.toast(`Saved a copy to ${name}`, "ok");
-          shell.bumpRefresh();
-        }}>Save as…</Btn>
-        <Btn variant={preview ? "primary" : "ghost"} onClick={() => setPreview((p) => !p)}>Preview</Btn>
-        <Btn variant="ghost" onClick={() => shell.open("peek", { path, title: win.title })}>Peek</Btn>
-        <div style={{ flex: 1 }} />
-        {fmt ? <Badge tone={fmt.grade === "A" ? "ok" : "info"} title={fmt.boundary}>{fmt.label} · grade {fmt.grade}</Badge> : null}
-        {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
-        <span className="fs-dim" style={{ fontSize: fz(11) }}>{status}</span>
-      </div>
+
 
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: preview ? "1fr 1fr" : "1fr" }}>
         <textarea className="fs-textarea" value={text} spellCheck={false}

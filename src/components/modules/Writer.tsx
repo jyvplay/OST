@@ -7,6 +7,7 @@
  *   tracked changes (accept/reject all), lists, tables, images, hyperlinks, styles, find/replace, undo/redo,
  *   page setup, print/PDF, navigation pane, word count, AutoSave. Legacy .fdoc files still open.
  */
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { fz, useUiUnit } from "@/lib/uiscale";
@@ -792,79 +793,88 @@ export default function WriterModule({ win }: ModuleProps) {
         if (e.key === "Escape" && spellMenu) { e.preventDefault(); setSpellMenu(null); }
       }}>
       <style>{WRITER_CSS + SPELL_CSS}</style>
-      {/* ---------- file / history row */}
-      <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }}>
-        <Btn variant="ghost" data-testid="writer-new" onClick={async () => { if (dirty && (await shell.askSave(win.id)) === "cancelled") return; life.rotateUntitled(); const d = await blankWord(); docRef.current = d; setPath(""); encRef.current = null; setLocked(false); undo.current = []; setDirty(false); bump(); setDocGen((g) => g + 1); }}>New</Btn>
-        <Btn variant="ghost" onClick={() => fileInput.current?.click()}>Open…</Btn>
-        <input ref={fileInput} type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { await loadBytes(new Uint8Array(await f.arrayBuffer()), f.name, ""); setPath(""); } catch (err) { shell.toast(`Cannot open ${f.name}: ${(err as Error).message}`, "bad"); } e.target.value = ""; }} />
-        <Btn data-testid="writer-save" onClick={() => void save()}>{dirty ? "Save •" : "Save"}</Btn>
-        <Btn variant="ghost" onClick={() => { setPopVal(path || `/Documents/${doc.title || "Document"}.docx`); setPop("saveas"); }}>Save as…</Btn>
-        <Btn variant="ghost" onClick={() => void download()}>Download</Btn>
-        <Btn variant="ghost" data-testid="writer-password" aria-pressed={locked} onClick={async () => {
+      {/* ---------- TT80 banner: Fusion's own menus (Keep · Tweak · Look · Put · Polish · Glance) over ONE tool strip */}
+      <AppBanner label="Writer" status={<><label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || !!(encRef.current && !encRef.current.password)} aria-label="AutoSave" />AutoSave</label></>}>
+        <BannerGroup name="Keep">
+          <Btn variant="ghost" data-testid="writer-new" onClick={async () => { if (dirty && (await shell.askSave(win.id)) === "cancelled") return; life.rotateUntitled(); const d = await blankWord(); docRef.current = d; setPath(""); encRef.current = null; setLocked(false); undo.current = []; setDirty(false); bump(); setDocGen((g) => g + 1); }}>New</Btn>
+          <Btn variant="ghost" onClick={() => fileInput.current?.click()}>Open…</Btn>
+          <input ref={fileInput} type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { await loadBytes(new Uint8Array(await f.arrayBuffer()), f.name, ""); setPath(""); } catch (err) { shell.toast(`Cannot open ${f.name}: ${(err as Error).message}`, "bad"); } e.target.value = ""; }} />
+          <Btn data-testid="writer-save" onClick={() => void save()}>{dirty ? "Save •" : "Save"}</Btn>
+        </BannerGroup>
+        <BannerGroup name="Tweak">
+          <Btn variant="ghost" disabled={!undo.current.length} onClick={() => restore(undo, redo)} aria-label="Undo">Undo</Btn>
+          <Btn variant="ghost" disabled={!redo.current.length} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>
+          {(["find"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} title={p === "spell" ? "Spelling (F7; Alt+F7 next issue)" : undefined} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", spell: "Spelling", notes: "Notes", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
+        </BannerGroup>
+        <BannerGroup name="Look" keepFocus>
+          <select className="fs-select" aria-label="Paragraph style" value={styleId} style={{ width: fz(140) }} onChange={(e) => paraOp((d, r) => E.setStyle(d, r, e.target.value))}>
+          {E.styleChoices(doc).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+          <select className="fs-select" aria-label="Font" value={mixed("font") ? "" : fmt?.font ?? ""} style={{ width: fz(130) }} onChange={(e) => applyRunFmt({ font: e.target.value })}>
+          <option value="" disabled>{mixed("font") ? "(mixed)" : "Font"}</option>
+          {[...new Set([...(fmt?.font ? [fmt.font] : []), ...FONTS])].map((f) => <option key={f} value={f} style={{ fontFamily: cssFont(f) }}>{f}</option>)}
+          </select>
+          <select className="fs-select" aria-label="Font size" value={mixed("sz") ? "" : String((fmt?.sz ?? 22) / 2)} style={{ width: fz(64) }} onChange={(e) => applyRunFmt({ sz: Math.round(Number(e.target.value) * 2) })}>
+          <option value="" disabled>–</option>
+          {[...new Set([...(fmt?.sz ? [fmt.sz / 2] : []), ...SIZES])].sort((a, b) => a - b).map((s) => <option key={s} value={String(s)}>{s}</option>)}
+          </select>
+          <Btn {...tb(!!fmt?.b && !mixed("b"))} aria-label="Bold" aria-pressed={!!fmt?.b} onClick={() => toggleFmt("b")}><b>B</b></Btn>
+          <Btn {...tb(!!fmt?.i && !mixed("i"))} aria-label="Italic" aria-pressed={!!fmt?.i} onClick={() => toggleFmt("i")}><i>I</i></Btn>
+          <Btn {...tb(!!fmt?.u && fmt.u !== "none" && !mixed("u"))} aria-label="Underline" aria-pressed={!!fmt?.u} onClick={() => toggleFmt("u")}><u>U</u></Btn>
+          <Btn {...tb(!!fmt?.s)} aria-label="Strikethrough" onClick={() => toggleFmt("s")}><s>S</s></Btn>
+          <Btn {...tb(fmt?.va === "superscript")} aria-label="x² superscript" title="Superscript" onClick={() => toggleFmt("va-sup")}>x²</Btn>
+          <Btn {...tb(fmt?.va === "subscript")} aria-label="x₂ subscript" title="Subscript" onClick={() => toggleFmt("va-sub")}>x₂</Btn>
+          <label title="Text colour" style={{ display: "flex", alignItems: "center" }}><input type="color" aria-label="Text colour" value={`#${fmt?.color && /^[0-9a-f]{6}$/i.test(fmt.color) ? fmt.color : "000000"}`} onChange={(e) => applyRunFmt({ color: e.target.value.slice(1).toUpperCase() })} style={{ width: fz(28), height: fz(24), border: "none", background: "none" }} /></label>
+          <select className="fs-select" aria-label="Highlight" value={fmt?.hl ?? ""} style={{ width: fz(96) }} onChange={(e) => applyRunFmt({ hl: e.target.value || null })}>
+          <option value="">No highlight</option>{HIGHLIGHTS.map((h) => <option key={h} value={h}>{h}</option>)}
+          </select>
+          {(["left", "center", "right", "justify"] as const).map((a) => <Btn key={a} {...tb((effectivePara(doc, curPara ?? allParas(doc.blocks)[0]).align ?? "left") === a)} aria-label={`Align ${a}`} onClick={() => paraOp((d, r) => E.setParaProps(d, r, { align: a }))}><AlignIcon a={a} /></Btn>)}
+          <select className="fs-select" aria-label="Line spacing" value={String(curPara?.p.line ? curPara.p.line / 240 : "")} style={{ width: fz(70) }} onChange={(e) => paraOp((d, r) => E.setParaProps(d, r, { line: Math.round(Number(e.target.value) * 240), lineRule: "auto" }))}>
+          <option value="" disabled>Spacing</option>{[1, 1.15, 1.5, 2, 2.5, 3].map((v) => <option key={v} value={String(v)}>{v.toFixed(2)}</option>)}
+          </select>
+          <Btn {...tb(!!curPara && E.listKind(doc, curPara) === "bullet")} aria-label="Bulleted list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "bullet"))}>• List</Btn>
+          <Btn {...tb(!!curPara && E.listKind(doc, curPara) === "number")} aria-label="1. List (numbered)" title="Numbered list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "number"))}>1. List</Btn>
+          <Btn variant="ghost" aria-label="Decrease indent" onClick={() => paraOp((d, r) => E.indent(d, r, -1))}>⇤</Btn>
+          <Btn variant="ghost" aria-label="Increase indent" onClick={() => paraOp((d, r) => E.indent(d, r, 1))}>⇥</Btn>
+          <Btn variant="ghost" aria-label="Clear formatting" onClick={() => paraOp((d, r) => E.applyFmt(d, r, { b: null, i: null, u: null, s: null, sz: null, font: null, color: null, hl: null, va: null, caps: null, smallCaps: null, shd: null }))}>Clear</Btn>
+          {(["page", "hf"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} title={p === "spell" ? "Spelling (F7; Alt+F7 next issue)" : undefined} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", spell: "Spelling", notes: "Notes", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
+        </BannerGroup>
+        <BannerGroup name="Put" keepFocus>
+          <Btn variant="ghost" onClick={openLink}>Link</Btn>
+          <Btn variant="ghost" onClick={() => imgInput.current?.click()}>Image</Btn>
+          <input ref={imgInput} type="file" accept="image/png,image/jpeg,image/gif,image/svg+xml" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void insertImageFile(f); e.target.value = ""; }} />
+          <Btn variant="ghost" onClick={() => { setPopVal("3"); setPopVal2("3"); setPop("table"); }}>Table</Btn>
+          <Btn variant="ghost" onClick={() => { const d = docRef.current!; snapshot(); const at = E.insertPageBreak(d, curSel().b); changed(undefined, { a: at, b: at }); }}>Page break</Btn>
+          <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>Comment</Btn>
+          <Btn variant="ghost" onClick={() => addNote("footnote")} title="Insert a footnote at the cursor (Ctrl+Alt+F)">Footnote</Btn>
+        </BannerGroup>
+        <BannerGroup name="Polish">
+          {(["review", "spell", "notes"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} title={p === "spell" ? "Spelling (F7; Alt+F7 next issue)" : undefined} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", spell: "Spelling", notes: "Notes", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
+        </BannerGroup>
+        <BannerGroup name="Glance">
+          {(["nav"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} title={p === "spell" ? "Spelling (F7; Alt+F7 next issue)" : undefined} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", spell: "Spelling", notes: "Notes", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
+          <select className="fs-select" aria-label="Zoom" value={String(Math.round(z * 100))} style={{ width: fz(72) }} onChange={(e) => setZoom(Number(e.target.value) / 100)}>
+          {[...new Set([50, 75, 100, 125, 150, 175, 200, 250, Math.round(unit * 100)])].sort((a, b) => a - b).map((v) => <option key={v} value={String(v)}>{v}%</option>)}
+          </select>
+        </BannerGroup>
+        <BannerGroup name="Keep">
+          <Btn variant="ghost" onClick={() => { setPopVal(path || `/Documents/${doc.title || "Document"}.docx`); setPop("saveas"); }}>Save as…</Btn>
+          <Btn variant="ghost" onClick={() => void download()}>Download</Btn>
+          <Btn variant="ghost" onClick={print}>Print / PDF</Btn>
+          <Btn variant="ghost" data-testid="writer-password" aria-pressed={locked} onClick={async () => {
           if (saveBlocked(encRef.current, encRef.current?.path ?? "")) { setStatus("Unlock the file first (reopen it and enter its password)"); return; }
           const np = await askPassword(path.split("/").pop() || docRef.current?.title || "Document", encRef.current, path);
           if (!np) return;
           encRef.current = np; setLocked(!!np.password); setDirty(true); bump();
           setStatus(np.password ? "Password set — the next save encrypts the file (AES-256)" : "Password removed — the next save writes the file without encryption");
-        }}>{locked ? "Password: on" : "Password…"}</Btn>
-        <Btn variant="ghost" onClick={print}>Print / PDF</Btn>
-        <Btn variant="ghost" data-testid="writer-export-md" onClick={() => void exportAs("md")}>Markdown</Btn>
-        <Btn variant="ghost" onClick={() => void exportAs("html")}>HTML</Btn>
-        <Btn variant="ghost" data-testid="writer-export-txt" onClick={() => void exportAs("txt")}>Text</Btn>
-        <Btn variant="ghost" data-testid="writer-import-md" title="Open a Markdown file as a new Word document" onClick={() => mdInput.current?.click()}>From Markdown…</Btn>
-        <input ref={mdInput} type="file" accept=".md,.markdown,text/markdown" hidden data-testid="writer-md-file" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void importMarkdown(f); }} />
-        <span style={{ width: 8 }} />
-        <Btn variant="ghost" disabled={!undo.current.length} onClick={() => restore(undo, redo)} aria-label="Undo">Undo</Btn>
-        <Btn variant="ghost" disabled={!redo.current.length} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>
-        <span style={{ flex: 1 }} />
-        <label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || !!(encRef.current && !encRef.current.password)} aria-label="AutoSave" />AutoSave</label>
-        {(["nav", "find", "review", "spell", "notes", "page", "hf"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} title={p === "spell" ? "Spelling (F7; Alt+F7 next issue)" : undefined} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", spell: "Spelling", notes: "Notes", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
-      </div>
-      {/* ---------- formatting row */}
-      <div className="fs-row" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap", alignItems: "center" }} onMouseDown={(e) => { if ((e.target as HTMLElement).tagName === "BUTTON") e.preventDefault(); }}>
-        <select className="fs-select" aria-label="Paragraph style" value={styleId} style={{ width: fz(140) }} onChange={(e) => paraOp((d, r) => E.setStyle(d, r, e.target.value))}>
-          {E.styleChoices(doc).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
-        <select className="fs-select" aria-label="Font" value={mixed("font") ? "" : fmt?.font ?? ""} style={{ width: fz(130) }} onChange={(e) => applyRunFmt({ font: e.target.value })}>
-          <option value="" disabled>{mixed("font") ? "(mixed)" : "Font"}</option>
-          {[...new Set([...(fmt?.font ? [fmt.font] : []), ...FONTS])].map((f) => <option key={f} value={f} style={{ fontFamily: cssFont(f) }}>{f}</option>)}
-        </select>
-        <select className="fs-select" aria-label="Font size" value={mixed("sz") ? "" : String((fmt?.sz ?? 22) / 2)} style={{ width: fz(64) }} onChange={(e) => applyRunFmt({ sz: Math.round(Number(e.target.value) * 2) })}>
-          <option value="" disabled>–</option>
-          {[...new Set([...(fmt?.sz ? [fmt.sz / 2] : []), ...SIZES])].sort((a, b) => a - b).map((s) => <option key={s} value={String(s)}>{s}</option>)}
-        </select>
-        <Btn {...tb(!!fmt?.b && !mixed("b"))} aria-label="Bold" aria-pressed={!!fmt?.b} onClick={() => toggleFmt("b")}><b>B</b></Btn>
-        <Btn {...tb(!!fmt?.i && !mixed("i"))} aria-label="Italic" aria-pressed={!!fmt?.i} onClick={() => toggleFmt("i")}><i>I</i></Btn>
-        <Btn {...tb(!!fmt?.u && fmt.u !== "none" && !mixed("u"))} aria-label="Underline" aria-pressed={!!fmt?.u} onClick={() => toggleFmt("u")}><u>U</u></Btn>
-        <Btn {...tb(!!fmt?.s)} aria-label="Strikethrough" onClick={() => toggleFmt("s")}><s>S</s></Btn>
-        <Btn {...tb(fmt?.va === "superscript")} aria-label="x² superscript" title="Superscript" onClick={() => toggleFmt("va-sup")}>x²</Btn>
-        <Btn {...tb(fmt?.va === "subscript")} aria-label="x₂ subscript" title="Subscript" onClick={() => toggleFmt("va-sub")}>x₂</Btn>
-        <label title="Text colour" style={{ display: "flex", alignItems: "center" }}><input type="color" aria-label="Text colour" value={`#${fmt?.color && /^[0-9a-f]{6}$/i.test(fmt.color) ? fmt.color : "000000"}`} onChange={(e) => applyRunFmt({ color: e.target.value.slice(1).toUpperCase() })} style={{ width: fz(28), height: fz(24), border: "none", background: "none" }} /></label>
-        <select className="fs-select" aria-label="Highlight" value={fmt?.hl ?? ""} style={{ width: fz(96) }} onChange={(e) => applyRunFmt({ hl: e.target.value || null })}>
-          <option value="">No highlight</option>{HIGHLIGHTS.map((h) => <option key={h} value={h}>{h}</option>)}
-        </select>
-        <span className="wsep" />
-        {(["left", "center", "right", "justify"] as const).map((a) => <Btn key={a} {...tb((effectivePara(doc, curPara ?? allParas(doc.blocks)[0]).align ?? "left") === a)} aria-label={`Align ${a}`} onClick={() => paraOp((d, r) => E.setParaProps(d, r, { align: a }))}><AlignIcon a={a} /></Btn>)}
-        <select className="fs-select" aria-label="Line spacing" value={String(curPara?.p.line ? curPara.p.line / 240 : "")} style={{ width: fz(70) }} onChange={(e) => paraOp((d, r) => E.setParaProps(d, r, { line: Math.round(Number(e.target.value) * 240), lineRule: "auto" }))}>
-          <option value="" disabled>Spacing</option>{[1, 1.15, 1.5, 2, 2.5, 3].map((v) => <option key={v} value={String(v)}>{v.toFixed(2)}</option>)}
-        </select>
-        <Btn {...tb(!!curPara && E.listKind(doc, curPara) === "bullet")} aria-label="Bulleted list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "bullet"))}>• List</Btn>
-        <Btn {...tb(!!curPara && E.listKind(doc, curPara) === "number")} aria-label="1. List (numbered)" title="Numbered list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "number"))}>1. List</Btn>
-        <Btn variant="ghost" aria-label="Decrease indent" onClick={() => paraOp((d, r) => E.indent(d, r, -1))}>⇤</Btn>
-        <Btn variant="ghost" aria-label="Increase indent" onClick={() => paraOp((d, r) => E.indent(d, r, 1))}>⇥</Btn>
-        <span className="wsep" />
-        <Btn variant="ghost" onClick={openLink}>Link</Btn>
-        <Btn variant="ghost" onClick={() => imgInput.current?.click()}>Image</Btn>
-        <input ref={imgInput} type="file" accept="image/png,image/jpeg,image/gif,image/svg+xml" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void insertImageFile(f); e.target.value = ""; }} />
-        <Btn variant="ghost" onClick={() => { setPopVal("3"); setPopVal2("3"); setPop("table"); }}>Table</Btn>
-        <Btn variant="ghost" onClick={() => { const d = docRef.current!; snapshot(); const at = E.insertPageBreak(d, curSel().b); changed(undefined, { a: at, b: at }); }}>Page break</Btn>
-        <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>Comment</Btn>
-        <Btn variant="ghost" onClick={() => addNote("footnote")} title="Insert a footnote at the cursor (Ctrl+Alt+F)">Footnote</Btn>
-        <Btn variant="ghost" aria-label="Clear formatting" onClick={() => paraOp((d, r) => E.applyFmt(d, r, { b: null, i: null, u: null, s: null, sz: null, font: null, color: null, hl: null, va: null, caps: null, smallCaps: null, shd: null }))}>Clear</Btn>
-        <select className="fs-select" aria-label="Zoom" value={String(Math.round(z * 100))} style={{ width: fz(72) }} onChange={(e) => setZoom(Number(e.target.value) / 100)}>
-          {[...new Set([50, 75, 100, 125, 150, 175, 200, 250, Math.round(unit * 100)])].sort((a, b) => a - b).map((v) => <option key={v} value={String(v)}>{v}%</option>)}
-        </select>
-      </div>
+          }}>{locked ? "Password: on" : "Password…"}</Btn>
+          <Btn variant="ghost" data-testid="writer-export-md" onClick={() => void exportAs("md")}>Markdown</Btn>
+          <Btn variant="ghost" onClick={() => void exportAs("html")}>HTML</Btn>
+          <Btn variant="ghost" data-testid="writer-export-txt" onClick={() => void exportAs("txt")}>Text</Btn>
+          <Btn variant="ghost" data-testid="writer-import-md" title="Open a Markdown file as a new Word document" onClick={() => mdInput.current?.click()}>From Markdown…</Btn>
+          <input ref={mdInput} type="file" accept=".md,.markdown,text/markdown" hidden data-testid="writer-md-file" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void importMarkdown(f); }} />
+        </BannerGroup>
+      </AppBanner>
       {/* ---------- contextual rows */}
       {(inTable || imgSel) && (
         <div className="fs-row" style={{ padding: "3px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", alignItems: "center", flexWrap: "wrap", fontSize: fz(12) }} onMouseDown={(e) => { if ((e.target as HTMLElement).tagName === "BUTTON") e.preventDefault(); }}>

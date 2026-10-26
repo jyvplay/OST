@@ -1,6 +1,6 @@
 {
   "suite": "tt76-slides",
-  "at": "2026-10-25T23:26:50.045Z",
+  "at": "2026-10-26T15:59:10.851Z",
   "results": [
     {
       "suite": "tt76-slides",
@@ -10,7 +10,7 @@
         "FF-63": "full"
       },
       "pass": true,
-      "ms": 3851
+      "ms": 4123
     },
     {
       "suite": "tt76-slides",
@@ -20,7 +20,7 @@
         "FF-63": "full"
       },
       "pass": true,
-      "ms": 15571
+      "ms": 16058
     },
     {
       "suite": "tt76-slides",
@@ -30,7 +30,7 @@
         "FF-63": "full"
       },
       "pass": true,
-      "ms": 322
+      "ms": 330
     },
     {
       "suite": "tt76-slides",
@@ -50,7 +50,7 @@
         "FF-63": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt76-slides",
@@ -60,7 +60,7 @@
         "FF-63": "full"
       },
       "pass": true,
-      "ms": 5974
+      "ms": 6032
     },
     {
       "suite": "tt76-slides",
@@ -70,7 +70,7 @@
         "FF-23": "full"
       },
       "pass": true,
-      "ms": 315
+      "ms": 321
     },
     {
       "suite": "tt76-slides",
@@ -80,7 +80,7 @@
         "FF-63": "full"
       },
       "pass": true,
-      "ms": 298
+      "ms": 331
     }
   ]
 }

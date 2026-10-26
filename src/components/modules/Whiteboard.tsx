@@ -1,4 +1,5 @@
 "use client";
+import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { wheelPx } from "@/lib/input";
 import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -322,30 +323,35 @@ export default function WhiteboardModule({ win }: ModuleProps) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="whiteboard">
-      {/* file bar */}
-      <div className="fs-row" style={{ padding: 6, gap: 5, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <input className="fs-input" aria-label="Board name" value={name} onChange={(e) => setName(e.target.value)} style={{ flex: `0 1 ${fz(180)}`, minWidth: fz(110) }} />
-        <Btn variant="primary" onClick={() => void save()}>Save .fboard</Btn>
-        <Btn variant="ghost" onClick={() => void exportSvg()}>Export SVG</Btn>
-        <Btn variant="ghost" disabled={!hist.past.length} onClick={undo}>Undo</Btn>
-        <Btn variant="ghost" disabled={!hist.future.length} onClick={redo}>Redo</Btn>
-        <Btn variant="ghost" onClick={() => { commit(W.emptyBoard()); setSel([]); }}>Clear board</Btn>
-        {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
-        <span className="fs-dim" role="status" style={{ fontSize: fz(11) }} data-testid="wb-status">{status}</span>
-      </div>
-      {/* tools */}
-      <div className="fs-row fs-toolbar" role="toolbar" aria-label="Drawing tools" style={{ padding: "4px 6px", gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        {TOOLS.map((t) => (
+      {/* TT80 banner: Keep · Tweak · Kit · Glance over one tool strip */}
+      <AppBanner label="Whiteboard" span="1 / 3" status={<>
+          {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
+          <span className="fs-dim" role="status" style={{ fontSize: fz(11) }} data-testid="wb-status">{status}</span>
+      </>}>
+        <BannerGroup name="Keep">
+          <input className="fs-input" aria-label="Board name" value={name} onChange={(e) => setName(e.target.value)} style={{ flex: `0 1 ${fz(180)}`, minWidth: fz(110) }} />
+          <Btn variant="primary" onClick={() => void save()}>Save .fboard</Btn>
+          <Btn variant="ghost" onClick={() => void exportSvg()}>Export SVG</Btn>
+        </BannerGroup>
+        <BannerGroup name="Tweak">
+          <Btn variant="ghost" disabled={!hist.past.length} onClick={undo}>Undo</Btn>
+          <Btn variant="ghost" disabled={!hist.future.length} onClick={redo}>Redo</Btn>
+          <Btn variant="ghost" onClick={() => { commit(W.emptyBoard()); setSel([]); }}>Clear board</Btn>
+        </BannerGroup>
+        <BannerGroup name="Kit">
+          {TOOLS.map((t) => (
           <button key={t.id} type="button" className="fs-btn" data-variant={tool === t.id ? "primary" : "ghost"} aria-pressed={tool === t.id}
-            aria-keyshortcuts={t.key} title={`${t.label} (shortcut ${t.key})`} data-testid={`wb-tool-${t.id}`} onClick={() => setTool(t.id)}>{t.label}</button>
-        ))}
-        <span style={{ width: 8 }} />
-        <Btn variant="ghost" aria-label="Zoom out" onClick={() => zoomCenter(1 / 1.2)}>-</Btn>
-        <span style={{ minWidth: fz(44), textAlign: "center", fontSize: fz(12) }} data-testid="wb-zoom">{Math.round(cam.z * 100)}%</span>
-        <Btn variant="ghost" aria-label="Zoom in" onClick={() => zoomCenter(1.2)}>+</Btn>
-        <Btn variant="ghost" onClick={fit}>Fit</Btn>
-        <Btn variant="ghost" aria-pressed={grid} onClick={() => setGrid((g) => !g)}>{grid ? "Snap: on" : "Snap: off"}</Btn>
-      </div>
+          aria-keyshortcuts={t.key} title={`${t.label} (shortcut ${t.key})`} data-testid={`wb-tool-${t.id}`} onClick={() => setTool(t.id)}>{t.label}</button>
+          ))}
+        </BannerGroup>
+        <BannerGroup name="Glance">
+          <Btn variant="ghost" aria-label="Zoom out" onClick={() => zoomCenter(1 / 1.2)}>-</Btn>
+          <span style={{ minWidth: fz(44), textAlign: "center", fontSize: fz(12) }} data-testid="wb-zoom">{Math.round(cam.z * 100)}%</span>
+          <Btn variant="ghost" aria-label="Zoom in" onClick={() => zoomCenter(1.2)}>+</Btn>
+          <Btn variant="ghost" onClick={fit}>Fit</Btn>
+          <Btn variant="ghost" aria-pressed={grid} onClick={() => setGrid((g) => !g)}>{grid ? "Snap: on" : "Snap: off"}</Btn>
+        </BannerGroup>
+      </AppBanner>
       <div style={{ display: "grid", gridTemplateColumns: `minmax(0, 1fr) ${fz(230)}`, flex: 1, minHeight: 0 }}>
         {/* canvas */}
         <div style={{ position: "relative", minWidth: 0, minHeight: 0, overflow: "hidden", background: "#fbfbf8" }}>

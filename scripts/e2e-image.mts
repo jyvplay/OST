@@ -48,7 +48,7 @@ async function openStudio(path?: string): Promise<Studio> {
   const px = (x: number, y: number) => canvas.evaluate((c: HTMLCanvasElement, [x, y]) => Array.from(c.getContext("2d")!.getImageData(x, y, 1, 1).data), [x, y]);
   const drag = async (a: [number, number], b: [number, number], steps = 12) => { const p = await at(...a), q = await at(...b); await page.mouse.move(p.x, p.y); await page.mouse.down(); await page.mouse.move(q.x, q.y, { steps }); await page.mouse.up(); };
   const click = async (x: number, y: number) => { const p = await at(x, y); await page.mouse.click(p.x, p.y); };
-  const tool = (n: string) => root.getByRole("toolbar", { name: "Tools" }).getByRole("button", { name: n, exact: true }).click();
+  const tool = (n: string) => root.getByRole("toolbar", { name: "Drawing kit" }).getByRole("button", { name: n, exact: true }).click();
   return { page, dlg, root, canvas, px, at, drag, click, tool, attr, close: () => ctx.close() };
 }
 const setRange = (l: Locator, v: number) => l.evaluate((el: HTMLInputElement, v) => {
