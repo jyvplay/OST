@@ -1,6 +1,8 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import type { ReactNode } from "react";
+import { UiGlyph } from "./AppIcon";
 
 export function Btn({
   children, onClick, variant = "default", disabled, title, type = "button", className = "", ...rest
@@ -17,15 +19,15 @@ export function Btn({
   );
 }
 
-export function Badge({ children, tone = "default", title }: { children: ReactNode; tone?: "default" | "ok" | "warn" | "bad" | "info"; title?: string }) {
-  return <span className="fs-badge" data-tone={tone} title={title}>{children}</span>;
+export function Badge({ children, tone = "default", title, ...data }: { children: ReactNode; tone?: "default" | "ok" | "warn" | "bad" | "info"; title?: string } & { [k: `data-${string}`]: string | number | undefined }) {
+  return <span className="fs-badge" data-tone={tone} title={title} {...data}>{children}</span>;
 }
 
 export function Section({ title, right, children, dense }: { title: string; right?: ReactNode; children: ReactNode; dense?: boolean }) {
   return (
     <section className="fs-panel" style={{ padding: dense ? 8 : 12, display: "grid", gap: 8 }}>
       <div className="fs-row" style={{ justifyContent: "space-between" }}>
-        <h3 style={{ margin: 0, fontSize: 12, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--fs-muted)" }}>{title}</h3>
+        <h3 style={{ margin: 0, fontSize: fz(12), letterSpacing: ".06em", textTransform: "uppercase", color: "var(--fs-muted)" }}>{title}</h3>
         {right}
       </div>
       {children}
@@ -36,8 +38,8 @@ export function Section({ title, right, children, dense }: { title: string; righ
 export function KV({ k, v, mono }: { k: string; v: ReactNode; mono?: boolean }) {
   return (
     <div className="fs-row" style={{ justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
-      <span className="fs-dim" style={{ fontSize: 11.5 }}>{k}</span>
-      <span className={mono ? "fs-mono" : ""} style={{ fontSize: 11.5, textAlign: "right", wordBreak: "break-word" }}>{v}</span>
+      <span className="fs-dim" style={{ fontSize: fz(11.5) }}>{k}</span>
+      <span className={mono ? "fs-mono" : ""} style={{ fontSize: fz(11.5), textAlign: "right", wordBreak: "break-word" }}>{v}</span>
     </div>
   );
 }
@@ -58,7 +60,7 @@ export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: 
 export function Toggle({ on, onChange, label, disabled, reason }: { on: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean; reason?: string }) {
   return (
     <label className="fs-row" style={{ justifyContent: "space-between", opacity: disabled ? .55 : 1 }} title={reason}>
-      <span style={{ fontSize: 12 }}>{label}</span>
+      <span style={{ fontSize: fz(12) }}>{label}</span>
       <button role="switch" aria-checked={on} aria-label={label} disabled={disabled}
         onClick={() => onChange(!on)}
         style={{
@@ -74,12 +76,13 @@ export function Toggle({ on, onChange, label, disabled, reason }: { on: boolean;
   );
 }
 
-export function Empty({ title, hint, icon = "∅" }: { title: string; hint?: string; icon?: string }) {
+/** `icon` is accepted for compatibility but no longer drawn: emoji render blank without a colour-emoji font (TT21). */
+export function Empty({ title, hint }: { title: string; hint?: string; icon?: string }) {
   return (
     <div style={{ display: "grid", placeItems: "center", gap: 6, padding: 28, textAlign: "center", color: "var(--fs-muted)" }}>
-      <div style={{ fontSize: 26, opacity: .6 }}>{icon}</div>
-      <div style={{ fontSize: 13 }}>{title}</div>
-      {hint ? <div style={{ fontSize: 11.5, maxWidth: 420, lineHeight: 1.5 }}>{hint}</div> : null}
+      <div aria-hidden style={{ color: "var(--fs-warn)", display: "grid", placeItems: "center", width: fz(40), height: fz(40), borderRadius: 999, background: "rgba(255,196,83,.12)" }}><UiGlyph name="spark" size={20} /></div>
+      <div style={{ fontSize: fz(13) }}>{title}</div>
+      {hint ? <div style={{ fontSize: fz(11.5), maxWidth: `min(${fz(420)}, 100%)`, lineHeight: 1.5 }}>{hint}</div> : null}
     </div>
   );
 }
@@ -92,10 +95,10 @@ export function Blocked({ what, missing, workaround }: { what: string; missing: 
   return (
     <div className="fs-panel" style={{ padding: 10, borderColor: "rgba(255,107,107,.35)", display: "grid", gap: 4 }}>
       <div className="fs-row" style={{ gap: 6 }}>
-        <Badge tone="bad">blocked</Badge><strong style={{ fontSize: 12 }}>{what}</strong>
+        <Badge tone="bad">blocked</Badge><strong style={{ fontSize: fz(12) }}>{what}</strong>
       </div>
-      <div className="fs-dim" style={{ fontSize: 11.5 }}>Missing primitive: <span className="fs-mono">{missing}</span></div>
-      {workaround ? <div style={{ fontSize: 11.5 }}>Available instead: {workaround}</div> : null}
+      <div className="fs-dim" style={{ fontSize: fz(11.5) }}>Missing primitive: <span className="fs-mono">{missing}</span></div>
+      {workaround ? <div style={{ fontSize: fz(11.5) }}>Available instead: {workaround}</div> : null}
     </div>
   );
 }

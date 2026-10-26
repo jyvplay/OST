@@ -1,0 +1,60 @@
+{
+  "suite": "tt64-writer-trackcols",
+  "at": "2026-10-25T23:03:44.235Z",
+  "results": [
+    {
+      "suite": "tt64-writer-trackcols",
+      "name": "a tracked column insert: every new cell carries w:cellIns (unique ids, author, date), the old widths go in w:tblGridChange; one '[Table column]' change; schema-valid; the file round-trips the grouping",
+      "covers": {
+        "FF-48": "full"
+      },
+      "pass": true,
+      "ms": 377
+    },
+    {
+      "suite": "tt64-writer-trackcols",
+      "name": "differential: 48 random tables × random column op (left / right / delete): oracle accept/reject views of the TRACKED file = untracked op / original; ours (Accept All, Reject All, the one column change both ways) = the same; text AND widths",
+      "covers": {
+        "FF-48": "full"
+      },
+      "pass": true,
+      "ms": 33115
+    },
+    {
+      "suite": "tt64-writer-trackcols",
+      "name": "sequences: two tracked inserts then a tracked delete; resolving in mixed orders; Reject All returns the ORIGINAL widths exactly; the author's own pending column deletes outright",
+      "covers": {
+        "FF-48": "full"
+      },
+      "pass": true,
+      "ms": 615
+    },
+    {
+      "suite": "tt64-writer-trackcols",
+      "name": "refusals and boundaries: a merged cell across the column / another reviewer's pending cell → tracked delete refused (document unchanged, message names Track Changes); 1-row tables stay per-cell; tracked rows + columns together",
+      "covers": {
+        "FF-48": "full"
+      },
+      "pass": true,
+      "ms": 876
+    },
+    {
+      "suite": "tt64-writer-trackcols",
+      "name": "files from the independent writer: a whole column marked cellDel / cellIns by markcells (lxml) is listed as one column change and resolves to the oracle's views; mixed authors in one column stay per-cell; file revision ids are reserved; a width-only w:tblGridChange settles on Accept / Reject All",
+      "covers": {
+        "FF-48": "full"
+      },
+      "pass": true,
+      "ms": 1218
+    },
+    {
+      "suite": "tt64-writer-trackcols",
+      "name": "TT64 fix — rows with w:gridBefore / w:gridAfter: column operations address GRID columns (they used to count from the row's first cell); untracked and tracked, every column, both directions, vs hand-derived tables and the oracle",
+      "covers": {
+        "FF-48": "full"
+      },
+      "pass": true,
+      "ms": 4129
+    }
+  ]
+}

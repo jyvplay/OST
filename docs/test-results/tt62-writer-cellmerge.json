@@ -1,0 +1,42 @@
+{
+  "suite": "tt62-writer-cellmerge",
+  "at": "2026-10-25T23:02:23.255Z",
+  "results": [
+    {
+      "suite": "tt62-writer-cellmerge",
+      "name": "listed: every w:cellMerge shows in the Changes pane as a resolvable cell change with author, and a detail naming both states",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 51
+    },
+    {
+      "suite": "tt62-writer-cellmerge",
+      "name": "accept all / reject all: our vertical-merge grid equals the oracle's (computed from the original file), no cellMerge left, CT_TcPr order intact, python-docx opens it, XSD-valid",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 1305
+    },
+    {
+      "suite": "tt62-writer-cellmerge",
+      "name": "one by one, alternating accept / reject in two different orders: each order lands on the oracle's mixed expectation",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 860
+    },
+    {
+      "suite": "tt62-writer-cellmerge",
+      "name": "a cellMerge beside cellIns / cellDel and a row revision: all resolve together (accept all) and the result matches the oracle's grid and its table view",
+      "covers": {
+        "FF-44": "full"
+      },
+      "pass": true,
+      "ms": 634
+    }
+  ]
+}

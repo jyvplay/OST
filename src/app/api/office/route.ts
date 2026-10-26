@@ -1,13 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { refuseEncrypted } from "@/lib/mime";
 import { getNode } from "@/lib/server/vfs";
 import { readDocx, writeDocx, type DocModel } from "@/lib/office/docx";
 import { readPptx, writePptx, type DeckModel } from "@/lib/office/pptx";
+import { readJsonObject } from "@/lib/http-json";
 
 export const dynamic = "force-dynamic";
 const LIMIT = 8 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
-  const b = (await req.json()) as { op?: string; path?: string; base64?: string; document?: DocModel; deck?: DeckModel };
+  const b = (await readJsonObject(req)) as ({ op?: string; path?: string; base64?: string; document?: DocModel; deck?: DeckModel }) | Response;
+  if (b instanceof Response) return b;
   try {
     if (b.op === "importDocx" || b.op === "importPptx") {
       let bytes: Buffer;
@@ -15,6 +18,7 @@ export async function POST(req: NextRequest) {
       else if (b.path) {
         const n = await getNode(b.path);
         if (!n) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+        refuseEncrypted(n);
         bytes = Buffer.from(n.content, n.encoding === "base64" ? "base64" : "utf8");
       } else throw new Error("path or base64 required");
       if (bytes.length > LIMIT) throw new Error("Office file exceeds the 8 MB parsing guard");

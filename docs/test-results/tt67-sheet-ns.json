@@ -1,0 +1,149 @@
+{
+  "suite": "tt67-sheet-ns",
+  "at": "2026-10-26T08:11:31.185Z",
+  "results": [
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "lxml equivalence: every rewritten XML part of the 353-file corpus + 15 adversarial shapes keeps its expanded names, attributes, text, comments and MCE prefix meanings, in canonical prefixes; Excel's own parts take the no-copy fast path",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 2120
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "adversarial shapes read correctly: comment / CDATA / PI lookalikes untouched, no-namespace children undeclare the default, strict prefixes canonical, value text is not a declaration, foreign namespace on the x14 prefix aliased away, x14 as the default namespace becomes x14:, MCE lists follow the renaming",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "the 7 corpus workbooks TT66 could not read (x: / s: SpreadsheetML prefixes, prefixed mc:AlternateContent) open, and every non-empty cell equals an lxml namespace-aware reader and (where it can open the file) openpyxl; TT66 rejected 6 and read 0 cells from the 7th",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 5305
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "x14 conditional formats written under other prefixes (q: for x14, m: for xm) are modelled exactly like Excel's spelling; the MS-XLSX oracle confirms the renamed file is the same x14 content; TT66 lost the x14-only rules",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 453
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "a FOREIGN namespace that borrows the x14 prefix is never read as conditional formatting (TT66 read it as a rule: a false positive)",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 191
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "lossless save of a prefixed workbook: edit one cell of 59021.xlsx (x: prefixes), patch, re-read → the edit and every other value survive; openpyxl opens the result",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 567
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "pre-standard / unknown dialects: the Excel 2007 beta namespace (sample-beta.xlsx) is SpreadsheetML; a workbook in a namespace nobody knows is read exactly as TT66 read it (knownRoot guard) instead of being aliased away",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 265
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "numeric character references are decoded in ONE pass, exactly as an XML parser does (lxml oracle): decimal, hex, astral, newline; &amp;lt; stays the text &lt;; TT66 showed the raw &#…; text",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 239
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "references that are not characters (lone surrogate in hex and decimal, beyond U+10FFFF in hex and decimal) stay literal instead of crashing or inventing a character — lenient, as Excel-tolerant readers are; lxml rejects such files outright",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 240
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "lossless re-style of a cell in an x:-prefixed styles.xml changes ONLY its font (openpyxl): the patcher reads styles through the same canonical view as the reader (found by the TT67 gate: fill / border / alignment were rebuilt)",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 867
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "the x14 oracle REPORTS malformed XML and unreadable packages as findings (TT66 raised a traceback, so a broken writer looked like a broken test)",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 95
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "whole-corpus differential vs the TT66 reader (338 workbooks: cells + styles + CF + tables + charts): nothing reads worse; the only changes are 7 workbooks that now open (6 rejected, 1 read empty) and 3 whose &#…; text is now decoded",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 57252
+    },
+    {
+      "suite": "tt67-sheet-ns",
+      "name": "cost: Excel-written parts return the SAME string (no copy); a 20 000-row x:-prefixed sheet (≈4 MB) is canonicalised in well under 2 s and reads all 100 000 cells",
+      "covers": {
+        "FF-21": "full",
+        "FF-50": "full",
+        "FF-51": "full"
+      },
+      "pass": true,
+      "ms": 1803
+    }
+  ]
+}

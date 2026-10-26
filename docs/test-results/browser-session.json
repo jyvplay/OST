@@ -1,0 +1,57 @@
+{
+  "suite": "browser-session",
+  "at": "2026-10-25T22:09:27.537Z",
+  "results": [
+    {
+      "suite": "browser-session",
+      "name": "URL guard: http(s) only, bare hosts get https, credentials and own origin refused",
+      "covers": {
+        "PR-07": "partial",
+        "PR-07l": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "browser-session",
+      "name": "restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first",
+      "covers": {
+        "PR-07": "full",
+        "PR-07r": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "browser-session",
+      "name": "close: active tab hands focus to its neighbour (regression: view went blank); last tab replaced",
+      "covers": {
+        "PR-07a": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "browser-session",
+      "name": "batch actions: close others / to the right / duplicates keep pinned tabs and the anchor",
+      "covers": {
+        "PR-07q": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "browser-session",
+      "name": "pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute",
+      "covers": {
+        "PR-07c": "full",
+        "PR-07f": "full",
+        "PR-07g": "full",
+        "PR-07b": "partial",
+        "PR-07l": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

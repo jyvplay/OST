@@ -1,8 +1,10 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
 import { MODULES } from "@/lib/registry";
+import { parseTarget } from "@/lib/ssh-client";
 import { useShell, type ModuleProps } from "../shell-context";
 
 interface Line { text: string; tone?: "out" | "err" | "cmd" | "info" }
@@ -16,9 +18,17 @@ interface Line { text: string; tone?: "out" | "err" | "cmd" | "info" }
 export default function TerminalModule({ win }: ModuleProps) {
   const shell = useShell();
   const [cwd, setCwd] = useState<string>((win.props.cwd as string) ?? "/");
+  // TT55 (FM-02): docked under Files, the terminal follows the active pane — derive from the prop during render
+  // (React's "adjust state when a prop changes" pattern) so the history survives and the cd is visible
+  const propCwd = (win.props.cwd as string | undefined) ?? "/";
+  const [seenCwd, setSeenCwd] = useState(propCwd);
   const [lines, setLines] = useState<Line[]>([
     { text: "Fusion shell — type `help`. Commands run against the Postgres VFS.", tone: "info" },
   ]);
+  if (win.props.embedded === true && propCwd !== seenCwd) {
+    setSeenCwd(propCwd); setCwd(propCwd);
+    setLines((l) => [...l, { text: `cd ${propCwd}   (following the Files pane)`, tone: "info" as const }].slice(-500));
+  }
   const [input, setInput] = useState("");
   const [hist, setHist] = useState<string[]>([]);
   const [histIdx, setHistIdx] = useState(-1);
@@ -68,6 +78,7 @@ export default function TerminalModule({ win }: ModuleProps) {
             "sha256 <path>          stored digest",
             "jobs                   recent journal entries",
             "open <module> [path]   open a Fusion window",
+            "ssh user@host[:port]   open the SSH window for that server (-p PORT works too)",
             "cast                   list Beam transports",
             "probe                  capability summary",
             "spec [filter]          query the feature register",
@@ -85,8 +96,11 @@ export default function TerminalModule({ win }: ModuleProps) {
           break;
         }
         case "ls": {
-          const target = resolve(args[0] ?? "");
-          const r = await api<{ nodes: { name: string; kind: string; size: number; version: number }[] }>(`/api/fs?op=list&path=${encodeURIComponent(target)}`);
+          // TT54: Unix convention — dotfiles (photo edit sidecars) only with -a / -A
+          const all = args.some((a) => /^-[a-zA-Z]*[aA]/.test(a)); const pos = args.filter((a) => !a.startsWith("-"));
+          const target = resolve(pos[0] ?? "");
+          const r0 = await api<{ nodes: { name: string; kind: string; size: number; version: number }[] }>(`/api/fs?op=list&path=${encodeURIComponent(target)}`);
+          const r = { nodes: all ? r0.nodes : r0.nodes.filter((n) => !n.name.startsWith(".")) };
           if (r.nodes.length === 0) out("(empty)");
           else out(r.nodes.map((n) => `${n.kind === "dir" ? "d" : "-"} ${String(fmtBytes(n.size)).padStart(8)}  v${n.version}  ${n.name}`).join("\n"));
           break;
@@ -156,6 +170,14 @@ export default function TerminalModule({ win }: ModuleProps) {
           out(r.ops.map((o) => `#${o.id} ${o.op.padEnd(6)} ${o.state.padEnd(16)} ${o.src}${o.dst ? ` → ${o.dst}` : ""}`).join("\n"));
           break;
         }
+        case "ssh": {
+          // TT44 (TD-03): opens the SSH window prefilled; authentication and host-key questions happen there
+          const t = parseTarget(args);
+          if (typeof t === "string") { out(t, "err"); break; }
+          shell.open("ssh", { ...t, title: `${t.username}@${t.host}` });
+          out(`opened SSH for ${t.username}@${t.host}:${t.port}`);
+          break;
+        }
         case "open": {
           const mod = args[0];
           if (!MODULES.some((m) => m.id === mod)) { out(`unknown module. try: ${MODULES.map((m) => m.id).join(", ")}`, "err"); break; }
@@ -192,21 +214,21 @@ export default function TerminalModule({ win }: ModuleProps) {
   }, [cwd, resolve, shell]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, background: "#05080f" }}
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, background: "#05080f", color: "#e6edf7", colorScheme: "dark" }} /* TT22: the terminal is always a dark surface, so its ink is fixed too (light theme drew dark text on black) */
       onClick={() => inputRef.current?.focus()}>
-      <div className="fs-scroll fs-mono" style={{ flex: 1, minHeight: 0, padding: 10, fontSize: 12, lineHeight: 1.45 }}>
+      <div className="fs-scroll fs-mono" style={{ flex: 1, minHeight: 0, padding: 10, fontSize: fz(12), lineHeight: 1.45 }}>
         {lines.map((l, i) => (
           <pre key={i} style={{
             margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word",
-            color: l.tone === "err" ? "#ff9b9b" : l.tone === "cmd" ? "#8fb7ff" : l.tone === "info" ? "#8df0c0" : "var(--fs-text)",
+            color: l.tone === "err" ? "#ff9b9b" : l.tone === "cmd" ? "#8fb7ff" : l.tone === "info" ? "#8df0c0" : "inherit",
           }}>{l.text}</pre>
         ))}
         <div ref={endRef} />
       </div>
       <div className="fs-row fs-mono" style={{ padding: 8, gap: 6, borderTop: "1px solid var(--fs-border)" }}>
-        <span style={{ color: "#8fb7ff", fontSize: 12 }}>{cwd} $</span>
+        <span style={{ color: "#8fb7ff", fontSize: fz(12) }}>{cwd} $</span>
         <input ref={inputRef} className="fs-input fs-mono" value={input} spellCheck={false} aria-label="Terminal input"
-          style={{ border: 0, background: "transparent", flex: 1 }}
+          style={{ border: 0, background: "transparent", color: "inherit", flex: 1 }}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") { const v = input; setInput(""); setHist((h) => [v, ...h].slice(0, 100)); setHistIdx(-1); void exec(v); }

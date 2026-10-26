@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt67-input",
+  "at": "2026-10-25T23:06:35.626Z",
+  "results": [
+    {
+      "suite": "e2e-tt67-input",
+      "name": "IN-03 AZERTY at the event level: Meta + the physical Q key (types \"a\") opens Overview and NOT the launcher; Meta + physical A (types \"q\") opens the launcher and NOT Overview; Escape closes",
+      "covers": {
+        "IN-03": "full"
+      },
+      "pass": true,
+      "ms": 4850
+    },
+    {
+      "suite": "e2e-tt67-input",
+      "name": "IN-03 labels: typing in a password field teaches NOTHING (Snap layouts keeps its label); the same AZERTY keys typed elsewhere relabel Meta+Z → Meta+W and Meta+Q → Meta+A",
+      "covers": {
+        "IN-03": "full"
+      },
+      "pass": true,
+      "ms": 2640
+    },
+    {
+      "suite": "e2e-tt67-input",
+      "name": "IN-02 learn: Learn Back + the device's FORWARD button → Back = 4, Forward = 3 (swapped), stored, survives reload; Files then goes Back on that button and the tab never navigates; the trailing mouseup / auxclick never reach the page",
+      "covers": {
+        "IN-02": "full"
+      },
+      "pass": true,
+      "ms": 9597
+    },
+    {
+      "suite": "e2e-tt67-input",
+      "name": "IN-02 refusals and modality: the overlay covers the screen; the right button is refused with a reason, the dialog stays and its context menu never reaches the page; Meta+Q behind the overlay opens nothing; Escape cancels without changing the pair",
+      "covers": {
+        "IN-02": "full"
+      },
+      "pass": true,
+      "ms": 5686
+    },
+    {
+      "suite": "e2e-tt67-input",
+      "name": "SH-06 hot corner with real pointer moves: entering the top-left corner opens the launcher; after Escape, a pointer resting / jittering in the corner for 3 s does NOT reopen it; leaving and re-entering does; with Hot corners off nothing opens",
+      "covers": {
+        "SH-06": "full"
+      },
+      "pass": true,
+      "ms": 10614
+    }
+  ]
+}

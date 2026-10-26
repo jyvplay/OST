@@ -1,0 +1,11 @@
+KILLED  a wrong password is reported as damage  [S]  a wrong password, a case change and an empty password are refused as
+KILLED  a plaintext payload is accepted as a sealed draft  [S]  damage is never opened and never mistaken for a wrong password: non-
+KILLED  damage is reported as a wrong password  [S]  damage is never opened and never mistaken for a wrong password: non-
+KILLED  the draft's password overrides the file's current one  [S]  restoredProtection never weakens: the file's password wins; an unpro
+KILLED  a plain draft drops the protection  [S]  restoredProtection never weakens: the file's password wins; an unpro
+KILLED  an adopted protection keeps removed=true  [S]  restoredProtection never weakens: the file's password wins; an unpro
+KILLED  the key derivation is not cached  [S]  round trip: the sealed draft opens with the password to the identica
+KILLED  unpack accepts a ZIP without the draft entry  [S]  Spreadsheet packing: the draft JSON travels as a one-entry ZIP; unic
+KILLED  the codec refuses sealed drafts  [S]  the draft codec accepts encoding 'sealed' only with a base64 payload
+KILLED  the codec does not validate a sealed payload  [S]  the draft codec accepts encoding 'sealed' only with a base64 payload
+10/10 mutants killed

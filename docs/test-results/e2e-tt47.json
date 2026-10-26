@@ -1,0 +1,66 @@
+{
+  "suite": "e2e-tt47",
+  "at": "2026-10-25T22:48:18.928Z",
+  "results": [
+    {
+      "suite": "e2e-tt47",
+      "name": "Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 6129
+    },
+    {
+      "suite": "e2e-tt47",
+      "name": "Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 5577
+    },
+    {
+      "suite": "e2e-tt47",
+      "name": "Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 5564
+    },
+    {
+      "suite": "e2e-tt47",
+      "name": "Spreadsheet opens a password-protected .xlsx (Standard), Save re-encrypts it (TT48); server refuses plaintext over an encrypted file; cancel never overwrites",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 5984
+    },
+    {
+      "suite": "e2e-tt47",
+      "name": "no uncaught page errors during the Spreadsheet session",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

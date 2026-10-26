@@ -1,0 +1,55 @@
+{
+  "suite": "e2e-tt34",
+  "at": "2026-10-25T22:32:28.251Z",
+  "results": [
+    {
+      "suite": "e2e-tt34",
+      "name": "transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing",
+      "covers": {
+        "SM-09": "full",
+        "SM-10": "full"
+      },
+      "pass": true,
+      "ms": 4563
+    },
+    {
+      "suite": "e2e-tt34",
+      "name": "transport honesty (SM-09): Vimeo with speed disabled by its owner — setPlaybackRate is sent but the speed shown stays unreported 1×; volume uses 0–1 and follows volumechange; seek slider → setCurrentTime. SoundCloud: seek + playlist next, no volume control at all",
+      "covers": {
+        "SM-09": "full"
+      },
+      "pass": true,
+      "ms": 2646
+    },
+    {
+      "suite": "e2e-tt34",
+      "name": "native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them",
+      "covers": {
+        "SM-09": "full",
+        "SM-11": "full"
+      },
+      "pass": true,
+      "ms": 3353
+    },
+    {
+      "suite": "e2e-tt34",
+      "name": "Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track",
+      "covers": {
+        "MP-06": "full",
+        "MP-07": "full",
+        "MP-08": "full"
+      },
+      "pass": true,
+      "ms": 34751
+    },
+    {
+      "suite": "e2e-tt34",
+      "name": "tabletop double-click guard (LY-22): a double-click on a RESTING wall whose 300 ms hover-lift deadline passes between the clicks still makes it the main view (×3 walls, optional TT_CPU load); plain hover still lifts a wall",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 11039
+    }
+  ]
+}

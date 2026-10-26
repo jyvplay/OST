@@ -1,0 +1,70 @@
+{
+  "suite": "tt55-files-unit",
+  "at": "2026-10-25T22:54:50.859Z",
+  "results": [
+    {
+      "suite": "tt55-files-unit",
+      "name": "FM-15 selection model = spec-literal reference over 3 000 random click / Ctrl / Shift / Ctrl+Shift / keyboard sequences",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 44
+    },
+    {
+      "suite": "tt55-files-unit",
+      "name": "SH-09 back / forward history = browser model (entries + index) over 3 000 random sequences, incl. the 50-entry cap",
+      "covers": {
+        "SH-09": "partial"
+      },
+      "pass": true,
+      "ms": 321
+    },
+    {
+      "suite": "tt55-files-unit",
+      "name": "FM-03 / FM-13 conflict-free names: never in use, the smallest free candidate, copies of copies do not grow, dirs and dotfiles keep their name",
+      "covers": {
+        "FM-13": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt55-files-unit",
+      "name": "FM-06 context-menu model: concise ⊂ full, type-to-search matches every word (label + keywords, case- and accent-folded), order kept",
+      "covers": {
+        "FM-06": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt55-files-unit",
+      "name": "FM-01 sort: folders first in both directions, numeric-aware names, size / date keys, vs a reference comparator",
+      "covers": {
+        "FM-01": "partial"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt55-files-unit",
+      "name": "FM-01 paths: join / parent / base / breadcrumbs round-trip over random paths; root never doubles or vanishes",
+      "covers": {
+        "FM-01": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt55-files-unit",
+      "name": "WM-08 remembered geometry: close records the normal rect per module|host (restore rect when maximized), the next open reuses it, an explicit rect wins, no exact stacking, fits a smaller viewport, bounded, closeAll records all",
+      "covers": {
+        "WM-08": "full"
+      },
+      "pass": true,
+      "ms": 5
+    }
+  ]
+}

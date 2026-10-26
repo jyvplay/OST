@@ -1,0 +1,105 @@
+{
+  "suite": "tt80-banner",
+  "at": "2026-10-26T18:37:23.798Z",
+  "results": [
+    {
+      "suite": "tt80-banner",
+      "name": "writer: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 6309
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "slides: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 6772
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "sheet: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 12524
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "pdf: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 3957
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "vector: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 4420
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "whiteboard: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 4008
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "tables: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 4590
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "editor: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 4466
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "photos: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 3505
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "imageedit: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 4017
+    },
+    {
+      "suite": "tt80-banner",
+      "name": "imagequick: one banner, own menu names, menus mirror the strip",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 4079
+    }
+  ]
+}

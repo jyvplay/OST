@@ -1,0 +1,36 @@
+{
+  "suite": "e2e-tt78-sheet",
+  "at": "2026-10-26T11:55:23.062Z",
+  "results": [
+    {
+      "suite": "e2e-tt78-sheet",
+      "name": "Subtotal dialog → totals + 1-2-3 outline; level 2 shows only totals; +/− expands one group; Save → openpyxl sees levels / hidden / collapsed / SUBTOTAL",
+      "covers": {
+        "FF-19": "full",
+        "FF-64": "full"
+      },
+      "pass": true,
+      "ms": 7522
+    },
+    {
+      "suite": "e2e-tt78-sheet",
+      "name": "modal shortcut: Alt+Shift+→ asks Rows/Columns; a second Alt+Shift+→ while asked does nothing; Escape groups nothing; 'rows' groups; Alt+Shift+← ungroups",
+      "covers": {
+        "FF-19": "full",
+        "FF-64": "full"
+      },
+      "pass": true,
+      "ms": 4324
+    },
+    {
+      "suite": "e2e-tt78-sheet",
+      "name": "calculated column: =A2*B2 fills the column; typing below grows the table and fills; one Ctrl+Z undoes both; Save → openpyxl calculatedColumnFormula + ref",
+      "covers": {
+        "FF-19": "full",
+        "FF-65": "full"
+      },
+      "pass": true,
+      "ms": 5209
+    }
+  ]
+}

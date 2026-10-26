@@ -20,14 +20,40 @@
  * function-argument and array-row separation (documented negative space).
  */
 import { tokenize, type Token } from "./lexer";
-import { lettersToCol, type BinOp, type CellAddr, type Node } from "./types";
+import { lettersToCol, type BinOp, type CellAddr, type ErrorCode, type Node } from "./types";
 
 function parseCellToken(text: string): CellAddr {
-  const m = /^(?:('[^']+'|[A-Za-z_][A-Za-z0-9_ ]*)!)?(\$?)([A-Za-z]{1,3})(\$?)(\d+)$/.exec(text);
+  const m = /^(?:('(?:[^']|'')+'|[A-Za-z_\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u03FF\u0400-\u052F\u0531-\u0587\u05D0-\u05EA\u0620-\u064A\u0E01-\u0E30\u1E00-\u1FFF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7A3\uF900-\uFAFF][A-Za-z0-9_ .\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u03FF\u0400-\u052F\u0531-\u0587\u05D0-\u05EA\u0620-\u064A\u0E01-\u0E30\u1E00-\u1FFF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7A3\uF900-\uFAFF]*)!)?(\$?)([A-Za-z]{1,3})(\$?)(\d+)$/.exec(text);
   if (!m) throw new Error(`bad reference token: ${text}`);
   const [, sheetRaw, colAbs, colLetters, rowAbs, rowDigits] = m;
-  const sheet = sheetRaw ? sheetRaw.replace(/^'|'$/g, "") : null;
-  return { sheet, col: lettersToCol(colLetters.toUpperCase()), row: Number(rowDigits) - 1, colAbs: colAbs === "$", rowAbs: rowAbs === "$" };
+  const sheet = sheetRaw ? unquoteSheet(sheetRaw) : null;
+  // TT49: A0 / A1048577 / XFE1 are not references in Excel (found by the CF adversary: "A0" became row −1)
+  const row = Number(rowDigits) - 1, col = lettersToCol(colLetters.toUpperCase());
+  if (!(row >= 0 && row <= 1_048_575 && col <= 16_383)) throw new Error(`reference out of range: ${text}`);
+  return { sheet, col, row, colAbs: colAbs === "$", rowAbs: rowAbs === "$" };
+}
+
+const unquoteSheet = (raw: string) => (raw.startsWith("'") ? raw.slice(1, -1).replace(/''/g, "'") : raw);
+export const MAX_ROW = 1_048_575, MAX_COL = 16_383;
+/** TT46: A:C / Sheet1!$B:$B (whole columns) and 3:5 (whole rows) → ordinary ranges flagged `whole`. */
+function parseWholeToken(text: string, kind: "colrange" | "rowrange"): Node {
+  const bang = text.lastIndexOf("!");
+  const sheet = bang >= 0 ? unquoteSheet(text.slice(0, bang)) : null;
+  const [a, b] = text.slice(bang + 1).split(":");
+  if (kind === "colrange") {
+    const c0 = lettersToCol(a.replace("$", "").toUpperCase()), c1 = lettersToCol(b.replace("$", "").toUpperCase());
+    return { t: "range", v: { from: { sheet, col: c0, row: 0, colAbs: a.startsWith("$"), rowAbs: true }, to: { sheet, col: c1, row: MAX_ROW, colAbs: b.startsWith("$"), rowAbs: true }, whole: "col" } };
+  }
+  const r0 = Number(a.replace("$", "")) - 1, r1 = Number(b.replace("$", "")) - 1;
+  return { t: "range", v: { from: { sheet, col: 0, row: r0, colAbs: true, rowAbs: a.startsWith("$") }, to: { sheet, col: MAX_COL, row: r1, colAbs: true, rowAbs: b.startsWith("$") }, whole: "row" } };
+}
+/** TT46: Sheet1:Sheet3!A1 → __REF3D("Sheet1","Sheet3", A1 [: B2]) — expanded per sheet by the evaluator. */
+function parse3dToken(text: string): { s0: string; s1: string; cell: CellAddr } {
+  const bang = text.lastIndexOf("!");
+  let pre = text.slice(0, bang);
+  if (pre.startsWith("'")) pre = pre.slice(1, -1).replace(/''/g, "'");
+  const colon = pre.indexOf(":");
+  return { s0: pre.slice(0, colon), s1: pre.slice(colon + 1), cell: parseCellToken(text.slice(bang + 1)) };
 }
 
 class Parser {
@@ -91,11 +117,17 @@ class Parser {
     return this.percent();
   }
   private percent(): Node {
-    let node = this.atom();
+    let node = this.refAtom();
     while (this.opIs("%")) { this.eat(); node = { t: "percent", arg: node }; }
     return node;
   }
 
+  /** TT46 reference operators: intersection (a space between two references) binds tighter than everything but ':'. */
+  private refAtom(): Node {
+    let node = this.atom();
+    while (this.at("isect")) { this.eat(); node = { t: "call", name: "__ISECT", args: [node, this.atom()] }; }
+    return node;
+  }
   private atom(): Node {
     const t = this.peek();
     if (t.kind === "num") {
@@ -108,7 +140,17 @@ class Parser {
       return { t: "num", v: Number(t.text) };
     }
     if (t.kind === "str") { this.eat(); return { t: "str", v: t.text }; }
-    if (t.kind === "lparen") { this.eat(); const inner = this.comparison(); this.eat("rparen"); return inner; }
+    if (t.kind === "err") { this.eat(); return { t: "err", v: t.text as ErrorCode }; }
+    if (t.kind === "lparen") {
+      this.eat(); const inner = this.comparison();
+      if (this.at("comma")) { // TT46: reference union (A1,B2:B3) — only meaningful inside parentheses
+        const members = [inner];
+        while (this.at("comma")) { this.eat(); members.push(this.comparison()); }
+        this.eat("rparen");
+        return { t: "call", name: "__UNION", args: members };
+      }
+      this.eat("rparen"); return inner;
+    }
     if (t.kind === "lbrace") return this.array();
     if (t.kind === "ref") {
       this.eat();
@@ -121,6 +163,19 @@ class Parser {
       }
       return { t: "ref", v: from };
     }
+    if (t.kind === "colrange" || t.kind === "rowrange") { this.eat(); return parseWholeToken(t.text, t.kind); }
+    if (t.kind === "ref3d") {
+      this.eat();
+      const { s0, s1, cell } = parse3dToken(t.text);
+      let target: Node = { t: "ref", v: cell };
+      if (this.at("colon") && this.toks[this.i + 1]?.kind === "ref") { this.eat(); target = { t: "range", v: { from: cell, to: parseCellToken(this.eat("ref").text) } }; }
+      return { t: "call", name: "__REF3D", args: [{ t: "str", v: s0 }, { t: "str", v: s1 }, target] };
+    }
+    if (t.kind === "sref") {
+      this.eat();
+      const k = t.text.indexOf("[");
+      return { t: "call", name: "__SREF", args: [{ t: "str", v: t.text.slice(0, k) }, { t: "str", v: t.text.slice(k) }] };
+    }
     if (t.kind === "ident") {
       this.eat();
       const upper = t.text.toUpperCase();
@@ -128,16 +183,19 @@ class Parser {
       if (this.at("lparen")) {
         this.eat();
         const args: Node[] = [];
+        // TT46: empty arguments (OFFSET(r,0,0,1,) / IF(a,,b)) parse as __MISSING, which each consumer interprets.
+        const arg = (): Node => (this.at("comma") || this.at("rparen") ? { t: "call", name: "__MISSING", args: [] } : this.comparison());
         if (!this.at("rparen")) {
-          args.push(this.comparison());
-          while (this.at("comma")) { this.eat(); args.push(this.comparison()); }
+          args.push(arg());
+          while (this.at("comma")) { this.eat(); args.push(arg()); }
         }
         this.eat("rparen");
         if (upper === "TRUE" && args.length === 0) return { t: "bool", v: true };
         if (upper === "FALSE" && args.length === 0) return { t: "bool", v: false };
         return { t: "call", name: upper, args };
       }
-      throw new Error(`unknown name "${t.text}" (expected a function call or TRUE/FALSE)`);
+      // TT19: a bare identifier is a defined name; an unknown one evaluates to #NAME? (as in Excel)
+      return { t: "name", name: t.text };
     }
     throw new Error(`unexpected token "${t.text || "<end>"}" at ${t.pos}`);
   }
@@ -160,6 +218,7 @@ class Parser {
     const t = this.peek();
     if (t.kind === "num") { this.eat(); return { t: "num", v: Number(t.text) }; }
     if (t.kind === "str") { this.eat(); return { t: "str", v: t.text }; }
+    if (t.kind === "err") { this.eat(); return { t: "err", v: t.text as ErrorCode }; }
     if (t.kind === "ident" && (t.text.toUpperCase() === "TRUE" || t.text.toUpperCase() === "FALSE")) {
       this.eat(); return { t: "bool", v: t.text.toUpperCase() === "TRUE" };
     }

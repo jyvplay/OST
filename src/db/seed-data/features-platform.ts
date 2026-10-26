@@ -139,4 +139,8 @@ export const platformFeatures: SpecRow[] = [
   F("DP-12", "DP", "Respect platform defaults and pickers", "A", "P1", "native pickers for files, screens, devices", "", "built", ""),
   F("DP-13", "DP", "Progressive disclosure by density, never hidden capability", "A", "P1", "density tokens", "", "built", ""),
   F("DP-14", "DP", "Every background job observable", "A", "P1", "jobs panel fed by file_ops + audit_log", "", "built", ""),
+  F("DP-15", "DP", "One honest top bar per app: Fusion own menu names, menus that mirror the toolbar", "A", "P1",
+    "AppBanner + src/lib/banner-core.ts + scripts/tt80-banner.mts",
+    "TT80: every creative app shows ONE banner - a menu row with Fusion's own top-level names (Keep, Tweak, Put, Look, Glance, Polish, Crunch, Stage, Stack, Kit, Ink; the shell's own are Frame and Guide) over a single tool strip that scrolls instead of wrapping. Each menu lists the controls of its group read from the live DOM when it opens, so a command cannot behave differently from its button; a control scrolled out of the strip is still one click away. The menu names are checked against the top-level menus of macOS, Windows, Office, Google, LibreOffice, Acrobat, Photoshop, Figma and browsers (84 names) and none may match.", "built", "tt80-banner"),
 ];
+

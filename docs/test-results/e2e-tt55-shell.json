@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt55-shell",
+  "at": "2026-10-26T11:56:38.606Z",
+  "results": [
+    {
+      "suite": "e2e-tt55-shell",
+      "name": "SH-01 one registry: launcher tiles = palette app results = src/lib/registry.ts (same ids, titles, count); a tile and a palette row each open their module",
+      "covers": {
+        "SH-01": "full"
+      },
+      "pass": true,
+      "ms": 4402
+    },
+    {
+      "suite": "e2e-tt55-shell",
+      "name": "SH-02 shelf = windows: one shelf button per window of the active workspace (= persisted state), through open, middle-click close, and a workspace with other windows",
+      "covers": {
+        "SH-02": "full"
+      },
+      "pass": true,
+      "ms": 4389
+    },
+    {
+      "suite": "e2e-tt55-shell",
+      "name": "SH-04 desktop icons follow the file system: a folder trashed in Files disappears from the desktop with no reload — in the same tab and in a second tab of the browser — and the icon set always equals the server listing",
+      "covers": {
+        "SH-04": "full"
+      },
+      "pass": true,
+      "ms": 3109
+    }
+  ]
+}

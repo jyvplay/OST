@@ -1,0 +1,127 @@
+{
+  "suite": "tt77-pdf",
+  "at": "2026-10-25T23:27:21.990Z",
+  "results": [
+    {
+      "suite": "tt77-pdf",
+      "name": "J1 JBIG2: every corpus JBIG2 image bit-exact vs PDFium (1 declared divergence)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 4721
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "J2 JPX: every corpus JPX image within ±2 of PDFium (1 declared divergence: SMaskInData 1 pre-composited by PDFium)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 4326
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "J3 JPX vs OpenJPEG: 40 generated codestreams — lossless = source exactly, lossy ±1",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 1191
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "J4 PDF wiring: /Indexed JPX keeps raw indices (issue12213 exact), /SMaskInData yields a soft mask, JPX size wins over /Width",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "N1 JPX garbage / empty / random bytes throw a clean error, quickly",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "N2 JPX hand-built minimal codestream decodes (empty packet → mid-grey), and every truncation of it is bounded",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "N3 JPX oversize SIZ (2^31 × 2^31), zero tile size, 32 levels on 8×8 and 70 000 tiles are refused or bounded",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 281
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "N4 JPX truncated real codestreams (every 7th cut of a generated lossy RGB stream) keep the decoded part, never hang",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 79
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "N5 JBIG2 garbage, empty and truncated segment streams are bounded and never throw out of the decoder",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "N6 JBIG2 bomb (bomb_giant.pdf: a page claiming a huge region) is refused fast with bounded memory",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt77-pdf",
+      "name": "N7 a PDF whose JPX stream is garbage renders the rest of the page (image becomes the disclosed placeholder, no throw)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "partial",
+        "FF-67": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "suite": "e2e-tt31",
+  "at": "2026-10-25T22:27:55.111Z",
+  "results": [
+    {
+      "suite": "e2e-tt31",
+      "name": "hover lifts a wall flat and true-size, docked inside the frame; pins become ≥ 24 px cards with names ≥ 9 px; leaving lets it settle; the resting camera is untouched (floor ≥ 80 %)",
+      "covers": {
+        "LY-22": "full",
+        "LY-21": "full"
+      },
+      "pass": true,
+      "ms": 6382
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "floor → resting wall: dragging a card onto the north wall spring-loads it and the card lands where it was dropped (mapped, not a free slot); a second drop further along lands further along",
+      "covers": {
+        "LY-22": "full",
+        "LY-12": "full"
+      },
+      "pass": true,
+      "ms": 10429
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor",
+      "covers": {
+        "LY-22": "full",
+        "LY-08": "full"
+      },
+      "pass": true,
+      "ms": 7972
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "wall → wall: a pin dragged from the lifted north wall onto the west wall's spine spring-loads the west wall (lifts while still dragging) and lands on it",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 7946
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "no pin limit: 40 pins on the Widgets wall — rows unroll along it, the pan buttons and the wheel reach the last pin, and there is always an empty row to drop into",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 10203
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting",
+      "covers": {
+        "LY-22": "full",
+        "AX-01": "full"
+      },
+      "pass": true,
+      "ms": 3383
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "phone 390×760 and the straight-down camera: a focused wall lifts inside the frame with ≥ 24 px pins and no text under 9 px; nothing is text at rest",
+      "covers": {
+        "LY-22": "full",
+        "LY-21": "full"
+      },
+      "pass": true,
+      "ms": 9486
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "touch (390×760, hasTouch): tapping a wall lifts it, a finger drag moves a pin along the lifted wall (persisted), tapping the floor settles it",
+      "covers": {
+        "LY-22": "full"
+      },
+      "pass": true,
+      "ms": 6170
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "opened wall at 1440: the pinboard is never narrower than its 840 px board (no sideways scroll)",
+      "covers": {
+        "LY-12": "full"
+      },
+      "pass": true,
+      "ms": 4745
+    },
+    {
+      "suite": "e2e-tt31",
+      "name": "axe-core on a lifted wall (dark + light): no serious or critical violations",
+      "covers": {
+        "LY-22": "full",
+        "AX-01": "full"
+      },
+      "pass": true,
+      "ms": 9210
+    }
+  ]
+}

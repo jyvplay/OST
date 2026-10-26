@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <!-- Fusion Shell TT22 "Ocean Drive" wallpaper — original vector art (streamline-moderne facades at dusk), CC0. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16263a"/><stop offset=".6" stop-color="#2f4d6e"/><stop offset="1" stop-color="#d9a78a"/>
+    </linearGradient>
+    <linearGradient id="pink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6cfc8"/><stop offset="1" stop-color="#e2a59d"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4ece0"/><stop offset="1" stop-color="#9fcdb8"/></linearGradient>
+    <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e7c8"/><stop offset="1" stop-color="#e0c592"/></linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <!-- gold sunburst behind the skyline -->
+  <g stroke="#d8b25c" stroke-width="2" opacity=".55" fill="none">
+    <circle cx="800" cy="640" r="250"/><circle cx="800" cy="640" r="300" stroke-dasharray="2 12"/>
+    <path d="M800 640L800 240M800 640L645 270M800 640L520 360M800 640L440 470M800 640L955 270M800 640L1080 360M800 640L1160 470M800 640L720 245M800 640L880 245"/>
+  </g>
+  <!-- left: flamingo-pink streamline hotel with eyebrows and portholes -->
+  <g>
+    <path d="M60 1000V520a60 60 0 0 1 60-60h330v540z" fill="url(#pink)"/>
+    <g fill="#fbf3e4"><rect x="60" y="560" width="390" height="10"/><rect x="60" y="660" width="390" height="10"/><rect x="60" y="760" width="390" height="10"/><rect x="60" y="860" width="390" height="10"/></g>
+    <g fill="#2f4d6e" opacity=".75"><rect x="110" y="590" width="80" height="50" rx="6"/><rect x="220" y="590" width="80" height="50" rx="6"/><rect x="330" y="590" width="80" height="50" rx="6"/><rect x="110" y="690" width="80" height="50" rx="6"/><rect x="220" y="690" width="80" height="50" rx="6"/><rect x="330" y="690" width="80" height="50" rx="6"/></g>
+    <rect x="235" y="400" width="44" height="70" rx="8" fill="#e8b07a"/>
+    <path d="M257 400v-60" stroke="#e8b07a" stroke-width="5"/>
+  </g>
+  <!-- centre: cream tower with a sea-glass fin -->
+  <g>
+    <rect x="560" y="430" width="480" height="570" fill="#f6ecdc"/>
+    <path d="M760 300h80v700h-80z" fill="url(#glass)"/>
+    <g fill="none" stroke="#c9a24a" stroke-width="3"><path d="M760 340h80M760 380h80M760 420h80"/></g>
+    <g fill="#e8b07a"><rect x="560" y="520" width="200" height="8"/><rect x="840" y="520" width="200" height="8"/><rect x="560" y="640" width="200" height="8"/><rect x="840" y="640" width="200" height="8"/><rect x="560" y="760" width="200" height="8"/><rect x="840" y="760" width="200" height="8"/></g>
+    <g fill="#5e9ab2" opacity=".7"><circle cx="630" cy="580" r="22"/><circle cx="700" cy="580" r="22"/><circle cx="900" cy="580" r="22"/><circle cx="970" cy="580" r="22"/><circle cx="630" cy="700" r="22"/><circle cx="700" cy="700" r="22"/><circle cx="900" cy="700" r="22"/><circle cx="970" cy="700" r="22"/></g>
+  </g>
+  <!-- right: sea-glass hotel with rounded corner -->
+  <g>
+    <path d="M1150 1000V560h300a90 90 0 0 1 90 90v350z" fill="url(#glass)"/>
+    <g fill="#fbf3e4"><rect x="1150" y="610" width="390" height="10"/><rect x="1150" y="700" width="390" height="10"/><rect x="1150" y="790" width="390" height="10"/><rect x="1150" y="880" width="390" height="10"/></g>
+    <g fill="#2f4d6e" opacity=".6"><rect x="1190" y="630" width="300" height="50" rx="25"/><rect x="1190" y="720" width="300" height="50" rx="25"/></g>
+  </g>
+  <!-- promenade -->
+  <rect x="0" y="940" width="1600" height="60" fill="url(#sand)"/>
+  <path d="M0 940h1600" stroke="#c9a24a" stroke-width="3"/>
+</svg>

@@ -1,0 +1,78 @@
+{
+  "suite": "e2e-tt35",
+  "at": "2026-10-25T22:33:00.825Z",
+  "results": [
+    {
+      "suite": "e2e-tt35",
+      "name": "pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows",
+      "covers": {
+        "WP-01": "full",
+        "WP-02": "full",
+        "WP-05": "full"
+      },
+      "pass": true,
+      "ms": 5248
+    },
+    {
+      "suite": "e2e-tt35",
+      "name": "find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads",
+      "covers": {
+        "WP-05": "full",
+        "PR-07h": "partial",
+        "PR-07n": "partial",
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 3064
+    },
+    {
+      "suite": "e2e-tt35",
+      "name": "per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server",
+      "covers": {
+        "WP-04": "full",
+        "PR-07o": "partial"
+      },
+      "pass": true,
+      "ms": 6380
+    },
+    {
+      "suite": "e2e-tt35",
+      "name": "hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused",
+      "covers": {
+        "WP-02": "full",
+        "WP-06": "full"
+      },
+      "pass": true,
+      "ms": 2409
+    },
+    {
+      "suite": "e2e-tt35",
+      "name": "large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413)",
+      "covers": {
+        "WP-02": "full",
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 424
+    },
+    {
+      "suite": "e2e-tt35",
+      "name": "yahoo.com and soundcloud.com (WP-02): attempted for real through the proxy; this sandbox's egress filter cuts the connection, and the tab says so in plain words (network block, not a broken site) — no request leaves the browser for those hosts",
+      "covers": {
+        "WP-02": "full"
+      },
+      "pass": true,
+      "ms": 1272
+    },
+    {
+      "suite": "e2e-tt35",
+      "name": "github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted",
+      "covers": {
+        "WP-01": "full",
+        "WP-03": "full"
+      },
+      "pass": true,
+      "ms": 3796
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt44",
+  "at": "2026-10-25T22:39:02.847Z",
+  "results": [
+    {
+      "suite": "e2e-tt44",
+      "name": "Terminal `ssh` opens the SSH window prefilled; connect → host-key dialog with ssh-keygen's fingerprint → trust once → password → remote shell renders",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 1778
+    },
+    {
+      "suite": "e2e-tt44",
+      "name": "typed keys round-trip through the bridge; a pasted ANSI colour returns as a coloured span",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 584
+    },
+    {
+      "suite": "e2e-tt44",
+      "name": "Files pane: list, upload through <input type=file> (bytes equal on the server), Save to Fusion → /Downloads; results stay visible",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 1483
+    },
+    {
+      "suite": "e2e-tt44",
+      "name": "Files pane management uses in-app dialogs (no window.prompt/confirm): new folder with validation, rename, two-step delete — checked on the server's disk",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 6502
+    },
+    {
+      "suite": "e2e-tt44",
+      "name": "Disconnect returns to the form; Recent lists the server and /System/ssh/recent.json holds no secret; key generation has an honest outcome",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 736
+    }
+  ]
+}

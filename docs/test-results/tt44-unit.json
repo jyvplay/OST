@@ -1,0 +1,168 @@
+{
+  "suite": "tt44-unit",
+  "at": "2026-10-25T22:38:31.278Z",
+  "results": [
+    {
+      "suite": "tt44-unit",
+      "name": "Blowfish constants computed from π match the published first/last words; bcrypt_pbkdf == python bcrypt.kdf",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 457
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "Poly1305 (13-bit limbs) == cryptography's Poly1305 on 40 random (key, message) pairs incl. block edges",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "OpenSSH key files written by ssh-keygen: encrypted ed25519 (bcrypt+aes256-ctr), RSA-3072 (aes256-gcm), ECDSA-384, PEM P-521",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 292
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "generated ed25519 keys (plain and passphrase-encrypted) are read by ssh-keygen and sign for real logins",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 688
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "every KEX × cipher × MAC × host-key algorithm negotiates with asyncssh and runs a command",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 3354
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "auth: password (retry after a wrong one), banner, every public key type, keyboard-interactive, all-fail",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1496
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "host key: a rejection (unknown / changed) aborts BEFORE authentication; nothing is sent after",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "pty shell: TERM/size/env reach the server, typed lines echo, window-change resizes, exit status 3",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 220
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "exec: exit codes, stderr, signals (exit-signal), unknown command 127, several channels at once",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 226
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "10 MiB each way with flow control: download hash == server's, upload hash == server's; stats count it",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 338
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "rekeying: server-initiated (every 1 MiB) and client-initiated (every 512 KiB) during 10 MiB transfers, strict KEX",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1041
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "SFTP v3: realpath, mkdir, 3 MiB pipelined upload/download byte-identical, stat, list, rename, symlink, errors",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 328
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "Terrapin-style injection: an IGNORE before the server's KEXINIT aborts a strict-KEX session (accepted only when strict is off)",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 197
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "strict KEX: an IGNORE injected AFTER the server's KEXINIT (inside the initial key exchange) aborts with strict-kex",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 14
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "a different host key presented at a REKEY aborts the session (hostkey-changed), even though that key belongs to the same server",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 534
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "MAC / AEAD tampering: one flipped bit after the handshake kills the connection for every cipher+MAC mode; no corrupted byte is delivered",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 997
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "a server sending an all-zero curve25519 point is refused (RFC 8731 §3), before any signature work",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt44-unit",
+      "name": "known_hosts: plain, [host]:port, wildcard/negation, @revoked, @cert-authority ignored; hashed by ssh-keygen -H is matched",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 9
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt53-media",
+  "at": "2026-10-25T22:54:02.467Z",
+  "results": [
+    {
+      "suite": "e2e-tt53-media",
+      "name": "MP4 (H.264 B-frames + AAC) exact-start lossless cut from the Media app: saved .mp4 verified by FFmpeg, starts at the requested time",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 4155
+    },
+    {
+      "suite": "e2e-tt53-media",
+      "name": "MP4 with 'exact start' off snaps to the key frame (1.000 s) and says so",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 2635
+    },
+    {
+      "suite": "e2e-tt53-media",
+      "name": "WebM (VP9 + Opus) lossless cut: start snaps to the previous key frame, the status line says where, output verified by FFmpeg",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 2856
+    },
+    {
+      "suite": "e2e-tt53-media",
+      "name": "MOV keeps its .mov extension; audio-only MP4 is saved as .m4a",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 3718
+    },
+    {
+      "suite": "e2e-tt53-media",
+      "name": "a file that is not MP4/WebM gets a clear 'not possible' message instead of a broken file",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 1488
+    },
+    {
+      "suite": "e2e-tt53-media",
+      "name": "no page errors during the run",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

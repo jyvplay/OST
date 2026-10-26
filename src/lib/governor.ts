@@ -83,11 +83,13 @@ class Governor {
 
     let state: GovernorState = "COOL";
     let reason = "Frame cost within budget.";
-    if (this.frameMs > 14) { state = "WARM"; reason = `Frame cost ${this.frameMs.toFixed(1)} ms.`; }
+    // TT60: the sample is the rAF interval, so a healthy 60 Hz display reads 16.7 ms — WARM starts past one 60 Hz frame plus
+    // margin (was > 14 ms: every 60 Hz machine was permanently WARM and the battery reason below could never show)
+    if (this.frameMs > 18) { state = "WARM"; reason = `Frame cost ${this.frameMs.toFixed(1)} ms.`; }
     if (this.frameMs > 22 || longTasksPerMin > 20) { state = "HOT"; reason = `Frame cost ${this.frameMs.toFixed(1)} ms, ${longTasksPerMin} long tasks/min.`; }
     if (this.frameMs > 34 || longTasksPerMin > 50) { state = "THROTTLED"; reason = "Sustained frame cost above 34 ms — effects disabled, background work paused."; }
     if (this.frameMs > 60) { state = "CRITICAL"; reason = "Frame cost above 60 ms — minimum visual mode."; }
-    if (low && state === "COOL") { state = "WARM"; reason = "Battery below 20% and discharging."; }
+    if (low && (state === "COOL" || state === "WARM")) { state = "WARM"; reason = "Battery below 20% and discharging."; }
     if (saveData && state === "COOL") { state = "WARM"; reason = "Data saver is enabled."; }
 
     return {
@@ -114,3 +116,11 @@ class Governor {
 
 const g = globalThis as typeof globalThis & { __fusionGovernor?: Governor };
 export const governor = g.__fusionGovernor ?? (g.__fusionGovernor = new Governor());
+
+/** RG-05 (TT60): heavy one-shot jobs (backup bundles) refuse to start on a discharging battery below 20 % or with Data
+ *  Saver on, and say why; the caller offers an explicit "anyway" override. null = go ahead. */
+export function heavyWorkRefusal(g: Pick<GovernorSnapshot, "batteryLevel" | "charging" | "saveData">): string | null {
+  if (g.batteryLevel !== null && g.batteryLevel < 0.2 && g.charging === false) return `Battery is at ${Math.round(g.batteryLevel * 100)}% and discharging — a backup can take a while and is paused below 20%. Plug in, or start it anyway.`;
+  if (g.saveData) return "Data Saver is on — building a bundle downloads every file. Start it anyway if that's fine.";
+  return null;
+}

@@ -1,0 +1,85 @@
+{
+  "suite": "tt47-sheet",
+  "at": "2026-10-26T07:52:30.136Z",
+  "results": [
+    {
+      "suite": "tt47-sheet",
+      "name": "indexed colour palette equals openpyxl's COLOR_INDEX (independent table, 64 entries; 64/65 = system fg/bg)",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 219
+    },
+    {
+      "suite": "tt47-sheet",
+      "name": "tint maths matches stdlib colorsys within 1/255 per channel on a 1,000-sample grid; theme index order swaps lt/dk",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 51
+    },
+    {
+      "suite": "tt47-sheet",
+      "name": "corpus: every styled cell's fill and font colour equals the independent oracle (rgb, theme+tint, indexed, custom palette)",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 76955
+    },
+    {
+      "suite": "tt47-sheet",
+      "name": "colour scales: 2/3-colour, cfvo min/max/num/percent/percentile (PERCENTILE.INC), clamping, monotone thresholds",
+      "covers": {
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt47-sheet",
+      "name": "new-file .xlsx writer emits conditional formats (all 10 kinds + dxfs): our reader and the independent oracle read them back",
+      "covers": {
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 389
+    },
+    {
+      "suite": "tt47-sheet",
+      "name": "lossless .xlsx save writes UI conditional-format edits (change / delete / add) and keeps unmodelled rules, other sheets and order verbatim (independent oracle)",
+      "covers": {
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 1670
+    },
+    {
+      "suite": "tt47-sheet",
+      "name": "adversary: an extLst that redeclares the default namespace around <conditionalFormatting> is neither modelled nor misaligns provenance; edits keep it verbatim exactly once",
+      "covers": {
+        "FF-21": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 24
+    },
+    {
+      "suite": "tt47-sheet",
+      "name": "text cells stay text: every corpus string that looks like a number / boolean / formula reads back as the same TEXT (independent openpyxl list); quote-prefix input semantics",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 93471
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "suite": "tt79-sheet",
+  "at": "2026-10-26T15:54:13.462Z",
+  "results": [
+    {
+      "suite": "tt79-sheet",
+      "name": "X1 POI Strict workbooks: every cell == openpyxl on the namespace-mapped copy; formulas recompute to the cached values",
+      "covers": {
+        "FF-76": "full"
+      },
+      "pass": true,
+      "ms": 570
+    },
+    {
+      "suite": "tt79-sheet",
+      "name": "X2 t=\"d\" cells in 1900 and 1904 workbooks == openpyxl (from_ISO8601 + to_excel)",
+      "covers": {
+        "FF-76": "full"
+      },
+      "pass": true,
+      "ms": 670
+    },
+    {
+      "suite": "tt79-sheet",
+      "name": "X3 edges: dateCompatibility=0, bare times, impossible dates stay text",
+      "covers": {
+        "FF-76": "full"
+      },
+      "pass": true,
+      "ms": 172
+    },
+    {
+      "suite": "tt79-sheet",
+      "name": "X4 text → number coercion (numtext.ts): en-US currency, groups, %, parentheses, exponent; hex / Infinity / dates refused",
+      "covers": {
+        "FF-77": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt79-sheet",
+      "name": "X5 the 10 EverythingTests shapes fixed in TT79, rebuilt in a fresh workbook, with negative controls",
+      "covers": {
+        "FF-77": "full"
+      },
+      "pass": true,
+      "ms": 4
+    }
+  ]
+}

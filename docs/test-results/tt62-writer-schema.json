@@ -1,0 +1,51 @@
+{
+  "suite": "tt62-writer-schema",
+  "at": "2026-10-25T23:02:18.043Z",
+  "results": [
+    {
+      "suite": "tt62-writer-schema",
+      "name": "the oracle is a real verifier: it rejects wrong child order, an unknown element, a bad enumeration value and an unknown non-ignorable namespace; it accepts a w14 extension declared ignorable",
+      "covers": {
+        "FF-45": "full"
+      },
+      "pass": true,
+      "ms": 3002
+    },
+    {
+      "suite": "tt62-writer-schema",
+      "name": "randomized editing sessions: 24 sessions × 60 steps (all edit operations, Track Changes toggled) on two starting documents; every saved package (checked every 10 steps) is schema-valid",
+      "covers": {
+        "FF-45": "full"
+      },
+      "pass": true,
+      "ms": 5911
+    },
+    {
+      "suite": "tt62-writer-schema",
+      "name": "kitchen sink: every run property on one run, every paragraph property + style + list on one paragraph, the same again under Track Changes (rPrChange / pPrChange with everything), a table cell with shading inside a landscape A4 section with first-page header — schema-valid",
+      "covers": {
+        "FF-45": "full"
+      },
+      "pass": true,
+      "ms": 209
+    },
+    {
+      "suite": "tt62-writer-schema",
+      "name": "file revision paths stay valid: lxml-written cellIns / cellDel accepted and rejected (all and one by one) → schema-valid, and the lxml-marked fixture itself is valid",
+      "covers": {
+        "FF-45": "full"
+      },
+      "pass": true,
+      "ms": 398
+    },
+    {
+      "suite": "tt62-writer-schema",
+      "name": "POI corpus round trip: every readable .docx in the corpus, opened, edited (text typed into the first body paragraph) and saved, adds no schema error the input did not already have (per part, line numbers ignored)",
+      "covers": {
+        "FF-45": "full"
+      },
+      "pass": true,
+      "ms": 11760
+    }
+  ]
+}

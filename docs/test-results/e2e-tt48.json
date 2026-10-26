@@ -1,0 +1,78 @@
+{
+  "suite": "e2e-tt48",
+  "at": "2026-10-25T22:48:59.174Z",
+  "results": [
+    {
+      "suite": "e2e-tt48",
+      "name": "Writer: protected .docx → edit → Save re-encrypts in place (msoffcrypto + HMAC verify); reopening asks for the password and shows the edit; change password → old one refused, new one works",
+      "covers": {
+        "FF-20": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 7869
+    },
+    {
+      "suite": "e2e-tt48",
+      "name": "Writer: protect a plain .docx (mismatched confirmation refused in the dialog), then remove the password → plain .docx again; the server refused plaintext over it until removal was explicit",
+      "covers": {
+        "FF-20": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 3978
+    },
+    {
+      "suite": "e2e-tt48",
+      "name": "Spreadsheet: protected .xlsx (Standard) → edit a cell → Save re-encrypts in place as Agile (msoffcrypto + HMAC verify), lossless patch kept the other sheets; reopening shows the edit",
+      "covers": {
+        "FF-20": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 7578
+    },
+    {
+      "suite": "e2e-tt48",
+      "name": "Spreadsheet: protect a plain .xlsx → encrypted; remove the password → plain lossless .xlsx again (no-edit parts byte-identical to the original)",
+      "covers": {
+        "FF-20": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 3281
+    },
+    {
+      "suite": "e2e-tt48",
+      "name": "adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
+      "covers": {
+        "FF-20": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 5105
+    },
+    {
+      "suite": "e2e-tt48",
+      "name": "no uncaught page errors during the TT48 sessions",
+      "covers": {
+        "FF-20": "full",
+        "FF-22": "full",
+        "FF-11": "full",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

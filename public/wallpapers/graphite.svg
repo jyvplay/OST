@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <!-- Fusion Shell TT25 "Graphite" wallpaper — original vector art (layered graphite dunes at dusk; not Apple's artwork), CC0 for this project. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2d31"/><stop offset=".55" stop-color="#55585e"/><stop offset="1" stop-color="#8b8f96"/></linearGradient>
+    <radialGradient id="sun" cx=".3" cy=".42" r=".4"><stop offset="0" stop-color="#e9ebef" stop-opacity=".55"/><stop offset="1" stop-color="#e9ebef" stop-opacity="0"/></radialGradient>
+    <linearGradient id="d1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9da1a8"/><stop offset="1" stop-color="#6e7279"/></linearGradient>
+    <linearGradient id="d2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f737a"/><stop offset="1" stop-color="#46494f"/></linearGradient>
+    <linearGradient id="d3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#43464c"/><stop offset="1" stop-color="#232427"/></linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".35" stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <rect width="1600" height="1000" fill="url(#sun)"/>
+  <path d="M0 560C260 470 520 450 780 520S1300 600 1600 480V1000H0z" fill="url(#d1)"/>
+  <path d="M0 560C260 470 520 450 780 520S1300 600 1600 480" fill="none" stroke="url(#rim)" stroke-width="2"/>
+  <path d="M0 700C300 610 600 640 900 700S1400 720 1600 640V1000H0z" fill="url(#d2)"/>
+  <path d="M0 700C300 610 600 640 900 700S1400 720 1600 640" fill="none" stroke="url(#rim)" stroke-width="1.5"/>
+  <path d="M0 850C320 780 640 800 960 850S1420 860 1600 800V1000H0z" fill="url(#d3)"/>
+</svg>

@@ -1,0 +1,192 @@
+{
+  "suite": "tt75-office",
+  "at": "2026-10-26T08:03:13.483Z",
+  "results": [
+    {
+      "suite": "tt75-office",
+      "name": "T1 corpus → new package: every table written (openpyxl agrees on name / ref / header / totals / columns / filter), structured formulas keep their values after reopening, table parts schema-valid, file-form formulas",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 14207
+    },
+    {
+      "suite": "tt75-office",
+      "name": "T2 corpus structural edits on every table: insert / delete a body row and a column inside it, delete the whole table, refuse a header-only delete — probes follow the invariants; new package and in-place save carry the geometry (openpyxl)",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 122480
+    },
+    {
+      "suite": "tt75-office",
+      "name": "T3 table rules: refusals (header row, two tables), totals row, last body row kept, removed column / table → #REF!, file form of [@Col] / name-less refs, strings untouched",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt75-office",
+      "name": "T4 numeric header cells are written as text (openpyxl sees str); a header cell that differs from its column name is reported",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 191
+    },
+    {
+      "suite": "tt75-office",
+      "name": "T5 column names with a line break, a tab, a literal _x0041_ and XML specials round-trip through the table part (ST_Xstring) and stay schema-valid",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 193
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N1 hostile workbook JSON table filters (bad offsets, non-strings, huge lists, prototype keys) are dropped or capped",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N2 a table name or column name cannot inject XML into the table part (names are escaped; the part stays schema-valid)",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 180
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N3 duplicate / empty column names are made unique for Excel (Excel refuses duplicates) without touching the model",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N4 structured-reference rewriting is not fooled by look-alikes: a defined name, a function call, a string, an external [1] index",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N5 an insert / delete that Excel refuses changes nothing (cells, tables, formulas)",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N6 in-place save: a table removed by deleting its rows loses its part, relationship, <tablePart> and content-type override (openpyxl opens it; no dangling part)",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 441
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N7 kept foreign filter criteria pass an allowlist sanitiser (file AND workbook JSON): injected elements, attributes, text, comments, entities, prefixes",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N8 kept criteria reach the new package (sheet AutoFilter and table), follow a column insert, and the parts stay schema-valid",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 176
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N9 range memo is invisible: 300 random workbooks with lookups, COUNTBLANK / COUNTA, spills, INDIRECT and cycles through ranges evaluate identically with the memo on and off",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-59": "full"
+      },
+      "pass": true,
+      "ms": 4841
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N10 ROWS / COLUMNS: a non-reference error argument propagates (=ROWS(#REF!), =COLUMNS(1/0)), a reference to an error cell counts as 1, arrays keep their shape",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N11 table names: cell-reference and R1C1 look-alikes, C / R, spaces, a leading digit are refused; Unicode, _ / \\ starts and dots are accepted",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt75-office",
+      "name": "N12 adjustTablesForStructure refuses a header-only delete and a two-table insert even when called directly (not through insertDelete)",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full",
+        "FF-58": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

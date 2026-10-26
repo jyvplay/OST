@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt64",
+  "at": "2026-10-25T23:03:54.083Z",
+  "results": [
+    {
+      "suite": "e2e-tt64",
+      "name": "FF-48 Writer tracked columns in the UI: Track changes → Column right (3 inserted cells, one '[Table column]' change) → Delete column (3 deleted cells, a second change) → Reject the deletion, Accept the insertion → Save → lxml oracle + XSD; a gridBefore row renders on the grid",
+      "covers": {
+        "FF-48": "full"
+      },
+      "pass": true,
+      "ms": 5064
+    },
+    {
+      "suite": "e2e-tt64",
+      "name": "FF-28 (TT64) Paste Link of a range in the UI writes relative references, a single cell absolute — openpyxl reads the saved formulas; the links follow a source edit",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 3596
+    },
+    {
+      "suite": "e2e-tt64",
+      "name": "no page errors during the TT64 session",
+      "covers": {
+        "FF-48": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -1,9 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { refuseEncrypted, refuseEncryptedOverwrite } from "@/lib/mime";
 import { getNode, writeFile } from "@/lib/server/vfs";
 import {
   Workbook, Sheet, writeXlsxWorkbook, readXlsxWorkbook, workbookFromJson, workbookToJson,
   isError, type WorkbookJson,
 } from "@/lib/formula";
+import type { PivotSaveNote } from "@/lib/formula/pivotxml";
+import { readJsonObject } from "@/lib/http-json";
+import { patchXlsx } from "@/lib/formula/xlsx-patch";
 
 export const dynamic = "force-dynamic";
 
@@ -32,11 +36,13 @@ function cellsOut(wb: Workbook) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as {
-    op?: "recalculate" | "exportXlsx" | "importXlsx" | "saveXlsxToVfs";
+  const body = (await readJsonObject(req)) as ({
+    op?: "recalculate" | "exportXlsx" | "importXlsx" | "saveXlsxToVfs" | "patchXlsxToVfs";
+    source?: string; renames?: Record<string, string>;
     workbook?: WorkbookJson; sheet?: { name: string; cells: { ref: string; input: string }[] };
-    path?: string; dest?: string; base64?: string;
-  };
+    path?: string; dest?: string; base64?: string; sourceBase64?: string; replaceEncrypted?: boolean; returnBytes?: boolean;
+  }) | Response;
+  if (body instanceof Response) return body;
   try {
     switch (body.op) {
       case "recalculate": {
@@ -52,9 +58,34 @@ export async function POST(req: NextRequest) {
       case "saveXlsxToVfs": {
         if (!body.dest) throw new Error("dest required");
         const wb = workbookFromBody(body);
-        const buf = writeXlsxWorkbook(wb, [...wb.sheets.keys()][0] ?? "Workbook");
+        const rep = { pivots: [] as PivotSaveNote[] }; // TT63: which PivotTables became real Excel PivotTables
+        const buf = writeXlsxWorkbook(wb, [...wb.sheets.keys()][0] ?? "Workbook", rep);
         const r = await writeFile({ path: body.dest, content: buf.toString("base64"), encoding: "base64", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reason: "sheet-export" });
-        return NextResponse.json({ ...r, bytes: buf.length, sheets: wb.sheets.size });
+        return NextResponse.json({ ...r, bytes: buf.length, sheets: wb.sheets.size, pivots: rep.pivots });
+      }
+      case "patchXlsxToVfs": {
+        // TT46 lossless save: keep the original package and rewrite only what changed (xlsx-patch.ts).
+        if (!body.dest || !body.source || !body.workbook) throw new Error("source, dest and workbook required");
+        let orig: Buffer;
+        if (typeof body.sourceBase64 === "string") {
+          // TT47: the original was password-protected and decrypted in the browser; it sends the decrypted package
+          if (body.sourceBase64.length > 12 * 1024 * 1024) throw new Error("xlsx exceeds the 8 MB guard");
+          orig = Buffer.from(body.sourceBase64, "base64");
+        } else {
+          const node = await getNode(body.source);
+          if (!node) throw new Error("source not found");
+          refuseEncrypted(node);
+          orig = Buffer.from(node.content, node.encoding === "base64" ? "base64" : "utf8");
+        }
+        if (orig.length > 8 * 1024 * 1024) throw new Error("xlsx exceeds the 8 MB guard");
+        const renames = body.renames && typeof body.renames === "object" ? Object.fromEntries(Object.entries(body.renames).filter(([k, v]) => typeof k === "string" && typeof v === "string").slice(0, 255)) : {};
+        const { bytes, report } = await patchXlsx(new Uint8Array(orig), workbookFromBody(body), renames as Record<string, string>);
+        // TT48: password-protected save — return the patched package so the browser encrypts it (the password never
+        // reaches the server) and uploads the encrypted container itself; nothing is written here
+        if (body.returnBytes === true) return NextResponse.json({ ok: true, path: body.dest, base64: Buffer.from(bytes).toString("base64"), bytes: bytes.length, report });
+        refuseEncryptedOverwrite(await getNode(body.dest), Buffer.from(bytes.subarray(0, 16)).toString("base64"), body.replaceEncrypted);
+        const r = await writeFile({ path: body.dest, content: Buffer.from(bytes).toString("base64"), encoding: "base64", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reason: "sheet-save-lossless" });
+        return NextResponse.json({ ...r, bytes: bytes.length, report });
       }
       case "importXlsx": {
         let buf: Buffer;
@@ -62,9 +93,12 @@ export async function POST(req: NextRequest) {
         else if (body.path) {
           const node = await getNode(body.path);
           if (!node) throw new Error("not found");
+          refuseEncrypted(node);
           buf = Buffer.from(node.content, node.encoding === "base64" ? "base64" : "utf8");
         } else throw new Error("path or base64 required");
         if (buf.length > 8 * 1024 * 1024) throw new Error("xlsx exceeds the 8 MB import guard");
+        // TT47: password-protected workbooks are decrypted in the browser (the password never reaches the server)
+        if (buf.length >= 8 && buf.readUInt32BE(0) === 0xd0cf11e0 && buf.readUInt32BE(4) === 0xa1b11ae1) throw new Error("this is an OLE/CFB container — a password-protected (encrypted) or legacy binary workbook");
         const wb = readXlsxWorkbook(buf);
         return NextResponse.json({ ok: true, workbook: workbookToJson(wb), values: cellsOut(wb), sheets: wb.sheets.size });
       }

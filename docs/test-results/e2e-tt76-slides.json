@@ -1,0 +1,76 @@
+{
+  "suite": "e2e-tt76-slides",
+  "at": "2026-10-25T23:27:11.022Z",
+  "results": [
+    {
+      "suite": "e2e-tt76-slides",
+      "name": "E1 author transition + animations in the Motion panel → Ctrl+S → lxml reads exactly what was authored",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 4256
+    },
+    {
+      "suite": "e2e-tt76-slides",
+      "name": "E2 remove + undo / redo: the effect list follows the document",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 2117
+    },
+    {
+      "suite": "e2e-tt76-slides",
+      "name": "E3 show: Preview → shapes wait hidden → → plays Fly In (CSS animation) → → next slide enters through its transition → ← steps back built",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 4794
+    },
+    {
+      "suite": "e2e-tt76-slides",
+      "name": "E4 a deck with effects Fusion does not model: listed as kept; editing only the transition keeps every effect",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 2872
+    },
+    {
+      "suite": "e2e-tt76-slides",
+      "name": "E5 modal-shortcut test: Delete / Backspace / Ctrl+D typed in Motion fields or during the show never delete the shape or duplicate a slide",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 1968
+    },
+    {
+      "suite": "e2e-tt76-slides",
+      "name": "E7 presenter view (CA-02): the audience window gets the deck and follows the console; clicks on the audience advance the presenter; notes / next / timer on the console; End closes the audience",
+      "covers": {
+        "CA-02": "full",
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 4087
+    },
+    {
+      "suite": "e2e-tt76-slides",
+      "name": "E6 no page errors during the Slides motion run",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

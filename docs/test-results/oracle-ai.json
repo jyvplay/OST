@@ -1,0 +1,34 @@
+{
+  "suite": "oracle-ai",
+  "at": "2026-10-25T22:09:38.722Z",
+  "results": [
+    {
+      "suite": "oracle-ai",
+      "name": "held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf",
+      "covers": {
+        "FF-04": "full",
+        "FF-03": "partial"
+      },
+      "pass": true,
+      "ms": 338
+    },
+    {
+      "suite": "oracle-ai",
+      "name": "file-type 16.5.4 (independent rule) agrees on ai/pdf/eps for every real and constructed PDF/EPS input",
+      "covers": {
+        "FF-04": "full"
+      },
+      "pass": true,
+      "ms": 196
+    },
+    {
+      "suite": "oracle-ai",
+      "name": "constructed fixtures are real PDFs to an independent parser (pypdf), so the edge cases are not malformed strawmen",
+      "covers": {
+        "FF-04": "partial"
+      },
+      "pass": true,
+      "ms": 96
+    }
+  ]
+}

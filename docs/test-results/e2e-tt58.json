@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt58",
+  "at": "2026-10-25T22:59:03.915Z",
+  "results": [
+    {
+      "suite": "e2e-tt58",
+      "name": "FF-22 Writer notes in the UI: Ctrl+Alt+F footnote → type in the Notes panel → numbered note on the page → saved footnotes.xml (lxml oracle) → reopen keeps it → endnote (roman) → delete footnote → no orphan, no dangling reference",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 6613
+    },
+    {
+      "suite": "e2e-tt58",
+      "name": "FF-21 Spreadsheet PivotTable in the UI: Data > PivotTable → Rows Region, Columns Product, Sum of Units → new sheet with Excel's tabular layout; Alt+F5 refresh follows a source edit; bad source refused; Escape closes only the panel; openpyxl reads the saved pivot values",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 7522
+    },
+    {
+      "suite": "e2e-tt58",
+      "name": "no uncaught page errors during the TT58 session",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

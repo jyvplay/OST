@@ -1,0 +1,75 @@
+{
+  "suite": "e2e-sheet-layout",
+  "at": "2026-10-25T22:14:54.291Z",
+  "results": [
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells",
+      "covers": {
+        "FF-33": "full"
+      },
+      "pass": true,
+      "ms": 4531
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears",
+      "covers": {
+        "FF-34": "full"
+      },
+      "pass": true,
+      "ms": 2366
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it",
+      "covers": {
+        "FF-35": "full"
+      },
+      "pass": true,
+      "ms": 4581
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
+      "covers": {
+        "FF-33": "full",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 2994
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+      "covers": {
+        "FF-33": "full",
+        "FF-34": "full",
+        "FF-35": "full",
+        "FF-20": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 6147
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
+      "covers": {
+        "FF-36": "full",
+        "FF-20": "partial"
+      },
+      "pass": true,
+      "ms": 6447
+    },
+    {
+      "suite": "e2e-sheet-layout",
+      "name": "no page errors during the layout session",
+      "covers": {
+        "FF-33": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

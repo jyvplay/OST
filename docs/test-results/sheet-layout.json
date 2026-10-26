@@ -1,0 +1,63 @@
+{
+  "suite": "sheet-layout",
+  "at": "2026-10-25T22:09:20.126Z",
+  "results": [
+    {
+      "suite": "sheet-layout",
+      "name": "merge keeps the upper-left most data (reading order), clears the rest, keeps covered formatting; unmerge leaves value top-left",
+      "covers": {
+        "FF-33": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "sheet-layout",
+      "name": "selection expands to whole merged areas (fixed point); arrow keys treat a merge as one cell; partial paste/sort refused",
+      "covers": {
+        "FF-33": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "sheet-layout",
+      "name": "insert/delete rows & cols repair merges, validations and frozen panes",
+      "covers": {
+        "FF-33": "full",
+        "FF-35": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "sheet-layout",
+      "name": "borders: presets set the right edges; shared edge shows the heavier side; 'none' clears; per-cell storage",
+      "covers": {
+        "FF-34": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "sheet-layout",
+      "name": "data validation: list (literal + range, case-insensitive), whole/decimal/date/textLength operators, custom (relative), blanks, rollback",
+      "covers": {
+        "FF-35": "full"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "sheet-layout",
+      "name": "validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON",
+      "covers": {
+        "FF-35": "full",
+        "FF-33": "full",
+        "FF-34": "full"
+      },
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}

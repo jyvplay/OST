@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt40",
+  "at": "2026-10-25T22:37:53.787Z",
+  "results": [
+    {
+      "suite": "e2e-tt40",
+      "name": "WP-16 oracle: the cookies, Sec-Fetch-Site and Referer that sites A, A′ and B saw for 7 markup subresources of one page (a same-origin, a same-site and a cross-site image, a cross-site stylesheet AND the image that stylesheet loads, a cross-site script, and — created by page SCRIPT, tagged by the shim — a cross-site image that sets cookies) are IDENTICAL natively in Chromium and through the proxy; so is what that cross-site image could store (SameSite=Lax refused, SameSite=None kept)",
+      "covers": {
+        "WP-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt40",
+      "name": "WP-16 oracle is not vacuous: cross-site subresources carried ONLY b=1 (not bl / bs / bd); same-site ones carried the Strict cookie too; the stylesheet's own image counted the PAGE as its initiator; Sec-Fetch-Site took all three values; nx (Lax from a cross-site response) was refused, ny kept; the page's markup really carries the subresource tag on img / link / script and NOT on navigations",
+      "covers": {
+        "WP-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt40",
+      "name": "WP-16 adversary: a FORGED document id on a subresource gets only SameSite=None cookies (never more than a cross-site load); an \"r\" tag on a script fetch() is re-tagged by the shim and follows the script rules (no cookies with credentials same-origin cross-site); an \"r\" tag on a NAVIGATION is ignored (a top-level-in-frame load keeps its cookies)",
+      "covers": {
+        "WP-16": "full"
+      },
+      "pass": true,
+      "ms": 62
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt72-pad",
+  "at": "2026-10-25T23:17:23.026Z",
+  "results": [
+    {
+      "suite": "e2e-tt72-pad",
+      "name": "a real drag on the tab's Blackout pad moves the focused window on display 2 (DOM + persisted); the tab's window stays",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 2260
+    },
+    {
+      "suite": "e2e-tt72-pad",
+      "name": "keys on the Blackout screen drive display 2: arrows (+Shift), Tab cycles, Enter maximises, Home shows desktop",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 3976
+    },
+    {
+      "suite": "e2e-tt72-pad",
+      "name": "adversary on the channel: wrong recipient, malformed shapes, replayed / stale seq change nothing; a fresh message does",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 1386
+    },
+    {
+      "suite": "e2e-tt72-pad",
+      "name": "a proxied page (opaque-origin sandbox, as Browser → proxy runs it) posting a VALID pad message moves nothing",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 1233
+    },
+    {
+      "suite": "e2e-tt72-pad",
+      "name": "no presenting screen: the status says so and the pad moves this tab's focused window",
+      "covers": {
+        "SH-11": "full"
+      },
+      "pass": true,
+      "ms": 824
+    }
+  ]
+}

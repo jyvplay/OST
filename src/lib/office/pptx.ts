@@ -21,7 +21,8 @@ const R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const CT = "http://schemas.openxmlformats.org/package/2006/content-types";
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const dec = (s: string) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
-const attr = (s: string) => Object.fromEntries([...s.matchAll(/([\w:.-]+)="([^"]*)"/g)].map((m) => [m[1], dec(m[2])]));
+/** TT72: XML 1.0 §3.1 attributes — '…' or "…", optional spaces around "=" */
+const attr = (s: string) => Object.fromEntries([...s.matchAll(/([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)].map((m) => [m[1], dec(m[2] ?? m[3])]));
 
 function balanced(xml: string, tag: string) {
   const re = new RegExp(`<${tag}(?:\\s[^>]*)?>|</${tag}\\s*>`, "g");

@@ -1,4 +1,5 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
 import { api, fmtBytes, fmtTime } from "@/lib/api";
@@ -59,8 +60,8 @@ export default function MonitorModule(_: ModuleProps) {
           <Badge tone={g.backgroundWork ? "ok" : "warn"}>background work {g.backgroundWork ? "allowed" : "paused"}</Badge>
           <Badge>cast ceiling {g.maxCastHeight}p</Badge>
         </div>
-        <div className="fs-dim" style={{ fontSize: 11.5 }}>{g.reason}</div>
-        <div className="fs-dim" style={{ fontSize: 11, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11.5) }}>{g.reason}</div>
+        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
           The web exposes no thermal headroom, no CPU time and no process list. This governor closes the loop on
           observed frame cost sampled only while something animates, plus long-task rate and battery state. It is the
           honest analogue of ADPF: we cannot request more performance, so we spend less of it.
@@ -85,12 +86,12 @@ export default function MonitorModule(_: ModuleProps) {
         <KV k="State revision" v={shell.state.revision} mono />
         <KV k="State hash" v={stateHash(shell.state)} mono />
         <KV k="Commands logged" v={shell.commandLog.length} mono />
-        <div className="fs-scroll fs-mono" style={{ maxHeight: 110, fontSize: 10.5 }}>
+        <div className="fs-scroll fs-mono" tabIndex={0} role="region" aria-label="Command log" style={{ maxHeight: fz(110), fontSize: fz(10.5) }}>
           {shell.commandLog.slice(-14).reverse().map((c, i) => (
             <div key={i}>{new Date(c.at).toLocaleTimeString()} — {c.cmd.t} {"id" in c.cmd ? String(c.cmd.id) : ""}</div>
           ))}
         </div>
-        <div className="fs-dim" style={{ fontSize: 11 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>
           The reducer is pure and the command log is complete, so any state in this session can be reproduced by
           replaying this list (TD-06).
         </div>
@@ -99,7 +100,7 @@ export default function MonitorModule(_: ModuleProps) {
       <Section title="Jobs — file operation journal (DP-14)">
         <div style={{ display: "grid", gap: 2 }}>
           {jobs.map((j) => (
-            <div key={j.id} className="fs-row" style={{ justifyContent: "space-between", fontSize: 11.5 }}>
+            <div key={j.id} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }}>
               <span className="fs-mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 #{j.id} {j.op} {j.src}{j.dst ? ` → ${j.dst}` : ""}
               </span>
@@ -109,12 +110,12 @@ export default function MonitorModule(_: ModuleProps) {
               </span>
             </div>
           ))}
-          {jobs.length === 0 ? <span className="fs-dim" style={{ fontSize: 11.5 }}>No operations yet.</span> : null}
+          {jobs.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(11.5) }}>No operations yet.</span> : null}
         </div>
       </Section>
 
       <Section title="Audit log">
-        <div className="fs-scroll fs-mono" style={{ maxHeight: 130, fontSize: 10.5 }}>
+        <div className="fs-scroll fs-mono" tabIndex={0} role="region" aria-label="Audit log" style={{ maxHeight: fz(130), fontSize: fz(10.5) }}>
           {log.map((l) => <div key={l.id}>{fmtTime(l.createdAt)} {l.action} {l.detail}</div>)}
         </div>
       </Section>

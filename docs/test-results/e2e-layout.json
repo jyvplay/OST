@@ -1,0 +1,122 @@
+{
+  "suite": "e2e-layout",
+  "at": "2026-10-26T13:06:52.259Z",
+  "results": [
+    {
+      "suite": "e2e-layout",
+      "name": "Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload",
+      "covers": {
+        "LY-03": "full",
+        "LY-01": "partial"
+      },
+      "pass": true,
+      "ms": 4456
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "Business taskbar: open → minimise → restore on click, Shift+click new window, jump list, Show desktop round trip, clock → Planner",
+      "covers": {
+        "LY-01": "full"
+      },
+      "pass": true,
+      "ms": 6151
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "Business: Start menu opens above the taskbar at bottom-left, search + Enter launches; Quick settings and toasts sit bottom-right; Windows caption buttons",
+      "covers": {
+        "LY-01": "full"
+      },
+      "pass": true,
+      "ms": 3984
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar",
+      "covers": {
+        "LY-03": "full",
+        "LY-02": "partial"
+      },
+      "pass": true,
+      "ms": 18506
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "Art dock: aesthetic size + stacks — size from the screen not the app count, groups fold into stacks (grid popover, arrows, Esc), a launched app from a folded group shows as its own running icon, size presets",
+      "covers": {
+        "LY-05": "full"
+      },
+      "pass": true,
+      "ms": 5865
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch",
+      "covers": {
+        "LY-02": "full"
+      },
+      "pass": true,
+      "ms": 6631
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit",
+      "covers": {
+        "LY-02": "full"
+      },
+      "pass": true,
+      "ms": 5904
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "Art window chrome + menus: traffic lights left (close, minimise, zoom), centred title, Window menu tiles/zooms, zoomed window stops above the dock, Launchpad",
+      "covers": {
+        "LY-02": "full"
+      },
+      "pass": true,
+      "ms": 4497
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
+      "covers": {
+        "LY-02": "partial",
+        "AX-09": "partial"
+      },
+      "pass": true,
+      "ms": 2197
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
+      "covers": {
+        "LY-02": "partial",
+        "LY-05": "partial",
+        "AX-09": "partial"
+      },
+      "pass": true,
+      "ms": 3525
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
+      "covers": {
+        "LY-04": "full",
+        "LY-01": "partial",
+        "LY-02": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 16469
+    },
+    {
+      "suite": "e2e-layout",
+      "name": "API: unknown layout and dockMagnify values are refused (422); the setting is searchable by 'taskbar' and 'dock'",
+      "covers": {
+        "LY-03": "full"
+      },
+      "pass": true,
+      "ms": 41
+    }
+  ]
+}

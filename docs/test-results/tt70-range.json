@@ -1,0 +1,60 @@
+{
+  "suite": "tt70-range",
+  "at": "2026-10-25T23:15:17.038Z",
+  "results": [
+    {
+      "suite": "tt70-range",
+      "name": "Excel results for whole-column formulas with data in row 1,048,576 (TT69: #NUM! beyond two columns)",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 18982
+    },
+    {
+      "suite": "tt70-range",
+      "name": "adversary: spill child rows (no input) are counted; =\"\" in a remote row is non-blank for COUNTA, blank-like for COUNTIF \"\"",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 7001
+    },
+    {
+      "suite": "tt70-range",
+      "name": "differential oracle: 40 random sparse sheets — whole-column aggregates equal a brute-force computation from the cell list",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 204275
+    },
+    {
+      "suite": "tt70-range",
+      "name": "both evaluation paths: evalFormulaAt (conditional formats) gives the same sparse results as recalculation",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 513
+    },
+    {
+      "suite": "tt70-range",
+      "name": "cross-sheet: whole columns keep one shape on every sheet (TT69: COUNTIFS / SUMIFS / SUMPRODUCT across sheets were #VALUE!); full sizes still must agree",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt70-range",
+      "name": "limits: 16 full columns with bottom-row data evaluate, 17 are #NUM! (documented cap); =SUM(A:C) is fast",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 3552
+    }
+  ]
+}

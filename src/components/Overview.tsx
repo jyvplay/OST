@@ -1,8 +1,9 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
-import { moduleById } from "@/lib/registry";
 import { useShell } from "./shell-context";
 import { Badge, Btn, Empty } from "./ui";
+import { AppIcon, UiGlyph } from "./AppIcon";
 
 /** WM-04: live-node overview. No snapshots, so nothing can be stale. */
 export default function Overview({ onClose }: { onClose: () => void }) {
@@ -22,20 +23,20 @@ export default function Overview({ onClose }: { onClose: () => void }) {
               {ws.name} <span className="fs-dim">{wins.filter((w) => w.workspace === ws.id).length}</span>
             </Btn>
           ))}
-          <Btn variant="ghost" onClick={onClose}>✕</Btn>
+          <Btn variant="ghost" onClick={onClose} aria-label="Close overview"><UiGlyph name="close" /></Btn>
         </div>
       </div>
 
-      {wins.length === 0 ? <Empty title="No windows" hint="Open a module from the launcher or press Ctrl+Space." icon="🪟" /> : null}
+      {wins.length === 0 ? <Empty title="No windows" hint="Open a module from the launcher or press Ctrl+Space." /> : null}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 10 }} onClick={(e) => e.stopPropagation()}>
         {wins.map((w) => (
           <div key={w.id} className="fs-panel" style={{ padding: 8, display: "grid", gap: 6 }}>
             <div className="fs-row" style={{ justifyContent: "space-between" }}>
-              <span className="fs-row" style={{ gap: 6 }}>{moduleById(w.module)?.icon}<strong style={{ fontSize: 12 }}>{w.title}</strong></span>
+              <span className="fs-row" style={{ gap: 6 }}><AppIcon id={w.module} size={18} /><strong style={{ fontSize: fz(12) }}>{w.title}</strong></span>
               {w.minimized ? <Badge>minimised</Badge> : null}
             </div>
-            <div className="fs-dim fs-mono" style={{ fontSize: 10.5 }}>
+            <div className="fs-dim fs-mono" style={{ fontSize: fz(10.5) }}>
               {Math.round(w.w)}×{Math.round(w.h)} @ {Math.round(w.x)},{Math.round(w.y)} · z{w.z} · {w.host}
             </div>
             <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>

@@ -1,4 +1,6 @@
 "use client";
+import { displayMedia, userMedia } from "@/lib/access-log";
+import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { capAvailable } from "@/lib/capabilities";
@@ -57,6 +59,8 @@ export default function LensModule(_: ModuleProps) {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [fx, setFx] = useState<Fx>(DEFAULT_FX);
   const [fps, setFps] = useState(0);
+  const winStart = useRef(0);
+  const winFrames = useRef(0);
   const [height, setHeight] = useState(720);
   const [err, setErr] = useState("");
   const [screenLayer, setScreenLayer] = useState<MediaStream | null>(null);
@@ -79,7 +83,7 @@ export default function LensModule(_: ModuleProps) {
   const start = async () => {
     setErr("");
     try {
-      const s = await navigator.mediaDevices.getUserMedia({
+      const s = await userMedia("Lens", {
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } },
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
@@ -188,10 +192,17 @@ export default function LensModule(_: ModuleProps) {
 
       const cost = performance.now() - t0;
       frameCost.current.push(cost);
-      if (frameCost.current.length > 30) {
-        const avg = frameCost.current.reduce((a, b) => a + b, 0) / frameCost.current.length;
-        setFps(Math.round(1000 / Math.max(avg, 1000 / 60)));
-        frameCost.current = [];
+      // TT15 FIX: report DELIVERED frames per wall-clock second over a ≥1 s window.
+      // v3.x waited for 31 frames and reported 1000/avg-cost ("capacity"), so on a slow
+      // software-rendered machine the badge sat at "0 fps" for seconds and, once shown,
+      // overstated the real rate. Delivered fps is what the viewer actually receives.
+      const now = performance.now();
+      if (!winStart.current) winStart.current = now;
+      winFrames.current++;
+      if (now - winStart.current >= 1000) {
+        setFps(Math.round((winFrames.current * 1000) / (now - winStart.current)));
+        winStart.current = now; winFrames.current = 0;
+        if (frameCost.current.length > 120) frameCost.current = frameCost.current.slice(-60);
       }
       shell.pulse(ts);
       rafRef.current = requestAnimationFrame(draw);
@@ -229,7 +240,7 @@ export default function LensModule(_: ModuleProps) {
         {stream ? <Btn variant="danger" onClick={stop}>Stop camera</Btn> : <Btn variant="primary" onClick={() => void start()}>Start camera</Btn>}
         <Btn variant="ghost" disabled={!capAvailable(shell.caps, "displayCapture")} onClick={async () => {
           try {
-            const s = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            const s = await displayMedia("Lens · presenter", { video: true });
             setScreenLayer(s);
             setFx((f) => ({ ...f, presenter: true }));
           } catch (e) { setErr(String((e as Error).message)); }
@@ -243,7 +254,7 @@ export default function LensModule(_: ModuleProps) {
 
       {err ? <Badge tone="bad">{err}</Badge> : null}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 220px", gap: 10 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `minmax(0, 1fr) min(${fz(220)}, 40%)`, gap: 10 }}>
         <div>
           <canvas ref={canvasRef} style={{ width: "100%", background: "#000", borderRadius: 10 }} />
           <video ref={videoRef} muted playsInline style={{ display: "none" }} />
@@ -254,17 +265,17 @@ export default function LensModule(_: ModuleProps) {
             ["contrast", 0.5, 1.8, 0.01], ["saturate", 0, 2, 0.01],
           ] as const).map(([k, min, max, step]) => (
             <label key={k} style={{ display: "grid", gap: 2 }}>
-              <span className="fs-dim" style={{ fontSize: 11 }}>{k} — {String(fx[k])}</span>
+              <span className="fs-dim" style={{ fontSize: fz(11) }}>{k} — {String(fx[k])}</span>
               <input type="range" min={min} max={max} step={step} value={fx[k] as number}
                 onChange={(e) => setFx({ ...fx, [k]: Number(e.target.value) })} />
             </label>
           ))}
           <label style={{ display: "grid", gap: 2 }}>
-            <span className="fs-dim" style={{ fontSize: 11 }}>key light (LN-06) — {fx.relight.toFixed(2)}</span>
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>key light (LN-06) — {fx.relight.toFixed(2)}</span>
             <input type="range" min={0} max={0.8} step={0.02} value={fx.relight} onChange={(e) => setFx({ ...fx, relight: Number(e.target.value) })} />
           </label>
           <label style={{ display: "grid", gap: 2 }}>
-            <span className="fs-dim" style={{ fontSize: 11 }}>voice gate threshold (LN-08) — {gate.toFixed(3)}</span>
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>voice gate threshold (LN-08) — {gate.toFixed(3)}</span>
             <input type="range" min={0} max={0.12} step={0.002} value={gate} onChange={(e) => {
               const v = Number(e.target.value); setGate(v);
               const p = gateRef.current?.parameters.get("threshold");
@@ -276,7 +287,7 @@ export default function LensModule(_: ModuleProps) {
           <Toggle label="Auto-frame (FaceDetector)" on={fx.autoframe} disabled={!capAvailable(shell.caps, "faceDetector")}
             reason="This browser has no FaceDetector" onChange={(v) => setFx({ ...fx, autoframe: v })} />
           <label style={{ display: "grid", gap: 2 }}>
-            <span className="fs-dim" style={{ fontSize: 11 }}>output height</span>
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>output height</span>
             <select className="fs-select" value={height} onChange={(e) => setHeight(Number(e.target.value))}>
               {[1080, 720, 540, 360].map((h) => <option key={h} value={h}>{h}p</option>)}
             </select>

@@ -1,0 +1,74 @@
+{
+  "suite": "e2e-media27",
+  "at": "2026-10-25T22:23:42.055Z",
+  "results": [
+    {
+      "suite": "e2e-media27",
+      "name": "Video: privacy gate (no provider request before consent), youtube-nocookie iframe with origin-only Referer + sandbox/allow, bad links explained, Save → Streams.json, reload keeps it, Next walks the library",
+      "covers": {
+        "SM-01": "partial",
+        "SM-03": "full"
+      },
+      "pass": true,
+      "ms": 6336
+    },
+    {
+      "suite": "e2e-media27",
+      "name": "Music: Spotify (152 px track player, encrypted-media) and SoundCloud widget (166 px, documented params) behind the gate; 'Always load' persists and skips the gate; video links redirected",
+      "covers": {
+        "SM-02": "partial"
+      },
+      "pass": true,
+      "ms": 2496
+    },
+    {
+      "suite": "e2e-media27",
+      "name": "Maps offline: the world draws with zero tile requests (≥ 230 countries, land pixels on the canvas); search 'France' flies there; hover names the country; coordinates search; Explore click selects a country",
+      "covers": {
+        "MP-01": "full",
+        "MP-02": "partial"
+      },
+      "pass": true,
+      "ms": 7879
+    },
+    {
+      "suite": "e2e-media27",
+      "name": "Maps places + measure: Add place by map click and 'Add at centre' → Places.geojson (valid RFC 7946, [lng, lat]); rename persists; measured distance equals haversine of the clicked points (Web Mercator inverse, ±1 %)",
+      "covers": {
+        "MP-02": "full",
+        "MP-03": "full"
+      },
+      "pass": true,
+      "ms": 5487
+    },
+    {
+      "suite": "e2e-media27",
+      "name": "Maps street tiles are opt-in: OSM tile requests start only after choosing them, carry an origin-only Referer (OSM tile policy), show the © OpenStreetMap attribution; bad custom templates are refused by the API",
+      "covers": {
+        "MP-01": "full"
+      },
+      "pass": true,
+      "ms": 2840
+    },
+    {
+      "suite": "e2e-media27",
+      "name": "layout ↔ style pairing: Art → Silver + light, Business → Daylight + light (from the Quick-panel/Settings switch), Fusion keeps the look; 'Match the look' off leaves the style alone",
+      "covers": {
+        "LY-14": "full"
+      },
+      "pass": true,
+      "ms": 3058
+    },
+    {
+      "suite": "e2e-media27",
+      "name": "axe-core: Video, Music and Maps (dark + light) — no serious or critical violations",
+      "covers": {
+        "SM-03": "partial",
+        "MP-01": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 12977
+    }
+  ]
+}

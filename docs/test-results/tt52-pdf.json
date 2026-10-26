@@ -1,0 +1,286 @@
+{
+  "suite": "tt52-pdf",
+  "at": "2026-10-25T22:52:51.701Z",
+  "results": [
+    {
+      "suite": "tt52-pdf",
+      "name": "open + text: hand-built PDF, three pages, page text in order",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "incremental save keeps the original bytes as an exact prefix; Prev chains to the old xref",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "page operations: reorder + delete + insert blank + move, verified by page text",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "annotations: 8 kinds written with appearance streams; PDF text of the FreeText comes back from its appearance",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "forms: text field + checkbox + choice filled, appearances generated, values re-read",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "NEG forms: read-only field and unknown field are refused, document unchanged",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "NEG page ops: deleting every page, bad permutations and out-of-range rotate throw",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "privacy: a clean copy drops a deleted page's content; the incremental save keeps it (documented)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "merge + extract: page counts and text order",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "NEG damaged xref: save() falls back to a clean rewrite instead of chaining onto bad offsets",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "NEG hostile input: garbage, truncation, page-tree loop and absurd /Count stay bounded",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "names round-trip byte-exactly (GBK font name bytes survive a rewrite) — regression",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "synthesised appearances for annotations without /AP (as PDFium/Acrobat); NEG: no colour → nothing",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "NEG shading: an axial shading whose function takes 18 inputs is rejected (PDFium paints nothing)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "text fitting: wrap() never exceeds the width; Helvetica widths match the AFM (\"Hello\" = 2.278 em at 1 pt)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "routing: .pdf opens in the PDF app; forge grade A with the gaps written into the boundary",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "encrypted files: RC4/AES open with their pdf.js-manifest passwords; edits stay encrypted and re-open; NEG wrong password",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1008
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "corpus: 972 pdf.js test files open; page tree agrees with PDFium/pypdf page counts (/tmp/struct.jsonl)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1891
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "oracle: our edits re-opened by PDFium + qpdf (rotate, annotate, title, reorder/delete/insert, merge, extract)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 2255
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "oracle: text differential vs PDFium ≥ 0.93 mean bigram-F1 (needs /tmp/text.jsonl)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "interpreter: annotations of every corpus page run without throwing (bounded time)",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 1905
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "CCITT tables: white/black/mode codes are prefix-free and complete (Kraft sum), as T.4 requires",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "CCITT oracle: libtiff (via Pillow) encodes 9 bitmaps as G4, G3-1D and G3-2D; our decoder reproduces every bit",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 185
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "NEG CCITT: corrupt, truncated and garbage streams decode the good rows, flag partial, never throw or hang; absurd sizes are capped",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 214
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "CCITT in a page: an inline /CCF image reaches the device as decoded 1-bit samples (no 'unsupported codec')",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 231
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "CID-keyed CFF: an explicit top FontMatrix is not scaled again (issue16500 glyphs at 1000-unit size, not ×1000) — regression",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 21
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "nested content keeps the caller's graphics state: unbalanced q/Q in a form/glyph never unwinds the page's q levels — regression",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt52-pdf",
+      "name": "embedded-file-only encryption (/EFF, StmF+StrF Identity) opens without a password like PDFium — regression",
+      "covers": {
+        "FF-03": "full",
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 407
+    }
+  ]
+}

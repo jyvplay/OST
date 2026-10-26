@@ -1,0 +1,85 @@
+{
+  "suite": "tt46-xlsx-patch",
+  "at": "2026-10-26T08:07:43.125Z",
+  "results": [
+    {
+      "suite": "tt46-xlsx-patch",
+      "name": "no-edit save of every readable corpus workbook returns the original bytes",
+      "covers": {
+        "FF-20": "full",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 42254
+    },
+    {
+      "suite": "tt46-xlsx-patch",
+      "name": "corpus edit session: change a number, add a bold text cell, re-style a cell — openpyxl sees exactly those edits and nothing else lost",
+      "covers": {
+        "FF-20": "full",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 129619
+    },
+    {
+      "suite": "tt46-xlsx-patch",
+      "name": "charts, comments, conditional formats, data validation, images and theme-coloured fonts survive an edit; only edited parts change",
+      "covers": {
+        "FF-20": "full",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 921
+    },
+    {
+      "suite": "tt46-xlsx-patch",
+      "name": "cached values: a formula depending on an edited cell is re-cached (data_only reader sees the new result); calcChain dropped + fullCalcOnLoad",
+      "covers": {
+        "FF-20": "full",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 202
+    },
+    {
+      "suite": "tt46-xlsx-patch",
+      "name": "sheet rename, add, delete and reorder; merges, column widths, freeze panes and validations written; definedNames follow the rename",
+      "covers": {
+        "FF-20": "full",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 239
+    },
+    {
+      "suite": "tt46-xlsx-patch",
+      "name": "style derivation keeps theme colours and font face/size of the original cell",
+      "covers": {
+        "FF-20": "full",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 2925
+    },
+    {
+      "suite": "tt46-xlsx-patch",
+      "name": "Strict OOXML workbooks (openpyxl cannot read them): edit round-trips through our reader, namespaces kept, no part lost",
+      "covers": {
+        "FF-20": "full",
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 77
+    },
+    {
+      "suite": "tt46-xlsx-patch",
+      "name": "conditional formats are imported for display: every constant cellIs rule (numeric or string operand; rgb, theme+tint or indexed colours) matches an independent reading (openpyxl rules + lxml dxfs + colorsys tint)",
+      "covers": {
+        "FF-21": "partial"
+      },
+      "pass": true,
+      "ms": 65374
+    }
+  ]
+}

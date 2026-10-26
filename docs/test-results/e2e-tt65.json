@@ -1,0 +1,24 @@
+{
+  "suite": "e2e-tt65",
+  "at": "2026-10-25T23:04:36.945Z",
+  "results": [
+    {
+      "suite": "e2e-tt65",
+      "name": "FF-49 Track Changes in every story in the UI: tracked header Apply (struck / inserted runs on the page), a field-cutting edit refused with no phantom undo step (Ctrl+Z / Ctrl+Y), tracked Notes edit, Review by place, reject footnote items singly + Accept all → Save → lxml oracle + XSD",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 6174
+    },
+    {
+      "suite": "e2e-tt65",
+      "name": "no page errors during the TT65 session",
+      "covers": {
+        "FF-49": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

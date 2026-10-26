@@ -1,0 +1,69 @@
+{
+  "suite": "e2e-tt38",
+  "at": "2026-10-25T22:37:21.872Z",
+  "results": [
+    {
+      "suite": "e2e-tt38",
+      "name": "WebSocket in a proxied page (WP-08): the page's own `new WebSocket` reaches the site through Fusion — readyState CONNECTING→OPEN→CLOSING→CLOSED, subprotocol chat.v2, string / ArrayBuffer / Blob / typed-array sends echoed in order with binaryType 'arraybuffer', bufferedAmount counts queued bytes and drains to 0, handler and listener fire in registration order, MessageEvent.origin is the socket's origin, close(4001, 'bye ✓') ends clean; 200 server messages arrive in order",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt38",
+      "name": "WebSocket errors exactly where a browser raises them (WP-08): SyntaxError for a non-ws scheme, a fragment, duplicate or invalid subprotocols; TypeError with no argument; InvalidStateError for send() while CONNECTING; InvalidAccessError for close(1001); SyntaxError for a 124-byte reason; an unreachable server → 'error' then close 1006 (not clean); close() while connecting → error + close 1006 and never 'open'; constants and name match the platform",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt38",
+      "name": "what the site sees (WP-08): the WebSocket handshake carries the session's User-Agent (not the real browser's) and the PAGE's origin (the site's own, not Fusion's), and the site's own cookie from the session jar",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt38",
+      "name": "EventSource in a proxied page (WP-08): a relative EventSource URL resolves against the SITE (es.url is the site's address, not the proxy's) and events arrive one by one while the stream is open — each ~500 ms after the last, not all at the end (nothing buffers the stream)",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt38",
+      "name": "adversary in the page (WP-08, G/I): page script that fetches its own site's HTML through the proxy gets a copy WITHOUT the WebSocket origin token and WITHOUT script cookies (only navigations carry them — Sec-Fetch-Dest, which script cannot set); calling the bridge directly while claiming another origin with its own token makes the site see Origin 'null', not the claimed one",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt38",
+      "name": "keep-alive through the real server (WP-09): the page and its 8 images and event stream are carried over a few reused connections to the site (counted at the site), not one connection per request",
+      "covers": {
+        "WP-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt38",
+      "name": "leaving the page closes its sockets upstream (WP-08): navigating away ends the bridge stream and the site's server sees close 1001 (going away) — no orphan socket stays open on the server",
+      "covers": {
+        "WP-08": "full"
+      },
+      "pass": true,
+      "ms": 12
+    }
+  ]
+}

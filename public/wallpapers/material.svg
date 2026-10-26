@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <!-- Fusion Shell TT23 "Material Expressive" wallpaper — original vector art (after Material 3 Expressive shapes and tonal colour), CC0 for this project. -->
+  <rect width="1600" height="1000" fill="#efe6fb"/>
+  <rect y="620" width="1600" height="380" fill="#e3d7f6"/>
+  <!-- 12-lobe cookie -->
+  <g transform="translate(360 330)">
+    <path fill="#d0bcff" d="M0-230C40-230 52-200 86-208 118-198 128-166 160-160 182-136 172-102 198-82 210-50 190-22 204 12 200 46 172 62 168 98 150 126 116 128 98 158 64 172 36 154 0 170-36 154-64 172-98 158-116 128-150 126-168 98-172 62-200 46-204 12-190-22-210-50-198-82-172-102-182-136-160-160-128-166-118-198-86-208-52-200-40-230 0-230Z"/>
+  </g>
+  <!-- pill -->
+  <rect x="760" y="150" width="620" height="220" rx="110" fill="#ffd8e4"/>
+  <!-- semicircle + circle -->
+  <path d="M980 860a260 260 0 0 1 520 0z" fill="#b6f2d6"/>
+  <circle cx="1240" cy="560" r="120" fill="#6750a4"/>
+  <circle cx="1240" cy="560" r="52" fill="#efe6fb"/>
+  <!-- four-point star / sparkle -->
+  <path d="M640 520c20 90 50 120 140 140-90 20-120 50-140 140-20-90-50-120-140-140 90-20 120-50 140-140z" fill="#7d5260"/>
+  <!-- clover -->
+  <g transform="translate(220 790)" fill="#ffdcc2">
+    <circle cx="-60" cy="0" r="72"/><circle cx="60" cy="0" r="72"/><circle cx="0" cy="-60" r="72"/><circle cx="0" cy="60" r="72"/>
+  </g>
+  <!-- squiggle -->
+  <path d="M760 430q40-50 80 0t80 0 80 0 80 0" fill="none" stroke="#9a82db" stroke-width="22" stroke-linecap="round"/>
+</svg>

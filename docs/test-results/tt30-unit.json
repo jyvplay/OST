@@ -1,0 +1,69 @@
+{
+  "suite": "tt30-unit",
+  "at": "2026-10-25T22:24:38.936Z",
+  "results": [
+    {
+      "suite": "tt30-unit",
+      "name": "accessible names follow the accname step order: aria-labelledby (incl. hidden targets and self-reference) > aria-label > native label/alt/caption > content > title; placeholder only as the last native fallback",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt30-unit",
+      "name": "roles: explicit first valid token, presentation ignored on focusable elements, HTML-AAM implicit mapping incl. scoping of header/footer and named sections",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt30-unit",
+      "name": "spoken output: name, role words, states, value, position, description — in that order",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt30-unit",
+      "name": "live regions: nearest explicit aria-live wins; alert is assertive and atomic, status polite and atomic, log polite; busy suppresses; timer is off",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt30-unit",
+      "name": "context on focus moves: entering a dialog and a named form announces both (outermost first); moving within announces nothing; unnamed groups are skipped",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt30-unit",
+      "name": "reading order: landmarks announced on arrival, atomic items read whole, text runs under their element, hidden skipped; jumps by heading / landmark / field / link without wrapping",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt30-unit",
+      "name": "commands: unique Narrator-key chords; the toggle chord conflicts with no shell binding in any preset and is not browser-reserved; Caps Lock / Insert are used by no shell chord; speed steps clamp",
+      "covers": {
+        "AX-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

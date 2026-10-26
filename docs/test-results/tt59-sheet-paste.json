@@ -1,0 +1,33 @@
+{
+  "suite": "tt59-sheet-paste",
+  "at": "2026-10-25T23:00:37.383Z",
+  "results": [
+    {
+      "suite": "tt59-sheet-paste",
+      "name": "Paste Special ▸ All carries hyperlinks (plain, transposed, skip blanks keeps a target link under a blank source); openpyxl reads them",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 168
+    },
+    {
+      "suite": "tt59-sheet-paste",
+      "name": "Values / Formulas / Formats leave the target's links alone (Excel keeps a link under pasted values) and never copy source links",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt59-sheet-paste",
+      "name": "Paste Link: a single cell links absolutely, a range relatively (TT64, as Excel); same sheet, other sheet, quoted names; follows source edits, blank source shows 0; openpyxl reads the formulas",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 162
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt60",
+  "at": "2026-10-25T23:01:31.346Z",
+  "results": [
+    {
+      "suite": "e2e-tt60",
+      "name": "FF-40 Writer table revisions in the UI: tracked Row below + Delete row → change bars + Review list; Column right tracked + rejected; saved trPr ins/del verified by lxml; per-change Accept removes the row; TT64: tracked Column right listed and rejected",
+      "covers": {
+        "FF-40": "full"
+      },
+      "pass": true,
+      "ms": 5000
+    },
+    {
+      "suite": "e2e-tt60",
+      "name": "FF-41 Spreadsheet spelling in all sheets: F7 → All sheets → tab order from the active sheet; Change switches to the issue's sheet; Change All covers every sheet; openpyxl reads the save",
+      "covers": {
+        "FF-41": "full"
+      },
+      "pass": true,
+      "ms": 3806
+    },
+    {
+      "suite": "e2e-tt60",
+      "name": "FF-42 Writer spelling in headers and notes: F7 lists body → Header → Footnote 1 issues; Change fixes them in place; saved file verified by python-docx and lxml",
+      "covers": {
+        "FF-42": "full"
+      },
+      "pass": true,
+      "ms": 4066
+    },
+    {
+      "suite": "e2e-tt60",
+      "name": "RG-05 Backup refuses on a low discharging battery (injected getBattery 12%) with the reason, Build anyway works; Monitor shows background work paused; charging builds directly",
+      "covers": {
+        "RG-05": "full"
+      },
+      "pass": true,
+      "ms": 5127
+    },
+    {
+      "suite": "e2e-tt60",
+      "name": "no uncaught page errors during the TT60 session",
+      "covers": {
+        "WM-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

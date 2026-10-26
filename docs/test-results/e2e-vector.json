@@ -1,0 +1,117 @@
+{
+  "suite": "e2e-vector",
+  "at": "2026-10-26T13:09:31.262Z",
+  "results": [
+    {
+      "suite": "e2e-vector",
+      "name": "ORACLE Chromium SVG: getBBox + getTotalLength of the ORIGINAL d vs our normalised cubics (arcs included)",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 122
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "ORACLE Chromium SVG: isPointInFill (nonzero + evenodd) vs our containment on a 31×31 grid per path; transform.baseVal",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 519
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "ORACLE render parity: Chromium rasterises the original SVG and our import→export identically (≤0.5% pixels > 24/255)",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 438
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
+      "covers": {
+        "FF-32": "full",
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 5238
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "UI: select, move by drag, resize from the se handle, rotate 90° with shift-snap, nudge 1/10",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 5543
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "UI: pen — corner clicks + close on first node; drag makes a smooth (cubic) node; node tool drags an anchor",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 3312
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "UI: marquee + shift-click multi-select, align left, distribute, group/ungroup, duplicate, z-order, delete (keyboard)",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 2063
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
+      "covers": {
+        "FF-04": "full",
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 1929
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size)",
+      "covers": {
+        "FF-32": "full",
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 4637
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "UI: arrow (line tool + Arrowhead) exports as plain path; star stays parametric — point count / inner ratio editable after a move",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 3524
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo",
+      "covers": {
+        "FF-37": "full"
+      },
+      "pass": true,
+      "ms": 3089
+    },
+    {
+      "suite": "e2e-vector",
+      "name": "no page errors during the vector session",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

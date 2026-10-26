@@ -1,0 +1,24 @@
+{
+  "suite": "e2e-tt63",
+  "at": "2026-10-25T23:03:03.639Z",
+  "results": [
+    {
+      "suite": "e2e-tt63",
+      "name": "FF-47 PivotTable saved as a real Excel PivotTable from the UI: create with a report filter → Save → XSD + pandas + openpyxl oracles; reopen → source edit → Alt+F5 → Save regenerates in place; Delete → Save removes every pivot part",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 8595
+    },
+    {
+      "suite": "e2e-tt63",
+      "name": "no uncaught page errors during the TT63 session",
+      "covers": {
+        "FF-47": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

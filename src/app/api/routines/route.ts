@@ -6,6 +6,7 @@ import { auditLog, routines } from "@/db/schema";
 export const dynamic = "force-dynamic";
 
 import { ROUTINE_COMMANDS, validateActions as validate } from "@/lib/routines";
+import { readJsonObject } from "@/lib/http-json";
 
 export async function GET() {
   const rows = await db.select().from(routines).orderBy(asc(routines.id));
@@ -13,7 +14,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const b = (await req.json()) as { name?: string; trigger?: string; triggerArg?: string; actions?: unknown; ranId?: number; dry?: boolean };
+  const b = (await readJsonObject(req)) as ({ name?: string; trigger?: string; triggerArg?: string; actions?: unknown; ranId?: number; dry?: boolean }) | Response;
+  if (b instanceof Response) return b;
   try {
     if (b.ranId) {
       await db.update(routines).set({ lastRun: new Date() }).where(eq(routines.id, b.ranId));
@@ -32,7 +34,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const b = (await req.json()) as { id?: number; enabled?: boolean };
+  const b = (await readJsonObject(req)) as ({ id?: number; enabled?: boolean }) | Response;
+  if (b instanceof Response) return b;
   if (!b.id) return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
   await db.update(routines).set({ enabled: Boolean(b.enabled) }).where(eq(routines.id, b.id));
   return NextResponse.json({ ok: true });

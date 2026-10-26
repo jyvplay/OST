@@ -1,0 +1,141 @@
+{
+  "suite": "tt51-slides",
+  "at": "2026-10-25T22:52:22.940Z",
+  "results": [
+    {
+      "suite": "tt51-slides",
+      "name": "reader vs python-pptx over every openable corpus deck: slide order, hidden flags, layout names, notes text, shape ids/names, geometry with placeholder inheritance, paragraph text, table cells and group members agree exactly",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 7105
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "lossless identity: opening and saving every corpus deck without edits returns the original bytes (83/83); the view model renders every slide of every deck without throwing",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 2403
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "text edits keep formatting: a word typed into the middle of a paragraph joins its run (rPr kept byte-for-byte), every other run and paragraph keeps its exact XML, untouched parts keep their bytes; python-pptx reads the new text and the validator finds no new problems in any deck",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 12557
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "setParaText unit cases: insertion at a run boundary joins the left run; deletion across runs keeps both outer runs' rPr; typing into an empty paragraph uses endParaRPr; line breaks stay a:br; fields keep their a:fld; XML-illegal control characters are dropped",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "range formatting: bold/italic/size/colour on a sub-range splits runs at the exact boundaries (python-pptx sees bold only on the selected characters), paragraph alignment / bullets / level land in a:pPr in schema order",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 264
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "slide operations on every multi-slide corpus deck — duplicate, move, hide, delete — produce the expected slide sequence, hidden flags and notes in python-pptx, with no new validator problems (no dangling rels, content types or sldIds; duplicated charts get their own parts)",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 7700
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "duplicated slide with a chart gets a deep copy (own chart part + embedded workbook), deleting the original removes only its own chart; deleting a slide drops links to it from other slides, its notes slide, custom-show entries and section ids",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 1295
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "speaker notes: setting notes on a slide without a notes slide creates one (and a notes master + theme when the deck has none) on every corpus deck; python-pptx reads the exact text including markup characters and line breaks; editing existing notes keeps the notes slide",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 9167
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "shape operations on every corpus deck: add text box + preset shape + picture, move/resize, fill/outline, z-order, delete a picture (its media part is garbage-collected when unused) — python-pptx sees the shapes at the written geometry and shape ids stay unique",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 8765
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "undo is exact: a snapshot taken before a burst of edits (text, notes, slide ops, shapes, pictures) restores a package whose every part has the original content",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 3211
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "new decks: blankPptx is a valid 16:9 package (validator clean, python-pptx opens it, 4 layouts); a slide from every layout validates; an outline (legacy .fdeck) converts to a real deck with titles, bullets and notes",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 552
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "password-protected decks: our Agile-encrypted save decrypts with msoffcrypto-tool to the exact package, and our decryptor opens it again; the encrypted file is a CFB container, not a zip",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 203
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "hostile input: the 12 corpus files python-pptx also rejects (fuzzer cases, bad CRC, truncated zip) fail with a clear error; billion-laughs DOCTYPE text is not expanded; target paths cannot climb out of the package; a sldIdLst with missing / duplicate / external slides opens what is valid; 5,000-deep group nesting and > 2,000 slides are refused or capped without crashing",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 505
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "colour maths and numbering against Office's documented values: Accent 1 (4472C4) lumMod 75 % = 2F5597 ('Darker 25 %'), lumMod 20 % + lumOff 80 % = DAE3F3 ('Lighter 80 %'), tint/shade/alpha, clrMap bg1→lt1; auto-numbers arabic / alpha / roman with all punctuation styles",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt51-slides",
+      "name": "view model over the corpus: placeholders inherit layout/master geometry, theme colours resolve for every text run (no undefined colours or fonts), pictures map to package parts with crops, tables carry their grid, charts point at chart parts, SmartArt draws its saved drawing; approximate presets are reported, never silent",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 2391
+    }
+  ]
+}

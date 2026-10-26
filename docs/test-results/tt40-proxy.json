@@ -1,0 +1,42 @@
+{
+  "suite": "tt40-proxy",
+  "at": "2026-10-25T22:37:50.428Z",
+  "results": [
+    {
+      "suite": "tt40-proxy",
+      "name": "SOCKS4 + HTTPS proxy live (WP-14): https://pypi.org/ through pproxy's SOCKS4 server (it logs an IPv4 address — the NAME never reached the proxy, it was resolved here through the guard) and through pproxy as an HTTPS proxy (TLS to the proxy verified against a CA in NODE_EXTRA_CA_CERTS, pypi.org named only inside that TLS); without that CA the proxy is refused at TLS and never learns the destination",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 1041
+    },
+    {
+      "suite": "tt40-proxy",
+      "name": "PAC failover live (WP-14): \"PROXY <dead>; SOCKS <pproxy>; DIRECT\" — pypi.org is carried by the SECOND entry (SOCKS = v4, Chrome's reading), the failover is recorded, and a repeat request goes straight to the healthy proxy (the dead one is remembered for 5 min, no second failover); a POST of 70 KB of mixed UTF-8 / binary-safe text fails over byte-exact (echo site's SHA-256) and the dead proxy received only the proxy handshake, never a byte of the body; a proxy that ANSWERS 403 for the destination is not failed over — no DIRECT leak",
+      "covers": {
+        "WP-14": "full"
+      },
+      "pass": true,
+      "ms": 1037
+    },
+    {
+      "suite": "tt40-proxy",
+      "name": "KDE live (WP-15): a fresh process in a KDE session (XDG_CURRENT_DESKTOP=KDE), with no proxy variables and no gsettings, reads ~/.config/kioslaverc (here via XDG_CONFIG_HOME) written in KDE 5's \"http://host port\" form and sends https://pypi.org/ through the proxy it names (pproxy logs it); ProxyType=0 means direct",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 711
+    },
+    {
+      "suite": "tt40-proxy",
+      "name": "WPAD live (WP-15): the machine's REAL resolver — \"search eng.corp.fusion-test.example\" in /etc/resolv.conf, wpad.corp.fusion-test.example in /etc/hosts, the PAC file on port 80 — GNOME \"auto\" with an empty URL (stand-in gsettings) and KDE ProxyType=3 each DISCOVER it by devolution (wpad → wpad.eng.… fail, wpad.corp.… answers; wpad.fusion-test.example is never needed) and pypi.org goes through the SOCKS proxy it names; with nothing to discover, auto-detect falls back to DIRECT with the tried list reported",
+      "covers": {
+        "WP-15": "full"
+      },
+      "pass": true,
+      "ms": 3043
+    }
+  ]
+}

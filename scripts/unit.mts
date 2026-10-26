@@ -30,7 +30,7 @@ const pick = <T,>(xs: T[]) => xs[Math.floor(rnd() * xs.length)];
 function randomCommand(s: DesktopState, n: number): WindowCommand {
   const ids = s.windows.map((w) => w.id);
   const id = ids.length ? pick(ids) : "none";
-  switch (Math.floor(rnd() * 14)) {
+  switch (Math.floor(rnd() * 15)) {
     case 0: case 1: return { t: "open", id: `w${n}`, module: "files", title: "t", rect: { x: rnd() * 3000 - 1000, y: rnd() * 2000 - 800, w: rnd() * 3000, h: rnd() * 2000 } };
     case 2: return { t: "close", id };
     case 3: return { t: "move", id, x: rnd() * 6000 - 3000, y: rnd() * 6000 - 3000 };
@@ -43,6 +43,7 @@ function randomCommand(s: DesktopState, n: number): WindowCommand {
     case 10: return { t: "viewport", w: 320 + rnd() * 3000, h: 240 + rnd() * 1800 };
     case 11: return { t: "cycle", dir: rnd() > 0.5 ? 1 : -1 };
     case 12: return { t: "setDensity", id, density: pick(["compact", "balanced", "touch"] as const) };
+    case 13: return { t: "place", id, rect: { x: rnd() * 6000 - 3000, y: rnd() * 6000 - 3000, w: rnd() * 5000 - 500, h: rnd() * 5000 - 500 } };
     default: return { t: "grow", id, dw: rnd() * 800 - 400, dh: rnd() * 800 - 400 };
   }
 }
@@ -115,8 +116,9 @@ await test("SVG sanitiser strips script/handlers/foreignObject/javascript:", { "
   assert.ok(!/script|onload|foreignObject|javascript:/i.test(r.svg)); assert.ok(r.svg.includes("<rect/>"));
 });
 await test("loss report itemises drops; registry grades", { "FF-11": "full", "FF-01": "partial", "FF-14": "full" }, () => {
-  assert.ok(lossReport("a.docx", "md").drops.includes("styles"));
-  assert.equal(formatFor("x.epub")?.grade, "C");
+  const lr = lossReport("a.docx", "md"); // TT15: was asserting a "styles" drop that forge.ts no longer lists (stale test)
+  assert.ok(lr.drops.includes("pagination") && lr.drops.includes("comments/tracked changes") && lr.safe === false);
+  assert.equal(formatFor("x.epub")?.grade, "A"); // TT75: Books (FF-10) reads EPUB 3.3 on a whole-corpus gate
   assert.equal(formatFor("x.heic")?.grade, "X");
 });
 await test("SRT → WebVTT conversion", { "AX-07": "partial" }, () => {
@@ -227,6 +229,19 @@ await test("RG-06 memory policy: absence is not low memory", { "RG-06": "full" }
   assert.equal(memoryPolicy(1).maxWindows, 6); assert.equal(memoryPolicy(1).effects, false);
   assert.equal(memoryPolicy(4).maxWindows, 12); assert.equal(memoryPolicy(8).maxWindows, 24);
   assert.equal(memoryPolicy(Number.NaN).tier, "unknown");
+});
+
+await test("TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk", { "SH-08": "full", "WM-01": "partial" }, () => {
+  const s0 = reduce(initialDesktop(), { t: "viewport", w: 1000, h: 700 });
+  const same = reduce(s0, { t: "viewport", w: 1000.4, h: 700 });
+  assert.equal(same, s0, "same-size viewport must return the identical state object");
+  assert.ok(reduce(s0, { t: "viewport", w: 1001, h: 700 }).revision > s0.revision, "a real resize still bumps");
+  const small = reduce(initialDesktop(), { t: "viewport", w: 700, h: 500 });
+  for (const m of ["vector", "sheet", "writer", "calculator"]) {
+    const s1 = reduce(small, { t: "open", id: m, module: m, title: m });
+    const w = s1.windows.find((x) => x.id === m)!;
+    assert.ok(w.x >= 0 && w.y >= 0 && w.x + w.w <= 700 && w.y + w.h <= 500, `${m} overflows the desk: ${JSON.stringify([w.x, w.y, w.w, w.h])}`);
+  }
 });
 
 finish();

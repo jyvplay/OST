@@ -1,0 +1,1313 @@
+{
+  "generated": "2026-10-26T12:15:43.540Z",
+  "rules": "src/lib/beauty-core.ts",
+  "retries": [],
+  "views": [
+    {
+      "view": "fusion",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 64,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#43",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#44",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#45",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.296
+    },
+    {
+      "view": "fusion launcher",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 194,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#127",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#128",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#129",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“Launcher”#130",
+          "detail": "ratio 1.112 (nearest √2, 21.4% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.48
+    },
+    {
+      "view": "settings window",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 488,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#348",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps1 windows100%”#349",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#350",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“Display & readabilitybod”#352",
+          "detail": "ratio 2.250 (nearest 5:3, 35% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“Text size preview”#353",
+          "detail": "ratio 9.725 (nearest 5:3, 483.5% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“accessibilityFusion Voic”#354",
+          "detail": "ratio 2.832 (nearest 5:3, 69.9% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“alertsFocus rules (hold ”#355",
+          "detail": "ratio 6.650 (nearest 5:3, 299% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“backupKeep file versions”#357",
+          "detail": "ratio 10.032 (nearest 5:3, 501.9% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“beamStop casting when hi”#358",
+          "detail": "ratio 10.032 (nearest 5:3, 501.9% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“inputScroll lines per no”#359",
+          "detail": "ratio 3.972 (nearest 5:3, 138.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“mapsCustom map tile URL ”#360",
+          "detail": "ratio 6.650 (nearest 5:3, 299% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“mediaEmbedded players (Y”#361",
+          "detail": "ratio 8.169 (nearest 5:3, 390.1% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“performanceWindow effect”#362",
+          "detail": "ratio 6.650 (nearest 5:3, 299% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“privacyClipboard history”#363",
+          "detail": "ratio 6.650 (nearest 5:3, 299% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“searchIndex exclusionsse”#364",
+          "detail": "ratio 4.973 (nearest 5:3, 198.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“shellHot cornersshell.ho”#365",
+          "detail": "ratio 4.973 (nearest 5:3, 198.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“systemSeed versionsystem”#366",
+          "detail": "ratio 10.032 (nearest 5:3, 501.9% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“History (every change is”#367",
+          "detail": "ratio 5.609 (nearest 5:3, 236.5% off)",
+          "hard": false
+        },
+        {
+          "rule": "type-scale",
+          "id": "settings window",
+          "detail": "10 distinct font sizes (> 8)",
+          "hard": false
+        }
+      ],
+      "balance": 0.391
+    },
+    {
+      "view": "business",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 61,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#42",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#43",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#44",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.586
+    },
+    {
+      "view": "start",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 242,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#161",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#162",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#163",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“start-menu”#164",
+          "detail": "ratio 1.099 (nearest √2, 22.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.42
+    },
+    {
+      "view": "art",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 85,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#48",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#49",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#50",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.651,
+      "dock": {
+        "icon": 48,
+        "width": 918
+      }
+    },
+    {
+      "view": "dock stack Core",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 117,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#69",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#70",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#71",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“dock-stack-pop”#72",
+          "detail": "ratio 1.216 (nearest √2, 14% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.348
+    },
+    {
+      "view": "launchpad",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 220,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#137",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#138",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#139",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“launchpad”#140",
+          "detail": "ratio 1.826 (nearest 5:3, 9.6% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.641
+    },
+    {
+      "view": "tabletop floor",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 68,
+      "hard": [],
+      "soft": [],
+      "balance": 0.573
+    },
+    {
+      "view": "tabletop north wall",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 55,
+      "hard": [],
+      "soft": [],
+      "balance": 0.438
+    },
+    {
+      "view": "tabletop east wall",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 97,
+      "hard": [],
+      "soft": [],
+      "balance": 0.438
+    },
+    {
+      "view": "tabletop south wall",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 69,
+      "hard": [],
+      "soft": [],
+      "balance": 0.36
+    },
+    {
+      "view": "tabletop west wall",
+      "vw": 1440,
+      "vh": 900,
+      "measured": 170,
+      "hard": [],
+      "soft": [],
+      "balance": 0.263
+    },
+    {
+      "view": "fusion",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 64,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#43",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#44",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#45",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.329
+    },
+    {
+      "view": "fusion launcher",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 188,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#121",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#122",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#123",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“Launcher”#124",
+          "detail": "ratio 1.032 (nearest √2, 27% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.522
+    },
+    {
+      "view": "business",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 61,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#42",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#43",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#44",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.543
+    },
+    {
+      "view": "start",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 233,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#152",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#153",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#154",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“start-menu”#155",
+          "detail": "ratio 1.036 (nearest √2, 26.7% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.448
+    },
+    {
+      "view": "art",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 85,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#48",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#49",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#50",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.631,
+      "dock": {
+        "icon": 44,
+        "width": 858
+      }
+    },
+    {
+      "view": "dock stack Core",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 117,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#69",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#70",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#71",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“dock-stack-pop”#72",
+          "detail": "ratio 1.216 (nearest √2, 14% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.349
+    },
+    {
+      "view": "launchpad",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 213,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#130",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#131",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#132",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“launchpad”#133",
+          "detail": "ratio 1.848 (nearest 5:3, 10.9% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.658
+    },
+    {
+      "view": "tabletop floor",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 68,
+      "hard": [],
+      "soft": [],
+      "balance": 0.562
+    },
+    {
+      "view": "tabletop north wall",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 55,
+      "hard": [],
+      "soft": [],
+      "balance": 0.45
+    },
+    {
+      "view": "tabletop east wall",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 97,
+      "hard": [],
+      "soft": [],
+      "balance": 0.45
+    },
+    {
+      "view": "tabletop south wall",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 68,
+      "hard": [],
+      "soft": [],
+      "balance": 0.385
+    },
+    {
+      "view": "tabletop west wall",
+      "vw": 1280,
+      "vh": 800,
+      "measured": 166,
+      "hard": [],
+      "soft": [],
+      "balance": 0.275
+    },
+    {
+      "view": "fusion",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 64,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#43",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#44",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#45",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.269
+    },
+    {
+      "view": "fusion launcher",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 202,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#135",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#136",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#137",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.491
+    },
+    {
+      "view": "settings window",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 488,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#348",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps1 windows100%”#349",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#350",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“Display & readabilitybod”#352",
+          "detail": "ratio 2.250 (nearest 5:3, 35% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“Text size preview”#353",
+          "detail": "ratio 9.725 (nearest 5:3, 483.5% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“accessibilityFusion Voic”#354",
+          "detail": "ratio 2.832 (nearest 5:3, 69.9% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“alertsFocus rules (hold ”#355",
+          "detail": "ratio 6.650 (nearest 5:3, 299% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“backupKeep file versions”#357",
+          "detail": "ratio 10.032 (nearest 5:3, 501.9% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“beamStop casting when hi”#358",
+          "detail": "ratio 10.032 (nearest 5:3, 501.9% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“inputScroll lines per no”#359",
+          "detail": "ratio 3.972 (nearest 5:3, 138.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“mapsCustom map tile URL ”#360",
+          "detail": "ratio 6.650 (nearest 5:3, 299% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“mediaEmbedded players (Y”#361",
+          "detail": "ratio 8.169 (nearest 5:3, 390.1% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“performanceWindow effect”#362",
+          "detail": "ratio 6.650 (nearest 5:3, 299% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“privacyClipboard history”#363",
+          "detail": "ratio 6.650 (nearest 5:3, 299% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“searchIndex exclusionsse”#364",
+          "detail": "ratio 4.973 (nearest 5:3, 198.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“shellHot cornersshell.ho”#365",
+          "detail": "ratio 4.973 (nearest 5:3, 198.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“systemSeed versionsystem”#366",
+          "detail": "ratio 10.032 (nearest 5:3, 501.9% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "section“History (every change is”#367",
+          "detail": "ratio 5.609 (nearest 5:3, 236.5% off)",
+          "hard": false
+        },
+        {
+          "rule": "type-scale",
+          "id": "settings window",
+          "detail": "10 distinct font sizes (> 8)",
+          "hard": false
+        }
+      ],
+      "balance": 0.29
+    },
+    {
+      "view": "business",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 61,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#42",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#43",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#44",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.646
+    },
+    {
+      "view": "start",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 253,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#170",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#171",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#172",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.504
+    },
+    {
+      "view": "art",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 98,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#56",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#57",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#58",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.505,
+      "dock": {
+        "icon": 60,
+        "width": 1642
+      }
+    },
+    {
+      "view": "dock stack Create",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 151,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#91",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#92",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#93",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“dock-stack-pop”#94",
+          "detail": "ratio 1.175 (nearest √2, 16.9% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.397
+    },
+    {
+      "view": "launchpad",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 235,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:12 PMMonday, October ”#147",
+          "detail": "ratio 3.146 (nearest 5:3, 88.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#148",
+          "detail": "ratio 6.897 (nearest 5:3, 313.8% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#149",
+          "detail": "ratio 2.605 (nearest 5:3, 56.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“launchpad”#150",
+          "detail": "ratio 2.007 (nearest 5:3, 20.4% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.666
+    },
+    {
+      "view": "tabletop floor",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 68,
+      "hard": [],
+      "soft": [],
+      "balance": 0.61
+    },
+    {
+      "view": "tabletop north wall",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 55,
+      "hard": [],
+      "soft": [],
+      "balance": 0.42
+    },
+    {
+      "view": "tabletop east wall",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 97,
+      "hard": [],
+      "soft": [],
+      "balance": 0.42
+    },
+    {
+      "view": "tabletop south wall",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 69,
+      "hard": [],
+      "soft": [],
+      "balance": 0.176
+    },
+    {
+      "view": "tabletop west wall",
+      "vw": 1920,
+      "vh": 1080,
+      "measured": 191,
+      "hard": [],
+      "soft": [],
+      "balance": 0.423
+    },
+    {
+      "view": "fusion",
+      "vw": 390,
+      "vh": 844,
+      "measured": 49,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:13 PMMonday, October ”#34",
+          "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#35",
+          "detail": "ratio 3.260 (nearest 5:3, 95.6% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#36",
+          "detail": "ratio 1.821 (nearest 5:3, 9.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.234
+    },
+    {
+      "view": "fusion launcher",
+      "vw": 390,
+      "vh": 844,
+      "measured": 157,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:13 PMMonday, October ”#96",
+          "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#97",
+          "detail": "ratio 3.260 (nearest 5:3, 95.6% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#98",
+          "detail": "ratio 1.821 (nearest 5:3, 9.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“Launcher”#99",
+          "detail": "ratio 1.974 (nearest 5:3, 18.4% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.491
+    },
+    {
+      "view": "business",
+      "vw": 390,
+      "vh": 844,
+      "measured": 47,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:13 PMMonday, October ”#30",
+          "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#31",
+          "detail": "ratio 3.260 (nearest 5:3, 95.6% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#32",
+          "detail": "ratio 1.821 (nearest 5:3, 9.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.385
+    },
+    {
+      "view": "start",
+      "vw": 390,
+      "vh": 844,
+      "measured": 196,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:13 PMMonday, October ”#117",
+          "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#118",
+          "detail": "ratio 3.260 (nearest 5:3, 95.6% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#119",
+          "detail": "ratio 1.821 (nearest 5:3, 9.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“start-menu”#120",
+          "detail": "ratio 2.053 (nearest 5:3, 23.2% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.654
+    },
+    {
+      "view": "art",
+      "vw": 390,
+      "vh": 844,
+      "measured": 62,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:13 PMMonday, October ”#34",
+          "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#35",
+          "detail": "ratio 3.260 (nearest 5:3, 95.6% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#36",
+          "detail": "ratio 1.821 (nearest 5:3, 9.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.257,
+      "dock": {
+        "icon": 36,
+        "width": 342
+      }
+    },
+    {
+      "view": "dock stack Core",
+      "vw": 390,
+      "vh": 844,
+      "measured": 94,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:13 PMMonday, October ”#55",
+          "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#56",
+          "detail": "ratio 3.260 (nearest 5:3, 95.6% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#57",
+          "detail": "ratio 1.821 (nearest 5:3, 9.3% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.504
+    },
+    {
+      "view": "launchpad",
+      "vw": 390,
+      "vh": 844,
+      "measured": 165,
+      "hard": [],
+      "soft": [
+        {
+          "rule": "proportion",
+          "id": "div“12:13 PMMonday, October ”#91",
+          "detail": "ratio 2.707 (nearest 5:3, 62.4% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“COOL60 fps0 windows100%”#92",
+          "detail": "ratio 3.260 (nearest 5:3, 95.6% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“counter.worker.jsworker-”#93",
+          "detail": "ratio 1.821 (nearest 5:3, 9.3% off)",
+          "hard": false
+        },
+        {
+          "rule": "proportion",
+          "id": "div“launchpad”#94",
+          "detail": "ratio 1.909 (nearest 5:3, 14.5% off)",
+          "hard": false
+        }
+      ],
+      "balance": 0.796
+    },
+    {
+      "view": "tabletop floor",
+      "vw": 390,
+      "vh": 844,
+      "measured": 53,
+      "hard": [],
+      "soft": [],
+      "balance": 0.62
+    },
+    {
+      "view": "tabletop north wall",
+      "vw": 390,
+      "vh": 844,
+      "measured": 40,
+      "hard": [],
+      "soft": [],
+      "balance": 0.527
+    },
+    {
+      "view": "tabletop east wall",
+      "vw": 390,
+      "vh": 844,
+      "measured": 82,
+      "hard": [],
+      "soft": [],
+      "balance": 0.527
+    },
+    {
+      "view": "tabletop south wall",
+      "vw": 390,
+      "vh": 844,
+      "measured": 51,
+      "hard": [],
+      "soft": [],
+      "balance": 0.672
+    },
+    {
+      "view": "tabletop west wall",
+      "vw": 390,
+      "vh": 844,
+      "measured": 139,
+      "hard": [],
+      "soft": [],
+      "balance": 0.743
+    }
+  ]
+}

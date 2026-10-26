@@ -183,6 +183,9 @@ export const alerts = pgTable(
     read: boolean("read").notNull().default(false),
     pinned: boolean("pinned").notNull().default(false),
     snoozeUntil: timestamp("snooze_until", { withTimezone: true }),
+    /** TT71 NC-02: id of the focus rule that held this alert (null = delivered) and the sentence saying why */
+    heldBy: text("held_by"),
+    heldReason: text("held_reason"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("alerts_created_idx").on(t.createdAt)],

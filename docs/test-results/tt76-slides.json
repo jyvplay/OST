@@ -1,0 +1,86 @@
+{
+  "suite": "tt76-slides",
+  "at": "2026-10-26T15:59:10.851Z",
+  "results": [
+    {
+      "suite": "tt76-slides",
+      "name": "M1 corpus: Fusion's transitions + main-sequence effects == lxml oracle on every slide",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 4123
+    },
+    {
+      "suite": "tt76-slides",
+      "name": "M2 corpus re-emit from Fusion's model: XSD-valid, python-pptx opens, lxml sees the same effects/groups, unique ids, nothing dangling, reread identical",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 16058
+    },
+    {
+      "suite": "tt76-slides",
+      "name": "M3 authored: every transition kind + every effect × trigger → XSD → python-pptx → lxml reads exactly what was authored",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 330
+    },
+    {
+      "suite": "tt76-slides",
+      "name": "M4 playback model: click / with / after timing, auto start, hidden at start, foreign exit hides",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt76-slides",
+      "name": "M6 show playback CSS: waiting shapes hidden, the played step animates from its start state, transitions layer correctly",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt76-slides",
+      "name": "M5 deleting an animated shape prunes its effects + build entries (modelled timelines here; opaque + AlternateContent timelines in N15 / N17): nothing dangling, XSD-valid",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 6032
+    },
+    {
+      "suite": "tt76-slides",
+      "name": "L1 presenter ↔ audience link (CA-02): real BroadcastChannel round trip delivers the deck + states + nav; hostile / malformed messages are dropped",
+      "covers": {
+        "CA-02": "full",
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 321
+    },
+    {
+      "suite": "tt76-slides",
+      "name": "N1–N17 negative shapes for transitions / animations",
+      "covers": {
+        "FF-23": "full",
+        "FF-63": "full"
+      },
+      "pass": true,
+      "ms": 331
+    }
+  ]
+}

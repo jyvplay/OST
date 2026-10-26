@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt37",
+  "at": "2026-10-25T22:33:42.448Z",
+  "results": [
+    {
+      "suite": "e2e-tt37",
+      "name": "Network route panel (WP-07): test a candidate SOCKS5 route on a real page, apply it — toolbar and status line follow, the Private proxy tab loads pypi.org through it (seen in the independent proxy's own log), 'New circuit' rotates the tab's isolation and reloads, the browser itself still contacts only Fusion; the Tor check result is printed as it is",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 3868
+    },
+    {
+      "suite": "e2e-tt37",
+      "name": "a dead route is named, not blamed on the site (WP-07): with the route pointing at a port where nothing listens, the Private proxy tab shows 'The network route failed' and how to fix it; back on Direct the page loads again",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 1885
+    },
+    {
+      "suite": "e2e-tt37",
+      "name": "everything follows the route; pages cannot change it (WP-07): with an HTTP proxy route the legacy reader for direct tabs goes through it (the proxy's log), a .onion address is refused with the reason (Tor route needed), and a cross-site PUT to /api/wp-route is refused by the CSRF guard",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 119
+    },
+    {
+      "suite": "e2e-tt37",
+      "name": "gamepad pointer (IN-07) with a scripted W3C-shape pad (no physical controller exists in this sandbox — the hardware is substituted, everything from navigator.getGamepads() on is real): appears on connect, the stick steers it onto the launcher button and A opens the launcher, B (Escape) closes it, X opens the desktop menu, the right stick scrolls the window under it, RB moves keyboard focus and the pointer follows, Start turns it off and on, disconnect removes it; no page errors",
+      "covers": {
+        "IN-07": "partial"
+      },
+      "pass": true,
+      "ms": 11080
+    },
+    {
+      "suite": "e2e-tt37",
+      "name": "client resets never become uncaught exceptions (TT36 blocker, root-caused): a second production server of this build runs with an uncaught-exception recorder; cross-site writes refused by the CSRF guard (403) and malformed JSON (400) — the two answers src/proxy.ts gives itself — are reset by the client right after sending, ×3 each; the recorder stays empty (before the fix: 6 of 6 recorded, matching vercel/next.js#99278), and un-reset requests still get exactly 403 'refused: …' and 400 'malformed JSON body'",
+      "covers": {
+        "WP-07": "full"
+      },
+      "pass": true,
+      "ms": 2105
+    }
+  ]
+}

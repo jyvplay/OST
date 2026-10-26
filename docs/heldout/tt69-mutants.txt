@@ -1,0 +1,25 @@
+KILLED  force close still asks  [L]  planClose: clean windows close now, every dirty one is asked exactly
+KILLED  close of an unknown window id closes it anyway  [L]  planClose: clean windows close now, every dirty one is asked exactly
+KILLED  dirty windows close without asking  [L]  planClose: clean windows close now, every dirty one is asked exactly
+KILLED  ask queue keeps duplicates  [L]  planClose: clean windows close now, every dirty one is asked exactly
+KILLED  a throwing guard counts as clean  [L]  guard registry: dirty() is consulted live; a throwing dirty() counts
+KILLED  unregister removes a newer guard of the same window  [L]  guard registry: dirty() is consulted live; a throwing dirty() counts
+KILLED  readable draft key (TT68-style / → _ collides)  [L]  draftPathFor: injective keys (/a_b ≠ /a/b, a:b ≠ a?b), private draft
+KILLED  private documents draft to /System/Recovery  [L]  draftPathFor: injective keys (/a_b ≠ /a/b, a:b ≠ a?b), private draft
+KILLED  untitled draft id not validated  [L]  draftPathFor: injective keys (/a_b ≠ /a/b, a:b ≠ a?b), private draft
+KILLED  draft of another kind accepted  [L]  draft codec: round-trips; refuses wrong version / kind, NaN or negat
+KILLED  bad baseSha accepted  [L]  draft codec: round-trips; refuses wrong version / kind, NaN or negat
+KILLED  draft for another path offered  [L]  draftOffer: only a draft OF this document is offered; stale when the
+KILLED  staleness never reported  [L]  draftOffer: only a draft OF this document is offered; stale when the
+KILLED  no max wait (a steady typist never gets a draft)  [L]  DraftWriter: 5 changes inside the idle window → ONE write with the n
+KILLED  clear does not cancel the in-flight draft (it is written after Save)  [L]  DraftWriter.clear: a write in flight when Save clears is awaited and
+KILLED  oversized drafts written  [L]  DraftWriter: oversize drafts are skipped with a reason; a failing st
+KILLED  sum_range paired by flat index (TT68)  [M]  SUMIF / AVERAGEIF resize sum_range from its top-left cell to range's
+KILLED  sum_range resized from the wrong corner  [M]  SUMIF / AVERAGEIF resize sum_range from its top-left cell to range's
+KILLED  range cap back to 1 000 000  [M]  adversary on the resize patch: cross-sheet sum_range keeps its sheet
+KILLED  hot corner: the first sighting fires (launcher opens under a resting pointer)  [H]  SH-06 hot corner: fires once on ENTRY, never again while the pointer
+KILLED  hot corner: zero-movement events fire  [H]  SH-06 hot corner: fires once on ENTRY, never again while the pointer
+KILLED  hot corner: zero-movement events skipped entirely (first event never arms)  [H]  SH-06 hot corner: fires once on ENTRY, never again while the pointer
+KILLED  Paste Values of empty text pastes blank (TT68)  [M]  Paste Values: ="" and a typed ' paste as EMPTY TEXT (ISBLANK FALSE, 
+KILLED  Paste Values pastes a blank source as empty text  [M]  Paste Values: ="" and a typed ' paste as EMPTY TEXT (ISBLANK FALSE, 
+24/24 mutants killed

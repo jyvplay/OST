@@ -1,0 +1,78 @@
+{
+  "suite": "tt70-seal",
+  "at": "2026-10-25T23:10:43.789Z",
+  "results": [
+    {
+      "suite": "tt70-seal",
+      "name": "round trip: the sealed draft opens with the password to the identical bytes; the key derivation is cached",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 1255
+    },
+    {
+      "suite": "tt70-seal",
+      "name": "a wrong password, a case change and an empty password are refused as 'password', without throwing",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 3161
+    },
+    {
+      "suite": "tt70-seal",
+      "name": "damage is never opened and never mistaken for a wrong password: non-base64, plaintext, truncation, a flipped byte",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 26835
+    },
+    {
+      "suite": "tt70-seal",
+      "name": "no leak: the sealed bytes contain neither the password (UTF-8 / UTF-16LE) nor the plaintext marker",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt70-seal",
+      "name": "restoredProtection never weakens: the file's password wins; an unprotected file adopts the draft's; plain drafts change nothing",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt70-seal",
+      "name": "the draft codec accepts encoding 'sealed' only with a base64 payload",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt70-seal",
+      "name": "Spreadsheet packing: the draft JSON travels as a one-entry ZIP; unicode round-trips; other ZIPs are refused",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 629
+    },
+    {
+      "suite": "tt70-seal",
+      "name": "outside oracle: msoffcrypto-tool (HMAC verified) decrypts both sealed drafts; python-docx reads the Writer one; a wrong password fails there too",
+      "covers": {
+        "FF-15": "full"
+      },
+      "pass": true,
+      "ms": 2027
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+import { F, type SpecRow } from "./row";
+
+/**
+ * TT43 register changes: two TT42 blockers closed with original code — a cross-tab SharedWorker (checked value for
+ * value against Chromium's own SharedWorker) and the `import(x)` + newline + `{` lexer shape (checked against acorn,
+ * 21 adversarial shapes and 12,443 real files).
+ */
+export const tt43Features: SpecRow[] = [
+  F("WP-22", "PR", "A site's shared background worker (SharedWorker) is shared the way a normal browser shares it: every tab and frame of the same site in the same private-browser profile reaches ONE worker (live chat, shared counters, cross-tab sync), another profile gets its own, and it ends when the last page of that site is gone",
+    "A", "P2", "src/lib/wp-shared-broker.ts (SharedBroker, DOM-free: (session, site[, document for third-party contexts]) → one hidden host document; worker key = script URL + name + type; ports transferred page → Fusion window → host, entangled end to end; liveness by acknowledgement — ping / alive with the ids each window's CURRENT document owns, 3 missed pings or a closed window → release, 1 s grace; startSharedBroker window glue); public/wp-shim.js (SharedWorker: broker hello, connect with a MessageChannel, error events, local per-page fallback when no broker answers; host mode: runs real SharedWorker scripts in the hidden host document); src/app/api/wp/s/[sid]/[...rest]/route.ts (__shared-who: the server's record of a document's site and frame ancestry — only for the Fusion window, 403 otherwise; __shared-host: the sandboxed host document); src/components/modules/ProxyFrame.tsx (starts the broker; in-flight session de-duplication)",
+    "Original code (Ultraviolet / Scramjet are AGPL; nothing copied). Proxied pages have an opaque origin, where a native SharedWorker cannot exist, so TT42 shared a worker only within one page. Now the Fusion window brokers: the site a page may join is the SERVER's record of its document (a forged document id or another site's script gets an error, never a worker); third-party contexts are partitioned per document (stricter than Chromium's per-top-site partition — disclosed). Chromium native vs proxied, value for value IDENTICAL: count and connection numbers across two tabs and their nested frames, a separate worker per profile, self.name / self.location, the worker's cookie jar (both tabs' cookies), a second named worker, SecurityError for another site's script, SyntaxError for a bad URL, the error event of a missing script. Bug found and fixed on the way: tabs of one profile mounting at the same time minted SEPARATE proxy sessions (split cookie jars) — now de-duplicated. Measured: a message a page posts from pagehide while navigating is not reliably delivered, so release is by acknowledgement (ping every 1.5 s), not by unload messages. Limits, disclosed: worker state ends when the Fusion window closes or the last tab of that site unmounts (inactive Fusion tabs unmount); release after a page leaves takes up to ~1.5 s + 1 s grace (up to ~5.5 s for a window whose runtime is gone); only Chromium was run (no Firefox / WebKit obtainable in the sandbox).",
+    "built", "tt43-unit.mts; e2e-tt43.mts"),
+];
+
+export function patchTT43(f: SpecRow): SpecRow {
+  if (f.code === "WP-20") return { ...f, nuance: f.nuance.replace("Limits, disclosed: an `import(x)` followed by `{` on the next line (call + block by ASI) is not wrapped (indistinguishable from a method by tokens; falls back to the root import map);",
+    "TT43: an `import(x)` followed by `{` on the next line is now wrapped wherever only a statement can stand (top level, blocks, function / method / arrow bodies, static blocks, switch bodies) and left alone as a METHOD inside class bodies (declarations and expressions, with heritage) and object literals (incl. `export default {`) — 21 shapes identical to acorn, 12,443 real files 0 disagreements; remaining conservative miss: a block right after a label or `case x:` colon is taken for an object literal (unwrapped, as before). Limits, disclosed:") };
+  if (f.code === "WP-17") return { ...f, nuance: f.nuance.replace("Limits, disclosed: a SharedWorker is shared only within one page.",
+    "TT43: SharedWorkers are shared across tabs and frames of one profile (WP-22).") };
+  return f;
+}

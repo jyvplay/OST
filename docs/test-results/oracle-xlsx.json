@@ -1,0 +1,61 @@
+{
+  "suite": "oracle-xlsx",
+  "at": "2026-10-26T07:49:36.705Z",
+  "results": [
+    {
+      "suite": "oracle-xlsx",
+      "name": "oracle available (openpyxl)",
+      "covers": {
+        "FF-20": "partial"
+      },
+      "pass": true,
+      "ms": 281
+    },
+    {
+      "suite": "oracle-xlsx",
+      "name": "A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
+      "covers": {
+        "FF-20": "full",
+        "FF-26": "partial",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 233
+    },
+    {
+      "suite": "oracle-xlsx",
+      "name": "B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
+      "covers": {
+        "FF-21": "full",
+        "FF-26": "partial",
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 315
+    },
+    {
+      "suite": "oracle-xlsx",
+      "name": "C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
+      "covers": {
+        "FF-33": "full",
+        "FF-34": "full",
+        "FF-35": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 267
+    },
+    {
+      "suite": "oracle-xlsx",
+      "name": "D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
+      "covers": {
+        "FF-33": "full",
+        "FF-34": "full",
+        "FF-35": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 306
+    }
+  ]
+}

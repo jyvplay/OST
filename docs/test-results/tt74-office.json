@@ -1,0 +1,317 @@
+{
+  "suite": "tt74-office",
+  "at": "2026-10-26T08:00:39.179Z",
+  "results": [
+    {
+      "suite": "tt74-office",
+      "name": "D1 docx → Markdown: every convertible corpus docx agrees with mammoth on all 7 axes",
+      "covers": {
+        "FF-02": "full"
+      },
+      "pass": true,
+      "ms": 23613
+    },
+    {
+      "suite": "tt74-office",
+      "name": "M1 Markdown → docx: every corpus Markdown file agrees with markdown-it-py on all 7 axes and python-docx opens every output",
+      "covers": {
+        "FF-02": "full"
+      },
+      "pass": true,
+      "ms": 13283
+    },
+    {
+      "suite": "tt74-office",
+      "name": "M2 every Markdown → docx output of the corpus is ECMA-376 schema-valid (transitional XSDs via lxml; a new package has no inherited errors, so 0 are allowed)",
+      "covers": {
+        "FF-02": "full"
+      },
+      "pass": true,
+      "ms": 5399
+    },
+    {
+      "suite": "tt74-office",
+      "name": "K1 pptx → outline: every corpus deck agrees with python-pptx slide by slide",
+      "covers": {
+        "FF-02": "full"
+      },
+      "pass": true,
+      "ms": 4837
+    },
+    {
+      "suite": "tt74-office",
+      "name": "X1/X2 xlsx → CSV vs openpyxl on Excel's cached values (allowlist with evidence) and the CSV round trip",
+      "covers": {
+        "FF-02": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 87788
+    },
+    {
+      "suite": "tt74-office",
+      "name": "U1 CSV: quoting, CRLF, BOM, used range, displayed text, delimiter sniffing, Excel typing, formula guard",
+      "covers": {
+        "FF-02": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt74-office",
+      "name": "U2 Excel semantics: ROUND decimal, A-family text, XLOOKUP modes, CSE shaping, text truncation, negative dates, SUMPRODUCT errors",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt74-office",
+      "name": "U3 SUBTOTAL/AGGREGATE: 1–11 skip filtered rows, 101–111 skip all hidden rows, AGGREGATE options, hidden columns never skipped, nested subtotals, all excluded",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt74-office",
+      "name": "U4 hide/AutoFilter model: unhide keeps filter rows, criteria case-insensitive, blanks, value list, foreign criteria not re-applied, off shows all",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt74-office",
+      "name": "U5 new-package .xlsx keeps hidden rows / columns and the AutoFilter — re-read by us and by openpyxl",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 215
+    },
+    {
+      "suite": "tt74-office",
+      "name": "U6 in-place save keeps Excel's table-filter rows and SUBTOTALs, writes hide / unhide / AutoFilter so openpyxl sees them",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 2544
+    },
+    {
+      "suite": "tt74-office",
+      "name": "U7 JSON persistence: hidden rows (manual/filter), hidden columns, AutoFilter, cached external links; hostile JSON sanitised",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt74-office",
+      "name": "U8 insert/delete rows and columns shift hidden state and the AutoFilter; deleting the whole range removes it",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt74-office",
+      "name": "U9 keyboard stepping skips hidden rows/columns; convert refuses unsupported pairs; loss lists are surfaced",
+      "covers": {
+        "FF-02": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 11
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N1 CSV formula injection (= + - @ tab-prefixed) is imported as text, never a formula",
+      "covers": {
+        "FF-02": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N2 unterminated quote does not hang or throw and keeps the rest of the text",
+      "covers": {
+        "FF-02": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N3 CSV cell cap: a huge CSV is refused/truncated with a loss note instead of exhausting memory",
+      "covers": {
+        "FF-02": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 134
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N4 NUL / lone surrogate / BOM-in-the-middle bytes survive CSV import as text",
+      "covers": {
+        "FF-02": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N5 mixed / bare-CR line endings parse as rows",
+      "covers": {
+        "FF-02": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N6 Markdown javascript:/data: links are not written as hyperlinks",
+      "covers": {
+        "FF-02": "full"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N7 raw HTML in Markdown is not executed or embedded; it is counted as a loss",
+      "covers": {
+        "FF-02": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N8 deeply nested Markdown lists / quotes do not overflow the stack",
+      "covers": {
+        "FF-02": "full"
+      },
+      "pass": true,
+      "ms": 36
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N9 convert refuses a non-zip .docx and an empty .xlsx with an error (no crash, no partial output)",
+      "covers": {
+        "FF-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N10 AutoFilter XML with a bogus ref / non-integer colId / entity tricks is rejected or neutralised",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N11 hostile workbook JSON (prototype keys, 1e12 row numbers, wrong types) cannot pollute or blow up",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 57
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N12 SUBTOTAL with a bad function number / non-ref argument is an error, not a crash",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N13 setFilterColumn outside the filter range throws; hiding beyond the sheet is clamped",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N14 CSV export of text that looks like a number / formula / has leading zeros is quoted or reported as a loss",
+      "covers": {
+        "FF-02": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N15 pathological numbers: ROUND of 1e308 / NaN-producing input / negative digits beyond range stay finite or #NUM!",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N16 XLOOKUP with mismatched shapes / bad modes is #VALUE!",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N17 AutoFilter XML written with single quotes, spaces around = and a namespace prefix reads the same (found by tt72-office S1)",
+      "covers": {
+        "FF-19": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt74-office",
+      "name": "N18 hyperlink relationship targets: characters a URI forbids are percent-encoded, existing %XX kept, a stray % escaped, a colon in the first relative segment gets ./ (found by M2)",
+      "covers": {
+        "FF-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

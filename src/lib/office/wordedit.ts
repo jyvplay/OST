@@ -1,0 +1,1309 @@
+/**
+ * TT46 — editing operations over the WordprocessingML model (pure, DOM-free, unit-tested in Node; driven by Writer.tsx).
+ * Positions are (paragraph id, offset) where a text run counts its UTF-16 length and every opaque token counts 1.
+ * Every operation marks the paragraphs it touches `dirty`, so untouched paragraphs keep serializing byte-for-byte.
+ */
+import { allParas, cellsOf, ensureStyle, makeLink, newId, noteBlocks, referencedNotes, parseInlineNodes, rowsOf, styleChain, type Block, type Cell, type Inline, type FmtChange, type Para, type ParaProps, type Rev, type Row, type RunFmt, type Table, type TextRun, type Tok, type WordDoc, inlineText, BUILTIN_STYLE_IDS, defaultParaStyle, effectiveRun } from "./wordml";
+import { clone, el, findAll, kid, kids, textOf, type XEl, type XNode } from "./xmltree";
+import { sameRev, sameFc, sameFmt, parsePPr } from "./wordml";
+
+export interface Pos { pid: string; off: number }
+export interface Range { a: Pos; b: Pos }
+export const ilen = (i: Inline) => (i.t === "r" ? i.text.length : 1);
+export const plen = (p: Para) => p.content.reduce((s, i) => s + ilen(i), 0);
+
+/* ---------------------------------------------------------------- location */
+export interface Where { list: Block[]; index: number; para: Para; cell?: Cell; row?: Row; table?: Table; tableList?: Block[]; tableIndex?: number }
+export function locate(doc: WordDoc, pid: string): Where | null {
+  const walk = (list: Block[], ctx: Partial<Where>): Where | null => {
+    for (let i = 0; i < list.length; i++) {
+      const b = list[i];
+      if (b.t === "p" && b.id === pid) return { ...ctx, list, index: i, para: b } as Where;
+      if (b.t === "tbl") for (const r of rowsOf(b)) for (const c of cellsOf(r)) { const w = walk(c.blocks, { cell: c, row: r, table: b, tableList: list, tableIndex: i }); if (w) return w; }
+      if (b.t === "box") { const w = walk(b.blocks, ctx); if (w) return w; }
+    }
+    return null;
+  };
+  return walk(doc.blocks, {});
+}
+export const paraById = (doc: WordDoc, pid: string) => locate(doc, pid)?.para;
+/** Document order of all paragraphs (ids) — used to order selection endpoints. */
+export function order(doc: WordDoc): Map<string, number> { const m = new Map<string, number>(); allParas(doc.blocks).forEach((p, i) => m.set(p.id, i)); return m; }
+export function normRange(doc: WordDoc, r: Range): Range {
+  const o = order(doc); const ia = o.get(r.a.pid) ?? 0, ib = o.get(r.b.pid) ?? 0;
+  return ia < ib || (ia === ib && r.a.off <= r.b.off) ? r : { a: r.b, b: r.a };
+}
+export function parasIn(doc: WordDoc, r: Range): Para[] {
+  const all = allParas(doc.blocks); const o = order(doc);
+  return all.slice(o.get(r.a.pid) ?? 0, (o.get(r.b.pid) ?? 0) + 1);
+}
+
+/** Splits so that a run boundary exists at `off`; returns the index of the first inline at/after `off`. */
+export function splitAt(p: Para, off: number): number {
+  let acc = 0;
+  for (let i = 0; i < p.content.length; i++) {
+    const it = p.content[i], n = ilen(it);
+    if (off === acc) return i;
+    if (off < acc + n && it.t === "r") {
+      const k = off - acc;
+      const a: TextRun = { ...it, text: it.text.slice(0, k), f: { ...it.f } }, b: TextRun = { ...it, text: it.text.slice(k), f: { ...it.f } };
+      p.content.splice(i, 1, a, b);
+      return i + 1;
+    }
+    acc += n;
+  }
+  return p.content.length;
+}
+function touch(p: Para) { p.dirty = true; }
+/** Merges adjacent text runs with identical formatting/source rPr/link (keeps the model compact after edits). */
+export function normalize(p: Para) {
+  const out: Inline[] = [];
+  for (const it of p.content) {
+    const prev = out[out.length - 1];
+    if (it.t === "r" && !it.text) continue;
+    if (it.t === "r" && prev && prev.t === "r" && prev.link === it.link && prev.rPr === it.rPr && sameRev(prev.rev, it.rev) && sameRev(prev.rev?.ins, it.rev?.ins) && sameFc(prev.fc, it.fc) && JSON.stringify(prev.f) === JSON.stringify(it.f) && JSON.stringify(prev.f0 ?? {}) === JSON.stringify(it.f0 ?? {})) { out[out.length - 1] = { ...prev, text: prev.text + it.text }; continue; }
+    out.push(it);
+  }
+  p.content = out;
+}
+
+/* ---------------------------------------------------------------- text */
+/** Run whose formatting new text at `off` should inherit (the preceding text run, else the following one). */
+export function runAt(p: Para, off: number): TextRun | undefined {
+  let acc = 0; let prev: TextRun | undefined;
+  for (const it of p.content) {
+    const n = ilen(it);
+    if (it.t === "r" && acc < off && off <= acc + n) return it;
+    if (it.t === "r") { if (acc + n <= off) prev = it; else if (!prev && acc >= off) return it; }
+    acc += n;
+  }
+  return prev;
+}
+export function insertText(doc: WordDoc, pos: Pos, text: string, fmt?: Partial<RunFmt>): Pos {
+  const p = paraById(doc, pos.pid); if (!p || !text) return pos;
+  const base = runAt(p, pos.off);
+  const i = splitAt(p, pos.off);
+  const f = { ...(base?.f ?? {}), ...(fmt ?? {}) };
+  for (const k of Object.keys(f) as (keyof RunFmt)[]) if (f[k] === undefined || f[k] === null) delete f[k];
+  const prev = p.content[i - 1];
+  // TT56: under Track Changes the text is an insertion — it extends the author's insertion it touches, else starts a new one
+  const rev: Rev | undefined = doc.track?.on ? (prev && prev.rev?.kind === "ins" && isMine(doc, prev.rev) ? prev.rev : newRev(doc, "ins")) : undefined;
+  if (!fmt && prev && prev.t === "r" && prev === base && prev.rev === rev) prev.text += text;
+  else p.content.splice(i, 0, { t: "r", text, f, f0: base?.f0 ?? {}, rPr: base?.rPr, link: base && base.link && (prev === base || i === 0) ? base.link : undefined, ...(rev ? { rev } : {}) });
+  normalize(p); touch(p);
+  return { pid: p.id, off: pos.off + text.length };
+}
+/** Deletes [a, b). Paragraphs in the same container are merged; across containers each paragraph is trimmed. */
+export function deleteRange(doc: WordDoc, r0: Range): Pos {
+  const r = normRange(doc, r0);
+  const wa = locate(doc, r.a.pid), wb = locate(doc, r.b.pid);
+  if (!wa || !wb) return r.a;
+  if (doc.track?.on) return trackedDelete(doc, r);
+  const cut = (p: Para, from: number, to: number) => { const i = splitAt(p, from); const j = splitAt(p, to); p.content.splice(i, j - i); normalize(p); touch(p); };
+  if (wa.para === wb.para) { cut(wa.para, r.a.off, r.b.off); return r.a; }
+  if (wa.list === wb.list) {
+    cut(wa.para, r.a.off, plen(wa.para));
+    cut(wb.para, 0, r.b.off);
+    wa.para.content.push(...wb.para.content);
+    if (wb.para.sect && !wa.para.sect) { wa.para.sect = wb.para.sect; wa.para.pPr = wb.para.pPr; }
+    wa.para.markRev = wb.para.markRev; // the surviving paragraph mark is the last one
+
+    wa.list.splice(wa.index + 1, wb.index - wa.index);
+    normalize(wa.para); touch(wa.para);
+    return r.a;
+  }
+  for (const p of parasIn(doc, r)) {
+    if (p === wa.para) cut(p, r.a.off, plen(p)); else if (p === wb.para) cut(p, 0, r.b.off); else cut(p, 0, plen(p));
+  }
+  return r.a;
+}
+export function textInRange(doc: WordDoc, r0: Range): string {
+  const r = normRange(doc, r0);
+  return parasIn(doc, r).map((p) => {
+    const from = p.id === r.a.pid ? r.a.off : 0, to = p.id === r.b.pid ? r.b.off : plen(p);
+    let acc = 0, s = "";
+    for (const it of p.content) { const n = ilen(it); const lo = Math.max(from, acc), hi = Math.min(to, acc + n); if (hi > lo) s += it.t === "r" ? it.text.slice(lo - acc, hi - acc) : inlineText(it); acc += n; }
+    return s;
+  }).join("\n");
+}
+/** Splits the paragraph at `pos` (Enter). The new paragraph keeps the properties; at the end of a heading it gets the style's `next`. */
+export function splitParagraph(doc: WordDoc, pos: Pos): Pos {
+  const w = locate(doc, pos.pid); if (!w) return pos;
+  const p = w.para;
+  const i = splitAt(p, pos.off);
+  const tail = p.content.splice(i);
+  const atEnd = tail.every((t) => ilen(t) === 0 || (t.t === "k" && (t.kind === "bookmark" || t.kind === "comment" || t.kind === "other")));
+  const np: Para = { t: "p", id: newId(), p: { ...p.p }, p0: p.p0 ? { ...p.p0 } : undefined, pPr: p.pPr, content: tail, dirty: true, sect: p.sect };
+  // the section break (if any) belongs to the paragraph mark, which moves with the second half
+  if (p.sect && p.pPr) { const c = { ...p.pPr, kids: p.pPr.kids.filter((k) => !(k.k === "el" && k.name === "w:sectPr")) }; p.pPr = c; p.sect = undefined; }
+  if (atEnd && p.p.style) { const st = doc.styles.get(p.p.style); if (st?.next && st.next !== p.p.style) np.p.style = st.next === defaultParaStyle(doc) ? undefined : st.next; }
+  if (atEnd && p.p.num && plen(p) === 0) { /* Enter on an empty list item ends the list (Word behaviour) */ p.p = { ...p.p, num: null }; np.content = []; touch(p); return { pid: p.id, off: 0 }; }
+  // TT56: the original paragraph mark moves with the second half; the first half ends in the new mark (tracked → inserted)
+  np.markRev = p.markRev;
+  p.markRev = doc.track?.on ? newRev(doc, "ins") : undefined;
+  touch(p);
+  w.list.splice(w.index + 1, 0, np);
+  return { pid: np.id, off: 0 };
+}
+/** Backspace at offset 0: merges with the previous paragraph in the same container (or removes list/indent first). */
+export function joinBackward(doc: WordDoc, pid: string): Pos | null {
+  const w = locate(doc, pid); if (!w) return null;
+  if (w.para.p.num) { w.para.p = { ...w.para.p, num: null }; touch(w.para); return { pid, off: 0 }; }
+  let k = w.index - 1;
+  while (k >= 0 && w.list[k].t === "x" && (w.list[k] as { label: string }).label === "") k--;
+  const prev = w.list[k];
+  if (!prev || prev.t !== "p") return null;
+  const off = plen(prev);
+  // TT56: under Track Changes the previous paragraph mark is marked deleted (its own pending insertion really goes)
+  if (doc.track?.on && !(prev.markRev?.kind === "ins" && isMine(doc, prev.markRev))) {
+    if (!prev.markRev) { prev.markRev = newRev(doc, "del"); touch(prev); }
+    return { pid: prev.id, off };
+  }
+  prev.markRev = w.para.markRev;
+  prev.content.push(...w.para.content);
+  if (w.para.sect) { prev.sect = w.para.sect; prev.pPr = w.para.pPr; prev.p = { ...w.para.p, style: prev.p.style }; }
+  w.list.splice(w.index, 1);
+  normalize(prev); touch(prev);
+  return { pid: prev.id, off };
+}
+
+/* ---------------------------------------------------------------- formatting */
+export function applyFmt(doc: WordDoc, r0: Range, patch: Partial<Record<keyof RunFmt, unknown>>) {
+  const r = normRange(doc, r0);
+  let fcRev: FmtChange | undefined;
+  for (const p of parasIn(doc, r)) {
+    const from = p.id === r.a.pid ? r.a.off : 0, to = p.id === r.b.pid ? r.b.off : plen(p);
+    if (to <= from) continue;
+    const i = splitAt(p, from), j = splitAt(p, to);
+    for (let k = i; k < j; k++) {
+      const it = p.content[k];
+      if (it.t !== "r") continue;
+      const f = { ...it.f } as Record<string, unknown>;
+      for (const [key, v] of Object.entries(patch)) { if (v === null || v === undefined) delete f[key]; else f[key] = v; }
+      // TT57: with Track Changes on, a formatting change on existing text records w:rPrChange (the formatting before the
+      // first tracked change is kept; returning to it drops the record). Text that is itself a pending insertion or
+      // deletion is just reformatted (Word keeps one revision per run there).
+      if (doc.track?.on && !it.rev && !sameFmt(it.f, f as RunFmt)) {
+        const old = it.fc ? it.fc.old : { ...it.f };
+        let fc: FmtChange | undefined;
+        if (sameFmt(old, f as RunFmt)) fc = undefined;
+        else if (it.fc) fc = it.fc;
+        else { const sh = (fcRev ??= { id: 0, author: authorName(doc), date: isoNow(), old: {} }); fc = { ...sh, id: doc.track.next++, old }; } // one w:id per run element (ids are unique per annotation, §17.13.4)
+        p.content[k] = { ...it, f: f as RunFmt, fc };
+        continue;
+      }
+      p.content[k] = { ...it, f: f as RunFmt };
+    }
+    normalize(p); touch(p);
+  }
+}
+/** Effective formatting at a range start (for toolbar state); `mixed` keys differ across the range. */
+export function fmtAt(doc: WordDoc, r0: Range): RunFmt & { mixed: Set<string> } {
+  const r = normRange(doc, r0);
+  const mixed = new Set<string>();
+  let first: RunFmt | undefined;
+  for (const p of parasIn(doc, r)) {
+    const from = p.id === r.a.pid ? r.a.off : 0, to = p.id === r.b.pid ? r.b.off : plen(p);
+    let acc = 0;
+    const consider = (f: RunFmt) => { const e = effectiveRun(doc, p, f); if (!first) first = e; else for (const k of ["b", "i", "u", "s", "sz", "font", "color", "hl", "va"] as const) if ((e[k] ?? null) !== (first[k] ?? null)) mixed.add(k); };
+    if (from === to) { const run = runAt(p, from); consider(run?.f ?? {}); continue; }
+    for (const it of p.content) { const n = ilen(it); if (it.t === "r" && acc + n > from && acc < to) consider(it.f); acc += n; }
+  }
+  return { ...(first ?? effectiveRun(doc, undefined, {})), mixed };
+}
+/** TT57: with recording on, a paragraph-property change keeps the properties from before the FIRST change (w:pPrChange);
+ *  changing back to them drops the record. A paragraph whose mark is a pending insertion is new text — not tracked. */
+const samePP = (a: ParaProps, b: ParaProps) => { const n = (x: ParaProps) => JSON.stringify(Object.keys(x).sort().filter((k) => (x as Record<string, unknown>)[k] !== undefined && !(k === "num" && x.num === null)).map((k) => [k, (x as Record<string, unknown>)[k]])); return n(a) === n(b); };
+/** TT65: exported for story edits (header / footer alignment under Track Changes) */
+export function trackParaProps(doc: WordDoc, p: Para, before: ParaProps) { trackPara(doc, p, before); }
+function trackPara(doc: WordDoc, p: Para, before: ParaProps) {
+  if (!doc.track?.on || p.markRev?.kind === "ins" || samePP(before, p.p)) return;
+  const old = p.pc ? p.pc.old : before;
+  if (samePP(old, p.p)) { p.pc = undefined; return; }
+  if (!p.pc) p.pc = { id: doc.track.next++, author: authorName(doc), date: isoNow(), old: { ...before } };
+}
+export function setParaProps(doc: WordDoc, r: Range, patch: Partial<ParaProps>) {
+  for (const p of parasIn(doc, normRange(doc, r))) { const before = p.p; p.p = { ...p.p, ...patch }; for (const [k, v] of Object.entries(patch)) if (v === undefined) delete (p.p as Record<string, unknown>)[k]; trackPara(doc, p, before); touch(p); }
+}
+export function setStyle(doc: WordDoc, r: Range, styleId: string) {
+  ensureStyle(doc, styleId);
+  const def = defaultParaStyle(doc);
+  setParaProps(doc, r, { style: styleId === def ? undefined : styleId });
+}
+export function listKind(doc: WordDoc, p: Para): "bullet" | "number" | null {
+  const n = p.p.num ?? (p.p.num === null ? null : styleChain(doc, p.p.style).reverse().find((s) => s.p.num)?.p.num);
+  if (!n) return null;
+  const def = doc.numbering.get(n.id);
+  if (n.id === "~bullet" || def?.lvls[n.lvl]?.fmt === "bullet") return "bullet";
+  return "number";
+}
+export function toggleList(doc: WordDoc, r: Range, kind: "bullet" | "number") {
+  const ps = parasIn(doc, normRange(doc, r));
+  const allOn = ps.every((p) => listKind(doc, p) === kind);
+  // continue an adjacent list of the same kind instead of starting a new one
+  const all = allParas(doc.blocks); const at = all.indexOf(ps[0]);
+  const neighbour = at > 0 && listKind(doc, all[at - 1]) === kind ? all[at - 1].p.num : undefined;
+  const id = neighbour?.id ?? (kind === "bullet" ? "~bullet" : "~decimal");
+  for (const p of ps) { const before = p.p; p.p = { ...p.p, num: allOn ? null : { id, lvl: p.p.num?.lvl ?? 0 } }; trackPara(doc, p, before); touch(p); }
+}
+export function indent(doc: WordDoc, r: Range, dir: 1 | -1) {
+  for (const p of parasIn(doc, normRange(doc, r))) {
+    const before = p.p;
+    if (p.p.num) p.p = { ...p.p, num: { ...p.p.num, lvl: Math.max(0, Math.min(8, p.p.num.lvl + dir)) } };
+    else p.p = { ...p.p, indL: Math.max(0, (p.p.indL ?? 0) + dir * 720) };
+    trackPara(doc, p, before);
+    touch(p);
+  }
+}
+
+/* ---------------------------------------------------------------- links, breaks, images, comments */
+export function setLink(doc: WordDoc, r0: Range, target: string | null) {
+  const r = normRange(doc, r0);
+  const link = target ? makeLink(doc, target) : undefined;
+  if (link) ensureStyle(doc, "Hyperlink");
+  for (const p of parasIn(doc, r)) {
+    const from = p.id === r.a.pid ? r.a.off : 0, to = p.id === r.b.pid ? r.b.off : plen(p);
+    if (to <= from) continue;
+    const i = splitAt(p, from), j = splitAt(p, to);
+    for (let k = i; k < j; k++) { const it = p.content[k]; p.content[k] = it.t === "r" ? { ...it, link, f: link ? { ...it.f, rStyle: doc.styles.has("Hyperlink") ? "Hyperlink" : it.f.rStyle } : { ...it.f, rStyle: it.f.rStyle === "Hyperlink" ? undefined : it.f.rStyle } } : { ...it, link }; }
+    normalize(p); touch(p);
+  }
+}
+export function insertToken(doc: WordDoc, pos: Pos, tok: Tok): Pos {
+  const p = paraById(doc, pos.pid); if (!p) return pos;
+  const i = splitAt(p, pos.off);
+  const base = runAt(p, pos.off);
+  // TT56: a run-level object (picture, break, symbol) inserted under Track Changes is an insertion like text
+  p.content.splice(i, 0, tok.bare ? tok : { ...tok, rPr: tok.rPr ?? base?.rPr, ...(doc.track?.on ? { rev: newRev(doc, "ins") } : {}) });
+  touch(p);
+  return { pid: p.id, off: pos.off + 1 };
+}
+export function insertPageBreak(doc: WordDoc, pos: Pos): Pos {
+  const after = insertToken(doc, pos, { t: "k", kind: "page", nodes: [el("w:br", { "w:type": "page" })], bare: false, label: "page break" });
+  return splitParagraph(doc, after);
+}
+/* ---------------------------------------------------------------- TT58 footnotes / endnotes */
+export interface NoteInfo { type: "footnote" | "endnote"; id: string; n: number; text: string; pid: string; off: number }
+/** notes in reference order with their displayed number (footnotes 1, 2, …; endnotes numbered separately) */
+export function listNotes(doc: WordDoc): NoteInfo[] {
+  const out: NoteInfo[] = []; const no = { footnote: 0, endnote: 0 };
+  for (const p of allParas(doc.blocks)) {
+    let off = 0;
+    for (const it of p.content) {
+      if (it.t === "k" && it.kind === "note" && it.note) {
+        const n = doc.notes.find((x) => x.type === it.note!.type && x.id === it.note!.id);
+        out.push({ type: it.note.type, id: it.note.id, n: ++no[it.note.type], text: n ? noteTextOf(n.blocks) : "", pid: p.id, off });
+      }
+      off += it.t === "r" ? it.text.length : 1;
+    }
+  }
+  return out;
+}
+/** plain text of a note body (the leading reference mark and the space after it are not part of the text). TT65: the text the
+ *  reader sees — tracked deletions are not part of it (they were, so an edit through the Notes panel brought struck text
+ *  back), and a deleted paragraph mark joins its two paragraphs */
+export function noteTextOf(blocks: Block[]): string {
+  return viewText(allParas(blocks), noteParaView).replace(/^ /, "");
+}
+/* ---------------------------------------------------------------- TT65 reader's view of a story paragraph */
+/** a paragraph as the reader sees it: tracked deletions hidden. offs[k] = model offset of visible UTF-16 unit k, null when it
+ *  is text the editor cannot address (inside an opaque token / a field); before[k] = model position just before unit k
+ *  (null inside a token) */
+export interface ParaView { text: string; offs: (number | null)[]; before: (number | null)[] }
+// text the editor keeps inside opaque tokens (a content control, a hyperlink field…) is part of what the reader sees
+const tokTextOf = (nodes: XNode[]) => nodes.map((n) => (n.k === "el" ? findAll(n, (x) => x.name === "w:t").map(textOf).join("") : "")).join("");
+export function noteParaView(p: Para): ParaView {
+  let text = ""; const offs: (number | null)[] = [], before: (number | null)[] = []; let off = 0;
+  for (const it of p.content) {
+    const n = ilen(it);
+    if (it.rev?.kind === "del") { off += n; continue; }
+    if (it.t === "r") for (let u = 0; u < it.text.length; u++) { text += it.text[u]; offs.push(off + u); before.push(off + u); }
+    else if (it.kind !== "note") { const tx = tokTextOf(it.nodes); for (let u = 0; u < tx.length; u++) { text += tx[u]; offs.push(null); before.push(u === 0 ? off : null); } }
+    off += n;
+  }
+  return { text, offs, before };
+}
+/** paragraphs joined by "\n" — except after a paragraph whose mark is a pending deletion (the reader sees one paragraph) */
+export function viewText(paras: Para[], view: (p: Para) => ParaView): string {
+  return paras.map((p, i) => view(p).text + (i < paras.length - 1 && p.markRev?.kind !== "del" ? "\n" : "")).join("");
+}
+/** TT65: applies `want` — the reader's new text for `paras` (in `doc`, normally a story copy from storyDoc) — as the minimal
+ *  hunks of diffHunks, right to left, through the ordinary editing operations: under Track Changes every hunk is a w:del of
+ *  what went and a w:ins of what came (own pending insertions just vanish), exactly as if it were typed in the main text;
+ *  untracked it is a plain edit that leaves other pending revisions alone. "\n" in the new text splits a paragraph (tracked:
+ *  an inserted paragraph mark). Returns false, having changed nothing, when a hunk would cut into text the editor cannot
+ *  address (a field, a content control); callers re-check the resulting view (verified, not assumed). `stripLead` ignores
+ *  one leading space (a note's space after its reference mark); `put` inserts one "\n"-free piece (default insertText). */
+export function viewEdit(doc: WordDoc, paras: Para[], view: (p: Para) => ParaView, stripLead: boolean, want: string, put: (d: WordDoc, at: Pos, s: string) => Pos = insertText): boolean {
+  if (!paras.length) return false;
+  let V = ""; const posAt: (Pos | null)[] = []; const frozen: boolean[] = [];
+  paras.forEach((p, i) => {
+    const v = view(p);
+    for (let k = 0; k < v.text.length; k++) { V += v.text[k]; const b = v.before[k]; posAt.push(b === null ? null : { pid: p.id, off: b }); frozen.push(v.offs[k] === null); }
+    if (i < paras.length - 1 && p.markRev?.kind !== "del") { V += "\n"; posAt.push({ pid: p.id, off: plen(p) }); frozen.push(false); }
+  });
+  const last = paras[paras.length - 1]; posAt.push({ pid: last.id, off: plen(last) });
+  const lead = stripLead && V.startsWith(" ") ? 1 : 0;
+  const hunks = diffHunks(V.slice(lead), want).map((h) => ({ a: h.a + lead, b: h.b + lead, ins: h.ins }));
+  for (const h of hunks) { if (!posAt[h.a] || !posAt[h.b]) return false; for (let k = h.a; k < h.b; k++) if (frozen[k]) return false; }
+  for (const h of hunks.reverse()) {
+    let at = posAt[h.a]!;
+    if (h.b > h.a) at = deleteForReplace(doc, { a: posAt[h.a]!, b: posAt[h.b]! });
+    h.ins.split("\n").forEach((piece, i) => { if (i) at = splitParagraph(doc, at); if (piece) at = put(doc, at, piece); });
+  }
+  return true;
+}
+const hasRevisions = (ps: Para[]) => ps.some((p) => p.markRev || p.pc || p.content.some((it) => it.rev || (it.t === "r" && it.fc)));
+/** Insert ▸ Footnote / Endnote at pos: a new note (next free id) holding `text`, and its reference mark in the text. */
+export function insertNote(doc: WordDoc, pos: Pos, kind: "footnote" | "endnote", text = ""): { id: string; pos: Pos } {
+  const used = doc.notes.filter((n) => n.type === kind).map((n) => Number(n.id)).filter((n) => Number.isFinite(n));
+  const fromXml = (doc.noteParts?.[kind]?.xml.root.kids ?? []).map((k) => (k.k === "el" ? Number(k.attrs.find((a) => a[0] === "w:id")?.[1]) : NaN)).filter((n) => Number.isFinite(n));
+  const id = String(Math.max(0, ...used, ...fromXml) + 1);
+  doc.notes.push({ id, type: kind, blocks: noteBlocks(doc, kind, text), dirty: true });
+  doc.notesTouched = true;
+  const cap = kind === "footnote" ? "Footnote" : "Endnote";
+  const after = insertToken(doc, pos, { t: "k", kind: "note", nodes: [el(`w:${kind}Reference`, { "w:id": id })], bare: false, rPr: el("w:rPr", {}, [el("w:rStyle", { "w:val": `${cap}Reference` })]), label: "", note: { type: kind, id } });
+  return { id, pos: after };
+}
+/** replace a note's text (plain text; one paragraph per line). Returns false for an unknown note. */
+export function setNoteText(doc: WordDoc, kind: "footnote" | "endnote", id: string, text: string): boolean {
+  const i = doc.notes.findIndex((n) => n.type === kind && n.id === id);
+  if (i < 0) return false;
+  doc.notes[i] = { ...doc.notes[i], blocks: noteBlocks(doc, kind, text), dirty: true };
+  doc.notesTouched = true;
+  return true;
+}
+/** TT61: edit a note's text keeping its formatting. The old and new plain texts (noteTextOf) are diffed to one changed span
+ *  (common prefix / suffix); only that span is rewritten: deleted characters leave their runs, inserted characters take the
+ *  formatting of the character before them in the same paragraph (Word's typing rule; the next one at a paragraph start),
+ *  "\n" splits a paragraph (the new one copies the paragraph properties) and a deleted break joins two. Zero-width items
+ *  (the w:footnoteRef mark, bookmarks) are never deleted. Falls back to the plain rebuild (setNoteText) only when the edit
+ *  touches text the editor keeps inside an opaque token, when the note holds tracked changes, or when it is not paragraphs
+ *  only — and says which via the return value. */
+export function editNoteText(doc: WordDoc, kind: "footnote" | "endnote", id: string, text: string): "kept" | "plain" | "tracked" | "refused" | false {
+  const ni = doc.notes.findIndex((n) => n.type === kind && n.id === id);
+  if (ni < 0) return false;
+  const note = doc.notes[ni];
+  const want = text.replace(/\r\n?/g, "\n");
+  if (noteTextOf(note.blocks) === want) return false;
+  const plain = () => (setNoteText(doc, kind, id, want) ? "plain" as const : false);
+  // TT65: with Track Changes on, or when the note already holds revisions, the edit goes through viewEdit on a copy of the
+  // note — tracked edits are recorded (w:ins / w:del), other reviewers' pending revisions are kept. (TT61 rebuilt such a
+  // note as plain text: every pending revision in it was silently resolved.) Never the plain rebuild here: refused instead.
+  const notP = !note.blocks.length || note.blocks.some((b) => b.t !== "p");
+  if (doc.track?.on || (!notP && hasRevisions(note.blocks as Para[]))) {
+    if (notP) return "refused";
+    const nb = cloneBlocks(note.blocks); const proxy = storyDoc(doc, nb);
+    if (!viewEdit(proxy, nb as Para[], noteParaView, true, want) || noteTextOf(proxy.blocks) !== want) return "refused";
+    doc.notes[ni] = { ...note, blocks: proxy.blocks, dirty: true };
+    doc.notesTouched = true;
+    return doc.track?.on ? "tracked" : "kept";
+  }
+  if (notP) return plain();
+  const paras = note.blocks as Para[];
+  // explode into items: one per UTF-16 unit, tokens (zero-width or carrying opaque text), paragraph breaks
+  const tokText = (nodes: XNode[]) => nodes.map((n) => (n.k === "el" ? findAll(n, (x) => x.name === "w:t").map(textOf).join("") : "")).join("");
+  let items: NoteItem[] = [];
+  paras.forEach((p, pi) => {
+    if (pi > 0) items.push({ br: p });
+    for (const it of p.content) {
+      if (it.t === "r") { for (let u = 0; u < it.text.length; u++) items.push({ c: it.text[u], tpl: it }); }
+      else { const tx = it.kind === "note" ? "" : tokText(it.nodes); items.push({ tok: it, w: tx.length, tx }); }
+    }
+  });
+  const full = itemsText(items);
+  const lead = full.startsWith(" ") ? 1 : 0;
+  const cur = full.slice(lead);
+  // the changes as hunks (Myers shortest edit script; one prefix/suffix span when the texts are large or very different)
+  const hunks = diffHunks(cur, want);
+  // right to left, so positions to the left stay valid
+  for (const h of hunks.reverse()) {
+    const next = applyNoteHunk(items, paras[0], lead + h.a, lead + h.b, h.ins);
+    if (!next) return plain();
+    items = next;
+  }
+  // regroup into paragraphs; consecutive characters of one template merge back into one run
+  const out: Para[] = []; let curP: Para = { ...paras[0], content: [], dirty: true }; let buf: { tpl: TextRun; text: string } | null = null;
+  const flush = () => { if (buf) { if (buf.text) curP.content.push({ ...buf.tpl, text: buf.text }); buf = null; } };
+  for (const it of items) {
+    if ("br" in it) { flush(); out.push(curP); curP = { ...it.br, content: [], dirty: true }; continue; }
+    if ("tok" in it) { flush(); curP.content.push(it.tok); continue; }
+    if (buf && buf.tpl === it.tpl) buf.text += it.c; else { flush(); buf = { tpl: it.tpl, text: it.c }; }
+  }
+  flush(); out.push(curP);
+  if (noteTextOf(out) !== want) return plain(); // never write a note whose text differs from the request
+  doc.notes[ni] = { ...note, blocks: out, dirty: true };
+  doc.notesTouched = true;
+  return "kept";
+}
+type NoteItem = { c: string; tpl: TextRun } | { tok: Inline; w: number; tx: string } | { br: Para };
+const itemsText = (items: NoteItem[]) => items.map((it) => ("c" in it ? it.c : "br" in it ? "\n" : it.tx)).join("");
+/** one change [a, b) → ins on the exploded note; null when it would cut into an opaque token's text */
+function applyNoteHunk(items: NoteItem[], first: Para, a: number, b: number, ins: string): NoteItem[] | null {
+  const at: number[] = []; let pos = 0;
+  for (const it of items) { at.push(pos); pos += "c" in it ? 1 : "br" in it ? 1 : it.w; }
+  for (let k = 0; k < items.length; k++) { const it = items[k]; if ("tok" in it && it.w > 0 && at[k] < Math.max(b, a + 1) && at[k] + it.w > a) return null; }
+  // insertion point: after every item starting before a, and after zero-width tokens sitting exactly at a (typed text never
+  // lands in front of the reference mark)
+  let ip = 0; while (ip < items.length && (at[ip] < a || (at[ip] === a && "tok" in items[ip] && (items[ip] as { w: number }).w === 0))) ip++;
+  // formatting: replacing a selection keeps the format of its first character (Word); pure typing takes the character
+  // before it in the same paragraph, else the next one
+  let tpl: TextRun | undefined;
+  for (let k = 0; k < items.length && b > a; k++) { const it = items[k]; if (at[k] >= a && at[k] < b && "c" in it) { tpl = it.tpl; break; } if (at[k] >= b) break; }
+  const kept: NoteItem[] = []; let mi = -1;
+  for (let k = 0; k < items.length; k++) {
+    if (k === ip) mi = kept.length;
+    const it = items[k];
+    if (!(at[k] >= a && at[k] < b && ("c" in it || "br" in it))) kept.push(it);
+  }
+  if (mi < 0) mi = kept.length;
+  if (!tpl) for (let k = mi - 1; k >= 0 && !("br" in kept[k]); k--) { const it = kept[k]; if ("c" in it) { tpl = it.tpl; break; } }
+  if (!tpl) for (let k = mi; k < kept.length && !("br" in kept[k]); k++) { const it = kept[k]; if ("c" in it) { tpl = it.tpl; break; } }
+  let host: Para = first;
+  for (let k = mi - 1; k >= 0; k--) { const it = kept[k]; if ("br" in it) { host = it.br; break; } }
+  const plainRun: TextRun = { t: "r", text: "", f: {} };
+  const neu: NoteItem[] = [];
+  for (const ch of ins) {
+    if (ch === "\n") neu.push({ br: { t: "p", id: newId(), p: { ...host.p }, p0: {}, pPr: host.pPr, content: [], dirty: true } });
+    else for (let u = 0; u < ch.length; u++) neu.push({ c: ch[u], tpl: tpl ?? plainRun });
+  }
+  kept.splice(mi, 0, ...neu);
+  return kept;
+}
+/** TT61: Myers' O((N+M)·D) shortest edit script between two strings as hunks {a, b, ins} on `x` (adjacent edits merged);
+ *  above 4,000 combined characters or 400 edits it degrades to the single common-prefix / common-suffix hunk */
+export function diffHunks(x: string, y: string): { a: number; b: number; ins: string }[] {
+  let p = 0; while (p < x.length && p < y.length && x[p] === y[p]) p++;
+  let s = 0; while (s < x.length - p && s < y.length - p && x[x.length - 1 - s] === y[y.length - 1 - s]) s++;
+  const X = x.slice(p, x.length - s), Y = y.slice(p, y.length - s);
+  if (!X.length && !Y.length) return [];
+  const single = [{ a: p, b: x.length - s, ins: Y }];
+  const N = X.length, M = Y.length, MAX = Math.min(N + M, 400);
+  if (N + M > 4000) return single;
+  const off = MAX + 1; const V = new Int32Array(2 * MAX + 3); const trace: Int32Array[] = [];
+  let D = -1;
+  outer: for (let d = 0; d <= MAX; d++) {
+    trace.push(V.slice());
+    for (let k = -d; k <= d; k += 2) {
+      let i = k === -d || (k !== d && V[off + k - 1] < V[off + k + 1]) ? V[off + k + 1] : V[off + k - 1] + 1;
+      let j = i - k;
+      while (i < N && j < M && X[i] === Y[j]) { i++; j++; }
+      V[off + k] = i;
+      if (i >= N && j >= M) { D = d; break outer; }
+    }
+  }
+  if (D < 0) return single;
+  // backtrack into single-character operations, then merge runs of edits into hunks
+  const ops: { t: "=" | "-" | "+"; i: number; j: number }[] = [];
+  let i = N, j = M;
+  for (let d = D; d > 0; d--) {
+    const v = trace[d]; const k = i - j;
+    const prevK = k === -d || (k !== d && v[off + k - 1] < v[off + k + 1]) ? k + 1 : k - 1;
+    const pi = v[off + prevK], pj = pi - prevK;
+    while (i > pi && j > pj && i - 1 >= 0 && j - 1 >= 0 && X[i - 1] === Y[j - 1] && i - j === k) { ops.push({ t: "=", i: i - 1, j: j - 1 }); i--; j--; }
+    if (prevK === k + 1) { ops.push({ t: "+", i, j: j - 1 }); j--; } else { ops.push({ t: "-", i: i - 1, j }); i--; }
+  }
+  while (i > 0 && j > 0) { ops.push({ t: "=", i: i - 1, j: j - 1 }); i--; j--; }
+  ops.reverse();
+  const hunks: { a: number; b: number; ins: string }[] = [];
+  let cur: { a: number; b: number; ins: string } | null = null; let xi = 0;
+  for (const o of ops) {
+    if (o.t === "=") { if (cur) { hunks.push(cur); cur = null; } xi = o.i + 1; continue; }
+    if (!cur) cur = { a: p + xi, b: p + xi, ins: "" };
+    if (o.t === "-") { cur.b = p + o.i + 1; xi = o.i + 1; } else cur.ins += Y[o.j];
+  }
+  if (cur) hunks.push(cur);
+  // a hunk list must reproduce y exactly; otherwise use the single span (defensive: never trust a broken script)
+  let out = "", last = 0;
+  for (const h of hunks) { out += x.slice(last, h.a) + h.ins; last = h.b; }
+  out += x.slice(last);
+  return out === y ? hunks : single;
+}
+/** delete a note: its reference mark leaves the text (a tracked deletion while recording); the note itself is dropped on save */
+export function deleteNote(doc: WordDoc, kind: "footnote" | "endnote", id: string): boolean {
+  for (const p of allParas(doc.blocks)) {
+    let off = 0;
+    for (const it of p.content) {
+      if (it.t === "k" && it.kind === "note" && it.note?.type === kind && it.note.id === id) {
+        doc.notesTouched = true;
+        if (doc.track?.on) deleteForward(doc, { a: { pid: p.id, off }, b: { pid: p.id, off: off + 1 } }); else { p.content = p.content.filter((x) => x !== it); touch(p); }
+        return true;
+      }
+      off += it.t === "r" ? it.text.length : 1;
+    }
+  }
+  return false;
+}
+export function addComment(doc: WordDoc, r0: Range, text: string, author: string): string {
+  const r = normRange(doc, r0);
+  const ids = [...doc.comments.map((c) => Number(c.id)), ...doc.added.comments.map((c) => Number(c.id))].filter((n) => isFinite(n));
+  const id = String(ids.length ? Math.max(...ids) + 1 : 0);
+  const initials = author.split(/\s+/).map((w) => w[0] ?? "").join("").slice(0, 4).toUpperCase();
+  const c = { id, author, initials, date: new Date().toISOString().replace(/\.\d+Z$/, "Z"), text, blocks: [] };
+  doc.added.comments.push(c); doc.comments.push(c);
+  // end first so the start offset stays valid when both are in one paragraph
+  const pe = paraById(doc, r.b.pid)!;
+  let k = splitAt(pe, r.b.off);
+  pe.content.splice(k, 0, { t: "k", kind: "comment", nodes: [el("w:commentRangeEnd", { "w:id": id })], bare: true, label: "", cid: id, mark: "end" },
+    { t: "k", kind: "commentRef", nodes: [el("w:commentReference", { "w:id": id })], bare: false, rPr: el("w:rPr", {}, [el("w:rStyle", { "w:val": "CommentReference" })]), label: "", cid: id });
+  touch(pe);
+  const ps = paraById(doc, r.a.pid)!;
+  k = splitAt(ps, r.a.off);
+  ps.content.splice(k, 0, { t: "k", kind: "comment", nodes: [el("w:commentRangeStart", { "w:id": id })], bare: true, label: "", cid: id, mark: "start" });
+  touch(ps);
+  return id;
+}
+
+/* ---------------------------------------------------------------- tracked changes */
+function delToIns(nodes: XEl[]): XEl[] {
+  // rejecting a deletion restores its runs: <w:delText> → <w:t>, <w:delInstrText> → <w:instrText>
+  const conv = (e: XEl): XEl => ({ ...e, name: e.name === "w:delText" ? "w:t" : e.name === "w:delInstrText" ? "w:instrText" : e.name, kids: e.kids.map((k) => (k.k === "el" ? conv(k) : k)) });
+  return nodes.map(conv);
+}
+export function trackedChanges(doc: WordDoc): { pid: string; kind: "ins" | "del"; author?: string; date?: string; text: string }[] {
+  return revisions(doc).flatMap((c) => (c.kind === "fmt" || c.kind === "para" ? [] : [{ pid: c.pid, kind: c.kind, author: c.author, date: c.date, text: c.text }]));
+}
+/** Accept (true) or reject (false) every insertion/deletion; also clears formatting-change records on accept. */
+export function resolveChanges(doc: WordDoc, accept: boolean): number {
+  let n = resolveAllMain(doc, accept);
+  // TT65: Accept All / Reject All cover every story (Word: "Accept All Changes" in the document)
+  for (const st of stories(doc)) {
+    const nb = cloneBlocks(st.blocks); const k = resolveAllMain(storyDoc(doc, nb), accept);
+    if (k) { st.set(nb); n += k; }
+  }
+  return n;
+}
+function resolveAllMain(doc: WordDoc, accept: boolean): number {
+  let n = 0;
+  for (const c of mainRevisions(doc)) if (c.editable && resolveOneMain(doc, c.key, accept)) n++;
+  // TT64: a tracked grid change with no cell revision left is settled too (accept = keep the widths, reject = the recorded ones)
+  const grids = (bs: Block[]) => { for (const b of bs) { if (b.t === "box") grids(b.blocks); if (b.t !== "tbl") continue; if (b.gridChange) { settleGrid(b, !accept); if (!b.gridChange) n++; } for (const r of rowsOf(b)) for (const c of cellsOf(r)) grids(c.blocks); } };
+  grids(doc.blocks);
+  for (const p of allParas(doc.blocks)) {
+    let changed = false;
+    const next: Inline[] = [];
+    for (const it of p.content) {
+      if (it.t === "k" && (it.kind === "ins" || it.kind === "del")) {
+        n++; changed = true;
+        const host = it.nodes[0] as XEl;
+        const keep = (it.kind === "ins") === accept;
+        if (keep) next.push(...parseInlineNodes(doc, it.kind === "del" ? delToIns(host.kids.filter((k): k is XEl => k.k === "el")) : host.kids));
+        continue;
+      }
+      next.push(it);
+    }
+    if (accept && p.pPr && (kid(p.pPr, "w:pPrChange") || kid(kid(p.pPr, "w:rPr"), "w:ins") || kid(kid(p.pPr, "w:rPr"), "w:del"))) {
+      const c = { ...p.pPr, kids: p.pPr.kids.filter((k) => !(k.k === "el" && k.name === "w:pPrChange")) };
+      const rp = kid(c, "w:rPr"); if (rp) { const idx = c.kids.indexOf(rp); c.kids[idx] = { ...rp, kids: rp.kids.filter((k) => !(k.k === "el" && (k.name === "w:ins" || k.name === "w:del" || k.name === "w:rPrChange"))) }; }
+      p.pPr = c; changed = true; n++;
+    }
+    for (let i = 0; i < next.length; i++) { const it = next[i]; if (accept && it.t === "r" && it.rPr && kid(it.rPr, "w:rPrChange")) { next[i] = { ...it, rPr: { ...it.rPr, kids: it.rPr.kids.filter((k) => !(k.k === "el" && k.name === "w:rPrChange")) } }; changed = true; n++; } }
+    if (changed) { p.content = next; normalize(p); touch(p); }
+  }
+  return n;
+}
+
+/* ---------------------------------------------------------------- tables */
+export function newTable(doc: WordDoc, rows: number, cols: number, widthTw: number): Table {
+  const hasGrid = doc.styles.has("TableGrid");
+  const w = Math.floor(widthTw / cols);
+  const tblPr = el("w:tblPr", {}, [
+    ...(hasGrid ? [el("w:tblStyle", { "w:val": "TableGrid" })] : []),
+    el("w:tblW", { "w:w": "0", "w:type": "auto" }),
+    ...(hasGrid ? [] : [el("w:tblBorders", {}, ["top", "left", "bottom", "right", "insideH", "insideV"].map((s) => el(`w:${s}`, { "w:val": "single", "w:sz": "4", "w:space": "0", "w:color": "auto" })))]),
+    el("w:tblLook", { "w:val": "04A0", "w:firstRow": "1", "w:lastRow": "0", "w:firstColumn": "1", "w:lastColumn": "0", "w:noHBand": "0", "w:noVBand": "1" }),
+  ]);
+  const mkRow = (): Row => ({ t: "tr", items: Array.from({ length: cols }, () => newCell(w)) });
+  return { t: "tbl", id: newId("t"), items: [tblPr, el("w:tblGrid"), ...Array.from({ length: rows }, mkRow)], grid: Array(cols).fill(w), borders: true, style: hasGrid ? "TableGrid" : undefined };
+}
+export function newCell(wTw: number, from?: Cell): Cell {
+  const tcPr = el("w:tcPr", {}, [el("w:tcW", { "w:w": String(Math.round(wTw)), "w:type": "dxa" }), ...(from?.fill ? [el("w:shd", { "w:val": "clear", "w:color": "auto", "w:fill": from.fill })] : [])]);
+  return { t: "tc", tcPr, span: 1, span0: 1, blocks: [{ t: "p", id: newId(), p: {}, p0: {}, content: [], dirty: true }], width: wTw, fill: from?.fill };
+}
+export function insertTableAfter(doc: WordDoc, pid: string, rows: number, cols: number): Table | null {
+  const w = locate(doc, pid); if (!w) return null;
+  const width = doc.page.w - doc.page.left - doc.page.right;
+  const t = newTable(doc, rows, cols, width);
+  const after: Para = { t: "p", id: newId(), p: {}, p0: {}, content: [], dirty: true };
+  w.list.splice(w.index + 1, 0, t, after);
+  return t;
+}
+/** Logical grid column of a cell (sums gridSpans before it). */
+/** TT64 fix: grid positions start after the row's w:trPr/w:gridBefore (empty leading grid columns) — they used to start at 0,
+ *  so a column operation on a table with gridBefore rows hit the wrong cell in those rows */
+const trPrOf = (row: Row) => row.items.find((it): it is XEl => (it as XNode).k === "el" && (it as XEl).name === "w:trPr");
+export function trGrid(row: Row, name: "w:gridBefore" | "w:gridAfter"): number { return Number(kid(trPrOf(row), name)?.attrs.find((a) => a[0] === "w:val")?.[1] ?? 0) || 0; }
+function setTrGrid(row: Row, name: "w:gridBefore" | "w:gridAfter", v: number) {
+  const ti = row.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:trPr");
+  const trPr: XEl = ti >= 0 ? clone(row.items[ti] as XEl) : el("w:trPr");
+  const cur = kid(trPr, name);
+  if (v <= 0) trPr.kids = trPr.kids.filter((k) => k !== cur);
+  else if (cur) trPr.kids[trPr.kids.indexOf(cur)] = el(name, { "w:val": String(v) });
+  else { const at = name === "w:gridBefore" ? trPr.kids.findIndex((k) => k.k === "el" && k.name !== "w:cnfStyle" && k.name !== "w:divId") : trPr.kids.findIndex((k) => k.k === "el" && !/^w:(cnfStyle|divId|gridBefore)$/.test(k.name)); trPr.kids.splice(at >= 0 ? at : trPr.kids.length, 0, el(name, { "w:val": String(v) })); }
+  trPr.selfClose = trPr.kids.length === 0;
+  if (ti >= 0) row.items[ti] = trPr; else if (trPr.kids.length) { const ex = row.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:tblPrEx"); row.items.splice(ex + 1, 0, trPr); }
+  for (const p of rowParas(row)) touch(p);
+}
+export function colOf(row: Row, cell: Cell): number { let c = trGrid(row, "w:gridBefore"); for (const x of cellsOf(row)) { if (x === cell) return c; c += x.span; } return c; }
+export function cellAtCol(row: Row, col: number): Cell | undefined { let c = trGrid(row, "w:gridBefore"); for (const x of cellsOf(row)) { if (col >= c && col < c + x.span) return x; c += x.span; } return undefined; }
+/** a grid column the row has no cell at lies in its empty leading (gridBefore) or trailing (gridAfter) region */
+function emptyRegion(row: Row, col: number): "w:gridBefore" | "w:gridAfter" { return col < trGrid(row, "w:gridBefore") ? "w:gridBefore" : "w:gridAfter"; }
+/** Remove the whole table; keeps at least one paragraph in the containing block list. */
+function removeTable(w: NonNullable<ReturnType<typeof locate>>): boolean {
+  w.tableList!.splice(w.tableIndex!, 1);
+  if (!w.tableList!.some((b) => b.t === "p")) w.tableList!.push({ t: "p", id: newId(), p: {}, p0: {}, content: [], dirty: true });
+  return true;
+}
+export function tableRowOp(doc: WordDoc, pid: string, op: "above" | "below" | "delete"): boolean {
+  const w = locate(doc, pid); if (!w?.table || !w.row) return false;
+  const t = w.table; const at = t.items.indexOf(w.row);
+  if (op === "delete") {
+    // TT60: tracked, a row is marked deleted (w:trPr/w:del) and its text struck through — unless it is the author's own
+    // pending inserted row, which simply goes (as own pending text does)
+    if (doc.track?.on && !(w.row.rev?.kind === "ins" && isMine(doc, w.row.rev))) {
+      if (w.row.rev?.kind === "del") return false;
+      const ps = rowParas(w.row);
+      w.row.rev = w.row.rev?.kind === "ins" ? { ...newRev(doc, "del"), ins: w.row.rev } : newRev(doc, "del");
+      const last = ps[ps.length - 1];
+      if (last) trackedDelete(doc, { a: { pid: ps[0].id, off: 0 }, b: { pid: last.id, off: plen(last) } });
+      return true;
+    }
+    if (rowsOf(t).length === 1) return removeTable(w);
+    t.items.splice(at, 1); return true;
+  }
+  const nr: Row = { t: "tr", items: cellsOf(w.row).map((c) => { const n = newCell(c.width ?? 2000, c); n.span = c.span; n.span0 = -1; return n; }) };
+  if (doc.track?.on) nr.rev = newRev(doc, "ins");
+  t.items.splice(op === "above" ? at : at + 1, 0, nr);
+  return true;
+}
+/** every paragraph of a row (nested tables included), in document order */
+export function rowParas(r: Row): Para[] { return cellsOf(r).flatMap((c) => allParas(c.blocks)); }
+/** TT64: column changes are tracked with the schema's own cell markers — every cell of an inserted column carries
+ *  w:cellIns and the widths it replaced go in w:tblGrid/w:tblGridChange (§17.13.5.4, .33); every cell of a deleted column
+ *  carries w:cellDel (§17.13.5.5). Review lists the column as ONE change (columnGroups). A tracked delete is refused only
+ *  where a merged (gridSpan) cell crosses the column or a cell of it already holds another reviewer's cell revision. */
+export const COLUMN_TRACK_REFUSAL = "This column change can't be tracked \u2014 a merged cell crosses it, one of its cells already has a pending cell change, or only one row has a cell there. Resolve that first, or turn off Track Changes.";
+/** CT_TcPr: cell markup (cellIns / cellDel / cellMerge) goes after the base properties and before w:tcPrChange */
+function withCellMark(c: Cell, mark: XEl) {
+  const pr = c.tcPr ?? el("w:tcPr");
+  const ks = pr.kids.filter((k) => !(k.k === "el" && (k.name === "w:cellIns" || k.name === "w:cellDel" || k.name === "w:cellMerge")));
+  const at = ks.findIndex((k) => k.k === "el" && k.name === "w:tcPrChange");
+  ks.splice(at >= 0 ? at : ks.length, 0, mark);
+  const np: XEl = { ...pr, kids: ks, selfClose: false };
+  if (c.src && c.tcPr && c.src.kids.indexOf(c.tcPr) >= 0) c.src = { ...c.src, kids: c.src.kids.map((k) => (k === c.tcPr ? np : k)) };
+  c.tcPr = np;
+  for (const p of allParas(c.blocks)) touch(p);
+}
+const cellMarkOf = (c: Cell) => c.tcPr?.kids.find((k): k is XEl => k.k === "el" && (k.name === "w:cellIns" || k.name === "w:cellDel" || k.name === "w:cellMerge"));
+const revMark = (doc: WordDoc, name: "w:cellIns" | "w:cellDel") => { const r = newRev(doc, name === "w:cellIns" ? "ins" : "del"); return el(name, { "w:id": String(r.id), "w:author": r.author, "w:date": r.date }); };
+export function tableColOp(doc: WordDoc, pid: string, op: "left" | "right" | "delete"): boolean {
+  const w = locate(doc, pid); if (!w?.table || !w.row || !w.cell) return false;
+  const t = w.table; const col = colOf(w.row, w.cell) + (op === "right" ? w.cell.span - 1 : 0);
+  // a tracked column must be reviewable as ONE column change (2+ marked cells): in a table of 2+ rows where only one row has a
+  // cell at this grid column (the others' empty gridBefore / gridAfter region) it would be a lone cell change instead, whose
+  // per-cell reject leaves the grid column behind — refused (1-row tables keep TT61's per-cell semantics)
+  if (doc.track?.on && rowsOf(t).length >= 2 && rowsOf(t).filter((r) => cellAtCol(r, col)).length < 2) return false;
+  if (op === "delete" && doc.track?.on) {
+    // the author's own pending inserted column simply goes (as own pending text does)
+    const g = columnGroups(doc).find((x) => x.table === t && x.col === col);
+    if (g && g.kind === "ins" && g.sites.every((x) => attrOf(x.ch, "w:author") === authorName(doc))) return untrackedColDelete(t, col, g.host, true);
+    const cells = rowsOf(t).map((r) => cellAtCol(r, col)).filter((c): c is Cell => !!c);
+    if (!cells.length || cells.some((c) => c.span > 1 || cellMarkOf(c))) return false;
+    for (const c of cells) withCellMark(c, revMark(doc, "w:cellDel"));
+    return true;
+  }
+  if (op === "delete") {
+    if (t.grid.length <= 1) return removeTable(w); // TT47: deleting the only column deletes the table (was: deleted one row, reported no change)
+    for (const r of rowsOf(t)) { const c = cellAtCol(r, col); if (!c) { const g = emptyRegion(r, col); setTrGrid(r, g, trGrid(r, g) - 1); continue; } if (c.span > 1) c.span--; else r.items.splice(r.items.indexOf(c), 1); }
+    t.grid.splice(col, 1);
+    return true;
+  }
+  const gw = t.grid[col] ?? 1500;
+  const tracked = !!doc.track?.on; const before = t.grid.slice();
+  for (const r of rowsOf(t)) {
+    const c = cellAtCol(r, col);
+    // no cell at the column in this row: its empty leading / trailing grid region widens instead (the row keeps filling the grid)
+    if (!c) { const g = emptyRegion(r, col); setTrGrid(r, g, trGrid(r, g) + 1); continue; }
+    const nc = newCell(gw, c);
+    if (tracked) withCellMark(nc, revMark(doc, "w:cellIns"));
+    const idx = r.items.indexOf(c);
+    r.items.splice(op === "left" ? idx : idx + 1, 0, nc);
+  }
+  t.grid.splice(op === "left" ? col : col + 1, 0, gw);
+  // keep the table inside the text width: scale columns proportionally
+  const max = doc.page.w - doc.page.left - doc.page.right; const sum = t.grid.reduce((a, b) => a + b, 0);
+  if (sum > max) { const k = max / sum; t.grid = t.grid.map((g) => Math.round(g * k)); }
+  // the first tracked grid change keeps the original widths (a later one must not overwrite them: reject restores the start)
+  if (tracked && !t.gridChange) t.gridChange = { id: newRev(doc, "ins").id, cols: before };
+  return true;
+}
+const attrOf = (e: XEl, k: string) => e.attrs.find((a) => a[0] === k)?.[1];
+/** TT64: a whole tracked column = in every row of one table exactly one cell carries a cellIns (or every one a cellDel)
+ *  mark, all by the same author, all single-span at the same grid column, in a table of 2+ rows, 2+ marked cells (TT64: a row with NO cell at
+ *  that grid column — inside its empty gridBefore / gridAfter region — is part of the column too). Such a column is reviewed as one change and
+ *  resolved like Word's column operation (exact grid), not cell by cell (which would pad rows with w:gridAfter). */
+export interface ColumnGroup { key: string; kind: "ins" | "del"; table: Table; host: Block[]; col: number; sites: CellSite[] }
+export function columnGroups(doc: WordDoc): ColumnGroup[] {
+  const byTable = new Map<Table, CellSite[]>();
+  for (const s of cellMarks(doc)) if (s.ch.name !== "w:cellMerge") byTable.set(s.table, [...(byTable.get(s.table) ?? []), s]);
+  const out: ColumnGroup[] = [];
+  for (const [table, sites] of byTable) {
+    const rows = rowsOf(table);
+    // a one-row "column" is indistinguishable from a cell: it stays a cell change (TT61 semantics, Word's shift-left) — implied by
+    // the 2+ marks rule below (one mark per row), so no separate row-count guard (it was an equivalent mutant)
+    for (const name of ["w:cellIns", "w:cellDel"]) {
+      const mine = sites.filter((x) => x.ch.name === name);
+      // one candidate per (author, grid column)
+      const buckets = new Map<string, CellSite[]>();
+      for (const x of mine) { if (x.cell.span !== 1) continue; const k = `${attrOf(x.ch, "w:author") ?? ""}\u0000${colOf(x.row, x.cell)}`; buckets.set(k, [...(buckets.get(k) ?? []), x]); }
+      for (const [k, xs] of buckets) {
+        // every row either has its marked cell at the column, or no cell there at all (its empty gridBefore / gridAfter region)
+        const gc = Number(k.split("\u0000")[1]);
+        // a lone marked cell stays a cell change (TT61: Word's shift-left / gridAfter semantics) even when every other row is
+        // empty at that column — a column takes 2+ marked cells
+        if (xs.length < 2 || new Set(xs.map((x) => x.row)).size !== xs.length || !rows.every((r) => { const c = cellAtCol(r, gc); return c ? xs.some((x) => x.cell === c) : true; })) continue;
+        out.push({ key: `cg:${xs.map((x) => x.key.slice(2)).join(",")}`, kind: name === "w:cellIns" ? "ins" : "del", table, host: xs[0].host, col: Number(k.split("\u0000")[1]), sites: xs });
+      }
+    }
+  }
+  return out;
+}
+/** the untracked column delete on a column group (reject an insertion / accept a deletion / own pending insertion): the
+ *  grid column goes; when the table's tracked grid change has exactly the remaining column count its widths come back */
+function untrackedColDelete(t: Table, col: number, host: Block[], reject: boolean): boolean {
+  if (t.grid.length <= 1) {
+    const at = host.indexOf(t); if (at < 0) return false;
+    host.splice(at, 1);
+    if (!host.some((b) => b.t === "p")) host.push({ t: "p", id: newId(), p: {}, p0: {}, content: [], dirty: true });
+    return true;
+  }
+  for (const r of rowsOf(t)) { const c = cellAtCol(r, col); if (!c) { const g = emptyRegion(r, col); setTrGrid(r, g, trGrid(r, g) - 1); continue; } if (c.span > 1) c.span--; else r.items.splice(r.items.indexOf(c), 1); for (const p of rowParas(r)) touch(p); }
+  t.grid.splice(col, 1);
+  settleGrid(t, reject);
+  return true;
+}
+/** once no cell revision is pending in the table, its tracked grid change is settled: rejected back to the recorded widths
+ *  when they still fit the grid (the column count matches), otherwise simply dropped (the accepted state) */
+export function settleGrid(t: Table, reject = false) {
+  if (!t.gridChange) return;
+  const pending = rowsOf(t).some((r) => cellsOf(r).some((c) => cellMarkOf(c)));
+  if (pending) return;
+  if (reject && t.gridChange.cols.length === t.grid.length) t.grid = t.gridChange.cols.slice();
+  t.gridChange = undefined;
+}
+function resolveColumn(doc: WordDoc, g: ColumnGroup, accept: boolean): boolean {
+  const t = g.table;
+  if ((g.kind === "ins") === accept) {
+    // keep the column: its markers go
+    for (const x of g.sites) { const pr = x.cell.tcPr!; const np: XEl = { ...pr, kids: pr.kids.filter((k) => k !== x.ch) }; np.selfClose = np.kids.length === 0; if (x.cell.src && x.cell.src.kids.indexOf(pr) >= 0) x.cell.src = { ...x.cell.src, kids: x.cell.src.kids.map((k) => (k === pr ? np : k)) }; x.cell.tcPr = np; for (const p of x.paras) touch(p); }
+    settleGrid(t);
+    return true;
+  }
+  // rejecting an insertion restores the widths recorded when it was made; accepting a deletion settles to the new grid
+  void doc;
+  return untrackedColDelete(t, g.col, g.host, g.kind === "ins");
+}
+
+/* ---------------------------------------------------------------- find / replace */
+export interface Hit { pid: string; off: number; len: number }
+export function findText(doc: WordDoc, q: string, opts: { matchCase?: boolean; wholeWord?: boolean } = {}): Hit[] {
+  if (!q) return [];
+  const out: Hit[] = [];
+  const esc = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(opts.wholeWord ? `(?<![\\p{L}\\p{N}_])${esc}(?![\\p{L}\\p{N}_])` : esc, opts.matchCase ? "gu" : "giu");
+  for (const p of allParas(doc.blocks)) {
+    // build the offset-space string: tokens become U+FFFC so offsets line up with the model
+    const s = p.content.map((i) => (i.t === "r" ? i.text : "\ufffc")).join("");
+    for (const m of s.matchAll(re)) out.push({ pid: p.id, off: m.index!, len: m[0].length });
+  }
+  return out;
+}
+export function replaceAll(doc: WordDoc, q: string, rep: string, opts: { matchCase?: boolean; wholeWord?: boolean } = {}): number {
+  const hits = findText(doc, q, opts);
+  for (const h of hits.slice().reverse()) { const r = { a: { pid: h.pid, off: h.off }, b: { pid: h.pid, off: h.off + h.len } }; const at = deleteRange(doc, r); insertText(doc, at, rep); }
+  return hits.length;
+}
+
+/* ---------------------------------------------------------------- undo snapshots */
+function cloneInline(i: Inline): Inline { return i.t === "r" ? { ...i, f: { ...i.f } } : { ...i }; }
+export function cloneBlocks(bs: Block[]): Block[] {
+  return bs.map((b): Block => {
+    if (b.t === "p") return { ...b, p: { ...b.p }, content: b.content.map(cloneInline) };
+    if (b.t === "tbl") return { ...b, grid: b.grid.slice(), items: b.items.map((it) => ((it as Row).t === "tr" ? { ...(it as Row), items: (it as Row).items.map((c) => ((c as Cell).t === "tc" ? { ...(c as Cell), blocks: cloneBlocks((c as Cell).blocks) } : c)) } : it)) };
+    if (b.t === "box") return { ...b, blocks: cloneBlocks(b.blocks) };
+    return b;
+  });
+}
+/** Paragraph style choices: document paragraph styles (non-hidden built-ins and custom) plus the common built-ins. */
+export function styleChoices(doc: WordDoc): { id: string; name: string }[] {
+  const seen = new Set<string>(); const out: { id: string; name: string }[] = [];
+  const add = (id: string, name: string) => { if (!seen.has(id)) { seen.add(id); out.push({ id, name }); } };
+  const def = defaultParaStyle(doc); add(def ?? "Normal", "Normal");
+  for (const id of BUILTIN_STYLE_IDS) if (id !== "Hyperlink" && id !== "Normal") add(id, doc.styles.get(id)?.name.replace(/^heading/, "Heading") ?? id.replace(/(\d)$/, " $1").replace(/^Heading/, "Heading"));
+  for (const s of doc.styles.values()) if (s.type === "paragraph" && !/^(TOC|toc|index|Index|footnote|endnote|header|footer|annotation|Balloon|caption|Caption|Body Text \d)/.test(s.name)) add(s.id, s.name.replace(/^heading/, "Heading"));
+  return out.slice(0, 40);
+}
+export { kids };
+
+/* ---------------------------------------------------------------- page setup */
+export const PAPER: Record<string, [number, number]> = { Letter: [12240, 15840], Legal: [12240, 20160], A4: [11906, 16838], A5: [8391, 11906], Executive: [10440, 15120] };
+/** Edits the final section's <w:pgSz>/<w:pgMar> in place (other sectPr children — headers, columns, grid — are kept). */
+export function setPageSetup(doc: WordDoc, o: { paper?: string; landscape?: boolean; margins?: { top: number; right: number; bottom: number; left: number } }) {
+  const old = doc.finalSect;
+  const s: XEl = old ? { ...old, kids: old.kids.slice() } : el("w:sectPr");
+  const pg = kid(s, "w:pgSz"), mar = kid(s, "w:pgMar");
+  let [w, h] = [doc.page.w, doc.page.h];
+  if (o.paper && PAPER[o.paper]) [w, h] = PAPER[o.paper];
+  const land = o.landscape ?? doc.page.landscape;
+  if (land !== (w > h)) [w, h] = [h, w];
+  const npg = el("w:pgSz", { "w:w": String(w), "w:h": String(h), "w:orient": land ? "landscape" : undefined, "w:code": pg?.attrs.find((a) => a[0] === "w:code")?.[1] });
+  // TT62 fix: CT_SectPr puts header / footer references, footnotePr, endnotePr and type BEFORE pgSz — a missing pgSz used
+  // to be inserted at index 0, invalid when the section had a header reference (found by the XSD gate)
+  const SECT_HEAD = new Set(["w:headerReference", "w:footerReference", "w:footnotePr", "w:endnotePr", "w:type"]);
+  if (pg) s.kids[s.kids.indexOf(pg)] = npg;
+  else { let at = 0; s.kids.forEach((k, i) => { if (k.k === "el" && SECT_HEAD.has(k.name)) at = i + 1; }); s.kids.splice(at, 0, npg); }
+  const m = o.margins ?? doc.page;
+  const nm = el("w:pgMar", { "w:top": String(m.top), "w:right": String(m.right), "w:bottom": String(m.bottom), "w:left": String(m.left), "w:header": String(doc.page.header), "w:footer": String(doc.page.footer), "w:gutter": "0" });
+  if (mar) s.kids[s.kids.indexOf(mar)] = nm; else s.kids.splice(s.kids.indexOf(npg) + 1, 0, nm);
+  s.selfClose = false;
+  // swap the node inside the body block list as well (the final sectPr is kept in place as an opaque block)
+  const at = doc.blocks.findIndex((b) => b.t === "x" && b.node === old);
+  if (at >= 0) doc.blocks[at] = { t: "x", node: s, label: "" }; else doc.blocks.push({ t: "x", node: s, label: "" });
+  doc.finalSect = s;
+  Object.assign(doc.page, { w, h, landscape: land, top: m.top, right: m.right, bottom: m.bottom, left: m.left });
+}
+
+/* ---------------------------------------------------------------- TT56 Track Changes: recording and per-change review */
+const isoNow = () => new Date().toISOString().replace(/\.\d+Z$/, "Z");
+const authorName = (doc: WordDoc) => doc.track.author || "Author";
+export function newRev(doc: WordDoc, kind: "ins" | "del"): Rev { return { kind, id: doc.track.next++, author: authorName(doc), date: isoNow() }; }
+export const isMine = (doc: WordDoc, r?: Rev) => !!r && r.author === authorName(doc);
+/** Turns recording on/off (persisted as settings.xml w:trackRevisions on save). */
+export function setTracking(doc: WordDoc, on: boolean, author?: string) { doc.track.on = on; if (author !== undefined) doc.track.author = author; }
+
+/** Tracked deletion of [a, b): text and run-level objects become <w:del>; the author's own pending insertions are removed
+ *  outright; text already deleted is left; bookmarks / comment anchors / fields (bare tokens) are untouched; paragraph marks
+ *  inside the range are marked deleted (an own inserted mark is really removed, joining the paragraphs). */
+function trackedDelete(doc: WordDoc, r: Range, wantEnd = false): Pos {
+  const ps = parasIn(doc, r);
+  // a sentinel token marks the end of the range so the caller can type after the struck-through text even when own
+  // pending insertions vanish and paragraphs join
+  const sentinel: Tok = { t: "k", kind: "other", nodes: [], bare: true, label: "" };
+  let rv: Rev | undefined;
+  const del = () => (rv ??= newRev(doc, "del"));
+  const joins: Para[] = [];
+  ps.forEach((p, idx) => {
+    const from = p.id === r.a.pid ? r.a.off : 0, to = p.id === r.b.pid ? r.b.off : plen(p);
+    if (to > from) {
+      const i = splitAt(p, from), j = splitAt(p, to);
+      const mid: Inline[] = [];
+      for (const it of p.content.slice(i, j)) {
+        if (it.t === "k" && (it.bare || it.kind === "fieldcode")) { mid.push(it); continue; }
+        if (it.rev?.kind === "del") { mid.push(it); continue; }
+        if (it.rev?.kind === "ins" && isMine(doc, it.rev)) continue;
+        // another reviewer's insertion is not discarded: it becomes a deletion nested in that insertion (<w:ins><w:del>)
+        mid.push({ ...it, rev: it.rev?.kind === "ins" ? { ...del(), ins: it.rev } : del() });
+      }
+      p.content.splice(i, j - i, ...mid, ...(wantEnd && p.id === r.b.pid ? [sentinel] : []));
+      normalize(p); touch(p);
+    } else if (wantEnd && p.id === r.b.pid) p.content.splice(splitAt(p, to), 0, sentinel);
+    if (idx < ps.length - 1) {
+      const w = locate(doc, p.id), nx = ps[idx + 1];
+      if (!w || w.list[w.index + 1] !== nx) return; // a cell's last paragraph mark is not deletable
+      if (p.markRev?.kind === "ins" && isMine(doc, p.markRev)) joins.push(p);
+      else if (!p.markRev) { p.markRev = del(); touch(p); }
+    }
+  });
+  for (const p of joins.reverse()) joinNext(doc, p);
+  if (wantEnd) for (const p of allParas(doc.blocks)) {
+    const k = p.content.indexOf(sentinel); if (k < 0) continue;
+    const off = p.content.slice(0, k).reduce((a, it) => a + ilen(it), 0);
+    p.content.splice(k, 1); normalize(p);
+    return { pid: p.id, off };
+  }
+  return r.a;
+}
+/** Deletes a selection that is about to be replaced (typing / paste over a selection). Untracked this is deleteRange; tracked,
+ *  the deletion stays visible and the returned position is just after it, so the insertion follows the deleted text (Word). */
+export function deleteForReplace(doc: WordDoc, r0: Range): Pos {
+  if (!doc.track?.on) return deleteRange(doc, r0);
+  return trackedDelete(doc, normRange(doc, r0), true);
+}
+/** Forward delete / Delete key: where the caret goes afterwards (tracked: past the struck text). */
+export function deleteForward(doc: WordDoc, r0: Range): Pos {
+  if (!doc.track?.on) return deleteRange(doc, r0);
+  return trackedDelete(doc, normRange(doc, r0), true);
+}
+/** Physically joins `p` with the following paragraph of its container (the surviving mark is the next paragraph's). */
+function joinNext(doc: WordDoc, p: Para) {
+  const w = locate(doc, p.id); if (!w) return;
+  const nx = w.list[w.index + 1]; if (!nx || nx.t !== "p") return;
+  // TT65: Word keeps the FIRST paragraph's formatting when two paragraphs merge — but a paragraph deleted (or rejected) as
+  // a whole is not a merge, and the next paragraph keeps its own (bettersolutions "Merging Paragraphs"; wordarticles.com
+  // "A Quirk: Deleting Paragraphs"). "As a whole" = nothing in p outside pending revisions.
+  if (!p.content.some((it) => !it.rev && (it.t === "r" ? it.text.length > 0 : !it.bare))) { p.p = nx.p; p.pc = nx.pc; p.pPr = nx.pPr; }
+  p.content.push(...nx.content);
+  p.markRev = nx.markRev;
+  if (nx.sect) { p.sect = nx.sect; p.pPr = nx.pPr; }
+  w.list.splice(w.index + 1, 1);
+  normalize(p); touch(p);
+}
+
+export interface Change { key: string; kind: "ins" | "del" | "fmt" | "para"; author?: string; date?: string; text: string; pid: string; off: number; editable: boolean; /** fmt: what changed */ detail?: string; /** TT65: a change outside the main text — story id ("hf:<rId>", "note:<type>:<id>") and its place name ("Header", "Footnote 2") */ story?: string; where?: string }
+const FMT_LABEL: Record<string, string> = { b: "Bold", i: "Italic", u: "Underline", s: "Strikethrough", sz: "Font size", font: "Font", color: "Font colour", hl: "Highlight", va: "Position", caps: "All caps", smallCaps: "Small caps", rStyle: "Character style", shd: "Shading" };
+/** human summary of a formatting change: "Bold, Italic off, Font size 14 pt" */
+export function fmtDiff(old: RunFmt, now: RunFmt): string {
+  const keys = [...new Set([...Object.keys(old), ...Object.keys(now)])].filter((k) => JSON.stringify((old as Record<string, unknown>)[k] ?? null) !== JSON.stringify((now as Record<string, unknown>)[k] ?? null));
+  return keys.map((k) => {
+    const v = (now as Record<string, unknown>)[k]; const lab = FMT_LABEL[k] ?? k;
+    if (typeof v === "boolean" || v === undefined) return v ? lab : `${lab} off`;
+    return k === "sz" ? `${lab} ${Number(v) / 2} pt` : `${lab} ${String(v)}`;
+  }).join(", ") || "Formatted";
+}
+const ALIGN_LABEL: Record<string, string> = { left: "Left", start: "Left", center: "Centered", right: "Right", end: "Right", both: "Justified", justify: "Justified", distribute: "Distributed" };
+/** human summary of a paragraph-property change: "Centered, Style Heading1, Numbered list" */
+export function paraDiff(doc: WordDoc, old: ParaProps, now: ParaProps): string {
+  const out: string[] = [];
+  const ch = (k: keyof ParaProps) => JSON.stringify(old[k] ?? null) !== JSON.stringify(now[k] ?? null);
+  if (ch("style")) out.push(`Style ${now.style ? (doc.styles.get(now.style)?.name ?? now.style) : "Normal"}`);
+  if (ch("align")) out.push(now.align ? (ALIGN_LABEL[now.align] ?? now.align) : "Left");
+  if (ch("num")) { const k = now.num ? (now.num.id === "~bullet" || doc.numbering.get(now.num.id)?.lvls[now.num.lvl]?.fmt === "bullet" ? "Bulleted list" : "Numbered list") : "List removed"; out.push(old.num && now.num && old.num.id === now.num.id ? `List level ${now.num.lvl + 1}` : k); }
+  if (ch("indL") || ch("indR") || ch("indFirst")) out.push("Indent");
+  if (ch("before") || ch("after") || ch("line") || ch("lineRule")) out.push("Spacing");
+  const known = new Set(["style", "align", "num", "indL", "indR", "indFirst", "before", "after", "line", "lineRule"]);
+  if ([...new Set([...Object.keys(old), ...Object.keys(now)])].some((k) => !known.has(k) && ch(k as keyof ParaProps))) out.push("Paragraph");
+  return out.join(", ") || "Paragraph";
+}
+/** Every pending revision in document order: editor/parsed revision runs grouped by id (text + paragraph marks), plus opaque
+ *  file revisions (moves, revisions around fields…) one per element. */
+export function revisions(doc: WordDoc): Change[] {
+  const out = mainRevisions(doc);
+  // TT65: then every other story, in Word's Reviewing Pane order — headers / footers, then footnotes / endnotes
+  for (const st of stories(doc)) for (const c of mainRevisions(storyDoc(doc, st.blocks))) out.push({ ...c, key: `s:${st.story}|${c.key}`, story: st.story, where: st.where });
+  return out;
+}
+/* ---------------------------------------------------------------- TT65 stories */
+/** A story other than the main text: a header / footer part or a (referenced) footnote / endnote. `set` commits new blocks
+ *  (copy-on-write: undo snapshots hold the old arrays) and marks the part for writing. */
+export interface Story { story: string; where: string; blocks: Block[]; set: (nb: Block[]) => void }
+export function stories(doc: WordDoc): Story[] {
+  const out: Story[] = [];
+  for (const [rid, blocks] of doc.parts) {
+    const where = /footer/i.test(doc.hf.xml.get(rid)?.path ?? doc.rels.find((r) => r.id === rid)?.target ?? "") ? "Footer" : "Header";
+    out.push({ story: `hf:${rid}`, where, blocks, set: (nb) => { doc.parts.set(rid, nb); doc.hf.dirty.add(rid); } });
+  }
+  // notes whose reference is gone are dropped on save (Word) — their revisions are not listed
+  const refs = referencedNotes(doc); const n = { footnote: 0, endnote: 0 };
+  for (const kind of ["footnote", "endnote"] as const) doc.notes.forEach((note, k) => {
+    if (note.type !== kind || !refs[kind].has(note.id)) return;
+    out.push({ story: `note:${kind}:${note.id}`, where: `${kind === "footnote" ? "Footnote" : "Endnote"} ${++n[kind]}`, blocks: note.blocks, set: (nb) => { doc.notes[k] = { ...doc.notes[k], blocks: nb, dirty: true }; doc.notesTouched = true; } });
+  });
+  return out;
+}
+/** the document seen through one story: same styles, ids and Track Changes state (doc.track is shared, so revision ids stay
+ *  unique package-wide), but `blocks` = the story's blocks — every editing / review operation then works on that story */
+export const storyDoc = (doc: WordDoc, blocks: Block[]): WordDoc => ({ ...doc, blocks });
+function storyOf(doc: WordDoc, key: string): { st: Story; inner: string } | null {
+  const bar = key.indexOf("|"); if (!key.startsWith("s:") || bar < 0) return null;
+  const st = stories(doc).find((x) => x.story === key.slice(2, bar));
+  return st ? { st, inner: key.slice(bar + 1) } : null;
+}
+function mainRevisions(doc: WordDoc): Change[] {
+  const out: Change[] = []; const byId = new Map<string, Change>();
+  const add = (rv: Rev, pid: string, off: number, text: string) => {
+    const key = `r:${rv.kind}:${rv.id}`;
+    const c = byId.get(key);
+    if (c) c.text += text; else { const n: Change = { key, kind: rv.kind, author: rv.author || undefined, date: rv.date, text, pid, off, editable: true }; byId.set(key, n); out.push(n); }
+  };
+  // TT60: tracked rows and table / row / cell property changes are listed at their first paragraph, in document order
+  const rowAt = new Map<string, Row>(); const prAt = new Map<string, Change[]>();
+  for (const s of tablePrChanges(doc)) {
+    const a = s.ch.attrs; const g = (k: string) => a.find((x) => x[0] === k)?.[1];
+    const c: Change = { key: s.key, kind: "fmt", author: g("w:author") || undefined, date: g("w:date"), text: s.label, pid: s.pid, off: 0, editable: true, detail: `${s.label} properties` };
+    prAt.set(s.pid, [...(prAt.get(s.pid) ?? []), c]);
+  }
+  // TT61: cell insertions / deletions (w:tcPr/w:cellIns, w:cellDel) at the cell's first paragraph; TT62: w:cellMerge
+  // (vertical-merge revision, §17.13.5.3) is resolvable too
+  const grouped = new Set<string>();
+  for (const cg of columnGroups(doc)) {
+    for (const x of cg.sites) grouped.add(x.key);
+    const f = cg.sites[0]; const g = (k: string) => attrOf(f.ch, k);
+    const c: Change = { key: cg.key, kind: cg.kind, author: g("w:author") || undefined, date: g("w:date"), text: "[Table column] ", pid: f.pid, off: 0, editable: true, detail: `${cg.kind === "ins" ? "Inserted" : "Deleted"} column ${cg.col + 1} (${cg.sites.length} cell${cg.sites.length === 1 ? "" : "s"})` };
+    prAt.set(f.pid, [...(prAt.get(f.pid) ?? []), c]);
+  }
+  for (const s of cellMarks(doc)) {
+    if (grouped.has(s.key)) continue;
+    const a = s.ch.attrs; const g = (k: string) => a.find((x) => x[0] === k)?.[1];
+    const merge = s.ch.name === "w:cellMerge";
+    const c: Change = { key: s.key, kind: s.ch.name === "w:cellDel" ? "del" : "ins", author: g("w:author") || undefined, date: g("w:date"), text: merge ? "[Table cell merge] " : "[Table cell] ", pid: s.pid, off: 0, editable: true, detail: merge ? `${VM_LABEL[g("w:vMerge") ?? ""] ?? "not merged"} (was: ${VM_LABEL[g("w:vMergeOrig") ?? ""] ?? "not merged"})` : undefined };
+    prAt.set(s.pid, [...(prAt.get(s.pid) ?? []), c]);
+  }
+  const walkRows = (bs: Block[]) => { for (const b of bs) if (b.t === "tbl") for (const r of rowsOf(b)) { const f = rowParas(r)[0]; if (r.rev && f) rowAt.set(f.id, r); for (const c of cellsOf(r)) walkRows(c.blocks); } else if (b.t === "box") walkRows(b.blocks); };
+  walkRows(doc.blocks);
+  for (const p of allParas(doc.blocks)) {
+    for (const c of prAt.get(p.id) ?? []) out.push(c);
+    const rr = rowAt.get(p.id)?.rev;
+    if (rr) { add(rr, p.id, 0, "[Table row] "); if (rr.ins) add(rr.ins, p.id, 0, "[Table row] "); }
+    let off = 0;
+    p.content.forEach((it, idx) => {
+      const txt = it.t === "r" ? it.text : it.t === "k" ? (it.label || `[${it.kind}]`) : "";
+      if (it.t === "k" && (it.kind === "ins" || it.kind === "del")) {
+        const n = it.nodes[0] as XEl; const a = (k: string) => n.attrs.find((x) => x[0] === k)?.[1];
+        out.push({ key: `k:${p.id}:${idx}`, kind: it.kind, author: a("w:author"), date: a("w:date"), text: it.label, pid: p.id, off, editable: false });
+      } else if (it.rev) { add(it.rev, p.id, off, txt); if (it.rev.ins) add(it.rev.ins, p.id, off, txt); }
+      if (it.t === "r" && it.fc) {
+        const key = `r:fmt:${it.fc.id}`; const c = byId.get(key);
+        if (c) c.text += txt;
+        else { const n: Change = { key, kind: "fmt", author: it.fc.author || undefined, date: it.fc.date, text: txt, pid: p.id, off, editable: true, detail: fmtDiff(it.fc.old, it.f) }; byId.set(key, n); out.push(n); }
+      }
+      off += ilen(it);
+    });
+    if (p.markRev) add(p.markRev, p.id, off, "\u00b6");
+    if (p.pc) out.push({ key: `p:fmt:${p.pc.id}`, kind: "para", author: p.pc.author || undefined, date: p.pc.date, text: p.content.map((it) => (it.t === "r" ? it.text : "")).join("").slice(0, 80) || "\u00b6", pid: p.id, off: 0, editable: true, detail: paraDiff(doc, p.pc.old, p.p) });
+  }
+  return out;
+}
+/** Accept / reject one change (by `revisions()` key). Returns false when the key no longer exists. */
+export function resolveOne(doc: WordDoc, key: string, accept: boolean): boolean {
+  if (key.startsWith("s:")) {
+    const f = storyOf(doc, key); if (!f) return false;
+    const nb = cloneBlocks(f.st.blocks);
+    if (!resolveOneMain(storyDoc(doc, nb), f.inner, accept)) return false;
+    f.st.set(nb);
+    return true;
+  }
+  return resolveOneMain(doc, key, accept);
+}
+function resolveOneMain(doc: WordDoc, key: string, accept: boolean): boolean {
+  if (key.startsWith("k:")) {
+    const [, pid, si] = key.split(":"); const p = paraById(doc, pid); const it = p?.content[Number(si)];
+    if (!p || !it || it.t !== "k" || (it.kind !== "ins" && it.kind !== "del")) return false;
+    const host = it.nodes[0] as XEl;
+    const keep = (it.kind === "ins") === accept;
+    p.content.splice(Number(si), 1, ...(keep ? parseInlineNodes(doc, it.kind === "del" ? delToIns(host.kids.filter((k): k is XEl => k.k === "el")) : host.kids) : []));
+    normalize(p); touch(p);
+    return true;
+  }
+  if (key.startsWith("cg:")) {
+    const g = columnGroups(doc).find((x) => x.key === key); if (!g) return false;
+    return resolveColumn(doc, g, accept);
+  }
+  if (key.startsWith("c:")) {
+    const s = cellMarks(doc).find((x) => x.key === key); if (!s) return false;
+    if (s.ch.name === "w:cellMerge") {
+      // §17.13.5.3: w:vMerge = the revised vertical-merge state, w:vMergeOrig = the state it replaced (absent = not
+      // vertically merged). Accept applies the revised state, reject restores the original; the marker goes either way.
+      const want = s.ch.attrs.find((a) => a[0] === (accept ? "w:vMerge" : "w:vMergeOrig"))?.[1];
+      const pr = s.cell.tcPr!;
+      const rest = pr.kids.filter((k) => k !== s.ch && !(k.k === "el" && k.name === "w:vMerge"));
+      const vm = want === "rest" ? el("w:vMerge", { "w:val": "restart" }) : want === "cont" ? el("w:vMerge") : null;
+      if (vm) { let at = 0; rest.forEach((k, i) => { if (k.k === "el" && TCPR_BEFORE_VMERGE.has(k.name)) at = i + 1; }); rest.splice(at, 0, vm); }
+      const np: XEl = { ...clone(pr), kids: rest, selfClose: rest.length === 0 };
+      if (s.cell.src && s.cell.src.kids.indexOf(pr) >= 0) s.cell.src = { ...s.cell.src, kids: s.cell.src.kids.map((k) => (k === pr ? np : k)) };
+      s.cell.tcPr = np; s.cell.vmerge = want === "rest" ? "restart" : want === "cont" ? "continue" : undefined;
+      for (const p of s.paras) touch(p);
+      return true;
+    }
+    // accept an insertion / reject a deletion: the marker goes; otherwise the cell goes (§17.13.5.4 / .5)
+    if ((s.ch.name === "w:cellIns") === accept) {
+      const np: XEl = { ...clone(s.cell.tcPr!), kids: s.cell.tcPr!.kids.filter((k) => k !== s.ch) };
+      if (s.cell.src && s.cell.src.kids.indexOf(s.cell.tcPr!) >= 0) s.cell.src = { ...s.cell.src, kids: s.cell.src.kids.map((k) => (k === s.cell.tcPr ? np : k)) };
+      np.selfClose = np.kids.length === 0; s.cell.tcPr = np;
+      for (const p of s.paras) touch(p);
+      settleGrid(s.table);
+      return true;
+    }
+    removeCell(s.table, s.row, s.cell, s.host);
+    settleGrid(s.table);
+    return true;
+  }
+  if (key.startsWith("x:")) {
+    const s = tablePrChanges(doc).find((x) => x.key === key); if (!s) return false;
+    // accept: the record goes; reject: the properties recorded in it come back (a row keeps its own revision marks)
+    const old = kid(s.ch, s.pr.name);
+    let np: XEl;
+    if (accept || !old) np = { ...clone(s.pr), kids: s.pr.kids.filter((k) => k !== s.ch).map((k) => k) };
+    else {
+      const marks = s.pr.name === "w:trPr" ? s.pr.kids.filter((k) => k.k === "el" && (k.name === "w:ins" || k.name === "w:del")) : [];
+      np = { ...clone(s.pr), kids: [...clone(old).kids, ...marks] };
+    }
+    np.selfClose = np.kids.length === 0;
+    s.set(np);
+    for (const p of s.paras) touch(p);
+    return true;
+  }
+  const pm = /^p:fmt:(-?\d+)$/.exec(key);
+  if (pm) {
+    const id = Number(pm[1]);
+    for (const p of allParas(doc.blocks)) {
+      if (!p.pc || p.pc.id !== id) continue;
+      const pc = p.pc; p.pc = undefined;
+      if (!accept) {
+        if (pc.oldPPr) {
+          // a file's record: the recorded pPr verbatim, keeping this paragraph's mark properties and section break
+          const keep = (p.pPr?.kids ?? []).filter((k) => k.k === "el" && (k.name === "w:rPr" || k.name === "w:sectPr"));
+          const np = clone(pc.oldPPr); np.kids = [...np.kids.filter((k) => !(k.k === "el" && (k.name === "w:rPr" || k.name === "w:sectPr"))), ...keep]; np.selfClose = np.kids.length === 0;
+          p.pPr = np; p.p = parsePPr(np); p.p0 = { ...p.p };
+        } else p.p = { ...pc.old };
+      }
+      touch(p);
+      return true;
+    }
+    return false;
+  }
+  const fm = /^r:fmt:(-?\d+)$/.exec(key);
+  if (fm) {
+    const id = Number(fm[1]); let found = false;
+    for (const p of allParas(doc.blocks)) {
+      let changed = false;
+      p.content = p.content.map((it) => {
+        if (it.t !== "r" || !it.fc || it.fc.id !== id) return it;
+        found = changed = true;
+        const fc = it.fc;
+        if (accept) return { ...it, fc: undefined };
+        // reject: back to the formatting before the change (a file's original rPr is restored verbatim)
+        if (fc.oldRPr) { const f = { ...fc.old }; return { ...it, f, f0: { ...f }, rPr: fc.oldRPr.kids.length ? fc.oldRPr : undefined, fc: undefined }; }
+        return { ...it, f: { ...fc.old }, fc: undefined };
+      });
+      if (changed) { normalize(p); touch(p); }
+    }
+    return found;
+  }
+  const m = /^r:(ins|del):(-?\d+)$/.exec(key); if (!m) return false;
+  const kind = m[1] as "ins" | "del", id = Number(m[2]);
+  const hit = (r?: Rev) => !!r && r.kind === kind && r.id === id;
+  let found = false;
+  const joins: Para[] = [];
+  for (const p of allParas(doc.blocks)) {
+    let changed = false;
+    const next: Inline[] = [];
+    for (const it of p.content) {
+      const rv = it.rev;
+      if (hit(rv)) {
+        found = changed = true;
+        // accepted insertion / rejected deletion stay (a rejected deletion inside an insertion is that insertion again)
+        if (kind === "ins" ? accept : !accept) next.push({ ...it, rev: kind === "del" ? rv!.ins : undefined });
+        continue;
+      }
+      if (rv?.kind === "del" && hit(rv.ins)) {
+        found = changed = true;
+        if (accept) next.push({ ...it, rev: { ...rv, ins: undefined } });
+        continue;
+      }
+      next.push(it);
+    }
+    if (hit(p.markRev)) {
+      found = changed = true;
+      if (kind === "ins" ? accept : !accept) p.markRev = undefined; else joins.push(p);
+    }
+    if (changed) { p.content = next; normalize(p); touch(p); }
+  }
+  for (const p of joins.reverse()) { p.markRev = undefined; joinNext(doc, p); }
+  // TT60: tracked rows — kept (accepted insertion / rejected deletion) the mark goes, otherwise the row goes; rejecting a row
+  // deletion also restores the text the deletion struck through in that row (Word treats them as one change)
+  const restore: number[] = [];
+  const walk = (bs: Block[]) => {
+    for (let bi = 0; bi < bs.length; bi++) {
+      const b = bs[bi];
+      if (b.t === "box") { walk(b.blocks); continue; }
+      if (b.t !== "tbl") continue;
+      for (const r of rowsOf(b)) {
+        for (const c of cellsOf(r)) walk(c.blocks);
+        const rv = r.rev; if (!rv) continue;
+        let keep: boolean | undefined;
+        if (hit(rv)) { keep = kind === "ins" ? accept : !accept; if (keep) { if (kind === "del") for (const p of rowParas(r)) for (const it of p.content) if (it.rev?.kind === "del" && it.rev.author === rv.author && !restore.includes(it.rev.id)) restore.push(it.rev.id); r.rev = kind === "del" ? rv.ins : undefined; } }
+        else if (rv.kind === "del" && hit(rv.ins)) { keep = accept; if (keep) r.rev = { ...rv, ins: undefined }; }
+        if (keep === undefined) continue;
+        found = true;
+        for (const p of rowParas(r)) touch(p);
+        if (!keep) b.items.splice(b.items.indexOf(r), 1);
+      }
+      if (!rowsOf(b).length) { bs.splice(bi, 1, { t: "p", id: newId(), p: {}, p0: {}, content: [], dirty: true }); }
+    }
+  };
+  walk(doc.blocks);
+  for (const rid of restore) if (rid !== id || kind !== "del") resolveOne(doc, `r:del:${rid}`, false);
+  return found;
+}
+/** CT_TcPr children that precede w:vMerge */
+const TCPR_BEFORE_VMERGE = new Set(["w:cnfStyle", "w:tcW", "w:gridSpan", "w:hMerge"]);
+const VM_LABEL: Record<string, string> = { rest: "starts a vertical merge", cont: "continues the merge above" };
+/** TT61: cell revision markers (w:cellIns / w:cellDel / w:cellMerge in w:tcPr, §17.13.5.4–.6) in document order */
+interface CellSite { key: string; ch: XEl; cell: Cell; row: Row; table: Table; host: Block[]; pid: string; paras: Para[] }
+function cellMarks(doc: WordDoc): CellSite[] {
+  const out: CellSite[] = []; let n = 0;
+  const walk = (bs: Block[]) => {
+    for (const b of bs) {
+      if (b.t === "box") { walk(b.blocks); continue; }
+      if (b.t !== "tbl") continue;
+      for (const r of rowsOf(b)) for (const c of cellsOf(r)) {
+        const ch = c.tcPr ? kids(c.tcPr).find((k) => k.name === "w:cellIns" || k.name === "w:cellDel" || k.name === "w:cellMerge") : undefined;
+        const paras = allParas(c.blocks);
+        if (ch && paras[0]) { const id = ch.attrs.find((a) => a[0] === "w:id")?.[1]; out.push({ key: `c:${id !== undefined && /^-?\d+$/.test(id) ? id : `n${n}`}`, ch, cell: c, row: r, table: b, host: bs, pid: paras[0].id, paras }); }
+        n++;
+        walk(c.blocks);
+      }
+    }
+  };
+  walk(doc.blocks);
+  return out;
+}
+/** remove one cell; the row keeps filling the table grid through w:gridAfter (CT_TrPrBase), an emptied row goes, an emptied
+ *  table goes */
+function removeCell(t: Table, r: Row, c: Cell, host: Block[]) {
+  r.items.splice(r.items.indexOf(c), 1);
+  if (!cellsOf(r).length) {
+    t.items.splice(t.items.indexOf(r), 1);
+    if (!rowsOf(t).length) host.splice(host.indexOf(t), 1);
+    return;
+  }
+  const ti = r.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:trPr");
+  const trPr: XEl = ti >= 0 ? clone(r.items[ti] as XEl) : el("w:trPr");
+  const ga = kid(trPr, "w:gridAfter"); const cur = Number(ga?.attrs.find((a) => a[0] === "w:val")?.[1] ?? 0) || 0;
+  const g = el("w:gridAfter", { "w:val": String(cur + c.span) });
+  if (ga) trPr.kids[trPr.kids.indexOf(ga)] = g; else trPr.kids.unshift(g);
+  trPr.selfClose = false;
+  if (ti >= 0) r.items[ti] = trPr;
+  else { const ex = r.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:tblPrEx"); r.items.splice(ex + 1, 0, trPr); }
+  for (const p of rowParas(r)) touch(p);
+}
+/** TT60: table / row / cell property change records (w:tblPrChange, w:trPrChange, w:tcPrChange — §17.13.5.34–.37) in
+ *  document order, each with a setter that swaps in a rewritten properties element */
+interface PrSite { n: number; key: string; label: "Table" | "Row" | "Cell"; pr: XEl; ch: XEl; pid: string; paras: Para[]; set: (np: XEl) => void }
+function tablePrChanges(doc: WordDoc): PrSite[] {
+  const out: PrSite[] = [];
+  const push = (label: PrSite["label"], pr: XNode | undefined, chName: string, paras: Para[], set: (np: XEl) => void) => {
+    if (!pr || pr.k !== "el" || !paras[0]) return;
+    const ch = kid(pr, chName); if (!ch) return;
+    const id = ch.attrs.find((a) => a[0] === "w:id")?.[1];
+    out.push({ n: out.length, key: `x:${id !== undefined && /^-?\d+$/.test(id) ? id : `n${out.length}`}`, label, pr, ch, pid: paras[0].id, paras, set });
+  };
+  const walk = (bs: Block[]) => {
+    for (const b of bs) {
+      if (b.t === "box") { walk(b.blocks); continue; }
+      if (b.t !== "tbl") continue;
+      const ti = b.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:tblPr");
+      const tp = allParas([b]);
+      if (ti >= 0) push("Table", b.items[ti] as XNode, "w:tblPrChange", tp, (np) => {
+        b.items[ti] = np;
+        const st = kid(np, "w:tblStyle")?.attrs.find((a) => a[0] === "w:val")?.[1]; const bd = kid(np, "w:tblBorders");
+        b.style = st;
+        b.borders = bd ? kids(bd).some((x) => { const v = x.attrs.find((a) => a[0] === "w:val")?.[1]; return !!v && v !== "nil" && v !== "none"; }) : !!st && /grid|table/i.test(st);
+      });
+      for (const r of rowsOf(b)) {
+        const ri = r.items.findIndex((it) => (it as XNode).k === "el" && (it as XEl).name === "w:trPr");
+        if (ri >= 0) push("Row", r.items[ri] as XNode, "w:trPrChange", rowParas(r), (np) => { r.items[ri] = np; });
+        for (const c of cellsOf(r)) {
+          push("Cell", c.tcPr, "w:tcPrChange", allParas(c.blocks), (np) => {
+            const g = (n: string, a: string) => kid(np, n)?.attrs.find((x) => x[0] === a)?.[1];
+            c.tcPr = np; c.width = g("w:tcW", "w:w") !== undefined ? Number(g("w:tcW", "w:w")) : undefined; c.fill = g("w:shd", "w:fill");
+            const vm = kid(np, "w:vMerge"); c.vmerge = vm ? (g("w:vMerge", "w:val") === "restart" ? "restart" : "continue") : undefined;
+          });
+          walk(c.blocks);
+        }
+      }
+    }
+  };
+  walk(doc.blocks);
+  return out;
+}

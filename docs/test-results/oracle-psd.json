@@ -1,0 +1,117 @@
+{
+  "suite": "oracle-psd",
+  "at": "2026-10-25T22:09:25.714Z",
+  "results": [
+    {
+      "suite": "oracle-psd",
+      "name": "psd-tools available",
+      "covers": {},
+      "pass": true,
+      "ms": 178
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+      "covers": {
+        "FF-31": "full",
+        "FF-08": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 535
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+      "covers": {
+        "FF-31": "full",
+        "FF-08": "full",
+        "FF-30": "full"
+      },
+      "pass": true,
+      "ms": 568
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+      "covers": {
+        "FF-31": "full",
+        "FF-08": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 614
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "fixtures exercise clipping (psd-tools: hiding the clipped layers changes the composite)",
+      "covers": {
+        "FF-31": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+      "covers": {
+        "FF-31": "full",
+        "FF-08": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+      "covers": {
+        "FF-31": "full",
+        "FF-08": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+      "covers": {
+        "FF-31": "full",
+        "FF-08": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "B/groups: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+      "covers": {
+        "FF-31": "full",
+        "FF-08": "full",
+        "FF-30": "partial"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "forge row: PSD grade A, and every gap the codec reports is written into the boundary",
+      "covers": {
+        "FF-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "oracle-psd",
+      "name": "C: layer-less RGB and Grayscale PSDs written by psd-tools open via the merged-image fallback",
+      "covers": {
+        "FF-31": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

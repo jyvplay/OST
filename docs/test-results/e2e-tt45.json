@@ -1,0 +1,24 @@
+{
+  "suite": "e2e-tt45",
+  "at": "2026-10-25T22:39:12.248Z",
+  "results": [
+    {
+      "suite": "e2e-tt45",
+      "name": "a server offering ML-KEM (asyncssh defaults) → the session negotiates mlkem768x25519-sha256 and the status bar says Post-quantum, with an honest tooltip",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 1664
+    },
+    {
+      "suite": "e2e-tt45",
+      "name": "a classical-only server (KEX=curve25519-sha256) → the status bar says Classical key exchange instead — never a false post-quantum claim",
+      "covers": {
+        "TD-03": "full"
+      },
+      "pass": true,
+      "ms": 1432
+    }
+  ]
+}

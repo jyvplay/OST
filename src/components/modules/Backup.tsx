@@ -1,10 +1,12 @@
 "use client";
+import { fz } from "@/lib/uiscale";
 
 import { useState } from "react";
 import { fmtBytes } from "@/lib/api";
 import { toB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
+import { heavyWorkRefusal } from "@/lib/governor";
 
 interface Bundle {
   version: string; exportedAt: string; kind: string;
@@ -29,7 +31,12 @@ export default function BackupModule(_: ModuleProps) {
   const [pass, setPass] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const fetchBundle = async (kind: "data" | "config") => {
+  const [held, setHeld] = useState<{ kind: "data" | "config"; why: string } | null>(null);
+  const fetchBundle = async (kind: "data" | "config", force = false) => {
+    // RG-05: refuse on a low, discharging battery or Data Saver unless the user says "anyway"
+    const why = force ? null : heavyWorkRefusal(shell.gov);
+    if (why) { setHeld({ kind, why }); return; }
+    setHeld(null);
     setBusy(true);
     try {
       const res = await fetch(`/api/backup?kind=${kind}`, { cache: "no-store" });
@@ -130,7 +137,12 @@ export default function BackupModule(_: ModuleProps) {
         </div>
         <input className="fs-input" type="password" placeholder="bundle passphrase (never leaves this device)"
           value={pass} onChange={(e) => setPass(e.target.value)} aria-label="Bundle passphrase" />
-        {report ? <div className="fs-mono" style={{ fontSize: 11.5 }}>{report}</div> : null}
+        {held ? <div role="alert" data-testid="backup-held" className="fs-row" style={{ gap: 8, flexWrap: "wrap", alignItems: "center", fontSize: fz(12) }}>
+          <span>{held.why}</span>
+          <Btn variant="ghost" onClick={() => void fetchBundle(held.kind, true)}>Build anyway</Btn>
+          <Btn variant="ghost" onClick={() => setHeld(null)}>Not now</Btn>
+        </div> : null}
+        {report ? <div className="fs-mono" style={{ fontSize: fz(11.5) }}>{report}</div> : null}
       </Section>
 
       <Section title="Restore">
@@ -138,14 +150,14 @@ export default function BackupModule(_: ModuleProps) {
           Choose bundle…
           <input type="file" accept="application/json" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f); }} />
         </label>
-        <div className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           Restore runs in two phases: verify every digest, then apply. A single mismatch aborts the whole restore and
           names the entry. Config and data are separate bundles so settings can move without documents.
         </div>
       </Section>
 
       <Section title="Key custody (BK-06)">
-        <div className="fs-dim" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           The passphrase is used only in this browser (PBKDF2-SHA256, 600 000 iterations → AES-GCM-256) and is never
           transmitted. There is no escrow and no recovery: if you lose it, that bundle is unreadable. Said plainly,
           before you need it.

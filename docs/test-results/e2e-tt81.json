@@ -1,0 +1,58 @@
+{
+  "suite": "e2e-tt81",
+  "at": "2026-10-26T18:39:13.664Z",
+  "results": [
+    {
+      "suite": "e2e-tt81",
+      "name": "E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output",
+      "covers": {
+        "FF-78": "full"
+      },
+      "pass": true,
+      "ms": 10780
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry",
+      "covers": {
+        "FF-79": "full"
+      },
+      "pass": true,
+      "ms": 5429
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback",
+      "covers": {
+        "FF-80": "full"
+      },
+      "pass": true,
+      "ms": 5508
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases",
+      "covers": {
+        "FF-81": "partial"
+      },
+      "pass": true,
+      "ms": 4353
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E5 Writer Word Count reports document and selected text through the real UI",
+      "covers": {
+        "FF-82": "partial"
+      },
+      "pass": true,
+      "ms": 4771
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E6 no browser page errors",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

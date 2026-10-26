@@ -1,0 +1,67 @@
+{
+  "suite": "e2e-tt74-office",
+  "at": "2026-10-25T23:22:40.553Z",
+  "results": [
+    {
+      "suite": "e2e-tt74-office",
+      "name": "AutoFilter list hides rows (SUBTOTAL 9 and 109 skip them), Hide rows hides by hand (only 109 skips), arrows skip hidden rows; Save → openpyxl sees hidden rows + the filter; Unhide shows hand-hidden rows only; Clear shows the rest",
+      "covers": {
+        "FF-53": "full",
+        "FF-54": "full",
+        "FF-21": "partial"
+      },
+      "pass": true,
+      "ms": 5226
+    },
+    {
+      "suite": "e2e-tt74-office",
+      "name": "modal shortcut: with the filter list open, typing, Delete, Backspace, Ctrl+V / Z / X never edit the cell behind it; Escape closes the list and the grid has the keyboard again",
+      "covers": {
+        "FF-53": "full"
+      },
+      "pass": true,
+      "ms": 779
+    },
+    {
+      "suite": "e2e-tt74-office",
+      "name": "Export CSV: the dialog lists what CSV drops; OK downloads the displayed text of the used range; Cancel downloads nothing; Import CSV adds a typed sheet and keeps =… as text",
+      "covers": {
+        "FF-02": "full",
+        "FF-55": "full"
+      },
+      "pass": true,
+      "ms": 2610
+    },
+    {
+      "suite": "e2e-tt74-office",
+      "name": "Writer: Export Markdown downloads heading / bold / list Markdown after the loss dialog; From Markdown opens a new document with the converted heading and list",
+      "covers": {
+        "FF-02": "full",
+        "FF-56": "full",
+        "FF-22": "partial"
+      },
+      "pass": true,
+      "ms": 3025
+    },
+    {
+      "suite": "e2e-tt74-office",
+      "name": "Slides: Outline downloads the deck's titles, bullets and notes as Markdown after the loss dialog",
+      "covers": {
+        "FF-02": "full",
+        "FF-57": "full",
+        "FF-23": "partial"
+      },
+      "pass": true,
+      "ms": 1720
+    },
+    {
+      "suite": "e2e-tt74-office",
+      "name": "no page errors during the suite",
+      "covers": {
+        "FF-02": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

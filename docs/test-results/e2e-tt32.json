@@ -1,0 +1,62 @@
+{
+  "suite": "e2e-tt32",
+  "at": "2026-10-25T22:31:14.935Z",
+  "results": [
+    {
+      "suite": "e2e-tt32",
+      "name": "environment + engine choice: this Chromium has 0 system voices; Narrator (Automatic) speaks through Fusion Voice — the caption bar says so, Web Audio receives non-silent 16 kHz speech for the start-up announcement, and speechSynthesis.speak is never called",
+      "covers": {
+        "AX-15": "full",
+        "AX-14": "partial"
+      },
+      "pass": true,
+      "ms": 5118
+    },
+    {
+      "suite": "e2e-tt32",
+      "name": "intelligibility in the browser (declared gate ≥ 75 %): focus announcements captured from Web Audio on the real page, forced choice among all captured announcements by PocketSphinx",
+      "covers": {
+        "AX-15": "full"
+      },
+      "pass": true,
+      "ms": 141268
+    },
+    {
+      "suite": "e2e-tt32",
+      "name": "control: Ctrl stops Fusion Voice mid-sentence (queued buffers are stopped, nothing new starts)",
+      "covers": {
+        "AX-15": "full"
+      },
+      "pass": true,
+      "ms": 8087
+    },
+    {
+      "suite": "e2e-tt32",
+      "name": "modal: while the Narrator's modal help dialog is open and Fusion Voice is reading it, Ctrl stops the audio (not swallowed by the modal), the dialog stays open, and Escape then closes it",
+      "covers": {
+        "AX-15": "full",
+        "AX-14": "partial"
+      },
+      "pass": true,
+      "ms": 8351
+    },
+    {
+      "suite": "e2e-tt32",
+      "name": "speed: the Settings speed control changes Fusion Voice live — the same announcement at 2× is ≥ 30 % shorter than at 1× (and both are real speech)",
+      "covers": {
+        "AX-15": "full"
+      },
+      "pass": true,
+      "ms": 16762
+    },
+    {
+      "suite": "e2e-tt32",
+      "name": "settings: the Voice selector is in Settings → Narrator and persists; forcing System voice uses speechSynthesis (no Web Audio speech), as the user chose",
+      "covers": {
+        "AX-15": "full"
+      },
+      "pass": true,
+      "ms": 5774
+    }
+  ]
+}

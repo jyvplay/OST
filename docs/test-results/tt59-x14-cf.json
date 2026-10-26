@@ -1,0 +1,36 @@
+{
+  "suite": "tt59-x14-cf",
+  "at": "2026-10-25T23:00:38.664Z",
+  "results": [
+    {
+      "suite": "tt59-x14-cf",
+      "name": "x14-only cellIs / between / expression rules with other-sheet references are read with their inline x14:dxf and drawn in priority order (stopIfTrue honoured)",
+      "covers": {
+        "FF-29": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 188
+    },
+    {
+      "suite": "tt59-x14-cf",
+      "name": "new-file writer: cross-sheet formula rules are emitted as x14-only rules (xm:f + inline x14:dxf), round-trip to the same drawing, and openpyxl/lxml still open the file",
+      "covers": {
+        "FF-29": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 341
+    },
+    {
+      "suite": "tt59-x14-cf",
+      "name": "same-sheet formula rules stay in the 2007 schema (no x14 duplication); a lossless save of the original keeps the x14 rules byte-identical",
+      "covers": {
+        "FF-29": "full",
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 353
+    }
+  ]
+}

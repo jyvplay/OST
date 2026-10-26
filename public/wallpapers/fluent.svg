@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <!-- Fusion Shell TT23 "Fluent bloom" wallpaper — original vector art (after the Windows 11 Fluent mood; not Microsoft's artwork), CC0 for this project. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9ecfb"/><stop offset=".55" stop-color="#9cc9ef"/><stop offset="1" stop-color="#4f8fd6"/></linearGradient>
+    <linearGradient id="p1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7ac0ff"/><stop offset="1" stop-color="#0050b0"/></linearGradient>
+    <linearGradient id="p2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8dcff"/><stop offset="1" stop-color="#0a5fc2"/></linearGradient>
+    <linearGradient id="p3" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#003f8f"/><stop offset="1" stop-color="#3c9cf0"/></linearGradient>
+    <linearGradient id="hi" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <g transform="translate(800 560)">
+    <path d="M0 0C-120-120-140-330 0-430 140-330 120-120 0 0z" fill="url(#p2)" opacity=".95"/>
+    <path d="M0 0C-170-40-360-150-380-330-200-360-50-210 0 0z" fill="url(#p1)"/>
+    <path d="M0 0C170-40 360-150 380-330 200-360 50-210 0 0z" fill="url(#p1)"/>
+    <path d="M0 0C-200 30-420 10-520-140-370-250-150-150 0 0z" fill="url(#p3)"/>
+    <path d="M0 0C200 30 420 10 520-140 370-250 150-150 0 0z" fill="url(#p3)"/>
+    <path d="M0 0C-120 120-330 190-470 120-420-30-200-60 0 0z" fill="url(#p2)" opacity=".9"/>
+    <path d="M0 0C120 120 330 190 470 120 420-30 200-60 0 0z" fill="url(#p2)" opacity=".9"/>
+    <path d="M-60-300C-30-220-12-120 0 0" stroke="url(#hi)" stroke-width="6" fill="none"/>
+    <path d="M-300-260C-200-200-90-110 0 0" stroke="url(#hi)" stroke-width="5" fill="none"/>
+    <path d="M300-260C200-200 90-110 0 0" stroke="url(#hi)" stroke-width="5" fill="none"/>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+KILLED  sparse rows ignore spill child rows  [R]  adversary: spill child rows (no input) are counted; ="" in a remote 
+KILLED  whole columns clamped per sheet (TT69 cross-sheet #VALUE!)  [R]  cross-sheet: whole columns keep one shape on every sheet (TT69: COUN
+KILLED  COUNTBLANK ignores the blank tail  [R]  differential oracle: 40 random sparse sheets — whole-column aggregat
+KILLED  COUNTIF adds the tail whatever the criterion  [R]  cross-sheet: whole columns keep one shape on every sheet (TT69: COUN
+KILLED  COUNTIFS ignores the blank tail  [R]  cross-sheet: whole columns keep one shape on every sheet (TT69: COUN
+KILLED  COUNTIFS compares shown sizes only  [R]  cross-sheet: whole columns keep one shape on every sheet (TT69: COUN
+KILLED  SUMIFS compares shown sizes only  [R]  cross-sheet: whole columns keep one shape on every sheet (TT69: COUN
+KILLED  sparse area cap removed (17 columns evaluate)  [R]  limits: 16 full columns with bottom-row data evaluate, 17 are #NUM! 
+KILLED  large ranges evaluated densely (TT69: #NUM! at 3 columns)  [R]  Excel results for whole-column formulas with data in row 1,048,576 (

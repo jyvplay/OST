@@ -1,0 +1,161 @@
+{
+  "suite": "tt79-pdf",
+  "at": "2026-10-26T08:37:24.818Z",
+  "results": [
+    {
+      "suite": "tt79-pdf",
+      "name": "P1 ciphers: 3DES == OpenSSL, RC2 RFC 2268 vectors, RC4 RFC 6229, PKCS#7 unpad",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "P2 every PFX variant parses: key == writer's key, certificates == leaf + chain, MAC + schemes named",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 2195
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "P3 wrong password refused everywhere; a flipped authSafe byte breaks the MAC; -nomac still refuses",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 258
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "P4 identityFromPkcs12: pairing proved, chain leaf→root, mismatched file refused",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 127
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "P5 sign with PFX identities (visible, page 2) → pyHanko valid + trusted with the root; Fusion trust verdicts",
+      "covers": {
+        "FF-73": "full",
+        "FF-74": "full",
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 2120
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "P6 visible appearance: PDFium ink only inside the rectangle on page 2, page 1 identical, text inside, qpdf clean",
+      "covers": {
+        "FF-74": "full"
+      },
+      "pass": true,
+      "ms": 676
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "P8 rotated pages: the visible box lands in the seen corner and reads upright (PDFium, IoU vs unrotated)",
+      "covers": {
+        "FF-74": "full"
+      },
+      "pass": true,
+      "ms": 2769
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "P7 trust negatives agree with pyHanko: non-CA intermediate, expired signer, key usage without signing",
+      "covers": {
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 1791
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "N1 hostile PFX: random bytes",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "N2 hostile PFX: truncated PFX",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "N3 hostile PFX: iteration count 2^31 in the MAC",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "N4 hostile PFX: larger than 1 MiB",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "N5 hostile PFX: PBMAC1 integrity",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "N6 hostile PFX: envelopedData authSafe",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "N7 hostile PFX: 257 bags",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 11
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "N8 hostile PFX: safeContents nested 6 deep",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt79-pdf",
+      "name": "N9 hostile PFX: PBES2 with an unknown cipher",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

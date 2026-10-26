@@ -1,0 +1,50 @@
+{
+ "suite": "tt78-render-differential",
+ "oracle": "PDFium (pypdfium2 5.14) page renders, same refs for both trees",
+ "pages": 944,
+ "old": {
+  "sim": 0.9565,
+  "ink": 0.7444
+ },
+ "new": {
+  "sim": 0.9799,
+  "ink": 0.7727
+ },
+ "improved_gt_0.02_ink": 133,
+ "regressed_gt_0.02_ink": {
+  "issue19326.pdf": {
+   "old_ink": 0.761,
+   "new_ink": 0.721,
+   "new_sim": 0.935
+  },
+  "jbig2_file_header.pdf": {
+   "old_ink": 0.949,
+   "new_ink": 0,
+   "new_sim": 0.59
+  },
+  "knockout_groups_test.pdf": {
+   "old_ink": 0.913,
+   "new_ink": 0.846,
+   "new_sim": 0.865
+  },
+  "knockout_isolated_overlap.pdf": {
+   "old_ink": 1,
+   "new_ink": 0.769,
+   "new_sim": 0.906
+  },
+  "knockout_nested.pdf": {
+   "old_ink": 1,
+   "new_ink": 0.667,
+   "new_sim": 0.875
+  },
+  "knockout_nested_group_alpha.pdf": {
+   "old_ink": 1,
+   "new_ink": 0.6,
+   "new_sim": 0.9
+  }
+ },
+ "not_compared": [
+  "issue13520.pdf (PDFium timeout)",
+  "personwithdog.pdf (PDFium timeout)"
+ ]
+}

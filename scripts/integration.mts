@@ -24,12 +24,13 @@ const call = async (method, path, body) => {
 const { test, finish } = makeHarness("integration");
 const ok = (c, m) => { if (!c) throw new Error(m); };
 
+import { crc32 as zlibCrc32 } from "node:zlib";
 function zip(files) {
   const locals = []; const cens = []; let offset = 0;
   for (const f of files) {
-    const comp = deflateRawSync(f.data); const name = Buffer.from(f.name);
-    const lh = Buffer.alloc(30); lh.writeUInt32LE(0x04034b50, 0); lh.writeUInt16LE(8, 8); lh.writeUInt32LE(comp.length, 18); lh.writeUInt32LE(f.data.length, 22); lh.writeUInt16LE(name.length, 26);
-    const ch = Buffer.alloc(46); ch.writeUInt32LE(0x02014b50, 0); ch.writeUInt16LE(8, 10); ch.writeUInt32LE(comp.length, 20); ch.writeUInt32LE(f.data.length, 24); ch.writeUInt16LE(name.length, 28); ch.writeUInt32LE(offset, 42);
+    const comp = deflateRawSync(f.data); const name = Buffer.from(f.name); const crc = zlibCrc32(f.data); // TT75: real CRC-32 (the verified EPUB core checks it)
+    const lh = Buffer.alloc(30); lh.writeUInt32LE(0x04034b50, 0); lh.writeUInt16LE(8, 8); lh.writeUInt32LE(comp.length, 18); lh.writeUInt32LE(f.data.length, 22); lh.writeUInt16LE(name.length, 26); lh.writeUInt32LE(crc, 14);
+    const ch = Buffer.alloc(46); ch.writeUInt32LE(0x02014b50, 0); ch.writeUInt16LE(8, 10); ch.writeUInt32LE(comp.length, 20); ch.writeUInt32LE(f.data.length, 24); ch.writeUInt16LE(name.length, 28); ch.writeUInt32LE(crc, 16); ch.writeUInt32LE(offset, 42);
     locals.push(lh, name, comp); cens.push(ch, name); offset += 30 + name.length + comp.length;
   }
   const cen = Buffer.concat(cens); const end = Buffer.alloc(22);
@@ -167,11 +168,29 @@ await test("FF-08/FF-10/FF-02 Forge engines via the API, with grades", { "FF-08"
   await call("POST", "/api/fs", { op: "upload", path: `${DIR}/book.epub`, content: epub.toString("base64") });
   const e = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/book.epub` });
   ok(e.json.grade === "C" && e.json.text.includes("Chapter text"), JSON.stringify(e.json).slice(0, 200));
+  // TT75: a conformant EPUB goes through the verified core (grade B extraction, contents titles); the sloppy one above
+  // fell back to the legacy reader and said why
+  ok(/refused/.test(e.json.boundary), e.json.boundary);
+  const opf3 = `<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="u"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="u">i</dc:identifier><dc:title>Real</dc:title><dc:language>en</dc:language></metadata><manifest><item id="n" href="n.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="a" href="a.xhtml" media-type="application/xhtml+xml"/></manifest><spine><itemref idref="a"/></spine></package>`;
+  const epub3 = zip([{ name: "mimetype", data: Buffer.from("application/epub+zip") }, { name: "META-INF/container.xml", data: Buffer.from(`<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="c.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`) }, { name: "c.opf", data: Buffer.from(opf3) },
+    { name: "n.xhtml", data: Buffer.from(`<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>n</title></head><body><nav epub:type="toc"><ol><li><a href="a.xhtml">The First</a></li></ol></nav></body></html>`) },
+    { name: "a.xhtml", data: Buffer.from(`<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>a</title></head><body><p>Real text</p></body></html>`) }]);
+  await call("POST", "/api/fs", { op: "upload", path: `${DIR}/real.epub`, content: epub3.toString("base64") });
+  const e3 = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/real.epub` });
+  ok(e3.json.grade === "B" && /## The First\n\nReal text/.test(e3.json.text) && /src\/lib\/epub/.test(e3.json.engine), JSON.stringify(e3.json).slice(0, 300));
   const h = Buffer.alloc(26 + 18); h.write("8BPS", 0, "ascii"); h.writeUInt16BE(1, 4); h.writeUInt16BE(3, 12); h.writeUInt32BE(10, 14); h.writeUInt32BE(20, 18); h.writeUInt16BE(8, 22); h.writeUInt16BE(3, 24);
   h.writeUInt32BE(0, 26); h.writeUInt32BE(0, 30); h.writeUInt32BE(6, 34); h.writeUInt32BE(2, 38); h.writeInt16BE(2, 42);
   await call("POST", "/api/fs", { op: "upload", path: `${DIR}/art.psd`, content: h.toString("base64") });
   const p = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/art.psd` });
   ok(p.json.grade === "E" && p.json.header.width === 20 && p.json.header.layers === 2, JSON.stringify(p.json.header));
+  // TT16: a complete layered PSD decodes fully on the server (grade B, layer list with blend + mask)
+  const { writePsd } = await import("../src/lib/image/psd.ts");
+  const { newDoc, makeLayer, addLayer } = await import("../src/lib/image/doc.ts");
+  const top = { ...makeLayer("Überzug", 8, 6, [0, 0, 255, 200]), x: 2, y: 1, blend: "screen" as const, mask: new Uint8ClampedArray(48).fill(255) };
+  const real = Buffer.from(await writePsd(addLayer(newDoc(16, 12), top)));
+  await call("POST", "/api/fs", { op: "upload", path: `${DIR}/layers.psd`, content: real.toString("base64") });
+  const q = await call("POST", "/api/forge", { op: "extract", path: `${DIR}/layers.psd` });
+  ok(q.json.grade === "B" && q.json.layers.length === 2 && q.json.layers[1].name === "Überzug" && q.json.layers[1].blend === "screen" && q.json.layers[1].mask === true, JSON.stringify(q.json).slice(0, 300));
   const slip = zip([{ name: "../evil.txt", data: Buffer.from("x") }]);
   const s = await call("POST", "/api/forge", { op: "listZip", base64: slip.toString("base64") });
   ok(s.status === 400 && /zip-slip/.test(s.json.error), "zip-slip archive accepted by the server engine");
@@ -269,6 +288,32 @@ await test("deleting a note removes only its own index row", { "PR-02": "partial
 });
 
 // cleanup
+await test("every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)", { "AU-03": "partial" }, async () => {
+  // Every handler that reads a JSON body, discovered from the source so a new route is covered automatically.
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const handlers: [string, string][] = [];
+  const walk = (dir: string) => { for (const e of readdirSync(dir, { withFileTypes: true })) { const p = `${dir}/${e.name}`; if (e.isDirectory()) walk(p); else if (e.name === "route.ts") {
+    const src = readFileSync(p, "utf8");
+    ok(!/\b(req|request)\.json\(\)/.test(src), `${p} still calls req.json() directly`);
+    for (const m of src.matchAll(/export async function (GET|POST|PUT|PATCH|DELETE)\b/g)) {
+      const rest = src.slice(m.index! + m[0].length); const end = rest.indexOf("export async function");
+      if ((end < 0 ? rest : rest.slice(0, end)).includes("readJsonObject(req)")) handlers.push([m[1], p.replace(/^src\/app/, "").replace(/\/route\.ts$/, "")]);
+    } } } };
+  walk("src/app/api");
+  ok(handlers.length >= 22, `found only ${handlers.length} JSON handlers`);
+  const count = async (path: string) => ((await call("GET", path)).json.rows as unknown[]).length;
+  const before = { notes: await count("/api/notes"), alerts: await count("/api/alerts") };
+  const send = (method: string, path: string, body: string, type?: string) =>
+    fetch(BASE + path, { method, headers: type ? { "content-type": type } : {}, body }).then((r) => r.status);
+  const bodies = ["", "   ", "null", "[]", "42", '"text"', "{oops", '{"a":1}}', "\u0000"];
+  for (const [m, p] of handlers) {
+    for (const body of bodies) { const st = await send(m, p, body, "application/json"); ok(st === 400, `${m} ${p} ${JSON.stringify(body)} → ${st}`); }
+    const st = await send(m, p, ""); ok(st === 400, `${m} ${p} empty body without content-type → ${st}`);
+  }
+  ok((await count("/api/notes")) === before.notes && (await count("/api/alerts")) === before.alerts, "a rejected body still wrote a record");
+  ok((await send("PUT", "/api/settings", JSON.stringify({ key: "appearance.style", value: "poolside" }), "application/json")) === 200, "valid JSON still reaches the route");
+});
+
 await call("POST", "/api/fs", { op: "purge", path: DIR });
 await call("POST", "/api/fs", { op: "purge", path: "/Sync" }).catch(() => undefined);
 

@@ -1,0 +1,153 @@
+{
+  "suite": "e2e-tt75-books",
+  "at": "2026-10-25T23:26:09.598Z",
+  "results": [
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B1 reflowable pages: columns paginate, Next / ArrowRight move one page width, the end of a part goes on, the position is restored on reopen",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 12495
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B2 contents: clicking an entry shows that part",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 1954
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B3 search: hits are listed; a hit opens its part with a visible <mark>",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 2806
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B4 safety: book scripts and handlers never run, no allow-scripts, CSP meta present; an external link asks first and Cancel opens nothing",
+      "covers": {
+        "FF-10": "full",
+        "FF-61": "full"
+      },
+      "pass": true,
+      "ms": 3790
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B5 right-to-left page progression: ArrowLeft advances, ArrowRight goes back",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 4622
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B6 fixed layout: the 900×600 viewport is scaled to fit; a spread puts page-spread-left on the left; spread none shows one page",
+      "covers": {
+        "FF-10": "full",
+        "FF-60": "full"
+      },
+      "pass": true,
+      "ms": 4536
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B7 -epub-writing-mode reaches the computed style",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 1646
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B8 an obfuscated font loads after de-obfuscation; the wrong-key variant does not",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 4531
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B9 Dark theme and a larger font reach the frame",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 3229
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B10 manifest images decode under the frame CSP; an image missing from the manifest is not shown",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 3283
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B11 a malformed chapter shows an error message instead of guessed content",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 1111
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B12 roll layout: all parts are stacked in one vertical scroller",
+      "covers": {
+        "FF-10": "full",
+        "FF-60": "full"
+      },
+      "pass": true,
+      "ms": 1886
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B14 Shell: a file opened after a reload loads even when a restored window holds the same id (w1_books) — it was focused instead and the file never loaded",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 4265
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B15 an in-book link (data-epub-href) opens its target part through the frame listener; the frame itself never navigates",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 2082
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B16 visual: reflowable page and a fixed-layout spread render (screenshots for inspection)",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 7369
+    },
+    {
+      "suite": "e2e-tt75-books",
+      "name": "B13 no page errors were thrown by the app during the suite",
+      "covers": {
+        "FF-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

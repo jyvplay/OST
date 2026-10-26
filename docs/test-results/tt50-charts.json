@@ -1,0 +1,96 @@
+{
+  "suite": "tt50-charts",
+  "at": "2026-10-25T22:51:10.860Z",
+  "results": [
+    {
+      "suite": "tt50-charts",
+      "name": "trendlines: all six Excel types fit like numpy (polyfit / lstsq) — 120 random datasets incl. fixed intercept and poly orders 2–6; R² on the fitted scale",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 207
+    },
+    {
+      "suite": "tt50-charts",
+      "name": "reader differential: every chart in 25 corpus workbooks (worksheets + chartsheets, one-cell/two-cell/absolute anchors) matches openpyxl — type, bar direction, grouping, series tx/cat/val refs, trendlines, titles, axis titles, anchor",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 2296
+    },
+    {
+      "suite": "tt50-charts",
+      "name": "reader semantics: Excel automatic titles, multi-paragraph rich titles, formula titles, combo/3-D notes, cached values when a reference cannot be resolved (defined names), live values otherwise",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt50-charts",
+      "name": "new-workbook writer: every corpus chart written by writeXlsxWorkbook is read back identically by openpyxl AND by our reader (refs, caches, titles, axis titles, grouping, anchors)",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 3087
+    },
+    {
+      "suite": "tt50-charts",
+      "name": "new charts made in Fusion export as real Excel charts: stacked / 100 % / hbar / doughnut / area / scatter, axis titles, poly + moving-average trendlines, legend — openpyxl reads every property back",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 191
+    },
+    {
+      "suite": "tt50-charts",
+      "name": "renderer: Excel stacking semantics (negatives below zero, 100 % by Σ|v|, blanks), hbar first category at the bottom, trendline + equation + R² only on clustered charts, axis titles and doughnut hole drawn",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt50-charts",
+      "name": "patch writer: unchanged → original bytes; title / axis-title / grouping / anchor edits touch ONLY that chart (and drawing) part; openpyxl sees the edit and every other chart unchanged",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 2236
+    },
+    {
+      "suite": "tt50-charts",
+      "name": "patch writer: delete a chart (frame + rel + part + Override go, siblings stay), add a chart to a sheet WITH and WITHOUT a drawing, add a trendline, change the type (regenerated, reported), rename a referenced sheet (refs follow)",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 813
+    },
+    {
+      "suite": "tt50-charts",
+      "name": "hostile packages: huge ptCount, 400 series, external / escaping relationship targets, malformed chart XML, chart-less drawings and 10 MB caches never crash the reader and stay bounded",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 1802
+    },
+    {
+      "suite": "tt50-charts",
+      "name": "persistence: charts with explicit series, trendlines, grouping, anchors survive Fusion workbook JSON; sanitizeCharts drops hostile fields (bad src paths, unknown kinds, oversize refs) and clamps trend order/period",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

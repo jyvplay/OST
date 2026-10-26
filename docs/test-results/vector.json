@@ -1,0 +1,169 @@
+{
+  "suite": "vector",
+  "at": "2026-10-25T22:09:25.939Z",
+  "results": [
+    {
+      "suite": "vector",
+      "name": "path grammar: implicit repeats, '1.5.5', signs as separators, exponents, compact arc flags",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "vector",
+      "name": "path errors (SVG F.2): render up to the last good segment and report",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "vector",
+      "name": "Q/T → cubic elevation is exact; S/T reflect only after C/S resp. Q/T",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "vector",
+      "name": "arcs (F.6.5/F.6.6): semicircle bounds/length, radius scaling, rx=0 line, zero-length arc omitted",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "vector",
+      "name": "cubic bounds use derivative roots (not control hull); length of closed square includes Z",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "vector",
+      "name": "fill rules: nonzero vs evenodd on nested same-direction squares; distance to outline",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "vector",
+      "name": "transforms: list order, rotate(a cx cy), skew, inverse; serialise rounding",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "vector",
+      "name": "XML reader: quoted '>' in attributes, entities, no DOCTYPE entity expansion, depth limit",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "vector",
+      "name": "SVG import: style attr beats presentation attr, g inheritance, circle→ellipse, %-offset gradients, <use>",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "vector",
+      "name": "SVG import security: scripts, handlers, foreignObject, external refs, CSS, filters reported and never exported",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "vector",
+      "name": "export → import round trip is a fixed point (shapes, styles, bounds, gradients)",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "vector",
+      "name": "ops: move/align/distribute/resize/rotate/flip keep exact geometry",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "vector",
+      "name": "ops: group/ungroup preserve bounds through a rotated group; z-order; duplicate; delete; marquee",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "vector",
+      "name": "toPath keeps exact bounds for rect(rx)/ellipse/polygon; text refuses (no glyph data)",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "vector",
+      "name": "hit test: fill-rule holes, stroke tolerance, transformed shapes, topmost wins, hidden/locked skipped",
+      "covers": {
+        "FF-32": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "vector",
+      "name": "path node editing: anchors carry their handles; handles move alone",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "vector",
+      "name": "v1 .fsvg migration and untrusted v2 validation",
+      "covers": {
+        "FF-32": "full",
+        "FF-04": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "vector",
+      "name": "parametric star survives move/rotate; arrow is plain path data (no <marker>)",
+      "covers": {
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "suite": "e2e-tt70-closeall",
+  "at": "2026-10-25T23:11:22.407Z",
+  "results": [
+    {
+      "suite": "e2e-tt70-closeall",
+      "name": "Close all windows over two dirty workbooks asks about each in window order: Save writes + closes the first, Don't save closes the second and keeps its draft",
+      "covers": {
+        "FF-15": "full",
+        "LY-01": "full"
+      },
+      "pass": true,
+      "ms": 5153
+    },
+    {
+      "suite": "e2e-tt70-closeall",
+      "name": "Cancel (Escape) on the first question stops the whole queue: both windows stay open and unsaved, no second question",
+      "covers": {
+        "FF-15": "full",
+        "LY-01": "full"
+      },
+      "pass": true,
+      "ms": 4364
+    },
+    {
+      "suite": "e2e-tt70-closeall",
+      "name": "a clean window among dirty ones closes at once; only the dirty one is asked about",
+      "covers": {
+        "FF-15": "full",
+        "LY-01": "full"
+      },
+      "pass": true,
+      "ms": 2753
+    }
+  ]
+}
