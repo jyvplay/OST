@@ -11,6 +11,7 @@
  * Volatile functions (TODAY/NOW/RAND) take an injected clock/seed so evaluation stays deterministic
  * and testable — nothing in this engine reads the wall clock implicitly.
  */
+import { numericText } from "../numtext";
 
 export type CellValue = number | string | boolean | null;
 export type ResultValue = CellValue | CellValue[][];
@@ -59,8 +60,8 @@ export function toNum(v: CellValue): number {
   if (typeof v === "boolean") return v ? 1 : 0;
   if (isErr(v)) throw ERR(String(v));
   if (v.trim() === "") throw ERR("#VALUE!"); // TT73: empty TEXT ("" from a formula) is not a number; empty cells arrive as null → 0
-  const n = Number(v);
-  if (Number.isNaN(n)) throw ERR("#VALUE!");
+  const n = numericText(v); // TT79: Excel coercion ("$1.00", "1,000", "50%", "(1)")
+  if (n === null) throw ERR("#VALUE!");
   return n;
 }
 export function toStr(v: CellValue): string {
@@ -178,6 +179,12 @@ export const xlNums = (args: ArgAccessor[], literalTextIsError = false): number[
   }
   return out;
 };
+/** LARGE / SMALL data: numbers of a range or array; a logical typed straight in counts (LARGE(TRUE,1) = 1, POI
+ *  EverythingTests G816) */
+const kthSource = (a: ArgAccessor): number[] => {
+  if (a.isRange) return nums(a.list());
+  const l = a.list(); return l.length === 1 && typeof l[0] === "boolean" ? [l[0] ? 1 : 0] : nums(l);
+};
 export const need = (args: ArgAccessor[], n: number) => { if (args.length < n) throw ERR("#VALUE!"); };
 export const variance = (xs: number[], sample: boolean) => {
   if (xs.length < (sample ? 2 : 1)) throw ERR("#DIV/0!");
@@ -229,6 +236,9 @@ export const FUNCTIONS: Record<string, FnImpl> = {
     if (lists.some((l) => l.length !== len)) throw ERR("#VALUE!");
     // TT74: an error anywhere in the arrays is the result (Excel; POI EverythingTests K1328/L1328 → #REF!)
     for (const l of lists) for (const v of l) if (isErr(v)) throw ERR(v as string);
+    // TT79: when EVERY argument is a single cell the product is scalar, and text there is #VALUE! — even numeric text
+    // (POI EverythingTests J1328: SUMPRODUCT(G1330:G1330, I1330:I1330) with G1330 = "4" → #VALUE! in Excel's cache)
+    if (len === 1 && lists.some((l) => typeof l[0] === "string" && l[0] !== "")) throw ERR("#VALUE!");
     let total = 0;
     for (let i = 0; i < len; i++) total += lists.reduce((p, l) => p * (typeof l[i] === "number" ? (l[i] as number) : 0), 1);
     return total;
@@ -255,8 +265,8 @@ export const FUNCTIONS: Record<string, FnImpl> = {
   STDEVP: (a) => Math.sqrt(variance(xlNums(a), false)),
   VAR: (a) => variance(xlNums(a), true),
   VARP: (a) => variance(xlNums(a), false),
-  LARGE: (a) => { const n = nums(a[0].list()).sort((x, y) => y - x); const k = toNum(a[1].value()); if (k < 1 || k > n.length) throw ERR("#NUM!"); return n[k - 1]; },
-  SMALL: (a) => { const n = nums(a[0].list()).sort((x, y) => x - y); const k = toNum(a[1].value()); if (k < 1 || k > n.length) throw ERR("#NUM!"); return n[k - 1]; },
+  LARGE: (a) => { const n = kthSource(a[0]).sort((x, y) => y - x); const k = toNum(a[1].value()); if (k < 1 || k > n.length) throw ERR("#NUM!"); return n[k - 1]; },
+  SMALL: (a) => { const n = kthSource(a[0]).sort((x, y) => x - y); const k = toNum(a[1].value()); if (k < 1 || k > n.length) throw ERR("#NUM!"); return n[k - 1]; },
 
   /* logic — lazy where it matters */
   IF: (a) => { need(a, 2); return toBool(a[0].value()) ? a[1].value() : (a[2] ? a[2].value() : false); },

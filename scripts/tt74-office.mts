@@ -146,7 +146,8 @@ if (want("X1") || want("X2")) await test("X1/X2 xlsx → CSV vs openpyxl on Exce
   console.log(`    X2a ${r.x2.rawExact}/${r.x2.sheets}, X2b ${r.x2.displayIdempotent}/${r.x2.sheets}`);
   ok(r.x1.cells >= 446_000 && r.x1.agree >= 446_489, `agree ${r.x1.agree} of ${r.x1.cells}`);
   ok(!outside.length, `${outside.length} disagreements outside the allowlist: ${outside.slice(0, 8).join(" | ")}`);
-  ok(open.length <= 14, `EverythingTests open cells grew to ${open.length}: ${open.join(" | ")}`);
+  // TT79: 10 of the 14 fixed (G31 L87 M87 E240 L420 G732 G816 G1008 J1180 J1328); open = G716 D872 E872 M936
+  ok(open.length <= 4, `EverythingTests open cells grew to ${open.length}: ${open.join(" | ")}`);
   ok(r.x2.rawExact === r.x2.sheets, `X2a ${r.x2.rawExact}/${r.x2.sheets}: ${r.x2.bad.slice(0, 3).join(" | ")}`);
   const idemBad = r.x2.idemBad.filter((x: string) => !/6\.3\d+E\+11|4\.6\d+E\+12/.test(x));
   ok(r.x2.displayIdempotent >= r.x2.sheets - 3 && !idemBad.length, `X2b ${r.x2.displayIdempotent}/${r.x2.sheets}: ${idemBad.slice(0, 3).join(" | ")}`);

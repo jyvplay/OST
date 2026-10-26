@@ -331,7 +331,7 @@ await test("whole-corpus differential vs the TT66 reader (338 workbooks: cells +
     for (const [n, sh] of wb.sheets) { const d: Record<string, unknown> = {}; for (const [k, c] of (sh as unknown as { grid: Map<string, { input: string; style?: unknown }> }).grid) d[k] = [c.input, c.style ? JSON.stringify(c.style) : ""]; sheets[n] = d; }
     return JSON.stringify({ sheets, cf: wb.condFormats.map(({ id: _i, ...r }) => r), tables: (wb as unknown as { tables?: unknown[] }).tables?.length ?? 0, charts: wb.charts.length });
   };
-  const opened: string[] = [], decoded: string[] = [], worse: string[] = [], other: string[] = [], phonetic: string[] = []; let same = 0; const emptyText = new Map<string, number>();
+  const opened: string[] = [], decoded: string[] = [], worse: string[] = [], other: string[] = [], phonetic: string[] = [], isoDates: string[] = []; let same = 0; const emptyText = new Map<string, number>();
   for (const f of readdirSync(CORPUS).filter((x) => x.endsWith(".xlsx")).sort()) {
     const buf = readFileSync(`${CORPUS}/${f}`);
     let a: string | null = null, b: string | null = null;
@@ -362,9 +362,23 @@ await test("whole-corpus differential vs the TT66 reader (338 workbooks: cells +
       }
       if (okP && n && JSON.stringify({ ...A, sheets: 0 }) === JSON.stringify({ ...B, sheets: 0 })) { phonetic.push(f); continue; }
     }
+    // TT79 FF-76 (intended): ISO-8601 date cells (t="d", OOXML Strict / ISO dates) now read as date serials; before they
+    // were kept as their raw "1990-01-01T00:00:00Z" text. Explained only if every changed cell went from ISO text to a
+    // number, keeping its style, and nothing else (CF / tables / charts) differs.
+    if (b !== null) {
+      const A = JSON.parse(dec) as { sheets: Record<string, Record<string, [string, string]>> }, B = JSON.parse(b) as typeof A;
+      let okD = true, n = 0;
+      for (const [sn, d] of Object.entries(A.sheets)) for (const [k, [inp, st]] of Object.entries(d)) {
+        const nb = B.sheets[sn]?.[k]; if (nb && nb[0] === inp && nb[1] === st) continue;
+        if (!nb || nb[1] !== st || !/^\d{4}-\d\d-\d\d(T[\d:.]+)?Z?$/.test(inp) || !Number.isFinite(Number(nb[0]))) okD = false; n++;
+      }
+      if (okD && n && JSON.stringify({ ...A, sheets: 0 }) === JSON.stringify({ ...B, sheets: 0 })) { isoDates.push(f); continue; }
+    }
     other.push(f);
   }
   console.log(`    phonetic guides no longer appended (TT74): ${phonetic.join(", ")}`);
+  console.log(`    ISO date cells now read as serials (TT79): ${isoDates.join(", ")}`);
+  eq(isoDates, ["SimpleStrict.xlsx"], "ISO-date reader change limited to the one Strict workbook with t=\"d\" cells");
   eq(worse, [], "files that read worse (or stopped opening)");
   eq(other, [], "files changed for an unexplained reason");
   eq(opened.length, 7, `newly readable: ${opened.join(", ")}`);

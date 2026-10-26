@@ -637,7 +637,9 @@ export function evalRaw(node: Node, ctx: EvalContext): Value {
     case "ref": return ctx.resolveRef(node.v);
     case "range": return ctx.resolveRange(node.v);
     case "array": return node.rows.map((row) => row.map((n) => evaluate(n, ctx)));
-    case "unary": return map1(evalOperand(node.arg, ctx), (x) => { const v = x === BLANK ? 0 : toNumberStrict(x); return node.op === "-" ? -v : v; });
+    // TT79: unary plus is the identity in Excel (=+"abc" is "abc", =+A1:C1 is the intersected value, POI EverythingTests
+    // L87/M87); only a blank becomes 0. Unary minus converts.
+    case "unary": return map1(evalOperand(node.arg, ctx), (x) => { if (node.op !== "-") return x === BLANK ? 0 : x; const v = x === BLANK ? 0 : toNumberStrict(x); return -v; });
     case "percent": return map1(evalOperand(node.arg, ctx), (x) => (x === BLANK ? 0 : toNumberStrict(x) / 100));
     case "binary": return map2(evalOperand(node.left, ctx), evalOperand(node.right, ctx), (l, r) => { const v = evalBinary(node.op, l, r); return typeof v === "number" && !Number.isFinite(v) ? err("#NUM!") : v; });
     case "call": {
@@ -686,7 +688,7 @@ function evalBinary(op: string, l: Scalar, r: Scalar): Scalar {
     case "+": return toNumberStrict(l) + toNumberStrict(r);
     case "-": return toNumberStrict(l) - toNumberStrict(r);
     case "*": return toNumberStrict(l) * toNumberStrict(r);
-    case "/": { const d = toNumberStrict(r); return d === 0 ? err("#DIV/0!") : toNumberStrict(l) / d; } // [oracle] 5/0 -> #DIV/0!, propagates through + too
+    case "/": { const n = toNumberStrict(l), d = toNumberStrict(r); return d === 0 ? err("#DIV/0!") : n / d; } // TT79: both operands convert first — "text"/0 is #VALUE! (POI EverythingTests G31) // [oracle] 5/0 -> #DIV/0!, propagates through + too
     case "^": return Math.pow(toNumberStrict(l), toNumberStrict(r)); // [oracle] left-assoc chain handled by the parser
     case "&": return toStr(l) + toStr(r); // [oracle] 1&2 -> "12"
     case "=": return typeCompare(l, r) === 0; // [oracle] "A"="a" -> FALSE: case-SENSITIVE text equality (measured, not assumed)
@@ -734,7 +736,9 @@ function evalLazy(name: string, argNodes: Node[], ctx: EvalContext): Value | und
         const f = argNodes[2] ? evalRaw(argNodes[2], ctx) : false;
         return map2(map2(condRaw, t, (c, a) => (isError(c) ? c : toBool(c) ? a : ({ skip: true } as unknown as Scalar))), f, (a, b) => (typeof a === "object" && a !== null && "skip" in a ? b : a));
       }
-      const cond = toBool(condRaw);
+      // TT79: a condition that is an EMPTY cell is FALSE (IF(D7,#VALUE!,3) = 3, POI EverythingTests G732); "" text is #VALUE!
+      const blankCond = (argNodes[0].t === "ref" || (ctx.legacy && argNodes[0].t === "range")) && evalOperand(argNodes[0], ctx) === BLANK;
+      const cond = blankCond ? false : toBool(condRaw);
       const branch = cond ? argNodes[1] : argNodes[2];
       if (!branch) return cond; // IF(cond) with a missing branch -> the condition itself
       return evalRaw(branch, ctx);
@@ -744,7 +748,8 @@ function evalLazy(name: string, argNodes: Node[], ctx: EvalContext): Value | und
       return err("#N/A");
     }
     case "CHOOSE": {
-      const i = Math.trunc(Number(evaluate(argNodes[0], ctx)));
+      const iv = evaluate(argNodes[0], ctx); if (isError(iv)) return iv; // TT79: CHOOSE(#REF!,…) is #REF! (POI EverythingTests E240)
+      const i = Math.trunc(Number(iv));
       const branch = argNodes[i];
       return branch ? evalRaw(branch, ctx) : err("#VALUE!");
     }
@@ -937,7 +942,9 @@ export function resolveRefNode(node: Node, ctx: EvalContext): Node {
       if (!base) return baseN.t === "err" ? baseN : errNode("#VALUE!");
       const b = bounds(base);
       const vals: number[] = [];
-      for (const [i, d] of [[1, 0], [2, 0], [3, b.r1 - b.r0 + 1], [4, b.c1 - b.c0 + 1]] as const) { const x = intArg(a[i], d, ctx); if (typeof x !== "number") return x.t === "err" ? x : node; vals.push(x); }
+      // TT79: in a legacy formula a range in a scalar position is implicitly intersected (OFFSET(F7,E7:I7,E7:I7) in
+      // column G uses G7 — POI EverythingTests G1008)
+      for (const [i, d] of [[1, 0], [2, 0], [3, b.r1 - b.r0 + 1], [4, b.c1 - b.c0 + 1]] as const) { const ai = ctx.legacy && a[i]?.t === "range" ? intersectNode(a[i], ctx) : a[i]; const x = intArg(ai, d, ctx); if (typeof x !== "number") return x.t === "err" ? x : node; vals.push(x); }
       const [dr, dc, h, w] = vals;
       if (h === 0 || w === 0) return errNode("#REF!");
       const r0 = b.r0 + dr + (h < 0 ? h + 1 : 0), c0 = b.c0 + dc + (w < 0 ? w + 1 : 0);

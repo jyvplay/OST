@@ -1,0 +1,61 @@
+{
+  "suite": "e2e-tt79-pdf",
+  "at": "2026-10-26T07:41:53.594Z",
+  "results": [
+    {
+      "suite": "e2e-tt79-pdf",
+      "name": "Q1 Import .p12: wrong password asked again; Ctrl+S / Delete inert behind the dialog; identity with chain",
+      "covers": {
+        "FF-73": "full",
+        "FF-74": "full",
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 3444
+    },
+    {
+      "suite": "e2e-tt79-pdf",
+      "name": "Q2 visible signature on page 2 → Ctrl+S → pyHanko valid + trusted; widget bottom-right of page 2; drawn by Fusion",
+      "covers": {
+        "FF-73": "full",
+        "FF-74": "full",
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 5071
+    },
+    {
+      "suite": "e2e-tt79-pdf",
+      "name": "Q3 Trust this certificate → Identity trusted; survives reload; Remove → not verified",
+      "covers": {
+        "FF-73": "full",
+        "FF-74": "full",
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 5542
+    },
+    {
+      "suite": "e2e-tt79-pdf",
+      "name": "Q4 Add certificate… (unrelated root) → untrusted with a reason",
+      "covers": {
+        "FF-73": "full",
+        "FF-74": "full",
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 2831
+    },
+    {
+      "suite": "e2e-tt79-pdf",
+      "name": "Q5 no page errors",
+      "covers": {
+        "FF-73": "full",
+        "FF-74": "full",
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

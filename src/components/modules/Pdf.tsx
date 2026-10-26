@@ -357,7 +357,7 @@ export default function PdfModule({ win }: ModuleProps) {
                 ))}
               </div>
             ) : null}
-            {panel === "sigs" && doc ? <PdfSignatures doc={doc} dirty={dirty} onSigned={pushRevision} onOpenRevision={(b, l) => void openRevision(b, l)} toast={shell.toast} /> : null}
+            {panel === "sigs" && doc ? <PdfSignatures doc={doc} dirty={dirty} page={cur} onSigned={pushRevision} onOpenRevision={(b, l) => void openRevision(b, l)} toast={shell.toast} /> : null}
             {panel === "info" && doc ? (
               <dl data-testid="pdf-info" style={{ fontSize: fz(12), margin: 0, display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 8px" }}>
                 {(["Title", "Author", "Subject", "Keywords"] as const).map((k) => <Fragment key={k}><dt style={{ fontWeight: 600 }}>{k}</dt><dd style={{ margin: 0 }}><button type="button" data-testid={`pdf-info-${k}`} onClick={() => void editInfo(k)} style={{ background: "none", border: 0, padding: 0, color: "inherit", textAlign: "left", cursor: "pointer", textDecoration: "underline dotted" }}>{info[k] || "—"}</button></dd></Fragment>)}

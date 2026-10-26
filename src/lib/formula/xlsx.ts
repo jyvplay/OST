@@ -542,7 +542,25 @@ const parseA1 = (ref: string) => { const m = /^\$?([A-Z]+)\$?(\d+)$/i.exec(ref);
  * COUNTBLANK alike. `textInput("")` would delete the cell, so keep it as the bare quote prefix `'`.
  */
 const keepText = (text: string) => text === "" ? "'" : textInput(text);
-function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | undefined)[]): Sheet {
+/**
+ * TT79: an ISO 8601 date cell (t="d", ST_CellType §18.18.11 — Strict OOXML writers use it) → the workbook's date serial.
+ * Accepts YYYY-MM-DD, YYYY-MM-DDThh:mm[:ss[.fff]][Z|±hh:mm] and a bare time hh:mm[:ss] (a fraction of a day).
+ * 1900 system: days since 1899-12-30, minus one before 1900-03-01 when the workbook emulates Lotus' 1900-02-29
+ * (dateCompatibility, default true; Strict files may set it false); 1904 system: days since 1904-01-01.
+ * The zone designator is dropped (spreadsheet serials are zone-less wall-clock values). null = not a date.
+ */
+export function isoDateToSerial(v: string, date1904 = false, compat = true): number | null {
+  const t = /^(\d{2}):(\d{2})(?::(\d{2})(\.\d+)?)?$/.exec(v.trim());
+  if (t) { const h = +t[1], mi = +t[2], se = +(t[3] ?? 0) + +(t[4] ?? 0); return h < 24 && mi < 60 && se < 61 ? (h * 3600 + mi * 60 + se) / 86400 : null; }
+  const m = /^(-?\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(\.\d+)?)?)?(Z|[+-]\d{2}:?\d{2})?$/.exec(v.trim()); if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3], h = +(m[4] ?? 0), mi = +(m[5] ?? 0), se = +(m[6] ?? 0) + +(m[7] ?? 0);
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || h > 24 || mi > 59 || se >= 61) return null;
+  const day = Date.UTC(y, mo - 1, d); if (new Date(day).getUTCDate() !== d) return null; // 2023-02-30 is not a date
+  let serial = (day - Date.UTC(1899, 11, 30)) / 86400000 + (h * 3600 + mi * 60 + se) / 86400;
+  if (date1904) serial -= 1462; else if (compat && serial < 61) serial -= 1;
+  return serial < 0 ? null : Math.round(serial * 1e10) / 1e10;
+}
+function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | undefined)[], dates: { date1904: boolean; compat: boolean } = { date1904: false, compat: true }): Sheet {
   const sheet = new Sheet(name);
   const shared = new Map<string, { body: string; col: number; row: number }>();
   const arrayChildren = new Set<string>();
@@ -604,6 +622,7 @@ function readSheet(xml: string, name: string, sst: string[], xfs: (CellStyle | u
     if (type === "s") { const sv = /^\s*\d+\s*$/.test(v) ? sst[Number(v)] : undefined; if (sv !== undefined) sheet.setCell(col, row, keepText(sv)); } // TT47: "0.00", "00123", "TRUE", "=x" stay TEXT
     else if (type === "str") sheet.setCell(col, row, textInput(v)); // a constant t="str" with <v></v> is no value (Excel writes str only with <f>)
     else if (type === "b") sheet.setCell(col, row, v === "1" ? "TRUE" : "FALSE");
+    else if (type === "d") { const sn = isoDateToSerial(v, dates.date1904, dates.compat); sheet.setCell(col, row, sn === null ? keepText(v) : String(sn)); } // TT79: ISO 8601 date cell
     else sheet.setCell(col, row, v); // e (literal error text), str, n
     applyStyle();
   }
@@ -698,6 +717,8 @@ export function readXlsxWorkbook(buf: Buffer): Workbook {
     const at = xmlAttrs(r[1]); if (at.Id && at.Target) rels.set(at.Id, resolveTarget(at.Target));
   }
   const sst = readSharedStrings(get("xl/sharedStrings.xml"));
+  // the date system is needed while reading cells (t="d" ISO dates become serials)
+  const dateSys = (() => { const w = /<workbookPr\b([^>]*)\/?>/.exec(workbookXml); const a = w ? xmlAttrs(w[1]) : {}; return { date1904: a.date1904 === "1" || a.date1904 === "true", compat: !(a.dateCompatibility === "0" || a.dateCompatibility === "false") }; })();
   const stylesTarget = [...relsXml.matchAll(/<Relationship\b([^>]*)\/?\s*>/g)].map((r) => xmlAttrs(r[1])).find((a) => /\/styles$/.test(a.Type ?? ""))?.Target;
   const stylesXml = get(stylesTarget ? resolveTarget(stylesTarget) : "xl/styles.xml");
   const themeTarget = [...relsXml.matchAll(/<Relationship\b([^>]*)\/?\s*>/g)].map((r) => xmlAttrs(r[1])).find((a) => /\/theme$/.test(a.Type ?? ""))?.Target;
@@ -711,7 +732,7 @@ export function readXlsxWorkbook(buf: Buffer): Workbook {
     if (!name || !path) continue;
     const xml = get(path);
     if (xml) {
-      wb.sheets.set(name, readSheet(xml, name, sst, xfs)); readTables(xml, path, name, wb, get); readCondFormats(xml, name, wb, dxfs, colors);
+      wb.sheets.set(name, readSheet(xml, name, sst, xfs, dateSys)); readTables(xml, path, name, wb, get); readCondFormats(xml, name, wb, dxfs, colors);
       // TT57: cell hyperlinks (<hyperlinks> + this sheet's relationship part)
       if (/<(?:\w+:)?hyperlinks\b/.test(xml)) { const dir = path.slice(0, path.lastIndexOf("/") + 1); wb.sheets.get(name)!.links = readLinks(xml, get(`${dir}_rels/${path.slice(dir.length)}.rels`) ?? ""); }
       // TT50: charts (drawing → chart parts) on worksheets and chartsheets

@@ -22,7 +22,8 @@
  * (scripts/tt77-pdfsig.mts).
  */
 import type { PdfDoc } from "./pdfdoc";
-import { N, PDict, PName, PRef, PStr, isArr, isDict, isRef, isStream, textString, type PObj, type Bytes } from "./pdfobj";
+import { N, PDict, PName, PRef, PStr, PStream, isArr, isDict, isRef, isStream, textString, type PObj, type Bytes } from "./pdfobj";
+import { helvWidth, pdfLiteral, winAnsiBytes } from "./pdftextfit";
 /** a PDF text string: PDFDocEncoding-safe ASCII as bytes, anything else UTF-16BE with BOM (§7.9.2.2) */
 const txt = (s: string) => { if (/^[\x20-\x7e]*$/.test(s)) return new PStr(new TextEncoder().encode(s)); const b = [0xfe, 0xff]; for (const ch of s) { const c = ch.codePointAt(0)!; if (c > 0xffff) { const v = c - 0x10000; b.push(0xd8 | (v >> 18), (v >> 10) & 255, 0xdc | ((v >> 8) & 3), v & 255); } else b.push(c >> 8, c & 255); } return new PStr(Uint8Array.from(b)); };
 import { PdfEditor } from "./pdfedit";
@@ -169,8 +170,12 @@ export interface SigReport {
   /** bytes of the signed revision (ByteRange c + d): file.subarray(0, signedLength) is exactly what was signed */
   signedLength: number;
   /** chain inside the signature: certificates whose signatures verified against an issuer in the bag; root named */
-  chain: { subject: string; verifiedByIssuer: boolean | null }[]; selfSigned: boolean;
-  /** "valid" only when digest + signature hold; trust is never claimed (no trust store) */
+  chain: { subject: string; verifiedByIssuer: boolean | null; der: Bytes }[]; selfSigned: boolean;
+  /** trust against the user's own anchors (Fusion ships no trust store): "trusted" = valid signature, every link of a
+   *  path from the signer to one of `anchors` verified, issuers are CAs, all certificates valid at the signing time,
+   *  and the signer's key usage allows signing; "untrusted" = anchors given but no such path; "no-anchors" = none set */
+  trust: "trusted" | "untrusted" | "no-anchors"; trustNote: string;
+  /** "valid" only when digest + signature hold; trust is reported separately (see `trust`) */
   status: "valid" | "modified" | "invalid" | "unsupported" | "malformed";
   certValidAtSigning: boolean | null; notes: string[];
 }
@@ -192,17 +197,18 @@ export function signatureFields(doc: PdfDoc): { name: string; v: PDict; widget: 
   return out;
 }
 
-export async function validateSignatures(doc: PdfDoc): Promise<SigReport[]> {
-  const out: SigReport[] = [];
-  for (const f of signatureFields(doc)) out.push(await validateOne(doc, f.name, f.v));
+export async function validateSignatures(doc: PdfDoc, opts: { anchors?: Bytes[] } = {}): Promise<SigReport[]> {
+  const out: SigReport[] = []; const anchors: Cert[] = [];
+  for (const a of opts.anchors ?? []) { try { anchors.push(parseCert(a)); } catch { /* an unreadable anchor is ignored */ } }
+  for (const f of signatureFields(doc)) out.push(await validateOne(doc, f.name, f.v, anchors));
   return out;
 }
 
-async function validateOne(doc: PdfDoc, field: string, v: PDict): Promise<SigReport> {
+async function validateOne(doc: PdfDoc, field: string, v: PDict, anchors: Cert[] = []): Promise<SigReport> {
   const file = doc.bytes; const notes: string[] = [];
   const str = (k: string) => { const x = doc.resolve(v.get(k)); return x instanceof PStr ? textString(x) : ""; };
   const sf = doc.resolve(v.get("SubFilter")); const subFilter = sf instanceof PName ? sf.n : "";
-  const rep: SigReport = { field, subFilter, signer: str("Name"), issuer: "", signingTime: str("M") || null, reason: str("Reason"), location: str("Location"), digestOk: null, signatureOk: null, coversWholeFile: false, appendedBytes: 0, signedLength: 0, chain: [], selfSigned: false, status: "malformed", certValidAtSigning: null, notes };
+  const rep: SigReport = { field, subFilter, signer: str("Name"), issuer: "", signingTime: str("M") || null, reason: str("Reason"), location: str("Location"), digestOk: null, signatureOk: null, coversWholeFile: false, appendedBytes: 0, signedLength: 0, chain: [], selfSigned: false, trust: "no-anchors", trustNote: "", status: "malformed", certValidAtSigning: null, notes };
   try {
     const br = doc.arr(v.get("ByteRange")).map((x) => doc.num(x));
     if (br.length !== 4 || br.some((x) => !Number.isInteger(x) || x < 0)) { notes.push("ByteRange is not four non-negative integers"); return rep; }
@@ -268,8 +274,10 @@ async function validateOne(doc: PdfDoc, field: string, v: PDict): Promise<SigRep
       const at = rep.signingTime ? (/^D:/.test(rep.signingTime) ? pdfDateOf(rep.signingTime) : new Date(rep.signingTime)) : null;
       if (at && /^D:/.test(rep.signingTime ?? "")) { rep.signingTime = at.toISOString(); notes.push("signing time taken from /M (the signer's clock, unsigned)"); }
       if (at && cert.notBefore && cert.notAfter) rep.certValidAtSigning = at >= cert.notBefore && at <= cert.notAfter;
+      if (anchors.length) { const t = await trustPath(cert, certs, anchors, at ?? new Date()); rep.trust = t.ok ? "trusted" : "untrusted"; rep.trustNote = t.note; }
     }
     rep.status = rep.signatureOk === "unsupported" ? "unsupported" : rep.digestOk && rep.signatureOk === true ? (rep.coversWholeFile ? "valid" : "modified") : "invalid";
+    if (rep.trust === "trusted" && rep.status !== "valid" && rep.status !== "modified") { rep.trust = "untrusted"; rep.trustNote = "the signature itself does not verify"; }
     if (rep.status === "modified") notes.push(`${rep.appendedBytes} bytes were appended after signing (later revisions are not covered by this signature)`);
   } catch (e) { notes.push(`malformed: ${(e as Error).message}`); rep.status = "malformed"; }
   return rep;
@@ -280,20 +288,56 @@ function subjectKeyId(c: Cert): Bytes | null {
   try { const t = kids(der(c.tbs)); const ext = t.find((x) => x.tag === 0xa3); if (!ext) return null; for (const e of kids(kids(ext)[0])) { const k = kids(e); if (oid(k[0]) === "2.5.29.14") return body(der(body(k[k.length - 1]))); } } catch { /* none */ }
   return null;
 }
+/** X.509 extensions of a certificate by OID → the extnValue contents */
+function extensions(c: Cert): Map<string, Bytes> {
+  const m = new Map<string, Bytes>();
+  try { const t = kids(der(c.tbs)); const ext = t.find((x) => x.tag === 0xa3); if (ext) for (const e of kids(kids(ext)[0])) { const k = kids(e); m.set(oid(k[0]), body(k[k.length - 1])); } } catch { /* none */ }
+  return m;
+}
+/** basicConstraints cA (RFC 5280 §4.2.1.9) */
+function isCA(c: Cert): boolean { const v = extensions(c).get(O.basic); if (!v) return false; try { const k = kids(der(v)); return !!k[0] && k[0].tag === 1 && body(k[0])[0] !== 0; } catch { return false; } }
+/** keyUsage (RFC 5280 §4.2.1.3): bit 0 digitalSignature, bit 1 nonRepudiation, bit 5 keyCertSign; null = extension absent */
+function keyUsage(c: Cert): ((bit: number) => boolean) | null {
+  const v = extensions(c).get(O.keyUsage); if (!v) return null;
+  try { const b = body(der(v)); return (bit: number) => !!(b[1 + (bit >> 3)] & (0x80 >> (bit & 7))); } catch { return () => false; }
+}
+/** RFC 5280 §6-style path from the signer to a user anchor (simplified: no name constraints / policies / revocation) */
+async function trustPath(leaf: Cert, bag: Cert[], anchors: Cert[], at: Date): Promise<{ ok: boolean; note: string }> {
+  const inTime = (c: Cert) => !!c.notBefore && !!c.notAfter && at >= c.notBefore && at <= c.notAfter;
+  const ku = keyUsage(leaf); if (ku && !ku(0) && !ku(1)) return { ok: false, note: "the signer certificate's key usage does not allow signing" };
+  let cur = leaf; const seen = new Set<Cert>();
+  for (let depth = 0; depth < 10; depth++) {
+    if (!inTime(cur)) return { ok: false, note: `${cur.subjectName || "a certificate"} was not valid at the signing time` };
+    if (anchors.some((a) => eq(a.der, cur.der))) return { ok: true, note: `chain ends at your trusted certificate ${cur.subjectName}` };
+    seen.add(cur);
+    const issuerOk = async (c: Cert) => { if (!eq(c.subject, cur.issuer)) return false; try { return (await verifyWith(c, cur.sigAlg, null, cur.sig, cur.tbs)) === true; } catch { return false; } };
+    const caOk = (c: Cert) => { const k = keyUsage(c); return isCA(c) && (!k || k(5)); };
+    for (const a of anchors) if (await issuerOk(a)) {
+      if (!caOk(a)) return { ok: false, note: `your trusted certificate ${a.subjectName} is not a CA` };
+      if (!inTime(a)) return { ok: false, note: `your trusted certificate ${a.subjectName} was not valid at the signing time` };
+      return { ok: true, note: `issued under your trusted certificate ${a.subjectName}` };
+    }
+    let next: Cert | undefined; for (const c of bag) if (!seen.has(c) && c !== cur && (await issuerOk(c))) { next = c; break; }
+    if (!next) return { ok: false, note: eq(cur.issuer, cur.subject) ? `the chain ends at ${cur.subjectName}, which is not in your trusted list` : `no issuer for ${cur.subjectName} in the signature or your trusted list` };
+    if (!caOk(next)) return { ok: false, note: `${next.subjectName} issued a certificate but is not a CA` };
+    cur = next;
+  }
+  return { ok: false, note: "certificate path too long" };
+}
 async function chainOf(certs: Cert[], rep: SigReport) {
   const seen = new Set<Cert>(); let cur: Cert | undefined = certs[0];
   for (let g = 0; cur && g < 10 && !seen.has(cur); g++) {
     seen.add(cur); const self = eq(cur.issuer, cur.subject);
     const iss: Cert | undefined = self ? cur : certs.find((c) => eq(c.subject, cur!.issuer));
     let ok: boolean | null = null; if (iss) { try { const r = await verifyWith(iss, cur.sigAlg, null, cur.sig, cur.tbs); ok = r === true; } catch { ok = false; } }
-    rep.chain.push({ subject: cur.subjectName, verifiedByIssuer: ok });
+    rep.chain.push({ subject: cur.subjectName, verifiedByIssuer: ok, der: cur.der });
     if (self) { rep.selfSigned = rep.chain.length === 1; break; }
     cur = iss;
   }
 }
 
 /* ------------------------------------------------------------------ signing identities */
-export interface Identity { name: string; key: CryptoKey; certDer: Uint8Array; alg: "ECDSA-P256" | "RSA" }
+export interface Identity { name: string; key: CryptoKey; certDer: Uint8Array; alg: "ECDSA-P256" | "RSA"; /** issuer certificates embedded with the signature (leaf excluded) */ chain?: Uint8Array[] }
 const ecdsaRawToDer = (raw: Bytes) => { const h = raw.length / 2; return SEQ(INT(raw.subarray(0, h)), INT(raw.subarray(h))); };
 /** a self-signed ECDSA P-256 identity made on this device (the private key is non-extractable) */
 export async function makeSelfSignedIdentity(name: string, email = "", org = "", years = 3): Promise<Identity> {
@@ -334,17 +378,50 @@ export async function buildCms(id: Identity, data: Bytes, when = new Date()): Pr
   const sig = id.alg === "RSA" ? raw : ecdsaRawToDer(raw);
   const signedAttrsImplicit = new Uint8Array(signedSet); signedAttrsImplicit[0] = 0xa0;
   const signerInfo = SEQ(INT(1), SEQ(cert.issuer, INT(cert.serial)), sha256, signedAttrsImplicit, sigAlg, OCTET(sig));
-  const sd = SEQ(INT(1), SET(sha256), SEQ(OID(O.data)), CTX(0, true, id.certDer), SET(signerInfo));
+  // CertificateSet is a DER SET OF: members sorted by encoding
+  const certSet = [id.certDer, ...(id.chain ?? []).filter((c) => !eq(c, id.certDer))].sort(cmpBytes);
+  const sd = SEQ(INT(1), SET(sha256), SEQ(OID(O.data)), CTX(0, true, ...certSet), SET(signerInfo));
   return SEQ(OID(O.signedData), CTX(0, true, sd));
 }
 function cmpBytes(a: Uint8Array, b: Uint8Array) { for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i] - b[i]; return a.length - b.length; }
 
 /** sign the document: returns the new file (original bytes + one incremental update) */
-export async function signPdf(doc: PdfDoc, id: Identity, opts: { reason?: string; location?: string; contact?: string; field?: string; when?: Date; reserve?: number } = {}): Promise<Uint8Array> {
+export interface VisibleSig { /** 0-based page index */ page: number; /** [x0 y0 x1 y1] in the page's default user space */ rect: number[] }
+export type SigCorner = "bottom-right" | "bottom-left" | "top-right" | "top-left";
+/** a w × h box (as SEEN, i.e. after the page's /Rotate) in a corner of the crop box, `margin` pt in; returns the
+ *  widget /Rect in default user space (§12.5.5 maps the rotated appearance onto it) */
+export function placeSignature(page: { crop: number[]; rotate: number }, corner: SigCorner, w = 220, h = 70, margin = 36): number[] {
+  const [x0, y0, x1, y1] = page.crop; const rot = ((page.rotate % 360) + 360) % 360;
+  const dw = rot === 90 || rot === 270 ? y1 - y0 : x1 - x0, dh = rot === 90 || rot === 270 ? x1 - x0 : y1 - y0;
+  const bw = Math.min(w, dw - 2 * Math.min(margin, dw / 8)), bh = Math.min(h, dh - 2 * Math.min(margin, dh / 8)); const m = Math.min(margin, dw / 8, dh / 8);
+  const u0 = corner.endsWith("right") ? dw - m - bw : m, v0 = corner.startsWith("top") ? dh - m - bh : m;
+  // displayed (u, v) → user (x, y) for each /Rotate (the page is shown turned clockwise)
+  const map = (u: number, v: number): [number, number] => rot === 90 ? [x1 - v, y0 + u] : rot === 180 ? [x1 - u, y1 - v] : rot === 270 ? [x0 + v, y1 - u] : [x0 + u, y0 + v];
+  const [ax, ay] = map(u0, v0), [bx, by] = map(u0 + bw, v0 + bh);
+  return [Math.min(ax, bx), Math.min(ay, by), Math.max(ax, bx), Math.max(ay, by)];
+}
+/** the appearance of a visible signature: a framed box with "Digitally signed by", the name, date, reason, location
+ *  (Helvetica, WinAnsi; each line shrinks to fit the width) */
+export function signatureAppearance(w: number, h: number, name: string, dateText: string, reason?: string, location?: string): string {
+  const small = ["Digitally signed by"], after = [`Date: ${dateText}`, ...(reason ? [`Reason: ${reason}`] : []), ...(location ? [`Location: ${location}`] : [])];
+  const units = small.length + after.length + 1.6; const fs = Math.max(3, Math.min(9, (h - 8) / (units * 1.2)));
+  const fit = (t: string, size: number) => { const tw = helvWidth(t, size); return tw > w - 12 ? Math.max(2.5, (size * (w - 12)) / tw) : size; };
+  // centre the text block vertically
+  const total = [...small, ...after].reduce((n, t) => n + fit(t, fs) * 1.2, 0) + fit(name, fs * 1.6) * 1.2;
+  let y = h - Math.max(4, (h - total) / 2); const parts: string[] = [`q 0.965 0.973 0.992 rg 0.30 0.40 0.60 RG 0.75 w 0.375 0.375 ${fmt(w - 0.75)} ${fmt(h - 0.75)} re B Q`, "BT"];
+  const line = (t: string, size: number, color: string) => { y -= size * 1.2; parts.push(`/Helv ${fmt(size)} Tf ${color} rg 1 0 0 1 6 ${fmt(y + size * 0.22)} Tm (${pdfLiteral(winAnsiBytes(t))}) Tj`); };
+  for (const t of small) line(t, fit(t, fs), "0.35 0.38 0.45");
+  line(name, fit(name, fs * 1.6), "0.08 0.12 0.28");
+  for (const t of after) line(t, fit(t, fs), "0.22 0.25 0.32");
+  parts.push("ET"); return parts.join("\n");
+}
+const fmt = (n: number) => (Math.round(n * 100) / 100).toString();
+
+export async function signPdf(doc: PdfDoc, id: Identity, opts: { reason?: string; location?: string; contact?: string; field?: string; when?: Date; reserve?: number; visible?: VisibleSig } = {}): Promise<Uint8Array> {
   const when = opts.when ?? new Date(); const reserve = opts.reserve ?? 8192; // bytes reserved for the CMS
   const ed = new PdfEditor(doc);
   const rootRef = doc.trailer.get("Root"); if (!isRef(rootRef)) throw new Error("pdf: no catalog reference");
-  const page0 = doc.pages()[0]; if (!page0?.ref) throw new Error("pdf: no first page");
+  const vis = opts.visible; const page0 = doc.pages()[vis ? vis.page : 0]; if (!page0?.ref) throw new Error(vis ? `pdf: no page ${vis.page + 1}` : "pdf: no first page");
   const CONTENTS = "/" + "F".repeat(2 * reserve + 1); // same width as <hex…>
   const BYTERANGE = "/" + "B".repeat(59); // same width as the padded [a b c d]
   const pd = (n: number) => String(n).padStart(2, "0"); const tz = -when.getTimezoneOffset();
@@ -356,6 +433,21 @@ export async function signPdf(doc: PdfDoc, id: Identity, opts: { reason?: string
   // a unique field name
   const taken = new Set(signatureFields(doc).map((f) => f.name)); let fname = opts.field ?? "Signature1"; for (let k = 2; taken.has(fname); k++) fname = `Signature${k}`;
   const widget = new PDict().set("Type", N("Annot")).set("Subtype", N("Widget")).set("FT", N("Sig")).set("T", txt(fname)).set("V", sigRef).set("Rect", [0, 0, 0, 0]).set("F", 132).set("P", page0.ref);
+  if (vis) {
+    const [x0, y0, x1, y1] = [Math.min(vis.rect[0], vis.rect[2]), Math.min(vis.rect[1], vis.rect[3]), Math.max(vis.rect[0], vis.rect[2]), Math.max(vis.rect[1], vis.rect[3])];
+    if (!(x1 - x0 >= 24 && y1 - y0 >= 12) || ![x0, y0, x1, y1].every(Number.isFinite)) throw new Error("sign: the visible signature box must be at least 24 × 12 pt");
+    // a rotated page shows the widget turned: lay the appearance out upright (visual w × h) and counter-rotate it
+    const rot = ((page0.rotate % 360) + 360) % 360; const turned = rot === 90 || rot === 270;
+    const w = turned ? y1 - y0 : x1 - x0, h = turned ? x1 - x0 : y1 - y0;
+    const matrix = rot === 90 ? [0, 1, -1, 0, 0, 0] : rot === 180 ? [-1, 0, 0, -1, 0, 0] : rot === 270 ? [0, -1, 1, 0, 0, 0] : null;
+    const off = -when.getTimezoneOffset(); const dateText = `${when.getFullYear()}-${pd(when.getMonth() + 1)}-${pd(when.getDate())} ${pd(when.getHours())}:${pd(when.getMinutes())} ${off >= 0 ? "+" : "-"}${pd(Math.floor(Math.abs(off) / 60))}:${pd(Math.abs(off) % 60)}`;
+    const ap = signatureAppearance(w, h, id.name, dateText, opts.reason, opts.location);
+    const helv = new PDict().set("Type", N("Font")).set("Subtype", N("Type1")).set("BaseFont", N("Helvetica")).set("Encoding", N("WinAnsiEncoding"));
+    const fd = new PDict().set("Type", N("XObject")).set("Subtype", N("Form")).set("BBox", [0, 0, w, h]).set("Resources", new PDict().set("Font", new PDict().set("Helv", helv)));
+    if (matrix) fd.set("Matrix", matrix);
+    const form = new PStream(fd, new TextEncoder().encode(ap));
+    widget.set("Rect", [x0, y0, x1, y1]).set("F", 4).set("AP", new PDict().set("N", ed.add(form)));
+  }
   const wref = ed.add(widget);
   // page /Annots (+ widget) and catalog /AcroForm (+ field, SigFlags 3 = signatures exist, append only)
   const pg = ed.dict(page0.ref)!; const pcopy = new PDict(); for (const [k, x] of pg.m) pcopy.set(k, x);

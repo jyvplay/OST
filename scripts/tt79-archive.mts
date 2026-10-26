@@ -162,6 +162,30 @@ await test("C2 own inflater == zlib (every deflated corpus entry + node:zlib lev
   return `${n} zlib streams + 8 Python entries`;
 });
 
+/** fixed-Huffman Deflate64 stream: 60 000 literals, then code 285 + 16 extra bits at distance codes 30 and 31 */
+function deflate64Fixture() {
+  const bits: number[] = []; const put = (v: number, n: number) => { for (let i = 0; i < n; i++) bits.push((v >>> i) & 1); }; // LSB first
+  const huff = (code: number, n: number) => { for (let i = n - 1; i >= 0; i--) bits.push((code >>> i) & 1); };           // MSB first
+  const lit = (v: number) => (v < 144 ? huff(0x30 + v, 8) : v < 256 ? huff(0x190 + v - 144, 9) : v < 280 ? huff(v - 256, 7) : huff(0xc0 + v - 280, 8));
+  const out: number[] = []; let x = 79;
+  put(1, 1); put(1, 2); // final block, fixed Huffman
+  for (let i = 0; i < 60000; i++) { x = (x * 1103515245 + 12345) & 0x7fffffff; const v = 97 + (x >> 16) % 26; lit(v); out.push(v); }
+  const match = (lenExtra: number, dcode: number, dExtra: number) => {
+    lit(285); put(lenExtra, 16); huff(dcode, 5); put(dExtra, 14);
+    const len = 3 + lenExtra, dist = (dcode === 30 ? 32769 : 49153) + dExtra;
+    for (let i = 0; i < len; i++) out.push(out[out.length - dist]);
+  };
+  match(5000, 30, 100); match(40000, 31, 777); lit(65); out.push(65); match(0, 30, 0);
+  lit(256);
+  const data = new Uint8Array(Math.ceil(bits.length / 8)); bits.forEach((b, i) => { data[i >> 3] |= b << (i & 7); });
+  const exp = Uint8Array.from(out), crc = crc32(exp), name = Buffer.from("d64.bin");
+  const lh = Buffer.alloc(30); lh.writeUInt32LE(0x04034b50, 0); lh.writeUInt16LE(21, 4); lh.writeUInt16LE(9, 8); lh.writeUInt32LE(crc, 14); lh.writeUInt32LE(data.length, 18); lh.writeUInt32LE(exp.length, 22); lh.writeUInt16LE(name.length, 26);
+  const ch = Buffer.alloc(46); ch.writeUInt32LE(0x02014b50, 0); ch.writeUInt16LE(21, 4); ch.writeUInt16LE(21, 6); ch.writeUInt16LE(9, 10); ch.writeUInt32LE(crc, 16); ch.writeUInt32LE(data.length, 20); ch.writeUInt32LE(exp.length, 24); ch.writeUInt16LE(name.length, 28);
+  const cdOff = 30 + name.length + data.length, cd = Buffer.concat([ch, name]);
+  const end = Buffer.alloc(22); end.writeUInt32LE(0x06054b50, 0); end.writeUInt16LE(1, 8); end.writeUInt16LE(1, 10); end.writeUInt32LE(cd.length, 12); end.writeUInt32LE(cdOff, 16);
+  return { zip: new Uint8Array(Buffer.concat([lh, name, Buffer.from(data), cd, end])), expect: exp };
+}
+
 await test("C3 Deflate64 (Windows-made dotnet fixture) == Info-ZIP unzip -p; malformed fixtures end cleanly", FF, async () => {
   const p = join(CORPUS, "d64-deflate64.zip"); ok(existsSync(p), "corpus missing — run scripts/sandbox/rebuild-all.sh");
   const buf = open(p), a = readArchive(buf); let d64 = 0;
@@ -171,6 +195,11 @@ await test("C3 Deflate64 (Windows-made dotnet fixture) == Info-ZIP unzip -p; mal
     ok(Buffer.compare(Buffer.from(ours), theirs) === 0, "differs " + e.name); if (e.method === 9) d64++;
   }
   ok(d64 >= 1, "no deflate64 entry");
+  // the Windows fixture never uses length code 285 (16 extra bits) — a hand-built Deflate64 stream does, judged by unzip
+  const { zip: hz, expect } = deflate64Fixture();
+  const hp = join(D, "hand-d64.zip"); writeFileSync(hp, hz);
+  ok(Buffer.compare(sh("unzip", ["-p", hp, "d64.bin"]), Buffer.from(expect)) === 0, "unzip disagrees with the hand-built expectation");
+  const ha = readArchive(hz); ok(Buffer.compare(Buffer.from(await readEntry(hz, ha.entries[0])), Buffer.from(expect)) === 0, "own Deflate64 (code 285, distance codes 30/31) differs");
   const notes: string[] = [];
   for (const f of ["d64-deflate64_not_enough_space.zip", "d64-raw.zip", "d64-unitwf-1.5.0.minimized.zip"]) {
     const t0 = Date.now(); let r = "";
@@ -423,5 +452,5 @@ await test("N1–N24 negative shapes (zip-slip, symlink, duplicates, overlap, mi
   return `${out.length} negative shapes hold`;
 });
 
-void readdirSync; void crc32;
+void readdirSync;
 finish();

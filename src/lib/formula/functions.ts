@@ -12,6 +12,7 @@
  *   SUM(1,"x",2)        -> #VALUE!              (literal, strict)
  *   SUM(A1:A3) w/ "x" in range -> ignores it     (ranged, lenient)
  */
+import { numericText } from "./numtext";
 import { formatValue } from "./numfmt";
 import { dateToSerial, nowSerial, serialToDate, todaySerial } from "./dates";
 import { err, isError, type FormulaError, type Scalar } from "./types";
@@ -37,8 +38,8 @@ export function toNumberStrict(v: Scalar): number {
   if (typeof v === "string") {
     const t = v.trim();
     if (t === "") return raise(err("#VALUE!"));
-    const n = Number(t);
-    if (Number.isNaN(n)) return raise(err("#VALUE!"));
+    const n = numericText(t); // TT79: Excel coercion ("$1.00", "1,000", "50%", "(1)")
+    if (n === null) return raise(err("#VALUE!"));
     return n;
   }
   return raise(err("#VALUE!"));
@@ -199,7 +200,7 @@ export const FUNCTIONS: Record<string, (args: Arg[]) => Scalar> = {
   SUM: (a) => a.flatMap(flattenNumbers).reduce((x, y) => x + y, 0),
   PRODUCT: (a) => { const xs = a.flatMap(flattenNumbers); return xs.length ? xs.reduce((x, y) => x * y, 1) : 0; }, // TT73: no numbers → 0 (Excel)
   ABS: (a) => Math.abs(numArg(a[0])),
-  ROUND: (a) => roundHalfAwayFromZero(numArg(a[0]), toNumberStrict(scalar(a[1] ?? { kind: "scalar", value: 0 }))),
+  ROUND: (a) => roundHalfAwayFromZero(numArg(a[0]), a[1] ? numArg(a[1]) : 0), // TT79: a blank digits cell is 0 (POI EverythingTests J1180)
   ROUNDUP: (a) => roundDir(numArg(a[0]), numArg(a[1]), "up"),
   ROUNDDOWN: (a) => roundDir(numArg(a[0]), numArg(a[1]), "down"),
   INT: (a) => Math.floor(numArg(a[0])),

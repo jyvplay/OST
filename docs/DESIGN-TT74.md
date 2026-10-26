@@ -56,12 +56,16 @@ customIndexedColors); iterative calculation (57535, bug67784 A9); duplicate part
 nothing (sample-beta); stale POI caches (clone_sheet, bug60858); an externalLink without a cache
 (link-external-workbook-b — Excel also shows #REF! once it recalculates without the source).
 
-### Open (our bugs, counted, not hidden): 14 POI EverythingTests cells
+### Open (our bugs, counted, not hidden): 14 POI EverythingTests cells → 4 after TT79
 
-G31 `=E10/D7`, L87 / M87 `=+E7`, `=+L10:N10` (implicit intersection of a text cell), E240 `CHOOSE(#REF!,1)`,
+TT74 list: G31 `=E10/D7`, L87 / M87 `=+E7`, `=+L10:N10` (implicit intersection of a text cell), E240 `CHOOSE(#REF!,1)`,
 L420 `DOLLAR(range)`, G716 / D872 / E872 approximate HLOOKUP / LOOKUP over mixed types, G732 `IF(D7,#VALUE!,3)` with a
 blank condition, G816 `LARGE(TRUE,1)`, M936 `MODE(B9,2,D7)`, G1008 `OFFSET(F7,E7:I7,E7:I7)`, J1180 `ROUND(blank,blank)`,
 J1328 `SUMPRODUCT` over a single text cell.
+
+**TT79:** 10 fixed (G31, L87, M87, E240, L420, G732, G816, G1008, J1180, J1328 — see DESIGN-TT79.md); still open:
+G716 / D872 / E872 (approximate lookup over mixed types) and M936 (MODE with a blank direct reference). The cap in
+`scripts/tt74-office.mts` is now 4.
 
 ## Fixed this tier (with the evidence that found them)
 
