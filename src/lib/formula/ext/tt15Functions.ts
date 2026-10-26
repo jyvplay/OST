@@ -355,8 +355,17 @@ export const TT15_FUNCTIONS: Record<string, FnImpl> = {
     let keys: CellValue[], vals: CellValue[];
     if (a[1] && a[2]) { keys = a[1].list(); vals = a[2].list(); }
     else { const g = a[1].grid(); const wide = (g[0]?.length ?? 0) > g.length; keys = wide ? g[0] : g.map((r) => r[0]); vals = wide ? g[g.length - 1] : g.map((r) => r[r.length - 1]); }
-    let hit = -1;
-    for (let i = 0; i < keys.length; i++) { const k = keys[i]; if (k === null) continue; if (cmpLoose(k, want) <= 0) hit = i; else break; } // approximate match on ascending data
+    // LOOKUP is normally used with sorted input, but legacy workbooks may have an exact key at the binary pivot.
+    // Search for that first in O(log n), then keep the ordered-range fallback below. Text comparison is case-insensitive.
+    let hit = -1, lo = 0, hi = keys.length - 1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1, k = keys[mid];
+      if (k === null) { lo = mid + 1; continue; }
+      const c = cmpLoose(k, want);
+      if (c === 0) { hit = mid; while (hit + 1 < keys.length && keys[hit + 1] !== null && cmpLoose(keys[hit + 1], want) === 0) hit++; break; }
+      if (c < 0) lo = mid + 1; else hi = mid - 1;
+    }
+    if (hit < 0) for (let i = 0; i < keys.length; i++) { const k = keys[i]; if (k === null) continue; if (cmpLoose(k, want) <= 0) hit = i; else break; } // approximate match on ascending data
     if (hit < 0) throw ERR("#N/A");
     return vals[hit] ?? null;
   },

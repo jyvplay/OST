@@ -178,7 +178,7 @@ if (want("U1")) await test("U1 CSV: quoting, CRLF, BOM, used range, displayed te
   ok(val(txt.wb, txt.sheet, "A1") === "007", "text mode keeps leading zeros");
 });
 
-if (want("U2")) await test("U2 Excel semantics: ROUND decimal, A-family text, XLOOKUP modes, CSE shaping, text truncation, negative dates, SUMPRODUCT errors", SHEET, () => {
+if (want("U2")) await test("U2 Excel semantics: ROUND decimal, A-family text, XLOOKUP and approximate lookup modes, CSE shaping, text truncation, dates, SUMPRODUCT errors", SHEET, () => {
   const bad: string[] = [];
   const chk = (f: string, want: unknown, cells: Record<string, string> = {}) => { const g = calc(f, cells); if (!eq(g, want)) bad.push(`${f} → ${J(g)} (Excel ${J(want)})`); };
   chk("=ROUND(2.675,2)", 2.68); chk("=ROUND(-1.005,2)", -1.01); chk("=ROUND(1234.5678,-2)", 1200); chk("=ROUND(0.285,2)", 0.29);
@@ -187,6 +187,14 @@ if (want("U2")) await test("U2 Excel semantics: ROUND decimal, A-family text, XL
   chk("=XLOOKUP(5,A1:A4,B1:B4)", "c", t); chk("=XLOOKUP(4,A1:A4,B1:B4)", E("#N/A"), t); chk('=XLOOKUP(4,A1:A4,B1:B4,"none")', "none", t);
   chk("=XLOOKUP(4,A1:A4,B1:B4,,-1)", "b", t); chk("=XLOOKUP(4,A1:A4,B1:B4,,1)", "c", t); chk("=XLOOKUP(6,A1:A4,B1:B4,,1,2)", "d", t);
   chk('=XLOOKUP("c*",B1:B4,A1:A4,,2)', 5, t); chk("=XLOOKUP(1,A1:A4,B1:B3)", E("#VALUE!"), t);
+  // Exact-first approximate lookup: Excel caches these legacy unsorted-vector results; spaces in return values matter.
+  chk('=HLOOKUP("STRING",A1:G2,2,TRUE)', " beginsWithSpace", { A1: "INTEGRAL", B1: "DOUBLE", C1: "BLANK", D1: "STRING", E1: "REF", F1: "AREA (rows)", A2: "x", D2: " beginsWithSpace", E2: "blanksIncl" });
+  chk('=LOOKUP(534,A1:A3,B1:B3)', "endsWithSpace ", { A1: "INTEGRAL", A2: "534", A3: "1", B1: "ignored", B2: "endsWithSpace ", B3: "later" });
+  chk('=LOOKUP("DOUBLE",A1:A3,B1:B3)', 1.1, { A1: "DOUBLE", A2: "", A3: "STRING", B1: "1.1", B2: "blank", B3: "2" });
+  chk('=VLOOKUP(3,A1:B5,2,TRUE)', "last duplicate", { A1: "1", A2: "3", A3: "3", A4: "5", B1: "one", B2: "first duplicate", B3: "last duplicate", B4: "five" });
+  chk('=VLOOKUP(4,A1:B3,2,TRUE)', "three", { A1: "1", A2: "3", A3: "5", B1: "one", B2: "three", B3: "five" });
+  chk('=VLOOKUP(0,A1:B3,2,TRUE)', E("#N/A"), { A1: "1", A2: "3", A3: "5", B1: "one", B2: "three", B3: "five" });
+  chk('=MATCH("STRING",A1:G1,1)', 4, { A1: "INTEGRAL", B1: "DOUBLE", C1: "BLANK", D1: "STRING", E1: "REF", F1: "AREA (rows)" });
   chk('=REPLACE("ABCDEFG",2.3,3.9,"xx")', "AxxEFG"); chk('=REPLACE("ABCDEF",-3,4,"xx")', E("#VALUE!"));
   chk('=SUBSTITUTE("teststr","t","T",1.9)', "Teststr"); chk('=SUBSTITUTE("teststr","t","T",0)', E("#VALUE!")); chk('=SUBSTITUTE("abc","","!")', "abc");
   chk('=RIGHT("ace","2.99999")', "ce"); chk('=LEFT("abc",-1)', E("#VALUE!")); chk('=MID("abc",0,1)', E("#VALUE!"));

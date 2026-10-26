@@ -507,19 +507,26 @@ function wildcardRe(pat: string): RegExp {
   return re;
 }
 const sameKind = (a: Scalar, b: Scalar) => typeof a === typeof b && !isError(a) && a !== "";
+function lastEqual(list: Scalar[], i: number, key: Scalar): number {
+  while (i + 1 < list.length && sameKind(list[i + 1], key) && cmpKind(list[i + 1], key) === 0) i++;
+  return i;
+}
 function cmpKind(a: Scalar, b: Scalar): number {
   if (typeof a === "number" && typeof b === "number") return a - b;
   if (typeof a === "boolean" && typeof b === "boolean") return Number(a) - Number(b);
   const x = String(a).toLowerCase(), y = String(b).toLowerCase(); return x < y ? -1 : x > y ? 1 : 0;
 }
-/** Excel approximate match: binary search for the last value ≤ key, considering only values of the key's type. */
+/** Excel approximate match: binary search for the last value ≤ key, considering only values of the key's type.
+ * Return an exact pivot immediately: legacy Excel files sometimes contain unsorted lookup rows. For sorted duplicate
+ * keys, extend right over the equal run so VLOOKUP retains its last-match behavior without a linear scan. */
 function approxIndex(list: Scalar[], key: Scalar): number {
   let lo = 0, hi = list.length - 1, best = -1;
   while (lo <= hi) {
     const mid = (lo + hi) >> 1; let m = mid;
     while (m >= lo && !sameKind(list[m], key)) m--;
-    if (m < lo) { m = mid + 1; while (m <= hi && !sameKind(list[m], key)) m++; if (m > hi) break; if (cmpKind(list[m], key) <= 0) { best = m; lo = m + 1; } else break; continue; }
-    if (cmpKind(list[m], key) <= 0) { best = m; lo = mid + 1; } else hi = m - 1;
+    if (m < lo) { m = mid + 1; while (m <= hi && !sameKind(list[m], key)) m++; if (m > hi) break; const cmp = cmpKind(list[m], key); if (cmp === 0) return lastEqual(list, m, key); if (cmp < 0) { best = m; lo = m + 1; } else break; continue; }
+    const cmp = cmpKind(list[m], key); if (cmp === 0) return lastEqual(list, m, key);
+    if (cmp < 0) { best = m; lo = mid + 1; } else hi = m - 1;
   }
   return best;
 }
