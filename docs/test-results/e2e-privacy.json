@@ -1,6 +1,6 @@
 {
   "suite": "e2e-privacy",
-  "at": "2026-10-26T07:00:48.313Z",
+  "at": "2026-10-26T08:44:34.982Z",
   "results": [
     {
       "suite": "e2e-privacy",
@@ -10,7 +10,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 2004
+      "ms": 5379
     },
     {
       "suite": "e2e-privacy",
@@ -19,7 +19,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 142
+      "ms": 238
     },
     {
       "suite": "e2e-privacy",
@@ -28,7 +28,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 3545
+      "ms": 2902
     },
     {
       "suite": "e2e-privacy",
@@ -37,7 +37,7 @@
         "SC-16": "full"
       },
       "pass": true,
-      "ms": 1958
+      "ms": 4625
     },
     {
       "suite": "e2e-privacy",
@@ -46,7 +46,7 @@
         "SC-12": "full"
       },
       "pass": true,
-      "ms": 848
+      "ms": 993
     },
     {
       "suite": "e2e-privacy",
@@ -56,7 +56,7 @@
         "FM-01": "partial"
       },
       "pass": true,
-      "ms": 2529
+      "ms": 4206
     },
     {
       "suite": "e2e-privacy",
@@ -66,7 +66,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 2319
+      "ms": 4762
     },
     {
       "suite": "e2e-privacy",
@@ -75,7 +75,7 @@
         "SC-15": "full"
       },
       "pass": true,
-      "ms": 1916
+      "ms": 3695
     },
     {
       "suite": "e2e-privacy",
@@ -84,7 +84,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 41
+      "ms": 38
     },
     {
       "suite": "e2e-privacy",
@@ -92,9 +92,8 @@
       "covers": {
         "SC-10": "partial"
       },
-      "pass": false,
-      "error": "/Private save 74.3 ms vs host 40.7 ms",
-      "ms": 3708
+      "pass": true,
+      "ms": 6266
     },
     {
       "suite": "e2e-privacy",
@@ -103,7 +102,7 @@
         "SC-14": "full"
       },
       "pass": true,
-      "ms": 2310
+      "ms": 1963
     },
     {
       "suite": "e2e-privacy",
@@ -112,7 +111,7 @@
         "SC-17": "full"
       },
       "pass": true,
-      "ms": 5720
+      "ms": 9197
     },
     {
       "suite": "e2e-privacy",
@@ -121,7 +120,7 @@
         "SC-18": "full"
       },
       "pass": true,
-      "ms": 4377
+      "ms": 10507
     },
     {
       "suite": "e2e-privacy",

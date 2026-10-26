@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt79-pdf",
-  "at": "2026-10-26T07:41:53.594Z",
+  "at": "2026-10-26T08:49:51.676Z",
   "results": [
     {
       "suite": "e2e-tt79-pdf",
@@ -11,7 +11,7 @@
         "FF-75": "full"
       },
       "pass": true,
-      "ms": 3444
+      "ms": 4452
     },
     {
       "suite": "e2e-tt79-pdf",
@@ -22,7 +22,7 @@
         "FF-75": "full"
       },
       "pass": true,
-      "ms": 5071
+      "ms": 5739
     },
     {
       "suite": "e2e-tt79-pdf",
@@ -33,7 +33,7 @@
         "FF-75": "full"
       },
       "pass": true,
-      "ms": 5542
+      "ms": 6389
     },
     {
       "suite": "e2e-tt79-pdf",
@@ -44,7 +44,7 @@
         "FF-75": "full"
       },
       "pass": true,
-      "ms": 2831
+      "ms": 2809
     },
     {
       "suite": "e2e-tt79-pdf",

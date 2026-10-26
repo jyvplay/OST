@@ -1,6 +1,6 @@
 {
   "suite": "tt79-pdf",
-  "at": "2026-10-26T07:42:24.167Z",
+  "at": "2026-10-26T08:37:24.818Z",
   "results": [
     {
       "suite": "tt79-pdf",
@@ -9,7 +9,7 @@
         "FF-73": "full"
       },
       "pass": true,
-      "ms": 41
+      "ms": 37
     },
     {
       "suite": "tt79-pdf",
@@ -18,7 +18,7 @@
         "FF-73": "full"
       },
       "pass": true,
-      "ms": 2214
+      "ms": 2195
     },
     {
       "suite": "tt79-pdf",
@@ -27,7 +27,7 @@
         "FF-73": "full"
       },
       "pass": true,
-      "ms": 255
+      "ms": 258
     },
     {
       "suite": "tt79-pdf",
@@ -36,7 +36,7 @@
         "FF-73": "full"
       },
       "pass": true,
-      "ms": 129
+      "ms": 127
     },
     {
       "suite": "tt79-pdf",
@@ -47,7 +47,7 @@
         "FF-75": "full"
       },
       "pass": true,
-      "ms": 1964
+      "ms": 2120
     },
     {
       "suite": "tt79-pdf",
@@ -56,7 +56,7 @@
         "FF-74": "full"
       },
       "pass": true,
-      "ms": 668
+      "ms": 676
     },
     {
       "suite": "tt79-pdf",
@@ -65,7 +65,7 @@
         "FF-74": "full"
       },
       "pass": true,
-      "ms": 2755
+      "ms": 2769
     },
     {
       "suite": "tt79-pdf",
@@ -74,7 +74,7 @@
         "FF-75": "full"
       },
       "pass": true,
-      "ms": 1347
+      "ms": 1791
     },
     {
       "suite": "tt79-pdf",
@@ -83,7 +83,7 @@
         "FF-73": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt79-pdf",
@@ -110,7 +110,7 @@
         "FF-73": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt79-pdf",
@@ -137,7 +137,7 @@
         "FF-73": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 11
     },
     {
       "suite": "tt79-pdf",

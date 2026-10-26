@@ -146,5 +146,11 @@ await test("calculated column: =A2*B2 fills the column; typing below grows the t
 });
 
 await browser.close();
+// hygiene: remove everything this run wrote under /Documents (files and folders named with this run's prefix) so the
+// next suites (the tabletop draws every Documents file as a card) see the same desk every time
+{
+  const l = await fetch(`${BASE}/api/fs?op=list&path=%2FDocuments`).then((r) => r.json()).catch(() => ({})) as { nodes?: { name: string; path: string }[] };
+  for (const n of l.nodes ?? []) if (n.name.startsWith(RUN)) { await api("POST", "/api/fs", { op: "trash", path: n.path }); await api("POST", "/api/fs", { op: "purge", path: n.path }); }
+}
 if (errors.length) console.log("page errors:", errors.slice(0, 5));
 finish();

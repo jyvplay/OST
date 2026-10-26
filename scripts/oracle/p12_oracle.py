@@ -57,7 +57,11 @@ def make(out):
     nosign = mkcert(nosign_k, "Encipher-only Signer", inter_k, "TT79 Issuing CA", sign_usage=False)
     other_k = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     other_root = mkcert(other_k, "Unrelated Root", ca=True)
-    for n, c in [("root", root), ("inter", inter), ("leaf", leaf), ("ec_leaf", ec_leaf), ("other_root", other_root)]:
+    # an impostor: the SAME subject name as the real root ("TT79 Root CA"), a CA, but a different key — trusting it
+    # must not make chains issued by the real root trusted (an issuer is matched by signature, not by name)
+    imp_k = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    impostor_root = mkcert(imp_k, "TT79 Root CA", ca=True)
+    for n, c in [("root", root), ("inter", inter), ("leaf", leaf), ("ec_leaf", ec_leaf), ("other_root", other_root), ("impostor_root", impostor_root)]:
         open(os.path.join(out, n + ".der"), "wb").write(c.public_bytes(DER))
     open(os.path.join(out, "leaf.key.der"), "wb").write(pk8(leaf_k))
     open(os.path.join(out, "ec_leaf.key.der"), "wb").write(pk8(ec_k))

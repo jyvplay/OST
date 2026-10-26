@@ -146,5 +146,11 @@ await test("Q4 Add certificate… (unrelated root) → untrusted with a reason",
 await ctx.close();
 await test("Q5 no page errors", COV, () => { ok(!errors.length, errors.slice(0, 3).join(" | ")); });
 await browser.close();
+// hygiene: remove everything this run wrote under /Documents (files and folders named with this run's prefix) so the
+// next suites (the tabletop draws every Documents file as a card) see the same desk every time
+{
+  const l = await fetch(`${BASE}/api/fs?op=list&path=%2FDocuments`).then((r) => r.json()).catch(() => ({})) as { nodes?: { name: string; path: string }[] };
+  for (const n of l.nodes ?? []) if (n.name.startsWith(RUN)) { await api("POST", "/api/fs", { op: "trash", path: n.path }); await api("POST", "/api/fs", { op: "purge", path: n.path }); }
+}
 finish();
 void readFileSync;

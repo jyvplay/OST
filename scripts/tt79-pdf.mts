@@ -87,6 +87,10 @@ await test("P1 ciphers: 3DES == OpenSSL, RC2 RFC 2268 vectors, RC4 RFC 6229, PKC
     ok(hex(des3Cbc(k, iv, d, false)) === ref.toString("hex"), "3DES encrypt differs from OpenSSL"); ok(hex(des3Cbc(k, iv, ref, true)) === d.toString("hex"), "3DES decrypt differs");
   }
   const V: [string, number, string, string][] = [["0000000000000000", 63, "0000000000000000", "ebb773f993278eff"], ["ffffffffffffffff", 64, "ffffffffffffffff", "278b27e42e2f0d49"], ["3000000000000000", 64, "1000000000000001", "30649edf9be7d2c2"], ["88", 64, "0000000000000000", "61a8a244adacccf0"], ["88bca90e90875a", 64, "0000000000000000", "6ccf4308974c267f"], ["88bca90e90875a7f0f79c384627bafb2", 64, "0000000000000000", "1a807d272bbe5db1"], ["88bca90e90875a7f0f79c384627bafb2", 128, "0000000000000000", "2269552ab0f85ca6"]];
+  // effective key bits that are not a multiple of 8 (the TM mask of RFC 2268 §2 matters): frozen from pycryptodome
+  // ARC2 (BSD-2, test-only oracle), which reproduces RFC 2268 vector 1 — the RFC's own 63-bit vector cannot see the mask
+  for (const [e, c] of [[41, "8348ece7c37bb133"], [57, "24d6233ded1c9217"], [63, "f6e8b410deede5b0"], [100, "130eae862354652b"], [127, "70c9ae48cf88544b"]] as const)
+    V.push(["88bca90e90875a7f0f79c384627bafb2", e, "0123456789abcdef", c]);
   for (const [k, e, p, c] of V) { const ct = rc2Ecb(h(k), e, h(p)); ok(hex(ct) === c, `RC2 ${k}/${e}: ${hex(ct)} ≠ ${c}`); ok(hex(rc2Ecb(h(k), e, ct, true)) === p, "RC2 decrypt"); }
   ok(hex(rc4(h("0102030405"), new Uint8Array(16))) === "b2396305f03dc027ccc3524a0a1118a8", "RC4 RFC 6229 key 0102030405");
   let bad = 0; for (const s of ["4142430000000000", "4142430304050603", "00", "4142434445464748"]) { try { unpad(h(s), 8); } catch { bad++; } }
@@ -242,6 +246,14 @@ await test("P7 trust negatives agree with pyHanko: non-CA intermediate, expired 
     ok(r.trust === "untrusted", `${f}: Fusion trust ${r.trust} (${r.trustNote})`);
     ok(r.trustNote.length > 0, `${f}: no reason given`);
   }
+  // impostor root: same subject name as the real root, different key → the real chain must NOT be trusted through it
+  const real = signed.get("cg_best.p12") ?? [...signed.values()][0]; ok(real, "P5 file missing");
+  const phI = JSON.parse(py("trust", real, join(T, "impostor_root.der")))[0];
+  ok(!phI.trusted, `impostor: pyHanko trusted (${JSON.stringify(phI)})`);
+  const [ri] = await validateSignatures(PdfDoc.open(readFileSync(real)), { anchors: [rd("impostor_root.der")] });
+  ok(ri.trust === "untrusted", `impostor root (name match only): Fusion trust ${ri.trust} (${ri.trustNote})`);
+  const [rr] = await validateSignatures(PdfDoc.open(readFileSync(real)), { anchors: [rd("root.der")] });
+  ok(rr.trust === "trusted", `control with the real root: ${rr.trust} (${rr.trustNote})`);
   // control: the same path WITH a CA intermediate is trusted (so the negatives fail for their stated reason)
   ok(signed.size === 2, "P5 controls missing");
 });
@@ -267,6 +279,8 @@ for (const [label, mk, kind] of hostile) {
   n++;
   await test(`N${n} hostile PFX: ${label}`, C1, async () => {
     await throwsKind(() => parsePkcs12(mk(), ""), kind as "error", label);
+    // the size guard must be what refuses the oversized file (not a later parse failure on the padding)
+    if (/1 MiB/.test(label)) { let m = ""; try { await parsePkcs12(mk(), ""); } catch (e) { m = (e as Error).message; } ok(/larger than 1 MiB/.test(m), `oversized file refused for another reason: ${m}`); }
     await throwsKind(() => identityFromPkcs12(mk(), ""), "error", label + " (identity)");
   });
 }

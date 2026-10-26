@@ -1,6 +1,6 @@
 {
   "suite": "tt79-sheet",
-  "at": "2026-10-26T08:14:00.464Z",
+  "at": "2026-10-26T08:43:38.187Z",
   "results": [
     {
       "suite": "tt79-sheet",
@@ -9,7 +9,7 @@
         "FF-76": "full"
       },
       "pass": true,
-      "ms": 622
+      "ms": 633
     },
     {
       "suite": "tt79-sheet",
@@ -18,7 +18,7 @@
         "FF-76": "full"
       },
       "pass": true,
-      "ms": 752
+      "ms": 789
     },
     {
       "suite": "tt79-sheet",
@@ -27,7 +27,7 @@
         "FF-76": "full"
       },
       "pass": true,
-      "ms": 190
+      "ms": 194
     },
     {
       "suite": "tt79-sheet",
@@ -44,8 +44,7 @@
       "covers": {
         "FF-77": "full"
       },
-      "pass": false,
-      "error": "=+B1 → \"#VALUE!\", want \"text\"",
+      "pass": true,
       "ms": 4
     }
   ]

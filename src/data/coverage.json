@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-25T19:22:25.745Z",
+ "generatedAt": "2026-10-26T08:43:26.072Z",
  "totals": {
   "built": {
-   "full": 319,
+   "full": 333,
    "partial": 53,
    "blocked": 21,
    "none": 1
   },
   "tested": {
-   "full": 244,
+   "full": 258,
    "partial": 71,
    "untested": 79
   },
   "tests": {
-   "total": 1479,
-   "passed": 1479
+   "total": 1609,
+   "passed": 1605
   }
  },
  "rows": {
@@ -394,8 +394,20 @@
    "tested": "full",
    "tests": [
     "e2e-tt55-files: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection",
+    "e2e-tt79-archive: 1 AES archive: derived folders, navigation, locked preview; MODAL SHORTCUT (Delete/F2/Ctrl+A inert behind the password dialog); wrong → asked again; right → exact text; PNG preview",
+    "e2e-tt79-archive: 2 keyboard edits: Delete + F2 + New folder → Save → pyzipper decrypts the renamed entry with the ORIGINAL password; Undo restores",
+    "e2e-tt79-archive: 3 Extract all → Files equals pyzipper; zip-slip archive: 'unsafe' badges, only safe entries written",
+    "e2e-tt79-archive: 4 New archive from device files → Encrypted copy AES-256 (pyzipper) and ZipCrypto (unzip -P -t)",
+    "e2e-tt79-archive: 5 Files integration: .zip opens Archive; server extract → 401 needPassword then extracts; compress with password → pyzipper",
     "integration: FM-05 compress → extract round trip preserves bytes (text and binary)",
     "integration: FM-05 extract refuses zip-slip and writes nothing",
+    "tt79-archive: C1 Python zipfile stored/deflate/bzip2/LZMA: every entry equals Python's read (bytes + CRC)",
+    "tt79-archive: C2 own inflater == zlib (every deflated corpus entry + node:zlib levels 0–9 + Python entries)",
+    "tt79-archive: C3 Deflate64 (Windows-made dotnet fixture) == Info-ZIP unzip -p; malformed fixtures end cleanly",
+    "tt79-archive: C4 Info-ZIP archives: bzip2, forced ZIP64, streamed (data descriptor), symlink, UTF-8 names == unzip",
+    "tt79-archive: C5 names: CP437 decode == Python; Unicode Path 0x7075 honoured exactly as Info-ZIP does (CRC), stale ignored",
+    "tt79-archive: W1 writer: UTF-8 names, folders, comments, Unix modes, timestamps → Python + unzip -t + zipinfo",
+    "tt79-archive: W2 ZIP64: ours forced → Python + unzip -t; Python force_zip64 → ours; 70 000 entries (count overflow)",
     "unit: zip-slip and bomb guards fire before allocation",
     "unit: CRC-32 known-answer vector and writer → reader round trip",
     "unit: corrupted archive is detected by CRC, never silently extracted"
@@ -871,6 +883,13 @@
     "e2e-tt52-pdf: encrypted: issue6010_1.pdf asks for a password; a wrong one is refused, 'abc' opens it and the page draws",
     "e2e-tt52-pdf: Peek: first page drawn by the first-party renderer (no <embed>/<object>); 'Open in PDF app' opens the PDF window",
     "e2e-tt52-pdf: no uncaught page errors during the run",
+    "e2e-tt77-pdfsig: S1 real-world BER qualified signature → valid, signer, identity disclaimer, chain",
+    "e2e-tt77-pdfsig: S2 changed after signing → 'modified'; Open signed version → that revision is valid",
+    "e2e-tt77-pdfsig: S3 tampered → Invalid",
+    "e2e-tt77-pdfsig: S6 modal shortcut: Ctrl+S / Ctrl+Z inside the New-identity dialog never reach the document",
+    "e2e-tt77-pdfsig: S4 New identity → Sign → Ctrl+S → pyHanko intact+valid+ENTIRE_FILE; panel shows ours valid",
+    "e2e-tt77-pdfsig: S5 the identity survives a reload (IndexedDB) and the saved file re-validates in the UI",
+    "e2e-tt77-pdfsig: S7 no page errors",
     "e2e: mount: pdf",
     "tt52-pdf: open + text: hand-built PDF, three pages, page text in order",
     "tt52-pdf: incremental save keeps the original bytes as an exact prefix; Prev chains to the old xref",
@@ -899,7 +918,59 @@
     "tt52-pdf: CCITT in a page: an inline /CCF image reaches the device as decoded 1-bit samples (no 'unsupported codec')",
     "tt52-pdf: CID-keyed CFF: an explicit top FontMatrix is not scaled again (issue16500 glyphs at 1000-unit size, not ×1000) — regression",
     "tt52-pdf: nested content keeps the caller's graphics state: unbalanced q/Q in a form/glyph never unwinds the page's q levels — regression",
-    "tt52-pdf: embedded-file-only encryption (/EFF, StmF+StrF Identity) opens without a password like PDFium — regression"
+    "tt52-pdf: embedded-file-only encryption (/EFF, StmF+StrF Identity) opens without a password like PDFium — regression",
+    "tt77-pdf-composite: C1 fill+stroke at ca=CA=.5 is a knockout pair: interior = fill over backdrop, stroke over backdrop (not over fill)",
+    "tt77-pdf-composite: C1b the same knockout pair straight on the (transparent) page, nothing under it: identical result once the paper goes under",
+    "tt77-pdf-composite: C2 fill+stroke with BM Difference over white: both halves are the complement (yellow → blue)",
+    "tt77-pdf-composite: C3 page backdrop is transparent: Difference straight on the page (nothing under it) is Normal; paper goes under afterwards",
+    "tt77-pdf-composite: C4 blend Multiply: cyan × yellow = green; Screen: red ⊕ blue = magenta",
+    "tt77-pdf-composite: C5 Luminosity soft mask: mask group paints gray .5 → red at 50% over white = (255,128,128)",
+    "tt77-pdf-composite: C6 Luminosity /BC: empty mask group over BC [1] → mask 1 (full red); without /BC the backdrop is black → nothing painted",
+    "tt77-pdf-composite: C7 Luminosity mask in a DeviceCMYK group with no /BC: backdrop = zero components = WHITE → mask 1",
+    "tt77-pdf-composite: C8 Alpha soft mask: mask group paints at ca .25 → red at 25% over white = (255,191,191)",
+    "tt77-pdf-composite: C9 soft mask /TR: an inverting transfer function maps luminosity 1 → 0 → nothing painted",
+    "tt77-pdf-composite: C10 group alpha: two overlapping OPAQUE rects in a group drawn at ca .5 → overlap is blue at 50% (not blue over red)",
+    "tt77-pdf-composite: C11 isolated knockout group: blue at .5 knocks out red at .5 → overlap = blue .5 over white (PDFium ignores /K: (128,64,191))",
+    "tt77-pdf-composite: C12 non-isolated knockout group over a black backdrop: knocked-out area returns to the BACKDROP, not to transparent",
+    "tt77-pdf-composite: C13 nested group inside a knockout group knocks out by its SHAPE: inner group of blue at .5 → overlap blue .5 over white",
+    "tt77-pdf-composite: C14 negative: a soft mask whose group is not a stream, a mask cycle-depth bomb and /SMask /None all render without throwing",
+    "tt77-pdf-composite: C15 /Matte: an image premultiplied against matte black, α .5, un-premultiplies to its true colour",
+    "tt77-pdf-composite: C16 non-isolated group over a SEMI-TRANSPARENT backdrop (transparent page): the backdrop is not counted twice",
+    "tt77-pdf-composite: C17 (TT78) a clip the page leaves active — W n, W before the path, unbalanced q — never clips the paper",
+    "tt77-pdf: J1 JBIG2: every corpus JBIG2 image bit-exact vs PDFium (1 declared divergence)",
+    "tt77-pdf: J2 JPX: every corpus JPX image within ±2 of PDFium (1 declared divergence: SMaskInData 1 pre-composited by PDFium)",
+    "tt77-pdf: J3 JPX vs OpenJPEG: 40 generated codestreams — lossless = source exactly, lossy ±1",
+    "tt77-pdf: J4 PDF wiring: /Indexed JPX keeps raw indices (issue12213 exact), /SMaskInData yields a soft mask, JPX size wins over /Width",
+    "tt77-pdf: N1 JPX garbage / empty / random bytes throw a clean error, quickly",
+    "tt77-pdf: N2 JPX hand-built minimal codestream decodes (empty packet → mid-grey), and every truncation of it is bounded",
+    "tt77-pdf: N3 JPX oversize SIZ (2^31 × 2^31), zero tile size, 32 levels on 8×8 and 70 000 tiles are refused or bounded",
+    "tt77-pdf: N4 JPX truncated real codestreams (every 7th cut of a generated lossy RGB stream) keep the decoded part, never hang",
+    "tt77-pdf: N5 JBIG2 garbage, empty and truncated segment streams are bounded and never throw out of the decoder",
+    "tt77-pdf: N6 JBIG2 bomb (bomb_giant.pdf: a page claiming a huge region) is refused fast with bounded memory",
+    "tt77-pdf: N7 a PDF whose JPX stream is garbage renders the rest of the page (image becomes the disclosed placeholder, no throw)",
+    "tt77-pdfsig: G1 pyHanko fixtures: same verdict per signature (9 files, 10 signatures)",
+    "tt77-pdfsig: G2 corpus signed files: agree with pyHanko where it can evaluate",
+    "tt77-pdfsig: G3 sign with Fusion → pyHanko intact+valid, PDFium renders identically, qpdf clean",
+    "tt77-pdfsig: G4 imported RSA identity (PKCS#8 PEM + cert PEM) → pyHanko valid",
+    "tt77-pdfsig: G5 counter-sign a pyHanko-signed file → first 'modified' + FORM_FILLING, ours valid",
+    "tt77-pdfsig: G6 sign our own signed output again (unique field names, both verdicts as pyHanko)",
+    "tt77-pdfsig: N0 the unmodified signed file is valid (control for N1…)",
+    "tt77-pdfsig: N1 ByteRange gap shifted by 1 (signed region manipulated)",
+    "tt77-pdfsig: N2 ByteRange beyond EOF",
+    "tt77-pdfsig: N3 ByteRange with three entries",
+    "tt77-pdfsig: N3b ByteRange with a negative entry",
+    "tt77-pdfsig: N4 garbage /Contents (not DER)",
+    "tt77-pdfsig: N5 BER indefinite length",
+    "tt77-pdfsig: N6 2^31 length",
+    "tt77-pdfsig: N7 unknown digest OID (sha256 → 2.16.840.1.101.3.4.2.127)",
+    "tt77-pdfsig: N8 signer certificate removed from the CMS",
+    "tt77-pdfsig: N9 a byte flipped inside the signed range",
+    "tt77-pdfsig: N10 empty /Contents",
+    "tt77-pdfsig: N11 cyclic field /Kids (the field list stays bounded)",
+    "tt77-pdfsig: N12 BER indefinite nesting 4000 deep (bounded recursion)",
+    "tt77-pdfsig: N13 non-hex bytes smuggled into the unsigned gap",
+    "tt77-pdfsig: N14 delimiters inside the signed range but a non-hex gap",
+    "tt77-pdfsig: R1 PdfDoc.open never mutates the caller's Buffer (encrypted corpus files; AES .slice view bug)"
    ]
   },
   "PR-09": {
@@ -1035,6 +1106,13 @@
     "e2e-tt52-pdf: encrypted: issue6010_1.pdf asks for a password; a wrong one is refused, 'abc' opens it and the page draws",
     "e2e-tt52-pdf: Peek: first page drawn by the first-party renderer (no <embed>/<object>); 'Open in PDF app' opens the PDF window",
     "e2e-tt52-pdf: no uncaught page errors during the run",
+    "e2e-tt77-pdfsig: S1 real-world BER qualified signature → valid, signer, identity disclaimer, chain",
+    "e2e-tt77-pdfsig: S2 changed after signing → 'modified'; Open signed version → that revision is valid",
+    "e2e-tt77-pdfsig: S3 tampered → Invalid",
+    "e2e-tt77-pdfsig: S6 modal shortcut: Ctrl+S / Ctrl+Z inside the New-identity dialog never reach the document",
+    "e2e-tt77-pdfsig: S4 New identity → Sign → Ctrl+S → pyHanko intact+valid+ENTIRE_FILE; panel shows ours valid",
+    "e2e-tt77-pdfsig: S5 the identity survives a reload (IndexedDB) and the saved file re-validates in the UI",
+    "e2e-tt77-pdfsig: S7 no page errors",
     "e2e: mount: pdf",
     "oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf",
     "tt52-pdf: open + text: hand-built PDF, three pages, page text in order",
@@ -1064,7 +1142,59 @@
     "tt52-pdf: CCITT in a page: an inline /CCF image reaches the device as decoded 1-bit samples (no 'unsupported codec')",
     "tt52-pdf: CID-keyed CFF: an explicit top FontMatrix is not scaled again (issue16500 glyphs at 1000-unit size, not ×1000) — regression",
     "tt52-pdf: nested content keeps the caller's graphics state: unbalanced q/Q in a form/glyph never unwinds the page's q levels — regression",
-    "tt52-pdf: embedded-file-only encryption (/EFF, StmF+StrF Identity) opens without a password like PDFium — regression"
+    "tt52-pdf: embedded-file-only encryption (/EFF, StmF+StrF Identity) opens without a password like PDFium — regression",
+    "tt77-pdf-composite: C1 fill+stroke at ca=CA=.5 is a knockout pair: interior = fill over backdrop, stroke over backdrop (not over fill)",
+    "tt77-pdf-composite: C1b the same knockout pair straight on the (transparent) page, nothing under it: identical result once the paper goes under",
+    "tt77-pdf-composite: C2 fill+stroke with BM Difference over white: both halves are the complement (yellow → blue)",
+    "tt77-pdf-composite: C3 page backdrop is transparent: Difference straight on the page (nothing under it) is Normal; paper goes under afterwards",
+    "tt77-pdf-composite: C4 blend Multiply: cyan × yellow = green; Screen: red ⊕ blue = magenta",
+    "tt77-pdf-composite: C5 Luminosity soft mask: mask group paints gray .5 → red at 50% over white = (255,128,128)",
+    "tt77-pdf-composite: C6 Luminosity /BC: empty mask group over BC [1] → mask 1 (full red); without /BC the backdrop is black → nothing painted",
+    "tt77-pdf-composite: C7 Luminosity mask in a DeviceCMYK group with no /BC: backdrop = zero components = WHITE → mask 1",
+    "tt77-pdf-composite: C8 Alpha soft mask: mask group paints at ca .25 → red at 25% over white = (255,191,191)",
+    "tt77-pdf-composite: C9 soft mask /TR: an inverting transfer function maps luminosity 1 → 0 → nothing painted",
+    "tt77-pdf-composite: C10 group alpha: two overlapping OPAQUE rects in a group drawn at ca .5 → overlap is blue at 50% (not blue over red)",
+    "tt77-pdf-composite: C11 isolated knockout group: blue at .5 knocks out red at .5 → overlap = blue .5 over white (PDFium ignores /K: (128,64,191))",
+    "tt77-pdf-composite: C12 non-isolated knockout group over a black backdrop: knocked-out area returns to the BACKDROP, not to transparent",
+    "tt77-pdf-composite: C13 nested group inside a knockout group knocks out by its SHAPE: inner group of blue at .5 → overlap blue .5 over white",
+    "tt77-pdf-composite: C14 negative: a soft mask whose group is not a stream, a mask cycle-depth bomb and /SMask /None all render without throwing",
+    "tt77-pdf-composite: C15 /Matte: an image premultiplied against matte black, α .5, un-premultiplies to its true colour",
+    "tt77-pdf-composite: C16 non-isolated group over a SEMI-TRANSPARENT backdrop (transparent page): the backdrop is not counted twice",
+    "tt77-pdf-composite: C17 (TT78) a clip the page leaves active — W n, W before the path, unbalanced q — never clips the paper",
+    "tt77-pdf: J1 JBIG2: every corpus JBIG2 image bit-exact vs PDFium (1 declared divergence)",
+    "tt77-pdf: J2 JPX: every corpus JPX image within ±2 of PDFium (1 declared divergence: SMaskInData 1 pre-composited by PDFium)",
+    "tt77-pdf: J3 JPX vs OpenJPEG: 40 generated codestreams — lossless = source exactly, lossy ±1",
+    "tt77-pdf: J4 PDF wiring: /Indexed JPX keeps raw indices (issue12213 exact), /SMaskInData yields a soft mask, JPX size wins over /Width",
+    "tt77-pdf: N1 JPX garbage / empty / random bytes throw a clean error, quickly",
+    "tt77-pdf: N2 JPX hand-built minimal codestream decodes (empty packet → mid-grey), and every truncation of it is bounded",
+    "tt77-pdf: N3 JPX oversize SIZ (2^31 × 2^31), zero tile size, 32 levels on 8×8 and 70 000 tiles are refused or bounded",
+    "tt77-pdf: N4 JPX truncated real codestreams (every 7th cut of a generated lossy RGB stream) keep the decoded part, never hang",
+    "tt77-pdf: N5 JBIG2 garbage, empty and truncated segment streams are bounded and never throw out of the decoder",
+    "tt77-pdf: N6 JBIG2 bomb (bomb_giant.pdf: a page claiming a huge region) is refused fast with bounded memory",
+    "tt77-pdf: N7 a PDF whose JPX stream is garbage renders the rest of the page (image becomes the disclosed placeholder, no throw)",
+    "tt77-pdfsig: G1 pyHanko fixtures: same verdict per signature (9 files, 10 signatures)",
+    "tt77-pdfsig: G2 corpus signed files: agree with pyHanko where it can evaluate",
+    "tt77-pdfsig: G3 sign with Fusion → pyHanko intact+valid, PDFium renders identically, qpdf clean",
+    "tt77-pdfsig: G4 imported RSA identity (PKCS#8 PEM + cert PEM) → pyHanko valid",
+    "tt77-pdfsig: G5 counter-sign a pyHanko-signed file → first 'modified' + FORM_FILLING, ours valid",
+    "tt77-pdfsig: G6 sign our own signed output again (unique field names, both verdicts as pyHanko)",
+    "tt77-pdfsig: N0 the unmodified signed file is valid (control for N1…)",
+    "tt77-pdfsig: N1 ByteRange gap shifted by 1 (signed region manipulated)",
+    "tt77-pdfsig: N2 ByteRange beyond EOF",
+    "tt77-pdfsig: N3 ByteRange with three entries",
+    "tt77-pdfsig: N3b ByteRange with a negative entry",
+    "tt77-pdfsig: N4 garbage /Contents (not DER)",
+    "tt77-pdfsig: N5 BER indefinite length",
+    "tt77-pdfsig: N6 2^31 length",
+    "tt77-pdfsig: N7 unknown digest OID (sha256 → 2.16.840.1.101.3.4.2.127)",
+    "tt77-pdfsig: N8 signer certificate removed from the CMS",
+    "tt77-pdfsig: N9 a byte flipped inside the signed range",
+    "tt77-pdfsig: N10 empty /Contents",
+    "tt77-pdfsig: N11 cyclic field /Kids (the field list stays bounded)",
+    "tt77-pdfsig: N12 BER indefinite nesting 4000 deep (bounded recursion)",
+    "tt77-pdfsig: N13 non-hex bytes smuggled into the unsigned gap",
+    "tt77-pdfsig: N14 delimiters inside the signed range but a non-hex gap",
+    "tt77-pdfsig: R1 PdfDoc.open never mutates the caller's Buffer (encrypted corpus files; AES .slice view bug)"
    ]
   },
   "FF-04": {
@@ -1118,7 +1248,20 @@
   "FF-08": {
    "tested": "full",
    "tests": [
+    "e2e-image: TT78 clipping mask in the UI: 'Clip to layer below' limits a layer to the brush stroke beneath it; non-separable modes offered",
+    "image: TT78 non-separable blends: hand-computed pins (W3C §10.2 SetLum / ClipColor / SetSat)",
+    "image: TT78 clipping masks: base coverage, blend onto the base colour, hidden base, base opacity, clip with no base",
+    "image: TT78 groups: pass-through vs isolated, group opacity, hidden group, nesting, validation",
+    "image: TT78 PSD: groups / clipping / non-separable keys round-trip; clip to a group is reported and drawn unclipped",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
+    "oracle-psd: A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/groups: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: forge row: PSD grade A, and every gap the codec reports is written into the boundary",
     "unit: docx extraction; EPUB spine order; PSD header"
    ]
   },
@@ -1228,6 +1371,7 @@
     "ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
     "integration: FM-05 extract refuses zip-slip and writes nothing",
+    "tt79-archive: N1–N24 negative shapes (zip-slip, symlink, duplicates, overlap, mismatch, bombs, lies, tamper, multi-volume, truncation, limits, methods)",
     "unit: zip-slip and bomb guards fire before allocation"
    ]
   },
@@ -1300,6 +1444,9 @@
     "e2e-tt76-sheet: Date period: This year on the date column (relative to today)",
     "e2e-tt76-sheet: By colour: swatches come from the column; orange shows only the filled rows; Save → openpyxl sees the colour filter + the same hidden rows; reopening the file keeps them and pre-fills the colour",
     "e2e-tt76-sheet: no page errors",
+    "e2e-tt78-sheet: Subtotal dialog → totals + 1-2-3 outline; level 2 shows only totals; +/− expands one group; Save → openpyxl sees levels / hidden / collapsed / SUBTOTAL",
+    "e2e-tt78-sheet: modal shortcut: Alt+Shift+→ asks Rows/Columns; a second Alt+Shift+→ while asked does nothing; Escape groups nothing; 'rows' groups; Alt+Shift+← ungroups",
+    "e2e-tt78-sheet: calculated column: =A2*B2 fills the column; typing below grows the table and fills; one Ctrl+Z undoes both; Save → openpyxl calculatedColumnFormula + ref",
     "e2e: mount: sheet",
     "office: first-party verified semantics survive: SUM(1,\"x\",2) is still #VALUE!",
     "office: numeric codes: 0.00, #,##0, $, %, scaling commas, ? alignment, # trailing, literals",
@@ -1372,7 +1519,18 @@
     "tt76-sheet: R4 inserting / deleting a column shifts criteria AND colours; re-evaluation is unchanged",
     "tt76-sheet: R5 a TABLE's colour filter: new package re-creates its dxf (openpyxl resolves the colour); a dangling one is dropped from a new package and reported",
     "tt76-sheet: U1 Condition dialog model: Excel's wildcard encoding both ways, validation keeps OK disabled, reopen pre-fills, colour/icon options",
-    "tt76-sheet: N1–N17 negative shapes: hostile criteria never hang, never hide wrongly, never corrupt the save"
+    "tt76-sheet: N1–N17 negative shapes: hostile criteria never hang, never hide wrongly, never corrupt the save",
+    "tt78-sheet: O1 corpus outline oracle: levels / collapsed / hidden / summary placement == openpyxl",
+    "tt78-sheet: O3 openpyxl-WRITTEN outlines (independent writer) read identically; Fusion's patch is read back by openpyxl",
+    "tt78-sheet: O2 corpus calculated columns: calc == openpyxl, and calc shifted per body row == Excel's cell formulas",
+    "tt78-sheet: M1 outline semantics: nested collapse, level buttons, detail, summary above, filter rows, ungroup",
+    "tt78-sheet: M2 Subtotal == pandas groupby (Sum / Count / Average / Max) + grand total + 1-2-3 outline + Remove All",
+    "tt78-sheet: M3 calculated columns: F1 fill, F2 refill, E1 exception, F3 no fill, X1/X2 grow, S1 structure",
+    "tt78-sheet: M4 Auto Outline: nested summary formulas → nested levels (rows and columns)",
+    "tt78-sheet: R1 new-package writer: XSD valid; openpyxl sees levels / hidden / collapsed / summary / calc; Fusion rereads",
+    "tt78-sheet: R2 patcher on corpus files: outline + calc edits written, untouched parts byte-identical",
+    "tt78-sheet: R3 JSON round trip (undo snapshots) keeps outline and calc",
+    "tt78-sheet: N1-N18 negative shapes"
    ]
   },
   "FF-20": {
@@ -1601,7 +1759,18 @@
     "tt76-sheet: R4 inserting / deleting a column shifts criteria AND colours; re-evaluation is unchanged",
     "tt76-sheet: R5 a TABLE's colour filter: new package re-creates its dxf (openpyxl resolves the colour); a dangling one is dropped from a new package and reported",
     "tt76-sheet: U1 Condition dialog model: Excel's wildcard encoding both ways, validation keeps OK disabled, reopen pre-fills, colour/icon options",
-    "tt76-sheet: N1–N17 negative shapes: hostile criteria never hang, never hide wrongly, never corrupt the save"
+    "tt76-sheet: N1–N17 negative shapes: hostile criteria never hang, never hide wrongly, never corrupt the save",
+    "tt78-sheet: O1 corpus outline oracle: levels / collapsed / hidden / summary placement == openpyxl",
+    "tt78-sheet: O3 openpyxl-WRITTEN outlines (independent writer) read identically; Fusion's patch is read back by openpyxl",
+    "tt78-sheet: O2 corpus calculated columns: calc == openpyxl, and calc shifted per body row == Excel's cell formulas",
+    "tt78-sheet: M1 outline semantics: nested collapse, level buttons, detail, summary above, filter rows, ungroup",
+    "tt78-sheet: M2 Subtotal == pandas groupby (Sum / Count / Average / Max) + grand total + 1-2-3 outline + Remove All",
+    "tt78-sheet: M3 calculated columns: F1 fill, F2 refill, E1 exception, F3 no fill, X1/X2 grow, S1 structure",
+    "tt78-sheet: M4 Auto Outline: nested summary formulas → nested levels (rows and columns)",
+    "tt78-sheet: R1 new-package writer: XSD valid; openpyxl sees levels / hidden / collapsed / summary / calc; Fusion rereads",
+    "tt78-sheet: R2 patcher on corpus files: outline + calc edits written, untouched parts byte-identical",
+    "tt78-sheet: R3 JSON round trip (undo snapshots) keeps outline and calc",
+    "tt78-sheet: N1-N18 negative shapes"
    ]
   },
   "FF-22": {
@@ -2081,9 +2250,10 @@
   "FF-30": {
    "tested": "full",
    "tests": [
-    "e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — 12 blend modes, opaque and translucent backdrops",
+    "e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — the 16 canvas blend modes (incl. hue/saturation/color/luminosity), opaque and translucent backdrops",
     "e2e-image: new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo",
     "e2e-image: layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge",
+    "e2e-image: TT78 clipping mask in the UI: 'Clip to layer below' limits a layer to the brush stroke beneath it; non-separable modes offered",
     "e2e-image: bucket tolerance/contiguity on real pixels; eyedropper sets the foreground; wand selection + Delete clears",
     "e2e-image: marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection",
     "e2e-image: layer mask: paint on mask hides, disable mask reveals; keyboard tool switching, [ ] size, X swap",
@@ -2092,6 +2262,9 @@
     "e2e-image: no uncaught page errors during the image session",
     "e2e: mount: imageedit",
     "image: W3C separable blend functions: hand-computed pins",
+    "image: TT78 non-separable blends: hand-computed pins (W3C §10.2 SetLum / ClipColor / SetSat)",
+    "image: TT78 clipping masks: base coverage, blend onto the base colour, hidden base, base opacity, clip with no base",
+    "image: TT78 groups: pass-through vs isolated, group opacity, hidden group, nesting, validation",
     "image: composite: source-over with opacity, blend over transparent backdrop, mask, off-canvas offsets",
     "image: structural ops: rotate×4 = id, rotate matches raster.rotate90 of the composite, flips, crop keeps pixels",
     "image: merge down / flatten preserve the composite; duplicate/reorder/remove; growLayerTo; validation",
@@ -2106,7 +2279,8 @@
     "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
     "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
     "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools"
+    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/groups: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools"
    ]
   },
   "FF-31": {
@@ -2114,15 +2288,18 @@
    "tests": [
     "e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels",
     "e2e: mount: imageedit",
+    "image: TT78 PSD: groups / clipping / non-separable keys round-trip; clip to a group is reported and drawn unclipped",
     "image: PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size",
     "image: PSD write → read (raw / RLE / ZIP): names (Unicode), offsets incl. negative, opacity, blend, visibility, masks, exact pixels",
     "image: PSD reader rejects PSB, 16-bit, CMYK, truncated/garbage input with explicit messages",
     "oracle-psd: A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
     "oracle-psd: A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
     "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
+    "oracle-psd: fixtures exercise clipping (psd-tools: hiding the clipped layers changes the composite)",
     "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
     "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
     "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
+    "oracle-psd: B/groups: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
     "oracle-psd: C: layer-less RGB and Grayscale PSDs written by psd-tools open via the merged-image fallback"
    ]
   },
@@ -2212,7 +2389,6 @@
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
     "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
-    "e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
     "e2e-privacy: no page errors across the privacy flows",
     "e2e: mount: privacy",
     "privacy-crypto: Argon2id (hash-wasm) equals the reference C implementation (argon2-cffi), incl. the default 64 MiB/t=3 slot cost",
@@ -2602,7 +2778,6 @@
    "tests": [
     "e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back",
     "e2e-tabletop: box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured)",
-    "e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too",
     "e2e-tabletop: walls work: Apps wall launches an app (and returns to the table), Windows wall lists and restores windows, Widgets shows the time, Recent opens a file",
     "e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card",
     "e2e-tabletop: reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately",
@@ -2652,7 +2827,6 @@
   "LY-12": {
    "tested": "full",
    "tests": [
-    "e2e-tabletop: walls are pinboards: drag a card onto a wall pins it (persisted, leaves the floor); the open wall shows it with a count; drag moves it on the wall; 'Put back on the table' returns it",
     "e2e-tabletop: TT48 fast flick: pointerdown, eight pointermoves and pointerup in ONE task (no render in between) still move the card — the release must not read a stale drag",
     "e2e-tabletop: wall piles by menu (keyboard path): 'Pin to the Apps wall' ×2, pile them on the wall, fan the wall pile, take one out; pins survive reload",
     "e2e-tt29: wall tags are the click AND drop targets the slivers could not be (TT29): clicking the Apps spine opens the Apps wall; dragging a floor card onto the Widgets spine highlights it and pins the card there (persisted)",
@@ -3598,6 +3772,217 @@
     "tt76-slides: M6 show playback CSS: waiting shapes hidden, the played step animates from its start state, transitions layer correctly",
     "tt76-slides: M5 deleting an animated shape prunes its effects + build entries (modelled timelines here; opaque + AlternateContent timelines in N15 / N17): nothing dangling, XSD-valid",
     "tt76-slides: N1–N17 negative shapes for transitions / animations"
+   ]
+  },
+  "FF-64": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt78-sheet: Subtotal dialog → totals + 1-2-3 outline; level 2 shows only totals; +/− expands one group; Save → openpyxl sees levels / hidden / collapsed / SUBTOTAL",
+    "e2e-tt78-sheet: modal shortcut: Alt+Shift+→ asks Rows/Columns; a second Alt+Shift+→ while asked does nothing; Escape groups nothing; 'rows' groups; Alt+Shift+← ungroups",
+    "tt78-sheet: O1 corpus outline oracle: levels / collapsed / hidden / summary placement == openpyxl",
+    "tt78-sheet: O3 openpyxl-WRITTEN outlines (independent writer) read identically; Fusion's patch is read back by openpyxl",
+    "tt78-sheet: M1 outline semantics: nested collapse, level buttons, detail, summary above, filter rows, ungroup",
+    "tt78-sheet: M2 Subtotal == pandas groupby (Sum / Count / Average / Max) + grand total + 1-2-3 outline + Remove All",
+    "tt78-sheet: M4 Auto Outline: nested summary formulas → nested levels (rows and columns)",
+    "tt78-sheet: R1 new-package writer: XSD valid; openpyxl sees levels / hidden / collapsed / summary / calc; Fusion rereads",
+    "tt78-sheet: R2 patcher on corpus files: outline + calc edits written, untouched parts byte-identical",
+    "tt78-sheet: R3 JSON round trip (undo snapshots) keeps outline and calc",
+    "tt78-sheet: N1-N18 negative shapes"
+   ]
+  },
+  "FF-65": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt78-sheet: calculated column: =A2*B2 fills the column; typing below grows the table and fills; one Ctrl+Z undoes both; Save → openpyxl calculatedColumnFormula + ref",
+    "tt78-sheet: O2 corpus calculated columns: calc == openpyxl, and calc shifted per body row == Excel's cell formulas",
+    "tt78-sheet: M3 calculated columns: F1 fill, F2 refill, E1 exception, F3 no fill, X1/X2 grow, S1 structure",
+    "tt78-sheet: R1 new-package writer: XSD valid; openpyxl sees levels / hidden / collapsed / summary / calc; Fusion rereads",
+    "tt78-sheet: R2 patcher on corpus files: outline + calc edits written, untouched parts byte-identical",
+    "tt78-sheet: R3 JSON round trip (undo snapshots) keeps outline and calc",
+    "tt78-sheet: N1-N18 negative shapes"
+   ]
+  },
+  "FF-66": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt77-pdfsig: S1 real-world BER qualified signature → valid, signer, identity disclaimer, chain",
+    "e2e-tt77-pdfsig: S2 changed after signing → 'modified'; Open signed version → that revision is valid",
+    "e2e-tt77-pdfsig: S3 tampered → Invalid",
+    "e2e-tt77-pdfsig: S6 modal shortcut: Ctrl+S / Ctrl+Z inside the New-identity dialog never reach the document",
+    "e2e-tt77-pdfsig: S4 New identity → Sign → Ctrl+S → pyHanko intact+valid+ENTIRE_FILE; panel shows ours valid",
+    "e2e-tt77-pdfsig: S5 the identity survives a reload (IndexedDB) and the saved file re-validates in the UI",
+    "e2e-tt77-pdfsig: S7 no page errors",
+    "tt77-pdfsig: G1 pyHanko fixtures: same verdict per signature (9 files, 10 signatures)",
+    "tt77-pdfsig: G2 corpus signed files: agree with pyHanko where it can evaluate",
+    "tt77-pdfsig: G3 sign with Fusion → pyHanko intact+valid, PDFium renders identically, qpdf clean",
+    "tt77-pdfsig: G4 imported RSA identity (PKCS#8 PEM + cert PEM) → pyHanko valid",
+    "tt77-pdfsig: G5 counter-sign a pyHanko-signed file → first 'modified' + FORM_FILLING, ours valid",
+    "tt77-pdfsig: G6 sign our own signed output again (unique field names, both verdicts as pyHanko)",
+    "tt77-pdfsig: N0 the unmodified signed file is valid (control for N1…)",
+    "tt77-pdfsig: N1 ByteRange gap shifted by 1 (signed region manipulated)",
+    "tt77-pdfsig: N2 ByteRange beyond EOF",
+    "tt77-pdfsig: N3 ByteRange with three entries",
+    "tt77-pdfsig: N3b ByteRange with a negative entry",
+    "tt77-pdfsig: N4 garbage /Contents (not DER)",
+    "tt77-pdfsig: N5 BER indefinite length",
+    "tt77-pdfsig: N6 2^31 length",
+    "tt77-pdfsig: N7 unknown digest OID (sha256 → 2.16.840.1.101.3.4.2.127)",
+    "tt77-pdfsig: N8 signer certificate removed from the CMS",
+    "tt77-pdfsig: N9 a byte flipped inside the signed range",
+    "tt77-pdfsig: N10 empty /Contents",
+    "tt77-pdfsig: N11 cyclic field /Kids (the field list stays bounded)",
+    "tt77-pdfsig: N12 BER indefinite nesting 4000 deep (bounded recursion)",
+    "tt77-pdfsig: N13 non-hex bytes smuggled into the unsigned gap",
+    "tt77-pdfsig: N14 delimiters inside the signed range but a non-hex gap",
+    "tt77-pdfsig: R1 PdfDoc.open never mutates the caller's Buffer (encrypted corpus files; AES .slice view bug)"
+   ]
+  },
+  "FF-67": {
+   "tested": "full",
+   "tests": [
+    "tt77-pdf: J1 JBIG2: every corpus JBIG2 image bit-exact vs PDFium (1 declared divergence)",
+    "tt77-pdf: J2 JPX: every corpus JPX image within ±2 of PDFium (1 declared divergence: SMaskInData 1 pre-composited by PDFium)",
+    "tt77-pdf: J3 JPX vs OpenJPEG: 40 generated codestreams — lossless = source exactly, lossy ±1",
+    "tt77-pdf: J4 PDF wiring: /Indexed JPX keeps raw indices (issue12213 exact), /SMaskInData yields a soft mask, JPX size wins over /Width",
+    "tt77-pdf: N1 JPX garbage / empty / random bytes throw a clean error, quickly",
+    "tt77-pdf: N2 JPX hand-built minimal codestream decodes (empty packet → mid-grey), and every truncation of it is bounded",
+    "tt77-pdf: N3 JPX oversize SIZ (2^31 × 2^31), zero tile size, 32 levels on 8×8 and 70 000 tiles are refused or bounded",
+    "tt77-pdf: N4 JPX truncated real codestreams (every 7th cut of a generated lossy RGB stream) keep the decoded part, never hang",
+    "tt77-pdf: N5 JBIG2 garbage, empty and truncated segment streams are bounded and never throw out of the decoder",
+    "tt77-pdf: N6 JBIG2 bomb (bomb_giant.pdf: a page claiming a huge region) is refused fast with bounded memory",
+    "tt77-pdf: N7 a PDF whose JPX stream is garbage renders the rest of the page (image becomes the disclosed placeholder, no throw)"
+   ]
+  },
+  "FF-68": {
+   "tested": "full",
+   "tests": [
+    "tt77-pdf-composite: C1 fill+stroke at ca=CA=.5 is a knockout pair: interior = fill over backdrop, stroke over backdrop (not over fill)",
+    "tt77-pdf-composite: C1b the same knockout pair straight on the (transparent) page, nothing under it: identical result once the paper goes under",
+    "tt77-pdf-composite: C2 fill+stroke with BM Difference over white: both halves are the complement (yellow → blue)",
+    "tt77-pdf-composite: C3 page backdrop is transparent: Difference straight on the page (nothing under it) is Normal; paper goes under afterwards",
+    "tt77-pdf-composite: C4 blend Multiply: cyan × yellow = green; Screen: red ⊕ blue = magenta",
+    "tt77-pdf-composite: C5 Luminosity soft mask: mask group paints gray .5 → red at 50% over white = (255,128,128)",
+    "tt77-pdf-composite: C6 Luminosity /BC: empty mask group over BC [1] → mask 1 (full red); without /BC the backdrop is black → nothing painted",
+    "tt77-pdf-composite: C7 Luminosity mask in a DeviceCMYK group with no /BC: backdrop = zero components = WHITE → mask 1",
+    "tt77-pdf-composite: C8 Alpha soft mask: mask group paints at ca .25 → red at 25% over white = (255,191,191)",
+    "tt77-pdf-composite: C9 soft mask /TR: an inverting transfer function maps luminosity 1 → 0 → nothing painted",
+    "tt77-pdf-composite: C10 group alpha: two overlapping OPAQUE rects in a group drawn at ca .5 → overlap is blue at 50% (not blue over red)",
+    "tt77-pdf-composite: C11 isolated knockout group: blue at .5 knocks out red at .5 → overlap = blue .5 over white (PDFium ignores /K: (128,64,191))",
+    "tt77-pdf-composite: C12 non-isolated knockout group over a black backdrop: knocked-out area returns to the BACKDROP, not to transparent",
+    "tt77-pdf-composite: C13 nested group inside a knockout group knocks out by its SHAPE: inner group of blue at .5 → overlap blue .5 over white",
+    "tt77-pdf-composite: C14 negative: a soft mask whose group is not a stream, a mask cycle-depth bomb and /SMask /None all render without throwing",
+    "tt77-pdf-composite: C15 /Matte: an image premultiplied against matte black, α .5, un-premultiplies to its true colour",
+    "tt77-pdf-composite: C16 non-isolated group over a SEMI-TRANSPARENT backdrop (transparent page): the backdrop is not counted twice",
+    "tt77-pdf-composite: C17 (TT78) a clip the page leaves active — W n, W before the path, unbalanced q — never clips the paper"
+   ]
+  },
+  "FF-69": {
+   "tested": "full",
+   "tests": [
+    "tt79-archive: C1 Python zipfile stored/deflate/bzip2/LZMA: every entry equals Python's read (bytes + CRC)",
+    "tt79-archive: C2 own inflater == zlib (every deflated corpus entry + node:zlib levels 0–9 + Python entries)",
+    "tt79-archive: C3 Deflate64 (Windows-made dotnet fixture) == Info-ZIP unzip -p; malformed fixtures end cleanly",
+    "tt79-archive: C4 Info-ZIP archives: bzip2, forced ZIP64, streamed (data descriptor), symlink, UTF-8 names == unzip",
+    "tt79-archive: C5 names: CP437 decode == Python; Unicode Path 0x7075 honoured exactly as Info-ZIP does (CRC), stale ignored",
+    "tt79-archive: W1 writer: UTF-8 names, folders, comments, Unix modes, timestamps → Python + unzip -t + zipinfo",
+    "tt79-archive: W2 ZIP64: ours forced → Python + unzip -t; Python force_zip64 → ours; 70 000 entries (count overflow)",
+    "tt79-archive: X1 editing without the password: AES archive delete/rename/add → pyzipper; streamed ZipCrypto rename → unzip -P -t",
+    "tt79-archive: P1 throughput (reported)"
+   ]
+  },
+  "FF-70": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt79-archive: 5 Files integration: .zip opens Archive; server extract → 401 needPassword then extracts; compress with password → pyzipper",
+    "tt79-archive: V1 crypto vectors (FIPS-197, FIPS 180, RFC 6070) + 200 random cross-checks against node:crypto",
+    "tt79-archive: E1 WinZip AES read: pyzipper AES-128/192/256 × stored/deflate/bzip2/LZMA",
+    "tt79-archive: E2 WinZip AES write (128/192/256, stored + deflate): pyzipper decrypts; wrong password refused by pyzipper",
+    "tt79-archive: E3 ZipCrypto read: Info-ZIP zip -P (files + streamed with a data descriptor)",
+    "tt79-archive: E4 ZipCrypto write: unzip -P -t passes and Python zipfile reads it",
+    "tt79-archive: X1 editing without the password: AES archive delete/rename/add → pyzipper; streamed ZipCrypto rename → unzip -P -t"
+   ]
+  },
+  "FF-71": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt79-archive: 1 AES archive: derived folders, navigation, locked preview; MODAL SHORTCUT (Delete/F2/Ctrl+A inert behind the password dialog); wrong → asked again; right → exact text; PNG preview",
+    "e2e-tt79-archive: 2 keyboard edits: Delete + F2 + New folder → Save → pyzipper decrypts the renamed entry with the ORIGINAL password; Undo restores",
+    "e2e-tt79-archive: 3 Extract all → Files equals pyzipper; zip-slip archive: 'unsafe' badges, only safe entries written",
+    "e2e-tt79-archive: 4 New archive from device files → Encrypted copy AES-256 (pyzipper) and ZipCrypto (unzip -P -t)",
+    "e2e-tt79-archive: 5 Files integration: .zip opens Archive; server extract → 401 needPassword then extracts; compress with password → pyzipper",
+    "e2e-tt79-archive: 6 Test: every entry verified; a corrupted archive names the damaged entry",
+    "e2e-tt79-archive: no page errors",
+    "tt79-archive: X1 editing without the password: AES archive delete/rename/add → pyzipper; streamed ZipCrypto rename → unzip -P -t"
+   ]
+  },
+  "FF-72": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt79-archive: 6 Test: every entry verified; a corrupted archive names the damaged entry",
+    "tt79-archive: N1–N24 negative shapes (zip-slip, symlink, duplicates, overlap, mismatch, bombs, lies, tamper, multi-volume, truncation, limits, methods)"
+   ]
+  },
+  "FF-73": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt79-pdf: Q1 Import .p12: wrong password asked again; Ctrl+S / Delete inert behind the dialog; identity with chain",
+    "e2e-tt79-pdf: Q2 visible signature on page 2 → Ctrl+S → pyHanko valid + trusted; widget bottom-right of page 2; drawn by Fusion",
+    "e2e-tt79-pdf: Q3 Trust this certificate → Identity trusted; survives reload; Remove → not verified",
+    "e2e-tt79-pdf: Q4 Add certificate… (unrelated root) → untrusted with a reason",
+    "e2e-tt79-pdf: Q5 no page errors",
+    "tt79-pdf: P1 ciphers: 3DES == OpenSSL, RC2 RFC 2268 vectors, RC4 RFC 6229, PKCS#7 unpad",
+    "tt79-pdf: P2 every PFX variant parses: key == writer's key, certificates == leaf + chain, MAC + schemes named",
+    "tt79-pdf: P3 wrong password refused everywhere; a flipped authSafe byte breaks the MAC; -nomac still refuses",
+    "tt79-pdf: P4 identityFromPkcs12: pairing proved, chain leaf→root, mismatched file refused",
+    "tt79-pdf: P5 sign with PFX identities (visible, page 2) → pyHanko valid + trusted with the root; Fusion trust verdicts",
+    "tt79-pdf: N1 hostile PFX: random bytes",
+    "tt79-pdf: N2 hostile PFX: truncated PFX",
+    "tt79-pdf: N3 hostile PFX: iteration count 2^31 in the MAC",
+    "tt79-pdf: N4 hostile PFX: larger than 1 MiB",
+    "tt79-pdf: N5 hostile PFX: PBMAC1 integrity",
+    "tt79-pdf: N6 hostile PFX: envelopedData authSafe",
+    "tt79-pdf: N7 hostile PFX: 257 bags",
+    "tt79-pdf: N8 hostile PFX: safeContents nested 6 deep",
+    "tt79-pdf: N9 hostile PFX: PBES2 with an unknown cipher"
+   ]
+  },
+  "FF-74": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt79-pdf: Q1 Import .p12: wrong password asked again; Ctrl+S / Delete inert behind the dialog; identity with chain",
+    "e2e-tt79-pdf: Q2 visible signature on page 2 → Ctrl+S → pyHanko valid + trusted; widget bottom-right of page 2; drawn by Fusion",
+    "e2e-tt79-pdf: Q3 Trust this certificate → Identity trusted; survives reload; Remove → not verified",
+    "e2e-tt79-pdf: Q4 Add certificate… (unrelated root) → untrusted with a reason",
+    "e2e-tt79-pdf: Q5 no page errors",
+    "tt79-pdf: P5 sign with PFX identities (visible, page 2) → pyHanko valid + trusted with the root; Fusion trust verdicts",
+    "tt79-pdf: P6 visible appearance: PDFium ink only inside the rectangle on page 2, page 1 identical, text inside, qpdf clean",
+    "tt79-pdf: P8 rotated pages: the visible box lands in the seen corner and reads upright (PDFium, IoU vs unrotated)"
+   ]
+  },
+  "FF-75": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt79-pdf: Q1 Import .p12: wrong password asked again; Ctrl+S / Delete inert behind the dialog; identity with chain",
+    "e2e-tt79-pdf: Q2 visible signature on page 2 → Ctrl+S → pyHanko valid + trusted; widget bottom-right of page 2; drawn by Fusion",
+    "e2e-tt79-pdf: Q3 Trust this certificate → Identity trusted; survives reload; Remove → not verified",
+    "e2e-tt79-pdf: Q4 Add certificate… (unrelated root) → untrusted with a reason",
+    "e2e-tt79-pdf: Q5 no page errors",
+    "tt79-pdf: P5 sign with PFX identities (visible, page 2) → pyHanko valid + trusted with the root; Fusion trust verdicts",
+    "tt79-pdf: P7 trust negatives agree with pyHanko: non-CA intermediate, expired signer, key usage without signing"
+   ]
+  },
+  "FF-76": {
+   "tested": "full",
+   "tests": [
+    "tt79-sheet: X1 POI Strict workbooks: every cell == openpyxl on the namespace-mapped copy; formulas recompute to the cached values",
+    "tt79-sheet: X2 t=\"d\" cells in 1900 and 1904 workbooks == openpyxl (from_ISO8601 + to_excel)",
+    "tt79-sheet: X3 edges: dateCompatibility=0, bare times, impossible dates stay text"
+   ]
+  },
+  "FF-77": {
+   "tested": "full",
+   "tests": [
+    "tt79-sheet: X4 text → number coercion (numtext.ts): en-US currency, groups, %, parentheses, exponent; hex / Infinity / dates refused"
    ]
   },
   "CT-01": {
