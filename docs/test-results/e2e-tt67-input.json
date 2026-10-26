@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt67-input",
-  "at": "2026-10-25T19:14:37.876Z",
+  "at": "2026-10-25T23:06:35.626Z",
   "results": [
     {
       "suite": "e2e-tt67-input",
@@ -9,7 +9,7 @@
         "IN-03": "full"
       },
       "pass": true,
-      "ms": 4590
+      "ms": 4850
     },
     {
       "suite": "e2e-tt67-input",
@@ -18,7 +18,7 @@
         "IN-03": "full"
       },
       "pass": true,
-      "ms": 2641
+      "ms": 2640
     },
     {
       "suite": "e2e-tt67-input",
@@ -27,7 +27,7 @@
         "IN-02": "full"
       },
       "pass": true,
-      "ms": 10117
+      "ms": 9597
     },
     {
       "suite": "e2e-tt67-input",
@@ -36,7 +36,7 @@
         "IN-02": "full"
       },
       "pass": true,
-      "ms": 4892
+      "ms": 5686
     },
     {
       "suite": "e2e-tt67-input",
@@ -45,7 +45,7 @@
         "SH-06": "full"
       },
       "pass": true,
-      "ms": 10524
+      "ms": 10614
     }
   ]
 }

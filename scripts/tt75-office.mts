@@ -27,6 +27,7 @@ import { readXlsxWorkbook, writeXlsxWorkbook } from "../src/lib/formula/xlsx.ts"
 import { patchXlsx, loadedBaseline } from "../src/lib/formula/xlsx-patch.ts";
 import { workbookFromJson, workbookToJson, tableNameOk, type WorkbookJson } from "../src/lib/formula/workbook-json.ts";
 import { insertDelete } from "../src/lib/formula/sheetops.ts";
+import { calcInputAt } from "../src/lib/formula/sheettablecalc.ts";
 import { sanitizeFilterColumnXml } from "../src/lib/formula/sheetfilter.ts";
 import { adjustTablesForStructure, tableStructureConflict, TableEditError, rewriteStructuredRefs, structuredRefsToFileForm, xstring, unXstring, tableColumnNames, defaultColumnName } from "../src/lib/formula/sheettables.ts";
 
@@ -165,7 +166,7 @@ if (want("T1")) await test("T1 corpus → new package: every table written (open
 
 /* ================================================================== T2 corpus structural edits */
 if (want("T2")) await test("T2 corpus structural edits on every table: insert / delete a body row and a column inside it, delete the whole table, refuse a header-only delete — probes follow the invariants; new package and in-place save carry the geometry (openpyxl)", TABLES, async () => {
-  const bad: string[] = []; let edits = 0, refusedOk = 0, checked = 0, positionDependent = 0, oracleUnreadable = 0; const files: { path: string; expect: Record<string, string>; cols: Record<string, string[]>; label: string }[] = [];
+  const bad: string[] = []; let edits = 0, refusedOk = 0, checked = 0, positionDependent = 0, calcFilled = 0, oracleUnreadable = 0; const files: { path: string; expect: Record<string, string>; cols: Record<string, string[]>; label: string }[] = [];
   for (const c of corpus) {
     for (const t0 of c.wb.tables.values()) {
       const tt = Date.now(); if (process.env.TT75_PROGRESS) process.stderr.write(`  T2 ${c.file} ${t0.name} … `);
@@ -187,7 +188,20 @@ if (want("T2")) await test("T2 corpus structural edits on every table: insert / 
           // =INDIRECT("A"&ROW(…)-1)+1) legitimately changes value when an empty row is inserted: compare shape only
           const posDep = tableReadsPosition(c.wb, t0, sh);
           if (posDep) positionDependent++;
-          if (!exp.every((v, i) => (posDep && i >= 2 && i <= 4) || same(p1[i], v))) bad.push(`${c.file} ${t.name}: after row insert at ${rAt + 1} probes ${J(p1)} want ${J(exp)}`);
+          // TT78 (FF-65): a table with calculated columns fills them into the inserted row, as Excel does, so the
+          // content probes (2–4) legitimately change; instead every calculated cell of the new row must hold the
+          // column formula shifted to that row
+          const tc = wb.tables.get(t.name.toUpperCase())!;
+          const hasCalc = !!tc.calc && Object.keys(tc.calc).length > 0;
+          if (hasCalc) {
+            calcFilled++;
+            for (let cc = tc.c0; cc <= tc.c1; cc++) {
+              const want = calcInputAt(tc, cc, rAt); if (!want) continue;
+              const got = wb.sheets.get(sh)?.get(cc, rAt)?.input ?? "";
+              if (got !== want) bad.push(`${c.file} ${t.name}: inserted row col ${cc + 1} holds ${J(got)} want calculated ${J(want)}`);
+            }
+          }
+          if (!exp.every((v, i) => ((posDep || hasCalc) && i >= 2 && i <= 4) || same(p1[i], v))) bad.push(`${c.file} ${t.name}: after row insert at ${rAt + 1} probes ${J(p1)} want ${J(exp)}`);
           // written geometry, new package + in-place save
           const tn = wb.tables.get(t.name.toUpperCase())!;
           const np = join(tmp, `t2-${files.length}.xlsx`); writeFileSync(np, writeXlsxWorkbook(wb, c.file)); files.push({ path: np, expect: { [t.name]: refOf(tn) }, cols: {}, label: `${c.file} ${t.name} new package after row insert` });
@@ -266,7 +280,7 @@ if (want("T2")) await test("T2 corpus structural edits on every table: insert / 
   }
   const xs = xsd(files.map((f) => f.path));
   for (const f of files) for (const [part, es] of Object.entries(xs[f.path]?.parts ?? {})) if (/xl\/tables\//.test(part) && es.length) bad.push(`${f.label} ${part}: ${es[0]}`);
-  console.log(`    edits ${edits}, justified refusals ${refusedOk}, header deletes refused ${checked}, packages checked by openpyxl ${files.length} (original unreadable by openpyxl: ${oracleUnreadable}), position-dependent bodies ${positionDependent}, problems ${bad.length}`);
+  console.log(`    edits ${edits}, justified refusals ${refusedOk}, header deletes refused ${checked}, packages checked by openpyxl ${files.length} (original unreadable by openpyxl: ${oracleUnreadable}), position-dependent bodies ${positionDependent}, calculated-column fills checked ${calcFilled}, problems ${bad.length}`);
   ok(edits >= 150 && files.length >= 100, `edits ${edits}, files ${files.length}`);
   if (process.env.TT75_PROGRESS && bad.length) process.stderr.write(bad.join("\n") + "\n");
   ok(!bad.length, bad.slice(0, 6).join("\n"));

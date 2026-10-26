@@ -1,6 +1,6 @@
 {
   "suite": "privacy-crypto",
-  "at": "2026-10-25T17:51:15.360Z",
+  "at": "2026-10-25T22:09:30.982Z",
   "results": [
     {
       "suite": "privacy-crypto",
@@ -9,7 +9,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 954
+      "ms": 1019
     },
     {
       "suite": "privacy-crypto",
@@ -18,7 +18,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 61
+      "ms": 69
     },
     {
       "suite": "privacy-crypto",
@@ -28,7 +28,7 @@
         "BK-06": "partial"
       },
       "pass": true,
-      "ms": 262
+      "ms": 318
     },
     {
       "suite": "privacy-crypto",
@@ -38,7 +38,7 @@
         "BK-06": "full"
       },
       "pass": true,
-      "ms": 618
+      "ms": 737
     },
     {
       "suite": "privacy-crypto",
@@ -47,7 +47,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 380
+      "ms": 426
     },
     {
       "suite": "privacy-crypto",
@@ -56,7 +56,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 310
+      "ms": 292
     },
     {
       "suite": "privacy-crypto",
@@ -65,7 +65,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 84
+      "ms": 86
     },
     {
       "suite": "privacy-crypto",
@@ -74,7 +74,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 245
+      "ms": 234
     },
     {
       "suite": "privacy-crypto",
@@ -83,7 +83,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 50
+      "ms": 64
     }
   ]
 }

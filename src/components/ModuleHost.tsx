@@ -45,6 +45,7 @@ import SlidesModule from "./modules/Slides";
 import PdfModule from "./modules/Pdf";
 import BooksModule from "./modules/Books";
 import ImageEditorModule from "./modules/ImageEditor";
+import ArchiveModule from "./modules/Archive";
 import VectorModule from "./modules/Vector";
 
 /** The registry's id → component map. Adding a module means adding it here and
@@ -94,6 +95,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "pdf": return <PdfModule win={win} />;
     case "books": return <BooksModule win={win} />;
     case "imageedit": return <ImageEditorModule win={win} />;
+    case "archive": return <ArchiveModule win={win} />;
     case "vector": return <VectorModule win={win} />;
     default:
       return <div style={{ padding: 16, fontSize: fz(12) }}>Unknown module: {win.module}</div>;

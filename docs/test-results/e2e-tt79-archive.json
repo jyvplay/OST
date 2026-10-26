@@ -1,0 +1,76 @@
+{
+  "suite": "e2e-tt79-archive",
+  "at": "2026-10-26T07:20:59.426Z",
+  "results": [
+    {
+      "suite": "e2e-tt79-archive",
+      "name": "1 AES archive: derived folders, navigation, locked preview; MODAL SHORTCUT (Delete/F2/Ctrl+A inert behind the password dialog); wrong → asked again; right → exact text; PNG preview",
+      "covers": {
+        "FF-71": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 6206
+    },
+    {
+      "suite": "e2e-tt79-archive",
+      "name": "2 keyboard edits: Delete + F2 + New folder → Save → pyzipper decrypts the renamed entry with the ORIGINAL password; Undo restores",
+      "covers": {
+        "FF-71": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 4383
+    },
+    {
+      "suite": "e2e-tt79-archive",
+      "name": "3 Extract all → Files equals pyzipper; zip-slip archive: 'unsafe' badges, only safe entries written",
+      "covers": {
+        "FF-71": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 5356
+    },
+    {
+      "suite": "e2e-tt79-archive",
+      "name": "4 New archive from device files → Encrypted copy AES-256 (pyzipper) and ZipCrypto (unzip -P -t)",
+      "covers": {
+        "FF-71": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 3873
+    },
+    {
+      "suite": "e2e-tt79-archive",
+      "name": "5 Files integration: .zip opens Archive; server extract → 401 needPassword then extracts; compress with password → pyzipper",
+      "covers": {
+        "FF-71": "full",
+        "FM-05": "full",
+        "FF-70": "full"
+      },
+      "pass": true,
+      "ms": 2076
+    },
+    {
+      "suite": "e2e-tt79-archive",
+      "name": "6 Test: every entry verified; a corrupted archive names the damaged entry",
+      "covers": {
+        "FF-71": "full",
+        "FF-72": "full"
+      },
+      "pass": true,
+      "ms": 4316
+    },
+    {
+      "suite": "e2e-tt79-archive",
+      "name": "no page errors",
+      "covers": {
+        "FF-71": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

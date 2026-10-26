@@ -17,6 +17,7 @@ export function appForFile(name: string, mime: string, kind: string = "file"): s
   if (/\.(geojson|gpx|kml)$/i.test(n)) return "maps"; // TT34 MP-08: GPX / KML open in Maps too
   if (n.endsWith(".pptx") || n.endsWith(".fdeck")) return "slides";
   if (n.endsWith(".epub") || mime === "application/epub+zip") return "books"; // TT75: FF-10 on-device EPUB reader
+  if (n.endsWith(".zip") || mime === "application/zip" || mime === "application/x-zip-compressed") return "archive"; // TT79: FF-71 Archive app
   if (n.endsWith(".pdf") || mime === "application/pdf") return "pdf"; // TT52: first-party PDF viewer/editor
   if ([".fsheet", ".fworkbook", ".xlsx"].some((ext) => n.endsWith(ext))) return "sheet";
   if (fmt && fmt.grade === "A" && fmt.editable) return "editor";

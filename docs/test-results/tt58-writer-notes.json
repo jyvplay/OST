@@ -1,6 +1,6 @@
 {
   "suite": "tt58-writer-notes",
-  "at": "2026-10-25T18:34:57.537Z",
+  "at": "2026-10-25T22:58:43.924Z",
   "results": [
     {
       "suite": "tt58-writer-notes",
@@ -9,7 +9,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 124
+      "ms": 137
     },
     {
       "suite": "tt58-writer-notes",
@@ -18,7 +18,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 234
+      "ms": 274
     },
     {
       "suite": "tt58-writer-notes",
@@ -27,7 +27,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 9455
+      "ms": 10414
     },
     {
       "suite": "tt58-writer-notes",
@@ -36,7 +36,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 386
+      "ms": 449
     },
     {
       "suite": "tt58-writer-notes",
@@ -45,7 +45,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 10159
+      "ms": 10943
     }
   ]
 }

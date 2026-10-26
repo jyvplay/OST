@@ -1,6 +1,6 @@
 {
   "suite": "tt59-writer-spell",
-  "at": "2026-10-25T18:36:41.737Z",
+  "at": "2026-10-25T23:00:34.184Z",
   "results": [
     {
       "suite": "tt59-writer-spell",
@@ -9,7 +9,7 @@
         "FF-38": "full"
       },
       "pass": true,
-      "ms": 195
+      "ms": 194
     },
     {
       "suite": "tt59-writer-spell",
@@ -18,7 +18,7 @@
         "FF-38": "full"
       },
       "pass": true,
-      "ms": 95
+      "ms": 66
     },
     {
       "suite": "tt59-writer-spell",
@@ -27,7 +27,7 @@
         "FF-38": "full"
       },
       "pass": true,
-      "ms": 35519
+      "ms": 38567
     },
     {
       "suite": "tt59-writer-spell",
@@ -45,7 +45,7 @@
         "FF-38": "full"
       },
       "pass": true,
-      "ms": 145
+      "ms": 157
     },
     {
       "suite": "tt59-writer-spell",
@@ -54,7 +54,7 @@
         "FF-38": "full"
       },
       "pass": true,
-      "ms": 321
+      "ms": 345
     },
     {
       "suite": "tt59-writer-spell",
@@ -63,7 +63,7 @@
         "FF-38": "full"
       },
       "pass": true,
-      "ms": 839
+      "ms": 891
     },
     {
       "suite": "tt59-writer-spell",
@@ -72,7 +72,7 @@
         "FF-38": "full"
       },
       "pass": true,
-      "ms": 1431
+      "ms": 1518
     }
   ]
 }

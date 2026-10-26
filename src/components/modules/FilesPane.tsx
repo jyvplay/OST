@@ -369,9 +369,28 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
       { id: "copy-path", label: "Copy path", group: "edit", keywords: "clipboard", run: () => void shell.copy(paths.join("\n"), "files") },
       { id: "compress", label: "Compress to .zip", group: "archive", keywords: "archive zip", run: () => compressSel(paths) },
       ...(n.name.toLowerCase().endsWith(".zip") ? [{ id: "extract", label: "Extract here", group: "archive", keywords: "unzip archive", run: () => run("extract", async () => {
-        const r = await post<{ written: number; dest: string }>("/api/fs", { op: "extract", path: n.path });
-        shell.toast(`Extracted ${r.written} file(s) into ${r.dest} (CRC verified)`, "ok");
-      }) }] : []),
+        // TT79: encrypted archives (ZipCrypto / WinZip AES) — the server answers needPassword; ask and retry
+        let password: string | undefined;
+        for (;;) {
+          try {
+            const r = await post<{ written: number; dest: string }>("/api/fs", { op: "extract", path: n.path, ...(password !== undefined ? { password } : {}) });
+            shell.toast(`Extracted ${r.written} file(s) into ${r.dest} (${password !== undefined ? "decrypted, " : ""}CRC verified)`, "ok"); break;
+          } catch (e) {
+            if (!(e as { data?: { needPassword?: boolean } }).data?.needPassword) throw e;
+            const v = await askText("Archive password", "", { secret: true, title: `“${n.name}” is encrypted`, okLabel: "Extract", detail: password !== undefined ? "That password did not open it — try again." : "Enter the password to extract." });
+            if (v === null) return; password = v;
+          }
+        }
+      }) }, { id: "archive-open", label: "Open in Archive", group: "archive", keywords: "browse zip contents", run: () => { shell.open("archive", { path: n.path }); } }] : []),
+      { id: "compress-pw", label: "Compress with password…", group: "archive", keywords: "encrypt zip aes", run: () => run("compress", async () => {
+        const v = await askForm({ title: "Compress with a password", detail: "WinZip AES-256 (opens in 7-Zip, WinZip, macOS Archive Utility). The file names stay visible; the contents are encrypted.", okLabel: "Compress",
+          fields: [{ name: "pw", label: "Password", def: "", secret: true }, { name: "pw2", label: "Repeat password", def: "", secret: true }],
+          validate: (x) => (!x.pw ? "Enter a password." : x.pw !== x.pw2 ? "The passwords differ." : null) });
+        if (!v) return;
+        const name = paths.length === 1 ? `${baseName(paths[0])}.zip` : "Archive.zip";
+        const r = await post<{ entries: number; path: string }>("/api/fs", { op: "compress", paths, dst: joinPath(parentPath(paths[0]), name), password: v.pw, encryption: "aes256" });
+        shell.toast(`Encrypted ${r.entries} file(s) into ${name} (AES-256)`, "ok"); shell.bumpRefresh();
+      }) },
       ...(file && /\.(jpe?g|png|webp|gif|svg|docx|xlsx|pptx)$/i.test(n.name) ? [{ id: "clean", label: "Remove metadata (copy)", group: "privacy", keywords: "exif strip clean privacy", run: () => run("metadata", async () => {
         const r = await cleanVfsFile(n.path);
         if (!r.written) shell.toast(r.report.supported ? "No metadata found — nothing written" : "Not supported — file unchanged", "info");

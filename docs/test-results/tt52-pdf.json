@@ -1,6 +1,6 @@
 {
   "suite": "tt52-pdf",
-  "at": "2026-10-25T21:48:48.820Z",
+  "at": "2026-10-25T22:52:51.701Z",
   "results": [
     {
       "suite": "tt52-pdf",
@@ -10,7 +10,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 12
+      "ms": 15
     },
     {
       "suite": "tt52-pdf",
@@ -20,7 +20,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 5
     },
     {
       "suite": "tt52-pdf",
@@ -80,7 +80,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt52-pdf",
@@ -120,7 +120,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 0
     },
     {
       "suite": "tt52-pdf",
@@ -170,7 +170,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 1006
+      "ms": 1008
     },
     {
       "suite": "tt52-pdf",
@@ -180,7 +180,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 1761
+      "ms": 1891
     },
     {
       "suite": "tt52-pdf",
@@ -190,7 +190,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 2160
+      "ms": 2255
     },
     {
       "suite": "tt52-pdf",
@@ -210,7 +210,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 1725
+      "ms": 1905
     },
     {
       "suite": "tt52-pdf",
@@ -220,7 +220,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 3
     },
     {
       "suite": "tt52-pdf",
@@ -230,7 +230,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 182
+      "ms": 185
     },
     {
       "suite": "tt52-pdf",
@@ -240,7 +240,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 256
+      "ms": 214
     },
     {
       "suite": "tt52-pdf",
@@ -250,7 +250,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 175
+      "ms": 231
     },
     {
       "suite": "tt52-pdf",
@@ -260,7 +260,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 21
     },
     {
       "suite": "tt52-pdf",
@@ -270,7 +270,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt52-pdf",
@@ -280,7 +280,7 @@
         "PR-08": "full"
       },
       "pass": true,
-      "ms": 345
+      "ms": 407
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt77-pdf-composite",
-  "at": "2026-10-25T21:48:31.362Z",
+  "at": "2026-10-25T23:27:23.618Z",
   "results": [
     {
       "suite": "tt77-pdf-composite",
@@ -11,7 +11,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 337
+      "ms": 361
     },
     {
       "suite": "tt77-pdf-composite",
@@ -22,7 +22,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 17
+      "ms": 18
     },
     {
       "suite": "tt77-pdf-composite",
@@ -33,7 +33,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 75
+      "ms": 90
     },
     {
       "suite": "tt77-pdf-composite",
@@ -44,7 +44,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 12
+      "ms": 13
     },
     {
       "suite": "tt77-pdf-composite",
@@ -55,7 +55,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 29
+      "ms": 33
     },
     {
       "suite": "tt77-pdf-composite",
@@ -66,7 +66,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 39
+      "ms": 43
     },
     {
       "suite": "tt77-pdf-composite",
@@ -77,7 +77,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 10
+      "ms": 9
     },
     {
       "suite": "tt77-pdf-composite",
@@ -88,7 +88,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 5
     },
     {
       "suite": "tt77-pdf-composite",
@@ -110,7 +110,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 5
     },
     {
       "suite": "tt77-pdf-composite",
@@ -121,7 +121,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 31
+      "ms": 34
     },
     {
       "suite": "tt77-pdf-composite",
@@ -154,7 +154,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 6
     },
     {
       "suite": "tt77-pdf-composite",
@@ -165,7 +165,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 17
+      "ms": 18
     },
     {
       "suite": "tt77-pdf-composite",
@@ -176,7 +176,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt77-pdf-composite",
@@ -187,7 +187,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 11
     },
     {
       "suite": "tt77-pdf-composite",
@@ -198,7 +198,7 @@
         "FF-68": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 11
     }
   ]
 }

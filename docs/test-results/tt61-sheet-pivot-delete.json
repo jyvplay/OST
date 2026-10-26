@@ -1,6 +1,6 @@
 {
   "suite": "tt61-sheet-pivot-delete",
-  "at": "2026-10-25T18:38:21.013Z",
+  "at": "2026-10-25T23:02:24.275Z",
   "results": [
     {
       "suite": "tt61-sheet-pivot-delete",
@@ -9,7 +9,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 505
+      "ms": 608
     }
   ]
 }

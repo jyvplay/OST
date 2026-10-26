@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt75-books",
-  "at": "2026-10-25T19:01:11.235Z",
+  "at": "2026-10-25T23:26:09.598Z",
   "results": [
     {
       "suite": "e2e-tt75-books",
@@ -9,7 +9,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 13880
+      "ms": 12495
     },
     {
       "suite": "e2e-tt75-books",
@@ -18,7 +18,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 3869
+      "ms": 1954
     },
     {
       "suite": "e2e-tt75-books",
@@ -27,7 +27,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 3724
+      "ms": 2806
     },
     {
       "suite": "e2e-tt75-books",
@@ -37,7 +37,7 @@
         "FF-61": "full"
       },
       "pass": true,
-      "ms": 4185
+      "ms": 3790
     },
     {
       "suite": "e2e-tt75-books",
@@ -46,7 +46,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 5070
+      "ms": 4622
     },
     {
       "suite": "e2e-tt75-books",
@@ -56,7 +56,7 @@
         "FF-60": "full"
       },
       "pass": true,
-      "ms": 5882
+      "ms": 4536
     },
     {
       "suite": "e2e-tt75-books",
@@ -65,7 +65,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 2519
+      "ms": 1646
     },
     {
       "suite": "e2e-tt75-books",
@@ -74,7 +74,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 5678
+      "ms": 4531
     },
     {
       "suite": "e2e-tt75-books",
@@ -83,7 +83,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 6108
+      "ms": 3229
     },
     {
       "suite": "e2e-tt75-books",
@@ -92,7 +92,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 4266
+      "ms": 3283
     },
     {
       "suite": "e2e-tt75-books",
@@ -101,7 +101,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 991
+      "ms": 1111
     },
     {
       "suite": "e2e-tt75-books",
@@ -111,7 +111,7 @@
         "FF-60": "full"
       },
       "pass": true,
-      "ms": 2036
+      "ms": 1886
     },
     {
       "suite": "e2e-tt75-books",
@@ -120,7 +120,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 5007
+      "ms": 4265
     },
     {
       "suite": "e2e-tt75-books",
@@ -129,7 +129,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 2831
+      "ms": 2082
     },
     {
       "suite": "e2e-tt75-books",
@@ -138,7 +138,7 @@
         "FF-10": "full"
       },
       "pass": true,
-      "ms": 11570
+      "ms": 7369
     },
     {
       "suite": "e2e-tt75-books",

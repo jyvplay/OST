@@ -1,0 +1,151 @@
+{
+  "suite": "tt79-archive",
+  "at": "2026-10-26T07:10:13.663Z",
+  "results": [
+    {
+      "suite": "tt79-archive",
+      "name": "V1 crypto vectors (FIPS-197, FIPS 180, RFC 6070) + 200 random cross-checks against node:crypto",
+      "covers": {
+        "FF-70": "full"
+      },
+      "pass": true,
+      "ms": 229
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "C1 Python zipfile stored/deflate/bzip2/LZMA: every entry equals Python's read (bytes + CRC)",
+      "covers": {
+        "FF-69": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 567
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "C2 own inflater == zlib (every deflated corpus entry + node:zlib levels 0–9 + Python entries)",
+      "covers": {
+        "FF-69": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 550
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "C3 Deflate64 (Windows-made dotnet fixture) == Info-ZIP unzip -p; malformed fixtures end cleanly",
+      "covers": {
+        "FF-69": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 243
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "C4 Info-ZIP archives: bzip2, forced ZIP64, streamed (data descriptor), symlink, UTF-8 names == unzip",
+      "covers": {
+        "FF-69": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 189
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "C5 names: CP437 decode == Python; Unicode Path 0x7075 honoured exactly as Info-ZIP does (CRC), stale ignored",
+      "covers": {
+        "FF-69": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 104
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "E1 WinZip AES read: pyzipper AES-128/192/256 × stored/deflate/bzip2/LZMA",
+      "covers": {
+        "FF-70": "full"
+      },
+      "pass": true,
+      "ms": 1990
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "E2 WinZip AES write (128/192/256, stored + deflate): pyzipper decrypts; wrong password refused by pyzipper",
+      "covers": {
+        "FF-70": "full"
+      },
+      "pass": true,
+      "ms": 1885
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "E3 ZipCrypto read: Info-ZIP zip -P (files + streamed with a data descriptor)",
+      "covers": {
+        "FF-70": "full"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "E4 ZipCrypto write: unzip -P -t passes and Python zipfile reads it",
+      "covers": {
+        "FF-70": "full"
+      },
+      "pass": true,
+      "ms": 295
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "W1 writer: UTF-8 names, folders, comments, Unix modes, timestamps → Python + unzip -t + zipinfo",
+      "covers": {
+        "FF-69": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 89
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "W2 ZIP64: ours forced → Python + unzip -t; Python force_zip64 → ours; 70 000 entries (count overflow)",
+      "covers": {
+        "FF-69": "full",
+        "FM-05": "full"
+      },
+      "pass": true,
+      "ms": 1965
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "X1 editing without the password: AES archive delete/rename/add → pyzipper; streamed ZipCrypto rename → unzip -P -t",
+      "covers": {
+        "FF-69": "full",
+        "FF-70": "full",
+        "FF-71": "partial"
+      },
+      "pass": true,
+      "ms": 282
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "P1 throughput (reported)",
+      "covers": {
+        "FF-69": "partial"
+      },
+      "pass": true,
+      "ms": 6321
+    },
+    {
+      "suite": "tt79-archive",
+      "name": "N1–N24 negative shapes (zip-slip, symlink, duplicates, overlap, mismatch, bombs, lies, tamper, multi-volume, truncation, limits, methods)",
+      "covers": {
+        "FF-72": "full",
+        "FF-12": "partial"
+      },
+      "pass": true,
+      "ms": 419
+    }
+  ]
+}

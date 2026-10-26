@@ -7,7 +7,8 @@ import {
   folderSize, getNode, listDir, mkdir, normalize, purgeNode, dropVersions, restoreNode,
   transferNode, trashNode, versionsOf, writeFile, baseName, parentOf, MAX_BYTES, escapeLike,
 } from "@/lib/server/vfs";
-import { readCentralDirectory, readEntryVerified, writeZip } from "@/lib/server/zip";
+import { deflateRawSync } from "node:zlib";
+import { readArchive, readEntry, writeArchive, extractable, PasswordError, type NameMode } from "@/lib/archive/zip";
 import { readJsonObject } from "@/lib/http-json";
 import { refuseEncryptedOverwrite } from "@/lib/mime";
 import { sidecarPath, isSidecar } from "@/lib/photos/recipe";
@@ -197,11 +198,13 @@ export async function POST(req: NextRequest) {
         }
         // a single folder keeps its historic layout (entries relative to the folder); anything else is relative to the parent
         const base = single?.kind === "dir" ? srcs[0] : [...parents][0];
-        const zipBuf = writeZip(all.map((n) => ({
+        // TT79 (FF-69/FF-70): the isomorphic engine — UTF-8 names, ZIP64 when needed, optional WinZip AES-256 / ZipCrypto
+        const password = body.password ? String(body.password) : undefined;
+        const zipBuf = Buffer.from(await writeArchive(all.map((n) => ({
           name: n.path.slice(base === "/" ? 1 : base.length + 1),
-          data: Buffer.from(n.content, n.encoding === "base64" ? "base64" : "utf8"),
+          data: new Uint8Array(Buffer.from(n.content, n.encoding === "base64" ? "base64" : "utf8")),
           mtime: n.updatedAt,
-        })));
+        })), { password, encryption: body.encryption === "zipcrypto" ? "zipcrypto" : "aes256", deflate: (d) => deflateRawSync(d) }));
         const r = await writeFile({ path: dst, content: zipBuf.toString("base64"), encoding: "base64", mime: "application/zip", reason: "compress" });
         return NextResponse.json({ ...r, entries: all.length });
       }
@@ -212,9 +215,22 @@ export async function POST(req: NextRequest) {
         const node = await getNode(src);
         if (!node) throw new Error(`not found: ${src}`);
         const buf = Buffer.from(node.content, node.encoding === "base64" ? "base64" : "utf8");
-        const entries = readCentralDirectory(buf).filter((e) => !e.name.endsWith("/"));
+        // TT79: every method the engine reads (stored/deflate/Deflate64/bzip2/LZMA), ZIP64, CP437/UTF-8 names,
+        // ZipCrypto + WinZip AES with `password`; `entries` limits the extraction to a selection. Guards (zip-slip,
+        // symlinks, duplicates, overlap, ratio, sizes) run on the directory BEFORE any write; CRC / AES MAC verified.
+        const arc = readArchive(new Uint8Array(buf), undefined, (["auto", "cp437", "utf8"].includes(String(body.nameMode)) ? body.nameMode : "auto") as NameMode);
+        const pick = Array.isArray(body.entries) ? new Set((body.entries as unknown[]).map(String)) : null;
+        const entries = arc.entries.filter((e) => !e.dir && (!pick || pick.has(e.name)));
+        const blocked = entries.filter((e) => !extractable(e));
+        if (blocked.length) throw new Error(`refused: ${blocked.length} entr${blocked.length === 1 ? "y is" : "ies are"} unsafe (${blocked.slice(0, 3).map((e) => `${e.name}${e.symlink ? " → symlink" : e.duplicate ? " → duplicate" : " → escapes the folder"}`).join(", ")}) — nothing was extracted`);
         const dest = normalize(String(body.dst ?? src.replace(/\.zip$/i, "")));
-        const staged = entries.map((e) => ({ path: normalize(`${dest}/${e.name}`), data: readEntryVerified(buf, e) }));
+        const staged: { path: string; data: Buffer }[] = [];
+        try {
+          for (const e of entries) staged.push({ path: normalize(`${dest}/${e.safePath}`), data: Buffer.from(await readEntry(new Uint8Array(buf), e, { password: body.password !== undefined ? String(body.password) : undefined })) });
+        } catch (err) {
+          if (err instanceof PasswordError) return NextResponse.json({ ok: false, error: err.message, needPassword: true }, { status: 401 });
+          throw err;
+        }
         for (const s of staged) {
           if (!s.path.startsWith(`${dest}/`)) throw new Error(`entry escapes destination: ${s.path}`);
           if (s.data.length > MAX_BYTES) throw new Error(`${s.path} exceeds the ${MAX_BYTES}-byte store limit`);
