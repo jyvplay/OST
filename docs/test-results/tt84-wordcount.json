@@ -1,0 +1,36 @@
+{
+  "suite": "tt84-wordcount",
+  "at": "2026-10-26T18:35:37.120Z",
+  "results": [
+    {
+      "suite": "tt84-wordcount",
+      "name": "W1 empty text has zero counts",
+      "covers": {
+        "FF-82": "partial"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt84-wordcount",
+      "name": "W2 spaces, blank paragraphs and CRLF do not inflate words or character totals",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt84-wordcount",
+      "name": "W3 apostrophes, hyphens, decomposed accents and emoji count as reader-visible characters",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt84-wordcount",
+      "name": "W4 long input stays bounded and preserves linear counts",
+      "covers": {},
+      "pass": true,
+      "ms": 120
+    }
+  ]
+}

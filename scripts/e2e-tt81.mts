@@ -17,8 +17,8 @@ const PY = process.env.ORACLE_PY ?? "/home/user/runtime/venv/bin/python";
 const temp = mkdtempSync(join(tmpdir(), "e2e81-"));
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); const j = await r.json(); if (!r.ok) throw new Error(`${path}: ${r.status} ${JSON.stringify(j)}`); return j; };
-const paths: string[] = [];
-const upload = async (ext: string, bytes: Uint8Array, mime: string) => { const path = `/Documents/${RUN}.${ext}`; await api("POST", "/api/fs", { op: "upload", path, content: Buffer.from(bytes).toString("base64"), mime }); paths.push(path); return path; };
+const paths: string[] = []; let uploadNo = 0;
+const upload = async (ext: string, bytes: Uint8Array, mime: string) => { const path = `/Documents/${RUN}-${++uploadNo}.${ext}`; await api("POST", "/api/fs", { op: "upload", path, content: Buffer.from(bytes).toString("base64"), mime }); paths.push(path); return path; };
 const read = async (path: string) => { const r = await api("GET", `/api/fs?op=read&path=${encodeURIComponent(path)}`); return Buffer.from(r.node.content, r.node.encoding === "base64" ? "base64" : "utf8"); };
 const browser = await launchChromium(); const errors: string[] = [];
 async function open(module: string, path: string) {
@@ -104,7 +104,57 @@ await test("E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, 
     ok(!violations.length, `axe ${violations}`);
   } finally { await ctx.close(); }
 });
-await test("E4 no browser page errors", {}, () => ok(!errors.length, errors.join("\n")));
+await test("E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases", { "FF-81": "partial" }, async () => {
+  const bytes = mkpdf([{ text: ["Scaled unit"], w: 300, h: 400, userUnit: 2.5 }, { text: ["Default unit"], w: 300, h: 400 }]);
+  const path = await upload("pdf", bytes, "application/pdf"); const { ctx, page } = await open("pdf", path);
+  try {
+    const app = page.getByTestId("pdf-app").last(); await app.getByTestId("pdf-thumb").first().waitFor();
+    await app.getByRole("button", { name: "100%", exact: true }).click();
+    const p1 = app.locator('[data-testid="pdf-page"]').nth(0), p2 = app.locator('[data-testid="pdf-page"]').nth(1);
+    await p1.locator("canvas").waitFor();
+    await page.waitForFunction((el) => { const c = el.querySelector("canvas"); return !!c && c.width === 750 && c.height === 1000; }, await p1.elementHandle());
+    const a = await p1.evaluate((el) => ({ w: Math.round(el.getBoundingClientRect().width), h: Math.round(el.getBoundingClientRect().height), cw: (el.querySelector("canvas") as HTMLCanvasElement).width, ch: (el.querySelector("canvas") as HTMLCanvasElement).height }));
+    ok(a.w === 750 && a.h === 1000 && a.cw === 750 && a.ch === 1000, `2.5-unit first page rendered ${JSON.stringify(a)}`);
+    await p2.scrollIntoViewIfNeeded(); await p2.locator("canvas").waitFor();
+    await page.waitForFunction((el) => { const c = el.querySelector("canvas"); return !!c && c.width === 300 && c.height === 400; }, await p2.elementHandle());
+    const b = await p2.evaluate((el) => ({ w: Math.round(el.getBoundingClientRect().width), h: Math.round(el.getBoundingClientRect().height), cw: (el.querySelector("canvas") as HTMLCanvasElement).width, ch: (el.querySelector("canvas") as HTMLCanvasElement).height }));
+    ok(b.w === 300 && b.h === 400 && b.cw === 300 && b.ch === 400, `default-unit second page changed: ${JSON.stringify(b)}`);
+    await app.getByTestId("pdf-panel-info").click(); await app.getByText("2.5 × 1/72 in", { exact: true }).waitFor();
+    await app.getByTestId("pdf-panel-find").click(); const find = app.getByTestId("pdf-find"); await find.fill("Scaled unit");
+    await app.getByTestId("pdf-hits").filter({ hasText: "1 match" }).waitFor();
+    const highlight = p1.locator("svg rect").first(); await highlight.waitFor();
+    const hx = Number(await highlight.getAttribute("x")); ok(hx > 160 && hx < 220, `highlight x did not use UserUnit: ${hx}`);
+    const f = join(temp, "user-unit-ui.pdf"); writeFileSync(f, bytes);
+    const unit = JSON.parse(execFileSync(PY, ["-c", "import pypdf,sys,json; p=pypdf.PdfReader(sys.argv[1]).pages; print(json.dumps([float(x.get('/UserUnit',1)) for x in p]))", f], { encoding: "utf8" }));
+    ok(JSON.stringify(unit) === "[2.5,1]", `pypdf read units ${unit}`);
+    await app.screenshot({ path: "docs/screens/tt84-pdf-unit.png" });
+  } finally { await ctx.close(); }
+});
+await test("E5 Writer Word Count reports document and selected text through the real UI", { "FF-82": "partial" }, async () => {
+  const { ctx, page } = await open("writer", "");
+  try {
+    const app = page.locator('[role="dialog"][aria-label="Writer"]').last(), body = app.getByTestId("writer-body");
+    await body.locator("[data-pid]").first().waitFor(); await app.getByTestId("writer-new").click();
+    await body.locator("[data-pid]").first().waitFor(); await body.click(); await page.keyboard.press("Control+A"); await page.keyboard.type("Alpha beta gamma");
+    await app.getByTestId("writer-words").filter({ hasText: "3 words" }).waitFor();
+    await page.keyboard.press("Control+Home"); await page.keyboard.press("Control+Shift+ArrowRight");
+    const openCount = app.getByTestId("writer-word-count-open"); await openCount.click(); const dialog = page.getByTestId("writer-word-count"); await dialog.waitFor();
+    ok(await dialog.getByRole("button", { name: "Close Word Count" }).evaluate((el) => el === document.activeElement), "modal should focus its close control");
+    await page.keyboard.press("Tab"); ok(await dialog.getByRole("button", { name: "Close Word Count" }).evaluate((el) => el === document.activeElement), "Tab should stay trapped in this single-control modal");
+    ok(await dialog.getByTestId("writer-count-words").innerText() === "3", "document word count should be three");
+    ok(await dialog.getByTestId("writer-count-chars").innerText() === "16", "document character count should include spaces");
+    ok(await dialog.getByTestId("writer-count-chars-no-spaces").innerText() === "14", "document character count should omit spaces");
+    ok(await dialog.getByTestId("writer-count-paragraphs").innerText() === "1", "document paragraph count should be one");
+    ok(await dialog.getByTestId("writer-selection-words").innerText() === "1", "selection word count should be one");
+    await page.addScriptTag({ content: readFileSync("node_modules/axe-core/axe.min.js", "utf8") });
+    const violations = await page.evaluate(async () => { const r = await (window as any).axe.run(document); return r.violations.filter((v: any) => v.impact === "serious" || v.impact === "critical").map((v: any) => v.id); });
+    ok(!violations.length, `Word Count dialog axe ${violations}`);
+    await app.screenshot({ path: "docs/screens/tt84-writer-count.png" });
+    await page.keyboard.press("Escape"); await dialog.waitFor({ state: "detached" });
+    await page.waitForFunction(() => document.activeElement?.getAttribute("data-testid") === "writer-word-count-open");
+  } finally { await ctx.close(); }
+});
+await test("E6 no browser page errors", {}, () => ok(!errors.length, errors.join("\n")));
 await browser.close();
 for (const path of paths) { await api("POST", "/api/fs", { op: "trash", path }); await api("POST", "/api/fs", { op: "purge", path }); }
 finish();

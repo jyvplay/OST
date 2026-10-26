@@ -30,6 +30,7 @@ import SpellPanel from "./writer/SpellPanel";
 import { addHfPicture, hfLines, removeHf, setDifferentFirst, setHf, type HfAlign, type HfKind, type HfLine, type HfType } from "@/lib/office/hdrftr";
 import type { XEl } from "@/lib/office/xmltree";
 import { domToPos, geomOf, makeState, paginate, posToDom, renderBlocks, renderPara, cssFont } from "./writer/view";
+import { countWriterText } from "@/lib/office/wordcount";
 
 type Panel = "none" | "find" | "review" | "nav" | "page" | "hf" | "notes" | "spell";
 const MIME_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -69,6 +70,11 @@ export default function WriterModule({ win }: ModuleProps) {
   const [pages, setPages] = useState(1);
   const [layoutGen, setLayoutGen] = useState(0); // TT61: bumps after every relayout (page headers / footers are rebuilt; their spelling marks are repainted)
   const [panel, setPanel] = useState<Panel>("none");
+  const [wordCountOpen, setWordCountOpen] = useState(false);
+  const [wordCountSelection, setWordCountSelection] = useState("");
+  const [wordCountTotal, setWordCountTotal] = useState(() => countWriterText(""));
+  const [wordCountSelected, setWordCountSelected] = useState(() => countWriterText(""));
+  const wordCountButtonRef = useRef<HTMLButtonElement | null>(null), wordCountCloseRef = useRef<HTMLButtonElement | null>(null);
   const [pop, setPop] = useState<"" | "link" | "table" | "comment" | "saveas">("");
   const [popVal, setPopVal] = useState(""); const [popVal2, setPopVal2] = useState("");
   const [find, setFind] = useState({ q: "", r: "", matchCase: false, wholeWord: false, at: -1 });
@@ -772,9 +778,19 @@ export default function WriterModule({ win }: ModuleProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tick, ver, loaded]);
   const curPara = useMemo(() => { const d = docRef.current; const r = selRef.current; return d && r ? E.paraById(d, r.a.pid) : undefined; /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [tick, ver]);
-  const inTable = useMemo(() => { const d = docRef.current; const r = selRef.current; return !!(d && r && E.locate(d, r.a.pid)?.table); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [tick, ver]);
-  const counts = useMemo(() => { const d = docRef.current; if (!d) return { words: 0, chars: 0 }; const t = docText(d); return { words: (t.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) ?? []).length, chars: t.replace(/\n/g, "").length }; /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [ver]);
-  const headings = useMemo(() => { const d = docRef.current; if (!d || panel !== "nav") return []; return allParas(d.blocks).map((p) => ({ p, lvl: headingLevel(d, p) })).filter((x) => x.lvl > 0 && paraText(x.p).trim()).slice(0, 300); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [ver, panel]);
+  const inTable = useMemo(() => { const d = docRef.current; const r = selRef.current; return !!(d && r && E.locate(d, r.a.pid)?.table); }, [tick, ver]);
+  // `ver` is the explicit invalidation tick for the ref-backed WordDoc model.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const counts = useMemo(() => { const d = docRef.current; if (!d) return { words: 0, chars: 0 }; const c = countWriterText(docText(d)); return { words: c.words, chars: c.characters }; }, [ver]);
+  const openWordCount = () => {
+    const s = window.getSelection(), root = rootRef.current;
+    const selected = s && root && root.contains(s.anchorNode) && root.contains(s.focusNode) ? s.toString() : "";
+    setWordCountSelection(selected); setWordCountTotal(countWriterText(docRef.current ? docText(docRef.current) : "")); setWordCountSelected(countWriterText(selected)); setWordCountOpen(true);
+  };
+  const closeWordCount = () => { setWordCountOpen(false); requestAnimationFrame(() => wordCountButtonRef.current?.focus()); };
+  // `ver` invalidates the ref-backed document model; panel avoids computing headings outside the navigation pane.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const headings = useMemo(() => { const d = docRef.current; if (!d || panel !== "nav") return []; return allParas(d.blocks).map((p) => ({ p, lvl: headingLevel(d, p) })).filter((x) => x.lvl > 0 && paraText(x.p).trim()).slice(0, 300); }, [ver, panel]);
 
   if (!loaded || !doc) return <div style={{ padding: 16 }}>Opening document…</div>;
   const g = geomOf(doc, 24, hfPush);
@@ -991,10 +1007,22 @@ export default function WriterModule({ win }: ModuleProps) {
           <button role="menuitem" onClick={() => { const j = issuesRef.current.indexOf(spellMenu.issue); setSpellIdx(Math.max(0, j)); setPanel("spell"); setSpellMenu(null); }}>Spelling…</button>
         </div>
       </>, document.body)}
+      {wordCountOpen && typeof document !== "undefined" && createPortal(
+        <div style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,.35)", display: "grid", placeItems: "center", padding: 16 }} onMouseDown={(e) => { if (e.target === e.currentTarget) closeWordCount(); }} onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); closeWordCount(); } else if (e.key === "Tab") { e.preventDefault(); wordCountCloseRef.current?.focus(); } }}>
+          <section role="dialog" aria-modal="true" aria-label="Word Count" data-testid="writer-word-count" style={{ width: "min(360px, 100%)", padding: 18, borderRadius: 12, color: "var(--fs-ink, #17212b)", background: "var(--fs-surface, #fff)", boxShadow: "0 12px 48px rgba(0,0,0,.3)" }}>
+            <div className="fs-row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}><h2 style={{ margin: 0, fontSize: fz(18) }}>Word Count</h2><button ref={wordCountCloseRef} type="button" autoFocus aria-label="Close Word Count" onClick={closeWordCount}>Close</button></div>
+            <dl style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "7px 16px", margin: 0 }}>
+              {countRow("Pages", pages, "writer-count-pages")}{countRow("Words", wordCountTotal.words, "writer-count-words")}{countRow("Characters (with spaces)", wordCountTotal.characters, "writer-count-chars")}{countRow("Characters (without spaces)", wordCountTotal.charactersNoSpaces, "writer-count-chars-no-spaces")}{countRow("Paragraphs", wordCountTotal.paragraphs, "writer-count-paragraphs")}{countRow("Lines", wordCountTotal.lines, "writer-count-lines")}
+            </dl>
+            {wordCountSelection.trim() && <><h3 style={{ fontSize: fz(14), margin: "16px 0 8px" }}>Selection</h3><dl style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "7px 16px", margin: 0 }}>{countRow("Words", wordCountSelected.words, "writer-selection-words")}{countRow("Characters (with spaces)", wordCountSelected.characters, "writer-selection-chars")}{countRow("Characters (without spaces)", wordCountSelected.charactersNoSpaces, "writer-selection-chars-no-spaces")}</dl></>}
+            <div style={{ marginTop: 14, fontSize: fz(11), opacity: .75 }}>Counts are based on the document text currently loaded in Writer.</div>
+          </section>
+        </div>, document.body)}
       <div className="fs-row" style={{ padding: "3px 8px", gap: 12, borderTop: "1px solid var(--fs-border)", fontSize: fz(12), opacity: 0.85 }} aria-live="polite">
         {doc.track.on && <button className="wtrack-chip" onClick={toggleTrack} data-testid="writer-track-chip" title="Track Changes is on — click to turn off (Ctrl+Shift+E)">Tracking changes</button>}
         {spellMode === "fusion" && speller && <button className="wspell-chip" data-testid="writer-spell-chip" onClick={() => setPanel("spell")} title="Spelling (F7)">{issues.length ? `${issues.length} spelling issue${issues.length === 1 ? "" : "s"}` : "No spelling issues"}</button>}
         <span data-testid="writer-pages">Page count: {pages}</span><span data-testid="writer-words">{counts.words} words</span><span>{counts.chars} characters</span>
+        <button ref={wordCountButtonRef} type="button" data-testid="writer-word-count-open" onMouseDown={(e) => e.preventDefault()} onClick={openWordCount} title="Open document and selection word counts">Word count…</button>
         <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} data-testid="writer-status">{status}</span>
         <span>{path || "unsaved"}</span>
       </div>
@@ -1003,6 +1031,9 @@ export default function WriterModule({ win }: ModuleProps) {
 }
 
 /* ================================================================ helpers */
+function countRow(label: string, value: string | number, id: string) {
+  return <div style={{ display: "contents" }} key={id}><dt style={{ fontWeight: 600 }}>{label}</dt><dd data-testid={id} style={{ margin: 0, textAlign: "right" }}>{value}</dd></div>;
+}
 function cellsInRow(r: { items: unknown[] }) { return r.items.filter((c) => (c as { t?: string }).t === "tc").length; }
 const toRomanLower = (n: number) => { const m: [number, string][] = [[10, "x"], [9, "ix"], [5, "v"], [4, "iv"], [1, "i"]]; let s = ""; for (const [v, r] of m) while (n >= v) { s += r; n -= v; } return s; };
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
