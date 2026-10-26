@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { fz } from "@/lib/uiscale";
 import { PdfDoc, PasswordRequired } from "@/lib/pdf/pdfdoc";
-import { renderPage } from "@/lib/pdf/pdfcanvas";
+import { boundedPageScale, renderPage } from "@/lib/pdf/pdfcanvas";
 
 export default function PdfPreview({ bytes, width = 420, onOpen, testid = "peek-pdf" }: { bytes: Uint8Array; width?: number; onOpen?: () => void; testid?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -16,9 +16,9 @@ export default function PdfPreview({ bytes, width = 420, onOpen, testid = "peek-
   }, [bytes]);
   useEffect(() => {
     const d = docRef.current; const c = ref.current; if (!d || !c || !state.pages) return; let live = true;
-    const p = d.pages()[state.page]; const w = (p.rotate % 180 ? p.crop[3] - p.crop[1] : p.crop[2] - p.crop[0]) || 612;
+    const p = d.pages()[state.page]; const w = ((p.rotate % 180 ? p.crop[3] - p.crop[1] : p.crop[2] - p.crop[0]) || 612) * p.userUnit;
     const dpr = Math.min(2, window.devicePixelRatio || 1); const off = document.createElement("canvas");
-    void renderPage(d, p, off, { scale: (width / w) * dpr, deadline: Date.now() + 15000 }).then(() => { if (!live) return; c.width = off.width; c.height = off.height; c.style.width = `${off.width / dpr}px`; c.style.height = `${off.height / dpr}px`; c.getContext("2d")!.drawImage(off, 0, 0); });
+    void renderPage(d, p, off, { scale: boundedPageScale(p, width / w) * dpr, deadline: Date.now() + 15000 }).then(() => { if (!live) return; c.width = off.width; c.height = off.height; c.style.width = `${off.width / dpr}px`; c.style.height = `${off.height / dpr}px`; c.getContext("2d")!.drawImage(off, 0, 0); });
     return () => { live = false; };
   }, [state.pages, state.page, width]);
   return (

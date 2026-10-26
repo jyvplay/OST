@@ -1,6 +1,6 @@
 {
   "suite": "tt80-banner",
-  "at": "2026-10-26T16:05:00.532Z",
+  "at": "2026-10-26T17:30:42.537Z",
   "results": [
     {
       "suite": "tt80-banner",
@@ -9,7 +9,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 5356
+      "ms": 9932
     },
     {
       "suite": "tt80-banner",
@@ -18,7 +18,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 4185
+      "ms": 7222
     },
     {
       "suite": "tt80-banner",
@@ -27,7 +27,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 4300
+      "ms": 13860
     },
     {
       "suite": "tt80-banner",
@@ -36,7 +36,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 3517
+      "ms": 4294
     },
     {
       "suite": "tt80-banner",
@@ -45,7 +45,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 3141
+      "ms": 4942
     },
     {
       "suite": "tt80-banner",
@@ -54,7 +54,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 2910
+      "ms": 4573
     },
     {
       "suite": "tt80-banner",
@@ -63,7 +63,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 3333
+      "ms": 4968
     },
     {
       "suite": "tt80-banner",
@@ -72,7 +72,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 2320
+      "ms": 4951
     },
     {
       "suite": "tt80-banner",
@@ -81,7 +81,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 2557
+      "ms": 4273
     },
     {
       "suite": "tt80-banner",
@@ -90,7 +90,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 2933
+      "ms": 5158
     },
     {
       "suite": "tt80-banner",
@@ -98,8 +98,9 @@
       "covers": {
         "DP-15": "full"
       },
-      "pass": true,
-      "ms": 3134
+      "pass": false,
+      "error": "Unexpected end of JSON input",
+      "ms": 733
     }
   ]
 }

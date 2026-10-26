@@ -389,7 +389,8 @@ function cmpBytes(a: Uint8Array, b: Uint8Array) { for (let i = 0; i < Math.min(a
 export interface VisibleSig { /** 0-based page index */ page: number; /** [x0 y0 x1 y1] in the page's default user space */ rect: number[] }
 export type SigCorner = "bottom-right" | "bottom-left" | "top-right" | "top-left";
 /** a w × h box (as SEEN, i.e. after the page's /Rotate) in a corner of the crop box, `margin` pt in; returns the
- *  widget /Rect in default user space (§12.5.5 maps the rotated appearance onto it) */
+ *  widget /Rect in default user space (§12.5.5 maps the rotated appearance onto it); w, h, and margin are also in
+ *  default user-space units, so /UserUnit scales their physical size when the PDF is rendered. */
 export function placeSignature(page: { crop: number[]; rotate: number }, corner: SigCorner, w = 220, h = 70, margin = 36): number[] {
   const [x0, y0, x1, y1] = page.crop; const rot = ((page.rotate % 360) + 360) % 360;
   const dw = rot === 90 || rot === 270 ? y1 - y0 : x1 - x0, dh = rot === 90 || rot === 270 ? x1 - x0 : y1 - y0;

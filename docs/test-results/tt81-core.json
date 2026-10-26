@@ -1,6 +1,6 @@
 {
   "suite": "tt81-core",
-  "at": "2026-10-26T15:59:28.320Z",
+  "at": "2026-10-26T17:42:47.688Z",
   "results": [
     {
       "suite": "tt81-core",
@@ -18,7 +18,7 @@
         "FF-78": "full"
       },
       "pass": true,
-      "ms": 169
+      "ms": 235
     },
     {
       "suite": "tt81-core",
@@ -27,7 +27,7 @@
         "FF-78": "full"
       },
       "pass": true,
-      "ms": 29
+      "ms": 48
     },
     {
       "suite": "tt81-core",
@@ -36,7 +36,7 @@
         "FF-78": "full"
       },
       "pass": true,
-      "ms": 513
+      "ms": 659
     },
     {
       "suite": "tt81-core",
@@ -45,7 +45,7 @@
         "FF-80": "partial"
       },
       "pass": true,
-      "ms": 32
+      "ms": 48
     },
     {
       "suite": "tt81-core",
@@ -54,7 +54,7 @@
         "FF-80": "partial"
       },
       "pass": true,
-      "ms": 171
+      "ms": 148
     },
     {
       "suite": "tt81-core",
@@ -63,7 +63,7 @@
         "FF-80": "partial"
       },
       "pass": true,
-      "ms": 33
+      "ms": 26
     },
     {
       "suite": "tt81-core",
@@ -72,7 +72,7 @@
         "FF-80": "partial"
       },
       "pass": true,
-      "ms": 23
+      "ms": 20
     },
     {
       "suite": "tt81-core",
@@ -99,7 +99,16 @@
         "FF-79": "partial"
       },
       "pass": true,
-      "ms": 2900
+      "ms": 3543
+    },
+    {
+      "suite": "tt81-core",
+      "name": "P4 PDF /UserUnit scales page transforms and stays bounded to the declared 1..75000 range; pypdf independently reads the dictionary value",
+      "covers": {
+        "FF-79": "partial"
+      },
+      "pass": true,
+      "ms": 248
     }
   ]
 }

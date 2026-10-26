@@ -21,6 +21,8 @@ export class PasswordRequired extends Error { constructor(m = "pdf: a password i
 export interface PdfPage {
   index: number; ref: PRef | null; dict: PDict;
   media: [number, number, number, number]; crop: [number, number, number, number]; rotate: number;
+  /** PDF default-user-space scale in multiples of 1/72 inch; invalid/out-of-range values fall back to 1 with a warning. */
+  userUnit: number;
   resources: PDict | null;
 }
 
@@ -371,13 +373,21 @@ export class PdfDoc {
       const rv = this.resolve(d.get("Rotate")); const rot = isNum(rv) ? rv : inh.rot;
       const kids = this.resolve(d.get("Kids")); const type = this.resolve(d.get("Type"));
       if (isArr(kids) && !isName(type, "Page")) { for (const k of kids) walk(k, { res, media, crop, rot }, depth + 1); return; }
+      // ISO 32000-2 §7.7.3.3: /UserUnit belongs to this page (not inherited), defaults to 1, and scales
+      // default user space in multiples of 1/72 inch. This implementation accepts 1..75,000; invalid values
+      // are ignored rather than risking pathological canvas dimensions.
+      const uv = this.resolve(d.get("UserUnit")); let userUnit = 1;
+      if (d.has("UserUnit")) {
+        if (isNum(uv) && uv >= 1 && uv <= 75_000) userUnit = uv;
+        else this.warnings.push(`page ${out.length + 1}: invalid /UserUnit ignored (supported range 1..75000)`);
+      }
       let mb = norm(media ?? [0, 0, 612, 792]);
       if (mb[2] - mb[0] < 1 || mb[3] - mb[1] < 1) mb = [0, 0, 612, 792]; // degenerate MediaBox: US Letter, like other viewers
       let cb = crop ? norm(crop) : mb;
       // CropBox is clipped to MediaBox (§14.11.2); an empty intersection falls back to MediaBox
       cb = [Math.max(cb[0], mb[0]), Math.max(cb[1], mb[1]), Math.min(cb[2], mb[2]), Math.min(cb[3], mb[3])];
       if (cb[2] <= cb[0] || cb[3] <= cb[1]) cb = mb;
-      out.push({ index: out.length, ref, dict: d, media: mb, crop: cb as [number, number, number, number], rotate: (((Math.round(rot / 90) * 90) % 360) + 360) % 360, resources: res });
+      out.push({ index: out.length, ref, dict: d, media: mb, crop: cb as [number, number, number, number], rotate: (((Math.round(rot / 90) * 90) % 360) + 360) % 360, userUnit, resources: res });
     };
     walk(cat?.get("Pages"), { res: null, media: null, crop: null, rot: 0 }, 0);
     if (!out.length) {

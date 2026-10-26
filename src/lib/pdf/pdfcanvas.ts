@@ -27,9 +27,25 @@ const mkCanvas = (w: number, h: number): Canv => {
 const css = (rgb: [number, number, number]) => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
 export type DecodedImages = Map<object, ImageData | null>;
 
-/** user space → device pixels for a page at `scale` (1 = 72 dpi), honouring CropBox and /Rotate */
+const MAX_VIEW_SIDE = 4096, MAX_VIEW_PIXELS = 2_000_000;
+const MAX_RENDER_SIDE = 8192, MAX_RENDER_PIXELS = 8_000_000;
+const pageUnit = (page: PdfPage) => Number.isFinite(page.userUnit) && page.userUnit >= 1 && page.userUnit <= 75_000 ? page.userUnit : 1;
+/** A fit/zoom request bounded for a single raster surface. scale is CSS px per physical PDF point; renderPage
+ * multiplies it by devicePixelRatio (≤2 in callers), so these limits bound one backing canvas to 8 MP. */
+export function boundedPageScale(page: PdfPage, requested: number, extraRotate = 0): number {
+  const [x0, y0, x1, y1] = page.crop, unit = pageUnit(page);
+  const rotation = (page.rotate + (Number.isFinite(extraRotate) ? extraRotate : 0)) % 360;
+  const sideways = ((rotation % 360) + 360) % 180 === 90;
+  const w = Math.max(1, (sideways ? y1 - y0 : x1 - x0) * unit), h = Math.max(1, (sideways ? x1 - x0 : y1 - y0) * unit);
+  const request = Number.isFinite(requested) && requested > 0 ? requested : 1e-12;
+  // Leave pixel headroom for integer rounding in the backing canvas (and its 2× DPR).
+  const safeArea = Math.sqrt((MAX_VIEW_PIXELS - 10_000) / (w * h));
+  return Math.max(1e-12, Math.min(4, request, MAX_VIEW_SIDE / Math.max(w, h), safeArea));
+}
+/** user space → device pixels for a page at `scale` (1 = 72 dpi), honouring CropBox, /Rotate and /UserUnit */
 export function pageTransform(page: PdfPage, scale: number, extraRotate = 0): { m: M; w: number; h: number } {
-  const [x0, y0, x1, y1] = page.crop; const s = scale; const rot = (((page.rotate + extraRotate) % 360) + 360) % 360;
+  const [x0, y0, x1, y1] = page.crop;
+  const s = scale * pageUnit(page); const rot = (((page.rotate + extraRotate) % 360) + 360) % 360;
   const W = (x1 - x0) * s, H = (y1 - y0) * s;
   switch (rot) {
     case 90: return { m: [0, s, s, 0, -y0 * s, -x0 * s], w: H, h: W };
@@ -575,8 +591,10 @@ export async function prepareImages(doc: PdfDoc, page: PdfPage, cache: DecodedIm
 }
 export async function renderPage(doc: PdfDoc, page: PdfPage, canvas: Canv, opts: RenderOptions, cache: DecodedImages = new Map()): Promise<{ warnings: string[]; ms: number }> {
   const t0 = Date.now();
-  await prepareImages(doc, page, cache);
   const { m, w, h } = pageTransform(page, opts.scale, opts.rotate ?? 0);
+  if (!Number.isFinite(w * h) || w <= 0 || h <= 0 || Math.ceil(w) > MAX_RENDER_SIDE || Math.ceil(h) > MAX_RENDER_SIDE || Math.ceil(w) * Math.ceil(h) > MAX_RENDER_PIXELS)
+    throw new Error("PDF render surface exceeds the 8 MP safety bound");
+  await prepareImages(doc, page, cache);
   canvas.width = Math.max(1, Math.round(w)); canvas.height = Math.max(1, Math.round(h));
   const ctx = canvas.getContext("2d") as Ctx;
   // TT77: the page group's backdrop is transparent (§11.4.7, §11.6.6); the paper colour goes underneath at the end, so blend

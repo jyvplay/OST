@@ -19,7 +19,7 @@ import { askText } from "@/lib/ask";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import { PdfDoc, PasswordRequired, type PdfPage } from "@/lib/pdf/pdfdoc";
-import { renderPage, pageTransform, type DecodedImages } from "@/lib/pdf/pdfcanvas";
+import { boundedPageScale, renderPage, pageTransform, type DecodedImages } from "@/lib/pdf/pdfcanvas";
 import { apply, invert, type M } from "@/lib/pdf/pdfinterp";
 import { pageChars, layout, search, type TLine, type Hit } from "@/lib/pdf/pdftext";
 import { PdfEditor, extractPages, type AnnotSpec } from "@/lib/pdf/pdfedit";
@@ -119,7 +119,12 @@ export default function PdfModule({ win }: ModuleProps) {
   }, [doc, pages]);
 
   useEffect(() => { const el = stageRef.current; if (!el) return; const ro = new ResizeObserver(() => setStageW(el.clientWidth)); ro.observe(el); setStageW(el.clientWidth); return () => ro.disconnect(); }, []);
-  const scaleFor = (p: PdfPage) => { if (zoom !== "fit") return zoom; const w = ((p.rotate + viewRot) % 180 ? p.crop[3] - p.crop[1] : p.crop[2] - p.crop[0]) || 612; return Math.max(0.2, Math.min(4, (stageW - 48) / w)); };
+  const scaleFor = (p: PdfPage) => {
+    const sideways = ((p.rotate + viewRot) % 180) !== 0;
+    const w = Math.max(1, (sideways ? p.crop[3] - p.crop[1] : p.crop[2] - p.crop[0]) * p.userUnit);
+    const requested = zoom === "fit" ? (stageW - 48) / w : zoom;
+    return boundedPageScale(p, requested, viewRot);
+  };
 
   /* ------------------------------------------------------------ open */
   const openBytes = useCallback(async (bytes: Uint8Array, nm: string) => {
@@ -135,7 +140,7 @@ export default function PdfModule({ win }: ModuleProps) {
     }
     if (!d) throw new Error("wrong password");
     pwRef.current = pw; undo.current = [{ bytes, what: "open" }]; redo.current = []; setHist({ u: 0, r: 0 });
-    setDoc(d); setName(nm); setCur(0); setSel(new Set()); setHits([]); setDirty(false); setErr("");
+    setDoc(d); setName(nm); setCur(0); setSel(new Set()); setHits([]); setDirty(false); setErr(""); setWarn(d.warnings.map((w) => `PDF: ${w}`));
     const n = d.pages().length; const perms = d.sec?.permissions;
     setStatus(`Opened ${nm} · ${n} page${n === 1 ? "" : "s"} · PDF ${d.version}${d.sec ? ` · encrypted (${d.sec.unlockedAs ?? "user"} password${perms && !perms.modify ? "; the author restricts editing" : ""})` : ""}${d.recovered ? " · damaged cross-reference rebuilt" : ""}`);
   }, []);
@@ -327,7 +332,7 @@ export default function PdfModule({ win }: ModuleProps) {
                 </div>
                 <div className="fs-dim" style={{ fontSize: fz(11), marginBottom: 4 }}>Ctrl/Shift-click to select several pages</div>
                 {pages.map((p, i) => {
-                  const ts = 150 / Math.max(1, (p.rotate % 180 ? p.crop[3] - p.crop[1] : p.crop[2] - p.crop[0])); const t = pageTransform(p, ts, 0);
+                  const ts = 150 / Math.max(1, (p.rotate % 180 ? p.crop[3] - p.crop[1] : p.crop[2] - p.crop[0]) * p.userUnit); const t = pageTransform(p, ts, 0);
                   return (
                     <button key={`${i}-${p.ref?.num ?? i}`} type="button" data-testid="pdf-thumb" aria-label={`Page ${i + 1}`} aria-current={i === cur} onClick={(e) => { if (e.ctrlKey || e.metaKey || e.shiftKey) setSel((s) => { const n = new Set(s); if (n.has(i)) n.delete(i); else n.add(i); return n; }); else { setSel(new Set()); goTo(i); } }}
                       style={{ display: "block", margin: "0 auto 8px", padding: 3, border: i === cur ? "2px solid var(--fs-accent)" : sel.has(i) ? "2px dashed var(--fs-accent)" : "2px solid transparent", borderRadius: 6, background: "none", cursor: "pointer" }}>
@@ -370,6 +375,7 @@ export default function PdfModule({ win }: ModuleProps) {
                 {(["Creator", "Producer", "CreationDate", "ModDate"] as const).map((k) => <Fragment key={k}><dt style={{ fontWeight: 600 }}>{k}</dt><dd style={{ margin: 0, wordBreak: "break-word" }}>{info[k] || "—"}</dd></Fragment>)}
                 <dt style={{ fontWeight: 600 }}>Pages</dt><dd style={{ margin: 0 }}>{pages.length}</dd>
                 <dt style={{ fontWeight: 600 }}>Version</dt><dd style={{ margin: 0 }}>PDF {doc.version}</dd>
+                <dt style={{ fontWeight: 600 }}>Page unit</dt><dd style={{ margin: 0 }}>{pages[cur]?.userUnit ?? 1} × 1/72 in</dd>
                 <dt style={{ fontWeight: 600 }}>Security</dt><dd style={{ margin: 0 }}>{doc.sec ? `encrypted, R${(doc.sec as unknown as { R: number }).R}` : "none"}</dd>
                 <dt style={{ fontWeight: 600 }}>Revisions</dt><dd style={{ margin: 0 }}>{hist.u} unsaved edit(s)</dd>
               </dl>
@@ -402,7 +408,7 @@ export default function PdfModule({ win }: ModuleProps) {
       <div data-testid="pdf-status" role="status" style={{ padding: "4px 10px", borderTop: "1px solid var(--fs-border)", fontSize: fz(12), display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         <span>{status}</span>{dirty ? <Badge tone="warn">unsaved</Badge> : null}
         {doc ? <span className="fs-dim">page {cur + 1} / {pages.length}</span> : null}
-        {warn.length ? <span title={warn.join("\n")}><Badge tone="info">{warn.length} rendering note(s)</Badge></span> : null}
+        {warn.length ? <span title={warn.join("\n")}><Badge tone="info">{warn.length} PDF note(s)</Badge></span> : null}
       </div>
     </div>
   );

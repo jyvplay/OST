@@ -10,6 +10,7 @@ import { findSlideText, replaceSlideText } from "../src/lib/office/pmlsearch.ts"
 import { findAll, kid, setAttr, serializeXml, textOf } from "../src/lib/office/xmltree.ts";
 import { signatureRectAt, signaturePageSize } from "../src/lib/pdf/sigplacement.ts";
 import { PdfDoc } from "../src/lib/pdf/pdfdoc.ts";
+import { boundedPageScale, pageTransform, renderPage } from "../src/lib/pdf/pdfcanvas.ts";
 import { makeSelfSignedIdentity, signPdf, validateSignatures } from "../src/lib/pdf/pdfsig.ts";
 import { mkpdf } from "./tt52/mkpdf.ts";
 const { test, finish } = makeHarness("tt81-core");
@@ -173,5 +174,35 @@ print(json.dumps({'rect':rect,'ink':[min(x for x,y in pts),min(y for x,y in pts)
     eq(report.rect, rect); const [l, t, r, b] = report.ink;
     ok(l >= box.left - 1 && t >= box.top - 1 && r <= box.left + box.width + 1 && b <= box.top + box.height + 1, `rotation ${rotate}: ink ${report.ink}`);
   }
+});
+await test("P4 PDF /UserUnit scales page transforms and stays bounded to the declared 1..75000 range; pypdf independently reads the dictionary value", pdfCov, async () => {
+  const f = join(dir, "user-unit.pdf"); const bytes = mkpdf([{ text: ["scaled page"], w: 300, h: 400, userUnit: 2.5 }]); writeFileSync(f, bytes);
+  const d = PdfDoc.open(bytes), p = d.pages()[0]; eq(p.userUnit, 2.5);
+  eq(pageTransform(p, 1), { m: [2.5, 0, 0, -2.5, 0, 1000], w: 750, h: 1000 });
+  eq(pageTransform(p, 0.5, 90), { m: [0, 1.25, 1.25, 0, 0, 0], w: 500, h: 375 });
+  eq(pageTransform({ ...p, crop: [-10, 20, 590, 820], rotate: 90 }, 0.5), { m: [0, 1.25, 1.25, 0, -25, 12.5], w: 1000, h: 750 });
+  const oracle = JSON.parse(execFileSync(PY, ["-c", "from pypdf import PdfReader; import json,sys; p=PdfReader(sys.argv[1]).pages[0]; print(json.dumps({'unit':p['/UserUnit'],'box':[float(x) for x in p.mediabox]}))", f], { encoding: "utf8" }));
+  eq(oracle, { unit: 2.5, box: [0, 0, 300, 400] });
+  const sigBox = { left: 10, top: 20, width: 100, height: 50 }, sigRect = signatureRectAt(p, sigBox);
+  const signed = await signPdf(d, await makeSelfSignedIdentity("TT83 unit tester", ""), { visible: { page: 0, rect: sigRect } });
+  eq((await validateSignatures(PdfDoc.open(signed)))[0].status, "valid");
+  const sf = join(dir, "user-unit-signed.pdf"); writeFileSync(sf, signed);
+  const sigOracle = JSON.parse(execFileSync(PY, ["-c", "from pypdf import PdfReader; import json,sys; p=PdfReader(sys.argv[1]).pages[0]; a=p['/Annots'][0].get_object(); print(json.dumps({'unit':p['/UserUnit'],'rect':[float(x) for x in a['/Rect']]}))", sf], { encoding: "utf8" }));
+  eq(sigOracle, { unit: 2.5, rect: sigRect });
+  for (const unit of [0, -1, 0.5, 75_001]) {
+    const bad = PdfDoc.open(mkpdf([{ text: [], w: 300, h: 400, userUnit: unit }]));
+    eq(bad.pages()[0].userUnit, 1); ok(bad.warnings.some((x) => x.includes("invalid /UserUnit ignored")), `missing warning for ${unit}`);
+  }
+  const max = PdfDoc.open(mkpdf([{ text: [], w: 300, h: 400, userUnit: 75_000 }])); eq(max.pages()[0].userUnit, 75_000);
+  const safe = boundedPageScale(max.pages()[0], 1), bounded = pageTransform(max.pages()[0], safe);
+  ok(Math.max(bounded.w, bounded.h) <= 4096 && bounded.w * bounded.h <= 2_000_000, `view scale is not bounded: ${bounded.w}×${bounded.h}`);
+  let refusedHugeRaster = false;
+  try { await renderPage(max, max.pages()[0], {} as never, { scale: 1 }); } catch (e) { refusedHugeRaster = /8 MP safety bound/.test((e as Error).message); }
+  ok(refusedHugeRaster, "unbounded render did not fail closed before allocating a canvas");
+  const absent = PdfDoc.open(mkpdf([{ text: [], w: 300, h: 400 }])); eq(absent.pages()[0].userUnit, 1);
+  const parentOnly = PdfDoc.open(mkpdf([{ text: [], w: 300, h: 400 }], { pagesUserUnit: 2.5 }));
+  eq(parentOnly.pages()[0].userUnit, 1);
+  const parentInvalid = PdfDoc.open(mkpdf([{ text: [], w: 300, h: 400 }], { pagesUserUnit: 0 }));
+  eq(parentInvalid.pages()[0].userUnit, 1); ok(!parentInvalid.warnings.some((x) => x.includes("invalid /UserUnit")), "ignored parent property produced a page warning");
 });
 finish();
