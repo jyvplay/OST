@@ -1,0 +1,61 @@
+{
+  "suite": "tt93-transfer-race",
+  "at": "2026-10-27T19:36:44.407Z",
+  "results": [
+    {
+      "suite": "tt93-transfer-race",
+      "name": "move waits behind a held cooperative tree gate before reading or publishing",
+      "covers": {
+        "FM-03": "partial",
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 100
+    },
+    {
+      "suite": "tt93-transfer-race",
+      "name": "trash-first cannot be bypassed by a move that later resurrects its stale snapshot",
+      "covers": {
+        "FM-03": "partial",
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 130
+    },
+    {
+      "suite": "tt93-transfer-race",
+      "name": "a completed writer precedes a gated move, including its current bytes and saved version",
+      "covers": {
+        "FM-03": "partial",
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 138
+    },
+    {
+      "suite": "tt93-transfer-race",
+      "name": "a sidecar save that wins the gate travels atomically with the following photo move",
+      "covers": {
+        "FM-03": "partial",
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 164
+    },
+    {
+      "suite": "tt93-transfer-race",
+      "name": "a cache transfer waits for cache cleanup and does not republish deleted bytes",
+      "covers": {
+        "FM-03": "partial",
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 342
+    }
+  ]
+}

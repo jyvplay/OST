@@ -39,6 +39,8 @@ async function newPage(share?: Page): Promise<Page> {
   const ctx = share ? share.context() : await browser.newContext({ viewport: { width: 1440, height: 900 } }); ctx.setDefaultTimeout(20_000);
   const page = await ctx.newPage(); page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+  // The server-rendered button exists before React hydration; wait for actual shell bootstrap, not just DOM presence.
+  await page.locator('[data-shell-ready="true"]').waitFor({ timeout: 30_000 });
   await page.getByTestId("launcher-button").waitFor({ timeout: 30_000 });
   return page;
 }

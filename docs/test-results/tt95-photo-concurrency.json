@@ -1,0 +1,136 @@
+{
+  "suite": "tt95-photo-concurrency",
+  "at": "2026-10-27T19:48:32.281Z",
+  "results": [
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "two editors seeing no recipe cannot silently replace the first edit",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 186
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a stale update refuses a later edit and leaves its current row, history and index intact",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 201
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a stale clear cannot purge newer edits or their history",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 242
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a same-byte rewrite is still a new recipe version",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 184
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a recreated recipe with identical bytes is not the original row",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 229
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a removed recipe cannot be recreated by a stale editor",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 171
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a corrupt sidecar digest is not silently replaced",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 101
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "malformed explicit recipe preconditions fail closed",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 430
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a recipe precondition without an owner guard is rejected",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 79
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "competing guarded creates have one winner",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 109
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "competing guarded updates from one version have one winner",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 201
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "successful saves return their actual new identity and can advance the next precondition",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 190
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "legacy unguarded sidecar writes retain their existing overwrite behavior",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 124
+    }
+  ]
+}

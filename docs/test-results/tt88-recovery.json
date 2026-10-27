@@ -1,0 +1,87 @@
+{
+  "suite": "tt88-recovery",
+  "at": "2026-10-27T19:20:10.632Z",
+  "results": [
+    {
+      "suite": "tt88-recovery",
+      "name": "BK-06 Web Crypto output opens with both credentials in independent Python cryptography",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 304
+    },
+    {
+      "suite": "tt88-recovery",
+      "name": "BK-06 independently encrypted Python envelope opens with both Web Crypto slots",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 299
+    },
+    {
+      "suite": "tt88-recovery",
+      "name": "BK-06 random 256-bit recovery keys have exact portable format and no repeats in a 100-key sample",
+      "covers": {
+        "BK-06": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt88-recovery",
+      "name": "BK-06 missing secure-context Web Crypto fails closed rather than generating an unusable key",
+      "covers": {
+        "BK-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt88-recovery",
+      "name": "BK-06 wrong passphrase, wrong valid recovery key and malformed key are rejected without echoing the secrets",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 95
+    },
+    {
+      "suite": "tt88-recovery",
+      "name": "BK-06 every stored byte field and work factor is authenticated when opening through either slot",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 774
+    },
+    {
+      "suite": "tt88-recovery",
+      "name": "BK-06 swapping another archive's password slot cannot hide damage from either legitimate credential",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 185
+    },
+    {
+      "suite": "tt88-recovery",
+      "name": "BK-06 schema, algorithms, canonical base64, size and KDF limits fail before unlock",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 953
+    },
+    {
+      "suite": "tt88-recovery",
+      "name": "BK-06 reordered JSON keys are equivalent, but only this explicit format is accepted",
+      "covers": {
+        "BK-06": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

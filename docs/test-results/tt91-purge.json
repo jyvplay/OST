@@ -1,0 +1,56 @@
+{
+  "suite": "tt91-purge",
+  "at": "2026-10-27T19:22:37.031Z",
+  "results": [
+    {
+      "suite": "tt91-purge",
+      "name": "folder purge removes nested nodes, old versions and search text without touching wildcard-like neighbors",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 143
+    },
+    {
+      "suite": "tt91-purge",
+      "name": "file purge removes that file's history and index, and repeating it is safe",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 54
+    },
+    {
+      "suite": "tt91-purge",
+      "name": "purge also clears orphaned file history/index, but never other index sources",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 16
+    },
+    {
+      "suite": "tt91-purge",
+      "name": "a real SQL failure rolls back nodes, versions, index and audit together",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 55
+    },
+    {
+      "suite": "tt91-purge",
+      "name": "purging root is rejected before any delete statement",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 13
+    }
+  ]
+}

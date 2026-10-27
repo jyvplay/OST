@@ -1,0 +1,89 @@
+{
+  "suite": "e2e-tt89-drill",
+  "at": "2026-10-27T19:20:39.667Z",
+  "results": [
+    {
+      "suite": "e2e-tt89-drill",
+      "name": "a real downloaded recovery-key archive is selected and the drill controls are keyboard accessible",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 4348
+    },
+    {
+      "suite": "e2e-tt89-drill",
+      "name": "wrong password and modified ciphertext fail locally, do not post, and set failed status",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 1697
+    },
+    {
+      "suite": "e2e-tt89-drill",
+      "name": "real encrypted-file drill reads scratch state, confirms rollback, keeps live settings unchanged and persists only non-secret status",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 376
+    },
+    {
+      "suite": "e2e-tt89-drill",
+      "name": "status survives reload and updates in a second same-origin tab",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 3720
+    },
+    {
+      "suite": "e2e-tt89-drill",
+      "name": "recovery key opens the same saved archive for a drill and is absent from requests",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 359
+    },
+    {
+      "suite": "e2e-tt89-drill",
+      "name": "checksum tampering and a bad key change the latest state to failed, without erasing last success",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 134
+    },
+    {
+      "suite": "e2e-tt89-drill",
+      "name": "legacy file receives a partial result and a future local clock is not called healthy",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 1706
+    },
+    {
+      "suite": "e2e-tt89-drill",
+      "name": "amnesic session refuses the drill and writes neither HTTP requests nor persistent health metadata",
+      "covers": {
+        "BK-05": "partial",
+        "SC-13": "partial"
+      },
+      "pass": true,
+      "ms": 2791
+    },
+    {
+      "suite": "e2e-tt89-drill",
+      "name": "drill UI has no serious or critical axe violations and no uncaught page errors",
+      "covers": {
+        "BK-05": "partial",
+        "AX-01": "partial"
+      },
+      "pass": true,
+      "ms": 944
+    }
+  ]
+}

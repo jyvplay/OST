@@ -1,0 +1,56 @@
+{
+  "suite": "e2e-tt90-private-thumbnails",
+  "at": "2026-10-27T19:22:35.556Z",
+  "results": [
+    {
+      "suite": "e2e-tt90-private-thumbnails",
+      "name": "encrypted private image renders real pixels without a plaintext host thumbnail cache",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 1676
+    },
+    {
+      "suite": "e2e-tt90-private-thumbnails",
+      "name": "locking removes the displayed private thumbnail and revokes its blob URL",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 86
+    },
+    {
+      "suite": "e2e-tt90-private-thumbnails",
+      "name": "private requests ignore even a pre-existing host cache entry and redraw after unlock",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 1602
+    },
+    {
+      "suite": "e2e-tt90-private-thumbnails",
+      "name": "cleanup needs explicit confirmation, refuses amnesia, and removes only cache rows and orphan versions",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 2018
+    },
+    {
+      "suite": "e2e-tt90-private-thumbnails",
+      "name": "locking while a worker is stalled cancels it without publishing a late private preview",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 1184
+    }
+  ]
+}

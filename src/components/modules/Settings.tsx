@@ -7,6 +7,8 @@ import type { Capability, CapabilityReport } from "@/lib/capabilities";
 import { diffCapabilities, type CapDiff } from "@/lib/policy";
 import { BINDINGS, BROWSER_RESERVED, comboFor, conflicts, type Preset } from "@/lib/shortcuts";
 import { useShell, type ModuleProps } from "../shell-context";
+import DefaultAppsGuide from "../DefaultAppsGuide";
+import ContextProfiles from "../ContextProfiles";
 import { Badge, Btn, KV, Section, Tabs } from "../ui";
 import DisplaySettings from "../DisplaySettings";
 import MouseButtonsSettings from "../MouseButtonsSettings";
@@ -16,7 +18,7 @@ import { auditPermissions, type PermRow } from "@/lib/permissions";
 interface SettingRow { key: string; value: string; category: string; label: string; aliases: string; lockReason: string }
 interface HistRow { id: number; key: string; oldValue: string; newValue: string; createdAt: string }
 
-type Tab = "settings" | "capabilities" | "shortcuts" | "licence" | "about";
+type Tab = "settings" | "contexts" | "defaults" | "capabilities" | "shortcuts" | "licence" | "about";
 
 export default function SettingsModule({ win }: ModuleProps) {
   const shell = useShell();
@@ -56,6 +58,8 @@ export default function SettingsModule({ win }: ModuleProps) {
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <Tabs<Tab> value={tab} onChange={setTab} tabs={[
         { id: "settings", label: "Settings graph" },
+        { id: "contexts", label: "Context profiles" },
+        { id: "defaults", label: "Default apps" },
         { id: "capabilities", label: "Capabilities", badge: shell.caps ? ` ${shell.caps.capabilities.filter((c) => c.available).length}/${shell.caps.capabilities.length}` : "" },
         { id: "shortcuts", label: "Shortcuts" },
         { id: "licence", label: "Licence" },
@@ -97,6 +101,9 @@ export default function SettingsModule({ win }: ModuleProps) {
           </Section>
         </>
       ) : null}
+
+      {tab === "contexts" ? <ContextProfiles /> : null}
+      {tab === "defaults" ? <DefaultAppsGuide /> : null}
 
       {tab === "capabilities" ? (
         <>

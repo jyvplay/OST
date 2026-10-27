@@ -1,0 +1,66 @@
+{
+  "suite": "tt92-trash-race",
+  "at": "2026-10-27T19:22:54.816Z",
+  "results": [
+    {
+      "suite": "tt92-trash-race",
+      "name": "trash-first blocks a subsequent ordinary write rather than overwriting the retained file",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 150
+    },
+    {
+      "suite": "tt92-trash-race",
+      "name": "tree trash holds its cooperative exclusive gate until its transaction finishes",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 139
+    },
+    {
+      "suite": "tt92-trash-race",
+      "name": "write-first is snapshotted and hidden by subsequent tree trash, then search returns after restore",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 137
+    },
+    {
+      "suite": "tt92-trash-race",
+      "name": "conditional-write-first and trash cooperate without a visible search remnant",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 122
+    },
+    {
+      "suite": "tt92-trash-race",
+      "name": "restore-first and a following writer publish one current index and retain the old version",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 132
+    },
+    {
+      "suite": "tt92-trash-race",
+      "name": "thumbnail cleanup and cache-item trash do not deadlock or reintroduce data",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 125
+    }
+  ]
+}

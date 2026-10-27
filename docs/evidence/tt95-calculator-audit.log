@@ -1,0 +1,6 @@
+  ✓ the register labels incomplete programmer mode and nonpersistent history as partial
+  ✓ the shared evaluator handles examples but does not claim bitwise programmer operations
+  ✓ calculator history exists in the mounted window but is not saved as a note or search row
+  ✓ calculator history is lost when the component remounts
+
+4 passed, 0 failed

@@ -6,12 +6,16 @@
  *  disk       WebP files in /System/Cache/thumbs/<key>.webp — written ONCE (content-addressed, so the VFS never
  *             accumulates versions); budget 48 MiB, eviction of the oldest-written entries when over budget
  *             (FIFO-by-write, not true LRU: a read does not touch the file — disclosed)
- *  render     one module Worker (OffscreenCanvas); video / SVG frames on the main thread; when Workers or
- *             OffscreenCanvas are missing everything renders on the main thread
- *  limits     files > 96 MiB are not thumbnailed; queue concurrency 2; every job has a 12 s timeout
- *  privacy    nothing leaves the machine: bytes come from /api/fs, thumbnails go back to /api/fs
+ *  render     1–2 lazy module Workers (OffscreenCanvas), idle-terminated after 30 s; video / SVG frames on the
+ *             main thread; when Workers or OffscreenCanvas are missing everything renders on the main thread
+ *  limits     files > 96 MiB are not thumbnailed; queue concurrency 2; every render has a 12 s timeout
+ *  privacy    /Private thumbnails stay in browser memory only and are revoked on lock; ordinary thumbnails go to
+ *             /api/fs, which may be a remote server. Earlier versions could persist private thumbnails in that cache.
  */
 import { parseRecipe, recipeKey, sidecarPath, type PhotoRecipe } from "../photos/recipe";
+import { isPrivatePath } from "../privacy/pcrypt";
+import { privacy } from "../privacy/session";
+import { ThumbnailWorkerPool, thumbnailWorkerLimit, WorkerUnavailable } from "./worker-pool";
 /** bump whenever render.ts output changes for the same input */
 export const RENDERER = "r2";
 import type { FileMeta } from "../meta";
@@ -27,6 +31,36 @@ export interface ThumbInfo { url: string | null; reason?: string; source?: strin
 const mem = new Map<string, Promise<ThumbInfo>>();
 const stats = { memory: 0, disk: 0, fresh: 0, failed: 0 };
 export const thumbStats = () => ({ ...stats, entries: mem.size });
+const PRIVATE_KEY = "\u0000private:";
+let privateSignal: AbortController | undefined;
+let watchingPrivate = false;
+/** Match the privacy layer's path normalization, including aliases such as /x/../Private/a. */
+export function isPrivateThumbnailPath(path: string): boolean {
+  const parts: string[] = [];
+  for (const part of String(path).split("/").filter(Boolean)) {
+    if (part === ".") continue;
+    if (part === "..") { parts.pop(); continue; }
+    parts.push(part.replace(/\u0000/g, ""));
+  }
+  return isPrivatePath(`/${parts.join("/")}`);
+}
+function watchPrivate(): AbortSignal {
+  privateSignal ??= new AbortController();
+  if (!watchingPrivate) {
+    watchingPrivate = true;
+    let before = privacy.status();
+    privacy.subscribe((now) => {
+      if (before.storage === "unlocked" && (now.storage !== "unlocked" || now.fingerprint !== before.fingerprint)) {
+        privateSignal?.abort(); privateSignal = new AbortController();
+        for (const [key, p] of mem) if (key.startsWith(PRIVATE_KEY)) {
+          mem.delete(key); p.then((t) => { if (t.url) URL.revokeObjectURL(t.url); }).catch(() => {});
+        }
+      }
+      before = now;
+    });
+  }
+  return privateSignal.signal;
+}
 
 function remember(key: string, p: Promise<ThumbInfo>) {
   mem.delete(key); mem.set(key, p);
@@ -54,26 +88,51 @@ export async function readRecipe(photoPath: string): Promise<PhotoRecipe | null>
   try { return parseRecipe(JSON.parse(j.node.content)); } catch { return null; }
 }
 
+export type RecipeIdentity = { id: number; version: number; sha256: string };
+/** Editor reads are stricter than best-effort thumbnail reads: a failed or
+ * corrupt sidecar must not be treated as an absent one and overwritten. */
+export async function readRecipeForEditing(photoPath: string, requireIdentity: boolean): Promise<{ recipe: PhotoRecipe | null; expected: RecipeIdentity | null }> {
+  let r: Response;
+  try { r = await fetch(`/api/fs?op=read&path=${encodeURIComponent(sidecarPath(photoPath))}`); }
+  catch { throw new Error("Photo recipe could not be read; it was not opened for editing."); }
+  if (r.status === 404) return { recipe: null, expected: null };
+  if (!r.ok) throw new Error("Photo recipe could not be read; it was not opened for editing.");
+  const j = await r.json().catch(() => null) as { node?: { id?: unknown; version?: unknown; sha256?: unknown; kind?: unknown; trashed?: unknown; encoding?: unknown; content?: unknown } } | null;
+  const n = j?.node;
+  const invalid = () => new Error("Photo recipe is unreadable or invalid; it was not opened for editing.");
+  if (!n || n.kind !== "file" || n.trashed || n.encoding !== "utf8" || typeof n.content !== "string") throw invalid();
+  let parsed: unknown;
+  try { parsed = JSON.parse(n.content); } catch { throw invalid(); }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || ("v" in parsed && (parsed as { v?: unknown }).v !== 1)) throw invalid();
+  if (requireIdentity && (!Number.isSafeInteger(n.id) || Number(n.id) <= 0 || !Number.isSafeInteger(n.version) || Number(n.version) <= 0
+    || typeof n.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(n.sha256))) throw invalid();
+  const expected = requireIdentity ? { id: Number(n.id), version: Number(n.version), sha256: String(n.sha256) } : null;
+  return { recipe: parseRecipe(parsed), expected };
+}
+
 // ---- worker plumbing -------------------------------------------------------------------------------------------
 type WorkerReply = { id: number; blob?: Blob; source?: string; needsMain?: "video" | "svg"; none?: string; error?: string; meta?: FileMeta };
-let worker: Worker | null | undefined;
-let seq = 0;
-const waiting = new Map<number, (r: WorkerReply) => void>();
-function getWorker(): Worker | null {
-  if (worker !== undefined) return worker;
-  try {
-    if (typeof Worker === "undefined" || typeof OffscreenCanvas === "undefined") { worker = null; return worker; }
-    worker = new Worker(new URL("./thumb.worker.ts", import.meta.url), { type: "module", name: "fusion-thumbs" });
-    worker.onmessage = (e: MessageEvent<WorkerReply>) => { const f = waiting.get(e.data.id); waiting.delete(e.data.id); f?.(e.data); };
-    worker.onerror = () => { for (const f of waiting.values()) f({ id: -1, error: "thumbnail worker crashed" }); waiting.clear(); worker?.terminate(); worker = null; };
-  } catch { worker = null; }
-  return worker;
+type WorkerRequest = { bytes: Uint8Array; name: string; max: number; recipe: PhotoRecipe | null };
+let pool: ThumbnailWorkerPool<WorkerRequest, WorkerReply> | null | undefined;
+function getPool(): ThumbnailWorkerPool<WorkerRequest, WorkerReply> | null {
+  if (pool !== undefined) return pool;
+  if (typeof Worker === "undefined" || typeof OffscreenCanvas === "undefined") { pool = null; return pool; }
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  pool = new ThumbnailWorkerPool(
+    () => new Worker(new URL("./thumb.worker.ts", import.meta.url), { type: "module", name: "fusion-thumbs" }),
+    thumbnailWorkerLimit(nav.hardwareConcurrency, nav.deviceMemory),
+  );
+  return pool;
 }
-async function renderAnywhere(bytes: Uint8Array, name: string, max: number, recipe: PhotoRecipe | null): Promise<WorkerReply> {
-  const w = getWorker();
-  if (w) {
-    const id = ++seq;
-    return new Promise<WorkerReply>((res) => { waiting.set(id, res); w.postMessage({ id, bytes, name, max, recipe }); });
+async function renderAnywhere(bytes: Uint8Array, name: string, max: number, recipe: PhotoRecipe | null, signal?: AbortSignal): Promise<WorkerReply> {
+  if (signal?.aborted) throw new Error("Persistent Storage locked");
+  const p = getPool();
+  if (p) {
+    try { return await p.run({ bytes, name, max, recipe }, signal); }
+    catch (e) {
+      if (e instanceof WorkerUnavailable) pool = null;
+      else throw e; // timeout/crash remains retryable; do not cache the failed result
+    }
   }
   const { renderThumbnail, canvasToWebp } = await import("./render");
   const r = await renderThumbnail(bytes, name, max, recipe);
@@ -85,11 +144,18 @@ async function renderAnywhere(bytes: Uint8Array, name: string, max: number, reci
 // ---- queue -----------------------------------------------------------------------------------------------------
 let running = 0; const queue: (() => void)[] = [];
 async function slot<T>(f: () => Promise<T>): Promise<T> {
-  if (running >= 2) await new Promise<void>((res) => queue.push(res));
-  running++;
-  try { return await f(); } finally { running--; queue.shift()?.(); }
+  if (running < 2 && queue.length === 0) running++;
+  else await new Promise<void>((res) => queue.push(res));
+  try { return await f(); } finally {
+    // Transfer this occupied slot directly to the oldest waiter; otherwise a
+    // new caller could overtake the waiter between release and its microtask.
+    const next = queue.shift(); if (next) next(); else running--;
+  }
 }
-const withTimeout = <T>(p: Promise<T>, ms: number) => Promise.race([p, new Promise<T>((_, rej) => setTimeout(() => rej(new Error("thumbnail timed out")), ms))]);
+const withTimeout = <T>(p: Promise<T>, ms: number) => new Promise<T>((resolve, reject) => {
+  const timer = setTimeout(() => reject(new Error("thumbnail timed out")), ms);
+  p.then((value) => { clearTimeout(timer); resolve(value); }, (error) => { clearTimeout(timer); reject(error); });
+});
 
 // ---- disk cache ------------------------------------------------------------------------------------------------
 let writesSinceSweep = 0, sweptThisSession = false;
@@ -139,33 +205,44 @@ function hashStr(s: string) { let h = 0x811c9dc5; for (let i = 0; i < s.length; 
  * `recipe`: undefined → look for the sidecar when `hasSidecar` says it exists; null → render the original.
  */
 export function getThumbnail(node: ThumbNode, opts: { max?: number; recipe?: PhotoRecipe | null; hasSidecar?: boolean } = {}): Promise<ThumbInfo> {
-  // once per session, on first use: purge entries of another renderer version (they can never be hit again) and trim to budget
-  if (!sweptThisSession && typeof window !== "undefined") { sweptThisSession = true; void sweepThumbCache().catch(() => {}); }
+  const sensitive = isPrivateThumbnailPath(node.path);
+  // A private request must neither read nor write the shared host cache, even if a stale entry exists.
+  // Only ordinary requests trigger the usual cache maintenance.
+  if (!sensitive && !sweptThisSession && typeof window !== "undefined") { sweptThisSession = true; void sweepThumbCache().catch(() => {}); }
+  const signal = sensitive ? watchPrivate() : undefined;
+  if (sensitive && privacy.status().storage !== "unlocked") return Promise.resolve({ url: null, reason: "Persistent Storage locked" });
   const max = opts.max ?? 256;
   if (node.size > THUMB_MAX_SOURCE) return Promise.resolve({ url: null, reason: "file too large to thumbnail" });
+  const requireUnlocked = () => { if (signal?.aborted) throw new Error("Persistent Storage locked"); };
   const start = async (): Promise<ThumbInfo> => {
     const recipe = opts.recipe !== undefined ? opts.recipe : opts.hasSidecar ? await readRecipe(node.path) : null;
+    requireUnlocked();
     const key = thumbKey(node, max, recipe);
-    const hit = mem.get(key);
-    if (hit) { stats.memory++; remember(key, hit); return hit; }
+    const memKey = sensitive ? PRIVATE_KEY + key : key;
+    const hit = mem.get(memKey);
+    if (hit) { stats.memory++; remember(memKey, hit); return hit; }
     const p = slot(async (): Promise<ThumbInfo> => {
-      const cached = await diskGet(key).catch(() => null);
+      requireUnlocked();
+      const cached = sensitive ? null : await diskGet(key).catch(() => null);
       if (cached) { stats.disk++; return { url: cached, cached: "disk" }; }
       const bytes = await readFileBytes(node.path);
+      requireUnlocked();
       if (!bytes) return { url: null, reason: "file could not be read" };
-      const rep = await withTimeout(renderAnywhere(bytes, node.name, max, recipe), 12000);
+      const rep = await withTimeout(renderAnywhere(bytes, node.name, max, recipe, signal), 12000);
+      requireUnlocked();
       let blob = rep.blob;
       if (rep.needsMain) {
         const R = await import("./render");
         const c = rep.needsMain === "video" ? await R.renderVideoThumb(bytes, node.mime ?? rep.meta?.mime ?? "video/mp4", max) : await R.renderSvgThumb(bytes, max, rep.meta);
         blob = await R.canvasToWebp(c);
       }
+      requireUnlocked();
       if (!blob) return { url: null, reason: rep.none ?? rep.error ?? "no preview", meta: rep.meta };
       stats.fresh++;
-      void diskPut(key, blob).catch(() => {});
+      if (!sensitive) void diskPut(key, blob).catch(() => {});
       return { url: URL.createObjectURL(blob), source: rep.source ?? rep.needsMain, meta: rep.meta, cached: "fresh" };
-    }).catch((e: unknown): ThumbInfo => { stats.failed++; mem.delete(key); return { url: null, reason: e instanceof Error ? e.message : String(e) }; });
-    remember(key, p);
+    }).catch((e: unknown): ThumbInfo => { stats.failed++; if (mem.get(memKey) === p) mem.delete(memKey); return { url: null, reason: e instanceof Error ? e.message : String(e) }; });
+    remember(memKey, p);
     return p;
   };
   return start();
@@ -173,7 +250,7 @@ export function getThumbnail(node: ThumbNode, opts: { max?: number; recipe?: Pho
 
 /** for tests / the Photos module: forget the in-memory copy of one node so the next call re-reads */
 export function forgetThumbnail(node: ThumbNode, max: number, recipe: PhotoRecipe | null) {
-  const k = thumbKey(node, max, recipe); const p = mem.get(k); mem.delete(k);
+  const k = (isPrivateThumbnailPath(node.path) ? PRIVATE_KEY : "") + thumbKey(node, max, recipe); const p = mem.get(k); mem.delete(k);
   p?.then((t) => { if (t.url) URL.revokeObjectURL(t.url); }).catch(() => {});
 }
 export { bytesToB64, b64ToBytes };

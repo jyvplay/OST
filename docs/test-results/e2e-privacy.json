@@ -1,6 +1,6 @@
 {
   "suite": "e2e-privacy",
-  "at": "2026-10-26T08:44:34.982Z",
+  "at": "2026-10-27T19:25:15.655Z",
   "results": [
     {
       "suite": "e2e-privacy",
@@ -10,7 +10,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 5379
+      "ms": 1712
     },
     {
       "suite": "e2e-privacy",
@@ -19,7 +19,17 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 238
+      "ms": 85
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage",
+      "covers": {
+        "SC-10": "full",
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 57
     },
     {
       "suite": "e2e-privacy",
@@ -28,7 +38,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 2902
+      "ms": 2873
     },
     {
       "suite": "e2e-privacy",
@@ -37,7 +47,7 @@
         "SC-16": "full"
       },
       "pass": true,
-      "ms": 4625
+      "ms": 1693
     },
     {
       "suite": "e2e-privacy",
@@ -46,7 +56,7 @@
         "SC-12": "full"
       },
       "pass": true,
-      "ms": 993
+      "ms": 752
     },
     {
       "suite": "e2e-privacy",
@@ -56,7 +66,7 @@
         "FM-01": "partial"
       },
       "pass": true,
-      "ms": 4206
+      "ms": 2152
     },
     {
       "suite": "e2e-privacy",
@@ -66,7 +76,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 4762
+      "ms": 2127
     },
     {
       "suite": "e2e-privacy",
@@ -75,7 +85,7 @@
         "SC-15": "full"
       },
       "pass": true,
-      "ms": 3695
+      "ms": 1199
     },
     {
       "suite": "e2e-privacy",
@@ -84,7 +94,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 38
+      "ms": 26
     },
     {
       "suite": "e2e-privacy",
@@ -92,8 +102,9 @@
       "covers": {
         "SC-10": "partial"
       },
-      "pass": true,
-      "ms": 6266
+      "pass": false,
+      "error": "encrypt throughput 42 MB/s: Encrypt\n42 MB/s (95.0 ms per 4.0 MB)\nDecrypt\n59 MB/s (67.8 ms per 4.0 MB)\nLargest file (8 MB VFS cap)\n≈ 191 ms extra to save",
+      "ms": 2649
     },
     {
       "suite": "e2e-privacy",
@@ -102,7 +113,7 @@
         "SC-14": "full"
       },
       "pass": true,
-      "ms": 1963
+      "ms": 1600
     },
     {
       "suite": "e2e-privacy",
@@ -111,7 +122,7 @@
         "SC-17": "full"
       },
       "pass": true,
-      "ms": 9197
+      "ms": 3645
     },
     {
       "suite": "e2e-privacy",
@@ -120,7 +131,7 @@
         "SC-18": "full"
       },
       "pass": true,
-      "ms": 10507
+      "ms": 4517
     },
     {
       "suite": "e2e-privacy",
@@ -130,6 +141,15 @@
       },
       "pass": true,
       "ms": 0
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "privacy fixture cleanup leaves no host nodes, versions or search rows for its owned paths",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 2
     }
   ]
 }

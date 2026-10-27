@@ -1,0 +1,39 @@
+{
+  "suite": "tt93-restore-race",
+  "at": "2026-10-27T19:23:02.677Z",
+  "results": [
+    {
+      "suite": "tt93-restore-race",
+      "name": "commit of a backup restore waits for the participating tree gate",
+      "covers": {
+        "BK-01": "partial",
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 87
+    },
+    {
+      "suite": "tt93-restore-race",
+      "name": "trash before a waiting restore invalidates the preview and cannot resurrect the deleted tree",
+      "covers": {
+        "BK-01": "partial",
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 128
+    },
+    {
+      "suite": "tt93-restore-race",
+      "name": "cache cleanup before a waiting restore cannot republish the cleared bytes",
+      "covers": {
+        "BK-01": "partial",
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 122
+    }
+  ]
+}

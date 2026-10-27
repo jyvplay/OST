@@ -308,8 +308,11 @@ async function control(req: NextRequest, s: WpSession, rest: string): Promise<Re
     try {
       const up = await upstreamRequest(u.href, { method: "GET", maxBytes: 20 * 1024 * 1024, session: { sid: s.sid, circuit: s.circuit }, headers: upstreamHeaders([], u, { ua: uaForSite(s, u.host), cookie: s.jar.header(u), method: "GET" }) });
       if (up.status >= 300 && up.status < 400) { up.body.resume(); return new Response(`redirected to ${String(up.headers.location ?? "")}`, { status: 409, headers: CORS }); }
-      const buf = await readAll(up.body);
-      return new Response(new Uint8Array(buf), { status: up.status, headers: { ...CORS, "content-type": "application/octet-stream", "content-disposition": "attachment", "content-security-policy": "sandbox; default-src 'none'", "x-fusion-wp-type": String(up.headers["content-type"] ?? "").replace(/[\r\n]/g, "").slice(0, 200), "access-control-expose-headers": "x-fusion-wp-type" } });
+      // Stream the original bytes with backpressure. A consumer cancellation destroys
+      // the upstream stream; the existing 20 MiB decoded-byte cap still applies.
+      const headers = { ...CORS, "content-type": "application/octet-stream", "content-disposition": "attachment", "content-security-policy": "sandbox; default-src 'none'", "x-fusion-wp-type": String(up.headers["content-type"] ?? "").replace(/[\r\n]/g, "").slice(0, 200), "access-control-expose-headers": "x-fusion-wp-type" };
+      if (up.status === 204 || up.status === 205) { up.body.resume(); return new Response(null, { status: up.status, headers }); }
+      return new Response(toWebStream(up.body), { status: up.status, headers });
     } catch (e) { return new Response(classifyError(e).message, { status: 502, headers: CORS }); }
   }
   if (rest === "__reader" && req.method === "GET") return reader(req, s);

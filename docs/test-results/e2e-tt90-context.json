@@ -1,0 +1,79 @@
+{
+  "suite": "e2e-tt90-context",
+  "at": "2026-10-27T19:21:37.895Z",
+  "results": [
+    {
+      "suite": "e2e-tt90-context",
+      "name": "profiles are off initially and editing them does not change the shared appearance",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 6210
+    },
+    {
+      "suite": "e2e-tt90-context",
+      "name": "opt-in applies the chosen profile, retains shared settings, and survives a reload",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 4823
+    },
+    {
+      "suite": "e2e-tt90-context",
+      "name": "a real browser reacts to CDP virtual display add/remove, with an on-screen announcement",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 3490
+    },
+    {
+      "suite": "e2e-tt90-context",
+      "name": "same-origin tabs react to preference changes; turning off restores the shared values",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 2587
+    },
+    {
+      "suite": "e2e-tt90-context",
+      "name": "amnesia permits session-only choices without changing normal local storage or shared settings",
+      "covers": {
+        "ST-09": "partial",
+        "SC-13": "partial"
+      },
+      "pass": true,
+      "ms": 2838
+    },
+    {
+      "suite": "e2e-tt90-context",
+      "name": "a touch-emulated Chromium chooses the touch profile independent of viewport width",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 5657
+    },
+    {
+      "suite": "e2e-tt90-context",
+      "name": "corrupt local storage fails closed and does not claim unavailable screen detection",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 5375
+    },
+    {
+      "suite": "e2e-tt90-context",
+      "name": "context controls have no serious axe findings or uncaught page errors",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 1428
+    }
+  ]
+}

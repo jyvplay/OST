@@ -18,7 +18,7 @@
  * --fs-motion, so Motion: off / prefers-reduced-motion make every transition instant.
  */
 import { wheelPx } from "@/lib/input";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { MODULES, moduleById } from "@/lib/registry";
 import { appForFile } from "@/lib/open-with";
@@ -324,7 +324,8 @@ export default function Tabletop() {
     return clampOn(target.face)(b.x, b.y);
   };
   const down = (e: React.PointerEvent, surface: Face, key: string, at: { x: number; y: number }, fan?: Fan) => {
-    if (e.button !== 0) return;
+    // A moving 3-D face changes its coordinate mapping underneath the pointer.
+    if (e.button !== 0 || !settled) return;
     e.stopPropagation();
     suppress.current = false;
     const p = pointerOn(surface, e.clientX, e.clientY), [px, py] = rootPt(e.clientX, e.clientY);
@@ -818,9 +819,9 @@ export default function Tabletop() {
     );
   };
 
-  // TT48: expose "the box has finished moving" — the faces' computed transition time (0 under reduced motion) after the
-  // last main/camera/size change. Pointer work that starts mid-transition is mapped through a moving transform.
-  useEffect(() => {
+  // TT48/TT87: invalidate the settle flag in the same commit as a pose change, before paint.
+  // A passive effect left one render where the new face was marked settled while it was moving.
+  useLayoutEffect(() => {
     const el = root.current; if (!el) return;
     const face = el.querySelector<HTMLElement>(".fs-tt-face");
     const ms = face ? Math.max(0, ...getComputedStyle(face).transitionDuration.split(",").map((v) => (v.trim().endsWith("ms") ? parseFloat(v) : parseFloat(v) * 1000) || 0)) : 0;

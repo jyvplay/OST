@@ -1,33 +1,34 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { and, desc, eq, ilike, like, not, or } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, ilike, like, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { vfsNodes } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
 import {
   folderSize, getNode, listDir, mkdir, normalize, purgeNode, dropVersions, restoreNode,
-  transferNode, trashNode, versionsOf, writeFile, baseName, parentOf, MAX_BYTES, escapeLike,
+  transferNode, trashNode, versionsOf, writeFile, setTags, baseName, parentOf, MAX_BYTES, escapeLike,
+  parseExpectedPhoto, PhotoRecipeConflict,
 } from "@/lib/server/vfs";
 import { deflateRawSync } from "node:zlib";
 import { readArchive, readEntry, writeArchive, extractable, PasswordError, type NameMode } from "@/lib/archive/zip";
 import { readJsonObject } from "@/lib/http-json";
 import { refuseEncryptedOverwrite } from "@/lib/mime";
+import { ConditionalWriteConflict, conditionalWriteFile, type ExpectedFile } from "@/lib/server/conditional-write";
 import { sidecarPath, isSidecar } from "@/lib/photos/recipe";
 
 /**
- * TT54 (MD-03): a photo's non-destructive edit lives in the hidden sidecar ".<name>.edit.json" beside it. Whatever
- * client moves / copies / renames / trashes / restores / purges the photo (Files, desktop, terminal, API), the sidecar
- * follows, so an edit is never orphaned or attached to the wrong picture. Best effort AFTER the primary op succeeded:
- * a sidecar failure is reported in the response, never undoes the user's operation.
+ * Public photo move/copy and its known recipe are handled atomically by
+ * transferNode. Trash/restore/purge still attempt the companion separately
+ * after the primary operation; failure is returned and cannot undo the primary.
+ * Encrypted Private names cannot be paired by this server without the keys.
  */
-async function followSidecar<T extends object>(res: T, src: string, op: "move" | "copy" | "trash" | "restore" | "purge", dst?: string): Promise<T & { sidecar?: string }> {
+async function followSidecar<T extends object>(res: T, src: string, op: "trash" | "restore" | "purge"): Promise<T & { sidecar?: string }> {
   const from = normalize(src);
   if (isSidecar(from)) return res;
   const sc = sidecarPath(from);
   try {
     const node = await getNode(sc);
     if (!node) return res;
-    if (op === "move" || op === "copy") { const to = sidecarPath(normalize(dst!)); if (await getNode(to)) await purgeNode(to); await transferNode(sc, to, op); }
-    else if (op === "trash") await trashNode(sc);
+    if (op === "trash") await trashNode(sc);
     else if (op === "restore") await restoreNode(sc);
     else await purgeNode(sc);
     return { ...res, sidecar: "followed" };
@@ -60,13 +61,17 @@ export async function GET(req: NextRequest) {
       case "versions":
         return NextResponse.json({ ok: true, versions: await versionsOf(path) });
       case "trash": {
-        const rows = await db.select().from(vfsNodes).where(eq(vfsNodes.trashed, true)).orderBy(desc(vfsNodes.updatedAt));
-        return NextResponse.json({ ok: true, nodes: rows.map(strip) });
+        // Do not transfer every trashed file body into the server merely to
+        // discard it before responding. This is still an unpaginated listing.
+        const { content, ...columns } = getTableColumns(vfsNodes);
+        const rows = await db.select({ ...columns, hasContent: sql<boolean>`${content} <> ''` }).from(vfsNodes)
+          .where(eq(vfsNodes.trashed, true)).orderBy(desc(vfsNodes.updatedAt));
+        return NextResponse.json({ ok: true, nodes: rows.map((n) => ({ ...n, base: baseName(n.path) })) });
       }
       case "media": {
         // TT54 (MD-03): the Photos library in ONE query — every image / video outside /System and the trash, plus the
         // edit sidecars (".<name>.edit.json") so the library knows which photos carry a recipe. Content is not loaded.
-        const rows = await db.select({ path: vfsNodes.path, name: vfsNodes.name, mime: vfsNodes.mime, size: vfsNodes.size, sha256: vfsNodes.sha256, createdAt: vfsNodes.createdAt, updatedAt: vfsNodes.updatedAt })
+        const rows = await db.select({ id: vfsNodes.id, version: vfsNodes.version, path: vfsNodes.path, name: vfsNodes.name, mime: vfsNodes.mime, size: vfsNodes.size, sha256: vfsNodes.sha256, createdAt: vfsNodes.createdAt, updatedAt: vfsNodes.updatedAt })
           .from(vfsNodes)
           .where(and(eq(vfsNodes.kind, "file"), eq(vfsNodes.trashed, false), not(like(vfsNodes.path, "/System/%")),
             or(like(vfsNodes.mime, "image/%"), like(vfsNodes.mime, "video/%"), like(vfsNodes.name, ".%.edit.json"))))
@@ -107,6 +112,22 @@ export async function POST(req: NextRequest) {
   const op = String(body.op ?? "");
   try {
     switch (op) {
+      case "writeIfUnchanged": { // folder sync: either create only if absent or replace exactly the previewed version
+        const b = body as unknown as Record<string, unknown>;
+        if (typeof b.path !== "string" || typeof b.content !== "string" || !Object.hasOwn(b, "expected")) {
+          return NextResponse.json({ ok: false, error: "path, content and expected are required" }, { status: 400 });
+        }
+        const x = b.expected;
+        if (x !== null && (!x || typeof x !== "object" || Array.isArray(x)
+          || !Number.isSafeInteger((x as ExpectedFile).id) || (x as ExpectedFile).id <= 0
+          || !Number.isSafeInteger((x as ExpectedFile).version) || (x as ExpectedFile).version <= 0
+          || typeof (x as ExpectedFile).sha256 !== "string" || !/^[0-9a-f]{64}$/.test((x as ExpectedFile).sha256))) {
+          return NextResponse.json({ ok: false, error: "expected must be null or a file id, version and SHA-256" }, { status: 400 });
+        }
+        if (b.encoding !== undefined && b.encoding !== "utf8" && b.encoding !== "base64") return NextResponse.json({ ok: false, error: "invalid encoding" }, { status: 400 });
+        if (b.mime !== undefined && typeof b.mime !== "string") return NextResponse.json({ ok: false, error: "invalid MIME type" }, { status: 400 });
+        return NextResponse.json(await conditionalWriteFile(b.path, b.content, x as ExpectedFile | null, b.encoding ?? "utf8", b.mime as string | undefined));
+      }
       case "write":
         if (body.encoding === "base64") refuseEncryptedOverwrite(await getNode(normalize(String(body.path))), String(body.content ?? ""), body.replaceEncrypted);
         return NextResponse.json(await writeFile({
@@ -114,6 +135,8 @@ export async function POST(req: NextRequest) {
           encoding: (body.encoding as "utf8" | "base64") ?? "utf8",
           mime: body.mime ? String(body.mime) : undefined,
           reason: body.reason ? String(body.reason) : "write",
+          expectedPhoto: parseExpectedPhoto((body as Record<string, unknown>).expectedPhoto, String(body.path)),
+          expectedRecipe: (body as Record<string, unknown>).expectedRecipe,
           // TT69 (FF-15): a recovery draft is rewritten every few seconds while someone types; snapshotting each one
           // would grow the version table without bound. Only drafts in the recovery folders skip it (a /Private
           // draft's path is encrypted, so the whole private store qualifies).
@@ -122,20 +145,20 @@ export async function POST(req: NextRequest) {
       case "mkdir":
         return NextResponse.json(await mkdir(String(body.path)));
       case "move":
-        return NextResponse.json(await followSidecar(await transferNode(String(body.src), String(body.dst), "move"), String(body.src), "move", String(body.dst)));
+        return NextResponse.json(await transferNode(String(body.src), String(body.dst), "move"));
       case "copy":
-        return NextResponse.json(await followSidecar(await transferNode(String(body.src), String(body.dst), "copy"), String(body.src), "copy", String(body.dst)));
+        return NextResponse.json(await transferNode(String(body.src), String(body.dst), "copy"));
       case "rename": {
         const src = normalize(String(body.path));
         const dst = `${parentOf(src) === "/" ? "" : parentOf(src)}/${String(body.name)}`;
-        return NextResponse.json(await followSidecar(await transferNode(src, dst, "move"), src, "move", dst));
+        return NextResponse.json(await transferNode(src, dst, "move"));
       }
       case "trash":
         return NextResponse.json(await followSidecar(await trashNode(String(body.path)), String(body.path), "trash"));
       case "restore":
         return NextResponse.json(await followSidecar(await restoreNode(String(body.path)), String(body.path), "restore"));
       case "purge":
-        return NextResponse.json(await followSidecar(await purgeNode(String(body.path)), String(body.path), "purge"));
+        return NextResponse.json(await followSidecar(await purgeNode(String(body.path), parseExpectedPhoto((body as Record<string, unknown>).expectedPhoto, String(body.path)), (body as Record<string, unknown>).expectedRecipe), String(body.path), "purge"));
       case "dropVersions":
         return NextResponse.json(await dropVersions(String(body.path)));
       case "batchRename": {
@@ -161,7 +184,7 @@ export async function POST(req: NextRequest) {
           i += 1;
           if (to === n.path) { results.push({ from: n.path, to, ok: true }); continue; }
           try {
-            await followSidecar(await transferNode(n.path, to, "move"), n.path, "move", to);
+            await transferNode(n.path, to, "move");
             results.push({ from: n.path, to, ok: true });
           } catch (e) {
             results.push({ from: n.path, to, ok: false, error: String((e as Error).message) });
@@ -244,16 +267,13 @@ export async function POST(req: NextRequest) {
         }
         return NextResponse.json({ ok: true, dest, written });
       }
-      case "tag": {
-        const path = normalize(String(body.path));
-        await db.update(vfsNodes).set({ tags: String(body.tags ?? "") }).where(eq(vfsNodes.path, path));
-        return NextResponse.json({ ok: true });
-      }
+      case "tag":
+        return NextResponse.json(await setTags(String(body.path), String(body.tags ?? "")));
       default:
         return NextResponse.json({ ok: false, error: `unknown op ${op}` }, { status: 400 });
     }
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: 400 });
+    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
   }
 }
 

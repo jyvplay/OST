@@ -1,0 +1,69 @@
+{
+  "suite": "e2e-tt93-photos-clear",
+  "at": "2026-10-27T19:50:15.897Z",
+  "results": [
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "a failed identity-edit purge keeps the recipe and reports failure, not success",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 5812
+    },
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "a failed rating-clear purge leaves both the persisted and displayed rating unchanged",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 3757
+    },
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "a failed rating write does not display the uncommitted new rating",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 3680
+    },
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "a failed edited-recipe write remains dirty and retryable",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 3736
+    },
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "after the fault is removed, an identity edit clears the recipe",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 3645
+    },
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "after the fault is removed, clearing a rating updates the saved recipe and UI",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 3617
+    },
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "a blocked rating save excludes overlapping metadata writes and preserves later pixel edits",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 3854
+    }
+  ]
+}

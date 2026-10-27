@@ -1,0 +1,53 @@
+{
+  "suite": "tt87-backup",
+  "at": "2026-10-27T19:19:46.796Z",
+  "results": [
+    {
+      "suite": "tt87-backup",
+      "name": "TT87 SHA-256 and canonical JSON match independent Node crypto, including Unicode and reordered object keys",
+      "covers": {
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt87-backup",
+      "name": "TT87 checksum covers file bytes, path, MIME, tags, deletion, note fields, timestamp and bundle kind",
+      "covers": {
+        "BK-01": "partial",
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt87-backup",
+      "name": "TT87 refuses at least 15 malformed, unsafe, duplicate and unbounded shapes even when a checksum is recomputed",
+      "covers": {
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 106
+    },
+    {
+      "suite": "tt87-backup",
+      "name": "TT87 base64 size counts decoded bytes, not characters; UTF-8 uses bytes rather than UTF-16 units",
+      "covers": {
+        "BK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt87-backup",
+      "name": "TT87 legacy v1 requires a bijective manifest and explicitly warns of unprotected metadata, notes and settings",
+      "covers": {
+        "BK-01": "partial",
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}

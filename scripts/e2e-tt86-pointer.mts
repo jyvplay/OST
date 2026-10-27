@@ -8,7 +8,8 @@ import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 
 const BASE = process.env.BASE ?? "http://localhost:3999";
-const { test, finish } = makeHarness("e2e-tt86-pointer");
+const forceFallback = process.env.POINTER_EVENT_SOURCE === "pointermove";
+const { test, finish } = makeHarness(forceFallback ? "e2e-tt87-pointer-fallback" : "e2e-tt86-pointer");
 const ok = (condition: unknown, message: string) => { if (!condition) throw new Error(message); };
 const api = async (method: string, path: string, body?: unknown) => {
   const response = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -73,19 +74,35 @@ try {
     state: { ...(current.row?.state ?? {}), windows: [], focus: null, workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, nextZ: 20, viewport: { w: 1440, h: 900 }, icons: [], focusMode: false } });
 
   context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  if (forceFallback) {
+    // Force the feature-detection branch while keeping Chromium's trusted CDP mouse input.
+    // This exercises the fallback implementation in Chromium, not another browser engine.
+    await context.addInitScript(() => {
+      for (let target: object | null = window; target; target = Object.getPrototypeOf(target)) {
+        if (Object.prototype.hasOwnProperty.call(target, "onpointerrawupdate")) Reflect.deleteProperty(target, "onpointerrawupdate");
+      }
+    });
+  }
   page = await context.newPage();
   cdp = await context.newCDPSession(page);
   page.on("pageerror", (error) => pageErrors.push(error.message));
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
   await page.locator('[data-pointer-gesture-surface="classic"]').waitFor({ timeout: 30_000 });
-  await page.waitForTimeout(900);
+  await page.locator('[data-shell-ready="true"]').waitFor({ timeout: 30_000 });
+  await page.waitForTimeout(100);
+  const pointerSource = await page.evaluate(() => "onpointerrawupdate" in window ? "pointerrawupdate" : "pointermove");
+  if (forceFallback && pointerSource !== "pointermove") throw new Error("fallback setup failed: pointerrawupdate is still exposed");
+  console.log(`  pointer event source: ${pointerSource}`);
+  const waitForFrames = () => page!.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 
   await test("SH-06 all four hot corners open their mapped shell panels once per entry", { "SH-06": "full" }, async () => {
     // A reload while the trusted pointer is already inside a corner is not a new entry.
-    await move(cdp!, 700, 450); await move(cdp!, 2, 20); await openPanel(page!, "launcher"); await closePanels(page!);
+    // Separate trusted samples across frames so Chromium cannot coalesce away the initial position.
+    await move(cdp!, 700, 450); await waitForFrames(); await move(cdp!, 2, 20); await openPanel(page!, "launcher"); await closePanels(page!);
     await page!.reload({ waitUntil: "domcontentloaded" });
     await page!.locator('[data-pointer-gesture-surface="classic"]').waitFor({ timeout: 30_000 });
-    await page!.waitForTimeout(450);
+    await page!.locator('[data-shell-ready="true"]').waitFor({ timeout: 30_000 });
+    await waitForFrames();
     await move(cdp!, 3, 20); await move(cdp!, 2, 21); await page!.waitForTimeout(180);
     ok(await page!.locator(panels.launcher).count() === 0, "a pointer already resting in the corner opened the launcher after reload");
     await move(cdp!, 700, 450); await page!.waitForTimeout(80);
@@ -169,14 +186,35 @@ try {
       await putSetting("appearance.desktopView", "classic");
       await page!.reload({ waitUntil: "domcontentloaded" });
       await page!.locator('[data-pointer-gesture-surface="classic"]').waitFor({ timeout: 30_000 });
+      await page!.locator('[data-shell-ready="true"]').waitFor({ timeout: 30_000 });
     }
+  });
+
+  await test("SH-06 an overflowing synthetic frame is dropped without a false action; trusted pointer input re-arms afterward", { "SH-06": "partial" }, async () => {
+    await closePanels(page!);
+    // Confirm the listener is live after the preceding reload, before probing overflow.
+    await move(cdp!, 700, 450); await waitForFrames();
+    await move(cdp!, 2, 20); await openPanel(page!, "launcher"); await closePanels(page!);
+    await page!.evaluate((type) => {
+      for (let i = 0; i < 5000; i++) {
+        const corner = i % 2 === 1;
+        window.dispatchEvent(new PointerEvent(type, { pointerType: "mouse", clientX: corner ? 2 : 700, clientY: corner ? 20 : 450, movementX: 1, movementY: 1 }));
+      }
+    }, pointerSource);
+    // A fixed delay is not a frame barrier: in a throttled tab both trusted samples could
+    // arrive before the overflow frame is drained and intentionally be discarded too.
+    await waitForFrames();
+    ok(await page!.locator("[role=dialog]").count() === 0, "overflowed partial path opened a panel");
+    await move(cdp!, 700, 450); await waitForFrames();
+    await move(cdp!, 2, 20); await openPanel(page!, "launcher"); await closePanels(page!);
   });
 
   await test("SH-06 trigger preference gates corner, edge and drag actions without stealing ordinary shell control clicks", { "SH-06": "full" }, async () => {
     await putSetting("shell.hotCorners", "off");
     await page!.reload({ waitUntil: "domcontentloaded" });
     await page!.locator('[data-pointer-gesture-surface="classic"]').waitFor({ timeout: 30_000 });
-    await page!.waitForTimeout(700);
+    await page!.locator('[data-shell-ready="true"]').waitFor({ timeout: 30_000 });
+    await waitForFrames();
     await move(cdp!, 700, 450); await move(cdp!, 2, 20); await page!.waitForTimeout(180);
     ok(await page!.locator("[role=dialog]").count() === 0, "corner fired with the preference off");
     await move(cdp!, 400, 300); await move(cdp!, 3, 300); await move(cdp!, 21, 300); await page!.waitForTimeout(180);
@@ -207,6 +245,7 @@ try {
       await putSetting("appearance.desktopView", "classic");
       await page!.reload({ waitUntil: "domcontentloaded" });
       await page!.locator('[data-pointer-gesture-surface="classic"]').waitFor({ timeout: 30_000 });
+      await page!.locator('[data-shell-ready="true"]').waitFor({ timeout: 30_000 });
     }
   });
 

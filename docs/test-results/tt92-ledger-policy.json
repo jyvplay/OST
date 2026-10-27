@@ -1,0 +1,20 @@
+{
+  "suite": "tt92-ledger-policy",
+  "at": "2026-10-27T19:22:59.290Z",
+  "results": [
+    {
+      "suite": "tt92-ledger-policy",
+      "name": "full-tagged incomplete rows stay partial; blocked honesty and failed tests are distinguished",
+      "covers": {},
+      "pass": true,
+      "ms": 84
+    },
+    {
+      "suite": "tt92-ledger-policy",
+      "name": "unknown test feature codes fail instead of silently inflating coverage",
+      "covers": {},
+      "pass": true,
+      "ms": 89
+    }
+  ]
+}

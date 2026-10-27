@@ -19,6 +19,32 @@ export const EDGE_FLICK_DISTANCE = 18;
 export const EDGE_FLICK_WINDOW_MS = 600;
 export const MOUSE_GESTURE_MIN_DISTANCE = 36;
 export const MOUSE_GESTURE_AXIS_RATIO = 1.25;
+/** Bound memory when rAF is paused or a pointer produces an unusually large burst. */
+export const MAX_POINTER_SAMPLES_PER_FRAME = 256;
+
+/**
+ * Preserve the path during ordinary frames. If it overflows, discard that entire frame and reset the
+ * recognizer rather than firing from a misleading partial path. The next sample establishes position.
+ */
+export function createPointerSampleQueue() {
+  let pending: PointerSample[] = [];
+  let overflow = false;
+  return {
+    push(sample: PointerSample) {
+      if (overflow) return;
+      if (pending.length >= MAX_POINTER_SAMPLES_PER_FRAME) { pending = []; overflow = true; return; }
+      pending.push(sample);
+    },
+    drain() {
+      const batch = pending;
+      const reset = overflow;
+      pending = []; overflow = false;
+      return { batch, reset };
+    },
+    clear() { pending = []; overflow = false; },
+    get size() { return pending.length; },
+  };
+}
 
 const EDGE_CORNER_GUARD = HOT_CORNER_HEIGHT;
 

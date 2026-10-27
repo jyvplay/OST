@@ -1,0 +1,16 @@
+KILLED M1: skip write owner guard
+KILLED M2: skip purge owner guard
+KILLED M3: ignore photo identity
+KILLED M4: ignore photo version
+KILLED M5: trust an unverified stored digest
+KILLED M6: browser omits owner guard
+KILLED M7: silence a failed recipe clear
+KILLED M8: unlocked privacy layer strips guard
+KILLED M9: hide a queue quota failure
+KILLED M10: misreport a failed dequeue as completed
+KILLED M11: strip the owner during offline queueing
+KILLED M12: allow two tabs to replay the same queue
+KILLED M13: drop writes queued during replay
+KILLED M14: replace a corrupt queue with an empty one
+KILLED M15: remove a newly changed head after replay
+Mutants: 15/15 killed

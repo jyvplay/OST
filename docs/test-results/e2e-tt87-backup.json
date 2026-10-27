@@ -1,0 +1,64 @@
+{
+  "suite": "e2e-tt87-backup",
+  "at": "2026-10-27T19:19:56.960Z",
+  "results": [
+    {
+      "suite": "e2e-tt87-backup",
+      "name": "BK-03 UI builds a settings-only snapshot, verifies it and downloads both plaintext and authenticated encrypted files",
+      "covers": {
+        "BK-03": "full",
+        "BK-06": "partial"
+      },
+      "pass": true,
+      "ms": 3102
+    },
+    {
+      "suite": "e2e-tt87-backup",
+      "name": "BK-03 wrong passphrase, ciphertext mutation and plain checksum tampering are refused before any restore request",
+      "covers": {
+        "BK-03": "full",
+        "BK-06": "partial"
+      },
+      "pass": true,
+      "ms": 507
+    },
+    {
+      "suite": "e2e-tt87-backup",
+      "name": "BK-03 encrypted UI restore previews, can cancel, applies settings live in two tabs and never posts the passphrase",
+      "covers": {
+        "BK-03": "full",
+        "BK-06": "partial"
+      },
+      "pass": true,
+      "ms": 2716
+    },
+    {
+      "suite": "e2e-tt87-backup",
+      "name": "BK-03 stale preview is refused visibly; the concurrently changed value is kept",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 808
+    },
+    {
+      "suite": "e2e-tt87-backup",
+      "name": "BK-03 backup controls have a keyboard-accessible chooser and no serious or critical axe violations",
+      "covers": {
+        "BK-03": "partial",
+        "AX-01": "partial"
+      },
+      "pass": true,
+      "ms": 506
+    },
+    {
+      "suite": "e2e-tt87-backup",
+      "name": "TT87 browser session has no uncaught page errors",
+      "covers": {
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

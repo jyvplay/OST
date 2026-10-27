@@ -1,0 +1,162 @@
+{
+  "suite": "tt95-photo-mutants",
+  "at": "2026-10-27T19:40:47.851721+00:00",
+  "results": [
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "omit recipe update check",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a stale update refuses a later edit and leaves its current row, history and index intact\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: a stale update refuses a later edit and leaves its current row, history and index intact\n",
+      "ms": 5472
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "omit recipe clear check",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a stale clear cannot purge newer edits or their history\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: a stale clear cannot purge newer edits or their history\n",
+      "ms": 5356
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "ignore recipe identity",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a recreated recipe with identical bytes is not the original row\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: a recreated recipe with identical bytes is not the original row\n",
+      "ms": 5376
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "ignore recipe version",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a same-byte rewrite is still a new recipe version\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: a same-byte rewrite is still a new recipe version\n",
+      "ms": 5439
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "trust the stored recipe digest",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a corrupt sidecar digest is not silently replaced\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: a corrupt sidecar digest is not silently replaced\n",
+      "ms": 5365
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "remove atomic absent creation",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an uncommitted competing insert cannot be overwritten by an absent-recipe save\n    Expected values to be strictly equal:\n\n400 !== 409\n\n\n0 passed, 1 failed\nFAILED: an uncommitted competing insert cannot be overwritten by an absent-recipe save\n",
+      "ms": 5283
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "browser omits recipe precondition",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 two open editors cannot silently overwrite the first saved recipe\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: two open editors cannot silently overwrite the first saved recipe\n",
+      "ms": 29074
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "browser fails to advance its token",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 one editor can save successive edits and then clear the recipe\n    Expected values to be strictly equal:\n\n409 !== 200\n\n\n0 passed, 1 failed\nFAILED: one editor can save successive edits and then clear the recipe\n",
+      "ms": 20531
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "treat corrupt recipe as absent",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a corrupt recipe is reported rather than opened as the original\n    locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for getByText('Photo recipe is unreadable or invalid; it was not opened for editing.', { exact: true }) to be visible\n\n\n0 passed, 1 failed\nFAILED: a corrupt recipe is reported rather than opened as the original\n",
+      "ms": 23994
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "treat a failed recipe read as absent",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an injected read failure is not mistaken for an absent recipe\n    locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for getByText('Photo recipe could not be read; it was not opened for editing.', { exact: true }) to be visible\n\n\n0 passed, 1 failed\nFAILED: an injected read failure is not mistaken for an absent recipe\n",
+      "ms": 24563
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "privacy wrapper drops the host guard",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes\n    host forwarding must retain the recipe precondition\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes\n",
+      "ms": 6724
+    },
+    {
+      "suite": "tt95-photo-mutants",
+      "name": "offline queue drops the recipe guard",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a queued stale recipe is rejected on reconnect and retained for the user\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ undefined\n- {\n-   id: 2785,\n-   sha256: '5460d9b47588894d1866b5c0980c343864f2afbbb544c8b325909da98cbdf543',\n-   version: 1\n- }\n\n\n0 passed, 1 failed\nFAILED: a queued stale recipe is rejected on reconnect and retained for the user\n",
+      "ms": 21791
+    }
+  ]
+}

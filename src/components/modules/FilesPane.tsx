@@ -183,16 +183,32 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
   // FM-09 / DP-03: writes still in the offline queue for this folder, not yet on the server
   const ghosts = useMemo(() => (showTrash || deepMode ? [] : queued.filter((q) => parentPath(q.path) === cwd && !nodes.some((n) => n.path === q.path))), [queued, cwd, nodes, showTrash, deepMode]);
 
-  // background folder sizes for the visible folders (and the selection total)
+  // Ordinary folder sizes exclude trash. In Trash, aggregate the already-fetched
+  // trashed rows instead, so a deleted folder is not misleadingly shown as 0 B.
+  const trashSizes = useMemo(() => {
+    const totals = new Map<string, { tick: number; bytes: number; files: number; dirs: number }>();
+    if (!showTrash) return totals;
+    for (const n of nodes) if (n.kind === "dir") totals.set(n.path, { tick, bytes: 0, files: 0, dirs: 0 });
+    for (const n of nodes) {
+      let parent = parentPath(n.path);
+      while (parent !== "/") {
+        const total = totals.get(parent);
+        if (total) { if (n.kind === "file") { total.bytes += n.size; total.files += 1; } else if (n.kind === "dir") total.dirs += 1; }
+        parent = parentPath(parent);
+      }
+    }
+    return totals;
+  }, [nodes, showTrash, tick]);
   useEffect(() => {
+    if (showTrash) return;
     const dirs = shown.filter((n) => n.kind === "dir").slice(0, 60).map((n) => n.path);
     let live = true;
     for (const d of dirs) void folderSize(d, tick).then(() => { if (live) setSizes((x) => x + 1); }).catch(() => undefined);
     return () => { live = false; };
-  }, [shown, tick]);
-  const sizeOf = (n: FNode) => (n.kind === "dir" ? sizeCache.get(n.path) : undefined);
-  const selectedBytes = selNodes.reduce((a, n) => a + (n.kind === "dir" ? (sizeCache.get(n.path)?.tick === tick ? sizeCache.get(n.path)!.bytes : 0) : n.size), 0);
-  const selSizePending = selNodes.some((n) => n.kind === "dir" && sizeCache.get(n.path)?.tick !== tick);
+  }, [shown, tick, showTrash]);
+  const sizeOf = (n: FNode) => (n.kind === "dir" ? (showTrash ? trashSizes.get(n.path) : sizeCache.get(n.path)) : undefined);
+  const selectedBytes = selNodes.reduce((a, n) => a + (n.kind === "dir" ? (sizeOf(n)?.tick === tick ? sizeOf(n)!.bytes : 0) : n.size), 0);
+  const selSizePending = selNodes.some((n) => n.kind === "dir" && sizeOf(n)?.tick !== tick);
   void sizes;
 
   const edited = useMemo(() => new Set(nodes.map((n) => photoOfSidecar(n.path)).filter((p): p is string => !!p)), [nodes]);
@@ -260,7 +276,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
   const restorePaths = (paths: string[]) => run("restore", async () => { for (const p of paths) await post("/api/fs", { op: "restore", path: p }); });
   const purgePaths = async (paths: string[]) => {
     const ok = await askText(`Permanently delete ${paths.length} item(s)?`, "", {
-      okLabel: "Delete permanently", detail: "This cannot be undone. Type delete to confirm.",
+      okLabel: "Delete permanently", detail: "Removes these Fusion files, saved versions and search entries from the current database. Backups, database logs, replicas and disk remnants may remain; this is not secure erasure. Type delete to confirm.",
       validate: (v) => (v.trim().toLowerCase() === "delete" ? null : "Type delete to confirm."),
     });
     if (ok !== null) void run("purge", async () => { for (const p of paths) await post("/api/fs", { op: "purge", path: p }); });
@@ -535,7 +551,8 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
   };
   const sizeTitle = (n: FNode) => {
     const c = sizeOf(n);
-    return n.kind === "dir" ? (c && c.tick === tick ? `${c.files} file(s) · ${c.dirs} folder(s) · ${fmtBytes(c.bytes)}` : "calculating…") : `${n.size} bytes`;
+    const sizeNote = showTrash && isPrivatePath(n.path) ? " · stored size may include encryption overhead" : "";
+    return n.kind === "dir" ? (c && c.tick === tick ? `${c.files} file(s) · ${c.dirs} folder(s) · ${fmtBytes(c.bytes)}${sizeNote}` : "calculating…") : `${n.size} bytes${sizeNote}`;
   };
   const focusPath = selNow.focus ?? selNow.paths[0] ?? shown[0]?.path;
   const clickRow = (e: RMouseEvent, n: FNode) => { onActivate(); setSel(clickSelect(selNow, order, n.path, { ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey })); };
@@ -569,8 +586,8 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
         {view === "grid" && n.kind !== "dir" && !showTrash
           ? <Thumb node={n} size={fz(72)} iconSize={34} hasSidecar={edited.has(n.path)} />
           : <FileIcon name={n.name} kind={n.kind === "dir" ? "dir" : "file"} size={view === "grid" ? 34 : 18} />}
-        <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: fz(12) }} title={deepMode ? n.path : n.name}>
-          {n.name}{deepMode ? <span className="fs-dim" style={{ fontSize: fz(11) }}> — {parentPath(n.path)}</span> : null}
+        <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: fz(12) }} title={deepMode || showTrash ? n.path : n.name}>
+          {n.name}{deepMode || showTrash ? <span className="fs-dim" style={{ fontSize: fz(11) }}> — {parentPath(n.path)}</span> : null}
         </span>
         {view !== "grid" ? (
           <>
@@ -578,7 +595,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
             {n.tags ? <Badge>{n.tags}</Badge> : null}
             <span className="fs-dim" data-size={n.kind === "dir" ? (sizeOf(n)?.tick === tick ? sizeOf(n)!.bytes : "pending") : n.size} title={sizeTitle(n)}
               style={{ fontSize: fz(11), width: fz(70), textAlign: "right", flex: "none" }}>{sizeLabel(n)}</span>
-            <span className="fs-dim" style={{ fontSize: fz(11), width: fz(112), textAlign: "right", flex: "none" }}>{fmtTime(n.updatedAt)}</span>
+            <span className="fs-dim" title={showTrash ? "Recorded when moved to Trash (not the original modification time)" : "Last modified"} style={{ fontSize: fz(11), width: fz(112), textAlign: "right", flex: "none" }}>{fmtTime(n.updatedAt)}</span>
             <Badge tone={o.tone ?? "default"} title={o.title} data-origin={o.label}>{o.label}</Badge>
           </>
         ) : null}
@@ -743,12 +760,13 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
           onClick={(e) => { if (e.target === e.currentTarget) { setSel(emptySel()); e.currentTarget.focus(); } }}>
           {view === "column" && !showTrash && !deepMode ? columnView : (
             <>
+              {showTrash ? <div data-testid="trash-retention" className="fs-dim" style={{ fontSize: fz(11), padding: "4px 8px" }}>Items stay in Trash until restored or permanently deleted. Regular backups do not include Trash; permanent deletion does not erase copies or database logs.</div> : null}
               {nothing ? <Empty title={showTrash ? "Trash is empty" : deepMode ? (deepHits?.q === filter.trim() ? "No matches in this folder or below" : "Searching…") : "Empty folder"} icon="🗂"
                 hint={showTrash || deepMode ? undefined : "Create a file, upload one, drop files here, or run `write` in the terminal."} /> : null}
               {deepMode && deepHits?.truncated ? <Badge tone="warn">Showing the first 200 matches — refine the search</Badge> : null}
               {view === "list" && !deepMode && shown.length > 1 ? (
                 <div className="fs-row" data-testid="files-sort" style={{ gap: 8, padding: "0 8px 2px 34px", flexWrap: "nowrap" }}>
-                  {sortBtn("name", "Name")}{sortBtn("size", "Size", 70)}{sortBtn("date", "Modified", 112)}<span style={{ width: fz(56), flex: "none" }} />
+                  {sortBtn("name", "Name")}{sortBtn("size", "Size", 70)}{sortBtn("date", showTrash ? "Trashed" : "Modified", 112)}<span style={{ width: fz(56), flex: "none" }} />
                 </div>
               ) : null}
               {listing}

@@ -18,7 +18,7 @@ import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPack
 import * as M from "@/lib/office/pml";
 import { findSlideText, replaceSlideText } from "@/lib/office/pmlsearch";
 import { deckToMarkdown, deckToText } from "@/lib/office/convert-slides";
-import { askForm, isAskOpen } from "@/lib/ask";
+import { askForm, holdModal, isAskOpen } from "@/lib/ask";
 import { lossDetail, downloadAs } from "@/lib/office/export-ask";
 import { slideView, type VSlide } from "@/lib/office/pmlview";
 import { SlideCanvas } from "./slides/render";
@@ -66,6 +66,12 @@ export default function SlidesModule({ win }: ModuleProps) {
   const [showT0, setShowT0] = useState(0);
   const [stageW, setStageW] = useState(720);
   const stageRef = useRef<HTMLDivElement>(null); const taRef = useRef<HTMLTextAreaElement>(null); const rootRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (!pop) return;
+    const release = holdModal(); // stop shell-wide shortcuts even if focus leaves this dialog
+    const editor = rootRef.current;
+    return () => { release(); if (editor?.isConnected) editor.focus(); };
+  }, [pop]);
   const [notesEdit, setNotesEdit] = useState<{ k: string; t: string } | null>(null);
   const [doc, setDoc] = useState<M.PptxDoc | null>(null); // same object as docRef (mutated in place; `ver` re-renders)
   const [hist, setHist] = useState({ u: 0, r: 0 });
@@ -544,7 +550,18 @@ export default function SlidesModule({ win }: ModuleProps) {
       </div>
       {/* ---------- modal: save as ---------- */}
       {pop === "saveas" ? (
-        <div role="dialog" aria-modal="true" aria-label="Save as" onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Escape") setPop(null); }} style={{ position: "absolute", inset: 0, background: "rgba(15,23,42,.35)", display: "grid", placeItems: "center", zIndex: 20 }}>
+        <div role="dialog" aria-modal="true" aria-label="Save as" onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === "Escape") { e.preventDefault(); setPop(null); return; }
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") e.preventDefault();
+          if (e.key === "Tab") {
+            const items = [...e.currentTarget.querySelectorAll<HTMLElement>("input:not([disabled]), button:not([disabled])")];
+            if (!items.length) return;
+            const i = items.indexOf(document.activeElement as HTMLElement);
+            const next = e.shiftKey ? (i <= 0 ? items.length - 1 : i - 1) : (i === items.length - 1 ? 0 : i + 1);
+            e.preventDefault(); items[next].focus();
+          }
+        }} style={{ position: "absolute", inset: 0, background: "rgba(15,23,42,.35)", display: "grid", placeItems: "center", zIndex: 20 }}>
           <form className="fs-panel" style={{ padding: 14, display: "grid", gap: 8, minWidth: 340 }} onSubmit={(e) => { e.preventDefault(); let d = popVal.trim(); if (!d) return; if (!d.toLowerCase().endsWith(".pptx")) d += ".pptx"; setPop(null); void saveTo(d); }}>
             <label style={{ display: "grid", gap: 4, fontSize: fz(13) }}>Save presentation as<input autoFocus className="fs-input" aria-label="File path" value={popVal} onChange={(e) => setPopVal(e.target.value)} /></label>
             <div className="fs-row" style={{ gap: 6, justifyContent: "flex-end" }}><Btn variant="ghost" onClick={() => setPop(null)}>Cancel</Btn><Btn variant="primary" type="submit">Save</Btn></div>

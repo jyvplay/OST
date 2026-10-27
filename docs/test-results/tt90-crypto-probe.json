@@ -1,0 +1,15 @@
+{
+  "suite": "tt90-crypto-probe",
+  "at": "2026-10-27T17:21:35.626Z",
+  "results": [
+    {
+      "suite": "tt90-crypto-probe",
+      "name": "real Chromium raw AES-GCM and copies, each authenticated and read back (diagnostic, not a performance gate)",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 2381
+    }
+  ]
+}

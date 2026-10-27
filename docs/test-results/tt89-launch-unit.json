@@ -1,0 +1,62 @@
+{
+  "suite": "tt89-launch-unit",
+  "at": "2026-10-27T19:20:40.477Z",
+  "results": [
+    {
+      "suite": "tt89-launch-unit",
+      "name": "protocol accepts only the documented, known app intent",
+      "covers": {
+        "SH-13": "partial",
+        "AU-03": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt89-launch-unit",
+      "name": "existing-window URL is same-origin, root-only, one bounded module parameter",
+      "covers": {
+        "SH-13": "partial",
+        "AU-03": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt89-launch-unit",
+      "name": "strict UTF-8 text, BOM and MIME are preserved independent of the claimed file type",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt89-launch-unit",
+      "name": "invalid filenames, prototype extensions, control characters and unsupported types fail",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt89-launch-unit",
+      "name": "malformed UTF-8, embedded NUL and oversized files are rejected",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt89-launch-unit",
+      "name": "server import refuses an uninstalled privacy guard",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

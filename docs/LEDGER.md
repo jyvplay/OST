@@ -1,29 +1,33 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-27T01:39:56.272Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-209 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-27T19:53:03.423Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
+274 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
+Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
+Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
+See each suite timestamp and the latest turn report for current tests, known classification errors and earlier failures.
 
 ## Headline
 
 | | Count |
 |---|---:|
 | **Features in register** | **414** |
-| Fully built | 344 |
-| Partially built (partial 31 + probe 18) | 49 |
-| Not buildable on this platform (blocked, reason rendered in UI) | 21 |
+| Fully built | 334 |
+| Partially built (partial 38 + probe 18) | 56 |
+| Not buildable on this platform (blocked, reason rendered in UI) | 24 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **269** |
-| **Partially tested** (only `partial` tags) | **70** |
-| Untested | 75 |
-| Automated tests executed / passed | 1679 / 1678 |
+| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **259** |
+| **Partially tested** (partial tags or an incomplete row with passing evidence) | **82** |
+| Untested | 73 |
+| Recorded test cases / passed (mixed run dates) | 2105 / 2104 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 260 | 60 | 24 |
-| partially built | 3 | 8 | 38 |
-| blocked | 6 | 2 | 13 |
+| fully built | 253 | 57 | 24 |
+| partially built | 0 | 23 | 33 |
+| blocked | 6 | 2 | 16 |
 | skeleton | 0 | 0 | 0 |
 
 "Blocked + fully tested" means a test asserts that the UI renders the platform-impossibility reason — it
@@ -37,7 +41,7 @@ verifies the honesty contract, not the (impossible) capability.
 | ai-format | 5 | 5 | 0 | 2026-10-26T19:56:53.407Z |
 | browser-session | 5 | 5 | 0 | 2026-10-25T22:09:27.537Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-26T19:56:53.680Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-26T23:32:19.452Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-27T19:18:35.695Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
 | e2e-browser | 6 | 6 | 0 | 2026-10-25T22:13:45.088Z |
@@ -46,10 +50,10 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-layout | 12 | 12 | 0 | 2026-10-26T13:06:52.259Z |
 | e2e-media27 | 7 | 7 | 0 | 2026-10-25T22:23:42.055Z |
 | e2e-office | 11 | 11 | 0 | 2026-10-25T22:11:51.858Z |
-| e2e-privacy | 14 | 14 | 0 | 2026-10-26T08:44:34.982Z |
+| e2e-privacy | 16 | 15 | 1 | 2026-10-27T19:25:15.655Z |
 | e2e-sheet-layout | 7 | 7 | 0 | 2026-10-25T22:14:54.291Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-26T13:12:19.850Z |
-| e2e-tabletop | 15 | 15 | 0 | 2026-10-26T16:10:55.525Z |
+| e2e-tabletop | 15 | 15 | 0 | 2026-10-27T19:11:53.633Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -57,7 +61,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt32 | 6 | 6 | 0 | 2026-10-25T22:31:14.935Z |
 | e2e-tt33 | 4 | 4 | 0 | 2026-10-25T22:31:27.284Z |
 | e2e-tt34 | 5 | 5 | 0 | 2026-10-25T22:32:28.251Z |
-| e2e-tt35 | 7 | 6 | 1 | 2026-10-27T01:24:47.044Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-27T19:19:01.501Z |
 | e2e-tt36 | 3 | 3 | 0 | 2026-10-25T22:33:16.751Z |
 | e2e-tt37 | 5 | 5 | 0 | 2026-10-25T22:33:42.448Z |
 | e2e-tt38 | 7 | 7 | 0 | 2026-10-25T22:37:21.872Z |
@@ -78,9 +82,9 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt51-slides | 6 | 6 | 0 | 2026-10-26T15:55:38.896Z |
 | e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-26T11:53:35.201Z |
 | e2e-tt53-media | 6 | 6 | 0 | 2026-10-25T22:54:02.467Z |
-| e2e-tt54 | 8 | 8 | 0 | 2026-10-25T22:54:49.877Z |
-| e2e-tt55-files | 13 | 13 | 0 | 2026-10-26T11:56:25.498Z |
-| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-27T01:14:40.511Z |
+| e2e-tt54 | 8 | 8 | 0 | 2026-10-27T19:36:40.457Z |
+| e2e-tt55-files | 13 | 13 | 0 | 2026-10-27T19:12:45.937Z |
+| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-27T19:12:59.499Z |
 | e2e-tt56-rows | 7 | 7 | 0 | 2026-10-25T22:56:48.364Z |
 | e2e-tt56 | 10 | 10 | 0 | 2026-10-25T22:56:31.173Z |
 | e2e-tt57-rows | 4 | 4 | 0 | 2026-10-25T22:58:21.446Z |
@@ -88,7 +92,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt58-rows | 3 | 3 | 0 | 2026-10-25T22:59:50.319Z |
 | e2e-tt58 | 3 | 3 | 0 | 2026-10-25T22:59:03.915Z |
 | e2e-tt59 | 4 | 4 | 0 | 2026-10-25T23:01:05.251Z |
-| e2e-tt60 | 5 | 5 | 0 | 2026-10-25T23:01:31.346Z |
+| e2e-tt60 | 5 | 5 | 0 | 2026-10-27T07:24:43.224Z |
 | e2e-tt61 | 4 | 4 | 0 | 2026-10-25T23:02:34.079Z |
 | e2e-tt62 | 3 | 3 | 0 | 2026-10-25T23:02:40.962Z |
 | e2e-tt63 | 2 | 2 | 0 | 2026-10-25T23:03:03.639Z |
@@ -96,7 +100,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt65 | 2 | 2 | 0 | 2026-10-25T23:04:36.945Z |
 | e2e-tt66-input | 4 | 4 | 0 | 2026-10-25T23:05:07.250Z |
 | e2e-tt66 | 3 | 3 | 0 | 2026-10-25T23:04:53.733Z |
-| e2e-tt67-input | 5 | 5 | 0 | 2026-10-27T01:10:52.472Z |
+| e2e-tt67-input | 5 | 5 | 0 | 2026-10-27T19:13:38.340Z |
 | e2e-tt68-sheet | 3 | 3 | 0 | 2026-10-25T23:09:33.883Z |
 | e2e-tt69-lifecycle | 6 | 6 | 0 | 2026-10-25T23:10:09.579Z |
 | e2e-tt70-closeall | 3 | 3 | 0 | 2026-10-25T23:11:22.407Z |
@@ -114,14 +118,33 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt78-sheet | 3 | 3 | 0 | 2026-10-26T11:55:23.062Z |
 | e2e-tt79-archive | 7 | 7 | 0 | 2026-10-26T13:07:47.830Z |
 | e2e-tt79-pdf | 5 | 5 | 0 | 2026-10-26T15:55:00.602Z |
-| e2e-tt81 | 7 | 7 | 0 | 2026-10-27T01:12:57.809Z |
-| e2e-tt85 | 3 | 3 | 0 | 2026-10-27T00:33:16.208Z |
-| e2e-tt86-pointer | 5 | 5 | 0 | 2026-10-27T01:39:36.081Z |
+| e2e-tt81 | 7 | 7 | 0 | 2026-10-27T19:52:47.285Z |
+| e2e-tt85 | 3 | 3 | 0 | 2026-10-27T07:26:10.093Z |
+| e2e-tt86-pointer | 6 | 6 | 0 | 2026-10-27T19:19:23.099Z |
+| e2e-tt87-backup | 6 | 6 | 0 | 2026-10-27T19:19:56.960Z |
+| e2e-tt87-localdisk | 5 | 5 | 0 | 2026-10-27T19:20:03.858Z |
+| e2e-tt87-pointer-fallback | 6 | 6 | 0 | 2026-10-27T19:19:45.326Z |
+| e2e-tt87-privacy | 3 | 3 | 0 | 2026-10-27T19:20:07.603Z |
+| e2e-tt88-recovery | 6 | 6 | 0 | 2026-10-27T19:20:17.980Z |
+| e2e-tt89-drill | 9 | 9 | 0 | 2026-10-27T19:20:39.667Z |
+| e2e-tt89-launch | 9 | 9 | 0 | 2026-10-27T19:21:03.686Z |
+| e2e-tt90-context | 8 | 8 | 0 | 2026-10-27T19:21:37.895Z |
+| e2e-tt90-private-thumbnails | 5 | 5 | 0 | 2026-10-27T19:22:35.556Z |
+| e2e-tt90-thumbnails | 5 | 5 | 0 | 2026-10-27T19:22:23.127Z |
+| e2e-tt91-browser-download | 7 | 7 | 0 | 2026-10-27T19:22:52.952Z |
+| e2e-tt91-purge | 2 | 2 | 0 | 2026-10-27T19:22:43.305Z |
+| e2e-tt92-trash | 2 | 2 | 0 | 2026-10-27T19:22:58.770Z |
+| e2e-tt93-photos-clear | 7 | 7 | 0 | 2026-10-27T19:50:15.897Z |
+| e2e-tt93-sidecar | 2 | 2 | 0 | 2026-10-27T19:23:08.880Z |
+| e2e-tt94-offline-race | 3 | 3 | 0 | 2026-10-27T19:51:22.924Z |
+| e2e-tt94-photo-stale | 2 | 2 | 0 | 2026-10-27T19:34:06.237Z |
+| e2e-tt94-photos-offline | 6 | 6 | 0 | 2026-10-27T19:50:46.641Z |
+| e2e-tt95-photo-concurrency | 7 | 7 | 0 | 2026-10-27T19:49:38.568Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-26T13:09:31.262Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 65 | 65 | 0 | 2026-10-25T22:11:26.549Z |
 | image | 16 | 16 | 0 | 2026-10-26T19:56:46.644Z |
-| integration | 25 | 25 | 0 | 2026-10-26T20:53:22.659Z |
+| integration | 25 | 25 | 0 | 2026-10-27T19:37:11.424Z |
 | layout-unit | 8 | 8 | 0 | 2026-10-26T19:56:47.116Z |
 | maps-unit | 6 | 6 | 0 | 2026-10-26T19:56:51.803Z |
 | metaclean | 6 | 6 | 0 | 2026-10-25T22:09:33.756Z |
@@ -133,13 +156,13 @@ verifies the honesty contract, not the (impossible) capability.
 | oracle-vcard | 3 | 3 | 0 | 2026-10-25T22:09:39.517Z |
 | oracle-xlsx | 5 | 5 | 0 | 2026-10-26T07:49:36.705Z |
 | oracle | 5 | 5 | 0 | 2026-10-26T07:49:34.818Z |
-| privacy-backup | 7 | 7 | 0 | 2026-10-25T22:09:36.309Z |
-| privacy-crypto | 9 | 9 | 0 | 2026-10-25T22:09:30.982Z |
-| privacy-layer | 11 | 11 | 0 | 2026-10-25T22:09:32.425Z |
+| privacy-backup | 7 | 7 | 0 | 2026-10-27T19:24:49.206Z |
+| privacy-crypto | 9 | 9 | 0 | 2026-10-27T19:24:43.342Z |
+| privacy-layer | 13 | 13 | 0 | 2026-10-27T19:51:36.860Z |
 | sheet-layout | 6 | 6 | 0 | 2026-10-26T19:56:54.052Z |
 | stream-unit | 7 | 7 | 0 | 2026-10-26T19:56:51.977Z |
 | tables-engine | 9 | 9 | 0 | 2026-10-26T19:56:45.588Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-25T22:09:40.026Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-27T19:10:14.002Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-26T19:56:54.287Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-26T19:56:54.943Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -176,7 +199,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt52-pdf | 28 | 28 | 0 | 2026-10-25T22:52:51.701Z |
 | tt53-media | 11 | 11 | 0 | 2026-10-25T22:53:46.642Z |
 | tt54-meta | 6 | 6 | 0 | 2026-10-25T22:54:14.390Z |
-| tt55-files-unit | 7 | 7 | 0 | 2026-10-26T19:56:56.301Z |
+| tt55-files-unit | 7 | 7 | 0 | 2026-10-27T19:11:54.201Z |
 | tt56-sheet-paste | 4 | 4 | 0 | 2026-10-26T19:56:57.046Z |
 | tt56-shell-unit | 4 | 4 | 0 | 2026-10-26T19:56:56.670Z |
 | tt56-writer-track | 6 | 6 | 0 | 2026-10-25T22:55:59.908Z |
@@ -206,7 +229,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt65-writer-stories | 8 | 8 | 0 | 2026-10-25T23:04:29.920Z |
 | tt66-input | 2 | 2 | 0 | 2026-10-26T19:56:57.441Z |
 | tt66-sheet-x14-patch | 9 | 9 | 0 | 2026-10-25T23:04:40.554Z |
-| tt67-input | 11 | 11 | 0 | 2026-10-27T01:11:59.348Z |
+| tt67-input | 11 | 11 | 0 | 2026-10-27T19:13:01.522Z |
 | tt67-sheet-ns | 13 | 13 | 0 | 2026-10-26T08:11:31.185Z |
 | tt68-blank | 8 | 8 | 0 | 2026-10-25T23:09:25.727Z |
 | tt69-lifecycle | 11 | 11 | 0 | 2026-10-25T23:09:34.656Z |
@@ -237,7 +260,53 @@ verifies the honesty contract, not the (impossible) capability.
 | tt85-find | 4 | 4 | 0 | 2026-10-27T00:31:18.229Z |
 | tt85-identity | 5 | 5 | 0 | 2026-10-27T00:31:17.511Z |
 | tt85-inventory | 4 | 4 | 0 | 2026-10-27T00:31:16.968Z |
-| tt86-pointer | 3 | 3 | 0 | 2026-10-27T01:39:13.788Z |
+| tt86-pointer | 3 | 3 | 0 | 2026-10-27T19:19:01.704Z |
+| tt87-backup-http | 8 | 8 | 0 | 2026-10-27T19:19:47.905Z |
+| tt87-backup | 5 | 5 | 0 | 2026-10-27T19:19:46.796Z |
+| tt87-pointer-queue | 2 | 2 | 0 | 2026-10-27T19:19:23.289Z |
+| tt87-transaction | 5 | 5 | 0 | 2026-10-27T19:19:46.411Z |
+| tt88-recovery | 9 | 9 | 0 | 2026-10-27T19:20:10.632Z |
+| tt89-drill-db | 13 | 13 | 0 | 2026-10-27T19:20:21.070Z |
+| tt89-drill-health | 7 | 7 | 0 | 2026-10-27T19:20:18.852Z |
+| tt89-drill-http | 9 | 9 | 0 | 2026-10-27T19:20:21.661Z |
+| tt89-launch-mutants | 12 | 12 | 0 | 2026-10-27T05:26:22.287153+00:00 |
+| tt89-launch-unit | 6 | 6 | 0 | 2026-10-27T19:20:40.477Z |
+| tt89-mutants | 13 | 13 | 0 | 2026-10-27T05:27:16.194555+00:00 |
+| tt89-test-safety | 4 | 4 | 0 | 2026-10-27T19:51:56.914Z |
+| tt90-context-unit | 4 | 4 | 0 | 2026-10-27T19:21:04.028Z |
+| tt90-crypto-probe | 1 | 1 | 0 | 2026-10-27T17:21:35.626Z |
+| tt90-modal-mutant | 2 | 2 | 0 | 2026-10-27T19:48:18.798352+00:00 |
+| tt90-mutants | 15 | 15 | 0 | 2026-10-27T06:33:22.657077+00:00 |
+| tt90-private-thumb-path | 1 | 1 | 0 | 2026-10-27T19:21:38.570Z |
+| tt90-worker-pool | 9 | 9 | 0 | 2026-10-27T19:21:38.270Z |
+| tt91-browser-download | 10 | 10 | 0 | 2026-10-27T19:22:43.782Z |
+| tt91-download-mutants | 10 | 10 | 0 | 2026-10-27T13:58:50.777249+00:00 |
+| tt91-purge-mutants | 4 | 4 | 0 | 2026-10-27T13:56:45.169085+00:00 |
+| tt91-purge-race-mutants | 3 | 3 | 0 | 2026-10-27T13:56:48.374454+00:00 |
+| tt91-purge-race | 4 | 4 | 0 | 2026-10-27T19:22:37.766Z |
+| tt91-purge | 5 | 5 | 0 | 2026-10-27T19:22:37.031Z |
+| tt91-race-mutants | 4 | 4 | 0 | 2026-10-27T13:57:06.155168+00:00 |
+| tt91-thumbnail-cleanup-race | 6 | 6 | 0 | 2026-10-27T19:22:36.539Z |
+| tt91-write-atomic | 2 | 2 | 0 | 2026-10-27T19:22:38.069Z |
+| tt91-write-mutants | 2 | 2 | 0 | 2026-10-27T16:00:14.746222+00:00 |
+| tt92-ledger-audit | 7 | 7 | 0 | 2026-10-27T19:22:58.953Z |
+| tt92-ledger-policy | 2 | 2 | 0 | 2026-10-27T19:22:59.290Z |
+| tt92-privacy-perf | 1 | 1 | 0 | 2026-10-27T16:27:53.119Z |
+| tt92-trash-mutants | 13 | 13 | 0 | 2026-10-27T16:01:17.863627+00:00 |
+| tt92-trash-race | 6 | 6 | 0 | 2026-10-27T19:22:54.816Z |
+| tt92-trash | 11 | 11 | 0 | 2026-10-27T19:22:53.812Z |
+| tt93-metadata-race | 4 | 4 | 0 | 2026-10-27T19:23:03.341Z |
+| tt93-restore-race | 3 | 3 | 0 | 2026-10-27T19:23:02.677Z |
+| tt93-transfer-mutants | 16 | 16 | 0 | 2026-10-27T15:59:35.182554+00:00 |
+| tt93-transfer-race | 5 | 5 | 0 | 2026-10-27T19:36:44.407Z |
+| tt93-transfer | 17 | 17 | 0 | 2026-10-27T19:36:43.241Z |
+| tt94-photo-guard-race | 2 | 2 | 0 | 2026-10-27T19:49:46.401Z |
+| tt94-photo-guard | 12 | 12 | 0 | 2026-10-27T19:49:45.699Z |
+| tt94-photo-mutants | 15 | 15 | 0 | 2026-10-27T19:47:59.101342+00:00 |
+| tt95-calculator-audit | 4 | 4 | 0 | 2026-10-27T19:49:44.162Z |
+| tt95-photo-concurrency | 13 | 13 | 0 | 2026-10-27T19:48:32.281Z |
+| tt95-photo-mutants | 12 | 12 | 0 | 2026-10-27T19:40:47.851721+00:00 |
+| tt95-photo-race | 3 | 3 | 0 | 2026-10-27T19:48:33.219Z |
 | unit | 23 | 23 | 0 | 2026-10-26T20:45:47.647Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-26T20:02:11.245Z |
 | vector | 18 | 18 | 0 | 2026-10-26T19:56:45.937Z |
@@ -245,33 +314,32 @@ verifies the honesty contract, not the (impossible) capability.
 
 ## Rows touched by FAILING tests (not counted as tested)
 
-- WP-01: e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted
-- WP-03: e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted
+- SC-10: e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end
 
 ## By family
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| SH | 15 | 13 | 2 | 0 | 9 | 3 | 3 |
+| SH | 15 | 12 | 3 | 0 | 8 | 4 | 3 |
 | WM | 19 | 14 | 4 | 1 | 7 | 4 | 8 |
-| IN | 8 | 5 | 3 | 0 | 4 | 1 | 3 |
+| IN | 8 | 5 | 2 | 1 | 4 | 1 | 3 |
 | SR | 8 | 7 | 0 | 1 | 4 | 3 | 1 |
-| FM | 18 | 15 | 2 | 1 | 13 | 2 | 3 |
+| FM | 18 | 11 | 5 | 2 | 10 | 5 | 3 |
 | NC | 6 | 6 | 0 | 0 | 2 | 3 | 1 |
-| ST | 9 | 5 | 3 | 1 | 2 | 3 | 4 |
-| AP | 5 | 3 | 1 | 1 | 3 | 0 | 2 |
+| ST | 9 | 5 | 3 | 1 | 2 | 5 | 2 |
+| AP | 5 | 3 | 1 | 1 | 2 | 1 | 2 |
 | TD | 6 | 4 | 1 | 1 | 4 | 0 | 2 |
-| PR | 54 | 49 | 5 | 0 | 42 | 6 | 6 |
+| PR | 54 | 47 | 7 | 0 | 39 | 9 | 6 |
 | FF | 79 | 78 | 1 | 0 | 77 | 1 | 1 |
-| MD | 9 | 8 | 1 | 0 | 2 | 6 | 1 |
+| MD | 9 | 7 | 2 | 0 | 1 | 7 | 1 |
 | SC | 18 | 16 | 1 | 1 | 12 | 3 | 3 |
-| BK | 6 | 5 | 1 | 0 | 3 | 3 | 0 |
+| BK | 6 | 3 | 3 | 0 | 3 | 3 | 0 |
 | AX | 15 | 14 | 1 | 0 | 11 | 3 | 1 |
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | WB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
 | CN | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
 | LY | 22 | 22 | 0 | 0 | 22 | 0 | 0 |
-| SM | 11 | 10 | 1 | 0 | 8 | 3 | 0 |
+| SM | 11 | 10 | 1 | 0 | 7 | 4 | 0 |
 | MP | 8 | 8 | 0 | 0 | 8 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 2 | 3 |
 | CA | 15 | 7 | 2 | 6 | 7 | 6 | 2 |
@@ -279,7 +347,7 @@ verifies the honesty contract, not the (impossible) capability.
 | MS | 4 | 0 | 2 | 2 | 0 | 2 | 2 |
 | AU | 4 | 2 | 2 | 0 | 1 | 2 | 1 |
 | RG | 7 | 6 | 1 | 0 | 4 | 2 | 1 |
-| HW | 11 | 2 | 9 | 0 | 0 | 1 | 10 |
+| HW | 11 | 2 | 8 | 1 | 0 | 1 | 10 |
 | CM | 2 | 1 | 0 | 1 | 0 | 0 | 2 |
 | BL | 5 | 4 | 1 | 0 | 1 | 2 | 2 |
 | DP | 15 | 14 | 1 | 0 | 7 | 6 | 2 |
@@ -293,15 +361,15 @@ verifies the honesty contract, not the (impossible) capability.
 | SH-03 | built | untested |  |
 | SH-04 | built | full | e2e-tt55-shell: SH-04 desktop icons follow the file system: a folder trashed in Files disappears from the desktop with no reload — in the same tab and in a second tab of the browser — and the icon set always equals the server listing |
 | SH-05 | built | partial | e2e: SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive |
-| SH-06 | built | full | e2e-tt67-input: SH-06 hot corner with real pointer moves: entering the top-left corner opens the launcher; after Escape, a pointer resting / jittering in the corner for 3 s does NOT reopen it; leaving and re-entering does; with Hot corners off nothing opens; e2e-tt86-pointer: SH-06 all four hot corners open their mapped shell panels once per entry; e2e-tt86-pointer: SH-06 all four viewport edges require an inward flick and open the matching panel (+7) |
+| SH-06 | built | full | e2e-tt67-input: SH-06 hot corner with real pointer moves: entering the top-left corner opens the launcher; after Escape, a pointer resting / jittering in the corner for 3 s does NOT reopen it; leaving and re-entering does; with Hot corners off nothing opens; e2e-tt86-pointer: SH-06 all four hot corners open their mapped shell panels once per entry; e2e-tt86-pointer: SH-06 all four viewport edges require an inward flick and open the matching panel (+16) |
 | SH-07 | built | untested |  |
 | SH-08 | built | full | e2e-tt48-sync: reducer 'reconcile': the newer desktop's shared data wins, this tab keeps exactly its own windows/focus, z order stays monotonic, revision never goes back; e2e-tt48-sync: a fresh tab hydrates at the row revision even when the stored state JSON lacks one, so its first save is accepted (no 409); e2e-tt48-sync: another tab saves a newer desktop → this tab's stale save gets 409 → it adopts the newer desktop, says so, and its next save builds on it (nothing lost on either side) (+5) |
 | SH-09 | built | full | e2e-tt55-files: SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward; tt55-files-unit: SH-09 back / forward history = browser model (entries + index) over 3 000 random sequences, incl. the 50-entry cap |
 | SH-10 | partial | partial | e2e: Overview (Meta+Q) and Blackout overlay toggle |
 | SH-11 | built | full | e2e-tt72-pad: a real drag on the tab's Blackout pad moves the focused window on display 2 (DOM + persisted); the tab's window stays; e2e-tt72-pad: keys on the Blackout screen drive display 2: arrows (+Shift), Tab cycles, Enter maximises, Home shows desktop; e2e-tt72-pad: adversary on the channel: wrong recipient, malformed shapes, replayed / stale seq change nothing; a fresh message does (+8) |
 | SH-12 | built | untested |  |
-| SH-13 | partial | partial | e2e-tt85: E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations |
-| SH-14 | built | full | e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay; e2e: offline write is queued, then replayed through the journal when back online |
+| SH-13 | partial | partial | e2e-tt85: E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations; e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery; e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids (+25) |
+| SH-14 | partial | partial | e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay; e2e-tt94-offline-race: a later queued Files write is not lost while a photo replay is waiting on the database; e2e-tt94-offline-race: a noncooperating queue change during replay is retained and reported (+3) |
 | WM-01 | built | full | e2e: drag a window by its title bar; geometry is committed and persisted; unit: 10 000 random commands preserve every invariant; unit: TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk |
 | WM-02 | built | full | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half; unit: 10 000 random commands preserve every invariant |
 | WM-03 | built | partial | unit: reducer is pure (input not mutated); workspaces filter without unmounting |
@@ -328,8 +396,8 @@ verifies the honesty contract, not the (impossible) capability.
 | IN-05 | built | full | unit: shortcut presets have no internal conflicts; chord matcher |
 | IN-06 | probe | untested |  |
 | IN-07 | built | partial | e2e-tt37: gamepad pointer (IN-07) with a scripted W3C-shape pad (no physical controller exists in this sandbox — the hardware is substituted, everything from navigator.getGamepads() on is real): appears on connect, the stick steers it onto the launcher button and A opens the launcher, B (Escape) closes it, X opens the desktop menu, the right stick scrolls the window under it, RB moves keyboard focus and the pointer follows, Start turns it off and on, disconnect removes it; no page errors; e2e: mount: devices; tt37-unit: gamepad stick shaping and motion (IN-07): radial deadzone 0.15, power curve that keeps the stick's angle, full deflection = 1400 px/s, the same distance at 30 / 60 / 144 Hz, a stalled frame cannot teleport the cursor (dt ≤ 100 ms), the cursor stays inside the viewport, NaN axes are inert (+1) |
-| IN-08 | partial | untested |  |
-| SR-01 | built | full | e2e: mount: find; e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it; integration: SR-01 search finds new content with provenance (+1) |
+| IN-08 | blocked | untested |  |
+| SR-01 | built | full | e2e-tt92-trash: Trash exposes origin, recorded deletion date, real folder bytes and its manual-retention/backup boundary; e2e-tt92-trash: restoring the selected folder in Files reveals the original files and rebuilds search; e2e: mount: find (+31) |
 | SR-02 | built | partial | e2e: mount: find; integration: SR-01 search finds new content with provenance; integration: deleting a note removes only its own index row |
 | SR-03 | built | full | e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it; integration: SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing; unit: OSA distance counts adjacent transposition as 1 (+1) |
 | SR-04 | built | full | e2e-tt58-rows: SR-04 web results: off by default — no web row and no outside request while typing; opted in — one explicit row ranked last with the provider URL, still nothing sent until it is picked |
@@ -339,22 +407,22 @@ verifies the honesty contract, not the (impossible) capability.
 | SR-08 | built | partial | e2e: mount: find |
 | FM-01 | built | full | e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash (+7) |
 | FM-02 | built | full | e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane; e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified); e2e-tt55-files: FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there |
-| FM-03 | built | full | e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane; e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified); e2e: mount: files (+5) |
+| FM-03 | partial | partial | e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane; e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified); e2e-tt93-sidecar: Files displays the destination-sidecar collision and keeps both the photo and edits intact (+116) |
 | FM-04 | built | partial | e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog; e2e: mount: peek; integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades |
 | FM-05 | built | full | e2e-tt55-files: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection; e2e-tt79-archive: 1 AES archive: derived folders, navigation, locked preview; MODAL SHORTCUT (Delete/F2/Ctrl+A inert behind the password dialog); wrong → asked again; right → exact text; PNG preview; e2e-tt79-archive: 2 keyboard edits: Delete + F2 + New folder → Save → pyzipper decrypts the renamed entry with the ORIGINAL password; Undo restores (+15) |
 | FM-06 | built | full | e2e-tt55-files: FM-06 context menu: concise vs full sets, type-to-search reaches any action, arrow keys + Enter run it, Esc closes; background menu has New / templates / Paste; tt55-files-unit: FM-06 context-menu model: concise ⊂ full, type-to-search matches every word (label + keywords, case- and accent-folded), order kept |
 | FM-07 | built | full | e2e-tt81: E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge; e2e: mount: storage; integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest (+1) |
-| FM-08 | built | partial | e2e: mount: localdisk |
+| FM-08 | probe | partial | e2e-tt87-localdisk: BK-02 real browser folder handle survives IndexedDB reload and a first sync preserves skipped names and binary data; e2e-tt87-localdisk: FM-08 import selects a conflict-free name and keeps the original Fusion file byte-for-byte; e2e-tt87-localdisk: FM-08 conditional write rejects missing preconditions, existing names and changed versions without modifying data (+1) |
 | FM-09 | built | full | e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay |
-| FM-10 | probe | untested |  |
-| FM-11 | built | full | e2e: mount: files; integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest; integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard) |
+| FM-10 | blocked | untested |  |
+| FM-11 | partial | partial | e2e-tt91-purge: confirmation states retention limits, rejects wrong text and cancellation leaves every row intact; e2e-tt91-purge: confirming permanent folder deletion removes live/history/index rows and preserves an unrelated file; e2e-tt92-trash: Trash exposes origin, recorded deletion date, real folder bytes and its manual-retention/backup boundary (+59) |
 | FM-12 | blocked | untested |  |
 | FM-13 | built | full | e2e-tt55-files: FM-13 New from template: the menu lists /System/Templates from the server; a new file is a byte copy of the template; a second one gets a free name; tt55-files-unit: FM-03 / FM-13 conflict-free names: never in use, the smallest free candidate, copies of copies do not grow, dirs and dotfiles keep their name |
 | FM-14 | partial | untested |  |
 | FM-15 | built | full | e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash; e2e-tt55-files: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection; tt55-files-unit: FM-15 selection model = spec-literal reference over 3 000 random click / Ctrl / Shift / Ctrl+Shift / keyboard sequences |
 | FM-16 | built | full | e2e-tt55-files: FM-16 quick filter + Subfolders: deep matches equal a recursive walk of the server; % and _ are literal; dotfiles and /System stay out |
 | FM-17 | built | full | e2e-tt55-files: FM-17 folder sizes: every folder row shows the size of its subtree (= a recursive walk of the server), and the cached size refreshes after a write |
-| FM-18 | built | full | e2e: mount: files; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists; integration: FM-18 overwrite snapshots the previous version |
+| FM-18 | partial | partial | e2e: mount: files; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists; integration: FM-18 overwrite snapshots the previous version (+26) |
 | NC-01 | built | partial | e2e: mount: alerts |
 | NC-02 | built | full | e2e-tt71-focus: server: rules see the live workspace / focus mode / time zone; held alerts record rule + reason; deliver releases; bad rules are refused; e2e-tt71-focus: Alerts UI: status line, held alerts listed apart with their reason, Deliver now, held test alert raises no OS notification; e2e-tt71-focus: editor: real controls build a rule; a bad workspace shows the parser's message and saves nothing; a valid rule activates; Remove clears (+8) |
 | NC-03 | built | untested |  |
@@ -363,25 +431,25 @@ verifies the honesty contract, not the (impossible) capability.
 | NC-06 | built | full | e2e-tt56: NC-06 OSD: 20 volume changes in a burst → the pill tracks every step, the polite live region changes exactly once (settled value); e2e-tt56: WM-10 focus mode: Meta+Shift+F sets ONE parent CSS variable; unfocused windows read it (opacity .45), the focused one stays 1; OSD; toggles back; tt56-shell-unit: NC-06 settle model: 20 events 50 ms apart announce once; bursts separated by > settle announce once each; labels |
 | ST-01 | built | partial | e2e: mount: settings; integration: SR-04 / settings: locked settings refuse writes (423) |
 | ST-02 | probe | untested |  |
-| ST-03 | partial | untested |  |
+| ST-03 | partial | partial | e2e-tt89-launch: default-app guide changes platform, reports limits, and sends a real browser protocol request without claiming acceptance |
 | ST-04 | built | partial | e2e: mount: settings |
 | ST-05 | built | full | e2e-tt56: ST-05 OS media queries: prefers-reduced-motion → motion token 0 ms (transitions 0 s); “Match system” theme follows prefers-color-scheme live |
 | ST-06 | built | partial | unit: shortcut presets have no internal conflicts; chord matcher |
 | ST-07 | built | full | e2e-tt56: ST-07 UI scale is independent of the display: device scale factor 1 vs 2 (external HiDPI display / browser-zoom emulation) gives the same CSS text size; the app's own scale changes it |
 | ST-08 | blocked | untested |  |
-| ST-09 | probe | untested |  |
+| ST-09 | partial | partial | e2e-tt90-context: profiles are off initially and editing them does not change the shared appearance; e2e-tt90-context: opt-in applies the chosen profile, retains shared settings, and survives a reload; e2e-tt90-context: a real browser reacts to CDP virtual display add/remove, with an on-screen announcement (+12) |
 | AP-01 | built | full | e2e-tt85: E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations |
 | AP-02 | built | full | e2e-tt81: E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge; tt84-wordcount: U1 AP-02 bucket selection and purge validation refuse protected tables, duplicates, empty lists and missing DELETE confirmation; tt84-wordcount: U2 AP-02 / FM-07 preview summarization and post-purge invariant verification (+1) |
 | AP-03 | blocked | untested |  |
 | AP-04 | built | untested |  |
-| AP-05 | partial | full | e2e-tt85: E2 AP-05 inventory: actual service-worker registrations and sync tags match Chromium APIs; page callback counters are measured and clearly not OS wake counts; tt85-inventory: AP-05: inventory definitions are unique and explicitly describe only app-owned foreground work; tt85-inventory: AP-05: only real callback entry increments count; status updates do not invent callbacks; snapshots are detached (+2) |
+| AP-05 | partial | partial | e2e-tt85: E2 AP-05 inventory: actual service-worker registrations and sync tags match Chromium APIs; page callback counters are measured and clearly not OS wake counts; tt85-inventory: AP-05: inventory definitions are unique and explicitly describe only app-owned foreground work; tt85-inventory: AP-05: only real callback entry increments count; status updates do not invent callbacks; snapshots are detached (+2) |
 | TD-01 | built | full | e2e: mount: terminal; e2e: terminal: write + cat through the journal; mv shows journal op |
 | TD-02 | built | full | e2e: mount: terminal; e2e: terminal: write + cat through the journal; mv shows journal op |
 | TD-03 | built | full | e2e-tt44: Terminal `ssh` opens the SSH window prefilled; connect → host-key dialog with ssh-keygen's fingerprint → trust once → password → remote shell renders; e2e-tt44: typed keys round-trip through the bridge; a pasted ANSI colour returns as a coloured span; e2e-tt44: Files pane: list, upload through <input type=file> (bytes equal on the server), Save to Fusion → /Downloads; results stay visible (+54) |
 | TD-04 | probe | untested |  |
 | TD-05 | blocked | untested |  |
 | TD-06 | built | full | unit: command log replay reproduces the identical state hash |
-| PR-01 | built | full | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists |
+| PR-01 | partial | partial | e2e: mount: editor; e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists; tt92-ledger-audit: the editor does not advertise its database version snapshots as native SAF safe-save |
 | PR-02 | built | partial | e2e: mount: notes; integration: deleting a note removes only its own index row |
 | PR-03 | built | partial | e2e: mount: planner; integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar |
 | PR-04 | built | full | e2e: mount: planner; integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar; unit: ICS unfolding, escapes, parameters, VTODO status, round trip |
@@ -400,15 +468,15 @@ verifies the honesty contract, not the (impossible) capability.
 | PR-07j | built | untested |  |
 | PR-07k | built | full | e2e-tt36: Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page; e2e-tt36: reader endpoint headers (PR-07k): the reader page is served with a CSP sandbox (no same-origin), scripts only from Fusion (no inline script), no forms; a non-page address gets a plain refusal; a private address is refused (SSRF); tt36-unit: reader vs Readability (PR-07k): on live pages from github.com and pypi.org the reader keeps everything readability-lxml calls the article (recall ≥ 0.95) and agrees on where the article starts and ends; pages a site answers with a bot challenge are skipped and named, at least 5 must be measured (+2) |
 | PR-07l | built | full | browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused; browser-session: pin, groups (create/assign/collapse/remove), search, sleep invariants, allow attribute; e2e-browser: site permissions panel writes the iframe delegation policy into the saved session |
-| PR-07m | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413) |
+| PR-07m | partial | partial | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413); e2e-tt91-browser-download: real PyPI bytes: a concurrent HTTP create after listing forces a retry without overwriting either file (+26) |
 | PR-07n | built | full | e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; tt85-find: PR-07n: real Chromium DOM index crosses inline nodes, applies block whitespace, excludes hidden/non-text surfaces, wraps next/previous and selects the exact source Range; tt85-find: PR-07n: collapsed multi-space source runs keep exact Range boundaries before the following word (+2) |
-| PR-07o | partial | full | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server; e2e-tt36: named profiles (PR-07o): two tabs in profile Work share one session and its cookies, a third tab on the same site (this tab only) does not; switching it to Work joins the jar, switching a Work tab to 'this tab only' leaves it; the profile is saved with the window; closing the last Work tab deletes the Work session; tt36-unit: profile names and saved sessions (PR-07o): a named profile survives normalisation of a saved Browser session; unsafe or oversized names are dropped (the tab falls back to 'this tab only') |
+| PR-07o | partial | partial | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server; e2e-tt36: named profiles (PR-07o): two tabs in profile Work share one session and its cookies, a third tab on the same site (this tab only) does not; switching it to Work joins the jar, switching a Work tab to 'this tab only' leaves it; the profile is saved with the window; closing the last Work tab deletes the Work session; tt36-unit: profile names and saved sessions (PR-07o): a named profile survives normalisation of a saved Browser session; unsafe or oversized names are dropped (the tab falls back to 'this tab only') |
 | PR-07p | partial | untested |  |
 | PR-07q | built | full | browser-session: batch actions: close others / to the right / duplicates keep pinned tabs and the anchor; e2e-browser: batch actions keep pinned tabs; groups (create, rename, collapse) and tab search in the vertical sidebar; sleep spares visible tabs |
 | PR-07r | built | partial | browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first; e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin; e2e: mount: routines (+1) |
 | PR-07s | partial | untested |  |
 | PR-08 | built | full | e2e-tt52-pdf: corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms); e2e-tt52-pdf: annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update); e2e-tt52-pdf: forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values (+93) |
-| PR-09 | built | full | e2e: mount: calculator; e2e: calculator evaluates typed input with the shared evaluator; unit: precedence, power associativity, rounding policy (+1) |
+| PR-09 | partial | partial | e2e: mount: calculator; e2e: calculator evaluates typed input with the shared evaluator; tt95-calculator-audit: the register labels incomplete programmer mode and nonpersistent history as partial (+5) |
 | PR-10 | built | full | e2e-tt57-rows: PR-10 stopwatch: start → 65.43 s → lap → 10-minute jump with timers firing at most once (throttled tab) → still exact; pause holds; reset; e2e-tt57-rows: PR-10 timer fires on time with requestAnimationFrame never running (hidden-tab emulation): 0 min 3 s → 'Timer finished' at 3 s, not before; e2e-tt57-rows: no uncaught page errors during the TT57 rows session (+2) |
 | PR-11 | built | partial | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+44) |
 | PR-12 | built | full | e2e-tt57-rows: PR-12 clipboard history: Fusion copies land in the system clipboard (read back independently) and the history; same text twice = one entry moved to top; pin survives Clear; search filters; e2e: mount: clipboard; tt57-units: PR-12 hand cases: dedupe moves to top keeping the pin; sensitive never deduped/pinned; cap spares pinned; clear keeps pinned; search text+source (+1) |
@@ -425,7 +493,7 @@ verifies the honesty contract, not the (impossible) capability.
 | FF-10 | built | full | e2e-tt75-books: B1 reflowable pages: columns paginate, Next / ArrowRight move one page width, the end of a part goes on, the position is restored on reopen; e2e-tt75-books: B2 contents: clicking an entry shows that part; e2e-tt75-books: B3 search: hits are listed; a hit opens its part with a visible <mark> (+47) |
 | FF-11 | built | full | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+31) |
 | FF-12 | built | full | ai-format: FF-12 guards: inflate bomb, 1 000 streams, corrupt Flate data, damaged DOS-EPS, empty and text files; integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades; integration: FM-05 extract refuses zip-slip and writes nothing (+2) |
-| FF-13 | built | full | e2e-tt54: FF-13 Files grid: real thumbnails for JPEG (EXIF orientation applied), TIFF (own decoder), PNG, GIF, SVG, MP3/M4A cover art, PDF page 1, WebM frame, text; no-preview types keep the icon with a reason; e2e-tt54: FF-13 thumbnail cache: WebP nodes under /System/Cache/thumbs (content-addressed, written once); a fresh session is served from the cache without re-rendering; e2e-tt54: FF-13 Info panel: metadata of the selected file (camera, capture date, exposure, GPS) from the first-party readers (+5) |
+| FF-13 | built | full | e2e-tt54: FF-13 Files grid: real thumbnails for JPEG (EXIF orientation applied), TIFF (own decoder), PNG, GIF, SVG, MP3/M4A cover art, PDF page 1, WebM frame, text; no-preview types keep the icon with a reason; e2e-tt54: FF-13 thumbnail cache: WebP nodes under /System/Cache/thumbs (content-addressed, written once); a fresh session is served from the cache without re-rendering; e2e-tt54: FF-13 Info panel: metadata of the selected file (camera, capture date, exposure, GPS) from the first-party readers (+40) |
 | FF-14 | built | full | ai-format: version strings, PDF literal escapes, format registry and MIME; unit: loss report itemises drops; registry grades |
 | FF-15 | built | full | e2e-tt69-lifecycle: Spreadsheet: closing a dirty window asks Save changes? — MODAL: Delete, typing, Ctrl+Z, Ctrl+S, Alt+F4, Meta+W, a script focusing the grid and a raw click on a cell never reach the workbook; Tab stays inside; Escape cancels; Save writes the file and closes; e2e-tt69-lifecycle: Writer: typing writes a recovery draft (python-docx reads its bytes; no version snapshots); Close → Don't save keeps it; reopening offers Restore; Restore brings the text back unsaved; Save writes it and deletes the draft; e2e-tt69-lifecycle: leaving the page with unsaved work raises the browser's beforeunload prompt (dismiss = stay); a page with nothing unsaved closes without one (+31) |
 | FF-19 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-tt76-sheet: modal shortcut: an untouched Condition dialog has OK disabled; Enter (in the empty value box) applies nothing; Escape closes it; e2e-tt76-sheet: Top 2 shows only the two largest; reopening pre-fills Top 2; Below average; Clear shows every row (+91) |
@@ -437,7 +505,7 @@ verifies the honesty contract, not the (impossible) capability.
 | FF-25 | built | full | e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard; e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size); e2e: mount: vector |
 | MD-01 | built | partial | e2e: mount: capture |
 | MD-02 | built | partial | e2e: mount: media |
-| MD-03 | built | full | e2e-image: classic Quick edit mode is still available (additive merge); e2e-tt54: MD-03 sidecars follow their photo on rename / copy / move / trash / restore / purge and batch rename (server-side, any client); op=media lists photos + sidecars and nothing under /System; e2e-tt54: Hidden files: sidecars never show in Files (until 'Hidden' is toggled) or on the desktop (+6) |
+| MD-03 | partial | partial | e2e-image: classic Quick edit mode is still available (additive merge); e2e-tt54: MD-03 sidecars follow their photo on rename / copy / move / trash / restore / purge and batch rename (server-side, any client); op=media lists photos + sidecars and nothing under /System; e2e-tt54: Hidden files: sidecars never show in Files (until 'Hidden' is toggled) or on the desktop (+93) |
 | MD-04 | built | partial | e2e: mount: devices |
 | MD-05 | built | partial | e2e: mount: devices |
 | MD-06 | built | partial | e2e: mount: devices |
@@ -453,12 +521,12 @@ verifies the honesty contract, not the (impossible) capability.
 | SC-07 | built | full | unit: seal/open round trip; wrong passphrase and ciphertext tamper fail; unit: header downgrade (iterations) is detected via AAD; policy floor enforced |
 | SC-08 | built | partial | integration: SR-04 / settings: locked settings refuse writes (423) |
 | SC-09 | built | untested |  |
-| BK-01 | built | full | e2e: mount: backup; integration: FM-18 overwrite snapshots the previous version; integration: BK-01 tampered backup bundle is refused before anything is written (+1) |
-| BK-02 | partial | partial | e2e: mount: localdisk |
-| BK-03 | built | partial | e2e: mount: backup; integration: BK-01 tampered backup bundle is refused before anything is written |
+| BK-01 | partial | partial | e2e: mount: backup; integration: FM-18 overwrite snapshots the previous version; integration: BK-01 tampered backup bundle is refused before anything is written (+28) |
+| BK-02 | partial | partial | e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage; e2e-tt87-localdisk: BK-02 real browser folder handle survives IndexedDB reload and a first sync preserves skipped names and binary data; e2e-tt87-localdisk: BK-02 conflict choices reject stale local and server copies; explicit resolution preserves a Fusion version (+6) |
+| BK-03 | built | full | e2e-tt87-backup: BK-03 UI builds a settings-only snapshot, verifies it and downloads both plaintext and authenticated encrypted files; e2e-tt87-backup: BK-03 wrong passphrase, ciphertext mutation and plain checksum tampering are refused before any restore request; e2e-tt87-backup: BK-03 encrypted UI restore previews, can cancel, applies settings live in two tabs and never posts the passphrase (+17) |
 | BK-04 | built | full | unit: BK-04 capability diff reports lost/gained with degrade text |
-| BK-05 | built | partial | e2e: mount: backup; integration: BK-01 tampered backup bundle is refused before anything is written |
-| BK-06 | built | full | privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused; privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key; unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
+| BK-05 | partial | partial | e2e-tt89-drill: a real downloaded recovery-key archive is selected and the drill controls are keyboard accessible; e2e-tt89-drill: wrong password and modified ciphertext fail locally, do not post, and set failed status; e2e-tt89-drill: real encrypted-file drill reads scratch state, confirms rollback, keeps live settings unchanged and persists only non-secret status (+50) |
+| BK-06 | built | full | e2e-tt87-backup: BK-03 UI builds a settings-only snapshot, verifies it and downloads both plaintext and authenticated encrypted files; e2e-tt87-backup: BK-03 wrong passphrase, ciphertext mutation and plain checksum tampering are refused before any restore request; e2e-tt87-backup: BK-03 encrypted UI restore previews, can cancel, applies settings live in two tabs and never posts the passphrase (+18) |
 | FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: SEQUENCE(2,3) spills all six cells with correct values (+13) |
 | FF-27 | built | full | e2e: mount: sheet; office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
 | FF-28 | built | full | e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen; e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates (+37) |
@@ -469,16 +537,16 @@ verifies the honesty contract, not the (impossible) capability.
 | FF-33 | built | full | e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells; e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader) (+8) |
 | FF-34 | built | full | e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+4) |
 | FF-35 | built | full | e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it; e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader); e2e: mount: sheet (+5) |
-| SC-10 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path; e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists (+19) |
-| SC-11 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only); e2e: mount: privacy (+3) |
+| SC-10 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path; e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage (+169) |
+| SC-11 | built | full | e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state; e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only); e2e: mount: privacy (+4) |
 | SC-12 | built | full | e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e: mount: privacy (+6) |
-| SC-13 | built | full | e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists; e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache; e2e: mount: privacy (+1) |
+| SC-13 | built | full | e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists; e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache; e2e-tt87-privacy: TT87 amnesia refuses conditional writes before they reach PostgreSQL (+7) |
 | SC-14 | built | full | e2e-privacy: host audit in the UI: a plaintext file planted by another client is flagged and 'Encrypt it' seals it (name + content); e2e: mount: privacy; privacy-layer: audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught) |
 | SC-15 | built | full | e2e-privacy: emergency shutdown chord: keys + RAM files gone, page blanked via location.replace (no history entry with the shell); e2e: mount: privacy |
 | FF-36 | built | full | e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen; names: name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255; names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined (+5) |
 | FF-37 | built | full | e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo; vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back); vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995) (+4) |
 | SC-16 | built | full | e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host; privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock; privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results |
-| SC-17 | built | full | e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext; privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported; privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected (+4) |
+| SC-17 | built | full | e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext; privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported; privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected (+5) |
 | SC-18 | built | full | e2e-privacy: TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks; privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses |
 | AX-09 | built | full | a11y-unit: text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz(); a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; a11y-unit: settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour (+8) |
 | AX-10 | built | full | a11y-unit: icon contrast: every palette's glyph colour is ≥3:1 against its tile gradient across the whole glyph area (WCAG 1.4.11); a11y-unit: every registered module and every common file type has a real glyph; tile palettes exist; a11y-unit: no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font) (+2) |
@@ -535,7 +603,7 @@ verifies the honesty contract, not the (impossible) capability.
 | AX-15 | built | full | e2e-tt32: environment + engine choice: this Chromium has 0 system voices; Narrator (Automatic) speaks through Fusion Voice — the caption bar says so, Web Audio receives non-silent 16 kHz speech for the start-up announcement, and speechSynthesis.speak is never called; e2e-tt32: intelligibility in the browser (declared gate ≥ 75 %): focus announcements captured from Web Audio on the real page, forced choice among all captured announcements by PocketSphinx; e2e-tt32: control: Ctrl stops Fusion Voice mid-sentence (queued buffers are stopped, nothing new starts) (+10) |
 | SM-05 | built | full | e2e-tt33: TIDAL (SM-05): click-to-load gate names embed.tidal.com + the 30-second/sign-in note and sends nothing before consent; against TIDAL's real bridge: Play → 'Started', Pause → 'Pause sent' (flagged assumed), a start inside the player → 'Started'; spoofed starts (our own window, a foreign pid) ignored; e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video; tt33-unit: TIDAL link grammar (SM-05): tidal.com / browse / listen.tidal.com / album…track / embed.tidal.com → embed.tidal.com/<types>/<id>; kinds, heights, allow (+3) |
 | SM-06 | built | full | e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; tt33-unit: Qobuz link grammar (SM-06): widget / open / play / store pages → widget.qobuz.com with zone; track compact; heights; tt33-unit: ≥ 15 refused shapes, each with a reason (negative space) (+1) |
-| SM-07 | partial | full | e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; tt33-unit: Amazon Music grammar (SM-07): Share → Embed code kept as issued (tracking params dropped); page links → embed shape flagged unverified; 12 storefronts; tt33-unit: ≥ 15 refused shapes, each with a reason (negative space) (+1) |
+| SM-07 | partial | partial | e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; tt33-unit: Amazon Music grammar (SM-07): Share → Embed code kept as issued (tracking params dropped); page links → embed shape flagged unverified; 12 storefronts; tt33-unit: ≥ 15 refused shapes, each with a reason (negative space) (+1) |
 | SM-08 | built | full | e2e-tt33: one player at a time (SM-08): a TIDAL video started in Video pauses the TIDAL track playing in Music through TIDAL's real bridge; Music shows 'Pause sent'; Music refuses a video link with a pointer to Video; e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour; e2e-tt33: library + modal shortcut (SM-08): TIDAL / Qobuz / Amazon links saved show their provider; Next walks them; the Rename dialog traps Escape (closes the dialog only — title unchanged, window open) and Enter renames (+2) |
 | MP-06 | built | full | e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track; tt34-unit: geodesy (MP-06): inverse on WGS84 vs GeographicLib — 20 000 random pairs and 2 000 near-antipodal pairs (Vincenty's failure region, solved by shooting), all ≤ 1 mm; tt34-unit: geodesy (MP-06): direct problem (10 000 cases, up to 19 000 km) lands ≤ 1 mm from GeographicLib; poles, equator, antimeridian, coincident points; the sphere was up to ~0.5 % off (+1) |
 | MP-07 | built | full | e2e-tt34: Maps (MP-06, MP-07, MP-08): Plus Code search (full, and short + city); a place's Plus Code; measured distance and area on the ellipsoid match the exported GPX's own points; KML export is a polygon; GPX import adds waypoints and loads the track; tt34-unit: Plus Codes (MP-07): every official Open Location Code vector — encoding (302, incl. degrees → integers), decoding (420), validity (25), shorten / recover (19); tt34-unit: Plus Codes (MP-07): refusals and search parsing — bad lengths, padded shortening, invalid codes; codes found in free text with a locality; recovery across the antimeridian (+1) |
@@ -543,9 +611,9 @@ verifies the honesty contract, not the (impossible) capability.
 | SM-09 | built | full | e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing; e2e-tt34: transport honesty (SM-09): Vimeo with speed disabled by its owner — setPlaybackRate is sent but the speed shown stays unreported 1×; volume uses 0–1 and follows volumechange; seek slider → setCurrentTime. SoundCloud: seek + playlist next, no volume control at all; e2e-tt34: native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them (+2) |
 | SM-10 | built | full | e2e-tt34: transport + keyboard on YouTube (SM-09, SM-10): +10 s, volume, mute, speed and playlist Next go out as IFrame-API commands and the UI follows the PLAYER's reports; keys J/L/M/>/↓/Shift+N/Shift+P work in the player and do nothing while typing; tt34-unit: keyboard (SM-10): Space/K, J/L, arrows, M, Shift+N/P, < >, digits; nothing while typing or with modifiers; sliders keep their arrows; Space on a button stays the button's; speed stepping |
 | SM-11 | built | full | e2e-tt34: native audio + library order (SM-09, SM-11): the transport drives <audio> (seek, volume, mute, speed, J key); Shuffle plays distinct items and Previous retraces them; tt34-unit: library order (SM-11): Previous wraps only with Loop; Shuffle never repeats within a round, never plays the same item twice in a row across rounds, is uniform (χ², 6 items × 6 000 draws) |
-| WP-01 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; tt35-unit: URL codec (WP-01): path-preserving encode → decode round-trips 2 000 generated URLs exactly (ports, IPv6, trailing slashes, queries, unicode); refuses credentials, non-http schemes, bad session ids and smuggled hosts; tt35-unit: runtime parity (WP-01): the in-page runtime public/wp-shim.js, run in a VM with a proxied location, encodes a 400-URL corpus (relative, root-relative, protocol-relative, absolute, already-proxied, location-built, data:/blob:/javascript:/#) exactly like the server's rewriteUrl (+3) |
+| WP-01 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted; tt35-unit: URL codec (WP-01): path-preserving encode → decode round-trips 2 000 generated URLs exactly (ports, IPv6, trailing slashes, queries, unicode); refuses credentials, non-http schemes, bad session ids and smuggled hosts (+4) |
 | WP-02 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413) (+7) |
-| WP-03 | built | full | tt35-unit: privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream drops the user's identity and client hints, then supplies a shared Desktop default or explicit Desktop/Mobile preset plus fixed language and Sec-GPC; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised |
+| WP-03 | built | full | e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted; tt35-unit: privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream drops the user's identity and client hints, then supplies a shared Desktop default or explicit Desktop/Mobile preset plus fixed language and Sec-GPC; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised |
 | WP-04 | built | full | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server; tt35-unit: cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix refusal, domain mismatch, default-path and path matching (/docs vs /docsx), Secure only over https, Max-Age over Expires, deletion, HttpOnly hidden from (and unwritable by) scripts, __Secure- / __Host- prefixes, ordering by path length, per-domain cap; tt35-unit: sessions (WP-04): 128-bit url-safe capability ids, unique; idle sessions expire after 30 min; the store never exceeds its cap (least recently used goes first); dropping forgets the cookie jar |
 | WP-05 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt36: Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page |
 | WP-06 | built | full | e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked |
@@ -607,8 +675,8 @@ verifies the honesty contract, not the (impossible) capability.
 | FF-77 | built | full | tt79-sheet: X4 text → number coercion (numtext.ts): en-US currency, groups, %, parentheses, exponent; hex / Infinity / dates refused; tt79-sheet: X5 the 10 EverythingTests shapes fixed in TT79, rebuilt in a fresh workbook, with negative controls; tt81-core: S5 all 4158 cells across all 4 sheets of FormulaEvalTestData_Copy.xlsx agree with Excel cached values (includes G716, D872, E872, M936) |
 | FF-78 | built | full | e2e-tt81: E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output; tt81-core: S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates; tt81-core: S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula (+3) |
 | FF-79 | built | full | e2e-tt81: E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry; tt81-core: P1 custom box geometry exact all rotations, negative crop origin and edge boxes; tt81-core: P2 refuse NaN, infinities, zero, negative, off-page, malformed geometry before signing (+1) |
-| FF-80 | built | full | e2e-tt81: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback; tt81-core: L1 literal case/scope, groups and tables; no notes/master/package false hits; tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical (+2) |
-| FF-81 | built | full | e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and MuPDF independently verify; tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink |
+| FF-80 | built | full | e2e-tt81: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback; tt81-core: L1 literal case/scope, groups and tables; no notes/master/package false hits; tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical (+4) |
+| FF-81 | built | full | e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify; tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink |
 | FF-82 | built | full | e2e-tt81: E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions; tt84-wordcount: W1 empty text has zero counts; tt84-wordcount: W2 spaces, blank paragraphs and CRLF do not inflate words or character totals (+10) |
 | CT-01 | built | partial | e2e-tt70-rows: CT-01 share target: manifest share_target → / ; ?url= opens a Browser tab on it and cleans the query; a javascript: URL never runs; Notes Share passes title + body to navigator.share (injected recorder — no OS share sheet in headless Linux) |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
@@ -623,7 +691,7 @@ verifies the honesty contract, not the (impossible) capability.
 | CA-05 | built | partial | e2e: mount: beam; e2e: Beam lists every transport and names the missing primitive on blocked ones |
 | CA-06 | blocked | full | e2e: Beam lists every transport and names the missing primitive on blocked ones |
 | CA-07 | blocked | full | e2e: Beam lists every transport and names the missing primitive on blocked ones |
-| CA-08 | partial | untested |  |
+| CA-08 | probe | untested |  |
 | CA-09 | built | partial | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
 | CA-10 | blocked | full | e2e: Beam lists every transport and names the missing primitive on blocked ones |
 | CA-11 | built | partial | e2e: mount: together; integration: CA-11 Together anchor clock advances while playing and freezes on pause; integration: Together GET accepts lowercase room codes (casing fix) |
@@ -650,7 +718,7 @@ verifies the honesty contract, not the (impossible) capability.
 | MS-02 | blocked | untested |  |
 | MS-03 | blocked | partial | e2e: mount: messages |
 | MS-04 | partial | untested |  |
-| AX-01 | built | full | e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting; e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations (+1) |
+| AX-01 | built | full | e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting; e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations (+3) |
 | AX-02 | built | partial | e2e-tt55-files: regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree); e2e: structural a11y: every window is a named dialog; no unnamed buttons |
 | AX-03 | built | full | e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens) |
 | AX-04 | built | full | e2e-tt56-rows: AX-04 focus not obscured: Tab into a control of a covered window raises that window (server focus + top z); programmatic focus does not |
@@ -660,7 +728,7 @@ verifies the honesty contract, not the (impossible) capability.
 | AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+6) |
 | AU-01 | built | full | e2e: mount: routines; e2e: routines: dry-run lists actions without executing; Run opens the window; integration: AU-01 routine whitelist rejects commands outside the palette vocabulary (+1) |
 | AU-02 | built | partial | e2e: mount: routines; integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted |
-| AU-03 | partial | partial | integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject) |
+| AU-03 | partial | partial | e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery; e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids; integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject) (+2) |
 | AU-04 | probe | untested |  |
 | RG-01 | built | partial | e2e: mount: monitor; e2e: governor reacts to injected long tasks |
 | RG-02 | partial | untested |  |
@@ -670,7 +738,7 @@ verifies the honesty contract, not the (impossible) capability.
 | RG-06 | built | full | unit: RG-06 memory policy: absence is not low memory |
 | RG-07 | built | full | e2e-tt56-rows: RG-07 capability report: ≥ 40 APIs in Settings → Capabilities, each row has detail/degrade text, sampled rows equal independent detection |
 | HW-01 | built | partial | e2e: drag a window by its title bar; geometry is committed and persisted |
-| HW-02 | partial | untested |  |
+| HW-02 | blocked | untested |  |
 | HW-03 | probe | untested |  |
 | HW-04 | probe | untested |  |
 | HW-05 | partial | untested |  |
@@ -707,6 +775,6 @@ verifies the honesty contract, not the (impossible) capability.
 
 - **Fully built** = register status `built`: runs end to end in this build against real browser/DB APIs.
 - **Partially built** = `partial` (a named sub-capability is degraded) or `probe` (runs only where the browser exposes the API).
-- **Fully tested** = a passing automated test exercises the row's primary contract end to end at the layer where it lives (pure library / server over HTTP / UI in real headless Chromium (version recorded by the browser run)) including at least one negative or adversarial assertion.
-- **Partially tested** = passing tests exercise only part of the row (e.g. the module mounts without error, or only the server half is exercised).
+- **Fully tested** = at least one recorded passing test was tagged `full`, and the register does not mark the feature partial/probe/skeleton. Tags and statuses are authored claims, not independent proof of complete coverage. For blocked rows a full tag tests the disclosed limitation, not the impossible feature.
+- **Partially tested** = passing tests exercise only part of the row, or the register explicitly marks the row partial/probe/skeleton even if some tests have full tags.
 - Mount-only smoke tests tag a module's rows `partial`: rendering without an uncaught error is evidence of integration, not of function.

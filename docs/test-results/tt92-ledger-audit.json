@@ -1,0 +1,69 @@
+{
+  "suite": "tt92-ledger-audit",
+  "at": "2026-10-27T19:22:58.953Z",
+  "results": [
+    {
+      "suite": "tt92-ledger-audit",
+      "name": "FM-03 reports bounded database-atomic transfers, not a complete native tier-B spec",
+      "covers": {
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt92-ledger-audit",
+      "name": "FM-18 explicitly disclaims the missing native SAF and temp-reopen safe-save contract",
+      "covers": {
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt92-ledger-audit",
+      "name": "FM-11 states manual retention, legacy ambiguity and noncooperating mutation paths",
+      "covers": {
+        "FM-11": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt92-ledger-audit",
+      "name": "the editor does not advertise its database version snapshots as native SAF safe-save",
+      "covers": {
+        "PR-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt92-ledger-audit",
+      "name": "MD-03 does not claim native MediaStore, universal HEIC or atomic sidecar follow",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt92-ledger-audit",
+      "name": "the web-only offline queue is partial and discloses storage and cross-tab limits",
+      "covers": {
+        "SH-14": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt92-ledger-audit",
+      "name": "Photos owner checks are cooperative and explicitly exclude Private and RAM",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

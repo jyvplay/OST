@@ -1,0 +1,127 @@
+{
+  "suite": "tt92-trash",
+  "at": "2026-10-27T19:22:53.812Z",
+  "results": [
+    {
+      "suite": "tt92-trash",
+      "name": "trashing a directory hides every descendant from real search; restoring reindexes only that trash group",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 180
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "ordinary and conditional writes cannot overwrite a trashed item or create under a trashed parent",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 104
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "trash listings preserve metadata and content-presence flags without exposing file bodies",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 60
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "a trashed file reserves its original path and ordinary writes cannot silently revive it",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 53
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "a child cannot be restored into a parent still in trash",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "legacy rows without a trash group are restored one at a time rather than merged ambiguously",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 52
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "a failed search-index deletion rolls the entire trash operation back",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 38
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "a failed search-index rebuild rolls the entire restore operation back",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 49
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "a failed restore journal rolls restored nodes and their new index entries back",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 47
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "restoring a private subtree never writes its contents or names to the host search index",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 34
+    },
+    {
+      "suite": "tt92-trash",
+      "name": "trashing the virtual root is refused before any database mutation",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 13
+    }
+  ]
+}

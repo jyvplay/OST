@@ -1,0 +1,29 @@
+  ✗ two open editors cannot silently overwrite the first saved recipe
+    Expected values to be strictly equal:
+
+200 !== 409
+
+  ✗ a stale reset cannot clear a newer edit of the same photo
+    Expected values to be strictly equal:
+
+200 !== 409
+
+  ✗ a newer favorite cannot be lost to a stale pixel edit
+    Expected values to be strictly equal:
+
+200 !== 409
+
+  ✓ one editor can save successive edits and then clear the recipe
+  ✗ a corrupt recipe is reported rather than opened as the original
+    locator.waitFor: Timeout 12000ms exceeded.
+Call log:
+  - waiting for getByText('Photo recipe is unreadable or invalid; it was not opened for editing.', { exact: true }) to be visible
+
+  ✗ an injected read failure is not mistaken for an absent recipe
+    locator.waitFor: Timeout 12000ms exceeded.
+Call log:
+  - waiting for getByText('Photo recipe could not be read; it was not opened for editing.', { exact: true }) to be visible
+
+
+1 passed, 5 failed
+FAILED: two open editors cannot silently overwrite the first saved recipe | a stale reset cannot clear a newer edit of the same photo | a newer favorite cannot be lost to a stale pixel edit | a corrupt recipe is reported rather than opened as the original | an injected read failure is not mistaken for an absent recipe

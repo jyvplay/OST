@@ -1,0 +1,76 @@
+{
+  "suite": "e2e-tt95-photo-concurrency",
+  "at": "2026-10-27T19:49:38.568Z",
+  "results": [
+    {
+      "suite": "e2e-tt95-photo-concurrency",
+      "name": "two open editors cannot silently overwrite the first saved recipe",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 16365
+    },
+    {
+      "suite": "e2e-tt95-photo-concurrency",
+      "name": "a stale reset cannot clear a newer edit of the same photo",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 13576
+    },
+    {
+      "suite": "e2e-tt95-photo-concurrency",
+      "name": "a newer favorite cannot be lost to a stale pixel edit",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 11075
+    },
+    {
+      "suite": "e2e-tt95-photo-concurrency",
+      "name": "one editor can save successive edits and then clear the recipe",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 6174
+    },
+    {
+      "suite": "e2e-tt95-photo-concurrency",
+      "name": "a queued stale recipe is rejected on reconnect and retained for the user",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 7125
+    },
+    {
+      "suite": "e2e-tt95-photo-concurrency",
+      "name": "a corrupt recipe is reported rather than opened as the original",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 6098
+    },
+    {
+      "suite": "e2e-tt95-photo-concurrency",
+      "name": "an injected read failure is not mistaken for an absent recipe",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 3704
+    }
+  ]
+}

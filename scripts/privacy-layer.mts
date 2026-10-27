@@ -118,6 +118,63 @@ await test("office on encrypted files: Export .xlsx into /Private (rewritten to 
   assert.equal(bb.ok, false); assert.match(bb.error, /encrypted Persistent Storage/);
 });
 
+await test("TT87 conditional VFS writes respect privacy boundaries and still work for ordinary unlocked-host files", { "SC-10": "full", "SC-13": "full", "BK-02": "partial" }, async () => {
+  const host = `/Documents/conditional-${RUN}.txt`;
+  const privatePath = `/Private/conditional-${RUN}.txt`;
+  const amnesicPath = `/Documents/conditional-amnesic-${RUN}.txt`;
+  const conditional = (path: string) => ({ op: "writeIfUnchanged", path, content: WORD, expected: null });
+  const locked = new PrivacyLayer(raw);
+  const A = new PrivacyLayer(raw); A.amnesic = true; A.keys = keys;
+  try {
+    assert.equal((await post(L, conditional(host))).status, 200, "ordinary host conditional create works while volume is unlocked");
+    assert.equal((await post(L, conditional(host))).status, 409, "conditional create cannot overwrite");
+    assert.equal((await post(L, conditional(privatePath))).status, 422, "unlocked private conditional write refused");
+    assert.equal((await post(locked, conditional(privatePath))).status, 422, "locked private conditional write refused");
+    assert.equal((await post(A, conditional(amnesicPath))).status, 423, "amnesic conditional write refused");
+    assert.equal((await post(A, { op: "futureUnreviewedWrite", path: amnesicPath })).status, 423, "unknown amnesic operations fail closed");
+    assert.equal((await post(L, { op: "futureUnreviewedWrite", path: privatePath })).status, 422, "unknown private operations fail closed");
+    assert.equal((await rows("select count(*)::int n from vfs_nodes where path = any($1::text[])", [[privatePath, amnesicPath]]))[0].n, 0, "no plaintext or RAM fixture reached the host");
+    assert.ok(A.blocked.some((b) => b.what === "fs.writeIfUnchanged"));
+  } finally {
+    for (const path of [host, privatePath, amnesicPath]) await raw("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "purge", path }) });
+  }
+});
+
+await test("TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes", { "SC-10": "partial", "SC-11": "partial", "MD-03": "partial" }, async () => {
+  const host = `/Documents/tt94-photo-${RUN}.jpg`, moved = `/Documents/tt94-moved-${RUN}.jpg`, hostSide = `/Documents/.tt94-photo-${RUN}.jpg.edit.json`;
+  const privatePhoto = `${DIR}/secret-${RUN}.jpg`, privateSide = `${DIR}/.secret-${RUN}.jpg.edit.json`, ramSide = `/Documents/.tt94-ram-${RUN}.jpg.edit.json`;
+  const captured: string[] = [];
+  const observed = new PrivacyLayer((url, init) => { if (typeof init?.body === "string") captured.push(init.body); return raw(url, init); }); observed.keys = keys;
+  const A = new PrivacyLayer(raw); A.amnesic = true;
+  try {
+    const created = await raw("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "write", path: host, content: "image", mime: "image/jpeg" }) }); assert.equal(created.status, 200);
+    const [n] = await rows("select id,version,sha256 from vfs_nodes where path=$1", [host]); const guard = { path: host, id: n.id, version: n.version, sha256: n.sha256 };
+    assert.equal((await post(L, { op: "write", path: hostSide, content: "host edits", expectedPhoto: guard, expectedRecipe: null })).status, 200);
+    assert.equal((await post(L, { op: "write", path: hostSide, content: "stale recipe", expectedPhoto: guard, expectedRecipe: null })).status, 409, "host forwarding must retain the recipe precondition");
+    assert.equal((await rows("select content from vfs_nodes where path=$1", [hostSide]))[0].content, "host edits");
+    assert.equal((await post(L, { op: "move", src: host, dst: moved })).status, 200);
+    assert.equal((await post(L, { op: "write", path: hostSide, content: "stale", expectedPhoto: guard })).status, 409, "unlocked host forwarding must retain the identity guard");
+    assert.equal((await rows("select count(*)::int n from vfs_nodes where path=$1", [hostSide]))[0].n, 0);
+    assert.equal((await post(L, { op: "write", path: hostSide, content: "bad", expectedPhoto: { ...guard, path: privatePhoto } })).status, 422, "private owner path cannot be forwarded to a host target");
+    const secretGuard = { path: privatePhoto, id: 1, version: 1, sha256: "a".repeat(64) };
+    assert.equal((await post(L, { op: "write", path: hostSide, content: "bad", expectedRecipe: null })).status, 400, "a host recipe precondition without an owner cannot be dropped");
+    assert.equal((await post(observed, { op: "write", path: privateSide, content: `private-${WORD}`, expectedPhoto: secretGuard, expectedRecipe: null })).status, 422, "Private recipe CAS is refused, not silently downgraded");
+    assert.equal((await post(observed, { op: "write", path: privateSide, content: `private-${WORD}`, expectedPhoto: secretGuard })).status, 200);
+    assert.equal((await get(observed, "read", privateSide)).body.node.content, `private-${WORD}`);
+    assert.ok(captured.every((x) => !x.includes(privatePhoto) && !x.includes(privateSide) && !x.includes(WORD) && !x.includes("expectedRecipe")), "private guards and contents must not reach the host in clear");
+    assert.equal((await post(observed, { op: "purge", path: privateSide, expectedPhoto: secretGuard, expectedRecipe: null })).status, 422);
+    assert.equal((await post(observed, { op: "purge", path: privateSide, expectedPhoto: secretGuard })).status, 200);
+    assert.equal((await post(A, { op: "write", path: ramSide, content: `ram-${WORD}`, expectedPhoto: guard, expectedRecipe: null })).status, 422, "RAM recipe CAS is refused, not silently downgraded");
+    assert.equal((await post(A, { op: "write", path: ramSide, content: `ram-${WORD}`, expectedPhoto: guard })).status, 200);
+    assert.equal((await get(A, "read", ramSide)).body.node.content, `ram-${WORD}`);
+    assert.equal((await rows("select count(*)::int n from vfs_nodes where path=$1 or content like $2", [ramSide, `%ram-${WORD}%`]))[0].n, 0);
+    assert.equal((await post(A, { op: "purge", path: ramSide, expectedPhoto: guard })).status, 200);
+  } finally {
+    for (const path of [host, moved, hostSide, `/Documents/.tt94-moved-${RUN}.jpg.edit.json`]) await raw("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "purge", path }) });
+    A.ram.wipe();
+  }
+});
+
 await test("amnesic: VFS writes live in RAM (no row), host files can be hidden but are untouched, moves copy into RAM; wipe forgets everything", { "SC-11": "full" }, async () => {
   const A = new PrivacyLayer(raw); A.amnesic = true;
   await raw("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "write", path: `/Documents/host-${RUN}.txt`, content: "on the host" }) });
@@ -277,7 +334,10 @@ await test("TT19 amnesic search: RAM-only files are searchable in place and hidd
   assert.equal((await call(A, `/api/search?q=${TOK}`)).body.hits.length, 0, "wiped RAM is gone from search");
 });
 
-// cleanup: purge this run's encrypted subtree
-await raw("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "purge", path: await encryptPath(keys, DIR) }) });
+// Cleanup only this run's cryptographically unique subtree, including orphan versions.
+// Prefix comparison is literal: base64url paths may contain SQL LIKE wildcards.
+const encryptedRunDir = await encryptPath(keys, DIR);
+await raw("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "purge", path: encryptedRunDir }) });
+await db.query("DELETE FROM vfs_versions WHERE path = $1 OR left(path, char_length($1) + 1) = $1 || '/'", [encryptedRunDir]);
 await db.end();
 finish();

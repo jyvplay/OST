@@ -1,0 +1,42 @@
+{
+  "suite": "tt95-calculator-audit",
+  "at": "2026-10-27T19:49:44.162Z",
+  "results": [
+    {
+      "suite": "tt95-calculator-audit",
+      "name": "the register labels incomplete programmer mode and nonpersistent history as partial",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 34
+    },
+    {
+      "suite": "tt95-calculator-audit",
+      "name": "the shared evaluator handles examples but does not claim bitwise programmer operations",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt95-calculator-audit",
+      "name": "calculator history exists in the mounted window but is not saved as a note or search row",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 59
+    },
+    {
+      "suite": "tt95-calculator-audit",
+      "name": "calculator history is lost when the component remounts",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 1839
+    }
+  ]
+}

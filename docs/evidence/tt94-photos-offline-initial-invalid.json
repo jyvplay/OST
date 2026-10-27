@@ -1,0 +1,39 @@
+{
+  "suite": "e2e-tt94-photos-offline",
+  "at": "2026-10-27T17:34:49.253Z",
+  "results": [
+    {
+      "suite": "e2e-tt94-photos-offline",
+      "name": "an offline guarded edit really queues and replays successfully when the owner is unchanged",
+      "covers": {
+        "MD-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": false,
+      "error": "page.waitForLoadState: Timeout 20000ms exceeded.",
+      "ms": 25364
+    },
+    {
+      "suite": "e2e-tt94-photos-offline",
+      "name": "a stale offline edit is rejected and retained ahead of later queued work on reconnect",
+      "covers": {
+        "MD-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": false,
+      "error": "page.waitForLoadState: Timeout 20000ms exceeded.",
+      "ms": 23464
+    },
+    {
+      "suite": "e2e-tt94-photos-offline",
+      "name": "storage quota denial cannot masquerade as a queued photo save",
+      "covers": {
+        "MD-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": false,
+      "error": "page.waitForLoadState: Timeout 20000ms exceeded.",
+      "ms": 23417
+    }
+  ]
+}

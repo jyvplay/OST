@@ -1,0 +1,26 @@
+{
+  "suite": "e2e-tt93-sidecar",
+  "at": "2026-10-27T19:23:08.880Z",
+  "results": [
+    {
+      "suite": "e2e-tt93-sidecar",
+      "name": "Files displays the destination-sidecar collision and keeps both the photo and edits intact",
+      "covers": {
+        "FM-03": "partial",
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1384
+    },
+    {
+      "suite": "e2e-tt93-sidecar",
+      "name": "Files successfully renames a photo and its versioned recipe together",
+      "covers": {
+        "FM-03": "partial",
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1591
+    }
+  ]
+}

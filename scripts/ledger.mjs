@@ -10,8 +10,9 @@
  *   Partially built  = status "partial" or "probe" (probe = runs end to end only
  *                      where the browser exposes the API)
  *   Not buildable    = status "blocked" (platform impossibility, reason rendered)
- *   Fully tested     = at least one PASSING test tags the row "full"
- *   Partially tested = only "partial" tags among passing tests
+ *   Fully tested     = at least one PASSING test tags the row "full", except
+ *                      incomplete rows (partial/probe/skeleton) are capped at partial
+ *   Partially tested = passing evidence exists but is partial or the row is incomplete
  *   Untested         = no passing test tags the row
  *   A failing test contributes nothing; rows touched only by failing tests are
  *   listed separately so a regression is visible, not silently counted.
@@ -49,7 +50,13 @@ for (const s of suites) {
 }
 if (unknownCodes.size) { console.error("Tests reference unknown feature codes:", [...unknownCodes].join(", ")); process.exit(1); }
 
-const testLevel = (code) => cov.get(code)?.level ?? "untested";
+const rowByCode = new Map(rows.map((r) => [r.code, r]));
+const testLevel = (code) => {
+  const level = cov.get(code)?.level ?? "untested";
+  // A full-tagged subtest cannot make an explicitly incomplete feature fully
+  // tested. Blocked rows retain full tags only for their disclosed honesty tests.
+  return level === "full" && ["partial", "probe", "skeleton"].includes(rowByCode.get(code)?.status) ? "partial" : level;
+};
 const buildClass = (st) => (st === "built" ? "full" : st === "partial" || st === "probe" ? "partial" : st === "blocked" ? "blocked" : "none");
 
 const count = (pred) => rows.filter(pred).length;
@@ -76,6 +83,10 @@ const md = `# Fusion Shell Web — build / test ledger (generated)
 
 Generated ${new Date().toISOString()} by \`scripts/ledger.mjs\` from the live register (${BASE}) and
 ${suites.length} machine-readable suite result files in \`docs/test-results/\`. Nothing in the counts is hand-edited.
+These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
+Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
+Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
+See each suite timestamp and the latest turn report for current tests, known classification errors and earlier failures.
 
 ## Headline
 
@@ -86,10 +97,10 @@ ${suites.length} machine-readable suite result files in \`docs/test-results/\`. 
 | Partially built (partial ${count((r) => r.status === "partial")} + probe ${count((r) => r.status === "probe")}) | ${built.partial} |
 | Not buildable on this platform (blocked, reason rendered in UI) | ${built.blocked} |
 | Not built at all (skeleton) | ${built.none} |
-| **Fully tested** (≥1 passing test tagged \`full\`) | **${tested.full}** |
-| **Partially tested** (only \`partial\` tags) | **${tested.partial}** |
+| **Fully tested** (≥1 passing \`full\` tag; incomplete rows capped) | **${tested.full}** |
+| **Partially tested** (partial tags or an incomplete row with passing evidence) | **${tested.partial}** |
 | Untested | ${tested.untested} |
-| Automated tests executed / passed | ${totalTests} / ${passedTests} |
+| Recorded test cases / passed (mixed run dates) | ${totalTests} / ${passedTests} |
 
 ## Build × test matrix
 
@@ -126,8 +137,8 @@ ${rows.map((r) => `| ${r.code} | ${r.status} | ${testLevel(r.code)} | ${(cov.get
 
 - **Fully built** = register status \`built\`: runs end to end in this build against real browser/DB APIs.
 - **Partially built** = \`partial\` (a named sub-capability is degraded) or \`probe\` (runs only where the browser exposes the API).
-- **Fully tested** = a passing automated test exercises the row's primary contract end to end at the layer where it lives (pure library / server over HTTP / UI in real headless Chromium (version recorded by the browser run)) including at least one negative or adversarial assertion.
-- **Partially tested** = passing tests exercise only part of the row (e.g. the module mounts without error, or only the server half is exercised).
+- **Fully tested** = at least one recorded passing test was tagged \`full\`, and the register does not mark the feature partial/probe/skeleton. Tags and statuses are authored claims, not independent proof of complete coverage. For blocked rows a full tag tests the disclosed limitation, not the impossible feature.
+- **Partially tested** = passing tests exercise only part of the row, or the register explicitly marks the row partial/probe/skeleton even if some tests have full tags.
 - Mount-only smoke tests tag a module's rows \`partial\`: rendering without an uncaught error is evidence of integration, not of function.
 `;
 

@@ -1,0 +1,50 @@
+{
+  "suite": "tt93-metadata-race",
+  "at": "2026-10-27T19:23:03.341Z",
+  "results": [
+    {
+      "suite": "tt93-metadata-race",
+      "name": "history removal and its audit are atomic when the audit insert fails",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 44
+    },
+    {
+      "suite": "tt93-metadata-race",
+      "name": "a move already in progress preserves its history before a later dropVersions can act",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 127
+    },
+    {
+      "suite": "tt93-metadata-race",
+      "name": "a tag update queued behind a move cannot report success on a vanished source",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 115
+    },
+    {
+      "suite": "tt93-metadata-race",
+      "name": "a tag update that wins the gate is preserved by the following move",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 124
+    }
+  ]
+}

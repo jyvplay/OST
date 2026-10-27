@@ -1,0 +1,44 @@
+{
+  "suite": "e2e-tt93-photos-clear",
+  "at": "2026-10-27T16:29:11.693Z",
+  "results": [
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "a failed identity-edit purge keeps the recipe and reports failure, not success",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": false,
+      "error": "locator.waitFor: Timeout 4000ms exceeded.\nCall log:\n  - waiting for getByText(/Save failed:/) to be visible\n",
+      "ms": 8324
+    },
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "a failed rating-clear purge leaves both the persisted and displayed rating unchanged",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": false,
+      "error": "locator.waitFor: Timeout 4000ms exceeded.\nCall log:\n  - waiting for getByText(/Could not save the rating:/) to be visible\n",
+      "ms": 6428
+    },
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "after the fault is removed, an identity edit clears the recipe",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 2460
+    },
+    {
+      "suite": "e2e-tt93-photos-clear",
+      "name": "after the fault is removed, clearing a rating updates the saved recipe and UI",
+      "covers": {
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 2616
+    }
+  ]
+}

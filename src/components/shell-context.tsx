@@ -5,6 +5,7 @@ import type { CapabilityReport } from "@/lib/capabilities";
 import type { GovernorSnapshot } from "@/lib/governor";
 import type { RoutineAction } from "@/lib/routines";
 import type { DesktopState, Rect, WindowCommand, WindowState } from "@/lib/windowing/state";
+import type { ContextProfilesApi } from "./useContextProfiles";
 
 export interface ClipEntry { text: string; at: number; sensitive: boolean; from: string; pinned?: boolean }
 
@@ -24,7 +25,11 @@ export interface ShellApi {
   caps: CapabilityReport | null;
   gov: GovernorSnapshot;
   settings: Record<string, string>;
+  /** Optional browser-local appearance overrides; shared settings remain unchanged. */
+  contextProfiles: ContextProfilesApi;
   setSetting: (key: string, value: string) => Promise<void>;
+  /** Re-read a committed configuration restore and notify other same-origin shell tabs. */
+  reloadSettings: () => Promise<void>;
   toast: (message: string, tone?: "info" | "ok" | "warn" | "bad", action?: { label: string; run: () => void }) => void;
   /** LN-13: one processed stream, many consumers. */
   streams: Map<string, MediaStream>;

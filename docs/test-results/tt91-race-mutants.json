@@ -1,0 +1,54 @@
+{
+  "suite": "tt91-race-mutants",
+  "at": "2026-10-27T13:57:06.155168+00:00",
+  "results": [
+    {
+      "suite": "tt91-race-mutants",
+      "name": "cleanup does not take the advisory lock",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an already-running cache write completes before cleanup and leaves no historical cache rows\n    Expected values to be strictly equal:\n\n1 !== 0\n\n\n0 passed, 1 failed\nFAILED: an already-running cache write completes before cleanup and leaves no historical cache rows\n",
+      "ms": 890
+    },
+    {
+      "suite": "tt91-race-mutants",
+      "name": "ordinary cache write does not take the lock",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an already-running cache write completes before cleanup and leaves no historical cache rows\n    Expected values to be strictly equal:\n\n1 !== 0\n\n\n0 passed, 1 failed\nFAILED: an already-running cache write completes before cleanup and leaves no historical cache rows\n",
+      "ms": 951
+    },
+    {
+      "suite": "tt91-race-mutants",
+      "name": "conditional cache overwrite does not take the lock",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 conditional overwrite followed by cleanup cannot reintroduce an old saved version\n    Expected values to be strictly equal:\n\n1 !== 0\n\n\n0 passed, 1 failed\nFAILED: conditional overwrite followed by cleanup cannot reintroduce an old saved version\n",
+      "ms": 986
+    },
+    {
+      "suite": "tt91-race-mutants",
+      "name": "cache purge does not take the lock",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 cache purge cooperates with an in-flight cache cleanup\n    No lock wait observed for pg_advisory_xact_lock\n\n0 passed, 1 failed\nFAILED: cache purge cooperates with an in-flight cache cleanup\n",
+      "ms": 12958
+    }
+  ]
+}

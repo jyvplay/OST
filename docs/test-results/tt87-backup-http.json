@@ -1,0 +1,79 @@
+{
+  "suite": "tt87-backup-http",
+  "at": "2026-10-27T19:19:47.905Z",
+  "results": [
+    {
+      "suite": "tt87-backup-http",
+      "name": "BK-03 config export → preview → actual atomic restore, history, no document data, and idempotent replay",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 130
+    },
+    {
+      "suite": "tt87-backup-http",
+      "name": "BK-03 stale preview, invalid known value, locked and unknown keys cannot cause unintended changes",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 89
+    },
+    {
+      "suite": "tt87-backup-http",
+      "name": "BK-03 an actual database failure during the second setting update rolls back the first update and its history",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 67
+    },
+    {
+      "suite": "tt87-backup-http",
+      "name": "BK-01 data snapshot restores Unicode text, binary, empty folders and notes; keeps previous file versions and avoids duplicate notes",
+      "covers": {
+        "BK-01": "partial"
+      },
+      "pass": true,
+      "ms": 182
+    },
+    {
+      "suite": "tt87-backup-http",
+      "name": "BK-01 identical source notes are counted rather than collapsed, and a repeated restore adds no extra copies",
+      "covers": {
+        "BK-01": "partial"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt87-backup-http",
+      "name": "BK-01 restores private ciphertext without indexing, refuses an encrypted-to-plaintext overwrite and file/folder collision",
+      "covers": {
+        "BK-01": "partial",
+        "SC-17": "partial"
+      },
+      "pass": true,
+      "ms": 90
+    },
+    {
+      "suite": "tt87-backup-http",
+      "name": "BK-01 a real PostgreSQL error during the second file update rolls back the first file, its version and search index",
+      "covers": {
+        "BK-01": "partial"
+      },
+      "pass": true,
+      "ms": 112
+    },
+    {
+      "suite": "tt87-backup-http",
+      "name": "BK-01 legacy v1 imports only after explicit consent; missing or tampered manifest never writes",
+      "covers": {
+        "BK-01": "partial"
+      },
+      "pass": true,
+      "ms": 63
+    }
+  ]
+}

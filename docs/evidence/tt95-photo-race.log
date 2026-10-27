@@ -1,0 +1,5 @@
+  ✓ an uncommitted competing insert cannot be overwritten by an absent-recipe save
+  ✓ a locked update committed first invalidates the later guarded save
+  ✓ a locked update committed first invalidates the later guarded clear
+
+3 passed, 0 failed

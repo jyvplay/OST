@@ -1,8 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { fz } from "@/lib/uiscale";
-import { post } from "@/lib/api";
+import { MAX_BROWSER_SAVE_BYTES, readBrowserSave, saveBrowserDownload } from "@/lib/browser-download";
+import { privacy } from "@/lib/privacy/session";
 import { encodeTarget, type UaKind } from "@/lib/wp-core";
+import { useShell } from "../shell-context";
 import { startSharedBroker } from "@/lib/wp-shared-broker";
 import { Btn } from "../ui";
 
@@ -35,23 +37,18 @@ interface Stats { requests: number; blocked: number; cookies: number; errors: nu
 type UaChoice = "default" | UaKind;
 function siteHostOf(url: string): string { try { return new URL(url).host; } catch { return ""; } }
 
-function b64(buf: ArrayBuffer): string {
-  const u = new Uint8Array(buf); let s = "";
-  for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000));
-  return btoa(s);
-}
-export function saveName(url: string, type: string): string {
-  let u: URL; try { u = new URL(url); } catch { return "page.html"; }
-  let n = decodeURIComponent(u.pathname.split("/").filter(Boolean).pop() ?? "") || u.hostname;
-  n = n.replace(/[\\/:*?"<>|\x00-\x1f]/g, "_").replace(/^\.+/, "").slice(0, 120) || "page";
-  if (/html/i.test(type) && !/\.x?html?$/i.test(n)) n += ".html";
-  return n;
-}
+// Keep the existing named export for callers; its implementation is shared with tests.
+export { saveName } from "@/lib/browser-download";
 
 /** session creations in flight, per Browser session map → key */
 const minting = new WeakMap<Map<string, string>, Map<string, Promise<string>>>();
 
 export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", profiles = [], onProfile, circuitable = false, via = "" }: ProxyFrameProps) {
+  const shell = useShell();
+  const transfer = useRef<AbortController | null>(null);
+  const [savePhase, setSavePhase] = useState<"fetching" | "saving" | null>(null);
+  const [savedPath, setSavedPath] = useState("");
+  useEffect(() => () => { transfer.current?.abort(); }, []);
   // TT36 (PR-07o): tabs sharing a named profile share one proxy session (one cookie jar); "" = this tab only
   const sessionKey = profile ? `p:${profile}` : tabId;
   const [reader, setReader] = useState(false);
@@ -179,19 +176,29 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
     return result;
   };
   const save = async () => {
-    if (!sid) return;
-    const cur = hist.list[hist.i];
-    setNote("Saving…");
+    if (transfer.current) return;
+    if (!privacy.status().installed || privacy.status().amnesic) { setNote("Not saved: server downloads are unavailable in an amnesic session."); return; }
+    if (!sid) { setNote("Not saved: the private proxy session is not ready."); return; }
+    const cur = hist.list[hist.i], controller = new AbortController();
+    transfer.current = controller; setSavePhase("fetching"); setSavedPath(""); setNote("Fetching original bytes…");
+    let committing = false, lastProgress = 0;
     try {
-      const r = await fetch(`/api/wp/s/${sid}/__raw?u=${encodeURIComponent(cur)}`);
-      if (!r.ok) throw new Error(await r.text());
+      const r = await fetch(`/api/wp/s/${sid}/__raw?u=${encodeURIComponent(cur)}`, { signal: controller.signal });
       const type = r.headers.get("x-fusion-wp-type") ?? "";
-      const buf = await r.arrayBuffer();
-      const name = saveName(cur, type);
-      await post("/api/fs", { op: "mkdir", path: "/Downloads" }).catch(() => undefined);
-      await post("/api/fs", { op: "write", path: `/Downloads/${name}`, content: b64(buf), encoding: "base64", mime: type.split(";")[0] || "application/octet-stream", reason: "browser-save" });
-      setNote(`Saved to Files → /Downloads/${name} (${Math.round(buf.byteLength / 1024)} KB)`);
-    } catch (e) { setNote(`Not saved: ${String((e as Error).message ?? e).slice(0, 160)}`); }
+      const bytes = await readBrowserSave(r, controller.signal, (n) => {
+        const now = performance.now();
+        if (now - lastProgress >= 250) { lastProgress = now; setNote(`Received ${Math.ceil(n / 1024)} KiB (limit ${MAX_BROWSER_SAVE_BYTES / 1048576} MiB)…`); }
+      });
+      if (controller.signal.aborted) throw new DOMException("Download cancelled", "AbortError");
+      // The commit is intentionally not cancellable: an interrupted acknowledgement
+      // cannot prove that PostgreSQL did not save the file.
+      committing = true; setSavePhase("saving"); setNote("Saving to Fusion Files…");
+      const saved = await saveBrowserDownload(cur, type, bytes);
+      setSavedPath(saved.path); setNote(`Saved to Files → ${saved.path} (${Math.round(bytes.byteLength / 1024)} KB)`);
+    } catch (e) {
+      const message = String((e as Error).message ?? e).slice(0, 160);
+      setNote(!committing && controller.signal.aborted ? "Cancelled before saving; no file was written." : committing ? `Save not confirmed; check /Downloads before retrying. ${message}` : `Not saved: ${message}`);
+    } finally { transfer.current = null; setSavePhase(null); }
   };
 
   const src = sid ? encodeTarget(start, sid) : null;
@@ -238,10 +245,13 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
             {[...new Set(["Personal", "Work", ...profiles])].filter(Boolean).map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
         </label>
-        <Btn variant="ghost" data-testid="wp-save" onClick={() => void save()}>Save to Files</Btn>
-        <span className="fs-dim" title="Every request goes through Fusion: the site never sees your address, trackers are blocked, nothing is cached or stored on disk." data-testid="wp-via">Private proxy{via ? ` via ${via}` : ""}{title ? ` · ${title.slice(0, 60)}` : ""}</span>
+        <Btn variant="ghost" data-testid="wp-save" disabled={!!savePhase} title="Save original bytes to the Fusion server's /Downloads, not /Private; 8 MiB maximum." onClick={() => void save()}>Save to Files</Btn>
+        {savePhase === "fetching" ? <Btn variant="ghost" data-testid="wp-save-cancel" onClick={() => transfer.current?.abort()}>Cancel download</Btn> : null}
+        {savedPath ? <Btn variant="ghost" data-testid="wp-open-downloads" onClick={() => shell.open("files", { path: "/Downloads" })}>Open Downloads</Btn> : null}
+        <span className="fs-dim" title="Requests go through Fusion; proxy sessions and cookies live in memory. Save to Files deliberately writes to server storage." data-testid="wp-via">Private proxy{via ? ` via ${via}` : ""}{title ? ` · ${title.slice(0, 60)}` : ""}</span>
       </div>
-      {note ? <div data-testid="wp-note" className="fs-dim" style={{ fontSize: fz(11), padding: "2px 8px" }}>{note}</div> : null}
+      <div className="fs-dim" style={{ fontSize: fz(10.5), padding: "2px 8px" }}>Save to Files copies the original bytes to the Fusion server’s unencrypted /Downloads (up to 8 MiB), not /Private. Page-initiated browser downloads remain in the browser’s own downloads.</div>
+      {note ? <div role="status" data-testid="wp-note" data-phase={savePhase ?? "idle"} className="fs-dim" style={{ fontSize: fz(11), padding: "2px 8px" }}>{note}</div> : null}
       {err ? <div data-testid="wp-error" style={{ padding: 12 }}>{err}</div> : null}
       {src ? (
         <iframe ref={frame} data-testid="wp-frame" src={src} title={title || hist.list[hist.i]}

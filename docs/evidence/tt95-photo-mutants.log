@@ -1,0 +1,13 @@
+KILLED M1: omit recipe update check
+KILLED M2: omit recipe clear check
+KILLED M3: ignore recipe identity
+KILLED M4: ignore recipe version
+KILLED M5: trust the stored recipe digest
+KILLED M6: remove atomic absent creation
+KILLED M7: browser omits recipe precondition
+KILLED M8: browser fails to advance its token
+KILLED M9: treat corrupt recipe as absent
+KILLED M10: treat a failed recipe read as absent
+KILLED M11: privacy wrapper drops the host guard
+KILLED M12: offline queue drops the recipe guard
+Mutants: 12/12 killed

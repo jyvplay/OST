@@ -1,0 +1,123 @@
+{
+  "suite": "tt89-drill-db",
+  "at": "2026-10-27T19:20:21.070Z",
+  "results": [
+    {
+      "suite": "tt89-drill-db",
+      "name": "scratch data drill restores Unicode, binary, empty folders, duplicate notes and private-index exclusion without touching production",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 145
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "config drill writes a sentinel then reads real values back; reports locked and unknown keys without changing settings or sequences",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 85
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "empty backup and all-unknown configuration cannot become a successful drill",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 88
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "invalid known setting aborts and preserves every public table and sequence",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 85
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "an actual SQL fault after scratch file writes rolls back rather than reporting success",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 101
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "read-back is mandatory: suppressing actual scratch file rows makes the drill fail",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 100
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "private-index leakage introduced in the scratch database is detected on read-back",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 96
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "an unshadowed relation is unavailable under the drill search path",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 86
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "lost rollback acknowledgement discards the client and never returns a successful drill",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 106
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "unexpected rollback command tag discards the client and cannot be reported as a pass",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 115
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "a single pooled PostgreSQL connection is reusable after success and failure without scratch tables or search-path leakage",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 189
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "a pre-existing shadow table is refused instead of using an unknown scratch schema",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 44
+    },
+    {
+      "suite": "tt89-drill-db",
+      "name": "a real PostgreSQL role without TEMP privilege is refused, with public data unchanged",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 52
+    }
+  ]
+}

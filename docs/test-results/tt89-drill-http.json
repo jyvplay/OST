@@ -1,0 +1,87 @@
+{
+  "suite": "tt89-drill-http",
+  "at": "2026-10-27T19:20:21.661Z",
+  "results": [
+    {
+      "suite": "tt89-drill-http",
+      "name": "sampled scratch restore works through HTTP and reports sample and total separately",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 106
+    },
+    {
+      "suite": "tt89-drill-http",
+      "name": "tampering content, metadata or the complete manifest fails validation before drill",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 20
+    },
+    {
+      "suite": "tt89-drill-http",
+      "name": "wrong type, extra restore controls and non-JSON backup body are rejected",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt89-drill-http",
+      "name": "empty snapshot or all-unknown settings cannot give a pass",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 52
+    },
+    {
+      "suite": "tt89-drill-http",
+      "name": "invalid known setting is rejected even if attacker recomputes the plain checksum",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 45
+    },
+    {
+      "suite": "tt89-drill-http",
+      "name": "mixed current, locked and unknown settings are honestly reported as skipped",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 53
+    },
+    {
+      "suite": "tt89-drill-http",
+      "name": "legacy bundle can be drilled non-destructively but is labelled legacy with warning",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 58
+    },
+    {
+      "suite": "tt89-drill-http",
+      "name": "duplicate paths, parent-as-file, unsafe paths and invalid binary input are refused even with a new manifest",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 23
+    },
+    {
+      "suite": "tt89-drill-http",
+      "name": "a ciphertext envelope sent directly to the server is not treated as a decrypted bundle",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "suite": "e2e-tt91-browser-download",
+  "at": "2026-10-27T19:22:52.952Z",
+  "results": [
+    {
+      "suite": "e2e-tt91-browser-download",
+      "name": "real PyPI bytes: a concurrent HTTP create after listing forces a retry without overwriting either file",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 720
+    },
+    {
+      "suite": "e2e-tt91-browser-download",
+      "name": "saved file is discoverable via the real Files window",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 1174
+    },
+    {
+      "suite": "e2e-tt91-browser-download",
+      "name": "a real >8 MiB PyPI package streamed through the proxy is refused with no extra file",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 627
+    },
+    {
+      "suite": "e2e-tt91-browser-download",
+      "name": "cancelling a stalled fetch writes nothing; the UI distinguishes cancellation from commit",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 199
+    },
+    {
+      "suite": "e2e-tt91-browser-download",
+      "name": "a remote HTTP error is reported and never creates a file",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 62
+    },
+    {
+      "suite": "e2e-tt91-browser-download",
+      "name": "a committed write with its acknowledgement lost is reported as unknown, not as a definite failure",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 235
+    },
+    {
+      "suite": "e2e-tt91-browser-download",
+      "name": "restarting amnesic while the download is stalled does not publish it or permit a conditional host write",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 2163
+    }
+  ]
+}

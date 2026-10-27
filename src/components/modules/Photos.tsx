@@ -22,11 +22,13 @@ import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import Thumb from "../Thumb";
-import { readFileBytes, readRecipe, forgetThumbnail, bytesToB64 } from "@/lib/thumbs/service";
+import { readFileBytes, readRecipe, readRecipeForEditing, forgetThumbnail, bytesToB64, type RecipeIdentity } from "@/lib/thumbs/service";
 import { PRESETS, isIdentity, isSidecar, outputSize, parseRecipe, photoOfSidecar, renderRecipe, sidecarPath, type PhotoRecipe, type PresetName } from "@/lib/photos/recipe";
+import { privacy } from "@/lib/privacy/session";
+import { isPrivatePath } from "@/lib/privacy/pcrypt";
 import type { FileMeta } from "@/lib/meta";
 
-interface Item { path: string; name: string; mime: string; size: number; sha256: string; createdAt: string; updatedAt: string }
+interface Item { id: number; version: number; path: string; name: string; mime: string; size: number; sha256: string; createdAt: string; updatedAt: string }
 interface Info { date?: string; dateSource: "exif" | "file"; w?: number; h?: number; camera?: string; lat?: number; lon?: number }
 type View = "all" | "favorites" | "edited" | "places";
 const INDEX_KEY = "fusion.photos.index.v1";
@@ -204,6 +206,9 @@ function rasterToCanvas(r: Raster): OffscreenCanvas {
   const c = new OffscreenCanvas(r.width, r.height); c.getContext("2d")!.putImageData(new ImageData(new Uint8ClampedArray(r.data), r.width, r.height), 0, 0); return c;
 }
 
+type RecipeStore = "host" | "private" | "ram";
+const recipeStore = (path: string): RecipeStore => isPrivatePath(path) ? "private" : privacy.status().amnesic ? "ram" : "host";
+
 function PhotoEditor({ item, info, onClose, onSaved, onExported }: { item: Item; info?: Info; onClose: () => void; onSaved: (r: PhotoRecipe | null) => void; onExported: () => void }) {
   const shell = useShell();
   const [state, setState] = useState<{ base?: Raster; meta?: FileMeta; error?: string; note?: string; saved: PhotoRecipe | null } | null>(null);
@@ -213,6 +218,12 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported }: { item: Item;
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0.5, y: 0.5 });
   const [busy, setBusy] = useState<string | null>(null);
+  // Synchronous guard: state updates alone do not prevent two clicks in the
+  // same render from launching conflicting writes to one recipe.
+  const saving = useRef(false);
+  // The token is advanced synchronously on confirmed saves, before another
+  // click can start; a React render alone is not a concurrency guard.
+  const loadedRecipe = useRef<{ store: RecipeStore; expected: RecipeIdentity | null } | null>(null);
   const [exp, setExp] = useState<{ format: "jpeg" | "png" | "webp" | "avif" | "heic" | "gif" | "bmp"; quality: number; size: number; meta: boolean; location: boolean } | null>(null);
   const [caps, setCaps] = useState<Record<string, boolean> | null>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -221,16 +232,19 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported }: { item: Item;
   useEffect(() => {
     let live = true;
     (async () => {
+      const store = recipeStore(item.path);
       const bytes = await readFileBytes(item.path); if (!bytes) throw new Error("could not read the photo");
       const { readMetadata } = await import("@/lib/meta");
       const meta = await readMetadata(bytes, item.name);
-      const saved = await readRecipe(item.path);
+      const loaded = await readRecipeForEditing(item.path, store === "host");
       let base: Raster; let note: string | undefined;
       if (DECODABLE.test(meta.mime) || meta.format === "tiff") base = await decodePhoto(bytes, meta, 1400);
       else if (meta.picture) { base = await decodeUpright(meta.picture.data, meta.picture.mime, 1400); note = `${meta.format.toUpperCase()} cannot be decoded by this browser: editing shows the embedded preview, export is unavailable.`; }
       else throw new Error(`${meta.format.toUpperCase()} cannot be decoded by this browser`);
       if (!live) return;
-      setState({ base, meta, note, saved }); if (saved) setHist({ list: [saved], at: 0 });
+      if (store !== recipeStore(item.path)) throw new Error("Storage mode changed while opening the photo; reopen it before editing.");
+      loadedRecipe.current = { store, expected: loaded.expected };
+      const saved = loaded.recipe; setState({ base, meta, note, saved }); if (saved) setHist({ list: [saved], at: 0 });
     })().catch((e: unknown) => { if (live) setState({ error: e instanceof Error ? e.message : String(e), saved: null }); });
     import("@/lib/image/encode").then((m) => m.exportCapabilities()).then((c) => { if (live) setCaps(c); }).catch(() => {});
     return () => { live = false; };
@@ -263,31 +277,64 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported }: { item: Item;
   };
   const pix = (x: PhotoRecipe | null | undefined) => { const o: Record<string, unknown> = { ...(x ?? { v: 1 }) }; delete o.rating; delete o.favorite; return JSON.stringify(o); };
   const dirty = pix(recipe) !== pix(state?.saved);
+  const expectedPhoto = { path: item.path, id: item.id, version: item.version, sha256: item.sha256 };
 
-  const saveFlags = async (r: PhotoRecipe) => {
+  const persistRecipe = async (r: PhotoRecipe, reason: string) => {
+    const loaded = loadedRecipe.current;
+    if (!loaded || loaded.store !== recipeStore(item.path)) throw new Error("Storage mode changed; reopen the photo before saving edits.");
+    const precondition = loaded.store === "host" ? { expectedRecipe: loaded.expected } : {};
+    const empty = isIdentity(r) && !r.rating && !r.favorite;
+    const result = empty
+      ? await post<{ id?: unknown; version?: unknown; sha256?: unknown }>("/api/fs", { op: "purge", path: sidecarPath(item.path), expectedPhoto, ...precondition })
+      : await post<{ id?: unknown; version?: unknown; sha256?: unknown }>("/api/fs", { op: "write", path: sidecarPath(item.path), content: JSON.stringify(r, null, 1), mime: "application/json", reason, expectedPhoto, ...precondition });
+    if (loaded.store !== recipeStore(item.path)) throw new Error("Storage mode changed during the save; its outcome may be unknown. Reopen the photo.");
+    if (loaded.store === "host") {
+      if (empty) loaded.expected = null;
+      else {
+        if (!Number.isSafeInteger(result.id) || Number(result.id) <= 0 || !Number.isSafeInteger(result.version) || Number(result.version) <= 0
+          || typeof result.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(result.sha256)) {
+          throw new Error("The save may have completed but its new identity was not confirmed; reopen the photo.");
+        }
+        loaded.expected = { id: Number(result.id), version: Number(result.version), sha256: result.sha256 };
+      }
+    }
+  };
+
+  const saveFlags = async (r: PhotoRecipe, patch: Partial<PhotoRecipe>) => {
+    if (saving.current) return;
+    saving.current = true; setBusy("Saving rating");
     try {
-      if (isIdentity(r) && !r.rating && !r.favorite) await post("/api/fs", { op: "purge", path: sidecarPath(item.path) }).catch(() => {});
-      else await post("/api/fs", { op: "write", path: sidecarPath(item.path), content: JSON.stringify(r, null, 1), mime: "application/json", reason: "photo rating" });
+      await persistRecipe(r, "photo rating");
       setState((s) => s && { ...s, saved: r }); onSaved(isIdentity(r) && !r.rating && !r.favorite ? null : r);
-    } catch (e) { shell.toast(`Could not save the rating: ${(e as Error).message}`, "bad"); }
+      // Apply only the confirmed flag to the current history, preserving any
+      // pixel edits made while the request was in flight.
+      push(patch);
+    } catch (e) {
+      const queued = !!(e as { queued?: boolean }).queued;
+      shell.toast(`${queued ? "Rating queued" : "Could not save the rating"}: ${(e as Error).message}`, queued ? "warn" : "bad");
+    }
+    finally { saving.current = false; setBusy(null); }
   };
   const save = async (r: PhotoRecipe) => {
-    setBusy("Saving");
+    if (saving.current) return;
+    saving.current = true; setBusy("Saving");
     try {
-      const sc = sidecarPath(item.path);
+      await persistRecipe(r, "photo edit");
       if (isIdentity(r) && !r.rating && !r.favorite) {
-        await post("/api/fs", { op: "purge", path: sc }).catch(() => {});
         onSaved(null); setState((s) => s && { ...s, saved: null });
       } else {
-        await post("/api/fs", { op: "write", path: sc, content: JSON.stringify(r, null, 1), mime: "application/json", reason: "photo edit" });
         onSaved(r); setState((s) => s && { ...s, saved: r });
       }
       forgetThumbnail(item, 256, state?.saved ?? null);
       shell.toast(isIdentity(r) ? "Saved (original pixels)" : "Edit saved — the original file is untouched", "ok");
-    } catch (e) { shell.toast(`Save failed: ${(e as Error).message}`, "bad"); } finally { setBusy(null); }
+    } catch (e) {
+      const queued = !!(e as { queued?: boolean }).queued;
+      shell.toast(`${queued ? "Edit queued" : "Save failed"}: ${(e as Error).message}`, queued ? "warn" : "bad");
+    }
+    finally { saving.current = false; setBusy(null); }
   };
-  // rating / favourite are library metadata: saved at once onto the SAVED recipe (unsaved slider edits stay unsaved)
-  const setMetaFlag = (patch: Partial<PhotoRecipe>) => { const r = parseRecipe({ ...(state?.saved ?? { v: 1 }), ...patch }); push(patch); void saveFlags(r); };
+  // Rating/favourite update the last SAVED recipe, leaving unsaved pixel edits alone.
+  const setMetaFlag = (patch: Partial<PhotoRecipe>) => { const r = parseRecipe({ ...(state?.saved ?? { v: 1 }), ...patch }); void saveFlags(r, patch); };
 
   const doExport = async () => {
     if (!exp || !state?.meta) return;
@@ -323,11 +370,11 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported }: { item: Item;
         <div style={{ flex: 1 }} />
         <span role="radiogroup" aria-label="Rating" style={{ display: "flex" }}>
           {[1, 2, 3, 4, 5].map((n) => (
-            <button key={n} role="radio" aria-checked={(r.rating ?? 0) === n} aria-label={`${n} star${n > 1 ? "s" : ""}`} className="fs-btn" data-variant="ghost"
+            <button key={n} role="radio" disabled={!!busy} aria-checked={(r.rating ?? 0) === n} aria-label={`${n} star${n > 1 ? "s" : ""}`} className="fs-btn" data-variant="ghost"
               style={{ minWidth: 28, color: (r.rating ?? 0) >= n ? "var(--fs-warn, #c98a00)" : undefined }} onClick={() => setMetaFlag({ rating: (r.rating ?? 0) === n ? 0 : n })}><StarIcon filled={(r.rating ?? 0) >= n} size={16} /></button>
           ))}
         </span>
-        <Btn variant={r.favorite ? "primary" : "ghost"} aria-pressed={!!r.favorite} onClick={() => setMetaFlag({ favorite: !r.favorite })}><HeartIcon filled={!!r.favorite} size={14} /> Favorite</Btn>
+        <Btn variant={r.favorite ? "primary" : "ghost"} disabled={!!busy} aria-pressed={!!r.favorite} onClick={() => setMetaFlag({ favorite: !r.favorite })}><HeartIcon filled={!!r.favorite} size={14} /> Favorite</Btn>
         <Btn variant="ghost" disabled={hist.at === 0} onClick={() => setHist((h) => ({ ...h, at: Math.max(0, h.at - 1) }))}>Undo</Btn>
         <Btn variant="ghost" disabled={hist.at >= hist.list.length - 1} onClick={() => setHist((h) => ({ ...h, at: Math.min(h.list.length - 1, h.at + 1) }))}>Redo</Btn>
         <Btn variant="ghost" onPointerDown={() => setCompare(true)} onPointerUp={() => setCompare(false)} onPointerLeave={() => setCompare(false)} title="Hold to see the original">Compare</Btn>

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/user/OST/scripts/oracle/meta_fixtures.py", line 10, in <module>
+    import piexif
+ModuleNotFoundError: No module named 'piexif'

@@ -33,6 +33,7 @@ export default function PrivacyModule(_: ModuleProps) {
   const [recovery, setRecovery] = useState<string | null>(null);
   const [audit, setAudit] = useState<(Audit & { logical: Record<string, string> }) | null>(null);
   const [bench, setBench] = useState<Bench | null>(null);
+  const [cacheClear, setCacheClear] = useState<{ nodes: number; versions: number; index: number } | null>(null);
   const [cleanPath, setCleanPath] = useState(""); const [overwrite, setOverwrite] = useState(false);
   const [cleaned, setCleaned] = useState<CleanFileResult | null>(null);
   const [blocked, setBlocked] = useState<{ at: number; what: string }[]>([]);
@@ -287,6 +288,19 @@ export default function PrivacyModule(_: ModuleProps) {
                 {audit.plainNames.length + audit.plainContent.length === 0 ? <div style={{ justifySelf: "start" }}><Badge tone="ok">nothing stored in clear</Badge></div> : null}
               </div>
             ) : null}
+          </Section>
+          <Section title="Old thumbnail cache" right={<Btn disabled={!!busy || st.amnesic} data-testid="clear-old-thumbnails"
+            onClick={() => {
+              if (!confirm("Remove ALL server thumbnail cache entries and their saved versions? Thumbnails will be regenerated. This does not erase backups or database history. Close older app tabs first.")) return;
+              void run("clear thumbnail cache", async () => {
+                if (privacy.status().amnesic) throw new Error("not available in an amnesic session");
+                const result = await post<{ nodes: number; versions: number; index: number }>("/api/privacy/thumbnail-cache", { confirm: "CLEAR THUMBNAIL CACHE" });
+                setCacheClear(result);
+              });
+            }}>Clear thumbnail cache…</Btn>}>
+            <div className="fs-dim" style={{ fontSize: fz(12) }}>Earlier versions could save previews of /Private files unencrypted in the shared server cache. Clear all thumbnails and saved cache versions after closing older app tabs. This removes current database rows only—not backups, replicas, database logs or residual disk data; it is not secure erasure.</div>
+            {st.amnesic ? <div className="fs-dim" style={{ fontSize: fz(12) }}>Unavailable in an amnesic session because this changes host data.</div> : null}
+            {cacheClear ? <div role="status" data-testid="thumbnail-cache-result">Removed {cacheClear.nodes} cache entries, {cacheClear.versions} saved versions and {cacheClear.index} index entries from the current database.</div> : null}
           </Section>
           <Section title="Encryption speed (this device, real AES-256-GCM)" right={<Btn disabled={!!busy} data-testid="bench"
             onClick={() => run("bench", async () => setBench(await privacy.benchmark()))}>{busy === "bench" ? "Measuring…" : "Measure"}</Btn>}>
