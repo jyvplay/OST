@@ -5,6 +5,7 @@ import { Client } from "pg";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 import { evaluate } from "../src/lib/calc.ts";
+import { evaluateProgrammer } from "../src/lib/programmer.ts";
 if (process.env.TT89_DISPOSABLE_DATABASE !== "1" || !process.env.DATABASE_URL) throw new Error("Refusing calculator audit without an exclusive disposable database/server.");
 const BASE = process.env.BASE ?? "http://localhost:3000", { test, finish } = makeHarness("tt95-calculator-audit"), cov = { "PR-09": "partial" } as const;
 const db = new Client({ connectionString: process.env.DATABASE_URL }); await db.connect();
@@ -12,13 +13,14 @@ const call = async (method: string, path: string, body?: object) => { const r = 
 const expression = `${randomBytes(4).readUInt32BE() % 100000000}+123457`;
 const counts = async () => (await db.query("SELECT (SELECT count(*)::int FROM notes WHERE title LIKE $1 OR body LIKE $1) AS notes, (SELECT count(*)::int FROM index_docs WHERE title LIKE $1 OR body LIKE $1) AS indexed", [`%${expression}%`])).rows[0];
 try {
-  await test("the register labels incomplete programmer mode and nonpersistent history as partial", cov, async () => {
+  await test("the register labels the expanded calculator and local history as partial", cov, async () => {
     const r = await call("GET", "/api/features"); assert.equal(r.status, 200); const row = r.json.rows.find((x: { code: string }) => x.code === "PR-09");
-    assert.ok(row); assert.equal(row.tier, "A"); assert.equal(row.status, "partial"); assert.match(row.nuance, /in memory only/); assert.match(row.nuance, /bitwise operations.*not implemented/i);
+    assert.ok(row); assert.equal(row.tier, "A"); assert.equal(row.status, "partial"); assert.match(row.nuance, /memory by default/i);
+    assert.match(row.nuance, /not in global Search or backups/i); assert.match(row.nuance, /Programmer mode separately/i);
   });
-  await test("the shared evaluator handles examples but does not claim bitwise programmer operations", cov, () => {
+  await test("scientific and fixed-width programmer modes have distinct explicit operators", cov, () => {
     assert.equal(evaluate("2+2*3").text, "8"); assert.equal(evaluate("sqrt(144)").text, "12"); assert.equal(evaluate("0xff").text, "255");
-    assert.equal(evaluate("0xff & 0x0f").ok, false);
+    assert.equal(evaluate("0xff & 0x0f").ok, false); assert.equal(evaluateProgrammer("0xff & 0x0f", 8, false).text, "15");
   });
   const state = await call("GET", "/api/state?id=default"), rev = Number(state.json.row?.revision ?? 1) + 1000;
   assert.equal((await call("PUT", "/api/state", { id: "default", revision: rev, state: { windows: [], focus: null, workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, nextZ: 10, viewport: { w: 1440, h: 1000 }, icons: [], focusMode: false } })).status, 200);

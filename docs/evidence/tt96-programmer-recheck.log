@@ -1,0 +1,10 @@
+  ✓ the original scientific evaluator and rounding policy stay available
+  ✓ bitwise AND, OR, XOR and NOT use the selected fixed width
+  ✓ word arithmetic wraps at 8, 16, 32 and 64 bits
+  ✓ 64-bit values remain exact beyond Number.MAX_SAFE_INTEGER
+  ✓ signed division truncates toward zero and right shift sign-extends only when signed
+  ✓ operator precedence and grouping follow the documented programmer grammar
+  ✓ invalid or resource-abusive programmer expressions fail closed
+  ✓ fixed-width operations match an independent deterministic Python oracle
+
+8 passed, 0 failed

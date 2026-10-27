@@ -1,0 +1,4 @@
+Direct Node 22.22.3 probe of src/lib/calc.ts during the TT96 production gate:
+  evaluate('1e308 km to mm') => { ok: true, value: Infinity, text: 'Infinity mm', detail: '1e308 km → mm' }
+  evaluate('-1e308 km to mm') => { ok: true, value: -Infinity, text: '-Infinity mm', detail: '-1e308 km → mm' }
+JSON.stringify displays the nonfinite value field as null; the text still shows Infinity. This is an observed scientific-unit-conversion defect, not a corrected behavior or a programmer-mode defect. It is outside the currently built/gated changes and PR-09 remains partial.

@@ -1,0 +1,10 @@
+  ✗ a lower-right desktop context menu stays within its usable surface and Sort can be clicked
+    menu horizontally escapes surface: {"d":{"x":0,"y":42.5,"width":1440,"height":802.5},"m":{"x":1422,"y":869.5,"width":197,"height":334}}
+  ✗ at large text on a narrow viewport every menu action remains reachable
+    locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('menu') to be visible
+
+
+0 passed, 2 failed
+FAILED: a lower-right desktop context menu stays within its usable surface and Sort can be clicked | at large text on a narrow viewport every menu action remains reachable

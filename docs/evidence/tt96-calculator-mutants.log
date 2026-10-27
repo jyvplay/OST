@@ -1,0 +1,20 @@
+KILLED: OR accidentally becomes AND
+KILLED: XOR accidentally becomes OR
+KILLED: unary NOT omitted
+KILLED: word wrap incorrectly limited to 32 bits
+KILLED: signed arithmetic treated as unsigned
+KILLED: signed right shift becomes logical
+KILLED: divide by zero returns zero
+KILLED: shift limit omitted
+KILLED: length limit omitted
+KILLED: nesting limit weakened
+KILLED: shift precedence changed
+KILLED: binary output loses leading zeroes
+KILLED: scientific radix silently rounds
+KILLED: history collision overwrites
+KILLED: append mutates before checking corruption
+KILLED: clear deletes unrelated origin storage
+KILLED: history cap leaves 41 records
+KILLED: storage quota error is swallowed
+KILLED: oversized expressions are accepted
+Mutants: 19/19 killed

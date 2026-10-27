@@ -184,6 +184,8 @@ body {
 .fs-list-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 8px; cursor: default; }
 .fs-list-item:hover { background: rgba(255,255,255,.05); }
 .fs-list-item[data-selected="true"] { background: rgba(91,140,255,.22); }
+/* A muted default badge can fall below 4.5:1 on the selected-row tint (notably dark Silver). */
+.fs-list-item[data-selected="true"] > .fs-badge[data-tone="default"] { color: var(--fs-text); }
 .fs-sep { height: 1px; background: var(--fs-border); margin: 6px 0; }
 .fs-kbd {
   font-family: ui-monospace, monospace; font-size: calc(10.5 * var(--fs-u)); padding: 1px calc(5 * var(--fs-u));

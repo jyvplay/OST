@@ -90,4 +90,15 @@ The repaired application built successfully for production. A separate 68-suite 
 
 The preview is a production server on port 3000 backed by its own separate disposable database. Local HTTP checks returned 200; real Chromium initialized the shell without page errors and rendered visible controls. The first smoke incorrectly waited for an empty hidden toast region to be visible and timed out; its corrected smoke passed (`tt95-preview-smoke*.log`). The proxied external HTTPS URL itself and physical devices were not independently verified here. The regression server uses a separate database on port 3001 so ordinary preview interactions do not modify the gate database, although shared machine load could still affect timing.
 
-A draft PR has been opened at https://github.com/jyvplay/OST/pull/3. A final expanded gate, refreshed mixed-date ledger/static endpoint, delivery status and any actual merge result remain pending. This turn has not established ten new Class A promotions.
+### Expanded 69-suite gate (completed during TT96)
+
+After the test adjustment, an expanded, sequential production run on a new separate disposable database **failed 65/69 suites, 474/480 cases, exit 1** (`docs/evidence/tt95-final-production-gate.log`). All 69 suites printed a summary. Four suites failed:
+
+- Tabletop **13/15**: a two-card fan assertion observed three rotations, and the desktop context menu was intercepted by the dock.
+- Files **11/13**: embedded terminal follow-folder text did not appear before the timeout, and axe reported insufficient contrast for a selected file's server badge.
+- Accessibility **8/9**: the all-themes test timed out waiting for spreadsheet cell A2. The earlier icon-scale case passed in this run.
+- Pointer fallback **5/6**: the right-button gesture test timed out waiting for the Launcher dialog.
+
+Detailed unmodified failure JSON is retained as `docs/evidence/tt95-final-e2e-*.json`. All six named cases passed when selected separately (**2 + 2 + 1 + 1**), without overwriting the full-suite JSON (`docs/evidence/tt96-prior-gate-failure-investigation.log`); this does not establish the causes or erase the aggregate failure. In this run the unchanged privacy suite **passed 16/16**, with encryption **55 MB/s**, decryption **64 MB/s**, and median host/private saves **33.1/49.4 ms** against the existing `private ≤ host × 1.3 + 8 ms` gate (`tt95-final-privacy-bench.json`). That is a real passing measurement, not a demonstrated performance fix: the earlier 42, 44 and 48 MB/s results and latency failures remain evidence of variability and unresolved reliability.
+
+A draft PR is open at https://github.com/jyvplay/OST/pull/3. Regenerating the mixed-date ledger/static endpoint, resolving the newly exposed failures, final delivery and any actual merge result remain outstanding. TT95 established no ten new Class A promotions.

@@ -1,0 +1,7 @@
+  ✓ dark unhovered selected server badge is readable across all 13 styles
+  ✓ dark hovered selected server badge is readable across all 13 styles
+  ✓ light unhovered selected server badge is readable across all 13 styles
+  ✓ light hovered selected server badge is readable across all 13 styles
+  ✓ axe detects the injected old muted colour on dark Silver and accepts the restored colour
+
+5 passed, 0 failed

@@ -1,0 +1,28 @@
+{
+  "suite": "e2e-tt96-desktop-menu",
+  "at": "2026-10-27T20:59:41.391Z",
+  "results": [
+    {
+      "suite": "e2e-tt96-desktop-menu",
+      "name": "a lower-right desktop context menu stays within its usable surface and Sort can be clicked",
+      "covers": {
+        "LY-06": "partial",
+        "AX-02": "partial"
+      },
+      "pass": false,
+      "error": "menu horizontally escapes surface: {\"d\":{\"x\":0,\"y\":42.5,\"width\":1440,\"height\":802.5},\"m\":{\"x\":1422,\"y\":869.5,\"width\":197,\"height\":334}}",
+      "ms": 2155
+    },
+    {
+      "suite": "e2e-tt96-desktop-menu",
+      "name": "at large text on a narrow viewport every menu action remains reachable",
+      "covers": {
+        "LY-06": "partial",
+        "AX-02": "partial"
+      },
+      "pass": false,
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('menu') to be visible\n",
+      "ms": 12518
+    }
+  ]
+}

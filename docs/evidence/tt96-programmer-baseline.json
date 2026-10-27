@@ -1,0 +1,85 @@
+{
+  "suite": "tt96-programmer",
+  "at": "2026-10-27T20:44:41.081Z",
+  "results": [
+    {
+      "suite": "tt96-programmer",
+      "name": "the original scientific evaluator and rounding policy stay available",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "bitwise AND, OR, XOR and NOT use the selected fixed width",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": false,
+      "error": "0xff & 0x0f: unexpected \"xff & 0x\"\n\nfalse !== true\n",
+      "ms": 1
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "word arithmetic wraps at 8, 16, 32 and 64 bits",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": false,
+      "error": "0xff + 1: unexpected \"xff + 1\"\n\nfalse !== true\n",
+      "ms": 0
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "64-bit values remain exact beyond Number.MAX_SAFE_INTEGER",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": false,
+      "error": "0xffffffffffffffff\n+ actual - expected\n\n+ '18446744073709552000'\n- '18446744073709551615'\n                   ^\n",
+      "ms": 0
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "signed division truncates toward zero and right shift sign-extends only when signed",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": false,
+      "error": "0xfb / 2: unexpected \"xfb / 2\"\n\nfalse !== true\n",
+      "ms": 0
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "operator precedence and grouping follow the documented programmer grammar",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": false,
+      "error": "1 + 2 << 3 & 0x1f ^ 1 | 2: unexpected \"<< 3 & 0\"\n\nfalse !== true\n",
+      "ms": 0
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "invalid or resource-abusive programmer expressions fail closed",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": false,
+      "error": "1.5\n\ntrue !== false\n",
+      "ms": 0
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "fixed-width operations match an independent deterministic Python oracle",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": false,
+      "error": "0xb7 + 0x5f: unexpected \"xb7 + 0x\"\n\nfalse !== true\n",
+      "ms": 29
+    }
+  ]
+}
