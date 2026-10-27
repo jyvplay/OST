@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 const { test, finish } = makeHarness("e2e-tt81");
 const BASE = process.env.BASE ?? "http://localhost:3999", RUN = `tt81-${Date.now()}`;
-const PY = process.env.ORACLE_PY ?? "/home/user/runtime/venv/bin/python";
+const PY = process.env.ORACLE_PY ?? "/home/user/tools/venv/bin/python";
 const temp = mkdtempSync(join(tmpdir(), "e2e81-"));
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); const j = await r.json(); if (!r.ok) throw new Error(`${path}: ${r.status} ${JSON.stringify(j)}`); return j; };
@@ -104,7 +104,7 @@ await test("E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, 
     ok(!violations.length, `axe ${violations}`);
   } finally { await ctx.close(); }
 });
-await test("E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases", { "FF-81": "partial" }, async () => {
+await test("E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and MuPDF independently verify", { "FF-81": "full" }, async () => {
   const bytes = mkpdf([{ text: ["Scaled unit"], w: 300, h: 400, userUnit: 2.5 }, { text: ["Default unit"], w: 300, h: 400 }]);
   const path = await upload("pdf", bytes, "application/pdf"); const { ctx, page } = await open("pdf", path);
   try {
@@ -125,12 +125,21 @@ await test("E4 PDF /UserUnit reaches the live viewer, text highlights, info pane
     const highlight = p1.locator("svg rect").first(); await highlight.waitFor();
     const hx = Number(await highlight.getAttribute("x")); ok(hx > 160 && hx < 220, `highlight x did not use UserUnit: ${hx}`);
     const f = join(temp, "user-unit-ui.pdf"); writeFileSync(f, bytes);
-    const unit = JSON.parse(execFileSync(PY, ["-c", "import pypdf,sys,json; p=pypdf.PdfReader(sys.argv[1]).pages; print(json.dumps([float(x.get('/UserUnit',1)) for x in p]))", f], { encoding: "utf8" }));
-    ok(JSON.stringify(unit) === "[2.5,1]", `pypdf read units ${unit}`);
+    const oracle = JSON.parse(execFileSync(PY, ["-c", `
+import pypdf, pymupdf, sys, json
+p = pypdf.PdfReader(sys.argv[1]).pages
+doc = pymupdf.open(sys.argv[1])
+pix0, pix1 = doc[0].get_pixmap(), doc[1].get_pixmap()
+print(json.dumps({
+  "units": [float(x.get("/UserUnit", 1)) for x in p],
+  "mupdf": [[pix0.width, pix0.height], [pix1.width, pix1.height]],
+}))
+`, f], { encoding: "utf8" }));
+    ok(JSON.stringify(oracle.units) === "[2.5,1]" && JSON.stringify(oracle.mupdf) === "[[750,1000],[300,400]]", `pypdf/MuPDF oracle mismatch: ${JSON.stringify(oracle)}`);
     await app.screenshot({ path: "docs/screens/tt84-pdf-unit.png" });
   } finally { await ctx.close(); }
 });
-await test("E5 Writer Word Count reports document and selected text through the real UI", { "FF-82": "partial" }, async () => {
+await test("E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions", { "FF-82": "full" }, async () => {
   const { ctx, page } = await open("writer", "");
   try {
     const app = page.locator('[role="dialog"][aria-label="Writer"]').last(), body = app.getByTestId("writer-body");
@@ -152,9 +161,65 @@ await test("E5 Writer Word Count reports document and selected text through the 
     await app.screenshot({ path: "docs/screens/tt84-writer-count.png" });
     await page.keyboard.press("Escape"); await dialog.waitFor({ state: "detached" });
     await page.waitForFunction(() => document.activeElement?.getAttribute("data-testid") === "writer-word-count-open");
+    // Turn on Track Changes and delete the last word ("gamma"): struck-out text must not inflate the word count.
+    await body.click(); await page.keyboard.press("End");
+    await page.keyboard.press("Control+Shift+E");
+    await app.getByTestId("writer-track-chip").waitFor();
+    for (let i = 0; i < 5; i++) await page.keyboard.press("Backspace");
+    await app.getByTestId("writer-words").filter({ hasText: "2 words" }).waitFor();
   } finally { await ctx.close(); }
 });
-await test("E6 no browser page errors", {}, () => ok(!errors.length, errors.join("\n")));
+await test("E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge", { "AP-02": "full", "FM-07": "full" }, async () => {
+  const dupContent = Buffer.from(`duplicate-payload-${RUN}`, "utf8");
+  const dupA = await upload("txt", dupContent, "text/plain");
+  const dupB = await upload("txt", dupContent, "text/plain");
+  const trashFile = `/Documents/${RUN}-trash.txt`;
+  await api("POST", "/api/fs", { op: "write", path: trashFile, content: `trash-me-${RUN}` });
+  await api("POST", "/api/fs", { op: "trash", path: trashFile });
+  // Adversarial API checks: missing confirmation or protected bucket must be refused with HTTP 400 and no mutation.
+  const bad1 = await fetch(BASE + "/api/storage", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "purge", buckets: ["trash"], confirm: "no" }) });
+  ok(bad1.status === 400, `expected 400 for bad confirm, got ${bad1.status}`);
+  const bad2 = await fetch(BASE + "/api/storage", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "purge", buckets: ["features"], confirm: "DELETE" }) });
+  ok(bad2.status === 400, `expected 400 for protected bucket, got ${bad2.status}`);
+  const { ctx, page } = await open("storage", "");
+  try {
+    const app = page.getByTestId("storage-app").last();
+    await app.waitFor();
+    await app.getByTestId("storage-categories").waitFor();
+    await app.getByTestId("storage-duplicate-group").filter({ hasText: dupA }).first().waitFor();
+    await app.getByTestId("storage-duplicate-group").filter({ hasText: dupB }).first().waitFor();
+    await page.evaluate(() => window.localStorage.setItem("fusion.tt84.test", "ephemeral-value"));
+    await app.getByRole("button", { name: "Refresh storage overview" }).click();
+    const trashCheckbox = app.getByTestId("storage-bucket-trash");
+    const browserCheckbox = app.getByTestId("storage-bucket-browser");
+    await trashCheckbox.check();
+    await browserCheckbox.check();
+    const previewBtn = app.getByTestId("storage-uninstall-preview");
+    await previewBtn.click();
+    const modal = page.getByTestId("storage-uninstall-modal");
+    await modal.waitFor();
+    const previewRows = Number(await modal.getByTestId("storage-preview-rows").innerText());
+    ok(previewRows >= 2, `expected at least 2 preview rows (trash + browser key), got ${previewRows}`);
+    const execBtn = modal.getByTestId("storage-uninstall-execute");
+    ok(await execBtn.isDisabled(), "delete button must stay disabled before typing DELETE");
+    await page.addScriptTag({ content: readFileSync("node_modules/axe-core/axe.min.js", "utf8") });
+    const violations = await page.evaluate(async () => { const r = await (window as any).axe.run(document); return r.violations.filter((v: any) => v.impact === "serious" || v.impact === "critical").map((v: any) => v.id); });
+    ok(!violations.length, `Uninstall modal axe ${violations}`);
+    await modal.getByTestId("storage-uninstall-confirm").fill("DELETE");
+    ok(!(await execBtn.isDisabled()), "delete button should enable once DELETE is typed");
+    await page.screenshot({ path: "docs/screens/tt84-storage-uninstall.png" });
+    await execBtn.click();
+    await modal.waitFor({ state: "detached" });
+    await app.getByTestId("storage-bucket-stat-trash").filter({ hasText: "0 rows · 0 B" }).waitFor();
+    const afterStorage = await api("GET", "/api/storage");
+    const trashBucket = (afterStorage.buckets as { id: string; rows: number; bytes: number }[]).find((b) => b.id === "trash");
+    const vfsBucket = (afterStorage.buckets as { id: string; rows: number; bytes: number }[]).find((b) => b.id === "vfs_user");
+    ok(trashBucket?.rows === 0 && trashBucket?.bytes === 0, `trash bucket not zeroed: ${JSON.stringify(trashBucket)}`);
+    ok((vfsBucket?.rows ?? 0) >= 2, `unselected vfs_user bucket lost files: ${JSON.stringify(vfsBucket)}`);
+    ok((await page.evaluate(() => window.localStorage.getItem("fusion.tt84.test"))) === null, "browser localStorage key was not cleared");
+  } finally { await ctx.close(); }
+});
+await test("E7 no browser page errors", {}, () => ok(!errors.length, errors.join("\n")));
 await browser.close();
 for (const path of paths) { await api("POST", "/api/fs", { op: "trash", path }); await api("POST", "/api/fs", { op: "purge", path }); }
 finish();

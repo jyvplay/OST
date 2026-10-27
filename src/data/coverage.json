@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-26T16:12:18.755Z",
+ "generatedAt": "2026-10-27T01:39:56.276Z",
  "totals": {
   "built": {
-   "full": 337,
-   "partial": 53,
+   "full": 344,
+   "partial": 49,
    "blocked": 21,
-   "none": 1
+   "none": 0
   },
   "tested": {
-   "full": 262,
-   "partial": 71,
-   "untested": 79
+   "full": 269,
+   "partial": 70,
+   "untested": 75
   },
   "tests": {
-   "total": 1635,
-   "passed": 1635
+   "total": 1679,
+   "passed": 1678
   }
  },
  "rows": {
@@ -50,7 +50,15 @@
    "tested": "full",
    "tests": [
     "e2e-tt67-input: SH-06 hot corner with real pointer moves: entering the top-left corner opens the launcher; after Escape, a pointer resting / jittering in the corner for 3 s does NOT reopen it; leaving and re-entering does; with Hot corners off nothing opens",
-    "tt67-input: SH-06 hot corner: fires once on ENTRY, never again while the pointer rests or jitters inside, re-arms after leaving; the TT66 rule (re-fire every 1.2 s inside) reopened a just-closed launcher"
+    "e2e-tt86-pointer: SH-06 all four hot corners open their mapped shell panels once per entry",
+    "e2e-tt86-pointer: SH-06 all four viewport edges require an inward flick and open the matching panel",
+    "e2e-tt86-pointer: SH-06 right-button gestures map all four directions on both desktop surfaces; context-menu and short-drag behavior is preserved",
+    "e2e-tt86-pointer: SH-06 trigger preference gates corner, edge and drag actions without stealing ordinary shell control clicks",
+    "e2e-tt86-pointer: SH-06 pointer listeners report no uncaught page errors",
+    "tt67-input: SH-06 hot corner: fires once on ENTRY, never again while the pointer rests or jitters inside, re-arms after leaving; the TT66 rule (re-fire every 1.2 s inside) reopened a just-closed launcher",
+    "tt86-pointer: SH-06 corner model: four actions, first sample only arms, exact 6×42 boundaries, entry-only and independent re-arm",
+    "tt86-pointer: SH-06 edge model: all four rails require an inward 18 px flick within 600 ms, exclude corners, and re-arm on a fresh edge entry",
+    "tt86-pointer: SH-06 right-drag model: direction, minimum distance, 1.25× axis dominance, ties, and non-right buttons"
    ]
   },
   "SH-07": {
@@ -104,8 +112,10 @@
    "tests": []
   },
   "SH-13": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt85: E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations"
+   ]
   },
   "SH-14": {
    "tested": "full",
@@ -423,8 +433,10 @@
   "FM-07": {
    "tested": "full",
    "tests": [
+    "e2e-tt81: E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge",
     "e2e: mount: storage",
-    "integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest"
+    "integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest",
+    "tt84-wordcount: U2 AP-02 / FM-07 preview summarization and post-purge invariant verification"
    ]
   },
   "FM-08": {
@@ -588,12 +600,19 @@
    "tests": []
   },
   "AP-01": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt85: E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations"
+   ]
   },
   "AP-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt81: E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge",
+    "tt84-wordcount: U1 AP-02 bucket selection and purge validation refuse protected tables, duplicates, empty lists and missing DELETE confirmation",
+    "tt84-wordcount: U2 AP-02 / FM-07 preview summarization and post-purge invariant verification",
+    "tt84-wordcount: U3 AP-02 browser storage inspection and clearing compute exact UTF-16 byte totals"
+   ]
   },
   "AP-03": {
    "tested": "untested",
@@ -604,8 +623,14 @@
    "tests": []
   },
   "AP-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt85: E2 AP-05 inventory: actual service-worker registrations and sync tags match Chromium APIs; page callback counters are measured and clearly not OS wake counts",
+    "tt85-inventory: AP-05: inventory definitions are unique and explicitly describe only app-owned foreground work",
+    "tt85-inventory: AP-05: only real callback entry increments count; status updates do not invent callbacks; snapshots are detached",
+    "tt85-inventory: AP-05: observers receive bounded snapshots and unsubscribe prevents later notifications",
+    "tt85-inventory: AP-05: status text is bounded and records do not persist or expose payload fields"
+   ]
   },
   "TD-01": {
    "tested": "full",
@@ -794,9 +819,16 @@
    ]
   },
   "PR-07h": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads"
+    "e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads",
+    "e2e-tt85: E3 PR-07h per-site browser identity: desktop is the default, a mobile override is host-scoped and survives same-site navigation, and another host remains on default",
+    "tt38-unit: bridge (WP-08, PR-07h): opening through the registry reaches the independent server via the connection layer; WebSocket User-Agent comes from the target-host override rather than the session default; text and binary go both ways in order; the site sees the page's own Origin and session cookie, a 101 cookie lands in the jar, another session cannot write (410), and clean close arrives as {code, reason, wasClean}",
+    "tt85-identity: PR-07h: a session defaults to Desktop, applies only the selected host override within that session, can clear one override, and accepts URL-derived hosts",
+    "tt85-identity: PR-07h: malformed site keys and identity values are rejected without growing the override map",
+    "tt85-identity: PR-07h: override storage is capped at 64 hosts and evicts the oldest entry",
+    "tt85-identity: PR-07h: upstream header builder uses the selected host identity, overwrites spoofed UA/client hints, and public stats do not disclose the full override map",
+    "tt85-identity: PR-07h: real HTTP proxy route sends the target host's selected UA upstream and keeps the session default for a different host"
    ]
   },
   "PR-07i": {
@@ -835,9 +867,13 @@
    ]
   },
   "PR-07n": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads"
+    "e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads",
+    "tt85-find: PR-07n: real Chromium DOM index crosses inline nodes, applies block whitespace, excludes hidden/non-text surfaces, wraps next/previous and selects the exact source Range",
+    "tt85-find: PR-07n: collapsed multi-space source runs keep exact Range boundaries before the following word",
+    "tt85-find: PR-07n: overlapping hits, query-reset reverse start, empty/no-match behavior, Unicode combining marks, and live mutation recount",
+    "tt85-find: PR-07n: scanning stops at configured text/node limits and explicitly marks incomplete counts; class visibility changes re-count"
    ]
   },
   "PR-07o": {
@@ -3158,7 +3194,6 @@
    "tested": "full",
    "tests": [
     "e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows",
-    "e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted",
     "tt35-unit: URL codec (WP-01): path-preserving encode → decode round-trips 2 000 generated URLs exactly (ports, IPv6, trailing slashes, queries, unicode); refuses credentials, non-http schemes, bad session ids and smuggled hosts",
     "tt35-unit: runtime parity (WP-01): the in-page runtime public/wp-shim.js, run in a VM with a proxied location, encodes a 400-URL corpus (relative, root-relative, protocol-relative, absolute, already-proxied, location-built, data:/blob:/javascript:/#) exactly like the server's rewriteUrl",
     "tt35-unit: HTML rewriting (WP-01): adversarial vectors — unquoted / single-quoted / uppercase attributes, entities in queries, <base>, srcset with commas inside URLs, inline style url(), meta refresh, CSP / XFO meta removed, integrity + ping dropped, use-credentials → anonymous, _top → _self, script / textarea / comment content untouched, runtime injected first in <head>",
@@ -3184,8 +3219,7 @@
   "WP-03": {
    "tested": "full",
    "tests": [
-    "e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted",
-    "tt35-unit: privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream requests carry no cookie / referer / origin / client hints / forwarding headers of the user, one UA and language for everyone, Sec-GPC and an origin-only Referer of the target; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised"
+    "tt35-unit: privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream drops the user's identity and client hints, then supplies a shared Desktop default or explicit Desktop/Mobile preset plus fixed language and Sec-GPC; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised"
    ]
   },
   "WP-04": {
@@ -3241,7 +3275,7 @@
     "tt38-unit: limits and close semantics (WP-08): a message over the client's cap fails with 1009 without buffering it; a close reason over 123 bytes is cut on a UTF-8 boundary (the far side accepts it — no 1007); the server sees the client's code",
     "tt38-unit: hostile servers (WP-08, D: 17 negative shapes): wrong accept, 200 instead of 101, no Upgrade, a subprotocol we did not offer, an extension we did not offer, a header flood, silence → each refuses the handshake; then masked server frames, RSV bits, a reserved opcode, invalid UTF-8 text, an oversized / fragmented control frame, a continuation with nothing to continue, a new message inside a fragmented one, close code 1005 on the wire, a 1-byte close payload → each fails the connection with the right status (1002 / 1007), never a hang or a crash",
     "tt38-unit: system proxy, live (WP-09): a fresh server process whose environment has https_proxy (an independent proxy, pproxy) and no_proxy=127.0.0.1 uses the system route by itself — https://pypi.org/ is carried by the proxy (pproxy logs the NAME; no local DNS) while the no_proxy site goes direct; a WebSocket runs over a SOCKS5 tunnel (the Tor route) intact",
-    "tt38-unit: bridge (WP-08): opening through the registry reaches the independent server via the connection layer; text and binary go both ways in order; the site sees the session's User-Agent, the page's own Origin and the session's cookie, and a cookie set on the 101 reply lands in the session jar; another session cannot write to the socket (410); a clean close arrives as {code, reason, wasClean}",
+    "tt38-unit: bridge (WP-08, PR-07h): opening through the registry reaches the independent server via the connection layer; WebSocket User-Agent comes from the target-host override rather than the session default; text and binary go both ways in order; the site sees the page's own Origin and session cookie, a 101 cookie lands in the jar, another session cannot write (410), and clean close arrives as {code, reason, wasClean}",
     "tt38-unit: I — repair against a new attack, cross-site WebSocket hijacking (WP-08): a page that claims another site's origin (with its own token, a made-up one, or none) is sent as Origin 'null' and gets no Lax cookies; a genuine cross-site page keeps its true Origin but also gets no Lax cookies; the jar learns SameSite (default Lax, None needs Secure, Strict/Lax withheld cross-site); siteOf handles public suffixes and IPs",
     "tt38-unit: bridge lifecycle and guards (WP-08): closing the session closes its sockets (server sees 1001); cancelling the stream (tab gone) closes upstream 1001; 32 sockets per session then 429; private, non-web-port, fragment and non-ws URLs are refused before any connection, a private IP behind the URL ends as close 1006 with the reason",
     "tt38-unit: bridge frame codec (WP-08): frames round-trip; a truncated header, a truncated payload and a declared length over the cap are refused",
@@ -3986,7 +4020,8 @@
    "tested": "full",
    "tests": [
     "tt79-sheet: X4 text → number coercion (numtext.ts): en-US currency, groups, %, parentheses, exponent; hex / Infinity / dates refused",
-    "tt79-sheet: X5 the 10 EverythingTests shapes fixed in TT79, rebuilt in a fresh workbook, with negative controls"
+    "tt79-sheet: X5 the 10 EverythingTests shapes fixed in TT79, rebuilt in a fresh workbook, with negative controls",
+    "tt81-core: S5 all 4158 cells across all 4 sheets of FormulaEvalTestData_Copy.xlsx agree with Excel cached values (includes G716, D872, E872, M936)"
    ]
   },
   "FF-78": {
@@ -3996,7 +4031,8 @@
     "tt81-core: S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates",
     "tt81-core: S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula",
     "tt81-core: S3 deterministic independent frequency-map oracle on 240 integer vectors",
-    "tt81-core: S4 all 17 legacy MODE cells agree with Excel cached results in the Apache POI fixture (includes M936)"
+    "tt81-core: S4 all 17 legacy MODE cells agree with Excel cached results in the Apache POI fixture (includes M936)",
+    "tt81-core: S5 all 4158 cells across all 4 sheets of FormulaEvalTestData_Copy.xlsx agree with Excel cached values (includes G716, D872, E872, M936)"
    ]
   },
   "FF-79": {
@@ -4016,6 +4052,31 @@
     "tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical",
     "tt81-core: L3 one-step snapshot undo/redo, deletion, repeated replacement, literal dollar and unicode; paragraph boundaries",
     "tt81-core: L4 hard breaks and dynamic fields block matching, replacement explosion refused before mutation"
+   ]
+  },
+  "FF-81": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and MuPDF independently verify",
+    "tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink"
+   ]
+  },
+  "FF-82": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt81: E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions",
+    "tt84-wordcount: W1 empty text has zero counts",
+    "tt84-wordcount: W2 spaces, blank paragraphs and CRLF do not inflate words or character totals",
+    "tt84-wordcount: W3 apostrophes, hyphens, decomposed accents and emoji count as reader-visible characters",
+    "tt84-wordcount: W4 long input stays bounded and preserves linear counts",
+    "tt84-wordcount: W5 selection-style input: same tokenizer on a substring, whitespace and punctuation edges",
+    "tt84-wordcount: W6 grapheme clusters: emoji ZWJ sequences and combining marks count as one reader-visible character",
+    "tt84-wordcount: W7 tabs and form feeds separate words like spaces; only newlines split lines",
+    "tt84-wordcount: W8 line and paragraph boundaries: trailing newline ends the last line, adds no paragraph",
+    "tt84-wordcount: W9 internal combining marks stay one word and CJK Unified Ideographs count per ideograph",
+    "tt84-wordcount: W10 model-aware countWordDoc excludes tracked deletions, inline images, and deleted table rows",
+    "tt84-wordcount: W11 countWordDoc and countWordRange handle footnotes, endnotes, deleted paragraph marks and multi-cell selections",
+    "tt84-wordcount: W12 round-trip .docx differential against independent python-docx + Python grapheme/word oracle"
    ]
   },
   "CT-01": {

@@ -833,7 +833,7 @@ export default function Tabletop() {
   const zoomFile = zoom ? byPath.get(zoom.path) : undefined;
   const views = table.views ?? [];
   return (
-    <div ref={root} className="fs-tabletop" data-testid="tabletop" data-main={main} data-settled={settled ? "true" : "false"} data-camera={camera} data-depth={geo.depth} data-floor-scale={s.toFixed(4)}
+    <div ref={root} className="fs-tabletop" data-pointer-gesture-surface="tabletop" data-testid="tabletop" data-main={main} data-settled={settled ? "true" : "false"} data-camera={camera} data-depth={geo.depth} data-floor-scale={s.toFixed(4)}
       data-coverage={camera === "slant" ? slant.coverage.toFixed(4) : undefined} data-tilt={camera === "slant" ? slant.beta : undefined}
       style={{ position: "absolute", inset: 0, perspective: camera === "slant" ? slant.P : geo.perspective, perspectiveOrigin: camera === "slant" ? `50% ${slant.oy}px` : "50% 50%", overflow: "hidden",
         "--tt-w": `${size.w}px`, "--tt-h": `${size.h}px`, "--tt-lip": camera === "slant" ? `${Math.round(size.h - slant.quads.south[0][1])}px` : "0px" } as React.CSSProperties}

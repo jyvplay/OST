@@ -44,9 +44,9 @@ export function KV({ k, v, mono }: { k: string; v: ReactNode; mono?: boolean }) 
   );
 }
 
-export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: T; label: string; badge?: ReactNode }[]; value: T; onChange: (v: T) => void }) {
+export function Tabs<T extends string>({ tabs, value, onChange, className = "" }: { tabs: { id: T; label: string; badge?: ReactNode }[]; value: T; onChange: (v: T) => void; className?: string }) {
   return (
-    <div className="fs-row" role="tablist" style={{ gap: 4, flexWrap: "wrap" }}>
+    <div className={`fs-row ${className}`} role="tablist" style={{ gap: 4, flexWrap: "wrap" }}>
       {tabs.map((t) => (
         <button key={t.id} role="tab" aria-selected={value === t.id} className="fs-btn"
           data-variant={value === t.id ? "primary" : "ghost"} onClick={() => onChange(t.id)}>

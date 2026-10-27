@@ -126,7 +126,7 @@ ${rows.map((r) => `| ${r.code} | ${r.status} | ${testLevel(r.code)} | ${(cov.get
 
 - **Fully built** = register status \`built\`: runs end to end in this build against real browser/DB APIs.
 - **Partially built** = \`partial\` (a named sub-capability is degraded) or \`probe\` (runs only where the browser exposes the API).
-- **Fully tested** = a passing automated test exercises the row's primary contract end to end at the layer where it lives (pure library / server over HTTP / UI in real headless Chromium 131) including at least one negative or adversarial assertion.
+- **Fully tested** = a passing automated test exercises the row's primary contract end to end at the layer where it lives (pure library / server over HTTP / UI in real headless Chromium (version recorded by the browser run)) including at least one negative or adversarial assertion.
 - **Partially tested** = passing tests exercise only part of the row (e.g. the module mounts without error, or only the server half is exercised).
 - Mount-only smoke tests tag a module's rows \`partial\`: rendering without an uncaught error is evidence of integration, not of function.
 `;

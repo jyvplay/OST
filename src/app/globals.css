@@ -152,6 +152,11 @@ body {
 .fs-btn[data-variant="primary"] { background: var(--fs-accent); border-color: transparent; color: #04102b; font-weight: 600; }
 .fs-btn[data-variant="danger"] { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.45); color: var(--fs-bad-text, #ffb0b0); }
 .fs-btn:disabled { opacity: .45; cursor: not-allowed; }
+/* TT85 AP-01: the module hub's tabs keep readable text even when a chosen style has a low-contrast accent. */
+.fs-app-tabs [role="tab"] { color: #062a33 !important; background-color: #eafcfa !important; border-color: #062a33; }
+.fs-app-tabs [role="tab"][aria-selected="true"] { color: #eafcfa !important; background-color: #062a33 !important; border-color: #eafcfa; }
+.fs-app-tabs [role="tab"] > span { opacity: 1 !important; }
+.fs-app-tabs [role="tab"]:hover { border-color: var(--fs-text); }
 
 .fs-input, .fs-select, .fs-textarea {
   width: 100%; background: var(--fs-field, rgba(6,10,22,.7)); color: var(--fs-text);

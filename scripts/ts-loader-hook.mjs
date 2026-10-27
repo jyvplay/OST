@@ -17,7 +17,15 @@ export async function resolve(specifier, context, nextResolve) {
     return await nextResolve(specifier, context);
   } catch (e) {
     const retriable = e.code === "ERR_MODULE_NOT_FOUND" || e.code === "ERR_UNSUPPORTED_DIR_IMPORT";
-    if (!retriable || !specifier.startsWith(".")) throw e;
+    if (!retriable) throw e;
+    if (specifier.startsWith("@/")) {
+      const candidate = resolvePath(process.cwd(), "src", specifier.slice(2));
+      for (const ext of [".ts", ".tsx", "/index.ts", "/index.tsx"]) {
+        if (existsSync(candidate + ext)) return nextResolve(pathToFileURL(candidate + ext).href, context);
+      }
+      throw e;
+    }
+    if (!specifier.startsWith(".")) throw e;
     const baseDir = dirname(new URL(context.parentURL).pathname);
     const candidate = resolvePath(baseDir, specifier);
     for (const ext of [".ts", ".tsx", "/index.ts", "/index.tsx"]) {

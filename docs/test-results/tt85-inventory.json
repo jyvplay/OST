@@ -1,0 +1,42 @@
+{
+  "suite": "tt85-inventory",
+  "at": "2026-10-27T00:31:16.968Z",
+  "results": [
+    {
+      "suite": "tt85-inventory",
+      "name": "AP-05: inventory definitions are unique and explicitly describe only app-owned foreground work",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt85-inventory",
+      "name": "AP-05: only real callback entry increments count; status updates do not invent callbacks; snapshots are detached",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt85-inventory",
+      "name": "AP-05: observers receive bounded snapshots and unsubscribe prevents later notifications",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt85-inventory",
+      "name": "AP-05: status text is bounded and records do not persist or expose payload fields",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

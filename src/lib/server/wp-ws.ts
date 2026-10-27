@@ -4,7 +4,7 @@ import { openUpstream } from "./wp-connect";
 import { parsePublicWebUrl } from "./netguard";
 import { routesForAsync, withFailover } from "./wp-route";
 import { UA, sameSite } from "../wp-core";
-import { onSessionEnd, type WpSession } from "./wp-sessions";
+import { onSessionEnd, type WpSession, uaForSite } from "./wp-sessions";
 
 /**
  * TT38 (WP-08): WebSockets for pages in the Private proxy. Original code.
@@ -136,7 +136,7 @@ export function openBridge(s: WpSession, o: { url: string; protocols: string[]; 
       keep = setInterval(() => push(frame(FRAME.KEEPALIVE)), KEEPALIVE_MS);
       o.signal?.addEventListener("abort", () => { if (b.ws) b.ws.close(1001, ""); finished = true; bridges.delete(id); if (keep) clearInterval(keep); }, { once: true });
       const wsUrl = target.href.replace(/^http/, "ws");
-      const headers: Record<string, string> = { "user-agent": UA[s.ua], "accept-language": "en-US,en;q=0.9", "sec-gpc": "1" };
+      const headers: Record<string, string> = { "user-agent": UA[uaForSite(s, target.host)], "accept-language": "en-US,en;q=0.9", "sec-gpc": "1" };
       const cookie = s.jar.header(target, Date.now(), false, crossSite);
       if (cookie) headers.cookie = cookie;
       connectWebSocket({

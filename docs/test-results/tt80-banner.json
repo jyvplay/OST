@@ -1,6 +1,6 @@
 {
   "suite": "tt80-banner",
-  "at": "2026-10-26T18:37:23.798Z",
+  "at": "2026-10-26T20:46:28.932Z",
   "results": [
     {
       "suite": "tt80-banner",
@@ -9,7 +9,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 6309
+      "ms": 4641
     },
     {
       "suite": "tt80-banner",
@@ -18,7 +18,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 6772
+      "ms": 3092
     },
     {
       "suite": "tt80-banner",
@@ -27,7 +27,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 12524
+      "ms": 4002
     },
     {
       "suite": "tt80-banner",
@@ -36,7 +36,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 3957
+      "ms": 2771
     },
     {
       "suite": "tt80-banner",
@@ -45,7 +45,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 4420
+      "ms": 2886
     },
     {
       "suite": "tt80-banner",
@@ -54,7 +54,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 4008
+      "ms": 2418
     },
     {
       "suite": "tt80-banner",
@@ -63,7 +63,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 4590
+      "ms": 2760
     },
     {
       "suite": "tt80-banner",
@@ -72,7 +72,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 4466
+      "ms": 1764
     },
     {
       "suite": "tt80-banner",
@@ -81,7 +81,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 3505
+      "ms": 2077
     },
     {
       "suite": "tt80-banner",
@@ -90,7 +90,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 4017
+      "ms": 2590
     },
     {
       "suite": "tt80-banner",
@@ -99,7 +99,7 @@
         "DP-15": "full"
       },
       "pass": true,
-      "ms": 4079
+      "ms": 2696
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt77-pdfsig",
-  "at": "2026-10-26T15:58:43.407Z",
+  "at": "2026-10-26T20:53:30.198Z",
   "results": [
     {
       "suite": "tt77-pdfsig",
@@ -11,7 +11,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 36
+      "ms": 43
     },
     {
       "suite": "tt77-pdfsig",
@@ -22,7 +22,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 3045
+      "ms": 2997
     },
     {
       "suite": "tt77-pdfsig",
@@ -33,7 +33,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 704
+      "ms": 781
     },
     {
       "suite": "tt77-pdfsig",
@@ -44,7 +44,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 682
+      "ms": 536
     },
     {
       "suite": "tt77-pdfsig",
@@ -55,7 +55,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 530
+      "ms": 540
     },
     {
       "suite": "tt77-pdfsig",
@@ -66,7 +66,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 648
+      "ms": 718
     },
     {
       "suite": "tt77-pdfsig",
@@ -121,7 +121,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt77-pdfsig",
@@ -187,7 +187,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 8
     },
     {
       "suite": "tt77-pdfsig",
@@ -231,7 +231,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt77-pdfsig",
@@ -242,7 +242,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt77-pdfsig",
@@ -253,7 +253,7 @@
         "FF-66": "full"
       },
       "pass": true,
-      "ms": 426
+      "ms": 512
     }
   ]
 }

@@ -125,7 +125,7 @@ try {
 
   // TT68: pypi.org/help/ now 301-redirects to docs.pypi.org (another host, outside this sandbox's egress), so the
   // real-site walk uses pypi.org/sponsors/ — linked from the home page and still served by pypi.org itself.
-  await test("find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads", { "WP-05": "full", "PR-07h": "partial", "PR-07n": "partial", "PR-07m": "partial" }, async () => {
+  await test("find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads", { "WP-05": "full", "PR-07h": "partial", "PR-07n": "full", "PR-07m": "partial" }, async () => {
     const { page, ctx } = await boot([browserWin([tab("t1", "https://pypi.org/sponsors/")])]);
     let savedPath = "";
     try {
@@ -136,9 +136,15 @@ try {
       const n = Number((await page.getByTestId("wp-find-count").innerText()).split("/")[1]);
       ok(n > 5, `many matches expected, got ${n}`);
       await page.getByTestId("wp-find").press("Enter");
-      await poll(async () => (await page.getByTestId("wp-find-count").innerText()).trim() === `2/${n}`, "find: next");
+      // The remote page can update its DOM (and therefore the correct total) between key presses. Assert the live ordinal,
+      // not a stale total captured before those real mutations.
+      await poll(async () => /^2\/\d+$/.test((await page.getByTestId("wp-find-count").innerText()).trim()), "find: next");
+      const nextCount = (await page.getByTestId("wp-find-count").innerText()).trim();
+      ok(Number(nextCount.split("/")[1]) >= 2, `next-match total ${nextCount}`);
       const sel = await proxFrame(page)!.evaluate(() => String(getSelection()).toLowerCase());
       ok(sel === "package", `the match is selected in the page (got "${sel}")`);
+      await page.getByTestId("wp-find").press("Shift+Enter");
+      await poll(async () => /^1\/\d+$/.test((await page.getByTestId("wp-find-count").innerText()).trim()), "find: previous wraps to first match");
       await page.getByTestId("wp-find").fill("zzqqxx-no-such-text");
       await page.getByTestId("wp-find").press("Enter");
       await poll(async () => (await page.getByTestId("wp-find-count").innerText()).trim() === "no matches", "find: no matches");
@@ -146,7 +152,8 @@ try {
       await page.getByTestId("wp-ua").selectOption("mobile");
       await frameReady(page, async (f) => /Mobile/.test(await f.evaluate(() => navigator.userAgent)), "page sees a mobile browser after reload");
       const sid = await page.getByTestId("wp-tab").getAttribute("data-sid");
-      ok((await api("GET", `/api/wp-session?sid=${sid}`)).json.ua === "mobile", "server sends the mobile identity");
+      const identity = (await api("GET", `/api/wp-session?sid=${sid}&site=pypi.org`)).json;
+      ok(identity.ua === "mobile" && identity.uaOverride === "mobile", "the pypi.org site override selects the mobile identity");
       // save
       await page.getByTestId("wp-save").click();
       await poll(async () => /Saved to Files/.test(await page.getByTestId("wp-note").innerText().catch(() => "")), "saved note");

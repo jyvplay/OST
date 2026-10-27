@@ -1,0 +1,51 @@
+{
+  "suite": "tt85-identity",
+  "at": "2026-10-27T00:31:17.511Z",
+  "results": [
+    {
+      "suite": "tt85-identity",
+      "name": "PR-07h: a session defaults to Desktop, applies only the selected host override within that session, can clear one override, and accepts URL-derived hosts",
+      "covers": {
+        "PR-07h": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt85-identity",
+      "name": "PR-07h: malformed site keys and identity values are rejected without growing the override map",
+      "covers": {
+        "PR-07h": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt85-identity",
+      "name": "PR-07h: override storage is capped at 64 hosts and evicts the oldest entry",
+      "covers": {
+        "PR-07h": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt85-identity",
+      "name": "PR-07h: upstream header builder uses the selected host identity, overwrites spoofed UA/client hints, and public stats do not disclose the full override map",
+      "covers": {
+        "PR-07h": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt85-identity",
+      "name": "PR-07h: real HTTP proxy route sends the target host's selected UA upstream and keeps the session default for a different host",
+      "covers": {
+        "PR-07h": "full"
+      },
+      "pass": true,
+      "ms": 404
+    }
+  ]
+}

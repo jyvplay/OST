@@ -35,6 +35,7 @@ export const MODULES: ModuleDef[] = [
   { id: "backup", title: "Backup", icon: "🧰", group: "System", summary: "Verified export/restore with a digest manifest", rect: { w: 760, h: 540 }, implements: ["BK-01", "BK-03", "BK-05"] },
   { id: "alerts", title: "Alerts", icon: "🔔", group: "System", summary: "First-party alert centre with rules and history", rect: { w: 700, h: 540 }, implements: ["NC-01", "NC-04"] },
   { id: "monitor", title: "Monitor", icon: "📈", group: "System", summary: "Frame cost, governor state, memory, jobs", rect: { w: 820, h: 560 }, implements: ["RG-01", "RG-04", "DP-14"] },
+  { id: "apps", title: "Apps", icon: "▦", group: "System", summary: "PWA app hub: modules, manifest handlers, shared storage scope and background inventory", rect: { w: 900, h: 660 }, implements: ["AP-01", "AP-05"] },
   { id: "calculator", title: "Calculator", icon: "🧮", group: "Core", summary: "One evaluator shared with the palette", rect: { w: 420, h: 520 }, implements: ["PR-09", "SR-06"] },
   { id: "settings", title: "Settings", icon: "⚙️", group: "System", summary: "Settings graph, capabilities, licence, shortcuts", rect: { w: 920, h: 620 }, implements: ["ST-01", "ST-04", "BL-01"] },
   { id: "spec", title: "Spec", icon: "📋", group: "System", summary: "The live feature register with nuances and status", rect: { w: 1040, h: 640 }, implements: ["DP-10", "DP-08"] },

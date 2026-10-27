@@ -5,11 +5,11 @@ import type { PreflightCache } from "../wp-cors";
 /**
  * TT35 proxy sessions — RAM only (amnesic: nothing is written to disk or the database). A session is a capability:
  * its id is 128 random bits, and every proxied request must carry it, so another website cannot use this server as
- * an open relay through the user's browser. Each session has its own cookie jar, so two tabs (or two profiles)
- * never share site state — the isolation PR-07o asks for, by construction.
+ * an open relay through the user's browser. Each session owns a private cookie jar and bounded, in-memory site-identity
+ * overrides. Tabs assigned to one named Browser profile intentionally share its session; unrelated sessions do not.
  */
 export interface WpSession {
-  sid: string; ua: UaKind; profile: string; jar: CookieJar; created: number; lastUsed: number;
+  sid: string; ua: UaKind; uaOverrides: Map<string, UaKind>; profile: string; jar: CookieJar; created: number; lastUsed: number;
   /** TT37: bumped by "New circuit" — changes the session's SOCKS isolation credentials (a fresh Tor circuit). */
   circuit: number;
   /** TT39 (WP-10): document id → that document's origin (issued at navigation; LRU) and the CORS-preflight cache */
@@ -19,6 +19,45 @@ export interface WpSession {
 }
 export const WP_IDLE_MS = 30 * 60_000;
 export const WP_MAX_SESSIONS = 64;
+export const WP_MAX_UA_OVERRIDES = 64;
+
+/** Canonicalize an untrusted host-only site key. Paths, credentials, queries, and whitespace are never accepted. */
+export function normalizeUaSite(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const raw = value.trim();
+  if (!raw || raw !== value || raw.length > 300 || /[\/?#@\\\s]/.test(raw)) return null;
+  try {
+    const url = new URL(`https://${raw}`);
+    if (url.username || url.password || url.pathname !== "/" || url.search || url.hash) return null;
+    return url.host.toLowerCase();
+  } catch { return null; }
+}
+
+/** Resolve the browser identity for one target host; absent site overrides inherit the session's desktop default. */
+export function uaForSite(s: WpSession, site: string | URL): UaKind {
+  const key = normalizeUaSite(site instanceof URL ? site.host : site);
+  if (!key) return s.ua;
+  return s.uaOverrides.get(key) ?? s.ua;
+}
+
+export function uaOverrideForSite(s: WpSession, site: string | URL): UaKind | null {
+  const key = normalizeUaSite(site instanceof URL ? site.host : site);
+  return key ? s.uaOverrides.get(key) ?? null : null;
+}
+
+export function setUaOverride(s: WpSession, site: unknown, ua: unknown): boolean {
+  const key = normalizeUaSite(site);
+  if (!key || (ua !== "desktop" && ua !== "mobile")) return false;
+  s.uaOverrides.delete(key);
+  s.uaOverrides.set(key, ua);
+  while (s.uaOverrides.size > WP_MAX_UA_OVERRIDES) s.uaOverrides.delete(s.uaOverrides.keys().next().value as string);
+  return true;
+}
+
+export function clearUaOverride(s: WpSession, site: unknown): boolean {
+  const key = normalizeUaSite(site);
+  return key ? s.uaOverrides.delete(key) : false;
+}
 
 type Store = Map<string, WpSession>;
 // one store per server process, shared by every route bundle that imports this module
@@ -48,7 +87,7 @@ function sweep(now: number) {
 export function createSession(ua: UaKind = "desktop", profile = "default", now = Date.now()): WpSession {
   sweep(now);
   const sid = randomBytes(16).toString("base64url");
-  const s: WpSession = { sid, ua, profile: profile.slice(0, 40), jar: new CookieJar(), created: now, lastUsed: now, circuit: 0, stats: { requests: 0, blocked: 0, bytesIn: 0, errors: 0, blockedHosts: {}, failedHosts: {} } };
+  const s: WpSession = { sid, ua, uaOverrides: new Map(), profile: profile.slice(0, 40), jar: new CookieJar(), created: now, lastUsed: now, circuit: 0, stats: { requests: 0, blocked: 0, bytesIn: 0, errors: 0, blockedHosts: {}, failedHosts: {} } };
   store.set(sid, s);
   return s;
 }
@@ -61,8 +100,11 @@ export function getSession(sid: string, now = Date.now()): WpSession | null {
 }
 export function dropSession(sid: string): boolean { return end(sid); }
 export function sessionCount(): number { return store.size; }
-export function publicStats(s: WpSession) {
-  return { sid: s.sid, ua: s.ua, profile: s.profile, circuit: s.circuit, cookies: s.jar.size, cookieDomains: s.jar.domains(), ...s.stats, blockedHosts: s.stats.blockedHosts };
+export function publicStats(s: WpSession, site?: string) {
+  const key = site === undefined ? null : normalizeUaSite(site);
+  const ua = key ? uaForSite(s, key) : s.ua;
+  const uaOverride = key ? s.uaOverrides.get(key) ?? null : null;
+  return { sid: s.sid, ua, ...(key ? { uaOverride } : {}), profile: s.profile, circuit: s.circuit, cookies: s.jar.size, cookieDomains: s.jar.domains(), ...s.stats, blockedHosts: s.stats.blockedHosts };
 }
 
 /** TT39 (WP-10): register a navigated document; its id rides on that document's script requests. */
