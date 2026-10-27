@@ -18,10 +18,12 @@ const api = async (method: string, path: string, body?: unknown): Promise<{ stat
   const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
   return { status: r.status, json: await r.json().catch(() => null) };
 };
-// TT69: these tests need the CLASSIC desktop (icons, hot corner); a suite interrupted in Tabletop view left
-// appearance.desktopView = "tabletop" and both suites failed with no app change. Force classic, restore afterwards.
-const prevView = (await api("GET", "/api/settings")).json?.rows?.find((r: { key: string }) => r.key === "appearance.desktopView")?.value as string | undefined;
+// These assertions target the Fusion launcher and shelf, and classic desktop icons. Restore the user's actual view/layout.
+const savedSettings = (await api("GET", "/api/settings")).json?.rows as { key: string; value: string }[] | undefined;
+const prevView = savedSettings?.find((r) => r.key === "appearance.desktopView")?.value;
+const prevLayout = savedSettings?.find((r) => r.key === "appearance.layout")?.value;
 if (prevView && prevView !== "classic") await api("PUT", "/api/settings", { key: "appearance.desktopView", value: "classic" });
+if (prevLayout && prevLayout !== "fusion") await api("PUT", "/api/settings", { key: "appearance.layout", value: "fusion" });
 async function poll(f: () => Promise<boolean>, what: string, ms = 15_000) { const t = Date.now(); while (Date.now() - t < ms) { if (await f().catch(() => false)) return; await new Promise((r) => setTimeout(r, 150)); } throw new Error(`timeout: ${what}`); }
 const win = (id: string, module: string, workspace = 1, x = 60) => ({ id, module, title: MODULES.find((m) => m.id === module)!.title, x, y: 60, w: 640, h: 420, z: 11, minimized: false, maximized: false, workspace, host: "tab", props: {} });
 async function putDesktop(windows: unknown[]) {
@@ -140,4 +142,5 @@ ok(errors.length === 0, `page errors: ${errors.join(" | ")}`);
 await browser.close();
 await putDesktop([]);
 if (prevView && prevView !== "classic") await api("PUT", "/api/settings", { key: "appearance.desktopView", value: prevView });
+if (prevLayout && prevLayout !== "fusion") await api("PUT", "/api/settings", { key: "appearance.layout", value: prevLayout });
 finish();

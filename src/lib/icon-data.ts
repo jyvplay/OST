@@ -30,11 +30,11 @@ export const MODULE_ICONS: Record<string, [PaletteName, GlyphName]> = {
   notes: ["sun", "note"], browser: ["blue", "globe"], media: ["coral", "play"], capture: ["coral", "record"],
   lens: ["indigo", "camera"], beam: ["teal", "broadcast"], together: ["orange", "people"], messages: ["green", "chat"],
   vault: ["indigo", "lock"], privacy: ["teal", "shield"], backup: ["sky", "cloud"], alerts: ["sun", "bell"],
-  monitor: ["green", "pulse"], calculator: ["orange", "keypad"], settings: ["slate", "gear"], spec: ["blue", "checklist"],
+  monitor: ["green", "pulse"], apps: ["indigo", "grid"], calculator: ["orange", "keypad"], settings: ["slate", "gear"], spec: ["blue", "checklist"],
   clock: ["sky", "clock"], planner: ["coral", "calendar"], devices: ["teal", "plug"], share: ["blue", "screenShare"],
   routines: ["sun", "bolt"], clipboard: ["lime", "clipboard"], storage: ["indigo", "pie"], localdisk: ["slate", "drive"],
   imageedit: ["lagoon", "picture"], photos: ["sun", "picture"], vector: ["orange", "pen"], writer: ["blue", "doc"], slides: ["ember", "easel"], pdf: ["coral", "doc"],
-  sheet: ["green", "grid"], tables: ["sky", "table"], whiteboard: ["indigo", "board"], contacts: ["green", "contact"], video: ["ember", "film"], music: ["coral", "music"], maps: ["mint", "map"], peek: ["teal", "eye"], books: ["sun", "book"],
+  sheet: ["green", "grid"], tables: ["sky", "table"], whiteboard: ["indigo", "board"], contacts: ["green", "contact"], video: ["ember", "film"], music: ["coral", "music"], maps: ["mint", "map"], peek: ["teal", "eye"], books: ["sun", "book"], archive: ["sun", "box"],
 };
 
 /** File extension → [palette, glyph] (folders use "dir"). */

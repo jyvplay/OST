@@ -12,9 +12,10 @@ import { signatureRectAt, signaturePageSize } from "../src/lib/pdf/sigplacement.
 import { PdfDoc } from "../src/lib/pdf/pdfdoc.ts";
 import { boundedPageScale, pageTransform, renderPage } from "../src/lib/pdf/pdfcanvas.ts";
 import { makeSelfSignedIdentity, signPdf, validateSignatures } from "../src/lib/pdf/pdfsig.ts";
+import { parseCsvText, sheetToCsv, usedRange } from "../src/lib/formula/csv.ts";
 import { mkpdf } from "./tt52/mkpdf.ts";
 const { test, finish } = makeHarness("tt81-core");
-const PY = process.env.ORACLE_PY ?? "/home/user/runtime/venv/bin/python";
+const PY = process.env.ORACLE_PY ?? "/home/user/tools/venv/bin/python";
 const dir = mkdtempSync(join(tmpdir(), "tt81-"));
 const ok = (c: unknown, msg: string) => { if (!c) throw new Error(msg); };
 const eq = (a: unknown, b: unknown) => ok(JSON.stringify(a) === JSON.stringify(b), `${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -71,6 +72,24 @@ print(json.dumps([(s.title,c.coordinate,v[s.title][c.coordinate].value) for s in
     const m = /^([A-Z]+)([0-9]+)$/.exec(ref)!; const c = [...m[1]].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
     const v = wb.valueAt(sheet, c, Number(m[2]) - 1); eq(v && typeof v === "object" && "error" in v ? v.error : v, want);
   }
+});
+
+await test("S5 all 4158 cells across all 4 sheets of FormulaEvalTestData_Copy.xlsx agree with Excel cached values (includes G716, D872, E872, M936)", { "FF-77": "full", "FF-78": "full" }, () => {
+  const file = "scripts/fixtures/tt81/poi-formulas.xlsx";
+  const wb = readXlsxWorkbook(readFileSync(file));
+  const manifest: unknown[] = [];
+  let k = 0;
+  for (const sheet of wb.sheets.keys()) {
+    const ur = usedRange(wb, sheet);
+    const r = sheetToCsv(wb, sheet, { values: "raw" });
+    const csvName = `poi-formulas__${k++}.csv`;
+    writeFileSync(join(dir, csvName), r.text);
+    manifest.push({ file: "FormulaEvalTestData_Copy.xlsx", path: file, sheet, csv: csvName, range: ur ? [ur.c0 + 1, ur.r0 + 1, ur.c1 + 1, ur.r1 + 1] : null, expect: parseCsvText(r.text, ",") });
+  }
+  writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest));
+  const oracle = JSON.parse(execFileSync(PY, ["scripts/oracle/xlsx_csv.py", dir], { encoding: "utf8", maxBuffer: 64 << 20 }));
+  eq({ entries: oracle.entries, quoting_ok: oracle.quoting_ok, cells: oracle.cells, agree: oracle.agree, disagree: oracle.disagree.length },
+    { entries: 4, quoting_ok: 4, cells: 4158, agree: 4158, disagree: 0 });
 });
 
 const fixture = join(dir, "source.pptx");
@@ -175,20 +194,48 @@ print(json.dumps({'rect':rect,'ink':[min(x for x,y in pts),min(y for x,y in pts)
     ok(l >= box.left - 1 && t >= box.top - 1 && r <= box.left + box.width + 1 && b <= box.top + box.height + 1, `rotation ${rotate}: ink ${report.ink}`);
   }
 });
-await test("P4 PDF /UserUnit scales page transforms and stays bounded to the declared 1..75000 range; pypdf independently reads the dictionary value", pdfCov, async () => {
+await test("P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink", { "FF-81": "full" }, async () => {
   const f = join(dir, "user-unit.pdf"); const bytes = mkpdf([{ text: ["scaled page"], w: 300, h: 400, userUnit: 2.5 }]); writeFileSync(f, bytes);
   const d = PdfDoc.open(bytes), p = d.pages()[0]; eq(p.userUnit, 2.5);
+  // Indirect /UserUnit object (N 0 R) resolves to the same scale:
+  const ind = PdfDoc.open(mkpdf([{ text: ["indirect"], w: 300, h: 400, userUnit: 2.5, indirectUserUnit: true, crop: [10, 20, 210, 320] }]));
+  eq(ind.pages()[0].userUnit, 2.5);
+  eq(pageTransform(ind.pages()[0], 1), { m: [2.5, 0, 0, -2.5, -25, 800], w: 500, h: 750 });
   eq(pageTransform(p, 1), { m: [2.5, 0, 0, -2.5, 0, 1000], w: 750, h: 1000 });
   eq(pageTransform(p, 0.5, 90), { m: [0, 1.25, 1.25, 0, 0, 0], w: 500, h: 375 });
   eq(pageTransform({ ...p, crop: [-10, 20, 590, 820], rotate: 90 }, 0.5), { m: [0, 1.25, 1.25, 0, -25, 12.5], w: 1000, h: 750 });
   const oracle = JSON.parse(execFileSync(PY, ["-c", "from pypdf import PdfReader; import json,sys; p=PdfReader(sys.argv[1]).pages[0]; print(json.dumps({'unit':p['/UserUnit'],'box':[float(x) for x in p.mediabox]}))", f], { encoding: "utf8" }));
   eq(oracle, { unit: 2.5, box: [0, 0, 300, 400] });
-  const sigBox = { left: 10, top: 20, width: 100, height: 50 }, sigRect = signatureRectAt(p, sigBox);
-  const signed = await signPdf(d, await makeSelfSignedIdentity("TT83 unit tester", ""), { visible: { page: 0, rect: sigRect } });
-  eq((await validateSignatures(PdfDoc.open(signed)))[0].status, "valid");
-  const sf = join(dir, "user-unit-signed.pdf"); writeFileSync(sf, signed);
-  const sigOracle = JSON.parse(execFileSync(PY, ["-c", "from pypdf import PdfReader; import json,sys; p=PdfReader(sys.argv[1]).pages[0]; a=p['/Annots'][0].get_object(); print(json.dumps({'unit':p['/UserUnit'],'rect':[float(x) for x in a['/Rect']]}))", sf], { encoding: "utf8" }));
-  eq(sigOracle, { unit: 2.5, rect: sigRect });
+  // Independent physical-render oracle (MuPDF 1.28 / pymupdf honors /UserUnit across all 4 rotations):
+  const signer = await makeSelfSignedIdentity("TT84 MuPDF unit tester", "");
+  for (const rotate of [0, 90, 180, 270]) {
+    const rDoc = PdfDoc.open(mkpdf([{ text: [], w: 300, h: 400, rotate, userUnit: 2.5 }]));
+    const rp = rDoc.pages()[0], rt = pageTransform(rp, 1);
+    const sigBox = { left: 20, top: 30, width: 120, height: 50 }, sigRect = signatureRectAt(rp, sigBox);
+    const signed = await signPdf(rDoc, signer, { visible: { page: 0, rect: sigRect } });
+    eq((await validateSignatures(PdfDoc.open(signed)))[0].status, "valid");
+    const rf = join(dir, `user-unit-rot${rotate}.pdf`); writeFileSync(rf, signed);
+    const mu = JSON.parse(execFileSync(PY, ["-c", `
+import pymupdf, pypdf, json, sys
+p = pypdf.PdfReader(sys.argv[1]).pages[0]
+a = p['/Annots'][0].get_object()
+doc = pymupdf.open(sys.argv[1])
+pg = doc[0]
+pix = pg.get_pixmap()
+pts = [(x, y) for y in range(pix.height) for x in range(pix.width) if min(pix.pixel(x, y)[:3]) < 230]
+assert pts, 'no signature ink in MuPDF render'
+print(json.dumps({
+  'unit': float(p['/UserUnit']),
+  'rect': [float(x) for x in a['/Rect']],
+  'w': pix.width,
+  'h': pix.height,
+  'ink': [min(x for x,y in pts), min(y for x,y in pts), max(x for x,y in pts), max(y for x,y in pts)]
+}))
+`, rf], { encoding: "utf8" }));
+    eq({ unit: mu.unit, rect: mu.rect, w: mu.w, h: mu.h }, { unit: 2.5, rect: sigRect, w: rt.w, h: rt.h });
+    const [il, it, ir, ib] = mu.ink;
+    ok(il >= 50 - 2 && it >= 75 - 2 && ir <= 350 + 2 && ib <= 200 + 2, `MuPDF rotation ${rotate} ink out of scaled box: ${JSON.stringify(mu.ink)}`);
+  }
   for (const unit of [0, -1, 0.5, 75_001]) {
     const bad = PdfDoc.open(mkpdf([{ text: [], w: 300, h: 400, userUnit: unit }]));
     eq(bad.pages()[0].userUnit, 1); ok(bad.warnings.some((x) => x.includes("invalid /UserUnit ignored")), `missing warning for ${unit}`);

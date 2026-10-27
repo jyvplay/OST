@@ -49,6 +49,8 @@ import { NarratorHost } from "./NarratorHost";
 import GamepadPointer from "./GamepadPointer";
 import { SnapHost, snapUi } from "./SnapHost";
 import { isAskOpen } from "@/lib/ask";
+import { captureInstallPrompt, markPwaInstalled } from "@/lib/pwa-install";
+import { createPointerTriggerTracker, pointerGestureAction, type PointerAction, type PointerSample } from "@/lib/pointer-triggers";
 
 interface Toast { id: number; message: string; tone: "info" | "ok" | "warn" | "bad"; action?: { label: string; run: () => void } }
 
@@ -87,6 +89,13 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const [streamVersion, setStreamVersion] = useState(0);
   const [refreshTick, setRefreshTick] = useState(0);
   const [booted, setBooted] = useState(false);
+  const pointerTriggersOn = (settings["shell.hotCorners"] ?? "on") === "on";
+  const triggerPointerPanel = useCallback((action: PointerAction) => {
+    setLauncher(action === "launcher");
+    setOverview(action === "overview");
+    setQuick(action === "quickPanel");
+    setPalette(action === "palette");
+  }, []);
 
   const streams = useRef(new Map<string, MediaStream>()).current;
   const commandLog = useRef<{ cmd: WindowCommand; at: number }[]>([]).current;
@@ -476,6 +485,129 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     return () => window.removeEventListener("keydown", onKey);
   }, [dispatch, open, preset, state.focus, state.focusMode]);
 
+  /* ------------------------- SH-06 viewport pointer triggers */
+  useEffect(() => {
+    if (!pointerTriggersOn) return;
+    const track = createPointerTriggerTracker();
+    let pending: PointerSample[] = [];
+    let frame = 0;
+    let activeGesture: { pointerId: number; x: number; y: number; surface: string; candidate: PointerAction | null; contextMenu: { x: number; y: number } | null } | null = null;
+    let suppressContextUntil = 0;
+    let contextReset = 0;
+    const clearContextSuppression = () => {
+      suppressContextUntil = 0;
+      if (contextReset) window.clearTimeout(contextReset);
+      contextReset = 0;
+    };
+    const allowGestureStart = (target: EventTarget | null): string | null => {
+      if (!(target instanceof Element)) return null;
+      const surface = target.closest("[data-pointer-gesture-surface]");
+      if (!surface || !deskRef.current?.contains(surface)) return null;
+      if (target.closest("button, a, input, textarea, select, [role='button'], [role='dialog'], [role='menu'], [role='menuitem'], [contenteditable='true'], .fs-window, .fs-panel, [data-pointer-gesture-ignore]")) return null;
+      const kind = surface.getAttribute("data-pointer-gesture-surface");
+      if (kind === "classic" && target === surface) return kind;
+      if (kind === "tabletop" && (target === surface || target.closest(".fs-tt-face"))) return kind;
+      return null;
+    };
+    const onMove = (event: Event) => {
+      const e = event as PointerEvent;
+      if (e.pointerType !== "mouse") return;
+      pending.push({ x: e.clientX, y: e.clientY, width: window.innerWidth, height: window.innerHeight,
+        at: performance.now(), movementX: e.movementX, movementY: e.movementY, buttons: e.buttons });
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const batch = pending; pending = [];
+        let action: PointerAction | null = null;
+        for (const sample of batch) action = track(sample) ?? action;
+        if (action && !isAskOpen()) triggerPointerPanel(action);
+      });
+    };
+    const onPointerDown = (event: Event) => {
+      const e = event as PointerEvent;
+      const surface = allowGestureStart(e.target);
+      if (e.pointerType !== "mouse" || e.button !== 2 || isAskOpen() || !surface) return;
+      clearContextSuppression();
+      activeGesture = { pointerId: e.pointerId, x: e.clientX, y: e.clientY, surface, candidate: null, contextMenu: null };
+    };
+    const onPointerMove = (event: Event) => {
+      const e = event as PointerEvent, gesture = activeGesture;
+      if (!gesture || e.pointerId !== gesture.pointerId) return;
+      gesture.candidate = pointerGestureAction(2, e.clientX - gesture.x, e.clientY - gesture.y);
+    };
+    const onPointerUp = (event: Event) => {
+      const e = event as PointerEvent, gesture = activeGesture;
+      if (!gesture || e.pointerId !== gesture.pointerId) return;
+      activeGesture = null;
+      const action = pointerGestureAction(2, e.clientX - gesture.x, e.clientY - gesture.y);
+      if (action) {
+        // Chromium may dispatch contextmenu before pointerup. Keep it suppressed in either event order.
+        suppressContextUntil = performance.now() + 700;
+        contextReset = window.setTimeout(clearContextSuppression, 700);
+        if (!isAskOpen()) triggerPointerPanel(action);
+        return;
+      }
+      if (gesture.contextMenu && gesture.surface === "classic") {
+        // A plain right-click's contextmenu arrived while the gesture was still ambiguous. Replay it as the existing
+        // React menu after pointerup; a short drag therefore keeps its ordinary menu instead of being lost.
+        window.dispatchEvent(new CustomEvent("fusion:desktop-context-menu", { detail: gesture.contextMenu }));
+        suppressContextUntil = performance.now() + 250;
+        contextReset = window.setTimeout(clearContextSuppression, 250);
+      }
+    };
+    const onPointerCancel = (event: Event) => {
+      const e = event as PointerEvent, gesture = activeGesture;
+      if (!gesture || gesture.pointerId !== e.pointerId) return;
+      activeGesture = null;
+      if (gesture.contextMenu && gesture.surface === "classic")
+        window.dispatchEvent(new CustomEvent("fusion:desktop-context-menu", { detail: gesture.contextMenu }));
+    };
+    const onContextMenu = (event: Event) => {
+      const e = event as MouseEvent;
+      if (activeGesture) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        activeGesture.contextMenu = { x: e.clientX, y: e.clientY };
+        return;
+      }
+      if (suppressContextUntil < performance.now()) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      clearContextSuppression();
+    };
+    const moveEvent = "onpointerrawupdate" in window ? "pointerrawupdate" : "pointermove";
+    window.addEventListener(moveEvent, onMove, { passive: true });
+    window.addEventListener("pointerdown", onPointerDown, true);
+    window.addEventListener("pointermove", onPointerMove, true);
+    window.addEventListener("pointerup", onPointerUp, true);
+    window.addEventListener("pointercancel", onPointerCancel, true);
+    window.addEventListener("contextmenu", onContextMenu, true);
+    return () => {
+      window.removeEventListener(moveEvent, onMove);
+      window.removeEventListener("pointerdown", onPointerDown, true);
+      window.removeEventListener("pointermove", onPointerMove, true);
+      window.removeEventListener("pointerup", onPointerUp, true);
+      window.removeEventListener("pointercancel", onPointerCancel, true);
+      window.removeEventListener("contextmenu", onContextMenu, true);
+      if (frame) window.cancelAnimationFrame(frame);
+      if (contextReset) window.clearTimeout(contextReset);
+      pending = [];
+      activeGesture = null;
+    };
+  }, [pointerTriggersOn, triggerPointerPanel]);
+
+  /* ------------------------- real browser install prompt (AP-01 / SH-13) */
+  useEffect(() => {
+    const onPrompt = (event: Event) => { captureInstallPrompt(event); };
+    const onInstalled = () => markPwaInstalled();
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
   /* ---------------------------------------------- service worker (SH-14) */
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
@@ -634,7 +766,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         >
           {desktopView === "tabletop" && booted ? <Tabletop /> : (
             <>
-              <DesktopSurface onLauncher={() => setLauncher(true)} />
+              <DesktopSurface />
               {booted ? <DesktopWidgets /> : null}
             </>
           )}

@@ -1,0 +1,34 @@
+{
+  "suite": "e2e-tt85",
+  "at": "2026-10-27T00:33:16.208Z",
+  "results": [
+    {
+      "suite": "e2e-tt85",
+      "name": "E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations",
+      "covers": {
+        "AP-01": "full",
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 5365
+    },
+    {
+      "suite": "e2e-tt85",
+      "name": "E2 AP-05 inventory: actual service-worker registrations and sync tags match Chromium APIs; page callback counters are measured and clearly not OS wake counts",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 3140
+    },
+    {
+      "suite": "e2e-tt85",
+      "name": "E3 PR-07h per-site browser identity: desktop is the default, a mobile override is host-scoped and survives same-site navigation, and another host remains on default",
+      "covers": {
+        "PR-07h": "full"
+      },
+      "pass": true,
+      "ms": 6052
+    }
+  ]
+}

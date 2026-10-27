@@ -580,13 +580,20 @@
     if (W.parent === W) return;
     try { W.parent.postMessage({ fusionWp: "nav", url: currentTarget(), title: D.title || "", beacons: beacons, reader: !!(me && me.getAttribute("data-reader") === "1") }, "*"); } catch (e) { /* detached */ }
   }
-  var hits = [], cur = -1, lastQ = null, dirty = false;
-  // pages keep building after load (and the parent may ask before they finish): any DOM change invalidates the hits
-  guard(function () { new MutationObserver(function () { dirty = true; }).observe(D, { subtree: true, childList: true, characterData: true }); });
+  var findController = D && W.FusionWpFind && typeof W.FusionWpFind.create === "function"
+    ? W.FusionWpFind.create(D, function (r) {
+        try { W.parent.postMessage({ fusionWp: "found", q: r.q, n: r.n, i: r.i, truncated: r.truncated }, "*"); } catch (e) { /* detached */ }
+      })
+    : null;
+  // Legacy fallback for an older cached shell whose find runtime is not yet available. The normal path uses the
+  // bounded, cross-inline DOM index from /wp-find.js; the fallback intentionally remains usable, not authoritative.
+  var hits = [], cur = -1, lastQ = null, dirty = true;
+  if (!findController) guard(function () { new MutationObserver(function () { dirty = true; }).observe(D, { subtree: true, childList: true, characterData: true }); });
   function find(q, dir) {
     q = String(q || "");
+    if (findController) { findController.find(q, dir); return; }
     if (q !== lastQ || dirty) {
-      if (q !== lastQ) cur = -1;
+      if (q !== lastQ || dirty) cur = -1;
       lastQ = q; hits = []; dirty = false;
       if (q && D.body) {
         var lq = q.toLowerCase(), w = D.createTreeWalker(D.body, 4 /* SHOW_TEXT */, null), n;
@@ -594,19 +601,20 @@
           var p = n.parentElement;
           if (!p || /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(p.nodeName) || (p.checkVisibility && !p.checkVisibility())) continue;
           var t = n.nodeValue.toLowerCase(), i = t.indexOf(lq);
-          while (i >= 0) { hits.push([n, i]); i = t.indexOf(lq, i + lq.length); }
+          while (i >= 0) { hits.push([n, i]); i = t.indexOf(lq, i + 1); }
         }
       }
     }
+    if (hits.length && cur < 0 && dir === -1) cur = 0;
     if (cur >= hits.length) cur = -1;
-    if (hits.length) {
+    if (hits.length && q) {
       cur = (cur + (dir === -1 ? -1 : 1) + hits.length) % hits.length;
       var h = hits[cur], r = D.createRange();
       r.setStart(h[0], h[1]); r.setEnd(h[0], h[1] + q.length);
       var sel = W.getSelection(); sel.removeAllRanges(); sel.addRange(r);
       if (h[0].parentElement) h[0].parentElement.scrollIntoView({ block: "center" });
     }
-    W.parent.postMessage({ fusionWp: "found", q: q, n: hits.length, i: hits.length ? cur + 1 : 0 }, "*");
+    try { W.parent.postMessage({ fusionWp: "found", q: q, n: q ? hits.length : 0, i: q && hits.length ? cur + 1 : 0, truncated: false }, "*"); } catch (e) { /* detached */ }
   }
   W.addEventListener("message", function (e) {
     if (e.source !== W.parent || e.origin !== HERE || !e.data || typeof e.data.fusionWp !== "string") return;

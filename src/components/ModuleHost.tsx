@@ -22,6 +22,7 @@ import PrivacyModule from "./modules/Privacy";
 import BackupModule from "./modules/Backup";
 import AlertsModule from "./modules/Alerts";
 import MonitorModule from "./modules/Monitor";
+import AppsModule from "./modules/Apps";
 import CalculatorModule from "./modules/Calculator";
 import SettingsModule from "./modules/Settings";
 import SpecModule from "./modules/Spec";
@@ -72,6 +73,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "backup": return <BackupModule win={win} />;
     case "alerts": return <AlertsModule win={win} />;
     case "monitor": return <MonitorModule win={win} />;
+    case "apps": return <AppsModule win={win} />;
     case "calculator": return <CalculatorModule win={win} />;
     case "settings": return <SettingsModule win={win} />;
     case "spec": return <SpecModule win={win} />;

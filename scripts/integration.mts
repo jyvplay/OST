@@ -267,7 +267,7 @@ await test("FM-05 extract refuses zip-slip and writes nothing", { "FM-05": "full
   const evil = zip([{ name: "ok.txt", data: Buffer.from("fine") }, { name: "../../escape.txt", data: Buffer.from("x") }]);
   await call("POST", "/api/fs", { op: "upload", path: `${DIR}/evil.zip`, content: evil.toString("base64") });
   const x = await call("POST", "/api/fs", { op: "extract", path: `${DIR}/evil.zip`, dst: `${DIR}/evil-out` });
-  ok(x.status === 400 && /zip-slip/.test(x.json.error), JSON.stringify(x.json));
+  ok(x.status === 400 && /zip-slip|unsafe|escapes the folder/.test(x.json.error), JSON.stringify(x.json));
   ok((await call("GET", `/api/fs?op=read&path=${DIR}/evil-out/ok.txt`)).status === 404, "partial extraction happened");
 });
 

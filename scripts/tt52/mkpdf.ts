@@ -1,5 +1,5 @@
 /** TT52 test helper: build small, valid PDFs by hand (classic xref, Helvetica text, optional AcroForm fields). */
-export interface MkPage { text: string[]; w?: number; h?: number; rotate?: number; userUnit?: number; extra?: string }
+export interface MkPage { text: string[]; w?: number; h?: number; crop?: [number, number, number, number]; rotate?: number; userUnit?: number; indirectUserUnit?: boolean; extra?: string }
 export interface MkField { name: string; type: "Tx" | "Btn" | "Ch"; rect: number[]; value?: string; flags?: number; options?: string[]; page?: number }
 const esc = (s: string) => s.replace(/[\\()]/g, (c) => "\\" + c);
 export function mkpdf(pages: MkPage[], opts: { fields?: MkField[]; info?: Record<string, string>; corruptXref?: boolean; pagesUserUnit?: number } = {}): Uint8Array {
@@ -25,7 +25,9 @@ export function mkpdf(pages: MkPage[], opts: { fields?: MkField[]; info?: Record
     const content = `BT /F1 14 Tf 72 ${(p.h ?? 792) - 72} Td 18 TL ${p.text.map((t) => `(${esc(t)}) '`).join(" ")} ET${p.extra ? "\n" + p.extra : ""}`;
     const c = add(`<</Length ${content.length}>>\nstream\n${content}\nendstream`);
     const annots = annotsByPage.get(i);
-    const n = add(`<</Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 ${p.w ?? 612} ${p.h ?? 792}]${p.userUnit === undefined ? "" : ` /UserUnit ${p.userUnit}`} /Resources <</Font <</F1 ${font} 0 R>>>> /Contents ${c} 0 R${p.rotate ? ` /Rotate ${p.rotate}` : ""}${annots ? ` /Annots [${annots.map((a) => `${a} 0 R`).join(" ")}]` : ""}>>`);
+    const uu = p.userUnit === undefined ? "" : p.indirectUserUnit ? ` /UserUnit ${add(String(p.userUnit))} 0 R` : ` /UserUnit ${p.userUnit}`;
+    const cb = p.crop ? ` /CropBox [${p.crop.join(" ")}]` : "";
+    const n = add(`<</Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 ${p.w ?? 612} ${p.h ?? 792}]${cb}${uu} /Resources <</Font <</F1 ${font} 0 R>>>> /Contents ${c} 0 R${p.rotate ? ` /Rotate ${p.rotate}` : ""}${annots ? ` /Annots [${annots.map((a) => `${a} 0 R`).join(" ")}]` : ""}>>`);
     pageNums.push(n);
   });
   for (let k = 0; k < objs.length; k++) objs[k] = objs[k].replace(/0__PAGE(\d+)__/g, (_, pi) => `${pageNums[Number(pi)]} 0 R`);

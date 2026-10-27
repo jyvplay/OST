@@ -29,7 +29,8 @@ const SP = await import("../src/lib/server/sysproxy.ts");
 const WS = await import("../src/lib/server/wp-ws.ts");
 const { upstreamRequest, readAll } = await import("../src/lib/server/wp-fetch.ts");
 const { getPinnedPublic } = await import("../src/lib/server/pinned-http.ts");
-const { createSession, dropSession } = await import("../src/lib/server/wp-sessions.ts");
+const { createSession, dropSession, setUaOverride } = await import("../src/lib/server/wp-sessions.ts");
+const { UA } = await import("../src/lib/wp-core.ts");
 const { DIRECT } = await import("../src/lib/server/wp-tunnel.ts");
 
 const run = promisify(execFile);
@@ -438,15 +439,16 @@ function readFrames(stream: ReadableStream<Uint8Array>) {
 }
 const WSU = `ws://127.0.0.1:${py.port}`;
 
-await test("bridge (WP-08): opening through the registry reaches the independent server via the connection layer; text and binary go both ways in order; the site sees the session's User-Agent, the page's own Origin and the session's cookie, and a cookie set on the 101 reply lands in the session jar; another session cannot write to the socket (410); a clean close arrives as {code, reason, wasClean}", { "WP-08": "full" }, async () => {
+await test("bridge (WP-08, PR-07h): opening through the registry reaches the independent server via the connection layer; WebSocket User-Agent comes from the target-host override rather than the session default; text and binary go both ways in order; the site sees the page's own Origin and session cookie, a 101 cookie lands in the jar, another session cannot write (410), and clean close arrives as {code, reason, wasClean}", { "WP-08": "full", "PR-07h": "full" }, async () => {
   const s = createSession("mobile");
+  ok(setUaOverride(s, `127.0.0.1:${py.port}`, "desktop"), "target-host WebSocket override accepted");
   s.jar.set("sess=jar1; Path=/", new URL(`http://127.0.0.1:${py.port}/`));
   const pageOrigin = `http://127.0.0.1:${py.port}`; // the page is on the socket's own site: Lax cookies go along
   const h = readFrames(WS.openBridge(s, { url: `${WSU}/headers`, protocols: [], origin: `${pageOrigin}/room/1`, token: WS.originToken(s.sid, pageOrigin) }));
   await waitFor(() => h.frames.length >= 2, 4000, "open + headers");
   eq(h.frames[0].type, WS.FRAME.OPEN);
   const hdr = JSON.parse(h.frames[1].payload.toString());
-  ok(/Android 14; Pixel 8/.test(hdr.ua) && hdr.origin === pageOrigin && hdr.cookie === "sess=jar1", `headers ${JSON.stringify(hdr)}`);
+  ok(hdr.ua === UA.desktop && hdr.origin === pageOrigin && hdr.cookie === "sess=jar1", `WebSocket target-host override must beat the session's mobile default: ${JSON.stringify(hdr)}`);
   ok(/wsck=from101/.test(s.jar.header(new URL(`http://127.0.0.1:${py.port}/`))), "101 Set-Cookie stored in the session jar");
   await h.reader.cancel();
 
@@ -565,4 +567,4 @@ ka.close();
 py.proc.kill();
 void DIRECT;
 await finish();
-process.exit(0);
+process.exit(process.exitCode ?? 0);

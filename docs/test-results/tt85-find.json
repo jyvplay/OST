@@ -1,0 +1,42 @@
+{
+  "suite": "tt85-find",
+  "at": "2026-10-27T00:31:18.229Z",
+  "results": [
+    {
+      "suite": "tt85-find",
+      "name": "PR-07n: real Chromium DOM index crosses inline nodes, applies block whitespace, excludes hidden/non-text surfaces, wraps next/previous and selects the exact source Range",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 78
+    },
+    {
+      "suite": "tt85-find",
+      "name": "PR-07n: collapsed multi-space source runs keep exact Range boundaries before the following word",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 16
+    },
+    {
+      "suite": "tt85-find",
+      "name": "PR-07n: overlapping hits, query-reset reverse start, empty/no-match behavior, Unicode combining marks, and live mutation recount",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 115
+    },
+    {
+      "suite": "tt85-find",
+      "name": "PR-07n: scanning stops at configured text/node limits and explicitly marks incomplete counts; class visibility changes re-count",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 113
+    }
+  ]
+}

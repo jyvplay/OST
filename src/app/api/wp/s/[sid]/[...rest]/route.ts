@@ -1,8 +1,8 @@
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import {
   classifyError, decodeTarget, documentCsp, readerCsp, WP_PREFIX, downstreamHeaders, encodeAttr, encodeTarget, escapeHtml, isTracker, rewriteCss, rewriteHtml, rewriteModuleSource, siteOf, upstreamHeaders,
 } from "@/lib/wp-core";
-import { docInfo, docOrigin, getSession, newDoc, type WpSession } from "@/lib/server/wp-sessions";
+import { docInfo, docOrigin, getSession, newDoc, type WpSession, uaForSite } from "@/lib/server/wp-sessions";
 import { corsCheck, inferDest, credCode, exposeHeaders, flagString, nextChainFlags, policyFor, PreflightCache, preflightCheck, scriptResponseHeaders, storableSetCookies, type Policy, resourcePolicy, storableForResource } from "@/lib/wp-cors";
 import { readable, readerDocument } from "@/lib/reader-core";
 import { decodeText, readAll, toWebStream, upstreamRequest } from "@/lib/server/wp-fetch";
@@ -20,6 +20,7 @@ export const runtime = "nodejs";
 const TEXT_MAX = 8 * 1024 * 1024; // HTML / CSS are buffered to be rewritten: memory bound
 const STREAM_MAX = 4 * 1024 * 1024 * 1024; // everything else streams through in constant memory (downloads, media)
 const BODY_MAX = 8 * 1024 * 1024;
+const FIND_RUNTIME = '<script src="/wp-find.js" data-fusion-wp-find="1"></script>';
 
 const CORS: Record<string, string> = {
   "access-control-allow-origin": "*",
@@ -73,7 +74,7 @@ async function preflight(s: WpSession, pol: Policy, target: URL, method: string)
   if (!cache.needs(pol, target.href, method)) return { ok: true };
   const h: Record<string, string> = {
     accept: "*/*", "access-control-request-method": method, origin: pol.origin ?? pol.initiator ?? "null",
-    "user-agent": upstreamHeaders([], target, { ua: s.ua, cookie: "", method: "GET" })["user-agent"], "accept-language": "en-US,en;q=0.9",
+    "user-agent": upstreamHeaders([], target, { ua: uaForSite(s, target.host), cookie: "", method: "GET" })["user-agent"], "accept-language": "en-US,en;q=0.9",
     "sec-fetch-mode": "cors", "sec-fetch-site": pol.secFetchSite, "sec-fetch-dest": "empty",
   };
   if (pol.unsafeHeaders.length) h["access-control-request-headers"] = pol.unsafeHeaders.join(",");
@@ -146,7 +147,7 @@ async function handle(req: NextRequest): Promise<Response> {
     const pf = await preflight(s, pol, target, method);
     if (!pf.ok) return corsRefused(pf.reason);
   }
-  const uh = upstreamHeaders(req.headers.entries(), target, { ua: s.ua, cookie: rp ? s.jar.header(target, Date.now(), false, rp.crossSite) : pol ? (pol.sendCookies ? s.jar.header(target, Date.now(), false, pol.crossSite) : "") : fp ? s.jar.header(target, Date.now(), false, frameXs) : s.jar.header(target), method });
+  const uh = upstreamHeaders(req.headers.entries(), target, { ua: uaForSite(s, target.host), cookie: rp ? s.jar.header(target, Date.now(), false, rp.crossSite) : pol ? (pol.sendCookies ? s.jar.header(target, Date.now(), false, pol.crossSite) : "") : fp ? s.jar.header(target, Date.now(), false, frameXs) : s.jar.header(target), method });
   if (fp) {
     uh["sec-fetch-site"] = fp.secFetchSite; uh["sec-fetch-mode"] = "navigate"; uh["sec-fetch-dest"] = fdest!;
     if (fp.referer) uh.referer = fp.referer; else delete uh.referer;
@@ -226,7 +227,7 @@ async function handle(req: NextRequest): Promise<Response> {
     // script cookies nor its WebSocket origin token, so it cannot read them or open a socket in that site's name.
     const nav = isNavigation(req);
     const docId = nav ? newDoc(s, target.origin, target.href, frameXs) : "";
-    const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(target.href)}" data-ua="${s.ua}" data-cookies="${nav ? encodeAttr(s.jar.header(target, Date.now(), true)) : ""}" data-wst="${nav ? originToken(s.sid, target.origin) : ""}" data-doc="${docId}"></script>`;
+    const inject = `${FIND_RUNTIME}<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(target.href)}" data-ua="${uaForSite(s, target.host)}" data-cookies="${nav ? encodeAttr(s.jar.header(target, Date.now(), true)) : ""}" data-wst="${nav ? originToken(s.sid, target.origin) : ""}" data-doc="${docId}"></script>`;
     const { html } = rewriteHtml(text, { sid: s.sid, url: target.href, inject, resSid: docId ? `${s.sid}:${docId}:r` : undefined });
     return new Response(html, {
       status: up.status,
@@ -305,7 +306,7 @@ async function control(req: NextRequest, s: WpSession, rest: string): Promise<Re
     try { u = new URL(String(new URL(req.url).searchParams.get("u"))); } catch { return new Response("bad url", { status: 400, headers: CORS }); }
     if (isTracker(u.hostname)) return new Response("blocked", { status: 403, headers: CORS });
     try {
-      const up = await upstreamRequest(u.href, { method: "GET", maxBytes: 20 * 1024 * 1024, session: { sid: s.sid, circuit: s.circuit }, headers: upstreamHeaders([], u, { ua: s.ua, cookie: s.jar.header(u), method: "GET" }) });
+      const up = await upstreamRequest(u.href, { method: "GET", maxBytes: 20 * 1024 * 1024, session: { sid: s.sid, circuit: s.circuit }, headers: upstreamHeaders([], u, { ua: uaForSite(s, u.host), cookie: s.jar.header(u), method: "GET" }) });
       if (up.status >= 300 && up.status < 400) { up.body.resume(); return new Response(`redirected to ${String(up.headers.location ?? "")}`, { status: 409, headers: CORS }); }
       const buf = await readAll(up.body);
       return new Response(new Uint8Array(buf), { status: up.status, headers: { ...CORS, "content-type": "application/octet-stream", "content-disposition": "attachment", "content-security-policy": "sandbox; default-src 'none'", "x-fusion-wp-type": String(up.headers["content-type"] ?? "").replace(/[\r\n]/g, "").slice(0, 200), "access-control-expose-headers": "x-fusion-wp-type" } });
@@ -341,7 +342,7 @@ function sharedHost(req: NextRequest, s: WpSession): Response {
   if (!di) return new Response("unknown document", { status: 404, headers: { "cache-control": "no-store" } });
   const site = new URL("/", di.origin);
   const hd = newDoc(s, di.origin, site.href, di.xs);
-  const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-shared-host="1" data-sid="${s.sid}" data-url="${encodeAttr(site.href)}" data-ua="${s.ua}" data-cookies="" data-wst="${originToken(s.sid, di.origin)}" data-doc="${hd}"></script>`;
+  const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-shared-host="1" data-sid="${s.sid}" data-url="${encodeAttr(site.href)}" data-ua="${uaForSite(s, site.host)}" data-cookies="" data-wst="${originToken(s.sid, di.origin)}" data-doc="${hd}"></script>`;
   return new Response(`<!doctype html><html><head><meta charset="utf-8"><title>Shared worker host</title>${inject}</head><body></body></html>`, {
     status: 200, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "content-security-policy": documentCsp(selfOrigins(req)) },
   });
@@ -358,7 +359,7 @@ async function reader(req: NextRequest, s: WpSession): Promise<Response> {
   for (let hop = 0; hop <= 5; hop++) {
     s.stats.requests++;
     try {
-      up = await upstreamRequest(u.href, { method: "GET", maxBytes: TEXT_MAX + 1, session: { sid: s.sid, circuit: s.circuit }, headers: upstreamHeaders([], u, { ua: s.ua, cookie: s.jar.header(u), method: "GET" }) });
+      up = await upstreamRequest(u.href, { method: "GET", maxBytes: TEXT_MAX + 1, session: { sid: s.sid, circuit: s.circuit }, headers: upstreamHeaders([], u, { ua: uaForSite(s, u.host), cookie: s.jar.header(u), method: "GET" }) });
     } catch (e) {
       s.stats.errors++;
       const c = classifyError(e);
@@ -385,7 +386,7 @@ async function reader(req: NextRequest, s: WpSession): Promise<Response> {
     if (kind === "image") return isTracker(new URL(abs).hostname) ? null : encodeTarget(abs, s.sid);
     return `${WP_PREFIX}${s.sid}/__reader?u=${encodeURIComponent(abs)}`;
   });
-  const inject = `<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(u.href)}" data-ua="${s.ua}" data-cookies="" data-reader="1"></script>`;
+  const inject = `${FIND_RUNTIME}<script src="/wp-shim.js" data-fusion-wp="1" data-sid="${s.sid}" data-url="${encodeAttr(u.href)}" data-ua="${uaForSite(s, u.host)}" data-cookies="" data-reader="1"></script>`;
   const html = readerDocument(r, { target: u.href, inject, original: encodeTarget(u.href, s.sid) ?? "#" });
   return new Response(html, { status: up.status, headers: { ...CORS, "content-type": "text/html; charset=utf-8", "content-security-policy": readerCsp(selfOrigins(req)), "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", "x-fusion-wp-target": u.href } });
 }

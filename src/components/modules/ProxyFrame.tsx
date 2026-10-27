@@ -31,7 +31,9 @@ export interface ProxyFrameProps {
   onProfile?: (name: string) => void;
 }
 
-interface Stats { requests: number; blocked: number; cookies: number; errors: number; blockedHosts: Record<string, number>; failedHosts?: Record<string, string>; circuit?: number }
+interface Stats { requests: number; blocked: number; cookies: number; errors: number; blockedHosts: Record<string, number>; failedHosts?: Record<string, string>; circuit?: number; ua?: UaKind; uaOverride?: UaKind | null }
+type UaChoice = "default" | UaKind;
+function siteHostOf(url: string): string { try { return new URL(url).host; } catch { return ""; } }
 
 function b64(buf: ArrayBuffer): string {
   const u = new Uint8Array(buf); let s = "";
@@ -60,11 +62,15 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
   const [hist, setHist] = useState<{ list: string[]; i: number }>({ list: [url], i: 0 });
   const [title, setTitle] = useState("");
   const [ua, setUa] = useState<UaKind>("desktop");
+  const [uaChoice, setUaChoice] = useState<UaChoice>("default");
   const [stats, setStats] = useState<Stats | null>(null);
   const [q, setQ] = useState("");
-  const [found, setFound] = useState<{ n: number; i: number } | null>(null);
+  const queryRef = useRef(q);
+  useEffect(() => { queryRef.current = q; }, [q]);
+  const [found, setFound] = useState<{ n: number; i: number; truncated: boolean } | null>(null);
   const lastUrl = useRef("");
   const [note, setNote] = useState("");
+  const currentSite = siteHostOf(hist.list[hist.i] ?? start);
 
   // TT43 (WP-22): this window's SharedWorker broker — proxied pages of one site and session share their workers
   useEffect(() => { startSharedBroker(); }, []);
@@ -75,8 +81,12 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
     (async () => {
       let id = sessions.get(sessionKey) ?? null;
       if (id) {
-        const r = await fetch(`/api/wp-session?sid=${encodeURIComponent(id)}`);
-        if (r.ok) { const j = (await r.json()) as { ua: UaKind }; if (live) setUa(j.ua); } else id = null;
+        const site = siteHostOf(start);
+        const r = await fetch(`/api/wp-session?sid=${encodeURIComponent(id)}${site ? `&site=${encodeURIComponent(site)}` : ""}`);
+        if (r.ok) {
+          const j = (await r.json()) as { ua: UaKind; uaOverride?: UaKind | null };
+          if (live) { setUa(j.ua); setUaChoice(j.uaOverride ?? "default"); }
+        } else id = null;
       }
       if (!id) {
         // TT43: ONE creation per key in flight — two tabs of a profile mounting together (split view, a restored
@@ -99,13 +109,24 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
       if (live) setSid(id);
     })().catch((e) => { if (live) setErr(String((e as Error).message ?? e)); });
     return () => { live = false; };
-  }, [tabId, sessionKey, profile, sessions]);
+  }, [tabId, sessionKey, profile, sessions, start]);
+
+  // Identity is host-scoped within the RAM-only proxy session. A navigation to another site falls back to Desktop unless that host has its own override.
+  useEffect(() => {
+    if (!sid || !currentSite) return;
+    let live = true;
+    fetch(`/api/wp-session?sid=${encodeURIComponent(sid)}&site=${encodeURIComponent(currentSite)}`)
+      .then(async (r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return await r.json() as { ua: UaKind; uaOverride?: UaKind | null }; })
+      .then((j) => { if (live) { setUa(j.ua); setUaChoice(j.uaOverride ?? "default"); } })
+      .catch(() => undefined);
+    return () => { live = false; };
+  }, [sid, currentSite]);
 
   // the page reports its address / title / find results; only THIS frame's window is listened to
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       if (!frame.current || e.source !== frame.current.contentWindow) return;
-      const d = e.data as { fusionWp?: string; url?: string; title?: string; n?: number; i?: number; reader?: boolean };
+      const d = e.data as { fusionWp?: string; url?: string; title?: string; q?: string; n?: number; i?: number; truncated?: boolean; reader?: boolean };
       if (!d || typeof d.fusionWp !== "string") return;
       if (d.fusionWp === "nav" && typeof d.url === "string" && /^https?:\/\//.test(d.url)) {
         const u = d.url, t = String(d.title ?? "").slice(0, 200);
@@ -121,7 +142,10 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
         lastUrl.current = u;
         setReader(d.reader === true); // the page says which view it is (an "Original page" link leaves the reader)
         onNav(u, t);
-      } else if (d.fusionWp === "found") setFound({ n: Number(d.n) || 0, i: Number(d.i) || 0 });
+      } else if (d.fusionWp === "found" && String(d.q ?? "") === queryRef.current) {
+        const n = Number(d.n), i = Number(d.i);
+        setFound({ n: Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0, i: Number.isFinite(i) ? Math.max(0, Math.floor(i)) : 0, truncated: d.truncated === true });
+      }
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
@@ -146,10 +170,13 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
   const send = (m: Record<string, unknown>) => frame.current?.contentWindow?.postMessage(m, "*"); // an opaque origin can only be addressed as "*"
   const back = () => { if (hist.i > 0) { const t = hist.list[hist.i - 1]; setHist({ ...hist, i: hist.i - 1 }); go(t); } };
   const fwd = () => { if (hist.i < hist.list.length - 1) { const t = hist.list[hist.i + 1]; setHist({ ...hist, i: hist.i + 1 }); go(t); } };
-  const patch = async (body: Record<string, unknown>) => {
-    if (!sid) return;
+  const patch = async (body: Record<string, unknown>): Promise<Stats | null> => {
+    if (!sid) return null;
     const r = await fetch(`/api/wp-session?sid=${encodeURIComponent(sid)}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-    if (r.ok) setStats((await r.json()) as Stats);
+    if (!r.ok) return null;
+    const result = await r.json() as Stats;
+    setStats(result);
+    return result;
   };
   const save = async () => {
     if (!sid) return;
@@ -175,14 +202,22 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
         <Btn variant="ghost" data-testid="wp-back" aria-label="Back" disabled={hist.i <= 0} onClick={back}>‹ Back</Btn>
         <Btn variant="ghost" data-testid="wp-forward" aria-label="Forward" disabled={hist.i >= hist.list.length - 1} onClick={fwd}>Forward ›</Btn>
         <Btn variant="ghost" data-testid="wp-reload" aria-label="Reload" onClick={reload}>Reload</Btn>
-        <input className="fs-input" data-testid="wp-find" aria-label="Find in page" placeholder="Find in page" value={q} style={{ width: fz(130) }}
-          onChange={(e) => { setQ(e.target.value); setFound(null); }}
+        <input className="fs-input" data-testid="wp-find" aria-label="Find in page" placeholder="Find in page" title="Case-insensitive search in this proxied document; Enter = next, Shift+Enter = previous. Shadow DOM and nested frames are not searched." maxLength={256} value={q} style={{ width: fz(150) }}
+          onChange={(e) => { queryRef.current = e.target.value; setQ(e.target.value); setFound(null); }}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); send({ fusionWp: "find", q, dir: e.shiftKey ? -1 : 1 }); } }} />
-        <span data-testid="wp-find-count" className="fs-dim" aria-live="polite">{found ? (found.n ? `${found.i}/${found.n}` : "no matches") : ""}</span>
+        <span data-testid="wp-find-count" className="fs-dim" aria-live="polite" title={found?.truncated ? "The 512 KiB / 50,000-node safety limit was reached; counts cover only the scanned document prefix." : "Matches in the current proxied document."}>
+          {found ? (found.n ? `${found.i}/${found.n}${found.truncated ? "+ · partial scan" : ""}` : found.truncated ? "no matches · partial scan" : "no matches") : ""}
+        </span>
         <label className="fs-row" style={{ gap: 3 }}>Identity
-          <select className="fs-input" data-testid="wp-ua" aria-label="Identity sent to sites" value={ua}
-            onChange={async (e) => { const v = e.target.value as UaKind; setUa(v); await patch({ ua: v }); reload(); }}>
-            <option value="desktop">Desktop</option><option value="mobile">Mobile</option>
+          <select className="fs-input" data-testid="wp-ua" data-site={currentSite} data-effective={ua} aria-label="Identity sent to this site" value={uaChoice}
+            title={`Desktop is the per-site default; overrides stay in this proxy session's memory for ${currentSite || "this site"}.`}
+            onChange={async (e) => {
+              const choice = e.target.value as UaChoice;
+              if (!currentSite) return;
+              const result = await patch(choice === "default" ? { site: currentSite, clearSiteUa: true } : { site: currentSite, ua: choice });
+              if (result) { setUa(result.ua ?? "desktop"); setUaChoice(result.uaOverride ?? "default"); reload(); }
+            }}>
+            <option value="default">Default · Desktop</option><option value="desktop">Desktop override</option><option value="mobile">Mobile override</option>
           </select>
         </label>
         <span data-testid="wp-shields" title={blockedTitle} className="fs-dim">Shields: {stats ? `${stats.blocked} blocked` : "…"}</span>

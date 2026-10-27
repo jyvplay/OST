@@ -86,7 +86,7 @@ export const filesFeatures: SpecRow[] = [
   F("AP-02", "AP", "Uninstall assistant for our own data", "A", "P2", "storage clear per bucket + server purge", "Offers a verifiable 'what will be deleted' preview computed from real row counts before anything is removed.", "built", ""),
   F("AP-03", "AP", "Install packages", "X", "P4", "—", "No sideloading on the web; blocked.", "blocked", ""),
   F("AP-04", "AP", "Update management", "A", "P3", "service worker updatefound + skipWaiting prompt", "Updates are user-confirmed, never silent-reload mid-edit — the single most common PWA data-loss bug.", "built", ""),
-  F("AP-05", "AP", "Background/startup inventory", "A", "P3", "SW registration list + periodic sync registrations", "Lists our own background work only, with wake counts, per DP-14.", "partial", ""),
+  F("AP-05", "AP", "Background/startup inventory", "B", "P4", "Read-only Fusion service-worker registrations / sync tags and measured page callbacks; Shizuku inventory of other apps not implemented", "Inventories Fusion's own registrations and measured page callbacks only. Callback counts are not OS wake counts, and periodic-sync tags are not scheduling guarantees; external-app enumeration stays out of scope, per DP-14.", "partial", ""),
 
   // ---------------------------------------------------------------- TD
   F("TD-01", "TD", "Terminal emulator: tabs, history, completion, colour, search", "A", "P1",

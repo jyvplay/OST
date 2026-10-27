@@ -1,0 +1,33 @@
+{
+  "suite": "tt86-pointer",
+  "at": "2026-10-27T01:39:13.788Z",
+  "results": [
+    {
+      "suite": "tt86-pointer",
+      "name": "SH-06 corner model: four actions, first sample only arms, exact 6×42 boundaries, entry-only and independent re-arm",
+      "covers": {
+        "SH-06": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt86-pointer",
+      "name": "SH-06 edge model: all four rails require an inward 18 px flick within 600 ms, exclude corners, and re-arm on a fresh edge entry",
+      "covers": {
+        "SH-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt86-pointer",
+      "name": "SH-06 right-drag model: direction, minimum distance, 1.25× axis dominance, ties, and non-right buttons",
+      "covers": {
+        "SH-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

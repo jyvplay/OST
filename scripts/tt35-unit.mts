@@ -180,13 +180,16 @@ await test("cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix 
 });
 
 /* ============================================================ shields, headers, CSRF */
-await test("privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream requests carry no cookie / referer / origin / client hints / forwarding headers of the user, one UA and language for everyone, Sec-GPC and an origin-only Referer of the target; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised", { "WP-03": "full" }, () => {
+  await test("privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream drops the user's identity and client hints, then supplies a shared Desktop default or explicit Desktop/Mobile preset plus fixed language and Sec-GPC; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised", { "WP-03": "full" }, () => {
   for (const h of ["www.google-analytics.com", "googletagmanager.com", "stats.g.doubleclick.net", "connect.facebook.net", "static.hotjar.com"]) ok(W.isTracker(h), h);
   for (const h of ["google.com", "facebook.com", "notdoubleclick.net", "doubleclick.net.evil.org", "pypi.org"]) ok(!W.isTracker(h), `false positive ${h}`);
   const inc: [string, string][] = [["cookie", "fusion=secret"], ["referer", "http://localhost:3999/"], ["origin", "null"], ["user-agent", "HeadlessChrome"], ["sec-ch-ua", "x"], ["sec-fetch-site", "cross-site"],
     ["x-forwarded-for", "10.0.0.2"], ["accept-language", "de-CH"], ["content-type", "application/json"], ["range", "bytes=0-99"], ["x-csrf-token", "t"], ["authorization", "Bearer site-token"]];
   const h = W.upstreamHeaders(inc, new URL("https://api.ex.com/v1/x"), { ua: "desktop", cookie: "sid=1", method: "POST" });
   eq(h.cookie, "sid=1", "only the jar's cookie"); eq(h.referer, "https://api.ex.com/"); eq(h.origin, "https://api.ex.com"); eq(h["user-agent"], W.UA.desktop);
+  const mobile = W.upstreamHeaders(inc, new URL("https://api.ex.com/v1/x"), { ua: "mobile", cookie: "sid=1", method: "POST" });
+  eq(mobile["user-agent"], W.UA.mobile, "the explicit host identity selects the shared mobile preset, not the user's browser UA");
+  eq(mobile["accept-language"], "en-US,en;q=0.9"); ok(!("sec-ch-ua" in mobile), "mobile identity does not add client hints");
   eq(h["accept-language"], "en-US,en;q=0.9"); eq(h["sec-gpc"], "1"); eq(h.range, "bytes=0-99"); eq(h["x-csrf-token"], "t"); eq(h.authorization, "Bearer site-token");
   for (const k of ["sec-ch-ua", "sec-fetch-site", "x-forwarded-for"]) ok(!(k in h), `leaked ${k}`);
   ok(!JSON.stringify(h).includes("localhost") && !JSON.stringify(h).includes("secret") && !JSON.stringify(h).includes("Headless"), "nothing of the user's side crosses");

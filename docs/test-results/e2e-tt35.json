@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt35",
-  "at": "2026-10-25T22:33:00.825Z",
+  "at": "2026-10-27T01:24:47.044Z",
   "results": [
     {
       "suite": "e2e-tt35",
@@ -11,7 +11,7 @@
         "WP-05": "full"
       },
       "pass": true,
-      "ms": 5248
+      "ms": 8355
     },
     {
       "suite": "e2e-tt35",
@@ -19,11 +19,11 @@
       "covers": {
         "WP-05": "full",
         "PR-07h": "partial",
-        "PR-07n": "partial",
+        "PR-07n": "full",
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 3064
+      "ms": 4571
     },
     {
       "suite": "e2e-tt35",
@@ -33,7 +33,7 @@
         "PR-07o": "partial"
       },
       "pass": true,
-      "ms": 6380
+      "ms": 8822
     },
     {
       "suite": "e2e-tt35",
@@ -43,7 +43,7 @@
         "WP-06": "full"
       },
       "pass": true,
-      "ms": 2409
+      "ms": 3703
     },
     {
       "suite": "e2e-tt35",
@@ -53,7 +53,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 424
+      "ms": 741
     },
     {
       "suite": "e2e-tt35",
@@ -62,7 +62,7 @@
         "WP-02": "full"
       },
       "pass": true,
-      "ms": 1272
+      "ms": 2281
     },
     {
       "suite": "e2e-tt35",
@@ -71,8 +71,9 @@
         "WP-01": "full",
         "WP-03": "full"
       },
-      "pass": true,
-      "ms": 3796
+      "pass": false,
+      "error": "timed out: github repository page",
+      "ms": 40739
     }
   ]
 }

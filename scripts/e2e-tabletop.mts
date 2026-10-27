@@ -427,7 +427,26 @@ try {
     let prev = "";
     await poll(async () => { const b = JSON.stringify(await box(pinned)); const same = b === prev; prev = b; return same; }, "wall settled");
     const before = await box(pinned);
-    await drag(page, pinned, { x: before.x + before.width / 2 + 160, y: before.y + before.height / 2 + 30 });
+    const target = { x: before.x + before.width / 2 + 160, y: before.y + before.height / 2 + 30 };
+    console.log("DEBUG wall drag before", JSON.stringify({
+      before,
+      target,
+      card: await pinned.evaluate((el) => ({
+        html: el.outerHTML.slice(0, 200),
+        pointer: getComputedStyle(el).pointerEvents,
+        face: el.closest("[data-face]")?.getAttribute("data-face"),
+      })),
+      state: await getState(),
+    }));
+    await drag(page, pinned, target);
+    await page.waitForTimeout(300);
+    console.log("DEBUG wall drag after", JSON.stringify({
+      state: await getState(),
+      card: await pinned.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return { x: r.x, y: r.y, w: r.width, h: r.height, ds: el.getAttribute("data-dragging") };
+      }).catch((e) => String(e)),
+    }));
     await poll(async () => { const t = (await getState())?.table as { walls?: { north?: { cards: Record<string, { x: number }> } } } | undefined; return (t?.walls?.north?.cards[F.md]?.x ?? 0) >= 120; }, "moved on the wall");
     await pinned.focus(); await page.keyboard.press("Shift+F10");
     await page.getByTestId("tt-menu").getByRole("menuitem", { name: "Put back on the table" }).click();

@@ -1,6 +1,6 @@
 {
   "suite": "tt81-core",
-  "at": "2026-10-26T17:42:47.688Z",
+  "at": "2026-10-26T20:46:39.277Z",
   "results": [
     {
       "suite": "tt81-core",
@@ -9,7 +9,7 @@
         "FF-78": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 5
     },
     {
       "suite": "tt81-core",
@@ -18,7 +18,7 @@
         "FF-78": "full"
       },
       "pass": true,
-      "ms": 235
+      "ms": 152
     },
     {
       "suite": "tt81-core",
@@ -27,7 +27,7 @@
         "FF-78": "full"
       },
       "pass": true,
-      "ms": 48
+      "ms": 27
     },
     {
       "suite": "tt81-core",
@@ -36,7 +36,17 @@
         "FF-78": "full"
       },
       "pass": true,
-      "ms": 659
+      "ms": 397
+    },
+    {
+      "suite": "tt81-core",
+      "name": "S5 all 4158 cells across all 4 sheets of FormulaEvalTestData_Copy.xlsx agree with Excel cached values (includes G716, D872, E872, M936)",
+      "covers": {
+        "FF-77": "full",
+        "FF-78": "full"
+      },
+      "pass": true,
+      "ms": 483
     },
     {
       "suite": "tt81-core",
@@ -45,7 +55,7 @@
         "FF-80": "partial"
       },
       "pass": true,
-      "ms": 48
+      "ms": 22
     },
     {
       "suite": "tt81-core",
@@ -54,7 +64,7 @@
         "FF-80": "partial"
       },
       "pass": true,
-      "ms": 148
+      "ms": 142
     },
     {
       "suite": "tt81-core",
@@ -63,7 +73,7 @@
         "FF-80": "partial"
       },
       "pass": true,
-      "ms": 26
+      "ms": 28
     },
     {
       "suite": "tt81-core",
@@ -72,7 +82,7 @@
         "FF-80": "partial"
       },
       "pass": true,
-      "ms": 20
+      "ms": 17
     },
     {
       "suite": "tt81-core",
@@ -99,16 +109,16 @@
         "FF-79": "partial"
       },
       "pass": true,
-      "ms": 3543
+      "ms": 2701
     },
     {
       "suite": "tt81-core",
-      "name": "P4 PDF /UserUnit scales page transforms and stays bounded to the declared 1..75000 range; pypdf independently reads the dictionary value",
+      "name": "P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink",
       "covers": {
-        "FF-79": "partial"
+        "FF-81": "full"
       },
       "pass": true,
-      "ms": 248
+      "ms": 5759
     }
   ]
 }

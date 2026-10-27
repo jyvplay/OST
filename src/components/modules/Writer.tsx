@@ -18,7 +18,7 @@ import { Btn } from "../ui";
 import { RecoveryBanner, openSealedWithPrompt, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 import { restoredProtection, sealDraft } from "@/lib/office/draft-seal";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
-import { allParas, blankWord, docText, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
+import { allParas, blankWord, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
 import * as E from "@/lib/office/wordedit";
 import { wordConversionLoss, wordToMarkdown, wordToText } from "@/lib/office/convert-word";
 import { markdownToDocx } from "@/lib/office/md2docx";
@@ -30,7 +30,7 @@ import SpellPanel from "./writer/SpellPanel";
 import { addHfPicture, hfLines, removeHf, setDifferentFirst, setHf, type HfAlign, type HfKind, type HfLine, type HfType } from "@/lib/office/hdrftr";
 import type { XEl } from "@/lib/office/xmltree";
 import { domToPos, geomOf, makeState, paginate, posToDom, renderBlocks, renderPara, cssFont } from "./writer/view";
-import { countWriterText } from "@/lib/office/wordcount";
+import { countableRangeText, countWordDoc, countWriterText } from "@/lib/office/wordcount";
 
 type Panel = "none" | "find" | "review" | "nav" | "page" | "hf" | "notes" | "spell";
 const MIME_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -73,6 +73,7 @@ export default function WriterModule({ win }: ModuleProps) {
   const [wordCountOpen, setWordCountOpen] = useState(false);
   const [wordCountSelection, setWordCountSelection] = useState("");
   const [wordCountTotal, setWordCountTotal] = useState(() => countWriterText(""));
+  const [wordCountNotes, setWordCountNotes] = useState(() => countWriterText(""));
   const [wordCountSelected, setWordCountSelected] = useState(() => countWriterText(""));
   const wordCountButtonRef = useRef<HTMLButtonElement | null>(null), wordCountCloseRef = useRef<HTMLButtonElement | null>(null);
   const [pop, setPop] = useState<"" | "link" | "table" | "comment" | "saveas">("");
@@ -781,11 +782,15 @@ export default function WriterModule({ win }: ModuleProps) {
   const inTable = useMemo(() => { const d = docRef.current; const r = selRef.current; return !!(d && r && E.locate(d, r.a.pid)?.table); }, [tick, ver]);
   // `ver` is the explicit invalidation tick for the ref-backed WordDoc model.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const counts = useMemo(() => { const d = docRef.current; if (!d) return { words: 0, chars: 0 }; const c = countWriterText(docText(d)); return { words: c.words, chars: c.characters }; }, [ver]);
+  const counts = useMemo(() => { const d = docRef.current; if (!d) return { words: 0, chars: 0 }; const c = countWordDoc(d); return { words: c.words, chars: c.characters }; }, [ver]);
   const openWordCount = () => {
+    const d = docRef.current;
     const s = window.getSelection(), root = rootRef.current;
-    const selected = s && root && root.contains(s.anchorNode) && root.contains(s.focusNode) ? s.toString() : "";
-    setWordCountSelection(selected); setWordCountTotal(countWriterText(docRef.current ? docText(docRef.current) : "")); setWordCountSelected(countWriterText(selected)); setWordCountOpen(true);
+    const r = readSel();
+    const modelSel = d && r && !collapsed(r) ? countableRangeText(d, r) : "";
+    const selected = modelSel || (s && root && root.contains(s.anchorNode) && root.contains(s.focusNode) ? s.toString() : "");
+    const dc = d ? countWordDoc(d) : { ...countWriterText(""), notes: countWriterText(""), withNotes: countWriterText("") };
+    setWordCountSelection(selected); setWordCountTotal(dc); setWordCountNotes(dc.notes); setWordCountSelected(countWriterText(selected)); setWordCountOpen(true);
   };
   const closeWordCount = () => { setWordCountOpen(false); requestAnimationFrame(() => wordCountButtonRef.current?.focus()); };
   // `ver` invalidates the ref-backed document model; panel avoids computing headings outside the navigation pane.
@@ -1013,6 +1018,7 @@ export default function WriterModule({ win }: ModuleProps) {
             <div className="fs-row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}><h2 style={{ margin: 0, fontSize: fz(18) }}>Word Count</h2><button ref={wordCountCloseRef} type="button" autoFocus aria-label="Close Word Count" onClick={closeWordCount}>Close</button></div>
             <dl style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "7px 16px", margin: 0 }}>
               {countRow("Pages", pages, "writer-count-pages")}{countRow("Words", wordCountTotal.words, "writer-count-words")}{countRow("Characters (with spaces)", wordCountTotal.characters, "writer-count-chars")}{countRow("Characters (without spaces)", wordCountTotal.charactersNoSpaces, "writer-count-chars-no-spaces")}{countRow("Paragraphs", wordCountTotal.paragraphs, "writer-count-paragraphs")}{countRow("Lines", wordCountTotal.lines, "writer-count-lines")}
+              {(wordCountNotes.words > 0 || wordCountNotes.characters > 0) && countRow("Footnotes & endnotes (words)", wordCountNotes.words, "writer-count-notes-words")}
             </dl>
             {wordCountSelection.trim() && <><h3 style={{ fontSize: fz(14), margin: "16px 0 8px" }}>Selection</h3><dl style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "7px 16px", margin: 0 }}>{countRow("Words", wordCountSelected.words, "writer-selection-words")}{countRow("Characters (with spaces)", wordCountSelected.characters, "writer-selection-chars")}{countRow("Characters (without spaces)", wordCountSelected.charactersNoSpaces, "writer-selection-chars-no-spaces")}</dl></>}
             <div style={{ marginTop: 14, fontSize: fz(11), opacity: .75 }}>Counts are based on the document text currently loaded in Writer.</div>

@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt81",
-  "at": "2026-10-26T18:39:13.664Z",
+  "at": "2026-10-27T01:12:57.809Z",
   "results": [
     {
       "suite": "e2e-tt81",
@@ -9,7 +9,7 @@
         "FF-78": "full"
       },
       "pass": true,
-      "ms": 10780
+      "ms": 8460
     },
     {
       "suite": "e2e-tt81",
@@ -18,7 +18,7 @@
         "FF-79": "full"
       },
       "pass": true,
-      "ms": 5429
+      "ms": 8541
     },
     {
       "suite": "e2e-tt81",
@@ -27,29 +27,39 @@
         "FF-80": "full"
       },
       "pass": true,
-      "ms": 5508
+      "ms": 9282
     },
     {
       "suite": "e2e-tt81",
-      "name": "E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases",
+      "name": "E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and MuPDF independently verify",
       "covers": {
-        "FF-81": "partial"
+        "FF-81": "full"
       },
       "pass": true,
-      "ms": 4353
+      "ms": 8763
     },
     {
       "suite": "e2e-tt81",
-      "name": "E5 Writer Word Count reports document and selected text through the real UI",
+      "name": "E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions",
       "covers": {
-        "FF-82": "partial"
+        "FF-82": "full"
       },
       "pass": true,
-      "ms": 4771
+      "ms": 8157
     },
     {
       "suite": "e2e-tt81",
-      "name": "E6 no browser page errors",
+      "name": "E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge",
+      "covers": {
+        "AP-02": "full",
+        "FM-07": "full"
+      },
+      "pass": true,
+      "ms": 10322
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E7 no browser page errors",
       "covers": {},
       "pass": true,
       "ms": 0

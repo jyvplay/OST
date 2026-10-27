@@ -1,7 +1,5 @@
 "use client";
 import { fz } from "@/lib/uiscale";
-import { hotCornerTracker } from "@/lib/hot-corner";
-
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { formatFor } from "@/lib/forge";
@@ -25,7 +23,7 @@ const MAX_ICONS = 30;
  * icon disappears on the next refresh, so the desktop can never show a ghost
  * the filesystem has already lost.
  */
-export default function DesktopSurface({ onLauncher }: { onLauncher: () => void }) {
+export default function DesktopSurface() {
   const shell = useShell();
   const [items, setItems] = useState<Item[]>([]);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
@@ -55,28 +53,23 @@ export default function DesktopSurface({ onLauncher }: { onLauncher: () => void 
       .catch(() => setItems([]));
   }, [shell.refreshTick]);
 
+  useEffect(() => {
+    const onDeferredContextMenu = (event: Event) => {
+      const detail = (event as CustomEvent<{ x: number; y: number }>).detail;
+      if (detail && Number.isFinite(detail.x) && Number.isFinite(detail.y)) setMenu({ x: detail.x, y: detail.y });
+    };
+    window.addEventListener("fusion:desktop-context-menu", onDeferredContextMenu);
+    return () => window.removeEventListener("fusion:desktop-context-menu", onDeferredContextMenu);
+  }, []);
+
   const saved = shell.state.icons as IconPos[] | undefined;
   const placed = layoutIcons(items.map((i) => i.path), saved, grid.cols, grid.rows);
   const byPath = new Map(items.map((i) => [i.path, i]));
   const commit = (icons: IconPos[]) => shell.dispatch({ t: "icons", icons });
 
-  // SH-06 hot corners: pointerrawupdate survives coalescing at 120 Hz
-  // The tracker and the callback live in refs: Shell passes a new onLauncher on every render, and re-creating the tracker
-  // per render forgot that the pointer was already inside — closing the launcher re-rendered, and the next jitter in
-  // the corner "entered" again and reopened it (found by the real-pointer suite, TT67).
-  const corner = useRef(hotCornerTracker()); // fires on ENTRY only; re-arms after the pointer leaves the corner
-  const launch = useRef(onLauncher);
-  useEffect(() => { launch.current = onLauncher; }, [onLauncher]);
-  const hotOn = (shell.settings["shell.hotCorners"] ?? "on") === "on";
-  useEffect(() => {
-    if (!hotOn) return;
-    const onMove = (e: PointerEvent) => { if (corner.current(e.clientX, e.clientY, e.movementX, e.movementY)) launch.current(); };
-    window.addEventListener("pointerrawupdate" in window ? "pointerrawupdate" : "pointermove", onMove as EventListener);
-    return () => window.removeEventListener("pointerrawupdate" in window ? "pointerrawupdate" : "pointermove", onMove as EventListener);
-  }, [hotOn]);
-
   return (
     <div
+      data-pointer-gesture-surface="classic"
       style={{ position: "absolute", inset: 0 }}
       onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }); }}
       onPointerDown={() => setMenu(null)}
