@@ -1,28 +1,28 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-27T01:39:56.272Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-209 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-27T01:56:29.425Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
+211 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 
 ## Headline
 
 | | Count |
 |---|---:|
 | **Features in register** | **414** |
-| Fully built | 344 |
-| Partially built (partial 31 + probe 18) | 49 |
+| Fully built | 345 |
+| Partially built (partial 30 + probe 18) | 48 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 21 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing test tagged `full`) | **269** |
+| **Fully tested** (≥1 passing test tagged `full`) | **270** |
 | **Partially tested** (only `partial` tags) | **70** |
-| Untested | 75 |
-| Automated tests executed / passed | 1679 / 1678 |
+| Untested | 74 |
+| Automated tests executed / passed | 1695 / 1694 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 260 | 60 | 24 |
-| partially built | 3 | 8 | 38 |
+| fully built | 261 | 60 | 24 |
+| partially built | 3 | 8 | 37 |
 | blocked | 6 | 2 | 13 |
 | skeleton | 0 | 0 | 0 |
 
@@ -37,6 +37,7 @@ verifies the honesty contract, not the (impossible) capability.
 | ai-format | 5 | 5 | 0 | 2026-10-26T19:56:53.407Z |
 | browser-session | 5 | 5 | 0 | 2026-10-25T22:09:27.537Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-26T19:56:53.680Z |
+| dnd-core | 10 | 10 | 0 | 2026-10-27T01:54:11.862Z |
 | e2e-a11y | 9 | 9 | 0 | 2026-10-26T23:32:19.452Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
@@ -117,6 +118,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt81 | 7 | 7 | 0 | 2026-10-27T01:12:57.809Z |
 | e2e-tt85 | 3 | 3 | 0 | 2026-10-27T00:33:16.208Z |
 | e2e-tt86-pointer | 5 | 5 | 0 | 2026-10-27T01:39:36.081Z |
+| e2e-tt87 | 6 | 6 | 0 | 2026-10-27T01:56:25.852Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-26T13:09:31.262Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 65 | 65 | 0 | 2026-10-25T22:11:26.549Z |
@@ -256,7 +258,7 @@ verifies the honesty contract, not the (impossible) capability.
 | WM | 19 | 14 | 4 | 1 | 7 | 4 | 8 |
 | IN | 8 | 5 | 3 | 0 | 4 | 1 | 3 |
 | SR | 8 | 7 | 0 | 1 | 4 | 3 | 1 |
-| FM | 18 | 15 | 2 | 1 | 13 | 2 | 3 |
+| FM | 18 | 16 | 1 | 1 | 14 | 2 | 2 |
 | NC | 6 | 6 | 0 | 0 | 2 | 3 | 1 |
 | ST | 9 | 5 | 3 | 1 | 2 | 3 | 4 |
 | AP | 5 | 3 | 1 | 1 | 3 | 0 | 2 |
@@ -350,7 +352,7 @@ verifies the honesty contract, not the (impossible) capability.
 | FM-11 | built | full | e2e: mount: files; integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest; integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard) |
 | FM-12 | blocked | untested |  |
 | FM-13 | built | full | e2e-tt55-files: FM-13 New from template: the menu lists /System/Templates from the server; a new file is a byte copy of the template; a second one gets a free name; tt55-files-unit: FM-03 / FM-13 conflict-free names: never in use, the smallest free candidate, copies of copies do not grow, dirs and dotfiles keep their name |
-| FM-14 | partial | untested |  |
+| FM-14 | built | full | dnd-core: DRAG_TYPE and PRIVATE_ROOT constants; dnd-core: isPrivatePath: exact boundary; dnd-core: isVfsPath: absolute, no double slash, no NUL (+13) |
 | FM-15 | built | full | e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash; e2e-tt55-files: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection; tt55-files-unit: FM-15 selection model = spec-literal reference over 3 000 random click / Ctrl / Shift / Ctrl+Shift / keyboard sequences |
 | FM-16 | built | full | e2e-tt55-files: FM-16 quick filter + Subfolders: deep matches equal a recursive walk of the server; % and _ are literal; dotfiles and /System stay out |
 | FM-17 | built | full | e2e-tt55-files: FM-17 folder sizes: every folder row shows the size of its subtree (= a recursive walk of the server), and the cached size refreshes after a write |

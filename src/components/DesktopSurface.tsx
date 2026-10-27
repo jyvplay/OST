@@ -9,6 +9,8 @@ import { FileIcon } from "./AppIcon";
 import { DEFAULT_WALLPAPER, WALLPAPERS } from "@/lib/appearance";
 import { cellAt, cleanUp, layoutIcons, moveIcon, nudgeIcon, sortByName, type IconPos } from "@/lib/desk-icons-core";
 import { askText } from "@/lib/ask";
+import { DRAG_TYPE, DESKTOP_DIR, parseFusionPaths, dropCreatesCycle, canDragOut, downloadUrlValue } from "@/lib/dnd-core";
+import { post as apiPost } from "@/lib/api";
 
 interface Item { path: string; name: string; kind: string; mime?: string }
 
@@ -62,17 +64,59 @@ export default function DesktopSurface() {
     return () => window.removeEventListener("fusion:desktop-context-menu", onDeferredContextMenu);
   }, []);
 
+  const [deskDrop, setDeskDrop] = useState(false);
   const saved = shell.state.icons as IconPos[] | undefined;
   const placed = layoutIcons(items.map((i) => i.path), saved, grid.cols, grid.rows);
   const byPath = new Map(items.map((i) => [i.path, i]));
   const commit = (icons: IconPos[]) => shell.dispatch({ t: "icons", icons });
 
+  // TT87 FM-14: desktop is a drop target for Fusion drags (move/copy into /Documents) and OS files (upload)
+  const onDeskDragOver = (e: React.DragEvent) => {
+    if (e.dataTransfer.types.includes(DRAG_TYPE) || e.dataTransfer.types.includes("Files")) {
+      e.preventDefault(); e.stopPropagation();
+      e.dataTransfer.dropEffect = e.dataTransfer.types.includes("Files") || e.ctrlKey || e.altKey ? "copy" : "move";
+      if (!deskDrop) setDeskDrop(true);
+    }
+  };
+  const onDeskDrop = async (e: React.DragEvent) => {
+    const raw = e.dataTransfer.getData(DRAG_TYPE);
+    if (raw) {
+      const paths = parseFusionPaths(raw);
+      if (paths.length && !dropCreatesCycle(paths, DESKTOP_DIR)) {
+        e.preventDefault(); e.stopPropagation(); setDeskDrop(false);
+        const op = e.ctrlKey || e.altKey ? "copy" : "move";
+        for (const src of paths) {
+          const name = src.slice(src.lastIndexOf("/") + 1);
+          const dst = `${DESKTOP_DIR}/${name}`;
+          if (src === dst) continue;
+          await apiPost("/api/fs", { op, src, dst }).catch(() => undefined);
+        }
+        shell.bumpRefresh();
+        return;
+      }
+    }
+    if (e.dataTransfer.files.length) {
+      e.preventDefault(); e.stopPropagation(); setDeskDrop(false);
+      for (const f of Array.from(e.dataTransfer.files)) {
+        const buf = await f.arrayBuffer();
+        const b64 = Buffer.from(buf).toString("base64");
+        await apiPost("/api/fs", { op: "write", path: `${DESKTOP_DIR}/${f.name}`, content: b64, encoding: "base64" }).catch(() => undefined);
+      }
+      shell.bumpRefresh();
+    }
+  };
+
   return (
     <div
       data-pointer-gesture-surface="classic"
-      style={{ position: "absolute", inset: 0 }}
+      data-testid="desktop-surface"
+      data-drop-active={deskDrop || undefined}
+      style={{ position: "absolute", inset: 0, outline: deskDrop ? "2px dashed var(--fs-accent)" : undefined, outlineOffset: deskDrop ? -4 : undefined }}
       onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }); }}
       onPointerDown={() => setMenu(null)}
+      onDragOver={onDeskDragOver}
+      onDragLeave={(e) => { if (e.currentTarget === e.target) setDeskDrop(false); }}
+      onDrop={onDeskDrop}
     >
       <div ref={probe} aria-hidden="true" style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: fz(104), height: fz(76) }} />
       <div ref={area} data-testid="desk-icons" data-cols={grid.cols} data-rows={grid.rows} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
@@ -85,6 +129,18 @@ export default function DesktopSurface() {
           const open = () => shell.open(appForFile(it.name, it.mime ?? "", it.kind), { path: it.path, title: it.name });
           return (
             <button key={it.path}
+              draggable
+              onDragStart={(e) => {
+                const { encodeFusionPaths, canDragOut, downloadUrlValue } = require("@/lib/dnd-core") as typeof import("@/lib/dnd-core");
+                e.dataTransfer.setData(DRAG_TYPE, encodeFusionPaths([it.path]));
+                e.dataTransfer.setData("text/plain", it.path);
+                e.dataTransfer.effectAllowed = "copyMove";
+                if (canDragOut([it.path])) {
+                  const origin = typeof window !== "undefined" ? window.location.origin : "";
+                  const rawUrl = `${origin}/api/fs?op=raw&path=${encodeURIComponent(it.path)}`;
+                  try { e.dataTransfer.setData("DownloadURL", downloadUrlValue(it.mime || "application/octet-stream", it.name, rawUrl)); } catch {}
+                }
+              }}
               onDoubleClick={() => { if (!suppressClick.current) open(); }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") { e.preventDefault(); open(); return; }

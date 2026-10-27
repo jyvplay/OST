@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt87",
+  "at": "2026-10-27T01:56:25.852Z",
+  "results": [
+    {
+      "suite": "e2e-tt87",
+      "name": "internal move between Files windows: drag row from pane A to folder in pane B",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 2258
+    },
+    {
+      "suite": "e2e-tt87",
+      "name": "copy via Ctrl drop: source stays, target gets a copy",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 73
+    },
+    {
+      "suite": "e2e-tt87",
+      "name": "OS file drop simulation: upload via File blob into a folder",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 44
+    },
+    {
+      "suite": "e2e-tt87",
+      "name": "cycle guard: moving a folder into itself or descendant is refused",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 57
+    },
+    {
+      "suite": "e2e-tt87",
+      "name": "desktop drop zone: Fusion file dropped on desktop lands in /Documents",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 89
+    },
+    {
+      "suite": "e2e-tt87",
+      "name": "private guard and DownloadURL: /Private never advertises DownloadURL, public does",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 3124
+    }
+  ]
+}

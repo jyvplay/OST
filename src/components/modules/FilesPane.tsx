@@ -43,7 +43,7 @@ export interface FNode {
 }
 interface Job { id: number; op: string; src: string; dst: string; state: string; error: string }
 type View = "list" | "grid" | "column";
-const DRAG_TYPE = "application/x-fusion-paths";
+import { DRAG_TYPE, encodeFusionPaths, canDragOut, downloadUrlValue, parseFusionPaths, dropCreatesCycle } from "@/lib/dnd-core";
 const TEMPLATES = "/System/Templates";
 
 /* FM-17: folder sizes are computed server-side (one SUM over the subtree) in the background, two at a time, and
@@ -504,9 +504,17 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     const paths = selected.has(n.path) ? selNow.paths : [n.path];
     // deferred: a re-render inside dragstart (the selection bar appearing shifts the rows) makes Chromium abort the drag
     if (!selected.has(n.path)) window.setTimeout(() => setSel({ paths: [n.path], anchor: n.path, focus: n.path }), 0);
-    e.dataTransfer.setData(DRAG_TYPE, JSON.stringify(paths));
+    e.dataTransfer.setData(DRAG_TYPE, encodeFusionPaths(paths));
     e.dataTransfer.setData("text/plain", paths.join("\n"));
     e.dataTransfer.effectAllowed = "copyMove";
+    // OS drag-out: single non-private file advertises DownloadURL so the OS receives a real file (Chromium)
+    if (paths.length === 1 && canDragOut(paths)) {
+      const name = paths[0].slice(paths[0].lastIndexOf("/") + 1) || "file";
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const rawUrl = `${origin}/api/fs?op=raw&path=${encodeURIComponent(paths[0])}`;
+      try { e.dataTransfer.setData("DownloadURL", downloadUrlValue(n.mime || "application/octet-stream", name, rawUrl)); } catch { /* Firefox lacks DownloadURL */ }
+      try { e.dataTransfer.setData("text/uri-list", rawUrl); } catch { /* ignore */ }
+    }
   };
   const canDrop = (e: DragEvent) => !showTrash && (e.dataTransfer.types.includes(DRAG_TYPE) || e.dataTransfer.types.includes("Files"));
   const dragOver = (e: DragEvent, target: string) => {
@@ -520,9 +528,11 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     e.preventDefault(); e.stopPropagation(); setDropOn(null); onActivate();
     const raw = e.dataTransfer.getData(DRAG_TYPE);
     if (raw) {
-      let paths: string[] = [];
-      try { paths = (JSON.parse(raw) as unknown[]).filter((x): x is string => typeof x === "string"); } catch { /* foreign payload */ }
-      if (paths.length) void transfer(paths, dir, e.ctrlKey || e.altKey ? "copy" : "move");
+      const paths = parseFusionPaths(raw);
+      if (paths.length) {
+        if (dropCreatesCycle(paths, dir)) { e.preventDefault(); e.stopPropagation(); setDropOn(null); return; }
+        void transfer(paths, dir, e.ctrlKey || e.altKey ? "copy" : "move");
+      }
     } else if (e.dataTransfer.files.length) void upload(e.dataTransfer.files, dir);
   };
 

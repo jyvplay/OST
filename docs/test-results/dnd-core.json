@@ -1,0 +1,96 @@
+{
+  "suite": "dnd-core",
+  "at": "2026-10-27T01:54:11.862Z",
+  "results": [
+    {
+      "suite": "dnd-core",
+      "name": "DRAG_TYPE and PRIVATE_ROOT constants",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "dnd-core",
+      "name": "isPrivatePath: exact boundary",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "dnd-core",
+      "name": "isVfsPath: absolute, no double slash, no NUL",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "dnd-core",
+      "name": "encode/parse Fusion paths round-trip, hostile input rejected",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "dnd-core",
+      "name": "canDragOut: all outside /Private, none inside",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "dnd-core",
+      "name": "downloadUrlValue: sanitises name and mime, preserves URL",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "dnd-core",
+      "name": "classifyDrop: distinguishes fusion/files/mixed/none",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "dnd-core",
+      "name": "intentFor: Ctrl/Alt = copy, otherwise move",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "dnd-core",
+      "name": "dropCreatesCycle: folder into itself or descendant blocked",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "dnd-core",
+      "name": "dedupeName: collision-free names for flat OS drops",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

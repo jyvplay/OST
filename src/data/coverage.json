@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-27T01:39:56.276Z",
+ "generatedAt": "2026-10-27T01:56:29.434Z",
  "totals": {
   "built": {
-   "full": 344,
-   "partial": 49,
+   "full": 345,
+   "partial": 48,
    "blocked": 21,
    "none": 0
   },
   "tested": {
-   "full": 269,
+   "full": 270,
    "partial": 70,
-   "untested": 75
+   "untested": 74
   },
   "tests": {
-   "total": 1679,
-   "passed": 1678
+   "total": 1695,
+   "passed": 1694
   }
  },
  "rows": {
@@ -475,8 +475,25 @@
    ]
   },
   "FM-14": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "dnd-core: DRAG_TYPE and PRIVATE_ROOT constants",
+    "dnd-core: isPrivatePath: exact boundary",
+    "dnd-core: isVfsPath: absolute, no double slash, no NUL",
+    "dnd-core: encode/parse Fusion paths round-trip, hostile input rejected",
+    "dnd-core: canDragOut: all outside /Private, none inside",
+    "dnd-core: downloadUrlValue: sanitises name and mime, preserves URL",
+    "dnd-core: classifyDrop: distinguishes fusion/files/mixed/none",
+    "dnd-core: intentFor: Ctrl/Alt = copy, otherwise move",
+    "dnd-core: dropCreatesCycle: folder into itself or descendant blocked",
+    "dnd-core: dedupeName: collision-free names for flat OS drops",
+    "e2e-tt87: internal move between Files windows: drag row from pane A to folder in pane B",
+    "e2e-tt87: copy via Ctrl drop: source stays, target gets a copy",
+    "e2e-tt87: OS file drop simulation: upload via File blob into a folder",
+    "e2e-tt87: cycle guard: moving a folder into itself or descendant is refused",
+    "e2e-tt87: desktop drop zone: Fusion file dropped on desktop lands in /Documents",
+    "e2e-tt87: private guard and DownloadURL: /Private never advertises DownloadURL, public does"
+   ]
   },
   "FM-15": {
    "tested": "full",
