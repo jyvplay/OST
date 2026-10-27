@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt93-sidecar",
-  "at": "2026-10-27T19:23:08.880Z",
+  "at": "2026-10-27T20:10:20.614Z",
   "results": [
     {
       "suite": "e2e-tt93-sidecar",
@@ -10,7 +10,7 @@
         "MD-03": "partial"
       },
       "pass": true,
-      "ms": 1384
+      "ms": 1885
     },
     {
       "suite": "e2e-tt93-sidecar",
@@ -20,7 +20,7 @@
         "MD-03": "partial"
       },
       "pass": true,
-      "ms": 1591
+      "ms": 1418
     }
   ]
 }

@@ -1,0 +1,14 @@
+=== previous test, 1500ms held settings
+  ✗ icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+    titlebar icon is SVG
+
+0 passed, 1 failed
+FAILED: icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+previous exit=1
+=== patched test, same held settings
+  ✗ icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+    titlebar icon is SVG
+
+0 passed, 1 failed
+FAILED: icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+patched exit=1

@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt91-browser-download",
-  "at": "2026-10-27T19:22:52.952Z",
+  "at": "2026-10-27T20:09:22.750Z",
   "results": [
     {
       "suite": "e2e-tt91-browser-download",
@@ -9,7 +9,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 720
+      "ms": 2282
     },
     {
       "suite": "e2e-tt91-browser-download",
@@ -18,7 +18,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 1174
+      "ms": 473
     },
     {
       "suite": "e2e-tt91-browser-download",
@@ -27,7 +27,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 627
+      "ms": 1560
     },
     {
       "suite": "e2e-tt91-browser-download",
@@ -36,7 +36,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 199
+      "ms": 107
     },
     {
       "suite": "e2e-tt91-browser-download",
@@ -45,7 +45,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 62
+      "ms": 97
     },
     {
       "suite": "e2e-tt91-browser-download",
@@ -54,7 +54,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 235
+      "ms": 147
     },
     {
       "suite": "e2e-tt91-browser-download",
@@ -63,7 +63,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 2163
+      "ms": 2074
     }
   ]
 }

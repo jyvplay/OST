@@ -1,6 +1,6 @@
 {
   "suite": "tt90-worker-pool",
-  "at": "2026-10-27T19:21:38.270Z",
+  "at": "2026-10-27T20:08:13.152Z",
   "results": [
     {
       "suite": "tt90-worker-pool",
@@ -27,7 +27,7 @@
         "FF-13": "partial"
       },
       "pass": true,
-      "ms": 66
+      "ms": 65
     },
     {
       "suite": "tt90-worker-pool",
@@ -36,7 +36,7 @@
         "FF-13": "partial"
       },
       "pass": true,
-      "ms": 81
+      "ms": 82
     },
     {
       "suite": "tt90-worker-pool",
@@ -45,7 +45,7 @@
         "FF-13": "partial"
       },
       "pass": true,
-      "ms": 41
+      "ms": 40
     },
     {
       "suite": "tt90-worker-pool",

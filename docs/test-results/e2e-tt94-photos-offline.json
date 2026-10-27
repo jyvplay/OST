@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt94-photos-offline",
-  "at": "2026-10-27T19:50:46.641Z",
+  "at": "2026-10-27T20:11:09.848Z",
   "results": [
     {
       "suite": "e2e-tt94-photos-offline",
@@ -10,7 +10,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 6325
+      "ms": 3737
     },
     {
       "suite": "e2e-tt94-photos-offline",
@@ -20,7 +20,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 5852
+      "ms": 3278
     },
     {
       "suite": "e2e-tt94-photos-offline",
@@ -30,7 +30,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 4893
+      "ms": 2631
     },
     {
       "suite": "e2e-tt94-photos-offline",
@@ -40,7 +40,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 4097
+      "ms": 2755
     },
     {
       "suite": "e2e-tt94-photos-offline",
@@ -50,7 +50,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 3931
+      "ms": 2744
     },
     {
       "suite": "e2e-tt94-photos-offline",
@@ -60,7 +60,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 4150
+      "ms": 2507
     }
   ]
 }

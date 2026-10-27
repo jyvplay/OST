@@ -151,6 +151,10 @@ await test("icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) an
   ok(tile && tile.width >= 29, `shelf icon is ${tile?.width}px wide at the 125 % default (want ≥30)`);
   await setSetting("appearance.textScale", "200");
   await page.reload(); await page.locator('[data-testid="shelf-files"] svg').waitFor({ timeout: 30_000 });
+  // The shelf mounts at the default 125% before /api/settings finishes. Wait for
+  // the saved value, not merely the SVG, so a delayed bootstrap cannot give a
+  // false failure; a failure to apply 200% still times out and fails this test.
+  await page.waitForFunction(() => Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--fs-ts")) === 2, null, { timeout: 30_000 });
   const big = await page.locator('[data-testid="shelf-files"] svg').boundingBox();
   await setSetting("appearance.textScale", "125");
   ok(big && tile && big.width >= tile.width * 1.5, `Large text mode shelf icon ${big?.width}px (default ${tile?.width}px)`);

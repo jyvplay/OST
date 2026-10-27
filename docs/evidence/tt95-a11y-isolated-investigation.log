@@ -1,0 +1,12 @@
+=== isolated icon test 1
+  ✓ icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+
+1 passed, 0 failed
+=== isolated icon test 2
+  ✓ icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+
+1 passed, 0 failed
+=== isolated icon test 3
+  ✓ icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+
+1 passed, 0 failed

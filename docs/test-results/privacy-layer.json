@@ -1,6 +1,6 @@
 {
   "suite": "privacy-layer",
-  "at": "2026-10-27T19:51:36.860Z",
+  "at": "2026-10-27T20:12:30.740Z",
   "results": [
     {
       "suite": "privacy-layer",
@@ -9,7 +9,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 319
+      "ms": 127
     },
     {
       "suite": "privacy-layer",
@@ -18,7 +18,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 199
+      "ms": 139
     },
     {
       "suite": "privacy-layer",
@@ -27,7 +27,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 17
+      "ms": 5
     },
     {
       "suite": "privacy-layer",
@@ -36,7 +36,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 357
+      "ms": 93
     },
     {
       "suite": "privacy-layer",
@@ -46,7 +46,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 567
+      "ms": 70
     },
     {
       "suite": "privacy-layer",
@@ -57,7 +57,7 @@
         "BK-02": "partial"
       },
       "pass": true,
-      "ms": 87
+      "ms": 55
     },
     {
       "suite": "privacy-layer",
@@ -68,7 +68,7 @@
         "MD-03": "partial"
       },
       "pass": true,
-      "ms": 277
+      "ms": 158
     },
     {
       "suite": "privacy-layer",
@@ -77,7 +77,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 105
+      "ms": 44
     },
     {
       "suite": "privacy-layer",
@@ -86,7 +86,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 38
+      "ms": 30
     },
     {
       "suite": "privacy-layer",
@@ -95,7 +95,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 37
+      "ms": 16
     },
     {
       "suite": "privacy-layer",
@@ -105,7 +105,7 @@
         "SC-14": "partial"
       },
       "pass": true,
-      "ms": 642
+      "ms": 302
     },
     {
       "suite": "privacy-layer",
@@ -114,7 +114,7 @@
         "SC-16": "full"
       },
       "pass": true,
-      "ms": 415
+      "ms": 251
     },
     {
       "suite": "privacy-layer",
@@ -124,7 +124,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 145
+      "ms": 118
     }
   ]
 }

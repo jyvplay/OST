@@ -1,6 +1,6 @@
 {
   "suite": "integration",
-  "at": "2026-10-27T19:37:11.424Z",
+  "at": "2026-10-27T19:56:34.710Z",
   "results": [
     {
       "suite": "integration",
@@ -9,7 +9,7 @@
         "DP-10": "partial"
       },
       "pass": true,
-      "ms": 254
+      "ms": 81
     },
     {
       "suite": "integration",
@@ -18,7 +18,7 @@
         "DP-08": "partial"
       },
       "pass": true,
-      "ms": 208
+      "ms": 56
     },
     {
       "suite": "integration",
@@ -30,7 +30,7 @@
         "NC-05": "partial"
       },
       "pass": true,
-      "ms": 90
+      "ms": 114
     },
     {
       "suite": "integration",
@@ -39,7 +39,7 @@
         "FM-03": "full"
       },
       "pass": true,
-      "ms": 63
+      "ms": 67
     },
     {
       "suite": "integration",
@@ -50,7 +50,7 @@
         "BK-01": "partial"
       },
       "pass": true,
-      "ms": 60
+      "ms": 58
     },
     {
       "suite": "integration",
@@ -60,7 +60,7 @@
         "FM-07": "full"
       },
       "pass": true,
-      "ms": 402
+      "ms": 121
     },
     {
       "suite": "integration",
@@ -79,7 +79,7 @@
         "SH-08": "full"
       },
       "pass": true,
-      "ms": 55
+      "ms": 52
     },
     {
       "suite": "integration",
@@ -89,7 +89,7 @@
         "PR-07r": "partial"
       },
       "pass": true,
-      "ms": 50
+      "ms": 23
     },
     {
       "suite": "integration",
@@ -98,7 +98,7 @@
         "AU-01": "partial"
       },
       "pass": true,
-      "ms": 41
+      "ms": 23
     },
     {
       "suite": "integration",
@@ -108,7 +108,7 @@
         "PR-03": "partial"
       },
       "pass": true,
-      "ms": 67
+      "ms": 33
     },
     {
       "suite": "integration",
@@ -118,7 +118,7 @@
         "CT-02": "partial"
       },
       "pass": true,
-      "ms": 276
+      "ms": 51
     },
     {
       "suite": "integration",
@@ -129,7 +129,7 @@
         "CA-02": "partial"
       },
       "pass": true,
-      "ms": 963
+      "ms": 752
     },
     {
       "suite": "integration",
@@ -143,7 +143,7 @@
         "FM-04": "partial"
       },
       "pass": true,
-      "ms": 645
+      "ms": 245
     },
     {
       "suite": "integration",
@@ -154,7 +154,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 252
+      "ms": 19
     },
     {
       "suite": "integration",
@@ -165,7 +165,7 @@
         "BL-05": "partial"
       },
       "pass": true,
-      "ms": 320
+      "ms": 44
     },
     {
       "suite": "integration",
@@ -175,7 +175,7 @@
         "SC-08": "partial"
       },
       "pass": true,
-      "ms": 14
+      "ms": 10
     },
     {
       "suite": "integration",
@@ -186,7 +186,7 @@
         "DP-05": "partial"
       },
       "pass": true,
-      "ms": 174
+      "ms": 118
     },
     {
       "suite": "integration",
@@ -196,7 +196,7 @@
         "SR-05": "full"
       },
       "pass": true,
-      "ms": 109
+      "ms": 99
     },
     {
       "suite": "integration",
@@ -205,7 +205,7 @@
         "SR-03": "full"
       },
       "pass": true,
-      "ms": 327
+      "ms": 151
     },
     {
       "suite": "integration",
@@ -214,7 +214,7 @@
         "FM-05": "full"
       },
       "pass": true,
-      "ms": 427
+      "ms": 114
     },
     {
       "suite": "integration",
@@ -224,7 +224,7 @@
         "FF-12": "full"
       },
       "pass": true,
-      "ms": 43
+      "ms": 28
     },
     {
       "suite": "integration",
@@ -233,7 +233,7 @@
         "CA-11": "partial"
       },
       "pass": true,
-      "ms": 32
+      "ms": 18
     },
     {
       "suite": "integration",
@@ -243,7 +243,7 @@
         "SR-02": "partial"
       },
       "pass": true,
-      "ms": 130
+      "ms": 110
     },
     {
       "suite": "integration",
@@ -252,7 +252,7 @@
         "AU-03": "partial"
       },
       "pass": true,
-      "ms": 6174
+      "ms": 1264
     }
   ]
 }

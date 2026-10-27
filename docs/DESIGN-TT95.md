@@ -79,6 +79,15 @@ The required modal-shortcut failure/detection check was actually run: the Slides
 
 ## Final verification and delivery
 
-The latest TypeScript check, ESLint for changed TT95 server/editor/privacy/seed files and four new test files, shell syntax checks, Python mutation-runner compilation and `git diff --check` passed. This is a scoped lint result, not a whole-repository lint pass; the most recent global lint was 182 errors and 18 warnings.
+The latest TypeScript check, ESLint for changed TT95 server/editor/privacy/seed and accessibility-test files, shell syntax checks, Python mutation-runner compilation and `git diff --check` passed. This is a scoped lint result, not a whole-repository lint pass; the most recent global lint was 182 errors and 18 warnings.
 
-Pending: final production build/gate, regenerated mixed-date ledger/static endpoint, preview, PR and actual merge outcome. This turn has not established ten new Class A promotions.
+### Production gate and accessibility investigation
+
+The repaired application built successfully for production. A separate 68-suite run against a fresh disposable PostgreSQL database and production server completed **66/68 suites, 477/479 cases, exit 1** (`docs/evidence/tt95-production-gate.log`). The remaining failures were:
+
+- **Privacy:** encryption **48 MB/s**, decryption **48 MB/s**, below the unchanged 50 MB/s encryption gate. Save latency was not reached (`tt95-production-e2e-privacy-failed.json`, `tt95-production-privacy-bench-failed.json`). The earlier 42 and 44 MB/s failures remain; no speed repair or threshold change is claimed.
+- **Accessibility:** `e2e-a11y` **8/9**, reporting a large-text shelf icon at **30px** rather than the expected larger size (`tt95-production-e2e-a11y-failed.json`). The exact selected test passed 3/3 in separate runs; this did not erase the aggregate failure. A forced Playwright schedule held `/api/settings` and observed **30px before settings, 48px after 200% hydration**, demonstrating a way the old test's immediate measurement could fail; it does not prove that this was the actual cause of the gate failure. The test now waits for the saved scale before measuring, while still asserting the icon size. The full accessibility suite then passed **9/9**, the forced schedule **1/1**, and test-safety **4/4** (`tt95-a11y-safety-recheck.log`). An initial injected-delay experiment failed both old and changed tests before reaching the icon assertion; a second had both pass; both inconclusive attempts are retained. The product still initially renders at the default scale until settings load.
+
+The preview is a production server on port 3000 backed by its own separate disposable database. Local HTTP checks returned 200; real Chromium initialized the shell without page errors and rendered visible controls. The first smoke incorrectly waited for an empty hidden toast region to be visible and timed out; its corrected smoke passed (`tt95-preview-smoke*.log`). The proxied external HTTPS URL itself and physical devices were not independently verified here. The regression server uses a separate database on port 3001 so ordinary preview interactions do not modify the gate database, although shared machine load could still affect timing.
+
+A draft PR has been opened at https://github.com/jyvplay/OST/pull/3. A final expanded gate, refreshed mixed-date ledger/static endpoint, delivery status and any actual merge result remain pending. This turn has not established ten new Class A promotions.

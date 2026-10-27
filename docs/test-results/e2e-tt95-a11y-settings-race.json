@@ -1,0 +1,16 @@
+{
+  "suite": "e2e-tt95-a11y-settings-race",
+  "at": "2026-10-27T20:20:40.434Z",
+  "results": [
+    {
+      "suite": "e2e-tt95-a11y-settings-race",
+      "name": "a delayed settings response can expose default-sized icons before the saved scale is applied",
+      "covers": {
+        "AX-10": "partial",
+        "AX-09": "partial"
+      },
+      "pass": true,
+      "ms": 979
+    }
+  ]
+}

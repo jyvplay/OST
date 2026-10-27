@@ -1,6 +1,6 @@
 {
   "suite": "tt89-drill-http",
-  "at": "2026-10-27T19:20:21.661Z",
+  "at": "2026-10-27T20:07:17.481Z",
   "results": [
     {
       "suite": "tt89-drill-http",
@@ -9,7 +9,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 106
+      "ms": 202
     },
     {
       "suite": "tt89-drill-http",
@@ -18,7 +18,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 20
+      "ms": 49
     },
     {
       "suite": "tt89-drill-http",
@@ -27,7 +27,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 37
+      "ms": 41
     },
     {
       "suite": "tt89-drill-http",
@@ -36,7 +36,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 52
+      "ms": 80
     },
     {
       "suite": "tt89-drill-http",
@@ -45,7 +45,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 45
+      "ms": 81
     },
     {
       "suite": "tt89-drill-http",
@@ -54,7 +54,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 53
+      "ms": 77
     },
     {
       "suite": "tt89-drill-http",
@@ -63,7 +63,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 58
+      "ms": 69
     },
     {
       "suite": "tt89-drill-http",
@@ -72,7 +72,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 23
+      "ms": 21
     },
     {
       "suite": "tt89-drill-http",
@@ -81,7 +81,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 5
+      "ms": 4
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt91-purge",
-  "at": "2026-10-27T19:22:37.031Z",
+  "at": "2026-10-27T20:09:07.360Z",
   "results": [
     {
       "suite": "tt91-purge",
@@ -10,7 +10,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 143
+      "ms": 118
     },
     {
       "suite": "tt91-purge",
@@ -20,7 +20,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 54
+      "ms": 44
     },
     {
       "suite": "tt91-purge",
@@ -30,7 +30,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 16
+      "ms": 14
     },
     {
       "suite": "tt91-purge",
@@ -40,7 +40,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 55
+      "ms": 54
     },
     {
       "suite": "tt91-purge",
@@ -50,7 +50,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 13
+      "ms": 35
     }
   ]
 }

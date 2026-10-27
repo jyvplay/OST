@@ -1,6 +1,6 @@
 {
   "suite": "tt91-purge-race",
-  "at": "2026-10-27T19:22:37.766Z",
+  "at": "2026-10-27T20:09:08.055Z",
   "results": [
     {
       "suite": "tt91-purge-race",
@@ -10,7 +10,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 165
+      "ms": 157
     },
     {
       "suite": "tt91-purge-race",
@@ -20,7 +20,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 99
+      "ms": 97
     },
     {
       "suite": "tt91-purge-race",
@@ -30,7 +30,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 141
+      "ms": 119
     },
     {
       "suite": "tt91-purge-race",
