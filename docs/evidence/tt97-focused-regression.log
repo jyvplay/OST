@@ -1,0 +1,95 @@
+=== unit
+23 passed, 0 failed
+=== e2e
+  ✗ no non-resource console errors across all module mounts
+    Error: <svg> attribute width: Expected length, "calc(14 * var(--…". | Error: <svg> attribute height: Expected length, "calc(14 * var(--…". | Error: <svg> attribute width: Expected length, "calc(14 * var(--…". | Error: <svg> attribute height: Expected length, "calc(14 * var(--…". | Error: <svg> attribute width: Expected length, "calc(14 * var(--…".
+
+Interactions
+--
+  ✗ editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists
+    locator.waitFor: Timeout 3000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog]').filter({ has: getByLabel('Editing /E2E-emvraman5/m.md') }).first().getByText('unsaved') to be visible
+--
+  ✗ WebRTC data channel between two contexts via Postgres signalling
+    locator.click: Error: strict mode violation: locator('[role=dialog][aria-label="Share"]').getByRole('button', { name: 'Join' }) resolved to 2 elements:
+    1) <button type="button" class="fs-btn " data-variant="primary">Join</button> aka getByRole('button', { name: 'Join' }).first()
+    2) <button type="button" class="fs-btn " data-variant="primary">Join</button> aka getByRole('button', { name: 'Join' }).nth(1)
+--
+  ✗ SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive
+    locator.waitFor: Timeout 6000ms exceeded.
+Call log:
+  - waiting for locator('.fs-panel').filter({ hasText: 'e2e-hang-emvraman5.html' }).first().getByText('not responding') to be visible
+--
+63 passed, 4 failed
+FAILED: no non-resource console errors across all module mounts | editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists | WebRTC data channel between two contexts via Postgres signalling | SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive
+=== e2e-tt58-rows
+3 passed, 0 failed
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== e2e-tt86-pointer
+6 passed, 0 failed
+=== e2e-tt91-browser-download
+7 passed, 0 failed
+=== e2e-a11y
+  ✗ reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit
+    --fs-ts 1.25
+  ✗ text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[aria-label="Quick panel"]').getByRole('button', { name: 'Larger text' })
+--
+  ✗ spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen
+    row height at 125 %: 66 (want 27.5)
+  ✓ forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)
+  ✓ style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused
+--
+  ✗ light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet
+    poolside/light: scrollable-region-focusable ×2 e.g. div[data-testid="files-listing"]   Element should have focusable content
+      poolside/dark: scrollable-region-focusable ×2 e.g. div[data-testid="files-listing"]   Element should have focusable content
+      vice/light: scrollable-region-focusable ×2 e.g. div[data-testid="files-listing"]   Element should have focusable content
+--
+5 passed, 4 failed
+FAILED: reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit | text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused | spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen | light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet
+=== e2e-tt96-calculator
+9 passed, 0 failed
+=== e2e-tt96-desktop-menu
+5 passed, 0 failed
+=== e2e-tt96-files-contrast
+5 passed, 0 failed
+=== tt95-calculator-audit
+4 passed, 0 failed
+=== tt97-palette-commands
+4 passed, 0 failed
+=== tt96-scientific-units
+6 passed, 0 failed
+=== tt89-test-safety
+4 passed, 0 failed
+=== privacy-layer
+13 passed, 0 failed
+=== e2e-privacy
+  ✗ Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('.fs-list-item').filter({ hasText: 'plan.docx' }).first()
+--
+  ✗ amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[data-testid="privacy"]').first().locator('[data-testid="unlock"]')
+--
+  ✗ no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end
+    encrypt throughput 46 MB/s: Encrypt
+46 MB/s (86.5 ms per 4.0 MB)
+Decrypt
+--
+  ✗ TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext
+    restored file reads back: 404 {"ok":false,"error":"not found"}
+  ✓ TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks
+  ✓ no page errors across the privacy flows
+--
+12 passed, 4 failed
+FAILED: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author | amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists | no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end | TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext
+=== tt92-ledger-audit
+7 passed, 0 failed
+scripts/run-all.sh: line 103: unexpected EOF while looking for matching `"'

@@ -1,0 +1,36 @@
+{
+  "suite": "e2e-tt97-files-empty-a11y",
+  "at": "2026-10-27T23:32:37.231Z",
+  "results": [
+    {
+      "suite": "e2e-tt97-files-empty-a11y",
+      "name": "an empty scrollable folder listing is keyboard reachable and has no serious axe violation",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 445
+    },
+    {
+      "suite": "e2e-tt97-files-empty-a11y",
+      "name": "reverting to the pre-repair non-tabbable empty listing is detected",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 327
+    },
+    {
+      "suite": "e2e-tt97-files-empty-a11y",
+      "name": "the empty-state check produces no uncaught page errors",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

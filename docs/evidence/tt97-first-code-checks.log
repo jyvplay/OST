@@ -1,0 +1,81 @@
+
+> typecheck
+> tsc --noEmit
+
+
+/home/user/OST/src/components/Palette.tsx
+   41:45  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/user/OST/src/components/Palette.tsx:41:45
+  39 |
+  40 |   useEffect(() => {
+> 41 |     if (!q.trim() || scope === "actions") { setHits([]); setTook(null); return; }
+     |                                             ^^^^^^^ Avoid calling setState() directly within an effect
+  42 |     const abort = new AbortController(); let active = true;
+  43 |     const t = window.setTimeout(() => {
+  44 |       const src = scope === "files" ? "file" : scope === "notes" ? "note" : scope === "spec" ? "spec" : scope === "settings" ? "setting" : "";                                                                                                                            react-hooks/set-state-in-effect
+   54:74  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/user/OST/src/components/Palette.tsx:54:74
+  52 |   const command = scope === "actions" ? parsePaletteAction(q) : null;
+  53 |   useEffect(() => {
+> 54 |     if (scope !== "actions" || command?.kind !== "routine" || amnesic) { setRoutines([]); setRoutineError(""); return; }
+     |                                                                          ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  55 |     const abort = new AbortController(); let active = true;
+  56 |     // Only the fixed endpoint is requested; the typed routine filter stays in the tab.
+  57 |     api<{ rows: RoutineRow[] }>("/api/routines", { signal: abort.signal })  react-hooks/set-state-in-effect
+  132:18  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/home/user/OST/src/components/Palette.tsx:132:18
+  130 |       if (!needle || command?.kind === "note") {
+  131 |         const text = command?.kind === "note" ? command.text : "";
+> 132 |         out.push({ id: "note", label: text ? `Create note: ${text.slice(0, 100)}` : "Create empty note", sub: amnesic ? "Unavailable in an amnesic session" : "Saves to Notes and its search index only after selection", source: "action · host Notes", rank: 110, run: () => { void createNote(text); } });
+      |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Passing a ref to a function may read its value during render
+  133 |       }
+  134 |       if (!needle || command?.kind === "focus") {
+  135 |         const mode = command?.kind === "focus" ? command.mode : "toggle";   react-hooks/refs
+  142:20  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/home/user/OST/src/components/Palette.tsx:142:20
+  140 |       if (command?.kind === "routine" && !amnesic) {
+  141 |         for (const routine of routines.filter((r) => r.enabled === true && Number.isSafeInteger(r.id) && typeof r.name === "string" && r.name.toLowerCase().includes(command.query.toLowerCase())).slice(0, 40)) {
+> 142 |           out.push({ id: `routine:${routine.id}`, label: `Run routine: ${routine.name}`, sub: "Runs the saved action sequence only when selected", source: "action · routine", rank: 105, run: () => { void runRoutine(routine.id); } });
+      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Passing a ref to a function may read its value during render
+  143 |         }
+  144 |       }
+  145 |     }                                                                                                   react-hooks/refs
+  185:19  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/user/OST/src/components/Palette.tsx:185:19
+  183 |   }, [q, scope, hits, shell, onClose, command, amnesic, routines, createNote, runRoutine]);
+  184 |
+> 185 |   useEffect(() => setSel(0), [q, scope]);
+      |                   ^^^^^^ Avoid calling setState() directly within an effect
+  186 |
+  187 |   return (
+  188 |     <div style={{ position: "absolute", inset: 0, zIndex: 9600, background: "rgba(4,8,18,.5)" }} onClick={onClose}>                                                                                                                                                                                                                                   react-hooks/set-state-in-effect
+
+✖ 5 problems (5 errors, 0 warnings)
+

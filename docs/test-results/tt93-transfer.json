@@ -1,6 +1,6 @@
 {
   "suite": "tt93-transfer",
-  "at": "2026-10-27T20:10:12.945Z",
+  "at": "2026-10-27T20:37:23.574Z",
   "results": [
     {
       "suite": "tt93-transfer",
@@ -12,7 +12,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 94
+      "ms": 70
     },
     {
       "suite": "tt93-transfer",
@@ -24,7 +24,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 68
+      "ms": 62
     },
     {
       "suite": "tt93-transfer",
@@ -36,7 +36,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 55
+      "ms": 41
     },
     {
       "suite": "tt93-transfer",
@@ -48,7 +48,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 50
+      "ms": 38
     },
     {
       "suite": "tt93-transfer",
@@ -60,7 +60,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 51
+      "ms": 41
     },
     {
       "suite": "tt93-transfer",
@@ -72,7 +72,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 87
+      "ms": 76
     },
     {
       "suite": "tt93-transfer",
@@ -84,7 +84,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 28
+      "ms": 25
     },
     {
       "suite": "tt93-transfer",
@@ -96,7 +96,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 47
+      "ms": 38
     },
     {
       "suite": "tt93-transfer",
@@ -108,7 +108,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 51
+      "ms": 36
     },
     {
       "suite": "tt93-transfer",
@@ -120,7 +120,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 66
+      "ms": 51
     },
     {
       "suite": "tt93-transfer",
@@ -132,7 +132,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 36
+      "ms": 27
     },
     {
       "suite": "tt93-transfer",
@@ -144,7 +144,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 36
+      "ms": 25
     },
     {
       "suite": "tt93-transfer",
@@ -156,7 +156,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 37
+      "ms": 27
     },
     {
       "suite": "tt93-transfer",
@@ -168,7 +168,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 59
+      "ms": 45
     },
     {
       "suite": "tt93-transfer",
@@ -180,7 +180,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 53
+      "ms": 43
     },
     {
       "suite": "tt93-transfer",
@@ -192,7 +192,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 46
+      "ms": 47
     },
     {
       "suite": "tt93-transfer",
@@ -204,7 +204,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 73
+      "ms": 62
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt89-drill-db",
-  "at": "2026-10-27T20:07:16.548Z",
+  "at": "2026-10-27T21:24:13.970Z",
   "results": [
     {
       "suite": "tt89-drill-db",
@@ -9,7 +9,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 248
+      "ms": 123
     },
     {
       "suite": "tt89-drill-db",
@@ -18,7 +18,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 213
+      "ms": 82
     },
     {
       "suite": "tt89-drill-db",
@@ -27,7 +27,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 131
+      "ms": 71
     },
     {
       "suite": "tt89-drill-db",
@@ -36,7 +36,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 120
+      "ms": 67
     },
     {
       "suite": "tt89-drill-db",
@@ -45,7 +45,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 134
+      "ms": 96
     },
     {
       "suite": "tt89-drill-db",
@@ -54,7 +54,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 146
+      "ms": 80
     },
     {
       "suite": "tt89-drill-db",
@@ -63,7 +63,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 160
+      "ms": 78
     },
     {
       "suite": "tt89-drill-db",
@@ -72,7 +72,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 118
+      "ms": 73
     },
     {
       "suite": "tt89-drill-db",
@@ -81,7 +81,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 151
+      "ms": 118
     },
     {
       "suite": "tt89-drill-db",
@@ -90,7 +90,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 149
+      "ms": 87
     },
     {
       "suite": "tt89-drill-db",
@@ -99,7 +99,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 292
+      "ms": 173
     },
     {
       "suite": "tt89-drill-db",
@@ -108,7 +108,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 59
+      "ms": 40
     },
     {
       "suite": "tt89-drill-db",
@@ -117,7 +117,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 69
+      "ms": 48
     }
   ]
 }

@@ -1,34 +1,34 @@
 {
   "suite": "tt89-test-safety",
-  "at": "2026-10-27T20:21:04.396Z",
+  "at": "2026-10-27T23:32:18.047Z",
   "results": [
     {
       "suite": "tt89-test-safety",
       "name": "destructive privacy and role-permission suites refuse to run without explicit disposable opt-in",
       "covers": {},
       "pass": true,
-      "ms": 12083
+      "ms": 16628
     },
     {
       "suite": "tt89-test-safety",
       "name": "forced schema bootstraps refuse without an explicit disposable opt-in and database URL",
       "covers": {},
       "pass": true,
-      "ms": 23
+      "ms": 32
     },
     {
       "suite": "tt89-test-safety",
       "name": "a trashed private child without keyslots blocks the destructive privacy suite and remains untouched",
       "covers": {},
       "pass": true,
-      "ms": 1739
+      "ms": 1824
     },
     {
       "suite": "tt89-test-safety",
       "name": "an orphaned private version without a node blocks the suite and remains untouched",
       "covers": {},
       "pass": true,
-      "ms": 1722
+      "ms": 1778
     }
   ]
 }

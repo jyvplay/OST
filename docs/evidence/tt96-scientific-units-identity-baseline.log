@@ -1,0 +1,13 @@
+  ✓ basic scientific precedence and finite-domain errors
+  ✓ trigonometric and logarithmic results agree with Python math
+  ✓ selected physical and binary-storage conversions use the declared dimensions
+  ✗ large identity conversion avoids intermediate overflow
+    1e308 km to km: Infinity vs 1e+308
+  ✗ unit conversion never claims an infinite result succeeded
+    1e308 km to mm: Infinity mm
+
+true !== false
+
+
+3 passed, 2 failed
+FAILED: large identity conversion avoids intermediate overflow | unit conversion never claims an infinite result succeeded

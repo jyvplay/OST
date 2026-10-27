@@ -1,0 +1,13 @@
+KILLED: unit conversion claims a non-finite success
+KILLED: unit conversion multiplies before dividing
+SURVIVED: unit conversion accepts a non-finite input
+  ✓ selected physical and binary-storage conversions use the declared dimensions
+
+1 passed, 0 failed
+
+KILLED: note command drops its word boundary
+KILLED: focus accepts an arbitrary argument
+KILLED: command length limit removed
+KILLED: setting filter length limit removed
+KILLED: routine filter length limit removed
+Mutants: 7/8 killed

@@ -1,0 +1,26 @@
+
+Every module mounts in real Chromium without an uncaught error
+  ✓ no non-resource console errors across all module mounts
+
+Interactions
+  ✗ editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists
+    locator.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog][aria-label="Terminal"]').first().getByLabel('Terminal input')
+
+
+Two browser contexts
+  ✗ WebRTC data channel between two contexts via Postgres signalling
+    locator.click: Error: strict mode violation: locator('[role=dialog][aria-label="Share"]').getByRole('button', { name: 'Join' }) resolved to 2 elements:
+    1) <button type="button" class="fs-btn " data-variant="primary">Join</button> aka getByRole('button', { name: 'Join' }).first()
+    2) <button type="button" class="fs-btn " data-variant="primary">Join</button> aka getByRole('button', { name: 'Join' }).nth(1)
+
+Call log:
+  - waiting for locator('[role=dialog][aria-label="Share"]').getByRole('button', { name: 'Join' })
+
+
+Widget isolation (H∂: depends on the browser's site-isolation policy)
+  ✓ SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive
+
+2 passed, 2 failed
+FAILED: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists | WebRTC data channel between two contexts via Postgres signalling

@@ -1,0 +1,78 @@
+{
+  "suite": "tt96-programmer",
+  "at": "2026-10-27T23:25:54.278Z",
+  "results": [
+    {
+      "suite": "tt96-programmer",
+      "name": "the original scientific evaluator and rounding policy stay available",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "bitwise AND, OR, XOR and NOT use the selected fixed width",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "word arithmetic wraps at 8, 16, 32 and 64 bits",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "64-bit values remain exact beyond Number.MAX_SAFE_INTEGER",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "signed division truncates toward zero and right shift sign-extends only when signed",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "operator precedence and grouping follow the documented programmer grammar",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "invalid or resource-abusive programmer expressions fail closed",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt96-programmer",
+      "name": "fixed-width operations match an independent deterministic Python oracle",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 72
+    }
+  ]
+}

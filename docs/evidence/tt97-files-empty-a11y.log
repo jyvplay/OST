@@ -1,0 +1,7 @@
+  ✓ an empty scrollable folder listing is keyboard reachable and has no serious axe violation
+  ✗ reverting to the pre-repair non-tabbable empty listing is detected
+    []
+  ✓ the empty-state check produces no uncaught page errors
+
+2 passed, 1 failed
+FAILED: reverting to the pre-repair non-tabbable empty listing is detected

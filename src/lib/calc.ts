@@ -32,11 +32,15 @@ export function evaluate(input: string): CalcResult {
     const a = UNITS[fromU.toLowerCase()];
     const b = UNITS[toU.toLowerCase()];
     const n = Number(nRaw);
-    if (a && b && a.base === b.base && Number.isFinite(n)) {
-      const value = (n * a.f) / b.f;
+    if (a && b) {
+      if (a.base !== b.base) return { ok: false, text: `cannot convert ${a.base} to ${b.base}` };
+      if (!Number.isFinite(n)) return { ok: false, text: "not a finite number" };
+      // All configured factors are finite and non-zero. Divide the factors first so
+      // an otherwise finite conversion cannot overflow just while finding the base unit.
+      const value = n * (a.f / b.f);
+      if (!Number.isFinite(value)) return { ok: false, text: "not a finite number" };
       return { ok: true, value, text: `${trim(value)} ${toU}`, detail: `${nRaw} ${fromU} → ${toU}` };
     }
-    if (a && b) return { ok: false, text: `cannot convert ${a.base} to ${b.base}` };
   }
 
   // Number cannot represent every large integer. Never silently round a radix
@@ -65,7 +69,7 @@ export function evaluate(input: string): CalcResult {
   }
 }
 
-/** Fixed rounding policy, stated in the UI: 12 significant digits, trailing zeros removed. */
+/** Non-integers round to 12 significant digits; integers use Number's string representation. */
 function trim(v: number): string {
   if (Number.isInteger(v)) return String(v);
   return String(Number(v.toPrecision(12)));

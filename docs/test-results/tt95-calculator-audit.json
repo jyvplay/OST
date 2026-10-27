@@ -1,19 +1,19 @@
 {
   "suite": "tt95-calculator-audit",
-  "at": "2026-10-27T20:12:08.568Z",
+  "at": "2026-10-27T23:27:24.404Z",
   "results": [
     {
       "suite": "tt95-calculator-audit",
-      "name": "the register labels incomplete programmer mode and nonpersistent history as partial",
+      "name": "the register labels the expanded calculator and local history as partial",
       "covers": {
         "PR-09": "partial"
       },
       "pass": true,
-      "ms": 25
+      "ms": 26
     },
     {
       "suite": "tt95-calculator-audit",
-      "name": "the shared evaluator handles examples but does not claim bitwise programmer operations",
+      "name": "scientific and fixed-width programmer modes have distinct explicit operators",
       "covers": {
         "PR-09": "partial"
       },
@@ -27,7 +27,7 @@
         "PR-09": "partial"
       },
       "pass": true,
-      "ms": 88
+      "ms": 58
     },
     {
       "suite": "tt95-calculator-audit",
@@ -36,7 +36,7 @@
         "PR-09": "partial"
       },
       "pass": true,
-      "ms": 1435
+      "ms": 661
     }
   ]
 }

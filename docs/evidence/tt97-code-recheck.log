@@ -1,0 +1,10 @@
+
+> typecheck
+> tsc --noEmit
+
+
+/home/user/OST/src/components/Palette.tsx
+  35:9  warning  The 'hits' conditional could make the dependencies of useMemo Hook (at line 191) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'hits' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+✖ 1 problem (0 errors, 1 warning)
+

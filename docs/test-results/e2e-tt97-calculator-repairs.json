@@ -1,0 +1,83 @@
+{
+  "suite": "e2e-tt97-calculator-repairs",
+  "at": "2026-10-27T23:26:56.272Z",
+  "results": [
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "empty history is a named region; removing its role reintroduces the original axe violation",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 698
+    },
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "empty and populated programmer history remain axe-clean",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 512
+    },
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "mode colors change atomically; injecting a slow background-only transition is detected",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 690
+    },
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "calculator mode controls retain contrast across 13 styles and both themes",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 29491
+    },
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "calculator and command palette agree on finite and overflowing unit conversions",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 643
+    },
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "palette scope buttons retain contrast immediately across 13 styles and both themes",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 26519
+    },
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "calculator repair scenarios have no uncaught page errors",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

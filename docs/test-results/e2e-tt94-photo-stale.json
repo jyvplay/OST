@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt94-photo-stale",
-  "at": "2026-10-27T20:10:50.963Z",
+  "at": "2026-10-27T20:37:59.357Z",
   "results": [
     {
       "suite": "e2e-tt94-photo-stale",
@@ -10,7 +10,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 3734
+      "ms": 3904
     },
     {
       "suite": "e2e-tt94-photo-stale",
@@ -20,7 +20,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 3098
+      "ms": 3028
     }
   ]
 }

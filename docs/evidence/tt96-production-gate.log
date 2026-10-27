@@ -1,0 +1,78 @@
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== tabletop-unit
+17 passed, 0 failed
+=== e2e-tabletop
+15 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+13 passed, 0 failed
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== tt67-input
+11 passed, 0 failed
+=== e2e-tt67-input
+5 passed, 0 failed
+=== e2e-tt81
+7 passed, 0 failed
+=== e2e-a11y
+  ✗ axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations
+    1 serious/critical:
+      calculator: aria-prohibited-attr ×1 e.g. .fs-scroll
+    files @125%: smallest visible text 12.5px, body 16.25px
+--
+8 passed, 1 failed
+FAILED: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations
+=== e2e-tt35
+7 passed, 0 failed
+=== tt86-pointer
+3 passed, 0 failed
+=== e2e-tt86-pointer
+6 passed, 0 failed
+=== tt87-pointer-queue
+2 passed, 0 failed
+=== e2e-tt87-pointer-fallback
+6 passed, 0 failed
+=== tt87-transaction
+5 passed, 0 failed
+=== tt87-backup
+5 passed, 0 failed
+=== tt87-backup-http
+8 passed, 0 failed
+=== e2e-tt87-backup
+6 passed, 0 failed
+=== e2e-tt87-localdisk
+5 passed, 0 failed
+=== e2e-tt87-privacy
+3 passed, 0 failed
+=== tt88-recovery
+9 passed, 0 failed
+=== e2e-tt88-recovery
+6 passed, 0 failed
+=== tt89-drill-health
+7 passed, 0 failed
+=== tt89-drill-db
+13 passed, 0 failed
+=== tt89-drill-http
+9 passed, 0 failed
+=== e2e-tt89-drill
+9 passed, 0 failed
+=== tt89-launch-unit
+6 passed, 0 failed
+=== e2e-tt89-launch
+9 passed, 0 failed
+=== tt90-context-unit
+4 passed, 0 failed
+=== e2e-tt90-context
+8 passed, 0 failed
+=== tt90-worker-pool
+9 passed, 0 failed
+=== tt90-private-thumb-path
+1 passed, 0 failed
+=== e2e-tt90-thumbnails

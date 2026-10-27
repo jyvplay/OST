@@ -1,6 +1,6 @@
 {
   "suite": "tt95-photo-race",
-  "at": "2026-10-27T20:11:36.767Z",
+  "at": "2026-10-27T20:38:45.757Z",
   "results": [
     {
       "suite": "tt95-photo-race",
@@ -10,7 +10,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 68
+      "ms": 72
     },
     {
       "suite": "tt95-photo-race",
@@ -20,7 +20,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 75
+      "ms": 83
     },
     {
       "suite": "tt95-photo-race",
@@ -30,7 +30,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 118
+      "ms": 84
     }
   ]
 }

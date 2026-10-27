@@ -752,8 +752,11 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
             })}
           </nav>
         ) : null}
-        {/* focusable (tabIndex -1) so that after a click on empty space Ctrl+V / Ctrl+A / Backspace still reach the pane */}
-        <div className="fs-scroll" data-testid="files-listing" data-drop={dropOn === "bg" || undefined} tabIndex={-1} onKeyDown={onListKey}
+        {/* focusable after a click on empty space so Ctrl+V / Ctrl+A / Backspace reach the pane; when the
+            folder has no rows there is no focusable row inside, so the scroll region itself must be tabbable
+            (axe scrollable-region-focusable) */}
+        <div className="fs-scroll" data-testid="files-listing" data-drop={dropOn === "bg" || undefined}
+          tabIndex={nothing ? 0 : -1} role={nothing ? "group" : undefined} aria-label={nothing ? "Empty folder" : undefined} onKeyDown={onListKey}
           style={{ flex: 1, minHeight: 0, minWidth: 0, padding: view === "column" ? 0 : 6, outline: dropOn === "bg" ? "2px dashed var(--fs-accent)" : undefined, outlineOffset: -4 }}
           onDragOver={(e) => dragOver(e, "bg")} onDragLeave={(e) => { if (e.currentTarget === e.target) setDropOn(null); }} onDrop={(e) => drop(e, cwd)}
           onContextMenu={(e) => { if (showTrash) return; e.preventDefault(); onActivate(); openMenu(e.clientX, e.clientY, null); }}

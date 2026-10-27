@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt89-drill",
-  "at": "2026-10-27T20:07:30.095Z",
+  "at": "2026-10-27T21:24:23.762Z",
   "results": [
     {
       "suite": "e2e-tt89-drill",
@@ -9,7 +9,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 4442
+      "ms": 2777
     },
     {
       "suite": "e2e-tt89-drill",
@@ -27,7 +27,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 359
+      "ms": 267
     },
     {
       "suite": "e2e-tt89-drill",
@@ -36,7 +36,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 2457
+      "ms": 2211
     },
     {
       "suite": "e2e-tt89-drill",
@@ -45,7 +45,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 279
+      "ms": 276
     },
     {
       "suite": "e2e-tt89-drill",
@@ -54,7 +54,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 118
+      "ms": 79
     },
     {
       "suite": "e2e-tt89-drill",
@@ -63,7 +63,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 883
+      "ms": 649
     },
     {
       "suite": "e2e-tt89-drill",
@@ -73,7 +73,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 1652
+      "ms": 905
     },
     {
       "suite": "e2e-tt89-drill",
@@ -83,7 +83,7 @@
         "AX-01": "partial"
       },
       "pass": true,
-      "ms": 421
+      "ms": 457
     }
   ]
 }

@@ -1,0 +1,215 @@
+{
+  "suite": "tt96-calculator-mutants",
+  "at": "2026-10-27T20:54:51.033317+00:00",
+  "results": [
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "OR accidentally becomes AND",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 bitwise AND, OR, XOR and NOT use the selected fixed width\n    0b1010 | 0b0101\n\n'0' !== '15'\n\n\n0 passed, 1 failed\nFAILED: bitwise AND, OR, XOR and NOT use the selected fixed width\n",
+      "ms": 242
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "XOR accidentally becomes OR",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 bitwise AND, OR, XOR and NOT use the selected fixed width\n    0b1010 ^ 0b1100\n\n'14' !== '6'\n\n\n0 passed, 1 failed\nFAILED: bitwise AND, OR, XOR and NOT use the selected fixed width\n",
+      "ms": 218
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "unary NOT omitted",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 bitwise AND, OR, XOR and NOT use the selected fixed width\n    ~0\n\n'0' !== '255'\n\n\n0 passed, 1 failed\nFAILED: bitwise AND, OR, XOR and NOT use the selected fixed width\n",
+      "ms": 229
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "word wrap incorrectly limited to 32 bits",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 word arithmetic wraps at 8, 16, 32 and 64 bits\n    0 - 1\n+ actual - expected\n\n+ '4294967295'\n- '18446744073709551615'\n\n\n0 passed, 1 failed\nFAILED: word arithmetic wraps at 8, 16, 32 and 64 bits\n",
+      "ms": 222
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "signed arithmetic treated as unsigned",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 signed division truncates toward zero and right shift sign-extends only when signed\n    0xfb / 2\n\n'125' !== '-2'\n\n\n0 passed, 1 failed\nFAILED: signed division truncates toward zero and right shift sign-extends only when signed\n",
+      "ms": 220
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "signed right shift becomes logical",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 signed division truncates toward zero and right shift sign-extends only when signed\n    0x80 >> 7\n\n'1' !== '-1'\n\n\n0 passed, 1 failed\nFAILED: signed division truncates toward zero and right shift sign-extends only when signed\n",
+      "ms": 224
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "divide by zero returns zero",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 invalid or resource-abusive programmer expressions fail closed\n    1 / 0\n\ntrue !== false\n\n\n0 passed, 1 failed\nFAILED: invalid or resource-abusive programmer expressions fail closed\n",
+      "ms": 215
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "shift limit omitted",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 invalid or resource-abusive programmer expressions fail closed\n    1 << 8\n\ntrue !== false\n\n\n0 passed, 1 failed\nFAILED: invalid or resource-abusive programmer expressions fail closed\n",
+      "ms": 218
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "length limit omitted",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 invalid or resource-abusive programmer expressions fail closed\n    999999999999999999999999999999\n\ntrue !== false\n\n\n0 passed, 1 failed\nFAILED: invalid or resource-abusive programmer expressions fail closed\n",
+      "ms": 219
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "nesting limit weakened",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 invalid or resource-abusive programmer expressions fail closed\n    ((((((((((((((((((((((((((((((\n\ntrue !== false\n\n\n0 passed, 1 failed\nFAILED: invalid or resource-abusive programmer expressions fail closed\n",
+      "ms": 217
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "shift precedence changed",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 operator precedence and grouping follow the documented programmer grammar\n    1 + 2 << 3 & 0x1f ^ 1 | 2: Unexpected input at 3\n\nfalse !== true\n\n\n0 passed, 1 failed\nFAILED: operator precedence and grouping follow the documented programmer grammar\n",
+      "ms": 221
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "binary output loses leading zeroes",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 64-bit values remain exact beyond Number.MAX_SAFE_INTEGER\n    Expected values to be strictly equal:\n+ actual - expected\n\n+ '1'\n- '0000000000000000000000000000000000000000000000000000000000000001'\n\n\n0 passed, 1 failed\nFAILED: 64-bit values remain exact beyond Number.MAX_SAFE_INTEGER\n",
+      "ms": 218
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "scientific radix silently rounds",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 the original scientific evaluator and rounding policy stay available\n    standard mode must not silently round a large radix literal\n\ntrue !== false\n\n\n0 passed, 1 failed\nFAILED: the original scientific evaluator and rounding policy stay available\n",
+      "ms": 213
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "history collision overwrites",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 duplicate ids never overwrite a saved entry\n    Missing expected exception.\n\n0 passed, 1 failed\nFAILED: duplicate ids never overwrite a saved entry\n",
+      "ms": 165
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "append mutates before checking corruption",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 malformed, mismatched and oversized records are not repaired or overwritten silently\n    Expected values to be strictly equal:\n+ actual - expected\n\n+ '{\"id\":\"entry-2\",\"expr\":\"2+1\",\"text\":\"3\",\"mode\":\"programmer\",\"width\":64,\"signed\":false,\"at\":2}'\n- null\n\n\n0 passed, 1 failed\nFAILED: malformed, mismatched and oversized records are not repaired or overwritten silently\n",
+      "ms": 174
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "clear deletes unrelated origin storage",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 explicit deletion removes only calculator records, including corrupt ones\n    Expected values to be strictly equal:\n\nnull !== '1'\n\n\n0 passed, 1 failed\nFAILED: explicit deletion removes only calculator records, including corrupt ones\n",
+      "ms": 200
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "history cap leaves 41 records",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 bounded independent records retain the newest forty\n    Expected values to be strictly equal:\n\n41 !== 40\n\n\n0 passed, 1 failed\nFAILED: bounded independent records retain the newest forty\n",
+      "ms": 166
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "storage quota error is swallowed",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 write refusal preserves older data and pruning failure can leave the new entry\n    Missing expected exception.\n\n0 passed, 1 failed\nFAILED: write refusal preserves older data and pruning failure can leave the new entry\n",
+      "ms": 173
+    },
+    {
+      "suite": "tt96-calculator-mutants",
+      "name": "oversized expressions are accepted",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 excessive or invalid input is rejected without discarding prior records\n    Missing expected exception.\n\n0 passed, 1 failed\nFAILED: excessive or invalid input is rejected without discarding prior records\n",
+      "ms": 180
+    }
+  ]
+}

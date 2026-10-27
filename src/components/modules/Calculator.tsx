@@ -116,7 +116,7 @@ export default function CalculatorModule(_: ModuleProps) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, overflowY: "auto", padding: 10, gap: 8 }}>
-      <div className="fs-row" role="group" aria-label="Calculator mode" style={{ flexWrap: "wrap" }}>
+      <div className="fs-row fs-calc-modes" role="group" aria-label="Calculator mode" style={{ flexWrap: "wrap" }}>
         <Btn variant={mode === "scientific" ? "primary" : "ghost"} aria-pressed={mode === "scientific"} onClick={() => setMode("scientific")}>Scientific</Btn>
         <Btn variant={mode === "programmer" ? "primary" : "ghost"} aria-pressed={mode === "programmer"} onClick={() => setMode("programmer")}>Programmer</Btn>
         {mode === "programmer" ? <>
@@ -156,7 +156,7 @@ export default function CalculatorModule(_: ModuleProps) {
         <Btn variant={keep ? "primary" : "ghost"} aria-pressed={keep} disabled={amnesic} onClick={toggleKeep}>{keep ? "Stop saving history" : "Keep new history locally"}</Btn>
         <Btn variant="ghost" onClick={clearHistory}>Delete history</Btn>
       </div>
-      <div className="fs-scroll" style={{ flex: "1 0 80px", minHeight: fz(80) }} aria-label="Calculator history">
+      <div className="fs-scroll" role="region" style={{ flex: "1 0 80px", minHeight: fz(80) }} aria-label="Calculator history">
         {visible.map((h) => (
           <button key={h.id} data-testid="calculator-history-entry" className="fs-list-item" style={{ width: "100%", border: 0, background: "none", color: "inherit", textAlign: "left" }}
             onClick={() => { setMode(h.mode); setWidth(h.width); setSigned(h.signed); setExpr(h.expr); }}>
@@ -170,7 +170,7 @@ export default function CalculatorModule(_: ModuleProps) {
       <div className="fs-dim" style={{ fontSize: fz(10.5) }}>
         {mode === "programmer"
           ? "Fixed-width wrapping integers; ^ means XOR. Signed division truncates toward zero; signed right shift extends the sign. Shift counts are word-sized and, after wrapping, must be nonnegative and smaller than the word size."
-          : "Scientific mode and the palette share a no-eval parser. Rounding: 12 significant digits, trailing zeros trimmed."}
+          : "Scientific mode and the palette share a no-eval Number parser. Non-integer results are rounded to 12 significant digits; integers use JavaScript's Number representation."}
         {" "}History starts in memory. Optional browser history is unencrypted, local to this browser and not in global Search or backups; amnesic sessions never save it.
       </div>
     </div>

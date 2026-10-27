@@ -1,0 +1,67 @@
+{
+  "suite": "tt96-scientific-units",
+  "at": "2026-10-27T22:49:37.066Z",
+  "results": [
+    {
+      "suite": "tt96-scientific-units",
+      "name": "basic scientific precedence and finite-domain errors",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt96-scientific-units",
+      "name": "trigonometric and logarithmic results agree with Python math",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 22
+    },
+    {
+      "suite": "tt96-scientific-units",
+      "name": "selected physical and binary-storage conversions use the declared dimensions",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt96-scientific-units",
+      "name": "all configured unit pairs agree with an independent Decimal oracle",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": false,
+      "error": "1e-323 m to mm: 9.88e-321 vs 1e-320",
+      "ms": 29
+    },
+    {
+      "suite": "tt96-scientific-units",
+      "name": "large identity conversion avoids intermediate overflow",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt96-scientific-units",
+      "name": "unit conversion never claims an infinite result succeeded",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

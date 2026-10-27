@@ -1,0 +1,16 @@
+  ✗ no JSX SVG geometry attribute receives calc()/var()/fz(); the fixed banner chevron is present
+    Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   'src/components/AppBanner.tsx: width={fz(14)}',
++   'src/components/AppBanner.tsx: height={fz(14)}'
++ ]
+- []
+
+  ✓ detector rejects the exact pre-repair attribute shape
+  ✓ dynamic width/height expressions on SVG elements are absent or explicitly listed
+
+2 passed, 1 failed
+FAILED: no JSX SVG geometry attribute receives calc()/var()/fz(); the fixed banner chevron is present
+exit=1

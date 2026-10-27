@@ -1,0 +1,6 @@
+  ✓ notes require an explicit command and preserve punctuation as plain text
+  ✓ focus actions accept only exact toggle, on and off
+  ✓ settings and routine filters are bounded and cannot become commands
+  ✓ 4096-code-unit limit includes padding; the boundary is accepted exactly
+
+4 passed, 0 failed
