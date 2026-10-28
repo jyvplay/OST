@@ -1,5 +1,5 @@
 import { recallLifecycle } from '@/lib/server/recall-lifecycle';
-import { recallAudit, recallSearch } from '@/lib/server/recall-search';
+import { recallAudit, recallSearch, recallTimeline } from '@/lib/server/recall-search';
 import { recallOrphanTrash } from '@/lib/server/recall-orphan';
 import { atomicRecallCommit } from '@/lib/server/recall-commit';
 import { NextResponse, type NextRequest } from "next/server";
@@ -67,9 +67,11 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ok:true,nodes,next:rows.length>100 ? String(nodes[nodes.length-1].id) : null,order:'insertion-id-desc',metadataLimits:{pathBytes:1024,nameBytes:512,mimeBytes:256}});
       }
       case "recallSearch":
-        return NextResponse.json(await recallSearch({ method: p.get("method"), host: p.get("host"), from: p.get("from"), to: p.get("to"), limit: p.get("limit") }));
+        return NextResponse.json(await recallSearch({ method: p.get("method"), host: p.get("host"), from: p.get("from"), to: p.get("to"), limit: p.get("limit"), folder: p.get("folder") }));
       case "recallAudit":
         return NextResponse.json(await recallAudit(p.get("folder")));
+      case "recallTimeline":
+        return NextResponse.json(await recallTimeline(p.get("folder"), p.get("tz")));
       case "list": {
         const nodes = await listDir(path);
         return NextResponse.json({ ok: true, path: normalize(path), nodes: nodes.map(strip) });

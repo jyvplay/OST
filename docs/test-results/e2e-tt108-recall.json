@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt108-recall",
+  "at": "2026-10-28T20:40:43.831Z",
+  "results": [
+    {
+      "suite": "e2e-tt108-recall",
+      "name": "dragging over a decoded preview reports the region without saving anything yet",
+      "covers": {
+        "RC-33": "partial"
+      },
+      "pass": true,
+      "ms": 879
+    },
+    {
+      "suite": "e2e-tt108-recall",
+      "name": "a dragged region is saved as its own memory, cut from the decoded preview",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 820
+    },
+    {
+      "suite": "e2e-tt108-recall",
+      "name": "the saved crop records the memory and rectangle it came from",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "e2e-tt108-recall",
+      "name": "a selection too small to be a region is refused with a reason, not silently grown",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 1250
+    },
+    {
+      "suite": "e2e-tt108-recall",
+      "name": "the saving timeline shows the real days and filters the list to the chosen one",
+      "covers": {
+        "RC-32": "full"
+      },
+      "pass": true,
+      "ms": 751
+    },
+    {
+      "suite": "e2e-tt108-recall",
+      "name": "the timeline says plainly that it is not a background screenshot trail",
+      "covers": {
+        "RC-32": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    }
+  ]
+}

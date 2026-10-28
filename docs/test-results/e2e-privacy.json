@@ -1,6 +1,6 @@
 {
   "suite": "e2e-privacy",
-  "at": "2026-10-27T23:21:23.650Z",
+  "at": "2026-10-28T20:37:42.180Z",
   "results": [
     {
       "suite": "e2e-privacy",
@@ -10,7 +10,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 4334
+      "ms": 1387
     },
     {
       "suite": "e2e-privacy",
@@ -19,7 +19,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 191
+      "ms": 37
     },
     {
       "suite": "e2e-privacy",
@@ -28,8 +28,9 @@
         "SC-10": "full",
         "BK-02": "partial"
       },
-      "pass": true,
-      "ms": 97
+      "pass": false,
+      "error": "normal host create refused while unlocked: 409 {\"ok\":false,\"error\":\"Parent folder is missing or not writable: /Documents\"}",
+      "ms": 36
     },
     {
       "suite": "e2e-privacy",
@@ -38,7 +39,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 4989
+      "ms": 1914
     },
     {
       "suite": "e2e-privacy",
@@ -47,7 +48,7 @@
         "SC-16": "full"
       },
       "pass": true,
-      "ms": 2608
+      "ms": 1233
     },
     {
       "suite": "e2e-privacy",
@@ -56,7 +57,7 @@
         "SC-12": "full"
       },
       "pass": true,
-      "ms": 1037
+      "ms": 542
     },
     {
       "suite": "e2e-privacy",
@@ -65,9 +66,8 @@
         "SC-12": "full",
         "FM-01": "partial"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('.fs-list-item').filter({ hasText: 'plan.docx' }).first()\n    - locator resolved to <div tabindex=\"0\" role=\"option\" data-kind=\"file\" draggable=\"true\" class=\"fs-list-item\" data-selected=\"false\" aria-selected=\"false\" data-path=\"/Documents/meta-mvrb5eh6/plan.docx\">…</div>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <button aria-label=\"Beam\" data-variant=\"ghost\" data-testid=\"shelf-beam\" class=\"fs-btn fs-shelf-opt\" title=\"Beam — Cast hub: transports, sessions, privacy\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  - retrying click action\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n  - retrying click action\n    - waiting 20ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <button class=\"fs-btn\" data-variant=\"ghost\" aria-label=\"Browser\" data-testid=\"shelf-browser\" title=\"Browser — Tabs, splits and groups with an embeddability probe\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  2 × retrying click action\n      - waiting 100ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button aria-label=\"Beam\" data-variant=\"ghost\" data-testid=\"shelf-beam\" class=\"fs-btn fs-shelf-opt\" title=\"Beam — Cast hub: transports, sessions, privacy\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  13 × retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button class=\"fs-btn\" data-variant=\"ghost\" aria-label=\"Browser\" data-testid=\"shelf-browser\" title=\"Browser — Tabs, splits and groups with an embeddability probe\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button aria-label=\"Beam\" data-variant=\"ghost\" data-testid=\"shelf-beam\" class=\"fs-btn fs-shelf-opt\" title=\"Beam — Cast hub: transports, sessions, privacy\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button aria-label=\"Beam\" data-variant=\"ghost\" data-testid=\"shelf-beam\" class=\"fs-btn fs-shelf-opt\" title=\"Beam — Cast hub: transports, sessions, privacy\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <button class=\"fs-btn\" data-variant=\"ghost\" aria-label=\"Browser\" data-testid=\"shelf-browser\" title=\"Browser — Tabs, splits and groups with an embeddability probe\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n",
-      "ms": 32171
+      "pass": true,
+      "ms": 1788
     },
     {
       "suite": "e2e-privacy",
@@ -76,9 +76,8 @@
         "SC-13": "full",
         "SC-10": "partial"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"privacy\"]').first().locator('[data-testid=\"unlock\"]')\n    - locator resolved to <button type=\"button\" class=\"fs-btn \" data-testid=\"unlock\" data-variant=\"primary\">Unlock</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button class=\"fs-btn\" aria-label=\"Editor\" data-variant=\"ghost\" data-testid=\"shelf-editor\" title=\"Editor — Text/Markdown editor with versions and safe-save\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    14 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button class=\"fs-btn\" aria-label=\"Editor\" data-variant=\"ghost\" data-testid=\"shelf-editor\" title=\"Editor — Text/Markdown editor with versions and safe-save\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
-      "ms": 32619
+      "pass": true,
+      "ms": 1612
     },
     {
       "suite": "e2e-privacy",
@@ -87,7 +86,7 @@
         "SC-15": "full"
       },
       "pass": true,
-      "ms": 2497
+      "ms": 716
     },
     {
       "suite": "e2e-privacy",
@@ -96,7 +95,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 147
+      "ms": 27
     },
     {
       "suite": "e2e-privacy",
@@ -105,8 +104,8 @@
         "SC-10": "partial"
       },
       "pass": false,
-      "error": "encrypt throughput 46 MB/s: Encrypt\n46 MB/s (86.5 ms per 4.0 MB)\nDecrypt\n55 MB/s (72.1 ms per 4.0 MB)\nLargest file (8 MB VFS cap)\n≈ 174 ms extra to save",
-      "ms": 4479
+      "error": "/Private save 46.9 ms vs host 21.5 ms",
+      "ms": 2673
     },
     {
       "suite": "e2e-privacy",
@@ -115,7 +114,7 @@
         "SC-14": "full"
       },
       "pass": true,
-      "ms": 3173
+      "ms": 1418
     },
     {
       "suite": "e2e-privacy",
@@ -123,9 +122,8 @@
       "covers": {
         "SC-17": "full"
       },
-      "pass": false,
-      "error": "restored file reads back: 404 {\"ok\":false,\"error\":\"not found\"}",
-      "ms": 8277
+      "pass": true,
+      "ms": 3618
     },
     {
       "suite": "e2e-privacy",
@@ -134,7 +132,7 @@
         "SC-18": "full"
       },
       "pass": true,
-      "ms": 8395
+      "ms": 3132
     },
     {
       "suite": "e2e-privacy",

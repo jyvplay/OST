@@ -1,0 +1,69 @@
+{
+  "suite": "tt108-refusal",
+  "at": "2026-10-28T20:40:36.169Z",
+  "results": [
+    {
+      "suite": "tt108-refusal",
+      "name": "every body-taking API route refuses a malformed JSON body quickly, not after a thirty-second loop",
+      "covers": {
+        "AU-03": "partial"
+      },
+      "pass": true,
+      "ms": 220
+    },
+    {
+      "suite": "tt108-refusal",
+      "name": "a cross-site request is refused quickly on every body-taking route and writes nothing",
+      "covers": {
+        "WP-06": "full"
+      },
+      "pass": true,
+      "ms": 169
+    },
+    {
+      "suite": "tt108-refusal",
+      "name": "the refusal body still names the reason and the refusal is not cached",
+      "covers": {
+        "WP-06": "full"
+      },
+      "pass": true,
+      "ms": 25
+    },
+    {
+      "suite": "tt108-refusal",
+      "name": "the exempt refusal endpoint cannot be turned into a bypass or a 200",
+      "covers": {
+        "WP-06": "full"
+      },
+      "pass": true,
+      "ms": 49
+    },
+    {
+      "suite": "tt108-refusal",
+      "name": "a refusal cannot be made to loop: malformed body and foreign origin together stay fast",
+      "covers": {
+        "WP-06": "full"
+      },
+      "pass": true,
+      "ms": 71
+    },
+    {
+      "suite": "tt108-refusal",
+      "name": "a client that resets mid-refusal does not take the server down (TT37 property, refusal path)",
+      "covers": {
+        "WP-06": "partial"
+      },
+      "pass": true,
+      "ms": 405
+    },
+    {
+      "suite": "tt108-refusal",
+      "name": "valid same-origin writes are untouched by the exemption",
+      "covers": {
+        "WP-06": "full"
+      },
+      "pass": true,
+      "ms": 13
+    }
+  ]
+}

@@ -12,6 +12,11 @@ async function api(method:string,path:string,body?:unknown){const r=await fetch(
 async function poll(fn:()=>Promise<boolean>,name:string,ms=18000){const end=Date.now()+ms;do{if(await fn())return;await new Promise(r=>setTimeout(r,100));}while(Date.now()<end);throw new Error(`Timeout: ${name}`);}
 const listing=async(path:string)=>(await api('GET',`/api/fs?op=list&path=${encodeURIComponent(path)}`)).nodes??[];
 await api('GET','/api/bootstrap');await api('PUT','/api/settings',{key:'appearance.desktopView',value:'classic'});
+// TT108: pin the text scale before the first window opens. This suite inherited whatever scale an earlier suite —
+// or an earlier run of this one, whose Undo restores only the last of its two steps — had left in the database.
+// At 300% the browser tab's frame collapsed and the fixture heading was invisible; one step below the maximum the
+// second A+ was correctly disabled and no second notification was ever posted. Both looked like product failures.
+await api('PUT','/api/settings',{key:'appearance.textScale',value:'125'});
 await test('pure boundary: only absolute credential-free HTTP URLs are admitted',{},()=>{for(const u of ['blob:x','file:///etc/passwd','javascript:alert(1)','https://a:b@example.com/','/relative'])assert.throws(()=>recallUrl(u));assert.equal(recallUrl('https://example.com/a#x').href,'https://example.com/a');});
 await test('pure boundary: grouping cannot escape /Downloads/Recall and secret query tokens are omitted',{},()=>{assert.equal(recallSource('https://example.com/a?secret=x#z'),'https://example.com/a');assert.ok(!recallLabel('../../x/\u202etest').includes('/'));assert.equal(recallFolder('https://example.com/a','x','custom','../x'),'/Downloads/Recall/_x');assert.throws(()=>recallFolder('https://example.com','x','custom',''));});
 await test('pure boundary: playlists and HTML cannot masquerade as complete media',{},()=>{for(const m of ['text/html','application/vnd.apple.mpegurl','audio/x-mpegurl','application/dash+xml'])assert.throws(()=>recallMime(m));assert.equal(recallMime('video/webm;codecs=vp8'),'video/webm');assert.equal(sameRecallOrigin('http://127.0.0.2:4001/a',UP),false);});
@@ -92,13 +97,14 @@ await test('amnesic mode refuses Recall server writes without creating a shadow 
  const context=await browser.newContext();const page=await context.newPage();try{await page.goto(BASE+'/?amnesia=1&open=recall');const root=page.getByTestId('recall');await root.getByLabel('Recall source URL').fill(UP+'/image.png');await root.getByRole('button',{name:'Save media URL',exact:true}).click();await root.getByRole('alert').filter({hasText:'amnesic'}).waitFor();assert.equal(await root.locator('li[data-phase=saved]').count(),0);}finally{await context.close();}
 });
 // Visual / interaction regression: shared menu, Files view controls and real setting Undo.
-await desktop([{id:'n',module:'notes'}]);const note=(await api('POST','/api/notes',{title:tag+' long note title with several words',body:'visual fixture'})).row;const v=await open();
+await desktop([{id:'n',module:'notes'}]);const note=(await api('POST','/api/notes',{title:tag+' long note title with several words',body:'visual fixture'})).row;
+const v=await open();
 await test('Orbit context is a compact content-sized menu, not a viewport-wide panel',{},async()=>{await v.page.locator(`[data-orbit-target="Note: ${note.title}"]`).locator('button').first().click({button:'right'});const m=v.page.getByRole('menu',{name:'Orbit actions'});const box=await m.boundingBox();assert.ok(box&&box.width<=321&&box.width>=150&&box.x>=0&&box.x+box.width<=1440);await v.page.screenshot({path:'docs/evidence/tt100-menu.png'});await v.page.keyboard.press('Escape');});
 await test('bottom-right notifications form a bounded stack and the real setting Undo stays reachable',{},async()=>{
  await v.page.getByRole('button',{name:'Quick panel',exact:true}).click();const quick=v.page.getByRole('dialog',{name:'Quick panel',exact:true});
  const before=(await api('GET','/api/settings')).rows.find((x:{key:string})=>x.key==='appearance.textScale')?.value;
  await quick.getByRole('button',{name:'A+ larger text',exact:true}).click();await v.page.getByTestId('toasts').waitFor();await quick.getByRole('button',{name:'A+ larger text',exact:true}).click();
- const stack=v.page.getByTestId('toasts'),box=await stack.boundingBox();assert.ok(box&&box.width<=361&&box.x>1000&&box.y>500);assert.ok(await stack.locator('.fs-toast-back').count()>0);
+ const stack=v.page.getByTestId('toasts'),box=await stack.boundingBox();assert.ok(box&&box.width<=361&&box.x>1000&&box.y>500);await poll(async()=>await stack.locator('.fs-toast-back').count()>0,'a second notification stacks behind the newest',4000);
  await v.page.getByRole('button',{name:'Quick panel',exact:true}).click();await v.page.screenshot({path:'docs/evidence/tt100-toasts.png'});
  await stack.getByRole('button',{name:/earlier notification/}).click();await stack.getByRole('button',{name:'Undo',exact:true}).last().click();
  await poll(async()=>(await api('GET','/api/settings')).rows.find((x:{key:string;value:string})=>x.key==='appearance.textScale')?.value===before,'original setting restored');

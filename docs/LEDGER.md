@@ -1,7 +1,7 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-28T18:50:48.913Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
-312 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-28T20:29:03.962Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
+317 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
 Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
 Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
@@ -11,22 +11,22 @@ See each suite timestamp and the latest turn report for current tests, known cla
 
 | | Count |
 |---|---:|
-| **Features in register** | **443** |
+| **Features in register** | **447** |
 | Fully built | 333 |
-| Partially built (partial 68 + probe 18) | 86 |
+| Partially built (partial 72 + probe 18) | 90 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 24 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **259** |
-| **Partially tested** (partial tags or an incomplete row with passing evidence) | **117** |
-| Untested | 67 |
-| Recorded test cases / passed (mixed run dates) | 2602 / 2598 |
+| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **262** |
+| **Partially tested** (partial tags or an incomplete row with passing evidence) | **125** |
+| Untested | 60 |
+| Recorded test cases / passed (mixed run dates) | 2650 / 2646 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 253 | 64 | 16 |
-| partially built | 0 | 44 | 42 |
+| fully built | 256 | 67 | 10 |
+| partially built | 0 | 49 | 41 |
 | blocked | 6 | 9 | 9 |
 | skeleton | 0 | 0 | 0 |
 
@@ -39,12 +39,12 @@ verifies the honesty contract, not the (impossible) capability.
 |---|---:|---:|---:|---|
 | a11y-unit | 8 | 8 | 0 | 2026-10-26T23:26:22.619Z |
 | ai-format | 5 | 5 | 0 | 2026-10-26T19:56:53.407Z |
-| browser-session | 5 | 5 | 0 | 2026-10-28T18:40:28.115Z |
+| browser-session | 5 | 5 | 0 | 2026-10-28T20:18:59.568Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-26T19:56:53.680Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-28T18:50:16.644Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-28T20:27:25.922Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-28T18:44:37.124Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-28T20:22:33.671Z |
 | e2e-contacts | 9 | 9 | 0 | 2026-10-25T22:20:01.143Z |
 | e2e-image | 11 | 11 | 0 | 2026-10-26T12:55:59.830Z |
 | e2e-layout | 12 | 12 | 0 | 2026-10-26T13:06:52.259Z |
@@ -54,16 +54,18 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-sheet-layout | 7 | 7 | 0 | 2026-10-25T22:14:54.291Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-26T13:12:19.850Z |
 | e2e-tabletop | 15 | 15 | 0 | 2026-10-27T21:16:03.541Z |
-| e2e-tt100-recall | 27 | 27 | 0 | 2026-10-28T18:45:29.864Z |
-| e2e-tt101-search | 9 | 9 | 0 | 2026-10-28T18:40:15.246Z |
-| e2e-tt102 | 16 | 16 | 0 | 2026-10-28T18:39:34.571Z |
-| e2e-tt103-memory | 11 | 11 | 0 | 2026-10-28T18:39:20.578Z |
-| e2e-tt104-memory | 10 | 10 | 0 | 2026-10-28T18:38:53.899Z |
-| e2e-tt104-pages | 3 | 3 | 0 | 2026-10-28T18:39:04.106Z |
-| e2e-tt105-clicked | 7 | 7 | 0 | 2026-10-28T18:38:34.909Z |
-| e2e-tt106-memory | 8 | 8 | 0 | 2026-10-28T18:38:26.787Z |
-| e2e-tt107-memory | 6 | 6 | 0 | 2026-10-28T18:50:42.619Z |
-| e2e-tt107-shell | 7 | 7 | 0 | 2026-10-28T18:50:32.691Z |
+| e2e-tt100-recall | 27 | 27 | 0 | 2026-10-28T20:23:20.014Z |
+| e2e-tt101-search | 9 | 9 | 0 | 2026-10-28T20:18:47.177Z |
+| e2e-tt102 | 16 | 16 | 0 | 2026-10-28T20:18:07.671Z |
+| e2e-tt103-memory | 11 | 11 | 0 | 2026-10-28T20:17:54.622Z |
+| e2e-tt104-memory | 10 | 10 | 0 | 2026-10-28T20:17:35.745Z |
+| e2e-tt104-pages | 3 | 3 | 0 | 2026-10-28T20:17:42.194Z |
+| e2e-tt105-clicked | 7 | 7 | 0 | 2026-10-28T20:17:20.698Z |
+| e2e-tt106-memory | 8 | 8 | 0 | 2026-10-28T20:17:14.602Z |
+| e2e-tt107-memory | 6 | 6 | 0 | 2026-10-28T20:27:43.447Z |
+| e2e-tt107-shell | 7 | 7 | 0 | 2026-10-28T20:27:37.586Z |
+| e2e-tt108-recall | 6 | 6 | 0 | 2026-10-28T20:28:05.203Z |
+| e2e-tt108-shell | 7 | 7 | 0 | 2026-10-28T20:28:37.111Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -71,9 +73,9 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt32 | 6 | 6 | 0 | 2026-10-25T22:31:14.935Z |
 | e2e-tt33 | 4 | 4 | 0 | 2026-10-25T22:31:27.284Z |
 | e2e-tt34 | 5 | 5 | 0 | 2026-10-25T22:32:28.251Z |
-| e2e-tt35 | 7 | 7 | 0 | 2026-10-27T21:22:58.853Z |
+| e2e-tt35 | 7 | 7 | 0 | 2026-10-28T20:02:50.215Z |
 | e2e-tt36 | 3 | 3 | 0 | 2026-10-25T22:33:16.751Z |
-| e2e-tt37 | 5 | 5 | 0 | 2026-10-25T22:33:42.448Z |
+| e2e-tt37 | 5 | 5 | 0 | 2026-10-28T20:03:10.015Z |
 | e2e-tt38 | 7 | 7 | 0 | 2026-10-25T22:37:21.872Z |
 | e2e-tt39 | 7 | 7 | 0 | 2026-10-25T22:37:40.816Z |
 | e2e-tt40 | 3 | 3 | 0 | 2026-10-25T22:37:53.787Z |
@@ -93,8 +95,8 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-26T11:53:35.201Z |
 | e2e-tt53-media | 6 | 6 | 0 | 2026-10-25T22:54:02.467Z |
 | e2e-tt54 | 8 | 8 | 0 | 2026-10-27T20:37:22.269Z |
-| e2e-tt55-files | 14 | 14 | 0 | 2026-10-28T18:41:38.230Z |
-| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-28T18:41:54.242Z |
+| e2e-tt55-files | 14 | 14 | 0 | 2026-10-28T20:19:50.404Z |
+| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-28T20:20:02.724Z |
 | e2e-tt56-rows | 7 | 7 | 0 | 2026-10-25T22:56:48.364Z |
 | e2e-tt56 | 10 | 10 | 0 | 2026-10-25T22:56:31.173Z |
 | e2e-tt57-rows | 4 | 4 | 0 | 2026-10-25T22:58:21.446Z |
@@ -143,7 +145,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt90-thumbnails | 5 | 5 | 0 | 2026-10-27T20:36:03.583Z |
 | e2e-tt91-browser-download | 7 | 7 | 0 | 2026-10-27T23:10:45.317Z |
 | e2e-tt91-purge | 2 | 2 | 0 | 2026-10-27T20:36:24.319Z |
-| e2e-tt92-trash | 2 | 2 | 0 | 2026-10-28T18:38:42.960Z |
+| e2e-tt92-trash | 2 | 2 | 0 | 2026-10-28T20:17:27.253Z |
 | e2e-tt93-photos-clear | 7 | 7 | 0 | 2026-10-27T20:37:50.073Z |
 | e2e-tt93-sidecar | 2 | 2 | 0 | 2026-10-27T20:37:30.391Z |
 | e2e-tt94-offline-race | 3 | 3 | 0 | 2026-10-27T20:38:34.566Z |
@@ -152,18 +154,18 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt95-a11y-settings-race | 1 | 1 | 0 | 2026-10-27T20:39:19.823Z |
 | e2e-tt95-photo-concurrency | 7 | 7 | 0 | 2026-10-27T20:39:13.515Z |
 | e2e-tt96-calculator | 9 | 9 | 0 | 2026-10-27T23:25:08.856Z |
-| e2e-tt96-desktop-menu | 5 | 5 | 0 | 2026-10-28T18:42:05.959Z |
+| e2e-tt96-desktop-menu | 5 | 5 | 0 | 2026-10-28T20:20:12.501Z |
 | e2e-tt96-files-contrast | 5 | 5 | 0 | 2026-10-27T23:25:54.025Z |
 | e2e-tt97-calculator-repairs | 7 | 7 | 0 | 2026-10-28T02:01:11.124Z |
-| e2e-tt97-files-empty-a11y | 3 | 3 | 0 | 2026-10-28T18:42:29.751Z |
-| e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-28T18:42:25.296Z |
-| e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-28T18:42:45.687Z |
-| e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-28T18:43:25.235Z |
+| e2e-tt97-files-empty-a11y | 3 | 3 | 0 | 2026-10-28T20:20:33.937Z |
+| e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-28T20:20:30.335Z |
+| e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-28T20:20:47.131Z |
+| e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-28T20:21:23.355Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-26T13:09:31.262Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 67 | 67 | 0 | 2026-10-28T03:27:20.254Z |
 | image | 16 | 16 | 0 | 2026-10-26T19:56:46.644Z |
-| integration | 25 | 25 | 0 | 2026-10-28T18:40:27.936Z |
+| integration | 25 | 25 | 0 | 2026-10-28T20:18:59.414Z |
 | layout-unit | 8 | 8 | 0 | 2026-10-26T19:56:47.116Z |
 | maps-unit | 6 | 6 | 0 | 2026-10-26T19:56:51.803Z |
 | metaclean | 6 | 6 | 0 | 2026-10-25T22:09:33.756Z |
@@ -177,23 +179,26 @@ verifies the honesty contract, not the (impossible) capability.
 | oracle | 5 | 5 | 0 | 2026-10-26T07:49:34.818Z |
 | privacy-backup | 7 | 7 | 0 | 2026-10-27T20:39:53.048Z |
 | privacy-crypto | 9 | 9 | 0 | 2026-10-27T20:39:48.180Z |
-| privacy-layer | 13 | 13 | 0 | 2026-10-28T18:40:17.202Z |
+| privacy-layer | 13 | 13 | 0 | 2026-10-28T20:18:49.000Z |
 | sheet-layout | 6 | 6 | 0 | 2026-10-26T19:56:54.052Z |
 | stream-unit | 7 | 7 | 0 | 2026-10-26T19:56:51.977Z |
 | tables-engine | 9 | 9 | 0 | 2026-10-26T19:56:45.588Z |
 | tabletop-unit | 17 | 17 | 0 | 2026-10-27T21:14:26.619Z |
-| tt101-search | 37 | 37 | 0 | 2026-10-28T18:40:08.334Z |
-| tt102-private-bound | 5 | 5 | 0 | 2026-10-28T18:40:06.089Z |
-| tt102-search | 33 | 33 | 0 | 2026-10-28T18:39:35.578Z |
-| tt103-framework | 5 | 5 | 0 | 2026-10-28T18:39:06.831Z |
-| tt103-memory-unit | 10 | 10 | 0 | 2026-10-28T18:39:07.007Z |
-| tt104-memory-unit | 27 | 27 | 0 | 2026-10-28T18:38:43.179Z |
-| tt104-page | 25 | 25 | 0 | 2026-10-28T18:38:43.520Z |
-| tt105-atomic | 25 | 25 | 0 | 2026-10-28T18:38:27.394Z |
-| tt106-lifecycle | 23 | 23 | 0 | 2026-10-28T18:38:04.054Z |
-| tt107-crash | 4 | 4 | 0 | 2026-10-28T18:50:22.707Z |
-| tt107-features | 20 | 20 | 0 | 2026-10-28T18:50:23.834Z |
-| tt107-recall | 30 | 30 | 0 | 2026-10-28T18:50:23.382Z |
+| tt101-search | 37 | 37 | 0 | 2026-10-28T20:18:40.734Z |
+| tt102-private-bound | 5 | 5 | 0 | 2026-10-28T20:18:38.582Z |
+| tt102-search | 33 | 33 | 0 | 2026-10-28T20:18:08.551Z |
+| tt103-framework | 5 | 5 | 0 | 2026-10-28T20:17:44.211Z |
+| tt103-memory-unit | 10 | 10 | 0 | 2026-10-28T20:17:44.407Z |
+| tt104-memory-unit | 27 | 27 | 0 | 2026-10-28T20:17:27.468Z |
+| tt104-page | 25 | 25 | 0 | 2026-10-28T20:17:27.760Z |
+| tt105-atomic | 25 | 25 | 0 | 2026-10-28T20:17:15.160Z |
+| tt106-lifecycle | 23 | 23 | 0 | 2026-10-28T20:16:55.861Z |
+| tt107-crash | 4 | 4 | 0 | 2026-10-28T20:27:31.498Z |
+| tt107-features | 20 | 20 | 0 | 2026-10-28T20:27:32.656Z |
+| tt107-recall | 30 | 30 | 0 | 2026-10-28T20:27:32.155Z |
+| tt108-engine-crash | 10 | 10 | 0 | 2026-10-28T20:27:56.789Z |
+| tt108-recall | 18 | 18 | 0 | 2026-10-28T20:27:57.862Z |
+| tt108-refusal | 7 | 7 | 0 | 2026-10-28T20:28:38.172Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-26T19:56:54.287Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-26T19:56:54.943Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -201,7 +206,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt32-voice | 7 | 7 | 0 | 2026-10-25T22:28:08.823Z |
 | tt33-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.502Z |
 | tt34-unit | 12 | 12 | 0 | 2026-10-25T22:31:31.121Z |
-| tt35-unit | 13 | 13 | 0 | 2026-10-27T00:26:04.688Z |
+| tt35-unit | 13 | 13 | 0 | 2026-10-28T20:02:11.650Z |
 | tt36-unit | 5 | 5 | 0 | 2026-10-25T22:33:04.447Z |
 | tt37-unit | 9 | 9 | 0 | 2026-10-25T22:33:21.066Z |
 | tt38-unit | 15 | 15 | 0 | 2026-10-27T00:31:21.911Z |
@@ -209,12 +214,12 @@ verifies the honesty contract, not the (impossible) capability.
 | tt39-unit | 13 | 13 | 0 | 2026-10-25T22:37:23.323Z |
 | tt40-proxy | 4 | 4 | 0 | 2026-10-25T22:37:50.428Z |
 | tt40-unit | 17 | 17 | 0 | 2026-10-25T22:37:42.763Z |
-| tt41-unit | 9 | 9 | 0 | 2026-10-25T22:37:54.106Z |
+| tt41-unit | 9 | 9 | 0 | 2026-10-28T20:02:12.010Z |
 | tt42-dhcp | 2 | 2 | 0 | 2026-10-25T22:38:05.727Z |
 | tt42-proxy | 2 | 2 | 0 | 2026-10-25T22:38:00.122Z |
 | tt42-unit | 6 | 6 | 0 | 2026-10-25T22:37:57.836Z |
 | tt43-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.801Z |
-| tt44-bridge | 8 | 8 | 0 | 2026-10-25T22:38:48.137Z |
+| tt44-bridge | 8 | 8 | 0 | 2026-10-28T20:02:14.746Z |
 | tt44-unit | 18 | 18 | 0 | 2026-10-25T22:38:31.278Z |
 | tt44-vt | 12 | 12 | 0 | 2026-10-25T22:38:45.767Z |
 | tt45-unit | 10 | 10 | 0 | 2026-10-25T22:39:05.465Z |
@@ -230,7 +235,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt52-pdf | 28 | 28 | 0 | 2026-10-25T22:52:51.701Z |
 | tt53-media | 11 | 11 | 0 | 2026-10-25T22:53:46.642Z |
 | tt54-meta | 6 | 6 | 0 | 2026-10-25T22:54:14.390Z |
-| tt55-files-unit | 7 | 7 | 0 | 2026-10-28T18:40:28.694Z |
+| tt55-files-unit | 7 | 7 | 0 | 2026-10-28T20:19:00.090Z |
 | tt56-sheet-paste | 4 | 4 | 0 | 2026-10-26T19:56:57.046Z |
 | tt56-shell-unit | 4 | 4 | 0 | 2026-10-26T19:56:56.670Z |
 | tt56-writer-track | 6 | 6 | 0 | 2026-10-25T22:55:59.908Z |
@@ -263,7 +268,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt67-input | 11 | 11 | 0 | 2026-10-27T21:17:11.260Z |
 | tt67-sheet-ns | 13 | 13 | 0 | 2026-10-26T08:11:31.185Z |
 | tt68-blank | 8 | 8 | 0 | 2026-10-25T23:09:25.727Z |
-| tt69-lifecycle | 11 | 11 | 0 | 2026-10-28T18:44:37.928Z |
+| tt69-lifecycle | 11 | 11 | 0 | 2026-10-28T20:22:34.453Z |
 | tt69-sheet-misc | 5 | 5 | 0 | 2026-10-26T07:53:17.856Z |
 | tt70-edge | 5 | 5 | 0 | 2026-10-26T20:00:59.953Z |
 | tt70-range | 6 | 6 | 0 | 2026-10-26T20:00:59.791Z |
@@ -314,18 +319,18 @@ verifies the honesty contract, not the (impossible) capability.
 | tt91-download-mutants | 10 | 10 | 0 | 2026-10-27T13:58:50.777249+00:00 |
 | tt91-purge-mutants | 4 | 4 | 0 | 2026-10-27T13:56:45.169085+00:00 |
 | tt91-purge-race-mutants | 3 | 3 | 0 | 2026-10-27T13:56:48.374454+00:00 |
-| tt91-purge-race | 4 | 4 | 0 | 2026-10-28T18:38:35.983Z |
+| tt91-purge-race | 4 | 4 | 0 | 2026-10-28T20:17:21.626Z |
 | tt91-purge | 5 | 5 | 0 | 2026-10-27T20:36:17.968Z |
 | tt91-race-mutants | 4 | 4 | 0 | 2026-10-27T13:57:06.155168+00:00 |
 | tt91-thumbnail-cleanup-race | 6 | 6 | 0 | 2026-10-27T20:36:17.478Z |
-| tt91-write-atomic | 2 | 2 | 0 | 2026-10-28T18:38:35.286Z |
+| tt91-write-atomic | 2 | 2 | 0 | 2026-10-28T20:17:20.994Z |
 | tt91-write-mutants | 2 | 2 | 0 | 2026-10-27T16:00:14.746222+00:00 |
 | tt92-ledger-audit | 7 | 7 | 0 | 2026-10-28T18:30:06.928Z |
 | tt92-ledger-policy | 2 | 2 | 0 | 2026-10-28T18:30:07.229Z |
 | tt92-privacy-perf | 1 | 1 | 0 | 2026-10-27T16:27:53.119Z |
 | tt92-trash-mutants | 13 | 13 | 0 | 2026-10-27T16:01:17.863627+00:00 |
-| tt92-trash-race | 6 | 6 | 0 | 2026-10-28T18:38:36.972Z |
-| tt92-trash | 11 | 11 | 0 | 2026-10-28T18:38:37.707Z |
+| tt92-trash-race | 6 | 6 | 0 | 2026-10-28T20:17:22.560Z |
+| tt92-trash | 11 | 11 | 0 | 2026-10-28T20:17:23.281Z |
 | tt93-metadata-race | 4 | 4 | 0 | 2026-10-27T20:37:25.685Z |
 | tt93-restore-race | 3 | 3 | 0 | 2026-10-27T20:37:25.038Z |
 | tt93-transfer-mutants | 16 | 16 | 0 | 2026-10-27T15:59:35.182554+00:00 |
@@ -342,10 +347,10 @@ verifies the honesty contract, not the (impossible) capability.
 | tt96-calculator-mutants | 19 | 19 | 0 | 2026-10-27T20:54:51.033317+00:00 |
 | tt96-programmer | 8 | 8 | 0 | 2026-10-28T02:00:15.878Z |
 | tt96-scientific-units | 6 | 6 | 0 | 2026-10-28T02:00:16.314Z |
-| tt97-palette-commands | 4 | 4 | 0 | 2026-10-28T18:42:06.136Z |
+| tt97-palette-commands | 4 | 4 | 0 | 2026-10-28T20:20:12.677Z |
 | tt97-palette-mutants | 8 | 8 | 0 | 2026-10-27T23:08:25.457823+00:00 |
 | tt97-svg-attributes | 3 | 3 | 0 | 2026-10-28T02:00:16.639Z |
-| unit | 23 | 23 | 0 | 2026-10-28T18:40:25.179Z |
+| unit | 23 | 23 | 0 | 2026-10-28T20:18:56.504Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-26T20:02:11.245Z |
 | vector | 18 | 18 | 0 | 2026-10-26T19:56:45.937Z |
 | whiteboard-engine | 9 | 9 | 0 | 2026-10-26T19:56:45.740Z |
@@ -362,15 +367,15 @@ verifies the honesty contract, not the (impossible) capability.
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Recall | 29 | 0 | 29 | 0 | 0 | 20 | 9 |
+| Recall | 33 | 0 | 33 | 0 | 0 | 24 | 9 |
 | SH | 15 | 12 | 3 | 0 | 8 | 5 | 2 |
-| WM | 19 | 14 | 4 | 1 | 7 | 6 | 6 |
+| WM | 19 | 14 | 4 | 1 | 7 | 7 | 5 |
 | IN | 8 | 5 | 2 | 1 | 4 | 1 | 3 |
 | SR | 8 | 6 | 1 | 1 | 4 | 4 | 0 |
 | FM | 18 | 11 | 5 | 2 | 10 | 6 | 2 |
 | NC | 6 | 6 | 0 | 0 | 2 | 4 | 0 |
 | ST | 9 | 5 | 3 | 1 | 2 | 5 | 2 |
-| AP | 5 | 3 | 1 | 1 | 2 | 2 | 1 |
+| AP | 5 | 3 | 1 | 1 | 2 | 3 | 0 |
 | TD | 6 | 4 | 1 | 1 | 4 | 1 | 1 |
 | PR | 54 | 47 | 7 | 0 | 39 | 9 | 6 |
 | FF | 79 | 78 | 1 | 0 | 77 | 1 | 1 |
@@ -386,22 +391,26 @@ verifies the honesty contract, not the (impossible) capability.
 | MP | 8 | 8 | 0 | 0 | 8 | 0 | 0 |
 | CT | 6 | 4 | 1 | 1 | 1 | 2 | 3 |
 | CA | 15 | 7 | 2 | 6 | 7 | 7 | 1 |
-| LN | 15 | 8 | 3 | 4 | 1 | 3 | 11 |
+| LN | 15 | 8 | 3 | 4 | 4 | 3 | 8 |
 | MS | 4 | 0 | 2 | 2 | 0 | 3 | 1 |
 | AU | 4 | 2 | 2 | 0 | 1 | 2 | 1 |
 | RG | 7 | 6 | 1 | 0 | 4 | 2 | 1 |
 | HW | 11 | 2 | 8 | 1 | 0 | 1 | 10 |
 | CM | 2 | 1 | 0 | 1 | 0 | 2 | 0 |
 | BL | 5 | 4 | 1 | 0 | 1 | 3 | 1 |
-| DP | 15 | 14 | 1 | 0 | 7 | 6 | 2 |
+| DP | 15 | 14 | 1 | 0 | 7 | 8 | 0 |
 
 ## Per-row detail
 
 | code | status | tested | evidence (passing tests) |
 |---|---|---|---|
-| RC-27 | partial | partial | e2e-tt107-memory: searching by save method finds the memory through the real UI; e2e-tt107-memory: a filter that matches nothing reports an honest empty result, not an error; tt107-recall: search filters by save method across every Recall folder (+12) |
+| RC-27 | partial | partial | e2e-tt107-memory: searching by save method finds the memory through the real UI; e2e-tt107-memory: a filter that matches nothing reports an honest empty result, not an error; tt107-recall: search filters by save method across every Recall folder (+13) |
 | RC-28 | partial | partial | e2e-tt107-memory: the integrity report shows a healthy pair with no orphans; e2e-tt107-memory: an unpaired file is listed by the audit and can be trashed from the UI; e2e-tt107-memory: widening the scope to every folder is an explicit, visible choice (+19) |
-| RC-29 | partial | partial | tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata; tt107-crash: server restarts and the same payload then publishes the exact pair; tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed (+1) |
+| RC-29 | partial | partial | tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata; tt107-crash: server restarts and the same payload then publishes the exact pair; tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed (+3) |
+| RC-30 | partial | partial | tt108-engine-crash: every acknowledged publication survived the engine crash, complete and intact; tt108-engine-crash: no half pair survived the crash, including the publications in flight; tt108-engine-crash: an unacknowledged publication is all-or-nothing, never partially applied (+7) |
+| RC-31 | partial | partial | tt108-recall: the page agent encodes already-decoded visuals and never requests a URL again; tt108-recall: every member of a batch is published as its own complete, independent pair; tt108-recall: one bad member of a batch cannot take the others down with it (+1) |
+| RC-32 | partial | partial | e2e-tt108-recall: the saving timeline shows the real days and filters the list to the chosen one; e2e-tt108-recall: the timeline says plainly that it is not a background screenshot trail; tt108-recall: the timeline groups real saved memories by day with counts, bytes and methods (+6) |
+| RC-33 | partial | partial | e2e-tt108-recall: dragging over a decoded preview reports the region without saving anything yet; e2e-tt108-recall: a dragged region is saved as its own memory, cut from the decoded preview; e2e-tt108-recall: the saved crop records the memory and rectangle it came from (+10) |
 | RC-24 | partial | partial | e2e-tt106-memory: single-snapshot receipt inspection works in actual UI; tt106-lifecycle: single snapshot returns verified pair identity without media bodies |
 | RC-25 | partial | partial | e2e-tt106-memory: cancelled trash confirmation changes nothing; tt106-lifecycle: paired trash removes both active files and both search entries; tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed |
 | RC-26 | partial | partial | e2e-tt106-memory: save already-open frame creates native green PNG without upstream HTTP; e2e-tt106-memory: real decoded WebM video preview saves its exact current frame, no media refetch; e2e-tt106-memory: memory above the 16 MP decode bound is refused and clears the stale preview |
@@ -456,7 +465,7 @@ verifies the honesty contract, not the (impossible) capability.
 | WM-12 | built | partial | unit: 10 000 random commands preserve every invariant |
 | WM-13 | built | full | e2e-tt70-rows: WM-13 edge-hold: a real drag held at the right edge ≥600 ms moves the window to the next workspace (no tiling on release); refused at the last workspace (half-snap still works); a 300 ms touch does nothing; the left edge hops back; tt70-edge: edge zones are 8 px at each side (inclusive); a desktop too narrow for two zones has none; NaN never matches; tt70-edge: neighbours follow list order (non-contiguous ids); none past either end or for an unknown active workspace (+3) |
 | WM-14 | blocked | untested |  |
-| WM-15 | partial | untested |  |
+| WM-15 | partial | partial | e2e-tt108-shell: a canvas-backed window really is a live video source |
 | WM-16 | probe | untested |  |
 | WM-17 | built | partial | tt107-features: raw proxy re-serves a framing-refusing page without its refusal headers; tt107-features: raw proxy anchors relative subresources with a base href and defuses framebusting; tt107-features: proxy refuses non-HTML content and missing arguments |
 | WM-18 | built | partial | tt107-features: proxy refuses non-HTML content and missing arguments; tt107-features: reader mode extracts the article and drops chrome, scripts and styles; tt107-features: reader mode neutralises inline handlers and javascript: links (+3) |
@@ -513,7 +522,7 @@ verifies the honesty contract, not the (impossible) capability.
 | AP-01 | built | full | e2e-tt85: E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations; e2e: mount: apps |
 | AP-02 | built | full | e2e-tt81: E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge; tt84-wordcount: U1 AP-02 bucket selection and purge validation refuse protected tables, duplicates, empty lists and missing DELETE confirmation; tt84-wordcount: U2 AP-02 / FM-07 preview summarization and post-purge invariant verification (+1) |
 | AP-03 | blocked | partial | tt107-features: every capability declared blocked is still refused with a stated reason |
-| AP-04 | built | untested |  |
+| AP-04 | built | partial | e2e-tt108-shell: the shell never takes a service-worker update without being asked |
 | AP-05 | partial | partial | e2e-tt85: E2 AP-05 inventory: actual service-worker registrations and sync tags match Chromium APIs; page callback counters are measured and clearly not OS wake counts; e2e: mount: apps; tt85-inventory: AP-05: inventory definitions are unique and explicitly describe only app-owned foreground work (+3) |
 | TD-01 | built | full | e2e: mount: terminal; e2e: terminal: write + cat through the journal; mv shows journal op |
 | TD-02 | built | full | e2e: mount: terminal; e2e: terminal: write + cat through the journal; mv shows journal op |
@@ -688,7 +697,7 @@ verifies the honesty contract, not the (impossible) capability.
 | WP-03 | built | full | e2e-tt35: github.com through the private proxy (WP-01): its HTML renders (title, repository README) in the proxied tab; this sandbox blocks GitHub's asset CDN (github.githubassets.com), so the page is unstyled here — the toolbar names the unreachable host and why; shields count; nothing but the Fusion server is contacted; tt35-unit: privacy hygiene (WP-03): tracker hosts and their subdomains match (and look-alikes do not); upstream drops the user's identity and client hints, then supplies a shared Desktop default or explicit Desktop/Mobile preset plus fixed language and Sec-GPC; responses lose Set-Cookie, CSP, XFO, HSTS, COOP, Alt-Svc; download names are sanitised |
 | WP-04 | built | full | e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server; tt35-unit: cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix refusal, domain mismatch, default-path and path matching (/docs vs /docsx), Secure only over https, Max-Age over Expires, deletion, HttpOnly hidden from (and unwritable by) scripts, __Secure- / __Host- prefixes, ordering by path length, per-domain cap; tt35-unit: sessions (WP-04): 128-bit url-safe capability ids, unique; idle sessions expire after 30 min; the store never exceeds its cap (least recently used goes first); dropping forgets the cookie jar |
 | WP-05 | built | full | e2e-tt35: pypi.org through the private proxy (WP-01, WP-02, WP-05): renders with its own CSS and images, every request the browser makes goes to the Fusion server only, the page is an opaque origin, cookies + storage work through the runtime; search FORM → site answer → Back → real LINK → Back → Forward, address bar follows; e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads; e2e-tt36: Reader view in a Private proxy tab (PR-07k): a real article page (TT69: github CONTRIBUTING.md; pypi.org/help/ now 301s to docs.pypi.org, outside this sandbox) as Fusion's reader page — article text, title and reading time, no script but the runtime, opaque origin, nothing contacted but Fusion; find works in the reader; an in-article link stays in the reader with the address following; Back; 'Original page' leaves the reader and the Reader button follows; Reader off returns to the normal page |
-| WP-06 | built | full | e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked |
+| WP-06 | built | full | e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused; tt108-refusal: a cross-site request is refused quickly on every body-taking route and writes nothing; tt108-refusal: the refusal body still names the reason and the refusal is not cached (+5) |
 | WP-07 | built | full | e2e-tt37: Network route panel (WP-07): test a candidate SOCKS5 route on a real page, apply it — toolbar and status line follow, the Private proxy tab loads pypi.org through it (seen in the independent proxy's own log), 'New circuit' rotates the tab's isolation and reloads, the browser itself still contacts only Fusion; the Tor check result is printed as it is; e2e-tt37: a dead route is named, not blamed on the site (WP-07): with the route pointing at a port where nothing listens, the Private proxy tab shows 'The network route failed' and how to fix it; back on Direct the page loads again; e2e-tt37: everything follows the route; pages cannot change it (WP-07): with an HTTP proxy route the legacy reader for direct tabs goes through it (the proxy's log), a .onion address is refused with the reason (Tor route needed), and a cross-site PUT to /api/wp-route is refused by the CSRF guard (+8) |
 | WP-08 | built | full | e2e-tt38: WebSocket in a proxied page (WP-08): the page's own `new WebSocket` reaches the site through Fusion — readyState CONNECTING→OPEN→CLOSING→CLOSED, subprotocol chat.v2, string / ArrayBuffer / Blob / typed-array sends echoed in order with binaryType 'arraybuffer', bufferedAmount counts queued bytes and drains to 0, handler and listener fire in registration order, MessageEvent.origin is the socket's origin, close(4001, 'bye ✓') ends clean; 200 server messages arrive in order; e2e-tt38: WebSocket errors exactly where a browser raises them (WP-08): SyntaxError for a non-ws scheme, a fragment, duplicate or invalid subprotocols; TypeError with no argument; InvalidStateError for send() while CONNECTING; InvalidAccessError for close(1001); SyntaxError for a 124-byte reason; an unreachable server → 'error' then close 1006 (not clean); close() while connecting → error + close 1006 and never 'open'; constants and name match the platform; e2e-tt38: what the site sees (WP-08): the WebSocket handshake carries the session's User-Agent (not the real browser's) and the PAGE's origin (the site's own, not Fusion's), and the site's own cookie from the session jar (+13) |
 | WP-09 | built | full | e2e-tt38: keep-alive through the real server (WP-09): the page and its 8 images and event stream are carried over a few reused connections to the site (counted at the site), not one connection per request; e2e-tt39: TLS identity for IP-literal sites (TT39 fix): https://127.0.0.2 with a valid certificate FOR 127.0.0.2 loads through the proxy; a certificate from the same trusted CA but for "localhost" is refused for 127.0.0.2 (before the fix Node checked IP sites against "localhost" and would have accepted it); tt38-unit: Happy Eyeballs (WP-09, RFC 8305): families interleave from the resolver's first choice; a refused address hands over AT ONCE (no 250 ms wait) to a live one on real sockets; a blackholed first address loses to the second, started 250 ms later; every loser is destroyed; all refused → one error listing every address with the first code; nothing answering → ETIMEDOUT at the deadline (+7) |
@@ -774,11 +783,11 @@ verifies the honesty contract, not the (impossible) capability.
 | LN-01 | built | full | e2e: mount: lens; e2e: Lens processes frames from a (fake) camera at > 0 fps |
 | LN-02 | probe | untested |  |
 | LN-03 | blocked | untested |  |
-| LN-04 | built | untested |  |
+| LN-04 | built | full | e2e-tt108-shell: the colour and light chain changes the rendered frame, not just a label |
 | LN-05 | partial | untested |  |
 | LN-06 | built | untested |  |
-| LN-07 | built | untested |  |
-| LN-08 | built | untested |  |
+| LN-07 | built | full | e2e-tt108-shell: the microphone is opened with the real WebRTC processing constraints, and the track reports them applied |
+| LN-08 | built | full | e2e-tt108-shell: the voice gate really runs on the audio thread and silences a signal below its threshold |
 | LN-09 | built | untested |  |
 | LN-10 | blocked | untested |  |
 | LN-11 | blocked | untested |  |
@@ -800,7 +809,7 @@ verifies the honesty contract, not the (impossible) capability.
 | AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+26) |
 | AU-01 | built | full | e2e-tt97-palette-actions: register keeps palette actions partial and discloses native Cast and privacy limits; e2e-tt97-palette-actions: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection; e2e-tt97-palette-actions: composition Enter cannot trigger a note action; a subsequent real Enter can (+12) |
 | AU-02 | built | partial | e2e: mount: routines; integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted |
-| AU-03 | partial | partial | e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery; e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids; integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject) (+2) |
+| AU-03 | partial | partial | e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery; e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids; integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject) (+3) |
 | AU-04 | probe | untested |  |
 | RG-01 | built | partial | e2e: mount: monitor; e2e: governor reacts to injected long tasks |
 | RG-02 | partial | untested |  |
@@ -832,13 +841,13 @@ verifies the honesty contract, not the (impossible) capability.
 | DP-03 | built | full | e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay |
 | DP-04 | built | partial | integration: FM-03 journaled move: 6 states in order, digest preserved, source retired |
 | DP-05 | built | partial | integration: FM-18 overwrite snapshots the previous version; integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard) |
-| DP-06 | built | untested |  |
+| DP-06 | built | partial | e2e-tt108-shell: every control of a window is reachable by keyboard alone, with no focus trap |
 | DP-07 | partial | partial | e2e: no non-resource console errors across all module mounts |
 | DP-08 | built | partial | e2e: mount: spec; e2e: Spec module renders the full register; integration: register has no audited row still over-claimed |
 | DP-09 | built | partial | unit: SVG sanitiser strips script/handlers/foreignObject/javascript: |
 | DP-10 | built | full | e2e: mount: spec; e2e: Beam lists every transport and names the missing primitive on blocked ones; integration: health + bootstrap reconcile the register |
 | DP-11 | built | full | e2e-tt58-rows: DP-11 least privilege: desktop + every registered app opened — no prompting permission API is called and every permission stays 'prompt'; e2e-tt58-rows: no uncaught page errors during the TT58 rows session |
-| DP-12 | built | untested |  |
+| DP-12 | built | partial | e2e-tt108-shell: choosing a file opens the real platform picker rather than an in-page imitation |
 | DP-13 | built | full | e2e-tt70-rows: DP-13 density tokens: compact < balanced < touch (title bar, --fs-target), no control under 24 px, and every density offers the SAME controls by accessible name |
 | DP-14 | built | partial | e2e: mount: monitor; integration: FM-03 journaled move: 6 states in order, digest preserved, source retired |
 | DP-15 | built | full | tt80-banner: writer: one banner, own menu names, menus mirror the strip; tt80-banner: slides: one banner, own menu names, menus mirror the strip; tt80-banner: sheet: one banner, own menu names, menus mirror the strip (+8) |

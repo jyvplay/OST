@@ -1,6 +1,6 @@
 {
   "node": "v22.22.3",
-  "chromium": "153.0.8010.0",
+  "chromium": "143.0.7499.0",
   "agents": 1,
   "independentReviewer": false,
   "theoremProver": false,

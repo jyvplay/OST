@@ -1,0 +1,172 @@
+{
+  "suite": "tt108-recall",
+  "at": "2026-10-28T20:48:58.815Z",
+  "results": [
+    {
+      "suite": "tt108-recall",
+      "name": "a region dragged over a scaled preview maps onto the source pixel grid",
+      "covers": {
+        "RC-33": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "a backwards drag selects the same region as the forward drag",
+      "covers": {
+        "RC-33": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "a drag released past the edge keeps the part that exists instead of reading outside the picture",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "malformed provenance is refused by the shared shape gate",
+      "covers": {
+        "RC-33": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "a crop publishes with provenance pointing at the saved memory it was cut from",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 54
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "a crop naming a parent this archive does not hold is refused",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 45
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "provenance and method cannot be separated in either direction",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 51
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "a refused crop leaves neither media nor receipt behind",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 83
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "the timeline groups real saved memories by day with counts, bytes and methods",
+      "covers": {
+        "RC-32": "full"
+      },
+      "pass": true,
+      "ms": 116
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "selecting a day returns exactly that day through the ordinary server-side search",
+      "covers": {
+        "RC-32": "full"
+      },
+      "pass": true,
+      "ms": 19
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "a day drill-down stays inside the folder it was launched from",
+      "covers": {
+        "RC-32": "full",
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "the timeline refuses an injected time zone and a non-canonical folder",
+      "covers": {
+        "RC-32": "full"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "a receipt with an unreadable capture time is counted apart, never placed in a made-up day",
+      "covers": {
+        "RC-32": "full"
+      },
+      "pass": true,
+      "ms": 30
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "an unreadable receipt cannot abort the timeline query",
+      "covers": {
+        "RC-32": "full"
+      },
+      "pass": true,
+      "ms": 17
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "the page agent encodes already-decoded visuals and never requests a URL again",
+      "covers": {
+        "RC-31": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "every member of a batch is published as its own complete, independent pair",
+      "covers": {
+        "RC-31": "full"
+      },
+      "pass": true,
+      "ms": 145
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "one bad member of a batch cannot take the others down with it",
+      "covers": {
+        "RC-31": "full"
+      },
+      "pass": true,
+      "ms": 77
+    },
+    {
+      "suite": "tt108-recall",
+      "name": "the Specs app carries every new Recall requirement of this turn",
+      "covers": {
+        "RC-30": "partial",
+        "RC-31": "partial",
+        "RC-32": "partial",
+        "RC-33": "partial"
+      },
+      "pass": true,
+      "ms": 11
+    }
+  ]
+}

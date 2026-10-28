@@ -29,6 +29,17 @@ function refuse(req: NextRequest, status: 400 | 403, error: string) {
 
 export async function proxy(req: NextRequest) {
   if (req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS") return NextResponse.next();
+  // TT108: the refusal target must be exempt from this matcher. A rewrite re-enters the
+  // middleware, so the rewritten request was judged a second time — and it still carried
+  // the cross-site Origin (or the malformed body) that caused the refusal, so it was
+  // rewritten again, and again. In a development build the loop is absorbed; in a
+  // production build Next proxies each hop over HTTP and the client got nothing for
+  // thirty seconds and then a 500. Every CSRF refusal and every malformed-JSON refusal
+  // was affected. Measured on the TT107 build as well, so this is an old defect that
+  // only a production-mode gate could see.
+  // The comparison must survive URL normalisation: a rewrite keeps the original request's trailing slash, so
+  // "/api/notes/" was rewritten to "/api/refused/", which did not match this exemption and was refused again.
+  if (req.nextUrl.pathname.replace(/\/+$/, "") === "/api/refused") return NextResponse.next();
   // TT35 CSRF guard: a state-changing call must come from the desktop itself — never from another website, nor from a
   // proxied page (opaque origin "null"), which could otherwise POST to /api/fs with a text/plain body.
   const hosts = [req.headers.get("host"), ...(req.headers.get("x-forwarded-host") ?? "").split(",")].map((h) => (h ?? "").trim()).filter(Boolean);

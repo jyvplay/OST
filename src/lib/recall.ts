@@ -4,6 +4,7 @@ import { privacy } from './privacy/session';
 import { toB64 } from './privacy/pcrypt';
 import { readBrowserSave } from './browser-download';
 import { RECALL_LIMIT, recallFolder, recallMime, recallExtension, recallSource, recallUrl, type RecallGrouping } from './recall-core';
+import { validDerivedFrom, type DerivedFrom } from './recall-memory';
 export interface RecallInput { url:string; page:string; title:string; grouping:RecallGrouping; custom:string; owner:string; sid?:string }
 export interface RecallJob { id:string; source:string; phase:'queued'|'fetching'|'saving'|'saved'|'failed'|'cancelled'; path?:string; bytes?:number; error?:string }
 let jobs: RecallJob[] = [];
@@ -15,13 +16,15 @@ export const recallSubscribe=(fn:()=>void)=>{listeners.add(fn);return()=>{listen
 const publish=(id:string, patch:Partial<RecallJob>)=>{jobs=jobs.map(j=>j.id===id?{...j,...patch}:j);listeners.forEach(f=>f());};
 export function recallWritable(){if(!privacy.status().installed||privacy.status().amnesic)throw new Error('Recall server writes are unavailable in amnesic mode. Use a normal session, or save an authorized recording to a local file.');}
 /** Atomic create-only media + receipt publication. Lost acknowledgements remain unknown, not success. */
-export async function commitRecall(bytes:Uint8Array, mime:string, input:RecallInput, method:string):Promise<string>{
+/** TT108: `derivedFrom` records which already-saved memory a crop was cut from; the server re-checks it. */
+export async function commitRecall(bytes:Uint8Array, mime:string, input:RecallInput, method:string, derivedFrom?:DerivedFrom):Promise<string>{
   recallWritable(); if(!bytes.length||bytes.length>RECALL_LIMIT)throw new Error('Recall files must be nonempty and at most 8 MiB; no truncation is permitted');
   const type=recallMime(mime), folder=recallFolder(input.page,input.title,input.grouping,input.custom);
   for(const path of ['/Downloads','/Downloads/Recall',folder])await api('/api/fs',{method:'POST',body:JSON.stringify({op:'mkdir',path})});
   const path=`${folder}/${Date.now()}-${crypto.randomUUID()}.${recallExtension(type)}`;
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes).buffer)),b=>b.toString(16).padStart(2,'0')).join('');
-  const receipt=JSON.stringify({version:1,path,bytes:bytes.length,sha256:digest,mime:type,method,sourceAttribution:method==='original-response'?'requested-url':'user-declared-label',source:recallSource(input.url),page:recallSource(input.page),capturedAt:new Date().toISOString(),queryRedacted:true},null,2);
+  if(derivedFrom)validDerivedFrom(derivedFrom,path);
+  const receipt=JSON.stringify({version:1,path,bytes:bytes.length,sha256:digest,mime:type,method,sourceAttribution:method==='original-response'?'requested-url':'user-declared-label',source:recallSource(input.url),page:recallSource(input.page),capturedAt:new Date().toISOString(),queryRedacted:true,...(derivedFrom?{derivedFrom}:{})},null,2);
   try{await api('/api/fs',{method:'POST',body:JSON.stringify({op:'recallCommit',path,content:toB64(bytes),mime:type,receipt})});}
   catch(e){throw new Error(`Recall commit not acknowledged for ${path}. Inspect Files before retrying; a lost response can hide a completed pair. ${e instanceof Error?e.message:String(e)}`);}
 

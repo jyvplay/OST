@@ -1,0 +1,96 @@
+{
+  "suite": "tt108-engine-crash",
+  "at": "2026-10-28T20:27:56.789Z",
+  "results": [
+    {
+      "suite": "tt108-engine-crash",
+      "name": "the engine really crashed and recovered, rather than shutting down cleanly",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt108-engine-crash",
+      "name": "every acknowledged publication survived the engine crash, complete and intact",
+      "covers": {
+        "RC-30": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt108-engine-crash",
+      "name": "no half pair survived the crash, including the publications in flight",
+      "covers": {
+        "RC-30": "partial",
+        "RC-29": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt108-engine-crash",
+      "name": "an unacknowledged publication is all-or-nothing, never partially applied",
+      "covers": {
+        "RC-30": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt108-engine-crash",
+      "name": "the application reconnects to the recovered engine without a restart",
+      "covers": {
+        "RC-30": "partial"
+      },
+      "pass": true,
+      "ms": 21
+    },
+    {
+      "suite": "tt108-engine-crash",
+      "name": "positive control: with synchronous_commit=off the same crash DOES lose acknowledged memories",
+      "covers": {
+        "RC-30": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt108-engine-crash",
+      "name": "positive control: even when the WAL tail is lost, whole pairs are lost — never half of one",
+      "covers": {
+        "RC-30": "partial",
+        "RC-29": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt108-engine-crash",
+      "name": "negative control: with fsync and full_page_writes OFF nothing is lost, so this method cannot certify power loss",
+      "covers": {
+        "RC-30": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt108-engine-crash",
+      "name": "the shipped cluster does not run the configuration that arm B showed to be lossy",
+      "covers": {
+        "RC-30": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt108-engine-crash",
+      "name": "the suite states its own blind spot rather than claiming power-loss durability",
+      "covers": {
+        "RC-30": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

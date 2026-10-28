@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-28T18:50:48.916Z",
+ "generatedAt": "2026-10-28T20:29:03.964Z",
  "totals": {
   "built": {
    "full": 333,
-   "partial": 86,
+   "partial": 90,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 259,
-   "partial": 117,
-   "untested": 67
+   "full": 262,
+   "partial": 125,
+   "untested": 60
   },
   "tests": {
-   "total": 2602,
-   "passed": 2598
+   "total": 2650,
+   "passed": 2646
   }
  },
  "rows": {
@@ -35,7 +35,8 @@
     "tt107-recall: search rejects invalid filter {\"from\":\"yesterday\"}",
     "tt107-recall: search rejects invalid filter {\"to\":\"05-2026\"}",
     "tt107-recall: search rejects invalid filter {\"limit\":\"0\"}",
-    "tt107-recall: search rejects invalid filter {\"limit\":\"1000\"}"
+    "tt107-recall: search rejects invalid filter {\"limit\":\"1000\"}",
+    "tt108-recall: a day drill-down stays inside the folder it was launched from"
    ]
   },
   "RC-28": {
@@ -56,7 +57,7 @@
     "tt107-recall: unpaired cleanup rejects non-Recall path /",
     "tt107-recall: unpaired cleanup rejects non-Recall path /etc/passwd",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Private/x.png",
-    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793213422903/nested/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793219251734/nested/x.png",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/x",
     "tt107-recall: unpaired cleanup rejects invalid guard null",
     "tt107-recall: unpaired cleanup rejects invalid guard {}",
@@ -71,7 +72,65 @@
     "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata",
     "tt107-crash: server restarts and the same payload then publishes the exact pair",
     "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed",
-    "tt107-crash: after the crash the pair is still guard-consistent and can be trashed and restored"
+    "tt107-crash: after the crash the pair is still guard-consistent and can be trashed and restored",
+    "tt108-engine-crash: no half pair survived the crash, including the publications in flight",
+    "tt108-engine-crash: positive control: even when the WAL tail is lost, whole pairs are lost — never half of one"
+   ]
+  },
+  "RC-30": {
+   "tested": "partial",
+   "tests": [
+    "tt108-engine-crash: every acknowledged publication survived the engine crash, complete and intact",
+    "tt108-engine-crash: no half pair survived the crash, including the publications in flight",
+    "tt108-engine-crash: an unacknowledged publication is all-or-nothing, never partially applied",
+    "tt108-engine-crash: the application reconnects to the recovered engine without a restart",
+    "tt108-engine-crash: positive control: with synchronous_commit=off the same crash DOES lose acknowledged memories",
+    "tt108-engine-crash: positive control: even when the WAL tail is lost, whole pairs are lost — never half of one",
+    "tt108-engine-crash: negative control: with fsync and full_page_writes OFF nothing is lost, so this method cannot certify power loss",
+    "tt108-engine-crash: the shipped cluster does not run the configuration that arm B showed to be lossy",
+    "tt108-engine-crash: the suite states its own blind spot rather than claiming power-loss durability",
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+   ]
+  },
+  "RC-31": {
+   "tested": "partial",
+   "tests": [
+    "tt108-recall: the page agent encodes already-decoded visuals and never requests a URL again",
+    "tt108-recall: every member of a batch is published as its own complete, independent pair",
+    "tt108-recall: one bad member of a batch cannot take the others down with it",
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+   ]
+  },
+  "RC-32": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-recall: the saving timeline shows the real days and filters the list to the chosen one",
+    "e2e-tt108-recall: the timeline says plainly that it is not a background screenshot trail",
+    "tt108-recall: the timeline groups real saved memories by day with counts, bytes and methods",
+    "tt108-recall: selecting a day returns exactly that day through the ordinary server-side search",
+    "tt108-recall: a day drill-down stays inside the folder it was launched from",
+    "tt108-recall: the timeline refuses an injected time zone and a non-canonical folder",
+    "tt108-recall: a receipt with an unreadable capture time is counted apart, never placed in a made-up day",
+    "tt108-recall: an unreadable receipt cannot abort the timeline query",
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+   ]
+  },
+  "RC-33": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-recall: dragging over a decoded preview reports the region without saving anything yet",
+    "e2e-tt108-recall: a dragged region is saved as its own memory, cut from the decoded preview",
+    "e2e-tt108-recall: the saved crop records the memory and rectangle it came from",
+    "e2e-tt108-recall: a selection too small to be a region is refused with a reason, not silently grown",
+    "tt108-recall: a region dragged over a scaled preview maps onto the source pixel grid",
+    "tt108-recall: a backwards drag selects the same region as the forward drag",
+    "tt108-recall: a drag released past the edge keeps the part that exists instead of reading outside the picture",
+    "tt108-recall: malformed provenance is refused by the shared shape gate",
+    "tt108-recall: a crop publishes with provenance pointing at the saved memory it was cut from",
+    "tt108-recall: a crop naming a parent this archive does not hold is refused",
+    "tt108-recall: provenance and method cannot be separated in either direction",
+    "tt108-recall: a refused crop leaves neither media nor receipt behind",
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
    ]
   },
   "RC-24": {
@@ -481,8 +540,10 @@
    "tests": []
   },
   "WM-15": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-shell: a canvas-backed window really is a live video source"
+   ]
   },
   "WM-16": {
    "tested": "untested",
@@ -1238,8 +1299,10 @@
    ]
   },
   "AP-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-shell: the shell never takes a service-worker update without being asked"
+   ]
   },
   "AP-05": {
    "tested": "partial",
@@ -4395,6 +4458,12 @@
    "tested": "full",
    "tests": [
     "e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused",
+    "tt108-refusal: a cross-site request is refused quickly on every body-taking route and writes nothing",
+    "tt108-refusal: the refusal body still names the reason and the refusal is not cached",
+    "tt108-refusal: the exempt refusal endpoint cannot be turned into a bypass or a 200",
+    "tt108-refusal: a refusal cannot be made to loop: malformed body and foreign origin together stay fast",
+    "tt108-refusal: a client that resets mid-refusal does not take the server down (TT37 property, refusal path)",
+    "tt108-refusal: valid same-origin writes are untouched by the exemption",
     "tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked"
    ]
   },
@@ -5386,8 +5455,10 @@
    "tests": []
   },
   "LN-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt108-shell: the colour and light chain changes the rendered frame, not just a label"
+   ]
   },
   "LN-05": {
    "tested": "untested",
@@ -5398,12 +5469,16 @@
    "tests": []
   },
   "LN-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt108-shell: the microphone is opened with the real WebRTC processing constraints, and the track reports them applied"
+   ]
   },
   "LN-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt108-shell: the voice gate really runs on the audio thread and silences a signal below its threshold"
+   ]
   },
   "LN-09": {
    "tested": "untested",
@@ -5580,6 +5655,7 @@
     "e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery",
     "e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids",
     "integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)",
+    "tt108-refusal: every body-taking API route refuses a malformed JSON body quickly, not after a thirty-second loop",
     "tt89-launch-unit: protocol accepts only the documented, known app intent",
     "tt89-launch-unit: existing-window URL is same-origin, root-only, one bounded module parameter"
    ]
@@ -5757,8 +5833,10 @@
    ]
   },
   "DP-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-shell: every control of a window is reachable by keyboard alone, with no focus trap"
+   ]
   },
   "DP-07": {
    "tested": "partial",
@@ -5796,8 +5874,10 @@
    ]
   },
   "DP-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-shell: choosing a file opens the real platform picker rather than an in-page imitation"
+   ]
   },
   "DP-13": {
    "tested": "full",

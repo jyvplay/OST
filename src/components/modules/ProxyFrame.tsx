@@ -54,7 +54,10 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
   const loadedEpoch=useRef(0);
   const loadedRequest=useRef<{token:string;selected:boolean;epoch:number;page:string;title:string;grouping:RecallGrouping;custom:string;timer:ReturnType<typeof setTimeout>}|null>(null);
   const [loadedBusy,setLoadedBusy]=useState(false);
-  useEffect(()=>()=>{loadedEpoch.current++;if(loadedRequest.current)clearTimeout(loadedRequest.current.timer);loadedRequest.current=null;},[]);
+  // TT108 (RC-31): one counted batch at a time; the token pins the answer to this request.
+  const batchRequest=useRef<{token:string;epoch:number;page:string;title:string;grouping:RecallGrouping;custom:string;timer:ReturnType<typeof setTimeout>}|null>(null);
+  const [batchBusy,setBatchBusy]=useState(false),[batchLimit,setBatchLimit]=useState(8);
+  useEffect(()=>()=>{loadedEpoch.current++;if(loadedRequest.current)clearTimeout(loadedRequest.current.timer);loadedRequest.current=null;if(batchRequest.current)clearTimeout(batchRequest.current.timer);batchRequest.current=null;},[]);
   const [autoRecall,setAutoRecall]=useState(false),[recallGroup,setRecallGroup]=useState<RecallGrouping>('host'),[recallCustom,setRecallCustom]=useState('');
   const recallArmed=useRef<{page:string;title:string;grouping:RecallGrouping;custom:string;sid:string;seen:Set<string>}|null>(null);
   useEffect(()=>()=>{cancelRecall(recallOwner);},[recallOwner]);
@@ -137,7 +140,7 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       if (!frame.current || e.source !== frame.current.contentWindow) return;
-      const d = e.data as { fusionWp?: string; urls?: unknown; token?:string; blob?:unknown; error?:string; url?: string; title?: string; q?: string; n?: number; i?: number; truncated?: boolean; reader?: boolean };
+      const d = e.data as { fusionWp?: string; urls?: unknown; token?:string; blob?:unknown; error?:string; items?:unknown; considered?:unknown; eligible?:unknown; url?: string; title?: string; q?: string; n?: number; i?: number; truncated?: boolean; reader?: boolean };
       if (!d || typeof d.fusionWp !== "string") return;
       if(d.fusionWp==='recall-loaded-result'){
         const request=loadedRequest.current;if(!request||d.token!==request.token)return;
@@ -151,6 +154,34 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
           if(request.epoch!==loadedEpoch.current||!frame.current)throw Error('Document closed or changed during decode');
           const path=await commitRecall(bytes,'image/png',{...request,url:request.page,owner:recallOwner},request.selected?'clicked-visual-png':'loaded-visual-png');setNote('Saved loaded visual → '+path);
         }catch(err){setNote('Not saved: '+(err instanceof Error?err.message:String(err)));}finally{setLoadedBusy(false);}})();return;
+      }
+      if(d.fusionWp==='recall-batch-result'){
+        const request=batchRequest.current;if(!request||d.token!==request.token)return;
+        batchRequest.current=null;clearTimeout(request.timer);
+        const items=Array.isArray(d.items)?d.items as {ok?:boolean;label?:string;error?:string;blob?:unknown}[]:[];
+        if(d.error||!Array.isArray(d.items)){setBatchBusy(false);setNote('Nothing saved: '+String(d.error||'The page did not answer with a batch').slice(0,300));return;}
+        void (async()=>{
+          const saved:string[]=[],refused:string[]=[];
+          try{
+            for(const item of items){
+              if(!item||item.ok!==true||!(item.blob instanceof Blob)||item.blob.type!=='image/png'||!item.blob.size||item.blob.size>8388608){
+                refused.push(`${item?.label??'visual'}: ${String(item?.error??'not a usable PNG').slice(0,120)}`);continue;
+              }
+              try{
+                const bytes=new Uint8Array(await item.blob.arrayBuffer());
+                if(request.epoch!==loadedEpoch.current||!frame.current)throw Error('Document closed or changed during the batch');
+                const dimensions=loadedPngDimensions(bytes);
+                const decoded=await createImageBitmap(item.blob);
+                try{if(decoded.width!==dimensions.width||decoded.height!==dimensions.height)throw Error('PNG decoder dimension mismatch');}finally{decoded.close();}
+                saved.push(await commitRecall(bytes,'image/png',{...request,url:request.page,owner:recallOwner},'batch-loaded-visuals'));
+              }catch(err){refused.push(`${item.label??'visual'}: ${(err instanceof Error?err.message:String(err)).slice(0,120)}`);}
+            }
+            const considered=Number(d.considered)||0,eligible=Number(d.eligible)||0;
+            setNote(`Saved ${saved.length} of ${items.length} already-loaded visuals (${eligible} eligible of ${considered} examined; decoded pixels, nothing refetched).`
+              +(refused.length?` Refused — ${refused.slice(0,6).join('; ')}`:'')
+              +(eligible>items.length?` ${eligible-items.length} more eligible beyond this batch limit.`:''));
+          }finally{setBatchBusy(false);}
+        })();return;
       }
       if(d.fusionWp==='recall-media'){
         const armed=recallArmed.current;if(!armed||!Array.isArray(d.urls))return;
@@ -246,6 +277,15 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
       setLoadedBusy(true);setNote('Reading current loaded visual…');send({fusionWp:'recall-loaded',token,selected});
     }catch(err){setNote(err instanceof Error?err.message:String(err));}
   };
+  const saveBatch=()=>{
+    if(batchRequest.current||batchBusy)return;
+    try{recallWritable();if(!sid)throw Error('Proxy session is not ready');if(recallGroup==='custom'&&!recallCustom.trim())throw Error('Enter a custom Recall folder');
+      const token=crypto.randomUUID();
+      batchRequest.current={token,epoch:loadedEpoch.current,page:hist.list[hist.i],title:title||currentSite,grouping:recallGroup,custom:recallCustom,
+        timer:setTimeout(()=>{batchRequest.current=null;setBatchBusy(false);setNote('The page did not answer the batch within 15 seconds; nothing was saved.');},15000)};
+      setBatchBusy(true);setNote(`Reading up to ${batchLimit} already-loaded visuals…`);send({fusionWp:'recall-batch',token,limit:batchLimit});
+    }catch(err){setNote(err instanceof Error?err.message:String(err));}
+  };
   const toggleRecall=()=>{
     if(autoRecall){recallArmed.current=null;setAutoRecall(false);cancelRecall(recallOwner);send({fusionWp:'recall-watch',enabled:false});return;}
     try{
@@ -261,6 +301,9 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
       <div data-testid="wp-bar" className="fs-row" style={{ gap: 4, padding: "3px 6px", flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11) }}>
         <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded()}>Save largest loaded visual</Btn>
         <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded(true)}>Save clicked loaded visual</Btn>
+        <Btn data-testid="recall-batch" disabled={!sid||batchBusy} onClick={saveBatch}>{batchBusy?'Saving loaded visuals…':'Save all loaded visuals'}</Btn>
+        <label>Batch limit <input aria-label="Loaded visual batch limit" type="number" min={1} max={24} value={batchLimit} disabled={batchBusy}
+          onChange={e=>setBatchLimit(Math.min(Math.max(Number(e.target.value)||1,1),24))} style={{width:52}}/></label>
         <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall}>{autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}</Btn>
         <select aria-label="Auto Recall folders" disabled={autoRecall} value={recallGroup} onChange={e=>setRecallGroup(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select>
         {recallGroup==='custom'?<input aria-label="Auto Recall custom folder" disabled={autoRecall} value={recallCustom} onChange={e=>setRecallCustom(e.target.value)}/>:null}

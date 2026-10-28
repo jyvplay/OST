@@ -887,6 +887,53 @@
       canvas.toBlob(function(blob){if(!blob||!blob.size||blob.size>8388608)answer(null,'PNG absent or over 8 MiB; nothing truncated');else answer(blob,null);},'image/png');
     }catch(err){answer(null,String(err.message||err).slice(0,300));}
   });
+  // TT108 (RC-31): explicit, counted batch save of visuals this document has ALREADY
+  // decoded. Same traversal budget as the single-visual path; every candidate is read
+  // from its existing pixels and no URL is ever requested again. Each item reports its
+  // own outcome, so a tainted or oversized visual is refused by name instead of
+  // silently reducing the batch.
+  W.addEventListener('message', function(e) {
+    if(e.source!==W.parent || !e.data || e.data.fusionWp!=='recall-batch' || typeof e.data.token!=='string' || e.data.token.length>80)return;
+    var token=e.data.token, cap=Math.min(Math.max(parseInt(e.data.limit,10)||8,1),24);
+    function answer(items,considered,eligible,error){W.parent.postMessage({fusionWp:'recall-batch-result',token:token,items:items,considered:considered,eligible:eligible,error:error},'*');}
+    try {
+      var candidates=[],walker=D.createTreeWalker(D.documentElement,1),node,considered=0;
+      while(candidates.length<200&&(node=walker.nextNode())){
+        if(!/^(CANVAS|VIDEO|IMG)$/.test(node.tagName))continue;
+        considered++;candidates.push(node);
+      }
+      var eligible=candidates.filter(function(el){
+        var r=el.getBoundingClientRect();
+        if(!(r.width>0&&r.height>0&&r.bottom>0&&r.right>0&&r.top<W.innerHeight&&r.left<W.innerWidth))return false;
+        if(el.mediaKeys)return false;
+        if(el.tagName==='IMG'&&!el.complete)return false;
+        if(el.tagName==='VIDEO'&&el.readyState<2)return false;
+        var w=el.videoWidth||el.naturalWidth||el.width,h=el.videoHeight||el.naturalHeight||el.height;
+        return !!w&&!!h&&w*h<=16777216;
+      }).sort(function(a,b){var x=a.getBoundingClientRect(),y=b.getBoundingClientRect();return y.width*y.height-x.width*x.height;});
+      var chosen=eligible.slice(0,cap),pending=chosen.length,items=new Array(chosen.length);
+      if(!pending){answer([],considered,0,null);return;}
+      chosen.forEach(function(el,i){
+        var label=(el.tagName.toLowerCase()+' '+(i+1));
+        try{
+          var width=el.videoWidth||el.naturalWidth||el.width,height=el.videoHeight||el.naturalHeight||el.height;
+          var canvas=D.createElement('canvas');canvas.width=width;canvas.height=height;
+          var ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas unavailable');
+          ctx.drawImage(el,0,0);
+          // toBlob throws SecurityError here for a cross-origin surface: that visual is
+          // refused, by name, rather than quietly omitted from the count.
+          canvas.toBlob(function(blob){
+            if(!blob||!blob.size||blob.size>8388608)items[i]={ok:false,label:label,error:'PNG absent or over 8 MiB; nothing truncated'};
+            else items[i]={ok:true,label:label,blob:blob,width:width,height:height};
+            if(!--pending)answer(items,considered,eligible.length,null);
+          },'image/png');
+        }catch(err){
+          items[i]={ok:false,label:label,error:String(err&&err.message||err).slice(0,200)};
+          if(!--pending)answer(items,considered,eligible.length,null);
+        }
+      });
+    }catch(err){answer([],0,0,String(err.message||err).slice(0,300));}
+  });
   D.addEventListener("DOMContentLoaded", report);
   W.addEventListener("load", report);
   W.addEventListener("popstate", report);
