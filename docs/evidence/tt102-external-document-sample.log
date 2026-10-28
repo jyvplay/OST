@@ -1,0 +1,455 @@
+EXTERNAL DOCUMENT SAMPLE: Skip to content
+Navigation Menu
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+See all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search/
+Sign in
+Sign up
+Appearance settings
+jyvplay
+OST
+Repository navigation
+Code
+Issues
+Pull requests1 (1)
+Actions
+Projects
+Security and quality
+Insights
+More items
+OST
+Public
+NotificationsYou must be signed in to change notification settings
+Fork0 (0)
+Star0 (0)You must be signed in to star a repository
+About
+
+1
+
+Accessibility
+Accessibility
+Activity
+Stars
+0 stars
+Watchers
+0 watching
+Forks
+0 forks
+Report repository
+main
+BranchesTags
+Go to file
+Code
+Open more actions menu
+Latest commit
+ 
+History
+118 Commits
+118 Commits
+Folders and files
+Name	Name	
+Last commit message
+	
+Last commit date
+
+
+docs
+	
+docs
+	
+ 
+	
+ 
+
+
+public
+	
+public
+	
+ 
+	
+ 
+
+
+scripts
+	
+scripts
+	
+ 
+	
+ 
+
+
+src
+	
+src
+	
+ 
+	
+ 
+
+
+.gitignore
+	
+.gitignore
+	
+ 
+	
+ 
+
+
+DESIGN-TT29.md
+	
+DESIGN-TT29.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT30.md
+	
+DESIGN-TT30.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT31.md
+	
+DESIGN-TT31.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT32.md
+	
+DESIGN-TT32.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT33.md
+	
+DESIGN-TT33.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT34.md
+	
+DESIGN-TT34.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT35.md
+	
+DESIGN-TT35.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT36.md
+	
+DESIGN-TT36.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT37.md
+	
+DESIGN-TT37.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT38.md
+	
+DESIGN-TT38.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT39.md
+	
+DESIGN-TT39.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT40.md
+	
+DESIGN-TT40.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT41.md
+	
+DESIGN-TT41.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT42.md
+	
+DESIGN-TT42.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT43.md
+	
+DESIGN-TT43.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT44.md
+	
+DESIGN-TT44.md
+	
+ 
+	
+ 
+
+
+DESIGN-TT45.md
+	
+DESIGN-TT45.md
+	
+ 
+	
+ 
+
+
+Full V2 and V2.1 Specs.txt
+	
+Full V2 and V2.1 Specs.txt
+	
+ 
+	
+ 
+
+
+drizzle.config.json
+	
+drizzle.config.json
+	
+ 
+	
+ 
+
+
+eslint.config.mjs
+	
+eslint.config.mjs
+	
+ 
+	
+ 
+
+
+next.config.ts
+	
+next.config.ts
+	
+ 
+	
+ 
+
+
+os-t-b TT14 A gpt61sm.zip
+	
+os-t-b TT14 A gpt61sm.zip
+	
+ 
+	
+ 
+
+
+package-lock.json
+	
+package-lock.json
+	
+ 
+	
+ 
+
+
+package.json
+	
+package.json
+	
+ 
+	
+ 
+
+
+postcss.config.mjs
+	
+postcss.config.mjs
+	
+ 
+	
+ 
+
+
+tsconfig.json
+	
+tsconfig.json
+	
+ 
+	
+ 
+
+
+View all files
+Repository files navigation
+Accessibility
+More items
+Accessibility & readability (TT21, revised TT22)
+What the law asks for (California), and what that means here
+Source	Who it binds	Technical standard
+ADA Title III + Unruh Civil Rights Act (Civ. Code §51)	private businesses serving Californians; an ADA violation is automatically an Unruh violation	courts and settlements benchmark WCAG 2.1 AA
+ADA Title II, DOJ final rule (April 2024)	state and local government	WCAG 2.1 AA (compliance April 2026 / April 2027 depending on size)
+Gov. Code §11546.7 (AB 434) with §§11135, 7405	California state agencies	WCAG 2.0 AA or later, certified on the agency's home page
+
+There is no legal minimum font size in pixels. WCAG has none. The criteria that govern text size and readability are:
+
+1.4.4 Resize text: 200 % without loss of content or function.
+1.4.3 Contrast: 4.5:1, or 3:1 for large text.
+1.4.11 Non-text contrast: 3:1 for icons and controls.
+1.4.10 Reflow: usable at 320 CSS px wide.
+1.4.12 Text spacing.
+2.5.3 Label in name.
+2.5.8 Target size: 24×24 px (WCAG 2.2).
+
+Common practice is 16 px body text and relative (rem) units, so the user's own browser font setting applies.
+
+What Fusion Shell does
+Text 125 % by default; Large text mode is an opt-in switch (TT22).
+Every UI font size is fz(n) = n × --fs-ts × 1rem/16, and --fs-ts defaults to 1.25.
+At a 16 px browser default, body text is 16.25 px and the smallest UI text is 12.5 px.
+Large text mode (Settings and Quick panel switch) sets 200 %: body 26 px, smallest 20 px. Turning it off returns to 125 %.
+TT21 made 200 % the default; the user reversed that in TT22. Existing installs still at the old 200 % default were moved to 125 % once (seed v3.10). A value the user picked themselves is never overwritten.
+The user's browser font size multiplies on top of that (rem), and so does browser zoom.
+Titlebars, buttons, the top bar, the shelf, icons, the launcher, the Spreadsheet grid and default window sizes scale with it.
+Setting:
+Settings → Display & readability offers 100 / 125 (default) / 150 / 175 / 200 (large) / 250 / 300 % (radio group), plus A−/A+ and the Large text mode switch.
+The Quick panel has A−/A+ and the Large text mode switch.
+Routines accept textsize 250.
+The server rejects values outside 100–300 (HTTP 422).
+Document content is not scaled. A Writer heading or a Vector text shape keeps its document size; zoom is a separate document feature.
+Pinch-zoom allowed: the viewport no longer sets maxi
+PASS: actual public GitHub repository HTML rendered through the normal preview proxy; no media archival was armed. External script/asset fidelity is not certified.
+PASS: normal preview HTTP/Chromium CSV field search; one explicitly authored example, not ASR or lyric generation.

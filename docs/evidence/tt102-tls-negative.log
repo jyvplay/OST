@@ -1,0 +1,16 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Proxy error page is not repository content
+    at file:///home/user/OST/scripts/tt102-preview-smoke.mts:11:504 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+PASS: tightened verifier rejects actual TLS error page (expected smoke failure)

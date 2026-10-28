@@ -36,7 +36,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: true, hits: [], coverage: counts.rows, tookMs: Date.now() - started });
   }
 
-  const scopeClause = scope ? sql`and ref like ${escapeLike(scope) + "%"}` : sql``;
+  const scopePath=scope.replace(/\/+$/, "") || "/";
+  const scopeClause = scope ? sql`and (ref = ${scopePath} or ref like ${escapeLike(scopePath === '/' ? '' : scopePath) + '/%'})` : sql``;
   const sourceClause = source ? sql`and source = ${source}` : sql``;
 
   const fts = await db.execute(sql`
@@ -100,8 +101,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST() {
-  // rebuild: cheap here because the index is derived, not primary
   await bootstrap();
-  const counts = await db.execute(sql`select source, count(*)::int as n from index_docs group by source`);
-  return NextResponse.json({ ok: true, rebuilt: true, coverage: counts.rows });
+  // No rebuild took place. Do not label a coverage read as successful indexing.
+  return NextResponse.json({ok:false,rebuilt:false,error:"No rebuild operation is implemented. Fast index updates on writes; live metadata reads current files."},{status:501});
 }

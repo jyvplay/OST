@@ -1,0 +1,17 @@
+  ✓ Recall opens a real browsing pane without silently arming capture
+  ✓ compact Browser tools retain advanced controls without crowding the default bar
+  ✓ Page tools retain functional find while the default viewport stays usable
+  ✓ actual page title and address follow the visible proxied document
+  ✓ manual browsing changes the visible page and declared source together
+  ✓ Auto Recall in the new browser saves actual publisher bytes to the selected folder
+  ✓ real publisher DOM mutation is discovered from the visible page
+  ✓ closing the browsing pane cancels its actual slow archive fetch
+  ✓ reopening restores the actual active tab but does not restore an armed watcher
+  ✓ new browser pane passes serious and critical external axe checks
+  ✓ create or unlock real Persistent Storage through its actual UI
+  ✓ unlocked actual-browser metadata search decrypts real writes without HTTP plaintext
+  ✓ actual storage lock clears rendered result, query, field, cursor and scope
+  ✓ post-lock retry fails closed and cannot resurrect old plaintext results
+  ✓ actual TT102 browser interactions have no uncaught page errors
+
+15 passed, 0 failed

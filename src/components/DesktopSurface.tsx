@@ -156,6 +156,7 @@ export default function DesktopSurface() {
   return (
     <div
       {...marquee.handlers}
+      role="group"
       data-pointer-gesture-surface="classic"
       tabIndex={0}
       aria-label="Desktop"

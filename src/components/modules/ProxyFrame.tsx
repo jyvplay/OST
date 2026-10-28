@@ -18,6 +18,7 @@ import { Btn } from "../ui";
  * mobile identity, shields and cookie counters, and Save to Files.
  */
 export interface ProxyFrameProps {
+  embeddedRecall?:boolean;
   tabId: string;
   url: string;
   /** session key (tab id, or "p:<profile>") → session id, owned by the Browser so a tab keeps its session (and
@@ -45,8 +46,9 @@ export { saveName } from "@/lib/browser-download";
 /** session creations in flight, per Browser session map → key */
 const minting = new WeakMap<Map<string, string>, Map<string, Promise<string>>>();
 
-export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", profiles = [], onProfile, circuitable = false, via = "" }: ProxyFrameProps) {
+export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions, onNav, profile = "", profiles = [], onProfile, circuitable = false, via = "" }: ProxyFrameProps) {
   const shell = useShell();
+  const [tools,setTools]=useState(!embeddedRecall);
   const recallOwner=useId();
   const [autoRecall,setAutoRecall]=useState(false),[recallGroup,setRecallGroup]=useState<RecallGrouping>('host'),[recallCustom,setRecallCustom]=useState('');
   const recallArmed=useRef<{page:string;title:string;grouping:RecallGrouping;custom:string;sid:string;seen:Set<string>}|null>(null);
@@ -235,11 +237,13 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
         <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall}>{autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}</Btn>
         <select aria-label="Auto Recall folders" disabled={autoRecall} value={recallGroup} onChange={e=>setRecallGroup(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select>
         {recallGroup==='custom'?<input aria-label="Auto Recall custom folder" disabled={autoRecall} value={recallCustom} onChange={e=>setRecallCustom(e.target.value)}/>:null}
-        <Btn onClick={()=>shell.open('recall',{url:hist.list[hist.i],pageTitle:title})}>Recall jobs</Btn>
+        {!embeddedRecall?<Btn onClick={()=>shell.open('recall',{url:hist.list[hist.i],pageTitle:title})}>Recall jobs</Btn>:null}
 
         <Btn variant="ghost" data-testid="wp-back" aria-label="Back" disabled={hist.i <= 0} onClick={back}>‹ Back</Btn>
         <Btn variant="ghost" data-testid="wp-forward" aria-label="Forward" disabled={hist.i >= hist.list.length - 1} onClick={fwd}>Forward ›</Btn>
         <Btn variant="ghost" data-testid="wp-reload" aria-label="Reload" onClick={reload}>Reload</Btn>
+        {embeddedRecall?<Btn aria-expanded={tools} onClick={()=>setTools(v=>!v)}>Page tools</Btn>:null}
+        <div style={{display:tools?'contents':'none'}}>
         <input className="fs-input" data-testid="wp-find" aria-label="Find in page" placeholder="Find in page" title="Case-insensitive search in this proxied document; Enter = next, Shift+Enter = previous. Shadow DOM and nested frames are not searched." maxLength={256} value={q} style={{ width: fz(150) }}
           onChange={(e) => { queryRef.current = e.target.value; setQ(e.target.value); setFound(null); }}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); send({ fusionWp: "find", q, dir: e.shiftKey ? -1 : 1 }); } }} />
@@ -280,6 +284,7 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
         {savePhase === "fetching" ? <Btn variant="ghost" data-testid="wp-save-cancel" onClick={() => transfer.current?.abort()}>Cancel download</Btn> : null}
         {savedPath ? <Btn variant="ghost" data-testid="wp-open-downloads" onClick={() => shell.open("files", { path: "/Downloads" })}>Open Downloads</Btn> : null}
         <span className="fs-dim" title="Requests go through Fusion; proxy sessions and cookies live in memory. Save to Files deliberately writes to server storage." data-testid="wp-via">Private proxy{via ? ` via ${via}` : ""}{title ? ` · ${title.slice(0, 60)}` : ""}</span>
+        </div>
       </div>
       <div className="fs-dim" style={{ fontSize: fz(10.5), padding: "2px 8px" }}>Save to Files copies the original bytes to the Fusion server’s unencrypted /Downloads (up to 8 MiB), not /Private. Page-initiated browser downloads remain in the browser’s own downloads.</div>
       {note ? <div role="status" data-testid="wp-note" data-phase={savePhase ?? "idle"} className="fs-dim" style={{ fontSize: fz(11), padding: "2px 8px" }}>{note}</div> : null}

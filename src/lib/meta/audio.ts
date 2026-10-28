@@ -144,6 +144,24 @@ export async function readId3v2(b: Uint8Array, at = 0, inflate?: (d: Uint8Array)
       const [end,start]=termEnd(enc,data,4),description=decodeText(enc,data.subarray(4,end));
       const language=ascii(data,1,3),value=decodeText(enc,data.subarray(start)).replace(/\0+$/, "");
       const key=`lyrics.${language}.${description}`;out.tags[key]=out.tags[key]?out.tags[key]+"\n"+value:value;
+    } else if (id === "SYLT" || id === "SLT") {
+      if(data.length<7||![1,2].includes(data[4])){out.warnings.push('id3: invalid synchronized lyric header');continue;}
+      const [end,start]=termEnd(enc,data,6);
+      if(start===end){out.warnings.push('id3: unterminated synchronized lyric descriptor');continue;}
+      const description=decodeText(enc,data.subarray(6,end)),parts:string[]=[],times:string[]=[];
+      let q=start,last=-1,valid=true;
+      // Ambiguous BOM inheritance is refused rather than silently decoding the wrong lyrics.
+      while(q<data.length&&parts.length<4096){
+        const [e,next]=termEnd(enc,data,q);
+        if(next===e||next+4>data.length||(enc===1&&!((data[q]===255&&data[q+1]===254)||(data[q]===254&&data[q+1]===255)))){valid=false;break;}
+        const stamp=u32be(data,next);if(stamp<last){valid=false;break;}last=stamp;
+        parts.push(decodeText(enc,data.subarray(q,e)));times.push(`${stamp} ${data[4]===2?'ms':'MPEG frames'}`);q=next+4;
+      }
+      if(!valid||q<data.length){out.warnings.push('id3: malformed, ambiguous UTF-16 or over-budget synchronized lyrics refused');continue;}
+      const key=`lyrics.synced.${ascii(data,1,3)}.${description}`;
+      out.tags[key]=(out.tags[key]?out.tags[key]+'\n':'')+parts.join('\n');
+      out.tags[key+'.contentType']=String(data[5]);out.tags[key+'.timestampFormat']=String(data[4]);
+      out.tags[key+'.timestamps']=(out.tags[key+'.timestamps']?out.tags[key+'.timestamps']+'; ':'')+times.join('; ');
     } else if (id === "COMM" || id === "COM") {
       if (out.tags.comment) continue;
       const [, e1] = termEnd(enc, data, 4); const v = decodeText(enc, data.subarray(e1)).replace(/\0+$/, "");

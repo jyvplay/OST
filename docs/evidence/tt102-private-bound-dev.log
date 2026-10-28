@@ -1,0 +1,7 @@
+  ✓ actual 5001 encrypted writes exist independently in PostgreSQL
+  ✓ real encrypted directory lists all 5001 files before query cap
+  ✓ 5000 cap is observable at cursor 4999, not merely a claimed counter
+  ✓ first page still parses at most 32 files under a 5001-file directory
+  ✓ 5001-file witness leaves no lyric plaintext in host content
+
+5 passed, 0 failed

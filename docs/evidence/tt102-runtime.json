@@ -1,0 +1,18 @@
+{
+  "node": "v22.22.3",
+  "typescript": "5.9.3",
+  "next": "16.2.6",
+  "playwright": "1.64.1",
+  "axe": "4.14.0",
+  "chromium": "153.0.8010.0",
+  "postgres": "PostgreSQL 18.4 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0, 64-bit",
+  "musicMetadata": "12.3.2",
+  "agentCount": 1,
+  "externalIndependentReview": false,
+  "theoremProverUsed": false,
+  "physicalCaptureUsed": false,
+  "mockNetworkMediaOrCryptoAPIs": false,
+  "graphicsBackend": "Chromium SwiftShader software renderer",
+  "historicalAccessibilityEnvironment": "Real Chromium viewport/CSS-media emulation, not a physical display/assistive-technology test",
+  "musicMetadataLicense": "MIT"
+}

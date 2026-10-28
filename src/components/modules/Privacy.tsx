@@ -42,7 +42,7 @@ export default function PrivacyModule(_: ModuleProps) {
   const [bkReport, setBkReport] = useState<string | null>(null);
 
   useEffect(() => {
-    const off = privacy.subscribe((s) => { setSt(s); setBlocked(privacy.blockedLog().slice(-40).reverse()); });
+    const off = privacy.subscribe((s) => { setSt(s); setBlocked(privacy.blockedLog().slice(-40).reverse()); if (s.storage === "locked") { setRecovery(null); setPass(""); setPass2(""); setNext(""); setBkPass(""); setAudit(null); setBkReport(null); } });
     void privacy.refreshHeader();
     return off;
   }, []);
@@ -114,7 +114,7 @@ export default function PrivacyModule(_: ModuleProps) {
       {tab === "storage" ? (
         <>
           {bkOut}
-          {recovery ? (
+          {recovery && st.storage === "unlocked" ? (
             <Section title="Recovery key — shown once">
               <div className="fs-mono" data-testid="recovery-key" style={{ fontSize: fz(15), userSelect: "all", wordBreak: "break-all" }}>{recovery}</div>
               <div className="fs-dim" style={{ fontSize: fz(12) }}>Write it down. It unlocks the storage if you forget the passphrase; it is not stored anywhere in clear.</div>

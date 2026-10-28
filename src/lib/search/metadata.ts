@@ -1,4 +1,5 @@
 /** TT101 original bounded value search. No speech recognition, remote extraction or decompression. */
+import { delimitedMetadata } from './delimited';
 import { readAudio } from '../meta/audio';
 import { readImage } from '../meta/image';
 import { readExif } from '../meta/exif';
@@ -30,9 +31,15 @@ export async function metadataValues(node:MetaNode){
  if(contentSkipped||content.length>META_LIMITS.contentChars){warnings.push('content budget exceeded; node fields only');return {fields,warnings,truncated:true};}
  let bytes:Uint8Array;
  try{bytes=node.encoding==='base64'?Uint8Array.from(atob(content),c=>c.charCodeAt(0)):new TextEncoder().encode(content);}catch{warnings.push('invalid content encoding');return{fields,warnings,truncated:true};}
- if(isTextual(node.mime)||/\.(vtt|srt|lrc|json|jsonl|txt)$/i.test(node.name)){
+ if(isTextual(node.mime)||/json/i.test(node.mime)||/\.(vtt|srt|lrc|json|jsonl|ndjson|csv|tsv|txt)$/i.test(node.name)){
   const text=node.encoding==='utf8'?content:new TextDecoder().decode(bytes);walk(text,'text');
-  if(/json/i.test(node.mime)||/\.json$/i.test(node.name)){try{walk(JSON.parse(text),'content');}catch{warnings.push('invalid JSON; raw text remains searchable');}}
+  if(/\.(jsonl|ndjson)$/i.test(node.name)||/ndjson|jsonl/i.test(node.mime)){
+   let bad=0;const lines=text.split(/\r?\n/);
+   for(let i=0;i<lines.length;i++){if(fields.length>=META_LIMITS.fields){truncated=true;break;}if(!lines[i].trim())continue;try{walk(JSON.parse(lines[i]),`content.lines[${i}]`);}catch{bad++;}}
+   if(bad){warnings.push(`${bad} invalid JSONL line(s); raw text remains searchable`);truncated=true;}
+  }else if(/\.(csv|tsv)$/i.test(node.name)||/text\/(csv|tab-separated-values)/i.test(node.mime)){
+   try{const parsed=delimitedMetadata(text,/\.tsv$/i.test(node.name)||/tab-separated-values/i.test(node.mime)?'\t':',');walk(parsed.rows,'content');truncated ||=parsed.truncated;}catch{warnings.push('invalid delimited text; raw text remains searchable');truncated=true;}
+  }else if(/json/i.test(node.mime)||/\.json$/i.test(node.name)){try{walk(JSON.parse(text),'content');}catch{warnings.push('invalid JSON; raw text remains searchable');}}
  }else{
   const noInflate=async()=>{throw new Error('compressed metadata is outside the query-time budget');};
   try{
@@ -49,7 +56,7 @@ export async function metadataPage(nodes:MetaNode[],options:MetaOptions){
  for(const node of nodes.slice(0,META_LIMITS.files)){
   const data=await metadataValues(node);if(data.truncated)truncatedFiles++;
   if(data.warnings.length)warnings.push({ref:node.path,reasons:data.warnings.slice(0,8)});
-  const eligible=data.fields.filter(x=>!options.field||x.field===options.field||x.field.startsWith(options.field+'.')||x.field.includes('.'+options.field+'.')||x.field.endsWith('.'+options.field));
+  const eligible=data.fields.filter(x=>!options.field||x.field===options.field||x.field.startsWith(options.field+'.')||x.field.startsWith(options.field+'[')||x.field.includes('.'+options.field+'.')||x.field.includes('.'+options.field+'[')||x.field.endsWith('.'+options.field));
   const normalized=eligible.map(x=>({...x,normalized:fold(x.value)})),matched=normalized.filter(x=>terms.some(t=>x.normalized.includes(t)));
   if(!terms.every(t=>matched.some(x=>x.normalized.includes(t))))continue;
   const first=matched[0],value=first.value,at=fold(value).indexOf(terms[0]);

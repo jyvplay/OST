@@ -26,6 +26,12 @@ export default function FindModule(_: ModuleProps) {
   const [took, setTook] = useState<number | null>(null);
   const [privInfo, setPrivInfo] = useState<{ hostQueried: boolean; indexed: number | null; locked: boolean } | null>(null);
 
+  useEffect(()=>{
+    const clear=()=>{request.current?.abort();setBusy(false);setQ('');setField('');setScope('');setHits([]);setCursor(null);setExplain(null);setTook(null);setQueryUsed('');setError('');setPrivInfo(null);};
+    window.addEventListener('fusion:privacy-locked',clear);
+    return()=>window.removeEventListener('fusion:privacy-locked',clear);
+  },[]);
+
   const loadCoverage = () => api<{ coverage: { source: string; n: number }[] }>("/api/search")
     .then((r) => setCoverage(r.coverage ?? []))
     .catch(() => undefined);
@@ -73,7 +79,7 @@ export default function FindModule(_: ModuleProps) {
 
       {error?<div role="alert">{error}</div>:null}
       {busy?<div role="status">Searching…</div>:null}
-      {mode==='metadata'?<p>Live pages search stored file fields, nested JSON values, text transcripts (VTT/SRT), LRC lyrics and supported image/audio headers. No speech recognition or inferred lyrics. 32 files/page; 262,144 stored string units/file (not bytes), 4096 scalar fields, depth 24. Skipped/unsupported content is reported. Host and /Private scans are separate; amnesic scans search RAM only.</p>:null}
+      {mode==='metadata'?<p>Live pages search stored file fields, nested JSON/JSONL values, CSV/TSV cells, text transcripts (VTT/SRT), LRC lyrics and supported image/audio headers. No speech recognition or inferred lyrics. 32 files/page; 262,144 stored string units/file (not bytes), 4096 scalar fields, depth 24. Skipped/unsupported content is reported. Host and /Private scans are separate; amnesic scans search RAM only.</p>:null}
       {queryUsed?<div>Results for: {queryUsed}</div>:null}
       <Section title="Index health" right={<Btn variant="ghost" onClick={() => void loadCoverage()}>Refresh</Btn>}>
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>

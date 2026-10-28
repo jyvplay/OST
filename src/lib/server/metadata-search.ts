@@ -16,7 +16,7 @@ export async function metadataSearch(p:URLSearchParams){
  const options=metadataOptions(p),scope=(p.get('scope')??'').trim();
  if(scope&&(!scope.startsWith('/')||normalize(scope)!==scope))throw new Error('Scope must be a canonical absolute folder path');
  const exclusions=await searchExclusions();
- const rows=await db.execute(sql`select to_jsonb(n)-'content' as record,
+ const rows=await db.execute(sql`select jsonb_build_object('id',n.id,'path',n.path,'parent',n.parent,'name',n.name,'kind',n.kind,'mime',n.mime,'encoding',n.encoding,'size',n.size,'sha256',n.sha256,'tags',n.tags,'trashed',n.trashed,'trashed_from',n.trashed_from,'version',n.version,'created_at',n.created_at,'updated_at',n.updated_at) as record,
  case when length(content)<=${META_LIMITS.contentChars} then content else '' end as content,
  length(content)>${META_LIMITS.contentChars} as skipped
  from vfs_nodes n where not trashed and kind='file' and mime <> 'application/x-fusion-encrypted'

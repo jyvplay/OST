@@ -1,0 +1,34 @@
+  ✓ JSONL existing transcript values have structural provenance over real HTTP
+  ✓ JSONL malformed line does not hide later existing metadata; partial coverage is explicit
+  ✓ NDJSON MIME works without a recognized filename extension
+  ✓ vendor +json MIME works without a JSON suffix
+  ✓ CSV quoted newline, escaped quote and duplicate header values are searchable
+  ✓ TSV stored transcripts use tab boundaries, not commas
+  ✓ CSV hostile prototype-shaped header remains inert data
+  ✓ malformed CSV returns raw text and warning, not certified structured fields
+  ✓ CSV cell budget is explicit and bounded in the original pure reader
+  ✓ JSON array field selection covers descendants without prefix matching siblings
+  ✓ synchronized stored lyrics are found on an actual stored ID3 file
+  ✓ independent MIT parser agrees on SYLT text and millisecond timestamps
+  ✓ MPEG-frame timestamps are not falsely converted to milliseconds
+  ✓ UTF16 synchronized lyrics decode real Greek bytes
+  ✓ SYLT timestamps retain unsigned 32-bit values without overflow
+  ✓ BOM-less ambiguous UTF16 synchronized segments are refused explicitly
+  ✓ unknown SYLT time format is refused rather than guessed
+  ✓ truncated SYLT timestamp cannot publish partial lyrics as complete
+  ✓ descending SYLT times fail closed without sorting away the evidence
+  ✓ SYLT entry budget refuses an over-limit frame explicitly
+  ✓ legacy fast search scope cannot include a sibling prefix
+  ✓ legacy root search isolates its unique sentinel from prior-run common-word noise
+  ✓ unimplemented rebuild reports 501 and rebuilt false, not a fabricated success
+  ✓ metadata wildcard-shaped folder scope remains literal SQL data
+  ✓ SQL projection preserves every existing non-content node column
+  ✓ over-budget content still exposes stored node SHA and explicit skip warning
+  ✓ AND terms cannot be satisfied across different files
+  ✓ absent transcript is not generated from arbitrary binary bytes
+  ✓ CSV exact quoting and empty trailing cell pure witness
+  ✓ malformed quote suffix is refused by the pure CSV reader
+  ✓ query page cap remains 32 under the new readers
+  ✓ JSONL field budget reports truncation rather than scanning unlimited records
+
+32 passed, 0 failed

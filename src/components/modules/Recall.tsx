@@ -1,17 +1,19 @@
 "use client";
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useShell, type ModuleProps } from '../shell-context';
 import { Btn, Badge, Section } from '../ui';
 import { displayMedia } from '@/lib/access-log';
 import { commitRecall, recallWritable, enqueueRecall, cancelRecall, recallSnapshot, recallSubscribe, type RecallInput } from '@/lib/recall';
 import { RECALL_LIMIT, recallFolder, type RecallGrouping } from '@/lib/recall-core';
 import { registerDocGuard } from '@/lib/doc-lifecycle';
+import BrowserModule from './Browser';
 import { fmtBytes } from '@/lib/api';
 type Writable = {write:(data:Blob)=>Promise<void>;close:()=>Promise<void>;abort:()=>Promise<void>};
 type LocalHandle = {createWritable:()=>Promise<Writable>;name:string};
 const empty: ReturnType<typeof recallSnapshot> = [];
 export default function Recall({win}:ModuleProps){
  const shell=useShell();const jobs=useSyncExternalStore(recallSubscribe,recallSnapshot,()=>empty);
+ const [browserOpen,setBrowserOpen]=useState(false);
  const [url,setUrl]=useState(String(win.props.url??'https://github.com/'));
  const [title,setTitle]=useState(String(win.props.pageTitle??'')),[grouping,setGrouping]=useState<RecallGrouping>('host'),[custom,setCustom]=useState('');
  const [phase,setPhase]=useState('idle'),[error,setError]=useState(''),[saved,setSaved]=useState(''),[audioOnly,setAudioOnly]=useState(false),[withAudio,setWithAudio]=useState(true);
@@ -110,10 +112,13 @@ export default function Recall({win}:ModuleProps){
   }catch(e){release();rec.current=null;completion.current?.resolve(false);completion.current=null;busy.current=false;await writer?.abort().catch(()=>undefined);if(mounted.current){setError(e instanceof Error?e.message:String(e));setPhase('failed');}}
   finally{if(!rec.current)busy.current=false;}
  };
+ const followPage=useCallback((page:string,pageTitle:string)=>{if(!busy.current){setUrl(page);setTitle(pageTitle);}},[]);
  const running=phase==='recording'||phase==='finalizing'||phase==='requesting permission';
  return <div className="fs-scroll" data-testid="recall" style={{height:'100%',padding:12,display:'grid',gap:12,alignContent:'start'}}>
   <h2 style={{margin:0}}>Recall <Badge>{phase}</Badge></h2>
   <p>Archive media you are authorized to save. No DRM bypass, hidden capture, or promise to capture every site. Server copies are unencrypted in /Downloads/Recall, not /Private.</p>
+  <div className="fs-row"><Btn aria-expanded={browserOpen} onClick={()=>setBrowserOpen(v=>!v)}>{browserOpen?'Close browsing pane':'Browse inside Recall'}</Btn><span>Browser sessions restore; Auto Recall must be explicitly armed in each proxy document.</span></div>
+  {browserOpen?<section aria-label="Recall browser" style={{height:540,minHeight:360,border:'1px solid var(--fs-border)',borderRadius:10,overflow:'hidden'}}><BrowserModule win={{...win,props:{...win.props,url,proxyAll:win.props.proxyAll??true}}} onPageChange={followPage} embeddedRecall/></section>:null}
   <label>Media or declared page URL<input className="fs-input" aria-label="Recall source URL" value={url} disabled={running} onChange={e=>setUrl(e.target.value)} style={{width:'100%'}}/></label>
   <div className="fs-row" style={{flexWrap:'wrap',gap:8}}>
    <label>Folders <select className="fs-input" aria-label="Recall folder grouping" value={grouping} disabled={running} onChange={e=>setGrouping(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select></label>
