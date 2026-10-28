@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt109-shell",
+  "at": "2026-10-28T21:46:52.575Z",
+  "results": [
+    {
+      "suite": "e2e-tt109-shell",
+      "name": "the virtual key light actually adds light to the rendered frame and can be taken away again",
+      "covers": {
+        "LN-06": "full"
+      },
+      "pass": true,
+      "ms": 29600
+    },
+    {
+      "suite": "e2e-tt109-shell",
+      "name": "output height really rescales the pipeline, and the upscale is labelled as interpolation rather than a model",
+      "covers": {
+        "LN-05": "full"
+      },
+      "pass": true,
+      "ms": 5021
+    },
+    {
+      "suite": "e2e-tt109-shell",
+      "name": "the always-on-top pop-out takes the real capability branch this browser has, with its styles carried over",
+      "covers": {
+        "WM-11": "partial"
+      },
+      "pass": true,
+      "ms": 2051
+    },
+    {
+      "suite": "e2e-tt109-shell",
+      "name": "a copied image becomes a memory through the real paste handler, and a copied link does not",
+      "covers": {
+        "RC-02": "partial"
+      },
+      "pass": true,
+      "ms": 5179
+    },
+    {
+      "suite": "e2e-tt109-shell",
+      "name": "a repeat save files a second memory unless the person asks to keep one copy",
+      "covers": {
+        "RC-34": "partial"
+      },
+      "pass": true,
+      "ms": 6501
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "suite": "tt104-memory-unit",
-  "at": "2026-10-28T20:17:27.468Z",
+  "at": "2026-10-28T21:35:10.235Z",
   "results": [
     {
       "suite": "tt104-memory-unit",
@@ -9,7 +9,7 @@
         "RC-19": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt104-memory-unit",
@@ -166,7 +166,7 @@
       "name": "exact 8 MiB boundary admitted",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 6
     },
     {
       "suite": "tt104-memory-unit",

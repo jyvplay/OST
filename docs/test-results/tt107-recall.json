@@ -1,6 +1,6 @@
 {
   "suite": "tt107-recall",
-  "at": "2026-10-28T20:27:32.155Z",
+  "at": "2026-10-28T21:44:56.092Z",
   "results": [
     {
       "suite": "tt107-recall",
@@ -9,7 +9,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 9
+      "ms": 7
     },
     {
       "suite": "tt107-recall",
@@ -18,7 +18,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 22
+      "ms": 17
     },
     {
       "suite": "tt107-recall",
@@ -27,7 +27,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 17
+      "ms": 15
     },
     {
       "suite": "tt107-recall",
@@ -36,7 +36,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 7
+      "ms": 6
     },
     {
       "suite": "tt107-recall",
@@ -46,7 +46,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 33
+      "ms": 31
     },
     {
       "suite": "tt107-recall",
@@ -55,7 +55,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 31
+      "ms": 36
     },
     {
       "suite": "tt107-recall",
@@ -136,7 +136,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 28
+      "ms": 30
     },
     {
       "suite": "tt107-recall",
@@ -145,7 +145,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 12
+      "ms": 22
     },
     {
       "suite": "tt107-recall",
@@ -154,7 +154,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 15
+      "ms": 21
     },
     {
       "suite": "tt107-recall",
@@ -172,7 +172,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 31
+      "ms": 27
     },
     {
       "suite": "tt107-recall",
@@ -181,7 +181,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 17
+      "ms": 16
     },
     {
       "suite": "tt107-recall",
@@ -212,7 +212,7 @@
     },
     {
       "suite": "tt107-recall",
-      "name": "unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793219251734/nested/x.png",
+      "name": "unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793223895654/nested/x.png",
       "covers": {
         "RC-28": "partial"
       },
@@ -226,7 +226,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt107-recall",
@@ -244,7 +244,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt107-recall",

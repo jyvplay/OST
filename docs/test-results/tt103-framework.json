@@ -1,13 +1,13 @@
 {
   "suite": "tt103-framework",
-  "at": "2026-10-28T20:17:44.211Z",
+  "at": "2026-10-28T21:35:28.879Z",
   "results": [
     {
       "suite": "tt103-framework",
       "name": "targeted security versions and permissive licenses are actually installed",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt103-framework",
@@ -21,21 +21,21 @@
       "name": "patched Next image optimizer returns a real natively decodable local icon",
       "covers": {},
       "pass": true,
-      "ms": 233
+      "ms": 153
     },
     {
       "suite": "tt103-framework",
       "name": "proxy test-loopback grant does not enable Next optimizer private URL fetching",
       "covers": {},
       "pass": true,
-      "ms": 65
+      "ms": 44
     },
     {
       "suite": "tt103-framework",
       "name": "framework repair retains API no-store/privacy headers and opaque-worker CORS bridge",
       "covers": {},
       "pass": true,
-      "ms": 25
+      "ms": 24
     }
   ]
 }

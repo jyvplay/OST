@@ -17,7 +17,22 @@ const publish=(id:string, patch:Partial<RecallJob>)=>{jobs=jobs.map(j=>j.id===id
 export function recallWritable(){if(!privacy.status().installed||privacy.status().amnesic)throw new Error('Recall server writes are unavailable in amnesic mode. Use a normal session, or save an authorized recording to a local file.');}
 /** Atomic create-only media + receipt publication. Lost acknowledgements remain unknown, not success. */
 /** TT108: `derivedFrom` records which already-saved memory a crop was cut from; the server re-checks it. */
+/** TT109: what the server did with a save. `stored:false` means an identical memory was already in this folder. */
+export interface RecallOutcome { path:string; stored:boolean; duplicateOf?:string; firstSavedAt?:string }
+
+/** The string-returning form every existing caller uses; unchanged semantics (a duplicate is stored again). */
 export async function commitRecall(bytes:Uint8Array, mime:string, input:RecallInput, method:string, derivedFrom?:DerivedFrom):Promise<string>{
+  return (await commitRecallDetailed(bytes,mime,input,method,{derivedFrom})).path;
+}
+
+/**
+ * TT109: the same publication, reporting what happened. With onDuplicate:'skip' the server returns the memory
+ * it already holds instead of writing a second copy — the behaviour an archive of what you already saw wants,
+ * and the reason this is opt-in rather than the default: a deliberate re-save must still be possible.
+ */
+export async function commitRecallDetailed(bytes:Uint8Array, mime:string, input:RecallInput, method:string,
+  opts:{derivedFrom?:DerivedFrom;onDuplicate?:'store'|'skip'}={}):Promise<RecallOutcome>{
+  const derivedFrom=opts.derivedFrom;
   recallWritable(); if(!bytes.length||bytes.length>RECALL_LIMIT)throw new Error('Recall files must be nonempty and at most 8 MiB; no truncation is permitted');
   const type=recallMime(mime), folder=recallFolder(input.page,input.title,input.grouping,input.custom);
   for(const path of ['/Downloads','/Downloads/Recall',folder])await api('/api/fs',{method:'POST',body:JSON.stringify({op:'mkdir',path})});
@@ -25,10 +40,13 @@ export async function commitRecall(bytes:Uint8Array, mime:string, input:RecallIn
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes).buffer)),b=>b.toString(16).padStart(2,'0')).join('');
   if(derivedFrom)validDerivedFrom(derivedFrom,path);
   const receipt=JSON.stringify({version:1,path,bytes:bytes.length,sha256:digest,mime:type,method,sourceAttribution:method==='original-response'?'requested-url':'user-declared-label',source:recallSource(input.url),page:recallSource(input.page),capturedAt:new Date().toISOString(),queryRedacted:true,...(derivedFrom?{derivedFrom}:{})},null,2);
-  try{await api('/api/fs',{method:'POST',body:JSON.stringify({op:'recallCommit',path,content:toB64(bytes),mime:type,receipt})});}
+  let answer:{path?:string;stored?:boolean;duplicateOf?:string;firstSavedAt?:string};
+  try{answer=await api<{path?:string;stored?:boolean;duplicateOf?:string;firstSavedAt?:string}>('/api/fs',{method:'POST',
+    body:JSON.stringify({op:'recallCommit',path,content:toB64(bytes),mime:type,receipt,...(opts.onDuplicate?{onDuplicate:opts.onDuplicate}:{})})});}
   catch(e){throw new Error(`Recall commit not acknowledged for ${path}. Inspect Files before retrying; a lost response can hide a completed pair. ${e instanceof Error?e.message:String(e)}`);}
-
-  return path;
+  // The server decides the final path: a skipped duplicate answers with the memory already held.
+  return {path:answer.path??path,stored:answer.stored!==false,
+    ...(answer.duplicateOf?{duplicateOf:answer.duplicateOf}:{}),...(answer.firstSavedAt?{firstSavedAt:answer.firstSavedAt}:{})};
 }
 export function cancelRecall(owner?:string){
   for(let i=queue.length-1;i>=0;i--)if(!owner||queue[i].input.owner===owner){publish(queue[i].id,{phase:'cancelled'});queue.splice(i,1);}

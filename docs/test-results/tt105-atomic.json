@@ -1,6 +1,6 @@
 {
   "suite": "tt105-atomic",
-  "at": "2026-10-28T20:17:15.160Z",
+  "at": "2026-10-28T21:34:56.611Z",
   "results": [
     {
       "suite": "tt105-atomic",
@@ -9,28 +9,28 @@
         "RC-22": "partial"
       },
       "pass": true,
-      "ms": 39
+      "ms": 45
     },
     {
       "suite": "tt105-atomic",
       "name": "duplicate media path cannot overwrite existing pair",
       "covers": {},
       "pass": true,
-      "ms": 23
+      "ms": 25
     },
     {
       "suite": "tt105-atomic",
       "name": "pre-existing receipt rolls back media, index and journal",
       "covers": {},
       "pass": true,
-      "ms": 27
+      "ms": 29
     },
     {
       "suite": "tt105-atomic",
       "name": "concurrent creates have one winner and no mixed pair",
       "covers": {},
       "pass": true,
-      "ms": 81
+      "ms": 101
     },
     {
       "suite": "tt105-atomic",
@@ -44,14 +44,14 @@
       "name": "receipt validation before publication: path",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 5
     },
     {
       "suite": "tt105-atomic",
       "name": "receipt validation before publication: bytes",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 5
     },
     {
       "suite": "tt105-atomic",
@@ -86,28 +86,28 @@
       "name": "receipt validation before publication: queryRedacted",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 11
     },
     {
       "suite": "tt105-atomic",
       "name": "receipt validation before publication: source",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 6
     },
     {
       "suite": "tt105-atomic",
       "name": "receipt validation before publication: page",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 6
     },
     {
       "suite": "tt105-atomic",
       "name": "noncanonical or empty base64 ",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 4
     },
     {
       "suite": "tt105-atomic",
@@ -128,7 +128,7 @@
       "name": "noncanonical or empty base64 AQIDBA===",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 5
     },
     {
       "suite": "tt105-atomic",
@@ -142,28 +142,28 @@
       "name": "invalid destination /Downloads/Recall/a/../b.png",
       "covers": {},
       "pass": true,
-      "ms": 4
-    },
-    {
-      "suite": "tt105-atomic",
-      "name": "invalid destination /Downloads/Recall/atomic105-1793218634777/a/b.png",
-      "covers": {},
-      "pass": true,
       "ms": 3
     },
     {
       "suite": "tt105-atomic",
-      "name": "invalid destination /Downloads/Recall/atomic105-1793218634777/bad.recall.json",
+      "name": "invalid destination /Downloads/Recall/atomic105-1793223296174/a/b.png",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 6
+    },
+    {
+      "suite": "tt105-atomic",
+      "name": "invalid destination /Downloads/Recall/atomic105-1793223296174/bad.recall.json",
+      "covers": {},
+      "pass": true,
+      "ms": 4
     },
     {
       "suite": "tt105-atomic",
       "name": "real database receipt-insert failure rolls back first media insert and ancillary rows",
       "covers": {},
       "pass": true,
-      "ms": 23
+      "ms": 20
     },
     {
       "suite": "tt105-atomic",
@@ -177,7 +177,7 @@
       "name": "patch-specific recovery: valid create after actual rollback succeeds",
       "covers": {},
       "pass": true,
-      "ms": 13
+      "ms": 15
     }
   ]
 }

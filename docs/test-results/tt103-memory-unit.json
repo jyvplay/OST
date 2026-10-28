@@ -1,13 +1,13 @@
 {
   "suite": "tt103-memory-unit",
-  "at": "2026-10-28T20:17:44.407Z",
+  "at": "2026-10-28T21:35:29.030Z",
   "results": [
     {
       "suite": "tt103-memory-unit",
       "name": "dimension-only admission includes exact 16MP, not decoder validity",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt103-memory-unit",

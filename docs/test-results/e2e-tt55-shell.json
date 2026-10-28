@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt55-shell",
-  "at": "2026-10-28T20:20:02.724Z",
+  "at": "2026-10-28T21:37:45.819Z",
   "results": [
     {
       "suite": "e2e-tt55-shell",
@@ -9,7 +9,7 @@
         "SH-01": "full"
       },
       "pass": true,
-      "ms": 4430
+      "ms": 3698
     },
     {
       "suite": "e2e-tt55-shell",
@@ -18,7 +18,7 @@
         "SH-02": "full"
       },
       "pass": true,
-      "ms": 3600
+      "ms": 3609
     },
     {
       "suite": "e2e-tt55-shell",
@@ -27,7 +27,7 @@
         "SH-04": "full"
       },
       "pass": true,
-      "ms": 3183
+      "ms": 2904
     }
   ]
 }

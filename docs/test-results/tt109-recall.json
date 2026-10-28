@@ -1,0 +1,124 @@
+{
+  "suite": "tt109-recall",
+  "at": "2026-10-28T21:46:02.844Z",
+  "results": [
+    {
+      "suite": "tt109-recall",
+      "name": "an identical memory in the same folder is recognised instead of filed twice",
+      "covers": {
+        "RC-34": "full"
+      },
+      "pass": true,
+      "ms": 118
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "duplicate recognition is opt-in: a deliberate re-save still produces a second memory",
+      "covers": {
+        "RC-34": "full"
+      },
+      "pass": true,
+      "ms": 80
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "recognition is by decoded bytes and is confined to one folder",
+      "covers": {
+        "RC-34": "full"
+      },
+      "pass": true,
+      "ms": 129
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "a trashed memory does not block saving it again",
+      "covers": {
+        "RC-34": "full"
+      },
+      "pass": true,
+      "ms": 91
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "an unreadable neighbour cannot break or fake duplicate recognition",
+      "covers": {
+        "RC-34": "full"
+      },
+      "pass": true,
+      "ms": 77
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "onDuplicate is validated, and an invalid value writes nothing",
+      "covers": {
+        "RC-34": "full"
+      },
+      "pass": true,
+      "ms": 40
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "grouping sends the same bytes to the folder the human chose, and cannot escape the Recall root",
+      "covers": {
+        "RC-10": "full"
+      },
+      "pass": true,
+      "ms": 72
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "a save outside the Recall root is refused whatever the grouping asked for",
+      "covers": {
+        "RC-10": "full"
+      },
+      "pass": true,
+      "ms": 18
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "memories are never written into Persistent Storage, and the archive says so plainly",
+      "covers": {
+        "RC-12": "partial",
+        "RC-15": "partial"
+      },
+      "pass": true,
+      "ms": 17
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "the exclusions that exist are real: query tokens are dropped and a declared label cannot smuggle them back",
+      "covers": {
+        "RC-15": "partial"
+      },
+      "pass": true,
+      "ms": 47
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "deleting a memory removes the pair together and restoring brings the pair back",
+      "covers": {
+        "RC-13": "partial"
+      },
+      "pass": true,
+      "ms": 74
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "a memory cannot be half-deleted through the pair endpoint",
+      "covers": {
+        "RC-13": "partial"
+      },
+      "pass": true,
+      "ms": 50
+    },
+    {
+      "suite": "tt109-recall",
+      "name": "only the refetch method may claim the bytes came from the URL it names",
+      "covers": {
+        "RC-14": "partial"
+      },
+      "pass": true,
+      "ms": 93
+    }
+  ]
+}

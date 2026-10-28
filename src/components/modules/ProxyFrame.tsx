@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
-import { enqueueRecall, cancelRecall, recallWritable, commitRecall } from "@/lib/recall";
+import { enqueueRecall, cancelRecall, recallWritable, commitRecallDetailed } from "@/lib/recall";
 import { loadedPngDimensions } from "@/lib/recall-memory";
 import { sameRecallOrigin, type RecallGrouping } from "@/lib/recall-core";
 import { fz } from "@/lib/uiscale";
@@ -54,6 +54,8 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
   const loadedEpoch=useRef(0);
   const loadedRequest=useRef<{token:string;selected:boolean;epoch:number;page:string;title:string;grouping:RecallGrouping;custom:string;timer:ReturnType<typeof setTimeout>}|null>(null);
   const [loadedBusy,setLoadedBusy]=useState(false);
+  // TT109: saving what is already on screen files a new memory unless the person asks to keep one copy.
+  const [keepOne,setKeepOne]=useState(false);const keepOneRef=useRef(false);
   // TT108 (RC-31): one counted batch at a time; the token pins the answer to this request.
   const batchRequest=useRef<{token:string;epoch:number;page:string;title:string;grouping:RecallGrouping;custom:string;timer:ReturnType<typeof setTimeout>}|null>(null);
   const [batchBusy,setBatchBusy]=useState(false),[batchLimit,setBatchLimit]=useState(8);
@@ -152,7 +154,12 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
           const dimensions=loadedPngDimensions(bytes);
           const decoded=await createImageBitmap(d.blob as Blob);try{if(decoded.width!==dimensions.width||decoded.height!==dimensions.height)throw Error('PNG decoder dimension mismatch');}finally{decoded.close();}
           if(request.epoch!==loadedEpoch.current||!frame.current)throw Error('Document closed or changed during decode');
-          const path=await commitRecall(bytes,'image/png',{...request,url:request.page,owner:recallOwner},request.selected?'clicked-visual-png':'loaded-visual-png');setNote('Saved loaded visual → '+path);
+          // TT109: only when the person asked for it does the archive answer with the memory it already
+          // holds; otherwise an explicit save always files a new memory, as it always has.
+          const r=await commitRecallDetailed(bytes,'image/png',{...request,url:request.page,owner:recallOwner},
+            request.selected?'clicked-visual-png':'loaded-visual-png',{onDuplicate:keepOneRef.current?'skip':'store'});
+          setNote(r.stored?'Saved loaded visual → '+r.path
+            :`Already saved on ${new Date(r.firstSavedAt??Date.now()).toLocaleString()} → ${r.path} · identical pixels, kept once.`);
         }catch(err){setNote('Not saved: '+(err instanceof Error?err.message:String(err)));}finally{setLoadedBusy(false);}})();return;
       }
       if(d.fusionWp==='recall-batch-result'){
@@ -161,7 +168,7 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
         const items=Array.isArray(d.items)?d.items as {ok?:boolean;label?:string;error?:string;blob?:unknown}[]:[];
         if(d.error||!Array.isArray(d.items)){setBatchBusy(false);setNote('Nothing saved: '+String(d.error||'The page did not answer with a batch').slice(0,300));return;}
         void (async()=>{
-          const saved:string[]=[],refused:string[]=[];
+          const saved:string[]=[],refused:string[]=[],alreadyHeld:string[]=[];
           try{
             for(const item of items){
               if(!item||item.ok!==true||!(item.blob instanceof Blob)||item.blob.type!=='image/png'||!item.blob.size||item.blob.size>8388608){
@@ -173,11 +180,14 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
                 const dimensions=loadedPngDimensions(bytes);
                 const decoded=await createImageBitmap(item.blob);
                 try{if(decoded.width!==dimensions.width||decoded.height!==dimensions.height)throw Error('PNG decoder dimension mismatch');}finally{decoded.close();}
-                saved.push(await commitRecall(bytes,'image/png',{...request,url:request.page,owner:recallOwner},'batch-loaded-visuals'));
+                const one=await commitRecallDetailed(bytes,'image/png',{...request,url:request.page,owner:recallOwner},
+                  'batch-loaded-visuals',{onDuplicate:keepOneRef.current?'skip':'store'});
+                if(one.stored)saved.push(one.path);else alreadyHeld.push(one.path);
               }catch(err){refused.push(`${item.label??'visual'}: ${(err instanceof Error?err.message:String(err)).slice(0,120)}`);}
             }
             const considered=Number(d.considered)||0,eligible=Number(d.eligible)||0;
             setNote(`Saved ${saved.length} of ${items.length} already-loaded visuals (${eligible} eligible of ${considered} examined; decoded pixels, nothing refetched).`
+              +(alreadyHeld.length?` ${alreadyHeld.length} were already in this folder with identical bytes and were not duplicated.`:'')
               +(refused.length?` Refused — ${refused.slice(0,6).join('; ')}`:'')
               +(eligible>items.length?` ${eligible-items.length} more eligible beyond this batch limit.`:''));
           }finally{setBatchBusy(false);}
@@ -304,6 +314,8 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
         <Btn data-testid="recall-batch" disabled={!sid||batchBusy} onClick={saveBatch}>{batchBusy?'Saving loaded visuals…':'Save all loaded visuals'}</Btn>
         <label>Batch limit <input aria-label="Loaded visual batch limit" type="number" min={1} max={24} value={batchLimit} disabled={batchBusy}
           onChange={e=>setBatchLimit(Math.min(Math.max(Number(e.target.value)||1,1),24))} style={{width:52}}/></label>
+        <label><input type="checkbox" aria-label="Keep one copy of identical visuals" checked={keepOne}
+          onChange={e=>{keepOneRef.current=e.currentTarget.checked;setKeepOne(e.currentTarget.checked);}}/> Keep one copy</label>
         <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall}>{autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}</Btn>
         <select aria-label="Auto Recall folders" disabled={autoRecall} value={recallGroup} onChange={e=>setRecallGroup(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select>
         {recallGroup==='custom'?<input aria-label="Auto Recall custom folder" disabled={autoRecall} value={recallCustom} onChange={e=>setRecallCustom(e.target.value)}/>:null}

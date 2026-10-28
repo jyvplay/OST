@@ -1,23 +1,35 @@
 {
- "generatedAt": "2026-10-28T20:29:03.964Z",
+ "generatedAt": "2026-10-28T21:47:17.494Z",
  "totals": {
   "built": {
-   "full": 333,
-   "partial": 90,
+   "full": 331,
+   "partial": 93,
    "blocked": 24,
    "none": 0
   },
   "tested": {
    "full": 262,
-   "partial": 125,
-   "untested": 60
+   "partial": 135,
+   "untested": 51
   },
   "tests": {
-   "total": 2650,
-   "passed": 2646
+   "total": 2668,
+   "passed": 2666
   }
  },
  "rows": {
+  "RC-34": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: a repeat save files a second memory unless the person asks to keep one copy",
+    "tt109-recall: an identical memory in the same folder is recognised instead of filed twice",
+    "tt109-recall: duplicate recognition is opt-in: a deliberate re-save still produces a second memory",
+    "tt109-recall: recognition is by decoded bytes and is confined to one folder",
+    "tt109-recall: a trashed memory does not block saving it again",
+    "tt109-recall: an unreadable neighbour cannot break or fake duplicate recognition",
+    "tt109-recall: onDuplicate is validated, and an invalid value writes nothing"
+   ]
+  },
   "RC-27": {
    "tested": "partial",
    "tests": [
@@ -57,7 +69,7 @@
     "tt107-recall: unpaired cleanup rejects non-Recall path /",
     "tt107-recall: unpaired cleanup rejects non-Recall path /etc/passwd",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Private/x.png",
-    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793219251734/nested/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793223895654/nested/x.png",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/x",
     "tt107-recall: unpaired cleanup rejects invalid guard null",
     "tt107-recall: unpaired cleanup rejects invalid guard {}",
@@ -218,8 +230,10 @@
    ]
   },
   "RC-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: a copied image becomes a memory through the real paste handler, and a copied link does not"
+   ]
   },
   "RC-03": {
    "tested": "partial",
@@ -258,8 +272,11 @@
    ]
   },
   "RC-10": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt109-recall: grouping sends the same bytes to the folder the human chose, and cannot escape the Recall root",
+    "tt109-recall: a save outside the Recall root is refused whatever the grouping asked for"
+   ]
   },
   "RC-11": {
    "tested": "partial",
@@ -268,20 +285,30 @@
    ]
   },
   "RC-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt109-recall: memories are never written into Persistent Storage, and the archive says so plainly"
+   ]
   },
   "RC-13": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt109-recall: deleting a memory removes the pair together and restoring brings the pair back",
+    "tt109-recall: a memory cannot be half-deleted through the pair endpoint"
+   ]
   },
   "RC-14": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt109-recall: only the refetch method may claim the bytes came from the URL it names"
+   ]
   },
   "RC-15": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt109-recall: memories are never written into Persistent Storage, and the archive says so plainly",
+    "tt109-recall: the exclusions that exist are real: query tokens are dropped and a declared label cannot smuggle them back"
+   ]
   },
   "SH-01": {
    "tested": "full",
@@ -515,8 +542,10 @@
    ]
   },
   "WM-11": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: the always-on-top pop-out takes the real capability branch this browser has, with its styles carried over"
+   ]
   },
   "WM-12": {
    "tested": "partial",
@@ -763,6 +792,7 @@
    "tested": "full",
    "tests": [
     "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
+    "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
     "e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash",
     "e2e-tt55-files: SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward",
     "e2e-tt55-files: FM-01 folder tree + column view + tabs: the tree lists the server's folders and navigates; Columns show every ancestor; tabs keep their own folder",
@@ -3072,7 +3102,6 @@
   "BK-02": {
    "tested": "partial",
    "tests": [
-    "e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage",
     "e2e-tt87-localdisk: BK-02 real browser folder handle survives IndexedDB reload and a first sync preserves skipped names and binary data",
     "e2e-tt87-localdisk: BK-02 conflict choices reject stale local and server copies; explicit resolution preserves a Fusion version",
     "e2e-tt87-localdisk: FM-08 conditional write rejects missing preconditions, existing names and changed versions without modifying data",
@@ -3476,7 +3505,7 @@
    "tests": [
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
-    "e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage",
+    "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
     "e2e-privacy: no page errors across the privacy flows",
     "e2e-privacy: privacy fixture cleanup leaves no host nodes, versions or search rows for its owned paths",
     "e2e-tt87-privacy: TT87 conditional writes cannot create plaintext inside locked Persistent Storage",
@@ -3663,6 +3692,7 @@
    "tested": "full",
    "tests": [
     "e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains",
+    "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
     "e2e: mount: privacy",
     "metaclean: JPEG: identical pixels (Pillow); camera, author, date, software, GPS, XMP, COM, IPTC gone; Orientation=6 kept alone",
     "metaclean: PNG / WebP / GIF: identical decoded frames; text, eXIf, tIME, EXIF/XMP chunks, comments and XMP app-ext gone; GIF loop kept",
@@ -3675,6 +3705,7 @@
   "SC-13": {
    "tested": "full",
    "tests": [
+    "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
     "e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache",
     "e2e-tt87-privacy: TT87 amnesia refuses conditional writes before they reach PostgreSQL",
     "e2e-tt87-privacy: TT87 LocalDisk explicitly blocks folder access in amnesic mode",
@@ -3737,6 +3768,7 @@
   "SC-17": {
    "tested": "full",
    "tests": [
+    "e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext",
     "privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported",
     "privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected",
     "privacy-backup: restore onto a host with no volume recreates header + identical ciphertext rows; the layer reads the plaintext back",
@@ -5461,12 +5493,16 @@
    ]
   },
   "LN-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: output height really rescales the pipeline, and the upscale is labelled as interpolation rather than a model"
+   ]
   },
   "LN-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: the virtual key light actually adds light to the rendered frame and can be taken away again"
+   ]
   },
   "LN-07": {
    "tested": "full",

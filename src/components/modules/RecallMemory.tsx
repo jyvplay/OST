@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 import { api, fmtBytes } from '@/lib/api';
-import { commitRecall, recallWritable, type RecallInput } from '@/lib/recall';
+import { commitRecallDetailed, recallWritable, type RecallInput } from '@/lib/recall';
 import { cropRegion, loadedPngDimensions, oneResidentFile, type CropRect } from '@/lib/recall-memory';
 import { RECALL_LIMIT, recallFolder, recallMime } from '@/lib/recall-core';
 import type { RecallGuard } from '@/lib/server/recall-lifecycle';
@@ -13,6 +13,8 @@ const plural=(n:number,one:string,many=one+'s')=>`${n} ${n===1?one:many}`;
 export default function RecallMemory({ context }: { context: () => RecallInput }) {
  const [note,setNote]=useState(''),[busy,setBusy]=useState(false),[items,setItems]=useState<{path:string;name:string;mime:string}[]>([]),[view,setView]=useState<{url:string;mime:string;path:string;bytesSha:string;mediaGuard:RecallGuard['media']}|null>(null);
  const [next,setNext]=useState<string|null>(null),[folder,setFolder]=useState('');
+ // TT109: default off — a save the person asked for always files a memory unless they say otherwise.
+ const [keepOne,setKeepOne]=useState(false);
  const [confirmTrash,setConfirmTrash]=useState(false),[undo,setUndo]=useState<{path:string;guard:RecallGuard}|null>(null);
  const [method,setMethod]=useState(''),[host,setHost]=useState(''),[from,setFrom]=useState(''),[to,setTo]=useState(''),[auditScope,setAuditScope]=useState('folder');
  const [audit,setAudit]=useState<{scope:string;mediaFiles:number;receiptFiles:number;healthyPairs:number;orphanMedia:string[];orphanReceipts:string[];unreadableReceipts:string[];checksumMismatch:string[]}|null>(null);
@@ -23,13 +25,21 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
  const mounted=useRef(true),objectUrl=useRef(''),active=useRef(false),epoch=useRef(0);
  useEffect(()=>{const lifecycle=epoch;mounted.current=true;return()=>{mounted.current=false;lifecycle.current++;if(objectUrl.current)URL.revokeObjectURL(objectUrl.current);};},[]);
  const run=async(fn:()=>Promise<void>)=>{if(active.current)return;active.current=true;setBusy(true);setNote('');try{await fn();}catch(e){if(mounted.current)setNote(e instanceof Error?e.message:String(e));}finally{active.current=false;if(mounted.current)setBusy(false);}};
+ /**
+  * TT109: a human save files a new memory by default — an explicit save is never silently refused.
+  * Recognition of bytes this folder already holds is offered as a choice the person makes (keepOne),
+  * because "you already have this" is useful information but a poor thing to assume.
+  */
  const save=async(blob:Blob,method:string,derivedFrom?:{path:string;sha256:string;region:CropRect})=>{
   recallWritable();const input={...context()};recallFolder(input.page,input.title,input.grouping,input.custom);
   if(!blob.size||blob.size>RECALL_LIMIT)throw Error('Select nonempty media at most 8 MiB; no truncation.');
   const mime=recallMime(blob.type);const bytes=new Uint8Array(await blob.arrayBuffer());
   if(!mounted.current)throw Error('Recall closed before save');
-  const path=await commitRecall(bytes,mime,input,method,derivedFrom);
-  if(mounted.current)setNote('Saved memory → '+path+(derivedFrom?` · cut from ${derivedFrom.region.width}×${derivedFrom.region.height} pixels of ${derivedFrom.path}`:''));
+  const r=await commitRecallDetailed(bytes,mime,input,method,{derivedFrom,onDuplicate:keepOne?'skip':'store'});
+  const cut=derivedFrom?` · cut from ${derivedFrom.region.width}×${derivedFrom.region.height} pixels of ${derivedFrom.path}`:'';
+  if(mounted.current)setNote(r.stored
+   ? 'Saved memory → '+r.path+cut
+   : `Already saved on ${new Date(r.firstSavedAt??Date.now()).toLocaleString()} → ${r.path} · identical bytes, so this folder keeps one copy instead of two.`);
  };
  const list=async(older=false)=>{
   recallWritable();const c=context(),path=recallFolder(c.page,c.title,c.grouping,c.custom);
@@ -152,6 +162,11 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
    Focus here and paste a copied media file, or drop exactly one file. Dragged webpage links are not downloads; if the browser exposes only a URL, use the already-loaded visual button instead.
   </div>
   <label style={{display:'grid',gap:4,justifyItems:'start'}}>Choose media from your device<input aria-label="Choose resident media" disabled={busy} type="file" accept="image/*,video/*,audio/*" onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value='';if(file)void run(()=>save(file,'human-selected-file'));}}/></label>
+  <label className="fs-row" style={{gap:6,alignItems:'center'}}>
+   <input type="checkbox" aria-label="Keep one copy of identical pictures" checked={keepOne} disabled={busy}
+    onChange={e=>setKeepOne(e.currentTarget.checked)} />
+   <span>Keep one copy of identical pictures in this folder{keepOne?' — a repeat save will point at the memory already held':' — every save files a new memory'}</span>
+  </label>
   <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
    <Btn disabled={busy} onClick={()=>void run(async()=>{recallWritable();if(!navigator.clipboard?.read)throw Error('Clipboard image reading unavailable; use the file chooser.');const copied=await navigator.clipboard.read();for(const item of copied){const type=item.types.find(t=>/^image\/(png|jpeg|webp)$/.test(t));if(type){await save(await item.getType(type),'human-clipboard-image');return;}}throw Error('Clipboard contains no supported image; nothing saved.');})}>Save copied image</Btn>
    <Btn disabled={busy} onClick={()=>void run(()=>list())}>Refresh memory timeline</Btn>
