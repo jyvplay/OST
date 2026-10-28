@@ -1,0 +1,7 @@
+  ✓ targeted security versions and permissive licenses are actually installed
+  ✓ registry production audit has no reported advisories, not proof of universal security
+  ✓ patched Next image optimizer returns a real natively decodable local icon
+  ✓ proxy test-loopback grant does not enable Next optimizer private URL fetching
+  ✓ framework repair retains API no-store/privacy headers and opaque-worker CORS bridge
+
+5 passed, 0 failed

@@ -7,6 +7,7 @@ import { commitRecall, recallWritable, enqueueRecall, cancelRecall, recallSnapsh
 import { RECALL_LIMIT, recallFolder, type RecallGrouping } from '@/lib/recall-core';
 import { registerDocGuard } from '@/lib/doc-lifecycle';
 import BrowserModule from './Browser';
+import RecallMemory from './RecallMemory';
 import { fmtBytes } from '@/lib/api';
 type Writable = {write:(data:Blob)=>Promise<void>;close:()=>Promise<void>;abort:()=>Promise<void>};
 type LocalHandle = {createWritable:()=>Promise<Writable>;name:string};
@@ -117,6 +118,8 @@ export default function Recall({win}:ModuleProps){
  return <div className="fs-scroll" data-testid="recall" style={{height:'100%',padding:12,display:'grid',gap:12,alignContent:'start'}}>
   <h2 style={{margin:0}}>Recall <Badge>{phase}</Badge></h2>
   <p>Archive media you are authorized to save. No DRM bypass, hidden capture, or promise to capture every site. Server copies are unencrypted in /Downloads/Recall, not /Private.</p>
+  <RecallMemory context={input}/>
+  <p>“Save largest loaded visual” uses current decoded pixels, not a URL download or whole-page screenshot. The legacy “Save media URL” below explicitly refetches bytes and is a separate fallback.</p>
   <div className="fs-row"><Btn aria-expanded={browserOpen} onClick={()=>setBrowserOpen(v=>!v)}>{browserOpen?'Close browsing pane':'Browse inside Recall'}</Btn><span>Browser sessions restore; Auto Recall must be explicitly armed in each proxy document.</span></div>
   {browserOpen?<section aria-label="Recall browser" style={{height:540,minHeight:360,border:'1px solid var(--fs-border)',borderRadius:10,overflow:'hidden'}}><BrowserModule win={{...win,props:{...win.props,url,proxyAll:win.props.proxyAll??true}}} onPageChange={followPage} embeddedRecall/></section>:null}
   <label>Media or declared page URL<input className="fs-input" aria-label="Recall source URL" value={url} disabled={running} onChange={e=>setUrl(e.target.value)} style={{width:'100%'}}/></label>

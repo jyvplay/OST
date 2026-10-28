@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {launchChromium} from './browser-launch.mts';
+import {makeHarness} from './harness.mts';
+const BASE=process.env.BASE;if(!BASE||process.env.TT89_DISPOSABLE_DATABASE!=='1')throw Error('Disposable server required');
+const {test,finish}=makeHarness('tt103-framework');
+await test('targeted security versions and permissive licenses are actually installed',{},()=>{for(const [name,version]of Object.entries({next:'16.4.3',postcss:'8.5.32',sharp:'0.35.5'})){const p=JSON.parse(readFileSync('node_modules/'+name+'/package.json','utf8'));assert.equal(p.version,version);assert.ok(['MIT','Apache-2.0'].includes(p.license));}});
+await test('registry production audit has no reported advisories, not proof of universal security',{},()=>{const result=JSON.parse(readFileSync('docs/evidence/tt103-npm-audit-production.json','utf8'));assert.equal(result.metadata.vulnerabilities.total,0);});
+const browser=await launchChromium();try{const page=await browser.newPage();await page.goto(BASE);
+await test('patched Next image optimizer returns a real natively decodable local icon',{},async()=>{const value=await page.evaluate(async()=>{const r=await fetch('/_next/image?url=%2Ficon-192.png&w=256&q=75');if(!r.ok)throw Error('optimizer '+r.status);const bitmap=await createImageBitmap(await r.blob());try{return{width:bitmap.width,height:bitmap.height};}finally{bitmap.close();}});assert.ok(value.width>0&&value.width<=256&&value.height>0);});
+await test('proxy test-loopback grant does not enable Next optimizer private URL fetching',{},async()=>{const before=await(await fetch('http://127.0.0.1:4002/count')).json();const r=await fetch(BASE+'/_next/image?url='+encodeURIComponent('http://127.0.0.1:4002/asset')+'&w=256&q=75');assert.equal(r.status,400);assert.deepEqual(await(await fetch('http://127.0.0.1:4002/count')).json(),before);});
+await test('framework repair retains API no-store/privacy headers and opaque-worker CORS bridge',{},async()=>{const r=await fetch(BASE+'/api/features');assert.equal(r.headers.get('x-content-type-options'),'nosniff');assert.equal(r.headers.get('referrer-policy'),'no-referrer');assert.ok(r.headers.get('cache-control')?.includes('no-store'));const shim=await fetch(BASE+'/wp-shim.js');assert.equal(shim.headers.get('access-control-allow-origin'),'*');});
+}finally{await browser.close();}finish();

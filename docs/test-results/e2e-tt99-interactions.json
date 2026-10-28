@@ -1,13 +1,13 @@
 {
   "suite": "e2e-tt99-interactions",
-  "at": "2026-10-28T07:22:19.914Z",
+  "at": "2026-10-28T08:32:10.969Z",
   "results": [
     {
       "suite": "e2e-tt99-interactions",
       "name": "the persisted-state oracle awaits false async results and rejects a failed negative control",
       "covers": {},
       "pass": true,
-      "ms": 202
+      "ms": 201
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -16,7 +16,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 4031
+      "ms": 3476
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -25,7 +25,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 752
+      "ms": 675
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -34,7 +34,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 487
+      "ms": 353
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -43,7 +43,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 448
+      "ms": 357
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -52,7 +52,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 600
+      "ms": 385
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -61,7 +61,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 13166
+      "ms": 8867
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -71,7 +71,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 2778
+      "ms": 2092
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -80,7 +80,7 @@
         "FM-06": "partial"
       },
       "pass": true,
-      "ms": 1249
+      "ms": 902
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -89,7 +89,7 @@
         "PR-02": "partial"
       },
       "pass": true,
-      "ms": 118
+      "ms": 94
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -98,7 +98,7 @@
         "PR-02": "partial"
       },
       "pass": true,
-      "ms": 171
+      "ms": 118
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -107,7 +107,7 @@
         "PR-02": "partial"
       },
       "pass": true,
-      "ms": 1676
+      "ms": 225
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -116,7 +116,7 @@
         "PR-02": "partial"
       },
       "pass": true,
-      "ms": 764
+      "ms": 1660
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -125,7 +125,7 @@
         "NC-01": "partial"
       },
       "pass": true,
-      "ms": 294
+      "ms": 230
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -134,7 +134,7 @@
         "NC-01": "partial"
       },
       "pass": true,
-      "ms": 1470
+      "ms": 209
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -143,7 +143,7 @@
         "AX-02": "partial"
       },
       "pass": true,
-      "ms": 80
+      "ms": 68
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -152,7 +152,7 @@
         "AX-02": "partial"
       },
       "pass": true,
-      "ms": 33
+      "ms": 1000
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -161,7 +161,7 @@
         "NC-01": "partial"
       },
       "pass": true,
-      "ms": 125
+      "ms": 117
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -170,7 +170,7 @@
         "NC-02": "partial"
       },
       "pass": true,
-      "ms": 150
+      "ms": 117
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -179,7 +179,7 @@
         "SR-02": "partial"
       },
       "pass": true,
-      "ms": 1783
+      "ms": 393
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -189,7 +189,7 @@
         "FM-18": "partial"
       },
       "pass": true,
-      "ms": 168
+      "ms": 151
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -198,7 +198,7 @@
         "SR-02": "partial"
       },
       "pass": true,
-      "ms": 626
+      "ms": 1629
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -207,7 +207,7 @@
         "PR-07": "partial"
       },
       "pass": true,
-      "ms": 1706
+      "ms": 337
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -216,7 +216,7 @@
         "PR-07": "partial"
       },
       "pass": true,
-      "ms": 92
+      "ms": 104
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -225,7 +225,7 @@
         "PR-07": "partial"
       },
       "pass": true,
-      "ms": 99
+      "ms": 1111
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -234,7 +234,7 @@
         "PR-07": "partial"
       },
       "pass": true,
-      "ms": 1953
+      "ms": 1823
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -243,7 +243,7 @@
         "SH-04": "partial"
       },
       "pass": true,
-      "ms": 398
+      "ms": 351
     },
     {
       "suite": "e2e-tt99-interactions",
@@ -252,7 +252,7 @@
         "SH-04": "partial"
       },
       "pass": true,
-      "ms": 1802
+      "ms": 99
     },
     {
       "suite": "e2e-tt99-interactions",

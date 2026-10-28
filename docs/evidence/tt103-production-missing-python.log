@@ -1,0 +1,61 @@
+=== tt103-memory-unit
+10 passed, 0 failed
+=== e2e-tt103-memory
+11 passed, 0 failed
+=== e2e-tt102
+16 passed, 0 failed
+=== tt102-search
+33 passed, 0 failed
+=== tt102-private-bound
+5 passed, 0 failed
+=== tt101-search
+37 passed, 0 failed
+=== e2e-tt101-search
+9 passed, 0 failed
+=== privacy-layer
+13 passed, 0 failed
+=== unit
+23 passed, 0 failed
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== browser-session
+5 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+  ✗ FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection
+    spawnSync /home/user/tools/venv/bin/python ENOENT
+  ✓ FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there
+  ✓ regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree)
+--
+13 passed, 1 failed
+FAILED: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== e2e-tt96-desktop-menu
+5 passed, 0 failed
+=== tt97-palette-commands
+4 passed, 0 failed
+=== e2e-tt97-palette-actions
+11 passed, 0 failed
+=== e2e-tt97-files-empty-a11y
+3 passed, 0 failed
+=== e2e-tt98-orbit
+22 passed, 0 failed
+=== e2e-tt99-interactions
+29 passed, 0 failed
+=== e2e-browser
+6 passed, 0 failed
+=== tt69-lifecycle
+11 passed, 0 failed
+=== e2e-tt100-recall
+27 passed, 0 failed
+=== e2e-a11y
+9 passed, 0 failed
+FAILED SUITES: e2e-tt55-files
+ALLDONE
