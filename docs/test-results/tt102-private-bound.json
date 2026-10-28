@@ -1,34 +1,34 @@
 {
   "suite": "tt102-private-bound",
-  "at": "2026-10-28T18:18:19.274Z",
+  "at": "2026-10-28T18:40:06.089Z",
   "results": [
     {
       "suite": "tt102-private-bound",
       "name": "actual 5001 encrypted writes exist independently in PostgreSQL",
       "covers": {},
       "pass": true,
-      "ms": 29008
+      "ms": 27233
     },
     {
       "suite": "tt102-private-bound",
       "name": "real encrypted directory lists all 5001 files before query cap",
       "covers": {},
       "pass": true,
-      "ms": 855
+      "ms": 813
     },
     {
       "suite": "tt102-private-bound",
       "name": "5000 cap is observable at cursor 4999, not merely a claimed counter",
       "covers": {},
       "pass": true,
-      "ms": 936
+      "ms": 856
     },
     {
       "suite": "tt102-private-bound",
       "name": "first page still parses at most 32 files under a 5001-file directory",
       "covers": {},
       "pass": true,
-      "ms": 850
+      "ms": 800
     },
     {
       "suite": "tt102-private-bound",

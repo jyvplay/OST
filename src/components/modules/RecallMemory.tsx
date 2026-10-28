@@ -8,6 +8,8 @@ import type { RecallGuard } from '@/lib/server/recall-lifecycle';
 import { Btn } from '../ui';
 
 /** Human-selected, already resident bytes. This module never fetches a media URL. */
+const plural=(n:number,one:string,many=one+'s')=>`${n} ${n===1?one:many}`;
+
 export default function RecallMemory({ context }: { context: () => RecallInput }) {
  const [note,setNote]=useState(''),[busy,setBusy]=useState(false),[items,setItems]=useState<{path:string;name:string;mime:string}[]>([]),[view,setView]=useState<{url:string;mime:string;path:string;mediaGuard:RecallGuard['media']}|null>(null);
  const [next,setNext]=useState<string|null>(null),[folder,setFolder]=useState('');
@@ -49,7 +51,7 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
   const r=await api<{nodes:{path:string;name:string;mime:string;method:string;host:string|null;capturedAt:string|null}[];scanned:number;unreadableReceipts:number}>('/api/fs?'+params);
   if(!mounted.current)return;
   setItems(r.nodes.map(n=>({path:n.path,name:n.name,mime:n.mime})));setNext(null);setFolder('');
-  setNote(`${r.nodes.length} memories match (at most 100 shown) from ${r.scanned} receipts${r.unreadableReceipts?`; ${r.unreadableReceipts} unreadable receipts were skipped`:''}. Receipt facts were recorded when you saved; they are integrity data, not authenticated provenance.`);
+  setNote(`${plural(r.nodes.length,'memory','memories')} match (at most 100 shown) from ${plural(r.scanned,'receipt')}${r.unreadableReceipts?`; ${plural(r.unreadableReceipts,'unreadable receipt')} skipped`:''}. Receipt facts were recorded when you saved; they are integrity data, not authenticated provenance.`);
  };
  const runAudit=async()=>{
   recallWritable();
@@ -125,7 +127,7 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
    <Btn disabled={busy} onClick={()=>void run(runAudit)}>Check pair integrity</Btn>
   </div>
   {audit?<div aria-label="Pair integrity report" style={{padding:8,border:'1px solid var(--fs-border)',borderRadius:8}}>
-   <p>Scope: {audit.scope} · {audit.healthyPairs} healthy pairs · {audit.mediaFiles} media · {audit.receiptFiles} receipts · {audit.orphanMedia.length} media without receipt · {audit.orphanReceipts.length} receipts without media · {audit.unreadableReceipts.length} unreadable · {audit.checksumMismatch.length} checksum mismatch. Up to 50 samples per category; trashed files are out of scope.</p>
+   <p>Scope: {audit.scope} · {plural(audit.healthyPairs,'healthy pair')} · {audit.mediaFiles} media · {plural(audit.receiptFiles,'receipt')} · {plural(audit.orphanMedia.length,'media file','media files')} without receipt · {plural(audit.orphanReceipts.length,'receipt')} without media · {audit.unreadableReceipts.length} unreadable · {plural(audit.checksumMismatch.length,'checksum mismatch','checksum mismatches')}. Up to 50 samples per category; trashed files are out of scope.</p>
    {[...audit.orphanMedia,...audit.orphanReceipts].length?<ul aria-label="Unpaired Recall files">{[...audit.orphanMedia,...audit.orphanReceipts].map(o=>
     <li key={o}>{o} <Btn disabled={busy} onClick={()=>void run(()=>trashOrphan(o))}>Trash unpaired file</Btn></li>)}</ul>:null}
    {audit.checksumMismatch.length?<p role="alert">Checksum mismatch — the stored bytes no longer match their receipt. These are listed, never silently rewritten: {audit.checksumMismatch.join(', ')}</p>:null}

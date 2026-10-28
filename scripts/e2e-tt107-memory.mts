@@ -77,9 +77,8 @@ try {
     await recall.getByRole('button', { name: 'Check pair integrity', exact: true }).click();
     const report = recall.getByLabel('Pair integrity report');
     await report.waitFor();
-    await report.getByText(new RegExp('Scope: ' + folder)).waitFor();
-    await report.getByText(/1 healthy pairs|1 healthy pair/).waitFor();
-    assert.match(await report.innerText(), /0 media without receipt/);
+    await report.getByText(new RegExp('Scope: ' + folder + ' . 1 healthy pair ')).waitFor();
+    assert.match(await report.innerText(), /0 media files without receipt/);
   });
 
   await test('an unpaired file is listed by the audit and can be trashed from the UI', { 'RC-28': 'partial' }, async () => {
@@ -87,11 +86,11 @@ try {
     await api('POST', '/api/fs', { op: 'write', path: orphan, content: png.toString('base64'), encoding: 'base64', mime: 'image/png' });
     await recall.getByRole('button', { name: 'Check pair integrity', exact: true }).click();
     const report = recall.getByLabel('Pair integrity report');
-    await report.getByText(/1 media without receipt/).waitFor();
+    await report.getByText(/1 media file without receipt/).waitFor();
     const row = report.getByRole('listitem').filter({ hasText: orphan.split('/').pop()! });
     await row.getByRole('button', { name: 'Trash unpaired file' }).click();
     await recall.getByRole('status').filter({ hasText: 'Unpaired file moved to Trash' }).waitFor();
-    await report.getByText(/0 media without receipt/).waitFor();
+    await report.getByText(/0 media files without receipt/).waitFor();
     const node = await api('GET', '/api/fs?' + new URLSearchParams({ op: 'stat', path: orphan }));
     assert.equal(node.node.trashed, true, 'file was reported cleaned but is still active');
   });
@@ -108,7 +107,9 @@ try {
     const receipt = chosen + '.recall.json';
     const before = await api('GET', '/api/fs?' + new URLSearchParams({ op: 'read', path: receipt }));
     await recall.getByRole('button', { name: 'Check pair integrity', exact: true }).click();
-    await recall.getByLabel('Pair integrity report').getByText(/healthy pairs/).waitFor();
+    // Wait for the refreshed, folder-scoped report rather than whatever text the
+    // previous audit left on screen.
+    await recall.getByLabel('Pair integrity report').getByText(new RegExp('Scope: ' + folder + ' .*healthy pair')).waitFor();
     const after = await api('GET', '/api/fs?' + new URLSearchParams({ op: 'read', path: receipt }));
     assert.equal(after.node.content, before.node.content, 'the audit rewrote a receipt');
     assert.equal(after.node.version, before.node.version, 'the audit bumped a receipt version');

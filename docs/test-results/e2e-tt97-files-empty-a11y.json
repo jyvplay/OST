@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt97-files-empty-a11y",
-  "at": "2026-10-28T18:20:49.378Z",
+  "at": "2026-10-28T18:42:29.751Z",
   "results": [
     {
       "suite": "e2e-tt97-files-empty-a11y",
@@ -10,7 +10,7 @@
         "FM-09": "partial"
       },
       "pass": true,
-      "ms": 2618
+      "ms": 2130
     },
     {
       "suite": "e2e-tt97-files-empty-a11y",
@@ -20,7 +20,7 @@
         "FM-09": "partial"
       },
       "pass": true,
-      "ms": 269
+      "ms": 313
     },
     {
       "suite": "e2e-tt97-files-empty-a11y",

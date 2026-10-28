@@ -1,6 +1,6 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-28T18:30:42.778Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
+Generated 2026-10-28T18:50:48.913Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
 312 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
 Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
@@ -39,12 +39,12 @@ verifies the honesty contract, not the (impossible) capability.
 |---|---:|---:|---:|---|
 | a11y-unit | 8 | 8 | 0 | 2026-10-26T23:26:22.619Z |
 | ai-format | 5 | 5 | 0 | 2026-10-26T19:56:53.407Z |
-| browser-session | 5 | 5 | 0 | 2026-10-28T18:18:42.407Z |
+| browser-session | 5 | 5 | 0 | 2026-10-28T18:40:28.115Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-26T19:56:53.680Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-28T18:28:33.355Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-28T18:50:16.644Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-28T18:22:59.062Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-28T18:44:37.124Z |
 | e2e-contacts | 9 | 9 | 0 | 2026-10-25T22:20:01.143Z |
 | e2e-image | 11 | 11 | 0 | 2026-10-26T12:55:59.830Z |
 | e2e-layout | 12 | 12 | 0 | 2026-10-26T13:06:52.259Z |
@@ -54,16 +54,16 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-sheet-layout | 7 | 7 | 0 | 2026-10-25T22:14:54.291Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-26T13:12:19.850Z |
 | e2e-tabletop | 15 | 15 | 0 | 2026-10-27T21:16:03.541Z |
-| e2e-tt100-recall | 27 | 27 | 0 | 2026-10-28T18:23:49.055Z |
-| e2e-tt101-search | 9 | 9 | 0 | 2026-10-28T18:18:29.235Z |
-| e2e-tt102 | 16 | 16 | 0 | 2026-10-28T18:17:45.791Z |
-| e2e-tt103-memory | 11 | 11 | 0 | 2026-10-28T18:17:30.979Z |
-| e2e-tt104-memory | 10 | 10 | 0 | 2026-10-28T18:17:05.263Z |
-| e2e-tt104-pages | 3 | 3 | 0 | 2026-10-28T18:17:14.729Z |
-| e2e-tt105-clicked | 7 | 7 | 0 | 2026-10-28T18:16:46.036Z |
-| e2e-tt106-memory | 8 | 8 | 0 | 2026-10-28T18:16:37.024Z |
-| e2e-tt107-memory | 6 | 6 | 0 | 2026-10-28T18:30:32.786Z |
-| e2e-tt107-shell | 7 | 7 | 0 | 2026-10-28T18:30:22.658Z |
+| e2e-tt100-recall | 27 | 27 | 0 | 2026-10-28T18:45:29.864Z |
+| e2e-tt101-search | 9 | 9 | 0 | 2026-10-28T18:40:15.246Z |
+| e2e-tt102 | 16 | 16 | 0 | 2026-10-28T18:39:34.571Z |
+| e2e-tt103-memory | 11 | 11 | 0 | 2026-10-28T18:39:20.578Z |
+| e2e-tt104-memory | 10 | 10 | 0 | 2026-10-28T18:38:53.899Z |
+| e2e-tt104-pages | 3 | 3 | 0 | 2026-10-28T18:39:04.106Z |
+| e2e-tt105-clicked | 7 | 7 | 0 | 2026-10-28T18:38:34.909Z |
+| e2e-tt106-memory | 8 | 8 | 0 | 2026-10-28T18:38:26.787Z |
+| e2e-tt107-memory | 6 | 6 | 0 | 2026-10-28T18:50:42.619Z |
+| e2e-tt107-shell | 7 | 7 | 0 | 2026-10-28T18:50:32.691Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -93,8 +93,8 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-26T11:53:35.201Z |
 | e2e-tt53-media | 6 | 6 | 0 | 2026-10-25T22:54:02.467Z |
 | e2e-tt54 | 8 | 8 | 0 | 2026-10-27T20:37:22.269Z |
-| e2e-tt55-files | 14 | 14 | 0 | 2026-10-28T18:19:55.244Z |
-| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-28T18:20:12.245Z |
+| e2e-tt55-files | 14 | 14 | 0 | 2026-10-28T18:41:38.230Z |
+| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-28T18:41:54.242Z |
 | e2e-tt56-rows | 7 | 7 | 0 | 2026-10-25T22:56:48.364Z |
 | e2e-tt56 | 10 | 10 | 0 | 2026-10-25T22:56:31.173Z |
 | e2e-tt57-rows | 4 | 4 | 0 | 2026-10-25T22:58:21.446Z |
@@ -143,7 +143,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt90-thumbnails | 5 | 5 | 0 | 2026-10-27T20:36:03.583Z |
 | e2e-tt91-browser-download | 7 | 7 | 0 | 2026-10-27T23:10:45.317Z |
 | e2e-tt91-purge | 2 | 2 | 0 | 2026-10-27T20:36:24.319Z |
-| e2e-tt92-trash | 2 | 2 | 0 | 2026-10-28T18:16:53.619Z |
+| e2e-tt92-trash | 2 | 2 | 0 | 2026-10-28T18:38:42.960Z |
 | e2e-tt93-photos-clear | 7 | 7 | 0 | 2026-10-27T20:37:50.073Z |
 | e2e-tt93-sidecar | 2 | 2 | 0 | 2026-10-27T20:37:30.391Z |
 | e2e-tt94-offline-race | 3 | 3 | 0 | 2026-10-27T20:38:34.566Z |
@@ -152,18 +152,18 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt95-a11y-settings-race | 1 | 1 | 0 | 2026-10-27T20:39:19.823Z |
 | e2e-tt95-photo-concurrency | 7 | 7 | 0 | 2026-10-27T20:39:13.515Z |
 | e2e-tt96-calculator | 9 | 9 | 0 | 2026-10-27T23:25:08.856Z |
-| e2e-tt96-desktop-menu | 5 | 5 | 0 | 2026-10-28T18:20:24.625Z |
+| e2e-tt96-desktop-menu | 5 | 5 | 0 | 2026-10-28T18:42:05.959Z |
 | e2e-tt96-files-contrast | 5 | 5 | 0 | 2026-10-27T23:25:54.025Z |
 | e2e-tt97-calculator-repairs | 7 | 7 | 0 | 2026-10-28T02:01:11.124Z |
-| e2e-tt97-files-empty-a11y | 3 | 3 | 0 | 2026-10-28T18:20:49.378Z |
-| e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-28T18:20:44.496Z |
-| e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-28T18:21:05.667Z |
-| e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-28T18:21:47.459Z |
+| e2e-tt97-files-empty-a11y | 3 | 3 | 0 | 2026-10-28T18:42:29.751Z |
+| e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-28T18:42:25.296Z |
+| e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-28T18:42:45.687Z |
+| e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-28T18:43:25.235Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-26T13:09:31.262Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 67 | 67 | 0 | 2026-10-28T03:27:20.254Z |
 | image | 16 | 16 | 0 | 2026-10-26T19:56:46.644Z |
-| integration | 25 | 25 | 0 | 2026-10-28T18:18:42.221Z |
+| integration | 25 | 25 | 0 | 2026-10-28T18:40:27.936Z |
 | layout-unit | 8 | 8 | 0 | 2026-10-26T19:56:47.116Z |
 | maps-unit | 6 | 6 | 0 | 2026-10-26T19:56:51.803Z |
 | metaclean | 6 | 6 | 0 | 2026-10-25T22:09:33.756Z |
@@ -177,23 +177,23 @@ verifies the honesty contract, not the (impossible) capability.
 | oracle | 5 | 5 | 0 | 2026-10-26T07:49:34.818Z |
 | privacy-backup | 7 | 7 | 0 | 2026-10-27T20:39:53.048Z |
 | privacy-crypto | 9 | 9 | 0 | 2026-10-27T20:39:48.180Z |
-| privacy-layer | 13 | 13 | 0 | 2026-10-28T18:18:31.247Z |
+| privacy-layer | 13 | 13 | 0 | 2026-10-28T18:40:17.202Z |
 | sheet-layout | 6 | 6 | 0 | 2026-10-26T19:56:54.052Z |
 | stream-unit | 7 | 7 | 0 | 2026-10-26T19:56:51.977Z |
 | tables-engine | 9 | 9 | 0 | 2026-10-26T19:56:45.588Z |
 | tabletop-unit | 17 | 17 | 0 | 2026-10-27T21:14:26.619Z |
-| tt101-search | 37 | 37 | 0 | 2026-10-28T18:18:21.792Z |
-| tt102-private-bound | 5 | 5 | 0 | 2026-10-28T18:18:19.274Z |
-| tt102-search | 33 | 33 | 0 | 2026-10-28T18:17:46.791Z |
-| tt103-framework | 5 | 5 | 0 | 2026-10-28T18:30:09.839Z |
-| tt103-memory-unit | 10 | 10 | 0 | 2026-10-28T18:17:17.596Z |
-| tt104-memory-unit | 27 | 27 | 0 | 2026-10-28T18:16:53.831Z |
-| tt104-page | 25 | 25 | 0 | 2026-10-28T18:16:54.156Z |
-| tt105-atomic | 25 | 25 | 0 | 2026-10-28T18:16:37.663Z |
-| tt106-lifecycle | 23 | 23 | 0 | 2026-10-28T18:16:11.825Z |
-| tt107-crash | 4 | 4 | 0 | 2026-10-28T18:30:38.713Z |
-| tt107-features | 20 | 20 | 0 | 2026-10-28T18:30:11.152Z |
-| tt107-recall | 30 | 30 | 0 | 2026-10-28T18:30:10.636Z |
+| tt101-search | 37 | 37 | 0 | 2026-10-28T18:40:08.334Z |
+| tt102-private-bound | 5 | 5 | 0 | 2026-10-28T18:40:06.089Z |
+| tt102-search | 33 | 33 | 0 | 2026-10-28T18:39:35.578Z |
+| tt103-framework | 5 | 5 | 0 | 2026-10-28T18:39:06.831Z |
+| tt103-memory-unit | 10 | 10 | 0 | 2026-10-28T18:39:07.007Z |
+| tt104-memory-unit | 27 | 27 | 0 | 2026-10-28T18:38:43.179Z |
+| tt104-page | 25 | 25 | 0 | 2026-10-28T18:38:43.520Z |
+| tt105-atomic | 25 | 25 | 0 | 2026-10-28T18:38:27.394Z |
+| tt106-lifecycle | 23 | 23 | 0 | 2026-10-28T18:38:04.054Z |
+| tt107-crash | 4 | 4 | 0 | 2026-10-28T18:50:22.707Z |
+| tt107-features | 20 | 20 | 0 | 2026-10-28T18:50:23.834Z |
+| tt107-recall | 30 | 30 | 0 | 2026-10-28T18:50:23.382Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-26T19:56:54.287Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-26T19:56:54.943Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -230,7 +230,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt52-pdf | 28 | 28 | 0 | 2026-10-25T22:52:51.701Z |
 | tt53-media | 11 | 11 | 0 | 2026-10-25T22:53:46.642Z |
 | tt54-meta | 6 | 6 | 0 | 2026-10-25T22:54:14.390Z |
-| tt55-files-unit | 7 | 7 | 0 | 2026-10-28T18:18:42.985Z |
+| tt55-files-unit | 7 | 7 | 0 | 2026-10-28T18:40:28.694Z |
 | tt56-sheet-paste | 4 | 4 | 0 | 2026-10-26T19:56:57.046Z |
 | tt56-shell-unit | 4 | 4 | 0 | 2026-10-26T19:56:56.670Z |
 | tt56-writer-track | 6 | 6 | 0 | 2026-10-25T22:55:59.908Z |
@@ -263,7 +263,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt67-input | 11 | 11 | 0 | 2026-10-27T21:17:11.260Z |
 | tt67-sheet-ns | 13 | 13 | 0 | 2026-10-26T08:11:31.185Z |
 | tt68-blank | 8 | 8 | 0 | 2026-10-25T23:09:25.727Z |
-| tt69-lifecycle | 11 | 11 | 0 | 2026-10-28T18:22:59.849Z |
+| tt69-lifecycle | 11 | 11 | 0 | 2026-10-28T18:44:37.928Z |
 | tt69-sheet-misc | 5 | 5 | 0 | 2026-10-26T07:53:17.856Z |
 | tt70-edge | 5 | 5 | 0 | 2026-10-26T20:00:59.953Z |
 | tt70-range | 6 | 6 | 0 | 2026-10-26T20:00:59.791Z |
@@ -314,18 +314,18 @@ verifies the honesty contract, not the (impossible) capability.
 | tt91-download-mutants | 10 | 10 | 0 | 2026-10-27T13:58:50.777249+00:00 |
 | tt91-purge-mutants | 4 | 4 | 0 | 2026-10-27T13:56:45.169085+00:00 |
 | tt91-purge-race-mutants | 3 | 3 | 0 | 2026-10-27T13:56:48.374454+00:00 |
-| tt91-purge-race | 4 | 4 | 0 | 2026-10-28T18:16:47.057Z |
+| tt91-purge-race | 4 | 4 | 0 | 2026-10-28T18:38:35.983Z |
 | tt91-purge | 5 | 5 | 0 | 2026-10-27T20:36:17.968Z |
 | tt91-race-mutants | 4 | 4 | 0 | 2026-10-27T13:57:06.155168+00:00 |
 | tt91-thumbnail-cleanup-race | 6 | 6 | 0 | 2026-10-27T20:36:17.478Z |
-| tt91-write-atomic | 2 | 2 | 0 | 2026-10-28T18:16:46.360Z |
+| tt91-write-atomic | 2 | 2 | 0 | 2026-10-28T18:38:35.286Z |
 | tt91-write-mutants | 2 | 2 | 0 | 2026-10-27T16:00:14.746222+00:00 |
 | tt92-ledger-audit | 7 | 7 | 0 | 2026-10-28T18:30:06.928Z |
 | tt92-ledger-policy | 2 | 2 | 0 | 2026-10-28T18:30:07.229Z |
 | tt92-privacy-perf | 1 | 1 | 0 | 2026-10-27T16:27:53.119Z |
 | tt92-trash-mutants | 13 | 13 | 0 | 2026-10-27T16:01:17.863627+00:00 |
-| tt92-trash-race | 6 | 6 | 0 | 2026-10-28T18:16:48.013Z |
-| tt92-trash | 11 | 11 | 0 | 2026-10-28T18:16:48.708Z |
+| tt92-trash-race | 6 | 6 | 0 | 2026-10-28T18:38:36.972Z |
+| tt92-trash | 11 | 11 | 0 | 2026-10-28T18:38:37.707Z |
 | tt93-metadata-race | 4 | 4 | 0 | 2026-10-27T20:37:25.685Z |
 | tt93-restore-race | 3 | 3 | 0 | 2026-10-27T20:37:25.038Z |
 | tt93-transfer-mutants | 16 | 16 | 0 | 2026-10-27T15:59:35.182554+00:00 |
@@ -342,10 +342,10 @@ verifies the honesty contract, not the (impossible) capability.
 | tt96-calculator-mutants | 19 | 19 | 0 | 2026-10-27T20:54:51.033317+00:00 |
 | tt96-programmer | 8 | 8 | 0 | 2026-10-28T02:00:15.878Z |
 | tt96-scientific-units | 6 | 6 | 0 | 2026-10-28T02:00:16.314Z |
-| tt97-palette-commands | 4 | 4 | 0 | 2026-10-28T18:20:24.821Z |
+| tt97-palette-commands | 4 | 4 | 0 | 2026-10-28T18:42:06.136Z |
 | tt97-palette-mutants | 8 | 8 | 0 | 2026-10-27T23:08:25.457823+00:00 |
 | tt97-svg-attributes | 3 | 3 | 0 | 2026-10-28T02:00:16.639Z |
-| unit | 23 | 23 | 0 | 2026-10-28T18:18:39.209Z |
+| unit | 23 | 23 | 0 | 2026-10-28T18:40:25.179Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-26T20:02:11.245Z |
 | vector | 18 | 18 | 0 | 2026-10-26T19:56:45.937Z |
 | whiteboard-engine | 9 | 9 | 0 | 2026-10-26T19:56:45.740Z |

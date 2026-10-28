@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt103-memory",
-  "at": "2026-10-28T18:17:30.979Z",
+  "at": "2026-10-28T18:39:20.578Z",
   "results": [
     {
       "suite": "e2e-tt103-memory",
@@ -10,7 +10,7 @@
         "RC-09": "partial"
       },
       "pass": true,
-      "ms": 121
+      "ms": 133
     },
     {
       "suite": "e2e-tt103-memory",
@@ -20,28 +20,28 @@
         "RC-08": "partial"
       },
       "pass": true,
-      "ms": 212
+      "ms": 204
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "closing memory preview removes media and revokes visible reference",
       "covers": {},
       "pass": true,
-      "ms": 97
+      "ms": 75
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "zero-sized file is refused without a new archive",
       "covers": {},
       "pass": true,
-      "ms": 47
+      "ms": 36
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "oversized file is refused before archive",
       "covers": {},
       "pass": true,
-      "ms": 1432
+      "ms": 1379
     },
     {
       "suite": "e2e-tt103-memory",
@@ -58,14 +58,14 @@
         "RC-11": "partial"
       },
       "pass": true,
-      "ms": 2933
+      "ms": 3390
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "subsequent human save captures changed viewed pixels as distinct memory",
       "covers": {},
       "pass": true,
-      "ms": 2590
+      "ms": 2701
     },
     {
       "suite": "e2e-tt103-memory",
@@ -79,14 +79,14 @@
       "name": "origin-tainted already-loaded surface fails without refetch fallback",
       "covers": {},
       "pass": true,
-      "ms": 185
+      "ms": 164
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "Specs contains all fifteen truthful Recall requirements, no A-grade fabrication",
       "covers": {},
       "pass": true,
-      "ms": 17
+      "ms": 23
     }
   ]
 }

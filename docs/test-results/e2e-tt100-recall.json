@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt100-recall",
-  "at": "2026-10-28T18:23:49.055Z",
+  "at": "2026-10-28T18:45:29.864Z",
   "results": [
     {
       "suite": "e2e-tt100-recall",
@@ -28,98 +28,98 @@
       "name": "Recall original-byte method saves exact publisher bytes and a SHA-256 provenance receipt",
       "covers": {},
       "pass": true,
-      "ms": 2373
+      "ms": 2867
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "a repeated download creates a fresh asset without overwriting the first one",
       "covers": {},
       "pass": true,
-      "ms": 204
+      "ms": 200
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "original-byte rejection: /partial creates no successful archive",
       "covers": {},
       "pass": true,
-      "ms": 218
+      "ms": 97
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "original-byte rejection: /large creates no successful archive",
       "covers": {},
       "pass": true,
-      "ms": 285
+      "ms": 287
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "original-byte rejection: /redirect creates no successful archive",
       "covers": {},
       "pass": true,
-      "ms": 133
+      "ms": 111
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "original-byte rejection: /playlist creates no successful archive",
       "covers": {},
       "pass": true,
-      "ms": 190
+      "ms": 197
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "original-byte rejection: / creates no successful archive",
       "covers": {},
       "pass": true,
-      "ms": 115
+      "ms": 200
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "an active slow HTTP fetch is cancellable without a VFS commit",
       "covers": {},
       "pass": true,
-      "ms": 193
+      "ms": 167
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "PNG raster method captures a real Fusion canvas into a decodable image",
       "covers": {},
       "pass": true,
-      "ms": 2888
+      "ms": 3277
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "MediaRecorder encodes actual canvas tracks; closing invokes a real discard/save guard",
       "covers": {},
       "pass": true,
-      "ms": 3170
+      "ms": 3963
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "audio-only capture refuses a real canvas with no audio instead of inventing a soundtrack",
       "covers": {},
       "pass": true,
-      "ms": 1463
+      "ms": 1535
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "after a refused no-audio attempt the same Recall window can capture again without leaked busy state",
       "covers": {},
       "pass": true,
-      "ms": 1011
+      "ms": 1735
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "closing the source application invalidates a selected capture element without wedging Recall",
       "covers": {},
       "pass": true,
-      "ms": 272
+      "ms": 138
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "audio-only method captures real playing PCM through a media element and encodes non-silent decodable audio",
       "covers": {},
       "pass": true,
-      "ms": 4954
+      "ms": 4713
     },
     {
       "suite": "e2e-tt100-recall",
@@ -133,56 +133,56 @@
       "name": "armed proxy discovery archives real DOM media once and reacts to actual DOM mutations",
       "covers": {},
       "pass": true,
-      "ms": 4679
+      "ms": 4727
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "automatic discovery rejects actual cross-origin media and drains a batch larger than its pending queue",
       "covers": {},
       "pass": true,
-      "ms": 2202
+      "ms": 2195
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "forged top-level discovery messages cannot request media copies",
       "covers": {},
       "pass": true,
-      "ms": 509
+      "ms": 511
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "disarming stops subsequent page mutations from writing new media",
       "covers": {},
       "pass": true,
-      "ms": 3525
+      "ms": 3467
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "amnesic mode refuses Recall server writes without creating a shadow success",
       "covers": {},
       "pass": true,
-      "ms": 768
+      "ms": 819
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "Orbit context is a compact content-sized menu, not a viewport-wide panel",
       "covers": {},
       "pass": true,
-      "ms": 1215
+      "ms": 1281
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "bottom-right notifications form a bounded stack and the real setting Undo stays reachable",
       "covers": {},
       "pass": true,
-      "ms": 4473
+      "ms": 4526
     },
     {
       "suite": "e2e-tt100-recall",
       "name": "Files uses distinct original SVG view glyphs while all three view buttons still work",
       "covers": {},
       "pass": true,
-      "ms": 2649
+      "ms": 2420
     },
     {
       "suite": "e2e-tt100-recall",
