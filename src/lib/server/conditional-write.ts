@@ -1,6 +1,6 @@
 /** Compare-and-write for folder sync; unlike a list-then-write, a concurrent VFS edit is not overwritten. */
 import { and, eq } from "drizzle-orm";
-import { safeTransaction } from "@/lib/server/transaction";
+import { safeTransaction, type TransactionDb } from "@/lib/server/transaction";
 import { isThumbnailCacheEntry, lockThumbnailCache } from "@/lib/server/thumbnail-cache-lock";
 import { lockVfsWriter } from "@/lib/server/vfs-mutation-lock";
 import { auditLog, fileOps, indexDocs, vfsNodes, vfsVersions } from "@/db/schema";
@@ -11,13 +11,17 @@ export interface ExpectedFile { id: number; version: number; sha256: string }
 export class ConditionalWriteConflict extends Error {}
 
 export async function conditionalWriteFile(path: string, content: string, expected: ExpectedFile | null, encoding: "utf8" | "base64", requestedMime?: string) {
+  return safeTransaction(tx => conditionalWriteInTransaction(tx,path,content,expected,encoding,requestedMime));
+}
+
+/** Caller owns the transaction; no inner commit. Shared by single-file and Recall pair writes. */
+export async function conditionalWriteInTransaction(tx: TransactionDb, path: string, content: string, expected: ExpectedFile | null, encoding: "utf8" | "base64", requestedMime?: string) {
   if (!path.startsWith("/") || path !== normalize(path) || path === "/" || /[\u0000-\u001f\u007f]/.test(path)) throw new Error("A canonical absolute file path is required");
   if (content.includes("\0") || /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/.test(content)
     || (encoding === "base64" && !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(content))
     || Buffer.byteLength(content, encoding) > MAX_BYTES) throw new Error("Invalid or oversized file content");
   if (requestedMime && (requestedMime.length > 256 || /[\u0000-\u001f\u007f]/.test(requestedMime))) throw new Error("Invalid MIME type");
   const parent = parentOf(path), name = baseName(path), digest = sha256(content), size = Buffer.byteLength(content, encoding);
-  return safeTransaction(async (tx) => {
     await lockVfsWriter(tx);
     if (isThumbnailCacheEntry(path)) await lockThumbnailCache(tx);
     if (parent !== "/") {
@@ -57,5 +61,4 @@ export async function conditionalWriteFile(path: string, content: string, expect
       steps: ["REQUESTED", "DEST_VERIFIED", "DEST_PUBLISHED", "COMPLETE"].map((state) => ({ state, at })) });
     await tx.insert(auditLog).values({ actor: "user", action: "fs.sync-write", detail: isPrivateVfsPath(path) ? "/Private/…" : path });
     return { ok: true, path, sha256: digest, size };
-  });
 }

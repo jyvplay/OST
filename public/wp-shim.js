@@ -856,14 +856,23 @@
       }
     });
   })();
+  // TT105: remember only a real pointer selection in this document; never inspect a URL.
+  var recallClicked=null;
+  D.addEventListener('pointerdown',function(e){if(!e.isTrusted)return;var target=e.target;recallClicked=target&&target.closest?target.closest('canvas,video,img'):null;},true);
   // TT103: explicit request only. Read the existing decoded surface; never reload its URL.
   W.addEventListener('message', function(e) {
     if(e.source!==W.parent || !e.data || e.data.fusionWp!=='recall-loaded' || typeof e.data.token!=='string' || e.data.token.length>80)return;
     var token=e.data.token;
     function answer(blob,error){W.parent.postMessage({fusionWp:'recall-loaded-result',token:token,blob:blob,error:error},'*');}
     try {
-      var candidates=[],walker=D.createTreeWalker(D.documentElement,1),node;
-      while(candidates.length<200&&(node=walker.nextNode())){if(/^(CANVAS|VIDEO|IMG)$/.test(node.tagName))candidates.push(node);}
+      var candidates=[],walker,node;
+      if(e.data.selected===true){
+        if(!recallClicked||!recallClicked.isConnected||recallClicked.ownerDocument!==D)throw Error('Click a loaded image, canvas or video in this page first');
+        candidates=[recallClicked];
+      }else{
+        walker=D.createTreeWalker(D.documentElement,1);
+        while(candidates.length<200&&(node=walker.nextNode())){if(/^(CANVAS|VIDEO|IMG)$/.test(node.tagName))candidates.push(node);}
+      }
       candidates=candidates.filter(function(el){
         var r=el.getBoundingClientRect();return r.width>0&&r.height>0&&r.bottom>0&&r.right>0&&r.top<W.innerHeight&&r.left<W.innerWidth;
       }).sort(function(a,b){var x=a.getBoundingClientRect(),y=b.getBoundingClientRect();return y.width*y.height-x.width*x.height;});

@@ -1,0 +1,11 @@
+{
+  "node": "v22.22.3",
+  "chromium": "153.0.8010.0",
+  "agents": 1,
+  "independentReviewer": false,
+  "theoremProver": false,
+  "physicalClipboardAudioDisplayVerified": false,
+  "newTestsSyntheticEvents": false,
+  "newTestsNetworkInterception": false,
+  "graphics": "real headless Chromium, software graphics"
+}

@@ -1,6 +1,6 @@
 {
   "suite": "tt92-trash-race",
-  "at": "2026-10-27T20:36:35.812Z",
+  "at": "2026-10-28T14:53:00.684Z",
   "results": [
     {
       "suite": "tt92-trash-race",
@@ -10,7 +10,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 213
+      "ms": 145
     },
     {
       "suite": "tt92-trash-race",
@@ -20,7 +20,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 138
+      "ms": 124
     },
     {
       "suite": "tt92-trash-race",
@@ -30,7 +30,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 155
+      "ms": 122
     },
     {
       "suite": "tt92-trash-race",
@@ -40,7 +40,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 132
+      "ms": 113
     },
     {
       "suite": "tt92-trash-race",
@@ -50,7 +50,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 144
+      "ms": 119
     },
     {
       "suite": "tt92-trash-race",
@@ -60,7 +60,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 129
+      "ms": 115
     }
   ]
 }
