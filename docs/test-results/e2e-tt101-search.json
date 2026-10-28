@@ -1,41 +1,41 @@
 {
   "suite": "e2e-tt101-search",
-  "at": "2026-10-28T14:54:39.971Z",
+  "at": "2026-10-28T16:45:02.129Z",
   "results": [
     {
       "suite": "e2e-tt101-search",
       "name": "real Find UI searches stored transcripts and renders field provenance",
       "covers": {},
       "pass": true,
-      "ms": 3714
+      "ms": 3542
     },
     {
       "suite": "e2e-tt101-search",
       "name": "hostile stored metadata is rendered as text, not injected HTML",
       "covers": {},
       "pass": true,
-      "ms": 103
+      "ms": 108
     },
     {
       "suite": "e2e-tt101-search",
       "name": "query bound errors are visible, clear old hits, and allow a genuine retry",
       "covers": {},
       "pass": true,
-      "ms": 195
+      "ms": 207
     },
     {
       "suite": "e2e-tt101-search",
       "name": "real UI traverses bounded pages instead of claiming no global matches",
       "covers": {},
       "pass": true,
-      "ms": 599
+      "ms": 657
     },
     {
       "suite": "e2e-tt101-search",
       "name": "editing criteria after a paged query invalidates old cursors and old result provenance",
       "covers": {},
       "pass": true,
-      "ms": 84
+      "ms": 101
     },
     {
       "suite": "e2e-tt101-search",
@@ -49,7 +49,7 @@
       "name": "metadata result UI passes external axe checks in the actual populated mode",
       "covers": {},
       "pass": true,
-      "ms": 1672
+      "ms": 1387
     },
     {
       "suite": "e2e-tt101-search",

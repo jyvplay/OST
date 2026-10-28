@@ -1,0 +1,72 @@
+{
+  "suite": "e2e-tt106-memory",
+  "at": "2026-10-28T16:57:08.557Z",
+  "results": [
+    {
+      "suite": "e2e-tt106-memory",
+      "name": "single-snapshot receipt inspection works in actual UI",
+      "covers": {
+        "RC-24": "partial"
+      },
+      "pass": true,
+      "ms": 103
+    },
+    {
+      "suite": "e2e-tt106-memory",
+      "name": "save already-open frame creates native green PNG without upstream HTTP",
+      "covers": {
+        "RC-26": "partial"
+      },
+      "pass": true,
+      "ms": 4008
+    },
+    {
+      "suite": "e2e-tt106-memory",
+      "name": "cancelled trash confirmation changes nothing",
+      "covers": {
+        "RC-25": "partial"
+      },
+      "pass": true,
+      "ms": 108
+    },
+    {
+      "suite": "e2e-tt106-memory",
+      "name": "confirmed paired trash closes/revokes preview and undo restores both files",
+      "covers": {},
+      "pass": true,
+      "ms": 263
+    },
+    {
+      "suite": "e2e-tt106-memory",
+      "name": "open-preview identity guard refuses later media edit",
+      "covers": {},
+      "pass": true,
+      "ms": 340
+    },
+    {
+      "suite": "e2e-tt106-memory",
+      "name": "real decoded WebM video preview saves its exact current frame, no media refetch",
+      "covers": {
+        "RC-26": "partial"
+      },
+      "pass": true,
+      "ms": 7087
+    },
+    {
+      "suite": "e2e-tt106-memory",
+      "name": "memory above the 16 MP decode bound is refused and clears the stale preview",
+      "covers": {
+        "RC-26": "partial"
+      },
+      "pass": true,
+      "ms": 2053
+    },
+    {
+      "suite": "e2e-tt106-memory",
+      "name": "Specs adds all three truthful requirements without completion promotion",
+      "covers": {},
+      "pass": true,
+      "ms": 16
+    }
+  ]
+}

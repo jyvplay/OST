@@ -1,0 +1,13 @@
+=== tt92-ledger-audit
+7 passed, 0 failed
+=== tt92-ledger-policy
+2 passed, 0 failed
+=== tt106-lifecycle
+23 passed, 0 failed
+=== e2e-tt106-memory
+8 passed, 0 failed
+=== tt105-atomic
+25 passed, 0 failed
+=== e2e-tt105-clicked
+7 passed, 0 failed
+ALLDONE

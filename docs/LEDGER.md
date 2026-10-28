@@ -1,7 +1,7 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-28T14:50:15.335Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
-305 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-28T16:56:00.317Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
+307 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
 Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
 Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
@@ -11,22 +11,22 @@ See each suite timestamp and the latest turn report for current tests, known cla
 
 | | Count |
 |---|---:|
-| **Features in register** | **437** |
+| **Features in register** | **440** |
 | Fully built | 333 |
-| Partially built (partial 62 + probe 18) | 80 |
+| Partially built (partial 65 + probe 18) | 83 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 24 |
 | Not built at all (skeleton) | 0 |
 | **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **259** |
-| **Partially tested** (partial tags or an incomplete row with passing evidence) | **96** |
+| **Partially tested** (partial tags or an incomplete row with passing evidence) | **99** |
 | Untested | 82 |
-| Recorded test cases / passed (mixed run dates) | 2505 / 2501 |
+| Recorded test cases / passed (mixed run dates) | 2536 / 2532 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
 | fully built | 253 | 56 | 24 |
-| partially built | 0 | 38 | 42 |
+| partially built | 0 | 41 | 42 |
 | blocked | 6 | 2 | 16 |
 | skeleton | 0 | 0 | 0 |
 
@@ -39,12 +39,12 @@ verifies the honesty contract, not the (impossible) capability.
 |---|---:|---:|---:|---|
 | a11y-unit | 8 | 8 | 0 | 2026-10-26T23:26:22.619Z |
 | ai-format | 5 | 5 | 0 | 2026-10-26T19:56:53.407Z |
-| browser-session | 5 | 5 | 0 | 2026-10-28T12:44:23.677Z |
+| browser-session | 5 | 5 | 0 | 2026-10-28T16:45:14.886Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-26T19:56:53.680Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-28T12:42:37.404Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-28T16:55:21.898Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-28T12:48:45.384Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-28T16:49:34.930Z |
 | e2e-contacts | 9 | 9 | 0 | 2026-10-25T22:20:01.143Z |
 | e2e-image | 11 | 11 | 0 | 2026-10-26T12:55:59.830Z |
 | e2e-layout | 12 | 12 | 0 | 2026-10-26T13:06:52.259Z |
@@ -54,13 +54,14 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-sheet-layout | 7 | 7 | 0 | 2026-10-25T22:14:54.291Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-26T13:12:19.850Z |
 | e2e-tabletop | 15 | 15 | 0 | 2026-10-27T21:16:03.541Z |
-| e2e-tt100-recall | 27 | 27 | 0 | 2026-10-28T12:49:37.980Z |
-| e2e-tt101-search | 9 | 9 | 0 | 2026-10-28T12:44:09.485Z |
-| e2e-tt102 | 16 | 16 | 0 | 2026-10-28T12:43:30.349Z |
-| e2e-tt103-memory | 12 | 12 | 0 | 2026-10-28T12:43:16.104Z |
-| e2e-tt104-memory | 10 | 10 | 0 | 2026-10-28T12:42:49.696Z |
-| e2e-tt104-pages | 3 | 3 | 0 | 2026-10-28T12:42:59.043Z |
-| e2e-tt105-clicked | 7 | 7 | 0 | 2026-10-28T14:49:56.088Z |
+| e2e-tt100-recall | 27 | 27 | 0 | 2026-10-28T16:50:28.156Z |
+| e2e-tt101-search | 9 | 9 | 0 | 2026-10-28T16:45:02.129Z |
+| e2e-tt102 | 16 | 16 | 0 | 2026-10-28T16:44:19.897Z |
+| e2e-tt103-memory | 12 | 12 | 0 | 2026-10-28T16:44:05.948Z |
+| e2e-tt104-memory | 10 | 10 | 0 | 2026-10-28T16:43:39.750Z |
+| e2e-tt104-pages | 3 | 3 | 0 | 2026-10-28T16:43:50.527Z |
+| e2e-tt105-clicked | 7 | 7 | 0 | 2026-10-28T16:43:19.688Z |
+| e2e-tt106-memory | 8 | 8 | 0 | 2026-10-28T16:43:10.697Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -90,8 +91,8 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-26T11:53:35.201Z |
 | e2e-tt53-media | 6 | 6 | 0 | 2026-10-25T22:54:02.467Z |
 | e2e-tt54 | 8 | 8 | 0 | 2026-10-27T20:37:22.269Z |
-| e2e-tt55-files | 14 | 14 | 0 | 2026-10-28T12:45:37.631Z |
-| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-28T12:45:54.030Z |
+| e2e-tt55-files | 14 | 14 | 0 | 2026-10-28T16:46:29.894Z |
+| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-28T16:46:46.385Z |
 | e2e-tt56-rows | 7 | 7 | 0 | 2026-10-25T22:56:48.364Z |
 | e2e-tt56 | 10 | 10 | 0 | 2026-10-25T22:56:31.173Z |
 | e2e-tt57-rows | 4 | 4 | 0 | 2026-10-25T22:58:21.446Z |
@@ -140,7 +141,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt90-thumbnails | 5 | 5 | 0 | 2026-10-27T20:36:03.583Z |
 | e2e-tt91-browser-download | 7 | 7 | 0 | 2026-10-27T23:10:45.317Z |
 | e2e-tt91-purge | 2 | 2 | 0 | 2026-10-27T20:36:24.319Z |
-| e2e-tt92-trash | 2 | 2 | 0 | 2026-10-27T20:36:40.144Z |
+| e2e-tt92-trash | 2 | 2 | 0 | 2026-10-28T16:43:28.087Z |
 | e2e-tt93-photos-clear | 7 | 7 | 0 | 2026-10-27T20:37:50.073Z |
 | e2e-tt93-sidecar | 2 | 2 | 0 | 2026-10-27T20:37:30.391Z |
 | e2e-tt94-offline-race | 3 | 3 | 0 | 2026-10-27T20:38:34.566Z |
@@ -149,18 +150,18 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt95-a11y-settings-race | 1 | 1 | 0 | 2026-10-27T20:39:19.823Z |
 | e2e-tt95-photo-concurrency | 7 | 7 | 0 | 2026-10-27T20:39:13.515Z |
 | e2e-tt96-calculator | 9 | 9 | 0 | 2026-10-27T23:25:08.856Z |
-| e2e-tt96-desktop-menu | 5 | 5 | 0 | 2026-10-28T12:46:06.076Z |
+| e2e-tt96-desktop-menu | 5 | 5 | 0 | 2026-10-28T16:46:58.493Z |
 | e2e-tt96-files-contrast | 5 | 5 | 0 | 2026-10-27T23:25:54.025Z |
 | e2e-tt97-calculator-repairs | 7 | 7 | 0 | 2026-10-28T02:01:11.124Z |
-| e2e-tt97-files-empty-a11y | 3 | 3 | 0 | 2026-10-28T12:46:32.597Z |
-| e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-28T12:46:27.937Z |
-| e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-28T12:46:50.296Z |
-| e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-28T12:47:32.212Z |
+| e2e-tt97-files-empty-a11y | 3 | 3 | 0 | 2026-10-28T16:47:24.928Z |
+| e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-28T16:47:19.847Z |
+| e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-28T16:47:41.400Z |
+| e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-28T16:48:23.089Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-26T13:09:31.262Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 67 | 67 | 0 | 2026-10-28T03:27:20.254Z |
 | image | 16 | 16 | 0 | 2026-10-26T19:56:46.644Z |
-| integration | 25 | 25 | 0 | 2026-10-28T12:44:23.503Z |
+| integration | 25 | 25 | 0 | 2026-10-28T16:45:14.713Z |
 | layout-unit | 8 | 8 | 0 | 2026-10-26T19:56:47.116Z |
 | maps-unit | 6 | 6 | 0 | 2026-10-26T19:56:51.803Z |
 | metaclean | 6 | 6 | 0 | 2026-10-25T22:09:33.756Z |
@@ -174,19 +175,20 @@ verifies the honesty contract, not the (impossible) capability.
 | oracle | 5 | 5 | 0 | 2026-10-26T07:49:34.818Z |
 | privacy-backup | 7 | 7 | 0 | 2026-10-27T20:39:53.048Z |
 | privacy-crypto | 9 | 9 | 0 | 2026-10-27T20:39:48.180Z |
-| privacy-layer | 13 | 13 | 0 | 2026-10-28T12:44:11.512Z |
+| privacy-layer | 13 | 13 | 0 | 2026-10-28T16:45:04.056Z |
 | sheet-layout | 6 | 6 | 0 | 2026-10-26T19:56:54.052Z |
 | stream-unit | 7 | 7 | 0 | 2026-10-26T19:56:51.977Z |
 | tables-engine | 9 | 9 | 0 | 2026-10-26T19:56:45.588Z |
 | tabletop-unit | 17 | 17 | 0 | 2026-10-27T21:14:26.619Z |
-| tt101-search | 37 | 37 | 0 | 2026-10-28T12:44:01.592Z |
-| tt102-private-bound | 5 | 5 | 0 | 2026-10-28T12:43:59.452Z |
-| tt102-search | 33 | 33 | 0 | 2026-10-28T12:43:31.312Z |
-| tt103-framework | 5 | 5 | 0 | 2026-10-28T12:43:01.523Z |
-| tt103-memory-unit | 10 | 10 | 0 | 2026-10-28T12:43:01.684Z |
-| tt104-memory-unit | 27 | 27 | 0 | 2026-10-28T12:42:37.590Z |
-| tt104-page | 25 | 25 | 0 | 2026-10-28T12:42:37.907Z |
-| tt105-atomic | 25 | 25 | 0 | 2026-10-28T14:49:48.581Z |
+| tt101-search | 37 | 37 | 0 | 2026-10-28T16:44:54.615Z |
+| tt102-private-bound | 5 | 5 | 0 | 2026-10-28T16:44:52.380Z |
+| tt102-search | 33 | 33 | 0 | 2026-10-28T16:44:20.914Z |
+| tt103-framework | 5 | 5 | 0 | 2026-10-28T16:43:52.845Z |
+| tt103-memory-unit | 10 | 10 | 0 | 2026-10-28T16:43:52.998Z |
+| tt104-memory-unit | 27 | 27 | 0 | 2026-10-28T16:43:28.301Z |
+| tt104-page | 25 | 25 | 0 | 2026-10-28T16:43:28.639Z |
+| tt105-atomic | 25 | 25 | 0 | 2026-10-28T16:43:11.291Z |
+| tt106-lifecycle | 23 | 23 | 0 | 2026-10-28T16:42:48.893Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-26T19:56:54.287Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-26T19:56:54.943Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -223,7 +225,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt52-pdf | 28 | 28 | 0 | 2026-10-25T22:52:51.701Z |
 | tt53-media | 11 | 11 | 0 | 2026-10-25T22:53:46.642Z |
 | tt54-meta | 6 | 6 | 0 | 2026-10-25T22:54:14.390Z |
-| tt55-files-unit | 7 | 7 | 0 | 2026-10-28T12:44:24.291Z |
+| tt55-files-unit | 7 | 7 | 0 | 2026-10-28T16:45:15.519Z |
 | tt56-sheet-paste | 4 | 4 | 0 | 2026-10-26T19:56:57.046Z |
 | tt56-shell-unit | 4 | 4 | 0 | 2026-10-26T19:56:56.670Z |
 | tt56-writer-track | 6 | 6 | 0 | 2026-10-25T22:55:59.908Z |
@@ -256,7 +258,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt67-input | 11 | 11 | 0 | 2026-10-27T21:17:11.260Z |
 | tt67-sheet-ns | 13 | 13 | 0 | 2026-10-26T08:11:31.185Z |
 | tt68-blank | 8 | 8 | 0 | 2026-10-25T23:09:25.727Z |
-| tt69-lifecycle | 11 | 11 | 0 | 2026-10-28T12:48:46.177Z |
+| tt69-lifecycle | 11 | 11 | 0 | 2026-10-28T16:49:35.741Z |
 | tt69-sheet-misc | 5 | 5 | 0 | 2026-10-26T07:53:17.856Z |
 | tt70-edge | 5 | 5 | 0 | 2026-10-26T20:00:59.953Z |
 | tt70-range | 6 | 6 | 0 | 2026-10-26T20:00:59.791Z |
@@ -307,18 +309,18 @@ verifies the honesty contract, not the (impossible) capability.
 | tt91-download-mutants | 10 | 10 | 0 | 2026-10-27T13:58:50.777249+00:00 |
 | tt91-purge-mutants | 4 | 4 | 0 | 2026-10-27T13:56:45.169085+00:00 |
 | tt91-purge-race-mutants | 3 | 3 | 0 | 2026-10-27T13:56:48.374454+00:00 |
-| tt91-purge-race | 4 | 4 | 0 | 2026-10-27T20:36:18.644Z |
+| tt91-purge-race | 4 | 4 | 0 | 2026-10-28T16:43:20.711Z |
 | tt91-purge | 5 | 5 | 0 | 2026-10-27T20:36:17.968Z |
 | tt91-race-mutants | 4 | 4 | 0 | 2026-10-27T13:57:06.155168+00:00 |
 | tt91-thumbnail-cleanup-race | 6 | 6 | 0 | 2026-10-27T20:36:17.478Z |
-| tt91-write-atomic | 2 | 2 | 0 | 2026-10-27T20:36:18.958Z |
+| tt91-write-atomic | 2 | 2 | 0 | 2026-10-28T16:43:20.038Z |
 | tt91-write-mutants | 2 | 2 | 0 | 2026-10-27T16:00:14.746222+00:00 |
 | tt92-ledger-audit | 7 | 7 | 0 | 2026-10-27T23:32:18.248Z |
 | tt92-ledger-policy | 2 | 2 | 0 | 2026-10-27T20:57:45.599Z |
 | tt92-privacy-perf | 1 | 1 | 0 | 2026-10-27T16:27:53.119Z |
 | tt92-trash-mutants | 13 | 13 | 0 | 2026-10-27T16:01:17.863627+00:00 |
-| tt92-trash-race | 6 | 6 | 0 | 2026-10-27T20:36:35.812Z |
-| tt92-trash | 11 | 11 | 0 | 2026-10-27T20:36:34.666Z |
+| tt92-trash-race | 6 | 6 | 0 | 2026-10-28T16:43:21.811Z |
+| tt92-trash | 11 | 11 | 0 | 2026-10-28T16:43:22.582Z |
 | tt93-metadata-race | 4 | 4 | 0 | 2026-10-27T20:37:25.685Z |
 | tt93-restore-race | 3 | 3 | 0 | 2026-10-27T20:37:25.038Z |
 | tt93-transfer-mutants | 16 | 16 | 0 | 2026-10-27T15:59:35.182554+00:00 |
@@ -335,10 +337,10 @@ verifies the honesty contract, not the (impossible) capability.
 | tt96-calculator-mutants | 19 | 19 | 0 | 2026-10-27T20:54:51.033317+00:00 |
 | tt96-programmer | 8 | 8 | 0 | 2026-10-28T02:00:15.878Z |
 | tt96-scientific-units | 6 | 6 | 0 | 2026-10-28T02:00:16.314Z |
-| tt97-palette-commands | 4 | 4 | 0 | 2026-10-28T12:46:06.226Z |
+| tt97-palette-commands | 4 | 4 | 0 | 2026-10-28T16:46:58.716Z |
 | tt97-palette-mutants | 8 | 8 | 0 | 2026-10-27T23:08:25.457823+00:00 |
 | tt97-svg-attributes | 3 | 3 | 0 | 2026-10-28T02:00:16.639Z |
-| unit | 23 | 23 | 0 | 2026-10-28T12:44:20.668Z |
+| unit | 23 | 23 | 0 | 2026-10-28T16:45:11.869Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-26T20:02:11.245Z |
 | vector | 18 | 18 | 0 | 2026-10-26T19:56:45.937Z |
 | whiteboard-engine | 9 | 9 | 0 | 2026-10-26T19:56:45.740Z |
@@ -355,7 +357,7 @@ verifies the honesty contract, not the (impossible) capability.
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Recall | 23 | 0 | 23 | 0 | 0 | 14 | 9 |
+| Recall | 26 | 0 | 26 | 0 | 0 | 17 | 9 |
 | SH | 15 | 12 | 3 | 0 | 8 | 4 | 3 |
 | WM | 19 | 14 | 4 | 1 | 7 | 4 | 8 |
 | IN | 8 | 5 | 2 | 1 | 4 | 1 | 3 |
@@ -392,6 +394,9 @@ verifies the honesty contract, not the (impossible) capability.
 
 | code | status | tested | evidence (passing tests) |
 |---|---|---|---|
+| RC-24 | partial | partial | e2e-tt106-memory: single-snapshot receipt inspection works in actual UI; tt106-lifecycle: single snapshot returns verified pair identity without media bodies |
+| RC-25 | partial | partial | e2e-tt106-memory: cancelled trash confirmation changes nothing; tt106-lifecycle: paired trash removes both active files and both search entries |
+| RC-26 | partial | partial | e2e-tt106-memory: save already-open frame creates native green PNG without upstream HTTP; e2e-tt106-memory: real decoded WebM video preview saves its exact current frame, no media refetch; e2e-tt106-memory: memory above the 16 MP decode bound is refused and clears the stale preview |
 | RC-22 | partial | partial | tt105-atomic: one acknowledgement publishes both exact media and receipt |
 | RC-23 | partial | partial | e2e-tt105-clicked: no pointer selection refuses without a largest fallback; e2e-tt105-clicked: native pointer chooses smaller decoded canvas without asset refetch |
 | RC-16 | partial | partial | e2e-tt104-memory: native clipboard image-transfer experiment records the real permission boundary; tt104-memory-unit: single native File admitted without rewriting its bytes |

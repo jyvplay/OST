@@ -1,6 +1,6 @@
 {
   "suite": "unit",
-  "at": "2026-10-28T14:54:50.551Z",
+  "at": "2026-10-28T16:45:11.869Z",
   "results": [
     {
       "suite": "unit",
@@ -12,7 +12,7 @@
         "WM-12": "partial"
       },
       "pass": true,
-      "ms": 7290
+      "ms": 6598
     },
     {
       "suite": "unit",
@@ -22,7 +22,7 @@
         "SH-08": "partial"
       },
       "pass": true,
-      "ms": 705
+      "ms": 561
     },
     {
       "suite": "unit",
@@ -187,7 +187,7 @@
         "BK-06": "partial"
       },
       "pass": true,
-      "ms": 111
+      "ms": 63
     },
     {
       "suite": "unit",
@@ -196,7 +196,7 @@
         "SC-07": "full"
       },
       "pass": true,
-      "ms": 87
+      "ms": 61
     },
     {
       "suite": "unit",

@@ -1,0 +1,171 @@
+{
+  "suite": "tt106-lifecycle",
+  "at": "2026-10-28T16:56:48.774Z",
+  "results": [
+    {
+      "suite": "tt106-lifecycle",
+      "name": "single snapshot returns verified pair identity without media bodies",
+      "covers": {
+        "RC-24": "partial"
+      },
+      "pass": true,
+      "ms": 28
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "paired trash removes both active files and both search entries",
+      "covers": {
+        "RC-25": "partial"
+      },
+      "pass": true,
+      "ms": 54
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "undo restores the same unchanged pair, content and search entries",
+      "covers": {},
+      "pass": true,
+      "ms": 50
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "stale guard cannot trash edited content",
+      "covers": {},
+      "pass": true,
+      "ms": 46
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "stale undo cannot restore a changed trashed receipt",
+      "covers": {},
+      "pass": true,
+      "ms": 41
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "ABA trash/restore cycle invalidates prior undo version",
+      "covers": {},
+      "pass": true,
+      "ms": 67
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "two simultaneous guarded trash calls have exactly one winner",
+      "covers": {},
+      "pass": true,
+      "ms": 51
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "missing receipt refuses without trashing media",
+      "covers": {},
+      "pass": true,
+      "ms": 25
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "mixed independent Files trash state is not silently repaired",
+      "covers": {},
+      "pass": true,
+      "ms": 30
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "independently trashed siblings cannot be claimed as paired undo",
+      "covers": {},
+      "pass": true,
+      "ms": 42
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid lifecycle path /",
+      "covers": {},
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid lifecycle path /Private/x.png",
+      "covers": {},
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid lifecycle path /Downloads/Recall/a/../x.png",
+      "covers": {},
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid lifecycle path /Downloads/Recall/life106-1793206608126/nested/x.png",
+      "covers": {},
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid lifecycle path /Downloads/Recall/life106-1793206608126/a.recall.json",
+      "covers": {},
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid guard null",
+      "covers": {},
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid guard {}",
+      "covers": {},
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid guard []",
+      "covers": {},
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid guard {\"media\":{\"id\":0}}",
+      "covers": {},
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "invalid guard \"anything\"",
+      "covers": {},
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "unknown action cannot mutate",
+      "covers": {},
+      "pass": true,
+      "ms": 20
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "real journal-trigger failure rolls back pair flags, versions and index deletion",
+      "covers": {},
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt106-lifecycle",
+      "name": "patch-specific recovery after actual rollback succeeds",
+      "covers": {},
+      "pass": true,
+      "ms": 13
+    }
+  ]
+}

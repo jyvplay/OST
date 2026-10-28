@@ -1,0 +1,30 @@
+  ✓ single snapshot returns verified pair identity without media bodies
+  ✓ paired trash removes both active files and both search entries
+  ✓ undo restores the same unchanged pair, content and search entries
+  ✗ stale guard cannot trash edited content
+    Expected values to be strictly equal:
+
+400 !== 409
+
+  ✓ stale undo cannot restore a changed trashed receipt
+  ✓ ABA trash/restore cycle invalidates prior undo version
+  ✓ two simultaneous guarded trash calls have exactly one winner
+  ✓ missing receipt refuses without trashing media
+  ✓ mixed independent Files trash state is not silently repaired
+  ✓ independently trashed siblings cannot be claimed as paired undo
+  ✓ invalid lifecycle path /
+  ✓ invalid lifecycle path /Private/x.png
+  ✓ invalid lifecycle path /Downloads/Recall/a/../x.png
+  ✓ invalid lifecycle path /Downloads/Recall/life106-1793202944072/nested/x.png
+  ✓ invalid lifecycle path /Downloads/Recall/life106-1793202944072/a.recall.json
+  ✓ invalid guard null
+  ✓ invalid guard {}
+  ✓ invalid guard []
+  ✓ invalid guard {"media":{"id":0}}
+  ✓ invalid guard "anything"
+  ✓ unknown action cannot mutate
+  ✓ real journal-trigger failure rolls back pair flags, versions and index deletion
+  ✓ patch-specific recovery after actual rollback succeeds
+
+22 passed, 1 failed
+FAILED: stale guard cannot trash edited content

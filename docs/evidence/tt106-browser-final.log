@@ -1,0 +1,10 @@
+  ✓ single-snapshot receipt inspection works in actual UI
+  ✓ save already-open frame creates native green PNG without upstream HTTP
+  ✓ cancelled trash confirmation changes nothing
+  ✓ confirmed paired trash closes/revokes preview and undo restores both files
+  ✓ open-preview identity guard refuses later media edit
+  ✓ real decoded WebM video preview saves its exact current frame, no media refetch
+  ✓ memory above the 16 MP decode bound is refused and clears the stale preview
+  ✓ Specs adds all three truthful requirements without completion promotion
+
+8 passed, 0 failed

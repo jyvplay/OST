@@ -1,23 +1,45 @@
 {
- "generatedAt": "2026-10-28T14:50:15.338Z",
+ "generatedAt": "2026-10-28T16:56:00.319Z",
  "totals": {
   "built": {
    "full": 333,
-   "partial": 80,
+   "partial": 83,
    "blocked": 24,
    "none": 0
   },
   "tested": {
    "full": 259,
-   "partial": 96,
+   "partial": 99,
    "untested": 82
   },
   "tests": {
-   "total": 2505,
-   "passed": 2501
+   "total": 2536,
+   "passed": 2532
   }
  },
  "rows": {
+  "RC-24": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt106-memory: single-snapshot receipt inspection works in actual UI",
+    "tt106-lifecycle: single snapshot returns verified pair identity without media bodies"
+   ]
+  },
+  "RC-25": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt106-memory: cancelled trash confirmation changes nothing",
+    "tt106-lifecycle: paired trash removes both active files and both search entries"
+   ]
+  },
+  "RC-26": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt106-memory: save already-open frame creates native green PNG without upstream HTTP",
+    "e2e-tt106-memory: real decoded WebM video preview saves its exact current frame, no media refetch",
+    "e2e-tt106-memory: memory above the 16 MP decode bound is refused and clears the stale preview"
+   ]
+  },
   "RC-22": {
    "tested": "partial",
    "tests": [

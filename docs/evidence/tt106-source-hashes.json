@@ -1,0 +1,26 @@
+{
+  "buildId": "DngrJZoUghsk-MCbwBVqE",
+  "node": "v22.22.3",
+  "sha256": {
+    "public/wp-shim.js": "d955adfd6708d3ea1f1bbfb251aa87cd933b3dfeec89cfa2203100ccef804612",
+    "src/lib/server/conditional-write.ts": "e14554a118c01030d79f3379e7db0377e0de3ca9d3fc828b2244ec0195294046",
+    "src/lib/server/recall-commit.ts": "a4d7ea6cf95f4e04dd5866ec8ad1a204e8d9a69f82d25814cab6c5792aad6848",
+    "src/lib/server/recall-lifecycle.ts": "5441ef79f3f9a81836d7b7379af8a8df8edcbf0bedcc358bfb93d2e2b979fee3",
+    "src/lib/recall.ts": "5c1dfc6d07116757f0b2efb4f01e482993a69a021938856338e202cf01f52843",
+    "src/lib/recall-core.ts": "6cfe8f8e47b26aba0e9a54c393fe35d3cb623de933fb5221e06b9afb460c3734",
+    "src/lib/recall-memory.ts": "6c24030e960b91da56ecff6c0ca216c03d8a18e2600a86fef5e637ba8487facf",
+    "src/app/api/fs/route.ts": "8d23c9b5258e7c4bd577fd418a699acdfc515564a65f8a955f9ed76b169adea7",
+    "src/components/modules/RecallMemory.tsx": "a6a6135e18acf89322e1705451c21d9a7f8f420aebd271d69b3d81ad778392db",
+    "src/db/seed.ts": "03a745bb5683f06b4bf40820f1b46ea2440b5c9eed57421605a9823fadd120de",
+    "src/db/seed-data/features-tt106.ts": "d7f2e8473a8e1308d5326e1388e37dc5fa8e1319f5c6623ffe13d1f3c738e6d8",
+    "src/data/coverage.json": "e12a75f0090c37fb3b12685b67693bd300e6e8db97c5b2e8087eee279ac14022",
+    "scripts/run-all.sh": "cc01202f45fd46fad74b21b959b67abea9040c2728dc6aa308d13e979b75af62",
+    "scripts/tt106-lifecycle.mts": "dae2337b28ce53a64871502f7d4d9e97f7d9b731cffae010a365486f2ea0b2ec",
+    "scripts/e2e-tt106-memory.mts": "a2db6e9cca75767ae4b344d0807540e5c189b2566bdbca86a76c52450b341f77",
+    "scripts/tt106-specs-smoke.mts": "8a572bac5705ed0d8cc89342f22ebe819221857603aea8b2f639047748003e0a",
+    "scripts/tt105-atomic.mts": "e0634d51923cfe9810bc103d523e81b1f48232a7f48c379716cd2121b2c94ef7",
+    "scripts/e2e-tt105-clicked.mts": "72813ec5195a65f654b048be4081067dab09a00560cc87a8cf5be803691b9901",
+    "package.json": "895bc66c00ade7c45d6081dd56c4643bdb0baadd7e3452fc067e53f81e7f5399",
+    "package-lock.json": "ba79f82a8211fcc56a5daca92ebc7d8e9105cb6e79d2ca76ce6958c4517470b6"
+  }
+}
