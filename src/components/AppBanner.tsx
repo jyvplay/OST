@@ -19,6 +19,8 @@ import { Children, isValidElement, useEffect, useRef, useState, useSyncExternalS
 import { fz } from "@/lib/uiscale";
 import { MENU_ITEM_CAP, type BannerMenu } from "@/lib/banner-core";
 import { MenuButton, type MenuItem } from "./chrome-bits";
+import { useShell } from "./shell-context";
+import { layoutOf } from "@/lib/layout-core";
 
 /* ------------------------------------------------------------------ per-window store of menu names (shell menu bar) */
 const names = new Map<string, readonly string[]>();
@@ -65,9 +67,14 @@ export function mirrorGroups(groups: Iterable<Element>, inlineOptions = INLINE_O
 }
 export function mirrorGroup(group: Element | null | undefined, inlineOptions = INLINE_OPTIONS): MenuItem[] {
   if (!group) return [];
+  return mirrorControls(group.querySelectorAll<HTMLElement>("button, select, input, label"), inlineOptions, group);
+}
+/** TT110: the same mirroring for an explicit list of controls — used by the "More tools" menu,
+ *  which lists exactly the controls that stepped aside, not their whole group. */
+export function mirrorControls(controls: Iterable<HTMLElement>, inlineOptions = INLINE_OPTIONS, group?: Element): MenuItem[] {
   const out: MenuItem[] = [];
   const sep = () => { if (out.length && !out[out.length - 1].separator) out.push({ label: "", separator: true }); };
-  for (const el of group.querySelectorAll<HTMLElement>("button, select, input, label")) {
+  for (const el of controls) {
     // a <label> styled as a button around a hidden file input ("Open…", "Picture…") is a command of its own
     if (el instanceof HTMLLabelElement) {
       const file = el.querySelector<HTMLInputElement>("input[type=file]");
@@ -76,7 +83,7 @@ export function mirrorGroup(group: Element | null | undefined, inlineOptions = I
     }
     if (el.closest("[hidden],[role=menu],[data-banner-skip]") || el.hidden) continue;
     if (el instanceof HTMLInputElement && (el.type === "file" || el.type === "hidden")) continue;
-    if (el.getAttribute("aria-haspopup") === "menu" && el.closest("[data-banner-group]") !== group) continue;
+    if (group && el.getAttribute("aria-haspopup") === "menu" && el.closest("[data-banner-group]") !== group) continue;
     if (el instanceof HTMLButtonElement) {
       const label = controlLabel(el); if (!label) continue;
       const pressed = el.getAttribute("aria-pressed");
@@ -131,6 +138,10 @@ function groupNames(children: ReactNode): BannerMenu[] {
   return out;
 }
 
+/** TT110: groups that stay on the bar, folded only as a last resort and in this order (last = most
+ *  protected): undo/redo first, then the fonts-and-alignment group a person types with. */
+const KEEP_INLINE = ["Tweak", "Look"];
+
 const Chev = ({ dir }: { dir: "l" | "r" }) => (
   // SVG geometry attributes take plain lengths; calc()/var() must go through CSS,
   // or the browser logs an invalid-attribute error on every banner render.
@@ -146,6 +157,21 @@ export function AppBanner({ label, children, status, testid, extra = [], span }:
   const menus = [...own, ...extra.filter((n) => !own.includes(n))];
   const key = menus.join("|");
   const [ov, setOv] = useState({ l: false, r: false });
+  /**
+   * TT110 — Art layout only. The shell menu bar at the top of the screen already shows the FOCUSED
+   * window's menus, so repeating them inside that window is noise; and the tool strip is wider than
+   * any realistic window, so its tail could only be reached by scrolling sideways.
+   *
+   * Here the window drops the repeated menu row and collapses whatever does not fit into one
+   * "More tools" menu. Collapsed groups stay in the DOM and stay rendered (visibility, not display),
+   * because the menus mirror the live controls and click the very control they name: a collapsed
+   * control is one click away, never unreachable.
+   */
+  const shell = useShell();
+  const [winId, setWinId] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState(0);
+  const artBar = layoutOf(shell.settings["appearance.layout"]) === "art";
+  const focusedHere = artBar && winId !== null && shell.state.focus === winId;
 
   useEffect(() => {
     const el = strip.current; if (!el) return;
@@ -166,30 +192,126 @@ export function AppBanner({ label, children, status, testid, extra = [], span }:
 
   useEffect(() => {
     const win = root.current?.closest("[data-win-id]")?.getAttribute("data-win-id");
+    setWinId(win ?? null);
     if (!win) return;
     bannerStore.set(win, key ? key.split("|") : []);
     return () => bannerStore.del(win);
   }, [key]);
 
+  /**
+   * Which groups step aside so the rest fit on one line. Order matters: the formatting controls
+   * (fonts, alignment) are what a person is reaching for while they work, so they are the LAST to
+   * go, not the first — the tail of the strip folds before them.
+   */
+  const natural = useRef<{ key: string; widths: number[] } | null>(null);
+  useEffect(() => {
+    const el = strip.current;
+    const groupsOf = () => [...(el?.children ?? [])].filter((c): c is HTMLElement => c instanceof HTMLElement && !!c.dataset.bannerGroup);
+    if (!el || !artBar) {
+      for (const g of groupsOf()) delete g.dataset.folded;
+      natural.current = null;
+      setCollapsed((c) => (c === 0 ? c : 0));
+      return;
+    }
+    const fit = () => {
+      const kids = groupsOf();
+      if (!kids.length) return;
+      if (natural.current?.key !== key || natural.current.widths.length !== kids.length) {
+        for (const k of kids) delete k.dataset.folded;       // measure every group at its real width
+        natural.current = { key, widths: kids.map((k) => k.getBoundingClientRect().width || k.scrollWidth) };
+      }
+      const widths = natural.current.widths;
+      const room = el.clientWidth - 4;
+      const MORE = 86;                                       // the "More tools" button, once it is needed
+      const name = (k: HTMLElement) => k.dataset.bannerGroup ?? "";
+      const order: number[] = [];                            // fold these first: the tail, least-used end first
+      for (let i = kids.length - 1; i >= 0; i--) if (!KEEP_INLINE.includes(name(kids[i]))) order.push(i);
+      for (const keep of KEEP_INLINE)                        // then the protected ones, formatting dead last
+        for (let i = kids.length - 1; i >= 0; i--) if (name(kids[i]) === keep) order.push(i);
+      const folded = new Set<number>();
+      let used = widths.reduce((a, b) => a + b, 0);
+      for (const idx of order) {
+        if (used + (folded.size ? MORE : 0) <= room) break;
+        if (folded.size >= kids.length - 1) break;           // never fold the whole strip away
+        folded.add(idx); used -= widths[idx];
+      }
+      kids.forEach((k, i) => { if (folded.has(i)) k.dataset.folded = "1"; else delete k.dataset.folded; });
+
+      /**
+       * A single group can be wider than the window on its own — Writer's formatting group measures
+       * 1530px in a 936px strip. Keeping it whole would mean scrolling for a font size, so the group
+       * stays and its TAIL steps aside control by control, in the same "More tools" menu.
+       */
+      let spare = room - used - (folded.size ? MORE : 0);
+      for (const k of kids) {
+        const controls = [...k.querySelectorAll<HTMLElement>(":scope > *")];
+        for (const c of controls) delete c.dataset.folded;
+      }
+      let perControl = 0;
+      for (let i = 0; i < kids.length; i++) {
+        if (folded.has(i) || widths[i] <= 0) continue;
+        if (spare >= 0 && widths[i] <= room) continue;       // this group already fits
+        const k = kids[i];
+        const controls = [...k.querySelectorAll<HTMLElement>(":scope > *")];
+        const cw = controls.map((c) => c.getBoundingClientRect().width || 0);
+        const chrome = widths[i] - cw.reduce((a, b) => a + b, 0);
+        let run = chrome;
+        const budget = room - (used - widths[i]) - (MORE);   // what is left for this group
+        for (let j = 0; j < controls.length; j++) {
+          run += cw[j] + 2;
+          if (run > budget && j > 0) { controls[j].dataset.folded = "1"; perControl += 1; }
+        }
+        used = used - widths[i] + Math.min(widths[i], budget);
+      }
+      spare = 0;
+      setCollapsed((c) => (c === folded.size + perControl ? c : folded.size + perControl));
+    };
+    const ro = new ResizeObserver(fit); ro.observe(el);
+    fit();
+    return () => { ro.disconnect(); for (const g of groupsOf()) delete g.dataset.folded; };
+  }, [artBar, key]);
+
   const page = (dir: 1 | -1) => { const el = strip.current; if (el) el.scrollBy({ left: dir * Math.max(120, el.clientWidth * 0.7), behavior: "smooth" }); };
   const groups = (n: string) => (root.current?.closest("[data-win-id]") ?? root.current)?.querySelectorAll(`[data-banner-group="${n}"]`) ?? [];
   return (
     <div ref={root} className="fs-banner" data-testid={testid ?? "app-banner"} data-app={label} style={span ? { gridColumn: span } : undefined}>
-      <div className="fs-banner-menus">
-        <nav aria-label={`${label} menus`} className="fs-banner-nav">
-          {menus.map((n) => (
-            <MenuButton key={n} label={n} testid={`banner-menu-${n.toLowerCase()}`} items={() => mirrorGroupsDetailed(groups(n))}
-              buttonStyle={{ minHeight: fz(24), padding: `0 ${fz(9)}`, borderRadius: 999, fontWeight: 600 }}>{n}</MenuButton>
-          ))}
-        </nav>
-        {status ? <div className="fs-banner-status">{status}</div> : null}
-      </div>
+      {focusedHere && !status ? null : (
+        <div className="fs-banner-menus">
+          {focusedHere ? null : (
+            <nav aria-label={`${label} menus`} className="fs-banner-nav">
+              {menus.map((n) => (
+                <MenuButton key={n} label={n} testid={`banner-menu-${n.toLowerCase()}`} items={() => mirrorGroupsDetailed(groups(n))}
+                  buttonStyle={{ minHeight: fz(24), padding: `0 ${fz(9)}`, borderRadius: 999, fontWeight: 600 }}>{n}</MenuButton>
+              ))}
+            </nav>
+          )}
+          {status ? <div className="fs-banner-status">{status}</div> : null}
+        </div>
+      )}
       <div className="fs-banner-stripwrap" data-ol={ov.l ? "1" : undefined} data-or={ov.r ? "1" : undefined}>
         <button type="button" className="fs-banner-chev" aria-label="Show earlier tools" tabIndex={-1} hidden={!ov.l} data-testid="banner-prev" onClick={() => page(-1)}><Chev dir="l" /></button>
         <div ref={strip} className="fs-banner-strip" role="toolbar" aria-label={`${label} tools`} data-testid="banner-strip"
+          data-collapsed={collapsed || undefined}
           onMouseDown={(e) => { if ((e.target as HTMLElement).closest("button") && (e.target as HTMLElement).closest("[data-keep-focus]")) e.preventDefault(); }}>
           {children}
         </div>
+        {collapsed > 0 ? (
+          <MenuButton label="More tools" testid="banner-more" buttonStyle={{ minHeight: fz(22), padding: `0 ${fz(8)}`, borderRadius: 8, margin: `0 ${fz(2)}`, flex: "0 0 auto", whiteSpace: "nowrap" }}
+            items={() => {
+              const el = strip.current;
+              if (!el) return [];
+              const items: MenuItem[] = [];
+              for (const node of el.querySelectorAll<HTMLElement>('[data-folded="1"]')) {
+                if (node.closest('[data-banner-group][data-folded="1"]') && !node.dataset.bannerGroup) continue;
+                const part = node.dataset.bannerGroup
+                  ? mirrorGroupsDetailed([node])
+                  : mirrorControls([node]);
+                if (part.length && items.length) items.push({ label: "", separator: true });
+                items.push(...part);
+              }
+              return items;
+            }}>More</MenuButton>
+        ) : null}
         <button type="button" className="fs-banner-chev" aria-label="Show more tools" tabIndex={-1} hidden={!ov.r} data-testid="banner-next" onClick={() => page(1)}><Chev dir="r" /></button>
       </div>
     </div>

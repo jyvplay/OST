@@ -6,11 +6,13 @@ import { cropRegion, loadedPngDimensions, oneResidentFile, type CropRect } from 
 import { RECALL_LIMIT, recallFolder, recallMime } from '@/lib/recall-core';
 import type { RecallGuard } from '@/lib/server/recall-lifecycle';
 import { Btn } from '../ui';
+import { useShell } from '../shell-context';
 
 /** Human-selected, already resident bytes. This module never fetches a media URL. */
 const plural=(n:number,one:string,many=one+'s')=>`${n} ${n===1?one:many}`;
 
 export default function RecallMemory({ context }: { context: () => RecallInput }) {
+ const shell=useShell();
  const [note,setNote]=useState(''),[busy,setBusy]=useState(false),[items,setItems]=useState<{path:string;name:string;mime:string}[]>([]),[view,setView]=useState<{url:string;mime:string;path:string;bytesSha:string;mediaGuard:RecallGuard['media']}|null>(null);
  const [next,setNext]=useState<string|null>(null),[folder,setFolder]=useState('');
  // TT109: default off — a save the person asked for always files a memory unless they say otherwise.
@@ -40,6 +42,47 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
   if(mounted.current)setNote(r.stored
    ? 'Saved memory → '+r.path+cut
    : `Already saved on ${new Date(r.firstSavedAt??Date.now()).toLocaleString()} → ${r.path} · identical bytes, so this folder keeps one copy instead of two.`);
+ };
+ /**
+  * TT110 (RC-35): act on the memory that is open. Shaped after the incumbent's act-on-a-selection
+  * surface, with the analysis left out on purpose: this app does not read what is IN the picture,
+  * it only hands the picture itself to the clipboard or to another module by path. Nothing is
+  * re-fetched and nothing is written to a temporary file on the way.
+  */
+ const copyMemory=async()=>{
+  if(!view)throw Error('Open a memory first');
+  if(typeof ClipboardItem==='undefined'||!navigator.clipboard?.write)throw Error('This browser cannot put files on the clipboard; use Export open memory instead.');
+  const node=await api<{node?:{content?:string;encoding?:string}}>('/api/fs?'+new URLSearchParams({op:'read',path:view.path}));
+  const raw=node.node?.content??'';
+  if(!raw)throw Error('That memory has no stored bytes to copy');
+  const bytes=Uint8Array.from(atob(raw),c=>c.charCodeAt(0));
+  if(view.mime==='image/png'){
+   await navigator.clipboard.write([new ClipboardItem({'image/png':new Blob([bytes],{type:'image/png'})})]);
+   // Measured, not assumed: Chromium decodes and re-encodes images that pass through the system
+   // clipboard, so the pasted file is a new PNG with the same pixels. Say exactly that.
+   if(mounted.current)setNote(`Copied this ${fmtBytes(bytes.length)} PNG memory to the clipboard. The browser re-encodes images on the clipboard, so what you paste has the same pixels but not the same file bytes; the archived file is untouched.`);
+   return;
+  }
+  if(view.mime.startsWith('image/')){
+   // Chromium only accepts PNG image payloads on the clipboard, so anything else is re-encoded.
+   // Say so: the clipboard copy is then a new rendering, not the archived bytes.
+   const bitmap=await createImageBitmap(new Blob([bytes],{type:view.mime}));
+   const canvas=document.createElement('canvas');canvas.width=bitmap.width;canvas.height=bitmap.height;
+   const ctx=canvas.getContext('2d');if(!ctx){bitmap.close();throw Error('Canvas unavailable for the clipboard re-encode');}
+   ctx.drawImage(bitmap,0,0);bitmap.close();
+   const png=await new Promise<Blob>((res,rej)=>canvas.toBlob(b=>b?res(b):rej(Error('PNG encoding failed')),'image/png'));
+   await navigator.clipboard.write([new ClipboardItem({'image/png':png})]);
+   if(mounted.current)setNote(`Copied a PNG re-encode of this ${view.mime} memory (${fmtBytes(png.size)}) — same pixels, different bytes; the archived file is unchanged.`);
+   return;
+  }
+  await navigator.clipboard.writeText(view.path);
+  if(mounted.current)setNote(`${view.mime} cannot be put on the clipboard as a file; copied the memory's path instead.`);
+ };
+ /** Hand the memory to another module by path. No copy is made and no temporary file is left behind. */
+ const openMemoryWith=(moduleId:string)=>{
+  if(!view)throw Error('Open a memory first');
+  shell.open(moduleId,moduleId==='files'?{path:view.path.slice(0,view.path.lastIndexOf('/'))}:{path:view.path});
+  setNote(`Opened ${view.path} in ${moduleId} — the archive still holds the only copy.`);
  };
  const list=async(older=false)=>{
   recallWritable();const c=context(),path=recallFolder(c.page,c.title,c.grouping,c.custom);
@@ -176,6 +219,9 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
    <Btn disabled={busy||!view||!drag||view.mime.startsWith('audio/')} onClick={()=>void run(saveRegion)}>Save selected region</Btn>
    <Btn disabled={busy||!drag} onClick={()=>setDrag(null)}>Clear region</Btn>
    <Btn disabled={busy} onClick={()=>void run(loadTimeline)}>Show saving timeline</Btn>
+   <Btn disabled={busy||!view} onClick={()=>void run(copyMemory)}>Copy memory to clipboard</Btn>
+   <Btn disabled={busy||!view||!view.mime.startsWith('image/')} onClick={()=>{try{openMemoryWith('photos');}catch(e){setNote(e instanceof Error?e.message:String(e));}}}>Open memory in Photos</Btn>
+   <Btn disabled={busy||!view} onClick={()=>{try{openMemoryWith('files');}catch(e){setNote(e instanceof Error?e.message:String(e));}}}>Show memory in Files</Btn>
    <Btn disabled={busy||!view} onClick={()=>setConfirmTrash(true)}>Trash open memory pair</Btn>
    <Btn disabled={busy||!undo} onClick={()=>void run(restore)}>Undo pair trash</Btn>
    <Btn disabled={busy||!view} onClick={()=>{if(!view)return;const a=document.createElement('a');a.href=view.url;a.download=view.path.split('/').pop()||'memory';a.click();setNote('Local export requested from the open saved Blob; browser download policy may require confirmation.');}}>Export open memory</Btn>

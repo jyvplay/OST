@@ -11,6 +11,8 @@ import { LAYOUT_IDS, DOCK_SIZE_IDS } from "./layout-core";
  * Returns null when valid, otherwise a human-readable reason.
  */
 const ENUMS: Record<string, readonly string[]> = {
+  // TT110 (RC-36): a policy switch that really disables the capture pathways, enforced server-side.
+  "privacy.screenCapture": ["on", "off"],
   "appearance.theme": ["dark", "light", "system"],
   "appearance.density": ["compact", "balanced", "touch"],
   "appearance.motion": ["system", "on", "off"],

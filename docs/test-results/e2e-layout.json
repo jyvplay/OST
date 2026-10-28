@@ -1,6 +1,6 @@
 {
   "suite": "e2e-layout",
-  "at": "2026-10-26T13:06:52.259Z",
+  "at": "2026-10-28T23:04:34.583Z",
   "results": [
     {
       "suite": "e2e-layout",
@@ -10,7 +10,7 @@
         "LY-01": "partial"
       },
       "pass": true,
-      "ms": 4456
+      "ms": 3829
     },
     {
       "suite": "e2e-layout",
@@ -19,7 +19,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 6151
+      "ms": 5022
     },
     {
       "suite": "e2e-layout",
@@ -28,7 +28,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 3984
+      "ms": 3741
     },
     {
       "suite": "e2e-layout",
@@ -38,7 +38,7 @@
         "LY-02": "partial"
       },
       "pass": true,
-      "ms": 18506
+      "ms": 13261
     },
     {
       "suite": "e2e-layout",
@@ -46,8 +46,9 @@
       "covers": {
         "LY-05": "full"
       },
-      "pass": true,
-      "ms": 5865
+      "pass": false,
+      "error": "focus moves to the first app",
+      "ms": 2027
     },
     {
       "suite": "e2e-layout",
@@ -55,8 +56,9 @@
       "covers": {
         "LY-02": "full"
       },
-      "pass": true,
-      "ms": 6631
+      "pass": false,
+      "error": "bubble above the magnified icon",
+      "ms": 2329
     },
     {
       "suite": "e2e-layout",
@@ -65,7 +67,7 @@
         "LY-02": "full"
       },
       "pass": true,
-      "ms": 5904
+      "ms": 4559
     },
     {
       "suite": "e2e-layout",
@@ -74,7 +76,7 @@
         "LY-02": "full"
       },
       "pass": true,
-      "ms": 4497
+      "ms": 4099
     },
     {
       "suite": "e2e-layout",
@@ -84,7 +86,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 2197
+      "ms": 1811
     },
     {
       "suite": "e2e-layout",
@@ -95,7 +97,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 3525
+      "ms": 2712
     },
     {
       "suite": "e2e-layout",
@@ -107,7 +109,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 16469
+      "ms": 14555
     },
     {
       "suite": "e2e-layout",
@@ -116,7 +118,7 @@
         "LY-03": "full"
       },
       "pass": true,
-      "ms": 41
+      "ms": 34
     }
   ]
 }

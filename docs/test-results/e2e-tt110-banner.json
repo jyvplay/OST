@@ -1,0 +1,35 @@
+{
+  "suite": "e2e-tt110-banner",
+  "at": "2026-10-28T22:54:38.288Z",
+  "results": [
+    {
+      "suite": "e2e-tt110-banner",
+      "name": "in Art layout a window does not repeat the menus the shell menu bar is already showing",
+      "covers": {
+        "WM-02": "partial",
+        "AX-05": "partial"
+      },
+      "pass": true,
+      "ms": 8129
+    },
+    {
+      "suite": "e2e-tt110-banner",
+      "name": "an unfocused window keeps its own menus, because the shell bar only shows the focused one",
+      "covers": {
+        "WM-02": "partial"
+      },
+      "pass": true,
+      "ms": 1923
+    },
+    {
+      "suite": "e2e-tt110-banner",
+      "name": "the fonts and alignment bar fits inside the window instead of scrolling sideways",
+      "covers": {
+        "WM-02": "partial",
+        "AX-05": "partial"
+      },
+      "pass": true,
+      "ms": 3866
+    }
+  ]
+}

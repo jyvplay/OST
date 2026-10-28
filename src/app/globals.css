@@ -680,6 +680,10 @@ span.fs-tt-pin { pointer-events: none; }
 .fs-banner-strip { display: flex; align-items: center; gap: 0; flex: 1 1 auto; min-width: 0; padding: calc(3 * var(--fs-u)) calc(4 * var(--fs-u)) calc(4 * var(--fs-u));
   flex-wrap: nowrap !important; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain; }
 .fs-banner-strip::-webkit-scrollbar { display: none; }
+/* TT110: a group folded into the "More tools" menu keeps its box (visibility, not display) so the
+   menus can still read and click the live controls it holds. */
+.fs-banner-strip [data-folded="1"] {
+  position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; }
 .fs-banner-stripwrap[data-ol] .fs-banner-strip { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 28px); mask-image: linear-gradient(90deg, transparent 0, #000 28px); }
 .fs-banner-stripwrap[data-or] .fs-banner-strip { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
 .fs-banner-stripwrap[data-ol][data-or] .fs-banner-strip { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent); }

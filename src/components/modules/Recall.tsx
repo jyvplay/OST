@@ -13,7 +13,10 @@ type Writable = {write:(data:Blob)=>Promise<void>;close:()=>Promise<void>;abort:
 type LocalHandle = {createWritable:()=>Promise<Writable>;name:string};
 const empty: ReturnType<typeof recallSnapshot> = [];
 export default function Recall({win}:ModuleProps){
- const shell=useShell();const jobs=useSyncExternalStore(recallSubscribe,recallSnapshot,()=>empty);
+ const shell=useShell();
+ // TT110 (RC-36): the capture policy. The server refuses these methods when it is off; the
+ // interface must not pretend the buttons would work, and must say where the switch lives.
+ const captureAllowed=shell.settings['privacy.screenCapture']!=='off';const jobs=useSyncExternalStore(recallSubscribe,recallSnapshot,()=>empty);
  const [browserOpen,setBrowserOpen]=useState(false);
  const [url,setUrl]=useState(String(win.props.url??'https://github.com/'));
  const [title,setTitle]=useState(String(win.props.pageTitle??'')),[grouping,setGrouping]=useState<RecallGrouping>('host'),[custom,setCustom]=useState('');
@@ -132,6 +135,7 @@ export default function Recall({win}:ModuleProps){
    <Btn disabled={running} onClick={()=>{try{enqueueRecall(input());setError('');}catch(e){setError(e instanceof Error?e.message:String(e));}}}>Save media URL</Btn>
    <p>HTTP(S) images, video or audio only, up to 8 MiB. Redirects, playlists, blob URLs and HTML are not complete media. The existing guarded proxy checks network destinations. Query tokens are excluded from receipts. Publisher MIME headers are not proof of a playable codec.</p>
   </Section>
+  {captureAllowed?null:<div role="note" data-testid="capture-policy-off">Screen and element capture is switched off for this installation (Settings → Privacy → Screen and element capture). The buttons below stay disabled, and the server refuses these saves even if something else asks for them.</div>}
   <Section title="2 · Authorized live video / shared audio encoding">
    <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}><Btn disabled={running} onClick={scan}>Refresh Fusion sources</Btn><label>Capture source <select aria-label="Recall capture source" disabled={running} value={captureSource} onChange={e=>setCaptureSource(e.target.value)}><option value="display">Shared display / tab (permission required)</option>{sources.map((s,i)=><option key={i} value={String(i)}>{s.label}</option>)}</select></label></div>
    <p>Fusion element capture is limited to accessible, already-rendered canvas/video/audio elements in this document. It cannot reach opaque/cross-origin frames or protected media. Canvas has no audio; a microphone is never silently added.</p>
@@ -140,13 +144,13 @@ export default function Recall({win}:ModuleProps){
     <label><input type="checkbox" checked={audioOnly} disabled={running} onChange={e=>setAudioOnly(e.target.checked)}/> Audio-only output (requires shared audio)</label>
     <Btn disabled={running} onClick={()=>void chooseLocal()}>Choose local streaming file (experimental)</Btn>
     {local?<Btn disabled={running} onClick={()=>setLocal(null)}>Use bounded VFS instead</Btn>:null}
-    <Btn variant="primary" disabled={running} onClick={()=>void start()}>Start authorized recording</Btn>
+    <Btn variant="primary" disabled={running||!captureAllowed} onClick={()=>void start()}>Start authorized recording</Btn>
     <Btn disabled={phase!=='recording'} onClick={stop}>Stop and finalize</Btn>
    </div>
    <p>{local?`Streaming to ${local.name}; bounded pending writes, no full-recording RAM buffer.`:'VFS auto-stops near 6 MiB, hard limit 8 MiB. Choose a local file for long recordings.'} Bytes received: {fmtBytes(bytes)}. Permission is required each time; only audio tracks actually granted are encoded. Protected content may be blank or unavailable.</p>
   </Section>
   <Section title="3 · PNG raster snapshot of an authorized shared surface">
-   <Btn disabled={running} onClick={()=>void start(true)}>Capture authorized image</Btn><p>Rasterizes a decoded video frame to PNG (16 MP / 8 MiB limits), not the original image bytes.</p>
+   <Btn disabled={running||!captureAllowed} onClick={()=>void start(true)}>Capture authorized image</Btn><p>Rasterizes a decoded video frame to PNG (16 MP / 8 MiB limits), not the original image bytes.</p>
   </Section>
   <video ref={preview} muted playsInline style={{maxWidth:'100%',maxHeight:180,background:'#000'}} aria-label="Recall capture preview"/>
   {error?<div role="alert">{error}</div>:null}

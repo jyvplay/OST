@@ -1,11 +1,12 @@
 /** Original atomic publication of Recall bytes and receipt; plaintext, not an encrypted archive. */
 import { createHash } from 'node:crypto';
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { safeTransaction } from './transaction';
 import { conditionalWriteInTransaction, ConditionalWriteConflict } from './conditional-write';
 import { recallMime, recallSource, RECALL_LIMIT } from '../recall-core';
 import { verifyRecallReceipt, validDerivedFrom } from '../recall-memory';
 import { normalize } from './vfs';
+import { settings } from '@/db/schema';
 
 /** A derived memory named a parent that is not saved, or that has changed since. */
 export class RecallProvenanceError extends Error {}
@@ -15,6 +16,21 @@ const DERIVED_METHODS = new Set(['cropped-preview-region']);
 
 /** The one method that asks the network for the bytes again; everything else saves what was already loaded. */
 const REFETCH_METHOD = 'original-response';
+
+/**
+ * TT110 (RC-36): the methods that record a shared surface rather than something the page had
+ * already handed to this app. A deployment can switch these off, and the switch is enforced here —
+ * inside the publication transaction — so hiding the buttons is not what makes it true.
+ */
+const CAPTURE_METHODS = new Set(['authorized-display-frame', 'authorized-display-recording', 'fusion-element-frame']);
+export const CAPTURE_POLICY_KEY = 'privacy.screenCapture';
+export const CAPTURE_REFUSED = 'Screen and element capture is switched off for this installation (Settings → Privacy → Screen and element capture)';
+
+/**
+ * A refusal the operator configured, not a failure. It must not be reported as an uncertain
+ * publication: nothing was written, there is no pair to inspect, and retrying will refuse again.
+ */
+export class RecallPolicyRefusal extends Error {}
 
 /**
  * TT109 (RC-34): an archive of what you already saw should know when you have saved a thing before.
@@ -55,6 +71,12 @@ export async function atomicRecallCommit(value:Record<string,unknown>) {
  if(DERIVED_METHODS.has(r.method)&&!derived)throw Error(`Method ${r.method} must record the memory it was derived from`);
  if(derived&&!DERIVED_METHODS.has(r.method))throw Error('Only a derived-region save may record derivedFrom');
  try{return await safeTransaction(async tx=>{
+  if(CAPTURE_METHODS.has(r.method as string)){
+   // Read the policy in the same transaction that would do the writing: a switch flipped a
+   // microsecond before this commit is honoured, and a client cannot talk past it.
+   const policy=await tx.select({value:settings.value}).from(settings).where(eq(settings.key,CAPTURE_POLICY_KEY)).limit(1);
+   if(policy[0]?.value==='off')throw new RecallPolicyRefusal(CAPTURE_REFUSED);
+  }
   if(derived){
    // vfs_nodes.sha256 digests the stored *text*; a receipt digests the decoded bytes.
    // Provenance is compared in the receipt's own terms, so the two can be cross-checked
@@ -92,7 +114,7 @@ export async function atomicRecallCommit(value:Record<string,unknown>) {
   await conditionalWriteInTransaction(tx,path+'.recall.json',receipt,null,'utf8','application/json');
   return {ok:true,path,atomic:true,stored:true,digest,...(derived?{derivedFrom:derived.path}:{})};
  });}catch(error){
-  if(error instanceof ConditionalWriteConflict||error instanceof RecallProvenanceError)throw error;
+  if(error instanceof ConditionalWriteConflict||error instanceof RecallProvenanceError||error instanceof RecallPolicyRefusal)throw error;
   // Do not reflect driver SQL/parameters, which can contain all saved bytes and labels.
   throw Error('Recall publication was not acknowledged. Inspect the saved pair before retrying.');
  }
