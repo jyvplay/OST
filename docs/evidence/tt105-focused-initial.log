@@ -1,0 +1,23 @@
+=== tt105-atomic
+  ✗ real database receipt-insert failure rolls back first media insert and ancillary rows
+    The input did not match the regular expression /real receipt constraint/. Input:
+
+'Failed query: insert into "vfs_nodes" ("id", "path", "parent", "name", "kind", "mime", "encoding", "content", "size", "sha256", "tags", "trashed", "trashed_from", "version", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, default, default, default, default, default, default) on conflict ("path") do nothing returning "id"\n' +
+--
+23 passed, 1 failed
+FAILED: real database receipt-insert failure rolls back first media insert and ancillary rows
+=== e2e-tt105-clicked
+  ✗ selected connected target beyond first 200 visuals is still eligible
+    Expected values to be strictly equal:
+
+1 !== 2
+--
+  ✗ removed selected target refuses rather than saving another visual
+    Expected values to be strictly equal:
+
+2 !== 1
+--
+4 passed, 2 failed
+FAILED: selected connected target beyond first 200 visuals is still eligible | removed selected target refuses rather than saving another visual
+FAILED SUITES: tt105-atomic e2e-tt105-clicked
+ALLDONE

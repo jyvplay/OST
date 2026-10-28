@@ -1,27 +1,40 @@
 {
- "generatedAt": "2026-10-28T12:23:10.515Z",
+ "generatedAt": "2026-10-28T14:50:15.338Z",
  "totals": {
   "built": {
    "full": 333,
-   "partial": 78,
+   "partial": 80,
    "blocked": 24,
    "none": 0
   },
   "tested": {
    "full": 259,
-   "partial": 94,
+   "partial": 96,
    "untested": 82
   },
   "tests": {
-   "total": 2473,
-   "passed": 2469
+   "total": 2505,
+   "passed": 2501
   }
  },
  "rows": {
+  "RC-22": {
+   "tested": "partial",
+   "tests": [
+    "tt105-atomic: one acknowledgement publishes both exact media and receipt"
+   ]
+  },
+  "RC-23": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt105-clicked: no pointer selection refuses without a largest fallback",
+    "e2e-tt105-clicked: native pointer chooses smaller decoded canvas without asset refetch"
+   ]
+  },
   "RC-16": {
    "tested": "partial",
    "tests": [
-    "e2e-tt104-memory: native clipboard boundary: save on real grant, no archive on real denial",
+    "e2e-tt104-memory: native clipboard image-transfer experiment records the real permission boundary",
     "tt104-memory-unit: single native File admitted without rewriting its bytes"
    ]
   },
@@ -56,7 +69,7 @@
   "RC-21": {
    "tested": "partial",
    "tests": [
-    "e2e-tt104-memory: streaming DOM scan stops before a late visual without allocating all matches"
+    "e2e-tt104-memory: streaming discovery preserves a late first-200 visual after 2005 nonvisual elements"
    ]
   },
   "RC-01": {

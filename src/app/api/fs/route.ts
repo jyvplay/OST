@@ -1,3 +1,4 @@
+import { atomicRecallCommit } from '@/lib/server/recall-commit';
 import { NextResponse, type NextRequest } from "next/server";
 import { and, desc, eq, getTableColumns, ilike, like, lt, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -130,6 +131,7 @@ export async function POST(req: NextRequest) {
   const op = String(body.op ?? "");
   try {
     switch (op) {
+      case "recallCommit": return NextResponse.json(await atomicRecallCommit(body));
       case "writeIfUnchanged": { // folder sync: either create only if absent or replace exactly the previewed version
         const b = body as unknown as Record<string, unknown>;
         if (typeof b.path !== "string" || typeof b.content !== "string" || !Object.hasOwn(b, "expected")) {

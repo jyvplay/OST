@@ -52,7 +52,7 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
   const [tools,setTools]=useState(!embeddedRecall);
   const recallOwner=useId();
   const loadedEpoch=useRef(0);
-  const loadedRequest=useRef<{token:string;epoch:number;page:string;title:string;grouping:RecallGrouping;custom:string;timer:ReturnType<typeof setTimeout>}|null>(null);
+  const loadedRequest=useRef<{token:string;selected:boolean;epoch:number;page:string;title:string;grouping:RecallGrouping;custom:string;timer:ReturnType<typeof setTimeout>}|null>(null);
   const [loadedBusy,setLoadedBusy]=useState(false);
   useEffect(()=>()=>{loadedEpoch.current++;if(loadedRequest.current)clearTimeout(loadedRequest.current.timer);loadedRequest.current=null;},[]);
   const [autoRecall,setAutoRecall]=useState(false),[recallGroup,setRecallGroup]=useState<RecallGrouping>('host'),[recallCustom,setRecallCustom]=useState('');
@@ -149,7 +149,7 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
           const dimensions=loadedPngDimensions(bytes);
           const decoded=await createImageBitmap(d.blob as Blob);try{if(decoded.width!==dimensions.width||decoded.height!==dimensions.height)throw Error('PNG decoder dimension mismatch');}finally{decoded.close();}
           if(request.epoch!==loadedEpoch.current||!frame.current)throw Error('Document closed or changed during decode');
-          const path=await commitRecall(bytes,'image/png',{...request,url:request.page,owner:recallOwner},'loaded-visual-png');setNote('Saved loaded visual → '+path);
+          const path=await commitRecall(bytes,'image/png',{...request,url:request.page,owner:recallOwner},request.selected?'clicked-visual-png':'loaded-visual-png');setNote('Saved loaded visual → '+path);
         }catch(err){setNote('Not saved: '+(err instanceof Error?err.message:String(err)));}finally{setLoadedBusy(false);}})();return;
       }
       if(d.fusionWp==='recall-media'){
@@ -239,11 +239,11 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
     } finally { transfer.current = null; setSavePhase(null); }
   };
 
-  const saveLoaded=()=>{
+  const saveLoaded=(selected=false)=>{
     if(loadedRequest.current||loadedBusy)return;
     try{recallWritable();if(!sid)throw Error('Proxy session is not ready');if(recallGroup==='custom'&&!recallCustom.trim())throw Error('Enter a custom Recall folder');
-      const token=crypto.randomUUID();loadedRequest.current={token,epoch:loadedEpoch.current,page:hist.list[hist.i],title:title||currentSite,grouping:recallGroup,custom:recallCustom,timer:setTimeout(()=>{loadedRequest.current=null;setLoadedBusy(false);setNote('Loaded visual did not answer within 8 seconds; nothing saved.');},8000)};
-      setLoadedBusy(true);send({fusionWp:'recall-loaded',token});
+      const token=crypto.randomUUID();loadedRequest.current={token,selected,epoch:loadedEpoch.current,page:hist.list[hist.i],title:title||currentSite,grouping:recallGroup,custom:recallCustom,timer:setTimeout(()=>{loadedRequest.current=null;setLoadedBusy(false);setNote('Loaded visual did not answer within 8 seconds; nothing saved.');},8000)};
+      setLoadedBusy(true);setNote('Reading current loaded visual…');send({fusionWp:'recall-loaded',token,selected});
     }catch(err){setNote(err instanceof Error?err.message:String(err));}
   };
   const toggleRecall=()=>{
@@ -259,7 +259,8 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
   return (
     <div data-testid="wp-tab" data-sid={sid ?? ""} data-url={hist.list[hist.i]} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <div data-testid="wp-bar" className="fs-row" style={{ gap: 4, padding: "3px 6px", flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11) }}>
-        <Btn disabled={!sid||loadedBusy} onClick={saveLoaded}>Save largest loaded visual</Btn>
+        <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded()}>Save largest loaded visual</Btn>
+        <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded(true)}>Save clicked loaded visual</Btn>
         <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall}>{autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}</Btn>
         <select aria-label="Auto Recall folders" disabled={autoRecall} value={recallGroup} onChange={e=>setRecallGroup(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select>
         {recallGroup==='custom'?<input aria-label="Auto Recall custom folder" disabled={autoRecall} value={recallCustom} onChange={e=>setRecallCustom(e.target.value)}/>:null}

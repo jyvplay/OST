@@ -14,17 +14,17 @@ export const recallSnapshot=()=>jobs;
 export const recallSubscribe=(fn:()=>void)=>{listeners.add(fn);return()=>{listeners.delete(fn);};};
 const publish=(id:string, patch:Partial<RecallJob>)=>{jobs=jobs.map(j=>j.id===id?{...j,...patch}:j);listeners.forEach(f=>f());};
 export function recallWritable(){if(!privacy.status().installed||privacy.status().amnesic)throw new Error('Recall server writes are unavailable in amnesic mode. Use a normal session, or save an authorized recording to a local file.');}
-/** Each asset and its receipt are fresh conditional creates. Receipt failure is reported, never called success. */
+/** Atomic create-only media + receipt publication. Lost acknowledgements remain unknown, not success. */
 export async function commitRecall(bytes:Uint8Array, mime:string, input:RecallInput, method:string):Promise<string>{
   recallWritable(); if(!bytes.length||bytes.length>RECALL_LIMIT)throw new Error('Recall files must be nonempty and at most 8 MiB; no truncation is permitted');
   const type=recallMime(mime), folder=recallFolder(input.page,input.title,input.grouping,input.custom);
   for(const path of ['/Downloads','/Downloads/Recall',folder])await api('/api/fs',{method:'POST',body:JSON.stringify({op:'mkdir',path})});
   const path=`${folder}/${Date.now()}-${crypto.randomUUID()}.${recallExtension(type)}`;
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes).buffer)),b=>b.toString(16).padStart(2,'0')).join('');
-  await api('/api/fs',{method:'POST',body:JSON.stringify({op:'writeIfUnchanged',path,content:toB64(bytes),encoding:'base64',mime:type,expected:null})});
-  try{
-    await api('/api/fs',{method:'POST',body:JSON.stringify({op:'writeIfUnchanged',path:path+'.recall.json',content:JSON.stringify({version:1,path,bytes:bytes.length,sha256:digest,mime:type,method,sourceAttribution:method==='original-response'?'requested-url':'user-declared-label',source:recallSource(input.url),page:recallSource(input.page),capturedAt:new Date().toISOString(),queryRedacted:true},null,2),expected:null})});
-  }catch(e){throw new Error(`Media exists at ${path}, but its receipt failed. Check Files before retrying. ${e instanceof Error?e.message:String(e)}`);}
+  const receipt=JSON.stringify({version:1,path,bytes:bytes.length,sha256:digest,mime:type,method,sourceAttribution:method==='original-response'?'requested-url':'user-declared-label',source:recallSource(input.url),page:recallSource(input.page),capturedAt:new Date().toISOString(),queryRedacted:true},null,2);
+  try{await api('/api/fs',{method:'POST',body:JSON.stringify({op:'recallCommit',path,content:toB64(bytes),mime:type,receipt})});}
+  catch(e){throw new Error(`Recall commit not acknowledged for ${path}. Inspect Files before retrying; a lost response can hide a completed pair. ${e instanceof Error?e.message:String(e)}`);}
+
   return path;
 }
 export function cancelRecall(owner?:string){

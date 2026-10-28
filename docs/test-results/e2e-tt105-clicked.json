@@ -1,0 +1,59 @@
+{
+  "suite": "e2e-tt105-clicked",
+  "at": "2026-10-28T14:52:58.795Z",
+  "results": [
+    {
+      "suite": "e2e-tt105-clicked",
+      "name": "no pointer selection refuses without a largest fallback",
+      "covers": {
+        "RC-23": "partial"
+      },
+      "pass": true,
+      "ms": 103
+    },
+    {
+      "suite": "e2e-tt105-clicked",
+      "name": "native pointer chooses smaller decoded canvas without asset refetch",
+      "covers": {
+        "RC-23": "partial"
+      },
+      "pass": true,
+      "ms": 1039
+    },
+    {
+      "suite": "e2e-tt105-clicked",
+      "name": "selected connected target beyond first 200 visuals is still eligible",
+      "covers": {},
+      "pass": true,
+      "ms": 217
+    },
+    {
+      "suite": "e2e-tt105-clicked",
+      "name": "removed selected target refuses rather than saving another visual",
+      "covers": {},
+      "pass": true,
+      "ms": 91
+    },
+    {
+      "suite": "e2e-tt105-clicked",
+      "name": "a nonmedia native pointer action clears previous selection",
+      "covers": {},
+      "pass": true,
+      "ms": 117
+    },
+    {
+      "suite": "e2e-tt105-clicked",
+      "name": "clicked tainted canvas is refused without refetch fallback",
+      "covers": {},
+      "pass": true,
+      "ms": 227
+    },
+    {
+      "suite": "e2e-tt105-clicked",
+      "name": "Specs registers atomic and clicked workflows without full-grade inflation",
+      "covers": {},
+      "pass": true,
+      "ms": 44
+    }
+  ]
+}
