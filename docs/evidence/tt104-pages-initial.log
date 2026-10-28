@@ -1,0 +1,5 @@
+  ✓ native UI loads first metadata page and refuses continuation after grouping changes
+  ✓ native older-page control appends without duplicates and caps at 400
+  ✓ refresh restarts pagination and closing preview has no side effect on listing
+
+3 passed, 0 failed

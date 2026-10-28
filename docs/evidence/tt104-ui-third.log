@@ -1,0 +1,13 @@
+  ✓ resident file save then paged timeline opens actual stored PNG
+  ✓ UI receipt verification checks the stored pair
+  ✓ local Blob export downloads exact open bytes, no upstream request
+  ✓ tampered stored receipt is not called verified
+BOUNDARY: actual headless native clipboard image write denied; positive image-paste delivery remains unverified.
+  ✓ native clipboard boundary: save on real grant, no archive on real denial
+  ✓ native text paste does not become an HTTP download
+  ✓ native webpage-link drag is rejected, never refetched
+  ✓ streaming DOM scan stops before a late visual without allocating all matches
+  ✓ patch-specific positive: removing scan-budget obstruction restores loaded-pixel saving
+  ✓ Specs exposes original and six added Recall requirements without completion inflation
+
+10 passed, 0 failed

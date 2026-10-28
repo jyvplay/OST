@@ -1,0 +1,7 @@
+{
+  "outcome": "NotAllowedError: Failed to execute 'write' on 'Clipboard': Write permission denied.",
+  "permissionOverridden": false,
+  "syntheticClipboardEvent": false,
+  "physicalClipboardVerified": false,
+  "chromium": "153.0.8010.0"
+}

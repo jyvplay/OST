@@ -862,10 +862,12 @@
     var token=e.data.token;
     function answer(blob,error){W.parent.postMessage({fusionWp:'recall-loaded-result',token:token,blob:blob,error:error},'*');}
     try {
-      var candidates=Array.prototype.slice.call(D.querySelectorAll('canvas,video,img'),0,200).filter(function(el){
+      var candidates=[],walker=D.createTreeWalker(D.documentElement,1),node;
+      while(candidates.length<200&&(node=walker.nextNode())){if(/^(CANVAS|VIDEO|IMG)$/.test(node.tagName))candidates.push(node);}
+      candidates=candidates.filter(function(el){
         var r=el.getBoundingClientRect();return r.width>0&&r.height>0&&r.bottom>0&&r.right>0&&r.top<W.innerHeight&&r.left<W.innerWidth;
       }).sort(function(a,b){var x=a.getBoundingClientRect(),y=b.getBoundingClientRect();return y.width*y.height-x.width*x.height;});
-      var el=candidates[0];if(!el)throw Error('No visible loaded visual. This is not a whole-page screenshot.');
+      var el=candidates[0];if(!el)throw Error('No visible loaded visual among the first 200 candidates. This is not a whole-page screenshot.');
       if(el.mediaKeys)throw Error('Protected video is not eligible');
       var width=el.videoWidth||el.naturalWidth||el.width,height=el.videoHeight||el.naturalHeight||el.height;
       if(!width||!height||width*height>16777216)throw Error('No decoded frame or visual exceeds 16 MP');

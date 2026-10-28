@@ -1,23 +1,64 @@
 {
- "generatedAt": "2026-10-28T08:15:48.919Z",
+ "generatedAt": "2026-10-28T12:23:10.515Z",
  "totals": {
   "built": {
    "full": 333,
-   "partial": 72,
+   "partial": 78,
    "blocked": 24,
    "none": 0
   },
   "tested": {
    "full": 259,
-   "partial": 88,
+   "partial": 94,
    "untested": 82
   },
   "tests": {
-   "total": 2403,
-   "passed": 2399
+   "total": 2473,
+   "passed": 2469
   }
  },
  "rows": {
+  "RC-16": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt104-memory: native clipboard boundary: save on real grant, no archive on real denial",
+    "tt104-memory-unit: single native File admitted without rewriting its bytes"
+   ]
+  },
+  "RC-17": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt104-memory: native webpage-link drag is rejected, never refetched",
+    "tt104-memory-unit: single native File admitted without rewriting its bytes"
+   ]
+  },
+  "RC-18": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt104-memory: resident file save then paged timeline opens actual stored PNG",
+    "e2e-tt104-pages: native UI loads first metadata page and refuses continuation after grouping changes",
+    "tt104-page: one page returns exactly 100 metadata rows"
+   ]
+  },
+  "RC-19": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt104-memory: UI receipt verification checks the stored pair",
+    "tt104-memory-unit: valid stored-byte receipt matches exact SHA-256"
+   ]
+  },
+  "RC-20": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt104-memory: local Blob export downloads exact open bytes, no upstream request"
+   ]
+  },
+  "RC-21": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt104-memory: streaming DOM scan stops before a late visual without allocating all matches"
+   ]
+  },
   "RC-01": {
    "tested": "partial",
    "tests": [

@@ -1,0 +1,16 @@
+{
+ "features": 435,
+ "built": {
+  "full": 333,
+  "partial": 78,
+  "blocked": 24,
+  "none": 0
+ },
+ "tested": {
+  "full": 259,
+  "partial": 94,
+  "untested": 82
+ },
+ "tests": "2469/2473",
+ "failingTouch": 5
+}

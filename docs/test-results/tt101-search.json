@@ -1,6 +1,6 @@
 {
   "suite": "tt101-search",
-  "at": "2026-10-28T08:29:08.597Z",
+  "at": "2026-10-28T12:44:01.592Z",
   "results": [
     {
       "suite": "tt101-search",
@@ -35,7 +35,7 @@
       "name": "independent MIT music-metadata parser agrees on the real ID3 lyrics and custom transcript",
       "covers": {},
       "pass": true,
-      "ms": 82
+      "ms": 92
     },
     {
       "suite": "tt101-search",
@@ -70,21 +70,21 @@
       "name": "arbitrary custom transcript in embedded audio is searchable",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 8
     },
     {
       "suite": "tt101-search",
       "name": "artist header is searchable without pretending to decode the audio stream",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 8
     },
     {
       "suite": "tt101-search",
       "name": "stored JSON transcript beyond legacy 50000-character limit is found",
       "covers": {},
       "pass": true,
-      "ms": 15
+      "ms": 16
     },
     {
       "suite": "tt101-search",
@@ -98,7 +98,7 @@
       "name": "zero and false scalar values are searchable, not dropped as falsy",
       "covers": {},
       "pass": true,
-      "ms": 13
+      "ms": 15
     },
     {
       "suite": "tt101-search",
@@ -112,7 +112,7 @@
       "name": "LRC lyric text is searchable",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 7
     },
     {
       "suite": "tt101-search",
@@ -140,7 +140,7 @@
       "name": "large content is honestly skipped and reported",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 7
     },
     {
       "suite": "tt101-search",
@@ -154,42 +154,42 @@
       "name": "literal SQL metacharacters and injection-shaped query do not become operators",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 7
     },
     {
       "suite": "tt101-search",
       "name": "pagination reaches a held-out match after the first bounded page",
       "covers": {},
       "pass": true,
-      "ms": 281
+      "ms": 303
     },
     {
       "suite": "tt101-search",
       "name": "private plaintext is excluded even when calling host endpoint directly",
       "covers": {},
       "pass": true,
-      "ms": 22
+      "ms": 26
     },
     {
       "suite": "tt101-search",
       "name": "current exclusions apply in both metadata and legacy text modes",
       "covers": {},
       "pass": true,
-      "ms": 23
+      "ms": 24
     },
     {
       "suite": "tt101-search",
       "name": "live metadata sees updated values and does not return obsolete fields",
       "covers": {},
       "pass": true,
-      "ms": 29
+      "ms": 32
     },
     {
       "suite": "tt101-search",
       "name": "deep JSON is truncated explicitly without stack overflow",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt101-search",
@@ -210,7 +210,7 @@
       "name": "unlocked private metadata search runs locally and query text never reaches HTTP",
       "covers": {},
       "pass": true,
-      "ms": 10
+      "ms": 11
     },
     {
       "suite": "tt101-search",
@@ -224,21 +224,21 @@
       "name": "real encrypted files paginate locally and do not leak private query text",
       "covers": {},
       "pass": true,
-      "ms": 481
+      "ms": 492
     },
     {
       "suite": "tt101-search",
       "name": "pure page engine cannot admit a 33rd result even with a 33rd supplied record",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt101-search",
       "name": "lock during a real private file read discards the pending metadata result",
       "covers": {},
       "pass": true,
-      "ms": 14
+      "ms": 19
     },
     {
       "suite": "tt101-search",
@@ -259,7 +259,7 @@
       "name": "private metadata never appears in PostgreSQL plaintext",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 5
     }
   ]
 }
