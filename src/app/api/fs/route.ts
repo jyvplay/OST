@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { and, desc, eq, getTableColumns, ilike, like, not, or, sql } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, ilike, like, lt, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { vfsNodes } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
@@ -44,6 +44,24 @@ export async function GET(req: NextRequest) {
   const path = p.get("path") ?? "/";
   try {
     switch (op) {
+      // TT104: keyset pagination projects metadata only; never loads media bodies.
+      case "recallPage": {
+        if (!/^\/Downloads\/Recall\/[^/]+$/.test(path) || path !== normalize(path) || path.length > 256 || /[\u0000-\u001f\u007f]/.test(path))
+          return NextResponse.json({ error: "Select one canonical Recall grouping folder" }, { status: 400 });
+        const cursor = p.get("before");
+        if (cursor !== null && (!/^[1-9][0-9]{0,9}$/.test(cursor) || Number(cursor) > 2147483647))
+          return NextResponse.json({ error: "Invalid Recall cursor" }, { status: 400 });
+        const [folder] = await db.select({kind:vfsNodes.kind,trashed:vfsNodes.trashed}).from(vfsNodes).where(eq(vfsNodes.path,path)).limit(1);
+        if (folder && (folder.kind !== 'dir' || folder.trashed)) return NextResponse.json({error:'Recall folder is unavailable'}, {status:409});
+        const rows = await db.select({id:vfsNodes.id,path:vfsNodes.path,name:vfsNodes.name,mime:vfsNodes.mime,size:vfsNodes.size,createdAt:vfsNodes.createdAt})
+          .from(vfsNodes).where(and(eq(vfsNodes.parent,path),eq(vfsNodes.kind,'file'),eq(vfsNodes.trashed,false),
+            or(like(vfsNodes.mime,'image/%'),like(vfsNodes.mime,'video/%'),like(vfsNodes.mime,'audio/%')),
+            sql`octet_length(${vfsNodes.path}) <= 1024 AND octet_length(${vfsNodes.name}) <= 512 AND octet_length(${vfsNodes.mime}) <= 256`,
+            cursor === null ? undefined : lt(vfsNodes.id,Number(cursor))))
+          .orderBy(desc(vfsNodes.id)).limit(101);
+        const nodes=rows.slice(0,100);
+        return NextResponse.json({ok:true,nodes,next:rows.length>100 ? String(nodes[nodes.length-1].id) : null,order:'insertion-id-desc',metadataLimits:{pathBytes:1024,nameBytes:512,mimeBytes:256}});
+      }
       case "list": {
         const nodes = await listDir(path);
         return NextResponse.json({ ok: true, path: normalize(path), nodes: nodes.map(strip) });

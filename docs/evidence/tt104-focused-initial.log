@@ -1,0 +1,15 @@
+=== tt104-memory-unit
+23 passed, 0 failed
+=== tt104-page
+24 passed, 0 failed
+=== e2e-tt104-memory
+CRASHED e2e-tt104-memory (no summary line) — last lines:
+
+TypeError: Cannot read properties of null (reading 'revision')
+    at file:///home/user/OST/scripts/e2e-tt104-memory.mts:11:67
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v22.22.3
+CRASHED SUITES: e2e-tt104-memory
+FAILED SUITES: e2e-tt104-memory
+ALLDONE

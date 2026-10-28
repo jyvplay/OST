@@ -1,0 +1,183 @@
+{
+  "suite": "tt104-page",
+  "at": "2026-10-28T12:42:37.907Z",
+  "results": [
+    {
+      "suite": "tt104-page",
+      "name": "one page returns exactly 100 metadata rows",
+      "covers": {
+        "RC-18": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt104-page",
+      "name": "no bodies or encoding returned",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt104-page",
+      "name": "strict insertion-ID descending ordering",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt104-page",
+      "name": "cursor advances without overlap",
+      "covers": {},
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt104-page",
+      "name": "terminal page returns remaining 35 and no cursor",
+      "covers": {},
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt104-page",
+      "name": "new concurrent insert does not shift an older cursor page",
+      "covers": {},
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt104-page",
+      "name": "oversized metadata is excluded before transfer, not silently truncated",
+      "covers": {},
+      "pass": true,
+      "ms": 12
+    },
+    {
+      "suite": "tt104-page",
+      "name": "trash and non-media are excluded",
+      "covers": {},
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid cursor 0",
+      "covers": {},
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid cursor -1",
+      "covers": {},
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid cursor 1.5",
+      "covers": {},
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid cursor 1e3",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid cursor 2147483648",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid cursor NaN",
+      "covers": {},
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid cursor  1",
+      "covers": {},
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid cursor 01",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid cursor 1 OR 1=1",
+      "covers": {},
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid folder \"/\"",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid folder \"/Private/a\"",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid folder \"/Downloads/Recall\"",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid folder \"/Downloads/Recall/a/../b\"",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid folder \"/Downloads/Recall/a/b\"",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt104-page",
+      "name": "invalid folder \"/Downloads/Recall/a\\u0000\"",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt104-page",
+      "name": "missing folder returns empty page",
+      "covers": {},
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt104-page",
+      "name": "trashed grouping folder rejected",
+      "covers": {},
+      "pass": true,
+      "ms": 4
+    }
+  ]
+}

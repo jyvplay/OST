@@ -1,0 +1,16 @@
+  ✓ resident file save then paged timeline opens actual stored PNG
+  ✓ UI receipt verification checks the stored pair
+  ✓ local Blob export downloads exact open bytes, no upstream request
+  ✓ tampered stored receipt is not called verified
+  ✗ actual native clipboard write + keyboard paste saves image File without mocked ClipboardEvent
+    Expected values to be strictly equal:
++ actual - expected
+
++ "NotAllowedError: Failed to execute 'write' on 'Clipboard': Write permission denied."
+- 'written'
+
+  ✓ native text paste does not become an HTTP download
+  ✓ Specs exposes original and six added Recall requirements without completion inflation
+
+6 passed, 1 failed
+FAILED: actual native clipboard write + keyboard paste saves image File without mocked ClipboardEvent

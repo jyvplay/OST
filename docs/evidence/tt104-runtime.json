@@ -1,0 +1,15 @@
+{
+  "node": "v22.22.3",
+  "chromium": "153.0.8010.0",
+  "agents": 1,
+  "theoremProverUsed": false,
+  "independentReviewer": false,
+  "physicalChooserClipboardDragAudioVerified": false,
+  "newTestsUseSyntheticClipboardEvents": false,
+  "newTestsOverrideClipboardPermissions": false,
+  "newTestsInterceptNetwork": false,
+  "graphics": "headless Chromium / software graphics",
+  "playwrightDefaultKeychainMockFlag": true,
+  "playwrightDefaultMutedAudio": true,
+  "downloadChecksAcceptDownloads": true
+}
