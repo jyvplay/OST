@@ -1,5 +1,6 @@
 "use client";
 import { EDGE_HOLD_MS, EDGE_IDLE, edgeFired, edgeMove, edgeSide, neighbourWorkspace, snapSuppressed, type EdgeHold } from "@/lib/windowing/edge-hold";
+import OrbitMenu from "./OrbitMenu";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -29,6 +30,8 @@ const HANDLES: Handle[] = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
  */
 export default function WindowFrame({ win }: { win: WindowState }) {
   const shell = useShell();
+  const [orbit, setOrbit] = useState<{ x: number; y: number } | null>(null);
+  const closeOrbit = useCallback(() => setOrbit(null), []);
   const ref = useRef<HTMLDivElement | null>(null);
   const drag = useRef<{ mode: "move" | Handle; x0: number; y0: number; rect: { x: number; y: number; w: number; h: number }; snap?: DragTarget | null; edge?: EdgeHold; timer?: number } | null>(null);
   const [pipDoc, setPipDoc] = useState<Document | null>(null);
@@ -234,6 +237,13 @@ export default function WindowFrame({ win }: { win: WindowState }) {
     <div
       ref={ref}
       className="fs-window"
+      tabIndex={-1}
+      onContextMenu={(e) => {
+        // Bubble-only fallback: never override a module menu, editing control, link or native media menu.
+        if (e.defaultPrevented || (e.target as Element).closest('input,textarea,[contenteditable=true],a,video,audio,canvas,[role="menu"]')) return;
+        e.preventDefault(); e.stopPropagation(); e.currentTarget.focus(); shell.dispatch({ t: "focus", id: win.id });
+        setOrbit({ x: e.clientX, y: e.clientY });
+      }}
       data-win-id={win.id}
       role="dialog"
       aria-label={win.title}
@@ -247,6 +257,10 @@ export default function WindowFrame({ win }: { win: WindowState }) {
       onPointerDown={() => shell.dispatch({ t: "focus", id: win.id })}
       onFocusCapture={() => { if (!focused && keyboardNavRecent()) shell.dispatch({ t: "focus", id: win.id }); }}
     >
+      {orbit ? <OrbitMenu x={orbit.x} y={orbit.y} close={closeOrbit} actions={[
+        ...actions.map(([label, , , run]) => ({ label, run })),
+        ...shell.state.workspaces.filter(w => w.id !== win.workspace).map(w => ({ label: `Send to ${w.name}`, run: () => shell.dispatch({ t: "toWorkspace", id: win.id, workspace: w.id }) })),
+      ]} /> : null}
       <div
         className="fs-titlebar"
         onPointerDown={(e) => onPointerDown(e, "move")}

@@ -1,0 +1,199 @@
+{
+  "suite": "e2e-tt98-orbit",
+  "at": "2026-10-28T01:37:59.483Z",
+  "results": [
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Files rectangle selects intersecting rows without opening or clearing on release",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 2593
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Files context Copy preserves all rectangle-selected paths",
+      "covers": {
+        "FM-06": "partial",
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 565
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Ctrl rectangle adds to the previous selection",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 649
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Non-modified rectangle replaces selection",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 455
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Empty rectangle clears selection",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 315
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "App fallback opens, keyboard navigates, Escape restores invoking control",
+      "covers": {
+        "WM-01": "partial"
+      },
+      "pass": true,
+      "ms": 290
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Existing file menu takes precedence over app fallback",
+      "covers": {
+        "FM-06": "partial"
+      },
+      "pass": true,
+      "ms": 294
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Native text context is not intercepted",
+      "covers": {
+        "WM-01": "partial"
+      },
+      "pass": true,
+      "ms": 139
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Window action Tile left executes real reducer geometry",
+      "covers": {
+        "WM-01": "partial"
+      },
+      "pass": true,
+      "ms": 1134
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Desktop rectangle selects visible icons",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 584
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Desktop item menu copies real VFS paths and does not open background menu",
+      "covers": {
+        "SH-04": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 114
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Desktop Select all and Clear selection work through Orbit",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 274
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Orbit stays inside viewport and closes on outside pointer",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 104
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Desktop rename writes actual filesystem and refreshes the icon",
+      "covers": {
+        "SH-04": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 2478
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Rename collision refuses overwrite and preserves both files",
+      "covers": {
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText(/already exists/i).first() to be visible\n",
+      "ms": 30339
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Duplicate creates a distinct file with identical content",
+      "covers": {
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 308
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Desktop copy then Paste creates a collision-safe copy",
+      "covers": {
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 556
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Desktop trash requires confirmation, cancellation has no effect, confirmation is recoverable",
+      "covers": {
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 1321
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "New desktop folder is backed by a real directory",
+      "covers": {
+        "FM-13": "partial"
+      },
+      "pass": true,
+      "ms": 752
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "New text file collision cannot truncate an existing document",
+      "covers": {
+        "FM-13": "partial"
+      },
+      "pass": true,
+      "ms": 943
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "No uncaught browser exceptions",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

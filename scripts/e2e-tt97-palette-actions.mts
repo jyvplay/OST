@@ -126,8 +126,12 @@ try {
       await query(page).fill(`run ${key}`); await action(page, `routine:${enabled.id}`).waitFor({ timeout: 10_000 });
       assert.equal(await action(page, `routine:${disabled.id}`).count(), 0); assert.equal(await page.locator("html").getAttribute("data-focus-mode"), "off");
       assert.equal((await db.query("select last_run from routines where id=$1", [enabled.id])).rows[0].last_run, null);
+      // Focus changes before the asynchronous execution record commits. Bind this assertion to the actual
+      // POST response; an absent row/property must not satisfy an optional-chain `!== null` predicate.
+      const recorded = page.waitForResponse(r => r.url().endsWith("/api/routines") && r.request().method() === "POST" && r.request().postDataJSON()?.ranId === enabled.id);
       await action(page, `routine:${enabled.id}`).click(); await page.waitForFunction(() => document.documentElement.dataset.focusMode === "on");
-      await page.waitForFunction(async (id) => { const res = await fetch('/api/routines'); const data = await res.json(); return data.rows.find((row: { id: number; lastRun: string | null }) => row.id === id)?.lastRun !== null; }, enabled.id);
+      assert.ok((await recorded).ok(), "execution record POST must commit successfully");
+      await page.waitForFunction(async (id) => { const res = await fetch('/api/routines'); const data = await res.json(); return typeof data.rows.find((row: { id: number; lastRun: string | null }) => row.id === id)?.lastRun === "string"; }, enabled.id);
       assert.ok((await db.query("select last_run from routines where id=$1", [enabled.id])).rows[0].last_run);
     } finally { await context.close(); }
   });

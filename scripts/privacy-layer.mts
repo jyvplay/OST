@@ -70,7 +70,15 @@ await test("list decrypts and sorts names; a second write keeps an encrypted ver
   assert.equal((await post(L, { op: "rename", path: `${DIR}/b.md`, name: "renamed.md" })).status, 200);
   assert.equal((await post(L, { op: "move", src: `${DIR}/renamed.md`, dst: `${DIR}/Sub/inner.md` })).status, 200);
   assert.equal((await get(L, "read", `${DIR}/Sub/inner.md`)).body.node.content, "# v2");
-  assert.equal((await rows("select count(*)::int n from vfs_nodes where path like '%renamed%' or path like '%inner%'"))[0].n, 0, "new names are encrypted too");
+  // Public files (including Orbit's rename fixtures) are allowed to have these names. Check the
+  // protected namespace, and exact plaintext segments, rather than unrelated host paths or ciphertext substrings.
+  const leakedNames = "path like '/Private/%' and (name in ('renamed.md', 'inner.md') or path like '%/renamed.md' or path like '%/inner.md')";
+  assert.equal((await rows(`select count(*)::int n from vfs_nodes where ${leakedNames}`))[0].n, 0, "new private names are encrypted too");
+  const [moved] = await rows("select name, content from vfs_nodes where path=$1", [await encryptPath(keys, `${DIR}/Sub/inner.md`)]);
+  assert.ok(moved && moved.name !== "inner.md" && moved.content.startsWith("RkVOMQ"), "moved row exists with encrypted name and bytes");
+  // Attack the scoped predicate itself: it must detect a plaintext Private leak but allow an ordinary public file.
+  const controls = await rows(`select path from (values ('/Private/attack/inner.md', 'inner.md'), ('/Documents/inner.md', 'inner.md')) as vfs_nodes(path,name) where ${leakedNames}`);
+  assert.deepEqual(controls.map(r => r.path), ["/Private/attack/inner.md"]);
 });
 
 await test("locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside", { "SC-10": "full" }, async () => {
