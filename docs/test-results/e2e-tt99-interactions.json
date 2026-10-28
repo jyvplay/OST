@@ -1,0 +1,267 @@
+{
+  "suite": "e2e-tt99-interactions",
+  "at": "2026-10-28T03:24:07.121Z",
+  "results": [
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "the persisted-state oracle awaits false async results and rejects a failed negative control",
+      "covers": {},
+      "pass": true,
+      "ms": 202
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "content anchor survives real edge scrolling and retains offscreen crossed rows",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 6152
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "subpixel edge velocity progresses at the inner edge instead of rounding every frame to zero",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 2933
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Escape during scrolling restores the exact gesture-start selection",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 1635
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "actual pointer capture loss rolls back rather than committing a partial rectangle",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 1218
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "a real viewport resize cancels an in-flight scroll rectangle and restores its selection",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 1948
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "grid rectangle uses item geometry rather than list-row arithmetic",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 3481
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "selection in the second pane activates only that pane and keeps keyboard selection local",
+      "covers": {
+        "FM-02": "partial",
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 2806
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "column ancestor context acts on the clicked folder, not the current folder",
+      "covers": {
+        "FM-06": "partial"
+      },
+      "pass": true,
+      "ms": 1096
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes keyboard context pin is persisted and the menu skips disabled actions",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 390
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes duplicate copies real saved text and tags without changing the original",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 481
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes dirty draft disables destructive context actions and native text remains native",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 412
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes context deletion is cancelable and removes only the chosen note",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 841
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Alerts object menu marks read and unread through real persisted state",
+      "covers": {
+        "NC-01": "partial"
+      },
+      "pass": true,
+      "ms": 793
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Alerts pin and snooze persist without affecting another alert",
+      "covers": {
+        "NC-01": "partial"
+      },
+      "pass": true,
+      "ms": 393
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "typeahead and one roving tab stop work in object menus",
+      "covers": {
+        "AX-02": "partial"
+      },
+      "pass": true,
+      "ms": 61
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Tab closes the menu and advances outside it instead of cycling through menuitems",
+      "covers": {
+        "AX-02": "partial"
+      },
+      "pass": true,
+      "ms": 30
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Alerts context dismiss deletes only the selected alert",
+      "covers": {
+        "NC-01": "partial"
+      },
+      "pass": true,
+      "ms": 198
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "held-alert context release removes only the chosen hold without an OS notification claim",
+      "covers": {
+        "NC-02": "partial"
+      },
+      "pass": true,
+      "ms": 661
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Find contextual Open routes a real CSV into the editor rather than window controls",
+      "covers": {
+        "SR-02": "partial"
+      },
+      "pass": true,
+      "ms": 1259
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Editor Keep controls remain present after loading and Save persists content plus the previous version",
+      "covers": {
+        "PR-01": "partial",
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "ms": 192
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "a stale Find result cannot open a deleted file or silently create a document",
+      "covers": {
+        "SR-02": "partial"
+      },
+      "pass": true,
+      "ms": 1630
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Browser tab context duplicates the clicked URL and pins a non-active target",
+      "covers": {
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 1005
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Browser close-others uses the context target, preserving pinned tabs",
+      "covers": {
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 186
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Browser explicit Close removes the clicked pinned tab, not the active neighbor",
+      "covers": {
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 220
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Browser vertical-tab keyboard sleep/wake respects active-tab guards and survives persisted reload",
+      "covers": {
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 2165
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Desktop keyboard selection, Copy and context invocation work from an icon",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 371
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Desktop background keyboard menu has reachable actions and closes with Escape",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 54
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "no uncaught browser exceptions in the interaction matrix",
+      "covers": {
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

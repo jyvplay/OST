@@ -19,7 +19,6 @@ const test: typeof test0 = (name, covers, fn) => (ONLY && !ONLY.split("|").some(
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const PY = "/home/user/tools/venv/bin/python"; const SHOTS = process.env.SHOTS ?? "/tmp"; mkdirSync(join(SHOTS, "tt55"), { recursive: true });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const api = async (method: string, path: string, body?: unknown): Promise<{ status: number; json: any }> => {
   const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
   return { status: r.status, json: await r.json().catch(() => null) };
@@ -326,7 +325,10 @@ await test("FM-17 folder sizes: every folder row shows the size of its subtree (
     await poll(async () => (await row(w, "sub").locator("[data-size]").getAttribute("data-size")) === String(after), `refreshed to ${after}`);
     const title = await row(w, "sub").locator("[data-size]").getAttribute("title");
     const files = (await walk(`${DIR}/sub`)).filter((n) => n.kind === "file").length, dirs = (await walk(`${DIR}/sub`)).filter((n) => n.kind === "dir").length;
-    ok(title === `${files} file(s) · ${dirs} folder(s) · ${fmtBytes(after)}`, `tooltip: ${title}`);
+    const expectedTitle = `${files} file(s) · ${dirs} folder(s) · ${fmtBytes(after)}`;
+    // A final UI write can invalidate the size cache after the first byte-count observation.
+    // Require both exact independent walk results in the same settled observation, not a fixed delay.
+    await poll(async () => await row(w, "sub").locator("[data-size]").getAttribute("data-size") === String(after) && await row(w, "sub").locator("[data-size]").getAttribute("title") === expectedTitle, `size + tooltip settle: ${title} → ${expectedTitle}`);
   } finally { await close(); }
 });
 

@@ -1,0 +1,30 @@
+  ✓ the persisted-state oracle awaits false async results and rejects a failed negative control
+  ✓ content anchor survives real edge scrolling and retains offscreen crossed rows
+  ✓ Escape during scrolling restores the exact gesture-start selection
+  ✓ actual pointer capture loss rolls back rather than committing a partial rectangle
+  ✓ a real viewport resize cancels an in-flight scroll rectangle and restores its selection
+  ✓ grid rectangle uses item geometry rather than list-row arithmetic
+  ✓ selection in the second pane activates only that pane and keeps keyboard selection local
+  ✓ column ancestor context acts on the clicked folder, not the current folder
+  ✓ Notes keyboard context pin is persisted and the menu skips disabled actions
+  ✓ Notes duplicate copies real saved text and tags without changing the original
+  ✓ Notes dirty draft disables destructive context actions and native text remains native
+  ✓ Notes context deletion is cancelable and removes only the chosen note
+  ✓ Alerts object menu marks read and unread through real persisted state
+  ✓ Alerts pin and snooze persist without affecting another alert
+  ✓ typeahead and one roving tab stop work in object menus
+  ✓ Tab closes the menu and advances outside it instead of cycling through menuitems
+  ✓ Alerts context dismiss deletes only the selected alert
+  ✓ held-alert context release removes only the chosen hold without an OS notification claim
+  ✓ Find contextual Open routes a real CSV into the editor rather than window controls
+  ✓ Editor Keep controls remain present after loading and Save persists content plus the previous version
+  ✓ a stale Find result cannot open a deleted file or silently create a document
+  ✓ Browser tab context duplicates the clicked URL and pins a non-active target
+  ✓ Browser close-others uses the context target, preserving pinned tabs
+  ✓ Browser explicit Close removes the clicked pinned tab, not the active neighbor
+  ✓ Browser vertical-tab keyboard sleep/wake respects active-tab guards and survives persisted reload
+  ✓ Desktop keyboard selection, Copy and context invocation work from an icon
+  ✓ Desktop background keyboard menu has reachable actions and closes with Escape
+  ✓ no uncaught browser exceptions in the interaction matrix
+
+28 passed, 0 failed

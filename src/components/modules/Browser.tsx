@@ -1,7 +1,8 @@
 "use client";
+import OrbitTarget from "../OrbitTarget";
 import { fz } from "@/lib/uiscale";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Blocked } from "../ui";
@@ -9,7 +10,7 @@ import ProxyFrame from "./ProxyFrame";
 import NetworkRoute, { useRoute } from "./NetworkRoute";
 import {
   PERMISSION_FEATURES, activate, allowAttribute, batchClose, closeTab, createGroup, hostOf, makeTab, normalizeSession, removeGroup,
-  safeBrowserUrl, setGroup, sleepInactive, toggleCollapse, togglePin, visibleTabs, type Session, type Tab,
+  safeBrowserUrl, setGroup, sleepInactive, sleepTab, toggleCollapse, togglePin, visibleTabs, type Session, type Tab,
 } from "@/lib/browserSession";
 
 /** Mechanism B4: out-of-process render, shown as a static image (no interaction — declared limit). */
@@ -96,12 +97,12 @@ export default function BrowserModule({ win }: ModuleProps) {
   const [address, setAddress] = useState(() => tabs.find((t) => t.id === active)?.url ?? "https://example.com");
   const [addressFor, setAddressFor] = useState(active);
   if (addressFor !== active) { setAddressFor(active); setAddress(tabs.find((t) => t.id === active)?.url ?? address); }
-  const probed = useRef(new Set<string>());
+  const [probed] = useState(() => new Set<string>());
 
 
   const probe = async (tab: Tab) => {
-    if (probed.current.has(tab.url)) return;
-    probed.current.add(tab.url);
+    if (probed.has(tab.url)) return;
+    probed.add(tab.url);
     try {
       const r = await api<{ verdict: string; reason: string; host: string; url: string }>(
         `/api/embed-probe?url=${encodeURIComponent(tab.url)}`,
@@ -114,9 +115,15 @@ export default function BrowserModule({ win }: ModuleProps) {
 
   useEffect(() => {
     const t = tabs.find((x) => x.id === active);
-    if (t && !t.verdict) void probe(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, tabs]);
+    if (!t || t.verdict || probed.has(t.url)) return;
+    probed.add(t.url);
+    // State changes only in the network completion callbacks, not synchronously in the effect.
+    api<{ verdict: string; reason: string; host: string; url: string }>(`/api/embed-probe?url=${encodeURIComponent(t.url)}`)
+      .then(r => setTabs(ts => ts.map(x => x.id === t.id ? { ...x, verdict: r.verdict, reason: r.reason, host: r.host, url: r.url, title: new URL(r.url).host } : x)))
+      .catch(() => setTabs(ts => ts.map(x => x.id === t.id ? { ...x, verdict: "unknown", reason: "probe failed", host: "S3-handoff" } : x)));
+    // tabs are immutable; the lifetime cache deduplicates requests across active changes.
+  }, [active, tabs, probed]);
+
 
   const current = tabs.find((t) => t.id === active) ?? null;
   const open = (input: string) => {
@@ -132,6 +139,20 @@ export default function BrowserModule({ win }: ModuleProps) {
     if (!current) return;
     const r = batchClose(sess, current.id, target); setSess(r.session); setNotice(`closed ${r.closed} tab(s)${target === "others" ? " (pinned kept)" : ""}`);
   };
+  const tabActions = (tab: Tab) => [
+    { label: "Activate tab", run: () => setActive(tab.id) },
+    { label: tab.pinned ? "Unpin tab" : "Pin tab", run: () => setSess(s => togglePin(s, tab.id)) },
+    { label: "Duplicate URL in new tab", disabled: tabs.length >= 100, run: () => setSess(s => {
+      if (s.tabs.length >= 100 || !s.tabs.some(t => t.id === tab.id)) return s;
+      const copy = { ...makeTab(tab.url), mode: tab.mode, profile: tab.profile };
+      return { ...s, tabs: [...s.tabs, copy], active: copy.id };
+    }) },
+    { label: "Sleep tab", disabled: tab.pinned || tab.id === active || tab.id === splitPartner || tab.asleep, run: () => setSess(s => sleepTab(s, tab.id, splitPartner)) },
+    { label: "Copy tab URL", run: () => shell.copy(tab.url, "browser") },
+    { label: "Close other unpinned tabs", run: () => setSess(s => batchClose(s, tab.id, "others").session) },
+    { label: "Close tabs to the right (keep pinned)", run: () => setSess(s => batchClose(s, tab.id, "right").session) },
+    { label: "Close this tab", run: () => setSess(s => closeTab(s, tab.id)) },
+  ];
   const onKey = (e: React.KeyboardEvent) => {
     // PR-07i: non-reserved chords only. Ctrl+T/W/N/Tab belong to the host browser and cannot be captured by a page.
     if (!e.altKey || e.ctrlKey || e.metaKey) return;
@@ -176,7 +197,7 @@ export default function BrowserModule({ win }: ModuleProps) {
             <Btn variant="ghost" title="Readability-style extraction: article text/images only, no scripts, works even for sites the proxy can't execute." onClick={() => setTabs((ts) => ts.map((t) => (t.id === tab.id ? { ...t, mode: "reader" } : t)))}>Reader mode</Btn>
             <Btn variant="ghost" disabled={renderCapable === false} title={renderCapable === false ? "Server-side rendering is unavailable in this deployment (checked via /api/render?probe=1)" : "A real screenshot of the page, rendered out-of-process on the server. No interaction — you are viewing a picture, not the live page."}
               onClick={() => setTabs((ts) => ts.map((t) => (t.id === tab.id ? { ...t, mode: "snapshot" } : t)))}>Snapshot {renderCapable === null ? "(checking…)" : renderCapable === false ? "(unavailable here)" : ""}</Btn>
-            <Btn variant="ghost" onClick={() => { probed.current.delete(tab.url); void probe(tab); }}>Re-probe</Btn>
+            <Btn variant="ghost" onClick={() => { probed.delete(tab.url); void probe(tab); }}>Re-probe</Btn>
           </div>
           <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
             This is a platform rule, not an app bug: a page that sends
@@ -258,7 +279,8 @@ export default function BrowserModule({ win }: ModuleProps) {
               </div>
             ))}
             {shown.map((t) => (
-              <button key={t.id} className="fs-list-item" data-selected={t.id === active}
+              <OrbitTarget key={t.id} label={`Tab: ${t.title}`} actions={tabActions(t)}>
+              <button data-tab={t.id} className="fs-list-item" data-selected={t.id === active}
                 style={{ width: "100%", border: 0, borderLeft: `3px solid ${groupOf(t)?.color ?? "transparent"}`, background: t.id === active ? "rgba(91,140,255,.22)" : "none", color: "inherit", textAlign: "left" }}
                 onClick={() => setActive(t.id)}>
                 <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: fz(11.5) }}>
@@ -266,6 +288,7 @@ export default function BrowserModule({ win }: ModuleProps) {
                 </span>
                 {t.asleep ? <SleepIcon /> : null}
               </button>
+              </OrbitTarget>
             ))}
             <Btn variant="ghost" onClick={() => open("https://example.com")}>+ Tab</Btn>
           </div>
@@ -275,13 +298,15 @@ export default function BrowserModule({ win }: ModuleProps) {
           {!vertical ? (
             <div className="fs-row" style={{ gap: 2, padding: "4px 6px", overflowX: "auto", borderBottom: "1px solid var(--fs-border)" }}>
               {shown.map((t) => (
-                <button key={t.id} className="fs-btn" data-variant={t.id === active ? "primary" : "ghost"} data-tab={t.id}
+                <OrbitTarget key={t.id} label={`Tab: ${t.title}`} actions={tabActions(t)}>
+                <button className="fs-btn" data-variant={t.id === active ? "primary" : "ghost"} data-tab={t.id}
                   style={{ minHeight: 24, maxWidth: t.pinned ? 70 : 190, borderBottom: `3px solid ${groupOf(t)?.color ?? "transparent"}` }} onClick={() => setActive(t.id)}
                   title={`${t.title}${groupOf(t) ? ` · ${groupOf(t)!.name}` : ""}${t.profile ? ` · profile ${t.profile}` : ""} (middle-click closes)`}
                   onAuxClick={(e) => { if (e.button === 1) { e.preventDefault(); setSess((s) => closeTab(s, t.id)); } }}>
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.pinned ? <PinIcon /> : null}{t.asleep ? <SleepIcon /> : null}{t.title}</span>
                   {t.profile ? <span data-tab-profile style={{ marginLeft: 6, flexShrink: 0, fontSize: "0.75em", lineHeight: 1.4, padding: "0 6px", borderRadius: 999, border: "1px solid currentColor", opacity: 0.85 }}>{t.profile}</span> : null}
                 </button>
+                </OrbitTarget>
               ))}
               <Btn variant="ghost" onClick={() => open("https://example.com")}>+</Btn>
             </div>

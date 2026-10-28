@@ -1,0 +1,38 @@
+=== unit
+23 passed, 0 failed
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== browser-session
+5 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+13 passed, 0 failed
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== e2e-tt96-desktop-menu
+5 passed, 0 failed
+=== tt97-palette-commands
+4 passed, 0 failed
+=== e2e-tt97-palette-actions
+11 passed, 0 failed
+=== e2e-tt97-files-empty-a11y
+3 passed, 0 failed
+=== e2e-tt98-orbit
+22 passed, 0 failed
+=== e2e-tt99-interactions
+28 passed, 0 failed
+=== privacy-layer
+13 passed, 0 failed
+=== e2e-browser
+6 passed, 0 failed
+=== e2e
+67 passed, 0 failed
+=== e2e-a11y
+1 passed, 0 failed
+ALLDONE

@@ -1,0 +1,717 @@
+{
+  "suite": "e2e",
+  "at": "2026-10-28T02:45:30.312Z",
+  "results": [
+    {
+      "suite": "e2e",
+      "name": "mount: files",
+      "covers": {
+        "FM-01": "partial",
+        "FM-03": "partial",
+        "FM-11": "partial",
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "ms": 1834
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: editor",
+      "covers": {
+        "PR-01": "partial",
+        "FF-15": "partial"
+      },
+      "pass": true,
+      "ms": 2809
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: find",
+      "covers": {
+        "SR-01": "partial",
+        "SR-02": "partial",
+        "SR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1507
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: terminal",
+      "covers": {
+        "TD-01": "partial",
+        "TD-02": "partial"
+      },
+      "pass": true,
+      "ms": 1327
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: ssh",
+      "covers": {
+        "TD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1305
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: notes",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 1315
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: browser",
+      "covers": {
+        "PR-07": "partial",
+        "WM-06": "partial"
+      },
+      "pass": true,
+      "ms": 1521
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: media",
+      "covers": {
+        "MD-02": "partial",
+        "CA-01": "partial"
+      },
+      "pass": true,
+      "ms": 1404
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: capture",
+      "covers": {
+        "MD-01": "partial"
+      },
+      "pass": true,
+      "ms": 1171
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: lens",
+      "covers": {
+        "LN-01": "partial",
+        "LN-13": "partial",
+        "LN-14": "partial"
+      },
+      "pass": true,
+      "ms": 1311
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: beam",
+      "covers": {
+        "CA-05": "partial",
+        "CA-01": "partial",
+        "CA-02": "partial"
+      },
+      "pass": true,
+      "ms": 1394
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: together",
+      "covers": {
+        "CA-11": "partial",
+        "CA-15": "partial"
+      },
+      "pass": true,
+      "ms": 1783
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: messages",
+      "covers": {
+        "MS-01": "partial",
+        "MS-03": "partial"
+      },
+      "pass": true,
+      "ms": 1423
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: vault",
+      "covers": {
+        "SC-01": "partial",
+        "SC-02": "partial"
+      },
+      "pass": true,
+      "ms": 1257
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: privacy",
+      "covers": {
+        "SC-10": "partial",
+        "SC-11": "partial",
+        "SC-12": "partial",
+        "SC-13": "partial",
+        "SC-14": "partial",
+        "SC-15": "partial"
+      },
+      "pass": true,
+      "ms": 1372
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: backup",
+      "covers": {
+        "BK-01": "partial",
+        "BK-03": "partial",
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 1253
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: alerts",
+      "covers": {
+        "NC-01": "partial",
+        "NC-04": "partial"
+      },
+      "pass": true,
+      "ms": 1415
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: monitor",
+      "covers": {
+        "RG-01": "partial",
+        "RG-04": "partial",
+        "DP-14": "partial"
+      },
+      "pass": true,
+      "ms": 1605
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: apps",
+      "covers": {
+        "AP-01": "partial",
+        "AP-05": "partial"
+      },
+      "pass": true,
+      "ms": 1315
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: calculator",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 1282
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: settings",
+      "covers": {
+        "ST-01": "partial",
+        "ST-04": "partial",
+        "BL-01": "partial"
+      },
+      "pass": true,
+      "ms": 1521
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: spec",
+      "covers": {
+        "DP-10": "partial",
+        "DP-08": "partial"
+      },
+      "pass": true,
+      "ms": 2008
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: clock",
+      "covers": {
+        "PR-10": "partial"
+      },
+      "pass": true,
+      "ms": 1228
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: planner",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1554
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: devices",
+      "covers": {
+        "MD-04": "partial",
+        "MD-05": "partial",
+        "MD-06": "partial",
+        "MD-07": "partial",
+        "TD-03": "partial",
+        "CT-06": "partial",
+        "IN-07": "partial"
+      },
+      "pass": true,
+      "ms": 1282
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: share",
+      "covers": {
+        "CA-09": "partial",
+        "CT-02": "partial",
+        "CA-13": "partial"
+      },
+      "pass": true,
+      "ms": 1366
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: routines",
+      "covers": {
+        "AU-01": "partial",
+        "AU-02": "partial",
+        "PR-07r": "partial"
+      },
+      "pass": true,
+      "ms": 1215
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: clipboard",
+      "covers": {
+        "PR-12": "partial"
+      },
+      "pass": true,
+      "ms": 1310
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: storage",
+      "covers": {
+        "FM-07": "partial"
+      },
+      "pass": true,
+      "ms": 1258
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: archive",
+      "covers": {
+        "FM-05": "partial",
+        "FF-69": "partial",
+        "FF-70": "partial",
+        "FF-71": "partial",
+        "FF-72": "partial"
+      },
+      "pass": true,
+      "ms": 1531
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: localdisk",
+      "covers": {
+        "FM-08": "partial",
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 1634
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: photos",
+      "covers": {
+        "MD-03": "partial",
+        "FF-07": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 1423
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: imageedit",
+      "covers": {
+        "FF-24": "partial",
+        "MD-03": "partial",
+        "FF-30": "partial",
+        "FF-31": "partial"
+      },
+      "pass": true,
+      "ms": 1523
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: vector",
+      "covers": {
+        "FF-25": "partial",
+        "FF-04": "partial",
+        "FF-32": "partial"
+      },
+      "pass": true,
+      "ms": 1843
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: writer",
+      "covers": {
+        "FF-22": "partial",
+        "PR-11": "partial",
+        "FF-15": "partial"
+      },
+      "pass": true,
+      "ms": 1644
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: pdf",
+      "covers": {
+        "FF-03": "partial",
+        "PR-08": "partial"
+      },
+      "pass": true,
+      "ms": 1586
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: books",
+      "covers": {
+        "FF-10": "partial"
+      },
+      "pass": true,
+      "ms": 1249
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: slides",
+      "covers": {
+        "FF-23": "partial",
+        "PR-11": "partial"
+      },
+      "pass": true,
+      "ms": 1351
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: sheet",
+      "covers": {
+        "FF-19": "partial",
+        "FF-20": "partial",
+        "FF-21": "partial",
+        "FF-26": "partial",
+        "FF-27": "partial",
+        "FF-28": "partial",
+        "FF-29": "partial",
+        "FF-33": "partial",
+        "FF-34": "partial",
+        "FF-35": "partial",
+        "PR-11": "partial",
+        "FF-15": "partial"
+      },
+      "pass": true,
+      "ms": 1523
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: contacts",
+      "covers": {
+        "PR-05": "partial",
+        "CN-01": "partial",
+        "CN-02": "partial",
+        "CN-03": "partial",
+        "CN-04": "partial"
+      },
+      "pass": true,
+      "ms": 1385
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: tables",
+      "covers": {
+        "TB-01": "partial",
+        "TB-02": "partial",
+        "TB-03": "partial",
+        "TB-04": "partial",
+        "TB-05": "partial"
+      },
+      "pass": true,
+      "ms": 1617
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: whiteboard",
+      "covers": {
+        "WB-01": "partial",
+        "WB-02": "partial",
+        "WB-03": "partial",
+        "WB-04": "partial",
+        "WB-05": "partial"
+      },
+      "pass": true,
+      "ms": 1454
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: peek",
+      "covers": {
+        "FM-04": "partial",
+        "FF-01": "partial",
+        "FF-11": "partial"
+      },
+      "pass": true,
+      "ms": 1247
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: video",
+      "covers": {
+        "SM-01": "partial",
+        "SM-03": "partial"
+      },
+      "pass": true,
+      "ms": 1649
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: music",
+      "covers": {
+        "SM-02": "partial",
+        "SM-03": "partial"
+      },
+      "pass": true,
+      "ms": 1261
+    },
+    {
+      "suite": "e2e",
+      "name": "mount: maps",
+      "covers": {
+        "MP-01": "partial",
+        "MP-02": "partial",
+        "MP-03": "partial"
+      },
+      "pass": true,
+      "ms": 1340
+    },
+    {
+      "suite": "e2e",
+      "name": "no non-resource console errors across all module mounts",
+      "covers": {
+        "DP-07": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e",
+      "name": "drag a window by its title bar; geometry is committed and persisted",
+      "covers": {
+        "WM-01": "full",
+        "HW-01": "partial",
+        "SH-08": "full"
+      },
+      "pass": true,
+      "ms": 3022
+    },
+    {
+      "suite": "e2e",
+      "name": "keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half",
+      "covers": {
+        "WM-02": "full",
+        "WM-09": "full",
+        "AX-05": "partial"
+      },
+      "pass": true,
+      "ms": 741
+    },
+    {
+      "suite": "e2e",
+      "name": "calculator evaluates typed input with the shared evaluator",
+      "covers": {
+        "PR-09": "full"
+      },
+      "pass": true,
+      "ms": 23
+    },
+    {
+      "suite": "e2e",
+      "name": "palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
+      "covers": {
+        "SR-01": "full",
+        "SR-03": "full"
+      },
+      "pass": true,
+      "ms": 127
+    },
+    {
+      "suite": "e2e",
+      "name": "terminal: write + cat through the journal; mv shows journal op",
+      "covers": {
+        "TD-01": "full",
+        "TD-02": "full"
+      },
+      "pass": true,
+      "ms": 600
+    },
+    {
+      "suite": "e2e",
+      "name": "editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
+      "covers": {
+        "PR-01": "full",
+        "FM-18": "full",
+        "FF-15": "partial"
+      },
+      "pass": false,
+      "error": "locator.waitFor: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog]').filter({ has: getByLabel('Editing /E2E-emvrifimq/m.md') }).first().getByText('unsaved') to be visible\n",
+      "ms": 3534
+    },
+    {
+      "suite": "e2e",
+      "name": "Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)",
+      "covers": {
+        "FM-01": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 1595
+    },
+    {
+      "suite": "e2e",
+      "name": "routines: dry-run lists actions without executing; Run opens the window",
+      "covers": {
+        "AU-01": "full"
+      },
+      "pass": true,
+      "ms": 1684
+    },
+    {
+      "suite": "e2e",
+      "name": "clock stopwatch advances from performance.now anchors",
+      "covers": {
+        "PR-10": "partial"
+      },
+      "pass": true,
+      "ms": 1684
+    },
+    {
+      "suite": "e2e",
+      "name": "Lens processes frames from a (fake) camera at > 0 fps",
+      "covers": {
+        "LN-01": "full",
+        "LN-13": "partial",
+        "LN-15": "partial"
+      },
+      "pass": true,
+      "ms": 5313
+    },
+    {
+      "suite": "e2e",
+      "name": "governor reacts to injected long tasks",
+      "covers": {
+        "RG-01": "partial",
+        "RG-04": "partial"
+      },
+      "pass": true,
+      "ms": 6142
+    },
+    {
+      "suite": "e2e",
+      "name": "Beam lists every transport and names the missing primitive on blocked ones",
+      "covers": {
+        "CA-05": "partial",
+        "DP-10": "full",
+        "CA-03": "full",
+        "CA-04": "full",
+        "CA-06": "full",
+        "CA-07": "full",
+        "CA-10": "full",
+        "CA-12": "full"
+      },
+      "pass": true,
+      "ms": 508
+    },
+    {
+      "suite": "e2e",
+      "name": "Spec module renders the full register",
+      "covers": {
+        "DP-08": "partial"
+      },
+      "pass": true,
+      "ms": 698
+    },
+    {
+      "suite": "e2e",
+      "name": "Overview (Meta+Q) and Blackout overlay toggle",
+      "covers": {
+        "WM-04": "partial",
+        "SH-10": "partial"
+      },
+      "pass": true,
+      "ms": 1450
+    },
+    {
+      "suite": "e2e",
+      "name": "structural a11y: every window is a named dialog; no unnamed buttons",
+      "covers": {
+        "AX-01": "partial",
+        "AX-02": "partial"
+      },
+      "pass": true,
+      "ms": 2806
+    },
+    {
+      "suite": "e2e",
+      "name": "offline write is queued, then replayed through the journal when back online",
+      "covers": {
+        "SH-14": "full"
+      },
+      "pass": true,
+      "ms": 1583
+    },
+    {
+      "suite": "e2e",
+      "name": "WebRTC data channel between two contexts via Postgres signalling",
+      "covers": {
+        "CT-02": "full",
+        "CA-09": "partial"
+      },
+      "pass": true,
+      "ms": 5090
+    },
+    {
+      "suite": "e2e",
+      "name": "SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive",
+      "covers": {
+        "SH-05": "partial"
+      },
+      "pass": true,
+      "ms": 6612
+    },
+    {
+      "suite": "e2e",
+      "name": "characterisation: default headless config freezes the shell (documented limitation, not a pass claim)",
+      "covers": {},
+      "pass": true,
+      "ms": 10790
+    },
+    {
+      "suite": "e2e",
+      "name": "desktop shows sticky note widget; seeded widget has no hang button",
+      "covers": {
+        "PR-13": "full"
+      },
+      "pass": true,
+      "ms": 1078
+    }
+  ]
+}

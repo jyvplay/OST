@@ -7,7 +7,7 @@
  * candidate obfuscation is disabled so two contexts can form a WebRTC link on
  * loopback without an mDNS responder.
  */
-import { type Browser, type BrowserContext, type Page } from "playwright";
+import { type Browser, type BrowserContext, type Locator, type Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 import { MODULES } from "../src/lib/registry.ts";
@@ -320,21 +320,25 @@ await ctx.close();
 console.log("\nTwo browser contexts");
 await test("WebRTC data channel between two contexts via Postgres signalling", { "CT-02": "full", "CA-09": "partial" }, async () => {
   const a = await newCtx(); const b = await newCtx();
-  const pa = await a.newPage(); const pb = await b.newPage();
-  const room = `R${RUN}`.toUpperCase().slice(0, 12);
-  for (const p of [pa, pb]) {
-    await resetDesktop();
-    const d = await openModule(p, "share", "Share");
-    await d.getByLabel("Room").fill(room);
-  }
-  await pa.locator('[role=dialog][aria-label="Share"]').getByRole("button", { name: "Join" }).click();
-  await pb.locator('[role=dialog][aria-label="Share"]').getByRole("button", { name: "Join" }).click();
-  await pa.getByText("bridge channel open").waitFor({ timeout: 30_000 });
-  await pb.getByText("bridge channel open").waitFor({ timeout: 30_000 });
-  const msg = pa.getByPlaceholder("message or text to send");
-  await msg.fill(`hi-${RUN}`); await msg.press("Enter");
-  await pb.getByText(`peer: hi-${RUN}`).waitFor({ timeout: 10_000 });
-  await a.close(); await b.close();
+  try {
+    const pa = await a.newPage(); const pb = await b.newPage();
+    const room = `R${RUN}`.toUpperCase().slice(0, 12);
+    const peers: Locator[] = [];
+    for (const p of [pa, pb]) {
+      await resetDesktop();
+      const d = await openModule(p, "share", "Share"); peers.push(d);
+      await d.getByLabel("Room").fill(room);
+    }
+    // Bind Join and message assertions to the same dialog whose Room was filled.
+    // Other restored Share windows are not participants in this two-context test.
+    await peers[0].getByRole("button", { name: "Join", exact: true }).click();
+    await peers[1].getByRole("button", { name: "Join", exact: true }).click();
+    await peers[0].getByText("bridge channel open").waitFor({ timeout: 30_000 });
+    await peers[1].getByText("bridge channel open").waitFor({ timeout: 30_000 });
+    const msg = peers[0].getByPlaceholder("message or text to send");
+    await msg.fill(`hi-${RUN}`); await msg.press("Enter");
+    await peers[1].getByText(`peer: hi-${RUN}`).waitFor({ timeout: 10_000 });
+  } finally { await a.close(); await b.close(); }
 });
 
 /* ------------------------------------- widget watchdog falsification test */
