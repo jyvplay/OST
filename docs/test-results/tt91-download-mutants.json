@@ -1,0 +1,116 @@
+{
+  "suite": "tt91-download-mutants",
+  "at": "2026-10-27T13:58:50.777249+00:00",
+  "results": [
+    {
+      "suite": "tt91-download-mutants",
+      "name": "accept untrusted MIME syntax",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 MIME metadata is canonicalised and control characters or invalid shapes are refused\n    Expected values to be strictly equal:\n+ actual - expected\n\n+ ''\n- 'application/octet-stream'\n\n\n0 passed, 1 failed\nFAILED: MIME metadata is canonicalised and control characters or invalid shapes are refused\n",
+      "ms": 813
+    },
+    {
+      "suite": "tt91-download-mutants",
+      "name": "drop filename sanitization",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 download names cannot escape Downloads and malformed percent escapes do not crash\n    Expected values to be strictly equal:\n+ actual - expected\n\n+ '/etc/passwd'\n- '_etc_passwd'\n\n\n0 passed, 1 failed\nFAILED: download names cannot escape Downloads and malformed percent escapes do not crash\n",
+      "ms": 742
+    },
+    {
+      "suite": "tt91-download-mutants",
+      "name": "trust declared length over cap",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 oversized declared length cancels before buffering the body\n    Missing expected rejection.\n\n0 passed, 1 failed\nFAILED: oversized declared length cancels before buffering the body\n",
+      "ms": 795
+    },
+    {
+      "suite": "tt91-download-mutants",
+      "name": "trust dishonest stream length",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 missing or dishonest content length cannot evade the actual-byte limit\n    Missing expected rejection.\n\n0 passed, 1 failed\nFAILED: missing or dishonest content length cannot evade the actual-byte limit\n",
+      "ms": 726
+    },
+    {
+      "suite": "tt91-download-mutants",
+      "name": "accept partial HTTP 206",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 HTTP errors and partial responses are not saved as complete downloads\n    Missing expected rejection.\n\n0 passed, 1 failed\nFAILED: HTTP errors and partial responses are not saved as complete downloads\n",
+      "ms": 711
+    },
+    {
+      "suite": "tt91-download-mutants",
+      "name": "return bytes after reader cancellation",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an abort interrupts a stalled reader without returning a partial file\n    Missing expected rejection.\n\n0 passed, 1 failed\nFAILED: an abort interrupts a stalled reader without returning a partial file\n",
+      "ms": 729
+    },
+    {
+      "suite": "tt91-download-mutants",
+      "name": "save without an installed privacy guard",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 server import refuses an uninstalled privacy guard\n    The input did not match the regular expression /unavailable/. Input:\n\n'TypeError: Failed to parse URL from /api/fs'\n\n\n0 passed, 1 failed\nFAILED: server import refuses an uninstalled privacy guard\n",
+      "ms": 703
+    },
+    {
+      "suite": "tt91-download-mutants",
+      "name": "save while amnesic",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an installed amnesic privacy layer refuses before any fetch or host write\n    The input did not match the regular expression /amnesic/. Input:\n\n'TypeError: Failed to parse URL from /api/fs'\n\n\n0 passed, 1 failed\nFAILED: an installed amnesic privacy layer refuses before any fetch or host write\n",
+      "ms": 671
+    },
+    {
+      "suite": "tt91-download-mutants",
+      "name": "replace conditional creation with overwriting write",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 real PyPI bytes: a concurrent HTTP create after listing forces a retry without overwriting either file\n    The input did not match the regular expression /Saved to Files.*sponsors 3\\.html/. Input:\n\n'Saved to Files \u2192 /Downloads/sponsors 2.html (80 KB)'\n\n\n0 passed, 1 failed\nFAILED: real PyPI bytes: a concurrent HTTP create after listing forces a retry without overwriting either file\n",
+      "ms": 13278
+    },
+    {
+      "suite": "tt91-download-mutants",
+      "name": "claim failure after a lost commit acknowledgement",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a committed write with its acknowledgement lost is reported as unknown, not as a definite failure\n    The input did not match the regular expression /Save not confirmed; check \\/Downloads before retrying/. Input:\n\n'Not saved. Failed to fetch'\n\n\n0 passed, 1 failed\nFAILED: a committed write with its acknowledgement lost is reported as unknown, not as a definite failure\n",
+      "ms": 15816
+    }
+  ]
+}

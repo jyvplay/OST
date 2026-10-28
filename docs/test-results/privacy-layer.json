@@ -1,6 +1,6 @@
 {
   "suite": "privacy-layer",
-  "at": "2026-10-25T22:09:32.425Z",
+  "at": "2026-10-27T23:32:20.075Z",
   "results": [
     {
       "suite": "privacy-layer",
@@ -9,7 +9,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 143
+      "ms": 113
     },
     {
       "suite": "privacy-layer",
@@ -18,7 +18,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 88
+      "ms": 72
     },
     {
       "suite": "privacy-layer",
@@ -36,7 +36,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 58
+      "ms": 65
     },
     {
       "suite": "privacy-layer",
@@ -46,7 +46,29 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 41
+      "ms": 51
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "TT87 conditional VFS writes respect privacy boundaries and still work for ordinary unlocked-host files",
+      "covers": {
+        "SC-10": "full",
+        "SC-13": "full",
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 38
+    },
+    {
+      "suite": "privacy-layer",
+      "name": "TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes",
+      "covers": {
+        "SC-10": "partial",
+        "SC-11": "partial",
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 103
     },
     {
       "suite": "privacy-layer",
@@ -55,7 +77,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 66
+      "ms": 33
     },
     {
       "suite": "privacy-layer",
@@ -64,7 +86,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 23
+      "ms": 18
     },
     {
       "suite": "privacy-layer",
@@ -73,7 +95,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 13
+      "ms": 11
     },
     {
       "suite": "privacy-layer",
@@ -83,7 +105,7 @@
         "SC-14": "partial"
       },
       "pass": true,
-      "ms": 210
+      "ms": 260
     },
     {
       "suite": "privacy-layer",
@@ -92,7 +114,7 @@
         "SC-16": "full"
       },
       "pass": true,
-      "ms": 184
+      "ms": 294
     },
     {
       "suite": "privacy-layer",
@@ -102,7 +124,7 @@
         "SC-13": "partial"
       },
       "pass": true,
-      "ms": 102
+      "ms": 137
     }
   ]
 }

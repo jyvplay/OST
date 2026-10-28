@@ -60,7 +60,7 @@ export default function SpecModule({ win }: ModuleProps) {
             <Badge tone={STATUS_TONE[k] ?? "default"}>{k}</Badge> {v}
           </button>
         ))}
-        {cov?.totals ? <Badge tone="info" title={`ledger generated ${cov.generatedAt}`}>tested: {cov.totals.tested.full} full · {cov.totals.tested.partial} partial · {cov.totals.tests.passed}/{cov.totals.tests.total} tests pass</Badge> : null}
+        {cov?.totals ? <Badge tone="info" title={`Latest saved result per suite, from different runs; ledger generated ${cov.generatedAt}`}>recorded: {cov.totals.tested.full} full · {cov.totals.tested.partial} partial · {cov.totals.tests.passed}/{cov.totals.tests.total} tests passed</Badge> : null}
         <div style={{ flex: 1 }} />
         <Btn variant="ghost" onClick={() => window.open("/api/features?format=csv", "_blank")}>Export requirements.csv</Btn>
       </div>

@@ -1,0 +1,15 @@
+{
+  "suite": "tt92-privacy-perf",
+  "at": "2026-10-27T16:27:53.119Z",
+  "results": [
+    {
+      "suite": "tt92-privacy-perf",
+      "name": "measure real encrypted and host writes and verify encrypted data remains off the host",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 1756
+    }
+  ]
+}

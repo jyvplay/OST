@@ -1,0 +1,4 @@
+  ✓ a lower-right desktop context menu stays within its usable surface and Sort can be clicked
+  ✓ at large text on a narrow viewport every menu action remains reachable
+
+2 passed, 0 failed

@@ -94,9 +94,18 @@ await test("E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, 
     // File already has a path; Save-as is a separate command in Keep.
     await dlg.getByTestId("banner-menu-keep").click(); await dlg.getByRole("menuitem", { name: "Save as…", exact: true }).click();
     const modal = dlg.getByRole("dialog", { name: "Save as", exact: true }); await modal.waitFor();
-    await modal.locator("input").press("Control+f"); await modal.locator("input").press("Delete");
+    const input = modal.locator("input"), saveButton = modal.getByRole("button", { name: "Save", exact: true });
+    await input.focus(); await page.keyboard.press("Shift+Tab");
+    ok(await saveButton.evaluate((el) => el === document.activeElement), "Shift+Tab escaped the Save-as dialog");
+    await page.keyboard.press("Tab"); ok(await input.evaluate((el) => el === document.activeElement), "Tab escaped the Save-as dialog");
+    await input.press("Control+f"); await input.press("Delete");
     ok(await pane.count() === 0, "Ctrl+F opened behind Save-as"); ok((await read(path)).equals(saved), "modal shortcut changed disk");
-    await modal.locator("input").press("Escape");
+    // Adversarial programmatic focus escape tests the independent editor and shell
+    // guards even though normal keyboard navigation is trapped in the dialog.
+    await editor.focus(); ok(await editor.evaluate((el) => el === document.activeElement), "could not inject background focus");
+    await page.keyboard.press("Control+f"); ok(await pane.count() === 0, "Ctrl+F opened behind Save-as after focus escape");
+    await page.keyboard.press("Control+Space"); ok(await page.getByRole("dialog", { name: "Command palette" }).count() === 0, "global palette opened behind Save-as after focus escape");
+    await input.press("Escape");
     await editor.focus(); await page.keyboard.press("Control+f"); await pane.waitFor(); await q.fill("Thread");
     await dlg.screenshot({ path: "docs/screens/tt81-slides.png" });
     await page.addScriptTag({ content: readFileSync("node_modules/axe-core/axe.min.js", "utf8") });
@@ -104,7 +113,7 @@ await test("E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, 
     ok(!violations.length, `axe ${violations}`);
   } finally { await ctx.close(); }
 });
-await test("E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and MuPDF independently verify", { "FF-81": "full" }, async () => {
+await test("E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify", { "FF-81": "full" }, async () => {
   const bytes = mkpdf([{ text: ["Scaled unit"], w: 300, h: 400, userUnit: 2.5 }, { text: ["Default unit"], w: 300, h: 400 }]);
   const path = await upload("pdf", bytes, "application/pdf"); const { ctx, page } = await open("pdf", path);
   try {
@@ -125,17 +134,15 @@ await test("E4 PDF /UserUnit reaches the live viewer, text highlights, info pane
     const highlight = p1.locator("svg rect").first(); await highlight.waitFor();
     const hx = Number(await highlight.getAttribute("x")); ok(hx > 160 && hx < 220, `highlight x did not use UserUnit: ${hx}`);
     const f = join(temp, "user-unit-ui.pdf"); writeFileSync(f, bytes);
-    const oracle = JSON.parse(execFileSync(PY, ["-c", `
-import pypdf, pymupdf, sys, json
-p = pypdf.PdfReader(sys.argv[1]).pages
-doc = pymupdf.open(sys.argv[1])
-pix0, pix1 = doc[0].get_pixmap(), doc[1].get_pixmap()
-print(json.dumps({
-  "units": [float(x.get("/UserUnit", 1)) for x in p],
-  "mupdf": [[pix0.width, pix0.height], [pix1.width, pix1.height]],
-}))
+    const units = JSON.parse(execFileSync(PY, ["-c", `
+import pypdf, sys, json
+print(json.dumps([float(x.get('/UserUnit', 1)) for x in pypdf.PdfReader(sys.argv[1]).pages]))
 `, f], { encoding: "utf8" }));
-    ok(JSON.stringify(oracle.units) === "[2.5,1]" && JSON.stringify(oracle.mupdf) === "[[750,1000],[300,400]]", `pypdf/MuPDF oracle mismatch: ${JSON.stringify(oracle)}`);
+    // PDF.js 5.4 includes the upstream UserUnit fix; unlike PDFium it accounts
+    // for the multiplier. Render, not just parse, and reject blank output.
+    const raster = JSON.parse(execFileSync(process.execPath, ["scripts/oracle/pdfjs-scale.mjs", f], { encoding: "utf8" }));
+    ok(JSON.stringify(units) === "[2.5,1]" && JSON.stringify(raster.map((p: any) => [p.width, p.height])) === "[[750,1000],[300,400]]"
+      && raster.every((p: any) => p.ink > 0), `pypdf/PDF.js raster oracle mismatch: ${JSON.stringify({ units, raster })}`);
     await app.screenshot({ path: "docs/screens/tt84-pdf-unit.png" });
   } finally { await ctx.close(); }
 });

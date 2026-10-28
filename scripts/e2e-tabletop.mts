@@ -47,6 +47,9 @@ async function boot(vw = 1440, vh = 900, opts: Record<string, unknown> = {}) {
   await page.locator("text=Starting Fusion Shell").waitFor({ state: "detached", timeout: 30_000 }).catch(() => undefined);
   await poll(async () => (await page.locator("[data-testid=launcher-button], [data-testid=dock], [data-testid=taskbar]").count()) > 0, "shell chrome", 30_000);
   await page.waitForTimeout(400);
+  if (await page.getByTestId("tabletop").count()) {
+    await page.waitForFunction(() => document.querySelector('[data-testid="tabletop"]')?.getAttribute("data-settled") === "true", undefined, { timeout: 15_000 });
+  }
   return { page, close: () => ctx.close() };
 }
 const box = async (l: Locator) => { const b = await l.boundingBox(); if (!b) throw new Error("no box"); return b; };
@@ -66,8 +69,12 @@ async function wallPoint(page: Page, w: string) {
         const order = wall === "north" || wall === "south" ? [[0.25, 0.5], [0.5, 0.5], [0.75, 0.5], [0.5, 0.3], [0.5, 0.7]] : [[0.5, 0.3], [0.5, 0.5], [0.3, 0.4], [0.7, 0.4], [0.5, 0.2], [0.5, 0.7]];
         for (const [fx, fy] of order) {
           const x = r.x + r.width * fx, y = r.y + r.height * fy;
-          const top = document.elementsFromPoint(x, y).map((el) => el.closest("[data-face]") as HTMLElement | null).find((f) => f);
-          if (top?.dataset.face === wall) return { x, y };
+          // Do not skip a topmost tag, overlay or interactive child merely because a wall lies underneath it:
+          // this test needs an actual double-click on the wall/open control, not a single-click tag or app button.
+          const top = document.elementFromPoint(x, y) as HTMLElement | null;
+          const face = top?.closest("[data-face]") as HTMLElement | null;
+          const control = top?.closest("button, a, input, select, textarea");
+          if (face?.dataset.face === wall && (!control || control.getAttribute("data-testid") === `tt-open-${wall}`)) return { x, y };
         }
         return null;
       }, [w, b] as const);
@@ -156,6 +163,13 @@ try {
     await setSetting("appearance.desktopView", "tabletop");
     await desktop([], { table: { v: 2, cards: {}, piles: [], camera: "top" } }); // side walls are slivers on the slant; this test is about the unfold mechanics
     const { page, close } = await boot();
+    if (process.env.DEBUG_TABLETOP) await page.evaluate(() => {
+      const w = window as any; w.__wallEvents = [];
+      for (const type of ["pointerdown", "pointerup", "click", "dblclick"]) document.addEventListener(type, (e) => {
+        const el = e.target as HTMLElement;
+        w.__wallEvents.push({ type, target: el?.getAttribute("data-testid") || el?.className, face: el?.closest?.("[data-face]")?.getAttribute("data-face"), main: document.querySelector('[data-testid="tabletop"]')?.getAttribute("data-main"), at: performance.now() });
+      }, true);
+    });
     const tt = await box(page.getByTestId("tabletop"));
     const p = await wallPoint(page, "north");
     await page.mouse.dblclick(p.x, p.y);
@@ -169,7 +183,10 @@ try {
     await page.waitForTimeout(1200); // let the walls fold back before aiming at one
     const pw = await wallPoint(page, "west");
     await page.mouse.dblclick(pw.x, pw.y);
-    await poll(async () => (await page.getByTestId("tabletop").getAttribute("data-main")) === "west", "west is main");
+    await poll(async () => (await page.getByTestId("tabletop").getAttribute("data-main")) === "west", "west is main").catch(async (e) => {
+      if (process.env.DEBUG_TABLETOP) console.log("    wall event trace:", JSON.stringify(await page.evaluate(() => (window as any).__wallEvents)));
+      throw e;
+    });
     await poll(async () => { const f = await box(page.getByTestId("tt-wall-west")); return Math.abs(f.width - tt.width) < 2; }, "west wall fully unfolded", 8000);
     await page.mouse.dblclick(tt.x + tt.width - 30, tt.y + tt.height - 140);
     await poll(async () => (await page.getByTestId("tabletop").getAttribute("data-main")) === "floor", "double-click on the wall background → floor");
@@ -416,7 +433,20 @@ try {
     await drag(page, c, { x: north.x + north.width * 0.3, y: north.y + north.height / 2 });
     await poll(async () => { const t = (await getState())?.table as { walls?: { north?: { cards: Record<string, unknown> } } } | undefined; return !!t?.walls?.north?.cards[F.md]; }, "pinned in state");
     ok(await page.locator(`[data-testid="tt-card"][data-path="${F.md}"][data-surface="floor"]`).count() === 0, "left the floor");
+    // Observe the first committed north-face DOM state; it must not claim to be settled
+    // before the CSS transform has even started (the TT87 intermittent wall-drag failure).
+    await page.evaluate(() => {
+      const root = document.querySelector<HTMLElement>('[data-testid="tabletop"]')!;
+      const audit: Array<{ main?: string; settled?: string }> = [];
+      (window as any).__tt87SettleAudit = audit;
+      const observer = new MutationObserver(() => {
+        if (root.dataset.main === "north") { audit.push({ main: root.dataset.main, settled: root.dataset.settled }); observer.disconnect(); }
+      });
+      observer.observe(root, { attributes: true, attributeFilter: ["data-main", "data-settled"] });
+    });
     await page.getByTestId("tt-nav-north").click();
+    const firstPose = await page.evaluate(() => (window as any).__tt87SettleAudit as Array<{ main?: string; settled?: string }>);
+    ok(firstPose[0]?.settled === "false", `new animated face was prematurely marked settled: ${JSON.stringify(firstPose)}`);
     const pinned = page.locator(`[data-testid="tt-pinboard-north"] [data-testid="tt-card"][data-path="${F.md}"]`);
     await pinned.waitFor({ timeout: 8000 });
     ok((await page.getByTestId("tt-pincount-north").textContent())?.startsWith("1"), "count chip");

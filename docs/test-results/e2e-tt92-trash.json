@@ -1,0 +1,26 @@
+{
+  "suite": "e2e-tt92-trash",
+  "at": "2026-10-27T20:36:40.144Z",
+  "results": [
+    {
+      "suite": "e2e-tt92-trash",
+      "name": "Trash exposes origin, recorded deletion date, real folder bytes and its manual-retention/backup boundary",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial"
+      },
+      "pass": true,
+      "ms": 71
+    },
+    {
+      "suite": "e2e-tt92-trash",
+      "name": "restoring the selected folder in Files reveals the original files and rebuilds search",
+      "covers": {
+        "FM-11": "partial",
+        "SR-01": "partial"
+      },
+      "pass": true,
+      "ms": 1813
+    }
+  ]
+}

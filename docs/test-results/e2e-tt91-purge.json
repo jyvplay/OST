@@ -1,0 +1,24 @@
+{
+  "suite": "e2e-tt91-purge",
+  "at": "2026-10-27T20:36:24.319Z",
+  "results": [
+    {
+      "suite": "e2e-tt91-purge",
+      "name": "confirmation states retention limits, rejects wrong text and cancellation leaves every row intact",
+      "covers": {
+        "FM-11": "partial"
+      },
+      "pass": true,
+      "ms": 2560
+    },
+    {
+      "suite": "e2e-tt91-purge",
+      "name": "confirming permanent folder deletion removes live/history/index rows and preserves an unrelated file",
+      "covers": {
+        "FM-11": "partial"
+      },
+      "pass": true,
+      "ms": 575
+    }
+  ]
+}

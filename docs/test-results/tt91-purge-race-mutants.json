@@ -1,0 +1,42 @@
+{
+  "suite": "tt91-purge-race-mutants",
+  "at": "2026-10-27T13:56:48.374454+00:00",
+  "results": [
+    {
+      "suite": "tt91-purge-race-mutants",
+      "name": "purge omits exclusive lock",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "    observed {\"nodes\":[],\"versions\":[{\"content\":\"before\"}],\"index\":[]}\n  \u2717 write-first ordinary purge removes the committed version and search entry\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    index: [],\n    nodes: [],\n+   versions: [\n+     {\n+       content: 'before'\n+     }\n+   ]\n-   versions: []\n  }\n\n\n0 passed, 1 failed\nFAILED: write-first ordinary purge removes the committed version and search entry\n",
+      "ms": 1123
+    },
+    {
+      "suite": "tt91-purge-race-mutants",
+      "name": "ordinary writer omits shared lock",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "    observed {\"nodes\":[],\"versions\":[{\"content\":\"before\"}],\"index\":[]}\n  \u2717 write-first ordinary purge removes the committed version and search entry\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    index: [],\n    nodes: [],\n+   versions: [\n+     {\n+       content: 'before'\n+     }\n+   ]\n-   versions: []\n  }\n\n\n0 passed, 1 failed\nFAILED: write-first ordinary purge removes the committed version and search entry\n",
+      "ms": 1049
+    },
+    {
+      "suite": "tt91-purge-race-mutants",
+      "name": "conditional writer omits shared lock",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 conditional overwrite followed by purge cannot leave old versions behind\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    index: [],\n    nodes: [],\n+   versions: [\n+     {\n+       content: 'before'\n+     }\n+   ]\n-   versions: []\n  }\n\n\n0 passed, 1 failed\nFAILED: conditional overwrite followed by purge cannot leave old versions behind\n",
+      "ms": 965
+    }
+  ]
+}

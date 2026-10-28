@@ -1,5 +1,6 @@
 "use client";
 import { usePadLink } from "./usePadLink";
+import { useContextProfiles } from "./useContextProfiles";
 import { clipboardRead } from "@/lib/access-log";
 import { padCommands, padKeyOf, type PadOp } from "@/lib/windowing/pad-link";
 import { mouseConfigFrom, useMouseNavGuard } from "@/lib/input";
@@ -48,9 +49,11 @@ import { AskHost } from "./AskHost";
 import { NarratorHost } from "./NarratorHost";
 import GamepadPointer from "./GamepadPointer";
 import { SnapHost, snapUi } from "./SnapHost";
-import { isAskOpen } from "@/lib/ask";
+import { askConfirm, isAskOpen } from "@/lib/ask";
+import { launchModule, protocolModule } from "@/lib/pwa-launch";
+import { importLaunchFile, MAX_LAUNCH_FILES } from "@/lib/pwa-file-import";
 import { captureInstallPrompt, markPwaInstalled } from "@/lib/pwa-install";
-import { createPointerTriggerTracker, pointerGestureAction, type PointerAction, type PointerSample } from "@/lib/pointer-triggers";
+import { createPointerSampleQueue, createPointerTriggerTracker, pointerGestureAction, type PointerAction } from "@/lib/pointer-triggers";
 
 interface Toast { id: number; message: string; tone: "info" | "ok" | "warn" | "bad"; action?: { label: string; run: () => void } }
 
@@ -71,6 +74,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const [caps, setCaps] = useState<CapabilityReport | null>(null);
   const [gov, setGov] = useState<GovernorSnapshot>(() => governor.snapshot());
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const contextProfiles = useContextProfiles();
   // TT66 IN-01: mouse Back / Forward never navigate the tab away; TT67 IN-02: also the indices the user taught it
   const mouseCfg = useMemo(() => mouseConfigFrom(settings), [settings]);
   useMouseNavGuard(mouseCfg);
@@ -89,6 +93,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const [streamVersion, setStreamVersion] = useState(0);
   const [refreshTick, setRefreshTick] = useState(0);
   const [booted, setBooted] = useState(false);
+  // A cold-start URL is handled during boot; do not handle its queued copy twice.
+  const initialLaunchUrl = useRef<string | null>(null);
   const pointerTriggersOn = (settings["shell.hotCorners"] ?? "on") === "on";
   const triggerPointerPanel = useCallback((action: PointerAction) => {
     setLauncher(action === "launcher");
@@ -107,6 +113,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const dirtySince = useRef(0);
   const deskRef = useRef<HTMLDivElement | null>(null);
   const toastId = useRef(1);
+  const refreshChan = useRef<BroadcastChannel | null>(null);
 
   /* ------------------------------------------------------------ dispatch */
   const rawDispatch = useCallback((cmd: WindowCommand) => {
@@ -246,9 +253,21 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     }
   }, [settings, toast]);
 
+  // A backup restores settings in one server transaction rather than through setSetting.
+  // Refresh the active shell and notify other Fusion tabs without broadcasting values.
+  const readSettings = useCallback(async () => {
+    const s = await api<{ rows: { key: string; value: string }[] }>("/api/settings");
+    setSettings(Object.fromEntries(s.rows.map((r) => [r.key, r.value])));
+  }, []);
+  const reloadSettings = useCallback(async () => {
+    await readSettings();
+    refreshChan.current?.postMessage("settings");
+  }, [readSettings]);
+
   /* ----------------------------------------------------------- bootstrap */
   useEffect(() => {
     let cancelled = false;
+    if (initialLaunchUrl.current === null) initialLaunchUrl.current = window.location.href;
     (async () => {
       const probe = probeCapabilities();
       setCaps(probe);
@@ -283,9 +302,12 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       // share target all arrive as query parameters on the single instance.
       try {
         const params = new URLSearchParams(window.location.search);
-        const want = params.get("open") ?? params.get("cmd");
-        // TT15: optional file deep link (?open=sheet&path=/Documents/x.fworkbook) — VFS paths only
-        const wantPath = params.get("path");
+        const command = params.get("cmd");
+        const protocolWant = command ? protocolModule(command, MODULES.map((m) => m.id)) : null;
+        const want = params.get("open") ?? protocolWant ?? command;
+        // TT15: optional file deep link (?open=sheet&path=/Documents/x.fworkbook) — VFS paths only.
+        // External protocol intents never gain a path or other command arguments.
+        const wantPath = protocolWant ? null : params.get("path");
         if (want && MODULES.some((m) => m.id === want)) open(want, wantPath && wantPath.startsWith("/") && wantPath.length < 1024 ? { path: wantPath } : undefined);
         const shared = params.get("url") ?? params.get("text");
         if (shared) {
@@ -298,6 +320,60 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stateId]);
+
+  // Chromium queues installed-PWA launches until a consumer is registered. Register only after hydration,
+  // so an incoming window is not overwritten by the restored desktop. Other browsers may not implement this API.
+  useEffect(() => {
+    if (!booted || hostKind !== "tab") return;
+    type Launch = { targetURL?: string; files?: readonly FileSystemHandle[] };
+    const queue = (window as unknown as { launchQueue?: { setConsumer: (callback: (launch: Launch) => void) => void } }).launchQueue;
+    if (!queue || typeof queue.setConsumer !== "function") return;
+    let alive = true;
+    let pending = 0;
+    let chain: Promise<void> = Promise.resolve();
+    const handle = async (launch: Launch) => {
+      if (!alive) return;
+      if (launch.targetURL) {
+        let target = "";
+        try { target = new URL(launch.targetURL, window.location.origin).href; } catch { /* reject malformed URL */ }
+        if (target && target === initialLaunchUrl.current) {
+          initialLaunchUrl.current = null; // already dispatched by the cold-start URL handler
+        } else if (target) {
+          const app = launchModule(target, window.location.origin, MODULES.map((m) => m.id));
+          if (app) open(app);
+        }
+      }
+      const files = launch.files ?? [];
+      if (!files.length) return;
+      if (files.length > MAX_LAUNCH_FILES) { toast(`Open at most ${MAX_LAUNCH_FILES} files per launch; none were copied.`, "warn"); return; }
+      if (!privacy.status().installed || privacy.status().amnesic) { toast("Local file launch import is unavailable in an amnesic session; nothing was copied.", "warn"); return; }
+      const consent = await askConfirm({ title: "Copy local files into Fusion?", okLabel: "Copy and open", detail: `${files.length} selected file(s): UTF-8 .txt, .log, .md, .csv or .json, at most 1 MiB each. Fusion sends a plaintext copy to its server in /Documents. Edits affect that copy, not the original file. Unsupported files are skipped.` });
+      if (!alive || !consent) return;
+      let copied = 0, failed = 0;
+      let lastError = "";
+      for (const handle of files) {
+        if (!alive) return;
+        try {
+          if (handle.kind !== "file") throw new Error("Only files can be opened");
+          const imported = await importLaunchFile(await (handle as FileSystemFileHandle).getFile());
+          copied++;
+          open("editor", { path: imported.path, title: imported.name });
+          setRefreshTick((n) => n + 1);
+        } catch (e) { failed++; lastError = String((e as Error).message ?? "Unable to read the file").slice(0, 160); }
+      }
+      if (failed) toast(`${copied} copied; ${failed} skipped. ${lastError}`, "warn");
+      else if (copied) toast(`${copied} local file(s) copied to /Documents. The originals are unchanged.`, "ok");
+    };
+    try {
+      queue.setConsumer((launch) => {
+        if (!alive) return;
+        if (pending >= 8) { toast("Too many pending launch requests; the extra request was ignored.", "warn"); return; }
+        pending++;
+        chain = chain.then(() => handle(launch)).catch(() => { if (alive) toast("Could not handle a PWA launch.", "warn"); }).finally(() => { pending--; });
+      });
+    } catch { toast("This browser could not enable PWA launch handling.", "warn"); }
+    return () => { alive = false; };
+  }, [booted, hostKind, open, toast]);
 
   useEffect(() => {
     const unsubscribe = governor.subscribe(setGov);
@@ -373,7 +449,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     const th = settings["appearance.theme"] ?? "dark";
     root.dataset.theme = th === "system" ? (window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark") : th;
     root.dataset.themeSource = th === "system" ? "system" : "user";
-    root.dataset.density = settings["appearance.density"] ?? "balanced";
+    root.dataset.density = contextProfiles.active?.density ?? settings["appearance.density"] ?? "balanced";
+    root.dataset.contextProfile = contextProfiles.active ? contextProfiles.observation?.kind ?? "" : "off";
     const motion = settings["appearance.motion"] ?? "system";
     root.dataset.motion = motion === "off" ? "off" : "";
     root.dataset.effects = gov.effects && (settings["perf.effects"] ?? "auto") !== "off" ? "on" : "off";
@@ -383,8 +460,19 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     applyStyle(settings["appearance.style"]);
     // TT25: main-UI layout (CSS hooks: window chrome, toasts, dock/taskbar styles)
     root.dataset.layout = layoutOf(settings["appearance.layout"]);
-    applyTextScale(Number(settings["appearance.textScale"] ?? DEFAULT_TEXT_SCALE));
-  }, [settings, gov.effects]);
+    applyTextScale(contextProfiles.active?.textScale ?? Number(settings["appearance.textScale"] ?? DEFAULT_TEXT_SCALE));
+  }, [settings, gov.effects, contextProfiles.active, contextProfiles.observation]);
+
+  // An opt-in automatic profile transition is visible, not a silent appearance mutation.
+  const previousContext = useRef<string | null>(null);
+  useEffect(() => {
+    const kind = contextProfiles.active ? contextProfiles.observation?.kind ?? null : null;
+    if (kind && previousContext.current && kind !== previousContext.current) {
+      const label = kind === "extended" ? "multiple screens" : kind === "single-touch" ? "single screen / touch" : "single screen / pointer";
+      showOsd("layout", `Context profile: ${label}`);
+    }
+    previousContext.current = kind;
+  }, [contextProfiles.active, contextProfiles.observation]);
 
   /* TT56 (ST-05): live OS colour-scheme following for the "system" theme */
   const themeSetting = settings["appearance.theme"] ?? "dark";
@@ -488,8 +576,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   /* ------------------------- SH-06 viewport pointer triggers */
   useEffect(() => {
     if (!pointerTriggersOn) return;
-    const track = createPointerTriggerTracker();
-    let pending: PointerSample[] = [];
+    let track = createPointerTriggerTracker();
+    const pending = createPointerSampleQueue();
     let frame = 0;
     let activeGesture: { pointerId: number; x: number; y: number; surface: string; candidate: PointerAction | null; contextMenu: { x: number; y: number } | null } | null = null;
     let suppressContextUntil = 0;
@@ -517,7 +605,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
         frame = 0;
-        const batch = pending; pending = [];
+        const { batch, reset } = pending.drain();
+        if (reset) { track = createPointerTriggerTracker(); return; }
         let action: PointerAction | null = null;
         for (const sample of batch) action = track(sample) ?? action;
         if (action && !isAskOpen()) triggerPointerPanel(action);
@@ -591,7 +680,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       window.removeEventListener("contextmenu", onContextMenu, true);
       if (frame) window.cancelAnimationFrame(frame);
       if (contextReset) window.clearTimeout(contextReset);
-      pending = [];
+      pending.clear();
       activeGesture = null;
     };
   }, [pointerTriggersOn, triggerPointerPanel]);
@@ -675,15 +764,17 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const pulse = useCallback((ts: number) => governor.tick(ts), []);
   /** SH-04: a file change made in another tab / window of this browser (same origin) refreshes this desktop too — the bump
    *  is broadcast (no payload, no paths) and a tab that was hidden re-reads when it becomes visible again. */
-  const refreshChan = useRef<BroadcastChannel | null>(null);
   useEffect(() => {
     if (typeof BroadcastChannel === "undefined") return;
     const ch = new BroadcastChannel("fusion.refresh"); refreshChan.current = ch;
-    ch.onmessage = () => setRefreshTick((t) => t + 1);
+    ch.onmessage = (event) => {
+      setRefreshTick((t) => t + 1);
+      if (event.data === "settings") void readSettings().catch(() => undefined);
+    };
     const onVis = () => { if (document.visibilityState === "visible") setRefreshTick((t) => t + 1); };
     document.addEventListener("visibilitychange", onVis);
     return () => { ch.close(); refreshChan.current = null; document.removeEventListener("visibilitychange", onVis); };
-  }, []);
+  }, [readSettings]);
   const bumpRefresh = useCallback(() => { setRefreshTick((t) => t + 1); refreshChan.current?.postMessage(1); }, []);
   /** TT72 SH-11: the Blackout pad drives the presenting window over BroadcastChannel("fusion-shell") */
   const pad = usePadLink(stateId, hostKind, stateRefOpen, dispatch);
@@ -692,10 +783,10 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const padInput = useCallback((op: PadOp) => { if (!pad.send(op)) padLocal(op); }, [pad, padLocal]);
 
   const value: ShellApi = useMemo(() => ({
-    state, dispatch, open, caps, gov, settings, setSetting, toast,
+    state, dispatch, open, caps, gov, settings, contextProfiles, setSetting, reloadSettings, toast,
     streams, publishStream, streamVersion, clips, copy, editClips, beam, setBeam,
     commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions, askSave,
-  }), [state, dispatch, open, caps, gov, settings, setSetting, toast, streams, publishStream,
+  }), [state, dispatch, open, caps, gov, settings, contextProfiles, setSetting, reloadSettings, toast, streams, publishStream,
       streamVersion, clips, copy, editClips, beam, commandLog, hostKind, pulse, refreshTick, bumpRefresh, runActions, askSave]);
 
   // TT69 FF-15: while "Save changes?" is open nothing behind it can be focused or clicked
@@ -733,6 +824,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       {/* TT25: in Business / Art the wallpaper sits behind the whole column so the translucent taskbar, menu bar and
           floating dock show it through; Fusion keeps it on the desk exactly as before */}
       <div ref={rootRef} className={layout === "fusion" ? undefined : `fs-wallpaper-${wallpaper}`} data-layout={layout}
+        data-shell-ready={booted ? "true" : "false"} aria-busy={!booted}
         style={{ height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {layout === "fusion" ? (
           <TopBar

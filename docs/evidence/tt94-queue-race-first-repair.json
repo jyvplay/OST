@@ -1,0 +1,27 @@
+{
+  "suite": "e2e-tt94-offline-race",
+  "at": "2026-10-27T17:49:22.345Z",
+  "results": [
+    {
+      "suite": "e2e-tt94-offline-race",
+      "name": "a later queued Files write is not lost while a photo replay is waiting on the database",
+      "covers": {
+        "SH-14": "partial",
+        "MD-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n",
+      "ms": 11498
+    },
+    {
+      "suite": "e2e-tt94-offline-race",
+      "name": "two online tabs do not replay the same queued recipe twice",
+      "covers": {
+        "SH-14": "partial",
+        "MD-03": "partial"
+      },
+      "pass": true,
+      "ms": 7642
+    }
+  ]
+}

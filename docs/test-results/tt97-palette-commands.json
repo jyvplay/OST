@@ -1,0 +1,42 @@
+{
+  "suite": "tt97-palette-commands",
+  "at": "2026-10-27T23:25:54.843Z",
+  "results": [
+    {
+      "suite": "tt97-palette-commands",
+      "name": "notes require an explicit command and preserve punctuation as plain text",
+      "covers": {
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt97-palette-commands",
+      "name": "focus actions accept only exact toggle, on and off",
+      "covers": {
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt97-palette-commands",
+      "name": "settings and routine filters are bounded and cannot become commands",
+      "covers": {
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt97-palette-commands",
+      "name": "4096-code-unit limit includes padding; the boundary is accepted exactly",
+      "covers": {
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "suite": "e2e-tt96-files-contrast",
+  "at": "2026-10-27T23:25:54.025Z",
+  "results": [
+    {
+      "suite": "e2e-tt96-files-contrast",
+      "name": "dark unhovered selected server badge is readable across all 13 styles",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 7378
+    },
+    {
+      "suite": "e2e-tt96-files-contrast",
+      "name": "dark hovered selected server badge is readable across all 13 styles",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 8870
+    },
+    {
+      "suite": "e2e-tt96-files-contrast",
+      "name": "light unhovered selected server badge is readable across all 13 styles",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 4809
+    },
+    {
+      "suite": "e2e-tt96-files-contrast",
+      "name": "light hovered selected server badge is readable across all 13 styles",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 9331
+    },
+    {
+      "suite": "e2e-tt96-files-contrast",
+      "name": "axe detects the injected old muted colour on dark Silver and accepts the restored colour",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 374
+    }
+  ]
+}

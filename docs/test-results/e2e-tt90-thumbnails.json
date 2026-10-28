@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt90-thumbnails",
+  "at": "2026-10-27T20:36:03.583Z",
+  "results": [
+    {
+      "suite": "e2e-tt90-thumbnails",
+      "name": "Files grid renders independent PNG pixels in bounded real Chromium workers",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 4826
+    },
+    {
+      "suite": "e2e-tt90-thumbnails",
+      "name": "SVG, text and real recorded WebM keep their main-thread or worker preview paths",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 2075
+    },
+    {
+      "suite": "e2e-tt90-thumbnails",
+      "name": "real workers terminate after 30 seconds idle and a new image starts a new worker",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 30070
+    },
+    {
+      "suite": "e2e-tt90-thumbnails",
+      "name": "if the real browser refuses worker construction, main-thread fallback still renders pixels",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 2820
+    },
+    {
+      "suite": "e2e-tt90-thumbnails",
+      "name": "no uncaught page errors during thumbnail work",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

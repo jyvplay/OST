@@ -1,0 +1,138 @@
+{
+  "suite": "tt89-launch-mutants",
+  "at": "2026-10-27T05:26:22.287153+00:00",
+  "results": [
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "allow unknown protocol module",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 protocol accepts only the documented, known app intent\n    Expected values to be strictly equal:\n\n'unknown' !== null\n\n\n0 passed, 1 failed\nFAILED: protocol accepts only the documented, known app intent\n",
+      "ms": 335
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "allow arbitrary protocol action",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 protocol accepts only the documented, known app intent\n    web+fusion://delete?app=files\n\n'files' !== null\n\n\n0 passed, 1 failed\nFAILED: protocol accepts only the documented, known app intent\n",
+      "ms": 356
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "allow extra protocol parameters",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 protocol accepts only the documented, known app intent\n    web+fusion://open?app=files&cmd=delete\n\n'files' !== null\n\n\n0 passed, 1 failed\nFAILED: protocol accepts only the documented, known app intent\n",
+      "ms": 335
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "accept cross-origin launch target",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 existing-window URL is same-origin, root-only, one bounded module parameter\n    https://evil.example/?open=files\n\n'files' !== null\n\n\n0 passed, 1 failed\nFAILED: existing-window URL is same-origin, root-only, one bounded module parameter\n",
+      "ms": 374
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "replace malformed UTF-8 instead of rejecting",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 malformed UTF-8, embedded NUL and oversized files are rejected\n    Missing expected rejection.\n\n0 passed, 1 failed\nFAILED: malformed UTF-8, embedded NUL and oversized files are rejected\n",
+      "ms": 334
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "drop UTF-8 BOM",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 strict UTF-8 text, BOM and MIME are preserved independent of the claimed file type\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ Buffer(10) [Uint8Array] [\n- Buffer(13) [Uint8Array] [\n-   239,\n-   187,\n-   191,\n    115,\n    110,\n    111,\n    119,\n    32,\n\n\n0 passed, 1 failed\nFAILED: strict UTF-8 text, BOM and MIME are preserved independent of the claimed file type\n",
+      "ms": 359
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "accept unsupported/prototype file extensions",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 invalid filenames, prototype extensions, control characters and unsupported types fail\n    Missing expected rejection: file.constructor\n\n0 passed, 1 failed\nFAILED: invalid filenames, prototype extensions, control characters and unsupported types fail\n",
+      "ms": 359
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "ignore launch file size bound",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 malformed UTF-8, embedded NUL and oversized files are rejected\n    Missing expected rejection.\n\n0 passed, 1 failed\nFAILED: malformed UTF-8, embedded NUL and oversized files are rejected\n",
+      "ms": 338
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "bypass user consent",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2713 cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery\n  \u2717 modal cancellation and shortcuts never copy a selected OPFS file\n    locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByTestId('ask-dialog').getByText(/sends a plaintext copy to its server/i) to be visible\n\n\n1 passed, 1 failed\nFAILED: modal cancellation and shortcuts never copy a selected OPFS file\n",
+      "ms": 19026
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "replace compare-and-create with a blind write",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2713 cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery\n  \u2717 selected UTF-8 OPFS file imports to a copy, defeats a real concurrent create, and opens in Editor\n    Expected values to be strictly equal:\n+ actual - expected\n\n+ '\ufefflaunch caf\u00e9 \ud83d\udc1a\\n'\n- 'concurrent creator'\n\n\n1 passed, 1 failed\nFAILED: selected UTF-8 OPFS file imports to a copy, defeats a real concurrent create, and opens in Editor\n",
+      "ms": 8618
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "remove amnesic-session refusal",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 amnesic session refuses launch file copies before consent or any host write\n    locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByText(/unavailable in an amnesic session; nothing was copied/i) to be visible\n\n\n0 passed, 1 failed\nFAILED: amnesic session refuses launch file copies before consent or any host write\n",
+      "ms": 18101
+    },
+    {
+      "suite": "tt89-launch-mutants",
+      "name": "dispatch a cold-start intent twice",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery\n    Expected values to be strictly equal:\n\n2 !== 1\n\n\n0 passed, 1 failed\nFAILED: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery\n",
+      "ms": 6105
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "suite": "tt97-palette-mutants",
+  "at": "2026-10-27T23:08:25.457823+00:00",
+  "results": [
+    {
+      "suite": "tt97-palette-mutants",
+      "name": "unit conversion claims a non-finite success",
+      "covers": {
+        "SR-06": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "state": "killed",
+      "error": null,
+      "detection": "  \u2717 unit conversion never claims an infinite result succeeded\n    1e308 km to mm: Infinity mm\n\ntrue !== false\n\n\n0 passed, 1 failed\nFAILED: unit conversion never claims an infinite result succeeded\n",
+      "ms": 580
+    },
+    {
+      "suite": "tt97-palette-mutants",
+      "name": "unit conversion multiplies before dividing",
+      "covers": {
+        "SR-06": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "state": "killed",
+      "error": null,
+      "detection": "  \u2717 large identity conversion avoids intermediate overflow\n    1e308 km to km: not a finite number\n\nfalse !== true\n\n\n0 passed, 1 failed\nFAILED: large identity conversion avoids intermediate overflow\n",
+      "ms": 771
+    },
+    {
+      "suite": "tt97-palette-mutants",
+      "name": "unit conversion accepts a non-finite input",
+      "covers": {
+        "SR-06": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "state": "equivalent",
+      "error": null,
+      "detection": null,
+      "ms": 690
+    },
+    {
+      "suite": "tt97-palette-mutants",
+      "name": "note command drops its word boundary",
+      "covers": {
+        "SR-06": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "state": "killed",
+      "error": null,
+      "detection": "  \u2717 notes require an explicit command and preserve punctuation as plain text\n    Expected values to be strictly equal:\n+ actual - expected\n\n+ {\n+   kind: 'note',\n+   text: 'book test'\n+ }\n- null\n\n\n0 passed, 1 failed\nFAILED: notes require an explicit command and preserve punctuation as plain text\n",
+      "ms": 567
+    },
+    {
+      "suite": "tt97-palette-mutants",
+      "name": "focus accepts an arbitrary argument",
+      "covers": {
+        "SR-06": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "state": "killed",
+      "error": null,
+      "detection": "  \u2717 focus actions accept only exact toggle, on and off\n    focus maybe\n+ actual - expected\n\n+ {\n+   kind: 'focus',\n+   mode: 'maybe'\n+ }\n- null\n\n\n0 passed, 1 failed\nFAILED: focus actions accept only exact toggle, on and off\n",
+      "ms": 779
+    },
+    {
+      "suite": "tt97-palette-mutants",
+      "name": "command length limit removed",
+      "covers": {
+        "SR-06": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "state": "killed",
+      "error": null,
+      "detection": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'\n+ }\n- null\n\n\n0 passed, 1 failed\nFAILED: 4096-code-unit limit includes padding; the boundary is accepted exactly\n",
+      "ms": 861
+    },
+    {
+      "suite": "tt97-palette-mutants",
+      "name": "setting filter length limit removed",
+      "covers": {
+        "SR-06": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "state": "killed",
+      "error": null,
+      "detection": "  \u2717 settings and routine filters are bounded and cannot become commands\n    setting xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n+ actual - expected\n\n+ {\n+   kind: 'setting',\n+   query: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'\n+ }\n- null\n\n\n0 passed, 1 failed\nFAILED: settings and routine filters are bounded and cannot become commands\n",
+      "ms": 711
+    },
+    {
+      "suite": "tt97-palette-mutants",
+      "name": "routine filter length limit removed",
+      "covers": {
+        "SR-06": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "state": "killed",
+      "error": null,
+      "detection": "  \u2717 settings and routine filters are bounded and cannot become commands\n    run xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n+ actual - expected\n\n+ {\n+   kind: 'routine',\n+   query: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'\n+ }\n- null\n\n\n0 passed, 1 failed\nFAILED: settings and routine filters are bounded and cannot become commands\n",
+      "ms": 799
+    }
+  ]
+}

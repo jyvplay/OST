@@ -1,0 +1,91 @@
+{
+  "suite": "e2e-tt89-launch",
+  "at": "2026-10-27T21:24:35.265Z",
+  "results": [
+    {
+      "suite": "e2e-tt89-launch",
+      "name": "cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery",
+      "covers": {
+        "SH-13": "partial",
+        "AU-03": "partial"
+      },
+      "pass": true,
+      "ms": 1126
+    },
+    {
+      "suite": "e2e-tt89-launch",
+      "name": "focus-existing synthetic launches restrict origin, action and app ids",
+      "covers": {
+        "SH-13": "partial",
+        "AU-03": "partial"
+      },
+      "pass": true,
+      "ms": 440
+    },
+    {
+      "suite": "e2e-tt89-launch",
+      "name": "default-app guide changes platform, reports limits, and sends a real browser protocol request without claiming acceptance",
+      "covers": {
+        "ST-03": "partial",
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 2791
+    },
+    {
+      "suite": "e2e-tt89-launch",
+      "name": "modal cancellation and shortcuts never copy a selected OPFS file",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 443
+    },
+    {
+      "suite": "e2e-tt89-launch",
+      "name": "selected UTF-8 OPFS file imports to a copy, defeats a real concurrent create, and opens in Editor",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 1029
+    },
+    {
+      "suite": "e2e-tt89-launch",
+      "name": "back-to-back launch requests obtain separate, ordered consent",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 1699
+    },
+    {
+      "suite": "e2e-tt89-launch",
+      "name": "unsupported binary, NUL, excessive size and excessive launch count are refused",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 993
+    },
+    {
+      "suite": "e2e-tt89-launch",
+      "name": "amnesic session refuses launch file copies before consent or any host write",
+      "covers": {
+        "SH-13": "partial",
+        "SC-13": "partial"
+      },
+      "pass": true,
+      "ms": 1452
+    },
+    {
+      "suite": "e2e-tt89-launch",
+      "name": "launch browser session has no uncaught page errors",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

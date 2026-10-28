@@ -1,0 +1,20 @@
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== tabletop-unit
+17 passed, 0 failed
+=== e2e-tabletop
+15 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+13 passed, 0 failed
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== tt67-input
+11 passed, 0 failed
+=== e2e-tt67-input

@@ -1,0 +1,26 @@
+{
+  "suite": "e2e-tt94-photo-stale",
+  "at": "2026-10-27T20:37:59.357Z",
+  "results": [
+    {
+      "suite": "e2e-tt94-photo-stale",
+      "name": "a stale editor cannot attach edits to an identical replacement after another client moves its photo",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 3904
+    },
+    {
+      "suite": "e2e-tt94-photo-stale",
+      "name": "a stale reset cannot delete the new occupant's edits after a move and replacement",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 3028
+    }
+  ]
+}

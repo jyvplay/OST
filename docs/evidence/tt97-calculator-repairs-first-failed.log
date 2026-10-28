@@ -1,0 +1,21 @@
+  ✓ empty history is a named region; removing its role reintroduces the original axe violation
+  ✗ empty and populated programmer history remain axe-clean
+    Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   {
++     id: 'color-contrast',
++     targets: [
++       'div[role="group"] > .fs-btn[type="button"][data-variant="ghost"]',
++       'div[role="group"] > .fs-btn[data-variant="primary"][type="button"]'
++     ]
++   }
++ ]
+- []
+
+  ✓ calculator and command palette agree on finite and overflowing unit conversions
+  ✓ calculator repair scenarios have no uncaught page errors
+
+3 passed, 1 failed
+FAILED: empty and populated programmer history remain axe-clean

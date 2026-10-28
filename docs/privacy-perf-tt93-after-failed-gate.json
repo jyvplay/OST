@@ -1,0 +1,705 @@
+{
+  "at": "2026-10-27T16:15:26.727Z",
+  "note": "diagnostic only: timings include instrumentation and alternate order; not the e2e-privacy gate",
+  "capabilities": {
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.0 Safari/537.36",
+    "nativeToBase64": true
+  },
+  "warmupPairs": 4,
+  "pairs": 16,
+  "hostMedianMs": 36.799999999813735,
+  "privateMedianMs": 46.10000000009313,
+  "hostNetworkMedianMs": 33.0429999999069,
+  "privateNetworkMedianMs": 32.94599999981074,
+  "privateCryptoMedianMs": 3.900000000372529,
+  "samples": [
+    {
+      "kind": "host",
+      "ms": 35.5,
+      "networkMs": 31.973999999991065,
+      "crypto": []
+    },
+    {
+      "kind": "private",
+      "ms": 51.60000000009313,
+      "networkMs": 39.460999999846536,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.7999999998137355
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0.10000000009313226
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 6,
+          "ms": 0.10000000009313226
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 6,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "private",
+      "ms": 67.8000000002794,
+      "networkMs": 53.14799999996467,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 8.899999999906868
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0.10000000009313226
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 6,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 6,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "host",
+      "ms": 45.5,
+      "networkMs": 42.54899999978079,
+      "crypto": []
+    },
+    {
+      "kind": "host",
+      "ms": 40.89999999990687,
+      "networkMs": 37.25299999996423,
+      "crypto": []
+    },
+    {
+      "kind": "private",
+      "ms": 46.10000000009313,
+      "networkMs": 36.32999999990716,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 4.7999999998137355
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 6,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 6,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "private",
+      "ms": 47.700000000186265,
+      "networkMs": 37.744000000202504,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 4.600000000093132
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 6,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 6,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "host",
+      "ms": 49.1999999997206,
+      "networkMs": 45.60300000002826,
+      "crypto": []
+    },
+    {
+      "kind": "host",
+      "ms": 32.8000000002794,
+      "networkMs": 30.279000000064116,
+      "crypto": []
+    },
+    {
+      "kind": "private",
+      "ms": 43,
+      "networkMs": 32.47000000010303,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.7999999998137355
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 6,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 6,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "private",
+      "ms": 39.700000000186265,
+      "networkMs": 29.48400000013862,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 4.800000000279397
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 6,
+          "ms": 0.09999999962747097
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 6,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "host",
+      "ms": 35.89999999990687,
+      "networkMs": 33.0429999999069,
+      "crypto": []
+    },
+    {
+      "kind": "host",
+      "ms": 36.799999999813735,
+      "networkMs": 33.694000000195956,
+      "crypto": []
+    },
+    {
+      "kind": "private",
+      "ms": 43.299999999813735,
+      "networkMs": 32.94599999981074,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 4
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "private",
+      "ms": 49,
+      "networkMs": 31.797999999980675,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.8999999999068677
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0.10000000009313226
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "host",
+      "ms": 40.700000000186265,
+      "networkMs": 37.608000000091124,
+      "crypto": []
+    },
+    {
+      "kind": "host",
+      "ms": 32.799999999813735,
+      "networkMs": 30.96000000005006,
+      "crypto": []
+    },
+    {
+      "kind": "private",
+      "ms": 46.299999999813735,
+      "networkMs": 37.43699999995442,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.7000000001862645
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "private",
+      "ms": 37.39999999990687,
+      "networkMs": 24.12899999990259,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.8000000002793968
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0.10000000009313226
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "host",
+      "ms": 33.6999999997206,
+      "networkMs": 27.128000000175234,
+      "crypto": []
+    },
+    {
+      "kind": "host",
+      "ms": 38.299999999813735,
+      "networkMs": 23.982999999589083,
+      "crypto": []
+    },
+    {
+      "kind": "private",
+      "ms": 45.1999999997206,
+      "networkMs": 28.478000000177417,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.7999999998137355
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "private",
+      "ms": 45.89999999990687,
+      "networkMs": 29.28699999984019,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.8000000002793968
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "host",
+      "ms": 51.200000000186265,
+      "networkMs": 33.302000000276166,
+      "crypto": []
+    },
+    {
+      "kind": "host",
+      "ms": 35.1999999997206,
+      "networkMs": 22.247999999763124,
+      "crypto": []
+    },
+    {
+      "kind": "private",
+      "ms": 46.89999999990687,
+      "networkMs": 36.27200000028097,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.7999999998137355
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0.10000000009313226
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "private",
+      "ms": 79.1999999997206,
+      "networkMs": 56.005999999797496,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.7999999998137355
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0.09999999962747097
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "host",
+      "ms": 43.90000000037253,
+      "networkMs": 35.62000000010812,
+      "crypto": []
+    },
+    {
+      "kind": "host",
+      "ms": 32.89999999990687,
+      "networkMs": 23.742999999740277,
+      "crypto": []
+    },
+    {
+      "kind": "private",
+      "ms": 35,
+      "networkMs": 25.869000000056985,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.7999999998137355
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0.09999999962747097
+        }
+      ]
+    },
+    {
+      "kind": "private",
+      "ms": 40.59999999962747,
+      "networkMs": 31.321999999818217,
+      "crypto": [
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 270336,
+          "ms": 3.8000000002793968
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 17,
+          "ms": 0.10000000009313226
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 17,
+          "ms": 0
+        },
+        {
+          "name": "sign",
+          "algorithm": "HMAC",
+          "bytes": 7,
+          "ms": 0
+        },
+        {
+          "name": "encrypt",
+          "algorithm": "AES-GCM",
+          "bytes": 7,
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "kind": "host",
+      "ms": 23.200000000186265,
+      "networkMs": 19.936000000143395,
+      "crypto": []
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "suite": "tt95-photo-race",
+  "at": "2026-10-27T20:38:45.757Z",
+  "results": [
+    {
+      "suite": "tt95-photo-race",
+      "name": "an uncommitted competing insert cannot be overwritten by an absent-recipe save",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 72
+    },
+    {
+      "suite": "tt95-photo-race",
+      "name": "a locked update committed first invalidates the later guarded save",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 83
+    },
+    {
+      "suite": "tt95-photo-race",
+      "name": "a locked update committed first invalidates the later guarded clear",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 84
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+=== unit
+23 passed, 0 failed
+=== tt95-calculator-audit
+4 passed, 0 failed
+=== tt96-programmer
+8 passed, 0 failed
+=== tt96-calc-history
+6 passed, 0 failed
+=== e2e-tt96-calculator
+7 passed, 0 failed
+=== tt89-test-safety
+4 passed, 0 failed
+=== tt92-ledger-policy
+2 passed, 0 failed
+ALLDONE

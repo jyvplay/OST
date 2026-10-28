@@ -1,0 +1,148 @@
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== tabletop-unit
+17 passed, 0 failed
+=== e2e-tabletop
+15 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+13 passed, 0 failed
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== tt67-input
+11 passed, 0 failed
+=== e2e-tt67-input
+5 passed, 0 failed
+=== e2e-tt81
+7 passed, 0 failed
+=== e2e-a11y
+9 passed, 0 failed
+=== e2e-tt35
+7 passed, 0 failed
+=== tt86-pointer
+3 passed, 0 failed
+=== e2e-tt86-pointer
+6 passed, 0 failed
+=== tt87-pointer-queue
+2 passed, 0 failed
+=== e2e-tt87-pointer-fallback
+6 passed, 0 failed
+=== tt87-transaction
+5 passed, 0 failed
+=== tt87-backup
+5 passed, 0 failed
+=== tt87-backup-http
+8 passed, 0 failed
+=== e2e-tt87-backup
+6 passed, 0 failed
+=== e2e-tt87-localdisk
+5 passed, 0 failed
+=== e2e-tt87-privacy
+3 passed, 0 failed
+=== tt88-recovery
+9 passed, 0 failed
+=== e2e-tt88-recovery
+6 passed, 0 failed
+=== tt89-drill-health
+7 passed, 0 failed
+=== tt89-drill-db
+13 passed, 0 failed
+=== tt89-drill-http
+9 passed, 0 failed
+=== e2e-tt89-drill
+9 passed, 0 failed
+=== tt89-launch-unit
+6 passed, 0 failed
+=== e2e-tt89-launch
+9 passed, 0 failed
+=== tt90-context-unit
+4 passed, 0 failed
+=== e2e-tt90-context
+8 passed, 0 failed
+=== tt90-worker-pool
+9 passed, 0 failed
+=== tt90-private-thumb-path
+1 passed, 0 failed
+=== e2e-tt90-thumbnails
+5 passed, 0 failed
+=== e2e-tt90-private-thumbnails
+5 passed, 0 failed
+=== tt91-thumbnail-cleanup-race
+6 passed, 0 failed
+=== tt91-purge
+5 passed, 0 failed
+=== tt91-purge-race
+4 passed, 0 failed
+=== tt91-write-atomic
+2 passed, 0 failed
+=== e2e-tt91-purge
+2 passed, 0 failed
+=== tt91-browser-download
+10 passed, 0 failed
+=== e2e-tt91-browser-download
+7 passed, 0 failed
+=== tt92-trash
+11 passed, 0 failed
+=== tt92-trash-race
+6 passed, 0 failed
+=== e2e-tt92-trash
+2 passed, 0 failed
+=== tt92-ledger-audit
+7 passed, 0 failed
+=== tt92-ledger-policy
+2 passed, 0 failed
+=== e2e-tt54
+CRASHED e2e-tt54 (no summary line) — last lines:
+  pid: 27128,
+  stdout: null,
+  stderr: null
+}
+
+Node.js v22.22.3
+=== tt93-transfer
+17 passed, 0 failed
+=== tt93-transfer-race
+5 passed, 0 failed
+=== tt93-restore-race
+3 passed, 0 failed
+=== tt93-metadata-race
+4 passed, 0 failed
+=== e2e-tt93-sidecar
+2 passed, 0 failed
+=== e2e-tt93-photos-clear
+7 passed, 0 failed
+=== tt94-photo-guard
+12 passed, 0 failed
+=== tt94-photo-guard-race
+2 passed, 0 failed
+=== e2e-tt94-photo-stale
+2 passed, 0 failed
+=== e2e-tt94-photos-offline
+6 passed, 0 failed
+=== e2e-tt94-offline-race
+3 passed, 0 failed
+=== tt89-test-safety
+4 passed, 0 failed
+=== privacy-crypto
+9 passed, 0 failed
+=== privacy-layer
+13 passed, 0 failed
+=== privacy-backup
+7 passed, 0 failed
+=== e2e-privacy
+  ✗ no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end
+    encrypt throughput 42 MB/s: Encrypt
+42 MB/s (95.0 ms per 4.0 MB)
+Decrypt
+--
+15 passed, 1 failed
+FAILED: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end
+CRASHED SUITES: e2e-tt54
+FAILED SUITES: e2e-tt54 e2e-privacy
+ALLDONE

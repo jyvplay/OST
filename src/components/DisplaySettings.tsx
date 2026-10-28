@@ -36,6 +36,10 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
   return (
     <Section title="Display & readability" right={<Badge tone={body >= 16 ? "ok" : "info"} title="Computed from the text size and your browser's default font size">body text {body}px</Badge>}>
       <div data-testid="display-settings" style={{ display: "grid", gap: fz(12) }}>
+        {shell.contextProfiles.active ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>
+          A browser-local context profile is overriding density{shell.contextProfiles.active.textScale !== null ? " and text size" : ""} in this tab.
+          The controls here edit the shared base settings; turn off Context profiles to use them directly.
+        </div> : null}
         {/* ------------------------------------------------------------ layout (TT25) */}
         <div style={{ display: "grid", gap: fz(5) }}>
           <strong style={{ fontSize: fz(13) }}>Layout</strong>

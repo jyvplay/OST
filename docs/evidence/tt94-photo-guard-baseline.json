@@ -1,0 +1,92 @@
+{
+  "suite": "tt94-photo-guard",
+  "at": "2026-10-27T17:23:06.882Z",
+  "results": [
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a matching photo identity permits versioned recipe writes and an idempotent clear",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 124
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a recipe save from a stale editor after a photo move is refused without creating an orphan",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 88
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "recreating an identical photo at the old path does not authorize an old editor",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 97
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a modified photo version refuses the old recipe even at the same path and identity",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 92
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a stale clear cannot purge a new photo's unrelated recipe at the reused path",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 151
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a guard cannot authorize writes or deletion of an unrelated path",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 400\n",
+      "ms": 64
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "media listing exposes the exact identity and version used by a live editor",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\nundefined !== 115\n",
+      "ms": 31
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "unconditional sidecar writes remain available to existing clients",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 47
+    }
+  ]
+}

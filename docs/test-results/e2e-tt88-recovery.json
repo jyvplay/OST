@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt88-recovery",
+  "at": "2026-10-27T21:24:11.125Z",
+  "results": [
+    {
+      "suite": "e2e-tt88-recovery",
+      "name": "BK-06 generate and confirm a user-held key before downloading a real recovery-key archive",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 2863
+    },
+    {
+      "suite": "e2e-tt88-recovery",
+      "name": "BK-06 wrong key, wrong passphrase and cross-slot tampering fail locally before any preview request",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 398
+    },
+    {
+      "suite": "e2e-tt88-recovery",
+      "name": "BK-06 recovery key previews, cancels and then restores settings with the real server",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 508
+    },
+    {
+      "suite": "e2e-tt88-recovery",
+      "name": "BK-06 the original passphrase independently opens the same downloaded file",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 497
+    },
+    {
+      "suite": "e2e-tt88-recovery",
+      "name": "BK-06 Chromium opens an independently encrypted Python archive and can cancel its preview",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 474
+    },
+    {
+      "suite": "e2e-tt88-recovery",
+      "name": "BK-06 secrets are not in captured request bodies or persistent browser storage, and key display is cleared",
+      "covers": {
+        "BK-06": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    }
+  ]
+}

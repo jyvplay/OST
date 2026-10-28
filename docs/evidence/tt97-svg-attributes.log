@@ -1,0 +1,5 @@
+  ✓ no JSX SVG geometry attribute receives calc()/var()/fz(); the fixed banner chevron is present
+  ✓ detector rejects the exact pre-repair attribute shape
+  ✓ dynamic width/height expressions on SVG elements are absent or explicitly listed
+
+3 passed, 0 failed

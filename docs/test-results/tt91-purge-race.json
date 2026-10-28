@@ -1,0 +1,46 @@
+{
+  "suite": "tt91-purge-race",
+  "at": "2026-10-27T20:36:18.644Z",
+  "results": [
+    {
+      "suite": "tt91-purge-race",
+      "name": "purge-first ordinary write cannot return success with orphan history or search text",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 155
+    },
+    {
+      "suite": "tt91-purge-race",
+      "name": "unrelated ordinary writes can progress concurrently through the shared writer gate",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 92
+    },
+    {
+      "suite": "tt91-purge-race",
+      "name": "conditional overwrite followed by purge cannot leave old versions behind",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 124
+    },
+    {
+      "suite": "tt91-purge-race",
+      "name": "write-first ordinary purge removes the committed version and search entry",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 119
+    }
+  ]
+}

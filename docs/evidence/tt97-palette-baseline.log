@@ -1,0 +1,8 @@
+  ✗ action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection
+    locator.click: Timeout 6000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog', { name: 'Command palette' }).getByRole('button', { name: 'actions', exact: true })
+
+
+0 passed, 1 failed
+FAILED: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection

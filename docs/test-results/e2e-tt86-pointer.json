@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt86-pointer",
-  "at": "2026-10-27T01:39:36.081Z",
+  "at": "2026-10-27T23:10:30.896Z",
   "results": [
     {
       "suite": "e2e-tt86-pointer",
@@ -9,7 +9,7 @@
         "SH-06": "full"
       },
       "pass": true,
-      "ms": 5078
+      "ms": 6322
     },
     {
       "suite": "e2e-tt86-pointer",
@@ -18,7 +18,7 @@
         "SH-06": "full"
       },
       "pass": true,
-      "ms": 1576
+      "ms": 1996
     },
     {
       "suite": "e2e-tt86-pointer",
@@ -27,7 +27,16 @@
         "SH-06": "full"
       },
       "pass": true,
-      "ms": 6620
+      "ms": 10028
+    },
+    {
+      "suite": "e2e-tt86-pointer",
+      "name": "SH-06 an overflowing synthetic frame is dropped without a false action; trusted pointer input re-arms afterward",
+      "covers": {
+        "SH-06": "partial"
+      },
+      "pass": true,
+      "ms": 1714
     },
     {
       "suite": "e2e-tt86-pointer",
@@ -36,7 +45,7 @@
         "SH-06": "full"
       },
       "pass": true,
-      "ms": 5573
+      "ms": 7393
     },
     {
       "suite": "e2e-tt86-pointer",

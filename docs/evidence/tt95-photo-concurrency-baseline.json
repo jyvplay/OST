@@ -1,0 +1,148 @@
+{
+  "suite": "tt95-photo-concurrency",
+  "at": "2026-10-27T19:19:29.701Z",
+  "results": [
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "two editors seeing no recipe cannot silently replace the first edit",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 106
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a stale update refuses a later edit and leaves its current row, history and index intact",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 123
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a stale clear cannot purge newer edits or their history",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 103
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a same-byte rewrite is still a new recipe version",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 77
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a recreated recipe with identical bytes is not the original row",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 92
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a removed recipe cannot be recreated by a stale editor",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 93
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a corrupt sidecar digest is not silently replaced",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 409\n",
+      "ms": 71
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "malformed explicit recipe preconditions fail closed",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 400\n",
+      "ms": 38
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "a recipe precondition without an owner guard is rejected",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n200 !== 400\n",
+      "ms": 31
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "competing guarded creates have one winner",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    200,\n+   200\n-   409\n  ]\n",
+      "ms": 59
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "competing guarded updates from one version have one winner",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    200,\n+   200\n-   409\n  ]\n",
+      "ms": 63
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "successful saves return their actual new identity and can advance the next precondition",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   id: undefined,\n-   id: 131,\n    sha256: 'a7937b64b8caa58f03721bb6bacf5c78cb235febe0e70b1b84cd99541461a08e',\n+   version: undefined\n-   version: 1\n  }\n",
+      "ms": 37
+    },
+    {
+      "suite": "tt95-photo-concurrency",
+      "name": "legacy unguarded sidecar writes retain their existing overwrite behavior",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 116
+    }
+  ]
+}

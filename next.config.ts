@@ -14,6 +14,11 @@ const privacyHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Permit the proxied Arena preview host (and the local test IP) to load dev-only assets.
+  // This is a development-server origin setting; API writes still use the CSRF guard.
+  allowedDevOrigins: ["*.e2b.app", "127.0.0.1"],
+  // The dev-only Next.js badge overlaps the shell's shelf and hot-corner targets.
+  devIndicators: false,
   // TT35: the proxy keeps target paths exactly — "/search/" and "/search" are different pages on many sites
   skipTrailingSlashRedirect: true,
   async headers() {

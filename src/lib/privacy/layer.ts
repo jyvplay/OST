@@ -483,8 +483,31 @@ export class PrivacyLayer {
       const op = String(body?.op ?? "");
       const path = String(body?.path ?? "");
       switch (op) {
-        case "write":
+        case "writeIfUnchanged": {
+          // This server-side CAS is for ordinary host files only. Forwarding it unmodified for
+          // amnesic or /Private paths would persist RAM-only data or plaintext on the host.
+          if (this.amnesic) { this.note("fs.writeIfUnchanged"); throw new HttpError(423, "amnesic session: conditional host writes are unavailable"); }
+          if (this.storeOf(path) === "private") throw new HttpError(422, "conditional writes are not available inside Persistent Storage; use an encrypted write");
+          return json(this.ensure(await this.rawPost(body ?? {})));
+        }
+        case "write": {
+          // Do not silently drop a requested recipe CAS: only the ordinary host
+          // store can enforce it. Private and RAM retain their existing writes
+          // when the caller does not request this stronger precondition.
+          if (body?.expectedRecipe !== undefined) {
+            if (this.amnesic || this.storeOf(path) !== "host") throw new HttpError(422, "recipe preconditions are unavailable for Private or amnesic storage");
+            if (body.expectedPhoto === undefined) throw new HttpError(400, "expectedRecipe requires a public photo guard");
+          }
+          // Preserve an optional public-photo identity guard when the host is
+          // the destination. Private and RAM paths keep their existing
+          // store-aware handling and must not forward plaintext owner names.
+          if (body?.expectedPhoto !== undefined && !this.amnesic && this.storeOf(path) === "host") {
+            const owner = (body.expectedPhoto as Json | null)?.path;
+            if (typeof owner === "string" && isPrivatePath(norm(owner))) throw new HttpError(422, "private photo guards cannot be sent to the host");
+            return json(this.ensure(await this.rawPost(body)));
+          }
           return json(await this.fsWrite(path, String(body?.content ?? ""), (body?.encoding as "utf8" | "base64") ?? "utf8", body?.mime ? String(body.mime) : undefined, String(body?.reason ?? "write")));
+        }
         case "upload":
           return json(await this.fsWrite(path, String(body?.content ?? ""), "base64", body?.mime ? String(body.mime) : undefined, "upload"));
         case "mkdir": return json(await this.fsMkdir(path));
@@ -494,7 +517,19 @@ export class PrivacyLayer {
           if (!name || name.includes("/")) throw new HttpError(400, "invalid name");
           return json(await this.fsTransfer(path, join(parentOf(path), name), "move"));
         }
-        case "trash": case "restore": case "purge": return json(await this.fsSimple(op, path));
+        case "purge": {
+          if (body?.expectedRecipe !== undefined) {
+            if (this.amnesic || this.storeOf(path) !== "host") throw new HttpError(422, "recipe preconditions are unavailable for Private or amnesic storage");
+            if (body.expectedPhoto === undefined) throw new HttpError(400, "expectedRecipe requires a public photo guard");
+          }
+          if (body?.expectedPhoto !== undefined && !this.amnesic && this.storeOf(path) === "host") {
+            const owner = (body.expectedPhoto as Json | null)?.path;
+            if (typeof owner === "string" && isPrivatePath(norm(owner))) throw new HttpError(422, "private photo guards cannot be sent to the host");
+            return json(this.ensure(await this.rawPost(body)));
+          }
+          return json(await this.fsSimple(op, path));
+        }
+        case "trash": case "restore": return json(await this.fsSimple(op, path));
         case "dropVersions": {
           const st = this.storeOf(path);
           if (st === "ram") return json({ ok: true, dropped: 0, amnesic: true }); // RAM files keep no history
@@ -515,7 +550,14 @@ export class PrivacyLayer {
           if (this.amnesic) { this.note(`fs.${op}`); throw new HttpError(423, `amnesic session: ${op} writes on the host — not available`); }
           return json(this.ensure(await this.rawPost(body ?? {})));
         }
-        default: return json(this.ensure(await this.rawPost(body ?? {})));
+        default: {
+          // Future fs operations must not silently bypass the privacy guard just because they
+          // have not yet acquired a store-aware implementation.
+          if (this.amnesic) { this.note(`fs.${op || "unknown"}`); throw new HttpError(423, "amnesic session: unsupported host write refused"); }
+          const touched = [path, String(body?.src ?? ""), String(body?.dst ?? "")].filter(Boolean);
+          if (touched.some((p) => this.storeOf(p) === "private")) throw new HttpError(422, "this operation is not available inside Persistent Storage");
+          return json(this.ensure(await this.rawPost(body ?? {})));
+        }
       }
     } catch (e) {
       if (e instanceof HttpError) return fail(e.status, e.message, e.extra);

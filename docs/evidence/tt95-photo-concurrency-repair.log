@@ -1,0 +1,15 @@
+  ✓ two editors seeing no recipe cannot silently replace the first edit
+  ✓ a stale update refuses a later edit and leaves its current row, history and index intact
+  ✓ a stale clear cannot purge newer edits or their history
+  ✓ a same-byte rewrite is still a new recipe version
+  ✓ a recreated recipe with identical bytes is not the original row
+  ✓ a removed recipe cannot be recreated by a stale editor
+  ✓ a corrupt sidecar digest is not silently replaced
+  ✓ malformed explicit recipe preconditions fail closed
+  ✓ a recipe precondition without an owner guard is rejected
+  ✓ competing guarded creates have one winner
+  ✓ competing guarded updates from one version have one winner
+  ✓ successful saves return their actual new identity and can advance the next precondition
+  ✓ legacy unguarded sidecar writes retain their existing overwrite behavior
+
+13 passed, 0 failed

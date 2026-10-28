@@ -1,0 +1,18 @@
+  ✗ action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection
+    locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog', { name: 'Command palette' }) to be visible
+
+  ✓ amnesic quick note is refused before any host write
+  ✗ offline quick note remains unsaved and unqueued with its text retained
+    locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog', { name: 'Command palette' }) to be visible
+
+  ✓ lost reply after a real committed note reports uncertainty and does not automatically retry
+  ✓ focus on/off and settings commands operate through the actual shell
+  ✓ only an explicitly selected enabled routine runs and records its execution
+  ✓ palette action scenarios have no uncaught page errors
+
+5 passed, 2 failed
+FAILED: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection | offline quick note remains unsaved and unqueued with its text retained

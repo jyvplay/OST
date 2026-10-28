@@ -1,0 +1,25 @@
+  ✗ dark unhovered selected server badge is readable across all 13 styles
+    Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   'silver: color-contrast div[data-selected="true"] > .fs-badge[data-origin="server"][data-tone="default"] Fix any of the following:\n' +
++     '  Element has insufficient color contrast of 4.48 (foreground color: #c4c6cc, background color: #48536f, font size: 9.8pt (13.125px), font weight: normal). Expected contrast ratio of 4.5:1'
++ ]
+- []
+
+  ✗ dark hovered selected server badge is readable across all 13 styles
+    Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   'silver: color-contrast div[data-selected="true"] > .fs-badge[data-origin="server"][data-tone="default"] Fix any of the following:\n' +
++     '  Element has insufficient color contrast of 4.48 (foreground color: #c4c6cc, background color: #48536f, font size: 9.8pt (13.125px), font weight: normal). Expected contrast ratio of 4.5:1'
++ ]
+- []
+
+  ✓ light unhovered selected server badge is readable across all 13 styles
+  ✓ light hovered selected server badge is readable across all 13 styles
+
+2 passed, 2 failed
+FAILED: dark unhovered selected server badge is readable across all 13 styles | dark hovered selected server badge is readable across all 13 styles

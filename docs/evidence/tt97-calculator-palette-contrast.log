@@ -1,0 +1,9 @@
+  ✓ empty history is a named region; removing its role reintroduces the original axe violation
+  ✓ empty and populated programmer history remain axe-clean
+  ✓ mode colors change atomically; injecting a slow background-only transition is detected
+  ✓ calculator mode controls retain contrast across 13 styles and both themes
+  ✓ calculator and command palette agree on finite and overflowing unit conversions
+  ✓ palette scope buttons retain contrast immediately across 13 styles and both themes
+  ✓ calculator repair scenarios have no uncaught page errors
+
+7 passed, 0 failed

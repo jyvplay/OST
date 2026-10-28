@@ -1,0 +1,48 @@
+{
+  "suite": "e2e-tt96-files-contrast",
+  "at": "2026-10-27T21:05:15.802Z",
+  "results": [
+    {
+      "suite": "e2e-tt96-files-contrast",
+      "name": "dark unhovered selected server badge is readable across all 13 styles",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'silver: color-contrast div[data-selected=\"true\"] > .fs-badge[data-origin=\"server\"][data-tone=\"default\"] Fix any of the following:\\n' +\n+     '  Element has insufficient color contrast of 4.48 (foreground color: #c4c6cc, background color: #48536f, font size: 9.8pt (13.125px), font weight: normal). Expected contrast ratio of 4.5:1'\n+ ]\n- []\n",
+      "ms": 9653
+    },
+    {
+      "suite": "e2e-tt96-files-contrast",
+      "name": "dark hovered selected server badge is readable across all 13 styles",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'silver: color-contrast div[data-selected=\"true\"] > .fs-badge[data-origin=\"server\"][data-tone=\"default\"] Fix any of the following:\\n' +\n+     '  Element has insufficient color contrast of 4.48 (foreground color: #c4c6cc, background color: #48536f, font size: 9.8pt (13.125px), font weight: normal). Expected contrast ratio of 4.5:1'\n+ ]\n- []\n",
+      "ms": 8803
+    },
+    {
+      "suite": "e2e-tt96-files-contrast",
+      "name": "light unhovered selected server badge is readable across all 13 styles",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 6669
+    },
+    {
+      "suite": "e2e-tt96-files-contrast",
+      "name": "light hovered selected server badge is readable across all 13 styles",
+      "covers": {
+        "AX-08": "partial",
+        "FM-09": "partial"
+      },
+      "pass": true,
+      "ms": 8081
+    }
+  ]
+}

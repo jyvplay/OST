@@ -1,0 +1,42 @@
+{
+  "suite": "tt90-context-unit",
+  "at": "2026-10-27T21:24:35.430Z",
+  "results": [
+    {
+      "suite": "tt90-context-unit",
+      "name": "default is opt-out; every profile follows the shared text size",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt90-context-unit",
+      "name": "multiple screens override primary pointer; single-screen pointer classification ignores viewport size",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt90-context-unit",
+      "name": "round trip accepts only a boolean opt-in, valid densities and bounded integer text sizes",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt90-context-unit",
+      "name": "malformed, overlong and prototype-shaped storage cannot turn on a partial or invalid profile",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

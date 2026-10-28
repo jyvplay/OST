@@ -1,0 +1,8 @@
+  ✓ two open editors cannot silently overwrite the first saved recipe
+  ✓ a stale reset cannot clear a newer edit of the same photo
+  ✓ a newer favorite cannot be lost to a stale pixel edit
+  ✓ one editor can save successive edits and then clear the recipe
+  ✓ a corrupt recipe is reported rather than opened as the original
+  ✓ an injected read failure is not mistaken for an absent recipe
+
+6 passed, 0 failed

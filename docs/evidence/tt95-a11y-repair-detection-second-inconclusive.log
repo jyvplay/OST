@@ -1,0 +1,10 @@
+=== previous test, 1500ms held settings on reload only
+  ✓ icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+
+1 passed, 0 failed
+previous exit=0
+=== patched test, same held settings
+  ✓ icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+
+1 passed, 0 failed
+patched exit=0

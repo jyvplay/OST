@@ -1024,13 +1024,13 @@ export default function WriterModule({ win }: ModuleProps) {
             <div style={{ marginTop: 14, fontSize: fz(11), opacity: .75 }}>Counts are based on the document text currently loaded in Writer.</div>
           </section>
         </div>, document.body)}
-      <div className="fs-row" style={{ padding: "3px 8px", gap: 12, borderTop: "1px solid var(--fs-border)", fontSize: fz(12), opacity: 0.85 }} aria-live="polite">
+      <div className="fs-row" style={{ padding: "3px 8px", gap: 12, rowGap: 3, flexWrap: "wrap", borderTop: "1px solid var(--fs-border)", fontSize: fz(12), opacity: 0.85 }} aria-live="polite">
         {doc.track.on && <button className="wtrack-chip" onClick={toggleTrack} data-testid="writer-track-chip" title="Track Changes is on — click to turn off (Ctrl+Shift+E)">Tracking changes</button>}
         {spellMode === "fusion" && speller && <button className="wspell-chip" data-testid="writer-spell-chip" onClick={() => setPanel("spell")} title="Spelling (F7)">{issues.length ? `${issues.length} spelling issue${issues.length === 1 ? "" : "s"}` : "No spelling issues"}</button>}
         <span data-testid="writer-pages">Page count: {pages}</span><span data-testid="writer-words">{counts.words} words</span><span>{counts.chars} characters</span>
         <button ref={wordCountButtonRef} type="button" data-testid="writer-word-count-open" onMouseDown={(e) => e.preventDefault()} onClick={openWordCount} title="Open document and selection word counts">Word count…</button>
-        <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} data-testid="writer-status">{status}</span>
-        <span>{path || "unsaved"}</span>
+        <span style={{ flex: "1 1 180px", minWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} data-testid="writer-status">{status}</span>
+        <span title={path || "unsaved"} style={{ maxWidth: "min(40%, 260px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{path || "unsaved"}</span>
       </div>
     </div>
   );

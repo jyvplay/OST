@@ -1,0 +1,87 @@
+{
+  "suite": "tt90-worker-pool",
+  "at": "2026-10-27T21:25:00.835Z",
+  "results": [
+    {
+      "suite": "tt90-worker-pool",
+      "name": "CPU and low-memory caps are conservative and malformed pool limits are rejected",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt90-worker-pool",
+      "name": "lazy pool bounds parallelism, ignores wrong IDs and schedules queued jobs FIFO",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt90-worker-pool",
+      "name": "completed workers are reused then actually terminated after idle",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 65
+    },
+    {
+      "suite": "tt90-worker-pool",
+      "name": "deadline kills a hung worker and a later queued job proceeds on a new worker",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 81
+    },
+    {
+      "suite": "tt90-worker-pool",
+      "name": "a deadline also removes a waiting job, even if the worker never answers",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 40
+    },
+    {
+      "suite": "tt90-worker-pool",
+      "name": "crash, unreadable reply and postMessage failure release capacity without losing subsequent jobs",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt90-worker-pool",
+      "name": "worker startup failure is distinguished for fallback; partial capacity remains usable",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt90-worker-pool",
+      "name": "cancellation removes queued work, terminates only its active worker, and does not cancel another job",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt90-worker-pool",
+      "name": "queue limit and close settle every promise and never dispatch post-close work",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

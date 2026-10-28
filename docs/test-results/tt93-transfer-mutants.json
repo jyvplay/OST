@@ -1,0 +1,214 @@
+{
+  "suite": "tt93-transfer-mutants",
+  "at": "2026-10-27T15:59:35.182554+00:00",
+  "results": [
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "omit transfer tree gate",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 move waits behind a held cooperative tree gate before reading or publishing\n    No database lock wait observed: pg_advisory_xact_lock\n\n0 passed, 1 failed\nFAILED: move waits behind a held cooperative tree gate before reading or publishing\n",
+      "ms": 8907
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "omit transfer cache gate",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a cache transfer waits for cache cleanup and does not republish deleted bytes\n    No database lock wait observed: pg_advisory_xact_lock\n\n0 passed, 1 failed\nFAILED: a cache transfer waits for cache cleanup and does not republish deleted bytes\n",
+      "ms": 9268
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "resurrect trashed source",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a trashed source is reserved and cannot be silently resurrected by move or copy\n    Expected \"actual\" to be strictly unequal to: 200\n\n0 passed, 1 failed\nFAILED: a trashed source is reserved and cannot be silently resurrected by move or copy\n",
+      "ms": 1316
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "skip descendant digest verification",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a corrupt descendant aborts a whole directory copy, not just a corrupt root\n    Expected \"actual\" to be strictly unequal to: 200\n\n0 passed, 1 failed\nFAILED: a corrupt descendant aborts a whole directory copy, not just a corrupt root\n",
+      "ms": 1400
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "leave versions at old path",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 moving a nested tree preserves node identity and version history, and moves every search row without wildcard collateral\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     content: 'old body',\n+     version: 1\n+   }\n+ ]\n- []\n\n\n0 passed, 1 failed\nFAILED: moving a nested tree preserves node identity and version history, and moves every search row without wildcard collateral\n",
+      "ms": 1203
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "leave descendant search rows",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a public tree moved beneath Private leaves no public or private search entries\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     body: 'secret not in search',\n+     ref: '/Documents/tt93-transfer-e7948a1e8809e11e_%/public/sub/secret.txt'\n+   }\n+ ]\n- []\n\n\n0 passed, 1 failed\nFAILED: a public tree moved beneath Private leaves no public or private search entries\n",
+      "ms": 1017
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "ignore retained destination history",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an orphaned destination version reserves the path instead of mixing unrelated histories\n    Expected \"actual\" to be strictly unequal to: 200\n\n0 passed, 1 failed\nFAILED: an orphaned destination version reserves the path instead of mixing unrelated histories\n",
+      "ms": 1071
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "overwrite retained destination search",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an orphaned destination search row is never overwritten by a move\n    Expected \"actual\" to be strictly unequal to: 200\n\n0 passed, 1 failed\nFAILED: an orphaned destination search row is never overwritten by a move\n",
+      "ms": 1055
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "skip destination parent validation",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 destination ancestors that are files or in Trash are rejected without changing source\n    Expected \"actual\" to be strictly unequal to: 200\n\n0 passed, 1 failed\nFAILED: destination ancestors that are files or in Trash are rejected without changing source\n",
+      "ms": 1338
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "publish outside a transaction",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an index publication fault rolls back the entire move, including created parent folders\n    Cannot read properties of undefined (reading 'content')\n\n0 passed, 1 failed\nFAILED: an index publication fault rolls back the entire move, including created parent folders\n",
+      "ms": 1551
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "attach an unrelated orphan destination sidecar",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 an orphan destination sidecar cannot attach unrelated edits to a photo without a sidecar\n    Expected \"actual\" to be strictly unequal to: 200\n\n0 passed, 1 failed\nFAILED: an orphan destination sidecar cannot attach unrelated edits to a photo without a sidecar\n",
+      "ms": 1372
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "omit backup restore tree gate",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 commit of a backup restore waits for the participating tree gate\n    No database lock wait observed: pg_advisory_xact_lock\n\n0 passed, 1 failed\nFAILED: commit of a backup restore waits for the participating tree gate\n",
+      "ms": 9084
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "omit backup restore cache gate",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 cache cleanup before a waiting restore cannot republish the cleared bytes\n    No database lock wait observed: pg_advisory_xact_lock\n\n0 passed, 1 failed\nFAILED: cache cleanup before a waiting restore cannot republish the cleared bytes\n",
+      "ms": 9083
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "delete history outside its audit transaction",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 history removal and its audit are atomic when the audit insert fails\n    Expected values to be strictly deep-equal:\n+ actual - expected\n... Skipped lines\n\n  {\n    index: [\n      {\n        body: 'new'\n      }\n...\n    ],\n+   versions: []\n-   versions: [\n-     {\n-       content: 'old'\n-     }\n-   ]\n  }\n\n\n0 passed, 1 failed\nFAILED: history removal and its audit are atomic when the audit insert fails\n",
+      "ms": 1103
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "omit history-removal tree gate",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a move already in progress preserves its history before a later dropVersions can act\n    No database lock wait observed: pg_advisory_xact_lock_shared\n\n0 passed, 1 failed\nFAILED: a move already in progress preserves its history before a later dropVersions can act\n",
+      "ms": 9445
+    },
+    {
+      "suite": "tt93-transfer-mutants",
+      "name": "omit tag tree gate",
+      "covers": {
+        "FM-03": "partial",
+        "BK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a tag update queued behind a move cannot report success on a vanished source\n    No database lock wait observed: pg_advisory_xact_lock_shared\n\n0 passed, 1 failed\nFAILED: a tag update queued behind a move cannot report success on a vanished source\n",
+      "ms": 9551
+    }
+  ]
+}

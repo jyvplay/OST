@@ -1,0 +1,69 @@
+{
+  "suite": "tt89-drill-health",
+  "at": "2026-10-27T21:24:11.973Z",
+  "results": [
+    {
+      "suite": "tt89-drill-health",
+      "name": "calendar months clamp correctly including leap years and year boundaries",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt89-drill-health",
+      "name": "monthly reminder changes on the exact due instant and never pretends an empty status is healthy",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt89-drill-health",
+      "name": "failed and partial attempts override earlier success without erasing its due date",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt89-drill-health",
+      "name": "backwards clock, inconsistent success and invalid current time are not labelled passed",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt89-drill-health",
+      "name": "malformed, unbounded, nonsensical and future-version local records are rejected",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt89-drill-health",
+      "name": "status serialization retains only dates, fixed outcome, kind and bounded counts",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt89-drill-health",
+      "name": "deterministic stratified sample is bounded, distinct, reproducible and not fixed to the first records",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "ms": 11
+    }
+  ]
+}

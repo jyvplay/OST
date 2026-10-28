@@ -1,0 +1,51 @@
+{
+  "suite": "tt87-transaction",
+  "at": "2026-10-27T21:23:43.018Z",
+  "results": [
+    {
+      "suite": "tt87-transaction",
+      "name": "TT87 PostgreSQL rejects an apparent COMMIT when a swallowed SQL error actually produced ROLLBACK",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 24
+    },
+    {
+      "suite": "tt87-transaction",
+      "name": "TT87 a callback failure rolls back a real PostgreSQL write",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt87-transaction",
+      "name": "TT87 a real failed BEGIN discards the checked-out pool client",
+      "covers": {
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt87-transaction",
+      "name": "TT87 a real query timeout cannot poison the next pool checkout",
+      "covers": {
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 251
+    },
+    {
+      "suite": "tt87-transaction",
+      "name": "TT87 a lost commit acknowledgement is reported as unknown even when PostgreSQL committed",
+      "covers": {
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 9
+    }
+  ]
+}

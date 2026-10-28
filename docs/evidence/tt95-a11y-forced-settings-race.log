@@ -1,0 +1,4 @@
+    forced schedule: 30px before settings, 48px after saved 200% scale
+  ✓ a delayed settings response can expose default-sized icons before the saved scale is applied
+
+1 passed, 0 failed

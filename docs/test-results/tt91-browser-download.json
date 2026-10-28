@@ -1,0 +1,96 @@
+{
+  "suite": "tt91-browser-download",
+  "at": "2026-10-27T20:36:24.709Z",
+  "results": [
+    {
+      "suite": "tt91-browser-download",
+      "name": "download names cannot escape Downloads and malformed percent escapes do not crash",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt91-browser-download",
+      "name": "MIME metadata is canonicalised and control characters or invalid shapes are refused",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt91-browser-download",
+      "name": "a streamed body up to and including 8 MiB is read exactly, with real byte progress",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 30
+    },
+    {
+      "suite": "tt91-browser-download",
+      "name": "oversized declared length cancels before buffering the body",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt91-browser-download",
+      "name": "missing or dishonest content length cannot evade the actual-byte limit",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt91-browser-download",
+      "name": "HTTP errors and partial responses are not saved as complete downloads",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt91-browser-download",
+      "name": "an abort interrupts a stalled reader without returning a partial file",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt91-browser-download",
+      "name": "a broken response body fails rather than publishing the earlier chunks",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt91-browser-download",
+      "name": "server import refuses an uninstalled privacy guard",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt91-browser-download",
+      "name": "an installed amnesic privacy layer refuses before any fetch or host write",
+      "covers": {
+        "PR-07m": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "suite": "e2e-tt87-privacy",
+  "at": "2026-10-27T21:24:02.179Z",
+  "results": [
+    {
+      "suite": "e2e-tt87-privacy",
+      "name": "TT87 amnesia refuses conditional writes before they reach PostgreSQL",
+      "covers": {
+        "SC-13": "partial",
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 648
+    },
+    {
+      "suite": "e2e-tt87-privacy",
+      "name": "TT87 conditional writes cannot create plaintext inside locked Persistent Storage",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 553
+    },
+    {
+      "suite": "e2e-tt87-privacy",
+      "name": "TT87 LocalDisk explicitly blocks folder access in amnesic mode",
+      "covers": {
+        "SC-13": "partial",
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 766
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "suite": "tt91-purge-mutants",
+  "at": "2026-10-27T13:56:45.169085+00:00",
+  "results": [
+    {
+      "suite": "tt91-purge-mutants",
+      "name": "leave saved versions behind",
+      "covers": {
+        "FM-11": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 file purge removes that file's history and index, and repeating it is safe\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    index: 0,\n    nodes: 0,\n+   versions: 1\n-   versions: 0\n  }\n\n\n0 passed, 1 failed\nFAILED: file purge removes that file's history and index, and repeating it is safe\n",
+      "ms": 1058
+    },
+    {
+      "suite": "tt91-purge-mutants",
+      "name": "leave search text behind",
+      "covers": {
+        "FM-11": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 file purge removes that file's history and index, and repeating it is safe\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   index: 1,\n-   index: 0,\n    nodes: 0,\n    versions: 0\n  }\n\n\n0 passed, 1 failed\nFAILED: file purge removes that file's history and index, and repeating it is safe\n",
+      "ms": 1080
+    },
+    {
+      "suite": "tt91-purge-mutants",
+      "name": "allow root deletion",
+      "covers": {
+        "FM-11": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 purging root is rejected before any delete statement\n    The input did not match the regular expression /root/i. Input:\n\n'Failed query: delete from \"vfs_versions\" where (\"vfs_versions\".\"path\" = $1 or \"vfs_versions\".\"path\" like $2)\\n' +\n  'params: /,/%'\n\n\n0 passed, 1 failed\nFAILED: purging root is rejected before any delete statement\n",
+      "ms": 758
+    },
+    {
+      "suite": "tt91-purge-mutants",
+      "name": "remove the transaction",
+      "covers": {
+        "FM-11": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a real SQL failure rolls back nodes, versions, index and audit together\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    index: 1,\n+   nodes: 0,\n+   versions: 0\n-   nodes: 2,\n-   versions: 1\n  }\n\n\n0 passed, 1 failed\nFAILED: a real SQL failure rolls back nodes, versions, index and audit together\n",
+      "ms": 936
+    }
+  ]
+}

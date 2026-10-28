@@ -1,0 +1,66 @@
+{
+  "suite": "e2e-tt94-photos-offline",
+  "at": "2026-10-27T20:38:18.378Z",
+  "results": [
+    {
+      "suite": "e2e-tt94-photos-offline",
+      "name": "an offline guarded edit really queues and replays successfully when the owner is unchanged",
+      "covers": {
+        "MD-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 3603
+    },
+    {
+      "suite": "e2e-tt94-photos-offline",
+      "name": "a stale offline edit is rejected and retained ahead of later queued work on reconnect",
+      "covers": {
+        "MD-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 3190
+    },
+    {
+      "suite": "e2e-tt94-photos-offline",
+      "name": "a dequeue storage failure after a server commit warns of an ambiguous replay",
+      "covers": {
+        "MD-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 2602
+    },
+    {
+      "suite": "e2e-tt94-photos-offline",
+      "name": "a corrupt persisted queue is neither overwritten nor silently replayed",
+      "covers": {
+        "MD-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 2735
+    },
+    {
+      "suite": "e2e-tt94-photos-offline",
+      "name": "single-tab offline replay still works when Web Locks is unavailable",
+      "covers": {
+        "MD-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 2780
+    },
+    {
+      "suite": "e2e-tt94-photos-offline",
+      "name": "storage quota denial cannot masquerade as a queued photo save",
+      "covers": {
+        "MD-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 2810
+    }
+  ]
+}

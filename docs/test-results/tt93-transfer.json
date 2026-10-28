@@ -1,0 +1,210 @@
+{
+  "suite": "tt93-transfer",
+  "at": "2026-10-27T20:37:23.574Z",
+  "results": [
+    {
+      "suite": "tt93-transfer",
+      "name": "moving a nested tree preserves node identity and version history, and moves every search row without wildcard collateral",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 70
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "Unicode and escaped backslash, percent and underscore paths move literally with their history",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 62
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "copy duplicates current nested data and search entries without stealing source history",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 41
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "a trashed source is reserved and cannot be silently resurrected by move or copy",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 38
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "moving a tree containing an independently trashed child is refused rather than reviving or orphaning it",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 41
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "destination ancestors that are files or in Trash are rejected without changing source",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 76
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "corrupt source content is detected by recomputing its digest before publication",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 25
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "a corrupt descendant aborts a whole directory copy, not just a corrupt root",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 38
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "an index publication fault rolls back the entire move, including created parent folders",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 36
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "a journal completion fault rolls back data, history and search instead of reporting a half-move",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 51
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "an orphaned destination version reserves the path instead of mixing unrelated histories",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 27
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "an orphaned destination search row is never overwritten by a move",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 25
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "a public tree moved beneath Private leaves no public or private search entries",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 27
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "a photo sidecar collision refuses the whole move without overwriting or misattaching edits",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 45
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "an orphan destination sidecar cannot attach unrelated edits to a photo without a sidecar",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 43
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "a trashed sidecar cannot be silently detached from its photo by a move",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 47
+    },
+    {
+      "suite": "tt93-transfer",
+      "name": "a sidecar publication fault rolls back both the photo and its edit",
+      "covers": {
+        "FM-03": "partial",
+        "FM-18": "partial",
+        "SR-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 62
+    }
+  ]
+}

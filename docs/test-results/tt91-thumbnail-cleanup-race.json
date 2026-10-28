@@ -1,0 +1,66 @@
+{
+  "suite": "tt91-thumbnail-cleanup-race",
+  "at": "2026-10-27T20:36:17.478Z",
+  "results": [
+    {
+      "suite": "tt91-thumbnail-cleanup-race",
+      "name": "cache cleanup and an overlapping real write must not leave an orphan version or index",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 166
+    },
+    {
+      "suite": "tt91-thumbnail-cleanup-race",
+      "name": "an already-running cache write completes before cleanup and leaves no historical cache rows",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 123
+    },
+    {
+      "suite": "tt91-thumbnail-cleanup-race",
+      "name": "conditional cache creation waits for cleanup and does not overwrite the pre-cleanup row",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 123
+    },
+    {
+      "suite": "tt91-thumbnail-cleanup-race",
+      "name": "cache purge waits for an already-running writer and removes its new history",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 123
+    },
+    {
+      "suite": "tt91-thumbnail-cleanup-race",
+      "name": "cache purge cooperates with an in-flight cache cleanup",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 124
+    },
+    {
+      "suite": "tt91-thumbnail-cleanup-race",
+      "name": "conditional overwrite followed by cleanup cannot reintroduce an old saved version",
+      "covers": {
+        "SC-10": "partial",
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "ms": 120
+    }
+  ]
+}

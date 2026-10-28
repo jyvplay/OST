@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { api, patch, post, replayQueue } from "@/lib/api";
 import type { RoutineAction } from "@/lib/routines";
 import { useShell } from "./shell-context";
@@ -18,7 +18,8 @@ interface Routine { id: number; name: string; trigger: string; triggerArg: strin
 export default function ShellDaemons() {
   const shell = useShell();
   const ref = useRef(shell);
-  ref.current = shell;
+  // Update only after a committed render, before browser events and timer callbacks.
+  useLayoutEffect(() => { ref.current = shell; }, [shell]);
   const extended = useRef<boolean | null>(null);
 
   // PR-03 reminders (AP-05 inventory counts actual page callbacks, not assumed OS wakes)
@@ -100,8 +101,10 @@ export default function ShellDaemons() {
       try {
         const r = await replayQueue();
         if (r.replayed) { ref.current.toast(`Back online: replayed ${r.replayed} queued write(s) through the journal.`, "ok"); ref.current.bumpRefresh(); }
-        if (r.failed) ref.current.toast(`${r.failed} queued write(s) were rejected by the server and kept in the queue.`, "warn");
-        updateBackgroundStatus("offline-replay", `${r.replayed} replayed; ${r.failed} rejected and retained`);
+        if (r.storageError === "read") ref.current.toast("The offline queue could not be read; no further replay was attempted. Check browser storage before retrying.", "warn");
+        else if (r.storageError === "dequeue") ref.current.toast("The offline queue could not be updated after a server response. A write may have succeeded; check it before retrying.", "warn");
+        else if (r.failed) ref.current.toast(`${r.failed} queued write(s) were rejected by the server and kept in the queue.`, "warn");
+        updateBackgroundStatus("offline-replay", r.storageError ? `${r.replayed} replayed; queue storage ${r.storageError} failed` : `${r.replayed} replayed; ${r.failed} rejected and retained`);
       } catch { updateBackgroundStatus("offline-replay", "queue check failed; queued writes remain for a later retry"); }
     };
     void replay();

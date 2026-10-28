@@ -1,0 +1,53 @@
+{
+  "suite": "e2e-tt87-localdisk",
+  "at": "2026-10-27T21:23:58.752Z",
+  "results": [
+    {
+      "suite": "e2e-tt87-localdisk",
+      "name": "BK-02 real browser folder handle survives IndexedDB reload and a first sync preserves skipped names and binary data",
+      "covers": {
+        "BK-02": "partial",
+        "FM-08": "partial"
+      },
+      "pass": true,
+      "ms": 1817
+    },
+    {
+      "suite": "e2e-tt87-localdisk",
+      "name": "BK-02 conflict choices reject stale local and server copies; explicit resolution preserves a Fusion version",
+      "covers": {
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 2537
+    },
+    {
+      "suite": "e2e-tt87-localdisk",
+      "name": "FM-08 import selects a conflict-free name and keeps the original Fusion file byte-for-byte",
+      "covers": {
+        "FM-08": "partial"
+      },
+      "pass": true,
+      "ms": 352
+    },
+    {
+      "suite": "e2e-tt87-localdisk",
+      "name": "FM-08 conditional write rejects missing preconditions, existing names and changed versions without modifying data",
+      "covers": {
+        "FM-08": "partial",
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 88
+    },
+    {
+      "suite": "e2e-tt87-localdisk",
+      "name": "TT87 local disk browser session has no uncaught page errors",
+      "covers": {
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

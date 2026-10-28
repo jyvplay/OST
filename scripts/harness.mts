@@ -37,6 +37,7 @@ export function makeHarness(suite: string) {
     if (!only) writeFileSync(`docs/test-results/${suite}.json`, JSON.stringify({ suite, at: new Date().toISOString(), results }, null, 2));
     const failed = results.filter((r) => !r.pass);
     console.log(`\n${results.length - failed.length} passed, ${failed.length} failed`);
+    if (!results.length) { console.log("FAILED: no tests selected"); process.exitCode = 1; }
     if (failed.length) { console.log("FAILED:", failed.map((f) => f.name).join(" | ")); process.exitCode = 1; }
   };
   return { test, finish };

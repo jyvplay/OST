@@ -3,11 +3,15 @@
 # processes; TT75's gate showed that a partial manual rebuild silently drops oracles (the MS-XLSX schemas) and leaves the
 # server unable to verify TLS through the sandbox's interception proxy. This script runs every step in order:
 #
-#   bash scripts/sandbox/rebuild-all.sh            # then: npm run build (with DATABASE_URL) and start the server with
-#                                                  # NODE_OPTIONS=--use-system-ca (see the last lines of output)
+#   TT89_DISPOSABLE_DATABASE=1 DATABASE_URL=postgresql://.../disposable_db bash scripts/sandbox/rebuild-all.sh
+#   # The explicitly named database must already exist and be exclusive/disposable.
 #
 # Only registry.npmjs.org, PyPI and github.com are reachable; every source below comes from them.
 set -uo pipefail
+if [ "${TT89_DISPOSABLE_DATABASE:-0}" != "1" ] || [ -z "${DATABASE_URL:-}" ]; then
+  echo "Refusing rebuild: forced schema push requires TT89_DISPOSABLE_DATABASE=1 and an explicit disposable DATABASE_URL." >&2
+  exit 2
+fi
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 TOOLS="${TOOLS_DIR:-/home/user/tools}"
 step() { echo "=== $(date +%T) $*"; }
@@ -17,7 +21,7 @@ mkdir -p "$TOOLS" && cd "$TOOLS" && { [ -f package.json ] || echo '{ "name": "fu
 step "tools npm (chromium, postgres, file-type oracles)"
 npm install --no-audit --no-fund "@sparticuz/chromium@143.0.4" "embedded-postgres@17.10.0-beta.17" "file-type@22.2.0" "ft16@npm:file-type@16.5.4" >/dev/null 2>&1 || echo "tools npm failed"
 cd "$REPO"
-step "bootstrap (venv, postgres, schema)"; bash scripts/sandbox/bootstrap.sh || echo "bootstrap failed"
+step "bootstrap (venv, postgres, schema)"; bash scripts/sandbox/bootstrap.sh || { echo "bootstrap failed" >&2; exit 1; }
 step "pip extras"
 "$TOOLS/venv/bin/pip" install -q mammoth markdown-it-py mdit-py-plugins spylls av mutagen exifread piexif pillow_heif psd-tools==1.26.0 pyHanko==0.38.0 glymur pyzipper || echo "pip extras failed"   # TT77: pyHanko + glymur (PDF signature / JPX oracles)
 step "ECMA-376 XSDs";                  bash scripts/oracle/fetch-xsd.sh >/dev/null 2>&1 || echo "fetch-xsd failed"
@@ -38,5 +42,5 @@ for f in test-assets/README.md test-assets/deflate64.zip test-assets/issue-13/un
   [ -s "$TOOLS/corpus/zip/d64-$(basename $f)" ] || curl -s -H "Accept: application/vnd.github.raw" "https://api.github.com/repos/anatawa12/deflate64-rs/contents/$f" -o "$TOOLS/corpus/zip/d64-$(basename $f)" || echo "zip corpus fetch failed: $f"
 done
 step "done"
-echo "next: DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/app_db npm run build"
+echo "next: DATABASE_URL=<the same disposable URL> npm run build"
 echo "then: NODE_OPTIONS=--use-system-ca DATABASE_URL=… npm exec next start -- -H 0.0.0.0 -p 3999"

@@ -1,0 +1,28 @@
+{
+  "suite": "tt90-modal-mutant",
+  "at": "2026-10-27T21:09:13.164457+00:00",
+  "results": [
+    {
+      "suite": "tt90-modal-mutant",
+      "name": "remove editor shortcut guard",
+      "covers": {
+        "FF-80": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback\n    Ctrl+F opened behind Save-as after focus escape\n\n0 passed, 1 failed\nFAILED: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback\n",
+      "ms": 9313
+    },
+    {
+      "suite": "tt90-modal-mutant",
+      "name": "drop shell modal hold",
+      "covers": {
+        "FF-80": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback\n    global palette opened behind Save-as after focus escape\n\n0 passed, 1 failed\nFAILED: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback\n",
+      "ms": 9380
+    }
+  ]
+}

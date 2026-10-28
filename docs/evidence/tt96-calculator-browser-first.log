@@ -1,0 +1,70 @@
+  ✓ programmer controls compute exact 64-bit and signed fixed-width expressions in the real UI
+  ✗ history is session-only by default, then explicit local opt-in survives reload, filters, restores mode and deletes
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[role="dialog"][aria-label="Calculator"]').first().getByTestId('calculator-history-entry')
+    - locator resolved to <button class="fs-list-item" data-testid="calculator-history-entry">…</button>
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <div class="fs-dim">Scientific mode and the palette share a no-eval p…</div> intercepts pointer events
+  - retrying click action
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <div class="fs-row">…</div> intercepts pointer events
+  - retrying click action
+    - waiting 20ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <div>…</div> intercepts pointer events
+  2 × retrying click action
+      - waiting 100ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="fs-dim">Scientific mode and the palette share a no-eval p…</div> intercepts pointer events
+  14 × retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <div class="fs-row">…</div> intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <div>…</div> intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <div class="fs-dim">Scientific mode and the palette share a no-eval p…</div> intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <div class="fs-dim">Scientific mode and the palette share a no-eval p…</div> intercepts pointer events
+  - retrying click action
+    - waiting 500ms
+
+  ✓ quota denial is visible and never reported as a confirmed saved history entry
+  ✓ corrupt stored history is preserved and prevents opt-in until explicit deletion
+  ✓ amnesic and offline use can calculate without persisting history to the host or browser
+  ✓ two cooperating tabs keep both simultaneous local history appends
+
+5 passed, 1 failed
+FAILED: history is session-only by default, then explicit local opt-in survives reload, filters, restores mode and deletes

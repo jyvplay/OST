@@ -1,0 +1,88 @@
+{
+  "suite": "e2e-tt96-calculator",
+  "at": "2026-10-27T23:25:08.856Z",
+  "results": [
+    {
+      "suite": "e2e-tt96-calculator",
+      "name": "programmer controls compute exact 64-bit and signed fixed-width expressions in the real UI",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 2362
+    },
+    {
+      "suite": "e2e-tt96-calculator",
+      "name": "history is session-only by default, then explicit local opt-in survives reload, filters, restores mode and deletes",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 4618
+    },
+    {
+      "suite": "e2e-tt96-calculator",
+      "name": "quota denial is visible and never reported as a confirmed saved history entry",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 1718
+    },
+    {
+      "suite": "e2e-tt96-calculator",
+      "name": "corrupt stored history is preserved and prevents opt-in until explicit deletion",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 2943
+    },
+    {
+      "suite": "e2e-tt96-calculator",
+      "name": "amnesic and offline use can calculate without persisting history to the host or browser",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 1712
+    },
+    {
+      "suite": "e2e-tt96-calculator",
+      "name": "the programmer controls and history remain reachable in a narrow viewport",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 1573
+    },
+    {
+      "suite": "e2e-tt96-calculator",
+      "name": "axe finds no serious or critical violations in active programmer controls and history",
+      "covers": {
+        "PR-09": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 1959
+    },
+    {
+      "suite": "e2e-tt96-calculator",
+      "name": "a held Web Lock forces two cooperating tabs to queue and keep both local appends",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 2167
+    },
+    {
+      "suite": "e2e-tt96-calculator",
+      "name": "calculator browser scenarios produce no uncaught page errors",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

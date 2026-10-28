@@ -1,0 +1,24 @@
+{
+  "suite": "tt87-pointer-queue",
+  "at": "2026-10-27T21:23:20.838Z",
+  "results": [
+    {
+      "suite": "tt87-pointer-queue",
+      "name": "SH-06 bounded pointer queue preserves all 256 samples in order and drains exactly once",
+      "covers": {
+        "SH-06": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt87-pointer-queue",
+      "name": "SH-06 the 257th sample discards the whole path, caps storage through 100,000 events and resets once",
+      "covers": {
+        "SH-06": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    }
+  ]
+}

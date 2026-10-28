@@ -1,0 +1,162 @@
+{
+  "suite": "tt92-trash-mutants",
+  "at": "2026-10-27T16:01:17.863627+00:00",
+  "results": [
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "leave descendant search rows",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 trashing a directory hides every descendant from real search; restoring reindexes only that trash group\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     body: 'new quartz3b93b11506f10933',\n+     ref: '/Documents/tt92-trash-3b93b11506f10933_%/sub/a.txt'\n+   }\n+ ]\n- []\n\n\n0 passed, 1 failed\nFAILED: trashing a directory hides every descendant from real search; restoring reindexes only that trash group\n",
+      "ms": 2449
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "merge separately trashed child groups",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 trashing a directory hides every descendant from real search; restoring reindexes only that trash group\n    a later parent trash must not replace an existing child trash group\n+ actual - expected\n\n+ '/Documents/tt92-trash-2c9da604e6b4cbb6_%'\n- '/Documents/tt92-trash-2c9da604e6b4cbb6_%/earlier.txt'\n\n\n0 passed, 1 failed\nFAILED: trashing a directory hides every descendant from real search; restoring reindexes only that trash group\n",
+      "ms": 2231
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "allow new files inside trashed folders",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 ordinary and conditional writes cannot overwrite a trashed item or create under a trashed parent\n    created inside trashed folder\n\n0 passed, 1 failed\nFAILED: ordinary and conditional writes cannot overwrite a trashed item or create under a trashed parent\n",
+      "ms": 2055
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "allow overwriting a trashed file",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a trashed file reserves its original path and ordinary writes cannot silently revive it\n    Expected \"actual\" to be strictly unequal to: 200\n\n0 passed, 1 failed\nFAILED: a trashed file reserves its original path and ordinary writes cannot silently revive it\n",
+      "ms": 1995
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "restore independent trash groups together",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 trashing a directory hides every descendant from real search; restoring reindexes only that trash group\n    Expected values to be strictly equal:\n\nfalse !== true\n\n\n0 passed, 1 failed\nFAILED: trashing a directory hides every descendant from real search; restoring reindexes only that trash group\n",
+      "ms": 2191
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "merge ambiguous legacy null groups",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 legacy rows without a trash group are restored one at a time rather than merged ambiguously\n    ambiguous legacy child was silently restored\n\nfalse !== true\n\n\n0 passed, 1 failed\nFAILED: legacy rows without a trash group are restored one at a time rather than merged ambiguously\n",
+      "ms": 2000
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "restore inside a trashed parent",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a child cannot be restored into a parent still in trash\n    Expected \"actual\" to be strictly unequal to: 200\n\n0 passed, 1 failed\nFAILED: a child cannot be restored into a parent still in trash\n",
+      "ms": 2085
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "omit the root guard",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 trashing the virtual root is refused before any database mutation\n    The input did not match the regular expression /root/i. Input:\n\n'Failed query: update \"vfs_nodes\" set \"trashed\" = $1, \"trashed_from\" = $2, \"updated_at\" = $3 where (\"vfs_nodes\".\"trashed\" = $4 and (\"vfs_nodes\".\"path\" = $5 or \"vfs_nodes\".\"path\" like $6))\\n' +\n  'params: true,/,2026-10-27T16:00:31.298Z,false,/,/%'\n\n\n0 passed, 1 failed\nFAILED: trashing the virtual root is refused before any database mutation\n",
+      "ms": 1840
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "omit the trash transaction",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a failed search-index deletion rolls the entire trash operation back\n    Expected values to be strictly equal:\n\ntrue !== false\n\n\n0 passed, 1 failed\nFAILED: a failed search-index deletion rolls the entire trash operation back\n",
+      "ms": 2012
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "omit the restore transaction",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a failed restore journal rolls restored nodes and their new index entries back\n    Expected values to be strictly equal:\n\nfalse !== true\n\n\n0 passed, 1 failed\nFAILED: a failed restore journal rolls restored nodes and their new index entries back\n",
+      "ms": 1976
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "omit trash's tree gate",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 tree trash holds its cooperative exclusive gate until its transaction finishes\n    No lock wait observed for pg_advisory_xact_lock_shared\n\n0 passed, 1 failed\nFAILED: tree trash holds its cooperative exclusive gate until its transaction finishes\n",
+      "ms": 14059
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "omit restore's tree gate",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 restore-first and a following writer publish one current index and retain the old version\n    No lock wait observed for pg_advisory_xact_lock or insert into \"vfs_nodes\"\n\n0 passed, 1 failed\nFAILED: restore-first and a following writer publish one current index and retain the old version\n",
+      "ms": 14056
+    },
+    {
+      "suite": "tt92-trash-mutants",
+      "name": "omit cache lock for trash",
+      "covers": {
+        "FM-11": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 thumbnail cleanup and cache-item trash do not deadlock or reintroduce data\n    No lock wait observed for pg_advisory_xact_lock\n\n0 passed, 1 failed\nFAILED: thumbnail cleanup and cache-item trash do not deadlock or reintroduce data\n",
+      "ms": 14129
+    }
+  ]
+}

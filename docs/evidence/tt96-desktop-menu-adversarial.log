@@ -1,0 +1,7 @@
+  ✓ a lower-right desktop context menu stays within its usable surface and Sort can be clicked
+  ✓ an open edge menu reclamps after the viewport shrinks
+  ✓ the geometry and real click checks detect an injected old-style offscreen placement
+  ✓ the Art layout's dock does not intercept a bottom-edge desktop menu
+  ✓ at large text on a narrow viewport every menu action remains reachable
+
+5 passed, 0 failed

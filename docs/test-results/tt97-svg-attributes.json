@@ -1,0 +1,36 @@
+{
+  "suite": "tt97-svg-attributes",
+  "at": "2026-10-27T23:25:55.004Z",
+  "results": [
+    {
+      "suite": "tt97-svg-attributes",
+      "name": "no JSX SVG geometry attribute receives calc()/var()/fz(); the fixed banner chevron is present",
+      "covers": {
+        "AX-08": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tt97-svg-attributes",
+      "name": "detector rejects the exact pre-repair attribute shape",
+      "covers": {
+        "AX-08": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt97-svg-attributes",
+      "name": "dynamic width/height expressions on SVG elements are absent or explicitly listed",
+      "covers": {
+        "AX-08": "partial",
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 10
+    }
+  ]
+}

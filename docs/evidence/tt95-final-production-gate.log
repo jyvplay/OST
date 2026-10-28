@@ -1,0 +1,175 @@
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== tabletop-unit
+17 passed, 0 failed
+=== e2e-tabletop
+  ✗ drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves
+    fanned with opposite tilts -12deg,0deg,12deg
+  ✓ keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card
+  ✗ desktop icons (classic): drag snaps to another grid cell and persists; Alt+Arrow moves; 'Sort icons by name' and 'Clean up icons' rearrange
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('menuitem', { name: 'Sort icons by name' })
+--
+13 passed, 2 failed
+FAILED: drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves | desktop icons (classic): drag snaps to another grid cell and persists; Alt+Arrow moves; 'Sort icons by name' and 'Clean up icons' rearrange
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+  ✗ FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there
+    locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+  - waiting for locator('.fs-window[aria-label="Files"]').getByTestId('files-terminal').getByText(/cd \/Documents\/e2e55-fmvr4yd2m\/sub\s+\(following the Files pane\)/) to be visible
+--
+  ✗ regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree)
+    axe: color-contrast: div[data-selected="true"][data-kind="file"][role="option"] > .fs-badge[data-origin="server"][data-tone="default"]
+
+11 passed, 2 failed
+FAILED: FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there | regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree)
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== tt67-input
+11 passed, 0 failed
+=== e2e-tt67-input
+5 passed, 0 failed
+=== e2e-tt81
+7 passed, 0 failed
+=== e2e-a11y
+  ✗ light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet
+    locator.waitFor: Timeout 15000ms exceeded.
+Call log:
+  - waiting for locator('td[data-cell="A2"]') to be visible
+--
+8 passed, 1 failed
+FAILED: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet
+=== e2e-tt35
+7 passed, 0 failed
+=== tt86-pointer
+3 passed, 0 failed
+=== e2e-tt86-pointer
+6 passed, 0 failed
+=== tt87-pointer-queue
+2 passed, 0 failed
+=== e2e-tt87-pointer-fallback
+  ✗ SH-06 right-button gestures map all four directions on both desktop surfaces; context-menu and short-drag behavior is preserved
+    locator.waitFor: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator('[role="dialog"][aria-label="Launcher"]') to be visible
+--
+5 passed, 1 failed
+FAILED: SH-06 right-button gestures map all four directions on both desktop surfaces; context-menu and short-drag behavior is preserved
+=== tt87-transaction
+5 passed, 0 failed
+=== tt87-backup
+5 passed, 0 failed
+=== tt87-backup-http
+8 passed, 0 failed
+=== e2e-tt87-backup
+6 passed, 0 failed
+=== e2e-tt87-localdisk
+5 passed, 0 failed
+=== e2e-tt87-privacy
+3 passed, 0 failed
+=== tt88-recovery
+9 passed, 0 failed
+=== e2e-tt88-recovery
+6 passed, 0 failed
+=== tt89-drill-health
+7 passed, 0 failed
+=== tt89-drill-db
+13 passed, 0 failed
+=== tt89-drill-http
+9 passed, 0 failed
+=== e2e-tt89-drill
+9 passed, 0 failed
+=== tt89-launch-unit
+6 passed, 0 failed
+=== e2e-tt89-launch
+9 passed, 0 failed
+=== tt90-context-unit
+4 passed, 0 failed
+=== e2e-tt90-context
+8 passed, 0 failed
+=== tt90-worker-pool
+9 passed, 0 failed
+=== tt90-private-thumb-path
+1 passed, 0 failed
+=== e2e-tt90-thumbnails
+5 passed, 0 failed
+=== e2e-tt90-private-thumbnails
+5 passed, 0 failed
+=== tt91-thumbnail-cleanup-race
+6 passed, 0 failed
+=== tt91-purge
+5 passed, 0 failed
+=== tt91-purge-race
+4 passed, 0 failed
+=== tt91-write-atomic
+2 passed, 0 failed
+=== e2e-tt91-purge
+2 passed, 0 failed
+=== tt91-browser-download
+10 passed, 0 failed
+=== e2e-tt91-browser-download
+7 passed, 0 failed
+=== tt92-trash
+11 passed, 0 failed
+=== tt92-trash-race
+6 passed, 0 failed
+=== e2e-tt92-trash
+2 passed, 0 failed
+=== tt92-ledger-audit
+7 passed, 0 failed
+=== tt92-ledger-policy
+2 passed, 0 failed
+=== e2e-tt54
+8 passed, 0 failed
+=== tt93-transfer
+17 passed, 0 failed
+=== tt93-transfer-race
+5 passed, 0 failed
+=== tt93-restore-race
+3 passed, 0 failed
+=== tt93-metadata-race
+4 passed, 0 failed
+=== e2e-tt93-sidecar
+2 passed, 0 failed
+=== e2e-tt93-photos-clear
+7 passed, 0 failed
+=== tt94-photo-guard
+12 passed, 0 failed
+=== tt94-photo-guard-race
+2 passed, 0 failed
+=== e2e-tt94-photo-stale
+2 passed, 0 failed
+=== e2e-tt94-photos-offline
+6 passed, 0 failed
+=== e2e-tt94-offline-race
+3 passed, 0 failed
+=== tt95-photo-concurrency
+13 passed, 0 failed
+=== tt95-photo-race
+3 passed, 0 failed
+=== e2e-tt95-photo-concurrency
+7 passed, 0 failed
+=== tt95-calculator-audit
+4 passed, 0 failed
+=== e2e-tt95-a11y-settings-race
+1 passed, 0 failed
+=== tt89-test-safety
+4 passed, 0 failed
+=== privacy-crypto
+9 passed, 0 failed
+=== privacy-layer
+13 passed, 0 failed
+=== privacy-backup
+7 passed, 0 failed
+=== e2e-privacy
+16 passed, 0 failed
+FAILED SUITES: e2e-tabletop e2e-tt55-files e2e-a11y e2e-tt87-pointer-fallback
+ALLDONE

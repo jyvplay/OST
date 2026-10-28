@@ -1,0 +1,15 @@
+KILLED: remove editor shortcut guard
+  ✗ E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback
+    Ctrl+F opened behind Save-as after focus escape
+
+0 passed, 1 failed
+FAILED: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback
+
+KILLED: drop shell modal hold
+  ✗ E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback
+    global palette opened behind Save-as after focus escape
+
+0 passed, 1 failed
+FAILED: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback
+
+Modal mutants: 2/2 killed

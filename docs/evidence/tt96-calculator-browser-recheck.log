@@ -1,0 +1,8 @@
+  ✓ programmer controls compute exact 64-bit and signed fixed-width expressions in the real UI
+  ✓ history is session-only by default, then explicit local opt-in survives reload, filters, restores mode and deletes
+  ✓ quota denial is visible and never reported as a confirmed saved history entry
+  ✓ corrupt stored history is preserved and prevents opt-in until explicit deletion
+  ✓ amnesic and offline use can calculate without persisting history to the host or browser
+  ✓ two cooperating tabs keep both simultaneous local history appends
+
+6 passed, 0 failed

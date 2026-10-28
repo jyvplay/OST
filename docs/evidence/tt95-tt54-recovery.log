@@ -1,0 +1,12 @@
+18 fixtures
+{"h264-aac.mp4": 204460, "h264-aac-faststart.mp4": 204460, "h264-frag.mp4": 202262, "h264-aac.mov": 204501, "h264-only.mp4": 103524, "aac-only.mp4": 97890, "vp8-opus.webm": 228957, "vp9-opus.webm": 257873, "h264-aac.mkv": 200983, "opus-only.webm": 90807}
+  ✓ FF-13 Files grid: real thumbnails for JPEG (EXIF orientation applied), TIFF (own decoder), PNG, GIF, SVG, MP3/M4A cover art, PDF page 1, WebM frame, text; no-preview types keep the icon with a reason
+  ✓ FF-13 thumbnail cache: WebP nodes under /System/Cache/thumbs (content-addressed, written once); a fresh session is served from the cache without re-rendering
+  ✓ MD-03 sidecars follow their photo on rename / copy / move / trash / restore / purge and batch rename (server-side, any client); op=media lists photos + sidecars and nothing under /System
+  ✓ Hidden files: sidecars never show in Files (until 'Hidden' is toggled) or on the desktop
+  ✓ FF-13 Info panel: metadata of the selected file (camera, capture date, exposure, GPS) from the first-party readers
+  ✓ MD-03 Photos library + editor: timeline by capture date, edit (rotate + exposure + preset) saved as a sidecar recipe, original bytes untouched, rating saved, library thumbnail shows the edit
+  ✓ FF-07 export PNG from Photos is BIT-EXACT to the Node recipe renderer on the same pixels (browser decode → recipe → encode)
+  ✓ FF-07 export AVIF (WebCodecs AV1 + our AVIF writer) and JPEG / WebP with curated metadata: decoded by Pillow (libavif / libjpeg / libwebp); location only when asked; Orientation reset to 1
+
+8 passed, 0 failed

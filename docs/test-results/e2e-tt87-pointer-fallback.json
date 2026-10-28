@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt87-pointer-fallback",
+  "at": "2026-10-27T21:23:42.054Z",
+  "results": [
+    {
+      "suite": "e2e-tt87-pointer-fallback",
+      "name": "SH-06 all four hot corners open their mapped shell panels once per entry",
+      "covers": {
+        "SH-06": "full"
+      },
+      "pass": true,
+      "ms": 4996
+    },
+    {
+      "suite": "e2e-tt87-pointer-fallback",
+      "name": "SH-06 all four viewport edges require an inward flick and open the matching panel",
+      "covers": {
+        "SH-06": "full"
+      },
+      "pass": true,
+      "ms": 1550
+    },
+    {
+      "suite": "e2e-tt87-pointer-fallback",
+      "name": "SH-06 right-button gestures map all four directions on both desktop surfaces; context-menu and short-drag behavior is preserved",
+      "covers": {
+        "SH-06": "full"
+      },
+      "pass": true,
+      "ms": 7255
+    },
+    {
+      "suite": "e2e-tt87-pointer-fallback",
+      "name": "SH-06 an overflowing synthetic frame is dropped without a false action; trusted pointer input re-arms afterward",
+      "covers": {
+        "SH-06": "partial"
+      },
+      "pass": true,
+      "ms": 1073
+    },
+    {
+      "suite": "e2e-tt87-pointer-fallback",
+      "name": "SH-06 trigger preference gates corner, edge and drag actions without stealing ordinary shell control clicks",
+      "covers": {
+        "SH-06": "full"
+      },
+      "pass": true,
+      "ms": 3663
+    },
+    {
+      "suite": "e2e-tt87-pointer-fallback",
+      "name": "SH-06 pointer listeners report no uncaught page errors",
+      "covers": {
+        "SH-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

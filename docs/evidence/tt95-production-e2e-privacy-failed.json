@@ -1,0 +1,155 @@
+{
+  "suite": "e2e-privacy",
+  "at": "2026-10-27T20:13:01.451Z",
+  "results": [
+    {
+      "suite": "e2e-privacy",
+      "name": "create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
+      "covers": {
+        "SC-10": "full",
+        "SC-11": "full"
+      },
+      "pass": true,
+      "ms": 1752
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
+      "covers": {
+        "SC-10": "full"
+      },
+      "pass": true,
+      "ms": 88
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage",
+      "covers": {
+        "SC-10": "full",
+        "BK-02": "partial"
+      },
+      "pass": true,
+      "ms": 53
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only)",
+      "covers": {
+        "SC-11": "full"
+      },
+      "pass": true,
+      "ms": 2922
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host",
+      "covers": {
+        "SC-16": "full"
+      },
+      "pass": true,
+      "ms": 1566
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains",
+      "covers": {
+        "SC-12": "full"
+      },
+      "pass": true,
+      "ms": 555
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
+      "covers": {
+        "SC-12": "full",
+        "FM-01": "partial"
+      },
+      "pass": true,
+      "ms": 2432
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
+      "covers": {
+        "SC-13": "full",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 2050
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "emergency shutdown chord: keys + RAM files gone, page blanked via location.replace (no history entry with the shell)",
+      "covers": {
+        "SC-15": "full"
+      },
+      "pass": true,
+      "ms": 1521
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache",
+      "covers": {
+        "SC-13": "partial"
+      },
+      "pass": true,
+      "ms": 27
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": false,
+      "error": "encrypt throughput 48 MB/s: Encrypt\n48 MB/s (82.8 ms per 4.0 MB)\nDecrypt\n48 MB/s (83.2 ms per 4.0 MB)\nLargest file (8 MB VFS cap)\n≈ 167 ms extra to save",
+      "ms": 2761
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "host audit in the UI: a plaintext file planted by another client is flagged and 'Encrypt it' seals it (name + content)",
+      "covers": {
+        "SC-14": "full"
+      },
+      "pass": true,
+      "ms": 1615
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext",
+      "covers": {
+        "SC-17": "full"
+      },
+      "pass": true,
+      "ms": 3649
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks",
+      "covers": {
+        "SC-18": "full"
+      },
+      "pass": true,
+      "ms": 4009
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "no page errors across the privacy flows",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-privacy",
+      "name": "privacy fixture cleanup leaves no host nodes, versions or search rows for its owned paths",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}

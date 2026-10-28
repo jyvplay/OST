@@ -1,0 +1,9 @@
+KILLED: unit conversion claims a non-finite success
+KILLED: unit conversion multiplies before dividing
+EQUIVALENT: unit conversion accepts a non-finite input
+KILLED: note command drops its word boundary
+KILLED: focus accepts an arbitrary argument
+KILLED: command length limit removed
+KILLED: setting filter length limit removed
+KILLED: routine filter length limit removed
+Mutants: 7/7 killed; 1 documented equivalent (survived, behavior test still passes)

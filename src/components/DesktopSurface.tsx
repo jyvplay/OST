@@ -1,6 +1,6 @@
 "use client";
 import { fz } from "@/lib/uiscale";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { formatFor } from "@/lib/forge";
 import { appForFile } from "@/lib/open-with";
@@ -28,6 +28,7 @@ export default function DesktopSurface() {
   const [items, setItems] = useState<Item[]>([]);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const area = useRef<HTMLDivElement | null>(null);
+  const menuNode = useRef<HTMLDivElement | null>(null);
   const probe = useRef<HTMLDivElement | null>(null);
   const [grid, setGrid] = useState({ cw: 130, ch: 100, cols: 6, rows: 6 });
   const [drag, setDrag] = useState<{ path: string; sx: number; sy: number; ox: number; oy: number; x: number; y: number; moved: boolean } | null>(null);
@@ -46,6 +47,23 @@ export default function DesktopSurface() {
     ro.observe(el); ro.observe(pr);
     return () => ro.disconnect();
   }, []);
+
+  // Context-menu coordinates are viewport-relative, but the desk starts below
+  // the shell bar. Measure the actual menu after layout and keep it within the
+  // desk, including when large text makes the menu scrollable.
+  useLayoutEffect(() => {
+    const node = menuNode.current, desk = area.current;
+    if (!node || !desk || !menu) return;
+    const place = () => {
+      const b = desk.getBoundingClientRect(), m = node.getBoundingClientRect();
+      node.style.left = `${Math.max(0, Math.min(menu.x - b.left, b.width - m.width))}px`;
+      node.style.top = `${Math.max(0, Math.min(menu.y - b.top, b.height - m.height))}px`;
+      node.style.visibility = "visible";
+    };
+    place();
+    const observer = new ResizeObserver(place); observer.observe(desk); observer.observe(node);
+    return () => observer.disconnect();
+  }, [menu]);
 
   useEffect(() => {
     api<{ nodes: Item[] }>("/api/fs?op=list&path=/Documents")
@@ -130,8 +148,9 @@ export default function DesktopSurface() {
       </div>
 
       {menu ? (
-        <div className="fs-panel" role="menu" onPointerDown={(e) => e.stopPropagation()}
-          style={{ position: "absolute", left: menu.x, top: menu.y, padding: 4, zIndex: 9500, minWidth: 190 }}>
+        <div ref={menuNode} className="fs-panel" role="menu" onPointerDown={(e) => e.stopPropagation()}
+          style={{ position: "absolute", left: 0, top: 0, visibility: "hidden", padding: 4, zIndex: 9500,
+            width: "max-content", minWidth: "min(190px, 100%)", maxWidth: "100%", maxHeight: "100%", overflowY: "auto", boxSizing: "border-box" }}>
           {[
             { label: "New text file…", run: async () => {
                 const name = await askText("New text file name", "untitled.md", { okLabel: "Create", validate: (v) => (/[\\/]/.test(v) ? "A file name can't contain / or \\" : null) });
@@ -154,7 +173,7 @@ export default function DesktopSurface() {
             { label: "Spec register", run: () => shell.open("spec") },
           ].map((item) => (
             <button key={item.label} role="menuitem" className="fs-btn" data-variant="ghost"
-              style={{ width: "100%", justifyContent: "flex-start" }}
+              style={{ width: "100%", justifyContent: "flex-start", whiteSpace: "normal", textAlign: "left" }}
               onClick={() => { setMenu(null); void item.run(); }}>{item.label}</button>
           ))}
         </div>

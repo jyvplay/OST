@@ -1,0 +1,126 @@
+{
+  "suite": "tt94-photo-guard",
+  "at": "2026-10-27T20:37:50.824Z",
+  "results": [
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a matching photo identity permits versioned recipe writes and an idempotent clear",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 66
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a recipe save from a stale editor after a photo move is refused without creating an orphan",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 41
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "recreating an identical photo at the old path does not authorize an old editor",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 54
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a modified photo version refuses the old recipe even at the same path and identity",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 38
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "even a byte-identical overwrite changes the version and invalidates an old editor",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 36
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a stale clear cannot purge a new photo's unrelated recipe at the reused path",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 61
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a guard cannot authorize writes or deletion of an unrelated path",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 32
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "media listing exposes the exact identity and version used by a live editor",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 18
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a corrupt photo whose stored digest was not updated cannot accept a guarded recipe",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "malformed, private and unrelated owner guards are refused rather than silently downgraded",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 51
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "a photo in Trash refuses guarded recipe writes and clears",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 41
+    },
+    {
+      "suite": "tt94-photo-guard",
+      "name": "unconditional sidecar writes remain available to existing clients",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial"
+      },
+      "pass": true,
+      "ms": 28
+    }
+  ]
+}

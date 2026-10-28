@@ -1,0 +1,92 @@
+{
+  "suite": "e2e-tt97-palette-actions",
+  "at": "2026-10-27T22:57:20.232Z",
+  "results": [
+    {
+      "suite": "e2e-tt97-palette-actions",
+      "name": "action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection",
+      "covers": {
+        "SR-06": "partial",
+        "PR-02": "partial",
+        "AU-01": "partial",
+        "ST-01": "partial"
+      },
+      "pass": false,
+      "error": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Command palette' }) to be visible\n",
+      "ms": 31635
+    },
+    {
+      "suite": "e2e-tt97-palette-actions",
+      "name": "amnesic quick note is refused before any host write",
+      "covers": {
+        "SR-06": "partial",
+        "PR-02": "partial",
+        "AU-01": "partial",
+        "ST-01": "partial"
+      },
+      "pass": true,
+      "ms": 4456
+    },
+    {
+      "suite": "e2e-tt97-palette-actions",
+      "name": "offline quick note remains unsaved and unqueued with its text retained",
+      "covers": {
+        "SR-06": "partial",
+        "PR-02": "partial",
+        "AU-01": "partial",
+        "ST-01": "partial"
+      },
+      "pass": false,
+      "error": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Command palette' }) to be visible\n",
+      "ms": 31688
+    },
+    {
+      "suite": "e2e-tt97-palette-actions",
+      "name": "lost reply after a real committed note reports uncertainty and does not automatically retry",
+      "covers": {
+        "SR-06": "partial",
+        "PR-02": "partial",
+        "AU-01": "partial",
+        "ST-01": "partial"
+      },
+      "pass": true,
+      "ms": 2685
+    },
+    {
+      "suite": "e2e-tt97-palette-actions",
+      "name": "focus on/off and settings commands operate through the actual shell",
+      "covers": {
+        "SR-06": "partial",
+        "PR-02": "partial",
+        "AU-01": "partial",
+        "ST-01": "partial"
+      },
+      "pass": true,
+      "ms": 6054
+    },
+    {
+      "suite": "e2e-tt97-palette-actions",
+      "name": "only an explicitly selected enabled routine runs and records its execution",
+      "covers": {
+        "SR-06": "partial",
+        "PR-02": "partial",
+        "AU-01": "partial",
+        "ST-01": "partial"
+      },
+      "pass": true,
+      "ms": 3187
+    },
+    {
+      "suite": "e2e-tt97-palette-actions",
+      "name": "palette action scenarios have no uncaught page errors",
+      "covers": {
+        "SR-06": "partial",
+        "PR-02": "partial",
+        "AU-01": "partial",
+        "ST-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

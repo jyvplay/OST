@@ -3,8 +3,8 @@
  * Chromium against the production server and Postgres. Every privacy claim is checked on the HOST side
  * (SQL over vfs_nodes / index_docs / audit_log), not by asking the browser what it thinks it did.
  *
- * Safety: refuses to run if Persistent Storage already exists on this host (it would never destroy a real
- * volume); everything it creates is purged at the end, returning /Private to "absent".
+ * Safety: refuses to run if keyslots, any existing /Private child or any /Private version exists; its
+ * destructive recovery tests are still suitable only for an explicitly disposable server/database.
  * Run: BASE=http://localhost:3999 DATABASE_URL=… node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/e2e-privacy.mts
  */
 import { execFileSync } from "node:child_process";
@@ -16,6 +16,7 @@ import { type Browser, type Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 
+if (process.env.TT89_DISPOSABLE_DATABASE !== "1" || !process.env.DATABASE_URL) throw new Error("Refusing destructive privacy tests without TT89_DISPOSABLE_DATABASE=1 and an explicit exclusive matching disposable server/database.");
 const BASE = process.env.BASE ?? "http://localhost:3999";
 const PY = process.env.ORACLE_PY ?? "/home/user/tools/venv/bin/python";
 const RUN = Date.now().toString(36);
@@ -32,7 +33,26 @@ const hostApi = async (method: string, path: string, body?: unknown) => {
 };
 
 const pre = await hostApi("GET", "/api/fs?op=read&path=/Private/.keyslots.json");
-if (pre.status !== 404) { console.error("Persistent Storage already exists on this host — refusing to run (would not destroy a real volume)."); process.exit(2); }
+const hostPrivate = await hostApi("GET", "/api/fs?op=list&path=/Private");
+const existingPrivate = await rows(`SELECT
+  EXISTS (SELECT 1 FROM vfs_nodes WHERE path LIKE '/Private/%') AS nodes,
+  EXISTS (SELECT 1 FROM vfs_versions WHERE path = '/Private' OR path LIKE '/Private/%') AS versions`);
+// A missing keyslot does NOT mean the host directory is empty: plaintext or orphaned
+// ciphertext can still be there. The later destructive restore tests must never erase it.
+if (pre.status !== 404 || hostPrivate.status !== 200 || !Array.isArray(hostPrivate.json.nodes) || hostPrivate.json.nodes.length > 0 || existingPrivate[0]?.nodes || existingPrivate[0]?.versions) {
+  console.error("Existing /Private data or versions found — refusing destructive privacy tests.");
+  process.exit(2);
+}
+// The host fixtures are also removed at teardown. Never assume their randomly
+// generated paths are ours until both the API and the database report them absent.
+for (const root of [`/Documents/meta-${RUN}`, `/Documents/bench-${RUN}`]) {
+  const stat = await hostApi("GET", `/api/fs?op=stat&path=${encodeURIComponent(root)}`);
+  if (stat.status !== 200 || stat.json.node) throw new Error(`Refusing occupied privacy fixture ${root}`);
+  for (const [table, col] of [["vfs_nodes", "path"], ["vfs_versions", "path"], ["index_docs", "ref"]]) {
+    const existing = await rows(`select 1 from ${table} where ${col}=$1 or left(${col},char_length($1)+1)=$1||'/' limit 1`, [root]);
+    if (existing.length) throw new Error(`Refusing occupied privacy fixture ${root} in ${table}`);
+  }
+}
 
 const fx = mkdtempSync(join(tmpdir(), "e2e-priv-")); mkdirSync(join(fx, "out"));
 execFileSync(PY, ["scripts/oracles/metaclean_oracle.py", "make", join(fx, "src")], { encoding: "utf8" });
@@ -100,6 +120,17 @@ await test("files written by the shell into /Private reach the host as ciphertex
   ok(aud[0].n === 0, "audit log holds the clear path");
   const s = await hostApi("GET", `/api/search?q=${encodeURIComponent(SECRET)}`);
   ok(!JSON.stringify(s.json).includes(SECRET), "server search finds the secret");
+});
+
+await test("TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage", { "SC-10": "full", "BK-02": "partial" }, async () => {
+  const normal = `/Documents/conditional-${RUN}.txt`; const privatePath = `/Private/conditional-${RUN}.txt`;
+  const body = (path: string) => ({ op: "writeIfUnchanged", path, content: `conditional ${RUN}`, expected: null });
+  try {
+    ok((await pfetch("POST", "/api/fs", body(normal))).status === 200, "normal host create refused while unlocked");
+    ok((await pfetch("POST", "/api/fs", body(normal))).status === 409, "conditional create overwrote existing host file");
+    ok((await pfetch("POST", "/api/fs", body(privatePath))).status === 422, "plaintext private conditional write not refused");
+    ok((await rows("select count(*)::int n from vfs_nodes where path=$1", [privatePath]))[0].n === 0, "private plaintext reached host");
+  } finally { await hostApi("POST", "/api/fs", { op: "purge", path: normal }); await hostApi("POST", "/api/fs", { op: "purge", path: privatePath }); }
 });
 
 await test("lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only)", { "SC-11": "full" }, async () => {
@@ -258,18 +289,30 @@ await test("no performance degradation: real AES-GCM throughput in the browser, 
   await privacyRoot().locator('[data-testid="bench"]').click();
   const b = await privacyRoot().locator('[data-testid="bench-result"]').innerText({ timeout: 60_000 });
   const mbps = Number(/Encrypt\s*(\d+) MB\/s/.exec(b)?.[1] ?? 0);
+  // Keep a failed latest measurement visible instead of leaving an older passing
+  // result as if it were current. No save timing is available before the gate.
+  const record = { at: new Date().toISOString(), bench: b, throughputGate: { minimumMBps: 50, passed: mbps >= 50 }, saveMs: null as null | { host: number; priv: number }, saveGate: null as null | boolean };
+  writeFileSync("docs/privacy-bench.json", JSON.stringify(record, null, 1));
   ok(mbps >= 50, `encrypt throughput ${mbps} MB/s: ${b}`);
   const timing = await page.evaluate(async (run) => {
     const body = "x".repeat(256 * 1024);
-    const one = async (p: string) => { const t = performance.now(); const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "write", path: p, content: body }) }); await r.json(); return performance.now() - t; };
+    const one = async (p: string) => {
+      const t = performance.now();
+      const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "write", path: p, content: body }) });
+      const result = await r.json();
+      if (!r.ok || result.ok !== true) throw new Error(`Benchmark save was rejected (${r.status}); no timing claim is valid.`);
+      return performance.now() - t;
+    };
     const host: number[] = []; const priv: number[] = [];
     for (let i = 0; i < 8; i++) { host.push(await one(`/Documents/bench-${run}/h${i}.txt`)); priv.push(await one(`/Private/bench-${run}/p${i}.txt`)); }
     const med = (a: number[]) => [...a].sort((x, y) => x - y)[a.length >> 1];
     return { host: med(host), priv: med(priv) };
   }, RUN);
   console.log(`    bench: encrypt ${mbps} MB/s · 256 KiB save median host ${timing.host.toFixed(1)} ms vs /Private ${timing.priv.toFixed(1)} ms`);
-  writeFileSync("docs/privacy-bench.json", JSON.stringify({ at: new Date().toISOString(), bench: b, saveMs: timing }, null, 1));
-  ok(timing.priv <= timing.host * 1.3 + 8, `/Private save ${timing.priv.toFixed(1)} ms vs host ${timing.host.toFixed(1)} ms`);
+  record.saveMs = timing;
+  record.saveGate = timing.priv <= timing.host * 1.3 + 8;
+  writeFileSync("docs/privacy-bench.json", JSON.stringify(record, null, 1));
+  ok(record.saveGate, `/Private save ${timing.priv.toFixed(1)} ms vs host ${timing.host.toFixed(1)} ms`);
 });
 
 await test("host audit in the UI: a plaintext file planted by another client is flagged and 'Encrypt it' seals it (name + content)", { "SC-14": "full" }, async () => {
@@ -390,8 +433,15 @@ await test("no page errors across the privacy flows", { "SC-10": "partial" }, ()
 
 // cleanup: everything this run created; /Private returns to "absent"
 if (created) {
-  await db.query("delete from vfs_versions where path like '/Private/%' or path like $1 or path like $2", [`/Documents/meta-${RUN}%`, `/Documents/bench-${RUN}%`]);
-  await db.query("delete from vfs_nodes where (path like '/Private/%') or path like $1 or path like $2", [`/Documents/meta-${RUN}%`, `/Documents/bench-${RUN}%`]);
+  const owned = [`/Documents/meta-${RUN}`, `/Documents/bench-${RUN}`];
+  const scoped = (col: string) => `(${col}=$1 OR left(${col},char_length($1)+1)=$1||'/' OR ${col}=$2 OR left(${col},char_length($2)+1)=$2||'/')`;
+  await db.query(`delete from vfs_versions where path like '/Private/%' or ${scoped("path")}`, owned);
+  await db.query(`delete from vfs_nodes where path like '/Private/%' or ${scoped("path")}`, owned);
+  await db.query(`delete from index_docs where source='file' and ${scoped("ref")}`, owned);
+  await test("privacy fixture cleanup leaves no host nodes, versions or search rows for its owned paths", { "SC-10": "partial" }, async () => {
+    for (const [table, col] of [["vfs_nodes", "path"], ["vfs_versions", "path"], ["index_docs", "ref"]])
+      ok((await rows(`select count(*)::int n from ${table} where ${scoped(col)}`, owned))[0].n === 0, `${table} cleanup left fixture rows`);
+  });
 }
 await db.end();
 await browser.close();

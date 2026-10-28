@@ -41,12 +41,30 @@ export async function api<T = unknown>(path: string, init?: RequestInit): Promis
  */
 const QUEUE_KEY = "fusion.queue";
 const QUEUEABLE = new Set(["/api/fs", "/api/notes"]);
-interface Queued { path: string; body: unknown; at: number }
+interface Queued { path: string; body: unknown; at: number; id?: string }
 
-const readQueue = (): Queued[] => {
-  try { return JSON.parse(localStorage.getItem(QUEUE_KEY) ?? "[]") as Queued[]; } catch { return []; }
+// Mutators never replace unreadable/corrupt stored work with an empty queue.
+const readQueueStrict = (): Queued[] => {
+  const value: unknown = JSON.parse(localStorage.getItem(QUEUE_KEY) ?? "[]");
+  if (!Array.isArray(value) || value.some((q: unknown) => !q || typeof q !== "object" || typeof (q as Queued).path !== "string" || !("body" in q))) {
+    throw new Error("Offline queue storage is unreadable");
+  }
+  return value as Queued[];
 };
-const writeQueue = (q: Queued[]) => { try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); } catch { /* quota */ } };
+const readQueue = (): Queued[] => { try { return readQueueStrict(); } catch { return []; } };
+// A failed localStorage write must not be reported as a durable queued operation.
+const writeQueue = (q: Queued[]) => { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); };
+
+// Lock network replay separately from short queue mutations: an offline enqueue
+// must not wait for a slow server request. Older/nonparticipating tabs and
+// browsers without Web Locks retain only per-tab best effort coordination.
+const STORAGE_LOCK = "fusion.queue.storage.v1", REPLAY_LOCK = "fusion.queue.replay.v1";
+const withQueueLock = async <T>(name: string, fn: () => T | Promise<T>): Promise<T> => {
+  if (typeof navigator !== "undefined" && typeof navigator.locks?.request === "function") return await navigator.locks.request(name, fn);
+  return await fn();
+};
+const queueId = () => (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+const sameQueued = (a: Queued, b: Queued) => (a.id && b.id ? a.id === b.id : JSON.stringify(a) === JSON.stringify(b));
 export const queuedCount = () => (typeof localStorage === "undefined" ? 0 : readQueue().length);
 /** TT55 (FM-09 / DP-03): VFS writes still waiting in the offline queue — Files shows them as "queued" ghost rows */
 export const queuedFsWrites = (): { op: string; path: string; at: number }[] => (typeof localStorage === "undefined" ? [] : readQueue()
@@ -55,24 +73,40 @@ export const queuedFsWrites = (): { op: string; path: string; at: number }[] => 
 
 // TT55: one replay at a time — mount + "online" (or two "online" events) used to run two replays that both read the
 // queue before either shifted it, applying the head write twice
-let replaying: Promise<{ replayed: number; failed: number }> | null = null;
-export function replayQueue(): Promise<{ replayed: number; failed: number }> {
-  if (!replaying) replaying = replayOnce().finally(() => { replaying = null; });
+type ReplayResult = { replayed: number; failed: number; storageError?: "read" | "dequeue" };
+let replaying: Promise<ReplayResult> | null = null;
+export function replayQueue(): Promise<ReplayResult> {
+  if (!replaying) replaying = withQueueLock(REPLAY_LOCK, replayOnce).finally(() => { replaying = null; });
   return replaying;
 }
-async function replayOnce(): Promise<{ replayed: number; failed: number }> {
+async function replayOnce(): Promise<ReplayResult> {
   if (typeof localStorage === "undefined" || (typeof navigator !== "undefined" && !navigator.onLine)) return { replayed: 0, failed: 0 };
-  const q = readQueue();
+  let q: Queued[];
+  try { q = await withQueueLock(STORAGE_LOCK, readQueueStrict); } catch { return { replayed: 0, failed: 0, storageError: "read" }; }
   let replayed = 0;
   while (q.length) {
+    const head = q[0];
     try {
-      await api(q[0].path, { method: "POST", body: JSON.stringify(q[0].body) });
-      q.shift(); replayed += 1; writeQueue(q);
+      await api(head.path, { method: "POST", body: JSON.stringify(head.body) });
     } catch (e) {
       const status = (e as { status?: number }).status ?? 0;
       if (status === 0 || status === 503) break; // still offline — keep everything
-      return { replayed, failed: q.length };       // server rejected: stop, keep order
+      try { q = await withQueueLock(STORAGE_LOCK, readQueueStrict); } catch { return { replayed, failed: 0, storageError: "read" }; }
+      return { replayed, failed: q.length }; // server rejected: stop, retain the current queue
     }
+    try {
+      // Re-read under the storage lock so enqueues made during the network
+      // request survive; never delete a different head changed by another actor.
+      q = await withQueueLock(STORAGE_LOCK, () => {
+        const latest = readQueueStrict();
+        if (!latest.length || !sameQueued(latest[0], head)) throw new Error("Offline queue changed during replay");
+        latest.shift(); writeQueue(latest); return latest;
+      });
+    } catch {
+      // The server may already have committed; replaying blindly can duplicate it.
+      return { replayed, failed: 0, storageError: "dequeue" };
+    }
+    replayed += 1;
   }
   return { replayed, failed: 0 };
 }
@@ -90,8 +124,15 @@ export const post = async <T = unknown>(path: string, body: unknown): Promise<T>
       throw Object.assign(new Error("Offline — Persistent Storage writes are not queued on the host; retry when online."), { status });
     }
     if (offline && QUEUEABLE.has(path) && typeof localStorage !== "undefined") {
-      const q = readQueue(); q.push({ path, body, at: Date.now() }); writeQueue(q);
-      throw Object.assign(new Error(`Offline — queued for replay (${q.length} pending). Nothing was lost.`), { queued: true, status });
+      let count: number;
+      try {
+        count = await withQueueLock(STORAGE_LOCK, () => {
+          const q = readQueueStrict(); q.push({ path, body, at: Date.now(), id: queueId() }); writeQueue(q); return q.length;
+        });
+      } catch {
+        throw Object.assign(new Error("Offline — this operation could not be queued in browser storage. Keep your work open and retry when online."), { status });
+      }
+      throw Object.assign(new Error(`Offline — queued for replay (${count} pending); not yet saved to the server.`), { queued: true, status });
     }
     throw e;
   }

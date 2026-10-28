@@ -1,0 +1,15 @@
+{
+  "suite": "tt90-private-thumb-path",
+  "at": "2026-10-27T21:25:01.130Z",
+  "results": [
+    {
+      "suite": "tt90-private-thumb-path",
+      "name": "private thumbnail routing normalizes path aliases without treating lookalike names as private",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

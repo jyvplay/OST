@@ -1,0 +1,12 @@
+  ✓ action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection
+  ✓ composition Enter cannot trigger a note action; a subsequent real Enter can
+  ✓ amnesic quick note is refused before any host write
+  ✓ offline quick note remains unsaved and unqueued with its text retained
+  ✓ repeated activation while a real note response is held creates only one row
+  ✓ lost reply after a real committed note reports uncertainty and does not automatically retry
+  ✓ focus on/off and settings commands operate through the actual shell
+  ✓ only an explicitly selected enabled routine runs and records its execution
+  ✓ a routine disabled after being listed is rechecked and not run
+  ✓ palette action scenarios have no uncaught page errors
+
+10 passed, 0 failed

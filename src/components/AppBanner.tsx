@@ -132,7 +132,9 @@ function groupNames(children: ReactNode): BannerMenu[] {
 }
 
 const Chev = ({ dir }: { dir: "l" | "r" }) => (
-  <svg aria-hidden="true" width={fz(14)} height={fz(14)} viewBox="0 0 16 16" data-icon="chev"><path d={dir === "l" ? "M10 3 5 8l5 5" : "M6 3l5 5-5 5"} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  // SVG geometry attributes take plain lengths; calc()/var() must go through CSS,
+  // or the browser logs an invalid-attribute error on every banner render.
+  <svg aria-hidden="true" viewBox="0 0 16 16" data-icon="chev" style={{ width: fz(14), height: fz(14), flex: "0 0 auto" }}><path d={dir === "l" ? "M10 3 5 8l5 5" : "M6 3l5 5-5 5"} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
 );
 
 /** `extra`: menus whose controls live elsewhere in the same window (a tool palette, a side panel), marked there with

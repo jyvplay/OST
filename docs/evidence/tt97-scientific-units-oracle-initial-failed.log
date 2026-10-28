@@ -1,0 +1,10 @@
+  ✓ basic scientific precedence and finite-domain errors
+  ✓ trigonometric and logarithmic results agree with Python math
+  ✓ selected physical and binary-storage conversions use the declared dimensions
+  ✗ all configured unit pairs agree with an independent Decimal oracle
+    1e-323 m to mm: 9.88e-321 vs 1e-320
+  ✓ large identity conversion avoids intermediate overflow
+  ✓ unit conversion never claims an infinite result succeeded
+
+5 passed, 1 failed
+FAILED: all configured unit pairs agree with an independent Decimal oracle

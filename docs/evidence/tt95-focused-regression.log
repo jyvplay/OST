@@ -1,0 +1,36 @@
+=== tt95-photo-concurrency
+13 passed, 0 failed
+=== tt95-photo-race
+3 passed, 0 failed
+=== e2e-tt95-photo-concurrency
+7 passed, 0 failed
+=== tt94-photo-guard
+12 passed, 0 failed
+=== tt94-photo-guard-race
+2 passed, 0 failed
+=== e2e-tt94-photo-stale
+2 passed, 0 failed
+=== e2e-tt93-photos-clear
+7 passed, 0 failed
+=== e2e-tt94-photos-offline
+6 passed, 0 failed
+=== e2e-tt94-offline-race
+3 passed, 0 failed
+=== privacy-layer
+13 passed, 0 failed
+=== e2e-tt54
+8 passed, 0 failed
+=== tt93-transfer
+17 passed, 0 failed
+=== tt93-transfer-race
+5 passed, 0 failed
+=== tt89-test-safety
+4 passed, 0 failed
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+ALLDONE

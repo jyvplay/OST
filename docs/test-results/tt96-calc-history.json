@@ -1,0 +1,60 @@
+{
+  "suite": "tt96-calc-history",
+  "at": "2026-10-27T23:25:54.460Z",
+  "results": [
+    {
+      "suite": "tt96-calc-history",
+      "name": "bounded independent records retain the newest forty",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt96-calc-history",
+      "name": "duplicate ids never overwrite a saved entry",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt96-calc-history",
+      "name": "malformed, mismatched and oversized records are not repaired or overwritten silently",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt96-calc-history",
+      "name": "explicit deletion removes only calculator records, including corrupt ones",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt96-calc-history",
+      "name": "write refusal preserves older data and pruning failure can leave the new entry",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt96-calc-history",
+      "name": "excessive or invalid input is rejected without discarding prior records",
+      "covers": {
+        "PR-09": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    }
+  ]
+}

@@ -13,14 +13,17 @@ import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 import { renderRecipe, sidecarPath, type PhotoRecipe } from "../src/lib/photos/recipe.ts";
 
+if (process.env.TT89_DISPOSABLE_DATABASE !== "1" || !process.env.DATABASE_URL) throw new Error("Refusing photo/cache browser tests without TT89_DISPOSABLE_DATABASE=1 and an explicit exclusive matching disposable server/database.");
 const BASE = process.env.BASE ?? "http://localhost:3999";
 const RUN = `p${Date.now().toString(36)}`;
 const { test, finish } = makeHarness("e2e-tt54");
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const PY = "/home/user/tools/venv/bin/python"; const SHOTS = process.env.SHOTS ?? "/tmp";
 const PF = "/tmp/tt54-photos", MF = "/tmp/tt54-meta", VF = "/tmp/tt53-media"; const OUT = join(PF, "e2e"); mkdirSync(OUT, { recursive: true });
-if (!existsSync(join(PF, "o6.jpg"))) execFileSync(PY, ["scripts/oracle/photos_fixtures.py", PF], { stdio: "inherit" });
-if (!existsSync(join(MF, "v23.mp3"))) execFileSync(PY, ["scripts/oracle/meta_fixtures.py", MF], { stdio: "inherit" });
+// A generator may have failed after producing its first file. Only treat the
+// fixture set as ready when all files consumed by this suite exist.
+if (!["o6.jpg", "photo.png", "photo.rgba", "cam.jpg"].every((name) => existsSync(join(PF, name)))) execFileSync(PY, ["scripts/oracle/photos_fixtures.py", PF], { stdio: "inherit" });
+if (!["v23.mp3", "song.m4a", "anim.gif", "vector.svg", "expected.json"].every((name) => existsSync(join(MF, name)))) execFileSync(PY, ["scripts/oracle/meta_fixtures.py", MF], { stdio: "inherit" });
 if (!existsSync(join(VF, "vp9-opus.webm"))) execFileSync(PY, ["scripts/oracle/media_fixtures.py", VF], { stdio: "inherit" });
 const PDF = "/home/user/tools/corpus/pdf/Embedded_font.pdf";
 
@@ -79,8 +82,11 @@ await test("FF-13 Files grid: real thumbnails for JPEG (EXIF orientation applied
   // orientation: stored 120×80 left RED / right BLUE + EXIF 6 → displayed portrait, top RED, bottom BLUE
   const px = await thumbOf("o6.jpg").locator("img").evaluate(async (img: HTMLImageElement) => {
     await img.decode(); const c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; const g = c.getContext("2d")!; g.drawImage(img, 0, 0);
-    const at = (x: number, y: number) => Array.from(g.getImageData(Math.floor(x * c.width), Math.floor(y * c.height), 1, 1).data);
-    return { w: c.width, h: c.height, top: at(0.5, 0.15), bottom: at(0.5, 0.85) };
+    // Avoid a nested named arrow here: tsx's __name helper is not serialized
+    // into Playwright's browser-side evaluate callback.
+    const top = Array.from(g.getImageData(Math.floor(0.5 * c.width), Math.floor(0.15 * c.height), 1, 1).data);
+    const bottom = Array.from(g.getImageData(Math.floor(0.5 * c.width), Math.floor(0.85 * c.height), 1, 1).data);
+    return { w: c.width, h: c.height, top, bottom };
   });
   ok(px.h > px.w && px.top[0] > 150 && px.top[2] < 90 && px.bottom[2] > 150 && px.bottom[0] < 90, `orientation not applied: ${JSON.stringify(px)}`);
   // transparent SVG drawn on white paper (regression: a black-on-transparent drawing was invisible on the dark grid) —

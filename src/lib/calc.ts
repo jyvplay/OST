@@ -1,7 +1,7 @@
 /**
- * One evaluator, used by both the Calculator module and the command palette
- * (PR-09 / SR-06) so the two surfaces can never disagree.
- * Recursive descent: no eval(), no Function(), no dependency.
+ * Scientific evaluator shared by the Calculator's scientific mode and command
+ * palette (PR-09 / SR-06). The fixed-width programmer mode has separate, clearly
+ * labelled integer semantics. Recursive descent: no eval(), no Function().
  */
 
 const FUNCS: Record<string, (x: number) => number> = {
@@ -32,21 +32,27 @@ export function evaluate(input: string): CalcResult {
     const a = UNITS[fromU.toLowerCase()];
     const b = UNITS[toU.toLowerCase()];
     const n = Number(nRaw);
-    if (a && b && a.base === b.base && Number.isFinite(n)) {
-      const value = (n * a.f) / b.f;
+    if (a && b) {
+      if (a.base !== b.base) return { ok: false, text: `cannot convert ${a.base} to ${b.base}` };
+      if (!Number.isFinite(n)) return { ok: false, text: "not a finite number" };
+      // All configured factors are finite and non-zero. Divide the factors first so
+      // an otherwise finite conversion cannot overflow just while finding the base unit.
+      const value = n * (a.f / b.f);
+      if (!Number.isFinite(value)) return { ok: false, text: "not a finite number" };
       return { ok: true, value, text: `${trim(value)} ${toU}`, detail: `${nRaw} ${fromU} → ${toU}` };
     }
-    if (a && b) return { ok: false, text: `cannot convert ${a.base} to ${b.base}` };
   }
 
-  // radix literals
-  if (/^0x[0-9a-f]+$/i.test(src)) {
-    const v = parseInt(src.slice(2), 16);
-    return { ok: true, value: v, text: String(v), detail: `hex ${src} · bin 0b${v.toString(2)}` };
-  }
-  if (/^0b[01]+$/i.test(src)) {
-    const v = parseInt(src.slice(2), 2);
-    return { ok: true, value: v, text: String(v), detail: `bin ${src} · hex 0x${v.toString(16)}` };
+  // Number cannot represent every large integer. Never silently round a radix
+  // literal; the Calculator's fixed-width Programmer mode handles it exactly.
+  if (/^0x[0-9a-f]+$/i.test(src) || /^0b[01]+$/i.test(src)) {
+    if (src.length > 1024) return { ok: false, text: "Integer literal is too long" };
+    const exact = BigInt(src);
+    if (exact > BigInt(Number.MAX_SAFE_INTEGER)) return { ok: false, text: "Integer exceeds exact range here; use Programmer mode" };
+    const v = Number(exact);
+    return /^0x/i.test(src)
+      ? { ok: true, value: v, text: String(v), detail: `hex ${src} · bin 0b${v.toString(2)}` }
+      : { ok: true, value: v, text: String(v), detail: `bin ${src} · hex 0x${v.toString(16)}` };
   }
 
   try {
@@ -63,7 +69,7 @@ export function evaluate(input: string): CalcResult {
   }
 }
 
-/** Fixed rounding policy, stated in the UI: 12 significant digits, trailing zeros removed. */
+/** Non-integers round to 12 significant digits; integers use Number's string representation. */
 function trim(v: number): string {
   if (Number.isInteger(v)) return String(v);
   return String(Number(v.toPrecision(12)));

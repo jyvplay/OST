@@ -1,0 +1,171 @@
+{
+  "suite": "tt90-mutants",
+  "at": "2026-10-27T06:33:22.657077+00:00",
+  "results": [
+    {
+      "suite": "tt90-mutants",
+      "name": "exceed the bounded worker limit",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 CPU and low-memory caps are conservative and malformed pool limits are rejected\n    Expected values to be strictly equal:\n\n5 !== 2\n\n\n0 passed, 1 failed\nFAILED: CPU and low-memory caps are conservative and malformed pool limits are rejected\n",
+      "ms": 252
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "schedule newest before oldest",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 lazy pool bounds parallelism, ignores wrong IDs and schedules queued jobs FIFO\n    Expected values to be strictly equal:\n\n'four' !== 'three'\n\n\n0 passed, 1 failed\nFAILED: lazy pool bounds parallelism, ignores wrong IDs and schedules queued jobs FIFO\n",
+      "ms": 239
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "accept a stale or wrong worker reply",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 lazy pool bounds parallelism, ignores wrong IDs and schedules queued jobs FIFO\n    Expected values to be strictly equal:\n\n1 !== 2\n\n\n0 passed, 1 failed\nFAILED: lazy pool bounds parallelism, ignores wrong IDs and schedules queued jobs FIFO\n",
+      "ms": 238
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "never retire an idle worker",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 completed workers are reused then actually terminated after idle\n    Expected values to be strictly equal:\n\nfalse !== true\n\n\n0 passed, 1 failed\nFAILED: completed workers are reused then actually terminated after idle\n",
+      "ms": 293
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "forget to terminate a removed worker",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 completed workers are reused then actually terminated after idle\n    Expected values to be strictly equal:\n\nfalse !== true\n\n\n0 passed, 1 failed\nFAILED: completed workers are reused then actually terminated after idle\n",
+      "ms": 306
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "lose surviving capacity on partial startup failure",
+      "covers": {
+        "FF-13": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "ack; partial capacity remains usable\n    Expected values to be strictly equal:\n\n0 !== 1\n\n\n0 passed, 1 failed\nFAILED: worker startup failure is distinguished for fallback; partial capacity remains usable\nfile:///home/user/OST/src/lib/thumbs/worker-pool.ts:80\n            for (const j of this.pending.splice(0)) { this.cleanup(j); j.reject(new WorkerUnavailable()); }\n                                                                                ^\n\nWorkerUnavailable: thumbnail worker unavailable\n    at ThumbnailWorkerPool.dispatch (file:///home/user/OST/src/lib/thumbs/worker-pool.ts:80:81)\n    at file:///home/user/OST/src/lib/thumbs/worker-pool.ts:45:36\n    at new Promise (<anonymous>)\n    at ThumbnailWorkerPool.run (file:///home/user/OST/src/lib/thumbs/worker-pool.ts:42:12)\n    at file:///home/user/OST/scripts/tt90-worker-pool.mts:93:62\n    at async test (file:///home/user/OST/scripts/harness.mts:26:7)\n    at async file:///home/user/OST/scripts/tt90-worker-pool.mts:87:1\n\nNode.js v22.22.3\n",
+      "ms": 244
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "make context profiles opt-out instead of opt-in",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 default is opt-out; every profile follows the shared text size\n    Expected values to be strictly equal:\n\ntrue !== false\n\n\n0 passed, 1 failed\nFAILED: default is opt-out; every profile follows the shared text size\n",
+      "ms": 213
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "prefer touch over extended-display context",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 multiple screens override primary pointer; single-screen pointer classification ignores viewport size\n    Expected values to be strictly equal:\n+ actual - expected\n\n+ 'single-touch'\n- 'extended'\n\n\n0 passed, 1 failed\nFAILED: multiple screens override primary pointer; single-screen pointer classification ignores viewport size\n",
+      "ms": 175
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "allow text scales above the documented maximum",
+      "covers": {
+        "ST-09": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 round trip accepts only a boolean opt-in, valid densities and bounded integer text sizes\n    Missing expected exception.\n\n0 passed, 1 failed\nFAILED: round trip accepts only a boolean opt-in, valid densities and bounded integer text sizes\n",
+      "ms": 181
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "fail to normalize private path aliases",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 private thumbnail routing normalizes path aliases without treating lookalike names as private\n    /x/../Private/a.jpg\n\nfalse !== true\n\n\n0 passed, 1 failed\nFAILED: private thumbnail routing normalizes path aliases without treating lookalike names as private\n",
+      "ms": 346
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "persist private thumbnails to the host cache",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 encrypted private image renders real pixels without a plaintext host thumbnail cache\n    private plaintext thumbnail persisted outside /Private: [{\"path\":\"/System/Cache/thumbs/94e913cbde574ba16b45fd592af541db-1570-256-orig-r2.webp\"}]\n+ actual - expected\n\n+ [\n+   {\n+     path: '/System/Cache/thumbs/94e913cbde574ba16b45fd592af541db-1570-256-orig-r2.webp'\n+   }\n+ ]\n- []\n\n\n0 passed, 1 failed\nFAILED: encrypted private image renders real pixels without a plaintext host thumbnail cache\n",
+      "ms": 11565
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "trust an old shared cache for private images",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2713 locking removes the displayed private thumbnail and revokes its blob URL\n  \u2717 private requests ignore even a pre-existing host cache entry and redraw after unlock\n    read stale green thumbnail instead of private source: 11,240,22\n\n1 passed, 1 failed\nFAILED: private requests ignore even a pre-existing host cache entry and redraw after unlock\n",
+      "ms": 9793
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "leave private blob URLs valid after lock",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 locking removes the displayed private thumbnail and revokes its blob URL\n    private blob URL remained readable after lock\n\ntrue !== false\n\n\n0 passed, 1 failed\nFAILED: locking removes the displayed private thumbnail and revokes its blob URL\n",
+      "ms": 8820
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "do not cancel an in-flight private worker",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2713 locking removes the displayed private thumbnail and revokes its blob URL\n  \u2713 private requests ignore even a pre-existing host cache entry and redraw after unlock\n  \u2717 locking while a worker is stalled cancels it without publishing a late private preview\n    page.waitForFunction: Timeout 10000ms exceeded.\n\n2 passed, 1 failed\nFAILED: locking while a worker is stalled cancels it without publishing a late private preview\n",
+      "ms": 21275
+    },
+    {
+      "suite": "tt90-mutants",
+      "name": "clear cache without the required confirmation",
+      "covers": {
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 cleanup needs explicit confirmation, refuses amnesia, and removes only cache rows and orphan versions\n    Expected values to be strictly equal:\n\n200 !== 400\n\n\n0 passed, 1 failed\nFAILED: cleanup needs explicit confirmation, refuses amnesia, and removes only cache rows and orphan versions\n",
+      "ms": 8600
+    }
+  ]
+}

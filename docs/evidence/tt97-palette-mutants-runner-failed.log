@@ -1,0 +1,177 @@
+CRASHED: unit conversion claims a non-finite success
+selected baseline was not a pass: 
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs' imported from /tmp/tt97-palette-mutants-kblmmhwo/scripts/register-hook.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:722:35)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs'
+}
+
+Node.js v22.22.3
+
+CRASHED: unit conversion multiplies before dividing
+selected baseline was not a pass: 
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs' imported from /tmp/tt97-palette-mutants-kblmmhwo/scripts/register-hook.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:722:35)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs'
+}
+
+Node.js v22.22.3
+
+CRASHED: unit conversion accepts a non-finite input
+selected baseline was not a pass: 
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs' imported from /tmp/tt97-palette-mutants-kblmmhwo/scripts/register-hook.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:722:35)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs'
+}
+
+Node.js v22.22.3
+
+CRASHED: note command drops its word boundary
+selected baseline was not a pass: 
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs' imported from /tmp/tt97-palette-mutants-kblmmhwo/scripts/register-hook.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:722:35)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs'
+}
+
+Node.js v22.22.3
+
+CRASHED: focus accepts an arbitrary argument
+selected baseline was not a pass: 
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs' imported from /tmp/tt97-palette-mutants-kblmmhwo/scripts/register-hook.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:722:35)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs'
+}
+
+Node.js v22.22.3
+
+CRASHED: command length limit removed
+selected baseline was not a pass: 
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs' imported from /tmp/tt97-palette-mutants-kblmmhwo/scripts/register-hook.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:722:35)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs'
+}
+
+Node.js v22.22.3
+
+CRASHED: setting filter length limit removed
+selected baseline was not a pass: 
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs' imported from /tmp/tt97-palette-mutants-kblmmhwo/scripts/register-hook.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:722:35)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs'
+}
+
+Node.js v22.22.3
+
+CRASHED: routine filter length limit removed
+selected baseline was not a pass: 
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs' imported from /tmp/tt97-palette-mutants-kblmmhwo/scripts/register-hook.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:722:35)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///tmp/tt97-palette-mutants-kblmmhwo/scripts/ts-loader-hook.mjs'
+}
+
+Node.js v22.22.3
+
+Mutants: 0/8 killed

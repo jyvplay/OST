@@ -1,0 +1,51 @@
+{
+  "suite": "e2e-tt97-calculator-repairs",
+  "at": "2026-10-27T22:50:58.803Z",
+  "results": [
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "empty history is a named region; removing its role reintroduces the original axe violation",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 915
+    },
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "empty and populated programmer history remain axe-clean",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     id: 'color-contrast',\n+     targets: [\n+       'div[role=\"group\"] > .fs-btn[type=\"button\"][data-variant=\"ghost\"]',\n+       'div[role=\"group\"] > .fs-btn[data-variant=\"primary\"][type=\"button\"]'\n+     ]\n+   }\n+ ]\n- []\n",
+      "ms": 256
+    },
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "calculator and command palette agree on finite and overflowing unit conversions",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 731
+    },
+    {
+      "suite": "e2e-tt97-calculator-repairs",
+      "name": "calculator repair scenarios have no uncaught page errors",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial",
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

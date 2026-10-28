@@ -152,6 +152,9 @@ body {
 .fs-btn[data-variant="primary"] { background: var(--fs-accent); border-color: transparent; color: #04102b; font-weight: 600; }
 .fs-btn[data-variant="danger"] { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.45); color: var(--fs-bad-text, #ffb0b0); }
 .fs-btn:disabled { opacity: .45; cursor: not-allowed; }
+/* Mode buttons swap foreground and background together; animating only the
+   background briefly produces low-contrast text after each toggle. */
+.fs-calc-modes .fs-btn, .fs-palette-scopes .fs-btn { transition: none; }
 /* TT85 AP-01: the module hub's tabs keep readable text even when a chosen style has a low-contrast accent. */
 .fs-app-tabs [role="tab"] { color: #062a33 !important; background-color: #eafcfa !important; border-color: #062a33; }
 .fs-app-tabs [role="tab"][aria-selected="true"] { color: #eafcfa !important; background-color: #062a33 !important; border-color: #eafcfa; }
@@ -184,6 +187,8 @@ body {
 .fs-list-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 8px; cursor: default; }
 .fs-list-item:hover { background: rgba(255,255,255,.05); }
 .fs-list-item[data-selected="true"] { background: rgba(91,140,255,.22); }
+/* A muted default badge can fall below 4.5:1 on the selected-row tint (notably dark Silver). */
+.fs-list-item[data-selected="true"] > .fs-badge[data-tone="default"] { color: var(--fs-text); }
 .fs-sep { height: 1px; background: var(--fs-border); margin: 6px 0; }
 .fs-kbd {
   font-family: ui-monospace, monospace; font-size: calc(10.5 * var(--fs-u)); padding: 1px calc(5 * var(--fs-u));

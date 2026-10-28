@@ -1,0 +1,201 @@
+{
+  "suite": "tt94-photo-mutants",
+  "at": "2026-10-27T19:47:59.101342+00:00",
+  "results": [
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "skip write owner guard",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a recipe save from a stale editor after a photo move is refused without creating an orphan\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: a recipe save from a stale editor after a photo move is refused without creating an orphan\n",
+      "ms": 5359
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "skip purge owner guard",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a stale clear cannot purge a new photo's unrelated recipe at the reused path\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: a stale clear cannot purge a new photo's unrelated recipe at the reused path\n",
+      "ms": 5701
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "ignore photo identity",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 recreating an identical photo at the old path does not authorize an old editor\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: recreating an identical photo at the old path does not authorize an old editor\n",
+      "ms": 5604
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "ignore photo version",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 even a byte-identical overwrite changes the version and invalidates an old editor\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: even a byte-identical overwrite changes the version and invalidates an old editor\n",
+      "ms": 5353
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "trust an unverified stored digest",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a corrupt photo whose stored digest was not updated cannot accept a guarded recipe\n    Expected values to be strictly equal:\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: a corrupt photo whose stored digest was not updated cannot accept a guarded recipe\n",
+      "ms": 5426
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "browser omits owner guard",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a stale editor cannot attach edits to an identical replacement after another client moves its photo\n    Expected values to be strictly equal:\n\n400 !== 409\n\n\n0 passed, 1 failed\nFAILED: a stale editor cannot attach edits to an identical replacement after another client moves its photo\n",
+      "ms": 20366
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "silence a failed recipe clear",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a failed identity-edit purge keeps the recipe and reports failure, not success\n    locator.waitFor: Timeout 4000ms exceeded.\nCall log:\n  - waiting for getByText(/Save failed:/) to be visible\n\n\n0 passed, 1 failed\nFAILED: a failed identity-edit purge keeps the recipe and reports failure, not success\n",
+      "ms": 25331
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "unlocked privacy layer strips guard",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes\n    host forwarding must retain the recipe precondition\n\n200 !== 409\n\n\n0 passed, 1 failed\nFAILED: TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes\n",
+      "ms": 6874
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "hide a queue quota failure",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 storage quota denial cannot masquerade as a queued photo save\n    locator.waitFor: Timeout 8000ms exceeded.\nCall log:\n  - waiting for getByText(/could not be (queued|stored)/i) to be visible\n\n\n0 passed, 1 failed\nFAILED: storage quota denial cannot masquerade as a queued photo save\n",
+      "ms": 27412
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "misreport a failed dequeue as completed",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a dequeue storage failure after a server commit warns of an ambiguous replay\n    locator.waitFor: Timeout 8000ms exceeded.\nCall log:\n  - waiting for getByText(/offline queue could not be updated after a server response/i) to be visible\n\n\n0 passed, 1 failed\nFAILED: a dequeue storage failure after a server commit warns of an ambiguous replay\n",
+      "ms": 27921
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "strip the owner during offline queueing",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a stale offline edit is rejected and retained ahead of later queued work on reconnect\n    Expected values to be strictly equal:\n\n400 !== 409\n\n\n0 passed, 1 failed\nFAILED: a stale offline edit is rejected and retained ahead of later queued work on reconnect\n",
+      "ms": 21582
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "allow two tabs to replay the same queue",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 two online tabs do not replay the same queued recipe twice\n    two tabs issued the same queued request while the first was blocked\n\n2 !== 1\n\n\n0 passed, 1 failed\nFAILED: two online tabs do not replay the same queued recipe twice\n",
+      "ms": 45505
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "drop writes queued during replay",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a later queued Files write is not lost while a photo replay is waiting on the database\n    later queued Files write was lost or never replayed\n\n0 passed, 1 failed\nFAILED: a later queued Files write is not lost while a photo replay is waiting on the database\n",
+      "ms": 58553
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "replace a corrupt queue with an empty one",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a corrupt persisted queue is neither overwritten nor silently replayed\n    locator.waitFor: Timeout 8000ms exceeded.\nCall log:\n  - waiting for getByText(/could not be queued/i) to be visible\n\n\n0 passed, 1 failed\nFAILED: a corrupt persisted queue is neither overwritten nor silently replayed\n",
+      "ms": 26052
+    },
+    {
+      "suite": "tt94-photo-mutants",
+      "name": "remove a newly changed head after replay",
+      "covers": {
+        "MD-03": "partial",
+        "FM-03": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 a noncooperating queue change during replay is retained and reported\n    locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByText(/offline queue could not be updated after a server response/i) to be visible\n\n\n0 passed, 1 failed\nFAILED: a noncooperating queue change during replay is retained and reported\n",
+      "ms": 47142
+    }
+  ]
+}

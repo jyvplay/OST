@@ -2,8 +2,9 @@
  * TT20 privacy suite 4 — one-file encrypted backup / verify / restore (SC-17) and amnesic unsaved-work rescue (SC-18),
  * against the REAL server + Postgres. Host-side claims are checked by reading Postgres directly.
  *
- * The suite needs /Private to itself: anything already there is moved aside to /Private-aside-<run> first and moved
- * back at the end (finally).
+ * The suite wipes and restores /Private. It refuses to run without explicit disposable
+ * database/server opt-in, and refuses any pre-existing nodes or historical versions.
+ * Run only against an isolated server/database: the preflight cannot exclude concurrent writers.
  *
  * Run: BASE=http://localhost:3999 DATABASE_URL=… node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/privacy-backup.mts
  */
@@ -14,6 +15,7 @@ import { PrivacyLayer } from "../src/lib/privacy/layer.ts";
 import { KEYSLOT_PATH, createVolume, decryptContent, encryptContent, encryptPath, fromB64, toB64, type KdfParams, type KeyHeader } from "../src/lib/privacy/pcrypt.ts";
 import { BACKUP_FORMAT, createBackup, keysForBackup, parseBackup, restoreBackup, verifyBackup } from "../src/lib/privacy/backup.ts";
 
+if (process.env.TT89_DISPOSABLE_DATABASE !== "1") throw new Error("Refusing destructive privacy-backup tests without TT89_DISPOSABLE_DATABASE=1 for a disposable server/database.");
 const BASE = process.env.BASE ?? "http://localhost:3999";
 const { test, finish } = makeHarness("privacy-backup");
 const db = new pg.Client({ connectionString: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:5432/app_db" });
@@ -31,10 +33,15 @@ const writeHeader = (h: KeyHeader) => hostPost({ op: "write", path: KEYSLOT_PATH
 /** live (non-trashed) encrypted rows under /Private, minus the header: path → content */
 const snapshot = async () => new Map((await rows("select path, content from vfs_nodes where path like '/Private/%' and path <> $1 and coalesce(trashed,false)=false", [KEYSLOT_PATH])).map((r) => [r.path as string, r.content as string | null]));
 
-// ---- move any existing /Private aside
-const ASIDE = `/Private-aside-${RUN}`;
-const hadExisting = (await children("/Private")).length > 0;
-if (hadExisting) await hostPost({ op: "move", src: "/Private", dst: ASIDE });
+// A missing keyslot does not imply empty storage: include trashed nodes and orphaned versions.
+const pre = await raw("/api/fs?op=read&path=/Private/.keyslots.json");
+const listing = await raw("/api/fs?op=list&path=/Private");
+const listed = await listing.json().catch(() => ({}));
+const existing = (await db.query(`SELECT EXISTS (SELECT 1 FROM vfs_nodes WHERE path LIKE '/Private/%') AS nodes,
+  EXISTS (SELECT 1 FROM vfs_versions WHERE path = '/Private' OR path LIKE '/Private/%') AS versions`)).rows[0];
+if (pre.status !== 404 || !listing.ok || !Array.isArray(listed.nodes) || listed.nodes.length || existing.nodes || existing.versions) {
+  await db.end(); console.error("Existing /Private data or versions found — refusing destructive privacy-backup tests."); process.exit(2);
+}
 await hostPost({ op: "mkdir", path: "/Private" }).catch(() => undefined);
 
 const { header, keys, recoveryKey } = await createVolume(PASS, { kdf: FAST });
@@ -164,10 +171,9 @@ try {
 } finally {
   await wipePrivate().catch(() => undefined);
   await hostPost({ op: "purge", path: `/Documents/draft-${RUN} ${WORD}.txt` }).catch(() => undefined);
-  if (hadExisting) {
-    await hostPost({ op: "purge", path: "/Private" }).catch(() => undefined);
-    await hostPost({ op: "move", src: ASIDE, dst: "/Private" });
-  }
+  // The preflight required an empty private tree, and opt-in requires isolation.
+  // Remove this suite's orphaned version rows as well as the live test nodes.
+  await db.query("DELETE FROM vfs_versions WHERE path = '/Private' OR path LIKE '/Private/%'");
   await db.end();
 }
 finish();

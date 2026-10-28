@@ -1,0 +1,47 @@
+{
+  "suite": "tt96-scientific-units",
+  "at": "2026-10-27T21:24:30.630Z",
+  "results": [
+    {
+      "suite": "tt96-scientific-units",
+      "name": "basic scientific precedence and finite-domain errors",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt96-scientific-units",
+      "name": "trigonometric and logarithmic results agree with Python math",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 31
+    },
+    {
+      "suite": "tt96-scientific-units",
+      "name": "selected physical and binary-storage conversions use the declared dimensions",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt96-scientific-units",
+      "name": "unit conversion never claims an infinite result succeeded",
+      "covers": {
+        "PR-09": "partial",
+        "SR-06": "partial"
+      },
+      "pass": false,
+      "error": "1e308 km to mm: Infinity mm\n\ntrue !== false\n",
+      "ms": 1
+    }
+  ]
+}

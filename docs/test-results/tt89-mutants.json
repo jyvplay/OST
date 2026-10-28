@@ -1,0 +1,136 @@
+{
+  "suite": "tt89-mutants",
+  "at": "2026-10-27T05:27:16.194555+00:00",
+  "results": [
+    {
+      "suite": "tt89-mutants",
+      "name": "do not request rollback-only",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 1172
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "ignore unexpected rollback command tag",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 1041
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "ignore failed scratch read-back",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 1077
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "ignore private-index leakage",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 1113
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "allow unshadowed production relations in search path",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 1054
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "allow an unbounded file sample",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 892
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "delay reminder until after the exact monthly boundary",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 911
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "call a failed or partial attempt passed",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 892
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "hide locked and unknown sampled settings",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 1043
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "allow an empty backup to count as a drill",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 1058
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "omit complete bundle checksum verification",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 528
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "send the user's passphrase and recovery key with the drill",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 7931
+    },
+    {
+      "suite": "tt89-mutants",
+      "name": "remove the explicit amnesic drill refusal",
+      "covers": {
+        "BK-05": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "ms": 30830
+    }
+  ]
+}

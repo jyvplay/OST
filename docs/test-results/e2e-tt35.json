@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt35",
-  "at": "2026-10-27T01:24:47.044Z",
+  "at": "2026-10-27T21:22:58.853Z",
   "results": [
     {
       "suite": "e2e-tt35",
@@ -11,7 +11,7 @@
         "WP-05": "full"
       },
       "pass": true,
-      "ms": 8355
+      "ms": 6341
     },
     {
       "suite": "e2e-tt35",
@@ -23,7 +23,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 4571
+      "ms": 3839
     },
     {
       "suite": "e2e-tt35",
@@ -33,7 +33,7 @@
         "PR-07o": "partial"
       },
       "pass": true,
-      "ms": 8822
+      "ms": 7366
     },
     {
       "suite": "e2e-tt35",
@@ -43,7 +43,7 @@
         "WP-06": "full"
       },
       "pass": true,
-      "ms": 3703
+      "ms": 3314
     },
     {
       "suite": "e2e-tt35",
@@ -53,7 +53,7 @@
         "PR-07m": "partial"
       },
       "pass": true,
-      "ms": 741
+      "ms": 443
     },
     {
       "suite": "e2e-tt35",
@@ -62,7 +62,7 @@
         "WP-02": "full"
       },
       "pass": true,
-      "ms": 2281
+      "ms": 1270
     },
     {
       "suite": "e2e-tt35",
@@ -71,9 +71,8 @@
         "WP-01": "full",
         "WP-03": "full"
       },
-      "pass": false,
-      "error": "timed out: github repository page",
-      "ms": 40739
+      "pass": true,
+      "ms": 4009
     }
   ]
 }

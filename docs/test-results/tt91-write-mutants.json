@@ -1,0 +1,28 @@
+{
+  "suite": "tt91-write-mutants",
+  "at": "2026-10-27T16:00:14.746222+00:00",
+  "results": [
+    {
+      "suite": "tt91-write-mutants",
+      "name": "publish without a data transaction",
+      "covers": {
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 failed index update rolls back content, history and audit; the journal records failure\n    Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    {\n+     content: 'should roll back',\n+     version: 2\n-     content: 'initial',\n-     version: 1\n    }\n  ]\n\n\n0 passed, 1 failed\nFAILED: failed index update rolls back content, history and audit; the journal records failure\n",
+      "ms": 2269
+    },
+    {
+      "suite": "tt91-write-mutants",
+      "name": "read previous version without a row lock",
+      "covers": {
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "error": null,
+      "detection": "  \u2717 two simultaneous overwrites preserve both serialized versions and the current search text\n    Expected values to be strictly equal:\n\n2 !== 3\n\n\n0 passed, 1 failed\nFAILED: two simultaneous overwrites preserve both serialized versions and the current search text\n",
+      "ms": 2032
+    }
+  ]
+}
