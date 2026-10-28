@@ -1,0 +1,24 @@
+  ✓ Files rectangle selects intersecting rows without opening or clearing on release
+  ✓ Files context Copy preserves all rectangle-selected paths
+  ✓ Ctrl rectangle adds to the previous selection
+  ✓ Non-modified rectangle replaces selection
+  ✓ Escape cancels an active rectangle and restores the prior selection
+  ✓ Empty rectangle clears selection
+  ✓ App fallback opens, keyboard navigates, Escape restores invoking control
+  ✓ Existing file menu takes precedence over app fallback
+  ✓ Native text context is not intercepted
+  ✓ Window action Tile left executes real reducer geometry
+  ✓ Desktop rectangle selects visible icons
+  ✓ Desktop item menu copies real VFS paths and does not open background menu
+  ✓ Desktop Select all and Clear selection work through Orbit
+  ✓ Orbit stays inside viewport and closes on outside pointer
+  ✓ Desktop rename writes actual filesystem and refreshes the icon
+  ✓ Rename collision refuses overwrite and preserves both files
+  ✓ Duplicate creates a distinct file with identical content
+  ✓ Desktop copy then Paste creates a collision-safe copy
+  ✓ Desktop trash requires confirmation, cancellation has no effect, confirmation is recoverable
+  ✓ New desktop folder is backed by a real directory
+  ✓ New text file collision cannot truncate an existing document
+  ✓ No uncaught browser exceptions
+
+22 passed, 0 failed

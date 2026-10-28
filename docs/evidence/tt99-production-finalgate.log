@@ -1,0 +1,62 @@
+=== unit
+23 passed, 0 failed
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== browser-session
+5 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+  ✗ FM-17 folder sizes: every folder row shows the size of its subtree (= a recursive walk of the server), and the cached size refreshes after a write
+    tooltip: calculating…
+  ✓ FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay
+  ✓ FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection
+--
+12 passed, 1 failed
+FAILED: FM-17 folder sizes: every folder row shows the size of its subtree (= a recursive walk of the server), and the cached size refreshes after a write
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== e2e-tt96-desktop-menu
+5 passed, 0 failed
+=== tt97-palette-commands
+4 passed, 0 failed
+=== e2e-tt97-palette-actions
+11 passed, 0 failed
+=== e2e-tt97-files-empty-a11y
+3 passed, 0 failed
+=== e2e-tt98-orbit
+22 passed, 0 failed
+=== e2e-tt99-interactions
+  ✗ a real viewport resize cancels an in-flight scroll rectangle and restores its selection
+    Expected values to be strictly deep-equal:
++ actual - expected
+
+--
+  ✗ Browser vertical-tab keyboard sleep/wake respects active-tab guards and survives persisted reload
+    locator.waitFor: Timeout 12000ms exceeded.
+Call log:
+  - waiting for locator('.fs-window[data-win-id="w1_browser"]').getByRole('textbox', { name: 'Search tabs', exact: true }) to be visible
+--
+24 passed, 2 failed
+FAILED: a real viewport resize cancels an in-flight scroll rectangle and restores its selection | Browser vertical-tab keyboard sleep/wake respects active-tab guards and survives persisted reload
+=== privacy-layer
+13 passed, 0 failed
+=== e2e-browser
+6 passed, 0 failed
+=== e2e
+  ✗ editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists
+    locator.waitFor: Timeout 3000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog]').filter({ has: getByLabel('Editing /E2E-emvrifimq/m.md') }).first().getByText('unsaved') to be visible
+--
+66 passed, 1 failed
+FAILED: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists
+=== e2e-a11y
+9 passed, 0 failed
+FAILED SUITES: e2e-tt55-files e2e-tt99-interactions e2e
+ALLDONE

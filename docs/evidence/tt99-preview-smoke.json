@@ -1,0 +1,12 @@
+{
+  "pass": true,
+  "noteId": 2,
+  "checks": [
+    "real bootstrap and notes APIs",
+    "saved note text matches API",
+    "keyboard object context",
+    "Escape restores origin",
+    "no uncaught page errors"
+  ],
+  "screenshot": "tt99-preview.png"
+}

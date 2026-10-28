@@ -636,6 +636,8 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
             {list.map((n) => (
               <button key={n.path} className="fs-list-item" data-col-path={n.path} aria-current={n.path === next ? "true" : undefined}
                 data-selected={n.path === next} style={{ width: "100%", border: 0, background: n.path === next ? undefined : "transparent", color: "inherit", textAlign: "left" }}
+                onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); e.currentTarget.focus(); onActivate(); openMenu(e.clientX, e.clientY, n); }}
+                onKeyDown={(e) => { if (e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) { e.preventDefault(); e.stopPropagation(); const r = e.currentTarget.getBoundingClientRect(); openMenu(r.left, r.bottom, n); } }}
                 onClick={() => (n.kind === "dir" ? go(n.path) : openNode(n))}
                 onDragOver={n.kind === "dir" ? (e) => dragOver(e, n.path) : undefined} onDrop={n.kind === "dir" ? (e) => drop(e, n.path) : undefined}>
                 <FileIcon name={n.name} kind={n.kind === "dir" ? "dir" : "file"} size={16} />

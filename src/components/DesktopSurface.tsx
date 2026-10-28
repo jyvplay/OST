@@ -18,7 +18,7 @@ interface Item { path: string; name: string; kind: string; mime?: string }
 
 const MAX_ICONS = 30;
 function DesktopMenuButtons({ actions, run }: { actions: { label: string; run: () => unknown }[]; run: (action: () => unknown) => void }) {
-  return actions.map(item => <button key={item.label} role="menuitem" className="fs-btn" data-variant="ghost"
+  return actions.map((item, index) => <button key={item.label} tabIndex={index === 0 ? 0 : -1} role="menuitem" className="fs-btn" data-variant="ghost"
     style={{ width: "100%", justifyContent: "flex-start", whiteSpace: "normal", textAlign: "left" }}
     onClick={() => run(item.run)}>{item.label}</button>);
 }
@@ -95,6 +95,24 @@ export default function DesktopSurface() {
     return () => window.removeEventListener("fusion:desktop-context-menu", onDeferredContextMenu);
   }, []);
 
+  useEffect(() => {
+    if (!menu) return;
+    const node = menuNode.current;
+    const origin = document.activeElement as HTMLElement | null;
+    node?.querySelector<HTMLButtonElement>('button')?.focus();
+    const outside = (e: PointerEvent) => { if (!node?.contains(e.target as Node)) setMenu(null); };
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); setMenu(null); }
+      if (!node?.contains(document.activeElement)) return;
+      const buttons = [...node.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')], i = buttons.indexOf(document.activeElement as HTMLButtonElement);
+      const j = e.key === "ArrowDown" ? (i + 1) % buttons.length : e.key === "ArrowUp" ? (i - 1 + buttons.length) % buttons.length : e.key === "Home" ? 0 : e.key === "End" ? buttons.length - 1 : -1;
+      if (j >= 0) { e.preventDefault(); buttons.forEach((b, k) => { b.tabIndex = k === j ? 0 : -1; }); buttons[j]?.focus(); }
+      if (e.key === "Tab") setMenu(null);
+    };
+    document.addEventListener("pointerdown", outside, true); document.addEventListener("keydown", key, true);
+    return () => { document.removeEventListener("pointerdown", outside, true); document.removeEventListener("keydown", key, true); if (origin?.isConnected) origin.focus(); };
+  }, [menu]);
+
   const saved = shell.state.icons as IconPos[] | undefined;
   const placed = layoutIcons(items.map((i) => i.path), saved, grid.cols, grid.rows);
   const byPath = new Map(items.map((i) => [i.path, i]));
@@ -141,9 +159,22 @@ export default function DesktopSurface() {
       data-pointer-gesture-surface="classic"
       tabIndex={0}
       aria-label="Desktop"
-      onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelected(items.map(i => i.path)); } if (e.key === "Escape") setSelected([]); }}
+      onKeyDown={(e) => {
+        if (e.defaultPrevented || (e.target as Element).closest('[role="menu"],input,textarea,[contenteditable]')) return;
+        const mod = e.ctrlKey || e.metaKey;
+        if (mod && e.key.toLowerCase() === "a") { e.preventDefault(); setSelected(items.map(i => i.path)); }
+        else if (mod && (e.key.toLowerCase() === "c" || e.key.toLowerCase() === "x") && selected.length) { e.preventDefault(); setClip({ mode: e.key.toLowerCase() === "x" ? "cut" : "copy", paths: selected }); }
+        else if (mod && e.key.toLowerCase() === "v") { e.preventDefault(); void paste(); }
+        else if (e.key === "Escape") { setSelected([]); setMenu(null); setItemMenu(null); }
+        else if (e.key === "ContextMenu" || (e.key === "F10" && e.shiftKey)) {
+          e.preventDefault(); e.stopPropagation(); const target = e.target as HTMLElement, r = target.getBoundingClientRect();
+          const it = items.find(i => i.path === target.closest<HTMLElement>('[data-path]')?.dataset.path);
+          if (it) { if (!selected.includes(it.path)) setSelected([it.path]); setMenu(null); setItemMenu({ x: r.left, y: r.bottom, item: it }); }
+          else { setItemMenu(null); setMenu({ x: r.left + 10, y: r.top + 10 }); }
+        }
+      }}
       style={{ position: "absolute", inset: 0 }}
-      onContextMenu={(e) => { e.preventDefault(); setItemMenu(null); setMenu({ x: e.clientX, y: e.clientY }); }}
+      onContextMenu={(e) => { if (e.defaultPrevented) return; e.preventDefault(); setItemMenu(null); setMenu({ x: e.clientX, y: e.clientY }); }}
       onPointerDown={(e) => { setMenu(null); marquee.handlers.onPointerDown(e); }}
     >
       <div ref={probe} aria-hidden="true" style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: fz(104), height: fz(76) }} />
@@ -207,7 +238,7 @@ export default function DesktopSurface() {
       {marquee.overlay}
       {itemMenu ? <OrbitMenu x={itemMenu.x} y={itemMenu.y} close={closeItemMenu} actions={[
         { label: "Open", run: () => shell.open(appForFile(itemMenu.item.name, itemMenu.item.mime ?? "", itemMenu.item.kind), { path: itemMenu.item.path, title: itemMenu.item.name }) },
-        { label: "Reveal in Files", run: () => shell.open("files", { path: "/Documents" }) },
+        { label: "Open containing folder", run: () => shell.open("files", { path: "/Documents" }) },
         { label: `Copy ${selected.length} item(s)`, run: () => setClip({ mode: "copy", paths: selected }) },
         { label: `Cut ${selected.length} item(s)`, run: () => setClip({ mode: "cut", paths: selected }) },
         { label: "Copy paths", run: () => shell.copy(selected.join("\n"), "desktop") },

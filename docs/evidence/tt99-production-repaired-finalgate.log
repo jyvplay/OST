@@ -1,0 +1,53 @@
+=== unit
+23 passed, 0 failed
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✗ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+    duplicate group missing
+  ✓ SR-01 search finds new content with provenance
+  ✓ SH-08 stale revision cannot clobber newer desktop state (409)
+--
+24 passed, 1 failed
+FAILED: FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+=== browser-session
+5 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+13 passed, 0 failed
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== e2e-tt96-desktop-menu
+5 passed, 0 failed
+=== tt97-palette-commands
+4 passed, 0 failed
+=== e2e-tt97-palette-actions
+11 passed, 0 failed
+=== e2e-tt97-files-empty-a11y
+3 passed, 0 failed
+=== e2e-tt98-orbit
+22 passed, 0 failed
+=== e2e-tt99-interactions
+28 passed, 0 failed
+=== privacy-layer
+13 passed, 0 failed
+=== e2e-browser
+6 passed, 0 failed
+=== e2e
+  ✗ WebRTC data channel between two contexts via Postgres signalling
+    locator.click: Error: strict mode violation: locator('[role=dialog][aria-label="Share"]').getByRole('button', { name: 'Join' }) resolved to 2 elements:
+    1) <button type="button" class="fs-btn " data-variant="primary">Join</button> aka getByRole('button', { name: 'Join' }).first()
+    2) <button type="button" class="fs-btn " data-variant="primary">Join</button> aka getByRole('button', { name: 'Join' }).nth(1)
+--
+  ✗ SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive
+    locator.waitFor: Timeout 6000ms exceeded.
+Call log:
+  - waiting for locator('.fs-panel').filter({ hasText: 'e2e-hang-emvrj79p7.html' }).first().getByText('not responding') to be visible
+--
+65 passed, 2 failed
+FAILED: WebRTC data channel between two contexts via Postgres signalling | SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive
+=== e2e-a11y
+1 passed, 0 failed
+FAILED SUITES: integration e2e
+ALLDONE

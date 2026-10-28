@@ -1,4 +1,5 @@
 "use client";
+import OrbitTarget from "../OrbitTarget";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
@@ -30,6 +31,14 @@ export default function AlertsModule(_: ModuleProps) {
   const groups = group
     ? shown.reduce<Record<string, Alert[]>>((acc, a) => { (acc[a.groupKey || a.app] ??= []).push(a); return acc; }, {})
     : { All: shown };
+
+  const alertActions = (a: Alert) => [
+    { label: a.read ? "Mark unread" : "Mark read", run: async () => { await patch("/api/alerts", { ids: [a.id], read: !a.read }); await load(); } },
+    { label: a.pinned ? "Unpin alert" : "Pin alert", run: async () => { await patch("/api/alerts", { ids: [a.id], pinned: !a.pinned }); await load(); } },
+    ...(a.heldBy ? [{ label: "Release held alert", run: async () => { await patch("/api/alerts", { ids: [a.id], deliver: true }); await load(); } }] : [{ label: "Snooze 15 minutes", run: async () => { await patch("/api/alerts", { ids: [a.id], snoozeMinutes: 15 }); await load(); } }]),
+    { label: "Copy alert text", run: () => shell.copy(`${a.title}\n${a.body}`, "alerts") },
+    { label: "Dismiss alert", run: async () => { await api(`/api/alerts?id=${a.id}`, { method: "DELETE" }); await load(); } },
+  ];
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
@@ -66,7 +75,8 @@ export default function AlertsModule(_: ModuleProps) {
         <Section title={`Held by focus rules · ${held.length}`} dense>
           <div data-testid="alerts-held" style={{ display: "grid", gap: 2 }}>
             {held.map((a) => (
-              <div key={a.id} className="fs-list-item" data-testid={`held-${a.id}`}>
+              <OrbitTarget key={a.id} label={`Alert: ${a.title}`} actions={alertActions(a)}>
+              <div tabIndex={0} role="group" aria-label={`Alert: ${a.title}`} className="fs-list-item" data-testid={`held-${a.id}`}>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: fz(12) }}>{a.app}: {a.title}</div>
                   <div className="fs-dim" style={{ fontSize: fz(11) }}>{a.heldReason} · {fmtTime(a.createdAt)}</div>
@@ -75,6 +85,7 @@ export default function AlertsModule(_: ModuleProps) {
                 <Btn variant="ghost" onClick={async () => { await patch("/api/alerts", { ids: [a.id], deliver: true }); await load(); }}>Deliver now</Btn>
                 <Btn variant="ghost" onClick={async () => { await fetch(`/api/alerts?id=${a.id}`, { method: "DELETE" }); await load(); }}>Dismiss</Btn>
               </div>
+              </OrbitTarget>
             ))}
           </div>
         </Section>
@@ -84,7 +95,8 @@ export default function AlertsModule(_: ModuleProps) {
         <Section key={key} title={`${key} · ${list.length}`} dense>
           <div style={{ display: "grid", gap: 2 }}>
             {list.map((a) => (
-              <div key={a.id} className="fs-list-item" style={{ opacity: a.read ? .6 : 1 }}>
+              <OrbitTarget key={a.id} label={`Alert: ${a.title}`} actions={alertActions(a)}>
+              <div tabIndex={0} role="group" aria-label={`Alert: ${a.title}`} className="fs-list-item" style={{ opacity: a.read ? .6 : 1 }}>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: fz(12) }}>{a.pinned ? "📌 " : ""}{a.title}</div>
                   <div className="fs-dim" style={{ fontSize: fz(11) }}>{a.body} · {fmtTime(a.createdAt)}</div>
@@ -94,6 +106,7 @@ export default function AlertsModule(_: ModuleProps) {
                 <Btn variant="ghost" onClick={async () => { await patch("/api/alerts", { ids: [a.id], pinned: !a.pinned }); await load(); }}>{a.pinned ? "Unpin" : "Pin"}</Btn>
                 <Btn variant="ghost" onClick={async () => { await fetch(`/api/alerts?id=${a.id}`, { method: "DELETE" }); await load(); }}>Dismiss</Btn>
               </div>
+              </OrbitTarget>
             ))}
           </div>
         </Section>

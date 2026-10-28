@@ -1,0 +1,243 @@
+{
+  "suite": "e2e-tt99-interactions",
+  "at": "2026-10-28T02:42:09.705Z",
+  "results": [
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "content anchor survives real edge scrolling and retains offscreen crossed rows",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 6455
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Escape during scrolling restores the exact gesture-start selection",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 2070
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "actual pointer capture loss rolls back rather than committing a partial rectangle",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 1265
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "a real viewport resize cancels an in-flight scroll rectangle and restores its selection",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    '/Documents/tt99-1793155280405/row-00.txt',\n+   '/Documents/tt99-1793155280405/row-01.txt',\n+   '/Documents/tt99-1793155280405/row-02.txt',\n+   '/Documents/tt99-1793155280405/row-03.txt',\n+   '/Documents/tt99-1793155280405/row-04.txt',\n+   '/Documents/tt99-1793155280405/row-05.txt',\n+   '/Documents/tt99-1793155280405/row-06.txt',\n+   '/Documents/tt99-1793155280405/row-07.txt',\n+   '/Documents/tt99-1793155280405/row-08.txt'\n  ]\n",
+      "ms": 1792
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "grid rectangle uses item geometry rather than list-row arithmetic",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 2329
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "selection in the second pane activates only that pane and keeps keyboard selection local",
+      "covers": {
+        "FM-02": "partial",
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 2301
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "column ancestor context acts on the clicked folder, not the current folder",
+      "covers": {
+        "FM-06": "partial"
+      },
+      "pass": true,
+      "ms": 1025
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes keyboard context pin is persisted and the menu skips disabled actions",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 147
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes duplicate copies real saved text and tags without changing the original",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 887
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes dirty draft disables destructive context actions and native text remains native",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 433
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes context deletion is cancelable and removes only the chosen note",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 780
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Alerts object menu marks read and unread through real persisted state",
+      "covers": {
+        "NC-01": "partial"
+      },
+      "pass": true,
+      "ms": 942
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Alerts pin and snooze persist without affecting another alert",
+      "covers": {
+        "NC-01": "partial"
+      },
+      "pass": true,
+      "ms": 582
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "typeahead and one roving tab stop work in object menus",
+      "covers": {
+        "AX-02": "partial"
+      },
+      "pass": true,
+      "ms": 55
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Tab closes the menu and advances outside it instead of cycling through menuitems",
+      "covers": {
+        "AX-02": "partial"
+      },
+      "pass": true,
+      "ms": 32
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Alerts context dismiss deletes only the selected alert",
+      "covers": {
+        "NC-01": "partial"
+      },
+      "pass": true,
+      "ms": 222
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "held-alert context release removes only the chosen hold without an OS notification claim",
+      "covers": {
+        "NC-02": "partial"
+      },
+      "pass": true,
+      "ms": 401
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Find contextual Open routes a real CSV into the editor rather than window controls",
+      "covers": {
+        "SR-02": "partial"
+      },
+      "pass": true,
+      "ms": 1355
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "a stale Find result cannot open a deleted file or silently create a document",
+      "covers": {
+        "SR-02": "partial"
+      },
+      "pass": true,
+      "ms": 1180
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Browser tab context duplicates the clicked URL and pins a non-active target",
+      "covers": {
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 964
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Browser close-others uses the context target, preserving pinned tabs",
+      "covers": {
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 268
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Browser explicit Close removes the clicked pinned tab, not the active neighbor",
+      "covers": {
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 223
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Browser vertical-tab keyboard sleep/wake respects active-tab guards and survives persisted reload",
+      "covers": {
+        "PR-07": "partial"
+      },
+      "pass": false,
+      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('.fs-window[data-win-id=\"w1_browser\"]').getByRole('textbox', { name: 'Search tabs', exact: true }) to be visible\n",
+      "ms": 12778
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Desktop keyboard selection, Copy and context invocation work from an icon",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 486
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Desktop background keyboard menu has reachable actions and closes with Escape",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 41
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "no uncaught browser exceptions in the interaction matrix",
+      "covers": {
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

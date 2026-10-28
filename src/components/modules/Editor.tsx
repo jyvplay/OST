@@ -111,7 +111,7 @@ export default function EditorModule({ win }: ModuleProps) {
 
   return (
     <div data-editor-win={win.id} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
-      {/* the banner is rendered by `wrap`; the document area follows */}
+      {banner}
       <RecoveryBanner offer={recovery.offer} onDiscard={() => void recovery.discard()} onRestore={() => {
         const o = recovery.take(); if (!o) return;
         setText(o.draft.payload); setDirty(true);

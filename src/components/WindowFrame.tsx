@@ -240,9 +240,14 @@ export default function WindowFrame({ win }: { win: WindowState }) {
       tabIndex={-1}
       onContextMenu={(e) => {
         // Bubble-only fallback: never override a module menu, editing control, link or native media menu.
-        if (e.defaultPrevented || (e.target as Element).closest('input,textarea,[contenteditable=true],a,video,audio,canvas,[role="menu"]')) return;
+        if (e.defaultPrevented || (e.target as Element).closest('input,textarea,select,[contenteditable],a,video,audio,canvas,[role="menu"]')) return;
         e.preventDefault(); e.stopPropagation(); e.currentTarget.focus(); shell.dispatch({ t: "focus", id: win.id });
         setOrbit({ x: e.clientX, y: e.clientY });
+      }}
+      onKeyDown={(e) => {
+        if (e.defaultPrevented || (e.key !== "ContextMenu" && !(e.shiftKey && e.key === "F10")) || (e.target as Element).closest('input,textarea,select,[contenteditable],a,video,audio,canvas,[role="menu"]')) return;
+        e.preventDefault(); e.stopPropagation(); const r = (e.target as HTMLElement).getBoundingClientRect();
+        e.currentTarget.focus(); setOrbit({ x: r.left, y: r.bottom });
       }}
       data-win-id={win.id}
       role="dialog"

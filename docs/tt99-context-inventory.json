@@ -1,0 +1,327 @@
+{
+  "kind": "source-inventory-not-universal-verification",
+  "modules": [
+    {
+      "id": "files",
+      "title": "Files",
+      "source": "src/components/modules/Files.tsx",
+      "surface": "FilesPane concise/full/search actions; ancestor-column menus added TT99",
+      "verification": "Partial TT99 browser evidence; not full Class A"
+    },
+    {
+      "id": "editor",
+      "title": "Editor",
+      "source": "src/components/modules/Editor.tsx",
+      "surface": "Native text editing and window fallback; restored Keep/Save/status banner after document load",
+      "verification": "Partial TT99 browser evidence; not full Class A"
+    },
+    {
+      "id": "find",
+      "title": "Find",
+      "source": "src/components/modules/Find.tsx",
+      "surface": "Orbit open via actual file metadata, parent folder, copy reference/excerpt; stale-result guard",
+      "verification": "Partial TT99 browser evidence; not full Class A"
+    },
+    {
+      "id": "terminal",
+      "title": "Terminal",
+      "source": "src/components/modules/Terminal.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "ssh",
+      "title": "SSH",
+      "source": "src/components/modules/Ssh.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "notes",
+      "title": "Notes",
+      "source": "src/components/modules/Notes.tsx",
+      "surface": "Orbit saved-note open/copy/pin/duplicate/confirmed delete; dirty guards",
+      "verification": "Partial TT99 browser evidence; not full Class A"
+    },
+    {
+      "id": "browser",
+      "title": "Browser",
+      "source": "src/components/modules/Browser.tsx",
+      "surface": "Orbit clicked-tab activate/pin/duplicate URL/sleep/copy/close/batch-close",
+      "verification": "Partial TT99 browser evidence; not full Class A"
+    },
+    {
+      "id": "media",
+      "title": "Media",
+      "source": "src/components/modules/Media.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "capture",
+      "title": "Capture",
+      "source": "src/components/modules/Capture.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "lens",
+      "title": "Lens",
+      "source": "src/components/modules/Lens.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "beam",
+      "title": "Beam",
+      "source": "src/components/modules/Beam.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "together",
+      "title": "Together",
+      "source": "src/components/modules/Together.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "messages",
+      "title": "Messages",
+      "source": "src/components/modules/Messages.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "vault",
+      "title": "Vault",
+      "source": "src/components/modules/Vault.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "privacy",
+      "title": "Privacy",
+      "source": "src/components/modules/Privacy.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "backup",
+      "title": "Backup",
+      "source": "src/components/modules/Backup.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "alerts",
+      "title": "Alerts",
+      "source": "src/components/modules/Alerts.tsx",
+      "surface": "Orbit read/unread/pin/snooze/copy/dismiss; held alert release",
+      "verification": "Partial TT99 browser evidence; not full Class A"
+    },
+    {
+      "id": "monitor",
+      "title": "Monitor",
+      "source": "src/components/modules/Monitor.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "apps",
+      "title": "Apps",
+      "source": "src/components/modules/Apps.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "calculator",
+      "title": "Calculator",
+      "source": "src/components/modules/Calculator.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "settings",
+      "title": "Settings",
+      "source": "src/components/modules/Settings.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "spec",
+      "title": "Spec",
+      "source": "src/components/modules/Spec.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "clock",
+      "title": "Clock",
+      "source": "src/components/modules/Clock.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "planner",
+      "title": "Planner",
+      "source": "src/components/modules/Planner.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "devices",
+      "title": "Devices",
+      "source": "src/components/modules/Devices.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "share",
+      "title": "Share",
+      "source": "src/components/modules/Share.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "routines",
+      "title": "Routines",
+      "source": "src/components/modules/Routines.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "clipboard",
+      "title": "Clipboard",
+      "source": "src/components/modules/Clipboard.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "storage",
+      "title": "Storage",
+      "source": "src/components/modules/Storage.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "archive",
+      "title": "Archive",
+      "source": "src/components/modules/Archive.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "localdisk",
+      "title": "Local disk",
+      "source": "src/components/modules/LocalDisk.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "photos",
+      "title": "Photos",
+      "source": "src/components/modules/Photos.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "imageedit",
+      "title": "Image Editor",
+      "source": "src/components/modules/ImageEditor.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "vector",
+      "title": "Vector",
+      "source": "src/components/modules/Vector.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "writer",
+      "title": "Writer",
+      "source": "src/components/modules/Writer.tsx",
+      "surface": "Existing spelling context menu; native editable document surface",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "pdf",
+      "title": "PDF",
+      "source": "src/components/modules/Pdf.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "books",
+      "title": "Books",
+      "source": "src/components/modules/Books.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "slides",
+      "title": "Slides",
+      "source": "src/components/modules/Slides.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "sheet",
+      "title": "Spreadsheet",
+      "source": "src/components/modules/Spreadsheet.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "contacts",
+      "title": "Contacts",
+      "source": "src/components/modules/Contacts.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "tables",
+      "title": "Tables",
+      "source": "src/components/modules/Tables.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "whiteboard",
+      "title": "Whiteboard",
+      "source": "src/components/modules/Whiteboard.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "peek",
+      "title": "Peek",
+      "source": "src/components/modules/Peek.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "video",
+      "title": "Video",
+      "source": "src/components/modules/Video.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "music",
+      "title": "Music",
+      "source": "src/components/modules/Music.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    },
+    {
+      "id": "maps",
+      "title": "Maps",
+      "source": "src/components/modules/Maps.tsx",
+      "surface": "Window controls fallback; native editing/media/link/canvas retained where applicable. No semantic-object menu certification.",
+      "verification": "Source inventory only this turn; not runtime certified"
+    }
+  ]
+}

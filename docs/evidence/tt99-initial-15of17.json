@@ -1,0 +1,161 @@
+{
+  "suite": "e2e-tt99-interactions",
+  "at": "2026-10-28T02:17:17.805Z",
+  "results": [
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "content anchor survives real edge scrolling and retains offscreen crossed rows",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": false,
+      "error": "page.waitForFunction: Timeout 12000ms exceeded.",
+      "ms": 15787
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Escape during scrolling restores the exact gesture-start selection",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 2063
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "actual pointer capture loss rolls back rather than committing a partial rectangle",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 1998
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "grid rectangle uses item geometry rather than list-row arithmetic",
+      "covers": {
+        "FM-15": "partial"
+      },
+      "pass": true,
+      "ms": 3463
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "column ancestor context acts on the clicked folder, not the current folder",
+      "covers": {
+        "FM-06": "partial"
+      },
+      "pass": true,
+      "ms": 2311
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes keyboard context pin is persisted and the menu skips disabled actions",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 266
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes duplicate copies real saved text and tags without changing the original",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 717
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes dirty draft disables destructive context actions and native text remains native",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 751
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Notes context deletion is cancelable and removes only the chosen note",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 850
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Alerts object menu marks read and unread through real persisted state",
+      "covers": {
+        "NC-01": "partial"
+      },
+      "pass": true,
+      "ms": 982
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Alerts pin and snooze persist without affecting another alert",
+      "covers": {
+        "NC-01": "partial"
+      },
+      "pass": true,
+      "ms": 418
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "typeahead and one roving tab stop work in object menus",
+      "covers": {
+        "AX-02": "partial"
+      },
+      "pass": true,
+      "ms": 59
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Alerts context dismiss deletes only the selected alert",
+      "covers": {
+        "NC-01": "partial"
+      },
+      "pass": true,
+      "ms": 612
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Find contextual Open routes a real CSV into the editor rather than window controls",
+      "covers": {
+        "SR-02": "partial"
+      },
+      "pass": false,
+      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('.fs-window').last().locator('[data-orbit-target]').filter({ hasText: 'tt99-1793153774698.csv' }).first().locator('button').first() to be visible\n",
+      "ms": 13018
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Desktop keyboard selection, Copy and context invocation work from an icon",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 876
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "Desktop background keyboard menu has reachable actions and closes with Escape",
+      "covers": {
+        "SH-04": "partial"
+      },
+      "pass": true,
+      "ms": 64
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "name": "no uncaught browser exceptions in the interaction matrix",
+      "covers": {
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

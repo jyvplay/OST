@@ -1,0 +1,5 @@
+  ✗ subpixel edge velocity progresses at the inner edge instead of rounding every frame to zero
+    page.waitForFunction: Timeout 3000ms exceeded.
+
+0 passed, 1 failed
+FAILED: subpixel edge velocity progresses at the inner edge instead of rounding every frame to zero

@@ -1,4 +1,7 @@
 "use client";
+import OrbitTarget from "../OrbitTarget";
+import { appForFile } from "@/lib/open-with";
+import { baseName, parentPath } from "@/lib/files/model";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
@@ -36,6 +39,17 @@ export default function FindModule(_: ModuleProps) {
     setExplain(r.explain ?? null);
   };
 
+  const openHit = async (h: Hit) => {
+    if (h.source === "file") {
+      const r = await api<{ node: { mime: string; kind: string; trashed?: boolean } | null }>(`/api/fs?op=stat&path=${encodeURIComponent(h.ref)}`);
+      if (!r.node || r.node.trashed) throw new Error("This search result no longer exists");
+      shell.open(appForFile(baseName(h.ref), r.node.mime, r.node.kind), { path: h.ref, title: h.title });
+    }
+    else if (h.source === "note") shell.open("notes", { noteId: Number(h.ref) });
+    else if (h.source === "spec") shell.open("spec", { focus: h.ref });
+    else shell.open("settings", { focus: h.ref });
+  };
+
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row">
@@ -71,19 +85,21 @@ export default function FindModule(_: ModuleProps) {
 
       <div style={{ display: "grid", gap: 2 }}>
         {hits.map((h) => (
-          <button key={`${h.source}:${h.ref}`} className="fs-list-item" style={{ textAlign: "left", border: 0, background: "none", color: "inherit", width: "100%" }}
-            onClick={() => {
-              if (h.source === "file") shell.open("editor", { path: h.ref, title: h.title });
-              else if (h.source === "note") shell.open("notes", { noteId: Number(h.ref) });
-              else if (h.source === "spec") shell.open("spec", { focus: h.ref });
-              else shell.open("settings", { focus: h.ref });
-            }}>
+          <OrbitTarget key={`${h.source}:${h.ref}`} label={`Search result: ${h.title}`} actions={[
+            { label: "Open result", run: () => openHit(h) },
+            ...(h.source === "file" ? [{ label: "Open containing folder", run: () => shell.open("files", { path: parentPath(h.ref) }) }] : []),
+            { label: "Copy reference", run: () => shell.copy(h.ref, "find") },
+            { label: "Copy excerpt", run: () => shell.copy(h.snippet, "find") },
+          ]}>
+          <button className="fs-list-item" style={{ textAlign: "left", border: 0, background: "none", color: "inherit", width: "100%" }}
+            onClick={() => { void openHit(h).catch(e => shell.toast(String(e instanceof Error ? e.message : e), "bad")); }}>
             <span style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: fz(12.5) }}>{h.title}</div>
               <div className="fs-dim fs-mono" style={{ fontSize: fz(10.5), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.ref} — {h.snippet}</div>
             </span>
             <Badge tone={h.how === "fts" || h.how === "private-local" ? "ok" : "warn"}>{h.how === "private-local" ? "encrypted · " : ""}{h.source} · {h.how}</Badge>
           </button>
+          </OrbitTarget>
         ))}
         {q && hits.length === 0 && took !== null ? <Empty title="No matches" icon="🔎" /> : null}
       </div>
