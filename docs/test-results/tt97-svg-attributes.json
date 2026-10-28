@@ -1,6 +1,6 @@
 {
   "suite": "tt97-svg-attributes",
-  "at": "2026-10-27T23:25:55.004Z",
+  "at": "2026-10-28T02:00:16.639Z",
   "results": [
     {
       "suite": "tt97-svg-attributes",
@@ -10,7 +10,7 @@
         "PR-09": "partial"
       },
       "pass": true,
-      "ms": 13
+      "ms": 17
     },
     {
       "suite": "tt97-svg-attributes",
@@ -30,7 +30,7 @@
         "PR-09": "partial"
       },
       "pass": true,
-      "ms": 10
+      "ms": 11
     }
   ]
 }

@@ -1,0 +1,138 @@
+{
+  "suite": "e2e-tt98-orbit",
+  "at": "2026-10-28T01:32:11.234Z",
+  "results": [
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Files rectangle selects intersecting rows without opening or clearing on release",
+      "covers": [
+        "FM-15"
+      ],
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n0 !== 3\n",
+      "ms": 2780
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Files context Copy preserves all rectangle-selected paths",
+      "covers": [
+        "FM-06",
+        "FM-15"
+      ],
+      "pass": false,
+      "error": "The input did not match the regular expression /3/. Input:\n\n'Copy'\n",
+      "ms": 289
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Ctrl rectangle adds to the previous selection",
+      "covers": [
+        "FM-15"
+      ],
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 4\n",
+      "ms": 714
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Non-modified rectangle replaces selection",
+      "covers": [
+        "FM-15"
+      ],
+      "pass": true,
+      "ms": 268
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Empty rectangle clears selection",
+      "covers": [
+        "FM-15"
+      ],
+      "pass": true,
+      "ms": 420
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "App fallback opens, keyboard navigates, Escape restores invoking control",
+      "covers": [
+        "WM-01"
+      ],
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '<body><div hidden=\"\"><!--$--><!--/$--></div><div data-layout=\"fusion\" data-shell-ready=\"true\" aria-busy=\"false\" style=\"height:100dvh;display:flex;flex-direction:column;overflow:hidden\"><header class=\"fs-row\" role=\"banner\" style=\"height:calc(34 * var(--fs-u));padding:0 8px;gap:calc(5 * var(--fs-u));border-bottom:1px solid var(--fs-border);background:var(--fs-panel);backdrop-filter:blur(14px);padding-left:8px;width:100%\"><button class=\"fs-btn\" data-variant=\"primary\" title=\"Launcher (Meta+A)\" data-testid=\"launcher-button\" aria-label=\"Fusion launcher\" style=\"min-height:calc(28 * var(--fs-u));padding:0 calc(8 * var(--fs-u)) 0 calc(3 * var(--fs-u));gap:calc(5 * var(--fs-u));border-radius:999px;font-weight:800;letter-spacing:.01em;background:linear-gradient(180deg, var(--fs-pill-a, #ffe36e), var(--fs-pill-b, #ffb020));color:#14213d;-webkit-app-region:no-drag\"><svg viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" focusable=\"false\" data-icon=\"fusion-logo\" data-style=\"poolside\" aria-hidden=\"true\" style=\"width:calc(22 * var(--fs-u));height:calc(22 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><defs><linearGradient id=\"t_R_129inelb_\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#5fe0d9\"></stop><stop offset=\"1\" stop-color=\"#1f9fb8\"></stop></linearGradient><linearGradient id=\"s_R_129inelb_\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffd0d8\"></stop><stop offset=\"1\" stop-color=\"#ff8aa0\"></stop></linearGradient><linearGradient id=\"m_R_129inelb_\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff3b0\"></stop><stop offset=\"1\" stop-color=\"#ffcc5c\"></stop></linearGradient><linearGradient id=\"h_R_129inelb_\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\".5\"></stop><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"0\"></stop></linearGradient><clipPath id=\"c_R_129inelb_\"><circle cx=\"29.5\" cy=\"28.5\" r=\"10\"></circle></clipPath><clipPath id=\"a_R_129inelb_\"><circle cx=\"19.5\" cy=\"21.5\" r=\"10\"></circle></clipPath></defs><rect x=\"1.5\" y=\"2.5\" width=\"45\" height=\"45\" rx=\"14\" fill=\"#000\" opacity=\"0.2\"></rect><rect x=\"1.5\" y=\"1\" width=\"45\" height=\"45\" rx=\"14\" fill=\"url(#t_R_129inelb_)\"></rect><circle cx=\"19.5\" cy=\"21.5\" r=\"10\" fill=\"url(#s_R_129inelb_)\"></circle><circle cx=\"29.5\" cy=\"28.5\" r=\"10\" fill=\"url(#m_R_129inelb_)\"></circle><circle cx=\"19.5\" cy=\"21.5\" r=\"10\" fill=\"#fffaf0\" clip-path=\"url(#c_R_129inelb_)\"></circle><path d=\"M7 41.5q4.2-3 8.4 0t8.4 0 8.4 0 8.4 0\" fill=\"none\" stroke=\"#fff\" stroke-opacity=\".75\" stroke-width=\"1.8\" stroke-linecap=\"round\"></path><circle cx=\"38.5\" cy=\"10.5\" r=\"2.4\" fill=\"#fff\" opacity=\".85\"></circle></svg> Fusion</button><button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" title=\"Command palette (Ctrl+Space)\" aria-label=\"Search\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" style=\"width:calc(14 * var(--fs-u));height:calc(14 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.4\"></circle><path d=\"M15 15l5 5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.8\"></path></svg><span class=\"fs-narrow-hide\"> Search</span></button><button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" title=\"Overview (Meta+Q)\" aria-label=\"Overview\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" style=\"width:calc(14 * var(--fs-u));height:calc(14 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><rect x=\"3.5\" y=\"4\" width=\"7.5\" height=\"7\" rx=\"2\" fill=\"currentColor\"></rect><rect x=\"13\" y=\"4\" width=\"7.5\" height=\"7\" rx=\"2\" fill=\"currentColor\" opacity=\".7\"></rect><rect x=\"3.5\" y=\"13\" width=\"7.5\" height=\"7\" rx=\"2\" fill=\"currentColor\" opacity=\".7\"></rect><rect x=\"13\" y=\"13\" width=\"7.5\" height=\"7\" rx=\"2\" fill=\"currentColor\"></rect></svg><span class=\"fs-narrow-hide\"> Overview</span></button><div class=\"fs-row fs-narrow-hide\" style=\"gap:4px;margin-left:6px\"><button class=\"fs-btn\" data-variant=\"primary\" style=\"min-height:calc(24 * var(--fs-u));padding:0 calc(8 * var(--fs-u));border-radius:999px\" title=\"Workspace Main\">Main</button><button class=\"fs-btn\" data-variant=\"ghost\" style=\"min-height:calc(24 * var(--fs-u));padding:0 calc(8 * var(--fs-u));border-radius:999px\" title=\"Workspace Studio\">Studio</button></div><div style=\"flex:1\"></div><span class=\"fs-narrow-hide\" style=\"display:contents\"><span class=\"fs-badge\" data-tone=\"bad\" title=\"Frame cost above 60 ms — minimum visual mode.\">CRITICAL<!-- --> · <!-- -->13<!-- --> fps</span></span><button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" title=\"Blackout this screen (BlackTop)\" aria-label=\"Blackout this screen\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" style=\"width:calc(14 * var(--fs-u));height:calc(14 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><circle cx=\"12\" cy=\"12\" r=\"8\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.2\"></circle><path d=\"M12 4a8 8 0 0 1 0 16z\" fill=\"currentColor\"></path></svg></button><button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" title=\"Quick panel (Meta+I)\" aria-label=\"Quick panel\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" style=\"width:calc(14 * var(--fs-u));height:calc(14 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><path d=\"M4 7h9M17 7h3M4 17h3M11 17h9\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.2\"></path><circle cx=\"15\" cy=\"7\" r=\"2.4\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.2\"></circle><circle cx=\"9\" cy=\"17\" r=\"2.4\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.2\"></circle></svg></button><span class=\"fs-mono fs-dim\" style=\"font-size:calc(11.5 * var(--fs-u));padding:0 4px;white-space:nowrap\">01:32 AM</span></header><div class=\"fs-wallpaper-poolside\" style=\"position:relative;flex:1;min-height:0;overflow:clip\"><div data-pointer-gesture-surface=\"classic\" tabindex=\"0\" aria-label=\"Desktop\" style=\"position:absolute;inset:0\"><div aria-hidden=\"true\" style=\"position:absolute;visibility:hidden;pointer-events:none;width:calc(104 * var(--fs-u));height:calc(76 * var(--fs-u))\"></div><div data-testid=\"desk-icons\" data-cols=\"10\" data-rows=\"9\" style=\"position:absolute;inset:0;pointer-events:none\"><button aria-pressed=\"false\" title=\"/Documents/tt98-1793151117924 — drag or Alt+Arrow keys to move\" aria-keyshortcuts=\"Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown\" class=\"fs-btn fs-desk-icon\" data-variant=\"ghost\" data-testid=\"desk-icon\" data-path=\"/Documents/tt98-1793151117924\" data-cell=\"0,0\" style=\"position: absolute; left: 15px; top: 10px; width: calc(96 * var(--fs-u)); pointer-events: auto; touch-action: none; flex-direction: column; height: auto; padding: calc(4 * var(--fs-u)) 2px; gap: calc(3 * var(--fs-u)); font-size: calc(11 * var(--fs-u)); white-space: nowrap; overflow: hidden; transition: left var(--fs-motion) ease-out, top var(--fs-motion) ease-out;\"><svg viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\" data-icon=\"folder\" data-palette=\"orange\" data-style=\"poolside\" focusable=\"false\" style=\"width: calc(34 * var(--fs-u)); height: calc(34 * var(--fs-u)); flex: 0 0 auto; display: inline-block; vertical-align: middle;\"><defs><linearGradient id=\"g_r_0_\" x1=\"0\" y1=\"0\" x2=\".35\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffdcbf\"></stop><stop offset=\"1\" stop-color=\"#ffae7a\"></stop></linearGradient></defs><rect x=\"1.5\" y=\"2.5\" width=\"45\" height=\"45\" rx=\"14\" fill=\"#000\" opacity=\"0.16\"></rect><rect x=\"1.5\" y=\"1\" width=\"45\" height=\"45\" rx=\"14\" fill=\"url(#g_r_0_)\"></rect><path d=\"M15.5 1h17A14 14 0 0 1 46.5 15v1.5C34 9 20 7.5 1.5 12.5V15A14 14 0 0 1 15.5 1z\" fill=\"#fff\" opacity=\".34\"></path><rect x=\"2.25\" y=\"1.75\" width=\"43.5\" height=\"43.5\" rx=\"13.25\" fill=\"none\" stroke=\"#fff\" stroke-opacity=\".55\" stroke-width=\"1.5\"></rect><g transform=\"translate(0 .4)\"><path d=\"M10 17a3.5 3.5 0 0 1 3.5-3.5h7.2l3.3 3.6h10.5A3.5 3.5 0 0 1 38 20.6v12.9a3.5 3.5 0 0 1-3.5 3.5h-21A3.5 3.5 0 0 1 10 33.5Z\" fill=\"#0f2f38\"></path><path d=\"M13 22.5h22\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#ffc49c\" stroke-width=\"2.6\"></path></g></svg><span class=\"fs-desk-label\" style=\"max-width: 100%; overflow: hidden; text-overflow: ellipsis;\">tt98-1793151117924</span></button><button aria-pressed=\"false\" title=\"/Documents/budget.csv · Delimited text (grade A) — drag or Alt+Arrow keys to move\" aria-keyshortcuts=\"Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown\" class=\"fs-btn fs-desk-icon\" data-variant=\"ghost\" data-testid=\"desk-icon\" data-path=\"/Documents/budget.csv\" data-cell=\"0,1\" style=\"position: absolute; left: 15px; top: 105px; width: calc(96 * var(--fs-u)); pointer-events: auto; touch-action: none; flex-direction: column; height: auto; padding: calc(4 * var(--fs-u)) 2px; gap: calc(3 * var(--fs-u)); font-size: calc(11 * var(--fs-u)); white-space: nowrap; overflow: hidden; transition: left var(--fs-motion) ease-out, top var(--fs-motion) ease-out;\"><svg viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\" data-icon=\"grid\" data-palette=\"green\" data-style=\"poolside\" focusable=\"false\" style=\"width: calc(34 * var(--fs-u)); height: calc(34 * var(--fs-u)); flex: 0 0 auto; display: inline-block; vertical-align: middle;\"><defs><linearGradient id=\"g_r_1_\" x1=\"0\" y1=\"0\" x2=\".35\" y2=\"1\"><stop offset=\"0\" stop-color=\"#c6f0e1\"></stop><stop offset=\"1\" stop-color=\"#68caa6\"></stop></linearGradient></defs><rect x=\"1.5\" y=\"2.5\" width=\"45\" height=\"45\" rx=\"14\" fill=\"#000\" opacity=\"0.16\"></rect><rect x=\"1.5\" y=\"1\" width=\"45\" height=\"45\" rx=\"14\" fill=\"url(#g_r_1_)\"></rect><path d=\"M15.5 1h17A14 14 0 0 1 46.5 15v1.5C34 9 20 7.5 1.5 12.5V15A14 14 0 0 1 15.5 1z\" fill=\"#fff\" opacity=\".34\"></path><rect x=\"2.25\" y=\"1.75\" width=\"43.5\" height=\"43.5\" r'... 86814 more characters\n- '<body><div hidden=\"\"><!--$--><!--/$--></div><div data-layout=\"fusion\" data-shell-ready=\"true\" aria-busy=\"false\" style=\"height:100dvh;display:flex;flex-direction:column;overflow:hidden\"><header class=\"fs-row\" role=\"banner\" style=\"height:calc(34 * var(--fs-u));padding:0 8px;gap:calc(5 * var(--fs-u));border-bottom:1px solid var(--fs-border);background:var(--fs-panel);backdrop-filter:blur(14px);padding-left:8px;width:100%\"><button class=\"fs-btn\" data-variant=\"primary\" title=\"Launcher (Meta+A)\" data-testid=\"launcher-button\" aria-label=\"Fusion launcher\" style=\"min-height:calc(28 * var(--fs-u));padding:0 calc(8 * var(--fs-u)) 0 calc(3 * var(--fs-u));gap:calc(5 * var(--fs-u));border-radius:999px;font-weight:800;letter-spacing:.01em;background:linear-gradient(180deg, var(--fs-pill-a, #ffe36e), var(--fs-pill-b, #ffb020));color:#14213d;-webkit-app-region:no-drag\"><svg viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" focusable=\"false\" data-icon=\"fusion-logo\" data-style=\"poolside\" aria-hidden=\"true\" style=\"width:calc(22 * var(--fs-u));height:calc(22 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><defs><linearGradient id=\"t_R_129inelb_\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#5fe0d9\"></stop><stop offset=\"1\" stop-color=\"#1f9fb8\"></stop></linearGradient><linearGradient id=\"s_R_129inelb_\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffd0d8\"></stop><stop offset=\"1\" stop-color=\"#ff8aa0\"></stop></linearGradient><linearGradient id=\"m_R_129inelb_\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff3b0\"></stop><stop offset=\"1\" stop-color=\"#ffcc5c\"></stop></linearGradient><linearGradient id=\"h_R_129inelb_\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\".5\"></stop><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"0\"></stop></linearGradient><clipPath id=\"c_R_129inelb_\"><circle cx=\"29.5\" cy=\"28.5\" r=\"10\"></circle></clipPath><clipPath id=\"a_R_129inelb_\"><circle cx=\"19.5\" cy=\"21.5\" r=\"10\"></circle></clipPath></defs><rect x=\"1.5\" y=\"2.5\" width=\"45\" height=\"45\" rx=\"14\" fill=\"#000\" opacity=\"0.2\"></rect><rect x=\"1.5\" y=\"1\" width=\"45\" height=\"45\" rx=\"14\" fill=\"url(#t_R_129inelb_)\"></rect><circle cx=\"19.5\" cy=\"21.5\" r=\"10\" fill=\"url(#s_R_129inelb_)\"></circle><circle cx=\"29.5\" cy=\"28.5\" r=\"10\" fill=\"url(#m_R_129inelb_)\"></circle><circle cx=\"19.5\" cy=\"21.5\" r=\"10\" fill=\"#fffaf0\" clip-path=\"url(#c_R_129inelb_)\"></circle><path d=\"M7 41.5q4.2-3 8.4 0t8.4 0 8.4 0 8.4 0\" fill=\"none\" stroke=\"#fff\" stroke-opacity=\".75\" stroke-width=\"1.8\" stroke-linecap=\"round\"></path><circle cx=\"38.5\" cy=\"10.5\" r=\"2.4\" fill=\"#fff\" opacity=\".85\"></circle></svg> Fusion</button><button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" title=\"Command palette (Ctrl+Space)\" aria-label=\"Search\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" style=\"width:calc(14 * var(--fs-u));height:calc(14 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.4\"></circle><path d=\"M15 15l5 5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.8\"></path></svg><span class=\"fs-narrow-hide\"> Search</span></button><button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" title=\"Overview (Meta+Q)\" aria-label=\"Overview\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" style=\"width:calc(14 * var(--fs-u));height:calc(14 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><rect x=\"3.5\" y=\"4\" width=\"7.5\" height=\"7\" rx=\"2\" fill=\"currentColor\"></rect><rect x=\"13\" y=\"4\" width=\"7.5\" height=\"7\" rx=\"2\" fill=\"currentColor\" opacity=\".7\"></rect><rect x=\"3.5\" y=\"13\" width=\"7.5\" height=\"7\" rx=\"2\" fill=\"currentColor\" opacity=\".7\"></rect><rect x=\"13\" y=\"13\" width=\"7.5\" height=\"7\" rx=\"2\" fill=\"currentColor\"></rect></svg><span class=\"fs-narrow-hide\"> Overview</span></button><div class=\"fs-row fs-narrow-hide\" style=\"gap:4px;margin-left:6px\"><button class=\"fs-btn\" data-variant=\"primary\" style=\"min-height:calc(24 * var(--fs-u));padding:0 calc(8 * var(--fs-u));border-radius:999px\" title=\"Workspace Main\">Main</button><button class=\"fs-btn\" data-variant=\"ghost\" style=\"min-height:calc(24 * var(--fs-u));padding:0 calc(8 * var(--fs-u));border-radius:999px\" title=\"Workspace Studio\">Studio</button></div><div style=\"flex:1\"></div><span class=\"fs-narrow-hide\" style=\"display:contents\"><span class=\"fs-badge\" data-tone=\"bad\" title=\"Frame cost above 60 ms — minimum visual mode.\">CRITICAL<!-- --> · <!-- -->13<!-- --> fps</span></span><button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" title=\"Blackout this screen (BlackTop)\" aria-label=\"Blackout this screen\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" style=\"width:calc(14 * var(--fs-u));height:calc(14 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><circle cx=\"12\" cy=\"12\" r=\"8\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.2\"></circle><path d=\"M12 4a8 8 0 0 1 0 16z\" fill=\"currentColor\"></path></svg></button><button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" title=\"Quick panel (Meta+I)\" aria-label=\"Quick panel\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" style=\"width:calc(14 * var(--fs-u));height:calc(14 * var(--fs-u));flex:0 0 auto;display:inline-block;vertical-align:middle\"><path d=\"M4 7h9M17 7h3M4 17h3M11 17h9\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.2\"></path><circle cx=\"15\" cy=\"7\" r=\"2.4\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.2\"></circle><circle cx=\"9\" cy=\"17\" r=\"2.4\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"currentColor\" stroke-width=\"2.2\"></circle></svg></button><span class=\"fs-mono fs-dim\" style=\"font-size:calc(11.5 * var(--fs-u));padding:0 4px;white-space:nowrap\">01:32 AM</span></header><div class=\"fs-wallpaper-poolside\" style=\"position:relative;flex:1;min-height:0;overflow:clip\"><div data-pointer-gesture-surface=\"classic\" tabindex=\"0\" aria-label=\"Desktop\" style=\"position:absolute;inset:0\"><div aria-hidden=\"true\" style=\"position:absolute;visibility:hidden;pointer-events:none;width:calc(104 * var(--fs-u));height:calc(76 * var(--fs-u))\"></div><div data-testid=\"desk-icons\" data-cols=\"10\" data-rows=\"9\" style=\"position:absolute;inset:0;pointer-events:none\"><button aria-pressed=\"false\" title=\"/Documents/tt98-1793151117924 — drag or Alt+Arrow keys to move\" aria-keyshortcuts=\"Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown\" class=\"fs-btn fs-desk-icon\" data-variant=\"ghost\" data-testid=\"desk-icon\" data-path=\"/Documents/tt98-1793151117924\" data-cell=\"0,0\" style=\"position: absolute; left: 15px; top: 10px; width: calc(96 * var(--fs-u)); pointer-events: auto; touch-action: none; flex-direction: column; height: auto; padding: calc(4 * var(--fs-u)) 2px; gap: calc(3 * var(--fs-u)); font-size: calc(11 * var(--fs-u)); white-space: nowrap; overflow: hidden; transition: left var(--fs-motion) ease-out, top var(--fs-motion) ease-out;\"><svg viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\" data-icon=\"folder\" data-palette=\"orange\" data-style=\"poolside\" focusable=\"false\" style=\"width: calc(34 * var(--fs-u)); height: calc(34 * var(--fs-u)); flex: 0 0 auto; display: inline-block; vertical-align: middle;\"><defs><linearGradient id=\"g_r_0_\" x1=\"0\" y1=\"0\" x2=\".35\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffdcbf\"></stop><stop offset=\"1\" stop-color=\"#ffae7a\"></stop></linearGradient></defs><rect x=\"1.5\" y=\"2.5\" width=\"45\" height=\"45\" rx=\"14\" fill=\"#000\" opacity=\"0.16\"></rect><rect x=\"1.5\" y=\"1\" width=\"45\" height=\"45\" rx=\"14\" fill=\"url(#g_r_0_)\"></rect><path d=\"M15.5 1h17A14 14 0 0 1 46.5 15v1.5C34 9 20 7.5 1.5 12.5V15A14 14 0 0 1 15.5 1z\" fill=\"#fff\" opacity=\".34\"></path><rect x=\"2.25\" y=\"1.75\" width=\"43.5\" height=\"43.5\" rx=\"13.25\" fill=\"none\" stroke=\"#fff\" stroke-opacity=\".55\" stroke-width=\"1.5\"></rect><g transform=\"translate(0 .4)\"><path d=\"M10 17a3.5 3.5 0 0 1 3.5-3.5h7.2l3.3 3.6h10.5A3.5 3.5 0 0 1 38 20.6v12.9a3.5 3.5 0 0 1-3.5 3.5h-21A3.5 3.5 0 0 1 10 33.5Z\" fill=\"#0f2f38\"></path><path d=\"M13 22.5h22\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#ffc49c\" stroke-width=\"2.6\"></path></g></svg><span class=\"fs-desk-label\" style=\"max-width: 100%; overflow: hidden; text-overflow: ellipsis;\">tt98-1793151117924</span></button><button aria-pressed=\"false\" title=\"/Documents/budget.csv · Delimited text (grade A) — drag or Alt+Arrow keys to move\" aria-keyshortcuts=\"Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown\" class=\"fs-btn fs-desk-icon\" data-variant=\"ghost\" data-testid=\"desk-icon\" data-path=\"/Documents/budget.csv\" data-cell=\"0,1\" style=\"position: absolute; left: 15px; top: 105px; width: calc(96 * var(--fs-u)); pointer-events: auto; touch-action: none; flex-direction: column; height: auto; padding: calc(4 * var(--fs-u)) 2px; gap: calc(3 * var(--fs-u)); font-size: calc(11 * var(--fs-u)); white-space: nowrap; overflow: hidden; transition: left var(--fs-motion) ease-out, top var(--fs-motion) ease-out;\"><svg viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\" data-icon=\"grid\" data-palette=\"green\" data-style=\"poolside\" focusable=\"false\" style=\"width: calc(34 * var(--fs-u)); height: calc(34 * var(--fs-u)); flex: 0 0 auto; display: inline-block; vertical-align: middle;\"><defs><linearGradient id=\"g_r_1_\" x1=\"0\" y1=\"0\" x2=\".35\" y2=\"1\"><stop offset=\"0\" stop-color=\"#c6f0e1\"></stop><stop offset=\"1\" stop-color=\"#68caa6\"></stop></linearGradient></defs><rect x=\"1.5\" y=\"2.5\" width=\"45\" height=\"45\" rx=\"14\" fill=\"#000\" opacity=\"0.16\"></rect><rect x=\"1.5\" y=\"1\" width=\"45\" height=\"45\" rx=\"14\" fill=\"url(#g_r_1_)\"></rect><path d=\"M15.5 1h17A14 14 0 0 1 46.5 15v1.5C34 9 20 7.5 1.5 12.5V15A14 14 0 0 1 15.5 1z\" fill=\"#fff\" opacity=\".34\"></path><rect x=\"2.25\" y=\"1.75\" width=\"43.5\" height=\"43.5\" r'... 86814 more characters\n",
+      "ms": 119
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Existing file menu takes precedence over app fallback",
+      "covers": [
+        "FM-06"
+      ],
+      "pass": true,
+      "ms": 72
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Native text context is not intercepted",
+      "covers": [
+        "WM-01"
+      ],
+      "pass": true,
+      "ms": 72
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Window action Tile left executes real reducer geometry",
+      "covers": [
+        "WM-01"
+      ],
+      "pass": true,
+      "ms": 527
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Desktop rectangle selects visible icons",
+      "covers": [
+        "SH-04"
+      ],
+      "pass": true,
+      "ms": 475
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Desktop item menu copies real VFS paths and does not open background menu",
+      "covers": [
+        "SH-04",
+        "FM-03"
+      ],
+      "pass": true,
+      "ms": 119
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Desktop Select all and Clear selection work through Orbit",
+      "covers": [
+        "SH-04"
+      ],
+      "pass": true,
+      "ms": 149
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "Orbit stays inside viewport and closes on outside pointer",
+      "covers": [
+        "SH-04"
+      ],
+      "pass": true,
+      "ms": 65
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "name": "No uncaught browser exceptions",
+      "covers": [
+        "SH-04"
+      ],
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

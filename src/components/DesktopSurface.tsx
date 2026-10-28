@@ -1,6 +1,9 @@
 "use client";
+import OrbitMenu from "./OrbitMenu";
+import { useMarquee } from "./useMarquee";
+import { getClip, setClip } from "@/lib/files/clipboard";
 import { fz } from "@/lib/uiscale";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { formatFor } from "@/lib/forge";
 import { appForFile } from "@/lib/open-with";
@@ -8,11 +11,17 @@ import { useShell } from "./shell-context";
 import { FileIcon } from "./AppIcon";
 import { DEFAULT_WALLPAPER, WALLPAPERS } from "@/lib/appearance";
 import { cellAt, cleanUp, layoutIcons, moveIcon, nudgeIcon, sortByName, type IconPos } from "@/lib/desk-icons-core";
-import { askText } from "@/lib/ask";
+import { badName, baseName, copyName } from "@/lib/files/model";
+import { askText, askConfirm } from "@/lib/ask";
 
 interface Item { path: string; name: string; kind: string; mime?: string }
 
 const MAX_ICONS = 30;
+function DesktopMenuButtons({ actions, run }: { actions: { label: string; run: () => unknown }[]; run: (action: () => unknown) => void }) {
+  return actions.map(item => <button key={item.label} role="menuitem" className="fs-btn" data-variant="ghost"
+    style={{ width: "100%", justifyContent: "flex-start", whiteSpace: "normal", textAlign: "left" }}
+    onClick={() => run(item.run)}>{item.label}</button>);
+}
 
 /**
  * TT26: icons can be rearranged — drag (snaps to the grid, swaps with an occupied cell), Alt+Arrow keys (the
@@ -26,6 +35,12 @@ const MAX_ICONS = 30;
 export default function DesktopSurface() {
   const shell = useShell();
   const [items, setItems] = useState<Item[]>([]);
+  const [selectedPaths, setSelected] = useState<string[]>([]);
+  const selected = selectedPaths.filter(p => items.some(i => i.path === p));
+  const operationBusy = useRef(false);
+  const [itemMenu, setItemMenu] = useState<{ x: number; y: number; item: Item } | null>(null);
+  const closeItemMenu = useCallback(() => setItemMenu(null), []);
+  const marquee = useMarquee(selected, setSelected, '[data-testid="desk-icon"]');
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const area = useRef<HTMLDivElement | null>(null);
   const menuNode = useRef<HTMLDivElement | null>(null);
@@ -84,13 +99,52 @@ export default function DesktopSurface() {
   const placed = layoutIcons(items.map((i) => i.path), saved, grid.cols, grid.rows);
   const byPath = new Map(items.map((i) => [i.path, i]));
   const commit = (icons: IconPos[]) => shell.dispatch({ t: "icons", icons });
+  // Each transfer is server-atomic and refuses overwrite; a batch is explicitly best effort.
+  const operate = useCallback(async (fn: () => Promise<void>) => {
+    if (operationBusy.current) return;
+    operationBusy.current = true;
+    try { await fn(); } catch (e) { shell.toast(e instanceof Error ? e.message : String(e), "bad"); }
+    finally { operationBusy.current = false; shell.bumpRefresh(); }
+  }, [shell]);
+  const fs = (body: object) => api("/api/fs", { method: "POST", body: JSON.stringify(body) });
+  const duplicate = (paths: string[]) => operate(async () => {
+    const listing = await api<{ nodes: Item[] }>("/api/fs?op=list&path=/Documents");
+    const taken = new Set(listing.nodes.map(i => i.name));
+    for (const path of paths) {
+      const name = copyName(baseName(path), taken, listing.nodes.find(i => i.path === path)?.kind === "dir"); taken.add(name);
+      await fs({ op: "copy", src: path, dst: `/Documents/${name}` });
+    }
+  });
+  const paste = () => operate(async () => {
+    const clip = getClip(); if (!clip) return;
+    const listing = await api<{ nodes: Item[] }>("/api/fs?op=list&path=/Documents");
+    const taken = new Set(listing.nodes.map(i => i.name));
+    const remaining = [...clip.paths];
+    try {
+      for (const src of clip.paths) {
+        if (src === "/Documents" || "/Documents".startsWith(`${src}/`)) throw new Error("Cannot paste a folder inside itself");
+        if (clip.mode === "cut" && src.slice(0, src.lastIndexOf("/")) === "/Documents") { remaining.splice(remaining.indexOf(src), 1); continue; }
+        const node = await api<{ node: Item | null }>(`/api/fs?op=stat&path=${encodeURIComponent(src)}`);
+        if (!node.node) throw new Error(`Source no longer exists: ${src}`);
+        const name = copyName(baseName(src), taken, node.node.kind === "dir"); taken.add(name);
+        await fs({ op: clip.mode === "cut" ? "move" : "copy", src, dst: `/Documents/${name}` });
+        remaining.splice(remaining.indexOf(src), 1);
+      }
+    } finally {
+      if (clip.mode === "cut" && getClip() === clip) setClip(remaining.length ? { mode: "cut", paths: remaining } : null);
+    }
+  });
 
   return (
     <div
+      {...marquee.handlers}
       data-pointer-gesture-surface="classic"
+      tabIndex={0}
+      aria-label="Desktop"
+      onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelected(items.map(i => i.path)); } if (e.key === "Escape") setSelected([]); }}
       style={{ position: "absolute", inset: 0 }}
-      onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }); }}
-      onPointerDown={() => setMenu(null)}
+      onContextMenu={(e) => { e.preventDefault(); setItemMenu(null); setMenu({ x: e.clientX, y: e.clientY }); }}
+      onPointerDown={(e) => { setMenu(null); marquee.handlers.onPointerDown(e); }}
     >
       <div ref={probe} aria-hidden="true" style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: fz(104), height: fz(76) }} />
       <div ref={area} data-testid="desk-icons" data-cols={grid.cols} data-rows={grid.rows} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
@@ -103,6 +157,9 @@ export default function DesktopSurface() {
           const open = () => shell.open(appForFile(it.name, it.mime ?? "", it.kind), { path: it.path, title: it.name });
           return (
             <button key={it.path}
+              aria-pressed={selected.includes(it.path)}
+              onClick={(e) => { if (suppressClick.current) return; setSelected(e.ctrlKey || e.metaKey || e.shiftKey ? (selected.includes(it.path) ? selected.filter(p => p !== it.path) : [...selected, it.path]) : [it.path]); }}
+              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); e.currentTarget.focus(); setMenu(null); if (!selected.includes(it.path)) setSelected([it.path]); setItemMenu({ x: e.clientX, y: e.clientY, item: it }); }}
               onDoubleClick={() => { if (!suppressClick.current) open(); }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") { e.preventDefault(); open(); return; }
@@ -137,7 +194,7 @@ export default function DesktopSurface() {
               aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
               className="fs-btn fs-desk-icon" data-variant="ghost" data-testid="desk-icon" data-path={it.path} data-cell={`${pl.col},${pl.row}`}
               data-dragging={dragging || undefined}
-              style={{ position: "absolute", left, top, width: fz(96), pointerEvents: "auto", touchAction: "none",
+              style={{ outline: selected.includes(it.path) ? "2px solid var(--fs-accent)" : undefined, background: selected.includes(it.path) ? "color-mix(in srgb, var(--fs-accent) 20%, transparent)" : undefined, position: "absolute", left, top, width: fz(96), pointerEvents: "auto", touchAction: "none",
                 flexDirection: "column", height: "auto", padding: `${fz(4)} 2px`, gap: fz(3), fontSize: fz(11), whiteSpace: "nowrap", overflow: "hidden",
                 zIndex: dragging ? 5 : undefined, transition: dragging ? "none" : "left var(--fs-motion) ease-out, top var(--fs-motion) ease-out" }}>
               <FileIcon name={it.name} kind={it.kind === "dir" ? "dir" : "file"} size={34} />
@@ -147,15 +204,44 @@ export default function DesktopSurface() {
         })}
       </div>
 
+      {marquee.overlay}
+      {itemMenu ? <OrbitMenu x={itemMenu.x} y={itemMenu.y} close={closeItemMenu} actions={[
+        { label: "Open", run: () => shell.open(appForFile(itemMenu.item.name, itemMenu.item.mime ?? "", itemMenu.item.kind), { path: itemMenu.item.path, title: itemMenu.item.name }) },
+        { label: "Reveal in Files", run: () => shell.open("files", { path: "/Documents" }) },
+        { label: `Copy ${selected.length} item(s)`, run: () => setClip({ mode: "copy", paths: selected }) },
+        { label: `Cut ${selected.length} item(s)`, run: () => setClip({ mode: "cut", paths: selected }) },
+        { label: "Copy paths", run: () => shell.copy(selected.join("\n"), "desktop") },
+        { label: "Rename…", disabled: selected.length !== 1, run: async () => {
+          const it = itemMenu.item;
+          const name = await askText("Rename", it.name, { okLabel: "Rename", validate: badName });
+          if (name && name !== it.name) await operate(async () => { await fs({ op: "rename", path: it.path, name }); });
+        } },
+        { label: "Duplicate selection", run: () => duplicate(selected) },
+        { label: "Move selection to trash…", run: async () => {
+          const paths = [...selected];
+          if (await askConfirm({ title: `Move ${paths.length} item(s) to Trash?`, detail: "Recoverable from Files → Trash. A batch stops on the first failure; completed items remain in Trash.", okLabel: "Move to trash" })) {
+            await operate(async () => { for (const path of paths) await fs({ op: "trash", path }); });
+          }
+        } },
+        { label: "Select all", run: () => setSelected(items.map(i => i.path)) },
+        { label: "Clear selection", run: () => setSelected([]) },
+      ]} /> : null}
       {menu ? (
         <div ref={menuNode} className="fs-panel" role="menu" onPointerDown={(e) => e.stopPropagation()}
           style={{ position: "absolute", left: 0, top: 0, visibility: "hidden", padding: 4, zIndex: 9500,
             width: "max-content", minWidth: "min(190px, 100%)", maxWidth: "100%", maxHeight: "100%", overflowY: "auto", boxSizing: "border-box" }}>
-          {[
+          <DesktopMenuButtons actions={[
+            { label: "New folder…", run: async () => {
+                const name = await askText("New folder name", "New folder", { okLabel: "Create", validate: badName });
+                if (name) await operate(async () => { await fs({ op: "mkdir", path: `/Documents/${name}` }); });
+              } },
+            { label: "Paste into desktop", run: () => paste() },
+            { label: "Select all icons", run: () => setSelected(items.map(i => i.path)) },
+            { label: "Clear icon selection", run: () => setSelected([]) },
             { label: "New text file…", run: async () => {
-                const name = await askText("New text file name", "untitled.md", { okLabel: "Create", validate: (v) => (/[\\/]/.test(v) ? "A file name can't contain / or \\" : null) });
+                const name = await askText("New text file name", "untitled.md", { okLabel: "Create", validate: badName });
                 if (!name) return;
-                await api("/api/fs", { method: "POST", body: JSON.stringify({ op: "write", path: `/Documents/${name}`, content: "" }) });
+                await api("/api/fs", { method: "POST", body: JSON.stringify({ op: "writeIfUnchanged", path: `/Documents/${name}`, content: "", expected: null }) });
                 shell.bumpRefresh();
                 shell.open("editor", { path: `/Documents/${name}`, title: name });
               } },
@@ -171,11 +257,7 @@ export default function DesktopSurface() {
                 void shell.setSetting("appearance.wallpaper", order[(order.indexOf(cur) + 1) % order.length]);
               } },
             { label: "Spec register", run: () => shell.open("spec") },
-          ].map((item) => (
-            <button key={item.label} role="menuitem" className="fs-btn" data-variant="ghost"
-              style={{ width: "100%", justifyContent: "flex-start", whiteSpace: "normal", textAlign: "left" }}
-              onClick={() => { setMenu(null); void item.run(); }}>{item.label}</button>
-          ))}
+          ]} run={(action) => { setMenu(null); void Promise.resolve().then(action).catch((e: unknown) => shell.toast(e instanceof Error ? e.message : String(e), "bad")); }} />
         </div>
       ) : null}
     </div>

@@ -14,6 +14,7 @@
  * model with concise / full sets and type-to-search (FM-06), a background menu with New ▸ templates and Paste
  * (FM-13), background folder sizes (FM-17), deep name search (FM-16) and honest origin badges (FM-09 / DP-03).
  */
+import { useMarquee } from "../useMarquee";
 import { fz } from "@/lib/uiscale";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent, type MouseEvent as RMouseEvent } from "react";
 import { createPortal } from "react-dom";
@@ -603,6 +604,8 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     );
   };
 
+  const marquee = useMarquee(selNow.paths, (paths) => setSel({ paths, anchor: paths[0] ?? null, focus: paths.at(-1) ?? null }), '[role="option"][data-path]');
+
   const listing = (
     <div ref={listRef} role="listbox" aria-label={`${showTrash ? "Trash" : deepMode ? `Search results under ${cwd}` : cwd} — Enter opens, Space selects`} aria-multiselectable="true"
       style={view === "grid" ? { display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${fz(118)},1fr))`, gap: 6 } : { display: "grid", gap: 1 }}>
@@ -755,11 +758,11 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
         {/* focusable after a click on empty space so Ctrl+V / Ctrl+A / Backspace reach the pane; when the
             folder has no rows there is no focusable row inside, so the scroll region itself must be tabbable
             (axe scrollable-region-focusable) */}
-        <div className="fs-scroll" data-testid="files-listing" data-drop={dropOn === "bg" || undefined}
+        <div {...marquee.handlers} className="fs-scroll" data-testid="files-listing" data-drop={dropOn === "bg" || undefined}
           tabIndex={nothing ? 0 : -1} role={nothing ? "group" : undefined} aria-label={nothing ? "Empty folder" : undefined} onKeyDown={onListKey}
           style={{ flex: 1, minHeight: 0, minWidth: 0, padding: view === "column" ? 0 : 6, outline: dropOn === "bg" ? "2px dashed var(--fs-accent)" : undefined, outlineOffset: -4 }}
           onDragOver={(e) => dragOver(e, "bg")} onDragLeave={(e) => { if (e.currentTarget === e.target) setDropOn(null); }} onDrop={(e) => drop(e, cwd)}
-          onContextMenu={(e) => { if (showTrash) return; e.preventDefault(); onActivate(); openMenu(e.clientX, e.clientY, null); }}
+          onContextMenu={(e) => { if (showTrash) return; e.preventDefault(); e.stopPropagation(); onActivate(); openMenu(e.clientX, e.clientY, null); }}
           onClick={(e) => { if (e.target === e.currentTarget) { setSel(emptySel()); e.currentTarget.focus(); } }}>
           {view === "column" && !showTrash && !deepMode ? columnView : (
             <>
@@ -804,6 +807,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
         ) : null}
       </div>
 
+      {marquee.overlay}
       {/* FM-15 selection toolbar — BELOW the listing: inserted above the rows it shifted them under the pointer (the 2nd
           click of a double-click opened the next row); floating over the rows it covered them in narrow panes */}
       {selNow.paths.length ? (

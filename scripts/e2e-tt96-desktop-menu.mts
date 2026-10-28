@@ -53,10 +53,13 @@ try {
     try {
       const d = await desk.boundingBox(); assert.ok(d); await page.mouse.click(d.x + d.width - 18, d.y + d.height - 18, { button: "right" });
       const menu = page.getByRole("menu"); await menu.waitFor({ timeout: 10_000 });
-      await menu.evaluate((node, box) => { (node as HTMLElement).style.left = `${box.width - 18}px`; (node as HTMLElement).style.top = `${box.height - 18}px`; }, d);
+      // A persistent fault is required: the menu's ResizeObserver can legitimately repair a one-shot
+      // inline mutation when its expanded action list changes dimensions / starts scrolling.
+      const fault = await page.addStyleTag({ content: `[role="menu"] { left: ${d.width - 18}px !important; top: ${d.height - 18}px !important; }` });
       const m = await menu.boundingBox(); assert.ok(m);
       assert.ok(m.x + m.width > d.x + d.width && m.y + m.height > d.y + d.height, "geometry assertion must detect the injected bad placement");
       await assert.rejects(() => menu.getByRole("menuitem", { name: "Sort icons by name" }).click({ timeout: 1200 }), /Timeout/);
+      await fault.evaluate(node => node.remove());
       // A fresh actual context-menu invocation must repair the placement.
       await page.mouse.click(d.x + d.width - 18, d.y + d.height - 18, { button: "right" });
       await menu.getByRole("menuitem", { name: "Sort icons by name" }).click({ timeout: 5000 });

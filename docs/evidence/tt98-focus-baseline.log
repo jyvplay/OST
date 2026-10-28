@@ -1,0 +1,8 @@
+  ✗ Files rectangle selects intersecting rows without opening or clearing on release
+    blank-space drag focuses its own pane for subsequent keyboard commands
+
+false !== true
+
+
+0 passed, 1 failed
+FAILED: Files rectangle selects intersecting rows without opening or clearing on release

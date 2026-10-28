@@ -1,0 +1,79 @@
+=== unit
+23 passed, 0 failed
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✗ SR-01 search finds new content with provenance
+    Cannot read properties of undefined (reading 'some')
+  ✓ SH-08 stale revision cannot clobber newer desktop state (409)
+  ✓ AU-02 presets list and delete; non-prefixed rows cannot be deleted
+--
+  ✗ SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing
+    Cannot read properties of undefined (reading 'some')
+  ✓ FM-05 compress → extract round trip preserves bytes (text and binary)
+  ✓ FM-05 extract refuses zip-slip and writes nothing
+--
+  ✗ deleting a note removes only its own index row
+    Cannot read properties of undefined (reading 'some')
+  ✓ every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)
+
+22 passed, 3 failed
+FAILED: SR-01 search finds new content with provenance | SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing | deleting a note removes only its own index row
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+  ✗ FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection
+    spawnSync /home/user/tools/venv/bin/python ENOENT
+  ✓ FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there
+  ✓ regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree)
+--
+12 passed, 1 failed
+FAILED: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== e2e-tt96-desktop-menu
+  ✗ the geometry and real click checks detect an injected old-style offscreen placement
+    Missing expected rejection.
+  ✓ the Art layout's dock does not intercept a bottom-edge desktop menu
+  ✓ at large text on a narrow viewport every menu action remains reachable
+--
+4 passed, 1 failed
+FAILED: the geometry and real click checks detect an injected old-style offscreen placement
+=== e2e-tt97-files-empty-a11y
+3 passed, 0 failed
+=== e2e-tt98-orbit
+22 passed, 0 failed
+=== e2e-a11y
+9 passed, 0 failed
+=== tt96-programmer
+8 passed, 0 failed
+=== tt96-calc-history
+6 passed, 0 failed
+=== tt96-scientific-units
+6 passed, 0 failed
+=== tt97-palette-commands
+4 passed, 0 failed
+=== tt97-svg-attributes
+3 passed, 0 failed
+=== e2e-tt97-calculator-repairs
+7 passed, 0 failed
+=== e2e-tt97-palette-actions
+11 passed, 0 failed
+=== privacy-layer
+  ✗ write through the layer: the host row has no plaintext name, content, size or index entry; read decrypts
+    Unexpected end of JSON input
+  ✗ list decrypts and sorts names; a second write keeps an encrypted version that decrypts; rename/move stay encrypted server-side
+    new names are encrypted too
+
+3 !== 0
+--
+  ✗ TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock
+    Unexpected end of JSON input
+  ✗ TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results
+    Unexpected end of JSON input
+
+9 passed, 4 failed
+FAILED: write through the layer: the host row has no plaintext name, content, size or index entry; read decrypts | list decrypts and sorts names; a second write keeps an encrypted version that decrypts; rename/move stay encrypted server-side | TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock | TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results
+FAILED SUITES: integration e2e-tt55-files e2e-tt96-desktop-menu privacy-layer
+ALLDONE
