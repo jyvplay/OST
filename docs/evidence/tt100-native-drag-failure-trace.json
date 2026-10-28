@@ -1,0 +1,88 @@
+[
+  {
+    "type": "dragstart",
+    "target": "/Documents/e2e55-fmvrn0ov6/drag1.txt",
+    "pane": "a",
+    "x": 329,
+    "y": 636,
+    "sub": {
+      "y": 377.1875,
+      "height": 33.6875
+    }
+  },
+  {
+    "type": "dragover",
+    "pane": "b",
+    "x": 725,
+    "y": 658,
+    "sub": {
+      "y": 377.1875,
+      "height": 33.6875
+    }
+  },
+  {
+    "type": "drop",
+    "pane": "b",
+    "x": 725,
+    "y": 658,
+    "sub": {
+      "y": 377.1875,
+      "height": 33.6875
+    }
+  },
+  {
+    "type": "dragend",
+    "target": "/Documents/e2e55-fmvrn0ov6/drag1.txt",
+    "pane": "a",
+    "x": 725,
+    "y": 658,
+    "sub": {
+      "y": 377.1875,
+      "height": 33.6875
+    }
+  },
+  {
+    "type": "dragstart",
+    "target": "/Documents/e2e55-fmvrn0ov6/a6.txt",
+    "pane": "a",
+    "x": 329,
+    "y": 626,
+    "sub": {
+      "y": 412.1875,
+      "height": 33.6875
+    }
+  },
+  {
+    "type": "dragover",
+    "target": "/Documents/e2e55-fmvrn0ov6/a1.txt",
+    "pane": "a",
+    "x": 329,
+    "y": 429,
+    "sub": {
+      "y": 367.1875,
+      "height": 33.6875
+    }
+  },
+  {
+    "type": "drop",
+    "target": "/Documents/e2e55-fmvrn0ov6/a1.txt",
+    "pane": "a",
+    "x": 329,
+    "y": 429,
+    "sub": {
+      "y": 367.1875,
+      "height": 33.6875
+    }
+  },
+  {
+    "type": "dragend",
+    "target": "/Documents/e2e55-fmvrn0ov6/a6.txt",
+    "pane": "a",
+    "x": 329,
+    "y": 429,
+    "sub": {
+      "y": 367.1875,
+      "height": 33.6875
+    }
+  }
+]

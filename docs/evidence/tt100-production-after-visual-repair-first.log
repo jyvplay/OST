@@ -1,0 +1,47 @@
+=== unit
+23 passed, 0 failed
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== browser-session
+5 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+  ✗ FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified)
+    timed out: drop on a folder row moved drag2 into sub
+  ✓ FM-02 stress witness: repeated unselected native drags land in the folder row without a layout-shift race
+  ✓ SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward
+--
+13 passed, 1 failed
+FAILED: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified)
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== e2e-tt96-desktop-menu
+5 passed, 0 failed
+=== tt97-palette-commands
+4 passed, 0 failed
+=== e2e-tt97-palette-actions
+11 passed, 0 failed
+=== e2e-tt97-files-empty-a11y
+3 passed, 0 failed
+=== e2e-tt98-orbit
+22 passed, 0 failed
+=== e2e-tt99-interactions
+29 passed, 0 failed
+=== privacy-layer
+13 passed, 0 failed
+=== e2e-browser
+6 passed, 0 failed
+=== tt69-lifecycle
+11 passed, 0 failed
+=== e2e-tt100-recall
+27 passed, 0 failed
+=== e2e-a11y
+9 passed, 0 failed
+FAILED SUITES: e2e-tt55-files
+ALLDONE

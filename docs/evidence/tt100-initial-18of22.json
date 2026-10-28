@@ -1,0 +1,164 @@
+{
+  "suite": "e2e-tt100-recall",
+  "at": "2026-10-28T04:05:55.525Z",
+  "results": [
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "pure boundary: only absolute credential-free HTTP URLs are admitted",
+      "covers": {},
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "pure boundary: grouping cannot escape /Downloads/Recall and secret query tokens are omitted",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "pure boundary: playlists and HTML cannot masquerade as complete media",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "Recall original-byte method saves exact publisher bytes and a SHA-256 provenance receipt",
+      "covers": {},
+      "pass": true,
+      "ms": 2462
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "a repeated download creates a fresh asset without overwriting the first one",
+      "covers": {},
+      "pass": true,
+      "ms": 488
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "original-byte rejection: /partial creates no successful archive",
+      "covers": {},
+      "pass": true,
+      "ms": 423
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "original-byte rejection: /large creates no successful archive",
+      "covers": {},
+      "pass": true,
+      "ms": 547
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "original-byte rejection: /redirect creates no successful archive",
+      "covers": {},
+      "pass": true,
+      "ms": 422
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "original-byte rejection: /playlist creates no successful archive",
+      "covers": {},
+      "pass": true,
+      "ms": 259
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "original-byte rejection: / creates no successful archive",
+      "covers": {},
+      "pass": true,
+      "ms": 235
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "an active slow HTTP fetch is cancellable without a VFS commit",
+      "covers": {},
+      "pass": true,
+      "ms": 756
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "PNG raster method captures a real Fusion canvas into a decodable image",
+      "covers": {},
+      "pass": false,
+      "error": "Timeout: PNG receipt",
+      "ms": 18129
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "MediaRecorder encodes actual canvas tracks; closing invokes a real discard/save guard",
+      "covers": {},
+      "pass": false,
+      "error": "locator.click: Timeout 18000ms exceeded.\nCall log:\n  - waiting for getByTestId('recall').getByRole('button', { name: 'Start authorized recording' })\n    - locator resolved to <button disabled type=\"button\" class=\"fs-btn \" data-variant=\"primary\">Start authorized recording</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    35 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n",
+      "ms": 18005
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "audio-only capture refuses a real canvas with no audio instead of inventing a soundtrack",
+      "covers": {},
+      "pass": false,
+      "error": "locator.check: Timeout 18000ms exceeded.\nCall log:\n  - waiting for getByTestId('recall').getByLabel('Audio-only output (requires shared audio)')\n    - locator resolved to <input disabled type=\"checkbox\"/>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    35 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n",
+      "ms": 18002
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "exposed-media discovery is off before explicit opt-in",
+      "covers": {},
+      "pass": true,
+      "ms": 717
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "armed proxy discovery archives real DOM media once and reacts to actual DOM mutations",
+      "covers": {},
+      "pass": true,
+      "ms": 4584
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "forged top-level discovery messages cannot request media copies",
+      "covers": {},
+      "pass": true,
+      "ms": 516
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "disarming stops subsequent page mutations from writing new media",
+      "covers": {},
+      "pass": true,
+      "ms": 3527
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "Orbit context is a compact content-sized menu, not a viewport-wide panel",
+      "covers": {},
+      "pass": true,
+      "ms": 1290
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "bottom-right notifications form a bounded stack and the real setting Undo stays reachable",
+      "covers": {},
+      "pass": true,
+      "ms": 3903
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "Files uses distinct original SVG view glyphs while all three view buttons still work",
+      "covers": {},
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n0 !== 1\n",
+      "ms": 57
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "name": "no uncaught page exceptions in Recall and visual interaction tests",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

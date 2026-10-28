@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { enqueueRecall, cancelRecall, recallWritable } from "@/lib/recall";
+import { sameRecallOrigin, type RecallGrouping } from "@/lib/recall-core";
 import { fz } from "@/lib/uiscale";
 import { MAX_BROWSER_SAVE_BYTES, readBrowserSave, saveBrowserDownload } from "@/lib/browser-download";
 import { privacy } from "@/lib/privacy/session";
@@ -45,6 +47,11 @@ const minting = new WeakMap<Map<string, string>, Map<string, Promise<string>>>()
 
 export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", profiles = [], onProfile, circuitable = false, via = "" }: ProxyFrameProps) {
   const shell = useShell();
+  const recallOwner=useId();
+  const [autoRecall,setAutoRecall]=useState(false),[recallGroup,setRecallGroup]=useState<RecallGrouping>('host'),[recallCustom,setRecallCustom]=useState('');
+  const recallArmed=useRef<{page:string;title:string;grouping:RecallGrouping;custom:string;sid:string;seen:Set<string>}|null>(null);
+  useEffect(()=>()=>{cancelRecall(recallOwner);},[recallOwner]);
+
   const transfer = useRef<AbortController | null>(null);
   const [savePhase, setSavePhase] = useState<"fetching" | "saving" | null>(null);
   const [savedPath, setSavedPath] = useState("");
@@ -123,8 +130,19 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       if (!frame.current || e.source !== frame.current.contentWindow) return;
-      const d = e.data as { fusionWp?: string; url?: string; title?: string; q?: string; n?: number; i?: number; truncated?: boolean; reader?: boolean };
+      const d = e.data as { fusionWp?: string; urls?: unknown; url?: string; title?: string; q?: string; n?: number; i?: number; truncated?: boolean; reader?: boolean };
       if (!d || typeof d.fusionWp !== "string") return;
+      if(d.fusionWp==='recall-media'){
+        const armed=recallArmed.current;if(!armed||!Array.isArray(d.urls))return;
+        for(const url of d.urls.slice(0,200)){
+          if(typeof url!=='string'||url.length>8192||armed.seen.has(url)||!sameRecallOrigin(url,armed.page))continue;
+          if(armed.seen.size>=200){setNote('Recall document budget reached (200 URLs). Disarm/review before rearming.');break;}
+          try{enqueueRecall({url,page:armed.page,title:armed.title,grouping:armed.grouping,custom:armed.custom,sid:armed.sid,owner:recallOwner});armed.seen.add(url);}
+          catch(e){setNote(e instanceof Error?e.message:String(e));break;}
+        }
+        return;
+      }
+
       if (d.fusionWp === "nav" && typeof d.url === "string" && /^https?:\/\//.test(d.url)) {
         const u = d.url, t = String(d.title ?? "").slice(0, 200);
         setHist((h) => {
@@ -135,7 +153,7 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
         setTitle(t);
         // the page reports on DOMContentLoaded, load and title changes, and a find may already have been answered
         // before its first report: the first report only records the address; a DIFFERENT address later resets find
-        if (lastUrl.current && lastUrl.current !== u) setFound(null);
+        if (lastUrl.current && lastUrl.current !== u) { setFound(null); recallArmed.current=null;setAutoRecall(false);cancelRecall(recallOwner);frame.current?.contentWindow?.postMessage({fusionWp:'recall-watch',enabled:false},'*'); }
         lastUrl.current = u;
         setReader(d.reader === true); // the page says which view it is (an "Original page" link leaves the reader)
         onNav(u, t);
@@ -146,7 +164,7 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [onNav]);
+  }, [onNav,recallOwner]);
 
   // live shields / cookies counters
   useEffect(() => {
@@ -201,11 +219,24 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
     } finally { transfer.current = null; setSavePhase(null); }
   };
 
+  const toggleRecall=()=>{
+    if(autoRecall){recallArmed.current=null;setAutoRecall(false);cancelRecall(recallOwner);send({fusionWp:'recall-watch',enabled:false});return;}
+    try{
+      recallWritable();if(!sid)throw new Error('Proxy session is not ready');if(recallGroup==='custom'&&!recallCustom.trim())throw new Error('Enter a custom Recall folder');
+      recallArmed.current={page:hist.list[hist.i],title:title||currentSite,grouping:recallGroup,custom:recallCustom,sid,seen:new Set()};
+      setAutoRecall(true);send({fusionWp:'recall-watch',enabled:true});setNote('Recall armed for up to 200 exposed same-origin media URLs in this document. Unencrypted server copies; see Recall for results.');
+    }catch(e){setNote(e instanceof Error?e.message:String(e));}
+  };
   const src = sid ? encodeTarget(start, sid) : null;
   const blockedTitle = stats ? Object.entries(stats.blockedHosts).map(([h, n]) => `${h} ×${n}`).join("\n") || "nothing blocked yet" : "";
   return (
     <div data-testid="wp-tab" data-sid={sid ?? ""} data-url={hist.list[hist.i]} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <div data-testid="wp-bar" className="fs-row" style={{ gap: 4, padding: "3px 6px", flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11) }}>
+        <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall}>{autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}</Btn>
+        <select aria-label="Auto Recall folders" disabled={autoRecall} value={recallGroup} onChange={e=>setRecallGroup(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select>
+        {recallGroup==='custom'?<input aria-label="Auto Recall custom folder" disabled={autoRecall} value={recallCustom} onChange={e=>setRecallCustom(e.target.value)}/>:null}
+        <Btn onClick={()=>shell.open('recall',{url:hist.list[hist.i],pageTitle:title})}>Recall jobs</Btn>
+
         <Btn variant="ghost" data-testid="wp-back" aria-label="Back" disabled={hist.i <= 0} onClick={back}>‹ Back</Btn>
         <Btn variant="ghost" data-testid="wp-forward" aria-label="Forward" disabled={hist.i >= hist.list.length - 1} onClick={fwd}>Forward ›</Btn>
         <Btn variant="ghost" data-testid="wp-reload" aria-label="Reload" onClick={reload}>Reload</Btn>

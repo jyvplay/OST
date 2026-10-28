@@ -1,0 +1,12 @@
+{
+  "pass": true,
+  "database": "tt100_preview",
+  "checks": [
+    "separate PostgreSQL preview has no Recall recordings or exclusive test fixtures",
+    "actual Recall module opens with three real method sections and idle state",
+    "no recording or permission grant is simulated; native source remains user controlled",
+    "production proxy rejects loopback without the test-only exception",
+    "actual screenshot captured with no uncaught page errors"
+  ],
+  "screenshot": "tt100-preview.png"
+}

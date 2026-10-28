@@ -154,7 +154,7 @@ body {
 .fs-btn:disabled { opacity: .45; cursor: not-allowed; }
 /* Mode buttons swap foreground and background together; animating only the
    background briefly produces low-contrast text after each toggle. */
-.fs-calc-modes .fs-btn, .fs-palette-scopes .fs-btn { transition: none; }
+.fs-calc-modes .fs-btn, .fs-palette-scopes .fs-btn, .fs-file-view-choice { transition: none; }
 /* TT85 AP-01: the module hub's tabs keep readable text even when a chosen style has a low-contrast accent. */
 .fs-app-tabs [role="tab"] { color: #062a33 !important; background-color: #eafcfa !important; border-color: #062a33; }
 .fs-app-tabs [role="tab"][aria-selected="true"] { color: #eafcfa !important; background-color: #062a33 !important; border-color: #eafcfa; }
@@ -697,3 +697,13 @@ span.fs-tt-pin { pointer-events: none; }
 .fs-bgroup .fs-badge { flex-shrink: 0; }
 .fs-bgroup label { white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
 .fs-menuhead { padding: calc(4 * var(--fs-u)) calc(8 * var(--fs-u)) 2px; font-size: calc(10.5 * var(--fs-u)); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--fs-muted); }
+
+/* TT100: notifications occupy a bounded bottom-right deck in every desktop layout. */
+.fs-toast-stack { position:fixed; right:max(12px,env(safe-area-inset-right)); bottom:calc(76px + env(safe-area-inset-bottom)); width:min(360px,calc(100vw - 24px)); z-index:99998; pointer-events:none; }
+.fs-toast-deck { position:relative; z-index:1; pointer-events:auto; max-height:min(40vh,300px); overflow:auto; padding-top:22px; }
+.fs-toast-deck > button { background:var(--fs-panel); }
+.fs-toast-list { display:grid; gap:6px; }
+.fs-toast-card { padding:10px; display:flex; gap:8px; align-items:center; background:color-mix(in srgb,var(--fs-panel-solid) 88%,transparent); }
+.fs-toast-card > span:not(.fs-badge) { min-width:0; overflow-wrap:anywhere; font-size:calc(12 * var(--fs-u)); max-height:140px; overflow:auto; }
+.fs-toast-back { position:absolute; width:100%; height:65px; pointer-events:none; transform-origin:bottom; }
+@media (forced-colors:active) { .fs-toast-card,.fs-toast-deck > button { background:Canvas; } }

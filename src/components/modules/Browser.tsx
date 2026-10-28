@@ -234,6 +234,7 @@ export default function BrowserModule({ win }: ModuleProps) {
           onChange={(e) => setAddress(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") open(address); }} />
         <Btn variant="primary" onClick={() => open(address)}>Go</Btn>
+        <Btn onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}>Recall media</Btn>
         <Btn variant="ghost" onClick={() => setSplit(split === "off" ? "h" : split === "h" ? "v" : "off")}>
           split: {split}
         </Btn>

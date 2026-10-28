@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt55-files",
-  "at": "2026-10-28T03:22:15.792Z",
+  "at": "2026-10-28T04:56:18.914Z",
   "results": [
     {
       "suite": "e2e-tt55-files",
@@ -10,7 +10,7 @@
         "FM-01": "partial"
       },
       "pass": true,
-      "ms": 6293
+      "ms": 5899
     },
     {
       "suite": "e2e-tt55-files",
@@ -20,7 +20,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 6560
+      "ms": 10255
     },
     {
       "suite": "e2e-tt55-files",
@@ -30,7 +30,16 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 4304
+      "ms": 5093
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "name": "FM-02 stress witness: repeated unselected native drags land in the folder row without a layout-shift race",
+      "covers": {
+        "FM-02": "partial"
+      },
+      "pass": true,
+      "ms": 7149
     },
     {
       "suite": "e2e-tt55-files",
@@ -40,7 +49,7 @@
         "FM-01": "partial"
       },
       "pass": true,
-      "ms": 3889
+      "ms": 6265
     },
     {
       "suite": "e2e-tt55-files",
@@ -49,7 +58,7 @@
         "FM-01": "full"
       },
       "pass": true,
-      "ms": 5627
+      "ms": 5447
     },
     {
       "suite": "e2e-tt55-files",
@@ -58,7 +67,7 @@
         "FM-06": "full"
       },
       "pass": true,
-      "ms": 5054
+      "ms": 6900
     },
     {
       "suite": "e2e-tt55-files",
@@ -67,7 +76,7 @@
         "FM-13": "full"
       },
       "pass": true,
-      "ms": 2864
+      "ms": 3387
     },
     {
       "suite": "e2e-tt55-files",
@@ -76,7 +85,7 @@
         "FM-16": "full"
       },
       "pass": true,
-      "ms": 3385
+      "ms": 3673
     },
     {
       "suite": "e2e-tt55-files",
@@ -85,7 +94,7 @@
         "FM-17": "full"
       },
       "pass": true,
-      "ms": 3489
+      "ms": 3133
     },
     {
       "suite": "e2e-tt55-files",
@@ -96,7 +105,7 @@
         "SH-14": "partial"
       },
       "pass": true,
-      "ms": 3806
+      "ms": 4110
     },
     {
       "suite": "e2e-tt55-files",
@@ -106,7 +115,7 @@
         "FM-05": "partial"
       },
       "pass": true,
-      "ms": 5271
+      "ms": 4421
     },
     {
       "suite": "e2e-tt55-files",
@@ -115,7 +124,7 @@
         "FM-02": "full"
       },
       "pass": true,
-      "ms": 3777
+      "ms": 5978
     },
     {
       "suite": "e2e-tt55-files",
@@ -125,7 +134,7 @@
         "AX-02": "partial"
       },
       "pass": true,
-      "ms": 3369
+      "ms": 4014
     }
   ]
 }

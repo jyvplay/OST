@@ -26,7 +26,7 @@ export default function OrbitMenu({ x, y, actions, close }: { x: number; y: numb
     return () => { document.removeEventListener('pointerdown', down, true); document.removeEventListener('keydown', key); };
   }, [close]);
   return createPortal(<div ref={ref} role="menu" aria-label="Orbit actions" className="fs-panel" onContextMenu={e => { e.preventDefault(); e.stopPropagation(); }} onPointerDown={e => e.stopPropagation()}
-    style={{ position: 'fixed', left: x, top: y, zIndex: 20000, padding: 4, maxWidth: 'calc(100vw - 8px)', maxHeight: 'calc(100vh - 8px)', overflow: 'auto' }}
+    style={{ position: 'fixed', left: x, top: y, zIndex: 20000, padding: 4, width: 'max-content', minWidth: 'min(180px, calc(100vw - 16px))', maxWidth: 'min(320px, calc(100vw - 16px))', boxSizing: 'border-box', maxHeight: 'calc(100vh - 8px)', overflow: 'auto' }}
     onFocusCapture={e => { const item = (e.target as Element).closest('button[role="menuitem"]'); if (item) ref.current?.querySelectorAll<HTMLButtonElement>('button').forEach(b => { b.tabIndex = b === item ? 0 : -1; }); }}
     onKeyDown={e => {
       const buttons = [...ref.current!.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')]; const i = buttons.indexOf(document.activeElement as HTMLButtonElement);

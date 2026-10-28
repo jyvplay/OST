@@ -17,7 +17,7 @@ export const DOC_KINDS: readonly DocKind[] = ["writer", "sheet", "editor"];
 
 export interface DocGuard {
   winId: string;
-  kind: DocKind;
+  kind: DocKind | "recall";
   title(): string;
   dirty(): boolean;
   /** true when the document is now saved; false when it is not (Save As still open, refused, failed) */

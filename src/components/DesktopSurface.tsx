@@ -260,7 +260,7 @@ export default function DesktopSurface() {
       {menu ? (
         <div ref={menuNode} className="fs-panel" role="menu" onPointerDown={(e) => e.stopPropagation()}
           style={{ position: "absolute", left: 0, top: 0, visibility: "hidden", padding: 4, zIndex: 9500,
-            width: "max-content", minWidth: "min(190px, 100%)", maxWidth: "100%", maxHeight: "100%", overflowY: "auto", boxSizing: "border-box" }}>
+            width: "max-content", minWidth: "min(190px, 100%)", maxWidth: "min(320px, 100%)", maxHeight: "100%", overflowY: "auto", boxSizing: "border-box" }}>
           <DesktopMenuButtons actions={[
             { label: "New folder…", run: async () => {
                 const name = await askText("New folder name", "New folder", { okLabel: "Create", validate: badName });

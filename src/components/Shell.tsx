@@ -24,6 +24,7 @@ import {
   initialDesktop, reduce, type DesktopState, type Rect, type WindowCommand,
 } from "@/lib/windowing/state";
 import { ShellContext, type BeamSession, type ClipEntry, type SaveAnswer, type ShellApi } from "./shell-context";
+import ToastStack from "./ToastStack";
 import CloseConfirm from "./CloseConfirm";
 import { anyDirtyDoc, enqueueAsk, guardFor, isDocDirty, planClose } from "@/lib/doc-lifecycle";
 import { addClip, SENSITIVE_CLEAR_MS } from "@/lib/cliphistory";
@@ -815,9 +816,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const wallpaper = resolveWallpaper(settings["appearance.wallpaper"] ?? DEFAULT_WALLPAPER, styleId);
   const layout = layoutOf(settings["appearance.layout"]);
   const desktopView = settings["appearance.desktopView"] === "tabletop" ? "tabletop" : "classic";
-  const toastPos: React.CSSProperties = layout === "business"
-    ? { right: 12, bottom: `calc(${fz(48)} + 12px)` }
-    : layout === "art" ? { right: 12, top: `calc(${fz(30)} + 10px)` } : { bottom: 64, left: "50%", transform: "translateX(-50%)" };
+
 
   return (
     <ShellContext.Provider value={value}>
@@ -969,16 +968,11 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         </div>
       ) : null}
 
-      {/* toasts */}
-      <div data-testid="toasts" style={{ position: "fixed", ...toastPos, display: "grid", gap: 6, zIndex: 99998 }} aria-live="polite">
-        {toasts.map((t) => (
-          <div key={t.id} className="fs-panel" style={{ padding: "8px 12px", display: "flex", gap: 10, alignItems: "center", maxWidth: 560 }}>
-            <Badge tone={t.tone === "info" ? "info" : t.tone}>{t.tone}</Badge>
-            <span style={{ fontSize: fz(12) }}>{t.message}</span>
-            {t.action ? <Btn variant="ghost" onClick={() => { t.action?.run(); setToasts((x) => x.filter((y) => y.id !== t.id)); }}>{t.action.label}</Btn> : null}
-          </div>
-        ))}
-      </div>
+      <ToastStack toasts={toasts} invoke={async(t)=>{
+        try{await Promise.resolve().then(()=>t.action?.run());}
+        catch(e){toast(`Action failed: ${e instanceof Error?e.message:String(e)}`,"bad");}
+        finally{setToasts(x=>x.filter(y=>y.id!==t.id));}
+      }}/>
       {askHead ? (
         <CloseConfirm key={askHead.id + askHead.mode} title={askGuard?.title() ?? state.windows.find((w) => w.id === askHead.id)?.title ?? "document"}
           recoverable={askGuard?.recoverable?.() ?? true} mode={askHead.mode} busy={askBusy} error={askErr} queued={askLive.length}

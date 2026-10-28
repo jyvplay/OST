@@ -14,6 +14,7 @@
  * model with concise / full sets and type-to-search (FM-06), a background menu with New ▸ templates and Paste
  * (FM-13), background folder sizes (FM-17), deep name search (FM-16) and honest origin badges (FM-09 / DP-03).
  */
+import FileViewGlyph from "../FileViewGlyph";
 import { useMarquee } from "../useMarquee";
 import { fz } from "@/lib/uiscale";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent, type MouseEvent as RMouseEvent } from "react";
@@ -705,7 +706,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
           onKeyDown={(e) => { if (e.key === "Escape") { setFilter(""); setDeep(false); } else if (e.key === "ArrowDown") { e.preventDefault(); focusRow(shown[0]?.path ?? null); } }} />
         <Btn variant={deep ? "primary" : "ghost"} aria-pressed={deep} title="Also search inside subfolders (by name)" onClick={() => setDeep((v) => !v)}>Subfolders</Btn>
         {(["list", "grid", "column"] as View[]).map((v) => (
-          <Btn key={v} variant={view === v ? "primary" : "ghost"} aria-pressed={view === v} title={`${v} view`} onClick={() => setView(v)}>{v === "list" ? "List" : v === "grid" ? "Grid" : "Columns"}</Btn>
+          <Btn key={v} className="fs-file-view-choice" variant={view === v ? "primary" : "ghost"} aria-pressed={view === v} title={`${v} view`} onClick={() => setView(v)}><FileViewGlyph view={v}/><span>{v === "list" ? "List" : v === "grid" ? "Grid" : "Columns"}</span></Btn>
         ))}
         <Btn variant={showHidden ? "primary" : "ghost"} aria-pressed={showHidden} title="Show hidden files (names starting with a dot, e.g. photo edit sidecars)" onClick={() => setShowHidden((v) => !v)}>Hidden</Btn>
         <Btn variant={infoOpen ? "primary" : "ghost"} aria-pressed={infoOpen} title="Show metadata of the selected file" onClick={() => setInfoOpen((v) => !v)}>Info</Btn>
@@ -854,7 +855,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
 
       {menu && typeof document !== "undefined" ? createPortal(
         <div ref={menuRef} className="fs-panel" data-testid="files-menu"
-          style={{ position: "fixed", left: Math.max(4, Math.min(menu.x, window.innerWidth - 250)), top: Math.max(4, Math.min(menu.y, window.innerHeight - 420)), zIndex: 9999, padding: 4, minWidth: fz(220), maxHeight: "min(70vh, 520px)", overflowY: "auto" }}
+          style={{ position: "fixed", left: Math.max(4, Math.min(menu.x, window.innerWidth - 250)), top: Math.max(4, Math.min(menu.y, window.innerHeight - 420)), zIndex: 9999, padding: 4, width: "min(290px, calc(100vw - 16px))", minWidth: 0, maxWidth: "calc(100vw - 16px)", boxSizing: "border-box", maxHeight: "min(70vh, 520px)", overflowY: "auto" }}
           onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
             const btns = [...(menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not([disabled])') ?? [])];

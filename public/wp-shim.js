@@ -828,6 +828,34 @@
     W.EventSource = FusionEventSource;
   });
   }
+  // Recall: opt-in, current-document URL discovery only. Never record or request permission in the remote page.
+  (function () {
+    var observer = null, timer = null, heartbeat = null, enabled = false;
+    function scan() {
+      timer = null; if (!enabled) return;
+      var nodes = D.querySelectorAll('img,video,audio,source'), urls = [], seen = Object.create(null);
+      for (var n = 0; n < nodes.length && n < 2000 && urls.length < 200; n++) {
+        var raw = nodes[n].currentSrc || nodes[n].src;
+        if (!raw) continue;
+        var value = decode(raw) || raw;
+        try { var u = new URL(value, targetBase()); if (!/^https?:$/.test(u.protocol) || u.username || u.password || u.href.length > 8192 || seen[u.href]) continue; seen[u.href] = true; urls.push(u.href); } catch (e) {}
+      }
+      W.parent.postMessage({ fusionWp: 'recall-media', urls: urls }, '*');
+    }
+    function schedule() { if (enabled && timer === null) timer = W.setTimeout(scan, 300); }
+    W.addEventListener('message', function(e) {
+      if (e.source !== W.parent || !e.data || e.data.fusionWp !== 'recall-watch') return;
+      enabled = e.data.enabled === true;
+      if (observer) observer.disconnect(); observer = null;
+      if (heartbeat !== null) W.clearInterval(heartbeat); heartbeat = null;
+      if (timer !== null) W.clearTimeout(timer); timer = null;
+      D.removeEventListener('loadedmetadata', schedule, true); D.removeEventListener('load', schedule, true);
+      if (enabled) {
+        observer = new MutationObserver(schedule); observer.observe(D, { subtree: true, childList: true, attributes: true, attributeFilter: ['src','srcset'] });
+        D.addEventListener('loadedmetadata', schedule, true); D.addEventListener('load', schedule, true); heartbeat = W.setInterval(schedule, 3000); schedule();
+      }
+    });
+  })();
   D.addEventListener("DOMContentLoaded", report);
   W.addEventListener("load", report);
   W.addEventListener("popstate", report);

@@ -138,10 +138,18 @@ await test("FM-02 drag and drop: a row dragged onto the other pane moves it, Ctr
     const A = pane(w, "a"), B = pane(w, "b");
     await B.getByRole("button", { name: "Edit path" }).click(); await B.getByLabel("Path").fill(`${DIR}/dst`); await page.keyboard.press("Enter");
     await w.locator(`.fs-files-pane[data-pane="b"][data-cwd="${DIR}/dst"]`).waitFor();
+    await page.evaluate(()=>{const w=window as unknown as {tt100DragTrace:unknown[]};w.tt100DragTrace=[];for(const type of ['dragstart','dragover','drop','dragend'])document.addEventListener(type,event=>{const e=event as DragEvent,t=e.target as Element;const sub=document.querySelector('[data-pane=a] [data-path$="/sub"]')?.getBoundingClientRect();w.tt100DragTrace.push({type,target:t.closest('[data-path]')?.getAttribute('data-path'),pane:t.closest('[data-pane]')?.getAttribute('data-pane'),x:e.clientX,y:e.clientY,sub:sub?{y:sub.y,height:sub.height}:null});},true);});
     await row(A, "drag1.txt").dragTo(B.getByTestId("files-listing"), { targetPosition: { x: 150, y: 250 } });
     await poll(async () => !!(await stat(`${DIR}/dst/drag1.txt`)) && !(await stat(`${DIR}/drag1.txt`)), "drag moved drag1 into dst");
+    // A server acknowledgement is not a stable rendered listing. Read-only native event tracing showed
+    // dragTo computing drag2's old coordinates while the preceding move's refresh removed drag1;
+    // the actual dragstart was on a6. Wait for the real UI acknowledgement, not an arbitrary sleep.
+    await row(A, "drag1.txt").waitFor({state:"detached"});
     await row(A, "drag2.txt").dragTo(row(A, "sub"));
     await poll(async () => !!(await stat(`${DIR}/sub/drag2.txt`)) && !(await stat(`${DIR}/drag2.txt`)), "drop on a folder row moved drag2 into sub");
+    const nativeTrace=await page.evaluate(()=>(window as unknown as {tt100DragTrace:{type:string;target?:string}[]}).tt100DragTrace);
+    ok(nativeTrace.filter(e=>e.type==='dragstart')[1]?.target?.endsWith('/drag2.txt'), 'the actual second native drag starts on drag2, not stale coordinates');
+    writeFileSync('docs/evidence/tt100-native-drag-fixed-trace.json',JSON.stringify(nativeTrace,null,2));
     // Ctrl-drop = copy. Playwright's native drag hangs while Control is held, so THIS step uses a synthetic drop event
     // (ctrlKey + a DataTransfer carrying the same payload our dragstart writes); the two native drags above are real.
     await B.getByTestId("files-listing").evaluate((el, src) => {
@@ -150,7 +158,14 @@ await test("FM-02 drag and drop: a row dragged onto the other pane moves it, Ctr
       el.dispatchEvent(new DragEvent("dragover", init)); el.dispatchEvent(new DragEvent("drop", init));
     }, `${DIR}/a6.txt`);
     await poll(async () => !!(await stat(`${DIR}/dst/a6.txt`)) && !!(await stat(`${DIR}/a6.txt`)), "Ctrl-drag copied a6");
-  } finally { await close(); }
+  } catch(error){writeFileSync('docs/evidence/tt100-native-drag-failure-trace.json',JSON.stringify(await page.evaluate(()=>(window as unknown as {tt100DragTrace:unknown[]}).tt100DragTrace),null,2));await page.screenshot({path:'docs/evidence/tt100-native-drag-failure.png'});throw error;} finally { await close(); }
+});
+
+await test("FM-02 stress witness: repeated unselected native drags land in the folder row without a layout-shift race", { "FM-02": "partial" }, async () => {
+  const files=Array.from({length:6},(_,i)=>`native-${i}.txt`);for(const name of files)await write(`${DIR}/${name}`,name);
+  const {page,w,close}=await openFiles(DIR);
+  try{const A=w.locator(".fs-files-pane").first();for(const name of files){const before=await stat(`${DIR}/${name}`);await row(A,name).dragTo(row(A,"sub"));await poll(async()=>!!(await stat(`${DIR}/sub/${name}`))&&!(await stat(`${DIR}/${name}`)),`native unselected drag ${name}`);ok((await stat(`${DIR}/sub/${name}`))?.sha256===before?.sha256,`byte-identical ${name}`);await row(A,name).waitFor({state:'detached'});await page.keyboard.press('Escape');}}
+  finally{await close();}
 });
 
 await test("SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward", { "SH-09": "full", "FM-01": "partial" }, async () => {
