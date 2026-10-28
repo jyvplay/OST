@@ -1,0 +1,24 @@
+
+> build
+> next build
+
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+▲ Next.js 16.2.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 19.9s
+  Running TypeScript ...
+  Finished TypeScript in 33.1s ...
+  Collecting page data using 1 worker ...
+Error: DATABASE_URL is required
+    at <unknown> (.next/server/chunks/[root-of-the-server]__0nzzzcn._.js:8:47561)
+
+> Build error occurred
+Error: Failed to collect page data for /api/alerts
+    at ignore-listed frames {
+  type: 'Error'
+}

@@ -1,0 +1,19 @@
+  ✗ real Find UI searches stored transcripts and renders field provenance
+    locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('.fs-window[aria-label=Find]').getByLabel('Matched metadata fields').filter({ hasText: 'content.transcript' }) to be visible
+
+  ✗ hostile stored metadata is rendered as text, not injected HTML
+    locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('.fs-window[aria-label=Find]').getByLabel('Matched metadata fields').filter({ hasText: '<img src=x onerror=alert(1)>' }) to be visible
+
+  ✗ query bound errors are visible, clear old hits, and allow a genuine retry
+    locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('.fs-window[aria-label=Find]').getByLabel('Matched metadata fields').filter({ hasText: 'content.transcript' }) to be visible
+
+  ✓ no uncaught page errors in actual search interactions
+
+1 passed, 3 failed
+FAILED: real Find UI searches stored transcripts and renders field provenance | hostile stored metadata is rendered as text, not injected HTML | query bound errors are visible, clear old hits, and allow a genuine retry

@@ -82,6 +82,7 @@ export async function readId3v2(b: Uint8Array, at = 0, inflate?: (d: Uint8Array)
   const ver = b[at + 3], flags = b[at + 5], size = syncsafe(b, at + 6);
   const out: Id3 = { version: ver, size: 10 + size + (flags & 0x10 ? 10 : 0), tags: {}, pictures: [], warnings: [] };
   if (ver < 2 || ver > 4) { out.warnings.push(`id3: unsupported version 2.${ver}`); return out; }
+  if(at+10+size>b.length)out.warnings.push("id3: truncated tag");
   let body = b.subarray(at + 10, Math.min(b.length, at + 10 + size));
   if (flags & 0x80 && ver < 4) body = deunsync(body);
   let p = 0;
@@ -104,7 +105,8 @@ export async function readId3v2(b: Uint8Array, at = 0, inflate?: (d: Uint8Array)
     if (!/^[A-Z0-9]+$/.test(id)) break;
     const n = ver === 2 ? u24be(body, p + 3) : ver === 3 || plain24 ? u32be(body, p + 4) : syncsafe(body, p + 4);
     const ff = ver === 2 ? 0 : u16be(body, p + 8);
-    let data = body.subarray(p + hLen, Math.min(body.length, p + hLen + n));
+    if(p+hLen+n>body.length){out.warnings.push(`id3: truncated ${id} frame`);break;}
+    let data = body.subarray(p + hLen, p + hLen + n);
     p += hLen + n;
     if (ver === 3) {
       if (ff & 0x0040) continue; // encrypted
@@ -123,15 +125,25 @@ export async function readId3v2(b: Uint8Array, at = 0, inflate?: (d: Uint8Array)
   for (const { id, data } of frames) {
     if (!data.length) continue;
     const enc = data[0];
+    if(enc>3){out.warnings.push(`id3: unsupported text encoding in ${id}`);continue;}
     if (id[0] === "T" && id !== "TXXX" && id !== "TXX") {
       const v = decodeText(enc, data.subarray(1)).replace(/\0+$/, "");
       if (id === "TLEN") { const ms = parseInt(v, 10); if (ms > 0) out.tlen = ms / 1000; continue; }
       if (id === "TDAT") { tdat = v; continue; }
-      const k = MAP[id]; if (!k) continue;
+      const k = MAP[id] ?? `id3.${id}`;
       // a repeated text frame (illegal but common) adds values rather than being dropped
       if (out.tags[k]) { if (k !== "genre" && k !== "date" && k !== "track" && k !== "disc") { const add = v.split("\0").filter(Boolean).filter((x) => !out.tags[k].split("; ").includes(x)); if (add.length) out.tags[k] += "; " + add.join("; "); } continue; }
       if (id === "TYER" || id === "TYE") tyer = v;
       out.tags[k] = k === "genre" ? resolveGenre(v) : v.split("\0").filter(Boolean).join("; ");
+    } else if (id === "TXXX" || id === "TXX") {
+      const [end,start]=termEnd(enc,data,1),description=decodeText(enc,data.subarray(1,end));
+      const value=decodeText(enc,data.subarray(start)).replace(/\0+$/, "");
+      const key=`custom.${description}`;out.tags[key]=out.tags[key]?out.tags[key]+"; "+value:value;
+    } else if (id === "USLT" || id === "ULT") {
+      if(data.length<4){out.warnings.push("id3: truncated lyrics header");continue;}
+      const [end,start]=termEnd(enc,data,4),description=decodeText(enc,data.subarray(4,end));
+      const language=ascii(data,1,3),value=decodeText(enc,data.subarray(start)).replace(/\0+$/, "");
+      const key=`lyrics.${language}.${description}`;out.tags[key]=out.tags[key]?out.tags[key]+"\n"+value:value;
     } else if (id === "COMM" || id === "COM") {
       if (out.tags.comment) continue;
       const [, e1] = termEnd(enc, data, 4); const v = decodeText(enc, data.subarray(e1)).replace(/\0+$/, "");

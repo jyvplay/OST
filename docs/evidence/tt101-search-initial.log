@@ -1,0 +1,33 @@
+  ✓ ID3 USLT lyrics decode from actual frame bytes
+  ✓ ID3 TXXX arbitrary text is retained instead of silently ignored
+  ✓ truncated frame is refused with a warning, not indexed as complete lyrics
+  ✓ unknown ID3 text frame is preserved by its frame identifier
+  ✓ embedded lyrics are found on the actual stored audio file with provenance
+  ✓ arbitrary custom transcript in embedded audio is searchable
+  ✓ artist header is searchable without pretending to decode the audio stream
+  ✓ stored JSON transcript beyond legacy 50000-character limit is found
+  ✓ nested arbitrary metadata and unknown keys remain searchable
+  ✓ zero and false scalar values are searchable, not dropped as falsy
+  ✓ VTT transcript text is searchable
+  ✓ LRC lyric text is searchable
+  ✓ stored SHA metadata can be found without textual content
+  ✓ field filtering does not silently fall back to another field
+  ✓ Unicode compatibility normalization matches full-width text
+  ✓ large content is honestly skipped and reported
+  ✓ path boundaries prevent sibling-prefix scope leakage
+  ✓ literal SQL metacharacters and injection-shaped query do not become operators
+  ✓ pagination reaches a held-out match after the first bounded page
+  ✓ private plaintext is excluded even when calling host endpoint directly
+  ✓ current exclusions apply in both metadata and legacy text modes
+  ✓ live metadata sees updated values and does not return obsolete fields
+  ✓ deep JSON is truncated explicitly without stack overflow
+  ✓ compressed or unsupported binary is not claimed fully inspected
+  ✓ invalid query bounds are rejected by the real endpoint
+file:///home/user/OST/scripts/tt101-search.mts:55
+await layer.fetch('/api/fs',{method:'POST',body:JSON.stringify({op:'write',path:privatePath,content:'{"lyrics":"encryptedlyricwitness"}',mime:'application/json'})});
+            ^
+
+TypeError: layer.fetch is not a function
+    at file:///home/user/OST/scripts/tt101-search.mts:55:13
+
+Node.js v22.22.3

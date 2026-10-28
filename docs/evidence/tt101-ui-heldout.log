@@ -1,0 +1,4 @@
+  ✓ locked private query runs in the real browser without sending query text to HTTP
+  ✓ metadata result UI passes external axe checks in the actual populated mode
+
+2 passed, 0 failed

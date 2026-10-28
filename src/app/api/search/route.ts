@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
-import { indexDocs } from "@/db/schema";
 import { bootstrap } from "@/lib/server/bootstrap";
 import { escapeLike } from "@/lib/server/vfs";
+import { metadataSearch, searchExclusions, visiblePath } from "@/lib/server/metadata-search";
 import { fuzzyScore } from "@/lib/fuzzy";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +19,12 @@ interface Hit { source: string; ref: string; title: string; snippet: string; ran
 export async function GET(req: NextRequest) {
   await bootstrap();
   const p = req.nextUrl.searchParams;
+  if(p.get("mode")==="metadata"){
+    try{return NextResponse.json(await metadataSearch(p));}
+    catch(e){return NextResponse.json({ok:false,error:e instanceof Error?e.message:String(e)},{status:400});}
+  }
+  const exclusions=await searchExclusions();
+  const visibility=sql`and (source <> 'file' or exists (select 1 from vfs_nodes n where n.path=index_docs.ref and not n.trashed and n.mime <> 'application/x-fusion-encrypted' and ${visiblePath(sql.raw('n.path'),exclusions)}))`;
   const q = (p.get("q") ?? "").trim();
   const scope = p.get("scope") ?? "";
   const source = p.get("source") ?? "";
@@ -26,7 +32,7 @@ export async function GET(req: NextRequest) {
   const started = Date.now();
 
   if (!q) {
-    const counts = await db.execute(sql`select source, count(*)::int as n from index_docs group by source order by source`);
+    const counts = await db.execute(sql`select source, count(*)::int as n from index_docs where true ${visibility} group by source order by source`);
     return NextResponse.json({ ok: true, hits: [], coverage: counts.rows, tookMs: Date.now() - started });
   }
 
@@ -41,7 +47,7 @@ export async function GET(req: NextRequest) {
     from index_docs
     where to_tsvector('english', coalesce(title,'') || ' ' || coalesce(body,''))
           @@ websearch_to_tsquery('english', ${q})
-      ${scopeClause} ${sourceClause}
+      ${scopeClause} ${sourceClause} ${visibility}
     order by rank desc, title asc
     limit 40`);
 
@@ -53,7 +59,7 @@ export async function GET(req: NextRequest) {
       select source, ref, title, left(body, 180) as snippet, 0.05 as rank
       from index_docs
       where (lower(title) like ${like} or lower(ref) like ${like} or lower(body) like ${like})
-        ${scopeClause} ${sourceClause}
+        ${scopeClause} ${sourceClause} ${visibility}
       limit 40`);
     const seen = new Set(hits.map((h) => `${h.source}:${h.ref}`));
     for (const r of sub.rows as unknown as Hit[]) {
@@ -66,7 +72,7 @@ export async function GET(req: NextRequest) {
   if (hits.length < 5 && q.length >= 4) {
     const cands = await db.execute(sql`
       select source, ref, title, left(body, 180) as snippet from index_docs
-      where true ${scopeClause} ${sourceClause}
+      where true ${scopeClause} ${sourceClause} ${visibility}
       order by updated_at desc limit 5000`);
     const seen = new Set(hits.map((h) => `${h.source}:${h.ref}`));
     const fuzzy: Hit[] = [];
@@ -82,12 +88,12 @@ export async function GET(req: NextRequest) {
   hits = hits.slice(0, 50);
   const payload: Record<string, unknown> = { ok: true, hits, tookMs: Date.now() - started, local: true };
   if (explain) {
-    const total = await db.select({ n: sql<number>`count(*)::int` }).from(indexDocs);
+    const total = await db.execute(sql`select count(*)::int n from index_docs where true ${visibility}`);
     payload.explain = {
-      indexedDocs: Number(total[0]?.n ?? 0),
+      indexedDocs: Number(total.rows[0]?.n ?? 0),
       strategy: "websearch_to_tsquery + ts_rank, substring fallback",
-      excluded: "paths under search.excludes are never indexed",
-      note: "If a file is missing: it is binary, trashed, or excluded.",
+      excluded: "Private, encrypted, trashed and current excluded file paths are filtered from results",
+      note: "Fast text index truncates bodies at 50,000 characters. Use live metadata mode for bounded file fields, supported embedded headers, and stored transcripts/lyrics.",
     };
   }
   return NextResponse.json(payload);

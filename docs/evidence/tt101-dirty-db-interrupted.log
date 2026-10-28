@@ -1,0 +1,38 @@
+=== unit
+23 passed, 0 failed
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== browser-session
+5 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+14 passed, 0 failed
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== e2e-tt96-desktop-menu
+5 passed, 0 failed
+=== tt97-palette-commands
+4 passed, 0 failed
+=== e2e-tt97-palette-actions
+11 passed, 0 failed
+=== e2e-tt97-files-empty-a11y
+3 passed, 0 failed
+=== e2e-tt98-orbit
+22 passed, 0 failed
+=== e2e-tt99-interactions
+29 passed, 0 failed
+=== privacy-layer
+  ✗ locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside
+    only ciphertext names visible
+  ✓ cross-store moves happen in the browser: host file → /Private arrives encrypted (source trashed); /Private → host is an explicit decrypting copy
+  ✓ office on encrypted files: Export .xlsx into /Private (rewritten to export + encrypted write), import from /Private inlined; the bare server refuses the blob
+--
+12 passed, 1 failed
+FAILED: locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside
+=== e2e-browser
