@@ -1,0 +1,139 @@
+{
+  "result": "PASS",
+  "exitCode": 0,
+  "database": "tt102_release (exclusive disposable)",
+  "suites": [
+    {
+      "suite": "e2e-tt102",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "suite": "tt102-search",
+      "passed": 33,
+      "failed": 0
+    },
+    {
+      "suite": "tt102-private-bound",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "tt101-search",
+      "passed": 37,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt101-search",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "privacy-layer",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "suite": "unit",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "suite": "integration",
+      "passed": 25,
+      "failed": 0
+    },
+    {
+      "suite": "browser-session",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "tt55-files-unit",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt55-shell",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt96-desktop-menu",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "tt97-palette-commands",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt97-palette-actions",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt97-files-empty-a11y",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "passed": 29,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-browser",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "passed": 27,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-a11y",
+      "passed": 9,
+      "failed": 0
+    }
+  ],
+  "passed": 317,
+  "failed": 0,
+  "interpretation": "Cases, not feature grades or count of individual assertions. One final sequential production run; earlier failed runs are retained.",
+  "sourceSha256": {
+    "scripts/e2e-tt102.mts": "c06be4863038231742995d94bb1bcbdc5af737545475479022ea8eee7aa0f57f",
+    "scripts/run-all.sh": "170461b0451afe22ec9bc009692a7b5bd1295e3e0c3e5ebc451bb34d8973c9c6",
+    "scripts/tt100-fixture.mjs": "6fba089e6b894efbfc74d90f16311205e18e794553f082bdc41354d5053e2aca",
+    "scripts/tt102-preview-smoke.mts": "4b670d47b675152603f9738c272ac46382a77ac7cf885bbae198388484efa015",
+    "scripts/tt102-private-bound.mts": "d916637439c8e26b416a843a446f12de26a53108aaba6a998dbbd6a59d9ed2c8",
+    "scripts/tt102-search.mts": "e536cae228387325ade87a2c16af7a2f374caf4eb4051d311e0429c44fb11c36",
+    "src/app/api/search/route.ts": "c0413bb4496727e924cec217b413dc55caeff669299a2ef8995d681cf717bf65",
+    "src/components/DesktopSurface.tsx": "4617d825ea6b6de6bbbe7865cb3b8168e62d10c39b4e5bbb46fdac6222ccbe6c",
+    "src/components/modules/Browser.tsx": "75e420bc81b10786d3a1ff1063f4edc8b64c756475a191e52ddc56a309776a9e",
+    "src/components/modules/Find.tsx": "138ea9c3da6f2717f0d758d00ea75bdd960f6f1af0207f3360da5b1f0480ce6d",
+    "src/components/modules/Privacy.tsx": "059a6ec307482aaf5614cc9432a3fc219614456a4d2b79653d4f765b4667a1a1",
+    "src/components/modules/ProxyFrame.tsx": "f4e85d7b71e43ea8d0ea0a3d334653cfc0ca5bf6bc55fe96d49f70473674b9fd",
+    "src/components/modules/Recall.tsx": "60ea904fbd684d9d7832994372f72a0d7b7c8da4726ce63e4b3d61aea41f50c3",
+    "src/lib/meta/audio.ts": "993c1660ecc152eb4ade436310e40c2a5aa7589673df33337192d0eaa3dd200a",
+    "src/lib/search/delimited.ts": "8e72b03b2b717ad10b9a2e77ee44c19e7913b9caa4953e68ded7b9630df8624b",
+    "src/lib/search/metadata.ts": "2718be178f7d662813fe0802eb2aab437f675f7cd9475c0123c8f6619a0c34d8",
+    "src/lib/server/metadata-search.ts": "6b6308a0d8b5c52f47f5fd2b4fba1b5d8c6dd4fd0661b78352242859f6959272"
+  }
+}

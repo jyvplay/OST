@@ -1,0 +1,12 @@
+  ✓ dimension-only admission includes exact 16MP, not decoder validity
+  ✓ dimension-only admission rejects 16MP plus one row
+  ✓ zero dimension fails
+  ✓ uint32 dimension overflow cannot wrap into budget
+  ✓ eight-byte PNG signature alone fails
+  ✓ wrong signature fails
+  ✓ IHDR must be first and thirteen bytes
+  ✓ wrong first chunk fails
+  ✓ byteOffset is honored
+  ✓ over-eight-MiB fails before decode
+
+10 passed, 0 failed

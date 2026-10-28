@@ -1,6 +1,6 @@
 {
   "suite": "tt69-lifecycle",
-  "at": "2026-10-28T04:59:28.810Z",
+  "at": "2026-10-28T08:33:22.910Z",
   "results": [
     {
       "suite": "tt69-lifecycle",
@@ -9,7 +9,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt69-lifecycle",
@@ -27,7 +27,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 7
     },
     {
       "suite": "tt69-lifecycle",
@@ -36,7 +36,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 63
+      "ms": 56
     },
     {
       "suite": "tt69-lifecycle",
@@ -90,7 +90,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 224
+      "ms": 180
     },
     {
       "suite": "tt69-lifecycle",
@@ -99,7 +99,7 @@
         "FF-15": "full"
       },
       "pass": true,
-      "ms": 80
+      "ms": 77
     }
   ]
 }

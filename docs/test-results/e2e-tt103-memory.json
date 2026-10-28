@@ -1,0 +1,99 @@
+{
+  "suite": "e2e-tt103-memory",
+  "at": "2026-10-28T08:28:27.757Z",
+  "results": [
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "human-selected actual PNG bytes save unchanged with honest method receipt",
+      "covers": {
+        "RC-01": "partial",
+        "RC-09": "partial"
+      },
+      "pass": true,
+      "ms": 135
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "timeline actually lists saved file and replay decodes in native image element",
+      "covers": {
+        "RC-07": "partial",
+        "RC-08": "partial"
+      },
+      "pass": true,
+      "ms": 210
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "closing memory preview removes media and revokes visible reference",
+      "covers": {},
+      "pass": true,
+      "ms": 42
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "zero-sized file is refused without a new archive",
+      "covers": {},
+      "pass": true,
+      "ms": 31
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "oversized file is refused before archive",
+      "covers": {},
+      "pass": true,
+      "ms": 1217
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "nonmedia MIME is refused without archive",
+      "covers": {},
+      "pass": true,
+      "ms": 35
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "saving loaded visual uses already rendered pixels and no asset request",
+      "covers": {
+        "RC-03": "partial",
+        "RC-11": "partial"
+      },
+      "pass": true,
+      "ms": 1903
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "subsequent human save captures changed viewed pixels as distinct memory",
+      "covers": {},
+      "pass": true,
+      "ms": 2091
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "unsolicited parent-window result cannot create archive",
+      "covers": {},
+      "pass": true,
+      "ms": 313
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "real producer with valid request token cannot smuggle a header-only PNG past native decoder",
+      "covers": {},
+      "pass": true,
+      "ms": 247
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "origin-tainted already-loaded surface fails without refetch fallback",
+      "covers": {},
+      "pass": true,
+      "ms": 178
+    },
+    {
+      "suite": "e2e-tt103-memory",
+      "name": "Specs contains all fifteen truthful Recall requirements, no A-grade fabrication",
+      "covers": {},
+      "pass": true,
+      "ms": 17
+    }
+  ]
+}

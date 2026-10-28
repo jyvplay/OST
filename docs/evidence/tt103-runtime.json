@@ -1,0 +1,10 @@
+{
+  "node": "v22.22.3",
+  "chromium": "153.0.8010.0",
+  "agents": 1,
+  "theoremProverUsed": false,
+  "physicalChooserAudioClipboardVerified": false,
+  "graphics": "real headless Chromium / software graphics",
+  "newMemoryTestsUseNetworkInterception": false,
+  "historicalFaultInjection": "browser offline/delayed or aborted real responses in existing regressions"
+}

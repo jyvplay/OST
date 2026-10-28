@@ -1,0 +1,16 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('.fs-window[aria-label=Find]').getByRole('button', { name: 'Maximise / restore', exact: true })
+
+    at /home/user/OST/scripts/tt101-preview-smoke.mts:12:701 {
+  log: [
+    "  - waiting for locator('.fs-window[aria-label=Find]').getByRole('button', { name: 'Maximise / restore', exact: true })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.22.3

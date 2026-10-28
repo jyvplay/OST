@@ -1,0 +1,86 @@
+{
+  "meaning": "tier is platform feasibility, status is implementation state; neither is a full correctness certification",
+  "grouped": [
+    {
+      "tier": "A",
+      "status": "blocked",
+      "n": 3
+    },
+    {
+      "tier": "A",
+      "status": "built",
+      "n": 323
+    },
+    {
+      "tier": "A",
+      "status": "partial",
+      "n": 25
+    },
+    {
+      "tier": "A",
+      "status": "probe",
+      "n": 6
+    },
+    {
+      "tier": "A/B",
+      "status": "built",
+      "n": 5
+    },
+    {
+      "tier": "A/B",
+      "status": "partial",
+      "n": 1
+    },
+    {
+      "tier": "A/B",
+      "status": "probe",
+      "n": 2
+    },
+    {
+      "tier": "B",
+      "status": "built",
+      "n": 3
+    },
+    {
+      "tier": "B",
+      "status": "partial",
+      "n": 5
+    },
+    {
+      "tier": "B",
+      "status": "probe",
+      "n": 1
+    },
+    {
+      "tier": "C",
+      "status": "blocked",
+      "n": 2
+    },
+    {
+      "tier": "C",
+      "status": "built",
+      "n": 2
+    },
+    {
+      "tier": "C",
+      "status": "partial",
+      "n": 7
+    },
+    {
+      "tier": "C",
+      "status": "probe",
+      "n": 9
+    },
+    {
+      "tier": "X",
+      "status": "blocked",
+      "n": 19
+    },
+    {
+      "tier": "X",
+      "status": "partial",
+      "n": 1
+    }
+  ],
+  "total": 414
+}

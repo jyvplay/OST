@@ -856,6 +856,26 @@
       }
     });
   })();
+  // TT103: explicit request only. Read the existing decoded surface; never reload its URL.
+  W.addEventListener('message', function(e) {
+    if(e.source!==W.parent || !e.data || e.data.fusionWp!=='recall-loaded' || typeof e.data.token!=='string' || e.data.token.length>80)return;
+    var token=e.data.token;
+    function answer(blob,error){W.parent.postMessage({fusionWp:'recall-loaded-result',token:token,blob:blob,error:error},'*');}
+    try {
+      var candidates=Array.prototype.slice.call(D.querySelectorAll('canvas,video,img'),0,200).filter(function(el){
+        var r=el.getBoundingClientRect();return r.width>0&&r.height>0&&r.bottom>0&&r.right>0&&r.top<W.innerHeight&&r.left<W.innerWidth;
+      }).sort(function(a,b){var x=a.getBoundingClientRect(),y=b.getBoundingClientRect();return y.width*y.height-x.width*x.height;});
+      var el=candidates[0];if(!el)throw Error('No visible loaded visual. This is not a whole-page screenshot.');
+      if(el.mediaKeys)throw Error('Protected video is not eligible');
+      var width=el.videoWidth||el.naturalWidth||el.width,height=el.videoHeight||el.naturalHeight||el.height;
+      if(!width||!height||width*height>16777216)throw Error('No decoded frame or visual exceeds 16 MP');
+      if(el.tagName==='IMG'&&!el.complete)throw Error('Image has not loaded');
+      if(el.tagName==='VIDEO'&&el.readyState<2)throw Error('Video frame has not decoded');
+      var canvas=D.createElement('canvas');canvas.width=width;canvas.height=height;
+      var ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas unavailable');ctx.drawImage(el,0,0);
+      canvas.toBlob(function(blob){if(!blob||!blob.size||blob.size>8388608)answer(null,'PNG absent or over 8 MiB; nothing truncated');else answer(blob,null);},'image/png');
+    }catch(err){answer(null,String(err.message||err).slice(0,300));}
+  });
   D.addEventListener("DOMContentLoaded", report);
   W.addEventListener("load", report);
   W.addEventListener("popstate", report);

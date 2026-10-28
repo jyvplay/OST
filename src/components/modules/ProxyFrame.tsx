@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
-import { enqueueRecall, cancelRecall, recallWritable } from "@/lib/recall";
+import { enqueueRecall, cancelRecall, recallWritable, commitRecall } from "@/lib/recall";
+import { loadedPngDimensions } from "@/lib/recall-memory";
 import { sameRecallOrigin, type RecallGrouping } from "@/lib/recall-core";
 import { fz } from "@/lib/uiscale";
 import { MAX_BROWSER_SAVE_BYTES, readBrowserSave, saveBrowserDownload } from "@/lib/browser-download";
@@ -18,6 +19,7 @@ import { Btn } from "../ui";
  * mobile identity, shields and cookie counters, and Save to Files.
  */
 export interface ProxyFrameProps {
+  embeddedRecall?:boolean;
   tabId: string;
   url: string;
   /** session key (tab id, or "p:<profile>") → session id, owned by the Browser so a tab keeps its session (and
@@ -45,9 +47,14 @@ export { saveName } from "@/lib/browser-download";
 /** session creations in flight, per Browser session map → key */
 const minting = new WeakMap<Map<string, string>, Map<string, Promise<string>>>();
 
-export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", profiles = [], onProfile, circuitable = false, via = "" }: ProxyFrameProps) {
+export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions, onNav, profile = "", profiles = [], onProfile, circuitable = false, via = "" }: ProxyFrameProps) {
   const shell = useShell();
+  const [tools,setTools]=useState(!embeddedRecall);
   const recallOwner=useId();
+  const loadedEpoch=useRef(0);
+  const loadedRequest=useRef<{token:string;epoch:number;page:string;title:string;grouping:RecallGrouping;custom:string;timer:ReturnType<typeof setTimeout>}|null>(null);
+  const [loadedBusy,setLoadedBusy]=useState(false);
+  useEffect(()=>()=>{loadedEpoch.current++;if(loadedRequest.current)clearTimeout(loadedRequest.current.timer);loadedRequest.current=null;},[]);
   const [autoRecall,setAutoRecall]=useState(false),[recallGroup,setRecallGroup]=useState<RecallGrouping>('host'),[recallCustom,setRecallCustom]=useState('');
   const recallArmed=useRef<{page:string;title:string;grouping:RecallGrouping;custom:string;sid:string;seen:Set<string>}|null>(null);
   useEffect(()=>()=>{cancelRecall(recallOwner);},[recallOwner]);
@@ -130,8 +137,21 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       if (!frame.current || e.source !== frame.current.contentWindow) return;
-      const d = e.data as { fusionWp?: string; urls?: unknown; url?: string; title?: string; q?: string; n?: number; i?: number; truncated?: boolean; reader?: boolean };
+      const d = e.data as { fusionWp?: string; urls?: unknown; token?:string; blob?:unknown; error?:string; url?: string; title?: string; q?: string; n?: number; i?: number; truncated?: boolean; reader?: boolean };
       if (!d || typeof d.fusionWp !== "string") return;
+      if(d.fusionWp==='recall-loaded-result'){
+        const request=loadedRequest.current;if(!request||d.token!==request.token)return;
+        loadedRequest.current=null;clearTimeout(request.timer);
+        if(d.error||!(d.blob instanceof Blob)||d.blob.type!=='image/png'||!d.blob.size||d.blob.size>8388608){setLoadedBusy(false);setNote('Not saved: '+(String(d.error||'Invalid loaded PNG').slice(0,300)));return;}
+        void (async()=>{try{
+          const bytes=new Uint8Array(await (d.blob as Blob).arrayBuffer());
+          if(request.epoch!==loadedEpoch.current||!frame.current)throw Error('Document closed or changed before commit');
+          const dimensions=loadedPngDimensions(bytes);
+          const decoded=await createImageBitmap(d.blob as Blob);try{if(decoded.width!==dimensions.width||decoded.height!==dimensions.height)throw Error('PNG decoder dimension mismatch');}finally{decoded.close();}
+          if(request.epoch!==loadedEpoch.current||!frame.current)throw Error('Document closed or changed during decode');
+          const path=await commitRecall(bytes,'image/png',{...request,url:request.page,owner:recallOwner},'loaded-visual-png');setNote('Saved loaded visual → '+path);
+        }catch(err){setNote('Not saved: '+(err instanceof Error?err.message:String(err)));}finally{setLoadedBusy(false);}})();return;
+      }
       if(d.fusionWp==='recall-media'){
         const armed=recallArmed.current;if(!armed||!Array.isArray(d.urls))return;
         for(const url of d.urls.slice(0,200)){
@@ -153,7 +173,7 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
         setTitle(t);
         // the page reports on DOMContentLoaded, load and title changes, and a find may already have been answered
         // before its first report: the first report only records the address; a DIFFERENT address later resets find
-        if (lastUrl.current && lastUrl.current !== u) { setFound(null); recallArmed.current=null;setAutoRecall(false);cancelRecall(recallOwner);frame.current?.contentWindow?.postMessage({fusionWp:'recall-watch',enabled:false},'*'); }
+        if (lastUrl.current && lastUrl.current !== u) { loadedEpoch.current++;if(loadedRequest.current)clearTimeout(loadedRequest.current.timer);loadedRequest.current=null;setLoadedBusy(false);setFound(null); recallArmed.current=null;setAutoRecall(false);cancelRecall(recallOwner);frame.current?.contentWindow?.postMessage({fusionWp:'recall-watch',enabled:false},'*'); }
         lastUrl.current = u;
         setReader(d.reader === true); // the page says which view it is (an "Original page" link leaves the reader)
         onNav(u, t);
@@ -219,6 +239,13 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
     } finally { transfer.current = null; setSavePhase(null); }
   };
 
+  const saveLoaded=()=>{
+    if(loadedRequest.current||loadedBusy)return;
+    try{recallWritable();if(!sid)throw Error('Proxy session is not ready');if(recallGroup==='custom'&&!recallCustom.trim())throw Error('Enter a custom Recall folder');
+      const token=crypto.randomUUID();loadedRequest.current={token,epoch:loadedEpoch.current,page:hist.list[hist.i],title:title||currentSite,grouping:recallGroup,custom:recallCustom,timer:setTimeout(()=>{loadedRequest.current=null;setLoadedBusy(false);setNote('Loaded visual did not answer within 8 seconds; nothing saved.');},8000)};
+      setLoadedBusy(true);send({fusionWp:'recall-loaded',token});
+    }catch(err){setNote(err instanceof Error?err.message:String(err));}
+  };
   const toggleRecall=()=>{
     if(autoRecall){recallArmed.current=null;setAutoRecall(false);cancelRecall(recallOwner);send({fusionWp:'recall-watch',enabled:false});return;}
     try{
@@ -232,14 +259,17 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
   return (
     <div data-testid="wp-tab" data-sid={sid ?? ""} data-url={hist.list[hist.i]} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <div data-testid="wp-bar" className="fs-row" style={{ gap: 4, padding: "3px 6px", flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11) }}>
+        <Btn disabled={!sid||loadedBusy} onClick={saveLoaded}>Save largest loaded visual</Btn>
         <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall}>{autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}</Btn>
         <select aria-label="Auto Recall folders" disabled={autoRecall} value={recallGroup} onChange={e=>setRecallGroup(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select>
         {recallGroup==='custom'?<input aria-label="Auto Recall custom folder" disabled={autoRecall} value={recallCustom} onChange={e=>setRecallCustom(e.target.value)}/>:null}
-        <Btn onClick={()=>shell.open('recall',{url:hist.list[hist.i],pageTitle:title})}>Recall jobs</Btn>
+        {!embeddedRecall?<Btn onClick={()=>shell.open('recall',{url:hist.list[hist.i],pageTitle:title})}>Recall jobs</Btn>:null}
 
         <Btn variant="ghost" data-testid="wp-back" aria-label="Back" disabled={hist.i <= 0} onClick={back}>‹ Back</Btn>
         <Btn variant="ghost" data-testid="wp-forward" aria-label="Forward" disabled={hist.i >= hist.list.length - 1} onClick={fwd}>Forward ›</Btn>
         <Btn variant="ghost" data-testid="wp-reload" aria-label="Reload" onClick={reload}>Reload</Btn>
+        {embeddedRecall?<Btn aria-expanded={tools} onClick={()=>setTools(v=>!v)}>Page tools</Btn>:null}
+        <div style={{display:tools?'contents':'none'}}>
         <input className="fs-input" data-testid="wp-find" aria-label="Find in page" placeholder="Find in page" title="Case-insensitive search in this proxied document; Enter = next, Shift+Enter = previous. Shadow DOM and nested frames are not searched." maxLength={256} value={q} style={{ width: fz(150) }}
           onChange={(e) => { queryRef.current = e.target.value; setQ(e.target.value); setFound(null); }}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); send({ fusionWp: "find", q, dir: e.shiftKey ? -1 : 1 }); } }} />
@@ -280,6 +310,7 @@ export default function ProxyFrame({ tabId, url, sessions, onNav, profile = "", 
         {savePhase === "fetching" ? <Btn variant="ghost" data-testid="wp-save-cancel" onClick={() => transfer.current?.abort()}>Cancel download</Btn> : null}
         {savedPath ? <Btn variant="ghost" data-testid="wp-open-downloads" onClick={() => shell.open("files", { path: "/Downloads" })}>Open Downloads</Btn> : null}
         <span className="fs-dim" title="Requests go through Fusion; proxy sessions and cookies live in memory. Save to Files deliberately writes to server storage." data-testid="wp-via">Private proxy{via ? ` via ${via}` : ""}{title ? ` · ${title.slice(0, 60)}` : ""}</span>
+        </div>
       </div>
       <div className="fs-dim" style={{ fontSize: fz(10.5), padding: "2px 8px" }}>Save to Files copies the original bytes to the Fusion server’s unencrypted /Downloads (up to 8 MiB), not /Private. Page-initiated browser downloads remain in the browser’s own downloads.</div>
       {note ? <div role="status" data-testid="wp-note" data-phase={savePhase ?? "idle"} className="fs-dim" style={{ fontSize: fz(11), padding: "2px 8px" }}>{note}</div> : null}

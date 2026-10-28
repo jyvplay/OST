@@ -1,0 +1,7 @@
+  ✓ real Find UI searches stored transcripts and renders field provenance
+  ✓ hostile stored metadata is rendered as text, not injected HTML
+  ✓ query bound errors are visible, clear old hits, and allow a genuine retry
+  ✓ real UI traverses bounded pages instead of claiming no global matches
+  ✓ no uncaught page errors in actual search interactions
+
+5 passed, 0 failed

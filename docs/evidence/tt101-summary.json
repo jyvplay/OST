@@ -1,0 +1,130 @@
+{
+  "passed": 263,
+  "failed": 0,
+  "suites": [
+    {
+      "suite": "tt101-search",
+      "at": "2026-10-28T06:03:55.901Z",
+      "passed": 37,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt101-search",
+      "at": "2026-10-28T06:04:04.526Z",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "privacy-layer",
+      "at": "2026-10-28T06:04:06.880Z",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "suite": "unit",
+      "at": "2026-10-28T06:04:16.034Z",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "suite": "integration",
+      "at": "2026-10-28T06:04:19.558Z",
+      "passed": 25,
+      "failed": 0
+    },
+    {
+      "suite": "browser-session",
+      "at": "2026-10-28T06:04:19.743Z",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "tt55-files-unit",
+      "at": "2026-10-28T06:04:20.411Z",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt55-files",
+      "at": "2026-10-28T06:05:52.725Z",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt55-shell",
+      "at": "2026-10-28T06:06:14.351Z",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt96-desktop-menu",
+      "at": "2026-10-28T06:06:27.608Z",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "tt97-palette-commands",
+      "at": "2026-10-28T06:06:27.775Z",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt97-palette-actions",
+      "at": "2026-10-28T06:06:55.698Z",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt97-files-empty-a11y",
+      "at": "2026-10-28T06:07:01.129Z",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt98-orbit",
+      "at": "2026-10-28T06:07:20.106Z",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt99-interactions",
+      "at": "2026-10-28T06:08:09.280Z",
+      "passed": 29,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-browser",
+      "at": "2026-10-28T06:09:24.443Z",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "suite": "tt69-lifecycle",
+      "at": "2026-10-28T06:09:25.474Z",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt100-recall",
+      "at": "2026-10-28T06:10:32.238Z",
+      "passed": 27,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-a11y",
+      "at": "2026-10-28T06:15:49.186Z",
+      "passed": 9,
+      "failed": 0
+    }
+  ],
+  "productionDatabase": "tt101_final",
+  "sourceSha256": {
+    "src/lib/search/metadata.ts": "e5170038b262f493456617683c6f12c756c7ae57b6f932c2e23a8b7ded830e50",
+    "src/lib/server/metadata-search.ts": "16f5d1705344ae16c1d762de2efa0c5b15b6d064498a732fe46685fc2f7d8c15",
+    "src/app/api/search/route.ts": "d5c4a316174ca7d9b1185d812685da583a544be95321ff9ed488842a2eef85c5",
+    "src/components/modules/Find.tsx": "3c72ee287d46b621249bd2fa6899a28614f9fba9ce6a15095d4c6837fa350741",
+    "src/lib/meta/audio.ts": "59a8b10e93ef2002cc3195c9a2bd662dedab7554018423e1c91f7ebd0d03419e",
+    "src/lib/privacy/layer.ts": "42404178f0caf832e2cedcaeae0dabfefd38ea68323347041a78d4ea25b051e7"
+  },
+  "limitations": "Finite selected gate, not all specs, full default run-all, physical recording or universal metadata coverage."
+}

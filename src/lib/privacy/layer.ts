@@ -25,6 +25,7 @@
  *    - desktop state: plaintext /Private paths inside the persisted state are replaced by their
  *      encrypted form (or "/Private/[locked]" when no key is loaded) before leaving the tab.
  */
+import type {MetaNode} from '../search/metadata';
 import {
   CLEAR_PREFIX, ENC_MIME, KEYSLOT_FILE, KEYSLOT_PATH, PRIVATE_ROOT, decryptContent, decryptName, decryptPath, encryptContent,
   encryptName, encryptPath, fromB64, isEncName, isPrivatePath, looksEncryptedB64, toB64, type VolumeKeys,
@@ -191,6 +192,37 @@ export class PrivacyLayer {
     const scope = rawScope ? norm(rawScope) : "";
     const source = u.searchParams.get("source") ?? "";
     const privScope = !!scope && isPrivatePath(scope);
+    if(u.searchParams.get('mode')==='metadata'&&(privScope||this.amnesic)){
+      try{
+        const started=performance.now();
+        const {metadataOptions,metadataPage,META_LIMITS}=await import('../search/metadata');
+        const options=metadataOptions(u.searchParams);
+        if(privScope&&!this.keys)return json({ok:false,error:'Persistent Storage is locked; metadata query was not sent to host',hostQueried:false},423);
+        const key=this.keys;let candidates:Json[]=[];let enumerationTruncated=false;
+        if(privScope){
+          const pending=[{path:scope,depth:0}];let folders=0;
+          while(pending.length&&folders<256&&candidates.length<5000){
+            const dir=pending.pop()!;folders++;
+            const list=((await this.fsList(dir.path)).nodes as Json[]??[]);
+            for(const n of list){if(candidates.length>=5000){enumerationTruncated=true;break;}if(n.undecryptable||n.trashed)continue;if(n.kind==='file')candidates.push(n);else if(n.kind==='dir'&&dir.depth<32)pending.push({path:String(n.path),depth:dir.depth+1});else enumerationTruncated=true;}
+          }
+          enumerationTruncated=enumerationTruncated||pending.length>0||candidates.length>=5000;
+        }else candidates=[...this.ram.nodes.values()].filter(n=>n.kind==='file'&&(!scope||scope==='/'||n.path===scope||n.path.startsWith(scope+'/'))).map(n=>({...n}));
+        candidates=candidates.filter(n=>String(n.path)>options.cursor).sort((a,b)=>String(a.path)<String(b.path)?-1:String(a.path)>String(b.path)?1:0);
+        const selected=candidates.slice(0,META_LIMITS.files),nodes:MetaNode[]=[];
+        for(const n of selected){
+          const path=String(n.path),name=String(n.name??baseOf(path));
+          if(privScope&&this.keys!==key)throw new HttpError(423,'Persistent Storage locked during metadata scan');
+          let content=String(n.content??''),encoding=String(n.encoding??'utf8'),mime=String(n.mime??guessMime(name)),contentSkipped=false;
+          if(privScope){if(Number(n.size)>META_LIMITS.contentChars*1.4){contentSkipped=true;}else{const r=(await this.fsRead(path)).node as Json;content=String(r.content??'');encoding=String(r.encoding??'utf8');mime=String(r.mime??guessMime(name));}}
+          if(content.length>META_LIMITS.contentChars){content='';contentSkipped=true;}
+          nodes.push({...n,path,name,content,encoding,mime,contentSkipped});
+        }
+        const page=await metadataPage(nodes,options);
+        if(privScope&&this.keys!==key)throw new HttpError(423,'Persistent Storage locked during metadata scan');
+        return json({ok:true,...page,tookMs:Math.round(performance.now()-started),mode:'metadata',hostQueried:false,storage:privScope?'private in-tab':'amnesic RAM only',hasMore:candidates.length>META_LIMITS.files,nextCursor:candidates.length>META_LIMITS.files?nodes.at(-1)?.path:null,enumerationTruncated,coverageNotice:'Bounded live page; no host query text. Private traversal capped at 256 folders/5000 files/32 levels. RAM scan does not search the host overlay.'});
+      }catch(e){return json({ok:false,error:e instanceof Error?e.message:String(e),hostQueried:false},e instanceof HttpError?e.status:400);}
+    }
     if (!q || (!this.active && !privScope)) return null;
     const t0 = performance.now();
     const wantFiles = !source || source === "file";

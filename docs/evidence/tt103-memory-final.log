@@ -1,0 +1,14 @@
+  ✓ human-selected actual PNG bytes save unchanged with honest method receipt
+  ✓ timeline actually lists saved file and replay decodes in native image element
+  ✓ closing memory preview removes media and revokes visible reference
+  ✓ zero-sized file is refused without a new archive
+  ✓ oversized file is refused before archive
+  ✓ nonmedia MIME is refused without archive
+  ✓ saving loaded visual uses already rendered pixels and no asset request
+  ✓ subsequent human save captures changed viewed pixels as distinct memory
+  ✓ unsolicited parent-window result cannot create archive
+  ✓ real producer with valid request token cannot smuggle a header-only PNG past native decoder
+  ✓ origin-tainted already-loaded surface fails without refetch fallback
+  ✓ Specs contains all fifteen truthful Recall requirements, no A-grade fabrication
+
+12 passed, 0 failed

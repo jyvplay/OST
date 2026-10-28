@@ -1,23 +1,95 @@
 {
- "generatedAt": "2026-10-27T23:32:55.219Z",
+ "generatedAt": "2026-10-28T08:15:48.919Z",
  "totals": {
   "built": {
    "full": 333,
-   "partial": 57,
+   "partial": 72,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 258,
-   "partial": 81,
-   "untested": 75
+   "full": 259,
+   "partial": 88,
+   "untested": 82
   },
   "tests": {
-   "total": 2202,
-   "passed": 2194
+   "total": 2403,
+   "passed": 2399
   }
  },
  "rows": {
+  "RC-01": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt"
+   ]
+  },
+  "RC-02": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RC-03": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request"
+   ]
+  },
+  "RC-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RC-05": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RC-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RC-07": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element"
+   ]
+  },
+  "RC-08": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element"
+   ]
+  },
+  "RC-09": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt"
+   ]
+  },
+  "RC-10": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RC-11": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request"
+   ]
+  },
+  "RC-12": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RC-13": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RC-14": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RC-15": {
+   "tested": "untested",
+   "tests": []
+  },
   "SH-01": {
    "tested": "full",
    "tests": [
@@ -37,12 +109,22 @@
   "SH-04": {
    "tested": "full",
    "tests": [
-    "e2e-tt55-shell: SH-04 desktop icons follow the file system: a folder trashed in Files disappears from the desktop with no reload — in the same tab and in a second tab of the browser — and the icon set always equals the server listing"
+    "e2e-tt55-shell: SH-04 desktop icons follow the file system: a folder trashed in Files disappears from the desktop with no reload — in the same tab and in a second tab of the browser — and the icon set always equals the server listing",
+    "e2e-tt98-orbit: Desktop rectangle selects visible icons",
+    "e2e-tt98-orbit: Desktop item menu copies real VFS paths and does not open background menu",
+    "e2e-tt98-orbit: Desktop Select all and Clear selection work through Orbit",
+    "e2e-tt98-orbit: Orbit stays inside viewport and closes on outside pointer",
+    "e2e-tt98-orbit: Desktop rename writes actual filesystem and refreshes the icon",
+    "e2e-tt98-orbit: No uncaught browser exceptions",
+    "e2e-tt99-interactions: Desktop keyboard selection, Copy and context invocation work from an icon",
+    "e2e-tt99-interactions: Desktop background keyboard menu has reachable actions and closes with Escape"
    ]
   },
   "SH-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e: SH-05 under full site isolation (--site-per-process): hung widget greys, shell responsive"
+   ]
   },
   "SH-06": {
    "tested": "full",
@@ -165,6 +247,9 @@
   "WM-01": {
    "tested": "full",
    "tests": [
+    "e2e-tt98-orbit: App fallback opens, keyboard navigates, Escape restores invoking control",
+    "e2e-tt98-orbit: Native text context is not intercepted",
+    "e2e-tt98-orbit: Window action Tile left executes real reducer geometry",
     "e2e: drag a window by its title bar; geometry is committed and persisted",
     "unit: 10 000 random commands preserve every invariant",
     "unit: TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk"
@@ -381,6 +466,8 @@
   "SR-02": {
    "tested": "partial",
    "tests": [
+    "e2e-tt99-interactions: Find contextual Open routes a real CSV into the editor rather than window controls",
+    "e2e-tt99-interactions: a stale Find result cannot open a deleted file or silently create a document",
     "e2e: mount: find",
     "integration: SR-01 search finds new content with provenance",
     "integration: deleting a note removes only its own index row"
@@ -479,7 +566,9 @@
    "tests": [
     "e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane",
     "e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified)",
-    "e2e-tt55-files: FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there"
+    "e2e-tt55-files: FM-02 stress witness: repeated unselected native drags land in the folder row without a layout-shift race",
+    "e2e-tt55-files: FM-02 terminal pane: the real Terminal docks under the panes, follows the active pane's folder, and runs commands there",
+    "e2e-tt99-interactions: selection in the second pane activates only that pane and keeps keyboard selection local"
    ]
   },
   "FM-03": {
@@ -498,6 +587,12 @@
     "e2e-tt95-photo-concurrency: a queued stale recipe is rejected on reconnect and retained for the user",
     "e2e-tt95-photo-concurrency: a corrupt recipe is reported rather than opened as the original",
     "e2e-tt95-photo-concurrency: an injected read failure is not mistaken for an absent recipe",
+    "e2e-tt98-orbit: Desktop item menu copies real VFS paths and does not open background menu",
+    "e2e-tt98-orbit: Desktop rename writes actual filesystem and refreshes the icon",
+    "e2e-tt98-orbit: Rename collision refuses overwrite and preserves both files",
+    "e2e-tt98-orbit: Duplicate creates a distinct file with identical content",
+    "e2e-tt98-orbit: Desktop copy then Paste creates a collision-safe copy",
+    "e2e-tt98-orbit: Desktop trash requires confirmation, cancellation has no effect, confirmation is recoverable",
     "e2e: mount: files",
     "e2e: Files upload of a 1 MiB binary succeeds (stack-overflow base64 fix)",
     "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
@@ -642,6 +737,9 @@
    "tested": "full",
    "tests": [
     "e2e-tt55-files: FM-06 context menu: concise vs full sets, type-to-search reaches any action, arrow keys + Enter run it, Esc closes; background menu has New / templates / Paste",
+    "e2e-tt98-orbit: Files context Copy preserves all rectangle-selected paths",
+    "e2e-tt98-orbit: Existing file menu takes precedence over app fallback",
+    "e2e-tt99-interactions: column ancestor context acts on the clicked folder, not the current folder",
     "tt55-files-unit: FM-06 context-menu model: concise ⊂ full, type-to-search matches every word (label + keywords, case- and accent-folded), order kept"
    ]
   },
@@ -756,6 +854,8 @@
    "tested": "full",
    "tests": [
     "e2e-tt55-files: FM-13 New from template: the menu lists /System/Templates from the server; a new file is a byte copy of the template; a second one gets a free name",
+    "e2e-tt98-orbit: New desktop folder is backed by a real directory",
+    "e2e-tt98-orbit: New text file collision cannot truncate an existing document",
     "tt55-files-unit: FM-03 / FM-13 conflict-free names: never in use, the smallest free candidate, copies of copies do not grow, dirs and dotfiles keep their name"
    ]
   },
@@ -768,6 +868,19 @@
    "tests": [
     "e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash",
     "e2e-tt55-files: FM-15 keyboard file operations: F2 renames, Delete trashes, Shift-range compress builds one archive (zipfile-verified), selection batch rename touches only the selection",
+    "e2e-tt98-orbit: Files rectangle selects intersecting rows without opening or clearing on release",
+    "e2e-tt98-orbit: Files context Copy preserves all rectangle-selected paths",
+    "e2e-tt98-orbit: Ctrl rectangle adds to the previous selection",
+    "e2e-tt98-orbit: Non-modified rectangle replaces selection",
+    "e2e-tt98-orbit: Escape cancels an active rectangle and restores the prior selection",
+    "e2e-tt98-orbit: Empty rectangle clears selection",
+    "e2e-tt99-interactions: content anchor survives real edge scrolling and retains offscreen crossed rows",
+    "e2e-tt99-interactions: subpixel edge velocity progresses at the inner edge instead of rounding every frame to zero",
+    "e2e-tt99-interactions: Escape during scrolling restores the exact gesture-start selection",
+    "e2e-tt99-interactions: actual pointer capture loss rolls back rather than committing a partial rectangle",
+    "e2e-tt99-interactions: a real viewport resize cancels an in-flight scroll rectangle and restores its selection",
+    "e2e-tt99-interactions: grid rectangle uses item geometry rather than list-row arithmetic",
+    "e2e-tt99-interactions: selection in the second pane activates only that pane and keeps keyboard selection local",
     "tt55-files-unit: FM-15 selection model = spec-literal reference over 3 000 random click / Ctrl / Shift / Ctrl+Shift / keyboard sequences"
    ]
   },
@@ -786,7 +899,9 @@
   "FM-18": {
    "tested": "partial",
    "tests": [
+    "e2e-tt99-interactions: Editor Keep controls remain present after loading and Save persists content plus the previous version",
     "e2e: mount: files",
+    "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
     "integration: FM-18 overwrite snapshots the previous version",
     "tt91-write-atomic: failed index update rolls back content, history and audit; the journal records failure",
     "tt91-write-atomic: two simultaneous overwrites preserve both serialized versions and the current search text",
@@ -819,6 +934,9 @@
   "NC-01": {
    "tested": "partial",
    "tests": [
+    "e2e-tt99-interactions: Alerts object menu marks read and unread through real persisted state",
+    "e2e-tt99-interactions: Alerts pin and snooze persist without affecting another alert",
+    "e2e-tt99-interactions: Alerts context dismiss deletes only the selected alert",
     "e2e: mount: alerts"
    ]
   },
@@ -829,6 +947,7 @@
     "e2e-tt71-focus: Alerts UI: status line, held alerts listed apart with their reason, Deliver now, held test alert raises no OS notification",
     "e2e-tt71-focus: editor: real controls build a rule; a bad workspace shows the parser's message and saves nothing; a valid rule activates; Remove clears",
     "e2e-tt71-focus: reminders: a held overdue-task reminder raises no toast and no OS notification and is stored with its reason; with no rules it does (control)",
+    "e2e-tt99-interactions: held-alert context release removes only the chosen hold without an OS notification claim",
     "tt71-focus: parseRules rejects 18 malformed shapes with a message naming the rule; accepts and normalises a good list",
     "tt71-focus: inSchedule equals the minute-of-week oracle on every minute of the week for 60 schedules (incl. overnight, Sat→Sun)",
     "tt71-focus: localTime: New York DST jumps, +05:30 / +12:45 offsets, unknown zone falls back to UTC (flagged)",
@@ -1066,7 +1185,9 @@
   "PR-01": {
    "tested": "partial",
    "tests": [
+    "e2e-tt99-interactions: Editor Keep controls remain present after loading and Save persists content plus the previous version",
     "e2e: mount: editor",
+    "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
     "tt92-ledger-audit: the editor does not advertise its database version snapshots as native SAF safe-save"
    ]
   },
@@ -1084,6 +1205,10 @@
     "e2e-tt97-palette-actions: only an explicitly selected enabled routine runs and records its execution",
     "e2e-tt97-palette-actions: a routine disabled after being listed is rechecked and not run",
     "e2e-tt97-palette-actions: palette action scenarios have no uncaught page errors",
+    "e2e-tt99-interactions: Notes keyboard context pin is persisted and the menu skips disabled actions",
+    "e2e-tt99-interactions: Notes duplicate copies real saved text and tags without changing the original",
+    "e2e-tt99-interactions: Notes dirty draft disables destructive context actions and native text remains native",
+    "e2e-tt99-interactions: Notes context deletion is cancelable and removes only the chosen note",
     "e2e: mount: notes",
     "integration: deleting a note removes only its own index row"
    ]
@@ -1123,6 +1248,10 @@
     "e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
     "e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https)",
     "e2e-browser: no page errors in the browser session",
+    "e2e-tt99-interactions: Browser tab context duplicates the clicked URL and pins a non-active target",
+    "e2e-tt99-interactions: Browser close-others uses the context target, preserving pinned tabs",
+    "e2e-tt99-interactions: Browser explicit Close removes the clicked pinned tab, not the active neighbor",
+    "e2e-tt99-interactions: Browser vertical-tab keyboard sleep/wake respects active-tab guards and survives persisted reload",
     "e2e: mount: browser"
    ]
   },
@@ -1932,6 +2061,7 @@
     "e2e: mount: editor",
     "e2e: mount: writer",
     "e2e: mount: sheet",
+    "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
     "tt69-lifecycle: planClose: clean windows close now, every dirty one is asked exactly once in window order; force skips; unknown ids ignored; closeAll covers all",
     "tt69-lifecycle: guard registry: dirty() is consulted live; a throwing dirty() counts as dirty (fail safe); unregister only removes its own guard; live untitled keys are reported",
     "tt69-lifecycle: draftPathFor: injective keys (/a_b ≠ /a/b, a:b ≠ a?b), private drafts stay under /Private, untitled ids validated, unknown kinds refused",
@@ -4948,9 +5078,10 @@
    ]
   },
   "CT-02": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: share",
+    "e2e: WebRTC data channel between two contexts via Postgres signalling",
     "integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap"
    ]
   },
@@ -5027,6 +5158,7 @@
    "tested": "partial",
    "tests": [
     "e2e: mount: share",
+    "e2e: WebRTC data channel between two contexts via Postgres signalling",
     "integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap"
    ]
   },
@@ -5175,6 +5307,8 @@
     "e2e-tt96-desktop-menu: a lower-right desktop context menu stays within its usable surface and Sort can be clicked",
     "e2e-tt96-desktop-menu: the geometry and real click checks detect an injected old-style offscreen placement",
     "e2e-tt96-desktop-menu: at large text on a narrow viewport every menu action remains reachable",
+    "e2e-tt99-interactions: typeahead and one roving tab stop work in object menus",
+    "e2e-tt99-interactions: Tab closes the menu and advances outside it instead of cycling through menuitems",
     "e2e: structural a11y: every window is a named dialog; no unnamed buttons"
    ]
   },
@@ -5233,6 +5367,7 @@
     "e2e-tt97-files-empty-a11y: an empty scrollable folder listing is keyboard reachable and has no serious axe violation",
     "e2e-tt97-files-empty-a11y: reverting to the pre-repair non-tabbable empty listing is detected",
     "e2e-tt97-files-empty-a11y: the empty-state check produces no uncaught page errors",
+    "e2e-tt99-interactions: no uncaught browser exceptions in the interaction matrix",
     "e2e-whiteboard: axe-core: default, with a selection (style + arrange panels), and with the text editor open — no serious/critical violations",
     "tt97-svg-attributes: no JSX SVG geometry attribute receives calc()/var()/fz(); the fixed banner chevron is present",
     "tt97-svg-attributes: detector rejects the exact pre-repair attribute shape",
@@ -5442,8 +5577,10 @@
    "tests": []
   },
   "DP-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e: no non-resource console errors across all module mounts"
+   ]
   },
   "DP-08": {
    "tested": "partial",

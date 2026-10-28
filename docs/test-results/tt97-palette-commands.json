@@ -1,6 +1,6 @@
 {
   "suite": "tt97-palette-commands",
-  "at": "2026-10-28T04:56:47.187Z",
+  "at": "2026-10-28T08:30:56.054Z",
   "results": [
     {
       "suite": "tt97-palette-commands",
@@ -9,7 +9,7 @@
         "SR-06": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt97-palette-commands",

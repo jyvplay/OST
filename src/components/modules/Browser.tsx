@@ -50,8 +50,9 @@ function SleepIcon() {
   return <svg role="img" aria-label="asleep" width="11" height="11" viewBox="0 0 16 16" style={{ display: "inline-block", marginRight: 4, verticalAlign: "-1px", flex: "none", opacity: 0.75 }}><title>asleep</title><path d="M11.5 10.5A6 6 0 0 1 5.5 2a6.5 6.5 0 1 0 8.5 8 6 6 0 0 1-2.5.5z" fill="currentColor" /></svg>;
 }
 
-export default function BrowserModule({ win }: ModuleProps) {
+export default function BrowserModule({ win, onPageChange, embeddedRecall=false }: ModuleProps & {onPageChange?:(url:string,title:string)=>void;embeddedRecall?:boolean}) {
   const shell = useShell();
+  const [tools,setTools]=useState(!embeddedRecall);
   const [renderCapable, setRenderCapable] = useState<boolean | null>(null);
   useEffect(() => { api<{ capable: boolean }>("/api/render?probe=1").then((r) => setRenderCapable(r.capable)).catch(() => setRenderCapable(false)); }, []);
   // PR-07r / SH-08: tabs, groups, split and sidebar live in win.props, i.e. in the
@@ -84,15 +85,17 @@ export default function BrowserModule({ win }: ModuleProps) {
   useEffect(() => () => { for (const sid of proxySessions.values()) void fetch(`/api/wp-session?sid=${encodeURIComponent(sid)}`, { method: "DELETE", keepalive: true }).catch(() => {}); proxySessions.clear(); }, [proxySessions]);
 
   useEffect(() => {
-    const t = window.setTimeout(() => {
+    const persist=()=>{
       shell.dispatch({
         t: "setProps", id: win.id,
         props: { tabs: tabs.map(({ verdict: _v, reason: _r, host: _h, ...rest }) => rest), active, vertical, split, groups: sess.groups, perms: sess.perms, proxyAll },
       });
-    }, 500);
+    };
+    if(embeddedRecall){persist();return;}
+    const t=window.setTimeout(persist,500);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tabs, active, vertical, split, sess.groups, sess.perms, win.id, proxyAll]);
+  }, [tabs, active, vertical, split, sess.groups, sess.perms, win.id, proxyAll,embeddedRecall]);
   // The omnibox opens new tabs (existing behaviour) but, like a desktop browser, shows the active tab's URL.
   const [address, setAddress] = useState(() => tabs.find((t) => t.id === active)?.url ?? "https://example.com");
   const [addressFor, setAddressFor] = useState(active);
@@ -114,6 +117,7 @@ export default function BrowserModule({ win }: ModuleProps) {
   };
 
   useEffect(() => {
+    if(proxyAll)return;
     const t = tabs.find((x) => x.id === active);
     if (!t || t.verdict || probed.has(t.url)) return;
     probed.add(t.url);
@@ -122,10 +126,11 @@ export default function BrowserModule({ win }: ModuleProps) {
       .then(r => setTabs(ts => ts.map(x => x.id === t.id ? { ...x, verdict: r.verdict, reason: r.reason, host: r.host, url: r.url, title: new URL(r.url).host } : x)))
       .catch(() => setTabs(ts => ts.map(x => x.id === t.id ? { ...x, verdict: "unknown", reason: "probe failed", host: "S3-handoff" } : x)));
     // tabs are immutable; the lifetime cache deduplicates requests across active changes.
-  }, [active, tabs, probed]);
+  }, [active, tabs, probed, proxyAll]);
 
 
   const current = tabs.find((t) => t.id === active) ?? null;
+  useEffect(()=>{if(current)onPageChange?.(current.url,current.title);},[current,onPageChange]);
   const open = (input: string) => {
     const url = safeBrowserUrl(input, window.location.origin);
     if (!url) { setNotice(`Refused "${input.slice(0, 80)}": only absolute http(s) URLs without user:password@, and never this shell's own origin`); return; }
@@ -165,7 +170,7 @@ export default function BrowserModule({ win }: ModuleProps) {
 
   const proxied = (tab: Tab, key: string) => (
     <ProxyFrame key={`${key}:${tab.id}:${tab.profile ?? ""}`} tabId={tab.id} url={tab.url} sessions={proxySessions}
-      profile={tab.profile ?? ""} profiles={profileNames} circuitable={route?.mode === "socks5"} via={route && route.mode !== "direct" ? route.label : ""}
+      embeddedRecall={embeddedRecall} profile={tab.profile ?? ""} profiles={profileNames} circuitable={route?.mode === "socks5"} via={route && route.mode !== "direct" ? route.label : ""}
       onProfile={(p) => setTabs((ts) => ts.map((x) => (x.id === tab.id ? { ...x, profile: p || undefined } : x)))}
       onNav={(u, t) => { setTabs((ts) => ts.map((x) => (x.id === tab.id ? { ...x, url: u, title: t || new URL(u).host } : x))); if (tab.id === active) setAddress(u); }} />
   );
@@ -229,12 +234,14 @@ export default function BrowserModule({ win }: ModuleProps) {
     <div data-testid="browser" data-tabs={tabs.length} data-active={active} data-pinned={tabs.filter((t) => t.pinned).map((t) => t.id).join(",")} onKeyDown={onKey}
       style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <Btn variant="ghost" onClick={() => setVertical((v) => !v)} title="Vertical tab sidebar">{vertical ? "▤" : "▥"}</Btn>
-        <input className="fs-input" value={address} aria-label="Address"
+        {tools?<Btn variant="ghost" onClick={() => setVertical((v) => !v)} title="Vertical tab sidebar">{vertical ? "▤" : "▥"}</Btn>:null}
+        <input className="fs-input" value={address} aria-label="Address" style={embeddedRecall?{flex:"1 1 240px",minWidth:0,width:"auto"}:undefined}
           onChange={(e) => setAddress(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") open(address); }} />
         <Btn variant="primary" onClick={() => open(address)}>Go</Btn>
-        <Btn onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}>Recall media</Btn>
+        {!embeddedRecall?<Btn onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}>Recall media</Btn>:null}
+        {embeddedRecall?<Btn aria-expanded={tools} onClick={()=>{setTools(v=>!v);setShowPerms(false);setShowRoute(false);}}>Browser tools</Btn>:null}
+        <div style={{display:tools?'contents':'none'}}>
         <Btn variant="ghost" onClick={() => setSplit(split === "off" ? "h" : split === "h" ? "v" : "off")}>
           split: {split}
         </Btn>
@@ -251,7 +258,8 @@ export default function BrowserModule({ win }: ModuleProps) {
         <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)}>Site permissions</Btn>
         <Btn variant="ghost" data-testid="br-proxy-all" aria-pressed={proxyAll} title="Route every tab through Fusion's private proxy: sites never see your address, trackers are blocked, cookies stay in memory per tab, and find in page / desktop-or-mobile identity / Save to Files work on every site" onClick={() => setProxyAll((v) => !v)}>Private proxy: {proxyAll ? "all tabs" : "off"}</Btn>
         <Btn variant="ghost" data-testid="br-route" aria-pressed={showRoute} aria-expanded={showRoute} title="How Fusion's server reaches the web for Private proxy tabs: directly, through Tor, or through another proxy" onClick={() => setShowRoute((v) => !v)}>Network route: {route?.label ?? "…"}</Btn>
-        {current?.verdict ? <Badge tone={current.verdict === "embeddable" ? "ok" : "bad"} title={current.reason}>{current.verdict}</Badge> : <Badge>probing…</Badge>}
+        {current?.verdict ? <Badge tone={current.verdict === "embeddable" ? "ok" : "bad"} title={current.reason}>{current.verdict}</Badge> : <Badge>{proxyAll?"private proxy":"probing…"}</Badge>}
+        </div>
       </div>
 
       {notice ? <div data-testid="browser-notice" className="fs-dim" style={{ fontSize: fz(11), padding: "3px 8px", borderBottom: "1px solid var(--fs-border)" }}>{notice}</div> : null}

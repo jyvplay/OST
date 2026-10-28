@@ -1,0 +1,18 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+locator.selectOption: Error: strict mode violation: locator('.fs-window[aria-label=Find]').getByLabel('Search mode', { exact: true }) resolved to 2 elements:
+    1) <select class="fs-input" aria-label="Search mode">…</select> aka getByLabel('Search mode').first()
+    2) <select class="fs-input" aria-label="Search mode">…</select> aka getByLabel('Search mode').nth(1)
+
+Call log:
+  - waiting for locator('.fs-window[aria-label=Find]').getByLabel('Search mode', { exact: true })
+
+    at /home/user/OST/scripts/tt101-preview-smoke.mts:13:286 {
+  log: [
+    "  - waiting for locator('.fs-window[aria-label=Find]').getByLabel('Search mode', { exact: true })"
+  ]
+}
+
+Node.js v22.22.3
