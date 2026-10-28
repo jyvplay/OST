@@ -1,23 +1,79 @@
 {
- "generatedAt": "2026-10-28T16:56:00.319Z",
+ "generatedAt": "2026-10-28T18:30:42.780Z",
  "totals": {
   "built": {
    "full": 333,
-   "partial": 83,
+   "partial": 86,
    "blocked": 24,
    "none": 0
   },
   "tested": {
    "full": 259,
-   "partial": 99,
-   "untested": 82
+   "partial": 117,
+   "untested": 67
   },
   "tests": {
-   "total": 2536,
-   "passed": 2532
+   "total": 2602,
+   "passed": 2598
   }
  },
  "rows": {
+  "RC-27": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt107-memory: searching by save method finds the memory through the real UI",
+    "e2e-tt107-memory: a filter that matches nothing reports an honest empty result, not an error",
+    "tt107-recall: search filters by save method across every Recall folder",
+    "tt107-recall: search filters by exact page host and never by substring",
+    "tt107-recall: search filters by capture date range inclusively",
+    "tt107-recall: search combines filters and returns metadata only, never media bodies",
+    "tt107-recall: a receipt that is not valid JSON is skipped and counted, not a query failure",
+    "tt107-recall: trashed memories disappear from search results",
+    "tt107-recall: search rejects invalid filter {\"method\":\"Not A Method\"}",
+    "tt107-recall: search rejects invalid filter {\"method\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+    "tt107-recall: search rejects invalid filter {\"host\":\"bad host!\"}",
+    "tt107-recall: search rejects invalid filter {\"from\":\"yesterday\"}",
+    "tt107-recall: search rejects invalid filter {\"to\":\"05-2026\"}",
+    "tt107-recall: search rejects invalid filter {\"limit\":\"0\"}",
+    "tt107-recall: search rejects invalid filter {\"limit\":\"1000\"}"
+   ]
+  },
+  "RC-28": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt107-memory: the integrity report shows a healthy pair with no orphans",
+    "e2e-tt107-memory: an unpaired file is listed by the audit and can be trashed from the UI",
+    "e2e-tt107-memory: widening the scope to every folder is an explicit, visible choice",
+    "e2e-tt107-memory: the audit never invents a receipt for a memory that lost one",
+    "tt107-recall: a receipt that is not valid JSON is skipped and counted, not a query failure",
+    "tt107-recall: audit reports a healthy folder with no orphans",
+    "tt107-recall: audit detects media without receipt and receipt without media",
+    "tt107-recall: audit detects a receipt/byte checksum mismatch and never rewrites it",
+    "tt107-recall: unpaired cleanup refuses a complete pair",
+    "tt107-recall: unpaired cleanup trashes a true orphan under a guard and the audit clears",
+    "tt107-recall: unpaired cleanup refuses a stale guard",
+    "tt107-recall: unpaired cleanup refuses a receipt whose media reappeared",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /etc/passwd",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Private/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793212210032/nested/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/x",
+    "tt107-recall: unpaired cleanup rejects invalid guard null",
+    "tt107-recall: unpaired cleanup rejects invalid guard {}",
+    "tt107-recall: unpaired cleanup rejects invalid guard {\"id\":0,\"version\":1,\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+    "tt107-recall: unpaired cleanup rejects invalid guard {\"id\":1,\"version\":1,\"sha256\":\"zz\"}",
+    "tt107-recall: audit scope rejects a non-canonical folder"
+   ]
+  },
+  "RC-29": {
+   "tested": "partial",
+   "tests": [
+    "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata",
+    "tt107-crash: server restarts and the same payload then publishes the exact pair",
+    "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed",
+    "tt107-crash: after the crash the pair is still guard-consistent and can be trashed and restored"
+   ]
+  },
   "RC-24": {
    "tested": "partial",
    "tests": [
@@ -29,7 +85,8 @@
    "tested": "partial",
    "tests": [
     "e2e-tt106-memory: cancelled trash confirmation changes nothing",
-    "tt106-lifecycle: paired trash removes both active files and both search entries"
+    "tt106-lifecycle: paired trash removes both active files and both search entries",
+    "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed"
    ]
   },
   "RC-26": {
@@ -43,7 +100,8 @@
   "RC-22": {
    "tested": "partial",
    "tests": [
-    "tt105-atomic: one acknowledgement publishes both exact media and receipt"
+    "tt105-atomic: one acknowledgement publishes both exact media and receipt",
+    "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata"
    ]
   },
   "RC-23": {
@@ -179,8 +237,12 @@
    ]
   },
   "SH-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt107-shell: the top bar shows a live clock in the user's own locale format",
+    "e2e-tt107-shell: the top bar exposes launcher, search, overview and quick panel as real controls",
+    "e2e-tt107-shell: the top bar reports live system status rather than a static badge"
+   ]
   },
   "SH-04": {
    "tested": "full",
@@ -427,12 +489,23 @@
    "tests": []
   },
   "WM-17": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: raw proxy re-serves a framing-refusing page without its refusal headers",
+    "tt107-features: raw proxy anchors relative subresources with a base href and defuses framebusting",
+    "tt107-features: proxy refuses non-HTML content and missing arguments"
+   ]
   },
   "WM-18": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: proxy refuses non-HTML content and missing arguments",
+    "tt107-features: reader mode extracts the article and drops chrome, scripts and styles",
+    "tt107-features: reader mode neutralises inline handlers and javascript: links",
+    "tt107-features: reader mode defeats javascript: scheme evasion instead of deleting a substring",
+    "tt107-features: reader mode escapes a hostile page title instead of injecting it",
+    "tt107-features: reader mode resolves relative links and images against the source"
+   ]
   },
   "WM-19": {
    "tested": "untested",
@@ -614,8 +687,10 @@
    ]
   },
   "SR-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "SR-08": {
    "tested": "partial",
@@ -923,8 +998,10 @@
    ]
   },
   "FM-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "FM-13": {
    "tested": "full",
@@ -1034,8 +1111,13 @@
    ]
   },
   "NC-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt107-shell: the quick panel opens from the top bar with its accessibility and style controls",
+    "e2e-tt107-shell: quick-panel theme is applied to the document and survives a reload",
+    "e2e-tt107-shell: quick-panel density cycles through all three settings and survives a reload",
+    "e2e-tt107-shell: the quick panel closes again without leaving a modal trap"
+   ]
   },
   "NC-04": {
    "tested": "partial",
@@ -1150,8 +1232,10 @@
    ]
   },
   "AP-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "AP-04": {
    "tested": "untested",
@@ -1249,8 +1333,10 @@
    "tests": []
   },
   "TD-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "TD-06": {
    "tested": "full",
@@ -2843,8 +2929,10 @@
    ]
   },
   "SC-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "SC-05": {
    "tested": "full",
@@ -2876,8 +2964,11 @@
    ]
   },
   "SC-09": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every cast session is registered and closed in the database",
+    "tt107-features: a cast session cannot be opened against an unregistered target"
+   ]
   },
   "BK-01": {
    "tested": "partial",
@@ -5265,8 +5356,12 @@
    ]
   },
   "CA-14": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: a never-seen cast target arrives untrusted and trust is remembered",
+    "tt107-features: trust can be withdrawn again for one target only",
+    "tt107-features: a cast session cannot be opened against an unregistered target"
+   ]
   },
   "CA-15": {
    "tested": "partial",
@@ -5352,8 +5447,10 @@
    ]
   },
   "MS-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "MS-03": {
    "tested": "partial",
@@ -5582,12 +5679,19 @@
    "tests": []
   },
   "CM-01": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "CM-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: embed probe reports a framing refusal from X-Frame-Options",
+    "tt107-features: embed probe reports a framing refusal from CSP frame-ancestors",
+    "tt107-features: embed probe clears a permissive page so it can become a window",
+    "tt107-features: embed probe rejects malformed and non-http targets"
+   ]
   },
   "BL-01": {
    "tested": "full",
@@ -5603,8 +5707,12 @@
    ]
   },
   "BL-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: a trial grants 14 days and cannot be taken twice",
+    "tt107-features: an expired trial degrades to read-only and still shows its history",
+    "tt107-features: an unknown client is untiered rather than defaulted to paid"
+   ]
   },
   "BL-04": {
    "tested": "untested",

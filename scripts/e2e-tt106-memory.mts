@@ -62,7 +62,7 @@ try{
   assert.ok(await recall.getByRole('button',{name:'Save preview frame',exact:true}).isDisabled());
   assert.ok(await recall.getByRole('button',{name:'Trash open memory pair'}).isDisabled());
   assert.equal((await listing()).length,rows.length);});
- await test('Specs adds all three truthful requirements without completion promotion',{},async()=>{const rows=(await api('GET','/api/features')).rows.filter((r:{code:string})=>/^RC-\d\d$/.test(r.code));assert.equal(rows.length,26);assert.ok(rows.every((r:{status:string})=>r.status==='partial'));});
+ await test('Specs adds all three truthful requirements without completion promotion',{},async()=>{const rows=(await api('GET','/api/features')).rows.filter((r:{code:string})=>/^RC-\d\d$/.test(r.code));assert.equal(rows.length,29);assert.ok(rows.every((r:{status:string})=>r.status==='partial'));});
  await page.screenshot({path:'docs/evidence/tt106-memory.png'});writeFileSync('docs/evidence/tt106-runtime.json',JSON.stringify({node:process.version,chromium:browser.version(),agents:1,independentReviewer:false,theoremProver:false,physicalClipboardAudioDisplay:false,newTestsInterceptNetwork:false,newTestsSyntheticEvents:false,graphics:'real headless Chromium/software graphics'},null,2));
 }finally{await browser.close();}
 finish();

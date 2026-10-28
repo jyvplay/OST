@@ -12,6 +12,8 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
  const [note,setNote]=useState(''),[busy,setBusy]=useState(false),[items,setItems]=useState<{path:string;name:string;mime:string}[]>([]),[view,setView]=useState<{url:string;mime:string;path:string;mediaGuard:RecallGuard['media']}|null>(null);
  const [next,setNext]=useState<string|null>(null),[folder,setFolder]=useState('');
  const [confirmTrash,setConfirmTrash]=useState(false),[undo,setUndo]=useState<{path:string;guard:RecallGuard}|null>(null);
+ const [method,setMethod]=useState(''),[host,setHost]=useState(''),[from,setFrom]=useState(''),[to,setTo]=useState(''),[auditScope,setAuditScope]=useState('folder');
+ const [audit,setAudit]=useState<{scope:string;mediaFiles:number;receiptFiles:number;healthyPairs:number;orphanMedia:string[];orphanReceipts:string[];unreadableReceipts:string[];checksumMismatch:string[]}|null>(null);
  const previewMedia=useRef<HTMLImageElement|HTMLVideoElement|null>(null);
  const mounted=useRef(true),objectUrl=useRef(''),active=useRef(false),epoch=useRef(0);
  useEffect(()=>{const lifecycle=epoch;mounted.current=true;return()=>{mounted.current=false;lifecycle.current++;if(objectUrl.current)URL.revokeObjectURL(objectUrl.current);};},[]);
@@ -40,6 +42,30 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
   if(mounted.current){setUndo({path,guard:result.guard});setConfirmTrash(false);setItems(old=>old.filter(n=>n.path!==path));epoch.current++;if(objectUrl.current)URL.revokeObjectURL(objectUrl.current);objectUrl.current='';setView(null);setNote('Media and receipt moved to Trash together. Undo restores only this unchanged pair; this is not secure erasure.');}
  };
  const restore=async()=>{if(!undo)return;await pair(undo.path,'restore',undo.guard);if(mounted.current){setUndo(null);setNote('Pair restored. Refresh the selected folder timeline to view it.');}};
+ const search=async()=>{
+  recallWritable();
+  const params=new URLSearchParams({op:'recallSearch'});
+  if(method)params.set('method',method);if(host)params.set('host',host);if(from)params.set('from',from);if(to)params.set('to',to);
+  const r=await api<{nodes:{path:string;name:string;mime:string;method:string;host:string|null;capturedAt:string|null}[];scanned:number;unreadableReceipts:number}>('/api/fs?'+params);
+  if(!mounted.current)return;
+  setItems(r.nodes.map(n=>({path:n.path,name:n.name,mime:n.mime})));setNext(null);setFolder('');
+  setNote(`${r.nodes.length} memories match (at most 100 shown) from ${r.scanned} receipts${r.unreadableReceipts?`; ${r.unreadableReceipts} unreadable receipts were skipped`:''}. Receipt facts were recorded when you saved; they are integrity data, not authenticated provenance.`);
+ };
+ const runAudit=async()=>{
+  recallWritable();
+  const c=context(),scoped=auditScope==='folder'?recallFolder(c.page,c.title,c.grouping,c.custom):'';
+  const r=await api<{scope:string;mediaFiles:number;receiptFiles:number;healthyPairs:number;orphanMedia:string[];orphanReceipts:string[];unreadableReceipts:string[];checksumMismatch:string[]}>('/api/fs?'+new URLSearchParams(scoped?{op:'recallAudit',folder:scoped}:{op:'recallAudit'}));
+  if(mounted.current){setAudit(r);setNote('Integrity report refreshed. Missing receipts are never regenerated; provenance cannot be reconstructed after the fact.');}
+ };
+ const trashOrphan=async(orphan:string)=>{
+  recallWritable();
+  const node=(await api<{node:{id:number;version:number;sha256:string}}>('/api/fs?'+new URLSearchParams({op:'stat',path:orphan}))).node;
+  await api('/api/fs',{method:'POST',body:JSON.stringify({op:'recallOrphan',path:orphan,expected:{id:node.id,version:node.version,sha256:node.sha256}})});
+  // Refresh first, then state the outcome: the refresh writes its own status, so
+  // announcing the trash beforehand would wipe the confirmation off the screen.
+  await runAudit();
+  if(mounted.current)setNote('Unpaired file moved to Trash: '+orphan+'. Recoverable from Files; this is not secure erasure.');
+ };
  const frame=async()=>{
   const media=previewMedia.current;if(!view||!media)throw Error('Open an image or video preview first');
   const version=epoch.current;const width=media instanceof HTMLVideoElement?media.videoWidth:media.naturalWidth,height=media instanceof HTMLVideoElement?media.videoHeight:media.naturalHeight;
@@ -85,6 +111,25 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
    <Btn disabled={busy||!view} onClick={()=>{if(!view)return;const a=document.createElement('a');a.href=view.url;a.download=view.path.split('/').pop()||'memory';a.click();setNote('Local export requested from the open saved Blob; browser download policy may require confirmation.');}}>Export open memory</Btn>
    <Btn disabled={busy||!view} onClick={()=>{setConfirmTrash(false);epoch.current++;if(objectUrl.current)URL.revokeObjectURL(objectUrl.current);objectUrl.current='';setView(null);}}>Close memory preview</Btn>
   </div>
+  <div role="group" aria-label="Search saved memories" className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'end'}}>
+   <label style={{display:'grid'}}>Saved by<select aria-label="Filter by save method" value={method} onChange={e=>setMethod(e.target.value)}>
+    <option value="">Any method</option><option value="human-selected-file">Chosen file</option><option value="human-paste-file">Pasted file</option>
+    <option value="human-drop-file">Dropped file</option><option value="human-clipboard-image">Copied image</option>
+    <option value="clicked-visual-png">Clicked visual</option><option value="saved-preview-frame">Preview frame</option></select></label>
+   <label style={{display:'grid'}}>Page host<input aria-label="Filter by page host" value={host} onChange={e=>setHost(e.target.value)} placeholder="example.com"/></label>
+   <label style={{display:'grid'}}>From<input aria-label="Filter from date" type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label>
+   <label style={{display:'grid'}}>To<input aria-label="Filter to date" type="date" value={to} onChange={e=>setTo(e.target.value)}/></label>
+   <Btn disabled={busy} onClick={()=>void run(search)}>Search memories</Btn>
+   <label style={{display:'grid'}}>Integrity scope<select aria-label="Integrity scope" value={auditScope} onChange={e=>setAuditScope(e.target.value)}>
+    <option value="folder">This folder</option><option value="all">All Recall folders</option></select></label>
+   <Btn disabled={busy} onClick={()=>void run(runAudit)}>Check pair integrity</Btn>
+  </div>
+  {audit?<div aria-label="Pair integrity report" style={{padding:8,border:'1px solid var(--fs-border)',borderRadius:8}}>
+   <p>Scope: {audit.scope} · {audit.healthyPairs} healthy pairs · {audit.mediaFiles} media · {audit.receiptFiles} receipts · {audit.orphanMedia.length} media without receipt · {audit.orphanReceipts.length} receipts without media · {audit.unreadableReceipts.length} unreadable · {audit.checksumMismatch.length} checksum mismatch. Up to 50 samples per category; trashed files are out of scope.</p>
+   {[...audit.orphanMedia,...audit.orphanReceipts].length?<ul aria-label="Unpaired Recall files">{[...audit.orphanMedia,...audit.orphanReceipts].map(o=>
+    <li key={o}>{o} <Btn disabled={busy} onClick={()=>void run(()=>trashOrphan(o))}>Trash unpaired file</Btn></li>)}</ul>:null}
+   {audit.checksumMismatch.length?<p role="alert">Checksum mismatch — the stored bytes no longer match their receipt. These are listed, never silently rewritten: {audit.checksumMismatch.join(', ')}</p>:null}
+  </div>:null}
   {confirmTrash?<div role="group" aria-label="Confirm memory pair trash"><p>Move the open media and its verified receipt to Trash? Files remain server-readable and recoverable.</p><Btn disabled={busy} onClick={()=>void run(trash)}>Confirm trash pair</Btn><Btn disabled={busy} onClick={()=>setConfirmTrash(false)}>Cancel pair trash</Btn></div>:null}
   {note?<p role="status">{note}</p>:null}
   <ol aria-label="Memory timeline" style={{maxHeight:220,overflow:'auto'}}>{items.map(item=><li key={item.path}><Btn disabled={busy} onClick={()=>void run(()=>open(item.path))}>{item.name}</Btn></li>)}</ol>

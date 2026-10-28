@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     if (mode === "reader") {
       const { title, html } = extractReadable(body, finalUrl);
       return new NextResponse(
-        `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font:16px/1.6 system-ui;max-width:680px;margin:40px auto;padding:0 20px;color:#1a1a1a;background:#fdfdfb}img{max-width:100%}a{color:#2256c7}</style></head><body><h1>${title}</h1>${html}</body></html>`,
+        `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtmlText(title)}</title><style>body{font:16px/1.6 system-ui;max-width:680px;margin:40px auto;padding:0 20px;color:#1a1a1a;background:#fdfdfb}img{max-width:100%}a{color:#2256c7}</style></head><body><h1>${escapeHtmlText(title)}</h1>${html}</body></html>`,
         { status, headers: { "content-type": "text/html; charset=utf-8", "x-fusion-proxy-source": finalUrl, "x-fusion-proxy-mode": "reader" } },
       );
     }

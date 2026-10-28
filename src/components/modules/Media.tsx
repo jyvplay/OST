@@ -138,8 +138,13 @@ export default function MediaModule({ win }: ModuleProps) {
             try {
               await v?.remote?.prompt();
               setStatus("Remote playback prompt shown.");
-              await fetch("/api/beam", { method: "POST", headers: { "content-type": "application/json" },
-                body: JSON.stringify({ action: "start", name: "remote-playback target", transport: "remote-playback", source: path || src }) });
+              // Register the target before opening a session: the native chooser is the
+              // user's confirmation, but the registry still has to hold the row the
+              // indicator and the trust decision hang off (CA-14/SC-09).
+              const target = "remote-playback target";
+              const post = (body: unknown) => fetch("/api/beam", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+              await post({ action: "seen", name: target, kind: "remote-playback", capability: { transport: "remote-playback" } });
+              await post({ action: "start", name: target, transport: "remote-playback", source: path || src });
             } catch (e) { setStatus(`Remote playback: ${String((e as Error).message)}`); }
           }}>
           📡 Cast this media

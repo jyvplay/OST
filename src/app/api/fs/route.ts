@@ -1,4 +1,6 @@
 import { recallLifecycle } from '@/lib/server/recall-lifecycle';
+import { recallAudit, recallSearch } from '@/lib/server/recall-search';
+import { recallOrphanTrash } from '@/lib/server/recall-orphan';
 import { atomicRecallCommit } from '@/lib/server/recall-commit';
 import { NextResponse, type NextRequest } from "next/server";
 import { and, desc, eq, getTableColumns, ilike, like, lt, not, or, sql } from "drizzle-orm";
@@ -64,6 +66,10 @@ export async function GET(req: NextRequest) {
         const nodes=rows.slice(0,100);
         return NextResponse.json({ok:true,nodes,next:rows.length>100 ? String(nodes[nodes.length-1].id) : null,order:'insertion-id-desc',metadataLimits:{pathBytes:1024,nameBytes:512,mimeBytes:256}});
       }
+      case "recallSearch":
+        return NextResponse.json(await recallSearch({ method: p.get("method"), host: p.get("host"), from: p.get("from"), to: p.get("to"), limit: p.get("limit") }));
+      case "recallAudit":
+        return NextResponse.json(await recallAudit(p.get("folder")));
       case "list": {
         const nodes = await listDir(path);
         return NextResponse.json({ ok: true, path: normalize(path), nodes: nodes.map(strip) });
@@ -133,6 +139,7 @@ export async function POST(req: NextRequest) {
   try {
     switch (op) {
       case "recallPair": return NextResponse.json(await recallLifecycle(body));
+      case "recallOrphan": return NextResponse.json(await recallOrphanTrash(body));
       case "recallCommit": return NextResponse.json(await atomicRecallCommit(body));
       case "writeIfUnchanged": { // folder sync: either create only if absent or replace exactly the previewed version
         const b = body as unknown as Record<string, unknown>;

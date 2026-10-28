@@ -1,0 +1,194 @@
+{
+  "suite": "tt107-features",
+  "at": "2026-10-28T18:30:11.152Z",
+  "results": [
+    {
+      "suite": "tt107-features",
+      "name": "raw proxy re-serves a framing-refusing page without its refusal headers",
+      "covers": {
+        "WM-17": "partial"
+      },
+      "pass": true,
+      "ms": 27
+    },
+    {
+      "suite": "tt107-features",
+      "name": "raw proxy anchors relative subresources with a base href and defuses framebusting",
+      "covers": {
+        "WM-17": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt107-features",
+      "name": "proxy refuses non-HTML content and missing arguments",
+      "covers": {
+        "WM-17": "partial",
+        "WM-18": "partial"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt107-features",
+      "name": "reader mode extracts the article and drops chrome, scripts and styles",
+      "covers": {
+        "WM-18": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt107-features",
+      "name": "reader mode neutralises inline handlers and javascript: links",
+      "covers": {
+        "WM-18": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt107-features",
+      "name": "reader mode defeats javascript: scheme evasion instead of deleting a substring",
+      "covers": {
+        "WM-18": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt107-features",
+      "name": "reader mode escapes a hostile page title instead of injecting it",
+      "covers": {
+        "WM-18": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt107-features",
+      "name": "reader mode resolves relative links and images against the source",
+      "covers": {
+        "WM-18": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt107-features",
+      "name": "embed probe reports a framing refusal from X-Frame-Options",
+      "covers": {
+        "CM-02": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt107-features",
+      "name": "embed probe reports a framing refusal from CSP frame-ancestors",
+      "covers": {
+        "CM-02": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt107-features",
+      "name": "embed probe clears a permissive page so it can become a window",
+      "covers": {
+        "CM-02": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-features",
+      "name": "embed probe rejects malformed and non-http targets",
+      "covers": {
+        "CM-02": "partial"
+      },
+      "pass": true,
+      "ms": 12
+    },
+    {
+      "suite": "tt107-features",
+      "name": "a trial grants 14 days and cannot be taken twice",
+      "covers": {
+        "BL-03": "partial"
+      },
+      "pass": true,
+      "ms": 54
+    },
+    {
+      "suite": "tt107-features",
+      "name": "an expired trial degrades to read-only and still shows its history",
+      "covers": {
+        "BL-03": "partial"
+      },
+      "pass": true,
+      "ms": 23
+    },
+    {
+      "suite": "tt107-features",
+      "name": "an unknown client is untiered rather than defaulted to paid",
+      "covers": {
+        "BL-03": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt107-features",
+      "name": "a never-seen cast target arrives untrusted and trust is remembered",
+      "covers": {
+        "CA-14": "partial"
+      },
+      "pass": true,
+      "ms": 20
+    },
+    {
+      "suite": "tt107-features",
+      "name": "trust can be withdrawn again for one target only",
+      "covers": {
+        "CA-14": "partial"
+      },
+      "pass": true,
+      "ms": 29
+    },
+    {
+      "suite": "tt107-features",
+      "name": "every cast session is registered and closed in the database",
+      "covers": {
+        "SC-09": "partial"
+      },
+      "pass": true,
+      "ms": 19
+    },
+    {
+      "suite": "tt107-features",
+      "name": "a cast session cannot be opened against an unregistered target",
+      "covers": {
+        "SC-09": "partial",
+        "CA-14": "partial"
+      },
+      "pass": true,
+      "ms": 22
+    },
+    {
+      "suite": "tt107-features",
+      "name": "every capability declared blocked is still refused with a stated reason",
+      "covers": {
+        "AP-03": "partial",
+        "TD-05": "partial",
+        "MS-02": "partial",
+        "FM-12": "partial",
+        "SR-07": "partial",
+        "SC-04": "partial",
+        "CM-01": "partial"
+      },
+      "pass": true,
+      "ms": 12
+    }
+  ]
+}

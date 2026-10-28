@@ -1,0 +1,277 @@
+{
+  "suite": "tt107-recall",
+  "at": "2026-10-28T18:30:10.636Z",
+  "results": [
+    {
+      "suite": "tt107-recall",
+      "name": "search filters by save method across every Recall folder",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search filters by exact page host and never by substring",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search filters by capture date range inclusively",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 18
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search combines filters and returns metadata only, never media bodies",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "a receipt that is not valid JSON is skipped and counted, not a query failure",
+      "covers": {
+        "RC-27": "partial",
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 47
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "trashed memories disappear from search results",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 47
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search rejects invalid filter {\"method\":\"Not A Method\"}",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search rejects invalid filter {\"method\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search rejects invalid filter {\"host\":\"bad host!\"}",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search rejects invalid filter {\"from\":\"yesterday\"}",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search rejects invalid filter {\"to\":\"05-2026\"}",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search rejects invalid filter {\"limit\":\"0\"}",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "search rejects invalid filter {\"limit\":\"1000\"}",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "audit reports a healthy folder with no orphans",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 25
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "audit detects media without receipt and receipt without media",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 45
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "audit detects a receipt/byte checksum mismatch and never rewrites it",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 28
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup refuses a complete pair",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup trashes a true orphan under a guard and the audit clears",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 39
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup refuses a stale guard",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 46
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup refuses a receipt whose media reappeared",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 24
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup rejects non-Recall path /",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup rejects non-Recall path /etc/passwd",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup rejects non-Recall path /Private/x.png",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793212210032/nested/x.png",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup rejects non-Recall path /Downloads/Recall/x",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup rejects invalid guard null",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup rejects invalid guard {}",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup rejects invalid guard {\"id\":0,\"version\":1,\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "unpaired cleanup rejects invalid guard {\"id\":1,\"version\":1,\"sha256\":\"zz\"}",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt107-recall",
+      "name": "audit scope rejects a non-canonical folder",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    }
+  ]
+}

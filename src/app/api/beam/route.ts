@@ -43,8 +43,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
   if (b.action === "start") {
+    // CA-14/SC-09: a session must be bound to a target the user has actually seen
+    // and confirmed. Recording "unknown" would leave a cast running that no
+    // indicator and no trust decision could be attached to.
+    if (typeof b.name !== "string" || b.name.trim() === "") {
+      return NextResponse.json({ ok: false, error: "a cast session needs the target name" }, { status: 400 });
+    }
+    const known = await db.select({ id: castTargets.id }).from(castTargets).where(eq(castTargets.name, b.name)).limit(1);
+    if (!known[0]) {
+      return NextResponse.json({ ok: false, error: "unknown cast target: register it with 'seen' and confirm it first" }, { status: 400 });
+    }
     const [row] = await db.insert(beamSessions).values({
-      targetName: b.name ?? "unknown", transport: b.transport ?? "unknown", source: b.source ?? "unknown",
+      targetName: b.name, transport: b.transport ?? "unknown", source: b.source ?? "unknown",
       state: "active", stats: (b.stats ?? {}) as object,
     }).returning({ id: beamSessions.id });
     return NextResponse.json({ ok: true, sessionId: row.id });
