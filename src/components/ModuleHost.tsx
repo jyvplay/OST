@@ -2,6 +2,7 @@
 import { fz } from "@/lib/uiscale";
 
 import type { WindowState } from "@/lib/windowing/state";
+import RecallModule from "./modules/Recall";
 import FilesModule from "./modules/Files";
 import EditorModule from "./modules/Editor";
 import TerminalModule from "./modules/Terminal";
@@ -53,6 +54,7 @@ import VectorModule from "./modules/Vector";
  *  in src/lib/registry.ts; nothing else in the shell needs to change. */
 export default function ModuleHost({ win }: { win: WindowState }) {
   switch (win.module) {
+    case "recall": return <RecallModule win={win} />;
     case "files": return <FilesModule win={win} />;
     case "editor": return <EditorModule win={win} />;
     case "terminal": return <TerminalModule win={win} />;

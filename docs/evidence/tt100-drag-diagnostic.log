@@ -1,0 +1,5 @@
+  ✗ FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified)
+    timed out: drop on a folder row moved drag2 into sub
+
+0 passed, 1 failed
+FAILED: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified)

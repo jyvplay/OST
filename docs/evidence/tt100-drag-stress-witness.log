@@ -1,0 +1,3 @@
+  ✓ FM-02 patch attack: repeated unselected native drags land in the folder row without a layout-shift race
+
+1 passed, 0 failed

@@ -1,0 +1,4 @@
+  ✓ FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified)
+  ✓ FM-02 stress witness: repeated unselected native drags land in the folder row without a layout-shift race
+
+2 passed, 0 failed

@@ -17,6 +17,7 @@ export interface ModuleDef {
  * one surface and be missing from another.
  */
 export const MODULES: ModuleDef[] = [
+  { id: "recall", title: "Recall", icon: "⏺", group: "Create", summary: "Opt-in media archiving, authorized screen/audio recording and PNG snapshots with explicit privacy and capture boundaries", rect: {w:960,h:720}, implements: [] },
   { id: "files", title: "Files", icon: "🗂", group: "Core", summary: "Journaled file manager over the Postgres VFS", rect: { w: 900, h: 560 }, implements: ["FM-01", "FM-03", "FM-11", "FM-18"] },
   { id: "editor", title: "Editor", icon: "📝", group: "Create", summary: "Text/Markdown editor with versions and safe-save", rect: { w: 820, h: 560 }, implements: ["PR-01", "FF-15"] },
   { id: "find", title: "Find", icon: "🔎", group: "Core", summary: "Index search with provenance and diagnostics", rect: { w: 760, h: 520 }, implements: ["SR-01", "SR-02", "SR-08"] },

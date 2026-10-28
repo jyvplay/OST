@@ -1,0 +1,19 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /private or local network/. Input:
+
+'Only the standard web ports (80 and 443) can be proxied.'
+
+    at file:///home/user/OST/scripts/smoke-tt100-preview.mts:18:241
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'Only the standard web ports (80 and 443) can be proxied.',
+  expected: /private or local network/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

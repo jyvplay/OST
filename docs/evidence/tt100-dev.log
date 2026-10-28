@@ -1,0 +1,29 @@
+  ✓ pure boundary: only absolute credential-free HTTP URLs are admitted
+  ✓ pure boundary: grouping cannot escape /Downloads/Recall and secret query tokens are omitted
+  ✓ pure boundary: playlists and HTML cannot masquerade as complete media
+  ✓ Recall original-byte method saves exact publisher bytes and a SHA-256 provenance receipt
+  ✓ a repeated download creates a fresh asset without overwriting the first one
+  ✓ original-byte rejection: /partial creates no successful archive
+  ✓ original-byte rejection: /large creates no successful archive
+  ✓ original-byte rejection: /redirect creates no successful archive
+  ✓ original-byte rejection: /playlist creates no successful archive
+  ✓ original-byte rejection: / creates no successful archive
+  ✓ an active slow HTTP fetch is cancellable without a VFS commit
+  ✓ PNG raster method captures a real Fusion canvas into a decodable image
+  ✓ MediaRecorder encodes actual canvas tracks; closing invokes a real discard/save guard
+  ✓ audio-only capture refuses a real canvas with no audio instead of inventing a soundtrack
+  ✓ after a refused no-audio attempt the same Recall window can capture again without leaked busy state
+  ✓ closing the source application invalidates a selected capture element without wedging Recall
+  ✓ audio-only method captures real playing PCM through a media element and encodes non-silent decodable audio
+  ✓ exposed-media discovery is off before explicit opt-in
+  ✓ armed proxy discovery archives real DOM media once and reacts to actual DOM mutations
+  ✓ automatic discovery rejects actual cross-origin media and drains a batch larger than its pending queue
+  ✓ forged top-level discovery messages cannot request media copies
+  ✓ disarming stops subsequent page mutations from writing new media
+  ✓ amnesic mode refuses Recall server writes without creating a shadow success
+  ✓ Orbit context is a compact content-sized menu, not a viewport-wide panel
+  ✓ bottom-right notifications form a bounded stack and the real setting Undo stays reachable
+  ✓ Files uses distinct original SVG view glyphs while all three view buttons still work
+  ✓ no uncaught page exceptions in Recall and visual interaction tests
+
+27 passed, 0 failed

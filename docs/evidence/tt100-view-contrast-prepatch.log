@@ -1,0 +1,11 @@
+  ✗ Files uses distinct original SVG view glyphs while all three view buttons still work
+    selected text/background must swap together, without a low-contrast transition
++ actual - expected
+
++ 'rgba(79, 216, 210, 0.1)'
+- 'rgb(79, 216, 210)'
+      ^
+
+
+0 passed, 1 failed
+FAILED: Files uses distinct original SVG view glyphs while all three view buttons still work
