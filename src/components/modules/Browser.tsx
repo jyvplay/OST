@@ -248,17 +248,17 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
           onClick={() => setSplit(split === "off" ? "h" : split === "h" ? "v" : "off")}>
           <UiGlyph name={split === "v" ? "splitV" : "splitH"} />{split === "off" ? null : <span style={{ marginLeft: 5, opacity: .8 }}>{split === "h" ? "⇔" : "⇕"}</span>}
         </Btn>
-        <Btn variant="ghost" title="Discard the frames of every tab that is not visible (pinned tabs stay awake)" onClick={() => { const r = sleepInactive(sess, splitPartner); setSess(r.session); setNotice(`${r.slept} tab(s) put to sleep`); }}>Sleep other tabs</Btn>
+        <Btn variant="ghost" title="Discard the frames of every tab that is not visible (pinned tabs stay awake)" onClick={() => { const r = sleepInactive(sess, splitPartner); setSess(r.session); setNotice(`${r.slept} tab(s) put to sleep`); }} aria-label="Sleep other tabs"><UiGlyph name="sleep" />Sleep</Btn>
         <Btn variant="ghost" aria-label="Tear out" title="Open this tab in a window of its own" onClick={() => current && shell.open("browser", { url: current.url, title: current.title })}><UiGlyph name="tearout" /></Btn>
         <Btn variant="ghost" aria-label={current?.pinned ? "Unpin tab" : "Pin tab"} onClick={() => current && setSess((s) => togglePin(s, current.id))}>{current?.pinned ? "Unpin" : "Pin"}</Btn>
         <select className="fs-input" aria-label="Tab group" style={{ width: fz(120) }} value={current?.group ?? ""}
           onChange={(e) => { if (!current) return; const v = e.target.value; setSess((s) => (v === "+" ? createGroup(s, current.id, `Group ${s.groups.length + 1}`) : setGroup(s, current.id, v))); }}>
           <option value="">No group</option>{sess.groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}<option value="+">+ New group</option>
         </select>
-        <Btn variant="ghost" onClick={() => runBatch("others")}>Close others</Btn>
-        <Btn variant="ghost" onClick={() => runBatch("right")}>Close to the right</Btn>
-        <Btn variant="ghost" onClick={() => runBatch("duplicates")}>Close duplicates</Btn>
-        <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)}>Site permissions</Btn>
+        <Btn variant="ghost" onClick={() => runBatch("others")} aria-label="Close others" title="Close others"><UiGlyph name="closeset" />Others</Btn>
+        <Btn variant="ghost" onClick={() => runBatch("right")} aria-label="Close to the right" title="Close to the right"><UiGlyph name="closeset" />Right</Btn>
+        <Btn variant="ghost" onClick={() => runBatch("duplicates")} aria-label="Close duplicates" title="Close duplicates"><UiGlyph name="copy" />Duplicates</Btn>
+        <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)} aria-label="Site permissions" title="Site permissions"><UiGlyph name="shield" />Permissions</Btn>
         <Btn variant="ghost" data-testid="br-proxy-all" aria-pressed={proxyAll} title="Route every tab through Fusion's private proxy: sites never see your address, trackers are blocked, cookies stay in memory per tab, and find in page / desktop-or-mobile identity / Save to Files work on every site" onClick={() => setProxyAll((v) => !v)}>Private proxy: {proxyAll ? "all tabs" : "off"}</Btn>
         <Btn variant="ghost" data-testid="br-route" aria-pressed={showRoute} aria-expanded={showRoute} title="How Fusion's server reaches the web for Private proxy tabs: directly, through Tor, or through another proxy" onClick={() => setShowRoute((v) => !v)}>Network route: {route?.label ?? "…"}</Btn>
         {current?.verdict ? <Badge tone={current.verdict === "embeddable" ? "ok" : "bad"} title={current.reason}>{current.verdict}</Badge> : <Badge>{proxyAll?"private proxy":"probing…"}</Badge>}

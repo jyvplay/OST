@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt98-orbit",
-  "at": "2026-10-29T06:30:27.960Z",
+  "at": "2026-10-29T15:19:39.304Z",
   "results": [
     {
       "suite": "e2e-tt98-orbit",
@@ -9,7 +9,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 3127
+      "ms": 3052
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -19,7 +19,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 307
+      "ms": 403
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -28,7 +28,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 876
+      "ms": 799
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -37,7 +37,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 383
+      "ms": 366
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -46,7 +46,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 344
+      "ms": 287
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -55,7 +55,7 @@
         "FM-15": "partial"
       },
       "pass": true,
-      "ms": 703
+      "ms": 761
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -63,9 +63,8 @@
       "covers": {
         "WM-01": "partial"
       },
-      "pass": false,
-      "error": "The input did not match the regular expression /Send to Studio/. Input:\n\n'Zoom out here (90%)'\n",
-      "ms": 128
+      "pass": true,
+      "ms": 125
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -74,7 +73,7 @@
         "FM-06": "partial"
       },
       "pass": true,
-      "ms": 125
+      "ms": 144
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -83,7 +82,7 @@
         "WM-01": "partial"
       },
       "pass": true,
-      "ms": 69
+      "ms": 301
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -92,7 +91,7 @@
         "WM-01": "partial"
       },
       "pass": true,
-      "ms": 950
+      "ms": 911
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -101,7 +100,7 @@
         "SH-04": "partial"
       },
       "pass": true,
-      "ms": 527
+      "ms": 447
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -111,7 +110,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 85
+      "ms": 86
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -120,7 +119,7 @@
         "SH-04": "partial"
       },
       "pass": true,
-      "ms": 154
+      "ms": 181
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -129,7 +128,7 @@
         "SH-04": "partial"
       },
       "pass": true,
-      "ms": 72
+      "ms": 106
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -139,7 +138,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 1487
+      "ms": 1819
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -148,7 +147,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 641
+      "ms": 551
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -157,7 +156,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 446
+      "ms": 569
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -166,7 +165,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 1007
+      "ms": 687
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -175,7 +174,7 @@
         "FM-03": "partial"
       },
       "pass": true,
-      "ms": 1188
+      "ms": 1219
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -184,7 +183,7 @@
         "FM-13": "partial"
       },
       "pass": true,
-      "ms": 554
+      "ms": 786
     },
     {
       "suite": "e2e-tt98-orbit",
@@ -193,7 +192,7 @@
         "FM-13": "partial"
       },
       "pass": true,
-      "ms": 323
+      "ms": 665
     },
     {
       "suite": "e2e-tt98-orbit",

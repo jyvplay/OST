@@ -1,6 +1,6 @@
 {
   "suite": "tt107-recall",
-  "at": "2026-10-29T06:38:29.993Z",
+  "at": "2026-10-29T15:26:56.047Z",
   "results": [
     {
       "suite": "tt107-recall",
@@ -9,7 +9,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 10
+      "ms": 7
     },
     {
       "suite": "tt107-recall",
@@ -18,7 +18,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 22
+      "ms": 16
     },
     {
       "suite": "tt107-recall",
@@ -27,7 +27,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 18
+      "ms": 15
     },
     {
       "suite": "tt107-recall",
@@ -36,7 +36,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 8
+      "ms": 6
     },
     {
       "suite": "tt107-recall",
@@ -46,7 +46,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 37
+      "ms": 42
     },
     {
       "suite": "tt107-recall",
@@ -55,7 +55,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 34
+      "ms": 33
     },
     {
       "suite": "tt107-recall",
@@ -118,7 +118,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt107-recall",
@@ -127,7 +127,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 22
+      "ms": 17
     },
     {
       "suite": "tt107-recall",
@@ -136,7 +136,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 40
+      "ms": 30
     },
     {
       "suite": "tt107-recall",
@@ -145,7 +145,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 17
+      "ms": 22
     },
     {
       "suite": "tt107-recall",
@@ -163,7 +163,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 33
+      "ms": 25
     },
     {
       "suite": "tt107-recall",
@@ -172,7 +172,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 32
+      "ms": 24
     },
     {
       "suite": "tt107-recall",
@@ -181,7 +181,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 19
+      "ms": 15
     },
     {
       "suite": "tt107-recall",
@@ -190,7 +190,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt107-recall",
@@ -199,7 +199,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt107-recall",
@@ -208,11 +208,11 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt107-recall",
-      "name": "unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793255909503/nested/x.png",
+      "name": "unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793287615624/nested/x.png",
       "covers": {
         "RC-28": "partial"
       },
@@ -244,7 +244,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt107-recall",
@@ -253,7 +253,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt107-recall",
@@ -262,7 +262,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 5
     },
     {
       "suite": "tt107-recall",

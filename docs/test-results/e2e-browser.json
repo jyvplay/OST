@@ -1,6 +1,6 @@
 {
   "suite": "e2e-browser",
-  "at": "2026-10-29T06:32:34.788Z",
+  "at": "2026-10-29T15:39:46.944Z",
   "results": [
     {
       "suite": "e2e-browser",
@@ -10,7 +10,7 @@
         "PR-07r": "partial"
       },
       "pass": true,
-      "ms": 1018
+      "ms": 1456
     },
     {
       "suite": "e2e-browser",
@@ -20,7 +20,7 @@
         "PR-07a": "partial"
       },
       "pass": true,
-      "ms": 2614
+      "ms": 2867
     },
     {
       "suite": "e2e-browser",
@@ -31,7 +31,7 @@
         "PR-07a": "full"
       },
       "pass": true,
-      "ms": 2572
+      "ms": 2652
     },
     {
       "suite": "e2e-browser",
@@ -42,9 +42,8 @@
         "PR-07b": "full",
         "PR-07g": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"browser\"]').first().getByTitle('Vertical tab sidebar')\n",
-      "ms": 62434
+      "pass": true,
+      "ms": 32917
     },
     {
       "suite": "e2e-browser",
@@ -53,7 +52,7 @@
         "PR-07l": "full"
       },
       "pass": true,
-      "ms": 2926
+      "ms": 3161
     },
     {
       "suite": "e2e-browser",

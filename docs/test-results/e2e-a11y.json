@@ -1,6 +1,6 @@
 {
   "suite": "e2e-a11y",
-  "at": "2026-10-29T06:38:23.548Z",
+  "at": "2026-10-29T15:45:18.897Z",
   "results": [
     {
       "suite": "e2e-a11y",
@@ -9,9 +9,8 @@
         "AX-08": "full",
         "AX-01": "partial"
       },
-      "pass": false,
-      "error": "1 serious/critical:\n      recall: label-content-name-mismatch ×2 e.g. button[title=\"Save copied image\"]",
-      "ms": 123267
+      "pass": true,
+      "ms": 119350
     },
     {
       "suite": "e2e-a11y",
@@ -20,7 +19,7 @@
         "AX-09": "full"
       },
       "pass": true,
-      "ms": 25335
+      "ms": 23402
     },
     {
       "suite": "e2e-a11y",
@@ -29,7 +28,7 @@
         "AX-10": "full"
       },
       "pass": true,
-      "ms": 5307
+      "ms": 4424
     },
     {
       "suite": "e2e-a11y",
@@ -38,7 +37,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 4240
+      "ms": 3912
     },
     {
       "suite": "e2e-a11y",
@@ -47,7 +46,7 @@
         "AX-09": "full"
       },
       "pass": true,
-      "ms": 11549
+      "ms": 10158
     },
     {
       "suite": "e2e-a11y",
@@ -57,7 +56,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 3482
+      "ms": 3521
     },
     {
       "suite": "e2e-a11y",
@@ -66,7 +65,7 @@
         "AX-03": "full"
       },
       "pass": true,
-      "ms": 3347
+      "ms": 3217
     },
     {
       "suite": "e2e-a11y",
@@ -75,7 +74,7 @@
         "AX-11": "full"
       },
       "pass": true,
-      "ms": 15330
+      "ms": 13378
     },
     {
       "suite": "e2e-a11y",
@@ -87,7 +86,7 @@
         "LY-04": "partial"
       },
       "pass": true,
-      "ms": 98765
+      "ms": 91574
     }
   ]
 }

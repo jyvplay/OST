@@ -1,6 +1,6 @@
 {
   "suite": "e2e-layout",
-  "at": "2026-10-29T06:43:34.888Z",
+  "at": "2026-10-29T15:31:58.847Z",
   "results": [
     {
       "suite": "e2e-layout",
@@ -10,7 +10,7 @@
         "LY-01": "partial"
       },
       "pass": true,
-      "ms": 5798
+      "ms": 4682
     },
     {
       "suite": "e2e-layout",
@@ -19,7 +19,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 5903
+      "ms": 6368
     },
     {
       "suite": "e2e-layout",
@@ -28,7 +28,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 4535
+      "ms": 4679
     },
     {
       "suite": "e2e-layout",
@@ -38,7 +38,7 @@
         "LY-02": "partial"
       },
       "pass": true,
-      "ms": 16941
+      "ms": 17528
     },
     {
       "suite": "e2e-layout",
@@ -47,7 +47,7 @@
         "LY-05": "full"
       },
       "pass": true,
-      "ms": 6267
+      "ms": 6729
     },
     {
       "suite": "e2e-layout",
@@ -56,7 +56,7 @@
         "LY-02": "full"
       },
       "pass": true,
-      "ms": 8512
+      "ms": 7816
     },
     {
       "suite": "e2e-layout",
@@ -64,9 +64,8 @@
       "covers": {
         "LY-02": "full"
       },
-      "pass": false,
-      "error": "locator.getAttribute: Error: strict mode violation: locator('.fs-window[aria-label=\"Trash\"]').getByRole('button', { name: 'Trash' }) resolved to 2 elements:\n    1) <button type=\"button\" class=\"fs-btn \" title=\"Show trash\" aria-pressed=\"true\" data-variant=\"primary\">Trash</button> aka getByRole('button', { name: 'Trash', description: 'Show trash' })\n    2) <button class=\"fs-btn\" data-variant=\"ghost\" aria-label=\"Trashed\" title=\"Sort by trashed\">Trashed</button> aka getByRole('button', { name: 'Trashed' })\n\nCall log:\n  - waiting for locator('.fs-window[aria-label=\"Trash\"]').getByRole('button', { name: 'Trash' })\n",
-      "ms": 6878
+      "pass": true,
+      "ms": 6881
     },
     {
       "suite": "e2e-layout",
@@ -74,9 +73,8 @@
       "covers": {
         "LY-02": "full"
       },
-      "pass": false,
-      "error": "traffic-light order []",
-      "ms": 1900
+      "pass": true,
+      "ms": 5958
     },
     {
       "suite": "e2e-layout",
@@ -86,7 +84,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 2171
+      "ms": 1966
     },
     {
       "suite": "e2e-layout",
@@ -97,7 +95,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 3812
+      "ms": 3980
     },
     {
       "suite": "e2e-layout",
@@ -109,7 +107,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 19413
+      "ms": 18283
     },
     {
       "suite": "e2e-layout",
@@ -118,7 +116,7 @@
         "LY-03": "full"
       },
       "pass": true,
-      "ms": 33
+      "ms": 36
     }
   ]
 }

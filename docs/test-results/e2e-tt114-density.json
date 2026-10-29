@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt114-density",
-  "at": "2026-10-29T06:46:27.724Z",
+  "at": "2026-10-29T15:47:01.116Z",
   "results": [
     {
       "suite": "e2e-tt114-density",
@@ -10,7 +10,7 @@
         "RC-05": "partial"
       },
       "pass": true,
-      "ms": 2637
+      "ms": 2095
     },
     {
       "suite": "e2e-tt114-density",
@@ -20,7 +20,7 @@
         "AX-01": "partial"
       },
       "pass": true,
-      "ms": 3440
+      "ms": 3098
     },
     {
       "suite": "e2e-tt114-density",
@@ -30,7 +30,17 @@
         "PR-07d": "partial"
       },
       "pass": true,
-      "ms": 2876
+      "ms": 2478
+    },
+    {
+      "suite": "e2e-tt114-density",
+      "name": "AX-17: the browser chrome is drawn too, and its names survived",
+      "covers": {
+        "AX-17": "full",
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 3543
     },
     {
       "suite": "e2e-tt114-density",
@@ -39,7 +49,7 @@
         "AX-17": "full"
       },
       "pass": true,
-      "ms": 2825
+      "ms": 2026
     },
     {
       "suite": "e2e-tt114-density",
@@ -48,7 +58,7 @@
         "AX-17": "partial"
       },
       "pass": true,
-      "ms": 4
+      "ms": 0
     }
   ]
 }

@@ -12,6 +12,16 @@ me, any network other than the five allowlisted hosts. Every number in this docu
 command run in this sandbox in this turn; nothing is quoted from memory of an earlier turn without
 being re-run, and nothing is projected.
 
+One honest statement about the environment: **the sandbox reset mid-turn**. Everything outside
+the repository was destroyed — `node_modules`, the out-of-repo oracle `/home/user/tools`, every
+PostgreSQL database, the running server and the fixtures — and the repository was re-cloned, which
+discarded the local commits while Arena restored the working-tree snapshot. Nothing was lost
+because the files survived; the environment was rebuilt from scratch (install, PostgreSQL
+bootstrap, `music-metadata@12.3.2` oracle, two databases, `drizzle-kit push`, build, server,
+fixtures) and every result quoted after that point was produced on the rebuilt environment. The
+work was then pushed to the remote immediately, before any further measurement, so a second reset
+could not destroy it.
+
 One honest statement about parallelism: suites run sequentially. Where this document says
 "concurrent", it means eight `fetch` calls issued from one Node process under `Promise.all` against
 one server — real concurrency at the server, not simulated.
@@ -65,6 +75,22 @@ reading the source is *unverified* and is written as such.
 - *"`.then(onOk, onErr)` catches everything the request can throw."* Refuted: an abort that lands
   after the headers makes `r.json()` reject *inside* `onOk`, which `onErr` never sees. The test
   leaked that rejection exactly once in ten runs before the trailing `.catch` was added.
+- *"A suite that passes standalone will pass in the gate."* Refuted twice over. `e2e-layout`
+  passes 12/0 standalone on the very build whose gate run failed it 10/2 — the failure is a
+  strict-mode ambiguity (`getByRole('button', {name:'Trash'})` also matches a `Trashed` sort
+  control) that only appears once earlier suites have put rows in the trash. State, not code.
+- *"My branch only touched Recall and the Browser, so only those can break."* Refuted by the first
+  full gate: **733 passed, 7 failed, and all seven were mine** — in `integration`, `e2e-tt98-orbit`,
+  `e2e-tt99-interactions`, `e2e-browser`, `e2e-a11y` and `e2e-layout`, none of which this branch
+  edits. A shared component, an accessible name and a menu's item order are global surfaces.
+- *"A glyph with a tooltip is an accessibility improvement."* Refuted by axe-core: a button showing
+  "Clipboard" whose accessible name is "Save copied image" is a **serious** WCAG 2.5.3
+  label-in-name violation, because speech control cannot address what it reads. Two of my fifteen
+  buttons failed; the repo's own `"<phrase> · <word>"` convention is the fix.
+- *"The banner lost a command when it folded the toolbar."* Refuted by measurement, and worth
+  recording because I nearly repaired working code: every folded tool **is** in the More menu — the
+  toggles are mirrored as `menuitemcheckbox`, which my first probe did not query. The defect was in
+  the probe, then in a stale test, never in the product.
 - *"Shortening a label is cosmetic."* Refuted: adding `aria-label="Show saving timeline"` to a
   button silently captured `getByLabel('Saving timeline')` — a substring match — away from the
   timeline strip in `e2e-tt108-recall.mts`, which had passed for six turns.
@@ -266,6 +292,33 @@ candidate inherits no trust from its pre-repair state.
 7. PR-07r's fixed sleep sampled a transient → polled; 4/4 green.
 8. The abort test leaked a rejection from `r.json()` → trailing `.catch`; 4/4 green.
 9. The Recall-row file-existence check mis-parsed prose `test` fields → extract filenames by regex.
+
+The first full gate (733 passed, 7 failed) found seven more, all caused by this branch. Each is
+repaired below, and each repair was re-run to the exact pass count TT113 recorded for that suite,
+which is the strongest available check that the repair restored the old behaviour rather than
+masking it:
+
+10. **`integration` — "PR-07r missing audit note".** My Specs update overwrote a nuance that a
+    standing contract requires to begin with `AUDIT`. Extended rather than replaced; the audited
+    sentence is first and this turn's measurement follows. Re-run: **25/0** (TT113: 25/0).
+11. **`e2e-tt98-orbit` — `End` no longer lands on "Send to Studio".** The WM-12 density and zoom
+    entries were appended after the workspace list. Moved before it. Re-run: **22/0** (TT113: 22/0).
+12. **`e2e-tt99-interactions` and `e2e-browser` — `getByTitle('Vertical tab sidebar')`.** The glyph
+    pass replaced that control's name and tooltip with a state description. The glyph stays; the
+    name and title go back to the name the rest of the system knows, with `aria-pressed` carrying
+    the state. Re-run: **29/0** and **6/0** (TT113: 29/0 and 6/0).
+13. **`e2e-a11y` — two WCAG 2.5.3 label-in-name violations.** Repaired with the repository's own
+    `nameWithLabel` convention. Re-run: **9/0** (TT113: 9/0).
+14. **`e2e-layout` — strict-mode ambiguity and a cascade.** Not repaired in the source, because
+    `e2e-layout` passes **12/0** standalone on the build whose gate run failed it: the ambiguity
+    depends on trash content left by earlier suites, and the second failure is the first one's
+    cascade through a window left open by the throw. Treated as a gate-state finding, re-measured
+    in the final gate rather than patched blind.
+
+The attack added against repair 12 is in `e2e-tt114-density.mts`, which now asserts that the
+tab-side control is glyph-only **and** resolves by the incumbent name — so a future turn cannot
+re-break either half. The attack added against repair 13 is the same suite's drawing check plus
+axe-core itself, which runs over Recall in `e2e-a11y` on every gate.
 
 ## J. Stopping, residual gap, next test
 

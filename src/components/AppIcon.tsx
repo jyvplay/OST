@@ -227,7 +227,9 @@ export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "clos
   // construction drawn here - a frame, a bracket, an arrow - chosen so the shape states the
   // idea without a caption, which is what let the two modules drop another third of their words.
   | "bytes" | "held" | "loaded" | "record" | "snapshot" | "queue" | "sidebar" | "tabstrip" | "splitH" | "splitV" | "tearout"
-  | "verify" | "copy" | "photos" | "folder" | "trash" | "export" | "crop" | "eraser" | "undo" | "refresh" | "clipin" | "more";
+  | "verify" | "copy" | "photos" | "folder" | "trash" | "export" | "crop" | "eraser" | "undo" | "refresh" | "clipin" | "more" |
+  /* TT115 browser-chrome glyphs */
+  "sleep" | "shield" | "cookie" | "closeset" | "auto" | "download";
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
     /* TT114 concept glyphs. Stroke-only, 24x24, currentColor, so they inherit theme and contrast. */
@@ -254,6 +256,12 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     // from the clipboard: a board with something dropping into it
     clipin: <><path d="M9 5.5H7A1.5 1.5 0 0 0 5.5 7v12A1.5 1.5 0 0 0 7 20.5h10A1.5 1.5 0 0 0 18.5 19V7A1.5 1.5 0 0 0 17 5.5h-2" {...S} stroke="currentColor" strokeWidth="1.8" /><rect x="9" y="3.5" width="6" height="3.4" rx="1.1" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 10.5v5m0 0 2-2m-2 2-2-2" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // more: the next page of a list
+    sleep: <><path d="M20 14.5A7.5 7.5 0 0 1 9.5 4a7.5 7.5 0 1 0 10.5 10.5Z" /><path d="M15 3h4l-4 4h4" /></>,
+    shield: <><path d="M12 3l7 3v5c0 4.2-2.8 7.6-7 9-4.2-1.4-7-4.8-7-9V6Z" /><path d="M9 12l2.2 2.2L15.5 10" /></>,
+    cookie: <><circle cx="12" cy="12" r="8.5" /><circle cx="9.5" cy="9.5" r="1.1" /><circle cx="14.5" cy="11" r="1.1" /><circle cx="11" cy="15" r="1.1" /></>,
+    closeset: <><rect x="3.5" y="6.5" width="10" height="11" rx="1.6" /><path d="M7 10.5l3.5 3.5M10.5 10.5L7 14" /><path d="M16.5 5.5h4v13h-4" /></>,
+    auto: <><circle cx="12" cy="12" r="3.2" /><path d="M12 4.5v2.2M12 17.3v2.2M4.5 12h2.2M17.3 12h2.2M6.7 6.7l1.6 1.6M15.7 15.7l1.6 1.6M17.3 6.7l-1.6 1.6M8.3 15.7l-1.6 1.6" /></>,
+    download: <><path d="M12 4v10" /><path d="M8.2 10.4L12 14.2l3.8-3.8" /><path d="M5 16.5v2a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-2" /></>,
     more: <><path d="M4.5 7h15M4.5 12h15" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M8.6 16.4 12 19.8l3.4-3.4" {...S} stroke="currentColor" strokeWidth="1.9" /></>,
     // original bytes: a file with an arrow arriving into it from the wire above
     bytes: <><path d="M7 21h10a1.5 1.5 0 0 0 1.5-1.5V9L13 3.5H7A1.5 1.5 0 0 0 5.5 5v14.5A1.5 1.5 0 0 0 7 21Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M13 3.5V9h5.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 11.5v5m0 0 2-2m-2 2-2-2" {...S} stroke="currentColor" strokeWidth="1.9" /></>,

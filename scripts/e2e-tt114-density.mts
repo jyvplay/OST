@@ -145,6 +145,51 @@ await test('AX-17: the browser\'s split, tear-out and tab-side controls are name
   await context.close();
 });
 
+/* ------------------------------------------------------------------ the browser toolbar */
+
+await test('AX-17: the browser chrome is drawn too, and its names survived', { 'AX-17': 'full', 'PR-07': 'partial' }, async () => {
+  const { page, context } = await openModule('browser', {
+    tabs: [{ id: 't1', url: 'http://127.0.0.1:4001/', title: 'Fixture A', pinned: false, asleep: false, group: '' }],
+    active: 't1', proxyAll: true,
+  });
+  await page.waitForSelector('[data-testid="wp-bar"]');
+  await page.waitForTimeout(800);
+
+  const measured = await page.evaluate(`(() => {
+    const win = document.querySelector('[data-win-id="w1"]');
+    const buttons = [...win.querySelectorAll('button')].filter((b) => {
+      const r = b.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(b).visibility !== 'hidden';
+    });
+    let words = 0, glyphs = 0, mismatch = [];
+    for (const b of buttons) {
+      const text = (b.textContent || '').trim();
+      words += text.split(/\\s+/).filter(Boolean).length;
+      if (b.querySelector('svg')) glyphs++;
+      // WCAG 2.5.3: whatever the control shows must appear inside the name speech control uses.
+      const norm = (v) => v.replace(/[^\\p{L}\\p{N} ]/gu, ' ').replace(/\\s+/g, ' ').trim().toLowerCase();
+      const name = norm(b.getAttribute('aria-label') || text);
+      const shown = norm(text);
+      if (shown && !name.includes(shown)) mismatch.push(shown + ' !in ' + name);
+    }
+    return { buttons: buttons.length, words, glyphs, mismatch };
+  })()`) as { buttons: number; words: number; glyphs: number; mismatch: string[] };
+
+  assert.ok(measured.buttons >= 20, `the browser chrome is all there, ${measured.buttons} visible controls`);
+  assert.ok(measured.words <= 42, `visible button words must be at most 42, measured ${measured.words}`);
+  assert.ok(measured.glyphs >= 18, `most controls are drawn, ${measured.glyphs} carry a glyph`);
+  assert.deepEqual(measured.mismatch, [], `no label-in-name violation: ${measured.mismatch.join(' | ')}`);
+
+  // The long phrases are still the names the rest of the system and a screen reader use.
+  const win = page.locator('[data-win-id="w1"]');
+  for (const name of ['Save largest loaded visual', 'Save clicked loaded visual', 'Save all loaded visuals',
+                      'Clear cookies', 'Save to Files', 'Close others', 'Close to the right',
+                      'Close duplicates', 'Site permissions', 'Sleep other tabs', 'Recall jobs']) {
+    assert.equal(await win.getByRole('button', { name, exact: true }).count(), 1, `"${name}" still resolves`);
+  }
+  console.log(`    ${measured.buttons} controls, ${measured.words} visible words, ${measured.glyphs} drawn, 11 long names intact`);
+  await context.close();
+});
+
 /* ------------------------------------------------------------------ the concept glyphs exist */
 
 await test('AX-17: the new glyphs are real drawings, each distinct from the others', { 'AX-17': 'full' }, async () => {

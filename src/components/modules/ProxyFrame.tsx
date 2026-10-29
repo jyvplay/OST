@@ -1,4 +1,5 @@
 "use client";
+import { UiGlyph } from "../AppIcon";
 import { useEffect, useId, useRef, useState } from "react";
 import { registerProxySession, unregisterProxySession } from "@/lib/wp-session-registry";
 import { enqueueRecall, cancelRecall, recallWritable, commitRecallDetailed } from "@/lib/recall";
@@ -322,22 +323,22 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
     <div data-testid="wp-tab" data-sid={sid ?? ""} data-url={hist.list[hist.i]} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <div data-testid="wp-bar" className="fs-row" style={{ gap: 4, padding: "3px 6px", flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11) }}>
         <div className="fs-tgroup" data-group="Save media">
-          <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded()}>Save largest loaded visual</Btn>
-          <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded(true)}>Save clicked loaded visual</Btn>
-          <Btn data-testid="recall-batch" disabled={!sid||batchBusy} onClick={saveBatch}>{batchBusy?'Saving loaded visuals…':'Save all loaded visuals'}</Btn>
+          <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded()} aria-label="Save largest loaded visual" title="Save largest loaded visual"><UiGlyph name="photos" />Largest</Btn>
+          <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded(true)} aria-label="Save clicked loaded visual" title="Save clicked loaded visual"><UiGlyph name="snapshot" />Clicked</Btn>
+          <Btn data-testid="recall-batch" disabled={!sid||batchBusy} onClick={saveBatch} aria-label={batchBusy?'Saving loaded visuals…':'Save all loaded visuals'} title={batchBusy?'Saving loaded visuals…':'Save all loaded visuals'}><UiGlyph name="loaded" />{batchBusy?'Saving…':'All'}</Btn>
           <label>Batch limit <input aria-label="Loaded visual batch limit" type="number" min={1} max={24} value={batchLimit} disabled={batchBusy}
             onChange={e=>setBatchLimit(Math.min(Math.max(Number(e.target.value)||1,1),24))} style={{width:52}}/></label>
           <label><input type="checkbox" aria-label="Keep one copy of identical visuals" checked={keepOne}
             onChange={e=>{keepOneRef.current=e.currentTarget.checked;setKeepOne(e.currentTarget.checked);}}/> Keep one copy</label>
-          <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall}>{autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}</Btn>
+          <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall} aria-pressed={autoRecall} aria-label={autoRecall?'Disarm Auto Recall':'Enable Auto Recall'} title={autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}><UiGlyph name="auto" />Auto</Btn>
           <select aria-label="Auto Recall folders" disabled={autoRecall} value={recallGroup} onChange={e=>setRecallGroup(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select>
           {recallGroup==='custom'?<input aria-label="Auto Recall custom folder" disabled={autoRecall} value={recallCustom} onChange={e=>setRecallCustom(e.target.value)}/>:null}
-          {!embeddedRecall?<Btn onClick={()=>shell.open('recall',{url:hist.list[hist.i],pageTitle:title})}>Recall jobs</Btn>:null}
+          {!embeddedRecall?<Btn onClick={()=>shell.open('recall',{url:hist.list[hist.i],pageTitle:title})} aria-label="Recall jobs" title="Recall jobs"><UiGlyph name="queue" />Jobs</Btn>:null}
         </div>
 
         <Btn variant="ghost" data-testid="wp-back" aria-label="Back" disabled={hist.i <= 0} onClick={back}>‹ Back</Btn>
         <Btn variant="ghost" data-testid="wp-forward" aria-label="Forward" disabled={hist.i >= hist.list.length - 1} onClick={fwd}>Forward ›</Btn>
-        <Btn variant="ghost" data-testid="wp-reload" aria-label="Reload" onClick={reload}>Reload</Btn>
+        <Btn variant="ghost" data-testid="wp-reload" aria-label="Reload" title="Reload" onClick={reload}><UiGlyph name="refresh" />Reload</Btn>
         {embeddedRecall?<Btn aria-expanded={tools} onClick={()=>setTools(v=>!v)}>Page tools</Btn>:null}
         <div style={{display:tools?'contents':'none'}}>
         <input className="fs-input" data-testid="wp-find" aria-label="Find in page" placeholder="Find in page" title="Case-insensitive search in this proxied document; Enter = next, Shift+Enter = previous. Shadow DOM and nested frames are not searched." maxLength={256} value={q} style={{ width: fz(150) }}
@@ -366,7 +367,7 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
           </span>
         ) : null}
         <span data-testid="wp-cookies" className="fs-dim" title="Cookies live in this tab's proxy session, in memory only">Cookies: {stats ? stats.cookies : "…"}</span>
-        <Btn variant="ghost" data-testid="wp-clear" onClick={async () => { await patch({ clearCookies: true }); reload(); }}>Clear cookies</Btn>
+        <Btn variant="ghost" data-testid="wp-clear" onClick={async () => { await patch({ clearCookies: true }); reload(); }} aria-label="Clear cookies" title="Clear cookies"><UiGlyph name="cookie" />Cookies</Btn>
         {circuitable ? <Btn variant="ghost" data-testid="wp-circuit" title="New circuit: this tab (or profile) gets fresh Tor credentials, so Tor builds a new circuit and the page reloads from a different exit" onClick={async () => { await patch({ newCircuit: true }); reload(); }}>New circuit{stats?.circuit ? ` (${stats.circuit})` : ""}</Btn> : null}
         <Btn variant="ghost" data-testid="wp-reader" aria-pressed={reader} data-variant={reader ? "primary" : "ghost"} title="Reader view: the article text and images only, in Fusion's typography; links stay in the reader" onClick={toggleReader}>Reader</Btn>
         <label className="fs-dim" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>Profile
@@ -376,7 +377,7 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
             {[...new Set(["Personal", "Work", ...profiles])].filter(Boolean).map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
         </label>
-        <Btn variant="ghost" data-testid="wp-save" disabled={!!savePhase} title="Save original bytes to the Fusion server's /Downloads, not /Private; 8 MiB maximum." onClick={() => void save()}>Save to Files</Btn>
+        <Btn variant="ghost" data-testid="wp-save" disabled={!!savePhase} title="Save original bytes to the Fusion server's /Downloads, not /Private; 8 MiB maximum." aria-label="Save to Files" onClick={() => void save()}><UiGlyph name="download" />Files</Btn>
         {savePhase === "fetching" ? <Btn variant="ghost" data-testid="wp-save-cancel" onClick={() => transfer.current?.abort()}>Cancel download</Btn> : null}
         {savedPath ? <Btn variant="ghost" data-testid="wp-open-downloads" onClick={() => shell.open("files", { path: "/Downloads" })}>Open Downloads</Btn> : null}
         <span className="fs-dim" title="Requests go through Fusion; proxy sessions and cookies live in memory. Save to Files deliberately writes to server storage." data-testid="wp-via">Private proxy{via ? ` via ${via}` : ""}{title ? ` · ${title.slice(0, 60)}` : ""}</span>

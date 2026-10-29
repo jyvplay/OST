@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt107-shell",
-  "at": "2026-10-29T06:38:36.428Z",
+  "at": "2026-10-29T15:27:02.507Z",
   "results": [
     {
       "suite": "e2e-tt107-shell",
@@ -9,7 +9,7 @@
         "SH-03": "partial"
       },
       "pass": true,
-      "ms": 13
+      "ms": 18
     },
     {
       "suite": "e2e-tt107-shell",
@@ -18,7 +18,7 @@
         "SH-03": "partial"
       },
       "pass": true,
-      "ms": 40
+      "ms": 107
     },
     {
       "suite": "e2e-tt107-shell",
@@ -36,7 +36,7 @@
         "NC-03": "partial"
       },
       "pass": true,
-      "ms": 173
+      "ms": 284
     },
     {
       "suite": "e2e-tt107-shell",
@@ -45,7 +45,7 @@
         "NC-03": "partial"
       },
       "pass": true,
-      "ms": 2520
+      "ms": 2214
     },
     {
       "suite": "e2e-tt107-shell",
@@ -54,7 +54,7 @@
         "NC-03": "partial"
       },
       "pass": true,
-      "ms": 1032
+      "ms": 1457
     },
     {
       "suite": "e2e-tt107-shell",
