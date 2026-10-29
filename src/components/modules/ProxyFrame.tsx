@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
+import { registerProxySession, unregisterProxySession } from "@/lib/wp-session-registry";
 import { enqueueRecall, cancelRecall, recallWritable, commitRecallDetailed } from "@/lib/recall";
 import { loadedPngDimensions } from "@/lib/recall-memory";
 import { sameRecallOrigin, type RecallGrouping } from "@/lib/recall-core";
@@ -122,10 +123,14 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
         }
         id = await p;
       }
-      if (live) setSid(id);
+      if (live) { setSid(id); registerProxySession(id); }
     })().catch((e) => { if (live) setErr(String((e as Error).message ?? e)); });
     return () => { live = false; };
   }, [tabId, sessionKey, profile, sessions, start]);
+
+  // TT111 (RC-37): Recall lists the media these sessions have already loaded, so a frame announces
+  // its session while it is mounted and withdraws it on the way out.
+  useEffect(() => { if (!sid) return; registerProxySession(sid); return () => unregisterProxySession(sid); }, [sid]);
 
   // Identity is host-scoped within the RAM-only proxy session. A navigation to another site falls back to Desktop unless that host has its own override.
   useEffect(() => {

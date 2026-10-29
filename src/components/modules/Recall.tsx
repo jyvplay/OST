@@ -9,14 +9,60 @@ import { registerDocGuard } from '@/lib/doc-lifecycle';
 import BrowserModule from './Browser';
 import RecallMemory from './RecallMemory';
 import { fmtBytes } from '@/lib/api';
+import { proxySessionsSnapshot, subscribeProxySessions } from '@/lib/wp-session-registry';
 type Writable = {write:(data:Blob)=>Promise<void>;close:()=>Promise<void>;abort:()=>Promise<void>};
 type LocalHandle = {createWritable:()=>Promise<Writable>;name:string};
 const empty: ReturnType<typeof recallSnapshot> = [];
+const noSessions: string[] = [];
+type TapItem={sid:string;id:string;url:string;mime:string;size:number;at:number};
+/** Ask every live browsing session what media it still holds. A session that has closed contributes nothing. */
+async function loadTap(sessions:readonly string[]):Promise<TapItem[]>{
+ const all:TapItem[]=[];
+ for(const sid of sessions){
+  try{
+   const r=await fetch(`/api/recall-tap?sid=${encodeURIComponent(sid)}`);
+   if(!r.ok)continue;
+   const j=await r.json() as {items?:Omit<TapItem,'sid'>[]};
+   for(const it of j.items??[])all.push({...it,sid});
+  }catch{/* a session that has just closed simply contributes nothing */}
+ }
+ return all.sort((a,b)=>b.at-a.at);
+}
 export default function Recall({win}:ModuleProps){
  const shell=useShell();
  // TT110 (RC-36): the capture policy. The server refuses these methods when it is off; the
  // interface must not pretend the buttons would work, and must say where the switch lives.
  const captureAllowed=shell.settings['privacy.screenCapture']!=='off';const jobs=useSyncExternalStore(recallSubscribe,recallSnapshot,()=>empty);
+ // TT111 (RC-37): media the in-app browser has ALREADY loaded. The bytes are held in this server's
+ // memory for the life of the browsing session, so saving one is a read of what the page already has —
+ // no second request to the publisher, which is the whole point of the pathway.
+ const tapOn=shell.settings['privacy.recallMediaTap']==='on';
+ const sessions=useSyncExternalStore(subscribeProxySessions,proxySessionsSnapshot,()=>noSessions);
+ const [tapItems,setTapItems]=useState<TapItem[]>([]);
+ const [tapBusy,setTapBusy]=useState('');
+ const tapAlive=useRef(true);
+ const refreshTap=useCallback(()=>{
+  // The listing is state owned by an external system (this server's memory), so it is read in a
+  // callback and published when the answer arrives — never synchronously inside the effect.
+  loadTap(tapOn?sessions:[]).then(items=>{ if(tapAlive.current) setTapItems(items); }).catch(()=>undefined);
+ },[tapOn,sessions]);
+ useEffect(()=>{tapAlive.current=true;refreshTap();const t=setInterval(refreshTap,4000);return()=>{tapAlive.current=false;clearInterval(t);};},[refreshTap]);
+ const saveTapped=async(it:{sid:string;id:string})=>{
+  setTapBusy(it.id);setError('');
+  try{
+   const r=await fetch('/api/recall-tap',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({cmd:'save',sid:it.sid,id:it.id,grouping,custom,title,page:url})});
+   const j=await r.json() as {ok?:boolean;path?:string;error?:string;stored?:boolean;duplicateOf?:string};
+   if(!r.ok||!j.ok)throw new Error(j.error??`HTTP ${r.status}`);
+   setSaved(j.stored===false&&j.duplicateOf?j.duplicateOf:(j.path??''));
+  }catch(e){setError(e instanceof Error?e.message:String(e));}
+  finally{setTapBusy('');refreshTap();}
+ };
+ const forgetTapped=async(sid:string,id?:string)=>{
+  try{await fetch('/api/recall-tap',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cmd:'forget',sid,...(id?{id}:{})})});}
+  catch{/* already gone */}
+  refreshTap();
+ };
  const [browserOpen,setBrowserOpen]=useState(false);
  const [url,setUrl]=useState(String(win.props.url??'https://github.com/'));
  const [title,setTitle]=useState(String(win.props.pageTitle??'')),[grouping,setGrouping]=useState<RecallGrouping>('host'),[custom,setCustom]=useState('');
@@ -134,6 +180,26 @@ export default function Recall({win}:ModuleProps){
   <Section title="1 · Original bytes — fastest, no re-encoding">
    <Btn disabled={running} onClick={()=>{try{enqueueRecall(input());setError('');}catch(e){setError(e instanceof Error?e.message:String(e));}}}>Save media URL</Btn>
    <p>HTTP(S) images, video or audio only, up to 8 MiB. Redirects, playlists, blob URLs and HTML are not complete media. The existing guarded proxy checks network destinations. Query tokens are excluded from receipts. Publisher MIME headers are not proof of a playable codec.</p>
+  </Section>
+  <Section title="1b · Media this page already loaded — saved from memory, never downloaded again">
+   <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
+    <Btn onClick={refreshTap} disabled={!tapOn}>Refresh loaded media</Btn>
+    <Btn onClick={()=>{for(const sid of sessions)void forgetTapped(sid);}} disabled={!tapOn||!tapItems.length}>Forget held media</Btn>
+    <span data-testid="tap-count">{tapOn?`${tapItems.length} held`:'off'}</span>
+   </div>
+   {tapOn?null:<div role="note" data-testid="tap-policy-off">Remembering media this page loads is switched off (Settings → Privacy → Remember media this page loads). Nothing is being kept, so there is nothing here to save; the other pathways are unaffected.</div>}
+   {tapOn&&!sessions.length?<p>Open a page in the browsing pane above (or the Browser app): this lists what those pages have loaded.</p>:null}
+   <ul data-testid="recall-tap-list" style={{listStyle:'none',margin:0,padding:0,display:'grid',gap:6}}>
+    {tapItems.map(it=><li key={`${it.sid}:${it.id}`} data-testid={`tap-item-${it.id}`} className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}>
+     {/* eslint-disable-next-line @next/next/no-img-element -- held bytes come from this server's memory over a no-store endpoint; next/image would try to fetch and cache them */}
+     {it.mime.startsWith('image/')?<img alt="" src={`/api/recall-tap?sid=${encodeURIComponent(it.sid)}&id=${encodeURIComponent(it.id)}&op=bytes`} style={{width:48,height:48,objectFit:'cover',borderRadius:6,background:'var(--fs-sunken)'}}/>:<span aria-hidden="true" style={{width:48,textAlign:'center'}}>{it.mime.startsWith('video/')?'▶':'♪'}</span>}
+     <span className="fs-mono" style={{flex:'1 1 220px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={it.url}>{it.url}</span>
+     <Badge>{it.mime}</Badge><span>{fmtBytes(it.size)}</span>
+     <Btn variant="primary" disabled={tapBusy===it.id} onClick={()=>void saveTapped(it)} aria-label={`Save loaded media ${it.url}`}>{tapBusy===it.id?'Saving…':'Save'}</Btn>
+     <Btn onClick={()=>void forgetTapped(it.sid,it.id)} aria-label={`Forget loaded media ${it.url}`}>Forget</Btn>
+    </li>)}
+   </ul>
+   <p>These are the exact bytes the publisher sent while you were looking at the page, kept in this server&apos;s memory and never written to disk until you save one. Images, audio and video up to 8 MiB, 24 per browsing session; a part-loaded or range response is not kept. Closing the page, switching the setting off or pressing Forget drops them immediately. Saving makes no network request — a receipt records the method <span className="fs-mono">session-retained-response</span>.</p>
   </Section>
   {captureAllowed?null:<div role="note" data-testid="capture-policy-off">Screen and element capture is switched off for this installation (Settings → Privacy → Screen and element capture). The buttons below stay disabled, and the server refuses these saves even if something else asks for them.</div>}
   <Section title="2 · Authorized live video / shared audio encoding">

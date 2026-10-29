@@ -2,10 +2,12 @@ import {UPDATES_TT107} from "./seed-data/updates-tt107";
 import { UPDATES_TT108 } from "./seed-data/updates-tt108";
 import { UPDATES_TT109 } from "./seed-data/updates-tt109";
 import { UPDATES_TT110 } from "./seed-data/updates-tt110";
+import { UPDATES_TT111 } from "./seed-data/updates-tt111";
 import {tt107Features} from "./seed-data/features-tt107";
 import { tt108Features } from "./seed-data/features-tt108";
 import { tt109Features } from "./seed-data/features-tt109";
 import { tt110Features } from "./seed-data/features-tt110";
+import { tt111Features } from "./seed-data/features-tt111";
 import {tt106Features} from "./seed-data/features-tt106";
 import { tt105Features } from "./seed-data/features-tt105";
 import { tt104Features } from "./seed-data/features-tt104";
@@ -99,9 +101,9 @@ import { patchTT96 } from "./seed-data/features-tt96";
 import { patchTT97 } from "./seed-data/features-tt97";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.79.1";
+export const SEED_VERSION = "3.80.0";
 
-export const allFeatures = [...tt110Features, ...tt109Features, ...tt107Features,
+export const allFeatures = [...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
   ...tt108Features, ...tt106Features, ...tt105Features, ...tt104Features, ...tt103Features, ...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...tt59Features, ...tt60Features, ...tt61Features, ...tt62Features, ...tt63Features, ...tt64Features, ...tt65Features, ...tt66Features, ...tt67Features, ...tt68Features, ...tt74Features, ...tt75Features, ...tt76Features, ...tt78Features, ...tt79Features, ...tt81Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
@@ -151,7 +153,9 @@ export const allFeatures = [...tt110Features, ...tt109Features, ...tt107Features
   // TT109 corrections.
   .map((f) => (UPDATES_TT109[f.code] ? { ...f, ...UPDATES_TT109[f.code] } : f))
   // TT110 last: these corrections must survive every earlier patch map.
-  .map((f) => (UPDATES_TT110[f.code] ? { ...f, ...UPDATES_TT110[f.code] } : f));
+  .map((f) => (UPDATES_TT110[f.code] ? { ...f, ...UPDATES_TT110[f.code] } : f))
+  // TT111 is applied last: a later turn's measurement supersedes an earlier turn's.
+  .map((f) => (UPDATES_TT111[f.code] ? { ...f, ...UPDATES_TT111[f.code] } : f));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },
@@ -191,6 +195,8 @@ const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: s
   { key: "privacy.telemetry", value: "off", category: "privacy", label: "Telemetry", aliases: "analytics,usage data", lock: "No telemetry code exists in this build; the switch is informational." },
   { key: "privacy.clipboardHistory", value: "on", category: "privacy", label: "Clipboard history (in-app)", aliases: "copy paste" },
   { key: "privacy.screenCapture", value: "on", category: "privacy", label: "Screen and element capture", aliases: "recall,snapshot,recording,screenshot,display capture" },
+  // TT111 (RC-37): off by default — an installation that never touches this keeps nothing in memory.
+  { key: "privacy.recallMediaTap", value: "off", category: "privacy", label: "Remember media this page loads", aliases: "recall,tap,already loaded,no refetch,media,retain" },
   { key: "perf.governor", value: "auto", category: "performance", label: "Load governor", aliases: "thermal,battery,throttle" },
   { key: "perf.effects", value: "auto", category: "performance", label: "Window effects", aliases: "blur,shadow" },
   { key: "beam.autoStopOnHide", value: "on", category: "beam", label: "Stop casting when hidden", aliases: "privacy,cast" },

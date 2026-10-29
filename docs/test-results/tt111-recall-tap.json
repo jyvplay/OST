@@ -1,0 +1,74 @@
+{
+  "suite": "tt111-recall-tap",
+  "at": "2026-10-29T01:46:08.358Z",
+  "results": [
+    {
+      "suite": "tt111-recall-tap",
+      "name": "the page loads a picture and a track through the proxy; both land in the tap, the stylesheet does not",
+      "covers": {
+        "RC-37": "partial"
+      },
+      "pass": true,
+      "ms": 220
+    },
+    {
+      "suite": "tt111-recall-tap",
+      "name": "an aborted response and a byte range are not retained; neither is an item over the cap",
+      "covers": {
+        "RC-37": "partial",
+        "RC-09": "partial"
+      },
+      "pass": true,
+      "ms": 1500
+    },
+    {
+      "suite": "tt111-recall-tap",
+      "name": "THE FALSIFIER: the origin is stopped, a refetch provably fails, and the save still writes the original bytes",
+      "covers": {
+        "RC-37": "full"
+      },
+      "pass": true,
+      "ms": 39
+    },
+    {
+      "suite": "tt111-recall-tap",
+      "name": "the receipt names the pathway and claims proxy-recorded provenance, and the memory survives verification",
+      "covers": {
+        "RC-37": "full",
+        "RC-09": "full"
+      },
+      "pass": true,
+      "ms": 24
+    },
+    {
+      "suite": "tt111-recall-tap",
+      "name": "the provenance binding holds: neither method may borrow the other’s claim",
+      "covers": {
+        "RC-37": "full",
+        "RC-14": "partial"
+      },
+      "pass": true,
+      "ms": 35
+    },
+    {
+      "suite": "tt111-recall-tap",
+      "name": "the switch is real: off empties the tap, refuses the save, and the proxy stops retaining",
+      "covers": {
+        "RC-37": "full",
+        "SC-02": "partial"
+      },
+      "pass": true,
+      "ms": 631
+    },
+    {
+      "suite": "tt111-recall-tap",
+      "name": "a closed browser session keeps nothing",
+      "covers": {
+        "RC-37": "full",
+        "PR-14": "partial"
+      },
+      "pass": true,
+      "ms": 275
+    }
+  ]
+}

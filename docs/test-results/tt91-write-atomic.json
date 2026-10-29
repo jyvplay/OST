@@ -1,6 +1,6 @@
 {
   "suite": "tt91-write-atomic",
-  "at": "2026-10-29T00:00:09.084Z",
+  "at": "2026-10-29T01:48:17.636Z",
   "results": [
     {
       "suite": "tt91-write-atomic",
@@ -10,7 +10,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 23
+      "ms": 27
     },
     {
       "suite": "tt91-write-atomic",
@@ -20,7 +20,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 26
+      "ms": 34
     }
   ]
 }

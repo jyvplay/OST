@@ -18,6 +18,15 @@ const DERIVED_METHODS = new Set(['cropped-preview-region']);
 const REFETCH_METHOD = 'original-response';
 
 /**
+ * TT111 (RC-37): bytes this server itself delivered to the page earlier in the session and kept in
+ * memory. Their provenance is neither of the other two: no request was made to publish them (so the
+ * claim is not 'requested-url'), but they are also not a label a human typed over a re-encode — this
+ * process read them off the wire and never decoded them. 'proxy-recorded-response' says exactly that,
+ * and the binding below keeps each method pinned to the one claim it can support.
+ */
+const RETAINED_METHOD = 'session-retained-response';
+
+/**
  * TT110 (RC-36): the methods that record a shared surface rather than something the page had
  * already handed to this app. A deployment can switch these off, and the switch is enforced here —
  * inside the publication transaction — so hiding the buttons is not what makes it true.
@@ -62,7 +71,7 @@ export async function atomicRecallCommit(value:Record<string,unknown>) {
  // A receipt that makes no attribution claim is read the conservative way ("a label the human declared"),
  // which is why an omitted field cannot launder a refetch either.
  const claimed=r.sourceAttribution===undefined?'user-declared-label':r.sourceAttribution;
- const honest=r.method===REFETCH_METHOD?'requested-url':'user-declared-label';
+ const honest=r.method===REFETCH_METHOD?'requested-url':r.method===RETAINED_METHOD?'proxy-recorded-response':'user-declared-label';
  if(claimed!==honest)throw Error(`Receipt attribution must be "${honest}" for method ${r.method}`);
  // TT108 (RC-33): a crop claims to come from a specific saved memory. The claim is
  // checked for shape here and against the stored parent inside the transaction, so a

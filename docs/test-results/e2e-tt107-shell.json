@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt107-shell",
-  "at": "2026-10-29T00:09:40.975Z",
+  "at": "2026-10-29T01:41:21.009Z",
   "results": [
     {
       "suite": "e2e-tt107-shell",
@@ -9,7 +9,7 @@
         "SH-03": "partial"
       },
       "pass": true,
-      "ms": 59
+      "ms": 35
     },
     {
       "suite": "e2e-tt107-shell",
@@ -18,7 +18,7 @@
         "SH-03": "partial"
       },
       "pass": true,
-      "ms": 53
+      "ms": 143
     },
     {
       "suite": "e2e-tt107-shell",
@@ -27,7 +27,7 @@
         "SH-03": "partial"
       },
       "pass": true,
-      "ms": 5
+      "ms": 9
     },
     {
       "suite": "e2e-tt107-shell",
@@ -36,7 +36,7 @@
         "NC-03": "partial"
       },
       "pass": true,
-      "ms": 149
+      "ms": 351
     },
     {
       "suite": "e2e-tt107-shell",
@@ -45,7 +45,7 @@
         "NC-03": "partial"
       },
       "pass": true,
-      "ms": 2087
+      "ms": 2344
     },
     {
       "suite": "e2e-tt107-shell",
@@ -54,7 +54,7 @@
         "NC-03": "partial"
       },
       "pass": true,
-      "ms": 1512
+      "ms": 1079
     },
     {
       "suite": "e2e-tt107-shell",
@@ -63,7 +63,7 @@
         "NC-03": "partial"
       },
       "pass": true,
-      "ms": 18
+      "ms": 64
     }
   ]
 }

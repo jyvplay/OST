@@ -13,6 +13,8 @@ import { LAYOUT_IDS, DOCK_SIZE_IDS } from "./layout-core";
 const ENUMS: Record<string, readonly string[]> = {
   // TT110 (RC-36): a policy switch that really disables the capture pathways, enforced server-side.
   "privacy.screenCapture": ["on", "off"],
+  // TT111 (RC-37): keep media the in-app browser loads in memory, so it can be saved without a refetch.
+  "privacy.recallMediaTap": ["on", "off"],
   "appearance.theme": ["dark", "light", "system"],
   "appearance.density": ["compact", "balanced", "touch"],
   "appearance.motion": ["system", "on", "off"],
