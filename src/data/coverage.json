@@ -1,23 +1,161 @@
 {
- "generatedAt": "2026-10-29T05:10:48.743Z",
+ "generatedAt": "2026-10-29T23:59:09.214Z",
  "totals": {
   "built": {
-   "full": 336,
-   "partial": 93,
+   "full": 365,
+   "partial": 82,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 278,
-   "partial": 135,
-   "untested": 40
+   "full": 317,
+   "partial": 119,
+   "untested": 35
   },
   "tests": {
-   "total": 2731,
-   "passed": 2728
+   "total": 2832,
+   "passed": 2826
   }
  },
  "rows": {
+  "CK-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
+    "tt117-core: CK-01 alarms: next fire, weekly days, disabled, snooze, validation"
+   ]
+  },
+  "CK-02": {
+   "tested": "full",
+   "tests": [
+    "tt117-core: CK-02 lap splits: deltas, fastest/slowest, monotonic refusal"
+   ]
+  },
+  "CK-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
+    "tt117-core: CK-03 date arithmetic: days, add, business days sign-aware"
+   ]
+  },
+  "NT-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: NT-01 in Notes: statistics follow the text being edited",
+    "tt117-core: NT-01 note stats: code excluded, outline, links, reading time"
+   ]
+  },
+  "PL-01": {
+   "tested": "full",
+   "tests": [
+    "tt117-core: PL-01 recurrence: daily/weekly BYDAY/monthly clamp/count/until + RRULE round-trip"
+   ]
+  },
+  "PL-02": {
+   "tested": "full",
+   "tests": [
+    "tt117-core: PL-01 recurrence: daily/weekly BYDAY/monthly clamp/count/until + RRULE round-trip",
+    "tt117-core: PL-02 ICS RRULE round-trip: import carries the rule, export re-emits it"
+   ]
+  },
+  "CB-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+    "tt117-core: CB-01 clipboard export/import: sensitive refused, dedupe, malformed refused whole"
+   ]
+  },
+  "RT-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+    "tt117-core: RT-01 routine io: whitelist re-validated, duplicate names skipped not overwritten"
+   ]
+  },
+  "FN-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+    "tt117-core: FN-01 find: literal escape, regex error, whole word, positions, cap"
+   ]
+  },
+  "RC-40": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: RC-40 in Recall: manifest controls answer to their names",
+    "tt117-core: RC-40/41/42 recall report: deterministic manifest, verify diff, stats, duplicates"
+   ]
+  },
+  "RC-41": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: RC-40 in Recall: manifest controls answer to their names",
+    "tt117-core: RC-40/41/42 recall report: deterministic manifest, verify diff, stats, duplicates"
+   ]
+  },
+  "RC-42": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: RC-40 in Recall: manifest controls answer to their names",
+    "tt117-core: RC-40/41/42 recall report: deterministic manifest, verify diff, stats, duplicates"
+   ]
+  },
+  "BR-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+    "tt117-core: BR-01 browser session io: unsafe URLs dropped and reported, groups preserved"
+   ]
+  },
+  "AX-19": {
+   "tested": "full",
+   "tests": [
+    "tt117-density: AX-19: Recall under 160 words, Browser under 90, both drawn not emoji"
+   ]
+  },
+  "SP-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt117: SP-01 in Spec: the register health panel renders a verdict",
+    "tt117-core: SP-01 register health: duplicates, missing suites, unclaimed built rows, unknown claims"
+   ]
+  },
+  "AX-18": {
+   "tested": "full",
+   "tests": [
+    "tt116-density: AX-18: Recall shows fewer than 170 visible words and more than 45 drawn marks",
+    "tt116-density: every control whose caption was removed still answers to its full name",
+    "tt116-density: no shortened word sits outside the name its control answers to",
+    "tt116-density: the new marks are real drawings and no two of them are the same shape",
+    "tt116-density: the floor holds: the consequence of an uncancellable commit is still on screen",
+    "tt116-density: RC-13 is reachable by a person, and its first click only ever plans",
+    "tt117-density: AX-19: Recall under 160 words, Browser under 90, both drawn not emoji"
+   ]
+  },
+  "RC-39": {
+   "tested": "full",
+   "tests": [
+    "tt114-recall-token: a publication carrying a token writes one pair and reports the digest it filed",
+    "tt114-recall-token: the client aborts mid-flight and retries: exactly one memory exists and the retry names it",
+    "tt114-recall-token: eight concurrent attempts with one token publish exactly one memory",
+    "tt114-recall-token: a token cannot be replayed to claim different bytes",
+    "tt114-recall-token: a replay after the memory was trashed reports its absence instead of resurrecting it",
+    "tt114-recall-token: publications without a token keep their previous behaviour exactly",
+    "tt114-recall-token: a malformed token is refused before anything is written",
+    "tt114-recall-token: Specs mirrors RC-39 and no Recall row is graded above its evidence"
+   ]
+  },
+  "AX-17": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt114-density: AX-17: the memory toolbar shows at most 24 words, and every button is a drawn glyph",
+    "e2e-tt114-density: AX-17: shortening the labels cost no control its name",
+    "e2e-tt114-density: AX-17: the browser's split, tear-out and tab-side controls are named glyphs",
+    "e2e-tt114-density: AX-17: the browser chrome is drawn too, and its names survived",
+    "e2e-tt114-density: AX-17: the new glyphs are real drawings, each distinct from the others",
+    "e2e-tt114-density: AX-17: none of the compaction raised a page error"
+   ]
+  },
   "AX-16": {
    "tested": "full",
    "tests": [
@@ -66,11 +204,12 @@
    "tested": "full",
    "tests": [
     "tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are",
-    "tt110-core: an unknown capture policy value cannot be smuggled into the setting"
+    "tt110-core: an unknown capture policy value cannot be smuggled into the setting",
+    "tt116-platform: SC-02: a privacy switch set off is enforced by the server, not only the interface"
    ]
   },
   "RC-34": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt109-shell: a repeat save files a second memory unless the person asks to keep one copy",
     "tt109-recall: an identical memory in the same folder is recognised instead of filed twice",
@@ -78,11 +217,13 @@
     "tt109-recall: recognition is by decoded bytes and is confined to one folder",
     "tt109-recall: a trashed memory does not block saving it again",
     "tt109-recall: an unreadable neighbour cannot break or fake duplicate recognition",
-    "tt109-recall: onDuplicate is validated, and an invalid value writes nothing"
+    "tt109-recall: onDuplicate is validated, and an invalid value writes nothing",
+    "tt116-recall-archive: RC-34: a second save of identical bytes is recognised, not duplicated",
+    "tt116-recall-archive: RC-34: different bytes under the same name are never treated as a duplicate"
    ]
   },
   "RC-27": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt107-memory: searching by save method finds the memory through the real UI",
     "e2e-tt107-memory: a filter that matches nothing reports an honest empty result, not an error",
@@ -99,11 +240,13 @@
     "tt107-recall: search rejects invalid filter {\"to\":\"05-2026\"}",
     "tt107-recall: search rejects invalid filter {\"limit\":\"0\"}",
     "tt107-recall: search rejects invalid filter {\"limit\":\"1000\"}",
-    "tt108-recall: a day drill-down stays inside the folder it was launched from"
+    "tt108-recall: a day drill-down stays inside the folder it was launched from",
+    "tt116-recall-archive: RC-27: method, host and date filters select, and a dead filter returns nothing",
+    "tt116-recall-archive: RC-27: a malformed filter is refused, not silently ignored"
    ]
   },
   "RC-28": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt107-memory: the integrity report shows a healthy pair with no orphans",
     "e2e-tt107-memory: an unpaired file is listed by the audit and can be trashed from the UI",
@@ -120,13 +263,16 @@
     "tt107-recall: unpaired cleanup rejects non-Recall path /",
     "tt107-recall: unpaired cleanup rejects non-Recall path /etc/passwd",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Private/x.png",
-    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793250164638/nested/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793303172260/nested/x.png",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/x",
     "tt107-recall: unpaired cleanup rejects invalid guard null",
     "tt107-recall: unpaired cleanup rejects invalid guard {}",
     "tt107-recall: unpaired cleanup rejects invalid guard {\"id\":0,\"version\":1,\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
     "tt107-recall: unpaired cleanup rejects invalid guard {\"id\":1,\"version\":1,\"sha256\":\"zz\"}",
-    "tt107-recall: audit scope rejects a non-canonical folder"
+    "tt107-recall: audit scope rejects a non-canonical folder",
+    "tt116-recall-archive: RC-28: a memory that lost its receipt is reported, and the receipt is never invented",
+    "tt116-recall-archive: RC-28: the audit refuses a scope that is not a Recall grouping folder",
+    "tt116-recall-retention: retention refuses a memory it cannot prove is a complete pair"
    ]
   },
   "RC-29": {
@@ -248,11 +394,12 @@
    ]
   },
   "RC-18": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt104-memory: resident file save then paged timeline opens actual stored PNG",
     "e2e-tt104-pages: native UI loads first metadata page and refuses continuation after grouping changes",
-    "tt104-page: one page returns exactly 100 metadata rows"
+    "tt104-page: one page returns exactly 100 metadata rows",
+    "tt116-recall-retention: paging the timeline is a snapshot: a save during the read cannot hide a memory"
    ]
   },
   "RC-19": {
@@ -281,7 +428,9 @@
     "e2e-tt113-density: recall opens as a tool, not a document",
     "e2e-tt113-density: browser opens as a tool, not a document",
     "e2e-tt113-density: the small print was moved, not deleted",
-    "e2e-tt113-density: every saving pathway survived the compaction"
+    "e2e-tt113-density: every saving pathway survived the compaction",
+    "tt114-recall-token: a publication carrying a token writes one pair and reports the digest it filed",
+    "tt114-recall-token: publications without a token keep their previous behaviour exactly"
    ]
   },
   "RC-02": {
@@ -307,7 +456,9 @@
    "tested": "partial",
    "tests": [
     "e2e-tt110-recall: an authorized recording encodes real frames and finishes as a playable file",
-    "e2e-tt110-recall: audio-only output does what this platform actually allows, and never substitutes the microphone"
+    "e2e-tt110-recall: audio-only output does what this platform actually allows, and never substitutes the microphone",
+    "e2e-tt114-density: AX-17: the memory toolbar shows at most 24 words, and every button is a drawn glyph",
+    "tt116-density: AX-18: Recall shows fewer than 170 visible words and more than 45 drawn marks"
    ]
   },
   "RC-06": {
@@ -339,10 +490,12 @@
    ]
   },
   "RC-10": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "tt109-recall: grouping sends the same bytes to the folder the human chose, and cannot escape the Recall root",
-    "tt109-recall: a save outside the Recall root is refused whatever the grouping asked for"
+    "tt109-recall: a save outside the Recall root is refused whatever the grouping asked for",
+    "tt116-recall-archive: RC-10: the folder is derived from the page, and three groupings mean three folders",
+    "tt116-recall-archive: RC-10: a custom grouping with no name is refused rather than quietly filed somewhere"
    ]
   },
   "RC-11": {
@@ -351,7 +504,9 @@
     "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request",
     "e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory",
     "e2e-tt110-recall: the shared surface is released when the snapshot ends, and nothing is captured afterwards",
-    "e2e-tt110-recall: pending fetch jobs can be cancelled, and the archive is told what cancellation does not undo"
+    "e2e-tt110-recall: pending fetch jobs can be cancelled, and the archive is told what cancellation does not undo",
+    "tt114-recall-token: eight concurrent attempts with one token publish exactly one memory",
+    "tt116-density: the floor holds: the consequence of an uncancellable commit is still on screen"
    ]
   },
   "RC-12": {
@@ -361,10 +516,18 @@
    ]
   },
   "RC-13": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "tt109-recall: deleting a memory removes the pair together and restoring brings the pair back",
-    "tt109-recall: a memory cannot be half-deleted through the pair endpoint"
+    "tt109-recall: a memory cannot be half-deleted through the pair endpoint",
+    "tt114-recall-token: a replay after the memory was trashed reports its absence instead of resurrecting it",
+    "tt116-density: RC-13 is reachable by a person, and its first click only ever plans",
+    "tt116-recall-retention: a dry run reports a complete plan and changes nothing at all",
+    "tt116-recall-retention: applying the policy trashes exactly what the dry run showed, as pairs",
+    "tt116-recall-retention: retention refuses a memory it cannot prove is a complete pair",
+    "tt116-recall-retention: the two keep-rules compose by intersection, not by union",
+    "tt116-recall-retention: a policy cannot name a folder outside the Recall archive, or no policy at all",
+    "tt116-recall-retention: a retention run is auditable after the fact"
    ]
   },
   "RC-14": {
@@ -373,7 +536,8 @@
     "e2e-tt112-resident: a live MediaSource is refused by name instead of being saved as a file",
     "e2e-tt112-resident: the receipt claims a declared label, not the publisher, and records no refetch",
     "tt109-recall: only the refetch method may claim the bytes came from the URL it names",
-    "tt111-recall-tap: the provenance binding holds: neither method may borrow the other’s claim"
+    "tt111-recall-tap: the provenance binding holds: neither method may borrow the other’s claim",
+    "tt114-recall-token: a token cannot be replayed to claim different bytes"
    ]
   },
   "RC-15": {
@@ -459,6 +623,7 @@
   "SH-08": {
    "tested": "full",
    "tests": [
+    "e2e-tt114-tabs: PR-07r: tabs, the active tab, groups and the split survive a reload",
     "e2e-tt48-sync: reducer 'reconcile': the newer desktop's shared data wins, this tab keeps exactly its own windows/focus, z order stays monotonic, revision never goes back",
     "e2e-tt48-sync: a fresh tab hydrates at the row revision even when the stored state JSON lacks one, so its first save is accepted (no 409)",
     "e2e-tt48-sync: another tab saves a newer desktop → this tab's stale save gets 409 → it adopts the newer desktop, says so, and its next save builds on it (nothing lost on either side)",
@@ -502,7 +667,8 @@
    "tested": "full",
    "tests": [
     "e2e-tt112-shell: SH-12: real long tasks drive the governor into a throttled state and the shell drops effects",
-    "e2e-tt112-shell: SH-12: the detector is a measurement, not a latch — effects return once the load stops"
+    "e2e-tt112-shell: SH-12: the detector is a measurement, not a latch — effects return once the load stops",
+    "e2e-tt114-shell: LN-09: the scene animates when it should and stops dead when the shell is under load"
    ]
   },
   "SH-13": {
@@ -552,6 +718,7 @@
   "WM-01": {
    "tested": "full",
    "tests": [
+    "e2e-tt114-tabs: PR-07j: tearing a tab out opens a second browser window on that page",
     "e2e-tt98-orbit: App fallback opens, keyboard navigates, Escape restores invoking control",
     "e2e-tt98-orbit: Native text context is not intercepted",
     "e2e-tt98-orbit: Window action Tile left executes real reducer geometry",
@@ -575,14 +742,16 @@
    ]
   },
   "WM-03": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt114-shell: WM-03: a window moves between named workspaces and only its own workspace is shown",
     "unit: reducer is pure (input not mutated); workspaces filter without unmounting"
    ]
   },
   "WM-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt114-shell: WM-04: Overview lists every live window with its real geometry, and the filter narrows it",
     "e2e: Overview (Meta+Q) and Blackout overlay toggle"
    ]
   },
@@ -638,8 +807,12 @@
    ]
   },
   "WM-12": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt114-shell: WM-12: two windows hold different densities and zooms at the same time",
+    "e2e-tt114-shell: WM-12: the window menu changes only its own window, and the choice survives a reload",
+    "e2e-tt114-shell: no page error was raised by any of this turn's shell work",
+    "tt114-core: per-window zoom is clamped to a usable range and rounded to whole percents",
     "unit: 10 000 random commands preserve every invariant"
    ]
   },
@@ -819,10 +992,13 @@
    ]
   },
   "SR-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "integration: search treats % and _ in queries literally",
-    "tt110-core: search can be confined to one folder, and says what it searched when it finds nothing"
+    "tt110-core: search can be confined to one folder, and says what it searched when it finds nothing",
+    "tt116-platform: SR-05: a scoped search excludes a matching document outside the scope",
+    "tt116-platform: SR-05: the scope breaks on the separator, so a sibling prefix is not captured",
+    "tt116-safesave: a safe-saved text file becomes searchable, and a refused one does not"
    ]
   },
   "SR-06": {
@@ -875,10 +1051,13 @@
    ]
   },
   "SR-08": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: find",
-    "tt110-core: search can be confined to one folder, and says what it searched when it finds nothing"
+    "tt110-core: search can be confined to one folder, and says what it searched when it finds nothing",
+    "tt116-platform: SR-08: an empty query reports coverage per source instead of guessing",
+    "tt116-platform: SR-08: explain reports the strategy and the exclusions, not a score",
+    "tt116-platform: SR-08: the server refuses to claim an index rebuild it did not do"
    ]
   },
   "FM-01": {
@@ -1234,12 +1413,28 @@
    ]
   },
   "FM-18": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt99-interactions: Editor Keep controls remain present after loading and Save persists content plus the previous version",
     "e2e: mount: files",
     "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
     "integration: FM-18 overwrite snapshots the previous version",
+    "tt116-platform: DP-14: a safe save records every stage, not one opaque \"done\"",
+    "tt116-safesave: a safe save of a new file publishes it and leaves no temporary output",
+    "tt116-safesave: replacing an existing file advances it by one version and keeps the previous one",
+    "tt116-safesave: a save whose bytes do not match the digest the caller declared is refused, and the original is untouched",
+    "tt116-safesave: a malformed payload is refused and the file it was aimed at is untouched",
+    "tt116-safesave: text that cannot survive a byte round-trip is refused",
+    "tt116-safesave: a target that moved under the caller is refused rather than overwritten",
+    "tt116-safesave: when replacement is unavailable the bytes are published beside the original, never over it",
+    "tt116-safesave: a save whose acknowledgement was lost is answered, not performed again",
+    "tt116-safesave: a save token cannot be reused to publish different bytes",
+    "tt116-safesave: eight concurrent saves of one token publish one version",
+    "tt116-safesave: a save larger than the store limit is refused before anything is written",
+    "tt116-safesave: a temporary output abandoned by a dead process is reclaimable and age-bounded",
+    "tt116-safesave: every safe save is visible in the job journal with the stages it really went through",
+    "tt116-safesave: a safe-saved text file becomes searchable, and a refused one does not",
+    "tt116-safesave: the temporary output folder cannot be used as a target",
     "tt91-write-atomic: failed index update rolls back content, history and audit; the journal records failure",
     "tt91-write-atomic: two simultaneous overwrites preserve both serialized versions and the current search text",
     "tt91-write-mutants: publish without a data transaction",
@@ -1539,6 +1734,7 @@
     "e2e-tt99-interactions: Editor Keep controls remain present after loading and Save persists content plus the previous version",
     "e2e: mount: editor",
     "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
+    "tt116-safesave: replacing an existing file advances it by one version and keeps the previous one",
     "tt92-ledger-audit: the editor does not advertise its database version snapshots as native SAF safe-save"
    ]
   },
@@ -1602,6 +1798,8 @@
     "e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
     "e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https)",
     "e2e-browser: no page errors in the browser session",
+    "e2e-tt114-density: AX-17: the browser chrome is drawn too, and its names survived",
+    "e2e-tt114-tabs: PR-07d: a horizontal split puts two live frames side by side",
     "e2e-tt99-interactions: Browser tab context duplicates the clicked URL and pins a non-active target",
     "e2e-tt99-interactions: Browser close-others uses the context target, preserving pinned tabs",
     "e2e-tt99-interactions: Browser explicit Close removes the clicked pinned tab, not the active neighbor",
@@ -1632,12 +1830,18 @@
    ]
   },
   "PR-07d": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt114-density: AX-17: the browser's split, tear-out and tab-side controls are named glyphs",
+    "e2e-tt114-tabs: PR-07d: a horizontal split puts two live frames side by side",
+    "e2e-tt114-tabs: no page error was raised while splitting, tearing out or restoring"
+   ]
   },
   "PR-07e": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt114-tabs: PR-07e: a vertical split stacks them instead, and a third click restores one pane"
+   ]
   },
   "PR-07f": {
    "tested": "full",
@@ -1673,8 +1877,10 @@
    ]
   },
   "PR-07j": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt114-tabs: PR-07j: tearing a tab out opens a second browser window on that page"
+   ]
   },
   "PR-07k": {
    "tested": "full",
@@ -1758,10 +1964,13 @@
    ]
   },
   "PR-07r": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first",
     "e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
+    "e2e-tt114-shell: WM-12: the window menu changes only its own window, and the choice survives a reload",
+    "e2e-tt114-tabs: PR-07r: tabs, the active tab, groups and the split survive a reload",
+    "e2e-tt114-tabs: no page error was raised while splitting, tearing out or restoring",
     "e2e: mount: routines",
     "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted"
    ]
@@ -2541,7 +2750,6 @@
   "FF-20": {
    "tested": "full",
    "tests": [
-    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
     "e2e-tt46: Spreadsheet: real Excel file with a table + conditional formats — structured refs evaluate in the UI; keyboard edit + Save keeps the package (openpyxl-verified)",
@@ -2619,7 +2827,6 @@
   "FF-21": {
    "tested": "full",
    "tests": [
-    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
     "e2e-tt47: Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
@@ -3074,8 +3281,9 @@
    ]
   },
   "MD-07": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt114-shell: MD-07: the colour picker uses EyeDropper where it exists and says so plainly where it does not",
     "e2e: mount: devices"
    ]
   },
@@ -3113,12 +3321,17 @@
    ]
   },
   "SC-02": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt111-recall: Forget removes a held item from the pane immediately, and the switch empties it and says so",
     "e2e: mount: vault",
     "tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are",
-    "tt111-recall-tap: the switch is real: off empties the tap, refuses the save, and the proxy stops retaining"
+    "tt111-recall-tap: the switch is real: off empties the tap, refuses the save, and the proxy stops retaining",
+    "tt114-core: a scene picture must be a local picture path, not a URL",
+    "tt116-platform: SC-02: a privacy switch set off is enforced by the server, not only the interface",
+    "tt116-platform: SC-02: the switch only accepts the values it declares",
+    "tt116-recall-retention: a policy cannot name a folder outside the Recall archive, or no policy at all",
+    "tt116-safesave: the temporary output folder cannot be used as a target"
    ]
   },
   "SC-03": {
@@ -3381,9 +3594,6 @@
     "e2e-office: fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs",
     "e2e-office: Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
     "e2e-office: clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
-    "e2e-office: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
-    "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
-    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
     "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
     "e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save",
@@ -5466,8 +5676,10 @@
    "tests": []
   },
   "CT-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt114-shell: CT-04: the audience view follows the room the presenter publishes"
+   ]
   },
   "CT-05": {
    "tested": "untested",
@@ -5625,8 +5837,20 @@
    ]
   },
   "LN-09": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt114-shell: LN-09: a scene really paints on a canvas, and \"off\" paints nothing at all",
+    "e2e-tt114-shell: LN-09: the scene animates when it should and stops dead when the shell is under load",
+    "e2e-tt114-shell: no page error was raised by any of this turn's shell work",
+    "tt114-core: the same seed always builds the same scene, so a reload does not reshuffle the desktop",
+    "tt114-core: every scene is bounded: layers are ordered by depth and nothing is empty",
+    "tt114-core: parallax is zero at the centre, grows with depth, and is clamped at the edges",
+    "tt114-core: a drifting scene stays inside its box for a simulated hour",
+    "tt114-core: the scene yields: hidden, throttled or reduced-motion all mean a still frame",
+    "tt114-core: a scene picture must be a local picture path, not a URL",
+    "tt114-core: cover-fit fills the desk without distorting the picture",
+    "tt114-core: the scene id vocabulary is closed"
+   ]
   },
   "LN-10": {
    "tested": "untested",
@@ -5686,6 +5910,7 @@
    "tests": [
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
     "e2e-tt113-density: a disclosure opens from the keyboard alone",
+    "e2e-tt114-density: AX-17: shortening the labels cost no control its name",
     "e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting",
     "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
     "e2e-tt87-backup: BK-03 backup controls have a keyboard-accessible chooser and no serious or critical axe violations",
@@ -6012,7 +6237,9 @@
   "DP-07": {
    "tested": "partial",
    "tests": [
-    "e2e: no non-resource console errors across all module mounts"
+    "e2e: no non-resource console errors across all module mounts",
+    "tt116-density: every control whose caption was removed still answers to its full name",
+    "tt116-density: no shortened word sits outside the name its control answers to"
    ]
   },
   "DP-08": {
@@ -6057,11 +6284,16 @@
    ]
   },
   "DP-14": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: monitor",
     "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
-    "tt110-core: every file operation leaves an observable journal entry with its final state"
+    "tt110-core: every file operation leaves an observable journal entry with its final state",
+    "tt116-platform: DP-14: a write, a move and a trash are each observable in the journal",
+    "tt116-platform: DP-14: a safe save records every stage, not one opaque \"done\"",
+    "tt116-recall-retention: a retention run is auditable after the fact",
+    "tt116-safesave: a temporary output abandoned by a dead process is reclaimable and age-bounded",
+    "tt116-safesave: every safe save is visible in the job journal with the stages it really went through"
    ]
   },
   "DP-15": {

@@ -1,0 +1,10 @@
+=== e2e-a11y
+9 passed, 0 failed
+=== e2e-tt111-recall
+3 passed, 0 failed
+=== e2e-tt117
+5 passed, 0 failed
+=== tt117-density
+1 passed, 0 failed
+ALLDONE
+GATE_EXIT=0

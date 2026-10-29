@@ -1,0 +1,35 @@
+=== tt117-density
+1 passed, 0 failed
+=== e2e-browser
+6 passed, 0 failed
+=== tt116-density
+6 passed, 0 failed
+=== e2e-tt114-tabs
+5 passed, 0 failed
+=== e2e-a11y
+  ✗ axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations
+    2 serious/critical:
+      recall: aria-prohibited-attr ×1 e.g. div[data-group="Memories"] > .fs-row > label
+      browser: aria-prohibited-attr ×1 e.g. label
+--
+8 passed, 1 failed
+FAILED: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations
+=== e2e-tt111-recall
+  ✗ a page browsed inside Recall lists the media it loaded, with its type and size
+    locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByTestId('recall-tap-list') to be visible
+--
+  ✗ with the origin shut down, the human presses Save and the archive receives the publisher’s exact bytes
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /^Save loaded media / }).first()
+--
+  ✗ Forget removes a held item from the pane immediately, and the switch empties it and says so
+    something is held to forget
+
+0 passed, 3 failed
+FAILED: a page browsed inside Recall lists the media it loaded, with its type and size | with the origin shut down, the human presses Save and the archive receives the publisher’s exact bytes | Forget removes a held item from the pane immediately, and the switch empties it and says so
+FAILED SUITES: e2e-a11y e2e-tt111-recall
+ALLDONE
+GATE_EXIT=1

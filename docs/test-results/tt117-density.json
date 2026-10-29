@@ -1,0 +1,16 @@
+{
+  "suite": "tt117-density",
+  "at": "2026-10-29T23:58:00.143Z",
+  "results": [
+    {
+      "suite": "tt117-density",
+      "name": "AX-19: Recall under 160 words, Browser under 90, both drawn not emoji",
+      "covers": {
+        "AX-19": "full",
+        "AX-18": "partial"
+      },
+      "pass": true,
+      "ms": 6412
+    }
+  ]
+}

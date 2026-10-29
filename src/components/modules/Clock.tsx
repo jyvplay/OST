@@ -4,6 +4,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useRef, useState } from "react";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
+import { validateAlarms, nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, type Alarm } from "@/lib/clock-core";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -32,6 +33,29 @@ export default function ClockModule(_: ModuleProps) {
   const timerMs = (timerMin * 60 + timerSec) * 1000;
   const fired = useRef(false);
   const zones = ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo", "Australia/Sydney"];
+  // TT117 CK-01: alarms persist browser-local (a closed web app cannot fire them; stated below).
+  const [alarms, setAlarms] = useState<Alarm[]>(() => { try { return validateAlarms(JSON.parse(localStorage.getItem("fusion.alarms.v1") ?? "[]")); } catch { return []; } });
+  const [alarmTime, setAlarmTime] = useState("07:30");
+  const [alarmLabel, setAlarmLabel] = useState("");
+  const [dateA, setDateA] = useState(() => new Date().toISOString().slice(0, 10));
+  const [dateB, setDateB] = useState(() => new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
+  useEffect(() => { try { localStorage.setItem("fusion.alarms.v1", JSON.stringify(alarms)); } catch { /* private mode */ } }, [alarms]);
+  const firedAlarms = useRef(new Set<string>());
+  useEffect(() => {
+    const t = window.setInterval(() => {
+      const nowD = new Date();
+      for (const a of alarms) {
+        const at = nextFire(a, new Date(nowD.getTime() - 60000));
+        const key = `${a.id}@${at?.getTime() ?? 0}`;
+        if (at && Math.abs(at.getTime() - nowD.getTime()) < 60000 && at <= nowD && !firedAlarms.current.has(key)) {
+          firedAlarms.current.add(key);
+          shell.toast(`Alarm: ${a.label || a.time}`, "ok");
+          if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(`Alarm: ${a.label || a.time}`);
+        }
+      }
+    }, 5000);
+    return () => window.clearInterval(t);
+  }, [alarms, shell]);
 
   useEffect(() => {
     let raf = 0;
@@ -90,6 +114,34 @@ export default function ClockModule(_: ModuleProps) {
           <Btn variant="ghost" onClick={() => { setSwStart(null); setSwAcc(0); setLaps([]); }}>Reset</Btn>
         </div>
         {laps.map((l, i) => <div key={i} data-testid="clock-lap" className="fs-mono fs-dim" style={{ fontSize: fz(11.5) }}>lap {laps.length - i}: {fmt(l)}</div>)}
+        {laps.length > 1 ? (() => { const st = lapStats([...laps].reverse()); return <div className="fs-dim" data-testid="clock-lap-stats" style={{ fontSize: fz(11) }}>fastest lap {st.fastest!.index} ({fmt(st.fastest!.splitMs)}) · slowest lap {st.slowest!.index} ({fmt(st.slowest!.splitMs)}) · average split {fmt(Math.round(st.averageSplitMs))}</div>; })() : null}
+      </Section>
+
+      <Section title="Alarms">
+        <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+          <input className="fs-input" type="time" style={{ width: fz(110) }} value={alarmTime} onChange={(e) => setAlarmTime(e.target.value)} aria-label="Alarm time" />
+          <input className="fs-input" style={{ flex: 1, minWidth: fz(120) }} placeholder="Label" value={alarmLabel} onChange={(e) => setAlarmLabel(e.target.value)} aria-label="Alarm label" />
+          <Btn variant="primary" onClick={() => { try { setAlarms((a) => validateAlarms([...a, { id: `a${Date.now().toString(36)}`, label: alarmLabel, time: alarmTime, days: [], enabled: true, snoozeMin: 9 }])); setAlarmLabel(""); } catch (e) { shell.toast(String((e as Error).message), "warn"); } }}>Add<span className="sr-only"> alarm</span></Btn>
+        </div>
+        {upcomingAlarms(alarms, new Date()).slice(0, 1).map(({ alarm, at }) => <Badge key={alarm.id} tone="info">next: {alarm.label || alarm.time} · {at.toLocaleString()}</Badge>)}
+        {alarms.map((a) => { const at = nextFire(a, new Date()); return (
+          <div key={a.id} className="fs-row" style={{ justifyContent: "space-between", gap: 6 }}>
+            <span style={{ fontSize: fz(12) }}>{a.time} {a.label} <span className="fs-dim">{a.days.length ? a.days.map((d) => "SMTWTFS"[d]).join(" ") : "daily"}{at ? ` · next ${at.toLocaleString()}` : ""}</span></span>
+            <span className="fs-row" style={{ gap: 4 }}>
+              <Btn variant="ghost" aria-pressed={a.enabled} onClick={() => setAlarms((l) => l.map((x) => x.id === a.id ? { ...x, enabled: !x.enabled } : x))}>{a.enabled ? "On" : "Off"}</Btn>
+              <Btn variant="ghost" onClick={() => setAlarms((l) => l.filter((x) => x.id !== a.id))}>Remove<span className="sr-only"> alarm {a.label || a.time}</span></Btn>
+            </span>
+          </div> ); })}
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>Alarms fire while Fusion is open; a closed web app cannot schedule an exact alarm. No weekday picked means every day.</div>
+      </Section>
+
+      <Section title="Date calculator">
+        <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+          <input className="fs-input" type="date" value={dateA} onChange={(e) => setDateA(e.target.value)} aria-label="From date" />
+          <input className="fs-input" type="date" value={dateB} onChange={(e) => setDateB(e.target.value)} aria-label="To date" />
+          {dateA && dateB ? <Badge tone="info">{daysBetween(new Date(dateA + "T00:00:00"), new Date(dateB + "T00:00:00"))} days · {businessDaysBetween(new Date(dateA + "T00:00:00"), new Date(dateB + "T00:00:00"))} business days</Badge> : null}
+          <Btn variant="ghost" onClick={() => { if (dateA) setDateB(addDays(new Date(dateA + "T00:00:00"), 30).toISOString().slice(0, 10)); }}>+30 days</Btn>
+        </div>
       </Section>
 
       <Section title="Timer" right={remaining !== null ? <Badge tone="warn">running</Badge> : null}>

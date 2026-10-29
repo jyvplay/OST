@@ -1,0 +1,117 @@
+{
+  "suite": "tt117-core",
+  "at": "2026-10-29T23:09:01.992Z",
+  "results": [
+    {
+      "suite": "tt117-core",
+      "name": "CK-01 alarms: next fire, weekly days, disabled, snooze, validation",
+      "covers": {
+        "CK-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt117-core",
+      "name": "CK-02 lap splits: deltas, fastest/slowest, monotonic refusal",
+      "covers": {
+        "CK-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt117-core",
+      "name": "CK-03 date arithmetic: days, add, business days sign-aware",
+      "covers": {
+        "CK-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt117-core",
+      "name": "PL-01 recurrence: daily/weekly BYDAY/monthly clamp/count/until + RRULE round-trip",
+      "covers": {
+        "PL-01": "full",
+        "PL-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt117-core",
+      "name": "NT-01 note stats: code excluded, outline, links, reading time",
+      "covers": {
+        "NT-01": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt117-core",
+      "name": "CB-01 clipboard export/import: sensitive refused, dedupe, malformed refused whole",
+      "covers": {
+        "CB-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt117-core",
+      "name": "FN-01 find: literal escape, regex error, whole word, positions, cap",
+      "covers": {
+        "FN-01": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt117-core",
+      "name": "RC-40/41/42 recall report: deterministic manifest, verify diff, stats, duplicates",
+      "covers": {
+        "RC-40": "full",
+        "RC-41": "full",
+        "RC-42": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt117-core",
+      "name": "BR-01 browser session io: unsafe URLs dropped and reported, groups preserved",
+      "covers": {
+        "BR-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt117-core",
+      "name": "RT-01 routine io: whitelist re-validated, duplicate names skipped not overwritten",
+      "covers": {
+        "RT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt117-core",
+      "name": "SP-01 register health: duplicates, missing suites, unclaimed built rows, unknown claims",
+      "covers": {
+        "SP-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt117-core",
+      "name": "PL-02 ICS RRULE round-trip: import carries the rule, export re-emits it",
+      "covers": {
+        "PL-02": "full"
+      },
+      "pass": true,
+      "ms": 21
+    }
+  ]
+}

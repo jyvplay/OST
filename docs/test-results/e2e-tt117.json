@@ -1,0 +1,57 @@
+{
+  "suite": "e2e-tt117",
+  "at": "2026-10-29T23:57:52.778Z",
+  "results": [
+    {
+      "suite": "e2e-tt117",
+      "name": "CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
+      "covers": {
+        "CK-01": "full",
+        "CK-03": "full"
+      },
+      "pass": true,
+      "ms": 4204
+    },
+    {
+      "suite": "e2e-tt117",
+      "name": "NT-01 in Notes: statistics follow the text being edited",
+      "covers": {
+        "NT-01": "full"
+      },
+      "pass": true,
+      "ms": 3632
+    },
+    {
+      "suite": "e2e-tt117",
+      "name": "CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+      "covers": {
+        "CB-01": "full",
+        "RT-01": "full",
+        "FN-01": "full",
+        "BR-01": "full"
+      },
+      "pass": true,
+      "ms": 6488
+    },
+    {
+      "suite": "e2e-tt117",
+      "name": "SP-01 in Spec: the register health panel renders a verdict",
+      "covers": {
+        "SP-01": "full"
+      },
+      "pass": true,
+      "ms": 2252
+    },
+    {
+      "suite": "e2e-tt117",
+      "name": "RC-40 in Recall: manifest controls answer to their names",
+      "covers": {
+        "RC-40": "full",
+        "RC-41": "partial",
+        "RC-42": "partial"
+      },
+      "pass": true,
+      "ms": 2077
+    }
+  ]
+}

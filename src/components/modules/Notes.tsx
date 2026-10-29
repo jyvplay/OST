@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api, fmtTime, post, put } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { analyzeNote } from "@/lib/notes-stats";
 
 interface Note { id: number; title: string; body: string; tags: string; pinned: boolean; updatedAt: string }
 
@@ -109,6 +110,13 @@ export default function NotesModule({ win }: ModuleProps) {
             }}>Delete</Btn>
             {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
           </div>
+          {(() => { const st = analyzeNote(draft.body); return (
+            <div className="fs-row" data-testid="note-stats" style={{ gap: 6, padding: "4px 8px", flexWrap: "wrap", borderTop: "1px solid var(--fs-border)" }}>
+              <Badge>{st.words} words</Badge><Badge>{st.chars} chars</Badge><Badge>{st.sentences} sentences</Badge>
+              <Badge tone="info">{st.readingMinutes} min read</Badge>
+              {st.codeBlocks ? <Badge>{st.codeBlocks} code blocks (excluded from words)</Badge> : null}
+              {st.headings.map((h) => <Badge key={h.line} title={`line ${h.line}`}>{"#".repeat(h.level)} {h.text}</Badge>)}
+            </div> ); })()}
           <textarea className="fs-textarea" value={draft.body} spellCheck={false}
             style={{ flex: 1, border: 0, borderRadius: 0, resize: "none", padding: 10 }}
             aria-label="Note body"

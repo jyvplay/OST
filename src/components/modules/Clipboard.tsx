@@ -5,6 +5,7 @@ import { fz } from "@/lib/uiscale";
 import { useState } from "react";
 import { capAvailable } from "@/lib/capabilities";
 import { clearUnpinned, filterClips, ordered, removeClip, togglePin, CLIP_MAX } from "@/lib/cliphistory";
+import { exportClips, parseClipImport } from "@/lib/clip-io";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
 
@@ -31,6 +32,22 @@ export default function ClipboardModule(_: ModuleProps) {
         }}>Capture system clipboard now</Btn>
         <Badge>{shell.clips.length} entries · memory only</Badge>
         <Btn variant="ghost" disabled={!shell.clips.some((c) => !c.pinned)} onClick={() => shell.editClips(clearUnpinned)}>Clear<span className="sr-only"> unpinned entries</span></Btn>
+        <Btn variant="ghost" disabled={!shell.clips.length} onClick={() => {
+          const url = URL.createObjectURL(new Blob([exportClips(shell.clips)], { type: "application/json" }));
+          const a = document.createElement("a"); a.href = url; a.download = "clipboard-history.json"; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }}>Export</Btn>
+        <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import
+          <input type="file" accept=".json,application/json" hidden aria-label="Import clipboard history" onChange={async (e) => {
+            const f = e.target.files?.[0]; if (!f) return;
+            try {
+              const r = parseClipImport(await f.text(), shell.clips);
+              if (r.added.length) shell.editClips((l) => [...r.added, ...l]);
+              shell.toast(`Clipboard import: ${r.added.length} added, ${r.skippedDuplicates} duplicates skipped, ${r.refusedSensitive} sensitive refused`, "ok");
+            } catch (err) { shell.toast(`Clipboard import refused: ${String((err as Error).message)}`, "warn"); }
+            e.target.value = "";
+          }} />
+        </label>
       </div>
       {shell.clips.length ? <input className="fs-input" type="search" aria-label="Search clipboard history" placeholder="Search history" value={q} onChange={(e) => setQ(e.target.value)} /> : null}
       {pasted ? <div className="fs-dim" style={{ fontSize: fz(11) }}>Captured {pasted.length} characters with your explicit permission.</div> : null}

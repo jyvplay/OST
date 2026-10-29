@@ -11,6 +11,8 @@
 export interface IcsItem {
   uid: string; title: string; notes: string; start: Date | null; end: Date | null;
   kind: "event" | "task"; done: boolean;
+  /** TT117 PL-02: raw RRULE value (validated by src/lib/recurrence on use). */
+  rrule?: string;
 }
 
 const unescapeText = (s: string) => s.replace(/\\n/gi, "\n").replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\\\/g, "\\");
@@ -51,6 +53,7 @@ export function parseIcs(text: string): IcsItem[] {
       case "DTSTART": case "DUE": cur.start = parseIcsDate(value, params); break;
       case "DTEND": cur.end = parseIcsDate(value, params); break;
       case "STATUS": cur.done = /COMPLETED/i.test(value); break;
+      case "RRULE": cur.rrule = value.toUpperCase(); break;
     }
   }
   return out;
@@ -67,13 +70,16 @@ const fold = (line: string) => {
   return parts.join("\r\n");
 };
 
-export function toIcs(items: { uid: string; title: string; notes: string; start: Date | null; end: Date | null; kind: string; done: boolean }[]): string {
+export function toIcs(items: { uid: string; title: string; notes: string; start: Date | null; end: Date | null; kind: string; done: boolean; rrule?: string }[]): string {
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Fusion Shell Web//EN"];
   for (const it of items) {
     const comp = it.kind === "event" ? "VEVENT" : "VTODO";
     out.push(`BEGIN:${comp}`, `UID:${it.uid}`, `DTSTAMP:${fmt(new Date())}`, fold(`SUMMARY:${escapeText(it.title)}`));
     if (it.notes) out.push(fold(`DESCRIPTION:${escapeText(it.notes)}`));
     if (it.start) out.push(`${comp === "VTODO" ? "DUE" : "DTSTART"}:${fmt(it.start)}`);
+    // A rule stored in notes as "RRULE:..." (Planner) or carried as a field is emitted as a real RRULE.
+    const rule = it.rrule ?? (/^RRULE:(.+)$/m.exec(it.notes)?.[1]);
+    if (rule) out.push(fold(`RRULE:${rule.trim().toUpperCase()}`));
     if (it.end && comp === "VEVENT") out.push(`DTEND:${fmt(it.end)}`);
     if (comp === "VTODO") out.push(`STATUS:${it.done ? "COMPLETED" : "NEEDS-ACTION"}`);
     out.push(`END:${comp}`);

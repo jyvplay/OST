@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
+import { compileFind, findInText } from "@/lib/find-core";
 
 interface Hit { source: string; ref: string; title: string; snippet: string; how: string; rank: number; matchedFields?: {field:string;value:string}[] }
 
@@ -25,6 +26,12 @@ export default function FindModule(_: ModuleProps) {
   const [explain, setExplain] = useState<Record<string, unknown> | null>(null);
   const [took, setTook] = useState<number | null>(null);
   const [privInfo, setPrivInfo] = useState<{ hostQueried: boolean; indexed: number | null; locked: boolean } | null>(null);
+  // TT117 FN-01: pattern filter over the returned snippets (client-side; never re-queries the host).
+  const [pattern, setPattern] = useState("");
+  const [useRegex, setUseRegex] = useState(false);
+  const [caseSens, setCaseSens] = useState(false);
+  const compiled = pattern ? compileFind(pattern, { regex: useRegex, caseSensitive: caseSens, wholeWord: false }) : null;
+  const shownHits = !pattern || !compiled || "error" in compiled ? hits : hits.filter((h) => findInText(`${h.title} ${h.snippet}`, compiled.pattern).matches.length > 0);
 
   useEffect(()=>{
     const clear=()=>{request.current?.abort();setBusy(false);setQ('');setField('');setScope('');setHits([]);setCursor(null);setExplain(null);setTook(null);setQueryUsed('');setError('');setPrivInfo(null);};
@@ -93,6 +100,13 @@ export default function FindModule(_: ModuleProps) {
         </div>
       </Section>
 
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+        <input className="fs-input" style={{ flex: 1, minWidth: fz(160) }} placeholder="Filter these results by pattern" value={pattern} onChange={(e) => setPattern(e.target.value)} aria-label="Filter results by pattern" />
+        <label className="fs-row" style={{ gap: 4 }}><input type="checkbox" checked={useRegex} onChange={(e) => setUseRegex(e.target.checked)} /> regex</label>
+        <label className="fs-row" style={{ gap: 4 }}><input type="checkbox" checked={caseSens} onChange={(e) => setCaseSens(e.target.checked)} /> case</label>
+        {compiled && "error" in compiled ? <Badge tone="bad">{compiled.error}</Badge> : pattern ? <Badge tone="info">{shownHits.length} of {hits.length} results match</Badge> : null}
+      </div>
+
       {took !== null ? (
         <div className="fs-row" style={{ gap: 6 }}>
           <Badge tone="ok">{hits.length} hits</Badge><Badge tone="info">{took} ms</Badge><Badge>no cloud service</Badge>
@@ -104,7 +118,7 @@ export default function FindModule(_: ModuleProps) {
       ) : null}
 
       <div style={{ display: "grid", gap: 2 }}>
-        {hits.map((h) => (
+        {shownHits.map((h) => (
           <OrbitTarget key={`${h.source}:${h.ref}`} label={`Search result: ${h.title}`} actions={[
             { label: "Open result", run: () => openHit(h) },
             ...(h.source === "file" ? [{ label: "Open containing folder", run: () => shell.open("files", { path: parentPath(h.ref) }) }] : []),

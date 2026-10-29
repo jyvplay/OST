@@ -234,7 +234,9 @@ export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "clos
      concept drawn as geometry - a funnel is narrowing, a calendar is a dated grid,
      a broom is a swept edge - so the row can lose its captions without losing its
      meaning. */
-  "method" | "host" | "calendar" | "scope" | "device" | "dedupe" | "broom" | "gauge" | "session" | "link";
+  "method" | "host" | "calendar" | "scope" | "device" | "dedupe" | "broom" | "gauge" | "session" | "link"
+  /* TT117: an archive manifest (a checked list), an alarm bell, a repeating cycle and rising bars */
+  | "manifest" | "alarm" | "repeat" | "stats";
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
     /* TT116 concept glyphs. Same construction rules: stroke-only, 24x24, currentColor,
@@ -259,6 +261,14 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     session: <><rect x="4" y="5.5" width="16" height="13" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9 12h6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m12 9 3 3-3 3" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // an address: two links of a chain
     link: <><path d="M10.5 13.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.54 3.54 0 0 0-5-5L11.5 7.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M13.5 10.5a3.5 3.5 0 0 0-5 0L6 13a3.54 3.54 0 0 0 5 5l1.5-1.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT117 manifest: a list whose last line is a tick — a checked inventory
+    manifest: <><path d="M8 5.5h11M8 10h11M8 14.5h6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m3.8 14 1.4 1.4L8 12.6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m15.5 17.5 1.8 1.8 3.5-3.8" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="4.7" cy="5.5" r="1" fill="currentColor" /><circle cx="4.7" cy="10" r="1" fill="currentColor" /></>,
+    // TT117 alarm: a bell with two short sound arcs
+    alarm: <><path d="M12 4a5.5 5.5 0 0 1 5.5 5.5v3.6l1.8 3.4H4.7l1.8-3.4V9.5A5.5 5.5 0 0 1 12 4Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M10 19.5a2.2 2.2 0 0 0 4 0" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M3.5 4.5 5 6M20.5 4.5 19 6" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT117 repeat: two arrows chasing each other around a cycle
+    repeat: <><path d="M5.5 9.5A7 7 0 0 1 18 6.2M18.5 14.5A7 7 0 0 1 6 17.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M18.4 3.4v3.4h-3.4M5.6 20.6v-3.4h3.4" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT117 stats: three rising columns on a baseline
+    stats: <><path d="M4 20h16" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M7 20v-5M12 20V9M17 20v-8" {...S} stroke="currentColor" strokeWidth="2.4" /></>,
     /* TT114 concept glyphs. Stroke-only, 24x24, currentColor, so they inherit theme and contrast. */
     // verify a receipt: a seal with a tick inside it
     verify: <><path d="M12 3.5 19 6v6.2c0 3.9-2.7 7.1-7 8.3-4.3-1.2-7-4.4-7-8.3V6l7-2.5Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m8.8 12.2 2.2 2.2 4.2-4.6" {...S} stroke="currentColor" strokeWidth="2" /></>,
