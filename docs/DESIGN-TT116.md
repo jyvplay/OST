@@ -292,5 +292,25 @@ read as "consistent with its own tests", not "independently verified".
 
 The gate is 71 suites against a virgin database, with a server rebuilt from this turn's
 code and warmed before the first suite. The log is
-`docs/evidence/tt116-production-gate.log`. Previous baselines: TT113 61 suites 704/0,
-TT114 Gate A 733/7, TT115 Gate F 741/0.
+`docs/evidence/tt116-production-gate.log`.
+
+| Gate | Database | Suites | Passed | Failed | Exit |
+|---|---|---|---|---|---|
+| A | `tt116_seal_test` (virgin) | 71 | 784 | 2 | 1 |
+| B | `tt116_seal3_test` (virgin) | 71 | **786** | **0** | **0** |
+
+Gate A's two failures were both caused by this turn and both were caught by incumbent
+suites, which is the outcome the standing rule "when a new suite and an incumbent
+disagree, the incumbent wins" exists to produce:
+
+- `e2e-tt111-recall` — the de-wordification pass shortened the tap-policy note and took
+  the route to the switch with it. Repaired, and `tt116-density` now asserts that every
+  policy note still names `Settings → Privacy → …`, which is an attack aimed at this
+  turn's own patch.
+- `tt114-recall-token` — RC-34's `test` string named `e2e-tt109-recall.mts`, a file that
+  does not exist. The guard that refuses a feature row citing a suite that is not on
+  disk did its job against a fabricated reference. Repaired, and every `.mts` name in
+  the TT116 seed files was re-checked against the directory.
+
+Previous baselines: TT113 61 suites 704/0, TT114 Gate A 733/7, TT115 Gate F 741/0,
+**TT116 Gate B 71 suites 786/0**.

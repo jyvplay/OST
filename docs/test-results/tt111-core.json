@@ -1,6 +1,6 @@
 {
   "suite": "tt111-core",
-  "at": "2026-10-29T19:18:36.539Z",
+  "at": "2026-10-29T19:51:15.651Z",
   "results": [
     {
       "suite": "tt111-core",
@@ -19,7 +19,7 @@
         "FF-14": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt111-core",
@@ -38,7 +38,7 @@
         "PR-04": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt111-core",
@@ -57,7 +57,7 @@
         "DP-04": "full"
       },
       "pass": true,
-      "ms": 79
+      "ms": 80
     },
     {
       "suite": "tt111-core",
@@ -66,7 +66,7 @@
         "DP-05": "full"
       },
       "pass": true,
-      "ms": 63
+      "ms": 72
     },
     {
       "suite": "tt111-core",
@@ -84,7 +84,7 @@
         "PR-02": "partial"
       },
       "pass": true,
-      "ms": 187
+      "ms": 209
     },
     {
       "suite": "tt111-core",
@@ -102,7 +102,7 @@
         "ST-04": "full"
       },
       "pass": true,
-      "ms": 10
+      "ms": 9
     }
   ]
 }

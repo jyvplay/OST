@@ -1,6 +1,6 @@
 {
   "suite": "tt101-search",
-  "at": "2026-10-29T19:03:33.476Z",
+  "at": "2026-10-29T19:36:23.826Z",
   "results": [
     {
       "suite": "tt101-search",
@@ -35,21 +35,21 @@
       "name": "independent MIT music-metadata parser agrees on the real ID3 lyrics and custom transcript",
       "covers": {},
       "pass": true,
-      "ms": 85
+      "ms": 101
     },
     {
       "suite": "tt101-search",
       "name": "UTF-16 ID3v2.3 lyrics agree with the independent parser",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt101-search",
       "name": "compressed ID3 metadata is explicitly refused without inflation",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 3
     },
     {
       "suite": "tt101-search",
@@ -84,7 +84,7 @@
       "name": "stored JSON transcript beyond legacy 50000-character limit is found",
       "covers": {},
       "pass": true,
-      "ms": 13
+      "ms": 14
     },
     {
       "suite": "tt101-search",
@@ -98,7 +98,7 @@
       "name": "zero and false scalar values are searchable, not dropped as falsy",
       "covers": {},
       "pass": true,
-      "ms": 12
+      "ms": 14
     },
     {
       "suite": "tt101-search",
@@ -140,7 +140,7 @@
       "name": "large content is honestly skipped and reported",
       "covers": {},
       "pass": true,
-      "ms": 9
+      "ms": 6
     },
     {
       "suite": "tt101-search",
@@ -161,28 +161,28 @@
       "name": "pagination reaches a held-out match after the first bounded page",
       "covers": {},
       "pass": true,
-      "ms": 292
+      "ms": 294
     },
     {
       "suite": "tt101-search",
       "name": "private plaintext is excluded even when calling host endpoint directly",
       "covers": {},
       "pass": true,
-      "ms": 29
+      "ms": 27
     },
     {
       "suite": "tt101-search",
       "name": "current exclusions apply in both metadata and legacy text modes",
       "covers": {},
       "pass": true,
-      "ms": 21
+      "ms": 22
     },
     {
       "suite": "tt101-search",
       "name": "live metadata sees updated values and does not return obsolete fields",
       "covers": {},
       "pass": true,
-      "ms": 32
+      "ms": 29
     },
     {
       "suite": "tt101-search",
@@ -210,7 +210,7 @@
       "name": "unlocked private metadata search runs locally and query text never reaches HTTP",
       "covers": {},
       "pass": true,
-      "ms": 10
+      "ms": 14
     },
     {
       "suite": "tt101-search",
@@ -224,7 +224,7 @@
       "name": "real encrypted files paginate locally and do not leak private query text",
       "covers": {},
       "pass": true,
-      "ms": 480
+      "ms": 520
     },
     {
       "suite": "tt101-search",
@@ -238,7 +238,7 @@
       "name": "lock during a real private file read discards the pending metadata result",
       "covers": {},
       "pass": true,
-      "ms": 16
+      "ms": 19
     },
     {
       "suite": "tt101-search",
@@ -252,7 +252,7 @@
       "name": "amnesic metadata searches actual RAM writes without a host query",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 5
     },
     {
       "suite": "tt101-search",

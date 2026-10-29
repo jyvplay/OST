@@ -119,11 +119,7 @@ SUITE COUNT: 71
 === tt111-recall-tap
 7 passed, 0 failed
 === e2e-tt111-recall
-  ✗ Forget removes a held item from the pane immediately, and the switch empties it and says so
-    the note says where the switch is: Off — Settings → Privacy. Nothing is kept; other pathways still work.
-
-2 passed, 1 failed
-FAILED: Forget removes a held item from the pane immediately, and the switch empties it and says so
+3 passed, 0 failed
 === e2e-tt112-resident
 7 passed, 0 failed
 === e2e-tt112-shell
@@ -133,13 +129,7 @@ FAILED: Forget removes a held item from the pane immediately, and the switch emp
 === tt114-core
 9 passed, 0 failed
 === tt114-recall-token
-  ✗ Specs mirrors RC-39 and no Recall row is graded above its evidence
-    every named Recall test file exists: RC-34 -> e2e-tt109-recall.mts
-+ actual - expected
-
---
-7 passed, 1 failed
-FAILED: Specs mirrors RC-39 and no Recall row is graded above its evidence
+8 passed, 0 failed
 === e2e-tt114-shell
 9 passed, 0 failed
 === e2e-tt114-tabs
@@ -156,6 +146,5 @@ FAILED: Specs mirrors RC-39 and no Recall row is graded above its evidence
 9 passed, 0 failed
 === tt116-density
 6 passed, 0 failed
-FAILED SUITES: e2e-tt111-recall tt114-recall-token
 ALLDONE
-GATE EXIT 1
+GATE EXIT 0
