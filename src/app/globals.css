@@ -711,3 +711,38 @@ span.fs-tt-pin { pointer-events: none; }
 .fs-toast-card > span:not(.fs-badge) { min-width:0; overflow-wrap:anywhere; font-size:calc(12 * var(--fs-u)); max-height:140px; overflow:auto; }
 .fs-toast-back { position:absolute; width:100%; height:65px; pointer-events:none; transform-origin:bottom; }
 @media (forced-colors:active) { .fs-toast-card,.fs-toast-deck > button { background:Canvas; } }
+
+/* TT113: the small print is a disclosure, not body copy. Closed, it costs one muted line; open,
+   it shows every word it ever showed. The marker is the shared chevron glyph, rotated by state. */
+.fs-hint { font-size: calc(11.5 * var(--fs-u)); }
+.fs-hint > summary {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; list-style: none;
+  color: var(--fs-muted); border-radius: 6px; padding: 1px 6px 1px 2px; width: fit-content; }
+.fs-hint > summary::-webkit-details-marker { display: none; }
+.fs-hint > summary::marker { content: ""; }
+.fs-hint > summary:hover { color: var(--fs-text); background: color-mix(in srgb, var(--fs-text) 7%, transparent); }
+.fs-hint > summary:focus-visible { outline: 2px solid var(--fs-accent); outline-offset: 1px; }
+.fs-hint > summary svg { transition: transform .12s ease; flex: 0 0 auto; }
+.fs-hint[open] > summary svg { transform: rotate(90deg); }
+.fs-hint-body {
+  margin: 4px 0 0; padding: 7px 9px; color: var(--fs-muted); line-height: 1.45;
+  border-left: 2px solid color-mix(in srgb, var(--fs-border) 90%, transparent);
+  background: color-mix(in srgb, var(--fs-text) 4%, transparent); border-radius: 0 7px 7px 0; }
+.fs-hint-body p { margin: 0 0 6px; }
+.fs-hint-body p:last-child { margin-bottom: 0; }
+
+/* TT113: a module's actions read as a grouped toolbar, not a wall of equal buttons. The groups
+   match the conditions the buttons already carried (a memory open, a region drawn), so the
+   grouping states something true about availability rather than being decoration. */
+.fs-toolgroups { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-start; }
+.fs-toolgroup { display: grid; gap: 3px; padding: 0 10px 0 0; }
+.fs-toolgroup + .fs-toolgroup { border-left: 1px solid color-mix(in srgb, var(--fs-border) 75%, transparent); padding-left: 14px; }
+.fs-toolgroup-label { font-size: calc(9.5 * var(--fs-u)); letter-spacing: .07em; text-transform: uppercase; color: var(--fs-muted); }
+
+/* TT113: the proxy tab's chrome is one long wrap of controls. Grouping the Recall pathway into its
+   own bordered run (nothing hidden, nothing renamed) lets the eye find "navigate" and "save media"
+   as two things instead of nineteen. */
+.fs-tgroup { display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  padding: 2px 6px; border-radius: 8px;
+  background: color-mix(in srgb, var(--fs-text) 4%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--fs-border) 60%, transparent); }

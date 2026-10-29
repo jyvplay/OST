@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt111-recall",
-  "at": "2026-10-29T03:22:43.596Z",
+  "at": "2026-10-29T04:00:22.480Z",
   "results": [
     {
       "suite": "e2e-tt111-recall",
@@ -10,7 +10,7 @@
         "RC-02": "partial"
       },
       "pass": true,
-      "ms": 4576
+      "ms": 6266
     },
     {
       "suite": "e2e-tt111-recall",
@@ -19,7 +19,7 @@
         "RC-37": "full"
       },
       "pass": true,
-      "ms": 176
+      "ms": 191
     },
     {
       "suite": "e2e-tt111-recall",
@@ -29,7 +29,7 @@
         "SC-02": "partial"
       },
       "pass": true,
-      "ms": 784
+      "ms": 1020
     }
   ]
 }

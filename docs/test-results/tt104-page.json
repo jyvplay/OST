@@ -1,6 +1,6 @@
 {
   "suite": "tt104-page",
-  "at": "2026-10-29T03:04:56.587Z",
+  "at": "2026-10-29T03:38:56.320Z",
   "results": [
     {
       "suite": "tt104-page",
@@ -9,7 +9,7 @@
         "RC-18": "partial"
       },
       "pass": true,
-      "ms": 12
+      "ms": 8
     },
     {
       "suite": "tt104-page",
@@ -30,21 +30,21 @@
       "name": "cursor advances without overlap",
       "covers": {},
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "tt104-page",
       "name": "terminal page returns remaining 35 and no cursor",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 5
     },
     {
       "suite": "tt104-page",
       "name": "new concurrent insert does not shift an older cursor page",
       "covers": {},
       "pass": true,
-      "ms": 12
+      "ms": 7
     },
     {
       "suite": "tt104-page",
@@ -79,21 +79,21 @@
       "name": "invalid cursor 1.5",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt104-page",
       "name": "invalid cursor 1e3",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt104-page",
       "name": "invalid cursor 2147483648",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt104-page",
@@ -107,7 +107,7 @@
       "name": "invalid cursor  1",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt104-page",
@@ -149,7 +149,7 @@
       "name": "invalid folder \"/Downloads/Recall/a/../b\"",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 6
     },
     {
       "suite": "tt104-page",
@@ -163,21 +163,21 @@
       "name": "invalid folder \"/Downloads/Recall/a\\u0000\"",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt104-page",
       "name": "missing folder returns empty page",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 8
     },
     {
       "suite": "tt104-page",
       "name": "trashed grouping folder rejected",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 6
     }
   ]
 }

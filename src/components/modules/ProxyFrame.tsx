@@ -10,7 +10,7 @@ import { privacy } from "@/lib/privacy/session";
 import { encodeTarget, type UaKind } from "@/lib/wp-core";
 import { useShell } from "../shell-context";
 import { startSharedBroker } from "@/lib/wp-shared-broker";
-import { Btn } from "../ui";
+import { Btn , Hint } from "../ui";
 
 /**
  * TT35 — a proxied browser tab (WP-05). The page runs in an opaque-origin sandbox and reaches the network only
@@ -321,17 +321,19 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
   return (
     <div data-testid="wp-tab" data-sid={sid ?? ""} data-url={hist.list[hist.i]} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <div data-testid="wp-bar" className="fs-row" style={{ gap: 4, padding: "3px 6px", flexWrap: "wrap", borderBottom: "1px solid var(--fs-border)", fontSize: fz(11) }}>
-        <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded()}>Save largest loaded visual</Btn>
-        <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded(true)}>Save clicked loaded visual</Btn>
-        <Btn data-testid="recall-batch" disabled={!sid||batchBusy} onClick={saveBatch}>{batchBusy?'Saving loaded visuals…':'Save all loaded visuals'}</Btn>
-        <label>Batch limit <input aria-label="Loaded visual batch limit" type="number" min={1} max={24} value={batchLimit} disabled={batchBusy}
-          onChange={e=>setBatchLimit(Math.min(Math.max(Number(e.target.value)||1,1),24))} style={{width:52}}/></label>
-        <label><input type="checkbox" aria-label="Keep one copy of identical visuals" checked={keepOne}
-          onChange={e=>{keepOneRef.current=e.currentTarget.checked;setKeepOne(e.currentTarget.checked);}}/> Keep one copy</label>
-        <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall}>{autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}</Btn>
-        <select aria-label="Auto Recall folders" disabled={autoRecall} value={recallGroup} onChange={e=>setRecallGroup(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select>
-        {recallGroup==='custom'?<input aria-label="Auto Recall custom folder" disabled={autoRecall} value={recallCustom} onChange={e=>setRecallCustom(e.target.value)}/>:null}
-        {!embeddedRecall?<Btn onClick={()=>shell.open('recall',{url:hist.list[hist.i],pageTitle:title})}>Recall jobs</Btn>:null}
+        <div className="fs-tgroup" data-group="Save media">
+          <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded()}>Save largest loaded visual</Btn>
+          <Btn disabled={!sid||loadedBusy} onClick={()=>saveLoaded(true)}>Save clicked loaded visual</Btn>
+          <Btn data-testid="recall-batch" disabled={!sid||batchBusy} onClick={saveBatch}>{batchBusy?'Saving loaded visuals…':'Save all loaded visuals'}</Btn>
+          <label>Batch limit <input aria-label="Loaded visual batch limit" type="number" min={1} max={24} value={batchLimit} disabled={batchBusy}
+            onChange={e=>setBatchLimit(Math.min(Math.max(Number(e.target.value)||1,1),24))} style={{width:52}}/></label>
+          <label><input type="checkbox" aria-label="Keep one copy of identical visuals" checked={keepOne}
+            onChange={e=>{keepOneRef.current=e.currentTarget.checked;setKeepOne(e.currentTarget.checked);}}/> Keep one copy</label>
+          <Btn data-testid="recall-auto" disabled={!sid} onClick={toggleRecall}>{autoRecall?'Disarm Auto Recall':'Enable Auto Recall'}</Btn>
+          <select aria-label="Auto Recall folders" disabled={autoRecall} value={recallGroup} onChange={e=>setRecallGroup(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select>
+          {recallGroup==='custom'?<input aria-label="Auto Recall custom folder" disabled={autoRecall} value={recallCustom} onChange={e=>setRecallCustom(e.target.value)}/>:null}
+          {!embeddedRecall?<Btn onClick={()=>shell.open('recall',{url:hist.list[hist.i],pageTitle:title})}>Recall jobs</Btn>:null}
+        </div>
 
         <Btn variant="ghost" data-testid="wp-back" aria-label="Back" disabled={hist.i <= 0} onClick={back}>‹ Back</Btn>
         <Btn variant="ghost" data-testid="wp-forward" aria-label="Forward" disabled={hist.i >= hist.list.length - 1} onClick={fwd}>Forward ›</Btn>
@@ -380,7 +382,7 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
         <span className="fs-dim" title="Requests go through Fusion; proxy sessions and cookies live in memory. Save to Files deliberately writes to server storage." data-testid="wp-via">Private proxy{via ? ` via ${via}` : ""}{title ? ` · ${title.slice(0, 60)}` : ""}</span>
         </div>
       </div>
-      <div className="fs-dim" style={{ fontSize: fz(10.5), padding: "2px 8px" }}>Save to Files copies the original bytes to the Fusion server’s unencrypted /Downloads (up to 8 MiB), not /Private. Page-initiated browser downloads remain in the browser’s own downloads.</div>
+      <div style={{ padding: "1px 8px" }}><Hint label="Where Save to Files puts things">Save to Files copies the original bytes to the Fusion server’s unencrypted /Downloads (up to 8 MiB), not /Private. Page-initiated browser downloads remain in the browser’s own downloads.</Hint></div>
       {note ? <div role="status" data-testid="wp-note" data-phase={savePhase ?? "idle"} className="fs-dim" style={{ fontSize: fz(11), padding: "2px 8px" }}>{note}</div> : null}
       {err ? <div data-testid="wp-error" style={{ padding: 12 }}>{err}</div> : null}
       {src ? (

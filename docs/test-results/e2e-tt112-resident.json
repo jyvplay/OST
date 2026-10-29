@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt112-resident",
-  "at": "2026-10-29T03:22:51.592Z",
+  "at": "2026-10-29T04:12:15.998Z",
   "results": [
     {
       "suite": "e2e-tt112-resident",
@@ -9,7 +9,7 @@
         "RC-38": "full"
       },
       "pass": true,
-      "ms": 2622
+      "ms": 2890
     },
     {
       "suite": "e2e-tt112-resident",
@@ -19,7 +19,7 @@
         "RC-14": "partial"
       },
       "pass": true,
-      "ms": 1371
+      "ms": 1032
     },
     {
       "suite": "e2e-tt112-resident",
@@ -29,7 +29,7 @@
         "RC-09": "partial"
       },
       "pass": true,
-      "ms": 449
+      "ms": 421
     },
     {
       "suite": "e2e-tt112-resident",
@@ -39,7 +39,7 @@
         "RC-14": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 14
     },
     {
       "suite": "e2e-tt112-resident",
@@ -48,7 +48,7 @@
         "RC-38": "full"
       },
       "pass": true,
-      "ms": 425
+      "ms": 495
     },
     {
       "suite": "e2e-tt112-resident",
@@ -58,7 +58,7 @@
         "RC-09": "partial"
       },
       "pass": true,
-      "ms": 783
+      "ms": 779
     },
     {
       "suite": "e2e-tt112-resident",

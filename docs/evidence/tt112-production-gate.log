@@ -1,8 +1,8 @@
-TT112 production gate — 2026-10-29T03:04:14Z
+TT112 production gate — 2026-10-29T03:38:11Z
 node v22.22.3 · Next 16.4.3 · PostgreSQL 18.4 · Chromium 143.0.7499.0 · 1 agent, no CI
-DB tt112_seal2_test (created minutes before this run, never used) · BASE=http://127.0.0.1:3000
+DB tt112_seal3_test (created minutes before this run, never used) · BASE=http://127.0.0.1:3000
 standing fixtures: scripts/tt100-fixture.mjs :4001 · scripts/tt103-publisher.mjs :4002
-suites: 59 (TT110 curated order + TT111 and TT112 suites; e2e-privacy excluded as before)
+suites: 60 (TT110 curated order + TT111 and TT112 suites; e2e-privacy excluded as before)
 
 tt106-lifecycle             23 passed   0 failed
 e2e-tt106-memory             8 passed   0 failed
@@ -53,10 +53,11 @@ e2e-tt108-recall             6 passed   0 failed
 e2e-tt108-shell              7 passed   0 failed
 tt108-refusal                7 passed   0 failed
 tt109-recall                13 passed   0 failed
-e2e-tt109-shell              5 passed   0 failed
+e2e-tt109-shell              4 passed   1 failed
 tt110-core                   7 passed   0 failed
 e2e-tt110-recall             6 passed   0 failed
 e2e-tt110-shell              4 passed   0 failed
+e2e-tt110-banner             5 passed   0 failed
 e2e-layout                  12 passed   0 failed
 tt111-core                  11 passed   0 failed
 tt111-recall-tap             7 passed   0 failed
@@ -64,4 +65,4 @@ e2e-tt111-recall             3 passed   0 failed
 e2e-tt112-resident           7 passed   0 failed
 e2e-tt112-shell              7 passed   0 failed
 
-TOTAL: 693 passed, 0 failed
+TOTAL: 697 passed, 1 failed

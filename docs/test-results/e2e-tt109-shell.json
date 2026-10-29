@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt109-shell",
-  "at": "2026-10-29T03:20:23.323Z",
+  "at": "2026-10-29T03:57:33.499Z",
   "results": [
     {
       "suite": "e2e-tt109-shell",
@@ -9,7 +9,7 @@
         "LN-06": "full"
       },
       "pass": true,
-      "ms": 38897
+      "ms": 35667
     },
     {
       "suite": "e2e-tt109-shell",
@@ -17,8 +17,9 @@
       "covers": {
         "LN-05": "full"
       },
-      "pass": true,
-      "ms": 6551
+      "pass": false,
+      "error": "output height did not change the rendered surface (720 → 720)",
+      "ms": 2450
     },
     {
       "suite": "e2e-tt109-shell",
@@ -27,7 +28,7 @@
         "WM-11": "partial"
       },
       "pass": true,
-      "ms": 1015
+      "ms": 3075
     },
     {
       "suite": "e2e-tt109-shell",
@@ -36,7 +37,7 @@
         "RC-02": "partial"
       },
       "pass": true,
-      "ms": 6966
+      "ms": 5482
     },
     {
       "suite": "e2e-tt109-shell",
@@ -45,7 +46,7 @@
         "RC-34": "partial"
       },
       "pass": true,
-      "ms": 15363
+      "ms": 7545
     }
   ]
 }

@@ -5,7 +5,7 @@ import { commitRecallDetailed, recallWritable, type RecallInput } from '@/lib/re
 import { cropRegion, loadedPngDimensions, oneResidentFile, type CropRect } from '@/lib/recall-memory';
 import { RECALL_LIMIT, recallFolder, recallMime } from '@/lib/recall-core';
 import type { RecallGuard } from '@/lib/server/recall-lifecycle';
-import { Btn } from '../ui';
+import { Btn, Hint } from '../ui';
 import { useShell } from '../shell-context';
 
 /** Human-selected, already resident bytes. This module never fetches a media URL. */
@@ -197,35 +197,56 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
  };
  return <section aria-label="Already-loaded memories" className="fs-panel" style={{padding:12,display:'grid',gap:8}}>
   <h3 style={{margin:0}}>Save what you already have</h3>
-  <p>No background surveillance. Choose a browser-resident file or paste a copied image. These paths preserve the selected bytes without requesting the media URL again. Server memories are unencrypted in /Downloads/Recall; there is no automatic sensitive-information filter.</p>
+  <Hint label="No background surveillance">Choose a browser-resident file or paste a copied image. These paths preserve the selected bytes without requesting the media URL again. Server memories are unencrypted in /Downloads/Recall; there is no automatic sensitive-information filter.</Hint>
   <div role="region" aria-label="Paste or drop resident media" tabIndex={0} style={{padding:12,border:'1px dashed var(--fs-border)',borderRadius:8}}
    onPaste={e=>{if(!e.clipboardData.files.length){setNote('No resident media file in this paste; text and links are never fetched.');return;}e.preventDefault();resident(e.clipboardData.files,'human-paste-file');}}
    onDragOver={e=>{if(Array.from(e.dataTransfer.types).includes('Files')){e.preventDefault();e.dataTransfer.dropEffect=busy?'none':'copy';}}}
    onDrop={e=>{e.preventDefault();resident(e.dataTransfer.files,'human-drop-file');}}>
-   Focus here and paste a copied media file, or drop exactly one file. Dragged webpage links are not downloads; if the browser exposes only a URL, use the already-loaded visual button instead.
+   <span>Paste or drop one media file</span>
+   <Hint label="Why a dragged link will not do">Focus here and paste a copied media file, or drop exactly one file. Dragged webpage links are not downloads; if the browser exposes only a URL, use the already-loaded visual button instead.</Hint>
   </div>
   <label style={{display:'grid',gap:4,justifyItems:'start'}}>Choose media from your device<input aria-label="Choose resident media" disabled={busy} type="file" accept="image/*,video/*,audio/*" onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value='';if(file)void run(()=>save(file,'human-selected-file'));}}/></label>
   <label className="fs-row" style={{gap:6,alignItems:'center'}}>
    <input type="checkbox" aria-label="Keep one copy of identical pictures" checked={keepOne} disabled={busy}
     onChange={e=>setKeepOne(e.currentTarget.checked)} />
-   <span>Keep one copy of identical pictures in this folder{keepOne?' — a repeat save will point at the memory already held':' — every save files a new memory'}</span>
+   <span title={keepOne?'A repeat save will point at the memory already held':'Every save files a new memory'}>Keep one copy of identical pictures</span>
   </label>
-  <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
-   <Btn disabled={busy} onClick={()=>void run(async()=>{recallWritable();if(!navigator.clipboard?.read)throw Error('Clipboard image reading unavailable; use the file chooser.');const copied=await navigator.clipboard.read();for(const item of copied){const type=item.types.find(t=>/^image\/(png|jpeg|webp)$/.test(t));if(type){await save(await item.getType(type),'human-clipboard-image');return;}}throw Error('Clipboard contains no supported image; nothing saved.');})}>Save copied image</Btn>
-   <Btn disabled={busy} onClick={()=>void run(()=>list())}>Refresh memory timeline</Btn>
-   <Btn disabled={busy||!next||items.length>=400} onClick={()=>void run(()=>list(true))}>Load older memories</Btn>
-   <Btn disabled={busy||!view} onClick={()=>void run(verify)}>Verify saved receipt</Btn>
-   <Btn disabled={busy||!view||view.mime.startsWith('audio/')} onClick={()=>void run(frame)}>Save preview frame</Btn>
-   <Btn disabled={busy||!view||!drag||view.mime.startsWith('audio/')} onClick={()=>void run(saveRegion)}>Save selected region</Btn>
-   <Btn disabled={busy||!drag} onClick={()=>setDrag(null)}>Clear region</Btn>
-   <Btn disabled={busy} onClick={()=>void run(loadTimeline)}>Show saving timeline</Btn>
-   <Btn disabled={busy||!view} onClick={()=>void run(copyMemory)}>Copy memory to clipboard</Btn>
-   <Btn disabled={busy||!view||!view.mime.startsWith('image/')} onClick={()=>{try{openMemoryWith('photos');}catch(e){setNote(e instanceof Error?e.message:String(e));}}}>Open memory in Photos</Btn>
-   <Btn disabled={busy||!view} onClick={()=>{try{openMemoryWith('files');}catch(e){setNote(e instanceof Error?e.message:String(e));}}}>Show memory in Files</Btn>
-   <Btn disabled={busy||!view} onClick={()=>setConfirmTrash(true)}>Trash open memory pair</Btn>
-   <Btn disabled={busy||!undo} onClick={()=>void run(restore)}>Undo pair trash</Btn>
-   <Btn disabled={busy||!view} onClick={()=>{if(!view)return;const a=document.createElement('a');a.href=view.url;a.download=view.path.split('/').pop()||'memory';a.click();setNote('Local export requested from the open saved Blob; browser download policy may require confirmation.');}}>Export open memory</Btn>
-   <Btn disabled={busy||!view} onClick={()=>{setConfirmTrash(false);epoch.current++;if(objectUrl.current)URL.revokeObjectURL(objectUrl.current);objectUrl.current='';setView(null);}}>Close memory preview</Btn>
+  <div className="fs-toolgroups" role="group" aria-label="Memory actions">
+   <div className="fs-toolgroup" data-group="Memories">
+    <span className="fs-toolgroup-label" aria-hidden="true">Memories</span>
+    <div className="fs-row" style={{gap:6,flexWrap:'wrap'}}>
+     <Btn disabled={busy} onClick={()=>void run(async()=>{recallWritable();if(!navigator.clipboard?.read)throw Error('Clipboard image reading unavailable; use the file chooser.');const copied=await navigator.clipboard.read();for(const item of copied){const type=item.types.find(t=>/^image\/(png|jpeg|webp)$/.test(t));if(type){await save(await item.getType(type),'human-clipboard-image');return;}}throw Error('Clipboard contains no supported image; nothing saved.');})}>Save copied image</Btn>
+     <Btn disabled={busy} onClick={()=>void run(()=>list())}>Refresh memory timeline</Btn>
+     <Btn disabled={busy||!next||items.length>=400} onClick={()=>void run(()=>list(true))}>Load older memories</Btn>
+     <Btn disabled={busy} onClick={()=>void run(loadTimeline)}>Show saving timeline</Btn>
+    </div>
+   </div>
+   <div className="fs-toolgroup" data-group="Open memory">
+    <span className="fs-toolgroup-label" aria-hidden="true">Open memory</span>
+    <div className="fs-row" style={{gap:6,flexWrap:'wrap'}}>
+     <Btn disabled={busy||!view} onClick={()=>void run(verify)}>Verify saved receipt</Btn>
+     <Btn disabled={busy||!view||view.mime.startsWith('audio/')} onClick={()=>void run(frame)}>Save preview frame</Btn>
+     <Btn disabled={busy||!view} onClick={()=>void run(copyMemory)}>Copy memory to clipboard</Btn>
+     <Btn disabled={busy||!view||!view.mime.startsWith('image/')} onClick={()=>{try{openMemoryWith('photos');}catch(e){setNote(e instanceof Error?e.message:String(e));}}}>Open memory in Photos</Btn>
+     <Btn disabled={busy||!view} onClick={()=>{try{openMemoryWith('files');}catch(e){setNote(e instanceof Error?e.message:String(e));}}}>Show memory in Files</Btn>
+     <Btn disabled={busy||!view} onClick={()=>setConfirmTrash(true)}>Trash open memory pair</Btn>
+     <Btn disabled={busy||!view} onClick={()=>{if(!view)return;const a=document.createElement('a');a.href=view.url;a.download=view.path.split('/').pop()||'memory';a.click();setNote('Local export requested from the open saved Blob; browser download policy may require confirmation.');}}>Export open memory</Btn>
+     <Btn disabled={busy||!view} onClick={()=>{setConfirmTrash(false);epoch.current++;if(objectUrl.current)URL.revokeObjectURL(objectUrl.current);objectUrl.current='';setView(null);}}>Close memory preview</Btn>
+    </div>
+   </div>
+   <div className="fs-toolgroup" data-group="Region">
+    <span className="fs-toolgroup-label" aria-hidden="true">Region</span>
+    <div className="fs-row" style={{gap:6,flexWrap:'wrap'}}>
+     <Btn disabled={busy||!view||!drag||view.mime.startsWith('audio/')} onClick={()=>void run(saveRegion)}>Save selected region</Btn>
+     <Btn disabled={busy||!drag} onClick={()=>setDrag(null)}>Clear region</Btn>
+    </div>
+   </div>
+   <div className="fs-toolgroup" data-group="Undo">
+    <span className="fs-toolgroup-label" aria-hidden="true">Undo</span>
+    <div className="fs-row" style={{gap:6,flexWrap:'wrap'}}>
+     <Btn disabled={busy||!undo} onClick={()=>void run(restore)}>Undo pair trash</Btn>
+    </div>
+   </div>
   </div>
   <div role="group" aria-label="Search saved memories" className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'end'}}>
    <label style={{display:'grid'}}>Saved by<select aria-label="Filter by save method" value={method} onChange={e=>setMethod(e.target.value)}>
@@ -273,7 +294,7 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
      {drag&&Math.abs(drag.w)>1&&Math.abs(drag.h)>1?<div style={{position:'absolute',left:Math.min(drag.x,drag.x+drag.w),top:Math.min(drag.y,drag.y+drag.h),width:Math.abs(drag.w),height:Math.abs(drag.h),border:'2px solid #4ea1ff',background:'rgba(78,161,255,0.18)',pointerEvents:'none'}}/>:null}
     </div>:null}
    </div>
-   {drag&&Math.abs(drag.w)>1&&Math.abs(drag.h)>1?<p role="status">Region selected: {Math.round(Math.abs(drag.w))}×{Math.round(Math.abs(drag.h))} displayed pixels. “Save selected region” cuts it from the pixels already decoded for this preview and records which saved memory it came from. The original is never changed.</p>:<p>Drag across the preview to select a region, then save just that part.</p>}
+   {drag&&Math.abs(drag.w)>1&&Math.abs(drag.h)>1?<p role="status" className="fs-dim" style={{margin:0}}>Region selected: {Math.round(Math.abs(drag.w))}×{Math.round(Math.abs(drag.h))} displayed pixels. “Save selected region” cuts it from the pixels already decoded for this preview and records which saved memory it came from. The original is never changed.</p>:<p>Drag across the preview to select a region, then save just that part.</p>}
   </div>:null}
  </section>;
 }

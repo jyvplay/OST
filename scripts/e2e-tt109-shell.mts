@@ -145,7 +145,7 @@ try {
     { 'LN-05': 'full' }, async () => {
       const choose = async (h: number) => {
         await page.locator('label').filter({ hasText: 'output height' }).locator('select').selectOption(String(h));
-        await page.waitForTimeout(1200);
+        await page.waitForTimeout(400);
         // The governor clamps cast height when the machine is hot (Lens.tsx: min(height, gov.maxCastHeight)),
         // and a loaded gate machine IS hot — so compare against the pipeline's own stated target,
         // read from the fps badge, rather than against the number the human picked.
@@ -163,9 +163,17 @@ try {
         })()`) as number;
         // The badge mounts only once the pipeline has ticked; poll briefly rather than treat a
         // not-yet-mounted badge as a failure, and fall back to the plain comparison if it never comes.
-        let stated = 0;
-        for (let i = 0; i < 10 && stated === 0; i++) { stated = await readStated(); if (!stated) await page.waitForTimeout(500); }
-        return { ...(await canvasSize()), stated };
+        // A fixed sleep samples a transient: under load the pipeline needs several frames to
+        // reallocate its surface, and reading at 1200ms caught the OLD canvas while the badge
+        // already showed the new target. Wait for the surface to agree with the stated target.
+        let stated = 0, size = await canvasSize();
+        for (let i = 0; i < 30; i++) {
+          stated = await readStated();
+          size = await canvasSize();
+          if (stated > 0 && size.h === stated) break;
+          await page.waitForTimeout(400);
+        }
+        return { ...size, stated };
       };
       const small = await choose(360);
       const large = await choose(1080);

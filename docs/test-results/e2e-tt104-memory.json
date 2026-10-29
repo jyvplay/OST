@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt104-memory",
-  "at": "2026-10-29T03:05:08.375Z",
+  "at": "2026-10-29T03:39:06.781Z",
   "results": [
     {
       "suite": "e2e-tt104-memory",
@@ -9,7 +9,7 @@
         "RC-18": "partial"
       },
       "pass": true,
-      "ms": 1702
+      "ms": 2295
     },
     {
       "suite": "e2e-tt104-memory",
@@ -18,7 +18,7 @@
         "RC-19": "partial"
       },
       "pass": true,
-      "ms": 842
+      "ms": 400
     },
     {
       "suite": "e2e-tt104-memory",
@@ -27,14 +27,14 @@
         "RC-20": "partial"
       },
       "pass": true,
-      "ms": 712
+      "ms": 349
     },
     {
       "suite": "e2e-tt104-memory",
       "name": "tampered stored receipt is not called verified",
       "covers": {},
       "pass": true,
-      "ms": 577
+      "ms": 519
     },
     {
       "suite": "e2e-tt104-memory",
@@ -43,14 +43,14 @@
         "RC-16": "partial"
       },
       "pass": true,
-      "ms": 1240
+      "ms": 905
     },
     {
       "suite": "e2e-tt104-memory",
       "name": "native text paste does not become an HTTP download",
       "covers": {},
       "pass": true,
-      "ms": 32
+      "ms": 35
     },
     {
       "suite": "e2e-tt104-memory",
@@ -59,7 +59,7 @@
         "RC-17": "partial"
       },
       "pass": true,
-      "ms": 843
+      "ms": 363
     },
     {
       "suite": "e2e-tt104-memory",
@@ -68,21 +68,21 @@
         "RC-21": "partial"
       },
       "pass": true,
-      "ms": 1233
+      "ms": 1280
     },
     {
       "suite": "e2e-tt104-memory",
       "name": "patch-specific positive: removing nonvisual prefix retains subsequent loaded-pixel saving",
       "covers": {},
       "pass": true,
-      "ms": 631
+      "ms": 395
     },
     {
       "suite": "e2e-tt104-memory",
       "name": "Specs exposes original and six added Recall requirements without completion inflation",
       "covers": {},
       "pass": true,
-      "ms": 21
+      "ms": 16
     }
   ]
 }

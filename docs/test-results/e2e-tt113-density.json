@@ -1,0 +1,65 @@
+{
+  "suite": "e2e-tt113-density",
+  "at": "2026-10-29T04:19:24.004Z",
+  "results": [
+    {
+      "suite": "e2e-tt113-density",
+      "name": "recall opens as a tool, not a document",
+      "covers": {
+        "RC-01": "partial",
+        "AX-05": "partial",
+        "WM-02": "partial"
+      },
+      "pass": true,
+      "ms": 4521
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "browser opens as a tool, not a document",
+      "covers": {
+        "RC-01": "partial",
+        "AX-05": "partial",
+        "WM-02": "partial"
+      },
+      "pass": true,
+      "ms": 4450
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "the small print was moved, not deleted",
+      "covers": {
+        "RC-01": "partial",
+        "SC-08": "partial"
+      },
+      "pass": true,
+      "ms": 4840
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "a disclosure opens from the keyboard alone",
+      "covers": {
+        "AX-05": "partial",
+        "AX-01": "partial"
+      },
+      "pass": true,
+      "ms": 5376
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "every saving pathway survived the compaction",
+      "covers": {
+        "RC-01": "partial",
+        "RC-38": "partial"
+      },
+      "pass": true,
+      "ms": 4820
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "compacting the chrome raised no page exception",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}
