@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt110-shell",
-  "at": "2026-10-29T17:53:07.294Z",
+  "at": "2026-10-29T19:16:46.044Z",
   "results": [
     {
       "suite": "e2e-tt110-shell",
@@ -9,7 +9,7 @@
         "RC-35": "full"
       },
       "pass": true,
-      "ms": 6947
+      "ms": 7632
     },
     {
       "suite": "e2e-tt110-shell",
@@ -18,7 +18,7 @@
         "MD-04": "full"
       },
       "pass": true,
-      "ms": 6450
+      "ms": 6481
     },
     {
       "suite": "e2e-tt110-shell",
@@ -27,7 +27,7 @@
         "MD-06": "partial"
       },
       "pass": true,
-      "ms": 1318
+      "ms": 1288
     },
     {
       "suite": "e2e-tt110-shell",
@@ -36,7 +36,7 @@
         "HW-11": "full"
       },
       "pass": true,
-      "ms": 1378
+      "ms": 1417
     }
   ]
 }

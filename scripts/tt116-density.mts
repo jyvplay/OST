@@ -183,6 +183,15 @@ await test('the floor holds: the consequence of an uncancellable commit is still
     'the word count was won by deleting a consequence, which is the cheat this floor exists to catch');
   assert.match(text, /Paste a copied media file here, or drop one/i, 'a drop target lost its label');
   assert.match(text, /1 · Original bytes/i, 'a pathway heading disappeared');
+  // An attack aimed at this turn's own patch. The de-wordification pass shortened the
+  // policy note and took the route to the switch with it, which e2e-tt111-recall caught
+  // in the gate. A person who cannot find the switch cannot turn the feature back on,
+  // so the route is load-bearing text and is asserted here from now on.
+  const off = await page.getByTestId('recall').locator('[data-testid="tap-policy-off"], [data-testid="capture-policy-off"]').count();
+  if (off > 0) {
+    const notes = await page.getByTestId('recall').locator('[data-testid="tap-policy-off"], [data-testid="capture-policy-off"]').allInnerTexts();
+    for (const n of notes) assert.match(n, /Settings → Privacy →/, `a policy note stopped saying where the switch is: ${n}`);
+  }
   assert.equal(errors.length, 0, `page errors: ${errors.join(' | ')}`);
   await context.close();
 });

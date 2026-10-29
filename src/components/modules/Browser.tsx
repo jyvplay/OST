@@ -240,8 +240,8 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
           onChange={(e) => setAddress(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") open(address); }} />
         <Btn variant="primary" onClick={() => open(address)}>Go</Btn>
-        {!embeddedRecall?<Btn onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}>Recall media</Btn>:null}
-        {embeddedRecall?<Btn aria-expanded={tools} onClick={()=>{setTools(v=>!v);setShowPerms(false);setShowRoute(false);}}>Browser tools</Btn>:null}
+        {!embeddedRecall?<Btn aria-label="Recall media" title="Recall media" onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}><UiGlyph name="snapshot"/> Recall</Btn>:null}
+        {embeddedRecall?<Btn aria-label="Browser tools" title="Browser tools" aria-expanded={tools} onClick={()=>{setTools(v=>!v);setShowPerms(false);setShowRoute(false);}}><UiGlyph name="sliders"/> Tools</Btn>:null}
         <div style={{display:tools?'contents':'none'}}>
         <Btn variant="ghost" aria-label={`Split view: ${split === "off" ? "off" : split === "h" ? "side by side" : "stacked"}`}
           title={`Split view: ${split === "off" ? "off" : split === "h" ? "side by side" : "stacked"} — click to cycle`}
@@ -259,7 +259,7 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
         <Btn variant="ghost" onClick={() => runBatch("right")} aria-label="Close to the right" title="Close to the right"><UiGlyph name="closeset" />Right</Btn>
         <Btn variant="ghost" onClick={() => runBatch("duplicates")} aria-label="Close duplicates" title="Close duplicates"><UiGlyph name="copy" />Duplicates</Btn>
         <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)} aria-label="Site permissions" title="Site permissions"><UiGlyph name="shield" />Permissions</Btn>
-        <Btn variant="ghost" data-testid="br-proxy-all" aria-pressed={proxyAll} title="Route every tab through Fusion's private proxy: sites never see your address, trackers are blocked, cookies stay in memory per tab, and find in page / desktop-or-mobile identity / Save to Files work on every site" onClick={() => setProxyAll((v) => !v)}>Private proxy: {proxyAll ? "all tabs" : "off"}</Btn>
+        <Btn variant="ghost" data-testid="br-proxy-all" aria-pressed={proxyAll} title="Route every tab through Fusion's private proxy: sites never see your address, trackers are blocked, cookies stay in memory per tab, and find in page / desktop-or-mobile identity / Save to Files work on every site" aria-label={`Private proxy: ${proxyAll ? "all tabs" : "off"}`} onClick={() => setProxyAll((v) => !v)}><UiGlyph name="shield"/> {proxyAll ? "all tabs" : "off"}</Btn>
         <Btn variant="ghost" data-testid="br-route" aria-pressed={showRoute} aria-expanded={showRoute} title="How Fusion's server reaches the web for Private proxy tabs: directly, through Tor, or through another proxy" onClick={() => setShowRoute((v) => !v)}>Network route: {route?.label ?? "…"}</Btn>
         {current?.verdict ? <Badge tone={current.verdict === "embeddable" ? "ok" : "bad"} title={current.reason}>{current.verdict}</Badge> : <Badge>{proxyAll?"private proxy":"probing…"}</Badge>}
         </div>

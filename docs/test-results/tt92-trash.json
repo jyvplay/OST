@@ -1,6 +1,6 @@
 {
   "suite": "tt92-trash",
-  "at": "2026-10-29T17:38:53.029Z",
+  "at": "2026-10-29T19:01:54.812Z",
   "results": [
     {
       "suite": "tt92-trash",
@@ -11,7 +11,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 144
+      "ms": 142
     },
     {
       "suite": "tt92-trash",
@@ -22,7 +22,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 56
+      "ms": 48
     },
     {
       "suite": "tt92-trash",
@@ -33,7 +33,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 34
+      "ms": 31
     },
     {
       "suite": "tt92-trash",
@@ -44,7 +44,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 35
+      "ms": 28
     },
     {
       "suite": "tt92-trash",
@@ -55,7 +55,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 39
+      "ms": 31
     },
     {
       "suite": "tt92-trash",
@@ -66,7 +66,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 53
+      "ms": 43
     },
     {
       "suite": "tt92-trash",
@@ -77,7 +77,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 27
+      "ms": 26
     },
     {
       "suite": "tt92-trash",
@@ -88,7 +88,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 30
+      "ms": 24
     },
     {
       "suite": "tt92-trash",
@@ -99,7 +99,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 30
+      "ms": 33
     },
     {
       "suite": "tt92-trash",
@@ -110,7 +110,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 30
+      "ms": 25
     },
     {
       "suite": "tt92-trash",

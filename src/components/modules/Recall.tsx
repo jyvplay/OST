@@ -262,7 +262,7 @@ export default function Recall({win}:ModuleProps){
     <Btn onClick={()=>{for(const sid of sessions)void forgetTapped(sid);}} disabled={!tapOn||!tapItems.length}>Forget held media</Btn>
     <span data-testid="tap-count">{tapOn?`${tapItems.length} held`:'off'}</span>
    </div>
-   {tapOn?null:<div role="note" data-testid="tap-policy-off" className="fs-row" style={{gap:6}}><UiGlyph name="shield" size={15}/>Off — Settings → Privacy. Nothing is kept; other pathways still work.</div>}
+   {tapOn?null:<div role="note" data-testid="tap-policy-off" className="fs-row" style={{gap:6}}><UiGlyph name="shield" size={15}/>Off — Settings → Privacy → Remember media this page loads. Nothing is kept.</div>}
    {tapOn&&!sessions.length?<p className="fs-dim fs-row" style={{margin:0,gap:6}}><UiGlyph name="loaded" size={15}/>Open a page above.</p>:null}
    <ul data-testid="recall-tap-list" style={{listStyle:'none',margin:0,padding:0,display:'grid',gap:6}}>
     {tapItems.map(it=><li key={`${it.sid}:${it.id}`} data-testid={`tap-item-${it.id}`} className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}>

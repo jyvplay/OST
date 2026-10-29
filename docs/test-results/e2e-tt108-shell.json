@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt108-shell",
-  "at": "2026-10-29T17:51:26.986Z",
+  "at": "2026-10-29T19:14:59.036Z",
   "results": [
     {
       "suite": "e2e-tt108-shell",
@@ -9,7 +9,7 @@
         "LN-07": "full"
       },
       "pass": true,
-      "ms": 35
+      "ms": 31
     },
     {
       "suite": "e2e-tt108-shell",
@@ -18,7 +18,7 @@
         "LN-08": "full"
       },
       "pass": true,
-      "ms": 2219
+      "ms": 2225
     },
     {
       "suite": "e2e-tt108-shell",
@@ -27,7 +27,7 @@
         "LN-04": "full"
       },
       "pass": true,
-      "ms": 25871
+      "ms": 25027
     },
     {
       "suite": "e2e-tt108-shell",
@@ -36,7 +36,7 @@
         "WM-15": "partial"
       },
       "pass": true,
-      "ms": 8390
+      "ms": 7596
     },
     {
       "suite": "e2e-tt108-shell",
@@ -45,7 +45,7 @@
         "AP-04": "partial"
       },
       "pass": true,
-      "ms": 25
+      "ms": 49
     },
     {
       "suite": "e2e-tt108-shell",
@@ -54,7 +54,7 @@
         "DP-12": "partial"
       },
       "pass": true,
-      "ms": 814
+      "ms": 2225
     },
     {
       "suite": "e2e-tt108-shell",
@@ -63,7 +63,7 @@
         "DP-06": "partial"
       },
       "pass": true,
-      "ms": 111
+      "ms": 138
     }
   ]
 }

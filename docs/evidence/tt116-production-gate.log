@@ -1,0 +1,161 @@
+SUITE COUNT: 71
+=== tt106-lifecycle
+23 passed, 0 failed
+=== e2e-tt106-memory
+8 passed, 0 failed
+=== tt105-atomic
+25 passed, 0 failed
+=== e2e-tt105-clicked
+7 passed, 0 failed
+=== tt91-write-atomic
+2 passed, 0 failed
+=== tt91-purge-race
+4 passed, 0 failed
+=== tt92-trash-race
+6 passed, 0 failed
+=== tt92-trash
+11 passed, 0 failed
+=== e2e-tt92-trash
+2 passed, 0 failed
+=== tt104-memory-unit
+27 passed, 0 failed
+=== tt104-page
+25 passed, 0 failed
+=== e2e-tt104-memory
+10 passed, 0 failed
+=== e2e-tt104-pages
+3 passed, 0 failed
+=== tt103-framework
+5 passed, 0 failed
+=== tt103-memory-unit
+10 passed, 0 failed
+=== e2e-tt103-memory
+11 passed, 0 failed
+=== e2e-tt102
+16 passed, 0 failed
+=== tt102-search
+33 passed, 0 failed
+=== tt102-private-bound
+5 passed, 0 failed
+=== tt101-search
+37 passed, 0 failed
+=== e2e-tt101-search
+9 passed, 0 failed
+=== privacy-layer
+13 passed, 0 failed
+=== unit
+23 passed, 0 failed
+=== integration
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+--
+25 passed, 0 failed
+=== browser-session
+5 passed, 0 failed
+=== tt55-files-unit
+7 passed, 0 failed
+=== e2e-tt55-files
+14 passed, 0 failed
+=== e2e-tt55-shell
+3 passed, 0 failed
+=== e2e-tt96-desktop-menu
+5 passed, 0 failed
+=== tt97-palette-commands
+4 passed, 0 failed
+=== e2e-tt97-palette-actions
+11 passed, 0 failed
+=== e2e-tt97-files-empty-a11y
+3 passed, 0 failed
+=== e2e-tt98-orbit
+22 passed, 0 failed
+=== e2e-tt99-interactions
+29 passed, 0 failed
+=== e2e-browser
+6 passed, 0 failed
+=== tt69-lifecycle
+11 passed, 0 failed
+=== e2e-tt100-recall
+27 passed, 0 failed
+=== e2e-a11y
+9 passed, 0 failed
+=== tt107-crash
+4 passed, 0 failed
+=== tt107-recall
+30 passed, 0 failed
+=== tt107-features
+20 passed, 0 failed
+=== e2e-tt107-shell
+7 passed, 0 failed
+=== e2e-tt107-memory
+6 passed, 0 failed
+=== tt108-engine-crash
+10 passed, 0 failed
+=== tt108-recall
+18 passed, 0 failed
+=== e2e-tt108-recall
+6 passed, 0 failed
+=== e2e-tt108-shell
+7 passed, 0 failed
+=== tt108-refusal
+7 passed, 0 failed
+=== tt109-recall
+13 passed, 0 failed
+=== e2e-tt109-shell
+5 passed, 0 failed
+=== tt110-core
+7 passed, 0 failed
+=== e2e-tt110-recall
+6 passed, 0 failed
+=== e2e-tt110-shell
+4 passed, 0 failed
+=== e2e-tt110-banner
+5 passed, 0 failed
+=== e2e-layout
+12 passed, 0 failed
+=== tt111-core
+11 passed, 0 failed
+=== tt111-recall-tap
+7 passed, 0 failed
+=== e2e-tt111-recall
+  ✗ Forget removes a held item from the pane immediately, and the switch empties it and says so
+    the note says where the switch is: Off — Settings → Privacy. Nothing is kept; other pathways still work.
+
+2 passed, 1 failed
+FAILED: Forget removes a held item from the pane immediately, and the switch empties it and says so
+=== e2e-tt112-resident
+7 passed, 0 failed
+=== e2e-tt112-shell
+7 passed, 0 failed
+=== e2e-tt113-density
+6 passed, 0 failed
+=== tt114-core
+9 passed, 0 failed
+=== tt114-recall-token
+  ✗ Specs mirrors RC-39 and no Recall row is graded above its evidence
+    every named Recall test file exists: RC-34 -> e2e-tt109-recall.mts
++ actual - expected
+
+--
+7 passed, 1 failed
+FAILED: Specs mirrors RC-39 and no Recall row is graded above its evidence
+=== e2e-tt114-shell
+9 passed, 0 failed
+=== e2e-tt114-tabs
+5 passed, 0 failed
+=== e2e-tt114-density
+6 passed, 0 failed
+=== tt116-safesave
+15 passed, 0 failed
+=== tt116-recall-retention
+7 passed, 0 failed
+=== tt116-recall-archive
+8 passed, 0 failed
+=== tt116-platform
+9 passed, 0 failed
+=== tt116-density
+6 passed, 0 failed
+FAILED SUITES: e2e-tt111-recall tt114-recall-token
+ALLDONE
+GATE EXIT 1

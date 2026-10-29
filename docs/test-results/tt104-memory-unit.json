@@ -1,6 +1,6 @@
 {
   "suite": "tt104-memory-unit",
-  "at": "2026-10-29T17:38:57.604Z",
+  "at": "2026-10-29T19:01:59.170Z",
   "results": [
     {
       "suite": "tt104-memory-unit",
@@ -9,7 +9,7 @@
         "RC-19": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt104-memory-unit",

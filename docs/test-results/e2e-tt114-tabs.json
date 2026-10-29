@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt114-tabs",
-  "at": "2026-10-29T17:57:30.655Z",
+  "at": "2026-10-29T19:32:25.709Z",
   "results": [
     {
       "suite": "e2e-tt114-tabs",
@@ -10,7 +10,7 @@
         "PR-07": "partial"
       },
       "pass": true,
-      "ms": 2658
+      "ms": 2204
     },
     {
       "suite": "e2e-tt114-tabs",
@@ -19,7 +19,7 @@
         "PR-07e": "full"
       },
       "pass": true,
-      "ms": 3838
+      "ms": 3406
     },
     {
       "suite": "e2e-tt114-tabs",
@@ -29,7 +29,7 @@
         "WM-01": "partial"
       },
       "pass": true,
-      "ms": 3490
+      "ms": 2406
     },
     {
       "suite": "e2e-tt114-tabs",
@@ -39,7 +39,7 @@
         "SH-08": "partial"
       },
       "pass": true,
-      "ms": 4937
+      "ms": 4370
     },
     {
       "suite": "e2e-tt114-tabs",

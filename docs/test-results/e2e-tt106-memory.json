@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt106-memory",
-  "at": "2026-10-29T17:38:40.340Z",
+  "at": "2026-10-29T19:01:41.640Z",
   "results": [
     {
       "suite": "e2e-tt106-memory",
@@ -9,7 +9,7 @@
         "RC-24": "partial"
       },
       "pass": true,
-      "ms": 838
+      "ms": 484
     },
     {
       "suite": "e2e-tt106-memory",
@@ -18,7 +18,7 @@
         "RC-26": "partial"
       },
       "pass": true,
-      "ms": 2452
+      "ms": 2438
     },
     {
       "suite": "e2e-tt106-memory",
@@ -27,21 +27,21 @@
         "RC-25": "partial"
       },
       "pass": true,
-      "ms": 841
+      "ms": 167
     },
     {
       "suite": "e2e-tt106-memory",
       "name": "confirmed paired trash closes/revokes preview and undo restores both files",
       "covers": {},
       "pass": true,
-      "ms": 1231
+      "ms": 1817
     },
     {
       "suite": "e2e-tt106-memory",
       "name": "open-preview identity guard refuses later media edit",
       "covers": {},
       "pass": true,
-      "ms": 2436
+      "ms": 2306
     },
     {
       "suite": "e2e-tt106-memory",
@@ -50,7 +50,7 @@
         "RC-26": "partial"
       },
       "pass": true,
-      "ms": 4165
+      "ms": 3791
     },
     {
       "suite": "e2e-tt106-memory",
@@ -59,14 +59,14 @@
         "RC-26": "partial"
       },
       "pass": true,
-      "ms": 3958
+      "ms": 4565
     },
     {
       "suite": "e2e-tt106-memory",
       "name": "Specs adds all three truthful requirements without completion promotion",
       "covers": {},
       "pass": true,
-      "ms": 31
+      "ms": 20
     }
   ]
 }
