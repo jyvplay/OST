@@ -1,4 +1,4 @@
-# TT114 — exactly-once saving, and chrome that is drawn instead of written
+# TT114 / TT115 — exactly-once saving, and chrome that is drawn instead of written
 
 ## Runtime honesty
 
@@ -212,6 +212,13 @@ of a real `svg`, the absence of emoji, and geometric distinctness between glyphs
 glyphs, 0 emoji, 15/15 names resolving, 21 glyphs rendered with 19 distinct geometries.
 *Unresolved:* whether a person *understands* a given glyph. A drawing is not a legend; this is why
 the full phrase remains as the name and the tooltip rather than being replaced by the picture.
+*TT115 extension:* the same lever over the browser chrome — eleven essay-length commands (save
+largest/clicked/all loaded visual, clear cookies, save to Files, close others / to the right /
+duplicates, site permissions, sleep other tabs, recall jobs) fell from **32 words of button text to
+11**, with six more concept glyphs (sleep, shield, cookie, closeset, auto, download). Measured:
+**32 visible controls, 33 visible words, 22 drawn glyphs**, all eleven long names resolving exactly,
+and a **label-in-name check over every visible control** — added precisely because the first
+version of this change produced two WCAG 2.5.3 violations that axe-core caught.
 *Cheapest falsifier:* delete one button; the name check must fail while the word count improves.
 *Gap class:* **equivalent-only** for comprehension — not measurable without users.
 

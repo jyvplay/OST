@@ -1,6 +1,6 @@
 {
   "suite": "tt104-page",
-  "at": "2026-10-29T15:15:42.663Z",
+  "at": "2026-10-29T15:49:36.056Z",
   "results": [
     {
       "suite": "tt104-page",
@@ -9,7 +9,7 @@
         "RC-18": "partial"
       },
       "pass": true,
-      "ms": 9
+      "ms": 8
     },
     {
       "suite": "tt104-page",
@@ -30,28 +30,28 @@
       "name": "cursor advances without overlap",
       "covers": {},
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "tt104-page",
       "name": "terminal page returns remaining 35 and no cursor",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 5
     },
     {
       "suite": "tt104-page",
       "name": "new concurrent insert does not shift an older cursor page",
       "covers": {},
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "tt104-page",
       "name": "oversized metadata is excluded before transfer, not silently truncated",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 6
     },
     {
       "suite": "tt104-page",
@@ -65,14 +65,14 @@
       "name": "invalid cursor 0",
       "covers": {},
       "pass": true,
-      "ms": 8
+      "ms": 5
     },
     {
       "suite": "tt104-page",
       "name": "invalid cursor -1",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt104-page",
@@ -93,21 +93,21 @@
       "name": "invalid cursor 2147483648",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt104-page",
       "name": "invalid cursor NaN",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 2
     },
     {
       "suite": "tt104-page",
       "name": "invalid cursor  1",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 10
     },
     {
       "suite": "tt104-page",

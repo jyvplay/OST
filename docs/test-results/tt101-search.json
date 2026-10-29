@@ -1,6 +1,6 @@
 {
   "suite": "tt101-search",
-  "at": "2026-10-29T15:17:08.429Z",
+  "at": "2026-10-29T15:51:01.990Z",
   "results": [
     {
       "suite": "tt101-search",
@@ -35,7 +35,7 @@
       "name": "independent MIT music-metadata parser agrees on the real ID3 lyrics and custom transcript",
       "covers": {},
       "pass": true,
-      "ms": 85
+      "ms": 95
     },
     {
       "suite": "tt101-search",
@@ -63,7 +63,7 @@
       "name": "embedded lyrics are found on the actual stored audio file with provenance",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 8
     },
     {
       "suite": "tt101-search",
@@ -77,14 +77,14 @@
       "name": "artist header is searchable without pretending to decode the audio stream",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 7
     },
     {
       "suite": "tt101-search",
       "name": "stored JSON transcript beyond legacy 50000-character limit is found",
       "covers": {},
       "pass": true,
-      "ms": 13
+      "ms": 14
     },
     {
       "suite": "tt101-search",
@@ -98,7 +98,7 @@
       "name": "zero and false scalar values are searchable, not dropped as falsy",
       "covers": {},
       "pass": true,
-      "ms": 12
+      "ms": 13
     },
     {
       "suite": "tt101-search",
@@ -112,42 +112,42 @@
       "name": "LRC lyric text is searchable",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 6
     },
     {
       "suite": "tt101-search",
       "name": "stored SHA metadata can be found without textual content",
       "covers": {},
       "pass": true,
-      "ms": 9
+      "ms": 8
     },
     {
       "suite": "tt101-search",
       "name": "field filtering does not silently fall back to another field",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 5
     },
     {
       "suite": "tt101-search",
       "name": "Unicode compatibility normalization matches full-width text",
       "covers": {},
       "pass": true,
-      "ms": 15
+      "ms": 14
     },
     {
       "suite": "tt101-search",
       "name": "large content is honestly skipped and reported",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 6
     },
     {
       "suite": "tt101-search",
       "name": "path boundaries prevent sibling-prefix scope leakage",
       "covers": {},
       "pass": true,
-      "ms": 15
+      "ms": 13
     },
     {
       "suite": "tt101-search",
@@ -161,28 +161,28 @@
       "name": "pagination reaches a held-out match after the first bounded page",
       "covers": {},
       "pass": true,
-      "ms": 286
+      "ms": 277
     },
     {
       "suite": "tt101-search",
       "name": "private plaintext is excluded even when calling host endpoint directly",
       "covers": {},
       "pass": true,
-      "ms": 31
+      "ms": 28
     },
     {
       "suite": "tt101-search",
       "name": "current exclusions apply in both metadata and legacy text modes",
       "covers": {},
       "pass": true,
-      "ms": 23
+      "ms": 21
     },
     {
       "suite": "tt101-search",
       "name": "live metadata sees updated values and does not return obsolete fields",
       "covers": {},
       "pass": true,
-      "ms": 31
+      "ms": 29
     },
     {
       "suite": "tt101-search",
@@ -203,14 +203,14 @@
       "name": "invalid query bounds are rejected by the real endpoint",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt101-search",
       "name": "unlocked private metadata search runs locally and query text never reaches HTTP",
       "covers": {},
       "pass": true,
-      "ms": 11
+      "ms": 16
     },
     {
       "suite": "tt101-search",
@@ -224,7 +224,7 @@
       "name": "real encrypted files paginate locally and do not leak private query text",
       "covers": {},
       "pass": true,
-      "ms": 549
+      "ms": 580
     },
     {
       "suite": "tt101-search",
@@ -238,7 +238,7 @@
       "name": "lock during a real private file read discards the pending metadata result",
       "covers": {},
       "pass": true,
-      "ms": 20
+      "ms": 19
     },
     {
       "suite": "tt101-search",
@@ -252,7 +252,7 @@
       "name": "amnesic metadata searches actual RAM writes without a host query",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 4
     },
     {
       "suite": "tt101-search",

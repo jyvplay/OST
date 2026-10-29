@@ -1,6 +1,6 @@
 {
   "suite": "tt109-recall",
-  "at": "2026-10-29T15:28:22.556Z",
+  "at": "2026-10-29T16:02:17.620Z",
   "results": [
     {
       "suite": "tt109-recall",
@@ -9,7 +9,7 @@
         "RC-34": "full"
       },
       "pass": true,
-      "ms": 120
+      "ms": 123
     },
     {
       "suite": "tt109-recall",
@@ -18,7 +18,7 @@
         "RC-34": "full"
       },
       "pass": true,
-      "ms": 84
+      "ms": 82
     },
     {
       "suite": "tt109-recall",
@@ -27,7 +27,7 @@
         "RC-34": "full"
       },
       "pass": true,
-      "ms": 124
+      "ms": 139
     },
     {
       "suite": "tt109-recall",
@@ -36,7 +36,7 @@
         "RC-34": "full"
       },
       "pass": true,
-      "ms": 74
+      "ms": 95
     },
     {
       "suite": "tt109-recall",
@@ -45,7 +45,7 @@
         "RC-34": "full"
       },
       "pass": true,
-      "ms": 97
+      "ms": 75
     },
     {
       "suite": "tt109-recall",
@@ -54,7 +54,7 @@
         "RC-34": "full"
       },
       "pass": true,
-      "ms": 39
+      "ms": 34
     },
     {
       "suite": "tt109-recall",
@@ -63,7 +63,7 @@
         "RC-10": "full"
       },
       "pass": true,
-      "ms": 66
+      "ms": 85
     },
     {
       "suite": "tt109-recall",
@@ -72,7 +72,7 @@
         "RC-10": "full"
       },
       "pass": true,
-      "ms": 17
+      "ms": 24
     },
     {
       "suite": "tt109-recall",
@@ -82,7 +82,7 @@
         "RC-15": "partial"
       },
       "pass": true,
-      "ms": 16
+      "ms": 18
     },
     {
       "suite": "tt109-recall",
@@ -91,7 +91,7 @@
         "RC-15": "partial"
       },
       "pass": true,
-      "ms": 38
+      "ms": 36
     },
     {
       "suite": "tt109-recall",
@@ -100,7 +100,7 @@
         "RC-13": "partial"
       },
       "pass": true,
-      "ms": 69
+      "ms": 78
     },
     {
       "suite": "tt109-recall",
@@ -109,7 +109,7 @@
         "RC-13": "partial"
       },
       "pass": true,
-      "ms": 47
+      "ms": 49
     },
     {
       "suite": "tt109-recall",
@@ -118,7 +118,7 @@
         "RC-14": "partial"
       },
       "pass": true,
-      "ms": 79
+      "ms": 82
     }
   ]
 }
