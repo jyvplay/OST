@@ -17,6 +17,7 @@ import { readArchive, readEntry, writeArchive, extractable, PasswordError, type 
 import { readJsonObject } from "@/lib/http-json";
 import { refuseEncryptedOverwrite } from "@/lib/mime";
 import { ConditionalWriteConflict, conditionalWriteFile, type ExpectedFile } from "@/lib/server/conditional-write";
+import { safeSave, safeSaveSweep, SafeSaveReplaceConflict, SafeSaveValidationError, type SafeSaveExpected } from "@/lib/server/safe-save";
 import { sidecarPath, isSidecar } from "@/lib/photos/recipe";
 
 /**
@@ -158,6 +159,38 @@ export async function POST(req: NextRequest) {
         if (b.encoding !== undefined && b.encoding !== "utf8" && b.encoding !== "base64") return NextResponse.json({ ok: false, error: "invalid encoding" }, { status: 400 });
         if (b.mime !== undefined && typeof b.mime !== "string") return NextResponse.json({ ok: false, error: "invalid MIME type" }, { status: 400 });
         return NextResponse.json(await conditionalWriteFile(b.path, b.content, x as ExpectedFile | null, b.encoding ?? "utf8", b.mime as string | undefined));
+      }
+      case "safeSave": {
+        // FM-18. Validation of the REQUEST happens here; validation of the BYTES
+        // happens after they have been written and read back again.
+        const bd = body as unknown as Record<string, unknown>;
+        if (typeof bd.path !== "string" || typeof bd.content !== "string") {
+          return NextResponse.json({ ok: false, error: "path and content are required" }, { status: 400 });
+        }
+        if (Object.hasOwn(bd, "expected") && bd.expected !== null) {
+          const x = bd.expected as SafeSaveExpected;
+          if (!x || typeof x !== "object" || Array.isArray(x)
+            || !Number.isSafeInteger(x.id) || x.id <= 0
+            || !Number.isSafeInteger(x.version) || x.version <= 0
+            || typeof x.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(x.sha256)) {
+            return NextResponse.json({ ok: false, error: "expected must be null or a file id, version and SHA-256" }, { status: 400 });
+          }
+        }
+        return NextResponse.json(await safeSave({
+          path: bd.path as string, content: bd.content as string,
+          encoding: bd.encoding as "utf8" | "base64" | undefined,
+          mime: typeof bd.mime === "string" ? bd.mime : undefined,
+          declaredSha256: typeof bd.declaredSha256 === "string" ? bd.declaredSha256 : undefined,
+          ...(Object.hasOwn(bd, "expected") ? { expected: bd.expected as SafeSaveExpected | null } : {}),
+          onConflict: bd.onConflict as "refuse" | "copy" | undefined,
+          token: typeof bd.token === "string" ? bd.token : undefined,
+          validate: bd.validate as "none" | "utf8" | "json" | undefined,
+          reason: typeof bd.reason === "string" ? bd.reason : undefined,
+        }));
+      }
+      case "safeSaveSweep": {
+        const age = (body as unknown as Record<string, unknown>).olderThanMs;
+        return NextResponse.json(await safeSaveSweep(typeof age === "number" ? age : undefined));
       }
       case "write":
         if (body.encoding === "base64") refuseEncryptedOverwrite(await getNode(normalize(String(body.path))), String(body.content ?? ""), body.replaceEncrypted);
@@ -304,7 +337,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: `unknown op ${op}` }, { status: 400 });
     }
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof RecallPolicyRefusal ? 403 : err instanceof RecallTokenConflict ? 409 : err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
+    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof RecallPolicyRefusal ? 403 : err instanceof RecallTokenConflict ? 409 : err instanceof SafeSaveValidationError ? 422 : err instanceof SafeSaveReplaceConflict ? 409 : err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
   }
 }
 

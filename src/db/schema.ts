@@ -384,6 +384,25 @@ export const recallCommits = pgTable("recall_commits", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * FM-18. The same claim-first shape as recall_commits, for the same reason: a save
+ * whose acknowledgement is lost must be answerable without performing it twice. The
+ * row is claimed before the temporary output exists and carries the finished answer,
+ * so a retry is replayed rather than re-run. A claim whose attempt failed is removed,
+ * because the caller is entitled to fix the bytes and try again with the same token.
+ */
+export const safeSaveClaims = pgTable("safe_save_claims", {
+  /** caller-minted, opaque, never parsed */
+  token: text("token").primaryKey(),
+  /** the target path this token was claimed for */
+  path: text("path").notNull(),
+  /** SHA-256 of the content offered, so a token cannot be reused for other bytes */
+  sha256: text("sha256").notNull(),
+  /** the finished SafeSaveResult, replayed verbatim on a retry; null while in flight */
+  result: jsonb("result"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type FeatureRow = typeof features.$inferSelect;
 export type VfsNode = typeof vfsNodes.$inferSelect;
 export type FileOpRow = typeof fileOps.$inferSelect;
