@@ -1,6 +1,6 @@
 {
   "suite": "e2e-layout",
-  "at": "2026-10-28T23:04:34.583Z",
+  "at": "2026-10-29T00:12:51.912Z",
   "results": [
     {
       "suite": "e2e-layout",
@@ -10,7 +10,7 @@
         "LY-01": "partial"
       },
       "pass": true,
-      "ms": 3829
+      "ms": 3986
     },
     {
       "suite": "e2e-layout",
@@ -19,7 +19,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 5022
+      "ms": 4214
     },
     {
       "suite": "e2e-layout",
@@ -28,7 +28,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 3741
+      "ms": 3712
     },
     {
       "suite": "e2e-layout",
@@ -38,7 +38,7 @@
         "LY-02": "partial"
       },
       "pass": true,
-      "ms": 13261
+      "ms": 12203
     },
     {
       "suite": "e2e-layout",
@@ -48,7 +48,7 @@
       },
       "pass": false,
       "error": "focus moves to the first app",
-      "ms": 2027
+      "ms": 1657
     },
     {
       "suite": "e2e-layout",
@@ -58,7 +58,7 @@
       },
       "pass": false,
       "error": "bubble above the magnified icon",
-      "ms": 2329
+      "ms": 2240
     },
     {
       "suite": "e2e-layout",
@@ -67,7 +67,7 @@
         "LY-02": "full"
       },
       "pass": true,
-      "ms": 4559
+      "ms": 4453
     },
     {
       "suite": "e2e-layout",
@@ -76,7 +76,7 @@
         "LY-02": "full"
       },
       "pass": true,
-      "ms": 4099
+      "ms": 4111
     },
     {
       "suite": "e2e-layout",
@@ -86,7 +86,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 1811
+      "ms": 1735
     },
     {
       "suite": "e2e-layout",
@@ -97,7 +97,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 2712
+      "ms": 2689
     },
     {
       "suite": "e2e-layout",
@@ -109,7 +109,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 14555
+      "ms": 14097
     },
     {
       "suite": "e2e-layout",
@@ -118,7 +118,7 @@
         "LY-03": "full"
       },
       "pass": true,
-      "ms": 34
+      "ms": 39
     }
   ]
 }

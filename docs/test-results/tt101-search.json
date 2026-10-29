@@ -1,6 +1,6 @@
 {
   "suite": "tt101-search",
-  "at": "2026-10-28T21:36:25.953Z",
+  "at": "2026-10-29T00:01:24.903Z",
   "results": [
     {
       "suite": "tt101-search",
@@ -35,28 +35,28 @@
       "name": "independent MIT music-metadata parser agrees on the real ID3 lyrics and custom transcript",
       "covers": {},
       "pass": true,
-      "ms": 80
+      "ms": 96
     },
     {
       "suite": "tt101-search",
       "name": "UTF-16 ID3v2.3 lyrics agree with the independent parser",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 1
     },
     {
       "suite": "tt101-search",
       "name": "compressed ID3 metadata is explicitly refused without inflation",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt101-search",
       "name": "non-file source filters are explicitly rejected rather than ignored",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt101-search",
@@ -98,7 +98,7 @@
       "name": "zero and false scalar values are searchable, not dropped as falsy",
       "covers": {},
       "pass": true,
-      "ms": 13
+      "ms": 14
     },
     {
       "suite": "tt101-search",
@@ -133,7 +133,7 @@
       "name": "Unicode compatibility normalization matches full-width text",
       "covers": {},
       "pass": true,
-      "ms": 16
+      "ms": 14
     },
     {
       "suite": "tt101-search",
@@ -147,7 +147,7 @@
       "name": "path boundaries prevent sibling-prefix scope leakage",
       "covers": {},
       "pass": true,
-      "ms": 17
+      "ms": 16
     },
     {
       "suite": "tt101-search",
@@ -161,28 +161,28 @@
       "name": "pagination reaches a held-out match after the first bounded page",
       "covers": {},
       "pass": true,
-      "ms": 369
+      "ms": 269
     },
     {
       "suite": "tt101-search",
       "name": "private plaintext is excluded even when calling host endpoint directly",
       "covers": {},
       "pass": true,
-      "ms": 29
+      "ms": 26
     },
     {
       "suite": "tt101-search",
       "name": "current exclusions apply in both metadata and legacy text modes",
       "covers": {},
       "pass": true,
-      "ms": 28
+      "ms": 21
     },
     {
       "suite": "tt101-search",
       "name": "live metadata sees updated values and does not return obsolete fields",
       "covers": {},
       "pass": true,
-      "ms": 29
+      "ms": 26
     },
     {
       "suite": "tt101-search",
@@ -210,28 +210,28 @@
       "name": "unlocked private metadata search runs locally and query text never reaches HTTP",
       "covers": {},
       "pass": true,
-      "ms": 10
+      "ms": 9
     },
     {
       "suite": "tt101-search",
       "name": "private non-file source filters are rejected locally without forwarding query text",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt101-search",
       "name": "real encrypted files paginate locally and do not leak private query text",
       "covers": {},
       "pass": true,
-      "ms": 563
+      "ms": 498
     },
     {
       "suite": "tt101-search",
       "name": "pure page engine cannot admit a 33rd result even with a 33rd supplied record",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt101-search",
@@ -245,7 +245,7 @@
       "name": "locked private metadata fails closed without a host query",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt101-search",
@@ -259,7 +259,7 @@
       "name": "private metadata never appears in PostgreSQL plaintext",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 5
     }
   ]
 }

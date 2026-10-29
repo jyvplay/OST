@@ -1,7 +1,7 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-28T21:47:17.485Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
-319 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-29T00:13:02.066Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
+323 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
 Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
 Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
@@ -11,22 +11,22 @@ See each suite timestamp and the latest turn report for current tests, known cla
 
 | | Count |
 |---|---:|
-| **Features in register** | **448** |
-| Fully built | 331 |
-| Partially built (partial 75 + probe 18) | 93 |
+| **Features in register** | **450** |
+| Fully built | 330 |
+| Partially built (partial 78 + probe 18) | 96 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 24 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **262** |
-| **Partially tested** (partial tags or an incomplete row with passing evidence) | **135** |
-| Untested | 51 |
-| Recorded test cases / passed (mixed run dates) | 2668 / 2666 |
+| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **266** |
+| **Partially tested** (partial tags or an incomplete row with passing evidence) | **137** |
+| Untested | 47 |
+| Recorded test cases / passed (mixed run dates) | 2688 / 2683 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 256 | 67 | 8 |
-| partially built | 0 | 59 | 34 |
+| fully built | 260 | 63 | 7 |
+| partially built | 0 | 65 | 31 |
 | blocked | 6 | 9 | 9 |
 | skeleton | 0 | 0 | 0 |
 
@@ -39,34 +39,37 @@ verifies the honesty contract, not the (impossible) capability.
 |---|---:|---:|---:|---|
 | a11y-unit | 8 | 8 | 0 | 2026-10-26T23:26:22.619Z |
 | ai-format | 5 | 5 | 0 | 2026-10-26T19:56:53.407Z |
-| browser-session | 5 | 5 | 0 | 2026-10-28T21:36:44.024Z |
+| browser-session | 5 | 5 | 0 | 2026-10-29T00:01:42.376Z |
 | contacts-engine | 8 | 8 | 0 | 2026-10-26T19:56:53.680Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-28T21:44:49.995Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-29T00:09:28.665Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
-| e2e-browser | 6 | 6 | 0 | 2026-10-28T21:40:10.782Z |
+| e2e-browser | 6 | 6 | 0 | 2026-10-29T00:05:01.720Z |
 | e2e-contacts | 9 | 9 | 0 | 2026-10-25T22:20:01.143Z |
 | e2e-image | 11 | 11 | 0 | 2026-10-26T12:55:59.830Z |
-| e2e-layout | 12 | 12 | 0 | 2026-10-26T13:06:52.259Z |
+| e2e-layout | 12 | 10 | 2 | 2026-10-29T00:12:51.912Z |
 | e2e-media27 | 7 | 7 | 0 | 2026-10-25T22:23:42.055Z |
 | e2e-office | 11 | 11 | 0 | 2026-10-25T22:11:51.858Z |
 | e2e-privacy | 16 | 14 | 2 | 2026-10-28T20:37:42.180Z |
 | e2e-sheet-layout | 7 | 7 | 0 | 2026-10-25T22:14:54.291Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-26T13:12:19.850Z |
 | e2e-tabletop | 15 | 15 | 0 | 2026-10-27T21:16:03.541Z |
-| e2e-tt100-recall | 27 | 27 | 0 | 2026-10-28T21:40:54.684Z |
-| e2e-tt101-search | 9 | 9 | 0 | 2026-10-28T21:36:32.065Z |
-| e2e-tt102 | 16 | 16 | 0 | 2026-10-28T21:35:52.999Z |
-| e2e-tt103-memory | 11 | 11 | 0 | 2026-10-28T21:35:39.747Z |
-| e2e-tt104-memory | 10 | 10 | 0 | 2026-10-28T21:35:18.558Z |
-| e2e-tt104-pages | 3 | 3 | 0 | 2026-10-28T21:35:26.908Z |
-| e2e-tt105-clicked | 7 | 7 | 0 | 2026-10-28T21:35:02.807Z |
-| e2e-tt106-memory | 8 | 8 | 0 | 2026-10-28T21:34:56.002Z |
-| e2e-tt107-memory | 6 | 6 | 0 | 2026-10-28T21:45:07.398Z |
-| e2e-tt107-shell | 7 | 7 | 0 | 2026-10-28T21:45:01.907Z |
-| e2e-tt108-recall | 6 | 6 | 0 | 2026-10-28T21:45:29.254Z |
-| e2e-tt108-shell | 7 | 7 | 0 | 2026-10-28T21:46:00.691Z |
-| e2e-tt109-shell | 5 | 5 | 0 | 2026-10-28T21:46:52.575Z |
+| e2e-tt100-recall | 27 | 27 | 0 | 2026-10-29T00:05:43.516Z |
+| e2e-tt101-search | 9 | 9 | 0 | 2026-10-29T00:01:31.003Z |
+| e2e-tt102 | 16 | 16 | 0 | 2026-10-29T00:00:56.007Z |
+| e2e-tt103-memory | 11 | 11 | 0 | 2026-10-29T00:00:43.903Z |
+| e2e-tt104-memory | 10 | 10 | 0 | 2026-10-29T00:00:24.404Z |
+| e2e-tt104-pages | 3 | 3 | 0 | 2026-10-29T00:00:30.618Z |
+| e2e-tt105-clicked | 7 | 7 | 0 | 2026-10-29T00:00:08.603Z |
+| e2e-tt106-memory | 8 | 8 | 0 | 2026-10-29T00:00:02.216Z |
+| e2e-tt107-memory | 6 | 6 | 0 | 2026-10-29T00:09:47.212Z |
+| e2e-tt107-shell | 7 | 7 | 0 | 2026-10-29T00:09:40.975Z |
+| e2e-tt108-recall | 6 | 6 | 0 | 2026-10-29T00:10:07.771Z |
+| e2e-tt108-shell | 7 | 7 | 0 | 2026-10-29T00:10:34.420Z |
+| e2e-tt109-shell | 5 | 5 | 0 | 2026-10-29T00:11:22.653Z |
+| e2e-tt110-banner | 3 | 3 | 0 | 2026-10-28T23:44:05.408Z |
+| e2e-tt110-recall | 6 | 6 | 0 | 2026-10-29T00:11:39.418Z |
+| e2e-tt110-shell | 4 | 4 | 0 | 2026-10-29T00:11:55.476Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -96,8 +99,8 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt52-pdf | 8 | 8 | 0 | 2026-10-26T11:53:35.201Z |
 | e2e-tt53-media | 6 | 6 | 0 | 2026-10-25T22:54:02.467Z |
 | e2e-tt54 | 8 | 8 | 0 | 2026-10-27T20:37:22.269Z |
-| e2e-tt55-files | 14 | 14 | 0 | 2026-10-28T21:37:34.628Z |
-| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-28T21:37:45.819Z |
+| e2e-tt55-files | 14 | 14 | 0 | 2026-10-29T00:02:28.823Z |
+| e2e-tt55-shell | 3 | 3 | 0 | 2026-10-29T00:02:39.833Z |
 | e2e-tt56-rows | 7 | 7 | 0 | 2026-10-25T22:56:48.364Z |
 | e2e-tt56 | 10 | 10 | 0 | 2026-10-25T22:56:31.173Z |
 | e2e-tt57-rows | 4 | 4 | 0 | 2026-10-25T22:58:21.446Z |
@@ -131,7 +134,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt78-sheet | 3 | 3 | 0 | 2026-10-26T11:55:23.062Z |
 | e2e-tt79-archive | 7 | 7 | 0 | 2026-10-26T13:07:47.830Z |
 | e2e-tt79-pdf | 5 | 5 | 0 | 2026-10-26T15:55:00.602Z |
-| e2e-tt81 | 7 | 7 | 0 | 2026-10-27T21:18:15.467Z |
+| e2e-tt81 | 7 | 6 | 1 | 2026-10-28T23:03:25.852Z |
 | e2e-tt85 | 3 | 3 | 0 | 2026-10-27T07:26:10.093Z |
 | e2e-tt86-pointer | 6 | 6 | 0 | 2026-10-27T23:10:30.896Z |
 | e2e-tt87-backup | 6 | 6 | 0 | 2026-10-27T21:23:53.015Z |
@@ -146,7 +149,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt90-thumbnails | 5 | 5 | 0 | 2026-10-27T20:36:03.583Z |
 | e2e-tt91-browser-download | 7 | 7 | 0 | 2026-10-27T23:10:45.317Z |
 | e2e-tt91-purge | 2 | 2 | 0 | 2026-10-27T20:36:24.319Z |
-| e2e-tt92-trash | 2 | 2 | 0 | 2026-10-28T21:35:10.033Z |
+| e2e-tt92-trash | 2 | 2 | 0 | 2026-10-29T00:00:15.710Z |
 | e2e-tt93-photos-clear | 7 | 7 | 0 | 2026-10-27T20:37:50.073Z |
 | e2e-tt93-sidecar | 2 | 2 | 0 | 2026-10-27T20:37:30.391Z |
 | e2e-tt94-offline-race | 3 | 3 | 0 | 2026-10-27T20:38:34.566Z |
@@ -155,18 +158,18 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt95-a11y-settings-race | 1 | 1 | 0 | 2026-10-27T20:39:19.823Z |
 | e2e-tt95-photo-concurrency | 7 | 7 | 0 | 2026-10-27T20:39:13.515Z |
 | e2e-tt96-calculator | 9 | 9 | 0 | 2026-10-27T23:25:08.856Z |
-| e2e-tt96-desktop-menu | 5 | 5 | 0 | 2026-10-28T21:37:55.424Z |
+| e2e-tt96-desktop-menu | 5 | 5 | 0 | 2026-10-29T00:02:49.143Z |
 | e2e-tt96-files-contrast | 5 | 5 | 0 | 2026-10-27T23:25:54.025Z |
 | e2e-tt97-calculator-repairs | 7 | 7 | 0 | 2026-10-28T02:01:11.124Z |
-| e2e-tt97-files-empty-a11y | 3 | 3 | 0 | 2026-10-28T21:38:15.480Z |
-| e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-28T21:38:12.259Z |
-| e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-28T21:38:28.059Z |
-| e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-28T21:39:00.719Z |
+| e2e-tt97-files-empty-a11y | 3 | 3 | 0 | 2026-10-29T00:03:08.520Z |
+| e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-29T00:03:05.125Z |
+| e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-29T00:03:20.044Z |
+| e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-29T00:03:52.191Z |
 | e2e-vector | 12 | 12 | 0 | 2026-10-26T13:09:31.262Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 67 | 67 | 0 | 2026-10-28T03:27:20.254Z |
 | image | 16 | 16 | 0 | 2026-10-26T19:56:46.644Z |
-| integration | 25 | 25 | 0 | 2026-10-28T21:36:43.754Z |
+| integration | 25 | 25 | 0 | 2026-10-29T00:01:42.031Z |
 | layout-unit | 8 | 8 | 0 | 2026-10-26T19:56:47.116Z |
 | maps-unit | 6 | 6 | 0 | 2026-10-26T19:56:51.803Z |
 | metaclean | 6 | 6 | 0 | 2026-10-25T22:09:33.756Z |
@@ -180,27 +183,28 @@ verifies the honesty contract, not the (impossible) capability.
 | oracle | 5 | 5 | 0 | 2026-10-26T07:49:34.818Z |
 | privacy-backup | 7 | 7 | 0 | 2026-10-27T20:39:53.048Z |
 | privacy-crypto | 9 | 9 | 0 | 2026-10-27T20:39:48.180Z |
-| privacy-layer | 13 | 13 | 0 | 2026-10-28T21:36:33.932Z |
+| privacy-layer | 13 | 13 | 0 | 2026-10-29T00:01:32.790Z |
 | sheet-layout | 6 | 6 | 0 | 2026-10-26T19:56:54.052Z |
 | stream-unit | 7 | 7 | 0 | 2026-10-26T19:56:51.977Z |
 | tables-engine | 9 | 9 | 0 | 2026-10-26T19:56:45.588Z |
 | tabletop-unit | 17 | 17 | 0 | 2026-10-27T21:14:26.619Z |
-| tt101-search | 37 | 37 | 0 | 2026-10-28T21:36:25.953Z |
-| tt102-private-bound | 5 | 5 | 0 | 2026-10-28T21:36:23.720Z |
-| tt102-search | 33 | 33 | 0 | 2026-10-28T21:35:53.856Z |
-| tt103-framework | 5 | 5 | 0 | 2026-10-28T21:35:28.879Z |
-| tt103-memory-unit | 10 | 10 | 0 | 2026-10-28T21:35:29.030Z |
-| tt104-memory-unit | 27 | 27 | 0 | 2026-10-28T21:35:10.235Z |
-| tt104-page | 25 | 25 | 0 | 2026-10-28T21:35:10.512Z |
-| tt105-atomic | 25 | 25 | 0 | 2026-10-28T21:34:56.611Z |
-| tt106-lifecycle | 23 | 23 | 0 | 2026-10-28T21:34:39.856Z |
-| tt107-crash | 4 | 4 | 0 | 2026-10-28T21:44:55.466Z |
-| tt107-features | 20 | 20 | 0 | 2026-10-28T21:44:56.599Z |
-| tt107-recall | 30 | 30 | 0 | 2026-10-28T21:44:56.092Z |
-| tt108-engine-crash | 10 | 10 | 0 | 2026-10-28T21:45:20.521Z |
-| tt108-recall | 18 | 18 | 0 | 2026-10-28T21:45:21.391Z |
-| tt108-refusal | 7 | 7 | 0 | 2026-10-28T21:46:01.777Z |
-| tt109-recall | 13 | 13 | 0 | 2026-10-28T21:46:02.844Z |
+| tt101-search | 37 | 37 | 0 | 2026-10-29T00:01:24.903Z |
+| tt102-private-bound | 5 | 5 | 0 | 2026-10-29T00:01:22.809Z |
+| tt102-search | 33 | 33 | 0 | 2026-10-29T00:00:57.060Z |
+| tt103-framework | 5 | 5 | 0 | 2026-10-29T00:00:33.144Z |
+| tt103-memory-unit | 10 | 10 | 0 | 2026-10-29T00:00:33.497Z |
+| tt104-memory-unit | 27 | 27 | 0 | 2026-10-29T00:00:16.105Z |
+| tt104-page | 25 | 25 | 0 | 2026-10-29T00:00:16.608Z |
+| tt105-atomic | 25 | 25 | 0 | 2026-10-29T00:00:02.966Z |
+| tt106-lifecycle | 23 | 23 | 0 | 2026-10-28T23:59:47.239Z |
+| tt107-crash | 4 | 4 | 0 | 2026-10-29T00:09:33.786Z |
+| tt107-features | 20 | 20 | 0 | 2026-10-29T00:09:35.249Z |
+| tt107-recall | 30 | 30 | 0 | 2026-10-29T00:09:34.565Z |
+| tt108-engine-crash | 10 | 10 | 0 | 2026-10-29T00:09:59.704Z |
+| tt108-recall | 18 | 18 | 0 | 2026-10-29T00:10:00.694Z |
+| tt108-refusal | 7 | 7 | 0 | 2026-10-29T00:10:35.523Z |
+| tt109-recall | 13 | 13 | 0 | 2026-10-29T00:10:36.512Z |
+| tt110-core | 7 | 7 | 0 | 2026-10-29T00:11:23.700Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-26T19:56:54.287Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-26T19:56:54.943Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -237,7 +241,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt52-pdf | 28 | 28 | 0 | 2026-10-25T22:52:51.701Z |
 | tt53-media | 11 | 11 | 0 | 2026-10-25T22:53:46.642Z |
 | tt54-meta | 6 | 6 | 0 | 2026-10-25T22:54:14.390Z |
-| tt55-files-unit | 7 | 7 | 0 | 2026-10-28T21:36:44.589Z |
+| tt55-files-unit | 7 | 7 | 0 | 2026-10-29T00:01:43.042Z |
 | tt56-sheet-paste | 4 | 4 | 0 | 2026-10-26T19:56:57.046Z |
 | tt56-shell-unit | 4 | 4 | 0 | 2026-10-26T19:56:56.670Z |
 | tt56-writer-track | 6 | 6 | 0 | 2026-10-25T22:55:59.908Z |
@@ -270,7 +274,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt67-input | 11 | 11 | 0 | 2026-10-27T21:17:11.260Z |
 | tt67-sheet-ns | 13 | 13 | 0 | 2026-10-26T08:11:31.185Z |
 | tt68-blank | 8 | 8 | 0 | 2026-10-25T23:09:25.727Z |
-| tt69-lifecycle | 11 | 11 | 0 | 2026-10-28T21:40:11.497Z |
+| tt69-lifecycle | 11 | 11 | 0 | 2026-10-29T00:05:02.575Z |
 | tt69-sheet-misc | 5 | 5 | 0 | 2026-10-26T07:53:17.856Z |
 | tt70-edge | 5 | 5 | 0 | 2026-10-26T20:00:59.953Z |
 | tt70-range | 6 | 6 | 0 | 2026-10-26T20:00:59.791Z |
@@ -292,7 +296,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt79-archive | 15 | 15 | 0 | 2026-10-26T07:10:13.663Z |
 | tt79-pdf | 17 | 17 | 0 | 2026-10-26T08:37:24.818Z |
 | tt79-sheet | 5 | 5 | 0 | 2026-10-26T15:54:13.462Z |
-| tt80-banner | 11 | 11 | 0 | 2026-10-26T20:46:28.932Z |
+| tt80-banner | 11 | 11 | 0 | 2026-10-28T22:55:19.235Z |
 | tt81-core | 13 | 13 | 0 | 2026-10-26T20:46:39.277Z |
 | tt84-wordcount | 15 | 15 | 0 | 2026-10-26T20:46:39.790Z |
 | tt85-find | 4 | 4 | 0 | 2026-10-27T00:31:18.229Z |
@@ -321,18 +325,18 @@ verifies the honesty contract, not the (impossible) capability.
 | tt91-download-mutants | 10 | 10 | 0 | 2026-10-27T13:58:50.777249+00:00 |
 | tt91-purge-mutants | 4 | 4 | 0 | 2026-10-27T13:56:45.169085+00:00 |
 | tt91-purge-race-mutants | 3 | 3 | 0 | 2026-10-27T13:56:48.374454+00:00 |
-| tt91-purge-race | 4 | 4 | 0 | 2026-10-28T21:35:03.822Z |
+| tt91-purge-race | 4 | 4 | 0 | 2026-10-29T00:00:09.912Z |
 | tt91-purge | 5 | 5 | 0 | 2026-10-27T20:36:17.968Z |
 | tt91-race-mutants | 4 | 4 | 0 | 2026-10-27T13:57:06.155168+00:00 |
 | tt91-thumbnail-cleanup-race | 6 | 6 | 0 | 2026-10-27T20:36:17.478Z |
-| tt91-write-atomic | 2 | 2 | 0 | 2026-10-28T21:35:03.148Z |
+| tt91-write-atomic | 2 | 2 | 0 | 2026-10-29T00:00:09.084Z |
 | tt91-write-mutants | 2 | 2 | 0 | 2026-10-27T16:00:14.746222+00:00 |
 | tt92-ledger-audit | 7 | 7 | 0 | 2026-10-28T18:30:06.928Z |
 | tt92-ledger-policy | 2 | 2 | 0 | 2026-10-28T18:30:07.229Z |
 | tt92-privacy-perf | 1 | 1 | 0 | 2026-10-27T16:27:53.119Z |
 | tt92-trash-mutants | 13 | 13 | 0 | 2026-10-27T16:01:17.863627+00:00 |
-| tt92-trash-race | 6 | 6 | 0 | 2026-10-28T21:35:04.782Z |
-| tt92-trash | 11 | 11 | 0 | 2026-10-28T21:35:05.496Z |
+| tt92-trash-race | 6 | 6 | 0 | 2026-10-29T00:00:10.978Z |
+| tt92-trash | 11 | 11 | 0 | 2026-10-29T00:00:11.794Z |
 | tt93-metadata-race | 4 | 4 | 0 | 2026-10-27T20:37:25.685Z |
 | tt93-restore-race | 3 | 3 | 0 | 2026-10-27T20:37:25.038Z |
 | tt93-transfer-mutants | 16 | 16 | 0 | 2026-10-27T15:59:35.182554+00:00 |
@@ -349,28 +353,31 @@ verifies the honesty contract, not the (impossible) capability.
 | tt96-calculator-mutants | 19 | 19 | 0 | 2026-10-27T20:54:51.033317+00:00 |
 | tt96-programmer | 8 | 8 | 0 | 2026-10-28T02:00:15.878Z |
 | tt96-scientific-units | 6 | 6 | 0 | 2026-10-28T02:00:16.314Z |
-| tt97-palette-commands | 4 | 4 | 0 | 2026-10-28T21:37:55.585Z |
+| tt97-palette-commands | 4 | 4 | 0 | 2026-10-29T00:02:49.490Z |
 | tt97-palette-mutants | 8 | 8 | 0 | 2026-10-27T23:08:25.457823+00:00 |
 | tt97-svg-attributes | 3 | 3 | 0 | 2026-10-28T02:00:16.639Z |
-| unit | 23 | 23 | 0 | 2026-10-28T21:36:40.929Z |
+| unit | 23 | 23 | 0 | 2026-10-29T00:01:39.177Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-26T20:02:11.245Z |
 | vector | 18 | 18 | 0 | 2026-10-26T19:56:45.937Z |
 | whiteboard-engine | 9 | 9 | 0 | 2026-10-26T19:56:45.740Z |
 
 ## Rows touched by FAILING tests (not counted as tested)
 
+- LY-05: e2e-layout: Art dock: aesthetic size + stacks — size from the screen not the app count, groups fold into stacks (grid popover, arrows, Esc), a launched app from a folded group shows as its own running icon, size presets
+- LY-02: e2e-layout: Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch
 - SC-10: e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage; e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end
 - BK-02: e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage
+- FF-81: e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify
 
 ## By family
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Recall | 34 | 0 | 34 | 0 | 0 | 31 | 3 |
+| Recall | 36 | 6 | 30 | 0 | 3 | 33 | 0 |
 | SH | 15 | 12 | 3 | 0 | 8 | 5 | 2 |
 | WM | 19 | 13 | 5 | 1 | 7 | 8 | 4 |
 | IN | 8 | 5 | 2 | 1 | 4 | 1 | 3 |
-| SR | 8 | 6 | 1 | 1 | 4 | 4 | 0 |
+| SR | 8 | 4 | 3 | 1 | 3 | 5 | 0 |
 | FM | 18 | 11 | 5 | 2 | 10 | 6 | 2 |
 | NC | 6 | 6 | 0 | 0 | 2 | 4 | 0 |
 | ST | 9 | 5 | 3 | 1 | 2 | 5 | 2 |
@@ -378,8 +385,8 @@ verifies the honesty contract, not the (impossible) capability.
 | TD | 6 | 4 | 1 | 1 | 4 | 1 | 1 |
 | PR | 54 | 47 | 7 | 0 | 39 | 9 | 6 |
 | FF | 79 | 78 | 1 | 0 | 77 | 1 | 1 |
-| MD | 9 | 7 | 2 | 0 | 1 | 7 | 1 |
-| SC | 18 | 16 | 1 | 1 | 12 | 5 | 1 |
+| MD | 9 | 6 | 3 | 0 | 2 | 6 | 1 |
+| SC | 18 | 15 | 2 | 1 | 12 | 5 | 1 |
 | BK | 6 | 3 | 3 | 0 | 3 | 3 | 0 |
 | AX | 15 | 14 | 1 | 0 | 11 | 3 | 1 |
 | TB | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
@@ -392,17 +399,19 @@ verifies the honesty contract, not the (impossible) capability.
 | CA | 15 | 7 | 2 | 6 | 7 | 7 | 1 |
 | LN | 15 | 7 | 4 | 4 | 4 | 5 | 6 |
 | MS | 4 | 0 | 2 | 2 | 0 | 3 | 1 |
-| AU | 4 | 2 | 2 | 0 | 1 | 2 | 1 |
+| AU | 4 | 1 | 3 | 0 | 0 | 3 | 1 |
 | RG | 7 | 6 | 1 | 0 | 4 | 2 | 1 |
-| HW | 11 | 2 | 8 | 1 | 0 | 1 | 10 |
+| HW | 11 | 2 | 8 | 1 | 1 | 1 | 9 |
 | CM | 2 | 1 | 0 | 1 | 0 | 2 | 0 |
-| BL | 5 | 4 | 1 | 0 | 1 | 3 | 1 |
-| DP | 15 | 14 | 1 | 0 | 7 | 8 | 0 |
+| BL | 5 | 3 | 2 | 0 | 2 | 2 | 1 |
+| DP | 15 | 13 | 2 | 0 | 7 | 8 | 0 |
 
 ## Per-row detail
 
 | code | status | tested | evidence (passing tests) |
 |---|---|---|---|
+| RC-35 | built | full | e2e-tt110-shell: a saved memory reaches the clipboard with identical pixels, honestly described, and can be handed to another app |
+| RC-36 | built | full | tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are; tt110-core: an unknown capture policy value cannot be smuggled into the setting |
 | RC-34 | partial | partial | e2e-tt109-shell: a repeat save files a second memory unless the person asks to keep one copy; tt109-recall: an identical memory in the same folder is recognised instead of filed twice; tt109-recall: duplicate recognition is opt-in: a deliberate re-save still produces a second memory (+4) |
 | RC-27 | partial | partial | e2e-tt107-memory: searching by save method finds the memory through the real UI; e2e-tt107-memory: a filter that matches nothing reports an honest empty result, not an error; tt107-recall: search filters by save method across every Recall folder (+13) |
 | RC-28 | partial | partial | e2e-tt107-memory: the integrity report shows a healthy pair with no orphans; e2e-tt107-memory: an unpaired file is listed by the audit and can be trashed from the UI; e2e-tt107-memory: widening the scope to every folder is an explicit, visible choice (+19) |
@@ -425,14 +434,14 @@ verifies the honesty contract, not the (impossible) capability.
 | RC-01 | partial | partial | e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt |
 | RC-02 | partial | partial | e2e-tt109-shell: a copied image becomes a memory through the real paste handler, and a copied link does not |
 | RC-03 | partial | partial | e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request |
-| RC-04 | partial | untested |  |
-| RC-05 | partial | untested |  |
-| RC-06 | partial | untested |  |
+| RC-04 | built | full | e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory |
+| RC-05 | built | partial | e2e-tt110-recall: an authorized recording encodes real frames and finishes as a playable file; e2e-tt110-recall: audio-only output does what this platform actually allows, and never substitutes the microphone |
+| RC-06 | built | partial | e2e-tt110-recall: an already-rendered element in this document can be captured without touching the network |
 | RC-07 | partial | partial | e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element |
 | RC-08 | partial | partial | e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element |
 | RC-09 | partial | partial | e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt |
 | RC-10 | partial | partial | tt109-recall: grouping sends the same bytes to the folder the human chose, and cannot escape the Recall root; tt109-recall: a save outside the Recall root is refused whatever the grouping asked for |
-| RC-11 | partial | partial | e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request |
+| RC-11 | built | partial | e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request; e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory; e2e-tt110-recall: the shared surface is released when the snapshot ends, and nothing is captured afterwards (+1) |
 | RC-12 | partial | partial | tt109-recall: memories are never written into Persistent Storage, and the archive says so plainly |
 | RC-13 | partial | partial | tt109-recall: deleting a memory removes the pair together and restoring brings the pair back; tt109-recall: a memory cannot be half-deleted through the pair endpoint |
 | RC-14 | partial | partial | tt109-recall: only the refetch method may claim the bytes came from the URL it names |
@@ -452,7 +461,7 @@ verifies the honesty contract, not the (impossible) capability.
 | SH-13 | partial | partial | e2e-tt85: E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations; e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery; e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids (+25) |
 | SH-14 | partial | partial | e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay; e2e-tt94-offline-race: a later queued Files write is not lost while a photo replay is waiting on the database; e2e-tt94-offline-race: a noncooperating queue change during replay is retained and reported (+3) |
 | WM-01 | built | full | e2e-tt98-orbit: App fallback opens, keyboard navigates, Escape restores invoking control; e2e-tt98-orbit: Native text context is not intercepted; e2e-tt98-orbit: Window action Tile left executes real reducer geometry (+3) |
-| WM-02 | built | full | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half; unit: 10 000 random commands preserve every invariant |
+| WM-02 | built | full | e2e-tt110-banner: in Art layout a window does not repeat the menus the shell menu bar is already showing; e2e-tt110-banner: an unfocused window keeps its own menus, because the shell bar only shows the focused one; e2e-tt110-banner: the fonts and alignment bar fits inside the window instead of scrolling sideways (+2) |
 | WM-03 | built | partial | unit: reducer is pure (input not mutated); workspaces filter without unmounting |
 | WM-04 | built | partial | e2e: Overview (Meta+Q) and Blackout overlay toggle |
 | WM-05 | built | full | e2e-tt56: WM-05 MRU after 5 focus changes, held-chord switcher: overlay lists MRU order, chord advances, Shift reverses, release commits, Esc cancels; e2e-tt56: WM-05 modes: app mode groups windows by app (2 calculators → 1 entry), workspace mode switches workspace on release; ←/→ and 1/2/3 change mode; e2e-tt56: WM-05 modal failure test: with an ask dialog open the switcher chord does nothing (no overlay, focus unchanged) (+6) |
@@ -482,10 +491,10 @@ verifies the honesty contract, not the (impossible) capability.
 | SR-02 | built | partial | e2e-tt99-interactions: Find contextual Open routes a real CSV into the editor rather than window controls; e2e-tt99-interactions: a stale Find result cannot open a deleted file or silently create a document; e2e: mount: find (+2) |
 | SR-03 | built | full | e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it; integration: SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing; unit: OSA distance counts adjacent transposition as 1 (+1) |
 | SR-04 | built | full | e2e-tt58-rows: SR-04 web results: off by default — no web row and no outside request while typing; opted in — one explicit row ranked last with the provider URL, still nothing sent until it is picked |
-| SR-05 | built | full | integration: search treats % and _ in queries literally |
+| SR-05 | partial | partial | integration: search treats % and _ in queries literally; tt110-core: search can be confined to one folder, and says what it searched when it finds nothing |
 | SR-06 | partial | partial | e2e-tt97-calculator-repairs: empty history is a named region; removing its role reintroduces the original axe violation; e2e-tt97-calculator-repairs: empty and populated programmer history remain axe-clean; e2e-tt97-calculator-repairs: mode colors change atomically; injecting a slow background-only transition is detected (+35) |
 | SR-07 | blocked | partial | tt107-features: every capability declared blocked is still refused with a stated reason |
-| SR-08 | built | partial | e2e: mount: find |
+| SR-08 | partial | partial | e2e: mount: find; tt110-core: search can be confined to one folder, and says what it searched when it finds nothing |
 | FM-01 | built | full | e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher; e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author; e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash (+7) |
 | FM-02 | built | full | e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane; e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified); e2e-tt55-files: FM-02 stress witness: repeated unselected native drags land in the folder row without a layout-shift race (+2) |
 | FM-03 | partial | partial | e2e-tt55-files: FM-02 + FM-03 dual pane: Ctrl+C / Ctrl+V across panes copies byte-identically, a second paste picks conflict-free names, Ctrl+X moves, F5 copies to the other pane; e2e-tt55-files: FM-02 drag and drop: a row dragged onto the other pane moves it, Ctrl-drag copies, a row dropped on a folder row moves it into that folder (server-verified); e2e-tt93-sidecar: Files displays the destination-sidecar collision and keeps both the photo and edits intact (+122) |
@@ -587,14 +596,14 @@ verifies the honesty contract, not the (impossible) capability.
 | MD-01 | built | partial | e2e: mount: capture |
 | MD-02 | built | partial | e2e: mount: media |
 | MD-03 | partial | partial | e2e-image: classic Quick edit mode is still available (additive merge); e2e-tt54: MD-03 sidecars follow their photo on rename / copy / move / trash / restore / purge and batch rename (server-side, any client); op=media lists photos + sidecars and nothing under /System; e2e-tt54: Hidden files: sidecars never show in Files (until 'Hidden' is toggled) or on the desktop (+93) |
-| MD-04 | built | partial | e2e: mount: devices |
+| MD-04 | built | full | e2e-tt110-shell: the voice recorder writes a real encoded file into Documents; e2e: mount: devices |
 | MD-05 | built | partial | e2e: mount: devices |
-| MD-06 | built | partial | e2e: mount: devices |
+| MD-06 | partial | partial | e2e-tt110-shell: audio outputs are enumerated and a tone can be routed to a chosen one; e2e: mount: devices |
 | MD-07 | built | partial | e2e: mount: devices |
 | MD-08 | built | full | e2e-tt53-media: MP4 (H.264 B-frames + AAC) exact-start lossless cut from the Media app: saved .mp4 verified by FFmpeg, starts at the requested time; e2e-tt53-media: MP4 with 'exact start' off snaps to the key frame (1.000 s) and says so; e2e-tt53-media: WebM (VP9 + Opus) lossless cut: start snaps to the previous key frame, the status line says where, output verified by FFmpeg (+14) |
 | MD-09 | partial | untested |  |
 | SC-01 | built | partial | e2e: mount: vault; unit: seal/open round trip; wrong passphrase and ciphertext tamper fail |
-| SC-02 | built | partial | e2e: mount: vault |
+| SC-02 | partial | partial | e2e: mount: vault; tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are |
 | SC-03 | built | full | e2e-tt56-rows: SC-03 permission audit: Settings lists every name of the full permission list, each state equals an independent permissions.query |
 | SC-04 | blocked | partial | tt107-features: every capability declared blocked is still refused with a stated reason |
 | SC-05 | built | full | e2e-tt72-access: Devices → Record: live microphone entry; Stop on the dashboard ends the real track and the recorder; row gets a duration; e2e-tt72-access: Lens: camera + mic live, presenter screen live; the module's own Stop camera (no 'ended' event) ends both; e2e-tt72-access: refusals and grants are logged with the module — no clipboard text or coordinates kept; Clear empties finished rows (+4) |
@@ -648,10 +657,10 @@ verifies the honesty contract, not the (impossible) capability.
 | CN-03 | built | full | contacts-engine: RFC 6350 §4.3.1 dates: write basic format (YYYY-MM-DD is disallowed in 4.0), accept every listed form, Feb 29; contacts-engine: duplicates (e-mail case, phone formatting, folded name) and merge keep everything from both; e2e-contacts: duplicates and merge, birthdays: two cards sharing an e-mail (different case) are grouped and merged without losing a phone; a birthday in 3 days is listed (+1) |
 | CN-04 | built | full | contacts-engine: search (accents, tokens, phone digits), sort/letters, CSV export with injection guard, Contact Picker mapping, validation; e2e-contacts: import + search + persistence: RFC 6350 §8, RFC 2426 §7 and a 2.1 quoted-printable card load; search folds accents and matches phone digits; .vcf import skips a repeated UID; survives reload; e2e-contacts: export: CSV to Files (injection-guarded) and as a download; .vcf download re-imports to the same contacts (+2) |
 | LY-01 | built | full | e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload; e2e-layout: Business taskbar: open → minimise → restore on click, Shift+click new window, jump list, Show desktop round trip, clock → Planner; e2e-layout: Business: Start menu opens above the taskbar at bottom-left, search + Enter launches; Quick settings and toasts sit bottom-right; Windows caption buttons (+7) |
-| LY-02 | built | full | e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar; e2e-layout: Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch; e2e-layout: Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit (+7) |
+| LY-02 | built | full | e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar; e2e-layout: Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit; e2e-layout: Art window chrome + menus: traffic lights left (close, minimise, zoom), centred title, Window menu tiles/zooms, zoomed window stops above the dock, Launchpad (+6) |
 | LY-03 | built | full | e2e-layout: Settings → Layout: picking Business swaps the top bar + shelf for a bottom taskbar; persisted across a reload; e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar; e2e-layout: API: unknown layout and dockMagnify values are refused (422); the setting is searchable by 'taskbar' and 'dock' (+2) |
 | LY-04 | built | full | e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet; e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations; layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers |
-| LY-05 | built | full | e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+7) |
+| LY-05 | built | full | e2e-beauty: 1440×900: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations; e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations (+6) |
 | LY-06 | built | full | e2e-tabletop: desktop icons (classic): drag snaps to another grid cell and persists; Alt+Arrow moves; 'Sort icons by name' and 'Clean up icons' rearrange; e2e-tt96-desktop-menu: a lower-right desktop context menu stays within its usable surface and Sort can be clicked; e2e-tt96-desktop-menu: an open edge menu reclamps after the viewport shrinks (+6) |
 | LY-07 | built | full | e2e-tabletop: toggle: Quick panel switch replaces the desktop with the Tabletop (persisted); Settings → Desktop view brings Classic back; e2e-tabletop: box geometry (straight-down camera): floor projected at p/(p+depth) and centred; four walls hinge on the screen edges (measured); e2e-tabletop: a wall becomes the main view: double-click unfolds it to fill the desk (others fold away, inert), Back / Esc / double-click its background return; switcher works too (+7) |
 | LY-08 | built | full | e2e-tabletop: drag a card onto a card makes a pile (persisted, survives reload); click fans it out on an arc; drag a card out of the fan takes it out and the pile dissolves; e2e-tabletop: keyboard pile (WCAG 2.5.7 alternative to dragging): Shift+F10 on a card → 'Pile with …'; Enter fans the pile, Esc gathers; Alt+Arrow moves a card; e2e-tt31: on a lifted wall: move a pin along it, drop a pin on a pin to pile, click the pile to fan it along the wall, drag a card out of the fan onto the floor (+3) |
@@ -757,7 +766,7 @@ verifies the honesty contract, not the (impossible) capability.
 | FF-78 | built | full | e2e-tt81: E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output; tt81-core: S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates; tt81-core: S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula (+3) |
 | FF-79 | built | full | e2e-tt81: E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry; tt81-core: P1 custom box geometry exact all rotations, negative crop origin and edge boxes; tt81-core: P2 refuse NaN, infinities, zero, negative, off-page, malformed geometry before signing (+1) |
 | FF-80 | built | full | e2e-tt81: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback; tt81-core: L1 literal case/scope, groups and tables; no notes/master/package false hits; tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical (+4) |
-| FF-81 | built | full | e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify; tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink |
+| FF-81 | built | full | tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink |
 | FF-82 | built | full | e2e-tt81: E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions; tt84-wordcount: W1 empty text has zero counts; tt84-wordcount: W2 spaces, blank paragraphs and CRLF do not inflate words or character totals (+10) |
 | CT-01 | built | partial | e2e-tt70-rows: CT-01 share target: manifest share_target → / ; ?url= opens a Browser tab on it and cleans the query; a javascript: URL never runs; Notes Share passes title + body to navigator.share (injected recorder — no OS share sheet in headless Linux) |
 | CT-02 | built | full | e2e: mount: share; e2e: WebRTC data channel between two contexts via Postgres signalling; integration: CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap |
@@ -803,11 +812,11 @@ verifies the honesty contract, not the (impossible) capability.
 | AX-02 | built | partial | e2e-tt55-files: regressions: one roving tab stop in the listing, one file input, Space selects / Enter opens, axe finds no serious violations in the new chrome (tabs, toolbar, menu, tree); e2e-tt96-desktop-menu: a lower-right desktop context menu stays within its usable surface and Sort can be clicked; e2e-tt96-desktop-menu: the geometry and real click checks detect an injected old-style offscreen placement (+4) |
 | AX-03 | built | full | e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens) |
 | AX-04 | built | full | e2e-tt56-rows: AX-04 focus not obscured: Tab into a control of a covered window raises that window (server focus + top z); programmatic focus does not |
-| AX-05 | built | partial | e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half |
+| AX-05 | built | partial | e2e-tt110-banner: in Art layout a window does not repeat the menus the shell menu bar is already showing; e2e-tt110-banner: the fonts and alignment bar fits inside the window instead of scrolling sideways; e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half |
 | AX-06 | probe | untested |  |
 | AX-07 | built | partial | unit: SRT → WebVTT conversion |
 | AX-08 | built | full | a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations; e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet (+26) |
-| AU-01 | built | full | e2e-tt97-palette-actions: register keeps palette actions partial and discloses native Cast and privacy limits; e2e-tt97-palette-actions: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection; e2e-tt97-palette-actions: composition Enter cannot trigger a note action; a subsequent real Enter can (+12) |
+| AU-01 | partial | partial | e2e-tt97-palette-actions: register keeps palette actions partial and discloses native Cast and privacy limits; e2e-tt97-palette-actions: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection; e2e-tt97-palette-actions: composition Enter cannot trigger a note action; a subsequent real Enter can (+13) |
 | AU-02 | built | partial | e2e: mount: routines; integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted |
 | AU-03 | partial | partial | e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery; e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids; integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject) (+3) |
 | AU-04 | probe | untested |  |
@@ -828,14 +837,14 @@ verifies the honesty contract, not the (impossible) capability.
 | HW-08 | partial | untested |  |
 | HW-09 | partial | untested |  |
 | HW-10 | probe | untested |  |
-| HW-11 | built | untested |  |
+| HW-11 | built | full | e2e-tt110-shell: the screen wake lock is really taken and really released |
 | CM-01 | blocked | partial | tt107-features: every capability declared blocked is still refused with a stated reason |
 | CM-02 | built | partial | tt107-features: embed probe reports a framing refusal from X-Frame-Options; tt107-features: embed probe reports a framing refusal from CSP frame-ancestors; tt107-features: embed probe clears a permissive page so it can become a window (+1) |
 | BL-01 | built | full | e2e: mount: settings; integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused |
-| BL-02 | built | partial | integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused |
+| BL-02 | partial | partial | integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused; tt110-core: a licence verifies offline against the published key, and the grace period is stated |
 | BL-03 | built | partial | tt107-features: a trial grants 14 days and cannot be taken twice; tt107-features: an expired trial degrades to read-only and still shows its history; tt107-features: an unknown client is untiered rather than defaulted to paid |
 | BL-04 | probe | untested |  |
-| BL-05 | built | partial | integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused |
+| BL-05 | built | full | integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused; tt110-core: there is no remote wipe and no kill switch anywhere in the server |
 | DP-01 | built | full | e2e-tt56-rows: DP-01 account-free: no login / auth route answers, no auth library or sign-in call in the client bundle; e2e-tt56-rows: no uncaught page errors |
 | DP-02 | built | full | e2e-tt56-rows: DP-02 no ads, feeds or upsells: zero ad/promo/upsell components or strings in src/, zero ad-SDK markers in the client bundle |
 | DP-03 | built | full | e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay |
@@ -849,7 +858,7 @@ verifies the honesty contract, not the (impossible) capability.
 | DP-11 | built | full | e2e-tt58-rows: DP-11 least privilege: desktop + every registered app opened — no prompting permission API is called and every permission stays 'prompt'; e2e-tt58-rows: no uncaught page errors during the TT58 rows session |
 | DP-12 | built | partial | e2e-tt108-shell: choosing a file opens the real platform picker rather than an in-page imitation |
 | DP-13 | built | full | e2e-tt70-rows: DP-13 density tokens: compact < balanced < touch (title bar, --fs-target), no control under 24 px, and every density offers the SAME controls by accessible name |
-| DP-14 | built | partial | e2e: mount: monitor; integration: FM-03 journaled move: 6 states in order, digest preserved, source retired |
+| DP-14 | partial | partial | e2e: mount: monitor; integration: FM-03 journaled move: 6 states in order, digest preserved, source retired; tt110-core: every file operation leaves an observable journal entry with its final state |
 | DP-15 | built | full | tt80-banner: writer: one banner, own menu names, menus mirror the strip; tt80-banner: slides: one banner, own menu names, menus mirror the strip; tt80-banner: sheet: one banner, own menu names, menus mirror the strip (+8) |
 
 ## Definitions

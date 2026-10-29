@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt104-pages",
-  "at": "2026-10-28T21:35:26.908Z",
+  "at": "2026-10-29T00:00:30.618Z",
   "results": [
     {
       "suite": "e2e-tt104-pages",
@@ -9,21 +9,21 @@
         "RC-18": "partial"
       },
       "pass": true,
-      "ms": 2665
+      "ms": 1340
     },
     {
       "suite": "e2e-tt104-pages",
       "name": "native older-page control appends without duplicates and caps at 400",
       "covers": {},
       "pass": true,
-      "ms": 1937
+      "ms": 1516
     },
     {
       "suite": "e2e-tt104-pages",
       "name": "refresh restarts pagination and closing preview has no side effect on listing",
       "covers": {},
       "pass": true,
-      "ms": 459
+      "ms": 231
     }
   ]
 }

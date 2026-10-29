@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt103-memory",
-  "at": "2026-10-28T21:35:39.747Z",
+  "at": "2026-10-29T00:00:43.903Z",
   "results": [
     {
       "suite": "e2e-tt103-memory",
@@ -10,7 +10,7 @@
         "RC-09": "partial"
       },
       "pass": true,
-      "ms": 163
+      "ms": 128
     },
     {
       "suite": "e2e-tt103-memory",
@@ -20,35 +20,35 @@
         "RC-08": "partial"
       },
       "pass": true,
-      "ms": 945
+      "ms": 1190
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "closing memory preview removes media and revokes visible reference",
       "covers": {},
       "pass": true,
-      "ms": 223
+      "ms": 258
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "zero-sized file is refused without a new archive",
       "covers": {},
       "pass": true,
-      "ms": 98
+      "ms": 97
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "oversized file is refused before archive",
       "covers": {},
       "pass": true,
-      "ms": 1439
+      "ms": 1223
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "nonmedia MIME is refused without archive",
       "covers": {},
       "pass": true,
-      "ms": 29
+      "ms": 20
     },
     {
       "suite": "e2e-tt103-memory",
@@ -58,35 +58,35 @@
         "RC-11": "partial"
       },
       "pass": true,
-      "ms": 996
+      "ms": 693
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "subsequent human save captures changed viewed pixels as distinct memory",
       "covers": {},
       "pass": true,
-      "ms": 3084
+      "ms": 3232
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "unsolicited parent-window result cannot create archive",
       "covers": {},
       "pass": true,
-      "ms": 314
+      "ms": 313
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "origin-tainted already-loaded surface fails without refetch fallback",
       "covers": {},
       "pass": true,
-      "ms": 533
+      "ms": 175
     },
     {
       "suite": "e2e-tt103-memory",
       "name": "Specs contains all fifteen truthful Recall requirements, no A-grade fabrication",
       "covers": {},
       "pass": true,
-      "ms": 19
+      "ms": 15
     }
   ]
 }

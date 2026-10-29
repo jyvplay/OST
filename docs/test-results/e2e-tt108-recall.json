@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt108-recall",
-  "at": "2026-10-28T21:45:29.254Z",
+  "at": "2026-10-29T00:10:07.771Z",
   "results": [
     {
       "suite": "e2e-tt108-recall",
@@ -9,7 +9,7 @@
         "RC-33": "partial"
       },
       "pass": true,
-      "ms": 1076
+      "ms": 1016
     },
     {
       "suite": "e2e-tt108-recall",
@@ -18,7 +18,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 953
+      "ms": 775
     },
     {
       "suite": "e2e-tt108-recall",
@@ -27,7 +27,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 5
     },
     {
       "suite": "e2e-tt108-recall",
@@ -36,7 +36,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 1127
+      "ms": 792
     },
     {
       "suite": "e2e-tt108-recall",
@@ -45,7 +45,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 572
+      "ms": 616
     },
     {
       "suite": "e2e-tt108-recall",
@@ -54,7 +54,7 @@
         "RC-32": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     }
   ]
 }

@@ -1,23 +1,36 @@
 {
- "generatedAt": "2026-10-28T21:47:17.494Z",
+ "generatedAt": "2026-10-29T00:13:02.068Z",
  "totals": {
   "built": {
-   "full": 331,
-   "partial": 93,
+   "full": 330,
+   "partial": 96,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 262,
-   "partial": 135,
-   "untested": 51
+   "full": 266,
+   "partial": 137,
+   "untested": 47
   },
   "tests": {
-   "total": 2668,
-   "passed": 2666
+   "total": 2688,
+   "passed": 2683
   }
  },
  "rows": {
+  "RC-35": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt110-shell: a saved memory reaches the clipboard with identical pixels, honestly described, and can be handed to another app"
+   ]
+  },
+  "RC-36": {
+   "tested": "full",
+   "tests": [
+    "tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are",
+    "tt110-core: an unknown capture policy value cannot be smuggled into the setting"
+   ]
+  },
   "RC-34": {
    "tested": "partial",
    "tests": [
@@ -69,7 +82,7 @@
     "tt107-recall: unpaired cleanup rejects non-Recall path /",
     "tt107-recall: unpaired cleanup rejects non-Recall path /etc/passwd",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Private/x.png",
-    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793223895654/nested/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793232574172/nested/x.png",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/x",
     "tt107-recall: unpaired cleanup rejects invalid guard null",
     "tt107-recall: unpaired cleanup rejects invalid guard {}",
@@ -242,16 +255,23 @@
    ]
   },
   "RC-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory"
+   ]
   },
   "RC-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt110-recall: an authorized recording encodes real frames and finishes as a playable file",
+    "e2e-tt110-recall: audio-only output does what this platform actually allows, and never substitutes the microphone"
+   ]
   },
   "RC-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt110-recall: an already-rendered element in this document can be captured without touching the network"
+   ]
   },
   "RC-07": {
    "tested": "partial",
@@ -281,7 +301,10 @@
   "RC-11": {
    "tested": "partial",
    "tests": [
-    "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request"
+    "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request",
+    "e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory",
+    "e2e-tt110-recall: the shared surface is released when the snapshot ends, and nothing is captured afterwards",
+    "e2e-tt110-recall: pending fetch jobs can be cancelled, and the archive is told what cancellation does not undo"
    ]
   },
   "RC-12": {
@@ -482,6 +505,9 @@
   "WM-02": {
    "tested": "full",
    "tests": [
+    "e2e-tt110-banner: in Art layout a window does not repeat the menus the shell menu bar is already showing",
+    "e2e-tt110-banner: an unfocused window keeps its own menus, because the shell bar only shows the focused one",
+    "e2e-tt110-banner: the fonts and alignment bar fits inside the window instead of scrolling sideways",
     "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half",
     "unit: 10 000 random commands preserve every invariant"
    ]
@@ -728,9 +754,10 @@
    ]
   },
   "SR-05": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
-    "integration: search treats % and _ in queries literally"
+    "integration: search treats % and _ in queries literally",
+    "tt110-core: search can be confined to one folder, and says what it searched when it finds nothing"
    ]
   },
   "SR-06": {
@@ -785,7 +812,8 @@
   "SR-08": {
    "tested": "partial",
    "tests": [
-    "e2e: mount: find"
+    "e2e: mount: find",
+    "tt110-core: search can be confined to one folder, and says what it searched when it finds nothing"
    ]
   },
   "FM-01": {
@@ -2953,8 +2981,9 @@
    ]
   },
   "MD-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt110-shell: the voice recorder writes a real encoded file into Documents",
     "e2e: mount: devices"
    ]
   },
@@ -2967,6 +2996,7 @@
   "MD-06": {
    "tested": "partial",
    "tests": [
+    "e2e-tt110-shell: audio outputs are enumerated and a tone can be routed to a chosen one",
     "e2e: mount: devices"
    ]
   },
@@ -3012,7 +3042,8 @@
   "SC-02": {
    "tested": "partial",
    "tests": [
-    "e2e: mount: vault"
+    "e2e: mount: vault",
+    "tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are"
    ]
   },
   "SC-03": {
@@ -3998,7 +4029,6 @@
    "tested": "full",
    "tests": [
     "e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar",
-    "e2e-layout: Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch",
     "e2e-layout: Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit",
     "e2e-layout: Art window chrome + menus: traffic lights left (close, minimise, zoom), centred title, Window menu tiles/zooms, zoomed window stops above the dock, Launchpad",
     "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
@@ -4034,7 +4064,6 @@
     "e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
     "e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
     "e2e-beauty: 390×844: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
-    "e2e-layout: Art dock: aesthetic size + stacks — size from the screen not the app count, groups fold into stacks (grid popover, arrows, Esc), a launched app from a folded group shows as its own running icon, size presets",
     "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
     "tabletop-unit: idealDockIcon: 44–64 px band on the 4-px grid, from the screen not the app count; presets; junk input",
     "tabletop-unit: planDock: keeps the pleasing size and folds the biggest groups first; pinned + running stay out; every app reachable; never wider than the fill limit when it reports fits",
@@ -5317,7 +5346,6 @@
   "FF-81": {
    "tested": "full",
    "tests": [
-    "e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify",
     "tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink"
    ]
   },
@@ -5611,6 +5639,8 @@
   "AX-05": {
    "tested": "partial",
    "tests": [
+    "e2e-tt110-banner: in Art layout a window does not repeat the menus the shell menu bar is already showing",
+    "e2e-tt110-banner: the fonts and alignment bar fits inside the window instead of scrolling sideways",
     "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half"
    ]
   },
@@ -5659,7 +5689,7 @@
    ]
   },
   "AU-01": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
     "e2e-tt97-palette-actions: register keeps palette actions partial and discloses native Cast and privacy limits",
     "e2e-tt97-palette-actions: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection",
@@ -5675,6 +5705,7 @@
     "e2e: mount: routines",
     "e2e: routines: dry-run lists actions without executing; Run opens the window",
     "integration: AU-01 routine whitelist rejects commands outside the palette vocabulary",
+    "tt110-core: a routine can be rehearsed without doing anything, and both rehearsal and run are audited",
     "unit: routine whitelist"
    ]
   },
@@ -5787,8 +5818,10 @@
    "tests": []
   },
   "HW-11": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt110-shell: the screen wake lock is really taken and really released"
+   ]
   },
   "CM-01": {
    "tested": "partial",
@@ -5815,7 +5848,8 @@
   "BL-02": {
    "tested": "partial",
    "tests": [
-    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused"
+    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused",
+    "tt110-core: a licence verifies offline against the published key, and the grace period is stated"
    ]
   },
   "BL-03": {
@@ -5831,9 +5865,10 @@
    "tests": []
   },
   "BL-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused"
+    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused",
+    "tt110-core: there is no remote wipe and no kill switch anywhere in the server"
    ]
   },
   "DP-01": {
@@ -5925,7 +5960,8 @@
    "tested": "partial",
    "tests": [
     "e2e: mount: monitor",
-    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
+    "tt110-core: every file operation leaves an observable journal entry with its final state"
    ]
   },
   "DP-15": {
