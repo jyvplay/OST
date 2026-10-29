@@ -1,23 +1,33 @@
 {
- "generatedAt": "2026-10-29T03:25:03.487Z",
+ "generatedAt": "2026-10-29T05:10:48.743Z",
  "totals": {
   "built": {
-   "full": 335,
+   "full": 336,
    "partial": 93,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 277,
+   "full": 278,
    "partial": 135,
    "untested": 40
   },
   "tests": {
-   "total": 2723,
-   "passed": 2720
+   "total": 2731,
+   "passed": 2728
   }
  },
  "rows": {
+  "AX-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt113-density: recall opens as a tool, not a document",
+    "e2e-tt113-density: browser opens as a tool, not a document",
+    "e2e-tt113-density: the small print was moved, not deleted",
+    "e2e-tt113-density: a disclosure opens from the keyboard alone",
+    "e2e-tt113-density: every saving pathway survived the compaction"
+   ]
+  },
   "RC-38": {
    "tested": "full",
    "tests": [
@@ -27,7 +37,8 @@
     "e2e-tt112-resident: the receipt claims a declared label, not the publisher, and records no refetch",
     "e2e-tt112-resident: a data: URL inside the document is saved with its own exact bytes",
     "e2e-tt112-resident: an object larger than 8 MiB is refused where the bytes are read, and writes nothing",
-    "e2e-tt112-resident: no uncaught page exception in the resident-object pathway"
+    "e2e-tt112-resident: no uncaught page exception in the resident-object pathway",
+    "e2e-tt113-density: every saving pathway survived the compaction"
    ]
   },
   "RC-37": {
@@ -109,7 +120,7 @@
     "tt107-recall: unpaired cleanup rejects non-Recall path /",
     "tt107-recall: unpaired cleanup rejects non-Recall path /etc/passwd",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Private/x.png",
-    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793243855519/nested/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793250164638/nested/x.png",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/x",
     "tt107-recall: unpaired cleanup rejects invalid guard null",
     "tt107-recall: unpaired cleanup rejects invalid guard {}",
@@ -266,7 +277,11 @@
   "RC-01": {
    "tested": "partial",
    "tests": [
-    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt"
+    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt",
+    "e2e-tt113-density: recall opens as a tool, not a document",
+    "e2e-tt113-density: browser opens as a tool, not a document",
+    "e2e-tt113-density: the small print was moved, not deleted",
+    "e2e-tt113-density: every saving pathway survived the compaction"
    ]
   },
   "RC-02": {
@@ -551,6 +566,10 @@
     "e2e-tt110-banner: in Art layout a window does not repeat the menus the shell menu bar is already showing",
     "e2e-tt110-banner: an unfocused window keeps its own menus, because the shell bar only shows the focused one",
     "e2e-tt110-banner: the fonts and alignment bar fits inside the window instead of scrolling sideways",
+    "e2e-tt110-banner: the fonts and alignment bar fits without scrolling in fusion layout too",
+    "e2e-tt110-banner: the fonts and alignment bar fits without scrolling in business layout too",
+    "e2e-tt113-density: recall opens as a tool, not a document",
+    "e2e-tt113-density: browser opens as a tool, not a document",
     "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half",
     "unit: 10 000 random commands preserve every invariant"
    ]
@@ -3140,6 +3159,7 @@
   "SC-08": {
    "tested": "partial",
    "tests": [
+    "e2e-tt113-density: the small print was moved, not deleted",
     "integration: SR-04 / settings: locked settings refuse writes (423)"
    ]
   },
@@ -5665,6 +5685,7 @@
    "tested": "full",
    "tests": [
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
+    "e2e-tt113-density: a disclosure opens from the keyboard alone",
     "e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting",
     "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
     "e2e-tt87-backup: BK-03 backup controls have a keyboard-accessible chooser and no serious or critical axe violations",
@@ -5701,6 +5722,11 @@
    "tests": [
     "e2e-tt110-banner: in Art layout a window does not repeat the menus the shell menu bar is already showing",
     "e2e-tt110-banner: the fonts and alignment bar fits inside the window instead of scrolling sideways",
+    "e2e-tt110-banner: the fonts and alignment bar fits without scrolling in fusion layout too",
+    "e2e-tt110-banner: the fonts and alignment bar fits without scrolling in business layout too",
+    "e2e-tt113-density: recall opens as a tool, not a document",
+    "e2e-tt113-density: browser opens as a tool, not a document",
+    "e2e-tt113-density: a disclosure opens from the keyboard alone",
     "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half"
    ]
   },

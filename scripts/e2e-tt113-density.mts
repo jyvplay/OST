@@ -108,7 +108,7 @@ try {
    */
   for (const mod of ['recall', 'browser'] as const) {
     await test(`${mod} opens as a tool, not a document`,
-      { 'RC-01': 'partial', 'AX-05': 'partial', 'WM-02': 'partial' }, async () => {
+      { 'AX-16': 'full', 'RC-01': 'partial', 'AX-05': 'partial', 'WM-02': 'partial' }, async () => {
         const props = mod === 'browser'
           ? { tabs: [{ id: 't1', url: 'http://127.0.0.1:4001/', title: 'fixture', pinned: false, asleep: false, group: '' }], active: 't1', proxyAll: true }
           : {};
@@ -130,7 +130,7 @@ try {
    * disclosures, in the volume the pane used to print.
    */
   await test('the small print was moved, not deleted',
-    { 'RC-01': 'partial', 'SC-08': 'partial' }, async () => {
+    { 'AX-16': 'full', 'RC-01': 'partial', 'SC-08': 'partial' }, async () => {
       const { page, context } = await openModule('recall');
       try {
         const before = await measure(page, 'recall');
@@ -158,7 +158,7 @@ try {
    * alone, which is the difference between a disclosure and a hover tooltip.
    */
   await test('a disclosure opens from the keyboard alone',
-    { 'AX-05': 'partial', 'AX-01': 'partial' }, async () => {
+    { 'AX-16': 'full', 'AX-05': 'partial', 'AX-01': 'partial' }, async () => {
       const { page, context } = await openModule('recall');
       try {
         const first = page.locator(`[data-win-id="tt113-recall-${RUN}"] details.fs-hint > summary`).first();
@@ -182,7 +182,7 @@ try {
    * the buttons that do the actual saving — and they must still be present and enabled.
    */
   await test('every saving pathway survived the compaction',
-    { 'RC-01': 'partial', 'RC-38': 'partial' }, async () => {
+    { 'AX-16': 'full', 'RC-01': 'partial', 'RC-38': 'partial' }, async () => {
       const { page, context } = await openModule('recall');
       try {
         const must = ['Save media URL', 'Refresh loaded media', 'Scan the open page', 'Browse inside Recall',
