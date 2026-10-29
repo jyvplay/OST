@@ -1,6 +1,6 @@
 {
   "suite": "tt104-memory-unit",
-  "at": "2026-10-29T04:50:09.845Z",
+  "at": "2026-10-29T19:34:51.812Z",
   "results": [
     {
       "suite": "tt104-memory-unit",
@@ -9,7 +9,7 @@
         "RC-19": "partial"
       },
       "pass": true,
-      "ms": 15
+      "ms": 1
     },
     {
       "suite": "tt104-memory-unit",
@@ -100,7 +100,7 @@
       "name": "tampered bytes fail despite same length",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt104-memory-unit",

@@ -359,8 +359,53 @@ export const routines = pgTable("routines", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/* ------------------------------------------------------------ recall publication tokens (TT114, RC-39)
+
+   Exactly-once publication under a lost acknowledgement.
+
+   A Recall commit writes two rows (the media and its receipt) in one transaction. If the HTTP
+   response is lost on the way back, the client cannot tell a completed publication from a failed
+   one, and before TT114 the only honest advice was "inspect Files before retrying" — a human step
+   in the middle of a save. A client-minted token, inserted in the SAME transaction as the pair,
+   makes the retry decidable: the second attempt finds its own token and is answered with the path
+   the first attempt wrote, without writing anything a second time.
+
+   The token is bound to the digest of the bytes, so a token cannot be replayed to claim a
+   different memory, and it is inserted BEFORE the pair so that two concurrent attempts with one
+   token cannot both write (see src/lib/server/recall-commit.ts for the ordering argument). */
+
+export const recallCommits = pgTable("recall_commits", {
+  /** client-minted UUID; the primary key is what makes the retry decidable */
+  token: text("token").primaryKey(),
+  /** the media path this token published */
+  path: text("path").notNull(),
+  /** SHA-256 of the DECODED media bytes - the same domain the receipt digests */
+  sha256: text("sha256").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * FM-18. The same claim-first shape as recall_commits, for the same reason: a save
+ * whose acknowledgement is lost must be answerable without performing it twice. The
+ * row is claimed before the temporary output exists and carries the finished answer,
+ * so a retry is replayed rather than re-run. A claim whose attempt failed is removed,
+ * because the caller is entitled to fix the bytes and try again with the same token.
+ */
+export const safeSaveClaims = pgTable("safe_save_claims", {
+  /** caller-minted, opaque, never parsed */
+  token: text("token").primaryKey(),
+  /** the target path this token was claimed for */
+  path: text("path").notNull(),
+  /** SHA-256 of the content offered, so a token cannot be reused for other bytes */
+  sha256: text("sha256").notNull(),
+  /** the finished SafeSaveResult, replayed verbatim on a retry; null while in flight */
+  result: jsonb("result"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type FeatureRow = typeof features.$inferSelect;
 export type VfsNode = typeof vfsNodes.$inferSelect;
 export type FileOpRow = typeof fileOps.$inferSelect;
 export type AlertRow = typeof alerts.$inferSelect;
 export type NoteRow = typeof notes.$inferSelect;
+export type RecallCommitRow = typeof recallCommits.$inferSelect;

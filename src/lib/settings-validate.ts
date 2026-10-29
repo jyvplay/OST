@@ -1,5 +1,6 @@
 import { parseRules } from "./focus-rules";
 import { isWallpaper, WALLPAPERS } from "./appearance";
+import { SCENE_IDS, validSceneImage } from "./scene-core";
 import { TEXT_SCALE_MAX, TEXT_SCALE_MIN } from "./uiscale-core";
 import { STYLE_IDS } from "./style-core";
 import { validTileUrl } from "./maps-core";
@@ -29,6 +30,8 @@ const ENUMS: Record<string, readonly string[]> = {
   "maps.tiles": ["off", "osm", "custom"],
   "appearance.dockSize": DOCK_SIZE_IDS,
   "appearance.desktopView": ["classic", "tabletop"],
+  // TT114 (LN-09): the animated desktop scene. "off" is the default and costs nothing.
+  "appearance.scene": SCENE_IDS,
   // TT30 (AX-14): the built-in screen reader
   "accessibility.narrator": ["on", "off"],
   "accessibility.narratorRate": ["0.75", "1", "1.25", "1.5", "2"],
@@ -57,6 +60,8 @@ export function validateSetting(key: string, value: string): string | null {
   }
   if (key === "maps.tileUrl" && value !== "" && !validTileUrl(value)) return "tile URL must be https:// and contain {z}, {x} and {y}";
   if (key === "appearance.wallpaper" && !isWallpaper(value)) return `wallpaper must be one of ${ENUMS[key].join(", ")}`;
+  // A scene picture is a path into this device's own files - never a URL, so a scene cannot become a beacon.
+  if (key === "appearance.sceneImage" && value !== "" && !validSceneImage(value)) return "a scene picture must be a PNG, JPEG, WebP, GIF or AVIF path inside this device";
   const allowed = ENUMS[key];
   if (allowed && !allowed.includes(value)) return `${key} must be one of ${allowed.join(", ")}`;
   if (key === "appearance.accent" && value !== "auto" && !/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)) return "accent must be \"auto\" or a #rgb / #rrggbb colour";

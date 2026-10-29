@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt106-memory",
-  "at": "2026-10-29T04:49:49.982Z",
+  "at": "2026-10-29T19:34:33.147Z",
   "results": [
     {
       "suite": "e2e-tt106-memory",
@@ -9,7 +9,7 @@
         "RC-24": "partial"
       },
       "pass": true,
-      "ms": 881
+      "ms": 759
     },
     {
       "suite": "e2e-tt106-memory",
@@ -18,7 +18,7 @@
         "RC-26": "partial"
       },
       "pass": true,
-      "ms": 2333
+      "ms": 2470
     },
     {
       "suite": "e2e-tt106-memory",
@@ -27,21 +27,21 @@
         "RC-25": "partial"
       },
       "pass": true,
-      "ms": 765
+      "ms": 357
     },
     {
       "suite": "e2e-tt106-memory",
       "name": "confirmed paired trash closes/revokes preview and undo restores both files",
       "covers": {},
       "pass": true,
-      "ms": 1082
+      "ms": 1591
     },
     {
       "suite": "e2e-tt106-memory",
       "name": "open-preview identity guard refuses later media edit",
       "covers": {},
       "pass": true,
-      "ms": 2871
+      "ms": 2028
     },
     {
       "suite": "e2e-tt106-memory",
@@ -50,7 +50,7 @@
         "RC-26": "partial"
       },
       "pass": true,
-      "ms": 4279
+      "ms": 4944
     },
     {
       "suite": "e2e-tt106-memory",
@@ -59,7 +59,7 @@
         "RC-26": "partial"
       },
       "pass": true,
-      "ms": 3854
+      "ms": 3995
     },
     {
       "suite": "e2e-tt106-memory",

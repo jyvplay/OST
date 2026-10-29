@@ -1,12 +1,12 @@
 /** Original atomic publication of Recall bytes and receipt; plaintext, not an encrypted archive. */
 import { createHash } from 'node:crypto';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { safeTransaction } from './transaction';
 import { conditionalWriteInTransaction, ConditionalWriteConflict } from './conditional-write';
 import { recallMime, recallSource, RECALL_LIMIT } from '../recall-core';
 import { verifyRecallReceipt, validDerivedFrom } from '../recall-memory';
 import { normalize } from './vfs';
-import { settings } from '@/db/schema';
+import { recallCommits, settings, vfsNodes } from '@/db/schema';
 
 /** A derived memory named a parent that is not saved, or that has changed since. */
 export class RecallProvenanceError extends Error {}
@@ -52,6 +52,26 @@ export class RecallPolicyRefusal extends Error {}
  */
 export type RecallDuplicatePolicy = 'store' | 'skip';
 
+/**
+ * TT114 (RC-39): a publication token the client mints before it sends anything.
+ *
+ * The standing limit this removes was stated plainly in TT106 and never closed: when the response
+ * to a commit is lost, the client knows only that it does not know. Retrying could duplicate the
+ * memory; not retrying could lose it; the advice was to go and look in Files.
+ *
+ * The token is inserted inside the publishing transaction, so it becomes visible exactly when the
+ * pair does. A retry that carries the same token is therefore answered from the token row rather
+ * than by writing again, and the answer names the path the first attempt published.
+ *
+ * Binding to the digest is what stops a token from becoming a capability: a second attempt that
+ * carries the same token but different bytes is refused outright rather than quietly answered with
+ * someone else's memory.
+ */
+const TOKEN_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+/** A retry carrying a token that already published DIFFERENT bytes. Never a duplicate write. */
+export class RecallTokenConflict extends Error {}
+
 export async function atomicRecallCommit(value:Record<string,unknown>) {
  const {path,content,mime,receipt}=value;
  const onDuplicate=value.onDuplicate===undefined?'store':value.onDuplicate;
@@ -70,6 +90,8 @@ export async function atomicRecallCommit(value:Record<string,unknown>) {
  // re-encoded screenshot could be filed as if it were the publisher's original response.
  // A receipt that makes no attribution claim is read the conservative way ("a label the human declared"),
  // which is why an omitted field cannot launder a refetch either.
+ const token=r.commitToken===undefined?null:String(r.commitToken);
+ if(token!==null&&!TOKEN_RE.test(token))throw Error('commitToken must be a lowercase UUID');
  const claimed=r.sourceAttribution===undefined?'user-declared-label':r.sourceAttribution;
  const honest=r.method===REFETCH_METHOD?'requested-url':r.method===RETAINED_METHOD?'proxy-recorded-response':'user-declared-label';
  if(claimed!==honest)throw Error(`Receipt attribution must be "${honest}" for method ${r.method}`);
@@ -80,6 +102,26 @@ export async function atomicRecallCommit(value:Record<string,unknown>) {
  if(DERIVED_METHODS.has(r.method)&&!derived)throw Error(`Method ${r.method} must record the memory it was derived from`);
  if(derived&&!DERIVED_METHODS.has(r.method))throw Error('Only a derived-region save may record derivedFrom');
  try{return await safeTransaction(async tx=>{
+  // RC-39, step 1 of 2: claim the token BEFORE anything is written.
+  //
+  // Ordering is the whole argument. Two attempts carrying one token race here, not at the pair:
+  // ON CONFLICT DO NOTHING blocks on the other transaction's uncommitted row, and when that one
+  // commits this insert returns no row. A claim that returns nothing therefore means "another
+  // attempt owns this token", and this attempt must publish nothing at all. Writing the pair first
+  // and claiming afterwards would invert that and allow two memories for one token.
+  if(token!==null){
+   const claim=await tx.insert(recallCommits).values({token,path,sha256:digest}).onConflictDoNothing({target:recallCommits.token}).returning({token:recallCommits.token});
+   if(!claim.length){
+    const [held]=await tx.select({path:recallCommits.path,sha256:recallCommits.sha256,createdAt:recallCommits.createdAt}).from(recallCommits).where(eq(recallCommits.token,token)).limit(1);
+    if(!held)throw Error('Recall publication was not acknowledged. Inspect the saved pair before retrying.');
+    // A token is not a capability: the same token carrying different bytes is a client defect, and
+    // answering it with the first memory's path would attribute bytes nobody published.
+    if(held.sha256!==digest)throw new RecallTokenConflict('That publication token already published different bytes. Mint a new token; nothing was written.');
+    const [still]=await tx.select({path:vfsNodes.path}).from(vfsNodes).where(and(eq(vfsNodes.path,held.path),eq(vfsNodes.trashed,false))).limit(1);
+    return {ok:true,path:held.path,atomic:true,stored:false,replayed:true,present:!!still,digest,
+      firstSavedAt:(held.createdAt instanceof Date?held.createdAt:new Date(held.createdAt)).toISOString()};
+   }
+  }
   if(CAPTURE_METHODS.has(r.method as string)){
    // Read the policy in the same transaction that would do the writing: a switch flipped a
    // microsecond before this commit is honoured, and a client cannot talk past it.
@@ -123,7 +165,7 @@ export async function atomicRecallCommit(value:Record<string,unknown>) {
   await conditionalWriteInTransaction(tx,path+'.recall.json',receipt,null,'utf8','application/json');
   return {ok:true,path,atomic:true,stored:true,digest,...(derived?{derivedFrom:derived.path}:{})};
  });}catch(error){
-  if(error instanceof ConditionalWriteConflict||error instanceof RecallProvenanceError||error instanceof RecallPolicyRefusal)throw error;
+  if(error instanceof ConditionalWriteConflict||error instanceof RecallProvenanceError||error instanceof RecallPolicyRefusal||error instanceof RecallTokenConflict)throw error;
   // Do not reflect driver SQL/parameters, which can contain all saved bytes and labels.
   throw Error('Recall publication was not acknowledged. Inspect the saved pair before retrying.');
  }

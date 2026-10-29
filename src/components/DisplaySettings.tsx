@@ -2,6 +2,7 @@
 import { FUSION_VOICES } from "@/lib/fusion-voice";
 import { clampTextScale, DEFAULT_TEXT_SCALE, LARGE_TEXT_SCALE, isLargeText, fz, stepTextScale, TEXT_SCALE_MAX, TEXT_SCALE_MIN, TEXT_SCALE_STEPS, useUiUnit } from "@/lib/uiscale";
 import { DEFAULT_WALLPAPER, WALLPAPERS } from "@/lib/appearance";
+import { DEFAULT_SCENE, isScene, SCENES } from "@/lib/scene-core";
 import { STYLES, STYLE_IDS, DEFAULT_STYLE, isStyle, resolveWallpaper } from "@/lib/style";
 import { useShell } from "./shell-context";
 import { Badge, Btn, Section } from "./ui";
@@ -24,6 +25,9 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
   const ts = clampTextScale(shell.settings["appearance.textScale"] ?? DEFAULT_TEXT_SCALE);
   const theme = shell.settings["appearance.theme"] ?? "dark";
   const wallpaper = shell.settings["appearance.wallpaper"] ?? DEFAULT_WALLPAPER;
+  const rawScene = shell.settings["appearance.scene"] ?? DEFAULT_SCENE;
+  const scene = isScene(rawScene) ? rawScene : DEFAULT_SCENE;
+  const sceneImage = shell.settings["appearance.sceneImage"] ?? "";
   const rawStyle = shell.settings["appearance.style"];
   const style = isStyle(rawStyle) ? rawStyle : DEFAULT_STYLE;
   const set = (k: string, v: string) => void shell.setSetting(k, v);
@@ -217,6 +221,29 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
               </button>
             ))}
           </div>
+        </div>
+
+        {/* ------------------------------------------------- LN-09: animated scene */}
+        <div style={{ display: "grid", gap: fz(5) }}>
+          <strong id="scene-label" style={{ fontSize: fz(13) }}>Scene</strong>
+          <div role="radiogroup" aria-labelledby="scene-label" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {SCENES.map((sc) => (
+              <button key={sc.id} type="button" role="radio" aria-checked={scene === sc.id} className="fs-btn" data-variant="ghost"
+                data-testid={`scene-${sc.id}`} disabled={Boolean(locked["appearance.scene"])}
+                style={{ outline: scene === sc.id ? "3px solid var(--fs-accent)" : undefined, outlineOffset: 1 }}
+                onClick={() => set("appearance.scene", sc.id)}>{sc.label}</button>
+            ))}
+          </div>
+          {scene === "image" ? (
+            <label style={{ display: "grid", gap: 4, fontSize: fz(12) }}>
+              Picture, by path in this device
+              <input className="fs-input" data-testid="scene-image" defaultValue={sceneImage} placeholder="/Pictures/beach.png"
+                onBlur={(e) => set("appearance.sceneImage", e.currentTarget.value.trim())} />
+            </label>
+          ) : null}
+          <span className="fs-dim" style={{ fontSize: fz(11) }}>
+            Drawn on this device from a seed, never downloaded. Stops completely when the window is hidden, under load, or with reduced motion.
+          </span>
         </div>
 
         {/* --------------------------------------------------------- wallpaper */}

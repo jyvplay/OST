@@ -5,6 +5,7 @@ import { UPDATES_TT110 } from "./seed-data/updates-tt110";
 import { UPDATES_TT111 } from "./seed-data/updates-tt111";
 import { UPDATES_TT112 } from "./seed-data/updates-tt112";
 import { UPDATES_TT113 } from "./seed-data/updates-tt113";
+import { UPDATES_TT114 } from "./seed-data/updates-tt114";
 import {tt107Features} from "./seed-data/features-tt107";
 import { tt108Features } from "./seed-data/features-tt108";
 import { tt109Features } from "./seed-data/features-tt109";
@@ -12,6 +13,7 @@ import { tt110Features } from "./seed-data/features-tt110";
 import { tt111Features } from "./seed-data/features-tt111";
 import { tt112Features } from "./seed-data/features-tt112";
 import { tt113Features } from "./seed-data/features-tt113";
+import { tt114Features } from "./seed-data/features-tt114";
 import {tt106Features} from "./seed-data/features-tt106";
 import { tt105Features } from "./seed-data/features-tt105";
 import { tt104Features } from "./seed-data/features-tt104";
@@ -103,11 +105,13 @@ import { patchTT94 } from "./seed-data/features-tt94";
 import { patchTT95 } from "./seed-data/features-tt95";
 import { patchTT96 } from "./seed-data/features-tt96";
 import { patchTT97 } from "./seed-data/features-tt97";
+import { tt116Features } from "./seed-data/features-tt116";
+import { UPDATES_TT116 } from "./seed-data/updates-tt116";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.82.0";
+export const SEED_VERSION = "3.86.0";
 
-export const allFeatures = [...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
+export const allFeatures = [...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
   ...tt108Features, ...tt106Features, ...tt105Features, ...tt104Features, ...tt103Features, ...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...tt59Features, ...tt60Features, ...tt61Features, ...tt62Features, ...tt63Features, ...tt64Features, ...tt65Features, ...tt66Features, ...tt67Features, ...tt68Features, ...tt74Features, ...tt75Features, ...tt76Features, ...tt78Features, ...tt79Features, ...tt81Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
@@ -161,8 +165,11 @@ export const allFeatures = [...tt113Features, ...tt112Features, ...tt111Features
   // TT111 is applied last: a later turn's measurement supersedes an earlier turn's.
   .map((f) => (UPDATES_TT111[f.code] ? { ...f, ...UPDATES_TT111[f.code] } : f))
   .map((f) => (UPDATES_TT112[f.code] ? { ...f, ...UPDATES_TT112[f.code] } : f))
-  // TT113 is applied last, so its corrections win over every earlier patch map.
-  .map((f) => (UPDATES_TT113[f.code] ? { ...f, ...UPDATES_TT113[f.code] } : f));
+  .map((f) => (UPDATES_TT113[f.code] ? { ...f, ...UPDATES_TT113[f.code] } : f))
+  // TT114 is applied last, so its corrections win over every earlier patch map.
+  .map((f) => (UPDATES_TT114[f.code] ? { ...f, ...UPDATES_TT114[f.code] } : f))
+  // TT116 is applied last: this turn's measurements supersede every earlier map.
+  .map((f) => (UPDATES_TT116[f.code] ? { ...f, ...UPDATES_TT116[f.code] } : f));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },
@@ -188,6 +195,9 @@ const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: s
   { key: "alerts.timeZone", value: "", category: "alerts", label: "Time zone for focus-rule schedules (IANA, e.g. America/New_York)", aliases: "timezone,tz" },
   { key: "appearance.motion", value: "system", category: "appearance", label: "Motion", aliases: "animation,reduce motion" },
   { key: "appearance.wallpaper", value: "auto", category: "appearance", label: "Wallpaper", aliases: "background,desktop picture" },
+  // TT114 (LN-09): the animated scene. Off by default — a desktop should cost nothing until asked.
+  { key: "appearance.scene", value: "off", category: "appearance", label: "Animated scene (drawn on this device)", aliases: "scene,animated wallpaper,parallax,motion background,live background" },
+  { key: "appearance.sceneImage", value: "", category: "appearance", label: "Scene picture (a file on this device)", aliases: "scene image,background picture,parallax photo" },
   { key: "appearance.textScale", value: "125", category: "appearance", label: "Text size (%)", aliases: "font size,zoom,bigger text,large print,magnify,readability,accessibility" },
   { key: "shell.shelfEdge", value: "bottom", category: "shell", label: "Shelf edge", aliases: "taskbar,dock position" },
   { key: "shell.widgets", value: "clock,stickies,system", category: "shell", label: "Desktop widgets", aliases: "gadgets,sticky notes,desktop clock" },

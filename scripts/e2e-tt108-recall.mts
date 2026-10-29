@@ -130,7 +130,7 @@ try {
 
   await test('the saving timeline shows the real days and filters the list to the chosen one', { 'RC-32': 'full' }, async () => {
     await recall.getByRole('button', { name: 'Show saving timeline' }).click();
-    const strip = recall.getByLabel('Saving timeline');
+    const strip = recall.getByLabel('Saving timeline', { exact: true });
     await strip.waitFor();
     await assertStripMentionsNoBackgroundCapture(strip);
     const days = strip.getByRole('list', { name: 'Saving days' }).getByRole('button');
@@ -144,7 +144,7 @@ try {
   });
 
   await test('the timeline says plainly that it is not a background screenshot trail', { 'RC-32': 'partial' }, async () => {
-    const text = await recall.getByLabel('Saving timeline').innerText();
+    const text = await recall.getByLabel('Saving timeline', { exact: true }).innerText();
     assert.match(text, /no periodic background screenshots/i);
     assert.match(text, /Only memories you chose to save/i);
   });

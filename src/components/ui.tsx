@@ -2,7 +2,7 @@
 import { fz } from "@/lib/uiscale";
 
 import type { ReactNode } from "react";
-import { UiGlyph } from "./AppIcon";
+import { UiGlyph, type UiGlyphName } from "./AppIcon";
 
 export function Btn({
   children, onClick, variant = "default", disabled, title, type = "button", className = "", ...rest
@@ -23,11 +23,13 @@ export function Badge({ children, tone = "default", title, ...data }: { children
   return <span className="fs-badge" data-tone={tone} title={title} {...data}>{children}</span>;
 }
 
-export function Section({ title, right, children, dense }: { title: string; right?: ReactNode; children: ReactNode; dense?: boolean }) {
+export function Section({ title, right, children, dense, icon }: { title: string; right?: ReactNode; children: ReactNode; dense?: boolean; icon?: UiGlyphName }) {
   return (
     <section className="fs-panel" style={{ padding: dense ? 8 : 12, display: "grid", gap: 8 }}>
       <div className="fs-row" style={{ justifyContent: "space-between" }}>
-        <h3 style={{ margin: 0, fontSize: fz(12), letterSpacing: ".06em", textTransform: "uppercase", color: "var(--fs-muted)" }}>{title}</h3>
+        <h3 style={{ margin: 0, fontSize: fz(12), letterSpacing: ".06em", textTransform: "uppercase", color: "var(--fs-muted)", display: "flex", alignItems: "center", gap: 7 }}>
+          {icon ? <span aria-hidden style={{ display: "inline-flex", opacity: .85 }}><UiGlyph name={icon} size={15} /></span> : null}{title}
+        </h3>
         {right}
       </div>
       {children}

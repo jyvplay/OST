@@ -1,6 +1,6 @@
 {
   "suite": "tt104-page",
-  "at": "2026-10-29T04:50:10.553Z",
+  "at": "2026-10-29T19:34:52.120Z",
   "results": [
     {
       "suite": "tt104-page",
@@ -30,7 +30,7 @@
       "name": "cursor advances without overlap",
       "covers": {},
       "pass": true,
-      "ms": 11
+      "ms": 8
     },
     {
       "suite": "tt104-page",
@@ -44,42 +44,42 @@
       "name": "new concurrent insert does not shift an older cursor page",
       "covers": {},
       "pass": true,
-      "ms": 9
+      "ms": 7
     },
     {
       "suite": "tt104-page",
       "name": "oversized metadata is excluded before transfer, not silently truncated",
       "covers": {},
       "pass": true,
-      "ms": 17
+      "ms": 8
     },
     {
       "suite": "tt104-page",
       "name": "trash and non-media are excluded",
       "covers": {},
       "pass": true,
-      "ms": 9
+      "ms": 8
     },
     {
       "suite": "tt104-page",
       "name": "invalid cursor 0",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 6
     },
     {
       "suite": "tt104-page",
       "name": "invalid cursor -1",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt104-page",
       "name": "invalid cursor 1.5",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt104-page",
@@ -93,14 +93,14 @@
       "name": "invalid cursor 2147483648",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt104-page",
       "name": "invalid cursor NaN",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 2
     },
     {
       "suite": "tt104-page",
@@ -114,7 +114,7 @@
       "name": "invalid cursor 01",
       "covers": {},
       "pass": true,
-      "ms": 9
+      "ms": 2
     },
     {
       "suite": "tt104-page",
@@ -149,7 +149,7 @@
       "name": "invalid folder \"/Downloads/Recall/a/../b\"",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt104-page",
@@ -163,14 +163,14 @@
       "name": "invalid folder \"/Downloads/Recall/a\\u0000\"",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt104-page",
       "name": "missing folder returns empty page",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 4
     },
     {
       "suite": "tt104-page",

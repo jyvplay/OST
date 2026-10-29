@@ -65,6 +65,14 @@ export default function LensModule(_: ModuleProps) {
   const [err, setErr] = useState("");
   const [screenLayer, setScreenLayer] = useState<MediaStream | null>(null);
   const gateRef = useRef<AudioWorkletNode | null>(null);
+  // LN-08: the gate's AudioContext is owned here so it can be closed again. Chromium
+  // caps how many AudioContexts one document may hold open at once, so a module that
+  // opens one per start and never closes it will eventually fail to build its gate
+  // and silently degrade to the raw track.
+  const acRef = useRef<AudioContext | null>(null);
+  // Why the gate fell back, if it did. Surfaced on the element so a failure is
+  // diagnosable instead of anonymous; empty string means the gate is live.
+  const gateFallbackRef = useRef<string>("");
   const maskRef = useRef<HTMLCanvasElement | null>(null);
   const [gate, setGate] = useState(0.02);
 
@@ -73,6 +81,8 @@ export default function LensModule(_: ModuleProps) {
     rafRef.current = null;
     stream?.getTracks().forEach((t) => t.stop());
     screenLayer?.getTracks().forEach((t) => t.stop());
+    gateRef.current = null;
+    if (acRef.current) { void acRef.current.close().catch(() => {}); acRef.current = null; }
     setStream(null);
     setScreenLayer(null);
     shell.publishStream("lens", null);
@@ -89,6 +99,7 @@ export default function LensModule(_: ModuleProps) {
       });
       setStream(s);
       const v = videoRef.current!;
+      v.dataset.gateStage = "got-stream";
       v.srcObject = s;
       await v.play();
       const FD = (window as unknown as { FaceDetector?: new (o: { fastMode: boolean }) => { detect: (s: CanvasImageSource) => Promise<{ boundingBox: DOMRectReadOnly }[]> } }).FaceDetector;
@@ -96,19 +107,41 @@ export default function LensModule(_: ModuleProps) {
       loop();
       const out = canvasRef.current!.captureStream(30);
       // LN-08: route the mic through the worklet gate; fall back to the raw track
-      try {
-        const ac = new AudioContext({ latencyHint: "interactive" });
-        await ac.audioWorklet.addModule(URL.createObjectURL(new Blob([GATE_WORKLET], { type: "text/javascript" })));
-        const node = new AudioWorkletNode(ac, "fusion-gate");
-        gateRef.current = node;
-        const dest = ac.createMediaStreamDestination();
-        ac.createMediaStreamSource(s).connect(node).connect(dest);
-        dest.stream.getAudioTracks().forEach((t) => out.addTrack(t));
-      } catch {
-        s.getAudioTracks().forEach((t) => out.addTrack(t));
+      // Loading a worklet means fetching a blob URL and compiling it on the audio
+      // thread; on a loaded machine that can lose a race that a second attempt wins.
+      // Two bounded attempts, each fully cleaned up, then the honest raw-track fallback.
+      gateFallbackRef.current = "";
+      if (videoRef.current) videoRef.current.dataset.gateStage = "worklet";
+      for (let attempt = 0; attempt < 2 && !gateRef.current; attempt++) {
+        const url = URL.createObjectURL(new Blob([GATE_WORKLET], { type: "text/javascript" }));
+        let ac: AudioContext | null = null;
+        try {
+          ac = new AudioContext({ latencyHint: "interactive" });
+          await ac.audioWorklet.addModule(url);
+          // A context that autoplay policy left suspended never pulls audio through.
+          if (ac.state === "suspended") await ac.resume().catch(() => {});
+          const node = new AudioWorkletNode(ac, "fusion-gate");
+          const dest = ac.createMediaStreamDestination();
+          ac.createMediaStreamSource(s).connect(node).connect(dest);
+          dest.stream.getAudioTracks().forEach((t) => out.addTrack(t));
+          gateRef.current = node;
+          acRef.current = ac;
+        } catch (e) {
+          gateFallbackRef.current = `attempt ${attempt + 1}: ${String((e as Error)?.message ?? e)}`;
+          if (ac) await ac.close().catch(() => {});
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+      }
+      if (!gateRef.current) s.getAudioTracks().forEach((t) => out.addTrack(t));
+      // Make the outcome observable: "" when the gate is live, otherwise the reason.
+      if (videoRef.current) {
+        videoRef.current.dataset.gateFallback = gateFallbackRef.current;
+        videoRef.current.dataset.gateStage = gateRef.current ? "gate-live" : "fell-back";
       }
       shell.publishStream("lens", out);
     } catch (e) {
+      if (videoRef.current) videoRef.current.dataset.gateStage = "threw: " + String((e as Error)?.message ?? e).slice(0, 80);
       setErr(String((e as Error).message));
     }
   };
@@ -257,7 +290,7 @@ export default function LensModule(_: ModuleProps) {
       <div style={{ display: "grid", gridTemplateColumns: `minmax(0, 1fr) min(${fz(220)}, 40%)`, gap: 10 }}>
         <div>
           <canvas ref={canvasRef} style={{ width: "100%", background: "#000", borderRadius: 10 }} />
-          <video ref={videoRef} muted playsInline style={{ display: "none" }} />
+          <video ref={videoRef} data-lens-video="" muted playsInline style={{ display: "none" }} />
         </div>
         <div style={{ display: "grid", gap: 8, alignContent: "start" }}>
           {([

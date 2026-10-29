@@ -1,7 +1,7 @@
 import { recallLifecycle } from '@/lib/server/recall-lifecycle';
 import { recallAudit, recallSearch, recallTimeline } from '@/lib/server/recall-search';
 import { recallOrphanTrash } from '@/lib/server/recall-orphan';
-import { atomicRecallCommit, RecallPolicyRefusal } from '@/lib/server/recall-commit';
+import { atomicRecallCommit, RecallPolicyRefusal, RecallTokenConflict } from '@/lib/server/recall-commit';
 import { NextResponse, type NextRequest } from "next/server";
 import { and, desc, eq, getTableColumns, ilike, like, lt, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -17,6 +17,8 @@ import { readArchive, readEntry, writeArchive, extractable, PasswordError, type 
 import { readJsonObject } from "@/lib/http-json";
 import { refuseEncryptedOverwrite } from "@/lib/mime";
 import { ConditionalWriteConflict, conditionalWriteFile, type ExpectedFile } from "@/lib/server/conditional-write";
+import { safeSave, safeSaveSweep, SafeSaveReplaceConflict, SafeSaveValidationError, type SafeSaveExpected } from "@/lib/server/safe-save";
+import { recallFolderUsage, recallRetention } from "@/lib/server/recall-retention";
 import { sidecarPath, isSidecar } from "@/lib/photos/recipe";
 
 /**
@@ -55,19 +57,31 @@ export async function GET(req: NextRequest) {
         const cursor = p.get("before");
         if (cursor !== null && (!/^[1-9][0-9]{0,9}$/.test(cursor) || Number(cursor) > 2147483647))
           return NextResponse.json({ error: "Invalid Recall cursor" }, { status: 400 });
+        // RC-18: pages are a snapshot, not a moving window. The first page reports the
+        // highest id it saw; every later page sends it back as `asOf` and the server
+        // excludes anything newer. Without it, a memory saved between page 1 and page 2
+        // shifts every later row down and the reader silently skips one.
+        const asOf = p.get("asOf");
+        if (asOf !== null && (!/^[1-9][0-9]{0,9}$/.test(asOf) || Number(asOf) > 2147483647))
+          return NextResponse.json({ error: "Invalid Recall snapshot" }, { status: 400 });
         const [folder] = await db.select({kind:vfsNodes.kind,trashed:vfsNodes.trashed}).from(vfsNodes).where(eq(vfsNodes.path,path)).limit(1);
         if (folder && (folder.kind !== 'dir' || folder.trashed)) return NextResponse.json({error:'Recall folder is unavailable'}, {status:409});
         const rows = await db.select({id:vfsNodes.id,path:vfsNodes.path,name:vfsNodes.name,mime:vfsNodes.mime,size:vfsNodes.size,createdAt:vfsNodes.createdAt})
           .from(vfsNodes).where(and(eq(vfsNodes.parent,path),eq(vfsNodes.kind,'file'),eq(vfsNodes.trashed,false),
             or(like(vfsNodes.mime,'image/%'),like(vfsNodes.mime,'video/%'),like(vfsNodes.mime,'audio/%')),
             sql`octet_length(${vfsNodes.path}) <= 1024 AND octet_length(${vfsNodes.name}) <= 512 AND octet_length(${vfsNodes.mime}) <= 256`,
-            cursor === null ? undefined : lt(vfsNodes.id,Number(cursor))))
+            cursor === null ? undefined : lt(vfsNodes.id,Number(cursor)),
+            asOf === null ? undefined : sql`${vfsNodes.id} <= ${Number(asOf)}`))
           .orderBy(desc(vfsNodes.id)).limit(101);
         const nodes=rows.slice(0,100);
-        return NextResponse.json({ok:true,nodes,next:rows.length>100 ? String(nodes[nodes.length-1].id) : null,order:'insertion-id-desc',metadataLimits:{pathBytes:1024,nameBytes:512,mimeBytes:256}});
+        // The snapshot is pinned by the first page and carried verbatim thereafter.
+        const snapshot = asOf !== null ? Number(asOf) : nodes.length ? nodes[0].id : null;
+        return NextResponse.json({ok:true,nodes,next:rows.length>100 ? String(nodes[nodes.length-1].id) : null,asOf:snapshot===null?null:String(snapshot),order:'insertion-id-desc',metadataLimits:{pathBytes:1024,nameBytes:512,mimeBytes:256}});
       }
       case "recallSearch":
         return NextResponse.json(await recallSearch({ method: p.get("method"), host: p.get("host"), from: p.get("from"), to: p.get("to"), limit: p.get("limit"), folder: p.get("folder") }));
+      case "recallUsage":
+        return NextResponse.json(await recallFolderUsage(p.get("folder") ?? ""));
       case "recallAudit":
         return NextResponse.json(await recallAudit(p.get("folder")));
       case "recallTimeline":
@@ -143,6 +157,15 @@ export async function POST(req: NextRequest) {
       case "recallPair": return NextResponse.json(await recallLifecycle(body));
       case "recallOrphan": return NextResponse.json(await recallOrphanTrash(body));
       case "recallCommit": return NextResponse.json(await atomicRecallCommit(body));
+      case "recallRetention": {
+        const bd = body as unknown as Record<string, unknown>;
+        return NextResponse.json(await recallRetention({
+          folder: String(bd.folder ?? ""),
+          maxAgeDays: bd.maxAgeDays as number | null | undefined,
+          maxItems: bd.maxItems as number | null | undefined,
+          dryRun: bd.dryRun !== false,
+        }));
+      }
       case "writeIfUnchanged": { // folder sync: either create only if absent or replace exactly the previewed version
         const b = body as unknown as Record<string, unknown>;
         if (typeof b.path !== "string" || typeof b.content !== "string" || !Object.hasOwn(b, "expected")) {
@@ -158,6 +181,38 @@ export async function POST(req: NextRequest) {
         if (b.encoding !== undefined && b.encoding !== "utf8" && b.encoding !== "base64") return NextResponse.json({ ok: false, error: "invalid encoding" }, { status: 400 });
         if (b.mime !== undefined && typeof b.mime !== "string") return NextResponse.json({ ok: false, error: "invalid MIME type" }, { status: 400 });
         return NextResponse.json(await conditionalWriteFile(b.path, b.content, x as ExpectedFile | null, b.encoding ?? "utf8", b.mime as string | undefined));
+      }
+      case "safeSave": {
+        // FM-18. Validation of the REQUEST happens here; validation of the BYTES
+        // happens after they have been written and read back again.
+        const bd = body as unknown as Record<string, unknown>;
+        if (typeof bd.path !== "string" || typeof bd.content !== "string") {
+          return NextResponse.json({ ok: false, error: "path and content are required" }, { status: 400 });
+        }
+        if (Object.hasOwn(bd, "expected") && bd.expected !== null) {
+          const x = bd.expected as SafeSaveExpected;
+          if (!x || typeof x !== "object" || Array.isArray(x)
+            || !Number.isSafeInteger(x.id) || x.id <= 0
+            || !Number.isSafeInteger(x.version) || x.version <= 0
+            || typeof x.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(x.sha256)) {
+            return NextResponse.json({ ok: false, error: "expected must be null or a file id, version and SHA-256" }, { status: 400 });
+          }
+        }
+        return NextResponse.json(await safeSave({
+          path: bd.path as string, content: bd.content as string,
+          encoding: bd.encoding as "utf8" | "base64" | undefined,
+          mime: typeof bd.mime === "string" ? bd.mime : undefined,
+          declaredSha256: typeof bd.declaredSha256 === "string" ? bd.declaredSha256 : undefined,
+          ...(Object.hasOwn(bd, "expected") ? { expected: bd.expected as SafeSaveExpected | null } : {}),
+          onConflict: bd.onConflict as "refuse" | "copy" | undefined,
+          token: typeof bd.token === "string" ? bd.token : undefined,
+          validate: bd.validate as "none" | "utf8" | "json" | undefined,
+          reason: typeof bd.reason === "string" ? bd.reason : undefined,
+        }));
+      }
+      case "safeSaveSweep": {
+        const age = (body as unknown as Record<string, unknown>).olderThanMs;
+        return NextResponse.json(await safeSaveSweep(typeof age === "number" ? age : undefined));
       }
       case "write":
         if (body.encoding === "base64") refuseEncryptedOverwrite(await getNode(normalize(String(body.path))), String(body.content ?? ""), body.replaceEncrypted);
@@ -304,7 +359,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: `unknown op ${op}` }, { status: 400 });
     }
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof RecallPolicyRefusal ? 403 : err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
+    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof RecallPolicyRefusal ? 403 : err instanceof RecallTokenConflict ? 409 : err instanceof SafeSaveValidationError ? 422 : err instanceof SafeSaveReplaceConflict ? 409 : err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
   }
 }
 

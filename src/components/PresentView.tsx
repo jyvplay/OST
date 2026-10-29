@@ -1,7 +1,7 @@
 "use client";
 import { fz } from "@/lib/uiscale";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { api, clientId } from "@/lib/api";
 import { sidOk } from "@/lib/office/showlink";
@@ -22,6 +22,10 @@ function RoomReceiver() {
   const offset = useRef(0);
   const [state, setState] = useState<Room | null>(null);
   const [drift, setDrift] = useState(0);
+  // The client id lives in this device's own storage, so it does not exist during the server
+  // render. useSyncExternalStore is the primitive for exactly that: the server snapshot is empty,
+  // the client snapshot is the real id, and the two renders never disagree (React #418).
+  const who = useSyncExternalStore(() => () => {}, () => clientId().slice(0, 8), () => "");
 
   useEffect(() => {
     let alive = true;
@@ -56,7 +60,7 @@ function RoomReceiver() {
   return (
     <main style={{ height: "100dvh", background: "#000", color: "#dbe6ff", display: "grid", placeItems: "center", gap: 10 }}>
       <div style={{ position: "fixed", top: 10, left: 12, fontSize: fz(12), opacity: .7, fontFamily: "ui-monospace, monospace" }}>
-        Fusion receiver · room {room} · client {clientId().slice(0, 8)} · drift {drift} ms
+        Fusion receiver · room {room} · client {who || "…"} · drift {drift} ms
       </div>
       {state?.mediaRef?.startsWith("http") ? (
         <video ref={videoRef} src={state.mediaRef} playsInline style={{ maxWidth: "100%", maxHeight: "100%" }} />

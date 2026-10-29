@@ -105,11 +105,28 @@ try {
   });
 
   await test('the voice gate really runs on the audio thread and silences a signal below its threshold', { 'LN-08': 'full' }, async () => {
+    // Loading a worklet is asynchronous: the blob is fetched and compiled on the audio
+    // thread. Reading __seen.gate the instant after start() was a race with that load,
+    // and losing it was reported as "it fell back to the raw track" even though the
+    // module was still inside addModule. Wait for the module to publish an outcome.
+    // This is not a softer assertion: if no outcome ever arrives, or the outcome is a
+    // real fallback, the assertion below still fails and now names the stage.
+    await page.waitForFunction(`(() => {
+      const v = document.querySelector('video[data-lens-video]');
+      const st = v && v.dataset.gateStage;
+      return st === 'gate-live' || st === 'fell-back' || (st || '').startsWith('threw');
+    })()`, { timeout: 20000 }).catch(() => {});
     const gatePresent = await page.evaluate(() => {
       const g = (window as unknown as { __seen: { gate: { node: AudioWorkletNode; ctx: BaseAudioContext } | null } }).__seen.gate;
       return g ? { params: [...g.node.parameters.keys()], state: g.ctx.state, rate: g.ctx.sampleRate } : null;
     });
-    assert.ok(gatePresent, 'Lens did not create its fusion-gate AudioWorkletNode (it fell back to the raw track)');
+    // LN-08 records why it fell back; without that a failure here is unattributable.
+    const why = await page.evaluate(`(() => {
+      const v = document.querySelector('video[data-lens-video]');
+      if (!v) return '(Lens video element not in the DOM)';
+      return 'stage=' + (v.dataset.gateStage ?? '(start never ran)') + ' fallback=' + (v.dataset.gateFallback || '(none)');
+    })()`) as string;
+    assert.ok(gatePresent, `Lens did not create its fusion-gate AudioWorkletNode (it fell back to the raw track). Reason recorded by the module: ${why}`);
     assert.ok(gatePresent.params.includes('threshold'), 'the gate exposes no threshold parameter');
 
     // Feed the product's own worklet processor a known tone and measure what comes out.
@@ -231,7 +248,19 @@ try {
   });
 
   await test('every control of a window is reachable by keyboard alone, with no focus trap', { 'DP-06': 'partial' }, async () => {
-    await page.locator('body').click({ position: { x: 5, y: 5 } });
+    // Start the walk at the window's first control, not at the top of the document.
+    // Tabbing from the desktop spends the budget on one button per desktop icon, so a
+    // document-order walk measures how many files earlier suites happened to leave on
+    // the Desktop rather than whether a window's controls are keyboard-reachable.
+    const started = await page.evaluate(`(() => {
+      const win = document.querySelector('[data-testid="recall"]');
+      if (!win) return false;
+      const first = win.querySelector('button, input, textarea, select, a[href], [tabindex]:not([tabindex="-1"])');
+      if (!first) return false;
+      first.focus();
+      return document.activeElement === first;
+    })()`) as boolean;
+    assert.ok(started, 'could not place focus on the first control of the window');
     const seenFocus: string[] = [];
     let repeats = 0;
     for (let i = 0; i < 40; i++) {
@@ -243,16 +272,35 @@ try {
         if (!el || el === document.body) return 'body';
         const r = el.getBoundingClientRect();
         const label = (el.getAttribute('aria-label') || el.textContent || el.getAttribute('type') || '').trim().slice(0, 24);
-        return el.tagName + ':' + label + '@' + Math.round(r.x) + ',' + Math.round(r.y);
+        // The type travels with the identity: Chromium's date and time editors are one
+        // element that legitimately takes several Tab stops, one per internal segment.
+        return el.tagName + '[' + (el.getAttribute('type') || '') + ']:' + label + '@' + Math.round(r.x) + ',' + Math.round(r.y);
       })()`) as string;
-      if (seenFocus.length && here === seenFocus[seenFocus.length - 1]) repeats++;
+      // Running off the end of the document parks focus on body until it wraps; that
+      // is the document boundary, not a control holding focus against the user.
+      if (seenFocus.length && here === seenFocus[seenFocus.length - 1] && here !== 'body') repeats++;
       seenFocus.push(here);
     }
     const distinct = new Set(seenFocus.filter((f) => f !== 'body'));
     assert.ok(distinct.size >= 10, `only ${distinct.size} distinct controls were reachable by Tab: ${[...distinct].slice(0, 8).join(', ')}`);
-    assert.ok(repeats <= 1, `focus stuck on the same control ${repeats} times — that is a focus trap`);
+    // A focus trap never gives focus back, so it would consume every remaining Tab.
+    // Chromium's segmented date/time editors hold focus for one stop per segment
+    // (mm, dd, yyyy), which is the platform's own behaviour and not a trap; they are
+    // allowed a short run, every other control exactly one.
+    const SEGMENTED = /^INPUT\[(date|time|datetime-local|month|week)\]/;
+    let worst = { id: '', run: 0, allowed: 1 };
+    for (let i = 0; i < seenFocus.length; ) {
+      let j = i;
+      while (j < seenFocus.length && seenFocus[j] === seenFocus[i]) j++;
+      const run = j - i;
+      const allowed = seenFocus[i] === 'body' ? seenFocus.length : SEGMENTED.test(seenFocus[i]) ? 4 : 1;
+      if (run - allowed > worst.run - worst.allowed) worst = { id: seenFocus[i], run, allowed };
+      i = j;
+    }
+    assert.ok(worst.run <= worst.allowed,
+      `focus stuck on ${worst.id} for ${worst.run} consecutive stops (at most ${worst.allowed} is legitimate) — that is a focus trap. Walk: ${seenFocus.join(' | ')}`);
     assert.ok(seenFocus.some((f) => f.startsWith('BUTTON')), 'no button was reachable by keyboard');
-    assert.ok(seenFocus.some((f) => f.startsWith('INPUT')), 'no input was reachable by keyboard');
+    assert.ok(seenFocus.some((f) => f.startsWith('INPUT')), 'no input was reachable by keyboard; tab order was: ' + seenFocus.join(' | '));
     // and focus can come back the other way
     const forward = await page.evaluate(() => (document.activeElement as HTMLElement)?.outerHTML.slice(0, 60) ?? '');
     await page.keyboard.press('Shift+Tab');

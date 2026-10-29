@@ -1,0 +1,89 @@
+{
+  "suite": "tt116-platform",
+  "at": "2026-10-29T19:54:07.136Z",
+  "results": [
+    {
+      "suite": "tt116-platform",
+      "name": "SR-05: a scoped search excludes a matching document outside the scope",
+      "covers": {
+        "SR-05": "full"
+      },
+      "pass": true,
+      "ms": 195
+    },
+    {
+      "suite": "tt116-platform",
+      "name": "SR-05: the scope breaks on the separator, so a sibling prefix is not captured",
+      "covers": {
+        "SR-05": "full"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "tt116-platform",
+      "name": "SR-08: an empty query reports coverage per source instead of guessing",
+      "covers": {
+        "SR-08": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "tt116-platform",
+      "name": "SR-08: explain reports the strategy and the exclusions, not a score",
+      "covers": {
+        "SR-08": "full"
+      },
+      "pass": true,
+      "ms": 181
+    },
+    {
+      "suite": "tt116-platform",
+      "name": "SR-08: the server refuses to claim an index rebuild it did not do",
+      "covers": {
+        "SR-08": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt116-platform",
+      "name": "DP-14: a write, a move and a trash are each observable in the journal",
+      "covers": {
+        "DP-14": "full"
+      },
+      "pass": true,
+      "ms": 39
+    },
+    {
+      "suite": "tt116-platform",
+      "name": "DP-14: a safe save records every stage, not one opaque \"done\"",
+      "covers": {
+        "DP-14": "full",
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "ms": 21
+    },
+    {
+      "suite": "tt116-platform",
+      "name": "SC-02: a privacy switch set off is enforced by the server, not only the interface",
+      "covers": {
+        "SC-02": "full",
+        "RC-36": "partial"
+      },
+      "pass": true,
+      "ms": 65
+    },
+    {
+      "suite": "tt116-platform",
+      "name": "SC-02: the switch only accepts the values it declares",
+      "covers": {
+        "SC-02": "full"
+      },
+      "pass": true,
+      "ms": 8
+    }
+  ]
+}

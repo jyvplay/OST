@@ -33,6 +33,7 @@ import TopBar from "./TopBar";
 import Shelf from "./Shelf";
 import DesktopSurface from "./DesktopSurface";
 import Tabletop from "./Tabletop";
+import SceneLayer from "./SceneLayer";
 import Palette from "./Palette";
 import Switcher from "./Switcher";
 import OsdLayer from "./OsdLayer";
@@ -855,6 +856,8 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           style={{ position: "relative", flex: 1, minHeight: 0, overflow: "clip", ...(layout === "fusion" ? {} : { zIndex: 0, isolation: "isolate" as const }) }}
           onContextMenu={(e) => e.preventDefault()}
         >
+          {/* LN-09: the scene paints behind everything on the desk and takes no pointer events. */}
+          <SceneLayer />
           {desktopView === "tabletop" && booted ? <Tabletop /> : (
             <>
               <DesktopSurface />

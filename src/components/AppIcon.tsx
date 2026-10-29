@@ -222,9 +222,96 @@ export function FusionLogo({ size = 20, label = "Fusion", styleId: forced }: { s
 }
 
 /** Small monochrome UI glyphs for chrome buttons (currentColor, so they follow theme + contrast). */
-export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "close" | "plus" | "spark" | "tileLeft" | "tileRight" | "popout" | "minimize" | "maximize" | "up" | "back" | "forward" | "chevron" | "tree" | "split" | "terminal";
+export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "close" | "plus" | "spark" | "tileLeft" | "tileRight" | "popout" | "minimize" | "maximize" | "up" | "back" | "forward" | "chevron" | "tree" | "split" | "terminal"
+  // TT114: concept glyphs for Recall and the browser chrome. Each one is a plain geometric
+  // construction drawn here - a frame, a bracket, an arrow - chosen so the shape states the
+  // idea without a caption, which is what let the two modules drop another third of their words.
+  | "bytes" | "held" | "loaded" | "record" | "snapshot" | "queue" | "sidebar" | "tabstrip" | "splitH" | "splitV" | "tearout"
+  | "verify" | "copy" | "photos" | "folder" | "trash" | "export" | "crop" | "eraser" | "undo" | "refresh" | "clipin" | "more" |
+  /* TT115 browser-chrome glyphs */
+  "sleep" | "shield" | "cookie" | "closeset" | "auto" | "download" |
+  /* TT116: the filter row, the device row and the retention control. Each is a
+     concept drawn as geometry - a funnel is narrowing, a calendar is a dated grid,
+     a broom is a swept edge - so the row can lose its captions without losing its
+     meaning. */
+  "method" | "host" | "calendar" | "scope" | "device" | "dedupe" | "broom" | "gauge" | "session" | "link";
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
+    /* TT116 concept glyphs. Same construction rules: stroke-only, 24x24, currentColor,
+       no glyph reusing another's silhouette. */
+    // save method: a stamp pressed onto a line - "how this got here"
+    method: <><rect x="4.5" y="4.5" width="15" height="9" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M8 9h8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M4.5 18.5h15" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // page host: a globe reduced to one meridian and one parallel
+    host: <><circle cx="12" cy="12" r="7.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M4.5 12h15" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 4.5c2.6 2.6 2.6 12.4 0 15-2.6-2.6-2.6-12.4 0-15Z" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // a date: a grid with a torn-off header
+    calendar: <><rect x="4" y="5.5" width="16" height="14" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M4 10h16" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M8.5 3.5v4M15.5 3.5v4" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M8 14h3" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // scope: brackets closing around a region
+    scope: <><path d="M8.5 4.5H5.5a1 1 0 0 0-1 1v3M15.5 4.5h3a1 1 0 0 1 1 1v3M8.5 19.5H5.5a1 1 0 0 1-1-1v-3M15.5 19.5h3a1 1 0 0 0 1-1v-3" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="12" r="2.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // this device: a slab with a foot
+    device: <><rect x="3.5" y="5" width="17" height="11" rx="1.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9 19h6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 16v3" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // keep one copy: two identical squares collapsing into one
+    dedupe: <><rect x="4.5" y="4.5" width="10" height="10" rx="1.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9.5 19.5h8a2 2 0 0 0 2-2v-8" {...S} stroke="currentColor" strokeWidth="1.8" strokeDasharray="2.6 2.4" /><path d="m7.5 9.5 2 2 4-4.2" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // retention: a swept edge gathering what is past
+    broom: <><path d="M14.5 3.5 9 9" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m7 11 6-6 4 4-6 6Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M11 15 5 21M9 13l-4 8M13 17l-4 4" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // how full: a dial with a needle
+    gauge: <><path d="M4.5 16.5a7.5 7.5 0 1 1 15 0" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m12 16.5 4-5" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="16.5" r="1.4" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // a session that comes back: an arrow returning into a frame
+    session: <><rect x="4" y="5.5" width="16" height="13" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9 12h6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m12 9 3 3-3 3" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // an address: two links of a chain
+    link: <><path d="M10.5 13.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.54 3.54 0 0 0-5-5L11.5 7.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M13.5 10.5a3.5 3.5 0 0 0-5 0L6 13a3.54 3.54 0 0 0 5 5l1.5-1.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    /* TT114 concept glyphs. Stroke-only, 24x24, currentColor, so they inherit theme and contrast. */
+    // verify a receipt: a seal with a tick inside it
+    verify: <><path d="M12 3.5 19 6v6.2c0 3.9-2.7 7.1-7 8.3-4.3-1.2-7-4.4-7-8.3V6l7-2.5Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m8.8 12.2 2.2 2.2 4.2-4.6" {...S} stroke="currentColor" strokeWidth="2" /></>,
+    // copy: one sheet lifted off another
+    copy: <><rect x="8.5" y="8.5" width="11" height="11" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M15.5 5.5H6a1.5 1.5 0 0 0-1.5 1.5v9.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // photos: a framed picture with a horizon and a sun
+    photos: <><rect x="3.5" y="5.5" width="17" height="13" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="8.6" cy="10" r="1.6" fill="currentColor" /><path d="M4.5 16.5 9.5 12l3.2 2.8L16 11.5l4 4.2" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // folder
+    folder: <><path d="M3.5 7.5a1.5 1.5 0 0 1 1.5-1.5h4l2 2.2h7.5A1.5 1.5 0 0 1 20 9.7v7.8a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5Z" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // trash
+    trash: <><path d="M5.5 7h13M10 7V5.2h4V7M7 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h5.2a1.5 1.5 0 0 0 1.5-1.4L17 7" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M10.5 11v6M13.5 11v6" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // export: out of a tray, upwards
+    export: <><path d="M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 15.5v-11m0 0-3.4 3.4M12 4.5l3.4 3.4" {...S} stroke="currentColor" strokeWidth="1.9" /></>,
+    // crop: the photographer's two overlapping rules
+    crop: <><path d="M7.5 3v13.5H21M3 7.5h13.5V21" {...S} stroke="currentColor" strokeWidth="1.9" /></>,
+    // eraser: a block sweeping a line clean
+    eraser: <><path d="m9.5 19.5-4.6-4.6a1.6 1.6 0 0 1 0-2.3l7.3-7.3a1.6 1.6 0 0 1 2.3 0l4.6 4.6a1.6 1.6 0 0 1 0 2.3l-7.3 7.3Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M5 20h14" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // undo: a path turning back on itself
+    undo: <><path d="M4.5 9.5h9.3a5.2 5.2 0 0 1 0 10.4H8" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M8 5 4 9.5 8 14" {...S} stroke="currentColor" strokeWidth="1.9" /></>,
+    // refresh: a loop that closes
+    refresh: <><path d="M19.2 11a7.2 7.2 0 1 0-1.6 5.4" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M19.6 5.6V11h-5.4" {...S} stroke="currentColor" strokeWidth="1.9" /></>,
+    // from the clipboard: a board with something dropping into it
+    clipin: <><path d="M9 5.5H7A1.5 1.5 0 0 0 5.5 7v12A1.5 1.5 0 0 0 7 20.5h10A1.5 1.5 0 0 0 18.5 19V7A1.5 1.5 0 0 0 17 5.5h-2" {...S} stroke="currentColor" strokeWidth="1.8" /><rect x="9" y="3.5" width="6" height="3.4" rx="1.1" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 10.5v5m0 0 2-2m-2 2-2-2" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // more: the next page of a list
+    sleep: <><path d="M20 14.5A7.5 7.5 0 0 1 9.5 4a7.5 7.5 0 1 0 10.5 10.5Z" /><path d="M15 3h4l-4 4h4" /></>,
+    shield: <><path d="M12 3l7 3v5c0 4.2-2.8 7.6-7 9-4.2-1.4-7-4.8-7-9V6Z" /><path d="M9 12l2.2 2.2L15.5 10" /></>,
+    cookie: <><circle cx="12" cy="12" r="8.5" /><circle cx="9.5" cy="9.5" r="1.1" /><circle cx="14.5" cy="11" r="1.1" /><circle cx="11" cy="15" r="1.1" /></>,
+    closeset: <><rect x="3.5" y="6.5" width="10" height="11" rx="1.6" /><path d="M7 10.5l3.5 3.5M10.5 10.5L7 14" /><path d="M16.5 5.5h4v13h-4" /></>,
+    auto: <><circle cx="12" cy="12" r="3.2" /><path d="M12 4.5v2.2M12 17.3v2.2M4.5 12h2.2M17.3 12h2.2M6.7 6.7l1.6 1.6M15.7 15.7l1.6 1.6M17.3 6.7l-1.6 1.6M8.3 15.7l-1.6 1.6" /></>,
+    download: <><path d="M12 4v10" /><path d="M8.2 10.4L12 14.2l3.8-3.8" /><path d="M5 16.5v2a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-2" /></>,
+    more: <><path d="M4.5 7h15M4.5 12h15" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M8.6 16.4 12 19.8l3.4-3.4" {...S} stroke="currentColor" strokeWidth="1.9" /></>,
+    // original bytes: a file with an arrow arriving into it from the wire above
+    bytes: <><path d="M7 21h10a1.5 1.5 0 0 0 1.5-1.5V9L13 3.5H7A1.5 1.5 0 0 0 5.5 5v14.5A1.5 1.5 0 0 0 7 21Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M13 3.5V9h5.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 11.5v5m0 0 2-2m-2 2-2-2" {...S} stroke="currentColor" strokeWidth="1.9" /></>,
+    // held by this page: two brackets closed around a solid object
+    held: <><path d="M8 4.5H5.5v15H8M16 4.5h2.5v15H16" {...S} stroke="currentColor" strokeWidth="1.9" /><rect x="9.5" y="9.5" width="5" height="5" rx="1.2" fill="currentColor" /></>,
+    // loaded by this page: a stack that has finished arriving
+    loaded: <><path d="M4.5 7.5h15M4.5 12h15M4.5 16.5h8" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M14.5 17.5l2 2 3.5-4" {...S} stroke="currentColor" strokeWidth="2" /></>,
+    // live recording: the universal ring and dot, drawn rather than borrowed
+    record: <><circle cx="12" cy="12" r="8" {...S} stroke="currentColor" strokeWidth="1.9" /><circle cx="12" cy="12" r="3.6" fill="currentColor" /></>,
+    // snapshot: a viewfinder's four corners around a single pixel
+    snapshot: <><path d="M4.5 9V5.5H8M16 5.5h3.5V9M19.5 15v3.5H16M8 18.5H4.5V15" {...S} stroke="currentColor" strokeWidth="1.9" /><rect x="10.5" y="10.5" width="3" height="3" rx="0.8" fill="currentColor" /></>,
+    // queue: items waiting, shortest last, with the next one marked
+    queue: <><path d="M8 6.5h11M8 12h11M8 17.5h7" {...S} stroke="currentColor" strokeWidth="1.9" /><circle cx="4.6" cy="6.5" r="1.5" fill="currentColor" /><circle cx="4.6" cy="12" r="1.5" fill="currentColor" opacity=".55" /><circle cx="4.6" cy="17.5" r="1.5" fill="currentColor" opacity=".3" /></>,
+    // tab sidebar: a pane with its list down the left
+    sidebar: <><rect x="3.5" y="4.5" width="17" height="15" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9 4.5v15" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M5.6 8.5h1.8M5.6 12h1.8M5.6 15.5h1.8" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // tab strip: the same pane with its list along the top
+    tabstrip: <><rect x="3.5" y="4.5" width="17" height="15" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M3.5 9.5h17" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M6.5 6.2v1.6M10.5 6.2v1.6M14.5 6.2v1.6" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // split side by side
+    splitH: <><rect x="3.5" y="4.5" width="17" height="15" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 4.5v15" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // split stacked
+    splitV: <><rect x="3.5" y="4.5" width="17" height="15" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M3.5 12h17" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // tear out: a pane, and one thing leaving it
+    tearout: <><path d="M13.5 4.5H5.5a1.5 1.5 0 0 0-1.5 1.5v12a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M13.5 10.5 20 4m0 0h-4.6M20 4v4.6" {...S} stroke="currentColor" strokeWidth="1.9" /></>,
     search: <><circle cx="10.5" cy="10.5" r="6" {...S} stroke="currentColor" strokeWidth="2.4" /><path d="M15 15l5 5" {...S} stroke="currentColor" strokeWidth="2.8" /></>,
     overview: <><rect x="3.5" y="4" width="7.5" height="7" rx="2" fill="currentColor" /><rect x="13" y="4" width="7.5" height="7" rx="2" fill="currentColor" opacity=".7" /><rect x="3.5" y="13" width="7.5" height="7" rx="2" fill="currentColor" opacity=".7" /><rect x="13" y="13" width="7.5" height="7" rx="2" fill="currentColor" /></>,
     contrast: <><circle cx="12" cy="12" r="8" {...S} stroke="currentColor" strokeWidth="2.2" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" /></>,

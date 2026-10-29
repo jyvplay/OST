@@ -1,0 +1,64 @@
+{
+  "suite": "e2e-tt114-density",
+  "at": "2026-10-29T19:54:04.033Z",
+  "results": [
+    {
+      "suite": "e2e-tt114-density",
+      "name": "AX-17: the memory toolbar shows at most 24 words, and every button is a drawn glyph",
+      "covers": {
+        "AX-17": "full",
+        "RC-05": "partial"
+      },
+      "pass": true,
+      "ms": 2413
+    },
+    {
+      "suite": "e2e-tt114-density",
+      "name": "AX-17: shortening the labels cost no control its name",
+      "covers": {
+        "AX-17": "full",
+        "AX-01": "partial"
+      },
+      "pass": true,
+      "ms": 3226
+    },
+    {
+      "suite": "e2e-tt114-density",
+      "name": "AX-17: the browser's split, tear-out and tab-side controls are named glyphs",
+      "covers": {
+        "AX-17": "full",
+        "PR-07d": "partial"
+      },
+      "pass": true,
+      "ms": 3039
+    },
+    {
+      "suite": "e2e-tt114-density",
+      "name": "AX-17: the browser chrome is drawn too, and its names survived",
+      "covers": {
+        "AX-17": "full",
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 3371
+    },
+    {
+      "suite": "e2e-tt114-density",
+      "name": "AX-17: the new glyphs are real drawings, each distinct from the others",
+      "covers": {
+        "AX-17": "full"
+      },
+      "pass": true,
+      "ms": 2051
+    },
+    {
+      "suite": "e2e-tt114-density",
+      "name": "AX-17: none of the compaction raised a page error",
+      "covers": {
+        "AX-17": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -18,7 +18,7 @@ export function recallWritable(){if(!privacy.status().installed||privacy.status(
 /** Atomic create-only media + receipt publication. Lost acknowledgements remain unknown, not success. */
 /** TT108: `derivedFrom` records which already-saved memory a crop was cut from; the server re-checks it. */
 /** TT109: what the server did with a save. `stored:false` means an identical memory was already in this folder. */
-export interface RecallOutcome { path:string; stored:boolean; duplicateOf?:string; firstSavedAt?:string }
+export interface RecallOutcome { path:string; stored:boolean; duplicateOf?:string; firstSavedAt?:string; replayed?:boolean }
 
 /** The string-returning form every existing caller uses; unchanged semantics (a duplicate is stored again). */
 export async function commitRecall(bytes:Uint8Array, mime:string, input:RecallInput, method:string, derivedFrom?:DerivedFrom):Promise<string>{
@@ -42,14 +42,27 @@ export async function commitRecallDetailed(bytes:Uint8Array, mime:string, input:
   // TT112: `refetched` is written explicitly rather than left to be inferred from the method name.
   // Only the original-byte pathway asks the publisher again; every other method saves bytes this
   // browser already had, and a receipt that says so can be checked without knowing the method table.
-  const receipt=JSON.stringify({version:1,path,bytes:bytes.length,sha256:digest,mime:type,method,sourceAttribution:method==='original-response'?'requested-url':'user-declared-label',source:recallSource(input.url),page:recallSource(input.page),capturedAt:new Date().toISOString(),queryRedacted:true,refetched:method==='original-response',...(derivedFrom?{derivedFrom}:{})},null,2);
-  let answer:{path?:string;stored?:boolean;duplicateOf?:string;firstSavedAt?:string};
-  try{answer=await api<{path?:string;stored?:boolean;duplicateOf?:string;firstSavedAt?:string}>('/api/fs',{method:'POST',
-    body:JSON.stringify({op:'recallCommit',path,content:toB64(bytes),mime:type,receipt,...(opts.onDuplicate?{onDuplicate:opts.onDuplicate}:{})})});}
-  catch(e){throw new Error(`Recall commit not acknowledged for ${path}. Inspect Files before retrying; a lost response can hide a completed pair. ${e instanceof Error?e.message:String(e)}`);}
+  const commitToken=crypto.randomUUID();
+  const receipt=JSON.stringify({version:1,path,bytes:bytes.length,sha256:digest,mime:type,method,commitToken,sourceAttribution:method==='original-response'?'requested-url':'user-declared-label',source:recallSource(input.url),page:recallSource(input.page),capturedAt:new Date().toISOString(),queryRedacted:true,refetched:method==='original-response',...(derivedFrom?{derivedFrom}:{})},null,2);
+  type Ack={path?:string;stored?:boolean;duplicateOf?:string;firstSavedAt?:string;replayed?:boolean};
+  const body=JSON.stringify({op:'recallCommit',path,content:toB64(bytes),mime:type,receipt,...(opts.onDuplicate?{onDuplicate:opts.onDuplicate}:{})});
+  let answer:Ack;
+  try{answer=await api<Ack>('/api/fs',{method:'POST',body});}
+  catch(first){
+    // TT114 (RC-39): the receipt carries a publication token, and the server claims that token in
+    // the same transaction as the pair. So this retry is decidable rather than dangerous: if the
+    // first attempt did commit, the server answers from the token with the path it wrote and
+    // writes nothing further; if it did not, this attempt publishes normally. Exactly one memory
+    // exists either way, which is what the lost acknowledgement could not previously promise.
+    try{answer=await api<Ack>('/api/fs',{method:'POST',body});}
+    catch(second){
+      throw new Error(`Recall commit not acknowledged for ${path}, and the retry also failed. The publication token means a later retry is still safe: it will return the saved memory rather than write a second one. ${first instanceof Error?first.message:String(first)} / ${second instanceof Error?second.message:String(second)}`);
+    }
+  }
   // The server decides the final path: a skipped duplicate answers with the memory already held.
   return {path:answer.path??path,stored:answer.stored!==false,
-    ...(answer.duplicateOf?{duplicateOf:answer.duplicateOf}:{}),...(answer.firstSavedAt?{firstSavedAt:answer.firstSavedAt}:{})};
+    ...(answer.duplicateOf?{duplicateOf:answer.duplicateOf}:{}),...(answer.firstSavedAt?{firstSavedAt:answer.firstSavedAt}:{}),
+    ...(answer.replayed?{replayed:true}:{})};
 }
 export function cancelRecall(owner?:string){
   for(let i=queue.length-1;i>=0;i--)if(!owner||queue[i].input.owner===owner){publish(queue[i].id,{phase:'cancelled'});queue.splice(i,1);}

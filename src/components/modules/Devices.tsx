@@ -148,12 +148,12 @@ function ColorPicker() {
           onClick={async () => { try { const r = await new (window as any).EyeDropper().open(); add(r.sRGBHex); } catch { /* cancelled */ } }}>
           Pick from screen
         </Btn>
-        <input type="color" aria-label="Choose colour" onChange={(e) => add(e.target.value)} />
+        <input type="color" data-testid="md07-input" aria-label="Choose colour" onChange={(e) => add(e.target.value)} />
         {!capAvailable(shell.caps, "eyeDropper") ? <Badge tone="warn">no EyeDropper — palette input only</Badge> : null}
       </div>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         {colors.map((c) => (
-          <button key={c} className="fs-btn" onClick={() => void shell.copy(c, "color")} title="Copy">
+          <button key={c} className="fs-btn" data-testid={`swatch-${c}`} onClick={() => void shell.copy(c, "color")} title="Copy">
             <span style={{ width: 14, height: 14, borderRadius: 3, background: c, display: "inline-block" }} />{c}
           </button>
         ))}

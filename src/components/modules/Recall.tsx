@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useShell, type ModuleProps } from '../shell-context';
 import { Btn, Badge, Section, Hint } from '../ui';
+import { UiGlyph } from '../AppIcon';
 import { displayMedia } from '@/lib/access-log';
 import { commitRecall, recallWritable, enqueueRecall, cancelRecall, recallSnapshot, recallSubscribe, type RecallInput } from '@/lib/recall';
 import { RECALL_LIMIT, recallFolder, type RecallGrouping } from '@/lib/recall-core';
@@ -239,26 +240,30 @@ export default function Recall({win}:ModuleProps){
   <Hint label="What Recall can and cannot do">Archive media you are authorized to save. No DRM bypass, hidden capture, or promise to capture every site. Server copies are unencrypted in /Downloads/Recall, not /Private.</Hint>
   <RecallMemory context={input}/>
   <Hint label="Pixels or bytes?">“Save largest loaded visual” uses current decoded pixels, not a URL download or whole-page screenshot. The legacy “Save media URL” below explicitly refetches bytes and is a separate fallback.</Hint>
-  <div className="fs-row"><Btn aria-expanded={browserOpen} onClick={()=>setBrowserOpen(v=>!v)}>{browserOpen?'Close browsing pane':'Browse inside Recall'}</Btn><span className="fs-dim" title="Browser sessions restore; Auto Recall must be explicitly armed in each proxy document.">sessions restore · Auto Recall is armed per page</span></div>
+  <div className="fs-row"><Btn aria-expanded={browserOpen} onClick={()=>setBrowserOpen(v=>!v)}>{browserOpen?'Close browsing pane':'Browse inside Recall'}</Btn><span className="fs-dim fs-row" style={{gap:8}} title="Browser sessions restore; Auto Recall must be explicitly armed in each proxy document.">
+   <span className="fs-row" style={{gap:3}}><UiGlyph name="session" size={14}/>restore</span>
+   <span className="fs-row" style={{gap:3}}><UiGlyph name="auto" size={14}/>per page</span></span></div>
   {browserOpen?<section aria-label="Recall browser" style={{height:540,minHeight:360,border:'1px solid var(--fs-border)',borderRadius:10,overflow:'hidden'}}><BrowserModule win={{...win,props:{...win.props,url,proxyAll:win.props.proxyAll??true}}} onPageChange={followPage} embeddedRecall/></section>:null}
-  <label>Media or declared page URL<input className="fs-input" aria-label="Recall source URL" value={url} disabled={running} onChange={e=>setUrl(e.target.value)} style={{width:'100%'}}/></label>
+  <label className="fs-row" style={{gap:6,width:'100%'}} title="Media or declared page URL">
+   <span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="link" size={15}/></span>
+   <input className="fs-input" aria-label="Recall source URL" placeholder="Media or declared page URL" value={url} disabled={running} onChange={e=>setUrl(e.target.value)} style={{flex:1}}/></label>
   <div className="fs-row" style={{flexWrap:'wrap',gap:8}}>
-   <label>Folders <select className="fs-input" aria-label="Recall folder grouping" value={grouping} disabled={running} onChange={e=>setGrouping(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select></label>
+   <label className="fs-row" style={{gap:6}} title="Folders"><span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="folder" size={15}/></span><select className="fs-input" aria-label="Recall folder grouping" value={grouping} disabled={running} onChange={e=>setGrouping(e.target.value as RecallGrouping)}><option value="host">URL host</option><option value="title">Page title</option><option value="custom">Custom</option></select></label>
    <input className="fs-input" aria-label="Recall page title" placeholder="Page title" value={title} disabled={running} onChange={e=>setTitle(e.target.value)}/>
    {grouping==='custom'?<input className="fs-input" aria-label="Recall custom folder" value={custom} disabled={running} onChange={e=>setCustom(e.target.value)}/>:null}
   </div>
-  <Section title="1 · Original bytes" right={<Badge>refetch</Badge>}>
+  <Section icon="bytes" title="1 · Original bytes" right={<Badge>refetch</Badge>}>
    <Btn disabled={running} onClick={()=>{try{enqueueRecall(input());setError('');}catch(e){setError(e instanceof Error?e.message:String(e));}}}>Save media URL</Btn>
    <Hint label="Limits">HTTP(S) images, video or audio only, up to 8 MiB. Redirects, playlists, blob URLs and HTML are not complete media. The existing guarded proxy checks network destinations. Query tokens are excluded from receipts. Publisher MIME headers are not proof of a playable codec.</Hint>
   </Section>
-  <Section title="1b · Loaded by this page" right={<Badge tone="ok">no new request</Badge>}>
+  <Section icon="loaded" title="1b · Loaded by this page" right={<Badge tone="ok">no new request</Badge>}>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
     <Btn onClick={refreshTap} disabled={!tapOn}>Refresh loaded media</Btn>
     <Btn onClick={()=>{for(const sid of sessions)void forgetTapped(sid);}} disabled={!tapOn||!tapItems.length}>Forget held media</Btn>
     <span data-testid="tap-count">{tapOn?`${tapItems.length} held`:'off'}</span>
    </div>
-   {tapOn?null:<div role="note" data-testid="tap-policy-off">Switched off — Settings → Privacy → Remember media this page loads. Nothing is kept; other pathways are unaffected.</div>}
-   {tapOn&&!sessions.length?<p className="fs-dim" style={{margin:0}}>Open a page above to list what it loaded.</p>:null}
+   {tapOn?null:<div role="note" data-testid="tap-policy-off" className="fs-row" style={{gap:6}}><UiGlyph name="shield" size={15}/>Off — Settings → Privacy → Remember media this page loads. Nothing is kept.</div>}
+   {tapOn&&!sessions.length?<p className="fs-dim fs-row" style={{margin:0,gap:6}}><UiGlyph name="loaded" size={15}/>Open a page above.</p>:null}
    <ul data-testid="recall-tap-list" style={{listStyle:'none',margin:0,padding:0,display:'grid',gap:6}}>
     {tapItems.map(it=><li key={`${it.sid}:${it.id}`} data-testid={`tap-item-${it.id}`} className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}>
      {/* eslint-disable-next-line @next/next/no-img-element -- held bytes come from this server's memory over a no-store endpoint; next/image would try to fetch and cache them */}
@@ -271,12 +276,12 @@ export default function Recall({win}:ModuleProps){
    </ul>
    <Hint label="Where these bytes come from">These are the exact bytes the publisher sent while you were looking at the page, kept in this server&apos;s memory and never written to disk until you save one. Images, audio and video up to 8 MiB, 24 per browsing session; a part-loaded or range response is not kept. Closing the page, switching the setting off or pressing Forget drops them immediately. Saving makes no network request — a receipt records the method <span className="fs-mono">session-retained-response</span>.</Hint>
   </Section>
-  <Section title="1c · Held by this page" right={<Badge tone="ok">byte-exact</Badge>}>
+  <Section icon="held" title="1c · Held by this page" right={<Badge tone="ok">byte-exact</Badge>}>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
     <Btn data-testid="resident-scan" disabled={!sessions.length||resBusy==='scan'} onClick={()=>void scanResident()}>{resBusy==='scan'?'Scanning…':'Scan the open page'}</Btn>
     <span data-testid="resident-count">{resScanned?`${resItems.length} found`:'not scanned'}</span>
    </div>
-   {sessions.length?null:<p className="fs-dim" style={{margin:0}}>Open a page above to read what it is holding.</p>}
+   {sessions.length?null:<p className="fs-dim fs-row" style={{margin:0,gap:6}}><UiGlyph name="held" size={15}/>Open a page above.</p>}
    <ul data-testid="resident-list" style={{listStyle:'none',margin:0,padding:0,display:'grid',gap:6}}>
     {resItems.map(it=><li key={`${it.sid}:${it.id}`} data-testid={`resident-item-${it.id}`} className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}>
      <span className="fs-mono" style={{flex:'1 1 200px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={it.label}>{it.label}</span>
@@ -290,14 +295,14 @@ export default function Recall({win}:ModuleProps){
    </ul>:null}
    <Hint label="blob: and data: objects">A page can hold media it never downloaded twice — a picture it drew, a file you dropped on it, or bytes it assembled in memory — behind a <code>blob:</code> or <code>data:</code> address that only that page can read. Scanning asks the open page what it is holding; saving copies those exact bytes, with no decode and no second request. Live <code>MediaSource</code> streams and revoked objects have no complete file behind them and are listed as refusals instead. Up to 8 MiB per object.</Hint>
   </Section>
-  {captureAllowed?null:<div role="note" data-testid="capture-policy-off">Switched off — Settings → Privacy → Screen and element capture. The buttons stay disabled and the server refuses these saves.</div>}
-  <Section title="2 · Live recording" right={<Badge tone="warn">re-encode</Badge>}>
+  {captureAllowed?null:<div role="note" data-testid="capture-policy-off" className="fs-row" style={{gap:6}}><UiGlyph name="shield" size={15}/>Off — Settings → Privacy. Buttons stay disabled and the server refuses these saves.</div>}
+  <Section icon="record" title="2 · Live recording" right={<Badge tone="warn">re-encode</Badge>}>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}><Btn disabled={running} onClick={scan}>Refresh Fusion sources</Btn><label>Capture source <select aria-label="Recall capture source" disabled={running} value={captureSource} onChange={e=>setCaptureSource(e.target.value)}><option value="display">Shared display / tab (permission required)</option>{sources.map((s,i)=><option key={i} value={String(i)}>{s.label}</option>)}</select></label></div>
    <Hint label="What can be captured">Fusion element capture is limited to accessible, already-rendered canvas/video/audio elements in this document. It cannot reach opaque/cross-origin frames or protected media. Canvas has no audio; a microphone is never silently added.</Hint>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
     <label><input type="checkbox" checked={withAudio} disabled={running} onChange={e=>setWithAudio(e.target.checked)}/> Request shared audio</label>
-    <label><input type="checkbox" checked={audioOnly} disabled={running} onChange={e=>setAudioOnly(e.target.checked)}/> Audio-only output (requires shared audio)</label>
-    <Btn disabled={running} onClick={()=>void chooseLocal()}>Choose local streaming file (experimental)</Btn>
+    <label className="fs-row" style={{gap:5}} title="Audio-only output (requires shared audio)"><input type="checkbox" aria-label="Audio-only output (requires shared audio)" checked={audioOnly} disabled={running} onChange={e=>setAudioOnly(e.target.checked)}/><UiGlyph name="record" size={15}/>Audio-only</label>
+    <Btn aria-label="Choose local streaming file (experimental)" title="Choose local streaming file (experimental)" disabled={running} onClick={()=>void chooseLocal()}><UiGlyph name="device"/> local</Btn>
     {local?<Btn disabled={running} onClick={()=>setLocal(null)}>Use bounded VFS instead</Btn>:null}
     <Btn variant="primary" disabled={running||!captureAllowed} onClick={()=>void start()}>Start authorized recording</Btn>
     <Btn disabled={phase!=='recording'} onClick={stop}>Stop and finalize</Btn>
@@ -307,16 +312,16 @@ export default function Recall({win}:ModuleProps){
     <Hint label={local?`Streaming to ${local.name}`:'Bounded to the VFS'}>{local?`Streaming to ${local.name}; bounded pending writes, no full-recording RAM buffer.`:'VFS auto-stops near 6 MiB, hard limit 8 MiB. Choose a local file for long recordings.'} Permission is required each time; only audio tracks actually granted are encoded. Protected content may be blank or unavailable.</Hint>
    </div>
   </Section>
-  <Section title="3 · Snapshot" right={<Badge tone="warn">pixels</Badge>}>
+  <Section icon="snapshot" title="3 · Snapshot" right={<Badge tone="warn">pixels</Badge>}>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}><Btn disabled={running||!captureAllowed} onClick={()=>void start(true)}>Capture authorized image</Btn><Hint label="Pixels, not original bytes">Rasterizes a decoded video frame to PNG (16 MP / 8 MiB limits), not the original image bytes.</Hint></div>
   </Section>
   <video ref={preview} muted playsInline style={{maxWidth:'100%',maxHeight:180,background:'#000'}} aria-label="Recall capture preview"/>
   {error?<div role="alert">{error}</div>:null}
   {saved?<div role="status">Saved: {saved} {saved.startsWith('/')?<Btn onClick={()=>shell.open('files',{path:saved.slice(0,saved.lastIndexOf('/'))})}>Reveal recording</Btn>:null}</div>:null}
-  <Section title="Auto Recall queue">
+  <Section icon="queue" title="Auto Recall queue">
    <Hint label="How Auto Recall behaves">In a Fusion Browser private-proxy tab, explicitly enable “Auto Recall”. It discovers up to 200 current-document image/video/audio HTTP URLs, including mutations, and copies same-origin media only while armed. It cannot inspect unrelated cross-origin frames, DRM, MediaSource/blob segments, CSS backgrounds or every network request. Queue: 16 pending; one fetch at a time. Closing the proxy tab disarms its queue.</Hint>
-   <Btn onClick={()=>cancelRecall()}>Cancel pending / fetching jobs</Btn>
-   <p className="fs-dim" style={{margin:0,fontSize:'0.92em'}}>Once a database commit starts it is not cancellable; an uncertain commit must be checked in Files, not blindly retried.</p>
+   <Btn aria-label="Cancel pending / fetching jobs" title="Cancel pending / fetching jobs" onClick={()=>cancelRecall()}><UiGlyph name="close"/> Cancel</Btn>
+   <p className="fs-dim" style={{margin:0,fontSize:'0.92em'}}>Once a database commit starts it is not cancellable — check Files rather than retrying.</p>
    <ol>{[...jobs.filter(j=>!['saved','failed','cancelled'].includes(j.phase)),...jobs.filter(j=>['saved','failed','cancelled'].includes(j.phase)).slice(-24).reverse()].map(j=><li key={j.id} data-phase={j.phase}><strong>{j.phase}</strong> {j.source} {j.path?<Btn onClick={()=>shell.open('files',{path:j.path!.slice(0,j.path!.lastIndexOf('/'))})}>Reveal</Btn>:null}{j.error?<span role="status"> — {j.error}</span>:null}</li>)}</ol>
   </Section>
  </div>;

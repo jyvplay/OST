@@ -1,0 +1,83 @@
+{
+  "suite": "tt114-recall-token",
+  "at": "2026-10-29T19:53:12.448Z",
+  "results": [
+    {
+      "suite": "tt114-recall-token",
+      "name": "a publication carrying a token writes one pair and reports the digest it filed",
+      "covers": {
+        "RC-39": "full",
+        "RC-01": "partial"
+      },
+      "pass": true,
+      "ms": 85
+    },
+    {
+      "suite": "tt114-recall-token",
+      "name": "the client aborts mid-flight and retries: exactly one memory exists and the retry names it",
+      "covers": {
+        "RC-39": "full"
+      },
+      "pass": true,
+      "ms": 52
+    },
+    {
+      "suite": "tt114-recall-token",
+      "name": "eight concurrent attempts with one token publish exactly one memory",
+      "covers": {
+        "RC-39": "full",
+        "RC-11": "partial"
+      },
+      "pass": true,
+      "ms": 74
+    },
+    {
+      "suite": "tt114-recall-token",
+      "name": "a token cannot be replayed to claim different bytes",
+      "covers": {
+        "RC-39": "full",
+        "RC-14": "partial"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt114-recall-token",
+      "name": "a replay after the memory was trashed reports its absence instead of resurrecting it",
+      "covers": {
+        "RC-39": "full",
+        "RC-13": "partial"
+      },
+      "pass": true,
+      "ms": 45
+    },
+    {
+      "suite": "tt114-recall-token",
+      "name": "publications without a token keep their previous behaviour exactly",
+      "covers": {
+        "RC-39": "full",
+        "RC-01": "partial"
+      },
+      "pass": true,
+      "ms": 39
+    },
+    {
+      "suite": "tt114-recall-token",
+      "name": "a malformed token is refused before anything is written",
+      "covers": {
+        "RC-39": "full"
+      },
+      "pass": true,
+      "ms": 78
+    },
+    {
+      "suite": "tt114-recall-token",
+      "name": "Specs mirrors RC-39 and no Recall row is graded above its evidence",
+      "covers": {
+        "RC-39": "partial"
+      },
+      "pass": true,
+      "ms": 55
+    }
+  ]
+}

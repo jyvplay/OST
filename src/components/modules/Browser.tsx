@@ -1,5 +1,6 @@
 "use client";
 import OrbitTarget from "../OrbitTarget";
+import { UiGlyph } from "../AppIcon";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
@@ -234,29 +235,31 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
     <div data-testid="browser" data-tabs={tabs.length} data-active={active} data-pinned={tabs.filter((t) => t.pinned).map((t) => t.id).join(",")} onKeyDown={onKey}
       style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        {tools?<Btn variant="ghost" onClick={() => setVertical((v) => !v)} title="Vertical tab sidebar">{vertical ? "▤" : "▥"}</Btn>:null}
+        {tools?<Btn variant="ghost" onClick={() => setVertical((v) => !v)} aria-label="Vertical tab sidebar" title="Vertical tab sidebar" aria-pressed={vertical}><UiGlyph name={vertical ? "tabstrip" : "sidebar"} /></Btn>:null}
         <input className="fs-input" value={address} aria-label="Address" style={embeddedRecall?{flex:"1 1 240px",minWidth:0,width:"auto"}:undefined}
           onChange={(e) => setAddress(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") open(address); }} />
         <Btn variant="primary" onClick={() => open(address)}>Go</Btn>
-        {!embeddedRecall?<Btn onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}>Recall media</Btn>:null}
-        {embeddedRecall?<Btn aria-expanded={tools} onClick={()=>{setTools(v=>!v);setShowPerms(false);setShowRoute(false);}}>Browser tools</Btn>:null}
+        {!embeddedRecall?<Btn aria-label="Recall media" title="Recall media" onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}><UiGlyph name="snapshot"/> Recall</Btn>:null}
+        {embeddedRecall?<Btn aria-label="Browser tools" title="Browser tools" aria-expanded={tools} onClick={()=>{setTools(v=>!v);setShowPerms(false);setShowRoute(false);}}><UiGlyph name="sliders"/> Tools</Btn>:null}
         <div style={{display:tools?'contents':'none'}}>
-        <Btn variant="ghost" onClick={() => setSplit(split === "off" ? "h" : split === "h" ? "v" : "off")}>
-          split: {split}
+        <Btn variant="ghost" aria-label={`Split view: ${split === "off" ? "off" : split === "h" ? "side by side" : "stacked"}`}
+          title={`Split view: ${split === "off" ? "off" : split === "h" ? "side by side" : "stacked"} — click to cycle`}
+          onClick={() => setSplit(split === "off" ? "h" : split === "h" ? "v" : "off")}>
+          <UiGlyph name={split === "v" ? "splitV" : "splitH"} />{split === "off" ? null : <span style={{ marginLeft: 5, opacity: .8 }}>{split === "h" ? "⇔" : "⇕"}</span>}
         </Btn>
-        <Btn variant="ghost" title="Discard the frames of every tab that is not visible (pinned tabs stay awake)" onClick={() => { const r = sleepInactive(sess, splitPartner); setSess(r.session); setNotice(`${r.slept} tab(s) put to sleep`); }}>Sleep other tabs</Btn>
-        <Btn variant="ghost" onClick={() => current && shell.open("browser", { url: current.url, title: current.title })}>Tear out</Btn>
+        <Btn variant="ghost" title="Discard the frames of every tab that is not visible (pinned tabs stay awake)" onClick={() => { const r = sleepInactive(sess, splitPartner); setSess(r.session); setNotice(`${r.slept} tab(s) put to sleep`); }} aria-label="Sleep other tabs"><UiGlyph name="sleep" />Sleep</Btn>
+        <Btn variant="ghost" aria-label="Tear out" title="Open this tab in a window of its own" onClick={() => current && shell.open("browser", { url: current.url, title: current.title })}><UiGlyph name="tearout" /></Btn>
         <Btn variant="ghost" aria-label={current?.pinned ? "Unpin tab" : "Pin tab"} onClick={() => current && setSess((s) => togglePin(s, current.id))}>{current?.pinned ? "Unpin" : "Pin"}</Btn>
         <select className="fs-input" aria-label="Tab group" style={{ width: fz(120) }} value={current?.group ?? ""}
           onChange={(e) => { if (!current) return; const v = e.target.value; setSess((s) => (v === "+" ? createGroup(s, current.id, `Group ${s.groups.length + 1}`) : setGroup(s, current.id, v))); }}>
           <option value="">No group</option>{sess.groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}<option value="+">+ New group</option>
         </select>
-        <Btn variant="ghost" onClick={() => runBatch("others")}>Close others</Btn>
-        <Btn variant="ghost" onClick={() => runBatch("right")}>Close to the right</Btn>
-        <Btn variant="ghost" onClick={() => runBatch("duplicates")}>Close duplicates</Btn>
-        <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)}>Site permissions</Btn>
-        <Btn variant="ghost" data-testid="br-proxy-all" aria-pressed={proxyAll} title="Route every tab through Fusion's private proxy: sites never see your address, trackers are blocked, cookies stay in memory per tab, and find in page / desktop-or-mobile identity / Save to Files work on every site" onClick={() => setProxyAll((v) => !v)}>Private proxy: {proxyAll ? "all tabs" : "off"}</Btn>
+        <Btn variant="ghost" onClick={() => runBatch("others")} aria-label="Close others" title="Close others"><UiGlyph name="closeset" />Others</Btn>
+        <Btn variant="ghost" onClick={() => runBatch("right")} aria-label="Close to the right" title="Close to the right"><UiGlyph name="closeset" />Right</Btn>
+        <Btn variant="ghost" onClick={() => runBatch("duplicates")} aria-label="Close duplicates" title="Close duplicates"><UiGlyph name="copy" />Duplicates</Btn>
+        <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)} aria-label="Site permissions" title="Site permissions"><UiGlyph name="shield" />Permissions</Btn>
+        <Btn variant="ghost" data-testid="br-proxy-all" aria-pressed={proxyAll} title="Route every tab through Fusion's private proxy: sites never see your address, trackers are blocked, cookies stay in memory per tab, and find in page / desktop-or-mobile identity / Save to Files work on every site" aria-label={`Private proxy: ${proxyAll ? "all tabs" : "off"}`} onClick={() => setProxyAll((v) => !v)}><UiGlyph name="shield"/> {proxyAll ? "all tabs" : "off"}</Btn>
         <Btn variant="ghost" data-testid="br-route" aria-pressed={showRoute} aria-expanded={showRoute} title="How Fusion's server reaches the web for Private proxy tabs: directly, through Tor, or through another proxy" onClick={() => setShowRoute((v) => !v)}>Network route: {route?.label ?? "…"}</Btn>
         {current?.verdict ? <Badge tone={current.verdict === "embeddable" ? "ok" : "bad"} title={current.reason}>{current.verdict}</Badge> : <Badge>{proxyAll?"private proxy":"probing…"}</Badge>}
         </div>
@@ -321,7 +324,7 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
             </div>
           ) : null}
 
-          <div style={{
+          <div data-testid="br-frames" data-split={split} style={{
             flex: 1, minHeight: 0,
             display: "grid",
             gridTemplateColumns: split === "h" ? "1fr 1fr" : "1fr",

@@ -1,62 +1,62 @@
 {
   "suite": "e2e-tt101-search",
-  "at": "2026-10-29T04:52:00.013Z",
+  "at": "2026-10-29T19:36:30.952Z",
   "results": [
     {
       "suite": "e2e-tt101-search",
       "name": "real Find UI searches stored transcripts and renders field provenance",
       "covers": {},
       "pass": true,
-      "ms": 2639
+      "ms": 2646
     },
     {
       "suite": "e2e-tt101-search",
       "name": "hostile stored metadata is rendered as text, not injected HTML",
       "covers": {},
       "pass": true,
-      "ms": 145
+      "ms": 119
     },
     {
       "suite": "e2e-tt101-search",
       "name": "query bound errors are visible, clear old hits, and allow a genuine retry",
       "covers": {},
       "pass": true,
-      "ms": 499
+      "ms": 398
     },
     {
       "suite": "e2e-tt101-search",
       "name": "real UI traverses bounded pages instead of claiming no global matches",
       "covers": {},
       "pass": true,
-      "ms": 928
+      "ms": 688
     },
     {
       "suite": "e2e-tt101-search",
       "name": "editing criteria after a paged query invalidates old cursors and old result provenance",
       "covers": {},
       "pass": true,
-      "ms": 282
+      "ms": 190
     },
     {
       "suite": "e2e-tt101-search",
       "name": "locked private query runs in the real browser without sending query text to HTTP",
       "covers": {},
       "pass": true,
-      "ms": 196
+      "ms": 185
     },
     {
       "suite": "e2e-tt101-search",
       "name": "metadata result UI passes external axe checks in the actual populated mode",
       "covers": {},
       "pass": true,
-      "ms": 1414
+      "ms": 1306
     },
     {
       "suite": "e2e-tt101-search",
       "name": "switching modes clears old result and no-match claims until another search runs",
       "covers": {},
       "pass": true,
-      "ms": 93
+      "ms": 13
     },
     {
       "suite": "e2e-tt101-search",
