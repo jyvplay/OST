@@ -105,11 +105,13 @@ import { patchTT94 } from "./seed-data/features-tt94";
 import { patchTT95 } from "./seed-data/features-tt95";
 import { patchTT96 } from "./seed-data/features-tt96";
 import { patchTT97 } from "./seed-data/features-tt97";
+import { tt116Features } from "./seed-data/features-tt116";
+import { UPDATES_TT116 } from "./seed-data/updates-tt116";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.85.0";
+export const SEED_VERSION = "3.86.0";
 
-export const allFeatures = [...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
+export const allFeatures = [...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
   ...tt108Features, ...tt106Features, ...tt105Features, ...tt104Features, ...tt103Features, ...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...tt59Features, ...tt60Features, ...tt61Features, ...tt62Features, ...tt63Features, ...tt64Features, ...tt65Features, ...tt66Features, ...tt67Features, ...tt68Features, ...tt74Features, ...tt75Features, ...tt76Features, ...tt78Features, ...tt79Features, ...tt81Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
@@ -165,7 +167,9 @@ export const allFeatures = [...tt114Features, ...tt113Features, ...tt112Features
   .map((f) => (UPDATES_TT112[f.code] ? { ...f, ...UPDATES_TT112[f.code] } : f))
   .map((f) => (UPDATES_TT113[f.code] ? { ...f, ...UPDATES_TT113[f.code] } : f))
   // TT114 is applied last, so its corrections win over every earlier patch map.
-  .map((f) => (UPDATES_TT114[f.code] ? { ...f, ...UPDATES_TT114[f.code] } : f));
+  .map((f) => (UPDATES_TT114[f.code] ? { ...f, ...UPDATES_TT114[f.code] } : f))
+  // TT116 is applied last: this turn's measurements supersede every earlier map.
+  .map((f) => (UPDATES_TT116[f.code] ? { ...f, ...UPDATES_TT116[f.code] } : f));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },
