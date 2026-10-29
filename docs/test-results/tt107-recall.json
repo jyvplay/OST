@@ -1,6 +1,6 @@
 {
   "suite": "tt107-recall",
-  "at": "2026-10-29T17:22:04.388Z",
+  "at": "2026-10-29T17:50:07.693Z",
   "results": [
     {
       "suite": "tt107-recall",
@@ -9,7 +9,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 9
+      "ms": 8
     },
     {
       "suite": "tt107-recall",
@@ -18,7 +18,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 19
+      "ms": 18
     },
     {
       "suite": "tt107-recall",
@@ -46,7 +46,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 28
+      "ms": 29
     },
     {
       "suite": "tt107-recall",
@@ -55,7 +55,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 34
+      "ms": 30
     },
     {
       "suite": "tt107-recall",
@@ -127,7 +127,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 20
+      "ms": 22
     },
     {
       "suite": "tt107-recall",
@@ -136,7 +136,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 37
+      "ms": 39
     },
     {
       "suite": "tt107-recall",
@@ -145,7 +145,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 18
+      "ms": 16
     },
     {
       "suite": "tt107-recall",
@@ -154,7 +154,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 18
+      "ms": 17
     },
     {
       "suite": "tt107-recall",
@@ -172,7 +172,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 27
+      "ms": 33
     },
     {
       "suite": "tt107-recall",
@@ -181,7 +181,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 14
+      "ms": 21
     },
     {
       "suite": "tt107-recall",
@@ -190,7 +190,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt107-recall",
@@ -199,7 +199,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt107-recall",
@@ -212,7 +212,7 @@
     },
     {
       "suite": "tt107-recall",
-      "name": "unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793294523955/nested/x.png",
+      "name": "unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793296207249/nested/x.png",
       "covers": {
         "RC-28": "partial"
       },
@@ -244,7 +244,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt107-recall",
@@ -271,7 +271,7 @@
         "RC-28": "partial"
       },
       "pass": true,
-      "ms": 4
+      "ms": 3
     }
   ]
 }

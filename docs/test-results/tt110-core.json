@@ -1,6 +1,6 @@
 {
   "suite": "tt110-core",
-  "at": "2026-10-29T17:24:30.972Z",
+  "at": "2026-10-29T17:52:32.752Z",
   "results": [
     {
       "suite": "tt110-core",
@@ -10,7 +10,7 @@
         "SC-02": "partial"
       },
       "pass": true,
-      "ms": 173
+      "ms": 145
     },
     {
       "suite": "tt110-core",
@@ -28,7 +28,7 @@
         "BL-02": "partial"
       },
       "pass": true,
-      "ms": 25
+      "ms": 24
     },
     {
       "suite": "tt110-core",
@@ -37,7 +37,7 @@
         "BL-05": "full"
       },
       "pass": true,
-      "ms": 25
+      "ms": 27
     },
     {
       "suite": "tt110-core",
@@ -65,7 +65,7 @@
         "SR-08": "partial"
       },
       "pass": true,
-      "ms": 190
+      "ms": 182
     }
   ]
 }

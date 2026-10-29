@@ -1,6 +1,6 @@
 {
   "suite": "tt108-recall",
-  "at": "2026-10-29T17:22:33.408Z",
+  "at": "2026-10-29T17:50:35.909Z",
   "results": [
     {
       "suite": "tt108-recall",
@@ -45,7 +45,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 67
+      "ms": 34
     },
     {
       "suite": "tt108-recall",
@@ -54,7 +54,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 37
+      "ms": 35
     },
     {
       "suite": "tt108-recall",
@@ -63,7 +63,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 32
+      "ms": 30
     },
     {
       "suite": "tt108-recall",
@@ -72,7 +72,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 60
+      "ms": 55
     },
     {
       "suite": "tt108-recall",
@@ -81,7 +81,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 98
+      "ms": 97
     },
     {
       "suite": "tt108-recall",
@@ -100,7 +100,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 30
+      "ms": 26
     },
     {
       "suite": "tt108-recall",
@@ -118,7 +118,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 21
+      "ms": 22
     },
     {
       "suite": "tt108-recall",
@@ -127,7 +127,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 11
+      "ms": 13
     },
     {
       "suite": "tt108-recall",
@@ -145,7 +145,7 @@
         "RC-31": "full"
       },
       "pass": true,
-      "ms": 111
+      "ms": 93
     },
     {
       "suite": "tt108-recall",
@@ -154,7 +154,7 @@
         "RC-31": "full"
       },
       "pass": true,
-      "ms": 75
+      "ms": 72
     },
     {
       "suite": "tt108-recall",

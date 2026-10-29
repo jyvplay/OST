@@ -113,7 +113,7 @@ eleven rows turned out to be empty when grepped. That ratio — three in eleven 
 finding for the next turn: the remaining `built`-without-test rows should be assumed empty until
 grepped, not assumed working.
 
-## D. Negative space — 20 shapes that look like a solution
+## D. Negative space — 21 shapes that look like a solution
 
 1. **Idempotency by digest.** "The same bytes at the same path, so skip." Fails the moment a person
    deliberately saves the same image twice; the contract has an explicit `onDuplicate:'store'`.
@@ -171,6 +171,16 @@ grepped, not assumed working.
     back, so the test is a *bounded run* per element, and segmented editors are allowed their
     segments. This one hid behind shape 21's blind spot for the whole project: the walk started at
     the top of the document and never got that far.
+
+21. **Believing a failing test's own account of the failure.** This test said the voice gate "fell
+    back to the raw track". It had not. The module was still inside `addModule`, which fetches a
+    blob and compiles it on the audio thread, and the test read the result before the load
+    finished. Every earlier explanation — a worklet race, a context-limit leak, machine load —
+    was built on the test's wording, and all of them were wrong about *this* failure.
+    **Detector:** make the subject record its own stage, then read the stage instead of inferring
+    one. `stage=worklet fallback=(none)` ended four hours of theory in one run: the module had
+    neither succeeded nor fallen back, so the only remaining possibility was that nobody had
+    waited for it.
 
 ## E. Mechanism portfolio
 
@@ -376,6 +386,16 @@ masking it:
     still fails because it would consume all forty. Verified on the environment that produced the
     original failure: **7/0 three times**.
 
+18. **`e2e-tt108-shell` LN-08 — the test was racing the worklet load (gate E).** The diagnostic
+    added in repair 15 paid for itself: the module reported `stage=worklet fallback=(none)`, i.e.
+    `start()` was still inside `addModule` when the assertion ran. The test now waits for the
+    module to publish an outcome before judging it, which is strictly *stronger* than what it did
+    before — a real fallback fails it, and an outcome that never arrives fails it, both now
+    carrying the stage in the message. Standalone after the repair: **7/0 four times**. The
+    resource fixes from repair 15 are kept on their own merits: an `AudioContext` per start that
+    is never closed and a blob URL that is never revoked are leaks whether or not they caused
+    this failure, and nothing here shows they did.
+
 The attack added against repair 12 is in `e2e-tt114-density.mts`, which now asserts that the
 tab-side control is glyph-only **and** resolves by the incumbent name — so a future turn cannot
 re-break either half. The attack added against repair 13 is the same suite's drawing check plus
@@ -383,7 +403,22 @@ axe-core itself, which runs over Recall in `e2e-a11y` on every gate.
 
 ## J. Stopping, residual gap, next test
 
-The success predicate is met on (1) through (4) and (6); (5) is reported from the gate log below.
+The success predicate is met on (1) through (6). The gate is **741 passed, 0 failed across 66
+suites, exit 0**, on the virgin database `tt115_seal5_test`, recorded in
+`docs/evidence/tt115-production-gate.log`.
+
+That number took six full gate runs, and the honest account of them is part of the result:
+
+| Gate | Database | Result | What it says |
+|---|---|---|---|
+| A | `tt115_seal_test` | 740 / 0, exit 0 | Green, but **before** the TT115 chrome pass — it does not describe this HEAD |
+| B | `tt115_seal2_test` | 739 / 2 | Both mine: `e2e-tt102` asserted `textContent` on buttons the chrome pass had turned into glyphs |
+| C | `tt115_final_test` | 739 / 2 | `e2e-tt106-memory` (frameless WebM) and `e2e-layout` (`Trash` matched `Trashed`); the second was fixed at source with `exact:true` |
+| D | `tt115_seal3_test` | 740 / 1 | `e2e-tt108-shell` voice gate — chased to a leak, then instrumented |
+| E | `tt115_seal4_test` | 740 / 1 | Same test; the new instrument reported `stage=worklet`, which refuted every theory including my own repair |
+| F | `tt115_seal5_test` | **741 / 0, exit 0** | Green after the race was fixed; `e2e-tt108-shell` passes **inside** the gate |
+
+Gate A is not evidence for this HEAD and is not presented as such. Gate F is.
 
 **Residual gaps, stated exactly.** MD-07's no-EyeDropper branch is unprovable on a runtime that has
 EyeDropper. PR-07j's "merge back" half is unmeasured. The token guarantee ends at the database.
