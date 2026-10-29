@@ -207,7 +207,15 @@ export function AppBanner({ label, children, status, testid, extra = [], span }:
   useEffect(() => {
     const el = strip.current;
     const groupsOf = () => [...(el?.children ?? [])].filter((c): c is HTMLElement => c instanceof HTMLElement && !!c.dataset.bannerGroup);
-    if (!el || !artBar) {
+    /**
+     * TT112: this used to run only in Art layout, so in Fusion and Business — the layouts most people
+     * actually use — nothing folded and the strip simply scrolled: Writer's bar asked for 3612px inside
+     * a 1307px window, hiding roughly two thirds of the tools behind a chevron. Folding is a property
+     * of the strip being narrower than its contents, not of which shell is drawn around it, so it runs
+     * everywhere now. Only the MENU row stays Art-specific (see focusedHere): Fusion and Business have
+     * no shell menu bar to duplicate.
+     */
+    if (!el) {
       for (const g of groupsOf()) delete g.dataset.folded;
       natural.current = null;
       setCollapsed((c) => (c === 0 ? c : 0));
@@ -269,7 +277,7 @@ export function AppBanner({ label, children, status, testid, extra = [], span }:
     const ro = new ResizeObserver(fit); ro.observe(el);
     fit();
     return () => { ro.disconnect(); for (const g of groupsOf()) delete g.dataset.folded; };
-  }, [artBar, key]);
+  }, [key]);
 
   const page = (dir: 1 | -1) => { const el = strip.current; if (el) el.scrollBy({ left: dir * Math.max(120, el.clientWidth * 0.7), behavior: "smooth" }); };
   const groups = (n: string) => (root.current?.closest("[data-win-id]") ?? root.current)?.querySelectorAll(`[data-banner-group="${n}"]`) ?? [];

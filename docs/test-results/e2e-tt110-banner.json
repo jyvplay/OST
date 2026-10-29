@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt110-banner",
-  "at": "2026-10-28T23:44:05.408Z",
+  "at": "2026-10-29T03:34:29.234Z",
   "results": [
     {
       "suite": "e2e-tt110-banner",
@@ -10,7 +10,7 @@
         "AX-05": "partial"
       },
       "pass": true,
-      "ms": 7316
+      "ms": 9062
     },
     {
       "suite": "e2e-tt110-banner",
@@ -19,7 +19,7 @@
         "WM-02": "partial"
       },
       "pass": true,
-      "ms": 2129
+      "ms": 2595
     },
     {
       "suite": "e2e-tt110-banner",
@@ -29,7 +29,27 @@
         "AX-05": "partial"
       },
       "pass": true,
-      "ms": 3737
+      "ms": 4259
+    },
+    {
+      "suite": "e2e-tt110-banner",
+      "name": "the fonts and alignment bar fits without scrolling in fusion layout too",
+      "covers": {
+        "WM-02": "partial",
+        "AX-05": "partial"
+      },
+      "pass": true,
+      "ms": 4965
+    },
+    {
+      "suite": "e2e-tt110-banner",
+      "name": "the fonts and alignment bar fits without scrolling in business layout too",
+      "covers": {
+        "WM-02": "partial",
+        "AX-05": "partial"
+      },
+      "pass": true,
+      "ms": 5205
     }
   ]
 }

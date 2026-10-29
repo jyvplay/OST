@@ -33,6 +33,7 @@ try {
   // Art layout is the one with the Mac-style shell menu bar, where the duplication happens.
   await api('PUT', '/api/settings', { key: 'appearance.layout', value: 'art' });
 
+  let currentLayout = 'art';
   const openWindows = async (mods: { id: string; w: number; h: number }[]) => {
     const original = await api<{ row?: { revision?: number; state?: object } }>('GET', '/api/state?id=default');
     await api('PUT', '/api/state', {
@@ -47,7 +48,10 @@ try {
       },
     });
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('[data-testid="menubar"]', { timeout: 60_000 });
+    // The shell menu bar exists only in Art layout, so waiting for it in Fusion or Business hangs
+    // until the timeout. The window itself is the thing every layout has — and the thing measured.
+    await page.waitForSelector(`[data-win-id="tt110b-${mods[0].id}-${RUN}"]`, { timeout: 60_000 });
+    if (currentLayout === 'art') await page.waitForSelector('[data-testid="menubar"]', { timeout: 60_000 });
     await page.waitForTimeout(1200);
   };
 
@@ -132,6 +136,40 @@ try {
       }
       console.log(`    ${report.join(' | ')}`);
     });
+
+  /**
+   * TT112: the same bar in the layouts people actually use. Folding used to be gated on Art, so
+   * Fusion and Business scrolled sideways instead — the complaint this suite was written for was
+   * only ever half-fixed. Every layout is measured here, in a window narrow enough that the bar
+   * genuinely cannot hold everything, so a regression to "just let it scroll" fails.
+   */
+  for (const layout of ['fusion', 'business'] as const) {
+    await test(`the fonts and alignment bar fits without scrolling in ${layout} layout too`,
+      { 'WM-02': 'partial', 'AX-05': 'partial' }, async () => {
+        await api('PUT', '/api/settings', { key: 'appearance.layout', value: layout });
+        currentLayout = layout;
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(1500);
+        const report: string[] = [];
+        for (const app of [{ id: 'writer', w: 1000, h: 700 }, { id: 'slides', w: 1000, h: 700 }]) {
+          await openWindows([app]);
+          const m = await measure(`tt110b-${app.id}-${RUN}`);
+          assert.ok(m.found, `${app.id}: the window never appeared in ${layout} layout`);
+          assert.equal(m.overflow, 0,
+            `${layout}/${app.id}: the tool strip needs ${m.needed}px inside ${m.stripWidth}px — ${m.overflow}px can only be reached by scrolling`);
+          assert.ok(m.controls > 4, `${layout}/${app.id}: only ${m.controls} controls — the bar did not render`);
+          // Folding must not be achieved by throwing the tools away: anything folded is in the menu.
+          const folded = await page.evaluate(`(()=>{
+            const win=document.querySelector('[data-win-id="tt110b-${app.id}-${RUN}"]');
+            return win ? win.querySelectorAll('[data-folded="1"]').length : -1;
+          })()`) as number;
+          const more = await page.locator(`[data-win-id="tt110b-${app.id}-${RUN}"] [data-testid="banner-more"]`).count();
+          if (folded > 0) assert.equal(more, 1, `${layout}/${app.id}: ${folded} controls folded away with no More menu to reach them`);
+          report.push(`${layout}/${app.id}: ${m.controls} controls, needed ${m.needed}px in ${m.stripWidth}px, folded ${folded}`);
+        }
+        console.log(`    ${report.join(' | ')}`);
+      });
+  }
 } finally {
   await api('PUT', '/api/settings', { key: 'appearance.layout', value: 'fusion' }).catch(() => undefined);
   await browser.close();
