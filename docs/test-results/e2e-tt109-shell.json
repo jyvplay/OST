@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt109-shell",
-  "at": "2026-10-29T16:24:18.526Z",
+  "at": "2026-10-29T16:47:07.418Z",
   "results": [
     {
       "suite": "e2e-tt109-shell",
@@ -9,7 +9,7 @@
         "LN-06": "full"
       },
       "pass": true,
-      "ms": 38080
+      "ms": 37321
     },
     {
       "suite": "e2e-tt109-shell",
@@ -18,7 +18,7 @@
         "LN-05": "full"
       },
       "pass": true,
-      "ms": 5170
+      "ms": 4845
     },
     {
       "suite": "e2e-tt109-shell",
@@ -27,7 +27,7 @@
         "WM-11": "partial"
       },
       "pass": true,
-      "ms": 3933
+      "ms": 1727
     },
     {
       "suite": "e2e-tt109-shell",
@@ -36,7 +36,7 @@
         "RC-02": "partial"
       },
       "pass": true,
-      "ms": 7869
+      "ms": 7356
     },
     {
       "suite": "e2e-tt109-shell",
@@ -45,7 +45,7 @@
         "RC-34": "partial"
       },
       "pass": true,
-      "ms": 10413
+      "ms": 10048
     }
   ]
 }

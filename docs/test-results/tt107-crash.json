@@ -1,6 +1,6 @@
 {
   "suite": "tt107-crash",
-  "at": "2026-10-29T16:21:49.543Z",
+  "at": "2026-10-29T16:44:41.923Z",
   "results": [
     {
       "suite": "tt107-crash",
@@ -10,7 +10,7 @@
         "RC-22": "partial"
       },
       "pass": true,
-      "ms": 250
+      "ms": 245
     },
     {
       "suite": "tt107-crash",
@@ -19,7 +19,7 @@
         "RC-29": "partial"
       },
       "pass": true,
-      "ms": 1495
+      "ms": 1554
     },
     {
       "suite": "tt107-crash",
@@ -29,7 +29,7 @@
         "RC-25": "partial"
       },
       "pass": true,
-      "ms": 246
+      "ms": 249
     },
     {
       "suite": "tt107-crash",
@@ -38,7 +38,7 @@
         "RC-29": "partial"
       },
       "pass": true,
-      "ms": 1530
+      "ms": 1564
     }
   ]
 }
