@@ -1,6 +1,6 @@
 {
   "suite": "tt108-recall",
-  "at": "2026-10-29T16:01:20.844Z",
+  "at": "2026-10-29T16:22:19.044Z",
   "results": [
     {
       "suite": "tt108-recall",
@@ -45,7 +45,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 46
+      "ms": 53
     },
     {
       "suite": "tt108-recall",
@@ -54,7 +54,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 45
+      "ms": 51
     },
     {
       "suite": "tt108-recall",
@@ -63,7 +63,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 44
+      "ms": 63
     },
     {
       "suite": "tt108-recall",
@@ -72,7 +72,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 70
+      "ms": 83
     },
     {
       "suite": "tt108-recall",
@@ -81,7 +81,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 131
+      "ms": 135
     },
     {
       "suite": "tt108-recall",
@@ -90,7 +90,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 23
+      "ms": 22
     },
     {
       "suite": "tt108-recall",
@@ -100,7 +100,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 34
+      "ms": 31
     },
     {
       "suite": "tt108-recall",
@@ -109,7 +109,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 22
     },
     {
       "suite": "tt108-recall",
@@ -118,7 +118,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 31
+      "ms": 69
     },
     {
       "suite": "tt108-recall",
@@ -127,7 +127,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 18
+      "ms": 45
     },
     {
       "suite": "tt108-recall",
@@ -136,7 +136,7 @@
         "RC-31": "partial"
       },
       "pass": true,
-      "ms": 8
+      "ms": 10
     },
     {
       "suite": "tt108-recall",
@@ -145,7 +145,7 @@
         "RC-31": "full"
       },
       "pass": true,
-      "ms": 158
+      "ms": 148
     },
     {
       "suite": "tt108-recall",
@@ -154,7 +154,7 @@
         "RC-31": "full"
       },
       "pass": true,
-      "ms": 73
+      "ms": 92
     },
     {
       "suite": "tt108-recall",
@@ -166,7 +166,7 @@
         "RC-33": "partial"
       },
       "pass": true,
-      "ms": 18
+      "ms": 19
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt106-lifecycle",
-  "at": "2026-10-29T15:48:55.595Z",
+  "at": "2026-10-29T16:10:12.340Z",
   "results": [
     {
       "suite": "tt106-lifecycle",
@@ -9,7 +9,7 @@
         "RC-24": "partial"
       },
       "pass": true,
-      "ms": 29
+      "ms": 25
     },
     {
       "suite": "tt106-lifecycle",
@@ -18,49 +18,49 @@
         "RC-25": "partial"
       },
       "pass": true,
-      "ms": 46
+      "ms": 42
     },
     {
       "suite": "tt106-lifecycle",
       "name": "undo restores the same unchanged pair, content and search entries",
       "covers": {},
       "pass": true,
-      "ms": 41
+      "ms": 37
     },
     {
       "suite": "tt106-lifecycle",
       "name": "stale guard cannot trash edited content",
       "covers": {},
       "pass": true,
-      "ms": 41
+      "ms": 37
     },
     {
       "suite": "tt106-lifecycle",
       "name": "stale undo cannot restore a changed trashed receipt",
       "covers": {},
       "pass": true,
-      "ms": 34
+      "ms": 32
     },
     {
       "suite": "tt106-lifecycle",
       "name": "ABA trash/restore cycle invalidates prior undo version",
       "covers": {},
       "pass": true,
-      "ms": 62
+      "ms": 52
     },
     {
       "suite": "tt106-lifecycle",
       "name": "two simultaneous guarded trash calls have exactly one winner",
       "covers": {},
       "pass": true,
-      "ms": 71
+      "ms": 35
     },
     {
       "suite": "tt106-lifecycle",
       "name": "missing receipt refuses without trashing media",
       "covers": {},
       "pass": true,
-      "ms": 23
+      "ms": 21
     },
     {
       "suite": "tt106-lifecycle",
@@ -74,39 +74,39 @@
       "name": "independently trashed siblings cannot be claimed as paired undo",
       "covers": {},
       "pass": true,
-      "ms": 38
+      "ms": 40
     },
     {
       "suite": "tt106-lifecycle",
       "name": "invalid lifecycle path /",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt106-lifecycle",
       "name": "invalid lifecycle path /Private/x.png",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 7
     },
     {
       "suite": "tt106-lifecycle",
       "name": "invalid lifecycle path /Downloads/Recall/a/../x.png",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 3
     },
     {
       "suite": "tt106-lifecycle",
-      "name": "invalid lifecycle path /Downloads/Recall/life106-1793288934957/nested/x.png",
+      "name": "invalid lifecycle path /Downloads/Recall/life106-1793290211791/nested/x.png",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt106-lifecycle",
-      "name": "invalid lifecycle path /Downloads/Recall/life106-1793288934957/a.recall.json",
+      "name": "invalid lifecycle path /Downloads/Recall/life106-1793290211791/a.recall.json",
       "covers": {},
       "pass": true,
       "ms": 3
@@ -151,21 +151,21 @@
       "name": "unknown action cannot mutate",
       "covers": {},
       "pass": true,
-      "ms": 17
+      "ms": 16
     },
     {
       "suite": "tt106-lifecycle",
       "name": "real journal-trigger failure rolls back pair flags, versions and index deletion",
       "covers": {},
       "pass": true,
-      "ms": 41
+      "ms": 36
     },
     {
       "suite": "tt106-lifecycle",
       "name": "patch-specific recovery after actual rollback succeeds",
       "covers": {},
       "pass": true,
-      "ms": 12
+      "ms": 13
     }
   ]
 }

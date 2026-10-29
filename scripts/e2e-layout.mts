@@ -360,7 +360,7 @@ try {
     await page.getByTestId("dock-trash").click();
     const tw = page.locator('.fs-window[aria-label="Trash"]');
     await tw.waitFor();
-    await poll(async () => (await tw.getByRole("button", { name: "Trash" }).getAttribute("aria-pressed")) === "true", "Files opened on Trash");
+    await poll(async () => (await tw.getByRole("button", { name: "Trash", exact: true }).getAttribute("aria-pressed")) === "true", "Files opened on Trash");
     await close();
   });
 
