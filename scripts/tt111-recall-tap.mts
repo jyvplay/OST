@@ -245,7 +245,7 @@ try {
   });
 
   await test('a closed browser session keeps nothing',
-    { 'RC-37': 'full', 'PR-14': 'partial' }, async () => {
+    { 'RC-37': 'full', 'WP-04': 'partial' }, async () => {
     const site3 = http.createServer((_q, res) => { res.setHeader('content-type', 'image/png'); res.setHeader('content-length', String(PHOTO.length)); res.end(PHOTO); });
     await new Promise<void>((r) => site3.listen(SITE, '127.0.0.1', r));
     try {

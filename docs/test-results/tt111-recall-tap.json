@@ -1,6 +1,6 @@
 {
   "suite": "tt111-recall-tap",
-  "at": "2026-10-29T02:47:58.344Z",
+  "at": "2026-10-29T03:24:59.816Z",
   "results": [
     {
       "suite": "tt111-recall-tap",
@@ -9,7 +9,7 @@
         "RC-37": "partial"
       },
       "pass": true,
-      "ms": 81
+      "ms": 74
     },
     {
       "suite": "tt111-recall-tap",
@@ -19,7 +19,7 @@
         "RC-09": "partial"
       },
       "pass": true,
-      "ms": 1533
+      "ms": 1508
     },
     {
       "suite": "tt111-recall-tap",
@@ -28,7 +28,7 @@
         "RC-37": "full"
       },
       "pass": true,
-      "ms": 45
+      "ms": 66
     },
     {
       "suite": "tt111-recall-tap",
@@ -48,7 +48,7 @@
         "RC-14": "partial"
       },
       "pass": true,
-      "ms": 42
+      "ms": 57
     },
     {
       "suite": "tt111-recall-tap",
@@ -58,17 +58,17 @@
         "SC-02": "partial"
       },
       "pass": true,
-      "ms": 634
+      "ms": 645
     },
     {
       "suite": "tt111-recall-tap",
       "name": "a closed browser session keeps nothing",
       "covers": {
         "RC-37": "full",
-        "PR-14": "partial"
+        "WP-04": "partial"
       },
       "pass": true,
-      "ms": 274
+      "ms": 276
     }
   ]
 }

@@ -1,23 +1,50 @@
 {
- "generatedAt": "2026-10-29T00:13:02.068Z",
+ "generatedAt": "2026-10-29T03:25:03.487Z",
  "totals": {
   "built": {
-   "full": 330,
-   "partial": 96,
+   "full": 335,
+   "partial": 93,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 266,
-   "partial": 137,
-   "untested": 47
+   "full": 277,
+   "partial": 135,
+   "untested": 40
   },
   "tests": {
-   "total": 2688,
-   "passed": 2683
+   "total": 2723,
+   "passed": 2720
   }
  },
  "rows": {
+  "RC-38": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt112-resident: the page builds its own objects and Recall lists them without asking the origin for anything",
+    "e2e-tt112-resident: a live MediaSource is refused by name instead of being saved as a file",
+    "e2e-tt112-resident: FALSIFIER: with the origin stopped, the bytes the page built are archived byte-for-byte",
+    "e2e-tt112-resident: the receipt claims a declared label, not the publisher, and records no refetch",
+    "e2e-tt112-resident: a data: URL inside the document is saved with its own exact bytes",
+    "e2e-tt112-resident: an object larger than 8 MiB is refused where the bytes are read, and writes nothing",
+    "e2e-tt112-resident: no uncaught page exception in the resident-object pathway"
+   ]
+  },
+  "RC-37": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt111-recall: a page browsed inside Recall lists the media it loaded, with its type and size",
+    "e2e-tt111-recall: with the origin shut down, the human presses Save and the archive receives the publisher’s exact bytes",
+    "e2e-tt111-recall: Forget removes a held item from the pane immediately, and the switch empties it and says so",
+    "tt111-recall-tap: the page loads a picture and a track through the proxy; both land in the tap, the stylesheet does not",
+    "tt111-recall-tap: an aborted response and a byte range are not retained; neither is an item over the cap",
+    "tt111-recall-tap: THE FALSIFIER: the origin is stopped, a refetch provably fails, and the save still writes the original bytes",
+    "tt111-recall-tap: the receipt names the pathway and claims proxy-recorded provenance, and the memory survives verification",
+    "tt111-recall-tap: the provenance binding holds: neither method may borrow the other’s claim",
+    "tt111-recall-tap: the switch is real: off empties the tap, refuses the save, and the proxy stops retaining",
+    "tt111-recall-tap: a closed browser session keeps nothing"
+   ]
+  },
   "RC-35": {
    "tested": "full",
    "tests": [
@@ -82,7 +109,7 @@
     "tt107-recall: unpaired cleanup rejects non-Recall path /",
     "tt107-recall: unpaired cleanup rejects non-Recall path /etc/passwd",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Private/x.png",
-    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793232574172/nested/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793243855519/nested/x.png",
     "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/x",
     "tt107-recall: unpaired cleanup rejects invalid guard null",
     "tt107-recall: unpaired cleanup rejects invalid guard {}",
@@ -245,7 +272,8 @@
   "RC-02": {
    "tested": "partial",
    "tests": [
-    "e2e-tt109-shell: a copied image becomes a memory through the real paste handler, and a copied link does not"
+    "e2e-tt109-shell: a copied image becomes a memory through the real paste handler, and a copied link does not",
+    "e2e-tt111-recall: a page browsed inside Recall lists the media it loaded, with its type and size"
    ]
   },
   "RC-03": {
@@ -286,9 +314,13 @@
    ]
   },
   "RC-09": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt"
+    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt",
+    "e2e-tt112-resident: FALSIFIER: with the origin stopped, the bytes the page built are archived byte-for-byte",
+    "e2e-tt112-resident: an object larger than 8 MiB is refused where the bytes are read, and writes nothing",
+    "tt111-recall-tap: an aborted response and a byte range are not retained; neither is an item over the cap",
+    "tt111-recall-tap: the receipt names the pathway and claims proxy-recorded provenance, and the memory survives verification"
    ]
   },
   "RC-10": {
@@ -321,9 +353,12 @@
    ]
   },
   "RC-14": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "tt109-recall: only the refetch method may claim the bytes came from the URL it names"
+    "e2e-tt112-resident: a live MediaSource is refused by name instead of being saved as a file",
+    "e2e-tt112-resident: the receipt claims a declared label, not the publisher, and records no refetch",
+    "tt109-recall: only the refetch method may claim the bytes came from the URL it names",
+    "tt111-recall-tap: the provenance binding holds: neither method may borrow the other’s claim"
    ]
   },
   "RC-15": {
@@ -398,8 +433,13 @@
    ]
   },
   "SH-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt112-shell: SH-07 first run: the capability report is measured in this browser, not asserted",
+    "e2e-tt112-shell: SH-07 licence: a local trial is granted without any account, and the server holds the public key",
+    "e2e-tt112-shell: SH-07: the capability report reaches the server only when a human asks for it",
+    "e2e-tt112-shell: no uncaught page exception across the capability, licence and governor panes"
+   ]
   },
   "SH-08": {
    "tested": "full",
@@ -444,8 +484,11 @@
    ]
   },
   "SH-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt112-shell: SH-12: real long tasks drive the governor into a throttled state and the shell drops effects",
+    "e2e-tt112-shell: SH-12: the detector is a measurement, not a latch — effects return once the load stops"
+   ]
   },
   "SH-13": {
    "tested": "partial",
@@ -545,8 +588,10 @@
    ]
   },
   "WM-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+   ]
   },
   "WM-08": {
    "tested": "full",
@@ -669,6 +714,7 @@
   "IN-05": {
    "tested": "full",
    "tests": [
+    "tt111-core: no preset collides with itself, and every browser-reserved chord ships with the reason it is reserved",
     "unit: shortcut presets have no internal conflicts; chord matcher"
    ]
   },
@@ -1247,7 +1293,8 @@
   "NC-05": {
    "tested": "partial",
    "tests": [
-    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
+    "tt111-core: long operations are recorded as steps that can be polled, and every one ends in a terminal state"
    ]
   },
   "NC-06": {
@@ -1287,9 +1334,10 @@
    ]
   },
   "ST-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: mount: settings"
+    "e2e: mount: settings",
+    "tt111-core: the capability report is exportable and redacted: it describes the browser, not the person"
    ]
   },
   "ST-05": {
@@ -1299,8 +1347,9 @@
    ]
   },
   "ST-06": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "tt111-core: no preset collides with itself, and every browser-reserved chord ships with the reason it is reserved",
     "unit: shortcut presets have no internal conflicts; chord matcher"
    ]
   },
@@ -1477,6 +1526,7 @@
   "PR-02": {
    "tested": "partial",
    "tests": [
+    "e2e-tt112-shell: SH-07: the capability report reaches the server only when a human asks for it",
     "e2e-tt97-palette-actions: register keeps palette actions partial and discloses native Cast and privacy limits",
     "e2e-tt97-palette-actions: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection",
     "e2e-tt97-palette-actions: composition Enter cannot trigger a note action; a subsequent real Enter can",
@@ -1493,7 +1543,8 @@
     "e2e-tt99-interactions: Notes dirty draft disables destructive context actions and native text remains native",
     "e2e-tt99-interactions: Notes context deletion is cancelable and removes only the chosen note",
     "e2e: mount: notes",
-    "integration: deleting a note removes only its own index row"
+    "integration: deleting a note removes only its own index row",
+    "tt111-core: notes are indexed in the same index as files, so one search reaches both"
    ]
   },
   "PR-03": {
@@ -1508,6 +1559,7 @@
    "tests": [
     "e2e: mount: planner",
     "integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar",
+    "tt111-core: an .ics round-trips and re-importing the same calendar never duplicates",
     "unit: ICS unfolding, escapes, parameters, VTODO status, round trip"
    ]
   },
@@ -2324,6 +2376,8 @@
    "tested": "full",
    "tests": [
     "ai-format: version strings, PDF literal escapes, format registry and MIME",
+    "tt111-core: the format registry is a usable contract: engine, grade, boundary and a conversion-loss answer for every entry",
+    "tt111-core: SRT becomes WebVTT the way a browser needs it, and WebVTT is left alone",
     "unit: loss report itemises drops; registry grades"
    ]
   },
@@ -3042,8 +3096,10 @@
   "SC-02": {
    "tested": "partial",
    "tests": [
+    "e2e-tt111-recall: Forget removes a held item from the pane immediately, and the switch empties it and says so",
     "e2e: mount: vault",
-    "tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are"
+    "tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are",
+    "tt111-recall-tap: the switch is real: off empties the tap, refuses the save, and the proxy stops retaining"
    ]
   },
   "SC-03": {
@@ -3171,6 +3227,7 @@
   "BK-04": {
    "tested": "full",
    "tests": [
+    "tt111-core: the new-device checklist is a real diff of two measured reports, and absent memory data is not low memory",
     "unit: BK-04 capability diff reports lost/gained with degrade text"
    ]
   },
@@ -4029,6 +4086,7 @@
    "tested": "full",
    "tests": [
     "e2e-layout: Quick panel → Layout: Art gives a menu bar and a centred dock holding EVERY app (+ Launchpad, Trash); no taskbar",
+    "e2e-layout: Art dock magnification: measured peak under the pointer, cosine falloff, name bubble, stable under the pointer, reset on leave; off switch",
     "e2e-layout: Art dock: launch bounces and shows a running dot; minimise (traffic light) parks the window after the separator, click restores; right-click Quit",
     "e2e-layout: Art window chrome + menus: traffic lights left (close, minimise, zoom), centred title, Window menu tiles/zooms, zoomed window stops above the dock, Launchpad",
     "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
@@ -4064,6 +4122,7 @@
     "e2e-beauty: 1280×800: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
     "e2e-beauty: 1920×1080: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
     "e2e-beauty: 390×844: Fusion, launcher, Business, Start, Art, Launchpad, dock stack, Tabletop floor + 4 walls — no hard beauty violations",
+    "e2e-layout: Art dock: aesthetic size + stacks — size from the screen not the app count, groups fold into stacks (grid popover, arrows, Esc), a launched app from a folded group shows as its own running icon, size presets",
     "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
     "tabletop-unit: idealDockIcon: 44–64 px band on the 4-px grid, from the screen not the app count; presets; junk input",
     "tabletop-unit: planDock: keeps the pleasing size and folds the biggest groups first; pinned + running stay out; every app reachable; never wider than the fill limit when it reports fits",
@@ -4503,6 +4562,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server",
+    "tt111-recall-tap: a closed browser session keeps nothing",
     "tt35-unit: cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix refusal, domain mismatch, default-path and path matching (/docs vs /docsx), Secure only over https, Max-Age over Expires, deletion, HttpOnly hidden from (and unwritable by) scripts, __Secure- / __Host- prefixes, ordering by path length, per-domain cap",
     "tt35-unit: sessions (WP-04): 128-bit url-safe capability ids, unique; idle sessions expire after 30 min; the store never exceeds its cap (least recently used goes first); dropping forgets the cookie jar"
    ]
@@ -5651,6 +5711,7 @@
   "AX-07": {
    "tested": "partial",
    "tests": [
+    "tt111-core: SRT becomes WebVTT the way a browser needs it, and WebVTT is left alone",
     "unit: SRT → WebVTT conversion"
    ]
   },
@@ -5710,10 +5771,11 @@
    ]
   },
   "AU-02": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: routines",
-    "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted"
+    "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted",
+    "tt111-core: workspace presets are stored as their own rows and restoring one does not invent a viewport"
    ]
   },
   "AU-03": {
@@ -5734,13 +5796,16 @@
   "RG-01": {
    "tested": "partial",
    "tests": [
+    "e2e-tt112-shell: SH-12: real long tasks drive the governor into a throttled state and the shell drops effects",
     "e2e: mount: monitor",
     "e2e: governor reacts to injected long tasks"
    ]
   },
   "RG-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+   ]
   },
   "RG-03": {
    "tested": "full",
@@ -5766,6 +5831,7 @@
   "RG-06": {
    "tested": "full",
    "tests": [
+    "tt111-core: the new-device checklist is a real diff of two measured reports, and absent memory data is not low memory",
     "unit: RG-06 memory policy: absence is not low memory"
    ]
   },
@@ -5794,8 +5860,10 @@
    "tests": []
   },
   "HW-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+   ]
   },
   "HW-06": {
    "tested": "untested",
@@ -5806,12 +5874,16 @@
    "tests": []
   },
   "HW-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+   ]
   },
   "HW-09": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: SH-07 first run: the capability report is measured in this browser, not asserted"
+   ]
   },
   "HW-10": {
    "tested": "untested",
@@ -5891,16 +5963,18 @@
    ]
   },
   "DP-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
+    "tt111-core: every write is journalled and nothing is silently mutated: a read leaves no trace, a write leaves an auditable one"
    ]
   },
   "DP-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "integration: FM-18 overwrite snapshots the previous version",
-    "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)"
+    "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)",
+    "tt111-core: reversible by default: a trashed file comes back, and a changed setting can be put back from its own history"
    ]
   },
   "DP-06": {

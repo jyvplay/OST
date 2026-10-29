@@ -1,6 +1,6 @@
 {
   "suite": "tt104-memory-unit",
-  "at": "2026-10-29T02:31:02.330Z",
+  "at": "2026-10-29T03:04:55.854Z",
   "results": [
     {
       "suite": "tt104-memory-unit",
@@ -9,7 +9,7 @@
         "RC-19": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 8
     },
     {
       "suite": "tt104-memory-unit",
@@ -44,7 +44,7 @@
       "name": "receipt mismatch rejected: sha256",
       "covers": {},
       "pass": true,
-      "ms": 9
+      "ms": 1
     },
     {
       "suite": "tt104-memory-unit",
@@ -100,7 +100,7 @@
       "name": "tampered bytes fail despite same length",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt104-memory-unit",
