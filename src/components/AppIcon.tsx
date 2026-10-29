@@ -229,9 +229,36 @@ export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "clos
   | "bytes" | "held" | "loaded" | "record" | "snapshot" | "queue" | "sidebar" | "tabstrip" | "splitH" | "splitV" | "tearout"
   | "verify" | "copy" | "photos" | "folder" | "trash" | "export" | "crop" | "eraser" | "undo" | "refresh" | "clipin" | "more" |
   /* TT115 browser-chrome glyphs */
-  "sleep" | "shield" | "cookie" | "closeset" | "auto" | "download";
+  "sleep" | "shield" | "cookie" | "closeset" | "auto" | "download" |
+  /* TT116: the filter row, the device row and the retention control. Each is a
+     concept drawn as geometry - a funnel is narrowing, a calendar is a dated grid,
+     a broom is a swept edge - so the row can lose its captions without losing its
+     meaning. */
+  "method" | "host" | "calendar" | "scope" | "device" | "dedupe" | "broom" | "gauge" | "session" | "link";
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
+    /* TT116 concept glyphs. Same construction rules: stroke-only, 24x24, currentColor,
+       no glyph reusing another's silhouette. */
+    // save method: a stamp pressed onto a line - "how this got here"
+    method: <><rect x="4.5" y="4.5" width="15" height="9" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M8 9h8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M4.5 18.5h15" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // page host: a globe reduced to one meridian and one parallel
+    host: <><circle cx="12" cy="12" r="7.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M4.5 12h15" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 4.5c2.6 2.6 2.6 12.4 0 15-2.6-2.6-2.6-12.4 0-15Z" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // a date: a grid with a torn-off header
+    calendar: <><rect x="4" y="5.5" width="16" height="14" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M4 10h16" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M8.5 3.5v4M15.5 3.5v4" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M8 14h3" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // scope: brackets closing around a region
+    scope: <><path d="M8.5 4.5H5.5a1 1 0 0 0-1 1v3M15.5 4.5h3a1 1 0 0 1 1 1v3M8.5 19.5H5.5a1 1 0 0 1-1-1v-3M15.5 19.5h3a1 1 0 0 0 1-1v-3" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="12" r="2.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // this device: a slab with a foot
+    device: <><rect x="3.5" y="5" width="17" height="11" rx="1.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9 19h6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 16v3" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // keep one copy: two identical squares collapsing into one
+    dedupe: <><rect x="4.5" y="4.5" width="10" height="10" rx="1.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9.5 19.5h8a2 2 0 0 0 2-2v-8" {...S} stroke="currentColor" strokeWidth="1.8" strokeDasharray="2.6 2.4" /><path d="m7.5 9.5 2 2 4-4.2" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // retention: a swept edge gathering what is past
+    broom: <><path d="M14.5 3.5 9 9" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m7 11 6-6 4 4-6 6Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M11 15 5 21M9 13l-4 8M13 17l-4 4" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // how full: a dial with a needle
+    gauge: <><path d="M4.5 16.5a7.5 7.5 0 1 1 15 0" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m12 16.5 4-5" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="16.5" r="1.4" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // a session that comes back: an arrow returning into a frame
+    session: <><rect x="4" y="5.5" width="16" height="13" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9 12h6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m12 9 3 3-3 3" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // an address: two links of a chain
+    link: <><path d="M10.5 13.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.54 3.54 0 0 0-5-5L11.5 7.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M13.5 10.5a3.5 3.5 0 0 0-5 0L6 13a3.54 3.54 0 0 0 5 5l1.5-1.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     /* TT114 concept glyphs. Stroke-only, 24x24, currentColor, so they inherit theme and contrast. */
     // verify a receipt: a seal with a tick inside it
     verify: <><path d="M12 3.5 19 6v6.2c0 3.9-2.7 7.1-7 8.3-4.3-1.2-7-4.4-7-8.3V6l7-2.5Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m8.8 12.2 2.2 2.2 4.2-4.6" {...S} stroke="currentColor" strokeWidth="2" /></>,

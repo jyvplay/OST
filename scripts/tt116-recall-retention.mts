@@ -113,6 +113,11 @@ await test('retention refuses a memory it cannot prove is a complete pair', { 'R
   assert.ok((run.body.trashed as string[]).includes(keep), 'the complete pair was not trashed');
   const still = await get(`op=stat&path=${encodeURIComponent(orphaned)}`);
   assert.equal((still.body.node as { trashed: boolean }).trashed, false, 'an unpaired memory was swept by retention');
+  // Leave no unpaired file behind. A later suite's integrity audit is entitled to
+  // find an archive this suite did not vandalise, and a gate is a shared database.
+  await post({ op: 'trash', path: orphaned });
+  const gone = await get(`op=stat&path=${encodeURIComponent(orphaned)}`);
+  assert.equal((gone.body.node as { trashed: boolean }).trashed, true, 'cleanup failed; this suite would poison the audit suites');
 });
 
 await test('the two keep-rules compose by intersection, not by union', { 'RC-13': 'full' }, async () => {

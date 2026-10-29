@@ -20,6 +20,10 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
  const [keepOne,setKeepOne]=useState(false);
  const [confirmTrash,setConfirmTrash]=useState(false),[undo,setUndo]=useState<{path:string;guard:RecallGuard}|null>(null);
  const [method,setMethod]=useState(''),[host,setHost]=useState(''),[from,setFrom]=useState(''),[to,setTo]=useState(''),[auditScope,setAuditScope]=useState('folder');
+ // RC-13. A rule-driven trash is reviewed before it happens: `plan` holds the dry run
+ // and the Apply control only exists while a plan is on screen.
+ const [keepN,setKeepN]=useState('100');
+ const [plan,setPlan]=useState<{folder:string;considered:number;kept:number;candidates:{path:string;bytes:number}[];truncated:boolean}|null>(null);
  const [audit,setAudit]=useState<{scope:string;mediaFiles:number;receiptFiles:number;healthyPairs:number;orphanMedia:string[];orphanReceipts:string[];unreadableReceipts:string[];checksumMismatch:string[]}|null>(null);
  const previewMedia=useRef<HTMLImageElement|HTMLVideoElement|null>(null);
  // TT108: a region dragged over the already-decoded preview, in displayed pixels.
@@ -117,6 +121,23 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
   const r=await api<{scope:string;mediaFiles:number;receiptFiles:number;healthyPairs:number;orphanMedia:string[];orphanReceipts:string[];unreadableReceipts:string[];checksumMismatch:string[]}>('/api/fs?'+new URLSearchParams(scoped?{op:'recallAudit',folder:scoped}:{op:'recallAudit'}));
   if(mounted.current){setAudit(r);setNote('Integrity report refreshed. Missing receipts are never regenerated; provenance cannot be reconstructed after the fact.');}
  };
+ /** RC-13: plan only. Nothing is trashed by this call and the plan is what Apply runs. */
+ const planTidy=async()=>{
+  recallWritable();
+  const c=context(),scoped=recallFolder(c.page,c.title,c.grouping,c.custom);
+  const n=Number(keepN);
+  if(!Number.isInteger(n)||n<0)throw Error('Keep how many? Enter a whole number of memories to keep.');
+  const r=await api<{folder:string;considered:number;kept:number;candidates:{path:string;bytes:number}[];truncated:boolean}>(
+   '/api/fs',{method:'POST',body:JSON.stringify({op:'recallRetention',folder:scoped,maxItems:n,dryRun:true})});
+  if(mounted.current){setPlan(r);setNote(r.candidates.length?`${r.candidates.length} of ${r.considered} would move to Trash, keeping the newest ${r.kept}. Nothing has changed yet.`:`Nothing to tidy: ${r.considered} memories, all within the newest ${n}.`);}
+ };
+ const applyTidy=async()=>{
+  recallWritable();
+  if(!plan)return;
+  const r=await api<{trashed:string[];skipped:{path:string;reason:string}[]}>(
+   '/api/fs',{method:'POST',body:JSON.stringify({op:'recallRetention',folder:plan.folder,maxItems:Number(keepN),dryRun:false})});
+  if(mounted.current){setPlan(null);setNote(`${r.trashed.length} moved to Trash as pairs${r.skipped.length?`, ${r.skipped.length} skipped because they are not complete pairs`:''}. Recoverable from Files; this is not secure erasure.`);}
+ };
  const trashOrphan=async(orphan:string)=>{
   recallWritable();
   const node=(await api<{node:{id:number;version:number;sha256:string}}>('/api/fs?'+new URLSearchParams({op:'stat',path:orphan}))).node;
@@ -206,11 +227,14 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
    <span>Paste a copied media file here, or drop one</span>
    <Hint label="Why a dragged link will not do">Focus here and paste a copied media file, or drop exactly one file. Dragged webpage links are not downloads; if the browser exposes only a URL, use the already-loaded visual button instead.</Hint>
   </div>
-  <label style={{display:'grid',gap:4,justifyItems:'start'}}>Choose media from your device<input aria-label="Choose resident media" disabled={busy} type="file" accept="image/*,video/*,audio/*" onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value='';if(file)void run(()=>save(file,'human-selected-file'));}}/></label>
+  <label className="fs-row" style={{gap:6,alignItems:'center'}} title="Choose media from your device">
+   <span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="device" size={15}/></span><span>Media</span>
+   <input aria-label="Choose resident media" disabled={busy} type="file" accept="image/*,video/*,audio/*" onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value='';if(file)void run(()=>save(file,'human-selected-file'));}}/></label>
   <label className="fs-row" style={{gap:6,alignItems:'center'}}>
    <input type="checkbox" aria-label="Keep one copy of identical pictures" checked={keepOne} disabled={busy}
     onChange={e=>setKeepOne(e.currentTarget.checked)} />
-   <span title={keepOne?'A repeat save will point at the memory already held':'Every save files a new memory'}>Keep one copy of identical pictures</span>
+   <span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="dedupe" size={15}/></span>
+   <span title={keepOne?'A repeat save will point at the memory already held':'Every save files a new memory'}>Keep one</span>
   </label>
   <div className="fs-toolgroups" role="group" aria-label="Memory actions">
    <div className="fs-toolgroup" data-group="Memories">
@@ -250,18 +274,22 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
    </div>
   </div>
   <div role="group" aria-label="Search saved memories" className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'end'}}>
-   <label style={{display:'grid'}}>Saved by<select aria-label="Filter by save method" value={method} onChange={e=>setMethod(e.target.value)}>
+   <label className="fs-row" style={{gap:4}} title="Saved by"><span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="method" size={15}/></span><select aria-label="Filter by save method" value={method} onChange={e=>setMethod(e.target.value)}>
     <option value="">Any method</option><option value="human-selected-file">Chosen file</option><option value="human-paste-file">Pasted file</option>
     <option value="human-drop-file">Dropped file</option><option value="human-clipboard-image">Copied image</option>
     <option value="clicked-visual-png">Clicked visual</option><option value="saved-preview-frame">Preview frame</option>
     <option value="batch-loaded-visuals">Batch of loaded visuals</option><option value="cropped-preview-region">Selected region</option></select></label>
-   <label style={{display:'grid'}}>Page host<input aria-label="Filter by page host" value={host} onChange={e=>setHost(e.target.value)} placeholder="example.com"/></label>
-   <label style={{display:'grid'}}>From<input aria-label="Filter from date" type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label>
-   <label style={{display:'grid'}}>To<input aria-label="Filter to date" type="date" value={to} onChange={e=>setTo(e.target.value)}/></label>
-   <Btn disabled={busy} onClick={()=>void run(search)}>Search memories</Btn>
-   <label style={{display:'grid'}}>Integrity scope<select aria-label="Integrity scope" value={auditScope} onChange={e=>setAuditScope(e.target.value)}>
+   <label className="fs-row" style={{gap:4}} title="Page host"><span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="host" size={15}/></span><input aria-label="Filter by page host" value={host} onChange={e=>setHost(e.target.value)} placeholder="example.com"/></label>
+   <label className="fs-row" style={{gap:4}} title="From this date"><span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="calendar" size={15}/></span><input aria-label="Filter from date" type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label>
+   <label className="fs-row" style={{gap:4}} title="To this date"><span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="calendar" size={15}/></span><input aria-label="Filter to date" type="date" value={to} onChange={e=>setTo(e.target.value)}/></label>
+   <Btn aria-label="Search memories" title="Search memories" disabled={busy} onClick={()=>void run(search)}><UiGlyph name="search"/> Search</Btn>
+   <label className="fs-row" style={{gap:4}} title="Integrity scope"><span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="scope" size={15}/></span><select aria-label="Integrity scope" value={auditScope} onChange={e=>setAuditScope(e.target.value)}>
     <option value="folder">This folder</option><option value="all">All Recall folders</option></select></label>
-   <Btn disabled={busy} onClick={()=>void run(runAudit)}>Check pair integrity</Btn>
+   <Btn aria-label="Check pair integrity" title="Check pair integrity" disabled={busy} onClick={()=>void run(runAudit)}><UiGlyph name="verify"/> Check</Btn>
+   <label className="fs-row" style={{gap:4}} title="Keep this many newest memories"><span aria-hidden style={{display:'inline-flex'}}><UiGlyph name="gauge" size={15}/></span>
+    <input aria-label="Keep this many newest memories" inputMode="numeric" value={keepN} onChange={e=>setKeepN(e.target.value)} style={{width:64}}/></label>
+   <Btn aria-label="Plan a tidy-up of this folder" title="Plan a tidy-up of this folder" disabled={busy} onClick={()=>void run(planTidy)}><UiGlyph name="broom"/> Tidy</Btn>
+   {plan&&plan.candidates.length?<Btn aria-label="Apply the planned tidy-up" title="Apply the planned tidy-up" disabled={busy} onClick={()=>void run(applyTidy)}><UiGlyph name="trash"/> Apply {plan.candidates.length}</Btn>:null}
   </div>
   {timeline?<div aria-label="Saving timeline" style={{padding:8,border:'1px solid var(--fs-border)',borderRadius:8,display:'grid',gap:6}}>
    <p style={{margin:0}}>Saving timeline · {timeline.scope} · {timeline.zone} · {plural(timeline.totalMemories,'memory','memories')} across {plural(timeline.days.length,'day')}

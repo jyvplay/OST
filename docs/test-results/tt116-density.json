@@ -1,0 +1,65 @@
+{
+  "suite": "tt116-density",
+  "at": "2026-10-29T18:53:15.353Z",
+  "results": [
+    {
+      "suite": "tt116-density",
+      "name": "AX-18: Recall shows fewer than 170 visible words and more than 45 drawn marks",
+      "covers": {
+        "AX-18": "full",
+        "RC-05": "partial"
+      },
+      "pass": true,
+      "ms": 2245
+    },
+    {
+      "suite": "tt116-density",
+      "name": "every control whose caption was removed still answers to its full name",
+      "covers": {
+        "AX-18": "full",
+        "DP-07": "partial"
+      },
+      "pass": true,
+      "ms": 3378
+    },
+    {
+      "suite": "tt116-density",
+      "name": "no shortened word sits outside the name its control answers to",
+      "covers": {
+        "AX-18": "full",
+        "DP-07": "partial"
+      },
+      "pass": true,
+      "ms": 2937
+    },
+    {
+      "suite": "tt116-density",
+      "name": "the new marks are real drawings and no two of them are the same shape",
+      "covers": {
+        "AX-18": "full"
+      },
+      "pass": true,
+      "ms": 2569
+    },
+    {
+      "suite": "tt116-density",
+      "name": "the floor holds: the consequence of an uncancellable commit is still on screen",
+      "covers": {
+        "AX-18": "full",
+        "RC-11": "partial"
+      },
+      "pass": true,
+      "ms": 2616
+    },
+    {
+      "suite": "tt116-density",
+      "name": "RC-13 is reachable by a person, and its first click only ever plans",
+      "covers": {
+        "RC-13": "full",
+        "AX-18": "full"
+      },
+      "pass": true,
+      "ms": 2467
+    }
+  ]
+}
