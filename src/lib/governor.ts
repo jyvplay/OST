@@ -37,6 +37,8 @@ class Governor {
   private activeTicks = 0;
   private lastTs = 0;
   private running = false;
+  private decay: ReturnType<typeof setInterval> | null = null;
+  private lastPublished: GovernorState = "COOL";
 
   start() {
     if (this.running || typeof window === "undefined") return;
@@ -51,6 +53,20 @@ class Governor {
       });
       this.observer.observe({ entryTypes: ["longtask"] });
     } catch { /* Safari/Firefox: no longtask entries — frame cost still works */ }
+
+    // TT112 (SH-12): the long-task window is 60 s wide, but it was only ever pruned when ANOTHER long
+    // task arrived. A machine that went quiet therefore stayed THROTTLED for as long as nothing heavy
+    // happened again — effects off, background work paused, on an idle system. The detector has to be a
+    // measurement rather than a latch, so the window is also pruned on a slow timer, and a state change
+    // is published only when the pruning actually changes the answer.
+    this.decay = setInterval(() => {
+      const before = this.longTasks.length;
+      this.longTasks = this.longTasks.filter((t) => performance.now() - t < 60_000);
+      if (this.longTasks.length !== before) {
+        const next = this.snapshot().state;
+        if (next !== this.lastPublished) { this.lastPublished = next; this.emit(); }
+      }
+    }, 5_000);
 
     const nav = navigator as Navigator & { getBattery?: () => Promise<{ level: number; charging: boolean; addEventListener: (t: string, f: () => void) => void }> };
     nav.getBattery?.().then((b) => {

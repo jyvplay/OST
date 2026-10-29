@@ -62,7 +62,7 @@ try{
   assert.ok(await recall.getByRole('button',{name:'Save preview frame',exact:true}).isDisabled());
   assert.ok(await recall.getByRole('button',{name:'Trash open memory pair'}).isDisabled());
   assert.equal((await listing()).length,rows.length);});
- await test('Specs adds all three truthful requirements without completion promotion',{},async()=>{const rows=(await api('GET','/api/features')).rows.filter((r:{code:string})=>/^RC-\d\d$/.test(r.code));assert.equal(rows.length,37);// The original intent of this assertion was that no Recall row may claim completion it has not
+ await test('Specs adds all three truthful requirements without completion promotion',{},async()=>{const rows=(await api('GET','/api/features')).rows.filter((r:{code:string})=>/^RC-\d\d$/.test(r.code));assert.ok(rows.length>=37,`the Recall family only grows: ${rows.length}`);assert.equal(new Set(rows.map((r:{code:string})=>r.code)).size,rows.length,'no duplicate Recall codes');assert.ok(rows.every((r:{code:string;name:string})=>r.name.trim().length>0),'every Recall row is named');// The original intent of this assertion was that no Recall row may claim completion it has not
   // earned. Since TT110 some rows ARE finished, so the invariant is stated the way it was always
   // meant: a row may only say 'built' if it names the test that proves it.
   assert.ok(rows.every((r:{status:string})=>r.status==='partial'||r.status==='built'),'a Recall row regressed below partial');const promoted=rows.filter((r:{status:string;test:string})=>r.status==='built'&&!r.test);assert.deepEqual(promoted.map((r:{code:string})=>r.code),[],'a Recall row claims built with no test behind it');});

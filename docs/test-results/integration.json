@@ -1,6 +1,6 @@
 {
   "suite": "integration",
-  "at": "2026-10-29T01:30:55.785Z",
+  "at": "2026-10-29T02:32:58.766Z",
   "results": [
     {
       "suite": "integration",
@@ -30,7 +30,7 @@
         "NC-05": "partial"
       },
       "pass": true,
-      "ms": 46
+      "ms": 45
     },
     {
       "suite": "integration",
@@ -39,7 +39,7 @@
         "FM-03": "full"
       },
       "pass": true,
-      "ms": 25
+      "ms": 24
     },
     {
       "suite": "integration",
@@ -60,7 +60,7 @@
         "FM-07": "full"
       },
       "pass": true,
-      "ms": 68
+      "ms": 70
     },
     {
       "suite": "integration",
@@ -89,7 +89,7 @@
         "PR-07r": "partial"
       },
       "pass": true,
-      "ms": 11
+      "ms": 13
     },
     {
       "suite": "integration",
@@ -108,7 +108,7 @@
         "PR-03": "partial"
       },
       "pass": true,
-      "ms": 17
+      "ms": 15
     },
     {
       "suite": "integration",
@@ -118,7 +118,7 @@
         "CT-02": "partial"
       },
       "pass": true,
-      "ms": 26
+      "ms": 24
     },
     {
       "suite": "integration",
@@ -129,7 +129,7 @@
         "CA-02": "partial"
       },
       "pass": true,
-      "ms": 729
+      "ms": 725
     },
     {
       "suite": "integration",
@@ -143,7 +143,7 @@
         "FM-04": "partial"
       },
       "pass": true,
-      "ms": 187
+      "ms": 194
     },
     {
       "suite": "integration",
@@ -165,7 +165,7 @@
         "BL-05": "partial"
       },
       "pass": true,
-      "ms": 15
+      "ms": 23
     },
     {
       "suite": "integration",
@@ -186,7 +186,7 @@
         "DP-05": "partial"
       },
       "pass": true,
-      "ms": 54
+      "ms": 64
     },
     {
       "suite": "integration",
@@ -196,7 +196,7 @@
         "SR-05": "full"
       },
       "pass": true,
-      "ms": 80
+      "ms": 83
     },
     {
       "suite": "integration",
@@ -205,7 +205,7 @@
         "SR-03": "full"
       },
       "pass": true,
-      "ms": 154
+      "ms": 155
     },
     {
       "suite": "integration",
@@ -214,7 +214,7 @@
         "FM-05": "full"
       },
       "pass": true,
-      "ms": 58
+      "ms": 57
     },
     {
       "suite": "integration",
@@ -224,7 +224,7 @@
         "FF-12": "full"
       },
       "pass": true,
-      "ms": 18
+      "ms": 17
     },
     {
       "suite": "integration",
@@ -243,7 +243,7 @@
         "SR-02": "partial"
       },
       "pass": true,
-      "ms": 139
+      "ms": 129
     },
     {
       "suite": "integration",
@@ -251,9 +251,8 @@
       "covers": {
         "AU-03": "partial"
       },
-      "pass": false,
-      "error": "src/app/api/recall-tap/route.ts still calls req.json() directly",
-      "ms": 3
+      "pass": true,
+      "ms": 1022
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt108-refusal",
-  "at": "2026-10-29T01:42:51.224Z",
+  "at": "2026-10-29T02:44:52.397Z",
   "results": [
     {
       "suite": "tt108-refusal",
@@ -9,7 +9,7 @@
         "AU-03": "partial"
       },
       "pass": true,
-      "ms": 234
+      "ms": 194
     },
     {
       "suite": "tt108-refusal",
@@ -18,7 +18,7 @@
         "WP-06": "full"
       },
       "pass": true,
-      "ms": 176
+      "ms": 143
     },
     {
       "suite": "tt108-refusal",
@@ -27,7 +27,7 @@
         "WP-06": "full"
       },
       "pass": true,
-      "ms": 22
+      "ms": 15
     },
     {
       "suite": "tt108-refusal",
@@ -36,7 +36,7 @@
         "WP-06": "full"
       },
       "pass": true,
-      "ms": 44
+      "ms": 102
     },
     {
       "suite": "tt108-refusal",
@@ -45,7 +45,7 @@
         "WP-06": "full"
       },
       "pass": true,
-      "ms": 66
+      "ms": 97
     },
     {
       "suite": "tt108-refusal",
@@ -54,7 +54,7 @@
         "WP-06": "partial"
       },
       "pass": true,
-      "ms": 416
+      "ms": 405
     },
     {
       "suite": "tt108-refusal",
@@ -63,7 +63,7 @@
         "WP-06": "full"
       },
       "pass": true,
-      "ms": 16
+      "ms": 14
     }
   ]
 }

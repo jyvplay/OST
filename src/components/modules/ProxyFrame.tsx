@@ -130,7 +130,14 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
 
   // TT111 (RC-37): Recall lists the media these sessions have already loaded, so a frame announces
   // its session while it is mounted and withdraws it on the way out.
-  useEffect(() => { if (!sid) return; registerProxySession(sid); return () => unregisterProxySession(sid); }, [sid]);
+  // TT112 (RC-38): the frame's own window is registered with the session, because objects the page
+  // holds itself can only be read by that document. It is re-registered on every load so a navigation
+  // never leaves Recall talking to a document that has been replaced.
+  useEffect(() => {
+    if (!sid) return;
+    registerProxySession(sid, frame.current?.contentWindow ?? null);
+    return () => unregisterProxySession(sid);
+  }, [sid]);
 
   // Identity is host-scoped within the RAM-only proxy session. A navigation to another site falls back to Desktop unless that host has its own override.
   useEffect(() => {
@@ -380,6 +387,7 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
         <iframe ref={frame} data-testid="wp-frame" src={src} title={title || hist.list[hist.i]}
           sandbox="allow-scripts allow-forms allow-popups allow-modals allow-downloads"
           referrerPolicy="no-referrer"
+          onLoad={() => { if (sid) registerProxySession(sid, frame.current?.contentWindow ?? null); }}
           style={{ flex: 1, minHeight: 0, width: "100%", border: 0, background: "#fff" }} />
       ) : !err ? <div className="fs-dim" style={{ padding: 12 }}>Starting a private proxy session…</div> : null}
     </div>

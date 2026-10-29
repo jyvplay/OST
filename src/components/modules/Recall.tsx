@@ -9,12 +9,35 @@ import { registerDocGuard } from '@/lib/doc-lifecycle';
 import BrowserModule from './Browser';
 import RecallMemory from './RecallMemory';
 import { fmtBytes } from '@/lib/api';
-import { proxySessionsSnapshot, subscribeProxySessions } from '@/lib/wp-session-registry';
+import { proxySessionsSnapshot, subscribeProxySessions, proxyWindowFor } from '@/lib/wp-session-registry';
 type Writable = {write:(data:Blob)=>Promise<void>;close:()=>Promise<void>;abort:()=>Promise<void>};
 type LocalHandle = {createWritable:()=>Promise<Writable>;name:string};
 const empty: ReturnType<typeof recallSnapshot> = [];
 const noSessions: string[] = [];
 type TapItem={sid:string;id:string;url:string;mime:string;size:number;at:number};
+type ResidentItem={sid:string;id:string;tag:string;scheme:string;label:string;mime:string;bytesHint:number|null;w:number;h:number;page:string};
+type ResidentRefusal={sid:string;label:string;reason:string};
+/**
+ * TT112 (RC-38): ask one proxied document about the objects it is holding itself.
+ *
+ * The document runs in an opaque-origin sandbox, so a message is the only channel, and a reply can
+ * never be assumed: every request carries a fresh token, listens for exactly that token, and gives
+ * up after a bounded wait so a page that has navigated away cannot leave the pane waiting forever.
+ */
+function askFrame<T extends {token:string}>(win:Window,message:Record<string,unknown>,token:string,ms=6000):Promise<T|null>{
+ return new Promise<T|null>(resolve=>{
+  let done=false;
+  const finish=(v:T|null)=>{if(done)return;done=true;window.removeEventListener('message',onMsg);clearTimeout(timer);resolve(v);};
+  const onMsg=(e:MessageEvent)=>{
+   const d=e.data as T|undefined;
+   if(e.source!==win||!d||typeof d!=='object'||d.token!==token)return;
+   finish(d);
+  };
+  const timer=setTimeout(()=>finish(null),ms);
+  window.addEventListener('message',onMsg);
+  try{win.postMessage({...message,token},'*');}catch{finish(null);}
+ });
+}
 /** Ask every live browsing session what media it still holds. A session that has closed contributes nothing. */
 async function loadTap(sessions:readonly string[]):Promise<TapItem[]>{
  const all:TapItem[]=[];
@@ -58,14 +81,61 @@ export default function Recall({win}:ModuleProps){
   }catch(e){setError(e instanceof Error?e.message:String(e));}
   finally{setTapBusy('');refreshTap();}
  };
+ // TT112 (RC-38) — objects the open page is holding itself (blob: / data:).
+ const [resItems,setResItems]=useState<ResidentItem[]>([]);
+ const [resRefused,setResRefused]=useState<ResidentRefusal[]>([]);
+ const [resScanned,setResScanned]=useState(false);
+ const [resBusy,setResBusy]=useState('');
+ const scanResident=async()=>{
+  setResBusy('scan');setError('');
+  const items:ResidentItem[]=[],refused:ResidentRefusal[]=[];
+  try{
+   for(const sid of sessions){
+    const win=proxyWindowFor(sid);
+    if(!win)continue;
+    const token=`rs-${crypto.randomUUID()}`;
+    const reply=await askFrame<{token:string;page?:string;items?:Omit<ResidentItem,'sid'|'page'>[];refused?:{label:string;reason:string}[];error?:string|null}>(
+      win,{fusionWp:'resident-scan'},token);
+    if(!reply)continue;
+    for(const it of reply.items??[])items.push({...it,sid,page:String(reply.page??'')});
+    for(const r of reply.refused??[])refused.push({...r,sid});
+   }
+   setResItems(items);setResRefused(refused);setResScanned(true);
+  }finally{setResBusy('');}
+ };
+ const saveResident=async(it:ResidentItem)=>{
+  const key=`${it.sid}:${it.id}`;
+  setResBusy(key);setError('');
+  try{
+   const win=proxyWindowFor(it.sid);
+   if(!win)throw new Error('That page has closed, so the object it was holding is gone.');
+   const token=`rr-${crypto.randomUUID()}`;
+   const reply=await askFrame<{token:string;ok?:boolean;mime?:string;bytes?:ArrayBuffer;reason?:string}>(
+     win,{fusionWp:'resident-read',id:it.id},token,15000);
+   if(!reply)throw new Error('The page did not answer in time; scan again.');
+   if(!reply.ok||!reply.bytes)throw new Error(reply.reason??'The page refused to hand over those bytes.');
+   const mime=(reply.mime||it.mime||'').toLowerCase();
+   if(!mime)throw new Error('The page does not say what kind of object this is, so it is not saved as media.');
+   const bytes=new Uint8Array(reply.bytes);
+   // The bytes are the object's own: no decode, no re-encode, and no request to the publisher.
+   const base=input();
+   // The address recorded is the page the object belongs to: a blob: handle is private to that
+   // document and means nothing once it is gone, and no claim is made that this address would
+   // serve these bytes — the receipt's attribution stays "a label the human declared".
+   const page=it.page||base.page||base.url;
+   const path=await commitRecall(bytes,mime,{...base,url:page,page,title:base.title||it.label},'resident-object-url');
+   setSaved(path);
+  }catch(e){setError(e instanceof Error?e.message:String(e));}
+  finally{setResBusy('');}
+ };
  const forgetTapped=async(sid:string,id?:string)=>{
   try{await fetch('/api/recall-tap',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cmd:'forget',sid,...(id?{id}:{})})});}
   catch{/* already gone */}
   refreshTap();
  };
  const [browserOpen,setBrowserOpen]=useState(false);
- const [url,setUrl]=useState(String(win.props.url??'https://github.com/'));
- const [title,setTitle]=useState(String(win.props.pageTitle??'')),[grouping,setGrouping]=useState<RecallGrouping>('host'),[custom,setCustom]=useState('');
+ const [url,setUrl]=useState(String(win.props?.url??'https://github.com/'));
+ const [title,setTitle]=useState(String(win.props?.pageTitle??'')),[grouping,setGrouping]=useState<RecallGrouping>('host'),[custom,setCustom]=useState('');
  const [phase,setPhase]=useState('idle'),[error,setError]=useState(''),[saved,setSaved]=useState(''),[audioOnly,setAudioOnly]=useState(false),[withAudio,setWithAudio]=useState(true);
  const [captureSource,setCaptureSource]=useState('display');
  const [sources,setSources]=useState<{element:HTMLCanvasElement|HTMLMediaElement;label:string}[]>([]);
@@ -200,6 +270,25 @@ export default function Recall({win}:ModuleProps){
     </li>)}
    </ul>
    <p>These are the exact bytes the publisher sent while you were looking at the page, kept in this server&apos;s memory and never written to disk until you save one. Images, audio and video up to 8 MiB, 24 per browsing session; a part-loaded or range response is not kept. Closing the page, switching the setting off or pressing Forget drops them immediately. Saving makes no network request — a receipt records the method <span className="fs-mono">session-retained-response</span>.</p>
+  </Section>
+  <Section title="1c · Objects this page is holding itself — blob and data URLs, saved exactly as the page has them">
+   <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
+    <Btn data-testid="resident-scan" disabled={!sessions.length||resBusy==='scan'} onClick={()=>void scanResident()}>{resBusy==='scan'?'Scanning…':'Scan the open page'}</Btn>
+    <span data-testid="resident-count">{resScanned?`${resItems.length} found`:'not scanned'}</span>
+   </div>
+   {sessions.length?null:<p>Open a page in the browsing pane above (or the Browser app): this reads objects out of the page you are looking at.</p>}
+   <ul data-testid="resident-list" style={{listStyle:'none',margin:0,padding:0,display:'grid',gap:6}}>
+    {resItems.map(it=><li key={`${it.sid}:${it.id}`} data-testid={`resident-item-${it.id}`} className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}>
+     <span className="fs-mono" style={{flex:'1 1 200px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={it.label}>{it.label}</span>
+     <Badge>{it.scheme}:</Badge>{it.mime?<Badge>{it.mime}</Badge>:null}
+     {it.w&&it.h?<span className="fs-dim">{it.w}×{it.h}</span>:null}
+     <Btn variant="primary" disabled={resBusy===`${it.sid}:${it.id}`} onClick={()=>void saveResident(it)} aria-label={`Save object the page is holding ${it.label}`}>{resBusy===`${it.sid}:${it.id}`?'Saving…':'Save'}</Btn>
+    </li>)}
+   </ul>
+   {resRefused.length?<ul data-testid="resident-refused" style={{listStyle:'none',margin:0,padding:0,display:'grid',gap:4}}>
+    {resRefused.map((r,i)=><li key={i} className="fs-dim" style={{fontSize:'0.9em'}}>{r.label}: {r.reason}</li>)}
+   </ul>:null}
+   <p>A page can hold media it never downloaded twice — a picture it drew, a file you dropped on it, or bytes it assembled in memory — behind a <code>blob:</code> or <code>data:</code> address that only that page can read. Scanning asks the open page what it is holding; saving copies those exact bytes, with no decode and no second request. Live <code>MediaSource</code> streams and revoked objects have no complete file behind them and are listed as refusals instead. Up to 8 MiB per object.</p>
   </Section>
   {captureAllowed?null:<div role="note" data-testid="capture-policy-off">Screen and element capture is switched off for this installation (Settings → Privacy → Screen and element capture). The buttons below stay disabled, and the server refuses these saves even if something else asks for them.</div>}
   <Section title="2 · Authorized live video / shared audio encoding">

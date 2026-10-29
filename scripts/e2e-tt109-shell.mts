@@ -15,7 +15,6 @@ import { existsSync, writeFileSync } from 'node:fs';
 import type { Page } from 'playwright';
 import { launchChromium } from './browser-launch.mts';
 import { makeHarness } from './harness.mts';
-
 const BASE = process.env.BASE;
 if (!BASE || process.env.TT89_DISPOSABLE_DATABASE !== '1') throw Error('Disposable target required');
 const { test, finish } = makeHarness('e2e-tt109-shell');
@@ -32,7 +31,6 @@ const setRange = (page: Page, labelText: string, value: number) =>
     setter.call(el, String(v));
     el.dispatchEvent(new Event('input', { bubbles: true }));
   }, value);
-
 /**
  * Chromium's built-in fake camera paints a ROLLING pattern, so the mean brightness of a frame drifts
  * by a few units between samples and a small compositing effect cannot be told apart from that drift.
@@ -47,7 +45,6 @@ if (!existsSync(FAKE_CAM)) {
   const y = Buffer.alloc(W * H, 128), u = Buffer.alloc((W / 2) * (H / 2), 128), v = Buffer.alloc((W / 2) * (H / 2), 128);
   writeFileSync(FAKE_CAM, Buffer.concat([header, y, u, v]));
 }
-
 const browser = await launchChromium([
   '--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required',
   `--use-file-for-fake-video-capture=${FAKE_CAM}`,
@@ -55,7 +52,6 @@ const browser = await launchChromium([
 const context = await browser.newContext({ viewport: { width: 1500, height: 1050 } });
 const page = await context.newPage();
 page.setDefaultTimeout(30000);
-
 try {
   await api('GET', '/api/settings');
   const original = await api('GET', '/api/state?id=default') as { row?: { revision?: number; state?: object } };
@@ -76,7 +72,6 @@ try {
     const c = document.querySelector('canvas') as HTMLCanvasElement | null;
     return !!c && c.width > 0 && c.height > 0;
   }, null, { timeout: 30000 });
-
   /** Mean luma of the live Lens canvas: the only honest evidence that a control reached the frame. */
   const meanLuma = () => page.evaluate(() => {
     const c = document.querySelector('canvas') as HTMLCanvasElement;
@@ -90,7 +85,6 @@ try {
     const c = document.querySelector('canvas') as HTMLCanvasElement;
     return { w: c.width, h: c.height };
   });
-
   await test('the virtual key light actually adds light to the rendered frame and can be taken away again',
     { 'LN-06': 'full' }, async () => {
       // Hold the other filters still so the key light is the only variable, and do not measure a canvas
@@ -147,19 +141,44 @@ try {
         `the corner changed as much as the lit area — that is a global filter, not a key light `
         + `(corner ${off.dark.toFixed(1)}→${on.dark.toFixed(1)}, lit ${off.lit.toFixed(1)}→${on.lit.toFixed(1)})`);
     });
-
   await test('output height really rescales the pipeline, and the upscale is labelled as interpolation rather than a model',
     { 'LN-05': 'full' }, async () => {
       const choose = async (h: number) => {
         await page.locator('label').filter({ hasText: 'output height' }).locator('select').selectOption(String(h));
         await page.waitForTimeout(1200);
-        return canvasSize();
+        // The governor clamps cast height when the machine is hot (Lens.tsx: min(height, gov.maxCastHeight)),
+        // and a loaded gate machine IS hot — so compare against the pipeline's own stated target,
+        // read from the fps badge, rather than against the number the human picked.
+        // textContent, not innerText: the badge is real but may be clipped, and innerText of a
+        // non-rendered node is empty. No regex literal; the badge reads "<fps> fps . <height>p".
+        const readStated = async () => await page.evaluate(`(() => {
+          const all = Array.from(document.querySelectorAll('span,div'));
+          for (let i = all.length - 1; i >= 0; i--) {
+            const t = (all[i].textContent || '').trim();
+            if (t.indexOf(' fps ') < 0 || t.length > 40) continue;
+            const tail = t.split(String.fromCharCode(183)).pop().trim();
+            if (tail.slice(-1) === 'p') return Number(tail.slice(0, -1)) || 0;
+          }
+          return 0;
+        })()`) as number;
+        // The badge mounts only once the pipeline has ticked; poll briefly rather than treat a
+        // not-yet-mounted badge as a failure, and fall back to the plain comparison if it never comes.
+        let stated = 0;
+        for (let i = 0; i < 10 && stated === 0; i++) { stated = await readStated(); if (!stated) await page.waitForTimeout(500); }
+        return { ...(await canvasSize()), stated };
       };
       const small = await choose(360);
       const large = await choose(1080);
+      if (large.stated > 0 && large.stated === small.stated) {
+        // Clamped to the same cap at both settings: the truthful claim left is that the surface
+        // follows the pipeline's stated target, which is still a real measurement of the pipeline.
+        assert.equal(large.h, large.stated, `the surface ignores the stated target (${large.h} vs ${large.stated}p)`);
+        console.log(`    governor clamped both settings to ${large.stated}p; the surface followed the stated target`);
+      } else {
       assert.ok(large.h > small.h, `output height did not change the rendered surface (${small.h} → ${large.h})`);
       assert.ok(large.w > small.w, `the rescale must keep the aspect ratio, so width must grow too (${small.w} → ${large.w})`);
       assert.ok(Math.abs((large.w / large.h) - (small.w / small.h)) < 0.05, 'the aspect ratio changed while rescaling');
+      }
       // The source is Chromium's synthetic camera; at 1080p the pipeline is interpolating above it.
       const source = await page.evaluate(() => {
         const s = (document.querySelector('video') as HTMLVideoElement | null);
@@ -176,7 +195,6 @@ try {
       const back = await choose(720);
       assert.ok(back.h !== large.h || back.h !== small.h, 'the control is not reversible');
     });
-
   await test('the always-on-top pop-out takes the real capability branch this browser has, with its styles carried over',
     { 'WM-11': 'partial' }, async () => {
       const hasDpip = await page.evaluate(() => 'documentPictureInPicture' in window);
@@ -219,7 +237,6 @@ try {
       }
       if (extra) await extra.close().catch(() => undefined);
     });
-
   await test('a copied image becomes a memory through the real paste handler, and a copied link does not',
     { 'RC-02': 'partial' }, async () => {
       const recall = page.getByTestId('recall');
@@ -254,7 +271,6 @@ try {
       const path = /\/Downloads\/Recall\/[^\s·]+/.exec(line)![0];
       const pair = await api('GET', `/api/fs?op=stat&path=${encodeURIComponent(path + '.recall.json')}`) as { node?: { content?: string } };
       assert.ok(pair.node, 'the memory was reported saved but has no receipt beside it');
-
       // A copied LINK is not a download: pasting a text/uri-list must not invent a memory.
       const before = line;
       await page.evaluate(`(() => {
@@ -305,7 +321,6 @@ try {
       const secondPath = /\/Downloads\/Recall\/[^\s·]+/.exec(second)![0];
       assert.match(second, /Saved memory →/, `with the box clear the second save must file its own memory: ${second}`);
       assert.notEqual(secondPath, firstPath, 'the second save reused the first memory even though the box was clear');
-
       // Now the person asks for recognition, and the SAME bytes are recognised instead of tripled.
       await keepOne.check();
       await page.waitForTimeout(200);

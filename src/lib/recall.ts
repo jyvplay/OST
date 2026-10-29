@@ -39,7 +39,10 @@ export async function commitRecallDetailed(bytes:Uint8Array, mime:string, input:
   const path=`${folder}/${Date.now()}-${crypto.randomUUID()}.${recallExtension(type)}`;
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes).buffer)),b=>b.toString(16).padStart(2,'0')).join('');
   if(derivedFrom)validDerivedFrom(derivedFrom,path);
-  const receipt=JSON.stringify({version:1,path,bytes:bytes.length,sha256:digest,mime:type,method,sourceAttribution:method==='original-response'?'requested-url':'user-declared-label',source:recallSource(input.url),page:recallSource(input.page),capturedAt:new Date().toISOString(),queryRedacted:true,...(derivedFrom?{derivedFrom}:{})},null,2);
+  // TT112: `refetched` is written explicitly rather than left to be inferred from the method name.
+  // Only the original-byte pathway asks the publisher again; every other method saves bytes this
+  // browser already had, and a receipt that says so can be checked without knowing the method table.
+  const receipt=JSON.stringify({version:1,path,bytes:bytes.length,sha256:digest,mime:type,method,sourceAttribution:method==='original-response'?'requested-url':'user-declared-label',source:recallSource(input.url),page:recallSource(input.page),capturedAt:new Date().toISOString(),queryRedacted:true,refetched:method==='original-response',...(derivedFrom?{derivedFrom}:{})},null,2);
   let answer:{path?:string;stored?:boolean;duplicateOf?:string;firstSavedAt?:string};
   try{answer=await api<{path?:string;stored?:boolean;duplicateOf?:string;firstSavedAt?:string}>('/api/fs',{method:'POST',
     body:JSON.stringify({op:'recallCommit',path,content:toB64(bytes),mime:type,receipt,...(opts.onDuplicate?{onDuplicate:opts.onDuplicate}:{})})});}

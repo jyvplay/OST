@@ -1,6 +1,6 @@
 {
   "suite": "tt103-memory-unit",
-  "at": "2026-10-29T01:29:28.375Z",
+  "at": "2026-10-29T02:31:26.556Z",
   "results": [
     {
       "suite": "tt103-memory-unit",
@@ -14,7 +14,7 @@
       "name": "dimension-only admission rejects 16MP plus one row",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 4
     },
     {
       "suite": "tt103-memory-unit",

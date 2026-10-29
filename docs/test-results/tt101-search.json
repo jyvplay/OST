@@ -1,6 +1,6 @@
 {
   "suite": "tt101-search",
-  "at": "2026-10-29T01:30:33.298Z",
+  "at": "2026-10-29T02:32:34.756Z",
   "results": [
     {
       "suite": "tt101-search",
@@ -34,80 +34,78 @@
       "suite": "tt101-search",
       "name": "independent MIT music-metadata parser agrees on the real ID3 lyrics and custom transcript",
       "covers": {},
-      "pass": false,
-      "error": "Cannot find module '/home/user/tools/node_modules/music-metadata/lib/index.js' imported from /home/user/OST/scripts/tt101-search.mts",
-      "ms": 1
+      "pass": true,
+      "ms": 137
     },
     {
       "suite": "tt101-search",
       "name": "UTF-16 ID3v2.3 lyrics agree with the independent parser",
       "covers": {},
-      "pass": false,
-      "error": "Cannot find module '/home/user/tools/node_modules/music-metadata/lib/index.js' imported from /home/user/OST/scripts/tt101-search.mts",
-      "ms": 1
+      "pass": true,
+      "ms": 2
     },
     {
       "suite": "tt101-search",
       "name": "compressed ID3 metadata is explicitly refused without inflation",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt101-search",
       "name": "non-file source filters are explicitly rejected rather than ignored",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt101-search",
       "name": "embedded lyrics are found on the actual stored audio file with provenance",
       "covers": {},
       "pass": true,
-      "ms": 8
+      "ms": 10
     },
     {
       "suite": "tt101-search",
       "name": "arbitrary custom transcript in embedded audio is searchable",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 9
     },
     {
       "suite": "tt101-search",
       "name": "artist header is searchable without pretending to decode the audio stream",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 9
     },
     {
       "suite": "tt101-search",
       "name": "stored JSON transcript beyond legacy 50000-character limit is found",
       "covers": {},
       "pass": true,
-      "ms": 15
+      "ms": 18
     },
     {
       "suite": "tt101-search",
       "name": "nested arbitrary metadata and unknown keys remain searchable",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 7
     },
     {
       "suite": "tt101-search",
       "name": "zero and false scalar values are searchable, not dropped as falsy",
       "covers": {},
       "pass": true,
-      "ms": 13
+      "ms": 16
     },
     {
       "suite": "tt101-search",
       "name": "VTT transcript text is searchable",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 11
     },
     {
       "suite": "tt101-search",
@@ -121,70 +119,70 @@
       "name": "stored SHA metadata can be found without textual content",
       "covers": {},
       "pass": true,
-      "ms": 9
+      "ms": 12
     },
     {
       "suite": "tt101-search",
       "name": "field filtering does not silently fall back to another field",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 8
     },
     {
       "suite": "tt101-search",
       "name": "Unicode compatibility normalization matches full-width text",
       "covers": {},
       "pass": true,
-      "ms": 14
+      "ms": 18
     },
     {
       "suite": "tt101-search",
       "name": "large content is honestly skipped and reported",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 11
     },
     {
       "suite": "tt101-search",
       "name": "path boundaries prevent sibling-prefix scope leakage",
       "covers": {},
       "pass": true,
-      "ms": 14
+      "ms": 20
     },
     {
       "suite": "tt101-search",
       "name": "literal SQL metacharacters and injection-shaped query do not become operators",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 8
     },
     {
       "suite": "tt101-search",
       "name": "pagination reaches a held-out match after the first bounded page",
       "covers": {},
       "pass": true,
-      "ms": 316
+      "ms": 395
     },
     {
       "suite": "tt101-search",
       "name": "private plaintext is excluded even when calling host endpoint directly",
       "covers": {},
       "pass": true,
-      "ms": 42
+      "ms": 35
     },
     {
       "suite": "tt101-search",
       "name": "current exclusions apply in both metadata and legacy text modes",
       "covers": {},
       "pass": true,
-      "ms": 24
+      "ms": 33
     },
     {
       "suite": "tt101-search",
       "name": "live metadata sees updated values and does not return obsolete fields",
       "covers": {},
       "pass": true,
-      "ms": 31
+      "ms": 42
     },
     {
       "suite": "tt101-search",
@@ -212,7 +210,7 @@
       "name": "unlocked private metadata search runs locally and query text never reaches HTTP",
       "covers": {},
       "pass": true,
-      "ms": 10
+      "ms": 13
     },
     {
       "suite": "tt101-search",
@@ -226,7 +224,7 @@
       "name": "real encrypted files paginate locally and do not leak private query text",
       "covers": {},
       "pass": true,
-      "ms": 505
+      "ms": 632
     },
     {
       "suite": "tt101-search",
@@ -240,7 +238,7 @@
       "name": "lock during a real private file read discards the pending metadata result",
       "covers": {},
       "pass": true,
-      "ms": 14
+      "ms": 18
     },
     {
       "suite": "tt101-search",

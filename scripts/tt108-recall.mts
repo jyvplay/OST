@@ -248,7 +248,13 @@ await test('the page agent encodes already-decoded visuals and never requests a 
   const shim = await (await fetch(BASE + '/wp-shim.js')).text();
   const start = shim.indexOf("e.data.fusionWp!=='recall-batch'");
   assert.ok(start > 0, 'the served shim has no batch listener at all');
-  const handler = shim.slice(start, shim.indexOf('DOMContentLoaded', start));
+  // The slice must end where the batch listener ends, not at 'whatever token appears next':
+  // later pathways (RC-38's resident-object reader) legitimately read blob: URLs inside the
+  // document, and sweeping them into this slice made a true guard fail for the wrong reason.
+  const after = shim.indexOf('\n  /**', start);
+  const nextListener = shim.indexOf('addEventListener("message"', start);
+  const end = Math.min(...[after, nextListener, shim.indexOf('DOMContentLoaded', start)].filter((n) => n > start));
+  const handler = shim.slice(start, end);
   assert.ok(handler.length > 400, 'the batch handler is not in the served shim');
   for (const forbidden of ['fetch(', 'XMLHttpRequest', 'new Image(', '.src=']) assert.ok(!handler.includes(forbidden), `the batch path may not use ${forbidden}`);
   assert.ok(handler.includes('drawImage'), 'the batch must read existing pixels');
