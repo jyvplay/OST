@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt97-palette-actions",
-  "at": "2026-10-29T03:46:34.701Z",
+  "at": "2026-10-29T04:26:33.674Z",
   "results": [
     {
       "suite": "e2e-tt97-palette-actions",
@@ -12,7 +12,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 28
+      "ms": 35
     },
     {
       "suite": "e2e-tt97-palette-actions",
@@ -24,7 +24,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 2476
+      "ms": 2722
     },
     {
       "suite": "e2e-tt97-palette-actions",
@@ -36,7 +36,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 2668
+      "ms": 2541
     },
     {
       "suite": "e2e-tt97-palette-actions",
@@ -48,7 +48,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 1650
+      "ms": 2042
     },
     {
       "suite": "e2e-tt97-palette-actions",
@@ -60,7 +60,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 1829
+      "ms": 2635
     },
     {
       "suite": "e2e-tt97-palette-actions",
@@ -72,7 +72,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 2724
+      "ms": 2733
     },
     {
       "suite": "e2e-tt97-palette-actions",
@@ -84,7 +84,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 1849
+      "ms": 1788
     },
     {
       "suite": "e2e-tt97-palette-actions",
@@ -96,7 +96,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 3132
+      "ms": 3208
     },
     {
       "suite": "e2e-tt97-palette-actions",
@@ -108,7 +108,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 2256
+      "ms": 2581
     },
     {
       "suite": "e2e-tt97-palette-actions",
@@ -120,7 +120,7 @@
         "ST-01": "partial"
       },
       "pass": true,
-      "ms": 1965
+      "ms": 2051
     },
     {
       "suite": "e2e-tt97-palette-actions",

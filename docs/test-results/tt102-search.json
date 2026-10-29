@@ -1,90 +1,90 @@
 {
   "suite": "tt102-search",
-  "at": "2026-10-29T03:39:54.902Z",
+  "at": "2026-10-29T04:23:18.234Z",
   "results": [
     {
       "suite": "tt102-search",
       "name": "JSONL existing transcript values have structural provenance over real HTTP",
       "covers": {},
       "pass": true,
-      "ms": 68
+      "ms": 67
     },
     {
       "suite": "tt102-search",
       "name": "JSONL malformed line does not hide later existing metadata; partial coverage is explicit",
       "covers": {},
       "pass": true,
-      "ms": 20
+      "ms": 19
     },
     {
       "suite": "tt102-search",
       "name": "NDJSON MIME works without a recognized filename extension",
       "covers": {},
       "pass": true,
-      "ms": 19
+      "ms": 21
     },
     {
       "suite": "tt102-search",
       "name": "vendor +json MIME works without a JSON suffix",
       "covers": {},
       "pass": true,
-      "ms": 18
+      "ms": 31
     },
     {
       "suite": "tt102-search",
       "name": "CSV quoted newline, escaped quote and duplicate header values are searchable",
       "covers": {},
       "pass": true,
-      "ms": 23
+      "ms": 25
     },
     {
       "suite": "tt102-search",
       "name": "TSV stored transcripts use tab boundaries, not commas",
       "covers": {},
       "pass": true,
-      "ms": 19
+      "ms": 21
     },
     {
       "suite": "tt102-search",
       "name": "CSV hostile prototype-shaped header remains inert data",
       "covers": {},
       "pass": true,
-      "ms": 17
+      "ms": 24
     },
     {
       "suite": "tt102-search",
       "name": "malformed CSV returns raw text and warning, not certified structured fields",
       "covers": {},
       "pass": true,
-      "ms": 25
+      "ms": 29
     },
     {
       "suite": "tt102-search",
       "name": "CSV cell budget is explicit and bounded in the original pure reader",
       "covers": {},
       "pass": true,
-      "ms": 10
+      "ms": 15
     },
     {
       "suite": "tt102-search",
       "name": "JSON array field selection covers descendants without prefix matching siblings",
       "covers": {},
       "pass": true,
-      "ms": 19
+      "ms": 28
     },
     {
       "suite": "tt102-search",
       "name": "synchronized stored lyrics are found on an actual stored ID3 file",
       "covers": {},
       "pass": true,
-      "ms": 19
+      "ms": 22
     },
     {
       "suite": "tt102-search",
       "name": "independent MIT parser agrees on SYLT text and millisecond timestamps",
       "covers": {},
       "pass": true,
-      "ms": 113
+      "ms": 141
     },
     {
       "suite": "tt102-search",
@@ -133,35 +133,35 @@
       "name": "descending SYLT times fail closed without sorting away the evidence",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt102-search",
       "name": "SYLT entry budget refuses an over-limit frame explicitly",
       "covers": {},
       "pass": true,
-      "ms": 28
+      "ms": 36
     },
     {
       "suite": "tt102-search",
       "name": "legacy fast search scope cannot include a sibling prefix",
       "covers": {},
       "pass": true,
-      "ms": 30
+      "ms": 84
     },
     {
       "suite": "tt102-search",
       "name": "legacy scope accepts trailing separators without reopening sibling-prefix leakage",
       "covers": {},
       "pass": true,
-      "ms": 12
+      "ms": 18
     },
     {
       "suite": "tt102-search",
       "name": "legacy root search isolates its unique sentinel from prior-run common-word noise",
       "covers": {},
       "pass": true,
-      "ms": 38
+      "ms": 24
     },
     {
       "suite": "tt102-search",
@@ -175,35 +175,35 @@
       "name": "metadata wildcard-shaped folder scope remains literal SQL data",
       "covers": {},
       "pass": true,
-      "ms": 31
+      "ms": 38
     },
     {
       "suite": "tt102-search",
       "name": "SQL projection preserves every existing non-content node column",
       "covers": {},
       "pass": true,
-      "ms": 89
+      "ms": 169
     },
     {
       "suite": "tt102-search",
       "name": "over-budget content still exposes stored node SHA and explicit skip warning",
       "covers": {},
       "pass": true,
-      "ms": 58
+      "ms": 55
     },
     {
       "suite": "tt102-search",
       "name": "AND terms cannot be satisfied across different files",
       "covers": {},
       "pass": true,
-      "ms": 84
+      "ms": 72
     },
     {
       "suite": "tt102-search",
       "name": "absent transcript is not generated from arbitrary binary bytes",
       "covers": {},
       "pass": true,
-      "ms": 20
+      "ms": 27
     },
     {
       "suite": "tt102-search",
@@ -224,14 +224,14 @@
       "name": "query page cap remains 32 under the new readers",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt102-search",
       "name": "JSONL field budget reports truncation rather than scanning unlimited records",
       "covers": {},
       "pass": true,
-      "ms": 8
+      "ms": 10
     }
   ]
 }

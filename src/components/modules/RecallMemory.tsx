@@ -202,7 +202,7 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
    onPaste={e=>{if(!e.clipboardData.files.length){setNote('No resident media file in this paste; text and links are never fetched.');return;}e.preventDefault();resident(e.clipboardData.files,'human-paste-file');}}
    onDragOver={e=>{if(Array.from(e.dataTransfer.types).includes('Files')){e.preventDefault();e.dataTransfer.dropEffect=busy?'none':'copy';}}}
    onDrop={e=>{e.preventDefault();resident(e.dataTransfer.files,'human-drop-file');}}>
-   <span>Paste or drop one media file</span>
+   <span>Paste a copied media file here, or drop one</span>
    <Hint label="Why a dragged link will not do">Focus here and paste a copied media file, or drop exactly one file. Dragged webpage links are not downloads; if the browser exposes only a URL, use the already-loaded visual button instead.</Hint>
   </div>
   <label style={{display:'grid',gap:4,justifyItems:'start'}}>Choose media from your device<input aria-label="Choose resident media" disabled={busy} type="file" accept="image/*,video/*,audio/*" onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value='';if(file)void run(()=>save(file,'human-selected-file'));}}/></label>

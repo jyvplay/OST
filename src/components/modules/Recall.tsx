@@ -303,7 +303,7 @@ export default function Recall({win}:ModuleProps){
     <Btn disabled={phase!=='recording'} onClick={stop}>Stop and finalize</Btn>
    </div>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}>
-    <Badge>{fmtBytes(bytes)} received</Badge>
+    <Badge>Bytes received: {fmtBytes(bytes)}</Badge>
     <Hint label={local?`Streaming to ${local.name}`:'Bounded to the VFS'}>{local?`Streaming to ${local.name}; bounded pending writes, no full-recording RAM buffer.`:'VFS auto-stops near 6 MiB, hard limit 8 MiB. Choose a local file for long recordings.'} Permission is required each time; only audio tracks actually granted are encoded. Protected content may be blank or unavailable.</Hint>
    </div>
   </Section>
@@ -316,7 +316,7 @@ export default function Recall({win}:ModuleProps){
   <Section title="Auto Recall queue">
    <Hint label="How Auto Recall behaves">In a Fusion Browser private-proxy tab, explicitly enable “Auto Recall”. It discovers up to 200 current-document image/video/audio HTTP URLs, including mutations, and copies same-origin media only while armed. It cannot inspect unrelated cross-origin frames, DRM, MediaSource/blob segments, CSS backgrounds or every network request. Queue: 16 pending; one fetch at a time. Closing the proxy tab disarms its queue.</Hint>
    <Btn onClick={()=>cancelRecall()}>Cancel pending / fetching jobs</Btn>
-   <Hint label="Cancelling">Once a database commit starts it is not cancellable; an uncertain commit must be checked in Files, not blindly retried.</Hint>
+   <p className="fs-dim" style={{margin:0,fontSize:'0.92em'}}>Once a database commit starts it is not cancellable; an uncertain commit must be checked in Files, not blindly retried.</p>
    <ol>{[...jobs.filter(j=>!['saved','failed','cancelled'].includes(j.phase)),...jobs.filter(j=>['saved','failed','cancelled'].includes(j.phase)).slice(-24).reverse()].map(j=><li key={j.id} data-phase={j.phase}><strong>{j.phase}</strong> {j.source} {j.path?<Btn onClick={()=>shell.open('files',{path:j.path!.slice(0,j.path!.lastIndexOf('/'))})}>Reveal</Btn>:null}{j.error?<span role="status"> — {j.error}</span>:null}</li>)}</ol>
   </Section>
  </div>;
