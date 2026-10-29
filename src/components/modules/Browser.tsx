@@ -1,5 +1,6 @@
 "use client";
 import OrbitTarget from "../OrbitTarget";
+import { UiGlyph } from "../AppIcon";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useState } from "react";
@@ -234,7 +235,7 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
     <div data-testid="browser" data-tabs={tabs.length} data-active={active} data-pinned={tabs.filter((t) => t.pinned).map((t) => t.id).join(",")} onKeyDown={onKey}
       style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        {tools?<Btn variant="ghost" onClick={() => setVertical((v) => !v)} title="Vertical tab sidebar">{vertical ? "▤" : "▥"}</Btn>:null}
+        {tools?<Btn variant="ghost" onClick={() => setVertical((v) => !v)} aria-label="Vertical tab sidebar" title="Vertical tab sidebar" aria-pressed={vertical}><UiGlyph name={vertical ? "tabstrip" : "sidebar"} /></Btn>:null}
         <input className="fs-input" value={address} aria-label="Address" style={embeddedRecall?{flex:"1 1 240px",minWidth:0,width:"auto"}:undefined}
           onChange={(e) => setAddress(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") open(address); }} />
@@ -242,11 +243,13 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
         {!embeddedRecall?<Btn onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}>Recall media</Btn>:null}
         {embeddedRecall?<Btn aria-expanded={tools} onClick={()=>{setTools(v=>!v);setShowPerms(false);setShowRoute(false);}}>Browser tools</Btn>:null}
         <div style={{display:tools?'contents':'none'}}>
-        <Btn variant="ghost" onClick={() => setSplit(split === "off" ? "h" : split === "h" ? "v" : "off")}>
-          split: {split}
+        <Btn variant="ghost" aria-label={`Split view: ${split === "off" ? "off" : split === "h" ? "side by side" : "stacked"}`}
+          title={`Split view: ${split === "off" ? "off" : split === "h" ? "side by side" : "stacked"} — click to cycle`}
+          onClick={() => setSplit(split === "off" ? "h" : split === "h" ? "v" : "off")}>
+          <UiGlyph name={split === "v" ? "splitV" : "splitH"} />{split === "off" ? null : <span style={{ marginLeft: 5, opacity: .8 }}>{split === "h" ? "⇔" : "⇕"}</span>}
         </Btn>
         <Btn variant="ghost" title="Discard the frames of every tab that is not visible (pinned tabs stay awake)" onClick={() => { const r = sleepInactive(sess, splitPartner); setSess(r.session); setNotice(`${r.slept} tab(s) put to sleep`); }}>Sleep other tabs</Btn>
-        <Btn variant="ghost" onClick={() => current && shell.open("browser", { url: current.url, title: current.title })}>Tear out</Btn>
+        <Btn variant="ghost" aria-label="Tear out" title="Open this tab in a window of its own" onClick={() => current && shell.open("browser", { url: current.url, title: current.title })}><UiGlyph name="tearout" /></Btn>
         <Btn variant="ghost" aria-label={current?.pinned ? "Unpin tab" : "Pin tab"} onClick={() => current && setSess((s) => togglePin(s, current.id))}>{current?.pinned ? "Unpin" : "Pin"}</Btn>
         <select className="fs-input" aria-label="Tab group" style={{ width: fz(120) }} value={current?.group ?? ""}
           onChange={(e) => { if (!current) return; const v = e.target.value; setSess((s) => (v === "+" ? createGroup(s, current.id, `Group ${s.groups.length + 1}`) : setGroup(s, current.id, v))); }}>
@@ -321,7 +324,7 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
             </div>
           ) : null}
 
-          <div style={{
+          <div data-testid="br-frames" data-split={split} style={{
             flex: 1, minHeight: 0,
             display: "grid",
             gridTemplateColumns: split === "h" ? "1fr 1fr" : "1fr",

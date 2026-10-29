@@ -1,0 +1,55 @@
+{
+  "suite": "e2e-tt114-tabs",
+  "at": "2026-10-29T06:46:14.614Z",
+  "results": [
+    {
+      "suite": "e2e-tt114-tabs",
+      "name": "PR-07d: a horizontal split puts two live frames side by side",
+      "covers": {
+        "PR-07d": "full",
+        "PR-07": "partial"
+      },
+      "pass": true,
+      "ms": 2834
+    },
+    {
+      "suite": "e2e-tt114-tabs",
+      "name": "PR-07e: a vertical split stacks them instead, and a third click restores one pane",
+      "covers": {
+        "PR-07e": "full"
+      },
+      "pass": true,
+      "ms": 3731
+    },
+    {
+      "suite": "e2e-tt114-tabs",
+      "name": "PR-07j: tearing a tab out opens a second browser window on that page",
+      "covers": {
+        "PR-07j": "full",
+        "WM-01": "partial"
+      },
+      "pass": true,
+      "ms": 3193
+    },
+    {
+      "suite": "e2e-tt114-tabs",
+      "name": "PR-07r: tabs, the active tab, groups and the split survive a reload",
+      "covers": {
+        "PR-07r": "full",
+        "SH-08": "partial"
+      },
+      "pass": true,
+      "ms": 5404
+    },
+    {
+      "suite": "e2e-tt114-tabs",
+      "name": "no page error was raised while splitting, tearing out or restoring",
+      "covers": {
+        "PR-07d": "partial",
+        "PR-07r": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

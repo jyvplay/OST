@@ -5,7 +5,7 @@ import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { WindowState } from "@/lib/windowing/state";
+import { clampZoom, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, type Density, type WindowState } from "@/lib/windowing/state";
 import { useShell } from "./shell-context";
 import ModuleHost from "./ModuleHost";
 import { AppIcon, UiGlyph, type UiGlyphName } from "./AppIcon";
@@ -204,6 +204,7 @@ export default function WindowFrame({ win }: { win: WindowState }) {
     }
   }, [shell, win.id, win.w, win.h]);
 
+  const winZoom = clampZoom(win.zoom ?? 1);
   const body = <ModuleHost win={win} />;
 
   if (win.host === "pip" && pipDoc) {
@@ -264,6 +265,13 @@ export default function WindowFrame({ win }: { win: WindowState }) {
     >
       {orbit ? <OrbitMenu x={orbit.x} y={orbit.y} close={closeOrbit} actions={[
         ...actions.map(([label, , , run]) => ({ label, run })),
+        // WM-12: density and zoom are per window, so a reference pane can be small while the
+        // window being worked in stays comfortable. Both survive a reload with the session.
+        ...(["compact", "balanced", "touch"] as Density[]).filter(d => d !== (win.density ?? "balanced"))
+          .map(d => ({ label: `Density: ${d} here`, run: () => shell.dispatch({ t: "setDensity", id: win.id, density: d }) })),
+        ...(winZoom < ZOOM_MAX ? [{ label: `Zoom in here (${Math.round(Math.min(ZOOM_MAX, winZoom + ZOOM_STEP) * 100)}%)`, run: () => shell.dispatch({ t: "setZoom", id: win.id, zoom: winZoom + ZOOM_STEP }) }] : []),
+        ...(winZoom > ZOOM_MIN ? [{ label: `Zoom out here (${Math.round(Math.max(ZOOM_MIN, winZoom - ZOOM_STEP) * 100)}%)`, run: () => shell.dispatch({ t: "setZoom", id: win.id, zoom: winZoom - ZOOM_STEP }) }] : []),
+        ...(winZoom !== 1 || win.density ? [{ label: "Reset this window's size settings", run: () => { shell.dispatch({ t: "setZoom", id: win.id, zoom: 1 }); shell.dispatch({ t: "setDensity", id: win.id, density: "balanced" }); } }] : []),
         ...shell.state.workspaces.filter(w => w.id !== win.workspace).map(w => ({ label: `Send to ${w.name}`, run: () => shell.dispatch({ t: "toWorkspace", id: win.id, workspace: w.id }) })),
       ]} /> : null}
       <div
@@ -322,7 +330,13 @@ export default function WindowFrame({ win }: { win: WindowState }) {
         ) : null}
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div
+        className="fs-winbody"
+        data-density={win.density ?? undefined}
+        data-zoom={winZoom === 1 ? undefined : String(winZoom)}
+        style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden",
+          ...(winZoom === 1 ? {} : { zoom: winZoom }) }}
+      >
         {body}
       </div>
 

@@ -28,6 +28,13 @@ export interface WindowState extends Rect {
   workspace: number;
   host: HostKind;
   density?: Density;
+  /**
+   * TT114 (WM-12): a per-window content scale, independent of the global UI scale. 1 is unscaled;
+   * the reducer clamps to [ZOOM_MIN, ZOOM_MAX]. It scales the module's own subtree only, so the
+   * frame a person dragged to a size keeps that size and the window manager's geometry maths is
+   * untouched - which is why this is content zoom rather than a transform on the window.
+   */
+  zoom?: number;
   props: Record<string, unknown>;
   restore?: Rect;
 }
@@ -56,6 +63,12 @@ export interface DesktopState {
 }
 export const geometryKey = (module: string, host: string) => `${module}|${host}`;
 const MAX_GEOMETRY = 64;
+
+/** WM-12: the usable range of a per-window content zoom. Below 0.5 text stops being legible; above 2 a
+ *  single control can exceed a reasonable window. Both ends are reachable from the window menu. */
+export const ZOOM_MIN = 0.5, ZOOM_MAX = 2, ZOOM_STEP = 0.1;
+export const clampZoom = (z: number): number =>
+  !Number.isFinite(z) ? 1 : Math.round(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z)) * 100) / 100;
 
 export const MIN_W: Record<Density, number> = { compact: 240, balanced: 280, touch: 320 };
 export const MIN_H: Record<Density, number> = { compact: 180, balanced: 200, touch: 240 };
@@ -104,6 +117,7 @@ export type WindowCommand =
   | { t: "setProps"; id: string; props: Record<string, unknown> }
   | { t: "setHost"; id: string; host: HostKind }
   | { t: "setDensity"; id: string; density: Density }
+  | { t: "setZoom"; id: string; zoom: number }
   | { t: "toWorkspace"; id: string; workspace: number }
   | { t: "switchWorkspace"; workspace: number }
   | { t: "renameWorkspace"; workspace: number; name: string }
@@ -324,6 +338,12 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
 
     case "setDensity":
       return bump({ ...state, windows: map((w) => ({ ...w, density: cmd.density }), cmd.id) });
+
+    case "setZoom":
+      // Clamped here rather than at the call site: a restored session, a routine and a keyboard
+      // shortcut all reach this one place, and an out-of-range zoom would make a window unusable
+      // in a way that is hard to undo from inside that window.
+      return bump({ ...state, windows: map((w) => ({ ...w, zoom: clampZoom(cmd.zoom) }), cmd.id) });
 
     case "toWorkspace":
       return bump({ ...state, windows: map((w) => ({ ...w, workspace: cmd.workspace }), cmd.id) });

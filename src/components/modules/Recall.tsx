@@ -247,11 +247,11 @@ export default function Recall({win}:ModuleProps){
    <input className="fs-input" aria-label="Recall page title" placeholder="Page title" value={title} disabled={running} onChange={e=>setTitle(e.target.value)}/>
    {grouping==='custom'?<input className="fs-input" aria-label="Recall custom folder" value={custom} disabled={running} onChange={e=>setCustom(e.target.value)}/>:null}
   </div>
-  <Section title="1 · Original bytes" right={<Badge>refetch</Badge>}>
+  <Section icon="bytes" title="1 · Original bytes" right={<Badge>refetch</Badge>}>
    <Btn disabled={running} onClick={()=>{try{enqueueRecall(input());setError('');}catch(e){setError(e instanceof Error?e.message:String(e));}}}>Save media URL</Btn>
    <Hint label="Limits">HTTP(S) images, video or audio only, up to 8 MiB. Redirects, playlists, blob URLs and HTML are not complete media. The existing guarded proxy checks network destinations. Query tokens are excluded from receipts. Publisher MIME headers are not proof of a playable codec.</Hint>
   </Section>
-  <Section title="1b · Loaded by this page" right={<Badge tone="ok">no new request</Badge>}>
+  <Section icon="loaded" title="1b · Loaded by this page" right={<Badge tone="ok">no new request</Badge>}>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
     <Btn onClick={refreshTap} disabled={!tapOn}>Refresh loaded media</Btn>
     <Btn onClick={()=>{for(const sid of sessions)void forgetTapped(sid);}} disabled={!tapOn||!tapItems.length}>Forget held media</Btn>
@@ -271,7 +271,7 @@ export default function Recall({win}:ModuleProps){
    </ul>
    <Hint label="Where these bytes come from">These are the exact bytes the publisher sent while you were looking at the page, kept in this server&apos;s memory and never written to disk until you save one. Images, audio and video up to 8 MiB, 24 per browsing session; a part-loaded or range response is not kept. Closing the page, switching the setting off or pressing Forget drops them immediately. Saving makes no network request — a receipt records the method <span className="fs-mono">session-retained-response</span>.</Hint>
   </Section>
-  <Section title="1c · Held by this page" right={<Badge tone="ok">byte-exact</Badge>}>
+  <Section icon="held" title="1c · Held by this page" right={<Badge tone="ok">byte-exact</Badge>}>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
     <Btn data-testid="resident-scan" disabled={!sessions.length||resBusy==='scan'} onClick={()=>void scanResident()}>{resBusy==='scan'?'Scanning…':'Scan the open page'}</Btn>
     <span data-testid="resident-count">{resScanned?`${resItems.length} found`:'not scanned'}</span>
@@ -291,7 +291,7 @@ export default function Recall({win}:ModuleProps){
    <Hint label="blob: and data: objects">A page can hold media it never downloaded twice — a picture it drew, a file you dropped on it, or bytes it assembled in memory — behind a <code>blob:</code> or <code>data:</code> address that only that page can read. Scanning asks the open page what it is holding; saving copies those exact bytes, with no decode and no second request. Live <code>MediaSource</code> streams and revoked objects have no complete file behind them and are listed as refusals instead. Up to 8 MiB per object.</Hint>
   </Section>
   {captureAllowed?null:<div role="note" data-testid="capture-policy-off">Switched off — Settings → Privacy → Screen and element capture. The buttons stay disabled and the server refuses these saves.</div>}
-  <Section title="2 · Live recording" right={<Badge tone="warn">re-encode</Badge>}>
+  <Section icon="record" title="2 · Live recording" right={<Badge tone="warn">re-encode</Badge>}>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}><Btn disabled={running} onClick={scan}>Refresh Fusion sources</Btn><label>Capture source <select aria-label="Recall capture source" disabled={running} value={captureSource} onChange={e=>setCaptureSource(e.target.value)}><option value="display">Shared display / tab (permission required)</option>{sources.map((s,i)=><option key={i} value={String(i)}>{s.label}</option>)}</select></label></div>
    <Hint label="What can be captured">Fusion element capture is limited to accessible, already-rendered canvas/video/audio elements in this document. It cannot reach opaque/cross-origin frames or protected media. Canvas has no audio; a microphone is never silently added.</Hint>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap'}}>
@@ -307,13 +307,13 @@ export default function Recall({win}:ModuleProps){
     <Hint label={local?`Streaming to ${local.name}`:'Bounded to the VFS'}>{local?`Streaming to ${local.name}; bounded pending writes, no full-recording RAM buffer.`:'VFS auto-stops near 6 MiB, hard limit 8 MiB. Choose a local file for long recordings.'} Permission is required each time; only audio tracks actually granted are encoded. Protected content may be blank or unavailable.</Hint>
    </div>
   </Section>
-  <Section title="3 · Snapshot" right={<Badge tone="warn">pixels</Badge>}>
+  <Section icon="snapshot" title="3 · Snapshot" right={<Badge tone="warn">pixels</Badge>}>
    <div className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}><Btn disabled={running||!captureAllowed} onClick={()=>void start(true)}>Capture authorized image</Btn><Hint label="Pixels, not original bytes">Rasterizes a decoded video frame to PNG (16 MP / 8 MiB limits), not the original image bytes.</Hint></div>
   </Section>
   <video ref={preview} muted playsInline style={{maxWidth:'100%',maxHeight:180,background:'#000'}} aria-label="Recall capture preview"/>
   {error?<div role="alert">{error}</div>:null}
   {saved?<div role="status">Saved: {saved} {saved.startsWith('/')?<Btn onClick={()=>shell.open('files',{path:saved.slice(0,saved.lastIndexOf('/'))})}>Reveal recording</Btn>:null}</div>:null}
-  <Section title="Auto Recall queue">
+  <Section icon="queue" title="Auto Recall queue">
    <Hint label="How Auto Recall behaves">In a Fusion Browser private-proxy tab, explicitly enable “Auto Recall”. It discovers up to 200 current-document image/video/audio HTTP URLs, including mutations, and copies same-origin media only while armed. It cannot inspect unrelated cross-origin frames, DRM, MediaSource/blob segments, CSS backgrounds or every network request. Queue: 16 pending; one fetch at a time. Closing the proxy tab disarms its queue.</Hint>
    <Btn onClick={()=>cancelRecall()}>Cancel pending / fetching jobs</Btn>
    <p className="fs-dim" style={{margin:0,fontSize:'0.92em'}}>Once a database commit starts it is not cancellable; an uncertain commit must be checked in Files, not blindly retried.</p>

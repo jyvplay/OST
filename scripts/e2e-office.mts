@@ -41,6 +41,22 @@ async function openSheet(path?: string): Promise<{ page: Page; dlg: Locator; cel
 }
 const text = async (l: Locator) => (await l.innerText()).trim();
 
+/**
+ * TT114: a banner tool is not always on the strip. When the window is narrower than the tools
+ * need, the banner folds the tail into the "More" menu — the control stays in the DOM but is
+ * visibility:hidden, so a plain click waits forever. A person reaches it through More; so does
+ * this. The menu label is the control's short visible text, which is why it is passed separately,
+ * and a toggle is mirrored as a menuitemcheckbox rather than a menuitem.
+ */
+async function tool(page: Page, dlg: Locator, name: string | RegExp, inMenu?: string | RegExp) {
+  const direct = dlg.getByRole("button", { name }).first();
+  if (await direct.isVisible().catch(() => false)) { await direct.click(); return; }
+  await dlg.getByRole("button", { name: /^More/ }).first().click();
+  const wanted = inMenu ?? name;
+  const item = page.getByRole("menuitem", { name: wanted }).or(page.getByRole("menuitemcheckbox", { name: wanted }));
+  await item.first().click();
+}
+
 await test("sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet", { "FF-28": "full", "FF-26": "partial", "FF-19": "partial" }, async () => {
   const { dlg, cell, close } = await openSheet();
   eq(await text(cell("D2")), "$28.50"); eq(await text(cell("D5")), "$79.00");
@@ -132,11 +148,11 @@ await test("clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style;
 await test("sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match", { "FF-28": "full" }, async () => {
   const { page, dlg, cell, close } = await openSheet();
   await cell("C3").click();
-  await dlg.getByRole("button", { name: "Sort ascending by the active column" }).click();
+  await tool(page, dlg, "Sort ascending by the active column", "Sort A-Z");
   eq([await text(cell("A2")), await text(cell("A3")), await text(cell("A4")), await text(cell("C5"))], ["Gizmo", "Widget", "Gadget", "Sum"]);
   eq(await text(cell("D2")), "$22.00"); eq(await text(cell("A1")), "Item");
   await cell("A3").click();
-  await dlg.getByRole("button", { name: "Insert rows above selection" }).click();
+  await tool(page, dlg, "Insert rows above selection", "+Row");
   eq(await text(cell("A3")), ""); eq(await text(cell("D6")), "$79.00");
   await page.keyboard.press("Control+f");
   await dlg.getByLabel("Find", { exact: true }).fill("gadget"); await dlg.getByLabel("Find", { exact: true }).press("Enter");
@@ -145,8 +161,8 @@ await test("sort by active column keeps header + moves row formulas; insert row 
 });
 
 await test("charts panel renders SVG chart images (bar → pie) from a dynamic-array source", { "FF-29": "full" }, async () => {
-  const { dlg, close } = await openSheet();
-  await dlg.getByRole("button", { name: "Show charts" }).click();
+  const { page, dlg, close } = await openSheet();
+  await tool(page, dlg, "Show charts", /^Charts/);
   const img = dlg.locator('[data-testid="charts-panel"] img').first();
   await img.waitFor({ timeout: 5000 });
   ok(await img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0), "chart image decoded");
@@ -179,10 +195,10 @@ await test("column resize by dragging the header edge; frozen header row stays v
 await test("save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths", { "FF-28": "full", "FF-20": "partial", "FF-21": "partial" }, async () => {
   const { page, dlg, cell, close } = await openSheet();
   await cell("A3").click(); await page.keyboard.press("Control+i");
-  await dlg.getByRole("button", { name: "Save workbook" }).click();
+  await tool(page, dlg, "Save workbook", "Save workbook");
   await dlg.locator('[data-testid="sheet-status"]').filter({ hasText: "saved" }).waitFor({ timeout: 10_000 });
   const saved = (await text(dlg.locator('[data-testid="sheet-status"]'))).replace(/^saved /, "");
-  await dlg.getByRole("button", { name: "Export .xlsx" }).click();
+  await tool(page, dlg, "Export .xlsx", "Export .xlsx");
   await dlg.locator('[data-testid="sheet-status"]').filter({ hasText: "exported" }).waitFor({ timeout: 10_000 });
   const xlsxPath = /(?:→| to) (\S+\.xlsx)/.exec(await text(dlg.locator('[data-testid="sheet-status"]')))![1];
   await close();
@@ -195,7 +211,7 @@ await test("save → reopen keeps styles/widths/charts; export .xlsx → server 
   const again = await openSheet(saved);
   eq(await again.cell("A3").evaluate((e) => getComputedStyle(e).fontStyle), "italic");
   eq(await text(again.cell("D5")), "$79.00");
-  await again.dlg.getByRole("button", { name: /Show charts|Charts \(1\)/ }).click();
+  await tool(again.page, again.dlg, /Show charts|Charts \(1\)/, /^Charts/);
   ok(await again.dlg.locator('[data-testid="charts-panel"] img').count() === 1, "chart persisted");
   await again.close();
   await api("POST", "/api/fs", { op: "purge", path: saved }); await api("POST", "/api/fs", { op: "purge", path: xlsxPath });

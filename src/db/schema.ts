@@ -359,8 +359,34 @@ export const routines = pgTable("routines", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/* ------------------------------------------------------------ recall publication tokens (TT114, RC-39)
+
+   Exactly-once publication under a lost acknowledgement.
+
+   A Recall commit writes two rows (the media and its receipt) in one transaction. If the HTTP
+   response is lost on the way back, the client cannot tell a completed publication from a failed
+   one, and before TT114 the only honest advice was "inspect Files before retrying" — a human step
+   in the middle of a save. A client-minted token, inserted in the SAME transaction as the pair,
+   makes the retry decidable: the second attempt finds its own token and is answered with the path
+   the first attempt wrote, without writing anything a second time.
+
+   The token is bound to the digest of the bytes, so a token cannot be replayed to claim a
+   different memory, and it is inserted BEFORE the pair so that two concurrent attempts with one
+   token cannot both write (see src/lib/server/recall-commit.ts for the ordering argument). */
+
+export const recallCommits = pgTable("recall_commits", {
+  /** client-minted UUID; the primary key is what makes the retry decidable */
+  token: text("token").primaryKey(),
+  /** the media path this token published */
+  path: text("path").notNull(),
+  /** SHA-256 of the DECODED media bytes - the same domain the receipt digests */
+  sha256: text("sha256").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type FeatureRow = typeof features.$inferSelect;
 export type VfsNode = typeof vfsNodes.$inferSelect;
 export type FileOpRow = typeof fileOps.$inferSelect;
 export type AlertRow = typeof alerts.$inferSelect;
 export type NoteRow = typeof notes.$inferSelect;
+export type RecallCommitRow = typeof recallCommits.$inferSelect;

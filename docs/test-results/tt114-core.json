@@ -1,0 +1,88 @@
+{
+  "suite": "tt114-core",
+  "at": "2026-10-29T06:45:33.185Z",
+  "results": [
+    {
+      "suite": "tt114-core",
+      "name": "the same seed always builds the same scene, so a reload does not reshuffle the desktop",
+      "covers": {
+        "LN-09": "full"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt114-core",
+      "name": "every scene is bounded: layers are ordered by depth and nothing is empty",
+      "covers": {
+        "LN-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt114-core",
+      "name": "parallax is zero at the centre, grows with depth, and is clamped at the edges",
+      "covers": {
+        "LN-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt114-core",
+      "name": "a drifting scene stays inside its box for a simulated hour",
+      "covers": {
+        "LN-09": "full"
+      },
+      "pass": true,
+      "ms": 17
+    },
+    {
+      "suite": "tt114-core",
+      "name": "the scene yields: hidden, throttled or reduced-motion all mean a still frame",
+      "covers": {
+        "LN-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt114-core",
+      "name": "a scene picture must be a local picture path, not a URL",
+      "covers": {
+        "LN-09": "full",
+        "SC-02": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt114-core",
+      "name": "cover-fit fills the desk without distorting the picture",
+      "covers": {
+        "LN-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt114-core",
+      "name": "the scene id vocabulary is closed",
+      "covers": {
+        "LN-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt114-core",
+      "name": "per-window zoom is clamped to a usable range and rounded to whole percents",
+      "covers": {
+        "WM-12": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import { recallLifecycle } from '@/lib/server/recall-lifecycle';
 import { recallAudit, recallSearch, recallTimeline } from '@/lib/server/recall-search';
 import { recallOrphanTrash } from '@/lib/server/recall-orphan';
-import { atomicRecallCommit, RecallPolicyRefusal } from '@/lib/server/recall-commit';
+import { atomicRecallCommit, RecallPolicyRefusal, RecallTokenConflict } from '@/lib/server/recall-commit';
 import { NextResponse, type NextRequest } from "next/server";
 import { and, desc, eq, getTableColumns, ilike, like, lt, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -304,7 +304,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: `unknown op ${op}` }, { status: 400 });
     }
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof RecallPolicyRefusal ? 403 : err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
+    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof RecallPolicyRefusal ? 403 : err instanceof RecallTokenConflict ? 409 : err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
   }
 }
 

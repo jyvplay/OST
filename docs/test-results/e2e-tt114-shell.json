@@ -1,0 +1,90 @@
+{
+  "suite": "e2e-tt114-shell",
+  "at": "2026-10-29T06:45:58.007Z",
+  "results": [
+    {
+      "suite": "e2e-tt114-shell",
+      "name": "LN-09: a scene really paints on a canvas, and \"off\" paints nothing at all",
+      "covers": {
+        "LN-09": "full"
+      },
+      "pass": true,
+      "ms": 4668
+    },
+    {
+      "suite": "e2e-tt114-shell",
+      "name": "LN-09: the scene animates when it should and stops dead when the shell is under load",
+      "covers": {
+        "LN-09": "full",
+        "SH-12": "partial"
+      },
+      "pass": true,
+      "ms": 2867
+    },
+    {
+      "suite": "e2e-tt114-shell",
+      "name": "WM-12: two windows hold different densities and zooms at the same time",
+      "covers": {
+        "WM-12": "full"
+      },
+      "pass": true,
+      "ms": 1464
+    },
+    {
+      "suite": "e2e-tt114-shell",
+      "name": "WM-12: the window menu changes only its own window, and the choice survives a reload",
+      "covers": {
+        "WM-12": "full",
+        "PR-07r": "partial"
+      },
+      "pass": true,
+      "ms": 5232
+    },
+    {
+      "suite": "e2e-tt114-shell",
+      "name": "WM-04: Overview lists every live window with its real geometry, and the filter narrows it",
+      "covers": {
+        "WM-04": "full"
+      },
+      "pass": true,
+      "ms": 3068
+    },
+    {
+      "suite": "e2e-tt114-shell",
+      "name": "WM-03: a window moves between named workspaces and only its own workspace is shown",
+      "covers": {
+        "WM-03": "full"
+      },
+      "pass": true,
+      "ms": 3100
+    },
+    {
+      "suite": "e2e-tt114-shell",
+      "name": "MD-07: the colour picker uses EyeDropper where it exists and says so plainly where it does not",
+      "covers": {
+        "MD-07": "full"
+      },
+      "pass": true,
+      "ms": 1974
+    },
+    {
+      "suite": "e2e-tt114-shell",
+      "name": "CT-04: the audience view follows the room the presenter publishes",
+      "covers": {
+        "CT-04": "full"
+      },
+      "pass": true,
+      "ms": 828
+    },
+    {
+      "suite": "e2e-tt114-shell",
+      "name": "no page error was raised by any of this turn's shell work",
+      "covers": {
+        "LN-09": "partial",
+        "WM-12": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
+import { UiGlyph } from "../AppIcon";
 import { api, fmtBytes } from '@/lib/api';
 import { commitRecallDetailed, recallWritable, type RecallInput } from '@/lib/recall';
 import { cropRegion, loadedPngDimensions, oneResidentFile, type CropRect } from '@/lib/recall-memory';
@@ -215,36 +216,36 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
    <div className="fs-toolgroup" data-group="Memories">
     <span className="fs-toolgroup-label" aria-hidden="true">Memories</span>
     <div className="fs-row" style={{gap:6,flexWrap:'wrap'}}>
-     <Btn disabled={busy} onClick={()=>void run(async()=>{recallWritable();if(!navigator.clipboard?.read)throw Error('Clipboard image reading unavailable; use the file chooser.');const copied=await navigator.clipboard.read();for(const item of copied){const type=item.types.find(t=>/^image\/(png|jpeg|webp)$/.test(t));if(type){await save(await item.getType(type),'human-clipboard-image');return;}}throw Error('Clipboard contains no supported image; nothing saved.');})}>Save copied image</Btn>
-     <Btn disabled={busy} onClick={()=>void run(()=>list())}>Refresh memory timeline</Btn>
-     <Btn disabled={busy||!next||items.length>=400} onClick={()=>void run(()=>list(true))}>Load older memories</Btn>
-     <Btn disabled={busy} onClick={()=>void run(loadTimeline)}>Show saving timeline</Btn>
+     <Btn disabled={busy} onClick={()=>void run(async()=>{recallWritable();if(!navigator.clipboard?.read)throw Error('Clipboard image reading unavailable; use the file chooser.');const copied=await navigator.clipboard.read();for(const item of copied){const type=item.types.find(t=>/^image\/(png|jpeg|webp)$/.test(t));if(type){await save(await item.getType(type),'human-clipboard-image');return;}}throw Error('Clipboard contains no supported image; nothing saved.');})} aria-label="Save copied image · Clipboard" title="Save copied image"><UiGlyph name="clipin" />Clipboard</Btn>
+     <Btn disabled={busy} onClick={()=>void run(()=>list())} aria-label="Refresh memory timeline" title="Refresh memory timeline"><UiGlyph name="refresh" />Refresh</Btn>
+     <Btn disabled={busy||!next||items.length>=400} onClick={()=>void run(()=>list(true))} aria-label="Load older memories" title="Load older memories"><UiGlyph name="more" />Older</Btn>
+     <Btn disabled={busy} onClick={()=>void run(loadTimeline)} aria-label="Show saving timeline" title="Show saving timeline"><UiGlyph name="queue" />Timeline</Btn>
     </div>
    </div>
    <div className="fs-toolgroup" data-group="Open memory">
     <span className="fs-toolgroup-label" aria-hidden="true">Open memory</span>
     <div className="fs-row" style={{gap:6,flexWrap:'wrap'}}>
-     <Btn disabled={busy||!view} onClick={()=>void run(verify)}>Verify saved receipt</Btn>
-     <Btn disabled={busy||!view||view.mime.startsWith('audio/')} onClick={()=>void run(frame)}>Save preview frame</Btn>
-     <Btn disabled={busy||!view} onClick={()=>void run(copyMemory)}>Copy memory to clipboard</Btn>
-     <Btn disabled={busy||!view||!view.mime.startsWith('image/')} onClick={()=>{try{openMemoryWith('photos');}catch(e){setNote(e instanceof Error?e.message:String(e));}}}>Open memory in Photos</Btn>
-     <Btn disabled={busy||!view} onClick={()=>{try{openMemoryWith('files');}catch(e){setNote(e instanceof Error?e.message:String(e));}}}>Show memory in Files</Btn>
-     <Btn disabled={busy||!view} onClick={()=>setConfirmTrash(true)}>Trash open memory pair</Btn>
-     <Btn disabled={busy||!view} onClick={()=>{if(!view)return;const a=document.createElement('a');a.href=view.url;a.download=view.path.split('/').pop()||'memory';a.click();setNote('Local export requested from the open saved Blob; browser download policy may require confirmation.');}}>Export open memory</Btn>
-     <Btn disabled={busy||!view} onClick={()=>{setConfirmTrash(false);epoch.current++;if(objectUrl.current)URL.revokeObjectURL(objectUrl.current);objectUrl.current='';setView(null);}}>Close memory preview</Btn>
+     <Btn disabled={busy||!view} onClick={()=>void run(verify)} aria-label="Verify saved receipt" title="Verify saved receipt"><UiGlyph name="verify" />Verify</Btn>
+     <Btn disabled={busy||!view||view.mime.startsWith('audio/')} onClick={()=>void run(frame)} aria-label="Save preview frame" title="Save preview frame"><UiGlyph name="snapshot" />Frame</Btn>
+     <Btn disabled={busy||!view} onClick={()=>void run(copyMemory)} aria-label="Copy memory to clipboard" title="Copy memory to clipboard"><UiGlyph name="copy" />Copy</Btn>
+     <Btn disabled={busy||!view||!view.mime.startsWith('image/')} onClick={()=>{try{openMemoryWith('photos');}catch(e){setNote(e instanceof Error?e.message:String(e));}}} aria-label="Open memory in Photos" title="Open memory in Photos"><UiGlyph name="photos" />Photos</Btn>
+     <Btn disabled={busy||!view} onClick={()=>{try{openMemoryWith('files');}catch(e){setNote(e instanceof Error?e.message:String(e));}}} aria-label="Show memory in Files" title="Show memory in Files"><UiGlyph name="folder" />Files</Btn>
+     <Btn disabled={busy||!view} onClick={()=>setConfirmTrash(true)} aria-label="Trash open memory pair" title="Trash open memory pair"><UiGlyph name="trash" />Trash</Btn>
+     <Btn disabled={busy||!view} onClick={()=>{if(!view)return;const a=document.createElement('a');a.href=view.url;a.download=view.path.split('/').pop()||'memory';a.click();setNote('Local export requested from the open saved Blob; browser download policy may require confirmation.');}} aria-label="Export open memory" title="Export open memory"><UiGlyph name="export" />Export</Btn>
+     <Btn disabled={busy||!view} onClick={()=>{setConfirmTrash(false);epoch.current++;if(objectUrl.current)URL.revokeObjectURL(objectUrl.current);objectUrl.current='';setView(null);}} aria-label="Close memory preview" title="Close memory preview"><UiGlyph name="close" />Close</Btn>
     </div>
    </div>
    <div className="fs-toolgroup" data-group="Region">
     <span className="fs-toolgroup-label" aria-hidden="true">Region</span>
     <div className="fs-row" style={{gap:6,flexWrap:'wrap'}}>
-     <Btn disabled={busy||!view||!drag||view.mime.startsWith('audio/')} onClick={()=>void run(saveRegion)}>Save selected region</Btn>
-     <Btn disabled={busy||!drag} onClick={()=>setDrag(null)}>Clear region</Btn>
+     <Btn disabled={busy||!view||!drag||view.mime.startsWith('audio/')} onClick={()=>void run(saveRegion)} aria-label="Save selected region · Save region" title="Save selected region"><UiGlyph name="crop" />Save region</Btn>
+     <Btn disabled={busy||!drag} onClick={()=>setDrag(null)} aria-label="Clear region" title="Clear region"><UiGlyph name="eraser" />Clear</Btn>
     </div>
    </div>
    <div className="fs-toolgroup" data-group="Undo">
     <span className="fs-toolgroup-label" aria-hidden="true">Undo</span>
     <div className="fs-row" style={{gap:6,flexWrap:'wrap'}}>
-     <Btn disabled={busy||!undo} onClick={()=>void run(restore)}>Undo pair trash</Btn>
+     <Btn disabled={busy||!undo} onClick={()=>void run(restore)} aria-label="Undo pair trash" title="Undo pair trash"><UiGlyph name="undo" />Undo</Btn>
     </div>
    </div>
   </div>

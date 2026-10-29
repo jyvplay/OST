@@ -746,3 +746,10 @@ span.fs-tt-pin { pointer-events: none; }
   padding: 2px 6px; border-radius: 8px;
   background: color-mix(in srgb, var(--fs-text) 4%, transparent);
   outline: 1px solid color-mix(in srgb, var(--fs-border) 60%, transparent); }
+
+/* WM-12 (TT114): per-window density. The same token values the root sets, re-declared on one
+   window's content wrapper so two windows can disagree. Written next to the root rule on purpose:
+   if one set changes, both must. */
+.fs-winbody[data-density="compact"] { --fs-titlebar: calc(14px + 14 * var(--fs-u)); --fs-target: calc(12px + 12 * var(--fs-u)); --fs-radius: calc(4px + 5 * var(--fs-u)); --fs-font: calc(12 * var(--fs-u)); }
+.fs-winbody[data-density="balanced"] { --fs-titlebar: calc(18px + 16 * var(--fs-u)); --fs-target: calc(16px + 16 * var(--fs-u)); --fs-radius: calc(6px + 6 * var(--fs-u)); --fs-font: calc(13 * var(--fs-u)); }
+.fs-winbody[data-density="touch"] { --fs-titlebar: calc(22px + 22 * var(--fs-u)); --fs-target: calc(24px + 24 * var(--fs-u)); --fs-radius: calc(8px + 8 * var(--fs-u)); --fs-font: calc(15 * var(--fs-u)); }
