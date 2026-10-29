@@ -1,0 +1,71 @@
+{
+  "suite": "tt110-core",
+  "at": "2026-10-29T05:05:31.349Z",
+  "results": [
+    {
+      "suite": "tt110-core",
+      "name": "the capture policy is enforced where the writing happens, not only where the buttons are",
+      "covers": {
+        "RC-36": "full",
+        "SC-02": "partial"
+      },
+      "pass": true,
+      "ms": 138
+    },
+    {
+      "suite": "tt110-core",
+      "name": "an unknown capture policy value cannot be smuggled into the setting",
+      "covers": {
+        "RC-36": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt110-core",
+      "name": "a licence verifies offline against the published key, and the grace period is stated",
+      "covers": {
+        "BL-02": "partial"
+      },
+      "pass": true,
+      "ms": 22
+    },
+    {
+      "suite": "tt110-core",
+      "name": "there is no remote wipe and no kill switch anywhere in the server",
+      "covers": {
+        "BL-05": "full"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "tt110-core",
+      "name": "every file operation leaves an observable journal entry with its final state",
+      "covers": {
+        "DP-14": "partial"
+      },
+      "pass": true,
+      "ms": 27
+    },
+    {
+      "suite": "tt110-core",
+      "name": "a routine can be rehearsed without doing anything, and both rehearsal and run are audited",
+      "covers": {
+        "AU-01": "partial"
+      },
+      "pass": true,
+      "ms": 19
+    },
+    {
+      "suite": "tt110-core",
+      "name": "search can be confined to one folder, and says what it searched when it finds nothing",
+      "covers": {
+        "SR-05": "partial",
+        "SR-08": "partial"
+      },
+      "pass": true,
+      "ms": 185
+    }
+  ]
+}

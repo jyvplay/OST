@@ -1,0 +1,108 @@
+{
+  "suite": "tt111-core",
+  "at": "2026-10-29T05:08:05.306Z",
+  "results": [
+    {
+      "suite": "tt111-core",
+      "name": "no preset collides with itself, and every browser-reserved chord ships with the reason it is reserved",
+      "covers": {
+        "IN-05": "full",
+        "ST-06": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt111-core",
+      "name": "the format registry is a usable contract: engine, grade, boundary and a conversion-loss answer for every entry",
+      "covers": {
+        "FF-14": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt111-core",
+      "name": "SRT becomes WebVTT the way a browser needs it, and WebVTT is left alone",
+      "covers": {
+        "AX-07": "partial",
+        "FF-14": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt111-core",
+      "name": "an .ics round-trips and re-importing the same calendar never duplicates",
+      "covers": {
+        "PR-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt111-core",
+      "name": "the new-device checklist is a real diff of two measured reports, and absent memory data is not low memory",
+      "covers": {
+        "BK-04": "full",
+        "RG-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt111-core",
+      "name": "every write is journalled and nothing is silently mutated: a read leaves no trace, a write leaves an auditable one",
+      "covers": {
+        "DP-04": "full"
+      },
+      "pass": true,
+      "ms": 113
+    },
+    {
+      "suite": "tt111-core",
+      "name": "reversible by default: a trashed file comes back, and a changed setting can be put back from its own history",
+      "covers": {
+        "DP-05": "full"
+      },
+      "pass": true,
+      "ms": 59
+    },
+    {
+      "suite": "tt111-core",
+      "name": "workspace presets are stored as their own rows and restoring one does not invent a viewport",
+      "covers": {
+        "AU-02": "full"
+      },
+      "pass": true,
+      "ms": 32
+    },
+    {
+      "suite": "tt111-core",
+      "name": "notes are indexed in the same index as files, so one search reaches both",
+      "covers": {
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 162
+    },
+    {
+      "suite": "tt111-core",
+      "name": "long operations are recorded as steps that can be polled, and every one ends in a terminal state",
+      "covers": {
+        "NC-05": "partial"
+      },
+      "pass": true,
+      "ms": 29
+    },
+    {
+      "suite": "tt111-core",
+      "name": "the capability report is exportable and redacted: it describes the browser, not the person",
+      "covers": {
+        "ST-04": "full"
+      },
+      "pass": true,
+      "ms": 11
+    }
+  ]
+}

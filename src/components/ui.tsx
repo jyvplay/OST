@@ -102,3 +102,28 @@ export function Blocked({ what, missing, workaround }: { what: string; missing: 
     </div>
   );
 }
+
+/**
+ * TT113 — the honest small print, without the essay.
+ *
+ * These modules carry real limits a person must be able to read: what is refused, what is not
+ * encrypted, which pathway makes a network request. Printing all of it as body copy turned Recall
+ * and Browser into documents rather than tools — the same problem the app banner had before its
+ * tools learned to fold into a "More" menu.
+ *
+ * So the words are kept, exactly, and moved one click away. The control is a real disclosure
+ * button (aria-expanded + aria-controls), the text is a real region, and the summary is also the
+ * button's title so a hover reveals it without a click. Nothing is deleted and nothing is hidden
+ * behind a hover-only affordance that a keyboard or touch user could not reach.
+ */
+export function Hint({ children, label = "What this means", id }: { children: ReactNode; label?: string; id?: string }) {
+  const rid = id ?? `hint-${label.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`;
+  return (
+    <details className="fs-hint" data-testid={rid}>
+      <summary aria-label={label} title={label}>
+        <UiGlyph name="chevron" size={11} /> <span>{label}</span>
+      </summary>
+      <div className="fs-hint-body">{children}</div>
+    </details>
+  );
+}

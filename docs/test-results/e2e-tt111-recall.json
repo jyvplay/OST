@@ -1,0 +1,35 @@
+{
+  "suite": "e2e-tt111-recall",
+  "at": "2026-10-29T05:08:17.900Z",
+  "results": [
+    {
+      "suite": "e2e-tt111-recall",
+      "name": "a page browsed inside Recall lists the media it loaded, with its type and size",
+      "covers": {
+        "RC-37": "full",
+        "RC-02": "partial"
+      },
+      "pass": true,
+      "ms": 4659
+    },
+    {
+      "suite": "e2e-tt111-recall",
+      "name": "with the origin shut down, the human presses Save and the archive receives the publisher’s exact bytes",
+      "covers": {
+        "RC-37": "full"
+      },
+      "pass": true,
+      "ms": 209
+    },
+    {
+      "suite": "e2e-tt111-recall",
+      "name": "Forget removes a held item from the pane immediately, and the switch empties it and says so",
+      "covers": {
+        "RC-37": "full",
+        "SC-02": "partial"
+      },
+      "pass": true,
+      "ms": 997
+    }
+  ]
+}

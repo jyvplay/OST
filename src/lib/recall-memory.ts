@@ -8,6 +8,80 @@ export function loadedPngDimensions(bytes:Uint8Array):{width:number;height:numbe
  return {width,height};
 }
 
+/* ------------------------------------------------- TT108: derived-region saving */
+
+export interface CropRect { x: number; y: number; width: number; height: number }
+export const MIN_CROP = 8;
+
+/**
+ * TT108 (RC-33) — map a rectangle a person dragged over a *displayed* preview onto
+ * the source's own pixel grid, so the crop is cut from pixels the browser already
+ * decoded. Nothing is refetched and the original is never modified.
+ *
+ * A drag may run in any direction, may start or end outside the element, and the
+ * element is usually scaled by CSS, so the selection is normalised, scaled, rounded
+ * to whole source pixels and clamped to the source before anything is encoded.
+ * Rejects rather than silently shrinking when the result is unusably small.
+ */
+export function cropRegion(
+  selection: { x: number; y: number; width: number; height: number },
+  displayed: { width: number; height: number },
+  natural: { width: number; height: number },
+): CropRect {
+  for (const [v, label] of [[displayed.width, 'displayed width'], [displayed.height, 'displayed height'],
+    [natural.width, 'source width'], [natural.height, 'source height']] as const)
+    if (!Number.isFinite(v) || v <= 0) throw Error(`The preview has no ${label} yet; let it finish decoding`);
+  for (const v of [selection.x, selection.y, selection.width, selection.height])
+    if (!Number.isFinite(v)) throw Error('Selection coordinates must be finite numbers');
+  if (natural.width * natural.height > 16777216) throw Error('Source exceeds the 16-megapixel budget');
+
+  // normalise a backwards drag, then scale display pixels to source pixels
+  const left = Math.min(selection.x, selection.x + selection.width);
+  const top = Math.min(selection.y, selection.y + selection.height);
+  const sx = natural.width / displayed.width, sy = natural.height / displayed.height;
+  let x = Math.round(left * sx), y = Math.round(top * sy);
+  let width = Math.round(Math.abs(selection.width) * sx), height = Math.round(Math.abs(selection.height) * sy);
+
+  // clamp into the source: a drag released past the edge keeps the part that exists
+  if (x < 0) { width += x; x = 0; }
+  if (y < 0) { height += y; y = 0; }
+  width = Math.min(width, natural.width - x);
+  height = Math.min(height, natural.height - y);
+  if (x >= natural.width || y >= natural.height || width <= 0 || height <= 0)
+    throw Error('That selection lies outside the picture; drag a region over it');
+  if (width < MIN_CROP || height < MIN_CROP)
+    throw Error(`Select at least ${MIN_CROP}×${MIN_CROP} source pixels; nothing was saved`);
+  return { x, y, width, height };
+}
+
+/** The provenance a derived memory carries: which saved pair it was cut from, and where. */
+export interface DerivedFrom { path: string; sha256: string; region: CropRect }
+
+/** Shape gate shared by the browser and the server, so both refuse the same malformed provenance. */
+export function validDerivedFrom(value: unknown, selfPath: string): DerivedFrom {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error('Derived memories need a derivedFrom record');
+  const d = value as Record<string, unknown>;
+  const extra = Object.keys(d).filter((k) => !['path', 'sha256', 'region'].includes(k));
+  if (extra.length) throw Error('Unexpected derivedFrom fields: ' + extra.slice(0, 4).join(', '));
+  if (typeof d.path !== 'string' || !/^\/Downloads\/Recall\/[^/]+\/[^/]+$/.test(d.path) || d.path.length > 512
+    || d.path.endsWith('.recall.json') || /[\u0000-\u001f\u007f]/.test(d.path))
+    throw Error('derivedFrom.path must be one canonical saved Recall media path');
+  if (d.path === selfPath) throw Error('A memory cannot be derived from itself');
+  if (typeof d.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(d.sha256)) throw Error('derivedFrom.sha256 must be a SHA-256 digest');
+  const r = d.region as Record<string, unknown> | undefined;
+  if (!r || typeof r !== 'object' || Array.isArray(r)) throw Error('derivedFrom.region is required');
+  const keys = Object.keys(r);
+  if (keys.length !== 4 || !['x', 'y', 'width', 'height'].every((k) => keys.includes(k))) throw Error('derivedFrom.region needs exactly x, y, width and height');
+  for (const k of ['x', 'y', 'width', 'height'] as const) {
+    const v = r[k];
+    if (typeof v !== 'number' || !Number.isSafeInteger(v) || v < 0) throw Error(`derivedFrom.region.${k} must be a non-negative whole number`);
+  }
+  const region = r as unknown as CropRect;
+  if (region.width < 1 || region.height < 1) throw Error('derivedFrom.region must be at least one pixel');
+  if (region.width * region.height > 16777216) throw Error('derivedFrom.region exceeds 16 megapixels');
+  return { path: d.path, sha256: d.sha256, region };
+}
+
 /** Integrity, not authenticity: a writer who replaces both records can forge this check. */
 export async function verifyRecallReceipt(bytes: Uint8Array, mime: string, path: string, text: string): Promise<{method:string;capturedAt:string}> {
  if(!bytes.length||bytes.length>8388608)throw Error('Invalid memory size');

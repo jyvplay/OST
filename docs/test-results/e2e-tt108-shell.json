@@ -1,0 +1,69 @@
+{
+  "suite": "e2e-tt108-shell",
+  "at": "2026-10-29T05:04:15.221Z",
+  "results": [
+    {
+      "suite": "e2e-tt108-shell",
+      "name": "the microphone is opened with the real WebRTC processing constraints, and the track reports them applied",
+      "covers": {
+        "LN-07": "full"
+      },
+      "pass": true,
+      "ms": 82
+    },
+    {
+      "suite": "e2e-tt108-shell",
+      "name": "the voice gate really runs on the audio thread and silences a signal below its threshold",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 2221
+    },
+    {
+      "suite": "e2e-tt108-shell",
+      "name": "the colour and light chain changes the rendered frame, not just a label",
+      "covers": {
+        "LN-04": "full"
+      },
+      "pass": true,
+      "ms": 27174
+    },
+    {
+      "suite": "e2e-tt108-shell",
+      "name": "a canvas-backed window really is a live video source",
+      "covers": {
+        "WM-15": "partial"
+      },
+      "pass": true,
+      "ms": 6883
+    },
+    {
+      "suite": "e2e-tt108-shell",
+      "name": "the shell never takes a service-worker update without being asked",
+      "covers": {
+        "AP-04": "partial"
+      },
+      "pass": true,
+      "ms": 20
+    },
+    {
+      "suite": "e2e-tt108-shell",
+      "name": "choosing a file opens the real platform picker rather than an in-page imitation",
+      "covers": {
+        "DP-12": "partial"
+      },
+      "pass": true,
+      "ms": 2656
+    },
+    {
+      "suite": "e2e-tt108-shell",
+      "name": "every control of a window is reachable by keyboard alone, with no focus trap",
+      "covers": {
+        "DP-06": "partial"
+      },
+      "pass": true,
+      "ms": 2131
+    }
+  ]
+}

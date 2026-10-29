@@ -1,0 +1,14 @@
+import { launchChromium } from './browser-launch.mts';
+const BASE = process.env.BASE ?? 'http://127.0.0.1:3000';
+const b = await launchChromium(['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']);
+const c = await b.newContext({ permissions: ['clipboard-read','clipboard-write','microphone','screen-wake-lock'] });
+const p = await c.newPage();
+await p.goto(BASE, { waitUntil: 'domcontentloaded' });
+await p.waitForSelector('[role="banner"]', { timeout: 60000 });
+await p.evaluate(`window.dispatchEvent(new CustomEvent('fusion:open',{detail:{id:'devices'}}))`);
+await p.waitForTimeout(2500);
+console.log('BUTTONS:', JSON.stringify((await p.locator('button').allInnerTexts()).map(s=>s.trim()).filter(Boolean).slice(0,40)));
+console.log('WINDOW TITLES:', JSON.stringify(await p.evaluate(`[...document.querySelectorAll('[role="dialog"],.fs-win,[data-testid]')].map(e=>e.getAttribute('data-testid')||e.getAttribute('aria-label')||'').filter(Boolean).slice(0,20)`)));
+const wl = await p.evaluate(`(async()=>{try{const s=await navigator.wakeLock.request('screen');const t=s.type;await s.release();return 'ok:'+t;}catch(e){return 'ERR:'+e.name+' '+e.message;}})()`);
+console.log('WAKELOCK:', wl);
+await b.close();

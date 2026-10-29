@@ -1,0 +1,68 @@
+TT112 production gate — 2026-10-29T03:38:11Z
+node v22.22.3 · Next 16.4.3 · PostgreSQL 18.4 · Chromium 143.0.7499.0 · 1 agent, no CI
+DB tt112_seal3_test (created minutes before this run, never used) · BASE=http://127.0.0.1:3000
+standing fixtures: scripts/tt100-fixture.mjs :4001 · scripts/tt103-publisher.mjs :4002
+suites: 60 (TT110 curated order + TT111 and TT112 suites; e2e-privacy excluded as before)
+
+tt106-lifecycle             23 passed   0 failed
+e2e-tt106-memory             8 passed   0 failed
+tt105-atomic                25 passed   0 failed
+e2e-tt105-clicked            7 passed   0 failed
+tt91-write-atomic            2 passed   0 failed
+tt91-purge-race              4 passed   0 failed
+tt92-trash-race              6 passed   0 failed
+tt92-trash                  11 passed   0 failed
+e2e-tt92-trash               2 passed   0 failed
+tt104-memory-unit           27 passed   0 failed
+tt104-page                  25 passed   0 failed
+e2e-tt104-memory            10 passed   0 failed
+e2e-tt104-pages              3 passed   0 failed
+tt103-framework              5 passed   0 failed
+tt103-memory-unit           10 passed   0 failed
+e2e-tt103-memory            11 passed   0 failed
+e2e-tt102                   16 passed   0 failed
+tt102-search                33 passed   0 failed
+tt102-private-bound          5 passed   0 failed
+tt101-search                37 passed   0 failed
+e2e-tt101-search             9 passed   0 failed
+privacy-layer               13 passed   0 failed
+unit                        23 passed   0 failed
+integration                 25 passed   0 failed
+browser-session              5 passed   0 failed
+tt55-files-unit              7 passed   0 failed
+e2e-tt55-files              14 passed   0 failed
+e2e-tt55-shell               3 passed   0 failed
+e2e-tt96-desktop-menu        5 passed   0 failed
+tt97-palette-commands        4 passed   0 failed
+e2e-tt97-palette-actions    11 passed   0 failed
+e2e-tt97-files-empty-a11y    3 passed   0 failed
+e2e-tt98-orbit              22 passed   0 failed
+e2e-tt99-interactions       29 passed   0 failed
+e2e-browser                  6 passed   0 failed
+tt69-lifecycle              11 passed   0 failed
+e2e-tt100-recall            27 passed   0 failed
+e2e-a11y                     9 passed   0 failed
+tt107-crash                  4 passed   0 failed
+tt107-recall                30 passed   0 failed
+tt107-features              20 passed   0 failed
+e2e-tt107-shell              7 passed   0 failed
+e2e-tt107-memory             6 passed   0 failed
+tt108-engine-crash          10 passed   0 failed
+tt108-recall                18 passed   0 failed
+e2e-tt108-recall             6 passed   0 failed
+e2e-tt108-shell              7 passed   0 failed
+tt108-refusal                7 passed   0 failed
+tt109-recall                13 passed   0 failed
+e2e-tt109-shell              4 passed   1 failed
+tt110-core                   7 passed   0 failed
+e2e-tt110-recall             6 passed   0 failed
+e2e-tt110-shell              4 passed   0 failed
+e2e-tt110-banner             5 passed   0 failed
+e2e-layout                  12 passed   0 failed
+tt111-core                  11 passed   0 failed
+tt111-recall-tap             7 passed   0 failed
+e2e-tt111-recall             3 passed   0 failed
+e2e-tt112-resident           7 passed   0 failed
+e2e-tt112-shell              7 passed   0 failed
+
+TOTAL: 697 passed, 1 failed

@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt107-memory",
+  "at": "2026-10-29T05:03:00.753Z",
+  "results": [
+    {
+      "suite": "e2e-tt107-memory",
+      "name": "searching by save method finds the memory through the real UI",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 588
+    },
+    {
+      "suite": "e2e-tt107-memory",
+      "name": "a filter that matches nothing reports an honest empty result, not an error",
+      "covers": {
+        "RC-27": "partial"
+      },
+      "pass": true,
+      "ms": 448
+    },
+    {
+      "suite": "e2e-tt107-memory",
+      "name": "the integrity report shows a healthy pair with no orphans",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 355
+    },
+    {
+      "suite": "e2e-tt107-memory",
+      "name": "an unpaired file is listed by the audit and can be trashed from the UI",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 1084
+    },
+    {
+      "suite": "e2e-tt107-memory",
+      "name": "widening the scope to every folder is an explicit, visible choice",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 326
+    },
+    {
+      "suite": "e2e-tt107-memory",
+      "name": "the audit never invents a receipt for a memory that lost one",
+      "covers": {
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 357
+    }
+  ]
+}

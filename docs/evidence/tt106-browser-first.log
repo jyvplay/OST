@@ -1,0 +1,8 @@
+  ✓ single-snapshot receipt inspection works in actual UI
+  ✓ save already-open frame creates native green PNG without upstream HTTP
+  ✓ cancelled trash confirmation changes nothing
+  ✓ confirmed paired trash closes/revokes preview and undo restores both files
+  ✓ open-preview identity guard refuses later media edit
+  ✓ Specs adds all three truthful requirements without completion promotion
+
+6 passed, 0 failed

@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt110-shell",
+  "at": "2026-10-29T05:06:08.009Z",
+  "results": [
+    {
+      "suite": "e2e-tt110-shell",
+      "name": "a saved memory reaches the clipboard with identical pixels, honestly described, and can be handed to another app",
+      "covers": {
+        "RC-35": "full"
+      },
+      "pass": true,
+      "ms": 7376
+    },
+    {
+      "suite": "e2e-tt110-shell",
+      "name": "the voice recorder writes a real encoded file into Documents",
+      "covers": {
+        "MD-04": "full"
+      },
+      "pass": true,
+      "ms": 6338
+    },
+    {
+      "suite": "e2e-tt110-shell",
+      "name": "audio outputs are enumerated and a tone can be routed to a chosen one",
+      "covers": {
+        "MD-06": "partial"
+      },
+      "pass": true,
+      "ms": 1305
+    },
+    {
+      "suite": "e2e-tt110-shell",
+      "name": "the screen wake lock is really taken and really released",
+      "covers": {
+        "HW-11": "full"
+      },
+      "pass": true,
+      "ms": 1408
+    }
+  ]
+}

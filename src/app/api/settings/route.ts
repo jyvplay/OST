@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { settings, settingsHistory } from "@/db/schema";
+import { forgetTapPolicyCache } from "@/lib/server/wp-tap-policy";
+import { TAP_POLICY_KEY, tapForgetAll } from "@/lib/server/wp-tap";
 import { bootstrap } from "@/lib/server/bootstrap";
 import { validateSetting } from "@/lib/settings-validate";
 import { readJsonObject } from "@/lib/http-json";
@@ -32,5 +34,9 @@ export async function PUT(req: NextRequest) {
   if (invalid) return NextResponse.json({ ok: false, error: invalid, invalid: true }, { status: 422 });
   await db.insert(settingsHistory).values({ key: body.key, oldValue: current.value, newValue: next });
   await db.update(settings).set({ value: next, updatedAt: new Date() }).where(eq(settings.key, body.key));
+  // TT111 (RC-37): the proxy reads the media-tap switch on a cache to stay off the hot path's critical
+  // section. Moving the switch invalidates that cache HERE, so "I turned it off" means the very next
+  // response retains nothing — not the next one a second from now.
+  if (body.key === TAP_POLICY_KEY) { forgetTapPolicyCache(); if (next !== 'on') tapForgetAll(); }
   return NextResponse.json({ ok: true, key: body.key, value: next, undoFrom: current.value });
 }

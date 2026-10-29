@@ -77,14 +77,24 @@ export function extractReadable(html: string, baseUrl: string): { title: string;
     if (!ALLOWED.has(t)) return "";
     const closing = full.startsWith("</");
     if (closing) return `</${t}>`;
-    if (t === "img") { const src = /src="([^"]*)"/i.exec(attrs)?.[1]; const alt = /alt="([^"]*)"/i.exec(attrs)?.[1] ?? ""; return src ? `<img src="${resolveUrl(src, baseUrl)}" alt="${escapeAttr(alt)}" style="max-width:100%">` : ""; }
-    if (t === "a") { const href = /href="([^"]*)"/i.exec(attrs)?.[1]; return href ? `<a href="${resolveUrl(href, baseUrl)}" target="_blank" rel="noopener noreferrer">` : "<a>"; }
+    if (t === "img") { const src = /src="([^"]*)"/i.exec(attrs)?.[1]; const alt = /alt="([^"]*)"/i.exec(attrs)?.[1] ?? ""; const resolved = src ? resolveUrl(src, baseUrl, MEDIA_SCHEMES) : "#";
+      return src && resolved !== "#" ? `<img src="${escapeAttr(resolved)}" alt="${escapeAttr(alt)}" style="max-width:100%">` : ""; }
+    if (t === "a") { const href = /href="([^"]*)"/i.exec(attrs)?.[1]; return href ? `<a href="${escapeAttr(resolveUrl(href, baseUrl))}" target="_blank" rel="noopener noreferrer">` : "<a>"; }
     return `<${t}>`;
   });
-  body = body.replace(/\son\w+\s*=\s*"[^"]*"/gi, "").replace(/javascript:/gi, "");
+  body = body.replace(/\son\w+\s*=\s*"[^"]*"/gi, "");
   return { title, html: body };
 }
-function resolveUrl(href: string, base: string): string { try { return new URL(href, base).toString(); } catch { return "#"; } }
+/**
+ * Single scheme gate for every URL the reader emits. Deleting the substring
+ * "javascript:" is evadable (jajavascript:vascript: collapses back into it), so
+ * the resolved URL's protocol is checked instead and anything else becomes "#".
+ */
+const LINK_SCHEMES = new Set(["http:", "https:", "mailto:"]);
+const MEDIA_SCHEMES = new Set(["http:", "https:"]);
+function resolveUrl(href: string, base: string, allowed: Set<string> = LINK_SCHEMES): string {
+  try { const u = new URL(href, base); return allowed.has(u.protocol) ? u.toString() : "#"; } catch { return "#"; }
+}
 function escapeAttr(s: string): string { return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function decodeHtmlText(s: string): string {
   return s.replace(/<[^>]*>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, "&");

@@ -1,0 +1,73 @@
+{
+  "suite": "e2e-tt112-resident",
+  "at": "2026-10-29T05:08:25.433Z",
+  "results": [
+    {
+      "suite": "e2e-tt112-resident",
+      "name": "the page builds its own objects and Recall lists them without asking the origin for anything",
+      "covers": {
+        "RC-38": "full"
+      },
+      "pass": true,
+      "ms": 2859
+    },
+    {
+      "suite": "e2e-tt112-resident",
+      "name": "a live MediaSource is refused by name instead of being saved as a file",
+      "covers": {
+        "RC-38": "full",
+        "RC-14": "partial"
+      },
+      "pass": true,
+      "ms": 1032
+    },
+    {
+      "suite": "e2e-tt112-resident",
+      "name": "FALSIFIER: with the origin stopped, the bytes the page built are archived byte-for-byte",
+      "covers": {
+        "RC-38": "full",
+        "RC-09": "partial"
+      },
+      "pass": true,
+      "ms": 469
+    },
+    {
+      "suite": "e2e-tt112-resident",
+      "name": "the receipt claims a declared label, not the publisher, and records no refetch",
+      "covers": {
+        "RC-38": "full",
+        "RC-14": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "e2e-tt112-resident",
+      "name": "a data: URL inside the document is saved with its own exact bytes",
+      "covers": {
+        "RC-38": "full"
+      },
+      "pass": true,
+      "ms": 397
+    },
+    {
+      "suite": "e2e-tt112-resident",
+      "name": "an object larger than 8 MiB is refused where the bytes are read, and writes nothing",
+      "covers": {
+        "RC-38": "full",
+        "RC-09": "partial"
+      },
+      "pass": true,
+      "ms": 683
+    },
+    {
+      "suite": "e2e-tt112-resident",
+      "name": "no uncaught page exception in the resident-object pathway",
+      "covers": {
+        "RC-38": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

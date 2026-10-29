@@ -1,27 +1,229 @@
 {
- "generatedAt": "2026-10-28T14:50:15.338Z",
+ "generatedAt": "2026-10-29T05:10:48.743Z",
  "totals": {
   "built": {
-   "full": 333,
-   "partial": 80,
+   "full": 336,
+   "partial": 93,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 259,
-   "partial": 96,
-   "untested": 82
+   "full": 278,
+   "partial": 135,
+   "untested": 40
   },
   "tests": {
-   "total": 2505,
-   "passed": 2501
+   "total": 2731,
+   "passed": 2728
   }
  },
  "rows": {
+  "AX-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt113-density: recall opens as a tool, not a document",
+    "e2e-tt113-density: browser opens as a tool, not a document",
+    "e2e-tt113-density: the small print was moved, not deleted",
+    "e2e-tt113-density: a disclosure opens from the keyboard alone",
+    "e2e-tt113-density: every saving pathway survived the compaction"
+   ]
+  },
+  "RC-38": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt112-resident: the page builds its own objects and Recall lists them without asking the origin for anything",
+    "e2e-tt112-resident: a live MediaSource is refused by name instead of being saved as a file",
+    "e2e-tt112-resident: FALSIFIER: with the origin stopped, the bytes the page built are archived byte-for-byte",
+    "e2e-tt112-resident: the receipt claims a declared label, not the publisher, and records no refetch",
+    "e2e-tt112-resident: a data: URL inside the document is saved with its own exact bytes",
+    "e2e-tt112-resident: an object larger than 8 MiB is refused where the bytes are read, and writes nothing",
+    "e2e-tt112-resident: no uncaught page exception in the resident-object pathway",
+    "e2e-tt113-density: every saving pathway survived the compaction"
+   ]
+  },
+  "RC-37": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt111-recall: a page browsed inside Recall lists the media it loaded, with its type and size",
+    "e2e-tt111-recall: with the origin shut down, the human presses Save and the archive receives the publisher’s exact bytes",
+    "e2e-tt111-recall: Forget removes a held item from the pane immediately, and the switch empties it and says so",
+    "tt111-recall-tap: the page loads a picture and a track through the proxy; both land in the tap, the stylesheet does not",
+    "tt111-recall-tap: an aborted response and a byte range are not retained; neither is an item over the cap",
+    "tt111-recall-tap: THE FALSIFIER: the origin is stopped, a refetch provably fails, and the save still writes the original bytes",
+    "tt111-recall-tap: the receipt names the pathway and claims proxy-recorded provenance, and the memory survives verification",
+    "tt111-recall-tap: the provenance binding holds: neither method may borrow the other’s claim",
+    "tt111-recall-tap: the switch is real: off empties the tap, refuses the save, and the proxy stops retaining",
+    "tt111-recall-tap: a closed browser session keeps nothing"
+   ]
+  },
+  "RC-35": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt110-shell: a saved memory reaches the clipboard with identical pixels, honestly described, and can be handed to another app"
+   ]
+  },
+  "RC-36": {
+   "tested": "full",
+   "tests": [
+    "tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are",
+    "tt110-core: an unknown capture policy value cannot be smuggled into the setting"
+   ]
+  },
+  "RC-34": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: a repeat save files a second memory unless the person asks to keep one copy",
+    "tt109-recall: an identical memory in the same folder is recognised instead of filed twice",
+    "tt109-recall: duplicate recognition is opt-in: a deliberate re-save still produces a second memory",
+    "tt109-recall: recognition is by decoded bytes and is confined to one folder",
+    "tt109-recall: a trashed memory does not block saving it again",
+    "tt109-recall: an unreadable neighbour cannot break or fake duplicate recognition",
+    "tt109-recall: onDuplicate is validated, and an invalid value writes nothing"
+   ]
+  },
+  "RC-27": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt107-memory: searching by save method finds the memory through the real UI",
+    "e2e-tt107-memory: a filter that matches nothing reports an honest empty result, not an error",
+    "tt107-recall: search filters by save method across every Recall folder",
+    "tt107-recall: search filters by exact page host and never by substring",
+    "tt107-recall: search filters by capture date range inclusively",
+    "tt107-recall: search combines filters and returns metadata only, never media bodies",
+    "tt107-recall: a receipt that is not valid JSON is skipped and counted, not a query failure",
+    "tt107-recall: trashed memories disappear from search results",
+    "tt107-recall: search rejects invalid filter {\"method\":\"Not A Method\"}",
+    "tt107-recall: search rejects invalid filter {\"method\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+    "tt107-recall: search rejects invalid filter {\"host\":\"bad host!\"}",
+    "tt107-recall: search rejects invalid filter {\"from\":\"yesterday\"}",
+    "tt107-recall: search rejects invalid filter {\"to\":\"05-2026\"}",
+    "tt107-recall: search rejects invalid filter {\"limit\":\"0\"}",
+    "tt107-recall: search rejects invalid filter {\"limit\":\"1000\"}",
+    "tt108-recall: a day drill-down stays inside the folder it was launched from"
+   ]
+  },
+  "RC-28": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt107-memory: the integrity report shows a healthy pair with no orphans",
+    "e2e-tt107-memory: an unpaired file is listed by the audit and can be trashed from the UI",
+    "e2e-tt107-memory: widening the scope to every folder is an explicit, visible choice",
+    "e2e-tt107-memory: the audit never invents a receipt for a memory that lost one",
+    "tt107-recall: a receipt that is not valid JSON is skipped and counted, not a query failure",
+    "tt107-recall: audit reports a healthy folder with no orphans",
+    "tt107-recall: audit detects media without receipt and receipt without media",
+    "tt107-recall: audit detects a receipt/byte checksum mismatch and never rewrites it",
+    "tt107-recall: unpaired cleanup refuses a complete pair",
+    "tt107-recall: unpaired cleanup trashes a true orphan under a guard and the audit clears",
+    "tt107-recall: unpaired cleanup refuses a stale guard",
+    "tt107-recall: unpaired cleanup refuses a receipt whose media reappeared",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /etc/passwd",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Private/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/search107-1793250164638/nested/x.png",
+    "tt107-recall: unpaired cleanup rejects non-Recall path /Downloads/Recall/x",
+    "tt107-recall: unpaired cleanup rejects invalid guard null",
+    "tt107-recall: unpaired cleanup rejects invalid guard {}",
+    "tt107-recall: unpaired cleanup rejects invalid guard {\"id\":0,\"version\":1,\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+    "tt107-recall: unpaired cleanup rejects invalid guard {\"id\":1,\"version\":1,\"sha256\":\"zz\"}",
+    "tt107-recall: audit scope rejects a non-canonical folder"
+   ]
+  },
+  "RC-29": {
+   "tested": "partial",
+   "tests": [
+    "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata",
+    "tt107-crash: server restarts and the same payload then publishes the exact pair",
+    "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed",
+    "tt107-crash: after the crash the pair is still guard-consistent and can be trashed and restored",
+    "tt108-engine-crash: no half pair survived the crash, including the publications in flight",
+    "tt108-engine-crash: positive control: even when the WAL tail is lost, whole pairs are lost — never half of one"
+   ]
+  },
+  "RC-30": {
+   "tested": "partial",
+   "tests": [
+    "tt108-engine-crash: every acknowledged publication survived the engine crash, complete and intact",
+    "tt108-engine-crash: no half pair survived the crash, including the publications in flight",
+    "tt108-engine-crash: an unacknowledged publication is all-or-nothing, never partially applied",
+    "tt108-engine-crash: the application reconnects to the recovered engine without a restart",
+    "tt108-engine-crash: positive control: with synchronous_commit=off the same crash DOES lose acknowledged memories",
+    "tt108-engine-crash: positive control: even when the WAL tail is lost, whole pairs are lost — never half of one",
+    "tt108-engine-crash: negative control: with fsync and full_page_writes OFF nothing is lost, so this method cannot certify power loss",
+    "tt108-engine-crash: the shipped cluster does not run the configuration that arm B showed to be lossy",
+    "tt108-engine-crash: the suite states its own blind spot rather than claiming power-loss durability",
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+   ]
+  },
+  "RC-31": {
+   "tested": "partial",
+   "tests": [
+    "tt108-recall: the page agent encodes already-decoded visuals and never requests a URL again",
+    "tt108-recall: every member of a batch is published as its own complete, independent pair",
+    "tt108-recall: one bad member of a batch cannot take the others down with it",
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+   ]
+  },
+  "RC-32": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-recall: the saving timeline shows the real days and filters the list to the chosen one",
+    "e2e-tt108-recall: the timeline says plainly that it is not a background screenshot trail",
+    "tt108-recall: the timeline groups real saved memories by day with counts, bytes and methods",
+    "tt108-recall: selecting a day returns exactly that day through the ordinary server-side search",
+    "tt108-recall: a day drill-down stays inside the folder it was launched from",
+    "tt108-recall: the timeline refuses an injected time zone and a non-canonical folder",
+    "tt108-recall: a receipt with an unreadable capture time is counted apart, never placed in a made-up day",
+    "tt108-recall: an unreadable receipt cannot abort the timeline query",
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+   ]
+  },
+  "RC-33": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-recall: dragging over a decoded preview reports the region without saving anything yet",
+    "e2e-tt108-recall: a dragged region is saved as its own memory, cut from the decoded preview",
+    "e2e-tt108-recall: the saved crop records the memory and rectangle it came from",
+    "e2e-tt108-recall: a selection too small to be a region is refused with a reason, not silently grown",
+    "tt108-recall: a region dragged over a scaled preview maps onto the source pixel grid",
+    "tt108-recall: a backwards drag selects the same region as the forward drag",
+    "tt108-recall: a drag released past the edge keeps the part that exists instead of reading outside the picture",
+    "tt108-recall: malformed provenance is refused by the shared shape gate",
+    "tt108-recall: a crop publishes with provenance pointing at the saved memory it was cut from",
+    "tt108-recall: a crop naming a parent this archive does not hold is refused",
+    "tt108-recall: provenance and method cannot be separated in either direction",
+    "tt108-recall: a refused crop leaves neither media nor receipt behind",
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+   ]
+  },
+  "RC-24": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt106-memory: single-snapshot receipt inspection works in actual UI",
+    "tt106-lifecycle: single snapshot returns verified pair identity without media bodies"
+   ]
+  },
+  "RC-25": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt106-memory: cancelled trash confirmation changes nothing",
+    "tt106-lifecycle: paired trash removes both active files and both search entries",
+    "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed"
+   ]
+  },
+  "RC-26": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt106-memory: save already-open frame creates native green PNG without upstream HTTP",
+    "e2e-tt106-memory: real decoded WebM video preview saves its exact current frame, no media refetch",
+    "e2e-tt106-memory: memory above the 16 MP decode bound is refused and clears the stale preview"
+   ]
+  },
   "RC-22": {
    "tested": "partial",
    "tests": [
-    "tt105-atomic: one acknowledgement publishes both exact media and receipt"
+    "tt105-atomic: one acknowledgement publishes both exact media and receipt",
+    "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata"
    ]
   },
   "RC-23": {
@@ -75,12 +277,19 @@
   "RC-01": {
    "tested": "partial",
    "tests": [
-    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt"
+    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt",
+    "e2e-tt113-density: recall opens as a tool, not a document",
+    "e2e-tt113-density: browser opens as a tool, not a document",
+    "e2e-tt113-density: the small print was moved, not deleted",
+    "e2e-tt113-density: every saving pathway survived the compaction"
    ]
   },
   "RC-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: a copied image becomes a memory through the real paste handler, and a copied link does not",
+    "e2e-tt111-recall: a page browsed inside Recall lists the media it loaded, with its type and size"
+   ]
   },
   "RC-03": {
    "tested": "partial",
@@ -89,16 +298,23 @@
    ]
   },
   "RC-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory"
+   ]
   },
   "RC-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt110-recall: an authorized recording encodes real frames and finishes as a playable file",
+    "e2e-tt110-recall: audio-only output does what this platform actually allows, and never substitutes the microphone"
+   ]
   },
   "RC-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt110-recall: an already-rendered element in this document can be captured without touching the network"
+   ]
   },
   "RC-07": {
    "tested": "partial",
@@ -113,36 +329,59 @@
    ]
   },
   "RC-09": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt"
+    "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt",
+    "e2e-tt112-resident: FALSIFIER: with the origin stopped, the bytes the page built are archived byte-for-byte",
+    "e2e-tt112-resident: an object larger than 8 MiB is refused where the bytes are read, and writes nothing",
+    "tt111-recall-tap: an aborted response and a byte range are not retained; neither is an item over the cap",
+    "tt111-recall-tap: the receipt names the pathway and claims proxy-recorded provenance, and the memory survives verification"
    ]
   },
   "RC-10": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt109-recall: grouping sends the same bytes to the folder the human chose, and cannot escape the Recall root",
+    "tt109-recall: a save outside the Recall root is refused whatever the grouping asked for"
+   ]
   },
   "RC-11": {
    "tested": "partial",
    "tests": [
-    "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request"
+    "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request",
+    "e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory",
+    "e2e-tt110-recall: the shared surface is released when the snapshot ends, and nothing is captured afterwards",
+    "e2e-tt110-recall: pending fetch jobs can be cancelled, and the archive is told what cancellation does not undo"
    ]
   },
   "RC-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt109-recall: memories are never written into Persistent Storage, and the archive says so plainly"
+   ]
   },
   "RC-13": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt109-recall: deleting a memory removes the pair together and restoring brings the pair back",
+    "tt109-recall: a memory cannot be half-deleted through the pair endpoint"
+   ]
   },
   "RC-14": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt112-resident: a live MediaSource is refused by name instead of being saved as a file",
+    "e2e-tt112-resident: the receipt claims a declared label, not the publisher, and records no refetch",
+    "tt109-recall: only the refetch method may claim the bytes came from the URL it names",
+    "tt111-recall-tap: the provenance binding holds: neither method may borrow the other’s claim"
+   ]
   },
   "RC-15": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt109-recall: memories are never written into Persistent Storage, and the archive says so plainly",
+    "tt109-recall: the exclusions that exist are real: query tokens are dropped and a declared label cannot smuggle them back"
+   ]
   },
   "SH-01": {
    "tested": "full",
@@ -157,8 +396,12 @@
    ]
   },
   "SH-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt107-shell: the top bar shows a live clock in the user's own locale format",
+    "e2e-tt107-shell: the top bar exposes launcher, search, overview and quick panel as real controls",
+    "e2e-tt107-shell: the top bar reports live system status rather than a static badge"
+   ]
   },
   "SH-04": {
    "tested": "full",
@@ -205,8 +448,13 @@
    ]
   },
   "SH-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt112-shell: SH-07 first run: the capability report is measured in this browser, not asserted",
+    "e2e-tt112-shell: SH-07 licence: a local trial is granted without any account, and the server holds the public key",
+    "e2e-tt112-shell: SH-07: the capability report reaches the server only when a human asks for it",
+    "e2e-tt112-shell: no uncaught page exception across the capability, licence and governor panes"
+   ]
   },
   "SH-08": {
    "tested": "full",
@@ -251,8 +499,11 @@
    ]
   },
   "SH-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt112-shell: SH-12: real long tasks drive the governor into a throttled state and the shell drops effects",
+    "e2e-tt112-shell: SH-12: the detector is a measurement, not a latch — effects return once the load stops"
+   ]
   },
   "SH-13": {
    "tested": "partial",
@@ -312,6 +563,13 @@
   "WM-02": {
    "tested": "full",
    "tests": [
+    "e2e-tt110-banner: in Art layout a window does not repeat the menus the shell menu bar is already showing",
+    "e2e-tt110-banner: an unfocused window keeps its own menus, because the shell bar only shows the focused one",
+    "e2e-tt110-banner: the fonts and alignment bar fits inside the window instead of scrolling sideways",
+    "e2e-tt110-banner: the fonts and alignment bar fits without scrolling in fusion layout too",
+    "e2e-tt110-banner: the fonts and alignment bar fits without scrolling in business layout too",
+    "e2e-tt113-density: recall opens as a tool, not a document",
+    "e2e-tt113-density: browser opens as a tool, not a document",
     "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half",
     "unit: 10 000 random commands preserve every invariant"
    ]
@@ -349,8 +607,10 @@
    ]
   },
   "WM-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+   ]
   },
   "WM-08": {
    "tested": "full",
@@ -372,8 +632,10 @@
    ]
   },
   "WM-11": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: the always-on-top pop-out takes the real capability branch this browser has, with its styles carried over"
+   ]
   },
   "WM-12": {
    "tested": "partial",
@@ -397,20 +659,33 @@
    "tests": []
   },
   "WM-15": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-shell: a canvas-backed window really is a live video source"
+   ]
   },
   "WM-16": {
    "tested": "untested",
    "tests": []
   },
   "WM-17": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: raw proxy re-serves a framing-refusing page without its refusal headers",
+    "tt107-features: raw proxy anchors relative subresources with a base href and defuses framebusting",
+    "tt107-features: proxy refuses non-HTML content and missing arguments"
+   ]
   },
   "WM-18": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: proxy refuses non-HTML content and missing arguments",
+    "tt107-features: reader mode extracts the article and drops chrome, scripts and styles",
+    "tt107-features: reader mode neutralises inline handlers and javascript: links",
+    "tt107-features: reader mode defeats javascript: scheme evasion instead of deleting a substring",
+    "tt107-features: reader mode escapes a hostile page title instead of injecting it",
+    "tt107-features: reader mode resolves relative links and images against the source"
+   ]
   },
   "WM-19": {
    "tested": "untested",
@@ -458,6 +733,7 @@
   "IN-05": {
    "tested": "full",
    "tests": [
+    "tt111-core: no preset collides with itself, and every browser-reserved chord ships with the reason it is reserved",
     "unit: shortcut presets have no internal conflicts; chord matcher"
    ]
   },
@@ -543,9 +819,10 @@
    ]
   },
   "SR-05": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
-    "integration: search treats % and _ in queries literally"
+    "integration: search treats % and _ in queries literally",
+    "tt110-core: search can be confined to one folder, and says what it searched when it finds nothing"
    ]
   },
   "SR-06": {
@@ -592,19 +869,23 @@
    ]
   },
   "SR-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "SR-08": {
    "tested": "partial",
    "tests": [
-    "e2e: mount: find"
+    "e2e: mount: find",
+    "tt110-core: search can be confined to one folder, and says what it searched when it finds nothing"
    ]
   },
   "FM-01": {
    "tested": "full",
    "tests": [
     "e2e-contacts: Files integration and launcher: a .vcf reached in Files with the keyboard alone (arrows, Space, Enter) opens in Contacts; Contacts is in the launcher",
+    "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
     "e2e-tt55-files: FM-15 selection toolbar: click, Shift-range, Ctrl-toggle, Ctrl+A, Esc; count and size equal the server's sizes; batch trash then batch restore from Trash",
     "e2e-tt55-files: SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward",
     "e2e-tt55-files: FM-01 folder tree + column view + tabs: the tree lists the server's folders and navigates; Columns show every ancestor; tabs keep their own folder",
@@ -901,8 +1182,10 @@
    ]
   },
   "FM-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "FM-13": {
    "tested": "full",
@@ -1012,8 +1295,13 @@
    ]
   },
   "NC-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt107-shell: the quick panel opens from the top bar with its accessibility and style controls",
+    "e2e-tt107-shell: quick-panel theme is applied to the document and survives a reload",
+    "e2e-tt107-shell: quick-panel density cycles through all three settings and survives a reload",
+    "e2e-tt107-shell: the quick panel closes again without leaving a modal trap"
+   ]
   },
   "NC-04": {
    "tested": "partial",
@@ -1024,7 +1312,8 @@
   "NC-05": {
    "tested": "partial",
    "tests": [
-    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
+    "tt111-core: long operations are recorded as steps that can be polled, and every one ends in a terminal state"
    ]
   },
   "NC-06": {
@@ -1064,9 +1353,10 @@
    ]
   },
   "ST-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: mount: settings"
+    "e2e: mount: settings",
+    "tt111-core: the capability report is exportable and redacted: it describes the browser, not the person"
    ]
   },
   "ST-05": {
@@ -1076,8 +1366,9 @@
    ]
   },
   "ST-06": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "tt111-core: no preset collides with itself, and every browser-reserved chord ships with the reason it is reserved",
     "unit: shortcut presets have no internal conflicts; chord matcher"
    ]
   },
@@ -1128,12 +1419,16 @@
    ]
   },
   "AP-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "AP-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-shell: the shell never takes a service-worker update without being asked"
+   ]
   },
   "AP-05": {
    "tested": "partial",
@@ -1227,8 +1522,10 @@
    "tests": []
   },
   "TD-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "TD-06": {
    "tested": "full",
@@ -1248,6 +1545,7 @@
   "PR-02": {
    "tested": "partial",
    "tests": [
+    "e2e-tt112-shell: SH-07: the capability report reaches the server only when a human asks for it",
     "e2e-tt97-palette-actions: register keeps palette actions partial and discloses native Cast and privacy limits",
     "e2e-tt97-palette-actions: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection",
     "e2e-tt97-palette-actions: composition Enter cannot trigger a note action; a subsequent real Enter can",
@@ -1264,7 +1562,8 @@
     "e2e-tt99-interactions: Notes dirty draft disables destructive context actions and native text remains native",
     "e2e-tt99-interactions: Notes context deletion is cancelable and removes only the chosen note",
     "e2e: mount: notes",
-    "integration: deleting a note removes only its own index row"
+    "integration: deleting a note removes only its own index row",
+    "tt111-core: notes are indexed in the same index as files, so one search reaches both"
    ]
   },
   "PR-03": {
@@ -1279,6 +1578,7 @@
    "tests": [
     "e2e: mount: planner",
     "integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar",
+    "tt111-core: an .ics round-trips and re-importing the same calendar never duplicates",
     "unit: ICS unfolding, escapes, parameters, VTODO status, round trip"
    ]
   },
@@ -2095,6 +2395,8 @@
    "tested": "full",
    "tests": [
     "ai-format: version strings, PDF literal escapes, format registry and MIME",
+    "tt111-core: the format registry is a usable contract: engine, grade, boundary and a conversion-loss answer for every entry",
+    "tt111-core: SRT becomes WebVTT the way a browser needs it, and WebVTT is left alone",
     "unit: loss report itemises drops; registry grades"
    ]
   },
@@ -2752,8 +3054,9 @@
    ]
   },
   "MD-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt110-shell: the voice recorder writes a real encoded file into Documents",
     "e2e: mount: devices"
    ]
   },
@@ -2766,6 +3069,7 @@
   "MD-06": {
    "tested": "partial",
    "tests": [
+    "e2e-tt110-shell: audio outputs are enumerated and a tone can be routed to a chosen one",
     "e2e: mount: devices"
    ]
   },
@@ -2811,7 +3115,10 @@
   "SC-02": {
    "tested": "partial",
    "tests": [
-    "e2e: mount: vault"
+    "e2e-tt111-recall: Forget removes a held item from the pane immediately, and the switch empties it and says so",
+    "e2e: mount: vault",
+    "tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are",
+    "tt111-recall-tap: the switch is real: off empties the tap, refuses the save, and the proxy stops retaining"
    ]
   },
   "SC-03": {
@@ -2821,8 +3128,10 @@
    ]
   },
   "SC-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "SC-05": {
    "tested": "full",
@@ -2850,12 +3159,16 @@
   "SC-08": {
    "tested": "partial",
    "tests": [
+    "e2e-tt113-density: the small print was moved, not deleted",
     "integration: SR-04 / settings: locked settings refuse writes (423)"
    ]
   },
   "SC-09": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every cast session is registered and closed in the database",
+    "tt107-features: a cast session cannot be opened against an unregistered target"
+   ]
   },
   "BK-01": {
    "tested": "partial",
@@ -2896,7 +3209,6 @@
   "BK-02": {
    "tested": "partial",
    "tests": [
-    "e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage",
     "e2e-tt87-localdisk: BK-02 real browser folder handle survives IndexedDB reload and a first sync preserves skipped names and binary data",
     "e2e-tt87-localdisk: BK-02 conflict choices reject stale local and server copies; explicit resolution preserves a Fusion version",
     "e2e-tt87-localdisk: FM-08 conditional write rejects missing preconditions, existing names and changed versions without modifying data",
@@ -2935,6 +3247,7 @@
   "BK-04": {
    "tested": "full",
    "tests": [
+    "tt111-core: the new-device checklist is a real diff of two measured reports, and absent memory data is not low memory",
     "unit: BK-04 capability diff reports lost/gained with degrade text"
    ]
   },
@@ -3300,7 +3613,7 @@
    "tests": [
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
-    "e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage",
+    "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
     "e2e-privacy: no page errors across the privacy flows",
     "e2e-privacy: privacy fixture cleanup leaves no host nodes, versions or search rows for its owned paths",
     "e2e-tt87-privacy: TT87 conditional writes cannot create plaintext inside locked Persistent Storage",
@@ -3487,6 +3800,7 @@
    "tested": "full",
    "tests": [
     "e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains",
+    "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
     "e2e: mount: privacy",
     "metaclean: JPEG: identical pixels (Pillow); camera, author, date, software, GPS, XMP, COM, IPTC gone; Orientation=6 kept alone",
     "metaclean: PNG / WebP / GIF: identical decoded frames; text, eXIf, tIME, EXIF/XMP chunks, comments and XMP app-ext gone; GIF loop kept",
@@ -3499,6 +3813,7 @@
   "SC-13": {
    "tested": "full",
    "tests": [
+    "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
     "e2e-privacy: privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache",
     "e2e-tt87-privacy: TT87 amnesia refuses conditional writes before they reach PostgreSQL",
     "e2e-tt87-privacy: TT87 LocalDisk explicitly blocks folder access in amnesic mode",
@@ -3561,6 +3876,7 @@
   "SC-17": {
    "tested": "full",
    "tests": [
+    "e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext",
     "privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported",
     "privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected",
     "privacy-backup: restore onto a host with no volume recreates header + identical ciphertext rows; the layer reads the plaintext back",
@@ -4266,6 +4582,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server",
+    "tt111-recall-tap: a closed browser session keeps nothing",
     "tt35-unit: cookie jar (WP-04): RFC 6265 — host-only vs Domain, public-suffix refusal, domain mismatch, default-path and path matching (/docs vs /docsx), Secure only over https, Max-Age over Expires, deletion, HttpOnly hidden from (and unwritable by) scripts, __Secure- / __Host- prefixes, ordering by path length, per-domain cap",
     "tt35-unit: sessions (WP-04): 128-bit url-safe capability ids, unique; idle sessions expire after 30 min; the store never exceeds its cap (least recently used goes first); dropping forgets the cookie jar"
    ]
@@ -4282,6 +4599,12 @@
    "tested": "full",
    "tests": [
     "e2e-tt35: hostile-page model (WP-02, WP-06): with Fusion's in-page runtime WITHHELD, a proxied document — opened top-level, and inside Fusion's Browser frame — is an opaque origin that can neither read the desktop's API nor write a file by CSRF; an unknown session id is refused",
+    "tt108-refusal: a cross-site request is refused quickly on every body-taking route and writes nothing",
+    "tt108-refusal: the refusal body still names the reason and the refusal is not cached",
+    "tt108-refusal: the exempt refusal endpoint cannot be turned into a bypass or a 200",
+    "tt108-refusal: a refusal cannot be made to loop: malformed body and foreign origin together stay fast",
+    "tt108-refusal: a client that resets mid-refusal does not take the server down (TT37 property, refusal path)",
+    "tt108-refusal: valid same-origin writes are untouched by the exemption",
     "tt35-unit: CSRF verdicts (WP-06): POST / PUT / DELETE pass only from the desktop itself (Sec-Fetch-Site same-origin, or an Origin naming one of our hosts) or a non-browser client; refused from other sites, sibling subdomains, and sandboxed / proxied pages (Origin null); safe methods and proxy-session paths are never blocked"
    ]
   },
@@ -5103,7 +5426,6 @@
   "FF-81": {
    "tested": "full",
    "tests": [
-    "e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify",
     "tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink"
    ]
   },
@@ -5243,8 +5565,12 @@
    ]
   },
   "CA-14": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: a never-seen cast target arrives untrusted and trust is remembered",
+    "tt107-features: trust can be withdrawn again for one target only",
+    "tt107-features: a cast session cannot be opened against an unregistered target"
+   ]
   },
   "CA-15": {
    "tested": "partial",
@@ -5269,24 +5595,34 @@
    "tests": []
   },
   "LN-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt108-shell: the colour and light chain changes the rendered frame, not just a label"
+   ]
   },
   "LN-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: output height really rescales the pipeline, and the upscale is labelled as interpolation rather than a model"
+   ]
   },
   "LN-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt109-shell: the virtual key light actually adds light to the rendered frame and can be taken away again"
+   ]
   },
   "LN-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt108-shell: the microphone is opened with the real WebRTC processing constraints, and the track reports them applied"
+   ]
   },
   "LN-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt108-shell: the voice gate really runs on the audio thread and silences a signal below its threshold"
+   ]
   },
   "LN-09": {
    "tested": "untested",
@@ -5330,8 +5666,10 @@
    ]
   },
   "MS-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "MS-03": {
    "tested": "partial",
@@ -5347,6 +5685,7 @@
    "tested": "full",
    "tests": [
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
+    "e2e-tt113-density: a disclosure opens from the keyboard alone",
     "e2e-tt31: keyboard: focusing a wall lifts it at once, Tab reaches its pins, Alt+ArrowRight moves the focused pin on the wall (persisted), Esc settles the wall and returns focus to its button without re-lifting",
     "e2e-tt31: axe-core on a lifted wall (dark + light): no serious or critical violations",
     "e2e-tt87-backup: BK-03 backup controls have a keyboard-accessible chooser and no serious or critical axe violations",
@@ -5381,6 +5720,13 @@
   "AX-05": {
    "tested": "partial",
    "tests": [
+    "e2e-tt110-banner: in Art layout a window does not repeat the menus the shell menu bar is already showing",
+    "e2e-tt110-banner: the fonts and alignment bar fits inside the window instead of scrolling sideways",
+    "e2e-tt110-banner: the fonts and alignment bar fits without scrolling in fusion layout too",
+    "e2e-tt110-banner: the fonts and alignment bar fits without scrolling in business layout too",
+    "e2e-tt113-density: recall opens as a tool, not a document",
+    "e2e-tt113-density: browser opens as a tool, not a document",
+    "e2e-tt113-density: a disclosure opens from the keyboard alone",
     "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half"
    ]
   },
@@ -5391,6 +5737,7 @@
   "AX-07": {
    "tested": "partial",
    "tests": [
+    "tt111-core: SRT becomes WebVTT the way a browser needs it, and WebVTT is left alone",
     "unit: SRT → WebVTT conversion"
    ]
   },
@@ -5429,7 +5776,7 @@
    ]
   },
   "AU-01": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
     "e2e-tt97-palette-actions: register keeps palette actions partial and discloses native Cast and privacy limits",
     "e2e-tt97-palette-actions: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection",
@@ -5445,14 +5792,16 @@
     "e2e: mount: routines",
     "e2e: routines: dry-run lists actions without executing; Run opens the window",
     "integration: AU-01 routine whitelist rejects commands outside the palette vocabulary",
+    "tt110-core: a routine can be rehearsed without doing anything, and both rehearsal and run are audited",
     "unit: routine whitelist"
    ]
   },
   "AU-02": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: routines",
-    "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted"
+    "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted",
+    "tt111-core: workspace presets are stored as their own rows and restoring one does not invent a viewport"
    ]
   },
   "AU-03": {
@@ -5461,6 +5810,7 @@
     "e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery",
     "e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids",
     "integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)",
+    "tt108-refusal: every body-taking API route refuses a malformed JSON body quickly, not after a thirty-second loop",
     "tt89-launch-unit: protocol accepts only the documented, known app intent",
     "tt89-launch-unit: existing-window URL is same-origin, root-only, one bounded module parameter"
    ]
@@ -5472,13 +5822,16 @@
   "RG-01": {
    "tested": "partial",
    "tests": [
+    "e2e-tt112-shell: SH-12: real long tasks drive the governor into a throttled state and the shell drops effects",
     "e2e: mount: monitor",
     "e2e: governor reacts to injected long tasks"
    ]
   },
   "RG-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+   ]
   },
   "RG-03": {
    "tested": "full",
@@ -5504,6 +5857,7 @@
   "RG-06": {
    "tested": "full",
    "tests": [
+    "tt111-core: the new-device checklist is a real diff of two measured reports, and absent memory data is not low memory",
     "unit: RG-06 memory policy: absence is not low memory"
    ]
   },
@@ -5532,8 +5886,10 @@
    "tests": []
   },
   "HW-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+   ]
   },
   "HW-06": {
    "tested": "untested",
@@ -5544,28 +5900,41 @@
    "tests": []
   },
   "HW-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+   ]
   },
   "HW-09": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt112-shell: SH-07 first run: the capability report is measured in this browser, not asserted"
+   ]
   },
   "HW-10": {
    "tested": "untested",
    "tests": []
   },
   "HW-11": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt110-shell: the screen wake lock is really taken and really released"
+   ]
   },
   "CM-01": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: every capability declared blocked is still refused with a stated reason"
+   ]
   },
   "CM-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: embed probe reports a framing refusal from X-Frame-Options",
+    "tt107-features: embed probe reports a framing refusal from CSP frame-ancestors",
+    "tt107-features: embed probe clears a permissive page so it can become a window",
+    "tt107-features: embed probe rejects malformed and non-http targets"
+   ]
   },
   "BL-01": {
    "tested": "full",
@@ -5577,21 +5946,27 @@
   "BL-02": {
    "tested": "partial",
    "tests": [
-    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused"
+    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused",
+    "tt110-core: a licence verifies offline against the published key, and the grace period is stated"
    ]
   },
   "BL-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt107-features: a trial grants 14 days and cannot be taken twice",
+    "tt107-features: an expired trial degrades to read-only and still shows its history",
+    "tt107-features: an unknown client is untiered rather than defaulted to paid"
+   ]
   },
   "BL-04": {
    "tested": "untested",
    "tests": []
   },
   "BL-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused"
+    "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused",
+    "tt110-core: there is no remote wipe and no kill switch anywhere in the server"
    ]
   },
   "DP-01": {
@@ -5614,21 +5989,25 @@
    ]
   },
   "DP-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
+    "tt111-core: every write is journalled and nothing is silently mutated: a read leaves no trace, a write leaves an auditable one"
    ]
   },
   "DP-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "integration: FM-18 overwrite snapshots the previous version",
-    "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)"
+    "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)",
+    "tt111-core: reversible by default: a trashed file comes back, and a changed setting can be put back from its own history"
    ]
   },
   "DP-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-shell: every control of a window is reachable by keyboard alone, with no focus trap"
+   ]
   },
   "DP-07": {
    "tested": "partial",
@@ -5666,8 +6045,10 @@
    ]
   },
   "DP-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "e2e-tt108-shell: choosing a file opens the real platform picker rather than an in-page imitation"
+   ]
   },
   "DP-13": {
    "tested": "full",
@@ -5679,7 +6060,8 @@
    "tested": "partial",
    "tests": [
     "e2e: mount: monitor",
-    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired"
+    "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
+    "tt110-core: every file operation leaves an observable journal entry with its final state"
    ]
   },
   "DP-15": {

@@ -1,0 +1,70 @@
+{
+  "suite": "e2e-tt113-density",
+  "at": "2026-10-29T05:10:48.565Z",
+  "results": [
+    {
+      "suite": "e2e-tt113-density",
+      "name": "recall opens as a tool, not a document",
+      "covers": {
+        "AX-16": "full",
+        "RC-01": "partial",
+        "AX-05": "partial",
+        "WM-02": "partial"
+      },
+      "pass": true,
+      "ms": 4356
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "browser opens as a tool, not a document",
+      "covers": {
+        "AX-16": "full",
+        "RC-01": "partial",
+        "AX-05": "partial",
+        "WM-02": "partial"
+      },
+      "pass": true,
+      "ms": 4555
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "the small print was moved, not deleted",
+      "covers": {
+        "AX-16": "full",
+        "RC-01": "partial",
+        "SC-08": "partial"
+      },
+      "pass": true,
+      "ms": 4773
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "a disclosure opens from the keyboard alone",
+      "covers": {
+        "AX-16": "full",
+        "AX-05": "partial",
+        "AX-01": "partial"
+      },
+      "pass": true,
+      "ms": 5219
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "every saving pathway survived the compaction",
+      "covers": {
+        "AX-16": "full",
+        "RC-01": "partial",
+        "RC-38": "partial"
+      },
+      "pass": true,
+      "ms": 4481
+    },
+    {
+      "suite": "e2e-tt113-density",
+      "name": "compacting the chrome raised no page exception",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

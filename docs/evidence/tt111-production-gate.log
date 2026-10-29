@@ -1,0 +1,16 @@
+TT111 production gate — 2026-10-29T01:47:44Z
+node v22.22.3 · Next 16.4.3 · PostgreSQL 18.4 · Chromium 143.0.7499.0 · 1 agent, no CI
+DB tt111_seal3_test (created minutes before this run, never used) · BASE=http://127.0.0.1:3000
+suites: 57 (curated gate + the three TT111 suites; e2e-privacy excluded as before)
+
+tt106-lifecycle             23 passed   0 failed
+e2e-tt106-memory             8 passed   0 failed
+tt105-atomic                25 passed   0 failed
+e2e-tt105-clicked            7 passed   0 failed
+tt91-write-atomic            2 passed   0 failed
+tt91-purge-race              4 passed   0 failed
+tt92-trash-race              6 passed   0 failed
+tt92-trash                  11 passed   0 failed
+e2e-tt92-trash               2 passed   0 failed
+tt104-memory-unit           27 passed   0 failed
+tt104-page                  25 passed   0 failed

@@ -243,9 +243,14 @@ try {
     await poll(async () => { pb = await box(pop); db = await box(page.getByTestId("dock")); return pb.y + pb.height <= db.y + 1; }, "popover settles above the dock", 4000).catch(() => {});
     ok(pb.y + pb.height <= db.y + 1, `popover above the dock (${pb.y + pb.height} ≤ ${db.y})`);
     ok(await page.getByTestId("dock").getAttribute("data-magnify") === "off", "dock frozen while a stack is open");
-    ok(await page.evaluate(() => document.activeElement?.getAttribute("data-testid")) === "dock-stack-app-editor", "focus moves to the first app");
+    // TT111: the stack lists only the apps that are actually in it (running apps are excluded), so read the
+    // real button order out of the popover instead of deriving it from the module registry.
+    const ids = await pop.locator("[data-testid^=dock-stack-app-]").evaluateAll((ns) => ns.map((n) => n.getAttribute("data-testid")));
+    ok(ids.length >= 2, `the stack lists its apps: ${ids.join(",")}`);
+    ok(await page.evaluate(() => document.activeElement?.getAttribute("data-testid")) === ids[0],
+      `focus moves to the first app in the stack (${ids[0]}): got ${await page.evaluate(() => document.activeElement?.getAttribute("data-testid"))}`);
     await page.keyboard.press("ArrowRight");
-    ok(await page.evaluate(() => document.activeElement?.getAttribute("data-testid")) === "dock-stack-app-notes", "ArrowRight → next app");
+    ok(await page.evaluate(() => document.activeElement?.getAttribute("data-testid")) === ids[1], `ArrowRight → next app (${ids[1]})`);
     await page.keyboard.press("Escape");
     await poll(async () => (await pop.count()) === 0, "Esc closes");
     ok(await page.evaluate(() => document.activeElement?.getAttribute("data-testid")) === "dock-stack-Create", "focus back on the stack tile");
@@ -296,8 +301,12 @@ try {
     ok(sFar === 1, `4 icons away stays at 1 (${sFar})`);
     const tip = page.locator('[role="tooltip"].fs-dock-label');
     ok((await tip.innerText()).trim() === MODULES.find((m) => m.id === target)!.title, `name bubble: ${await tip.innerText()}`);
-    const tb = await box(tip), tb2 = await box(page.getByTestId(`dock-${target}`));
-    ok(tb.y + tb.height <= tb2.y, "bubble above the magnified icon");
+    // TT111: the bubble springs up with the icon, so judge its RESTING position — the same rule this suite
+    // already applies to the stack popover. Mid-animation it can still be behind the growing icon.
+    let tb = await box(tip), tb2 = await box(page.getByTestId(`dock-${target}`));
+    await poll(async () => { tb = await box(tip); tb2 = await box(page.getByTestId(`dock-${target}`)); return tb.y + tb.height <= tb2.y; },
+      "name bubble settles above the icon", 4000);
+    ok(tb.y + tb.height <= tb2.y, `bubble above the magnified icon (${tb.y + tb.height} ≤ ${tb2.y})`);
     // stability: the magnified icon stays under the pointer while the dock widens around it
     for (const dx of [-base * 0.3, 0, base * 0.3]) {
       await page.mouse.move(cx + dx, cy);

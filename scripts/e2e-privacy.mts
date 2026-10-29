@@ -76,6 +76,15 @@ const pfetch = (method: string, path: string, body?: unknown) => page.evaluate(a
   return { status: r.status, json: await r.json().catch(() => ({})) as Record<string, any> };
 }, [method, path, body] as const);
 const privacyRoot = () => page.locator('[data-testid="privacy"]').first();
+/** Waits for the top-bar badge that only renders while Persistent Storage is unlocked. On failure it reports what
+ * the Privacy panel itself said, because "the key was rejected" and "the key was accepted but the shell did not
+ * refresh" are different defects and a bare "element not visible" cannot tell them apart. */
+async function awaitUnlocked(ms = 30_000) {
+  await page.locator('[data-testid="storage-badge"]').waitFor({ timeout: ms }).catch(async (e) => {
+    const said = (await privacyRoot().innerText().catch(() => "<unreadable>")).replace(/\s+/g, " ").slice(0, 400);
+    throw new Error(`${(e as Error).message}\n    Privacy panel said: ${said}`);
+  });
+}
 async function boot(url = "/") {
   await page.goto(BASE + url, { waitUntil: "domcontentloaded" });
   if (url.includes("amnesia=1")) {
@@ -126,7 +135,8 @@ await test("TT87 conditional writes work for ordinary host files while unlocked,
   const normal = `/Documents/conditional-${RUN}.txt`; const privatePath = `/Private/conditional-${RUN}.txt`;
   const body = (path: string) => ({ op: "writeIfUnchanged", path, content: `conditional ${RUN}`, expected: null });
   try {
-    ok((await pfetch("POST", "/api/fs", body(normal))).status === 200, "normal host create refused while unlocked");
+    const created = await pfetch("POST", "/api/fs", body(normal));
+    ok(created.status === 200, `normal host create refused while unlocked: ${created.status} ${JSON.stringify(created.json).slice(0, 200)}`);
     ok((await pfetch("POST", "/api/fs", body(normal))).status === 409, "conditional create overwrote existing host file");
     ok((await pfetch("POST", "/api/fs", body(privatePath))).status === 422, "plaintext private conditional write not refused");
     ok((await rows("select count(*)::int n from vfs_nodes where path=$1", [privatePath]))[0].n === 0, "private plaintext reached host");
@@ -139,7 +149,7 @@ await test("lock from the top bar → 423; unlock with the RECOVERY key in the U
   ok(locked.status === 423, `locked read ${locked.status}`);
   await privacyRoot().locator('[data-testid="unlock-pass"]').fill((globalThis as { __rk?: string }).__rk!.toLowerCase().replace(/-/g, " "));
   await privacyRoot().locator('[data-testid="unlock"]').click();
-  await page.locator('[data-testid="storage-badge"]').waitFor({ timeout: 30_000 });
+  await awaitUnlocked();
   const r = await pfetch("GET", `/api/fs?op=read&path=${encodeURIComponent(`/Private/Taxes ${RUN}/return.txt`)}`);
   ok(r.json.node?.content === `my ${SECRET}`, "unlocked with recovery key");
   await boot();
@@ -147,7 +157,7 @@ await test("lock from the top bar → 423; unlock with the RECOVERY key in the U
   ok(after.status === 423, `after reload ${after.status}`);
   await privacyRoot().locator('[data-testid="unlock-pass"]').fill(PASS);
   await privacyRoot().locator('[data-testid="unlock-pass"]').press("Enter");
-  await page.locator('[data-testid="storage-badge"]').waitFor({ timeout: 30_000 });
+  await awaitUnlocked();
 });
 
 await test("TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host", { "SC-16": "full" }, async () => {
@@ -248,7 +258,7 @@ await test("amnesic session: AMNESIC badge, files in RAM only, notes refused + l
   await tab("Persistent Storage").click();
   await privacyRoot().locator('[data-testid="unlock-pass"]').fill(PASS);
   await privacyRoot().locator('[data-testid="unlock"]').click();
-  await page.locator('[data-testid="storage-badge"]').waitFor({ timeout: 30_000 });
+  await awaitUnlocked();
   const pw = await pfetch("POST", "/api/fs", { op: "write", path: `/Private/kept-${RUN}.txt`, content: "persistent" });
   ok(pw.status === 200 && !pw.json.amnesic, JSON.stringify(pw.json));
   ok((await rows("select count(*)::int n from vfs_nodes where path like '/Private/~%' and mime = 'application/x-fusion-encrypted'"))[0].n >= 3, "persistent write missing");
@@ -284,7 +294,7 @@ await test("no performance degradation: real AES-GCM throughput in the browser, 
   await boot();
   await privacyRoot().locator('[data-testid="unlock-pass"]').fill(PASS);
   await privacyRoot().locator('[data-testid="unlock"]').click();
-  await page.locator('[data-testid="storage-badge"]').waitFor({ timeout: 30_000 });
+  await awaitUnlocked();
   await tab("Audit & speed").click();
   await privacyRoot().locator('[data-testid="bench"]').click();
   const b = await privacyRoot().locator('[data-testid="bench-result"]').innerText({ timeout: 60_000 });
@@ -294,20 +304,24 @@ await test("no performance degradation: real AES-GCM throughput in the browser, 
   const record = { at: new Date().toISOString(), bench: b, throughputGate: { minimumMBps: 50, passed: mbps >= 50 }, saveMs: null as null | { host: number; priv: number }, saveGate: null as null | boolean };
   writeFileSync("docs/privacy-bench.json", JSON.stringify(record, null, 1));
   ok(mbps >= 50, `encrypt throughput ${mbps} MB/s: ${b}`);
-  const timing = await page.evaluate(async (run) => {
+  // The body is passed as plain JavaScript source on purpose: tsx/esbuild rewrites a NAMED function
+  // expression inside an evaluate() into a call to its own __name helper, which does not exist in the
+  // page, so this measurement used to die with "ReferenceError: __name is not defined" rather than
+  // report a throughput. Nothing about what is measured changes.
+  const timing = await page.evaluate(`(async (run) => {
     const body = "x".repeat(256 * 1024);
-    const one = async (p: string) => {
+    const one = async (p) => {
       const t = performance.now();
       const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "write", path: p, content: body }) });
       const result = await r.json();
-      if (!r.ok || result.ok !== true) throw new Error(`Benchmark save was rejected (${r.status}); no timing claim is valid.`);
+      if (!r.ok || result.ok !== true) throw new Error("Benchmark save was rejected (" + r.status + "); no timing claim is valid.");
       return performance.now() - t;
     };
-    const host: number[] = []; const priv: number[] = [];
-    for (let i = 0; i < 8; i++) { host.push(await one(`/Documents/bench-${run}/h${i}.txt`)); priv.push(await one(`/Private/bench-${run}/p${i}.txt`)); }
-    const med = (a: number[]) => [...a].sort((x, y) => x - y)[a.length >> 1];
+    const host = []; const priv = [];
+    for (let i = 0; i < 8; i++) { host.push(await one("/Documents/bench-" + run + "/h" + i + ".txt")); priv.push(await one("/Private/bench-" + run + "/p" + i + ".txt")); }
+    const med = (a) => [...a].sort((x, y) => x - y)[a.length >> 1];
     return { host: med(host), priv: med(priv) };
-  }, RUN);
+  })(${JSON.stringify(RUN)})`) as { host: number; priv: number };
   console.log(`    bench: encrypt ${mbps} MB/s · 256 KiB save median host ${timing.host.toFixed(1)} ms vs /Private ${timing.priv.toFixed(1)} ms`);
   record.saveMs = timing;
   record.saveGate = timing.priv <= timing.host * 1.3 + 8;
@@ -333,7 +347,7 @@ const unlockUi = async () => {
   await tab("Persistent Storage").click();
   await privacyRoot().locator('[data-testid="unlock-pass"]').fill(PASS);
   await privacyRoot().locator('[data-testid="unlock"]').click();
-  await page.locator('[data-testid="storage-badge"]').waitFor({ timeout: 30_000 });
+  await awaitUnlocked();
   await privacyRoot().locator('[data-testid="backup-download"]').waitFor({ timeout: 10_000 });
 };
 const liveRows = async () => new Map((await rows("select path, content from vfs_nodes where path like '/Private/%' and trashed = false")).map((r) => [r.path as string, r.content as string | null]));

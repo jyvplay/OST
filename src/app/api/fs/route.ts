@@ -1,4 +1,7 @@
-import { atomicRecallCommit } from '@/lib/server/recall-commit';
+import { recallLifecycle } from '@/lib/server/recall-lifecycle';
+import { recallAudit, recallSearch, recallTimeline } from '@/lib/server/recall-search';
+import { recallOrphanTrash } from '@/lib/server/recall-orphan';
+import { atomicRecallCommit, RecallPolicyRefusal } from '@/lib/server/recall-commit';
 import { NextResponse, type NextRequest } from "next/server";
 import { and, desc, eq, getTableColumns, ilike, like, lt, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -63,6 +66,12 @@ export async function GET(req: NextRequest) {
         const nodes=rows.slice(0,100);
         return NextResponse.json({ok:true,nodes,next:rows.length>100 ? String(nodes[nodes.length-1].id) : null,order:'insertion-id-desc',metadataLimits:{pathBytes:1024,nameBytes:512,mimeBytes:256}});
       }
+      case "recallSearch":
+        return NextResponse.json(await recallSearch({ method: p.get("method"), host: p.get("host"), from: p.get("from"), to: p.get("to"), limit: p.get("limit"), folder: p.get("folder") }));
+      case "recallAudit":
+        return NextResponse.json(await recallAudit(p.get("folder")));
+      case "recallTimeline":
+        return NextResponse.json(await recallTimeline(p.get("folder"), p.get("tz")));
       case "list": {
         const nodes = await listDir(path);
         return NextResponse.json({ ok: true, path: normalize(path), nodes: nodes.map(strip) });
@@ -131,6 +140,8 @@ export async function POST(req: NextRequest) {
   const op = String(body.op ?? "");
   try {
     switch (op) {
+      case "recallPair": return NextResponse.json(await recallLifecycle(body));
+      case "recallOrphan": return NextResponse.json(await recallOrphanTrash(body));
       case "recallCommit": return NextResponse.json(await atomicRecallCommit(body));
       case "writeIfUnchanged": { // folder sync: either create only if absent or replace exactly the previewed version
         const b = body as unknown as Record<string, unknown>;
@@ -293,7 +304,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: `unknown op ${op}` }, { status: 400 });
     }
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
+    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof RecallPolicyRefusal ? 403 : err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
   }
 }
 

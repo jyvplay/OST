@@ -30,6 +30,12 @@ async function reset() {
 }
 const stripSel = ".fs-banner-strip";
 const itemText = (m: string) => `[role=menu][aria-label="${m}"] [role=menuitem],[role=menuitemcheckbox]`;
+/**
+ * TT110: in Art layout the focused window's menus are shown once, in the shell menu bar, instead of
+ * being repeated inside the window. The audit follows them: the menu button is whichever of the two
+ * the shell is currently rendering, and its items open next to that button.
+ */
+const menuBtn = (m: string) => `[data-testid="banner-menu-${m.toLowerCase()}"],[data-testid="shell-menu-${m.toLowerCase()}"]`;
 
 const APPS: Record<string, { label: string; menus: string[]; url?: string; seed?: string; switch?: string }> = {
   writer: { label: "Writer", menus: ["Keep", "Tweak", "Look", "Put", "Polish", "Glance"] },
@@ -97,10 +103,10 @@ for (const [id, spec] of Object.entries(APPS)) {
     // 2 + 3. menus open and every item is a control of that group (a group may live outside the banner: Vector's kit)
     let total = 0;
     for (const m of spec.menus) {
-      const btn = banner.locator(`[data-testid="banner-menu-${m.toLowerCase()}"]`);
-      eq(await btn.count(), 1, `${id}: menu "${m}" exists`);
+      const btn = page.locator(menuBtn(m));
+      eq(await btn.count(), 1, `${id}: menu "${m}" exists exactly once (shell bar or window, never both)`);
       await btn.click();
-      const items = await banner.locator(itemText(m)).evaluateAll((els) =>
+      const items = await page.locator(itemText(m)).evaluateAll((els) =>
         els.map((e) => { const b = e as HTMLElement; return (b.querySelector("span:nth-child(2)")?.textContent ?? b.textContent ?? "").replace(/\s+/g, " ").trim(); }).filter((x) => x));
       ok(items.length >= 1, `${id}: menu "${m}" is empty`);
       ok(items.length <= MENU_ITEM_CAP, `${id}: menu "${m}" lists ${items.length} items (cap ${MENU_ITEM_CAP})`);
@@ -126,7 +132,7 @@ for (const [id, spec] of Object.entries(APPS)) {
         if (!found) throw new Error(`${id} menu "${m}" lists "${l}" which is not a control of its group`);
       }
       await page.keyboard.press("Escape"); await page.waitForTimeout(120);
-      eq(await banner.locator(`[role=menu][aria-label="${m}"]`).count(), 0, `${id}: Escape closes menu "${m}"`);
+      eq(await page.locator(`[role=menu][aria-label="${m}"]`).count(), 0, `${id}: Escape closes menu "${m}"`);
     }
     ok(total >= 4, `${id}: only ${total} commands across ${spec.menus.length} menus`);
 
@@ -146,8 +152,8 @@ for (const [id, spec] of Object.entries(APPS)) {
     });
     ok(probe !== null, `${id}: no toggle to probe through a menu`);
     if (probe) {
-      await banner.locator(`[data-testid="banner-menu-${probe!.name.toLowerCase()}"]`).click();
-      const item = banner.locator(itemText(probe!.name)).filter({ hasText: probe!.label.slice(0, 20) }).first();
+      await page.locator(menuBtn(probe!.name)).click();
+      const item = page.locator(itemText(probe!.name)).filter({ hasText: probe!.label.slice(0, 20) }).first();
       eq(await item.count(), 1, `${id}: the mirrored item "${probe!.label}" is listed`);
       await item.click(); await page.waitForTimeout(250);
       const after = await banner.evaluate((el, label) => {

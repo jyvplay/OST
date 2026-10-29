@@ -1,0 +1,61 @@
+{
+  "suite": "e2e-tt110-recall",
+  "at": "2026-10-29T05:05:49.133Z",
+  "results": [
+    {
+      "suite": "e2e-tt110-recall",
+      "name": "a human-authorized display snapshot really captures the screen surface and files it as a memory",
+      "covers": {
+        "RC-04": "full",
+        "RC-11": "partial"
+      },
+      "pass": true,
+      "ms": 3620
+    },
+    {
+      "suite": "e2e-tt110-recall",
+      "name": "the shared surface is released when the snapshot ends, and nothing is captured afterwards",
+      "covers": {
+        "RC-11": "partial"
+      },
+      "pass": true,
+      "ms": 4023
+    },
+    {
+      "suite": "e2e-tt110-recall",
+      "name": "an authorized recording encodes real frames and finishes as a playable file",
+      "covers": {
+        "RC-05": "partial"
+      },
+      "pass": true,
+      "ms": 3065
+    },
+    {
+      "suite": "e2e-tt110-recall",
+      "name": "audio-only output does what this platform actually allows, and never substitutes the microphone",
+      "covers": {
+        "RC-05": "partial"
+      },
+      "pass": true,
+      "ms": 3078
+    },
+    {
+      "suite": "e2e-tt110-recall",
+      "name": "an already-rendered element in this document can be captured without touching the network",
+      "covers": {
+        "RC-06": "partial"
+      },
+      "pass": true,
+      "ms": 1615
+    },
+    {
+      "suite": "e2e-tt110-recall",
+      "name": "pending fetch jobs can be cancelled, and the archive is told what cancellation does not undo",
+      "covers": {
+        "RC-11": "partial"
+      },
+      "pass": true,
+      "ms": 152
+    }
+  ]
+}

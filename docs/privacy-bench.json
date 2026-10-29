@@ -1,10 +1,13 @@
 {
- "at": "2026-10-27T23:21:03.344Z",
- "bench": "Encrypt\n46 MB/s (86.5 ms per 4.0 MB)\nDecrypt\n55 MB/s (72.1 ms per 4.0 MB)\nLargest file (8 MB VFS cap)\n≈ 174 ms extra to save",
+ "at": "2026-10-28T20:37:33.317Z",
+ "bench": "Encrypt\n63 MB/s (63.4 ms per 4.0 MB)\nDecrypt\n70 MB/s (56.9 ms per 4.0 MB)\nLargest file (8 MB VFS cap)\n≈ 127 ms extra to save",
  "throughputGate": {
   "minimumMBps": 50,
-  "passed": false
+  "passed": true
  },
- "saveMs": null,
- "saveGate": null
+ "saveMs": {
+  "host": 21.5,
+  "priv": 46.89999999944121
+ },
+ "saveGate": false
 }

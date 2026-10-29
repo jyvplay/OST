@@ -7,6 +7,8 @@ import { corsCheck, inferDest, credCode, exposeHeaders, flagString, nextChainFla
 import { readable, readerDocument } from "@/lib/reader-core";
 import { decodeText, readAll, toWebStream, upstreamRequest } from "@/lib/server/wp-fetch";
 import { openBridge, originToken, sendToBridge, WsOpenError, WS_MAX_MESSAGE } from "@/lib/server/wp-ws";
+import { tapPut, tappableResponse, TAP_ITEM_MAX } from "@/lib/server/wp-tap";
+import { tapEnabled } from "@/lib/server/wp-tap-policy";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -267,7 +269,31 @@ async function handle(req: NextRequest): Promise<Response> {
   if (/^text\/event-stream/.test(type)) { headers["cache-control"] = "no-store, no-transform"; headers["x-accel-buffering"] = "no"; }
   const len = up.headers["content-length"];
   if (len && !up.headers["content-encoding"]) headers["content-length"] = String(len);
-  return new Response(toWebStream(up.body, (n) => { s.stats.bytesIn += n; }), { status: up.status, headers });
+  // TT111 (RC-37): when the human has switched the tap on, a complete media response is also kept in
+  // this server's memory as it streams past, so that a later "save this" reads the bytes the page
+  // already has instead of asking the publisher again. Non-media and partial responses stream
+  // untouched — the tee only exists for the content Recall can actually file.
+  let outBody = up.body;
+  const mediaType = type.split(";")[0].trim();
+  if (tappableResponse(up.status, mediaType, up.headers) && (await tapEnabled())) {
+    const src = up.body as AsyncIterable<Buffer>;
+    const sid = s.sid, href = target.href, page = di?.url ?? null, status = up.status;
+    const { Readable } = await import("node:stream");
+    outBody = Readable.from((async function* () {
+      const chunks: Buffer[] = []; let size = 0, over = false;
+      for await (const c of src) {
+        if (!over) {
+          size += c.length;
+          if (size > TAP_ITEM_MAX) { over = true; chunks.length = 0; } else chunks.push(Buffer.from(c));
+        }
+        yield c;
+      }
+      // Only a body that reached its end is retained. An aborted load leaves nothing: half a JPEG
+      // filed as the picture would be a lie told with real bytes. (An early return skips this line.)
+      if (!over && size && (!len || Number(len) === size)) tapPut(sid, href, mediaType, Buffer.concat(chunks, size), page, status);
+    })());
+  }
+  return new Response(toWebStream(outBody, (n) => { s.stats.bytesIn += n; }), { status: up.status, headers });
 }
 
 /** Control endpoints inside a session: the page's document.cookie writes come back here. */

@@ -1,0 +1,44 @@
+{
+  "suite": "tt107-crash",
+  "at": "2026-10-29T05:02:44.061Z",
+  "results": [
+    {
+      "suite": "tt107-crash",
+      "name": "SIGKILL between the two writes leaves no half pair and no orphan metadata",
+      "covers": {
+        "RC-29": "partial",
+        "RC-22": "partial"
+      },
+      "pass": true,
+      "ms": 241
+    },
+    {
+      "suite": "tt107-crash",
+      "name": "server restarts and the same payload then publishes the exact pair",
+      "covers": {
+        "RC-29": "partial"
+      },
+      "pass": true,
+      "ms": 1708
+    },
+    {
+      "suite": "tt107-crash",
+      "name": "SIGKILL during a guarded paired trash leaves both files active and indexed",
+      "covers": {
+        "RC-29": "partial",
+        "RC-25": "partial"
+      },
+      "pass": true,
+      "ms": 244
+    },
+    {
+      "suite": "tt107-crash",
+      "name": "after the crash the pair is still guard-consistent and can be trashed and restored",
+      "covers": {
+        "RC-29": "partial"
+      },
+      "pass": true,
+      "ms": 1553
+    }
+  ]
+}

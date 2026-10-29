@@ -5,7 +5,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
-import { Badge, Btn, Blocked } from "../ui";
+import { Badge, Btn, Blocked, Hint } from "../ui";
 import ProxyFrame from "./ProxyFrame";
 import NetworkRoute, { useRoute } from "./NetworkRoute";
 import {
@@ -333,10 +333,12 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
         </div>
       </div>
 
-      <div className="fs-dim" style={{ fontSize: fz(10.5), padding: "3px 8px", borderTop: "1px solid var(--fs-border)" }}>
-        Per-site policy is restrictive-only on the web: the sandbox and allow attributes can take permissions away
-        from an embedded page, never grant them. For a directly embedded page, user-agent override and find in page
-        are impossible; in a private-proxy tab both work, because the page then runs inside Fusion&apos;s own sandbox.
+      <div style={{ padding: "1px 8px 3px", borderTop: "1px solid var(--fs-border)" }}>
+        <Hint label="Why some controls only work in a proxy tab">
+          Per-site policy is restrictive-only on the web: the sandbox and allow attributes can take permissions away
+          from an embedded page, never grant them. For a directly embedded page, user-agent override and find in page
+          are impossible; in a private-proxy tab both work, because the page then runs inside Fusion&apos;s own sandbox.
+        </Hint>
       </div>
     </div>
   );

@@ -14,7 +14,9 @@ export async function GET(req: NextRequest) {
   if (!target) return NextResponse.json({ ok: false, error: "url required" }, { status: 400 });
   let url: URL;
   try {
-    url = new URL(target.startsWith("http") ? target : `https://${target}`);
+    // "ftp://x.test/" must not be coerced into "https://ftp//x.test/": only a
+    // bare host (no scheme at all) may be defaulted to https.
+    url = new URL(/^[a-z][a-z0-9+.-]*:/i.test(target) ? target : `https://${target}`);
   } catch {
     return NextResponse.json({ ok: false, error: "invalid url" }, { status: 400 });
   }

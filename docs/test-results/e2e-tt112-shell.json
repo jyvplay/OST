@@ -1,0 +1,75 @@
+{
+  "suite": "e2e-tt112-shell",
+  "at": "2026-10-29T05:09:37.797Z",
+  "results": [
+    {
+      "suite": "e2e-tt112-shell",
+      "name": "SH-07 first run: the capability report is measured in this browser, not asserted",
+      "covers": {
+        "SH-07": "full",
+        "HW-09": "partial"
+      },
+      "pass": true,
+      "ms": 1866
+    },
+    {
+      "suite": "e2e-tt112-shell",
+      "name": "every capability claim matches what this browser actually exposes (no invented support)",
+      "covers": {
+        "RG-02": "partial",
+        "HW-08": "partial",
+        "WM-07": "partial",
+        "HW-05": "partial"
+      },
+      "pass": true,
+      "ms": 1246
+    },
+    {
+      "suite": "e2e-tt112-shell",
+      "name": "SH-07 licence: a local trial is granted without any account, and the server holds the public key",
+      "covers": {
+        "SH-07": "full"
+      },
+      "pass": true,
+      "ms": 1390
+    },
+    {
+      "suite": "e2e-tt112-shell",
+      "name": "SH-07: the capability report reaches the server only when a human asks for it",
+      "covers": {
+        "SH-07": "full",
+        "PR-02": "partial"
+      },
+      "pass": true,
+      "ms": 2009
+    },
+    {
+      "suite": "e2e-tt112-shell",
+      "name": "SH-12: real long tasks drive the governor into a throttled state and the shell drops effects",
+      "covers": {
+        "SH-12": "full",
+        "RG-01": "partial"
+      },
+      "pass": true,
+      "ms": 3978
+    },
+    {
+      "suite": "e2e-tt112-shell",
+      "name": "SH-12: the detector is a measurement, not a latch — effects return once the load stops",
+      "covers": {
+        "SH-12": "full"
+      },
+      "pass": true,
+      "ms": 59204
+    },
+    {
+      "suite": "e2e-tt112-shell",
+      "name": "no uncaught page exception across the capability, licence and governor panes",
+      "covers": {
+        "SH-07": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}
