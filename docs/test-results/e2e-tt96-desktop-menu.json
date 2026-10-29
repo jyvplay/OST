@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt96-desktop-menu",
-  "at": "2026-10-29T16:36:50.715Z",
+  "at": "2026-10-29T17:14:19.363Z",
   "results": [
     {
       "suite": "e2e-tt96-desktop-menu",
@@ -10,7 +10,7 @@
         "AX-02": "partial"
       },
       "pass": true,
-      "ms": 1516
+      "ms": 1286
     },
     {
       "suite": "e2e-tt96-desktop-menu",
@@ -19,7 +19,7 @@
         "LY-06": "partial"
       },
       "pass": true,
-      "ms": 2729
+      "ms": 2377
     },
     {
       "suite": "e2e-tt96-desktop-menu",
@@ -29,7 +29,7 @@
         "AX-02": "partial"
       },
       "pass": true,
-      "ms": 2874
+      "ms": 2751
     },
     {
       "suite": "e2e-tt96-desktop-menu",
@@ -39,7 +39,7 @@
         "LY-03": "partial"
       },
       "pass": true,
-      "ms": 1976
+      "ms": 1796
     },
     {
       "suite": "e2e-tt96-desktop-menu",
@@ -49,7 +49,7 @@
         "AX-02": "partial"
       },
       "pass": true,
-      "ms": 1420
+      "ms": 1602
     }
   ]
 }

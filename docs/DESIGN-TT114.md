@@ -113,7 +113,7 @@ eleven rows turned out to be empty when grepped. That ratio — three in eleven 
 finding for the next turn: the remaining `built`-without-test rows should be assumed empty until
 grepped, not assumed working.
 
-## D. Negative space — 16 shapes that look like a solution
+## D. Negative space — 20 shapes that look like a solution
 
 1. **Idempotency by digest.** "The same bytes at the same path, so skip." Fails the moment a person
    deliberately saves the same image twice; the contract has an explicit `onDuplicate:'store'`.
@@ -149,6 +149,28 @@ grepped, not assumed working.
     `grep -rln "<the mechanism the nuance names>" src` — if the symbol the row describes does not
     appear in `src`, the row is empty regardless of its grade. Run against the eleven rows, this
     returned nothing for WM-12, LN-09 and WM-04.
+
+17. **Treating a red suite in a 66-suite gate as a defect.** Three of this turn's four gate
+    failures were non-deterministic and passed on re-run. The discriminator is cheap and must come
+    *before* any source edit: re-run the single suite standalone. Patching blind would have written
+    a fix for a defect that was never there, and the fix itself would then need refuting.
+18. **Re-running the suite against a virgin database to decide.** The shape that cost most here.
+    The suite process reads `DATABASE_URL`, but every assertion travels over HTTP to a server that
+    holds its **own** connection, so pointing the suite at a clean database changes nothing the
+    test can see. My "deterministic reproduction on a virgin database" was the dirty gate database
+    the whole time. **Detector:** the database named in the suite's environment must equal the one
+    the *server process* was started with, or the variable is decoration — restart the server.
+19. **Making an intermittent failure go away by widening the assertion.** The voice gate falls back
+    to the raw track by design, so the fix that always passes is to accept the fallback. That
+    deletes the only evidence that LN-08 does what it claims. The mechanism had to be found
+    instead: an `AudioContext` opened per start and never closed, against a browser that caps how
+    many a document may hold.
+20. **A focus-trap detector that counts a repeated element.** Chromium's `<input type=date>` is a
+    single element that holds four consecutive Tab stops, one per mm/dd/yyyy segment. "Same element
+    twice" reads the platform's own editor as a trap. A trap is an element that never gives focus
+    back, so the test is a *bounded run* per element, and segmented editors are allowed their
+    segments. This one hid behind shape 21's blind spot for the whole project: the walk started at
+    the top of the document and never got that far.
 
 ## E. Mechanism portfolio
 
@@ -270,6 +292,15 @@ Candidate-specific attacks, each aimed at the thing its candidate would most lik
   layer that always paints.
 - *Against my own repairs:* every repaired suite was re-run, and the two flaky ones were run three
   and four times consecutively rather than once.
+- *Against the keyboard repair (TT115):* the repaired walk was run against the **post-gate**
+  database whose litter broke the original — the adversarial case, not a clean one — and the first
+  attempt **failed**, which is how shape 20 was found. Three consecutive 7/0 runs on that same
+  environment is the evidence, and the trap assertion was strengthened rather than loosened: it
+  still fails for any element that consumes more stops than the platform grants it.
+- *Against the LN-08 repair:* the honest null hypothesis is "the retry hid a real regression". It
+  is addressed by what the fallback now records — `data-gate-fallback` is read by the test and
+  printed in its failure message, so the next occurrence names its own cause instead of being
+  another anonymous flake.
 
 ## H. Verification
 
@@ -321,6 +352,29 @@ masking it:
     depends on trash content left by earlier suites, and the second failure is the first one's
     cascade through a window left open by the throw. Treated as a gate-state finding, re-measured
     in the final gate rather than patched blind.
+
+15. **`e2e-tt108-shell` — the fusion gate fell back to the raw track (gate D).** Found by the
+    three-step discriminator, not by reading code: standalone on a **virgin server** the suite is
+    **7/0**, so the gate failure is environmental; standalone against the **post-gate** server it
+    reproduced twice in three runs, which located the condition as *accumulated session state*.
+    The mechanism behind that condition is a resource leak: `Lens.start()` constructed an
+    `AudioContext` per start and never closed it, and leaked a blob URL per start, against a
+    Chromium limit on concurrently open contexts. The context is now owned and closed in `stop()`,
+    the URL revoked in a `finally`, a lost worklet race retried once, a suspended context resumed,
+    and the reason for any fallback written to `data-gate-fallback`. Before the fix, 2 of 3 runs on
+    the reproducing environment failed; after, **0 of 3**. Re-run: **7/0, 7/0, 7/0**.
+16. **`e2e-tt108-shell` DP-06 — the keyboard walk measured the Desktop, not a window.** The walk
+    began at the top of the document and spent all 40 Tab stops on one button per desktop icon;
+    by the end of a gate the Desktop holds about thirty files, so the suite's verdict depended on
+    how much litter earlier suites had left. It now starts at the window's first control, which is
+    what the test's name claims. The old behaviour was not a product defect and no product code was
+    changed for it.
+17. **The trap detector repaired against its own new reach (an attack on repair 16).** Repair 16
+    made the walk reach controls it had never reached, and it immediately failed on
+    `Filter from date` "holding" four stops — shape 20. Identity now carries the input type and a
+    segmented editor is allowed one stop per segment, every other control exactly one; a real trap
+    still fails because it would consume all forty. Verified on the environment that produced the
+    original failure: **7/0 three times**.
 
 The attack added against repair 12 is in `e2e-tt114-density.mts`, which now asserts that the
 tab-side control is glyph-only **and** resolves by the incumbent name — so a future turn cannot

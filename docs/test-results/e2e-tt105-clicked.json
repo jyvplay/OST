@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt105-clicked",
-  "at": "2026-10-29T16:33:21.298Z",
+  "at": "2026-10-29T17:10:58.819Z",
   "results": [
     {
       "suite": "e2e-tt105-clicked",
@@ -9,7 +9,7 @@
         "RC-23": "partial"
       },
       "pass": true,
-      "ms": 1045
+      "ms": 623
     },
     {
       "suite": "e2e-tt105-clicked",
@@ -18,42 +18,42 @@
         "RC-23": "partial"
       },
       "pass": true,
-      "ms": 2336
+      "ms": 1803
     },
     {
       "suite": "e2e-tt105-clicked",
       "name": "selected connected target beyond first 200 visuals is still eligible",
       "covers": {},
       "pass": true,
-      "ms": 633
+      "ms": 397
     },
     {
       "suite": "e2e-tt105-clicked",
       "name": "removed selected target refuses rather than saving another visual",
       "covers": {},
       "pass": true,
-      "ms": 101
+      "ms": 134
     },
     {
       "suite": "e2e-tt105-clicked",
       "name": "a nonmedia native pointer action clears previous selection",
       "covers": {},
       "pass": true,
-      "ms": 329
+      "ms": 442
     },
     {
       "suite": "e2e-tt105-clicked",
       "name": "clicked tainted canvas is refused without refetch fallback",
       "covers": {},
       "pass": true,
-      "ms": 1031
+      "ms": 989
     },
     {
       "suite": "e2e-tt105-clicked",
       "name": "Specs registers atomic and clicked workflows without full-grade inflation",
       "covers": {},
       "pass": true,
-      "ms": 30
+      "ms": 25
     }
   ]
 }

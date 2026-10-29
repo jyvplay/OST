@@ -105,14 +105,26 @@ try {
   });
 
   await test('the voice gate really runs on the audio thread and silences a signal below its threshold', { 'LN-08': 'full' }, async () => {
+    // Loading a worklet is asynchronous: the blob is fetched and compiled on the audio
+    // thread. Reading __seen.gate the instant after start() was a race with that load,
+    // and losing it was reported as "it fell back to the raw track" even though the
+    // module was still inside addModule. Wait for the module to publish an outcome.
+    // This is not a softer assertion: if no outcome ever arrives, or the outcome is a
+    // real fallback, the assertion below still fails and now names the stage.
+    await page.waitForFunction(`(() => {
+      const v = document.querySelector('video[data-lens-video]');
+      const st = v && v.dataset.gateStage;
+      return st === 'gate-live' || st === 'fell-back' || (st || '').startsWith('threw');
+    })()`, { timeout: 20000 }).catch(() => {});
     const gatePresent = await page.evaluate(() => {
       const g = (window as unknown as { __seen: { gate: { node: AudioWorkletNode; ctx: BaseAudioContext } | null } }).__seen.gate;
       return g ? { params: [...g.node.parameters.keys()], state: g.ctx.state, rate: g.ctx.sampleRate } : null;
     });
     // LN-08 records why it fell back; without that a failure here is unattributable.
     const why = await page.evaluate(`(() => {
-      const v = document.querySelector('[data-testid="lens"] video') || document.querySelector('video');
-      return v ? (v.dataset.gateFallback ?? '(attribute never written)') : '(no video element)';
+      const v = document.querySelector('video[data-lens-video]');
+      if (!v) return '(Lens video element not in the DOM)';
+      return 'stage=' + (v.dataset.gateStage ?? '(start never ran)') + ' fallback=' + (v.dataset.gateFallback || '(none)');
     })()`) as string;
     assert.ok(gatePresent, `Lens did not create its fusion-gate AudioWorkletNode (it fell back to the raw track). Reason recorded by the module: ${why}`);
     assert.ok(gatePresent.params.includes('threshold'), 'the gate exposes no threshold parameter');

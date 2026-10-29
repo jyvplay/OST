@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt92-trash",
-  "at": "2026-10-29T16:33:27.909Z",
+  "at": "2026-10-29T17:11:05.253Z",
   "results": [
     {
       "suite": "e2e-tt92-trash",
@@ -10,7 +10,7 @@
         "SR-01": "partial"
       },
       "pass": true,
-      "ms": 81
+      "ms": 36
     },
     {
       "suite": "e2e-tt92-trash",
@@ -20,7 +20,7 @@
         "SR-01": "partial"
       },
       "pass": true,
-      "ms": 1529
+      "ms": 1769
     }
   ]
 }

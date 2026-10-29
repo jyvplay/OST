@@ -99,6 +99,7 @@ export default function LensModule(_: ModuleProps) {
       });
       setStream(s);
       const v = videoRef.current!;
+      v.dataset.gateStage = "got-stream";
       v.srcObject = s;
       await v.play();
       const FD = (window as unknown as { FaceDetector?: new (o: { fastMode: boolean }) => { detect: (s: CanvasImageSource) => Promise<{ boundingBox: DOMRectReadOnly }[]> } }).FaceDetector;
@@ -110,6 +111,7 @@ export default function LensModule(_: ModuleProps) {
       // thread; on a loaded machine that can lose a race that a second attempt wins.
       // Two bounded attempts, each fully cleaned up, then the honest raw-track fallback.
       gateFallbackRef.current = "";
+      if (videoRef.current) videoRef.current.dataset.gateStage = "worklet";
       for (let attempt = 0; attempt < 2 && !gateRef.current; attempt++) {
         const url = URL.createObjectURL(new Blob([GATE_WORKLET], { type: "text/javascript" }));
         let ac: AudioContext | null = null;
@@ -133,9 +135,13 @@ export default function LensModule(_: ModuleProps) {
       }
       if (!gateRef.current) s.getAudioTracks().forEach((t) => out.addTrack(t));
       // Make the outcome observable: "" when the gate is live, otherwise the reason.
-      if (videoRef.current) videoRef.current.dataset.gateFallback = gateFallbackRef.current;
+      if (videoRef.current) {
+        videoRef.current.dataset.gateFallback = gateFallbackRef.current;
+        videoRef.current.dataset.gateStage = gateRef.current ? "gate-live" : "fell-back";
+      }
       shell.publishStream("lens", out);
     } catch (e) {
+      if (videoRef.current) videoRef.current.dataset.gateStage = "threw: " + String((e as Error)?.message ?? e).slice(0, 80);
       setErr(String((e as Error).message));
     }
   };
@@ -284,7 +290,7 @@ export default function LensModule(_: ModuleProps) {
       <div style={{ display: "grid", gridTemplateColumns: `minmax(0, 1fr) min(${fz(220)}, 40%)`, gap: 10 }}>
         <div>
           <canvas ref={canvasRef} style={{ width: "100%", background: "#000", borderRadius: 10 }} />
-          <video ref={videoRef} muted playsInline style={{ display: "none" }} />
+          <video ref={videoRef} data-lens-video="" muted playsInline style={{ display: "none" }} />
         </div>
         <div style={{ display: "grid", gap: 8, alignContent: "start" }}>
           {([

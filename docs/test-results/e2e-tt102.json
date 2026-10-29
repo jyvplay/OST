@@ -1,111 +1,111 @@
 {
   "suite": "e2e-tt102",
-  "at": "2026-10-29T16:34:22.489Z",
+  "at": "2026-10-29T17:11:58.223Z",
   "results": [
     {
       "suite": "e2e-tt102",
       "name": "Recall opens a real browsing pane without silently arming capture",
       "covers": {},
       "pass": true,
-      "ms": 669
+      "ms": 2577
     },
     {
       "suite": "e2e-tt102",
       "name": "compact Browser tools retain advanced controls without crowding the default bar",
       "covers": {},
       "pass": true,
-      "ms": 2524
+      "ms": 1281
     },
     {
       "suite": "e2e-tt102",
       "name": "Page tools retain functional find while the default viewport stays usable",
       "covers": {},
       "pass": true,
-      "ms": 1089
+      "ms": 321
     },
     {
       "suite": "e2e-tt102",
       "name": "actual page title and address follow the visible proxied document",
       "covers": {},
       "pass": true,
-      "ms": 11
+      "ms": 7
     },
     {
       "suite": "e2e-tt102",
       "name": "manual browsing changes the visible page and declared source together",
       "covers": {},
       "pass": true,
-      "ms": 451
+      "ms": 1101
     },
     {
       "suite": "e2e-tt102",
       "name": "Auto Recall in the new browser saves actual publisher bytes to the selected folder",
       "covers": {},
       "pass": true,
-      "ms": 774
+      "ms": 690
     },
     {
       "suite": "e2e-tt102",
       "name": "real publisher DOM mutation is discovered from the visible page",
       "covers": {},
       "pass": true,
-      "ms": 480
+      "ms": 573
     },
     {
       "suite": "e2e-tt102",
       "name": "closing the browsing pane cancels its actual slow archive fetch",
       "covers": {},
       "pass": true,
-      "ms": 895
+      "ms": 919
     },
     {
       "suite": "e2e-tt102",
       "name": "reopening restores the actual active tab but does not restore an armed watcher",
       "covers": {},
       "pass": true,
-      "ms": 1268
+      "ms": 1290
     },
     {
       "suite": "e2e-tt102",
       "name": "new browser pane passes serious and critical external axe checks",
       "covers": {},
       "pass": true,
-      "ms": 706
+      "ms": 727
     },
     {
       "suite": "e2e-tt102",
       "name": "create or unlock real Persistent Storage through its actual UI",
       "covers": {},
       "pass": true,
-      "ms": 2149
+      "ms": 2289
     },
     {
       "suite": "e2e-tt102",
       "name": "unlocked actual-browser metadata search decrypts real writes without HTTP plaintext",
       "covers": {},
       "pass": true,
-      "ms": 225
+      "ms": 301
     },
     {
       "suite": "e2e-tt102",
       "name": "actual storage lock clears rendered result, query, field, cursor and scope",
       "covers": {},
       "pass": true,
-      "ms": 2093
+      "ms": 1669
     },
     {
       "suite": "e2e-tt102",
       "name": "post-lock retry fails closed and cannot resurrect old plaintext results",
       "covers": {},
       "pass": true,
-      "ms": 1597
+      "ms": 1238
     },
     {
       "suite": "e2e-tt102",
       "name": "classic desktop keeps a named semantic group and passes external prohibited-ARIA checks",
       "covers": {},
       "pass": true,
-      "ms": 260
+      "ms": 223
     },
     {
       "suite": "e2e-tt102",

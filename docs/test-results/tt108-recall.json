@@ -1,6 +1,6 @@
 {
   "suite": "tt108-recall",
-  "at": "2026-10-29T16:45:11.460Z",
+  "at": "2026-10-29T17:22:33.408Z",
   "results": [
     {
       "suite": "tt108-recall",
@@ -45,7 +45,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 54
+      "ms": 67
     },
     {
       "suite": "tt108-recall",
@@ -54,7 +54,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 43
+      "ms": 37
     },
     {
       "suite": "tt108-recall",
@@ -63,7 +63,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 39
+      "ms": 32
     },
     {
       "suite": "tt108-recall",
@@ -72,7 +72,7 @@
         "RC-33": "full"
       },
       "pass": true,
-      "ms": 62
+      "ms": 60
     },
     {
       "suite": "tt108-recall",
@@ -81,7 +81,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 107
+      "ms": 98
     },
     {
       "suite": "tt108-recall",
@@ -100,7 +100,7 @@
         "RC-27": "partial"
       },
       "pass": true,
-      "ms": 48
+      "ms": 30
     },
     {
       "suite": "tt108-recall",
@@ -109,7 +109,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 39
+      "ms": 18
     },
     {
       "suite": "tt108-recall",
@@ -118,7 +118,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 53
+      "ms": 21
     },
     {
       "suite": "tt108-recall",
@@ -127,7 +127,7 @@
         "RC-32": "full"
       },
       "pass": true,
-      "ms": 16
+      "ms": 11
     },
     {
       "suite": "tt108-recall",
@@ -136,7 +136,7 @@
         "RC-31": "partial"
       },
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "tt108-recall",
@@ -145,7 +145,7 @@
         "RC-31": "full"
       },
       "pass": true,
-      "ms": 107
+      "ms": 111
     },
     {
       "suite": "tt108-recall",
@@ -154,7 +154,7 @@
         "RC-31": "full"
       },
       "pass": true,
-      "ms": 63
+      "ms": 75
     },
     {
       "suite": "tt108-recall",
@@ -166,7 +166,7 @@
         "RC-33": "partial"
       },
       "pass": true,
-      "ms": 15
+      "ms": 13
     }
   ]
 }
