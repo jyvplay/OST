@@ -1,0 +1,72 @@
+{
+  "suite": "tt116-recall-retention",
+  "at": "2026-10-29T18:36:00.256Z",
+  "results": [
+    {
+      "suite": "tt116-recall-retention",
+      "name": "a dry run reports a complete plan and changes nothing at all",
+      "covers": {
+        "RC-13": "full"
+      },
+      "pass": true,
+      "ms": 257
+    },
+    {
+      "suite": "tt116-recall-retention",
+      "name": "applying the policy trashes exactly what the dry run showed, as pairs",
+      "covers": {
+        "RC-13": "full"
+      },
+      "pass": true,
+      "ms": 51
+    },
+    {
+      "suite": "tt116-recall-retention",
+      "name": "retention refuses a memory it cannot prove is a complete pair",
+      "covers": {
+        "RC-13": "full",
+        "RC-28": "partial"
+      },
+      "pass": true,
+      "ms": 87
+    },
+    {
+      "suite": "tt116-recall-retention",
+      "name": "the two keep-rules compose by intersection, not by union",
+      "covers": {
+        "RC-13": "full"
+      },
+      "pass": true,
+      "ms": 151
+    },
+    {
+      "suite": "tt116-recall-retention",
+      "name": "a policy cannot name a folder outside the Recall archive, or no policy at all",
+      "covers": {
+        "RC-13": "full",
+        "SC-02": "partial"
+      },
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "suite": "tt116-recall-retention",
+      "name": "paging the timeline is a snapshot: a save during the read cannot hide a memory",
+      "covers": {
+        "RC-18": "full"
+      },
+      "pass": true,
+      "ms": 285
+    },
+    {
+      "suite": "tt116-recall-retention",
+      "name": "a retention run is auditable after the fact",
+      "covers": {
+        "RC-13": "full",
+        "DP-14": "partial"
+      },
+      "pass": true,
+      "ms": 81
+    }
+  ]
+}
