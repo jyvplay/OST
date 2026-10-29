@@ -1,0 +1,78 @@
+{
+  "suite": "tt116-recall-archive",
+  "at": "2026-10-29T18:55:56.546Z",
+  "results": [
+    {
+      "suite": "tt116-recall-archive",
+      "name": "RC-10: the folder is derived from the page, and three groupings mean three folders",
+      "covers": {
+        "RC-10": "full"
+      },
+      "pass": true,
+      "ms": 122
+    },
+    {
+      "suite": "tt116-recall-archive",
+      "name": "RC-10: a custom grouping with no name is refused rather than quietly filed somewhere",
+      "covers": {
+        "RC-10": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt116-recall-archive",
+      "name": "RC-34: a second save of identical bytes is recognised, not duplicated",
+      "covers": {
+        "RC-34": "full"
+      },
+      "pass": true,
+      "ms": 60
+    },
+    {
+      "suite": "tt116-recall-archive",
+      "name": "RC-34: different bytes under the same name are never treated as a duplicate",
+      "covers": {
+        "RC-34": "full"
+      },
+      "pass": true,
+      "ms": 17
+    },
+    {
+      "suite": "tt116-recall-archive",
+      "name": "RC-27: method, host and date filters select, and a dead filter returns nothing",
+      "covers": {
+        "RC-27": "full"
+      },
+      "pass": true,
+      "ms": 65
+    },
+    {
+      "suite": "tt116-recall-archive",
+      "name": "RC-27: a malformed filter is refused, not silently ignored",
+      "covers": {
+        "RC-27": "full"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tt116-recall-archive",
+      "name": "RC-28: a memory that lost its receipt is reported, and the receipt is never invented",
+      "covers": {
+        "RC-28": "full"
+      },
+      "pass": true,
+      "ms": 114
+    },
+    {
+      "suite": "tt116-recall-archive",
+      "name": "RC-28: the audit refuses a scope that is not a Recall grouping folder",
+      "covers": {
+        "RC-28": "full"
+      },
+      "pass": true,
+      "ms": 9
+    }
+  ]
+}
