@@ -33,6 +33,8 @@ export default function SpecModule({ win }: ModuleProps) {
   const [open, setOpen] = useState<string | null>((win.props.focus as string) ?? null);
 
   const [cov, setCov] = useState<{ generatedAt: string | null; rows: Record<string, { tested: string; tests: string[] }>; totals: { tested: Record<string, number>; tests: { total: number; passed: number } } | null } | null>(null);
+  const [health, setHealth] = useState<{ total: number; issues: { kind: string; code: string; detail: string }[] } | null>(null);
+  useEffect(() => { api<NonNullable<typeof health>>("/api/spec-health").then(setHealth).catch(() => undefined); }, []);
   useEffect(() => {
     api<NonNullable<typeof cov>>("/api/ledger").then(setCov).catch(() => undefined);
   }, []);
@@ -104,6 +106,17 @@ export default function SpecModule({ win }: ModuleProps) {
           </div>
         ))}
       </div>
+
+      <Section title="Register health (SP-01)">
+        {health ? (health.issues.length ? (
+          <div style={{ display: "grid", gap: 3 }}>
+            <Badge tone="warn">{health.issues.length} issue(s) across {health.total} rows</Badge>
+            {health.issues.slice(0, 40).map((i, n) => <div key={n} style={{ fontSize: fz(11.5) }}><span className="fs-mono">{i.code}</span> · {i.kind} — {i.detail}</div>)}
+            {health.issues.length > 40 ? <div className="fs-dim" style={{ fontSize: fz(11) }}>…and {health.issues.length - 40} more (fix the first ones; this list is recomputed live)</div> : null}
+          </div>
+        ) : <Badge tone="ok">register is consistent: every built row is claimed by a module and every cited suite exists</Badge>)
+        : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>checking…</span>}
+      </Section>
 
       <Section title="Spikes — open questions with pass criteria">
         <div style={{ display: "grid", gap: 4 }}>

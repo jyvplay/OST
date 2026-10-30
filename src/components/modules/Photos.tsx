@@ -15,6 +15,8 @@
  *            reason). Optional curated EXIF (camera, exposure, capture time; Orientation reset to 1, new pixel size,
  *            MakerNote / thumbnail dropped); location only when "Include location" is ticked (off by default).
  */
+import { photoTimeline } from "@/lib/photo-timeline";
+import { clampInterval, nextIndex } from "@/lib/slideshow";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fz } from "@/lib/uiscale";
@@ -111,17 +113,41 @@ export default function PhotosModule({ win }: ModuleProps) {
     return g;
   }, [shown, index]);
 
+  const [showPlaying, setShowPlaying] = useState(false);
+  const [showSecs, setShowSecs] = useState(4);
+  useEffect(() => {
+    if (!showPlaying || shown.length === 0) return;
+    const t = window.setInterval(() => {
+      const i = shown.findIndex((x) => x.path === open);
+      const n = shown[nextIndex(i, shown.length)];
+      if (n) setOpen(n.path);
+    }, clampInterval(showSecs) * 1000);
+    return () => window.clearInterval(t);
+  }, [showPlaying, showSecs, shown, open]);
   const current = items?.find((i) => i.path === open) ?? null;
   if (current) {
-    return <PhotoEditor key={current.path + current.sha256} item={current} info={index[current.sha256]} onClose={() => setOpen(null)}
+    return <PhotoEditor key={current.path + current.sha256} item={current} info={index[current.sha256]} showPlaying={showPlaying} onToggleShow={() => setShowPlaying((v) => !v)} onClose={() => { setShowPlaying(false); setOpen(null); }}
       onSaved={(r) => { setRecipes((m) => { const n = { ...m }; if (r) n[current.path] = r; else delete n[current.path]; return n; }); setSidecars((s) => { const n = new Set(s); if (r) n.add(current.path); else n.delete(current.path); return n; }); }}
       onExported={() => { load(); shell.bumpRefresh(); }} />;
   }
 
   const counts = { all: items?.length ?? 0, favorites: items?.filter((i) => recipes[i.path]?.favorite).length ?? 0, edited: items?.filter((i) => recipes[i.path] && !isIdentity(recipes[i.path])).length ?? 0, places: items?.filter((i) => index[i.sha256]?.lat !== undefined).length ?? 0 };
   const indexed = items ? items.filter((i) => index[i.sha256]).length : 0;
+  const timeline = photoTimeline((items ?? []).map((i) => ({ path: i.path, mime: i.mime, size: i.size, date: index[i.sha256]?.date ?? i.createdAt })));
+  const timelineStrip = timeline.groups.length ? (
+    <div className="fs-row" data-testid="photos-timeline" style={{ gap: 6, flexWrap: "wrap", padding: "4px 8px" }}>
+      {timeline.groups.slice(0, 12).map((g) => <Badge key={g.month} tone="info">{g.month} · {g.count}</Badge>)}
+      {timeline.undated.count ? <Badge tone="warn">undated · {timeline.undated.count}</Badge> : null}
+    </div>
+  ) : null;
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-library">
+      {timelineStrip}
+      {shown.length > 1 ? <div className="fs-row" style={{ gap: 6, padding: "0 8px 6px", flexWrap: "wrap" }} data-testid="photos-slideshow">
+        <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={showPlaying} disabled={shown.length === 0} onClick={() => { if (!showPlaying && !open && shown[0]) setOpen(shown[0].path); setShowPlaying((v) => !v); }}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn>
+        <label style={{ fontSize: fz(11.5) }}>every <input className="fs-input" style={{ width: fz(52) }} type="number" min={1} max={60} value={showSecs} aria-label="Slideshow seconds per photo" onChange={(e) => setShowSecs(clampInterval(Number(e.target.value)))} /> s</label>
+        <span className="fs-dim" style={{ fontSize: fz(11) }}>{shown.length} photos · wraps at the end</span>
+      </div> : null}
       {/* TT80 banner: Glance (the library views) · Keep over one tool strip */}
       <AppBanner label="Photos" status={<>
 {items && indexed < items.length ? <Badge tone="info">reading dates {indexed}/{items.length}</Badge> : null}
@@ -209,7 +235,7 @@ function rasterToCanvas(r: Raster): OffscreenCanvas {
 type RecipeStore = "host" | "private" | "ram";
 const recipeStore = (path: string): RecipeStore => isPrivatePath(path) ? "private" : privacy.status().amnesic ? "ram" : "host";
 
-function PhotoEditor({ item, info, onClose, onSaved, onExported }: { item: Item; info?: Info; onClose: () => void; onSaved: (r: PhotoRecipe | null) => void; onExported: () => void }) {
+function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, onToggleShow }: { item: Item; info?: Info; onClose: () => void; onSaved: (r: PhotoRecipe | null) => void; onExported: () => void; showPlaying?: boolean; onToggleShow?: () => void }) {
   const shell = useShell();
   const [state, setState] = useState<{ base?: Raster; meta?: FileMeta; error?: string; note?: string; saved: PhotoRecipe | null } | null>(null);
   const [hist, setHist] = useState<{ list: PhotoRecipe[]; at: number }>({ list: [{ v: 1 }], at: 0 });
@@ -366,6 +392,7 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported }: { item: Item;
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, position: "relative" }} data-testid="photos-editor">
       <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
         <Btn variant="ghost" onClick={onClose} aria-label="Back to library">‹ Library</Btn>
+        {onToggleShow ? <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={!!showPlaying} onClick={onToggleShow}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn> : null}
         <strong style={{ fontSize: fz(13) }}>{item.name}</strong>
         <div style={{ flex: 1 }} />
         <span role="radiogroup" aria-label="Rating" style={{ display: "flex" }}>

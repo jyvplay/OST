@@ -1,0 +1,22 @@
+=== tt117-core
+12 passed, 0 failed
+=== e2e-tt117
+5 passed, 0 failed
+=== tt117-density
+=== tt117-density (gate2)
+1 passed, 0 failed
+=== e2e-browser (gate2)
+6 passed, 0 failed
+=== tt116-density (gate2)
+6 passed, 0 failed
+=== e2e-tt114-tabs (gate2)
+5 passed, 0 failed
+=== e2e-a11y (gate3, after axe fix)
+9 passed, 0 failed
+=== e2e-tt111-recall (gate3, with FUSION_WP_TEST_LOOPBACK_PORTS)
+3 passed, 0 failed
+=== e2e-tt117 (gate3)
+5 passed, 0 failed
+=== tt117-density (gate3)
+1 passed, 0 failed
+GATE_SUBSET_TOTAL: 8 suites, 42 tests, 42 passed, 0 failed

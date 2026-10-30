@@ -1,10 +1,13 @@
 "use client";
+import { parseBackupManifest, compareManifests } from "@/lib/backup-compare";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
 import { fmtBytes } from "@/lib/api";
 import { fromB64, openText, sealText, type Envelope } from "@/lib/crypto";
 import { MAX_BACKUP_BYTES, verifyBackup, type BackupBundle } from "@/lib/backup/bundle";
+import { bundleTree } from "@/lib/bundle-tree";
+import { folderSizes, formatBytes as fmtBundleBytes } from "@/lib/folder-size";
 import { DRILL_HEALTH_KEY, drillHealthState, parseDrillHealth, recordDrill, type DrillAttempt, type DrillHealth } from "@/lib/backup/drill-health";
 import { makeRecoveryKey, openRecoveryBundle, RECOVERY_FORMAT, sealRecoveryBundle } from "@/lib/backup/recovery";
 import { privacy } from "@/lib/privacy/session";
@@ -74,6 +77,7 @@ async function send(body: unknown) {
 export default function BackupModule(_: ModuleProps) {
   const shell = useShell();
   const [bundle, setBundle] = useState<BackupBundle | null>(null);
+  const [showContents, setShowContents] = useState(false);
   const [report, setReport] = useState("");
   const [pass, setPass] = useState("");
   const [recoveryKey, setRecoveryKey] = useState("");
@@ -258,6 +262,18 @@ export default function BackupModule(_: ModuleProps) {
           <Btn variant="primary" disabled={busy} onClick={() => void fetchBundle("data")}>Build data bundle</Btn>
           <Btn variant="ghost" disabled={busy} onClick={() => void fetchBundle("config")}>Build config bundle</Btn>
           <Btn variant="ghost" disabled={busy || !bundle} onClick={() => void verify()}>Verify digests</Btn>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Compare with an older bundle
+            <input type="file" accept=".json,application/json" hidden aria-label="Compare with an older bundle" onChange={async (e) => {
+              const f = e.target.files?.[0]; if (!f || !bundle) return;
+              try {
+                const before = parseBackupManifest(await f.text());
+                const after = bundle.entries.map((en) => ({ path: en.path, bytes: en.size, sha256: en.sha256 }));
+                const d = compareManifests(before, after);
+                setReport(`Compared with ${f.name}: ${d.added.length} added, ${d.removed.length} removed, ${d.changed.length} changed, ${d.unchanged} unchanged; size ${d.bytesDelta >= 0 ? "+" : ""}${d.bytesDelta} B.${d.changed.length ? ` Changed: ${d.changed.slice(0, 8).map((c) => c.path).join(", ")}` : ""}${d.added.length ? ` Added: ${d.added.slice(0, 8).join(", ")}` : ""}${d.removed.length ? ` Removed: ${d.removed.slice(0, 8).join(", ")}` : ""}`);
+              } catch (err) { setReport(`Compare refused: ${String((err as Error).message)}`); }
+              e.target.value = "";
+            }} />
+          </label>
           <Btn variant="ghost" disabled={busy || !bundle} onClick={() => void download(false)}>Download plain</Btn>
           <Btn variant="ghost" disabled={busy || !bundle || pass.length < 8} onClick={() => void download(true)}>Download encrypted</Btn>
         </div>
@@ -269,6 +285,18 @@ export default function BackupModule(_: ModuleProps) {
           <Btn variant="ghost" onClick={() => setHeld(null)}>Not now</Btn>
         </div> : null}
         {report ? <div role="status" data-testid="backup-report" className="fs-mono" style={{ fontSize: fz(11.5) }}>{report}</div> : null}
+        {bundle ? <div style={{ marginTop: 8 }}>
+          <Btn variant="ghost" aria-expanded={showContents} onClick={() => setShowContents((v) => !v)}>{showContents ? "Hide contents" : "Show contents"}</Btn>
+          {showContents ? <div data-testid="backup-contents" style={{ display: "grid", gap: 2, marginTop: 6 }}>
+            {folderSizes(bundleTree(bundle.entries)).slice(0, 10).map((f) => (
+              <div key={f.path} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }}>
+                <span className="fs-mono">{f.path}</span>
+                <span className="fs-dim">{fmtBundleBytes(f.bytes)} · {f.files} file{f.files === 1 ? "" : "s"}</span>
+              </div>
+            ))}
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>Largest folders in this bundle, from its own entry list.</span>
+          </div> : null}
+        </div> : null}
       </Section>
 
       <Section title="Optional recovery key">

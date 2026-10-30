@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
         if (dup.length) { skipped += 1; continue; }
       }
       await db.insert(tasks).values({
-        title: e.title || "(untitled event)", notes: e.notes, kind: e.kind, uid: e.uid,
+        title: e.title || "(untitled event)", notes: e.rrule && !/^RRULE:/m.test(e.notes) ? `${e.notes}${e.notes ? "\n" : ""}RRULE:${e.rrule}` : e.notes, kind: e.kind, uid: e.uid,
         dueAt: e.start, endAt: e.end, done: e.done,
       });
       added += 1;

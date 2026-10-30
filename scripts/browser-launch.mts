@@ -23,6 +23,17 @@ export async function launchChromium(extraArgs: string[] = [], opts: LaunchOptio
     if (existsSync(chromium.executablePath())) return await chromium.launch({ ...opts, args: extraArgs });
   } catch { /* fall through to sparticuz */ }
   const tools = process.env.TOOLS_DIR ?? "/home/user/tools";
+  const args0 = ["--no-sandbox", "--no-zygote", "--disable-dev-shm-usage", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", ...extraArgs];
+  const ld0 = ["/tmp/al2023/lib", "/tmp", process.env.LD_LIBRARY_PATH ?? ""].filter(Boolean).join(":");
+  // TT119 fast path: a previous suite already paid sparticuz's unpack
+  // (~2.5 s of brotli verify/decompress per process). If the unpack products
+  // are all on disk, launch the very same binary with the very same args and
+  // environment the slow path below would build — scheduling only, the
+  // browser under test is byte-identical. Any missing marker falls through
+  // to the real unpack, so a cold machine behaves exactly as before.
+  if (existsSync("/tmp/chromium") && existsSync("/tmp/al2023/lib") && existsSync("/tmp/fonts/fonts.conf")) {
+    return chromium.launch({ ...opts, executablePath: "/tmp/chromium", args: args0, env: { ...process.env, LD_LIBRARY_PATH: ld0, FONTCONFIG_PATH: "/tmp/fonts" } as Record<string, string> });
+  }
   const req = createRequire(`${tools}/package.json`);
   process.env.AWS_EXECUTION_ENV ??= "AWS_Lambda_nodejs22.x"; // makes sparticuz unpack its shared libs
   const mod = req("@sparticuz/chromium");

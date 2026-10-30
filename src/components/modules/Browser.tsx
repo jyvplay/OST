@@ -8,6 +8,8 @@ import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Blocked, Hint } from "../ui";
 import ProxyFrame from "./ProxyFrame";
+import { exportSession, parseBrowserImport } from "@/lib/browser-io";
+import { cleanUrl } from "@/lib/url-clean";
 import NetworkRoute, { useRoute } from "./NetworkRoute";
 import {
   PERMISSION_FEATURES, activate, allowAttribute, batchClose, closeTab, createGroup, hostOf, makeTab, normalizeSession, removeGroup,
@@ -240,7 +242,8 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
           onChange={(e) => setAddress(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") open(address); }} />
         <Btn variant="primary" onClick={() => open(address)}>Go</Btn>
-        {!embeddedRecall?<Btn aria-label="Recall media" title="Recall media" onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}><UiGlyph name="snapshot"/> Recall</Btn>:null}
+        <Btn variant="ghost" aria-label="Clean link" title="Clean link — remove tracking parameters (utm_*, fbclid, gclid…) from the address; what was removed is reported" onClick={() => { try { const r = cleanUrl(address); setAddress(r.url); setNotice(r.changed ? `Removed: ${r.removed.join(", ")}` : "No tracking parameters found"); } catch (e) { setNotice(String((e as Error).message)); } }}><UiGlyph name="broom" /></Btn>
+        {!embeddedRecall?<Btn aria-label="Recall media" title="Recall media" onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}><UiGlyph name="snapshot"/></Btn>:null}
         {embeddedRecall?<Btn aria-label="Browser tools" title="Browser tools" aria-expanded={tools} onClick={()=>{setTools(v=>!v);setShowPerms(false);setShowRoute(false);}}><UiGlyph name="sliders"/> Tools</Btn>:null}
         <div style={{display:tools?'contents':'none'}}>
         <Btn variant="ghost" aria-label={`Split view: ${split === "off" ? "off" : split === "h" ? "side by side" : "stacked"}`}
@@ -248,19 +251,34 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
           onClick={() => setSplit(split === "off" ? "h" : split === "h" ? "v" : "off")}>
           <UiGlyph name={split === "v" ? "splitV" : "splitH"} />{split === "off" ? null : <span style={{ marginLeft: 5, opacity: .8 }}>{split === "h" ? "⇔" : "⇕"}</span>}
         </Btn>
-        <Btn variant="ghost" title="Discard the frames of every tab that is not visible (pinned tabs stay awake)" onClick={() => { const r = sleepInactive(sess, splitPartner); setSess(r.session); setNotice(`${r.slept} tab(s) put to sleep`); }} aria-label="Sleep other tabs"><UiGlyph name="sleep" />Sleep</Btn>
+        <Btn variant="ghost" title="Sleep other tabs — discard the frames of every tab that is not visible (pinned tabs stay awake)" onClick={() => { const r = sleepInactive(sess, splitPartner); setSess(r.session); setNotice(`${r.slept} tab(s) put to sleep`); }} aria-label="Sleep other tabs"><UiGlyph name="sleep" /></Btn>
         <Btn variant="ghost" aria-label="Tear out" title="Open this tab in a window of its own" onClick={() => current && shell.open("browser", { url: current.url, title: current.title })}><UiGlyph name="tearout" /></Btn>
-        <Btn variant="ghost" aria-label={current?.pinned ? "Unpin tab" : "Pin tab"} onClick={() => current && setSess((s) => togglePin(s, current.id))}>{current?.pinned ? "Unpin" : "Pin"}</Btn>
+        <Btn variant="ghost" aria-label={current?.pinned ? "Unpin tab" : "Pin tab"} title={current?.pinned ? "Unpin tab" : "Pin tab"} onClick={() => current && setSess((s) => togglePin(s, current.id))}><PinIcon /></Btn>
         <select className="fs-input" aria-label="Tab group" style={{ width: fz(120) }} value={current?.group ?? ""}
           onChange={(e) => { if (!current) return; const v = e.target.value; setSess((s) => (v === "+" ? createGroup(s, current.id, `Group ${s.groups.length + 1}`) : setGroup(s, current.id, v))); }}>
           <option value="">No group</option>{sess.groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}<option value="+">+ New group</option>
         </select>
-        <Btn variant="ghost" onClick={() => runBatch("others")} aria-label="Close others" title="Close others"><UiGlyph name="closeset" />Others</Btn>
-        <Btn variant="ghost" onClick={() => runBatch("right")} aria-label="Close to the right" title="Close to the right"><UiGlyph name="closeset" />Right</Btn>
-        <Btn variant="ghost" onClick={() => runBatch("duplicates")} aria-label="Close duplicates" title="Close duplicates"><UiGlyph name="copy" />Duplicates</Btn>
-        <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)} aria-label="Site permissions" title="Site permissions"><UiGlyph name="shield" />Permissions</Btn>
+        <Btn variant="ghost" onClick={() => runBatch("others")} aria-label="Close others" title="Close others"><UiGlyph name="closeset" /></Btn>
+        <Btn variant="ghost" onClick={() => runBatch("right")} aria-label="Close to the right" title="Close to the right"><UiGlyph name="closeset" /></Btn>
+        <Btn variant="ghost" onClick={() => runBatch("duplicates")} aria-label="Close duplicates" title="Close duplicates"><UiGlyph name="copy" /></Btn>
+        <Btn variant="ghost" aria-pressed={showPerms} onClick={() => setShowPerms((v) => !v)} aria-label="Site permissions" title="Site permissions"><UiGlyph name="shield" /></Btn>
+        <Btn variant="ghost" aria-label="Export browser session" title="Export tabs and groups as JSON (no proxy session ids)" onClick={() => {
+          const url = URL.createObjectURL(new Blob([exportSession(tabs, sess.groups)], { type: "application/json" }));
+          const a = document.createElement("a"); a.href = url; a.download = "browser-session.json"; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }}><UiGlyph name="export" /></Btn>
+        <label className="fs-btn" data-variant="ghost" title="Import browser session — import tabs and groups from a Fusion session export; unsafe addresses are dropped and reported" style={{ cursor: "pointer", display: "inline-flex", alignItems: "center" }}><UiGlyph name="download" />
+          <input type="file" accept=".json,application/json" hidden aria-label="Import browser session" onChange={async (e) => {
+            const f = e.target.files?.[0]; e.target.value = ""; if (!f) return;
+            try {
+              const r = parseBrowserImport(await f.text(), window.location.origin);
+              setSess((prev) => ({ ...prev, tabs: [...prev.tabs, ...r.tabs], groups: [...prev.groups, ...r.groups.filter((g) => !prev.groups.some((x) => x.id === g.id))] }));
+              setNotice(`Imported ${r.tabs.length} tab(s)${r.dropped ? `; ${r.dropped} unsafe address(es) dropped` : ""}`);
+            } catch (err) { setNotice(`Import refused: ${String((err as Error).message)}`); }
+          }} />
+        </label>
         <Btn variant="ghost" data-testid="br-proxy-all" aria-pressed={proxyAll} title="Route every tab through Fusion's private proxy: sites never see your address, trackers are blocked, cookies stay in memory per tab, and find in page / desktop-or-mobile identity / Save to Files work on every site" aria-label={`Private proxy: ${proxyAll ? "all tabs" : "off"}`} onClick={() => setProxyAll((v) => !v)}><UiGlyph name="shield"/> {proxyAll ? "all tabs" : "off"}</Btn>
-        <Btn variant="ghost" data-testid="br-route" aria-pressed={showRoute} aria-expanded={showRoute} title="How Fusion's server reaches the web for Private proxy tabs: directly, through Tor, or through another proxy" onClick={() => setShowRoute((v) => !v)}>Network route: {route?.label ?? "…"}</Btn>
+        <Btn variant="ghost" data-testid="br-route" aria-pressed={showRoute} aria-expanded={showRoute} title="Network route — how Fusion's server reaches the web for Private proxy tabs: directly, through Tor, or through another proxy" aria-label={`Network route: ${route?.label ?? "unknown"}`} onClick={() => setShowRoute((v) => !v)}><UiGlyph name="link" /> {route?.label ?? "…"}</Btn>
         {current?.verdict ? <Badge tone={current.verdict === "embeddable" ? "ok" : "bad"} title={current.reason}>{current.verdict}</Badge> : <Badge>{proxyAll?"private proxy":"probing…"}</Badge>}
         </div>
       </div>
@@ -337,7 +355,7 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
       </div>
 
       <div style={{ padding: "1px 8px 3px", borderTop: "1px solid var(--fs-border)" }}>
-        <Hint label="Why some controls only work in a proxy tab">
+        <Hint label="Proxy-only controls">
           Per-site policy is restrictive-only on the web: the sandbox and allow attributes can take permissions away
           from an embedded page, never grant them. For a directly embedded page, user-agent override and find in page
           are impossible; in a private-proxy tab both work, because the page then runs inside Fusion&apos;s own sandbox.

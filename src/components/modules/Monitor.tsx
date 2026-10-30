@@ -61,11 +61,14 @@ export default function MonitorModule(_: ModuleProps) {
           <Badge>cast ceiling {g.maxCastHeight}p</Badge>
         </div>
         <div className="fs-dim" style={{ fontSize: fz(11.5) }}>{g.reason}</div>
-        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
-          The web exposes no thermal headroom, no CPU time and no process list. This governor closes the loop on
-          observed frame cost sampled only while something animates, plus long-task rate and battery state. It is the
-          honest analogue of ADPF: we cannot request more performance, so we spend less of it.
-        </div>
+        <details>
+          <summary style={{ fontSize: fz(11), cursor: "pointer" }}>Why frame cost only? (The honest ADPF analogue)</summary>
+          <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
+            The web exposes no thermal headroom, no CPU time and no process list. This governor closes the loop on
+            observed frame cost sampled only while something animates, plus long-task rate and battery state. It is the
+            honest analogue of ADPF: we cannot request more performance, so we spend less of it.
+          </div>
+        </details>
         <Btn variant="ghost" onClick={() => {
           const t0 = performance.now();
           while (performance.now() - t0 < 320) { /* deliberate 320 ms block to prove the detector works */ }
@@ -91,10 +94,13 @@ export default function MonitorModule(_: ModuleProps) {
             <div key={i}>{new Date(c.at).toLocaleTimeString()} — {c.cmd.t} {"id" in c.cmd ? String(c.cmd.id) : ""}</div>
           ))}
         </div>
-        <div className="fs-dim" style={{ fontSize: fz(11) }}>
-          The reducer is pure and the command log is complete, so any state in this session can be reproduced by
-          replaying this list (TD-06).
-        </div>
+        <details>
+          <summary style={{ fontSize: fz(11), cursor: "pointer" }}>Replayable by construction (TD-06)</summary>
+          <div className="fs-dim" style={{ fontSize: fz(11) }}>
+            The reducer is pure and the command log is complete, so any state in this session can be reproduced by
+            replaying this list.
+          </div>
+        </details>
       </Section>
 
       <Section title="Jobs — file operation journal (DP-14)">

@@ -1,0 +1,105 @@
+{
+  "suite": "tt119-core",
+  "at": "2026-10-30T03:48:06.324Z",
+  "results": [
+    {
+      "suite": "tt119-core",
+      "name": "ED-03 find/replace: literal, counted, nth-only, empty refused",
+      "covers": {
+        "ED-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt119-core",
+      "name": "BK-07 engine: folder rollup, unknown not zero",
+      "covers": {
+        "BK-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt119-core",
+      "name": "NT-03 daily note: local title, both conventions, no guessing",
+      "covers": {
+        "NT-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt119-core",
+      "name": "PL-04 task filter: query+status, order preserved",
+      "covers": {
+        "PL-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt119-core",
+      "name": "CK-04 zone list: Intl-validated, UTC pinned, capped",
+      "covers": {
+        "CK-04": "full"
+      },
+      "pass": true,
+      "ms": 31
+    },
+    {
+      "suite": "tt119-core",
+      "name": "TM-03 wc: UTF-8 bytes, POSIX lines",
+      "covers": {
+        "TM-03": "full"
+      },
+      "pass": true,
+      "ms": 18
+    },
+    {
+      "suite": "tt119-core",
+      "name": "BK-07 bundle explorer: flat entries become a sized folder tree",
+      "covers": {
+        "BK-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt119-core",
+      "name": "SR-09 recents: dedup-to-front, mode validated, capped",
+      "covers": {
+        "SR-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt119-core",
+      "name": "PH-03 slideshow: wraps, clamps, empty has no next",
+      "covers": {
+        "PH-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt119-core",
+      "name": "WD-03 zone convert: dateline shift reported, invalid refused",
+      "covers": {
+        "WD-03": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt119-core",
+      "name": "MU-02 recent plays: front-dedup, validated, capped",
+      "covers": {
+        "MU-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

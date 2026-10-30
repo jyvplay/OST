@@ -7,6 +7,8 @@ import { api, fmtTime, post } from "@/lib/api";
 import { formatFor, lossReport, parseCsv, sanitizeSvg } from "@/lib/forge";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { diffLines, diffStats } from "@/lib/diff-core";
+import { findMatches, replaceAll, replaceOne } from "@/lib/editor-find";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
@@ -26,8 +28,13 @@ export default function EditorModule({ win }: ModuleProps) {
   const [loaded, setLoaded] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [versions, setVersions] = useState<Version[]>([]);
+  const [diffOf, setDiffOf] = useState<Version | null>(null);
   const [preview, setPreview] = useState(false);
   const [status, setStatus] = useState("");
+  const [findQ, setFindQ] = useState("");
+  const [replQ, setReplQ] = useState("");
+  const [caseSens, setCaseSens] = useState(false);
+  const [findMsg, setFindMsg] = useState("");
   const fmt = formatFor(path);
 
   useEffect(() => {
@@ -119,6 +126,15 @@ export default function EditorModule({ win }: ModuleProps) {
       }} />
 
 
+      <div className="fs-row" style={{ gap: 6, padding: "6px 8px", borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }} data-testid="editor-findbar">
+        <input className="fs-input" style={{ width: fz(150) }} placeholder="Find" aria-label="Find text" value={findQ} onChange={(e) => setFindQ(e.target.value)} />
+        <input className="fs-input" style={{ width: fz(150) }} placeholder="Replace with" aria-label="Replace with" value={replQ} onChange={(e) => setReplQ(e.target.value)} />
+        <Btn variant="ghost" aria-pressed={caseSens} onClick={() => setCaseSens((v) => !v)} title="Match case">Aa</Btn>
+        <Btn variant="ghost" onClick={() => { try { const m = findMatches(text, findQ, caseSens); setFindMsg(m.length ? `${m.length} match${m.length === 1 ? "" : "es"} · first at line ${m[0].line}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Count</Btn>
+        <Btn variant="ghost" onClick={() => { try { const r = replaceOne(text, findQ, replQ, 1, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced the first of ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace</Btn>
+        <Btn variant="primary" onClick={() => { try { const r = replaceAll(text, findQ, replQ, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace all</Btn>
+        {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
+      </div>
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: preview ? "1fr 1fr" : "1fr" }}>
         <textarea className="fs-textarea" value={text} spellCheck={false}
           onChange={(e) => { setText(e.target.value); setDirty(true); }}
@@ -156,11 +172,18 @@ export default function EditorModule({ win }: ModuleProps) {
               <span className="fs-mono" style={{ fontSize: fz(11) }}>v{v.version} · {v.size} B · {v.sha256.slice(0, 10)}</span>
               <span className="fs-row" style={{ gap: 4 }}>
                 <span className="fs-dim" style={{ fontSize: fz(11) }}>{fmtTime(v.createdAt)}</span>
+                <Btn variant="ghost" aria-pressed={diffOf?.id === v.id} onClick={() => setDiffOf(diffOf?.id === v.id ? null : v)}>Diff</Btn>
                 <Btn variant="ghost" onClick={() => { setText(v.content); setDirty(true); shell.toast(`Loaded v${v.version} into the buffer — save to apply.`, "info"); }}>Load</Btn>
               </span>
             </div>
           ))}
           {versions.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(11) }}>No previous versions yet.</span> : null}
+          {diffOf ? (() => { try { const ops = diffLines(diffOf.content, text); const st = diffStats(ops); return (
+            <div data-testid="editor-diff" style={{ display: "grid", gap: 4 }}>
+              <div className="fs-row" style={{ gap: 6 }}><Badge tone="ok">+{st.added}</Badge><Badge tone="bad">−{st.removed}</Badge><Badge>{st.unchanged} unchanged</Badge><span className="fs-dim" style={{ fontSize: fz(11) }}>v{diffOf.version} → current buffer</span></div>
+              <pre className="fs-mono" style={{ fontSize: fz(11), margin: 0, whiteSpace: "pre-wrap", maxHeight: 220, overflow: "auto" }}>{ops.slice(0, 400).map((o, i) => <div key={i} style={{ color: o.kind === "add" ? "var(--fs-ok, #4caf7d)" : o.kind === "del" ? "var(--fs-bad, #e5534b)" : undefined, opacity: o.kind === "same" ? 0.65 : 1 }}>{o.kind === "add" ? "+ " : o.kind === "del" ? "− " : "  "}{o.text}</div>)}</pre>
+              {ops.length > 400 ? <span className="fs-dim" style={{ fontSize: fz(11) }}>first 400 of {ops.length} lines shown</span> : null}
+            </div> ); } catch (e) { return <Badge tone="warn">{String((e as Error).message)}</Badge>; } })() : null}
         </div>
       </details>
     </div>

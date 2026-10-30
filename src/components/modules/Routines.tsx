@@ -4,6 +4,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useState } from "react";
 import { api, fmtTime, patch, post, put } from "@/lib/api";
 import { parseScript, ROUTINE_COMMANDS, type RoutineAction } from "@/lib/routines";
+import { exportRoutines, parseRoutineImport } from "@/lib/routine-io";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
 import { askText } from "@/lib/ask";
@@ -92,6 +93,25 @@ export default function RoutinesModule(_: ModuleProps) {
       </Section>
 
       <Section title="Routines">
+        <div className="fs-row" style={{ gap: 6 }}>
+          <Btn variant="ghost" disabled={!rows.length} onClick={() => {
+            const url = URL.createObjectURL(new Blob([exportRoutines(rows.map((r) => ({ name: r.name, actions: r.actions })))], { type: "application/json" }));
+            const a = document.createElement("a"); a.href = url; a.download = "routines.json"; a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+          }}>Export routines</Btn>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import routines
+            <input type="file" accept=".json,application/json" hidden aria-label="Import routines" onChange={async (e) => {
+              const f = e.target.files?.[0]; if (!f) return;
+              try {
+                const r = parseRoutineImport(await f.text(), rows.map((x) => x.name));
+                for (const rt of r.routines) await post("/api/routines", { name: rt.name, trigger: "manual", triggerArg: "", actions: rt.actions });
+                shell.toast(`Routine import: ${r.routines.length} added${r.skipped.length ? `, skipped existing: ${r.skipped.join(", ")}` : ""}`, "ok");
+                await load();
+              } catch (err) { shell.toast(`Routine import refused: ${String((err as Error).message)}`, "warn"); }
+              e.target.value = "";
+            }} />
+          </label>
+        </div>
         {rows.length === 0 ? <Empty title="No routines" icon="⚡" /> : null}
         {rows.map((r) => (
           <div key={r.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>

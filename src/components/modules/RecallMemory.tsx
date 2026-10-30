@@ -7,6 +7,7 @@ import { cropRegion, loadedPngDimensions, oneResidentFile, type CropRect } from 
 import { RECALL_LIMIT, recallFolder, recallMime } from '@/lib/recall-core';
 import type { RecallGuard } from '@/lib/server/recall-lifecycle';
 import { Btn, Hint } from '../ui';
+import { buildManifest, verifyManifest, archiveStats, duplicateGroups, type MemoryRef } from '@/lib/recall-report';
 import { useShell } from '../shell-context';
 
 /** Human-selected, already resident bytes. This module never fetches a media URL. */
@@ -147,6 +148,23 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
   await runAudit();
   if(mounted.current)setNote('Unpaired file moved to Trash: '+orphan+'. Recoverable from Files; this is not secure erasure.');
  };
+ // TT117 RC-40/41/42: archive report built from the receipts themselves.
+ const [report,setReport]=useState<{stats:ReturnType<typeof archiveStats>;dups:ReturnType<typeof duplicateGroups>}|null>(null);
+ const loadReport=async():Promise<MemoryRef[]>=>{
+  recallWritable();
+  const r=await api<{nodes:{path:string;name:string;mime:string;method:string;host:string|null;capturedAt:string|null}[];scanned:number}>('/api/fs?'+new URLSearchParams({op:'recallSearch'}));
+  const refs:MemoryRef[]=[];
+  for(const n of r.nodes){
+   try{
+    const node=(await api<{node:{content:string;encoding:string}}>('/api/fs?'+new URLSearchParams({op:'read',path:n.path+'.recall.json'}))).node;
+    const text=node.encoding==='base64'?new TextDecoder().decode(Uint8Array.from(atob(node.content),c=>c.charCodeAt(0))):node.content;
+    const rec=JSON.parse(text) as {sha256:string;bytes:number;mime:string;method:string;capturedAt:string|null};
+    refs.push({path:n.path,sha256:rec.sha256,bytes:rec.bytes,mime:rec.mime,method:rec.method,capturedAt:rec.capturedAt,folder:n.path.slice(0,n.path.lastIndexOf('/'))});
+   }catch{/* an unreadable receipt is excluded from the report and counted by the audit, not hidden here */}
+  }
+  if(mounted.current){setReport({stats:archiveStats(refs),dups:duplicateGroups(refs)});setNote(`Archive report: ${plural(refs.length,'memory','memories')} with readable receipts, ${fmtBytes(archiveStats(refs).totalBytes)} total.`);}
+  return refs;
+ };
  const frame=async()=>{
   const media=previewMedia.current;if(!view||!media)throw Error('Open an image or video preview first');
   const version=epoch.current;const width=media instanceof HTMLVideoElement?media.videoWidth:media.naturalWidth,height=media instanceof HTMLVideoElement?media.videoHeight:media.naturalHeight;
@@ -244,6 +262,8 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
      <Btn disabled={busy} onClick={()=>void run(()=>list())} aria-label="Refresh memory timeline" title="Refresh memory timeline"><UiGlyph name="refresh" />Refresh</Btn>
      <Btn disabled={busy||!next||items.length>=400} onClick={()=>void run(()=>list(true))} aria-label="Load older memories" title="Load older memories"><UiGlyph name="more" />Older</Btn>
      <Btn disabled={busy} onClick={()=>void run(loadTimeline)} aria-label="Show saving timeline" title="Show saving timeline"><UiGlyph name="queue" />Timeline</Btn>
+     <Btn disabled={busy} onClick={()=>void run(async()=>{const refs=await loadReport();const url=URL.createObjectURL(new Blob([buildManifest(refs)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='recall-manifest.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);})} aria-label="Export archive manifest" title="Export archive manifest"><UiGlyph name="manifest" /></Btn>
+     <label className="fs-btn" title="Verify a manifest against this archive" style={{cursor:'pointer',display:'inline-flex',alignItems:'center',gap:4}}><UiGlyph name="verify" /><input type="file" accept=".json,application/json" hidden aria-label="Verify a manifest against this archive" onChange={e=>{const f=e.currentTarget.files?.[0];e.currentTarget.value='';if(f)void run(async()=>{const refs=await loadReport();const d=verifyManifest(await f.text(),refs);setNote(d.ok?'Manifest matches this archive exactly.':`Manifest differs: ${d.missing.length} missing, ${d.extra.length} not in the manifest, ${d.changed.length} changed field(s). First: ${d.missing[0]??d.extra[0]??(d.changed[0]?d.changed[0].path+' '+d.changed[0].field:'')}`);});}}/></label>
     </div>
    </div>
    <div className="fs-toolgroup" data-group="Open memory">
@@ -305,6 +325,12 @@ export default function RecallMemory({ context }: { context: () => RecallInput }
    {[...audit.orphanMedia,...audit.orphanReceipts].length?<ul aria-label="Unpaired Recall files">{[...audit.orphanMedia,...audit.orphanReceipts].map(o=>
     <li key={o}>{o} <Btn disabled={busy} onClick={()=>void run(()=>trashOrphan(o))}>Trash unpaired file</Btn></li>)}</ul>:null}
    {audit.checksumMismatch.length?<p role="alert">Checksum mismatch — the stored bytes no longer match their receipt. These are listed, never silently rewritten: {audit.checksumMismatch.join(', ')}</p>:null}
+  </div>:null}
+  {report?<div aria-label="Archive report" style={{padding:8,border:'1px solid var(--fs-border)',borderRadius:8,display:'grid',gap:4}}>
+   <p style={{margin:0}}>{report.stats.total} memories · {fmtBytes(report.stats.totalBytes)}{report.stats.undated?` · ${plural(report.stats.undated,'undated receipt')}`:''}</p>
+   <p style={{margin:0}}>By folder: {report.stats.byFolder.map(f=>`${f.key} ${f.count} (${fmtBytes(f.bytes)})`).join(' · ')||'—'}</p>
+   <p style={{margin:0}}>By method: {report.stats.byMethod.map(f=>`${f.key} ${f.count}`).join(' · ')||'—'}</p>
+   {report.dups.length?<p role="status" style={{margin:0}}>Identical bytes in {report.dups.length} group(s); {fmtBytes(report.dups.reduce((sum,d)=>sum+d.wastedBytes,0))} held more than once: {report.dups.map(d=>d.paths.join(' = ')).join('; ')}</p>:<p style={{margin:0}}>No identical bytes held twice.</p>}
   </div>:null}
   {confirmTrash?<div role="group" aria-label="Confirm memory pair trash"><p>Move the open media and its verified receipt to Trash? Files remain server-readable and recoverable.</p><Btn disabled={busy} onClick={()=>void run(trash)}>Confirm trash pair</Btn><Btn disabled={busy} onClick={()=>setConfirmTrash(false)}>Cancel pair trash</Btn></div>:null}
   {note?<p role="status">{note}</p>:null}

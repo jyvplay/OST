@@ -7,6 +7,9 @@ import { useCallback, useEffect, useState } from "react";
 import { api, fmtTime, post, put } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { analyzeNote } from "@/lib/notes-stats";
+import { findDailyNote, dailyTitle } from "@/lib/daily-note";
+import { extractTags, resolveLinks, backlinks } from "@/lib/note-links";
 
 interface Note { id: number; title: string; body: string; tags: string; pinned: boolean; updatedAt: string }
 
@@ -53,6 +56,13 @@ export default function NotesModule({ win }: ModuleProps) {
             setSel(r.row.id);
           }}>New</Btn>
           <Btn variant="ghost" onClick={() => void load()}>↻</Btn>
+          <Btn variant="ghost" aria-label="Open daily note" title="Open (or create) today's daily note" onClick={async () => {
+            const existing = findDailyNote(rows);
+            if (existing) { setSel(existing.id); return; }
+            const r = await post<{ row: Note }>("/api/notes", { title: dailyTitle(), body: "" });
+            await load();
+            setSel(r.row.id);
+          }}>Daily</Btn>
         </div>
         <div className="fs-scroll" style={{ flex: 1, minHeight: 0, padding: 4 }}>
           {rows.map((n) => (
@@ -109,6 +119,16 @@ export default function NotesModule({ win }: ModuleProps) {
             }}>Delete</Btn>
             {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
           </div>
+          {(() => { const st = analyzeNote(draft.body); return (
+            <div className="fs-row" data-testid="note-stats" style={{ gap: 6, padding: "4px 8px", flexWrap: "wrap", borderTop: "1px solid var(--fs-border)" }}>
+              <Badge>{st.words} words</Badge><Badge>{st.chars} chars</Badge><Badge>{st.sentences} sentences</Badge>
+              <Badge tone="info">{st.readingMinutes} min read</Badge>
+              {st.codeBlocks ? <Badge>{st.codeBlocks} code blocks (excluded from words)</Badge> : null}
+              {st.headings.map((h) => <Badge key={h.line} title={`line ${h.line}`}>{"#".repeat(h.level)} {h.text}</Badge>)}
+              {extractTags(draft.body).map((t) => <Badge key={t} tone="info">#{t}</Badge>)}
+              {resolveLinks(rows, draft).map((l, i) => <Badge key={i} tone={l.noteId ? "ok" : "warn"}>[[{l.label}]]{l.noteId ? "" : " — no such note"}</Badge>)}
+              {backlinks(rows, draft).map((b) => <Badge key={b.id}>← {b.title}</Badge>)}
+            </div> ); })()}
           <textarea className="fs-textarea" value={draft.body} spellCheck={false}
             style={{ flex: 1, border: 0, borderRadius: 0, resize: "none", padding: 10 }}
             aria-label="Note body"

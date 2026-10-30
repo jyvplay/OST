@@ -1,0 +1,114 @@
+{
+  "suite": "tt118-core",
+  "at": "2026-10-30T03:48:05.720Z",
+  "results": [
+    {
+      "suite": "tt118-core",
+      "name": "DF-01 diff: line ops in order, stats, one-word change reads as one word",
+      "covers": {
+        "DF-01": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt118-core",
+      "name": "NT-02 tags/links: headings and URLs are not tags, backlinks reverse exactly",
+      "covers": {
+        "NT-02": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt118-core",
+      "name": "PL-03 agenda: buckets by whole local days, done and undated separated",
+      "covers": {
+        "PL-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt118-core",
+      "name": "WD-01 zone overlap: London/New_York share an afternoon; Tokyo shares none",
+      "covers": {
+        "WD-01": "full"
+      },
+      "pass": true,
+      "ms": 95
+    },
+    {
+      "suite": "tt118-core",
+      "name": "WD-02 countdowns: whole days, validation",
+      "covers": {
+        "WD-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt118-core",
+      "name": "CV-01 converter: exact definitions, affine temperature, cross-category refused",
+      "covers": {
+        "CV-01": "full"
+      },
+      "pass": true,
+      "ms": 17
+    },
+    {
+      "suite": "tt118-core",
+      "name": "UC-01 clean link: trackers listed, load-bearing params kept, non-URL refused",
+      "covers": {
+        "UC-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt118-core",
+      "name": "ST-10 settings import: unknown and locked keys reported, never applied by parsing",
+      "covers": {
+        "ST-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt118-core",
+      "name": "BK-06 backup compare: added/removed/changed/unchanged and byte delta",
+      "covers": {
+        "BK-06": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt118-core",
+      "name": "TM-02 suggestion: transposition costs one, short inputs get nothing",
+      "covers": {
+        "TM-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt118-core",
+      "name": "PH-02 photo timeline: local months, undated counted, largest month by bytes",
+      "covers": {
+        "PH-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt118-core",
+      "name": "SV-01 saved searches: modes validated, duplicate names refused, sorted newest first",
+      "covers": {
+        "SV-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}
