@@ -35,7 +35,12 @@ async function desktop(windows: unknown[], vw = 1440, vh = 900) {
   const cur = await api("GET", "/api/state?id=default"); const rev = Number(cur.json.row?.revision ?? 1) + 1000;
   await api("PUT", "/api/state", { id: "default", revision: rev, state: { windows, focus: (windows.at(-1) as { id?: string } | undefined)?.id ?? null, workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, nextZ: 30, viewport: { w: vw, h: vh }, icons: [], focusMode: false, revision: rev } });
 }
-const setSetting = (key: string, value: string) => api("PUT", "/api/settings", { key, value });
+let expectedScale = "125";
+const setSetting = async (key: string, value: string) => {
+  const result = await api("PUT", "/api/settings", { key, value });
+  if (key === "appearance.textScale" && result.status === 200) expectedScale = value;
+  return result;
+};
 const AXE = readFileSync("node_modules/axe-core/axe.min.js", "utf8");
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
@@ -45,7 +50,10 @@ async function boot(vw = 1440, vh = 900, opts: Record<string, unknown> = {}): Pr
   const page = await ctx.newPage();
   await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
   await page.locator('[role="banner"]').waitFor({ timeout: 30_000 });
-  await page.waitForTimeout(900);
+  // A banner renders before asynchronous settings and desktop hydration. A
+  // fixed sleep can inspect the default scale and then race the actual setting.
+  await page.locator('[data-shell-ready="true"]').waitFor({ timeout: 30_000 });
+  await page.waitForFunction((value) => Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--fs-ts")) === Number(value) / 100, expectedScale, { timeout: 30_000 });
   return { page, close: () => ctx.close() };
 }
 interface Violation { id: string; impact: string; help: string; nodes: { target: string[]; failureSummary?: string }[] }

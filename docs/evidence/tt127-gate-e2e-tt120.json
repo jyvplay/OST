@@ -1,0 +1,43 @@
+{
+  "suite": "e2e-tt120",
+  "at": "2026-10-30T21:23:05.269Z",
+  "results": [
+    {
+      "suite": "e2e-tt120",
+      "name": "ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
+      "covers": {
+        "ED-04": "full",
+        "TM-04": "full"
+      },
+      "pass": true,
+      "ms": 4226
+    },
+    {
+      "suite": "e2e-tt120",
+      "name": "WD-04: world clock rows carry a business-hours verdict",
+      "covers": {
+        "WD-04": "full"
+      },
+      "pass": true,
+      "ms": 1766
+    },
+    {
+      "suite": "e2e-tt120",
+      "name": "PH-04: next/previous walk the shown photos and stop at the end",
+      "covers": {
+        "PH-04": "full"
+      },
+      "pass": true,
+      "ms": 3602
+    },
+    {
+      "suite": "e2e-tt120",
+      "name": "CN-06: starring a contact persists and filters",
+      "covers": {
+        "CN-06": "full"
+      },
+      "pass": true,
+      "ms": 2921
+    }
+  ]
+}

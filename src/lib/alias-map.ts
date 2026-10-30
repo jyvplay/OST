@@ -11,7 +11,7 @@ export function parseAlias(line: string): { name: string; cmd: string } | null {
 export function expandAlias(line: string, aliases: Readonly<Record<string, string>>): string {
   const m = /^([A-Za-z0-9_.-]+)(\s.*)?$/.exec(line);
   if (!m) return line;
-  const cmd = aliases[m[1]];
+  const cmd = Object.hasOwn(aliases, m[1]) ? aliases[m[1]] : undefined;
   if (!cmd) return line;
   return cmd + (m[2] ?? "");
 }

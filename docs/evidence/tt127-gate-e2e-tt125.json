@@ -1,0 +1,43 @@
+{
+  "suite": "e2e-tt125",
+  "at": "2026-10-30T21:21:11.159Z",
+  "results": [
+    {
+      "suite": "e2e-tt125",
+      "name": "ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
+      "covers": {
+        "ED-09": "full",
+        "ED-10": "full",
+        "WR-02": "full"
+      },
+      "pass": true,
+      "ms": 4681
+    },
+    {
+      "suite": "e2e-tt125",
+      "name": "PK-04: Copy strings lifts ASCII runs from a binary",
+      "covers": {
+        "PK-04": "full"
+      },
+      "pass": true,
+      "ms": 1054
+    },
+    {
+      "suite": "e2e-tt125",
+      "name": "honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render",
+      "covers": {
+        "LN-19": "mechanism",
+        "LN-20": "mechanism",
+        "WB-08": "mechanism",
+        "CB-03": "mechanism",
+        "TG-03": "mechanism",
+        "ST-16": "mechanism",
+        "BM-03": "mechanism",
+        "DV-03": "mechanism",
+        "PL-10": "mechanism"
+      },
+      "pass": true,
+      "ms": 29583
+    }
+  ]
+}

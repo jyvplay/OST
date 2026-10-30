@@ -108,17 +108,19 @@ export default function PhotosModule({ win }: ModuleProps) {
   const shown = useMemo(() => {
     if (!items) return [];
     const f = sortPhotos(items.filter((i) => view === "all" ? true : view === "favorites" ? recipes[i.path]?.favorite : view === "edited" ? recipes[i.path] && !isIdentity(recipes[i.path]) : view === "undated" ? undatedPhotos([i], index).length > 0 : index[i.sha256]?.lat !== undefined), photoSort);
+    if (photoSort !== "captured") return f;
     const dateOf = (i: Item) => index[i.sha256]?.date ?? i.createdAt;
     return [...f].sort((a, b) => Date.parse(dateOf(b)) - Date.parse(dateOf(a)));
-  }, [items, view, recipes, index]);
+  }, [items, view, recipes, index, photoSort]);
   const groups = useMemo(() => {
+    if (photoSort !== "captured") return shown.length ? [{ label: "All photos", items: shown }] : [];
     const g: { label: string; items: Item[] }[] = [];
     for (const it of shown) {
       const d = index[it.sha256]?.date ?? it.createdAt; const label = Number.isFinite(Date.parse(d)) ? monthLabel(d) : "Unknown date";
       const last = g[g.length - 1]; if (last && last.label === label) last.items.push(it); else g.push({ label, items: [it] });
     }
     return g;
-  }, [shown, index]);
+  }, [shown, index, photoSort]);
 
   const [showPlaying, setShowPlaying] = useState(false);
   const [shuffle, setShuffle] = useState(false);
