@@ -454,33 +454,23 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, on
 
   const meta = state?.meta;
   const rows = useMemo(() => meta ? describeRows(meta) : [], [meta]);
-  // Position nav survives loading and decode-error states: walking the library
-  // must never strand the user on a tile the canvas cannot rasterise (SVG, PSD).
+  const r = recipe;
+  // Keep the same header/buttons mounted while the image loads or errors.
+  // A decode completing between pointer-down and pointer-up must not remove
+  // the button under the user's pointer. Navigation also stays available for
+  // photos this browser cannot decode.
   const headerNav = (
     <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
       <Btn variant="ghost" onClick={onClose} aria-label="Back to library">‹ Library</Btn>
+      {onToggleShow ? <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={!!showPlaying} onClick={onToggleShow}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn> : null}
       {nav ? <span className="fs-row" style={{ gap: 4 }}>
         <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
-        <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }}>{nav.label}</span>
+        <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }} data-testid="photos-position">{nav.label}</span>
+        <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(photoInfoText({ path: item.path, size: item.size, mime: item.mime, index: info ? { date: info.date ?? null, camera: info.camera, lat: info.lat, lon: info.lon } : undefined })); shell.toast("Photo info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="photos-copy-info">Copy info</Btn>
         <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
       </span> : null}
-    </div>
-  );
-  if (!state) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16 }} className="fs-dim">Opening {item.name}…</div></div>;
-  if (state.error) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16, display: "grid", gap: 8 }}><Badge tone="bad">{state.error}</Badge></div></div>;
-  const r = recipe;
-  return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, position: "relative" }} data-testid="photos-editor">
-      <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <Btn variant="ghost" onClick={onClose} aria-label="Back to library">‹ Library</Btn>
-        {onToggleShow ? <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={!!showPlaying} onClick={onToggleShow}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn> : null}
-        {nav ? <span className="fs-row" style={{ gap: 4 }}>
-          <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
-          <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }}>{nav.label}</span>
-          <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(photoInfoText({ path: item.path, size: item.size, mime: item.mime, index: info ? { date: info.date ?? null, camera: info.camera, lat: info.lat, lon: info.lon } : undefined })); shell.toast("Photo info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="photos-copy-info">Copy info</Btn>
-          <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
-        </span> : null}
-        <strong style={{ fontSize: fz(13) }}>{item.name}</strong>
+      <strong style={{ fontSize: fz(13) }}>{item.name}</strong>
+      {state && !state.error ? <>
         <div style={{ flex: 1 }} />
         <span role="radiogroup" aria-label="Rating" style={{ display: "flex" }}>
           {[1, 2, 3, 4, 5].map((n) => (
@@ -495,7 +485,14 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, on
         <Btn variant="ghost" onClick={() => push({ ...Object.fromEntries(Object.keys(r).filter((k) => k !== "v" && k !== "rating" && k !== "favorite").map((k) => [k, undefined])) })}>Reset</Btn>
         <Btn variant="primary" disabled={!dirty || !!busy} onClick={() => void save(r)}>{busy === "Saving" ? "Saving…" : "Save edit"}</Btn>
         <Btn disabled={!!state.note || !!busy} title={state.note} onClick={() => setExp({ format: "jpeg", quality: 0.9, size: 0, meta: true, location: false })}>Export…</Btn>
-      </div>
+      </> : null}
+    </div>
+  );
+  if (!state) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16 }} className="fs-dim">Opening {item.name}…</div></div>;
+  if (state.error) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16, display: "grid", gap: 8 }}><Badge tone="bad">{state.error}</Badge></div></div>;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, position: "relative" }} data-testid="photos-editor">
+      {headerNav}
       {state.note ? <div style={{ padding: "4px 10px" }}><Badge tone="warn">{state.note}</Badge></div> : null}
       <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
         <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: "grid", gridTemplate: "minmax(0, 1fr) / minmax(0, 1fr)", padding: 14, background: "var(--fs-surface-2, rgba(0,0,0,0.04))" }}>

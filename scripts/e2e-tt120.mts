@@ -71,15 +71,18 @@ await test("PH-04: next/previous walk the shown photos and stop at the end", { "
   await tile.waitFor({ timeout: 15_000 });
   await tile.click();
   await photos.page.getByRole("button", { name: "Next photo" }).waitFor();
-  const editor = photos.page.locator('[data-testid="photos-editor"]');
+  const position = photos.page.getByTestId("photos-position");
   const pos = async (): Promise<[number, number]> => {
-    const m = (await editor.innerText()).match(/(\d+) of (\d+)/);
+    const m = (await position.innerText()).trim().match(/^(\d+) of (\d+)$/);
     assert.ok(m, "position is stated");
     return [Number(m![1]), Number(m![2])];
   };
   const next = photos.page.getByRole("button", { name: "Next photo" });
   const prev = photos.page.getByRole("button", { name: "Previous photo" });
-  const goto = async (want: number) => photos.page.waitForFunction((w: number) => (document.querySelector('[data-testid="photos-editor"]')?.textContent ?? "").includes(`${w} of`), want, { timeout: 25_000 });
+  const goto = async (want: number) => photos.page.waitForFunction((w: number) => {
+    const match = document.querySelector('[data-testid="photos-position"]')?.textContent?.trim().match(/^(\d+) of (\d+)$/);
+    return match && Number(match[1]) === w;
+  }, want, { timeout: 25_000 });
   let [cur, total] = await pos();
   if (cur > 1) { assert.ok(await prev.isEnabled()); await prev.click(); await goto(cur - 1); cur--; if (cur < total) { await next.click(); await goto(cur + 1); cur++; } }
   else if (await next.isEnabled()) { await next.click(); await goto(cur + 1); cur++; await prev.click(); await goto(cur - 1); cur--; }

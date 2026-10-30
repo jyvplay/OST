@@ -1,0 +1,44 @@
+{
+  "suite": "e2e-tt120",
+  "at": "2026-10-30T23:48:10.631Z",
+  "results": [
+    {
+      "suite": "e2e-tt120",
+      "name": "ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
+      "covers": {
+        "ED-04": "full",
+        "TM-04": "full"
+      },
+      "pass": true,
+      "ms": 4293
+    },
+    {
+      "suite": "e2e-tt120",
+      "name": "WD-04: world clock rows carry a business-hours verdict",
+      "covers": {
+        "WD-04": "full"
+      },
+      "pass": true,
+      "ms": 1631
+    },
+    {
+      "suite": "e2e-tt120",
+      "name": "PH-04: next/previous walk the shown photos and stop at the end",
+      "covers": {
+        "PH-04": "full"
+      },
+      "pass": false,
+      "error": "page.waitForFunction: Timeout 25000ms exceeded.",
+      "ms": 28167
+    },
+    {
+      "suite": "e2e-tt120",
+      "name": "CN-06: starring a contact persists and filters",
+      "covers": {
+        "CN-06": "full"
+      },
+      "pass": true,
+      "ms": 2219
+    }
+  ]
+}

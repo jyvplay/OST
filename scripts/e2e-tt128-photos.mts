@@ -86,6 +86,33 @@ try {
       await page.getByRole("button", { name: "Previous photo" }).click(); await page.getByTestId("photos-editor").getByText(names[0], { exact: true }).waitFor();
     } finally { release(); await context.close(); }
   });
+  await test("a navigation click survives the current image finishing its real load between pointer down and up", { "PH-04": "partial" }, async () => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
+    const page = await context.newPage(); page.setDefaultTimeout(25_000);
+    let release!: () => void; const wait = new Promise<void>((resolve) => { release = resolve; }); let holding = true;
+    await page.route("**/api/fs?**", async (route) => {
+      const u = new URL(route.request().url());
+      if (holding && u.searchParams.get("op") === "read" && u.searchParams.get("path") === paths[0]) await wait;
+      await route.continue().catch(() => undefined);
+    });
+    try {
+      await page.goto(BASE, { waitUntil: "domcontentloaded" });
+      await page.locator(`[data-photo="${names[0]}"]`).waitFor();
+      await page.getByLabel("Sort photos").selectOption("name");
+      await page.locator(`[data-photo="${names[0]}"]`).click();
+      const next = page.getByRole("button", { name: "Next photo" });
+      await next.waitFor(); assert.equal(await next.isEnabled(), true);
+      await next.evaluate((el) => { (window as Window & { __tt128Nav?: Element }).__tt128Nav = el; });
+      const box = await next.boundingBox(); assert.ok(box);
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.mouse.down();
+      holding = false; release();
+      await page.getByTestId("photos-canvas").waitFor(); // the real read/decode completed while the button is held
+      assert.equal(await next.evaluate((el) => el === (window as Window & { __tt128Nav?: Element }).__tt128Nav), true, "loading must not replace the navigation button under a pressed pointer");
+      await page.mouse.up();
+      await page.getByTestId("photos-editor").getByText(names[1], { exact: true }).waitFor();
+    } finally { release(); await page.mouse.up().catch(() => undefined); await context.close(); }
+  });
   await test("a failed real image read is not cached as missing metadata and a reload retries", { "PH-07": "partial" }, async () => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
     const page = await context.newPage(); page.setDefaultTimeout(25_000); let fail = true, intercepted = 0;
