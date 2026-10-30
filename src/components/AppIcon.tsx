@@ -236,7 +236,9 @@ export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "clos
      meaning. */
   "method" | "host" | "calendar" | "scope" | "device" | "dedupe" | "broom" | "gauge" | "session" | "link"
   /* TT117: an archive manifest (a checked list), an alarm bell, a repeating cycle and rising bars */
-  | "manifest" | "alarm" | "repeat" | "stats";
+  | "manifest" | "alarm" | "repeat" | "stats"
+  /* TT123: crossed shuffle arrows, and a wrapped line turning back on itself */
+  | "shuffle" | "wrap" | "caret-up" | "caret-down";
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
     /* TT116 concept glyphs. Same construction rules: stroke-only, 24x24, currentColor,
@@ -267,6 +269,13 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     alarm: <><path d="M12 4a5.5 5.5 0 0 1 5.5 5.5v3.6l1.8 3.4H4.7l1.8-3.4V9.5A5.5 5.5 0 0 1 12 4Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M10 19.5a2.2 2.2 0 0 0 4 0" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M3.5 4.5 5 6M20.5 4.5 19 6" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // TT117 repeat: two arrows chasing each other around a cycle
     repeat: <><path d="M5.5 9.5A7 7 0 0 1 18 6.2M18.5 14.5A7 7 0 0 1 6 17.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M18.4 3.4v3.4h-3.4M5.6 20.6v-3.4h3.4" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT123 shuffle: two arrows crossing over each other, each landing opposite
+    shuffle: <><path d="M4 7c4 0 6.5 10 11 10h5M4 17c3 0 5-4 7.5-6.8M18.5 9.2C16.8 7 15.2 7 13.5 7H9" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M17.2 4.2 20.2 7l-3 2.8M17.2 14.2l3 2.8-3 2.8" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT123 carets: a chevron stepping away from its baseline — match stepping
+    "caret-up": <><path d="M6 14.5 12 8.5l6 6" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M6 18.5h12" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    "caret-down": <><path d="M6 9.5 12 15.5l6-6" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M6 5.5h12" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // TT123 wrap: a line that reaches the edge and turns back, arrow pointing home
+    wrap: <><path d="M20 6H7a3 3 0 0 0-3 3v1" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M20 11H9a3 3 0 0 0-3 3v1" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9.5 17.8 6 20.5l-1-3.6" {...S} stroke="currentColor" strokeWidth="1.8" transform="rotate(90 6.8 18.6)" /></>,
     // TT117 stats: three rising columns on a baseline
     stats: <><path d="M4 20h16" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M7 20v-5M12 20V9M17 20v-8" {...S} stroke="currentColor" strokeWidth="2.4" /></>,
     /* TT114 concept glyphs. Stroke-only, 24x24, currentColor, so they inherit theme and contrast. */

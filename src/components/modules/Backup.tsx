@@ -10,6 +10,7 @@ import { bundleTree } from "@/lib/bundle-tree";
 import { freshnessLabel, LAST_BACKUP_KEY } from "@/lib/backup-freshness";
 import { backupFilename } from "@/lib/backup-name";
 import { backupInventory } from "@/lib/backup-inventory";
+import { prunePlan } from "@/lib/prune-plan";
 import { folderSizes, formatBytes as fmtBundleBytes } from "@/lib/folder-size";
 import { DRILL_HEALTH_KEY, drillHealthState, parseDrillHealth, recordDrill, type DrillAttempt, type DrillHealth } from "@/lib/backup/drill-health";
 import { makeRecoveryKey, openRecoveryBundle, RECOVERY_FORMAT, sealRecoveryBundle } from "@/lib/backup/recovery";
@@ -322,6 +323,17 @@ export default function BackupModule(_: ModuleProps) {
       </Section>
 
       <Section title="Backups saved in Files (/Backups)">
+        <span className="fs-row" style={{ gap: 6, marginBottom: 4 }}>
+          <Btn variant="ghost" disabled={savedBackups.length < 2} onClick={async () => {
+            const doomed = prunePlan(savedBackups, 2, new Date());
+            if (!doomed.length) { setReport("Nothing to prune — two or fewer dated backup copies."); return; }
+            if (!window.confirm(`Prune ${doomed.length} older backup copies, keeping the 2 newest?`)) return;
+            for (const name of doomed) { const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "rm", path: `/Backups/${name}`, reason: "backup-prune" }) }); if (!r.ok) { setReport("Prune failed — could not delete a copy."); return; } }
+            shell.bumpRefresh(); void loadSavedBackups();
+            setReport(`Pruned ${doomed.length} older backups; kept the 2 newest dated copies.`);
+          }} data-testid="backup-prune">Prune old</Btn>
+          <span className="fs-dim" style={{ fontSize: fz(11) }}>keeps 2 newest dated copies; undated files never pruned</span>
+        </span>
         {savedBackups.length ? backupInventory(savedBackups, new Date()).map((e) => (
           <div key={e.name} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }} data-testid="backup-inventory-row">
             <span className="fs-mono">{e.name}</span>

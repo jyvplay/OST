@@ -7,6 +7,7 @@ import {
   appendCalculatorHistory, CALC_HISTORY_KEEP, CALC_HISTORY_LIMIT, CALC_HISTORY_PREFIX,
   deleteCalculatorHistory, readCalculatorHistory, type CalculatorEntry,
 } from "@/lib/calc-history";
+import { historyAsText } from "@/lib/calc-history-text";
 import { privacy } from "@/lib/privacy/session";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
@@ -168,6 +169,7 @@ export default function CalculatorModule(_: ModuleProps) {
       <div className="fs-row" style={{ flexWrap: "wrap" }}>
         <input className="fs-input" style={{ flex: "1 1 10em", width: "auto" }} aria-label="Filter calculator history" placeholder="Filter history" value={filter} onChange={(e) => setFilter(e.target.value)} />
         <Btn variant={keep ? "primary" : "ghost"} aria-pressed={keep} disabled={amnesic} onClick={toggleKeep}>{keep ? "Stop saving history" : "Keep new history locally"}</Btn>
+        <Btn variant="ghost" disabled={!history.length} onClick={async () => { try { await navigator.clipboard.writeText(historyAsText(history.map((h) => ({ expr: h.expr, text: h.text })))); setStatus("History copied."); } catch { setStatus("Clipboard unavailable."); } }} data-testid="calc-copy-history">Copy history</Btn>
         <Btn variant="ghost" onClick={clearHistory}>Delete history</Btn>
       </div>
       <div className="fs-scroll" role="region" style={{ flex: "1 0 80px", minHeight: fz(80) }} aria-label="Calculator history">

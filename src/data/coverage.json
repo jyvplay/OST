@@ -1,23 +1,157 @@
 {
- "generatedAt": "2026-10-30T08:14:24.917Z",
+ "generatedAt": "2026-10-30T11:46:36.439Z",
  "totals": {
   "built": {
-   "full": 441,
+   "full": 461,
    "partial": 82,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 393,
+   "full": 413,
    "partial": 119,
    "untested": 35
   },
   "tests": {
-   "total": 2929,
-   "passed": 2919
+   "total": 2973,
+   "passed": 2963
   }
  },
  "rows": {
+  "WB-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: TM-06/SSH-01/WB-07: history builtin exists; font buttons render; PNG export offered",
+    "tt123-core: WB-07/VT-01 raster size: scale honoured, pixel cap scales down and says so",
+    "tt123-density: TT123 register: all twenty codes built, register grew past TT122's 547"
+   ]
+  },
+  "VT-01": {
+   "tested": "full",
+   "tests": [
+    "tt123-core: WB-07/VT-01 raster size: scale honoured, pixel cap scales down and says so"
+   ]
+  },
+  "BM-01": {
+   "tested": "full",
+   "tests": [
+    "tt123-core: BM-01 elapsed: derived from instants, hours when needed"
+   ]
+  },
+  "AL-01": {
+   "tested": "full",
+   "tests": [
+    "tt123-core: AL-01 access filter: spans app/action/result"
+   ]
+  },
+  "SSH-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: TM-06/SSH-01/WB-07: history builtin exists; font buttons render; PNG export offered",
+    "tt123-core: SSH-01 term font: clamped ladder, integer steps"
+   ]
+  },
+  "CK-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: ED-07/NT-07/CK-07: find steps to a match; tag filter lists; offset sort toggles",
+    "tt123-core: CK-07 zone offsets: Intl-derived, sorted west to east, labels"
+   ]
+  },
+  "ED-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: ED-07/NT-07/CK-07: find steps to a match; tag filter lists; offset sort toggles",
+    "tt123-core: ED-07 match nav: next/prev with honest wrap reporting"
+   ]
+  },
+  "NT-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: ED-07/NT-07/CK-07: find steps to a match; tag filter lists; offset sort toggles",
+    "tt123-core: NT-07 note tags: facets from stored lists, untagged explicit"
+   ]
+  },
+  "BK-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+    "tt123-core: BK-11 prune plan: only dated files, keeps N newest"
+   ]
+  },
+  "TM-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: TM-06/SSH-01/WB-07: history builtin exists; font buttons render; PNG export offered",
+    "tt123-core: TM-06 cmd history: consecutive dup collapse, cap, numbering"
+   ]
+  },
+  "CV-03": {
+   "tested": "full",
+   "tests": [
+    "tt123-core: CV-03 history text: chronological worked calculation"
+   ]
+  },
+  "MS-05": {
+   "tested": "full",
+   "tests": [
+    "tt123-core: MS-05 message search: sender+text, loaded messages only"
+   ]
+  },
+  "PH-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+    "tt123-core: PH-07 undated photos: missing index date, never guessed"
+   ]
+  },
+  "PL-08": {
+   "tested": "full",
+   "tests": [
+    "tt123-core: PL-08 overdue text: open only, oldest first, whole days"
+   ]
+  },
+  "SR-12": {
+   "tested": "full",
+   "tests": [
+    "tt123-core: SR-12 phrase query: wrapped, embedded quotes doubled not stripped"
+   ]
+  },
+  "DV-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+    "tt123-core: DV-02 device info: absences stated, memory caveated",
+    "tt123-density: screenshots: devices + spec"
+   ]
+  },
+  "SL-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+    "tt123-core: SL-01 slide nav: 1-based clamp, garbage refused"
+   ]
+  },
+  "CN-09": {
+   "tested": "full",
+   "tests": [
+    "tt123-core: CN-09 family sort: structured N first, display-name fallback"
+   ]
+  },
+  "AX-25": {
+   "tested": "full",
+   "tests": [
+    "tt123-density: AX-25: shuffle and wrap glyphs render beside their labels",
+    "tt123-density: screenshots: devices + spec"
+   ]
+  },
+  "FM-19": {
+   "tested": "full",
+   "tests": [
+    "tt123-core: FM-19 names list: screen order, names only",
+    "tt123-density: TT123 register: all twenty codes built, register grew past TT122's 547"
+   ]
+  },
   "PK-01": {
    "tested": "full",
    "tests": [
@@ -150,7 +284,27 @@
   "AX-24": {
    "tested": "full",
    "tests": [
-    "tt122-density: AX-24: every app measured, none wordier than the ceiling, no emoji marks"
+    "tt122-density: AX-24: every app measured, none wordier than the ceiling, no emoji marks",
+    "tt123-density: density whiteboard: words<=260",
+    "tt123-density: density vector: words<=320",
+    "tt123-density: density beam: words<=300",
+    "tt123-density: density privacy: words<=420",
+    "tt123-density: density ssh: words<=300",
+    "tt123-density: density clock: words<=320",
+    "tt123-density: density editor: words<=200",
+    "tt123-density: density notes: words<=120",
+    "tt123-density: density backup: words<=470",
+    "tt123-density: density terminal: words<=260",
+    "tt123-density: density calculator: words<=260",
+    "tt123-density: density messages: words<=380",
+    "tt123-density: density photos: words<=220",
+    "tt123-density: density planner: words<=260",
+    "tt123-density: density find: words<=320",
+    "tt123-density: density devices: words<=300",
+    "tt123-density: density slides: words<=380",
+    "tt123-density: density contacts: words<=220",
+    "tt123-density: density files: words<=320",
+    "tt123-density: density streams: words<=380"
    ]
   },
   "CV-02": {

@@ -1,5 +1,6 @@
 "use client";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
+import { UiGlyph } from "../AppIcon";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
@@ -12,6 +13,7 @@ import { findMatches, replaceAll, replaceOne } from "@/lib/editor-find";
 import { clampLine, offsetAtLine, docStats } from "@/lib/line-nav";
 import { transformLines } from "@/lib/line-ops";
 import { wrapStyle, readWrap, WRAP_KEY } from "@/lib/editor-wrap";
+import { nextMatch } from "@/lib/match-nav";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
@@ -137,12 +139,14 @@ export default function EditorModule({ win }: ModuleProps) {
         <input className="fs-input" style={{ width: fz(150) }} placeholder="Replace with" aria-label="Replace with" value={replQ} onChange={(e) => setReplQ(e.target.value)} />
         <Btn variant="ghost" aria-pressed={caseSens} onClick={() => setCaseSens((v) => !v)} title="Match case">Aa</Btn>
         <Btn variant="ghost" onClick={() => { try { const m = findMatches(text, findQ, caseSens); setFindMsg(m.length ? `${m.length} match${m.length === 1 ? "" : "es"} · first at line ${m[0].line}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Count</Btn>
+        <Btn variant="ghost" aria-label="Previous match" onClick={() => { try { const m = findMatches(text, findQ, caseSens); const ta = areaRef.current; const nav = nextMatch(m.map((x) => x.index), (ta?.selectionStart ?? 0) - 1, -1); if (nav) { const hit = m[nav.index]; ta?.focus(); ta?.setSelectionRange(hit.index, hit.index + findQ.length); setFindMsg(`match ${nav.index + 1} of ${m.length}${nav.wrapped ? " (wrapped)" : ""}`); } } catch (e) { setFindMsg(String((e as Error).message)); } }}><UiGlyph name="caret-up" size={13} /></Btn>
+        <Btn variant="ghost" aria-label="Next match" onClick={() => { try { const m = findMatches(text, findQ, caseSens); const ta = areaRef.current; const nav = nextMatch(m.map((x) => x.index), ta?.selectionStart ?? -1, 1); if (nav) { const hit = m[nav.index]; ta?.focus(); ta?.setSelectionRange(hit.index, hit.index + findQ.length); setFindMsg(`match ${nav.index + 1} of ${m.length}${nav.wrapped ? " (wrapped)" : ""}`); } } catch (e) { setFindMsg(String((e as Error).message)); } }}><UiGlyph name="caret-down" size={13} /></Btn>
         <Btn variant="ghost" onClick={() => { try { const r = replaceOne(text, findQ, replQ, 1, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced the first of ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace</Btn>
         <Btn variant="primary" onClick={() => { try { const r = replaceAll(text, findQ, replQ, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace all</Btn>
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, {})); setDirty(true); }} title="Sort all lines A to Z">Sort lines</Btn>
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { desc: true })); setDirty(true); }} title="Sort all lines Z to A">Reverse sort</Btn>
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { dedupe: true })); setDirty(true); }} title="Remove duplicate lines">Dedupe lines</Btn>
-        <Btn variant={wrapOn ? "primary" : "ghost"} aria-pressed={wrapOn} onClick={() => { const next = !wrapOn; setWrapOn(next); try { window.localStorage.setItem(WRAP_KEY, next ? "1" : "0"); } catch { /* preference only */ } }} title="Soft-wrap long lines">Wrap</Btn>
+        <Btn variant={wrapOn ? "primary" : "ghost"} aria-pressed={wrapOn} onClick={() => { const next = !wrapOn; setWrapOn(next); try { window.localStorage.setItem(WRAP_KEY, next ? "1" : "0"); } catch { /* preference only */ } }} title="Soft-wrap long lines"><UiGlyph name="wrap" size={13} /> Wrap</Btn>
         {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
         <span style={{ flex: 1 }} />
         <input className="fs-input" style={{ width: fz(76) }} inputMode="numeric" placeholder="Line #" aria-label="Go to line" value={gotoLine}

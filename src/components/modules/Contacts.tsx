@@ -23,6 +23,7 @@ const TEL_TYPES = ["cell", "home", "work", "fax", "other"];
 const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 import { loadStars, storeStars, toggleStar } from "@/lib/contact-stars";
 import { filterContacts, type ContactFacet } from "@/lib/contact-filter";
+import { sortByFamily } from "@/lib/contact-name-sort";
 import { contactCardFile } from "@/lib/contact-card";
 import { UiGlyph } from "../AppIcon";
 const initials = (c: C.Contact) => (c.n.given || c.fn).charAt(0).toUpperCase() + (c.n.family ? c.n.family.charAt(0).toUpperCase() : "");
@@ -100,7 +101,8 @@ export default function ContactsModule({ win }: ModuleProps) {
     setUndo((u) => u.slice(0, -1)); setList(prev); setVer((v) => v + 1);
   };
 
-  const sorted = useMemo(() => C.sortContacts(list ?? []), [list]);
+  const [nameOrder, setNameOrder] = useState<"given" | "family">("given");
+  const sorted = useMemo(() => nameOrder === "family" ? sortByFamily(list ?? []) : C.sortContacts(list ?? []), [list, nameOrder]);
   const [stars, setStars] = useState<Set<string>>(() => { try { return loadStars(localStorage); } catch { return new Set(); } });
   const [starredOnly, setStarredOnly] = useState(false);
   const [facet, setFacet] = useState<ContactFacet>("all");
@@ -188,6 +190,7 @@ export default function ContactsModule({ win }: ModuleProps) {
           title={pickerOk ? "Pick contacts from this device (Contact Picker API)" : "The Contact Picker API is not available in this browser (it ships in Chrome on Android); import a .vcf instead"}>
           From device
         </Btn>
+        <select className="fs-select" style={{ width: "auto" }} aria-label="Sort contacts by" value={nameOrder} onChange={(e) => setNameOrder(e.target.value as "given" | "family")} data-testid="contacts-name-order"><option value="given">First name</option><option value="family">Family name</option></select>
         <Btn onClick={() => list && download("contacts.vcf", C.serializeVcf(sorted), "text/vcard")} disabled={!list?.length} data-testid="ct-download-vcf">Download .vcf</Btn>
         <Btn data-testid="ct-export-csv" disabled={!list?.length} onClick={async () => {
           const csv = C.toCsv(sorted); const dst = path.replace(/[^/]+$/, "contacts-export.csv");

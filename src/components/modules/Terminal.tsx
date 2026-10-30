@@ -1,5 +1,6 @@
 "use client";
 import { suggest } from "@/lib/suggest";
+import { pushCommand, historyText } from "@/lib/cmd-history";
 import { wc, formatWc } from "@/lib/wc-core";
 import { headLines, tailLines, parseCountArg } from "@/lib/text-slice";
 import { sortText, uniqText } from "@/lib/text-sort";
@@ -57,7 +58,9 @@ export default function TerminalModule({ win }: ModuleProps) {
     return `/${parts.join("/")}`;
   }, [cwd]);
 
+  const histRef = useRef<string[]>([]);
   const exec = useCallback(async (raw: string) => {
+    histRef.current = pushCommand(histRef.current, raw);
     const line = raw.trim();
     if (!line) return;
     out(`${cwd} $ ${line}`, "cmd");
@@ -65,6 +68,7 @@ export default function TerminalModule({ win }: ModuleProps) {
     const rest = line.slice(cmd.length).trim();
     try {
       switch (cmd) {
+      case "history": historyText(histRef.current).split("\n").forEach((ln) => out(ln)); break;
         case "help":
           out([
             "ls [path]              list a directory",

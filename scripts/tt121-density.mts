@@ -122,7 +122,7 @@ await test("AX-23: every app measured, none wordier than the ceiling, no emoji m
     assert.deepEqual(bad, [], `${id}: low-contrast controls — ${bad.slice(0, 4).join(" | ")}`);
   }
   // Tighter bounds, measured this turn on this build (see DESIGN-TT120 table).
-  const bounds: Record<string, number> = { browser: 40, clock: 150, planner: 148, calculator: 132, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 166, photos: 60, backup: 440 /* TT122: BK-10 inventory section */, editor: 62, terminal: 36, monitor: 500 /* TT120: 424 on a fresh DB, 469 after a turn of file ops — Monitor lists live jobs/command log, so its count is session-data dependent (same treatment as Planner task titles) */, messages: 300, contacts: 72 };
+  const bounds: Record<string, number> = { browser: 40, clock: 160 /* TT123: CK-07 offset labels + By-offset toggle */, planner: 148, calculator: 132, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 166, photos: 60, backup: 440 /* TT122: BK-10 inventory section */, editor: 62, terminal: 36, monitor: 500 /* TT120: 424 on a fresh DB, 469 after a turn of file ops — Monitor lists live jobs/command log, so its count is session-data dependent (same treatment as Planner task titles) */, messages: 300, contacts: 72 };
   for (const [id, max] of Object.entries(bounds)) {
     const r = results.get(id);
     assert.ok(r, `${id} did not render`);

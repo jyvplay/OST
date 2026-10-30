@@ -24,6 +24,7 @@ import {
 import { BOOL_LABEL, booleanOp, type BoolOp } from "@/lib/vector/boolean";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { rasterSize } from "@/lib/raster-size";
 
 type Tool = "select" | "node" | "rect" | "ellipse" | "line" | "star" | "pen" | "text";
 const TOOLS: { id: Tool; key: string; label: string; icon: string }[] = [
@@ -162,12 +163,12 @@ export default function VectorModule({ win }: ModuleProps) {
     try {
       const url = URL.createObjectURL(new Blob([exportSvg(doc)], { type: "image/svg+xml" }));
       const img = new Image(); img.src = url; await img.decode();
-      const w = Math.min(8192, Math.round(doc.width)), h = Math.min(8192, Math.round(doc.height));
+      const size = rasterSize(doc.width, doc.height, 2); const w = size.w, h = size.h;
       const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d")!.drawImage(img, 0, 0, w, h); URL.revokeObjectURL(url);
       const blob = await new Promise<Blob>((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("encode failed"))), "image/png"));
       const dst = `/Pictures/${slug(doc.title)}.png`;
       await post("/api/fs", { op: "upload", path: dst, content: b64(new Uint8Array(await blob.arrayBuffer())), mime: "image/png" });
-      shell.bumpRefresh(); setStatus(`exported ${dst} (${w}×${h})`);
+      shell.bumpRefresh(); setStatus(`exported ${dst} (${w}×${h}${size.capped ? ", scaled to the pixel cap" : " at 2×"})`);
     } catch (e) { shell.toast(`PNG export failed: ${(e as Error).message}`, "bad"); }
   };
 

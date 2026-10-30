@@ -104,7 +104,7 @@ await test("AX-21: every app measured, none wordier than the ceiling, no emoji m
     assert.deepEqual(bad, [], `${id}: low-contrast controls — ${bad.slice(0, 4).join(" | ")}`);
   }
   // Tighter bounds, measured this turn on this build (see DESIGN-TT119 table).
-  const bounds: Record<string, number> = { browser: 40, clock: 150, planner: 135, calculator: 120, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 155, photos: 50, backup: 440 /* TT122: BK-10 inventory section */, editor: 48, terminal: 28, monitor: 500, messages: 300 };
+  const bounds: Record<string, number> = { browser: 40, clock: 160 /* TT123: CK-07 offset labels + By-offset toggle */, planner: 135, calculator: 120, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 155, photos: 50, backup: 440 /* TT122: BK-10 inventory section */, editor: 48, terminal: 28, monitor: 500, messages: 300 };
   for (const [id, max] of Object.entries(bounds)) {
     const r = results.get(id);
     assert.ok(r, `${id} did not render`);

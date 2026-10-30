@@ -11,6 +11,7 @@ import { convertZoneTime } from "@/lib/zone-convert";
 import { zoneStatus } from "@/lib/zone-status";
 import { TIMER_PRESETS } from "@/lib/timer-presets";
 import { lapsText } from "@/lib/laps-text";
+import { sortZonesByOffset, offsetLabel, offsetMinutes } from "@/lib/zone-offset";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -39,6 +40,7 @@ export default function ClockModule(_: ModuleProps) {
   const timerMs = (timerMin * 60 + timerSec) * 1000;
   const fired = useRef(false);
   const [zones, setZones] = useState<string[]>(() => { try { return validateZones(JSON.parse(localStorage.getItem(WORLD_ZONES_KEY) ?? "null")); } catch { return validateZones(null); } });
+  const [offsetSort, setOffsetSort] = useState(false);
   const [zonePick, setZonePick] = useState("Europe/Paris");
   const [zoneMsg, setZoneMsg] = useState("");
   useEffect(() => { try { localStorage.setItem(WORLD_ZONES_KEY, JSON.stringify(zones)); } catch { /* private mode */ } }, [zones]);
@@ -104,10 +106,11 @@ export default function ClockModule(_: ModuleProps) {
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
-      <Section title="World clock">
-        {zones.map((z) => (
+      <Section title="World clock" right={<Btn variant={offsetSort ? "primary" : "ghost"} aria-pressed={offsetSort} onClick={() => setOffsetSort((v) => !v)} data-testid="clock-offset-sort" title="Order zones west to east by current UTC offset">By offset</Btn>}>
+
+        {(offsetSort ? sortZonesByOffset(zones, new Date()) : zones).map((z) => (
           <div key={z} className="fs-row" style={{ justifyContent: "space-between" }}>
-            <span style={{ fontSize: fz(12) }}>{z.replace(/_/g, " ")}</span>
+            <span style={{ fontSize: fz(12) }}>{z.replace(/_/g, " ")} <span className="fs-dim">{offsetLabel(offsetMinutes(z, new Date()))}</span></span>
             {(() => { const st = zoneStatus(z); return <Badge tone={st.open ? "ok" : "default"} title={`${st.localTime} in ${z}`}>{st.open ? "work hours" : st.localTime}</Badge>; })()}
             <span className="fs-row" style={{ gap: 4 }}>
               <span className="fs-mono">{new Date().toLocaleTimeString([], { timeZone: z, hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>

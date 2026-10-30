@@ -9,6 +9,7 @@ import { parseRRule, expandRecurrence } from "@/lib/recurrence";
 import { buildAgenda } from "@/lib/agenda";
 import { agendaText } from "@/lib/agenda-text";
 import { completionStats } from "@/lib/completion-stats";
+import { overdueText } from "@/lib/overdue-text";
 import { filterTasks, type TaskStatus } from "@/lib/task-filter";
 import { presetDue, presetLabel, type DuePreset } from "@/lib/due-presets";
 
@@ -50,7 +51,7 @@ export default function PlannerModule(_: ModuleProps) {
         {(["today", "tomorrow", "next-week"] as DuePreset[]).map((preset) => (
           <Btn key={preset} variant="ghost" title={presetLabel(preset)} onClick={() => { const d = presetDue(preset); if (d) { const p = (n: number) => String(n).padStart(2, "0"); setDue(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`); } }}>{preset === "today" ? "Today" : preset === "tomorrow" ? "Tomorrow" : "+1 week"}</Btn>
         ))}
-        {(() => { const overdue = rows.filter((t) => !t.done && t.dueAt && new Date(t.dueAt) < new Date()).length; return overdue ? <Badge tone="bad">{overdue} overdue</Badge> : null; })()}
+        {(() => { const overdue = rows.filter((t) => !t.done && t.dueAt && new Date(t.dueAt) < new Date()).length; return overdue ? <><Badge tone="bad">{overdue} overdue</Badge><Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(overdueText(rows, new Date())); shell.toast("Overdue list copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="planner-copy-overdue">Copy overdue</Btn></> : null; })()}
         <Btn id="planner-add" variant="primary" disabled={!title} onClick={async () => {
           await post("/api/tasks", { title, dueAt: due ? new Date(due).toISOString() : null, ...(repeat ? { notes: `RRULE:${repeat}` } : {}) });
           setTitle(""); setDue(""); await load();

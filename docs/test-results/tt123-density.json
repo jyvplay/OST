@@ -1,0 +1,215 @@
+{
+  "suite": "tt123-density",
+  "at": "2026-10-30T11:39:29.818Z",
+  "results": [
+    {
+      "suite": "tt123-density",
+      "name": "density whiteboard: words<=260",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 892
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density vector: words<=320",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 2361
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density beam: words<=300",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 505
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density privacy: words<=420",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 486
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density ssh: words<=300",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 3986
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density clock: words<=320",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 640
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density editor: words<=200",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 2481
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density notes: words<=120",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 411
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density backup: words<=470",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 539
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density terminal: words<=260",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 1720
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density calculator: words<=260",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 492
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density messages: words<=380",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 2891
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density photos: words<=220",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 482
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density planner: words<=260",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 494
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density find: words<=320",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 2580
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density devices: words<=300",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 443
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density slides: words<=380",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 1990
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density contacts: words<=220",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 497
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density files: words<=320",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 554
+    },
+    {
+      "suite": "tt123-density",
+      "name": "density streams: words<=380",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 10163
+    },
+    {
+      "suite": "tt123-density",
+      "name": "TT123 register: all twenty codes built, register grew past TT122's 547",
+      "covers": {
+        "WB-07": "full",
+        "FM-19": "full"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tt123-density",
+      "name": "AX-25: shuffle and wrap glyphs render beside their labels",
+      "covers": {
+        "AX-25": "full"
+      },
+      "pass": true,
+      "ms": 957
+    },
+    {
+      "suite": "tt123-density",
+      "name": "screenshots: devices + spec",
+      "covers": {
+        "DV-02": "full",
+        "AX-25": "mechanism"
+      },
+      "pass": true,
+      "ms": 3096
+    }
+  ]
+}

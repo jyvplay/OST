@@ -17,9 +17,9 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-PURE="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core"
-LANE_A="tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
-LANE_B="tt122-density tt121-density tt120-density tt119-density tt118-density tt117-density tt116-density"
+PURE="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core"
+LANE_A="tt123-core e2e-tt123 tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
+LANE_B="tt123-density tt122-density tt121-density tt120-density tt119-density tt118-density tt117-density tt116-density"
 
 echo "== pure suites (parallel via run-fast.sh)"
 JOBS="${JOBS:-4}" bash scripts/run-fast.sh $PURE "$@" || { echo "GATE FAILED (pure)"; exit 1; }

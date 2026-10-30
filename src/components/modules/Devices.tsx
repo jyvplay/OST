@@ -8,6 +8,7 @@ import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section, Tabs } from "../ui";
 import { batteryLabel, type BatteryLike } from "@/lib/battery-status";
+import { deviceInfoText } from "@/lib/device-info";
 
 type Tab = "recorder" | "scan" | "color" | "audio" | "serial" | "peripherals" | "gamepad";
 
@@ -26,6 +27,7 @@ export default function DevicesModule(_: ModuleProps) {
       ]} />
       <Section title="Battery" icon="battery">
         <BatteryCard />
+        <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(deviceInfoText({ ua: navigator.userAgent, platform: (navigator as any).userAgentData?.platform ?? navigator.platform ?? "", cores: navigator.hardwareConcurrency, memory: (navigator as any).deviceMemory, touch: navigator.maxTouchPoints > 0, online: navigator.onLine })); shell.toast("Device info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="devices-copy-info">Copy device info</Btn>
       </Section>
       {tab === "recorder" ? <Recorder /> : null}
       {tab === "scan" ? <Scanner /> : null}

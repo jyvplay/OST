@@ -6,6 +6,7 @@ import { api, fmtTime, post } from "@/lib/api";
 import { capOf } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
+import { elapsedLabel } from "@/lib/elapsed";
 
 interface SessionRow { id: number; targetName: string; transport: string; source: string; state: string; startedAt: string }
 
@@ -28,6 +29,8 @@ export default function BeamModule(_: ModuleProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [status, setStatus] = useState("");
+  const [beamNow, setBeamNow] = useState(() => Date.now());
+  useEffect(() => { const t = window.setInterval(() => setBeamNow(Date.now()), 1000); return () => window.clearInterval(t); }, []);
   const [remoteAvailable, setRemoteAvailable] = useState<boolean | null>(null);
 
   const load = () => api<{ sessions: SessionRow[] }>("/api/beam").then((r) => setSessions(r.sessions)).catch(() => undefined);
@@ -178,7 +181,7 @@ export default function BeamModule(_: ModuleProps) {
               <span>{s.transport} → {s.targetName}</span>
               <span className="fs-row" style={{ gap: 6 }}>
                 <Badge tone={s.state === "active" ? "warn" : "ok"}>{s.state}</Badge>
-                <span className="fs-dim">{fmtTime(s.startedAt)}</span>
+                <span className="fs-dim">{fmtTime(s.startedAt)}{s.state === "active" ? ` · ${elapsedLabel(new Date(s.startedAt).getTime() || Date.now(), beamNow)}` : ""}</span>
               </span>
             </div>
           ))}

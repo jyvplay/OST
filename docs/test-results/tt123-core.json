@@ -1,0 +1,169 @@
+{
+  "suite": "tt123-core",
+  "at": "2026-10-30T11:32:12.159Z",
+  "results": [
+    {
+      "suite": "tt123-core",
+      "name": "WB-07/VT-01 raster size: scale honoured, pixel cap scales down and says so",
+      "covers": {
+        "WB-07": "full",
+        "VT-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt123-core",
+      "name": "BM-01 elapsed: derived from instants, hours when needed",
+      "covers": {
+        "BM-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "AL-01 access filter: spans app/action/result",
+      "covers": {
+        "AL-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "SSH-01 term font: clamped ladder, integer steps",
+      "covers": {
+        "SSH-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "CK-07 zone offsets: Intl-derived, sorted west to east, labels",
+      "covers": {
+        "CK-07": "full"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tt123-core",
+      "name": "ED-07 match nav: next/prev with honest wrap reporting",
+      "covers": {
+        "ED-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "NT-07 note tags: facets from stored lists, untagged explicit",
+      "covers": {
+        "NT-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt123-core",
+      "name": "BK-11 prune plan: only dated files, keeps N newest",
+      "covers": {
+        "BK-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "TM-06 cmd history: consecutive dup collapse, cap, numbering",
+      "covers": {
+        "TM-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "CV-03 history text: chronological worked calculation",
+      "covers": {
+        "CV-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "MS-05 message search: sender+text, loaded messages only",
+      "covers": {
+        "MS-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "PH-07 undated photos: missing index date, never guessed",
+      "covers": {
+        "PH-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "PL-08 overdue text: open only, oldest first, whole days",
+      "covers": {
+        "PL-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "SR-12 phrase query: wrapped, embedded quotes doubled not stripped",
+      "covers": {
+        "SR-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "DV-02 device info: absences stated, memory caveated",
+      "covers": {
+        "DV-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "SL-01 slide nav: 1-based clamp, garbage refused",
+      "covers": {
+        "SL-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "CN-09 family sort: structured N first, display-name fallback",
+      "covers": {
+        "CN-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt123-core",
+      "name": "FM-19 names list: screen order, names only",
+      "covers": {
+        "FM-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -90,7 +90,7 @@ await test("AX-20: every app measured, none wordier than the ceiling, no emoji m
   }
   // Tighter bounds, measured this turn on this build (see DESIGN-TT118 table).
   // clock bound 130 in TT118; raised to 145 in TT120 for the WD-04 per-zone status badges (tt120-density asserts the same 145).
-  const bounds: Record<string, number> = { browser: 40, clock: 145, planner: 120, calculator: 120, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 140, photos: 40, backup: 440 /* TT122: BK-10 inventory section */, editor: 160 /* TT122: a recovery draft from gate e2e editing can auto-load (session-data dependent) */, terminal: 20 };
+  const bounds: Record<string, number> = { browser: 40, clock: 160 /* TT123: CK-07 offset labels + By-offset toggle */, planner: 120, calculator: 120, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 140, photos: 60 /* TT123: PH-07 No-date view button + gate-DB seeded pictures (list content, session-data treatment) */, backup: 440 /* TT122: BK-10 inventory section */, editor: 160 /* TT122: a recovery draft from gate e2e editing can auto-load (session-data dependent) */, terminal: 20 };
   for (const [id, max] of Object.entries(bounds)) {
     const r = results.get(id);
     assert.ok(r, `${id} did not render`);

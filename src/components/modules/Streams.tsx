@@ -1,5 +1,6 @@
 "use client";
 import { fz } from "@/lib/uiscale";
+import { UiGlyph } from "../AppIcon";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import * as S from "@/lib/stream-core";
@@ -377,7 +378,7 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
               <Btn variant="ghost" onClick={next} disabled={!items.length} data-testid={`${pfx}-next`} title={ref.provider === "file" || ctl ? "Next in the library (Auto-next also moves on when this one ends)" : "Next in the library (this provider's player does not report when it ends, so Auto-next cannot follow it)"}>Next</Btn>
               <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={autoNext} onChange={(e) => setAutoNext(e.target.checked)} data-testid={`${pfx}-auto`} />Auto-next</label>
               <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} data-testid={`${pfx}-loop`} />Loop list</label>
-              <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={shuffle} onChange={(e) => { setShuffle(e.target.checked); played.current = current?.itemId ? [current.itemId] : []; }} data-testid={`${pfx}-shuffle`} />Shuffle</label>
+              <label className="fs-row" style={{ gap: 6 }}><input type="checkbox" checked={shuffle} onChange={(e) => { setShuffle(e.target.checked); played.current = current?.itemId ? [current.itemId] : []; }} data-testid={`${pfx}-shuffle`} /><UiGlyph name="shuffle" size={13} /> Shuffle</label>
               <a className="fs-btn" data-variant="ghost" href={ref.page} target="_blank" rel="noopener noreferrer">Open on site</a>
             </div>
           ) : null}

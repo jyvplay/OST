@@ -18,6 +18,7 @@
 import { photoTimeline } from "@/lib/photo-timeline";
 import { clampInterval, nextIndex } from "@/lib/slideshow";
 import { shuffleOrder } from "@/lib/shuffle-order";
+import { undatedPhotos } from "@/lib/photo-dates";
 import { neighbor, positionLabel } from "@/lib/photo-order";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -25,6 +26,7 @@ import { fz } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { UiGlyph } from "../AppIcon";
 import { sortPhotos, type PhotoSort } from "@/lib/photo-sort";
 import Thumb from "../Thumb";
 import { readFileBytes, readRecipe, readRecipeForEditing, forgetThumbnail, bytesToB64, type RecipeIdentity } from "@/lib/thumbs/service";
@@ -35,7 +37,7 @@ import type { FileMeta } from "@/lib/meta";
 
 interface Item { id: number; version: number; path: string; name: string; mime: string; size: number; sha256: string; createdAt: string; updatedAt: string }
 interface Info { date?: string; dateSource: "exif" | "file"; w?: number; h?: number; camera?: string; lat?: number; lon?: number }
-type View = "all" | "favorites" | "edited" | "places";
+type View = "all" | "favorites" | "edited" | "places" | "undated";
 const INDEX_KEY = "fusion.photos.index.v1";
 const DECODABLE = /^image\/(jpeg|png|gif|webp|bmp|avif|x-icon|vnd\.microsoft\.icon)$/;
 
@@ -104,7 +106,7 @@ export default function PhotosModule({ win }: ModuleProps) {
 
   const shown = useMemo(() => {
     if (!items) return [];
-    const f = sortPhotos(items.filter((i) => view === "all" ? true : view === "favorites" ? recipes[i.path]?.favorite : view === "edited" ? recipes[i.path] && !isIdentity(recipes[i.path]) : index[i.sha256]?.lat !== undefined), photoSort);
+    const f = sortPhotos(items.filter((i) => view === "all" ? true : view === "favorites" ? recipes[i.path]?.favorite : view === "edited" ? recipes[i.path] && !isIdentity(recipes[i.path]) : view === "undated" ? undatedPhotos([i], index).length > 0 : index[i.sha256]?.lat !== undefined), photoSort);
     const dateOf = (i: Item) => index[i.sha256]?.date ?? i.createdAt;
     return [...f].sort((a, b) => Date.parse(dateOf(b)) - Date.parse(dateOf(a)));
   }, [items, view, recipes, index]);
@@ -145,7 +147,7 @@ export default function PhotosModule({ win }: ModuleProps) {
       onExported={() => { load(); shell.bumpRefresh(); }} />;
   }
 
-  const counts = { all: items?.length ?? 0, favorites: items?.filter((i) => recipes[i.path]?.favorite).length ?? 0, edited: items?.filter((i) => recipes[i.path] && !isIdentity(recipes[i.path])).length ?? 0, places: items?.filter((i) => index[i.sha256]?.lat !== undefined).length ?? 0 };
+  const counts = { all: items?.length ?? 0, undated: items ? undatedPhotos(items, index).length : 0, favorites: items?.filter((i) => recipes[i.path]?.favorite).length ?? 0, edited: items?.filter((i) => recipes[i.path] && !isIdentity(recipes[i.path])).length ?? 0, places: items?.filter((i) => index[i.sha256]?.lat !== undefined).length ?? 0 };
   const indexed = items ? items.filter((i) => index[i.sha256]).length : 0;
   const timeline = photoTimeline((items ?? []).map((i) => ({ path: i.path, mime: i.mime, size: i.size, date: index[i.sha256]?.date ?? i.createdAt })));
   const timelineStrip = timeline.groups.length ? (
@@ -160,7 +162,7 @@ export default function PhotosModule({ win }: ModuleProps) {
       {shown.length > 1 ? <div className="fs-row" style={{ gap: 6, padding: "0 8px 6px", flexWrap: "wrap" }} data-testid="photos-slideshow">
         <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={showPlaying} disabled={shown.length === 0} onClick={() => { if (!showPlaying && !open && shown[0]) setOpen(shown[0].path); setShowPlaying((v) => !v); }}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn>
         <label style={{ fontSize: fz(11.5) }}>every <input className="fs-input" style={{ width: fz(52) }} type="number" min={1} max={60} value={showSecs} aria-label="Slideshow seconds per photo" onChange={(e) => setShowSecs(clampInterval(Number(e.target.value)))} /> s</label>
-        <Btn variant={shuffle ? "primary" : "ghost"} aria-pressed={shuffle} onClick={() => setShuffle((v) => !v)} data-testid="photos-shuffle">Shuffle</Btn>
+        <Btn variant={shuffle ? "primary" : "ghost"} aria-pressed={shuffle} onClick={() => setShuffle((v) => !v)} data-testid="photos-shuffle"><UiGlyph name="shuffle" size={13} /> Shuffle</Btn>
         <span className="fs-dim" style={{ fontSize: fz(11) }}>{shown.length} photos · wraps at the end</span>
       </div> : null}
       {/* TT80 banner: Glance (the library views) · Keep over one tool strip */}
@@ -171,9 +173,9 @@ export default function PhotosModule({ win }: ModuleProps) {
         <select className="fs-select" style={{ width: "auto" }} aria-label="Sort photos" value={photoSort} onChange={(e) => setPhotoSort(e.target.value as PhotoSort)} data-testid="photos-sort">
           <option value="captured">Capture date</option><option value="name">Name A–Z</option><option value="size">Size</option>
         </select>
-        {(["all", "favorites", "edited", "places"] as View[]).map((v) => (
+        {(["all", "favorites", "edited", "places", "undated"] as View[]).map((v) => (
           <Btn key={v} variant={view === v ? "primary" : "ghost"} aria-pressed={view === v} onClick={() => setView(v)}>
-            {v === "all" ? "All photos" : v === "favorites" ? "Favorites" : v === "edited" ? "Edited" : "Places"} <span className="fs-dim">({counts[v]})</span>
+            {v === "all" ? "All photos" : v === "favorites" ? "Favorites" : v === "edited" ? "Edited" : v === "undated" ? "No date" : "Places"} <span className="fs-dim">({counts[v]})</span>
           </Btn>
         ))}
         </BannerGroup>
