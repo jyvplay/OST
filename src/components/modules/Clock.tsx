@@ -9,6 +9,7 @@ import { commonWindows, validateCountdowns, daysUntil, type Countdown } from "@/
 import { validateZones, addZone, removeZone, allZoneNames, WORLD_ZONES_KEY } from "@/lib/zone-list";
 import { convertZoneTime } from "@/lib/zone-convert";
 import { zoneStatus } from "@/lib/zone-status";
+import { TIMER_PRESETS } from "@/lib/timer-presets";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -184,6 +185,9 @@ export default function ClockModule(_: ModuleProps) {
           {remaining === null
             ? <Btn variant="primary" disabled={timerMs <= 0} onClick={() => { fired.current = false; setTimerEnd(performance.now() + timerMs); }}>Start<span className="sr-only"> timer</span></Btn>
             : <Btn variant="danger" onClick={() => setTimerEnd(null)}>Cancel</Btn>}
+        </div>
+        <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }} data-testid="timer-presets" role="group" aria-label="Timer presets">
+          {TIMER_PRESETS.map((p) => <Btn key={p.label} variant="ghost" disabled={remaining !== null} onClick={() => { setTimerMin(Math.floor(p.seconds / 60)); setTimerSec(p.seconds % 60); }}>{p.label}</Btn>)}
         </div>
         <div className="fs-dim" style={{ fontSize: fz(11) }}>
           Fires while Fusion is open. A closed web app cannot schedule an exact alarm (Notification Triggers never

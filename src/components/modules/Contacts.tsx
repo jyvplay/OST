@@ -22,6 +22,8 @@ const EMAIL_TYPES = ["home", "work", "other"];
 const TEL_TYPES = ["cell", "home", "work", "fax", "other"];
 const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 import { loadStars, storeStars, toggleStar } from "@/lib/contact-stars";
+import { filterContacts, type ContactFacet } from "@/lib/contact-filter";
+import { UiGlyph } from "../AppIcon";
 const initials = (c: C.Contact) => (c.n.given || c.fn).charAt(0).toUpperCase() + (c.n.family ? c.n.family.charAt(0).toUpperCase() : "");
 const newUid = () => `urn:uuid:${crypto.randomUUID()}`;
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
@@ -100,7 +102,13 @@ export default function ContactsModule({ win }: ModuleProps) {
   const sorted = useMemo(() => C.sortContacts(list ?? []), [list]);
   const [stars, setStars] = useState<Set<string>>(() => { try { return loadStars(localStorage); } catch { return new Set(); } });
   const [starredOnly, setStarredOnly] = useState(false);
-  const shown = useMemo(() => sorted.filter((c) => C.matches(c, q) && (!starredOnly || stars.has(c.uid))), [sorted, q, starredOnly, stars]);
+  const [facet, setFacet] = useState<ContactFacet>("all");
+  const shown = useMemo(() => {
+    const base = sorted.filter((c) => C.matches(c, q) && (!starredOnly || stars.has(c.uid)));
+    if (facet === "all") return base;
+    const keep = new Set(filterContacts(base.map((c) => ({ c, emails: c.emails.map((e) => e.value), phones: c.tels.map((t) => t.value) })), facet).map((x) => x.c.uid));
+    return base.filter((c) => keep.has(c.uid));
+  }, [sorted, q, starredOnly, stars, facet]);
   const doToggleStar = (uid: string) => setStars((prev) => { const next = toggleStar(prev, uid); try { storeStars(localStorage, next); } catch { /* private mode */ } return next; });
   const dupes = useMemo(() => C.findDuplicates(list ?? []), [list]);
   const birthdays = useMemo(() => C.upcomingBirthdays(list ?? [], today(), 30), [list]);
@@ -196,7 +204,10 @@ export default function ContactsModule({ win }: ModuleProps) {
           <div style={{ padding: 8 }}>
             <label htmlFor={`${idp}-q`} className="fs-dim" style={{ fontSize: fz(11.5) }}>Search name, e-mail, phone, notes</label>
             <input id={`${idp}-q`} data-testid="ct-search" className="fs-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" style={{ width: "100%", boxSizing: "border-box" }} />
-            <Btn variant={starredOnly ? "primary" : "ghost"} aria-pressed={starredOnly} onClick={() => setStarredOnly((v) => !v)} style={{ marginTop: 6 }}>★ Starred</Btn>
+            <Btn variant={starredOnly ? "primary" : "ghost"} aria-pressed={starredOnly} onClick={() => setStarredOnly((v) => !v)} style={{ marginTop: 6 }}><UiGlyph name="starFill" size={12} /> Starred</Btn>
+            <select className="fs-select" style={{ width: "auto", marginTop: 6 }} aria-label="Filter contacts by contact details" value={facet} onChange={(e) => setFacet(e.target.value as ContactFacet)} data-testid="contacts-facet">
+              <option value="all">All contacts</option><option value="email">Has e-mail</option><option value="phone">Has phone</option><option value="noEmail">No e-mail</option>
+            </select>
           </div>
           {birthdays.length ? (
             <div data-testid="ct-birthdays" style={{ padding: "0 8px 8px", fontSize: fz(12) }}>
@@ -217,7 +228,7 @@ export default function ContactsModule({ win }: ModuleProps) {
                 <li key={c.uid} style={{ minWidth: 0 }}>
                   {head ? <div aria-hidden className="fs-dim" style={{ fontSize: fz(11), padding: "6px 6px 2px", fontWeight: 700 }}>{letter}</div> : null}
                   <span style={{ display: "flex", gap: 2, alignItems: "stretch" }}>
-                  <Btn variant="ghost" aria-pressed={stars.has(c.uid)} aria-label={stars.has(c.uid) ? `Unstar ${c.fn}` : `Star ${c.fn}`} title={stars.has(c.uid) ? "Starred" : "Star"} onClick={() => doToggleStar(c.uid)}>{stars.has(c.uid) ? "★" : "☆"}</Btn>
+                  <Btn variant="ghost" aria-pressed={stars.has(c.uid)} aria-label={stars.has(c.uid) ? `Unstar ${c.fn}` : `Star ${c.fn}`} title={stars.has(c.uid) ? "Starred" : "Star"} onClick={() => doToggleStar(c.uid)}>{stars.has(c.uid) ? <UiGlyph name="starFill" size={14} /> : <UiGlyph name="star" size={14} />}</Btn>
                   <button data-testid="ct-item" data-uid={c.uid} aria-current={c.uid === sel ? "true" : undefined} className="fs-list-item" data-selected={c.uid === sel}
                     onClick={() => { setSel(c.uid); setView("card"); setDraft(null); }} onKeyDown={(e) => onListKey(e, c)}
                     style={{ width: "100%", minWidth: 0, boxSizing: "border-box", border: 0, background: c.uid === sel ? undefined : "none", color: "inherit", font: "inherit", textAlign: "left" }}>

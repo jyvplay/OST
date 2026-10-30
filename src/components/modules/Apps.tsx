@@ -4,6 +4,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useState } from "react";
 import { fmtBytes } from "@/lib/api";
 import { MODULES } from "@/lib/registry";
+import { filterApps, appGroups } from "@/lib/app-filter";
 import { getBackgroundInventory, subscribeBackgroundInventory, type BackgroundJobSnapshot } from "@/lib/background-inventory";
 import { requestPwaInstall, subscribePwaInstall } from "@/lib/pwa-install";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -160,10 +161,8 @@ export default function AppsModule(_: ModuleProps) {
     return () => { live = false; window.clearInterval(timer); media?.removeEventListener?.("change", refresh); };
   }, []);
 
-  const modules = useMemo(() => {
-    const q = query.trim().toLocaleLowerCase();
-    return MODULES.filter((m) => !q || `${m.title} ${m.group} ${m.summary} ${m.implements.join(" ")}`.toLocaleLowerCase().includes(q));
-  }, [query]);
+  const [groupFacet, setGroupFacet] = useState("all");
+  const modules = useMemo(() => filterApps(MODULES, query, groupFacet), [query, groupFacet]);
 
   const installNow = async () => {
     try {
@@ -225,6 +224,10 @@ export default function AppsModule(_: ModuleProps) {
 
           <Section title={`Fusion modules (${modules.length} of ${MODULES.length})`}>
             <input className="fs-input" aria-label="Filter Fusion modules" data-testid="app-module-filter" placeholder="Find an app or feature" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <select className="fs-select" style={{ width: "auto" }} aria-label="Filter apps by group" value={groupFacet} onChange={(e) => setGroupFacet(e.target.value)} data-testid="app-group-filter">
+              <option value="all">All groups</option>
+              {appGroups(MODULES).map((g) => <option key={g} value={g}>{g}</option>)}
+            </select>
             <div data-testid="app-module-list" style={{ display: "grid", gap: 4 }}>
               {modules.map((m) => (
                 <button key={m.id} type="button" data-testid="app-module-open" data-module-id={m.id} className="fs-list-item fs-row" onClick={() => shell.open(m.id)}

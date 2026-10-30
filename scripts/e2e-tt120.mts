@@ -91,8 +91,8 @@ await test("CN-06: starring a contact persists and filters", { "CN-06": "full" }
   // in the SAME browser profile, not across profiles (TT118's SV-01 lesson).
   await contacts.page.reload({ waitUntil: "domcontentloaded" });
   await contacts.page.waitForSelector('[data-win-id="w1"]');
-  await contacts.page.waitForFunction((n) => document.querySelector('[data-win-id="w1"]')?.textContent?.includes("★ Starred"), null, { timeout: 10_000 });
-  await contacts.page.getByRole("button", { name: "★ Starred" }).click();
+  await contacts.page.waitForFunction((n) => document.querySelector('[data-win-id="w1"]')?.textContent?.includes("Starred"), null, { timeout: 10_000 });
+  await contacts.page.getByRole("button", { name: "Starred" }).click();
   await contacts.page.waitForFunction(() => (document.querySelectorAll('[data-win-id="w1"] [data-testid="ct-item"]').length ?? 0) === 1, null, { timeout: 10_000 });
   await contacts.context.close();
 });

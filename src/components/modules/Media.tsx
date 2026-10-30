@@ -7,6 +7,7 @@ import { toVtt } from "@/lib/forge";
 import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
+import { PLAYBACK_RATES, snapRate, rateLabel } from "@/lib/playback-rate";
 import { askText } from "@/lib/ask";
 import { losslessTrim, isTrimError } from "@/lib/media/trim";
 
@@ -18,6 +19,7 @@ import { losslessTrim, isTrimError } from "@/lib/media/trim";
 export default function MediaModule({ win }: ModuleProps) {
   const shell = useShell();
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [rate, setRate] = useState(1);
   const [src, setSrc] = useState<string>((win.props.url as string) ?? "");
   const [path, setPath] = useState<string>((win.props.path as string) ?? "");
   const [remoteAvailable, setRemoteAvailable] = useState<boolean | null>(null);
@@ -126,6 +128,16 @@ export default function MediaModule({ win }: ModuleProps) {
         style={{ width: "100%", maxHeight: 320, background: "#000", borderRadius: 10 }}>
         {captions ? <track kind="subtitles" src={captions} srcLang="en" label="Subtitles" default /> : null}
       </video>
+
+      <div className="fs-row" style={{ gap: 6, alignItems: "center" }} data-testid="media-rate">
+        <label style={{ fontSize: fz(12) }}>Speed
+          <select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Playback speed" value={rate}
+            onChange={(e) => { const r = snapRate(Number(e.target.value)); setRate(r); if (videoRef.current) videoRef.current.playbackRate = r; }}>
+            {PLAYBACK_RATES.map((r) => <option key={r} value={r}>{rateLabel(r)}</option>)}
+          </select>
+        </label>
+        <span className="fs-dim" style={{ fontSize: fz(11) }}>applies to the local player; embeds keep their own controls</span>
+      </div>
 
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <Btn variant="primary"

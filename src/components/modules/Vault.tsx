@@ -7,6 +7,7 @@ import { capAvailable } from "@/lib/capabilities";
 import { toB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Empty, Section } from "../ui";
+import { strengthBits, strengthLabel, generatePassphrase } from "@/lib/passphrase";
 import { askText, askForm } from "@/lib/ask";
 
 interface Item { id: string; title: string; username: string; secret: string; note: string }
@@ -108,6 +109,8 @@ export default function VaultModule(_: ModuleProps) {
         <Section title={exists ? "Unlock the vault" : "Create a vault"}>
           <input className="fs-input" type="password" placeholder="passphrase" value={pass} aria-label="Passphrase"
             onChange={(e) => setPass(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void unlock(); }} />
+          {pass ? <Badge tone={strengthBits(pass) < 28 ? "bad" : strengthBits(pass) < 45 ? "warn" : "ok"} data-testid="vault-strength">{strengthLabel(strengthBits(pass))} · ~{strengthBits(pass)} bits (pool estimate)</Badge> : null}
+          <Btn variant="ghost" onClick={() => { const buf = new Uint32Array(8); crypto.getRandomValues(buf); let i = 0; setPass(generatePassphrase(() => buf[i++ % buf.length] / 4294967296, 4)); }}>Generate passphrase</Btn>
           <Btn variant="primary" disabled={pass.length < 6} onClick={() => void unlock()}>
             {exists ? "Unlock" : "Create"}
           </Btn>

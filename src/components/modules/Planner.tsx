@@ -7,6 +7,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
 import { parseRRule, expandRecurrence } from "@/lib/recurrence";
 import { buildAgenda } from "@/lib/agenda";
+import { agendaText } from "@/lib/agenda-text";
 import { filterTasks, type TaskStatus } from "@/lib/task-filter";
 import { presetDue, presetLabel, type DuePreset } from "@/lib/due-presets";
 
@@ -83,6 +84,12 @@ export default function PlannerModule(_: ModuleProps) {
       {rows.length === 0 ? <Empty title="Nothing planned" icon="🗓" /> : null}
       {rows.length > 0 && shownRows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(12) }} role="status">No tasks match the filter.</div> : null}
 
+      {view === "agenda" ? (
+        <div className="fs-row" style={{ gap: 6 }}>
+          <Btn variant="ghost" onClick={() => void shell.copy(agendaText(rows.map((t) => ({ title: t.title, due: t.dueAt, done: t.done })), new Date()), "planner")} data-testid="planner-copy-agenda">Copy today's agenda</Btn>
+          <span className="fs-dim" style={{ fontSize: fz(11) }}>plain text, ready to paste anywhere</span>
+        </div>
+      ) : null}
       {view === "agenda" ? (
         <div style={{ display: "grid", gap: 8 }} data-testid="planner-agenda">
           {buildAgenda(shownRows).map((g) => (

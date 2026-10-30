@@ -1,0 +1,178 @@
+{
+  "suite": "tt121-core",
+  "at": "2026-10-30T05:52:58.694Z",
+  "results": [
+    {
+      "suite": "tt121-core",
+      "name": "CV-02 calculator memory: register transitions, NaN refused",
+      "covers": {
+        "CV-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "ED-05 line ops: sort/dedupe keep termination, natural order",
+      "covers": {
+        "ED-05": "full"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt121-core",
+      "name": "CK-05 timer presets: fixed ladder, lookup exact",
+      "covers": {
+        "CK-05": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt121-core",
+      "name": "MD-10 playback rate: snapped to the portable ladder",
+      "covers": {
+        "MD-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "SC-19 passphrase: strength is pool-based, generator deterministic under injected RNG",
+      "covers": {
+        "SC-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "NC-07 alert facets: unread count derived, unread-only + query compose",
+      "covers": {
+        "NC-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "CB-02 clip kinds: whole-entry classification only",
+      "covers": {
+        "CB-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "MP-09 coordinates: decimal interchange + unambiguous DMS",
+      "covers": {
+        "MP-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "EB-01 book progress: clamped, smooth, chapter label honest",
+      "covers": {
+        "EB-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "PD-01/WB-06 zoom ladder: steps snap, ends clamp, label rounds",
+      "covers": {
+        "PD-01": "full",
+        "WB-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "PL-06 agenda text: day-scoped, sorted, done marked not dropped",
+      "covers": {
+        "PL-06": "full"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt121-core",
+      "name": "SR-11 results as text: one line per hit, snippets excluded",
+      "covers": {
+        "SR-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "MU-04 library sort: stable, added order untouched",
+      "covers": {
+        "MU-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "PH-05 photo sort: name/size/date, missing values last ascending, copy sorted",
+      "covers": {
+        "PH-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "CN-07 contact facets: blank vCard fields do not count as present",
+      "covers": {
+        "CN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "BK-09 backup filename: local date, strict round-trip",
+      "covers": {
+        "BK-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "TM-05 terminal sort/uniq: numeric mode, adjacent vs global uniq",
+      "covers": {
+        "TM-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "NT-05 note sort: pinned lead, title case-insensitive, updated newest first",
+      "covers": {
+        "NT-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt121-core",
+      "name": "AP-06 app filter: group facet exact, query spans title+group+summary",
+      "covers": {
+        "AP-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

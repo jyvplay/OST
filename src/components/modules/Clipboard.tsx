@@ -5,6 +5,7 @@ import { fz } from "@/lib/uiscale";
 import { useState } from "react";
 import { capAvailable } from "@/lib/capabilities";
 import { clearUnpinned, filterClips, ordered, removeClip, togglePin, CLIP_MAX } from "@/lib/cliphistory";
+import { filterByKind, type ClipKind } from "@/lib/clip-kind";
 import { exportClips, parseClipImport } from "@/lib/clip-io";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
@@ -19,7 +20,8 @@ export default function ClipboardModule(_: ModuleProps) {
   const shell = useShell();
   const [pasted, setPasted] = useState("");
   const [q, setQ] = useState("");
-  const shown = filterClips(ordered(shell.clips), q);
+  const [kind, setKind] = useState<ClipKind | "all">("all");
+  const shown = filterByKind(filterClips(ordered(shell.clips), q), kind);
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6 }}>
@@ -49,6 +51,9 @@ export default function ClipboardModule(_: ModuleProps) {
           }} />
         </label>
       </div>
+      {shell.clips.length ? <div className="fs-row" style={{ gap: 4 }} role="group" aria-label="Filter by kind" data-testid="clip-kind-filter">
+        {(["all", "text", "link", "email", "code"] as const).map((k) => <Btn key={k} variant={kind === k ? "primary" : "ghost"} aria-pressed={kind === k} onClick={() => setKind(k)}>{k}</Btn>)}
+      </div> : null}
       {shell.clips.length ? <input className="fs-input" type="search" aria-label="Search clipboard history" placeholder="Search history" value={q} onChange={(e) => setQ(e.target.value)} /> : null}
       {pasted ? <div className="fs-dim" style={{ fontSize: fz(11) }}>Captured {pasted.length} characters with your explicit permission.</div> : null}
       {shell.clips.length === 0 ? <Empty title="No copies yet" hint="Copy a path in Files, a result in Calculator, or capture the system clipboard above." icon="📋" /> : null}

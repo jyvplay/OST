@@ -7,6 +7,7 @@ import { api, post } from "@/lib/api";
 import * as W from "@/lib/whiteboard-core";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { zoomLabel } from "@/lib/zoom-step";
 
 /**
  * Whiteboard (TT23): an Excalidraw/Miro-style infinite canvas on top of the pure engine in src/lib/whiteboard-core.ts.
@@ -347,6 +348,7 @@ export default function WhiteboardModule({ win }: ModuleProps) {
         <BannerGroup name="Glance">
           <Btn variant="ghost" aria-label="Zoom out" onClick={() => zoomCenter(1 / 1.2)}>-</Btn>
           <span style={{ minWidth: fz(44), textAlign: "center", fontSize: fz(12) }} data-testid="wb-zoom">{Math.round(cam.z * 100)}%</span>
+          <Btn variant="ghost" aria-label="Reset zoom to 100 percent" onClick={() => { const r = svgRef.current?.getBoundingClientRect(); setCam((c) => ({ ...c, z: 1 })); }} data-testid="wb-zoom-label">{zoomLabel(cam.z)}</Btn>
           <Btn variant="ghost" aria-label="Zoom in" onClick={() => zoomCenter(1.2)}>+</Btn>
           <Btn variant="ghost" onClick={fit}>Fit</Btn>
           <Btn variant="ghost" aria-pressed={grid} onClick={() => setGrid((g) => !g)}>{grid ? "Snap: on" : "Snap: off"}</Btn>

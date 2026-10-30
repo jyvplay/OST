@@ -10,6 +10,7 @@ import { Badge, Btn, Empty } from "../ui";
 import { diffLines, diffStats } from "@/lib/diff-core";
 import { findMatches, replaceAll, replaceOne } from "@/lib/editor-find";
 import { clampLine, offsetAtLine, docStats } from "@/lib/line-nav";
+import { transformLines } from "@/lib/line-ops";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
@@ -136,6 +137,9 @@ export default function EditorModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => { try { const m = findMatches(text, findQ, caseSens); setFindMsg(m.length ? `${m.length} match${m.length === 1 ? "" : "es"} · first at line ${m[0].line}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Count</Btn>
         <Btn variant="ghost" onClick={() => { try { const r = replaceOne(text, findQ, replQ, 1, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced the first of ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace</Btn>
         <Btn variant="primary" onClick={() => { try { const r = replaceAll(text, findQ, replQ, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace all</Btn>
+        <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, {})); setDirty(true); }} title="Sort all lines A to Z">Sort lines</Btn>
+        <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { desc: true })); setDirty(true); }} title="Sort all lines Z to A">Reverse sort</Btn>
+        <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { dedupe: true })); setDirty(true); }} title="Remove duplicate lines">Dedupe lines</Btn>
         {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
         <span style={{ flex: 1 }} />
         <input className="fs-input" style={{ width: fz(76) }} inputMode="numeric" placeholder="Line #" aria-label="Go to line" value={gotoLine}

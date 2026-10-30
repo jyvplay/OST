@@ -1,23 +1,160 @@
 {
- "generatedAt": "2026-10-30T04:53:35.745Z",
+ "generatedAt": "2026-10-30T06:06:59.708Z",
  "totals": {
   "built": {
-   "full": 399,
+   "full": 420,
    "partial": 82,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 351,
+   "full": 372,
    "partial": 119,
    "untested": 35
   },
   "tests": {
-   "total": 2881,
-   "passed": 2871
+   "total": 2905,
+   "passed": 2895
   }
  },
  "rows": {
+  "CV-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00",
+    "tt121-core: CV-02 calculator memory: register transitions, NaN refused"
+   ]
+  },
+  "ED-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file",
+    "tt121-core: ED-05 line ops: sort/dedupe keep termination, natural order"
+   ]
+  },
+  "CK-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00",
+    "tt121-core: CK-05 timer presets: fixed ladder, lookup exact"
+   ]
+  },
+  "MD-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
+    "tt121-core: MD-10 playback rate: snapped to the portable ladder"
+   ]
+  },
+  "SC-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: SC-19/PL-06/SR-11 controls exist and act: vault strength, agenda copy, find copy",
+    "tt121-core: SC-19 passphrase: strength is pool-based, generator deterministic under injected RNG"
+   ]
+  },
+  "NC-07": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: NC-07 alert facets: unread count derived, unread-only + query compose"
+   ]
+  },
+  "CB-02": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: CB-02 clip kinds: whole-entry classification only"
+   ]
+  },
+  "MP-09": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: MP-09 coordinates: decimal interchange + unambiguous DMS"
+   ]
+  },
+  "EB-01": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: EB-01 book progress: clamped, smooth, chapter label honest"
+   ]
+  },
+  "PD-01": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: PD-01/WB-06 zoom ladder: steps snap, ends clamp, label rounds"
+   ]
+  },
+  "WB-06": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: PD-01/WB-06 zoom ladder: steps snap, ends clamp, label rounds"
+   ]
+  },
+  "PL-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: SC-19/PL-06/SR-11 controls exist and act: vault strength, agenda copy, find copy",
+    "tt121-core: PL-06 agenda text: day-scoped, sorted, done marked not dropped"
+   ]
+  },
+  "SR-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: SC-19/PL-06/SR-11 controls exist and act: vault strength, agenda copy, find copy",
+    "tt121-core: SR-11 results as text: one line per hit, snippets excluded"
+   ]
+  },
+  "MU-04": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: MU-04 library sort: stable, added order untouched"
+   ]
+  },
+  "PH-05": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: PH-05 photo sort: name/size/date, missing values last ascending, copy sorted"
+   ]
+  },
+  "CN-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
+    "tt121-core: CN-07 contact facets: blank vCard fields do not count as present"
+   ]
+  },
+  "BK-09": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: BK-09 backup filename: local date, strict round-trip"
+   ]
+  },
+  "TM-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file",
+    "tt121-core: TM-05 terminal sort/uniq: numeric mode, adjacent vs global uniq"
+   ]
+  },
+  "NT-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
+    "tt121-core: NT-05 note sort: pinned lead, title case-insensitive, updated newest first"
+   ]
+  },
+  "AP-06": {
+   "tested": "full",
+   "tests": [
+    "tt121-core: AP-06 app filter: group facet exact, query spans title+group+summary"
+   ]
+  },
+  "AX-23": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
+    "tt121-density: AX-23: every app measured, none wordier than the ceiling, no emoji marks"
+   ]
+  },
   "ED-04": {
    "tested": "full",
    "tests": [

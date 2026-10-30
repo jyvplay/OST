@@ -8,6 +8,7 @@ import { fromB64, openText, sealText, type Envelope } from "@/lib/crypto";
 import { MAX_BACKUP_BYTES, verifyBackup, type BackupBundle } from "@/lib/backup/bundle";
 import { bundleTree } from "@/lib/bundle-tree";
 import { freshnessLabel, LAST_BACKUP_KEY } from "@/lib/backup-freshness";
+import { backupFilename } from "@/lib/backup-name";
 import { folderSizes, formatBytes as fmtBundleBytes } from "@/lib/folder-size";
 import { DRILL_HEALTH_KEY, drillHealthState, parseDrillHealth, recordDrill, type DrillAttempt, type DrillHealth } from "@/lib/backup/drill-health";
 import { makeRecoveryKey, openRecoveryBundle, RECOVERY_FORMAT, sealRecoveryBundle } from "@/lib/backup/recovery";
@@ -156,7 +157,7 @@ export default function BackupModule(_: ModuleProps) {
       const result = await verifyBackup(bundle);
       if (!result.ok) throw new Error("The snapshot failed verification; build it again.");
       let text = JSON.stringify(bundle);
-      let name = `fusion-${bundle.kind}-${Date.now()}.json`;
+      let name = backupFilename(new Date());
       if (encrypted) {
         if (pass.length < 8) throw new Error("Use a passphrase of at least 8 characters.");
         text = JSON.stringify({ format: "fusion-encrypted-bundle-2", envelope: await sealText(text, pass) });

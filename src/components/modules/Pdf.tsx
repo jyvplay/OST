@@ -18,6 +18,7 @@ import { toB64, fromB64 } from "@/lib/crypto";
 import { askText } from "@/lib/ask";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { stepZoom, zoomLabel } from "@/lib/zoom-step";
 import { PdfDoc, PasswordRequired, type PdfPage } from "@/lib/pdf/pdfdoc";
 import { boundedPageScale, renderPage, pageTransform, type DecodedImages } from "@/lib/pdf/pdfcanvas";
 import { apply, invert, type M } from "@/lib/pdf/pdfinterp";
@@ -306,7 +307,8 @@ export default function PdfModule({ win }: ModuleProps) {
         <BannerGroup name="Glance">
           <Btn onClick={() => setZoom((z) => Math.max(0.25, +((z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z) / 1.2).toFixed(2)))} disabled={!doc} title="Zoom out" aria-label="Zoom out">−</Btn>
           <span data-testid="pdf-zoom" style={{ minWidth: 48, textAlign: "center", fontSize: fz(12) }}>{zoom === "fit" ? "Fit" : `${Math.round(zoom * 100)}%`}</span>
-          <Btn onClick={() => setZoom((z) => Math.min(4, +((z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z) * 1.2).toFixed(2)))} disabled={!doc} title="Zoom in" aria-label="Zoom in">+</Btn>
+          <Btn onClick={() => setZoom((z) => stepZoom(z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z, 1))} disabled={!doc} title="Zoom in (stepped)" aria-label="Zoom in">+</Btn>
+          <Btn onClick={() => setZoom((z) => stepZoom(z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z, -1))} disabled={!doc} title="Zoom out (stepped)" aria-label="Zoom out">−</Btn>
           <Btn onClick={() => setZoom("fit")} disabled={!doc}>Fit width</Btn>
           <Btn onClick={() => setZoom(1)} disabled={!doc}>100%</Btn>
           <Btn onClick={() => setViewRot((r) => (r + 90) % 360)} disabled={!doc} title="Rotate the view (does not change the file)" aria-label="Rotate the view"><span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>View <Ico d={ICON.rotR} label="" /></span></Btn>

@@ -24,6 +24,7 @@ import { fz } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { sortPhotos, type PhotoSort } from "@/lib/photo-sort";
 import Thumb from "../Thumb";
 import { readFileBytes, readRecipe, readRecipeForEditing, forgetThumbnail, bytesToB64, type RecipeIdentity } from "@/lib/thumbs/service";
 import { PRESETS, isIdentity, isSidecar, outputSize, parseRecipe, photoOfSidecar, renderRecipe, sidecarPath, type PhotoRecipe, type PresetName } from "@/lib/photos/recipe";
@@ -53,6 +54,7 @@ export default function PhotosModule({ win }: ModuleProps) {
   const [sidecars, setSidecars] = useState<Set<string>>(new Set());
   const [index, setIndex] = useState<Record<string, Info>>({});
   const [view, setView] = useState<View>("all");
+  const [photoSort, setPhotoSort] = useState<PhotoSort>("captured");
   const [open, setOpen] = useState<string | null>((win.props.path as string) ?? null);
   const [error, setError] = useState<string | null>(null);
 
@@ -101,7 +103,7 @@ export default function PhotosModule({ win }: ModuleProps) {
 
   const shown = useMemo(() => {
     if (!items) return [];
-    const f = items.filter((i) => view === "all" ? true : view === "favorites" ? recipes[i.path]?.favorite : view === "edited" ? recipes[i.path] && !isIdentity(recipes[i.path]) : index[i.sha256]?.lat !== undefined);
+    const f = sortPhotos(items.filter((i) => view === "all" ? true : view === "favorites" ? recipes[i.path]?.favorite : view === "edited" ? recipes[i.path] && !isIdentity(recipes[i.path]) : index[i.sha256]?.lat !== undefined), photoSort);
     const dateOf = (i: Item) => index[i.sha256]?.date ?? i.createdAt;
     return [...f].sort((a, b) => Date.parse(dateOf(b)) - Date.parse(dateOf(a)));
   }, [items, view, recipes, index]);
@@ -155,6 +157,9 @@ export default function PhotosModule({ win }: ModuleProps) {
 {items && indexed < items.length ? <Badge tone="info">reading dates {indexed}/{items.length}</Badge> : null}
       </>}>
         <BannerGroup name="Glance">
+        <select className="fs-select" style={{ width: "auto" }} aria-label="Sort photos" value={photoSort} onChange={(e) => setPhotoSort(e.target.value as PhotoSort)} data-testid="photos-sort">
+          <option value="captured">Capture date</option><option value="name">Name A–Z</option><option value="size">Size</option>
+        </select>
         {(["all", "favorites", "edited", "places"] as View[]).map((v) => (
           <Btn key={v} variant={view === v ? "primary" : "ghost"} aria-pressed={view === v} onClick={() => setView(v)}>
             {v === "all" ? "All photos" : v === "favorites" ? "Favorites" : v === "edited" ? "Edited" : "Places"} <span className="fs-dim">({counts[v]})</span>

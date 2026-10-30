@@ -2,6 +2,7 @@
 import { suggest } from "@/lib/suggest";
 import { wc, formatWc } from "@/lib/wc-core";
 import { headLines, tailLines, parseCountArg } from "@/lib/text-slice";
+import { sortText, uniqText } from "@/lib/text-sort";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -18,7 +19,7 @@ interface Line { text: string; tone?: "out" | "err" | "cmd" | "info" }
  * No xterm.js — the renderer is a virtualised DOM list, which keeps the bundle
  * small and lets commands be first-class objects the palette can also call.
  */
-const COMMAND_NAMES = ["cast", "cat", "cd", "clear", "cp", "df", "echo", "find", "grep", "help", "jobs", "ls", "mkdir", "mv", "open", "probe", "pwd", "restore", "rm", "sha256", "spec", "ssh", "stat", "write", "wc", "du", "head", "tail"];
+const COMMAND_NAMES = ["cast", "cat", "cd", "clear", "cp", "df", "echo", "find", "grep", "help", "jobs", "ls", "mkdir", "mv", "open", "uniq", "probe", "pwd", "restore", "rm", "sha256", "sort", "spec", "ssh", "stat", "write", "wc", "du", "head", "tail"];
 
 export default function TerminalModule({ win }: ModuleProps) {
   const shell = useShell();
@@ -142,6 +143,18 @@ export default function TerminalModule({ win }: ModuleProps) {
           const r = await api<{ node: { content: string; encoding: string } }>(`/api/fs?op=read&path=${encodeURIComponent(resolve(target))}`);
           if (r.node.encoding === "base64") { out("(binary — use Peek)"); break; }
           out((cmd === "head" ? headLines(r.node.content, n) : tailLines(r.node.content, n)).join("\n"));
+          break;
+        }
+        case "sort":
+        case "uniq": {
+          const flags = args.filter((a) => a.startsWith("-"));
+          const fileArg = args.find((a) => !a.startsWith("-")) ?? "";
+          if (!fileArg) { out(`usage: ${cmd} [-n] [-r] [-u] <file>`); break; }
+          const r = await api<{ node: { content: string; encoding: string } }>(`/api/fs?op=read&path=${encodeURIComponent(resolve(fileArg))}`);
+          if (r.node.encoding === "base64") { out("(binary — use Peek)"); break; }
+          out(cmd === "sort"
+            ? sortText(r.node.content, { numeric: flags.includes("-n"), desc: flags.includes("-r"), unique: flags.includes("-u") })
+            : uniqText(r.node.content, flags.includes("-g")));
           break;
         }
         case "cat": {

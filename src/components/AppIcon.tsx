@@ -222,7 +222,7 @@ export function FusionLogo({ size = 20, label = "Fusion", styleId: forced }: { s
 }
 
 /** Small monochrome UI glyphs for chrome buttons (currentColor, so they follow theme + contrast). */
-export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "close" | "plus" | "spark" | "tileLeft" | "tileRight" | "popout" | "minimize" | "maximize" | "up" | "back" | "forward" | "chevron" | "tree" | "split" | "terminal"
+export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "close" | "plus" | "spark" | "tileLeft" | "tileRight" | "popout" | "minimize" | "maximize" | "up" | "back" | "forward" | "chevron" | "tree" | "split" | "terminal" | "star" | "starFill"
   // TT114: concept glyphs for Recall and the browser chrome. Each one is a plain geometric
   // construction drawn here - a frame, a bracket, an arrow - chosen so the shape states the
   // idea without a caption, which is what let the two modules drop another third of their words.
@@ -340,6 +340,8 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     chevron: <path d="M9.5 6l6 6-6 6" {...S} stroke="currentColor" strokeWidth="2.6" />,
     tree: <><path d="M6 4v14h5M6 9h5" {...S} stroke="currentColor" strokeWidth="2.2" /><rect x="12" y="6.5" width="8" height="5" rx="1.5" fill="currentColor" /><rect x="12" y="15.5" width="8" height="5" rx="1.5" fill="currentColor" opacity=".7" /></>,
     split: <><rect x="3.5" y="5" width="17" height="14" rx="3" {...S} stroke="currentColor" strokeWidth="2.2" /><path d="M12 5v14" {...S} stroke="currentColor" strokeWidth="2.2" /></>,
+    star: <path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" {...S} stroke="currentColor" strokeWidth="1.9" />,
+    starFill: <path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" fill="currentColor" />,
     terminal: <><rect x="3.5" y="5" width="17" height="14" rx="3" {...S} stroke="currentColor" strokeWidth="2.2" /><path d="M7.5 10l3 2.5-3 2.5M12.5 15.5h4" {...S} stroke="currentColor" strokeWidth="2.2" /></>,
   };
   return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style={{ width: fz(size), height: fz(size), flex: "0 0 auto", display: "inline-block", verticalAlign: "middle" }}>{d[name]}</svg>;

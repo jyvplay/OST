@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { api, fmtTime, patch, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Empty, Section } from "../ui";
+import { filterAlerts, unreadCount } from "@/lib/alert-filter";
 import { FocusRulesEditor, type FocusStatus } from "./FocusRules";
 
 interface Alert { id: number; app: string; title: string; body: string; priority: string; groupKey: string; read: boolean; pinned: boolean; createdAt: string; heldBy?: string | null; heldReason?: string | null }
@@ -27,7 +28,8 @@ export default function AlertsModule(_: ModuleProps) {
 
   // TT71 NC-02: alerts held by a focus rule are listed apart, each with the sentence saying why
   const held = rows.filter((r) => r.heldBy);
-  const shown = rows.filter((r) => !r.heldBy);
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const shown = filterAlerts(rows.filter((r) => !r.heldBy), { unreadOnly });
   const groups = group
     ? shown.reduce<Record<string, Alert[]>>((acc, a) => { (acc[a.groupKey || a.app] ??= []).push(a); return acc; }, {})
     : { All: shown };
@@ -55,6 +57,7 @@ export default function AlertsModule(_: ModuleProps) {
         </Btn>
         <Btn variant="ghost" onClick={() => setGroup((g) => !g)}>{group ? "Ungroup" : "Group"}</Btn>
         <Btn variant="ghost" onClick={async () => { await patch("/api/alerts", { ids: rows.map((r) => r.id), read: true }); await load(); void navigator.clearAppBadge?.().catch(() => undefined); }}>Mark all read</Btn>
+        <Btn variant={unreadOnly ? "primary" : "ghost"} aria-pressed={unreadOnly} onClick={() => setUnreadOnly((v) => !v)} data-testid="alerts-unread-filter">Unread only ({unreadCount(rows)})</Btn>
         <Btn variant="danger" onClick={async () => { if (confirm("Clear all alerts?")) { await fetch("/api/alerts", { method: "DELETE" }); await load(); } }}>Clear</Btn>
         <div style={{ flex: 1 }} />
         {perm === "granted" ? <Badge tone="ok">OS delivery granted</Badge> : (

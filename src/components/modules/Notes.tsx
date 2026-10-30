@@ -8,6 +8,7 @@ import { api, fmtTime, post, put } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { analyzeNote } from "@/lib/notes-stats";
+import { sortNotes, type NoteSort } from "@/lib/note-sort";
 import { findDailyNote, dailyTitle } from "@/lib/daily-note";
 import { noteFilename, noteToMarkdown } from "@/lib/note-export";
 import { extractTags, resolveLinks, backlinks } from "@/lib/note-links";
@@ -18,6 +19,7 @@ interface Note { id: number; title: string; body: string; tags: string; pinned: 
 export default function NotesModule({ win }: ModuleProps) {
   const shell = useShell();
   const [rows, setRows] = useState<Note[]>([]);
+  const [noteSort, setNoteSort] = useState<NoteSort>("updated");
   const [sel, setSel] = useState<number | null>((win.props.noteId as number) ?? null);
   const [edit, setEdit] = useState<Note | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,8 +67,13 @@ export default function NotesModule({ win }: ModuleProps) {
             setSel(r.row.id);
           }}>Daily</Btn>
         </div>
+        <label className="fs-row" style={{ gap: 6, padding: "2px 6px", fontSize: fz(11) }}>Sort
+          <select className="fs-select" style={{ width: "auto" }} aria-label="Sort notes" value={noteSort} onChange={(e) => setNoteSort(e.target.value as NoteSort)} data-testid="notes-sort">
+            <option value="updated">Recently edited</option><option value="title">Title A–Z</option><option value="created">Oldest first</option>
+          </select>
+        </label>
         <div className="fs-scroll" style={{ flex: 1, minHeight: 0, padding: 4 }}>
-          {rows.map((n) => (
+          {sortNotes(rows, noteSort).map((n) => (
             <OrbitTarget key={n.id} label={`Note: ${n.title}`} actions={[
               { label: "Open note", disabled: dirty && sel !== n.id, run: () => setSel(n.id) },
               { label: "Copy saved text", run: () => shell.copy(n.body, "notes") },
