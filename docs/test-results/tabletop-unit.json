@@ -1,6 +1,6 @@
 {
   "suite": "tabletop-unit",
-  "at": "2026-10-30T03:48:02.867Z",
+  "at": "2026-10-30T19:53:54.758Z",
   "results": [
     {
       "suite": "tabletop-unit",
@@ -18,7 +18,7 @@
         "LY-05": "full"
       },
       "pass": true,
-      "ms": 22
+      "ms": 12
     },
     {
       "suite": "tabletop-unit",
@@ -45,7 +45,7 @@
         "LY-06": "full"
       },
       "pass": true,
-      "ms": 21
+      "ms": 23
     },
     {
       "suite": "tabletop-unit",
@@ -91,7 +91,7 @@
         "LY-11": "full"
       },
       "pass": true,
-      "ms": 54
+      "ms": 65
     },
     {
       "suite": "tabletop-unit",
@@ -101,7 +101,7 @@
         "LY-12": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tabletop-unit",
@@ -110,7 +110,7 @@
         "LY-12": "full"
       },
       "pass": true,
-      "ms": 11
+      "ms": 1
     },
     {
       "suite": "tabletop-unit",
@@ -119,7 +119,7 @@
         "LY-13": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 5
     },
     {
       "suite": "tabletop-unit",
@@ -129,7 +129,7 @@
         "LY-14": "partial"
       },
       "pass": true,
-      "ms": 27
+      "ms": 25
     },
     {
       "suite": "tabletop-unit",

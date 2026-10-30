@@ -67,7 +67,7 @@ export function Toggle({ on, onChange, label, disabled, reason }: { on: boolean;
         onClick={() => onChange(!on)}
         style={{
           width: 40, height: 22, borderRadius: 999, position: "relative", cursor: disabled ? "not-allowed" : "pointer",
-          background: on ? "var(--fs-accent)" : "rgba(255,255,255,.12)", border: "1px solid var(--fs-border)",
+          background: on ? "var(--fs-accent)" : "rgba(255,255,255,.28)", border: "1px solid var(--fs-border)",
         }}>
         <span style={{
           position: "absolute", top: 2, left: on ? 20 : 2, width: 16, height: 16, borderRadius: 999,

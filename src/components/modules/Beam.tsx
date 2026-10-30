@@ -6,6 +6,9 @@ import { api, fmtTime, post } from "@/lib/api";
 import { capOf } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
+import { elapsedLabel } from "@/lib/elapsed";
+import { sessionListText } from "@/lib/session-list-text";
+import { filterSessions } from "@/lib/session-filter";
 
 interface SessionRow { id: number; targetName: string; transport: string; source: string; state: string; startedAt: string }
 
@@ -27,7 +30,10 @@ export default function BeamModule(_: ModuleProps) {
   const shell = useShell();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [beamQ, setBeamQ] = useState("");
   const [status, setStatus] = useState("");
+  const [beamNow, setBeamNow] = useState(() => Date.now());
+  useEffect(() => { const t = window.setInterval(() => setBeamNow(Date.now()), 1000); return () => window.clearInterval(t); }, []);
   const [remoteAvailable, setRemoteAvailable] = useState<boolean | null>(null);
 
   const load = () => api<{ sessions: SessionRow[] }>("/api/beam").then((r) => setSessions(r.sessions)).catch(() => undefined);
@@ -171,14 +177,15 @@ export default function BeamModule(_: ModuleProps) {
         </div>
       </Section>
 
-      <Section title="Session history" right={<Btn variant="ghost" onClick={() => void load()}>↻</Btn>}>
+      <div className="fs-row" style={{ gap: 6, padding: "6px 0 0" }}><input className="fs-input" style={{ flex: 1 }} placeholder="Filter sessions" aria-label="Filter sessions by target, transport or state" value={beamQ} onChange={(e) => setBeamQ(e.target.value)} data-testid="beam-filter" /></div>
+      <Section title="Session history" right={<span className="fs-row" style={{ gap: 4 }}><Btn variant="ghost" onClick={() => void load()}>↻</Btn><Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(sessionListText(sessions, beamNow)); shell.toast("Session list copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="beam-copy-sessions">Copy list</Btn></span>}>
         <div style={{ display: "grid", gap: 2 }}>
-          {sessions.map((s) => (
+          {filterSessions(sessions, beamQ, (s) => s.targetName).map((s) => (
             <div key={s.id} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }}>
               <span>{s.transport} → {s.targetName}</span>
               <span className="fs-row" style={{ gap: 6 }}>
                 <Badge tone={s.state === "active" ? "warn" : "ok"}>{s.state}</Badge>
-                <span className="fs-dim">{fmtTime(s.startedAt)}</span>
+                <span className="fs-dim">{fmtTime(s.startedAt)}{s.state === "active" ? ` · ${elapsedLabel(new Date(s.startedAt).getTime() || Date.now(), beamNow)}` : ""}</span>
               </span>
             </div>
           ))}

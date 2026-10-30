@@ -1,6 +1,10 @@
 "use client";
 import { suggest } from "@/lib/suggest";
+import { pushCommand, historyText } from "@/lib/cmd-history";
+import { parseAlias, expandAlias } from "@/lib/alias-map";
 import { wc, formatWc } from "@/lib/wc-core";
+import { headLines, tailLines, parseCountArg } from "@/lib/text-slice";
+import { sortText, uniqText } from "@/lib/text-sort";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -17,7 +21,7 @@ interface Line { text: string; tone?: "out" | "err" | "cmd" | "info" }
  * No xterm.js — the renderer is a virtualised DOM list, which keeps the bundle
  * small and lets commands be first-class objects the palette can also call.
  */
-const COMMAND_NAMES = ["cast", "cat", "cd", "clear", "cp", "df", "echo", "find", "grep", "help", "jobs", "ls", "mkdir", "mv", "open", "probe", "pwd", "restore", "rm", "sha256", "spec", "ssh", "stat", "write", "wc", "du"];
+const COMMAND_NAMES = ["cast", "cat", "cd", "clear", "cp", "df", "echo", "find", "grep", "help", "jobs", "ls", "mkdir", "mv", "open", "uniq", "probe", "pwd", "restore", "rm", "sha256", "sort", "spec", "ssh", "stat", "write", "wc", "du", "head", "tail"];
 
 export default function TerminalModule({ win }: ModuleProps) {
   const shell = useShell();
@@ -55,18 +59,28 @@ export default function TerminalModule({ win }: ModuleProps) {
     return `/${parts.join("/")}`;
   }, [cwd]);
 
+  const histRef = useRef<string[]>([]);
+  const aliasRef = useRef<Record<string, string>>({});
   const exec = useCallback(async (raw: string) => {
+    histRef.current = pushCommand(histRef.current, raw);
     const line = raw.trim();
     if (!line) return;
-    out(`${cwd} $ ${line}`, "cmd");
-    const [cmd, ...args] = line.split(/\s+/);
+    const al = parseAlias(line);
+    if (al) { aliasRef.current = { ...aliasRef.current, [al.name]: al.cmd }; out(`alias ${al.name} -> ${al.cmd}`); return; }
+    const line2 = expandAlias(line, aliasRef.current);
+    out(`${cwd} $ ${line2}`, "cmd");
+    const [cmd, ...args] = line2.split(/\s+/);
     const rest = line.slice(cmd.length).trim();
     try {
       switch (cmd) {
+      case "history": historyText(histRef.current).split("\n").forEach((ln) => out(ln)); break;
+        case "alias": { const e = Object.entries(aliasRef.current); if (!e.length) out("no aliases"); else e.forEach(([k, v]) => out(`${k} -> ${v}`)); break; }
         case "help":
           out([
             "ls [path]              list a directory",
             "wc <file> [file…]      lines · words · UTF-8 bytes",
+            "head [-n N] <file>     first N lines (default 10)",
+            "tail [-n N] <file>     last N lines (default 10)",
             "du [path]              immediate-entry size rollup",
             "cd <path>              change directory",
             "pwd                    print working directory",
@@ -130,6 +144,27 @@ export default function TerminalModule({ win }: ModuleProps) {
           const r = await api<{ nodes: { name: string; kind: string; size: number }[] }>(`/api/fs?op=list&path=${encodeURIComponent(target)}`);
           const bytes = r.nodes.reduce((sum, n) => sum + (n.size ?? 0), 0);
           out(`${fmtBytes(bytes)}\t${target} (${r.nodes.length} immediate entries — sizes are stored entry sizes)`);
+          break;
+        }
+        case "head":
+        case "tail": {
+          const { n, file } = parseCountArg(args.slice(0), "");
+          const target = file || args[args.length - 1] || "";
+          const r = await api<{ node: { content: string; encoding: string } }>(`/api/fs?op=read&path=${encodeURIComponent(resolve(target))}`);
+          if (r.node.encoding === "base64") { out("(binary — use Peek)"); break; }
+          out((cmd === "head" ? headLines(r.node.content, n) : tailLines(r.node.content, n)).join("\n"));
+          break;
+        }
+        case "sort":
+        case "uniq": {
+          const flags = args.filter((a) => a.startsWith("-"));
+          const fileArg = args.find((a) => !a.startsWith("-")) ?? "";
+          if (!fileArg) { out(`usage: ${cmd} [-n] [-r] [-u] <file>`); break; }
+          const r = await api<{ node: { content: string; encoding: string } }>(`/api/fs?op=read&path=${encodeURIComponent(resolve(fileArg))}`);
+          if (r.node.encoding === "base64") { out("(binary — use Peek)"); break; }
+          out(cmd === "sort"
+            ? sortText(r.node.content, { numeric: flags.includes("-n"), desc: flags.includes("-r"), unique: flags.includes("-u") })
+            : uniqText(r.node.content, flags.includes("-g")));
           break;
         }
         case "cat": {

@@ -4,6 +4,9 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useState } from "react";
 import { fmtBytes } from "@/lib/api";
 import { MODULES } from "@/lib/registry";
+import { getRecents } from "@/lib/recents";
+import { filterApps, appGroups } from "@/lib/app-filter";
+import { sortApps, type AppSort } from "@/lib/app-sort";
 import { getBackgroundInventory, subscribeBackgroundInventory, type BackgroundJobSnapshot } from "@/lib/background-inventory";
 import { requestPwaInstall, subscribePwaInstall } from "@/lib/pwa-install";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -92,6 +95,7 @@ function displayMode(): string {
 }
 
 export default function AppsModule(_: ModuleProps) {
+  const [recents] = useState(() => getRecents());
   const shell = useShell();
   const [tab, setTab] = useState<HubTab>("apps");
   const [manifest, setManifest] = useState<AppManifest | null>(null);
@@ -160,10 +164,9 @@ export default function AppsModule(_: ModuleProps) {
     return () => { live = false; window.clearInterval(timer); media?.removeEventListener?.("change", refresh); };
   }, []);
 
-  const modules = useMemo(() => {
-    const q = query.trim().toLocaleLowerCase();
-    return MODULES.filter((m) => !q || `${m.title} ${m.group} ${m.summary} ${m.implements.join(" ")}`.toLocaleLowerCase().includes(q));
-  }, [query]);
+  const [groupFacet, setGroupFacet] = useState("all");
+  const [appSort, setAppSort] = useState<AppSort>("group");
+  const modules = useMemo(() => sortApps(filterApps(MODULES, query, groupFacet), appSort, ["Core", "Create", "Connect", "System"]), [query, groupFacet, appSort]);
 
   const installNow = async () => {
     try {
@@ -177,6 +180,7 @@ export default function AppsModule(_: ModuleProps) {
   const handlerCount = (manifest?.file_handlers?.length ?? 0) + (manifest?.protocol_handlers?.length ?? 0) + (manifest?.share_target ? 1 : 0);
   return (
     <div className="fs-scroll" data-testid="app-hub" data-module-count={MODULES.length} style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
+      {recents.length ? <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }} data-testid="apps-recents"><span className="fs-dim" style={{ fontSize: fz(10.5) }}>this session:</span>{recents.map((id) => <Btn key={id} variant="ghost" onClick={() => shell.open(id)}>{id}</Btn>)}</div> : null}
       <Tabs<HubTab> className="fs-app-tabs" value={tab} onChange={setTab} tabs={[
         { id: "apps", label: "Apps & handlers", badge: ` ${MODULES.length}` },
         { id: "background", label: "Background & startup" },
@@ -225,6 +229,13 @@ export default function AppsModule(_: ModuleProps) {
 
           <Section title={`Fusion modules (${modules.length} of ${MODULES.length})`}>
             <input className="fs-input" aria-label="Filter Fusion modules" data-testid="app-module-filter" placeholder="Find an app or feature" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <select className="fs-select" style={{ width: "auto" }} aria-label="Filter apps by group" value={groupFacet} onChange={(e) => setGroupFacet(e.target.value)} data-testid="app-group-filter">
+              <option value="all">All groups</option>
+              {appGroups(MODULES).map((g) => <option key={g} value={g}>{g}</option>)}
+            </select>
+            <select className="fs-select" style={{ width: "auto" }} aria-label="Sort apps" value={appSort} onChange={(e) => setAppSort(e.target.value as AppSort)} data-testid="app-sort">
+              <option value="group">By group</option><option value="title">Title A–Z</option>
+            </select>
             <div data-testid="app-module-list" style={{ display: "grid", gap: 4 }}>
               {modules.map((m) => (
                 <button key={m.id} type="button" data-testid="app-module-open" data-module-id={m.id} className="fs-list-item fs-row" onClick={() => shell.open(m.id)}

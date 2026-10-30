@@ -18,7 +18,10 @@ import { toB64, fromB64 } from "@/lib/crypto";
 import { askText } from "@/lib/ask";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { stepZoom, zoomLabel } from "@/lib/zoom-step";
 import { PdfDoc, PasswordRequired, type PdfPage } from "@/lib/pdf/pdfdoc";
+import { clampPage } from "@/lib/page-jump";
+import { pageText } from "@/lib/pdf/pdftext";
 import { boundedPageScale, renderPage, pageTransform, type DecodedImages } from "@/lib/pdf/pdfcanvas";
 import { apply, invert, type M } from "@/lib/pdf/pdfinterp";
 import { pageChars, layout, search, type TLine, type Hit } from "@/lib/pdf/pdftext";
@@ -301,12 +304,13 @@ export default function PdfModule({ win }: ModuleProps) {
         </BannerGroup>
         <BannerGroup name="Ink">
           {TOOLS.map(([id, label, tip]) => <Btn key={id} data-testid={`pdf-tool-${id}`} variant={tool === id ? "primary" : "ghost"} onClick={() => setTool(id)} title={tip} disabled={!doc}>{label}</Btn>)}
-          {COLORS.map(([n, c]) => <button key={n} type="button" aria-label={`${n} colour`} aria-pressed={color === c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 12, background: css3(c), border: color === c ? "3px solid var(--fs-accent)" : "1px solid var(--fs-border)", cursor: "pointer" }} />)}
+          {COLORS.map(([n, c]) => <button key={n} type="button" aria-label={`${n} colour`} aria-pressed={color === c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 12, background: css3(c), border: color === c ? "3px solid var(--fs-accent)" : "1.5px solid rgba(255,255,255,.55)", cursor: "pointer" }} />)}
         </BannerGroup>
         <BannerGroup name="Glance">
           <Btn onClick={() => setZoom((z) => Math.max(0.25, +((z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z) / 1.2).toFixed(2)))} disabled={!doc} title="Zoom out" aria-label="Zoom out">−</Btn>
           <span data-testid="pdf-zoom" style={{ minWidth: 48, textAlign: "center", fontSize: fz(12) }}>{zoom === "fit" ? "Fit" : `${Math.round(zoom * 100)}%`}</span>
-          <Btn onClick={() => setZoom((z) => Math.min(4, +((z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z) * 1.2).toFixed(2)))} disabled={!doc} title="Zoom in" aria-label="Zoom in">+</Btn>
+          <Btn onClick={() => setZoom((z) => stepZoom(z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z, 1))} disabled={!doc} title="Zoom in (stepped)" aria-label="Zoom in">+</Btn>
+          <Btn onClick={() => setZoom((z) => stepZoom(z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z, -1))} disabled={!doc} title="Zoom out (stepped)" aria-label="Zoom out">−</Btn>
           <Btn onClick={() => setZoom("fit")} disabled={!doc}>Fit width</Btn>
           <Btn onClick={() => setZoom(1)} disabled={!doc}>100%</Btn>
           <Btn onClick={() => setViewRot((r) => (r + 90) % 360)} disabled={!doc} title="Rotate the view (does not change the file)" aria-label="Rotate the view"><span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>View <Ico d={ICON.rotR} label="" /></span></Btn>
@@ -407,7 +411,7 @@ export default function PdfModule({ win }: ModuleProps) {
       </div>
       <div data-testid="pdf-status" role="status" style={{ padding: "4px 10px", borderTop: "1px solid var(--fs-border)", fontSize: fz(12), display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         <span>{status}</span>{dirty ? <Badge tone="warn">unsaved</Badge> : null}
-        {doc ? <span className="fs-dim">page {cur + 1} / {pages.length}</span> : null}
+        {doc ? <span className="fs-dim">page {cur + 1} / {pages.length}</span> : null}{doc ? <input className="fs-input" style={{ width: fz(64) }} inputMode="numeric" placeholder="Go to" aria-label="Go to page number" data-testid="pdf-goto" onKeyDown={(e) => { if (e.key === "Enter") { const t = clampPage((e.target as HTMLInputElement).value, pages.length); if (t !== null) goTo(t); (e.target as HTMLInputElement).value = ""; } }} /> : null}{doc ? <Btn variant="ghost" onClick={async () => { try { const t = pageText(doc, pages[cur]); await navigator.clipboard.writeText(t || "(this page has no text layer)"); shell.toast(t ? "Page text copied." : "No text layer on this page."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="pdf-copy-text">Copy text</Btn> : null}
         {warn.length ? <span title={warn.join("\n")}><Badge tone="info">{warn.length} PDF note(s)</Badge></span> : null}
       </div>
     </div>

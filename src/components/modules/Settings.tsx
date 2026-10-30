@@ -6,6 +6,7 @@ import { api, clientId, fmtTime, post } from "@/lib/api";
 import type { Capability, CapabilityReport } from "@/lib/capabilities";
 import { diffCapabilities, type CapDiff } from "@/lib/policy";
 import { BINDINGS, BROWSER_RESERVED, comboFor, conflicts, type Preset } from "@/lib/shortcuts";
+import { shortcutsText } from "@/lib/shortcuts-text";
 import { useShell, type ModuleProps } from "../shell-context";
 import DefaultAppsGuide from "../DefaultAppsGuide";
 import ContextProfiles from "../ContextProfiles";
@@ -182,6 +183,7 @@ export default function SettingsModule({ win }: ModuleProps) {
                 <Btn key={p} variant={preset === p ? "primary" : "ghost"} onClick={() => void shell.setSetting("shell.shortcutPreset", p)}>{p}</Btn>
               ))}
             </div>
+            <Btn variant="ghost" onClick={() => void shell.copy(shortcutsText(BINDINGS.map((b) => ({ keys: b[preset] ?? b.hybrid, what: b.label }))), "settings")} data-testid="settings-copy-shortcuts">Copy list</Btn>
             {conflicts(preset).length ? (
               <Badge tone="bad">{conflicts(preset).map((c) => `${c.a} ↔ ${c.b} (${c.chord})`).join("; ")}</Badge>
             ) : <Badge tone="ok">no internal conflicts</Badge>}

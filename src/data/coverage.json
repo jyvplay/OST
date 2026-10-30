@@ -1,33 +1,911 @@
 {
- "generatedAt": "2026-10-30T03:48:40.758Z",
+ "generatedAt": "2026-10-30T20:17:23.122Z",
  "totals": {
   "built": {
-   "full": 388,
+   "full": 501,
    "partial": 82,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 340,
-   "partial": 119,
-   "untested": 35
+   "full": 449,
+   "partial": 121,
+   "untested": 37
   },
   "tests": {
-   "total": 2866,
-   "passed": 2856
+   "total": 3042,
+   "passed": 3023
   }
  },
  "rows": {
+  "ED-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
+    "tt125-core: ED-10 stampText: zero-padded local date and time, minute precision",
+    "tt125-density: screenshots: editor stamp toolbar + lens capability row"
+   ]
+  },
+  "ED-09": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
+    "tt125-core: ED-09 caseTransform: upper/lower exact; title caps run-starts only"
+   ]
+  },
+  "PD-03": {
+   "tested": "full",
+   "tests": [
+    "tt125-core: PD-03 pdfPageText: lines by y, spans by x, blanks dropped"
+   ]
+  },
+  "WR-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
+    "tt125-core: WR-02 reading time: 238 wpm, rounds up, empty says so"
+   ]
+  },
+  "BM-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render",
+    "tt125-core: BM-03 filterSessions: matches transport, target or state; empty query keeps all"
+   ]
+  },
+  "DV-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render",
+    "tt125-core: DV-03 estimateText: both, one, or neither number shared"
+   ]
+  },
+  "VA-03": {
+   "tested": "full",
+   "tests": [
+    "tt125-core: VA-03 reuseGroups: only digests compared, labels sorted, report honest"
+   ]
+  },
+  "PL-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render",
+    "tt125-core: PL-10 doneTasksText: done only, list order, empty stated"
+   ]
+  },
+  "TM-08": {
+   "tested": "full",
+   "tests": [
+    "tt125-core: TM-08 alias: parse validates, expansion is first-token one-pass"
+   ]
+  },
+  "SSH-04": {
+   "tested": "untested",
+   "tests": []
+  },
+  "RC-43": {
+   "tested": "full",
+   "tests": [
+    "tt125-core: RC-43 recallHitsText: newest first, timestamped"
+   ]
+  },
+  "PK-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: PK-04: Copy strings lifts ASCII runs from a binary",
+    "tt125-core: PK-04 asciiRuns: min length honoured, runs split on any non-printable"
+   ]
+  },
+  "WB-08": {
+   "tested": "partial",
+   "tests": [
+    "e2e-tt125: honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render"
+   ]
+  },
+  "LN-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render",
+    "tt125-core: LN-19/LN-20 zoomOptions from capabilities; torch is a capability, never assumed",
+    "tt125-density: screenshots: editor stamp toolbar + lens capability row"
+   ]
+  },
+  "LN-20": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render",
+    "tt125-core: LN-19/LN-20 zoomOptions from capabilities; torch is a capability, never assumed"
+   ]
+  },
+  "AP-08": {
+   "tested": "full",
+   "tests": [
+    "tt125-core: AP-08 pushRecent: newest first, deduped, capped"
+   ]
+  },
+  "CB-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render",
+    "tt125-core: CB-03 mergeClipTexts: shown order, blank clips dropped, separator explicit"
+   ]
+  },
+  "TG-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render",
+    "tt125-core: TG-03 participantsText: hosts first, then alphabetical, empty stated"
+   ]
+  },
+  "ST-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt125: honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render",
+    "tt125-core: ST-16 shortcutsText: keys then purpose, one per line"
+   ]
+  },
+  "BK-13": {
+   "tested": "full",
+   "tests": [
+    "tt125-core: BK-13 bookPositionText: fraction and chapter stated, absences honest"
+   ]
+  },
+  "ED-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+    "e2e: mount: editor",
+    "tt124-core: ED-08 indent: block spans selection, dedent removes one step, selection tracks",
+    "tt124-density: TT124 register: all twenty codes built, register grew past TT123's 567"
+   ]
+  },
+  "CK-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
+    "e2e: mount: clock",
+    "tt124-core: CK-08 world times: displayed order kept, offsets in parentheses"
+   ]
+  },
+  "PD-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+    "e2e: mount: pdf",
+    "tt124-core: PD-02 page jump: 1-based clamp, garbage refused"
+   ]
+  },
+  "PK-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick",
+    "e2e: mount: peek",
+    "tt124-core: PK-02 hex head: 16-per-line, ascii gutter, truncation stated"
+   ]
+  },
+  "LN-17": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick",
+    "e2e: mount: lens",
+    "tt124-core: LN-17/CP-02 resolution pick: one engine, two cameras"
+   ]
+  },
+  "MN-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick",
+    "e2e: mount: monitor",
+    "tt124-core: MN-02 in-flight view: finished rows filtered, journal untouched"
+   ]
+  },
+  "WR-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+    "e2e: mount: writer",
+    "tt124-core: WR-01 word goal: net writing, clamped, done flag",
+    "tt124-density: screenshots: writer goal dialog + spec family progress"
+   ]
+  },
+  "IE-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: imageedit",
+    "tt124-core: IE-01 compare: holding shows the original, release restores the edit"
+   ]
+  },
+  "MD-12": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
+    "e2e: mount: media",
+    "tt124-core: MD-12 A–B loop: A→B→off cycle, B before A re-sets A, seek at B"
+   ]
+  },
+  "CN-10": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: contacts",
+    "tt124-core: CN-10 email list: deduped, sorted, empties dropped"
+   ]
+  },
+  "MS-06": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: messages",
+    "tt124-core: MS-06 conversation text: timestamped lines, empty stated"
+   ]
+  },
+  "PH-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: PH-08: opening a photo offers Copy info with honest absences",
+    "e2e: mount: photos",
+    "tt124-core: PH-08 photo info: absences say 'not in index'"
+   ]
+  },
+  "VT-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: vector",
+    "tt124-core: VT-02 SVG markup: existing exporter's output is clipboard-ready"
+   ]
+  },
+  "CP-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: capture",
+    "tt124-core: LN-17/CP-02 resolution pick: one engine, two cameras",
+    "tt124-core: CP-02 resolution: ideals only, max adds nothing"
+   ]
+  },
+  "TG-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: together",
+    "tt124-core: TG-01 room code: prefix, length, unambiguous alphabet"
+   ]
+  },
+  "RT-03": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: routines",
+    "tt124-core: RT-03 duplicate name: collisions get numbered copies"
+   ]
+  },
+  "SP-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
+    "e2e: mount: spec",
+    "tt124-core: SP-03 family text: worst first, same engine as the strip",
+    "tt124-density: screenshots: writer goal dialog + spec family progress"
+   ]
+  },
+  "BM-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: beam",
+    "tt124-core: BM-02 session text: newest first, active rows carry elapsed"
+   ]
+  },
+  "SSH-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: ssh",
+    "tt124-core: SSH-02 conn line: default port omitted, state in words",
+    "tt124-density: TT124 register: all twenty codes built, register grew past TT123's 567"
+   ]
+  },
+  "AX-26": {
+   "tested": "full",
+   "tests": [
+    "tt124-density: AX-26: indent and compare glyphs render on their buttons"
+   ]
+  },
+  "WB-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: TM-06/SSH-01/WB-07: history builtin exists; font buttons render; PNG export offered",
+    "e2e: mount: whiteboard",
+    "tt123-core: WB-07/VT-01 raster size: scale honoured, pixel cap scales down and says so",
+    "tt123-density: TT123 register: all twenty codes built, register grew past TT122's 547"
+   ]
+  },
+  "VT-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: vector",
+    "tt123-core: WB-07/VT-01 raster size: scale honoured, pixel cap scales down and says so"
+   ]
+  },
+  "BM-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: beam",
+    "tt123-core: BM-01 elapsed: derived from instants, hours when needed"
+   ]
+  },
+  "AL-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: privacy",
+    "tt123-core: AL-01 access filter: spans app/action/result"
+   ]
+  },
+  "SSH-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: TM-06/SSH-01/WB-07: history builtin exists; font buttons render; PNG export offered",
+    "e2e: mount: ssh",
+    "tt123-core: SSH-01 term font: clamped ladder, integer steps"
+   ]
+  },
+  "CK-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: ED-07/NT-07/CK-07: find steps to a match; tag filter lists; offset sort toggles",
+    "e2e: mount: clock",
+    "tt123-core: CK-07 zone offsets: Intl-derived, sorted west to east, labels"
+   ]
+  },
+  "ED-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: ED-07/NT-07/CK-07: find steps to a match; tag filter lists; offset sort toggles",
+    "e2e: mount: editor",
+    "tt123-core: ED-07 match nav: next/prev with honest wrap reporting"
+   ]
+  },
+  "NT-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: ED-07/NT-07/CK-07: find steps to a match; tag filter lists; offset sort toggles",
+    "e2e: mount: notes",
+    "tt123-core: NT-07 note tags: facets from stored lists, untagged explicit"
+   ]
+  },
+  "BK-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+    "e2e: mount: backup",
+    "tt123-core: BK-11 prune plan: only dated files, keeps N newest"
+   ]
+  },
+  "TM-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: TM-06/SSH-01/WB-07: history builtin exists; font buttons render; PNG export offered",
+    "e2e: mount: terminal",
+    "tt123-core: TM-06 cmd history: consecutive dup collapse, cap, numbering"
+   ]
+  },
+  "CV-03": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: calculator",
+    "tt123-core: CV-03 history text: chronological worked calculation"
+   ]
+  },
+  "MS-05": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: messages",
+    "tt123-core: MS-05 message search: sender+text, loaded messages only"
+   ]
+  },
+  "PH-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+    "e2e: mount: photos",
+    "tt123-core: PH-07 undated photos: missing index date, never guessed"
+   ]
+  },
+  "PL-08": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: planner",
+    "tt123-core: PL-08 overdue text: open only, oldest first, whole days"
+   ]
+  },
+  "SR-12": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: find",
+    "tt123-core: SR-12 phrase query: wrapped, embedded quotes doubled not stripped"
+   ]
+  },
+  "DV-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+    "e2e: mount: devices",
+    "tt123-core: DV-02 device info: absences stated, memory caveated",
+    "tt123-density: screenshots: devices + spec"
+   ]
+  },
+  "SL-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt123: BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+    "e2e: mount: slides",
+    "tt123-core: SL-01 slide nav: 1-based clamp, garbage refused"
+   ]
+  },
+  "CN-09": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: contacts",
+    "tt123-core: CN-09 family sort: structured N first, display-name fallback"
+   ]
+  },
+  "AX-25": {
+   "tested": "full",
+   "tests": [
+    "tt123-density: AX-25: shuffle and wrap glyphs render beside their labels",
+    "tt123-density: screenshots: devices + spec"
+   ]
+  },
+  "FM-19": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: files",
+    "tt123-core: FM-19 names list: screen order, names only",
+    "tt123-density: TT123 register: all twenty codes built, register grew past TT122's 547"
+   ]
+  },
+  "PK-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style",
+    "e2e: mount: peek",
+    "tt122-core: PK-01 file facts: text counted with wc rules, binary never invents lines"
+   ]
+  },
+  "CP-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+    "e2e: mount: capture",
+    "tt122-core: CP-01 capture delay: ladder snapped, labels honest"
+   ]
+  },
+  "DV-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+    "e2e: mount: devices",
+    "tt122-core: DV-01 battery: clamped percent, unknown times stated"
+   ]
+  },
+  "MN-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: monitor",
+    "tt122-core: MN-01 job sort: copies, three orders"
+   ]
+  },
+  "RT-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: routines",
+    "tt122-core: RT-02 routine filter: name+actions, order preserved"
+   ]
+  },
+  "AR-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: archive",
+    "tt122-core: AR-01 archive filter: name match keeps folder context"
+   ]
+  },
+  "LN-16": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: lens",
+    "tt122-core: LN-16 facing: auto omits the constraint entirely"
+   ]
+  },
+  "ED-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style",
+    "e2e: mount: editor",
+    "tt122-core: ED-06 wrap: style pair consistent, storage read guarded"
+   ]
+  },
+  "CK-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears",
+    "e2e: mount: clock",
+    "tt122-core: CK-06 laps text: splits from cumulative, fastest marked"
+   ]
+  },
+  "NT-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears",
+    "e2e: mount: notes",
+    "tt122-core: NT-06 notes bundle: title order, solo-export rendering reused"
+   ]
+  },
+  "CN-08": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: contacts",
+    "tt122-core: CN-08 contact card: slug filename, serializer round-trips"
+   ]
+  },
+  "BK-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+    "e2e: mount: backup",
+    "tt122-core: BK-10 backup inventory: dated sorted newest-first, undated unknown"
+   ]
+  },
+  "MD-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears",
+    "e2e: mount: media",
+    "tt122-core: MD-11 loop: label states state, toggle flips"
+   ]
+  },
+  "ST-11": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: storage",
+    "tt122-core: ST-11 reclaim summary: only real duplicate groups count"
+   ]
+  },
+  "SP-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+    "e2e: mount: spec",
+    "tt122-core: SP-02 family progress: built share per family, sorted"
+   ]
+  },
+  "AP-07": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: apps",
+    "tt122-core: AP-07 app sort: registry group order, alpha within group"
+   ]
+  },
+  "MU-05": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: music",
+    "tt122-core: MU-05 library stats: per-kind counts from the shared library"
+   ]
+  },
+  "PH-06": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: photos",
+    "tt122-core: PH-06 shuffle: permutation, seeded determinism, identity detection"
+   ]
+  },
+  "PL-07": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: planner",
+    "tt122-core: PL-07 completion stats: today/week windows, undated kept separate"
+   ]
+  },
+  "LD-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: localdisk",
+    "tt122-core: LD-01 sync summary: conflicts never read as clean"
+   ]
+  },
+  "AX-24": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: devices",
+    "tt122-density: AX-24: every app measured, none wordier than the ceiling, no emoji marks",
+    "tt123-density: density whiteboard: words<=260",
+    "tt123-density: density vector: words<=320",
+    "tt123-density: density beam: words<=300",
+    "tt123-density: density privacy: words<=420",
+    "tt123-density: density ssh: words<=300",
+    "tt123-density: density clock: words<=320",
+    "tt123-density: density editor: words<=200",
+    "tt123-density: density notes: words<=120",
+    "tt123-density: density backup: words<=470",
+    "tt123-density: density terminal: words<=260",
+    "tt123-density: density calculator: words<=260",
+    "tt123-density: density messages: words<=380",
+    "tt123-density: density photos: words<=220",
+    "tt123-density: density planner: words<=260",
+    "tt123-density: density find: words<=320",
+    "tt123-density: density devices: words<=300",
+    "tt123-density: density slides: words<=380",
+    "tt123-density: density contacts: words<=220",
+    "tt123-density: density files: words<=320",
+    "tt123-density: density streams: words<=380",
+    "tt124-density: density editor: words<=210",
+    "tt124-density: density clock: words<=340",
+    "tt124-density: density pdf: words<=400",
+    "tt124-density: density peek: words<=260",
+    "tt124-density: density lens: words<=320",
+    "tt124-density: density monitor: words<=520",
+    "tt124-density: density writer: words<=900",
+    "tt124-density: density imageedit: words<=320",
+    "tt124-density: density media: words<=340",
+    "tt124-density: density contacts: words<=240",
+    "tt124-density: density messages: words<=400",
+    "tt124-density: density photos: words<=240",
+    "tt124-density: density vector: words<=340",
+    "tt124-density: density capture: words<=320",
+    "tt124-density: density together: words<=340",
+    "tt124-density: density routines: words<=300",
+    "tt124-density: density spec: words<=12400",
+    "tt124-density: density beam: words<=320",
+    "tt124-density: density ssh: words<=320",
+    "tt124-density: density storage: words<=480",
+    "tt125-density: AX-24 bounds: every touched module within its TT125 cap"
+   ]
+  },
+  "CV-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00",
+    "e2e: mount: calculator",
+    "tt121-core: CV-02 calculator memory: register transitions, NaN refused"
+   ]
+  },
+  "ED-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file",
+    "e2e: mount: editor",
+    "tt121-core: ED-05 line ops: sort/dedupe keep termination, natural order"
+   ]
+  },
+  "CK-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00",
+    "e2e: mount: clock",
+    "tt121-core: CK-05 timer presets: fixed ladder, lookup exact"
+   ]
+  },
+  "MD-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
+    "e2e: mount: media",
+    "tt121-core: MD-10 playback rate: snapped to the portable ladder"
+   ]
+  },
+  "SC-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: SC-19/PL-06/SR-11 controls exist and act: vault strength, agenda copy, find copy",
+    "e2e: mount: vault",
+    "tt121-core: SC-19 passphrase: strength is pool-based, generator deterministic under injected RNG"
+   ]
+  },
+  "NC-07": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: alerts",
+    "tt121-core: NC-07 alert facets: unread count derived, unread-only + query compose"
+   ]
+  },
+  "CB-02": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: clipboard",
+    "tt121-core: CB-02 clip kinds: whole-entry classification only"
+   ]
+  },
+  "MP-09": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: maps",
+    "tt121-core: MP-09 coordinates: decimal interchange + unambiguous DMS"
+   ]
+  },
+  "EB-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: books",
+    "tt121-core: EB-01 book progress: clamped, smooth, chapter label honest"
+   ]
+  },
+  "PD-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: pdf",
+    "tt121-core: PD-01/WB-06 zoom ladder: steps snap, ends clamp, label rounds"
+   ]
+  },
+  "WB-06": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: whiteboard",
+    "tt121-core: PD-01/WB-06 zoom ladder: steps snap, ends clamp, label rounds"
+   ]
+  },
+  "PL-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: SC-19/PL-06/SR-11 controls exist and act: vault strength, agenda copy, find copy",
+    "e2e: mount: planner",
+    "tt121-core: PL-06 agenda text: day-scoped, sorted, done marked not dropped"
+   ]
+  },
+  "SR-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: SC-19/PL-06/SR-11 controls exist and act: vault strength, agenda copy, find copy",
+    "e2e: mount: find",
+    "tt121-core: SR-11 results as text: one line per hit, snippets excluded"
+   ]
+  },
+  "MU-04": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: music",
+    "tt121-core: MU-04 library sort: stable, added order untouched"
+   ]
+  },
+  "PH-05": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: photos",
+    "tt121-core: PH-05 photo sort: name/size/date, missing values last ascending, copy sorted"
+   ]
+  },
+  "CN-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
+    "e2e: mount: contacts",
+    "tt121-core: CN-07 contact facets: blank vCard fields do not count as present"
+   ]
+  },
+  "BK-09": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: backup",
+    "tt121-core: BK-09 backup filename: local date, strict round-trip"
+   ]
+  },
+  "TM-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file",
+    "e2e: mount: terminal",
+    "tt121-core: TM-05 terminal sort/uniq: numeric mode, adjacent vs global uniq"
+   ]
+  },
+  "NT-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
+    "e2e: mount: notes",
+    "tt121-core: NT-05 note sort: pinned lead, title case-insensitive, updated newest first"
+   ]
+  },
+  "AP-06": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: apps",
+    "tt121-core: AP-06 app filter: group facet exact, query spans title+group+summary"
+   ]
+  },
+  "AX-23": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
+    "e2e: mount: browser",
+    "tt121-density: AX-23: every app measured, none wordier than the ceiling, no emoji marks"
+   ]
+  },
+  "ED-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
+    "e2e: mount: editor",
+    "tt120-core: ED-04 line nav + stats: clamped, wc-consistent"
+   ]
+  },
+  "NT-04": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: notes",
+    "tt120-core: NT-04 note export: filename cannot escape, front-matter stands alone"
+   ]
+  },
+  "PL-05": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: planner",
+    "tt120-core: PL-05 due presets: local end-of-day, +1/+7 days"
+   ]
+  },
+  "WD-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: WD-04: world clock rows carry a business-hours verdict",
+    "e2e: mount: clock",
+    "tt120-core: WD-04 zone status: weekday 09-17 open, weekend closed"
+   ]
+  },
+  "TM-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
+    "e2e: mount: terminal",
+    "tt120-core: TM-04 head/tail: whole file when short, -n parsing"
+   ]
+  },
+  "BK-08": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: backup",
+    "tt120-core: BK-08 freshness: never/fresh/stale against the stated threshold"
+   ]
+  },
+  "SR-10": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: find",
+    "tt120-core: SR-10 result groups: first-seen order, counts"
+   ]
+  },
+  "PH-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: PH-04: next/previous walk the shown photos and stop at the end",
+    "e2e: mount: photos",
+    "tt120-core: PH-04 photo neighbours: no silent wrap at the boundary"
+   ]
+  },
+  "MU-03": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: music",
+    "tt120-core: MU-03 provider facet: counts, all explicit, unknown matches nothing"
+   ]
+  },
+  "CN-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: CN-06: starring a contact persists and filters",
+    "e2e: mount: contacts",
+    "tt120-core: CN-06 stars: validated set, toggle round-trips"
+   ]
+  },
+  "AX-22": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: browser",
+    "tt120-density: AX-22: every app measured, none wordier than the ceiling, no emoji marks"
+   ]
+  },
   "ED-03": {
    "tested": "full",
    "tests": [
     "e2e-tt119: ED-03/TM-03: editor replaces all; terminal wc counts a real file",
+    "e2e: mount: editor",
     "tt119-core: ED-03 find/replace: literal, counted, nth-only, empty refused"
    ]
   },
   "NT-03": {
    "tested": "full",
    "tests": [
+    "e2e: mount: notes",
     "tt119-core: NT-03 daily note: local title, both conventions, no guessing"
    ]
   },
@@ -35,6 +913,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt119: PL-04: filtering to gibberish reports no match, not an empty planner",
+    "e2e: mount: planner",
     "tt119-core: PL-04 task filter: query+status, order preserved"
    ]
   },
@@ -42,6 +921,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt119: CK-04/WD-03: a zone can be added; the converter answers with a date",
+    "e2e: mount: clock",
     "tt119-core: CK-04 zone list: Intl-validated, UTC pinned, capped"
    ]
   },
@@ -49,6 +929,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt119: CK-04/WD-03: a zone can be added; the converter answers with a date",
+    "e2e: mount: clock",
     "tt119-core: WD-03 zone convert: dateline shift reported, invalid refused"
    ]
   },
@@ -56,12 +937,14 @@
    "tested": "full",
    "tests": [
     "e2e-tt119: ED-03/TM-03: editor replaces all; terminal wc counts a real file",
+    "e2e: mount: terminal",
     "tt119-core: TM-03 wc: UTF-8 bytes, POSIX lines"
    ]
   },
   "BK-07": {
    "tested": "full",
    "tests": [
+    "e2e: mount: backup",
     "tt119-core: BK-07 engine: folder rollup, unknown not zero",
     "tt119-core: BK-07 bundle explorer: flat entries become a sized folder tree"
    ]
@@ -70,6 +953,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt119: PH-03/SR-09: slideshow starts on a seeded library; a search becomes recent",
+    "e2e: mount: find",
     "tt119-core: SR-09 recents: dedup-to-front, mode validated, capped"
    ]
   },
@@ -77,18 +961,21 @@
    "tested": "full",
    "tests": [
     "e2e-tt119: PH-03/SR-09: slideshow starts on a seeded library; a search becomes recent",
+    "e2e: mount: photos",
     "tt119-core: PH-03 slideshow: wraps, clamps, empty has no next"
    ]
   },
   "MU-02": {
    "tested": "full",
    "tests": [
+    "e2e: mount: music",
     "tt119-core: MU-02 recent plays: front-dedup, validated, capped"
    ]
   },
   "AX-21": {
    "tested": "full",
    "tests": [
+    "e2e: mount: browser",
     "tt119-density: AX-21: every app measured, none wordier than the ceiling, no emoji marks"
    ]
   },
@@ -96,12 +983,14 @@
    "tested": "full",
    "tests": [
     "e2e-tt118: DF-01: Editor diffs a saved version against the edited buffer",
+    "e2e: mount: editor",
     "tt118-core: DF-01 diff: line ops in order, stats, one-word change reads as one word"
    ]
   },
   "NT-02": {
    "tested": "full",
    "tests": [
+    "e2e: mount: notes",
     "tt118-core: NT-02 tags/links: headings and URLs are not tags, backlinks reverse exactly"
    ]
   },
@@ -109,6 +998,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt118: PL-03/PH-02: agenda view and photo timeline render from real data",
+    "e2e: mount: planner",
     "tt118-core: PL-03 agenda: buckets by whole local days, done and undated separated"
    ]
   },
@@ -116,6 +1006,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt118: CV-01/WD-01/WD-02: converter is exact; overlap and countdown render",
+    "e2e: mount: clock",
     "tt118-core: WD-01 zone overlap: London/New_York share an afternoon; Tokyo shares none"
    ]
   },
@@ -123,6 +1014,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt118: CV-01/WD-01/WD-02: converter is exact; overlap and countdown render",
+    "e2e: mount: clock",
     "tt118-core: WD-02 countdowns: whole days, validation"
    ]
   },
@@ -130,6 +1022,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt118: CV-01/WD-01/WD-02: converter is exact; overlap and countdown render",
+    "e2e: mount: calculator",
     "tt118-core: CV-01 converter: exact definitions, affine temperature, cross-category refused"
    ]
   },
@@ -137,12 +1030,14 @@
    "tested": "full",
    "tests": [
     "e2e-tt118: UC-01/TM-02: clean-link control exists; terminal suggests the real command",
+    "e2e: mount: browser",
     "tt118-core: UC-01 clean link: trackers listed, load-bearing params kept, non-URL refused"
    ]
   },
   "ST-10": {
    "tested": "full",
    "tests": [
+    "e2e: mount: settings",
     "tt118-core: ST-10 settings import: unknown and locked keys reported, never applied by parsing"
    ]
   },
@@ -150,6 +1045,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt118: UC-01/TM-02: clean-link control exists; terminal suggests the real command",
+    "e2e: mount: terminal",
     "tt118-core: TM-02 suggestion: transposition costs one, short inputs get nothing"
    ]
   },
@@ -157,6 +1053,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt118: PL-03/PH-02: agenda view and photo timeline render from real data",
+    "e2e: mount: photos",
     "tt118-core: PH-02 photo timeline: local months, undated counted, largest month by bytes"
    ]
   },
@@ -164,12 +1061,14 @@
    "tested": "full",
    "tests": [
     "e2e-tt118: SV-01: a saved search persists and re-applies its query",
+    "e2e: mount: find",
     "tt118-core: SV-01 saved searches: modes validated, duplicate names refused, sorted newest first"
    ]
   },
   "AX-20": {
    "tested": "full",
    "tests": [
+    "e2e: mount: browser",
     "tt118-density: AX-20: every app measured, none wordier than the ceiling, no emoji marks"
    ]
   },
@@ -177,12 +1076,14 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
+    "e2e: mount: clock",
     "tt117-core: CK-01 alarms: next fire, weekly days, disabled, snooze, validation"
    ]
   },
   "CK-02": {
    "tested": "full",
    "tests": [
+    "e2e: mount: clock",
     "tt117-core: CK-02 lap splits: deltas, fastest/slowest, monotonic refusal"
    ]
   },
@@ -190,6 +1091,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
+    "e2e: mount: clock",
     "tt117-core: CK-03 date arithmetic: days, add, business days sign-aware"
    ]
   },
@@ -197,18 +1099,21 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: NT-01 in Notes: statistics follow the text being edited",
+    "e2e: mount: notes",
     "tt117-core: NT-01 note stats: code excluded, outline, links, reading time"
    ]
   },
   "PL-01": {
    "tested": "full",
    "tests": [
+    "e2e: mount: planner",
     "tt117-core: PL-01 recurrence: daily/weekly BYDAY/monthly clamp/count/until + RRULE round-trip"
    ]
   },
   "PL-02": {
    "tested": "full",
    "tests": [
+    "e2e: mount: planner",
     "tt117-core: PL-01 recurrence: daily/weekly BYDAY/monthly clamp/count/until + RRULE round-trip",
     "tt117-core: PL-02 ICS RRULE round-trip: import carries the rule, export re-emits it"
    ]
@@ -217,6 +1122,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+    "e2e: mount: clipboard",
     "tt117-core: CB-01 clipboard export/import: sensitive refused, dedupe, malformed refused whole"
    ]
   },
@@ -224,6 +1130,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+    "e2e: mount: routines",
     "tt117-core: RT-01 routine io: whitelist re-validated, duplicate names skipped not overwritten"
    ]
   },
@@ -231,6 +1138,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+    "e2e: mount: find",
     "tt117-core: FN-01 find: literal escape, regex error, whole word, positions, cap"
    ]
   },
@@ -238,6 +1146,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: RC-40 in Recall: manifest controls answer to their names",
+    "e2e: mount: recall",
     "tt117-core: RC-40/41/42 recall report: deterministic manifest, verify diff, stats, duplicates"
    ]
   },
@@ -245,6 +1154,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: RC-40 in Recall: manifest controls answer to their names",
+    "e2e: mount: recall",
     "tt117-core: RC-40/41/42 recall report: deterministic manifest, verify diff, stats, duplicates"
    ]
   },
@@ -252,6 +1162,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: RC-40 in Recall: manifest controls answer to their names",
+    "e2e: mount: recall",
     "tt117-core: RC-40/41/42 recall report: deterministic manifest, verify diff, stats, duplicates"
    ]
   },
@@ -259,12 +1170,14 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+    "e2e: mount: browser",
     "tt117-core: BR-01 browser session io: unsafe URLs dropped and reported, groups preserved"
    ]
   },
   "AX-19": {
    "tested": "full",
    "tests": [
+    "e2e: mount: browser",
     "tt117-density: AX-19: Recall under 160 words, Browser under 90, both drawn not emoji"
    ]
   },
@@ -272,7 +1185,9 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: SP-01 in Spec: the register health panel renders a verdict",
-    "tt117-core: SP-01 register health: duplicates, missing suites, unclaimed built rows, unknown claims"
+    "e2e: mount: spec",
+    "tt117-core: SP-01 register health: duplicates, missing suites, unclaimed built rows, unknown claims",
+    "tt125-density: TT125 register: all twenty codes built, register grew past TT124's 587"
    ]
   },
   "AX-18": {
@@ -290,6 +1205,7 @@
   "RC-39": {
    "tested": "full",
    "tests": [
+    "e2e: mount: recall",
     "tt114-recall-token: a publication carrying a token writes one pair and reports the digest it filed",
     "tt114-recall-token: the client aborts mid-flight and retries: exactly one memory exists and the retry names it",
     "tt114-recall-token: eight concurrent attempts with one token publish exactly one memory",
@@ -331,7 +1247,8 @@
     "e2e-tt112-resident: a data: URL inside the document is saved with its own exact bytes",
     "e2e-tt112-resident: an object larger than 8 MiB is refused where the bytes are read, and writes nothing",
     "e2e-tt112-resident: no uncaught page exception in the resident-object pathway",
-    "e2e-tt113-density: every saving pathway survived the compaction"
+    "e2e-tt113-density: every saving pathway survived the compaction",
+    "e2e: mount: recall"
    ]
   },
   "RC-37": {
@@ -340,6 +1257,7 @@
     "e2e-tt111-recall: a page browsed inside Recall lists the media it loaded, with its type and size",
     "e2e-tt111-recall: with the origin shut down, the human presses Save and the archive receives the publisher’s exact bytes",
     "e2e-tt111-recall: Forget removes a held item from the pane immediately, and the switch empties it and says so",
+    "e2e: mount: recall",
     "tt111-recall-tap: the page loads a picture and a track through the proxy; both land in the tap, the stylesheet does not",
     "tt111-recall-tap: an aborted response and a byte range are not retained; neither is an item over the cap",
     "tt111-recall-tap: THE FALSIFIER: the origin is stopped, a refetch provably fails, and the save still writes the original bytes",
@@ -352,12 +1270,14 @@
   "RC-35": {
    "tested": "full",
    "tests": [
-    "e2e-tt110-shell: a saved memory reaches the clipboard with identical pixels, honestly described, and can be handed to another app"
+    "e2e-tt110-shell: a saved memory reaches the clipboard with identical pixels, honestly described, and can be handed to another app",
+    "e2e: mount: recall"
    ]
   },
   "RC-36": {
    "tested": "full",
    "tests": [
+    "e2e: mount: recall",
     "tt110-core: the capture policy is enforced where the writing happens, not only where the buttons are",
     "tt110-core: an unknown capture policy value cannot be smuggled into the setting",
     "tt116-platform: SC-02: a privacy switch set off is enforced by the server, not only the interface"
@@ -367,6 +1287,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt109-shell: a repeat save files a second memory unless the person asks to keep one copy",
+    "e2e: mount: recall",
     "tt109-recall: an identical memory in the same folder is recognised instead of filed twice",
     "tt109-recall: duplicate recognition is opt-in: a deliberate re-save still produces a second memory",
     "tt109-recall: recognition is by decoded bytes and is confined to one folder",
@@ -382,6 +1303,7 @@
    "tests": [
     "e2e-tt107-memory: searching by save method finds the memory through the real UI",
     "e2e-tt107-memory: a filter that matches nothing reports an honest empty result, not an error",
+    "e2e: mount: recall",
     "tt107-recall: search filters by save method across every Recall folder",
     "tt107-recall: search filters by exact page host and never by substring",
     "tt107-recall: search filters by capture date range inclusively",
@@ -407,6 +1329,7 @@
     "e2e-tt107-memory: an unpaired file is listed by the audit and can be trashed from the UI",
     "e2e-tt107-memory: widening the scope to every folder is an explicit, visible choice",
     "e2e-tt107-memory: the audit never invents a receipt for a memory that lost one",
+    "e2e: mount: recall",
     "tt107-recall: a receipt that is not valid JSON is skipped and counted, not a query failure",
     "tt107-recall: audit reports a healthy folder with no orphans",
     "tt107-recall: audit detects media without receipt and receipt without media",
@@ -433,6 +1356,7 @@
   "RC-29": {
    "tested": "partial",
    "tests": [
+    "e2e: mount: recall",
     "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata",
     "tt107-crash: server restarts and the same payload then publishes the exact pair",
     "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed",
@@ -444,6 +1368,7 @@
   "RC-30": {
    "tested": "partial",
    "tests": [
+    "e2e: mount: recall",
     "tt108-engine-crash: every acknowledged publication survived the engine crash, complete and intact",
     "tt108-engine-crash: no half pair survived the crash, including the publications in flight",
     "tt108-engine-crash: an unacknowledged publication is all-or-nothing, never partially applied",
@@ -459,6 +1384,7 @@
   "RC-31": {
    "tested": "partial",
    "tests": [
+    "e2e: mount: recall",
     "tt108-recall: the page agent encodes already-decoded visuals and never requests a URL again",
     "tt108-recall: every member of a batch is published as its own complete, independent pair",
     "tt108-recall: one bad member of a batch cannot take the others down with it",
@@ -470,6 +1396,7 @@
    "tests": [
     "e2e-tt108-recall: the saving timeline shows the real days and filters the list to the chosen one",
     "e2e-tt108-recall: the timeline says plainly that it is not a background screenshot trail",
+    "e2e: mount: recall",
     "tt108-recall: the timeline groups real saved memories by day with counts, bytes and methods",
     "tt108-recall: selecting a day returns exactly that day through the ordinary server-side search",
     "tt108-recall: a day drill-down stays inside the folder it was launched from",
@@ -486,6 +1413,7 @@
     "e2e-tt108-recall: a dragged region is saved as its own memory, cut from the decoded preview",
     "e2e-tt108-recall: the saved crop records the memory and rectangle it came from",
     "e2e-tt108-recall: a selection too small to be a region is refused with a reason, not silently grown",
+    "e2e: mount: recall",
     "tt108-recall: a region dragged over a scaled preview maps onto the source pixel grid",
     "tt108-recall: a backwards drag selects the same region as the forward drag",
     "tt108-recall: a drag released past the edge keeps the part that exists instead of reading outside the picture",
@@ -501,6 +1429,7 @@
    "tested": "partial",
    "tests": [
     "e2e-tt106-memory: single-snapshot receipt inspection works in actual UI",
+    "e2e: mount: recall",
     "tt106-lifecycle: single snapshot returns verified pair identity without media bodies"
    ]
   },
@@ -508,6 +1437,7 @@
    "tested": "partial",
    "tests": [
     "e2e-tt106-memory: cancelled trash confirmation changes nothing",
+    "e2e: mount: recall",
     "tt106-lifecycle: paired trash removes both active files and both search entries",
     "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed"
    ]
@@ -517,12 +1447,14 @@
    "tests": [
     "e2e-tt106-memory: save already-open frame creates native green PNG without upstream HTTP",
     "e2e-tt106-memory: real decoded WebM video preview saves its exact current frame, no media refetch",
-    "e2e-tt106-memory: memory above the 16 MP decode bound is refused and clears the stale preview"
+    "e2e-tt106-memory: memory above the 16 MP decode bound is refused and clears the stale preview",
+    "e2e: mount: recall"
    ]
   },
   "RC-22": {
    "tested": "partial",
    "tests": [
+    "e2e: mount: recall",
     "tt105-atomic: one acknowledgement publishes both exact media and receipt",
     "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata"
    ]
@@ -531,13 +1463,15 @@
    "tested": "partial",
    "tests": [
     "e2e-tt105-clicked: no pointer selection refuses without a largest fallback",
-    "e2e-tt105-clicked: native pointer chooses smaller decoded canvas without asset refetch"
+    "e2e-tt105-clicked: native pointer chooses smaller decoded canvas without asset refetch",
+    "e2e: mount: recall"
    ]
   },
   "RC-16": {
    "tested": "partial",
    "tests": [
     "e2e-tt104-memory: native clipboard image-transfer experiment records the real permission boundary",
+    "e2e: mount: recall",
     "tt104-memory-unit: single native File admitted without rewriting its bytes"
    ]
   },
@@ -545,6 +1479,7 @@
    "tested": "partial",
    "tests": [
     "e2e-tt104-memory: native webpage-link drag is rejected, never refetched",
+    "e2e: mount: recall",
     "tt104-memory-unit: single native File admitted without rewriting its bytes"
    ]
   },
@@ -553,6 +1488,7 @@
    "tests": [
     "e2e-tt104-memory: resident file save then paged timeline opens actual stored PNG",
     "e2e-tt104-pages: native UI loads first metadata page and refuses continuation after grouping changes",
+    "e2e: mount: recall",
     "tt104-page: one page returns exactly 100 metadata rows",
     "tt116-recall-retention: paging the timeline is a snapshot: a save during the read cannot hide a memory"
    ]
@@ -561,19 +1497,22 @@
    "tested": "partial",
    "tests": [
     "e2e-tt104-memory: UI receipt verification checks the stored pair",
+    "e2e: mount: recall",
     "tt104-memory-unit: valid stored-byte receipt matches exact SHA-256"
    ]
   },
   "RC-20": {
    "tested": "partial",
    "tests": [
-    "e2e-tt104-memory: local Blob export downloads exact open bytes, no upstream request"
+    "e2e-tt104-memory: local Blob export downloads exact open bytes, no upstream request",
+    "e2e: mount: recall"
    ]
   },
   "RC-21": {
    "tested": "partial",
    "tests": [
-    "e2e-tt104-memory: streaming discovery preserves a late first-200 visual after 2005 nonvisual elements"
+    "e2e-tt104-memory: streaming discovery preserves a late first-200 visual after 2005 nonvisual elements",
+    "e2e: mount: recall"
    ]
   },
   "RC-01": {
@@ -584,6 +1523,7 @@
     "e2e-tt113-density: browser opens as a tool, not a document",
     "e2e-tt113-density: the small print was moved, not deleted",
     "e2e-tt113-density: every saving pathway survived the compaction",
+    "e2e: mount: recall",
     "tt114-recall-token: a publication carrying a token writes one pair and reports the digest it filed",
     "tt114-recall-token: publications without a token keep their previous behaviour exactly"
    ]
@@ -592,19 +1532,22 @@
    "tested": "partial",
    "tests": [
     "e2e-tt109-shell: a copied image becomes a memory through the real paste handler, and a copied link does not",
-    "e2e-tt111-recall: a page browsed inside Recall lists the media it loaded, with its type and size"
+    "e2e-tt111-recall: a page browsed inside Recall lists the media it loaded, with its type and size",
+    "e2e: mount: recall"
    ]
   },
   "RC-03": {
    "tested": "partial",
    "tests": [
-    "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request"
+    "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request",
+    "e2e: mount: recall"
    ]
   },
   "RC-04": {
    "tested": "full",
    "tests": [
-    "e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory"
+    "e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory",
+    "e2e: mount: recall"
    ]
   },
   "RC-05": {
@@ -613,25 +1556,29 @@
     "e2e-tt110-recall: an authorized recording encodes real frames and finishes as a playable file",
     "e2e-tt110-recall: audio-only output does what this platform actually allows, and never substitutes the microphone",
     "e2e-tt114-density: AX-17: the memory toolbar shows at most 24 words, and every button is a drawn glyph",
+    "e2e: mount: recall",
     "tt116-density: AX-18: Recall shows fewer than 170 visible words and more than 45 drawn marks"
    ]
   },
   "RC-06": {
    "tested": "partial",
    "tests": [
-    "e2e-tt110-recall: an already-rendered element in this document can be captured without touching the network"
+    "e2e-tt110-recall: an already-rendered element in this document can be captured without touching the network",
+    "e2e: mount: recall"
    ]
   },
   "RC-07": {
    "tested": "partial",
    "tests": [
-    "e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element"
+    "e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element",
+    "e2e: mount: recall"
    ]
   },
   "RC-08": {
    "tested": "partial",
    "tests": [
-    "e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element"
+    "e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element",
+    "e2e: mount: recall"
    ]
   },
   "RC-09": {
@@ -640,6 +1587,7 @@
     "e2e-tt103-memory: human-selected actual PNG bytes save unchanged with honest method receipt",
     "e2e-tt112-resident: FALSIFIER: with the origin stopped, the bytes the page built are archived byte-for-byte",
     "e2e-tt112-resident: an object larger than 8 MiB is refused where the bytes are read, and writes nothing",
+    "e2e: mount: recall",
     "tt111-recall-tap: an aborted response and a byte range are not retained; neither is an item over the cap",
     "tt111-recall-tap: the receipt names the pathway and claims proxy-recorded provenance, and the memory survives verification"
    ]
@@ -647,6 +1595,7 @@
   "RC-10": {
    "tested": "full",
    "tests": [
+    "e2e: mount: recall",
     "tt109-recall: grouping sends the same bytes to the folder the human chose, and cannot escape the Recall root",
     "tt109-recall: a save outside the Recall root is refused whatever the grouping asked for",
     "tt116-recall-archive: RC-10: the folder is derived from the page, and three groupings mean three folders",
@@ -660,6 +1609,7 @@
     "e2e-tt110-recall: a human-authorized display snapshot really captures the screen surface and files it as a memory",
     "e2e-tt110-recall: the shared surface is released when the snapshot ends, and nothing is captured afterwards",
     "e2e-tt110-recall: pending fetch jobs can be cancelled, and the archive is told what cancellation does not undo",
+    "e2e: mount: recall",
     "tt114-recall-token: eight concurrent attempts with one token publish exactly one memory",
     "tt116-density: the floor holds: the consequence of an uncancellable commit is still on screen"
    ]
@@ -667,12 +1617,14 @@
   "RC-12": {
    "tested": "partial",
    "tests": [
+    "e2e: mount: recall",
     "tt109-recall: memories are never written into Persistent Storage, and the archive says so plainly"
    ]
   },
   "RC-13": {
    "tested": "full",
    "tests": [
+    "e2e: mount: recall",
     "tt109-recall: deleting a memory removes the pair together and restoring brings the pair back",
     "tt109-recall: a memory cannot be half-deleted through the pair endpoint",
     "tt114-recall-token: a replay after the memory was trashed reports its absence instead of resurrecting it",
@@ -690,6 +1642,7 @@
    "tests": [
     "e2e-tt112-resident: a live MediaSource is refused by name instead of being saved as a file",
     "e2e-tt112-resident: the receipt claims a declared label, not the publisher, and records no refetch",
+    "e2e: mount: recall",
     "tt109-recall: only the refetch method may claim the bytes came from the URL it names",
     "tt111-recall-tap: the provenance binding holds: neither method may borrow the other’s claim",
     "tt114-recall-token: a token cannot be replayed to claim different bytes"
@@ -698,6 +1651,7 @@
   "RC-15": {
    "tested": "partial",
    "tests": [
+    "e2e: mount: recall",
     "tt109-recall: memories are never written into Persistent Storage, and the archive says so plainly",
     "tt109-recall: the exclusions that exist are real: query tokens are dropped and a declared label cannot smuggle them back"
    ]
@@ -1089,7 +2043,6 @@
     "e2e-tt92-trash: restoring the selected folder in Files reveals the original files and rebuilds search",
     "e2e: mount: find",
     "e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
-    "integration: SR-01 search finds new content with provenance",
     "integration: search treats % and _ in queries literally",
     "tt92-trash: trashing a directory hides every descendant from real search; restoring reindexes only that trash group",
     "tt92-trash: ordinary and conditional writes cannot overwrite a trashed item or create under a trashed parent",
@@ -1126,16 +2079,13 @@
    "tests": [
     "e2e-tt99-interactions: Find contextual Open routes a real CSV into the editor rather than window controls",
     "e2e-tt99-interactions: a stale Find result cannot open a deleted file or silently create a document",
-    "e2e: mount: find",
-    "integration: SR-01 search finds new content with provenance",
-    "integration: deleting a note removes only its own index row"
+    "e2e: mount: find"
    ]
   },
   "SR-03": {
    "tested": "full",
    "tests": [
     "e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
-    "integration: SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing",
     "unit: OSA distance counts adjacent transposition as 1",
     "unit: fuzzy scoring: typos match, short words exact only, junk rejected"
    ]
@@ -1913,7 +2863,6 @@
     "e2e-tt99-interactions: Notes dirty draft disables destructive context actions and native text remains native",
     "e2e-tt99-interactions: Notes context deletion is cancelable and removes only the chosen note",
     "e2e: mount: notes",
-    "integration: deleting a note removes only its own index row",
     "tt111-core: notes are indexed in the same index as files, so one search reaches both"
    ]
   },
@@ -2905,8 +3854,7 @@
   "FF-20": {
    "tested": "full",
    "tests": [
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
-    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-tt46: Spreadsheet: real Excel file with a table + conditional formats — structured refs evaluate in the UI; keyboard edit + Save keeps the package (openpyxl-verified)",
     "e2e-tt46: Spreadsheet: no-edit Save of a chart workbook leaves it byte-identical; rename a sheet + Save keeps the chart part and openpyxl sees the new name",
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
@@ -2982,7 +3930,7 @@
   "FF-21": {
    "tested": "full",
    "tests": [
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
     "e2e-tt47: Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
     "e2e-tt47: Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
@@ -3298,7 +4246,6 @@
    "tested": "full",
    "tests": [
     "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
-    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size)",
     "e2e: mount: vector"
    ]
   },
@@ -3577,6 +4524,7 @@
   "BK-02": {
    "tested": "partial",
    "tests": [
+    "e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage",
     "e2e-tt87-localdisk: BK-02 real browser folder handle survives IndexedDB reload and a first sync preserves skipped names and binary data",
     "e2e-tt87-localdisk: BK-02 conflict choices reject stale local and server copies; explicit resolution preserves a Fusion version",
     "e2e-tt87-localdisk: FM-08 conditional write rejects missing preconditions, existing names and changed versions without modifying data",
@@ -3689,6 +4637,7 @@
     "e2e-tt88-recovery: BK-06 the original passphrase independently opens the same downloaded file",
     "e2e-tt88-recovery: BK-06 Chromium opens an independently encrypted Python archive and can cancel its preview",
     "e2e-tt88-recovery: BK-06 secrets are not in captured request bodies or persistent browser storage, and key display is cleared",
+    "e2e: mount: backup",
     "privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused",
     "privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key",
     "tt118-core: BK-06 backup compare: added/removed/changed/unchanged and byte delta",
@@ -3750,8 +4699,9 @@
     "e2e-office: fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs",
     "e2e-office: Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
     "e2e-office: clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
+    "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
-    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
     "e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save",
     "e2e-tt64: FF-28 (TT64) Paste Link of a range in the UI writes relative references, a single cell absolute — openpyxl reads the saved formulas; the links follow a source edit",
     "e2e-tt68-sheet: FF-52 in the UI: an opened workbook shows Excel's results for empty text and an error constant (ISBLANK FALSE / TRUE, COUNTIF \"#N/A\" 1, COUNTA 3, \"=\" 1, \"<>\" 3, ISNA TRUE)",
@@ -3905,7 +4855,6 @@
     "e2e-vector: UI: pen — corner clicks + close on first node; drag makes a smooth (cubic) node; node tool drags an anchor",
     "e2e-vector: UI: marquee + shift-click multi-select, align left, distribute, group/ungroup, duplicate, z-order, delete (keyboard)",
     "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
-    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size)",
     "e2e-vector: UI: arrow (line tool + Arrowhead) exports as plain path; star stays parametric — point count / inner ratio editable after a move",
     "e2e-vector: no page errors during the vector session",
     "e2e: mount: vector",
@@ -3937,8 +4886,6 @@
    "tested": "full",
    "tests": [
     "e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells",
-    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-sheet-layout: no page errors during the layout session",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
@@ -3952,8 +4899,6 @@
   "FF-34": {
    "tested": "full",
    "tests": [
-    "e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears",
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
@@ -3964,8 +4909,6 @@
   "FF-35": {
    "tested": "full",
    "tests": [
-    "e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it",
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
@@ -3979,7 +4922,9 @@
    "tests": [
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path",
+    "e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage",
     "e2e-privacy: amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists",
+    "e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
     "e2e-privacy: no page errors across the privacy flows",
     "e2e-privacy: privacy fixture cleanup leaves no host nodes, versions or search rows for its owned paths",
     "e2e-tt87-privacy: TT87 conditional writes cannot create plaintext inside locked Persistent Storage",
@@ -4004,7 +4949,6 @@
     "privacy-crypto: content blobs: oracle ⇄ ours both directions; Padmé-sized; any bit flip, flag edit or foreign volume refused",
     "privacy-crypto: names: deterministic SIV encryption byte-identical to the oracle; host-chosen nonce rejected; paths map both ways",
     "privacy-crypto: base64 codec (perf path): byte-identical to Node Buffer on 6 000 random inputs 0–299 B, strict on malformed input, 264 KiB encode < 5 ms",
-    "privacy-layer: write through the layer: the host row has no plaintext name, content, size or index entry; read decrypts",
     "privacy-layer: list decrypts and sorts names; a second write keeps an encrypted version that decrypts; rename/move stay encrypted server-side",
     "privacy-layer: locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside",
     "privacy-layer: cross-store moves happen in the browser: host file → /Private arrives encrypted (source trashed); /Private → host is an explicit decrypting copy",
@@ -4165,7 +5109,6 @@
   "SC-12": {
    "tested": "full",
    "tests": [
-    "e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains",
     "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
     "e2e: mount: privacy",
     "metaclean: JPEG: identical pixels (Pillow); camera, author, date, software, GPS, XMP, COM, IPTC gone; Orientation=6 kept alone",
@@ -4187,8 +5130,7 @@
     "e2e-tt89-launch: amnesic session refuses launch file copies before consent or any host write",
     "e2e-tt90-context: amnesia permits session-only choices without changing normal local storage or shared settings",
     "e2e: mount: privacy",
-    "privacy-layer: TT87 conditional VFS writes respect privacy boundaries and still work for ordinary unlocked-host files",
-    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
+    "privacy-layer: TT87 conditional VFS writes respect privacy boundaries and still work for ordinary unlocked-host files"
    ]
   },
   "SC-14": {
@@ -4209,7 +5151,6 @@
   "FF-36": {
    "tested": "full",
    "tests": [
-    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
     "names: name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255",
     "names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined",
     "names: scope: a sheet-level name shadows the workbook name on its sheet only; self-reference terminates with #NAME?",
@@ -4223,17 +5164,17 @@
    "tested": "full",
    "tests": [
     "e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo",
+    "vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back)",
+    "vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995)",
+    "vector-boolean: three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain)",
+    "vector-boolean: fill rules: even-odd hole, nonzero opposite-direction hole, nonzero same-direction (no hole), group = union of leaves with its transform",
     "vector-boolean: refusals: open paths, text, a single shape, locked shapes, Intersect of disjoint shapes; result survives SVG export → import",
     "vector-boolean: performance: two 600-unit ellipses + a rotated rect, all modes < 400 ms each on this 2-CPU host"
    ]
   },
   "SC-16": {
-   "tested": "full",
-   "tests": [
-    "e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host",
-    "privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock",
-    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
-   ]
+   "tested": "untested",
+   "tests": []
   },
   "SC-17": {
    "tested": "full",
@@ -5756,7 +6697,6 @@
   "FF-78": {
    "tested": "full",
    "tests": [
-    "e2e-tt81: E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output",
     "tt81-core: S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates",
     "tt81-core: S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula",
     "tt81-core: S3 deterministic independent frequency-map oracle on 240 integer vectors",
@@ -5774,9 +6714,8 @@
    ]
   },
   "FF-80": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
-    "e2e-tt81: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback",
     "tt81-core: L1 literal case/scope, groups and tables; no notes/master/package false hits",
     "tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical",
     "tt81-core: L3 one-step snapshot undo/redo, deletion, repeated replacement, literal dollar and unicode; paragraph boundaries",
@@ -5794,7 +6733,6 @@
   "FF-82": {
    "tested": "full",
    "tests": [
-    "e2e-tt81: E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions",
     "tt84-wordcount: W1 empty text has zero counts",
     "tt84-wordcount: W2 spaces, blank paragraphs and CRLF do not inflate words or character totals",
     "tt84-wordcount: W3 apostrophes, hyphens, decomposed accents and emoji count as reader-visible characters",

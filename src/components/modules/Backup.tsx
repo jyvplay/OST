@@ -7,6 +7,10 @@ import { fmtBytes } from "@/lib/api";
 import { fromB64, openText, sealText, type Envelope } from "@/lib/crypto";
 import { MAX_BACKUP_BYTES, verifyBackup, type BackupBundle } from "@/lib/backup/bundle";
 import { bundleTree } from "@/lib/bundle-tree";
+import { freshnessLabel, LAST_BACKUP_KEY } from "@/lib/backup-freshness";
+import { backupFilename } from "@/lib/backup-name";
+import { backupInventory } from "@/lib/backup-inventory";
+import { prunePlan } from "@/lib/prune-plan";
 import { folderSizes, formatBytes as fmtBundleBytes } from "@/lib/folder-size";
 import { DRILL_HEALTH_KEY, drillHealthState, parseDrillHealth, recordDrill, type DrillAttempt, type DrillHealth } from "@/lib/backup/drill-health";
 import { makeRecoveryKey, openRecoveryBundle, RECOVERY_FORMAT, sealRecoveryBundle } from "@/lib/backup/recovery";
@@ -77,7 +81,16 @@ async function send(body: unknown) {
 export default function BackupModule(_: ModuleProps) {
   const shell = useShell();
   const [bundle, setBundle] = useState<BackupBundle | null>(null);
+  const [savedBackups, setSavedBackups] = useState<string[]>([]);
+  const loadSavedBackups = async () => {
+    try {
+      const r = await fetch("/api/fs?op=list&path=" + encodeURIComponent("/Backups")).then((x) => x.json()) as { nodes?: { name: string; kind: string }[] };
+      setSavedBackups((r.nodes ?? []).filter((n) => n.kind === "file").map((n) => n.name));
+    } catch { setSavedBackups([]); }
+  };
+  useEffect(() => { void loadSavedBackups(); }, []);
   const [showContents, setShowContents] = useState(false);
+  const [lastBackup, setLastBackup] = useState<number | null>(() => { try { const v = Number(localStorage.getItem(LAST_BACKUP_KEY)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; } });
   const [report, setReport] = useState("");
   const [pass, setPass] = useState("");
   const [recoveryKey, setRecoveryKey] = useState("");
@@ -129,6 +142,7 @@ export default function BackupModule(_: ModuleProps) {
       const verified = await verifyBackup(value);
       if (!verified.ok) throw new Error(verified.failures.map((f) => `${f.path}: ${f.reason}`).join("; "));
       setBundle(value as BackupBundle);
+      try { localStorage.setItem(LAST_BACKUP_KEY, String(Date.now())); setLastBackup(Date.now()); } catch { /* private mode */ }
       const p = verified.payload;
       setReport(`${p.entries.length} entries · ${p.notes.length} notes · ${p.settings.length} settings · ${fmtBytes(p.entries.reduce((sum, e) => sum + e.size, 0))} · snapshot checksum verified in this browser.`);
     } catch (e) { setBundle(null); setReport(`Build failed: ${String((e as Error).message)}`); }
@@ -153,7 +167,7 @@ export default function BackupModule(_: ModuleProps) {
       const result = await verifyBackup(bundle);
       if (!result.ok) throw new Error("The snapshot failed verification; build it again.");
       let text = JSON.stringify(bundle);
-      let name = `fusion-${bundle.kind}-${Date.now()}.json`;
+      let name = backupFilename(new Date());
       if (encrypted) {
         if (pass.length < 8) throw new Error("Use a passphrase of at least 8 characters.");
         text = JSON.stringify({ format: "fusion-encrypted-bundle-2", envelope: await sealText(text, pass) });
@@ -276,6 +290,14 @@ export default function BackupModule(_: ModuleProps) {
           </label>
           <Btn variant="ghost" disabled={busy || !bundle} onClick={() => void download(false)}>Download plain</Btn>
           <Btn variant="ghost" disabled={busy || !bundle || pass.length < 8} onClick={() => void download(true)}>Download encrypted</Btn>
+          <Btn variant="ghost" disabled={busy || !bundle} onClick={async () => {
+            if (!bundle) return;
+            const name = backupFilename(new Date());
+            const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "write", path: `/Backups/${name}`, content: JSON.stringify(bundle), mime: "application/json", reason: "backup-save" }) });
+            if (!r.ok) { setReport("Could not save the bundle into Files — build it again and retry."); return; }
+            setReport(`Saved to /Backups/${name} in Files. It is a plain bundle: encrypt before trusting it to anyone else.`);
+            void loadSavedBackups();
+          }} data-testid="backup-save-files">Save copy to Files</Btn>
         </div>
         <input className="fs-input" type="password" placeholder="bundle passphrase" value={pass}
           onChange={(e) => setPass(e.target.value)} aria-label="Bundle passphrase" />
@@ -285,6 +307,7 @@ export default function BackupModule(_: ModuleProps) {
           <Btn variant="ghost" onClick={() => setHeld(null)}>Not now</Btn>
         </div> : null}
         {report ? <div role="status" data-testid="backup-report" className="fs-mono" style={{ fontSize: fz(11.5) }}>{report}</div> : null}
+        <div className="fs-dim" style={{ fontSize: fz(11.5), marginTop: 6 }} data-testid="backup-freshness">{freshnessLabel(lastBackup)} (stale after 7 days)</div>
         {bundle ? <div style={{ marginTop: 8 }}>
           <Btn variant="ghost" aria-expanded={showContents} onClick={() => setShowContents((v) => !v)}>{showContents ? "Hide contents" : "Show contents"}</Btn>
           {showContents ? <div data-testid="backup-contents" style={{ display: "grid", gap: 2, marginTop: 6 }}>
@@ -297,6 +320,26 @@ export default function BackupModule(_: ModuleProps) {
             <span className="fs-dim" style={{ fontSize: fz(11) }}>Largest folders in this bundle, from its own entry list.</span>
           </div> : null}
         </div> : null}
+      </Section>
+
+      <Section title="Backups saved in Files (/Backups)">
+        <span className="fs-row" style={{ gap: 6, marginBottom: 4 }}>
+          <Btn variant="ghost" disabled={savedBackups.length < 2} onClick={async () => {
+            const doomed = prunePlan(savedBackups, 2, new Date());
+            if (!doomed.length) { setReport("Nothing to prune — two or fewer dated backup copies."); return; }
+            if (!window.confirm(`Prune ${doomed.length} older backup copies, keeping the 2 newest?`)) return;
+            for (const name of doomed) { const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "rm", path: `/Backups/${name}`, reason: "backup-prune" }) }); if (!r.ok) { setReport("Prune failed — could not delete a copy."); return; } }
+            shell.bumpRefresh(); void loadSavedBackups();
+            setReport(`Pruned ${doomed.length} older backups; kept the 2 newest dated copies.`);
+          }} data-testid="backup-prune">Prune old</Btn>
+          <span className="fs-dim" style={{ fontSize: fz(11) }}>keeps 2 newest dated copies; undated files never pruned</span>
+        </span>
+        {savedBackups.length ? backupInventory(savedBackups, new Date()).map((e) => (
+          <div key={e.name} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }} data-testid="backup-inventory-row">
+            <span className="fs-mono">{e.name}</span>
+            <Badge tone={e.freshness === "fresh" ? "ok" : e.freshness === "stale" ? "warn" : "default"}>{e.freshness === "unknown" ? "date unknown" : e.freshness}</Badge>
+          </div>
+        )) : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>None yet — “Save copy to Files” keeps a dated bundle beside your documents.</span>}
       </Section>
 
       <Section title="Optional recovery key">

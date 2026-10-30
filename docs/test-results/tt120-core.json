@@ -1,0 +1,96 @@
+{
+  "suite": "tt120-core",
+  "at": "2026-10-30T19:57:21.772Z",
+  "results": [
+    {
+      "suite": "tt120-core",
+      "name": "ED-04 line nav + stats: clamped, wc-consistent",
+      "covers": {
+        "ED-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt120-core",
+      "name": "NT-04 note export: filename cannot escape, front-matter stands alone",
+      "covers": {
+        "NT-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt120-core",
+      "name": "PL-05 due presets: local end-of-day, +1/+7 days",
+      "covers": {
+        "PL-05": "full"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tt120-core",
+      "name": "WD-04 zone status: weekday 09-17 open, weekend closed",
+      "covers": {
+        "WD-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt120-core",
+      "name": "TM-04 head/tail: whole file when short, -n parsing",
+      "covers": {
+        "TM-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt120-core",
+      "name": "BK-08 freshness: never/fresh/stale against the stated threshold",
+      "covers": {
+        "BK-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt120-core",
+      "name": "SR-10 result groups: first-seen order, counts",
+      "covers": {
+        "SR-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt120-core",
+      "name": "PH-04 photo neighbours: no silent wrap at the boundary",
+      "covers": {
+        "PH-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt120-core",
+      "name": "MU-03 provider facet: counts, all explicit, unknown matches nothing",
+      "covers": {
+        "MU-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt120-core",
+      "name": "CN-06 stars: validated set, toggle round-trips",
+      "covers": {
+        "CN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

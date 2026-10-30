@@ -14,6 +14,7 @@ import { api, post } from "@/lib/api";
 import { toB64, fromB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { clampSlide } from "@/lib/slide-nav";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
 import * as M from "@/lib/office/pml";
 import { findSlideText, replaceSlideText } from "@/lib/office/pmlsearch";
@@ -544,7 +545,7 @@ export default function SlidesModule({ win }: ModuleProps) {
         {motion ? <MotionPanel doc={doc} cur={cur} sel={sel} mutate={mutate} onSelect={(a) => { if (edit) commitEdit(); setSel(a); }} onPreview={() => startShow(cur)} onClose={() => { setMotion(false); setTimeout(() => rootRef.current?.focus(), 0); }} /> : null}
       </div>
       <div className="fs-dim" style={{ padding: "3px 8px", borderTop: "1px solid var(--fs-border)", fontSize: fz(10.5), display: "flex", gap: 10 }}>
-        <span>Slide {cur + 1} of {doc.slides.length}{view.layoutName ? ` · ${view.layoutName}` : ""}{M.isHidden(slide) ? " · hidden" : ""}</span>
+        <span>Slide {cur + 1} of {doc.slides.length}{view.layoutName ? ` · ${view.layoutName}` : ""}{M.isHidden(slide) ? " · hidden" : ""}</span><input className="fs-input" style={{ width: fz(64) }} inputMode="numeric" placeholder="Go to" aria-label="Go to slide number" data-testid="slides-goto" onKeyDown={(e) => { if (e.key === "Enter") { const t = clampSlide((e.target as HTMLInputElement).value, doc.slides.length); if (t !== null) { if (edit) commitEdit(true); setCur(t); setSel(null); (e.target as HTMLInputElement).value = ""; } } }} /><input className="fs-input" style={{ width: fz(64) }} inputMode="numeric" placeholder="Go to" aria-label="Go to slide number" data-testid="slides-goto" onKeyDown={(e) => { if (e.key === "Enter") { const t = clampSlide((e.target as HTMLInputElement).value, doc.slides.length); if (t !== null) { if (edit) commitEdit(true); setCur(t); setSel(null); (e.target as HTMLInputElement).value = ""; } } }} /><span style={{ display: "none" }}>{""}{view.layoutName ? ` · ${view.layoutName}` : ""}{M.isHidden(slide) ? " · hidden" : ""}</span>
         <span style={{ flex: 1 }} />
         <span title="Transitions and entrance animations are edited in Motion and played in the show; other effects play approximately (entrance appears, exit hides). Everything the editor does not change — media, SmartArt data, embedded objects, themes, masters — is written back byte-for-byte.">Lossless .pptx · transitions + entrance animations play; media kept, not played</span>
       </div>

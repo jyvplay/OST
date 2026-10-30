@@ -1,4 +1,5 @@
 "use client";
+import { doneTasksText } from "@/lib/done-list";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useMemo, useState } from "react";
@@ -7,7 +8,11 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
 import { parseRRule, expandRecurrence } from "@/lib/recurrence";
 import { buildAgenda } from "@/lib/agenda";
+import { agendaText } from "@/lib/agenda-text";
+import { completionStats } from "@/lib/completion-stats";
+import { overdueText } from "@/lib/overdue-text";
 import { filterTasks, type TaskStatus } from "@/lib/task-filter";
+import { presetDue, presetLabel, type DuePreset } from "@/lib/due-presets";
 
 interface Task { id: number; title: string; notes: string; done: boolean; dueAt: string | null; kind: string; endAt: string | null }
 
@@ -44,6 +49,10 @@ export default function PlannerModule(_: ModuleProps) {
           onChange={(e) => setTitle(e.target.value)} aria-label="Task title"
           onKeyDown={(e) => { if (e.key === "Enter") (document.getElementById("planner-add") as HTMLButtonElement)?.click(); }} />
         <input className="fs-input" type="datetime-local" style={{ width: fz(200) }} value={due} onChange={(e) => setDue(e.target.value)} aria-label="Due" />
+        {(["today", "tomorrow", "next-week"] as DuePreset[]).map((preset) => (
+          <Btn key={preset} variant="ghost" title={presetLabel(preset)} onClick={() => { const d = presetDue(preset); if (d) { const p = (n: number) => String(n).padStart(2, "0"); setDue(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`); } }}>{preset === "today" ? "Today" : preset === "tomorrow" ? "Tomorrow" : "+1 week"}</Btn>
+        ))}
+        {(() => { const overdue = rows.filter((t) => !t.done && t.dueAt && new Date(t.dueAt) < new Date()).length; return overdue ? <><Badge tone="bad">{overdue} overdue</Badge><Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(overdueText(rows, new Date())); shell.toast("Overdue list copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="planner-copy-overdue">Copy overdue</Btn></> : null; })()}
         <Btn id="planner-add" variant="primary" disabled={!title} onClick={async () => {
           await post("/api/tasks", { title, dueAt: due ? new Date(due).toISOString() : null, ...(repeat ? { notes: `RRULE:${repeat}` } : {}) });
           setTitle(""); setDue(""); await load();
@@ -78,6 +87,14 @@ export default function PlannerModule(_: ModuleProps) {
       {rows.length === 0 ? <Empty title="Nothing planned" icon="🗓" /> : null}
       {rows.length > 0 && shownRows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(12) }} role="status">No tasks match the filter.</div> : null}
 
+      {view === "agenda" ? (
+        <div className="fs-row" style={{ gap: 6 }}>
+          <Btn variant="ghost" onClick={() => void shell.copy(agendaText(rows.map((t) => ({ title: t.title, due: t.dueAt, done: t.done })), new Date()), "planner")} data-testid="planner-copy-agenda">Copy today's agenda</Btn>
+          <Btn variant="ghost" onClick={() => void shell.copy(doneTasksText(rows), "planner")} data-testid="planner-copy-done">Copy done</Btn>
+          {(() => { const cs = completionStats(rows, new Date()); return <Badge tone="ok" data-testid="planner-completion">done today {cs.today} · this week {cs.week}{cs.undated ? ` · ${cs.undated} undated` : ""}</Badge>; })()}
+          <span className="fs-dim" style={{ fontSize: fz(11) }}>plain text, ready to paste anywhere</span>
+        </div>
+      ) : null}
       {view === "agenda" ? (
         <div style={{ display: "grid", gap: 8 }} data-testid="planner-agenda">
           {buildAgenda(shownRows).map((g) => (

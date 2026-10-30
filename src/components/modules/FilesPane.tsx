@@ -28,6 +28,7 @@ import { fromB64, open, seal, toB64, type Envelope } from "@/lib/crypto";
 import { useShell } from "../shell-context";
 import { guardedButtons, mouseConfigFrom, navActionFor } from "@/lib/input";
 import { Badge, Btn, Empty } from "../ui";
+import { namesList } from "@/lib/names-list";
 import { FileIcon, UiGlyph } from "../AppIcon";
 import { askText, askForm } from "@/lib/ask";
 import Thumb from "../Thumb";
@@ -385,6 +386,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
       { id: "move", label: "Move to…", group: "edit", run: () => moveTo(multi) },
       { id: "tag", label: "Tag…", group: "edit", keywords: "label colour", run: () => tagSel(multi) },
       { id: "copy-path", label: "Copy path", group: "edit", keywords: "clipboard", run: () => void shell.copy(paths.join("\n"), "files") },
+      { id: "copy-names", label: "Copy names list", group: "edit", keywords: "names list clipboard", run: () => { const text = namesList(shown.map((n) => ({ name: n.name }))); if (text) void shell.copy(text, "files"); else shell.toast("Nothing to copy.", "bad"); } },
       { id: "compress", label: "Compress to .zip", group: "archive", keywords: "archive zip", run: () => compressSel(paths) },
       ...(n.name.toLowerCase().endsWith(".zip") ? [{ id: "extract", label: "Extract here", group: "archive", keywords: "unzip archive", run: () => run("extract", async () => {
         // TT79: encrypted archives (ZipCrypto / WinZip AES) — the server answers needPassword; ask and retry

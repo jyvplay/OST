@@ -25,7 +25,8 @@ async function openModule(module: string) {
   page.setDefaultTimeout(20_000);
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await page.waitForSelector('[data-win-id="w1"]');
-  await page.waitForTimeout(1500);
+  await page.waitForFunction(() => (document.querySelector('[data-win-id="w1"]')?.textContent?.trim().length ?? 0) > 30, null, { timeout: 8000 }).catch(() => undefined);
+  await page.waitForTimeout(200);
   return { page, context };
 }
 const MEASURE = `(sel) => {

@@ -67,6 +67,10 @@ await test("CK-04/WD-03: a zone can be added; the converter answers with a date"
 });
 
 await test("PL-04: filtering to gibberish reports no match, not an empty planner", { "PL-04": "full" }, async () => {
+  // TT125: prune probe tasks from earlier runs so the Planner list (session data)
+  // stays bounded no matter how many gates run against this database.
+  const prior = await api<{ rows?: { id: number; title: string }[] }>("GET", "/api/tasks");
+  for (const r of prior.rows ?? []) if (r.title === "TT119 filter probe") await api("DELETE", `/api/tasks?id=${r.id}`);
   await api("POST", "/api/tasks", { title: "TT119 filter probe", dueAt: null });
   const planner = await openModule("planner");
   await planner.page.getByLabel("Filter tasks").fill("zzz-no-such-task");

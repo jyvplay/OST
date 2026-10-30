@@ -14,7 +14,7 @@ import { fz, useUiUnit } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
 import { toB64, fromB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
-import { Btn } from "../ui";
+import { Badge, Btn } from "../ui";
 import { RecoveryBanner, openSealedWithPrompt, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 import { restoredProtection, sealDraft } from "@/lib/office/draft-seal";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
@@ -24,6 +24,8 @@ import { wordConversionLoss, wordToMarkdown, wordToText } from "@/lib/office/con
 import { markdownToDocx } from "@/lib/office/md2docx";
 import { askExport, downloadAs } from "@/lib/office/export-ask";
 import * as WS from "@/lib/office/wordspell";
+import { goalStatus } from "@/lib/word-goal";
+import { readingTimeText } from "@/lib/read-time";
 import type { Speller } from "@/lib/spell/hunspell";
 import { addUserWord, loadSpeller, paintSpell, readSkipUpper, readSpellMode, readUserWords, removeUserWord, SPELL_CSS, writeSkipUpper, writeSpellMode, type SpellMode } from "@/lib/spell/client";
 import SpellPanel from "./writer/SpellPanel";
@@ -783,6 +785,8 @@ export default function WriterModule({ win }: ModuleProps) {
   // `ver` is the explicit invalidation tick for the ref-backed WordDoc model.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const counts = useMemo(() => { const d = docRef.current; if (!d) return { words: 0, chars: 0 }; const c = countWordDoc(d); return { words: c.words, chars: c.characters }; }, [ver]);
+  const [goalStart, setGoalStart] = useState<number | null>(null);
+  const [goalTarget, setGoalTarget] = useState(300);
   const openWordCount = () => {
     const d = docRef.current;
     const s = window.getSelection(), root = rootRef.current;
@@ -1017,7 +1021,9 @@ export default function WriterModule({ win }: ModuleProps) {
           <section role="dialog" aria-modal="true" aria-label="Word Count" data-testid="writer-word-count" style={{ width: "min(360px, 100%)", padding: 18, borderRadius: 12, color: "var(--fs-ink, #17212b)", background: "var(--fs-surface, #fff)", boxShadow: "0 12px 48px rgba(0,0,0,.3)" }}>
             <div className="fs-row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}><h2 style={{ margin: 0, fontSize: fz(18) }}>Word Count</h2><button ref={wordCountCloseRef} type="button" autoFocus aria-label="Close Word Count" onClick={closeWordCount}>Close</button></div>
             <dl style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "7px 16px", margin: 0 }}>
-              {countRow("Pages", pages, "writer-count-pages")}{countRow("Words", wordCountTotal.words, "writer-count-words")}{countRow("Characters (with spaces)", wordCountTotal.characters, "writer-count-chars")}{countRow("Characters (without spaces)", wordCountTotal.charactersNoSpaces, "writer-count-chars-no-spaces")}{countRow("Paragraphs", wordCountTotal.paragraphs, "writer-count-paragraphs")}{countRow("Lines", wordCountTotal.lines, "writer-count-lines")}
+              {goalStart !== null ? <span className="fs-row" style={{ gap: 6 }} data-testid="writer-goal"><Badge tone={goalStatus(goalStart, counts.words, goalTarget).done ? "ok" : "info"}>{goalStatus(goalStart, counts.words, goalTarget).written}/{goalTarget} words this session{goalStatus(goalStart, counts.words, goalTarget).done ? " · done" : ""}</Badge><Btn variant="ghost" style={{ color: "var(--fs-ink, #17212b)" }} onClick={() => setGoalStart(null)}>End goal</Btn></span> : <Btn variant="ghost" style={{ color: "var(--fs-ink, #17212b)" }} onClick={() => setGoalStart(counts.words)} data-testid="writer-goal-start">Set session goal</Btn>}
+              <label style={{ fontSize: fz(11) }}>target <input className="fs-input" style={{ width: fz(56) }} type="number" min={1} value={goalTarget} aria-label="Session word goal target" onChange={(e) => setGoalTarget(Math.max(1, Number(e.target.value) || 1))} /></label>
+              {countRow("Pages", pages, "writer-count-pages")}{countRow("Words", wordCountTotal.words, "writer-count-words")}{countRow("Characters (with spaces)", wordCountTotal.characters, "writer-count-chars")}{countRow("Characters (without spaces)", wordCountTotal.charactersNoSpaces, "writer-count-chars-no-spaces")}{countRow("Paragraphs", wordCountTotal.paragraphs, "writer-count-paragraphs")}{countRow("Lines", wordCountTotal.lines, "writer-count-lines")}{countRow("Reading time", readingTimeText(wordCountTotal.words), "writer-read-time")}
               {(wordCountNotes.words > 0 || wordCountNotes.characters > 0) && countRow("Footnotes & endnotes (words)", wordCountNotes.words, "writer-count-notes-words")}
             </dl>
             {wordCountSelection.trim() && <><h3 style={{ fontSize: fz(14), margin: "16px 0 8px" }}>Selection</h3><dl style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "7px 16px", margin: 0 }}>{countRow("Words", wordCountSelected.words, "writer-selection-words")}{countRow("Characters (with spaces)", wordCountSelected.characters, "writer-selection-chars")}{countRow("Characters (without spaces)", wordCountSelected.charactersNoSpaces, "writer-selection-chars-no-spaces")}</dl></>}

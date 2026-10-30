@@ -1,0 +1,40 @@
+{
+  "suite": "e2e-tt123",
+  "at": "2026-10-30T19:56:26.151Z",
+  "results": [
+    {
+      "suite": "e2e-tt123",
+      "name": "ED-07/NT-07/CK-07: find steps to a match; tag filter lists; offset sort toggles",
+      "covers": {
+        "ED-07": "full",
+        "NT-07": "full",
+        "CK-07": "full"
+      },
+      "pass": true,
+      "ms": 7591
+    },
+    {
+      "suite": "e2e-tt123",
+      "name": "BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+      "covers": {
+        "BK-11": "full",
+        "DV-02": "full",
+        "PH-07": "full",
+        "SL-01": "full"
+      },
+      "pass": true,
+      "ms": 9492
+    },
+    {
+      "suite": "e2e-tt123",
+      "name": "TM-06/SSH-01/WB-07: history builtin exists; font buttons render; PNG export offered",
+      "covers": {
+        "TM-06": "full",
+        "SSH-01": "full",
+        "WB-07": "full"
+      },
+      "pass": true,
+      "ms": 21745
+    }
+  ]
+}

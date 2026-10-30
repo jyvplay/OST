@@ -1,0 +1,49 @@
+{
+  "suite": "e2e-tt121",
+  "at": "2026-10-30T19:57:21.567Z",
+  "results": [
+    {
+      "suite": "e2e-tt121",
+      "name": "CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00",
+      "covers": {
+        "CV-02": "full",
+        "CK-05": "full"
+      },
+      "pass": true,
+      "ms": 8684
+    },
+    {
+      "suite": "e2e-tt121",
+      "name": "ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file",
+      "covers": {
+        "ED-05": "full",
+        "TM-05": "full"
+      },
+      "pass": true,
+      "ms": 6120
+    },
+    {
+      "suite": "e2e-tt121",
+      "name": "MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
+      "covers": {
+        "MD-10": "full",
+        "NT-05": "full",
+        "CN-07": "full",
+        "AX-23": "full"
+      },
+      "pass": true,
+      "ms": 6373
+    },
+    {
+      "suite": "e2e-tt121",
+      "name": "SC-19/PL-06/SR-11 controls exist and act: vault strength, agenda copy, find copy",
+      "covers": {
+        "SC-19": "full",
+        "PL-06": "full",
+        "SR-11": "full"
+      },
+      "pass": true,
+      "ms": 4433
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "suite": "ai-format",
-  "at": "2026-10-30T03:48:06.874Z",
+  "at": "2026-10-30T19:53:59.116Z",
   "results": [
     {
       "suite": "ai-format",
@@ -9,7 +9,7 @@
         "FF-04": "full"
       },
       "pass": true,
-      "ms": 91
+      "ms": 90
     },
     {
       "suite": "ai-format",
@@ -18,7 +18,7 @@
         "FF-04": "full"
       },
       "pass": true,
-      "ms": 34
+      "ms": 32
     },
     {
       "suite": "ai-format",
@@ -27,7 +27,7 @@
         "FF-04": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 7
     },
     {
       "suite": "ai-format",
@@ -37,7 +37,7 @@
         "FF-12": "partial"
       },
       "pass": true,
-      "ms": 2102
+      "ms": 2289
     },
     {
       "suite": "ai-format",

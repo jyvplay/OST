@@ -8,7 +8,11 @@ import { api, fmtTime, post, put } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { analyzeNote } from "@/lib/notes-stats";
+import { sortNotes, type NoteSort } from "@/lib/note-sort";
+import { allTags, filterByTag } from "@/lib/note-tags";
 import { findDailyNote, dailyTitle } from "@/lib/daily-note";
+import { noteFilename, noteToMarkdown } from "@/lib/note-export";
+import { notesBundle } from "@/lib/notes-bundle";
 import { extractTags, resolveLinks, backlinks } from "@/lib/note-links";
 
 interface Note { id: number; title: string; body: string; tags: string; pinned: boolean; updatedAt: string }
@@ -17,6 +21,8 @@ interface Note { id: number; title: string; body: string; tags: string; pinned: 
 export default function NotesModule({ win }: ModuleProps) {
   const shell = useShell();
   const [rows, setRows] = useState<Note[]>([]);
+  const [noteSort, setNoteSort] = useState<NoteSort>("updated");
+  const [tagFilter, setTagFilter] = useState("all");
   const [sel, setSel] = useState<number | null>((win.props.noteId as number) ?? null);
   const [edit, setEdit] = useState<Note | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -64,8 +70,18 @@ export default function NotesModule({ win }: ModuleProps) {
             setSel(r.row.id);
           }}>Daily</Btn>
         </div>
+        <label className="fs-row" style={{ gap: 6, padding: "2px 6px", fontSize: fz(11) }}>Sort
+          <select className="fs-select" style={{ width: "auto" }} aria-label="Sort notes" value={noteSort} onChange={(e) => setNoteSort(e.target.value as NoteSort)} data-testid="notes-sort">
+            <option value="updated">Recently edited</option><option value="title">Title A–Z</option><option value="created">Oldest first</option>
+          </select>
+          {allTags(rows).length ? <select className="fs-select" style={{ width: "auto" }} aria-label="Filter notes by tag" value={tagFilter} onChange={(e) => setTagFilter(e.target.value)} data-testid="notes-tag-filter">
+            <option value="all">All tags</option>
+            {allTags(rows).map((t) => <option key={t} value={t}>{t}</option>)}
+            <option value="untagged">Untagged</option>
+          </select> : null}
+        </label>
         <div className="fs-scroll" style={{ flex: 1, minHeight: 0, padding: 4 }}>
-          {rows.map((n) => (
+          {sortNotes(filterByTag(rows, tagFilter), noteSort).map((n) => (
             <OrbitTarget key={n.id} label={`Note: ${n.title}`} actions={[
               { label: "Open note", disabled: dirty && sel !== n.id, run: () => setSel(n.id) },
               { label: "Copy saved text", run: () => shell.copy(n.body, "notes") },
@@ -102,6 +118,15 @@ export default function NotesModule({ win }: ModuleProps) {
             <Btn variant="ghost" onClick={() => void put("/api/notes", { id: draft.id, pinned: !draft.pinned }).then(load)}>
               {draft.pinned ? "Unpin" : "Pin"}
             </Btn>
+            <Btn variant="ghost" title="Save this note as a Markdown file in Files" onClick={async () => {
+              const name = noteFilename(draft.title);
+              await post("/api/fs", { op: "write", path: `/${name}`, content: noteToMarkdown(draft), mime: "text/markdown", reason: "notes-export" });
+              shell.toast(`Exported to /${name}`, "ok");
+            }}>Export .md</Btn>
+            <Btn variant="ghost" title="Save every note as one Markdown bundle in Files" onClick={async () => {
+              await post("/api/fs", { op: "write", path: "/notes-bundle.md", content: notesBundle(rows.map((n) => ({ title: n.title, body: n.body, tags: n.tags })), new Date()), mime: "text/markdown", reason: "notes-bundle" });
+              shell.toast("Exported all notes to /notes-bundle.md", "ok");
+            }} data-testid="notes-bundle">Export all</Btn>
             <Btn variant="ghost" title="PR-06 mail handoff: opens your mail app with the note pre-filled"
               onClick={() => {
                 // mailto URLs are length-limited in practice (~2 000 chars in some clients); truncate visibly

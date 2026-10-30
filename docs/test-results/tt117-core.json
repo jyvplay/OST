@@ -1,6 +1,6 @@
 {
   "suite": "tt117-core",
-  "at": "2026-10-30T03:48:05.085Z",
+  "at": "2026-10-30T19:53:57.269Z",
   "results": [
     {
       "suite": "tt117-core",
@@ -64,7 +64,7 @@
         "FN-01": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 14
     },
     {
       "suite": "tt117-core",
@@ -75,7 +75,7 @@
         "RC-42": "full"
       },
       "pass": true,
-      "ms": 24
+      "ms": 36
     },
     {
       "suite": "tt117-core",
@@ -84,7 +84,7 @@
         "BR-01": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 5
     },
     {
       "suite": "tt117-core",
@@ -93,7 +93,7 @@
         "RT-01": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt117-core",
@@ -102,7 +102,7 @@
         "SP-01": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 1
     },
     {
       "suite": "tt117-core",
@@ -111,7 +111,7 @@
         "PL-02": "full"
       },
       "pass": true,
-      "ms": 21
+      "ms": 41
     }
   ]
 }

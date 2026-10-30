@@ -1,0 +1,15 @@
+{
+  "suite": "tt122-density",
+  "at": "2026-10-30T20:08:20.074Z",
+  "results": [
+    {
+      "suite": "tt122-density",
+      "name": "AX-24: every app measured, none wordier than the ceiling, no emoji marks",
+      "covers": {
+        "AX-24": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

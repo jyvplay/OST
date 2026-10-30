@@ -8,6 +8,11 @@ import { validateAlarms, nextFire, upcomingAlarms, lapStats, daysBetween, addDay
 import { commonWindows, validateCountdowns, daysUntil, type Countdown } from "@/lib/zones";
 import { validateZones, addZone, removeZone, allZoneNames, WORLD_ZONES_KEY } from "@/lib/zone-list";
 import { convertZoneTime } from "@/lib/zone-convert";
+import { zoneStatus } from "@/lib/zone-status";
+import { TIMER_PRESETS } from "@/lib/timer-presets";
+import { lapsText } from "@/lib/laps-text";
+import { sortZonesByOffset, offsetLabel, offsetMinutes } from "@/lib/zone-offset";
+import { worldTimesText } from "@/lib/world-times";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -36,6 +41,7 @@ export default function ClockModule(_: ModuleProps) {
   const timerMs = (timerMin * 60 + timerSec) * 1000;
   const fired = useRef(false);
   const [zones, setZones] = useState<string[]>(() => { try { return validateZones(JSON.parse(localStorage.getItem(WORLD_ZONES_KEY) ?? "null")); } catch { return validateZones(null); } });
+  const [offsetSort, setOffsetSort] = useState(false);
   const [zonePick, setZonePick] = useState("Europe/Paris");
   const [zoneMsg, setZoneMsg] = useState("");
   useEffect(() => { try { localStorage.setItem(WORLD_ZONES_KEY, JSON.stringify(zones)); } catch { /* private mode */ } }, [zones]);
@@ -101,10 +107,12 @@ export default function ClockModule(_: ModuleProps) {
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
-      <Section title="World clock">
-        {zones.map((z) => (
+      <Section title="World clock" right={<span className="fs-row" style={{ gap: 4 }}><Btn variant={offsetSort ? "primary" : "ghost"} aria-pressed={offsetSort} onClick={() => setOffsetSort((v) => !v)} data-testid="clock-offset-sort" title="Order zones west to east by current UTC offset">By offset</Btn><Btn variant="ghost" onClick={async () => { const now = new Date(); const rows = (offsetSort ? sortZonesByOffset(zones, now) : zones).map((z) => ({ zone: z, time: now.toLocaleTimeString([], { timeZone: z, hour: "2-digit", minute: "2-digit", second: "2-digit" }), offset: offsetLabel(offsetMinutes(z, now)) })); try { await navigator.clipboard.writeText(worldTimesText(rows)); shell.toast("World times copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="clock-copy-times">Copy times</Btn></span>}>
+
+        {(offsetSort ? sortZonesByOffset(zones, new Date()) : zones).map((z) => (
           <div key={z} className="fs-row" style={{ justifyContent: "space-between" }}>
-            <span style={{ fontSize: fz(12) }}>{z.replace(/_/g, " ")}</span>
+            <span style={{ fontSize: fz(12) }}>{z.replace(/_/g, " ")} <span className="fs-dim">{offsetLabel(offsetMinutes(z, new Date()))}</span></span>
+            {(() => { const st = zoneStatus(z); return <Badge tone={st.open ? "ok" : "default"} title={`${st.localTime} in ${z}`}>{st.open ? "work hours" : st.localTime}</Badge>; })()}
             <span className="fs-row" style={{ gap: 4 }}>
               <span className="fs-mono">{new Date().toLocaleTimeString([], { timeZone: z, hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
               {z !== "UTC" ? <Btn variant="ghost" aria-label={`Remove zone ${z}`} onClick={() => { try { setZones((l) => removeZone(l, z)); } catch { /* UTC only */ } }}>✕</Btn> : null}
@@ -129,6 +137,7 @@ export default function ClockModule(_: ModuleProps) {
             : <Btn onClick={() => { setSwAcc(sw); setSwStart(null); }}>Pause</Btn>}
           <Btn variant="ghost" disabled={swStart === null} onClick={() => setLaps((l) => [sw, ...l])}>Lap</Btn>
           <Btn variant="ghost" onClick={() => { setSwStart(null); setSwAcc(0); setLaps([]); }}>Reset</Btn>
+          {laps.length ? <Btn variant="ghost" onClick={() => void shell.copy(lapsText([...laps].reverse()), "clock")} data-testid="clock-copy-laps">Copy laps</Btn> : null}
         </div>
         {laps.map((l, i) => <div key={i} data-testid="clock-lap" className="fs-mono fs-dim" style={{ fontSize: fz(11.5) }}>lap {laps.length - i}: {fmt(l)}</div>)}
         {laps.length > 1 ? (() => { const st = lapStats([...laps].reverse()); return <div className="fs-dim" data-testid="clock-lap-stats" style={{ fontSize: fz(11) }}>fastest lap {st.fastest!.index} ({fmt(st.fastest!.splitMs)}) · slowest lap {st.slowest!.index} ({fmt(st.slowest!.splitMs)}) · average split {fmt(Math.round(st.averageSplitMs))}</div>; })() : null}
@@ -182,6 +191,9 @@ export default function ClockModule(_: ModuleProps) {
           {remaining === null
             ? <Btn variant="primary" disabled={timerMs <= 0} onClick={() => { fired.current = false; setTimerEnd(performance.now() + timerMs); }}>Start<span className="sr-only"> timer</span></Btn>
             : <Btn variant="danger" onClick={() => setTimerEnd(null)}>Cancel</Btn>}
+        </div>
+        <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }} data-testid="timer-presets" role="group" aria-label="Timer presets">
+          {TIMER_PRESETS.map((p) => <Btn key={p.label} variant="ghost" disabled={remaining !== null} onClick={() => { setTimerMin(Math.floor(p.seconds / 60)); setTimerSec(p.seconds % 60); }}>{p.label}</Btn>)}
         </div>
         <div className="fs-dim" style={{ fontSize: fz(11) }}>
           Fires while Fusion is open. A closed web app cannot schedule an exact alarm (Notification Triggers never

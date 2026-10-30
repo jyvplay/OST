@@ -13,6 +13,7 @@ import { useCallback, useMemo, useState } from "react";
 import { fz } from "@/lib/uiscale";
 import { baseName } from "@/lib/files/model";
 import type { ModuleProps } from "../shell-context";
+import { useShell } from "../shell-context";
 import { UiGlyph } from "../AppIcon";
 import FilesPane from "./FilesPane";
 import TerminalModule from "./Terminal";
@@ -24,6 +25,7 @@ const newTab = (start: string, trash = false): Tab => ({ id: `t${++tabSeq}`, sta
 
 export default function FilesModule({ win }: ModuleProps) {
   const startPath = (win.props.path as string) ?? "/";
+  const shell = useShell();
   const [tabs, setTabs] = useState<Tab[]>(() => [newTab(startPath, win.props.trash === true)]);
   const [activeTab, setActiveTab] = useState(() => tabs[0].id);
   const [where, setWhere] = useState<Record<string, { path: string; trash: boolean }>>({});

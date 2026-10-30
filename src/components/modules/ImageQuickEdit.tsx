@@ -1,4 +1,5 @@
 "use client";
+import { shownFx } from "@/lib/compare-fx";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { fz } from "@/lib/uiscale";
 
@@ -6,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtBytes, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
+import { UiGlyph } from "../AppIcon";
 import { askText } from "@/lib/ask";
 
 interface Crop { left: number; top: number; width: number; height: number }
@@ -29,6 +31,7 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
   const [sourcePath, setSourcePath] = useState((win.props.path as string) ?? "");
   const [crop, setCrop] = useState<Crop>(DEFAULT_CROP);
   const [fx, setFx] = useState<Fx>(DEFAULT_FX);
+  const [comparing, setComparing] = useState(false);
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -52,14 +55,15 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourcePath]);
 
+  const activeFx = shownFx(fx, DEFAULT_FX, comparing);
   const draw = useCallback((target: HTMLCanvasElement, maxDim = Infinity) => {
     if (!bitmap) return;
     const sx = Math.round(bitmap.width * crop.left / 100);
     const sy = Math.round(bitmap.height * crop.top / 100);
     const sw = Math.max(1, Math.round(bitmap.width * crop.width / 100));
     const sh = Math.max(1, Math.round(bitmap.height * crop.height / 100));
-    const outW = fx.rotate % 180 ? sh : sw;
-    const outH = fx.rotate % 180 ? sw : sh;
+    const outW = activeFx.rotate % 180 ? sh : sw;
+    const outH = activeFx.rotate % 180 ? sw : sh;
     const scale = Math.min(1, maxDim / Math.max(outW, outH));
     target.width = Math.max(1, Math.round(outW * scale));
     target.height = Math.max(1, Math.round(outH * scale));
@@ -67,12 +71,12 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
     if (!ctx) throw new Error("2D canvas unavailable");
     ctx.save();
     ctx.translate(target.width / 2, target.height / 2);
-    ctx.rotate(fx.rotate * Math.PI / 180);
-    ctx.scale(fx.flipX ? -1 : 1, fx.flipY ? -1 : 1);
-    ctx.filter = `brightness(${fx.brightness}%) contrast(${fx.contrast}%) saturate(${fx.saturate}%) grayscale(${fx.grayscale}%) sepia(${fx.sepia}%)`;
+    ctx.rotate(activeFx.rotate * Math.PI / 180);
+    ctx.scale(activeFx.flipX ? -1 : 1, activeFx.flipY ? -1 : 1);
+    ctx.filter = `brightness(${activeFx.brightness}%) contrast(${activeFx.contrast}%) saturate(${activeFx.saturate}%) grayscale(${activeFx.grayscale}%) sepia(${activeFx.sepia}%)`;
     ctx.drawImage(bitmap, sx, sy, sw, sh, -sw * scale / 2, -sh * scale / 2, sw * scale, sh * scale);
     ctx.restore();
-  }, [bitmap, crop, fx]);
+  }, [bitmap, crop, activeFx]);
 
   useEffect(() => {
     if (!bitmap || !canvasRef.current) return;
@@ -165,6 +169,7 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
           </div>
         </Section>
         <div className="fs-row" data-banner-group="Look" style={{ gap: 4, flexWrap: "wrap" }}>
+          <Btn variant={comparing ? "primary" : "ghost"} aria-pressed={comparing} onPointerDown={() => setComparing(true)} onPointerUp={() => setComparing(false)} onPointerLeave={() => setComparing(false)} title="Hold to see the original pixels" data-testid="ie-compare"><UiGlyph name="compare" size={13} /> Compare</Btn>
           <Btn variant="ghost" onClick={() => { setCrop(DEFAULT_CROP); setFx(DEFAULT_FX); }}>Reset edits</Btn>
         </div>
         <div className="fs-dim" style={{ fontSize: fz(10.5), lineHeight: 1.5 }}>Single raster layer; no PSD layers. Source is never overwritten. Export is capped at 32 MP and 8 MB VFS; larger files download instead.</div>

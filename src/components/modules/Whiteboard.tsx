@@ -7,6 +7,8 @@ import { api, post } from "@/lib/api";
 import * as W from "@/lib/whiteboard-core";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { rasterSize } from "@/lib/raster-size";
+import { zoomLabel } from "@/lib/zoom-step";
 
 /**
  * Whiteboard (TT23): an Excalidraw/Miro-style infinite canvas on top of the pure engine in src/lib/whiteboard-core.ts.
@@ -274,6 +276,22 @@ export default function WhiteboardModule({ win }: ModuleProps) {
     await post("/api/fs", { op: "write", path: dest, content: W.toSvg(hist.now), reason: "whiteboard-export" });
     setStatus(`exported ${dest}`); shell.bumpRefresh();
   };
+  const exportPng = async () => {
+    const dest = (path && path.endsWith(".fboard") ? path.replace(/\.fboard$/i, "") : `/Documents/${fileName(name)}`) + ".png";
+    try {
+      const svg = W.toSvg(hist.now);
+      const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+      const img = new Image(); img.src = url; await img.decode();
+      const size = rasterSize(img.naturalWidth || 1600, img.naturalHeight || 1000, 2);
+      const c = document.createElement("canvas"); c.width = size.w; c.height = size.h;
+      c.getContext("2d")!.drawImage(img, 0, 0, size.w, size.h); URL.revokeObjectURL(url);
+      const blob = await new Promise<Blob>((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("PNG encode failed"))), "image/png"));
+      const buf = new Uint8Array(await blob.arrayBuffer());
+      let bin = ""; for (let i = 0; i < buf.length; i += 8192) bin += String.fromCharCode(...buf.subarray(i, i + 8192));
+      await post("/api/fs", { op: "write", path: dest, content: btoa(bin), encoding: "base64", mime: "image/png", reason: "whiteboard-export-png" });
+      setStatus(`exported ${dest} (${size.w}×${size.h}${size.capped ? ", scaled to the pixel cap" : ""})`); shell.bumpRefresh();
+    } catch (e) { setStatus(`PNG export failed: ${String((e as Error).message)}`); }
+  };
 
   const layers = useMemo(() => board.els.slice().reverse(), [board]);
   if (!loaded) return <div style={{ padding: 16 }}>Opening board…</div>;
@@ -332,6 +350,8 @@ export default function WhiteboardModule({ win }: ModuleProps) {
           <input className="fs-input" aria-label="Board name" value={name} onChange={(e) => setName(e.target.value)} style={{ flex: `0 1 ${fz(180)}`, minWidth: fz(110) }} />
           <Btn variant="primary" onClick={() => void save()}>Save .fboard</Btn>
           <Btn variant="ghost" onClick={() => void exportSvg()}>Export SVG</Btn>
+          <Btn variant="ghost" onClick={() => void exportPng()} data-testid="wb-export-png">Export PNG</Btn>
+          <Btn variant="ghost" disabled={!selEls.length} title={selEls.length ? "Export only the selected elements" : "Select elements first"} onClick={async () => { const dest = (path && path.endsWith(".fboard") ? path.replace(/\.fboard$/i, "") : `/Documents/${fileName(name)}`) + "-selection.png"; try { const svg = W.toSvg({ ...hist.now, els: selEls }); const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); const img = new Image(); img.src = url; await img.decode(); const size = rasterSize(img.naturalWidth || 320, img.naturalHeight || 240, 2); const c = document.createElement("canvas"); c.width = size.w; c.height = size.h; c.getContext("2d")!.drawImage(img, 0, 0, size.w, size.h); URL.revokeObjectURL(url); const blob = await new Promise<Blob>((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("PNG encode failed"))), "image/png")); const buf = new Uint8Array(await blob.arrayBuffer()); let bin = ""; for (let i2 = 0; i2 < buf.length; i2 += 8192) bin += String.fromCharCode(...buf.subarray(i2, i2 + 8192)); await post("/api/fs", { op: "write", path: dest, content: btoa(bin), encoding: "base64", mime: "image/png", reason: "whiteboard-export-selection" }); setStatus(`exported ${dest} (${size.w}×${size.h}, selection only)`); shell.bumpRefresh(); } catch (e) { setStatus(`selection export failed: ${(e as Error).message}`); } }} data-testid="wb-export-selection">Export selection</Btn>
         </BannerGroup>
         <BannerGroup name="Tweak">
           <Btn variant="ghost" disabled={!hist.past.length} onClick={undo}>Undo</Btn>
@@ -347,6 +367,7 @@ export default function WhiteboardModule({ win }: ModuleProps) {
         <BannerGroup name="Glance">
           <Btn variant="ghost" aria-label="Zoom out" onClick={() => zoomCenter(1 / 1.2)}>-</Btn>
           <span style={{ minWidth: fz(44), textAlign: "center", fontSize: fz(12) }} data-testid="wb-zoom">{Math.round(cam.z * 100)}%</span>
+          <Btn variant="ghost" aria-label="Reset zoom to 100 percent" onClick={() => { const r = svgRef.current?.getBoundingClientRect(); setCam((c) => ({ ...c, z: 1 })); }} data-testid="wb-zoom-label">{zoomLabel(cam.z)}</Btn>
           <Btn variant="ghost" aria-label="Zoom in" onClick={() => zoomCenter(1.2)}>+</Btn>
           <Btn variant="ghost" onClick={fit}>Fit</Btn>
           <Btn variant="ghost" aria-pressed={grid} onClick={() => setGrid((g) => !g)}>{grid ? "Snap: on" : "Snap: off"}</Btn>

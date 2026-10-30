@@ -17,12 +17,18 @@
  */
 import { photoTimeline } from "@/lib/photo-timeline";
 import { clampInterval, nextIndex } from "@/lib/slideshow";
+import { shuffleOrder } from "@/lib/shuffle-order";
+import { undatedPhotos } from "@/lib/photo-dates";
+import { photoInfoText } from "@/lib/photo-info";
+import { neighbor, positionLabel } from "@/lib/photo-order";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fz } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { UiGlyph } from "../AppIcon";
+import { sortPhotos, type PhotoSort } from "@/lib/photo-sort";
 import Thumb from "../Thumb";
 import { readFileBytes, readRecipe, readRecipeForEditing, forgetThumbnail, bytesToB64, type RecipeIdentity } from "@/lib/thumbs/service";
 import { PRESETS, isIdentity, isSidecar, outputSize, parseRecipe, photoOfSidecar, renderRecipe, sidecarPath, type PhotoRecipe, type PresetName } from "@/lib/photos/recipe";
@@ -32,7 +38,7 @@ import type { FileMeta } from "@/lib/meta";
 
 interface Item { id: number; version: number; path: string; name: string; mime: string; size: number; sha256: string; createdAt: string; updatedAt: string }
 interface Info { date?: string; dateSource: "exif" | "file"; w?: number; h?: number; camera?: string; lat?: number; lon?: number }
-type View = "all" | "favorites" | "edited" | "places";
+type View = "all" | "favorites" | "edited" | "places" | "undated";
 const INDEX_KEY = "fusion.photos.index.v1";
 const DECODABLE = /^image\/(jpeg|png|gif|webp|bmp|avif|x-icon|vnd\.microsoft\.icon)$/;
 
@@ -52,6 +58,7 @@ export default function PhotosModule({ win }: ModuleProps) {
   const [sidecars, setSidecars] = useState<Set<string>>(new Set());
   const [index, setIndex] = useState<Record<string, Info>>({});
   const [view, setView] = useState<View>("all");
+  const [photoSort, setPhotoSort] = useState<PhotoSort>("captured");
   const [open, setOpen] = useState<string | null>((win.props.path as string) ?? null);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,7 +107,7 @@ export default function PhotosModule({ win }: ModuleProps) {
 
   const shown = useMemo(() => {
     if (!items) return [];
-    const f = items.filter((i) => view === "all" ? true : view === "favorites" ? recipes[i.path]?.favorite : view === "edited" ? recipes[i.path] && !isIdentity(recipes[i.path]) : index[i.sha256]?.lat !== undefined);
+    const f = sortPhotos(items.filter((i) => view === "all" ? true : view === "favorites" ? recipes[i.path]?.favorite : view === "edited" ? recipes[i.path] && !isIdentity(recipes[i.path]) : view === "undated" ? undatedPhotos([i], index).length > 0 : index[i.sha256]?.lat !== undefined), photoSort);
     const dateOf = (i: Item) => index[i.sha256]?.date ?? i.createdAt;
     return [...f].sort((a, b) => Date.parse(dateOf(b)) - Date.parse(dateOf(a)));
   }, [items, view, recipes, index]);
@@ -114,24 +121,34 @@ export default function PhotosModule({ win }: ModuleProps) {
   }, [shown, index]);
 
   const [showPlaying, setShowPlaying] = useState(false);
+  const [shuffle, setShuffle] = useState(false);
+  const shuffleRef = useRef<number[]>([]);
   const [showSecs, setShowSecs] = useState(4);
   useEffect(() => {
     if (!showPlaying || shown.length === 0) return;
     const t = window.setInterval(() => {
       const i = shown.findIndex((x) => x.path === open);
-      const n = shown[nextIndex(i, shown.length)];
-      if (n) setOpen(n.path);
+      if (shuffle) {
+        if (shuffleRef.current.length !== shown.length) shuffleRef.current = shuffleOrder(shown.length, () => Math.random());
+        const pos = shuffleRef.current.indexOf(i);
+        const n = shown[shuffleRef.current[nextIndex(pos < 0 ? 0 : pos, shown.length)]];
+        if (n) setOpen(n.path);
+      } else {
+        const n = shown[nextIndex(i, shown.length)];
+        if (n) setOpen(n.path);
+      }
     }, clampInterval(showSecs) * 1000);
     return () => window.clearInterval(t);
-  }, [showPlaying, showSecs, shown, open]);
+  }, [showPlaying, showSecs, shown, open, shuffle]);
   const current = items?.find((i) => i.path === open) ?? null;
   if (current) {
     return <PhotoEditor key={current.path + current.sha256} item={current} info={index[current.sha256]} showPlaying={showPlaying} onToggleShow={() => setShowPlaying((v) => !v)} onClose={() => { setShowPlaying(false); setOpen(null); }}
+      nav={{ label: positionLabel(shown, current.path), prev: neighbor(shown, current.path, -1)?.item.path ?? null, next: neighbor(shown, current.path, 1)?.item.path ?? null, go: (path: string) => setOpen(path) }}
       onSaved={(r) => { setRecipes((m) => { const n = { ...m }; if (r) n[current.path] = r; else delete n[current.path]; return n; }); setSidecars((s) => { const n = new Set(s); if (r) n.add(current.path); else n.delete(current.path); return n; }); }}
       onExported={() => { load(); shell.bumpRefresh(); }} />;
   }
 
-  const counts = { all: items?.length ?? 0, favorites: items?.filter((i) => recipes[i.path]?.favorite).length ?? 0, edited: items?.filter((i) => recipes[i.path] && !isIdentity(recipes[i.path])).length ?? 0, places: items?.filter((i) => index[i.sha256]?.lat !== undefined).length ?? 0 };
+  const counts = { all: items?.length ?? 0, undated: items ? undatedPhotos(items, index).length : 0, favorites: items?.filter((i) => recipes[i.path]?.favorite).length ?? 0, edited: items?.filter((i) => recipes[i.path] && !isIdentity(recipes[i.path])).length ?? 0, places: items?.filter((i) => index[i.sha256]?.lat !== undefined).length ?? 0 };
   const indexed = items ? items.filter((i) => index[i.sha256]).length : 0;
   const timeline = photoTimeline((items ?? []).map((i) => ({ path: i.path, mime: i.mime, size: i.size, date: index[i.sha256]?.date ?? i.createdAt })));
   const timelineStrip = timeline.groups.length ? (
@@ -146,6 +163,7 @@ export default function PhotosModule({ win }: ModuleProps) {
       {shown.length > 1 ? <div className="fs-row" style={{ gap: 6, padding: "0 8px 6px", flexWrap: "wrap" }} data-testid="photos-slideshow">
         <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={showPlaying} disabled={shown.length === 0} onClick={() => { if (!showPlaying && !open && shown[0]) setOpen(shown[0].path); setShowPlaying((v) => !v); }}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn>
         <label style={{ fontSize: fz(11.5) }}>every <input className="fs-input" style={{ width: fz(52) }} type="number" min={1} max={60} value={showSecs} aria-label="Slideshow seconds per photo" onChange={(e) => setShowSecs(clampInterval(Number(e.target.value)))} /> s</label>
+        <Btn variant={shuffle ? "primary" : "ghost"} aria-pressed={shuffle} onClick={() => setShuffle((v) => !v)} data-testid="photos-shuffle"><UiGlyph name="shuffle" size={13} /> Shuffle</Btn>
         <span className="fs-dim" style={{ fontSize: fz(11) }}>{shown.length} photos · wraps at the end</span>
       </div> : null}
       {/* TT80 banner: Glance (the library views) · Keep over one tool strip */}
@@ -153,9 +171,12 @@ export default function PhotosModule({ win }: ModuleProps) {
 {items && indexed < items.length ? <Badge tone="info">reading dates {indexed}/{items.length}</Badge> : null}
       </>}>
         <BannerGroup name="Glance">
-        {(["all", "favorites", "edited", "places"] as View[]).map((v) => (
+        <select className="fs-select" style={{ width: "auto" }} aria-label="Sort photos" value={photoSort} onChange={(e) => setPhotoSort(e.target.value as PhotoSort)} data-testid="photos-sort">
+          <option value="captured">Capture date</option><option value="name">Name A–Z</option><option value="size">Size</option>
+        </select>
+        {(["all", "favorites", "edited", "places", "undated"] as View[]).map((v) => (
           <Btn key={v} variant={view === v ? "primary" : "ghost"} aria-pressed={view === v} onClick={() => setView(v)}>
-            {v === "all" ? "All photos" : v === "favorites" ? "Favorites" : v === "edited" ? "Edited" : "Places"} <span className="fs-dim">({counts[v]})</span>
+            {v === "all" ? "All photos" : v === "favorites" ? "Favorites" : v === "edited" ? "Edited" : v === "undated" ? "No date" : "Places"} <span className="fs-dim">({counts[v]})</span>
           </Btn>
         ))}
         </BannerGroup>
@@ -235,7 +256,17 @@ function rasterToCanvas(r: Raster): OffscreenCanvas {
 type RecipeStore = "host" | "private" | "ram";
 const recipeStore = (path: string): RecipeStore => isPrivatePath(path) ? "private" : privacy.status().amnesic ? "ram" : "host";
 
-function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, onToggleShow }: { item: Item; info?: Info; onClose: () => void; onSaved: (r: PhotoRecipe | null) => void; onExported: () => void; showPlaying?: boolean; onToggleShow?: () => void }) {
+function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, onToggleShow, nav }: { item: Item; info?: Info; onClose: () => void; onSaved: (r: PhotoRecipe | null) => void; onExported: () => void; showPlaying?: boolean; onToggleShow?: () => void; nav?: { label: string; prev: string | null; next: string | null; go: (path: string) => void } }) {
+  useEffect(() => {
+    if (!nav) return;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.closest("input, textarea, select")) return;
+      if (e.key === "ArrowLeft" && nav.prev) nav.go(nav.prev);
+      if (e.key === "ArrowRight" && nav.next) nav.go(nav.next);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [nav]);
   const shell = useShell();
   const [state, setState] = useState<{ base?: Raster; meta?: FileMeta; error?: string; note?: string; saved: PhotoRecipe | null } | null>(null);
   const [hist, setHist] = useState<{ list: PhotoRecipe[]; at: number }>({ list: [{ v: 1 }], at: 0 });
@@ -385,14 +416,32 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, on
 
   const meta = state?.meta;
   const rows = useMemo(() => meta ? describeRows(meta) : [], [meta]);
-  if (!state) return <div style={{ padding: 16 }} className="fs-dim">Opening {item.name}…</div>;
-  if (state.error) return <div style={{ padding: 16, display: "grid", gap: 8 }}><Badge tone="bad">{state.error}</Badge><Btn onClick={onClose}>Back to library</Btn></div>;
+  // Position nav survives loading and decode-error states: walking the library
+  // must never strand the user on a tile the canvas cannot rasterise (SVG, PSD).
+  const headerNav = (
+    <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
+      <Btn variant="ghost" onClick={onClose} aria-label="Back to library">‹ Library</Btn>
+      {nav ? <span className="fs-row" style={{ gap: 4 }}>
+        <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
+        <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }}>{nav.label}</span>
+        <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
+      </span> : null}
+    </div>
+  );
+  if (!state) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16 }} className="fs-dim">Opening {item.name}…</div></div>;
+  if (state.error) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16, display: "grid", gap: 8 }}><Badge tone="bad">{state.error}</Badge></div></div>;
   const r = recipe;
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, position: "relative" }} data-testid="photos-editor">
       <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
         <Btn variant="ghost" onClick={onClose} aria-label="Back to library">‹ Library</Btn>
         {onToggleShow ? <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={!!showPlaying} onClick={onToggleShow}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn> : null}
+        {nav ? <span className="fs-row" style={{ gap: 4 }}>
+          <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
+          <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }}>{nav.label}</span>
+          <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(photoInfoText({ path: item.path, size: item.size, mime: item.mime, index: info ? { date: info.date ?? null, camera: info.camera, lat: info.lat, lon: info.lon } : undefined })); shell.toast("Photo info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="photos-copy-info">Copy info</Btn>
+          <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
+        </span> : null}
         <strong style={{ fontSize: fz(13) }}>{item.name}</strong>
         <div style={{ flex: 1 }} />
         <span role="radiogroup" aria-label="Rating" style={{ display: "flex" }}>

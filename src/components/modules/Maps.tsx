@@ -6,6 +6,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import * as M from "@/lib/maps-core";
+import { formatDecimal, formatDMS } from "@/lib/coord-format";
 import * as G from "@/lib/geodesy";
 import * as PC from "@/lib/pluscode";
 import * as GF from "@/lib/geo-formats";
@@ -475,6 +476,12 @@ export default function MapsModule({ win }: ModuleProps) {
               <span className="fs-dim">Plus Code</span>
               <code data-testid="mp-pluscode" style={{ fontSize: fz(13) }}>{PC.encode(sel.lat, sel.lng)}</code>
               <Btn variant="ghost" onClick={() => { const code = PC.encode(sel.lat, sel.lng); void navigator.clipboard?.writeText(code).then(() => setStatus(`Copied ${code}`), () => setStatus(code)); }} data-testid="mp-pluscode-copy" aria-label={`Copy Plus Code ${PC.encode(sel.lat, sel.lng)}`}>Copy</Btn>
+            </div>
+            <div className="fs-row" style={{ gap: 6, alignItems: "center" }} data-testid="mp-coords">
+              <span className="fs-dim">Coordinates</span>
+              <code style={{ fontSize: fz(12) }}>{formatDecimal(sel.lat, sel.lng)}</code>
+              <span className="fs-dim" style={{ fontSize: fz(11) }}>{formatDMS(sel.lat, sel.lng)}</span>
+              <Btn variant="ghost" onClick={() => { const t = formatDecimal(sel.lat, sel.lng); void navigator.clipboard?.writeText(t).then(() => setStatus(`Copied ${t}`), () => setStatus(t)); }} aria-label="Copy coordinates">Copy</Btn>
             </div>
             <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }} role="group" aria-label="Pin colour">
               {M.PLACE_COLORS.map((c) => <button key={c} type="button" className="fs-maps-swatch" style={{ background: c }} aria-label={`Colour ${c}`} aria-pressed={sel.color === c} onClick={() => change((p) => M.updatePlace(p, sel.id, { color: c }))} />)}

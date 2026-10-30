@@ -7,6 +7,8 @@ import { parseScript, ROUTINE_COMMANDS, type RoutineAction } from "@/lib/routine
 import { exportRoutines, parseRoutineImport } from "@/lib/routine-io";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
+import { filterRoutines } from "@/lib/routine-filter";
+import { duplicateName } from "@/lib/routine-dup";
 import { askText } from "@/lib/ask";
 
 interface Routine { id: number; name: string; trigger: string; triggerArg: string; actions: RoutineAction[]; enabled: boolean; lastRun: string | null }
@@ -20,6 +22,7 @@ interface Preset { id: string; name: string; windows: number; updatedAt: string 
 export default function RoutinesModule(_: ModuleProps) {
   const shell = useShell();
   const [rows, setRows] = useState<Routine[]>([]);
+  const [routineQ, setRoutineQ] = useState("");
   const [presets, setPresets] = useState<Preset[]>([]);
   const [name, setName] = useState("Morning desk");
   const [script, setScript] = useState("closeAll\nopen planner\ntile left\nopen notes\ntile right\ntheme dark");
@@ -112,8 +115,9 @@ export default function RoutinesModule(_: ModuleProps) {
             }} />
           </label>
         </div>
+        {rows.length ? <input className="fs-input" type="search" placeholder="Search routines" aria-label="Search routines" value={routineQ} onChange={(e) => setRoutineQ(e.target.value)} data-testid="routines-search" /> : null}
         {rows.length === 0 ? <Empty title="No routines" icon="⚡" /> : null}
-        {rows.map((r) => (
+        {filterRoutines(rows.map((r) => ({ r, name: r.name, actions: JSON.stringify(r.actions) })), routineQ).map(({ r }) => (
           <div key={r.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
             <span style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: fz(12) }}>{r.name}</div>
@@ -123,6 +127,7 @@ export default function RoutinesModule(_: ModuleProps) {
               </div>
             </span>
             <Badge tone={r.enabled ? "ok" : "default"}>{r.enabled ? "enabled" : "off"}</Badge>
+            <Btn variant="ghost" onClick={async () => { await post("/api/routines", { name: duplicateName(r.name, rows.map((x) => x.name)), trigger: r.trigger, triggerArg: r.triggerArg ?? "", actions: r.actions }); await load(); }} data-testid="routine-dup">Duplicate</Btn>
             <Btn variant="ghost" onClick={async () => { await patch("/api/routines", { id: r.id, enabled: !r.enabled }); await load(); }}>{r.enabled ? "Disable" : "Enable"}</Btn>
             <Btn variant="primary" onClick={async () => { await shell.runActions(r.actions); await post("/api/routines", { ranId: r.id }); await load(); }}>Run</Btn>
             <Btn variant="ghost" onClick={async () => { await fetch(`/api/routines?id=${r.id}`, { method: "DELETE" }); await load(); }}>✕</Btn>

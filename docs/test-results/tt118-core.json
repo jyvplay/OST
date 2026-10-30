@@ -1,6 +1,6 @@
 {
   "suite": "tt118-core",
-  "at": "2026-10-30T03:48:05.720Z",
+  "at": "2026-10-30T19:53:57.914Z",
   "results": [
     {
       "suite": "tt118-core",
@@ -9,7 +9,7 @@
         "DF-01": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 1
     },
     {
       "suite": "tt118-core",
@@ -18,7 +18,7 @@
         "NT-02": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 9
     },
     {
       "suite": "tt118-core",
@@ -36,7 +36,7 @@
         "WD-01": "full"
       },
       "pass": true,
-      "ms": 95
+      "ms": 82
     },
     {
       "suite": "tt118-core",
@@ -45,7 +45,7 @@
         "WD-02": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 9
     },
     {
       "suite": "tt118-core",
@@ -54,7 +54,7 @@
         "CV-01": "full"
       },
       "pass": true,
-      "ms": 17
+      "ms": 0
     },
     {
       "suite": "tt118-core",
@@ -63,7 +63,7 @@
         "UC-01": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt118-core",
@@ -81,7 +81,7 @@
         "BK-06": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt118-core",
@@ -99,7 +99,7 @@
         "PH-02": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt118-core",

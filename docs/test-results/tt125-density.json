@@ -1,0 +1,34 @@
+{
+  "suite": "tt125-density",
+  "at": "2026-10-30T20:17:17.097Z",
+  "results": [
+    {
+      "suite": "tt125-density",
+      "name": "TT125 register: all twenty codes built, register grew past TT124's 587",
+      "covers": {
+        "SP-01": "mechanism"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "tt125-density",
+      "name": "AX-24 bounds: every touched module within its TT125 cap",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 19
+    },
+    {
+      "suite": "tt125-density",
+      "name": "screenshots: editor stamp toolbar + lens capability row",
+      "covers": {
+        "ED-10": "mechanism",
+        "LN-19": "mechanism"
+      },
+      "pass": true,
+      "ms": 5318
+    }
+  ]
+}

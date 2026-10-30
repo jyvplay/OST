@@ -21,6 +21,12 @@ const BOOK = "/Contacts/contacts.vcf";
 const EMAIL_TYPES = ["home", "work", "other"];
 const TEL_TYPES = ["cell", "home", "work", "fax", "other"];
 const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+import { loadStars, storeStars, toggleStar } from "@/lib/contact-stars";
+import { filterContacts, type ContactFacet } from "@/lib/contact-filter";
+import { sortByFamily } from "@/lib/contact-name-sort";
+import { emailList } from "@/lib/email-list";
+import { contactCardFile } from "@/lib/contact-card";
+import { UiGlyph } from "../AppIcon";
 const initials = (c: C.Contact) => (c.n.given || c.fn).charAt(0).toUpperCase() + (c.n.family ? c.n.family.charAt(0).toUpperCase() : "");
 const newUid = () => `urn:uuid:${crypto.randomUUID()}`;
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
@@ -96,8 +102,18 @@ export default function ContactsModule({ win }: ModuleProps) {
     setUndo((u) => u.slice(0, -1)); setList(prev); setVer((v) => v + 1);
   };
 
-  const sorted = useMemo(() => C.sortContacts(list ?? []), [list]);
-  const shown = useMemo(() => sorted.filter((c) => C.matches(c, q)), [sorted, q]);
+  const [nameOrder, setNameOrder] = useState<"given" | "family">("given");
+  const sorted = useMemo(() => nameOrder === "family" ? sortByFamily(list ?? []) : C.sortContacts(list ?? []), [list, nameOrder]);
+  const [stars, setStars] = useState<Set<string>>(() => { try { return loadStars(localStorage); } catch { return new Set(); } });
+  const [starredOnly, setStarredOnly] = useState(false);
+  const [facet, setFacet] = useState<ContactFacet>("all");
+  const shown = useMemo(() => {
+    const base = sorted.filter((c) => C.matches(c, q) && (!starredOnly || stars.has(c.uid)));
+    if (facet === "all") return base;
+    const keep = new Set(filterContacts(base.map((c) => ({ c, emails: c.emails.map((e) => e.value), phones: c.tels.map((t) => t.value) })), facet).map((x) => x.c.uid));
+    return base.filter((c) => keep.has(c.uid));
+  }, [sorted, q, starredOnly, stars, facet]);
+  const doToggleStar = (uid: string) => setStars((prev) => { const next = toggleStar(prev, uid); try { storeStars(localStorage, next); } catch { /* private mode */ } return next; });
   const dupes = useMemo(() => C.findDuplicates(list ?? []), [list]);
   const birthdays = useMemo(() => C.upcomingBirthdays(list ?? [], today(), 30), [list]);
   const current = (list ?? []).find((c) => c.uid === sel) ?? null;
@@ -175,6 +191,8 @@ export default function ContactsModule({ win }: ModuleProps) {
           title={pickerOk ? "Pick contacts from this device (Contact Picker API)" : "The Contact Picker API is not available in this browser (it ships in Chrome on Android); import a .vcf instead"}>
           From device
         </Btn>
+        <select className="fs-select" style={{ width: "auto" }} aria-label="Sort contacts by" value={nameOrder} onChange={(e) => setNameOrder(e.target.value as "given" | "family")} data-testid="contacts-name-order"><option value="given">First name</option><option value="family">Family name</option></select>
+        <Btn variant="ghost" disabled={!shown.length} onClick={async () => { const list = emailList(shown); try { await navigator.clipboard.writeText(list.join(", ")); shell.toast(list.length ? `${list.length} address(es) copied.` : "No mail addresses on screen."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="ct-copy-emails">Copy emails</Btn>
         <Btn onClick={() => list && download("contacts.vcf", C.serializeVcf(sorted), "text/vcard")} disabled={!list?.length} data-testid="ct-download-vcf">Download .vcf</Btn>
         <Btn data-testid="ct-export-csv" disabled={!list?.length} onClick={async () => {
           const csv = C.toCsv(sorted); const dst = path.replace(/[^/]+$/, "contacts-export.csv");
@@ -192,6 +210,10 @@ export default function ContactsModule({ win }: ModuleProps) {
           <div style={{ padding: 8 }}>
             <label htmlFor={`${idp}-q`} className="fs-dim" style={{ fontSize: fz(11.5) }}>Search name, e-mail, phone, notes</label>
             <input id={`${idp}-q`} data-testid="ct-search" className="fs-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" style={{ width: "100%", boxSizing: "border-box" }} />
+            <Btn variant={starredOnly ? "primary" : "ghost"} aria-pressed={starredOnly} onClick={() => setStarredOnly((v) => !v)} style={{ marginTop: 6 }}><UiGlyph name="starFill" size={12} /> Starred</Btn>
+            <select className="fs-select" style={{ width: "auto", marginTop: 6 }} aria-label="Filter contacts by contact details" value={facet} onChange={(e) => setFacet(e.target.value as ContactFacet)} data-testid="contacts-facet">
+              <option value="all">All contacts</option><option value="email">Has e-mail</option><option value="phone">Has phone</option><option value="noEmail">No e-mail</option>
+            </select>
           </div>
           {birthdays.length ? (
             <div data-testid="ct-birthdays" style={{ padding: "0 8px 8px", fontSize: fz(12) }}>
@@ -211,6 +233,8 @@ export default function ContactsModule({ win }: ModuleProps) {
               return (
                 <li key={c.uid} style={{ minWidth: 0 }}>
                   {head ? <div aria-hidden className="fs-dim" style={{ fontSize: fz(11), padding: "6px 6px 2px", fontWeight: 700 }}>{letter}</div> : null}
+                  <span style={{ display: "flex", gap: 2, alignItems: "stretch" }}>
+                  <Btn variant="ghost" aria-pressed={stars.has(c.uid)} aria-label={stars.has(c.uid) ? `Unstar ${c.fn}` : `Star ${c.fn}`} title={stars.has(c.uid) ? "Starred" : "Star"} onClick={() => doToggleStar(c.uid)}>{stars.has(c.uid) ? <UiGlyph name="starFill" size={14} /> : <UiGlyph name="star" size={14} />}</Btn>
                   <button data-testid="ct-item" data-uid={c.uid} aria-current={c.uid === sel ? "true" : undefined} className="fs-list-item" data-selected={c.uid === sel}
                     onClick={() => { setSel(c.uid); setView("card"); setDraft(null); }} onKeyDown={(e) => onListKey(e, c)}
                     style={{ width: "100%", minWidth: 0, boxSizing: "border-box", border: 0, background: c.uid === sel ? undefined : "none", color: "inherit", font: "inherit", textAlign: "left" }}>
@@ -220,6 +244,7 @@ export default function ContactsModule({ win }: ModuleProps) {
                       <span className="fs-dim" style={{ fontSize: fz(11.5), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.org[0] || c.emails[0]?.value || c.tels[0]?.value || ""}</span>
                     </span>
                   </button>
+                  </span>
                 </li>
               );
             })}
@@ -242,7 +267,15 @@ export default function ContactsModule({ win }: ModuleProps) {
               ))}
             </section>
           ) : current ? (
-            <Card c={current} onEdit={() => startEdit(current)} onDelete={() => remove(current)} />
+            <div style={{ display: "grid", gap: 8 }}>
+              <div className="fs-row" style={{ gap: 6 }}>
+                
+          <Btn variant="ghost" onClick={() => void shell.copy(contactCardFile(current).text, "contacts")} data-testid="ct-copy-card">Copy vCard</Btn>
+                <Btn variant="ghost" onClick={() => { const f = contactCardFile(current); download(f.filename, f.text, "text/vcard"); }} data-testid="ct-download-card">Download .vcf</Btn>
+                <span className="fs-dim" style={{ fontSize: fz(11) }}>just this contact, same format as the whole book</span>
+              </div>
+              <Card c={current} onEdit={() => startEdit(current)} onDelete={() => remove(current)} />
+            </div>
           ) : (
             <div className="fs-dim" style={{ padding: 20 }}>{list?.length ? "Select a contact." : "Your address book is empty."}</div>
           )}

@@ -4,6 +4,8 @@ import { fz } from "@/lib/uiscale";
 import { useState } from "react";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section } from "../ui";
+import { filterMessages } from "@/lib/message-search";
+import { conversationText } from "@/lib/conversation-text";
 
 /**
  * MS-01/03/04. The messaging module ships the *connector seam* and an honest
@@ -15,7 +17,8 @@ export default function MessagesModule(_: ModuleProps) {
   const [endpoint, setEndpoint] = useState("");
   const [token, setToken] = useState("");
   const [result, setResult] = useState<string>("");
-  const [messages, setMessages] = useState<{ id: string; from: string; text: string; ts: number }[]>([]);
+  const [msgQ, setMsgQ] = useState("");
+              const [messages, setMessages] = useState<{ id: string; from: string; text: string; ts: number }[]>([]);
   const [chat, setChat] = useState("");
   const [room, setRoom] = useState("general");
   const [homeserver, setHomeserver] = useState("");
@@ -84,8 +87,10 @@ export default function MessagesModule(_: ModuleProps) {
             } catch (e) { setResult(String((e as Error).message)); }
           }}>Send</Btn>
         </div>
+        <input className="fs-input" placeholder="Search these messages" aria-label="Search loaded messages" value={msgQ} onChange={(e) => setMsgQ(e.target.value)} data-testid="messages-search" />
+        <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(conversationText(filterMessages(messages, msgQ))); shell.toast("Conversation copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="messages-copy">Copy conversation</Btn>
         <div className="fs-scroll" style={{ maxHeight: 150, fontSize: fz(11.5) }}>
-          {messages.map((m) => <div key={m.id}><span className="fs-dim">{new Date(m.ts).toLocaleTimeString()} </span>{m.from}: {m.text}</div>)}
+          {filterMessages(messages, msgQ).map((m) => <div key={m.id}><span className="fs-dim">{new Date(m.ts).toLocaleTimeString()} </span>{m.from}: {m.text}</div>)}
         </div>
       </Section>
 

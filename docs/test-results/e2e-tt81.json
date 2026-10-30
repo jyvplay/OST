@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt81",
-  "at": "2026-10-28T23:03:25.852Z",
+  "at": "2026-10-30T18:05:55.134Z",
   "results": [
     {
       "suite": "e2e-tt81",
@@ -8,8 +8,9 @@
       "covers": {
         "FF-78": "full"
       },
-      "pass": true,
-      "ms": 3874
+      "pass": false,
+      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Spreadsheet', exact: true }).last().getByRole('button', { name: 'Save workbook', exact: true })\n",
+      "ms": 18574
     },
     {
       "suite": "e2e-tt81",
@@ -18,7 +19,7 @@
         "FF-79": "full"
       },
       "pass": true,
-      "ms": 3689
+      "ms": 5301
     },
     {
       "suite": "e2e-tt81",
@@ -26,8 +27,9 @@
       "covers": {
         "FF-80": "full"
       },
-      "pass": true,
-      "ms": 3666
+      "pass": false,
+      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Slides', exact: true }).last().getByTestId('app-banner').getByRole('button', { name: 'Save', exact: true })\n",
+      "ms": 18615
     },
     {
       "suite": "e2e-tt81",
@@ -36,8 +38,8 @@
         "FF-81": "full"
       },
       "pass": false,
-      "error": "Command failed: /usr/local/bin/node scripts/oracle/pdfjs-scale.mjs /tmp/e2e81-9pTNm1/user-unit-ui.pdf\nnode:internal/modules/esm/resolve:275\n    throw new ERR_MODULE_NOT_FOUND(\n          ^\n\nError [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/tools/node_modules/pdfjs-dist/legacy/build/pdf.mjs' imported from /home/user/OST/scripts/oracle/pdfjs-scale.mjs\n    at finalizeResolution (node:internal/modules/esm/resolve:275:11)\n    at moduleResolve (node:internal/modules/esm/resolve:861:10)\n    at defaultResolve (node:internal/modules/esm/resolve:985:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)\n    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)\n    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)\n    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)\n    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)\n    at ModuleLoader.import (node:internal/modules/esm/loader:679:21)\n    at defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31) {\n  code: 'ERR_MODULE_NOT_FOUND',\n  url: 'file:///home/user/tools/node_modules/pdfjs-dist/legacy/build/pdf.mjs'\n}\n\nNode.js v22.22.3\n",
-      "ms": 2213
+      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByTestId('pdf-app').last().getByRole('button', { name: '100%', exact: true })\n",
+      "ms": 15836
     },
     {
       "suite": "e2e-tt81",
@@ -45,8 +47,9 @@
       "covers": {
         "FF-82": "full"
       },
-      "pass": true,
-      "ms": 3120
+      "pass": false,
+      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator('[role=\"dialog\"][aria-label=\"Writer\"]').last().getByTestId('writer-new')\n    - locator resolved to <button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" data-testid=\"writer-new\">New</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    29 × waiting for element to be visible, enabled and stable\n       - element is not visible\n     - retrying click action\n       - waiting 500ms\n",
+      "ms": 17212
     },
     {
       "suite": "e2e-tt81",
@@ -56,7 +59,7 @@
         "FM-07": "full"
       },
       "pass": true,
-      "ms": 4240
+      "ms": 4372
     },
     {
       "suite": "e2e-tt81",

@@ -1,5 +1,6 @@
 "use client";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
+import { UiGlyph } from "../AppIcon";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
@@ -9,6 +10,13 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { diffLines, diffStats } from "@/lib/diff-core";
 import { findMatches, replaceAll, replaceOne } from "@/lib/editor-find";
+import { clampLine, offsetAtLine, docStats } from "@/lib/line-nav";
+import { transformLines } from "@/lib/line-ops";
+import { wrapStyle, readWrap, WRAP_KEY } from "@/lib/editor-wrap";
+import { nextMatch } from "@/lib/match-nav";
+import { indentSelection } from "@/lib/editor-indent";
+import { caseTransform } from "@/lib/case-text";
+import { stampText } from "@/lib/stamp-text";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
@@ -30,11 +38,14 @@ export default function EditorModule({ win }: ModuleProps) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [diffOf, setDiffOf] = useState<Version | null>(null);
   const [preview, setPreview] = useState(false);
+  const [wrapOn, setWrapOn] = useState<boolean>(() => { try { return readWrap(window.localStorage); } catch { return false; } });
   const [status, setStatus] = useState("");
   const [findQ, setFindQ] = useState("");
   const [replQ, setReplQ] = useState("");
   const [caseSens, setCaseSens] = useState(false);
   const [findMsg, setFindMsg] = useState("");
+  const [gotoLine, setGotoLine] = useState("");
+  const areaRef = useRef<HTMLTextAreaElement | null>(null);
   const fmt = formatFor(path);
 
   useEffect(() => {
@@ -131,14 +142,29 @@ export default function EditorModule({ win }: ModuleProps) {
         <input className="fs-input" style={{ width: fz(150) }} placeholder="Replace with" aria-label="Replace with" value={replQ} onChange={(e) => setReplQ(e.target.value)} />
         <Btn variant="ghost" aria-pressed={caseSens} onClick={() => setCaseSens((v) => !v)} title="Match case">Aa</Btn>
         <Btn variant="ghost" onClick={() => { try { const m = findMatches(text, findQ, caseSens); setFindMsg(m.length ? `${m.length} match${m.length === 1 ? "" : "es"} · first at line ${m[0].line}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Count</Btn>
+        <Btn variant="ghost" aria-label="Previous match" onClick={() => { try { const m = findMatches(text, findQ, caseSens); const ta = areaRef.current; const nav = nextMatch(m.map((x) => x.index), (ta?.selectionStart ?? 0) - 1, -1); if (nav) { const hit = m[nav.index]; ta?.focus(); ta?.setSelectionRange(hit.index, hit.index + findQ.length); setFindMsg(`match ${nav.index + 1} of ${m.length}${nav.wrapped ? " (wrapped)" : ""}`); } } catch (e) { setFindMsg(String((e as Error).message)); } }}><UiGlyph name="caret-up" size={13} /></Btn>
+        <Btn variant="ghost" aria-label="Next match" onClick={() => { try { const m = findMatches(text, findQ, caseSens); const ta = areaRef.current; const nav = nextMatch(m.map((x) => x.index), ta?.selectionStart ?? -1, 1); if (nav) { const hit = m[nav.index]; ta?.focus(); ta?.setSelectionRange(hit.index, hit.index + findQ.length); setFindMsg(`match ${nav.index + 1} of ${m.length}${nav.wrapped ? " (wrapped)" : ""}`); } } catch (e) { setFindMsg(String((e as Error).message)); } }}><UiGlyph name="caret-down" size={13} /></Btn>
         <Btn variant="ghost" onClick={() => { try { const r = replaceOne(text, findQ, replQ, 1, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced the first of ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace</Btn>
         <Btn variant="primary" onClick={() => { try { const r = replaceAll(text, findQ, replQ, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace all</Btn>
+        <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, {})); setDirty(true); }} title="Sort all lines A to Z">Sort lines</Btn>
+        <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { desc: true })); setDirty(true); }} title="Sort all lines Z to A">Reverse sort</Btn>
+        <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { dedupe: true })); setDirty(true); }} title="Remove duplicate lines">Dedupe lines</Btn>
+        <Btn variant={wrapOn ? "primary" : "ghost"} aria-pressed={wrapOn} onClick={() => { const next = !wrapOn; setWrapOn(next); try { window.localStorage.setItem(WRAP_KEY, next ? "1" : "0"); } catch { /* preference only */ } }} title="Soft-wrap long lines"><UiGlyph name="wrap" size={13} /> Wrap</Btn>
+        <Btn variant="ghost" title="Indent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, 1); setText(r.text); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(r.selStart, r.selEnd); }); }} data-testid="editor-indent"><UiGlyph name="indent" size={13} /> Indent</Btn>
+        <Btn variant="ghost" title="Dedent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, -1); setText(r.text); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(r.selStart, r.selEnd); }); }} data-testid="editor-dedent"><span style={{ display: "inline-flex", transform: "scaleX(-1)" }}><UiGlyph name="indent" size={13} /></span> Dedent</Btn>
+        {(["upper", "lower", "title"] as const).map((m) => <Btn key={m} variant="ghost" title={`Selection to ${m === "upper" ? "UPPER CASE" : m === "lower" ? "lower case" : "Title Case"}`} onClick={() => { const ta = areaRef.current; if (!ta) return; const a = ta.selectionStart, b = ta.selectionEnd; if (a === b) return; setText(text.slice(0, a) + caseTransform(text.slice(a, b), m) + text.slice(b)); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(a, b); }); }} data-testid={`editor-case-${m}`}>{m === "upper" ? "AA" : m === "lower" ? "aa" : "Aa"}</Btn>)}
+        <Btn variant="ghost" title="Insert the current date and time at the cursor" onClick={() => { const ta = areaRef.current; if (!ta) return; const a = ta.selectionStart, b = ta.selectionEnd; const st = stampText(new Date()); setText(text.slice(0, a) + st + text.slice(b)); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(a + st.length, a + st.length); }); }} data-testid="editor-stamp">now</Btn>
         {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
+        <span style={{ flex: 1 }} />
+        <input className="fs-input" style={{ width: fz(76) }} inputMode="numeric" placeholder="Line #" aria-label="Go to line" value={gotoLine}
+          onChange={(e) => setGotoLine(e.target.value)}
+          onKeyDown={(e) => { if (e.key !== "Enter") return; e.preventDefault(); const n = clampLine(Number(gotoLine), text); const off = offsetAtLine(text, n); const el = areaRef.current; if (el) { el.focus(); el.setSelectionRange(off, off); const lh = 18; el.scrollTop = Math.max(0, (n - 3) * lh); } setFindMsg(`line ${n} of ${docStats(text).lines}`); }} />
+        {(() => { const st = docStats(text); return <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }} data-testid="editor-stats">{st.lines} lines · {st.words} words · {st.chars} chars · ~{st.readingMinutes} min read</span>; })()}
       </div>
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: preview ? "1fr 1fr" : "1fr" }}>
-        <textarea className="fs-textarea" value={text} spellCheck={false}
+        <textarea ref={areaRef} className="fs-textarea" value={text} spellCheck={false}
           onChange={(e) => { setText(e.target.value); setDirty(true); }}
-          style={{ border: 0, borderRadius: 0, height: "100%", resize: "none", padding: 10 }}
+          style={{ border: 0, borderRadius: 0, height: "100%", resize: "none", padding: 10, ...wrapStyle(wrapOn) }}
           aria-label={`Editing ${path}`} />
         {preview ? (
           <div className="fs-scroll" style={{ borderLeft: "1px solid var(--fs-border)", padding: 10, fontSize: fz(12.5), lineHeight: 1.6 }}>

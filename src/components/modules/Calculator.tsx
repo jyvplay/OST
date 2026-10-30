@@ -7,10 +7,12 @@ import {
   appendCalculatorHistory, CALC_HISTORY_KEEP, CALC_HISTORY_LIMIT, CALC_HISTORY_PREFIX,
   deleteCalculatorHistory, readCalculatorHistory, type CalculatorEntry,
 } from "@/lib/calc-history";
+import { historyAsText } from "@/lib/calc-history-text";
 import { privacy } from "@/lib/privacy/session";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import { CONVERTER, convert, formatConverted } from "@/lib/converter";
+import { MEM_EMPTY, memAdd, memSub, memClear, memRecall, type MemState } from "@/lib/calc-memory";
 
 const KEYS = [
   ["7", "8", "9", "/", "sqrt("],
@@ -57,6 +59,7 @@ export default function CalculatorModule(_: ModuleProps) {
   const [keep, setKeep] = useState(false);
   const [amnesic, setAmnesic] = useState(false);
   const [status, setStatus] = useState("");
+  const [mem, setMem] = useState<MemState>(MEM_EMPTY);
   const standard = mode === "scientific" ? evaluate(expr) : null;
   const programmer = mode === "programmer" ? evaluateProgrammer(expr, width, signed) : null;
   const result = standard ?? programmer!;
@@ -141,6 +144,13 @@ export default function CalculatorModule(_: ModuleProps) {
         </span>
         {standard?.detail ? <Badge tone="info">{standard.detail}</Badge> : null}
       </div>
+      <div className="fs-row" style={{ gap: 4 }} data-testid="calc-memory" role="group" aria-label="Calculator memory">
+        <Btn variant="ghost" disabled={!result.ok} onClick={() => setMem((m) => memAdd(m, Number(result.text)))}>M+</Btn>
+        <Btn variant="ghost" disabled={!result.ok} onClick={() => setMem((m) => memSub(m, Number(result.text)))}>M−</Btn>
+        <Btn variant="ghost" disabled={!mem.has} onClick={() => { const v = memRecall(mem); if (v !== null) setExpr(String(v)); }}>MR</Btn>
+        <Btn variant="ghost" disabled={!mem.has} onClick={() => setMem(memClear())}>MC</Btn>
+        {mem.has ? <Badge tone="info">M = {mem.value}</Badge> : <span className="fs-dim" style={{ fontSize: fz(11) }}>memory empty (this window only)</span>}
+      </div>
       {programmer?.ok ? <div data-testid="programmer-bases" className="fs-mono" style={{ overflowWrap: "anywhere", fontSize: fz(11) }}>
         <div>HEX {programmer.hex.toUpperCase()}</div><div>OCT {programmer.oct}</div><div>BIN {programmer.bin}</div>
       </div> : null}
@@ -159,6 +169,7 @@ export default function CalculatorModule(_: ModuleProps) {
       <div className="fs-row" style={{ flexWrap: "wrap" }}>
         <input className="fs-input" style={{ flex: "1 1 10em", width: "auto" }} aria-label="Filter calculator history" placeholder="Filter history" value={filter} onChange={(e) => setFilter(e.target.value)} />
         <Btn variant={keep ? "primary" : "ghost"} aria-pressed={keep} disabled={amnesic} onClick={toggleKeep}>{keep ? "Stop saving history" : "Keep new history locally"}</Btn>
+        <Btn variant="ghost" disabled={!history.length} onClick={async () => { try { await navigator.clipboard.writeText(historyAsText(history.map((h) => ({ expr: h.expr, text: h.text })))); setStatus("History copied."); } catch { setStatus("Clipboard unavailable."); } }} data-testid="calc-copy-history">Copy history</Btn>
         <Btn variant="ghost" onClick={clearHistory}>Delete history</Btn>
       </div>
       <div className="fs-scroll" role="region" style={{ flex: "1 0 80px", minHeight: fz(80) }} aria-label="Calculator history">

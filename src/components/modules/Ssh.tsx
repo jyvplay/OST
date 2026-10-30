@@ -6,6 +6,8 @@ import { api, post } from "@/lib/api";
 import { Vt, keyToBytes, mouseReport, A, DEFAULT, RGB, type Row } from "@/lib/vt";
 import { createSession, SshConnection, pasteBytes, sftpUpload, type SshEvent } from "@/lib/ssh-client";
 import { Btn, Badge } from "../ui";
+import { clampTermFont, stepTermFont } from "@/lib/term-font";
+import { connLine } from "@/lib/conn-line";
 import type { ModuleProps } from "../shell-context";
 
 /**
@@ -65,6 +67,7 @@ function TerminalView({ conn, vt, onTitle, focusKey }: { conn: SshConnection; vt
   const [, setTick] = useState(0);
   const [scroll, setScroll] = useState(0); // rows scrolled back
   const [bell, setBell] = useState(false);
+  const [font, setFont] = useState(13);
   const box = useRef<HTMLDivElement | null>(null), ta = useRef<HTMLTextAreaElement | null>(null), probe = useRef<HTMLSpanElement | null>(null);
   const cell = useRef({ w: 8, h: 17 });
   const composing = useRef(false);
@@ -138,7 +141,7 @@ function TerminalView({ conn, vt, onTitle, focusKey }: { conn: SshConnection; vt
   return (
     <div ref={box} data-testid="ssh-term" className="fs-mono" onMouseDown={(e) => { if (!mouse("down", e)) return; }} onMouseUp={(e) => { mouse("up", e); if (!window.getSelection()?.toString()) ta.current?.focus({ preventScroll: true }); }}
       onMouseMove={(e) => { if (vt.modes.mouse === 1003 || (vt.modes.mouse === 1002 && held.current >= 0)) mouse("move", e); }} onWheel={onWheel}
-      style={{ position: "relative", flex: 1, minHeight: 0, overflow: "hidden", padding: "6px 8px", background: BG, color: FG, fontSize: fz(13), lineHeight: 1.3, cursor: "text", outline: bell ? "2px solid #ffd48a" : "none", outlineOffset: -2 }}>
+      style={{ position: "relative", flex: 1, minHeight: 0, overflow: "hidden", padding: "6px 8px", background: BG, color: FG, fontSize: fz(font), lineHeight: 1.3, cursor: "text", outline: bell ? "2px solid #ffd48a" : "none", outlineOffset: -2 }}>
       <span ref={probe} aria-hidden style={{ position: "absolute", visibility: "hidden", whiteSpace: "pre" }}>WWWWWWWWWW</span>
       <div role="log" aria-live="off" aria-label="Remote terminal" style={{ whiteSpace: "pre" }}>
         {view.map((row, y) => (
@@ -147,6 +150,11 @@ function TerminalView({ conn, vt, onTitle, focusKey }: { conn: SshConnection; vt
           </div>
         ))}
       </div>
+      <span style={{ position: "absolute", right: 10, bottom: 6, display: "flex", gap: 4, zIndex: 2 }}>
+        <button type="button" className="fs-btn" data-variant="ghost" aria-label="Decrease terminal font size" onClick={() => setFont((f) => stepTermFont(f, -1))} data-testid="ssh-font-down">A−</button>
+          {["uptime", "df -h /", "free -m"].map((sn) => <button key={sn} type="button" className="fs-btn" data-variant="ghost" title={`Send "${sn}" to the session`} onClick={() => conn.send(sn + "\r")} data-testid={`ssh-snippet-${sn.split(" ")[0]}`}>{sn}</button>)}
+        <button type="button" className="fs-btn" data-variant="ghost" aria-label="Increase terminal font size" onClick={() => setFont((f) => stepTermFont(f, 1))} data-testid="ssh-font-up">A+</button>
+      </span>
       {scroll > 0 && <div style={{ position: "absolute", right: 10, top: 6, fontSize: fz(11), background: "#ffd48a", color: "#1b1e28", padding: "1px 8px", borderRadius: 8 }}>scrollback −{scroll}</div>}
       <textarea ref={ta} aria-label="Remote terminal input" data-testid="ssh-input" autoCapitalize="off" autoComplete="off" autoCorrect="off" spellCheck={false}
         onKeyDown={onKeyDown} onInput={onInput} onPaste={onPaste}
@@ -340,6 +348,7 @@ export default function SshModule({ win }: ModuleProps) {
               <input className="fs-input" aria-label="Host" placeholder="host or address" value={host} onChange={(e) => setHost(e.target.value)} style={{ flex: 1, minWidth: 180 }} autoCapitalize="off" spellCheck={false} />
               <input className="fs-input" aria-label="Port" value={port} onChange={(e) => setPort(e.target.value.replace(/[^0-9]/g, ""))} style={{ width: 80 }} inputMode="numeric" />
               <Btn type="submit" variant="primary" disabled={!host.trim() || !user.trim()}>Connect</Btn>
+              <button type="button" className="fs-btn" data-variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(connLine({ user, host, port, state: (phase as string) === "session" ? (ready ? "connected" : status || "connecting") : "not connected" })); setStatus("Connection line copied."); } catch { setStatus("Clipboard unavailable."); } }} data-testid="ssh-copy-line" aria-label="Copy connection line">⧉</button>
             </div>
             <div className="fs-row" style={{ gap: 14, flexWrap: "wrap", alignItems: "center" }} role="radiogroup" aria-label="Authentication">
               {([["vfs", "Key file in Fusion"], ["paste", "Paste a key"], ["none", "Password only"]] as const).map(([id, label]) => (

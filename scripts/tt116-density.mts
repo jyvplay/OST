@@ -69,7 +69,8 @@ async function openModule(module: string, props: Record<string, unknown> = {}) {
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
   await page.goto(BASE, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('[data-win-id="w1"]');
-  await page.waitForTimeout(1200);
+  await page.waitForFunction(() => (document.querySelector('[data-win-id="w1"]')?.textContent?.trim().length ?? 0) > 30, null, { timeout: 8000 }).catch(() => undefined);
+  await page.waitForTimeout(200);
   return { page, context };
 }
 

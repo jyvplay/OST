@@ -7,6 +7,9 @@ import { toVtt } from "@/lib/forge";
 import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
+import { PLAYBACK_RATES, snapRate, rateLabel } from "@/lib/playback-rate";
+import { loopLabel, nextLoop } from "@/lib/loop-pref";
+import { nextAbState, abLoopSeek, abLabel, type AbState } from "@/lib/ab-loop";
 import { askText } from "@/lib/ask";
 import { losslessTrim, isTrimError } from "@/lib/media/trim";
 
@@ -18,6 +21,9 @@ import { losslessTrim, isTrimError } from "@/lib/media/trim";
 export default function MediaModule({ win }: ModuleProps) {
   const shell = useShell();
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [rate, setRate] = useState(1);
+  const [loop, setLoop] = useState(false);
+  const [ab, setAb] = useState<AbState>({ a: null, b: null });
   const [src, setSrc] = useState<string>((win.props.url as string) ?? "");
   const [path, setPath] = useState<string>((win.props.path as string) ?? "");
   const [remoteAvailable, setRemoteAvailable] = useState<boolean | null>(null);
@@ -123,9 +129,21 @@ export default function MediaModule({ win }: ModuleProps) {
       <video ref={videoRef} src={src || undefined} controls playsInline
         /* Safari-only attribute that enables its native AirPlay route */
         {...{ "x-webkit-airplay": "allow" }}
-        style={{ width: "100%", maxHeight: 320, background: "#000", borderRadius: 10 }}>
+        style={{ width: "100%", maxHeight: 320, background: "#000", borderRadius: 10 }} onTimeUpdate={(e) => { const seek = abLoopSeek(ab, (e.target as HTMLVideoElement).currentTime); if (seek !== null) (e.target as HTMLVideoElement).currentTime = seek; }}>
         {captions ? <track kind="subtitles" src={captions} srcLang="en" label="Subtitles" default /> : null}
       </video>
+
+      <div className="fs-row" style={{ gap: 6, alignItems: "center" }} data-testid="media-rate">
+        <label style={{ fontSize: fz(12) }}>Speed
+          <select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Playback speed" value={rate}
+            onChange={(e) => { const r = snapRate(Number(e.target.value)); setRate(r); if (videoRef.current) videoRef.current.playbackRate = r; }}>
+            {PLAYBACK_RATES.map((r) => <option key={r} value={r}>{rateLabel(r)}</option>)}
+          </select>
+        </label>
+        <span className="fs-dim" style={{ fontSize: fz(11) }}>applies to the local player; embeds keep their own controls</span>
+        <Btn variant={ab.b !== null ? "primary" : ab.a !== null ? "primary" : "ghost"} aria-pressed={ab.a !== null} onClick={() => setAb((s) => nextAbState(s, videoRef.current?.currentTime ?? 0))} data-testid="media-ab" title="Loop a segment: press for A, again for B, again to clear">{abLabel(ab)}</Btn>
+        <Btn variant={loop ? "primary" : "ghost"} aria-pressed={loop} onClick={() => { const next = nextLoop(loop); setLoop(next); if (videoRef.current) videoRef.current.loop = next; }} data-testid="media-loop">{loopLabel(loop)}</Btn>
+      </div>
 
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <Btn variant="primary"

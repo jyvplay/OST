@@ -1,4 +1,6 @@
 "use client";
+import { hexHead } from "@/lib/hex-head";
+import { asciiRunsText } from "@/lib/peek-strings";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useMemo, useState } from "react";
@@ -9,6 +11,7 @@ import { formatFor, GRADE_TEXT, parseCsv, sanitizeSvg } from "@/lib/forge";
 import { sniffAi, streamInflate, type AiSniff } from "@/lib/ai-format";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
+import { fileFacts } from "@/lib/file-facts";
 
 interface Node { path: string; name: string; mime: string; encoding: string; content: string; size: number; sha256: string }
 
@@ -80,6 +83,7 @@ export default function PeekModule({ win }: ModuleProps) {
         <strong style={{ fontSize: fz(12.5) }}>{node?.name ?? path}</strong>
         {fmt ? <Badge tone={fmt.grade === "A" ? "ok" : fmt.grade === "X" ? "bad" : "info"}>{fmt.label} · grade {fmt.grade}</Badge> : <Badge>unknown format</Badge>}
         {node ? <Badge>{fmtBytes(node.size)}</Badge> : null}
+        {node ? (() => { const f = fileFacts(node); return f.kind === "text" ? <Badge tone="info" data-testid="peek-facts">{f.lines} lines · {f.words} words · sha {f.shortSha}</Badge> : <Badge tone="info" data-testid="peek-facts">binary · {node.encoding}{f.shortSha ? ` · sha ${f.shortSha}` : ""}</Badge>; })() : null}
         {node ? <Badge title={node.sha256}>sha {node.sha256.slice(0, 8)}</Badge> : null}
         <div style={{ flex: 1 }} />
         <Btn variant="ghost" onClick={() => shell.open("editor", { path, title: node?.name })}>Edit</Btn>
@@ -147,7 +151,11 @@ export default function PeekModule({ win }: ModuleProps) {
               {node.content.slice(0, 20000)}
             </pre>
           ) : (
-            <div className="fs-dim" style={{ fontSize: fz(12) }}>Binary payload — no first-party renderer for {node.mime}.</div>
+            <div style={{ display: "grid", gap: 6 }}>
+              <div className="fs-dim" style={{ fontSize: fz(12) }}>Binary payload — no first-party renderer for {node.mime}; first bytes as hex below.</div>
+              <pre className="fs-mono" data-testid="peek-hex" style={{ margin: 0, fontSize: fz(11), whiteSpace: "pre", overflow: "auto" }}>{hexHead(fromB64(node.content))}</pre>
+              <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(asciiRunsText(fromB64(node.content))); shell.toast("ASCII strings copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="peek-copy-strings">Copy strings</Btn>
+            </div>
           )}
         </div>
       ) : null}

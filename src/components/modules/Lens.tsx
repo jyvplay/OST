@@ -4,8 +4,11 @@ import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { capAvailable } from "@/lib/capabilities";
+import { zoomOptions, torchSupported } from "@/lib/zoom-pick";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section, Toggle } from "../ui";
+import { facingConstraint, facingLabel, type Facing } from "@/lib/camera-facing";
+import { resConstraint, RES_OPTIONS, type ResPick } from "@/lib/res-constraint";
 
 interface Fx {
   blur: number; brightness: number; contrast: number; saturate: number; relight: number;
@@ -57,6 +60,14 @@ export default function LensModule(_: ModuleProps) {
   const detectorRef = useRef<{ detect: (s: CanvasImageSource) => Promise<{ boundingBox: DOMRectReadOnly }[]> } | null>(null);
   const frameCost = useRef<number[]>([]);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [facing, setFacing] = useState<Facing>("auto");
+  const [resPick, setResPick] = useState<ResPick>("1280");
+  const [zoomOpts, setZoomOpts] = useState<number[]>([]);
+  const [zoomPick, setZoomPick] = useState<number | null>(null);
+  const [torchOk, setTorchOk] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
+  const lensTrack = () => (videoRef.current?.srcObject as MediaStream | null)?.getVideoTracks()[0] ?? null;
+  const refreshCaps = () => { const t = lensTrack(); const caps = (t?.getCapabilities?.() ?? null) as (MediaTrackCapabilities & { zoom?: { min?: number; max?: number; step?: number }; torch?: boolean }) | null; const zo = zoomOptions(caps?.zoom ?? null); setZoomOpts(zo); setZoomPick((z) => (z != null && zo.includes(z) ? z : zo[0] ?? null)); setTorchOk(torchSupported(caps ?? null)); };
   const [fx, setFx] = useState<Fx>(DEFAULT_FX);
   const [fps, setFps] = useState(0);
   const winStart = useRef(0);
@@ -94,13 +105,13 @@ export default function LensModule(_: ModuleProps) {
     setErr("");
     try {
       const s = await userMedia("Lens", {
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } },
+        video: { frameRate: { ideal: 30 }, ...resConstraint(resPick), ...facingConstraint(facing) },
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
       setStream(s);
       const v = videoRef.current!;
       v.dataset.gateStage = "got-stream";
-      v.srcObject = s;
+      v.srcObject = s; setTimeout(() => refreshCaps(), 600);
       await v.play();
       const FD = (window as unknown as { FaceDetector?: new (o: { fastMode: boolean }) => { detect: (s: CanvasImageSource) => Promise<{ boundingBox: DOMRectReadOnly }[]> } }).FaceDetector;
       if (FD) detectorRef.current = new FD({ fastMode: true });
@@ -270,7 +281,12 @@ export default function LensModule(_: ModuleProps) {
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        {stream ? <Btn variant="danger" onClick={stop}>Stop camera</Btn> : <Btn variant="primary" onClick={() => void start()}>Start camera</Btn>}
+        {stream ? <Btn variant="danger" onClick={stop}>Stop camera</Btn> : <><label style={{ fontSize: fz(12) }}>Camera
+          <select className="fs-select" style={{ width: "auto" }} aria-label="Capture resolution" value={resPick} onChange={(e) => setResPick(e.target.value as ResPick)} data-testid="lens-res">{RES_OPTIONS.map((o) => <option key={o} value={o}>{o === "max" ? "Camera max" : `${o}px wide`}</option>)}</select><select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Camera facing" value={facing} onChange={(e) => setFacing(e.target.value as Facing)} data-testid="lens-facing">
+            <option value="auto">{facingLabel("auto")}</option><option value="user">{facingLabel("user")}</option><option value="environment">{facingLabel("environment")}</option>
+          </select><select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Camera zoom" disabled={!zoomOpts.length} value={zoomPick ?? ""} onChange={(e) => { const z = Number(e.target.value); setZoomPick(z); const t = lensTrack(); if (t) void t.applyConstraints({ advanced: [{ zoom: z } as MediaTrackConstraintSet] }).catch(() => setZoomPick(zoomOpts[0] ?? null)); }} data-testid="lens-zoom">{zoomOpts.length ? zoomOpts.map((z) => <option key={z} value={z}>{z}×</option>) : <option value="">no zoom</option>}</select><button type="button" className="fs-btn" data-variant={torchOn ? "primary" : "ghost"} aria-pressed={torchOn} disabled={!torchOk} title={torchOk ? "Toggle the camera light" : "this camera reports no torch"} onClick={() => { const t = lensTrack(); const next = !torchOn; setTorchOn(next); if (t) void t.applyConstraints({ advanced: [{ torch: next } as MediaTrackConstraintSet] }).catch(() => setTorchOn(!next)); }} data-testid="lens-torch">Torch</button>
+        </label>
+        <Btn variant="primary" onClick={() => void start()}>Start camera</Btn></>}
         <Btn variant="ghost" disabled={!capAvailable(shell.caps, "displayCapture")} onClick={async () => {
           try {
             const s = await displayMedia("Lens · presenter", { video: true });

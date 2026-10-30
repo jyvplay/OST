@@ -8,9 +8,12 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
+import { buildQuery } from "@/lib/phrase-query";
 import { compileFind, findInText } from "@/lib/find-core";
 import { loadSavedSearches, storeSavedSearches, type SavedSearch } from "@/lib/saved-searches";
 import { loadRecents, storeRecents, pushRecent, type RecentSearch } from "@/lib/recent-searches";
+import { sourceSummary } from "@/lib/result-groups";
+import { resultsText } from "@/lib/result-filter";
 import { askText } from "@/lib/ask";
 
 interface Hit { source: string; ref: string; title: string; snippet: string; how: string; rank: number; matchedFields?: {field:string;value:string}[] }
@@ -31,6 +34,7 @@ export default function FindModule(_: ModuleProps) {
   const [privInfo, setPrivInfo] = useState<{ hostQueried: boolean; indexed: number | null; locked: boolean } | null>(null);
   // TT117 FN-01: pattern filter over the returned snippets (client-side; never re-queries the host).
   const [pattern, setPattern] = useState("");
+  const [phrase, setPhrase] = useState(false);
   const [useRegex, setUseRegex] = useState(false);
   const [caseSens, setCaseSens] = useState(false);
   const compiled = pattern ? compileFind(pattern, { regex: useRegex, caseSensitive: caseSens, wholeWord: false }) : null;
@@ -56,7 +60,7 @@ export default function FindModule(_: ModuleProps) {
     request.current?.abort();const controller=new AbortController();request.current=controller;
     setBusy(true);setError('');const started=performance.now();
     try{
-      const params=new URLSearchParams({q,scope,explain:'1'});if(mode==='metadata'){params.set('mode',mode);params.set('field',field);if(next)params.set('cursor',next);}
+      const params=new URLSearchParams({q: buildQuery(q, phrase), scope, explain:'1'});if(mode==='metadata'){params.set('mode',mode);params.set('field',field);if(next)params.set('cursor',next);}
       const r=await api<{hits:Hit[];tookMs?:number;explain?:Record<string,unknown>;hostQueried?:boolean;locked?:boolean;private?:{indexed:number}|null;nextCursor?:string;coverageNotice?:string;scanned?:number;truncatedFiles?:number;warnings?:unknown;storage?:string;enumerationTruncated?:boolean}>(`/api/search?${params}`,{signal:controller.signal});
       if(controller.signal.aborted)return;
       setPrivInfo(r.hostQueried===undefined?null:{hostQueried:r.hostQueried,indexed:r.private?.indexed??null,locked:!!r.locked});
@@ -85,6 +89,7 @@ export default function FindModule(_: ModuleProps) {
         {mode==='metadata'?<label>Metadata field (optional)<input className="fs-input" aria-label="Metadata field" placeholder="artist, lyrics, content.transcript…" value={field} onChange={e=>{invalidate();setField(e.target.value);}}/></label>:null}
         <input className="fs-input" placeholder="Search the index" value={q} aria-label="Search query"
           onChange={(e) => {invalidate();setQ(e.target.value);}} onKeyDown={(e) => { if (e.key === "Enter") void search(); }} />
+      <label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={phrase} onChange={(e) => setPhrase(e.target.checked)} data-testid="find-phrase" /> Exact phrase</label>
         <input className="fs-input" style={{ width: fz(160) }} placeholder="Scope (path prefix)" value={scope}
           onChange={(e) => {invalidate();setScope(e.target.value);}} aria-label="Scope" />
         <Btn variant="ghost" style={{ whiteSpace: "nowrap" }} onClick={() => {invalidate();setScope(scope==="/Private"||scope.startsWith("/Private/") ? "" : "/Private");}} title="Search only Persistent Storage, inside this tab — the query is not sent to the host">{scope==="/Private"||scope.startsWith("/Private/") ? "All" : "/Private only"}</Btn>
@@ -126,6 +131,8 @@ export default function FindModule(_: ModuleProps) {
       {took !== null ? (
         <div className="fs-row" style={{ gap: 6 }}>
           <Badge tone="ok">{hits.length} hits</Badge><Badge tone="info">{took} ms</Badge><Badge>no cloud service</Badge>
+          {hits.length ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} data-testid="find-source-summary">{sourceSummary(hits)}</span> : null}
+          {hits.length ? <Btn variant="ghost" onClick={() => void shell.copy(resultsText(shownHits), "find")} data-testid="find-copy-results">Copy results list</Btn> : null}
           {privInfo ? <span data-testid="private-search-info" style={{ display: "contents" }}>
             {privInfo.locked ? <Badge tone="warn">Persistent Storage locked</Badge> : privInfo.indexed !== null ? <Badge tone="ok">/Private: {privInfo.indexed} files indexed in this tab</Badge> : null}
             <Badge tone={privInfo.hostQueried ? "warn" : "ok"}>{privInfo.hostQueried ? "host saw the query text" : "query never left this tab"}</Badge>
