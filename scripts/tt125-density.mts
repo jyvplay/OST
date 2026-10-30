@@ -66,7 +66,7 @@ for (const [id, cap] of APPS) {
   console.log(`    ${id.padEnd(12)} ${String(r.words).padStart(4)} words (cap ${cap})`);
 }
 
-await test("TT125 register: all twenty codes built, register grew past TT124's 587", { "TT125": "full" }, async () => {
+await test("TT125 register: all twenty codes built, register grew past TT124's 587", { "SP-01": "mechanism" }, async () => {
   const j = await api<{ rows: { code: string; status: string }[] }>("GET", "/api/features");
   const codes = ["ED-10", "ED-09", "PD-03", "WR-02", "BM-03", "DV-03", "VA-03", "PL-10", "TM-08", "SSH-04", "RC-43", "PK-04", "WB-08", "LN-19", "LN-20", "AP-08", "CB-03", "TG-03", "ST-16", "BK-13"];
   for (const c of codes) {
