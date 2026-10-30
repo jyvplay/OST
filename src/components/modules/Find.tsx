@@ -10,6 +10,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
 import { compileFind, findInText } from "@/lib/find-core";
 import { loadSavedSearches, storeSavedSearches, type SavedSearch } from "@/lib/saved-searches";
+import { loadRecents, storeRecents, pushRecent, type RecentSearch } from "@/lib/recent-searches";
 import { askText } from "@/lib/ask";
 
 interface Hit { source: string; ref: string; title: string; snippet: string; how: string; rank: number; matchedFields?: {field:string;value:string}[] }
@@ -36,6 +37,8 @@ export default function FindModule(_: ModuleProps) {
   const shownHits = !pattern || !compiled || "error" in compiled ? hits : hits.filter((h) => findInText(`${h.title} ${h.snippet}`, compiled.pattern).matches.length > 0);
   const [saved, setSaved] = useState<SavedSearch[]>(() => { try { return loadSavedSearches(localStorage); } catch { return []; } });
   const persistSaved = (l: SavedSearch[]) => { setSaved(l); try { storeSavedSearches(localStorage, l); } catch (e) { shell.toast(String((e as Error).message), "warn"); } };
+  const [recents, setRecents] = useState<RecentSearch[]>(() => { try { return loadRecents(localStorage); } catch { return []; } });
+  const persistRecents = (l: RecentSearch[]) => { setRecents(l); try { storeRecents(localStorage, l); } catch { /* private mode */ } };
 
   useEffect(()=>{
     const clear=()=>{request.current?.abort();setBusy(false);setQ('');setField('');setScope('');setHits([]);setCursor(null);setExplain(null);setTook(null);setQueryUsed('');setError('');setPrivInfo(null);};
@@ -85,10 +88,13 @@ export default function FindModule(_: ModuleProps) {
         <input className="fs-input" style={{ width: fz(160) }} placeholder="Scope (path prefix)" value={scope}
           onChange={(e) => {invalidate();setScope(e.target.value);}} aria-label="Scope" />
         <Btn variant="ghost" style={{ whiteSpace: "nowrap" }} onClick={() => {invalidate();setScope(scope==="/Private"||scope.startsWith("/Private/") ? "" : "/Private");}} title="Search only Persistent Storage, inside this tab — the query is not sent to the host">{scope==="/Private"||scope.startsWith("/Private/") ? "All" : "/Private only"}</Btn>
-        <Btn variant="primary" disabled={busy} onClick={() => void search()}>Search</Btn>
+        <Btn variant="primary" disabled={busy} onClick={() => { if (q.trim()) persistRecents(pushRecent(recents, { q, scope, mode: mode === "metadata" ? "metadata" : "text", at: Date.now() })); void search(); }}>Search</Btn>
         <Btn variant="ghost" disabled={!q} onClick={async () => { const name = await askText("Saved search name", "", { okLabel: "Save search" }); if (!name) return; persistSaved([{ id: `s${Date.now().toString(36)}`, name, q, scope, mode: mode === "metadata" ? "metadata" : "text", savedAt: Date.now() }, ...saved]); }}>Save<span className="sr-only"> this search</span></Btn>
       </div>
 
+      {recents.length ? <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }} data-testid="find-recents"><span className="fs-dim" style={{ fontSize: fz(11) }}>Recent:</span>{recents.slice(0, 8).map((r, i) => (
+        <Btn key={i} variant="ghost" onClick={() => { setQ(r.q); setScope(r.scope); setMode(r.mode); }}>{r.q}</Btn>
+      ))}</div> : null}
       {saved.length ? <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>{saved.map((sv) => (
         <span key={sv.id} className="fs-row" style={{ gap: 3 }}>
           <Btn variant="ghost" onClick={() => { setMode(sv.mode); setScope(sv.scope); setQ(sv.q); }}>{sv.name}</Btn>

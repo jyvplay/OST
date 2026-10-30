@@ -1,0 +1,45 @@
+{
+  "suite": "e2e-tt119",
+  "at": "2026-10-30T03:37:32.888Z",
+  "results": [
+    {
+      "suite": "e2e-tt119",
+      "name": "ED-03/TM-03: editor replaces all; terminal wc counts a real file",
+      "covers": {
+        "ED-03": "full",
+        "TM-03": "full"
+      },
+      "pass": true,
+      "ms": 11185
+    },
+    {
+      "suite": "e2e-tt119",
+      "name": "CK-04/WD-03: a zone can be added; the converter answers with a date",
+      "covers": {
+        "CK-04": "full",
+        "WD-03": "full"
+      },
+      "pass": true,
+      "ms": 9855
+    },
+    {
+      "suite": "e2e-tt119",
+      "name": "PL-04: filtering to gibberish reports no match, not an empty planner",
+      "covers": {
+        "PL-04": "full"
+      },
+      "pass": true,
+      "ms": 4606
+    },
+    {
+      "suite": "e2e-tt119",
+      "name": "PH-03/SR-09: slideshow starts on a seeded library; a search becomes recent",
+      "covers": {
+        "PH-03": "full",
+        "SR-09": "full"
+      },
+      "pass": true,
+      "ms": 10433
+    }
+  ]
+}

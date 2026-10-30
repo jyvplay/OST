@@ -8,6 +8,7 @@ import { formatFor, lossReport, parseCsv, sanitizeSvg } from "@/lib/forge";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { diffLines, diffStats } from "@/lib/diff-core";
+import { findMatches, replaceAll, replaceOne } from "@/lib/editor-find";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
@@ -30,6 +31,10 @@ export default function EditorModule({ win }: ModuleProps) {
   const [diffOf, setDiffOf] = useState<Version | null>(null);
   const [preview, setPreview] = useState(false);
   const [status, setStatus] = useState("");
+  const [findQ, setFindQ] = useState("");
+  const [replQ, setReplQ] = useState("");
+  const [caseSens, setCaseSens] = useState(false);
+  const [findMsg, setFindMsg] = useState("");
   const fmt = formatFor(path);
 
   useEffect(() => {
@@ -121,6 +126,15 @@ export default function EditorModule({ win }: ModuleProps) {
       }} />
 
 
+      <div className="fs-row" style={{ gap: 6, padding: "6px 8px", borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }} data-testid="editor-findbar">
+        <input className="fs-input" style={{ width: fz(150) }} placeholder="Find" aria-label="Find text" value={findQ} onChange={(e) => setFindQ(e.target.value)} />
+        <input className="fs-input" style={{ width: fz(150) }} placeholder="Replace with" aria-label="Replace with" value={replQ} onChange={(e) => setReplQ(e.target.value)} />
+        <Btn variant="ghost" aria-pressed={caseSens} onClick={() => setCaseSens((v) => !v)} title="Match case">Aa</Btn>
+        <Btn variant="ghost" onClick={() => { try { const m = findMatches(text, findQ, caseSens); setFindMsg(m.length ? `${m.length} match${m.length === 1 ? "" : "es"} · first at line ${m[0].line}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Count</Btn>
+        <Btn variant="ghost" onClick={() => { try { const r = replaceOne(text, findQ, replQ, 1, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced the first of ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace</Btn>
+        <Btn variant="primary" onClick={() => { try { const r = replaceAll(text, findQ, replQ, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace all</Btn>
+        {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
+      </div>
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: preview ? "1fr 1fr" : "1fr" }}>
         <textarea className="fs-textarea" value={text} spellCheck={false}
           onChange={(e) => { setText(e.target.value); setDirty(true); }}

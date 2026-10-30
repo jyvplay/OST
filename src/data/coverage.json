@@ -1,23 +1,97 @@
 {
- "generatedAt": "2026-10-30T00:50:34.195Z",
+ "generatedAt": "2026-10-30T03:48:40.758Z",
  "totals": {
   "built": {
-   "full": 377,
+   "full": 388,
    "partial": 82,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 329,
+   "full": 340,
    "partial": 119,
    "untested": 35
   },
   "tests": {
-   "total": 2850,
-   "passed": 2840
+   "total": 2866,
+   "passed": 2856
   }
  },
  "rows": {
+  "ED-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt119: ED-03/TM-03: editor replaces all; terminal wc counts a real file",
+    "tt119-core: ED-03 find/replace: literal, counted, nth-only, empty refused"
+   ]
+  },
+  "NT-03": {
+   "tested": "full",
+   "tests": [
+    "tt119-core: NT-03 daily note: local title, both conventions, no guessing"
+   ]
+  },
+  "PL-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt119: PL-04: filtering to gibberish reports no match, not an empty planner",
+    "tt119-core: PL-04 task filter: query+status, order preserved"
+   ]
+  },
+  "CK-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt119: CK-04/WD-03: a zone can be added; the converter answers with a date",
+    "tt119-core: CK-04 zone list: Intl-validated, UTC pinned, capped"
+   ]
+  },
+  "WD-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt119: CK-04/WD-03: a zone can be added; the converter answers with a date",
+    "tt119-core: WD-03 zone convert: dateline shift reported, invalid refused"
+   ]
+  },
+  "TM-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt119: ED-03/TM-03: editor replaces all; terminal wc counts a real file",
+    "tt119-core: TM-03 wc: UTF-8 bytes, POSIX lines"
+   ]
+  },
+  "BK-07": {
+   "tested": "full",
+   "tests": [
+    "tt119-core: BK-07 engine: folder rollup, unknown not zero",
+    "tt119-core: BK-07 bundle explorer: flat entries become a sized folder tree"
+   ]
+  },
+  "SR-09": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt119: PH-03/SR-09: slideshow starts on a seeded library; a search becomes recent",
+    "tt119-core: SR-09 recents: dedup-to-front, mode validated, capped"
+   ]
+  },
+  "PH-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt119: PH-03/SR-09: slideshow starts on a seeded library; a search becomes recent",
+    "tt119-core: PH-03 slideshow: wraps, clamps, empty has no next"
+   ]
+  },
+  "MU-02": {
+   "tested": "full",
+   "tests": [
+    "tt119-core: MU-02 recent plays: front-dedup, validated, capped"
+   ]
+  },
+  "AX-21": {
+   "tested": "full",
+   "tests": [
+    "tt119-density: AX-21: every app measured, none wordier than the ceiling, no emoji marks"
+   ]
+  },
   "DF-01": {
    "tested": "full",
    "tests": [

@@ -90,11 +90,14 @@ export default function MessagesModule(_: ModuleProps) {
       </Section>
 
       <Section title="Lens upscale (LN-05) — interpolation, not a model">
-        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          The Lens module's canvas output is bicubic-upsampled when the requested output height exceeds the captured
-          height, and the governor's cast ceiling still applies. No super-resolution model is bundled; a real one would
-          be a multi-GB download and the admissible-weights question from the native spec is unresolved.
-        </div>
+        <details>
+          <summary style={{ fontSize: fz(11.5), cursor: "pointer" }}>Bicubic interpolation — no model bundled. Why?</summary>
+          <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
+            The Lens module's canvas output is bicubic-upsampled when the requested output height exceeds the captured
+            height, and the governor's cast ceiling still applies. No super-resolution model is bundled; a real one would
+            be a multi-GB download and the admissible-weights question from the native spec is unresolved.
+          </div>
+        </details>
       </Section>
         <Badge tone="warn">status: skeleton — the connector reports reachability only; no message sync is implemented</Badge>
       </Section>

@@ -25,6 +25,7 @@ const Ico = ({ d }: { d: string }) => (
 const PENCIL = "M3 13l1-3.5L11 2.5l2.5 2.5L6.5 12z", UP = "M8 13V3M3.5 7.5L8 3l4.5 4.5", CROSS = "M4 4l8 8M12 4l-8 8";
 
 export const LIBRARY_PATH = "/Documents/Streams.json";
+import { loadPlays, storePlays, pushPlay, type RecentPlay } from "@/lib/recent-plays";
 const STATUS_LABEL: Record<E.Status, string> = { loading: "Loading", ready: "Ready", cued: "Ready", playing: "Playing", paused: "Paused", buffering: "Buffering", ended: "Ended" };
 /** TT33: a one-way player (TIDAL) reports starts only — say exactly what is known */
 const statusText = (c: E.CtlState) => c.oneWay
@@ -62,6 +63,7 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
   const ctlRef = useRef<E.CtlState | null>(null);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   /** the iframe's identity: a new key/src only when a NEW player is needed (a same-player load keeps the frame) */
+  const [plays, setPlays] = useState<RecentPlay[]>(() => { try { return loadPlays(localStorage); } catch { return []; } });
   const [frame, setFrame] = useState<{ key: number; src: string; ctl: E.Ctl | null } | null>(null);
   const frameSeq = useRef(0);
   const mediaRef = useRef<HTMLMediaElement | null>(null);
@@ -131,6 +133,9 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
     setFrame({ key: frameSeq.current, src: c ? E.controlUrl(c, p.ref.embed, origin, auto, pid) : p.ref.embed, ctl: c });
     ctlRef.current = c ? E.initialState(c, auto, pid) : null; setCtl(ctlRef.current);
     setCurrent({ ref: p.ref, itemId });
+    const item = itemId ? libRef.current?.items.find((i) => i.id === itemId) : undefined;
+    const title = item?.title ?? `${S.PROVIDER_LABEL[p.ref.provider]} · ${p.ref.id}`;
+    setPlays((l) => { const n = pushPlay(l, { id: item?.id ?? `${p.ref.provider}:${p.ref.id}`, title, at: Date.now() }); try { storePlays(localStorage, n); } catch { /* private mode */ } return n; });
   };
   // a link handed over by another app (open-with / routine) starts in the player
   const initial = useRef((win.props.url as string) ?? "");
@@ -410,6 +415,10 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
           <input className="fs-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter" aria-label="Filter the library" data-testid={`${pfx}-filter`} />
           {libErr ? <p className="fs-stream-err" role="alert">{libErr}</p> : null}
           <ul className="fs-stream-list" data-testid={`${pfx}-lib`}>
+            {plays.length ? <li style={{ padding: "4px 8px" }} data-testid={`${pfx}-recents`}><span className="fs-dim" style={{ fontSize: fz(11), marginRight: 6 }}>Recent:</span>{plays.slice(0, 6).map((pl) => {
+              const target = lib?.items.find((i) => i.id === pl.id);
+              return <Btn key={pl.id} variant="ghost" disabled={!target} title={target ? `Play ${pl.title}` : "No longer in the library"} onClick={() => target && play(target.url, target.id)}>{pl.title}</Btn>;
+            })}</li> : null}
             {lib && !items.length ? <li className="fs-dim" style={{ padding: 8 }}>{q ? "Nothing matches." : "Saved links appear here. Paste a link and press Save."}</li> : null}
             {items.map((it, i) => (
               <li key={it.id} data-testid={`${pfx}-item`} data-current={current?.itemId === it.id ? "1" : undefined}>

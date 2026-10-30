@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { fmtBytes } from "@/lib/api";
 import { fromB64, openText, sealText, type Envelope } from "@/lib/crypto";
 import { MAX_BACKUP_BYTES, verifyBackup, type BackupBundle } from "@/lib/backup/bundle";
+import { bundleTree } from "@/lib/bundle-tree";
+import { folderSizes, formatBytes as fmtBundleBytes } from "@/lib/folder-size";
 import { DRILL_HEALTH_KEY, drillHealthState, parseDrillHealth, recordDrill, type DrillAttempt, type DrillHealth } from "@/lib/backup/drill-health";
 import { makeRecoveryKey, openRecoveryBundle, RECOVERY_FORMAT, sealRecoveryBundle } from "@/lib/backup/recovery";
 import { privacy } from "@/lib/privacy/session";
@@ -75,6 +77,7 @@ async function send(body: unknown) {
 export default function BackupModule(_: ModuleProps) {
   const shell = useShell();
   const [bundle, setBundle] = useState<BackupBundle | null>(null);
+  const [showContents, setShowContents] = useState(false);
   const [report, setReport] = useState("");
   const [pass, setPass] = useState("");
   const [recoveryKey, setRecoveryKey] = useState("");
@@ -282,6 +285,18 @@ export default function BackupModule(_: ModuleProps) {
           <Btn variant="ghost" onClick={() => setHeld(null)}>Not now</Btn>
         </div> : null}
         {report ? <div role="status" data-testid="backup-report" className="fs-mono" style={{ fontSize: fz(11.5) }}>{report}</div> : null}
+        {bundle ? <div style={{ marginTop: 8 }}>
+          <Btn variant="ghost" aria-expanded={showContents} onClick={() => setShowContents((v) => !v)}>{showContents ? "Hide contents" : "Show contents"}</Btn>
+          {showContents ? <div data-testid="backup-contents" style={{ display: "grid", gap: 2, marginTop: 6 }}>
+            {folderSizes(bundleTree(bundle.entries)).slice(0, 10).map((f) => (
+              <div key={f.path} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }}>
+                <span className="fs-mono">{f.path}</span>
+                <span className="fs-dim">{fmtBundleBytes(f.bytes)} · {f.files} file{f.files === 1 ? "" : "s"}</span>
+              </div>
+            ))}
+            <span className="fs-dim" style={{ fontSize: fz(11) }}>Largest folders in this bundle, from its own entry list.</span>
+          </div> : null}
+        </div> : null}
       </Section>
 
       <Section title="Optional recovery key">

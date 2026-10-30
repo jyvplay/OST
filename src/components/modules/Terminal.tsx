@@ -1,5 +1,6 @@
 "use client";
 import { suggest } from "@/lib/suggest";
+import { wc, formatWc } from "@/lib/wc-core";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -16,7 +17,7 @@ interface Line { text: string; tone?: "out" | "err" | "cmd" | "info" }
  * No xterm.js — the renderer is a virtualised DOM list, which keeps the bundle
  * small and lets commands be first-class objects the palette can also call.
  */
-const COMMAND_NAMES = ["cast", "cat", "cd", "clear", "cp", "df", "echo", "find", "grep", "help", "jobs", "ls", "mkdir", "mv", "open", "probe", "pwd", "restore", "rm", "sha256", "spec", "ssh", "stat", "write"];
+const COMMAND_NAMES = ["cast", "cat", "cd", "clear", "cp", "df", "echo", "find", "grep", "help", "jobs", "ls", "mkdir", "mv", "open", "probe", "pwd", "restore", "rm", "sha256", "spec", "ssh", "stat", "write", "wc", "du"];
 
 export default function TerminalModule({ win }: ModuleProps) {
   const shell = useShell();
@@ -65,6 +66,8 @@ export default function TerminalModule({ win }: ModuleProps) {
         case "help":
           out([
             "ls [path]              list a directory",
+            "wc <file> [file…]      lines · words · UTF-8 bytes",
+            "du [path]              immediate-entry size rollup",
             "cd <path>              change directory",
             "pwd                    print working directory",
             "cat <file>             print a file",
@@ -106,6 +109,27 @@ export default function TerminalModule({ win }: ModuleProps) {
           const r = { nodes: all ? r0.nodes : r0.nodes.filter((n) => !n.name.startsWith(".")) };
           if (r.nodes.length === 0) out("(empty)");
           else out(r.nodes.map((n) => `${n.kind === "dir" ? "d" : "-"} ${String(fmtBytes(n.size)).padStart(8)}  v${n.version}  ${n.name}`).join("\n"));
+          break;
+        }
+        case "wc": {
+          const paths = args.length ? args : [];
+          if (!paths.length) { out("usage: wc <file> [file…]"); break; }
+          const totals = { lines: 0, words: 0, bytes: 0, chars: 0 };
+          for (const f of paths) {
+            const r = await api<{ node: { content: string; encoding: string } }>(`/api/fs?op=read&path=${encodeURIComponent(resolve(f))}`);
+            if (r.node.encoding === "base64") { out(`${f}: (binary — counts would mislead)`); continue; }
+            const c = wc(r.node.content);
+            totals.lines += c.lines; totals.words += c.words; totals.bytes += c.bytes; totals.chars += c.chars;
+            out(formatWc(f, c));
+          }
+          if (paths.length > 1) out(formatWc("total", totals));
+          break;
+        }
+        case "du": {
+          const target = resolve(args[0] ?? ".");
+          const r = await api<{ nodes: { name: string; kind: string; size: number }[] }>(`/api/fs?op=list&path=${encodeURIComponent(target)}`);
+          const bytes = r.nodes.reduce((sum, n) => sum + (n.size ?? 0), 0);
+          out(`${fmtBytes(bytes)}\t${target} (${r.nodes.length} immediate entries — sizes are stored entry sizes)`);
           break;
         }
         case "cat": {

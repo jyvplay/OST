@@ -8,6 +8,7 @@ import { api, fmtTime, post, put } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { analyzeNote } from "@/lib/notes-stats";
+import { findDailyNote, dailyTitle } from "@/lib/daily-note";
 import { extractTags, resolveLinks, backlinks } from "@/lib/note-links";
 
 interface Note { id: number; title: string; body: string; tags: string; pinned: boolean; updatedAt: string }
@@ -55,6 +56,13 @@ export default function NotesModule({ win }: ModuleProps) {
             setSel(r.row.id);
           }}>New</Btn>
           <Btn variant="ghost" onClick={() => void load()}>↻</Btn>
+          <Btn variant="ghost" aria-label="Open daily note" title="Open (or create) today's daily note" onClick={async () => {
+            const existing = findDailyNote(rows);
+            if (existing) { setSel(existing.id); return; }
+            const r = await post<{ row: Note }>("/api/notes", { title: dailyTitle(), body: "" });
+            await load();
+            setSel(r.row.id);
+          }}>Daily</Btn>
         </div>
         <div className="fs-scroll" style={{ flex: 1, minHeight: 0, padding: 4 }}>
           {rows.map((n) => (

@@ -6,6 +6,8 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
 import { validateAlarms, nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, type Alarm } from "@/lib/clock-core";
 import { commonWindows, validateCountdowns, daysUntil, type Countdown } from "@/lib/zones";
+import { validateZones, addZone, removeZone, allZoneNames, WORLD_ZONES_KEY } from "@/lib/zone-list";
+import { convertZoneTime } from "@/lib/zone-convert";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -33,7 +35,10 @@ export default function ClockModule(_: ModuleProps) {
   const [timerSec, setTimerSec] = useState(0);
   const timerMs = (timerMin * 60 + timerSec) * 1000;
   const fired = useRef(false);
-  const zones = ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo", "Australia/Sydney"];
+  const [zones, setZones] = useState<string[]>(() => { try { return validateZones(JSON.parse(localStorage.getItem(WORLD_ZONES_KEY) ?? "null")); } catch { return validateZones(null); } });
+  const [zonePick, setZonePick] = useState("Europe/Paris");
+  const [zoneMsg, setZoneMsg] = useState("");
+  useEffect(() => { try { localStorage.setItem(WORLD_ZONES_KEY, JSON.stringify(zones)); } catch { /* private mode */ } }, [zones]);
   // TT117 CK-01: alarms persist browser-local (a closed web app cannot fire them; stated below).
   const [alarms, setAlarms] = useState<Alarm[]>(() => { try { return validateAlarms(JSON.parse(localStorage.getItem("fusion.alarms.v1") ?? "[]")); } catch { return []; } });
   const [alarmTime, setAlarmTime] = useState("07:30");
@@ -99,11 +104,22 @@ export default function ClockModule(_: ModuleProps) {
       <Section title="World clock">
         {zones.map((z) => (
           <div key={z} className="fs-row" style={{ justifyContent: "space-between" }}>
-            <span style={{ fontSize: fz(12) }}>{z.replace("_", " ")}</span>
-            <span className="fs-mono">{new Date().toLocaleTimeString([], { timeZone: z, hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+            <span style={{ fontSize: fz(12) }}>{z.replace(/_/g, " ")}</span>
+            <span className="fs-row" style={{ gap: 4 }}>
+              <span className="fs-mono">{new Date().toLocaleTimeString([], { timeZone: z, hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+              {z !== "UTC" ? <Btn variant="ghost" aria-label={`Remove zone ${z}`} onClick={() => { try { setZones((l) => removeZone(l, z)); } catch { /* UTC only */ } }}>✕</Btn> : null}
+            </span>
           </div>
         ))}
+        <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+          <select className="fs-select" aria-label="Add world zone" value={zonePick} onChange={(e) => setZonePick(e.target.value)} style={{ flex: 1, minWidth: fz(150) }}>
+            {allZoneNames().map((z) => <option key={z} value={z}>{z.replace(/_/g, " ")}</option>)}
+          </select>
+          <Btn variant="ghost" onClick={() => { try { setZones((l) => addZone(l, zonePick)); setZoneMsg(""); } catch (e) { setZoneMsg(String((e as Error).message)); } }}>Add zone</Btn>
+        </div>
+        {zoneMsg ? <span className="fs-dim" style={{ fontSize: fz(11) }} role="status">{zoneMsg}</span> : null}
       </Section>
+      <ZoneConvert />
 
       <Section title="Stopwatch">
         <div className="fs-mono" data-testid="clock-sw" style={{ fontSize: fz(30) }}>{fmt(sw)}</div>
@@ -173,6 +189,30 @@ export default function ClockModule(_: ModuleProps) {
         </div>
       </Section>
     </div>
+  );
+}
+
+function ZoneConvert() {
+  const [zcDate, setZcDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [zcTime, setZcTime] = useState("09:00");
+  const [from, setFrom] = useState("America/New_York");
+  const [to, setTo] = useState("Asia/Tokyo");
+  const result = (() => { try { return convertZoneTime(zcDate, zcTime, from, to); } catch (e) { return { error: String((e as Error).message) }; } })();
+  return (
+    <Section title="Time in another zone">
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <input className="fs-input" type="date" value={zcDate} onChange={(e) => setZcDate(e.target.value)} aria-label="Convert date" />
+        <input className="fs-input" type="time" value={zcTime} onChange={(e) => setZcTime(e.target.value)} aria-label="Convert time" />
+        <select className="fs-select" aria-label="From zone" value={from} onChange={(e) => setFrom(e.target.value)}>{allZoneNames().map((z) => <option key={z} value={z}>{z.replace(/_/g, " ")}</option>)}</select>
+        <span aria-hidden="true">→</span>
+        <select className="fs-select" aria-label="To zone" value={to} onChange={(e) => setTo(e.target.value)}>{allZoneNames().map((z) => <option key={z} value={z}>{z.replace(/_/g, " ")}</option>)}</select>
+      </div>
+      {"error" in result ? <Badge tone="warn">{result.error}</Badge> : (
+        <div className="fs-row" style={{ gap: 6, marginTop: 6 }} data-testid="clock-zone-convert">
+          <Badge tone="info">{result.targetTime}</Badge>
+          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>{result.targetDate}{result.dayShift !== 0 ? ` (${result.dayShift > 0 ? "+" : ""}${result.dayShift} day${Math.abs(result.dayShift) === 1 ? "" : "s"})` : ""}</span>
+        </div>)}
+    </Section>
   );
 }
 

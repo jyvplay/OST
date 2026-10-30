@@ -7,6 +7,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
 import { parseRRule, expandRecurrence } from "@/lib/recurrence";
 import { buildAgenda } from "@/lib/agenda";
+import { filterTasks, type TaskStatus } from "@/lib/task-filter";
 
 interface Task { id: number; title: string; notes: string; done: boolean; dueAt: string | null; kind: string; endAt: string | null }
 
@@ -17,6 +18,8 @@ export default function PlannerModule(_: ModuleProps) {
   const [title, setTitle] = useState("");
   const [due, setDue] = useState("");
   const [view, setView] = useState<"list" | "week" | "agenda">("list");
+  const [filterQ, setFilterQ] = useState("");
+  const [filterStatus, setFilterStatus] = useState<TaskStatus>("all");
   const [repeat, setRepeat] = useState("");
   const repeatPreview = useMemo(() => {
     if (!repeat || !due) return null;
@@ -27,6 +30,7 @@ export default function PlannerModule(_: ModuleProps) {
     } catch (e) { return `repeat error: ${String((e as Error).message)}`; }
   }, [repeat, due]);
 
+  const shownRows = filterTasks(rows, filterQ, filterStatus);
   const load = () => api<{ rows: Task[] }>("/api/tasks").then((r) => setRows(r.rows)).catch(() => undefined);
   useEffect(() => { void load(); }, [shell.refreshTick]);
 
@@ -45,6 +49,10 @@ export default function PlannerModule(_: ModuleProps) {
           setTitle(""); setDue(""); await load();
         }}>Add</Btn>
         <Btn variant="ghost" onClick={() => setView(view === "list" ? "week" : view === "week" ? "agenda" : "list")}>{view === "list" ? "Week view" : view === "week" ? "Agenda" : "List view"}</Btn>
+        <input className="fs-input" style={{ width: fz(140) }} placeholder="Filter tasks" aria-label="Filter tasks" value={filterQ} onChange={(e) => setFilterQ(e.target.value)} />
+        <select className="fs-select" style={{ width: fz(110) }} value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as TaskStatus)} aria-label="Filter by status">
+          <option value="all">all</option><option value="open">open</option><option value="done">done</option>
+        </select>
         <select className="fs-select" style={{ width: fz(150) }} value={repeat} onChange={(e) => setRepeat(e.target.value)} aria-label="Repeat">
           <option value="">no repeat</option>
           <option value="FREQ=DAILY">daily</option>
@@ -68,20 +76,21 @@ export default function PlannerModule(_: ModuleProps) {
 
       {repeatPreview ? <div className="fs-dim" data-testid="planner-repeat-preview" style={{ fontSize: fz(11) }}>Repeats: {repeatPreview}. The first occurrence is saved as the task; the rule is kept in its notes as RRULE so export stays honest.</div> : null}
       {rows.length === 0 ? <Empty title="Nothing planned" icon="🗓" /> : null}
+      {rows.length > 0 && shownRows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(12) }} role="status">No tasks match the filter.</div> : null}
 
       {view === "agenda" ? (
         <div style={{ display: "grid", gap: 8 }} data-testid="planner-agenda">
-          {buildAgenda(rows).map((g) => (
+          {buildAgenda(shownRows).map((g) => (
             <div key={g.bucket}>
               <div style={{ fontSize: fz(11), fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>{g.bucket} · {g.tasks.length}</div>
               {g.tasks.map((t) => <div key={t.id} style={{ fontSize: fz(12), textDecoration: t.done ? "line-through" : "none" }}>{t.title}{t.dueAt ? <span className="fs-dim"> · {fmtTime(t.dueAt)}</span> : null}</div>)}
             </div>
           ))}
-          {rows.length === 0 ? null : buildAgenda(rows).length === 0 ? <div className="fs-dim">Nothing to show.</div> : null}
+          {shownRows.length === 0 && rows.length > 0 ? null : buildAgenda(shownRows).length === 0 ? <div className="fs-dim">Nothing to show.</div> : null}
         </div>
       ) : view === "list" ? (
         <div style={{ display: "grid", gap: 2 }}>
-          {rows.map((t) => {
+          {shownRows.map((t) => {
             const overdue = t.dueAt && !t.done && new Date(t.dueAt).getTime() < Date.now();
             return (
               <div key={t.id} className="fs-list-item" style={{ opacity: t.done ? .55 : 1 }}>
@@ -99,7 +108,7 @@ export default function PlannerModule(_: ModuleProps) {
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
           {days.map((d) => {
-            const items = rows.filter((t) => t.dueAt && new Date(t.dueAt).toDateString() === d.toDateString());
+            const items = shownRows.filter((t) => t.dueAt && new Date(t.dueAt).toDateString() === d.toDateString());
             return (
               <div key={d.toISOString()} className="fs-panel" style={{ padding: 6, minHeight: 120 }}>
                 <div style={{ fontSize: fz(11), fontWeight: 600, color: d.toDateString() === new Date().toDateString() ? "var(--fs-accent)" : undefined }}>
