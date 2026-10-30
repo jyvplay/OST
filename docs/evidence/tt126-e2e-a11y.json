@@ -1,0 +1,96 @@
+{
+  "suite": "e2e-a11y",
+  "at": "2026-10-30T20:45:11.810Z",
+  "results": [
+    {
+      "suite": "e2e-a11y",
+      "name": "axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
+      "covers": {
+        "AX-08": "full",
+        "AX-01": "partial"
+      },
+      "pass": true,
+      "ms": 136256
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "computed sizes: at the 125 % default nothing visible is below 12 px and body text is ≥16 px; in Large text mode (200 %) nothing is below 20 px",
+      "covers": {
+        "AX-09": "full"
+      },
+      "pass": true,
+      "ms": 24780
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type",
+      "covers": {
+        "AX-10": "full"
+      },
+      "pass": true,
+      "ms": 5814
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit",
+      "covers": {
+        "AX-09": "partial"
+      },
+      "pass": false,
+      "error": "--fs-ts 1.25",
+      "ms": 1719
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused",
+      "covers": {
+        "AX-09": "full"
+      },
+      "pass": false,
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[aria-label=\"Quick panel\"]').getByRole('button', { name: 'Larger text' })\n    - locator resolved to <button type=\"button\" class=\"fs-btn \" title=\"Larger text\" data-variant=\"default\" aria-label=\"A+ larger text\">A+</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    53 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n",
+      "ms": 32982
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
+      "covers": {
+        "AX-09": "partial",
+        "FF-28": "partial"
+      },
+      "pass": false,
+      "error": "row height at 125 %: 66 (want 27.5)",
+      "ms": 3149
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)",
+      "covers": {
+        "AX-03": "full"
+      },
+      "pass": true,
+      "ms": 3697
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
+      "covers": {
+        "AX-11": "full"
+      },
+      "pass": true,
+      "ms": 35857
+    },
+    {
+      "suite": "e2e-a11y",
+      "name": "light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+      "covers": {
+        "AX-11": "partial",
+        "AX-08": "partial",
+        "AX-12": "full",
+        "LY-04": "partial"
+      },
+      "pass": false,
+      "error": "poolside/light: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      poolside/dark: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      vice/light: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      vice/dark: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      oceandrive/light: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      oceandrive/dark: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      bubbly/light: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      bubbly/dark: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      liquidglass/light: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      liquidglass/dark: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      expressive/light: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content\n      expressive/dark: scrollable-region-focusable ×1 e.g. .fs-files-pane > .fs-row:nth-child(4)   Element should have focusable content",
+      "ms": 164760
+    }
+  ]
+}

@@ -18,11 +18,12 @@ set -u
 cd "$(dirname "$0")/.." || exit 1
 
 PURE="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core"
-LANE_A="tt124-core e2e-tt124 e2e-tt125 tt123-core e2e-tt123 tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
+LANE_A="tt124-core e2e-tt124 e2e-tt125 e2e-tt126 tt127-conditional e2e-tt127-vault e2e-tt127-photos tt123-core e2e-tt123 tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
 LANE_B="tt124-density tt125-density tt123-density tt122-density tt121-density tt120-density tt119-density tt118-density tt117-density tt116-density"
 
 echo "== pure suites (parallel via run-fast.sh)"
-JOBS="${JOBS:-4}" bash scripts/run-fast.sh $PURE "$@" || { echo "GATE FAILED (pure)"; exit 1; }
+JOBS="${JOBS:-2}" bash scripts/run-fast.sh $PURE "$@" || { echo "GATE FAILED (pure)"; exit 1; }
+node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/tt126-regressions.mts || { echo "GATE FAILED (TT126 regressions)"; exit 1; }
 
 if [ -z "${BASE:-}" ] || [ -z "${DATABASE_URL:-}" ]; then
   echo "REFUSED: BASE and DATABASE_URL must point at the disposable gate server (see run-all.sh)"
@@ -33,9 +34,12 @@ curl -sf -m 5 "$BASE/api/health" >/dev/null 2>&1 || curl -sf -m 5 "$BASE/" >/dev
 failed=""
 for s in $LANE_A $LANE_B; do
   echo "== $s"
-  out=$(TT89_DISPOSABLE_DATABASE=1 timeout 1200 node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs "scripts/$s.mts" 2>&1) || true
+  status=0
+  out=$(TT89_DISPOSABLE_DATABASE=1 timeout 1200 node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs "scripts/$s.mts" 2>&1) || status=$?
   echo "$out" | grep -E "passed, |FAILED:" | tail -2
-  echo "$out" | grep -qE "[0-9]+ passed, 0 failed" || failed="$failed $s"
+  if [ "$status" -ne 0 ] || ! echo "$out" | grep -qE "[0-9]+ passed, 0 failed" || echo "$out" | grep -qE "[1-9][0-9]* failed"; then
+    failed="$failed $s"
+  fi
 done
 [ -n "$failed" ] && { echo "GATE FAILED (browser):$failed"; exit 1; }
 echo "GATE PASSED"

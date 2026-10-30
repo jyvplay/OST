@@ -47,7 +47,7 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
         {/* ------------------------------------------------------------ layout (TT25) */}
         <div style={{ display: "grid", gap: fz(5) }}>
           <strong style={{ fontSize: fz(13) }}>Layout</strong>
-          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Business: a Windows-style taskbar with Start along the bottom. Art: a Mac-style menu bar and a centred dock of every app that magnifies under the pointer. Fusion: the original top bar and shelf.</span>
+          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Choose a top bar and shelf, bottom taskbar, or menu bar and dock.</span>
           <LayoutSwitch prefix="settings" />
           <label className="fs-row" style={{ gap: 8 }}>
             <input type="checkbox" data-testid="settings-pair-style" checked={(shell.settings["appearance.pairStyle"] ?? "on") !== "off"}
@@ -85,7 +85,7 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
         {/* ------------------------------------------------------- narrator (TT30, AX-14) */}
         <div style={{ display: "grid", gap: fz(5) }} data-testid="settings-narrator">
           <strong style={{ fontSize: fz(13) }}>Narrator (screen reader)</strong>
-          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Speaks what has focus, announces dialogs, alerts and status messages, and reads the page with the Narrator key (hold Caps Lock or Insert; F1 lists the commands). Ctrl+Win+Enter turns it on or off anywhere. If you already use a screen reader (NVDA, JAWS, VoiceOver, Orca), leave this off — Fusion works with yours.</span>
+          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Reads focus, dialogs and alerts. Hold Caps Lock or Insert for Narrator commands; F1 lists them. Toggle with Ctrl+Win+Enter. Leave off if using another screen reader.</span>
           <label className="fs-row" style={{ gap: 8 }}>
             <input type="checkbox" data-testid="settings-narrator-on" checked={shell.settings["accessibility.narrator"] === "on"}
               onChange={(e) => set("accessibility.narrator", e.target.checked ? "on" : "off")} />
@@ -130,7 +130,7 @@ export default function DisplaySettings({ locked }: { locked: Record<string, str
         {/* ------------------------------------------------------- desktop view (TT26) */}
         <div style={{ display: "grid", gap: fz(5) }}>
           <strong id="desktop-view-label" style={{ fontSize: fz(13) }}>Desktop view</strong>
-          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Tabletop replaces the desktop with a 3D box: your files are cards on the table (pile them, peek at them) and the four walls hold windows, apps, widgets and recent files. Double-click a wall to bring it to the front.</span>
+          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>Files become cards in a 3D room; walls hold windows, apps and widgets. Double-click a wall to bring it forward.</span>
           <div role="radiogroup" aria-labelledby="desktop-view-label" className="fs-row" style={{ gap: 12 }} data-testid="settings-desktop-view">
             {(["classic", "tabletop"] as const).map((v) => (
               <label key={v} className="fs-layout-opt" data-checked={(shell.settings["appearance.desktopView"] ?? "classic") === v}

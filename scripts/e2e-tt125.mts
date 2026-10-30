@@ -23,7 +23,6 @@ async function openModule(module: string, props: Record<string, unknown> = {}) {
   page.setDefaultTimeout(20_000);
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await page.waitForSelector('[data-win-id="w1"]');
-  await page.waitForTimeout(1200);
   return { page, context };
 }
 
@@ -32,6 +31,7 @@ await test("ED-09/ED-10/WR-02: case rewrites only the selection; the now-button 
   const ed = await openModule("editor", { path: "/tt125-case.txt" });
   const ta = ed.page.locator('[data-win-id="w1"] textarea').first();
   await ta.waitFor();
+  await ed.page.waitForFunction(() => (document.querySelector('[data-win-id="w1"] textarea') as HTMLTextAreaElement | null)?.value === "the iPad's usb-c port stays camelCase here\n");
   await ta.evaluate((el: HTMLTextAreaElement) => { el.focus(); el.setSelectionRange(0, el.value.length); });
   await ed.page.getByTestId("editor-case-title").click();
   const after = await ta.inputValue();

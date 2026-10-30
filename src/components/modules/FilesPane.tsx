@@ -843,7 +843,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
       ) : null}
 
       {/* journal strip — the same rows the ops engine writes (FM-03 / NC-05) */}
-      <div className="fs-row" style={{ gap: 6, padding: "4px 8px", borderTop: "1px solid var(--fs-border)", overflowX: "auto" }}>
+      <div className="fs-row" role="region" aria-label="File operation journal" tabIndex={0} style={{ gap: 6, padding: "4px 8px", borderTop: "1px solid var(--fs-border)", overflowX: "auto" }}>
         <span className="fs-dim" style={{ fontSize: fz(10.5) }}>journal:</span>
         {jobs.slice(0, 5).map((j) => (
           <Badge key={j.id} tone={j.state === "COMPLETE" ? "ok" : j.state === "FAILED" ? "bad" : "warn"} title={`${j.op} ${j.src} → ${j.dst} ${j.error}`}>{j.op} {j.state}</Badge>

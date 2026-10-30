@@ -70,7 +70,7 @@ export default function TerminalModule({ win }: ModuleProps) {
     const line2 = expandAlias(line, aliasRef.current);
     out(`${cwd} $ ${line2}`, "cmd");
     const [cmd, ...args] = line2.split(/\s+/);
-    const rest = line.slice(cmd.length).trim();
+    const rest = line2.slice(cmd.length).trim();
     try {
       switch (cmd) {
       case "history": historyText(histRef.current).split("\n").forEach((ln) => out(ln)); break;

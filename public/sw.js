@@ -9,7 +9,7 @@
  *  - No skipWaiting(): an update must never reload a window mid-edit. The page
  *    offers the update instead (AP-04).
  */
-const VERSION = "fusion-v5"; // TT22: poolside icons + wallpapers
+const VERSION = "fusion-v6"; // Separate this revision from older shell caches
 const SHELL = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/wallpapers/poolside.svg"];
 
 self.addEventListener("install", (event) => {
@@ -23,7 +23,7 @@ self.addEventListener("message", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k)))),
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k.startsWith("fusion-") && k !== VERSION).map((k) => caches.delete(k)))),
   );
 });
 
@@ -49,17 +49,22 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(VERSION).then((c) => c.put("/", copy)).catch(() => undefined);
+          // Only a successful canonical shell response can refresh the offline
+          // shell. A /display, /present, query-specific or error page must not
+          // overwrite it and later be served as the desktop.
+          if (url.pathname === "/" && !url.search && res.ok && (res.headers.get("content-type") || "").includes("text/html")) {
+            const copy = res.clone();
+            caches.open(VERSION).then((c) => c.put("/", copy)).catch(() => undefined);
+          }
           return res;
         })
-        .catch(() => caches.match("/").then((r) => r ?? new Response("Offline", { status: 503 }))),
+        .catch(() => caches.open(VERSION).then((c) => c.match("/")).then((r) => r ?? new Response("Offline", { status: 503 }))),
     );
     return;
   }
 
   event.respondWith(
-    caches.match(req).then((hit) =>
+    caches.open(VERSION).then((c) => c.match(req)).then((hit) =>
       hit ??
       fetch(req).then((res) => {
         if (res.ok && res.type === "basic") {

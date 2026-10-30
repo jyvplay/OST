@@ -60,6 +60,10 @@ export default function LensModule(_: ModuleProps) {
   const detectorRef = useRef<{ detect: (s: CanvasImageSource) => Promise<{ boundingBox: DOMRectReadOnly }[]> } | null>(null);
   const frameCost = useRef<number[]>([]);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const cameraRef = useRef<MediaStream | null>(null);
+  const screenRef = useRef<MediaStream | null>(null);
+  const outputRef = useRef<MediaStream | null>(null);
+  const captureEpoch = useRef(0);
   const [facing, setFacing] = useState<Facing>("auto");
   const [resPick, setResPick] = useState<ResPick>("1280");
   const [zoomOpts, setZoomOpts] = useState<number[]>([]);
@@ -74,7 +78,6 @@ export default function LensModule(_: ModuleProps) {
   const winFrames = useRef(0);
   const [height, setHeight] = useState(720);
   const [err, setErr] = useState("");
-  const [screenLayer, setScreenLayer] = useState<MediaStream | null>(null);
   const gateRef = useRef<AudioWorkletNode | null>(null);
   // LN-08: the gate's AudioContext is owned here so it can be closed again. Chromium
   // caps how many AudioContexts one document may hold open at once, so a module that
@@ -90,33 +93,41 @@ export default function LensModule(_: ModuleProps) {
   const stop = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = null;
-    stream?.getTracks().forEach((t) => t.stop());
-    screenLayer?.getTracks().forEach((t) => t.stop());
+    captureEpoch.current++;
+    cameraRef.current?.getTracks().forEach((t) => t.stop()); cameraRef.current = null;
+    screenRef.current?.getTracks().forEach((t) => t.stop()); screenRef.current = null;
+    outputRef.current?.getTracks().forEach((t) => t.stop()); outputRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
     gateRef.current = null;
     if (acRef.current) { void acRef.current.close().catch(() => {}); acRef.current = null; }
     setStream(null);
-    setScreenLayer(null);
+    setZoomOpts([]); setZoomPick(null); setTorchOk(false); setTorchOn(false);
     shell.publishStream("lens", null);
-  }, [stream, screenLayer, shell]);
+  }, [shell]);
 
   useEffect(() => () => stop(), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const start = async () => {
     setErr("");
+    const started = ++captureEpoch.current;
     try {
       const s = await userMedia("Lens", {
         video: { frameRate: { ideal: 30 }, ...resConstraint(resPick), ...facingConstraint(facing) },
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
+      if (started !== captureEpoch.current || !videoRef.current) { s.getTracks().forEach((t) => t.stop()); return; }
+      cameraRef.current = s;
       setStream(s);
-      const v = videoRef.current!;
+      const v = videoRef.current;
       v.dataset.gateStage = "got-stream";
       v.srcObject = s; setTimeout(() => refreshCaps(), 600);
       await v.play();
+      if (started !== captureEpoch.current) return;
       const FD = (window as unknown as { FaceDetector?: new (o: { fastMode: boolean }) => { detect: (s: CanvasImageSource) => Promise<{ boundingBox: DOMRectReadOnly }[]> } }).FaceDetector;
       if (FD) detectorRef.current = new FD({ fastMode: true });
       loop();
       const out = canvasRef.current!.captureStream(30);
+      outputRef.current = out;
       // LN-08: route the mic through the worklet gate; fall back to the raw track
       // Loading a worklet means fetching a blob URL and compiling it on the audio
       // thread; on a loaded machine that can lose a race that a second attempt wins.
@@ -129,8 +140,10 @@ export default function LensModule(_: ModuleProps) {
         try {
           ac = new AudioContext({ latencyHint: "interactive" });
           await ac.audioWorklet.addModule(url);
+          if (started !== captureEpoch.current) { await ac.close(); return; }
           // A context that autoplay policy left suspended never pulls audio through.
           if (ac.state === "suspended") await ac.resume().catch(() => {});
+          if (started !== captureEpoch.current) { await ac.close(); return; }
           const node = new AudioWorkletNode(ac, "fusion-gate");
           const dest = ac.createMediaStreamDestination();
           ac.createMediaStreamSource(s).connect(node).connect(dest);
@@ -144,6 +157,7 @@ export default function LensModule(_: ModuleProps) {
           URL.revokeObjectURL(url);
         }
       }
+      if (started !== captureEpoch.current) return;
       if (!gateRef.current) s.getAudioTracks().forEach((t) => out.addTrack(t));
       // Make the outcome observable: "" when the gate is live, otherwise the reason.
       if (videoRef.current) {
@@ -152,8 +166,10 @@ export default function LensModule(_: ModuleProps) {
       }
       shell.publishStream("lens", out);
     } catch (e) {
-      if (videoRef.current) videoRef.current.dataset.gateStage = "threw: " + String((e as Error)?.message ?? e).slice(0, 80);
-      setErr(String((e as Error).message));
+      if (started === captureEpoch.current) {
+        if (videoRef.current) videoRef.current.dataset.gateStage = "threw: " + String((e as Error)?.message ?? e).slice(0, 80);
+        stop(); setErr(String((e as Error).message));
+      }
     }
   };
 
@@ -284,13 +300,14 @@ export default function LensModule(_: ModuleProps) {
         {stream ? <Btn variant="danger" onClick={stop}>Stop camera</Btn> : <><label style={{ fontSize: fz(12) }}>Camera
           <select className="fs-select" style={{ width: "auto" }} aria-label="Capture resolution" value={resPick} onChange={(e) => setResPick(e.target.value as ResPick)} data-testid="lens-res">{RES_OPTIONS.map((o) => <option key={o} value={o}>{o === "max" ? "Camera max" : `${o}px wide`}</option>)}</select><select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Camera facing" value={facing} onChange={(e) => setFacing(e.target.value as Facing)} data-testid="lens-facing">
             <option value="auto">{facingLabel("auto")}</option><option value="user">{facingLabel("user")}</option><option value="environment">{facingLabel("environment")}</option>
-          </select><select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Camera zoom" disabled={!zoomOpts.length} value={zoomPick ?? ""} onChange={(e) => { const z = Number(e.target.value); setZoomPick(z); const t = lensTrack(); if (t) void t.applyConstraints({ advanced: [{ zoom: z } as MediaTrackConstraintSet] }).catch(() => setZoomPick(zoomOpts[0] ?? null)); }} data-testid="lens-zoom">{zoomOpts.length ? zoomOpts.map((z) => <option key={z} value={z}>{z}×</option>) : <option value="">no zoom</option>}</select><button type="button" className="fs-btn" data-variant={torchOn ? "primary" : "ghost"} aria-pressed={torchOn} disabled={!torchOk} title={torchOk ? "Toggle the camera light" : "this camera reports no torch"} onClick={() => { const t = lensTrack(); const next = !torchOn; setTorchOn(next); if (t) void t.applyConstraints({ advanced: [{ torch: next } as MediaTrackConstraintSet] }).catch(() => setTorchOn(!next)); }} data-testid="lens-torch">Torch</button>
-        </label>
-        <Btn variant="primary" onClick={() => void start()}>Start camera</Btn></>}
+          </select></label><Btn variant="primary" onClick={() => void start()}>Start camera</Btn></>}
+          <select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Camera zoom" disabled={!zoomOpts.length} value={zoomPick ?? ""} onChange={(e) => { const z = Number(e.target.value); const t = lensTrack(); if (t) void t.applyConstraints({ advanced: [{ zoom: z } as MediaTrackConstraintSet] }).then(() => { if (lensTrack() !== t) return; const actual = (t.getSettings() as MediaTrackSettings & { zoom?: number }).zoom; if (typeof actual === "number" && Math.abs(actual - z) < 1e-6) { setZoomPick(z); setErr(""); } else setErr("Camera did not confirm zoom"); }).catch(() => setErr("Camera rejected zoom")); }} data-testid="lens-zoom">{zoomOpts.length ? zoomOpts.map((z) => <option key={z} value={z}>{z}×</option>) : <option value="">no zoom</option>}</select><button type="button" className="fs-btn" data-variant={torchOn ? "primary" : "ghost"} aria-pressed={torchOn} disabled={!torchOk} title={torchOk ? "Toggle the camera light" : "this camera reports no torch"} onClick={() => { const t = lensTrack(); const next = !torchOn; if (t) void t.applyConstraints({ advanced: [{ torch: next } as MediaTrackConstraintSet] }).then(() => { if (lensTrack() !== t) return; const actual = (t.getSettings() as MediaTrackSettings & { torch?: boolean }).torch; if (actual === next) { setTorchOn(next); setErr(""); } else setErr("Camera did not confirm torch"); }).catch(() => setErr("Camera rejected torch")); }} data-testid="lens-torch">Torch</button>
         <Btn variant="ghost" disabled={!capAvailable(shell.caps, "displayCapture")} onClick={async () => {
           try {
+            const started = captureEpoch.current;
             const s = await displayMedia("Lens · presenter", { video: true });
-            setScreenLayer(s);
+            if (started !== captureEpoch.current) { s.getTracks().forEach((t) => t.stop()); return; }
+            screenRef.current?.getTracks().forEach((t) => t.stop()); screenRef.current = s;
             setFx((f) => ({ ...f, presenter: true }));
           } catch (e) { setErr(String((e as Error).message)); }
         }}>Presenter: add screen</Btn>

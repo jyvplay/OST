@@ -35,11 +35,13 @@ export async function conditionalWriteInTransaction(tx: TransactionDb, path: str
     }
     const [existing] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, path)).for("update");
     let mime = requestedMime || guessMime(name);
+    let identity: { id: number; version: number };
     if (expected === null) {
       if (existing) throw new ConditionalWriteConflict("The destination already exists; sync again.");
       const created = await tx.insert(vfsNodes).values({ path, parent, name, kind: "file", mime, encoding, content, size, sha256: digest })
-        .onConflictDoNothing({ target: vfsNodes.path }).returning({ id: vfsNodes.id });
+        .onConflictDoNothing({ target: vfsNodes.path }).returning({ id: vfsNodes.id, version: vfsNodes.version });
       if (!created.length) throw new ConditionalWriteConflict("The destination was created concurrently; sync again.");
+      identity = created[0];
     } else {
       if (!existing || existing.kind !== "file" || existing.trashed || existing.encoding !== encoding || existing.mime === ENCRYPTED_MIME || existing.id !== expected.id
         || existing.version !== expected.version || existing.sha256 !== expected.sha256 || sha256(existing.content) !== expected.sha256) {
@@ -48,7 +50,9 @@ export async function conditionalWriteInTransaction(tx: TransactionDb, path: str
       mime = existing.mime;
       await tx.insert(vfsVersions).values({ path, version: existing.version, encoding: existing.encoding, content: existing.content,
         size: existing.size, sha256: existing.sha256, reason: "conflict-keep-local" });
-      await tx.update(vfsNodes).set({ content, size, sha256: digest, version: existing.version + 1, updatedAt: new Date() }).where(eq(vfsNodes.path, path));
+      const updated = await tx.update(vfsNodes).set({ content, size, sha256: digest, version: existing.version + 1, updatedAt: new Date() }).where(eq(vfsNodes.path, path)).returning({ id: vfsNodes.id, version: vfsNodes.version });
+      if (updated.length !== 1) throw new ConditionalWriteConflict("The file changed during the write; sync again.");
+      identity = updated[0];
     }
     if (isPrivateVfsPath(path)) await tx.delete(indexDocs).where(and(eq(indexDocs.source, "file"), eq(indexDocs.ref, path)));
     else {
@@ -60,5 +64,5 @@ export async function conditionalWriteInTransaction(tx: TransactionDb, path: str
     await tx.insert(fileOps).values({ op: "write", src: path, state: "COMPLETE", bytes: size, sha256: digest,
       steps: ["REQUESTED", "DEST_VERIFIED", "DEST_PUBLISHED", "COMPLETE"].map((state) => ({ state, at })) });
     await tx.insert(auditLog).values({ actor: "user", action: "fs.sync-write", detail: isPrivateVfsPath(path) ? "/Private/…" : path });
-    return { ok: true, path, sha256: digest, size };
+    return { ok: true, path, sha256: digest, size, ...identity };
 }
