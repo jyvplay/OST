@@ -10,6 +10,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import DefaultAppsGuide from "../DefaultAppsGuide";
 import ContextProfiles from "../ContextProfiles";
 import { Badge, Btn, KV, Section, Tabs } from "../ui";
+import { exportSettings, parseSettingsImport } from "@/lib/settings-io";
 import DisplaySettings from "../DisplaySettings";
 import MouseButtonsSettings from "../MouseButtonsSettings";
 import { layoutSource, useChordLabel } from "@/lib/keyboard-layout";
@@ -268,6 +269,28 @@ export default function SettingsModule({ win }: ModuleProps) {
             <KV k="Runtime" v="Next.js App Router · React · PostgreSQL via Drizzle · zero UI dependencies" />
             <KV k="Telemetry" v={<Badge tone="ok">none in the bundle — grep it</Badge>} />
             <KV k="User agent" v={shell.caps?.ua ?? ""} mono />
+          </Section>
+          <Section title="Settings import">
+            <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+              <Btn variant="ghost" onClick={() => {
+                const url = URL.createObjectURL(new Blob([exportSettings(shell.settings)], { type: "application/json" }));
+                const a = document.createElement("a"); a.href = url; a.download = "fusion-settings.json"; a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+              }}>Export settings</Btn>
+              <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Import settings
+                <input type="file" accept=".json,application/json" hidden aria-label="Import settings" onChange={async (e) => {
+                  const f = e.target.files?.[0]; if (!f) return;
+                  try {
+                    const r = parseSettingsImport(await f.text(), new Set(Object.keys(shell.settings)), new Set(["system.seedVersion"]));
+                    for (const [k, v] of Object.entries(r.accepted)) await shell.setSetting(k, v);
+                    shell.toast(`Settings import: ${Object.keys(r.accepted).length} applied${r.unknownKeys.length ? `, unknown skipped: ${r.unknownKeys.join(", ")}` : ""}${r.invalidValues.length ? `, refused: ${r.invalidValues.join(", ")}` : ""}`, "ok");
+                    load();
+                  } catch (err) { shell.toast(`Settings import refused: ${String((err as Error).message)}`, "warn"); }
+                  e.target.value = "";
+                }} />
+              </label>
+            </div>
+            <div className="fs-dim" style={{ fontSize: fz(11) }}>Only keys this build knows are applied; unknown or locked keys are reported, never stored unread.</div>
           </Section>
           <Section title="Diagnostics export">
             <Btn variant="ghost" onClick={() => {

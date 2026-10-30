@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
 import { validateAlarms, nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, type Alarm } from "@/lib/clock-core";
+import { commonWindows, validateCountdowns, daysUntil, type Countdown } from "@/lib/zones";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -135,6 +136,17 @@ export default function ClockModule(_: ModuleProps) {
         <div className="fs-dim" style={{ fontSize: fz(11) }}>Alarms fire while Fusion is open; a closed web app cannot schedule an exact alarm. No weekday picked means every day.</div>
       </Section>
 
+      <Section title="Meeting overlap">
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>Hours when 09:00–17:00 overlaps in all three cities today (real zone offsets, so DST weeks are exact):</div>
+        {(() => { const runs = (() => { try { return commonWindows([{ zone: "America/New_York", startHour: 9, endHour: 17 }, { zone: "Europe/London", startHour: 9, endHour: 17 }, { zone: "Asia/Tokyo", startHour: 9, endHour: 17 }]); } catch { return []; } })();
+          return runs.length ? runs.map((r, i) => <Badge key={i} tone="info">{new Date(r.startUtc).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}–{new Date(r.endUtc).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} here · {r.minutes} min</Badge>) : <Badge tone="warn">no common working hour today</Badge>;
+        })()}
+      </Section>
+
+      <Section title="Countdowns">
+        <Countdowns />
+      </Section>
+
       <Section title="Date calculator">
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
           <input className="fs-input" type="date" value={dateA} onChange={(e) => setDateA(e.target.value)} aria-label="From date" />
@@ -160,6 +172,30 @@ export default function ClockModule(_: ModuleProps) {
           shipped), so this is stated rather than implied.
         </div>
       </Section>
+    </div>
+  );
+}
+
+function Countdowns() {
+  const [list, setList] = useState<Countdown[]>(() => { try { return validateCountdowns(JSON.parse(localStorage.getItem("fusion.countdowns.v1") ?? "[]")); } catch { return []; } });
+  const [label, setLabel] = useState("");
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  useEffect(() => { try { localStorage.setItem("fusion.countdowns.v1", JSON.stringify(list)); } catch { /* private mode */ } }, [list]);
+  return (
+    <div style={{ display: "grid", gap: 6 }}>
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <input className="fs-input" style={{ flex: 1, minWidth: fz(110) }} placeholder="Label" value={label} onChange={(e) => setLabel(e.target.value)} aria-label="Countdown label" />
+        <input className="fs-input" type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-label="Countdown date" />
+        <Btn variant="primary" disabled={!label.trim()} onClick={() => { try { setList((l) => validateCountdowns([...l, { id: `c${Date.now().toString(36)}`, label: label.trim(), date }])); setLabel(""); } catch { /* validated above */ } }}>Add<span className="sr-only"> countdown</span></Btn>
+      </div>
+      {list.map((c) => { const d = daysUntil(c); return (
+        <div key={c.id} className="fs-row" style={{ justifyContent: "space-between", gap: 6 }}>
+          <span style={{ fontSize: fz(12) }}>{c.label} <span className="fs-dim">{c.date}</span></span>
+          <span className="fs-row" style={{ gap: 4 }}>
+            <Badge tone={d < 0 ? "warn" : d === 0 ? "ok" : "info"}>{d === 0 ? "today" : d > 0 ? `${d} days` : `${-d} days ago`}</Badge>
+            <Btn variant="ghost" onClick={() => setList((l) => l.filter((x) => x.id !== c.id))}>Remove<span className="sr-only"> countdown {c.label}</span></Btn>
+          </span>
+        </div> ); })}
     </div>
   );
 }

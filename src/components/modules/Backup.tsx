@@ -1,4 +1,5 @@
 "use client";
+import { parseBackupManifest, compareManifests } from "@/lib/backup-compare";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
@@ -258,6 +259,18 @@ export default function BackupModule(_: ModuleProps) {
           <Btn variant="primary" disabled={busy} onClick={() => void fetchBundle("data")}>Build data bundle</Btn>
           <Btn variant="ghost" disabled={busy} onClick={() => void fetchBundle("config")}>Build config bundle</Btn>
           <Btn variant="ghost" disabled={busy || !bundle} onClick={() => void verify()}>Verify digests</Btn>
+          <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Compare with an older bundle
+            <input type="file" accept=".json,application/json" hidden aria-label="Compare with an older bundle" onChange={async (e) => {
+              const f = e.target.files?.[0]; if (!f || !bundle) return;
+              try {
+                const before = parseBackupManifest(await f.text());
+                const after = bundle.entries.map((en) => ({ path: en.path, bytes: en.size, sha256: en.sha256 }));
+                const d = compareManifests(before, after);
+                setReport(`Compared with ${f.name}: ${d.added.length} added, ${d.removed.length} removed, ${d.changed.length} changed, ${d.unchanged} unchanged; size ${d.bytesDelta >= 0 ? "+" : ""}${d.bytesDelta} B.${d.changed.length ? ` Changed: ${d.changed.slice(0, 8).map((c) => c.path).join(", ")}` : ""}${d.added.length ? ` Added: ${d.added.slice(0, 8).join(", ")}` : ""}${d.removed.length ? ` Removed: ${d.removed.slice(0, 8).join(", ")}` : ""}`);
+              } catch (err) { setReport(`Compare refused: ${String((err as Error).message)}`); }
+              e.target.value = "";
+            }} />
+          </label>
           <Btn variant="ghost" disabled={busy || !bundle} onClick={() => void download(false)}>Download plain</Btn>
           <Btn variant="ghost" disabled={busy || !bundle || pass.length < 8} onClick={() => void download(true)}>Download encrypted</Btn>
         </div>

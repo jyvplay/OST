@@ -9,6 +9,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Blocked, Hint } from "../ui";
 import ProxyFrame from "./ProxyFrame";
 import { exportSession, parseBrowserImport } from "@/lib/browser-io";
+import { cleanUrl } from "@/lib/url-clean";
 import NetworkRoute, { useRoute } from "./NetworkRoute";
 import {
   PERMISSION_FEATURES, activate, allowAttribute, batchClose, closeTab, createGroup, hostOf, makeTab, normalizeSession, removeGroup,
@@ -241,6 +242,7 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
           onChange={(e) => setAddress(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") open(address); }} />
         <Btn variant="primary" onClick={() => open(address)}>Go</Btn>
+        <Btn variant="ghost" aria-label="Clean link" title="Clean link — remove tracking parameters (utm_*, fbclid, gclid…) from the address; what was removed is reported" onClick={() => { try { const r = cleanUrl(address); setAddress(r.url); setNotice(r.changed ? `Removed: ${r.removed.join(", ")}` : "No tracking parameters found"); } catch (e) { setNotice(String((e as Error).message)); } }}><UiGlyph name="broom" /></Btn>
         {!embeddedRecall?<Btn aria-label="Recall media" title="Recall media" onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}><UiGlyph name="snapshot"/></Btn>:null}
         {embeddedRecall?<Btn aria-label="Browser tools" title="Browser tools" aria-expanded={tools} onClick={()=>{setTools(v=>!v);setShowPerms(false);setShowRoute(false);}}><UiGlyph name="sliders"/> Tools</Btn>:null}
         <div style={{display:tools?'contents':'none'}}>

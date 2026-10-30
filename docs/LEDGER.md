@@ -1,7 +1,7 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-29T23:59:09.212Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3999) and
-342 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-30T00:50:34.192Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3999) and
+345 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
 Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
 Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
@@ -11,21 +11,21 @@ See each suite timestamp and the latest turn report for current tests, known cla
 
 | | Count |
 |---|---:|
-| **Features in register** | **471** |
-| Fully built | 365 |
+| **Features in register** | **483** |
+| Fully built | 377 |
 | Partially built (partial 64 + probe 18) | 82 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 24 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **317** |
+| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **329** |
 | **Partially tested** (partial tags or an incomplete row with passing evidence) | **119** |
 | Untested | 35 |
-| Recorded test cases / passed (mixed run dates) | 2832 / 2826 |
+| Recorded test cases / passed (mixed run dates) | 2850 / 2840 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 311 | 54 | 0 |
+| fully built | 323 | 54 | 0 |
 | partially built | 0 | 56 | 26 |
 | blocked | 6 | 9 | 9 |
 | skeleton | 0 | 0 | 0 |
@@ -37,11 +37,11 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-29T22:43:42.985Z |
-| ai-format | 5 | 5 | 0 | 2026-10-29T06:06:59.717Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-30T00:34:06.946Z |
+| ai-format | 5 | 5 | 0 | 2026-10-30T00:34:16.642Z |
 | browser-session | 5 | 5 | 0 | 2026-10-29T19:36:44.498Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-29T06:07:04.116Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-29T23:57:24.029Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-30T00:34:14.174Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-30T00:50:14.595Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
 | e2e-browser | 6 | 6 | 0 | 2026-10-29T23:44:22.849Z |
@@ -77,7 +77,8 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt114-density | 6 | 6 | 0 | 2026-10-29T19:54:04.033Z |
 | e2e-tt114-shell | 9 | 9 | 0 | 2026-10-29T19:53:33.210Z |
 | e2e-tt114-tabs | 5 | 5 | 0 | 2026-10-29T23:45:00.924Z |
-| e2e-tt117 | 5 | 5 | 0 | 2026-10-29T23:57:52.778Z |
+| e2e-tt117 | 5 | 5 | 0 | 2026-10-30T00:36:24.752Z |
+| e2e-tt118 | 5 | 5 | 0 | 2026-10-30T00:30:35.025Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -176,10 +177,10 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-vector | 12 | 12 | 0 | 2026-10-26T13:09:31.262Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 68 | 68 | 0 | 2026-10-29T06:09:15.391Z |
-| image | 16 | 16 | 0 | 2026-10-29T06:06:43.008Z |
+| image | 16 | 16 | 0 | 2026-10-30T00:34:14.584Z |
 | integration | 25 | 25 | 0 | 2026-10-29T19:36:44.308Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-29T22:43:43.305Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-29T22:43:49.445Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-30T00:34:07.260Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-30T00:34:13.231Z |
 | metaclean | 6 | 6 | 0 | 2026-10-29T06:06:57.446Z |
 | names | 7 | 7 | 0 | 2026-10-29T06:06:42.582Z |
 | office | 35 | 35 | 0 | 2026-10-29T06:06:36.036Z |
@@ -193,9 +194,9 @@ verifies the honesty contract, not the (impossible) capability.
 | privacy-crypto | 9 | 9 | 0 | 2026-10-29T06:06:54.039Z |
 | privacy-layer | 13 | 13 | 0 | 2026-10-29T19:36:32.767Z |
 | sheet-layout | 6 | 6 | 0 | 2026-10-29T06:06:39.009Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-29T22:43:49.707Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-29T06:06:58.040Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-29T22:43:50.083Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-30T00:34:13.455Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-30T00:34:15.321Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-30T00:34:13.798Z |
 | tt101-search | 37 | 37 | 0 | 2026-10-29T19:36:23.826Z |
 | tt102-private-bound | 5 | 5 | 0 | 2026-10-29T19:36:21.550Z |
 | tt102-search | 33 | 33 | 0 | 2026-10-29T19:35:51.689Z |
@@ -217,13 +218,15 @@ verifies the honesty contract, not the (impossible) capability.
 | tt111-recall-tap | 7 | 7 | 0 | 2026-10-29T19:51:19.261Z |
 | tt114-core | 9 | 9 | 0 | 2026-10-29T19:53:11.828Z |
 | tt114-recall-token | 8 | 8 | 0 | 2026-10-29T19:53:12.448Z |
-| tt116-density | 6 | 6 | 0 | 2026-10-29T23:44:38.790Z |
+| tt116-density | 6 | 6 | 0 | 2026-10-30T00:45:16.178Z |
 | tt116-platform | 9 | 9 | 0 | 2026-10-29T19:54:07.136Z |
 | tt116-recall-archive | 8 | 8 | 0 | 2026-10-29T19:54:06.444Z |
 | tt116-recall-retention | 7 | 7 | 0 | 2026-10-29T19:54:05.957Z |
 | tt116-safesave | 15 | 15 | 0 | 2026-10-29T19:54:05.047Z |
-| tt117-core | 12 | 12 | 0 | 2026-10-29T23:09:01.992Z |
-| tt117-density | 1 | 1 | 0 | 2026-10-29T23:58:00.143Z |
+| tt117-core | 12 | 12 | 0 | 2026-10-30T00:34:16.924Z |
+| tt117-density | 1 | 1 | 0 | 2026-10-30T00:36:06.245Z |
+| tt118-core | 12 | 12 | 0 | 2026-10-30T00:34:17.191Z |
+| tt118-density | 1 | 1 | 0 | 2026-10-30T00:44:55.650Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-29T06:07:12.610Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-29T06:07:13.493Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -375,10 +378,10 @@ verifies the honesty contract, not the (impossible) capability.
 | tt97-palette-commands | 4 | 4 | 0 | 2026-10-29T19:38:14.093Z |
 | tt97-palette-mutants | 8 | 8 | 0 | 2026-10-27T23:08:25.457823+00:00 |
 | tt97-svg-attributes | 3 | 3 | 0 | 2026-10-28T02:00:16.639Z |
-| unit | 23 | 23 | 0 | 2026-10-29T22:43:42.590Z |
-| vector-boolean | 6 | 6 | 0 | 2026-10-29T06:06:48.012Z |
-| vector | 18 | 18 | 0 | 2026-10-29T06:06:46.927Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-29T06:06:58.287Z |
+| unit | 23 | 23 | 0 | 2026-10-30T00:34:06.545Z |
+| vector-boolean | 6 | 2 | 4 | 2026-10-30T00:33:27.809Z |
+| vector | 18 | 18 | 0 | 2026-10-30T00:34:14.875Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-30T00:34:15.079Z |
 
 ## Rows touched by FAILING tests (not counted as tested)
 
@@ -388,20 +391,26 @@ verifies the honesty contract, not the (impossible) capability.
 - SC-10: e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage; e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end
 - BK-02: e2e-privacy: TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage
 - FF-81: e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify
+- FF-37: vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back); vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995); vector-boolean: three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain); vector-boolean: fill rules: even-odd hole, nonzero opposite-direction hole, nonzero same-direction (no hole), group = union of leaves with its transform
 
 ## By family
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Clock | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
-| Notes | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
-| Planner | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
+| Editor | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Notes | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
+| Planner | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
+| Clock | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
+| Calculator | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Browser | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
+| Settings | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Terminal | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Photos | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Find | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
+| Design | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
 | Clipboard | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | Routines | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
-| Find | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | Recall | 41 | 20 | 21 | 0 | 16 | 25 | 0 |
-| Browser | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
-| Design | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
 | Spec | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | RC | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | AX | 17 | 16 | 1 | 0 | 13 | 3 | 1 |
@@ -440,6 +449,18 @@ verifies the honesty contract, not the (impossible) capability.
 
 | code | status | tested | evidence (passing tests) |
 |---|---|---|---|
+| DF-01 | built | full | e2e-tt118: DF-01: Editor diffs a saved version against the edited buffer; tt118-core: DF-01 diff: line ops in order, stats, one-word change reads as one word |
+| NT-02 | built | full | tt118-core: NT-02 tags/links: headings and URLs are not tags, backlinks reverse exactly |
+| PL-03 | built | full | e2e-tt118: PL-03/PH-02: agenda view and photo timeline render from real data; tt118-core: PL-03 agenda: buckets by whole local days, done and undated separated |
+| WD-01 | built | full | e2e-tt118: CV-01/WD-01/WD-02: converter is exact; overlap and countdown render; tt118-core: WD-01 zone overlap: London/New_York share an afternoon; Tokyo shares none |
+| WD-02 | built | full | e2e-tt118: CV-01/WD-01/WD-02: converter is exact; overlap and countdown render; tt118-core: WD-02 countdowns: whole days, validation |
+| CV-01 | built | full | e2e-tt118: CV-01/WD-01/WD-02: converter is exact; overlap and countdown render; tt118-core: CV-01 converter: exact definitions, affine temperature, cross-category refused |
+| UC-01 | built | full | e2e-tt118: UC-01/TM-02: clean-link control exists; terminal suggests the real command; tt118-core: UC-01 clean link: trackers listed, load-bearing params kept, non-URL refused |
+| ST-10 | built | full | tt118-core: ST-10 settings import: unknown and locked keys reported, never applied by parsing |
+| TM-02 | built | full | e2e-tt118: UC-01/TM-02: clean-link control exists; terminal suggests the real command; tt118-core: TM-02 suggestion: transposition costs one, short inputs get nothing |
+| PH-02 | built | full | e2e-tt118: PL-03/PH-02: agenda view and photo timeline render from real data; tt118-core: PH-02 photo timeline: local months, undated counted, largest month by bytes |
+| SV-01 | built | full | e2e-tt118: SV-01: a saved search persists and re-applies its query; tt118-core: SV-01 saved searches: modes validated, duplicate names refused, sorted newest first |
+| AX-20 | built | full | tt118-density: AX-20: every app measured, none wordier than the ceiling, no emoji marks |
 | CK-01 | built | full | e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator; tt117-core: CK-01 alarms: next fire, weekly days, disabled, snooze, validation |
 | CK-02 | built | full | tt117-core: CK-02 lap splits: deltas, fastest/slowest, monotonic refusal |
 | CK-03 | built | full | e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator; tt117-core: CK-03 date arithmetic: days, add, business days sign-aware |
@@ -667,7 +688,7 @@ verifies the honesty contract, not the (impossible) capability.
 | BK-03 | built | full | e2e-tt87-backup: BK-03 UI builds a settings-only snapshot, verifies it and downloads both plaintext and authenticated encrypted files; e2e-tt87-backup: BK-03 wrong passphrase, ciphertext mutation and plain checksum tampering are refused before any restore request; e2e-tt87-backup: BK-03 encrypted UI restore previews, can cancel, applies settings live in two tabs and never posts the passphrase (+17) |
 | BK-04 | built | full | tt111-core: the new-device checklist is a real diff of two measured reports, and absent memory data is not low memory; unit: BK-04 capability diff reports lost/gained with degrade text |
 | BK-05 | partial | partial | e2e-tt89-drill: a real downloaded recovery-key archive is selected and the drill controls are keyboard accessible; e2e-tt89-drill: wrong password and modified ciphertext fail locally, do not post, and set failed status; e2e-tt89-drill: real encrypted-file drill reads scratch state, confirms rollback, keeps live settings unchanged and persists only non-secret status (+50) |
-| BK-06 | built | full | e2e-tt87-backup: BK-03 UI builds a settings-only snapshot, verifies it and downloads both plaintext and authenticated encrypted files; e2e-tt87-backup: BK-03 wrong passphrase, ciphertext mutation and plain checksum tampering are refused before any restore request; e2e-tt87-backup: BK-03 encrypted UI restore previews, can cancel, applies settings live in two tabs and never posts the passphrase (+18) |
+| BK-06 | built | full | e2e-tt87-backup: BK-03 UI builds a settings-only snapshot, verifies it and downloads both plaintext and authenticated encrypted files; e2e-tt87-backup: BK-03 wrong passphrase, ciphertext mutation and plain checksum tampering are refused before any restore request; e2e-tt87-backup: BK-03 encrypted UI restore previews, can cancel, applies settings live in two tabs and never posts the passphrase (+19) |
 | FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: SEQUENCE(2,3) spills all six cells with correct values (+13) |
 | FF-27 | built | full | e2e: mount: sheet; office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
 | FF-28 | built | full | e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen; e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates (+34) |
@@ -685,7 +706,7 @@ verifies the honesty contract, not the (impossible) capability.
 | SC-14 | built | full | e2e-privacy: host audit in the UI: a plaintext file planted by another client is flagged and 'Encrypt it' seals it (name + content); e2e: mount: privacy; privacy-layer: audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught) |
 | SC-15 | built | full | e2e-privacy: emergency shutdown chord: keys + RAM files gone, page blanked via location.replace (no history entry with the shell); e2e: mount: privacy |
 | FF-36 | built | full | e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen; names: name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255; names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined (+5) |
-| FF-37 | built | full | e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo; vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back); vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995) (+4) |
+| FF-37 | built | full | e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo; vector-boolean: refusals: open paths, text, a single shape, locked shapes, Intersect of disjoint shapes; result survives SVG export → import; vector-boolean: performance: two 600-unit ellipses + a rotated rect, all modes < 400 ms each on this 2-CPU host |
 | SC-16 | built | full | e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host; privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock; privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results |
 | SC-17 | built | full | e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext; privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported; privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected (+5) |
 | SC-18 | built | full | e2e-privacy: TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks; privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses |

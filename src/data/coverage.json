@@ -1,23 +1,104 @@
 {
- "generatedAt": "2026-10-29T23:59:09.214Z",
+ "generatedAt": "2026-10-30T00:50:34.195Z",
  "totals": {
   "built": {
-   "full": 365,
+   "full": 377,
    "partial": 82,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 317,
+   "full": 329,
    "partial": 119,
    "untested": 35
   },
   "tests": {
-   "total": 2832,
-   "passed": 2826
+   "total": 2850,
+   "passed": 2840
   }
  },
  "rows": {
+  "DF-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt118: DF-01: Editor diffs a saved version against the edited buffer",
+    "tt118-core: DF-01 diff: line ops in order, stats, one-word change reads as one word"
+   ]
+  },
+  "NT-02": {
+   "tested": "full",
+   "tests": [
+    "tt118-core: NT-02 tags/links: headings and URLs are not tags, backlinks reverse exactly"
+   ]
+  },
+  "PL-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt118: PL-03/PH-02: agenda view and photo timeline render from real data",
+    "tt118-core: PL-03 agenda: buckets by whole local days, done and undated separated"
+   ]
+  },
+  "WD-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt118: CV-01/WD-01/WD-02: converter is exact; overlap and countdown render",
+    "tt118-core: WD-01 zone overlap: London/New_York share an afternoon; Tokyo shares none"
+   ]
+  },
+  "WD-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt118: CV-01/WD-01/WD-02: converter is exact; overlap and countdown render",
+    "tt118-core: WD-02 countdowns: whole days, validation"
+   ]
+  },
+  "CV-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt118: CV-01/WD-01/WD-02: converter is exact; overlap and countdown render",
+    "tt118-core: CV-01 converter: exact definitions, affine temperature, cross-category refused"
+   ]
+  },
+  "UC-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt118: UC-01/TM-02: clean-link control exists; terminal suggests the real command",
+    "tt118-core: UC-01 clean link: trackers listed, load-bearing params kept, non-URL refused"
+   ]
+  },
+  "ST-10": {
+   "tested": "full",
+   "tests": [
+    "tt118-core: ST-10 settings import: unknown and locked keys reported, never applied by parsing"
+   ]
+  },
+  "TM-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt118: UC-01/TM-02: clean-link control exists; terminal suggests the real command",
+    "tt118-core: TM-02 suggestion: transposition costs one, short inputs get nothing"
+   ]
+  },
+  "PH-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt118: PL-03/PH-02: agenda view and photo timeline render from real data",
+    "tt118-core: PH-02 photo timeline: local months, undated counted, largest month by bytes"
+   ]
+  },
+  "SV-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt118: SV-01: a saved search persists and re-applies its query",
+    "tt118-core: SV-01 saved searches: modes validated, duplicate names refused, sorted newest first"
+   ]
+  },
+  "AX-20": {
+   "tested": "full",
+   "tests": [
+    "tt118-density: AX-20: every app measured, none wordier than the ceiling, no emoji marks"
+   ]
+  },
   "CK-01": {
    "tested": "full",
    "tests": [
@@ -3536,6 +3617,7 @@
     "e2e-tt88-recovery: BK-06 secrets are not in captured request bodies or persistent browser storage, and key display is cleared",
     "privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused",
     "privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key",
+    "tt118-core: BK-06 backup compare: added/removed/changed/unchanged and byte delta",
     "tt88-recovery: BK-06 Web Crypto output opens with both credentials in independent Python cryptography",
     "tt88-recovery: BK-06 independently encrypted Python envelope opens with both Web Crypto slots",
     "tt88-recovery: BK-06 random 256-bit recovery keys have exact portable format and no repeats in a 100-key sample",
@@ -4067,10 +4149,6 @@
    "tested": "full",
    "tests": [
     "e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo",
-    "vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back)",
-    "vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995)",
-    "vector-boolean: three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain)",
-    "vector-boolean: fill rules: even-odd hole, nonzero opposite-direction hole, nonzero same-direction (no hole), group = union of leaves with its transform",
     "vector-boolean: refusals: open paths, text, a single shape, locked shapes, Intersect of disjoint shapes; result survives SVG export → import",
     "vector-boolean: performance: two 600-unit ellipses + a rotated rect, all modes < 400 ms each on this 2-CPU host"
    ]

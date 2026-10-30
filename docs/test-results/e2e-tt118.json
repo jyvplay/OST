@@ -1,0 +1,55 @@
+{
+  "suite": "e2e-tt118",
+  "at": "2026-10-30T00:30:35.025Z",
+  "results": [
+    {
+      "suite": "e2e-tt118",
+      "name": "DF-01: Editor diffs a saved version against the edited buffer",
+      "covers": {
+        "DF-01": "full"
+      },
+      "pass": true,
+      "ms": 3540
+    },
+    {
+      "suite": "e2e-tt118",
+      "name": "CV-01/WD-01/WD-02: converter is exact; overlap and countdown render",
+      "covers": {
+        "CV-01": "full",
+        "WD-01": "full",
+        "WD-02": "full"
+      },
+      "pass": true,
+      "ms": 5101
+    },
+    {
+      "suite": "e2e-tt118",
+      "name": "PL-03/PH-02: agenda view and photo timeline render from real data",
+      "covers": {
+        "PL-03": "full",
+        "PH-02": "full"
+      },
+      "pass": true,
+      "ms": 4497
+    },
+    {
+      "suite": "e2e-tt118",
+      "name": "SV-01: a saved search persists and re-applies its query",
+      "covers": {
+        "SV-01": "full"
+      },
+      "pass": true,
+      "ms": 2753
+    },
+    {
+      "suite": "e2e-tt118",
+      "name": "UC-01/TM-02: clean-link control exists; terminal suggests the real command",
+      "covers": {
+        "UC-01": "full",
+        "TM-02": "full"
+      },
+      "pass": true,
+      "ms": 6244
+    }
+  ]
+}

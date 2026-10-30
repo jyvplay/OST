@@ -8,6 +8,7 @@ import { api, fmtTime, post, put } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { analyzeNote } from "@/lib/notes-stats";
+import { extractTags, resolveLinks, backlinks } from "@/lib/note-links";
 
 interface Note { id: number; title: string; body: string; tags: string; pinned: boolean; updatedAt: string }
 
@@ -116,6 +117,9 @@ export default function NotesModule({ win }: ModuleProps) {
               <Badge tone="info">{st.readingMinutes} min read</Badge>
               {st.codeBlocks ? <Badge>{st.codeBlocks} code blocks (excluded from words)</Badge> : null}
               {st.headings.map((h) => <Badge key={h.line} title={`line ${h.line}`}>{"#".repeat(h.level)} {h.text}</Badge>)}
+              {extractTags(draft.body).map((t) => <Badge key={t} tone="info">#{t}</Badge>)}
+              {resolveLinks(rows, draft).map((l, i) => <Badge key={i} tone={l.noteId ? "ok" : "warn"}>[[{l.label}]]{l.noteId ? "" : " — no such note"}</Badge>)}
+              {backlinks(rows, draft).map((b) => <Badge key={b.id}>← {b.title}</Badge>)}
             </div> ); })()}
           <textarea className="fs-textarea" value={draft.body} spellCheck={false}
             style={{ flex: 1, border: 0, borderRadius: 0, resize: "none", padding: 10 }}

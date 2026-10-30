@@ -1,4 +1,5 @@
 "use client";
+import { suggest } from "@/lib/suggest";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -15,6 +16,8 @@ interface Line { text: string; tone?: "out" | "err" | "cmd" | "info" }
  * No xterm.js — the renderer is a virtualised DOM list, which keeps the bundle
  * small and lets commands be first-class objects the palette can also call.
  */
+const COMMAND_NAMES = ["cast", "cat", "cd", "clear", "cp", "df", "echo", "find", "grep", "help", "jobs", "ls", "mkdir", "mv", "open", "probe", "pwd", "restore", "rm", "sha256", "spec", "ssh", "stat", "write"];
+
 export default function TerminalModule({ win }: ModuleProps) {
   const shell = useShell();
   const [cwd, setCwd] = useState<string>((win.props.cwd as string) ?? "/");
@@ -206,7 +209,7 @@ export default function TerminalModule({ win }: ModuleProps) {
           break;
         }
         case "echo": out(rest); break;
-        default: out(`unknown command: ${cmd} (try \`help\`)`, "err");
+        default: { const s = suggest(cmd, COMMAND_NAMES); out(`unknown command: ${cmd}${s.length ? ` — did you mean ${s.map((x) => `\`${x}\``).join(", ")}?` : " (try `help`)"}`, "err"); }
       }
     } catch (e) {
       out(String((e as Error).message), "err");

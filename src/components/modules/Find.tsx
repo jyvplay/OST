@@ -9,6 +9,8 @@ import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
 import { compileFind, findInText } from "@/lib/find-core";
+import { loadSavedSearches, storeSavedSearches, type SavedSearch } from "@/lib/saved-searches";
+import { askText } from "@/lib/ask";
 
 interface Hit { source: string; ref: string; title: string; snippet: string; how: string; rank: number; matchedFields?: {field:string;value:string}[] }
 
@@ -32,6 +34,8 @@ export default function FindModule(_: ModuleProps) {
   const [caseSens, setCaseSens] = useState(false);
   const compiled = pattern ? compileFind(pattern, { regex: useRegex, caseSensitive: caseSens, wholeWord: false }) : null;
   const shownHits = !pattern || !compiled || "error" in compiled ? hits : hits.filter((h) => findInText(`${h.title} ${h.snippet}`, compiled.pattern).matches.length > 0);
+  const [saved, setSaved] = useState<SavedSearch[]>(() => { try { return loadSavedSearches(localStorage); } catch { return []; } });
+  const persistSaved = (l: SavedSearch[]) => { setSaved(l); try { storeSavedSearches(localStorage, l); } catch (e) { shell.toast(String((e as Error).message), "warn"); } };
 
   useEffect(()=>{
     const clear=()=>{request.current?.abort();setBusy(false);setQ('');setField('');setScope('');setHits([]);setCursor(null);setExplain(null);setTook(null);setQueryUsed('');setError('');setPrivInfo(null);};
@@ -82,8 +86,14 @@ export default function FindModule(_: ModuleProps) {
           onChange={(e) => {invalidate();setScope(e.target.value);}} aria-label="Scope" />
         <Btn variant="ghost" style={{ whiteSpace: "nowrap" }} onClick={() => {invalidate();setScope(scope==="/Private"||scope.startsWith("/Private/") ? "" : "/Private");}} title="Search only Persistent Storage, inside this tab — the query is not sent to the host">{scope==="/Private"||scope.startsWith("/Private/") ? "All" : "/Private only"}</Btn>
         <Btn variant="primary" disabled={busy} onClick={() => void search()}>Search</Btn>
+        <Btn variant="ghost" disabled={!q} onClick={async () => { const name = await askText("Saved search name", "", { okLabel: "Save search" }); if (!name) return; persistSaved([{ id: `s${Date.now().toString(36)}`, name, q, scope, mode: mode === "metadata" ? "metadata" : "text", savedAt: Date.now() }, ...saved]); }}>Save<span className="sr-only"> this search</span></Btn>
       </div>
 
+      {saved.length ? <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>{saved.map((sv) => (
+        <span key={sv.id} className="fs-row" style={{ gap: 3 }}>
+          <Btn variant="ghost" onClick={() => { setMode(sv.mode); setScope(sv.scope); setQ(sv.q); }}>{sv.name}</Btn>
+          <Btn variant="ghost" aria-label={`Delete saved search ${sv.name}`} onClick={() => persistSaved(saved.filter((x) => x.id !== sv.id))}>✕</Btn>
+        </span>))}</div> : null}
       {error?<div role="alert">{error}</div>:null}
       {busy?<div role="status">Searching…</div>:null}
       {mode==='metadata'?<p>Live pages search stored file fields, nested JSON/JSONL values, CSV/TSV cells, text transcripts (VTT/SRT), LRC lyrics and supported image/audio headers. No speech recognition or inferred lyrics. 32 files/page; 262,144 stored string units/file (not bytes), 4096 scalar fields, depth 24. Skipped/unsupported content is reported. Host and /Private scans are separate; amnesic scans search RAM only.</p>:null}

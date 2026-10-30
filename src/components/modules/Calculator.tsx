@@ -10,6 +10,7 @@ import {
 import { privacy } from "@/lib/privacy/session";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { CONVERTER, convert, formatConverted } from "@/lib/converter";
 
 const KEYS = [
   ["7", "8", "9", "/", "sqrt("],
@@ -42,6 +43,10 @@ const mergeSaved = (current: DisplayEntry[], saved: CalculatorEntry[]): DisplayE
 
 /** Scientific/palette calculations keep the original evaluator; programmer integers have explicit fixed-width semantics. */
 export default function CalculatorModule(_: ModuleProps) {
+  const [convCat, setConvCat] = useState("length");
+  const [convVal, setConvVal] = useState("1");
+  const [convFrom, setConvFrom] = useState("mi");
+  const [convTo, setConvTo] = useState("km");
   const shell = useShell();
   const [expr, setExpr] = useState("");
   const [mode, setMode] = useState<"scientific" | "programmer">("scientific");
@@ -172,6 +177,24 @@ export default function CalculatorModule(_: ModuleProps) {
           ? "Fixed-width wrapping integers; ^ means XOR. Signed division truncates toward zero; signed right shift extends the sign. Shift counts are word-sized and, after wrapping, must be nonnegative and smaller than the word size."
           : "Scientific mode and the palette share a no-eval Number parser. Non-integer results are rounded to 12 significant digits; integers use JavaScript's Number representation."}
         {" "}History starts in memory. Optional browser history is unencrypted, local to this browser and not in global Search or backups; amnesic sessions never save it.
+      </div>
+      <div className="fs-panel" style={{ padding: 8, display: "grid", gap: 6 }}>
+        <strong style={{ fontSize: fz(12) }}>Convert</strong>
+        <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+          <select className="fs-select" aria-label="Convert category" value={convCat} onChange={(e) => { const c = e.target.value; setConvCat(c); setConvFrom(CONVERTER[c].units[0].symbol); setConvTo(CONVERTER[c].units[1].symbol); }}>
+            {Object.keys(CONVERTER).map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <input className="fs-input" style={{ width: fz(110) }} inputMode="decimal" value={convVal} onChange={(e) => setConvVal(e.target.value)} aria-label="Convert value" />
+          <select className="fs-select" aria-label="Convert from unit" value={convFrom} onChange={(e) => setConvFrom(e.target.value)}>
+            {CONVERTER[convCat].units.map((u) => <option key={u.symbol} value={u.symbol}>{u.symbol} — {u.name}</option>)}
+          </select>
+          <span aria-hidden="true">→</span>
+          <select className="fs-select" aria-label="Convert to unit" value={convTo} onChange={(e) => setConvTo(e.target.value)}>
+            {CONVERTER[convCat].units.map((u) => <option key={u.symbol} value={u.symbol}>{u.symbol} — {u.name}</option>)}
+          </select>
+          <span className="fs-mono" data-testid="calc-convert-result" style={{ fontSize: fz(13) }}>{(() => { try { return formatConverted(convert(Number(convVal), convFrom, convTo).value); } catch (e) { return String((e as Error).message); } })()}</span>
+        </div>
+        <span className="fs-dim" style={{ fontSize: fz(11) }}>Exact defined factors (1 in = 0.0254 m). Data: KiB/MiB are 1024-based, kB/MB are 1000-based — both listed, never conflated.</span>
       </div>
     </div>
   );

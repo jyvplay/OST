@@ -15,6 +15,7 @@
  *            reason). Optional curated EXIF (camera, exposure, capture time; Orientation reset to 1, new pixel size,
  *            MakerNote / thumbnail dropped); location only when "Include location" is ticked (off by default).
  */
+import { photoTimeline } from "@/lib/photo-timeline";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fz } from "@/lib/uiscale";
@@ -120,8 +121,16 @@ export default function PhotosModule({ win }: ModuleProps) {
 
   const counts = { all: items?.length ?? 0, favorites: items?.filter((i) => recipes[i.path]?.favorite).length ?? 0, edited: items?.filter((i) => recipes[i.path] && !isIdentity(recipes[i.path])).length ?? 0, places: items?.filter((i) => index[i.sha256]?.lat !== undefined).length ?? 0 };
   const indexed = items ? items.filter((i) => index[i.sha256]).length : 0;
+  const timeline = photoTimeline((items ?? []).map((i) => ({ path: i.path, mime: i.mime, size: i.size, date: index[i.sha256]?.date ?? i.createdAt })));
+  const timelineStrip = timeline.groups.length ? (
+    <div className="fs-row" data-testid="photos-timeline" style={{ gap: 6, flexWrap: "wrap", padding: "4px 8px" }}>
+      {timeline.groups.slice(0, 12).map((g) => <Badge key={g.month} tone="info">{g.month} · {g.count}</Badge>)}
+      {timeline.undated.count ? <Badge tone="warn">undated · {timeline.undated.count}</Badge> : null}
+    </div>
+  ) : null;
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-library">
+      {timelineStrip}
       {/* TT80 banner: Glance (the library views) · Keep over one tool strip */}
       <AppBanner label="Photos" status={<>
 {items && indexed < items.length ? <Badge tone="info">reading dates {indexed}/{items.length}</Badge> : null}
