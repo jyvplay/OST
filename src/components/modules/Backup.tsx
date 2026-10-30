@@ -9,6 +9,7 @@ import { MAX_BACKUP_BYTES, verifyBackup, type BackupBundle } from "@/lib/backup/
 import { bundleTree } from "@/lib/bundle-tree";
 import { freshnessLabel, LAST_BACKUP_KEY } from "@/lib/backup-freshness";
 import { backupFilename } from "@/lib/backup-name";
+import { backupInventory } from "@/lib/backup-inventory";
 import { folderSizes, formatBytes as fmtBundleBytes } from "@/lib/folder-size";
 import { DRILL_HEALTH_KEY, drillHealthState, parseDrillHealth, recordDrill, type DrillAttempt, type DrillHealth } from "@/lib/backup/drill-health";
 import { makeRecoveryKey, openRecoveryBundle, RECOVERY_FORMAT, sealRecoveryBundle } from "@/lib/backup/recovery";
@@ -79,6 +80,14 @@ async function send(body: unknown) {
 export default function BackupModule(_: ModuleProps) {
   const shell = useShell();
   const [bundle, setBundle] = useState<BackupBundle | null>(null);
+  const [savedBackups, setSavedBackups] = useState<string[]>([]);
+  const loadSavedBackups = async () => {
+    try {
+      const r = await fetch("/api/fs?op=list&path=" + encodeURIComponent("/Backups")).then((x) => x.json()) as { nodes?: { name: string; kind: string }[] };
+      setSavedBackups((r.nodes ?? []).filter((n) => n.kind === "file").map((n) => n.name));
+    } catch { setSavedBackups([]); }
+  };
+  useEffect(() => { void loadSavedBackups(); }, []);
   const [showContents, setShowContents] = useState(false);
   const [lastBackup, setLastBackup] = useState<number | null>(() => { try { const v = Number(localStorage.getItem(LAST_BACKUP_KEY)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; } });
   const [report, setReport] = useState("");
@@ -280,6 +289,14 @@ export default function BackupModule(_: ModuleProps) {
           </label>
           <Btn variant="ghost" disabled={busy || !bundle} onClick={() => void download(false)}>Download plain</Btn>
           <Btn variant="ghost" disabled={busy || !bundle || pass.length < 8} onClick={() => void download(true)}>Download encrypted</Btn>
+          <Btn variant="ghost" disabled={busy || !bundle} onClick={async () => {
+            if (!bundle) return;
+            const name = backupFilename(new Date());
+            const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "write", path: `/Backups/${name}`, content: JSON.stringify(bundle), mime: "application/json", reason: "backup-save" }) });
+            if (!r.ok) { setReport("Could not save the bundle into Files — build it again and retry."); return; }
+            setReport(`Saved to /Backups/${name} in Files. It is a plain bundle: encrypt before trusting it to anyone else.`);
+            void loadSavedBackups();
+          }} data-testid="backup-save-files">Save copy to Files</Btn>
         </div>
         <input className="fs-input" type="password" placeholder="bundle passphrase" value={pass}
           onChange={(e) => setPass(e.target.value)} aria-label="Bundle passphrase" />
@@ -302,6 +319,15 @@ export default function BackupModule(_: ModuleProps) {
             <span className="fs-dim" style={{ fontSize: fz(11) }}>Largest folders in this bundle, from its own entry list.</span>
           </div> : null}
         </div> : null}
+      </Section>
+
+      <Section title="Backups saved in Files (/Backups)">
+        {savedBackups.length ? backupInventory(savedBackups, new Date()).map((e) => (
+          <div key={e.name} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }} data-testid="backup-inventory-row">
+            <span className="fs-mono">{e.name}</span>
+            <Badge tone={e.freshness === "fresh" ? "ok" : e.freshness === "stale" ? "warn" : "default"}>{e.freshness === "unknown" ? "date unknown" : e.freshness}</Badge>
+          </div>
+        )) : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>None yet — “Save copy to Files” keeps a dated bundle beside your documents.</span>}
       </Section>
 
       <Section title="Optional recovery key">

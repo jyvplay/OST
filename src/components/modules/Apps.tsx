@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { fmtBytes } from "@/lib/api";
 import { MODULES } from "@/lib/registry";
 import { filterApps, appGroups } from "@/lib/app-filter";
+import { sortApps, type AppSort } from "@/lib/app-sort";
 import { getBackgroundInventory, subscribeBackgroundInventory, type BackgroundJobSnapshot } from "@/lib/background-inventory";
 import { requestPwaInstall, subscribePwaInstall } from "@/lib/pwa-install";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -162,7 +163,8 @@ export default function AppsModule(_: ModuleProps) {
   }, []);
 
   const [groupFacet, setGroupFacet] = useState("all");
-  const modules = useMemo(() => filterApps(MODULES, query, groupFacet), [query, groupFacet]);
+  const [appSort, setAppSort] = useState<AppSort>("group");
+  const modules = useMemo(() => sortApps(filterApps(MODULES, query, groupFacet), appSort, ["Core", "Create", "Connect", "System"]), [query, groupFacet, appSort]);
 
   const installNow = async () => {
     try {
@@ -227,6 +229,9 @@ export default function AppsModule(_: ModuleProps) {
             <select className="fs-select" style={{ width: "auto" }} aria-label="Filter apps by group" value={groupFacet} onChange={(e) => setGroupFacet(e.target.value)} data-testid="app-group-filter">
               <option value="all">All groups</option>
               {appGroups(MODULES).map((g) => <option key={g} value={g}>{g}</option>)}
+            </select>
+            <select className="fs-select" style={{ width: "auto" }} aria-label="Sort apps" value={appSort} onChange={(e) => setAppSort(e.target.value as AppSort)} data-testid="app-sort">
+              <option value="group">By group</option><option value="title">Title A–Z</option>
             </select>
             <div data-testid="app-module-list" style={{ display: "grid", gap: 4 }}>
               {modules.map((m) => (

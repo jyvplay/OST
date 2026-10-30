@@ -9,6 +9,7 @@ import { formatFor, GRADE_TEXT, parseCsv, sanitizeSvg } from "@/lib/forge";
 import { sniffAi, streamInflate, type AiSniff } from "@/lib/ai-format";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
+import { fileFacts } from "@/lib/file-facts";
 
 interface Node { path: string; name: string; mime: string; encoding: string; content: string; size: number; sha256: string }
 
@@ -80,6 +81,7 @@ export default function PeekModule({ win }: ModuleProps) {
         <strong style={{ fontSize: fz(12.5) }}>{node?.name ?? path}</strong>
         {fmt ? <Badge tone={fmt.grade === "A" ? "ok" : fmt.grade === "X" ? "bad" : "info"}>{fmt.label} · grade {fmt.grade}</Badge> : <Badge>unknown format</Badge>}
         {node ? <Badge>{fmtBytes(node.size)}</Badge> : null}
+        {node ? (() => { const f = fileFacts(node); return f.kind === "text" ? <Badge tone="info" data-testid="peek-facts">{f.lines} lines · {f.words} words · sha {f.shortSha}</Badge> : <Badge tone="info" data-testid="peek-facts">binary · {node.encoding}{f.shortSha ? ` · sha ${f.shortSha}` : ""}</Badge>; })() : null}
         {node ? <Badge title={node.sha256}>sha {node.sha256.slice(0, 8)}</Badge> : null}
         <div style={{ flex: 1 }} />
         <Btn variant="ghost" onClick={() => shell.open("editor", { path, title: node?.name })}>Edit</Btn>

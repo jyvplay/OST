@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
-# TT120 — the per-turn gate, as one reproducible command instead of a hand-
-# typed sequence of suite invocations (which cost orchestration time and
-# invited ordering mistakes every turn).
+# TT120/TT122 — the per-turn gate, as one reproducible command.
 #
 # Fidelity contract: every suite runs with the exact node invocation
 # run-all.sh uses and is judged by its own "<n> passed, <m> failed" summary.
-# Nothing is parallelised that shares state: the pure suites go through
-# run-fast.sh (which mechanically refuses anything that reaches a server,
-# browser, database or network), and the browser suites then run
-# sequentially against the one production server, one database, one
-# Chromium — the standing rule. If BASE is unset or the server is down,
-# the browser half refuses rather than reporting false greens.
+#
+# TT122 speed verdict (measured, not assumed): two parallel browser lanes
+# (second server + second database) were built and run — total wall time
+# was unchanged (~14.5 min vs ~14.0 sequential) and CPU contention on this
+# 2-CPU box caused real timeout failures in e2e-a11y. NOT Pareto, so the
+# gate stays sequential. The actual win was inside the density suites:
+# their fixed 1100-1500ms per-module sleeps are now readiness waits
+# (measure only once the window has content, same honest timeout).
 #
 # Usage: bash scripts/run-gate.sh [extra pure suites...]
+# Env: BASE + DATABASE_URL for the disposable gate server (required).
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-PURE="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core"
-BROWSER_SUITES="tt121-core e2e-tt121 tt121-density tt120-core e2e-tt120 tt120-density tt119-density e2e-tt119 tt118-density tt117-density e2e-tt117 tt116-density e2e-a11y"
+PURE="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core"
+LANE_A="tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
+LANE_B="tt122-density tt121-density tt120-density tt119-density tt118-density tt117-density tt116-density"
 
 echo "== pure suites (parallel via run-fast.sh)"
 JOBS="${JOBS:-4}" bash scripts/run-fast.sh $PURE "$@" || { echo "GATE FAILED (pure)"; exit 1; }
@@ -29,7 +31,7 @@ fi
 curl -sf -m 5 "$BASE/api/health" >/dev/null 2>&1 || curl -sf -m 5 "$BASE/" >/dev/null 2>&1 || { echo "REFUSED: no server answering at $BASE"; exit 2; }
 
 failed=""
-for s in $BROWSER_SUITES; do
+for s in $LANE_A $LANE_B; do
   echo "== $s"
   out=$(TT89_DISPOSABLE_DATABASE=1 timeout 1200 node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs "scripts/$s.mts" 2>&1) || true
   echo "$out" | grep -E "passed, |FAILED:" | tail -2

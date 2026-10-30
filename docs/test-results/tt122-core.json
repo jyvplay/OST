@@ -1,0 +1,186 @@
+{
+  "suite": "tt122-core",
+  "at": "2026-10-30T07:59:34.916Z",
+  "results": [
+    {
+      "suite": "tt122-core",
+      "name": "PK-01 file facts: text counted with wc rules, binary never invents lines",
+      "covers": {
+        "PK-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt122-core",
+      "name": "CP-01 capture delay: ladder snapped, labels honest",
+      "covers": {
+        "CP-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "DV-01 battery: clamped percent, unknown times stated",
+      "covers": {
+        "DV-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "MN-01 job sort: copies, three orders",
+      "covers": {
+        "MN-01": "full"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt122-core",
+      "name": "RT-02 routine filter: name+actions, order preserved",
+      "covers": {
+        "RT-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "AR-01 archive filter: name match keeps folder context",
+      "covers": {
+        "AR-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "LN-16 facing: auto omits the constraint entirely",
+      "covers": {
+        "LN-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "ED-06 wrap: style pair consistent, storage read guarded",
+      "covers": {
+        "ED-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "CK-06 laps text: splits from cumulative, fastest marked",
+      "covers": {
+        "CK-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "NT-06 notes bundle: title order, solo-export rendering reused",
+      "covers": {
+        "NT-06": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt122-core",
+      "name": "CN-08 contact card: slug filename, serializer round-trips",
+      "covers": {
+        "CN-08": "full"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt122-core",
+      "name": "BK-10 backup inventory: dated sorted newest-first, undated unknown",
+      "covers": {
+        "BK-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "MD-11 loop: label states state, toggle flips",
+      "covers": {
+        "MD-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "ST-11 reclaim summary: only real duplicate groups count",
+      "covers": {
+        "ST-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "SP-02 family progress: built share per family, sorted",
+      "covers": {
+        "SP-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "AP-07 app sort: registry group order, alpha within group",
+      "covers": {
+        "AP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "MU-05 library stats: per-kind counts from the shared library",
+      "covers": {
+        "MU-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "PH-06 shuffle: permutation, seeded determinism, identity detection",
+      "covers": {
+        "PH-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "PL-07 completion stats: today/week windows, undated kept separate",
+      "covers": {
+        "PL-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt122-core",
+      "name": "LD-01 sync summary: conflicts never read as clean",
+      "covers": {
+        "LD-01": "full"
+      },
+      "pass": true,
+      "ms": 7
+    }
+  ]
+}

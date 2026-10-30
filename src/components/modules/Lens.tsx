@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section, Toggle } from "../ui";
+import { facingConstraint, facingLabel, type Facing } from "@/lib/camera-facing";
 
 interface Fx {
   blur: number; brightness: number; contrast: number; saturate: number; relight: number;
@@ -57,6 +58,7 @@ export default function LensModule(_: ModuleProps) {
   const detectorRef = useRef<{ detect: (s: CanvasImageSource) => Promise<{ boundingBox: DOMRectReadOnly }[]> } | null>(null);
   const frameCost = useRef<number[]>([]);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [facing, setFacing] = useState<Facing>("auto");
   const [fx, setFx] = useState<Fx>(DEFAULT_FX);
   const [fps, setFps] = useState(0);
   const winStart = useRef(0);
@@ -94,7 +96,7 @@ export default function LensModule(_: ModuleProps) {
     setErr("");
     try {
       const s = await userMedia("Lens", {
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } },
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 }, ...facingConstraint(facing) },
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
       setStream(s);
@@ -270,7 +272,12 @@ export default function LensModule(_: ModuleProps) {
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        {stream ? <Btn variant="danger" onClick={stop}>Stop camera</Btn> : <Btn variant="primary" onClick={() => void start()}>Start camera</Btn>}
+        {stream ? <Btn variant="danger" onClick={stop}>Stop camera</Btn> : <><label style={{ fontSize: fz(12) }}>Camera
+          <select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Camera facing" value={facing} onChange={(e) => setFacing(e.target.value as Facing)} data-testid="lens-facing">
+            <option value="auto">{facingLabel("auto")}</option><option value="user">{facingLabel("user")}</option><option value="environment">{facingLabel("environment")}</option>
+          </select>
+        </label>
+        <Btn variant="primary" onClick={() => void start()}>Start camera</Btn></>}
         <Btn variant="ghost" disabled={!capAvailable(shell.caps, "displayCapture")} onClick={async () => {
           try {
             const s = await displayMedia("Lens · presenter", { video: true });

@@ -17,6 +17,7 @@
  */
 import { photoTimeline } from "@/lib/photo-timeline";
 import { clampInterval, nextIndex } from "@/lib/slideshow";
+import { shuffleOrder } from "@/lib/shuffle-order";
 import { neighbor, positionLabel } from "@/lib/photo-order";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -117,16 +118,25 @@ export default function PhotosModule({ win }: ModuleProps) {
   }, [shown, index]);
 
   const [showPlaying, setShowPlaying] = useState(false);
+  const [shuffle, setShuffle] = useState(false);
+  const shuffleRef = useRef<number[]>([]);
   const [showSecs, setShowSecs] = useState(4);
   useEffect(() => {
     if (!showPlaying || shown.length === 0) return;
     const t = window.setInterval(() => {
       const i = shown.findIndex((x) => x.path === open);
-      const n = shown[nextIndex(i, shown.length)];
-      if (n) setOpen(n.path);
+      if (shuffle) {
+        if (shuffleRef.current.length !== shown.length) shuffleRef.current = shuffleOrder(shown.length, () => Math.random());
+        const pos = shuffleRef.current.indexOf(i);
+        const n = shown[shuffleRef.current[nextIndex(pos < 0 ? 0 : pos, shown.length)]];
+        if (n) setOpen(n.path);
+      } else {
+        const n = shown[nextIndex(i, shown.length)];
+        if (n) setOpen(n.path);
+      }
     }, clampInterval(showSecs) * 1000);
     return () => window.clearInterval(t);
-  }, [showPlaying, showSecs, shown, open]);
+  }, [showPlaying, showSecs, shown, open, shuffle]);
   const current = items?.find((i) => i.path === open) ?? null;
   if (current) {
     return <PhotoEditor key={current.path + current.sha256} item={current} info={index[current.sha256]} showPlaying={showPlaying} onToggleShow={() => setShowPlaying((v) => !v)} onClose={() => { setShowPlaying(false); setOpen(null); }}
@@ -150,6 +160,7 @@ export default function PhotosModule({ win }: ModuleProps) {
       {shown.length > 1 ? <div className="fs-row" style={{ gap: 6, padding: "0 8px 6px", flexWrap: "wrap" }} data-testid="photos-slideshow">
         <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={showPlaying} disabled={shown.length === 0} onClick={() => { if (!showPlaying && !open && shown[0]) setOpen(shown[0].path); setShowPlaying((v) => !v); }}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn>
         <label style={{ fontSize: fz(11.5) }}>every <input className="fs-input" style={{ width: fz(52) }} type="number" min={1} max={60} value={showSecs} aria-label="Slideshow seconds per photo" onChange={(e) => setShowSecs(clampInterval(Number(e.target.value)))} /> s</label>
+        <Btn variant={shuffle ? "primary" : "ghost"} aria-pressed={shuffle} onClick={() => setShuffle((v) => !v)} data-testid="photos-shuffle">Shuffle</Btn>
         <span className="fs-dim" style={{ fontSize: fz(11) }}>{shown.length} photos · wraps at the end</span>
       </div> : null}
       {/* TT80 banner: Glance (the library views) · Keep over one tool strip */}

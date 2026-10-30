@@ -11,6 +11,7 @@ import { diffLines, diffStats } from "@/lib/diff-core";
 import { findMatches, replaceAll, replaceOne } from "@/lib/editor-find";
 import { clampLine, offsetAtLine, docStats } from "@/lib/line-nav";
 import { transformLines } from "@/lib/line-ops";
+import { wrapStyle, readWrap, WRAP_KEY } from "@/lib/editor-wrap";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
@@ -32,6 +33,7 @@ export default function EditorModule({ win }: ModuleProps) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [diffOf, setDiffOf] = useState<Version | null>(null);
   const [preview, setPreview] = useState(false);
+  const [wrapOn, setWrapOn] = useState<boolean>(() => { try { return readWrap(window.localStorage); } catch { return false; } });
   const [status, setStatus] = useState("");
   const [findQ, setFindQ] = useState("");
   const [replQ, setReplQ] = useState("");
@@ -140,6 +142,7 @@ export default function EditorModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, {})); setDirty(true); }} title="Sort all lines A to Z">Sort lines</Btn>
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { desc: true })); setDirty(true); }} title="Sort all lines Z to A">Reverse sort</Btn>
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { dedupe: true })); setDirty(true); }} title="Remove duplicate lines">Dedupe lines</Btn>
+        <Btn variant={wrapOn ? "primary" : "ghost"} aria-pressed={wrapOn} onClick={() => { const next = !wrapOn; setWrapOn(next); try { window.localStorage.setItem(WRAP_KEY, next ? "1" : "0"); } catch { /* preference only */ } }} title="Soft-wrap long lines">Wrap</Btn>
         {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
         <span style={{ flex: 1 }} />
         <input className="fs-input" style={{ width: fz(76) }} inputMode="numeric" placeholder="Line #" aria-label="Go to line" value={gotoLine}
@@ -150,7 +153,7 @@ export default function EditorModule({ win }: ModuleProps) {
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: preview ? "1fr 1fr" : "1fr" }}>
         <textarea ref={areaRef} className="fs-textarea" value={text} spellCheck={false}
           onChange={(e) => { setText(e.target.value); setDirty(true); }}
-          style={{ border: 0, borderRadius: 0, height: "100%", resize: "none", padding: 10 }}
+          style={{ border: 0, borderRadius: 0, height: "100%", resize: "none", padding: 10, ...wrapStyle(wrapOn) }}
           aria-label={`Editing ${path}`} />
         {preview ? (
           <div className="fs-scroll" style={{ borderLeft: "1px solid var(--fs-border)", padding: 10, fontSize: fz(12.5), lineHeight: 1.6 }}>

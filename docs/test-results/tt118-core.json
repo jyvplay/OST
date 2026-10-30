@@ -1,6 +1,6 @@
 {
   "suite": "tt118-core",
-  "at": "2026-10-30T05:52:50.923Z",
+  "at": "2026-10-30T07:59:26.271Z",
   "results": [
     {
       "suite": "tt118-core",
@@ -18,7 +18,7 @@
         "NT-02": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt118-core",
@@ -36,7 +36,7 @@
         "WD-01": "full"
       },
       "pass": true,
-      "ms": 94
+      "ms": 97
     },
     {
       "suite": "tt118-core",
@@ -81,7 +81,7 @@
         "BK-06": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt118-core",

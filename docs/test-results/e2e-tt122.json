@@ -1,0 +1,39 @@
+{
+  "suite": "e2e-tt122",
+  "at": "2026-10-30T08:00:00.369Z",
+  "results": [
+    {
+      "suite": "e2e-tt122",
+      "name": "PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style",
+      "covers": {
+        "PK-01": "full",
+        "ED-06": "full"
+      },
+      "pass": true,
+      "ms": 5290
+    },
+    {
+      "suite": "e2e-tt122",
+      "name": "NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears",
+      "covers": {
+        "NT-06": "full",
+        "MD-11": "full",
+        "CK-06": "full"
+      },
+      "pass": true,
+      "ms": 9986
+    },
+    {
+      "suite": "e2e-tt122",
+      "name": "DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+      "covers": {
+        "DV-01": "full",
+        "CP-01": "full",
+        "BK-10": "full",
+        "SP-02": "full"
+      },
+      "pass": true,
+      "ms": 9478
+    }
+  ]
+}

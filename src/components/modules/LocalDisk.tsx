@@ -9,6 +9,7 @@ import { privacy } from "@/lib/privacy/session";
 import { usePrivacyStatus } from "../chrome-bits";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section } from "../ui";
+import { syncSummary } from "@/lib/sync-summary";
 
 /** Directory handles persist; permission must be queried and may require a user-gesture re-grant. */
 type DirHandle = Directory & {
@@ -47,6 +48,7 @@ export default function LocalDiskModule(_: ModuleProps) {
   const [perm, setPerm] = useState<string>("none");
   const [entries, setEntries] = useState<Entry[]>([]);
   const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
+  const [lastSync, setLastSync] = useState<{ pushed: number; pulled: number; conflicts: number; at: string } | null>(null);
   const [skipped, setSkipped] = useState<SyncSkipped[]>([]);
   const [report, setReport] = useState("");
   const [busy, setBusy] = useState(false);
@@ -92,6 +94,7 @@ export default function LocalDiskModule(_: ModuleProps) {
       const result = await syncLocalFolder(handle, target);
       setConflicts(result.conflicts); setSkipped(result.skipped);
       setReport(`pushed ${result.pushed} · pulled ${result.pulled} · identical ${result.same} · conflicts ${result.conflicts.length} · skipped ${result.skipped.length}`);
+      setLastSync({ pushed: result.pushed, pulled: result.pulled, conflicts: result.conflicts.length, at: new Date().toISOString() });
       shell.bumpRefresh(); await list(handle);
     } catch (e) {
       setReport(`Sync stopped: ${String((e as Error).message)}. Earlier files may have completed; review before retrying.`);
@@ -134,6 +137,7 @@ export default function LocalDiskModule(_: ModuleProps) {
       </div>
       {handle && !target ? <div role="alert">This folder name cannot be represented in Fusion. Mount another folder.</div> : null}
       {report ? <div role="status" data-testid="localdisk-report"><Badge tone="info">{report}</Badge></div> : null}
+        <div className="fs-dim" style={{ fontSize: fz(11.5) }} data-testid="localdisk-sync-summary">{syncSummary(lastSync)}</div>
 
       {conflicts.length ? (
         <Section title={`Conflict inbox (${conflicts.length}) — review before replacing`}>

@@ -1,23 +1,158 @@
 {
- "generatedAt": "2026-10-30T06:06:59.708Z",
+ "generatedAt": "2026-10-30T08:14:24.917Z",
  "totals": {
   "built": {
-   "full": 420,
+   "full": 441,
    "partial": 82,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 372,
+   "full": 393,
    "partial": 119,
    "untested": 35
   },
   "tests": {
-   "total": 2905,
-   "passed": 2895
+   "total": 2929,
+   "passed": 2919
   }
  },
  "rows": {
+  "PK-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style",
+    "tt122-core: PK-01 file facts: text counted with wc rules, binary never invents lines"
+   ]
+  },
+  "CP-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+    "tt122-core: CP-01 capture delay: ladder snapped, labels honest"
+   ]
+  },
+  "DV-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+    "tt122-core: DV-01 battery: clamped percent, unknown times stated"
+   ]
+  },
+  "MN-01": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: MN-01 job sort: copies, three orders"
+   ]
+  },
+  "RT-02": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: RT-02 routine filter: name+actions, order preserved"
+   ]
+  },
+  "AR-01": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: AR-01 archive filter: name match keeps folder context"
+   ]
+  },
+  "LN-16": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: LN-16 facing: auto omits the constraint entirely"
+   ]
+  },
+  "ED-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style",
+    "tt122-core: ED-06 wrap: style pair consistent, storage read guarded"
+   ]
+  },
+  "CK-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears",
+    "tt122-core: CK-06 laps text: splits from cumulative, fastest marked"
+   ]
+  },
+  "NT-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears",
+    "tt122-core: NT-06 notes bundle: title order, solo-export rendering reused"
+   ]
+  },
+  "CN-08": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: CN-08 contact card: slug filename, serializer round-trips"
+   ]
+  },
+  "BK-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+    "tt122-core: BK-10 backup inventory: dated sorted newest-first, undated unknown"
+   ]
+  },
+  "MD-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears",
+    "tt122-core: MD-11 loop: label states state, toggle flips"
+   ]
+  },
+  "ST-11": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: ST-11 reclaim summary: only real duplicate groups count"
+   ]
+  },
+  "SP-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+    "tt122-core: SP-02 family progress: built share per family, sorted"
+   ]
+  },
+  "AP-07": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: AP-07 app sort: registry group order, alpha within group"
+   ]
+  },
+  "MU-05": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: MU-05 library stats: per-kind counts from the shared library"
+   ]
+  },
+  "PH-06": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: PH-06 shuffle: permutation, seeded determinism, identity detection"
+   ]
+  },
+  "PL-07": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: PL-07 completion stats: today/week windows, undated kept separate"
+   ]
+  },
+  "LD-01": {
+   "tested": "full",
+   "tests": [
+    "tt122-core: LD-01 sync summary: conflicts never read as clean"
+   ]
+  },
+  "AX-24": {
+   "tested": "full",
+   "tests": [
+    "tt122-density: AX-24: every app measured, none wordier than the ceiling, no emoji marks"
+   ]
+  },
   "CV-02": {
    "tested": "full",
    "tests": [

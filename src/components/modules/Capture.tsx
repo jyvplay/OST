@@ -7,6 +7,8 @@ import { fmtBytes, post } from "@/lib/api";
 import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section } from "../ui";
+import { UiGlyph } from "../AppIcon";
+import { CAPTURE_DELAYS, delayLabel, snapDelay } from "@/lib/capture-delay";
 
 /**
  * MD-01. The recording is committed to the VFS BEFORE any editor opens
@@ -24,6 +26,19 @@ export default function CaptureModule(_: ModuleProps) {
   const [saved, setSaved] = useState<{ path: string; bytes: number } | null>(null);
   const [withAudio, setWithAudio] = useState(true);
   const [err, setErr] = useState("");
+  const [delay, setDelay] = useState(0);
+  const [count, setCount] = useState(0);
+  const start = () => {
+    const d = snapDelay(delay);
+    if (d <= 0) { void startNow(); return; }
+    setCount(d);
+    const iv = window.setInterval(() => {
+      setCount((c) => {
+        if (c <= 1) { window.clearInterval(iv); void startNow(); return 0; }
+        return c - 1;
+      });
+    }, 1000);
+  };
 
   useEffect(() => {
     if (videoRef.current && stream) videoRef.current.srcObject = stream;
@@ -35,7 +50,7 @@ export default function CaptureModule(_: ModuleProps) {
     return () => window.clearInterval(t);
   }, [recording]);
 
-  const start = async () => {
+  const startNow = async () => {
     setErr("");
     try {
       const s = await displayMedia("Capture", {
@@ -100,7 +115,14 @@ export default function CaptureModule(_: ModuleProps) {
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         {recording
           ? <Btn variant="danger" onClick={stop}>⏹ Stop ({elapsed}s)</Btn>
-          : <Btn variant="primary" onClick={() => void start()}>⏺ Capture screen / window / tab</Btn>}
+          : <span className="fs-row" style={{ gap: 6, alignItems: "center" }}>
+            <label style={{ fontSize: fz(12) }}><UiGlyph name="timer" size={13} /> Delay
+              <select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Capture delay" value={delay} onChange={(e) => setDelay(snapDelay(Number(e.target.value)))} data-testid="capture-delay">
+                {CAPTURE_DELAYS.map((d) => <option key={d} value={d}>{delayLabel(d)}</option>)}
+              </select>
+            </label>
+            <Btn variant="primary" onClick={() => start()} disabled={count > 0}>{count > 0 ? `Capturing in ${count}…` : "⏺ Capture screen / window / tab"}</Btn>
+          </span>}
         <label className="fs-row" style={{ gap: 4, fontSize: fz(12) }}>
           <input type="checkbox" checked={withAudio} onChange={(e) => setWithAudio(e.target.checked)} /> include audio
         </label>

@@ -8,6 +8,7 @@ import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
 import { PLAYBACK_RATES, snapRate, rateLabel } from "@/lib/playback-rate";
+import { loopLabel, nextLoop } from "@/lib/loop-pref";
 import { askText } from "@/lib/ask";
 import { losslessTrim, isTrimError } from "@/lib/media/trim";
 
@@ -20,6 +21,7 @@ export default function MediaModule({ win }: ModuleProps) {
   const shell = useShell();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [rate, setRate] = useState(1);
+  const [loop, setLoop] = useState(false);
   const [src, setSrc] = useState<string>((win.props.url as string) ?? "");
   const [path, setPath] = useState<string>((win.props.path as string) ?? "");
   const [remoteAvailable, setRemoteAvailable] = useState<boolean | null>(null);
@@ -137,6 +139,7 @@ export default function MediaModule({ win }: ModuleProps) {
           </select>
         </label>
         <span className="fs-dim" style={{ fontSize: fz(11) }}>applies to the local player; embeds keep their own controls</span>
+        <Btn variant={loop ? "primary" : "ghost"} aria-pressed={loop} onClick={() => { const next = nextLoop(loop); setLoop(next); if (videoRef.current) videoRef.current.loop = next; }} data-testid="media-loop">{loopLabel(loop)}</Btn>
       </div>
 
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>

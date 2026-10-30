@@ -16,6 +16,7 @@ import { askText, askForm, askConfirm } from "@/lib/ask";
 import { appForFile } from "@/lib/open-with";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
+import { filterEntries } from "@/lib/archive-filter";
 import { readArchive, readEntry, writeArchive, editArchive, extractable, PasswordError, type Archive, type ArchiveEntry, type EditOp, type NameMode, type WriteItem } from "@/lib/archive/zip";
 import { listFolder, namesUnder, parentFolder, crumbs, looksText, IMAGE_EXT, MIME_BY_EXT, type Row } from "@/lib/archive/tree";
 
@@ -34,6 +35,7 @@ export default function ArchiveModule({ win }: ModuleProps) {
   const [loadErr, setLoadErr] = useState("");
   const [nameMode, setNameMode] = useState<NameMode>("auto");
   const [folder, setFolder] = useState("");
+  const [entryQ, setEntryQ] = useState("");
   const [sel, setSel] = useState<string[]>([]);
   const [anchor, setAnchor] = useState<string | null>(null);
   const [password, setPassword] = useState<string | undefined>(undefined);
@@ -49,7 +51,7 @@ export default function ArchiveModule({ win }: ModuleProps) {
     try { return { a: readArchive(bytes, undefined, nameMode) }; } catch (e) { return { e: (e as Error).message }; }
   }, [bytes, nameMode]);
   const arc = parsed.a;
-  const rows = useMemo<Row[]>(() => (arc ? listFolder(arc.entries, folder) : []), [arc, folder]);
+  const rows = useMemo<Row[]>(() => (arc ? filterEntries(listFolder(arc.entries, folder).map((r) => ({ ...r, name: r.path })), entryQ) : []), [arc, folder, entryQ]);
   const selRows = useMemo(() => rows.filter((r) => sel.includes(r.path)), [rows, sel]);
 
   // load from Files
@@ -307,6 +309,7 @@ export default function ArchiveModule({ win }: ModuleProps) {
           {!bytes && !loadErr ? <Empty title={path ? "Opening…" : "No archive open"} hint="Open a .zip from Files or from this device, or start a new one." /> : null}
           {arc?.issues.length ? <ul data-testid="archive-issues" style={{ margin: "6px 8px", padding: "4px 18px", fontSize: fz(12), color: "var(--fs-warn)" }}>{arc.issues.map((s) => <li key={s}>{s}</li>)}</ul> : null}
           {arc ? (
+            <><input className="fs-input" type="search" placeholder="Filter entries in this folder" aria-label="Filter archive entries" value={entryQ} onChange={(e) => setEntryQ(e.target.value)} data-testid="archive-filter" style={{ margin: "6px 8px", width: "calc(100% - 16px)" }} />
             <table role="grid" aria-label="Archive contents" aria-multiselectable="true" data-testid="archive-list" style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
               <thead><tr><th style={{ ...th, width: "44%" }}>Name</th><th style={th}>Size</th><th style={th}>Packed</th><th style={th}>Method</th><th style={th}>Modified</th></tr></thead>
               <tbody>
@@ -332,7 +335,7 @@ export default function ArchiveModule({ win }: ModuleProps) {
                   );
                 })}
               </tbody>
-            </table>
+            </table></>
           ) : null}
           {arc && !rows.length ? <Empty title="This folder is empty" hint="Add files or a folder." /> : null}
         </div>

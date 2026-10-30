@@ -14,6 +14,7 @@ import {
 } from "@/lib/storage-core";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, KV, Section } from "../ui";
+import { reclaimSummary } from "@/lib/reclaim-summary";
 
 interface Data {
   categories: { category: string; files: number; bytes: number }[];
@@ -181,6 +182,7 @@ export default function StorageModule(_: ModuleProps) {
       </Section>
 
       <Section title="Duplicates (by content digest)">
+        {d?.duplicates.length ? (() => { const sum = reclaimSummary(d.duplicates.map((g) => ({ copies: g.copies, reclaimable: Number(g.reclaimable) }))); return <Badge tone="warn" data-testid="storage-reclaim-summary">{sum.groups} duplicate groups · {sum.copies} copies · reclaim {fmtBytes(sum.bytes)}</Badge>; })() : null}
         {d?.duplicates.length ? d.duplicates.map((g) => (
           <div key={g.sha256} className="fs-panel" data-testid="storage-duplicate-group" style={{ padding: 8, display: "grid", gap: 3 }}>
             <div className="fs-row" style={{ justifyContent: "space-between" }}>

@@ -1,7 +1,7 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-10-30T06:06:59.702Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3999) and
-354 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-10-30T08:14:24.912Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3999) and
+357 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
 Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
 Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
@@ -11,21 +11,21 @@ See each suite timestamp and the latest turn report for current tests, known cla
 
 | | Count |
 |---|---:|
-| **Features in register** | **526** |
-| Fully built | 420 |
+| **Features in register** | **547** |
+| Fully built | 441 |
 | Partially built (partial 64 + probe 18) | 82 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 24 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **372** |
+| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **393** |
 | **Partially tested** (partial tags or an incomplete row with passing evidence) | **119** |
 | Untested | 35 |
-| Recorded test cases / passed (mixed run dates) | 2905 / 2895 |
+| Recorded test cases / passed (mixed run dates) | 2929 / 2919 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 366 | 54 | 0 |
+| fully built | 387 | 54 | 0 |
 | partially built | 0 | 56 | 26 |
 | blocked | 6 | 9 | 9 |
 | skeleton | 0 | 0 | 0 |
@@ -37,11 +37,11 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-10-30T05:52:46.962Z |
-| ai-format | 5 | 5 | 0 | 2026-10-30T05:52:51.753Z |
+| a11y-unit | 8 | 8 | 0 | 2026-10-30T07:59:22.430Z |
+| ai-format | 5 | 5 | 0 | 2026-10-30T07:59:27.374Z |
 | browser-session | 5 | 5 | 0 | 2026-10-29T19:36:44.498Z |
-| contacts-engine | 8 | 8 | 0 | 2026-10-30T05:52:48.385Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-10-30T06:06:47.357Z |
+| contacts-engine | 8 | 8 | 0 | 2026-10-30T07:59:23.576Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-10-30T08:06:12.416Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
 | e2e-browser | 6 | 6 | 0 | 2026-10-29T23:44:22.849Z |
@@ -77,11 +77,12 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt114-density | 6 | 6 | 0 | 2026-10-29T19:54:04.033Z |
 | e2e-tt114-shell | 9 | 9 | 0 | 2026-10-29T19:53:33.210Z |
 | e2e-tt114-tabs | 5 | 5 | 0 | 2026-10-29T23:45:00.924Z |
-| e2e-tt117 | 5 | 5 | 0 | 2026-10-30T06:01:18.661Z |
+| e2e-tt117 | 5 | 5 | 0 | 2026-10-30T08:01:21.079Z |
 | e2e-tt118 | 5 | 5 | 0 | 2026-10-30T00:30:35.025Z |
-| e2e-tt119 | 4 | 4 | 0 | 2026-10-30T05:59:08.490Z |
-| e2e-tt120 | 4 | 4 | 0 | 2026-10-30T05:55:21.082Z |
-| e2e-tt121 | 4 | 4 | 0 | 2026-10-30T05:53:22.863Z |
+| e2e-tt119 | 4 | 4 | 0 | 2026-10-30T08:01:01.300Z |
+| e2e-tt120 | 4 | 4 | 0 | 2026-10-30T08:00:41.320Z |
+| e2e-tt121 | 4 | 4 | 0 | 2026-10-30T08:00:24.960Z |
+| e2e-tt122 | 3 | 3 | 0 | 2026-10-30T08:00:00.369Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -180,10 +181,10 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-vector | 12 | 12 | 0 | 2026-10-26T13:09:31.262Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 68 | 68 | 0 | 2026-10-29T06:09:15.391Z |
-| image | 16 | 16 | 0 | 2026-10-30T05:52:48.723Z |
+| image | 16 | 16 | 0 | 2026-10-30T07:59:24.407Z |
 | integration | 25 | 25 | 0 | 2026-10-29T19:36:44.308Z |
-| layout-unit | 8 | 8 | 0 | 2026-10-30T05:52:46.961Z |
-| maps-unit | 6 | 6 | 0 | 2026-10-30T05:52:56.030Z |
+| layout-unit | 8 | 8 | 0 | 2026-10-30T07:59:22.191Z |
+| maps-unit | 6 | 6 | 0 | 2026-10-30T07:59:31.691Z |
 | metaclean | 6 | 6 | 0 | 2026-10-29T06:06:57.446Z |
 | names | 7 | 7 | 0 | 2026-10-29T06:06:42.582Z |
 | office | 35 | 35 | 0 | 2026-10-29T06:06:36.036Z |
@@ -197,9 +198,9 @@ verifies the honesty contract, not the (impossible) capability.
 | privacy-crypto | 9 | 9 | 0 | 2026-10-29T06:06:54.039Z |
 | privacy-layer | 13 | 13 | 0 | 2026-10-29T19:36:32.767Z |
 | sheet-layout | 6 | 6 | 0 | 2026-10-29T06:06:39.009Z |
-| stream-unit | 7 | 7 | 0 | 2026-10-30T05:52:47.561Z |
-| tables-engine | 9 | 9 | 0 | 2026-10-30T05:52:49.710Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-10-30T05:52:47.764Z |
+| stream-unit | 7 | 7 | 0 | 2026-10-30T07:59:22.721Z |
+| tables-engine | 9 | 9 | 0 | 2026-10-30T07:59:25.040Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-10-30T07:59:23.497Z |
 | tt101-search | 37 | 37 | 0 | 2026-10-29T19:36:23.826Z |
 | tt102-private-bound | 5 | 5 | 0 | 2026-10-29T19:36:21.550Z |
 | tt102-search | 33 | 33 | 0 | 2026-10-29T19:35:51.689Z |
@@ -221,21 +222,23 @@ verifies the honesty contract, not the (impossible) capability.
 | tt111-recall-tap | 7 | 7 | 0 | 2026-10-29T19:51:19.261Z |
 | tt114-core | 9 | 9 | 0 | 2026-10-29T19:53:11.828Z |
 | tt114-recall-token | 8 | 8 | 0 | 2026-10-29T19:53:12.448Z |
-| tt116-density | 6 | 6 | 0 | 2026-10-30T06:01:35.416Z |
+| tt116-density | 6 | 6 | 0 | 2026-10-30T08:14:09.308Z |
 | tt116-platform | 9 | 9 | 0 | 2026-10-29T19:54:07.136Z |
 | tt116-recall-archive | 8 | 8 | 0 | 2026-10-29T19:54:06.444Z |
 | tt116-recall-retention | 7 | 7 | 0 | 2026-10-29T19:54:05.957Z |
 | tt116-safesave | 15 | 15 | 0 | 2026-10-29T19:54:05.047Z |
-| tt117-core | 12 | 12 | 0 | 2026-10-30T05:52:50.399Z |
-| tt117-density | 1 | 1 | 0 | 2026-10-30T06:00:58.429Z |
-| tt118-core | 12 | 12 | 0 | 2026-10-30T05:52:50.923Z |
-| tt118-density | 1 | 1 | 0 | 2026-10-30T06:00:50.560Z |
-| tt119-core | 11 | 11 | 0 | 2026-10-30T05:52:51.440Z |
-| tt119-density | 1 | 1 | 0 | 2026-10-30T05:58:49.124Z |
-| tt120-core | 10 | 10 | 0 | 2026-10-30T05:55:04.363Z |
-| tt120-density | 1 | 1 | 0 | 2026-10-30T05:57:06.100Z |
-| tt121-core | 19 | 19 | 0 | 2026-10-30T05:52:58.694Z |
-| tt121-density | 1 | 1 | 0 | 2026-10-30T05:55:04.148Z |
+| tt117-core | 12 | 12 | 0 | 2026-10-30T07:59:25.583Z |
+| tt117-density | 1 | 1 | 0 | 2026-10-30T08:13:54.344Z |
+| tt118-core | 12 | 12 | 0 | 2026-10-30T07:59:26.271Z |
+| tt118-density | 1 | 1 | 0 | 2026-10-30T08:13:47.008Z |
+| tt119-core | 11 | 11 | 0 | 2026-10-30T07:59:26.860Z |
+| tt119-density | 1 | 1 | 0 | 2026-10-30T08:12:15.215Z |
+| tt120-core | 10 | 10 | 0 | 2026-10-30T08:00:25.164Z |
+| tt120-density | 1 | 1 | 0 | 2026-10-30T08:10:45.044Z |
+| tt121-core | 19 | 19 | 0 | 2026-10-30T07:59:27.951Z |
+| tt121-density | 1 | 1 | 0 | 2026-10-30T08:09:14.595Z |
+| tt122-core | 20 | 20 | 0 | 2026-10-30T07:59:34.916Z |
+| tt122-density | 1 | 1 | 0 | 2026-10-30T08:07:43.056Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-29T06:07:12.610Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-29T06:07:13.493Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -387,10 +390,10 @@ verifies the honesty contract, not the (impossible) capability.
 | tt97-palette-commands | 4 | 4 | 0 | 2026-10-29T19:38:14.093Z |
 | tt97-palette-mutants | 8 | 8 | 0 | 2026-10-27T23:08:25.457823+00:00 |
 | tt97-svg-attributes | 3 | 3 | 0 | 2026-10-28T02:00:16.639Z |
-| unit | 23 | 23 | 0 | 2026-10-30T05:52:58.422Z |
+| unit | 23 | 23 | 0 | 2026-10-30T07:59:34.595Z |
 | vector-boolean | 6 | 2 | 4 | 2026-10-30T00:33:27.809Z |
-| vector | 18 | 18 | 0 | 2026-10-30T05:52:49.154Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-10-30T05:52:49.442Z |
+| vector | 18 | 18 | 0 | 2026-10-30T07:59:24.265Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-10-30T07:59:24.808Z |
 
 ## Rows touched by FAILING tests (not counted as tested)
 
@@ -406,10 +409,28 @@ verifies the honesty contract, not the (impossible) capability.
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
+| Peek | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Capture | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Devices | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Monitor | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Routines | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
+| Archive | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Lens | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Editor | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
+| Clock | 10 | 10 | 0 | 0 | 10 | 0 | 0 |
+| Notes | 6 | 6 | 0 | 0 | 6 | 0 | 0 |
+| Contacts | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
+| Backup | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
+| Media | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
+| Storage | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Spec | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
+| Apps | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
+| Music | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
+| Photos | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
+| Planner | 7 | 7 | 0 | 0 | 7 | 0 | 0 |
+| Local disk | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
+| Design | 7 | 7 | 0 | 0 | 7 | 0 | 0 |
 | Calculator | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
-| Editor | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
-| Clock | 9 | 9 | 0 | 0 | 9 | 0 | 0 |
-| Media | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | Vault | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | Alerts | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | Clipboard | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
@@ -417,21 +438,11 @@ verifies the honesty contract, not the (impossible) capability.
 | Books | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | PDF | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | Whiteboard | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
-| Planner | 6 | 6 | 0 | 0 | 6 | 0 | 0 |
 | Find | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
-| Music | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
-| Photos | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
-| Contacts | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
-| Backup | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
 | Terminal | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
-| Notes | 5 | 5 | 0 | 0 | 5 | 0 | 0 |
-| Apps | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
-| Design | 6 | 6 | 0 | 0 | 6 | 0 | 0 |
 | Browser | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
 | Settings | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
-| Routines | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | Recall | 41 | 20 | 21 | 0 | 16 | 25 | 0 |
-| Spec | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | RC | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | AX | 17 | 16 | 1 | 0 | 13 | 3 | 1 |
 | SH | 15 | 12 | 3 | 0 | 10 | 5 | 0 |
@@ -469,6 +480,27 @@ verifies the honesty contract, not the (impossible) capability.
 
 | code | status | tested | evidence (passing tests) |
 |---|---|---|---|
+| PK-01 | built | full | e2e-tt122: PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style; tt122-core: PK-01 file facts: text counted with wc rules, binary never invents lines |
+| CP-01 | built | full | e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress; tt122-core: CP-01 capture delay: ladder snapped, labels honest |
+| DV-01 | built | full | e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress; tt122-core: DV-01 battery: clamped percent, unknown times stated |
+| MN-01 | built | full | tt122-core: MN-01 job sort: copies, three orders |
+| RT-02 | built | full | tt122-core: RT-02 routine filter: name+actions, order preserved |
+| AR-01 | built | full | tt122-core: AR-01 archive filter: name match keeps folder context |
+| LN-16 | built | full | tt122-core: LN-16 facing: auto omits the constraint entirely |
+| ED-06 | built | full | e2e-tt122: PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style; tt122-core: ED-06 wrap: style pair consistent, storage read guarded |
+| CK-06 | built | full | e2e-tt122: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears; tt122-core: CK-06 laps text: splits from cumulative, fastest marked |
+| NT-06 | built | full | e2e-tt122: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears; tt122-core: NT-06 notes bundle: title order, solo-export rendering reused |
+| CN-08 | built | full | tt122-core: CN-08 contact card: slug filename, serializer round-trips |
+| BK-10 | built | full | e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress; tt122-core: BK-10 backup inventory: dated sorted newest-first, undated unknown |
+| MD-11 | built | full | e2e-tt122: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears; tt122-core: MD-11 loop: label states state, toggle flips |
+| ST-11 | built | full | tt122-core: ST-11 reclaim summary: only real duplicate groups count |
+| SP-02 | built | full | e2e-tt122: DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress; tt122-core: SP-02 family progress: built share per family, sorted |
+| AP-07 | built | full | tt122-core: AP-07 app sort: registry group order, alpha within group |
+| MU-05 | built | full | tt122-core: MU-05 library stats: per-kind counts from the shared library |
+| PH-06 | built | full | tt122-core: PH-06 shuffle: permutation, seeded determinism, identity detection |
+| PL-07 | built | full | tt122-core: PL-07 completion stats: today/week windows, undated kept separate |
+| LD-01 | built | full | tt122-core: LD-01 sync summary: conflicts never read as clean |
+| AX-24 | built | full | tt122-density: AX-24: every app measured, none wordier than the ceiling, no emoji marks |
 | CV-02 | built | full | e2e-tt121: CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00; tt121-core: CV-02 calculator memory: register transitions, NaN refused |
 | ED-05 | built | full | e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file; tt121-core: ED-05 line ops: sort/dedupe keep termination, natural order |
 | CK-05 | built | full | e2e-tt121: CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00; tt121-core: CK-05 timer presets: fixed ladder, lookup exact |

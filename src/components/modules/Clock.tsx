@@ -10,6 +10,7 @@ import { validateZones, addZone, removeZone, allZoneNames, WORLD_ZONES_KEY } fro
 import { convertZoneTime } from "@/lib/zone-convert";
 import { zoneStatus } from "@/lib/zone-status";
 import { TIMER_PRESETS } from "@/lib/timer-presets";
+import { lapsText } from "@/lib/laps-text";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -132,6 +133,7 @@ export default function ClockModule(_: ModuleProps) {
             : <Btn onClick={() => { setSwAcc(sw); setSwStart(null); }}>Pause</Btn>}
           <Btn variant="ghost" disabled={swStart === null} onClick={() => setLaps((l) => [sw, ...l])}>Lap</Btn>
           <Btn variant="ghost" onClick={() => { setSwStart(null); setSwAcc(0); setLaps([]); }}>Reset</Btn>
+          {laps.length ? <Btn variant="ghost" onClick={() => void shell.copy(lapsText([...laps].reverse()), "clock")} data-testid="clock-copy-laps">Copy laps</Btn> : null}
         </div>
         {laps.map((l, i) => <div key={i} data-testid="clock-lap" className="fs-mono fs-dim" style={{ fontSize: fz(11.5) }}>lap {laps.length - i}: {fmt(l)}</div>)}
         {laps.length > 1 ? (() => { const st = lapStats([...laps].reverse()); return <div className="fs-dim" data-testid="clock-lap-stats" style={{ fontSize: fz(11) }}>fastest lap {st.fastest!.index} ({fmt(st.fastest!.splitMs)}) · slowest lap {st.slowest!.index} ({fmt(st.slowest!.splitMs)}) · average split {fmt(Math.round(st.averageSplitMs))}</div>; })() : null}

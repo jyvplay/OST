@@ -23,6 +23,7 @@ const TEL_TYPES = ["cell", "home", "work", "fax", "other"];
 const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 import { loadStars, storeStars, toggleStar } from "@/lib/contact-stars";
 import { filterContacts, type ContactFacet } from "@/lib/contact-filter";
+import { contactCardFile } from "@/lib/contact-card";
 import { UiGlyph } from "../AppIcon";
 const initials = (c: C.Contact) => (c.n.given || c.fn).charAt(0).toUpperCase() + (c.n.family ? c.n.family.charAt(0).toUpperCase() : "");
 const newUid = () => `urn:uuid:${crypto.randomUUID()}`;
@@ -261,7 +262,14 @@ export default function ContactsModule({ win }: ModuleProps) {
               ))}
             </section>
           ) : current ? (
-            <Card c={current} onEdit={() => startEdit(current)} onDelete={() => remove(current)} />
+            <div style={{ display: "grid", gap: 8 }}>
+              <div className="fs-row" style={{ gap: 6 }}>
+                <Btn variant="ghost" onClick={() => void shell.copy(contactCardFile(current).text, "contacts")} data-testid="ct-copy-card">Copy vCard</Btn>
+                <Btn variant="ghost" onClick={() => { const f = contactCardFile(current); download(f.filename, f.text, "text/vcard"); }} data-testid="ct-download-card">Download .vcf</Btn>
+                <span className="fs-dim" style={{ fontSize: fz(11) }}>just this contact, same format as the whole book</span>
+              </div>
+              <Card c={current} onEdit={() => startEdit(current)} onDelete={() => remove(current)} />
+            </div>
           ) : (
             <div className="fs-dim" style={{ padding: 20 }}>{list?.length ? "Select a contact." : "Your address book is empty."}</div>
           )}

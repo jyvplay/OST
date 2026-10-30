@@ -28,6 +28,7 @@ export const LIBRARY_PATH = "/Documents/Streams.json";
 import { loadPlays, storePlays, pushPlay, type RecentPlay } from "@/lib/recent-plays";
 import { providersOf, filterByProvider } from "@/lib/provider-filter";
 import { sortLibrary, type LibrarySort } from "@/lib/library-sort";
+import { libraryStats } from "@/lib/library-stats";
 const STATUS_LABEL: Record<E.Status, string> = { loading: "Loading", ready: "Ready", cued: "Ready", playing: "Playing", paused: "Paused", buffering: "Buffering", ended: "Ended" };
 /** TT33: a one-way player (TIDAL) reports starts only — say exactly what is known */
 const statusText = (c: E.CtlState) => c.oneWay
@@ -417,6 +418,7 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
             <span style={{ flex: 1 }} />
           </div>
           <input className="fs-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter" aria-label="Filter the library" data-testid={`${pfx}-filter`} />
+          {lib ? <span className="fs-dim" style={{ fontSize: fz(11) }} data-testid={`${pfx}-stats`}>{libraryStats(lib.items, kind)}</span> : null}
           {lib && providersOf(lib.items.filter((i) => i.kind === kind)).length > 1 ? (
             <><select className="fs-select" aria-label="Filter by provider" data-testid={`${pfx}-provider`} value={providerFacet} onChange={(e) => setProviderFacet(e.target.value)}>
               <option value="all">All providers</option>

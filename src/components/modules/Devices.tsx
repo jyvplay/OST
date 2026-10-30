@@ -7,6 +7,7 @@ import { fmtBytes, post } from "@/lib/api";
 import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section, Tabs } from "../ui";
+import { batteryLabel, type BatteryLike } from "@/lib/battery-status";
 
 type Tab = "recorder" | "scan" | "color" | "audio" | "serial" | "peripherals" | "gamepad";
 
@@ -23,6 +24,9 @@ export default function DevicesModule(_: ModuleProps) {
         { id: "audio", label: "Audio devices" }, { id: "serial", label: "Serial" },
         { id: "peripherals", label: "HID/USB/BT" }, { id: "gamepad", label: "Gamepad" },
       ]} />
+      <Section title="Battery" icon="battery">
+        <BatteryCard />
+      </Section>
       {tab === "recorder" ? <Recorder /> : null}
       {tab === "scan" ? <Scanner /> : null}
       {tab === "color" ? <ColorPicker /> : null}
@@ -76,7 +80,7 @@ function Recorder() {
   };
 
   return (
-    <Section title="Voice recorder (MD-04)">
+<Section title="Voice recorder (MD-04)">
       <label className="fs-row" style={{ gap: 6, fontSize: fz(12) }}>
         <input type="checkbox" checked={ns} onChange={(e) => setNs(e.target.checked)} disabled={Boolean(rec)} />
         browser DSP: noise suppression + echo cancellation + AGC
@@ -306,4 +310,24 @@ function Gamepads() {
       ))}
     </Section>
   );
+}
+
+/** DV-01: the browser battery API where offered; stated, never faked, where not. */
+function BatteryCard() {
+  const [b, setB] = useState<BatteryLike | null>(null);
+  const [state, setState] = useState("checking…");
+  useEffect(() => {
+    const nav = navigator as Navigator & { getBattery?: () => Promise<BatteryLike & { addEventListener?: (t: string, f: () => void) => void }> };
+    if (typeof nav.getBattery !== "function") { setState("Battery API not offered by this browser — charge state cannot be read from a web app here."); return; }
+    let live = true;
+    void nav.getBattery().then((bat) => {
+      if (!live) return;
+      const read = () => setB({ level: bat.level, charging: bat.charging, chargingTime: bat.chargingTime, dischargingTime: bat.dischargingTime });
+      read();
+      bat.addEventListener?.("levelchange", read);
+      bat.addEventListener?.("chargingchange", read);
+    }).catch(() => setState("Battery API refused."));
+    return () => { live = false; };
+  }, []);
+  return b ? <Badge tone={b.charging ? "ok" : "info"} data-testid="devices-battery">{batteryLabel(b)}</Badge> : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>{state}</span>;
 }
