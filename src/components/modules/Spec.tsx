@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
 import { familyProgress } from "@/lib/family-progress";
+import { familyProgressText } from "@/lib/family-progress-text";
 
 interface Row {
   code: string; family: string; name: string; tier: string; phase: string;
@@ -63,7 +64,7 @@ export default function SpecModule({ win }: ModuleProps) {
             <Badge tone={STATUS_TONE[k] ?? "default"}>{k}</Badge> {v}
           </button>
         ))}
-        {rows.length ? <span className="fs-dim" style={{ fontSize: fz(11) }} data-testid="spec-family-progress">{familyProgress(rows).slice(0, 6).map((f) => `${f.family} ${f.pct}%`).join(" · ")}</span> : null}
+        {rows.length ? <span className="fs-row" style={{ gap: 6 }}><span className="fs-dim" style={{ fontSize: fz(11) }} data-testid="spec-family-progress">{familyProgress(rows).slice(0, 6).map((f) => `${f.family} ${f.pct}%`).join(" · ")}</span><Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(familyProgressText(rows)); shell.toast("Family progress copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="spec-copy-progress">Copy</Btn></span> : null}
         {cov?.totals ? <Badge tone="info" title={`Latest saved result per suite, from different runs; ledger generated ${cov.generatedAt}`}>recorded: {cov.totals.tested.full} full · {cov.totals.tested.partial} partial · {cov.totals.tests.passed}/{cov.totals.tests.total} tests passed</Badge> : null}
         <div style={{ flex: 1 }} />
         <Btn variant="ghost" onClick={() => window.open("/api/features?format=csv", "_blank")}>Export requirements.csv</Btn>

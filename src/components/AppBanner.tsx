@@ -276,7 +276,18 @@ export function AppBanner({ label, children, status, testid, extra = [], span }:
     };
     const ro = new ResizeObserver(fit); ro.observe(el);
     fit();
-    return () => { ro.disconnect(); for (const g of groupsOf()) delete g.dataset.folded; };
+    /**
+     * TT124: the natural widths above are measured with whatever font is on
+     * screen at mount. When the bundled webfont finishes loading the real
+     * metrics are narrower (or wider), and a fold decided on fallback metrics
+     * would stick for the session — so font readiness invalidates the cache
+     * and re-fits once.
+     */
+    let live = true;
+    const refit = () => { if (live) { natural.current = null; fit(); } };
+    document.fonts?.addEventListener?.("loadingdone", refit);
+    void document.fonts?.ready?.then(() => refit());
+    return () => { live = false; document.fonts?.removeEventListener?.("loadingdone", refit); ro.disconnect(); for (const g of groupsOf()) delete g.dataset.folded; };
   }, [key]);
 
   const page = (dir: 1 | -1) => { const el = strip.current; if (el) el.scrollBy({ left: dir * Math.max(120, el.clientWidth * 0.7), behavior: "smooth" }); };

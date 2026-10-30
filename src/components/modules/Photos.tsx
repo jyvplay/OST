@@ -19,6 +19,7 @@ import { photoTimeline } from "@/lib/photo-timeline";
 import { clampInterval, nextIndex } from "@/lib/slideshow";
 import { shuffleOrder } from "@/lib/shuffle-order";
 import { undatedPhotos } from "@/lib/photo-dates";
+import { photoInfoText } from "@/lib/photo-info";
 import { neighbor, positionLabel } from "@/lib/photo-order";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -426,6 +427,7 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, on
         {nav ? <span className="fs-row" style={{ gap: 4 }}>
           <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
           <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }}>{nav.label}</span>
+          <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(photoInfoText({ path: item.path, size: item.size, mime: item.mime, index: info ? { date: info.date ?? null, camera: info.camera, lat: info.lat, lon: info.lon } : undefined })); shell.toast("Photo info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="photos-copy-info">Copy info</Btn>
           <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
         </span> : null}
         <strong style={{ fontSize: fz(13) }}>{item.name}</strong>

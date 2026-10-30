@@ -1,23 +1,158 @@
 {
- "generatedAt": "2026-10-30T11:46:36.439Z",
+ "generatedAt": "2026-10-30T17:35:31.958Z",
  "totals": {
   "built": {
-   "full": 461,
+   "full": 481,
    "partial": 82,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 413,
+   "full": 433,
    "partial": 119,
    "untested": 35
   },
   "tests": {
-   "total": 2973,
-   "passed": 2963
+   "total": 3015,
+   "passed": 2990
   }
  },
  "rows": {
+  "ED-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+    "tt124-core: ED-08 indent: block spans selection, dedent removes one step, selection tracks",
+    "tt124-density: TT124 register: all twenty codes built, register grew past TT123's 567"
+   ]
+  },
+  "CK-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
+    "tt124-core: CK-08 world times: displayed order kept, offsets in parentheses"
+   ]
+  },
+  "PD-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+    "tt124-core: PD-02 page jump: 1-based clamp, garbage refused"
+   ]
+  },
+  "PK-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick",
+    "tt124-core: PK-02 hex head: 16-per-line, ascii gutter, truncation stated"
+   ]
+  },
+  "LN-17": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick",
+    "tt124-core: LN-17/CP-02 resolution pick: one engine, two cameras"
+   ]
+  },
+  "MN-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick",
+    "tt124-core: MN-02 in-flight view: finished rows filtered, journal untouched"
+   ]
+  },
+  "WR-01": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+    "tt124-core: WR-01 word goal: net writing, clamped, done flag",
+    "tt124-density: screenshots: writer goal dialog + spec family progress"
+   ]
+  },
+  "IE-01": {
+   "tested": "full",
+   "tests": [
+    "tt124-core: IE-01 compare: holding shows the original, release restores the edit"
+   ]
+  },
+  "MD-12": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
+    "tt124-core: MD-12 A–B loop: A→B→off cycle, B before A re-sets A, seek at B"
+   ]
+  },
+  "CN-10": {
+   "tested": "full",
+   "tests": [
+    "tt124-core: CN-10 email list: deduped, sorted, empties dropped"
+   ]
+  },
+  "MS-06": {
+   "tested": "full",
+   "tests": [
+    "tt124-core: MS-06 conversation text: timestamped lines, empty stated"
+   ]
+  },
+  "PH-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: PH-08: opening a photo offers Copy info with honest absences",
+    "tt124-core: PH-08 photo info: absences say 'not in index'"
+   ]
+  },
+  "VT-02": {
+   "tested": "full",
+   "tests": [
+    "tt124-core: VT-02 SVG markup: existing exporter's output is clipboard-ready"
+   ]
+  },
+  "CP-02": {
+   "tested": "full",
+   "tests": [
+    "tt124-core: LN-17/CP-02 resolution pick: one engine, two cameras",
+    "tt124-core: CP-02 resolution: ideals only, max adds nothing"
+   ]
+  },
+  "TG-01": {
+   "tested": "full",
+   "tests": [
+    "tt124-core: TG-01 room code: prefix, length, unambiguous alphabet"
+   ]
+  },
+  "RT-03": {
+   "tested": "full",
+   "tests": [
+    "tt124-core: RT-03 duplicate name: collisions get numbered copies"
+   ]
+  },
+  "SP-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
+    "tt124-core: SP-03 family text: worst first, same engine as the strip",
+    "tt124-density: screenshots: writer goal dialog + spec family progress"
+   ]
+  },
+  "BM-02": {
+   "tested": "full",
+   "tests": [
+    "tt124-core: BM-02 session text: newest first, active rows carry elapsed"
+   ]
+  },
+  "SSH-02": {
+   "tested": "full",
+   "tests": [
+    "tt124-core: SSH-02 conn line: default port omitted, state in words",
+    "tt124-density: TT124 register: all twenty codes built, register grew past TT123's 567"
+   ]
+  },
+  "AX-26": {
+   "tested": "full",
+   "tests": [
+    "tt124-density: AX-26: indent and compare glyphs render on their buttons"
+   ]
+  },
   "WB-07": {
    "tested": "full",
    "tests": [
@@ -304,7 +439,27 @@
     "tt123-density: density slides: words<=380",
     "tt123-density: density contacts: words<=220",
     "tt123-density: density files: words<=320",
-    "tt123-density: density streams: words<=380"
+    "tt123-density: density streams: words<=380",
+    "tt124-density: density editor: words<=210",
+    "tt124-density: density clock: words<=340",
+    "tt124-density: density pdf: words<=400",
+    "tt124-density: density peek: words<=260",
+    "tt124-density: density lens: words<=320",
+    "tt124-density: density monitor: words<=520",
+    "tt124-density: density writer: words<=900",
+    "tt124-density: density imageedit: words<=320",
+    "tt124-density: density media: words<=340",
+    "tt124-density: density contacts: words<=240",
+    "tt124-density: density messages: words<=400",
+    "tt124-density: density photos: words<=240",
+    "tt124-density: density vector: words<=340",
+    "tt124-density: density capture: words<=320",
+    "tt124-density: density together: words<=340",
+    "tt124-density: density routines: words<=300",
+    "tt124-density: density spec: words<=12400",
+    "tt124-density: density beam: words<=320",
+    "tt124-density: density ssh: words<=320",
+    "tt124-density: density storage: words<=480"
    ]
   },
   "CV-02": {
@@ -1586,7 +1741,6 @@
     "e2e-tt92-trash: restoring the selected folder in Files reveals the original files and rebuilds search",
     "e2e: mount: find",
     "e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
-    "integration: SR-01 search finds new content with provenance",
     "integration: search treats % and _ in queries literally",
     "tt92-trash: trashing a directory hides every descendant from real search; restoring reindexes only that trash group",
     "tt92-trash: ordinary and conditional writes cannot overwrite a trashed item or create under a trashed parent",
@@ -1623,16 +1777,13 @@
    "tests": [
     "e2e-tt99-interactions: Find contextual Open routes a real CSV into the editor rather than window controls",
     "e2e-tt99-interactions: a stale Find result cannot open a deleted file or silently create a document",
-    "e2e: mount: find",
-    "integration: SR-01 search finds new content with provenance",
-    "integration: deleting a note removes only its own index row"
+    "e2e: mount: find"
    ]
   },
   "SR-03": {
    "tested": "full",
    "tests": [
     "e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
-    "integration: SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing",
     "unit: OSA distance counts adjacent transposition as 1",
     "unit: fuzzy scoring: typos match, short words exact only, junk rejected"
    ]
@@ -2410,7 +2561,6 @@
     "e2e-tt99-interactions: Notes dirty draft disables destructive context actions and native text remains native",
     "e2e-tt99-interactions: Notes context deletion is cancelable and removes only the chosen note",
     "e2e: mount: notes",
-    "integration: deleting a note removes only its own index row",
     "tt111-core: notes are indexed in the same index as files, so one search reaches both"
    ]
   },
@@ -3083,13 +3233,6 @@
     "image: TT78 groups: pass-through vs isolated, group opacity, hidden group, nesting, validation",
     "image: TT78 PSD: groups / clipping / non-separable keys round-trip; clip to a group is reported and drawn unclipped",
     "integration: FF-08/FF-10/FF-02 Forge engines via the API, with grades",
-    "oracle-psd: A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
-    "oracle-psd: A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
-    "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
-    "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/groups: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
     "oracle-psd: forge row: PSD grade A, and every gap the codec reports is written into the boundary",
     "unit: docx extraction; EPUB spine order; PSD header"
    ]
@@ -3426,11 +3569,7 @@
     "e2e-tt70-seal: Writer: a protected .docx keeps a SEALED draft (msoffcrypto + python-docx read it with the password; no plaintext on the server); Restore asks nothing more; Save stays encrypted and clears the draft",
     "e2e-tt70-seal: Spreadsheet adversary: password changed P1→P2 after the draft — Restore asks; a wrong password shows an inline alert; Cancel keeps the banner; P1 restores; Save keeps the CURRENT protection (P2 opens, P1 does not; openpyxl reads the cell)",
     "e2e: mount: sheet",
-    "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file",
     "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
-    "oracle-xlsx: oracle available (openpyxl)",
-    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
-    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "privacy-layer: office on encrypted files: Export .xlsx into /Private (rewritten to export + encrypted write), import from /Private inlined; the bare server refuses the blob",
     "tt46-xlsx-patch: no-edit save of every readable corpus workbook returns the original bytes",
     "tt46-xlsx-patch: corpus edit session: change a number, add a bold text cell, re-style a cell — openpyxl sees exactly those edits and nothing else lost",
@@ -3491,9 +3630,6 @@
     "e2e-tt58: no uncaught page errors during the TT58 session",
     "e2e-tt74-office: AutoFilter list hides rows (SUBTOTAL 9 and 109 skip them), Hide rows hides by hand (only 109 skips), arrows skip hidden rows; Save → openpyxl sees hidden rows + the filter; Unhide shows hand-hidden rows only; Clear shows the rest",
     "e2e: mount: sheet",
-    "names: openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
-    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
-    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
     "tt46-xlsx-patch: conditional formats are imported for display: every constant cellIs rule (numeric or string operand; rgb, theme+tint or indexed colours) matches an independent reading (openpyxl rules + lxml dxfs + colorsys tint)",
     "tt47-crypto: SHA-1/256/384/512, HMAC and AES-128/192/256 (CBC, ECB) equal OpenSSL on 400 random vectors incl. padding boundaries",
     "tt47-crypto: corpus: Agile SHA-1 'pass' (HMAC verified, opens in Writer), Standard 'solrcell' and 'tika' byte-equal to msoffcrypto-tool",
@@ -4217,9 +4353,7 @@
     "office: IF over an array condition is element-wise; IFERROR over arrays replaces only errors",
     "office: SUM over a computed array (SUMPRODUCT-style) and ROW() with no argument",
     "office: OOXML future-function prefixes: _xlfn./_xlfn._xlws. added on write, stripped on read, strings safe",
-    "office: SORTBY (multi-key, mixed orders, size check) and SORT Excel ordering (case-insensitive, blanks last, by_col, index check)",
-    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
-    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block"
+    "office: SORTBY (multi-key, mixed orders, size check) and SORT Excel ordering (case-insensitive, blanks last, by_col, index check)"
    ]
   },
   "FF-27": {
@@ -4272,8 +4406,6 @@
     "office: formula autocomplete token, ranked completions, active-call argument index (strings/nesting aware)",
     "office: conditional formatting: comparison, between, contains, duplicate, top-N, colour scale, priority order",
     "office: workbook JSON v2: styles, widths, freeze, charts, rules round-trip; untrusted input sanitised; v1 still loads",
-    "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
-    "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
     "tt59-sheet-paste: Paste Special ▸ All carries hyperlinks (plain, transposed, skip blanks keeps a target link under a blank source); openpyxl reads them",
     "tt59-sheet-paste: Values / Formulas / Formats leave the target's links alone (Excel keeps a link under pasted values) and never copy source links",
     "tt59-sheet-paste: Paste Link: a single cell links absolutely, a range relatively (TT64, as Excel); same sheet, other sheet, quoted names; follows source edits, blank source shows 0; openpyxl reads the formulas"
@@ -4361,14 +4493,7 @@
     "image: gradient endpoints/midpoint; eyedropper average; blur is premultiplied (no dark fringe)",
     "image: PSD write → read (raw / RLE / ZIP): names (Unicode), offsets incl. negative, opacity, blend, visibility, masks, exact pixels",
     "image: history: undo/redo, state cap, unique-buffer byte budget",
-    "image: resizeImage 2× then ½ ≈ identity on smooth content; layer offsets scale",
-    "oracle-psd: A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
-    "oracle-psd: A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
-    "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
-    "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/groups: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools"
+    "image: resizeImage 2× then ½ ≈ identity on smooth content; layer offsets scale"
    ]
   },
   "FF-31": {
@@ -4379,16 +4504,7 @@
     "image: TT78 PSD: groups / clipping / non-separable keys round-trip; clip to a group is reported and drawn unclipped",
     "image: PackBits: Apple TN1023 vector decodes; encoder round-trips random/edge data and is ≤ TN1023 size",
     "image: PSD write → read (raw / RLE / ZIP): names (Unicode), offsets incl. negative, opacity, blend, visibility, masks, exact pixels",
-    "image: PSD reader rejects PSB, 16-bit, CMYK, truncated/garbage input with explicit messages",
-    "oracle-psd: A/raw: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
-    "oracle-psd: A/rle: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
-    "oracle-psd: A/zip: psd-tools reads our PSD — structure, exact pixels, masks, merged image, independent composite",
-    "oracle-psd: fixtures exercise clipping (psd-tools: hiding the clipped layers changes the composite)",
-    "oracle-psd: B/RAW: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/RLE: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: B/groups: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
-    "oracle-psd: C: layer-less RGB and Grayscale PSDs written by psd-tools open via the merged-image fallback"
+    "image: PSD reader rejects PSB, 16-bit, CMYK, truncated/garbage input with explicit messages"
    ]
   },
   "FF-32": {
@@ -4438,8 +4554,6 @@
     "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-sheet-layout: no page errors during the layout session",
     "e2e: mount: sheet",
-    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
-    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
     "sheet-layout: merge keeps the upper-left most data (reading order), clears the rest, keeps covered formatting; unmerge leaves value top-left",
     "sheet-layout: selection expands to whole merged areas (fixed point); arrow keys treat a merge as one cell; partial paste/sort refused",
     "sheet-layout: insert/delete rows & cols repair merges, validations and frozen panes",
@@ -4452,8 +4566,6 @@
     "e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears",
     "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
-    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
-    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
     "sheet-layout: borders: presets set the right edges; shared edge shows the heavier side; 'none' clears; per-cell storage",
     "sheet-layout: validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON"
    ]
@@ -4464,8 +4576,6 @@
     "e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it",
     "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
-    "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
-    "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
     "sheet-layout: insert/delete rows & cols repair merges, validations and frozen panes",
     "sheet-layout: data validation: list (literal + range, case-insensitive), whole/decimal/date/textLength operators, custom (relative), blanks, rollback",
     "sheet-layout: validation hardening: 255-char typed list limit, sqref parsing, hostile JSON; merges/validations/borders persist through JSON"
@@ -4501,7 +4611,6 @@
     "privacy-crypto: content blobs: oracle ⇄ ours both directions; Padmé-sized; any bit flip, flag edit or foreign volume refused",
     "privacy-crypto: names: deterministic SIV encryption byte-identical to the oracle; host-chosen nonce rejected; paths map both ways",
     "privacy-crypto: base64 codec (perf path): byte-identical to Node Buffer on 6 000 random inputs 0–299 B, strict on malformed input, 264 KiB encode < 5 ms",
-    "privacy-layer: write through the layer: the host row has no plaintext name, content, size or index entry; read decrypts",
     "privacy-layer: list decrypts and sorts names; a second write keeps an encrypted version that decrypts; rename/move stay encrypted server-side",
     "privacy-layer: locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside",
     "privacy-layer: cross-store moves happen in the browser: host file → /Private arrives encrypted (source trashed); /Private → host is an explicit decrypting copy",
@@ -4684,8 +4793,7 @@
     "e2e-tt89-launch: amnesic session refuses launch file copies before consent or any host write",
     "e2e-tt90-context: amnesia permits session-only choices without changing normal local storage or shared settings",
     "e2e: mount: privacy",
-    "privacy-layer: TT87 conditional VFS writes respect privacy boundaries and still work for ordinary unlocked-host files",
-    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
+    "privacy-layer: TT87 conditional VFS writes respect privacy boundaries and still work for ordinary unlocked-host files"
    ]
   },
   "SC-14": {
@@ -4711,15 +4819,17 @@
     "names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined",
     "names: scope: a sheet-level name shadows the workbook name on its sheet only; self-reference terminates with #NAME?",
     "names: insert/delete rows and columns move names like cell formulas; deleting the whole range gives #REF!",
-    "names: workbook JSON round-trips names; hostile JSON names (invalid syntax, A1-like, oversized) are dropped",
-    "names: openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
-    "names: our writer → openpyxl sees the same names/scopes/destinations, and the PyPI `formulas` engine computes the same results from OUR file"
+    "names: workbook JSON round-trips names; hostile JSON names (invalid syntax, A1-like, oversized) are dropped"
    ]
   },
   "FF-37": {
    "tested": "full",
    "tests": [
     "e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo",
+    "vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back)",
+    "vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995)",
+    "vector-boolean: three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain)",
+    "vector-boolean: fill rules: even-odd hole, nonzero opposite-direction hole, nonzero same-direction (no hole), group = union of leaves with its transform",
     "vector-boolean: refusals: open paths, text, a single shape, locked shapes, Intersect of disjoint shapes; result survives SVG export → import",
     "vector-boolean: performance: two 600-unit ellipses + a rotated rect, all modes < 400 ms each on this 2-CPU host"
    ]
@@ -4727,9 +4837,7 @@
   "SC-16": {
    "tested": "full",
    "tests": [
-    "e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host",
-    "privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock",
-    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
+    "e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host"
    ]
   },
   "SC-17": {

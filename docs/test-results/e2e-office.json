@@ -1,6 +1,6 @@
 {
   "suite": "e2e-office",
-  "at": "2026-10-29T06:24:54.867Z",
+  "at": "2026-10-30T17:52:41.332Z",
   "results": [
     {
       "suite": "e2e-office",
@@ -11,7 +11,7 @@
         "FF-19": "partial"
       },
       "pass": true,
-      "ms": 2489
+      "ms": 3931
     },
     {
       "suite": "e2e-office",
@@ -20,7 +20,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 4092
+      "ms": 4051
     },
     {
       "suite": "e2e-office",
@@ -29,7 +29,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 3242
+      "ms": 2854
     },
     {
       "suite": "e2e-office",
@@ -38,7 +38,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 4645
+      "ms": 4393
     },
     {
       "suite": "e2e-office",
@@ -47,7 +47,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 2810
+      "ms": 3525
     },
     {
       "suite": "e2e-office",
@@ -56,7 +56,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 2979
+      "ms": 3958
     },
     {
       "suite": "e2e-office",
@@ -66,7 +66,7 @@
       },
       "pass": false,
       "error": "locator.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().getByLabel('Find', { exact: true })\n",
-      "ms": 33573
+      "ms": 33192
     },
     {
       "suite": "e2e-office",
@@ -75,7 +75,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 2381
+      "ms": 2423
     },
     {
       "suite": "e2e-office",
@@ -83,9 +83,8 @@
       "covers": {
         "FF-28": "full"
       },
-      "pass": false,
-      "error": "width 138 → 138",
-      "ms": 2453
+      "pass": true,
+      "ms": 3148
     },
     {
       "suite": "e2e-office",
@@ -95,9 +94,8 @@
         "FF-20": "partial",
         "FF-21": "partial"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-cell=\"A3\"]')\n    - locator resolved to <td data-cell=\"A3\">Gadget</td>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n    - element is not stable\n  - retrying click action\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 20ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n  2 × retrying click action\n      - waiting 100ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" class=\"fs-btn\" data-variant=\"ghost\" data-testid=\"recover-discard\">Discard draft</button> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n  13 × retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button type=\"button\" class=\"fs-btn\" data-variant=\"ghost\" data-testid=\"recover-discard\">Discard draft</button> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button type=\"button\" class=\"fs-btn\" data-variant=\"ghost\" data-testid=\"recover-discard\">Discard draft</button> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n",
-      "ms": 31583
+      "pass": true,
+      "ms": 6740
     },
     {
       "suite": "e2e-office",

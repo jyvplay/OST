@@ -1,6 +1,6 @@
 {
   "suite": "e2e-vector",
-  "at": "2026-10-26T13:09:31.262Z",
+  "at": "2026-10-30T17:54:14.179Z",
   "results": [
     {
       "suite": "e2e-vector",
@@ -9,7 +9,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 122
+      "ms": 125
     },
     {
       "suite": "e2e-vector",
@@ -18,7 +18,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 519
+      "ms": 596
     },
     {
       "suite": "e2e-vector",
@@ -27,7 +27,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 438
+      "ms": 610
     },
     {
       "suite": "e2e-vector",
@@ -37,7 +37,7 @@
         "FF-25": "full"
       },
       "pass": true,
-      "ms": 5238
+      "ms": 4474
     },
     {
       "suite": "e2e-vector",
@@ -46,7 +46,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 5543
+      "ms": 3261
     },
     {
       "suite": "e2e-vector",
@@ -55,7 +55,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 3312
+      "ms": 4053
     },
     {
       "suite": "e2e-vector",
@@ -64,7 +64,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 2063
+      "ms": 2414
     },
     {
       "suite": "e2e-vector",
@@ -74,7 +74,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 1929
+      "ms": 1192
     },
     {
       "suite": "e2e-vector",
@@ -83,8 +83,9 @@
         "FF-32": "full",
         "FF-25": "full"
       },
-      "pass": true,
-      "ms": 4637
+      "pass": false,
+      "error": "message never matched /exported \\/Pictures\\/.*\\.png \\(800×600\\)/",
+      "ms": 14535
     },
     {
       "suite": "e2e-vector",
@@ -93,7 +94,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 3524
+      "ms": 2299
     },
     {
       "suite": "e2e-vector",
@@ -102,7 +103,7 @@
         "FF-37": "full"
       },
       "pass": true,
-      "ms": 3089
+      "ms": 2519
     },
     {
       "suite": "e2e-vector",

@@ -1,0 +1,48 @@
+{
+  "suite": "e2e-tt124",
+  "at": "2026-10-30T17:17:24.464Z",
+  "results": [
+    {
+      "suite": "e2e-tt124",
+      "name": "ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+      "covers": {
+        "ED-08": "full",
+        "WR-01": "full",
+        "PD-02": "full"
+      },
+      "pass": true,
+      "ms": 7398
+    },
+    {
+      "suite": "e2e-tt124",
+      "name": "PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick",
+      "covers": {
+        "PK-02": "full",
+        "MN-02": "full",
+        "LN-17": "full"
+      },
+      "pass": true,
+      "ms": 7408
+    },
+    {
+      "suite": "e2e-tt124",
+      "name": "MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
+      "covers": {
+        "MD-12": "full",
+        "CK-08": "full",
+        "SP-03": "full"
+      },
+      "pass": true,
+      "ms": 26717
+    },
+    {
+      "suite": "e2e-tt124",
+      "name": "PH-08: opening a photo offers Copy info with honest absences",
+      "covers": {
+        "PH-08": "full"
+      },
+      "pass": true,
+      "ms": 2364
+    }
+  ]
+}

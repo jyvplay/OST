@@ -1,4 +1,5 @@
 "use client";
+import { newRoomCode } from "@/lib/room-code";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -93,6 +94,7 @@ export default function TogetherModule({ win }: ModuleProps) {
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <input className="fs-input" style={{ width: fz(120) }} value={code} aria-label="Room code"
           onChange={(e) => setCode(e.target.value.toUpperCase())} />
+        <Btn variant="ghost" onClick={() => setCode(newRoomCode(Math.random))} data-testid="together-newcode" title="Start a fresh room code">New code</Btn>
         <input className="fs-input" placeholder="Media URL or VFS path" value={mediaRef} aria-label="Media reference"
           onChange={(e) => setMediaRef(e.target.value)} />
         {joined

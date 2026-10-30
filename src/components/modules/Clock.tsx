@@ -12,6 +12,7 @@ import { zoneStatus } from "@/lib/zone-status";
 import { TIMER_PRESETS } from "@/lib/timer-presets";
 import { lapsText } from "@/lib/laps-text";
 import { sortZonesByOffset, offsetLabel, offsetMinutes } from "@/lib/zone-offset";
+import { worldTimesText } from "@/lib/world-times";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -106,7 +107,7 @@ export default function ClockModule(_: ModuleProps) {
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
-      <Section title="World clock" right={<Btn variant={offsetSort ? "primary" : "ghost"} aria-pressed={offsetSort} onClick={() => setOffsetSort((v) => !v)} data-testid="clock-offset-sort" title="Order zones west to east by current UTC offset">By offset</Btn>}>
+      <Section title="World clock" right={<span className="fs-row" style={{ gap: 4 }}><Btn variant={offsetSort ? "primary" : "ghost"} aria-pressed={offsetSort} onClick={() => setOffsetSort((v) => !v)} data-testid="clock-offset-sort" title="Order zones west to east by current UTC offset">By offset</Btn><Btn variant="ghost" onClick={async () => { const now = new Date(); const rows = (offsetSort ? sortZonesByOffset(zones, now) : zones).map((z) => ({ zone: z, time: now.toLocaleTimeString([], { timeZone: z, hour: "2-digit", minute: "2-digit", second: "2-digit" }), offset: offsetLabel(offsetMinutes(z, now)) })); try { await navigator.clipboard.writeText(worldTimesText(rows)); shell.toast("World times copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="clock-copy-times">Copy times</Btn></span>}>
 
         {(offsetSort ? sortZonesByOffset(zones, new Date()) : zones).map((z) => (
           <div key={z} className="fs-row" style={{ justifyContent: "space-between" }}>

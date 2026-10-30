@@ -24,6 +24,7 @@ const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+
 import { loadStars, storeStars, toggleStar } from "@/lib/contact-stars";
 import { filterContacts, type ContactFacet } from "@/lib/contact-filter";
 import { sortByFamily } from "@/lib/contact-name-sort";
+import { emailList } from "@/lib/email-list";
 import { contactCardFile } from "@/lib/contact-card";
 import { UiGlyph } from "../AppIcon";
 const initials = (c: C.Contact) => (c.n.given || c.fn).charAt(0).toUpperCase() + (c.n.family ? c.n.family.charAt(0).toUpperCase() : "");
@@ -191,6 +192,7 @@ export default function ContactsModule({ win }: ModuleProps) {
           From device
         </Btn>
         <select className="fs-select" style={{ width: "auto" }} aria-label="Sort contacts by" value={nameOrder} onChange={(e) => setNameOrder(e.target.value as "given" | "family")} data-testid="contacts-name-order"><option value="given">First name</option><option value="family">Family name</option></select>
+        <Btn variant="ghost" disabled={!shown.length} onClick={async () => { const list = emailList(shown); try { await navigator.clipboard.writeText(list.join(", ")); shell.toast(list.length ? `${list.length} address(es) copied.` : "No mail addresses on screen."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="ct-copy-emails">Copy emails</Btn>
         <Btn onClick={() => list && download("contacts.vcf", C.serializeVcf(sorted), "text/vcard")} disabled={!list?.length} data-testid="ct-download-vcf">Download .vcf</Btn>
         <Btn data-testid="ct-export-csv" disabled={!list?.length} onClick={async () => {
           const csv = C.toCsv(sorted); const dst = path.replace(/[^/]+$/, "contacts-export.csv");
@@ -267,7 +269,8 @@ export default function ContactsModule({ win }: ModuleProps) {
           ) : current ? (
             <div style={{ display: "grid", gap: 8 }}>
               <div className="fs-row" style={{ gap: 6 }}>
-                <Btn variant="ghost" onClick={() => void shell.copy(contactCardFile(current).text, "contacts")} data-testid="ct-copy-card">Copy vCard</Btn>
+                
+          <Btn variant="ghost" onClick={() => void shell.copy(contactCardFile(current).text, "contacts")} data-testid="ct-copy-card">Copy vCard</Btn>
                 <Btn variant="ghost" onClick={() => { const f = contactCardFile(current); download(f.filename, f.text, "text/vcard"); }} data-testid="ct-download-card">Download .vcf</Btn>
                 <span className="fs-dim" style={{ fontSize: fz(11) }}>just this contact, same format as the whole book</span>
               </div>

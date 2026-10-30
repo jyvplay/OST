@@ -7,6 +7,7 @@ import { capOf } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
 import { elapsedLabel } from "@/lib/elapsed";
+import { sessionListText } from "@/lib/session-list-text";
 
 interface SessionRow { id: number; targetName: string; transport: string; source: string; state: string; startedAt: string }
 
@@ -174,7 +175,7 @@ export default function BeamModule(_: ModuleProps) {
         </div>
       </Section>
 
-      <Section title="Session history" right={<Btn variant="ghost" onClick={() => void load()}>↻</Btn>}>
+      <Section title="Session history" right={<span className="fs-row" style={{ gap: 4 }}><Btn variant="ghost" onClick={() => void load()}>↻</Btn><Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(sessionListText(sessions, beamNow)); shell.toast("Session list copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="beam-copy-sessions">Copy list</Btn></span>}>
         <div style={{ display: "grid", gap: 2 }}>
           {sessions.map((s) => (
             <div key={s.id} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }}>

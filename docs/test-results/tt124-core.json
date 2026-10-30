@@ -1,0 +1,178 @@
+{
+  "suite": "tt124-core",
+  "at": "2026-10-30T17:16:39.756Z",
+  "results": [
+    {
+      "suite": "tt124-core",
+      "name": "ED-08 indent: block spans selection, dedent removes one step, selection tracks",
+      "covers": {
+        "ED-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "CK-08 world times: displayed order kept, offsets in parentheses",
+      "covers": {
+        "CK-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "PD-02 page jump: 1-based clamp, garbage refused",
+      "covers": {
+        "PD-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "PK-02 hex head: 16-per-line, ascii gutter, truncation stated",
+      "covers": {
+        "PK-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "LN-17/CP-02 resolution pick: one engine, two cameras",
+      "covers": {
+        "LN-17": "full",
+        "CP-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt124-core",
+      "name": "MN-02 in-flight view: finished rows filtered, journal untouched",
+      "covers": {
+        "MN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "WR-01 word goal: net writing, clamped, done flag",
+      "covers": {
+        "WR-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "IE-01 compare: holding shows the original, release restores the edit",
+      "covers": {
+        "IE-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "MD-12 A–B loop: A→B→off cycle, B before A re-sets A, seek at B",
+      "covers": {
+        "MD-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "CN-10 email list: deduped, sorted, empties dropped",
+      "covers": {
+        "CN-10": "full"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt124-core",
+      "name": "MS-06 conversation text: timestamped lines, empty stated",
+      "covers": {
+        "MS-06": "full"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt124-core",
+      "name": "PH-08 photo info: absences say 'not in index'",
+      "covers": {
+        "PH-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "VT-02 SVG markup: existing exporter's output is clipboard-ready",
+      "covers": {
+        "VT-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt124-core",
+      "name": "CP-02 resolution: ideals only, max adds nothing",
+      "covers": {
+        "CP-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "TG-01 room code: prefix, length, unambiguous alphabet",
+      "covers": {
+        "TG-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "RT-03 duplicate name: collisions get numbered copies",
+      "covers": {
+        "RT-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "SP-03 family text: worst first, same engine as the strip",
+      "covers": {
+        "SP-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "BM-02 session text: newest first, active rows carry elapsed",
+      "covers": {
+        "BM-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt124-core",
+      "name": "SSH-02 conn line: default port omitted, state in words",
+      "covers": {
+        "SSH-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

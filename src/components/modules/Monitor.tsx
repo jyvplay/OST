@@ -7,6 +7,7 @@ import { stateHash } from "@/lib/windowing/state";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, KV, Section } from "../ui";
 import { sortJobs, type JobSort } from "@/lib/job-sort";
+import { inFlightJobs } from "@/lib/job-prune";
 
 interface Job { id: number; op: string; src: string; dst: string; state: string; error: string; updatedAt: string }
 interface LogRow { id: number; actor: string; action: string; detail: string; createdAt: string }
@@ -16,6 +17,7 @@ export default function MonitorModule(_: ModuleProps) {
   const shell = useShell();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [jobSort, setJobSort] = useState<JobSort>("newest");
+  const [inflightOnly, setInflightOnly] = useState(false);
   const [log, setLog] = useState<LogRow[]>([]);
   const [mem, setMem] = useState<string>("measuring…");
   const [quota, setQuota] = useState<string>("");
@@ -105,9 +107,9 @@ export default function MonitorModule(_: ModuleProps) {
         </details>
       </Section>
 
-      <Section title="Jobs — file operation journal (DP-14)" right={<select className="fs-select" style={{ width: "auto" }} aria-label="Sort jobs" value={jobSort} onChange={(e) => setJobSort(e.target.value as JobSort)} data-testid="monitor-job-sort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="op">By operation</option></select>}>
+      <Section title="Jobs — file operation journal (DP-14)" right={<span className="fs-row" style={{ gap: 4 }}><select className="fs-select" style={{ width: "auto" }} aria-label="Sort jobs" value={jobSort} onChange={(e) => setJobSort(e.target.value as JobSort)} data-testid="monitor-job-sort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="op">By operation</option></select><Btn variant={inflightOnly ? "primary" : "ghost"} aria-pressed={inflightOnly} onClick={() => setInflightOnly((v) => !v)} data-testid="monitor-inflight" title="Show only running and queued jobs">In flight</Btn></span>}>
         <div style={{ display: "grid", gap: 2 }}>
-          {sortJobs(jobs.map((j) => ({ ...j, at: j.updatedAt })), jobSort).map((j) => (
+          {sortJobs((inflightOnly ? inFlightJobs(jobs) : jobs).map((j) => ({ ...j, at: j.updatedAt })), jobSort).map((j) => (
             <div key={j.id} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }}>
               <span className="fs-mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 #{j.id} {j.op} {j.src}{j.dst ? ` → ${j.dst}` : ""}

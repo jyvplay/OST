@@ -14,6 +14,7 @@ import { clampLine, offsetAtLine, docStats } from "@/lib/line-nav";
 import { transformLines } from "@/lib/line-ops";
 import { wrapStyle, readWrap, WRAP_KEY } from "@/lib/editor-wrap";
 import { nextMatch } from "@/lib/match-nav";
+import { indentSelection } from "@/lib/editor-indent";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
@@ -147,6 +148,8 @@ export default function EditorModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { desc: true })); setDirty(true); }} title="Sort all lines Z to A">Reverse sort</Btn>
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { dedupe: true })); setDirty(true); }} title="Remove duplicate lines">Dedupe lines</Btn>
         <Btn variant={wrapOn ? "primary" : "ghost"} aria-pressed={wrapOn} onClick={() => { const next = !wrapOn; setWrapOn(next); try { window.localStorage.setItem(WRAP_KEY, next ? "1" : "0"); } catch { /* preference only */ } }} title="Soft-wrap long lines"><UiGlyph name="wrap" size={13} /> Wrap</Btn>
+        <Btn variant="ghost" title="Indent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, 1); setText(r.text); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(r.selStart, r.selEnd); }); }} data-testid="editor-indent"><UiGlyph name="indent" size={13} /> Indent</Btn>
+        <Btn variant="ghost" title="Dedent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, -1); setText(r.text); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(r.selStart, r.selEnd); }); }} data-testid="editor-dedent"><span style={{ display: "inline-flex", transform: "scaleX(-1)" }}><UiGlyph name="indent" size={13} /></span> Dedent</Btn>
         {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
         <span style={{ flex: 1 }} />
         <input className="fs-input" style={{ width: fz(76) }} inputMode="numeric" placeholder="Line #" aria-label="Go to line" value={gotoLine}

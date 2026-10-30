@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section } from "../ui";
 import { filterMessages } from "@/lib/message-search";
+import { conversationText } from "@/lib/conversation-text";
 
 /**
  * MS-01/03/04. The messaging module ships the *connector seam* and an honest
@@ -87,6 +88,7 @@ export default function MessagesModule(_: ModuleProps) {
           }}>Send</Btn>
         </div>
         <input className="fs-input" placeholder="Search these messages" aria-label="Search loaded messages" value={msgQ} onChange={(e) => setMsgQ(e.target.value)} data-testid="messages-search" />
+        <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(conversationText(filterMessages(messages, msgQ))); shell.toast("Conversation copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="messages-copy">Copy conversation</Btn>
         <div className="fs-scroll" style={{ maxHeight: 150, fontSize: fz(11.5) }}>
           {filterMessages(messages, msgQ).map((m) => <div key={m.id}><span className="fs-dim">{new Date(m.ts).toLocaleTimeString()} </span>{m.from}: {m.text}</div>)}
         </div>

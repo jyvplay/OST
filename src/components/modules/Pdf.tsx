@@ -20,6 +20,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import { stepZoom, zoomLabel } from "@/lib/zoom-step";
 import { PdfDoc, PasswordRequired, type PdfPage } from "@/lib/pdf/pdfdoc";
+import { clampPage } from "@/lib/page-jump";
 import { boundedPageScale, renderPage, pageTransform, type DecodedImages } from "@/lib/pdf/pdfcanvas";
 import { apply, invert, type M } from "@/lib/pdf/pdfinterp";
 import { pageChars, layout, search, type TLine, type Hit } from "@/lib/pdf/pdftext";
@@ -409,7 +410,7 @@ export default function PdfModule({ win }: ModuleProps) {
       </div>
       <div data-testid="pdf-status" role="status" style={{ padding: "4px 10px", borderTop: "1px solid var(--fs-border)", fontSize: fz(12), display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         <span>{status}</span>{dirty ? <Badge tone="warn">unsaved</Badge> : null}
-        {doc ? <span className="fs-dim">page {cur + 1} / {pages.length}</span> : null}
+        {doc ? <span className="fs-dim">page {cur + 1} / {pages.length}</span> : null}{doc ? <input className="fs-input" style={{ width: fz(64) }} inputMode="numeric" placeholder="Go to" aria-label="Go to page number" data-testid="pdf-goto" onKeyDown={(e) => { if (e.key === "Enter") { const t = clampPage((e.target as HTMLInputElement).value, pages.length); if (t !== null) goTo(t); (e.target as HTMLInputElement).value = ""; } }} /> : null}
         {warn.length ? <span title={warn.join("\n")}><Badge tone="info">{warn.length} PDF note(s)</Badge></span> : null}
       </div>
     </div>

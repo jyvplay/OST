@@ -238,7 +238,9 @@ export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "clos
   /* TT117: an archive manifest (a checked list), an alarm bell, a repeating cycle and rising bars */
   | "manifest" | "alarm" | "repeat" | "stats"
   /* TT123: crossed shuffle arrows, and a wrapped line turning back on itself */
-  | "shuffle" | "wrap" | "caret-up" | "caret-down";
+  | "shuffle" | "wrap" | "caret-up" | "caret-down"
+  /* TT124: an indented block (lines stepping right), and two frames for before/after */
+  | "indent" | "compare";
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
     /* TT116 concept glyphs. Same construction rules: stroke-only, 24x24, currentColor,
@@ -271,6 +273,10 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     repeat: <><path d="M5.5 9.5A7 7 0 0 1 18 6.2M18.5 14.5A7 7 0 0 1 6 17.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M18.4 3.4v3.4h-3.4M5.6 20.6v-3.4h3.4" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // TT123 shuffle: two arrows crossing over each other, each landing opposite
     shuffle: <><path d="M4 7c4 0 6.5 10 11 10h5M4 17c3 0 5-4 7.5-6.8M18.5 9.2C16.8 7 15.2 7 13.5 7H9" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M17.2 4.2 20.2 7l-3 2.8M17.2 14.2l3 2.8-3 2.8" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT124 indent: three lines, the middle one stepped right under an arrow
+    indent: <><path d="M4 6h10M4 12h6M4 18h10" {...S} stroke="currentColor" strokeWidth="1.7" /><path d="M14 12h5M16.6 9.6 19 12l-2.4 2.4" {...S} stroke="currentColor" strokeWidth="1.7" /></>,
+    // TT124 compare: two overlapping frames — original behind, edit in front
+    compare: <><rect x="4" y="4" width="11" height="11" rx="1.5" {...S} stroke="currentColor" strokeWidth="1.6" /><rect x="9" y="9" width="11" height="11" rx="1.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // TT123 carets: a chevron stepping away from its baseline — match stepping
     "caret-up": <><path d="M6 14.5 12 8.5l6 6" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M6 18.5h12" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
     "caret-down": <><path d="M6 9.5 12 15.5l6-6" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M6 5.5h12" {...S} stroke="currentColor" strokeWidth="1.6" /></>,

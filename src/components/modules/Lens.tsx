@@ -7,6 +7,7 @@ import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section, Toggle } from "../ui";
 import { facingConstraint, facingLabel, type Facing } from "@/lib/camera-facing";
+import { resConstraint, RES_OPTIONS, type ResPick } from "@/lib/res-constraint";
 
 interface Fx {
   blur: number; brightness: number; contrast: number; saturate: number; relight: number;
@@ -59,6 +60,7 @@ export default function LensModule(_: ModuleProps) {
   const frameCost = useRef<number[]>([]);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [facing, setFacing] = useState<Facing>("auto");
+  const [resPick, setResPick] = useState<ResPick>("1280");
   const [fx, setFx] = useState<Fx>(DEFAULT_FX);
   const [fps, setFps] = useState(0);
   const winStart = useRef(0);
@@ -96,7 +98,7 @@ export default function LensModule(_: ModuleProps) {
     setErr("");
     try {
       const s = await userMedia("Lens", {
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 }, ...facingConstraint(facing) },
+        video: { frameRate: { ideal: 30 }, ...resConstraint(resPick), ...facingConstraint(facing) },
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
       setStream(s);
@@ -273,7 +275,7 @@ export default function LensModule(_: ModuleProps) {
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         {stream ? <Btn variant="danger" onClick={stop}>Stop camera</Btn> : <><label style={{ fontSize: fz(12) }}>Camera
-          <select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Camera facing" value={facing} onChange={(e) => setFacing(e.target.value as Facing)} data-testid="lens-facing">
+          <select className="fs-select" style={{ width: "auto" }} aria-label="Capture resolution" value={resPick} onChange={(e) => setResPick(e.target.value as ResPick)} data-testid="lens-res">{RES_OPTIONS.map((o) => <option key={o} value={o}>{o === "max" ? "Camera max" : `${o}px wide`}</option>)}</select><select className="fs-select" style={{ width: "auto", marginLeft: 6 }} aria-label="Camera facing" value={facing} onChange={(e) => setFacing(e.target.value as Facing)} data-testid="lens-facing">
             <option value="auto">{facingLabel("auto")}</option><option value="user">{facingLabel("user")}</option><option value="environment">{facingLabel("environment")}</option>
           </select>
         </label>

@@ -105,7 +105,7 @@ await test("AX-22: every app measured, none wordier than the ceiling, no emoji m
   // 169-control labelled graph (1,517), and Apps is the module catalogue whose
   // summaries are the content (883). All get recorded bounds, not silence;
   // every other app must fit the 700-word ceiling.
-  const exceptions: Record<string, number> = { spec: 12_200 /* TT122: register grew to 547 rows */, settings: 1_600, apps: 950 };
+  const exceptions: Record<string, number> = { spec: 13_000 /* TT124: register grew to 587 rows (+20/turn); the spec window IS the register text */, settings: 1_600, apps: 950 };
   for (const [id, r] of results) {
     const max = exceptions[id] ?? 700;
     assert.ok(r.words <= max, `${id}: ${r.words} visible words exceeds its bound ${max}`);

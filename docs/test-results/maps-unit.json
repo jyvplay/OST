@@ -1,6 +1,6 @@
 {
   "suite": "maps-unit",
-  "at": "2026-10-30T11:32:09.084Z",
+  "at": "2026-10-30T17:49:09.056Z",
   "results": [
     {
       "suite": "maps-unit",
@@ -27,7 +27,7 @@
         "MP-01": "full"
       },
       "pass": true,
-      "ms": 278
+      "ms": 118
     },
     {
       "suite": "maps-unit",
@@ -36,7 +36,7 @@
         "MP-02": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 11
     },
     {
       "suite": "maps-unit",
@@ -45,7 +45,7 @@
         "MP-04": "full"
       },
       "pass": true,
-      "ms": 3020
+      "ms": 1555
     },
     {
       "suite": "maps-unit",
@@ -54,7 +54,7 @@
         "MP-05": "full"
       },
       "pass": true,
-      "ms": 4985
+      "ms": 4736
     }
   ]
 }

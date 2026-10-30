@@ -1,4 +1,5 @@
 "use client";
+import { hexHead } from "@/lib/hex-head";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useMemo, useState } from "react";
@@ -149,7 +150,10 @@ export default function PeekModule({ win }: ModuleProps) {
               {node.content.slice(0, 20000)}
             </pre>
           ) : (
-            <div className="fs-dim" style={{ fontSize: fz(12) }}>Binary payload — no first-party renderer for {node.mime}.</div>
+            <div style={{ display: "grid", gap: 6 }}>
+              <div className="fs-dim" style={{ fontSize: fz(12) }}>Binary payload — no first-party renderer for {node.mime}; first bytes as hex below.</div>
+              <pre className="fs-mono" data-testid="peek-hex" style={{ margin: 0, fontSize: fz(11), whiteSpace: "pre", overflow: "auto" }}>{hexHead(fromB64(node.content))}</pre>
+            </div>
           )}
         </div>
       ) : null}

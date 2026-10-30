@@ -1,0 +1,215 @@
+{
+  "suite": "tt124-density",
+  "at": "2026-10-30T17:26:09.105Z",
+  "results": [
+    {
+      "suite": "tt124-density",
+      "name": "density editor: words<=210",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 1042
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density clock: words<=340",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 3138
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density pdf: words<=400",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 3400
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density peek: words<=260",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 8607
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density lens: words<=320",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 680
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density monitor: words<=520",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 3091
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density writer: words<=900",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 986
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density imageedit: words<=320",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 2498
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density media: words<=340",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 570
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density contacts: words<=240",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 2263
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density messages: words<=400",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 612
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density photos: words<=240",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 3788
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density vector: words<=340",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 569
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density capture: words<=320",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 2570
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density together: words<=340",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 627
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density routines: words<=300",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 2986
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density spec: words<=12400",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 723
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density beam: words<=320",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 2385
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density ssh: words<=320",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 588
+    },
+    {
+      "suite": "tt124-density",
+      "name": "density storage: words<=480",
+      "covers": {
+        "AX-24": "mechanism"
+      },
+      "pass": true,
+      "ms": 4851
+    },
+    {
+      "suite": "tt124-density",
+      "name": "TT124 register: all twenty codes built, register grew past TT123's 567",
+      "covers": {
+        "ED-08": "full",
+        "SSH-02": "full"
+      },
+      "pass": true,
+      "ms": 23
+    },
+    {
+      "suite": "tt124-density",
+      "name": "AX-26: indent and compare glyphs render on their buttons",
+      "covers": {
+        "AX-26": "full"
+      },
+      "pass": true,
+      "ms": 3755
+    },
+    {
+      "suite": "tt124-density",
+      "name": "screenshots: writer goal dialog + spec family progress",
+      "covers": {
+        "WR-01": "mechanism",
+        "SP-03": "mechanism"
+      },
+      "pass": true,
+      "ms": 4813
+    }
+  ]
+}

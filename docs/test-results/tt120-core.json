@@ -1,6 +1,6 @@
 {
   "suite": "tt120-core",
-  "at": "2026-10-30T11:33:34.619Z",
+  "at": "2026-10-30T17:18:59.913Z",
   "results": [
     {
       "suite": "tt120-core",
@@ -27,7 +27,7 @@
         "PL-05": "full"
       },
       "pass": true,
-      "ms": 11
+      "ms": 13
     },
     {
       "suite": "tt120-core",

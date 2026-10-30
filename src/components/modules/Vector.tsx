@@ -358,6 +358,7 @@ export default function VectorModule({ win }: ModuleProps) {
           <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>Open…<input type="file" aria-label="Open SVG or fsvg" accept="image/svg+xml,.svg,.fsvg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void f.text().then((t) => { try { openText(t, f.name); } catch (err) { setStatus(`Could not open ${f.name}: ${(err as Error).message}`); } }); e.target.value = ""; }} /></label>
           <Btn variant="primary" onClick={() => void saveNative()}>Save .fsvg</Btn>
           <Btn variant="ghost"  onClick={() => void exportSvgFile()}>Export SVG</Btn>
+          <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(exportSvg(doc)); setStatus("SVG markup copied."); } catch { setStatus("Clipboard unavailable."); } }} data-testid="vector-copy-svg">Copy SVG</Btn>
           <Btn variant="ghost"  onClick={() => void exportPng()}>Export PNG</Btn>
         </BannerGroup>
         <BannerGroup name="Tweak">

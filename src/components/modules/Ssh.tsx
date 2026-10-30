@@ -7,6 +7,7 @@ import { Vt, keyToBytes, mouseReport, A, DEFAULT, RGB, type Row } from "@/lib/vt
 import { createSession, SshConnection, pasteBytes, sftpUpload, type SshEvent } from "@/lib/ssh-client";
 import { Btn, Badge } from "../ui";
 import { clampTermFont, stepTermFont } from "@/lib/term-font";
+import { connLine } from "@/lib/conn-line";
 import type { ModuleProps } from "../shell-context";
 
 /**
@@ -346,6 +347,7 @@ export default function SshModule({ win }: ModuleProps) {
               <input className="fs-input" aria-label="Host" placeholder="host or address" value={host} onChange={(e) => setHost(e.target.value)} style={{ flex: 1, minWidth: 180 }} autoCapitalize="off" spellCheck={false} />
               <input className="fs-input" aria-label="Port" value={port} onChange={(e) => setPort(e.target.value.replace(/[^0-9]/g, ""))} style={{ width: 80 }} inputMode="numeric" />
               <Btn type="submit" variant="primary" disabled={!host.trim() || !user.trim()}>Connect</Btn>
+              <button type="button" className="fs-btn" data-variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(connLine({ user, host, port, state: (phase as string) === "session" ? (ready ? "connected" : status || "connecting") : "not connected" })); setStatus("Connection line copied."); } catch { setStatus("Clipboard unavailable."); } }} data-testid="ssh-copy-line" aria-label="Copy connection line">⧉</button>
             </div>
             <div className="fs-row" style={{ gap: 14, flexWrap: "wrap", alignItems: "center" }} role="radiogroup" aria-label="Authentication">
               {([["vfs", "Key file in Fusion"], ["paste", "Paste a key"], ["none", "Password only"]] as const).map(([id, label]) => (
