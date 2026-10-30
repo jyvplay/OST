@@ -152,6 +152,7 @@ function TerminalView({ conn, vt, onTitle, focusKey }: { conn: SshConnection; vt
       </div>
       <span style={{ position: "absolute", right: 10, bottom: 6, display: "flex", gap: 4, zIndex: 2 }}>
         <button type="button" className="fs-btn" data-variant="ghost" aria-label="Decrease terminal font size" onClick={() => setFont((f) => stepTermFont(f, -1))} data-testid="ssh-font-down">A−</button>
+          {["uptime", "df -h /", "free -m"].map((sn) => <button key={sn} type="button" className="fs-btn" data-variant="ghost" title={`Send "${sn}" to the session`} onClick={() => conn.send(sn + "\r")} data-testid={`ssh-snippet-${sn.split(" ")[0]}`}>{sn}</button>)}
         <button type="button" className="fs-btn" data-variant="ghost" aria-label="Increase terminal font size" onClick={() => setFont((f) => stepTermFont(f, 1))} data-testid="ssh-font-up">A+</button>
       </span>
       {scroll > 0 && <div style={{ position: "absolute", right: 10, top: 6, fontSize: fz(11), background: "#ffd48a", color: "#1b1e28", padding: "1px 8px", borderRadius: 8 }}>scrollback −{scroll}</div>}

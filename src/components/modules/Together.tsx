@@ -1,4 +1,5 @@
 "use client";
+import { participantsText } from "@/lib/participants-text";
 import { newRoomCode } from "@/lib/room-code";
 import { fz } from "@/lib/uiscale";
 
@@ -95,6 +96,7 @@ export default function TogetherModule({ win }: ModuleProps) {
         <input className="fs-input" style={{ width: fz(120) }} value={code} aria-label="Room code"
           onChange={(e) => setCode(e.target.value.toUpperCase())} />
         <Btn variant="ghost" onClick={() => setCode(newRoomCode(Math.random))} data-testid="together-newcode" title="Start a fresh room code">New code</Btn>
+        <Btn variant="ghost" onClick={() => void shell.copy(participantsText(Array.from(new Set(events.map((e) => e.clientId))).map((id) => ({ name: id, host: id === room?.leaderClient }))), "together")} data-testid="together-copy-roster">Copy roster</Btn>
         <input className="fs-input" placeholder="Media URL or VFS path" value={mediaRef} aria-label="Media reference"
           onChange={(e) => setMediaRef(e.target.value)} />
         {joined

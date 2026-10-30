@@ -15,6 +15,8 @@ import { transformLines } from "@/lib/line-ops";
 import { wrapStyle, readWrap, WRAP_KEY } from "@/lib/editor-wrap";
 import { nextMatch } from "@/lib/match-nav";
 import { indentSelection } from "@/lib/editor-indent";
+import { caseTransform } from "@/lib/case-text";
+import { stampText } from "@/lib/stamp-text";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
@@ -150,6 +152,8 @@ export default function EditorModule({ win }: ModuleProps) {
         <Btn variant={wrapOn ? "primary" : "ghost"} aria-pressed={wrapOn} onClick={() => { const next = !wrapOn; setWrapOn(next); try { window.localStorage.setItem(WRAP_KEY, next ? "1" : "0"); } catch { /* preference only */ } }} title="Soft-wrap long lines"><UiGlyph name="wrap" size={13} /> Wrap</Btn>
         <Btn variant="ghost" title="Indent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, 1); setText(r.text); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(r.selStart, r.selEnd); }); }} data-testid="editor-indent"><UiGlyph name="indent" size={13} /> Indent</Btn>
         <Btn variant="ghost" title="Dedent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, -1); setText(r.text); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(r.selStart, r.selEnd); }); }} data-testid="editor-dedent"><span style={{ display: "inline-flex", transform: "scaleX(-1)" }}><UiGlyph name="indent" size={13} /></span> Dedent</Btn>
+        {(["upper", "lower", "title"] as const).map((m) => <Btn key={m} variant="ghost" title={`Selection to ${m === "upper" ? "UPPER CASE" : m === "lower" ? "lower case" : "Title Case"}`} onClick={() => { const ta = areaRef.current; if (!ta) return; const a = ta.selectionStart, b = ta.selectionEnd; if (a === b) return; setText(text.slice(0, a) + caseTransform(text.slice(a, b), m) + text.slice(b)); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(a, b); }); }} data-testid={`editor-case-${m}`}>{m === "upper" ? "AA" : m === "lower" ? "aa" : "Aa"}</Btn>)}
+        <Btn variant="ghost" title="Insert the current date and time at the cursor" onClick={() => { const ta = areaRef.current; if (!ta) return; const a = ta.selectionStart, b = ta.selectionEnd; const st = stampText(new Date()); setText(text.slice(0, a) + st + text.slice(b)); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(a + st.length, a + st.length); }); }} data-testid="editor-stamp">now</Btn>
         {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
         <span style={{ flex: 1 }} />
         <input className="fs-input" style={{ width: fz(76) }} inputMode="numeric" placeholder="Line #" aria-label="Go to line" value={gotoLine}

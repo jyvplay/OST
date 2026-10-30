@@ -1,4 +1,5 @@
 "use client";
+import { recallHitsText } from "@/lib/recall-text";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useShell, type ModuleProps } from '../shell-context';
 import { Btn, Badge, Section, Hint } from '../ui';
@@ -283,7 +284,8 @@ export default function Recall({win}:ModuleProps){
    </div>
    {sessions.length?null:<p className="fs-dim fs-row" style={{margin:0,gap:6}}><UiGlyph name="held" size={15}/>Open a page above.</p>}
    <ul data-testid="resident-list" style={{listStyle:'none',margin:0,padding:0,display:'grid',gap:6}}>
-    {resItems.map(it=><li key={`${it.sid}:${it.id}`} data-testid={`resident-item-${it.id}`} className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}>
+    {resItems.length ? <Btn variant="ghost" onClick={() => void shell.copy(recallHitsText(resItems.map((r) => ({ title: r.label, where: r.scheme }))), "recall")} data-testid="recall-copy-sources">Copy source list</Btn> : null}
+        {resItems.map(it=><li key={`${it.sid}:${it.id}`} data-testid={`resident-item-${it.id}`} className="fs-row" style={{gap:8,flexWrap:'wrap',alignItems:'center'}}>
      <span className="fs-mono" style={{flex:'1 1 200px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={it.label}>{it.label}</span>
      <Badge>{it.scheme}:</Badge>{it.mime?<Badge>{it.mime}</Badge>:null}
      {it.w&&it.h?<span className="fs-dim">{it.w}×{it.h}</span>:null}

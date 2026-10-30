@@ -1,6 +1,6 @@
 {
   "suite": "tables-engine",
-  "at": "2026-10-30T17:48:57.428Z",
+  "at": "2026-10-30T19:53:56.614Z",
   "results": [
     {
       "suite": "tables-engine",
@@ -9,7 +9,7 @@
         "TB-01": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 10
     },
     {
       "suite": "tables-engine",
@@ -37,7 +37,7 @@
         "TB-03": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tables-engine",
@@ -46,7 +46,7 @@
         "TB-03": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 5
     },
     {
       "suite": "tables-engine",
@@ -73,7 +73,7 @@
         "TB-01": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 7
     },
     {
       "suite": "tables-engine",
@@ -83,7 +83,7 @@
         "TB-04": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 13
     }
   ]
 }

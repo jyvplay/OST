@@ -7,6 +7,7 @@ import { capAvailable } from "@/lib/capabilities";
 import { toB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Empty, Section } from "../ui";
+import { reuseGroups, reuseReportText } from "@/lib/pwd-audit";
 import { strengthBits, strengthLabel, generatePassphrase } from "@/lib/passphrase";
 import { askText, askForm } from "@/lib/ask";
 
@@ -41,6 +42,7 @@ export default function VaultModule(_: ModuleProps) {
   const [pass, setPass] = useState("");
   const [key, setKey] = useState<CryptoKey | null>(null);
   const [items, setItems] = useState<Item[]>([]);
+  const [audit, setAudit] = useState("");
   const [err, setErr] = useState("");
   const [exists, setExists] = useState<boolean | null>(null);
   const [reveal, setReveal] = useState<string | null>(null);
@@ -134,6 +136,8 @@ export default function VaultModule(_: ModuleProps) {
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <div className="fs-row" style={{ gap: 6 }}>
         <Badge tone="ok">unlocked</Badge>
+          <Btn variant="ghost" onClick={async () => { const dig = await Promise.all(items.map(async (it) => { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(it.secret)); return { id: 0, label: it.title, digest: [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("") }; })); setAudit(reuseReportText(reuseGroups(dig))); }} data-testid="vault-audit-btn">Audit reuse</Btn>
+          {audit ? <span className="fs-dim" style={{ fontSize: fz(11), whiteSpace: "pre-wrap" }} data-testid="vault-audit">{audit}</span> : null}
         <Btn variant="ghost" onClick={() => { setKey(null); setItems([]); setReveal(null); }}>Lock</Btn>
         <Btn variant="primary" onClick={async () => {
           const f = await askForm({

@@ -4,6 +4,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useState } from "react";
 import { fmtBytes } from "@/lib/api";
 import { MODULES } from "@/lib/registry";
+import { getRecents } from "@/lib/recents";
 import { filterApps, appGroups } from "@/lib/app-filter";
 import { sortApps, type AppSort } from "@/lib/app-sort";
 import { getBackgroundInventory, subscribeBackgroundInventory, type BackgroundJobSnapshot } from "@/lib/background-inventory";
@@ -94,6 +95,7 @@ function displayMode(): string {
 }
 
 export default function AppsModule(_: ModuleProps) {
+  const [recents] = useState(() => getRecents());
   const shell = useShell();
   const [tab, setTab] = useState<HubTab>("apps");
   const [manifest, setManifest] = useState<AppManifest | null>(null);
@@ -178,6 +180,7 @@ export default function AppsModule(_: ModuleProps) {
   const handlerCount = (manifest?.file_handlers?.length ?? 0) + (manifest?.protocol_handlers?.length ?? 0) + (manifest?.share_target ? 1 : 0);
   return (
     <div className="fs-scroll" data-testid="app-hub" data-module-count={MODULES.length} style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
+      {recents.length ? <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }} data-testid="apps-recents"><span className="fs-dim" style={{ fontSize: fz(10.5) }}>this session:</span>{recents.map((id) => <Btn key={id} variant="ghost" onClick={() => shell.open(id)}>{id}</Btn>)}</div> : null}
       <Tabs<HubTab> className="fs-app-tabs" value={tab} onChange={setTab} tabs={[
         { id: "apps", label: "Apps & handlers", badge: ` ${MODULES.length}` },
         { id: "background", label: "Background & startup" },

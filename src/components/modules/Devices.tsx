@@ -8,6 +8,7 @@ import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section, Tabs } from "../ui";
 import { batteryLabel, type BatteryLike } from "@/lib/battery-status";
+import { estimateText } from "@/lib/storage-estimate";
 import { deviceInfoText } from "@/lib/device-info";
 
 type Tab = "recorder" | "scan" | "color" | "audio" | "serial" | "peripherals" | "gamepad";
@@ -16,6 +17,8 @@ type Tab = "recorder" | "scan" | "color" | "audio" | "serial" | "peripherals" | 
 type AnyNav = Navigator & Record<string, any>;
 
 export default function DevicesModule(_: ModuleProps) {
+  const [estText, setEstText] = useState("reading the browser storage estimate…");
+  useEffect(() => { let live = true; const st = (navigator as Navigator & { storage?: { estimate?: () => Promise<{ usage?: number; quota?: number }> } }).storage; if (!st?.estimate) { setEstText(estimateText(null, null)); return; } void st.estimate().then((e) => { if (live) setEstText(estimateText(e.usage ?? null, e.quota ?? null)); }).catch(() => { if (live) setEstText(estimateText(null, null)); }); return () => { live = false; }; }, []);
   const shell = useShell();
   const [tab, setTab] = useState<Tab>("recorder");
   return (
@@ -25,6 +28,9 @@ export default function DevicesModule(_: ModuleProps) {
         { id: "audio", label: "Audio devices" }, { id: "serial", label: "Serial" },
         { id: "peripherals", label: "HID/USB/BT" }, { id: "gamepad", label: "Gamepad" },
       ]} />
+      <Section title="Storage">
+        <div className="fs-dim" style={{ fontSize: fz(11.5) }} data-testid="devices-storage">{estText}</div>
+      </Section>
       <Section title="Battery" icon="battery">
         <BatteryCard />
         <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(deviceInfoText({ ua: navigator.userAgent, platform: (navigator as any).userAgentData?.platform ?? navigator.platform ?? "", cores: navigator.hardwareConcurrency, memory: (navigator as any).deviceMemory, touch: navigator.maxTouchPoints > 0, online: navigator.onLine })); shell.toast("Device info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="devices-copy-info">Copy device info</Btn>

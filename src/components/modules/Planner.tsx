@@ -1,4 +1,5 @@
 "use client";
+import { doneTasksText } from "@/lib/done-list";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useMemo, useState } from "react";
@@ -89,6 +90,7 @@ export default function PlannerModule(_: ModuleProps) {
       {view === "agenda" ? (
         <div className="fs-row" style={{ gap: 6 }}>
           <Btn variant="ghost" onClick={() => void shell.copy(agendaText(rows.map((t) => ({ title: t.title, due: t.dueAt, done: t.done })), new Date()), "planner")} data-testid="planner-copy-agenda">Copy today's agenda</Btn>
+          <Btn variant="ghost" onClick={() => void shell.copy(doneTasksText(rows), "planner")} data-testid="planner-copy-done">Copy done</Btn>
           {(() => { const cs = completionStats(rows, new Date()); return <Badge tone="ok" data-testid="planner-completion">done today {cs.today} · this week {cs.week}{cs.undated ? ` · ${cs.undated} undated` : ""}</Badge>; })()}
           <span className="fs-dim" style={{ fontSize: fz(11) }}>plain text, ready to paste anywhere</span>
         </div>

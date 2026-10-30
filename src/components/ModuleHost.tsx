@@ -1,4 +1,6 @@
 "use client";
+import { useEffect } from "react";
+import { pushRecentStore } from "@/lib/recents";
 import { fz } from "@/lib/uiscale";
 
 import type { WindowState } from "@/lib/windowing/state";
@@ -53,6 +55,7 @@ import VectorModule from "./modules/Vector";
 /** The registry's id → component map. Adding a module means adding it here and
  *  in src/lib/registry.ts; nothing else in the shell needs to change. */
 export default function ModuleHost({ win }: { win: WindowState }) {
+  useEffect(() => { pushRecentStore(win.module); }, [win.module]);
   switch (win.module) {
     case "recall": return <RecallModule win={win} />;
     case "files": return <FilesModule win={win} />;

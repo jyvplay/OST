@@ -1,0 +1,160 @@
+{
+  "suite": "tt125-core",
+  "at": "2026-10-30T19:54:00.657Z",
+  "results": [
+    {
+      "suite": "tt125-core",
+      "name": "ED-10 stampText: zero-padded local date and time, minute precision",
+      "covers": {
+        "ED-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "ED-09 caseTransform: upper/lower exact; title caps run-starts only",
+      "covers": {
+        "ED-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "PD-03 pdfPageText: lines by y, spans by x, blanks dropped",
+      "covers": {
+        "PD-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "WR-02 reading time: 238 wpm, rounds up, empty says so",
+      "covers": {
+        "WR-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "BM-03 filterSessions: matches transport, target or state; empty query keeps all",
+      "covers": {
+        "BM-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "DV-03 estimateText: both, one, or neither number shared",
+      "covers": {
+        "DV-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "BK-13 bookPositionText: fraction and chapter stated, absences honest",
+      "covers": {
+        "BK-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "VA-03 reuseGroups: only digests compared, labels sorted, report honest",
+      "covers": {
+        "VA-03": "full"
+      },
+      "pass": true,
+      "ms": 21
+    },
+    {
+      "suite": "tt125-core",
+      "name": "PL-10 doneTasksText: done only, list order, empty stated",
+      "covers": {
+        "PL-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "TM-08 alias: parse validates, expansion is first-token one-pass",
+      "covers": {
+        "TM-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "RC-43 recallHitsText: newest first, timestamped",
+      "covers": {
+        "RC-43": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "PK-04 asciiRuns: min length honoured, runs split on any non-printable",
+      "covers": {
+        "PK-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "LN-19/LN-20 zoomOptions from capabilities; torch is a capability, never assumed",
+      "covers": {
+        "LN-19": "full",
+        "LN-20": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "AP-08 pushRecent: newest first, deduped, capped",
+      "covers": {
+        "AP-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "CB-03 mergeClipTexts: shown order, blank clips dropped, separator explicit",
+      "covers": {
+        "CB-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "TG-03 participantsText: hosts first, then alphabetical, empty stated",
+      "covers": {
+        "TG-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt125-core",
+      "name": "ST-16 shortcutsText: keys then purpose, one per line",
+      "covers": {
+        "ST-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -22,6 +22,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
 import { openEpub, chapterText, spineIndexOf, spreadGroups, progression, CORE_IMAGE, type EpubBook, type NavPoint, type ManifestItem } from "@/lib/epub/epub-core";
 import { bookProgress, chapterLabel as chapterProgressLabel } from "@/lib/book-progress";
+import { bookPositionText } from "@/lib/position-text";
 import { prepareChapter, fxlViewport } from "@/lib/epub/epub-content";
 
 type Theme = "light" | "sepia" | "dark";
@@ -302,7 +303,7 @@ export default function BooksModule({ win }: ModuleProps) {
         {book ? <>
           <Btn variant={panel === "toc" ? "primary" : "ghost"} data-testid="books-toc" onClick={() => setPanel(panel === "toc" ? null : "toc")}>Contents</Btn>
           <Btn variant={panel === "search" ? "primary" : "ghost"} data-testid="books-search" onClick={() => setPanel(panel === "search" ? null : "search")}>Search</Btn>
-          {book ? <Badge tone="info" data-testid="books-progress">{chapterProgressLabel(idx, book.spine.length)} · {bookProgress(idx, book.spine.length, pages > 1 ? page / (pages - 1) : 0)}% read</Badge> : null}
+          {book ? <><Badge tone="info" data-testid="books-progress">{chapterProgressLabel(idx, book.spine.length)} · {bookProgress(idx, book.spine.length, pages > 1 ? page / (pages - 1) : 0)}% read</Badge> <Btn variant="ghost" onClick={() => void shell.copy(bookPositionText(book.title, (bookProgress(idx, book.spine.length, pages > 1 ? page / (pages - 1) : 0)) / 100, chapterProgressLabel(idx, book.spine.length)), "books")} data-testid="books-copy-position">Copy position</Btn></> : null}
           <Btn variant={panel === "info" ? "primary" : "ghost"} data-testid="books-info" onClick={() => setPanel(panel === "info" ? null : "info")}>About</Btn>
           <span style={{ width: 1, height: 22, background: "var(--line)" }} />
           <Btn variant="ghost" data-testid="books-font-down" title="Smaller text" onClick={() => setPrefs({ ...prefs, font: Math.max(60, prefs.font - 10) })}>A−</Btn>

@@ -25,6 +25,7 @@ import { markdownToDocx } from "@/lib/office/md2docx";
 import { askExport, downloadAs } from "@/lib/office/export-ask";
 import * as WS from "@/lib/office/wordspell";
 import { goalStatus } from "@/lib/word-goal";
+import { readingTimeText } from "@/lib/read-time";
 import type { Speller } from "@/lib/spell/hunspell";
 import { addUserWord, loadSpeller, paintSpell, readSkipUpper, readSpellMode, readUserWords, removeUserWord, SPELL_CSS, writeSkipUpper, writeSpellMode, type SpellMode } from "@/lib/spell/client";
 import SpellPanel from "./writer/SpellPanel";
@@ -1022,7 +1023,7 @@ export default function WriterModule({ win }: ModuleProps) {
             <dl style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "7px 16px", margin: 0 }}>
               {goalStart !== null ? <span className="fs-row" style={{ gap: 6 }} data-testid="writer-goal"><Badge tone={goalStatus(goalStart, counts.words, goalTarget).done ? "ok" : "info"}>{goalStatus(goalStart, counts.words, goalTarget).written}/{goalTarget} words this session{goalStatus(goalStart, counts.words, goalTarget).done ? " · done" : ""}</Badge><Btn variant="ghost" style={{ color: "var(--fs-ink, #17212b)" }} onClick={() => setGoalStart(null)}>End goal</Btn></span> : <Btn variant="ghost" style={{ color: "var(--fs-ink, #17212b)" }} onClick={() => setGoalStart(counts.words)} data-testid="writer-goal-start">Set session goal</Btn>}
               <label style={{ fontSize: fz(11) }}>target <input className="fs-input" style={{ width: fz(56) }} type="number" min={1} value={goalTarget} aria-label="Session word goal target" onChange={(e) => setGoalTarget(Math.max(1, Number(e.target.value) || 1))} /></label>
-              {countRow("Pages", pages, "writer-count-pages")}{countRow("Words", wordCountTotal.words, "writer-count-words")}{countRow("Characters (with spaces)", wordCountTotal.characters, "writer-count-chars")}{countRow("Characters (without spaces)", wordCountTotal.charactersNoSpaces, "writer-count-chars-no-spaces")}{countRow("Paragraphs", wordCountTotal.paragraphs, "writer-count-paragraphs")}{countRow("Lines", wordCountTotal.lines, "writer-count-lines")}
+              {countRow("Pages", pages, "writer-count-pages")}{countRow("Words", wordCountTotal.words, "writer-count-words")}{countRow("Characters (with spaces)", wordCountTotal.characters, "writer-count-chars")}{countRow("Characters (without spaces)", wordCountTotal.charactersNoSpaces, "writer-count-chars-no-spaces")}{countRow("Paragraphs", wordCountTotal.paragraphs, "writer-count-paragraphs")}{countRow("Lines", wordCountTotal.lines, "writer-count-lines")}{countRow("Reading time", readingTimeText(wordCountTotal.words), "writer-read-time")}
               {(wordCountNotes.words > 0 || wordCountNotes.characters > 0) && countRow("Footnotes & endnotes (words)", wordCountNotes.words, "writer-count-notes-words")}
             </dl>
             {wordCountSelection.trim() && <><h3 style={{ fontSize: fz(14), margin: "16px 0 8px" }}>Selection</h3><dl style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "7px 16px", margin: 0 }}>{countRow("Words", wordCountSelected.words, "writer-selection-words")}{countRow("Characters (with spaces)", wordCountSelected.characters, "writer-selection-chars")}{countRow("Characters (without spaces)", wordCountSelected.charactersNoSpaces, "writer-selection-chars-no-spaces")}</dl></>}

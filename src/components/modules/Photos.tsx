@@ -416,8 +416,20 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, on
 
   const meta = state?.meta;
   const rows = useMemo(() => meta ? describeRows(meta) : [], [meta]);
-  if (!state) return <div style={{ padding: 16 }} className="fs-dim">Opening {item.name}…</div>;
-  if (state.error) return <div style={{ padding: 16, display: "grid", gap: 8 }}><Badge tone="bad">{state.error}</Badge><Btn onClick={onClose}>Back to library</Btn></div>;
+  // Position nav survives loading and decode-error states: walking the library
+  // must never strand the user on a tile the canvas cannot rasterise (SVG, PSD).
+  const headerNav = (
+    <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
+      <Btn variant="ghost" onClick={onClose} aria-label="Back to library">‹ Library</Btn>
+      {nav ? <span className="fs-row" style={{ gap: 4 }}>
+        <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
+        <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }}>{nav.label}</span>
+        <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
+      </span> : null}
+    </div>
+  );
+  if (!state) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16 }} className="fs-dim">Opening {item.name}…</div></div>;
+  if (state.error) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16, display: "grid", gap: 8 }}><Badge tone="bad">{state.error}</Badge></div></div>;
   const r = recipe;
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, position: "relative" }} data-testid="photos-editor">

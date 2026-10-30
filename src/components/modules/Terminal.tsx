@@ -1,6 +1,7 @@
 "use client";
 import { suggest } from "@/lib/suggest";
 import { pushCommand, historyText } from "@/lib/cmd-history";
+import { parseAlias, expandAlias } from "@/lib/alias-map";
 import { wc, formatWc } from "@/lib/wc-core";
 import { headLines, tailLines, parseCountArg } from "@/lib/text-slice";
 import { sortText, uniqText } from "@/lib/text-sort";
@@ -59,16 +60,21 @@ export default function TerminalModule({ win }: ModuleProps) {
   }, [cwd]);
 
   const histRef = useRef<string[]>([]);
+  const aliasRef = useRef<Record<string, string>>({});
   const exec = useCallback(async (raw: string) => {
     histRef.current = pushCommand(histRef.current, raw);
     const line = raw.trim();
     if (!line) return;
-    out(`${cwd} $ ${line}`, "cmd");
-    const [cmd, ...args] = line.split(/\s+/);
+    const al = parseAlias(line);
+    if (al) { aliasRef.current = { ...aliasRef.current, [al.name]: al.cmd }; out(`alias ${al.name} -> ${al.cmd}`); return; }
+    const line2 = expandAlias(line, aliasRef.current);
+    out(`${cwd} $ ${line2}`, "cmd");
+    const [cmd, ...args] = line2.split(/\s+/);
     const rest = line.slice(cmd.length).trim();
     try {
       switch (cmd) {
       case "history": historyText(histRef.current).split("\n").forEach((ln) => out(ln)); break;
+        case "alias": { const e = Object.entries(aliasRef.current); if (!e.length) out("no aliases"); else e.forEach(([k, v]) => out(`${k} -> ${v}`)); break; }
         case "help":
           out([
             "ls [path]              list a directory",

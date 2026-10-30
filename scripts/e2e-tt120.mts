@@ -64,17 +64,26 @@ await test("PH-04: next/previous walk the shown photos and stop at the end", { "
   await api("POST", "/api/fs", { op: "write", path: "/Pictures/tt120-a.png", content: PNG_A, encoding: "base64", mime: "image/png", reason: "e2e-tt120" });
   await api("POST", "/api/fs", { op: "write", path: "/Pictures/tt120-b.png", content: PNG_B, encoding: "base64", mime: "image/png", reason: "e2e-tt120" });
   const photos = await openModule("photos");
-  const first = photos.page.locator('[data-photo]').first();
-  await first.waitFor({ timeout: 15_000 });
-  await first.click();
+  const tile = photos.page.locator('[data-photo="tt120-a.png"]');
+  await tile.waitFor({ timeout: 15_000 });
+  await tile.click();
   await photos.page.getByRole("button", { name: "Next photo" }).waitFor();
-  const label1 = await photos.page.locator('[data-testid="photos-editor"]').innerText();
-  assert.match(label1, /1 of \d+/, "position is stated");
+  const editor = photos.page.locator('[data-testid="photos-editor"]');
+  const pos = async (): Promise<[number, number]> => {
+    const m = (await editor.innerText()).match(/(\d+) of (\d+)/);
+    assert.ok(m, "position is stated");
+    return [Number(m![1]), Number(m![2])];
+  };
   const next = photos.page.getByRole("button", { name: "Next photo" });
-  if (await next.isEnabled()) {
-    await next.click();
-    await photos.page.waitForFunction(() => document.querySelector('[data-testid="photos-editor"]')?.textContent?.includes("2 of"), null, { timeout: 10_000 });
-  }
+  const prev = photos.page.getByRole("button", { name: "Previous photo" });
+  const goto = async (want: number) => photos.page.waitForFunction((w: number) => (document.querySelector('[data-testid="photos-editor"]')?.textContent ?? "").includes(`${w} of`), want, { timeout: 25_000 });
+  let [cur, total] = await pos();
+  if (cur > 1) { assert.ok(await prev.isEnabled()); await prev.click(); await goto(cur - 1); cur--; if (cur < total) { await next.click(); await goto(cur + 1); cur++; } }
+  else if (await next.isEnabled()) { await next.click(); await goto(cur + 1); cur++; await prev.click(); await goto(cur - 1); cur--; }
+  while (cur < total && (await next.isEnabled())) { await next.click(); await goto(cur + 1); cur++; }
+  assert.equal(cur, total, "walk reaches the last shown photo");
+  assert.equal(await next.isEnabled(), false, "next stops at the end");
+  assert.ok(await prev.isEnabled(), "previous still works at the end");
   await photos.context.close();
 });
 

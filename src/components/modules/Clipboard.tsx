@@ -5,6 +5,7 @@ import { fz } from "@/lib/uiscale";
 import { useState } from "react";
 import { capAvailable } from "@/lib/capabilities";
 import { clearUnpinned, filterClips, ordered, removeClip, togglePin, CLIP_MAX } from "@/lib/cliphistory";
+import { mergeClipTexts } from "@/lib/merge-clips";
 import { filterByKind, type ClipKind } from "@/lib/clip-kind";
 import { exportClips, parseClipImport } from "@/lib/clip-io";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -34,6 +35,7 @@ export default function ClipboardModule(_: ModuleProps) {
         }}>Capture system clipboard now</Btn>
         <Badge>{shell.clips.length} entries · memory only</Badge>
         <Btn variant="ghost" disabled={!shell.clips.some((c) => !c.pinned)} onClick={() => shell.editClips(clearUnpinned)}>Clear<span className="sr-only"> unpinned entries</span></Btn>
+        <Btn variant="ghost" disabled={shown.filter((c) => !c.sensitive).length < 2} title="Fold the clips on screen into one new clip" onClick={() => void shell.copy(mergeClipTexts(shown.filter((c) => !c.sensitive).map((c) => c.text)), "clipboard history (merged)")} data-testid="clip-merge">Merge shown</Btn>
         <Btn variant="ghost" disabled={!shell.clips.length} onClick={() => {
           const url = URL.createObjectURL(new Blob([exportClips(shell.clips)], { type: "application/json" }));
           const a = document.createElement("a"); a.href = url; a.download = "clipboard-history.json"; a.click();
