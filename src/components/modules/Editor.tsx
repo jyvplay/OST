@@ -9,6 +9,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { diffLines, diffStats } from "@/lib/diff-core";
 import { findMatches, replaceAll, replaceOne } from "@/lib/editor-find";
+import { clampLine, offsetAtLine, docStats } from "@/lib/line-nav";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 
@@ -35,6 +36,8 @@ export default function EditorModule({ win }: ModuleProps) {
   const [replQ, setReplQ] = useState("");
   const [caseSens, setCaseSens] = useState(false);
   const [findMsg, setFindMsg] = useState("");
+  const [gotoLine, setGotoLine] = useState("");
+  const areaRef = useRef<HTMLTextAreaElement | null>(null);
   const fmt = formatFor(path);
 
   useEffect(() => {
@@ -134,9 +137,14 @@ export default function EditorModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => { try { const r = replaceOne(text, findQ, replQ, 1, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced the first of ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace</Btn>
         <Btn variant="primary" onClick={() => { try { const r = replaceAll(text, findQ, replQ, caseSens); if (r.count) { setText(r.text); setDirty(true); } setFindMsg(r.count ? `replaced ${r.count}` : "no matches"); } catch (e) { setFindMsg(String((e as Error).message)); } }}>Replace all</Btn>
         {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
+        <span style={{ flex: 1 }} />
+        <input className="fs-input" style={{ width: fz(76) }} inputMode="numeric" placeholder="Line #" aria-label="Go to line" value={gotoLine}
+          onChange={(e) => setGotoLine(e.target.value)}
+          onKeyDown={(e) => { if (e.key !== "Enter") return; e.preventDefault(); const n = clampLine(Number(gotoLine), text); const off = offsetAtLine(text, n); const el = areaRef.current; if (el) { el.focus(); el.setSelectionRange(off, off); const lh = 18; el.scrollTop = Math.max(0, (n - 3) * lh); } setFindMsg(`line ${n} of ${docStats(text).lines}`); }} />
+        {(() => { const st = docStats(text); return <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }} data-testid="editor-stats">{st.lines} lines · {st.words} words · {st.chars} chars · ~{st.readingMinutes} min read</span>; })()}
       </div>
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: preview ? "1fr 1fr" : "1fr" }}>
-        <textarea className="fs-textarea" value={text} spellCheck={false}
+        <textarea ref={areaRef} className="fs-textarea" value={text} spellCheck={false}
           onChange={(e) => { setText(e.target.value); setDirty(true); }}
           style={{ border: 0, borderRadius: 0, height: "100%", resize: "none", padding: 10 }}
           aria-label={`Editing ${path}`} />

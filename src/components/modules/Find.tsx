@@ -11,6 +11,7 @@ import { Badge, Btn, Empty, Section } from "../ui";
 import { compileFind, findInText } from "@/lib/find-core";
 import { loadSavedSearches, storeSavedSearches, type SavedSearch } from "@/lib/saved-searches";
 import { loadRecents, storeRecents, pushRecent, type RecentSearch } from "@/lib/recent-searches";
+import { sourceSummary } from "@/lib/result-groups";
 import { askText } from "@/lib/ask";
 
 interface Hit { source: string; ref: string; title: string; snippet: string; how: string; rank: number; matchedFields?: {field:string;value:string}[] }
@@ -126,6 +127,7 @@ export default function FindModule(_: ModuleProps) {
       {took !== null ? (
         <div className="fs-row" style={{ gap: 6 }}>
           <Badge tone="ok">{hits.length} hits</Badge><Badge tone="info">{took} ms</Badge><Badge>no cloud service</Badge>
+          {hits.length ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} data-testid="find-source-summary">{sourceSummary(hits)}</span> : null}
           {privInfo ? <span data-testid="private-search-info" style={{ display: "contents" }}>
             {privInfo.locked ? <Badge tone="warn">Persistent Storage locked</Badge> : privInfo.indexed !== null ? <Badge tone="ok">/Private: {privInfo.indexed} files indexed in this tab</Badge> : null}
             <Badge tone={privInfo.hostQueried ? "warn" : "ok"}>{privInfo.hostQueried ? "host saw the query text" : "query never left this tab"}</Badge>

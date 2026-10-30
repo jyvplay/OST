@@ -1,23 +1,94 @@
 {
- "generatedAt": "2026-10-30T03:48:40.758Z",
+ "generatedAt": "2026-10-30T04:53:35.745Z",
  "totals": {
   "built": {
-   "full": 388,
+   "full": 399,
    "partial": 82,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 340,
+   "full": 351,
    "partial": 119,
    "untested": 35
   },
   "tests": {
-   "total": 2866,
-   "passed": 2856
+   "total": 2881,
+   "passed": 2871
   }
  },
  "rows": {
+  "ED-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
+    "tt120-core: ED-04 line nav + stats: clamped, wc-consistent"
+   ]
+  },
+  "NT-04": {
+   "tested": "full",
+   "tests": [
+    "tt120-core: NT-04 note export: filename cannot escape, front-matter stands alone"
+   ]
+  },
+  "PL-05": {
+   "tested": "full",
+   "tests": [
+    "tt120-core: PL-05 due presets: local end-of-day, +1/+7 days"
+   ]
+  },
+  "WD-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: WD-04: world clock rows carry a business-hours verdict",
+    "tt120-core: WD-04 zone status: weekday 09-17 open, weekend closed"
+   ]
+  },
+  "TM-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
+    "tt120-core: TM-04 head/tail: whole file when short, -n parsing"
+   ]
+  },
+  "BK-08": {
+   "tested": "full",
+   "tests": [
+    "tt120-core: BK-08 freshness: never/fresh/stale against the stated threshold"
+   ]
+  },
+  "SR-10": {
+   "tested": "full",
+   "tests": [
+    "tt120-core: SR-10 result groups: first-seen order, counts"
+   ]
+  },
+  "PH-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: PH-04: next/previous walk the shown photos and stop at the end",
+    "tt120-core: PH-04 photo neighbours: no silent wrap at the boundary"
+   ]
+  },
+  "MU-03": {
+   "tested": "full",
+   "tests": [
+    "tt120-core: MU-03 provider facet: counts, all explicit, unknown matches nothing"
+   ]
+  },
+  "CN-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt120: CN-06: starring a contact persists and filters",
+    "tt120-core: CN-06 stars: validated set, toggle round-trips"
+   ]
+  },
+  "AX-22": {
+   "tested": "full",
+   "tests": [
+    "tt120-density: AX-22: every app measured, none wordier than the ceiling, no emoji marks"
+   ]
+  },
   "ED-03": {
    "tested": "full",
    "tests": [

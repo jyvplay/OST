@@ -301,7 +301,7 @@ export default function PdfModule({ win }: ModuleProps) {
         </BannerGroup>
         <BannerGroup name="Ink">
           {TOOLS.map(([id, label, tip]) => <Btn key={id} data-testid={`pdf-tool-${id}`} variant={tool === id ? "primary" : "ghost"} onClick={() => setTool(id)} title={tip} disabled={!doc}>{label}</Btn>)}
-          {COLORS.map(([n, c]) => <button key={n} type="button" aria-label={`${n} colour`} aria-pressed={color === c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 12, background: css3(c), border: color === c ? "3px solid var(--fs-accent)" : "1px solid var(--fs-border)", cursor: "pointer" }} />)}
+          {COLORS.map(([n, c]) => <button key={n} type="button" aria-label={`${n} colour`} aria-pressed={color === c} onClick={() => setColor(c)} style={{ width: 24, height: 24, borderRadius: 12, background: css3(c), border: color === c ? "3px solid var(--fs-accent)" : "1.5px solid rgba(255,255,255,.55)", cursor: "pointer" }} />)}
         </BannerGroup>
         <BannerGroup name="Glance">
           <Btn onClick={() => setZoom((z) => Math.max(0.25, +((z === "fit" ? scaleFor(pages[cur] ?? pages[0]) : z) / 1.2).toFixed(2)))} disabled={!doc} title="Zoom out" aria-label="Zoom out">−</Btn>

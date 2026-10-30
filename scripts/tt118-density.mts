@@ -81,7 +81,8 @@ await test("AX-20: every app measured, none wordier than the ceiling, no emoji m
     assert.equal(results.get(id)!.emoji, false, `${id}: a control label is an emoji, not a drawing`);
   }
   // Tighter bounds, measured this turn on this build (see DESIGN-TT118 table).
-  const bounds: Record<string, number> = { browser: 40, clock: 130, planner: 120, calculator: 120, notes: 50, find: 140, photos: 40, backup: 400, editor: 30, terminal: 20 };
+  // clock bound 130 in TT118; raised to 145 in TT120 for the WD-04 per-zone status badges (tt120-density asserts the same 145).
+  const bounds: Record<string, number> = { browser: 40, clock: 145, planner: 120, calculator: 120, notes: 50, find: 140, photos: 40, backup: 400, editor: 30, terminal: 20 };
   for (const [id, max] of Object.entries(bounds)) {
     const r = results.get(id);
     assert.ok(r, `${id} did not render`);

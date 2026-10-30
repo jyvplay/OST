@@ -26,6 +26,7 @@ const PENCIL = "M3 13l1-3.5L11 2.5l2.5 2.5L6.5 12z", UP = "M8 13V3M3.5 7.5L8 3l4
 
 export const LIBRARY_PATH = "/Documents/Streams.json";
 import { loadPlays, storePlays, pushPlay, type RecentPlay } from "@/lib/recent-plays";
+import { providersOf, filterByProvider } from "@/lib/provider-filter";
 const STATUS_LABEL: Record<E.Status, string> = { loading: "Loading", ready: "Ready", cued: "Ready", playing: "Playing", paused: "Paused", buffering: "Buffering", ended: "Ended" };
 /** TT33: a one-way player (TIDAL) reports starts only — say exactly what is known */
 const statusText = (c: E.CtlState) => c.oneWay
@@ -150,7 +151,8 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
     setError(""); change(r.lib); shell.toast(`Saved to ${kind === "video" ? "Video" : "Music"} library`, "ok");
   };
 
-  const items = useMemo(() => (lib ? S.filterLibrary(lib, kind, q) : []), [lib, kind, q]);
+  const [providerFacet, setProviderFacet] = useState("all");
+  const items = useMemo(() => (lib ? filterByProvider(S.filterLibrary(lib, kind, q), providerFacet) : []), [lib, kind, q, providerFacet]);
   const next = () => {
     const cur = current?.itemId ?? null;
     let n: S.LibraryItem | null;
@@ -413,6 +415,12 @@ export function StreamApp({ win, kind }: ModuleProps & { kind: S.StreamKind }) {
             <span style={{ flex: 1 }} />
           </div>
           <input className="fs-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter" aria-label="Filter the library" data-testid={`${pfx}-filter`} />
+          {lib && providersOf(lib.items.filter((i) => i.kind === kind)).length > 1 ? (
+            <select className="fs-select" aria-label="Filter by provider" data-testid={`${pfx}-provider`} value={providerFacet} onChange={(e) => setProviderFacet(e.target.value)}>
+              <option value="all">All providers</option>
+              {providersOf(lib.items.filter((i) => i.kind === kind)).map((pr) => <option key={pr.provider} value={pr.provider}>{pr.provider} ({pr.count})</option>)}
+            </select>
+          ) : null}
           {libErr ? <p className="fs-stream-err" role="alert">{libErr}</p> : null}
           <ul className="fs-stream-list" data-testid={`${pfx}-lib`}>
             {plays.length ? <li style={{ padding: "4px 8px" }} data-testid={`${pfx}-recents`}><span className="fs-dim" style={{ fontSize: fz(11), marginRight: 6 }}>Recent:</span>{plays.slice(0, 6).map((pl) => {

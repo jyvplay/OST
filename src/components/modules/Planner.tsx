@@ -8,6 +8,7 @@ import { Badge, Btn, Empty, Section } from "../ui";
 import { parseRRule, expandRecurrence } from "@/lib/recurrence";
 import { buildAgenda } from "@/lib/agenda";
 import { filterTasks, type TaskStatus } from "@/lib/task-filter";
+import { presetDue, presetLabel, type DuePreset } from "@/lib/due-presets";
 
 interface Task { id: number; title: string; notes: string; done: boolean; dueAt: string | null; kind: string; endAt: string | null }
 
@@ -44,6 +45,10 @@ export default function PlannerModule(_: ModuleProps) {
           onChange={(e) => setTitle(e.target.value)} aria-label="Task title"
           onKeyDown={(e) => { if (e.key === "Enter") (document.getElementById("planner-add") as HTMLButtonElement)?.click(); }} />
         <input className="fs-input" type="datetime-local" style={{ width: fz(200) }} value={due} onChange={(e) => setDue(e.target.value)} aria-label="Due" />
+        {(["today", "tomorrow", "next-week"] as DuePreset[]).map((preset) => (
+          <Btn key={preset} variant="ghost" title={presetLabel(preset)} onClick={() => { const d = presetDue(preset); if (d) { const p = (n: number) => String(n).padStart(2, "0"); setDue(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`); } }}>{preset === "today" ? "Today" : preset === "tomorrow" ? "Tomorrow" : "+1 week"}</Btn>
+        ))}
+        {(() => { const overdue = rows.filter((t) => !t.done && t.dueAt && new Date(t.dueAt) < new Date()).length; return overdue ? <Badge tone="bad">{overdue} overdue</Badge> : null; })()}
         <Btn id="planner-add" variant="primary" disabled={!title} onClick={async () => {
           await post("/api/tasks", { title, dueAt: due ? new Date(due).toISOString() : null, ...(repeat ? { notes: `RRULE:${repeat}` } : {}) });
           setTitle(""); setDue(""); await load();

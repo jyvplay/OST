@@ -7,6 +7,7 @@ import { fmtBytes } from "@/lib/api";
 import { fromB64, openText, sealText, type Envelope } from "@/lib/crypto";
 import { MAX_BACKUP_BYTES, verifyBackup, type BackupBundle } from "@/lib/backup/bundle";
 import { bundleTree } from "@/lib/bundle-tree";
+import { freshnessLabel, LAST_BACKUP_KEY } from "@/lib/backup-freshness";
 import { folderSizes, formatBytes as fmtBundleBytes } from "@/lib/folder-size";
 import { DRILL_HEALTH_KEY, drillHealthState, parseDrillHealth, recordDrill, type DrillAttempt, type DrillHealth } from "@/lib/backup/drill-health";
 import { makeRecoveryKey, openRecoveryBundle, RECOVERY_FORMAT, sealRecoveryBundle } from "@/lib/backup/recovery";
@@ -78,6 +79,7 @@ export default function BackupModule(_: ModuleProps) {
   const shell = useShell();
   const [bundle, setBundle] = useState<BackupBundle | null>(null);
   const [showContents, setShowContents] = useState(false);
+  const [lastBackup, setLastBackup] = useState<number | null>(() => { try { const v = Number(localStorage.getItem(LAST_BACKUP_KEY)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; } });
   const [report, setReport] = useState("");
   const [pass, setPass] = useState("");
   const [recoveryKey, setRecoveryKey] = useState("");
@@ -129,6 +131,7 @@ export default function BackupModule(_: ModuleProps) {
       const verified = await verifyBackup(value);
       if (!verified.ok) throw new Error(verified.failures.map((f) => `${f.path}: ${f.reason}`).join("; "));
       setBundle(value as BackupBundle);
+      try { localStorage.setItem(LAST_BACKUP_KEY, String(Date.now())); setLastBackup(Date.now()); } catch { /* private mode */ }
       const p = verified.payload;
       setReport(`${p.entries.length} entries · ${p.notes.length} notes · ${p.settings.length} settings · ${fmtBytes(p.entries.reduce((sum, e) => sum + e.size, 0))} · snapshot checksum verified in this browser.`);
     } catch (e) { setBundle(null); setReport(`Build failed: ${String((e as Error).message)}`); }
@@ -285,6 +288,7 @@ export default function BackupModule(_: ModuleProps) {
           <Btn variant="ghost" onClick={() => setHeld(null)}>Not now</Btn>
         </div> : null}
         {report ? <div role="status" data-testid="backup-report" className="fs-mono" style={{ fontSize: fz(11.5) }}>{report}</div> : null}
+        <div className="fs-dim" style={{ fontSize: fz(11.5), marginTop: 6 }} data-testid="backup-freshness">{freshnessLabel(lastBackup)} (stale after 7 days)</div>
         {bundle ? <div style={{ marginTop: 8 }}>
           <Btn variant="ghost" aria-expanded={showContents} onClick={() => setShowContents((v) => !v)}>{showContents ? "Hide contents" : "Show contents"}</Btn>
           {showContents ? <div data-testid="backup-contents" style={{ display: "grid", gap: 2, marginTop: 6 }}>

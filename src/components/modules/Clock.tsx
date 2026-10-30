@@ -8,6 +8,7 @@ import { validateAlarms, nextFire, upcomingAlarms, lapStats, daysBetween, addDay
 import { commonWindows, validateCountdowns, daysUntil, type Countdown } from "@/lib/zones";
 import { validateZones, addZone, removeZone, allZoneNames, WORLD_ZONES_KEY } from "@/lib/zone-list";
 import { convertZoneTime } from "@/lib/zone-convert";
+import { zoneStatus } from "@/lib/zone-status";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -105,6 +106,7 @@ export default function ClockModule(_: ModuleProps) {
         {zones.map((z) => (
           <div key={z} className="fs-row" style={{ justifyContent: "space-between" }}>
             <span style={{ fontSize: fz(12) }}>{z.replace(/_/g, " ")}</span>
+            {(() => { const st = zoneStatus(z); return <Badge tone={st.open ? "ok" : "default"} title={`${st.localTime} in ${z}`}>{st.open ? "work hours" : st.localTime}</Badge>; })()}
             <span className="fs-row" style={{ gap: 4 }}>
               <span className="fs-mono">{new Date().toLocaleTimeString([], { timeZone: z, hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
               {z !== "UTC" ? <Btn variant="ghost" aria-label={`Remove zone ${z}`} onClick={() => { try { setZones((l) => removeZone(l, z)); } catch { /* UTC only */ } }}>✕</Btn> : null}

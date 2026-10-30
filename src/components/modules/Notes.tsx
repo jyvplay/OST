@@ -9,6 +9,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { analyzeNote } from "@/lib/notes-stats";
 import { findDailyNote, dailyTitle } from "@/lib/daily-note";
+import { noteFilename, noteToMarkdown } from "@/lib/note-export";
 import { extractTags, resolveLinks, backlinks } from "@/lib/note-links";
 
 interface Note { id: number; title: string; body: string; tags: string; pinned: boolean; updatedAt: string }
@@ -102,6 +103,11 @@ export default function NotesModule({ win }: ModuleProps) {
             <Btn variant="ghost" onClick={() => void put("/api/notes", { id: draft.id, pinned: !draft.pinned }).then(load)}>
               {draft.pinned ? "Unpin" : "Pin"}
             </Btn>
+            <Btn variant="ghost" title="Save this note as a Markdown file in Files" onClick={async () => {
+              const name = noteFilename(draft.title);
+              await post("/api/fs", { op: "write", path: `/${name}`, content: noteToMarkdown(draft), mime: "text/markdown", reason: "notes-export" });
+              shell.toast(`Exported to /${name}`, "ok");
+            }}>Export .md</Btn>
             <Btn variant="ghost" title="PR-06 mail handoff: opens your mail app with the note pre-filled"
               onClick={() => {
                 // mailto URLs are length-limited in practice (~2 000 chars in some clients); truncate visibly

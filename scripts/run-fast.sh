@@ -19,7 +19,7 @@ JOBS="${JOBS:-4}"
 case "$JOBS" in ''|*[!0-9]*) echo "JOBS must be a positive integer" >&2; exit 2;; esac
 [ "$JOBS" -ge 1 ] || { echo "JOBS must be >= 1" >&2; exit 2; }
 
-DEFAULT="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine vector-boolean whiteboard-engine tables-engine ai-format oracle-ai tt117-core tt118-core tt119-core"
+DEFAULT="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine vector-boolean whiteboard-engine tables-engine ai-format oracle-ai tt117-core tt118-core tt119-core tt120-core"
 SUITES="${*:-$DEFAULT}"
 
 # Refuse anything that needs the server, a browser, or a database. The check is

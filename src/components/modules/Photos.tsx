@@ -17,6 +17,7 @@
  */
 import { photoTimeline } from "@/lib/photo-timeline";
 import { clampInterval, nextIndex } from "@/lib/slideshow";
+import { neighbor, positionLabel } from "@/lib/photo-order";
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fz } from "@/lib/uiscale";
@@ -127,6 +128,7 @@ export default function PhotosModule({ win }: ModuleProps) {
   const current = items?.find((i) => i.path === open) ?? null;
   if (current) {
     return <PhotoEditor key={current.path + current.sha256} item={current} info={index[current.sha256]} showPlaying={showPlaying} onToggleShow={() => setShowPlaying((v) => !v)} onClose={() => { setShowPlaying(false); setOpen(null); }}
+      nav={{ label: positionLabel(shown, current.path), prev: neighbor(shown, current.path, -1)?.item.path ?? null, next: neighbor(shown, current.path, 1)?.item.path ?? null, go: (path: string) => setOpen(path) }}
       onSaved={(r) => { setRecipes((m) => { const n = { ...m }; if (r) n[current.path] = r; else delete n[current.path]; return n; }); setSidecars((s) => { const n = new Set(s); if (r) n.add(current.path); else n.delete(current.path); return n; }); }}
       onExported={() => { load(); shell.bumpRefresh(); }} />;
   }
@@ -235,7 +237,17 @@ function rasterToCanvas(r: Raster): OffscreenCanvas {
 type RecipeStore = "host" | "private" | "ram";
 const recipeStore = (path: string): RecipeStore => isPrivatePath(path) ? "private" : privacy.status().amnesic ? "ram" : "host";
 
-function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, onToggleShow }: { item: Item; info?: Info; onClose: () => void; onSaved: (r: PhotoRecipe | null) => void; onExported: () => void; showPlaying?: boolean; onToggleShow?: () => void }) {
+function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, onToggleShow, nav }: { item: Item; info?: Info; onClose: () => void; onSaved: (r: PhotoRecipe | null) => void; onExported: () => void; showPlaying?: boolean; onToggleShow?: () => void; nav?: { label: string; prev: string | null; next: string | null; go: (path: string) => void } }) {
+  useEffect(() => {
+    if (!nav) return;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.closest("input, textarea, select")) return;
+      if (e.key === "ArrowLeft" && nav.prev) nav.go(nav.prev);
+      if (e.key === "ArrowRight" && nav.next) nav.go(nav.next);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [nav]);
   const shell = useShell();
   const [state, setState] = useState<{ base?: Raster; meta?: FileMeta; error?: string; note?: string; saved: PhotoRecipe | null } | null>(null);
   const [hist, setHist] = useState<{ list: PhotoRecipe[]; at: number }>({ list: [{ v: 1 }], at: 0 });
@@ -393,6 +405,11 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, on
       <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
         <Btn variant="ghost" onClick={onClose} aria-label="Back to library">‹ Library</Btn>
         {onToggleShow ? <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={!!showPlaying} onClick={onToggleShow}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn> : null}
+        {nav ? <span className="fs-row" style={{ gap: 4 }}>
+          <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
+          <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }}>{nav.label}</span>
+          <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
+        </span> : null}
         <strong style={{ fontSize: fz(13) }}>{item.name}</strong>
         <div style={{ flex: 1 }} />
         <span role="radiogroup" aria-label="Rating" style={{ display: "flex" }}>
