@@ -22,7 +22,10 @@ async function openModule(module: string, props: Record<string, unknown> = {}) {
   page.setDefaultTimeout(20_000);
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await page.waitForSelector('[data-win-id="w1"]');
-  await page.waitForTimeout(1200);
+  // The title bar alone is not proof that the clock has rendered; other
+  // cases below already await their precise editor, terminal, tile or contact
+  // controls/content. Replace a blanket sleep with this explicit readiness.
+  if (module === "clock") await page.getByRole("heading", { name: "World clock" }).waitFor();
   return { page, context };
 }
 

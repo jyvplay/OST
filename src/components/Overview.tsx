@@ -38,7 +38,7 @@ export default function Overview({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      {wins.length === 0 ? <Empty title={needle ? "No window matches" : "No windows"} hint={needle ? "Clear the filter to see every window." : "Open a module from the launcher or press Ctrl+Space."} /> : null}
+      {wins.length === 0 ? <Empty glyph={needle ? "search" : "overview"} title={needle ? "No window matches" : "No windows"} hint={needle ? "Clear the filter to see every window." : "Open a module from the launcher or press Ctrl+Space."} /> : null}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 10 }} onClick={(e) => e.stopPropagation()}>
         {wins.map((w) => (

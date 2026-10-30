@@ -1,0 +1,36 @@
+{
+  "suite": "e2e-tt128-editor",
+  "at": "2026-10-30T23:39:14.488Z",
+  "results": [
+    {
+      "suite": "e2e-tt128-editor",
+      "name": "a delayed selection restore cannot undo a newer caret position or erase later text",
+      "covers": {
+        "ED-09": "partial",
+        "ED-10": "partial"
+      },
+      "pass": false,
+      "error": "the newer caret must not be replaced by an older selection\n+ actual - expected\n\n  [\n    0,\n+   11\n-   0\n  ]\n",
+      "ms": 1887
+    },
+    {
+      "suite": "e2e-tt128-editor",
+      "name": "case expansion preserves the whole transformed selection",
+      "covers": {
+        "ED-09": "partial"
+      },
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    0,\n+   6\n-   7\n  ]\n",
+      "ms": 643
+    },
+    {
+      "suite": "e2e-tt128-editor",
+      "name": "timestamp replaces only the selected span",
+      "covers": {
+        "ED-10": "partial"
+      },
+      "pass": true,
+      "ms": 252
+    }
+  ]
+}

@@ -78,11 +78,12 @@ export function Toggle({ on, onChange, label, disabled, reason }: { on: boolean;
   );
 }
 
-/** `icon` is accepted for compatibility but no longer drawn: emoji render blank without a colour-emoji font (TT21). */
-export function Empty({ title, hint }: { title: string; hint?: string; icon?: string }) {
+/** Empty states use decorative, app-specific vector marks, never emoji fonts.
+ * The title remains the accessible explanation; the icon is not a control. */
+export function Empty({ title, hint, glyph = "spark" }: { title: string; hint?: string; glyph?: UiGlyphName; icon?: string }) {
   return (
     <div style={{ display: "grid", placeItems: "center", gap: 6, padding: 28, textAlign: "center", color: "var(--fs-muted)" }}>
-      <div aria-hidden style={{ color: "var(--fs-warn)", display: "grid", placeItems: "center", width: fz(40), height: fz(40), borderRadius: 999, background: "rgba(255,196,83,.12)" }}><UiGlyph name="spark" size={20} /></div>
+      <div aria-hidden style={{ color: "var(--fs-warn)", display: "grid", placeItems: "center", width: fz(40), height: fz(40), borderRadius: 999, background: "rgba(255,196,83,.12)" }}><UiGlyph name={glyph} size={20} /></div>
       <div style={{ fontSize: fz(13) }}>{title}</div>
       {hint ? <div style={{ fontSize: fz(11.5), maxWidth: `min(${fz(420)}, 100%)`, lineHeight: 1.5 }}>{hint}</div> : null}
     </div>

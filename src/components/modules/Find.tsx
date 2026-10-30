@@ -159,7 +159,7 @@ export default function FindModule(_: ModuleProps) {
           </button>
           </OrbitTarget>
         ))}
-        {q && hits.length === 0 && took !== null ? <Empty title="No matches in returned results (check coverage/pages)" icon="🔎" /> : null}
+        {q && hits.length === 0 && took !== null ? <Empty title="No matches in returned results (check coverage/pages)" glyph="search" /> : null}
       </div>
 
       {cursor?<Btn disabled={busy} onClick={()=>void search(cursor)}>Search next metadata page</Btn>:null}

@@ -10,6 +10,7 @@ import { parseRRule, expandRecurrence } from "@/lib/recurrence";
 import { buildAgenda } from "@/lib/agenda";
 import { agendaText } from "@/lib/agenda-text";
 import { completionStats } from "@/lib/completion-stats";
+import { localWeekDays } from "@/lib/local-week";
 import { overdueText } from "@/lib/overdue-text";
 import { filterTasks, type TaskStatus } from "@/lib/task-filter";
 import { presetDue, presetLabel, type DuePreset } from "@/lib/due-presets";
@@ -39,8 +40,7 @@ export default function PlannerModule(_: ModuleProps) {
   const load = () => api<{ rows: Task[] }>("/api/tasks").then((r) => setRows(r.rows)).catch(() => undefined);
   useEffect(() => { void load(); }, [shell.refreshTick]);
 
-  const weekStart = new Date(); weekStart.setHours(0, 0, 0, 0); weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
-  const days = Array.from({ length: 7 }, (_, i) => new Date(weekStart.getTime() + i * 86_400_000));
+  const days = localWeekDays(new Date());
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
@@ -53,7 +53,7 @@ export default function PlannerModule(_: ModuleProps) {
           <Btn key={preset} variant="ghost" title={presetLabel(preset)} onClick={() => { const d = presetDue(preset); if (d) { const p = (n: number) => String(n).padStart(2, "0"); setDue(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`); } }}>{preset === "today" ? "Today" : preset === "tomorrow" ? "Tomorrow" : "+1 week"}</Btn>
         ))}
         {(() => { const overdue = rows.filter((t) => !t.done && t.dueAt && new Date(t.dueAt) < new Date()).length; return overdue ? <><Badge tone="bad">{overdue} overdue</Badge><Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(overdueText(rows, new Date())); shell.toast("Overdue list copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="planner-copy-overdue">Copy overdue</Btn></> : null; })()}
-        <Btn id="planner-add" variant="primary" disabled={!title} onClick={async () => {
+        <Btn id="planner-add" variant="primary" disabled={!title || (!!repeat && !due)} onClick={async () => {
           await post("/api/tasks", { title, dueAt: due ? new Date(due).toISOString() : null, ...(repeat ? { notes: `RRULE:${repeat}` } : {}) });
           setTitle(""); setDue(""); await load();
         }}>Add</Btn>
@@ -83,8 +83,9 @@ export default function PlannerModule(_: ModuleProps) {
         <Btn variant="ghost" onClick={() => window.open("/api/tasks?format=ics", "_blank")}>Export .ics</Btn>
       </div>
 
-      {repeatPreview ? <div className="fs-dim" data-testid="planner-repeat-preview" style={{ fontSize: fz(11) }}>Repeats: {repeatPreview}. The first occurrence is saved as the task; the rule is kept in its notes as RRULE so export stays honest.</div> : null}
-      {rows.length === 0 ? <Empty title="Nothing planned" icon="🗓" /> : null}
+      {repeat && !due ? <div className="fs-dim" role="status">Choose a due date to add a repeating task.</div> : null}
+      {repeatPreview ? <div className="fs-dim" data-testid="planner-repeat-preview" style={{ fontSize: fz(11) }}>Repeats: {repeatPreview}. Only the first task is saved. UTC export may shift local times; month-end rules may skip dates.</div> : null}
+      {rows.length === 0 ? <Empty title="Nothing planned" glyph="emptyPlan" /> : null}
       {rows.length > 0 && shownRows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(12) }} role="status">No tasks match the filter.</div> : null}
 
       {view === "agenda" ? (
@@ -123,11 +124,11 @@ export default function PlannerModule(_: ModuleProps) {
           })}
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+        <div data-testid="planner-week" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
           {days.map((d) => {
             const items = shownRows.filter((t) => t.dueAt && new Date(t.dueAt).toDateString() === d.toDateString());
             return (
-              <div key={d.toISOString()} className="fs-panel" style={{ padding: 6, minHeight: 120 }}>
+              <div key={d.toISOString()} data-testid="planner-day" className="fs-panel" style={{ padding: 6, minHeight: 120 }}>
                 <div style={{ fontSize: fz(11), fontWeight: 600, color: d.toDateString() === new Date().toDateString() ? "var(--fs-accent)" : undefined }}>
                   {d.toLocaleDateString([], { weekday: "short", day: "numeric" })}
                 </div>
@@ -146,7 +147,7 @@ export default function PlannerModule(_: ModuleProps) {
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           Reminders fire from the shell while it is open (the reminder loop runs in the shell, not this window, so
           closing Planner does not stop them). There is no web API for the system calendar provider, so calendars move
-          in and out as .ics files; TZID times are read as local time — no timezone database is bundled.
+          in and out as .ics files. TZID and floating dates are interpreted in the server’s local timezone, not the source timezone.
         </div>
       </Section>
     </div>

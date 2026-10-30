@@ -73,7 +73,7 @@ export default function PeekModule({ win }: ModuleProps) {
 
   // TT52: PDF bytes for the first-party preview (PDF files and PDF-compatible Illustrator artwork)
   const pdfBytes = useMemo(() => (node && node.encoding === "base64" && (node.mime === "application/pdf" || isAiFamily) ? fromB64(node.content) : null), [node, isAiFamily]);
-  if (!path) return <Empty title="Nothing to preview" icon="👁" />;
+  if (!path) return <Empty title="Nothing to preview" glyph="scope" />;
 
   const dataUrl = node && node.encoding === "base64" ? `data:${node.mime};base64,${node.content}` : null;
 

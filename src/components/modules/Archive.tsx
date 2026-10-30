@@ -306,7 +306,7 @@ export default function ArchiveModule({ win }: ModuleProps) {
         <div className="fs-scroll" style={{ minHeight: 0, borderRight: "1px solid var(--fs-line)" }}>
           {loadErr ? <div role="alert" style={{ padding: 12, color: "var(--fs-bad)" }}>{loadErr}</div> : null}
           {parsed.e ? <div role="alert" data-testid="archive-error" style={{ padding: 12, color: "var(--fs-bad)", fontSize: fz(13) }}>This archive was refused: {parsed.e}</div> : null}
-          {!bytes && !loadErr ? <Empty title={path ? "Opening…" : "No archive open"} hint="Open a .zip from Files or from this device, or start a new one." /> : null}
+          {!bytes && !loadErr ? <Empty glyph="emptyZip" title={path ? "Opening…" : "No archive open"} hint="Open a .zip from Files or from this device, or start a new one." /> : null}
           {arc?.issues.length ? <ul data-testid="archive-issues" style={{ margin: "6px 8px", padding: "4px 18px", fontSize: fz(12), color: "var(--fs-warn)" }}>{arc.issues.map((s) => <li key={s}>{s}</li>)}</ul> : null}
           {arc ? (
             <><input className="fs-input" type="search" placeholder="Filter entries in this folder" aria-label="Filter archive entries" value={entryQ} onChange={(e) => setEntryQ(e.target.value)} data-testid="archive-filter" style={{ margin: "6px 8px", width: "calc(100% - 16px)" }} />
@@ -337,7 +337,7 @@ export default function ArchiveModule({ win }: ModuleProps) {
               </tbody>
             </table></>
           ) : null}
-          {arc && !rows.length ? <Empty title="This folder is empty" hint="Add files or a folder." /> : null}
+          {arc && !rows.length ? <Empty glyph="folder" title="This folder is empty" hint="Add files or a folder." /> : null}
         </div>
         <aside aria-label="Preview" data-testid="archive-preview" className="fs-scroll" style={{ minHeight: 0, padding: 8, display: "grid", alignContent: "start", gap: 6 }}>
           {!preview ? <div className="fs-dim" style={{ fontSize: fz(12) }}>{arc?.comment ? <>Archive comment: <q>{arc.comment}</q></> : "Select a file to preview it."}</div> : null}

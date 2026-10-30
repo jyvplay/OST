@@ -240,9 +240,17 @@ export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "clos
   /* TT123: crossed shuffle arrows, and a wrapped line turning back on itself */
   | "shuffle" | "wrap" | "caret-up" | "caret-down"
   /* TT124: an indented block (lines stepping right), and two frames for before/after */
-  | "indent" | "compare";
+  | "indent" | "compare"
+  /* Empty-state illustrations: a note, zip, vault dial and an open calendar. */
+  | "emptyNote" | "emptyZip" | "emptyVault" | "emptyPlan";
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
+    // Original compact empty-state drawings. The extra marks convey the
+    // destination, not an action; the surrounding title remains accessible.
+    emptyNote: <><path d="M7 4.5h10.5a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2Z" {...S} stroke="currentColor" strokeWidth="1.7" /><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4.5M3.5 8h3M3.5 12h3M3.5 16h3" {...S} stroke="currentColor" strokeWidth="1.7" /></>,
+    emptyZip: <><path d="M4.5 6.5h15v11a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2Z" {...S} stroke="currentColor" strokeWidth="1.7" /><path d="M3.5 4.5h17v3h-17zM12 7.5v7M10.6 9h2.8M10.6 11.5h2.8" {...S} stroke="currentColor" strokeWidth="1.6" /><rect x="10.4" y="14.5" width="3.2" height="2.5" rx=".6" {...S} stroke="currentColor" strokeWidth="1.5" /></>,
+    emptyVault: <><rect x="4" y="4.5" width="16" height="15" rx="2.5" {...S} stroke="currentColor" strokeWidth="1.7" /><circle cx="12" cy="12" r="4.1" {...S} stroke="currentColor" strokeWidth="1.7" /><path d="M12 9.6v2.4l1.6 1.1M4 8h2M4 16h2M8 21h8" {...S} stroke="currentColor" strokeWidth="1.7" /></>,
+    emptyPlan: <><rect x="4" y="5.5" width="16" height="14" rx="2" {...S} stroke="currentColor" strokeWidth="1.7" /><path d="M4 9.5h16M8 3.5v4M16 3.5v4M8 13h3M8 16h3M15.2 12v5M12.7 14.5h5" {...S} stroke="currentColor" strokeWidth="1.7" /></>,
     /* TT116 concept glyphs. Same construction rules: stroke-only, 24x24, currentColor,
        no glyph reusing another's silhouette. */
     // save method: a stamp pressed onto a line - "how this got here"

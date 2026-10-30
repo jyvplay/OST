@@ -160,7 +160,7 @@ await test("PH-05 photo sort: name/size/date, missing values last ascending, cop
     { path: "/Pictures/c.png", capturedAt: "2026-01-01" },
   ];
   assert.deepEqual(sortPhotos(items, "name").map((p) => p.path), ["/Pictures/a.png", "/Pictures/b.png", "/Pictures/c.png"]);
-  assert.deepEqual(sortPhotos(items, "size").map((p) => p.size ?? -1), [-1, 100, 300], "unknown size sorts first ascending (key -1)");
+  assert.deepEqual(sortPhotos(items, "size").map((p) => p.size ?? -1), [100, 300, -1], "unknown size sorts last ascending");
   assert.deepEqual(sortPhotos(items, "size", true).map((p) => p.size ?? -1), [300, 100, -1], "descending puts unknown last");
   assert.equal(items[0].path, "/Pictures/b.png", "input order preserved");
 });

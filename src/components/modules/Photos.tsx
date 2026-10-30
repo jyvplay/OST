@@ -28,7 +28,7 @@ import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { UiGlyph } from "../AppIcon";
-import { sortPhotos, type PhotoSort } from "@/lib/photo-sort";
+import { compareNewestPhotoDate, sortPhotos, type PhotoSort } from "@/lib/photo-sort";
 import Thumb from "../Thumb";
 import { readFileBytes, readRecipe, readRecipeForEditing, forgetThumbnail, bytesToB64, type RecipeIdentity } from "@/lib/thumbs/service";
 import { PRESETS, isIdentity, isSidecar, outputSize, parseRecipe, photoOfSidecar, renderRecipe, sidecarPath, type PhotoRecipe, type PresetName } from "@/lib/photos/recipe";
@@ -60,19 +60,26 @@ export default function PhotosModule({ win }: ModuleProps) {
   const [view, setView] = useState<View>("all");
   const [photoSort, setPhotoSort] = useState<PhotoSort>("captured");
   const [open, setOpen] = useState<string | null>((win.props.path as string) ?? null);
+  // A viewer session follows the exact order the user opened, even if EXIF
+  // indexing finishes in the background. Reopening takes a fresh snapshot.
+  const [sequence, setSequence] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const loadGeneration = useRef(0);
 
   const load = useCallback(() => {
+    const generation = ++loadGeneration.current;
+    setError(null);
     api<{ items: Item[] }>("/api/fs?op=media").then(async (r) => {
+      if (generation !== loadGeneration.current) return;
       const photos = r.items.filter((i) => i.mime.startsWith("image/") && !isSidecar(i.path));
       const sc = new Set(r.items.filter((i) => isSidecar(i.path)).map((i) => photoOfSidecar(i.path)).filter((p): p is string => !!p));
       setItems(photos); setSidecars(sc); setIndex(loadIndex());
       // sidecars are small: read them so the library knows ratings / favourites / edits
       const entries = await Promise.all([...sc].filter((p) => photos.some((x) => x.path === p)).slice(0, 2000).map(async (p) => [p, await readRecipe(p)] as const));
-      setRecipes(Object.fromEntries(entries.filter(([, v]) => v).map(([k, v]) => [k, v!])));
-    }).catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)));
+      if (generation === loadGeneration.current) setRecipes(Object.fromEntries(entries.filter(([, v]) => v).map(([k, v]) => [k, v!])));
+    }).catch((e: unknown) => { if (generation === loadGeneration.current) setError(e instanceof Error ? e.message : String(e)); });
   }, []);
-  useEffect(() => { load(); }, [load, shell.refreshTick]);
+  useEffect(() => { load(); return () => { loadGeneration.current++; }; }, [load, shell.refreshTick]);
 
   // background indexing of capture dates / sizes / GPS (two at a time, content-hash keyed)
   useEffect(() => {
@@ -83,24 +90,39 @@ export default function PhotosModule({ win }: ModuleProps) {
     (async () => {
       const { readMetadata } = await import("@/lib/meta");
       let n = 0;
+      const pending: Record<string, Info> = {};
+      const flush = () => {
+        if (!live) return;
+        // Merge against the latest cache rather than overwriting another window's
+        // work. Never persist metadata read from a Private path.
+        const next = { ...loadIndex(), ...pending };
+        saveIndex(next); setIndex({ ...ix, ...next });
+        for (const key of Object.keys(pending)) delete pending[key];
+      };
       const one = async (it: Item) => {
-        const bytes = it.size <= 96 << 20 ? await readFileBytes(it.path) : null;
-        const info: Info = { dateSource: "file", date: it.createdAt };
+        if (it.size > 96 << 20) return;
+        const bytes = await readFileBytes(it.path, it);
+        // A failed read or a changed node is not evidence of missing EXIF.
+        if (!bytes || !live) return;
+        const info: Info = { dateSource: "file" };
         if (bytes) {
           const m = await readMetadata(bytes, it.name).catch(() => null);
+          if (!m) return;
           if (m) {
-            if (m.tags.dateTaken) { info.date = m.tags.dateTaken; info.dateSource = "exif"; }
+            if (m.tags.dateTaken && Number.isFinite(Date.parse(m.tags.dateTaken))) { info.date = m.tags.dateTaken; info.dateSource = "exif"; }
             info.w = m.displayWidth ?? m.width; info.h = m.displayHeight ?? m.height;
             const cam = [m.tags.make, m.tags.model].filter(Boolean).join(" ").trim(); if (cam) info.camera = cam;
             if (m.gps) { info.lat = m.gps.lat; info.lon = m.gps.lon; }
           }
         }
+        if (!live) return;
         ix[it.sha256] = info; n++;
-        if (live && n % 6 === 0) { saveIndex(ix); setIndex({ ...ix }); }
+        if (!isPrivatePath(it.path)) pending[it.sha256] = info;
+        if (n % 6 === 0) flush();
       };
       const queue = [...todo];
       await Promise.all([0, 1].map(async () => { while (live && queue.length) await one(queue.shift()!).catch(() => {}); }));
-      saveIndex(ix); if (live) setIndex({ ...ix });
+      flush();
     })().catch(() => {});
     return () => { live = false; };
   }, [items]);
@@ -109,50 +131,64 @@ export default function PhotosModule({ win }: ModuleProps) {
     if (!items) return [];
     const f = sortPhotos(items.filter((i) => view === "all" ? true : view === "favorites" ? recipes[i.path]?.favorite : view === "edited" ? recipes[i.path] && !isIdentity(recipes[i.path]) : view === "undated" ? undatedPhotos([i], index).length > 0 : index[i.sha256]?.lat !== undefined), photoSort);
     if (photoSort !== "captured") return f;
-    const dateOf = (i: Item) => index[i.sha256]?.date ?? i.createdAt;
-    return [...f].sort((a, b) => Date.parse(dateOf(b)) - Date.parse(dateOf(a)));
+    const dateOf = (i: Item) => index[i.sha256]?.dateSource === "exif" ? index[i.sha256].date ?? i.createdAt : i.createdAt;
+    // Invalid dates sort last; ties retain the original library order.
+    return [...f].sort((a, b) => compareNewestPhotoDate(dateOf(a), dateOf(b)));
   }, [items, view, recipes, index, photoSort]);
   const groups = useMemo(() => {
     if (photoSort !== "captured") return shown.length ? [{ label: "All photos", items: shown }] : [];
     const g: { label: string; items: Item[] }[] = [];
     for (const it of shown) {
-      const d = index[it.sha256]?.date ?? it.createdAt; const label = Number.isFinite(Date.parse(d)) ? monthLabel(d) : "Unknown date";
+      const info = index[it.sha256];
+      const d = info?.dateSource === "exif" ? info.date ?? it.createdAt : it.createdAt;
+      const label = Number.isFinite(Date.parse(d)) ? monthLabel(d) : "Unknown date";
       const last = g[g.length - 1]; if (last && last.label === label) last.items.push(it); else g.push({ label, items: [it] });
     }
     return g;
   }, [shown, index, photoSort]);
+
+  const navigation = useMemo(() => {
+    if (!sequence || !items) return shown;
+    const byPath = new Map(items.map((item) => [item.path, item]));
+    return sequence.map((path) => byPath.get(path)).filter((item): item is Item => !!item);
+  }, [sequence, items, shown]);
+  // Deep links also start a viewer session after the library arrives.
+  useEffect(() => {
+    if (open && sequence === null && shown.some((item) => item.path === open)) setSequence(shown.map((item) => item.path));
+  }, [open, sequence, shown]);
+  const openPhoto = (path: string) => { setSequence(shown.map((item) => item.path)); setOpen(path); };
 
   const [showPlaying, setShowPlaying] = useState(false);
   const [shuffle, setShuffle] = useState(false);
   const shuffleRef = useRef<number[]>([]);
   const [showSecs, setShowSecs] = useState(4);
   useEffect(() => {
-    if (!showPlaying || shown.length === 0) return;
+    if (!showPlaying || navigation.length === 0) return;
     const t = window.setInterval(() => {
-      const i = shown.findIndex((x) => x.path === open);
+      const i = navigation.findIndex((x) => x.path === open);
       if (shuffle) {
-        if (shuffleRef.current.length !== shown.length) shuffleRef.current = shuffleOrder(shown.length, () => Math.random());
+        if (shuffleRef.current.length !== navigation.length) shuffleRef.current = shuffleOrder(navigation.length, () => Math.random());
         const pos = shuffleRef.current.indexOf(i);
-        const n = shown[shuffleRef.current[nextIndex(pos < 0 ? 0 : pos, shown.length)]];
+        const n = navigation[shuffleRef.current[nextIndex(pos < 0 ? 0 : pos, navigation.length)]];
         if (n) setOpen(n.path);
       } else {
-        const n = shown[nextIndex(i, shown.length)];
+        const n = navigation[nextIndex(i, navigation.length)];
         if (n) setOpen(n.path);
       }
     }, clampInterval(showSecs) * 1000);
     return () => window.clearInterval(t);
-  }, [showPlaying, showSecs, shown, open, shuffle]);
+  }, [showPlaying, showSecs, navigation, open, shuffle]);
   const current = items?.find((i) => i.path === open) ?? null;
   if (current) {
-    return <PhotoEditor key={current.path + current.sha256} item={current} info={index[current.sha256]} showPlaying={showPlaying} onToggleShow={() => setShowPlaying((v) => !v)} onClose={() => { setShowPlaying(false); setOpen(null); }}
-      nav={{ label: positionLabel(shown, current.path), prev: neighbor(shown, current.path, -1)?.item.path ?? null, next: neighbor(shown, current.path, 1)?.item.path ?? null, go: (path: string) => setOpen(path) }}
+    return <PhotoEditor key={current.path + current.sha256} item={current} info={index[current.sha256]} showPlaying={showPlaying} onToggleShow={() => setShowPlaying((v) => !v)} onClose={() => { setShowPlaying(false); setOpen(null); setSequence(null); }}
+      nav={{ label: positionLabel(navigation, current.path), prev: neighbor(navigation, current.path, -1)?.item.path ?? null, next: neighbor(navigation, current.path, 1)?.item.path ?? null, go: (path: string) => setOpen(path) }}
       onSaved={(r) => { setRecipes((m) => { const n = { ...m }; if (r) n[current.path] = r; else delete n[current.path]; return n; }); setSidecars((s) => { const n = new Set(s); if (r) n.add(current.path); else n.delete(current.path); return n; }); }}
       onExported={() => { load(); shell.bumpRefresh(); }} />;
   }
 
   const counts = { all: items?.length ?? 0, undated: items ? undatedPhotos(items, index).length : 0, favorites: items?.filter((i) => recipes[i.path]?.favorite).length ?? 0, edited: items?.filter((i) => recipes[i.path] && !isIdentity(recipes[i.path])).length ?? 0, places: items?.filter((i) => index[i.sha256]?.lat !== undefined).length ?? 0 };
   const indexed = items ? items.filter((i) => index[i.sha256]).length : 0;
-  const timeline = photoTimeline((items ?? []).map((i) => ({ path: i.path, mime: i.mime, size: i.size, date: index[i.sha256]?.date ?? i.createdAt })));
+  const timeline = photoTimeline((items ?? []).map((i) => ({ path: i.path, mime: i.mime, size: i.size, date: index[i.sha256]?.dateSource === "exif" ? index[i.sha256].date ?? i.createdAt : i.createdAt })));
   const timelineStrip = timeline.groups.length ? (
     <div className="fs-row" data-testid="photos-timeline" style={{ gap: 6, flexWrap: "wrap", padding: "4px 8px" }}>
       {timeline.groups.slice(0, 12).map((g) => <Badge key={g.month} tone="info">{g.month} · {g.count}</Badge>)}
@@ -163,7 +199,7 @@ export default function PhotosModule({ win }: ModuleProps) {
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-library">
       {timelineStrip}
       {shown.length > 1 ? <div className="fs-row" style={{ gap: 6, padding: "0 8px 6px", flexWrap: "wrap" }} data-testid="photos-slideshow">
-        <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={showPlaying} disabled={shown.length === 0} onClick={() => { if (!showPlaying && !open && shown[0]) setOpen(shown[0].path); setShowPlaying((v) => !v); }}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn>
+        <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={showPlaying} disabled={shown.length === 0} onClick={() => { if (!showPlaying && !open && shown[0]) openPhoto(shown[0].path); setShowPlaying((v) => !v); }}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn>
         <label style={{ fontSize: fz(11.5) }}>every <input className="fs-input" style={{ width: fz(52) }} type="number" min={1} max={60} value={showSecs} aria-label="Slideshow seconds per photo" onChange={(e) => setShowSecs(clampInterval(Number(e.target.value)))} /> s</label>
         <Btn variant={shuffle ? "primary" : "ghost"} aria-pressed={shuffle} onClick={() => setShuffle((v) => !v)} data-testid="photos-shuffle"><UiGlyph name="shuffle" size={13} /> Shuffle</Btn>
         <span className="fs-dim" style={{ fontSize: fz(11) }}>{shown.length} photos · wraps at the end</span>
@@ -189,7 +225,7 @@ export default function PhotosModule({ win }: ModuleProps) {
       <div className="fs-scroll" style={{ flex: 1, minHeight: 0, padding: 10 }}>
         {error ? <Badge tone="bad">{error}</Badge> : null}
         {items === null ? <div className="fs-dim">Loading library…</div> : null}
-        {items && shown.length === 0 ? <Empty title={view === "all" ? "No photos yet" : "Nothing here"} icon="🌅" hint={view === "all" ? "Upload pictures in Files (any folder) — they show up here." : undefined} /> : null}
+        {items && shown.length === 0 ? <Empty title={view === "all" ? "No photos yet" : "Nothing here"} glyph="photos" hint={view === "all" ? "Upload pictures in Files (any folder) — they show up here." : undefined} /> : null}
         {groups.map((g) => (
           <section key={g.label} style={{ marginBottom: 14 }}>
             <h3 style={{ margin: "4px 2px 8px", fontSize: fz(14) }}>{g.label}</h3>
@@ -197,8 +233,8 @@ export default function PhotosModule({ win }: ModuleProps) {
               {g.items.map((it) => {
                 const inf = index[it.sha256]; const r = recipes[it.path];
                 return (
-                  <button key={it.path} role="listitem" className="fs-list-item" data-photo={it.name} onClick={() => setOpen(it.path)}
-                    title={`${it.name}${inf?.date ? ` — ${new Date(inf.date).toLocaleString()}${inf.dateSource === "file" ? " (file date)" : ""}` : ""}`}
+                  <button key={it.path} role="listitem" className="fs-list-item" data-photo={it.name} onClick={() => openPhoto(it.path)}
+                    title={`${it.name} — ${new Date(inf?.dateSource === "exif" && inf.date ? inf.date : it.createdAt).toLocaleString()}${inf?.dateSource !== "exif" ? " (file date)" : ""}`}
                     style={{ flexDirection: "column", padding: 4, position: "relative", background: "transparent", border: "none", cursor: "pointer" }}>
                     <Thumb node={it} size="100%" iconSize={40} hasSidecar={sidecars.has(it.path)} fit="cover" radius={8} label={it.name} />
                     <span style={{ position: "absolute", top: 8, right: 10, display: "flex", gap: 3 }}>
