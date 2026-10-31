@@ -1,0 +1,118 @@
+{
+  "suite": "tt132-core",
+  "at": "2026-10-31T07:23:35.051Z",
+  "results": [
+    {
+      "suite": "tt132-core",
+      "name": "alarm acknowledgements are bounded, canonical, label-free and reject corrupt storage whole",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt132-core",
+      "name": "snooze uses configured elapsed minutes and repeated snoozes have new tokens",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-core",
+      "name": "dismiss and cancel snooze remove an occurrence, never the recurring schedule",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-core",
+      "name": "stale callbacks cannot undo a snooze or replace a newer occurrence",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-core",
+      "name": "snooze delivery has exact early/on-time/late boundaries and reports a missed wake",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-core",
+      "name": "delete, disable, schedule edits and expiry cancel pending activity; label edits do not",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-core",
+      "name": "clock rollback preserves occurrence identity while snoozing from the new wall time",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-core",
+      "name": "one thousand adversarial activity schedules preserve isolation and finite bounds",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt132-core",
+      "name": "task and event validation rejects malformed types, limits, dates and impossible intervals",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt132-core",
+      "name": "explicit-offset date parsing preserves millisecond precision and rejects rollover",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-core",
+      "name": "snapshot checks reject lost updates in every edited field, without mutating the original",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-core",
+      "name": "task/event conversion retains notes and dates and clears event-only end data",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -9,3 +9,6 @@ scripts/tt29-shots/
 scripts/tt30-shots/
 scripts/tt31-shots/
 __pycache__/
+
+# Reusable diagnostics/benchmark caches; never ship test intermediates.
+.cache/

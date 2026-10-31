@@ -39,6 +39,7 @@ export async function claimAlarm(id: string, at: number, stillDue: () => boolean
     return true;
   };
   if (!navigator.locks?.request) return attempt();
-  try { return await navigator.locks.request(ALARM_LOCK, attempt); }
-  catch { return attempt(); }
+  let entered = false;
+  try { return await navigator.locks.request(ALARM_LOCK, () => { entered = true; return attempt(); }); }
+  catch (error) { if (entered) throw error; return attempt(); }
 }

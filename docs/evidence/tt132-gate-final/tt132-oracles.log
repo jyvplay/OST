@@ -1,0 +1,8 @@
+Independent oracles: Temporal 0.5.1, ICAL.js 2.2.1
+  ✓ explicit-offset and low-year instants match Temporal rather than our own parser
+  ✓ both DST fold occurrences and the millisecond remainder agree with Temporal
+  ✓ spring DST gaps are rejected independently by Temporal and the editor converter
+  ✓ real ICAL.js reads exported event endpoints, Unicode folding, UID and literal notes
+  ✓ our importer agrees with independent UTC VEVENT output, not just self-generated ICS
+
+5 passed, 0 failed

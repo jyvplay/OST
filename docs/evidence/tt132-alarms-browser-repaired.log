@@ -1,0 +1,14 @@
+Actual browser: 143.0.7499.0
+  ✓ actionable ring survives Clock close and toast expiry; dismiss leaves the schedule enabled
+  ✓ configured snooze fires again once and can be snoozed a second time
+  ✓ normal-profile snooze survives reload without replaying the claimed original alarm
+  ✓ cancel snooze before its deadline prevents redelivery
+  ✓ alarm edit saves time, label, weekdays and snooze without replacing its identity
+  ✓ a second Clock window's edit is not silently overwritten by a stale editor
+  ✓ pause all cancels both pending snoozes and upcoming alarms
+  ✓ write-only storage denial keeps actionable snooze working in memory
+  ✓ two pages racing snooze serialize the same occurrence once under a real Web Lock
+  ✓ disabling a snooze while its delivery claim waits cancels the actual pending callback
+  ✓ late snooze wake is explicitly missed rather than falsely reported on time
+
+11 passed, 0 failed

@@ -1,0 +1,7 @@
+  ✓ the production ledger is the generated snapshot in the checked-out source
+  ✓ the recorded build counts and incomplete coverage caps agree with the live register
+  ✓ the alarm row is partial and includes the real foreground regression evidence
+  ✓ the VFS safe-save row does not claim the native SAF contract
+  ✓ saved test results refer only to registered feature codes
+
+5 passed, 0 failed

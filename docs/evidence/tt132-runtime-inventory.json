@@ -1,0 +1,94 @@
+{
+  "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+  "logical_cpu_count": 2,
+  "path_audit": {
+    "node": "/usr/local/bin/node",
+    "npm": "/usr/local/bin/npm",
+    "git": "/usr/bin/git",
+    "gh": "/usr/bin/gh",
+    "python3": "/usr/bin/python3",
+    "gcc": "/usr/bin/gcc",
+    "g++": "/usr/bin/g++",
+    "cc": "/usr/bin/cc",
+    "clang": null,
+    "tsc": null,
+    "psql": null,
+    "postgres": null,
+    "sqlite3": null,
+    "lean": null,
+    "lake": null,
+    "coqc": null,
+    "z3": null,
+    "cvc5": null,
+    "isabelle": null,
+    "agda": null,
+    "docker": null
+  },
+  "version_commands": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "git": "git version 2.39.5",
+    "gh": "gh version 2.23.0 (2023-02-27 Debian 2.23.0+dfsg1-1)",
+    "python3": "Python 3.11.2",
+    "gcc": "gcc (Debian 12.2.0-14+deb12u1) 12.2.0"
+  },
+  "packages": {
+    "next": {
+      "version": "16.4.3",
+      "declared_license": "MIT",
+      "production_dependency_added_this_turn": false
+    },
+    "react": {
+      "version": "19.2.6",
+      "declared_license": "MIT",
+      "production_dependency_added_this_turn": false
+    },
+    "typescript": {
+      "version": "5.9.3",
+      "declared_license": "Apache-2.0",
+      "production_dependency_added_this_turn": false
+    },
+    "eslint": {
+      "version": "9.39.4",
+      "declared_license": "MIT",
+      "production_dependency_added_this_turn": false
+    },
+    "pg": {
+      "version": "8.20.0",
+      "declared_license": "MIT",
+      "production_dependency_added_this_turn": false
+    },
+    "playwright": {
+      "version": "1.64.1",
+      "declared_license": "Apache-2.0",
+      "production_dependency_added_this_turn": false
+    },
+    "drizzle-orm": {
+      "version": "0.45.2",
+      "declared_license": "Apache-2.0",
+      "production_dependency_added_this_turn": false
+    },
+    "axe-core": {
+      "version": "4.14.0",
+      "declared_license": "MPL-2.0",
+      "production_dependency_added_this_turn": false
+    },
+    "@js-temporal/polyfill": {
+      "version": "0.5.1",
+      "declared_license": "ISC",
+      "production_dependency_added_this_turn": false
+    },
+    "ical.js": {
+      "version": "2.2.1",
+      "declared_license": "MPL-2.0",
+      "production_dependency_added_this_turn": false
+    }
+  },
+  "browser_observed": "143.0.7499.0",
+  "database_observed": "PostgreSQL 17.5 (ephemeral tool installation)",
+  "limitations": "A selected PATH/package audit, not an exhaustive inventory/legal audit. GCC available; no direct GCC verification command beyond --version. No secondary agent, theorem prover, simulator, physical wake or receiver verification.",
+  "database_query": {
+    "version": "17.5",
+    "isolation": "read committed"
+  }
+}

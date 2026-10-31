@@ -1,20 +1,20 @@
 {
   "suite": "tt131-ledger",
-  "at": "2026-10-31T05:43:29.505Z",
+  "at": "2026-10-31T07:24:57.212Z",
   "results": [
     {
       "suite": "tt131-ledger",
       "name": "the production ledger is the generated snapshot in the checked-out source",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 6
     },
     {
       "suite": "tt131-ledger",
       "name": "the recorded build counts and incomplete coverage caps agree with the live register",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt131-ledger",
@@ -39,7 +39,7 @@
       "name": "saved test results refer only to registered feature codes",
       "covers": {},
       "pass": true,
-      "ms": 10
+      "ms": 12
     }
   ]
 }

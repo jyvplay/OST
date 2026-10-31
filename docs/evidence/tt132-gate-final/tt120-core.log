@@ -1,0 +1,12 @@
+  ✓ ED-04 line nav + stats: clamped, wc-consistent
+  ✓ NT-04 note export: filename cannot escape, front-matter stands alone
+  ✓ PL-05 due presets: local end-of-day, +1/+7 days
+  ✓ WD-04 zone status: weekday 09-17 open, weekend closed
+  ✓ TM-04 head/tail: whole file when short, -n parsing
+  ✓ BK-08 freshness: never/fresh/stale against the stated threshold
+  ✓ SR-10 result groups: first-seen order, counts
+  ✓ PH-04 photo neighbours: no silent wrap at the boundary
+  ✓ MU-03 provider facet: counts, all explicit, unknown matches nothing
+  ✓ CN-06 stars: validated set, toggle round-trips
+
+10 passed, 0 failed

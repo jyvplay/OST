@@ -1,0 +1,14 @@
+  ✓ alarm acknowledgements are bounded, canonical, label-free and reject corrupt storage whole
+  ✓ snooze uses configured elapsed minutes and repeated snoozes have new tokens
+  ✓ dismiss and cancel snooze remove an occurrence, never the recurring schedule
+  ✓ stale callbacks cannot undo a snooze or replace a newer occurrence
+  ✓ snooze delivery has exact early/on-time/late boundaries and reports a missed wake
+  ✓ delete, disable, schedule edits and expiry cancel pending activity; label edits do not
+  ✓ clock rollback preserves occurrence identity while snoozing from the new wall time
+  ✓ one thousand adversarial activity schedules preserve isolation and finite bounds
+  ✓ task and event validation rejects malformed types, limits, dates and impossible intervals
+  ✓ explicit-offset date parsing preserves millisecond precision and rejects rollover
+  ✓ snapshot checks reject lost updates in every edited field, without mutating the original
+  ✓ task/event conversion retains notes and dates and clears event-only end data
+
+12 passed, 0 failed

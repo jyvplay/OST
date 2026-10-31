@@ -1,6 +1,6 @@
 {
   "suite": "tt128-calendar-race",
-  "at": "2026-10-30T23:56:41.595Z",
+  "at": "2026-10-31T07:25:47.263Z",
   "results": [
     {
       "suite": "tt128-calendar-race",
@@ -10,7 +10,7 @@
         "PL-02": "partial"
       },
       "pass": true,
-      "ms": 106
+      "ms": 99
     }
   ]
 }

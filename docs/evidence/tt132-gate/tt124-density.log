@@ -1,0 +1,25 @@
+  ✓ density editor: words<=210
+  ✓ density clock: words<=340
+  ✓ density pdf: words<=400
+  ✓ density peek: words<=260
+  ✓ density lens: words<=320
+  ✓ density monitor: words<=520
+  ✓ density writer: words<=900
+  ✓ density imageedit: words<=320
+  ✓ density media: words<=340
+  ✓ density contacts: words<=240
+  ✓ density messages: words<=400
+  ✓ density photos: words<=240
+  ✓ density vector: words<=340
+  ✓ density capture: words<=320
+  ✓ density together: words<=340
+  ✓ density routines: words<=300
+  ✓ density spec: words<=12400
+  ✓ density beam: words<=320
+  ✓ density ssh: words<=320
+  ✓ density storage: words<=480
+  ✓ TT124 register: all twenty codes built, register grew past TT123's 567
+  ✓ AX-26: indent and compare glyphs render on their buttons
+  ✓ screenshots: writer goal dialog + spec family progress
+
+23 passed, 0 failed

@@ -776,3 +776,8 @@ span.fs-tt-pin { pointer-events: none; }
 .fs-winbody[data-density="compact"] { --fs-titlebar: calc(14px + 14 * var(--fs-u)); --fs-target: calc(12px + 12 * var(--fs-u)); --fs-radius: calc(4px + 5 * var(--fs-u)); --fs-font: calc(12 * var(--fs-u)); }
 .fs-winbody[data-density="balanced"] { --fs-titlebar: calc(18px + 16 * var(--fs-u)); --fs-target: calc(16px + 16 * var(--fs-u)); --fs-radius: calc(6px + 6 * var(--fs-u)); --fs-font: calc(13 * var(--fs-u)); }
 .fs-winbody[data-density="touch"] { --fs-titlebar: calc(22px + 22 * var(--fs-u)); --fs-target: calc(24px + 24 * var(--fs-u)); --fs-radius: calc(8px + 8 * var(--fs-u)); --fs-font: calc(15 * var(--fs-u)); }
+
+/* TT132: actionable alarms do not depend on a transient toast or an app window. */
+.fs-alarm-center { position: fixed; left: max(12px, env(safe-area-inset-left)); bottom: calc(76px + env(safe-area-inset-bottom)); width: min(330px, calc(100vw - 24px)); max-height: min(480px, calc(100dvh - 148px)); padding: 12px; display: grid; grid-template-rows: auto minmax(0,1fr) auto; gap: 8px; z-index: 99997; background: var(--fs-panel-solid); box-shadow: 0 10px 35px rgba(0,0,0,.25); }
+.fs-alarm-list { display: grid; gap: 8px; overflow-y: auto; min-height: 0; }
+@media (max-width: 740px) { .fs-alarm-center { top: calc(52px + env(safe-area-inset-top)); bottom: auto; max-height: 44dvh; } }

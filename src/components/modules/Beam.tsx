@@ -185,7 +185,7 @@ export default function BeamModule(_: ModuleProps) {
               <span>{s.transport} → {s.targetName}</span>
               <span className="fs-row" style={{ gap: 6 }}>
                 <Badge tone={s.state === "active" ? "warn" : "ok"}>{s.state}</Badge>
-                <span className="fs-dim">{fmtTime(s.startedAt)}{s.state === "active" ? ` · ${elapsedLabel(new Date(s.startedAt).getTime() || Date.now(), beamNow)}` : ""}</span>
+                <span className="fs-dim">{fmtTime(s.startedAt)}{s.state === "active" ? ` · ${elapsedLabel(new Date(s.startedAt).getTime() || beamNow, beamNow)}` : ""}</span>
               </span>
             </div>
           ))}

@@ -13,7 +13,7 @@ const BASE = process.env.BASE ?? "http://localhost:3999";
 const RUN = `s${Date.now().toString(36)}`;
 const { test, finish } = makeHarness("e2e-tt55-shell");
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const api = async (method: string, path: string, body?: unknown): Promise<{ status: number; json: any }> => {
   const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
   return { status: r.status, json: await r.json().catch(() => null) };

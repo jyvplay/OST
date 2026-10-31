@@ -1,0 +1,67 @@
+
+> build
+> next build
+
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 20ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 12.8s
+  Running TypeScript ...
+  Finished TypeScript in 9.8s ...
+  Collecting page data using 1 worker ...
+  Generating static pages using 1 worker (0/2) ...
+✓ Generating static pages using 1 worker (2/2) in 107ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /api/alerts
+├ ƒ /api/backup
+├ ƒ /api/beam
+├ ƒ /api/bootstrap
+├ ƒ /api/embed-probe
+├ ƒ /api/entitlement
+├ ƒ /api/features
+├ ƒ /api/forge
+├ ƒ /api/fs
+├ ƒ /api/health
+├ ƒ /api/jobs
+├ ƒ /api/ledger
+├ ƒ /api/notes
+├ ƒ /api/office
+├ ƒ /api/places/near
+├ ƒ /api/places/search
+├ ƒ /api/privacy/thumbnail-cache
+├ ƒ /api/probe
+├ ƒ /api/recall-tap
+├ ƒ /api/refused
+├ ƒ /api/render
+├ ƒ /api/routines
+├ ƒ /api/rtc
+├ ƒ /api/search
+├ ƒ /api/settings
+├ ƒ /api/sheet
+├ ƒ /api/spec-health
+├ ƒ /api/spikes
+├ ƒ /api/ssh
+├ ƒ /api/ssh/[id]
+├ ƒ /api/ssh/[id]/sftp
+├ ƒ /api/state
+├ ƒ /api/storage
+├ ƒ /api/tasks
+├ ƒ /api/test-fixture/deny-frame
+├ ƒ /api/together
+├ ƒ /api/webproxy
+├ ƒ /api/wp-route
+├ ƒ /api/wp-session
+├ ƒ /api/wp/s/[sid]/[...rest]
+├ ƒ /display
+└ ƒ /present
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

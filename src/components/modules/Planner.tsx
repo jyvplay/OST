@@ -2,7 +2,7 @@
 import { doneTasksText } from "@/lib/done-list";
 import { fz } from "@/lib/uiscale";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, fmtTime, patch, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty, Section } from "../ui";
@@ -15,6 +15,11 @@ import { overdueText } from "@/lib/overdue-text";
 import { filterTasks, type TaskStatus } from "@/lib/task-filter";
 import { presetDue, presetLabel, type DuePreset } from "@/lib/due-presets";
 import type { IcsImportWarning, IcsImportWarningCode } from "@/lib/ics";
+import { TASK_NOTES_LIMIT, TASK_TITLE_LIMIT, taskInputInstant, taskLocalInput, taskSnapshot, type PlannerTask } from "@/lib/task-model";
+import { askConfirm } from "@/lib/ask";
+import { addDays } from "@/lib/clock-core";
+import PlannerEditor from "./PlannerEditor";
+import ActionGlyph from "../ActionGlyph";
 
 const importWarningText: Record<IcsImportWarningCode, string> = {
   timezone: "TZID and embedded timezone definitions are ignored; the server's local time is used.",
@@ -29,7 +34,7 @@ const importWarningText: Record<IcsImportWarningCode, string> = {
 };
 interface ImportReview { ics: string; parsed: number; warnings: IcsImportWarning[]; serverTimeZone: string }
 
-interface Task { id: number; title: string; notes: string; done: boolean; dueAt: string | null; kind: string; endAt: string | null }
+type Task = PlannerTask;
 
 /** PR-03 tasks/reminders + PR-04 calendar via ICS import/export. */
 export default function PlannerModule(_: ModuleProps) {
@@ -37,6 +42,16 @@ export default function PlannerModule(_: ModuleProps) {
   const [rows, setRows] = useState<Task[]>([]);
   const [title, setTitle] = useState("");
   const [due, setDue] = useState("");
+  const [kind, setKind] = useState<Task["kind"]>("task");
+  const [end, setEnd] = useState("");
+  const [notes, setNotes] = useState("");
+  const [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const pending = useRef(false), loading = useRef<AbortController | null>(null);
+  const [editing, setEditing] = useState<{ item: Task; generation: number } | null>(null);
+  const editorGeneration = useRef(0), editorTrigger = useRef<HTMLElement | null>(null);
+  const [now, setNow] = useState(() => new Date());
+  const [weekAnchor, setWeekAnchor] = useState(() => new Date());
   const [view, setView] = useState<"list" | "week" | "agenda">("list");
   const [filterQ, setFilterQ] = useState("");
   const [filterStatus, setFilterStatus] = useState<TaskStatus>("all");
@@ -53,49 +68,84 @@ export default function PlannerModule(_: ModuleProps) {
   }, [repeat, due]);
 
   const shownRows = filterTasks(rows, filterQ, filterStatus);
-  const load = () => api<{ rows: Task[] }>("/api/tasks").then((r) => setRows(r.rows)).catch(() => undefined);
-  useEffect(() => { void load(); }, [shell.refreshTick]);
+  const load = useCallback(() => {
+    loading.current?.abort();
+    const controller = new AbortController(); loading.current = controller;
+    return api<{ rows: Task[] }>("/api/tasks", { signal: controller.signal }).then((r) => {
+      if (controller.signal.aborted) return;
+      setRows(r.rows); setLoadState("ready"); return r.rows;
+    }).catch((e: Error) => {
+      if (!controller.signal.aborted) { setError(`Could not load Planner: ${e.message}`); setLoadState("error"); }
+    });
+  }, []);
+  useEffect(() => { void load(); return () => { loading.current?.abort(); }; }, [load, shell.refreshTick]);
+  useEffect(() => { const t = window.setInterval(() => setNow(new Date()), 30_000); return () => window.clearInterval(t); }, []);
+  const closeEditor = () => { setEditing(null); requestAnimationFrame(() => editorTrigger.current?.isConnected && editorTrigger.current.focus()); };
+  const openEditor = async (item: Task, trigger: HTMLElement) => {
+    if (editing && (await shell.askSave(_.win.id)) === "cancelled") return;
+    editorTrigger.current = trigger; setEditing({ item, generation: ++editorGeneration.current });
+  };
+  const requestCloseEditor = async () => { if ((await shell.askSave(_.win.id)) !== "cancelled") closeEditor(); };
+  const mutate = async (operation: () => Promise<void>) => {
+    if (pending.current) return;
+    pending.current = true; setBusy(true); setError("");
+    try { await operation(); }
+    catch (e) { setError((e as Error).message); }
+    finally { pending.current = false; setBusy(false); }
+  };
+  const addItem = () => mutate(async () => {
+    const itemNotes = `${notes}${repeat ? `${notes ? "\n" : ""}RRULE:${repeat}` : ""}`;
+    await post("/api/tasks", { title, notes: itemNotes, kind, dueAt: taskInputInstant(due), endAt: kind === "event" ? taskInputInstant(end) : null });
+    setTitle(""); setDue(""); setEnd(""); setNotes(""); shell.bumpRefresh();
+  });
+  const toggleDone = (item: Task) => mutate(async () => {
+    await patch("/api/tasks", { id: item.id, done: !item.done, expected: taskSnapshot(item) }); shell.bumpRefresh();
+  });
+  const removeItem = (item: Task) => mutate(async () => {
+    if (!await askConfirm({ title: "Delete planner item?", detail: item.title, okLabel: "Delete item" })) return;
+    await api(`/api/tasks?id=${item.id}`, { method: "DELETE", body: JSON.stringify({ expected: taskSnapshot(item) }) });
+    if (editing?.item.id === item.id) closeEditor(); shell.bumpRefresh();
+  });
   const importCalendar = async (ics: string) => {
     setImportBusy(true);
     try {
       const r = await post<{ parsed: number; added: number; skipped: number }>("/api/tasks", { ics });
       setImportReview(null);
       shell.toast(`ICS: ${r.parsed} parsed, ${r.added} added, ${r.skipped} already present`, "ok");
-      await load();
+      await load(); shell.bumpRefresh();
     } catch (e) { shell.toast(`Calendar import failed: ${String((e as Error).message)}`, "bad"); }
     finally { setImportBusy(false); }
   };
 
-  const days = localWeekDays(new Date());
+  const days = localWeekDays(weekAnchor);
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
+      <form aria-label="New planner item" onSubmit={(event) => { event.preventDefault(); void addItem(); }} style={{ display: "grid", gap: 6 }}>
+        <fieldset disabled={busy} style={{ display: "grid", gap: 6, border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+          <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+            <ActionGlyph name={kind === "task" ? "task" : "calendar"} />
+            <input className="fs-input" style={{ flex: 1, minWidth: fz(140) }} placeholder={kind === "task" ? "New task" : "New event"} value={title} required maxLength={TASK_TITLE_LIMIT}
+              onChange={(e) => setTitle(e.target.value)} aria-label="Task title" />
+            <select className="fs-select" style={{ width: fz(96) }} value={kind} aria-label="Item type" onChange={(e) => setKind(e.target.value as Task["kind"])}><option value="task">Task</option><option value="event">Event</option></select>
+            <input className="fs-input" type="datetime-local" step="0.001" style={{ width: fz(210) }} value={due} required={kind === "event"} onChange={(e) => setDue(e.target.value)} aria-label={kind === "task" ? "Due" : "Start"} />
+            {kind === "event" ? <input className="fs-input" type="datetime-local" step="0.001" style={{ width: fz(210) }} value={end} onChange={(e) => setEnd(e.target.value)} aria-label="Event end" /> : null}
+            <Btn id={`${_.win.id}-planner-add`} type="submit" variant="primary" disabled={!title.trim() || (!!repeat && !due)}>Add</Btn>
+          </div>
+          <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }}>
+            {(["today", "tomorrow", "next-week"] as DuePreset[]).map((preset) => <Btn key={preset} variant="ghost" title={presetLabel(preset)} onClick={() => { const d = presetDue(preset); if (d) setDue(taskLocalInput(d.toISOString())); }}>{preset === "today" ? "Today" : preset === "tomorrow" ? "Tomorrow" : "+1 week"}</Btn>)}
+            <select className="fs-select" style={{ width: fz(150) }} value={repeat} onChange={(e) => setRepeat(e.target.value)} aria-label="Repeat">
+              <option value="">no repeat</option><option value="FREQ=DAILY">daily</option><option value="FREQ=WEEKLY">weekly</option><option value="FREQ=WEEKLY;BYDAY=MO,WE,FR">Mon/Wed/Fri</option><option value="FREQ=MONTHLY">monthly</option><option value="FREQ=YEARLY">yearly</option>
+            </select>
+          </div>
+          <details><summary style={{ cursor: "pointer", fontSize: fz(11) }}>Notes</summary><textarea className="fs-input" aria-label="New item notes" rows={3} maxLength={TASK_NOTES_LIMIT} value={notes} onChange={(e) => setNotes(e.target.value)} style={{ width: "100%", marginTop: 5, resize: "vertical" }} /></details>
+        </fieldset>
+      </form>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        <input className="fs-input" style={{ flex: 1, minWidth: fz(160) }} placeholder="New task" value={title}
-          onChange={(e) => setTitle(e.target.value)} aria-label="Task title"
-          onKeyDown={(e) => { if (e.key === "Enter") (document.getElementById("planner-add") as HTMLButtonElement)?.click(); }} />
-        <input className="fs-input" type="datetime-local" style={{ width: fz(200) }} value={due} onChange={(e) => setDue(e.target.value)} aria-label="Due" />
-        {(["today", "tomorrow", "next-week"] as DuePreset[]).map((preset) => (
-          <Btn key={preset} variant="ghost" title={presetLabel(preset)} onClick={() => { const d = presetDue(preset); if (d) { const p = (n: number) => String(n).padStart(2, "0"); setDue(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`); } }}>{preset === "today" ? "Today" : preset === "tomorrow" ? "Tomorrow" : "+1 week"}</Btn>
-        ))}
-        {(() => { const overdue = rows.filter((t) => !t.done && t.dueAt && new Date(t.dueAt) < new Date()).length; return overdue ? <><Badge tone="bad">{overdue} overdue</Badge><Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(overdueText(rows, new Date())); shell.toast("Overdue list copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="planner-copy-overdue">Copy overdue</Btn></> : null; })()}
-        <Btn id="planner-add" variant="primary" disabled={!title || (!!repeat && !due)} onClick={async () => {
-          await post("/api/tasks", { title, dueAt: due ? new Date(due).toISOString() : null, ...(repeat ? { notes: `RRULE:${repeat}` } : {}) });
-          setTitle(""); setDue(""); await load();
-        }}>Add</Btn>
         <Btn variant="ghost" onClick={() => setView(view === "list" ? "week" : view === "week" ? "agenda" : "list")}>{view === "list" ? "Week view" : view === "week" ? "Agenda" : "List view"}</Btn>
         <input className="fs-input" style={{ width: fz(140) }} placeholder="Filter tasks" aria-label="Filter tasks" value={filterQ} onChange={(e) => setFilterQ(e.target.value)} />
-        <select className="fs-select" style={{ width: fz(110) }} value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as TaskStatus)} aria-label="Filter by status">
-          <option value="all">all</option><option value="open">open</option><option value="done">done</option>
-        </select>
-        <select className="fs-select" style={{ width: fz(150) }} value={repeat} onChange={(e) => setRepeat(e.target.value)} aria-label="Repeat">
-          <option value="">no repeat</option>
-          <option value="FREQ=DAILY">daily</option>
-          <option value="FREQ=WEEKLY">weekly</option>
-          <option value="FREQ=WEEKLY;BYDAY=MO,WE,FR">Mon/Wed/Fri</option>
-          <option value="FREQ=MONTHLY">monthly</option>
-          <option value="FREQ=YEARLY">yearly</option>
-        </select>
+        <select className="fs-select" style={{ width: fz(110) }} value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as TaskStatus)} aria-label="Filter by status"><option value="all">all</option><option value="open">open</option><option value="done">done</option></select>
+        {(() => { const overdue = rows.filter((t) => !t.done && t.dueAt && new Date(t.dueAt) < now).length; return overdue ? <><Badge tone="bad">{overdue} overdue</Badge><Btn variant="ghost" onClick={() => void shell.copy(overdueText(rows, new Date()), "planner")} data-testid="planner-copy-overdue">Copy overdue</Btn></> : null; })()}
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>
           Import .ics
           <input type="file" accept=".ics,text/calendar" hidden disabled={importBusy} onChange={async (e) => {
@@ -115,6 +165,16 @@ export default function PlannerModule(_: ModuleProps) {
         <Btn variant="ghost" onClick={() => window.open("/api/tasks?format=ics", "_blank")}>Export .ics</Btn>
       </div>
 
+      {error ? <div role="alert" className="fs-panel" style={{ padding: 8 }}>{error} <Btn variant="ghost" onClick={() => { setError(""); void load(); }}>Retry loading</Btn></div> : null}
+      {loadState === "loading" ? <div role="status">Loading Planner…</div> : null}
+      {editing ? <PlannerEditor key={`${editing.item.id}-${editing.generation}`} winId={_.win.id} task={editing.item} onCancel={() => void requestCloseEditor()} onSaved={() => { closeEditor(); shell.bumpRefresh(); }} onReload={async () => {
+        const r = await load();
+        if (!r) throw new Error("Could not reload this item. Your draft is still open.");
+        const item = r.find((row) => row.id === editing.item.id);
+        if (!item) throw new Error("This item was deleted. Cancel to close the draft.");
+        setEditing({ item, generation: ++editorGeneration.current });
+      }} /> : null}
+
       {importReview ? <Section title="Review calendar import">
         <div role="status">{importReview.parsed} items found · server timezone: {importReview.serverTimeZone}. Nothing has been imported yet.</div>
         <ul style={{ margin: 0, paddingInlineStart: 20, listStyle: "disc" }}>
@@ -127,12 +187,12 @@ export default function PlannerModule(_: ModuleProps) {
       </Section> : null}
       {repeat && !due ? <div className="fs-dim" role="status">Choose a due date to add a repeating task.</div> : null}
       {repeatPreview ? <div className="fs-dim" data-testid="planner-repeat-preview" style={{ fontSize: fz(11) }}>Repeats: {repeatPreview}. Only the first task is saved. UTC export may shift local times; month-end rules may skip dates.</div> : null}
-      {rows.length === 0 ? <Empty title="Nothing planned" glyph="emptyPlan" /> : null}
+      {rows.length === 0 && loadState === "ready" ? <Empty title="Nothing planned" glyph="emptyPlan" /> : null}
       {rows.length > 0 && shownRows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(12) }} role="status">No tasks match the filter.</div> : null}
 
       {view === "agenda" ? (
         <div className="fs-row" style={{ gap: 6 }}>
-          <Btn variant="ghost" onClick={() => void shell.copy(agendaText(rows.map((t) => ({ title: t.title, due: t.dueAt, done: t.done })), new Date()), "planner")} data-testid="planner-copy-agenda">Copy today's agenda</Btn>
+          <Btn variant="ghost" onClick={() => void shell.copy(agendaText(rows.map((t) => ({ title: t.title, due: t.dueAt, done: t.done })), new Date()), "planner")} data-testid="planner-copy-agenda">Copy today’s agenda</Btn>
           <Btn variant="ghost" onClick={() => void shell.copy(doneTasksText(rows), "planner")} data-testid="planner-copy-done">Copy done</Btn>
           {(() => { const cs = completionStats(rows, new Date()); return <Badge tone="ok" data-testid="planner-completion">done today {cs.today} · this week {cs.week}{cs.undated ? ` · ${cs.undated} undated` : ""}</Badge>; })()}
           <span className="fs-dim" style={{ fontSize: fz(11) }}>plain text, ready to paste anywhere</span>
@@ -151,22 +211,32 @@ export default function PlannerModule(_: ModuleProps) {
       ) : view === "list" ? (
         <div style={{ display: "grid", gap: 2 }}>
           {shownRows.map((t) => {
-            const overdue = t.dueAt && !t.done && new Date(t.dueAt).getTime() < Date.now();
+            const overdue = t.dueAt && !t.done && new Date(t.dueAt).getTime() < now.getTime();
             return (
               <div key={t.id} className="fs-list-item" style={{ opacity: t.done ? .55 : 1 }}>
                 {t.kind === "task"
                   ? <input type="checkbox" checked={t.done} aria-label={`Done: ${t.title}`}
-                      onChange={async () => { await patch("/api/tasks", { id: t.id, done: !t.done }); await load(); }} />
-                  : <span>📅</span>}
-                <span style={{ flex: 1, textDecoration: t.done ? "line-through" : "none", fontSize: fz(12) }}>{t.title}</span>
+                      disabled={busy} onChange={() => void toggleDone(t)} />
+                  : <ActionGlyph name="calendar" size={16} />}
+                <span style={{ flex: 1, minWidth: 0, overflowWrap: "anywhere", textDecoration: t.done ? "line-through" : "none", fontSize: fz(12) }}>{t.title}</span>
                 {t.dueAt ? <Badge tone={overdue ? "bad" : "info"}>{fmtTime(t.dueAt)}</Badge> : null}
-                <Btn variant="ghost" onClick={async () => { await fetch(`/api/tasks?id=${t.id}`, { method: "DELETE" }); await load(); }}>✕</Btn>
+                {t.kind === "event" && t.endAt ? <Badge tone="info"><ActionGlyph name="arrow" size={12} /> {fmtTime(t.endAt)}</Badge> : null}
+                <Btn variant="ghost" disabled={busy} aria-label={`Edit ${t.title}`} title={`Edit ${t.title}`} onClick={(e) => void openEditor(t, e.currentTarget as HTMLElement)}><ActionGlyph name="edit" size={16} /></Btn>
+                <Btn variant="ghost" disabled={busy} aria-label={`Delete ${t.title}`} title={`Delete ${t.title}`} onClick={() => void removeItem(t)}><ActionGlyph name="remove" size={16} /></Btn>
               </div>
             );
           })}
         </div>
       ) : (
-        <div data-testid="planner-week" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+        <div style={{ display: "grid", gap: 6, minWidth: 0 }}>
+          <div className="fs-row" style={{ gap: 5, flexWrap: "wrap" }}>
+            <Btn variant="ghost" aria-label="Previous week" onClick={() => setWeekAnchor((d) => addDays(d, -7))}>←</Btn>
+            <Btn variant="ghost" onClick={() => setWeekAnchor(new Date())}>This week</Btn>
+            <Btn variant="ghost" aria-label="Next week" onClick={() => setWeekAnchor((d) => addDays(d, 7))}>→</Btn>
+            <span data-testid="planner-week-range" style={{ fontSize: fz(11) }}>{days[0].toLocaleDateString()}–{days[6].toLocaleDateString()}</span>
+          </div>
+          <div role="region" aria-label="Week calendar" tabIndex={0} style={{ overflowX: "auto" }}>
+          <div data-testid="planner-week" style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(110px, 1fr))", gap: 4 }}>
           {days.map((d) => {
             const items = shownRows.filter((t) => t.dueAt && new Date(t.dueAt).toDateString() === d.toDateString());
             return (
@@ -175,23 +245,24 @@ export default function PlannerModule(_: ModuleProps) {
                   {d.toLocaleDateString([], { weekday: "short", day: "numeric" })}
                 </div>
                 {items.map((t) => (
-                  <div key={t.id} style={{ fontSize: fz(10.5), marginTop: 3, textDecoration: t.done ? "line-through" : "none" }}>
+                  <button key={t.id} className="fs-btn" data-variant="ghost" style={{ width: "100%", justifyContent: "start", overflowWrap: "anywhere", whiteSpace: "normal", fontSize: fz(10.5), marginTop: 3, textDecoration: t.done ? "line-through" : "none" }} aria-label={`Edit ${t.title}`} onClick={(e) => void openEditor(t, e.currentTarget)}>
                     {new Date(t.dueAt!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} {t.title}
-                  </div>
+                  </button>
                 ))}
               </div>
             );
           })}
+          </div></div>
         </div>
       )}
 
-      <Section title="Boundaries">
-        <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          Reminders fire from the shell while it is open (the reminder loop runs in the shell, not this window, so
-          closing Planner does not stop them). There is no web API for the system calendar provider, so calendars move
-          in and out as .ics files. TZID and floating dates are interpreted in the server’s local timezone, not the source timezone.
-        </div>
-      </Section>
+      <div className="fs-dim" style={{ fontSize: fz(11.5) }}>Keep Fusion open for reminders.</div>
+      <details className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
+        <summary style={{ cursor: "pointer" }}>Limits & timezones</summary>
+        Reminders need the shell running; closing Planner is safe. Events use .ics, not a system calendar provider.
+        Imported TZID/floating dates use the server’s timezone. Edited times use this browser’s timezone;
+        repeated hours follow the browser’s first occurrence unless the input is unchanged. Edits ask before closing; no crash-recovery draft is stored.
+      </details>
     </div>
   );
 }

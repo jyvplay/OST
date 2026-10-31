@@ -1,0 +1,65 @@
+Actual browser: 143.0.7499.0
+11 + GET document http://127.0.0.1:3000/
+36 + GET stylesheet http://127.0.0.1:3000/_next/static/chunks/3bhd64x-hzy66.css
+36 + GET stylesheet http://127.0.0.1:3000/_next/static/chunks/0n8kzvw2z_6as.css
+36 + GET script http://127.0.0.1:3000/_next/static/chunks/1x6obpmlu1_c2.js
+36 + GET script http://127.0.0.1:3000/_next/static/chunks/1yrh6cr1_x_bo.js
+37 + GET script http://127.0.0.1:3000/_next/static/chunks/3wbm-994r45kr.js
+37 + GET script http://127.0.0.1:3000/_next/static/chunks/17uvqm6h_64kn.js
+38 + GET script http://127.0.0.1:3000/_next/static/chunks/turbopack-2c3mg3r-05n1w.js
+38 + GET script http://127.0.0.1:3000/_next/static/chunks/0umf92h1sb77c.js
+38 + GET script http://127.0.0.1:3000/_next/static/chunks/0cryn4jsydk0z.js
+38 + GET script http://127.0.0.1:3000/_next/static/chunks/3zycrwema5clc.js
+38 + GET script http://127.0.0.1:3000/_next/static/chunks/24o_qyjznfbg1.js
+38 + GET script http://127.0.0.1:3000/_next/static/chunks/1-zcgiiccgtx2.js
+38 + GET script http://127.0.0.1:3000/_next/static/chunks/1cvz79iza5e3o.js
+38 + GET script http://127.0.0.1:3000/_next/static/chunks/2hmb18-s_p9a6.js
+39 - http://127.0.0.1:3000/_next/static/chunks/3bhd64x-hzy66.css
+39 - http://127.0.0.1:3000/_next/static/chunks/0n8kzvw2z_6as.css
+46 - http://127.0.0.1:3000/
+100 + GET image http://127.0.0.1:3000/wallpapers/poolside.svg
+100 + GET font http://127.0.0.1:3000/fonts/nunito-latin-wght-normal.woff2
+101 - http://127.0.0.1:3000/fonts/nunito-latin-wght-normal.woff2
+101 - http://127.0.0.1:3000/_next/static/chunks/1x6obpmlu1_c2.js
+107 - http://127.0.0.1:3000/_next/static/chunks/1yrh6cr1_x_bo.js
+158 - http://127.0.0.1:3000/wallpapers/poolside.svg
+160 - http://127.0.0.1:3000/_next/static/chunks/turbopack-2c3mg3r-05n1w.js
+164 - http://127.0.0.1:3000/_next/static/chunks/0umf92h1sb77c.js
+171 - http://127.0.0.1:3000/_next/static/chunks/0cryn4jsydk0z.js
+172 - http://127.0.0.1:3000/_next/static/chunks/17uvqm6h_64kn.js
+172 - http://127.0.0.1:3000/_next/static/chunks/3wbm-994r45kr.js
+172 - http://127.0.0.1:3000/_next/static/chunks/24o_qyjznfbg1.js
+172 - http://127.0.0.1:3000/_next/static/chunks/3zycrwema5clc.js
+191 - http://127.0.0.1:3000/_next/static/chunks/1cvz79iza5e3o.js
+191 - http://127.0.0.1:3000/_next/static/chunks/2hmb18-s_p9a6.js
+328 - http://127.0.0.1:3000/_next/static/chunks/1-zcgiiccgtx2.js
+456 + GET fetch http://127.0.0.1:3000/api/fs?op=read&path=%2FPrivate%2F.keyslots.json
+499 + GET fetch http://127.0.0.1:3000/api/fs?op=list&path=/Documents
+500 + GET fetch http://127.0.0.1:3000/api/bootstrap
+518 - http://127.0.0.1:3000/api/fs?op=list&path=/Documents
+518 - http://127.0.0.1:3000/api/bootstrap
+522 + GET fetch http://127.0.0.1:3000/api/settings
+531 - http://127.0.0.1:3000/api/settings
+537 + GET fetch http://127.0.0.1:3000/api/state?id=default
+542 - http://127.0.0.1:3000/api/state?id=default
+696 + GET fetch http://127.0.0.1:3000/api/notes
+696 + GET fetch http://127.0.0.1:3000/api/fs?op=list&path=/Widgets
+697 + GET fetch http://127.0.0.1:3000/api/tasks
+697 + GET fetch http://127.0.0.1:3000/api/routines
+745 - http://127.0.0.1:3000/api/notes
+746 - http://127.0.0.1:3000/api/fs?op=list&path=/Widgets
+747 - http://127.0.0.1:3000/api/tasks
+747 - http://127.0.0.1:3000/api/routines
+756 + GET fetch http://127.0.0.1:3000/api/fs?op=read&path=%2FWidgets%2Fcounter.worker.js
+762 - http://127.0.0.1:3000/api/fs?op=read&path=%2FWidgets%2Fcounter.worker.js
+765 + GET script blob:http://127.0.0.1:3000/fbeef56e-ae50-4eec-aad6-92ece00dfb47
+777 - blob:http://127.0.0.1:3000/fbeef56e-ae50-4eec-aad6-92ece00dfb47
+1268 + PUT fetch http://127.0.0.1:3000/api/state
+not idle [
+  [
+    'GET',
+    'http://127.0.0.1:3000/api/fs?op=read&path=%2FPrivate%2F.keyslots.json',
+    8305
+  ],
+  [ 'PUT', 'http://127.0.0.1:3000/api/state', 7493 ]
+]

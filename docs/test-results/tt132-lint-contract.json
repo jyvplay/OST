@@ -1,0 +1,34 @@
+{
+  "suite": "tt132-lint-contract",
+  "at": "2026-10-31T07:23:35.172Z",
+  "results": [
+    {
+      "suite": "tt132-lint-contract",
+      "name": "every root config, declared lock and installed metadata change invalidates the cache namespace",
+      "covers": {},
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt132-lint-contract",
+      "name": "an unchanged importer is invalidated by a same-length same-metadata dependency edit or a new route",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt132-lint-contract",
+      "name": "a Node version change invalidates the namespace even with identical source/config",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-lint-contract",
+      "name": "missing metadata fails closed instead of silently trusting an old cache",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+    editor         22 words (cap 70)
+    files         192 words (cap 260)
+    pdf            50 words (cap 90)
+    writer        118 words (cap 160)
+    beam          296 words (cap 320)
+    devices        41 words (cap 400)
+    vault          59 words (cap 120)
+    planner        15 words (cap 160)
+    recall        156 words (cap 200)
+    peek            4 words (cap 200)
+    whiteboard     72 words (cap 110)
+    lens          124 words (cap 170)
+    apps          893 words (cap 980)
+    clipboard     137 words (cap 180)
+    together       85 words (cap 120)
+    settings     1450 words (cap 1650)
+    books          26 words (cap 300)
+    capture        85 words (cap 320)
+  ✓ TT125 register: all twenty codes built, register grew past TT124's 587
+  ✓ AX-24 bounds: every touched module within its TT125 cap
+  ✓ screenshots: editor stamp toolbar + lens capability row
+
+3 passed, 0 failed

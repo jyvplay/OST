@@ -10,7 +10,7 @@ import { privacy } from "./privacy/session";
 export const ALARMS_KEY = "fusion.alarms.v1";
 const empty: Alarm[] = [];
 let current: Alarm[] = empty;
-let initialized = false;
+let initialized = false, memoryOnly = false;
 const listeners = new Set<() => void>();
 
 function decode(raw: string | null): Alarm[] {
@@ -23,9 +23,9 @@ function initialize() {
   // An amnesic shell must not start normal-profile alarms or react to normal
   // tabs' storage events. New alarms in this session remain document-local.
   if (privacy.status().amnesic) current = empty;
-  else try { current = decode(window.localStorage.getItem(ALARMS_KEY)); } catch { current = empty; }
+  else try { current = decode(window.localStorage.getItem(ALARMS_KEY)); } catch { current = empty; memoryOnly = true; }
   window.addEventListener("storage", (event) => {
-    if (privacy.status().amnesic || (event.key !== ALARMS_KEY && event.key !== null)) return;
+    if (privacy.status().amnesic || memoryOnly || (event.key !== ALARMS_KEY && event.key !== null)) return;
     current = decode(event.key === null ? null : event.newValue);
     publish();
   });
@@ -39,13 +39,24 @@ function snapshot() { return current; }
 function serverSnapshot() { return empty; }
 
 export function useAlarms(): Alarm[] { return useSyncExternalStore(subscribe, snapshot, serverSnapshot); }
-export function getAlarms(): Alarm[] { initialize(); return current; }
-export function updateAlarms(change: (previous: Alarm[]) => Alarm[]): boolean {
+export function getAlarms(): Alarm[] {
   initialize();
-  const next = validateAlarms(change(current));
+  // Claim/action callbacks may acquire a Web Lock before a storage event from
+  // another tab is dispatched. Re-read while inside the lock, not just the
+  // event-fed React snapshot. A denied write keeps this page in memory mode.
+  if (!privacy.status().amnesic && !memoryOnly && typeof window !== "undefined") {
+    try {
+      const next = decode(window.localStorage.getItem(ALARMS_KEY));
+      if (JSON.stringify(next) !== JSON.stringify(current)) { current = next; publish(); }
+    } catch { memoryOnly = true; }
+  }
+  return current;
+}
+export function updateAlarms(change: (previous: Alarm[]) => Alarm[]): boolean {
+  const next = validateAlarms(change(getAlarms()));
   current = next;
-  let persisted = true;
-  try { window.localStorage.setItem(ALARMS_KEY, JSON.stringify(next)); } catch { persisted = false; }
+  let persisted = false;
+  if (!privacy.status().amnesic) try { window.localStorage.setItem(ALARMS_KEY, JSON.stringify(next)); persisted = true; memoryOnly = false; } catch { memoryOnly = true; }
   publish();
   return persisted;
 }

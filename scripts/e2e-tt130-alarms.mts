@@ -173,15 +173,18 @@ try {
       await clock.getByLabel("Alarm time").fill("09:30"); await clock.getByLabel("Alarm label").fill("Session secret");
       await clock.getByRole("button", { name: "Add alarm" }).click();
       await page.getByText("Amnesic session: alarms last only while this page stays open.", { exact: true }).waitFor();
-      const sessionId = await page.evaluate(() => JSON.parse(localStorage.getItem("fusion.alarms.v1") ?? "[]").find((a: { label: string }) => a.label === "Session secret")?.id as string);
-      assert.ok(sessionId);
+      // Amnesic schedules now live in the alarm store's isolated page memory,
+      // not even the privacy layer's Storage overlay. Assert the real user
+      // route exists; do not make its internal serialization a requirement.
+      await clock.getByRole("button", { name: "Edit alarm Session secret", exact: true }).waitFor();
       await clock.getByRole("button", { name: "Close window" }).click(); await clock.waitFor({ state: "detached" });
       await page.clock.fastForward(15_000);
       await page.getByTestId("toasts").getByText("Alarm: Session secret", { exact: true }).waitFor({ timeout: 5_000 });
       assert.deepEqual(await page.evaluate(() => (window as unknown as { sentAlarmNotifications: string[] }).sentAlarmNotifications), [], "amnesic alarm labels must not be sent to the OS notification surface");
       assert.deepEqual(await normal.evaluate(() => JSON.parse(localStorage.getItem("fusion.alarms.v1") ?? "[]")), changed);
-      const normalClaims = await normal.evaluate(() => localStorage.getItem("fusion.clock.claims.v1") ?? "[]");
-      assert.ok(!normalClaims.includes(sessionId), "the amnesic claim must not persist; normal-page claims may legitimately exist");
+      const normalClaims: string[] = await normal.evaluate(() => JSON.parse(localStorage.getItem("fusion.clock.claims.v1") ?? "[]"));
+      const normalIds = new Set(changed.map((alarm) => alarm.id));
+      assert.ok(normalClaims.every((claim) => normalIds.has(claim.slice(0, claim.lastIndexOf("@")))), "only known normal-profile alarm IDs may persist claims; no amnesic or unknown claim is allowed");
     } finally { await context.close(); }
   });
   await test("disabling an alarm while its claim is blocked cancels delivery", { "CK-01": "partial" }, async () => {

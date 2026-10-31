@@ -1,0 +1,33 @@
+{
+  "suite": "tt132-claim-contract",
+  "at": "2026-10-31T07:23:35.129Z",
+  "results": [
+    {
+      "suite": "tt132-claim-contract",
+      "name": "an exception after entering a claim callback is propagated, never retried outside the lock",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-claim-contract",
+      "name": "a lock API failure before callback entry uses the fallback exactly once",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt132-claim-contract",
+      "name": "a scheduling predicate exception is propagated without a second predicate evaluation",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}
