@@ -1,0 +1,15 @@
+  ✓ write through the layer: the host row has no plaintext name, content, size or index entry; read decrypts
+  ✓ list decrypts and sorts names; a second write keeps an encrypted version that decrypts; rename/move stay encrypted server-side
+  ✓ locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside
+  ✓ cross-store moves happen in the browser: host file → /Private arrives encrypted (source trashed); /Private → host is an explicit decrypting copy
+  ✓ office on encrypted files: Export .xlsx into /Private (rewritten to export + encrypted write), import from /Private inlined; the bare server refuses the blob
+  ✓ TT87 conditional VFS writes respect privacy boundaries and still work for ordinary unlocked-host files
+  ✓ TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes
+  ✓ amnesic: VFS writes live in RAM (no row), host files can be hidden but are untouched, moves copy into RAM; wipe forgets everything
+  ✓ amnesic deny-by-default: notes/settings/presets refused with nothing written; state kept in memory; compute endpoints still work; /Private still persists (Tails' Persistent folder)
+  ✓ desktop state: /Private paths are sealed before reaching the host and reopened when unlocked; locked seal never leaks
+  ✓ audit walks /Private on the host and flags anything stored in clear (a planted plaintext file is caught)
+  ✓ TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock
+  ✓ TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results
+
+13 passed, 0 failed

@@ -1,0 +1,214 @@
+{
+  "suite": "tt128-core",
+  "at": "2026-10-30T23:56:40.100Z",
+  "results": [
+    {
+      "suite": "tt128-core",
+      "name": "calendar folds complete content lines at 75 UTF-8 bytes without splitting characters",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt128-core",
+      "name": "calendar TEXT escapes round-trip literal backslashes, newline, commas and semicolons",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "calendar UID and title cannot inject additional properties",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "nested alarm properties do not override the enclosing event",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "DUE wins over DTSTART for tasks regardless of property order",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "calendar dates reject rollover, invalid times and mismatched value type",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "calendar STATUS matches COMPLETED exactly",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "calendar rejects injected raw RRULE but permits CRLF note lines",
+      "covers": {
+        "PL-02": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt128-core",
+      "name": "weekly Sunday comes after weekdays, including COUNT and window boundaries",
+      "covers": {
+        "PL-01": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt128-core",
+      "name": "repeat rules reject unsupported, duplicate or inapplicable parts",
+      "covers": {
+        "PL-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "repeat expansion refuses invalid dates and direct invalid rules instead of looping",
+      "covers": {
+        "PL-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "zone converter rejects spring gaps and requires explicit fall overlap choice",
+      "covers": {
+        "WD-03": "partial"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "tt128-core",
+      "name": "zone converter handles 30-minute overlaps and skipped calendar days",
+      "covers": {
+        "WD-03": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt128-core",
+      "name": "zone converter validates dates, zones and explicit overlap policy",
+      "covers": {
+        "WD-03": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "photo No date distinguishes file dates from capture dates, including old cache entries",
+      "covers": {
+        "PH-07": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "timeline aggregation preserves all groups, bytes and lexical first/last dates",
+      "covers": {
+        "PH-02": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt128-core",
+      "name": "local UNTIL DATE includes the entire day across a non-UTC host",
+      "covers": {
+        "PL-01": "partial"
+      },
+      "pass": true,
+      "ms": 171
+    },
+    {
+      "suite": "tt128-core",
+      "name": "Planner week and completion windows use calendar days across Santiago's midnight DST shift",
+      "covers": {
+        "PL-01": "partial",
+        "PL-07": "partial"
+      },
+      "pass": true,
+      "ms": 130
+    },
+    {
+      "suite": "tt128-core",
+      "name": "Clock date inputs use the local date and calendar arithmetic across a skipped day",
+      "covers": {
+        "CK-03": "partial"
+      },
+      "pass": true,
+      "ms": 277
+    },
+    {
+      "suite": "tt128-core",
+      "name": "constant-work business-date count agrees with a separate day-by-day calculation",
+      "covers": {
+        "CK-03": "partial"
+      },
+      "pass": true,
+      "ms": 49
+    },
+    {
+      "suite": "tt128-core",
+      "name": "photo sort puts missing values last in both directions and handles pre-epoch dates",
+      "covers": {
+        "PH-05": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "calendar rejects DATE values explicitly declared DATE-TIME",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt128-core",
+      "name": "a dated recurring task exports both recurrence anchor and due instant",
+      "covers": {
+        "PL-02": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

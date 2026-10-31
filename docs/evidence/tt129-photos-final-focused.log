@@ -1,0 +1,5 @@
+  ✓ a thumbnail completing between pointer down and up keeps its tile geometry and click
+  ✓ a deep-linked viewer snapshots the library before delayed EXIF reordering
+  ✓ a deep-linked viewer keeps its original order across a real trash and restore
+
+3 passed, 0 failed

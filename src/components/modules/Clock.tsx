@@ -1,13 +1,15 @@
 "use client";
 import { fz } from "@/lib/uiscale";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
-import { validateAlarms, nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, type Alarm } from "@/lib/clock-core";
+import { nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, localDateInput, type Alarm } from "@/lib/clock-core";
+import { updateAlarms, useAlarms } from "@/lib/alarm-store";
+import { privacy } from "@/lib/privacy/session";
 import { commonWindows, validateCountdowns, daysUntil, type Countdown } from "@/lib/zones";
 import { validateZones, addZone, removeZone, allZoneNames, WORLD_ZONES_KEY } from "@/lib/zone-list";
-import { convertZoneTime } from "@/lib/zone-convert";
+import { convertZoneTime, type ZoneDisambiguation } from "@/lib/zone-convert";
 import { zoneStatus } from "@/lib/zone-status";
 import { TIMER_PRESETS } from "@/lib/timer-presets";
 import { lapsText } from "@/lib/laps-text";
@@ -45,29 +47,18 @@ export default function ClockModule(_: ModuleProps) {
   const [zonePick, setZonePick] = useState("Europe/Paris");
   const [zoneMsg, setZoneMsg] = useState("");
   useEffect(() => { try { localStorage.setItem(WORLD_ZONES_KEY, JSON.stringify(zones)); } catch { /* private mode */ } }, [zones]);
-  // TT117 CK-01: alarms persist browser-local (a closed web app cannot fire them; stated below).
-  const [alarms, setAlarms] = useState<Alarm[]>(() => { try { return validateAlarms(JSON.parse(localStorage.getItem("fusion.alarms.v1") ?? "[]")); } catch { return []; } });
+  // Shared with the shell scheduler and other Clock windows in this page.
+  const alarms = useAlarms();
   const [alarmTime, setAlarmTime] = useState("07:30");
   const [alarmLabel, setAlarmLabel] = useState("");
-  const [dateA, setDateA] = useState(() => new Date().toISOString().slice(0, 10));
-  const [dateB, setDateB] = useState(() => new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
-  useEffect(() => { try { localStorage.setItem("fusion.alarms.v1", JSON.stringify(alarms)); } catch { /* private mode */ } }, [alarms]);
-  const firedAlarms = useRef(new Set<string>());
-  useEffect(() => {
-    const t = window.setInterval(() => {
-      const nowD = new Date();
-      for (const a of alarms) {
-        const at = nextFire(a, new Date(nowD.getTime() - 60000));
-        const key = `${a.id}@${at?.getTime() ?? 0}`;
-        if (at && Math.abs(at.getTime() - nowD.getTime()) < 60000 && at <= nowD && !firedAlarms.current.has(key)) {
-          firedAlarms.current.add(key);
-          shell.toast(`Alarm: ${a.label || a.time}`, "ok");
-          if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(`Alarm: ${a.label || a.time}`);
-        }
-      }
-    }, 5000);
-    return () => window.clearInterval(t);
-  }, [alarms, shell]);
+  const [alarmDays, setAlarmDays] = useState<number[]>([]);
+  const [dateA, setDateA] = useState(() => localDateInput(new Date()));
+  const [dateB, setDateB] = useState(() => localDateInput(addDays(new Date(), 7)));
+  const changeAlarms = (change: (previous: Alarm[]) => Alarm[]) => {
+    const persisted = updateAlarms(change);
+    if (privacy.status().amnesic) shell.toast("Amnesic session: alarms last only while this page stays open.", "warn");
+    else if (!persisted) shell.toast("Browser storage is unavailable; alarms last only while this page stays open.", "warn");
+  };
 
   useEffect(() => {
     let raf = 0;
@@ -147,18 +138,24 @@ export default function ClockModule(_: ModuleProps) {
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <input className="fs-input" type="time" style={{ width: fz(110) }} value={alarmTime} onChange={(e) => setAlarmTime(e.target.value)} aria-label="Alarm time" />
           <input className="fs-input" style={{ flex: 1, minWidth: fz(120) }} placeholder="Label" value={alarmLabel} onChange={(e) => setAlarmLabel(e.target.value)} aria-label="Alarm label" />
-          <Btn variant="primary" onClick={() => { try { setAlarms((a) => validateAlarms([...a, { id: `a${Date.now().toString(36)}`, label: alarmLabel, time: alarmTime, days: [], enabled: true, snoozeMin: 9 }])); setAlarmLabel(""); } catch (e) { shell.toast(String((e as Error).message), "warn"); } }}>Add<span className="sr-only"> alarm</span></Btn>
+          <Btn variant="primary" onClick={() => { try { const id = globalThis.crypto?.randomUUID?.() ?? `a${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`; changeAlarms((a) => [...a, { id, label: alarmLabel, time: alarmTime, days: alarmDays, enabled: true, snoozeMin: 9 }]); setAlarmLabel(""); } catch (e) { shell.toast(String((e as Error).message), "warn"); } }}>Add<span className="sr-only"> alarm</span></Btn>
+        </div>
+        <div className="fs-row" role="group" aria-label="Alarm weekdays" style={{ gap: 3, flexWrap: "wrap" }}>
+          {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day, i) => (
+            <Btn key={day} variant={alarmDays.includes(i) ? "primary" : "ghost"} aria-label={`Repeat on ${day}`} aria-pressed={alarmDays.includes(i)}
+              onClick={() => setAlarmDays((days) => days.includes(i) ? days.filter((d) => d !== i) : [...days, i])}>{day.slice(0, 3)}</Btn>
+          ))}
         </div>
         {upcomingAlarms(alarms, new Date()).slice(0, 1).map(({ alarm, at }) => <Badge key={alarm.id} tone="info">next: {alarm.label || alarm.time} · {at.toLocaleString()}</Badge>)}
         {alarms.map((a) => { const at = nextFire(a, new Date()); return (
           <div key={a.id} className="fs-row" style={{ justifyContent: "space-between", gap: 6 }}>
-            <span style={{ fontSize: fz(12) }}>{a.time} {a.label} <span className="fs-dim">{a.days.length ? a.days.map((d) => "SMTWTFS"[d]).join(" ") : "daily"}{at ? ` · next ${at.toLocaleString()}` : ""}</span></span>
+            <span style={{ fontSize: fz(12) }}>{a.time} {a.label} <span className="fs-dim">{a.days.length ? a.days.map((d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]).join(" ") : "daily"}{at ? ` · next ${at.toLocaleString()}` : ""}</span></span>
             <span className="fs-row" style={{ gap: 4 }}>
-              <Btn variant="ghost" aria-pressed={a.enabled} onClick={() => setAlarms((l) => l.map((x) => x.id === a.id ? { ...x, enabled: !x.enabled } : x))}>{a.enabled ? "On" : "Off"}</Btn>
-              <Btn variant="ghost" onClick={() => setAlarms((l) => l.filter((x) => x.id !== a.id))}>Remove<span className="sr-only"> alarm {a.label || a.time}</span></Btn>
+              <Btn variant="ghost" aria-pressed={a.enabled} onClick={() => changeAlarms((l) => l.map((x) => x.id === a.id ? { ...x, enabled: !x.enabled } : x))}>{a.enabled ? "On" : "Off"}</Btn>
+              <Btn variant="ghost" onClick={() => changeAlarms((l) => l.filter((x) => x.id !== a.id))}>Remove<span className="sr-only"> alarm {a.label || a.time}</span></Btn>
             </span>
           </div> ); })}
-        <div className="fs-dim" style={{ fontSize: fz(11) }}>Alarms fire while Fusion is open; a closed web app cannot schedule an exact alarm. No weekday picked means every day.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>Daily if no days selected. With Fusion running, Clock may close; frozen or closed pages may miss alarms.</div>
       </Section>
 
       <Section title="Meeting overlap">
@@ -177,7 +174,7 @@ export default function ClockModule(_: ModuleProps) {
           <input className="fs-input" type="date" value={dateA} onChange={(e) => setDateA(e.target.value)} aria-label="From date" />
           <input className="fs-input" type="date" value={dateB} onChange={(e) => setDateB(e.target.value)} aria-label="To date" />
           {dateA && dateB ? <Badge tone="info">{daysBetween(new Date(dateA + "T00:00:00"), new Date(dateB + "T00:00:00"))} days · {businessDaysBetween(new Date(dateA + "T00:00:00"), new Date(dateB + "T00:00:00"))} business days</Badge> : null}
-          <Btn variant="ghost" onClick={() => { if (dateA) setDateB(addDays(new Date(dateA + "T00:00:00"), 30).toISOString().slice(0, 10)); }}>+30 days</Btn>
+          <Btn variant="ghost" onClick={() => { if (dateA) setDateB(localDateInput(addDays(new Date(dateA + "T00:00:00"), 30))); }}>+30 days</Btn>
         </div>
       </Section>
 
@@ -205,24 +202,30 @@ export default function ClockModule(_: ModuleProps) {
 }
 
 function ZoneConvert() {
-  const [zcDate, setZcDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [zcDate, setZcDate] = useState(() => localDateInput(new Date()));
   const [zcTime, setZcTime] = useState("09:00");
   const [from, setFrom] = useState("America/New_York");
   const [to, setTo] = useState("Asia/Tokyo");
-  const result = (() => { try { return convertZoneTime(zcDate, zcTime, from, to); } catch (e) { return { error: String((e as Error).message) }; } })();
+  const [choice, setChoice] = useState<ZoneDisambiguation>("reject");
+  const result = useMemo(() => { try { return convertZoneTime(zcDate, zcTime, from, to, choice); } catch (e) { return { error: String((e as Error).message) }; } }, [zcDate, zcTime, from, to, choice]);
   return (
     <Section title="Time in another zone">
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-        <input className="fs-input" type="date" value={zcDate} onChange={(e) => setZcDate(e.target.value)} aria-label="Convert date" />
-        <input className="fs-input" type="time" value={zcTime} onChange={(e) => setZcTime(e.target.value)} aria-label="Convert time" />
-        <select className="fs-select" aria-label="From zone" value={from} onChange={(e) => setFrom(e.target.value)}>{allZoneNames().map((z) => <option key={z} value={z}>{z.replace(/_/g, " ")}</option>)}</select>
+        <input className="fs-input" type="date" value={zcDate} onChange={(e) => { setZcDate(e.target.value); setChoice("reject"); }} aria-label="Convert date" />
+        <input className="fs-input" type="time" value={zcTime} onChange={(e) => { setZcTime(e.target.value); setChoice("reject"); }} aria-label="Convert time" />
+        <select className="fs-select" aria-label="From zone" value={from} onChange={(e) => { setFrom(e.target.value); setChoice("reject"); }}>{allZoneNames().map((z) => <option key={z} value={z}>{z.replace(/_/g, " ")}</option>)}</select>
         <span aria-hidden="true">→</span>
         <select className="fs-select" aria-label="To zone" value={to} onChange={(e) => setTo(e.target.value)}>{allZoneNames().map((z) => <option key={z} value={z}>{z.replace(/_/g, " ")}</option>)}</select>
       </div>
+      {("error" in result && result.error.includes("more than once")) || (!("error" in result) && result.ambiguous) ? <label className="fs-row" style={{ gap: 6, marginTop: 6, fontSize: fz(11.5) }}>Repeated time
+        <select className="fs-select" aria-label="Repeated time occurrence" value={choice} onChange={(e) => setChoice(e.target.value as ZoneDisambiguation)}>
+          <option value="reject">Choose…</option><option value="earlier">First occurrence</option><option value="later">Second occurrence</option>
+        </select>
+      </label> : null}
       {"error" in result ? <Badge tone="warn">{result.error}</Badge> : (
         <div className="fs-row" style={{ gap: 6, marginTop: 6 }} data-testid="clock-zone-convert">
           <Badge tone="info">{result.targetTime}</Badge>
-          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>{result.targetDate}{result.dayShift !== 0 ? ` (${result.dayShift > 0 ? "+" : ""}${result.dayShift} day${Math.abs(result.dayShift) === 1 ? "" : "s"})` : ""}</span>
+          <span className="fs-dim" style={{ fontSize: fz(11.5) }}>{result.targetDate}{result.ambiguous ? ` · ${choice === "later" ? "second" : "first"} occurrence` : ""}{result.dayShift !== 0 ? ` (${result.dayShift > 0 ? "+" : ""}${result.dayShift} day${Math.abs(result.dayShift) === 1 ? "" : "s"})` : ""}</span>
         </div>)}
     </Section>
   );
@@ -231,7 +234,7 @@ function ZoneConvert() {
 function Countdowns() {
   const [list, setList] = useState<Countdown[]>(() => { try { return validateCountdowns(JSON.parse(localStorage.getItem("fusion.countdowns.v1") ?? "[]")); } catch { return []; } });
   const [label, setLabel] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => localDateInput(new Date()));
   useEffect(() => { try { localStorage.setItem("fusion.countdowns.v1", JSON.stringify(list)); } catch { /* private mode */ } }, [list]);
   return (
     <div style={{ display: "grid", gap: 6 }}>

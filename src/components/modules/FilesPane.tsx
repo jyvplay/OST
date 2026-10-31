@@ -772,7 +772,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
           {view === "column" && !showTrash && !deepMode ? columnView : (
             <>
               {showTrash ? <div data-testid="trash-retention" className="fs-dim" style={{ fontSize: fz(11), padding: "4px 8px" }}>Items stay in Trash until restored or permanently deleted. Regular backups do not include Trash; permanent deletion does not erase copies or database logs.</div> : null}
-              {nothing ? <Empty title={showTrash ? "Trash is empty" : deepMode ? (deepHits?.q === filter.trim() ? "No matches in this folder or below" : "Searching…") : "Empty folder"} icon="🗂"
+              {nothing ? <Empty title={showTrash ? "Trash is empty" : deepMode ? (deepHits?.q === filter.trim() ? "No matches in this folder or below" : "Searching…") : "Empty folder"} glyph={showTrash ? "trash" : deepMode ? "search" : "folder"}
                 hint={showTrash || deepMode ? undefined : "Create a file, upload one, drop files here, or run `write` in the terminal."} /> : null}
               {deepMode && deepHits?.truncated ? <Badge tone="warn">Showing the first 200 matches — refine the search</Badge> : null}
               {view === "list" && !deepMode && shown.length > 1 ? (

@@ -1,0 +1,33 @@
+{
+  "suite": "e2e-tt129-calendar",
+  "at": "2026-10-31T02:32:10.996Z",
+  "results": [
+    {
+      "suite": "e2e-tt129-calendar",
+      "name": "preview reports known losses without inserting records",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "e2e-tt129-calendar",
+      "name": "cancel is non-mutating, same-file retry imports only after confirmation, reimport deduplicates",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2543
+    },
+    {
+      "suite": "e2e-tt129-calendar",
+      "name": "overdue status updates when the clock passes a due time without another interaction",
+      "covers": {
+        "PR-03": "partial"
+      },
+      "pass": true,
+      "ms": 1478
+    }
+  ]
+}

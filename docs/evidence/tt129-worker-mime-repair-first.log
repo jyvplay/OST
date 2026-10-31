@@ -1,0 +1,6 @@
+  ✗ first installation can boot a new offline desktop without an online reload
+    page.evaluate: Error: worker activation timed out
+    at eval (eval at evaluate (:370:30), <anonymous>:1:117)
+
+0 passed, 1 failed
+FAILED: first installation can boot a new offline desktop without an online reload

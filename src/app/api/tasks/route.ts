@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { tasks } from "@/db/schema";
-import { parseIcs, toIcs } from "@/lib/ics";
+import { inspectIcsImport, parseIcs, toIcs } from "@/lib/ics";
 import { readJsonObject } from "@/lib/http-json";
+import { safeTransaction } from "@/lib/server/transaction";
 
 export const dynamic = "force-dynamic";
 
@@ -19,22 +20,36 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const b = (await readJsonObject(req)) as ({ title?: string; notes?: string; dueAt?: string | null; ics?: string }) | Response;
+  const b = (await readJsonObject(req)) as ({ title?: string; notes?: string; dueAt?: string | null; ics?: string; preview?: boolean }) | Response;
   if (b instanceof Response) return b;
+  if (b.ics !== undefined && typeof b.ics !== "string") return NextResponse.json({ ok: false, error: "ics must be text" }, { status: 400 });
   if (b.ics) {
     // PR-04: import is additive and idempotent by UID — re-importing never duplicates
     const events = parseIcs(b.ics);
+    if (b.preview === true) {
+      // Preflight has no database reads or writes; UID dedup is rechecked only
+      // at import time, so preview does not promise an eventual added count.
+      return NextResponse.json({ ok: true, parsed: events.length, warnings: inspectIcsImport(b.ics), serverTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || "unknown" });
+    }
     let added = 0, skipped = 0;
     for (const e of events) {
-      if (e.uid) {
-        const dup = await db.select({ id: tasks.id }).from(tasks).where(eq(tasks.uid, e.uid)).limit(1);
-        if (dup.length) { skipped += 1; continue; }
-      }
-      await db.insert(tasks).values({
-        title: e.title || "(untitled event)", notes: e.rrule && !/^RRULE:/m.test(e.notes) ? `${e.notes}${e.notes ? "\n" : ""}RRULE:${e.rrule}` : e.notes, kind: e.kind, uid: e.uid,
-        dueAt: e.start, endAt: e.end, done: e.done,
+      const inserted = await safeTransaction(async (tx) => {
+        if (e.uid) {
+          // The check and insert must be serialized for the same UID. A
+          // database-wide unique constraint would reject legacy duplicates;
+          // this cooperative lock needs no destructive migration. Old servers
+          // and direct SQL do not participate, so this is not universal.
+          await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${`fusion-calendar-uid:${e.uid}`}, 0))`);
+          const dup = await tx.select({ id: tasks.id }).from(tasks).where(eq(tasks.uid, e.uid)).limit(1);
+          if (dup.length) return false;
+        }
+        await tx.insert(tasks).values({
+          title: e.title || "(untitled event)", notes: e.rrule && !/^RRULE:/m.test(e.notes) ? `${e.notes}${e.notes ? "\n" : ""}RRULE:${e.rrule}` : e.notes, kind: e.kind, uid: e.uid,
+          dueAt: e.start, endAt: e.end, done: e.done,
+        });
+        return true;
       });
-      added += 1;
+      if (inserted) added++; else skipped++;
     }
     return NextResponse.json({ ok: true, parsed: events.length, added, skipped });
   }

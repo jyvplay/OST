@@ -58,7 +58,7 @@ export default function ClipboardModule(_: ModuleProps) {
       </div> : null}
       {shell.clips.length ? <input className="fs-input" type="search" aria-label="Search clipboard history" placeholder="Search history" value={q} onChange={(e) => setQ(e.target.value)} /> : null}
       {pasted ? <div className="fs-dim" style={{ fontSize: fz(11) }}>Captured {pasted.length} characters with your explicit permission.</div> : null}
-      {shell.clips.length === 0 ? <Empty title="No copies yet" hint="Copy a path in Files, a result in Calculator, or capture the system clipboard above." icon="📋" /> : null}
+      {shell.clips.length === 0 ? <Empty title="No copies yet" hint="Copy a path in Files, a result in Calculator, or capture the system clipboard above." glyph="clipin" /> : null}
       {shell.clips.length && !shown.length ? <div className="fs-dim" data-testid="clip-none">No entries match “{q}”.</div> : null}
       <div role="list" aria-label="Clipboard history" data-testid="clip-list" style={{ display: "grid", gap: 2 }}>
         {shown.map((c, i) => (

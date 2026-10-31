@@ -1,0 +1,56 @@
+  ✗ drawing-kit buttons stay within their rail
+    buttons overlap the canvas: [{"name":"Move","left":3,"right":17.5},{"name":"Rect select","left":3,"right":17.5},{"name":"Ellipse select","left":3,"right":17.5},{"name":"Magic wand","left":3,"right":17.5},{"name":"Brush","left":3,"right":17.5},{"name":"Eraser","left":3,"right":17.5},{"name":"Bucket","left":3,"right":17.5},{"name":"Gradient","left":3,"right":17.5},{"name":"Eyedropper","left":3,"right":17.5}]
++ actual - expected
+
++ [
++   {
++     left: 3,
++     name: 'Move',
++     right: 17.5
++   },
++   {
++     left: 3,
++     name: 'Rect select',
++     right: 17.5
++   },
++   {
++     left: 3,
++     name: 'Ellipse select',
++     right: 17.5
++   },
++   {
++     left: 3,
++     name: 'Magic wand',
++     right: 17.5
++   },
++   {
++     left: 3,
++     name: 'Brush',
++     right: 17.5
++   },
++   {
++     left: 3,
++     name: 'Eraser',
++     right: 17.5
++   },
++   {
++     left: 3,
++     name: 'Bucket',
++     right: 17.5
++   },
++   {
++     left: 3,
++     name: 'Gradient',
++     right: 17.5
++   },
++   {
++     left: 3,
++     name: 'Eyedropper',
++     right: 17.5
++   }
++ ]
+- []
+
+
+0 passed, 1 failed
+FAILED: drawing-kit buttons stay within their rail

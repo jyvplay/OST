@@ -1,6 +1,6 @@
 {
   "suite": "contacts-engine",
-  "at": "2026-10-30T19:53:55.120Z",
+  "at": "2026-10-30T23:56:36.098Z",
   "results": [
     {
       "suite": "contacts-engine",
@@ -18,7 +18,7 @@
         "CN-01": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "contacts-engine",
@@ -36,7 +36,7 @@
         "CN-01": "full"
       },
       "pass": true,
-      "ms": 9
+      "ms": 5
     },
     {
       "suite": "contacts-engine",
@@ -65,7 +65,7 @@
         "CN-04": "full"
       },
       "pass": true,
-      "ms": 12
+      "ms": 8
     },
     {
       "suite": "contacts-engine",
@@ -74,7 +74,7 @@
         "CN-01": "full"
       },
       "pass": true,
-      "ms": 272
+      "ms": 154
     }
   ]
 }

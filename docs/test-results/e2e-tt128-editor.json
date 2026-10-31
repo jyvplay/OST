@@ -1,0 +1,44 @@
+{
+  "suite": "e2e-tt128-editor",
+  "at": "2026-10-31T02:32:55.548Z",
+  "results": [
+    {
+      "suite": "e2e-tt128-editor",
+      "name": "a delayed selection restore cannot undo a newer caret position or erase later text",
+      "covers": {
+        "ED-09": "partial",
+        "ED-10": "partial"
+      },
+      "pass": true,
+      "ms": 1856
+    },
+    {
+      "suite": "e2e-tt128-editor",
+      "name": "case expansion preserves the whole transformed selection",
+      "covers": {
+        "ED-09": "partial"
+      },
+      "pass": true,
+      "ms": 400
+    },
+    {
+      "suite": "e2e-tt128-editor",
+      "name": "indent, dedent, and unchanged edits keep the affected selection",
+      "covers": {
+        "ED-08": "partial",
+        "ED-09": "partial"
+      },
+      "pass": true,
+      "ms": 654
+    },
+    {
+      "suite": "e2e-tt128-editor",
+      "name": "timestamp replaces only the selected span",
+      "covers": {
+        "ED-10": "partial"
+      },
+      "pass": true,
+      "ms": 100
+    }
+  ]
+}

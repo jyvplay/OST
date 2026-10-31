@@ -72,7 +72,7 @@ export default function AlertsModule(_: ModuleProps) {
         <div className="fs-dim" data-testid="focus-active-line" style={{ fontSize: fz(12) }}>Focus: {focus.active.join(", ")} — some alerts are being held.</div>
       ) : null}
 
-      {rows.length === 0 ? <Empty title="No alerts" icon="🔔" /> : null}
+      {rows.length === 0 ? <Empty title="No alerts" glyph="alarm" /> : null}
 
       {held.length ? (
         <Section title={`Held by focus rules · ${held.length}`} dense>

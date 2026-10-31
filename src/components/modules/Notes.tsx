@@ -102,7 +102,7 @@ export default function NotesModule({ win }: ModuleProps) {
             </button>
             </OrbitTarget>
           ))}
-          {rows.length === 0 ? <Empty title="No notes" icon="🗒" /> : null}
+          {rows.length === 0 ? <Empty title="No notes" glyph="emptyNote" /> : null}
         </div>
       </div>
 
@@ -159,7 +159,7 @@ export default function NotesModule({ win }: ModuleProps) {
             aria-label="Note body"
             onChange={(e) => { setEdit({ ...draft, body: e.target.value }); }} />
         </div>
-      ) : <Empty title="Select a note" icon="🗒" />}
+      ) : <Empty title="Select a note" glyph="emptyNote" />}
     </div>
   );
 }

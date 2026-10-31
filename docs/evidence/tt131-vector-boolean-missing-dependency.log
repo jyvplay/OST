@@ -1,0 +1,49 @@
+Traceback (most recent call last):
+  File "/home/user/OST/scripts/oracles/boolean_oracle.py", line 11, in <module>
+    from shapely import affinity
+ModuleNotFoundError: No module named 'shapely'
+  ✗ two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back)
+    Command failed: /home/user/tools/venv/bin/python scripts/oracles/boolean_oracle.py
+Traceback (most recent call last):
+  File "/home/user/OST/scripts/oracles/boolean_oracle.py", line 11, in <module>
+    from shapely import affinity
+ModuleNotFoundError: No module named 'shapely'
+
+Traceback (most recent call last):
+  File "/home/user/OST/scripts/oracles/boolean_oracle.py", line 11, in <module>
+    from shapely import affinity
+ModuleNotFoundError: No module named 'shapely'
+  ✗ rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995)
+    Command failed: /home/user/tools/venv/bin/python scripts/oracles/boolean_oracle.py
+Traceback (most recent call last):
+  File "/home/user/OST/scripts/oracles/boolean_oracle.py", line 11, in <module>
+    from shapely import affinity
+ModuleNotFoundError: No module named 'shapely'
+
+Traceback (most recent call last):
+  File "/home/user/OST/scripts/oracles/boolean_oracle.py", line 11, in <module>
+    from shapely import affinity
+ModuleNotFoundError: No module named 'shapely'
+  ✗ three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain)
+    Command failed: /home/user/tools/venv/bin/python scripts/oracles/boolean_oracle.py
+Traceback (most recent call last):
+  File "/home/user/OST/scripts/oracles/boolean_oracle.py", line 11, in <module>
+    from shapely import affinity
+ModuleNotFoundError: No module named 'shapely'
+
+Traceback (most recent call last):
+  File "/home/user/OST/scripts/oracles/boolean_oracle.py", line 11, in <module>
+    from shapely import affinity
+ModuleNotFoundError: No module named 'shapely'
+  ✗ fill rules: even-odd hole, nonzero opposite-direction hole, nonzero same-direction (no hole), group = union of leaves with its transform
+    Command failed: /home/user/tools/venv/bin/python scripts/oracles/boolean_oracle.py
+Traceback (most recent call last):
+  File "/home/user/OST/scripts/oracles/boolean_oracle.py", line 11, in <module>
+    from shapely import affinity
+ModuleNotFoundError: No module named 'shapely'
+
+  ✓ refusals: open paths, text, a single shape, locked shapes, Intersect of disjoint shapes; result survives SVG export → import
+  ✓ performance: two 600-unit ellipses + a rotated rect, all modes < 400 ms each on this 2-CPU host
+
+2 passed, 4 failed
+FAILED: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back) | rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995) | three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain) | fill rules: even-odd hole, nonzero opposite-direction hole, nonzero same-direction (no hole), group = union of leaves with its transform

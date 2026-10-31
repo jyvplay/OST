@@ -35,9 +35,9 @@ await test("service worker: unrelated caches survive and only the canonical succ
   const writes: string[] = [], deleted: string[] = [];
   let response = new Response("desktop", { headers: { "content-type": "text/html" } });
   const caches = {
-    keys: async () => ["fusion-v5", "fusion-v6", "another-app"],
+    keys: async () => ["fusion-v5", "fusion-v6", "fusion-v7", "fusion-v8", "another-app"],
     delete: async (key: string) => { deleted.push(key); return true; },
-    open: async () => ({ put: async (key: string) => { writes.push(key); }, match: async () => undefined, addAll: async () => {} }),
+    open: async () => ({ put: async (key: string) => { writes.push(key); }, match: async (key: string) => key === "/_next/static/chunks/app.js" ? new Response("code", { headers: { "content-type": "application/javascript" } }) : undefined, addAll: async () => {} }),
     match: async () => undefined,
   };
   runInNewContext(readFileSync("public/sw.js", "utf8"), {
@@ -46,18 +46,50 @@ await test("service worker: unrelated caches survive and only the canonical succ
   });
   let active: Promise<unknown> = Promise.resolve();
   listeners.activate({ waitUntil: (p: Promise<unknown>) => { active = p; } }); await active;
-  assert.deepEqual(deleted, ["fusion-v5"]);
+  assert.deepEqual(deleted, ["fusion-v5", "fusion-v6", "fusion-v7"]);
   const navigate = async (path: string, res: Response) => {
     response = res; let result: Promise<Response> | undefined;
-    listeners.fetch({ request: { method: "GET", url: `https://example.test${path}`, mode: "navigate" }, respondWith: (p: Promise<Response>) => { result = p; } });
-    assert.ok(result); await result; await new Promise((r) => setImmediate(r));
+    const pending: Promise<unknown>[] = [];
+    listeners.fetch({ request: { method: "GET", url: `https://example.test${path}`, mode: "navigate" }, respondWith: (p: Promise<Response>) => { result = p; }, waitUntil: (p: Promise<unknown>) => pending.push(p) });
+    assert.ok(result); await result; await Promise.all(pending);
   };
-  const html = () => new Response("ok", { headers: { "content-type": "text/html" } });
+  const html = () => new Response('<script src="/_next/static/chunks/app.js"></script>', { headers: { "content-type": "text/html" } });
   await navigate("/present", html()); await navigate("/?secret=x", html());
   await navigate("/", new Response("server error", { status: 500, headers: { "content-type": "text/html" } }));
   await navigate("/", new Response("not html", { headers: { "content-type": "text/plain" } }));
   assert.deepEqual(writes, []);
   await navigate("/", html()); assert.deepEqual(writes, ["/"]);
+});
+
+await test("service worker: cache storage failures do not turn working network assets into 504s", {}, async () => {
+  const listeners: Record<string, (e: any) => void> = {};
+  let mode = "open-fails";
+  const caches = { open: async () => {
+    if (mode === "open-fails") throw new Error("storage blocked");
+    return { match: async () => undefined, put: async () => { throw new Error("quota"); } };
+  } };
+  let networkAvailable = true;
+  runInNewContext(readFileSync("public/sw.js", "utf8"), {
+    self: { location: { origin: "https://example.test" }, addEventListener: (name: string, fn: any) => { listeners[name] = fn; } },
+    caches, URL, Response, fetch: async () => {
+      if (!networkAvailable) throw new Error("offline");
+      const result = new Response("network asset", { status: 200 });
+      Object.defineProperty(result, "type", { value: "basic" });
+      return result;
+    },
+  });
+  const request = async (path: string, navigation = false) => {
+    let result: Promise<Response> | undefined;
+    listeners.fetch({ request: { method: "GET", url: `https://example.test${path}`, mode: navigation ? "navigate" : "cors" }, respondWith: (p: Promise<Response>) => { result = p; }, waitUntil: () => {} });
+    assert.ok(result); return await result;
+  };
+  assert.equal(await (await request("/_next/static/chunk.js")).text(), "network asset");
+  mode = "put-fails";
+  assert.equal(await (await request("/_next/static/chunk.js")).text(), "network asset");
+  networkAvailable = false; mode = "open-fails";
+  assert.equal((await request("/_next/static/chunk.js")).status, 504);
+  const fallback = await request("/display", true);
+  assert.equal(fallback.status, 503); assert.match(await fallback.text(), /Offline/);
 });
 
 await test("browser gate rejects a process that prints success then exits nonzero", {}, () => {

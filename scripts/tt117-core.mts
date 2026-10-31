@@ -15,7 +15,7 @@ import { checkRegister, citedSuites } from "../src/lib/spec-health";
 const { test, finish } = makeHarness("tt117-core");
 const D = (s: string) => new Date(s + "T00:00:00");
 
-await test("CK-01 alarms: next fire, weekly days, disabled, snooze, validation", { "CK-01": "full" }, () => {
+await test("CK-01 alarms: next fire, weekly days, disabled, snooze, validation", { "CK-01": "partial" }, () => {
   const a = validateAlarms([{ id: "a1", label: "Standup", time: "09:30", days: [1, 2, 3, 4, 5], enabled: true, snoozeMin: 10 }])[0];
   assert.equal(nextFire(a, new Date(2026, 0, 5, 9, 29))!.getTime(), new Date(2026, 0, 5, 9, 30).getTime()); // Mon
   assert.equal(nextFire(a, new Date(2026, 0, 5, 9, 30))!.getDay(), 2); // strictly after -> Tue

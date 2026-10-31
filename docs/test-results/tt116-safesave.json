@@ -1,146 +1,146 @@
 {
   "suite": "tt116-safesave",
-  "at": "2026-10-29T19:54:05.047Z",
+  "at": "2026-10-31T04:53:31.846Z",
   "results": [
     {
       "suite": "tt116-safesave",
       "name": "a safe save of a new file publishes it and leaves no temporary output",
       "covers": {
-        "FM-18": "full"
+        "FM-18": "partial"
       },
       "pass": true,
-      "ms": 25
+      "ms": 48
     },
     {
       "suite": "tt116-safesave",
       "name": "replacing an existing file advances it by one version and keeps the previous one",
       "covers": {
-        "FM-18": "full",
+        "FM-18": "partial",
         "PR-01": "partial"
       },
       "pass": true,
-      "ms": 50
+      "ms": 66
     },
     {
       "suite": "tt116-safesave",
       "name": "a save whose bytes do not match the digest the caller declared is refused, and the original is untouched",
       "covers": {
-        "FM-18": "full"
+        "FM-18": "partial"
       },
       "pass": true,
-      "ms": 34
+      "ms": 40
     },
     {
       "suite": "tt116-safesave",
       "name": "a malformed payload is refused and the file it was aimed at is untouched",
       "covers": {
-        "FM-18": "full"
+        "FM-18": "partial"
       },
       "pass": true,
-      "ms": 29
+      "ms": 40
     },
     {
       "suite": "tt116-safesave",
       "name": "text that cannot survive a byte round-trip is refused",
       "covers": {
-        "FM-18": "full"
-      },
-      "pass": true,
-      "ms": 22
-    },
-    {
-      "suite": "tt116-safesave",
-      "name": "a target that moved under the caller is refused rather than overwritten",
-      "covers": {
-        "FM-18": "full"
-      },
-      "pass": true,
-      "ms": 50
-    },
-    {
-      "suite": "tt116-safesave",
-      "name": "when replacement is unavailable the bytes are published beside the original, never over it",
-      "covers": {
-        "FM-18": "full"
-      },
-      "pass": true,
-      "ms": 52
-    },
-    {
-      "suite": "tt116-safesave",
-      "name": "a save whose acknowledgement was lost is answered, not performed again",
-      "covers": {
-        "FM-18": "full"
+        "FM-18": "partial"
       },
       "pass": true,
       "ms": 34
     },
     {
       "suite": "tt116-safesave",
-      "name": "a save token cannot be reused to publish different bytes",
+      "name": "a target that moved under the caller is refused rather than overwritten",
       "covers": {
-        "FM-18": "full"
+        "FM-18": "partial"
       },
       "pass": true,
-      "ms": 28
+      "ms": 92
+    },
+    {
+      "suite": "tt116-safesave",
+      "name": "when replacement is unavailable the bytes are published beside the original, never over it",
+      "covers": {
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "ms": 59
+    },
+    {
+      "suite": "tt116-safesave",
+      "name": "a save whose acknowledgement was lost is answered, not performed again",
+      "covers": {
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "ms": 35
+    },
+    {
+      "suite": "tt116-safesave",
+      "name": "a save token cannot be reused to publish different bytes",
+      "covers": {
+        "FM-18": "partial"
+      },
+      "pass": true,
+      "ms": 35
     },
     {
       "suite": "tt116-safesave",
       "name": "eight concurrent saves of one token publish one version",
       "covers": {
-        "FM-18": "full"
+        "FM-18": "partial"
       },
       "pass": true,
-      "ms": 52
+      "ms": 59
     },
     {
       "suite": "tt116-safesave",
       "name": "a save larger than the store limit is refused before anything is written",
       "covers": {
-        "FM-18": "full"
+        "FM-18": "partial"
       },
       "pass": true,
-      "ms": 193
+      "ms": 157
     },
     {
       "suite": "tt116-safesave",
       "name": "a temporary output abandoned by a dead process is reclaimable and age-bounded",
       "covers": {
-        "FM-18": "full",
+        "FM-18": "partial",
         "DP-14": "partial"
       },
       "pass": true,
-      "ms": 27
+      "ms": 34
     },
     {
       "suite": "tt116-safesave",
       "name": "every safe save is visible in the job journal with the stages it really went through",
       "covers": {
         "DP-14": "full",
-        "FM-18": "full"
+        "FM-18": "partial"
       },
       "pass": true,
-      "ms": 26
+      "ms": 33
     },
     {
       "suite": "tt116-safesave",
       "name": "a safe-saved text file becomes searchable, and a refused one does not",
       "covers": {
-        "FM-18": "full",
+        "FM-18": "partial",
         "SR-05": "partial"
       },
       "pass": true,
-      "ms": 176
+      "ms": 196
     },
     {
       "suite": "tt116-safesave",
       "name": "the temporary output folder cannot be used as a target",
       "covers": {
-        "FM-18": "full",
+        "FM-18": "partial",
         "SC-02": "partial"
       },
       "pass": true,
-      "ms": 4
+      "ms": 5
     }
   ]
 }

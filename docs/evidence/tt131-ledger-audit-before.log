@@ -1,0 +1,14 @@
+  ✓ FM-03 reports bounded database-atomic transfers, not a complete native tier-B spec
+  ✗ FM-18 explicitly disclaims the missing native SAF and temp-reopen safe-save contract
+    Expected values to be strictly equal:
+
+'built' !== 'partial'
+
+  ✓ FM-11 states manual retention, legacy ambiguity and noncooperating mutation paths
+  ✓ the editor does not advertise its database version snapshots as native SAF safe-save
+  ✓ MD-03 does not claim native MediaStore, universal HEIC or atomic sidecar follow
+  ✓ the web-only offline queue is partial and discloses storage and cross-tab limits
+  ✓ Photos owner checks are cooperative and explicitly exclude Private and RAM
+
+6 passed, 1 failed
+FAILED: FM-18 explicitly disclaims the missing native SAF and temp-reopen safe-save contract

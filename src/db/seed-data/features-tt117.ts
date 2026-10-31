@@ -12,9 +12,9 @@ import { F } from "./row";
  * which TT116 left as an empty list.
  */
 export const tt117Features = [
-  F("CK-01", "Clock", "Alarms: daily/weekly schedules, snooze, persisted", "A", "P2", "src/lib/clock-core.ts nextFire/upcomingAlarms + Clock alarms section",
-    "Next-fire is computed by scanning at most 8 days of local wall-clock time, so a weekday-only alarm asked on Friday answers Monday exactly and an enabled alarm with no weekday picked means daily. Firing is checked while Fusion is open (a closed web app cannot schedule an exact alarm — Notification Triggers never shipped — and the UI says so). Alarms persist browser-local in localStorage under fusion.alarms.v1 and are re-validated on load; a corrupt record yields an empty list, not a crash.",
-    "built", "tt117-core.mts CK-01 (next fire across weekend, disabled, snooze, validation refusals)"),
+  F("CK-01", "Clock", "Alarms: daily/weekly schedules, snooze, persisted", "A", "P2", "src/lib/clock-core.ts + alarm-store.ts + ShellDaemons.tsx + Clock alarms section",
+    "Weekday controls and validated browser-local schedules feed a shell-owned foreground timer, so closing Clock does not stop it. A frozen or closed page can miss alarms; cross-tab suppression needs Web Locks and storage. Amnesic alarms are page-only and do not use OS notifications. Snooze has arithmetic only, not an actionable UI or scheduler, so this row remains partial.",
+    "partial", "e2e-tt130-alarms.mts (foreground delivery, weekdays, storage denial, amnesia and cross-tab claims); tt117-core.mts CK-01 (next-fire and snooze arithmetic)"),
   F("CK-02", "Clock", "Stopwatch lap splits with fastest/slowest", "A", "P2", "src/lib/clock-core.ts lapStats + Clock stopwatch",
     "Laps are cumulative readings; splits are the deltas. Non-monotonic readings are refused rather than silently producing a negative lap. Fastest/slowest/average are computed from the same readings the UI displays, in the Clock module under the lap list.",
     "built", "tt117-core.mts CK-02 (deltas, fastest/slowest, monotonic refusal)"),

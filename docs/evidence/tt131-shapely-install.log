@@ -1,0 +1,8 @@
+Collecting shapely==2.2.0
+  Downloading shapely-2.2.0-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (2.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 37.9 MB/s eta 0:00:00
+Collecting numpy==2.4.6
+  Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 120.3 MB/s eta 0:00:00
+Installing collected packages: numpy, shapely
+Successfully installed numpy-2.4.6 shapely-2.2.0

@@ -206,7 +206,7 @@ export default function VaultModule(_: ModuleProps) {
       </div>
 
       {err ? <Badge tone="bad">{err}</Badge> : null}
-      {items.length === 0 ? <Empty title="Vault is empty" icon="🔐" /> : null}
+      {items.length === 0 ? <Empty title="Vault is empty" glyph="emptyVault" /> : null}
       <div style={{ display: "grid", gap: 2 }}>
         {items.map((it) => (
           <div key={it.id} className="fs-list-item">

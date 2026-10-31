@@ -1,0 +1,5 @@
+  ✗ zoomed image viewport exposes a named keyboard focus target and arrow-key panning
+    ArrowRight did not pan: {"left":0,"top":0,"width":753,"scrollWidth":6424,"active":true,"overflowX":"auto","dir":"ltr"}: TimeoutError: page.waitForFunction: Timeout 5000ms exceeded.
+
+0 passed, 1 failed
+FAILED: zoomed image viewport exposes a named keyboard focus target and arrow-key panning

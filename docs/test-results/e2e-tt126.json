@@ -1,34 +1,34 @@
 {
   "suite": "e2e-tt126",
-  "at": "2026-10-30T21:21:19.591Z",
+  "at": "2026-10-30T23:59:05.117Z",
   "results": [
     {
       "suite": "e2e-tt126",
       "name": "terminal aliases expand the command body, and inherited names do not crash",
       "covers": {},
       "pass": true,
-      "ms": 872
+      "ms": 1277
     },
     {
       "suite": "e2e-tt126",
       "name": "vault: create, save, reuse audit, lock and reopen real encrypted data",
       "covers": {},
       "pass": true,
-      "ms": 4372
+      "ms": 6419
     },
     {
       "suite": "e2e-tt126",
       "name": "camera controls are visible without a device and report no torch",
       "covers": {},
       "pass": true,
-      "ms": 1288
+      "ms": 2361
     },
     {
       "suite": "e2e-tt126",
       "name": "Files operation journal is named and keyboard-focusable",
       "covers": {},
       "pass": true,
-      "ms": 1111
+      "ms": 1688
     }
   ]
 }

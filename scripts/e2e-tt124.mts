@@ -21,8 +21,9 @@ async function openModule(module: string, props: Record<string, unknown> = {}) {
   const page = await context.newPage();
   page.setDefaultTimeout(20_000);
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
-  await page.waitForSelector('[data-win-id="w1"]');
-  await page.waitForTimeout(1200);
+  await page.waitForSelector('[data-win-id="w1"] .fs-winbody > *');
+  // Each case below waits for its own meaningful data/control. A title bar is
+  // not module readiness, and a fixed sleep is neither necessary nor proof.
   return { page, context };
 }
 
@@ -55,7 +56,7 @@ await test("PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight t
   await mon.context.close();
 
   const lens = await openModule("lens");
-  await lens.page.waitForFunction(() => document.querySelector('[data-testid="lens-res"]') !== null, null, { timeout: 15_000 }).catch(() => null);
+  await lens.page.waitForFunction(() => document.querySelector('[data-testid="lens-res"]') !== null, null, { timeout: 15_000 });
   await lens.context.close();
 });
 
@@ -67,14 +68,16 @@ await test("MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, 
   assert.notEqual(label0, label1, "first press arms A and the label says so");
   await media.context.close();
 
-  await api("POST", "/api/routines", { name: "tt124 sample", trigger: "manual", triggerArg: "", actions: [{ cmd: "open", arg: "notes" }] });
-  const png = (await import("node:fs")).readFileSync("public/icon-192.png").toString("base64"); // a real PNG: the editor must decode what it copies info about
-  await api("POST", "/api/fs", { op: "write", path: "/Pictures/tt124-probe.png", content: png, encoding: "base64", mime: "image/png", reason: "e2e-tt124" });
-  for (const [mod, testid] of [["clock", "clock-copy-times"], ["spec", "spec-copy-progress"], ["beam", "beam-copy-sessions"], ["contacts", "ct-copy-emails"], ["messages", "messages-copy"], ["vector", "vector-copy-svg"], ["together", "together-newcode"], ["routines", "routine-dup"], ["ssh", "ssh-copy-line"]] as const) {
-    const h = await openModule(mod);
-    await h.page.waitForFunction((t: string) => document.querySelector(`[data-testid="${t}"]`) !== null, testid, { timeout: 15_000 });
-    await h.context.close();
-  }
+  const routine = await api<{ row: { id: number } }>("POST", "/api/routines", { name: "tt124 sample", trigger: "manual", triggerArg: "", actions: [{ cmd: "open", arg: "notes" }] });
+  try {
+    const png = (await import("node:fs")).readFileSync("public/icon-192.png").toString("base64"); // a real PNG: the editor must decode what it copies info about
+    await api("POST", "/api/fs", { op: "write", path: "/Pictures/tt124-probe.png", content: png, encoding: "base64", mime: "image/png", reason: "e2e-tt124" });
+    for (const [mod, testid] of [["clock", "clock-copy-times"], ["spec", "spec-copy-progress"], ["beam", "beam-copy-sessions"], ["contacts", "ct-copy-emails"], ["messages", "messages-copy"], ["vector", "vector-copy-svg"], ["together", "together-newcode"], ["routines", "routine-dup"], ["ssh", "ssh-copy-line"]] as const) {
+      const h = await openModule(mod);
+      try { await h.page.waitForFunction((t: string) => document.querySelector(`[data-testid="${t}"]`) !== null, testid, { timeout: 15_000 }); }
+      finally { await h.context.close(); }
+    }
+  } finally { await api("DELETE", `/api/routines?id=${routine.row.id}`); }
 });
 
 await test("PH-08: opening a photo offers Copy info with honest absences", { "PH-08": "full" }, async () => {

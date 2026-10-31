@@ -1,0 +1,30 @@
+  ✗ the production ledger is the generated snapshot in the checked-out source
+    the deployed snapshot is stale (2026-10-30T20:17:23.122Z vs 2026-10-31T04:49:31.389Z); rebuild the production server
++ actual - expected
+
++ '8ca22fe7668e281dc4f9dfa40642e780ffb85c3080a6bbbeecc10dc275766cb8'
+- '90ec9b9a5baea2f4c2e28dcbc5917c75cd4daf5c05a15b9235513c8d5fd6ec2d'
+
+  ✗ the recorded build counts and incomplete coverage caps agree with the live register
+    Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
+    blocked: 24,
++   full: 501,
+-   full: 500,
+    none: 0,
++   partial: 82
+-   partial: 83
+  }
+
+  ✗ the alarm row is partial and includes the real foreground regression evidence
+    Expected values to be strictly equal:
+
+'full' !== 'partial'
+
+  ✓ saved test results refer only to registered feature codes
+
+1 passed, 3 failed
+FAILED: the production ledger is the generated snapshot in the checked-out source | the recorded build counts and incomplete coverage caps agree with the live register | the alarm row is partial and includes the real foreground regression evidence
+LEDGER_BEFORE_EXIT=1

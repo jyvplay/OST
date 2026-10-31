@@ -1,6 +1,6 @@
 {
   "suite": "tt92-ledger-audit",
-  "at": "2026-10-28T18:30:06.928Z",
+  "at": "2026-10-31T04:54:45.060Z",
   "results": [
     {
       "suite": "tt92-ledger-audit",
@@ -13,7 +13,7 @@
     },
     {
       "suite": "tt92-ledger-audit",
-      "name": "FM-18 explicitly disclaims the missing native SAF and temp-reopen safe-save contract",
+      "name": "FM-18 distinguishes the implemented VFS staging from the missing native SAF contract",
       "covers": {
         "FM-18": "partial"
       },

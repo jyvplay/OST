@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt129-offline",
+  "at": "2026-10-31T02:32:05.986Z",
+  "results": [
+    {
+      "suite": "e2e-tt129-offline",
+      "name": "first installation can boot a new offline desktop without an online reload",
+      "covers": {
+        "SH-14": "partial"
+      },
+      "pass": true,
+      "ms": 2145
+    },
+    {
+      "suite": "e2e-tt129-offline",
+      "name": "a failed required chunk prevents first worker installation",
+      "covers": {
+        "AP-04": "partial"
+      },
+      "pass": true,
+      "ms": 7257
+    },
+    {
+      "suite": "e2e-tt129-offline",
+      "name": "a 200 HTML error page cannot install as a JavaScript dependency",
+      "covers": {
+        "AP-04": "partial"
+      },
+      "pass": true,
+      "ms": 6216
+    },
+    {
+      "suite": "e2e-tt129-offline",
+      "name": "a failed chunk in an upgrade keeps the previously working offline shell",
+      "covers": {
+        "AP-04": "partial"
+      },
+      "pass": true,
+      "ms": 2510
+    }
+  ]
+}

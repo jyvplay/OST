@@ -1,0 +1,3 @@
+== pure suites (parallel via run-fast.sh)
+REFUSED tt129-worker-unit: it reaches a server, browser, database or network — run it via scripts/run-all.sh
+GATE FAILED (pure)

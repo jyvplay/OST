@@ -16,6 +16,7 @@
  *            MakerNote / thumbnail dropped); location only when "Include location" is ticked (off by default).
  */
 import { photoTimeline } from "@/lib/photo-timeline";
+import { selectPhotoSidecars } from "@/lib/photo-sidecars";
 import { clampInterval, nextIndex } from "@/lib/slideshow";
 import { shuffleOrder } from "@/lib/shuffle-order";
 import { undatedPhotos } from "@/lib/photo-dates";
@@ -28,7 +29,7 @@ import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { UiGlyph } from "../AppIcon";
-import { sortPhotos, type PhotoSort } from "@/lib/photo-sort";
+import { compareNewestPhotoDate, sortPhotos, type PhotoSort } from "@/lib/photo-sort";
 import Thumb from "../Thumb";
 import { readFileBytes, readRecipe, readRecipeForEditing, forgetThumbnail, bytesToB64, type RecipeIdentity } from "@/lib/thumbs/service";
 import { PRESETS, isIdentity, isSidecar, outputSize, parseRecipe, photoOfSidecar, renderRecipe, sidecarPath, type PhotoRecipe, type PresetName } from "@/lib/photos/recipe";
@@ -59,20 +60,34 @@ export default function PhotosModule({ win }: ModuleProps) {
   const [index, setIndex] = useState<Record<string, Info>>({});
   const [view, setView] = useState<View>("all");
   const [photoSort, setPhotoSort] = useState<PhotoSort>("captured");
-  const [open, setOpen] = useState<string | null>((win.props.path as string) ?? null);
+  // Normal opens capture the order at the click; deep links capture it when
+  // the viewer first mounts after the library has arrived.
+  const [viewer, setViewer] = useState<{ path: string; sequence: string[] | null } | null>(() => {
+    const path = win.props.path;
+    return typeof path === "string" && path ? { path, sequence: null } : null;
+  });
+  const open = viewer?.path ?? null;
+  const navigatePhoto = useCallback((path: string) => setViewer((v) => v ? { ...v, path } : v), []);
   const [error, setError] = useState<string | null>(null);
+  const loadGeneration = useRef(0);
 
   const load = useCallback(() => {
+    const generation = ++loadGeneration.current;
     api<{ items: Item[] }>("/api/fs?op=media").then(async (r) => {
+      if (generation !== loadGeneration.current) return;
+      setError(null);
       const photos = r.items.filter((i) => i.mime.startsWith("image/") && !isSidecar(i.path));
       const sc = new Set(r.items.filter((i) => isSidecar(i.path)).map((i) => photoOfSidecar(i.path)).filter((p): p is string => !!p));
       setItems(photos); setSidecars(sc); setIndex(loadIndex());
       // sidecars are small: read them so the library knows ratings / favourites / edits
-      const entries = await Promise.all([...sc].filter((p) => photos.some((x) => x.path === p)).slice(0, 2000).map(async (p) => [p, await readRecipe(p)] as const));
-      setRecipes(Object.fromEntries(entries.filter(([, v]) => v).map(([k, v]) => [k, v!])));
-    }).catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)));
+      const relevant = sc.size ? selectPhotoSidecars(photos, sc) : [];
+      const entries = await Promise.all(relevant.map(async (p) => [p, await readRecipe(p)] as const));
+      if (generation === loadGeneration.current) setRecipes(Object.fromEntries(entries.filter(([, v]) => v).map(([k, v]) => [k, v!])));
+    }).catch((e: unknown) => { if (generation === loadGeneration.current) setError(e instanceof Error ? e.message : String(e)); });
   }, []);
-  useEffect(() => { load(); }, [load, shell.refreshTick]);
+  const invalidateLoad = useCallback(() => { loadGeneration.current++; }, []);
+  useEffect(() => { load(); return invalidateLoad; }, [load, invalidateLoad, shell.refreshTick]);
+  const refreshLibrary = () => { setError(null); load(); };
 
   // background indexing of capture dates / sizes / GPS (two at a time, content-hash keyed)
   useEffect(() => {
@@ -83,24 +98,39 @@ export default function PhotosModule({ win }: ModuleProps) {
     (async () => {
       const { readMetadata } = await import("@/lib/meta");
       let n = 0;
+      const pending: Record<string, Info> = {};
+      const flush = () => {
+        if (!live) return;
+        // Merge against the latest cache rather than overwriting another window's
+        // work. Never persist metadata read from a Private path.
+        const next = { ...loadIndex(), ...pending };
+        saveIndex(next); setIndex({ ...ix, ...next });
+        for (const key of Object.keys(pending)) delete pending[key];
+      };
       const one = async (it: Item) => {
-        const bytes = it.size <= 96 << 20 ? await readFileBytes(it.path) : null;
-        const info: Info = { dateSource: "file", date: it.createdAt };
+        if (it.size > 96 << 20) return;
+        const bytes = await readFileBytes(it.path, it);
+        // A failed read or a changed node is not evidence of missing EXIF.
+        if (!bytes || !live) return;
+        const info: Info = { dateSource: "file" };
         if (bytes) {
           const m = await readMetadata(bytes, it.name).catch(() => null);
+          if (!m) return;
           if (m) {
-            if (m.tags.dateTaken) { info.date = m.tags.dateTaken; info.dateSource = "exif"; }
+            if (m.tags.dateTaken && Number.isFinite(Date.parse(m.tags.dateTaken))) { info.date = m.tags.dateTaken; info.dateSource = "exif"; }
             info.w = m.displayWidth ?? m.width; info.h = m.displayHeight ?? m.height;
             const cam = [m.tags.make, m.tags.model].filter(Boolean).join(" ").trim(); if (cam) info.camera = cam;
             if (m.gps) { info.lat = m.gps.lat; info.lon = m.gps.lon; }
           }
         }
+        if (!live) return;
         ix[it.sha256] = info; n++;
-        if (live && n % 6 === 0) { saveIndex(ix); setIndex({ ...ix }); }
+        if (!isPrivatePath(it.path)) pending[it.sha256] = info;
+        if (n % 6 === 0) flush();
       };
       const queue = [...todo];
       await Promise.all([0, 1].map(async () => { while (live && queue.length) await one(queue.shift()!).catch(() => {}); }));
-      saveIndex(ix); if (live) setIndex({ ...ix });
+      flush();
     })().catch(() => {});
     return () => { live = false; };
   }, [items]);
@@ -109,50 +139,45 @@ export default function PhotosModule({ win }: ModuleProps) {
     if (!items) return [];
     const f = sortPhotos(items.filter((i) => view === "all" ? true : view === "favorites" ? recipes[i.path]?.favorite : view === "edited" ? recipes[i.path] && !isIdentity(recipes[i.path]) : view === "undated" ? undatedPhotos([i], index).length > 0 : index[i.sha256]?.lat !== undefined), photoSort);
     if (photoSort !== "captured") return f;
-    const dateOf = (i: Item) => index[i.sha256]?.date ?? i.createdAt;
-    return [...f].sort((a, b) => Date.parse(dateOf(b)) - Date.parse(dateOf(a)));
+    const dateOf = (i: Item) => index[i.sha256]?.dateSource === "exif" ? index[i.sha256].date ?? i.createdAt : i.createdAt;
+    // Invalid dates sort last; ties retain the original library order.
+    return [...f].sort((a, b) => compareNewestPhotoDate(dateOf(a), dateOf(b)));
   }, [items, view, recipes, index, photoSort]);
   const groups = useMemo(() => {
     if (photoSort !== "captured") return shown.length ? [{ label: "All photos", items: shown }] : [];
     const g: { label: string; items: Item[] }[] = [];
     for (const it of shown) {
-      const d = index[it.sha256]?.date ?? it.createdAt; const label = Number.isFinite(Date.parse(d)) ? monthLabel(d) : "Unknown date";
+      const info = index[it.sha256];
+      const d = info?.dateSource === "exif" ? info.date ?? it.createdAt : it.createdAt;
+      const label = Number.isFinite(Date.parse(d)) ? monthLabel(d) : "Unknown date";
       const last = g[g.length - 1]; if (last && last.label === label) last.items.push(it); else g.push({ label, items: [it] });
     }
     return g;
   }, [shown, index, photoSort]);
 
+  const shownPaths = useMemo(() => shown.map((item) => item.path), [shown]);
+  const openPhoto = (path: string) => setViewer({ path, sequence: shownPaths });
   const [showPlaying, setShowPlaying] = useState(false);
   const [shuffle, setShuffle] = useState(false);
-  const shuffleRef = useRef<number[]>([]);
   const [showSecs, setShowSecs] = useState(4);
-  useEffect(() => {
-    if (!showPlaying || shown.length === 0) return;
-    const t = window.setInterval(() => {
-      const i = shown.findIndex((x) => x.path === open);
-      if (shuffle) {
-        if (shuffleRef.current.length !== shown.length) shuffleRef.current = shuffleOrder(shown.length, () => Math.random());
-        const pos = shuffleRef.current.indexOf(i);
-        const n = shown[shuffleRef.current[nextIndex(pos < 0 ? 0 : pos, shown.length)]];
-        if (n) setOpen(n.path);
-      } else {
-        const n = shown[nextIndex(i, shown.length)];
-        if (n) setOpen(n.path);
-      }
-    }, clampInterval(showSecs) * 1000);
-    return () => window.clearInterval(t);
-  }, [showPlaying, showSecs, shown, open, shuffle]);
   const current = items?.find((i) => i.path === open) ?? null;
-  if (current) {
-    return <PhotoEditor key={current.path + current.sha256} item={current} info={index[current.sha256]} showPlaying={showPlaying} onToggleShow={() => setShowPlaying((v) => !v)} onClose={() => { setShowPlaying(false); setOpen(null); }}
-      nav={{ label: positionLabel(shown, current.path), prev: neighbor(shown, current.path, -1)?.item.path ?? null, next: neighbor(shown, current.path, 1)?.item.path ?? null, go: (path: string) => setOpen(path) }}
-      onSaved={(r) => { setRecipes((m) => { const n = { ...m }; if (r) n[current.path] = r; else delete n[current.path]; return n; }); setSidecars((s) => { const n = new Set(s); if (r) n.add(current.path); else n.delete(current.path); return n; }); }}
+  // A deep link starts before its list is known. This guarded adjustment is
+  // local to this component's render and happens exactly once per session;
+  // the parent retains the snapshot even if the current image disappears.
+  if (viewer && viewer.sequence === null && shownPaths.includes(viewer.path)) {
+    setViewer({ ...viewer, sequence: shownPaths });
+  }
+  if (current && items && viewer) {
+    return <PhotoViewerSession current={current} items={items} sequence={viewer.sequence ?? shownPaths} info={index[current.sha256]}
+      playing={showPlaying} seconds={showSecs} shuffle={shuffle} onGo={navigatePhoto} onToggle={() => setShowPlaying((v) => !v)}
+      onClose={() => { setShowPlaying(false); setViewer(null); }}
+      onSaved={(path, r) => { setRecipes((m) => { const n = { ...m }; if (r) n[path] = r; else delete n[path]; return n; }); setSidecars((s) => { const n = new Set(s); if (r) n.add(path); else n.delete(path); return n; }); }}
       onExported={() => { load(); shell.bumpRefresh(); }} />;
   }
 
   const counts = { all: items?.length ?? 0, undated: items ? undatedPhotos(items, index).length : 0, favorites: items?.filter((i) => recipes[i.path]?.favorite).length ?? 0, edited: items?.filter((i) => recipes[i.path] && !isIdentity(recipes[i.path])).length ?? 0, places: items?.filter((i) => index[i.sha256]?.lat !== undefined).length ?? 0 };
   const indexed = items ? items.filter((i) => index[i.sha256]).length : 0;
-  const timeline = photoTimeline((items ?? []).map((i) => ({ path: i.path, mime: i.mime, size: i.size, date: index[i.sha256]?.date ?? i.createdAt })));
+  const timeline = photoTimeline((items ?? []).map((i) => ({ path: i.path, mime: i.mime, size: i.size, date: index[i.sha256]?.dateSource === "exif" ? index[i.sha256].date ?? i.createdAt : i.createdAt })));
   const timelineStrip = timeline.groups.length ? (
     <div className="fs-row" data-testid="photos-timeline" style={{ gap: 6, flexWrap: "wrap", padding: "4px 8px" }}>
       {timeline.groups.slice(0, 12).map((g) => <Badge key={g.month} tone="info">{g.month} · {g.count}</Badge>)}
@@ -163,7 +188,7 @@ export default function PhotosModule({ win }: ModuleProps) {
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-library">
       {timelineStrip}
       {shown.length > 1 ? <div className="fs-row" style={{ gap: 6, padding: "0 8px 6px", flexWrap: "wrap" }} data-testid="photos-slideshow">
-        <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={showPlaying} disabled={shown.length === 0} onClick={() => { if (!showPlaying && !open && shown[0]) setOpen(shown[0].path); setShowPlaying((v) => !v); }}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn>
+        <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={showPlaying} disabled={shown.length === 0} onClick={() => { if (!showPlaying && !open && shown[0]) openPhoto(shown[0].path); setShowPlaying((v) => !v); }}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn>
         <label style={{ fontSize: fz(11.5) }}>every <input className="fs-input" style={{ width: fz(52) }} type="number" min={1} max={60} value={showSecs} aria-label="Slideshow seconds per photo" onChange={(e) => setShowSecs(clampInterval(Number(e.target.value)))} /> s</label>
         <Btn variant={shuffle ? "primary" : "ghost"} aria-pressed={shuffle} onClick={() => setShuffle((v) => !v)} data-testid="photos-shuffle"><UiGlyph name="shuffle" size={13} /> Shuffle</Btn>
         <span className="fs-dim" style={{ fontSize: fz(11) }}>{shown.length} photos · wraps at the end</span>
@@ -183,13 +208,14 @@ export default function PhotosModule({ win }: ModuleProps) {
         ))}
         </BannerGroup>
         <BannerGroup name="Keep">
+<Btn variant="ghost" onClick={refreshLibrary} aria-label="Refresh photos" title="Refresh photos"><UiGlyph name="refresh" size={15} /></Btn>
 <Btn variant="ghost" onClick={() => shell.open("files", { path: "/Pictures" })}>Open Pictures folder</Btn>
         </BannerGroup>
       </AppBanner>
       <div className="fs-scroll" style={{ flex: 1, minHeight: 0, padding: 10 }}>
-        {error ? <Badge tone="bad">{error}</Badge> : null}
-        {items === null ? <div className="fs-dim">Loading library…</div> : null}
-        {items && shown.length === 0 ? <Empty title={view === "all" ? "No photos yet" : "Nothing here"} icon="🌅" hint={view === "all" ? "Upload pictures in Files (any folder) — they show up here." : undefined} /> : null}
+        {error ? <div className="fs-row" role="alert" style={{ gap: 8 }}><Badge tone="bad">{error}</Badge><Btn variant="ghost" onClick={refreshLibrary} aria-label="Retry library">Retry</Btn></div> : null}
+        {items === null && !error ? <div className="fs-dim">Loading library…</div> : null}
+        {items && shown.length === 0 ? <Empty title={view === "all" ? "No photos yet" : "Nothing here"} glyph="photos" hint={view === "all" ? "Upload pictures in Files (any folder) — they show up here." : undefined} /> : null}
         {groups.map((g) => (
           <section key={g.label} style={{ marginBottom: 14 }}>
             <h3 style={{ margin: "4px 2px 8px", fontSize: fz(14) }}>{g.label}</h3>
@@ -197,16 +223,20 @@ export default function PhotosModule({ win }: ModuleProps) {
               {g.items.map((it) => {
                 const inf = index[it.sha256]; const r = recipes[it.path];
                 return (
-                  <button key={it.path} role="listitem" className="fs-list-item" data-photo={it.name} onClick={() => setOpen(it.path)}
-                    title={`${it.name}${inf?.date ? ` — ${new Date(inf.date).toLocaleString()}${inf.dateSource === "file" ? " (file date)" : ""}` : ""}`}
+                  <button key={it.path} role="listitem" className="fs-list-item" data-photo={it.name} onClick={() => openPhoto(it.path)}
+                    title={`${it.name} — ${new Date(inf?.dateSource === "exif" && inf.date ? inf.date : it.createdAt).toLocaleString()}${inf?.dateSource !== "exif" ? " (file date)" : ""}`}
                     style={{ flexDirection: "column", padding: 4, position: "relative", background: "transparent", border: "none", cursor: "pointer" }}>
-                    <Thumb node={it} size="100%" iconSize={40} hasSidecar={sidecars.has(it.path)} fit="cover" radius={8} label={it.name} />
-                    <span style={{ position: "absolute", top: 8, right: 10, display: "flex", gap: 3 }}>
+                    {/* Reserve the same square before and after thumbnail decode.
+                        Otherwise grid rows move while a pointer click is in flight. */}
+                    <div style={{ width: "100%", aspectRatio: "1 / 1", pointerEvents: "none" }}>
+                      <Thumb node={it} size="100%" iconSize={40} hasSidecar={sidecars.has(it.path)} fit="contain" radius={8} label={it.name} />
+                    </div>
+                    <span style={{ position: "absolute", top: 8, right: 10, display: "flex", gap: 3, pointerEvents: "none" }}>
                       {r?.favorite ? <Badge tone="warn" title="Favorite"><HeartIcon filled size={11} /></Badge> : null}
                       {r && !isIdentity(r) ? <Badge tone="info" title="Edited (non-destructive)">edited</Badge> : null}
                     </span>
-                    {view === "places" && inf?.lat !== undefined ? <span className="fs-dim fs-mono" style={{ fontSize: fz(10.5) }}>{inf.lat.toFixed(4)}, {inf.lon!.toFixed(4)}</span> : null}
-                    {r?.rating ? <span aria-label={`${r.rating} stars`} role="img" style={{ display: "inline-flex", gap: 1 }}>{Array.from({ length: r.rating }, (_, i) => <StarIcon key={i} filled size={11} />)}</span> : null}
+                    {view === "places" && inf?.lat !== undefined ? <span className="fs-dim fs-mono" style={{ fontSize: fz(10.5), pointerEvents: "none" }}>{inf.lat.toFixed(4)}, {inf.lon!.toFixed(4)}</span> : null}
+                    {r?.rating ? <span aria-label={`${r.rating} stars`} role="img" style={{ display: "inline-flex", gap: 1, pointerEvents: "none" }}>{Array.from({ length: r.rating }, (_, i) => <StarIcon key={i} filled size={11} />)}</span> : null}
                   </button>
                 );
               })}
@@ -216,6 +246,41 @@ export default function PhotosModule({ win }: ModuleProps) {
       </div>
     </div>
   );
+}
+
+/** The parent owns the stable snapshot, including through temporary removal.
+ * The inner editor still remounts for each image so pixel/recipe state cannot
+ * leak to the next image. Closing and reopening captures a fresh snapshot. */
+function PhotoViewerSession({ current, items, sequence, info, playing, seconds, shuffle, onGo, onToggle, onClose, onSaved, onExported }: {
+  current: Item; items: Item[]; sequence: string[]; info?: Info; playing: boolean; seconds: number; shuffle: boolean;
+  onGo: (path: string) => void; onToggle: () => void; onClose: () => void;
+  onSaved: (path: string, recipe: PhotoRecipe | null) => void; onExported: () => void;
+}) {
+  const navigation = useMemo(() => {
+    const byPath = new Map(items.map((item) => [item.path, item]));
+    return sequence.map((path) => byPath.get(path)).filter((item): item is Item => !!item);
+  }, [items, sequence]);
+  const shuffleRef = useRef<number[]>([]);
+  useEffect(() => {
+    if (!playing || navigation.length === 0) return;
+    const timer = window.setInterval(() => {
+      const index = navigation.findIndex((item) => item.path === current.path);
+      if (shuffle) {
+        if (shuffleRef.current.length !== navigation.length) shuffleRef.current = shuffleOrder(navigation.length, () => Math.random());
+        const position = shuffleRef.current.indexOf(index);
+        const next = navigation[shuffleRef.current[nextIndex(position < 0 ? 0 : position, navigation.length)]];
+        if (next) onGo(next.path);
+      } else {
+        const next = navigation[nextIndex(index, navigation.length)];
+        if (next) onGo(next.path);
+      }
+    }, clampInterval(seconds) * 1000);
+    return () => window.clearInterval(timer);
+  }, [playing, seconds, navigation, current.path, shuffle, onGo]);
+
+  return <PhotoEditor key={current.path + current.sha256} item={current} info={info} showPlaying={playing} onToggleShow={onToggle} onClose={onClose}
+    nav={{ label: positionLabel(navigation, current.path), prev: neighbor(navigation, current.path, -1)?.item.path ?? null, next: neighbor(navigation, current.path, 1)?.item.path ?? null, go: onGo }}
+    onSaved={(r) => onSaved(current.path, r)} onExported={onExported} />;
 }
 
 /* ================================================================== editor ======================================= */
@@ -418,33 +483,23 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, on
 
   const meta = state?.meta;
   const rows = useMemo(() => meta ? describeRows(meta) : [], [meta]);
-  // Position nav survives loading and decode-error states: walking the library
-  // must never strand the user on a tile the canvas cannot rasterise (SVG, PSD).
+  const r = recipe;
+  // Keep the same header/buttons mounted while the image loads or errors.
+  // A decode completing between pointer-down and pointer-up must not remove
+  // the button under the user's pointer. Navigation also stays available for
+  // photos this browser cannot decode.
   const headerNav = (
     <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
       <Btn variant="ghost" onClick={onClose} aria-label="Back to library">‹ Library</Btn>
+      {onToggleShow ? <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={!!showPlaying} onClick={onToggleShow}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn> : null}
       {nav ? <span className="fs-row" style={{ gap: 4 }}>
         <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
-        <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }}>{nav.label}</span>
+        <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }} data-testid="photos-position">{nav.label}</span>
         <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
       </span> : null}
-    </div>
-  );
-  if (!state) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16 }} className="fs-dim">Opening {item.name}…</div></div>;
-  if (state.error) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16, display: "grid", gap: 8 }}><Badge tone="bad">{state.error}</Badge></div></div>;
-  const r = recipe;
-  return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, position: "relative" }} data-testid="photos-editor">
-      <div className="fs-row" style={{ padding: 8, gap: 6, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
-        <Btn variant="ghost" onClick={onClose} aria-label="Back to library">‹ Library</Btn>
-        {onToggleShow ? <Btn variant={showPlaying ? "primary" : "ghost"} aria-pressed={!!showPlaying} onClick={onToggleShow}>{showPlaying ? "Pause show" : "Play slideshow"}</Btn> : null}
-        {nav ? <span className="fs-row" style={{ gap: 4 }}>
-          <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
-          <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }}>{nav.label}</span>
-          <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(photoInfoText({ path: item.path, size: item.size, mime: item.mime, index: info ? { date: info.date ?? null, camera: info.camera, lat: info.lat, lon: info.lon } : undefined })); shell.toast("Photo info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="photos-copy-info">Copy info</Btn>
-          <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
-        </span> : null}
-        <strong style={{ fontSize: fz(13) }}>{item.name}</strong>
+      {nav ? <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(photoInfoText({ path: item.path, size: item.size, mime: item.mime, index: info ? { date: info.date ?? null, camera: info.camera, lat: info.lat, lon: info.lon } : undefined })); shell.toast("Photo info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="photos-copy-info">Copy info</Btn> : null}
+      <strong style={{ fontSize: fz(13) }}>{item.name}</strong>
+      {state && !state.error ? <>
         <div style={{ flex: 1 }} />
         <span role="radiogroup" aria-label="Rating" style={{ display: "flex" }}>
           {[1, 2, 3, 4, 5].map((n) => (
@@ -459,7 +514,14 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, on
         <Btn variant="ghost" onClick={() => push({ ...Object.fromEntries(Object.keys(r).filter((k) => k !== "v" && k !== "rating" && k !== "favorite").map((k) => [k, undefined])) })}>Reset</Btn>
         <Btn variant="primary" disabled={!dirty || !!busy} onClick={() => void save(r)}>{busy === "Saving" ? "Saving…" : "Save edit"}</Btn>
         <Btn disabled={!!state.note || !!busy} title={state.note} onClick={() => setExp({ format: "jpeg", quality: 0.9, size: 0, meta: true, location: false })}>Export…</Btn>
-      </div>
+      </> : null}
+    </div>
+  );
+  if (!state) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16 }} className="fs-dim">Opening {item.name}…</div></div>;
+  if (state.error) return <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} data-testid="photos-editor">{headerNav}<div style={{ padding: 16, display: "grid", gap: 8 }}><Badge tone="bad">{state.error}</Badge></div></div>;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, position: "relative" }} data-testid="photos-editor">
+      {headerNav}
       {state.note ? <div style={{ padding: "4px 10px" }}><Badge tone="warn">{state.note}</Badge></div> : null}
       <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
         <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: "grid", gridTemplate: "minmax(0, 1fr) / minmax(0, 1fr)", padding: 14, background: "var(--fs-surface-2, rgba(0,0,0,0.04))" }}>

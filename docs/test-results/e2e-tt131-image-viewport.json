@@ -1,0 +1,99 @@
+{
+  "suite": "e2e-tt131-image-viewport",
+  "at": "2026-10-31T04:55:12.387Z",
+  "results": [
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "zoomed image viewport exposes a named keyboard focus target and arrow-key panning",
+      "covers": {
+        "AX-08": "partial",
+        "IE-01": "partial"
+      },
+      "pass": true,
+      "ms": 134
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "modified arrows are not consumed by the viewport handler",
+      "covers": {
+        "IE-01": "partial"
+      },
+      "pass": true,
+      "ms": 16
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "viewport focus keeps existing editor shortcuts available",
+      "covers": {
+        "IE-01": "partial"
+      },
+      "pass": true,
+      "ms": 24
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "oversized canvas reaches both opposite document corners by scrolling",
+      "covers": {
+        "IE-01": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "drawing-kit buttons stay within their rail",
+      "covers": {
+        "IE-01": "partial"
+      },
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "drawing-kit controls have distinct vector marks, full names, and fit the rail",
+      "covers": {
+        "AX-08": "partial",
+        "IE-01": "partial"
+      },
+      "pass": true,
+      "ms": 140
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "the drawing rail stays usable at doubled text scale",
+      "covers": {
+        "AX-08": "partial",
+        "IE-01": "partial"
+      },
+      "pass": true,
+      "ms": 34
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "the Kit menu still lists full tool names and activates the real tool",
+      "covers": {
+        "IE-01": "partial"
+      },
+      "pass": true,
+      "ms": 2165
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "axe-core finds no scrollable-region-focusable issue on the enlarged canvas",
+      "covers": {
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 217
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "name": "attack: removing the viewport tab stop is detected by axe",
+      "covers": {
+        "AX-08": "partial"
+      },
+      "pass": true,
+      "ms": 76
+    }
+  ]
+}

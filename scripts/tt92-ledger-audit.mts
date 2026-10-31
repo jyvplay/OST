@@ -7,8 +7,10 @@ const find = (code: string) => { const row = rows.find((r) => r.code === code); 
 await test("FM-03 reports bounded database-atomic transfers, not a complete native tier-B spec", { "FM-03": "partial" }, () => {
   const r = find("FM-03"); assert.equal(r.tier, "B"); assert.equal(r.status, "partial"); assert.match(r.nuance, /one PostgreSQL transaction/); assert.match(r.nuance, /cooperative tree gate/); assert.match(r.nuance, /no external temp\/reopen verification/); assert.match(r.nuance, /sidecar trash\/restore\/purge remain separate best-effort/);
 });
-await test("FM-18 explicitly disclaims the missing native SAF and temp-reopen safe-save contract", { "FM-18": "partial" }, () => {
-  const r = find("FM-18"); assert.equal(r.tier, "A"); assert.equal(r.status, "partial"); assert.match(r.nuance, /no \/api\/fs safeSave operation/i); assert.match(r.nuance, /SAF.*not implemented/i);
+await test("FM-18 distinguishes the implemented VFS staging from the missing native SAF contract", { "FM-18": "partial" }, () => {
+  const r = find("FM-18"); assert.equal(r.tier, "A"); assert.equal(r.status, "partial");
+  assert.match(r.route, /safeSave/); assert.match(r.nuance, /reopened in a separate transaction/i);
+  assert.match(r.nuance, /SAF.*not implemented/i); assert.match(r.test, /tt116-safesave/);
 });
 await test("FM-11 states manual retention, legacy ambiguity and noncooperating mutation paths", { "FM-11": "partial" }, () => {
   const r = find("FM-11"); assert.equal(r.tier, "B"); assert.equal(r.status, "partial"); assert.match(r.nuance, /null group.*ambiguous/); assert.match(r.nuance, /Retention is manual/); assert.match(r.nuance, /not secure erasure/);

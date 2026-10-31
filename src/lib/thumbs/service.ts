@@ -73,11 +73,11 @@ function remember(key: string, p: Promise<ThumbInfo>) {
 const b64ToBytes = (s: string) => { const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
 const bytesToB64 = (u: Uint8Array) => { let s = ""; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(s); };
 
-export async function readFileBytes(path: string): Promise<Uint8Array | null> {
+export async function readFileBytes(path: string, expected?: { id: number; version: number; sha256: string }): Promise<Uint8Array | null> {
   const r = await fetch(`/api/fs?op=read&path=${encodeURIComponent(path)}`);
   if (!r.ok) return null;
-  const j = await r.json() as { node?: { content: string; encoding: string } };
-  if (!j.node) return null;
+  const j = await r.json() as { node?: { content: string; encoding: string; id?: number; version?: number; sha256?: string } };
+  if (!j.node || (expected && (j.node.id !== expected.id || j.node.version !== expected.version || j.node.sha256 !== expected.sha256))) return null;
   return j.node.encoding === "base64" ? b64ToBytes(j.node.content) : new TextEncoder().encode(j.node.content);
 }
 export async function readRecipe(photoPath: string): Promise<PhotoRecipe | null> {

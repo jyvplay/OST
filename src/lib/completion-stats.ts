@@ -8,7 +8,10 @@ export function completionStats(tasks: CompletionTask[], now: Date): { today: nu
   const day = (d: Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
   const todayStart = day(now);
   const dow = (now.getDay() + 6) % 7; // Monday = 0
-  const weekStart = todayStart - dow * 86400000;
+  const weekStartDate = new Date(todayStart);
+  weekStartDate.setDate(weekStartDate.getDate() - dow);
+  weekStartDate.setHours(0, 0, 0, 0);
+  const weekStart = weekStartDate.getTime();
   let today = 0, week = 0, undated = 0;
   for (const t of done) {
     if (!t.dueAt) { undated++; continue; }

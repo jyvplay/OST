@@ -3,7 +3,7 @@ import { AppBanner, BannerGroup } from "@/components/AppBanner";
 import { UiGlyph } from "../AppIcon";
 import { fz } from "@/lib/uiscale";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { api, fmtTime, post } from "@/lib/api";
 import { formatFor, lossReport, parseCsv, sanitizeSvg } from "@/lib/forge";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -46,7 +46,30 @@ export default function EditorModule({ win }: ModuleProps) {
   const [findMsg, setFindMsg] = useState("");
   const [gotoLine, setGotoLine] = useState("");
   const areaRef = useRef<HTMLTextAreaElement | null>(null);
+  const pendingSelection = useRef<{ start: number; end: number } | null>(null);
   const fmt = formatFor(path);
+
+  // Restore against the committed controlled value, before paint. A deferred
+  // animation-frame callback can otherwise overwrite a newer user selection.
+  useLayoutEffect(() => {
+    const pending = pendingSelection.current;
+    pendingSelection.current = null;
+    const ta = areaRef.current;
+    if (pending && ta) { ta.focus(); ta.setSelectionRange(pending.start, pending.end); }
+  }, [text]);
+
+  const editWithSelection = (next: string, start: number, end: number) => {
+    const ta = areaRef.current;
+    if (!ta) return;
+    setDirty(true);
+    if (next === text) {
+      pendingSelection.current = null;
+      ta.focus(); ta.setSelectionRange(start, end);
+    } else {
+      pendingSelection.current = { start, end };
+      setText(next);
+    }
+  };
 
   useEffect(() => {
     if (!path) { setLoaded(true); return; }
@@ -121,8 +144,8 @@ export default function EditorModule({ win }: ModuleProps) {
   </AppBanner>
   );
   const wrap = (body: ReactNode) => <div data-editor-win={win.id} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>{banner}{body}</div>;
-  if (!loaded) return wrap(<Empty title="Loading…" icon="⏳" />);
-  if (!path) return wrap(<Empty title="No document" icon="📝" hint="Open a file from Files, or use the palette." />);
+  if (!loaded) return wrap(<Empty title="Loading…" glyph="timer" />);
+  if (!path) return wrap(<Empty title="No document" glyph="emptyNote" hint="Open a file from Files, or use the palette." />);
 
   const svg = fmt?.ext.includes("svg") ? sanitizeSvg(text) : null;
   const csv = fmt?.ext.includes("csv") ? parseCsv(text).slice(0, 60) : null;
@@ -150,10 +173,10 @@ export default function EditorModule({ win }: ModuleProps) {
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { desc: true })); setDirty(true); }} title="Sort all lines Z to A">Reverse sort</Btn>
         <Btn variant="ghost" onClick={() => { setText((t) => transformLines(t, { dedupe: true })); setDirty(true); }} title="Remove duplicate lines">Dedupe lines</Btn>
         <Btn variant={wrapOn ? "primary" : "ghost"} aria-pressed={wrapOn} onClick={() => { const next = !wrapOn; setWrapOn(next); try { window.localStorage.setItem(WRAP_KEY, next ? "1" : "0"); } catch { /* preference only */ } }} title="Soft-wrap long lines"><UiGlyph name="wrap" size={13} /> Wrap</Btn>
-        <Btn variant="ghost" title="Indent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, 1); setText(r.text); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(r.selStart, r.selEnd); }); }} data-testid="editor-indent"><UiGlyph name="indent" size={13} /> Indent</Btn>
-        <Btn variant="ghost" title="Dedent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, -1); setText(r.text); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(r.selStart, r.selEnd); }); }} data-testid="editor-dedent"><span style={{ display: "inline-flex", transform: "scaleX(-1)" }}><UiGlyph name="indent" size={13} /></span> Dedent</Btn>
-        {(["upper", "lower", "title"] as const).map((m) => <Btn key={m} variant="ghost" title={`Selection to ${m === "upper" ? "UPPER CASE" : m === "lower" ? "lower case" : "Title Case"}`} onClick={() => { const ta = areaRef.current; if (!ta) return; const a = ta.selectionStart, b = ta.selectionEnd; if (a === b) return; setText(text.slice(0, a) + caseTransform(text.slice(a, b), m) + text.slice(b)); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(a, b); }); }} data-testid={`editor-case-${m}`}>{m === "upper" ? "AA" : m === "lower" ? "aa" : "Aa"}</Btn>)}
-        <Btn variant="ghost" title="Insert the current date and time at the cursor" onClick={() => { const ta = areaRef.current; if (!ta) return; const a = ta.selectionStart, b = ta.selectionEnd; const st = stampText(new Date()); setText(text.slice(0, a) + st + text.slice(b)); setDirty(true); requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(a + st.length, a + st.length); }); }} data-testid="editor-stamp">now</Btn>
+        <Btn variant="ghost" title="Indent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, 1); editWithSelection(r.text, r.selStart, r.selEnd); }} data-testid="editor-indent"><UiGlyph name="indent" size={13} /> Indent</Btn>
+        <Btn variant="ghost" title="Dedent the selected lines" onClick={() => { const ta = areaRef.current; if (!ta) return; const r = indentSelection(text, ta.selectionStart, ta.selectionEnd, -1); editWithSelection(r.text, r.selStart, r.selEnd); }} data-testid="editor-dedent"><span style={{ display: "inline-flex", transform: "scaleX(-1)" }}><UiGlyph name="indent" size={13} /></span> Dedent</Btn>
+        {(["upper", "lower", "title"] as const).map((m) => <Btn key={m} variant="ghost" title={`Selection to ${m === "upper" ? "UPPER CASE" : m === "lower" ? "lower case" : "Title Case"}`} onClick={() => { const ta = areaRef.current; if (!ta) return; const a = ta.selectionStart, b = ta.selectionEnd; if (a === b) return; const changed = caseTransform(text.slice(a, b), m); editWithSelection(text.slice(0, a) + changed + text.slice(b), a, a + changed.length); }} data-testid={`editor-case-${m}`}>{m === "upper" ? "AA" : m === "lower" ? "aa" : "Aa"}</Btn>)}
+        <Btn variant="ghost" title="Insert the current date and time at the cursor" onClick={() => { const ta = areaRef.current; if (!ta) return; const a = ta.selectionStart, b = ta.selectionEnd; const st = stampText(new Date()); editWithSelection(text.slice(0, a) + st + text.slice(b), a + st.length, a + st.length); }} data-testid="editor-stamp">now</Btn>
         {findMsg ? <span className="fs-dim" style={{ fontSize: fz(11.5) }} role="status">{findMsg}</span> : null}
         <span style={{ flex: 1 }} />
         <input className="fs-input" style={{ width: fz(76) }} inputMode="numeric" placeholder="Line #" aria-label="Go to line" value={gotoLine}

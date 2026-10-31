@@ -116,7 +116,7 @@ export default function RoutinesModule(_: ModuleProps) {
           </label>
         </div>
         {rows.length ? <input className="fs-input" type="search" placeholder="Search routines" aria-label="Search routines" value={routineQ} onChange={(e) => setRoutineQ(e.target.value)} data-testid="routines-search" /> : null}
-        {rows.length === 0 ? <Empty title="No routines" icon="⚡" /> : null}
+        {rows.length === 0 ? <Empty title="No routines" glyph="repeat" /> : null}
         {filterRoutines(rows.map((r) => ({ r, name: r.name, actions: JSON.stringify(r.actions) })), routineQ).map(({ r }) => (
           <div key={r.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
             <span style={{ flex: 1, minWidth: 0 }}>

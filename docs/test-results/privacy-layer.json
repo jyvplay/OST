@@ -1,6 +1,6 @@
 {
   "suite": "privacy-layer",
-  "at": "2026-10-30T17:48:55.275Z",
+  "at": "2026-10-31T05:40:43.737Z",
   "results": [
     {
       "suite": "privacy-layer",
@@ -8,9 +8,8 @@
       "covers": {
         "SC-10": "full"
       },
-      "pass": false,
-      "error": "Unexpected end of JSON input",
-      "ms": 127
+      "pass": true,
+      "ms": 138
     },
     {
       "suite": "privacy-layer",
@@ -19,7 +18,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 119
+      "ms": 76
     },
     {
       "suite": "privacy-layer",
@@ -28,7 +27,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 7
+      "ms": 4
     },
     {
       "suite": "privacy-layer",
@@ -37,7 +36,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 93
+      "ms": 49
     },
     {
       "suite": "privacy-layer",
@@ -47,7 +46,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 63
+      "ms": 84
     },
     {
       "suite": "privacy-layer",
@@ -58,7 +57,7 @@
         "BK-02": "partial"
       },
       "pass": true,
-      "ms": 42
+      "ms": 39
     },
     {
       "suite": "privacy-layer",
@@ -69,7 +68,7 @@
         "MD-03": "partial"
       },
       "pass": true,
-      "ms": 137
+      "ms": 114
     },
     {
       "suite": "privacy-layer",
@@ -78,7 +77,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 62
+      "ms": 32
     },
     {
       "suite": "privacy-layer",
@@ -87,7 +86,7 @@
         "SC-11": "full"
       },
       "pass": true,
-      "ms": 30
+      "ms": 21
     },
     {
       "suite": "privacy-layer",
@@ -96,7 +95,7 @@
         "SC-10": "full"
       },
       "pass": true,
-      "ms": 21
+      "ms": 11
     },
     {
       "suite": "privacy-layer",
@@ -106,7 +105,7 @@
         "SC-14": "partial"
       },
       "pass": true,
-      "ms": 274
+      "ms": 176
     },
     {
       "suite": "privacy-layer",
@@ -114,9 +113,8 @@
       "covers": {
         "SC-16": "full"
       },
-      "pass": false,
-      "error": "Unexpected end of JSON input",
-      "ms": 157
+      "pass": true,
+      "ms": 196
     },
     {
       "suite": "privacy-layer",
@@ -125,9 +123,8 @@
         "SC-16": "partial",
         "SC-13": "partial"
       },
-      "pass": false,
-      "error": "Unexpected end of JSON input",
-      "ms": 69
+      "pass": true,
+      "ms": 136
     }
   ]
 }

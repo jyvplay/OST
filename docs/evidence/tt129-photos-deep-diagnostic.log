@@ -1,0 +1,41 @@
+  ✓ delayed EXIF reordering cannot change an active editor walk; reopening takes the new order
+  ✓ a navigation click survives the current image finishing its real load between pointer down and up
+  ✓ a failed real image read is not cached as missing metadata and a reload retries
+  ✓ No date retains a PNG with no capture metadata after indexing
+deep-link reopen diagnostics: {
+  trace: [
+    'pointerdown:rect:tt128-274d4f4f346a6b8f-a.png',
+    'pointerup:H3:none'
+  ],
+  library: true,
+  editor: false,
+  photos: [
+    'tt128-274d4f4f346a6b8f-a.png',
+    'tt128-274d4f4f346a6b8f-c.png',
+    'tt123-b.png',
+    'tt123-a.png',
+    'tt124-ie.png',
+    'tt119-b.png',
+    'tt119-a.png',
+    'tt120-b.png',
+    'tt120-a.png',
+    'tt124-probe.png',
+    'logo.svg',
+    'tt128-274d4f4f346a6b8f-b.png'
+  ]
+}
+locator.innerText: Timeout 25000ms exceeded.
+Call log:
+  - waiting for getByTestId('photos-position')
+
+    at /home/user/OST/scripts/e2e-tt128-photos.mts:190:66
+    at async test (/home/user/OST/scripts/harness.mts:26:7)
+    at async file:///home/user/OST/scripts/e2e-tt128-photos.mts:155:3
+  ✗ a deep-linked viewer snapshots the library before delayed EXIF reordering
+    locator.innerText: Timeout 25000ms exceeded.
+Call log:
+  - waiting for getByTestId('photos-position')
+
+
+4 passed, 1 failed
+FAILED: a deep-linked viewer snapshots the library before delayed EXIF reordering

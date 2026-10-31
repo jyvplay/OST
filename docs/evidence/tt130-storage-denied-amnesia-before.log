@@ -1,0 +1,8 @@
+  ✗ explicit amnesic boot remains fail-closed when localStorage access throws
+    storage failure must not override an explicit amnesia request
+
+false !== true
+
+
+0 passed, 1 failed
+FAILED: explicit amnesic boot remains fail-closed when localStorage access throws

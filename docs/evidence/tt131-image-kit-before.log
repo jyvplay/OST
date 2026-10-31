@@ -1,0 +1,9 @@
+  ✗ drawing-kit controls have distinct vector marks, full names, and fit the rail
+    missing vector mark for Move
+
+0 !== 1
+
+  ✓ the Kit menu still lists full tool names and activates the real tool
+
+1 passed, 1 failed
+FAILED: drawing-kit controls have distinct vector marks, full names, and fit the rail

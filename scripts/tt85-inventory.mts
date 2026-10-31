@@ -7,7 +7,7 @@ const { test, finish } = makeHarness("tt85-inventory");
 await test("AP-05: inventory definitions are unique and explicitly describe only app-owned foreground work", { "AP-05": "full" }, () => {
   const ids = BACKGROUND_JOBS.map((job) => job.id);
   assert.equal(new Set(ids).size, ids.length);
-  assert.deepEqual(ids, ["planner-reminders", "routine-triggers", "offline-replay"]);
+  assert.deepEqual(ids, ["clock-alarms", "planner-reminders", "routine-triggers", "offline-replay"]);
   assert.ok(BACKGROUND_JOBS.every((job) => /page|foreground/i.test(`${job.scope} ${job.trigger}`)));
   assert.ok(BACKGROUND_JOBS.every((job) => !/all apps|OS wake/i.test(job.scope)));
 });

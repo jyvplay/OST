@@ -1,0 +1,42 @@
+{
+  "suite": "tt130-alarms-core",
+  "at": "2026-10-31T04:55:05.146Z",
+  "results": [
+    {
+      "suite": "tt130-alarms-core",
+      "name": "no enabled alarms means no repeating scheduler timer",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt130-alarms-core",
+      "name": "delivery window is inclusive at due and excludes a full minute late",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt130-alarms-core",
+      "name": "weekday schedules do not become daily; empty days mean daily",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt130-alarms-core",
+      "name": "2,000 seeded plans match direct UTC day enumeration",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 47
+    }
+  ]
+}

@@ -5,6 +5,10 @@ import { api, patch, post, replayQueue } from "@/lib/api";
 import type { RoutineAction } from "@/lib/routines";
 import { useShell } from "./shell-context";
 import { recordBackgroundCallback, updateBackgroundStatus } from "@/lib/background-inventory";
+import { getAlarms, useAlarms } from "@/lib/alarm-store";
+import { ALARM_WINDOW_MS, planAlarmChecks } from "@/lib/clock-alarm-plan";
+import { claimAlarm } from "@/lib/clock-alarm-claim";
+import { privacy } from "@/lib/privacy/session";
 
 interface Task { id: number; title: string; done: boolean; dueAt: string | null; reminded: boolean; kind: string }
 interface Routine { id: number; name: string; trigger: string; triggerArg: string; actions: RoutineAction[]; enabled: boolean; lastRun: string | null }
@@ -21,6 +25,41 @@ export default function ShellDaemons() {
   // Update only after a committed render, before browser events and timer callbacks.
   useLayoutEffect(() => { ref.current = shell; }, [shell]);
   const extended = useRef<boolean | null>(null);
+  const alarms = useAlarms();
+  const claimedAlarms = useRef(new Set<string>());
+  const pendingAlarms = useRef(new Set<string>());
+  const alive = useRef(false);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+
+  // PR-10: this is shell-owned, not Clock-window-owned. Do not pause an
+  // enabled alarm for the background-work governor; the page itself can still
+  // be throttled, frozen or closed by the browser.
+  useEffect(() => {
+    let timer: number | undefined;
+    const tick = () => {
+      recordBackgroundCallback("clock-alarms", "checking enabled local alarms");
+      const plan = planAlarmChecks(alarms, Date.now());
+      for (const { alarm, at } of plan.due) {
+        const key = `${alarm.id}@${at}`;
+        if (claimedAlarms.current.has(key) || pendingAlarms.current.has(key)) continue;
+        pendingAlarms.current.add(key);
+        void claimAlarm(alarm.id, at, () => {
+          if (!alive.current || Date.now() < at || Date.now() - at >= ALARM_WINDOW_MS) return false;
+          const current = getAlarms().find((a) => a.id === alarm.id);
+          return !!current && current.enabled && current.time === alarm.time && current.days.join(",") === alarm.days.join(",");
+        }, () => {
+          claimedAlarms.current.add(key);
+          if (claimedAlarms.current.size > 512) claimedAlarms.current.delete(claimedAlarms.current.values().next().value!);
+          ref.current.toast(`Alarm: ${alarm.label || alarm.time}`, "ok");
+          try { if (!privacy.status().amnesic && typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(`Alarm: ${alarm.label || alarm.time}`); } catch { /* toast is the foreground fallback */ }
+        }).finally(() => { pendingAlarms.current.delete(key); });
+      }
+      updateBackgroundStatus("clock-alarms", `${alarms.filter((a) => a.enabled).length} enabled; ${plan.due.length} in the delivery window`);
+      if (plan.delay !== null) timer = window.setTimeout(tick, plan.delay);
+    };
+    tick();
+    return () => { if (timer !== undefined) window.clearTimeout(timer); };
+  }, [alarms]);
 
   // PR-03 reminders (AP-05 inventory counts actual page callbacks, not assumed OS wakes)
   useEffect(() => {

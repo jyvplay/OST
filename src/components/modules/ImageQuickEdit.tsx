@@ -128,7 +128,7 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
   if (!bitmap) return (
     <div style={{ display: "grid", gridTemplateRows: "auto 1fr", height: "100%", minHeight: 0 }}>
       {banner}
-      <Empty title="No image yet" icon="🪄" hint="Open a picture from the banner above, or drop one in from Files." />
+      <Empty title="No image yet" glyph="photos" hint="Open a picture from the banner above, or drop one in from Files." />
       <div className="fs-dim" style={{ fontSize: fz(11.5) }}>Raster: PNG/JPEG/WebP/GIF where the browser can decode it. HEIC decode is capability-probed. PSD remains metadata-only.</div>
     </div>
   );

@@ -1,0 +1,6 @@
+  ✓ a deep-linked viewer snapshots the library before delayed EXIF reordering
+  ✓ a failed library read exposes a retry and recovers without reloading the shell
+  ✓ a refresh result is not replaced by an older delayed real media response
+  ✓ slideshow advances through the captured name order and pauses
+
+4 passed, 0 failed

@@ -1,6 +1,6 @@
 {
   "suite": "tt127-conditional",
-  "at": "2026-10-30T21:21:19.861Z",
+  "at": "2026-10-30T23:59:05.449Z",
   "results": [
     {
       "suite": "tt127-conditional",
@@ -14,14 +14,14 @@
       "name": "two writers from one snapshot yield one success, no lost update",
       "covers": {},
       "pass": true,
-      "ms": 13
+      "ms": 18
     },
     {
       "suite": "tt127-conditional",
       "name": "stale identity, modified content, and trashed destination refuse writes",
       "covers": {},
       "pass": true,
-      "ms": 21
+      "ms": 31
     }
   ]
 }

@@ -58,23 +58,38 @@ export function lapStats(lapsMs: number[]): { laps: LapStat[]; fastest: LapStat 
   return { laps, fastest, slowest, averageSplitMs: laps[laps.length - 1].totalMs / laps.length };
 }
 
-/** CK-03: calendar arithmetic on whole local days (time-of-day is discarded on purpose). */
+/** CK-03: calendar arithmetic on whole local days (time-of-day is discarded).
+ * Convert the local date components to a UTC ordinal, not the instant at local
+ * midnight: the latter can be 23, 25 or even zero hours from the next day. */
 const dayMs = 86_400_000;
-function strip(d: Date): number { return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }
-export function daysBetween(a: Date, b: Date): number { return Math.round((strip(b) - strip(a)) / dayMs); }
+function dayOrdinal(d: Date): number {
+  const result = new Date(0);
+  result.setUTCFullYear(d.getFullYear(), d.getMonth(), d.getDate());
+  result.setUTCHours(0, 0, 0, 0);
+  return result.getTime();
+}
+export function localDateInput(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${String(d.getFullYear()).padStart(4, "0")}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+export function daysBetween(a: Date, b: Date): number { return (dayOrdinal(b) - dayOrdinal(a)) / dayMs; }
 export function addDays(d: Date, n: number): Date {
   if (!Number.isInteger(n)) throw new Error("days to add must be an integer");
   return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
 }
-/** Business days in [a, b): Monday–Friday days strictly after a, up to and excluding b (sign-aware). */
+/** Business dates stepped from a toward b, excluding a and including b. */
 export function businessDaysBetween(a: Date, b: Date): number {
   const total = daysBetween(a, b);
+  if (!Number.isFinite(total)) throw new Error("valid dates are required");
   if (total === 0) return 0;
-  const step = total > 0 ? 1 : -1;
-  let count = 0;
-  for (let i = 1; i <= Math.abs(total); i++) {
-    const d = new Date(a.getFullYear(), a.getMonth(), a.getDate() + step * i);
-    if (d.getDay() >= 1 && d.getDay() <= 5) count++;
+  const step = total > 0 ? 1 : -1, distance = Math.abs(total);
+  // Every block of seven consecutive dates contains five weekdays. The small
+  // remainder avoids a UI freeze when the input spans thousands of years.
+  let count = Math.floor(distance / 7) * 5;
+  const start = dayOrdinal(a);
+  for (let i = 1; i <= distance % 7; i++) {
+    const dow = new Date(start + step * i * dayMs).getUTCDay();
+    if (dow >= 1 && dow <= 5) count++;
   }
   return step * count;
 }

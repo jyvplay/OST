@@ -1,0 +1,15 @@
+{
+  "suite": "tt130-privacy-boot",
+  "at": "2026-10-31T04:55:05.367Z",
+  "results": [
+    {
+      "suite": "tt130-privacy-boot",
+      "name": "explicit amnesic boot remains fail-closed when localStorage access throws",
+      "covers": {
+        "SC-11": "partial"
+      },
+      "pass": true,
+      "ms": 20
+    }
+  ]
+}
