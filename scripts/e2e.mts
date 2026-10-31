@@ -171,7 +171,7 @@ await test("terminal: write + cat through the journal; mv shows journal op", { "
   await dlg.getByText(/journal op #\d+ COMPLETE/).waitFor({ timeout: 8000 });
 });
 
-await test("editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists", { "PR-01": "full", "FM-18": "full", "FF-15": "partial" }, async () => {
+await test("editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists", { "PR-01": "full", "FM-18": "partial", "FF-15": "partial" }, async () => {
   const term = page.locator('[role=dialog][aria-label="Terminal"]').first();
   const input = term.getByLabel("Terminal input");
   await input.fill(`open editor ${DIR}/m.md`); await input.press("Enter");

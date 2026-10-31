@@ -1,16 +1,16 @@
 {
   "suite": "e2e-tt117",
-  "at": "2026-10-31T00:01:54.946Z",
+  "at": "2026-10-31T05:01:04.753Z",
   "results": [
     {
       "suite": "e2e-tt117",
       "name": "CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
       "covers": {
-        "CK-01": "full",
+        "CK-01": "partial",
         "CK-03": "full"
       },
       "pass": true,
-      "ms": 2716
+      "ms": 3165
     },
     {
       "suite": "e2e-tt117",
@@ -19,7 +19,7 @@
         "NT-01": "full"
       },
       "pass": true,
-      "ms": 4108
+      "ms": 4062
     },
     {
       "suite": "e2e-tt117",
@@ -31,7 +31,7 @@
         "BR-01": "full"
       },
       "pass": true,
-      "ms": 6643
+      "ms": 6692
     },
     {
       "suite": "e2e-tt117",
@@ -40,7 +40,7 @@
         "SP-01": "full"
       },
       "pass": true,
-      "ms": 2775
+      "ms": 3531
     },
     {
       "suite": "e2e-tt117",
@@ -51,7 +51,7 @@
         "RC-42": "partial"
       },
       "pass": true,
-      "ms": 2568
+      "ms": 2452
     }
   ]
 }

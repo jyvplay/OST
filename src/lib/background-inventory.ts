@@ -7,7 +7,7 @@
  * service-worker / Background Sync registrations are queried separately from
  * the browser's live APIs in the Apps module.
  */
-export type BackgroundJobId = "planner-reminders" | "routine-triggers" | "offline-replay";
+export type BackgroundJobId = "clock-alarms" | "planner-reminders" | "routine-triggers" | "offline-replay";
 export interface BackgroundJobDefinition {
   id: BackgroundJobId;
   title: string;
@@ -23,6 +23,13 @@ export interface BackgroundJobSnapshot extends BackgroundJobDefinition {
 export type BackgroundJobListener = (jobs: BackgroundJobSnapshot[]) => void;
 
 export const BACKGROUND_JOBS: readonly BackgroundJobDefinition[] = [
+  {
+    id: "clock-alarms",
+    title: "Clock alarm check",
+    trigger: "Page timer while an alarm is enabled, plus shell startup and edits",
+    scope: "Fusion page while its JavaScript runs; the browser may throttle or suspend it",
+    data: "Reads this browser's alarm settings; only due alarms show a toast or notification.",
+  },
   {
     id: "planner-reminders",
     title: "Planner reminder check",

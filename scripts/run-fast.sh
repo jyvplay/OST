@@ -22,7 +22,7 @@ JOBS="${JOBS:-2}"
 case "$JOBS" in ''|*[!0-9]*) echo "JOBS must be a positive integer" >&2; exit 2;; esac
 [ "$JOBS" -ge 1 ] || { echo "JOBS must be >= 1" >&2; exit 2; }
 
-DEFAULT="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine vector-boolean whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core"
+DEFAULT="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine vector-boolean whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core tt130-alarms-core tt130-privacy-boot tt85-inventory"
 SUITES="${*:-$DEFAULT}"
 include_oracle=0
 [ "$#" -eq 0 ] && include_oracle=1

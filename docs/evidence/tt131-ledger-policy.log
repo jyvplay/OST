@@ -1,0 +1,4 @@
+  ✓ full-tagged incomplete rows stay partial; blocked honesty and failed tests are distinguished
+  ✓ unknown test feature codes fail instead of silently inflating coverage
+
+2 passed, 0 failed

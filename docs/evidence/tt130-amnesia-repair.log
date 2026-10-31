@@ -1,0 +1,19 @@
+AssertionError [ERR_ASSERTION]: the amnesic claim must not persist
++ actual - expected
+
++ '["normal-alarm@1894008600000","other-alarm@1894008600000"]'
+- null
+
+    at file:///home/user/OST/scripts/e2e-tt130-alarms.mts:160:14
+    at async test (file:///home/user/OST/scripts/harness.mts:26:7)
+    at async file:///home/user/OST/scripts/e2e-tt130-alarms.mts:124:3
+  ✗ amnesic sessions isolate alarms and do not write their settings or claims
+    the amnesic claim must not persist
++ actual - expected
+
++ '["normal-alarm@1894008600000","other-alarm@1894008600000"]'
+- null
+
+
+0 passed, 1 failed
+FAILED: amnesic sessions isolate alarms and do not write their settings or claims

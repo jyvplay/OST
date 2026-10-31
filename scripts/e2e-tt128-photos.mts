@@ -152,7 +152,7 @@ try {
       assert.equal(await page.locator(`[data-photo="${names[0]}"]`).count(), 0);
     } finally { await context.close(); }
   });
-  await test("a thumbnail completing between pointer down and up keeps its tile geometry and click", { "PH-01": "partial" }, async () => {
+  await test("a thumbnail completing between pointer down and up keeps its tile geometry and click", { "MD-03": "partial" }, async () => {
     await photosState();
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
     const page = await context.newPage(); page.setDefaultTimeout(25_000);
@@ -178,7 +178,7 @@ try {
       await page.getByTestId("photos-editor").getByText(names[0], { exact: true }).waitFor();
     } finally { release(); await context.close(); }
   });
-  await test("photo tiles retain keyboard activation and cancel a drag away", { "PH-01": "partial" }, async () => {
+  await test("photo tiles retain keyboard activation and cancel a drag away", { "MD-03": "partial" }, async () => {
     await photosState();
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
     try {
@@ -276,7 +276,7 @@ try {
       await page.getByTestId("photos-editor").getByText(names[1], { exact: true }).waitFor();
     } finally { release(); await call("POST", "/api/fs", { op: "restore", path: paths[0] }); await context.close(); }
   });
-  await test("a failed library read exposes a retry and recovers without reloading the shell", { "PH-01": "partial" }, async () => {
+  await test("a failed library read exposes a retry and recovers without reloading the shell", { "MD-03": "partial" }, async () => {
     await photosState();
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
     const page = await context.newPage(); page.setDefaultTimeout(20_000); let fail = true, requests = 0;
@@ -296,7 +296,7 @@ try {
       assert.equal(await page.getByRole("button", { name: "Retry library" }).count(), 0);
     } finally { await context.close(); }
   });
-  await test("a refresh result is not replaced by an older delayed real media response", { "PH-01": "partial" }, async () => {
+  await test("a refresh result is not replaced by an older delayed real media response", { "MD-03": "partial" }, async () => {
     await photosState();
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
     const page = await context.newPage(); page.setDefaultTimeout(20_000);

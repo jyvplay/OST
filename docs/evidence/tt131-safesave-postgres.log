@@ -1,0 +1,17 @@
+  ✓ a safe save of a new file publishes it and leaves no temporary output
+  ✓ replacing an existing file advances it by one version and keeps the previous one
+  ✓ a save whose bytes do not match the digest the caller declared is refused, and the original is untouched
+  ✓ a malformed payload is refused and the file it was aimed at is untouched
+  ✓ text that cannot survive a byte round-trip is refused
+  ✓ a target that moved under the caller is refused rather than overwritten
+  ✓ when replacement is unavailable the bytes are published beside the original, never over it
+  ✓ a save whose acknowledgement was lost is answered, not performed again
+  ✓ a save token cannot be reused to publish different bytes
+  ✓ eight concurrent saves of one token publish one version
+  ✓ a save larger than the store limit is refused before anything is written
+  ✓ a temporary output abandoned by a dead process is reclaimable and age-bounded
+  ✓ every safe save is visible in the job journal with the stages it really went through
+  ✓ a safe-saved text file becomes searchable, and a refused one does not
+  ✓ the temporary output folder cannot be used as a target
+
+15 passed, 0 failed

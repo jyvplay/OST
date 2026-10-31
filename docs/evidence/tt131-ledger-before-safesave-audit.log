@@ -1,0 +1,6 @@
+  ✓ the production ledger is the generated snapshot in the checked-out source
+  ✓ the recorded build counts and incomplete coverage caps agree with the live register
+  ✓ the alarm row is partial and includes the real foreground regression evidence
+  ✓ saved test results refer only to registered feature codes
+
+4 passed, 0 failed

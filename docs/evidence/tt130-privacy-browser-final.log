@@ -1,0 +1,19 @@
+  ✓ create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state
+  ✓ files written by the shell into /Private reach the host as ciphertext only: no name, no content, no index entry, no audit path
+  ✓ TT87 conditional writes work for ordinary host files while unlocked, but never write plaintext inside Persistent Storage
+  ✓ lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only)
+  ✓ TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host
+  ✓ Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains
+  ✓ Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author
+  ✓ amnesic session: AMNESIC badge, files in RAM only, notes refused + logged, localStorage and IndexedDB leave no trace, /Private still persists
+  ✓ emergency shutdown chord: keys + RAM files gone, page blanked via location.replace (no history entry with the shell)
+  ✓ privacy headers: no-referrer, no DNS prefetch, nosniff, object-src none; API bodies are never written to the HTTP disk cache
+    bench: encrypt 142 MB/s · 256 KiB save median host 27.6 ms vs /Private 38.0 ms
+  ✓ no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end
+  ✓ host audit in the UI: a plaintext file planted by another client is flagged and 'Encrypt it' seals it (name + content)
+  ✓ TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext
+  ✓ TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks
+  ✓ no page errors across the privacy flows
+  ✓ privacy fixture cleanup leaves no host nodes, versions or search rows for its owned paths
+
+16 passed, 0 failed

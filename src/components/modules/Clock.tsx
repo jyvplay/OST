@@ -4,7 +4,9 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
-import { validateAlarms, nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, localDateInput, type Alarm } from "@/lib/clock-core";
+import { nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, localDateInput, type Alarm } from "@/lib/clock-core";
+import { updateAlarms, useAlarms } from "@/lib/alarm-store";
+import { privacy } from "@/lib/privacy/session";
 import { commonWindows, validateCountdowns, daysUntil, type Countdown } from "@/lib/zones";
 import { validateZones, addZone, removeZone, allZoneNames, WORLD_ZONES_KEY } from "@/lib/zone-list";
 import { convertZoneTime, type ZoneDisambiguation } from "@/lib/zone-convert";
@@ -45,29 +47,18 @@ export default function ClockModule(_: ModuleProps) {
   const [zonePick, setZonePick] = useState("Europe/Paris");
   const [zoneMsg, setZoneMsg] = useState("");
   useEffect(() => { try { localStorage.setItem(WORLD_ZONES_KEY, JSON.stringify(zones)); } catch { /* private mode */ } }, [zones]);
-  // TT117 CK-01: alarms persist browser-local (a closed web app cannot fire them; stated below).
-  const [alarms, setAlarms] = useState<Alarm[]>(() => { try { return validateAlarms(JSON.parse(localStorage.getItem("fusion.alarms.v1") ?? "[]")); } catch { return []; } });
+  // Shared with the shell scheduler and other Clock windows in this page.
+  const alarms = useAlarms();
   const [alarmTime, setAlarmTime] = useState("07:30");
   const [alarmLabel, setAlarmLabel] = useState("");
+  const [alarmDays, setAlarmDays] = useState<number[]>([]);
   const [dateA, setDateA] = useState(() => localDateInput(new Date()));
   const [dateB, setDateB] = useState(() => localDateInput(addDays(new Date(), 7)));
-  useEffect(() => { try { localStorage.setItem("fusion.alarms.v1", JSON.stringify(alarms)); } catch { /* private mode */ } }, [alarms]);
-  const firedAlarms = useRef(new Set<string>());
-  useEffect(() => {
-    const t = window.setInterval(() => {
-      const nowD = new Date();
-      for (const a of alarms) {
-        const at = nextFire(a, new Date(nowD.getTime() - 60000));
-        const key = `${a.id}@${at?.getTime() ?? 0}`;
-        if (at && Math.abs(at.getTime() - nowD.getTime()) < 60000 && at <= nowD && !firedAlarms.current.has(key)) {
-          firedAlarms.current.add(key);
-          shell.toast(`Alarm: ${a.label || a.time}`, "ok");
-          if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(`Alarm: ${a.label || a.time}`);
-        }
-      }
-    }, 5000);
-    return () => window.clearInterval(t);
-  }, [alarms, shell]);
+  const changeAlarms = (change: (previous: Alarm[]) => Alarm[]) => {
+    const persisted = updateAlarms(change);
+    if (privacy.status().amnesic) shell.toast("Amnesic session: alarms last only while this page stays open.", "warn");
+    else if (!persisted) shell.toast("Browser storage is unavailable; alarms last only while this page stays open.", "warn");
+  };
 
   useEffect(() => {
     let raf = 0;
@@ -147,18 +138,24 @@ export default function ClockModule(_: ModuleProps) {
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <input className="fs-input" type="time" style={{ width: fz(110) }} value={alarmTime} onChange={(e) => setAlarmTime(e.target.value)} aria-label="Alarm time" />
           <input className="fs-input" style={{ flex: 1, minWidth: fz(120) }} placeholder="Label" value={alarmLabel} onChange={(e) => setAlarmLabel(e.target.value)} aria-label="Alarm label" />
-          <Btn variant="primary" onClick={() => { try { setAlarms((a) => validateAlarms([...a, { id: `a${Date.now().toString(36)}`, label: alarmLabel, time: alarmTime, days: [], enabled: true, snoozeMin: 9 }])); setAlarmLabel(""); } catch (e) { shell.toast(String((e as Error).message), "warn"); } }}>Add<span className="sr-only"> alarm</span></Btn>
+          <Btn variant="primary" onClick={() => { try { const id = globalThis.crypto?.randomUUID?.() ?? `a${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`; changeAlarms((a) => [...a, { id, label: alarmLabel, time: alarmTime, days: alarmDays, enabled: true, snoozeMin: 9 }]); setAlarmLabel(""); } catch (e) { shell.toast(String((e as Error).message), "warn"); } }}>Add<span className="sr-only"> alarm</span></Btn>
+        </div>
+        <div className="fs-row" role="group" aria-label="Alarm weekdays" style={{ gap: 3, flexWrap: "wrap" }}>
+          {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day, i) => (
+            <Btn key={day} variant={alarmDays.includes(i) ? "primary" : "ghost"} aria-label={`Repeat on ${day}`} aria-pressed={alarmDays.includes(i)}
+              onClick={() => setAlarmDays((days) => days.includes(i) ? days.filter((d) => d !== i) : [...days, i])}>{day.slice(0, 3)}</Btn>
+          ))}
         </div>
         {upcomingAlarms(alarms, new Date()).slice(0, 1).map(({ alarm, at }) => <Badge key={alarm.id} tone="info">next: {alarm.label || alarm.time} · {at.toLocaleString()}</Badge>)}
         {alarms.map((a) => { const at = nextFire(a, new Date()); return (
           <div key={a.id} className="fs-row" style={{ justifyContent: "space-between", gap: 6 }}>
-            <span style={{ fontSize: fz(12) }}>{a.time} {a.label} <span className="fs-dim">{a.days.length ? a.days.map((d) => "SMTWTFS"[d]).join(" ") : "daily"}{at ? ` · next ${at.toLocaleString()}` : ""}</span></span>
+            <span style={{ fontSize: fz(12) }}>{a.time} {a.label} <span className="fs-dim">{a.days.length ? a.days.map((d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]).join(" ") : "daily"}{at ? ` · next ${at.toLocaleString()}` : ""}</span></span>
             <span className="fs-row" style={{ gap: 4 }}>
-              <Btn variant="ghost" aria-pressed={a.enabled} onClick={() => setAlarms((l) => l.map((x) => x.id === a.id ? { ...x, enabled: !x.enabled } : x))}>{a.enabled ? "On" : "Off"}</Btn>
-              <Btn variant="ghost" onClick={() => setAlarms((l) => l.filter((x) => x.id !== a.id))}>Remove<span className="sr-only"> alarm {a.label || a.time}</span></Btn>
+              <Btn variant="ghost" aria-pressed={a.enabled} onClick={() => changeAlarms((l) => l.map((x) => x.id === a.id ? { ...x, enabled: !x.enabled } : x))}>{a.enabled ? "On" : "Off"}</Btn>
+              <Btn variant="ghost" onClick={() => changeAlarms((l) => l.filter((x) => x.id !== a.id))}>Remove<span className="sr-only"> alarm {a.label || a.time}</span></Btn>
             </span>
           </div> ); })}
-        <div className="fs-dim" style={{ fontSize: fz(11) }}>Alarms fire while Fusion is open; a closed web app cannot schedule an exact alarm. No weekday picked means every day.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>Daily if no days selected. With Fusion running, Clock may close; frozen or closed pages may miss alarms.</div>
       </Section>
 
       <Section title="Meeting overlap">

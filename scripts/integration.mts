@@ -77,7 +77,7 @@ await test("FM-03 adversarial moves are refused and journaled as FAILED", { "FM-
   await call("POST", "/api/fs", { op: "purge", path: "/etc/x" });
 });
 
-await test("FM-18 overwrite snapshots the previous version", { "FM-18": "full", "DP-05": "partial", "BK-01": "partial" }, async () => {
+await test("FM-18 overwrite snapshots the previous version", { "FM-18": "partial", "DP-05": "partial", "BK-01": "partial" }, async () => {
   await call("POST", "/api/fs", { op: "write", path: `${DIR}/v.txt`, content: "one" });
   await call("POST", "/api/fs", { op: "write", path: `${DIR}/v.txt`, content: "two" });
   const v = await call("GET", `/api/fs?op=versions&path=${DIR}/v.txt`);

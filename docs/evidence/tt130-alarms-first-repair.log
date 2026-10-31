@@ -1,0 +1,4 @@
+  ✓ control: an open Clock window fires the same alarm
+  ✓ an alarm still fires in the shell after its Clock window closes
+
+2 passed, 0 failed

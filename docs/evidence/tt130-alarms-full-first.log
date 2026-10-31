@@ -1,0 +1,8 @@
+  ✓ control: an open Clock window fires the same alarm
+  ✓ an alarm still fires in the shell after its Clock window closes
+  ✓ selected weekdays persist and only fire on the selected day
+  ✓ two Clock windows share edits; a disabled alarm does not fire
+  ✓ storage denial warns and the in-memory alarm still fires after closing Clock
+  ✓ two pages contend for one real browser lock and deliver only once
+
+6 passed, 0 failed

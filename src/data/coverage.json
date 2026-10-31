@@ -1,20 +1,20 @@
 {
- "generatedAt": "2026-10-30T20:17:23.122Z",
+ "generatedAt": "2026-10-31T04:54:01.757Z",
  "totals": {
   "built": {
-   "full": 501,
-   "partial": 82,
+   "full": 499,
+   "partial": 84,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 449,
-   "partial": 121,
-   "untested": 37
+   "full": 448,
+   "partial": 123,
+   "untested": 36
   },
   "tests": {
-   "total": 3042,
-   "passed": 3023
+   "total": 3208,
+   "passed": 3194
   }
  },
  "rows": {
@@ -22,6 +22,8 @@
    "tested": "full",
    "tests": [
     "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
+    "e2e-tt128-editor: a delayed selection restore cannot undo a newer caret position or erase later text",
+    "e2e-tt128-editor: timestamp replaces only the selected span",
     "tt125-core: ED-10 stampText: zero-padded local date and time, minute precision",
     "tt125-density: screenshots: editor stamp toolbar + lens capability row"
    ]
@@ -30,6 +32,9 @@
    "tested": "full",
    "tests": [
     "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
+    "e2e-tt128-editor: a delayed selection restore cannot undo a newer caret position or erase later text",
+    "e2e-tt128-editor: case expansion preserves the whole transformed selection",
+    "e2e-tt128-editor: indent, dedent, and unchanged edits keep the affected selection",
     "tt125-core: ED-09 caseTransform: upper/lower exact; title caps run-starts only"
    ]
   },
@@ -154,6 +159,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+    "e2e-tt128-editor: indent, dedent, and unchanged edits keep the affected selection",
     "e2e: mount: editor",
     "tt124-core: ED-08 indent: block spans selection, dedent removes one step, selection tracks",
     "tt124-density: TT124 register: all twenty codes built, register grew past TT123's 567"
@@ -211,6 +217,14 @@
   "IE-01": {
    "tested": "full",
    "tests": [
+    "e2e-tt131-image-viewport: zoomed image viewport exposes a named keyboard focus target and arrow-key panning",
+    "e2e-tt131-image-viewport: modified arrows are not consumed by the viewport handler",
+    "e2e-tt131-image-viewport: viewport focus keeps existing editor shortcuts available",
+    "e2e-tt131-image-viewport: oversized canvas reaches both opposite document corners by scrolling",
+    "e2e-tt131-image-viewport: drawing-kit buttons stay within their rail",
+    "e2e-tt131-image-viewport: drawing-kit controls have distinct vector marks, full names, and fit the rail",
+    "e2e-tt131-image-viewport: the drawing rail stays usable at doubled text scale",
+    "e2e-tt131-image-viewport: the Kit menu still lists full tool names and activates the real tool",
     "e2e: mount: imageedit",
     "tt124-core: IE-01 compare: holding shows the original, release restores the edit"
    ]
@@ -400,8 +414,11 @@
    "tested": "full",
    "tests": [
     "e2e-tt123: BK-11/DV-02/PH-07/SL-01 controls render: prune, copy info, no-date view, go-to box",
+    "e2e-tt128-photos: a failed real image read is not cached as missing metadata and a reload retries",
+    "e2e-tt128-photos: No date retains a PNG with no capture metadata after indexing",
     "e2e: mount: photos",
-    "tt123-core: PH-07 undated photos: missing index date, never guessed"
+    "tt123-core: PH-07 undated photos: missing index date, never guessed",
+    "tt128-core: photo No date distinguishes file dates from capture dates, including old cache entries"
    ]
   },
   "PL-08": {
@@ -595,8 +612,10 @@
   "PL-07": {
    "tested": "full",
    "tests": [
+    "e2e-tt128-time: Planner: week columns and completion counts survive midnight DST transition",
     "e2e: mount: planner",
-    "tt122-core: PL-07 completion stats: today/week windows, undated kept separate"
+    "tt122-core: PL-07 completion stats: today/week windows, undated kept separate",
+    "tt128-core: Planner week and completion windows use calendar days across Santiago's midnight DST shift"
    ]
   },
   "LD-01": {
@@ -762,8 +781,10 @@
   "PH-05": {
    "tested": "full",
    "tests": [
+    "e2e-tt128-photos: delayed EXIF reordering cannot change an active editor walk; reopening takes the new order",
     "e2e: mount: photos",
-    "tt121-core: PH-05 photo sort: name/size/date, missing values last ascending, copy sorted"
+    "tt121-core: PH-05 photo sort: name/size/date, missing values last ascending, copy sorted",
+    "tt128-core: photo sort puts missing values last in both directions and handles pre-epoch dates"
    ]
   },
   "CN-07": {
@@ -868,6 +889,11 @@
    "tested": "full",
    "tests": [
     "e2e-tt120: PH-04: next/previous walk the shown photos and stop at the end",
+    "e2e-tt128-photos: delayed EXIF reordering cannot change an active editor walk; reopening takes the new order",
+    "e2e-tt128-photos: a navigation click survives the current image finishing its real load between pointer down and up",
+    "e2e-tt128-photos: a deep-linked viewer snapshots the library before delayed EXIF reordering",
+    "e2e-tt128-photos: a deep-linked viewer keeps its original order across a real trash and restore",
+    "e2e-tt128-photos: slideshow advances through the captured name order and pauses",
     "e2e: mount: photos",
     "tt120-core: PH-04 photo neighbours: no silent wrap at the boundary"
    ]
@@ -929,8 +955,13 @@
    "tested": "full",
    "tests": [
     "e2e-tt119: CK-04/WD-03: a zone can be added; the converter answers with a date",
+    "e2e-tt128-time: Clock: local date controls and explicit overlap/gap choices",
     "e2e: mount: clock",
-    "tt119-core: WD-03 zone convert: dateline shift reported, invalid refused"
+    "tt119-core: WD-03 zone convert: dateline shift reported, invalid refused",
+    "tt128-core: zone converter rejects spring gaps and requires explicit fall overlap choice",
+    "tt128-core: zone converter handles 30-minute overlaps and skipped calendar days",
+    "tt128-core: zone converter validates dates, zones and explicit overlap policy",
+    "tt128-oracle: zone candidates agree with Temporal on transition and held-out ordinary times"
    ]
   },
   "TM-03": {
@@ -962,7 +993,14 @@
    "tests": [
     "e2e-tt119: PH-03/SR-09: slideshow starts on a seeded library; a search becomes recent",
     "e2e: mount: photos",
-    "tt119-core: PH-03 slideshow: wraps, clamps, empty has no next"
+    "tt119-core: PH-03 slideshow: wraps, clamps, empty has no next",
+    "tt129-core: sidecar intersection preserves order and duplicate candidates",
+    "tt129-core: sidecar intersection handles empty collections and zero limit",
+    "tt129-core: sidecar limit does not consume candidates after the requested matches",
+    "tt129-core: sidecar limits reject negative, fractional and non-finite values",
+    "tt129-core: small Set fast path agrees with the reference at its boundary",
+    "tt129-core: seeded adversarial intersections agree with the independent reference",
+    "tt129-core: default 2000-read bound and input order match the old selection"
    ]
   },
   "MU-02": {
@@ -1054,7 +1092,8 @@
    "tests": [
     "e2e-tt118: PL-03/PH-02: agenda view and photo timeline render from real data",
     "e2e: mount: photos",
-    "tt118-core: PH-02 photo timeline: local months, undated counted, largest month by bytes"
+    "tt118-core: PH-02 photo timeline: local months, undated counted, largest month by bytes",
+    "tt128-core: timeline aggregation preserves all groups, bytes and lexical first/last dates"
    ]
   },
   "SV-01": {
@@ -1073,11 +1112,24 @@
    ]
   },
   "CK-01": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
     "e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
+    "e2e-tt130-alarms: control: an open Clock window fires the same alarm",
+    "e2e-tt130-alarms: an alarm still fires in the shell after its Clock window closes",
+    "e2e-tt130-alarms: selected weekdays persist and only fire on the selected day",
+    "e2e-tt130-alarms: two Clock windows share edits; a disabled alarm does not fire",
+    "e2e-tt130-alarms: two alarms created at the same time each deliver once",
+    "e2e-tt130-alarms: storage denial warns and the in-memory alarm still fires after closing Clock",
+    "e2e-tt130-alarms: amnesic sessions isolate alarms and do not write their settings or claims",
+    "e2e-tt130-alarms: disabling an alarm while its claim is blocked cancels delivery",
+    "e2e-tt130-alarms: two pages contend for one real browser lock and deliver only once",
     "e2e: mount: clock",
-    "tt117-core: CK-01 alarms: next fire, weekly days, disabled, snooze, validation"
+    "tt117-core: CK-01 alarms: next fire, weekly days, disabled, snooze, validation",
+    "tt130-alarms-core: no enabled alarms means no repeating scheduler timer",
+    "tt130-alarms-core: delivery window is inclusive at due and excludes a full minute late",
+    "tt130-alarms-core: weekday schedules do not become daily; empty days mean daily",
+    "tt130-alarms-core: 2,000 seeded plans match direct UTC day enumeration"
    ]
   },
   "CK-02": {
@@ -1091,8 +1143,11 @@
    "tested": "full",
    "tests": [
     "e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
+    "e2e-tt128-time: Clock: local date controls and explicit overlap/gap choices",
     "e2e: mount: clock",
-    "tt117-core: CK-03 date arithmetic: days, add, business days sign-aware"
+    "tt117-core: CK-03 date arithmetic: days, add, business days sign-aware",
+    "tt128-core: Clock date inputs use the local date and calendar arithmetic across a skipped day",
+    "tt128-core: constant-work business-date count agrees with a separate day-by-day calculation"
    ]
   },
   "NT-01": {
@@ -1106,8 +1161,14 @@
   "PL-01": {
    "tested": "full",
    "tests": [
+    "e2e-tt128-time: Planner: week columns and completion counts survive midnight DST transition",
     "e2e: mount: planner",
-    "tt117-core: PL-01 recurrence: daily/weekly BYDAY/monthly clamp/count/until + RRULE round-trip"
+    "tt117-core: PL-01 recurrence: daily/weekly BYDAY/monthly clamp/count/until + RRULE round-trip",
+    "tt128-core: weekly Sunday comes after weekdays, including COUNT and window boundaries",
+    "tt128-core: repeat rules reject unsupported, duplicate or inapplicable parts",
+    "tt128-core: repeat expansion refuses invalid dates and direct invalid rules instead of looping",
+    "tt128-core: local UNTIL DATE includes the entire day across a non-UTC host",
+    "tt128-core: Planner week and completion windows use calendar days across Santiago's midnight DST shift"
    ]
   },
   "PL-02": {
@@ -1115,7 +1176,11 @@
    "tests": [
     "e2e: mount: planner",
     "tt117-core: PL-01 recurrence: daily/weekly BYDAY/monthly clamp/count/until + RRULE round-trip",
-    "tt117-core: PL-02 ICS RRULE round-trip: import carries the rule, export re-emits it"
+    "tt117-core: PL-02 ICS RRULE round-trip: import carries the rule, export re-emits it",
+    "tt128-calendar-race: concurrent matching UIDs serialize the check and insert",
+    "tt128-core: calendar rejects injected raw RRULE but permits CRLF note lines",
+    "tt128-core: a dated recurring task exports both recurrence anchor and due instant",
+    "tt128-oracle: ical.js expands a recurring VTODO from the exported due/anchor instant"
    ]
   },
   "CB-01": {
@@ -1816,11 +1881,17 @@
   "SH-14": {
    "tested": "partial",
    "tests": [
+    "e2e-tt128-worker: successful worker install and activation; API and query URLs never enter the cache",
+    "e2e-tt128-worker: offline API reports 503 and non-desktop navigation shows the explicit fallback",
+    "e2e-tt129-offline: first installation can boot a new offline desktop without an online reload",
     "e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay",
     "e2e-tt94-offline-race: a later queued Files write is not lost while a photo replay is waiting on the database",
     "e2e-tt94-offline-race: a noncooperating queue change during replay is retained and reported",
     "e2e-tt94-offline-race: two online tabs do not replay the same queued recipe twice",
     "e2e: offline write is queued, then replayed through the journal when back online",
+    "tt129-worker-unit: worker discovers shell assets and only permitted same-origin CSS resources",
+    "tt129-worker-unit: failed refresh retains the previous root, then commits once assets succeed",
+    "tt129-worker-unit: unchanged root refresh does not refetch already cached shell assets",
     "tt92-ledger-audit: the web-only offline queue is partial and discloses storage and cross-tab limits"
    ]
   },
@@ -2518,7 +2589,7 @@
    ]
   },
   "FM-18": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
     "e2e-tt99-interactions: Editor Keep controls remain present after loading and Save persists content plus the previous version",
     "e2e: mount: files",
@@ -2544,7 +2615,7 @@
     "tt91-write-atomic: two simultaneous overwrites preserve both serialized versions and the current search text",
     "tt91-write-mutants: publish without a data transaction",
     "tt91-write-mutants: read previous version without a row lock",
-    "tt92-ledger-audit: FM-18 explicitly disclaims the missing native SAF and temp-reopen safe-save contract",
+    "tt92-ledger-audit: FM-18 distinguishes the implemented VFS staging from the missing native SAF contract",
     "tt93-metadata-race: history removal and its audit are atomic when the audit insert fails",
     "tt93-metadata-race: a move already in progress preserves its history before a later dropVersions can act",
     "tt93-metadata-race: a tag update queued behind a move cannot report success on a vanished source",
@@ -2727,7 +2798,14 @@
   "AP-04": {
    "tested": "partial",
    "tests": [
-    "e2e-tt108-shell: the shell never takes a service-worker update without being asked"
+    "e2e-tt108-shell: the shell never takes a service-worker update without being asked",
+    "e2e-tt128-worker: failed upgrade preserves the previous activated worker and cache",
+    "e2e-tt128-worker: successful upgrade waits for consent, then activates and reloads",
+    "e2e-tt129-offline: a failed required chunk prevents first worker installation",
+    "e2e-tt129-offline: a 200 HTML error page cannot install as a JavaScript dependency",
+    "e2e-tt129-offline: a failed chunk in an upgrade keeps the previously working offline shell",
+    "tt129-worker-unit: worker installation rejects missing JS and missing CSS dependencies",
+    "tt129-worker-unit: HTML masquerading as a chunk is rejected without poisoning the cache"
    ]
   },
   "AP-05": {
@@ -2869,6 +2947,7 @@
   "PR-03": {
    "tested": "partial",
    "tests": [
+    "e2e-tt129-calendar: overdue status updates when the clock passes a due time without another interaction",
     "e2e: mount: planner",
     "integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar"
    ]
@@ -2876,9 +2955,29 @@
   "PR-04": {
    "tested": "full",
    "tests": [
+    "e2e-tt129-calendar: preview reports known losses without inserting records",
+    "e2e-tt129-calendar: cancel is non-mutating, same-file retry imports only after confirmation, reimport deduplicates",
     "e2e: mount: planner",
     "integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar",
     "tt111-core: an .ics round-trips and re-importing the same calendar never duplicates",
+    "tt128-calendar-race: concurrent matching UIDs serialize the check and insert",
+    "tt128-core: calendar folds complete content lines at 75 UTF-8 bytes without splitting characters",
+    "tt128-core: calendar TEXT escapes round-trip literal backslashes, newline, commas and semicolons",
+    "tt128-core: calendar UID and title cannot inject additional properties",
+    "tt128-core: nested alarm properties do not override the enclosing event",
+    "tt128-core: DUE wins over DTSTART for tasks regardless of property order",
+    "tt128-core: calendar dates reject rollover, invalid times and mismatched value type",
+    "tt128-core: calendar STATUS matches COMPLETED exactly",
+    "tt128-core: calendar rejects DATE values explicitly declared DATE-TIME",
+    "tt128-oracle: ical.js independently parses UTF-8 folded export and escaped TEXT",
+    "tt128-oracle: our reader accepts TEXT produced by ical.js",
+    "tt128-oracle: ical.js respects an embedded VTIMEZONE that differs from the IANA name",
+    "tt129-calendar-core: a UTC single event with UID has no known-loss warnings",
+    "tt129-calendar-core: timezone, recurrence, exceptions, duration and alarms are counted per item",
+    "tt129-calendar-core: folded and lowercase TZID parameters are recognized",
+    "tt129-calendar-core: floating, all-day, invalid date and missing UID are distinct warnings",
+    "tt129-calendar-core: nested alarm dates do not masquerade as event dates",
+    "tt129-calendar-core: exception components and multiple missing UIDs are counted independently",
     "unit: ICS unfolding, escapes, parameters, VTODO status, round trip"
    ]
   },
@@ -3266,6 +3365,8 @@
   "PR-10": {
    "tested": "full",
    "tests": [
+    "e2e-tt130-alarms: control: an open Clock window fires the same alarm",
+    "e2e-tt130-alarms: an alarm still fires in the shell after its Clock window closes",
     "e2e-tt57-rows: PR-10 stopwatch: start → 65.43 s → lap → 10-minute jump with timers firing at most once (throttled tab) → still exact; pause holds; reset",
     "e2e-tt57-rows: PR-10 timer fires on time with requestAnimationFrame never running (hidden-tab emulation): 0 min 3 s → 'Timer finished' at 3 s, not before",
     "e2e-tt57-rows: no uncaught page errors during the TT57 rows session",
@@ -4265,6 +4366,10 @@
    "tested": "partial",
    "tests": [
     "e2e-image: classic Quick edit mode is still available (additive merge)",
+    "e2e-tt128-photos: a thumbnail completing between pointer down and up keeps its tile geometry and click",
+    "e2e-tt128-photos: photo tiles retain keyboard activation and cancel a drag away",
+    "e2e-tt128-photos: a failed library read exposes a retry and recovers without reloading the shell",
+    "e2e-tt128-photos: a refresh result is not replaced by an older delayed real media response",
     "e2e-tt54: MD-03 sidecars follow their photo on rename / copy / move / trash / restore / purge and batch rename (server-side, any client); op=media lists photos + sidecars and nothing under /System",
     "e2e-tt54: Hidden files: sidecars never show in Files (until 'Hidden' is toggled) or on the desktop",
     "e2e-tt54: MD-03 Photos library + editor: timeline by capture date, edit (rotate + exposure + preset) saved as a sidecar recipe, original bytes untouched, rating saved, library thumbnail shows the edit",
@@ -4546,6 +4651,8 @@
     "e2e-tt87-backup: TT87 browser session has no uncaught page errors",
     "e2e: mount: backup",
     "integration: BK-01 tampered backup bundle is refused before anything is written",
+    "tt128-writer-races: ordinary writer commits first: stale conditional writer rejects",
+    "tt128-writer-races: conditional writer commits first: a later unconditional write can overwrite it",
     "tt87-backup-http: BK-03 config export → preview → actual atomic restore, history, no document data, and idempotent replay",
     "tt87-backup-http: BK-03 stale preview, invalid known value, locked and unknown keys cannot cause unintended changes",
     "tt87-backup-http: BK-03 an actual database failure during the second setting update rolls back the first update and its history",
@@ -4927,6 +5034,7 @@
     "e2e-privacy: no performance degradation: real AES-GCM throughput in the browser, and /Private saves vs host saves measured end-to-end",
     "e2e-privacy: no page errors across the privacy flows",
     "e2e-privacy: privacy fixture cleanup leaves no host nodes, versions or search rows for its owned paths",
+    "e2e-tt130-alarms: amnesic sessions isolate alarms and do not write their settings or claims",
     "e2e-tt87-privacy: TT87 conditional writes cannot create plaintext inside locked Persistent Storage",
     "e2e-tt90-private-thumbnails: encrypted private image renders real pixels without a plaintext host thumbnail cache",
     "e2e-tt90-private-thumbnails: locking removes the displayed private thumbnail and revokes its blob URL",
@@ -4949,6 +5057,7 @@
     "privacy-crypto: content blobs: oracle ⇄ ours both directions; Padmé-sized; any bit flip, flag edit or foreign volume refused",
     "privacy-crypto: names: deterministic SIV encryption byte-identical to the oracle; host-chosen nonce rejected; paths map both ways",
     "privacy-crypto: base64 codec (perf path): byte-identical to Node Buffer on 6 000 random inputs 0–299 B, strict on malformed input, 264 KiB encode < 5 ms",
+    "privacy-layer: write through the layer: the host row has no plaintext name, content, size or index entry; read decrypts",
     "privacy-layer: list decrypts and sorts names; a second write keeps an encrypted version that decrypts; rename/move stay encrypted server-side",
     "privacy-layer: locked: /Private lists opaque entries, reads are refused (423), header hidden; tags & host-side compress refused inside",
     "privacy-layer: cross-store moves happen in the browser: host file → /Private arrives encrypted (source trashed); /Private → host is an explicit decrypting copy",
@@ -5099,16 +5208,19 @@
    "tests": [
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only)",
+    "e2e-tt130-privacy: explicit amnesic boot refuses host writes when localStorage access throws",
     "e2e: mount: privacy",
     "privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses",
     "privacy-layer: TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes",
     "privacy-layer: amnesic: VFS writes live in RAM (no row), host files can be hidden but are untouched, moves copy into RAM; wipe forgets everything",
-    "privacy-layer: amnesic deny-by-default: notes/settings/presets refused with nothing written; state kept in memory; compute endpoints still work; /Private still persists (Tails' Persistent folder)"
+    "privacy-layer: amnesic deny-by-default: notes/settings/presets refused with nothing written; state kept in memory; compute endpoints still work; /Private still persists (Tails' Persistent folder)",
+    "tt130-privacy-boot: explicit amnesic boot remains fail-closed when localStorage access throws"
    ]
   },
   "SC-12": {
    "tested": "full",
    "tests": [
+    "e2e-privacy: Remove metadata on an encrypted photo in the UI: cleaned in the browser, copy stays encrypted, Pillow confirms only Orientation remains",
     "e2e-privacy: Files ▸ Remove metadata (copy) on a host .docx; overwrite mode also forgets the version that still held the author",
     "e2e: mount: privacy",
     "metaclean: JPEG: identical pixels (Pillow); camera, author, date, software, GPS, XMP, COM, IPTC gone; Orientation=6 kept alone",
@@ -5130,7 +5242,8 @@
     "e2e-tt89-launch: amnesic session refuses launch file copies before consent or any host write",
     "e2e-tt90-context: amnesia permits session-only choices without changing normal local storage or shared settings",
     "e2e: mount: privacy",
-    "privacy-layer: TT87 conditional VFS writes respect privacy boundaries and still work for ordinary unlocked-host files"
+    "privacy-layer: TT87 conditional VFS writes respect privacy boundaries and still work for ordinary unlocked-host files",
+    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
    ]
   },
   "SC-14": {
@@ -5173,8 +5286,12 @@
    ]
   },
   "SC-16": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host",
+    "privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock",
+    "privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results"
+   ]
   },
   "SC-17": {
    "tested": "full",
@@ -7067,6 +7184,11 @@
     "e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations",
     "e2e-tables: axe-core on the deeper states (field editor, filter panel, record panel, link picker, kanban): no serious/critical violations",
     "e2e-tabletop: axe-core: Tabletop floor (dark + light) and each wall as the main view — no serious or critical violations",
+    "e2e-tt131-image-viewport: zoomed image viewport exposes a named keyboard focus target and arrow-key panning",
+    "e2e-tt131-image-viewport: drawing-kit controls have distinct vector marks, full names, and fit the rail",
+    "e2e-tt131-image-viewport: the drawing rail stays usable at doubled text scale",
+    "e2e-tt131-image-viewport: axe-core finds no scrollable-region-focusable issue on the enlarged canvas",
+    "e2e-tt131-image-viewport: attack: removing the viewport tab stop is detected by axe",
     "e2e-tt96-calculator: axe finds no serious or critical violations in active programmer controls and history",
     "e2e-tt96-files-contrast: dark unhovered selected server badge is readable across all 13 styles",
     "e2e-tt96-files-contrast: dark hovered selected server badge is readable across all 13 styles",

@@ -1,0 +1,11 @@
+  ✓ Argon2id (hash-wasm) equals the reference C implementation (argon2-cffi), incl. the default 64 MiB/t=3 slot cost
+  ✓ Padmé equals the paper's pseudocode on 20 000 lengths; overhead ≤ 12%; hand-derived points
+  ✓ volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused
+  ✓ change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key
+  ✓ header attacks: KDF downgrade (still above floor) breaks the slot tag; below-floor refused before derivation; slot swap / truncation refused
+  ✓ oracle unwraps OUR keyslot (passphrase and recovery) to the DEK that decrypts OUR blob — end-to-end format conformance
+  ✓ content blobs: oracle ⇄ ours both directions; Padmé-sized; any bit flip, flag edit or foreign volume refused
+  ✓ names: deterministic SIV encryption byte-identical to the oracle; host-chosen nonce rejected; paths map both ways
+  ✓ base64 codec (perf path): byte-identical to Node Buffer on 6 000 random inputs 0–299 B, strict on malformed input, 264 KiB encode < 5 ms
+
+9 passed, 0 failed

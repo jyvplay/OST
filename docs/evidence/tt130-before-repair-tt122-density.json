@@ -1,0 +1,16 @@
+{
+  "suite": "tt122-density",
+  "at": "2026-10-31T03:19:49.280Z",
+  "results": [
+    {
+      "suite": "tt122-density",
+      "name": "AX-24: every app measured, none wordier than the ceiling, no emoji marks",
+      "covers": {
+        "AX-24": "full"
+      },
+      "pass": false,
+      "error": "clock: 164 words > bound 160",
+      "ms": 1
+    }
+  ]
+}

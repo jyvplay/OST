@@ -1,6 +1,6 @@
 {
   "suite": "tt122-density",
-  "at": "2026-10-31T00:09:05.474Z",
+  "at": "2026-10-31T05:07:13.316Z",
   "results": [
     {
       "suite": "tt122-density",
@@ -9,7 +9,7 @@
         "AX-24": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 1
     }
   ]
 }

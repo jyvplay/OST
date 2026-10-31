@@ -25,7 +25,7 @@ async function openModule(module: string) {
   return { page, context };
 }
 
-await test("CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator", { "CK-01": "full", "CK-03": "full" }, async () => {
+await test("CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator", { "CK-01": "partial", "CK-03": "full" }, async () => {
   const { page, context } = await openModule("clock");
   const win = page.locator('[data-win-id="w1"]');
   await win.getByLabel("Alarm time").fill("23:59");

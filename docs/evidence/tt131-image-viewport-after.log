@@ -1,0 +1,6 @@
+  ✓ zoomed image viewport exposes a named keyboard focus target and arrow-key panning
+  ✓ viewport focus keeps existing editor shortcuts available
+  ✓ oversized canvas reaches both opposite document corners by scrolling
+  ✓ axe-core finds no scrollable-region-focusable issue on the enlarged canvas
+
+4 passed, 0 failed

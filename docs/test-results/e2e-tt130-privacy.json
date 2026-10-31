@@ -1,0 +1,15 @@
+{
+  "suite": "e2e-tt130-privacy",
+  "at": "2026-10-31T04:55:14.986Z",
+  "results": [
+    {
+      "suite": "e2e-tt130-privacy",
+      "name": "explicit amnesic boot refuses host writes when localStorage access throws",
+      "covers": {
+        "SC-11": "partial"
+      },
+      "pass": true,
+      "ms": 959
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "suite": "e2e-tt130-alarms",
+  "at": "2026-10-31T04:55:43.921Z",
+  "results": [
+    {
+      "suite": "e2e-tt130-alarms",
+      "name": "control: an open Clock window fires the same alarm",
+      "covers": {
+        "PR-10": "partial",
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 2336
+    },
+    {
+      "suite": "e2e-tt130-alarms",
+      "name": "an alarm still fires in the shell after its Clock window closes",
+      "covers": {
+        "PR-10": "partial",
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 3028
+    },
+    {
+      "suite": "e2e-tt130-alarms",
+      "name": "selected weekdays persist and only fire on the selected day",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 3096
+    },
+    {
+      "suite": "e2e-tt130-alarms",
+      "name": "two Clock windows share edits; a disabled alarm does not fire",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 3643
+    },
+    {
+      "suite": "e2e-tt130-alarms",
+      "name": "two alarms created at the same time each deliver once",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 2888
+    },
+    {
+      "suite": "e2e-tt130-alarms",
+      "name": "storage denial warns and the in-memory alarm still fires after closing Clock",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 2328
+    },
+    {
+      "suite": "e2e-tt130-alarms",
+      "name": "amnesic sessions isolate alarms and do not write their settings or claims",
+      "covers": {
+        "CK-01": "partial",
+        "SC-10": "partial"
+      },
+      "pass": true,
+      "ms": 3281
+    },
+    {
+      "suite": "e2e-tt130-alarms",
+      "name": "disabling an alarm while its claim is blocked cancels delivery",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 2398
+    },
+    {
+      "suite": "e2e-tt130-alarms",
+      "name": "two pages contend for one real browser lock and deliver only once",
+      "covers": {
+        "CK-01": "partial"
+      },
+      "pass": true,
+      "ms": 4569
+    }
+  ]
+}

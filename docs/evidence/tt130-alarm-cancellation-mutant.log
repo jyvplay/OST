@@ -1,0 +1,15 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+1 !== 0
+
+    at file:///home/user/OST/scripts/e2e-tt130-alarms.mts:186:14
+    at async test (file:///home/user/OST/scripts/harness.mts:26:7)
+    at async file:///home/user/OST/scripts/e2e-tt130-alarms.mts:166:3
+  ✗ disabling an alarm while its claim is blocked cancels delivery
+    Expected values to be strictly equal:
+
+1 !== 0
+
+
+0 passed, 1 failed
+FAILED: disabling an alarm while its claim is blocked cancels delivery

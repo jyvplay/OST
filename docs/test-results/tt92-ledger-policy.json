@@ -1,6 +1,6 @@
 {
   "suite": "tt92-ledger-policy",
-  "at": "2026-10-28T18:30:07.229Z",
+  "at": "2026-10-31T04:50:24.681Z",
   "results": [
     {
       "suite": "tt92-ledger-policy",
@@ -14,7 +14,7 @@
       "name": "unknown test feature codes fail instead of silently inflating coverage",
       "covers": {},
       "pass": true,
-      "ms": 64
+      "ms": 74
     }
   ]
 }

@@ -3,8 +3,9 @@
  *
  * Until this turn FM-18's own specs row said the quiet part out loud: "There is no
  * /api/fs safeSave operation, temp-output/reopen validation, or ... non-overwriting
- * Save a Copy." The row was `partial` because the capability did not exist. This
- * suite exists to make the row either `built` or still honest.
+ * Save a Copy." This suite now exercises the PostgreSQL VFS implementation.
+ * Its results are partial evidence for the original row: the native Android
+ * SAF provider contract and its provider-dependent fallback are not tested here.
  *
  * The contract under test, stage by stage:
  *   write the bytes somewhere else → reopen that object from storage → validate what
@@ -64,7 +65,7 @@ await post({ op: 'mkdir', path: DIR });
 // behind, which only means something if none was there to begin with.
 await post({ op: 'safeSaveSweep', olderThanMs: 0 });
 
-await test('a safe save of a new file publishes it and leaves no temporary output', { 'FM-18': 'full' }, async () => {
+await test('a safe save of a new file publishes it and leaves no temporary output', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/new.txt`;
   const content = `created by tt116 ${RUN}`;
   const r = await post({ op: 'safeSave', path, content, declaredSha256: sha(content) });
@@ -77,7 +78,7 @@ await test('a safe save of a new file publishes it and leaves no temporary outpu
   assert.deepEqual(await temps(), [], 'a completed save left its temporary output behind');
 });
 
-await test('replacing an existing file advances it by one version and keeps the previous one', { 'FM-18': 'full', 'PR-01': 'partial' }, async () => {
+await test('replacing an existing file advances it by one version and keeps the previous one', { 'FM-18': 'partial', 'PR-01': 'partial' }, async () => {
   const path = `${DIR}/replaced.txt`;
   await post({ op: 'safeSave', path, content: 'first' });
   const before = await stat(path);
@@ -92,7 +93,7 @@ await test('replacing an existing file advances it by one version and keeps the 
   assert.deepEqual(await temps(), []);
 });
 
-await test('a save whose bytes do not match the digest the caller declared is refused, and the original is untouched', { 'FM-18': 'full' }, async () => {
+await test('a save whose bytes do not match the digest the caller declared is refused, and the original is untouched', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/guarded.txt`;
   await post({ op: 'safeSave', path, content: 'original bytes' });
   const before = await stat(path);
@@ -105,7 +106,7 @@ await test('a save whose bytes do not match the digest the caller declared is re
   assert.deepEqual(await temps(), [], 'a refused save left its temporary output behind');
 });
 
-await test('a malformed payload is refused and the file it was aimed at is untouched', { 'FM-18': 'full' }, async () => {
+await test('a malformed payload is refused and the file it was aimed at is untouched', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/config.json`;
   await post({ op: 'safeSave', path, content: '{"ok":true}', validate: 'json' });
   const before = await stat(path);
@@ -117,7 +118,7 @@ await test('a malformed payload is refused and the file it was aimed at is untou
   assert.deepEqual(await temps(), []);
 });
 
-await test('text that cannot survive a byte round-trip is refused', { 'FM-18': 'full' }, async () => {
+await test('text that cannot survive a byte round-trip is refused', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/surrogate.txt`;
   await post({ op: 'safeSave', path, content: 'intact' });
   // A lone high surrogate is a legal JavaScript string and an illegal UTF-8 sequence.
@@ -127,7 +128,7 @@ await test('text that cannot survive a byte round-trip is refused', { 'FM-18': '
   assert.deepEqual(await temps(), []);
 });
 
-await test('a target that moved under the caller is refused rather than overwritten', { 'FM-18': 'full' }, async () => {
+await test('a target that moved under the caller is refused rather than overwritten', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/raced.txt`;
   await post({ op: 'safeSave', path, content: 'v1' });
   const stale = await stat(path);
@@ -139,7 +140,7 @@ await test('a target that moved under the caller is refused rather than overwrit
   assert.deepEqual(await temps(), []);
 });
 
-await test('when replacement is unavailable the bytes are published beside the original, never over it', { 'FM-18': 'full' }, async () => {
+await test('when replacement is unavailable the bytes are published beside the original, never over it', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/busy.txt`;
   await post({ op: 'safeSave', path, content: 'the newer file' });
   const current = await stat(path);
@@ -160,7 +161,7 @@ await test('when replacement is unavailable the bytes are published beside the o
   assert.deepEqual(await temps(), []);
 });
 
-await test('a save whose acknowledgement was lost is answered, not performed again', { 'FM-18': 'full' }, async () => {
+await test('a save whose acknowledgement was lost is answered, not performed again', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/tokened.txt`;
   const tok = token();
   const first = await post({ op: 'safeSave', path, content: 'exactly once', token: tok });
@@ -174,7 +175,7 @@ await test('a save whose acknowledgement was lost is answered, not performed aga
   assert.deepEqual(await temps(), []);
 });
 
-await test('a save token cannot be reused to publish different bytes', { 'FM-18': 'full' }, async () => {
+await test('a save token cannot be reused to publish different bytes', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/tokenguard.txt`;
   const tok = token();
   await post({ op: 'safeSave', path, content: 'the bytes this token names', token: tok });
@@ -185,7 +186,7 @@ await test('a save token cannot be reused to publish different bytes', { 'FM-18'
   assert.equal(await read(path), 'the bytes this token names');
 });
 
-await test('eight concurrent saves of one token publish one version', { 'FM-18': 'full' }, async () => {
+await test('eight concurrent saves of one token publish one version', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/concurrent.txt`;
   const tok = token();
   const content = 'one body, eight arrivals';
@@ -200,7 +201,7 @@ await test('eight concurrent saves of one token publish one version', { 'FM-18':
   assert.deepEqual(await temps(), []);
 });
 
-await test('a save larger than the store limit is refused before anything is written', { 'FM-18': 'full' }, async () => {
+await test('a save larger than the store limit is refused before anything is written', { 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/huge.txt`;
   const r = await post({ op: 'safeSave', path, content: 'x'.repeat(8 * 1024 * 1024 + 1) });
   assert.equal(r.status, 400, JSON.stringify(r.body).slice(0, 200));
@@ -208,7 +209,7 @@ await test('a save larger than the store limit is refused before anything is wri
   assert.deepEqual(await temps(), []);
 });
 
-await test('a temporary output abandoned by a dead process is reclaimable and age-bounded', { 'FM-18': 'full', 'DP-14': 'partial' }, async () => {
+await test('a temporary output abandoned by a dead process is reclaimable and age-bounded', { 'FM-18': 'partial', 'DP-14': 'partial' }, async () => {
   // Simulate the crash the stage boundary exists for: a temporary output that no
   // save is going to finish. It is written through the ordinary write path, which is
   // exactly what an interrupted safe save leaves behind.
@@ -225,7 +226,7 @@ await test('a temporary output abandoned by a dead process is reclaimable and ag
   assert.ok(!(await temps()).includes(orphan));
 });
 
-await test('every safe save is visible in the job journal with the stages it really went through', { 'DP-14': 'full', 'FM-18': 'full' }, async () => {
+await test('every safe save is visible in the job journal with the stages it really went through', { 'DP-14': 'full', 'FM-18': 'partial' }, async () => {
   const path = `${DIR}/journalled.txt`;
   const r = await post({ op: 'safeSave', path, content: 'journal me' });
   assert.equal(r.status, 200);
@@ -247,7 +248,7 @@ await test('every safe save is visible in the job journal with the stages it rea
   assert.match(failed.error, /JSON/);
 });
 
-await test('a safe-saved text file becomes searchable, and a refused one does not', { 'FM-18': 'full', 'SR-05': 'partial' }, async () => {
+await test('a safe-saved text file becomes searchable, and a refused one does not', { 'FM-18': 'partial', 'SR-05': 'partial' }, async () => {
   const needle = `tt116needle${RUN}`;
   await post({ op: 'safeSave', path: `${DIR}/searchable.txt`, content: `the token is ${needle}` });
   const hit = (await (await fetch(`${BASE}/api/search?q=${needle}`)).json()) as { ok: boolean; hits: { ref: string }[] };
@@ -259,7 +260,7 @@ await test('a safe-saved text file becomes searchable, and a refused one does no
   assert.equal(miss.hits.length, 0, 'a refused save still reached the search index');
 });
 
-await test('the temporary output folder cannot be used as a target', { 'FM-18': 'full', 'SC-02': 'partial' }, async () => {
+await test('the temporary output folder cannot be used as a target', { 'FM-18': 'partial', 'SC-02': 'partial' }, async () => {
   const r = await post({ op: 'safeSave', path: '/.safe-save/sneaky.part', content: 'x' });
   assert.equal(r.status, 400);
   assert.match(String(r.body.error), /temporary output folder/);

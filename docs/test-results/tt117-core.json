@@ -1,12 +1,12 @@
 {
   "suite": "tt117-core",
-  "at": "2026-10-30T23:56:37.715Z",
+  "at": "2026-10-31T04:55:02.705Z",
   "results": [
     {
       "suite": "tt117-core",
       "name": "CK-01 alarms: next fire, weekly days, disabled, snooze, validation",
       "covers": {
-        "CK-01": "full"
+        "CK-01": "partial"
       },
       "pass": true,
       "ms": 1
@@ -64,7 +64,7 @@
         "FN-01": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt117-core",
@@ -75,7 +75,7 @@
         "RC-42": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "tt117-core",
@@ -111,7 +111,7 @@
         "PL-02": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     }
   ]
 }

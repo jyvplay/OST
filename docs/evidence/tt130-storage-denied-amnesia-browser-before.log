@@ -1,0 +1,8 @@
+  ✗ explicit amnesic boot refuses host writes when localStorage access throws
+    the page must refuse the write; host rows=1
+
+200 !== 423
+
+
+0 passed, 1 failed
+FAILED: explicit amnesic boot refuses host writes when localStorage access throws

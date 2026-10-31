@@ -1,0 +1,16 @@
+    worst |Δ| vs Skia per mode/backdrop: normal/o:0 multiply/o:0 screen/o:0 overlay/o:0 darken/o:0 lighten/o:0 color-dodge/o:1 color-burn/o:1 hard-light/o:0 soft-light/o:1 difference/o:0 exclusion/o:0 hue/o:1 saturation/o:1 color/o:1 luminosity/o:1 normal/t:2 multiply/t:2 screen/t:2 overlay/t:2 darken/t:2 lighten/t:2 color-dodge/t:2 color-burn/t:2 hard-light/t:2 soft-light/t:2 difference/t:2 exclusion/t:2 hue/t:2 saturation/t:2 color/t:2 luminosity/t:2
+  ✓ ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — the 16 canvas blend modes (incl. hue/saturation/color/luminosity), opaque and translucent backdrops
+  ✓ new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo
+  ✓ layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge
+  ✓ TT78 clipping mask in the UI: 'Clip to layer below' limits a layer to the brush stroke beneath it; non-separable modes offered
+  ✓ bucket tolerance/contiguity on real pixels; eyedropper sets the foreground; wand selection + Delete clears
+  ✓ marquee → crop to selection changes canvas size; image rotate; Ctrl+Z restores; invert filter through selection
+  ✓ layer mask: paint on mask hides, disable mask reveals; keyboard tool switching, [ ] size, X swap
+  ✓ Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels
+  ✓ Export PNG → reopen the PNG from the VFS as a new document; Image size dialog resizes
+  ✓ classic Quick edit mode is still available (additive merge)
+  ✓ no uncaught page errors during the image session
+
+11 passed, 0 failed
+
+# Operator note: the enclosing shell exited 1 after this 11/11 summary; cause unknown. The subsequent independent repeat exited 0.

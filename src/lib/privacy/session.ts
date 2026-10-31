@@ -54,8 +54,11 @@ class PrivacySession {
     const original = window.fetch.bind(window);
     this.rawFetch = original;
     this.layer = new PrivacyLayer((url, init) => original(url, init), { onBlocked: () => this.emit(), onPrivateTouch: () => this.touch() });
-    let amnesic = false; let pref = false;
-    try { pref = window.localStorage.getItem(PREF_BOOT) === "1"; amnesic = pref || new URLSearchParams(window.location.search).get("amnesia") === "1"; } catch { /* storage disabled */ }
+    let pref = false;
+    try { pref = window.localStorage.getItem(PREF_BOOT) === "1"; } catch { /* storage disabled */ }
+    // A blocked storage getter must never suppress an explicit private boot.
+    // The saved preference cannot be recovered when storage is unavailable.
+    const amnesic = pref || new URLSearchParams(window.location.search).get("amnesia") === "1";
     // the toggle shows the SAVED preference, not "this session happens to be amnesic" (TT20 fix: ?amnesia=1 showed it ON)
     this.bootAmnesic = pref;
     if (amnesic) this.enterAmnesia();

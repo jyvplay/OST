@@ -1,0 +1,9 @@
+  ✗ zoomed image viewport exposes a named keyboard focus target and arrow-key panning
+    page.waitForFunction: Timeout 5000ms exceeded.
+  ✓ viewport focus keeps existing editor shortcuts available
+  ✓ oversized canvas reaches both opposite document corners by scrolling
+  ✓ axe-core finds no scrollable-region-focusable issue on the enlarged canvas
+  ✓ attack: removing the viewport tab stop is detected by axe
+
+4 passed, 1 failed
+FAILED: zoomed image viewport exposes a named keyboard focus target and arrow-key panning

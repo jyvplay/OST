@@ -1,0 +1,15 @@
+AssertionError [ERR_ASSERTION]: normal-profile alarms must not enter an amnesic session
+
+3 !== 0
+
+    at file:///home/user/OST/scripts/e2e-tt130-alarms.mts:144:14
+    at async test (file:///home/user/OST/scripts/harness.mts:26:7)
+    at async file:///home/user/OST/scripts/e2e-tt130-alarms.mts:124:3
+  ✗ amnesic sessions isolate alarms and do not write their settings or claims
+    normal-profile alarms must not enter an amnesic session
+
+3 !== 0
+
+
+0 passed, 1 failed
+FAILED: amnesic sessions isolate alarms and do not write their settings or claims

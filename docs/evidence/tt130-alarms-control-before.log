@@ -1,0 +1,9 @@
+  ✓ control: an open Clock window fires the same alarm
+  ✗ an alarm still fires in the shell after its Clock window closes
+    locator.waitFor: Timeout 5000ms exceeded.
+Call log:
+  - waiting for getByTestId('toasts').getByText('Alarm: Clock remains open', { exact: true }) to be visible
+
+
+1 passed, 1 failed
+FAILED: an alarm still fires in the shell after its Clock window closes

@@ -1,0 +1,12 @@
+
+Every module mounts in real Chromium without an uncaught error
+
+Interactions
+  ✓ terminal: write + cat through the journal; mv shows journal op
+  ✓ editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists
+
+Two browser contexts
+
+Widget isolation (H∂: depends on the browser's site-isolation policy)
+
+2 passed, 0 failed

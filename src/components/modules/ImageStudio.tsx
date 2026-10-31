@@ -37,6 +37,22 @@ const TOOLS: { id: Tool; label: string; key: string }[] = [
   { id: "wand", label: "Magic wand", key: "W" }, { id: "brush", label: "Brush", key: "B" }, { id: "eraser", label: "Eraser", key: "E" },
   { id: "fill", label: "Bucket", key: "G" }, { id: "gradient", label: "Gradient", key: "" }, { id: "eyedropper", label: "Eyedropper", key: "I" },
 ];
+/** Original, decorative 24-unit marks for the tool rail. The button keeps its
+ * full accessible name and tooltip; the Kit menu mirrors that same name. */
+function ToolGlyph({ tool }: { tool: Tool }) {
+  return <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" style={{ width: fz(19), height: fz(19), display: "block", flex: "0 0 auto" }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    {tool === "move" ? <path d="M12 2v20M2 12h20M9 5l3-3 3 3M9 19l3 3 3-3M5 9l-3 3 3 3M19 9l3 3-3 3" /> : null}
+    {tool === "marquee" ? <rect x="3.5" y="5" width="17" height="14" rx="1" strokeDasharray="3 2" /> : null}
+    {tool === "ellipse" ? <ellipse cx="12" cy="12" rx="9" ry="7" strokeDasharray="3 2" /> : null}
+    {tool === "wand" ? <><path d="M4 20 16.5 7.5M6.5 20.5 19 8M14.5 9.5l3 3" /><path d="M5 4v4M3 6h4M17 2v3M15.5 3.5h3M20 15v4M18 17h4" /></> : null}
+    {tool === "brush" ? <><path d="m9 15 8-11 3 3-11 8ZM8.5 14.5c-3.5 0-3 3-5 4.5 3 1 7 0 7-3" /><path d="m15 6 3 3" /></> : null}
+    {tool === "eraser" ? <><path d="m3.5 14 9.5-10 7.5 7.5-8.5 8.5H8zM7 10.5l7.5 7.5M12 20h9" /></> : null}
+    {tool === "fill" ? <><path d="m3 12 7-7 8 8-7 7zM7 9l7 7M7 4l3 3" /><path d="M19 16c0 1.2-1.4 2.2-1.4 3.3a1.4 1.4 0 0 0 2.8 0C20.4 18.2 19 17.2 19 16Z" /></> : null}
+    {tool === "gradient" ? <><rect x="3" y="5" width="18" height="14" rx="1" /><path d="M7 7v10" opacity=".25" /><path d="M10 7v10" opacity=".45" /><path d="M13 7v10" opacity=".65" /><path d="M16 7v10M19 7v10" /></> : null}
+    {tool === "eyedropper" ? <><path d="m5 19 2-5 8.5-8.5 3 3L10 17l-5 2ZM14 4l2-2 6 6-2 2zM6.5 14.5l3 3" /></> : null}
+  </svg>;
+}
+
 const FILTERS: { id: string; label: string; param?: { min: number; max: number; def: number; step?: number; label: string } }[] = [
   { id: "brightness", label: "Brightness", param: { min: 0, max: 200, def: 120, label: "%" } },
   { id: "contrast", label: "Contrast", param: { min: 0, max: 200, def: 130, label: "%" } },
@@ -427,6 +443,20 @@ export default function ImageStudio({ win }: ModuleProps) {
     },
   };
 
+  /* Arrow keys pan the focused image viewport, including in browsers that do
+   * not scroll a focused overflow region reliably. Leave modified keys and
+   * events from descendants to their existing handlers. */
+  const onViewportKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    const dx = e.key === "ArrowRight" ? 40 : e.key === "ArrowLeft" ? -40 : 0;
+    const dy = e.key === "ArrowDown" ? 40 : e.key === "ArrowUp" ? -40 : 0;
+    const el = e.currentTarget;
+    if ((dx && el.scrollWidth > el.clientWidth) || (dy && el.scrollHeight > el.clientHeight)) {
+      e.preventDefault();
+      el.scrollBy(dx, dy);
+    }
+  };
+
   /* ---------------------------------------------------------------- keyboard (scoped to the module) */
   const onKey = (e: React.KeyboardEvent) => {
     const t = e.target as HTMLElement;
@@ -493,10 +523,10 @@ export default function ImageStudio({ win }: ModuleProps) {
         </BannerGroup>
       </AppBanner>
       {/* TT80: the tool rail is a Kit group — its controls are reachable from the Kit menu */}
-      <div data-banner-group="Kit" role="toolbar" aria-label="Drawing kit" style={{ display: "grid", alignContent: "start", gap: 2, padding: 3, borderRight: "1px solid var(--fs-border)" }}>
+      <div data-banner-group="Kit" role="toolbar" aria-label="Drawing kit" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignContent: "start", gap: 2, padding: 3, borderRight: "1px solid var(--fs-border)", minHeight: 0, overflowY: "auto" }}>
         {TOOLS.map((t) => (
           <button key={t.id} className="fs-btn" data-variant={tool === t.id ? "primary" : "ghost"} aria-pressed={tool === t.id} title={`${t.label}${t.key ? ` (${t.key})` : ""}`} aria-label={t.label}
-            onClick={() => setTool(t.id)} style={{ padding: "4px 2px", fontSize: fz(10), lineHeight: 1.15, whiteSpace: "normal", textAlign: "center" }}>{t.label}</button>
+            onClick={() => setTool(t.id)} style={{ minWidth: 0, width: "100%", display: "grid", placeItems: "center", padding: "4px 2px" }}><ToolGlyph tool={t.id} /></button>
         ))}
         <div title="Foreground / background (X swaps, D resets)" style={{ display: "grid", gap: 2, marginTop: 6 }}>
           <input type="color" aria-label="Foreground colour" value={fg} onChange={(e) => setFg(e.target.value)} style={{ width: "100%", height: 26 }} />
@@ -505,7 +535,7 @@ export default function ImageStudio({ win }: ModuleProps) {
       </div>
 
       {/* canvas */}
-      <div ref={viewRef} className="fs-scroll" style={{ position: "relative", minHeight: 0, background: "#060a14", display: "grid", placeItems: "center", padding: 12 }}>
+      <div ref={viewRef} className="fs-scroll" tabIndex={0} role="region" aria-label="Image canvas viewport" onKeyDown={onViewportKey} style={{ position: "relative", minHeight: 0, background: "#060a14", display: "grid", placeItems: "center", padding: 12, outlineOffset: -2 }}>
         <div style={{ position: "relative", width: doc.width * scale, height: doc.height * scale, boxShadow: "0 0 0 1px #334" }}>
           <canvas ref={canvasRef} data-testid="studio-canvas" aria-label={`Canvas ${doc.width}×${doc.height}`}
             onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onPointerLeave={() => setCursor(null)}

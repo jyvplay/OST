@@ -1,0 +1,33 @@
+{
+  "availableParallelism": 2,
+  "baseline": "bf92aa8:scripts/e2e-tt124.mts",
+  "pairs": 3,
+  "before": {
+    "wallMeanMs": 37283.60354233333,
+    "samples": [
+      36701.585967,
+      37747.09645899999,
+      37402.128201
+    ],
+    "cases": [
+      "ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+      "PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick",
+      "MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
+      "PH-08: opening a photo offers Copy info with honest absences"
+    ]
+  },
+  "after": {
+    "wallMeanMs": 25678.86861466667,
+    "samples": [
+      25185.731027999995,
+      25546.463072,
+      26304.411744000012
+    ],
+    "cases": [
+      "ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
+      "PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick",
+      "MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
+      "PH-08: opening a photo offers Copy info with honest absences"
+    ]
+  }
+}

@@ -1,0 +1,49 @@
+    violations by rule (nodes): {}
+  ✓ axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations
+    files @125%: smallest visible text 12.5px, body 16.25px
+    sheet @125%: smallest visible text 12.5px, body 16.25px
+    writer @125%: smallest visible text 12.5px, body 16.25px
+    settings @125%: smallest visible text 12.5px, body 16.25px
+    privacy @125%: smallest visible text 12.5px, body 16.25px
+    vector @125%: smallest visible text 12.5px, body 16.25px
+    imageedit @125%: smallest visible text 12.5px, body 16.25px
+    terminal @125%: smallest visible text 12.5px, body 16.25px
+    files @200%: smallest visible text 20px, body 26px
+    sheet @200%: smallest visible text 20px, body 26px
+    settings @200%: smallest visible text 20px, body 26px
+  ✓ computed sizes: at the 125 % default nothing visible is below 12 px and body text is ≥16 px; in Large text mode (200 %) nothing is below 20 px
+  ✓ icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type
+  ✓ reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit
+  ✓ text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused
+  ✓ spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen
+  ✓ forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)
+  ✓ style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused
+    poolside/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    poolside/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    vice/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    vice/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    oceandrive/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    oceandrive/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    bubbly/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    bubbly/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    liquidglass/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    liquidglass/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    expressive/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    expressive/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    fluent/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    fluent/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    clouddancer/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    clouddancer/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    teal/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    teal/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    enterprise/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    enterprise/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    graphite/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    graphite/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    silver/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    silver/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+    daylight/light: 0 serious rule(s) in the windows, 0 on the desktop icons
+    daylight/dark: 0 serious rule(s) in the windows, 0 on the desktop icons
+  ✓ light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet
+
+9 passed, 0 failed

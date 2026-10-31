@@ -1,0 +1,62 @@
+{
+  "availableParallelism": 2,
+  "baselineRef": "148f046",
+  "baselineCommit": "148f046c4926dc056b0bd222d6fcd99c6596dac1",
+  "note": "worker-only comparison; both use the current production server",
+  "beforeVersion": "fusion-v7",
+  "afterVersion": "fusion-v8",
+  "before": {
+    "wallMeanMs": 595.81669575,
+    "decodedBytes": 71683,
+    "entries": 6,
+    "samples": [
+      {
+        "wallMs": 581.4917039999999,
+        "entries": 6,
+        "decodedBytes": 71683
+      },
+      {
+        "wallMs": 565.1062499999998,
+        "entries": 6,
+        "decodedBytes": 71683
+      },
+      {
+        "wallMs": 616.2183029999997,
+        "entries": 6,
+        "decodedBytes": 71683
+      },
+      {
+        "wallMs": 620.4505260000005,
+        "entries": 6,
+        "decodedBytes": 71683
+      }
+    ]
+  },
+  "after": {
+    "wallMeanMs": 1462.6806017499998,
+    "decodedBytes": 3978997,
+    "entries": 42,
+    "samples": [
+      {
+        "wallMs": 1429.6448450000003,
+        "entries": 42,
+        "decodedBytes": 3978997
+      },
+      {
+        "wallMs": 1498.8418549999997,
+        "entries": 42,
+        "decodedBytes": 3978997
+      },
+      {
+        "wallMs": 1484.7252360000002,
+        "entries": 42,
+        "decodedBytes": 3978997
+      },
+      {
+        "wallMs": 1437.5104709999996,
+        "entries": 42,
+        "decodedBytes": 3978997
+      }
+    ]
+  }
+}

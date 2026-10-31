@@ -1,0 +1,27 @@
+== run 1
+  ✓ zoomed image viewport exposes a named keyboard focus target and arrow-key panning
+  ✓ modified arrows are not consumed by the viewport handler
+  ✓ viewport focus keeps existing editor shortcuts available
+  ✓ oversized canvas reaches both opposite document corners by scrolling
+  ✓ axe-core finds no scrollable-region-focusable issue on the enlarged canvas
+  ✓ attack: removing the viewport tab stop is detected by axe
+
+6 passed, 0 failed
+== run 2
+  ✓ zoomed image viewport exposes a named keyboard focus target and arrow-key panning
+  ✓ modified arrows are not consumed by the viewport handler
+  ✓ viewport focus keeps existing editor shortcuts available
+  ✓ oversized canvas reaches both opposite document corners by scrolling
+  ✓ axe-core finds no scrollable-region-focusable issue on the enlarged canvas
+  ✓ attack: removing the viewport tab stop is detected by axe
+
+6 passed, 0 failed
+== run 3
+  ✓ zoomed image viewport exposes a named keyboard focus target and arrow-key panning
+  ✓ modified arrows are not consumed by the viewport handler
+  ✓ viewport focus keeps existing editor shortcuts available
+  ✓ oversized canvas reaches both opposite document corners by scrolling
+  ✓ axe-core finds no scrollable-region-focusable issue on the enlarged canvas
+  ✓ attack: removing the viewport tab stop is detected by axe
+
+6 passed, 0 failed

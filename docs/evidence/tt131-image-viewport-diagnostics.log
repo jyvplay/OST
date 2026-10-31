@@ -1,0 +1,9 @@
+page.waitForFunction: Timeout 5000ms exceeded.
+    at /home/user/OST/scripts/e2e-tt131-image-viewport.mts:44:16
+    at async test (/home/user/OST/scripts/harness.mts:26:7)
+    at async file:///home/user/OST/scripts/e2e-tt131-image-viewport.mts:34:3
+  ✗ zoomed image viewport exposes a named keyboard focus target and arrow-key panning
+    page.waitForFunction: Timeout 5000ms exceeded.
+
+0 passed, 1 failed
+FAILED: zoomed image viewport exposes a named keyboard focus target and arrow-key panning

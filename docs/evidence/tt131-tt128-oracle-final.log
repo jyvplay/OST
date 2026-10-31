@@ -1,0 +1,8 @@
+  ✓ ical.js independently parses UTF-8 folded export and escaped TEXT
+  ✓ our reader accepts TEXT produced by ical.js
+  ✓ ical.js expands a recurring VTODO from the exported due/anchor instant
+  ✓ ical.js respects an embedded VTIMEZONE that differs from the IANA name
+    440 Temporal comparisons
+  ✓ zone candidates agree with Temporal on transition and held-out ordinary times
+
+5 passed, 0 failed

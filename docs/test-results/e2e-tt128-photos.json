@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt128-photos",
-  "at": "2026-10-31T02:32:44.494Z",
+  "at": "2026-10-31T04:56:46.106Z",
   "results": [
     {
       "suite": "e2e-tt128-photos",
@@ -10,7 +10,7 @@
         "PH-05": "partial"
       },
       "pass": true,
-      "ms": 4601
+      "ms": 4616
     },
     {
       "suite": "e2e-tt128-photos",
@@ -19,7 +19,7 @@
         "PH-04": "partial"
       },
       "pass": true,
-      "ms": 2349
+      "ms": 2116
     },
     {
       "suite": "e2e-tt128-photos",
@@ -28,7 +28,7 @@
         "PH-07": "partial"
       },
       "pass": true,
-      "ms": 1759
+      "ms": 1691
     },
     {
       "suite": "e2e-tt128-photos",
@@ -37,25 +37,25 @@
         "PH-07": "partial"
       },
       "pass": true,
-      "ms": 1755
+      "ms": 1669
     },
     {
       "suite": "e2e-tt128-photos",
       "name": "a thumbnail completing between pointer down and up keeps its tile geometry and click",
       "covers": {
-        "PH-01": "partial"
+        "MD-03": "partial"
       },
       "pass": true,
-      "ms": 1565
+      "ms": 1691
     },
     {
       "suite": "e2e-tt128-photos",
       "name": "photo tiles retain keyboard activation and cancel a drag away",
       "covers": {
-        "PH-01": "partial"
+        "MD-03": "partial"
       },
       "pass": true,
-      "ms": 1784
+      "ms": 1536
     },
     {
       "suite": "e2e-tt128-photos",
@@ -64,7 +64,7 @@
         "PH-04": "partial"
       },
       "pass": true,
-      "ms": 1943
+      "ms": 2700
     },
     {
       "suite": "e2e-tt128-photos",
@@ -73,25 +73,25 @@
         "PH-04": "partial"
       },
       "pass": true,
-      "ms": 2595
+      "ms": 2733
     },
     {
       "suite": "e2e-tt128-photos",
       "name": "a failed library read exposes a retry and recovers without reloading the shell",
       "covers": {
-        "PH-01": "partial"
+        "MD-03": "partial"
       },
       "pass": true,
-      "ms": 1182
+      "ms": 1274
     },
     {
       "suite": "e2e-tt128-photos",
       "name": "a refresh result is not replaced by an older delayed real media response",
       "covers": {
-        "PH-01": "partial"
+        "MD-03": "partial"
       },
       "pass": true,
-      "ms": 1825
+      "ms": 1803
     },
     {
       "suite": "e2e-tt128-photos",
@@ -100,7 +100,7 @@
         "PH-04": "partial"
       },
       "pass": true,
-      "ms": 4330
+      "ms": 4899
     }
   ]
 }
