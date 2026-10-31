@@ -1,0 +1,26 @@
+{
+  "suite": "e2e-tt128-time",
+  "at": "2026-10-30T23:57:14.428Z",
+  "results": [
+    {
+      "suite": "e2e-tt128-time",
+      "name": "Clock: local date controls and explicit overlap/gap choices",
+      "covers": {
+        "CK-03": "partial",
+        "WD-03": "partial"
+      },
+      "pass": true,
+      "ms": 3764
+    },
+    {
+      "suite": "e2e-tt128-time",
+      "name": "Planner: week columns and completion counts survive midnight DST transition",
+      "covers": {
+        "PL-01": "partial",
+        "PL-07": "partial"
+      },
+      "pass": true,
+      "ms": 3529
+    }
+  ]
+}

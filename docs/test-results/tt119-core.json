@@ -1,6 +1,6 @@
 {
   "suite": "tt119-core",
-  "at": "2026-10-30T19:53:58.474Z",
+  "at": "2026-10-30T23:56:38.240Z",
   "results": [
     {
       "suite": "tt119-core",
@@ -45,7 +45,7 @@
         "CK-04": "full"
       },
       "pass": true,
-      "ms": 47
+      "ms": 14
     },
     {
       "suite": "tt119-core",
@@ -99,7 +99,7 @@
         "MU-02": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 0
     }
   ]
 }

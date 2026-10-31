@@ -1,0 +1,42 @@
+{
+  "suite": "tt128-oracle",
+  "at": "2026-10-30T23:15:07.657Z",
+  "results": [
+    {
+      "suite": "tt128-oracle",
+      "name": "ical.js independently parses UTF-8 folded export and escaped TEXT",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt128-oracle",
+      "name": "our reader accepts TEXT produced by ical.js",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt128-oracle",
+      "name": "ical.js expands a recurring VTODO from the exported due/anchor instant",
+      "covers": {
+        "PL-02": "partial"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt128-oracle",
+      "name": "zone candidates agree with Temporal on transition and held-out ordinary times",
+      "covers": {
+        "WD-03": "partial"
+      },
+      "pass": true,
+      "ms": 335
+    }
+  ]
+}

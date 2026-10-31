@@ -1,6 +1,6 @@
 {
   "suite": "tt126-regressions",
-  "at": "2026-10-30T21:33:44.294Z",
+  "at": "2026-10-30T23:56:41.265Z",
   "results": [
     {
       "suite": "tt126-regressions",
@@ -25,17 +25,24 @@
     },
     {
       "suite": "tt126-regressions",
+      "name": "service worker: cache storage failures do not turn working network assets into 504s",
+      "covers": {},
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt126-regressions",
       "name": "browser gate rejects a process that prints success then exits nonzero",
       "covers": {},
       "pass": true,
-      "ms": 590
+      "ms": 811
     },
     {
       "suite": "tt126-regressions",
       "name": "fast default retains the external oracle and propagates its failure",
       "covers": {},
       "pass": true,
-      "ms": 128
+      "ms": 171
     }
   ]
 }

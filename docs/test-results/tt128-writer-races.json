@@ -1,0 +1,24 @@
+{
+  "suite": "tt128-writer-races",
+  "at": "2026-10-30T23:56:42.075Z",
+  "results": [
+    {
+      "suite": "tt128-writer-races",
+      "name": "ordinary writer commits first: stale conditional writer rejects",
+      "covers": {
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 114
+    },
+    {
+      "suite": "tt128-writer-races",
+      "name": "conditional writer commits first: a later unconditional write can overwrite it",
+      "covers": {
+        "BK-03": "partial"
+      },
+      "pass": true,
+      "ms": 114
+    }
+  ]
+}
