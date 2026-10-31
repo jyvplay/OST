@@ -1,6 +1,6 @@
 {
   "suite": "stream-unit",
-  "at": "2026-10-30T23:56:35.250Z",
+  "at": "2026-10-31T07:23:40.222Z",
   "results": [
     {
       "suite": "stream-unit",
@@ -9,7 +9,7 @@
         "SM-01": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "stream-unit",
@@ -27,7 +27,7 @@
         "SM-02": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "stream-unit",
@@ -45,7 +45,7 @@
         "SM-03": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 4
     },
     {
       "suite": "stream-unit",
@@ -63,7 +63,7 @@
         "SM-04": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     }
   ]
 }

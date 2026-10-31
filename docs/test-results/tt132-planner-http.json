@@ -1,0 +1,116 @@
+{
+  "suite": "tt132-planner-http",
+  "at": "2026-10-31T07:23:46.506Z",
+  "results": [
+    {
+      "suite": "tt132-planner-http",
+      "name": "malformed write matrix returns 400 without adding database rows",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 75
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "create task with notes and no due time, then verify the real SQL row",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "create event with explicit offset and millisecond end, exported as real VEVENT",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "guarded rename and note edit preserve UID and dates",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 18
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "reschedule and clear due rearm reminders; an unchanged due instant does not",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 42
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "a delayed reminder acknowledgement cannot mark a newly rescheduled item delivered",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 32
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "event duration edits validate the merged row and roll back invalid partial edits",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 24
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "task to event and event to task conversion preserve notes and clear event-only data",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 19
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "two forced concurrent edits of one baseline commit once and return one real 409",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 40
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "a stale delete cannot destroy a changed item; a current delete removes it",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 53
+    },
+    {
+      "suite": "tt132-planner-http",
+      "name": "empty patches, malformed IDs and deleted items have explicit 400/404 responses",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 73
+    }
+  ]
+}

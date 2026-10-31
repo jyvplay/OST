@@ -1,0 +1,98 @@
+{
+  "exit_status": 1,
+  "errors": 135,
+  "warnings": 13,
+  "files": 1171,
+  "diagnostic_files": [
+    {
+      "filePath": "/home/user/OST/scripts/fixtures/tidal-embed/url-options.js",
+      "errorCount": 0,
+      "warningCount": 1
+    },
+    {
+      "filePath": "/home/user/OST/src/components/Tabletop.tsx",
+      "errorCount": 0,
+      "warningCount": 1
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Backup.tsx",
+      "errorCount": 1,
+      "warningCount": 0
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Beam.tsx",
+      "errorCount": 2,
+      "warningCount": 0
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Devices.tsx",
+      "errorCount": 3,
+      "warningCount": 1
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Editor.tsx",
+      "errorCount": 1,
+      "warningCount": 0
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/ImageQuickEdit.tsx",
+      "errorCount": 1,
+      "warningCount": 0
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Maps.tsx",
+      "errorCount": 5,
+      "warningCount": 1
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Monitor.tsx",
+      "errorCount": 1,
+      "warningCount": 0
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Routines.tsx",
+      "errorCount": 1,
+      "warningCount": 1
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Share.tsx",
+      "errorCount": 1,
+      "warningCount": 0
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Spreadsheet.tsx",
+      "errorCount": 0,
+      "warningCount": 2
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Ssh.tsx",
+      "errorCount": 14,
+      "warningCount": 0
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Storage.tsx",
+      "errorCount": 1,
+      "warningCount": 0
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Streams.tsx",
+      "errorCount": 0,
+      "warningCount": 2
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Together.tsx",
+      "errorCount": 2,
+      "warningCount": 0
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Vault.tsx",
+      "errorCount": 0,
+      "warningCount": 1
+    },
+    {
+      "filePath": "/home/user/OST/src/components/modules/Writer.tsx",
+      "errorCount": 102,
+      "warningCount": 3
+    }
+  ]
+}

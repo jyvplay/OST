@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { api, patch, post, replayQueue } from "@/lib/api";
+import { taskSnapshot, type PlannerTask } from "@/lib/task-model";
 import type { RoutineAction } from "@/lib/routines";
 import { useShell } from "./shell-context";
 import { recordBackgroundCallback, updateBackgroundStatus } from "@/lib/background-inventory";
@@ -9,8 +10,10 @@ import { getAlarms, useAlarms } from "@/lib/alarm-store";
 import { ALARM_WINDOW_MS, planAlarmChecks } from "@/lib/clock-alarm-plan";
 import { claimAlarm } from "@/lib/clock-alarm-claim";
 import { privacy } from "@/lib/privacy/session";
+import { activityToken, alarmSchedule, planAlarmActivity } from "@/lib/alarm-activity-core";
+import { activateAlarm, changeAlarmActivity, isSnoozePending, reconcileLiveAlarmActivity, ringSnoozedAlarm, useAlarmActivity } from "@/lib/alarm-activity-store";
 
-interface Task { id: number; title: string; done: boolean; dueAt: string | null; reminded: boolean; kind: string }
+interface Task extends PlannerTask { reminded: boolean }
 interface Routine { id: number; name: string; trigger: string; triggerArg: string; actions: RoutineAction[]; enabled: boolean; lastRun: string | null }
 
 /**
@@ -26,6 +29,8 @@ export default function ShellDaemons() {
   useLayoutEffect(() => { ref.current = shell; }, [shell]);
   const extended = useRef<boolean | null>(null);
   const alarms = useAlarms();
+  const activities = useAlarmActivity();
+  useEffect(() => { void reconcileLiveAlarmActivity().catch(() => undefined); }, [alarms]);
   const claimedAlarms = useRef(new Set<string>());
   const pendingAlarms = useRef(new Set<string>());
   const alive = useRef(false);
@@ -37,6 +42,7 @@ export default function ShellDaemons() {
   useEffect(() => {
     let timer: number | undefined;
     const tick = () => {
+      if (timer !== undefined) window.clearTimeout(timer);
       recordBackgroundCallback("clock-alarms", "checking enabled local alarms");
       const plan = planAlarmChecks(alarms, Date.now());
       for (const { alarm, at } of plan.due) {
@@ -50,16 +56,52 @@ export default function ShellDaemons() {
         }, () => {
           claimedAlarms.current.add(key);
           if (claimedAlarms.current.size > 512) claimedAlarms.current.delete(claimedAlarms.current.values().next().value!);
+          activateAlarm(alarm, at);
           ref.current.toast(`Alarm: ${alarm.label || alarm.time}`, "ok");
           try { if (!privacy.status().amnesic && typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(`Alarm: ${alarm.label || alarm.time}`); } catch { /* toast is the foreground fallback */ }
-        }).finally(() => { pendingAlarms.current.delete(key); });
+        }).catch(() => { updateBackgroundStatus("clock-alarms", "alarm claim failed; delivery is not assured"); }).finally(() => { pendingAlarms.current.delete(key); });
       }
-      updateBackgroundStatus("clock-alarms", `${alarms.filter((a) => a.enabled).length} enabled; ${plan.due.length} in the delivery window`);
-      if (plan.delay !== null) timer = window.setTimeout(tick, plan.delay);
+      const snoozes = planAlarmActivity(activities, Date.now());
+      for (const entry of snoozes.missed) {
+        const key = `miss:${activityToken(entry)}`;
+        if (pendingAlarms.current.has(key)) continue;
+        pendingAlarms.current.add(key);
+        void changeAlarmActivity(activityToken(entry), "miss").catch(() => undefined).finally(() => pendingAlarms.current.delete(key));
+      }
+      for (const entry of snoozes.due) {
+        const token = activityToken(entry), key = `snooze:${token}`;
+        if (claimedAlarms.current.has(key) || pendingAlarms.current.has(key)) continue;
+        pendingAlarms.current.add(key);
+        void claimAlarm(`snooze-${entry.alarmId}-${entry.occurrenceAt}-${entry.sequence}`, entry.dueAt, () => {
+          const current = getAlarms().find((a) => a.id === entry.alarmId);
+          return alive.current && Date.now() >= entry.dueAt && Date.now() - entry.dueAt < ALARM_WINDOW_MS &&
+            !!current?.enabled && alarmSchedule(current) === entry.schedule && isSnoozePending(token);
+        }, () => {
+          if (!ringSnoozedAlarm(token)) return;
+          claimedAlarms.current.add(key);
+          if (claimedAlarms.current.size > 512) claimedAlarms.current.delete(claimedAlarms.current.values().next().value!);
+          const alarm = getAlarms().find((a) => a.id === entry.alarmId);
+          if (!alarm) return;
+          ref.current.toast(`Alarm: ${alarm.label || alarm.time}`, "ok");
+          try { if (!privacy.status().amnesic && typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(`Alarm: ${alarm.label || alarm.time}`); } catch { /* actionable in-page controls remain */ }
+        }).catch(() => { updateBackgroundStatus("clock-alarms", "snooze claim failed; delivery is not assured"); }).finally(() => pendingAlarms.current.delete(key));
+      }
+      updateBackgroundStatus("clock-alarms", `${alarms.filter((a) => a.enabled).length} enabled; ${plan.due.length + snoozes.due.length} in the delivery window`);
+      const delay = Math.min(plan.delay ?? Infinity, snoozes.delay ?? Infinity);
+      if (Number.isFinite(delay)) timer = window.setTimeout(tick, delay);
     };
+    const onVisible = () => { if (document.visibilityState === "visible") tick(); };
     tick();
-    return () => { if (timer !== undefined) window.clearTimeout(timer); };
-  }, [alarms]);
+    window.addEventListener("focus", tick);
+    window.addEventListener("pageshow", tick);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      if (timer !== undefined) window.clearTimeout(timer);
+      window.removeEventListener("focus", tick);
+      window.removeEventListener("pageshow", tick);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [alarms, activities]);
 
   // PR-03 reminders (AP-05 inventory counts actual page callbacks, not assumed OS wakes)
   useEffect(() => {
@@ -80,7 +122,9 @@ export default function ShellDaemons() {
             s.toast(`Reminder: ${t.title}`, "warn", { label: "Open Planner", run: () => s.open("planner") });
             if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Fusion reminder", { body: t.title });
           } else held++;
-          await patch("/api/tasks", { id: t.id, reminded: true });
+          // A reminder sampled before a reschedule must not mark the new
+          // due instant delivered. This snapshot is compared under the row lock.
+          await patch("/api/tasks", { id: t.id, reminded: true, expected: taskSnapshot(t) });
         }
         updateBackgroundStatus("planner-reminders", `checked ${r.rows.length} task row(s); ${delivered} delivered; ${held} held by alert rules`);
       } catch { updateBackgroundStatus("planner-reminders", "server unavailable; retrying on the next page timer"); }

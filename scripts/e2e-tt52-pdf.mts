@@ -30,7 +30,7 @@ const eq = (a: unknown, b: unknown, m = "") => { if (JSON.stringify(a) !== JSON.
 const PY = "/home/user/tools/venv/bin/python", CORPUS = "/home/user/tools/corpus/pdf";
 const tmp = mkdtempSync(join(tmpdir(), "e2e52-"));
 const SHOTS = process.env.SHOTS ?? "/tmp";
-const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); return { status: r.status, json: await r.json().catch(() => ({})) as Record<string, any> }; }; // eslint-disable-line @typescript-eslint/no-explicit-any
+const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); return { status: r.status, json: await r.json().catch(() => ({})) as Record<string, any> }; };
 async function resetDesktop() {
   const cur = await api("GET", "/api/state?id=default"); const rev = Number(cur.json.row?.revision ?? 1) + 1000;
   await api("PUT", "/api/state", { id: "default", revision: rev, state: { windows: [], focus: null, workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, nextZ: 10, viewport: { w: 1440, h: 900 }, icons: [], focusMode: false } });

@@ -1,0 +1,6 @@
+  ✓ CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00
+  ✓ ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file
+  ✓ MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star
+  ✓ SC-19/PL-06/SR-11 controls exist and act: vault strength, agenda copy, find copy
+
+4 passed, 0 failed

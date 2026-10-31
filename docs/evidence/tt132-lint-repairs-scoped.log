@@ -1,0 +1,49 @@
+
+/home/user/OST/src/components/modules/Beam.tsx
+  150:12  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/home/user/OST/src/components/modules/Beam.tsx:150:12
+  148 |       <Section title="Transports — what this browser actually grants">
+  149 |         <div style={{ display: "grid", gap: 6 }}>
+> 150 |           {transports.map((t) => (
+      |            ^^^^^^^^^^ Cannot access ref value during render
+  151 |             <div key={t.id} className="fs-panel" style={{ padding: 8, display: "grid", gap: 4, borderColor: t.available ? "var(--fs-border)" : "rgba(255,107,107,.3)" }}>
+  152 |               <div className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
+  153 |                 <span className="fs-row" style={{ gap: 6 }}>      react-hooks/refs
+  150:12  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/home/user/OST/src/components/modules/Beam.tsx:150:12
+  148 |       <Section title="Transports — what this browser actually grants">
+  149 |         <div style={{ display: "grid", gap: 6 }}>
+> 150 |           {transports.map((t) => (
+      |            ^^^^^^^^^^^^^^ Cannot access ref value during render
+  151 |             <div key={t.id} className="fs-panel" style={{ padding: 8, display: "grid", gap: 4, borderColor: t.available ? "var(--fs-border)" : "rgba(255,107,107,.3)" }}>
+  152 |               <div className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
+  153 |                 <span className="fs-row" style={{ gap: 6 }}>  react-hooks/refs
+
+/home/user/OST/src/components/modules/Messages.tsx
+  101:28  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  102:37  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/home/user/OST/src/components/modules/Share.tsx
+  188:109  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/user/OST/src/components/modules/Share.tsx:188:109
+  186 |         if (videoRef.current) { videoRef.current.srcObject = local.current; videoRef.current.muted = true; }
+  187 |         local.current.getVideoTracks()[0].addEventListener("ended", () => void leave());
+> 188 |         shell.setBeam({ id: null, target: `room ${room}`, transport: "webrtc", source: "screen", startedAt: Date.now(), stop: () => void leave() });
+      |                                                                                                             ^^^^^^^^^^ Cannot call impure function
+  189 |       }
+  190 |       cursor.current = 0;
+  191 |       setJoined(true); setState("waiting for peer");  react-hooks/purity
+
+/home/user/OST/src/lib/input.ts
+  187:6  warning  React Hook useEffect has a missing dependency: 'cfg'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+✖ 6 problems (5 errors, 1 warning)

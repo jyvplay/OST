@@ -30,7 +30,7 @@ const CHUNK = 16 * 1024;
  */
 export default function ShareModule(_: ModuleProps) {
   const shell = useShell();
-  const me = useRef(`${clientId()}-${Math.random().toString(36).slice(2, 6)}`).current;
+  const [me] = useState(() => `${clientId()}-${Math.random().toString(36).slice(2, 6)}`);
   const [room, setRoom] = useState("SHARE1");
   const [role, setRole] = useState<"share" | "view">("view");
   const [joined, setJoined] = useState(false);

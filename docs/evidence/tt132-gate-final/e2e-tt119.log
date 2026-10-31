@@ -1,0 +1,6 @@
+  ✓ ED-03/TM-03: editor replaces all; terminal wc counts a real file
+  ✓ CK-04/WD-03: a zone can be added; the converter answers with a date
+  ✓ PL-04: filtering to gibberish reports no match, not an empty planner
+  ✓ PH-03/SR-09: slideshow starts on a seeded library; a search becomes recent
+
+4 passed, 0 failed

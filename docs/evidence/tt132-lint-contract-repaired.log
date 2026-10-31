@@ -1,0 +1,6 @@
+  ✓ every root config, declared lock and installed metadata change invalidates the cache namespace
+  ✓ an unchanged importer is invalidated by a same-length same-metadata dependency edit or a new route
+  ✓ a Node version change invalidates the namespace even with identical source/config
+  ✓ missing metadata fails closed instead of silently trusting an old cache
+
+4 passed, 0 failed

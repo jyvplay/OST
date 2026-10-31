@@ -1,0 +1,6 @@
+  ✓ first installation can boot a new offline desktop without an online reload
+  ✓ a failed required chunk prevents first worker installation
+  ✓ a 200 HTML error page cannot install as a JavaScript dependency
+  ✓ a failed chunk in an upgrade keeps the previously working offline shell
+
+4 passed, 0 failed

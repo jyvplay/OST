@@ -1,0 +1,36 @@
+{
+  "kind": "final-candidate cached/uncached diagnostic fidelity recheck, not alternating performance proof",
+  "cache_existed_before_prime": false,
+  "cache_key": "323ed936dc40f4df07ee9679",
+  "uncached_reference": "docs/evidence/tt132-lint-final.json",
+  "normalized_diagnostics_identical": true,
+  "trials": [
+    {
+      "name": "delivery-prime",
+      "exit": 1,
+      "wall_seconds": 62.608496,
+      "child_cpu_seconds": 88.508605,
+      "monitor_cpu_seconds": 0.3139,
+      "peak_summed_rss_bytes_50ms": 1162461184,
+      "wait4_maxrss_kib": 1076200,
+      "diagnostic_sha256": "65441b9f4978a7b4a273ae109ff7808917eb5e97e20e2ffb03fc331897912cf8",
+      "errors": 135,
+      "warnings": 13,
+      "files": 1171
+    },
+    {
+      "name": "delivery-warm",
+      "exit": 1,
+      "wall_seconds": 1.26421,
+      "child_cpu_seconds": 1.543382,
+      "monitor_cpu_seconds": 0.006532,
+      "peak_summed_rss_bytes_50ms": 356818944,
+      "wait4_maxrss_kib": 291636,
+      "diagnostic_sha256": "65441b9f4978a7b4a273ae109ff7808917eb5e97e20e2ffb03fc331897912cf8",
+      "errors": 135,
+      "warnings": 13,
+      "files": 1171
+    }
+  ],
+  "limitations": "Two observations, no new median or universal Pareto claim; original isolated AB/BA/AB results remain separate."
+}

@@ -1,0 +1,5 @@
+  ✓ every root config, declared lock and installed metadata change invalidates the cache namespace
+  ✓ a Node version change invalidates the namespace even with identical source/config
+  ✓ missing metadata fails closed instead of silently trusting an old cache
+
+3 passed, 0 failed

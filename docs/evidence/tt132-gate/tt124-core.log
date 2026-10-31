@@ -1,0 +1,21 @@
+  ✓ ED-08 indent: block spans selection, dedent removes one step, selection tracks
+  ✓ CK-08 world times: displayed order kept, offsets in parentheses
+  ✓ PD-02 page jump: 1-based clamp, garbage refused
+  ✓ PK-02 hex head: 16-per-line, ascii gutter, truncation stated
+  ✓ LN-17/CP-02 resolution pick: one engine, two cameras
+  ✓ MN-02 in-flight view: finished rows filtered, journal untouched
+  ✓ WR-01 word goal: net writing, clamped, done flag
+  ✓ IE-01 compare: holding shows the original, release restores the edit
+  ✓ MD-12 A–B loop: A→B→off cycle, B before A re-sets A, seek at B
+  ✓ CN-10 email list: deduped, sorted, empties dropped
+  ✓ MS-06 conversation text: timestamped lines, empty stated
+  ✓ PH-08 photo info: absences say 'not in index'
+  ✓ VT-02 SVG markup: existing exporter's output is clipboard-ready
+  ✓ CP-02 resolution: ideals only, max adds nothing
+  ✓ TG-01 room code: prefix, length, unambiguous alphabet
+  ✓ RT-03 duplicate name: collisions get numbered copies
+  ✓ SP-03 family text: worst first, same engine as the strip
+  ✓ BM-02 session text: newest first, active rows carry elapsed
+  ✓ SSH-02 conn line: default port omitted, state in words
+
+19 passed, 0 failed

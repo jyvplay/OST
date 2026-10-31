@@ -1,0 +1,56 @@
+{
+  "suite": "tt132-oracles",
+  "at": "2026-10-31T07:23:45.844Z",
+  "results": [
+    {
+      "suite": "tt132-oracles",
+      "name": "explicit-offset and low-year instants match Temporal rather than our own parser",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt132-oracles",
+      "name": "both DST fold occurrences and the millisecond remainder agree with Temporal",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt132-oracles",
+      "name": "spring DST gaps are rejected independently by Temporal and the editor converter",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt132-oracles",
+      "name": "real ICAL.js reads exported event endpoints, Unicode folding, UID and literal notes",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt132-oracles",
+      "name": "our importer agrees with independent UTC VEVENT output, not just self-generated ICS",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 6
+    }
+  ]
+}

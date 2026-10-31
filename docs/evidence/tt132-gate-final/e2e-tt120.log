@@ -1,0 +1,6 @@
+  ✓ ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file
+  ✓ WD-04: world clock rows carry a business-hours verdict
+  ✓ PH-04: next/previous walk the shown photos and stop at the end
+  ✓ CN-06: starring a contact persists and filters
+
+4 passed, 0 failed

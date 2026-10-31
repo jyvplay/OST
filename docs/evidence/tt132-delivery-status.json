@@ -1,0 +1,32 @@
+{
+  "production_build_exit": 0,
+  "typecheck_exit": 0,
+  "scoped_delivery_lint_exit": 0,
+  "uncached_full_lint": {
+    "exit": 1,
+    "errors": 135,
+    "warnings": 13
+  },
+  "configured_gate": {
+    "exit": 0,
+    "suite_executions": 75,
+    "distinct_suites": 71,
+    "passing_case_results": 627,
+    "failing_case_results": 0
+  },
+  "initial_visual_captures": {
+    "passed": 94,
+    "failed": 0,
+    "contact_sheets_opened_and_reviewed": 8,
+    "networkidle_settled_views": 0
+  },
+  "final_cache_fidelity_recheck_exit": 0,
+  "deployed_ledger_check_exit": 0,
+  "historical_saved_results": {
+    "passed": 3358,
+    "total": 3372,
+    "older_failing_suites_not_rerun": 5
+  },
+  "at_least_twenty_new_completed_Class_A_rows": false,
+  "whole_app_Pareto_proof": false
+}

@@ -1,0 +1,12 @@
+  ✓ zoomed image viewport exposes a named keyboard focus target and arrow-key panning
+  ✓ modified arrows are not consumed by the viewport handler
+  ✓ viewport focus keeps existing editor shortcuts available
+  ✓ oversized canvas reaches both opposite document corners by scrolling
+  ✓ drawing-kit buttons stay within their rail
+  ✓ drawing-kit controls have distinct vector marks, full names, and fit the rail
+  ✓ the drawing rail stays usable at doubled text scale
+  ✓ the Kit menu still lists full tool names and activates the real tool
+  ✓ axe-core finds no scrollable-region-focusable issue on the enlarged canvas
+  ✓ attack: removing the viewport tab stop is detected by axe
+
+10 passed, 0 failed

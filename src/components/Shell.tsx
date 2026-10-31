@@ -9,10 +9,11 @@ import { fz, readUiUnit, applyTextScale, DEFAULT_TEXT_SCALE, TEXT_SCALE_MIN, TEX
 import { DEFAULT_WALLPAPER } from "@/lib/appearance";
 import { applyStyle, isStyle, resolveWallpaper, useStyleId } from "@/lib/style";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { api, post, put } from "@/lib/api";
 import type { RoutineAction } from "@/lib/routines";
 import ShellDaemons from "./ShellDaemons";
+import AlarmCenter from "./AlarmCenter";
 import DesktopWidgets from "./DesktopWidgets";
 import { probeCapabilities, refineCapabilities, type CapabilityReport } from "@/lib/capabilities";
 import { governor, type GovernorSnapshot } from "@/lib/governor";
@@ -105,10 +106,10 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     setPalette(action === "palette");
   }, []);
 
-  const streams = useRef(new Map<string, MediaStream>()).current;
-  const commandLog = useRef<{ cmd: WindowCommand; at: number }[]>([]).current;
+  const [streams, setStreams] = useState(() => new Map<string, MediaStream>());
+  const [commandLog, setCommandLog] = useState<{ cmd: WindowCommand; at: number }[]>([]);
   const stateRefOpen = useRef(state);
-  stateRefOpen.current = state;
+  useLayoutEffect(() => { stateRefOpen.current = state; }, [state]);
   const counter = useRef(0);
   const loaded = useRef(false);
   const saveTimer = useRef<number | null>(null);
@@ -119,10 +120,10 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
 
   /* ------------------------------------------------------------ dispatch */
   const rawDispatch = useCallback((cmd: WindowCommand) => {
-    commandLog.push({ cmd, at: Date.now() });
-    if (commandLog.length > 400) commandLog.shift();
+    const entry = { cmd, at: Date.now() };
+    setCommandLog((log) => [...log.slice(-399), entry]);
     setState((s) => reduce(s, cmd));
-  }, [commandLog]);
+  }, []);
 
   /* TT69 FF-15: every close path (title bar, Alt+F4 / Cmd+W, menus, Quit, dock, taskbar, Overview, shelf middle-click,
      routines' Close all) dispatches "close"/"closeAll" — so the Save-changes question is asked HERE, once, for all */
@@ -235,10 +236,13 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const editClips = useCallback((fn: (c: ClipEntry[]) => ClipEntry[]) => setClips(fn), []);
 
   const publishStream = useCallback((id: string, stream: MediaStream | null) => {
-    if (stream) streams.set(id, stream);
-    else streams.delete(id);
+    setStreams((previous) => {
+      const next = new Map(previous);
+      if (stream) next.set(id, stream); else next.delete(id);
+      return next;
+    });
     setStreamVersion((v) => v + 1);
-  }, [streams]);
+  }, []);
 
   const setSetting = useCallback(async (key: string, value: string) => {
     const prev = settings[key];
@@ -411,7 +415,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         .then((sealed) => { try { localStorage.setItem(`fusion.state.${stateId}`, JSON.stringify(sealed)); } catch { /* quota */ } });
     }, wait);
     return () => { if (saveTimer.current) window.clearTimeout(saveTimer.current); };
-  }, [state, stateId]);
+  }, [state, stateId, dispatch, toast]);
 
   useEffect(() => {
     const flush = () => {
@@ -430,7 +434,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     };
     window.addEventListener("pagehide", flush);
     return () => window.removeEventListener("pagehide", flush);
-  }, [state, stateId]);
+  }, [state, stateId, dispatch, toast]);
 
   /* ------------------------------------------------------- viewport size */
   useEffect(() => {
@@ -573,7 +577,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [dispatch, open, preset, state.focus, state.focusMode]);
+  }, [dispatch, open, preset, state.focus, state.focusMode, state.windows]);
 
   /* ------------------------- SH-06 viewport pointer triggers */
   useEffect(() => {
@@ -719,8 +723,6 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   }, [beam, settings, toast]);
 
   /* -------------------------------------- routine/preset executor (AU-01/02) */
-  const stateRef = useRef(state);
-  stateRef.current = state;
   const runActions = useCallback(async (actions: RoutineAction[]) => {
     let last: string | null = null;
     for (const a of actions) {
@@ -731,14 +733,14 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           else toast(`Routine: unknown module "${arg}"`, "warn");
           break;
         case "tile": {
-          const id = last ?? stateRef.current.focus;
+          const id = last ?? stateRefOpen.current.focus;
           const slots = ["left", "right", "top", "bottom", "tl", "tr", "bl", "br", "third-l", "third-c", "third-r", "center", "full"];
           if (id && slots.includes(arg)) dispatch({ t: "tile", id, slot: arg as "left" });
           break;
         }
         case "workspace": {
           const n = Number(arg);
-          if (stateRef.current.workspaces.some((w) => w.id === n)) dispatch({ t: "switchWorkspace", workspace: n });
+          if (stateRefOpen.current.workspaces.some((w) => w.id === n)) dispatch({ t: "switchWorkspace", workspace: n });
           break;
         }
         case "focusMode": dispatch({ t: "focusMode", on: arg !== "off" }); break;
@@ -753,7 +755,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         case "preset": {
           const r = await api<{ row: { state: DesktopState } | null }>(`/api/state?id=${encodeURIComponent(`preset:${arg}`)}`);
           if (!r.row) { toast(`Preset "${arg}" not found`, "warn"); break; }
-          const cur = stateRef.current;
+          const cur = stateRefOpen.current;
           dispatch({ t: "hydrate", state: { ...initialDesktop(), ...r.row.state, viewport: cur.viewport, revision: cur.revision + 1 } });
           toast(`Restored preset "${arg}"`, "ok");
           break;
@@ -761,7 +763,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       }
       await new Promise((res) => setTimeout(res, 30)); // let each command commit before the next reads state
     }
-  }, [dispatch, open, setSetting, toast]);
+  }, [dispatch, open, setSetting, toast, settings]);
 
   const pulse = useCallback((ts: number) => governor.tick(ts), []);
   /** SH-04: a file change made in another tab / window of this browser (same origin) refreshes this desktop too — the bump
@@ -864,7 +866,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
               {booted ? <DesktopWidgets /> : null}
             </>
           )}
-          {booted ? <ShellDaemons /> : null}
+          {booted ? <><ShellDaemons /><AlarmCenter /></> : null}
           {visible.map((w) => <WindowFrame key={w.id} win={w} />)}
           {booted ? <SnapHost /> : null}
 

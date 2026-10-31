@@ -1,6 +1,6 @@
 {
   "suite": "tt128-writer-races",
-  "at": "2026-10-30T23:56:42.075Z",
+  "at": "2026-10-31T07:25:47.669Z",
   "results": [
     {
       "suite": "tt128-writer-races",
@@ -9,7 +9,7 @@
         "BK-03": "partial"
       },
       "pass": true,
-      "ms": 114
+      "ms": 107
     },
     {
       "suite": "tt128-writer-races",
@@ -18,7 +18,7 @@
         "BK-03": "partial"
       },
       "pass": true,
-      "ms": 114
+      "ms": 103
     }
   ]
 }

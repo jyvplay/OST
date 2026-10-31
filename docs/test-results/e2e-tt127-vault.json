@@ -1,27 +1,27 @@
 {
   "suite": "e2e-tt127-vault",
-  "at": "2026-10-30T23:59:21.392Z",
+  "at": "2026-10-31T07:27:51.501Z",
   "results": [
     {
       "suite": "e2e-tt127-vault",
       "name": "simultaneous create: one wins, the other must recheck before continuing",
       "covers": {},
       "pass": true,
-      "ms": 4670
+      "ms": 3681
     },
     {
       "suite": "e2e-tt127-vault",
       "name": "stale unlocked tab refuses to overwrite the newer saved item",
       "covers": {},
       "pass": true,
-      "ms": 6664
+      "ms": 5147
     },
     {
       "suite": "e2e-tt127-vault",
       "name": "a dropped write response reports uncertainty and reopening finds committed data",
       "covers": {},
       "pass": true,
-      "ms": 3245
+      "ms": 2305
     }
   ]
 }

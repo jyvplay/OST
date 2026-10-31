@@ -23,7 +23,7 @@ const BASE = process.env.BASE ?? "http://localhost:3999";
 const { test, finish } = makeHarness("e2e-tt70-rows");
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const eq = (a: unknown, b: unknown, m = "") => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m}: expected ${JSON.stringify(b)} got ${JSON.stringify(a)}`); };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const api = async (method: string, path: string, body?: unknown): Promise<{ status: number; json: any }> => {
   const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
   return { status: r.status, json: await r.json().catch(() => null) };
@@ -35,7 +35,7 @@ async function putDesktop(workspaces = [{ id: 1, name: "Main" }]) {
   const cur = await api("GET", "/api/state?id=default"); const rev = Number(cur.json.row?.revision ?? 1) + 1000;
   await api("PUT", "/api/state", { id: "default", revision: rev, state: { windows: [], focus: null, workspaces, activeWorkspace: 1, nextZ: 40, viewport: { w: 1440, h: 900 } } });
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const desk = async (): Promise<any> => (await api("GET", "/api/state?id=default")).json.row?.state;
 
 const browser: Browser = await launchChromium();

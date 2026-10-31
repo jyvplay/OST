@@ -5,6 +5,7 @@ import { tasks } from "@/db/schema";
 import { inspectIcsImport, parseIcs, toIcs } from "@/lib/ics";
 import { readJsonObject } from "@/lib/http-json";
 import { safeTransaction } from "@/lib/server/transaction";
+import { assertTaskExpected, taskId, taskWrite, TaskInputError, type TaskFields } from "@/lib/task-model";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const b = (await readJsonObject(req)) as ({ title?: string; notes?: string; dueAt?: string | null; ics?: string; preview?: boolean }) | Response;
+  const b = await readJsonObject(req);
   if (b instanceof Response) return b;
   if (b.ics !== undefined && typeof b.ics !== "string") return NextResponse.json({ ok: false, error: "ics must be text" }, { status: 400 });
   if (b.ics) {
@@ -53,29 +54,63 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ ok: true, parsed: events.length, added, skipped });
   }
-  if (!b.title) return NextResponse.json({ ok: false, error: "title required" }, { status: 400 });
-  const [row] = await db.insert(tasks).values({
-    title: b.title, notes: b.notes ?? "", dueAt: b.dueAt ? new Date(b.dueAt) : null,
-  }).returning();
-  return NextResponse.json({ ok: true, row });
+  try {
+    const value = taskWrite(b);
+    const [row] = await db.insert(tasks).values(databaseFields(value)).returning();
+    return NextResponse.json({ ok: true, row });
+  } catch (error) { return inputFailure(error); }
+}
+
+const databaseFields = (value: TaskFields & { reminded?: boolean }) => ({
+  ...value, dueAt: value.dueAt ? new Date(value.dueAt) : null, endAt: value.endAt ? new Date(value.endAt) : null,
+});
+const publicFields = (row: typeof tasks.$inferSelect): TaskFields => ({
+  title: row.title, notes: row.notes, done: row.done, kind: row.kind as TaskFields["kind"],
+  dueAt: row.dueAt?.toISOString() ?? null, endAt: row.endAt?.toISOString() ?? null,
+});
+function inputFailure(error: unknown): NextResponse {
+  if (error instanceof TaskInputError) return NextResponse.json({ ok: false, error: error.message }, { status: error.status });
+  throw error;
 }
 
 export async function PATCH(req: NextRequest) {
-  const b = (await readJsonObject(req)) as ({ id?: number; done?: boolean; reminded?: boolean; title?: string; dueAt?: string | null }) | Response;
+  const b = await readJsonObject(req);
   if (b instanceof Response) return b;
-  if (!b.id) return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
-  await db.update(tasks).set({
-    ...(b.done !== undefined ? { done: b.done } : {}),
-    ...(b.reminded !== undefined ? { reminded: b.reminded } : {}),
-    ...(b.title !== undefined ? { title: b.title } : {}),
-    ...(b.dueAt !== undefined ? { dueAt: b.dueAt ? new Date(b.dueAt) : null, reminded: false } : {}),
-  }).where(eq(tasks.id, b.id));
-  return NextResponse.json({ ok: true });
+  try {
+    const id = taskId(b.id);
+    const row = await safeTransaction(async (tx) => {
+      // Lock the real row before comparing the complete client snapshot. The
+      // comparison and update are one transaction, not a race-prone preflight.
+      const [previous] = await tx.select().from(tasks).where(eq(tasks.id, id)).for("update");
+      if (!previous) throw new TaskInputError("item not found", 404);
+      const current = publicFields(previous);
+      if (Object.hasOwn(b, "expected")) assertTaskExpected(b.expected, current);
+      const value = taskWrite(b, current);
+      const [updated] = await tx.update(tasks).set(databaseFields(value)).where(eq(tasks.id, id)).returning();
+      return updated;
+    });
+    return NextResponse.json({ ok: true, row });
+  } catch (error) { return inputFailure(error); }
 }
 
 export async function DELETE(req: NextRequest) {
-  const id = Number(req.nextUrl.searchParams.get("id"));
-  if (!id) return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
-  await db.delete(tasks).where(eq(tasks.id, id));
-  return NextResponse.json({ ok: true });
+  try {
+    const raw = req.nextUrl.searchParams.get("id");
+    const id = taskId(raw && /^[1-9]\d*$/.test(raw) ? Number(raw) : undefined);
+    const text = await req.text();
+    let body: Record<string, unknown> | undefined;
+    if (text.trim()) {
+      let value: unknown;
+      try { value = JSON.parse(text); } catch { throw new TaskInputError("malformed JSON body"); }
+      if (!value || typeof value !== "object" || Array.isArray(value)) throw new TaskInputError("expected a JSON object");
+      body = value as Record<string, unknown>;
+    }
+    await safeTransaction(async (tx) => {
+      const [previous] = await tx.select().from(tasks).where(eq(tasks.id, id)).for("update");
+      if (!previous) throw new TaskInputError("item not found", 404);
+      if (body && Object.hasOwn(body, "expected")) assertTaskExpected(body.expected, publicFields(previous));
+      await tx.delete(tasks).where(eq(tasks.id, id));
+    });
+    return NextResponse.json({ ok: true });
+  } catch (error) { return inputFailure(error); }
 }

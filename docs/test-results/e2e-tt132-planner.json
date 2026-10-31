@@ -1,0 +1,176 @@
+{
+  "suite": "e2e-tt132-planner",
+  "at": "2026-10-31T07:24:57.028Z",
+  "results": [
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "create an undated task with literal multiline notes using the real form",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2060
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "Enter submits the focused Planner window, not another window's duplicate global ID",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1029
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "create a timed event and preserve both endpoints through API and ICS export",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1258
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "rename and edit task notes without changing its ID or millisecond due time",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1617
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "reschedule a reminder and then clear its due date from the editor",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2440
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "edit event start/end and refuse an inverted interval without discarding typed fields",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1625
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "convert task to event and back and edit completion without losing notes",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2308
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "stale save returns a real 409, retains the draft, and explicit reload shows the new server item",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2318
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "delete asks for confirmation, Cancel preserves the row, and a changed item refuses deletion",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 3019
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "dirty editor close is guarded; Cancel keeps it open and Save actually commits before closing",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2346
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "switching or cancelling a dirty editor offers Cancel, Discard and real Save",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2752
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "closing during a held real save cannot dismiss the window or duplicate the request",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2246
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "local edit preserves the second DST fold occurrence and rejects a nonexistent local time",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1996
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "week navigation crosses DST by calendar dates and event buttons open the real editor",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2135
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "held-out read failure is visible and Retry loading reaches the actual server",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 942
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "browser-offline save stays unsaved with its draft intact, then a real online retry commits",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1727
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "name": "populated editor has named original icon controls and no serious axe failures at a narrow viewport",
+      "covers": {
+        "PR-03": "partial",
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 2020
+    }
+  ]
+}

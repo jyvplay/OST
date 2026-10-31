@@ -1,0 +1,403 @@
+{
+  "exit_status": 1,
+  "suite_runs": 75,
+  "distinct_suites": 71,
+  "passing_case_results": 624,
+  "failing_case_results": 2,
+  "failures": [
+    {
+      "suite": "e2e-tt130-alarms",
+      "passed": 8,
+      "failed": 1
+    },
+    {
+      "suite": "e2e-tt128-time",
+      "passed": 1,
+      "failed": 1
+    }
+  ],
+  "repeated_suites": [
+    "tt120-core",
+    "tt122-core",
+    "tt123-core",
+    "tt124-core"
+  ],
+  "parser_note": "One summary per actual invocation header; duplicate summaries echoed in failed diagnostic tails are checked for agreement, not counted twice. tt126-regressions runs immediately after FASTDONE without a header and is attributed to that actual run-gate.sh invocation.",
+  "rows": [
+    {
+      "suite": "tt132-core",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "suite": "tt132-claim-contract",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "tt132-lint-contract",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "a11y-unit",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "suite": "layout-unit",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "suite": "maps-unit",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "suite": "stream-unit",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "suite": "tabletop-unit",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "suite": "contacts-engine",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "suite": "image-engine",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "suite": "vector-engine",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "suite": "unit",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "suite": "whiteboard-engine",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "tables-engine",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "tt117-core",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "suite": "tt118-core",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "suite": "tt119-core",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "suite": "ai-format",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "tt120-core",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "suite": "tt121-core",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "suite": "tt122-core",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "suite": "tt123-core",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "suite": "tt124-core",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "suite": "tt125-core",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "suite": "tt129-core",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "suite": "tt129-worker-unit",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "tt129-calendar-core",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "suite": "tt128-core",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "suite": "tt130-alarms-core",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "tt85-inventory",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "tt130-privacy-boot",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "tt126-regressions",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "suite": "tt132-oracles",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "tt132-planner-http",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt132-alarms",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt132-planner",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "suite": "tt131-ledger",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt131-image-viewport",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt130-privacy",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt130-alarms",
+      "passed": 8,
+      "failed": 1
+    },
+    {
+      "suite": "e2e-tt129-offline",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt129-calendar",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "tt128-calendar-race",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "tt128-writer-races",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt128-worker",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt128-time",
+      "passed": 1,
+      "failed": 1
+    },
+    {
+      "suite": "e2e-tt128-editor",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "tt124-core",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt124",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt125",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt126",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "tt127-conditional",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt127-vault",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt127-photos",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "tt123-core",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt123",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "tt122-core",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt122",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt121",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "tt120-core",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt120",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt119",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-tt117",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "e2e-a11y",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "tt124-density",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "suite": "tt125-density",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "tt123-density",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "suite": "tt122-density",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "tt121-density",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "tt120-density",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "tt119-density",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "tt118-density",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "tt117-density",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "suite": "tt116-density",
+      "passed": 6,
+      "failed": 0
+    }
+  ]
+}

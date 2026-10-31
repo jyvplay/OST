@@ -1,0 +1,5 @@
+  ✓ preview reports known losses without inserting records
+  ✓ cancel is non-mutating, same-file retry imports only after confirmation, reimport deduplicates
+  ✓ overdue status updates when the clock passes a due time without another interaction
+
+3 passed, 0 failed

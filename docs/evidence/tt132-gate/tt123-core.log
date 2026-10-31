@@ -1,0 +1,20 @@
+  ✓ WB-07/VT-01 raster size: scale honoured, pixel cap scales down and says so
+  ✓ BM-01 elapsed: derived from instants, hours when needed
+  ✓ AL-01 access filter: spans app/action/result
+  ✓ SSH-01 term font: clamped ladder, integer steps
+  ✓ CK-07 zone offsets: Intl-derived, sorted west to east, labels
+  ✓ ED-07 match nav: next/prev with honest wrap reporting
+  ✓ NT-07 note tags: facets from stored lists, untagged explicit
+  ✓ BK-11 prune plan: only dated files, keeps N newest
+  ✓ TM-06 cmd history: consecutive dup collapse, cap, numbering
+  ✓ CV-03 history text: chronological worked calculation
+  ✓ MS-05 message search: sender+text, loaded messages only
+  ✓ PH-07 undated photos: missing index date, never guessed
+  ✓ PL-08 overdue text: open only, oldest first, whole days
+  ✓ SR-12 phrase query: wrapped, embedded quotes doubled not stripped
+  ✓ DV-02 device info: absences stated, memory caveated
+  ✓ SL-01 slide nav: 1-based clamp, garbage refused
+  ✓ CN-09 family sort: structured N first, display-name fallback
+  ✓ FM-19 names list: screen order, names only
+
+18 passed, 0 failed

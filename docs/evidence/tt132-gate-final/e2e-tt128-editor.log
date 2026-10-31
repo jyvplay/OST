@@ -1,0 +1,6 @@
+  ✓ a delayed selection restore cannot undo a newer caret position or erase later text
+  ✓ case expansion preserves the whole transformed selection
+  ✓ indent, dedent, and unchanged edits keep the affected selection
+  ✓ timestamp replaces only the selected span
+
+4 passed, 0 failed
