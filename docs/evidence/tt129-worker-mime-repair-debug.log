@@ -1,0 +1,46 @@
+proxy: GET / destination=document
+proxy: GET /_next/static/chunks/0d7ktzj_vqw64.css destination=style
+proxy: GET /_next/static/chunks/0n8kzvw2z_6as.css destination=style
+proxy: GET /_next/static/chunks/1x6obpmlu1_c2.js destination=script
+proxy: GET /_next/static/chunks/1yrh6cr1_x_bo.js destination=script
+proxy: GET /_next/static/chunks/0cryn4jsydk0z.js destination=script
+proxy: GET /_next/static/chunks/3zycrwema5clc.js destination=script
+proxy: GET /_next/static/chunks/3wbm-994r45kr.js destination=script
+proxy: GET /_next/static/chunks/24o_qyjznfbg1.js destination=script
+proxy: GET /_next/static/chunks/17uvqm6h_64kn.js destination=script
+proxy: GET /_next/static/chunks/turbopack-2c3mg3r-05n1w.js destination=script
+proxy: GET /_next/static/chunks/0umf92h1sb77c.js destination=script
+proxy: GET /fonts/nunito-latin-wght-normal.woff2 destination=font
+proxy: GET /_next/static/chunks/2a5oj7pa4tqks.js destination=script
+proxy: GET /_next/static/chunks/1cvz79iza5e3o.js destination=script
+proxy: GET /_next/static/chunks/3g_yfkdxsyrdj.js destination=script
+proxy: GET /wallpapers/poolside.svg destination=image
+proxy: GET /sw.js destination=serviceworker
+registration diagnostic: scope=http://127.0.0.1:38077/ installing=installing active=undefined
+proxy: GET / destination=empty
+proxy: GET /offline.html destination=empty
+proxy: GET /manifest.webmanifest destination=empty
+proxy: GET /icon.svg destination=empty
+proxy: GET /icon-192.png destination=empty
+proxy: GET /wallpapers/poolside.svg destination=empty
+proxy: GET /_next/static/chunks/0d7ktzj_vqw64.css destination=empty
+proxy: GET /_next/static/chunks/0n8kzvw2z_6as.css destination=empty
+proxy: GET /_next/static/chunks/1x6obpmlu1_c2.js destination=empty
+proxy: GET /api/fs?op=read&path=%2FPrivate%2F.keyslots.json destination=empty
+page console: error Failed to load resource: the server responded with a status of 404 (Not Found)
+proxy: GET /api/fs?op=list&path=/Documents destination=empty
+proxy: GET /api/bootstrap destination=empty
+proxy: GET /api/settings destination=empty
+proxy: GET /api/state?id=default destination=empty
+proxy: GET /api/notes destination=empty
+proxy: GET /api/fs?op=list&path=/Widgets destination=empty
+proxy: GET /api/tasks destination=empty
+proxy: GET /api/routines destination=empty
+proxy: GET /api/fs?op=read&path=%2FWidgets%2Fcounter.worker.js destination=empty
+proxy: PUT /api/state destination=empty
+  ✗ first installation can boot a new offline desktop without an online reload
+    page.evaluate: Error: worker activation timed out
+    at eval (eval at evaluate (:370:30), <anonymous>:1:117)
+
+0 passed, 1 failed
+FAILED: first installation can boot a new offline desktop without an online reload

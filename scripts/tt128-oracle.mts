@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { makeHarness } from "./harness.mts";
-import { parseIcs, toIcs } from "../src/lib/ics.ts";
+import { inspectIcsImport, parseIcs, toIcs } from "../src/lib/ics.ts";
 import { convertZoneTime } from "../src/lib/zone-convert.ts";
 const req = createRequire(`${process.env.TOOLS_DIR ?? "/home/user/tools"}/package.json`);
 const icalModule = req("ical.js");
@@ -31,6 +31,19 @@ await test("ical.js expands a recurring VTODO from the exported due/anchor insta
   assert.equal(start.toString(), "2026-01-02T10:00:00Z"); assert.equal(due.toString(), start.toString());
   const iterator = task.getFirstPropertyValue("rrule").iterator(start);
   assert.deepEqual([iterator.next()?.toString(), iterator.next()?.toString(), iterator.next()?.toString(), iterator.next()], ["2026-01-02T10:00:00Z", "2026-01-03T10:00:00Z", "2026-01-04T10:00:00Z", null]);
+});
+await test("ical.js respects an embedded VTIMEZONE that differs from the IANA name", { "PR-04": "partial" }, () => {
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "BEGIN:VTIMEZONE", "TZID:America/New_York", "BEGIN:STANDARD", "DTSTART:19700101T000000", "TZOFFSETFROM:+0300", "TZOFFSETTO:+0300", "END:STANDARD", "END:VTIMEZONE", "BEGIN:VEVENT", "UID:custom-zone@test", "DTSTART;TZID=America/New_York:20261102T090000", "END:VEVENT", "END:VCALENDAR", ""].join("\r\n");
+  const root = new ICAL.Component(ICAL.parse(ics));
+  const zone = new ICAL.Timezone(root.getFirstSubcomponent("vtimezone"));
+  ICAL.TimezoneService.register(zone);
+  try {
+    const actual = root.getFirstSubcomponent("vevent").getFirstPropertyValue("dtstart").toJSDate().toISOString();
+    assert.equal(actual, "2026-11-02T06:00:00.000Z");
+    assert.equal(convertZoneTime("2026-11-02", "09:00", "America/New_York", "UTC").utc, "2026-11-02T14:00:00.000Z");
+    assert.deepEqual(inspectIcsImport(ics), [{ code: "timezone", items: 1 }]);
+    assert.equal(parseIcs(ics)[0].start?.getTime(), new Date(2026, 10, 2, 9).getTime(), "current importer uses the server-local wall time");
+  } finally { ICAL.TimezoneService.remove("America/New_York"); }
 });
 await test("zone candidates agree with Temporal on transition and held-out ordinary times", { "WD-03": "partial" }, () => {
   const points: [string, string, string][] = [

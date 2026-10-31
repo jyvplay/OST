@@ -17,8 +17,8 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-PURE="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core"
-LANE_A="tt128-calendar-race tt128-writer-races e2e-tt128-worker e2e-tt128-photos e2e-tt128-time e2e-tt128-editor tt124-core e2e-tt124 e2e-tt125 e2e-tt126 tt127-conditional e2e-tt127-vault e2e-tt127-photos tt123-core e2e-tt123 tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
+PURE="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core"
+LANE_A="e2e-tt129-offline e2e-tt129-calendar tt128-calendar-race tt128-writer-races e2e-tt128-worker e2e-tt128-photos e2e-tt128-time e2e-tt128-editor tt124-core e2e-tt124 e2e-tt125 e2e-tt126 tt127-conditional e2e-tt127-vault e2e-tt127-photos tt123-core e2e-tt123 tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
 LANE_B="tt124-density tt125-density tt123-density tt122-density tt121-density tt120-density tt119-density tt118-density tt117-density tt116-density"
 
 echo "== pure suites (parallel via run-fast.sh)"

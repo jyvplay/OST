@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: tile moved during the pointer gesture: before={"x":573,"y":365.6875,"width":174.65625,"height":58} after={"x":573,"y":482.34375,"width":174.65625,"height":174.671875}
+    at file:///home/user/OST/scripts/e2e-tt128-photos.mts:175:14
+    at runNextTicks (node:internal/process/task_queues:64:5)
+    at process.processImmediate (node:internal/timers:452:9)
+    at process.callbackTrampoline (node:internal/async_hooks:130:17)
+    at async test (file:///home/user/OST/scripts/harness.mts:26:7)
+    at async file:///home/user/OST/scripts/e2e-tt128-photos.mts:155:3
+  ✗ a thumbnail completing between pointer down and up keeps its tile geometry and click
+    tile moved during the pointer gesture: before={"x":573,"y":365.6875,"width":174.65625,"height":58} after={"x":573,"y":482.34375,"width":174.65625,"height":174.671875}
+
+0 passed, 1 failed
+FAILED: a thumbnail completing between pointer down and up keeps its tile geometry and click

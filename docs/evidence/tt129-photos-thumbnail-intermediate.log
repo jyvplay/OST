@@ -1,0 +1,15 @@
+locator.waitFor: Timeout 25000ms exceeded.
+Call log:
+  - waiting for getByTestId('photos-editor').getByText('tt128-6ed901ce5a25b758-a.png', { exact: true }) to be visible
+
+    at /home/user/OST/scripts/e2e-tt128-photos.mts:178:84
+    at async test (/home/user/OST/scripts/harness.mts:26:7)
+    at async file:///home/user/OST/scripts/e2e-tt128-photos.mts:155:3
+  ✗ a thumbnail completing between pointer down and up keeps its tile geometry and click
+    locator.waitFor: Timeout 25000ms exceeded.
+Call log:
+  - waiting for getByTestId('photos-editor').getByText('tt128-6ed901ce5a25b758-a.png', { exact: true }) to be visible
+
+
+0 passed, 1 failed
+FAILED: a thumbnail completing between pointer down and up keeps its tile geometry and click

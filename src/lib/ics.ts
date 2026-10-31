@@ -79,6 +79,55 @@ export function parseIcs(text: string): IcsItem[] {
   return out;
 }
 
+export type IcsImportWarningCode = "timezone" | "floating" | "allDay" | "invalidDate" | "recurrence" | "exceptions" | "duration" | "alarms" | "missingUid";
+export interface IcsImportWarning { code: IcsImportWarningCode; items: number }
+
+/** Identify known lossy cases before importing, counted once per item. This is
+ * deliberately a warning scan, not a complete RFC 5545 validator or timezone
+ * converter. It follows the reader's component and unfolding boundaries. */
+export function inspectIcsImport(text: string): IcsImportWarning[] {
+  const totals = new Map<IcsImportWarningCode, number>();
+  let warnings: Set<IcsImportWarningCode> | null = null, kind = "", nested = 0, hasUid = false;
+  for (const line of text.replace(/\r\n/g, "\n").replace(/\n[ \t]/g, "").split("\n")) {
+    const marker = line.toUpperCase();
+    if (!warnings && (marker === "BEGIN:VEVENT" || marker === "BEGIN:VTODO")) {
+      warnings = new Set(); kind = marker.slice(6); nested = 0; hasUid = false; continue;
+    }
+    if (!warnings) continue;
+    if (marker.startsWith("BEGIN:")) {
+      if (marker === "BEGIN:VALARM" && nested === 0) warnings.add("alarms");
+      nested++; continue;
+    }
+    if (marker.startsWith("END:")) {
+      if (nested) { nested--; continue; }
+      if (marker === `END:${kind}`) {
+        if (!hasUid) warnings.add("missingUid");
+        for (const code of warnings) totals.set(code, (totals.get(code) ?? 0) + 1);
+        warnings = null;
+      }
+      continue;
+    }
+    if (nested) continue;
+    const colon = line.indexOf(":"); if (colon < 0) continue;
+    const left = line.slice(0, colon), value = line.slice(colon + 1).trim();
+    const [rawName, ...parts] = left.split(";");
+    const name = rawName.toUpperCase(), params = parts.join(";");
+    if (name === "UID") hasUid = !!value;
+    if (name === "RRULE") warnings.add("recurrence");
+    if (["EXDATE", "RDATE", "EXRULE", "RECURRENCE-ID"].includes(name)) warnings.add("exceptions");
+    if (name === "DURATION") warnings.add("duration");
+    if (name === "DTSTART" || name === "DTEND" || name === "DUE") {
+      const hasZone = /(?:^|;)TZID\s*=/i.test(params);
+      const dateOnly = /^\d{8}$/.test(value);
+      if (hasZone) warnings.add("timezone");
+      else if (!dateOnly && !/Z$/i.test(value)) warnings.add("floating");
+      if (dateOnly) warnings.add("allDay");
+      if (!parseIcsDate(value, params)) warnings.add("invalidDate");
+    }
+  }
+  return [...totals].map(([code, items]) => ({ code, items }));
+}
+
 const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
 /** Fold physical lines at 75 UTF-8 octets, including the continuation space.

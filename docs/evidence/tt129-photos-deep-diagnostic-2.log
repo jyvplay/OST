@@ -1,0 +1,7 @@
+  ✓ delayed EXIF reordering cannot change an active editor walk; reopening takes the new order
+  ✓ a navigation click survives the current image finishing its real load between pointer down and up
+  ✓ a failed real image read is not cached as missing metadata and a reload retries
+  ✓ No date retains a PNG with no capture metadata after indexing
+  ✓ a deep-linked viewer snapshots the library before delayed EXIF reordering
+
+5 passed, 0 failed

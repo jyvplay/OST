@@ -1,0 +1,58 @@
+{
+  "availableParallelism": 2,
+  "baseline": "148f046:public/sw.js",
+  "v7": {
+    "wallMeanMs": 613.3873474999998,
+    "decodedBytes": 71683,
+    "entries": 6,
+    "samples": [
+      {
+        "wallMs": 699.704592,
+        "entries": 6,
+        "decodedBytes": 71683
+      },
+      {
+        "wallMs": 565.2946229999998,
+        "entries": 6,
+        "decodedBytes": 71683
+      },
+      {
+        "wallMs": 625.7608129999999,
+        "entries": 6,
+        "decodedBytes": 71683
+      },
+      {
+        "wallMs": 562.7893619999995,
+        "entries": 6,
+        "decodedBytes": 71683
+      }
+    ]
+  },
+  "v8": {
+    "wallMeanMs": 1439.1994330000007,
+    "decodedBytes": 3973609,
+    "entries": 42,
+    "samples": [
+      {
+        "wallMs": 1552.9082640000001,
+        "entries": 42,
+        "decodedBytes": 3973609
+      },
+      {
+        "wallMs": 1487.2955630000006,
+        "entries": 42,
+        "decodedBytes": 3973609
+      },
+      {
+        "wallMs": 1304.378651000001,
+        "entries": 42,
+        "decodedBytes": 3973609
+      },
+      {
+        "wallMs": 1412.2152540000006,
+        "entries": 42,
+        "decodedBytes": 3973609
+      }
+    ]
+  }
+}

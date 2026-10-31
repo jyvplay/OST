@@ -15,7 +15,7 @@ const server = createServer((req, res) => {
   if (offline || (failInstall && req.url?.split("?")[0] === "/offline.html")) { req.socket.destroy(); return; }
   if (upgrade && req.url?.split("?")[0] === "/sw.js") {
     res.writeHead(200, { "content-type": "application/javascript", "cache-control": "no-store" });
-    res.end(worker.replace('const VERSION = "fusion-v7"', 'const VERSION = "fusion-v8-test"')); return;
+    res.end(worker.replace('const VERSION = "fusion-v8"', 'const VERSION = "fusion-v9-test"')); return;
   }
   const outgoing = httpRequest({ hostname: upstream.hostname, port: upstream.port, path: req.url, method: req.method, headers: { ...req.headers, host: upstream.host } }, (r) => { res.writeHead(r.statusCode ?? 502, r.headers); r.pipe(res); });
   outgoing.on("error", () => { if (!res.headersSent) res.writeHead(502); res.end(); }); req.pipe(outgoing);
@@ -45,7 +45,7 @@ try {
     await page.waitForFunction(() => !!navigator.serviceWorker.controller && !document.body.innerText.includes("Starting Fusion Shell"));
     await page.evaluate(async () => { await fetch("/api/health?secret=do-not-cache"); await fetch("/manifest.webmanifest?secret=do-not-cache"); });
     const keys = await page.evaluate(async () => {
-      const cache = await caches.open("fusion-v7"); return (await cache.keys()).map((r) => r.url);
+      const cache = await caches.open("fusion-v8"); return (await cache.keys()).map((r) => r.url);
     });
     assert.ok(keys.some((u) => u.endsWith("/offline.html")), "fallback precached");
     assert.ok(!keys.some((u) => u.includes("secret=do-not-cache") || u.includes("/api/")), "sensitive query/API not cached");
@@ -68,7 +68,7 @@ try {
       return { nextState, oldStillActive: reg.active === old && old.state === "activated", caches: await caches.keys() };
     });
     failInstall = false; upgrade = false;
-    assert.equal(result.nextState, "redundant"); assert.equal(result.oldStillActive, true); assert.ok(result.caches.includes("fusion-v7"));
+    assert.equal(result.nextState, "redundant"); assert.equal(result.oldStillActive, true); assert.ok(result.caches.includes("fusion-v8"));
   });
   await test("successful upgrade waits for consent, then activates and reloads", { "AP-04": "partial" }, async () => {
     upgrade = true;
@@ -91,7 +91,7 @@ try {
     await reload.waitFor({ state: "visible" });
     await Promise.all([page.waitForEvent("load"), reload.click()]);
     await page.waitForFunction(async () => {
-      const keys = await caches.keys(); return keys.includes("fusion-v8-test") && !keys.includes("fusion-v7");
+      const keys = await caches.keys(); return keys.includes("fusion-v9-test") && !keys.includes("fusion-v8");
     });
   });
   await test("offline API reports 503 and non-desktop navigation shows the explicit fallback", { "SH-14": "partial" }, async () => {

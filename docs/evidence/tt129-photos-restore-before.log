@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: the same deep-link session must retain the pre-EXIF order
+    at file:///home/user/OST/scripts/e2e-tt128-photos.mts:216:14
+    at async test (file:///home/user/OST/scripts/harness.mts:26:7)
+    at async file:///home/user/OST/scripts/e2e-tt128-photos.mts:187:3
+  ✗ a deep-linked viewer keeps its original order across a real trash and restore
+    the same deep-link session must retain the pre-EXIF order
+
+0 passed, 1 failed
+FAILED: a deep-linked viewer keeps its original order across a real trash and restore

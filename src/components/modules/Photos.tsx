@@ -16,6 +16,7 @@
  *            MakerNote / thumbnail dropped); location only when "Include location" is ticked (off by default).
  */
 import { photoTimeline } from "@/lib/photo-timeline";
+import { selectPhotoSidecars } from "@/lib/photo-sidecars";
 import { clampInterval, nextIndex } from "@/lib/slideshow";
 import { shuffleOrder } from "@/lib/shuffle-order";
 import { undatedPhotos } from "@/lib/photo-dates";
@@ -59,27 +60,34 @@ export default function PhotosModule({ win }: ModuleProps) {
   const [index, setIndex] = useState<Record<string, Info>>({});
   const [view, setView] = useState<View>("all");
   const [photoSort, setPhotoSort] = useState<PhotoSort>("captured");
-  const [open, setOpen] = useState<string | null>((win.props.path as string) ?? null);
-  // A viewer session follows the exact order the user opened, even if EXIF
-  // indexing finishes in the background. Reopening takes a fresh snapshot.
-  const [sequence, setSequence] = useState<string[] | null>(null);
+  // Normal opens capture the order at the click; deep links capture it when
+  // the viewer first mounts after the library has arrived.
+  const [viewer, setViewer] = useState<{ path: string; sequence: string[] | null } | null>(() => {
+    const path = win.props.path;
+    return typeof path === "string" && path ? { path, sequence: null } : null;
+  });
+  const open = viewer?.path ?? null;
+  const navigatePhoto = useCallback((path: string) => setViewer((v) => v ? { ...v, path } : v), []);
   const [error, setError] = useState<string | null>(null);
   const loadGeneration = useRef(0);
 
   const load = useCallback(() => {
     const generation = ++loadGeneration.current;
-    setError(null);
     api<{ items: Item[] }>("/api/fs?op=media").then(async (r) => {
       if (generation !== loadGeneration.current) return;
+      setError(null);
       const photos = r.items.filter((i) => i.mime.startsWith("image/") && !isSidecar(i.path));
       const sc = new Set(r.items.filter((i) => isSidecar(i.path)).map((i) => photoOfSidecar(i.path)).filter((p): p is string => !!p));
       setItems(photos); setSidecars(sc); setIndex(loadIndex());
       // sidecars are small: read them so the library knows ratings / favourites / edits
-      const entries = await Promise.all([...sc].filter((p) => photos.some((x) => x.path === p)).slice(0, 2000).map(async (p) => [p, await readRecipe(p)] as const));
+      const relevant = sc.size ? selectPhotoSidecars(photos, sc) : [];
+      const entries = await Promise.all(relevant.map(async (p) => [p, await readRecipe(p)] as const));
       if (generation === loadGeneration.current) setRecipes(Object.fromEntries(entries.filter(([, v]) => v).map(([k, v]) => [k, v!])));
     }).catch((e: unknown) => { if (generation === loadGeneration.current) setError(e instanceof Error ? e.message : String(e)); });
   }, []);
-  useEffect(() => { load(); return () => { loadGeneration.current++; }; }, [load, shell.refreshTick]);
+  const invalidateLoad = useCallback(() => { loadGeneration.current++; }, []);
+  useEffect(() => { load(); return invalidateLoad; }, [load, invalidateLoad, shell.refreshTick]);
+  const refreshLibrary = () => { setError(null); load(); };
 
   // background indexing of capture dates / sizes / GPS (two at a time, content-hash keyed)
   useEffect(() => {
@@ -147,42 +155,23 @@ export default function PhotosModule({ win }: ModuleProps) {
     return g;
   }, [shown, index, photoSort]);
 
-  const navigation = useMemo(() => {
-    if (!sequence || !items) return shown;
-    const byPath = new Map(items.map((item) => [item.path, item]));
-    return sequence.map((path) => byPath.get(path)).filter((item): item is Item => !!item);
-  }, [sequence, items, shown]);
-  // Deep links also start a viewer session after the library arrives.
-  useEffect(() => {
-    if (open && sequence === null && shown.some((item) => item.path === open)) setSequence(shown.map((item) => item.path));
-  }, [open, sequence, shown]);
-  const openPhoto = (path: string) => { setSequence(shown.map((item) => item.path)); setOpen(path); };
-
+  const shownPaths = useMemo(() => shown.map((item) => item.path), [shown]);
+  const openPhoto = (path: string) => setViewer({ path, sequence: shownPaths });
   const [showPlaying, setShowPlaying] = useState(false);
   const [shuffle, setShuffle] = useState(false);
-  const shuffleRef = useRef<number[]>([]);
   const [showSecs, setShowSecs] = useState(4);
-  useEffect(() => {
-    if (!showPlaying || navigation.length === 0) return;
-    const t = window.setInterval(() => {
-      const i = navigation.findIndex((x) => x.path === open);
-      if (shuffle) {
-        if (shuffleRef.current.length !== navigation.length) shuffleRef.current = shuffleOrder(navigation.length, () => Math.random());
-        const pos = shuffleRef.current.indexOf(i);
-        const n = navigation[shuffleRef.current[nextIndex(pos < 0 ? 0 : pos, navigation.length)]];
-        if (n) setOpen(n.path);
-      } else {
-        const n = navigation[nextIndex(i, navigation.length)];
-        if (n) setOpen(n.path);
-      }
-    }, clampInterval(showSecs) * 1000);
-    return () => window.clearInterval(t);
-  }, [showPlaying, showSecs, navigation, open, shuffle]);
   const current = items?.find((i) => i.path === open) ?? null;
-  if (current) {
-    return <PhotoEditor key={current.path + current.sha256} item={current} info={index[current.sha256]} showPlaying={showPlaying} onToggleShow={() => setShowPlaying((v) => !v)} onClose={() => { setShowPlaying(false); setOpen(null); setSequence(null); }}
-      nav={{ label: positionLabel(navigation, current.path), prev: neighbor(navigation, current.path, -1)?.item.path ?? null, next: neighbor(navigation, current.path, 1)?.item.path ?? null, go: (path: string) => setOpen(path) }}
-      onSaved={(r) => { setRecipes((m) => { const n = { ...m }; if (r) n[current.path] = r; else delete n[current.path]; return n; }); setSidecars((s) => { const n = new Set(s); if (r) n.add(current.path); else n.delete(current.path); return n; }); }}
+  // A deep link starts before its list is known. This guarded adjustment is
+  // local to this component's render and happens exactly once per session;
+  // the parent retains the snapshot even if the current image disappears.
+  if (viewer && viewer.sequence === null && shownPaths.includes(viewer.path)) {
+    setViewer({ ...viewer, sequence: shownPaths });
+  }
+  if (current && items && viewer) {
+    return <PhotoViewerSession current={current} items={items} sequence={viewer.sequence ?? shownPaths} info={index[current.sha256]}
+      playing={showPlaying} seconds={showSecs} shuffle={shuffle} onGo={navigatePhoto} onToggle={() => setShowPlaying((v) => !v)}
+      onClose={() => { setShowPlaying(false); setViewer(null); }}
+      onSaved={(path, r) => { setRecipes((m) => { const n = { ...m }; if (r) n[path] = r; else delete n[path]; return n; }); setSidecars((s) => { const n = new Set(s); if (r) n.add(path); else n.delete(path); return n; }); }}
       onExported={() => { load(); shell.bumpRefresh(); }} />;
   }
 
@@ -219,12 +208,13 @@ export default function PhotosModule({ win }: ModuleProps) {
         ))}
         </BannerGroup>
         <BannerGroup name="Keep">
+<Btn variant="ghost" onClick={refreshLibrary} aria-label="Refresh photos" title="Refresh photos"><UiGlyph name="refresh" size={15} /></Btn>
 <Btn variant="ghost" onClick={() => shell.open("files", { path: "/Pictures" })}>Open Pictures folder</Btn>
         </BannerGroup>
       </AppBanner>
       <div className="fs-scroll" style={{ flex: 1, minHeight: 0, padding: 10 }}>
-        {error ? <Badge tone="bad">{error}</Badge> : null}
-        {items === null ? <div className="fs-dim">Loading library…</div> : null}
+        {error ? <div className="fs-row" role="alert" style={{ gap: 8 }}><Badge tone="bad">{error}</Badge><Btn variant="ghost" onClick={refreshLibrary} aria-label="Retry library">Retry</Btn></div> : null}
+        {items === null && !error ? <div className="fs-dim">Loading library…</div> : null}
         {items && shown.length === 0 ? <Empty title={view === "all" ? "No photos yet" : "Nothing here"} glyph="photos" hint={view === "all" ? "Upload pictures in Files (any folder) — they show up here." : undefined} /> : null}
         {groups.map((g) => (
           <section key={g.label} style={{ marginBottom: 14 }}>
@@ -236,13 +226,17 @@ export default function PhotosModule({ win }: ModuleProps) {
                   <button key={it.path} role="listitem" className="fs-list-item" data-photo={it.name} onClick={() => openPhoto(it.path)}
                     title={`${it.name} — ${new Date(inf?.dateSource === "exif" && inf.date ? inf.date : it.createdAt).toLocaleString()}${inf?.dateSource !== "exif" ? " (file date)" : ""}`}
                     style={{ flexDirection: "column", padding: 4, position: "relative", background: "transparent", border: "none", cursor: "pointer" }}>
-                    <Thumb node={it} size="100%" iconSize={40} hasSidecar={sidecars.has(it.path)} fit="cover" radius={8} label={it.name} />
-                    <span style={{ position: "absolute", top: 8, right: 10, display: "flex", gap: 3 }}>
+                    {/* Reserve the same square before and after thumbnail decode.
+                        Otherwise grid rows move while a pointer click is in flight. */}
+                    <div style={{ width: "100%", aspectRatio: "1 / 1", pointerEvents: "none" }}>
+                      <Thumb node={it} size="100%" iconSize={40} hasSidecar={sidecars.has(it.path)} fit="contain" radius={8} label={it.name} />
+                    </div>
+                    <span style={{ position: "absolute", top: 8, right: 10, display: "flex", gap: 3, pointerEvents: "none" }}>
                       {r?.favorite ? <Badge tone="warn" title="Favorite"><HeartIcon filled size={11} /></Badge> : null}
                       {r && !isIdentity(r) ? <Badge tone="info" title="Edited (non-destructive)">edited</Badge> : null}
                     </span>
-                    {view === "places" && inf?.lat !== undefined ? <span className="fs-dim fs-mono" style={{ fontSize: fz(10.5) }}>{inf.lat.toFixed(4)}, {inf.lon!.toFixed(4)}</span> : null}
-                    {r?.rating ? <span aria-label={`${r.rating} stars`} role="img" style={{ display: "inline-flex", gap: 1 }}>{Array.from({ length: r.rating }, (_, i) => <StarIcon key={i} filled size={11} />)}</span> : null}
+                    {view === "places" && inf?.lat !== undefined ? <span className="fs-dim fs-mono" style={{ fontSize: fz(10.5), pointerEvents: "none" }}>{inf.lat.toFixed(4)}, {inf.lon!.toFixed(4)}</span> : null}
+                    {r?.rating ? <span aria-label={`${r.rating} stars`} role="img" style={{ display: "inline-flex", gap: 1, pointerEvents: "none" }}>{Array.from({ length: r.rating }, (_, i) => <StarIcon key={i} filled size={11} />)}</span> : null}
                   </button>
                 );
               })}
@@ -252,6 +246,41 @@ export default function PhotosModule({ win }: ModuleProps) {
       </div>
     </div>
   );
+}
+
+/** The parent owns the stable snapshot, including through temporary removal.
+ * The inner editor still remounts for each image so pixel/recipe state cannot
+ * leak to the next image. Closing and reopening captures a fresh snapshot. */
+function PhotoViewerSession({ current, items, sequence, info, playing, seconds, shuffle, onGo, onToggle, onClose, onSaved, onExported }: {
+  current: Item; items: Item[]; sequence: string[]; info?: Info; playing: boolean; seconds: number; shuffle: boolean;
+  onGo: (path: string) => void; onToggle: () => void; onClose: () => void;
+  onSaved: (path: string, recipe: PhotoRecipe | null) => void; onExported: () => void;
+}) {
+  const navigation = useMemo(() => {
+    const byPath = new Map(items.map((item) => [item.path, item]));
+    return sequence.map((path) => byPath.get(path)).filter((item): item is Item => !!item);
+  }, [items, sequence]);
+  const shuffleRef = useRef<number[]>([]);
+  useEffect(() => {
+    if (!playing || navigation.length === 0) return;
+    const timer = window.setInterval(() => {
+      const index = navigation.findIndex((item) => item.path === current.path);
+      if (shuffle) {
+        if (shuffleRef.current.length !== navigation.length) shuffleRef.current = shuffleOrder(navigation.length, () => Math.random());
+        const position = shuffleRef.current.indexOf(index);
+        const next = navigation[shuffleRef.current[nextIndex(position < 0 ? 0 : position, navigation.length)]];
+        if (next) onGo(next.path);
+      } else {
+        const next = navigation[nextIndex(index, navigation.length)];
+        if (next) onGo(next.path);
+      }
+    }, clampInterval(seconds) * 1000);
+    return () => window.clearInterval(timer);
+  }, [playing, seconds, navigation, current.path, shuffle, onGo]);
+
+  return <PhotoEditor key={current.path + current.sha256} item={current} info={info} showPlaying={playing} onToggleShow={onToggle} onClose={onClose}
+    nav={{ label: positionLabel(navigation, current.path), prev: neighbor(navigation, current.path, -1)?.item.path ?? null, next: neighbor(navigation, current.path, 1)?.item.path ?? null, go: onGo }}
+    onSaved={(r) => onSaved(current.path, r)} onExported={onExported} />;
 }
 
 /* ================================================================== editor ======================================= */
@@ -466,9 +495,9 @@ function PhotoEditor({ item, info, onClose, onSaved, onExported, showPlaying, on
       {nav ? <span className="fs-row" style={{ gap: 4 }}>
         <Btn variant="ghost" disabled={!nav.prev} aria-label="Previous photo" onClick={() => nav.prev && nav.go(nav.prev)}>‹</Btn>
         <span className="fs-dim fs-mono" style={{ fontSize: fz(11) }} data-testid="photos-position">{nav.label}</span>
-        <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(photoInfoText({ path: item.path, size: item.size, mime: item.mime, index: info ? { date: info.date ?? null, camera: info.camera, lat: info.lat, lon: info.lon } : undefined })); shell.toast("Photo info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="photos-copy-info">Copy info</Btn>
         <Btn variant="ghost" disabled={!nav.next} aria-label="Next photo" onClick={() => nav.next && nav.go(nav.next)}>›</Btn>
       </span> : null}
+      {nav ? <Btn variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(photoInfoText({ path: item.path, size: item.size, mime: item.mime, index: info ? { date: info.date ?? null, camera: info.camera, lat: info.lat, lon: info.lon } : undefined })); shell.toast("Photo info copied."); } catch { shell.toast("Clipboard unavailable.", "bad"); } }} data-testid="photos-copy-info">Copy info</Btn> : null}
       <strong style={{ fontSize: fz(13) }}>{item.name}</strong>
       {state && !state.error ? <>
         <div style={{ flex: 1 }} />

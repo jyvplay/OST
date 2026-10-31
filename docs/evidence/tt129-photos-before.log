@@ -1,0 +1,14 @@
+  ✓ a deep-linked viewer snapshots the library before delayed EXIF reordering
+  ✗ a failed library read exposes a retry and recovers without reloading the shell
+    locator.waitFor: Timeout 7000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Retry library' }) to be visible
+
+  ✗ a refresh result is not replaced by an older delayed real media response
+    locator.click: Timeout 7000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Refresh photos' })
+
+
+1 passed, 2 failed
+FAILED: a failed library read exposes a retry and recovers without reloading the shell | a refresh result is not replaced by an older delayed real media response

@@ -1,0 +1,7 @@
+  ✗ first installation can boot a new offline desktop without an online reload
+    cold shell failed to hydrate; cached Next assets=0; failed requests=http://127.0.0.1:33937/_next/static/chunks/0d7ktzj_vqw64.css, http://127.0.0.1:33937/_next/static/chunks/0n8kzvw2z_6as.css, http://127.0.0.1:33937/_next/static/chunks/1x6obpmlu1_c2.js, http://127.0.0.1:33937/_next/static/chunks/1yrh6cr1_x_bo.js, http://127.0.0.1:33937/_next/static/chunks/3wbm-994r45kr.js, http://127.0.0.1:33937/_next/static/chunks/17uvqm6h_64kn.js, http://127.0.0.1:33937/_next/static/chunks/turbopack-2c3mg3r-05n1w.js, http://127.0.0.1:33937/_next/static/chunks/0umf92h1sb77c.js, http://127.0.0.1:33937/_next/static/chunks/0cryn4jsydk0z.js, http://127.0.0.1:33937/_next/static/chunks/3zycrwema5clc.js, http://127.0.0.1:33937/_next/static/chunks/24o_qyjznfbg1.js, http://127.0.0.1:33937/_next/static/chunks/3vufhz0hpk2qv.js, http://127.0.0.1:33937/_next/static/chunks/1cvz79iza5e3o.js, http://127.0.0.1:33937/_next/static/chunks/3g_yfkdxsyrdj.js
+  ✗ a failed required chunk prevents first worker installation
+    the proxy actually rejected a worker precache request
+
+0 passed, 2 failed
+FAILED: first installation can boot a new offline desktop without an online reload | a failed required chunk prevents first worker installation

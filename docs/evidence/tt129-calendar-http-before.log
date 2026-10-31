@@ -1,0 +1,8 @@
+  ✗ preview reports known losses without inserting records
+    preflight must not write any items
+
+2 !== 0
+
+
+0 passed, 1 failed
+FAILED: preview reports known losses without inserting records

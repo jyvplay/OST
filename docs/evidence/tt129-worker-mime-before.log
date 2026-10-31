@@ -1,0 +1,10 @@
+  ✗ a 200 HTML error page cannot install as a JavaScript dependency
+    invalid dependency content type must fail the install
++ actual - expected
+
++ 'activated'
+- 'not activated'
+
+
+0 passed, 1 failed
+FAILED: a 200 HTML error page cannot install as a JavaScript dependency

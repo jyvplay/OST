@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt128-photos",
-  "at": "2026-10-30T23:57:05.739Z",
+  "at": "2026-10-31T02:32:44.494Z",
   "results": [
     {
       "suite": "e2e-tt128-photos",
@@ -10,7 +10,7 @@
         "PH-05": "partial"
       },
       "pass": true,
-      "ms": 6119
+      "ms": 4601
     },
     {
       "suite": "e2e-tt128-photos",
@@ -19,7 +19,7 @@
         "PH-04": "partial"
       },
       "pass": true,
-      "ms": 2903
+      "ms": 2349
     },
     {
       "suite": "e2e-tt128-photos",
@@ -28,7 +28,7 @@
         "PH-07": "partial"
       },
       "pass": true,
-      "ms": 2502
+      "ms": 1759
     },
     {
       "suite": "e2e-tt128-photos",
@@ -37,7 +37,70 @@
         "PH-07": "partial"
       },
       "pass": true,
-      "ms": 2239
+      "ms": 1755
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a thumbnail completing between pointer down and up keeps its tile geometry and click",
+      "covers": {
+        "PH-01": "partial"
+      },
+      "pass": true,
+      "ms": 1565
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "photo tiles retain keyboard activation and cancel a drag away",
+      "covers": {
+        "PH-01": "partial"
+      },
+      "pass": true,
+      "ms": 1784
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a deep-linked viewer snapshots the library before delayed EXIF reordering",
+      "covers": {
+        "PH-04": "partial"
+      },
+      "pass": true,
+      "ms": 1943
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a deep-linked viewer keeps its original order across a real trash and restore",
+      "covers": {
+        "PH-04": "partial"
+      },
+      "pass": true,
+      "ms": 2595
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a failed library read exposes a retry and recovers without reloading the shell",
+      "covers": {
+        "PH-01": "partial"
+      },
+      "pass": true,
+      "ms": 1182
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a refresh result is not replaced by an older delayed real media response",
+      "covers": {
+        "PH-01": "partial"
+      },
+      "pass": true,
+      "ms": 1825
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "slideshow advances through the captured name order and pauses",
+      "covers": {
+        "PH-04": "partial"
+      },
+      "pass": true,
+      "ms": 4330
     }
   ]
 }

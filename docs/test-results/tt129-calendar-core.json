@@ -1,0 +1,60 @@
+{
+  "suite": "tt129-calendar-core",
+  "at": "2026-10-31T02:31:45.524Z",
+  "results": [
+    {
+      "suite": "tt129-calendar-core",
+      "name": "a UTC single event with UID has no known-loss warnings",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt129-calendar-core",
+      "name": "timezone, recurrence, exceptions, duration and alarms are counted per item",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt129-calendar-core",
+      "name": "folded and lowercase TZID parameters are recognized",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt129-calendar-core",
+      "name": "floating, all-day, invalid date and missing UID are distinct warnings",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt129-calendar-core",
+      "name": "nested alarm dates do not masquerade as event dates",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt129-calendar-core",
+      "name": "exception components and multiple missing UIDs are counted independently",
+      "covers": {
+        "PR-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

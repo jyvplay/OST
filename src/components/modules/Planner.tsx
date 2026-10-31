@@ -14,6 +14,20 @@ import { localWeekDays } from "@/lib/local-week";
 import { overdueText } from "@/lib/overdue-text";
 import { filterTasks, type TaskStatus } from "@/lib/task-filter";
 import { presetDue, presetLabel, type DuePreset } from "@/lib/due-presets";
+import type { IcsImportWarning, IcsImportWarningCode } from "@/lib/ics";
+
+const importWarningText: Record<IcsImportWarningCode, string> = {
+  timezone: "TZID and embedded timezone definitions are ignored; the server's local time is used.",
+  floating: "Floating times are interpreted in the server's local timezone.",
+  allDay: "All-day dates become local-midnight instants and lose their all-day type.",
+  invalidDate: "Invalid or unrepresentable dates may become undated.",
+  recurrence: "Only the first item is saved; RRULE is stored as text, not scheduled.",
+  exceptions: "Recurrence exceptions or additions are not preserved.",
+  duration: "DURATION is ignored.",
+  alarms: "Imported alarms are ignored.",
+  missingUid: "Items without UIDs can be duplicated on reimport.",
+};
+interface ImportReview { ics: string; parsed: number; warnings: IcsImportWarning[]; serverTimeZone: string }
 
 interface Task { id: number; title: string; notes: string; done: boolean; dueAt: string | null; kind: string; endAt: string | null }
 
@@ -27,6 +41,8 @@ export default function PlannerModule(_: ModuleProps) {
   const [filterQ, setFilterQ] = useState("");
   const [filterStatus, setFilterStatus] = useState<TaskStatus>("all");
   const [repeat, setRepeat] = useState("");
+  const [importReview, setImportReview] = useState<ImportReview | null>(null);
+  const [importBusy, setImportBusy] = useState(false);
   const repeatPreview = useMemo(() => {
     if (!repeat || !due) return null;
     try {
@@ -39,6 +55,16 @@ export default function PlannerModule(_: ModuleProps) {
   const shownRows = filterTasks(rows, filterQ, filterStatus);
   const load = () => api<{ rows: Task[] }>("/api/tasks").then((r) => setRows(r.rows)).catch(() => undefined);
   useEffect(() => { void load(); }, [shell.refreshTick]);
+  const importCalendar = async (ics: string) => {
+    setImportBusy(true);
+    try {
+      const r = await post<{ parsed: number; added: number; skipped: number }>("/api/tasks", { ics });
+      setImportReview(null);
+      shell.toast(`ICS: ${r.parsed} parsed, ${r.added} added, ${r.skipped} already present`, "ok");
+      await load();
+    } catch (e) { shell.toast(`Calendar import failed: ${String((e as Error).message)}`, "bad"); }
+    finally { setImportBusy(false); }
+  };
 
   const days = localWeekDays(new Date());
 
@@ -72,17 +98,33 @@ export default function PlannerModule(_: ModuleProps) {
         </select>
         <label className="fs-btn" data-variant="ghost" style={{ cursor: "pointer" }}>
           Import .ics
-          <input type="file" accept=".ics,text/calendar" hidden onChange={async (e) => {
-            const f = e.target.files?.[0];
+          <input type="file" accept=".ics,text/calendar" hidden disabled={importBusy} onChange={async (e) => {
+            const input = e.currentTarget, f = input.files?.[0];
+            input.value = ""; // permit selecting the same file again after cancel/failure
             if (!f) return;
-            const r = await post<{ parsed: number; added: number; skipped: number }>("/api/tasks", { ics: await f.text() });
-            shell.toast(`ICS: ${r.parsed} items parsed, ${r.added} added, ${r.skipped} already present (dedup by UID)`, "ok");
-            await load();
+            setImportBusy(true); setImportReview(null);
+            try {
+              const ics = await f.text();
+              const review = await post<Omit<ImportReview, "ics">>("/api/tasks", { ics, preview: true });
+              if (review.warnings.length) setImportReview({ ...review, ics });
+              else await importCalendar(ics);
+            } catch (err) { shell.toast(`Calendar preview failed: ${String((err as Error).message)}`, "bad"); }
+            finally { setImportBusy(false); }
           }} />
         </label>
         <Btn variant="ghost" onClick={() => window.open("/api/tasks?format=ics", "_blank")}>Export .ics</Btn>
       </div>
 
+      {importReview ? <Section title="Review calendar import">
+        <div role="status">{importReview.parsed} items found · server timezone: {importReview.serverTimeZone}. Nothing has been imported yet.</div>
+        <ul style={{ margin: 0, paddingInlineStart: 20, listStyle: "disc" }}>
+          {importReview.warnings.map(({ code, items }) => <li key={code}>{importWarningText[code]} ({items} {items === 1 ? "item" : "items"})</li>)}
+        </ul>
+        <div className="fs-row" style={{ gap: 6 }}>
+          <Btn variant="ghost" disabled={importBusy} onClick={() => setImportReview(null)}>Cancel import</Btn>
+          <Btn variant="primary" disabled={importBusy} onClick={() => void importCalendar(importReview.ics)}>Import anyway</Btn>
+        </div>
+      </Section> : null}
       {repeat && !due ? <div className="fs-dim" role="status">Choose a due date to add a repeating task.</div> : null}
       {repeatPreview ? <div className="fs-dim" data-testid="planner-repeat-preview" style={{ fontSize: fz(11) }}>Repeats: {repeatPreview}. Only the first task is saved. UTC export may shift local times; month-end rules may skip dates.</div> : null}
       {rows.length === 0 ? <Empty title="Nothing planned" glyph="emptyPlan" /> : null}

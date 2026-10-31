@@ -1,0 +1,8 @@
+  ✗ a refresh result is not replaced by an older delayed real media response
+    the old response must not erase the newer listing
+
+0 !== 1
+
+
+0 passed, 1 failed
+FAILED: a refresh result is not replaced by an older delayed real media response

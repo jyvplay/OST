@@ -35,9 +35,9 @@ await test("service worker: unrelated caches survive and only the canonical succ
   const writes: string[] = [], deleted: string[] = [];
   let response = new Response("desktop", { headers: { "content-type": "text/html" } });
   const caches = {
-    keys: async () => ["fusion-v5", "fusion-v6", "fusion-v7", "another-app"],
+    keys: async () => ["fusion-v5", "fusion-v6", "fusion-v7", "fusion-v8", "another-app"],
     delete: async (key: string) => { deleted.push(key); return true; },
-    open: async () => ({ put: async (key: string) => { writes.push(key); }, match: async () => undefined, addAll: async () => {} }),
+    open: async () => ({ put: async (key: string) => { writes.push(key); }, match: async (key: string) => key === "/_next/static/chunks/app.js" ? new Response("code", { headers: { "content-type": "application/javascript" } }) : undefined, addAll: async () => {} }),
     match: async () => undefined,
   };
   runInNewContext(readFileSync("public/sw.js", "utf8"), {
@@ -46,14 +46,14 @@ await test("service worker: unrelated caches survive and only the canonical succ
   });
   let active: Promise<unknown> = Promise.resolve();
   listeners.activate({ waitUntil: (p: Promise<unknown>) => { active = p; } }); await active;
-  assert.deepEqual(deleted, ["fusion-v5", "fusion-v6"]);
+  assert.deepEqual(deleted, ["fusion-v5", "fusion-v6", "fusion-v7"]);
   const navigate = async (path: string, res: Response) => {
     response = res; let result: Promise<Response> | undefined;
     const pending: Promise<unknown>[] = [];
     listeners.fetch({ request: { method: "GET", url: `https://example.test${path}`, mode: "navigate" }, respondWith: (p: Promise<Response>) => { result = p; }, waitUntil: (p: Promise<unknown>) => pending.push(p) });
     assert.ok(result); await result; await Promise.all(pending);
   };
-  const html = () => new Response("ok", { headers: { "content-type": "text/html" } });
+  const html = () => new Response('<script src="/_next/static/chunks/app.js"></script>', { headers: { "content-type": "text/html" } });
   await navigate("/present", html()); await navigate("/?secret=x", html());
   await navigate("/", new Response("server error", { status: 500, headers: { "content-type": "text/html" } }));
   await navigate("/", new Response("not html", { headers: { "content-type": "text/plain" } }));

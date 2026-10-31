@@ -2,14 +2,83 @@
  * API data is network-only; an offline response is never a cached listing.
  * The shell is a best-effort fallback, NOT an offline copy of the database.
  * Deployments changing this worker must change VERSION as well. */
-const VERSION = "fusion-v7";
+const VERSION = "fusion-v8";
 const OFFLINE = "/offline.html";
 const SHELL = ["/", OFFLINE, "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/wallpapers/poolside.svg"];
 
+// The first page is not controlled by the newly installed worker, so its
+// scripts never enter the runtime cache. Discover the production shell's own
+// content-hashed Next assets and local CSS resources before accepting it.
+// Restrict discovery to public same-origin static paths, never APIs or queries.
+async function ensureShellAssets(cache, response) {
+  if (!response.ok || !(response.headers.get("content-type") || "").includes("text/html")) throw new Error("invalid shell response");
+  const html = await response.text();
+  if (html.length > 2_000_000) throw new Error("shell HTML exceeds precache bound");
+  const chunks = new Set();
+  for (const match of html.matchAll(/\/_next\/static\/[A-Za-z0-9%._/-]+\.(?:js|css)/g)) {
+    const url = new URL(match[0], self.location.origin);
+    if (url.origin === self.location.origin && url.pathname.startsWith("/_next/static/") && !url.search && !url.hash) chunks.add(url.pathname);
+    if (chunks.size > 256) throw new Error("too many shell assets");
+  }
+  if (![...chunks].some((path) => path.endsWith(".js"))) throw new Error("shell has no discoverable JavaScript");
+  await cacheMissing(cache, [...chunks]);
+
+  const resources = new Set();
+  for (const css of [...chunks].filter((path) => path.endsWith(".css"))) {
+    const saved = await cache.match(css);
+    if (!saved) throw new Error("shell stylesheet is missing");
+    const text = await saved.text();
+    if (text.length > 4_000_000) throw new Error("shell stylesheet exceeds precache bound");
+    for (const match of text.matchAll(/url\(\s*(?:"([^"]*)"|'([^']*)'|([^)]*))\s*\)/gi)) {
+      let url;
+      try { url = new URL((match[1] || match[2] || match[3] || "").trim(), new URL(css, self.location.origin)); }
+      catch { continue; }
+      if (url.origin === self.location.origin && !url.hash && staticAsset(url)) resources.add(url.pathname);
+      if (resources.size > 256) throw new Error("too many shell style resources");
+    }
+  }
+  await cacheMissing(cache, [...resources]);
+}
+
+function validAsset(path, response) {
+  if (!response || !response.ok) return false;
+  const type = (response.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+  if (path.endsWith(".js")) return /^(?:text|application)\/(?:x-)?(?:javascript|ecmascript)$/.test(type);
+  if (path.endsWith(".css")) return type === "text/css";
+  return true;
+}
+
+async function cacheMissing(cache, paths) {
+  const entries = await Promise.all(paths.map(async (path) => [path, await cache.match(path)]));
+  const missing = entries.filter(([path, hit]) => !validAsset(path, hit)).map(([path]) => path);
+  // Validate each response before writing it: a 200 login/error page must
+  // not poison a hashed JS/CSS key, including under concurrent navigations.
+  // Consume each response as it arrives. Waiting for every response header
+  // before consuming bodies can deadlock the browser's HTTP connection pool.
+  const outcomes = await Promise.allSettled(missing.map(async (path) => {
+    const response = await fetch(path, { redirect: "error" });
+    if (!validAsset(path, response)) {
+      if (response.body) void response.body.cancel().catch(() => undefined);
+      throw new Error(`invalid asset content type or status: ${path}`);
+    }
+    await cache.put(path, response);
+  }));
+  const failure = outcomes.find((outcome) => outcome.status === "rejected");
+  if (failure) throw failure.reason;
+}
+
 self.addEventListener("install", (event) => {
-  // A failed precache must not replace a working old worker. In particular do
-  // not swallow the rejection: activation would delete the old shell cache.
-  event.waitUntil(caches.open(VERSION).then((cache) => cache.addAll(SHELL)));
+  // Reject the entire install if the document or any discovered dependency is
+  // unavailable: an old active worker and its cache must remain intact.
+  event.waitUntil((async () => {
+    const cache = await caches.open(VERSION);
+    await cache.addAll(SHELL);
+    const root = await cache.match("/");
+    const offline = await cache.match(OFFLINE);
+    if (!root) throw new Error("shell is missing");
+    if (!offline || !offline.ok || !(offline.headers.get("content-type") || "").includes("text/html")) throw new Error("offline page is invalid");
+    await ensureShellAssets(cache, root);
+  })());
 });
 
 // Updates are still applied only after the page/user asks for them.
@@ -52,9 +121,13 @@ self.addEventListener("fetch", (event) => {
     // Register waitUntil synchronously; browsers may terminate a worker after
     // respondWith resolves, otherwise leaving an interrupted cache write.
     if (url.pathname === "/" && !url.search) {
-      event.waitUntil(network.then((res) => {
+      event.waitUntil(network.then(async (res) => {
         if (!res.ok || !(res.headers.get("content-type") || "").includes("text/html")) return;
-        return caches.open(VERSION).then((cache) => cache.put("/", res.clone()));
+        const cache = await caches.open(VERSION);
+        // Never replace the last usable offline document with a newer HTML
+        // document whose hashed assets were not all cached successfully.
+        await ensureShellAssets(cache, res.clone());
+        await cache.put("/", res.clone());
       }).catch(() => undefined));
     }
     event.respondWith(network.catch(async () => {

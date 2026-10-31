@@ -1,0 +1,89 @@
+{
+  "suite": "e2e-tt128-photos",
+  "at": "2026-10-31T02:19:46.370Z",
+  "results": [
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "delayed EXIF reordering cannot change an active editor walk; reopening takes the new order",
+      "covers": {
+        "PH-04": "partial",
+        "PH-05": "partial"
+      },
+      "pass": true,
+      "ms": 4300
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a navigation click survives the current image finishing its real load between pointer down and up",
+      "covers": {
+        "PH-04": "partial"
+      },
+      "pass": true,
+      "ms": 1963
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a failed real image read is not cached as missing metadata and a reload retries",
+      "covers": {
+        "PH-07": "partial"
+      },
+      "pass": true,
+      "ms": 1908
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "No date retains a PNG with no capture metadata after indexing",
+      "covers": {
+        "PH-07": "partial"
+      },
+      "pass": true,
+      "ms": 1763
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a deep-linked viewer snapshots the library before delayed EXIF reordering",
+      "covers": {
+        "PH-04": "partial"
+      },
+      "pass": false,
+      "error": "locator.innerText: Timeout 25000ms exceeded.\nCall log:\n  - waiting for getByTestId('photos-position')\n",
+      "ms": 27359
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a deep-linked viewer keeps its original order across a real trash and restore",
+      "covers": {
+        "PH-04": "partial"
+      },
+      "pass": true,
+      "ms": 2520
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a failed library read exposes a retry and recovers without reloading the shell",
+      "covers": {
+        "PH-01": "partial"
+      },
+      "pass": true,
+      "ms": 1252
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "a refresh result is not replaced by an older delayed real media response",
+      "covers": {
+        "PH-01": "partial"
+      },
+      "pass": true,
+      "ms": 1808
+    },
+    {
+      "suite": "e2e-tt128-photos",
+      "name": "slideshow advances through the captured name order and pauses",
+      "covers": {
+        "PH-04": "partial"
+      },
+      "pass": true,
+      "ms": 4540
+    }
+  ]
+}

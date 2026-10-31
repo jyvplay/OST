@@ -1,0 +1,15 @@
+== repair repeat 1
+  ✓ a thumbnail completing between pointer down and up keeps its tile geometry and click
+  ✓ a deep-linked viewer keeps its original order across a real trash and restore
+
+2 passed, 0 failed
+== repair repeat 2
+  ✓ a thumbnail completing between pointer down and up keeps its tile geometry and click
+  ✓ a deep-linked viewer keeps its original order across a real trash and restore
+
+2 passed, 0 failed
+== repair repeat 3
+  ✓ a thumbnail completing between pointer down and up keeps its tile geometry and click
+  ✓ a deep-linked viewer keeps its original order across a real trash and restore
+
+2 passed, 0 failed

@@ -1,0 +1,131 @@
+== pure suites (parallel via run-fast.sh)
+=== a11y-unit
+8 passed, 0 failed
+=== layout-unit
+8 passed, 0 failed
+=== maps-unit
+6 passed, 0 failed
+=== stream-unit
+7 passed, 0 failed
+=== tabletop-unit
+17 passed, 0 failed
+=== contacts-engine
+8 passed, 0 failed
+=== image-engine
+16 passed, 0 failed
+=== vector-engine
+18 passed, 0 failed
+=== whiteboard-engine
+9 passed, 0 failed
+=== tables-engine
+9 passed, 0 failed
+=== unit
+23 passed, 0 failed
+=== tt117-core
+12 passed, 0 failed
+=== tt118-core
+12 passed, 0 failed
+=== ai-format
+5 passed, 0 failed
+=== tt119-core
+11 passed, 0 failed
+=== tt120-core
+10 passed, 0 failed
+=== tt121-core
+19 passed, 0 failed
+=== tt123-core
+18 passed, 0 failed
+=== tt122-core
+20 passed, 0 failed
+=== tt125-core
+17 passed, 0 failed
+=== tt124-core
+19 passed, 0 failed
+=== tt129-core
+6 passed, 0 failed
+=== tt129-worker-unit
+4 passed, 0 failed
+=== tt129-calendar-core
+6 passed, 0 failed
+=== tt128-core
+23 passed, 0 failed
+FASTDONE
+  ✓ zoom: bounded grid samples, tiny steps, nonaligned max and invalid capabilities
+  ✓ aliases: inherited names are commands unless explicitly defined
+  ✓ service worker: unrelated caches survive and only the canonical successful shell refreshes root
+  ✓ service worker: cache storage failures do not turn working network assets into 504s
+  ✓ browser gate rejects a process that prints success then exits nonzero
+  ✓ fast default retains the external oracle and propagates its failure
+
+6 passed, 0 failed
+== e2e-tt129-offline
+3 passed, 0 failed
+== e2e-tt129-calendar
+3 passed, 0 failed
+== tt128-calendar-race
+1 passed, 0 failed
+== tt128-writer-races
+2 passed, 0 failed
+== e2e-tt128-worker
+4 passed, 0 failed
+== e2e-tt128-photos
+8 passed, 0 failed
+== e2e-tt128-time
+2 passed, 0 failed
+== e2e-tt128-editor
+4 passed, 0 failed
+== tt124-core
+19 passed, 0 failed
+== e2e-tt124
+4 passed, 0 failed
+== e2e-tt125
+3 passed, 0 failed
+== e2e-tt126
+4 passed, 0 failed
+== tt127-conditional
+3 passed, 0 failed
+== e2e-tt127-vault
+3 passed, 0 failed
+== e2e-tt127-photos
+1 passed, 0 failed
+== tt123-core
+18 passed, 0 failed
+== e2e-tt123
+3 passed, 0 failed
+== tt122-core
+20 passed, 0 failed
+== e2e-tt122
+3 passed, 0 failed
+== e2e-tt121
+4 passed, 0 failed
+== tt120-core
+10 passed, 0 failed
+== e2e-tt120
+4 passed, 0 failed
+== e2e-tt119
+4 passed, 0 failed
+== e2e-tt117
+5 passed, 0 failed
+== e2e-a11y
+9 passed, 0 failed
+== tt124-density
+23 passed, 0 failed
+== tt125-density
+3 passed, 0 failed
+== tt123-density
+23 passed, 0 failed
+== tt122-density
+1 passed, 0 failed
+== tt121-density
+1 passed, 0 failed
+== tt120-density
+1 passed, 0 failed
+== tt119-density
+1 passed, 0 failed
+== tt118-density
+1 passed, 0 failed
+== tt117-density
+1 passed, 0 failed
+== tt116-density
+6 passed, 0 failed
+GATE PASSED
