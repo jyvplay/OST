@@ -4,7 +4,8 @@ export type NoteInline = { kind: "text" | "code" | "strong" | "em" | "strike"; t
 export type NoteBlock = { kind: "heading"; level: number; line: number; text: string }
   | { kind: "paragraph" | "quote" | "item" | "code"; line: number; text: string }
   | { kind: "task"; line: number; text: string; checked: boolean }
-  | { kind: "rule"; line: number; text: string };
+  | { kind: "rule"; line: number; text: string }
+  | { kind: "table"; line: number; text: string; header: string[]; rows: string[][]; align: ("left" | "center" | "right")[] };
 export const NOTE_PREVIEW_LINES = 5_000;
 export interface NoteMarkdownDoc { blocks: NoteBlock[]; truncated: boolean }
 export function safeNoteLink(value: string): string | null {
@@ -49,6 +50,23 @@ export function noteInline(text: string): NoteInline[] {
   if (at < text.length) out.push({ kind: "text", text: text.slice(at) });
   return out;
 }
+/** A deliberately bounded pipe-table subset. Escaped pipes/backslashes are
+ * literal; raw HTML still never enters an HTML interpreter. */
+function tableCells(line: string): string[] | null {
+  let text = line.trim(); if (!text.includes("|")) return null;
+  if (text.startsWith("|")) text = text.slice(1);
+  if (text.endsWith("|")) {
+    let slashes = 0; for (let i = text.length - 2; i >= 0 && text[i] === "\\"; i--) slashes++;
+    if (slashes % 2 === 0) text = text.slice(0, -1);
+  }
+  const cells: string[] = []; let cell = "";
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === "\\" && (text[i + 1] === "|" || text[i + 1] === "\\")) { cell += text[++i]; continue; }
+    if (text[i] === "|") { cells.push(cell.trim()); cell = ""; if (cells.length >= 16) return null; }
+    else cell += text[i];
+  }
+  cells.push(cell.trim()); return cells;
+}
 export function noteMarkdown(source: string): NoteMarkdownDoc {
   const lines = source.split("\n", NOTE_PREVIEW_LINES + 1), blocks: NoteBlock[] = [];
   const count = Math.min(lines.length, NOTE_PREVIEW_LINES);
@@ -62,6 +80,16 @@ export function noteMarkdown(source: string): NoteMarkdownDoc {
     }
     const heading = /^ {0,3}(#{1,6})\s+(.+?)\s*#*\s*$/.exec(text);
     if (heading) { blocks.push({ kind: "heading", level: heading[1].length, line: i, text: heading[2] }); continue; }
+    const header = tableCells(text), separators = i + 1 < count ? tableCells(lines[i + 1]) : null;
+    if (header && separators && header.length >= 2 && separators.length === header.length && separators.every(cell => /^:?-{3,}:?$/.test(cell))) {
+      const line = i, rows: string[][] = [], align = separators.map(cell => cell.startsWith(":") && cell.endsWith(":") ? "center" as const : cell.endsWith(":") ? "right" as const : "left" as const);
+      i++;
+      while (i + 1 < count && rows.length < 100) {
+        const cells = tableCells(lines[i + 1]); if (!cells || cells.length !== header.length) break;
+        rows.push(cells); i++;
+      }
+      blocks.push({ kind: "table", line, text: "", header, rows, align }); continue;
+    }
     const task = /^\s*(?:[-+*]|\d+[.)])\s+\[([ xX])\]\s+(.*)$/.exec(text);
     if (task) { blocks.push({ kind: "task", line: i, text: task[2], checked: task[1] !== " " }); continue; }
     if (/^ {0,3}(?:-{3,}|\*{3,}|_{3,})\s*$/.test(text)) { blocks.push({ kind: "rule", line: i, text: "" }); continue; }

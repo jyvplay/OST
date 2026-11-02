@@ -1,0 +1,24 @@
+Actual browser: 143.0.7499.0
+Native inspector selection: { start: 0, end: 0, focus: true, selected: '' }
+  ✗ CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact
+    locator.click: Timeout 12000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog', { name: 'Inspect clipboard text', exact: true }).getByRole('button', { name: 'Copy selected text', exact: true })
+    - locator resolved to <button disabled type="button" class="fs-btn " data-variant="default">Copy selected text</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not enabled
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not enabled
+    - retrying click action
+      - waiting 100ms
+    23 × waiting for element to be visible, enabled and stable
+       - element is not enabled
+     - retrying click action
+       - waiting 500ms
+
+
+0 passed, 1 failed
+FAILED: CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact

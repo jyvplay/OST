@@ -1,0 +1,6 @@
+  ✓ ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps
+  ✓ PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick
+  ✓ MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines
+  ✓ PH-08: opening a photo offers Copy info with honest absences
+
+4 passed, 0 failed

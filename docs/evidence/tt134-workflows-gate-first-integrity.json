@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-02T04:23:07.944372+00:00",
+  "exitCode": 1,
+  "inputIdentityUnchangedThroughoutGate": true,
+  "inputSha256": "419033ab3a935379369458658ff1e428c2021bbdbb902e6e91f408e5aa6dce3d",
+  "mainLogContainsSparseNuls": true,
+  "fullPerPureSuiteLogIntegrity": false,
+  "reason": "Nested historical runner-contract invocations inherited the parent log root and overwrote some pure/TT126 logs. Actual outer command correctly exited nonzero. These corrupted side logs are not certified full diagnostics or an aggregate fresh-pass receipt.",
+  "failedSuitesLine": "GATE FAILED (browser): e2e-tt134-workflows-clipboard tt133-browser-kernels e2e-tt133-notes-find e2e-tt133-boundaries e2e-tt81 e2e-tt49-writer e2e-tt122 e2e-a11y",
+  "releaseAcceptedNewFeatures": 0
+}

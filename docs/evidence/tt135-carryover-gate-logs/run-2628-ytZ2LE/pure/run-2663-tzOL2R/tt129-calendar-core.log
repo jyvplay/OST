@@ -1,0 +1,8 @@
+  ✓ a UTC single event with UID has no known-loss warnings
+  ✓ timezone, recurrence, exceptions, duration and alarms are counted per item
+  ✓ folded and lowercase TZID parameters are recognized
+  ✓ floating, all-day, invalid date and missing UID are distinct warnings
+  ✓ nested alarm dates do not masquerade as event dates
+  ✓ exception components and multiple missing UIDs are counted independently
+
+6 passed, 0 failed

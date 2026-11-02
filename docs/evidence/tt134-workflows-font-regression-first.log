@@ -1,0 +1,12 @@
+  ✓ icon contrast: every palette's glyph colour is ≥3:1 against its tile gradient across the whole glyph area (WCAG 1.4.11)
+  ✓ every registered module and every common file type has a real glyph; tile palettes exist
+  ✓ no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font)
+  ✗ text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz()
+    raw px font sizes: src/components/WorkflowDialog.tsx:44
+  ✓ token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot
+  ✓ settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour
+  ✓ style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each
+  ✓ light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink
+
+7 passed, 1 failed
+FAILED: text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz()

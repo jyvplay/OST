@@ -1,0 +1,14 @@
+Actual browser: 143.0.7499.0
+  ✓ NT-19: native collection download/file import round-trips fields into new indexed IDs; invalid/cancelled import changes nothing
+  ✓ NT-20: merge checked saved snapshots into a new note; an unsaved source draft and both original records remain exact
+  ✓ NT-21: split the current draft at real top-level headings, ignore fenced headings, preserve every source character and support cancellation
+  ✓ NT-22: native find-next selects/wraps actual textarea matches; literal replace saves exact Unicode and empty find is refused
+  ✓ NT-23: real selection + link form inserts a safe encoded Markdown anchor; active schemes fail without altering the draft
+  ✓ NT-24: table builder validates dimensions; native saved preview renders escaped cells/alignment without interpreting HTML
+  ✓ NT-25: save a real VFS template and instantiate its local text tokens into a distinct indexed note without rewriting source/template
+  ✓ NT-26: compare with a real concurrent saved winner; modal contains keyboard focus/blocks live tiling and never silently accepts its revision
+  ✓ NT-27: cross-note saved task rollup ignores fences, commits exact task markers and rejects a stale row instead of overwriting a real winner
+  ✓ NT-27 patch attack: an own Save inserting a line cannot retarget the old rollup checkbox to another source line
+  ✓ Native Notes workflow pages emitted no unhandled browser exceptions
+
+11 passed, 0 failed

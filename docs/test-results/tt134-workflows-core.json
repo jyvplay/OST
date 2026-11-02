@@ -1,0 +1,219 @@
+{
+  "suite": "tt134-workflows-core",
+  "at": "2026-11-02T16:21:04.808Z",
+  "results": [
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget",
+      "covers": {
+        "NT-19": "partial",
+        "NT-20": "partial",
+        "NT-21": "partial"
+      },
+      "pass": true,
+      "ms": 59
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Portable note copies round-trip editable fields only; unknown envelopes and identities are refused",
+      "covers": {
+        "NT-19": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Merge creates a separate saved-body composition, preserves inputs and rejects oversized output",
+      "covers": {
+        "NT-20": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Heading splits ignore fenced headings and preserve the exact CRLF source when rejoined",
+      "covers": {
+        "NT-21": "partial"
+      },
+      "pass": true,
+      "ms": 11
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Literal replace is exact/case-sensitive, supports deletion, and refuses explosive expansion before construction",
+      "covers": {
+        "NT-22": "partial"
+      },
+      "pass": true,
+      "ms": 19
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Link construction replaces only the selected range, rejects active schemes/bracket labels, encodes URL parentheses",
+      "covers": {
+        "NT-23": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Pipe tables parse escaped pipes/backslashes and alignment, keep HTML as text and bound rows/columns",
+      "covers": {
+        "NT-24": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Templates expand only three plain tokens using the supplied real clock; no expression execution or recursive evaluation",
+      "covers": {
+        "NT-25": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Saved-body/clipboard line diff exactly reconstructs each side, including empty/CRLF/Unicode; it is not an LCS claim",
+      "covers": {
+        "NT-26": "partial",
+        "CB-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries",
+      "covers": {
+        "CB-04": "partial",
+        "CB-05": "partial",
+        "CB-06": "partial",
+        "CB-07": "partial",
+        "CB-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Template budget includes the complete wrapper: exact 4 MiB roundtrip, one byte over refused",
+      "covers": {
+        "NT-25": "partial"
+      },
+      "pass": true,
+      "ms": 85
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Native LF textarea offsets map back to exact CRLF/CR source excerpts, with invalid ranges refused",
+      "covers": {
+        "CB-04": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Source/native textarea ranges invert across every boundary in mixed CRLF/CR/Unicode text",
+      "covers": {
+        "NT-22": "partial",
+        "NT-23": "partial",
+        "CB-04": "partial"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Create-only clipboard destinations reject Private, traversal, repeated slash and noncanonical paths",
+      "covers": {
+        "CB-07": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Same-millisecond/clock-rollback captures retain distinct identities and independent removal/pin targets",
+      "covers": {
+        "CB-08": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "170,000 retained pins do not overflow a timestamp spread/argument stack",
+      "covers": {
+        "CB-08": "partial"
+      },
+      "pass": true,
+      "ms": 111
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Resource filters validate exact UTC calendar days, half-open intervals and canonical safe byte ranges",
+      "covers": {
+        "SR-20": "partial",
+        "SR-21": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Folder exclusion is canonical, rejects traversal and retains SQL wildcard characters as literal path data",
+      "covers": {
+        "SR-22": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Literal paging allows exactly four bounded public offsets, rejects ranked/metadata/invalid continuations",
+      "covers": {
+        "SR-25": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults",
+      "covers": {
+        "SR-20": "partial",
+        "SR-21": "partial",
+        "SR-22": "partial",
+        "SV-02": "partial",
+        "SR-19": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Result JSON is lossless for visible rows/query; CSV neutralizes spreadsheet formulas and independently parses quotes/newlines",
+      "covers": {
+        "SR-23": "partial"
+      },
+      "pass": true,
+      "ms": 28
+    },
+    {
+      "suite": "tt134-workflows-core",
+      "name": "Comparison-limit copy attack: supplementary Unicode is counted as UTF-16 code units, never MiB bytes",
+      "covers": {
+        "NT-26": "partial",
+        "CB-08": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}

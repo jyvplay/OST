@@ -1,0 +1,19 @@
+  ✓ ED-10 stampText: zero-padded local date and time, minute precision
+  ✓ ED-09 caseTransform: upper/lower exact; title caps run-starts only
+  ✓ PD-03 pdfPageText: lines by y, spans by x, blanks dropped
+  ✓ WR-02 reading time: 238 wpm, rounds up, empty says so
+  ✓ BM-03 filterSessions: matches transport, target or state; empty query keeps all
+  ✓ DV-03 estimateText: both, one, or neither number shared
+  ✓ BK-13 bookPositionText: fraction and chapter stated, absences honest
+  ✓ VA-03 reuseGroups: only digests compared, labels sorted, report honest
+  ✓ PL-10 doneTasksText: done only, list order, empty stated
+  ✓ TM-08 alias: parse validates, expansion is first-token one-pass
+  ✓ RC-43 recallHitsText: newest first, timestamped
+  ✓ PK-04 asciiRuns: min length honoured, runs split on any non-printable
+  ✓ LN-19/LN-20 zoomOptions from capabilities; torch is a capability, never assumed
+  ✓ AP-08 pushRecent: newest first, deduped, capped
+  ✓ CB-03 mergeClipTexts: shown order, blank clips dropped, separator explicit
+  ✓ TG-03 participantsText: hosts first, then alphabetical, empty stated
+  ✓ ST-16 shortcutsText: keys then purpose, one per line
+
+17 passed, 0 failed

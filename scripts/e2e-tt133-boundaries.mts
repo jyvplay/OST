@@ -34,7 +34,7 @@ async function exhaust(page: Page) {
   }, RUN);
   assert.ok(result.count > 0); assert.deepEqual(result.refusals, Array(5).fill("QuotaExceededError")); console.log(`  actual native sessionStorage quota: ${result.count} real writes then ${result.refusals.length} quota refusals`);
 }
-async function more(win: Locator) { const details = win.getByTestId("note-editor").locator("details").first(); if (await details.getAttribute("open") === null) await details.locator("summary").click(); }
+async function more(win: Locator) { const details = win.getByTestId("note-editor").locator("details").first(); if (await details.getAttribute("open") === null) await details.locator(":scope > summary").click(); }
 async function confirm(page: Page, label: string) { const dialog = page.getByTestId("ask-dialog"); await dialog.getByRole("button", { name: label, exact: true }).click(); await expect(dialog).toHaveCount(0); }
 try {
   const save = await create();

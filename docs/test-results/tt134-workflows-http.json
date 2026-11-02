@@ -1,0 +1,93 @@
+{
+  "suite": "tt134-workflows-http",
+  "at": "2026-11-02T16:21:24.195Z",
+  "results": [
+    {
+      "suite": "tt134-workflows-http",
+      "name": "Batch commits exact editable fields and every real public index row together",
+      "covers": {
+        "NT-19": "partial",
+        "NT-20": "partial",
+        "NT-21": "partial"
+      },
+      "pass": true,
+      "ms": 68
+    },
+    {
+      "suite": "tt134-workflows-http",
+      "name": "All-row input validation and byte-stream limit reject without creating any partial notes",
+      "covers": {
+        "NT-19": "partial"
+      },
+      "pass": true,
+      "ms": 66
+    },
+    {
+      "suite": "tt134-workflows-http",
+      "name": "Real index-table lock causes four-second refusal and rolls back already-inserted batch notes",
+      "covers": {
+        "NT-19": "partial",
+        "NT-20": "partial",
+        "NT-21": "partial"
+      },
+      "pass": true,
+      "ms": 4018
+    },
+    {
+      "suite": "tt134-workflows-http",
+      "name": "Modified intervals read canonical file timestamps, not fresh index/rebuild timestamps, in literal and live metadata",
+      "covers": {
+        "SR-20": "partial"
+      },
+      "pass": true,
+      "ms": 32
+    },
+    {
+      "suite": "tt134-workflows-http",
+      "name": "Content byte intervals use real UTF-8 file/note sizes; zero/bad/incompatible ranges are explicit",
+      "covers": {
+        "SR-21": "partial"
+      },
+      "pass": true,
+      "ms": 44
+    },
+    {
+      "suite": "tt134-workflows-http",
+      "name": "Folder exclusion applies before all server branches and metadata paging, preserving wildcard-named siblings",
+      "covers": {
+        "SR-22": "partial"
+      },
+      "pass": true,
+      "ms": 71
+    },
+    {
+      "suite": "tt134-workflows-http",
+      "name": "Actual fuzzy fallback cannot bypass canonical size/date/exclusion predicates",
+      "covers": {
+        "SR-20": "partial",
+        "SR-21": "partial",
+        "SR-22": "partial"
+      },
+      "pass": true,
+      "ms": 42
+    },
+    {
+      "suite": "tt134-workflows-http",
+      "name": "Literal public pages have deterministic disjoint fixed-index coverage, cap 200 and reject invalid offsets",
+      "covers": {
+        "SR-25": "partial"
+      },
+      "pass": true,
+      "ms": 139
+    },
+    {
+      "suite": "tt134-workflows-http",
+      "name": "Preview reads current bounded public text, not stale index snippets; binary/Private/trashed/excluded/missing cases stay safe",
+      "covers": {
+        "SR-24": "partial"
+      },
+      "pass": true,
+      "ms": 104
+    }
+  ]
+}

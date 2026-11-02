@@ -1,0 +1,20 @@
+Actual browser: 143.0.7499.0
+  ✗ wide Browser: actual GitHub framing denial is not confused with network uncertainty
+    this check depends on the real observed peer/DNS outcome; no fake fallback result
+
+'unknown' !== 'deny'
+
+  ✓ wide Browser: actual DNS failure is not confused with a measured framing policy
+  ✓ wide Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result
+  ✓ wide Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation
+  ✗ compact Browser: actual GitHub framing denial is not confused with network uncertainty
+    this check depends on the real observed peer/DNS outcome; no fake fallback result
+
+'unknown' !== 'deny'
+
+  ✓ compact Browser: actual DNS failure is not confused with a measured framing policy
+  ✓ compact Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result
+  ✓ compact Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation
+
+6 passed, 2 failed
+FAILED: wide Browser: actual GitHub framing denial is not confused with network uncertainty | compact Browser: actual GitHub framing denial is not confused with network uncertainty

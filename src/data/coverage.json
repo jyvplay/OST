@@ -1,23 +1,212 @@
 {
- "generatedAt": "2026-11-02T01:34:12.535Z",
+ "generatedAt": "2026-11-02T16:51:42.862Z",
  "totals": {
   "built": {
-   "full": 519,
+   "full": 539,
    "partial": 84,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 469,
+   "full": 489,
    "partial": 122,
    "untested": 36
   },
   "tests": {
-   "total": 3582,
-   "passed": 3582
+   "total": 3742,
+   "passed": 3742
   }
  },
  "rows": {
+  "NT-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-19: native collection download/file import round-trips fields into new indexed IDs; invalid/cancelled import changes nothing",
+    "tt134-workflows-core: Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget",
+    "tt134-workflows-core: Portable note copies round-trip editable fields only; unknown envelopes and identities are refused",
+    "tt134-workflows-http: Batch commits exact editable fields and every real public index row together",
+    "tt134-workflows-http: All-row input validation and byte-stream limit reject without creating any partial notes",
+    "tt134-workflows-http: Real index-table lock causes four-second refusal and rolls back already-inserted batch notes"
+   ]
+  },
+  "NT-20": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-20: merge checked saved snapshots into a new note; an unsaved source draft and both original records remain exact",
+    "tt134-workflows-core: Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget",
+    "tt134-workflows-core: Merge creates a separate saved-body composition, preserves inputs and rejects oversized output",
+    "tt134-workflows-http: Batch commits exact editable fields and every real public index row together",
+    "tt134-workflows-http: Real index-table lock causes four-second refusal and rolls back already-inserted batch notes"
+   ]
+  },
+  "NT-21": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-21: split the current draft at real top-level headings, ignore fenced headings, preserve every source character and support cancellation",
+    "tt134-workflows-core: Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget",
+    "tt134-workflows-core: Heading splits ignore fenced headings and preserve the exact CRLF source when rejoined",
+    "tt134-workflows-http: Batch commits exact editable fields and every real public index row together",
+    "tt134-workflows-http: Real index-table lock causes four-second refusal and rolls back already-inserted batch notes"
+   ]
+  },
+  "NT-22": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-22: native find-next selects/wraps actual textarea matches; literal replace saves exact Unicode and empty find is refused",
+    "e2e-tt134-workflows-notes: NT-22/23 patch attack: a CRLF source find selects the visible Unicode match and link replacement preserves every other source byte",
+    "tt134-workflows-core: Literal replace is exact/case-sensitive, supports deletion, and refuses explosive expansion before construction",
+    "tt134-workflows-core: Source/native textarea ranges invert across every boundary in mixed CRLF/CR/Unicode text"
+   ]
+  },
+  "NT-23": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-23: real selection + link form inserts a safe encoded Markdown anchor; active schemes fail without altering the draft",
+    "e2e-tt134-workflows-notes: NT-22/23 patch attack: a CRLF source find selects the visible Unicode match and link replacement preserves every other source byte",
+    "tt134-workflows-core: Link construction replaces only the selected range, rejects active schemes/bracket labels, encodes URL parentheses",
+    "tt134-workflows-core: Source/native textarea ranges invert across every boundary in mixed CRLF/CR/Unicode text"
+   ]
+  },
+  "NT-24": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-24: table builder validates dimensions; native saved preview renders escaped cells/alignment without interpreting HTML",
+    "tt134-workflows-core: Pipe tables parse escaped pipes/backslashes and alignment, keep HTML as text and bound rows/columns"
+   ]
+  },
+  "NT-25": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-25: save a real VFS template and instantiate its local text tokens into a distinct indexed note without rewriting source/template",
+    "tt134-workflows-core: Templates expand only three plain tokens using the supplied real clock; no expression execution or recursive evaluation",
+    "tt134-workflows-core: Template budget includes the complete wrapper: exact 4 MiB roundtrip, one byte over refused"
+   ]
+  },
+  "NT-26": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-26: compare with a real concurrent saved winner; modal contains keyboard focus/blocks live tiling and never silently accepts its revision",
+    "e2e-tt134-workflows-notes: Large-text patch attack: the real async comparison heading follows saved 125/200 percent settings and remains closeable",
+    "tt134-workflows-core: Saved-body/clipboard line diff exactly reconstructs each side, including empty/CRLF/Unicode; it is not an LCS claim",
+    "tt134-workflows-core: Comparison-limit copy attack: supplementary Unicode is counted as UTF-16 code units, never MiB bytes"
+   ]
+  },
+  "NT-27": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-27: cross-note saved task rollup ignores fences, commits exact task markers and rejects a stale row instead of overwriting a real winner",
+    "e2e-tt134-workflows-notes: NT-27 patch attack: an own Save inserting a line cannot retarget the old rollup checkbox to another source line"
+   ]
+  },
+  "CB-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact",
+    "e2e-tt134-workflows-clipboard: CB-04 patch attack: CRLF excerpts retain source bytes; bisected Unicode ranges refuse; async focus loss cannot strand Escape",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "e2e-tt134-workflows-clipboard: Real emergency chord remains active while the new clipboard modal owns normal shortcuts",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries",
+    "tt134-workflows-core: Native LF textarea offsets map back to exact CRLF/CR source excerpts, with invalid ranges refused",
+    "tt134-workflows-core: Source/native textarea ranges invert across every boundary in mixed CRLF/CR/Unicode text"
+   ]
+  },
+  "CB-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-05: editing creates a new native clipboard/history copy while retaining the original text and pin",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries"
+   ]
+  },
+  "CB-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-06: save a clipboard entry through its real form into a separately indexed public note; blank title cannot commit",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries"
+   ]
+  },
+  "CB-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-07: create-only public file transfer preserves exact bytes; Private paths and an existing-file overwrite are refused",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries",
+    "tt134-workflows-core: Create-only clipboard destinations reject Private, traversal, repeated slash and noncanonical paths"
+   ]
+  },
+  "CB-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-08: check two real captures and compare their exact changed lines; one capture cannot launch a comparison",
+    "e2e-tt134-workflows-clipboard: CB-08 patch attack: repeated native keyboard/pointer toggles keep both independent checks and release comparison focus",
+    "e2e-tt134-workflows-clipboard: CB-08 readiness attack: a checked identity stays checked when same-prefix native captures arrive",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "tt134-workflows-core: Saved-body/clipboard line diff exactly reconstructs each side, including empty/CRLF/Unicode; it is not an LCS claim",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries",
+    "tt134-workflows-core: Same-millisecond/clock-rollback captures retain distinct identities and independent removal/pin targets",
+    "tt134-workflows-core: 170,000 retained pins do not overflow a timestamp spread/argument stack",
+    "tt134-workflows-core: Comparison-limit copy attack: supplementary Unicode is counted as UTF-16 code units, never MiB bytes"
+   ]
+  },
+  "SR-20": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload",
+    "e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes",
+    "tt134-workflows-core: Resource filters validate exact UTC calendar days, half-open intervals and canonical safe byte ranges",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults",
+    "tt134-workflows-http: Modified intervals read canonical file timestamps, not fresh index/rebuild timestamps, in literal and live metadata",
+    "tt134-workflows-http: Actual fuzzy fallback cannot bypass canonical size/date/exclusion predicates"
+   ]
+  },
+  "SR-21": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-21: inclusive byte controls distinguish Unicode file bytes and note-body bytes; bad intervals cannot search or export stale results",
+    "e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes",
+    "tt134-workflows-core: Resource filters validate exact UTC calendar days, half-open intervals and canonical safe byte ranges",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults",
+    "tt134-workflows-http: Content byte intervals use real UTF-8 file/note sizes; zero/bad/incompatible ranges are explicit",
+    "tt134-workflows-http: Actual fuzzy fallback cannot bypass canonical size/date/exclusion predicates"
+   ]
+  },
+  "SR-22": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-22: native query-folder exclusion removes only the literal subtree, composes with scope, and works in live metadata",
+    "e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes",
+    "tt134-workflows-core: Folder exclusion is canonical, rejects traversal and retains SQL wildcard characters as literal path data",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults",
+    "tt134-workflows-http: Folder exclusion applies before all server branches and metadata paging, preserving wildcard-named siblings",
+    "tt134-workflows-http: Actual fuzzy fallback cannot bypass canonical size/date/exclusion predicates"
+   ]
+  },
+  "SR-23": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-23: real JSON/CSV downloads contain the current visible ordered hit and completed query, independently parsed; editing query invalidates export",
+    "e2e-tt134-workflows-find: Private export uses real encrypted storage/local search, explicit plaintext consent/cancel and actual lock clearing; Private preview stays disabled",
+    "tt134-workflows-core: Result JSON is lossless for visible rows/query; CSV neutralizes spreadsheet formulas and independently parses quotes/newlines"
+   ]
+  },
+  "SR-24": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-24: actual result preview fetches fresh bounded text safely, restores focus, and reports a now-missing result instead of its stale snippet",
+    "e2e-tt134-workflows-find: Private export uses real encrypted storage/local search, explicit plaintext consent/cancel and actual lock clearing; Private preview stays disabled",
+    "tt134-workflows-http: Preview reads current bounded public text, not stale index snippets; binary/Private/trashed/excluded/missing cases stay safe"
+   ]
+  },
+  "SR-25": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-25: native continuation retrieves the second real page, deduplicates fixed-index rows, keeps one history entry and invalidates after changing input",
+    "e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes",
+    "tt134-workflows-core: Literal paging allows exactly four bounded public offsets, rejects ranked/metadata/invalid continuations",
+    "tt134-workflows-http: Literal public pages have deterministic disjoint fixed-index coverage, cap 200 and reject invalid offsets"
+   ]
+  },
   "NT-08": {
    "tested": "full",
    "tests": [
@@ -28,7 +217,8 @@
     "e2e-tt134-ownership: Notes Orbit clean-load attack: Pin, Duplicate and Delete work without a prior editor Save, and do not adopt unrelated revisions",
     "e2e-tt134-ownership: Notes Orbit Save→Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits",
     "e2e-tt134-ownership: Notes Orbit Save→Duplicate copies the newly saved body and a 500-code-unit Unicode title without splitting its last surrogate pair",
-    "e2e-tt134-ownership: Notes Orbit Save→Delete: Cancel keeps the just-saved record, a genuine writer during confirmation is not adopted as delete consent, and a later confirmed delete succeeds"
+    "e2e-tt134-ownership: Notes Orbit Save→Delete: Cancel keeps the just-saved record, a genuine writer during confirmation is not adopted as delete consent, and a later confirmed delete succeeds",
+    "e2e-tt134-workflows-notes: NT-26: compare with a real concurrent saved winner; modal contains keyboard focus/blocks live tiling and never silently accepts its revision"
    ]
   },
   "NT-09": {
@@ -51,6 +241,7 @@
     "e2e-tt134-ownership: Notes Orbit clean-load attack: Pin, Duplicate and Delete work without a prior editor Save, and do not adopt unrelated revisions",
     "e2e-tt134-ownership: Notes Orbit Save→Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits",
     "e2e-tt134-ownership: Notes Orbit Save→Delete: Cancel keeps the just-saved record, a genuine writer during confirmation is not adopted as delete consent, and a later confirmed delete succeeds",
+    "e2e-tt134-workflows-notes: NT-26: compare with a real concurrent saved winner; modal contains keyboard focus/blocks live tiling and never silently accepts its revision",
     "tt133-core: Notes validator rejects wrong fields, blank/control titles, malformed Unicode, oversized bodies and nonintegral IDs",
     "tt133-core: Revision comparison rejects stale saves including equal-content ABA histories",
     "tt133-core: Index prefix agrees with code-point slicing and cannot emit a split surrogate at the 50,000 boundary",
@@ -138,6 +329,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt133-notes-find: SR-14: title and reference orders rearrange only the returned result set deterministically",
+    "e2e-tt134-workflows-find: Filter-state patch attack: native text/regex/case/order controls retain their independent scalar values without another host search",
     "tt133-core: Result order is deterministic, copies rather than mutates, and uses source/reference tie-breaks"
    ]
   },
@@ -189,7 +381,9 @@
     "e2e-tt133-boundaries: Native corrupt-history attack: truncated JSON containing a Private query is erased rather than left as unparseable plaintext",
     "e2e-tt133-notes-find: SR-19: Enter records complete history, Cancel keeps it, Clear deletes it and reload cannot resurrect it",
     "e2e-tt133-notes-find: SR-19 patch attack: clearing history while a genuine PostgreSQL table lock holds a search cannot be undone by the late response",
-    "tt133-core: History distinguishes complete inputs, validates neighbours independently, and caps deterministic recency"
+    "e2e-tt134-workflows-find: SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload",
+    "tt133-core: History distinguishes complete inputs, validates neighbours independently, and caps deterministic recency",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults"
    ]
   },
   "SV-02": {
@@ -197,8 +391,10 @@
    "tests": [
     "e2e-tt133-boundaries: Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent",
     "e2e-tt133-notes-find: SV-02: saved profiles replay every control instead of inheriting current phrase/field/source/filter state",
+    "e2e-tt134-workflows-find: SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload",
     "tt133-core: Saved searches retain phrase, field, source, strategy, suffix, order and client filter controls; old v1 defaults migrate",
-    "tt133-core: History distinguishes complete inputs, validates neighbours independently, and caps deterministic recency"
+    "tt133-core: History distinguishes complete inputs, validates neighbours independently, and caps deterministic recency",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults"
    ]
   },
   "SV-03": {
@@ -5662,6 +5858,7 @@
     "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
     "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
     "e2e-tabletop: reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately",
+    "e2e-tt134-workflows-notes: Large-text patch attack: the real async comparison heading follows saved 125/200 percent settings and remains closeable",
     "e2e-tt95-a11y-settings-race: a delayed settings response can expose default-sized icons before the saved scale is applied"
    ]
   },

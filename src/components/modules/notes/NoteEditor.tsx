@@ -10,15 +10,17 @@ import { extractTags, resolveLinks, backlinks } from "@/lib/note-links";
 import { analyzeNote } from "@/lib/notes-stats";
 import { NOTE_PREVIEW_LINES, noteMarkdown, toggleNoteTask } from "@/lib/note-markdown";
 import { askConfirm, askText } from "@/lib/ask";
+import { displayedTextRange, sourceTextRange } from "@/lib/text-selection";
 import { noteFilename, noteToMarkdown } from "@/lib/note-export";
 import { useShell } from "../../shell-context";
 import { Badge, Btn } from "../../ui";
 import MarkdownView from "./MarkdownView";
+import NoteTools from "./NoteTools";
 
-export default function NoteEditor({ note, rows, winId, onCommitted, onOpen, onExtract, onDelete, onExportAll }: {
+export default function NoteEditor({ note, rows, winId, onCommitted, onOpen, onExtract, onDelete, onExportAll, onCreateBatch }: {
   note: NoteRecord; rows: NoteRecord[]; winId: string; onCommitted: (note: NoteRecord) => void;
   onOpen: (id: number) => Promise<void>; onExtract: (title: string, text: string) => Promise<void>;
-  onDelete: (id: number, revision: number) => Promise<void>; onExportAll: () => Promise<void>;
+  onDelete: (id: number, revision: number) => Promise<void>; onExportAll: () => Promise<void>; onCreateBatch: (fields: NoteFields[]) => Promise<void>;
 }) {
   const shell = useShell();
   const [base, setBase] = useState(note), [value, setValue] = useState<NoteFields>(() => noteFields(note));
@@ -26,6 +28,8 @@ export default function NoteEditor({ note, rows, winId, onCommitted, onOpen, onE
   const [preview, setPreview] = useState(false), [outline, setOutline] = useState(false), [jump, setJump] = useState<number | null>(null);
   const [selection, setSelection] = useState({ start: 0, end: 0 });
   const body = useRef<HTMLTextAreaElement>(null), root = useRef<HTMLDivElement>(null), pending = useRef(false), live = useRef(false);
+  const selectionText = useRef(value.body);
+  useLayoutEffect(() => { selectionText.current = value.body; }, [value.body]);
   const key = noteDraftKey(winId, note.id);
   const storage = () => privacy.status().amnesic ? null : window.sessionStorage;
   const [recovery, setRecovery] = useState<NoteDraft | null>(() => { try { return readNoteDraft(storage(), key, note.id); } catch { return null; } });
@@ -149,6 +153,7 @@ export default function NoteEditor({ note, rows, winId, onCommitted, onOpen, onE
           if (!await askConfirm({ title: "Delete note?", detail: dirty ? "This also discards the current draft. This is not Files Trash." : "This is not Files Trash.", okLabel: "Delete note" })) return;
           await run(async () => { await onDelete(base.id, base.revision); removeDraft(); });
         }}>Delete</Btn>
+        <NoteTools value={value} base={base} selection={selection} disabled={busy || !!recovery} preview={preview} change={change} createBatch={onCreateBatch} select={(start, end) => { if (!body.current) return; const displayed = displayedTextRange(value.body, start, end); body.current.focus(); body.current.setSelectionRange(displayed.start, displayed.end); setSelection({ start, end }); }} />
       </div></details>
       <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>
     </div>
@@ -176,6 +181,6 @@ export default function NoteEditor({ note, rows, winId, onCommitted, onOpen, onE
       })}
       {back.map(link => <Btn key={`back-${link.id}`} variant="ghost" disabled={busy || !!recovery} aria-label={`Backlink: ${link.title}`} onClick={() => void onOpen(link.id)}>← {link.title}</Btn>)}
     </div> : null}
-    {preview ? <MarkdownView parsed={parsed} disabled={busy || !!recovery} onTask={line => { try { change({ body: toggleNoteTask(value.body, line) }); } catch (e) { setError((e as Error).message); } }} /> : <textarea ref={body} className="fs-textarea" value={value.body} spellCheck={false} maxLength={NOTE_LIMITS.body} disabled={busy || !!recovery} style={{ flex: 1, minHeight: fz(90), border: 0, borderRadius: 0, resize: "none", padding: 10 }} aria-label="Note body" onChange={e => { change({ body: e.target.value }); setSelection({ start: e.target.selectionStart, end: e.target.selectionEnd }); }} onSelect={e => setSelection({ start: e.currentTarget.selectionStart, end: e.currentTarget.selectionEnd })} />}
+    {preview ? <MarkdownView parsed={parsed} disabled={busy || !!recovery} onTask={line => { try { change({ body: toggleNoteTask(value.body, line) }); } catch (e) { setError((e as Error).message); } }} /> : <textarea ref={body} className="fs-textarea" value={value.body} spellCheck={false} maxLength={NOTE_LIMITS.body} disabled={busy || !!recovery} style={{ flex: 1, minHeight: fz(90), border: 0, borderRadius: 0, resize: "none", padding: 10 }} aria-label="Note body" onChange={e => { selectionText.current = e.target.value; change({ body: e.target.value }); setSelection({ start: e.target.selectionStart, end: e.target.selectionEnd }); }} onSelect={e => setSelection(sourceTextRange(selectionText.current, e.currentTarget.selectionStart, e.currentTarget.selectionEnd))} />}
   </div>;
 }

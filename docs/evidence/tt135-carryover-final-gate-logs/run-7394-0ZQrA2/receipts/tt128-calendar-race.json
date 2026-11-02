@@ -1,0 +1,16 @@
+{
+  "suite": "tt128-calendar-race",
+  "at": "2026-11-02T16:31:04.286Z",
+  "results": [
+    {
+      "suite": "tt128-calendar-race",
+      "name": "concurrent matching UIDs serialize the check and insert",
+      "covers": {
+        "PR-04": "partial",
+        "PL-02": "partial"
+      },
+      "pass": true,
+      "ms": 107
+    }
+  ]
+}

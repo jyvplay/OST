@@ -1,0 +1,20 @@
+  ✓ path grammar: implicit repeats, '1.5.5', signs as separators, exponents, compact arc flags
+  ✓ path errors (SVG F.2): render up to the last good segment and report
+  ✓ Q/T → cubic elevation is exact; S/T reflect only after C/S resp. Q/T
+  ✓ arcs (F.6.5/F.6.6): semicircle bounds/length, radius scaling, rx=0 line, zero-length arc omitted
+  ✓ cubic bounds use derivative roots (not control hull); length of closed square includes Z
+  ✓ fill rules: nonzero vs evenodd on nested same-direction squares; distance to outline
+  ✓ transforms: list order, rotate(a cx cy), skew, inverse; serialise rounding
+  ✓ XML reader: quoted '>' in attributes, entities, no DOCTYPE entity expansion, depth limit
+  ✓ SVG import: style attr beats presentation attr, g inheritance, circle→ellipse, %-offset gradients, <use>
+  ✓ SVG import security: scripts, handlers, foreignObject, external refs, CSS, filters reported and never exported
+  ✓ export → import round trip is a fixed point (shapes, styles, bounds, gradients)
+  ✓ ops: move/align/distribute/resize/rotate/flip keep exact geometry
+  ✓ ops: group/ungroup preserve bounds through a rotated group; z-order; duplicate; delete; marquee
+  ✓ toPath keeps exact bounds for rect(rx)/ellipse/polygon; text refuses (no glyph data)
+  ✓ hit test: fill-rule holes, stroke tolerance, transformed shapes, topmost wins, hidden/locked skipped
+  ✓ path node editing: anchors carry their handles; handles move alone
+  ✓ v1 .fsvg migration and untrusted v2 validation
+  ✓ parametric star survives move/rotate; arrow is plain path data (no <marker>)
+
+18 passed, 0 failed

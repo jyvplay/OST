@@ -1,25 +1,18 @@
+import { searchScope, validSearchText } from "./search-path";
+export { searchScope, validSearchText } from "./search-path";
+import { EMPTY_RESOURCES, contentFiltersUsed, searchResources, type SearchResources } from "./search-resources";
 /** Shared, explicit Find inputs. Saving/replaying a search never substitutes
  * the current field/phrase/source controls for the saved ones. */
 export const SEARCH_SOURCES = ["", "file", "note", "spec", "setting"] as const;
 export type SearchSource = typeof SEARCH_SOURCES[number];
 export type SearchSort = "relevance" | "title" | "reference";
-export interface SearchInput {
+export interface SearchInput extends SearchResources {
   q: string; scope: string; mode: "text" | "metadata"; field: string; phrase: boolean;
   source: SearchSource; match: "ranked" | "literal"; extension: string; sort: SearchSort;
   filter: string; regex: boolean; caseSensitive: boolean;
 }
-export const EMPTY_SEARCH: SearchInput = { q: "", scope: "", mode: "text", field: "", phrase: false, source: "", match: "ranked", extension: "", sort: "relevance", filter: "", regex: false, caseSensitive: false };
-/** URLSearchParams replaces unpaired surrogates; reject instead of silently
- * searching for a different string. This also protects portable profiles. */
-export const validSearchText = (value: string): boolean => !value.includes("\0") && !/[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/.test(value);
+export const EMPTY_SEARCH: SearchInput = { ...EMPTY_RESOURCES, q: "", scope: "", mode: "text", field: "", phrase: false, source: "", match: "ranked", extension: "", sort: "relevance", filter: "", regex: false, caseSensitive: false };
 export const privateSearchScope = (scope: string): boolean => scope === "/Private" || scope.startsWith("/Private/");
-export function searchScope(value: string): string {
-  if (!validSearchText(value)) throw new Error("Scope must contain valid Unicode without NUL");
-  if (value.trim().includes("//")) throw new Error("Scope must not contain repeated slashes");
-  const scope = value.trim().replace(/\/+$/, "") || (value.trim() ? "/" : "");
-  if (scope.length > 4096 || /[\x00-\x1f\x7f\\]/.test(scope) || (scope && !scope.startsWith("/")) || scope.split("/").some(p => p === "." || p === "..") || scope.includes("//")) throw new Error("Scope must be an absolute folder path without dot segments");
-  return scope;
-}
 export function searchExtension(value: string): string {
   let extension = value.trim().toLowerCase(); if (extension && !extension.startsWith(".")) extension = `.${extension}`;
   if (extension && !/^\.[a-z0-9][a-z0-9._-]{0,30}$/.test(extension)) throw new Error("File extension must be a literal suffix such as .md or .tar.gz (up to 32 characters)");
@@ -44,6 +37,8 @@ export function searchInput(raw: unknown): SearchInput {
   if (Object.hasOwn(data, "sort")) { if (!["relevance", "title", "reference"].includes(String(data.sort))) throw new Error("Unknown result order"); result.sort = data.sort as SearchSort; }
   if (result.extension && result.source && result.source !== "file") throw new Error("A file extension requires file sources");
   if (result.mode === "metadata" && result.source && result.source !== "file") throw new Error("Live metadata supports file sources only");
+  Object.assign(result, searchResources(data as Partial<SearchResources>));
+  if (contentFiltersUsed(result) && result.source && !["file", "note"].includes(result.source)) throw new Error("Modified-date and content-size filters support files and notes, not Spec or Settings");
   return result;
 }
 export function searchOptions(params: URLSearchParams): Pick<SearchInput, "q" | "scope" | "source" | "match" | "extension"> {

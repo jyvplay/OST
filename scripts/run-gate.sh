@@ -17,22 +17,29 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-PURE="tt133-core tt133-projections tt132-core tt132-claim-contract tt132-lint-contract unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core tt130-alarms-core tt130-privacy-boot tt85-inventory"
-LANE_A="tt133-http tt133-browser-kernels e2e-tt133-notes-find e2e-tt133-boundaries e2e-tt134-ownership tt134-icon-review tt134-review-repairs integration e2e-office e2e-sheet-layout e2e-vector e2e-tt81 e2e-tt49-writer e2e-tt73-writer tt132-oracles tt132-planner-http e2e-tt132-alarms e2e-tt132-planner tt131-ledger e2e-tt131-image-viewport e2e-tt130-privacy e2e-tt130-alarms e2e-tt129-offline e2e-tt129-calendar tt128-calendar-race tt128-writer-races e2e-tt128-worker e2e-tt128-photos e2e-tt128-time e2e-tt128-editor tt124-core e2e-tt124 e2e-tt125 e2e-tt126 tt127-conditional e2e-tt127-vault e2e-tt127-photos tt123-core e2e-tt123 tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
+PURE="tt134-workflows-core tt133-core tt133-projections tt132-core tt132-claim-contract tt132-lint-contract unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core tt130-alarms-core tt130-privacy-boot tt85-inventory"
+LANE_A="tt134-workflows-http e2e-tt134-workflows-notes e2e-tt134-workflows-clipboard e2e-tt134-workflows-find tt133-http tt133-browser-kernels e2e-tt133-notes-find e2e-tt133-boundaries e2e-tt134-ownership tt134-icon-review tt134-review-repairs integration e2e-office e2e-sheet-layout e2e-vector e2e-tt81 e2e-tt49-writer e2e-tt73-writer tt132-oracles tt132-planner-http e2e-tt132-alarms e2e-tt132-planner tt131-ledger e2e-tt131-image-viewport e2e-tt130-privacy e2e-tt130-alarms e2e-tt129-offline e2e-tt129-calendar tt128-calendar-race tt128-writer-races e2e-tt128-worker e2e-tt128-photos e2e-tt128-time e2e-tt128-editor tt124-core e2e-tt124 e2e-tt125 e2e-tt126 tt127-conditional e2e-tt127-vault e2e-tt127-photos tt123-core e2e-tt123 tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
 LANE_B="tt124-density tt125-density tt123-density tt122-density tt121-density tt120-density tt119-density tt118-density tt117-density tt116-density"
 
 if [ "${TT89_DISPOSABLE_DATABASE:-}" != "1" ]; then
   echo "REFUSED: set TT89_DISPOSABLE_DATABASE=1 only for an exclusive disposable server/database."
   exit 2
 fi
-LOG_DIR="${GATE_LOG_DIR:-.cache/gate/$(date -u +%Y%m%dT%H%M%SZ)-$$}"
-mkdir -p "$LOG_DIR"
+# A parent-provided root is NOT an invocation ID. Nested runner-contract
+# checks must never truncate the real gate's receipts (or create sparse holes).
+LOG_ROOT="${GATE_LOG_DIR:-.cache/gate/$(date -u +%Y%m%dT%H%M%SZ)}"
+mkdir -p -- "$LOG_ROOT" || exit 2
+LOG_DIR="$(mktemp -d "$LOG_ROOT/run-$$-XXXXXX")" || exit 2
 echo "Full suite logs: $LOG_DIR"
+echo "== independent test-tool and pinned-corpus prerequisites"
+node scripts/gate-prerequisites.mjs >"$LOG_DIR/prerequisites.log" 2>&1 || { cat "$LOG_DIR/prerequisites.log"; echo "GATE FAILED (prerequisites)"; exit 1; }
+cat "$LOG_DIR/prerequisites.log"
 echo "== TT133/TT134 scripts semantic typecheck (root tsconfig does not include .mts)"
 node node_modules/typescript/bin/tsc --project scripts/tsconfig-tt134.json || { echo "GATE FAILED (script types)"; exit 1; }
 echo "== pure suites (parallel via run-fast.sh)"
-JOBS="${JOBS:-2}" bash scripts/run-fast.sh $PURE "$@" || { echo "GATE FAILED (pure)"; exit 1; }
-node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/tt126-regressions.mts || { echo "GATE FAILED (TT126 regressions)"; exit 1; }
+FAST_LOG_DIR="$LOG_DIR/pure" JOBS="${JOBS:-2}" bash scripts/run-fast.sh $PURE "$@" || { echo "GATE FAILED (pure)"; exit 1; }
+node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/tt126-regressions.mts >"$LOG_DIR/tt126-regressions.log" 2>&1 || { cat "$LOG_DIR/tt126-regressions.log"; echo "GATE FAILED (TT126 regressions)"; exit 1; }
+cat "$LOG_DIR/tt126-regressions.log"
 
 if [ -z "${BASE:-}" ] || [ -z "${DATABASE_URL:-}" ]; then
   echo "REFUSED: BASE and DATABASE_URL must point at the disposable gate server (see run-all.sh)"

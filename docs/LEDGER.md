@@ -1,7 +1,7 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-11-02T01:34:12.532Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
-411 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-11-02T16:51:42.859Z by `scripts/ledger.mjs` from the live register (http://127.0.0.1:3000) and
+417 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
 Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
 Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
@@ -11,21 +11,21 @@ See each suite timestamp and the latest turn report for current tests, known cla
 
 | | Count |
 |---|---:|
-| **Features in register** | **627** |
-| Fully built | 519 |
+| **Features in register** | **647** |
+| Fully built | 539 |
 | Partially built (partial 66 + probe 18) | 84 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 24 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **469** |
+| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **489** |
 | **Partially tested** (partial tags or an incomplete row with passing evidence) | **122** |
 | Untested | 36 |
-| Recorded test cases / passed (mixed run dates) | 3582 / 3582 |
+| Recorded test cases / passed (mixed run dates) | 3742 / 3742 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 463 | 55 | 1 |
+| fully built | 483 | 55 | 1 |
 | partially built | 0 | 58 | 26 |
 | blocked | 6 | 9 | 9 |
 | skeleton | 0 | 0 | 0 |
@@ -37,11 +37,11 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 8 | 8 | 0 | 2026-11-02T00:48:09.335Z |
-| ai-format | 5 | 5 | 0 | 2026-11-02T00:48:18.170Z |
+| a11y-unit | 8 | 8 | 0 | 2026-11-02T16:21:05.898Z |
+| ai-format | 5 | 5 | 0 | 2026-11-02T16:21:15.423Z |
 | browser-session | 5 | 5 | 0 | 2026-10-30T17:48:48.358Z |
-| contacts-engine | 8 | 8 | 0 | 2026-11-02T00:48:15.954Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-11-02T01:29:48.443Z |
+| contacts-engine | 8 | 8 | 0 | 2026-11-02T16:21:12.872Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-11-02T16:40:42.978Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
 | e2e-browser | 6 | 6 | 0 | 2026-10-30T17:55:03.660Z |
@@ -49,9 +49,9 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-image | 11 | 11 | 0 | 2026-10-31T05:14:55.173Z |
 | e2e-layout | 12 | 12 | 0 | 2026-10-29T19:51:15.019Z |
 | e2e-media27 | 7 | 7 | 0 | 2026-10-25T22:23:42.055Z |
-| e2e-office | 11 | 11 | 0 | 2026-11-02T00:50:56.157Z |
+| e2e-office | 11 | 11 | 0 | 2026-11-02T16:26:12.524Z |
 | e2e-privacy | 16 | 16 | 0 | 2026-10-31T05:40:42.112Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-11-02T00:51:31.736Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-11-02T16:26:47.294Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-26T13:12:19.850Z |
 | e2e-tabletop | 15 | 15 | 0 | 2026-10-27T21:16:03.541Z |
 | e2e-tt100-recall | 27 | 27 | 0 | 2026-10-29T19:41:23.175Z |
@@ -77,33 +77,36 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt114-density | 6 | 6 | 0 | 2026-10-29T19:54:04.033Z |
 | e2e-tt114-shell | 9 | 9 | 0 | 2026-10-29T19:53:33.210Z |
 | e2e-tt114-tabs | 5 | 5 | 0 | 2026-10-29T23:45:00.924Z |
-| e2e-tt117 | 5 | 5 | 0 | 2026-11-02T01:24:01.797Z |
+| e2e-tt117 | 5 | 5 | 0 | 2026-11-02T16:35:55.108Z |
 | e2e-tt118 | 5 | 5 | 0 | 2026-10-30T00:30:35.025Z |
-| e2e-tt119 | 4 | 4 | 0 | 2026-11-02T01:01:48.321Z |
-| e2e-tt120 | 4 | 4 | 0 | 2026-11-02T01:01:28.750Z |
-| e2e-tt121 | 4 | 4 | 0 | 2026-11-02T01:01:12.097Z |
-| e2e-tt122 | 3 | 3 | 0 | 2026-11-02T01:33:15.408Z |
-| e2e-tt123 | 3 | 3 | 0 | 2026-11-02T01:00:07.653Z |
-| e2e-tt124 | 4 | 4 | 0 | 2026-11-02T00:58:09.403Z |
-| e2e-tt125 | 3 | 3 | 0 | 2026-11-02T00:58:54.146Z |
-| e2e-tt126 | 4 | 4 | 0 | 2026-11-02T00:59:06.101Z |
-| e2e-tt127-photos | 1 | 1 | 0 | 2026-11-02T00:59:28.411Z |
-| e2e-tt127-vault | 3 | 3 | 0 | 2026-11-02T00:59:23.060Z |
-| e2e-tt128-editor | 4 | 4 | 0 | 2026-11-02T00:57:33.659Z |
-| e2e-tt128-photos | 11 | 11 | 0 | 2026-11-02T00:57:18.273Z |
-| e2e-tt128-time | 2 | 2 | 0 | 2026-11-02T00:57:26.923Z |
-| e2e-tt128-worker | 4 | 4 | 0 | 2026-11-02T00:56:41.755Z |
-| e2e-tt129-calendar | 3 | 3 | 0 | 2026-11-02T00:56:32.493Z |
-| e2e-tt129-offline | 4 | 4 | 0 | 2026-11-02T00:56:25.724Z |
-| e2e-tt130-alarms | 9 | 9 | 0 | 2026-11-02T00:56:04.494Z |
-| e2e-tt130-privacy | 1 | 1 | 0 | 2026-11-02T00:55:26.971Z |
-| e2e-tt131-image-viewport | 10 | 10 | 0 | 2026-11-02T00:55:23.887Z |
-| e2e-tt132-alarms | 13 | 13 | 0 | 2026-11-02T00:54:27.394Z |
-| e2e-tt132-planner | 17 | 17 | 0 | 2026-11-02T00:55:18.399Z |
-| e2e-tt133-boundaries | 7 | 7 | 0 | 2026-11-02T00:49:42.232Z |
-| e2e-tt133-notes-find | 27 | 27 | 0 | 2026-11-02T01:32:07.004Z |
+| e2e-tt119 | 4 | 4 | 0 | 2026-11-02T16:35:39.332Z |
+| e2e-tt120 | 4 | 4 | 0 | 2026-11-02T16:35:19.346Z |
+| e2e-tt121 | 4 | 4 | 0 | 2026-11-02T16:35:03.680Z |
+| e2e-tt122 | 3 | 3 | 0 | 2026-11-02T16:34:39.296Z |
+| e2e-tt123 | 3 | 3 | 0 | 2026-11-02T16:34:19.525Z |
+| e2e-tt124 | 4 | 4 | 0 | 2026-11-02T16:32:27.157Z |
+| e2e-tt125 | 3 | 3 | 0 | 2026-11-02T16:33:10.172Z |
+| e2e-tt126 | 4 | 4 | 0 | 2026-11-02T16:33:21.780Z |
+| e2e-tt127-photos | 1 | 1 | 0 | 2026-11-02T16:33:40.874Z |
+| e2e-tt127-vault | 3 | 3 | 0 | 2026-11-02T16:33:36.078Z |
+| e2e-tt128-editor | 4 | 4 | 0 | 2026-11-02T16:31:57.102Z |
+| e2e-tt128-photos | 11 | 11 | 0 | 2026-11-02T16:31:43.627Z |
+| e2e-tt128-time | 2 | 2 | 0 | 2026-11-02T16:31:51.298Z |
+| e2e-tt128-worker | 4 | 4 | 0 | 2026-11-02T16:31:11.600Z |
+| e2e-tt129-calendar | 3 | 3 | 0 | 2026-11-02T16:31:03.966Z |
+| e2e-tt129-offline | 4 | 4 | 0 | 2026-11-02T16:30:58.400Z |
+| e2e-tt130-alarms | 9 | 9 | 0 | 2026-11-02T16:30:38.345Z |
+| e2e-tt130-privacy | 1 | 1 | 0 | 2026-11-02T16:30:10.135Z |
+| e2e-tt131-image-viewport | 10 | 10 | 0 | 2026-11-02T16:30:07.326Z |
+| e2e-tt132-alarms | 13 | 13 | 0 | 2026-11-02T16:29:18.590Z |
+| e2e-tt132-planner | 17 | 17 | 0 | 2026-11-02T16:30:01.942Z |
+| e2e-tt133-boundaries | 7 | 7 | 0 | 2026-11-02T16:24:26.014Z |
+| e2e-tt133-notes-find | 27 | 27 | 0 | 2026-11-02T16:24:08.715Z |
 | e2e-tt133-openssh | 7 | 7 | 0 | 2026-11-02T00:17:19.134Z |
-| e2e-tt134-ownership | 6 | 6 | 0 | 2026-11-02T01:32:34.935Z |
+| e2e-tt134-ownership | 6 | 6 | 0 | 2026-11-02T16:24:52.349Z |
+| e2e-tt134-workflows-clipboard | 11 | 11 | 0 | 2026-11-02T16:22:34.851Z |
+| e2e-tt134-workflows-find | 10 | 10 | 0 | 2026-11-02T16:23:02.320Z |
+| e2e-tt134-workflows-notes | 13 | 13 | 0 | 2026-11-02T16:22:06.017Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -126,7 +129,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt47 | 5 | 5 | 0 | 2026-10-25T22:48:18.928Z |
 | e2e-tt48-sync | 4 | 4 | 0 | 2026-10-25T22:49:07.022Z |
 | e2e-tt48 | 6 | 6 | 0 | 2026-10-25T22:48:59.174Z |
-| e2e-tt49-writer | 6 | 6 | 0 | 2026-11-02T00:53:11.797Z |
+| e2e-tt49-writer | 6 | 6 | 0 | 2026-11-02T16:28:15.597Z |
 | e2e-tt49 | 5 | 5 | 0 | 2026-10-25T22:49:43.811Z |
 | e2e-tt50-charts | 5 | 5 | 0 | 2026-10-26T13:09:52.094Z |
 | e2e-tt51-slides | 6 | 6 | 0 | 2026-10-26T15:55:38.896Z |
@@ -159,7 +162,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt71-focus | 4 | 4 | 0 | 2026-10-25T23:15:45.675Z |
 | e2e-tt72-access | 4 | 4 | 0 | 2026-10-25T23:17:42.237Z |
 | e2e-tt72-pad | 5 | 5 | 0 | 2026-10-25T23:17:23.026Z |
-| e2e-tt73-writer | 4 | 4 | 0 | 2026-11-02T00:53:29.724Z |
+| e2e-tt73-writer | 4 | 4 | 0 | 2026-11-02T16:28:31.756Z |
 | e2e-tt74-office | 6 | 6 | 0 | 2026-10-25T23:22:40.553Z |
 | e2e-tt75-books | 16 | 16 | 0 | 2026-10-25T23:26:09.598Z |
 | e2e-tt76-sheet | 6 | 6 | 0 | 2026-10-25T23:26:23.466Z |
@@ -168,7 +171,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt78-sheet | 3 | 3 | 0 | 2026-10-26T11:55:23.062Z |
 | e2e-tt79-archive | 7 | 7 | 0 | 2026-10-26T13:07:47.830Z |
 | e2e-tt79-pdf | 5 | 5 | 0 | 2026-10-26T15:55:00.602Z |
-| e2e-tt81 | 7 | 7 | 0 | 2026-11-02T00:52:36.899Z |
+| e2e-tt81 | 7 | 7 | 0 | 2026-11-02T16:27:45.214Z |
 | e2e-tt85 | 3 | 3 | 0 | 2026-10-27T07:26:10.093Z |
 | e2e-tt86-pointer | 6 | 6 | 0 | 2026-10-27T23:10:30.896Z |
 | e2e-tt87-backup | 6 | 6 | 0 | 2026-10-27T21:23:53.015Z |
@@ -199,13 +202,13 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-29T19:38:36.272Z |
 | e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-29T19:38:55.599Z |
 | e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-29T19:39:41.331Z |
-| e2e-vector | 12 | 12 | 0 | 2026-11-02T00:52:03.277Z |
+| e2e-vector | 12 | 12 | 0 | 2026-11-02T16:27:15.915Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 68 | 68 | 0 | 2026-10-30T17:51:32.119Z |
-| image | 16 | 16 | 0 | 2026-11-02T00:48:16.487Z |
-| integration | 25 | 25 | 0 | 2026-11-02T00:50:22.756Z |
-| layout-unit | 8 | 8 | 0 | 2026-11-02T00:48:09.703Z |
-| maps-unit | 6 | 6 | 0 | 2026-11-02T00:48:14.850Z |
+| image | 16 | 16 | 0 | 2026-11-02T16:21:13.346Z |
+| integration | 25 | 25 | 0 | 2026-11-02T16:25:36.964Z |
+| layout-unit | 8 | 8 | 0 | 2026-11-02T16:21:06.263Z |
+| maps-unit | 6 | 6 | 0 | 2026-11-02T16:21:11.792Z |
 | metaclean | 6 | 6 | 0 | 2026-10-30T17:48:56.803Z |
 | names | 7 | 7 | 0 | 2026-10-30T17:48:41.792Z |
 | office | 35 | 35 | 0 | 2026-10-30T17:48:35.700Z |
@@ -219,9 +222,9 @@ verifies the honesty contract, not the (impossible) capability.
 | privacy-crypto | 9 | 9 | 0 | 2026-10-31T05:40:17.723Z |
 | privacy-layer | 13 | 13 | 0 | 2026-10-31T05:40:43.737Z |
 | sheet-layout | 6 | 6 | 0 | 2026-10-30T17:48:38.199Z |
-| stream-unit | 7 | 7 | 0 | 2026-11-02T00:48:15.123Z |
-| tables-engine | 9 | 9 | 0 | 2026-11-02T00:48:17.176Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-11-02T00:48:15.558Z |
+| stream-unit | 7 | 7 | 0 | 2026-11-02T16:21:12.046Z |
+| tables-engine | 9 | 9 | 0 | 2026-11-02T16:21:14.171Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-11-02T16:21:12.481Z |
 | tt101-search | 37 | 37 | 0 | 2026-10-29T19:36:23.826Z |
 | tt102-private-bound | 5 | 5 | 0 | 2026-10-29T19:36:21.550Z |
 | tt102-search | 33 | 33 | 0 | 2026-10-29T19:35:51.689Z |
@@ -243,56 +246,59 @@ verifies the honesty contract, not the (impossible) capability.
 | tt111-recall-tap | 7 | 7 | 0 | 2026-10-29T19:51:19.261Z |
 | tt114-core | 9 | 9 | 0 | 2026-10-29T19:53:11.828Z |
 | tt114-recall-token | 8 | 8 | 0 | 2026-10-29T19:53:12.448Z |
-| tt116-density | 6 | 6 | 0 | 2026-11-02T01:14:08.714Z |
+| tt116-density | 6 | 6 | 0 | 2026-11-02T16:48:39.052Z |
 | tt116-platform | 9 | 9 | 0 | 2026-10-29T19:54:07.136Z |
 | tt116-recall-archive | 8 | 8 | 0 | 2026-10-29T19:54:06.444Z |
 | tt116-recall-retention | 7 | 7 | 0 | 2026-10-29T19:54:05.957Z |
 | tt116-safesave | 15 | 15 | 0 | 2026-10-31T04:53:31.846Z |
-| tt117-core | 12 | 12 | 0 | 2026-11-02T00:48:17.490Z |
-| tt117-density | 1 | 1 | 0 | 2026-11-02T01:31:00.345Z |
-| tt118-core | 12 | 12 | 0 | 2026-11-02T00:48:17.780Z |
-| tt118-density | 1 | 1 | 0 | 2026-11-02T01:13:50.503Z |
-| tt119-core | 11 | 11 | 0 | 2026-11-02T00:48:18.048Z |
-| tt119-density | 1 | 1 | 0 | 2026-11-02T01:12:39.976Z |
-| tt120-core | 10 | 10 | 0 | 2026-11-02T01:01:12.353Z |
-| tt120-density | 1 | 1 | 0 | 2026-11-02T01:11:29.781Z |
-| tt121-core | 19 | 19 | 0 | 2026-11-02T00:48:18.466Z |
-| tt121-density | 1 | 1 | 0 | 2026-11-02T01:10:23.098Z |
-| tt122-core | 20 | 20 | 0 | 2026-11-02T01:00:08.018Z |
-| tt122-density | 1 | 1 | 0 | 2026-11-02T01:30:55.502Z |
-| tt123-core | 18 | 18 | 0 | 2026-11-02T00:59:28.663Z |
-| tt123-density | 23 | 23 | 0 | 2026-11-02T01:25:31.487Z |
-| tt124-core | 19 | 19 | 0 | 2026-11-02T00:57:34.115Z |
-| tt124-density | 23 | 23 | 0 | 2026-11-02T01:24:56.517Z |
-| tt125-core | 17 | 17 | 0 | 2026-11-02T00:48:18.976Z |
-| tt125-density | 3 | 3 | 0 | 2026-11-02T01:07:36.573Z |
-| tt126-regressions | 6 | 6 | 0 | 2026-11-02T00:48:21.968Z |
-| tt127-conditional | 3 | 3 | 0 | 2026-11-02T00:59:06.424Z |
-| tt128-calendar-race | 1 | 1 | 0 | 2026-11-02T00:56:32.940Z |
-| tt128-core | 23 | 23 | 0 | 2026-11-02T00:48:19.993Z |
+| tt117-core | 12 | 12 | 0 | 2026-11-02T16:21:14.607Z |
+| tt117-density | 1 | 1 | 0 | 2026-11-02T16:48:26.612Z |
+| tt118-core | 12 | 12 | 0 | 2026-11-02T16:21:14.924Z |
+| tt118-density | 1 | 1 | 0 | 2026-11-02T16:48:21.384Z |
+| tt119-core | 11 | 11 | 0 | 2026-11-02T16:21:15.204Z |
+| tt119-density | 1 | 1 | 0 | 2026-11-02T16:47:15.596Z |
+| tt120-core | 10 | 10 | 0 | 2026-11-02T16:35:03.913Z |
+| tt120-density | 1 | 1 | 0 | 2026-11-02T16:46:08.760Z |
+| tt121-core | 19 | 19 | 0 | 2026-11-02T16:21:15.717Z |
+| tt121-density | 1 | 1 | 0 | 2026-11-02T16:45:04.096Z |
+| tt122-core | 20 | 20 | 0 | 2026-11-02T16:34:19.809Z |
+| tt122-density | 1 | 1 | 0 | 2026-11-02T16:43:37.636Z |
+| tt123-core | 18 | 18 | 0 | 2026-11-02T16:33:41.117Z |
+| tt123-density | 23 | 23 | 0 | 2026-11-02T16:42:24.180Z |
+| tt124-core | 19 | 19 | 0 | 2026-11-02T16:31:57.403Z |
+| tt124-density | 23 | 23 | 0 | 2026-11-02T16:41:18.727Z |
+| tt125-core | 17 | 17 | 0 | 2026-11-02T16:21:16.223Z |
+| tt125-density | 3 | 3 | 0 | 2026-11-02T16:41:50.208Z |
+| tt126-regressions | 6 | 6 | 0 | 2026-11-02T16:21:19.348Z |
+| tt127-conditional | 3 | 3 | 0 | 2026-11-02T16:33:22.039Z |
+| tt128-calendar-race | 1 | 1 | 0 | 2026-11-02T16:31:04.286Z |
+| tt128-core | 23 | 23 | 0 | 2026-11-02T16:21:17.129Z |
 | tt128-oracle | 5 | 5 | 0 | 2026-10-31T04:47:39.773Z |
 | tt128-visual | 47 | 47 | 0 | 2026-10-30T23:13:54.938Z |
-| tt128-writer-races | 2 | 2 | 0 | 2026-11-02T00:56:33.590Z |
-| tt129-calendar-core | 6 | 6 | 0 | 2026-11-02T00:48:19.750Z |
-| tt129-core | 7 | 7 | 0 | 2026-11-02T00:48:19.305Z |
-| tt129-worker-unit | 5 | 5 | 0 | 2026-11-02T00:48:19.542Z |
-| tt130-alarms-core | 4 | 4 | 0 | 2026-11-02T00:48:19.981Z |
-| tt130-privacy-boot | 1 | 1 | 0 | 2026-11-02T00:48:20.316Z |
-| tt131-ledger | 5 | 5 | 0 | 2026-11-02T00:55:18.714Z |
-| tt132-claim-contract | 3 | 3 | 0 | 2026-11-02T00:48:08.931Z |
-| tt132-core | 12 | 12 | 0 | 2026-11-02T00:48:08.728Z |
-| tt132-lint-contract | 4 | 4 | 0 | 2026-11-02T00:48:08.931Z |
-| tt132-oracles | 5 | 5 | 0 | 2026-11-02T00:53:30.059Z |
-| tt132-planner-http | 11 | 11 | 0 | 2026-11-02T00:53:30.789Z |
+| tt128-writer-races | 2 | 2 | 0 | 2026-11-02T16:31:04.779Z |
+| tt129-calendar-core | 6 | 6 | 0 | 2026-11-02T16:21:16.908Z |
+| tt129-core | 7 | 7 | 0 | 2026-11-02T16:21:16.492Z |
+| tt129-worker-unit | 5 | 5 | 0 | 2026-11-02T16:21:16.699Z |
+| tt130-alarms-core | 4 | 4 | 0 | 2026-11-02T16:21:17.119Z |
+| tt130-privacy-boot | 1 | 1 | 0 | 2026-11-02T16:21:17.457Z |
+| tt131-ledger | 5 | 5 | 0 | 2026-11-02T16:30:02.169Z |
+| tt132-claim-contract | 3 | 3 | 0 | 2026-11-02T16:21:05.488Z |
+| tt132-core | 12 | 12 | 0 | 2026-11-02T16:21:05.120Z |
+| tt132-lint-contract | 4 | 4 | 0 | 2026-11-02T16:21:05.409Z |
+| tt132-oracles | 5 | 5 | 0 | 2026-11-02T16:28:31.993Z |
+| tt132-planner-http | 11 | 11 | 0 | 2026-11-02T16:28:32.586Z |
 | tt132-visual | 94 | 94 | 0 | 2026-10-31T07:19:57.468Z |
-| tt133-browser-kernels | 7 | 7 | 0 | 2026-11-02T00:48:29.717Z |
-| tt133-core | 23 | 23 | 0 | 2026-11-02T01:32:35.415Z |
-| tt133-http | 13 | 13 | 0 | 2026-11-02T00:48:28.106Z |
-| tt133-projections | 6 | 6 | 0 | 2026-11-02T00:48:08.457Z |
-| tt134-icon-review | 5 | 5 | 0 | 2026-11-02T00:50:19.776Z |
+| tt133-browser-kernels | 8 | 8 | 0 | 2026-11-02T16:23:09.495Z |
+| tt133-core | 23 | 23 | 0 | 2026-11-02T16:21:04.719Z |
+| tt133-http | 13 | 13 | 0 | 2026-11-02T16:23:07.630Z |
+| tt133-projections | 6 | 6 | 0 | 2026-11-02T16:21:05.232Z |
+| tt134-icon-review | 5 | 5 | 0 | 2026-11-02T16:25:04.066Z |
 | tt134-note-migration | 7 | 7 | 0 | 2026-11-02T00:22:44.722Z |
-| tt134-review-repairs | 8 | 8 | 0 | 2026-11-02T01:23:47.886Z |
+| tt134-review-repairs | 8 | 8 | 0 | 2026-11-02T16:25:33.539Z |
 | tt134-visual | 94 | 94 | 0 | 2026-11-02T00:23:34.190Z |
+| tt134-workflows-core | 22 | 22 | 0 | 2026-11-02T16:21:04.808Z |
+| tt134-workflows-http | 9 | 9 | 0 | 2026-11-02T16:21:24.195Z |
+| tt134-workflows-visual | 94 | 94 | 0 | 2026-11-02T03:43:52.511Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-30T17:49:09.360Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-30T17:49:10.295Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -389,7 +395,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt84-wordcount | 15 | 15 | 0 | 2026-10-26T20:46:39.790Z |
 | tt85-find | 4 | 4 | 0 | 2026-10-27T00:31:18.229Z |
 | tt85-identity | 5 | 5 | 0 | 2026-10-27T00:31:17.511Z |
-| tt85-inventory | 4 | 4 | 0 | 2026-11-02T00:48:20.176Z |
+| tt85-inventory | 4 | 4 | 0 | 2026-11-02T16:21:17.298Z |
 | tt86-pointer | 3 | 3 | 0 | 2026-10-27T21:22:59.018Z |
 | tt87-backup-http | 8 | 8 | 0 | 2026-10-27T21:23:44.185Z |
 | tt87-backup | 5 | 5 | 0 | 2026-10-27T21:23:43.295Z |
@@ -444,10 +450,10 @@ verifies the honesty contract, not the (impossible) capability.
 | tt97-palette-commands | 4 | 4 | 0 | 2026-10-29T19:38:14.093Z |
 | tt97-palette-mutants | 8 | 8 | 0 | 2026-10-27T23:08:25.457823+00:00 |
 | tt97-svg-attributes | 3 | 3 | 0 | 2026-10-28T02:00:16.639Z |
-| unit | 23 | 23 | 0 | 2026-11-02T00:48:16.895Z |
+| unit | 23 | 23 | 0 | 2026-11-02T16:21:14.249Z |
 | vector-boolean | 6 | 6 | 0 | 2026-10-31T04:47:55.306Z |
-| vector | 18 | 18 | 0 | 2026-11-02T00:48:16.819Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-11-02T00:48:17.079Z |
+| vector | 18 | 18 | 0 | 2026-11-02T16:21:13.656Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-11-02T16:21:13.901Z |
 
 ## Rows touched by failing tests
 
@@ -457,8 +463,9 @@ None.
 
 | family | rows | built | partial+probe | blocked | fully tested | partially tested | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Notes | 18 | 18 | 0 | 0 | 18 | 0 | 0 |
-| Find | 15 | 15 | 0 | 0 | 15 | 0 | 0 |
+| Notes | 27 | 27 | 0 | 0 | 27 | 0 | 0 |
+| Clipboard | 8 | 8 | 0 | 0 | 8 | 0 | 0 |
+| Find | 21 | 21 | 0 | 0 | 21 | 0 | 0 |
 | Editor | 9 | 9 | 0 | 0 | 9 | 0 | 0 |
 | Pdf | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
 | Writer | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
@@ -473,7 +480,6 @@ None.
 | Whiteboard | 3 | 3 | 0 | 0 | 2 | 1 | 0 |
 | Lens | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
 | Apps | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
-| Clipboard | 3 | 3 | 0 | 0 | 3 | 0 | 0 |
 | Together | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
 | Settings | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
 | Books | 2 | 2 | 0 | 0 | 2 | 0 | 0 |
@@ -541,9 +547,29 @@ None.
 
 | code | status | tested | evidence (passing tests) |
 |---|---|---|---|
-| NT-08 | built | full | e2e-tt133-boundaries: Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work; e2e-tt133-boundaries: Real quota: explicit Discard edits is separately confirmed, preserves the saved note and cannot resurrect a delayed recovery draft; e2e-tt133-notes-find: NT-08: changing notes asks; Cancel preserves all edits, Save commits before navigation and no delayed draft resurrects (+5) |
+| NT-19 | built | full | e2e-tt134-workflows-notes: NT-19: native collection download/file import round-trips fields into new indexed IDs; invalid/cancelled import changes nothing; tt134-workflows-core: Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget; tt134-workflows-core: Portable note copies round-trip editable fields only; unknown envelopes and identities are refused (+3) |
+| NT-20 | built | full | e2e-tt134-workflows-notes: NT-20: merge checked saved snapshots into a new note; an unsaved source draft and both original records remain exact; tt134-workflows-core: Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget; tt134-workflows-core: Merge creates a separate saved-body composition, preserves inputs and rejects oversized output (+2) |
+| NT-21 | built | full | e2e-tt134-workflows-notes: NT-21: split the current draft at real top-level headings, ignore fenced headings, preserve every source character and support cancellation; tt134-workflows-core: Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget; tt134-workflows-core: Heading splits ignore fenced headings and preserve the exact CRLF source when rejoined (+2) |
+| NT-22 | built | full | e2e-tt134-workflows-notes: NT-22: native find-next selects/wraps actual textarea matches; literal replace saves exact Unicode and empty find is refused; e2e-tt134-workflows-notes: NT-22/23 patch attack: a CRLF source find selects the visible Unicode match and link replacement preserves every other source byte; tt134-workflows-core: Literal replace is exact/case-sensitive, supports deletion, and refuses explosive expansion before construction (+1) |
+| NT-23 | built | full | e2e-tt134-workflows-notes: NT-23: real selection + link form inserts a safe encoded Markdown anchor; active schemes fail without altering the draft; e2e-tt134-workflows-notes: NT-22/23 patch attack: a CRLF source find selects the visible Unicode match and link replacement preserves every other source byte; tt134-workflows-core: Link construction replaces only the selected range, rejects active schemes/bracket labels, encodes URL parentheses (+1) |
+| NT-24 | built | full | e2e-tt134-workflows-notes: NT-24: table builder validates dimensions; native saved preview renders escaped cells/alignment without interpreting HTML; tt134-workflows-core: Pipe tables parse escaped pipes/backslashes and alignment, keep HTML as text and bound rows/columns |
+| NT-25 | built | full | e2e-tt134-workflows-notes: NT-25: save a real VFS template and instantiate its local text tokens into a distinct indexed note without rewriting source/template; tt134-workflows-core: Templates expand only three plain tokens using the supplied real clock; no expression execution or recursive evaluation; tt134-workflows-core: Template budget includes the complete wrapper: exact 4 MiB roundtrip, one byte over refused |
+| NT-26 | built | full | e2e-tt134-workflows-notes: NT-26: compare with a real concurrent saved winner; modal contains keyboard focus/blocks live tiling and never silently accepts its revision; e2e-tt134-workflows-notes: Large-text patch attack: the real async comparison heading follows saved 125/200 percent settings and remains closeable; tt134-workflows-core: Saved-body/clipboard line diff exactly reconstructs each side, including empty/CRLF/Unicode; it is not an LCS claim (+1) |
+| NT-27 | built | full | e2e-tt134-workflows-notes: NT-27: cross-note saved task rollup ignores fences, commits exact task markers and rejects a stale row instead of overwriting a real winner; e2e-tt134-workflows-notes: NT-27 patch attack: an own Save inserting a line cannot retarget the old rollup checkbox to another source line |
+| CB-04 | built | full | e2e-tt134-workflows-clipboard: CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact; e2e-tt134-workflows-clipboard: CB-04 patch attack: CRLF excerpts retain source bytes; bisected Unicode ranges refuse; async focus loss cannot strand Escape; e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled (+4) |
+| CB-05 | built | full | e2e-tt134-workflows-clipboard: CB-05: editing creates a new native clipboard/history copy while retaining the original text and pin; e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled; tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries |
+| CB-06 | built | full | e2e-tt134-workflows-clipboard: CB-06: save a clipboard entry through its real form into a separately indexed public note; blank title cannot commit; e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled; tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries |
+| CB-07 | built | full | e2e-tt134-workflows-clipboard: CB-07: create-only public file transfer preserves exact bytes; Private paths and an existing-file overwrite are refused; e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled; tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries (+1) |
+| CB-08 | built | full | e2e-tt134-workflows-clipboard: CB-08: check two real captures and compare their exact changed lines; one capture cannot launch a comparison; e2e-tt134-workflows-clipboard: CB-08 patch attack: repeated native keyboard/pointer toggles keep both independent checks and release comparison focus; e2e-tt134-workflows-clipboard: CB-08 readiness attack: a checked identity stays checked when same-prefix native captures arrive (+6) |
+| SR-20 | built | full | e2e-tt134-workflows-find: SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload; e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes; tt134-workflows-core: Resource filters validate exact UTC calendar days, half-open intervals and canonical safe byte ranges (+3) |
+| SR-21 | built | full | e2e-tt134-workflows-find: SR-21: inclusive byte controls distinguish Unicode file bytes and note-body bytes; bad intervals cannot search or export stale results; e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes; tt134-workflows-core: Resource filters validate exact UTC calendar days, half-open intervals and canonical safe byte ranges (+3) |
+| SR-22 | built | full | e2e-tt134-workflows-find: SR-22: native query-folder exclusion removes only the literal subtree, composes with scope, and works in live metadata; e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes; tt134-workflows-core: Folder exclusion is canonical, rejects traversal and retains SQL wildcard characters as literal path data (+3) |
+| SR-23 | built | full | e2e-tt134-workflows-find: SR-23: real JSON/CSV downloads contain the current visible ordered hit and completed query, independently parsed; editing query invalidates export; e2e-tt134-workflows-find: Private export uses real encrypted storage/local search, explicit plaintext consent/cancel and actual lock clearing; Private preview stays disabled; tt134-workflows-core: Result JSON is lossless for visible rows/query; CSV neutralizes spreadsheet formulas and independently parses quotes/newlines |
+| SR-24 | built | full | e2e-tt134-workflows-find: SR-24: actual result preview fetches fresh bounded text safely, restores focus, and reports a now-missing result instead of its stale snippet; e2e-tt134-workflows-find: Private export uses real encrypted storage/local search, explicit plaintext consent/cancel and actual lock clearing; Private preview stays disabled; tt134-workflows-http: Preview reads current bounded public text, not stale index snippets; binary/Private/trashed/excluded/missing cases stay safe |
+| SR-25 | built | full | e2e-tt134-workflows-find: SR-25: native continuation retrieves the second real page, deduplicates fixed-index rows, keeps one history entry and invalidates after changing input; e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes; tt134-workflows-core: Literal paging allows exactly four bounded public offsets, rejects ranked/metadata/invalid continuations (+1) |
+| NT-08 | built | full | e2e-tt133-boundaries: Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work; e2e-tt133-boundaries: Real quota: explicit Discard edits is separately confirmed, preserves the saved note and cannot resurrect a delayed recovery draft; e2e-tt133-notes-find: NT-08: changing notes asks; Cancel preserves all edits, Save commits before navigation and no delayed draft resurrects (+6) |
 | NT-09 | built | full | e2e-tt133-boundaries: Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work; e2e-tt133-boundaries: Real quota: explicit Discard edits is separately confirmed, preserves the saved note and cannot resurrect a delayed recovery draft; e2e-tt133-notes-find: NT-09: a real sessionStorage draft survives reload, restores exact text with its old revision, and Save clears it (+5) |
-| NT-10 | built | full | e2e-tt133-notes-find: NT-10: another real HTTP writer wins; stale UI save is refused, editor text remains, and confirmed Reload obtains the winner; e2e-tt134-ownership: Notes Orbit clean-load attack: Pin, Duplicate and Delete work without a prior editor Save, and do not adopt unrelated revisions; e2e-tt134-ownership: Notes Orbit Save→Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits (+13) |
+| NT-10 | built | full | e2e-tt133-notes-find: NT-10: another real HTTP writer wins; stale UI save is refused, editor text remains, and confirmed Reload obtains the winner; e2e-tt134-ownership: Notes Orbit clean-load attack: Pin, Duplicate and Delete work without a prior editor Save, and do not adopt unrelated revisions; e2e-tt134-ownership: Notes Orbit Save→Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits (+14) |
 | NT-11 | built | full | e2e-tt133-notes-find: NT-11: local full-text filtering composes with stored-tag filtering, preserves selection, and has a real empty state; tt133-core: Note filter is NFKC/case-normalized, ANDs terms across title/body/tags, and preserves original order/data |
 | NT-12 | built | full | e2e-tt133-notes-find: NT-12: preview renders a safe Markdown subset without executing raw HTML, loading remote images, or enabling javascript links; tt133-core: Markdown blocks: headings, fenced code, quotes, list items and task lines, with explicit line budget; tt133-core: Inline view uses text-only tokens; executable/relative/data URLs are not links and unmatched delimiters are linear-bounded |
 | NT-13 | built | full | e2e-tt133-notes-find: NT-13: native file input imports fatal UTF-8 Markdown into a persisted indexed note; invalid UTF-8 cannot add a note; e2e-tt134-ownership: Notes Orbit Save→Duplicate copies the newly saved body and a 500-code-unit Unicode title without splitting its last surrogate pair; tt133-core: Markdown import: fatal UTF-8, byte cap and NUL rejection; exact CRLF body and first heading title (+1) |
@@ -553,13 +579,13 @@ None.
 | NT-17 | built | full | e2e-tt133-notes-find: NT-17: interactive checklist checks and unchecks the right source marker; saving/reopening preserves other lines exactly; tt133-core: Checklist edits change exactly one marker, preserve CRLF and unrelated text, and refuse stale line numbers |
 | NT-18 | built | full | e2e-tt133-boundaries: Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work; e2e-tt133-notes-find: NT-18: an actual browser download is self-contained UTF-8 Markdown, includes unsaved text and cannot write a VFS file |
 | SR-13 | built | full | e2e-tt133-notes-find: SR-13: the actual source control changes the native request and excludes other kinds, including an empty wrong source; tt133-core: Search inputs reject malformed source/mode/strategies/scopes, normalize only documented folder/suffix forms; tt133-http: Source/metadata/suffix/mode validation runs before search work and refuses nonsensical combinations |
-| SR-14 | built | full | e2e-tt133-notes-find: SR-14: title and reference orders rearrange only the returned result set deterministically; tt133-core: Result order is deterministic, copies rather than mutates, and uses source/reference tie-breaks |
+| SR-14 | built | full | e2e-tt133-notes-find: SR-14: title and reference orders rearrange only the returned result set deterministically; e2e-tt134-workflows-find: Filter-state patch attack: native text/regex/case/order controls retain their independent scalar values without another host search; tt133-core: Result order is deterministic, copies rather than mutates, and uses source/reference tie-breaks |
 | SR-15 | built | full | e2e-tt133-notes-find: SR-15: literal matching keeps internal whitespace and SQL wildcard characters literal, without ranked/fuzzy matches; tt133-core: Private/RAM literal search preserves whitespace and punctuation; extension filters apply before limit; tt133-http: Literal search keeps SQL wildcard characters literal, returns numeric ranks and excludes fuzzy-only names |
 | SR-16 | built | full | e2e-tt133-notes-find: SR-16: file suffix control is case-insensitive and literal, and a non-file source disables/clears it; tt133-core: Search inputs reject malformed source/mode/strategies/scopes, normalize only documented folder/suffix forms; tt133-core: Private/RAM literal search preserves whitespace and punctuation; extension filters apply before limit (+3) |
 | SR-17 | built | full | e2e-tt133-notes-find: SR-17: native confirmation cancels without a rebuild, then a real confirmed rebuild preserves source bytes; tt133-core: Index prefix agrees with code-point slicing and cannot emit a split surrogate at the 50,000 boundary; tt133-http: Every note/file index prefix is 50,000 Unicode code points, matches real PostgreSQL left(), and never splits a surrogate (+4) |
 | SR-18 | built | full | e2e-tt133-notes-find: SR-18: path diagnosis shows an indexed real file, a nonexistent file, and invalid path refusal without hiding a previous diagnosis; tt133-core: Missing-path validator does not normalize traversal, trailing separators or private-name aliases; tt133-http: Current exclusions are literal folder boundaries in fast search, live metadata and diagnostics (underscore cannot hide its neighbour) (+1) |
-| SR-19 | built | full | e2e-tt133-boundaries: Native Find mount purges canonical and malformed legacy Private history from actual localStorage but preserves a public neighbour; e2e-tt133-boundaries: Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent; e2e-tt133-boundaries: Native corrupt-history attack: truncated JSON containing a Private query is erased rather than left as unparseable plaintext (+3) |
-| SV-02 | built | full | e2e-tt133-boundaries: Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent; e2e-tt133-notes-find: SV-02: saved profiles replay every control instead of inheriting current phrase/field/source/filter state; tt133-core: Saved searches retain phrase, field, source, strategy, suffix, order and client filter controls; old v1 defaults migrate (+1) |
+| SR-19 | built | full | e2e-tt133-boundaries: Native Find mount purges canonical and malformed legacy Private history from actual localStorage but preserves a public neighbour; e2e-tt133-boundaries: Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent; e2e-tt133-boundaries: Native corrupt-history attack: truncated JSON containing a Private query is erased rather than left as unparseable plaintext (+5) |
+| SV-02 | built | full | e2e-tt133-boundaries: Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent; e2e-tt133-notes-find: SV-02: saved profiles replay every control instead of inheriting current phrase/field/source/filter state; e2e-tt134-workflows-find: SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload (+3) |
 | SV-03 | built | full | e2e-tt133-boundaries: Native profile import warns about plaintext Private queries before replacing; cancel preserves the list, and malformed Unicode/unknown fields are refused atomically; e2e-tt133-notes-find: SV-03: native JSON download → delete → file import restores complete profiles; cancelled and invalid imports leave the list untouched; tt133-core: Portable profiles round-trip canonically; malformed, future, oversized and duplicate records are refused atomically |
 | ED-10 | built | full | e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count; e2e-tt128-editor: a delayed selection restore cannot undo a newer caret position or erase later text; e2e-tt128-editor: timestamp replaces only the selected span (+2) |
 | ED-09 | built | full | e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count; e2e-tt128-editor: a delayed selection restore cannot undo a newer caret position or erase later text; e2e-tt128-editor: case expansion preserves the whole transformed selection (+2) |
@@ -946,7 +972,7 @@ None.
 | SC-16 | built | full | e2e-privacy: TT19 private search in the UI: the palette finds an encrypted /Private file by content; Find '/Private only' searches in the tab and sends NO search request to the host; privacy-layer: TT19 private search: /Private is searchable from an in-tab index; scoped queries never reach the host; index follows write/move/trash and dies on lock; privacy-layer: TT19 amnesic search: RAM-only files are searchable in place and hidden host files drop out of results |
 | SC-17 | built | full | e2e-privacy: TT20 backup in the UI: download one encrypted file, verify it, wipe the host volume, restore it from the file — byte-identical ciphertext; privacy-backup: backup is one file holding only ciphertext: no names, no content, no tree shape; cleartext entries are skipped and reported; privacy-backup: verify opens every entry with the passphrase AND with the recovery key; wrong secret and a flipped byte are rejected (+5) |
 | SC-18 | built | full | e2e-privacy: TT20 amnesic unsaved-work guard: RAM-only files listed, leaving asks first, 'Keep all' moves them into /Private encrypted; emergency shutdown never asks; privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses |
-| AX-09 | built | full | a11y-unit: text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz(); a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; a11y-unit: settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour (+9) |
+| AX-09 | built | full | a11y-unit: text-scale maths: default 125 %, Large text mode 200 %, clamps, steps; every inline font size goes through fz(); a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot; a11y-unit: settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour (+10) |
 | AX-10 | built | full | a11y-unit: icon contrast: every palette's glyph colour is ≥3:1 against its tile gradient across the whole glyph area (WCAG 1.4.11); a11y-unit: every registered module and every common file type has a real glyph; tile palettes exist; a11y-unit: no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font) (+3) |
 | AX-11 | built | full | a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each; a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink; e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused (+1) |
 | TB-01 | built | full | e2e-tables: editing: a number cell commits on Enter and recomputes the formula; a non-number is refused; Undo restores; e2e-tables: save .ftable, reopen it from the VFS with the edits intact; export CSV to the VFS; import a CSV file as a new table; e2e: mount: tables (+5) |

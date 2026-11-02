@@ -1,3 +1,4 @@
+import { literalPage, resourceFiltersUsed, resourceOptions } from "../search-resources";
 /**
  * Privacy transport layer (TT18) — the single choke point between every module and the host.
  *
@@ -202,6 +203,18 @@ export class PrivacyLayer {
     const scope = rawScope ? norm(rawScope) : "";
     const source = u.searchParams.get("source") ?? "";
     const privScope = !!scope && isPrivatePath(scope);
+    // Resource predicates have no canonical size/time fields in the in-tab
+    // text index. Never silently merge unfiltered Private/RAM hits, and never
+    // forward a Private query merely to obtain these new public capabilities.
+    let publicOnly = false;
+    try {
+      const page = literalPage(u.searchParams);
+      publicOnly = resourceFiltersUsed(resourceOptions(u.searchParams)) || page.publicPages || page.offset > 0;
+    } catch (error) { return fail(400, error instanceof Error ? error.message : String(error)); }
+    if (publicOnly) {
+      if (privScope || this.amnesic) return json({ ok: false, error: "Date, size, folder-exclusion and public-page controls are unavailable for Private/RAM search. Clear them to search in this tab; no query was sent to the host.", hostQueried: false }, 422);
+      return this.raw(url, init);
+    }
     if(u.searchParams.get('mode')==='metadata'&&(privScope||this.amnesic)){
       try{
         const started=performance.now();

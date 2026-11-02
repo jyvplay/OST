@@ -1,0 +1,25 @@
+  ✓ calendar folds complete content lines at 75 UTF-8 bytes without splitting characters
+  ✓ calendar TEXT escapes round-trip literal backslashes, newline, commas and semicolons
+  ✓ calendar UID and title cannot inject additional properties
+  ✓ nested alarm properties do not override the enclosing event
+  ✓ DUE wins over DTSTART for tasks regardless of property order
+  ✓ calendar dates reject rollover, invalid times and mismatched value type
+  ✓ calendar STATUS matches COMPLETED exactly
+  ✓ calendar rejects injected raw RRULE but permits CRLF note lines
+  ✓ weekly Sunday comes after weekdays, including COUNT and window boundaries
+  ✓ repeat rules reject unsupported, duplicate or inapplicable parts
+  ✓ repeat expansion refuses invalid dates and direct invalid rules instead of looping
+  ✓ zone converter rejects spring gaps and requires explicit fall overlap choice
+  ✓ zone converter handles 30-minute overlaps and skipped calendar days
+  ✓ zone converter validates dates, zones and explicit overlap policy
+  ✓ photo No date distinguishes file dates from capture dates, including old cache entries
+  ✓ timeline aggregation preserves all groups, bytes and lexical first/last dates
+  ✓ local UNTIL DATE includes the entire day across a non-UTC host
+  ✓ Planner week and completion windows use calendar days across Santiago's midnight DST shift
+  ✓ Clock date inputs use the local date and calendar arithmetic across a skipped day
+  ✓ constant-work business-date count agrees with a separate day-by-day calculation
+  ✓ photo sort puts missing values last in both directions and handles pre-epoch dates
+  ✓ calendar rejects DATE values explicitly declared DATE-TIME
+  ✓ a dated recurring task exports both recurrence anchor and due instant
+
+23 passed, 0 failed

@@ -12,6 +12,7 @@
     "e2e-tt133*.mts",
     "e2e-tt134*.mts",
     "banner-click.mts",
+    "tt132-visual.mts",
     "e2e-tt117.mts",
     "e2e-tt122.mts"
   ]

@@ -1,0 +1,100 @@
+{
+  "suite": "e2e-tt134-workflows-find",
+  "at": "2026-11-02T16:23:02.320Z",
+  "results": [
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload",
+      "covers": {
+        "SR-20": "full",
+        "SV-02": "partial",
+        "SR-19": "partial"
+      },
+      "pass": true,
+      "ms": 5672
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "SR-21: inclusive byte controls distinguish Unicode file bytes and note-body bytes; bad intervals cannot search or export stale results",
+      "covers": {
+        "SR-21": "full"
+      },
+      "pass": true,
+      "ms": 2458
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "SR-22: native query-folder exclusion removes only the literal subtree, composes with scope, and works in live metadata",
+      "covers": {
+        "SR-22": "full"
+      },
+      "pass": true,
+      "ms": 2240
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "Filter-state patch attack: native text/regex/case/order controls retain their independent scalar values without another host search",
+      "covers": {
+        "SR-14": "partial"
+      },
+      "pass": true,
+      "ms": 3047
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "SR-23: real JSON/CSV downloads contain the current visible ordered hit and completed query, independently parsed; editing query invalidates export",
+      "covers": {
+        "SR-23": "full"
+      },
+      "pass": true,
+      "ms": 1858
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "SR-24: actual result preview fetches fresh bounded text safely, restores focus, and reports a now-missing result instead of its stale snippet",
+      "covers": {
+        "SR-24": "full"
+      },
+      "pass": true,
+      "ms": 3102
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "SR-25: native continuation retrieves the second real page, deduplicates fixed-index rows, keeps one history entry and invalidates after changing input",
+      "covers": {
+        "SR-25": "full"
+      },
+      "pass": true,
+      "ms": 1777
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "Private resource-filter refusal never sends the query to the host, in text and metadata modes",
+      "covers": {
+        "SR-20": "partial",
+        "SR-21": "partial",
+        "SR-22": "partial",
+        "SR-25": "partial"
+      },
+      "pass": true,
+      "ms": 2166
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "Private export uses real encrypted storage/local search, explicit plaintext consent/cancel and actual lock clearing; Private preview stays disabled",
+      "covers": {
+        "SR-23": "full",
+        "SR-24": "partial"
+      },
+      "pass": true,
+      "ms": 3925
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "name": "Native Find workflows emitted no unhandled browser exceptions",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

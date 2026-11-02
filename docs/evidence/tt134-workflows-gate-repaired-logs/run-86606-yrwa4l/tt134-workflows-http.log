@@ -1,0 +1,11 @@
+  ✓ Batch commits exact editable fields and every real public index row together
+  ✓ All-row input validation and byte-stream limit reject without creating any partial notes
+  ✓ Real index-table lock causes four-second refusal and rolls back already-inserted batch notes
+  ✓ Modified intervals read canonical file timestamps, not fresh index/rebuild timestamps, in literal and live metadata
+  ✓ Content byte intervals use real UTF-8 file/note sizes; zero/bad/incompatible ranges are explicit
+  ✓ Folder exclusion applies before all server branches and metadata paging, preserving wildcard-named siblings
+  ✓ Actual fuzzy fallback cannot bypass canonical size/date/exclusion predicates
+  ✓ Literal public pages have deterministic disjoint fixed-index coverage, cap 200 and reject invalid offsets
+  ✓ Preview reads current bounded public text, not stale index snippets; binary/Private/trashed/excluded/missing cases stay safe
+
+9 passed, 0 failed

@@ -55,13 +55,17 @@ try {
       await test(`${mode} Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result`, {}, async () => {
         const features = await fx.api<{ rows: { code: string }[] }>("GET", "/api/features");
         const spikes = await fx.api<{ rows: { code: string; question: string; status: string; pass: string; fallback: string; result: string }[] }>("GET", "/api/spikes");
-        assert.equal(features.rows.length, 627); assert.ok(spikes.rows.length > 0);
+        assert.equal(features.rows.length, 647); assert.ok(spikes.rows.length > 0);
         await fx.windows("spec", 1, width); const page = await context.newPage();
         try {
           await fx.ready(page, "spec"); const win = page.locator('[data-win-id="w1"]'), group = win.getByTestId("spec-spikes");
           await expect(win.getByTestId("spec-row")).toHaveCount(features.rows.length);
           const rendered = await win.getByTestId("spec-row").evaluateAll(els => els.map(el => el.getAttribute("data-code")));
           assert.deepEqual([...rendered].sort(), features.rows.map(row => row.code).sort(), "not paginated/removed to win a density count");
+          const ledger = await fx.api<{ rows: Record<string, { tested: string }> }>("GET", "/api/ledger");
+          const marks = await win.getByTestId("spec-row").evaluateAll(rows => rows.map(row => ({ code: row.getAttribute("data-code")!, label: row.querySelector('[role="img"]')?.getAttribute("aria-label"), title: row.querySelector('[role="img"]')?.getAttribute("title"), externalArtwork: row.querySelectorAll("svg image,svg use").length })));
+          for (const mark of marks) { assert.equal(mark.label, `Saved coverage: ${ledger.rows[mark.code]?.tested ?? "none"}`); assert.match(mark.title ?? "", /not one fresh run/); assert.equal(mark.externalArtwork, 0); }
+          const portable = win.locator('[data-testid="spec-row"][data-code="NT-19"]'); await portable.getByRole("button").click(); await expect(portable).toContainText("No offline replay"); await portable.getByRole("button").press("Enter"); await expect(portable).not.toContainText("No offline replay");
           await expect(group.getByTestId("spec-spike")).toHaveCount(spikes.rows.length);
           await expect(group.locator("summary")).toHaveText(`Questions & checks (${spikes.rows.length})`);
           assert.equal(await group.getAttribute("open"), null);

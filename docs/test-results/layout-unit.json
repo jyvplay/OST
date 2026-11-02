@@ -1,6 +1,6 @@
 {
   "suite": "layout-unit",
-  "at": "2026-11-02T00:48:09.703Z",
+  "at": "2026-11-02T16:21:06.263Z",
   "results": [
     {
       "suite": "layout-unit",
@@ -9,7 +9,7 @@
         "LY-02": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 5
     },
     {
       "suite": "layout-unit",
@@ -45,7 +45,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "layout-unit",
@@ -54,7 +54,7 @@
         "LY-01": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "layout-unit",
@@ -63,7 +63,7 @@
         "LY-03": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "layout-unit",

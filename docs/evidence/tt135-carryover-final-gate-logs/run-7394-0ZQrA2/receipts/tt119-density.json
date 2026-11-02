@@ -1,0 +1,15 @@
+{
+  "suite": "tt119-density",
+  "at": "2026-11-02T16:47:15.596Z",
+  "results": [
+    {
+      "suite": "tt119-density",
+      "name": "AX-21: every app measured, none wordier than the ceiling, no emoji marks",
+      "covers": {
+        "AX-21": "full"
+      },
+      "pass": true,
+      "ms": 7
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+  ✓ DF-01 diff: line ops in order, stats, one-word change reads as one word
+  ✓ NT-02 tags/links: headings and URLs are not tags, backlinks reverse exactly
+  ✓ PL-03 agenda: buckets by whole local days, done and undated separated
+  ✓ WD-01 zone overlap: London/New_York share an afternoon; Tokyo shares none
+  ✓ WD-02 countdowns: whole days, validation
+  ✓ CV-01 converter: exact definitions, affine temperature, cross-category refused
+  ✓ UC-01 clean link: trackers listed, load-bearing params kept, non-URL refused
+  ✓ ST-10 settings import: unknown and locked keys reported, never applied by parsing
+  ✓ BK-06 backup compare: added/removed/changed/unchanged and byte delta
+  ✓ TM-02 suggestion: transposition costs one, short inputs get nothing
+  ✓ PH-02 photo timeline: local months, undated counted, largest month by bytes
+  ✓ SV-01 saved searches: modes validated, duplicate names refused, sorted newest first
+
+12 passed, 0 failed

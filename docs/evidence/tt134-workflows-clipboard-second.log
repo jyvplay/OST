@@ -1,0 +1,25 @@
+Actual browser: 143.0.7499.0
+  ✗ CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact
+    expect(locator).toHaveCount(expected) failed
+
+Locator:  getByRole('dialog', { name: 'Inspect clipboard text', exact: true })
+Expected: 0
+Received: 1
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveCount" getByRole('dialog', { name: 'Inspect clipboard text', exact: true }) with timeout 5000ms
+  - waiting for getByRole('dialog', { name: 'Inspect clipboard text', exact: true })
+    13 × locator resolved to 1 element
+       - unexpected value "1"
+
+  ✓ CB-05: editing creates a new native clipboard/history copy while retaining the original text and pin
+  ✓ CB-06: save a clipboard entry through its real form into a separately indexed public note; blank title cannot commit
+  ✓ CB-07: create-only public file transfer preserves exact bytes; Private paths and an existing-file overwrite are refused
+  ✓ CB-08: check two real captures and compare their exact changed lines; one capture cannot launch a comparison
+  ✓ Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled
+  ✓ Real emergency chord remains active while the new clipboard modal owns normal shortcuts
+  ✓ Native clipboard workflows emitted no unhandled browser exceptions
+
+7 passed, 1 failed
+FAILED: CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact

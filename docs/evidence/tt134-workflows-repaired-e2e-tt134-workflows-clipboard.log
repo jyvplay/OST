@@ -1,0 +1,14 @@
+Actual browser: 143.0.7499.0
+  ✓ CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact
+Actual post-copy native focus: { tag: 'BODY', inside: false }
+  ✓ CB-04 patch attack: CRLF excerpts retain source bytes; bisected Unicode ranges refuse; async focus loss cannot strand Escape
+  ✓ CB-05: editing creates a new native clipboard/history copy while retaining the original text and pin
+  ✓ CB-06: save a clipboard entry through its real form into a separately indexed public note; blank title cannot commit
+  ✓ CB-07: create-only public file transfer preserves exact bytes; Private paths and an existing-file overwrite are refused
+  ✓ CB-08: check two real captures and compare their exact changed lines; one capture cannot launch a comparison
+  ✓ CB-08 patch attack: repeated native keyboard/pointer toggles keep both independent checks and release comparison focus
+  ✓ Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled
+  ✓ Real emergency chord remains active while the new clipboard modal owns normal shortcuts
+  ✓ Native clipboard workflows emitted no unhandled browser exceptions
+
+10 passed, 0 failed

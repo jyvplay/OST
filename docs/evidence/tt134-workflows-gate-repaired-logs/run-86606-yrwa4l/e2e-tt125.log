@@ -1,0 +1,5 @@
+  ✓ ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count
+  ✓ PK-04: Copy strings lifts ASCII runs from a binary
+  ✓ honest placements: zoom/torch gated, selection export disabled, merge needs two clips, roster and shortcuts copy render
+
+3 passed, 0 failed

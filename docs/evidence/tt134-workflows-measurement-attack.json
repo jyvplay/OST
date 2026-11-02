@@ -1,0 +1,68 @@
+{
+  "scope": "Real standard-library command wrapper fidelity attacks, not application completion",
+  "actualShellFailureExit": 7,
+  "stdoutRetained": true,
+  "stderrRetained": true,
+  "positive": {
+    "label": "Real successful command",
+    "startedAt": "2026-11-02T03:51:57.067755+00:00",
+    "finishedAt": "2026-11-02T03:51:57.077927+00:00",
+    "command": [
+      "python3",
+      "-c",
+      "print(\"success retained\")"
+    ],
+    "cwd": "/home/user/OST",
+    "log": ".cache/tt134-measure-success.log",
+    "rawReturnCode": 0,
+    "exitCode": 0,
+    "wallSeconds": 0.009950625999408658,
+    "childUserSeconds": 0.009701,
+    "childSystemSeconds": 0.0,
+    "childCpuSeconds": 0.009701,
+    "largestChildMaxRssKiB": 12504,
+    "sandboxCpuSeconds": 0.008,
+    "cpuAffinity": [
+      0,
+      1
+    ],
+    "scope": {
+      "childCpu": "Waited command children/descendants; excludes independently started web server and database",
+      "sandboxCpu": "Whole readable Linux cgroup; includes server/database and any concurrent sandbox work; not command-exclusive",
+      "memory": "Largest waited-child high-water RSS on Linux; NOT summed or simultaneous process-tree peak",
+      "fidelity": "No scheduling, assertion, workload or return-code substitution; all stdout/stderr retained in log"
+    },
+    "spawnError": null
+  },
+  "negative": {
+    "label": "Real exit-code retention attack",
+    "startedAt": "2026-11-02T03:51:57.021584+00:00",
+    "finishedAt": "2026-11-02T03:51:57.032586+00:00",
+    "command": [
+      "python3",
+      "-c",
+      "import sys; print(\"stdout retained\", flush=True); print(\"stderr retained\", file=sys.stderr); sys.exit(7)"
+    ],
+    "cwd": "/home/user/OST",
+    "log": ".cache/tt134-measure-failure.log",
+    "rawReturnCode": 7,
+    "exitCode": 7,
+    "wallSeconds": 0.010710899000514473,
+    "childUserSeconds": 0.010314,
+    "childSystemSeconds": 0.0,
+    "childCpuSeconds": 0.010314,
+    "largestChildMaxRssKiB": 12456,
+    "sandboxCpuSeconds": 0.012,
+    "cpuAffinity": [
+      0,
+      1
+    ],
+    "scope": {
+      "childCpu": "Waited command children/descendants; excludes independently started web server and database",
+      "sandboxCpu": "Whole readable Linux cgroup; includes server/database and any concurrent sandbox work; not command-exclusive",
+      "memory": "Largest waited-child high-water RSS on Linux; NOT summed or simultaneous process-tree peak",
+      "fidelity": "No scheduling, assertion, workload or return-code substitution; all stdout/stderr retained in log"
+    },
+    "spawnError": null
+  }
+}

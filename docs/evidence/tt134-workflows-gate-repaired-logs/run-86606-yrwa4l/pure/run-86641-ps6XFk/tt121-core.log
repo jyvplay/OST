@@ -1,0 +1,21 @@
+  ✓ CV-02 calculator memory: register transitions, NaN refused
+  ✓ ED-05 line ops: sort/dedupe keep termination, natural order
+  ✓ CK-05 timer presets: fixed ladder, lookup exact
+  ✓ MD-10 playback rate: snapped to the portable ladder
+  ✓ SC-19 passphrase: strength is pool-based, generator deterministic under injected RNG
+  ✓ NC-07 alert facets: unread count derived, unread-only + query compose
+  ✓ CB-02 clip kinds: whole-entry classification only
+  ✓ MP-09 coordinates: decimal interchange + unambiguous DMS
+  ✓ EB-01 book progress: clamped, smooth, chapter label honest
+  ✓ PD-01/WB-06 zoom ladder: steps snap, ends clamp, label rounds
+  ✓ PL-06 agenda text: day-scoped, sorted, done marked not dropped
+  ✓ SR-11 results as text: one line per hit, snippets excluded
+  ✓ MU-04 library sort: stable, added order untouched
+  ✓ PH-05 photo sort: name/size/date, missing values last ascending, copy sorted
+  ✓ CN-07 contact facets: blank vCard fields do not count as present
+  ✓ BK-09 backup filename: local date, strict round-trip
+  ✓ TM-05 terminal sort/uniq: numeric mode, adjacent vs global uniq
+  ✓ NT-05 note sort: pinned lead, title case-insensitive, updated newest first
+  ✓ AP-06 app filter: group facet exact, query spans title+group+summary
+
+19 passed, 0 failed

@@ -1,0 +1,26 @@
+{
+  "setupSummary": {
+    "serial": {
+      "medianWallMs": 219.124414,
+      "medianSandboxCpuMs": 247.91
+    },
+    "batch": {
+      "medianWallMs": 11.706191,
+      "medianSandboxCpuMs": 16
+    }
+  },
+  "rangeSummary": {
+    "traversal": {
+      "medianWallMs": 355.830568,
+      "medianProcessCpuMs": 355.519
+    },
+    "fast-path": {
+      "medianWallMs": 2.517897,
+      "medianProcessCpuMs": 2.524
+    }
+  },
+  "pareto": {
+    "setup": true,
+    "range": true
+  }
+}

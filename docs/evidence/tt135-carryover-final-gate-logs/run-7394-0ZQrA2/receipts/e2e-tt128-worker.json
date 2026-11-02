@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt128-worker",
+  "at": "2026-11-02T16:31:11.600Z",
+  "results": [
+    {
+      "suite": "e2e-tt128-worker",
+      "name": "successful worker install and activation; API and query URLs never enter the cache",
+      "covers": {
+        "SH-14": "partial"
+      },
+      "pass": true,
+      "ms": 2941
+    },
+    {
+      "suite": "e2e-tt128-worker",
+      "name": "failed upgrade preserves the previous activated worker and cache",
+      "covers": {
+        "AP-04": "partial"
+      },
+      "pass": true,
+      "ms": 43
+    },
+    {
+      "suite": "e2e-tt128-worker",
+      "name": "successful upgrade waits for consent, then activates and reloads",
+      "covers": {
+        "AP-04": "partial"
+      },
+      "pass": true,
+      "ms": 2504
+    },
+    {
+      "suite": "e2e-tt128-worker",
+      "name": "offline API reports 503 and non-desktop navigation shows the explicit fallback",
+      "covers": {
+        "SH-14": "partial"
+      },
+      "pass": true,
+      "ms": 268
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+
+> lint
+> node scripts/lint.mjs
+
+
+/home/user/OST/src/components/Tabletop.tsx
+  972:96  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/user/OST/src/components/modules/Spreadsheet.tsx
+  1116:22   warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  1483:308  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/user/OST/src/components/modules/Streams.tsx
+  146:65   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  146:127  warning  React Hook useEffect has a missing dependency: 'play'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/user/OST/src/components/modules/Vault.tsx
+  75:42  warning  The ref value 'epoch.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'epoch.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+✖ 6 problems (0 errors, 6 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

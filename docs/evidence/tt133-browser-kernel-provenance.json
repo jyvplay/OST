@@ -1,23 +1,37 @@
 {
-  "at": "2026-11-02T00:48:29.660Z",
+  "at": "2026-11-02T16:23:09.382Z",
   "browser": "143.0.7499.0",
   "typescript": "5.9.3",
   "scope": "native Chromium kernels; not app E2E or physical devices",
   "sourceHashes": [
     {
       "path": "src/lib/vt.ts",
+      "bytes": 43479,
       "sha256": "c6fa47d5f00bbf7d6d823cee7cc137fa3a65047600931eb09c57cffed6ba5e57"
     },
     {
       "path": "src/lib/terminal-display.ts",
+      "bytes": 6320,
       "sha256": "dc9ddf2494bfd4cd5a47c20bac1267f058e770d06a1efb2768224c32dc6882f2"
     },
     {
       "path": "src/lib/search-query.ts",
-      "sha256": "59918b1c626f3331174e6cd32a4a6915bb12abd2c1c78b953a14181e9682d91a"
+      "bytes": 5576,
+      "sha256": "c42c42285c38e665ff294f035ae12bd3300921791a8ffeba4cc7b152665a7fd1"
+    },
+    {
+      "path": "src/lib/search-path.ts",
+      "bytes": 924,
+      "sha256": "3d82025b1bba8829acf5bb24f4e2902541ef9a1383a283826a9220f68c2cf917"
+    },
+    {
+      "path": "src/lib/search-resources.ts",
+      "bytes": 3128,
+      "sha256": "fe5351362a77bdc4ec35175dcf07499fd7b5186bcb9d06ea1a304d7e5f67593c"
     },
     {
       "path": "src/lib/recent-searches.ts",
+      "bytes": 2974,
       "sha256": "a1fc7d29bc79bbd1a355e081697b9c99e852298c3211a39799f7c97b311b8ba9"
     }
   ],

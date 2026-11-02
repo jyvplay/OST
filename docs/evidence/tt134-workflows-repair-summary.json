@@ -1,0 +1,96 @@
+{
+  "at": "2026-11-02T04:36:25.867Z",
+  "scope": "Actual focused repaired production suites, not full-gate acceptance. Test-only controlled kernel cases are not relabelled native application proof.",
+  "records": [
+    {
+      "suite": "tt134-workflows-http",
+      "path": "docs/evidence/tt134-workflows-repaired-tt134-workflows-http.log",
+      "at": "2026-11-02T04:27:31.340Z",
+      "passed": 9,
+      "failed": 0,
+      "sha256": "9b00612184a039c08955939e7b6d72f96853e8bbf7a76120cb912b21df81cf91"
+    },
+    {
+      "suite": "e2e-tt134-workflows-notes",
+      "path": "docs/evidence/tt134-workflows-repaired-e2e-tt134-workflows-notes.log",
+      "at": "2026-11-02T04:28:41.904Z",
+      "passed": 13,
+      "failed": 0,
+      "sha256": "9c45d086673f1c9451e12bcb9246553e7a7ebb25449245cd83e802e428fda3f0"
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "path": "docs/evidence/tt134-workflows-repaired-e2e-tt134-workflows-clipboard.log",
+      "at": "2026-11-02T04:29:24.127Z",
+      "passed": 10,
+      "failed": 0,
+      "sha256": "48492b6e4f37cb67b3a47c1f267ff28b7d211b4840da257817c11f836032cb73"
+    },
+    {
+      "suite": "e2e-tt134-workflows-find",
+      "path": "docs/evidence/tt134-workflows-repaired-e2e-tt134-workflows-find.log",
+      "at": "2026-11-02T04:29:58.536Z",
+      "passed": 10,
+      "failed": 0,
+      "sha256": "44b51aa5928c86679366a0fea0c9ff4af066b9aac3232fec0031ebc5b97f42e4"
+    },
+    {
+      "suite": "tt133-browser-kernels",
+      "path": "docs/evidence/tt134-workflows-repaired-tt133-browser-kernels.log",
+      "at": "2026-11-02T04:30:00.524Z",
+      "passed": 8,
+      "failed": 0,
+      "sha256": "30bf4873aaf87107e079eedcf7e0ae6040065365fc715648b210e66e90513864"
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "path": "docs/evidence/tt134-workflows-repaired-e2e-tt133-notes-find.log",
+      "at": "2026-11-02T04:31:09.123Z",
+      "passed": 27,
+      "failed": 0,
+      "sha256": "ea7c4ad76b6e49ec57cb63e9afdec619de8e3f1de2106a01a095058e2d7ac408"
+    },
+    {
+      "suite": "e2e-tt133-boundaries",
+      "path": "docs/evidence/tt134-workflows-repaired-e2e-tt133-boundaries.log",
+      "at": "2026-11-02T04:31:28.434Z",
+      "passed": 7,
+      "failed": 0,
+      "sha256": "25a500bda0fc6581548b11c4bf7609dc8427660926a9635457581a247b8e8eae"
+    },
+    {
+      "suite": "e2e-tt122",
+      "path": "docs/evidence/tt134-workflows-repaired-e2e-tt122.log",
+      "at": "2026-11-02T04:31:50.214Z",
+      "passed": 3,
+      "failed": 0,
+      "sha256": "450748d9bb9b804a7384e0fbfded267758502ac96dd1a09c005ba0375faba910"
+    },
+    {
+      "suite": "e2e-tt49-writer",
+      "path": "docs/evidence/tt134-workflows-repaired-e2e-tt49-writer.log",
+      "at": "2026-11-02T04:32:23.480Z",
+      "passed": 6,
+      "failed": 0,
+      "sha256": "1e2d401065f2826a68b7bb6d60679a5f03c48c8c1f8573d8868494721440014c"
+    },
+    {
+      "suite": "e2e-tt81",
+      "path": "docs/evidence/tt134-workflows-repaired-e2e-tt81.log",
+      "at": "2026-11-02T04:32:55.284Z",
+      "passed": 7,
+      "failed": 0,
+      "sha256": "e96377ac1263490deab246998eaef76eb51d812e13d47d26762e29360983874f"
+    }
+  ],
+  "focusedAxe": {
+    "path": "docs/evidence/tt134-workflows-repaired-a11y-checkboxes.log",
+    "scope": "Chrome plus Notes/Clipboard only; HARNESS_ONLY prevents overwriting full JSON receipt",
+    "passed": 1,
+    "failed": 0
+  },
+  "wrongPrefixRefusal": {
+    "path": "docs/evidence/tt134-workflows-repaired-a11y-notes.log",
+    "result": "0 selected; refused, then correct focused invocation passed"
+  }
+}

@@ -1,5 +1,7 @@
 # TT134 — finish the carried work, verify the implementation, and keep the gaps visible
 
+> **Historical checkpoint:** its accepted-zero state was subsequently completed in TT135. See [the TT134 workflow release report](REPORT-TT134-WORKFLOWS.md) for the separately audited 20/20 carryover decision; these are not TT135 additions.
+
 **Date:** 2026-11-01, America/New_York. Some artifacts have 2026-11-02 UTC timestamps.
 **Branch:** `arena/723a3a13-ost`. **PR:** [#17](https://github.com/jyvplay/OST/pull/17), to remain open.
 

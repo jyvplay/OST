@@ -6,7 +6,7 @@ import { MODULES } from "../src/lib/registry.ts";
 import { disposableShell } from "./tt132-fixture.mts";
 import { makeHarness } from "./harness.mts";
 const TAG = process.env.TURN_TAG ?? "tt132";
-assert.match(TAG, /^tt[0-9]+$/);
+assert.match(TAG, /^tt[0-9]+(?:-[a-z][a-z0-9-]*)?$/);
 const fx = await disposableShell(), { test, finish } = makeHarness(`${TAG}-visual`);
 const records: any[] = [];
 let capabilities: unknown;

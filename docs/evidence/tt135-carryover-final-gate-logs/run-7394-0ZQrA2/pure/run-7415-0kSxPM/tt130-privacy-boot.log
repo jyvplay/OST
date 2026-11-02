@@ -1,0 +1,3 @@
+  ✓ explicit amnesic boot remains fail-closed when localStorage access throws
+
+1 passed, 0 failed

@@ -1,0 +1,11 @@
+  ✓ boundary points: rect, ellipse and diamond exits along the ray from the centre
+  ✓ bound connectors follow their shapes; moving a lone arrow detaches it where it was
+  ✓ delete and duplicate keep connector integrity
+  ✓ hit testing, marquee and bind targets respect real shape outlines and z-order
+  ✓ align, distribute, z-order and groups
+  ✓ pen strokes: Ramer–Douglas–Peucker simplification and scaling
+  ✓ SVG export is escaped and self-contained; .fboard round-trips; hostile files are refused or repaired
+  ✓ limits and normalisation: boxes dragged up-left, the element cap, sticky colours readable
+  ✓ describe(): plain-language labels for the Layers list
+
+9 passed, 0 failed

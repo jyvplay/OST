@@ -1,7 +1,14 @@
 {
   "suite": "tt133-browser-kernels",
-  "at": "2026-11-02T00:48:29.717Z",
+  "at": "2026-11-02T16:23:09.495Z",
   "results": [
+    {
+      "suite": "tt133-browser-kernels",
+      "name": "Transitive production search-path/resource imports run in the native browser, including real calendar and literal-folder refusals",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
     {
       "suite": "tt133-browser-kernels",
       "name": "Native RAF coalesces 100 actual VT writes into one publication and keeps the cached snapshot stable before the frame",

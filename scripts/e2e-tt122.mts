@@ -58,7 +58,7 @@ await test("NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the el
   const persisted = await api<{ rows: { title: string; body: string }[] }>("GET", "/api/notes");
   // Use the actual visible More disclosure, not a hidden or force-clicked button.
   const more = notes.page.locator('[data-testid="note-editor"] details').filter({ has: notes.page.getByTestId("notes-bundle") });
-  await more.locator("summary").click();
+  await more.locator(":scope > summary").click();
   await expect(notes.page.getByTestId("notes-bundle")).toBeVisible();
   const written = notes.page.waitForResponse(response => {
     if (new URL(response.url()).pathname !== "/api/fs" || response.request().method() !== "POST") return false;

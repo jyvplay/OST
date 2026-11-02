@@ -1,0 +1,8 @@
+{
+  "at": "2026-11-02T03:51:57.340Z",
+  "scope": "Two actual unchanged-input scans plus independent raw-file digest cross-checks",
+  "equalIdentities": true,
+  "fileCount": 1419,
+  "sha256": "419033ab3a935379369458658ff1e428c2021bbdbb902e6e91f408e5aa6dce3d",
+  "rawFileCrossChecks": 5
+}

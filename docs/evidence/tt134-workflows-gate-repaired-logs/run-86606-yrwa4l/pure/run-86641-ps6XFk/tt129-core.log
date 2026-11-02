@@ -1,0 +1,9 @@
+  ✓ sidecar intersection preserves order and duplicate candidates
+  ✓ sidecar intersection handles empty collections and zero limit
+  ✓ sidecar limit does not consume candidates after the requested matches
+  ✓ sidecar limits reject negative, fractional and non-finite values
+  ✓ small Set fast path agrees with the reference at its boundary
+  ✓ seeded adversarial intersections agree with the independent reference
+  ✓ default 2000-read bound and input order match the old selection
+
+7 passed, 0 failed

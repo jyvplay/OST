@@ -6,6 +6,8 @@ import { escapeLike } from "@/lib/server/vfs";
 import { metadataSearch, metadataSearchRequest, searchExclusions, visiblePath } from "@/lib/server/metadata-search";
 import { diagnoseSearchPath, diagnosticPath, rebuildSearchIndex } from "@/lib/server/search-maintenance";
 import { searchOptions } from "@/lib/search-query";
+import { contentFiltersUsed, literalPage, resourceOptions } from "@/lib/search-resources";
+import { indexedResourceFilter } from "@/lib/server/search-resources";
 import { readJsonObject } from "@/lib/http-json";
 import { fuzzyScore } from "@/lib/fuzzy";
 
@@ -24,8 +26,11 @@ export async function GET(req: NextRequest) {
     try { diagnosticPath(path); } catch (error) { return bad(error); }
     try { await bootstrap(); return NextResponse.json({ ok: true, ...await diagnoseSearchPath(path) }); } catch (error) { return unavailable(error); }
   }
-  let options: ReturnType<typeof searchOptions>;
-  try { options = searchOptions(p); } catch (error) { return bad(error); }
+  let options: ReturnType<typeof searchOptions>, resources: ReturnType<typeof resourceOptions>, page: ReturnType<typeof literalPage>;
+  try {
+    options = searchOptions(p); resources = resourceOptions(p); page = literalPage(p);
+    if (contentFiltersUsed(resources) && options.source && !["file", "note"].includes(options.source)) throw new Error("Date/size filters require files or notes");
+  } catch (error) { return bad(error); }
   let metadata: ReturnType<typeof metadataSearchRequest> | null = null;
   if (mode === "metadata") { try { metadata = metadataSearchRequest(p); } catch (error) { return bad(error); } }
   try {
@@ -40,13 +45,14 @@ export async function GET(req: NextRequest) {
     }
     const scopeClause = scope ? sql`and (ref=${scope} or ref like ${escapeLike(scope === "/" ? "" : scope) + "/%"})` : sql``;
     const sourceClause = source ? sql`and source=${source}` : sql``;
+    const resourceClause = sql`and ${indexedResourceFilter(resources)}`;
     const suffixClause = extension ? sql`and source='file' and lower(ref) like ${"%" + escapeLike(extension)}` : sql``;
     let hits: Hit[] = [];
     if (match === "ranked") {
       const fts = await db.execute(sql`select source,ref,title,left(body,180) as snippet,
         ts_rank(to_tsvector('english',coalesce(title,'') || ' ' || coalesce(body,'')),websearch_to_tsquery('english',${q})) as rank
         from index_docs where to_tsvector('english',coalesce(title,'') || ' ' || coalesce(body,'')) @@ websearch_to_tsquery('english',${q})
-          ${scopeClause} ${sourceClause} ${suffixClause} ${visibility}
+          ${scopeClause} ${sourceClause} ${suffixClause} ${resourceClause} ${visibility}
         order by rank desc,title,source,ref limit 40`);
       hits = (fts.rows as unknown as Hit[]).map(row => ({ ...row, rank: Number(row.rank), how: "fts" }));
     }
@@ -54,14 +60,14 @@ export async function GET(req: NextRequest) {
       const like = `%${escapeLike(q.toLowerCase())}%`;
       const substring = await db.execute(sql`select source,ref,title,left(body,180) as snippet,0.05 as rank
         from index_docs where (lower(title) like ${like} or lower(ref) like ${like} or lower(body) like ${like})
-          ${scopeClause} ${sourceClause} ${suffixClause} ${visibility}
-        order by title,source,ref limit 40`);
+          ${scopeClause} ${sourceClause} ${suffixClause} ${resourceClause} ${visibility}
+        order by title,source,ref limit ${match === "literal" ? 51 : 40} offset ${match === "literal" ? page.offset : 0}`);
       const seen = new Set(hits.map(hit => `${hit.source}:${hit.ref}`));
       for (const row of substring.rows as unknown as Hit[]) if (!seen.has(`${row.source}:${row.ref}`)) hits.push({ ...row, rank: Number(row.rank), how: match === "literal" ? "literal" : "substring" });
     }
     if (match === "ranked" && hits.length < 5 && q.length >= 4) {
       const candidates = await db.execute(sql`select source,ref,title,left(body,180) as snippet from index_docs where true
-        ${scopeClause} ${sourceClause} ${suffixClause} ${visibility} order by updated_at desc,source,ref limit 5000`);
+        ${scopeClause} ${sourceClause} ${suffixClause} ${resourceClause} ${visibility} order by updated_at desc,source,ref limit 5000`);
       const seen = new Set(hits.map(hit => `${hit.source}:${hit.ref}`)), fuzzy: Hit[] = [];
       for (const row of candidates.rows as unknown as Hit[]) {
         if (seen.has(`${row.source}:${row.ref}`)) continue;
@@ -71,11 +77,16 @@ export async function GET(req: NextRequest) {
       fuzzy.sort((a, b) => b.rank - a.rank || a.ref.localeCompare(b.ref)); hits.push(...fuzzy.slice(0, 20));
     }
     const payload: Record<string, unknown> = { ok: true, hits: hits.slice(0, 50), tookMs: Date.now() - started, local: true, match, extension };
+    if (match === "literal") {
+      payload.nextOffset = hits.length > 50 && page.offset < 150 ? page.offset + 50 : null;
+      payload.capped = hits.length > 50 && page.offset === 150;
+      payload.paging = "Live public literal pages, deterministic title/source/reference order. 50/page, 200 maximum. Concurrent edits can move rows; narrow or restart the query.";
+    }
     if (p.get("explain") === "1") {
       const total = await db.execute(sql`select count(*)::int as n from index_docs where true ${visibility}`);
       payload.explain = { indexedDocs: Number(total.rows[0]?.n ?? 0), strategy: match === "literal" ? "literal case-insensitive substring; no stemming or fuzzy fallback" : "websearch_to_tsquery + ts_rank, substring, bounded title fuzzy fallback",
         excluded: "Private, encrypted, trashed and current excluded file paths are filtered from results",
-        note: "At most 50 returned hits; fast bodies cover up to 50,000 Unicode code points. Live metadata uses separate bounded pages, not a complete index." };
+        note: "At most 50 hits/page; public literal pages allow 200 total. Fast bodies cover 50,000 code points. Date/size filters use canonical file/note rows (UTC; file bytes / UTF-8 note body bytes), not rebuild timestamps. Resource filters/public paging do not query Private or RAM. Live pages are not an immutable snapshot." };
     }
     return NextResponse.json(payload);
   } catch (error) { return unavailable(error); }

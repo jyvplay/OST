@@ -1,0 +1,13 @@
+Actual browser: 143.0.7499.0
+  ✓ SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload
+  ✓ SR-21: inclusive byte controls distinguish Unicode file bytes and note-body bytes; bad intervals cannot search or export stale results
+  ✓ SR-22: native query-folder exclusion removes only the literal subtree, composes with scope, and works in live metadata
+  ✓ Filter-state patch attack: native text/regex/case/order controls retain their independent scalar values without another host search
+  ✓ SR-23: real JSON/CSV downloads contain the current visible ordered hit and completed query, independently parsed; editing query invalidates export
+  ✓ SR-24: actual result preview fetches fresh bounded text safely, restores focus, and reports a now-missing result instead of its stale snippet
+  ✓ SR-25: native continuation retrieves the second real page, deduplicates fixed-index rows, keeps one history entry and invalidates after changing input
+  ✓ Private resource-filter refusal never sends the query to the host, in text and metadata modes
+  ✓ Private export uses real encrypted storage/local search, explicit plaintext consent/cancel and actual lock clearing; Private preview stays disabled
+  ✓ Native Find workflows emitted no unhandled browser exceptions
+
+10 passed, 0 failed

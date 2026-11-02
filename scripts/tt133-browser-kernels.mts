@@ -3,15 +3,14 @@
  * explicitly a browser-kernel suite, not an app E2E or physical-device test.
  * No mocked scheduler, clock, storage object, stream or network response. */
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { browserModuleGraph } from "./browser-module-graph.mts";
 import ts from "typescript";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 const { test, finish } = makeHarness("tt133-browser-kernels");
 const files = ["src/lib/vt.ts", "src/lib/terminal-display.ts", "src/lib/search-query.ts", "src/lib/recent-searches.ts"];
-const sources = files.map(path => ({ path, source: readFileSync(path, "utf8") }));
-const modules = sources.map(({ source }) => ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText);
+const modules = browserModuleGraph(files);
 const browser = await launchChromium(), context = await browser.newContext(), page = await context.newPage();
 const errors: string[] = []; page.on("pageerror", e => errors.push(e.message));
 try {
@@ -22,15 +21,30 @@ try {
   const result = await page.evaluate(async ({ modules }) => {
     const urls: string[] = [], results: { name: string; pass: boolean; error?: string }[] = [];
     const url = (text: string) => { const u = URL.createObjectURL(new Blob([text], { type: "text/javascript" })); urls.push(u); return u; };
-    const vt = url(modules[0]), query = url(modules[2]);
-    const terminalModule = modules[1].replace(/from ["']\.\/vt["']/g, `from ${JSON.stringify(vt)}`);
-    const recentsModule = modules[3].replace(/from ["']\.\/search-query["']/g, `from ${JSON.stringify(query)}`);
-    const { TerminalDisplay } = await import(url(terminalModule));
-    const recents = await import(url(recentsModule));
+    const graph = new Map(modules.map(module => [module.path, module])), loaded = new Map<string, string>(), visiting = new Set<string>();
+    const moduleUrl = (path: string): string => {
+      const cached = loaded.get(path); if (cached) return cached;
+      if (visiting.has(path)) throw new Error(`Cyclic isolated browser imports are unsupported: ${path}`);
+      const record = graph.get(path); if (!record) throw new Error(`Missing isolated browser module: ${path}`); visiting.add(path);
+      let text = record.code;
+      for (const dependency of [...record.imports].sort((a, b) => b.start - a.start)) text = text.slice(0, dependency.start) + JSON.stringify(moduleUrl(dependency.path)) + text.slice(dependency.end);
+      const value = url(text); visiting.delete(path); loaded.set(path, value); return value;
+    };
+    const { TerminalDisplay } = await import(moduleUrl("src/lib/terminal-display.ts"));
+    const recents = await import(moduleUrl("src/lib/recent-searches.ts"));
+    const query = await import(moduleUrl("src/lib/search-query.ts"));
     const ok = (condition: unknown, message: string) => { if (!condition) throw new Error(message); };
     const frame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
     const check = async (name: string, fn: () => unknown | Promise<unknown>) => { try { await fn(); results.push({ name, pass: true }); } catch (error) { results.push({ name, pass: false, error: String((error as Error).message) }); } };
     try {
+      await check("Transitive production search-path/resource imports run in the native browser, including real calendar and literal-folder refusals", () => {
+        ok(graph.has("src/lib/search-path.ts") && graph.has("src/lib/search-resources.ts"), "transitive production source omitted");
+        const input = query.searchInput({ q: "μ 🧭", modifiedAfter: "2024-02-29", minBytes: "0", excludeFolder: "/Documents/archive_%" });
+        ok(input.modifiedAfter === "2024-02-29" && input.minBytes === "0" && input.excludeFolder === "/Documents/archive_%", "dependency result changed");
+        for (const raw of [{ modifiedAfter: "2026-02-29" }, { excludeFolder: "/Documents/../Private" }, { minBytes: "-1" }]) {
+          let refused = false; try { query.searchInput(raw); } catch { refused = true; } ok(refused, "invalid transitive resource input accepted");
+        }
+      });
       await check("Native RAF coalesces 100 actual VT writes into one publication and keeps the cached snapshot stable before the frame", async () => {
         const terminal = new TerminalDisplay(40, 5), original = terminal.getSnapshot(); let published = 0;
         const unsubscribe = terminal.subscribe(() => published++);
@@ -100,5 +114,5 @@ try {
   for (const r of result.results) await test(r.name, {}, () => assert.ok(r.pass, r.error));
   await test("No uncaught browser errors in native kernel ownership/scheduler/storage attacks", {}, () => assert.deepEqual(errors, []));
   mkdirSync("docs/evidence", { recursive: true });
-  writeFileSync("docs/evidence/tt133-browser-kernel-provenance.json", JSON.stringify({ at: new Date().toISOString(), browser: browser.version(), typescript: ts.version, scope: "native Chromium kernels; not app E2E or physical devices", sourceHashes: sources.map(({ path, source }) => ({ path, sha256: createHash("sha256").update(source).digest("hex") })), nativeRaf: result.nativeRaf, nativeStorage: result.nativeStorage }, null, 2) + "\n");
+  writeFileSync("docs/evidence/tt133-browser-kernel-provenance.json", JSON.stringify({ at: new Date().toISOString(), browser: browser.version(), typescript: ts.version, scope: "native Chromium kernels; not app E2E or physical devices", sourceHashes: modules.map(({ path, bytes, sha256 }) => ({ path, bytes, sha256 })), nativeRaf: result.nativeRaf, nativeStorage: result.nativeStorage }, null, 2) + "\n");
 } finally { await context.close(); await browser.close(); finish(); }

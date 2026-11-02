@@ -1,0 +1,9 @@
+  ✓ YouTube: watch / youtu.be / shorts / live / embed / music links → youtube-nocookie embed; start times; playlists
+  ✓ Vimeo, Dailymotion, Twitch (parent=host), PeerTube instances and direct media files
+  ✓ Spotify + SoundCloud: official embed URLs, URI form, intl paths, content types, widget params, heights, allow lists
+  ✓ time parsing: seconds, h/m/s, clock forms, junk
+  ✓ library: add moves duplicates to the top, rename / move / remove / filter, queue order with loop, normalisation drops junk, cap
+  ✓ embed control protocol (TT28): YouTube handshake + infoDelivery/onStateChange → ended exactly once; Vimeo ready → subscriptions → ended/finish; SoundCloud ready → subscriptions → playProgress → finish; commands are the exact message strings
+  ✓ Spotify embed control (TT29): object messages; ready → best-effort ack (+ toggle when auto-next asked to play); playback_update → clock/status; inferred end = paused at the end or rewound from the last second — a user pause near (not at) the end, a playlist rolling to its next track, and junk are NOT ends; play/pause map to the confirmed toggle only when needed; no seek
+
+7 passed, 0 failed

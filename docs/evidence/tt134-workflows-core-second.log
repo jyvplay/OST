@@ -1,0 +1,23 @@
+  ✓ Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget
+  ✓ Portable note copies round-trip editable fields only; unknown envelopes and identities are refused
+  ✓ Merge creates a separate saved-body composition, preserves inputs and rejects oversized output
+  ✓ Heading splits ignore fenced headings and preserve the exact CRLF source when rejoined
+  ✓ Literal replace is exact/case-sensitive, supports deletion, and refuses explosive expansion before construction
+  ✓ Link construction replaces only the selected range, rejects active schemes/bracket labels, encodes URL parentheses
+  ✓ Pipe tables parse escaped pipes/backslashes and alignment, keep HTML as text and bound rows/columns
+  ✓ Templates expand only three plain tokens using the supplied real clock; no expression execution or recursive evaluation
+  ✓ Saved-body/clipboard line diff exactly reconstructs each side, including empty/CRLF/Unicode; it is not an LCS claim
+  ✓ Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries
+  ✗ Template budget includes the complete wrapper: exact 4 MiB roundtrip, one byte over refused
+    NOTE_COLLECTION_BYTES is not defined
+  ✓ Native LF textarea offsets map back to exact CRLF/CR source excerpts, with invalid ranges refused
+  ✓ Create-only clipboard destinations reject Private, traversal, repeated slash and noncanonical paths
+  ✓ Same-millisecond/clock-rollback captures retain distinct identities and independent removal/pin targets
+  ✓ Resource filters validate exact UTC calendar days, half-open intervals and canonical safe byte ranges
+  ✓ Folder exclusion is canonical, rejects traversal and retains SQL wildcard characters as literal path data
+  ✓ Literal paging allows exactly four bounded public offsets, rejects ranked/metadata/invalid continuations
+  ✓ New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults
+  ✓ Result JSON is lossless for visible rows/query; CSV neutralizes spreadsheet formulas and independently parses quotes/newlines
+
+18 passed, 1 failed
+FAILED: Template budget includes the complete wrapper: exact 4 MiB roundtrip, one byte over refused

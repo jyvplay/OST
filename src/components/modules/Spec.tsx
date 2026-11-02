@@ -92,10 +92,11 @@ export default function SpecModule({ win }: ModuleProps) {
                 <Badge>{r.tier}</Badge>
                 <Badge>{r.phase}</Badge>
                 <Badge tone={STATUS_TONE[r.status] ?? "default"}>{r.status}</Badge>
-                <Badge tone={cov?.rows[r.code]?.tested === "full" ? "ok" : cov?.rows[r.code]?.tested === "partial" ? "warn" : "default"}
-                  title={(cov?.rows[r.code]?.tests ?? []).join("\n") || "no passing automated test covers this row"}>
-                  {cov?.rows[r.code]?.tested === "full" ? "tested" : cov?.rows[r.code]?.tested === "partial" ? "part-tested" : "untested"}
-                </Badge>
+                <span role="img" aria-label={`Saved coverage: ${cov?.rows[r.code]?.tested ?? "none"}`} title={`Saved-suite snapshot, not one fresh run. ${(cov?.rows[r.code]?.tests ?? []).join(" · ") || "No passing automated coverage"}`}>
+                  <Badge tone={cov?.rows[r.code]?.tested === "full" ? "ok" : cov?.rows[r.code]?.tested === "partial" ? "warn" : "default"}>
+                    <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.4" />{cov?.rows[r.code]?.tested === "full" ? <path d="m4.5 8 2.2 2.3 4.8-5" fill="none" stroke="currentColor" strokeWidth="1.6" /> : cov?.rows[r.code]?.tested === "partial" ? <path d="M8 2a6 6 0 0 1 0 12Z" fill="currentColor" /> : <path d="M5 8h6" stroke="currentColor" strokeWidth="1.5" />}</svg>
+                  </Badge>
+                </span>
               </span>
             </button>
             {open === r.code ? (

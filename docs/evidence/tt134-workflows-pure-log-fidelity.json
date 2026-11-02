@@ -1,0 +1,18 @@
+{
+  "at": "2026-11-02T03:49:28.324Z",
+  "scope": "Full-output retention and real pre-fix failure propagation; not a timing comparison",
+  "records": [
+    {
+      "suite": "a11y-unit",
+      "passed": 8,
+      "fullPassingCaseLinesRetained": true,
+      "summaryRetained": true
+    },
+    {
+      "suite": "layout-unit",
+      "passed": 8,
+      "fullPassingCaseLinesRetained": true,
+      "summaryRetained": true
+    }
+  ]
+}

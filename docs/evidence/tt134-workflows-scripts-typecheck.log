@@ -1,0 +1,17 @@
+scripts/tt134-workflows-core.mts(71,96): error TS2345: Argument of type '{ at: number; text: string; from: string; }' is not assignable to parameter of type 'ClipEntry'.
+  Property 'sensitive' is missing in type '{ at: number; text: string; from: string; }' but required in type 'ClipEntry'.
+scripts/tt134-workflows-core.mts(72,175): error TS2345: Argument of type '{ sensitive: boolean; at: number; text: string; from: string; } | { text: string; at: number; from: string; }' is not assignable to parameter of type 'ClipEntry'.
+  Property 'sensitive' is missing in type '{ text: string; at: number; from: string; }' but required in type 'ClipEntry'.
+scripts/tt134-workflows-core.mts(100,71): error TS2741: Property 'sensitive' is missing in type '{ at: number; text: string; from: string; }' but required in type 'ClipEntry'.
+scripts/tt134-workflows-core.mts(101,32): error TS2345: Argument of type '{ at: number; text: string; from: string; }' is not assignable to parameter of type 'ClipEntry'.
+  Property 'sensitive' is missing in type '{ at: number; text: string; from: string; }' but required in type 'ClipEntry'.
+scripts/tt134-workflows-core.mts(105,30): error TS2345: Argument of type '{ text: string; from: string; at: number; }' is not assignable to parameter of type 'ClipEntry'.
+  Property 'sensitive' is missing in type '{ text: string; from: string; at: number; }' but required in type 'ClipEntry'.
+scripts/tt134-workflows-core.mts(119,319): error TS2345: Argument of type '{ match: string; offset: string; publicPages?: undefined; mode?: undefined; } | { match: string; publicPages: string; offset?: undefined; mode?: undefined; } | { match: string; mode: string; offset: string; publicPages?: undefined; }' is not assignable to parameter of type 'string | Record<string, string> | string[][] | URLSearchParams | undefined'.
+  Type '{ match: string; offset: string; publicPages?: undefined; mode?: undefined; }' is not assignable to type 'string | Record<string, string> | string[][] | URLSearchParams | undefined'.
+    Type '{ match: string; offset: string; publicPages?: undefined; mode?: undefined; }' is not assignable to type 'Record<string, string>'.
+      Property 'publicPages' is incompatible with index signature.
+        Type 'undefined' is not assignable to type 'string'.
+scripts/tt134-workflows-http.mts(55,211): error TS2345: Argument of type '{ minBytes: string; maxBytes: string; source?: undefined; q: string; } | { minBytes: string; maxBytes?: undefined; source?: undefined; q: string; } | { maxBytes: string; minBytes?: undefined; source?: undefined; q: string; } | { ...; }' is not assignable to parameter of type 'string | Record<string, string> | string[][] | URLSearchParams | undefined'.
+  Type '{ minBytes: string; maxBytes: string; source?: undefined; q: string; }' is not assignable to type 'string | Record<string, string> | string[][] | URLSearchParams | undefined'.
+    Type '{ minBytes: string; maxBytes: string; source?: undefined; q: string; }' is not assignable to type 'undefined'.

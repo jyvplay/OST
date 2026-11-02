@@ -1,0 +1,9 @@
+  ✓ geodesy: haversine matches known distances (±0.5 %), bearings, path length, metric/imperial formatting
+  ✓ coordinates: decimal, DMS, hemisphere suffixes, geo: URI, OSM + Google links; formatting round-trips
+  ✓ point-in-polygon (holes, multipolygons) and real country lookup + search over world-atlas countries-50m
+  ✓ places: add / update / remove / cap, GeoJSON round trip in [lng, lat] order with marker-color, foreign GeoJSON import, tile URL rules
+  ✓ gazetteer (TT28): own TSV parser over GeoNames cities15000; folding (Zürich = Zurich, St. = Saint); exact > prefix > word-prefix ranked by population; qualifiers 'Paris, TX' / 'Paris, France' / 'Springfield, Illinois'; garbage-safe
+      nearest: 400 points in 3437 ms, max |grid − brute| 0.050 km
+  ✓ gazetteer nearest (TT28): grid ring search is EXACT: 400 random points (incl. polar + antimeridian) agree with a brute-force scan; 'N km NE of …' labels; Raleigh downtown → In Raleigh
+
+6 passed, 0 failed

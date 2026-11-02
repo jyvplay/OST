@@ -1,6 +1,6 @@
 {
   "suite": "tt132-core",
-  "at": "2026-11-02T00:48:08.728Z",
+  "at": "2026-11-02T16:21:05.120Z",
   "results": [
     {
       "suite": "tt132-core",
@@ -9,7 +9,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt132-core",
@@ -72,7 +72,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 16
+      "ms": 28
     },
     {
       "suite": "tt132-core",
@@ -102,7 +102,7 @@
         "PR-04": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt132-core",
@@ -112,7 +112,7 @@
         "PR-04": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     }
   ]
 }

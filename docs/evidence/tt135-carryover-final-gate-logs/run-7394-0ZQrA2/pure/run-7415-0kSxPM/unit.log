@@ -1,0 +1,41 @@
+
+Window engine
+  ✓ 10 000 random commands preserve every invariant
+  ✓ command log replay reproduces the identical state hash
+  ✓ reducer is pure (input not mutated); workspaces filter without unmounting
+
+Evaluator
+  ✓ precedence, power associativity, rounding policy
+  ✓ division by zero and code injection rejected
+
+Forge
+  ✓ CSV RFC-4180 round trip
+  ✓ SVG sanitiser strips script/handlers/foreignObject/javascript:
+  ✓ loss report itemises drops; registry grades
+  ✓ SRT → WebVTT conversion
+
+ICS / routines / shortcuts
+  ✓ ICS unfolding, escapes, parameters, VTODO status, round trip
+  ✓ routine whitelist
+  ✓ shortcut presets have no internal conflicts; chord matcher
+
+Archives and format readers
+  ✓ zip-slip and bomb guards fire before allocation
+  ✓ CRC-32 known-answer vector and writer → reader round trip
+  ✓ corrupted archive is detected by CRC, never silently extracted
+  ✓ docx extraction; EPUB spine order; PSD header
+
+Fuzzy search
+  ✓ OSA distance counts adjacent transposition as 1
+  ✓ fuzzy scoring: typos match, short words exact only, junk rejected
+
+Crypto envelope (runs on Node's WebCrypto — same code as the browser)
+  ✓ seal/open round trip; wrong passphrase and ciphertext tamper fail
+  ✓ header downgrade (iterations) is detected via AAD; policy floor enforced
+
+Policies
+  ✓ BK-04 capability diff reports lost/gained with degrade text
+  ✓ RG-06 memory policy: absence is not low memory
+  ✓ TT21 reducer: unchanged viewport is a no-op (no revision bump); new windows are clamped inside a small desk
+
+23 passed, 0 failed

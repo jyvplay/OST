@@ -19,7 +19,7 @@ const { test, finish } = makeHarness("e2e-tt49-writer");
 const COV = { "FF-22": "full" } as const;
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const eq = (a: unknown, b: unknown, m = "") => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m} expected ${JSON.stringify(b)} got ${JSON.stringify(a)}`); };
-const PY = "/home/user/tools/venv/bin/python", CORPUS = "/home/user/tools/corpus/docx";
+const PY = process.env.ORACLE_PY ?? "/home/user/tools/venv/bin/python", CORPUS = process.env.CORPUS_DOCX ?? "/home/user/tools/corpus/docx";
 const tmp = mkdtempSync(join(tmpdir(), "e2e49w-"));
 const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); return { status: r.status, json: await r.json().catch(() => ({})) }; };
 async function resetDesktop() {

@@ -1,0 +1,10 @@
+  ✓ intact-copy
+  ✓ failed-command
+  ✓ missing-case-line
+  ✓ sparse-suite
+  ✓ foreign-pure-root
+  ✓ historical-receipt-window
+  ✓ wrong-measurement-log
+  ✓ corrupt-frozen-receipt
+
+8 passed, 0 failed

@@ -48,7 +48,7 @@ export async function proxy(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith("/api/wp/s/")) return NextResponse.next(); // proxied bodies are forwarded, not parsed
   // This route parses and bounds its own small confirmation stream. Cloning
   // the whole request here would defeat that bound for an oversized body.
-  if (req.nextUrl.pathname === "/api/privacy/thumbnail-cache") return NextResponse.next();
+  if (["/api/privacy/thumbnail-cache", "/api/notes/batch"].includes(req.nextUrl.pathname.replace(/\/+$/, ""))) return NextResponse.next();
   const type = req.headers.get("content-type") ?? "";
   if (!type.toLowerCase().includes("json")) return NextResponse.next();
   const text = await req.clone().text();
