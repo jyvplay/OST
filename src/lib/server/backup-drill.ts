@@ -1,3 +1,4 @@
+import { searchIndexText } from "@/lib/search-index-text";
 import { inArray, sql } from "drizzle-orm";
 import type { Pool } from "pg";
 import { auditLog, fileOps, indexDocs, notes, settings, vfsNodes } from "@/db/schema";
@@ -36,7 +37,7 @@ const TABLES: Record<string, Record<string, string>> = {
   file_ops: { src: "''", dst: "''", state: "'REQUESTED'", bytes: "0", sha256: "''", error: "''", steps: "'[]'::jsonb", created_at: "pg_catalog.now()", updated_at: "pg_catalog.now()" },
   settings: { category: "'general'", label: "''", aliases: "''", lock_reason: "''", updated_at: "pg_catalog.now()" },
   settings_history: { old_value: "''", new_value: "''", created_at: "pg_catalog.now()" },
-  notes: { title: "'Untitled'", body: "''", tags: "''", pinned: "false", created_at: "pg_catalog.now()", updated_at: "pg_catalog.now()" },
+  notes: { revision: "1", title: "'Untitled'", body: "''", tags: "''", pinned: "false", created_at: "pg_catalog.now()", updated_at: "pg_catalog.now()" },
   index_docs: { body: "''", updated_at: "pg_catalog.now()" },
   audit_log: { actor: "'user'", detail: "''", created_at: "pg_catalog.now()" },
 };
@@ -117,7 +118,7 @@ export async function drillBackup(payload: BackupPayload, digest: string, source
       if (e.kind === "file") {
         if (!n || n.encoding !== e.encoding || n.content !== e.content || n.size !== e.size || n.sha256 !== e.sha256 || sha256(n.content) !== e.sha256) fail();
         const found = index.get(`file\0${e.path}`);
-        const expectedBody = isTextual(e.mime) && e.encoding === "utf8" ? e.content.slice(0, 50_000) : "";
+        const expectedBody = isTextual(e.mime) && e.encoding === "utf8" ? searchIndexText(e.content) : "";
         if (isPrivateVfsPath(e.path) ? !!found : !found || found.title !== baseName(e.path) || found.body !== expectedBody) fail();
       }
     }

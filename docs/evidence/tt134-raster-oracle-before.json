@@ -1,0 +1,7 @@
+{
+  "stage": "unoptimized / PyMuPDF 2.0",
+  "exit": 1,
+  "wallSeconds": 8.054811894000068,
+  "cpuSeconds": 9.367023,
+  "largestChildPeakRssKiB": 167260
+}

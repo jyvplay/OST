@@ -1,0 +1,239 @@
+{
+  "suite": "e2e-tt133-notes-find",
+  "at": "2026-10-31T15:22:09.253Z",
+  "results": [
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-08: changing notes asks; Cancel preserves all edits, Save commits before navigation and no delayed draft resurrects",
+      "covers": {
+        "NT-08": "full"
+      },
+      "pass": true,
+      "ms": 5121
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-08: New and window Close cannot silently destroy dirty Notes; cancel both native UI actions",
+      "covers": {
+        "NT-08": "full"
+      },
+      "pass": true,
+      "ms": 3329
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-09: a real sessionStorage draft survives reload, restores exact text with its old revision, and Save clears it",
+      "covers": {
+        "NT-09": "full"
+      },
+      "pass": true,
+      "ms": 3710
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-10: another real HTTP writer wins; stale UI save is refused, editor text remains, and confirmed Reload obtains the winner",
+      "covers": {
+        "NT-10": "full"
+      },
+      "pass": true,
+      "ms": 2975
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-09 patch attack: temporarily blank titles are recoverable editing states, and Discard draft does not write the note",
+      "covers": {
+        "NT-09": "full"
+      },
+      "pass": true,
+      "ms": 3443
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-11: local full-text filtering composes with stored-tag filtering, preserves selection, and has a real empty state",
+      "covers": {
+        "NT-11": "full"
+      },
+      "pass": true,
+      "ms": 1838
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-12: preview renders a safe Markdown subset without executing raw HTML, loading remote images, or enabling javascript links",
+      "covers": {
+        "NT-12": "full"
+      },
+      "pass": true,
+      "ms": 2038
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-13: native file input imports fatal UTF-8 Markdown into a persisted indexed note; invalid UTF-8 cannot add a note",
+      "covers": {
+        "NT-13": "full"
+      },
+      "pass": true,
+      "ms": 1433
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-14: real wiki navigation and reverse backlinks open the correct notes; absent and ambiguous destinations cannot choose an arbitrary record",
+      "covers": {
+        "NT-14": "full"
+      },
+      "pass": true,
+      "ms": 2849
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-15: outline is clickable, fence-aware and shares exact preview line IDs, including indented headings far below the fold",
+      "covers": {
+        "NT-15": "full"
+      },
+      "pass": true,
+      "ms": 2383
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-16: native textarea selection creates an exact independent note, leaves its source unchanged, and an empty selection cannot extract",
+      "covers": {
+        "NT-16": "full"
+      },
+      "pass": true,
+      "ms": 2745
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-17: interactive checklist checks and unchecks the right source marker; saving/reopening preserves other lines exactly",
+      "covers": {
+        "NT-17": "full"
+      },
+      "pass": true,
+      "ms": 2832
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "NT-18: an actual browser download is self-contained UTF-8 Markdown, includes unsaved text and cannot write a VFS file",
+      "covers": {
+        "NT-18": "full"
+      },
+      "pass": true,
+      "ms": 2281
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SR-13: the actual source control changes the native request and excludes other kinds, including an empty wrong source",
+      "covers": {
+        "SR-13": "full"
+      },
+      "pass": true,
+      "ms": 1833
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SR-14: title and reference orders rearrange only the returned result set deterministically",
+      "covers": {
+        "SR-14": "full"
+      },
+      "pass": true,
+      "ms": 1645
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SR-15: literal matching keeps internal whitespace and SQL wildcard characters literal, without ranked/fuzzy matches",
+      "covers": {
+        "SR-15": "full"
+      },
+      "pass": true,
+      "ms": 2213
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SR-16: file suffix control is case-insensitive and literal, and a non-file source disables/clears it",
+      "covers": {
+        "SR-16": "full"
+      },
+      "pass": true,
+      "ms": 1834
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SR-17: native confirmation cancels without a rebuild, then a real confirmed rebuild preserves source bytes",
+      "covers": {
+        "SR-17": "full"
+      },
+      "pass": true,
+      "ms": 2679
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SR-18: path diagnosis shows an indexed real file, a nonexistent file, and invalid path refusal without hiding a previous diagnosis",
+      "covers": {
+        "SR-18": "full"
+      },
+      "pass": true,
+      "ms": 2356
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SR-19: Enter records complete history, Cancel keeps it, Clear deletes it and reload cannot resurrect it",
+      "covers": {
+        "SR-19": "full"
+      },
+      "pass": true,
+      "ms": 3465
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SR-19 patch attack: clearing history while a genuine PostgreSQL table lock holds a search cannot be undone by the late response",
+      "covers": {
+        "SR-19": "full"
+      },
+      "pass": true,
+      "ms": 2698
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SV-02: saved profiles replay every control instead of inheriting current phrase/field/source/filter state",
+      "covers": {
+        "SV-02": "full"
+      },
+      "pass": true,
+      "ms": 3904
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "SV-03: native JSON download → delete → file import restores complete profiles; cancelled and invalid imports leave the list untouched",
+      "covers": {
+        "SV-03": "full"
+      },
+      "pass": true,
+      "ms": 4611
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "Regex repair: native Worker times out hostile backtracking while the UI continues painting, then a corrected filter recovers",
+      "covers": {
+        "SR-10": "full"
+      },
+      "pass": true,
+      "ms": 3713
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "Regex patch attack: three genuine metadata pages accumulate 65 matches; all pass the worker's 50-text messages under one total budget",
+      "covers": {
+        "SR-10": "full",
+        "SR-12": "partial"
+      },
+      "pass": true,
+      "ms": 2150
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "name": "No uncaught browser errors across Notes/Find native interaction cases",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

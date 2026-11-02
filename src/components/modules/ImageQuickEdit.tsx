@@ -79,9 +79,15 @@ export default function ImageQuickEdit({ win }: ModuleProps) {
   }, [bitmap, crop, activeFx]);
 
   useEffect(() => {
-    if (!bitmap || !canvasRef.current) return;
-    try { draw(canvasRef.current, 1400); }
-    catch (e) { setStatus(`Preview error: ${(e as Error).message}`); }
+    if (!bitmap) return;
+    // Coalesce rapid slider changes into one native paint, cancelling stale
+    // work before the next frame; export still draws the full-resolution data.
+    const frame = requestAnimationFrame(() => {
+      if (!canvasRef.current) return;
+      try { draw(canvasRef.current, 1400); }
+      catch (e) { setStatus(`Preview error: ${(e as Error).message}`); }
+    });
+    return () => cancelAnimationFrame(frame);
   }, [bitmap, draw]);
 
   const exportImage = async () => {

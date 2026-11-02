@@ -1,0 +1,9 @@
+{
+  "scope": "actual PG cold migration + explicit ID-reuse counterexample; not app/native browser acceptance",
+  "migrationSha256": "0baa100067fda9b05550ba13603212087bce88abc98dd1c150bf63d5c51e78a4",
+  "database": "tt134_note_upgrade_04b02b7d349b5dd6",
+  "postgres": "PostgreSQL 16.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 10.2.1 20210130 (Red Hat 10.2.1-11), 64-bit",
+  "realLockTimeoutMs": 4001.9456609999997,
+  "externalIdReuseABAWitnessed": true,
+  "crossIncarnationSafetyAccepted": false
+}

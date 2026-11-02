@@ -1,0 +1,66 @@
+{
+  "browser": "143.0.7499.0",
+  "headers": [
+    200,
+    404
+  ],
+  "before": [
+    "http://127.0.0.1:3000/api/health?tt133-unconsumed=1",
+    "http://127.0.0.1:3000/api/fs?op=read&path=/tt133-absent-body-consumption"
+  ],
+  "after": [],
+  "bodyLengths": [
+    70,
+    32
+  ],
+  "events": [
+    {
+      "event": "request",
+      "url": "http://127.0.0.1:3000/api/health",
+      "at": 633.074933
+    },
+    {
+      "event": "response",
+      "url": "http://127.0.0.1:3000/api/health",
+      "status": 200,
+      "at": 641.603033
+    },
+    {
+      "event": "finished",
+      "url": "http://127.0.0.1:3000/api/health",
+      "at": 653.711623
+    },
+    {
+      "event": "request",
+      "url": "http://127.0.0.1:3000/api/health?tt133-unconsumed=1",
+      "at": 670.784676
+    },
+    {
+      "event": "response",
+      "url": "http://127.0.0.1:3000/api/health?tt133-unconsumed=1",
+      "status": 200,
+      "at": 674.935513
+    },
+    {
+      "event": "request",
+      "url": "http://127.0.0.1:3000/api/fs?op=read&path=/tt133-absent-body-consumption",
+      "at": 675.675961
+    },
+    {
+      "event": "response",
+      "url": "http://127.0.0.1:3000/api/fs?op=read&path=/tt133-absent-body-consumption",
+      "status": 404,
+      "at": 677.152399
+    },
+    {
+      "event": "finished",
+      "url": "http://127.0.0.1:3000/api/health?tt133-unconsumed=1",
+      "at": 2181.345563
+    },
+    {
+      "event": "finished",
+      "url": "http://127.0.0.1:3000/api/fs?op=read&path=/tt133-absent-body-consumption",
+      "at": 2181.375829
+    }
+  ]
+}

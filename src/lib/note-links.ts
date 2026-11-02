@@ -19,11 +19,22 @@ export function extractWikiLinks(text: string): { target: string; label: string 
   return out;
 }
 export function resolveLinks(notes: NoteRef[], from: NoteRef): { target: string; label: string; noteId: number | null }[] {
-  const byTitle = new Map(notes.map((n) => [n.title.trim().toLowerCase(), n.id]));
+  const byTitle = new Map<string, number | null>();
+  for (const note of notes) {
+    const title = note.title.trim().toLowerCase();
+    byTitle.set(title, byTitle.has(title) ? null : note.id);
+  }
   return extractWikiLinks(from.body).map((l) => ({ ...l, noteId: byTitle.get(l.target.toLowerCase()) ?? null }));
 }
 export function backlinks(notes: NoteRef[], target: NoteRef): { id: number; title: string }[] {
-  const wanted = target.title.trim().toLowerCase();
+  // Incoming edges describe the SAVED graph, identified by row ID. A draft
+  // rename must neither lose its saved edges nor borrow another row's edges.
+  const saved = notes.find(note => note.id === target.id);
+  if (!saved) return [];
+  const wanted = saved.title.trim().toLowerCase();
+  // Forward navigation refuses an ambiguous title; its reverse relation must
+  // not invent a backlink to either of those possible destinations.
+  if (notes.filter(note => note.title.trim().toLowerCase() === wanted).length !== 1) return [];
   return notes.filter((n) => n.id !== target.id && extractWikiLinks(n.body).some((l) => l.target.toLowerCase() === wanted))
     .map((n) => ({ id: n.id, title: n.title })).sort((a, b) => a.title.localeCompare(b.title));
 }

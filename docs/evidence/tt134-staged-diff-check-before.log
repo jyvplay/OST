@@ -1,0 +1,43 @@
+docs/evidence/tt133-build-baseline.log:73: new blank line at EOF.
+docs/evidence/tt133-build-feature-first.log:68: new blank line at EOF.
+docs/evidence/tt133-build-feature-third.log:68: new blank line at EOF.
+docs/evidence/tt133-build-fifth-configured.log:68: new blank line at EOF.
+docs/evidence/tt133-build-projections-fourth.log:68: new blank line at EOF.
+docs/evidence/tt133-database-encoding-baseline.log:1: trailing whitespace.
++ server_encoding 
+docs/evidence/tt133-database-encoding-baseline.log:6: trailing whitespace.
++ client_encoding 
+docs/evidence/tt133-database-encoding-baseline.log:10: new blank line at EOF.
+docs/evidence/tt133-database-encoding-utf8.log:1: trailing whitespace.
++ server_encoding 
+docs/evidence/tt133-database-encoding-utf8.log:5: new blank line at EOF.
+docs/evidence/tt133-database-encoding-verified.log:1: trailing whitespace.
++       datname        | encoding  | datcollate | datctype 
+docs/evidence/tt133-database-encoding-verified.log:8: trailing whitespace.
++ column_name |        data_type         |          column_default           | is_nullable 
+docs/evidence/tt133-database-encoding-verified.log:20: trailing whitespace.
++ count 
+docs/evidence/tt133-database-encoding-verified.log:24: new blank line at EOF.
+docs/evidence/tt133-native-ssh-client-probe.log:1: trailing whitespace.
++Warning: Permanently added '[127.0.0.1]:2222' (ED25519) to the list of known hosts.
+docs/evidence/tt133-postgres-init.log:24: new blank line at EOF.
+docs/evidence/tt133-typecheck-fifth.log:4: new blank line at EOF.
+docs/evidence/tt133-typecheck-projections-second.log:4: new blank line at EOF.
+docs/evidence/tt134-build-final-reviewed.log:68: new blank line at EOF.
+docs/evidence/tt134-build-final.log:68: new blank line at EOF.
+docs/evidence/tt134-build-first.log:73: new blank line at EOF.
+docs/evidence/tt134-build-review-repairs.log:68: new blank line at EOF.
+docs/evidence/tt134-build-second.log:68: new blank line at EOF.
+docs/evidence/tt134-build-third.log:68: new blank line at EOF.
+docs/evidence/tt134-dcac01239c28-writer-failure.txt:118: trailing whitespace.
++	
+docs/evidence/tt134-dcac01239c28-writer-failure.txt:127: trailing whitespace.
++	
+docs/evidence/tt134-dcac01239c28-writer-failure.txt:136: trailing whitespace.
++	
+docs/evidence/tt134-native-ssh-client-probe.log:1: trailing whitespace.
++Warning: Permanently added '[127.0.0.1]:2222' (ED25519) to the list of known hosts.
+docs/evidence/tt134-postgres-init.log:23: new blank line at EOF.
+docs/evidence/tt134-tt81-core-unoptimized.log:13: trailing whitespace.
++    Command failed: /home/user/.cache/ost-tools/venv/bin/python -c 
+docs/evidence/tt134-typecheck-first.log:4: new blank line at EOF.

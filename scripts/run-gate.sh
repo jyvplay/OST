@@ -17,8 +17,8 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-PURE="tt132-core tt132-claim-contract tt132-lint-contract unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core tt130-alarms-core tt130-privacy-boot tt85-inventory"
-LANE_A="tt132-oracles tt132-planner-http e2e-tt132-alarms e2e-tt132-planner tt131-ledger e2e-tt131-image-viewport e2e-tt130-privacy e2e-tt130-alarms e2e-tt129-offline e2e-tt129-calendar tt128-calendar-race tt128-writer-races e2e-tt128-worker e2e-tt128-photos e2e-tt128-time e2e-tt128-editor tt124-core e2e-tt124 e2e-tt125 e2e-tt126 tt127-conditional e2e-tt127-vault e2e-tt127-photos tt123-core e2e-tt123 tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
+PURE="tt133-core tt133-projections tt132-core tt132-claim-contract tt132-lint-contract unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core tt130-alarms-core tt130-privacy-boot tt85-inventory"
+LANE_A="tt133-http tt133-browser-kernels e2e-tt133-notes-find e2e-tt133-boundaries e2e-tt134-ownership tt134-icon-review tt134-review-repairs integration e2e-office e2e-sheet-layout e2e-vector e2e-tt81 e2e-tt49-writer e2e-tt73-writer tt132-oracles tt132-planner-http e2e-tt132-alarms e2e-tt132-planner tt131-ledger e2e-tt131-image-viewport e2e-tt130-privacy e2e-tt130-alarms e2e-tt129-offline e2e-tt129-calendar tt128-calendar-race tt128-writer-races e2e-tt128-worker e2e-tt128-photos e2e-tt128-time e2e-tt128-editor tt124-core e2e-tt124 e2e-tt125 e2e-tt126 tt127-conditional e2e-tt127-vault e2e-tt127-photos tt123-core e2e-tt123 tt122-core e2e-tt122 e2e-tt121 tt120-core e2e-tt120 e2e-tt119 e2e-tt117 e2e-a11y"
 LANE_B="tt124-density tt125-density tt123-density tt122-density tt121-density tt120-density tt119-density tt118-density tt117-density tt116-density"
 
 if [ "${TT89_DISPOSABLE_DATABASE:-}" != "1" ]; then
@@ -28,6 +28,8 @@ fi
 LOG_DIR="${GATE_LOG_DIR:-.cache/gate/$(date -u +%Y%m%dT%H%M%SZ)-$$}"
 mkdir -p "$LOG_DIR"
 echo "Full suite logs: $LOG_DIR"
+echo "== TT133/TT134 scripts semantic typecheck (root tsconfig does not include .mts)"
+node node_modules/typescript/bin/tsc --project scripts/tsconfig-tt134.json || { echo "GATE FAILED (script types)"; exit 1; }
 echo "== pure suites (parallel via run-fast.sh)"
 JOBS="${JOBS:-2}" bash scripts/run-fast.sh $PURE "$@" || { echo "GATE FAILED (pure)"; exit 1; }
 node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/tt126-regressions.mts || { echo "GATE FAILED (TT126 regressions)"; exit 1; }

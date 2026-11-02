@@ -194,11 +194,14 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
       if (tab.mode === "snapshot") return <RenderSnapshot key={key} url={tab.url} />;
       return (
         <div key={key} style={{ padding: 12, display: "grid", gap: 10, alignContent: "start" }}>
-          <Blocked
+          {tab.verdict === "unknown" ? <div className="fs-panel" role="status" style={{ padding: 10, display: "grid", gap: 5 }}>
+            <div className="fs-row" style={{ gap: 6 }}><Badge tone="warn">unverified</Badge><strong style={{ fontSize: fz(12) }}>Embedding could not be checked</strong></div>
+            <span className="fs-dim" style={{ fontSize: fz(11.5), overflowWrap: "anywhere" }}>{tab.reason ?? "The probe did not return a framing policy."}</span>
+          </div> : <Blocked
             what={`${tab.url} refuses to be embedded`}
             missing={tab.reason ?? "framing policy"}
             workaround="Three mechanism-distinct alternatives below, each with its own declared limits (see Spec → WM-06 / CA-16)."
-          />
+          />}
           <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
             <Btn variant="primary" onClick={() => window.open(tab.url, "_blank", "noopener")}>Open in a tab (handoff)</Btn>
             <Btn variant="ghost" title="Fetched server-side and re-served from our own origin, so the browser never sees the target's framing headers. Breaks logged-in content and client-side XHR back to the real origin." onClick={() => setTabs((ts) => ts.map((t) => (t.id === tab.id ? { ...t, mode: "proxy" } : t)))}>Same-origin proxy</Btn>
@@ -207,14 +210,16 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
               onClick={() => setTabs((ts) => ts.map((t) => (t.id === tab.id ? { ...t, mode: "snapshot" } : t)))}>Snapshot {renderCapable === null ? "(checking…)" : renderCapable === false ? "(unavailable here)" : ""}</Btn>
             <Btn variant="ghost" onClick={() => { probed.delete(tab.url); void probe(tab); }}>Re-probe</Btn>
           </div>
-          <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
+          {tab.verdict === "unknown" ? <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
+            No framing policy was measured. Check the connection and Re-probe, or try an alternative above. Each method can still fail.
+          </div> : <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
             This is a platform rule, not an app bug: a page that sends
             <span className="fs-mono"> X-Frame-Options: DENY</span> or a restrictive
             <span className="fs-mono"> CSP frame-ancestors</span> cannot be displayed inside another origin by any
             web application via a plain iframe. The three buttons above are genuinely different mechanisms (same-
             origin proxy / content extraction / out-of-process render), not three names for the same workaround —
             each has a different, declared failure mode.
-          </div>
+          </div>}
         </div>
       );
     }

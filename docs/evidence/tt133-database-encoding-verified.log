@@ -1,0 +1,24 @@
+       datname        | encoding  | datcollate | datctype 
+----------------------+-----------+------------+----------
+ app_db               | SQL_ASCII | C          | C
+ app_db_baseline_utf8 | UTF8      | C.utf8     | C.utf8
+ app_db_utf8          | UTF8      | C.utf8     | C.utf8
+(3 rows)
+
+ column_name |        data_type         |          column_default           | is_nullable 
+-------------+--------------------------+-----------------------------------+-------------
+ id          | integer                  | nextval('notes_id_seq'::regclass) | NO
+ revision    | integer                  | 1                                 | NO
+ title       | text                     | 'Untitled'::text                  | NO
+ body        | text                     | ''::text                          | NO
+ tags        | text                     | ''::text                          | NO
+ pinned      | boolean                  | false                             | NO
+ created_at  | timestamp with time zone | now()                             | NO
+ updated_at  | timestamp with time zone | now()                             | NO
+(8 rows)
+
+ count 
+-------
+     0
+(1 row)
+

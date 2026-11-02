@@ -1,0 +1,9 @@
+  ✓ Cold pre-TT133 notes really lack revision; owned original rows and unrelated canaries exist
+  ✓ Genuine SHARE lock makes the shipped ALTER fail near its four-second lock timeout, with no partial schema or user-data mutation
+  ✓ Unblocked shipped migration initializes every legacy revision to one while preserving all IDs, Unicode, CRLF, tags, pins, timestamps and unrelated data
+  ✓ Migrated SQL CAS advances only its matching original row; a stale precondition changes nothing
+  ✓ Reapplying the same SQL does not reset advanced revisions, and a genuinely new row gets default revision one
+  ✓ Boundary witness, NOT acceptance: external delete/recreate of the same row ID resets revision and defeats a stale revision-one precondition
+  ✓ No background driver errors, and owned connections drain before non-forced cleanup
+
+7 passed, 0 failed

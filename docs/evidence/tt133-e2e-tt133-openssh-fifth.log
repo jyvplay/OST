@@ -1,0 +1,10 @@
+Actual browser: 143.0.7499.0
+  ✓ Real OpenSSH: Ed25519 login cannot start before the native UI fingerprint equals independent ssh-keygen; trust once does not persist the host key
+  ✓ Real shell ANSI + UTF-8: red text, combining mark, CJK and emoji render as safe spans, not HTML
+  ✓ Native ResizeObserver/font-size publication reaches the real PTY: stty rows equal rendered rows; size changes do not corrupt later input
+  ✓ Native terminal Ctrl+Shift+V clipboard paste preserves Unicode; Ctrl+V still belongs to the real TTY
+  ✓ Real OpenSSH SFTP: native upload, independent disk read, browser download and VFS copy preserve binary bytes; rename and two-step delete affect only the selected remote file
+  ✓ Explicit Disconnect closes the actual native SSH session and returns to the connection form
+  ✓ No uncaught browser exceptions during native OpenSSH checks
+
+7 passed, 0 failed

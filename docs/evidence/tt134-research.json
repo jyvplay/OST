@@ -1,0 +1,46 @@
+[
+  {
+    "name": "menu-button",
+    "repo": "w3c/aria-practices",
+    "path": "content/patterns/menu-button/menu-button-pattern.html",
+    "commit": "0f765e4dc33e966026114ac12a8380db1de3b787",
+    "blobSha": "84f47e1be52954c1979c4b5d8cd6207802319ac1",
+    "sha256": "03676120b61f3c0fba5a93d2d89a0c18b005a275fc8980fb0498c5851dc222d2",
+    "bytes": 4363,
+    "retrievedAt": "2026-11-01T23:48:42.808582+00:00",
+    "url": "https://github.com/w3c/aria-practices/blob/0f765e4dc33e966026114ac12a8380db1de3b787/content/patterns/menu-button/menu-button-pattern.html"
+  },
+  {
+    "name": "menubar",
+    "repo": "w3c/aria-practices",
+    "path": "content/patterns/menubar/menu-and-menubar-pattern.html",
+    "commit": "0f765e4dc33e966026114ac12a8380db1de3b787",
+    "blobSha": "a5eebc5f5c0edaab3ec7b3f29d7f96ca3e813e93",
+    "sha256": "9ee874954e948e6922b1c7fc8e497f54bc582d7c05d9647b77e5687f647cf4ab",
+    "bytes": 18274,
+    "retrievedAt": "2026-11-01T23:48:43.176881+00:00",
+    "url": "https://github.com/w3c/aria-practices/blob/0f765e4dc33e966026114ac12a8380db1de3b787/content/patterns/menubar/menu-and-menubar-pattern.html"
+  },
+  {
+    "name": "modal-dialog",
+    "repo": "w3c/aria-practices",
+    "path": "content/patterns/dialog-modal/dialog-modal-pattern.html",
+    "commit": "0f765e4dc33e966026114ac12a8380db1de3b787",
+    "blobSha": "09d8181eec7c76e11003fdd4530a375964ca30d4",
+    "sha256": "14ce04000352a8d8ee6cf2ec4419e1cf28a8d6648736a1cf6653d38bc24099e3",
+    "bytes": 11000,
+    "retrievedAt": "2026-11-01T23:48:43.474930+00:00",
+    "url": "https://github.com/w3c/aria-practices/blob/0f765e4dc33e966026114ac12a8380db1de3b787/content/patterns/dialog-modal/dialog-modal-pattern.html"
+  },
+  {
+    "name": "definition-list",
+    "repo": "mdn/content",
+    "path": "files/en-us/web/html/reference/elements/dl/index.md",
+    "commit": "a0ba038b5e77c06c820e90dc39133acb70dd476a",
+    "blobSha": "416a1210fc4a7d7800e7a58e75a8068f6b58bca3",
+    "sha256": "9837bb6df8f649b1755990d204ff341d6a91f792dcb82f813d0a94fd053a005f",
+    "bytes": 7616,
+    "retrievedAt": "2026-11-01T23:48:44.253217+00:00",
+    "url": "https://github.com/mdn/content/blob/a0ba038b5e77c06c820e90dc39133acb70dd476a/files/en-us/web/html/reference/elements/dl/index.md"
+  }
+]

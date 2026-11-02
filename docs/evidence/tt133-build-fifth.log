@@ -1,0 +1,30 @@
+
+> build
+> next build
+
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 26ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.5s
+  Running TypeScript ...
+  Finished TypeScript in 11.4s ...
+  Collecting page data using 1 worker ...
+Error: Failed to collect configuration for /api/backup
+    at ignore-listed frames {
+  [cause]: Error: DATABASE_URL is required
+      at <unknown> (src/db/index.ts:7:9)
+     5 |
+     6 | if (!databaseUrl) {
+  >  7 |   throw new Error("DATABASE_URL is required");
+       |         ^
+     8 | }
+     9 |
+    10 | const globalForDb = globalThis as typeof globalThis & {
+}
+
+> Build error occurred
+Error: Failed to collect page data for /api/backup
+    at ignore-listed frames {
+  type: 'Error'
+}

@@ -1,0 +1,26 @@
+{
+  "at": "2026-11-02T00:48:29.660Z",
+  "browser": "143.0.7499.0",
+  "typescript": "5.9.3",
+  "scope": "native Chromium kernels; not app E2E or physical devices",
+  "sourceHashes": [
+    {
+      "path": "src/lib/vt.ts",
+      "sha256": "c6fa47d5f00bbf7d6d823cee7cc137fa3a65047600931eb09c57cffed6ba5e57"
+    },
+    {
+      "path": "src/lib/terminal-display.ts",
+      "sha256": "dc9ddf2494bfd4cd5a47c20bac1267f058e770d06a1efb2768224c32dc6882f2"
+    },
+    {
+      "path": "src/lib/search-query.ts",
+      "sha256": "59918b1c626f3331174e6cd32a4a6915bb12abd2c1c78b953a14181e9682d91a"
+    },
+    {
+      "path": "src/lib/recent-searches.ts",
+      "sha256": "a1fc7d29bc79bbd1a355e081697b9c99e852298c3211a39799f7c97b311b8ba9"
+    }
+  ],
+  "nativeRaf": "function",
+  "nativeStorage": true
+}

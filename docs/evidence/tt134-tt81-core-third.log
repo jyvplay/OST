@@ -1,0 +1,15 @@
+  ✓ S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates
+  ✓ S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula
+  ✓ S3 deterministic independent frequency-map oracle on 240 integer vectors
+  ✓ S4 all 17 legacy MODE cells agree with Excel cached results in the Apache POI fixture (includes M936)
+  ✓ S5 all 4158 cells across all 4 sheets of FormulaEvalTestData_Copy.xlsx agree with Excel cached values (includes G716, D872, E872, M936)
+  ✓ L1 literal case/scope, groups and tables; no notes/master/package false hits
+  ✓ L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical
+  ✓ L3 one-step snapshot undo/redo, deletion, repeated replacement, literal dollar and unicode; paragraph boundaries
+  ✓ L4 hard breaks and dynamic fields block matching, replacement explosion refused before mutation
+  ✓ P1 custom box geometry exact all rotations, negative crop origin and edge boxes
+  ✓ P2 refuse NaN, infinities, zero, negative, off-page, malformed geometry before signing
+  ✓ P3 signed custom boxes: pyHanko intact/valid, pypdf Rect and PDFium visible pixels within displayed box on four rotations
+  ✓ P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink
+
+13 passed, 0 failed

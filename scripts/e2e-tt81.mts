@@ -1,5 +1,6 @@
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
+import { bannerClick, bannerTestId } from "./banner-click.mts";
 import { Workbook } from "../src/lib/formula/engine.ts";
 import { writeXlsxWorkbook, readXlsxWorkbook } from "../src/lib/formula/xlsx.ts";
 import * as M from "../src/lib/office/pml.ts";
@@ -41,7 +42,7 @@ await test("E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen c
     await cell("A1").filter({ hasText: "3" }).waitFor(); await cell("A2").filter({ hasText: "2" }).waitFor();
     await cell("A1").click(); const bar = dlg.getByRole("textbox", { name: "Formula bar", exact: true });
     await bar.fill("=MODE.MULT({7,7,8,8})"); await bar.press("Enter"); await cell("A2").filter({ hasText: "8" }).waitFor();
-    await dlg.getByRole("button", { name: "Save workbook", exact: true }).click(); await dlg.getByTestId("sheet-status").filter({ hasText: /saved/i }).waitFor();
+    await bannerClick(page, dlg, /^Save workbook$/, /^Save workbook$/); await dlg.getByTestId("sheet-status").filter({ hasText: /saved/i }).waitFor();
     const out = readXlsxWorkbook(await read(path)); ok(out.valueAt(out.sheet().name, 0, 0) === 7 && out.valueAt(out.sheet().name, 0, 1) === 8, "saved spill differs");
     await dlg.screenshot({ path: "docs/screens/tt81-sheet.png" });
   } finally { await ctx.close(); }
@@ -88,7 +89,7 @@ await test("E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, 
     await page.keyboard.press("Control+y"); ok(await pane.getByTestId("slides-search-hit").count() === 0, "redo did not replace");
     // New attack: an open Save-as modal must own Ctrl+F, Delete and undo.
     await pane.getByRole("button", { name: "Close slide search" }).click();
-    await dlg.getByTestId("app-banner").getByRole("button", { name: "Save", exact: true }).click(); await dlg.getByRole("status").filter({ hasText: /Saved .*lossless/ }).waitFor();
+    await bannerClick(page, dlg.getByTestId("app-banner"), /^Save$/, /^Save$/); await dlg.getByRole("status").filter({ hasText: /Saved .*lossless/ }).waitFor();
     const saved = await read(path), deck = await M.readPptxDoc(saved, "out.pptx"); ok(findSlideText(deck, "Thread & <x>").length === 2 && findSlideText(deck, "Needle").length === 0, "saved text differs");
     const f = join(temp, "ui.pptx"); writeFileSync(f, saved); const independent = execFileSync(PY, ["-c", "from pptx import Presentation; import sys; print(Presentation(sys.argv[1]).slides[0].shapes[0].text)", f], { encoding: "utf8" }); ok(independent.includes("Thread & <x> [x] Thread & <x>"), `python-pptx: ${independent}`);
     // File already has a path; Save-as is a separate command in Keep.
@@ -118,7 +119,7 @@ await test("E4 PDF /UserUnit reaches the live viewer, text highlights, info pane
   const path = await upload("pdf", bytes, "application/pdf"); const { ctx, page } = await open("pdf", path);
   try {
     const app = page.getByTestId("pdf-app").last(); await app.getByTestId("pdf-thumb").first().waitFor();
-    await app.getByRole("button", { name: "100%", exact: true }).click();
+    await bannerClick(page, app, /^100%$/, /^100%$/);
     const p1 = app.locator('[data-testid="pdf-page"]').nth(0), p2 = app.locator('[data-testid="pdf-page"]').nth(1);
     await p1.locator("canvas").waitFor();
     await page.waitForFunction((el) => { const c = el.querySelector("canvas"); return !!c && c.width === 750 && c.height === 1000; }, await p1.elementHandle());
@@ -150,13 +151,26 @@ await test("E5 Writer Word Count reports document and selected text through the 
   const { ctx, page } = await open("writer", "");
   try {
     const app = page.locator('[role="dialog"][aria-label="Writer"]').last(), body = app.getByTestId("writer-body");
-    await body.locator("[data-pid]").first().waitFor(); await app.getByTestId("writer-new").click();
+    await body.locator("[data-pid]").first().waitFor(); await bannerTestId(page, app, "writer-new", "New");
     await body.locator("[data-pid]").first().waitFor(); await body.click(); await page.keyboard.press("Control+A"); await page.keyboard.type("Alpha beta gamma");
     await app.getByTestId("writer-words").filter({ hasText: "3 words" }).waitFor();
     await page.keyboard.press("Control+Home"); await page.keyboard.press("Control+Shift+ArrowRight");
     const openCount = app.getByTestId("writer-word-count-open"); await openCount.click(); const dialog = page.getByTestId("writer-word-count"); await dialog.waitFor();
     ok(await dialog.getByRole("button", { name: "Close Word Count" }).evaluate((el) => el === document.activeElement), "modal should focus its close control");
-    await page.keyboard.press("Tab"); ok(await dialog.getByRole("button", { name: "Close Word Count" }).evaluate((el) => el === document.activeElement), "Tab should stay trapped in this single-control modal");
+    await page.keyboard.press("Tab"); ok(await dialog.getByTestId("writer-goal-start").evaluate(el => el === document.activeElement), "Tab must reach the real goal button, not trap users on Close");
+    await page.keyboard.press("Enter"); await dialog.getByTestId("writer-goal").filter({ hasText: "0/" }).waitFor();
+    ok(await dialog.getByTestId("writer-goal-end").evaluate(el => el === document.activeElement), "starting a goal must not discard native keyboard focus");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Tab"); ok(await dialog.getByLabel("Session word goal target").evaluate(el => el === document.activeElement), "goal target is keyboard reachable");
+    const modalBody = await body.innerText();
+    await page.keyboard.press("Control+z"); await page.keyboard.press("Control+s");
+    await page.keyboard.press("Control+Space");
+    ok(await page.getByRole("dialog", { name: "Command palette", exact: true }).count() === 0, "Word Count must not open the global command palette from its goal input");
+    await page.keyboard.press("Alt+F4");
+    ok(await app.isVisible(), "Word Count must not let a global close-window chord close its Writer behind the modal");
+    ok(await dialog.isVisible() && await body.innerText() === modalBody, "modal shortcuts must not mutate/save the document behind Word Count");
+    await page.keyboard.press("Tab"); ok(await dialog.getByRole("button", { name: "Close Word Count" }).evaluate(el => el === document.activeElement), "Tab wraps inside all three actual modal controls");
+    await page.keyboard.press("Shift+Tab"); ok(await dialog.getByLabel("Session word goal target").evaluate(el => el === document.activeElement), "reverse Tab also wraps inside the modal");
     ok(await dialog.getByTestId("writer-count-words").innerText() === "3", "document word count should be three");
     ok(await dialog.getByTestId("writer-count-chars").innerText() === "16", "document character count should include spaces");
     ok(await dialog.getByTestId("writer-count-chars-no-spaces").innerText() === "14", "document character count should omit spaces");

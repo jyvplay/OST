@@ -33,7 +33,7 @@ export default function EditorModule({ win }: ModuleProps) {
   const shell = useShell();
   const path = (win.props.path as string) ?? "";
   const [text, setText] = useState("");
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(() => !path);
   const [dirty, setDirty] = useState(false);
   const [versions, setVersions] = useState<Version[]>([]);
   const [diffOf, setDiffOf] = useState<Version | null>(null);
@@ -72,7 +72,7 @@ export default function EditorModule({ win }: ModuleProps) {
   };
 
   useEffect(() => {
-    if (!path) { setLoaded(true); return; }
+    if (!path) return;
     api<{ node: { content: string; encoding: string } }>(`/api/fs?op=read&path=${encodeURIComponent(path)}`)
       .then((r) => {
         setText(r.node.encoding === "base64" ? "[binary file — open it in Peek]" : r.node.content);

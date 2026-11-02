@@ -5,13 +5,15 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { MODULES } from "../src/lib/registry.ts";
 import { disposableShell } from "./tt132-fixture.mts";
 import { makeHarness } from "./harness.mts";
-const fx = await disposableShell(), { test, finish } = makeHarness("tt132-visual");
+const TAG = process.env.TURN_TAG ?? "tt132";
+assert.match(TAG, /^tt[0-9]+$/);
+const fx = await disposableShell(), { test, finish } = makeHarness(`${TAG}-visual`);
 const records: any[] = [];
 let capabilities: unknown;
 try {
   for (const [mode, width] of [["wide", 1500], ["compact", 900]] as const) {
     const context = await fx.context({ viewport: { width, height: 960 } });
-    mkdirSync(`docs/screens/tt132-visual/${mode}`, { recursive: true });
+    mkdirSync(`docs/screens/${TAG}-visual/${mode}`, { recursive: true });
     try {
       for (const entry of MODULES) {
         await test(`${mode} initial view: ${entry.title}`, {}, async () => {
@@ -29,9 +31,10 @@ try {
             // screen; a continuously active transport is recorded, not faked.
             let settled = true;
             try { await page.waitForLoadState("networkidle", { timeout: 8000 }); } catch { settled = false; }
+            await page.evaluate(() => document.fonts.ready);
             await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
             const window = page.locator('[data-win-id="w1"]'), body = window.locator(".fs-winbody");
-            const text = await body.innerText(), path = `docs/screens/tt132-visual/${mode}/${entry.id}.png`;
+            const text = await body.innerText(), path = `docs/screens/${TAG}-visual/${mode}/${entry.id}.png`;
             await window.screenshot({ path, animations: "disabled" });
             const bounds = await body.evaluate((el) => ({ client: el.clientWidth, scroll: el.scrollWidth }));
             records.push({ mode, id: entry.id, title: entry.title, path, settled, words: text.trim().split(/\s+/).length, horizontalOverflow: bounds.scroll - bounds.client, errors, text });
@@ -43,6 +46,6 @@ try {
     } finally { await context.close(); }
   }
 } finally {
-  writeFileSync("docs/evidence/tt132-visual.json", JSON.stringify({ browser: fx.browser.version(), capabilities, views: records }, null, 2) + "\n");
+  writeFileSync(`docs/evidence/${TAG}-visual.json`, JSON.stringify({ browser: fx.browser.version(), capabilities, views: records }, null, 2) + "\n");
   await fx.close(); finish();
 }

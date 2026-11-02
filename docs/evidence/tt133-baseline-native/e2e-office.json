@@ -1,0 +1,112 @@
+{
+  "suite": "e2e-office",
+  "at": "2026-10-31T14:36:53.910Z",
+  "results": [
+    {
+      "suite": "e2e-office",
+      "name": "sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+      "covers": {
+        "FF-28": "full",
+        "FF-26": "partial",
+        "FF-19": "partial"
+      },
+      "pass": true,
+      "ms": 2718
+    },
+    {
+      "suite": "e2e-office",
+      "name": "autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 3440
+    },
+    {
+      "suite": "e2e-office",
+      "name": "drag-select a range → status bar Sum/Count; Ctrl+A selects current region",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 3506
+    },
+    {
+      "suite": "e2e-office",
+      "name": "fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 4710
+    },
+    {
+      "suite": "e2e-office",
+      "name": "Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 3270
+    },
+    {
+      "suite": "e2e-office",
+      "name": "clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": true,
+      "ms": 2854
+    },
+    {
+      "suite": "e2e-office",
+      "name": "sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": false,
+      "error": "locator.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().getByLabel('Find', { exact: true })\n",
+      "ms": 33836
+    },
+    {
+      "suite": "e2e-office",
+      "name": "charts panel renders SVG chart images (bar → pie) from a dynamic-array source",
+      "covers": {
+        "FF-29": "full"
+      },
+      "pass": true,
+      "ms": 2465
+    },
+    {
+      "suite": "e2e-office",
+      "name": "column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
+      "covers": {
+        "FF-28": "full"
+      },
+      "pass": false,
+      "error": "width 138 → 138",
+      "ms": 2826
+    },
+    {
+      "suite": "e2e-office",
+      "name": "save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+      "covers": {
+        "FF-28": "full",
+        "FF-20": "partial",
+        "FF-21": "partial"
+      },
+      "pass": false,
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-cell=\"A3\"]')\n    - locator resolved to <td data-cell=\"A3\">Gadget</td>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n  2 × retrying click action\n      - waiting 100ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" class=\"fs-btn\" data-variant=\"ghost\" data-testid=\"recover-discard\">Discard draft</button> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n  13 × retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button type=\"button\" class=\"fs-btn\" data-variant=\"ghost\" data-testid=\"recover-discard\">Discard draft</button> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button type=\"button\" class=\"fs-btn\" data-variant=\"ghost\" data-testid=\"recover-discard\">Discard draft</button> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n  2 × retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <td data-cell=\"A2\">Widget</td> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-modal=\"false\" data-focused=\"true\" data-win-id=\"w2_sheet\" aria-label=\"Spreadsheet\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n",
+      "ms": 32038
+    },
+    {
+      "suite": "e2e-office",
+      "name": "no uncaught page errors during the spreadsheet session",
+      "covers": {
+        "FF-28": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

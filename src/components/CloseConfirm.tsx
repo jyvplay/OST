@@ -20,6 +20,7 @@ export interface CloseConfirmProps {
   title: string;
   /** a recovery draft is kept on "Don't save" (TT70: protected documents too — their drafts are sealed) */
   recoverable: boolean;
+  recoveryDetail?: string;
   /** "close" (closing the window) or "replace" (Writer's New over unsaved work) */
   mode: "close" | "replace";
   busy: boolean;
@@ -64,11 +65,9 @@ export default function CloseConfirm(p: CloseConfirmProps) {
     return () => { for (const t of KEY_EVENTS) { el.removeEventListener(t, own); window.removeEventListener(t, outside, true); } };
   }, []);
 
-  const body = p.mode === "replace"
-    ? "Starting a new document replaces it."
-    : p.recoverable
-      ? "If you don't save, a recovery draft is kept: reopen the file to restore or discard it."
-      : "No recovery draft can be kept for this file — if you don't save, the changes are gone.";
+  const body = (p.mode === "replace" ? "Switching documents replaces these edits. " : "") + (p.recoveryDetail ?? (p.recoverable
+    ? "Don't save first writes a recovery draft. If that fails, this editor stays open. Reopen the document to restore or discard the draft."
+    : "No recovery draft can be kept for this file — if you don't save, the changes are gone."));
 
   if (typeof document === "undefined") return null;
   return createPortal(
@@ -76,7 +75,7 @@ export default function CloseConfirm(p: CloseConfirmProps) {
       style={{ position: "fixed", inset: 0, zIndex: 2147483000, background: "rgba(6, 16, 24, 0.42)", display: "grid", placeItems: "center" }}>
       <div ref={box} role="alertdialog" aria-modal="true" aria-labelledby="fs-close-confirm-title" aria-describedby="fs-close-confirm-body"
         data-testid="close-confirm" className="fs-card" onPointerDown={(e) => e.stopPropagation()}
-        style={{ width: "min(30rem, calc(100vw - 32px))", padding: 20, borderRadius: 16, display: "grid", gap: 12,
+        style={{ width: "min(30rem, calc(100vw - 32px))", minWidth: 0, maxHeight: "calc(100dvh - 32px)", overflow: "auto", overflowWrap: "anywhere", padding: 20, borderRadius: 16, display: "grid", gap: 12,
           background: "var(--fs-panel-solid, #fff)", color: "var(--fs-text, #102030)", border: "1px solid var(--fs-border, rgba(0,0,0,0.2))", boxShadow: "0 18px 48px rgba(0,0,0,0.35)" }}>
         <h2 id="fs-close-confirm-title" style={{ margin: 0, fontSize: fz(18) }}>
           Save changes to “{p.title}”?

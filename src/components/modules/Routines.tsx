@@ -1,7 +1,7 @@
 "use client";
 import { fz } from "@/lib/uiscale";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, fmtTime, patch, post, put } from "@/lib/api";
 import { parseScript, ROUTINE_COMMANDS, type RoutineAction } from "@/lib/routines";
 import { exportRoutines, parseRoutineImport } from "@/lib/routine-io";
@@ -31,13 +31,11 @@ export default function RoutinesModule(_: ModuleProps) {
   const [dry, setDry] = useState<string[] | null>(null);
   const [err, setErr] = useState("");
 
-  const load = async () => {
-    const r = await api<{ rows: Routine[] }>("/api/routines");
-    setRows(r.rows);
-    const p = await api<{ rows: Preset[] }>("/api/state?list=preset");
-    setPresets(p.rows);
-  };
-  useEffect(() => { void load(); }, [shell.refreshTick]); // eslint-disable-line react-hooks/exhaustive-deps
+  const load = useCallback(() => Promise.all([
+    api<{ rows: Routine[] }>("/api/routines").then(r => setRows(r.rows)),
+    api<{ rows: Preset[] }>("/api/state?list=preset").then(r => setPresets(r.rows)),
+  ]).then(() => undefined).catch(e => setErr(e instanceof Error ? e.message : String(e))), []);
+  useEffect(() => { void load(); }, [shell.refreshTick, load]);
 
   let parsed: RoutineAction[] = [];
   let parseErr = "";

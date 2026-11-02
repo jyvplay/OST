@@ -1,6 +1,7 @@
 /** TT122 — mechanism e2e. Same contract as e2e-tt121: real Chromium, real
  * production server, real VFS data, controls by accessible name/testid. */
 import assert from "node:assert/strict";
+import { expect } from "playwright/test";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 
@@ -11,6 +12,7 @@ const BASE = process.env.BASE!;
 const { test, finish } = makeHarness("e2e-tt122");
 async function api<T = Record<string, unknown>>(method: string, path: string, body?: unknown): Promise<T> {
   const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  assert.equal(r.ok, true, `${method} ${path}: HTTP ${r.status}`);
   return await r.json() as T;
 }
 const browser = await launchChromium();
@@ -22,7 +24,10 @@ async function openModule(module: string, props: Record<string, unknown> = {}) {
   page.setDefaultTimeout(20_000);
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await page.waitForSelector('[data-win-id="w1"]');
-  await page.waitForTimeout(1200);
+  await page.waitForFunction(() => {
+    const body = document.querySelector('[data-win-id="w1"] .fs-winbody');
+    return body && body.children.length > 0 && !/^Loading[.…\s]*$/.test(body.textContent?.trim() ?? "");
+  });
   return { page, context };
 }
 
@@ -43,17 +48,37 @@ await test("PK-01/ED-06: peek facts agree with wc; editor wrap changes the texta
 });
 
 await test("NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears", { "NT-06": "full", "MD-11": "full", "CK-06": "full" }, async () => {
+  // A real persisted, non-heading Unicode title catches the old oracle's
+  // incorrect assumption that titles are exported as Markdown headings.
+  const owned = await api<{ row: { id: number; revision: number } }>("POST", "/api/notes", {
+    title: `TT134 bundle: # literal μ 🧭 ${Date.now().toString(36)}`, body: "Bundle proof, not a heading.\nSecond line: μ 🧭\n", tags: "bundle,unicode",
+  });
   const notes = await openModule("notes");
-  await notes.page.getByTestId("notes-bundle").click();
-  await notes.page.waitForTimeout(800);
+  try {
+  const persisted = await api<{ rows: { title: string; body: string }[] }>("GET", "/api/notes");
+  // Use the actual visible More disclosure, not a hidden or force-clicked button.
+  const more = notes.page.locator('[data-testid="note-editor"] details').filter({ has: notes.page.getByTestId("notes-bundle") });
+  await more.locator("summary").click();
+  await expect(notes.page.getByTestId("notes-bundle")).toBeVisible();
+  const written = notes.page.waitForResponse(response => {
+    if (new URL(response.url()).pathname !== "/api/fs" || response.request().method() !== "POST") return false;
+    try { const b = response.request().postDataJSON(); return b.op === "write" && b.path === "/notes-bundle.md"; } catch { return false; }
+  });
+  await notes.page.getByTestId("notes-bundle").click(); assert.equal((await written).status(), 200);
   const bundle = await api<{ node?: { content?: string } }>("GET", "/api/fs?op=read&path=" + encodeURIComponent("/notes-bundle.md"));
-  assert.ok((bundle.node?.content ?? "").includes("# Notes bundle"), "bundle file written to the VFS root");
-  await notes.context.close();
+  const content = bundle.node?.content ?? "";
+  assert.ok(content.includes("# Notes bundle"), "bundle file written to the VFS root");
+  assert.ok(content.includes(`· ${persisted.rows.length} note`), "bundle count matches the real persisted snapshot");
+  for (const note of persisted.rows) { assert.ok(content.includes(`\ntitle: ${note.title}\n`), "saved front-matter title retained in real bundle"); assert.ok(content.includes(note.body), "saved body retained in real bundle"); }
+  } finally {
+    await notes.context.close(); await api("DELETE", `/api/notes?id=${owned.row.id}`, { expectedRevision: owned.row.revision });
+  }
 
   const media = await openModule("media");
   await media.page.getByTestId("media-loop").click();
-  const loop = await media.page.evaluate(() => document.querySelector('[data-win-id="w1"] video')?.loop);
-  assert.equal(loop, true, "the toggle drives the element's loop property");
+  await expect.poll(() => media.page.evaluate(() => {
+    const element = document.querySelector('[data-win-id="w1"] video'); return element instanceof HTMLMediaElement && element.loop;
+  }), { message: "the toggle drives the actual media element's loop property" }).toBe(true);
   await media.context.close();
 
   const clock = await openModule("clock");

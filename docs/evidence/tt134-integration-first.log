@@ -1,0 +1,31 @@
+
+Integration against http://127.0.0.1:3000 (run Tmvyh8kkk)
+  ✓ health + bootstrap reconcile the register
+  ✓ register has no audited row still over-claimed
+  ✓ FM-03 journaled move: 6 states in order, digest preserved, source retired
+  ✓ FM-03 adversarial moves are refused and journaled as FAILED
+  ✓ FM-18 overwrite snapshots the previous version
+  ✓ FM-11 trash → restore is exact; FM-07 finds duplicates by digest
+  ✓ SR-01 search finds new content with provenance
+  ✓ SH-08 stale revision cannot clobber newer desktop state (409)
+  ✓ AU-02 presets list and delete; non-prefixed rows cannot be deleted
+  ✓ AU-01 routine whitelist rejects commands outside the palette vocabulary
+  ✓ PR-04 ICS import is idempotent by UID; export is valid iCalendar
+  ✓ CA-09 signalling: targeted delivery, no self-echo, kind whitelist, size cap
+  ✓ CA-11 Together anchor clock advances while playing and freezes on pause
+  ✓ FF-08/FF-10/FF-02 Forge engines via the API, with grades
+  ✓ BK-01 tampered backup bundle is refused before anything is written
+  ✓ BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused
+  ✓ SR-04 / settings: locked settings refuse writes (423)
+
+v3.3 regression attacks (aimed at this turn's patches)
+  ✓ CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)
+  ✓ search treats % and _ in queries literally
+  ✓ SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing
+  ✓ FM-05 compress → extract round trip preserves bytes (text and binary)
+  ✓ FM-05 extract refuses zip-slip and writes nothing
+  ✓ Together GET accepts lowercase room codes (casing fix)
+  ✓ deleting a note removes only its own index row
+  ✓ every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)
+
+25 passed, 0 failed

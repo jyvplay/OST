@@ -1,0 +1,192 @@
+[
+  {
+    "file": "docs/screens/tt134-review/wide-01.jpg",
+    "mode": "wide",
+    "apps": [
+      "recall",
+      "files",
+      "editor",
+      "find",
+      "terminal",
+      "ssh"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/wide-02.jpg",
+    "mode": "wide",
+    "apps": [
+      "notes",
+      "browser",
+      "media",
+      "capture",
+      "lens",
+      "beam"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/wide-03.jpg",
+    "mode": "wide",
+    "apps": [
+      "together",
+      "messages",
+      "vault",
+      "privacy",
+      "backup",
+      "alerts"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/wide-04.jpg",
+    "mode": "wide",
+    "apps": [
+      "monitor",
+      "apps",
+      "calculator",
+      "settings",
+      "spec",
+      "clock"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/wide-05.jpg",
+    "mode": "wide",
+    "apps": [
+      "planner",
+      "devices",
+      "share",
+      "routines",
+      "clipboard",
+      "storage"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/wide-06.jpg",
+    "mode": "wide",
+    "apps": [
+      "archive",
+      "localdisk",
+      "photos",
+      "imageedit",
+      "vector",
+      "writer"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/wide-07.jpg",
+    "mode": "wide",
+    "apps": [
+      "pdf",
+      "books",
+      "slides",
+      "sheet",
+      "contacts",
+      "tables"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/wide-08.jpg",
+    "mode": "wide",
+    "apps": [
+      "whiteboard",
+      "peek",
+      "video",
+      "music",
+      "maps"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/compact-01.jpg",
+    "mode": "compact",
+    "apps": [
+      "recall",
+      "files",
+      "editor",
+      "find",
+      "terminal",
+      "ssh"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/compact-02.jpg",
+    "mode": "compact",
+    "apps": [
+      "notes",
+      "browser",
+      "media",
+      "capture",
+      "lens",
+      "beam"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/compact-03.jpg",
+    "mode": "compact",
+    "apps": [
+      "together",
+      "messages",
+      "vault",
+      "privacy",
+      "backup",
+      "alerts"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/compact-04.jpg",
+    "mode": "compact",
+    "apps": [
+      "monitor",
+      "apps",
+      "calculator",
+      "settings",
+      "spec",
+      "clock"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/compact-05.jpg",
+    "mode": "compact",
+    "apps": [
+      "planner",
+      "devices",
+      "share",
+      "routines",
+      "clipboard",
+      "storage"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/compact-06.jpg",
+    "mode": "compact",
+    "apps": [
+      "archive",
+      "localdisk",
+      "photos",
+      "imageedit",
+      "vector",
+      "writer"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/compact-07.jpg",
+    "mode": "compact",
+    "apps": [
+      "pdf",
+      "books",
+      "slides",
+      "sheet",
+      "contacts",
+      "tables"
+    ]
+  },
+  {
+    "file": "docs/screens/tt134-review/compact-08.jpg",
+    "mode": "compact",
+    "apps": [
+      "whiteboard",
+      "peek",
+      "video",
+      "music",
+      "maps"
+    ]
+  }
+]

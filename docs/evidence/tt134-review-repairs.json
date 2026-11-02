@@ -1,0 +1,143 @@
+{
+  "scope": "Actual presentation-repair attacks and supplemental captures, not new Class A features or universal device acceptance",
+  "records": [
+    {
+      "app": "browser-deny",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/browser-deny-wide.png",
+      "words": 121,
+      "proof": {
+        "ok": true,
+        "url": "https://github.com/",
+        "status": 200,
+        "verdict": "deny",
+        "reason": "X-Frame-Options: DENY",
+        "host": "S3-handoff",
+        "headers": {
+          "x-frame-options": "deny",
+          "frame-ancestors": "'none'"
+        },
+        "tookMs": 719
+      },
+      "sha256": "cf2c35124795c500a2b2964fee079b829814453cfd5ea2dd98db32defd9925d5",
+      "manuallyViewed": true
+    },
+    {
+      "app": "browser-unknown",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/browser-unknown-wide.png",
+      "words": 60,
+      "proof": {
+        "ok": true,
+        "url": "https://tt134-mvylc311-wide.invalid/",
+        "status": 0,
+        "verdict": "unknown",
+        "reason": "probe failed: DNS lookup failed for tt134-mvylc311-wide.invalid",
+        "host": "S3-handoff",
+        "tookMs": 5
+      },
+      "sha256": "ef211ba7b782fd6d84c5abefb1687bf3854b2bec51d858522e73f69631cd60c8",
+      "manuallyViewed": true
+    },
+    {
+      "app": "spec-collapsed",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/spec-collapsed-wide.png",
+      "words": 12217,
+      "sha256": "5d993399fade66d12dfad7d872d8167a95eb671c4b84aef16b9d24601d742bcc",
+      "manuallyViewed": true
+    },
+    {
+      "app": "spec-expanded",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/spec-expanded-wide.png",
+      "words": 12657,
+      "sha256": "8a51150edae798722e3378a40d3bf9cda611ec8d976de1b87b17e5c84a7a61d1",
+      "manuallyViewed": true
+    },
+    {
+      "app": "beam",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/beam-wide.png",
+      "words": 291,
+      "proof": {
+        "localFileGapPx": 8
+      },
+      "sha256": "408d3202dac74b8ddd9ff03992de671164eeaa1ea2527a49f0ed3d68ce8730f5",
+      "manuallyViewed": true
+    },
+    {
+      "app": "browser-deny",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/browser-deny-compact.png",
+      "words": 121,
+      "proof": {
+        "ok": true,
+        "url": "https://github.com/",
+        "status": 200,
+        "verdict": "deny",
+        "reason": "X-Frame-Options: DENY",
+        "host": "S3-handoff",
+        "headers": {
+          "x-frame-options": "deny",
+          "frame-ancestors": "'none'"
+        },
+        "tookMs": 558
+      },
+      "sha256": "5f3b3ab931759c33ad2212b615dbbec9165691376de382e907b75636721746f5",
+      "manuallyViewed": true
+    },
+    {
+      "app": "browser-unknown",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/browser-unknown-compact.png",
+      "words": 60,
+      "proof": {
+        "ok": true,
+        "url": "https://tt134-mvylccxv-compact.invalid/",
+        "status": 0,
+        "verdict": "unknown",
+        "reason": "probe failed: DNS lookup failed for tt134-mvylccxv-compact.invalid",
+        "host": "S3-handoff",
+        "tookMs": 4
+      },
+      "sha256": "26bfcb116b2992c3c86b7dceb2aeb4ca2870a0e31d0c8908ff6048344fb7496b",
+      "manuallyViewed": true
+    },
+    {
+      "app": "spec-collapsed",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/spec-collapsed-compact.png",
+      "words": 12217,
+      "sha256": "9b467adcdfa4a1d5df2963e278cc9cdf0f4d7d7de81d81b92a1d989c895c59fe",
+      "manuallyViewed": true
+    },
+    {
+      "app": "spec-expanded",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/spec-expanded-compact.png",
+      "words": 12657,
+      "sha256": "8bc39239384ef63e2a16a043715e24fc0e47827e03fd2b61e326bba4b34c623b",
+      "manuallyViewed": true
+    },
+    {
+      "app": "beam",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/beam-compact.png",
+      "words": 291,
+      "proof": {
+        "localFileGapPx": 8
+      },
+      "sha256": "5c580693e51dad1bcc8a4359d71056b97e8d63673ca087eaf0a37a08658ea7c1",
+      "manuallyViewed": true
+    }
+  ],
+  "phase": "Final compiled source 6, after Beam spacing and reviewed coverage refresh",
+  "reviewedAt": "2026-11-02T01:42:25.959390+00:00",
+  "manualFindings": [
+    "All ten final images actually viewed at native capture size. Beam label/file-picker separation is now clear; native geometry measures the gap in both widths.",
+    "Actual GitHub policy denial retains its reason, explanation and alternatives; actual DNS failure shows unverified and does not claim a measured refusal. Compact toolbar wraps rather than dropping actions. Some dark-toolbar glyph contrast remains a follow-up.",
+    "Spec still shows all 627 row identities; its Questions & checks native disclosure opens and closes using mouse/Enter/Space. Real API-to-DOM checks retain all twelve complete spike records. Captured expanded viewport shows the first question, not every off-viewport criterion.",
+    "Default Spec remains dense, and the long register-health warning list remains explicit. Scrolling and sampled initial views are not universal all-state usability proof."
+  ]
+}

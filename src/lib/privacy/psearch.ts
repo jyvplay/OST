@@ -7,6 +7,7 @@
  * Queries scoped to /Private never leave the browser; unscoped queries still ask the host for host files (the
  * host already holds those in clear) and the two result lists are merged.
  */
+import { hasSearchExtension, type SearchInput } from "../search-query";
 import { isTextual } from "../mime";
 import { fromB64 } from "./pcrypt";
 
@@ -48,19 +49,22 @@ export class PrivateIndex {
   }
   clear() { this.docs.clear(); this.bytes = 0; }
 
-  search(q: string, scope = "", limit = 40, how: PHit["how"] = "private-local"): PHit[] {
-    return searchDocs(this.docs.values(), q, scope, limit, how);
+  search(q: string, scope = "", limit = 40, how: PHit["how"] = "private-local", options: Partial<Pick<SearchInput, "match" | "extension">> = {}): PHit[] {
+    return searchDocs(this.docs.values(), q, scope, limit, how, options);
   }
 }
 
 /** AND of whitespace tokens (like websearch_to_tsquery's default), case-insensitive substring matching. */
-export function searchDocs(docs: Iterable<PDoc>, q: string, scope: string, limit: number, how: PHit["how"]): PHit[] {
-  const toks = q.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 16);
+export function searchDocs(docs: Iterable<PDoc>, q: string, scope: string, limit: number, how: PHit["how"], options: Partial<Pick<SearchInput, "match" | "extension">> = {}): PHit[] {
+  const literal = options.match === "literal" ? q.trim() : q.startsWith('"') && q.endsWith('"') ? q.slice(1, -1).replace(/""/g, '"') : null;
+  const toks = literal !== null ? [literal.toLowerCase()].filter(Boolean) : q.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 16);
   if (!toks.length) return [];
   const out: PHit[] = [];
   for (const d of docs) {
+    if (!hasSearchExtension(d.path, options.extension ?? "")) continue;
     if (scope && d.path !== scope && !d.path.startsWith(scope.endsWith("/") ? scope : `${scope}/`)) continue;
-    if (!toks.every((t) => d.lower.includes(t))) continue;
+    const searchable = `${d.path.toLowerCase()}\n${d.lower}`;
+    if (!toks.every((t) => searchable.includes(t))) continue;
     const nameL = d.name.toLowerCase();
     const inTitle = toks.filter((t) => nameL.includes(t)).length / toks.length;
     let occ = 0; for (const t of toks) { let i = d.lower.indexOf(t); while (i >= 0 && occ < 50) { occ++; i = d.lower.indexOf(t, i + t.length); } }

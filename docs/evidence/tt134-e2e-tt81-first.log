@@ -1,0 +1,14 @@
+  ✗ E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output
+    locator.click: Timeout 15000ms exceeded.
+Call log:
+  - waiting for getByRole('menuitem', { name: /^Save(?: •)?$/ }).or(getByRole('menuitemcheckbox', { name: /^Save(?: •)?$/ })).first()
+
+  ✓ E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry
+  ✓ E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback
+  ✓ E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify
+  ✓ E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions
+  ✓ E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge
+  ✓ E7 no browser page errors
+
+6 passed, 1 failed
+FAILED: E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output

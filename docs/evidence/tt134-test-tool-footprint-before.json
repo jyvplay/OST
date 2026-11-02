@@ -1,0 +1,26 @@
+[
+  {
+    "name": "pymupdf",
+    "version": "2.0",
+    "installedFileBytes": 122235863,
+    "license": "Dual Licensed - GNU AFFERO GPL 3.0 or Artifex Commercial License"
+  },
+  {
+    "name": "pymupdf-layout",
+    "version": "2.0",
+    "installedFileBytes": 764,
+    "license": null
+  },
+  {
+    "name": "pymupdf4llm",
+    "version": "2.0",
+    "installedFileBytes": 744,
+    "license": null
+  },
+  {
+    "name": "onnxruntime",
+    "version": "1.31.1",
+    "installedFileBytes": 68960411,
+    "license": "MIT License"
+  }
+]

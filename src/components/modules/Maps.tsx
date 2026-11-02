@@ -24,6 +24,11 @@ import { Badge, Btn } from "../ui";
 export const PLACES_PATH = "/Documents/Places.geojson";
 type Mode = "pan" | "pin" | "measure";
 interface CountryHit { name: string; feature: M.Feature }
+type SearchDestination =
+  | { kind: "plus code"; label: string; code: string; area: PC.CodeArea }
+  | { kind: "coord"; label: string; lat: number; lng: number; zoom?: number }
+  | { kind: "place"; label: string; id: string; lat: number; lng: number }
+  | { kind: "country"; label: string };
 /** One city from the offline gazetteer API (/api/places/search, GeoNames cities ≥ 15k people). */
 interface CityResult { id: number; name: string; label: string; lat: number; lng: number; population: number; timezone: string }
 interface NearResult { name: string; label: string; km: number; description: string }
@@ -71,6 +76,7 @@ export default function MapsModule({ win }: ModuleProps) {
   const [selCountry, setSelCountry] = useState<string>("");
   const [selPlace, setSelPlace] = useState<string | null>(null);
   const [q, setQ] = useState("");
+  const [countryNames, setCountryNames] = useState<string[]>([]);
   const [fmt, setFmt] = useState<"dd" | "dms">("dd");
   const [units, setUnits] = useState<"metric" | "imperial">("metric");
   const [status, setStatus] = useState("");
@@ -189,11 +195,11 @@ export default function MapsModule({ win }: ModuleProps) {
         host.current.dataset.countries = String(fc.features.length);
         ro = new ResizeObserver(() => map.invalidateSize());
         ro.observe(host.current);
+        setCountryNames(fc.features.map(f => String(f.properties?.name ?? "")));
         setReady(true);
       } catch (e) { if (live) setLoadErr(`Map failed to load: ${(e as Error).message}`); }
     })();
     return () => { live = false; ro?.disconnect(); mapRef.current?.remove(); mapRef.current = null; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // colours follow the theme; land is hidden under street tiles (borders stay as a hairline)
@@ -294,7 +300,7 @@ export default function MapsModule({ win }: ModuleProps) {
 
   /* ------------------------------------------------------------------ search */
   const results = useMemo(() => {
-    const out: { label: string; go: () => void; kind: "coord" | "country" | "place" | "plus code" }[] = [];
+    const out: SearchDestination[] = [];
     if (!q.trim()) return out;
     if (pcFind) {
       // full code → its cell centre; short code → nearest match to the named city, else to the map centre
@@ -307,19 +313,31 @@ export default function MapsModule({ win }: ModuleProps) {
       }
       if (full) {
         const a = PC.decode(full);
-        out.push({ kind: "plus code", label: `Go to ${full}${near}`, go: () => { setFound(null); setGoCell({ code: full, ...a }); setStatus(`${full} → ${M.formatLatLng(a.lat, a.lng, fmt)} (a ${M.formatDistance(G.distance([a.latLo, a.lngLo], [a.latLo, a.lngHi]), units)} × ${M.formatDistance(G.distance([a.latLo, a.lngLo], [a.latHi, a.lngLo]), units)} cell)`); } });
+        out.push({ kind: "plus code", label: `Go to ${full}${near}`, code: full, area: a });
       }
     }
     const c = M.parseLatLng(q);
-    if (c) out.push({ kind: "coord", label: `Go to ${M.formatLatLng(c.lat, c.lng, fmt)}`, go: () => mapRef.current?.flyTo([c.lat, c.lng], c.zoom ?? Math.max(mapRef.current.getZoom(), 9)) });
+    if (c) out.push({ kind: "coord", label: `Go to ${M.formatLatLng(c.lat, c.lng, fmt)}`, ...c });
     const n = q.trim().toLowerCase();
-    for (const p of places?.places ?? []) if (p.name.toLowerCase().includes(n) && out.length < 12) out.push({ kind: "place", label: p.name, go: () => { setSelPlace(p.id); mapRef.current?.flyTo([p.lat, p.lng], Math.max(mapRef.current.getZoom(), 10)); } });
-    if (ready) for (const f of M.searchFeatures(feats.current.map((x) => x.f), q, 8)) {
-      const name = String(f.properties?.name);
-      out.push({ kind: "country", label: name, go: () => { setSelCountry(name); const bb = M.mainBbox(f.geometry); if (bb && mapRef.current) mapRef.current.flyToBounds(bb, { padding: [24, 24], maxZoom: 7 }); } });
-    }
+    for (const p of places?.places ?? []) if (p.name.toLowerCase().includes(n) && out.length < 12) out.push({ kind: "place", label: p.name, id: p.id, lat: p.lat, lng: p.lng });
+    if (ready) for (const name of M.searchNames(countryNames, q, 8)) out.push({ kind: "country", label: name });
     return out;
-  }, [q, ready, places, fmt, pcFind, pcCity, units, view]);
+  }, [q, ready, places, fmt, pcFind, pcCity, view, countryNames]);
+  // Only this user-event path touches Leaflet / current geographic data.
+  const goResult = (result: SearchDestination) => {
+    const map = mapRef.current;
+    if (result.kind === "plus code") {
+      const a = result.area; setFound(null); setGoCell({ code: result.code, ...a });
+      setStatus(`${result.code} → ${M.formatLatLng(a.lat, a.lng, fmt)} (a ${M.formatDistance(G.distance([a.latLo, a.lngLo], [a.latLo, a.lngHi]), units)} × ${M.formatDistance(G.distance([a.latLo, a.lngLo], [a.latHi, a.lngLo]), units)} cell)`);
+    } else if (result.kind === "coord") map?.flyTo([result.lat, result.lng], result.zoom ?? Math.max(map.getZoom(), 9));
+    else if (result.kind === "place") { setSelPlace(result.id); map?.flyTo([result.lat, result.lng], Math.max(map.getZoom(), 10)); }
+    else {
+      setSelCountry(result.label);
+      const feature = feats.current.find(x => String(x.f.properties?.name ?? "") === result.label)?.f;
+      const bounds = feature ? M.mainBbox(feature.geometry) : null;
+      if (bounds && map) map.flyToBounds(bounds, { padding: [24, 24], maxZoom: 7 });
+    }
+  };
   const cityHits = q.trim().length >= 2 && cities.q === q.trim() ? cities.items : [];
   const goCity = (c: CityResult) => { setFound(c); setSelPlace(null); setSelCountry(""); mapRef.current?.flyTo([c.lat, c.lng], tiles === "off" ? 7 : 11); }; // offline layer has only coastlines/borders: a regional zoom keeps context
 
@@ -407,11 +425,11 @@ export default function MapsModule({ win }: ModuleProps) {
       <aside className="fs-maps-side" aria-label="Map tools">
         <div className="fs-maps-search">
           <input className="fs-input" data-testid="mp-search" value={q} onChange={(e) => setQ(e.target.value)} spellCheck={false}
-            onKeyDown={(e) => { if (e.key === "Enter" && (results[0] || cityHits[0])) { e.preventDefault(); if (results[0]) results[0].go(); else goCity(cityHits[0]); } }}
+            onKeyDown={(e) => { if (e.key === "Enter" && (results[0] || cityHits[0])) { e.preventDefault(); if (results[0]) goResult(results[0]); else goCity(cityHits[0]); } }}
             placeholder="City, country, place, coordinates or Plus Code" aria-label="Search cities, countries, saved places, coordinates or Plus Codes" />
           {results.length || cityHits.length ? (
             <ul className="fs-maps-results" data-testid="mp-results">
-              {results.map((r, i) => <li key={`${r.kind}${i}`}><button type="button" className="fs-maps-result" data-testid="mp-result" data-kind={r.kind} onClick={r.go}>{r.label}<span className="fs-dim">{r.kind}</span></button></li>)}
+              {results.map((r, i) => <li key={`${r.kind}${i}`}><button type="button" className="fs-maps-result" data-testid="mp-result" data-kind={r.kind} onClick={() => goResult(r)}>{r.label}<span className="fs-dim">{r.kind}</span></button></li>)}
               {cityHits.map((c) => <li key={`city${c.id}`}><button type="button" className="fs-maps-result" data-testid="mp-result" data-kind="city" onClick={() => goCity(c)}>{c.label}<span className="fs-dim">city</span></button></li>)}
             </ul>
           ) : null}

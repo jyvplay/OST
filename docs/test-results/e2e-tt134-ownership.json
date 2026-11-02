@@ -1,0 +1,62 @@
+{
+  "suite": "e2e-tt134-ownership",
+  "at": "2026-11-02T01:32:34.935Z",
+  "results": [
+    {
+      "suite": "e2e-tt134-ownership",
+      "name": "Notes Orbit clean-load attack: Pin, Duplicate and Delete work without a prior editor Save, and do not adopt unrelated revisions",
+      "covers": {
+        "NT-08": "partial",
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 3750
+    },
+    {
+      "suite": "e2e-tt134-ownership",
+      "name": "Notes Orbit Save→Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits",
+      "covers": {
+        "NT-08": "partial",
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 3827
+    },
+    {
+      "suite": "e2e-tt134-ownership",
+      "name": "Notes Orbit Save→Duplicate copies the newly saved body and a 500-code-unit Unicode title without splitting its last surrogate pair",
+      "covers": {
+        "NT-08": "partial",
+        "NT-13": "partial"
+      },
+      "pass": true,
+      "ms": 2168
+    },
+    {
+      "suite": "e2e-tt134-ownership",
+      "name": "Notes Orbit Save→Delete: Cancel keeps the just-saved record, a genuine writer during confirmation is not adopted as delete consent, and a later confirmed delete succeeds",
+      "covers": {
+        "NT-08": "partial",
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 7052
+    },
+    {
+      "suite": "e2e-tt134-ownership",
+      "name": "Native Writer: a real blocked recovery write exceeds the four-second close timeout; Cancel/edit/unlock cannot late-close the window or lose the newer recovery bytes",
+      "covers": {
+        "FF-15": "partial"
+      },
+      "pass": true,
+      "ms": 10340
+    },
+    {
+      "suite": "e2e-tt134-ownership",
+      "name": "No uncaught browser exceptions during native note/Writer ownership checks",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

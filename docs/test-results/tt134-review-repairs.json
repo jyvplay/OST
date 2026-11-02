@@ -1,0 +1,62 @@
+{
+  "suite": "tt134-review-repairs",
+  "at": "2026-11-02T01:39:29.551Z",
+  "results": [
+    {
+      "suite": "tt134-review-repairs",
+      "name": "wide Browser: actual GitHub framing denial is not confused with network uncertainty",
+      "covers": {},
+      "pass": true,
+      "ms": 5012
+    },
+    {
+      "suite": "tt134-review-repairs",
+      "name": "wide Browser: actual DNS failure is not confused with a measured framing policy",
+      "covers": {},
+      "pass": true,
+      "ms": 2609
+    },
+    {
+      "suite": "tt134-review-repairs",
+      "name": "wide Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result",
+      "covers": {},
+      "pass": true,
+      "ms": 4631
+    },
+    {
+      "suite": "tt134-review-repairs",
+      "name": "wide Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation",
+      "covers": {},
+      "pass": true,
+      "ms": 3331
+    },
+    {
+      "suite": "tt134-review-repairs",
+      "name": "compact Browser: actual GitHub framing denial is not confused with network uncertainty",
+      "covers": {},
+      "pass": true,
+      "ms": 1900
+    },
+    {
+      "suite": "tt134-review-repairs",
+      "name": "compact Browser: actual DNS failure is not confused with a measured framing policy",
+      "covers": {},
+      "pass": true,
+      "ms": 2246
+    },
+    {
+      "suite": "tt134-review-repairs",
+      "name": "compact Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result",
+      "covers": {},
+      "pass": true,
+      "ms": 4371
+    },
+    {
+      "suite": "tt134-review-repairs",
+      "name": "compact Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation",
+      "covers": {},
+      "pass": true,
+      "ms": 2341
+    }
+  ]
+}

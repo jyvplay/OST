@@ -1,0 +1,5 @@
+
+> typecheck
+> tsc --noEmit
+
+src/components/modules/Writer.tsx(643,44): error TS2304: Cannot find name 'effectivePara'.

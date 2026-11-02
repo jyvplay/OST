@@ -1,6 +1,6 @@
 {
   "suite": "e2e-sheet-layout",
-  "at": "2026-10-30T17:57:56.104Z",
+  "at": "2026-11-02T00:51:31.736Z",
   "results": [
     {
       "suite": "e2e-sheet-layout",
@@ -9,7 +9,7 @@
         "FF-33": "full"
       },
       "pass": true,
-      "ms": 4987
+      "ms": 5778
     },
     {
       "suite": "e2e-sheet-layout",
@@ -17,9 +17,8 @@
       "covers": {
         "FF-34": "full"
       },
-      "pass": false,
-      "error": "locator.selectOption: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().getByLabel('Border line style')\n    - locator resolved to <select data-folded=\"1\" class=\"fs-input\" aria-label=\"Border line style\">…</select>\n  - attempting select option action\n    2 × waiting for element to be visible and enabled\n      - element is not visible\n    - retrying select option action\n    - waiting 20ms\n    2 × waiting for element to be visible and enabled\n      - element is not visible\n    - retrying select option action\n      - waiting 100ms\n    60 × waiting for element to be visible and enabled\n       - element is not visible\n     - retrying select option action\n       - waiting 500ms\n",
-      "ms": 35868
+      "pass": true,
+      "ms": 2966
     },
     {
       "suite": "e2e-sheet-layout",
@@ -27,9 +26,8 @@
       "covers": {
         "FF-35": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().getByRole('button', { name: 'Data validation' })\n",
-      "ms": 32778
+      "pass": true,
+      "ms": 5391
     },
     {
       "suite": "e2e-sheet-layout",
@@ -38,9 +36,8 @@
         "FF-33": "full",
         "FF-28": "partial"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().getByRole('button', { name: 'Freeze first column' })\n",
-      "ms": 30938
+      "pass": true,
+      "ms": 3406
     },
     {
       "suite": "e2e-sheet-layout",
@@ -52,9 +49,8 @@
         "FF-20": "full",
         "FF-21": "full"
       },
-      "pass": false,
-      "error": "locator.selectOption: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().getByLabel('Borders', { exact: true })\n    - locator resolved to <select data-folded=\"1\" class=\"fs-input\" aria-label=\"Borders\">…</select>\n  - attempting select option action\n    2 × waiting for element to be visible and enabled\n      - element is not visible\n    - retrying select option action\n    - waiting 20ms\n    2 × waiting for element to be visible and enabled\n      - element is not visible\n    - retrying select option action\n      - waiting 100ms\n    60 × waiting for element to be visible and enabled\n       - element is not visible\n     - retrying select option action\n       - waiting 500ms\n",
-      "ms": 32547
+      "pass": true,
+      "ms": 7800
     },
     {
       "suite": "e2e-sheet-layout",
@@ -63,9 +59,8 @@
         "FF-36": "full",
         "FF-20": "partial"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().getByRole('button', { name: /^Name Manager/ })\n",
-      "ms": 34552
+      "pass": true,
+      "ms": 9180
     },
     {
       "suite": "e2e-sheet-layout",

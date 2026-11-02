@@ -16,6 +16,7 @@ import { parseCsvText, sheetToCsv, usedRange } from "../src/lib/formula/csv.ts";
 import { mkpdf } from "./tt52/mkpdf.ts";
 const { test, finish } = makeHarness("tt81-core");
 const PY = process.env.ORACLE_PY ?? "/home/user/tools/venv/bin/python";
+const INK_ORACLE = new URL("./oracles/", import.meta.url).pathname;
 const dir = mkdtempSync(join(tmpdir(), "tt81-"));
 const ok = (c: unknown, msg: string) => { if (!c) throw new Error(msg); };
 const eq = (a: unknown, b: unknown) => ok(JSON.stringify(a) === JSON.stringify(b), `${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -186,10 +187,9 @@ r=PdfReader(sys.argv[1]); rect=list(map(float,r.pages[0]['/Annots'][0].get_objec
 with open(sys.argv[1],'rb') as f:
  s=validate_pdf_signature(PdfFileReader(f).embedded_signatures[0]); assert s.intact and s.valid
 pdf=p.PdfDocument(sys.argv[1]); pdf.init_forms(); image=pdf[0].render(scale=1,may_draw_forms=True).to_pil().convert('RGB')
-pts=[(x,y) for y in range(image.height) for x in range(image.width) if min(image.getpixel((x,y)))<230]
-assert pts,'no signature ink'
-print(json.dumps({'rect':rect,'ink':[min(x for x,y in pts),min(y for x,y in pts),max(x for x,y in pts),max(y for x,y in pts)]}))
-`, f], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
+sys.path.insert(0,sys.argv[2]); from ink_bounds import ink_bounds
+print(json.dumps({'rect':rect,'ink':ink_bounds(image)}))
+`, f, INK_ORACLE], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
     eq(report.rect, rect); const [l, t, r, b] = report.ink;
     ok(l >= box.left - 1 && t >= box.top - 1 && r <= box.left + box.width + 1 && b <= box.top + box.height + 1, `rotation ${rotate}: ink ${report.ink}`);
   }
@@ -222,16 +222,19 @@ a = p['/Annots'][0].get_object()
 doc = pymupdf.open(sys.argv[1])
 pg = doc[0]
 pix = pg.get_pixmap()
-pts = [(x, y) for y in range(pix.height) for x in range(pix.width) if min(pix.pixel(x, y)[:3]) < 230]
-assert pts, 'no signature ink in MuPDF render'
+from PIL import Image
+sys.path.insert(0,sys.argv[2]); from ink_bounds import ink_bounds
+assert pix.n == 3, 'physical raster must be RGB'
+image = Image.frombytes('RGB', (pix.width,pix.height), pix.samples, 'raw', 'RGB', pix.stride, 1)
+ink = ink_bounds(image)
 print(json.dumps({
   'unit': float(p['/UserUnit']),
   'rect': [float(x) for x in a['/Rect']],
   'w': pix.width,
   'h': pix.height,
-  'ink': [min(x for x,y in pts), min(y for x,y in pts), max(x for x,y in pts), max(y for x,y in pts)]
+  'ink': ink
 }))
-`, rf], { encoding: "utf8" }));
+`, rf, INK_ORACLE], { encoding: "utf8" }));
     eq({ unit: mu.unit, rect: mu.rect, w: mu.w, h: mu.h }, { unit: 2.5, rect: sigRect, w: rt.w, h: rt.h });
     const [il, it, ir, ib] = mu.ink;
     ok(il >= 50 - 2 && it >= 75 - 2 && ir <= 350 + 2 && ib <= 200 + 2, `MuPDF rotation ${rotate} ink out of scaled box: ${JSON.stringify(mu.ink)}`);

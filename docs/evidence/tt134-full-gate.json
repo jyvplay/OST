@@ -1,0 +1,9 @@
+{
+  "scope": "Actually executed expanded final full regression gate; largest child RSS is not total simultaneous memory",
+  "exit": 1,
+  "wallSeconds": 1560.8037720810007,
+  "cpuSeconds": 1934.670662,
+  "largestChildPeakRssKiB": 666672,
+  "log": "docs/evidence/tt134-full-gate.log",
+  "suiteLogs": "docs/evidence/tt134-gate"
+}

@@ -1,0 +1,50 @@
+import { F } from "./row";
+
+/** Carried-over TT133 workflows, not twenty additional TT134 inventions.
+ * Link recognition/backlink enumeration (NT-02), heading badges (NT-01),
+ * VFS Markdown export (NT-04), basic saved searches (SV-01), and basic history
+ * already existed. These rows describe the distinct new executable actions.
+ * "built" is the register's engineering status, not a universal correctness proof.
+ */
+export const tt133Features = [
+  F("NT-08", "Notes", "Protect unsaved note changes", "A", "P1", "Notes + NoteEditor + shell document guard",
+    "Save, keep a same-tab recovery draft, or Cancel before switching notes, creating a note or closing its window. Failed recovery cannot silently close the editor; explicitly confirmed Discard edits remains available.", "built", "e2e-tt133-notes-find NT-08; e2e-tt133-boundaries real quota/modal/discard cases"),
+  F("NT-09", "Notes", "Restore this window's editing draft", "A", "P1", "note-drafts.ts + NoteEditor",
+    "Debounced sessionStorage draft with explicit Restore/Discard, seven-day expiry and original revision. Same-tab/same-window reload recovery, not cross-browser backup. Bounded RAM fallback is not durable; quota errors are visible and drafts are not silently evicted.", "built", "tt133-core draft bounds; e2e-tt133-notes-find NT-09; e2e-tt133-boundaries native quota"),
+  F("NT-10", "Notes", "Reject stale note saves", "A", "P1", "notes API + note-model.ts + NoteEditor",
+    "UI sends the loaded revision; transactional compare/update and index mutation produce 409 rather than overwrite a newer row. Text stays available and Reload asks first. Revisions protect one row lifetime, not restore/reused-identity ABA; legacy unconditional API clients remain unconditional.", "built", "tt133-http row-lock/concurrent/CAS/rollback; e2e-tt133-notes-find NT-10"),
+  F("NT-11", "Notes", "Filter note text and tags together", "A", "P2", "note-model.ts + Notes collection",
+    "NFKC case-insensitive local terms search title, body and stored tags in the loaded collection. Every term must match; tag filter and sorting compose without replacing the current editor. A true empty result has its own view.", "built", "tt133-core filtering; e2e-tt133-notes-find NT-11"),
+  F("NT-12", "Notes", "Read a safe Markdown preview", "A", "P2", "note-markdown.ts + notes/MarkdownView.tsx",
+    "Original bounded subset: headings, paragraphs, quotes, fenced code, lists, tasks and safe explicit links. No raw HTML interpreter, remote images or implicit network requests. First 5,000 lines only in preview; editing and export retain the full note. Not a CommonMark claim.", "built", "tt133-core Markdown; e2e-tt133-notes-find NT-12 injection/network negatives"),
+  F("NT-13", "Notes", "Import a Markdown note", "A", "P2", "Notes native file input + note-model.ts",
+    "Local .md/.markdown/.txt input, fatal UTF-8 decoding, at most 1 MiB of bytes. Creates a real persisted and indexed note; invalid input writes nothing. Generated heading/filename title is bounded; original body text is retained, not rendered as HTML.", "built", "tt133-core UTF-8/import; e2e-tt133-notes-find NT-13"),
+  F("NT-14", "Notes", "Follow wiki-links and backlinks", "A", "P2", "note-links.ts + NoteEditor + guarded navigation",
+    "Actual buttons replace the pre-existing noninteractive link badges. Follow a unique saved title or reverse backlink with leave protection. Missing or duplicate destinations cannot choose an arbitrary record; ambiguous titles also have no fabricated reverse edge.", "built", "tt133-core duplicate-title graph; e2e-tt133-notes-find NT-14 native forward/reverse/ambiguity"),
+  F("NT-15", "Notes", "Jump through the note outline", "A", "P2", "NoteEditor shared Markdown parse + preview anchors",
+    "Clickable headings replace the pre-existing static heading badges. Fence-aware source line IDs lead to the matching preview heading, including below the fold. The outline explicitly labels the 5,000-line preview boundary.", "built", "tt133-core line IDs/fences; e2e-tt133-notes-find NT-15"),
+  F("NT-16", "Notes", "Extract selected text to a note", "A", "P2", "NoteEditor native selection + Notes creation",
+    "Creates an independently titled persisted note from the exact textarea selection. Empty selections cannot extract; creating the note obeys the source editor's leave guard and does not rewrite its saved text.", "built", "tt133-core excerpt bounds; e2e-tt133-notes-find NT-16 native Unicode selection"),
+  F("NT-17", "Notes", "Check tasks in the preview", "A", "P2", "note-markdown.ts + MarkdownView + NoteEditor",
+    "A preview checkbox changes only its matching source marker, not another similar line or text inside a fence. Check and uncheck, then Save/reopen; unrelated source text remains exact.", "built", "tt133-core task source mapping; e2e-tt133-notes-find NT-17"),
+  F("NT-18", "Notes", "Download the current note", "A", "P2", "NoteEditor browser Blob download",
+    "A real local UTF-8 Markdown download includes current unsaved text. Distinct from existing VFS export: no server file or VFS write, and no claim of a lossless all-field import/export round trip.", "built", "e2e-tt133-notes-find NT-18 native download + no VFS write; e2e-tt133-boundaries export after quota failure"),
+  F("SR-13", "Find", "Choose the result source", "A", "P2", "search-query.ts + search API + Find",
+    "Select files, notes, settings or specs. Validated source changes the real request and server predicate, not just the displayed label. Wrong sources yield a genuine empty result; locked Private search stays client-local.", "built", "tt133-http source validation; e2e-tt133-notes-find SR-13"),
+  F("SR-14", "Find", "Order the returned results", "A", "P2", "search-query.ts + Find",
+    "Deterministic title/reference order or the server's relevance order over the actual bounded returned set. This is not global catalogue sorting or a claim to return every possible match.", "built", "tt133-core ordering/ties; e2e-tt133-notes-find SR-14"),
+  F("SR-15", "Find", "Search a literal substring", "A", "P2", "search-query.ts + public/private search paths",
+    "Explicit literal matching, not the old ranked/fuzzy search. Internal spaces and SQL wildcard characters stay literal. Public index uses at most the documented 50,000-code-point prefix, at most 50 text hits; no binary text extraction claim.", "built", "tt133-http literal/prefix boundaries; e2e-tt133-notes-find SR-15"),
+  F("SR-16", "Find", "Filter files by suffix", "A", "P2", "search-query.ts + search API + Find",
+    "Validated case-insensitive literal file suffix, including multi-part suffixes. Not a glob or regular expression. Non-file source disables and clears the file-only constraint; invalid suffixes do not reach storage.", "built", "tt133-core suffix boundaries; tt133-http bad input; e2e-tt133-notes-find SR-16"),
+  F("SR-17", "Find", "Rebuild the public search index", "A", "P1", "server/search-maintenance.ts + Find confirmation",
+    "Confirmed real transactional reconstruction from source records, primary-before-index locking and atomic rollback. Preserves source bytes and spec/setting entries. Four-second lock and fifteen-second statement limits are not a whole-transaction deadline. Private remains on its separate local path.", "built", "tt133-http actual PostgreSQL rebuild/rollback/locks; e2e-tt133-notes-find SR-17"),
+  F("SR-18", "Find", "Diagnose a file's index entry", "A", "P2", "search-maintenance.ts + search API + Find",
+    "Validated absolute path diagnosis reports source/index state for an actual file or a missing path. Invalid requests are refused without overwriting the previous diagnosis. Locked Private content is never sent to public diagnostics.", "built", "tt133-http diagnostics/Private refusal; e2e-tt133-notes-find SR-18"),
+  F("SR-19", "Find", "Replay complete recent searches", "A", "P2", "recent-searches.ts + Find",
+    "Extends old q/scope/mode history to every new search control, with explicit replay and confirmed clear. A late response cannot resurrect cleared history. Private queries never enter automatic history, including legacy malformed aliases; twenty-entry bound.", "built", "tt133-core history epoch/validation; e2e-tt133-notes-find SR-19 real lock/late response; e2e-tt133-boundaries native Private purge"),
+  F("SV-02", "Find", "Save and replay complete profiles", "A", "P2", "saved-searches.ts + Find",
+    "Extends existing basic bookmarks to all controls with validated names and a thirty-profile bound. Replay resets incompatible old controls instead of inheriting them. Private query text is unencrypted profile data: per-operation explicit consent is required before saving.", "built", "tt133-core strict profile validation; e2e-tt133-notes-find SV-02; e2e-tt133-boundaries Private consent/cancel"),
+  F("SV-03", "Find", "Import and export search profiles", "A", "P2", "saved-searches.ts + Find native file/download controls",
+    "Portable versioned JSON, native download/file input, at most 512 KiB and thirty profiles. Confirmed replace is atomic; cancel, unknown fields, invalid Unicode and malformed input retain the current list. Private entries warn about plaintext before replacement.", "built", "tt133-core container/limits; e2e-tt133-notes-find SV-03 round trip; e2e-tt133-boundaries strict/Private imports"),
+];

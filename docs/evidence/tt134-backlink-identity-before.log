@@ -1,0 +1,16 @@
+Actual browser: 143.0.7499.0
+  ✗ NT-14 saved-identity attack: an unsaved rename keeps the real backlink, and borrowing another saved title cannot impersonate its destination
+    expect(locator).toBeVisible() failed
+
+Locator: locator('[data-win-id="w1"]').getByRole('button', { name: 'Backlink: tt133-mvyhy7tz Links', exact: true })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" locator('[data-win-id="w1"]').getByRole('button', { name: 'Backlink: tt133-mvyhy7tz Links', exact: true }) with timeout 5000ms
+  - waiting for locator('[data-win-id="w1"]').getByRole('button', { name: 'Backlink: tt133-mvyhy7tz Links', exact: true })
+
+
+0 passed, 1 failed
+FAILED: NT-14 saved-identity attack: an unsaved rename keeps the real backlink, and borrowing another saved title cannot impersonate its destination

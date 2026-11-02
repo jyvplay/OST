@@ -1,6 +1,6 @@
 {
   "suite": "e2e-vector",
-  "at": "2026-10-30T17:54:14.179Z",
+  "at": "2026-11-02T00:52:03.277Z",
   "results": [
     {
       "suite": "e2e-vector",
@@ -9,7 +9,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 125
+      "ms": 140
     },
     {
       "suite": "e2e-vector",
@@ -18,7 +18,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 596
+      "ms": 457
     },
     {
       "suite": "e2e-vector",
@@ -27,7 +27,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 610
+      "ms": 406
     },
     {
       "suite": "e2e-vector",
@@ -37,7 +37,7 @@
         "FF-25": "full"
       },
       "pass": true,
-      "ms": 4474
+      "ms": 4643
     },
     {
       "suite": "e2e-vector",
@@ -46,7 +46,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 3261
+      "ms": 5835
     },
     {
       "suite": "e2e-vector",
@@ -55,7 +55,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 4053
+      "ms": 2981
     },
     {
       "suite": "e2e-vector",
@@ -64,7 +64,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 2414
+      "ms": 2710
     },
     {
       "suite": "e2e-vector",
@@ -74,18 +74,17 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 1192
+      "ms": 2241
     },
     {
       "suite": "e2e-vector",
-      "name": "UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size)",
+      "name": "UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid 2× PNG at the declared export size)",
       "covers": {
         "FF-32": "full",
         "FF-25": "full"
       },
-      "pass": false,
-      "error": "message never matched /exported \\/Pictures\\/.*\\.png \\(800×600\\)/",
-      "ms": 14535
+      "pass": true,
+      "ms": 4665
     },
     {
       "suite": "e2e-vector",
@@ -94,7 +93,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 2299
+      "ms": 2929
     },
     {
       "suite": "e2e-vector",
@@ -103,7 +102,7 @@
         "FF-37": "full"
       },
       "pass": true,
-      "ms": 2519
+      "ms": 3227
     },
     {
       "suite": "e2e-vector",
@@ -112,7 +111,7 @@
         "FF-32": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 4
     }
   ]
 }

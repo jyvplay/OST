@@ -14,8 +14,10 @@ import subprocess
 import time
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-SCRATCH = ROOT / ".cache/tt132-lint-benchmark"
-OUT = ROOT / "docs/evidence/tt132-lint-performance.json"
+TAG = os.environ.get("TURN_TAG", "tt132")
+assert TAG.startswith("tt") and TAG[2:].isdigit(), "TURN_TAG must be tt followed by digits"
+SCRATCH = ROOT / f".cache/{TAG}-lint-benchmark"
+OUT = ROOT / f"docs/evidence/{TAG}-lint-performance.json"
 SCRATCH.mkdir(parents=True, exist_ok=True)
 CLEAN = ["node", "node_modules/eslint/bin/eslint.js", ".", "--format", "json"]
 CACHED = ["node", "scripts/lint.mjs", "--format", "json"]
@@ -85,7 +87,7 @@ for key in ("exit", "diagnostic_sha256", "errors", "warnings", "files"):
     assert cold[key] == reference[key], f"cold cache differs in {key}"
 
 # Attack unchanged metadata: same path, mtime AND length, different source.
-witness = ROOT / f"src/tt132-lint-cache-witness-{os.getpid()}.tsx"
+witness = ROOT / f"src/{TAG}-lint-cache-witness-{os.getpid()}.tsx"
 assert not witness.exists()
 try:
     good = 'export default function CacheWitness() { return <div>Plain text</div>; }\n'

@@ -1,0 +1,13 @@
+  ✓ delayed EXIF reordering cannot change an active editor walk; reopening takes the new order
+  ✓ a navigation click survives the current image finishing its real load between pointer down and up
+  ✓ a failed real image read is not cached as missing metadata and a reload retries
+  ✓ No date retains a PNG with no capture metadata after indexing
+  ✓ a thumbnail completing between pointer down and up keeps its tile geometry and click
+  ✓ photo tiles retain keyboard activation and cancel a drag away
+  ✓ a deep-linked viewer snapshots the library before delayed EXIF reordering
+  ✓ a deep-linked viewer keeps its original order across a real trash and restore
+  ✓ a failed library read exposes a retry and recovers without reloading the shell
+  ✓ a refresh result is not replaced by an older delayed real media response
+  ✓ slideshow advances through the captured name order and pauses
+
+11 passed, 0 failed

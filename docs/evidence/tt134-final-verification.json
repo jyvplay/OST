@@ -1,0 +1,101 @@
+{
+  "at": "2026-11-02T01:44:20.320344+00:00",
+  "scope": "Collected final static/affected verification; no second expanded full gate, no universal completeness claim",
+  "carriedTT133Features": 20,
+  "additionalTT134FeaturesAccepted": 0,
+  "additionalTarget": 20,
+  "additionalTargetMet": false,
+  "applicationTypecheck": {
+    "exitCode": 0,
+    "log": "docs/evidence/tt134-typecheck-final-reviewed.log",
+    "boundary": "root tsconfig does not include .mts"
+  },
+  "targetedScriptsTypecheck": {
+    "exitCode": 0,
+    "entrypoints": 14,
+    "importedGraph": true,
+    "config": "scripts/tsconfig-tt134.json",
+    "log": "docs/evidence/tt134-script-typecheck-final.log"
+  },
+  "uncachedESLint": {
+    "exitCode": 0,
+    "files": 1197,
+    "errors": 0,
+    "warnings": 6,
+    "log": "docs/evidence/tt134-lint-final-reviewed.json"
+  },
+  "productionBuild": {
+    "exitCode": 0,
+    "log": "docs/evidence/tt134-build-final-reviewed.log",
+    "server": "0.0.0.0:3000"
+  },
+  "initialExpandedFullGate": {
+    "exitCode": 1,
+    "passed": 789,
+    "failed": 4,
+    "suiteExecutions": 90,
+    "distinctSuites": 86,
+    "receipt": "docs/evidence/tt134-full-gate.json",
+    "scope": "source4 before later repairs"
+  },
+  "affectedLatestPassingComposite": {
+    "passed": 129,
+    "failed": 0,
+    "suites": 11,
+    "isSingleFreshGate": false,
+    "firstBatch": "docs/evidence/tt134-repair-reruns.json",
+    "correctedBundleRerun": "docs/evidence/tt134-bundle-oracle-rerun.json"
+  },
+  "finalNativeChecks": {
+    "exitCode": 0,
+    "passed": 36,
+    "failed": 0,
+    "suites": 3,
+    "receipt": "docs/evidence/tt134-final-native.json",
+    "overlapsEarlierRuns": true
+  },
+  "savedResults": {
+    "total": 3582,
+    "passed": 3582,
+    "mixedDate": true,
+    "fresh3582Run": false,
+    "compiledLiveSourceAgreementCases": 5
+  },
+  "visualReview": {
+    "initialApps": 47,
+    "initialViews": 94,
+    "initialSourceStage": 3,
+    "settledInitialViews": 92,
+    "historicalMarkLayoutSupplementViews": 5,
+    "beforeSpacingSupplementViews": 10,
+    "finalRepairSupplementViews": 10,
+    "allSupplementViewsManuallyViewed": true,
+    "allStatesOrPhysicalDevicesVerified": false
+  },
+  "shellSyntaxExit": 0,
+  "gitDiffCheckExit": 0,
+  "validationInputBinding": {
+    "file": "docs/evidence/tt134-final-source.json",
+    "fileCount": 1390,
+    "sha256": "b5efeca136bd8ccd8f0a6c458163595fd6daea9471eeabe0767873003978430f",
+    "allRecordedInputsStillMatch": true,
+    "excludesDocumentationAndGeneratedArtifacts": true,
+    "postPassDeliveryOnlyPolicy": {
+      "file": ".gitattributes",
+      "scope": "Only raw evidence log/Writer-diagnostic whitespace exemptions; native source trailing-space mutation still rejected by actual Git check. Production/build/script input hashes unchanged."
+    }
+  },
+  "knownSafetyGap": "Notes revision CAS is not safe across external same-ID delete/recreate; actual unsafe SQL witness retained",
+  "deliveryBoundary": "Only arena/723a3a13-ost / PR17; no merge or close. Actual commit/push/open-state verification is recorded by delivery commands/final response, not predicted here.",
+  "stagedWhitespacePolicy": {
+    "scope": "Actual Git whitespace-policy attack: raw evidence output stays byte-for-byte intact; a newly owned real src TS file with trailing space MUST still be rejected. Temporary witness is removed, not shipped; no production feature simulation.",
+    "initialFullStagedCheckExit": 2,
+    "rawEvidencePolicy": ".gitattributes",
+    "rawEvidencePolicySHA256": "c161a39624319404a155d14f49c8d52b5e35a7d6e945df9e52783be5ce5b05c2",
+    "realSourceWhitespaceAttackExit": 2,
+    "diagnostic": "src/lib/tt134-whitespace-witness.ts:1: trailing whitespace.\n+export const TT134_WHITESPACE_WITNESS = 1; \n",
+    "attributeProof": "src/components/modules/Beam.tsx: whitespace: unspecified\nscripts/run-gate.sh: whitespace: unspecified\ndocs/evidence/tt134-full-gate.log: whitespace: unset\n",
+    "fullStagedCheckAfterPolicyExit": 0,
+    "afterDiagnostic": ""
+  }
+}

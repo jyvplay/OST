@@ -1,6 +1,6 @@
 {
   "suite": "integration",
-  "at": "2026-10-30T17:48:35.179Z",
+  "at": "2026-11-02T00:50:22.756Z",
   "results": [
     {
       "suite": "integration",
@@ -9,7 +9,7 @@
         "DP-10": "partial"
       },
       "pass": true,
-      "ms": 981
+      "ms": 50
     },
     {
       "suite": "integration",
@@ -18,7 +18,7 @@
         "DP-08": "partial"
       },
       "pass": true,
-      "ms": 51
+      "ms": 29
     },
     {
       "suite": "integration",
@@ -30,7 +30,7 @@
         "NC-05": "partial"
       },
       "pass": true,
-      "ms": 74
+      "ms": 34
     },
     {
       "suite": "integration",
@@ -39,18 +39,18 @@
         "FM-03": "full"
       },
       "pass": true,
-      "ms": 42
+      "ms": 29
     },
     {
       "suite": "integration",
       "name": "FM-18 overwrite snapshots the previous version",
       "covers": {
-        "FM-18": "full",
+        "FM-18": "partial",
         "DP-05": "partial",
         "BK-01": "partial"
       },
       "pass": true,
-      "ms": 30
+      "ms": 19
     },
     {
       "suite": "integration",
@@ -60,7 +60,7 @@
         "FM-07": "full"
       },
       "pass": true,
-      "ms": 79
+      "ms": 64
     },
     {
       "suite": "integration",
@@ -69,9 +69,8 @@
         "SR-01": "partial",
         "SR-02": "partial"
       },
-      "pass": false,
-      "error": "Cannot read properties of undefined (reading 'some')",
-      "ms": 78
+      "pass": true,
+      "ms": 80
     },
     {
       "suite": "integration",
@@ -80,7 +79,7 @@
         "SH-08": "full"
       },
       "pass": true,
-      "ms": 51
+      "ms": 12
     },
     {
       "suite": "integration",
@@ -90,7 +89,7 @@
         "PR-07r": "partial"
       },
       "pass": true,
-      "ms": 21
+      "ms": 12
     },
     {
       "suite": "integration",
@@ -99,7 +98,7 @@
         "AU-01": "partial"
       },
       "pass": true,
-      "ms": 22
+      "ms": 12
     },
     {
       "suite": "integration",
@@ -109,7 +108,7 @@
         "PR-03": "partial"
       },
       "pass": true,
-      "ms": 39
+      "ms": 25
     },
     {
       "suite": "integration",
@@ -119,7 +118,7 @@
         "CT-02": "partial"
       },
       "pass": true,
-      "ms": 51
+      "ms": 31
     },
     {
       "suite": "integration",
@@ -130,7 +129,7 @@
         "CA-02": "partial"
       },
       "pass": true,
-      "ms": 738
+      "ms": 739
     },
     {
       "suite": "integration",
@@ -144,7 +143,7 @@
         "FM-04": "partial"
       },
       "pass": true,
-      "ms": 205
+      "ms": 174
     },
     {
       "suite": "integration",
@@ -155,7 +154,7 @@
         "BK-05": "partial"
       },
       "pass": true,
-      "ms": 24
+      "ms": 13
     },
     {
       "suite": "integration",
@@ -166,7 +165,7 @@
         "BL-05": "partial"
       },
       "pass": true,
-      "ms": 33
+      "ms": 20
     },
     {
       "suite": "integration",
@@ -176,7 +175,7 @@
         "SC-08": "partial"
       },
       "pass": true,
-      "ms": 10
+      "ms": 4
     },
     {
       "suite": "integration",
@@ -187,7 +186,7 @@
         "DP-05": "partial"
       },
       "pass": true,
-      "ms": 82
+      "ms": 96
     },
     {
       "suite": "integration",
@@ -197,7 +196,7 @@
         "SR-05": "full"
       },
       "pass": true,
-      "ms": 92
+      "ms": 85
     },
     {
       "suite": "integration",
@@ -205,9 +204,8 @@
       "covers": {
         "SR-03": "full"
       },
-      "pass": false,
-      "error": "Cannot read properties of undefined (reading 'some')",
-      "ms": 57
+      "pass": true,
+      "ms": 157
     },
     {
       "suite": "integration",
@@ -216,7 +214,7 @@
         "FM-05": "full"
       },
       "pass": true,
-      "ms": 73
+      "ms": 52
     },
     {
       "suite": "integration",
@@ -226,7 +224,7 @@
         "FF-12": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 16
     },
     {
       "suite": "integration",
@@ -235,7 +233,7 @@
         "CA-11": "partial"
       },
       "pass": true,
-      "ms": 15
+      "ms": 14
     },
     {
       "suite": "integration",
@@ -244,9 +242,8 @@
         "PR-02": "partial",
         "SR-02": "partial"
       },
-      "pass": false,
-      "error": "Cannot read properties of undefined (reading 'some')",
-      "ms": 74
+      "pass": true,
+      "ms": 145
     },
     {
       "suite": "integration",
@@ -255,7 +252,7 @@
         "AU-03": "partial"
       },
       "pass": true,
-      "ms": 1118
+      "ms": 818
     }
   ]
 }

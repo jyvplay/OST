@@ -1,0 +1,174 @@
+{
+  "cpu_count": 2,
+  "node": "v22.22.3",
+  "order": "cold; AB BA AB; witness prime, same-metadata edit, cached-vs-clean, removal",
+  "cache_strategy": "content",
+  "cache_key": "d5021423ab31057317c5a41d",
+  "cache_bytes": 450475,
+  "diagnostics_identical": true,
+  "same_mtime_and_length_attack": "passed",
+  "medians": {
+    "clean": {
+      "wall_seconds": 65.334338,
+      "child_cpu_seconds": 91.486516,
+      "peak_summed_rss_bytes_50ms": 1585537024
+    },
+    "warm": {
+      "wall_seconds": 1.368981,
+      "child_cpu_seconds": 1.614141,
+      "peak_summed_rss_bytes_50ms": 346984448
+    }
+  },
+  "reductions_percent": {
+    "wall_seconds": 97.905,
+    "child_cpu_seconds": 98.236,
+    "peak_summed_rss_bytes_50ms": 78.116
+  },
+  "measured_warm_median_dominates": true,
+  "limitations": "Local alternating observations, not a universal Pareto proof. Peak sum-RSS sampled at 50ms, double-counts shared mappings and can miss shorter peaks; wait4 maxrss is not aggregate memory. OS page caches were not cleared. Monitor CPU is recorded separately; diagnostics intentionally remain nonzero if repository errors exist.",
+  "trials": [
+    {
+      "name": "cache-cold",
+      "exit": 0,
+      "wall_seconds": 71.216451,
+      "child_cpu_seconds": 99.400786,
+      "monitor_cpu_seconds": 0.357082,
+      "peak_summed_rss_bytes_50ms": 1912721408,
+      "wait4_maxrss_kib": 1801932,
+      "diagnostic_sha256": "f83c8bed09c7fd98ed9c4ea4a480f67ce1eaea5bf79a0bef9bc3bcd70f225ef4",
+      "errors": 0,
+      "warnings": 6,
+      "files": 1195
+    },
+    {
+      "name": "clean-1",
+      "exit": 0,
+      "wall_seconds": 65.334338,
+      "child_cpu_seconds": 91.486516,
+      "monitor_cpu_seconds": 0.234667,
+      "peak_summed_rss_bytes_50ms": 1526538240,
+      "wait4_maxrss_kib": 1490760,
+      "diagnostic_sha256": "f83c8bed09c7fd98ed9c4ea4a480f67ce1eaea5bf79a0bef9bc3bcd70f225ef4",
+      "errors": 0,
+      "warnings": 6,
+      "files": 1195
+    },
+    {
+      "name": "warm-1",
+      "exit": 0,
+      "wall_seconds": 1.368981,
+      "child_cpu_seconds": 1.614141,
+      "monitor_cpu_seconds": 0.005608,
+      "peak_summed_rss_bytes_50ms": 350179328,
+      "wait4_maxrss_kib": 279400,
+      "diagnostic_sha256": "f83c8bed09c7fd98ed9c4ea4a480f67ce1eaea5bf79a0bef9bc3bcd70f225ef4",
+      "errors": 0,
+      "warnings": 6,
+      "files": 1195
+    },
+    {
+      "name": "warm-2",
+      "exit": 0,
+      "wall_seconds": 1.36788,
+      "child_cpu_seconds": 1.607768,
+      "monitor_cpu_seconds": 0.005403,
+      "peak_summed_rss_bytes_50ms": 346984448,
+      "wait4_maxrss_kib": 279468,
+      "diagnostic_sha256": "f83c8bed09c7fd98ed9c4ea4a480f67ce1eaea5bf79a0bef9bc3bcd70f225ef4",
+      "errors": 0,
+      "warnings": 6,
+      "files": 1195
+    },
+    {
+      "name": "clean-2",
+      "exit": 0,
+      "wall_seconds": 66.374034,
+      "child_cpu_seconds": 92.603101,
+      "monitor_cpu_seconds": 0.248247,
+      "peak_summed_rss_bytes_50ms": 1585537024,
+      "wait4_maxrss_kib": 1548376,
+      "diagnostic_sha256": "f83c8bed09c7fd98ed9c4ea4a480f67ce1eaea5bf79a0bef9bc3bcd70f225ef4",
+      "errors": 0,
+      "warnings": 6,
+      "files": 1195
+    },
+    {
+      "name": "clean-3",
+      "exit": 0,
+      "wall_seconds": 65.109347,
+      "child_cpu_seconds": 90.402498,
+      "monitor_cpu_seconds": 0.230061,
+      "peak_summed_rss_bytes_50ms": 1768595456,
+      "wait4_maxrss_kib": 1727144,
+      "diagnostic_sha256": "f83c8bed09c7fd98ed9c4ea4a480f67ce1eaea5bf79a0bef9bc3bcd70f225ef4",
+      "errors": 0,
+      "warnings": 6,
+      "files": 1195
+    },
+    {
+      "name": "warm-3",
+      "exit": 0,
+      "wall_seconds": 1.415243,
+      "child_cpu_seconds": 1.648121,
+      "monitor_cpu_seconds": 0.005917,
+      "peak_summed_rss_bytes_50ms": 343044096,
+      "wait4_maxrss_kib": 279044,
+      "diagnostic_sha256": "f83c8bed09c7fd98ed9c4ea4a480f67ce1eaea5bf79a0bef9bc3bcd70f225ef4",
+      "errors": 0,
+      "warnings": 6,
+      "files": 1195
+    },
+    {
+      "name": "witness-prime",
+      "exit": 0,
+      "wall_seconds": 69.773468,
+      "child_cpu_seconds": 95.238757,
+      "monitor_cpu_seconds": 0.320816,
+      "peak_summed_rss_bytes_50ms": 1781497856,
+      "wait4_maxrss_kib": 1675456,
+      "diagnostic_sha256": "5b82d0cbaf07e168897fccde555986501ae997b0f2ac5101b4c6a5b0178645c8",
+      "errors": 0,
+      "warnings": 6,
+      "files": 1196
+    },
+    {
+      "name": "witness-dirty-cached",
+      "exit": 1,
+      "wall_seconds": 69.644579,
+      "child_cpu_seconds": 95.481338,
+      "monitor_cpu_seconds": 0.309737,
+      "peak_summed_rss_bytes_50ms": 1754292224,
+      "wait4_maxrss_kib": 1648756,
+      "diagnostic_sha256": "9db67b6e86cc3db72bd71394247f0a123400707358cc22e540ac275d4bd7fd9d",
+      "errors": 1,
+      "warnings": 6,
+      "files": 1196
+    },
+    {
+      "name": "witness-dirty-clean",
+      "exit": 1,
+      "wall_seconds": 68.065213,
+      "child_cpu_seconds": 93.921677,
+      "monitor_cpu_seconds": 0.255369,
+      "peak_summed_rss_bytes_50ms": 1700777984,
+      "wait4_maxrss_kib": 1661080,
+      "diagnostic_sha256": "9db67b6e86cc3db72bd71394247f0a123400707358cc22e540ac275d4bd7fd9d",
+      "errors": 1,
+      "warnings": 6,
+      "files": 1196
+    },
+    {
+      "name": "witness-removed",
+      "exit": 0,
+      "wall_seconds": 1.314758,
+      "child_cpu_seconds": 1.557476,
+      "monitor_cpu_seconds": 0.005125,
+      "peak_summed_rss_bytes_50ms": 340951040,
+      "wait4_maxrss_kib": 278324,
+      "diagnostic_sha256": "f83c8bed09c7fd98ed9c4ea4a480f67ce1eaea5bf79a0bef9bc3bcd70f225ef4",
+      "errors": 0,
+      "warnings": 6,
+      "files": 1195
+    }
+  ]
+}

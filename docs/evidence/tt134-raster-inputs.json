@@ -1,0 +1,42 @@
+[
+  {
+    "name": "sig0.pdf",
+    "sha256": "afbd79f0cfd883291c5ddfb075f4b664ee6ce1af81d3df96515a1142ad42c76f",
+    "bytes": 18291
+  },
+  {
+    "name": "sig180.pdf",
+    "sha256": "fe47bc389f36ea8ba18c3d3c46bb608e367801a97188a9042cd44450d046f51e",
+    "bytes": 18338
+  },
+  {
+    "name": "sig270.pdf",
+    "sha256": "19998433399dda701848ffd16ac34534ae832573e91729dd32d8d15dfce2989b",
+    "bytes": 18337
+  },
+  {
+    "name": "sig90.pdf",
+    "sha256": "df7c730124219261da935224ca07d7fbc4100968ed0775920a118b7a5ac3eff1",
+    "bytes": 18334
+  },
+  {
+    "name": "user-unit-rot0.pdf",
+    "sha256": "47d3933221e0634ae40db7c655bb4ff44e08e244ba4dee2b60036a5f56b993f9",
+    "bytes": 18344
+  },
+  {
+    "name": "user-unit-rot180.pdf",
+    "sha256": "e578d8439a002ef3c1c1349f4ce2fba7f5f8b8d2c3aadd292129ecaef6cfa1ee",
+    "bytes": 18389
+  },
+  {
+    "name": "user-unit-rot270.pdf",
+    "sha256": "17c0a2a9413be0dc8a6dd92f25d59e9d31b6bf17f3f28088c49ccb2f8db5f235",
+    "bytes": 18390
+  },
+  {
+    "name": "user-unit-rot90.pdf",
+    "sha256": "b4fe73c46234d10d9045368db10cc9d83e6d36c97dc8173f507b04e94c249e3b",
+    "bytes": 18385
+  }
+]

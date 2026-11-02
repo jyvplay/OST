@@ -1,3 +1,5 @@
+import { searchIndexText } from "@/lib/search-index-text";
+import { tt133Features } from "./seed-data/features-tt133";
 import {UPDATES_TT107} from "./seed-data/updates-tt107";
 import { UPDATES_TT108 } from "./seed-data/updates-tt108";
 import { UPDATES_TT109 } from "./seed-data/updates-tt109";
@@ -118,13 +120,13 @@ import { tt125Features } from "./seed-data/features-tt125";
 import { UPDATES_TT116 } from "./seed-data/updates-tt116";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.95.1";
+export const SEED_VERSION = "3.96.0";
 
 /** Codes withdrawn after shipping: the seeder deletes them on every boot so a
  * replaced feature can never linger in the register as if it were news. */
 export const RETIRED_FEATURE_CODES = ["FM-20"]; // TT125: Files already had a collision-free New folder flow; slot reassigned to ED-10
 
-export const allFeatures = [...tt125Features, ...tt124Features, ...tt123Features, ...tt122Features, ...tt121Features, ...tt120Features, ...tt119Features, ...tt118Features, ...tt117Features, ...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
+export const allFeatures = [...tt133Features, ...tt125Features, ...tt124Features, ...tt123Features, ...tt122Features, ...tt121Features, ...tt120Features, ...tt119Features, ...tt118Features, ...tt117Features, ...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
   ...tt108Features, ...tt106Features, ...tt105Features, ...tt104Features, ...tt103Features, ...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...tt59Features, ...tt60Features, ...tt61Features, ...tt62Features, ...tt63Features, ...tt64Features, ...tt65Features, ...tt66Features, ...tt67Features, ...tt68Features, ...tt74Features, ...tt75Features, ...tt76Features, ...tt78Features, ...tt79Features, ...tt81Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => (UPDATES_TT15[f.code] ? { ...f, ...UPDATES_TT15[f.code] } : f))
@@ -375,8 +377,8 @@ export async function ensureSeeded(): Promise<{ seeded: boolean; features: numbe
   // notes are indexed every boot (cheap, keeps search truthful)
   const noteRows = await db.select().from(notes);
   for (const n of noteRows) {
-    await db.insert(indexDocs).values({ source: "note", ref: String(n.id), title: n.title, body: n.body })
-      .onConflictDoUpdate({ target: [indexDocs.source, indexDocs.ref], set: { title: n.title, body: n.body } });
+    await db.insert(indexDocs).values({ source: "note", ref: String(n.id), title: n.title, body: searchIndexText(n.body) })
+      .onConflictDoUpdate({ target: [indexDocs.source, indexDocs.ref], set: { title: n.title, body: searchIndexText(n.body) } });
   }
   for (const f of allFeatures) {
     await db.insert(indexDocs).values({ source: "spec", ref: f.code, title: `${f.code} ${f.name}`, body: `${f.route} ${f.nuance}` })

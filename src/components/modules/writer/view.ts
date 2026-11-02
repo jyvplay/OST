@@ -292,7 +292,7 @@ export function posToDom(root: HTMLElement, pos: Pos): { node: Node; offset: num
 export interface PageGeom { pageW: number; pageH: number; top: number; bottom: number; left: number; right: number; gap: number }
 /** TT73: `push` = the space headers / footers actually need (distance from the edge + rendered height). As in Word, the body
  *  starts below a header that is taller than the top margin (and ends above a tall footer) instead of running under it. */
-export function geomOf(doc: WordDoc, gap = 24, push?: { top: number; bottom: number }): PageGeom {
+export function geomOf(doc: Pick<WordDoc, "page">, gap = 24, push?: { top: number; bottom: number }): PageGeom {
   const p = doc.page;
   return { pageW: twipToPx(p.w), pageH: twipToPx(p.h), top: Math.max(twipToPx(p.top), push?.top ?? 0), bottom: Math.max(twipToPx(p.bottom), push?.bottom ?? 0), left: twipToPx(p.left), right: twipToPx(p.right), gap };
 }

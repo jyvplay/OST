@@ -81,7 +81,7 @@ export default function SpecModule({ win }: ModuleProps) {
 
       <div style={{ display: "grid", gap: 3 }}>
         {shown.map((r) => (
-          <div key={r.code} className="fs-panel" style={{ padding: 8, display: "grid", gap: 4 }}>
+          <div key={r.code} data-testid="spec-row" data-code={r.code} className="fs-panel" style={{ padding: 8, display: "grid", gap: 4 }}>
             <button className="fs-row" style={{ justifyContent: "space-between", gap: 8, background: "none", border: 0, color: "inherit", textAlign: "left", cursor: "pointer" }}
               onClick={() => setOpen(open === r.code ? null : r.code)}>
               <span className="fs-row" style={{ gap: 6, minWidth: 0 }}>
@@ -121,10 +121,12 @@ export default function SpecModule({ win }: ModuleProps) {
         : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>checking…</span>}
       </Section>
 
-      <Section title="Spikes — open questions with pass criteria">
+      <details data-testid="spec-spikes">
+        <summary style={{ cursor: "pointer", fontSize: fz(12) }}>Questions &amp; checks ({spikes.length})</summary>
+        <Section title="Spikes — open questions with pass criteria">
         <div style={{ display: "grid", gap: 4 }}>
           {spikes.map((s) => (
-            <div key={s.code} className="fs-panel" style={{ padding: 8, display: "grid", gap: 3 }}>
+            <div key={s.code} data-testid="spec-spike" data-code={s.code} className="fs-panel" style={{ padding: 8, display: "grid", gap: 3 }}>
               <div className="fs-row" style={{ justifyContent: "space-between" }}>
                 <span className="fs-row" style={{ gap: 6 }}>
                   <span className="fs-mono" style={{ fontSize: fz(11) }}>{s.code}</span>
@@ -137,7 +139,8 @@ export default function SpecModule({ win }: ModuleProps) {
             </div>
           ))}
         </div>
-      </Section>
+        </Section>
+      </details>
 
       <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
         Status vocabulary: <strong>built</strong> runs end to end here · <strong>partial</strong> runs with a named

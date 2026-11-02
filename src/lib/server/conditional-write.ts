@@ -1,3 +1,4 @@
+import { searchIndexText } from "@/lib/search-index-text";
 /** Compare-and-write for folder sync; unlike a list-then-write, a concurrent VFS edit is not overwritten. */
 import { and, eq } from "drizzle-orm";
 import { safeTransaction, type TransactionDb } from "@/lib/server/transaction";
@@ -56,7 +57,7 @@ export async function conditionalWriteInTransaction(tx: TransactionDb, path: str
     }
     if (isPrivateVfsPath(path)) await tx.delete(indexDocs).where(and(eq(indexDocs.source, "file"), eq(indexDocs.ref, path)));
     else {
-      const body = isTextual(mime) && encoding === "utf8" ? content.slice(0, 50_000) : "";
+      const body = isTextual(mime) && encoding === "utf8" ? searchIndexText(content) : "";
       await tx.insert(indexDocs).values({ source: "file", ref: path, title: name, body, updatedAt: new Date() })
         .onConflictDoUpdate({ target: [indexDocs.source, indexDocs.ref], set: { title: name, body, updatedAt: new Date() } });
     }

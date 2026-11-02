@@ -1,0 +1,18 @@
+  ✓ sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet
+  ✓ autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates
+  ✓ drag-select a range → status bar Sum/Count; Ctrl+A selects current region
+  ✓ fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs
+  ✓ Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour
+  ✓ clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block
+  ✗ sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match
+    locator.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog][aria-label="Spreadsheet"]').first().getByLabel('Find', { exact: true })
+
+  ✓ charts panel renders SVG chart images (bar → pie) from a dynamic-array source
+  ✓ column resize by dragging the header edge; frozen header row stays visible; rows are virtualised
+  ✓ save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths
+  ✓ no uncaught page errors during the spreadsheet session
+
+10 passed, 1 failed
+FAILED: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match

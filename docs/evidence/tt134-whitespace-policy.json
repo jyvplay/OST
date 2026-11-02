@@ -1,0 +1,11 @@
+{
+  "scope": "Actual Git whitespace-policy attack: raw evidence output stays byte-for-byte intact; a newly owned real src TS file with trailing space MUST still be rejected. Temporary witness is removed, not shipped; no production feature simulation.",
+  "initialFullStagedCheckExit": 2,
+  "rawEvidencePolicy": ".gitattributes",
+  "rawEvidencePolicySHA256": "c161a39624319404a155d14f49c8d52b5e35a7d6e945df9e52783be5ce5b05c2",
+  "realSourceWhitespaceAttackExit": 2,
+  "diagnostic": "src/lib/tt134-whitespace-witness.ts:1: trailing whitespace.\n+export const TT134_WHITESPACE_WITNESS = 1; \n",
+  "attributeProof": "src/components/modules/Beam.tsx: whitespace: unspecified\nscripts/run-gate.sh: whitespace: unspecified\ndocs/evidence/tt134-full-gate.log: whitespace: unset\n",
+  "fullStagedCheckAfterPolicyExit": 0,
+  "afterDiagnostic": ""
+}

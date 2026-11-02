@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt81",
-  "at": "2026-10-30T18:05:55.134Z",
+  "at": "2026-11-02T00:52:36.899Z",
   "results": [
     {
       "suite": "e2e-tt81",
@@ -8,9 +8,8 @@
       "covers": {
         "FF-78": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Spreadsheet', exact: true }).last().getByRole('button', { name: 'Save workbook', exact: true })\n",
-      "ms": 18574
+      "pass": true,
+      "ms": 5862
     },
     {
       "suite": "e2e-tt81",
@@ -19,7 +18,7 @@
         "FF-79": "full"
       },
       "pass": true,
-      "ms": 5301
+      "ms": 5083
     },
     {
       "suite": "e2e-tt81",
@@ -27,9 +26,8 @@
       "covers": {
         "FF-80": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Slides', exact: true }).last().getByTestId('app-banner').getByRole('button', { name: 'Save', exact: true })\n",
-      "ms": 18615
+      "pass": true,
+      "ms": 6944
     },
     {
       "suite": "e2e-tt81",
@@ -37,9 +35,8 @@
       "covers": {
         "FF-81": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByTestId('pdf-app').last().getByRole('button', { name: '100%', exact: true })\n",
-      "ms": 15836
+      "pass": true,
+      "ms": 4460
     },
     {
       "suite": "e2e-tt81",
@@ -47,9 +44,8 @@
       "covers": {
         "FF-82": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator('[role=\"dialog\"][aria-label=\"Writer\"]').last().getByTestId('writer-new')\n    - locator resolved to <button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" data-testid=\"writer-new\">New</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    29 × waiting for element to be visible, enabled and stable\n       - element is not visible\n     - retrying click action\n       - waiting 500ms\n",
-      "ms": 17212
+      "pass": true,
+      "ms": 4717
     },
     {
       "suite": "e2e-tt81",
@@ -59,7 +55,7 @@
         "FM-07": "full"
       },
       "pass": true,
-      "ms": 4372
+      "ms": 4637
     },
     {
       "suite": "e2e-tt81",

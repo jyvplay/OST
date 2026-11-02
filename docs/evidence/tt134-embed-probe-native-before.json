@@ -1,0 +1,29 @@
+{
+  "scope": "Actual server HTTP/TLS/DNS probes, no intercepted transport; network uncertainty must not become a refusal claim",
+  "rows": [
+    {
+      "url": "https://github.com/",
+      "httpStatus": 200,
+      "ok": true,
+      "status": 200,
+      "verdict": "deny",
+      "reason": "X-Frame-Options: DENY",
+      "host": "S3-handoff",
+      "headers": {
+        "x-frame-options": "deny",
+        "frame-ancestors": "'none'"
+      },
+      "tookMs": 369
+    },
+    {
+      "url": "https://tt134-actual-dns-failure.invalid/",
+      "httpStatus": 200,
+      "ok": true,
+      "status": 0,
+      "verdict": "unknown",
+      "reason": "probe failed: DNS lookup failed for tt134-actual-dns-failure.invalid",
+      "host": "S3-handoff",
+      "tookMs": 4
+    }
+  ]
+}

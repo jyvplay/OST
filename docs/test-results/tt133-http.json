@@ -1,0 +1,127 @@
+{
+  "suite": "tt133-http",
+  "at": "2026-11-02T00:48:28.106Z",
+  "results": [
+    {
+      "suite": "tt133-http",
+      "name": "Native runtime exposes non-null positive note revisions; strict writes reject bad JSON field values without changing the note or index",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 822
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Eight concurrent genuine HTTP saves serialize on one PostgreSQL row: exactly one revision wins, seven get 409, index agrees",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 72
+    },
+    {
+      "suite": "tt133-http",
+      "name": "A→B→A is still a new revision; old equal-content token cannot overwrite it",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 22
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Native cancellation after note UPDATE but during blocked index UPSERT rolls back both; server reports 503, never saved",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 42
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Every note/file index prefix is 50,000 Unicode code points, matches real PostgreSQL left(), and never splits a surrogate",
+      "covers": {
+        "NT-10": "partial",
+        "SR-17": "partial"
+      },
+      "pass": true,
+      "ms": 70
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Source/metadata/suffix/mode validation runs before search work and refuses nonsensical combinations",
+      "covers": {
+        "SR-13": "partial",
+        "SR-16": "partial"
+      },
+      "pass": true,
+      "ms": 26
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Literal search keeps SQL wildcard characters literal, returns numeric ranks and excludes fuzzy-only names",
+      "covers": {
+        "SR-15": "partial",
+        "SR-16": "partial"
+      },
+      "pass": true,
+      "ms": 33
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Metadata suffix filtering occurs before the 32-file page, not after consuming wrong-suffix budget",
+      "covers": {
+        "SR-16": "partial"
+      },
+      "pass": true,
+      "ms": 321
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Current exclusions are literal folder boundaries in fast search, live metadata and diagnostics (underscore cannot hide its neighbour)",
+      "covers": {
+        "SR-18": "partial",
+        "SR-17": "partial"
+      },
+      "pass": true,
+      "ms": 35
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Path diagnosis distinguishes saved/current, stale, missing, folders, trash, private and name-only binary content",
+      "covers": {
+        "SR-18": "partial"
+      },
+      "pass": true,
+      "ms": 61
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Unconfirmed rebuilds and malformed bodies return 400 without changing any index rows",
+      "covers": {
+        "SR-17": "partial"
+      },
+      "pass": true,
+      "ms": 44
+    },
+    {
+      "suite": "tt133-http",
+      "name": "Native lock timeout after a rebuild DELETE starts rolls it all back; concurrent readers see the complete old index and 503 says not rebuilt",
+      "covers": {
+        "SR-17": "partial"
+      },
+      "pass": true,
+      "ms": 4024
+    },
+    {
+      "suite": "tt133-http",
+      "name": "A confirmed real rebuild repairs missing/stale entries, preserves notes/files and all spec/setting rows, and matches PostgreSQL's canonical prefix",
+      "covers": {
+        "SR-17": "partial"
+      },
+      "pass": true,
+      "ms": 29
+    }
+  ]
+}

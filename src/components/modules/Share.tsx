@@ -1,5 +1,5 @@
 "use client";
-import { displayMedia } from "@/lib/access-log";
+import { ShareCapture } from "@/lib/share-capture";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -43,6 +43,8 @@ export default function ShareModule(_: ModuleProps) {
   const pc = useRef<RTCPeerConnection | null>(null);
   const dc = useRef<RTCDataChannel | null>(null);
   const local = useRef<MediaStream | null>(null);
+  const [capture] = useState(() => new ShareCapture());
+  useEffect(() => { capture.activate(); return () => capture.dispose(); }, [capture]);
   const cursor = useRef(0);
   const pendingIce = useRef<RTCIceCandidateInit[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -182,21 +184,27 @@ export default function ShareModule(_: ModuleProps) {
   const join = async () => {
     try {
       if (role === "share") {
-        local.current = await displayMedia("Share", { video: { frameRate: 30 }, audio: false });
+        const grant = await capture.start();
+        local.current = grant.stream;
         if (videoRef.current) { videoRef.current.srcObject = local.current; videoRef.current.muted = true; }
         local.current.getVideoTracks()[0].addEventListener("ended", () => void leave());
-        shell.setBeam({ id: null, target: `room ${room}`, transport: "webrtc", source: "screen", startedAt: Date.now(), stop: () => void leave() });
+        const startedAt = grant.startedAt;
+        shell.setBeam({ id: null, target: `room ${room}`, transport: "webrtc", source: "screen", startedAt, stop: () => void leave() });
       }
       cursor.current = 0;
       setJoined(true); setState("waiting for peer");
       await signal("*", "hello");
-    } catch (e) { shell.toast(String((e as Error).message), "bad"); }
+    } catch (e) {
+      capture.stop(); local.current = null;
+      setJoined(false); shell.setBeam(null);
+      shell.toast(String((e as Error).message), "bad");
+    }
   };
 
   const leave = async () => {
     if (peer) await signal(peer, "bye").catch(() => undefined);
     pc.current?.close(); pc.current = null; dc.current = null;
-    local.current?.getTracks().forEach((t) => t.stop()); local.current = null;
+    capture.stop(); local.current = null;
     setJoined(false); setPeer(null); setState("idle"); setStats(null);
     shell.setBeam(null);
   };

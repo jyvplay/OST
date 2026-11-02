@@ -1,0 +1,24 @@
+{
+  "fixtures": [
+    {
+      "repository": "apache/poi",
+      "ref": "6327f056ba3cfdae326a0261a236460592b80f5c",
+      "path": "test-data/document/bug57031.docx",
+      "blobSha": "6a1230e6f3cf43ed71fab0372bae338558973b62",
+      "sha256": "bbd88b16a90c65b46e1a6922f7017e8d4cc0bc8f62ac28619c2d367d37d6754b",
+      "bytes": 55889,
+      "url": "https://github.com/apache/poi/blob/6327f056ba3cfdae326a0261a236460592b80f5c/test-data/document/bug57031.docx",
+      "use": "test-only independent input, not production code"
+    },
+    {
+      "repository": "apache/poi",
+      "ref": "6327f056ba3cfdae326a0261a236460592b80f5c",
+      "path": "test-data/document/issue_51265_3.docx",
+      "blobSha": "721d9d4aa399b35b136adb50d7c8463033c356ef",
+      "sha256": "219c78b7bb2750d85dfb32cc13f38162a7b1ed5cfe610fa1dacd8364f578479b",
+      "bytes": 529742,
+      "url": "https://github.com/apache/poi/blob/6327f056ba3cfdae326a0261a236460592b80f5c/test-data/document/issue_51265_3.docx",
+      "use": "test-only independent input, not production code"
+    }
+  ]
+}

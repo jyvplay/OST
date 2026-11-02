@@ -8,7 +8,7 @@
  *   page setup, print/PDF, navigation pane, word count, AutoSave. Legacy .fdoc files still open.
  */
 import { AppBanner, BannerGroup } from "@/components/AppBanner";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { fz, useUiUnit } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
@@ -18,7 +18,7 @@ import { Badge, Btn } from "../ui";
 import { RecoveryBanner, openSealedWithPrompt, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
 import { restoredProtection, sealDraft } from "@/lib/office/draft-seal";
 import { askPassword, isEncryptedOffice, lockedProtection, saveBlocked, sealPackage, unlockOffice, type Protection } from "@/lib/office/unlock";
-import { allParas, blankWord, effectivePara, makeImage, paraText, readWord, resizeImage, styleChain, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
+import { allParas, blankWord, effectivePara, makeImage, paraText, readWord, resizeImage, writeWord, type Block, type Para, type Tok, type WordDoc } from "@/lib/office/wordml";
 import * as E from "@/lib/office/wordedit";
 import { wordConversionLoss, wordToMarkdown, wordToText } from "@/lib/office/convert-word";
 import { markdownToDocx } from "@/lib/office/md2docx";
@@ -29,12 +29,13 @@ import { readingTimeText } from "@/lib/read-time";
 import type { Speller } from "@/lib/spell/hunspell";
 import { addUserWord, loadSpeller, paintSpell, readSkipUpper, readSpellMode, readUserWords, removeUserWord, SPELL_CSS, writeSkipUpper, writeSpellMode, type SpellMode } from "@/lib/spell/client";
 import SpellPanel from "./writer/SpellPanel";
-import { addHfPicture, hfLines, removeHf, setDifferentFirst, setHf, type HfAlign, type HfKind, type HfLine, type HfType } from "@/lib/office/hdrftr";
+import { addHfPicture, removeHf, setDifferentFirst, setHf, type HfAlign, type HfKind, type HfLine, type HfType } from "@/lib/office/hdrftr";
 import type { XEl } from "@/lib/office/xmltree";
 import { domToPos, geomOf, makeState, paginate, posToDom, renderBlocks, renderPara, cssFont } from "./writer/view";
 import { countableRangeText, countWordDoc, countWriterText } from "@/lib/office/wordcount";
 
-type Panel = "none" | "find" | "review" | "nav" | "page" | "hf" | "notes" | "spell";
+import { fidelity, writerDocumentView, writerToolbarView, writerPaneView, type HeaderFooterView, type WriterUiView, type WriterPaneKind as Panel, type WriterPop } from "@/lib/office/word-ui";
+export { fidelity } from "@/lib/office/word-ui";
 const MIME_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const FONTS = ["Calibri", "Cambria", "Arial", "Times New Roman", "Georgia", "Verdana", "Courier New", "Consolas", "Segoe UI", "Aptos"];
 const SIZES = [8, 9, 10, 10.5, 11, 12, 14, 16, 18, 20, 24, 28, 36, 48, 72];
@@ -71,25 +72,48 @@ export default function WriterModule({ win }: ModuleProps) {
   const [zoom, setZoom] = useState<number | null>(null);
   const [pages, setPages] = useState(1);
   const [layoutGen, setLayoutGen] = useState(0); // TT61: bumps after every relayout (page headers / footers are rebuilt; their spelling marks are repainted)
-  const [panel, setPanel] = useState<Panel>("none");
+  const [panel, updatePanel] = useState<Panel>("none");
+  const activePanel = useRef<Panel>("none");
   const [wordCountOpen, setWordCountOpen] = useState(false);
   const [wordCountSelection, setWordCountSelection] = useState("");
   const [wordCountTotal, setWordCountTotal] = useState(() => countWriterText(""));
   const [wordCountNotes, setWordCountNotes] = useState(() => countWriterText(""));
   const [wordCountSelected, setWordCountSelected] = useState(() => countWriterText(""));
   const wordCountButtonRef = useRef<HTMLButtonElement | null>(null), wordCountCloseRef = useRef<HTMLButtonElement | null>(null);
-  const [pop, setPop] = useState<"" | "link" | "table" | "comment" | "saveas">("");
+  const [pop, updatePop] = useState<WriterPop>("");
+  const activePop = useRef<WriterPop>("");
   const [popVal, setPopVal] = useState(""); const [popVal2, setPopVal2] = useState("");
   const [find, setFind] = useState({ q: "", r: "", matchCase: false, wholeWord: false, at: -1 });
   const [imgSel, setImgSel] = useState<{ pid: string; off: number; w: number; h: number } | null>(null);
   const [autosave, setAutosave] = useState(false);
-  const [tick, setTick] = useState(0); // toolbar refresh on selection change
   const [docGen, setDocGen] = useState(0); // bumps when a new document (or page geometry) must be fully rendered
   const hfPushRef = useRef({ top: 0, bottom: 0 }); const [hfPush, setHfPush] = useState({ top: 0, bottom: 0 }); // TT73: room tall headers / footers need
   const [hfGen, setHfGen] = useState(0); // bumps when undo/redo changed headers/footers (the panel reloads; the caret is NOT reset)
   const fileInput = useRef<HTMLInputElement | null>(null), imgInput = useRef<HTMLInputElement | null>(null);
   const z = zoom ?? unit;
-  const bump = () => setVer((v) => v + 1);
+  const [view, setView] = useState<WriterUiView | null>(null);
+  const publishedUi = useRef<WriterUiView | null>(null);
+  const publishedModel = useRef<WordDoc | null>(null), modelIdentity = useRef(0);
+  // Model IO and native selection events publish real immutable display data.
+  // React does NOT read the mutable WordDoc (or a ref alias) while rendering.
+  const publishUi = useCallback((full = true) => {
+    const d = docRef.current; if (!d) return;
+    const previous = publishedUi.current;
+    const replaced = publishedModel.current !== d;
+    if (replaced) { publishedModel.current = d; modelIdentity.current++; }
+    const snapshot: WriterUiView = {
+      identity: modelIdentity.current,
+      document: full || replaced || !previous ? writerDocumentView(d) : previous.document,
+      toolbar: writerToolbarView(d, selRef.current, pendingFmt.current),
+      pane: full || replaced || !previous || previous.pane.kind !== activePanel.current || previous.pane.pop !== activePop.current ? writerPaneView(d, activePanel.current, activePop.current) : previous.pane,
+      undoCount: undo.current.length, redoCount: redo.current.length,
+      autosaveBlocked: !!(encRef.current && !encRef.current.password),
+    };
+    publishedUi.current = snapshot; setView(snapshot);
+  }, []);
+  const setPanel = useCallback((value: Panel) => { activePanel.current = value; updatePanel(value); publishUi(false); }, [publishUi]);
+  const setPop = useCallback((value: WriterPop) => { activePop.current = value; updatePop(value); publishUi(false); }, [publishUi]);
+  const bump = useCallback(() => { publishUi(); setVer(v => v + 1); }, [publishUi]);
 
   /* ------------------------------------------------------------ rendering */
   const layoutTimer = useRef<number | null>(null);
@@ -363,7 +387,7 @@ export default function WriterModule({ win }: ModuleProps) {
     setStatus(`Opened ${name} · lossless engine${fid ? ` · view-only: ${fid}` : ""}${d.warnings.length ? ` · ${d.warnings.length} warning(s)` : ""}${enc}`);
     setLoaded(true); setDirty(false); bump();
     setDocGen((g) => g + 1);
-  }, [renderAll]);
+  }, [bump]);
 
   useEffect(() => {
     let live = true;
@@ -424,7 +448,7 @@ export default function WriterModule({ win }: ModuleProps) {
     setPopVal(path ? path.replace(/\.[^./]+$/, ".docx") : `/Documents/${(docRef.current.title || "Document").replace(/[\\/:*?"<>|]/g, "").trim() || "Document"}.docx`);
     setPop("saveas");
     return false;
-  }, [path, saveTo]);
+  }, [path, saveTo, setPop]);
   // TT69 FF-15: close / Quit / Close all / leaving the page ask first; drafts are the bytes Save would write
   const life = useDocLifecycle({
     winId: win.id, kind: "writer", path, dirty, version: ver,
@@ -518,9 +542,12 @@ export default function WriterModule({ win }: ModuleProps) {
   };
 
   /* ------------------------------------------------------------ editing primitives */
-  const doc = docRef.current;
   const typeText = (text: string) => {
     const d = docRef.current!; let r = curSel();
+    // Capture structural invalidation BEFORE collapsing the deleted range.
+    // Otherwise single-line replacement across paragraphs leaves removed
+    // paragraphs/tables in the DOM, and native End can select a dead model ID.
+    const crossesParagraphs = r.a.pid !== r.b.pid;
     snapshot(true);
     let at = r.a;
     if (!collapsed(r)) { at = E.deleteForReplace(d, r); r = { a: at, b: at }; }
@@ -529,7 +556,7 @@ export default function WriterModule({ win }: ModuleProps) {
     const multi = lines.length > 1;
     lines.forEach((line, i) => { if (i > 0) pos = E.splitParagraph(d, pos); if (line) pos = E.insertText(d, pos, line, pendingFmt.current ?? undefined); });
     pendingFmt.current = null;
-    changed(multi || at.pid !== r.b.pid ? undefined : pos.pid, { a: pos, b: pos });
+    changed(multi || crossesParagraphs || at.pid !== r.b.pid ? undefined : pos.pid, { a: pos, b: pos });
   };
   const delRange = (r: E.Range, forward = false) => { snapshot(true); const at = forward ? E.deleteForward(docRef.current!, r) : E.deleteRange(docRef.current!, r); changed(undefined, { a: at, b: at }); };
 
@@ -576,17 +603,17 @@ export default function WriterModule({ win }: ModuleProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const toggleFmt = (k: "b" | "i" | "u" | "s" | "va-sup" | "va-sub") => {
+  function toggleFmt(k: "b" | "i" | "u" | "s" | "va-sup" | "va-sub") {
     const d = docRef.current!; const r = curSel(); const f = E.fmtAt(d, r);
     const key = k.startsWith("va") ? "va" : k;
     const val = k === "va-sup" ? (f.va === "superscript" ? null : "superscript") : k === "va-sub" ? (f.va === "subscript" ? null : "subscript") : k === "u" ? (f.u && f.u !== "none" ? null : "single") : !f[k as "b"];
     const v = val === false ? false : val;
-    if (collapsed(r)) { pendingFmt.current = { ...(pendingFmt.current ?? {}), [key]: v === null ? undefined : v }; setTick((x) => x + 1); return; }
+    if (collapsed(r)) { pendingFmt.current = { ...(pendingFmt.current ?? {}), [key]: v === null ? undefined : v }; publishUi(false); return; }
     snapshot(); E.applyFmt(d, r, { [key]: v }); changed(undefined, r);
   };
   const applyRunFmt = (patch: Record<string, unknown>) => {
     const d = docRef.current!; const r = curSel();
-    if (collapsed(r)) { pendingFmt.current = { ...(pendingFmt.current ?? {}), ...patch }; setTick((x) => x + 1); rootRef.current?.focus(); setSel(r); return; }
+    if (collapsed(r)) { pendingFmt.current = { ...(pendingFmt.current ?? {}), ...patch }; publishUi(false); rootRef.current?.focus(); setSel(r); return; }
     snapshot(); E.applyFmt(d, r, patch); changed(undefined, r);
   };
   const paraOp = (fn: (d: WordDoc, r: E.Range) => void) => { const d = docRef.current!; const r = curSel(); snapshot(); fn(d, r); changed(undefined, r); };
@@ -687,7 +714,7 @@ export default function WriterModule({ win }: ModuleProps) {
     root.addEventListener("beforeinput", bi);
     root.addEventListener("compositionstart", cs);
     root.addEventListener("compositionend", ce as EventListener);
-    const sc = () => { const s = window.getSelection(); if (s && root.contains(s.anchorNode)) { const r = readSel(); if (r) { selRef.current = r; setTick((x) => x + 1); } } };
+    const sc = () => { const s = window.getSelection(); if (s && root.contains(s.anchorNode)) { const r = readSel(); if (r) { selRef.current = r; publishUi(false); } } };
     document.addEventListener("selectionchange", sc);
     return () => { root.removeEventListener("beforeinput", bi); root.removeEventListener("compositionstart", cs); root.removeEventListener("compositionend", ce as EventListener); document.removeEventListener("selectionchange", sc); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -773,18 +800,7 @@ export default function WriterModule({ win }: ModuleProps) {
   };
   const resolve = (accept: boolean) => { const d = docRef.current!; snapshot(); const n = E.resolveChanges(d, accept); changed(); setHfGen((g) => g + 1); setNoteGen((g) => g + 1); setStatus(`${accept ? "Accepted" : "Rejected"} ${n} change(s)`); };
 
-  /* ------------------------------------------------------------ derived toolbar state */
-  const fmt = useMemo(() => {
-    const d = docRef.current; if (!d || !loaded) return null;
-    const r = selRef.current ?? curSel();
-    try { return { ...E.fmtAt(d, r), ...(pendingFmt.current ?? {}) } as ReturnType<typeof E.fmtAt>; } catch { return null; }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick, ver, loaded]);
-  const curPara = useMemo(() => { const d = docRef.current; const r = selRef.current; return d && r ? E.paraById(d, r.a.pid) : undefined; /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [tick, ver]);
-  const inTable = useMemo(() => { const d = docRef.current; const r = selRef.current; return !!(d && r && E.locate(d, r.a.pid)?.table); }, [tick, ver]);
-  // `ver` is the explicit invalidation tick for the ref-backed WordDoc model.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const counts = useMemo(() => { const d = docRef.current; if (!d) return { words: 0, chars: 0 }; const c = countWordDoc(d); return { words: c.words, chars: c.characters }; }, [ver]);
+  /* UI data is published by the model and selection events above. */
   const [goalStart, setGoalStart] = useState<number | null>(null);
   const [goalTarget, setGoalTarget] = useState(300);
   const openWordCount = () => {
@@ -797,15 +813,13 @@ export default function WriterModule({ win }: ModuleProps) {
     setWordCountSelection(selected); setWordCountTotal(dc); setWordCountNotes(dc.notes); setWordCountSelected(countWriterText(selected)); setWordCountOpen(true);
   };
   const closeWordCount = () => { setWordCountOpen(false); requestAnimationFrame(() => wordCountButtonRef.current?.focus()); };
-  // `ver` invalidates the ref-backed document model; panel avoids computing headings outside the navigation pane.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const headings = useMemo(() => { const d = docRef.current; if (!d || panel !== "nav") return []; return allParas(d.blocks).map((p) => ({ p, lvl: headingLevel(d, p) })).filter((x) => x.lvl > 0 && paraText(x.p).trim()).slice(0, 300); }, [ver, panel]);
-
-  if (!loaded || !doc) return <div style={{ padding: 16 }}>Opening document…</div>;
+  if (!loaded || !view) return <div style={{ padding: 16 }}>Opening document…</div>;
+  const doc = view.document;
+  const { fmt, para: curPara, inTable } = view.toolbar;
+  const counts = doc.counts, headings = view.pane.headings;
   const g = geomOf(doc, 24, hfPush);
-  const styleId = curPara?.p.style ?? E.styleChoices(doc)[0]?.id;
-  const changes = panel === "review" ? E.revisions(doc) : [];
-  const notes = panel === "notes" ? E.listNotes(doc) : [];
+  const styleId = curPara?.p.style ?? doc.styles[0]?.id;
+  const changes = view.pane.changes, notes = view.pane.notes;
   const mixed = (k: string) => fmt?.mixed.has(k);
   const tb = (on: boolean | undefined) => ({ variant: (on ? "primary" : "ghost") as "primary" | "ghost" });
 
@@ -819,7 +833,7 @@ export default function WriterModule({ win }: ModuleProps) {
       }}>
       <style>{WRITER_CSS + SPELL_CSS}</style>
       {/* ---------- TT80 banner: Fusion's own menus (Keep · Tweak · Look · Put · Polish · Glance) over ONE tool strip */}
-      <AppBanner label="Writer" status={<><label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || !!(encRef.current && !encRef.current.password)} aria-label="AutoSave" />AutoSave</label></>}>
+      <AppBanner label="Writer" status={<><label style={{ fontSize: fz(12), display: "flex", gap: 4, alignItems: "center" }}><input type="checkbox" checked={autosave} onChange={(e) => setAutosave(e.target.checked)} disabled={!path.toLowerCase().endsWith(".docx") || view.autosaveBlocked} aria-label="AutoSave" />AutoSave</label></>}>
         <BannerGroup name="Keep">
           <Btn variant="ghost" data-testid="writer-new" onClick={async () => { if (dirty && (await shell.askSave(win.id)) === "cancelled") return; life.rotateUntitled(); const d = await blankWord(); docRef.current = d; setPath(""); encRef.current = null; setLocked(false); undo.current = []; setDirty(false); bump(); setDocGen((g) => g + 1); }}>New</Btn>
           <Btn variant="ghost" onClick={() => fileInput.current?.click()}>Open…</Btn>
@@ -827,13 +841,13 @@ export default function WriterModule({ win }: ModuleProps) {
           <Btn data-testid="writer-save" onClick={() => void save()}>{dirty ? "Save •" : "Save"}</Btn>
         </BannerGroup>
         <BannerGroup name="Tweak">
-          <Btn variant="ghost" disabled={!undo.current.length} onClick={() => restore(undo, redo)} aria-label="Undo">Undo</Btn>
-          <Btn variant="ghost" disabled={!redo.current.length} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>
+          <Btn variant="ghost" disabled={!view.undoCount} onClick={() => restore(undo, redo)} aria-label="Undo">Undo</Btn>
+          <Btn variant="ghost" disabled={!view.redoCount} onClick={() => restore(redo, undo)} aria-label="Redo">Redo</Btn>
           {(["find"] as Panel[]).map((p) => <Btn key={p} {...tb(panel === p)} title={p === "spell" ? "Spelling (F7; Alt+F7 next issue)" : undefined} onClick={() => setPanel(panel === p ? "none" : p)}>{{ nav: "Navigation", find: "Find", review: "Review", spell: "Spelling", notes: "Notes", page: "Layout", hf: "Header & footer", none: "" }[p]}</Btn>)}
         </BannerGroup>
         <BannerGroup name="Look" keepFocus>
           <select className="fs-select" aria-label="Paragraph style" value={styleId} style={{ width: fz(140) }} onChange={(e) => paraOp((d, r) => E.setStyle(d, r, e.target.value))}>
-          {E.styleChoices(doc).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          {doc.styles.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
           <select className="fs-select" aria-label="Font" value={mixed("font") ? "" : fmt?.font ?? ""} style={{ width: fz(130) }} onChange={(e) => applyRunFmt({ font: e.target.value })}>
           <option value="" disabled>{mixed("font") ? "(mixed)" : "Font"}</option>
@@ -853,12 +867,12 @@ export default function WriterModule({ win }: ModuleProps) {
           <select className="fs-select" aria-label="Highlight" value={fmt?.hl ?? ""} style={{ width: fz(96) }} onChange={(e) => applyRunFmt({ hl: e.target.value || null })}>
           <option value="">No highlight</option>{HIGHLIGHTS.map((h) => <option key={h} value={h}>{h}</option>)}
           </select>
-          {(["left", "center", "right", "justify"] as const).map((a) => <Btn key={a} {...tb((effectivePara(doc, curPara ?? allParas(doc.blocks)[0]).align ?? "left") === a)} aria-label={`Align ${a}`} onClick={() => paraOp((d, r) => E.setParaProps(d, r, { align: a }))}><AlignIcon a={a} /></Btn>)}
+          {(["left", "center", "right", "justify"] as const).map((a) => <Btn key={a} {...tb(view.toolbar.align === a)} aria-label={`Align ${a}`} onClick={() => paraOp((d, r) => E.setParaProps(d, r, { align: a }))}><AlignIcon a={a} /></Btn>)}
           <select className="fs-select" aria-label="Line spacing" value={String(curPara?.p.line ? curPara.p.line / 240 : "")} style={{ width: fz(70) }} onChange={(e) => paraOp((d, r) => E.setParaProps(d, r, { line: Math.round(Number(e.target.value) * 240), lineRule: "auto" }))}>
           <option value="" disabled>Spacing</option>{[1, 1.15, 1.5, 2, 2.5, 3].map((v) => <option key={v} value={String(v)}>{v.toFixed(2)}</option>)}
           </select>
-          <Btn {...tb(!!curPara && E.listKind(doc, curPara) === "bullet")} aria-label="Bulleted list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "bullet"))}>• List</Btn>
-          <Btn {...tb(!!curPara && E.listKind(doc, curPara) === "number")} aria-label="1. List (numbered)" title="Numbered list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "number"))}>1. List</Btn>
+          <Btn {...tb(!!curPara && view.toolbar.listKind === "bullet")} aria-label="Bulleted list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "bullet"))}>• List</Btn>
+          <Btn {...tb(!!curPara && view.toolbar.listKind === "number")} aria-label="1. List (numbered)" title="Numbered list" onClick={() => paraOp((d, r) => E.toggleList(d, r, "number"))}>1. List</Btn>
           <Btn variant="ghost" aria-label="Decrease indent" onClick={() => paraOp((d, r) => E.indent(d, r, -1))}>⇤</Btn>
           <Btn variant="ghost" aria-label="Increase indent" onClick={() => paraOp((d, r) => E.indent(d, r, 1))}>⇥</Btn>
           <Btn variant="ghost" aria-label="Clear formatting" onClick={() => paraOp((d, r) => E.applyFmt(d, r, { b: null, i: null, u: null, s: null, sz: null, font: null, color: null, hl: null, va: null, caps: null, smallCaps: null, shd: null }))}>Clear</Btn>
@@ -920,7 +934,7 @@ export default function WriterModule({ win }: ModuleProps) {
           {pop === "comment" && <><span>Comment</span><input className="fs-input" autoFocus aria-label="Comment text" value={popVal} onChange={(e) => setPopVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addComment(popVal); if (e.key === "Escape") setPop(""); }} style={{ width: fz(360) }} /><Btn onClick={() => addComment(popVal)}>Add</Btn></>}
           {pop === "saveas" && <><span>Save as</span><input className="fs-input" autoFocus aria-label="Save path" value={popVal} onChange={(e) => setPopVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { const p = popVal.toLowerCase().endsWith(".docx") ? popVal : `${popVal}.docx`; setPop(""); void saveTo(p); } }} style={{ width: fz(340) }} />
             <Btn onClick={() => { const p = popVal.toLowerCase().endsWith(".docx") ? popVal : `${popVal}.docx`; setPop(""); void saveTo(p); }}>Save .docx</Btn>
-            <span style={{ fontSize: fz(12), opacity: 0.8 }} data-testid="writer-fidelity">Fidelity: lossless — every part of the original package is kept{fidelity(doc) ? `; shown read-only: ${fidelity(doc)}` : ""}.</span></>}
+            <span style={{ fontSize: fz(12), opacity: 0.8 }} data-testid="writer-fidelity">Fidelity: lossless — every part of the original package is kept{view.pane.fidelity ? `; shown read-only: ${view.pane.fidelity}` : ""}.</span></>}
           <Btn variant="ghost" onClick={() => setPop("")}>Cancel</Btn>
         </div>
       )}
@@ -928,7 +942,7 @@ export default function WriterModule({ win }: ModuleProps) {
         {panel === "nav" && (
           <div className="wside" aria-label="Navigation pane">
             <div className="wside-h">Headings</div>
-            {headings.length ? headings.map(({ p, lvl }) => <button key={p.id} className="wnav" style={{ paddingLeft: 6 + (lvl - 1) * 12 }} onClick={() => { rootRef.current?.querySelector(`[data-pid="${p.id}"]`)?.scrollIntoView({ block: "start" }); setSel({ a: { pid: p.id, off: 0 }, b: { pid: p.id, off: 0 } }); }}>{paraText(p).slice(0, 80)}</button>) : <div style={{ opacity: 0.7, padding: 6 }}>No headings. Apply Heading 1–3 to build an outline.</div>}
+            {headings.length ? headings.map(({ id, level, text }) => <button key={id} className="wnav" style={{ paddingLeft: 6 + (level - 1) * 12 }} onClick={() => { rootRef.current?.querySelector(`[data-pid="${id}"]`)?.scrollIntoView({ block: "start" }); setSel({ a: { pid: id, off: 0 }, b: { pid: id, off: 0 } }); }}>{text}</button>) : <div style={{ opacity: 0.7, padding: 6 }}>No headings. Apply Heading 1–3 to build an outline.</div>}
           </div>
         )}
         {/* ---------- pages */}
@@ -968,9 +982,9 @@ export default function WriterModule({ win }: ModuleProps) {
                 </div>)}
               </div>
               {changes.length > 200 && <div style={{ opacity: 0.75 }}>Showing the first 200 of {changes.length}; Accept all / Reject all cover every change.</div>}
-              <div className="wside-h" style={{ marginTop: 10 }}>Comments ({doc.comments.length})</div>
+              <div className="wside-h" style={{ marginTop: 10 }}>Comments ({view.pane.comments.length})</div>
               <Btn variant="ghost" onClick={() => { setPopVal(""); setPop("comment"); }}>New comment on selection</Btn>
-              {doc.comments.map((c) => <button key={c.id} className="wcom" onClick={() => { const m = rootRef.current?.querySelector(`[data-cids~="${c.id}"], .wcmt[data-cids*="${c.id}"]`); m?.scrollIntoView({ block: "center" }); }}><b>{c.author || "Unknown"}</b>{c.date ? <span style={{ opacity: 0.6 }}> · {c.date.slice(0, 10)}</span> : null}<div>{c.text}</div></button>)}
+              {view.pane.comments.map((c) => <button key={c.id} className="wcom" onClick={() => { const m = rootRef.current?.querySelector(`[data-cids~="${c.id}"], .wcmt[data-cids*="${c.id}"]`); m?.scrollIntoView({ block: "center" }); }}><b>{c.author || "Unknown"}</b>{c.date ? <span style={{ opacity: 0.6 }}> · {c.date.slice(0, 10)}</span> : null}<div>{c.text}</div></button>)}
             </>}
             {panel === "spell" && <SpellPanel issues={issues} idx={spellIdx} setIdx={setSpellIdx} sp={speller}
               loading={spellErr || (spellMode === "fusion" && !speller ? "Loading the English (US) dictionary…" : "")}
@@ -992,8 +1006,8 @@ export default function WriterModule({ win }: ModuleProps) {
                 </div>; })}
               </div>
             </>}
-            {panel === "hf" && <HeaderFooter doc={doc} gen={docGen * 100000 + hfGen} onApply={(fn) => { snapshot(); try { fn(doc); } catch (e) { undo.current.pop(); throw e; } setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
-            {panel === "page" && <PageSetup doc={doc} onApply={(o) => { snapshot(); E.setPageSetup(doc, o); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
+            {panel === "hf" && view.pane.headers && <HeaderFooter key={view.identity} page={doc.page} headers={view.pane.headers} gen={docGen * 100000 + hfGen} onApply={(fn) => { if (publishedUi.current?.identity !== view.identity) throw new Error("The document changed; choose the picture again."); snapshot(); try { fn(docRef.current!); } catch (e) { undo.current.pop(); throw e; } setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
+            {panel === "page" && <PageSetup key={view.identity} page={doc.page} onApply={(o) => { snapshot(); E.setPageSetup(docRef.current!, o); setDirty(true); bump(); setDocGen((g) => g + 1); }} />}
           </div>
         )}
       </div>
@@ -1017,12 +1031,23 @@ export default function WriterModule({ win }: ModuleProps) {
         </div>
       </>, document.body)}
       {wordCountOpen && typeof document !== "undefined" && createPortal(
-        <div style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,.35)", display: "grid", placeItems: "center", padding: 16 }} onMouseDown={(e) => { if (e.target === e.currentTarget) closeWordCount(); }} onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); closeWordCount(); } else if (e.key === "Tab") { e.preventDefault(); wordCountCloseRef.current?.focus(); } }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,.35)", display: "grid", placeItems: "center", padding: 16 }} onMouseDown={(e) => { if (e.target === e.currentTarget) closeWordCount(); }} onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === "Escape") { e.preventDefault(); closeWordCount(); }
+          else if (e.key === "Tab") {
+            const controls = [...e.currentTarget.querySelectorAll<HTMLElement>("button:not([disabled]),input:not([disabled])")].filter(el => el.getClientRects().length > 0);
+            const index = controls.indexOf(document.activeElement as HTMLElement);
+            e.preventDefault(); controls[(index + (e.shiftKey ? -1 : 1) + controls.length) % controls.length]?.focus();
+          }
+        }}>
           <section role="dialog" aria-modal="true" aria-label="Word Count" data-testid="writer-word-count" style={{ width: "min(360px, 100%)", padding: 18, borderRadius: 12, color: "var(--fs-ink, #17212b)", background: "var(--fs-surface, #fff)", boxShadow: "0 12px 48px rgba(0,0,0,.3)" }}>
             <div className="fs-row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}><h2 style={{ margin: 0, fontSize: fz(18) }}>Word Count</h2><button ref={wordCountCloseRef} type="button" autoFocus aria-label="Close Word Count" onClick={closeWordCount}>Close</button></div>
+            <div className="fs-row" style={{ gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+              {goalStart !== null ? <span data-testid="writer-goal"><Badge tone={goalStatus(goalStart, counts.words, goalTarget).done ? "ok" : "info"}>{goalStatus(goalStart, counts.words, goalTarget).written}/{goalTarget} words this session{goalStatus(goalStart, counts.words, goalTarget).done ? " · done" : ""}</Badge></span> : null}
+              <Btn variant="ghost" style={{ color: "var(--fs-ink, #17212b)" }} onClick={() => setGoalStart(goalStart === null ? counts.words : null)} data-testid={goalStart === null ? "writer-goal-start" : "writer-goal-end"}>{goalStart === null ? "Set session goal" : "End goal"}</Btn>
+              <label style={{ fontSize: fz(11) }}>Target <input className="fs-input" style={{ width: fz(56) }} type="number" min={1} value={goalTarget} aria-label="Session word goal target" onChange={(e) => setGoalTarget(Math.max(1, Number(e.target.value) || 1))} /></label>
+            </div>
             <dl style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "7px 16px", margin: 0 }}>
-              {goalStart !== null ? <span className="fs-row" style={{ gap: 6 }} data-testid="writer-goal"><Badge tone={goalStatus(goalStart, counts.words, goalTarget).done ? "ok" : "info"}>{goalStatus(goalStart, counts.words, goalTarget).written}/{goalTarget} words this session{goalStatus(goalStart, counts.words, goalTarget).done ? " · done" : ""}</Badge><Btn variant="ghost" style={{ color: "var(--fs-ink, #17212b)" }} onClick={() => setGoalStart(null)}>End goal</Btn></span> : <Btn variant="ghost" style={{ color: "var(--fs-ink, #17212b)" }} onClick={() => setGoalStart(counts.words)} data-testid="writer-goal-start">Set session goal</Btn>}
-              <label style={{ fontSize: fz(11) }}>target <input className="fs-input" style={{ width: fz(56) }} type="number" min={1} value={goalTarget} aria-label="Session word goal target" onChange={(e) => setGoalTarget(Math.max(1, Number(e.target.value) || 1))} /></label>
               {countRow("Pages", pages, "writer-count-pages")}{countRow("Words", wordCountTotal.words, "writer-count-words")}{countRow("Characters (with spaces)", wordCountTotal.characters, "writer-count-chars")}{countRow("Characters (without spaces)", wordCountTotal.charactersNoSpaces, "writer-count-chars-no-spaces")}{countRow("Paragraphs", wordCountTotal.paragraphs, "writer-count-paragraphs")}{countRow("Lines", wordCountTotal.lines, "writer-count-lines")}{countRow("Reading time", readingTimeText(wordCountTotal.words), "writer-read-time")}
               {(wordCountNotes.words > 0 || wordCountNotes.characters > 0) && countRow("Footnotes & endnotes (words)", wordCountNotes.words, "writer-count-notes-words")}
             </dl>
@@ -1049,22 +1074,6 @@ function countRow(label: string, value: string | number, id: string) {
 function cellsInRow(r: { items: unknown[] }) { return r.items.filter((c) => (c as { t?: string }).t === "tc").length; }
 const toRomanLower = (n: number) => { const m: [number, string][] = [[10, "x"], [9, "ix"], [5, "v"], [4, "iv"], [1, "i"]]; let s = ""; for (const [v, r] of m) while (n >= v) { s += r; n -= v; } return s; };
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
-function headingLevel(doc: WordDoc, p: Para): number {
-  for (const s of styleChain(doc, p.p.style).reverse()) { const m = /^heading\s*(\d)$/i.exec(s.name) ?? /^Heading(\d)$/.exec(s.id); if (m) return Number(m[1]); if (s.name.toLowerCase() === "title") return 1; }
-  return 0;
-}
-/** Read-only constructs (kept verbatim on save) — shown in the status bar and the Save-As fidelity note (FF-11). */
-export function fidelity(doc: WordDoc): string {
-  const c = new Map<string, number>();
-  const add = (k: string) => c.set(k, (c.get(k) ?? 0) + 1);
-  for (const p of allParas(doc.blocks)) for (const it of p.content) if (it.t === "k") {
-    if (it.kind === "math") add("equation"); else if (it.kind === "box") add("inline control"); else if (it.kind === "field") add("field"); else if (it.kind === "other" && it.label) add("object"); else if (it.kind === "image" && /emf|wmf|tiff/.test(it.img?.mime ?? "")) add("EMF/WMF picture");
-  }
-  const walk = (bs: Block[]) => { for (const b of bs) { if (b.t === "x" && b.label) add("block object"); if (b.t === "box") walk(b.blocks); if (b.t === "tbl") for (const r of b.items) if ((r as { t?: string }).t === "tr") for (const cc of (r as { items: unknown[] }).items) if ((cc as { t?: string }).t === "tc") walk((cc as { blocks: Block[] }).blocks); } };
-  walk(doc.blocks);
-  if (doc.parts.size) add("header/footer");
-  return [...c].map(([k, n]) => `${n} ${k}${n > 1 ? "s" : ""}`).join(", ");
-}
 function importLegacy(d: WordDoc, m: { title?: string; blocks?: { kind: string; style?: string; runs?: { text: string; bold?: boolean; italic?: boolean; underline?: boolean }[]; rows?: string[][] }[] }) {
   if (!m || !Array.isArray(m.blocks)) return;
   d.title = m.title ?? d.title;
@@ -1134,21 +1143,19 @@ function AlignIcon({ a }: { a: "left" | "center" | "right" | "justify" }) {
   return <svg width="16" height="14" viewBox="0 0 16 14" aria-hidden>{rows.map((w, i) => { const ww = a === "justify" ? 14 : w; const x = a === "left" || a === "justify" ? 1 : a === "right" ? 15 - ww : (16 - ww) / 2; return <rect key={i} x={x} y={1 + i * 3.3} width={ww} height="1.6" rx="0.8" fill="currentColor" />; })}</svg>;
 }
 /** TT49: header & footer editor (src/lib/office/hdrftr.ts). One row per paragraph; locked rows are kept verbatim. */
-function HeaderFooter({ doc, gen, onApply }: { doc: WordDoc; gen: number; onApply: (fn: (d: WordDoc) => void) => void }) {
+function HeaderFooter({ page, headers, gen, onApply }: { page: WordDoc["page"]; headers: HeaderFooterView; gen: number; onApply: (fn: (d: WordDoc) => void) => void }) {
   const [kind, setKind] = useState<HfKind>("header");
   const [type, setType] = useState<HfType>("default");
-  const load = (k: HfKind, t: HfType) => hfLines(doc, k, t);
-  const [lines, setLines] = useState<HfLine[]>(() => load("header", "default"));
+  const load = (k: HfKind, t: HfType) => headers[k][t];
+  const [edit, setEdit] = useState<{ gen: number; kind: HfKind; type: HfType; lines: HfLine[] } | null>(null);
+  const lines = edit && edit.gen === gen && edit.kind === kind && edit.type === type ? edit.lines : load(kind, type);
+  const setLines = (value: HfLine[]) => setEdit({ gen, kind, type, lines: value });
   const [focus, setFocus] = useState<{ i: number; at: number } | null>(null);
-  const first = doc.page.titlePg ?? false;
-  const switchTo = (k: HfKind, t: HfType) => { setKind(k); setType(t); setLines(load(k, t)); setFocus(null); };
-  const opened = useRef(doc);
-  useEffect(() => { if (opened.current !== doc) { opened.current = doc; switchTo("header", "default"); } }); // another document was opened
-  const seenGen = useRef(gen);
-  useEffect(() => { if (seenGen.current !== gen) { seenGen.current = gen; setLines(load(kind, type)); } }); // undo/redo restored the parts
+  const first = page.titlePg ?? false;
+  const switchTo = (k: HfKind, t: HfType) => { setKind(k); setType(t); setEdit(null); setFocus(null); };
   const [refusal, setRefusal] = useState("");
   // onApply runs synchronously; TT65: a tracked edit that can't be recorded throws before changing anything — say why, keep the typed lines
-  const apply = (fn: (d: WordDoc) => void, k = kind, t = type) => { try { onApply(fn); } catch (e) { setRefusal(e instanceof Error ? e.message : String(e)); return; } setRefusal(""); setLines(load(k, t)); };
+  const apply = (fn: (d: WordDoc) => void) => { try { onApply(fn); } catch (e) { setRefusal(e instanceof Error ? e.message : String(e)); return; } setRefusal(""); setEdit(null); };
   const exists = load(kind, type).length > 0;
   const insert = (tok: string) => {
     const i = focus && !lines[focus.i]?.locked ? focus.i : lines.findIndex((l) => !l.locked);
@@ -1163,9 +1170,8 @@ function HeaderFooter({ doc, gen, onApply }: { doc: WordDoc; gen: number; onAppl
     const mime = f.type; const data = new Uint8Array(await f.arrayBuffer());
     if (!/^image\/(png|jpeg|gif)$/.test(mime) || data.length > 5 * 1024 * 1024) { setRefusal("Header and footer pictures must be PNG, JPEG or GIF, up to 5 MB"); return; }
     const dims = await new Promise<{ w: number; h: number }>((res) => { const im = new Image(); const u = URL.createObjectURL(new Blob([data], { type: mime })); im.onload = () => { URL.revokeObjectURL(u); res({ w: im.naturalWidth || 200, h: im.naturalHeight || 60 }); }; im.onerror = () => { URL.revokeObjectURL(u); res({ w: 200, h: 60 }); }; im.src = u; });
-    const maxW = (doc.page.w - doc.page.left - doc.page.right) / 15; const k = Math.min(1, 96 / dims.h, maxW / dims.w);
     const ls = lines; const align = ls.at(-1)?.align ?? "left";
-    apply((d) => { if (ls.length) setHf(d, kind, type, ls); addHfPicture(d, kind, type, data, mime, Math.max(1, Math.round(dims.w * k)), Math.max(1, Math.round(dims.h * k)), f.name.replace(/\.[^.]+$/, ""), align); });
+    apply((d) => { const maxW = (d.page.w - d.page.left - d.page.right) / 15, k = Math.min(1, 96 / dims.h, maxW / dims.w); if (ls.length) setHf(d, kind, type, ls); addHfPicture(d, kind, type, data, mime, Math.max(1, Math.round(dims.w * k)), Math.max(1, Math.round(dims.h * k)), f.name.replace(/\.[^.]+$/, ""), align); });
   };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }} data-testid="hf-panel">
@@ -1207,8 +1213,7 @@ function HeaderFooter({ doc, gen, onApply }: { doc: WordDoc; gen: number; onAppl
   );
 }
 
-function PageSetup({ doc, onApply }: { doc: WordDoc; onApply: (o: { paper?: string; landscape?: boolean; margins?: { top: number; right: number; bottom: number; left: number } }) => void }) {
-  const p = doc.page;
+function PageSetup({ page: p, onApply }: { page: WordDoc["page"]; onApply: (o: { paper?: string; landscape?: boolean; margins?: { top: number; right: number; bottom: number; left: number } }) => void }) {
   const cur = Object.entries(E.PAPER).find(([, [w, h]]) => (Math.abs(w - Math.min(p.w, p.h)) < 30 && Math.abs(h - Math.max(p.w, p.h)) < 30))?.[0] ?? "Custom";
   const [m, setM] = useState({ top: p.top / 1440, right: p.right / 1440, bottom: p.bottom / 1440, left: p.left / 1440 });
   return (

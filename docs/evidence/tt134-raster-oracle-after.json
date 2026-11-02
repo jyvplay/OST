@@ -1,0 +1,7 @@
+{
+  "stage": "optimized exhaustive scan / pinned PyMuPDF 1.28.0",
+  "exit": 0,
+  "wallSeconds": 5.00867460299969,
+  "cpuSeconds": 5.918356,
+  "largestChildPeakRssKiB": 174740
+}

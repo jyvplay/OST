@@ -1,0 +1,12 @@
+Actual browser: 143.0.7499.0
+  ✗ Native corrupt-history attack: truncated JSON containing a Private query is erased rather than left as unparseable plaintext
+    expect(received).toBe(expected) // Object.is equality
+
+Expected: null
+Received: "[{\"q\":\"legacy private secret\",\"scope\":\"/Private\""
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+0 passed, 1 failed
+FAILED: Native corrupt-history attack: truncated JSON containing a Private query is erased rather than left as unparseable plaintext

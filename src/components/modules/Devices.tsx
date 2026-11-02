@@ -2,7 +2,7 @@
 import { userMedia } from "@/lib/access-log";
 import { fz } from "@/lib/uiscale";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fmtBytes, post } from "@/lib/api";
 import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -13,12 +13,17 @@ import { deviceInfoText } from "@/lib/device-info";
 
 type Tab = "recorder" | "scan" | "color" | "audio" | "serial" | "peripherals" | "gamepad";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 type AnyNav = Navigator & Record<string, any>;
 
 export default function DevicesModule(_: ModuleProps) {
-  const [estText, setEstText] = useState("reading the browser storage estimate…");
-  useEffect(() => { let live = true; const st = (navigator as Navigator & { storage?: { estimate?: () => Promise<{ usage?: number; quota?: number }> } }).storage; if (!st?.estimate) { setEstText(estimateText(null, null)); return; } void st.estimate().then((e) => { if (live) setEstText(estimateText(e.usage ?? null, e.quota ?? null)); }).catch(() => { if (live) setEstText(estimateText(null, null)); }); return () => { live = false; }; }, []);
+  const [estText, setEstText] = useState(() => typeof navigator !== "undefined" && typeof navigator.storage?.estimate === "function" ? "reading the browser storage estimate…" : estimateText(null, null));
+  useEffect(() => {
+    const st = navigator.storage; if (!st?.estimate) return;
+    let live = true;
+    void st.estimate().then(e => { if (live) setEstText(estimateText(e.usage ?? null, e.quota ?? null)); })
+      .catch(() => { if (live) setEstText(estimateText(null, null)); });
+    return () => { live = false; };
+  }, []);
   const shell = useShell();
   const [tab, setTab] = useState<Tab>("recorder");
   return (
@@ -253,19 +258,23 @@ function SerialConsole() {
   );
 }
 
+/** Native APIs run before React consumes the completed device enumeration.
+ * Missing APIs contribute no devices; no permission is requested here. */
+async function readGrantedPeripherals(): Promise<string[]> {
+  const nav = navigator as AnyNav, out: string[] = [];
+  if (nav.hid) for (const d of await nav.hid.getDevices()) out.push(`HID · ${d.productName} (${d.vendorId.toString(16)}:${d.productId.toString(16)})`);
+  if (nav.usb) for (const d of await nav.usb.getDevices()) out.push(`USB · ${d.productName ?? "device"} (${d.vendorId.toString(16)}:${d.productId.toString(16)})`);
+  if (nav.serial) for (const _p of await nav.serial.getPorts()) out.push("Serial · granted port");
+  return out;
+}
+
 /** CT-06: list only previously granted devices on load (getDevices), request on gesture. */
 function Peripherals() {
   const shell = useShell();
   const nav = navigator as AnyNav;
   const [list, setList] = useState<string[]>([]);
-  const refresh = async () => {
-    const out: string[] = [];
-    if (nav.hid) for (const d of await nav.hid.getDevices()) out.push(`HID · ${d.productName} (${d.vendorId.toString(16)}:${d.productId.toString(16)})`);
-    if (nav.usb) for (const d of await nav.usb.getDevices()) out.push(`USB · ${d.productName ?? "device"} (${d.vendorId.toString(16)}:${d.productId.toString(16)})`);
-    if (nav.serial) for (const _p of await nav.serial.getPorts()) out.push("Serial · granted port");
-    setList(out);
-  };
-  useEffect(() => { void refresh().catch(() => undefined); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const refresh = useCallback(() => readGrantedPeripherals().then(setList), []);
+  useEffect(() => { let live = true; void readGrantedPeripherals().then(out => { if (live) setList(out); }).catch(() => undefined); return () => { live = false; }; }, []);
   const req = async (fn: () => Promise<unknown>) => { try { await fn(); await refresh(); } catch (e) { shell.toast(String((e as Error).message), "warn"); } };
   return (
     <Section title="Peripherals (CT-06)">
@@ -323,19 +332,21 @@ function Gamepads() {
 /** DV-01: the browser battery API where offered; stated, never faked, where not. */
 function BatteryCard() {
   const [b, setB] = useState<BatteryLike | null>(null);
-  const [state, setState] = useState("checking…");
+  type NativeBattery = BatteryLike & { addEventListener?: (t: string, f: () => void) => void; removeEventListener?: (t: string, f: () => void) => void };
+  const unsupported = "Battery API not offered by this browser — charge state cannot be read from a web app here.";
+  const [state, setState] = useState(() => typeof navigator !== "undefined" && typeof (navigator as Navigator & { getBattery?: unknown }).getBattery === "function" ? "checking…" : unsupported);
   useEffect(() => {
-    const nav = navigator as Navigator & { getBattery?: () => Promise<BatteryLike & { addEventListener?: (t: string, f: () => void) => void }> };
-    if (typeof nav.getBattery !== "function") { setState("Battery API not offered by this browser — charge state cannot be read from a web app here."); return; }
-    let live = true;
-    void nav.getBattery().then((bat) => {
+    const nav = navigator as Navigator & { getBattery?: () => Promise<NativeBattery> };
+    if (typeof nav.getBattery !== "function") return;
+    let live = true, detach = () => {};
+    void nav.getBattery().then(bat => {
       if (!live) return;
-      const read = () => setB({ level: bat.level, charging: bat.charging, chargingTime: bat.chargingTime, dischargingTime: bat.dischargingTime });
-      read();
-      bat.addEventListener?.("levelchange", read);
-      bat.addEventListener?.("chargingchange", read);
-    }).catch(() => setState("Battery API refused."));
-    return () => { live = false; };
+      const read = () => { if (live) setB({ level: bat.level, charging: bat.charging, chargingTime: bat.chargingTime, dischargingTime: bat.dischargingTime }); };
+      const events = ["levelchange", "chargingchange", "chargingtimechange", "dischargingtimechange"];
+      read(); for (const event of events) bat.addEventListener?.(event, read);
+      detach = () => { for (const event of events) bat.removeEventListener?.(event, read); };
+    }).catch(() => { if (live) setState("Battery API refused."); });
+    return () => { live = false; detach(); };
   }, []);
   return b ? <Badge tone={b.charging ? "ok" : "info"} data-testid="devices-battery">{batteryLabel(b)}</Badge> : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>{state}</span>;
 }

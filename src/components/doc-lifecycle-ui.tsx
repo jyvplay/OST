@@ -52,7 +52,7 @@ export function useDocLifecycle(o: LifecycleOpts) {
     W().schedule(async () => {
       const c = cur.current;
       if (!c.recoverable || !c.dirty) return null;
-      const d = await c.makeDraft(); if (!d) return null;
+      const d = await c.makeDraft(); if (!d) throw new Error("Recovery is unavailable; keep the unsaved document open");
       const rec: DraftRecord = { v: 1, kind: c.kind, path: c.path, title: c.title, savedAt: Date.now(), baseSha: c.path ? baseSha.current : null, ...d };
       return { path: draftPathFor(c.kind, c.path, U()), text: encodeDraft(rec) };
     });
@@ -63,7 +63,12 @@ export function useDocLifecycle(o: LifecycleOpts) {
     title: () => cur.current.title || "Untitled",
     dirty: () => cur.current.dirty && !(justSaved.current !== null && Object.is(justSaved.current.version, cur.current.version)),
     save: () => cur.current.save(),
-    flushDraft: async () => { if (cur.current.dirty && cur.current.recoverable) { schedule(); await W().flush(); } },
+    flushDraft: async () => {
+      if (cur.current.dirty && cur.current.recoverable) {
+        schedule(); const drafts = W(); await drafts.flush();
+        if (drafts.lastError) throw new Error(drafts.lastError);
+      }
+    },
     recoverable: () => cur.current.recoverable,
     draftKey: () => (cur.current.path ? "" : U()),
   }), [o.winId, o.kind, schedule, U, W]);

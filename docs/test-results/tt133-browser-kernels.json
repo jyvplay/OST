@@ -1,0 +1,55 @@
+{
+  "suite": "tt133-browser-kernels",
+  "at": "2026-11-02T00:48:29.717Z",
+  "results": [
+    {
+      "suite": "tt133-browser-kernels",
+      "name": "Native RAF coalesces 100 actual VT writes into one publication and keeps the cached snapshot stable before the frame",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-browser-kernels",
+      "name": "Copied cursor, mode, line/run and style snapshots cannot be rewritten by later ANSI/Unicode or parser-mode changes",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-browser-kernels",
+      "name": "Real CSI 3J history shrink while scrolled up clamps the viewport instead of dereferencing a removed row",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-browser-kernels",
+      "name": "Synchronous resize/reset cancels a queued native frame; dispose cancels pending publication and unsubscribes bells",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-browser-kernels",
+      "name": "Real localStorage purge removes canonical and malformed legacy Private aliases, keeps public neighbours and never creates an empty key",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-browser-kernels",
+      "name": "Corrupt native history JSON cannot retain a Private query after purge",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-browser-kernels",
+      "name": "No uncaught browser errors in native kernel ownership/scheduler/storage attacks",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

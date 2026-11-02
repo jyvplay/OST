@@ -29,10 +29,16 @@ if [ ! -f node_modules/pdfjs-dist/legacy/build/pdf.mjs ] || [ ! -d node_modules/
   npm install --no-audit --no-fund 'pdfjs-dist@5.4.624' '@napi-rs/canvas@0.1.80' >/dev/null
 fi
 if [ ! -x venv/bin/python ]; then python3 -m venv venv; fi
+# Keep the raster-only AGPL test oracle independent and bounded: 2.x adds
+# layout/LLM/ONNX dependencies unused by our pixel/geometry checks. No oracle
+# package ships in the PWA. Check metadata without importing a wrong version.
+venv/bin/python -c "from importlib.metadata import version; assert version('pymupdf') == '1.28.0'" 2>/dev/null || \
+  venv/bin/pip install -q 'pymupdf==1.28.0'
+venv/bin/python -c "import pyhanko.sign.validation" 2>/dev/null || venv/bin/pip install -q 'pyhanko==0.35.1'
 venv/bin/python -c "import argon2, cryptography, docx, formulas, numpy, openpyxl, pptx, psd_tools, shapely, svgelements, pocketsphinx, readability, openlocationcode, pproxy, websockets, geographiclib, gpxpy, pypac, asyncssh, bcrypt, paramiko, msoffcrypto, olefile, lxml, pypdf, pypdfium2, pikepdf, pymupdf, piexif, av, mutagen" 2>/dev/null || \
   venv/bin/pip install -q argon2-cffi cryptography python-docx formulas numpy pandas openpyxl python-pptx psd-tools shapely svgelements pypdf==6.21.0 vobject==0.9.9 pocketsphinx==5.1.1 \
     readability-lxml openlocationcode pproxy==2.7.9 websockets==13.1 geographiclib gpxpy pypac==0.19.0 asyncssh bcrypt paramiko \
-    msoffcrypto-tool==6.0.0 olefile lxml pypdfium2==5.14.0 pikepdf==10.17.0 pymupdf piexif av mutagen
+    msoffcrypto-tool==6.0.0 olefile lxml pypdfium2==5.14.0 pikepdf==10.17.0 pymupdf==1.28.0 pyhanko==0.35.1 piexif av mutagen
 # TT52 test-only PDF oracles: pypdfium2 (BSD-3/Apache-2.0 bindings to PDFium, Chrome's PDF engine — structure, text and
 # render references) and pikepdf (MPL-2.0 bindings to qpdf, Apache-2.0 — structural validity checks of the files our editor
 # writes). msoffcrypto-tool/olefile/lxml (TT46–TT51 office oracles) were installed by hand until TT52. None ships in Fusion.

@@ -1,0 +1,1327 @@
+{
+  "scope": "Affected sequential reruns on repaired production UI plus new native attacks, NOT a second expanded full gate; root application TypeScript and targeted MTS semantic check passed before these runs.",
+  "wallSeconds": 555.4269495980006,
+  "cpuSeconds": 489.26813400000003,
+  "largestChildPeakRSSKiB": 654040,
+  "memoryBoundary": "largest child peak, not simultaneous aggregate process-tree peak",
+  "rows": [
+    {
+      "suite": "tt134-review-repairs",
+      "exitCode": 0,
+      "wallSeconds": 27.897840602000542,
+      "log": "docs/evidence/tt134-repaired-tt134-review-repairs.log",
+      "logSHA256": "ce1fb9214b1d8d4a3276ea33a75e6556ae7c8b6752ed357a76159c76e89f869f",
+      "result": {
+        "suite": "tt134-review-repairs",
+        "at": "2026-11-02T01:23:47.886Z",
+        "results": [
+          {
+            "suite": "tt134-review-repairs",
+            "name": "wide Browser: actual GitHub framing denial is not confused with network uncertainty",
+            "covers": {},
+            "pass": true,
+            "ms": 5185
+          },
+          {
+            "suite": "tt134-review-repairs",
+            "name": "wide Browser: actual DNS failure is not confused with a measured framing policy",
+            "covers": {},
+            "pass": true,
+            "ms": 2507
+          },
+          {
+            "suite": "tt134-review-repairs",
+            "name": "wide Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result",
+            "covers": {},
+            "pass": true,
+            "ms": 5106
+          },
+          {
+            "suite": "tt134-review-repairs",
+            "name": "wide Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation",
+            "covers": {},
+            "pass": true,
+            "ms": 3108
+          },
+          {
+            "suite": "tt134-review-repairs",
+            "name": "compact Browser: actual GitHub framing denial is not confused with network uncertainty",
+            "covers": {},
+            "pass": true,
+            "ms": 2084
+          },
+          {
+            "suite": "tt134-review-repairs",
+            "name": "compact Browser: actual DNS failure is not confused with a measured framing policy",
+            "covers": {},
+            "pass": true,
+            "ms": 2069
+          },
+          {
+            "suite": "tt134-review-repairs",
+            "name": "compact Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result",
+            "covers": {},
+            "pass": true,
+            "ms": 3828
+          },
+          {
+            "suite": "tt134-review-repairs",
+            "name": "compact Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation",
+            "covers": {},
+            "pass": true,
+            "ms": 2483
+          }
+        ]
+      }
+    },
+    {
+      "suite": "e2e-tt117",
+      "exitCode": 0,
+      "wallSeconds": 13.911691587999485,
+      "log": "docs/evidence/tt134-repaired-e2e-tt117.log",
+      "logSHA256": "1b7b3c0922ada94bc9f64791dc00b04d2f5b68eed25e1aea858cdbc97442d0ab",
+      "result": {
+        "suite": "e2e-tt117",
+        "at": "2026-11-02T01:24:01.797Z",
+        "results": [
+          {
+            "suite": "e2e-tt117",
+            "name": "CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
+            "covers": {
+              "CK-01": "partial",
+              "CK-03": "full"
+            },
+            "pass": true,
+            "ms": 2450
+          },
+          {
+            "suite": "e2e-tt117",
+            "name": "NT-01 in Notes: statistics follow the text being edited",
+            "covers": {
+              "NT-01": "full"
+            },
+            "pass": true,
+            "ms": 3358
+          },
+          {
+            "suite": "e2e-tt117",
+            "name": "CB-01/RT-01/FN-01/BR-01 controls exist with their full names",
+            "covers": {
+              "CB-01": "full",
+              "RT-01": "full",
+              "FN-01": "full",
+              "BR-01": "full"
+            },
+            "pass": true,
+            "ms": 3480
+          },
+          {
+            "suite": "e2e-tt117",
+            "name": "SP-01 in Spec: the register health panel renders a verdict",
+            "covers": {
+              "SP-01": "full"
+            },
+            "pass": true,
+            "ms": 2378
+          },
+          {
+            "suite": "e2e-tt117",
+            "name": "RC-40 in Recall: manifest controls answer to their names",
+            "covers": {
+              "RC-40": "full",
+              "RC-41": "partial",
+              "RC-42": "partial"
+            },
+            "pass": true,
+            "ms": 1212
+          }
+        ]
+      }
+    },
+    {
+      "suite": "e2e-tt122",
+      "exitCode": 1,
+      "wallSeconds": 11.46955386100035,
+      "log": "docs/evidence/tt134-repaired-e2e-tt122.log",
+      "logSHA256": "0a6ec80587dba23506063f66c44311635c5ea9bd380e32bedd3be0a363fcd649",
+      "result": {
+        "suite": "e2e-tt122",
+        "at": "2026-11-02T01:24:13.269Z",
+        "results": [
+          {
+            "suite": "e2e-tt122",
+            "name": "PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style",
+            "covers": {
+              "PK-01": "full",
+              "ED-06": "full"
+            },
+            "pass": true,
+            "ms": 2932
+          },
+          {
+            "suite": "e2e-tt122",
+            "name": "NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears",
+            "covers": {
+              "NT-06": "full",
+              "MD-11": "full",
+              "CK-06": "full"
+            },
+            "pass": false,
+            "error": "saved title retained in real bundle",
+            "ms": 2518
+          },
+          {
+            "suite": "e2e-tt122",
+            "name": "DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+            "covers": {
+              "DV-01": "full",
+              "CP-01": "full",
+              "BK-10": "full",
+              "SP-02": "full"
+            },
+            "pass": true,
+            "ms": 5169
+          }
+        ]
+      }
+    },
+    {
+      "suite": "tt124-density",
+      "exitCode": 0,
+      "wallSeconds": 43.251040934999764,
+      "log": "docs/evidence/tt134-repaired-tt124-density.log",
+      "logSHA256": "a1b93db2c2e7cf4e1140209929f447c8982a6db166e2dc2927abd88c5ae49862",
+      "result": {
+        "suite": "tt124-density",
+        "at": "2026-11-02T01:24:56.517Z",
+        "results": [
+          {
+            "suite": "tt124-density",
+            "name": "density editor: words<=210",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 964
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density clock: words<=340",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1857
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density pdf: words<=400",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1478
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density peek: words<=260",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 8752
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density lens: words<=320",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 592
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density monitor: words<=520",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 611
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density writer: words<=900",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1101
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density imageedit: words<=320",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1206
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density media: words<=340",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1234
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density contacts: words<=240",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 586
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density messages: words<=400",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 733
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density photos: words<=240",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1135
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density vector: words<=340",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 995
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density capture: words<=320",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 535
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density together: words<=340",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 632
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density routines: words<=300",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 904
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density spec: words<=12400",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 742
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density beam: words<=320",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 557
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density ssh: words<=320",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1142
+          },
+          {
+            "suite": "tt124-density",
+            "name": "density storage: words<=480",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 565
+          },
+          {
+            "suite": "tt124-density",
+            "name": "TT124 register: all twenty codes built, register grew past TT123's 567",
+            "covers": {
+              "ED-08": "full",
+              "SSH-02": "full"
+            },
+            "pass": true,
+            "ms": 16
+          },
+          {
+            "suite": "tt124-density",
+            "name": "AX-26: indent and compare glyphs render on their buttons",
+            "covers": {
+              "AX-26": "full"
+            },
+            "pass": true,
+            "ms": 2734
+          },
+          {
+            "suite": "tt124-density",
+            "name": "screenshots: writer goal dialog + spec family progress",
+            "covers": {
+              "WR-01": "mechanism",
+              "SP-03": "mechanism"
+            },
+            "pass": true,
+            "ms": 13524
+          }
+        ]
+      }
+    },
+    {
+      "suite": "tt123-density",
+      "exitCode": 0,
+      "wallSeconds": 34.9751749549996,
+      "log": "docs/evidence/tt134-repaired-tt123-density.log",
+      "logSHA256": "145e269d1de034aa19d4711f2cc06b2679bcecefdc1ea2ccf56154809fcf3653",
+      "result": {
+        "suite": "tt123-density",
+        "at": "2026-11-02T01:25:31.487Z",
+        "results": [
+          {
+            "suite": "tt123-density",
+            "name": "density whiteboard: words<=260",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1297
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density vector: words<=320",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 2184
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density beam: words<=300",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1410
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density privacy: words<=420",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 816
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density ssh: words<=300",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1111
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density clock: words<=320",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 954
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density editor: words<=200",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1135
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density notes: words<=120",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 850
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density backup: words<=470",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 644
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density terminal: words<=260",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 709
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density calculator: words<=260",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1090
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density messages: words<=380",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 778
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density photos: words<=220",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 1223
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density planner: words<=260",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 782
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density find: words<=320",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 682
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density devices: words<=300",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 786
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density slides: words<=380",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 754
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density contacts: words<=220",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 602
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density files: words<=320",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 955
+          },
+          {
+            "suite": "tt123-density",
+            "name": "density streams: words<=380",
+            "covers": {
+              "AX-24": "mechanism"
+            },
+            "pass": true,
+            "ms": 9534
+          },
+          {
+            "suite": "tt123-density",
+            "name": "TT123 register: all twenty codes built, register grew past TT122's 547",
+            "covers": {
+              "WB-07": "full",
+              "FM-19": "full"
+            },
+            "pass": true,
+            "ms": 22
+          },
+          {
+            "suite": "tt123-density",
+            "name": "AX-25: shuffle and wrap glyphs render beside their labels",
+            "covers": {
+              "AX-25": "full"
+            },
+            "pass": true,
+            "ms": 1723
+          },
+          {
+            "suite": "tt123-density",
+            "name": "screenshots: devices + spec",
+            "covers": {
+              "DV-02": "full",
+              "AX-25": "mechanism"
+            },
+            "pass": true,
+            "ms": 4160
+          }
+        ]
+      }
+    },
+    {
+      "suite": "e2e-a11y",
+      "exitCode": 0,
+      "wallSeconds": 256.9462659340006,
+      "log": "docs/evidence/tt134-repaired-e2e-a11y.log",
+      "logSHA256": "0b8e441633c61571d644247216abe22e10ad2ea790231fc4da052d067593c8cb",
+      "result": {
+        "suite": "e2e-a11y",
+        "at": "2026-11-02T01:29:48.443Z",
+        "results": [
+          {
+            "suite": "e2e-a11y",
+            "name": "axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
+            "covers": {
+              "AX-08": "full",
+              "AX-01": "partial"
+            },
+            "pass": true,
+            "ms": 109223
+          },
+          {
+            "suite": "e2e-a11y",
+            "name": "computed sizes: at the 125 % default nothing visible is below 12 px and body text is \u226516 px; in Large text mode (200 %) nothing is below 20 px",
+            "covers": {
+              "AX-09": "full"
+            },
+            "pass": true,
+            "ms": 22261
+          },
+          {
+            "suite": "e2e-a11y",
+            "name": "icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type",
+            "covers": {
+              "AX-10": "full"
+            },
+            "pass": true,
+            "ms": 4183
+          },
+          {
+            "suite": "e2e-a11y",
+            "name": "reflow: at 300 % text on 1280\u00d7800 and at 200 % on a 360\u00d7640 phone the page never scrolls sideways and windows fit",
+            "covers": {
+              "AX-09": "partial"
+            },
+            "pass": true,
+            "ms": 3755
+          },
+          {
+            "suite": "e2e-a11y",
+            "name": "text size is live: Quick panel A+ / A\u2212 and the Settings radio buttons change computed sizes, persist, and bad values are refused",
+            "covers": {
+              "AX-09": "full"
+            },
+            "pass": true,
+            "ms": 12402
+          },
+          {
+            "suite": "e2e-a11y",
+            "name": "spreadsheet grid geometry scales with the text (row height = 22 \u00d7 scale) and a header drag still moves the edge 1:1 on screen",
+            "covers": {
+              "AX-09": "partial",
+              "FF-28": "partial"
+            },
+            "pass": true,
+            "ms": 2656
+          },
+          {
+            "suite": "e2e-a11y",
+            "name": "forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)",
+            "covers": {
+              "AX-03": "full"
+            },
+            "pass": true,
+            "ms": 2739
+          },
+          {
+            "suite": "e2e-a11y",
+            "name": "style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
+            "covers": {
+              "AX-11": "full"
+            },
+            "pass": true,
+            "ms": 9572
+          },
+          {
+            "suite": "e2e-a11y",
+            "name": "light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
+            "covers": {
+              "AX-11": "partial",
+              "AX-08": "partial",
+              "AX-12": "full",
+              "LY-04": "partial"
+            },
+            "pass": true,
+            "ms": 89186
+          }
+        ]
+      }
+    },
+    {
+      "suite": "tt122-density",
+      "exitCode": 0,
+      "wallSeconds": 67.05924851999953,
+      "log": "docs/evidence/tt134-repaired-tt122-density.log",
+      "logSHA256": "e93f9fa7209c7bf8f3c9c032e9200a1b2bfe1552106b8a85379557e76d2d015e",
+      "result": {
+        "suite": "tt122-density",
+        "at": "2026-11-02T01:30:55.502Z",
+        "results": [
+          {
+            "suite": "tt122-density",
+            "name": "AX-24: every app measured, none wordier than the ceiling, no emoji marks",
+            "covers": {
+              "AX-24": "full"
+            },
+            "pass": true,
+            "ms": 1
+          }
+        ]
+      }
+    },
+    {
+      "suite": "tt117-density",
+      "exitCode": 0,
+      "wallSeconds": 4.83939469500001,
+      "log": "docs/evidence/tt134-repaired-tt117-density.log",
+      "logSHA256": "4a3d88c6478fabb9c145951f14028f7617070bc3c8b8bc1823cb3fb85afd2206",
+      "result": {
+        "suite": "tt117-density",
+        "at": "2026-11-02T01:31:00.345Z",
+        "results": [
+          {
+            "suite": "tt117-density",
+            "name": "AX-19: Recall under 160 words, Browser under 90, both drawn not emoji",
+            "covers": {
+              "AX-19": "full",
+              "AX-18": "partial"
+            },
+            "pass": true,
+            "ms": 3532
+          }
+        ]
+      }
+    },
+    {
+      "suite": "e2e-tt133-notes-find",
+      "exitCode": 0,
+      "wallSeconds": 66.65937935300008,
+      "log": "docs/evidence/tt134-repaired-e2e-tt133-notes-find.log",
+      "logSHA256": "ea7c4ad76b6e49ec57cb63e9afdec619de8e3f1de2106a01a095058e2d7ac408",
+      "result": {
+        "suite": "e2e-tt133-notes-find",
+        "at": "2026-11-02T01:32:07.004Z",
+        "results": [
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-08: changing notes asks; Cancel preserves all edits, Save commits before navigation and no delayed draft resurrects",
+            "covers": {
+              "NT-08": "full"
+            },
+            "pass": true,
+            "ms": 4789
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-08: New and window Close cannot silently destroy dirty Notes; cancel both native UI actions",
+            "covers": {
+              "NT-08": "full"
+            },
+            "pass": true,
+            "ms": 2499
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-09: a real sessionStorage draft survives reload, restores exact text with its old revision, and Save clears it",
+            "covers": {
+              "NT-09": "full"
+            },
+            "pass": true,
+            "ms": 3487
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-10: another real HTTP writer wins; stale UI save is refused, editor text remains, and confirmed Reload obtains the winner",
+            "covers": {
+              "NT-10": "full"
+            },
+            "pass": true,
+            "ms": 3182
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-09 patch attack: temporarily blank titles are recoverable editing states, and Discard draft does not write the note",
+            "covers": {
+              "NT-09": "full"
+            },
+            "pass": true,
+            "ms": 3668
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-11: local full-text filtering composes with stored-tag filtering, preserves selection, and has a real empty state",
+            "covers": {
+              "NT-11": "full"
+            },
+            "pass": true,
+            "ms": 1985
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-12: preview renders a safe Markdown subset without executing raw HTML, loading remote images, or enabling javascript links",
+            "covers": {
+              "NT-12": "full"
+            },
+            "pass": true,
+            "ms": 2026
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-13: native file input imports fatal UTF-8 Markdown into a persisted indexed note; invalid UTF-8 cannot add a note",
+            "covers": {
+              "NT-13": "full"
+            },
+            "pass": true,
+            "ms": 1482
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-14: real wiki navigation and reverse backlinks open the correct notes; absent and ambiguous destinations cannot choose an arbitrary record",
+            "covers": {
+              "NT-14": "full"
+            },
+            "pass": true,
+            "ms": 3323
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-14 saved-identity attack: an unsaved rename keeps the real backlink, and borrowing another saved title cannot impersonate its destination",
+            "covers": {
+              "NT-14": "partial"
+            },
+            "pass": true,
+            "ms": 2445
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-15: outline is clickable, fence-aware and shares exact preview line IDs, including indented headings far below the fold",
+            "covers": {
+              "NT-15": "full"
+            },
+            "pass": true,
+            "ms": 2230
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-16: native textarea selection creates an exact independent note, leaves its source unchanged, and an empty selection cannot extract",
+            "covers": {
+              "NT-16": "full"
+            },
+            "pass": true,
+            "ms": 2946
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-17: interactive checklist checks and unchecks the right source marker; saving/reopening preserves other lines exactly",
+            "covers": {
+              "NT-17": "full"
+            },
+            "pass": true,
+            "ms": 3129
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "NT-18: an actual browser download is self-contained UTF-8 Markdown, includes unsaved text and cannot write a VFS file",
+            "covers": {
+              "NT-18": "full"
+            },
+            "pass": true,
+            "ms": 1858
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SR-13: the actual source control changes the native request and excludes other kinds, including an empty wrong source",
+            "covers": {
+              "SR-13": "full"
+            },
+            "pass": true,
+            "ms": 1314
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SR-14: title and reference orders rearrange only the returned result set deterministically",
+            "covers": {
+              "SR-14": "full"
+            },
+            "pass": true,
+            "ms": 1821
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SR-15: literal matching keeps internal whitespace and SQL wildcard characters literal, without ranked/fuzzy matches",
+            "covers": {
+              "SR-15": "full"
+            },
+            "pass": true,
+            "ms": 1391
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SR-16: file suffix control is case-insensitive and literal, and a non-file source disables/clears it",
+            "covers": {
+              "SR-16": "full"
+            },
+            "pass": true,
+            "ms": 1239
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SR-17: native confirmation cancels without a rebuild, then a real confirmed rebuild preserves source bytes",
+            "covers": {
+              "SR-17": "full"
+            },
+            "pass": true,
+            "ms": 1789
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SR-18: path diagnosis shows an indexed real file, a nonexistent file, and invalid path refusal without hiding a previous diagnosis",
+            "covers": {
+              "SR-18": "full"
+            },
+            "pass": true,
+            "ms": 2497
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SR-19: Enter records complete history, Cancel keeps it, Clear deletes it and reload cannot resurrect it",
+            "covers": {
+              "SR-19": "full"
+            },
+            "pass": true,
+            "ms": 2755
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SR-19 patch attack: clearing history while a genuine PostgreSQL table lock holds a search cannot be undone by the late response",
+            "covers": {
+              "SR-19": "full"
+            },
+            "pass": true,
+            "ms": 1482
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SV-02: saved profiles replay every control instead of inheriting current phrase/field/source/filter state",
+            "covers": {
+              "SV-02": "full"
+            },
+            "pass": true,
+            "ms": 3549
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "SV-03: native JSON download \u2192 delete \u2192 file import restores complete profiles; cancelled and invalid imports leave the list untouched",
+            "covers": {
+              "SV-03": "full"
+            },
+            "pass": true,
+            "ms": 2633
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "Regex repair: native Worker times out hostile backtracking while the UI continues painting, then a corrected filter recovers",
+            "covers": {
+              "SR-10": "full"
+            },
+            "pass": true,
+            "ms": 3360
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "Regex patch attack: three genuine metadata pages accumulate 65 matches; all pass the worker's 50-text messages under one total budget",
+            "covers": {
+              "SR-10": "full",
+              "SR-12": "partial"
+            },
+            "pass": true,
+            "ms": 1734
+          },
+          {
+            "suite": "e2e-tt133-notes-find",
+            "name": "No uncaught browser errors across Notes/Find native interaction cases",
+            "covers": {},
+            "pass": true,
+            "ms": 0
+          }
+        ]
+      }
+    },
+    {
+      "suite": "e2e-tt134-ownership",
+      "exitCode": 0,
+      "wallSeconds": 27.928003731999524,
+      "log": "docs/evidence/tt134-repaired-e2e-tt134-ownership.log",
+      "logSHA256": "cb39bcf7ec48f26afaad41f6ec2898e3192521f4cd30ea9b00a3f35afe77a7c2",
+      "result": {
+        "suite": "e2e-tt134-ownership",
+        "at": "2026-11-02T01:32:34.935Z",
+        "results": [
+          {
+            "suite": "e2e-tt134-ownership",
+            "name": "Notes Orbit clean-load attack: Pin, Duplicate and Delete work without a prior editor Save, and do not adopt unrelated revisions",
+            "covers": {
+              "NT-08": "partial",
+              "NT-10": "partial"
+            },
+            "pass": true,
+            "ms": 3750
+          },
+          {
+            "suite": "e2e-tt134-ownership",
+            "name": "Notes Orbit Save\u2192Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits",
+            "covers": {
+              "NT-08": "partial",
+              "NT-10": "partial"
+            },
+            "pass": true,
+            "ms": 3827
+          },
+          {
+            "suite": "e2e-tt134-ownership",
+            "name": "Notes Orbit Save\u2192Duplicate copies the newly saved body and a 500-code-unit Unicode title without splitting its last surrogate pair",
+            "covers": {
+              "NT-08": "partial",
+              "NT-13": "partial"
+            },
+            "pass": true,
+            "ms": 2168
+          },
+          {
+            "suite": "e2e-tt134-ownership",
+            "name": "Notes Orbit Save\u2192Delete: Cancel keeps the just-saved record, a genuine writer during confirmation is not adopted as delete consent, and a later confirmed delete succeeds",
+            "covers": {
+              "NT-08": "partial",
+              "NT-10": "partial"
+            },
+            "pass": true,
+            "ms": 7052
+          },
+          {
+            "suite": "e2e-tt134-ownership",
+            "name": "Native Writer: a real blocked recovery write exceeds the four-second close timeout; Cancel/edit/unlock cannot late-close the window or lose the newer recovery bytes",
+            "covers": {
+              "FF-15": "partial"
+            },
+            "pass": true,
+            "ms": 10340
+          },
+          {
+            "suite": "e2e-tt134-ownership",
+            "name": "No uncaught browser exceptions during native note/Writer ownership checks",
+            "covers": {},
+            "pass": true,
+            "ms": 1
+          }
+        ]
+      }
+    },
+    {
+      "suite": "tt133-core",
+      "exitCode": 0,
+      "wallSeconds": 0.47780557199985196,
+      "log": "docs/evidence/tt134-repaired-tt133-core.log",
+      "logSHA256": "4e2c6d66755639dfa61d7d6df175fb122da7b219fa4fd3075416bd8d6baf773a",
+      "result": {
+        "suite": "tt133-core",
+        "at": "2026-11-02T01:32:35.415Z",
+        "results": [
+          {
+            "suite": "tt133-core",
+            "name": "Notes validator rejects wrong fields, blank/control titles, malformed Unicode, oversized bodies and nonintegral IDs",
+            "covers": {
+              "NT-10": "partial"
+            },
+            "pass": true,
+            "ms": 1
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Revision comparison rejects stale saves including equal-content ABA histories",
+            "covers": {
+              "NT-10": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Per-window recovery keys are injective; strict codecs preserve content and reject stale/future/malformed records",
+            "covers": {
+              "NT-09": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Amnesic draft path uses actual page-RAM storage operations and the same decoder, never an injected persistent store",
+            "covers": {
+              "NT-09": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Note filter is NFKC/case-normalized, ANDs terms across title/body/tags, and preserves original order/data",
+            "covers": {
+              "NT-11": "full"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Markdown import: fatal UTF-8, byte cap and NUL rejection; exact CRLF body and first heading title",
+            "covers": {
+              "NT-13": "partial"
+            },
+            "pass": true,
+            "ms": 1
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Markdown blocks: headings, fenced code, quotes, list items and task lines, with explicit line budget",
+            "covers": {
+              "NT-12": "partial",
+              "NT-15": "partial"
+            },
+            "pass": true,
+            "ms": 7
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Inline view uses text-only tokens; executable/relative/data URLs are not links and unmatched delimiters are linear-bounded",
+            "covers": {
+              "NT-12": "partial"
+            },
+            "pass": true,
+            "ms": 7
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Checklist edits change exactly one marker, preserve CRLF and unrelated text, and refuse stale line numbers",
+            "covers": {
+              "NT-17": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Excerpt extraction is an exact UTF-16 selection, never modifies its source, and refuses empty/out-of-range selections",
+            "covers": {
+              "NT-16": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Search inputs reject malformed source/mode/strategies/scopes, normalize only documented folder/suffix forms",
+            "covers": {
+              "SR-13": "partial",
+              "SR-16": "partial"
+            },
+            "pass": true,
+            "ms": 1
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Result order is deterministic, copies rather than mutates, and uses source/reference tie-breaks",
+            "covers": {
+              "SR-14": "full"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Private/RAM literal search preserves whitespace and punctuation; extension filters apply before limit",
+            "covers": {
+              "SR-15": "partial",
+              "SR-16": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Missing-path validator does not normalize traversal, trailing separators or private-name aliases",
+            "covers": {
+              "SR-18": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Saved searches retain phrase, field, source, strategy, suffix, order and client filter controls; old v1 defaults migrate",
+            "covers": {
+              "SV-02": "full"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Portable profiles round-trip canonically; malformed, future, oversized and duplicate records are refused atomically",
+            "covers": {
+              "SV-03": "partial"
+            },
+            "pass": true,
+            "ms": 1
+          },
+          {
+            "suite": "tt133-core",
+            "name": "History distinguishes complete inputs, validates neighbours independently, and caps deterministic recency",
+            "covers": {
+              "SV-02": "partial",
+              "SR-19": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Index prefix agrees with code-point slicing and cannot emit a split surrogate at the 50,000 boundary",
+            "covers": {
+              "SR-17": "partial",
+              "NT-10": "partial"
+            },
+            "pass": true,
+            "ms": 13
+          },
+          {
+            "suite": "tt133-core",
+            "name": "RAM recovery capacity is a real 64-entry bound: refusal cannot evict any live draft and removal releases exactly one slot",
+            "covers": {
+              "NT-09": "partial"
+            },
+            "pass": true,
+            "ms": 1
+          },
+          {
+            "suite": "tt133-core",
+            "name": "RAM byte quota counts actual JSON-escaped UTF-16, not source characters: overflow retains all previously stored large drafts",
+            "covers": {
+              "NT-09": "partial"
+            },
+            "pass": true,
+            "ms": 200
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Wiki-link graph refuses duplicate saved titles in both directions; backlinks reverse only actual unambiguous navigation edges",
+            "covers": {
+              "NT-14": "partial",
+              "NT-02": "partial"
+            },
+            "pass": true,
+            "ms": 1
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Backlinks use saved destination identity, not unsaved title impersonation",
+            "covers": {
+              "NT-14": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          },
+          {
+            "suite": "tt133-core",
+            "name": "Generated note titles never split a valid surrogate pair at the import/duplicate cap",
+            "covers": {
+              "NT-13": "partial"
+            },
+            "pass": true,
+            "ms": 0
+          }
+        ]
+      }
+    }
+  ]
+}

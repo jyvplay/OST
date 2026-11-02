@@ -1,0 +1,34 @@
+{
+  "scope": "Five actual final-build graphic/layout checks; not new feature registrations or universal visual acceptance",
+  "sourceSha256": "7b1184f6b708d538037f6b5ec268d6376f9b1b5a2fce92dfdd178cdb7306fc64",
+  "records": [
+    {
+      "app": "notes",
+      "mode": "wide",
+      "path": "docs/screens/tt134-polish/notes-wide.png",
+      "width": 20,
+      "height": 20
+    },
+    {
+      "app": "find",
+      "mode": "wide",
+      "path": "docs/screens/tt134-polish/find-wide.png",
+      "width": 20,
+      "height": 20
+    },
+    {
+      "app": "notes",
+      "mode": "compact",
+      "path": "docs/screens/tt134-polish/notes-compact.png",
+      "width": 20,
+      "height": 20
+    },
+    {
+      "app": "find",
+      "mode": "compact",
+      "path": "docs/screens/tt134-polish/find-compact.png",
+      "width": 20,
+      "height": 20
+    }
+  ]
+}

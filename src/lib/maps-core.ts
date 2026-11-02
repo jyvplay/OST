@@ -166,19 +166,25 @@ export function mainBbox(g: Geom | null | undefined): [LatLng, LatLng] | null {
   }
   return best;
 }
+/** The same ranking serves immutable display names and full geographic data.
+ * Rendering search choices need not retain Leaflet layers or geometry. */
+function rankedNames<T>(items: readonly T[], nameOf: (item: T) => string, q: string, limit: number): T[] {
+  const fold = (t: string) => t.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  const n = fold(q.trim()); if (!n) return [];
+  const scored: [number, T][] = [];
+  for (const item of items) {
+    const name = fold(nameOf(item)); if (!name) continue;
+    const score = name === n ? 0 : name.startsWith(n) ? 1 : name.includes(n) ? 2 : -1;
+    if (score >= 0) scored.push([score, item]);
+  }
+  return scored.sort((a, b) => a[0] - b[0] || nameOf(a[1]).localeCompare(nameOf(b[1]))).slice(0, limit).map(x => x[1]);
+}
 /** Case- and accent-insensitive name search; exact > prefix > substring. */
 export function searchFeatures(features: Feature[], q: string, limit = 8): Feature[] {
-  const fold = (t: string) => t.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
-  const n = fold(q.trim());
-  if (!n) return [];
-  const scored: [number, Feature][] = [];
-  for (const f of features) {
-    const name = fold(String(f.properties?.name ?? ""));
-    if (!name) continue;
-    const sc = name === n ? 0 : name.startsWith(n) ? 1 : name.includes(n) ? 2 : -1;
-    if (sc >= 0) scored.push([sc, f]);
-  }
-  return scored.sort((a, b) => a[0] - b[0] || String(a[1].properties?.name).localeCompare(String(b[1].properties?.name))).slice(0, limit).map((x) => x[1]);
+  return rankedNames(features, f => String(f.properties?.name ?? ""), q, limit);
+}
+export function searchNames(names: readonly string[], q: string, limit = 8): string[] {
+  return rankedNames(names, name => name, q, limit);
 }
 
 /* ------------------------------------------------------------------ places */

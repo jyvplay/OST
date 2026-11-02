@@ -1,0 +1,14 @@
+  ✓ CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator
+  ✗ NT-01 in Notes: statistics follow the text being edited
+    The input did not match the regular expression /Heading/. Input:
+
+'9 words · 96 chars · 2 sentences · 1 min read\n' +
+  '1 code blocks (excluded from words)\n' +
+  'Draft: this tab'
+
+  ✓ CB-01/RT-01/FN-01/BR-01 controls exist with their full names
+  ✓ SP-01 in Spec: the register health panel renders a verdict
+  ✓ RC-40 in Recall: manifest controls answer to their names
+
+4 passed, 1 failed
+FAILED: NT-01 in Notes: statistics follow the text being edited

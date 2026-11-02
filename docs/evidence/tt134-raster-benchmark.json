@@ -1,0 +1,869 @@
+{
+  "scope": "Two native independent raster engines, eight fixed signed PDFs, all RGB pixels, exact output equality; not universal performance",
+  "logicalCpus": 2,
+  "availableCpus": 2,
+  "trials": 3,
+  "allOutputsEqual": true,
+  "summary": {
+    "reference": {
+      "wallSeconds": 4.917782146999798,
+      "cpuSeconds": 4.883776999999999,
+      "peakRssKiB": 78464
+    },
+    "candidate": {
+      "wallSeconds": 0.18938126099965302,
+      "cpuSeconds": 0.15950799999999998,
+      "peakRssKiB": 77660
+    },
+    "wallSpeedup": 25.96762805908663,
+    "cpuSpeedup": 30.617755849236403
+  },
+  "records": [
+    {
+      "method": "reference",
+      "pid": 14543,
+      "mupdfPackage": "1.28.0",
+      "mupdfEngine": "1.29.0",
+      "cpuSeconds": 5.058659,
+      "peakRssKiB": 78464,
+      "rows": [
+        {
+          "name": "sig0.pdf",
+          "inputSha256": "afbd79f0cfd883291c5ddfb075f4b664ee6ce1af81d3df96515a1142ad42c76f",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig180.pdf",
+          "inputSha256": "fe47bc389f36ea8ba18c3d3c46bb608e367801a97188a9042cd44450d046f51e",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig270.pdf",
+          "inputSha256": "19998433399dda701848ffd16ac34534ae832573e91729dd32d8d15dfce2989b",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig90.pdf",
+          "inputSha256": "df7c730124219261da935224ca07d7fbc4100968ed0775920a118b7a5ac3eff1",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "user-unit-rot0.pdf",
+          "inputSha256": "47d3933221e0634ae40db7c655bb4ff44e08e244ba4dee2b60036a5f56b993f9",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot180.pdf",
+          "inputSha256": "e578d8439a002ef3c1c1349f4ce2fba7f5f8b8d2c3aadd292129ecaef6cfa1ee",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot270.pdf",
+          "inputSha256": "17c0a2a9413be0dc8a6dd92f25d59e9d31b6bf17f3f28088c49ccb2f8db5f235",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot90.pdf",
+          "inputSha256": "b4fe73c46234d10d9045368db10cc9d83e6d36c97dc8173f507b04e94c249e3b",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        }
+      ],
+      "coloredBoundaryCases": 18,
+      "trial": 0,
+      "wallSeconds": 5.094049438000184
+    },
+    {
+      "method": "candidate",
+      "pid": 14608,
+      "mupdfPackage": "1.28.0",
+      "mupdfEngine": "1.29.0",
+      "cpuSeconds": 0.17269299999999999,
+      "peakRssKiB": 77680,
+      "rows": [
+        {
+          "name": "sig0.pdf",
+          "inputSha256": "afbd79f0cfd883291c5ddfb075f4b664ee6ce1af81d3df96515a1142ad42c76f",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig180.pdf",
+          "inputSha256": "fe47bc389f36ea8ba18c3d3c46bb608e367801a97188a9042cd44450d046f51e",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig270.pdf",
+          "inputSha256": "19998433399dda701848ffd16ac34534ae832573e91729dd32d8d15dfce2989b",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig90.pdf",
+          "inputSha256": "df7c730124219261da935224ca07d7fbc4100968ed0775920a118b7a5ac3eff1",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "user-unit-rot0.pdf",
+          "inputSha256": "47d3933221e0634ae40db7c655bb4ff44e08e244ba4dee2b60036a5f56b993f9",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot180.pdf",
+          "inputSha256": "e578d8439a002ef3c1c1349f4ce2fba7f5f8b8d2c3aadd292129ecaef6cfa1ee",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot270.pdf",
+          "inputSha256": "17c0a2a9413be0dc8a6dd92f25d59e9d31b6bf17f3f28088c49ccb2f8db5f235",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot90.pdf",
+          "inputSha256": "b4fe73c46234d10d9045368db10cc9d83e6d36c97dc8173f507b04e94c249e3b",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        }
+      ],
+      "coloredBoundaryCases": 18,
+      "trial": 0,
+      "wallSeconds": 0.20441259900007935
+    },
+    {
+      "method": "candidate",
+      "pid": 14609,
+      "mupdfPackage": "1.28.0",
+      "mupdfEngine": "1.29.0",
+      "cpuSeconds": 0.15950799999999998,
+      "peakRssKiB": 77600,
+      "rows": [
+        {
+          "name": "sig0.pdf",
+          "inputSha256": "afbd79f0cfd883291c5ddfb075f4b664ee6ce1af81d3df96515a1142ad42c76f",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig180.pdf",
+          "inputSha256": "fe47bc389f36ea8ba18c3d3c46bb608e367801a97188a9042cd44450d046f51e",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig270.pdf",
+          "inputSha256": "19998433399dda701848ffd16ac34534ae832573e91729dd32d8d15dfce2989b",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig90.pdf",
+          "inputSha256": "df7c730124219261da935224ca07d7fbc4100968ed0775920a118b7a5ac3eff1",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "user-unit-rot0.pdf",
+          "inputSha256": "47d3933221e0634ae40db7c655bb4ff44e08e244ba4dee2b60036a5f56b993f9",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot180.pdf",
+          "inputSha256": "e578d8439a002ef3c1c1349f4ce2fba7f5f8b8d2c3aadd292129ecaef6cfa1ee",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot270.pdf",
+          "inputSha256": "17c0a2a9413be0dc8a6dd92f25d59e9d31b6bf17f3f28088c49ccb2f8db5f235",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot90.pdf",
+          "inputSha256": "b4fe73c46234d10d9045368db10cc9d83e6d36c97dc8173f507b04e94c249e3b",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        }
+      ],
+      "coloredBoundaryCases": 18,
+      "trial": 1,
+      "wallSeconds": 0.18938126099965302
+    },
+    {
+      "method": "reference",
+      "pid": 14617,
+      "mupdfPackage": "1.28.0",
+      "mupdfEngine": "1.29.0",
+      "cpuSeconds": 4.883776999999999,
+      "peakRssKiB": 78396,
+      "rows": [
+        {
+          "name": "sig0.pdf",
+          "inputSha256": "afbd79f0cfd883291c5ddfb075f4b664ee6ce1af81d3df96515a1142ad42c76f",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig180.pdf",
+          "inputSha256": "fe47bc389f36ea8ba18c3d3c46bb608e367801a97188a9042cd44450d046f51e",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig270.pdf",
+          "inputSha256": "19998433399dda701848ffd16ac34534ae832573e91729dd32d8d15dfce2989b",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig90.pdf",
+          "inputSha256": "df7c730124219261da935224ca07d7fbc4100968ed0775920a118b7a5ac3eff1",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "user-unit-rot0.pdf",
+          "inputSha256": "47d3933221e0634ae40db7c655bb4ff44e08e244ba4dee2b60036a5f56b993f9",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot180.pdf",
+          "inputSha256": "e578d8439a002ef3c1c1349f4ce2fba7f5f8b8d2c3aadd292129ecaef6cfa1ee",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot270.pdf",
+          "inputSha256": "17c0a2a9413be0dc8a6dd92f25d59e9d31b6bf17f3f28088c49ccb2f8db5f235",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot90.pdf",
+          "inputSha256": "b4fe73c46234d10d9045368db10cc9d83e6d36c97dc8173f507b04e94c249e3b",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        }
+      ],
+      "coloredBoundaryCases": 18,
+      "trial": 1,
+      "wallSeconds": 4.917782146999798
+    },
+    {
+      "method": "reference",
+      "pid": 14618,
+      "mupdfPackage": "1.28.0",
+      "mupdfEngine": "1.29.0",
+      "cpuSeconds": 4.606351,
+      "peakRssKiB": 78540,
+      "rows": [
+        {
+          "name": "sig0.pdf",
+          "inputSha256": "afbd79f0cfd883291c5ddfb075f4b664ee6ce1af81d3df96515a1142ad42c76f",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig180.pdf",
+          "inputSha256": "fe47bc389f36ea8ba18c3d3c46bb608e367801a97188a9042cd44450d046f51e",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig270.pdf",
+          "inputSha256": "19998433399dda701848ffd16ac34534ae832573e91729dd32d8d15dfce2989b",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig90.pdf",
+          "inputSha256": "df7c730124219261da935224ca07d7fbc4100968ed0775920a118b7a5ac3eff1",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "user-unit-rot0.pdf",
+          "inputSha256": "47d3933221e0634ae40db7c655bb4ff44e08e244ba4dee2b60036a5f56b993f9",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot180.pdf",
+          "inputSha256": "e578d8439a002ef3c1c1349f4ce2fba7f5f8b8d2c3aadd292129ecaef6cfa1ee",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot270.pdf",
+          "inputSha256": "17c0a2a9413be0dc8a6dd92f25d59e9d31b6bf17f3f28088c49ccb2f8db5f235",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot90.pdf",
+          "inputSha256": "b4fe73c46234d10d9045368db10cc9d83e6d36c97dc8173f507b04e94c249e3b",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        }
+      ],
+      "coloredBoundaryCases": 18,
+      "trial": 2,
+      "wallSeconds": 4.638432210000246
+    },
+    {
+      "method": "candidate",
+      "pid": 14620,
+      "mupdfPackage": "1.28.0",
+      "mupdfEngine": "1.29.0",
+      "cpuSeconds": 0.15032099999999998,
+      "peakRssKiB": 77660,
+      "rows": [
+        {
+          "name": "sig0.pdf",
+          "inputSha256": "afbd79f0cfd883291c5ddfb075f4b664ee6ce1af81d3df96515a1142ad42c76f",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig180.pdf",
+          "inputSha256": "fe47bc389f36ea8ba18c3d3c46bb608e367801a97188a9042cd44450d046f51e",
+          "engine": "PDFium",
+          "size": [
+            600,
+            800
+          ],
+          "rgbSha256": "bd72055d363a1427dab052b9567f473ef81586790430809dc339be07b96499a4",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig270.pdf",
+          "inputSha256": "19998433399dda701848ffd16ac34534ae832573e91729dd32d8d15dfce2989b",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "sig90.pdf",
+          "inputSha256": "df7c730124219261da935224ca07d7fbc4100968ed0775920a118b7a5ac3eff1",
+          "engine": "PDFium",
+          "size": [
+            800,
+            600
+          ],
+          "rgbSha256": "b175f68f7bc47913310213c8bb7c666aec807fcc6614206094685f00fc4417f3",
+          "inclusiveInk": [
+            77,
+            113,
+            296,
+            182
+          ]
+        },
+        {
+          "name": "user-unit-rot0.pdf",
+          "inputSha256": "47d3933221e0634ae40db7c655bb4ff44e08e244ba4dee2b60036a5f56b993f9",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot180.pdf",
+          "inputSha256": "e578d8439a002ef3c1c1349f4ce2fba7f5f8b8d2c3aadd292129ecaef6cfa1ee",
+          "engine": "MuPDF",
+          "size": [
+            750,
+            1000
+          ],
+          "rgbSha256": "6308d39bb3c8d8dde544642c807ee2968b43fc2d9f3263ca9b5d5bceaccb5554",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot270.pdf",
+          "inputSha256": "17c0a2a9413be0dc8a6dd92f25d59e9d31b6bf17f3f28088c49ccb2f8db5f235",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        },
+        {
+          "name": "user-unit-rot90.pdf",
+          "inputSha256": "b4fe73c46234d10d9045368db10cc9d83e6d36c97dc8173f507b04e94c249e3b",
+          "engine": "MuPDF",
+          "size": [
+            1000,
+            750
+          ],
+          "rgbSha256": "d1df494ed4058f10e540e7ac5949eb7e37bf55e258cf0755b2c132640ce08cff",
+          "inclusiveInk": [
+            50,
+            75,
+            349,
+            199
+          ]
+        }
+      ],
+      "coloredBoundaryCases": 18,
+      "trial": 2,
+      "wallSeconds": 0.17819096499988518
+    }
+  ]
+}

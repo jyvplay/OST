@@ -1,0 +1,39 @@
+
+> build
+> next build
+
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 26ms
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 error:
+./src/lib/privacy/session.ts:2:1
+Error: The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+  [90m1 |[0m [36mimport[0m { clearRamNoteDrafts } [36mfrom[0m [32m"../note-drafts"[0m;
+[31m[1m>[0m [90m2 |[0m [32m"use client"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^[0m
+  [90m3 |[0m /**
+  [90m4 |[0m  * [33mBrowser[0m privacy session ([33mTT18[0m): owns the single [33mPrivacyLayer[0m, installs it [36mas[0m a global fe...
+  [90m5 |[0m  * [33mBEFORE[0m any module runs, and manages the [33mTails[0m-like lifecycle:
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/lib/privacy/session.ts [Client Component Browser]
+    ./src/lib/api.ts [Client Component Browser]
+    ./src/components/PresentView.tsx [Client Component Browser]
+    ./src/components/PresentView.tsx [Server Component]
+    ./src/app/present/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/lib/privacy/session.ts [Client Component SSR]
+    ./src/lib/api.ts [Client Component SSR]
+    ./src/components/PresentView.tsx [Client Component SSR]
+    ./src/components/PresentView.tsx [Server Component]
+    ./src/app/present/page.tsx [Server Component]
+
+
+    at ignore-listed frames

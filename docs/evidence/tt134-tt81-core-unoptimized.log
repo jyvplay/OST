@@ -1,0 +1,34 @@
+  ✓ S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates
+  ✓ S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula
+  ✓ S3 deterministic independent frequency-map oracle on 240 integer vectors
+  ✓ S4 all 17 legacy MODE cells agree with Excel cached results in the Apache POI fixture (includes M936)
+  ✓ S5 all 4158 cells across all 4 sheets of FormulaEvalTestData_Copy.xlsx agree with Excel cached values (includes G716, D872, E872, M936)
+  ✓ L1 literal case/scope, groups and tables; no notes/master/package false hits
+  ✓ L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical
+  ✓ L3 one-step snapshot undo/redo, deletion, repeated replacement, literal dollar and unicode; paragraph boundaries
+  ✓ L4 hard breaks and dynamic fields block matching, replacement explosion refused before mutation
+  ✓ P1 custom box geometry exact all rotations, negative crop origin and edge boxes
+  ✓ P2 refuse NaN, infinities, zero, negative, off-page, malformed geometry before signing
+  ✗ P3 signed custom boxes: pyHanko intact/valid, pypdf Rect and PDFium visible pixels within displayed box on four rotations
+    Command failed: /home/user/.cache/ost-tools/venv/bin/python -c 
+import sys,json,asyncio
+from pypdf import PdfReader
+from pyhanko.pdf_utils.reader import PdfFileReader
+from pyhanko.sign.validation import validate_pdf_signature
+import pypdfium2 as p
+r=PdfReader(sys.argv[1]); rect=list(map(float,r.pages[0]['/Annots'][0].get_object()['/Rect']))
+with open(sys.argv[1],'rb') as f:
+ s=validate_pdf_signature(PdfFileReader(f).embedded_signatures[0]); assert s.intact and s.valid
+pdf=p.PdfDocument(sys.argv[1]); pdf.init_forms(); image=pdf[0].render(scale=1,may_draw_forms=True).to_pil().convert('RGB')
+pts=[(x,y) for y in range(image.height) for x in range(image.width) if min(image.getpixel((x,y)))<230]
+assert pts,'no signature ink'
+print(json.dumps({'rect':rect,'ink':[min(x for x,y in pts),min(y for x,y in pts),max(x for x,y in pts),max(y for x,y in pts)]}))
+ /tmp/tt81-l5LETV/sig0.pdf
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+ModuleNotFoundError: No module named 'pyhanko'
+
+  ✓ P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink
+
+12 passed, 1 failed
+FAILED: P3 signed custom boxes: pyHanko intact/valid, pypdf Rect and PDFium visible pixels within displayed box on four rotations

@@ -9,6 +9,7 @@
 import { type Browser, type Locator, type Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
+import { expect } from "playwright/test";
 import { PATHS, TRANSFORMS } from "./svg-corpus.mts";
 import { containsPoint, distanceToPath, parsePath, pathBounds, pathLength, parseTransform, type Seg } from "../src/lib/vector/path.ts";
 import { exportSvg, importSvg, migrate } from "../src/lib/vector/model.ts";
@@ -162,7 +163,7 @@ async function openStudio(path?: string): Promise<Studio> {
   return { page, root, svg, attr, at, drag, click, tool, bbox, d, key, close: () => ctx.close() };
 }
 const boxIs = (b: number[] | null, e: number[], tol: number, m: string) => { ok(b, `${m}: nothing selected`); e.forEach((v, i) => close(b![i], v, tol, `${m} [${i}]`)); };
-const waitMsg = async (s: Studio, re: RegExp) => { for (let i = 0; i < 100; i++) { const t = await s.root.locator('[data-testid="vector-message"]').innerText(); if (re.test(t)) return t; await s.page.waitForTimeout(100); } throw new Error(`message never matched ${re}`); };
+const waitMsg = async (s: Studio, re: RegExp) => { const message = s.root.getByTestId("vector-message"); await expect(message).toHaveText(re, { timeout: 10_000 }); return message.innerText(); };
 const lastSid = async (s: Studio) => (await s.attr("selected"))!.split(",").pop()!;
 
 await test("UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard", { "FF-32": "full", "FF-25": "full" }, async () => {
@@ -282,7 +283,7 @@ await test("UI: hostile SVG via Files deep link — report lists drops, no scrip
   } finally { await s.close(); }
 });
 
-await test("UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid PNG at doc size)", { "FF-32": "full", "FF-25": "full" }, async () => {
+await test("UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid 2× PNG at the declared export size)", { "FF-32": "full", "FF-25": "full" }, async () => {
   const s = await openStudio();
   try {
     const title = `${RUN}-art`;
@@ -291,7 +292,7 @@ await test("UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable
     await s.root.getByLabel("Fill type").selectOption("+");
     await s.root.getByRole("button", { name: "Save .fsvg" }).click(); await waitMsg(s, /saved \/Documents\//);
     await s.root.getByRole("button", { name: "Export SVG" }).click(); await waitMsg(s, /exported \/Pictures\/.*\.svg/);
-    await s.root.getByRole("button", { name: "Export PNG" }).click(); await waitMsg(s, /exported \/Pictures\/.*\.png \(800×600\)/);
+    await s.root.getByRole("button", { name: "Export PNG" }).click(); await waitMsg(s, /exported \/Pictures\/.*\.png \(1600×1200 at 2×\)/);
     const f = await api("GET", `/api/fs?op=read&path=${encodeURIComponent(`/Documents/${title}.fsvg`)}`);
     const saved = migrate(JSON.parse(f.json.node.content));
     ok(saved.shapes.length === 5 && saved.gradients.length === 2, `fsvg content: ${saved.shapes.length} shapes, ${saved.gradients.length} gradients`);
@@ -299,7 +300,7 @@ await test("UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable
     const re = importSvg(svg.json.node.content); ok(re.dropped.length === 0, `export not clean: ${re.dropped}`); ok(re.doc.shapes.length === 6, "background + 5 shapes");
     const png = await api("GET", `/api/fs?op=read&path=${encodeURIComponent(`/Pictures/${title}.png`)}`);
     const bytes = Buffer.from(png.json.node.content, png.json.node.encoding === "base64" ? "base64" : "utf8");
-    ok(bytes.subarray(1, 4).toString() === "PNG" && bytes.readUInt32BE(16) === 800 && bytes.readUInt32BE(20) === 600, "PNG header/size");
+    ok(bytes.subarray(1, 4).toString() === "PNG" && bytes.readUInt32BE(16) === 1600 && bytes.readUInt32BE(20) === 1200, "PNG header/size");
   } finally { await s.close(); }
   const r = await openStudio(`/Documents/${RUN}-art.fsvg`);
   try { await waitMsg(r, /opened/); ok((await r.attr("shapes")) === "5", `reopened ${await r.attr("shapes")} shapes`); } finally { await r.close(); }

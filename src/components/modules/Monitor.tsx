@@ -19,7 +19,12 @@ export default function MonitorModule(_: ModuleProps) {
   const [jobSort, setJobSort] = useState<JobSort>("newest");
   const [inflightOnly, setInflightOnly] = useState(false);
   const [log, setLog] = useState<LogRow[]>([]);
-  const [mem, setMem] = useState<string>("measuring…");
+  const [mem, setMem] = useState<string>(() => {
+    const perf = performance as Performance & { measureUserAgentSpecificMemory?: unknown; memory?: { usedJSHeapSize: number; jsHeapSizeLimit: number } };
+    return perf.measureUserAgentSpecificMemory ? "measuring…" : perf.memory
+      ? `${fmtBytes(perf.memory.usedJSHeapSize)} of ${fmtBytes(perf.memory.jsHeapSizeLimit)} (performance.memory — Chromium estimate)`
+      : "no memory measurement API in this browser";
+  });
   const [quota, setQuota] = useState<string>("");
 
   useEffect(() => {
@@ -40,10 +45,6 @@ export default function MonitorModule(_: ModuleProps) {
       perf.measureUserAgentSpecificMemory()
         .then((m) => setMem(`${fmtBytes(m.bytes)} (measureUserAgentSpecificMemory — cross-origin isolated)`))
         .catch((e) => setMem(`unavailable: ${String((e as Error).message)}`));
-    } else if (perf.memory) {
-      setMem(`${fmtBytes(perf.memory.usedJSHeapSize)} of ${fmtBytes(perf.memory.jsHeapSizeLimit)} (performance.memory — Chromium estimate)`);
-    } else {
-      setMem("no memory measurement API in this browser");
     }
     navigator.storage?.estimate?.()
       .then((e) => setQuota(`${fmtBytes(e.usage ?? 0)} of ${fmtBytes(e.quota ?? 0)} origin quota`))

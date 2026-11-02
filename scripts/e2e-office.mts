@@ -7,6 +7,7 @@
 import { type Browser, type Locator, type Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
+import { bannerClick, bannerTestId } from "./banner-click.mts";
 
 const BASE = process.env.BASE ?? "http://localhost:3999";
 const RUN = `x${Date.now().toString(36)}`;
@@ -20,14 +21,20 @@ const api = async (method: string, path: string, body?: unknown) => {
 async function resetDesktop() {
   const cur = await api("GET", "/api/state?id=default");
   const rev = Number(cur.json.row?.revision ?? 1) + 1000;
-  await api("PUT", "/api/state", { id: "default", revision: rev, state: { windows: [], focus: null, workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, nextZ: 10, viewport: { w: 1440, h: 900 }, icons: [], focusMode: false, revision: rev } });
+  const reset = await api("PUT", "/api/state", { id: "default", revision: rev, state: { windows: [], focus: null, workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, nextZ: 10, viewport: { w: 1440, h: 900 }, icons: [], focusMode: false, revision: rev } });
+  eq(reset.status, 200, "reset saved desktop");
+  eq((await api("GET", "/api/state?id=default")).json.row.state.windows, [], "empty desktop was actually persisted");
 }
 
 const browser: Browser = await launchChromium();
 const errors: string[] = [];
+const live = new Set<import("playwright").BrowserContext>();
 async function openSheet(path?: string): Promise<{ page: Page; dlg: Locator; cell: (ref: string) => Locator; close: () => Promise<void> }> {
+  // A failed case must not leave a second browser writing the shared desktop.
+  for (const context of live) await context.close();
   await resetDesktop();
   const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
+  live.add(ctx); ctx.on("close", () => live.delete(ctx));
   await ctx.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
   const page = await ctx.newPage();
   page.on("pageerror", (e) => errors.push(e.message));
@@ -36,26 +43,13 @@ async function openSheet(path?: string): Promise<{ page: Page; dlg: Locator; cel
   await dlg.waitFor({ state: "visible", timeout: 20_000 });
   // maximise for room: double-click the title bar if supported; otherwise just use the default rect
   await dlg.locator('[data-testid="sheet-grid"]').waitFor({ timeout: 20_000 });
+  eq(await page.getByRole("dialog", { name: "Spreadsheet", exact: true }).count(), 1, "one native Spreadsheet window after verified reset");
   const cell = (ref: string) => dlg.locator(`[data-cell="${ref}"]`);
   return { page, dlg, cell, close: () => ctx.close() };
 }
 const text = async (l: Locator) => (await l.innerText()).trim();
 
-/**
- * TT114: a banner tool is not always on the strip. When the window is narrower than the tools
- * need, the banner folds the tail into the "More" menu — the control stays in the DOM but is
- * visibility:hidden, so a plain click waits forever. A person reaches it through More; so does
- * this. The menu label is the control's short visible text, which is why it is passed separately,
- * and a toggle is mirrored as a menuitemcheckbox rather than a menuitem.
- */
-async function tool(page: Page, dlg: Locator, name: string | RegExp, inMenu?: string | RegExp) {
-  const direct = dlg.getByRole("button", { name }).first();
-  if (await direct.isVisible().catch(() => false)) { await direct.click(); return; }
-  await dlg.getByRole("button", { name: /^More/ }).first().click();
-  const wanted = inMenu ?? name;
-  const item = page.getByRole("menuitem", { name: wanted }).or(page.getByRole("menuitemcheckbox", { name: wanted }));
-  await item.first().click();
-}
+const tool = bannerClick;
 
 await test("sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet", { "FF-28": "full", "FF-26": "partial", "FF-19": "partial" }, async () => {
   const { dlg, cell, close } = await openSheet();
@@ -154,6 +148,7 @@ await test("sort by active column keeps header + moves row formulas; insert row 
   await cell("A3").click();
   await tool(page, dlg, "Insert rows above selection", "+Row");
   eq(await text(cell("A3")), ""); eq(await text(cell("D6")), "$79.00");
+  ok(await dlg.evaluate(root => root.contains(document.activeElement)), "More command must restore focus inside this workbook, not body/the shell");
   await page.keyboard.press("Control+f");
   await dlg.getByLabel("Find", { exact: true }).fill("gadget"); await dlg.getByLabel("Find", { exact: true }).press("Enter");
   eq((await dlg.locator('[data-testid="name-box"]').inputValue()), "Sheet1!A5");
@@ -176,7 +171,9 @@ await test("column resize by dragging the header edge; frozen header row stays v
   const { page, dlg, cell, close } = await openSheet();
   const before = (await cell("A2").boundingBox())!.width;
   const hb = (await dlg.locator('[data-testid="resize-A"]').boundingBox())!;
-  await page.mouse.move(hb.x + 3, hb.y + 5); await page.mouse.down(); await page.mouse.move(hb.x + 63, hb.y + 5, { steps: 4 }); await page.mouse.up();
+  const x = hb.x + hb.width / 2, y = hb.y + hb.height / 2;
+  ok(await dlg.getByTestId("resize-A").evaluate((handle, point) => handle.contains(document.elementFromPoint(point.x, point.y)), { x, y }), "resize handle must be the real native hit target");
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 60, y, { steps: 4 }); await page.mouse.up();
   const after = (await cell("A2").boundingBox())!.width;
   ok(Math.abs(after - before - 60) <= 2, `width ${before} → ${after}`);
   const grid = dlg.locator('[data-testid="sheet-grid"]');

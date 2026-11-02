@@ -1,4 +1,5 @@
 "use client";
+import { clearRamNoteDrafts } from "../note-drafts";
 /**
  * Browser privacy session (TT18): owns the single PrivacyLayer, installs it as a global fetch guard
  * BEFORE any module runs, and manages the Tails-like lifecycle:
@@ -151,7 +152,12 @@ class PrivacySession {
   async refreshHeader() {
     try {
       const r = await this.raw()(`/api/fs?op=read&path=${encodeURIComponent(KEYSLOT_PATH)}`, { cache: "no-store" });
-      if (r.status === 404) { this.header = null; this.storage = "absent"; }
+      if (r.status === 404) {
+        // Consume the real response even when its payload is unneeded. In the
+        // shipped Chromium runtime, leaving it unread retains a pending fetch
+        // and prevents network quiescence (TT133 native-browser witness).
+        await r.arrayBuffer(); this.header = null; this.storage = "absent";
+      }
       else {
         const b = (await r.json()) as { ok: boolean; node?: { content: string } };
         if (!b.ok || !b.node) { this.header = null; this.storage = "absent"; }
@@ -218,6 +224,7 @@ class PrivacySession {
 
   /* -------------------------------------------------------------- emergency */
   private wipeMemory() {
+    clearRamNoteDrafts();
     if (this.layer) { this.layer.keys = null; this.layer.dropPrivateIndex(); this.layer.ram.wipe(); this.layer.ramState.clear(); this.layer.blocked.length = 0; }
     this.shadow.clear();
     this.header = null;
